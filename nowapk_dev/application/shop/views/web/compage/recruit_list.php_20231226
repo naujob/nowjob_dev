@@ -1,0 +1,96 @@
+<div id="content" class="page page-mypage">
+    <main class="page-content">
+        <div class="container">
+        	<?php $tab_on = "tab2";?>
+            <?php $tab_on2 = "menu1";?>
+            <?php include_once (get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
+            <div class="tab-panel on">
+
+                <div class="manage-my-content">
+                    <form action="/">
+                        <h3 class="sr-text">채용공고 관리</h3>
+                        <div class="board-wrap">
+                            <table class="board-list">
+                                <colgroup><col><col style="width:12%"><col style="width:11%"><col></colgroup>
+                                <tbody>
+                                    <?php foreach($recruit_list as $row) : ?>
+                                    <tr>
+                                        <td class="selectable-item">
+                                            <label class="form-checkbox lg">
+                                                <input type="checkbox" name="rc_show_yn[]"  value="<?=$row["rc_idx"]?>" data-rc_name="<?=$row["rc_name"]?>" <?=$row["rc_show_yn"]=="Y" ? "checked":""?> >
+                                                <span class="label"><?=$row["rc_name"]?></span>
+                                                <span class="sr-text">선택</span>
+                                            </label>
+                                            <?php if($row["rc_show_yn"]=="Y") : ?>
+                                            	<em class="important-label">공개</em>
+                                            <?php else : ?>
+                                            	<em class="disabled-label">비공개</em>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="status">진행중</td>
+                                        <td class="regdate"><?=get_yyyymmdd($row["rc_sdate"])?> ~ <?=get_yyyymmdd($row["rc_edate"])?></td>
+                                        <td class="action">
+                                            <a href="/compage/recruit_view/<?=$row["rc_idx"]?>" class="btn">상세보기</a>
+                                            <!-- <a href="/compage/recruit_write/<?=$row["rc_idx"]?>" class="btn">재등록</a> -->
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+        
+                        <p class="help-msg">채용공고 등록은 최대 10개까지만 가능합니다.<br> 채용공고기간이 3개월지날시 자동삭제됩니다.</p>
+        
+                        <div class="form-action-wrap align-right">
+                            <button id="btnDefault" type="button" class="btn-round btn-tertiary">공개 채용공고로 설정</button>
+                        </div>
+                        
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main><!-- //page-content -->
+</div><!-- //page -->
+
+
+<script>
+	$(document).ready(function(){
+		//디폴트 설정
+		$("#btnDefault").click(function(){
+			var rc_idx_list = "";
+			if($("[name='rc_show_yn[]']:checked").length ==0){
+				commonAlert("공개 채용공고로 설정하실 공고를 선택해주세요.",function(){});
+				return;
+			}
+			
+			for(var icnt=0;icnt < $("[name='rc_show_yn[]']:checked").length;icnt++){
+				if(rc_idx_list==""){
+					rc_idx_list = $("[name='rc_show_yn[]']:checked").eq(icnt).val();
+				}else{
+					rc_idx_list += "," + $("[name='rc_show_yn[]']:checked").eq(icnt).val();
+				}
+			}
+			
+			openPopup('confirm', {
+                content:'<p>공개 채용공고로 설정 하시겠습니까?</p>', 
+                firstButton: '취소',
+                secondButton: '설정',
+                secondCallback: function () {
+                    var params = {};
+					params["rc_idx_list"] = rc_idx_list;
+					comAjax("/compage_proc/recruit_default",params,function(ret){
+		                if(ret.code=="00"){
+		                    location.reload();
+		                }else{
+		                    commonAlert(ret.msg,function(){});
+		                    return;
+		                }
+		            });
+                }
+            });
+		});
+	});
+</script>

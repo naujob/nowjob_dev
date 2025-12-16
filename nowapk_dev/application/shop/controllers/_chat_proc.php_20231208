@@ -1,0 +1,315 @@
+<?php
+    class Chat_proc extends CI_Controller{
+		function __construct() {
+	        parent::__construct();
+
+			$this->load->model('sitemodel','site_model');
+            $this->load->model('membermodel','member_model');
+			$this->load->model('commonmodel','common_model');
+            $this->load->model('settingmodel','setting_model');
+	    }
+
+		function get_chat_target_list(){
+			$data = [];
+
+            //데이터 설정
+            $mm_idx = $this->user->getUserIdx();
+			$params = [
+		        "pagesize" => 200,
+		        "page" => 1,
+                "mm_idx"=>$mm_idx,
+		    ];
+			$result = $this->member_model->getRequestRecruitList($params);
+
+			$temp_list = $result["list"];
+			foreach($temp_list as $key=>$row){
+	            $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
+	            $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
+	            $temp_list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"],"span",0);
+	            $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"],0);
+	            $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"],1);
+	            $temp_list[$key]["ru_week"] = getWeekYoil($row["ru_week"]);
+			}
+			$list = $temp_list;
+
+            json_return("00","조회성공",["list"=>$list]);
+		}
+		
+		# 즐겨찾기 처리
+		function insert_room_check(){
+			$rm_type = input_post("rm_type","");
+			$rm_idx = input_post("rm_idx","");
+			$rc_idx = input_post("rc_idx","");
+			$ru_idx = input_post("ru_idx","");
+			$td_idx = input_post("td_idx","");
+			$mm_idx = $this->user->getUserIdx();
+
+			if($this->user->isLogin()==false){
+				json_return("10","로그인후 이용해주세요.");
+			}
+			
+			$info = [
+				"rm_type"=>$rm_type,
+				"rm_idx"=>$rm_idx,
+				"rc_idx"=>$rc_idx,
+				"ru_idx"=>$ru_idx,
+				"td_idx"=>$td_idx,
+				"mm_idx"=>$mm_idx,
+			];
+
+			if($rm_type=="recruit"){
+				$chk = $this->common_model->getRoom(["rm_type"=>$rm_type,"ru_idx"=>$ru_idx,"rc_idx"=>$rc_idx]);
+				if($chk!=null){
+					json_return("00","이미있음",["rm_idx"=>$chk["rm_idx"],"first_yn"=>"N"]);
+				}
+			}else if($rm_type=="trade"){
+				$chk = $this->common_model->getRoom(["rm_type"=>$rm_type,"td_idx"=>$td_idx,"mm_idx"=>$mm_idx]);
+				if($chk!=null){
+					json_return("00","이미있음",["rm_idx"=>$chk["rm_idx"],"first_yn"=>"N"]);
+				}
+			}
+			
+			# 리쿨트일때만 실행한다.
+            if($rm_type=="recruit"){
+                # 포인트 정보
+                $point_info = $this->setting_model->getCodeInfo(["cd_grp"=>"채팅포인트","cd_key"=>"CHAT_POINT"]);
+
+                # 회원 포인트 정보
+                $mem_info = $this->member_model->getMember(["mm_idx"=>$mm_idx]);
+
+                if($mem_info["mm_point"] < $point_info["cd_val3"]){
+                    json_return("90","포인트가 부족하여 채팅을 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "<br/>사용포인트 : " . $point_info["cd_val3"]);
+                }
+            }
+
+			json_return("00","채팅가능",["first_yn"=>"Y"]);
+		}
+
+		# 즐겨찾기 처리
+		function insert_room(){
+			$rm_type = input_post("rm_type","");
+			$rm_idx = input_post("rm_idx","");
+			$rc_idx = input_post("rc_idx","");
+			$ru_idx = input_post("ru_idx","");
+			$td_idx = input_post("td_idx","");
+			$mm_idx = $this->user->getUserIdx();
+
+			if($this->user->isLogin()==false){
+				json_return("10","로그인후 이용해주세요.");
+			}
+
+			$info = [
+				"rm_type"=>$rm_type,
+				"rm_idx"=>$rm_idx,
+				"rc_idx"=>$rc_idx,
+				"ru_idx"=>$ru_idx,
+				"td_idx"=>$td_idx,
+				"mm_idx"=>$mm_idx,
+			];
+
+			if($rm_type=="recruit"){
+				$chk = $this->common_model->getRoom(["rm_type"=>$rm_type,"ru_idx"=>$ru_idx,"rc_idx"=>$rc_idx]);
+				if($chk!=null){
+					json_return("00","생성완료",["rm_idx"=>$chk["rm_idx"],"first_yn"=>"N"]);
+				}
+			}else if($rm_type=="trade"){
+				$chk = $this->common_model->getRoom(["rm_type"=>$rm_type,"td_idx"=>$td_idx,"mm_idx"=>$mm_idx]);
+				if($chk!=null){
+					json_return("00","생성완료",["rm_idx"=>$chk["rm_idx"],"first_yn"=>"N"]);
+				}
+			}
+
+            # 리쿨트일때만 실행한다.
+            if($rm_type=="recruit"){
+                # 포인트 정보
+                $point_info = $this->setting_model->getCodeInfo(["cd_grp"=>"채팅포인트","cd_key"=>"CHAT_POINT"]);
+
+                # 회원 포인트 정보
+                $mem_info = $this->member_model->getMember(["mm_idx"=>$mm_idx]);
+
+                if($mem_info["mm_point"] < $point_info["cd_val3"]){
+                    json_return("90","포인트가 부족하여 채팅을 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "<br/>사용포인트 : " . $point_info["cd_val3"]);
+                }
+
+                # 포인트 차감
+                $last_point = $mem_info["mm_point"] - $point_info["cd_val3"];
+                $insert = [
+                    "mm_idx" => $mm_idx,
+                    "o_num"=>"",
+                    "pm_idx"=>$rm_idx,
+                    "pt_type" => "CHAT",
+                    "pl_type" => "minus",
+                    "pl_point" => $point_info["cd_val3"],
+                    "pl_last_point" => $last_point,
+                    "pl_desc" => "채팅시작(".$point_info["cd_val3"]."P차감)",
+                    "reg_id" => "system",
+                ];
+                $result_point = $this->site_model->insertPointList($insert);
+
+                if($result_point["code"]!="00"){
+                    $this->db->trans_rollback();
+                    json_return("92","포인트 차감시 문제가 발생하였습니다. 관리자에 문의 바랍니다.");
+                }else{
+                	$this->member_model->updateMember(["mm_point"=>$last_point],["mm_idx"=>$mm_idx]);
+                }
+            }
+
+            $info["point_yn"] = "Y";
+			$result = $this->common_model->insertRoom($info);
+			if($result["code"]=="00"){
+				json_return("00","생성완료",["rm_idx"=>$result["key"],"first_yn"=>"Y"]);
+			}else{
+				json_return("90","채팅방 생성시 오류가 발생하였습니다.다시 시도해주세요.");
+			}
+		}
+
+		function set_status(){
+			$rm_idx = input_post("rm_idx","");
+			$rm_status = input_post("rm_status","");
+			$rm_dt = input_post("rm_dt","");
+			$mm_idx = $this->user->getUserIdx();
+
+			# 상태 업데이트
+			$this->common_model->updateRoom(["rm_status"=>$rm_status],["rm_idx"=>$rm_idx]);
+
+			if($rm_status=="면접일정확인"){
+				$this->common_model->updateRoom(["rm_itv_dt"=>$rm_dt],["rm_idx"=>$rm_idx]);
+			}else if($rm_status=="채용일정확인"){
+				$this->common_model->updateRoom(["rm_rec_dt"=>$rm_dt],["rm_idx"=>$rm_idx]);
+			}else if($rm_status=="개인면접수락"){
+                # 룸정보 획득
+				$room = $this->common_model->getRoom(["rm_idx"=>$rm_idx]);
+
+				# 인터뷰 등록자 여부 확인후 처리한다.
+				$info = $this->common_model->getInterview(["ru_idx"=>$room["ru_idx"],"rc_idx"=>$room["rc_idx"]]);
+
+				//추가정보 조회
+				if($info==null){
+					$recruit = $this->member_model->getRecruit(["rc_idx"=>$room["rc_idx"]]);
+					$resume = $this->member_model->getResume(["ru_idx"=>$room["ru_idx"]]);
+
+					//면접일 확정되면 인터뷰 등록처리
+					$iv_data = [
+						"rc_idx"=>$recruit["rc_idx"],
+						"rc_mm_idx"=>$recruit["mm_idx"],
+						"ru_idx"=>$resume["ru_idx"],
+						"ru_mm_idx"=>$resume["mm_idx"],
+						"iv_status"=>"면접확정",
+						"iv_req_dt"=>$room["rm_itv_dt"],
+					];
+					$this->common_model->insertInterview($iv_data);
+				}else{
+
+					//면접일 확정되면 인터뷰 등록처리
+					$iv_data = [
+						"iv_status"=>"면접확정",
+						"iv_req_dt"=>$room["rm_itv_dt"],
+					];
+					$this->common_model->updateInterview($iv_data,["iv_idx"=>$info["iv_idx"] ,"iv_status"=>"면접확정"]);
+				}
+            }else if($rm_status=="면접취소"){
+                # 룸정보 획득
+				$room = $this->common_model->getRoom(["rm_idx"=>$rm_idx]);
+
+                # 인터뷰 등록자 여부 확인후 처리한다.
+				$info = $this->common_model->getInterview(["ru_idx"=>$room["ru_idx"],"rc_idx"=>$room["rc_idx"]]);
+
+                if($info!=null){
+					$iv_data = [
+						"iv_status"=>"면접취소",
+					];
+					$this->common_model->updateInterview($iv_data,["iv_idx"=>$info["iv_idx"] ,"iv_status"=>"면접확정"]);
+				}
+            }else if($rm_status=="채용취소"){
+                # 룸정보 획득
+				$room = $this->common_model->getRoom(["rm_idx"=>$rm_idx]);
+
+                # 인터뷰 등록자 여부 확인후 처리한다.
+				$info = $this->common_model->getInterview(["ru_idx"=>$room["ru_idx"],"rc_idx"=>$room["rc_idx"]]);
+
+                if($info!=null){
+					$iv_data = [
+						"iv_status"=>"채용취소",
+					];
+					$this->common_model->updateInterview($iv_data,["iv_idx"=>$info["iv_idx"] ,"iv_status"=>"면접확정"]);
+				}
+            }
+
+			# 히스토리 등록
+			$this->common_model->insertRoomHistory(["rm_idx"=>$rm_idx,"mm_idx"=>$mm_idx,"rh_status"=>$rm_status]);
+
+		}
+
+		# 중고상품 채팅상세
+        function get_chat_info(){
+            $data = [];
+
+			$mm_idx = $this->user->getUserIdx();
+			$rm_idx = input_post("rm_idx");
+            $mm_type = input_post("mm_type");
+
+			# 룸정보 가져오기
+			$room = $this->common_model->getRoom(["rm_idx"=>$rm_idx]);
+			if($room["rm_type"]=="recruit"){
+                if($mm_type=="MEM"){
+                    $info = $this->member_model->getRecruitDetail($room["rc_idx"],$mm_idx);
+
+                    $info["type"] = "recruit";
+                    $info["rt_recruit_img"] = getRecruitImg($info);
+                    $info["rt_work_img"] = getWorkingImg($info["rc_work"]);
+                    $info["rt_work_type"] = getWorkType($info["rc_work_type"]);
+                    $info["rt_price_type"] = getPriceType($info["rc_price_type"]);
+                    $info["rt_price_info"] = getPriceType($info["rc_price_type"],"amount");
+                    $info["rt_price"] = getRecuitPrice($info);
+                    $info["rt_week"] = getWeekYoil($info["rc_week"]);
+                    $info["rt_date"] = substr($info["rc_sdate"],0,10) . " ~ " . substr($info["rc_edate"],0,10);
+                    $info["recruit_phone"] = $info["mm_phone"];
+                    $info["recruit_name"] = $info["mm_comp_name"];
+
+                    if(strpos($info["rc_work_type"],"2교대")!==false){
+                        $info["rt_time"] = $info["rc_am_stime"] . "~" . $info["rc_am_etime"] . "(주간)";
+                        $info["rt_time"] .= $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"] . "(야간)";
+                    }else if(strpos($info["rc_work_type"],"주간")!==false && strpos($info["rc_work_type"],"2교대")===false){
+                        $info["rt_time"] = $info["rc_am_stime"] . "~" . $info["rc_am_etime"] . "(주간)";
+                    }else if(strpos($info["rc_work_type"],"야간")!==false && strpos($info["rc_work_type"],"2교대")===false){
+                        $info["rt_time"] = $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"] . "(야간)";
+                    }
+                }else{
+                    $recruit = $this->member_model->getRecruitDetail($room["rc_idx"],$mm_idx);
+
+                    $info = $this->member_model->getResumeDetail($room["ru_idx"],$mm_idx);
+                    $info["career_list"] = $this->member_model->getResumeCareerList(["ru_idx"=>$room["ru_idx"]]);
+        			$info["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx"=>$room["ru_idx"]]);
+
+                    $info["type"] = "recruit";
+                    $info["rc_idx"] = $room["rc_idx"];
+                    $info["ru_resume_img"] = getResumeImg($info);
+                    $info["ru_work_img"] = getWorkingImg($info["ru_work"]);
+                    $info["ru_work_type"] = getWorkType($info["ru_work_type"],"em",0);
+                    $info["ru_price_type"] = getPriceType($info["ru_price_type"],"span",0);
+                    $info["ru_my_type"] = getMyType($info["ru_my_type"],1);
+                    $info["ru_week"] = getWeekYoil($info["ru_week"]);
+
+                    $info["recruit_phone"] = $recruit["mm_phone"];
+                    $info["recruit_name"] = $recruit["mm_comp_name"];
+                }
+			}else{
+				$info = $this->site_model->getTrade(["td_idx"=>$room["td_idx"]]);
+				$mem_info = $this->member_model->getMember(["mm_idx"=>$info["mm_idx"]]);
+				$info["mm_name"] = $mem_info["mm_name"];
+				
+				$addr_list = $this->member_model->getAddressList(["ad_type"=>"TRADE","ad_key"=>$room["td_idx"]]);
+
+				$area = "";
+				foreach($addr_list as $key=>$row) {
+	                $area .= ($key==0 ? "":","). $row["ad_addr"];
+				}
+
+				$info["type"] = "trade";
+				$info["td_area"] = $area;
+				$info["reg_dt"] = substr($info["reg_dt"],0,10);
+			}
+			json_return("00","조회완료",$info);
+        }
+    }
+?>

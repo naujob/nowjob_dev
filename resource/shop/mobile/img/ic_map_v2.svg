@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="101" height="101" viewBox="0 0 101 101">
+  <g id="지도" transform="translate(9446 11796)">
+    <g id="그룹_8747" data-name="그룹 8747" transform="translate(-9446 -11795.617)">
+      <g id="그룹_8744" data-name="그룹 8744" transform="translate(0 -0.383)">
+        <path id="패스_124847" data-name="패스 124847" d="M50.5,0A50.5,50.5,0,1,1,0,50.5,50.5,50.5,0,0,1,50.5,0Z" fill="#1b9d7d"/>
+        <g id="그룹_8631" data-name="그룹 8631" transform="translate(24.72 25.812)">
+          <path id="패스_167" data-name="패스 167" d="M335.383,128.539h9.083l10.218,16.131v3.457H302.459V144.67l9.083-16.131h10.218" transform="translate(-302.459 -101.979)" fill="none" stroke="#fff" stroke-linejoin="round" stroke-width="4"/>
+          <path id="패스_168" data-name="패스 168" d="M322.566,115.1h.015a4.61,4.61,0,0,1,.014,9.218h-.041a4.61,4.61,0,0,1,.012-9.218Z" transform="translate(-296.462 -106.972)" fill="#fff"/>
+          <path id="패스_169" data-name="패스 169" d="M324.761,109.173a12.5,12.5,0,0,1,12.407,12.592,13.21,13.21,0,0,1-2.121,7.827c-1.684,2.734-10.286,15.418-10.286,15.418s-8.6-12.684-10.286-15.418a13.209,13.209,0,0,1-2.121-7.827A12.5,12.5,0,0,1,324.761,109.173Z" transform="translate(-298.648 -109.173)" fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="4"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

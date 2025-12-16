@@ -1,0 +1,24 @@
+[2025-10-31 08:57:05] [FCM] FCM 함수 시작 | DATA: {"info":{"title":"NowJob 채용정보 알림","body":"즐겨찾기하신 원아웃소싱에서 일자리를 등록 했습니다.","img":"","url":""},"token_count":1}
+[2025-10-31 08:57:05] [FCM] Firebase Access Token 생성 시작 | DATA: {"file":".\/firebase-service-account.json"}
+[2025-10-31 08:57:05] [FCM] Firebase Access Token 생성 성공 | DATA: {"expires_in":3599}
+[2025-10-31 08:57:05] [FCM] FCM 토큰이 비어있음 - 건너뜀 | DATA: {"token":null}
+[2025-10-31 08:57:05] [FCM] FCM 메시지 전송 시작 | DATA: {"message_count":0}
+[2025-10-31 08:57:05] [FCM] FCM 최종 결과 | DATA: {"overall_success":false,"success_count":0,"fail_count":0,"total_count":0,"results":[]}
+[2025-10-31 09:09:14] [FCM] FCM 함수 시작 | DATA: {"info":{"title":"NowJob 채용정보 알림","body":"즐겨찾기하신 원아웃소싱에서 일자리를 등록 했습니다.","img":"","url":""},"token_count":1}
+[2025-10-31 09:09:14] [FCM] Firebase Access Token 생성 시작 | DATA: {"file":".\/firebase-service-account.json"}
+[2025-10-31 09:09:14] [FCM] Firebase Access Token 생성 성공 | DATA: {"expires_in":3599}
+[2025-10-31 09:09:14] [FCM] FCM 토큰이 비어있음 - 건너뜀 | DATA: {"token":null}
+[2025-10-31 09:09:14] [FCM] FCM 메시지 전송 시작 | DATA: {"message_count":0}
+[2025-10-31 09:09:14] [FCM] FCM 최종 결과 | DATA: {"overall_success":false,"success_count":0,"fail_count":0,"total_count":0,"results":[]}
+[2025-10-31 09:13:52] [FCM] FCM 함수 시작 | DATA: {"info":{"title":"NowJob 채용정보 알림","body":"즐겨찾기하신 원아웃소싱에서 일자리를 등록 했습니다.","img":"","url":""},"token_count":1}
+[2025-10-31 09:13:52] [FCM] Firebase Access Token 생성 시작 | DATA: {"file":".\/firebase-service-account.json"}
+[2025-10-31 09:13:52] [FCM] Firebase Access Token 생성 성공 | DATA: {"expires_in":3599}
+[2025-10-31 09:13:52] [FCM] FCM 토큰이 비어있음 - 건너뜀 | DATA: {"token":null}
+[2025-10-31 09:13:52] [FCM] FCM 메시지 전송 시작 | DATA: {"message_count":0}
+[2025-10-31 09:13:52] [FCM] FCM 최종 결과 | DATA: {"overall_success":false,"success_count":0,"fail_count":0,"total_count":0,"results":[]}
+[2025-10-31 09:19:54] [FCM] FCM 함수 시작 | DATA: {"info":{"title":"NowJob 채용정보 알림","body":"즐겨찾기하신 원아웃소싱에서 일자리를 등록 했습니다.","img":"","url":""},"token_count":1}
+[2025-10-31 09:19:54] [FCM] Firebase Access Token 생성 시작 | DATA: {"file":".\/firebase-service-account.json"}
+[2025-10-31 09:19:55] [FCM] Firebase Access Token 생성 성공 | DATA: {"expires_in":3599}
+[2025-10-31 09:19:55] [FCM] FCM 토큰이 비어있음 - 건너뜀 | DATA: {"token":null}
+[2025-10-31 09:19:55] [FCM] FCM 메시지 전송 시작 | DATA: {"message_count":0}
+[2025-10-31 09:19:55] [FCM] FCM 최종 결과 | DATA: {"overall_success":false,"success_count":0,"fail_count":0,"total_count":0,"results":[]}

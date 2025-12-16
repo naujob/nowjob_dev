@@ -1,0 +1,13 @@
+# 폴더 무시하기
+application/home/
+application/api/
+application/cache/
+application/design/
+application/vendor/
+application/common/config/
+phpmyadmin/
+resource/fonts/
+resource/home/
+resource/uploads/
+resource/vendor/
+application/common/config/database.php

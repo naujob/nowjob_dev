@@ -1,0 +1,2312 @@
+<?php
+class memberModel extends MY_Model {
+   	function __construct() {
+    	parent::__construct();
+	}
+
+
+	######################################
+	# nice 모률 처리 START
+	######################################
+	function getNiceEncData(){
+		$CI =& get_instance();
+	 	$CI->load->model('settingmodel','setting_model');
+
+		$nice_setting = $CI->setting_model->getSettingInfo(["st_group"=>"나이스인증"]);
+
+		# 본인인증 처리
+		$sitecode = $nice_setting["sitecode"];
+		$sitepasswd = $nice_setting["sitepasswd"];
+		$cb_encode_path = $nice_setting["path"];
+		$authtype = "";
+		$customize 	= "";
+		$reqseq = session_id();
+
+		# 세션 생성
+		$_SESSION["REQ_SEQ"] = $reqseq;
+
+		$reqseq = `$cb_encode_path SEQ $sitecode`;
+		$returnurl = $nice_setting["success"];;	// 성공시 이동될 URL
+		$errorurl = $nice_setting["fail"];;		// 실패시 이동될 URL
+
+		$_SESSION["REQ_SEQ"] = $reqseq;
+		$plaindata = "7:REQ_SEQ" . strlen($reqseq) . ":" . $reqseq .
+			 "8:SITECODE" . strlen($sitecode) . ":" . $sitecode .
+			 "9:AUTH_TYPE" . strlen($authtype) . ":". $authtype .
+			 "7:RTN_URL" . strlen($returnurl) . ":" . $returnurl .
+			 "7:ERR_URL" . strlen($errorurl) . ":" . $errorurl .
+			 "9:CUSTOMIZE" . strlen($customize) . ":" . $customize;
+
+		$enc_data = `$cb_encode_path ENC $sitecode $sitepasswd $plaindata`;
+
+		if( $enc_data == -1 )
+	    {
+	        $returnMsg = "암/복호화 시스템 오류입니다.";
+	        $enc_data = "";
+	    }
+	    else if( $enc_data== -2 )
+	    {
+	        $returnMsg = "암호화 처리 오류입니다.";
+	        $enc_data = "";
+	    }
+	    else if( $enc_data== -3 )
+	    {
+	        $returnMsg = "암호화 데이터 오류 입니다.";
+	        $enc_data = "";
+	    }
+	    else if( $enc_data== -9 )
+	    {
+	        $returnMsg = "입력값 오류 입니다.";
+	        $enc_data = "";
+	    }
+
+		return $enc_data;
+	}
+
+	function getNiceReturnData($type="success"){
+		$CI =& get_instance();
+	 	$CI->load->model('settingmodel','setting_model');
+
+		$nice_setting = $CI->setting_model->getSettingInfo(["st_group"=>"나이스인증"]);
+
+		$sitecode = $nice_setting["sitecode"];
+		$sitepasswd = $nice_setting["sitepasswd"];
+	    $cb_encode_path = $nice_setting["path"];
+
+	    $enc_data = $_REQUEST["EncodeData"];
+
+		$return = [
+			"code"=>"",
+			"msg"=>"",
+			"errcode"=>"",
+			"requestnumber"=>"",
+			"responsenumber"=>"",
+			"authtype"=>"",
+			"name"=>"",
+			"birthdate"=>"",
+			"gender"=>"",
+			"nationalinfo"=>"",
+			"dupinfo"=>"",
+			"conninfo"=>"",
+			"mobileno"=>"",
+			"mobileco"=>"",
+		];
+
+	    if(preg_match('~[^0-9a-zA-Z+/=]~', $enc_data, $match)) {
+	    	$return["code"] = "90";
+			$return["msg"] = "문자열 오류 발생";
+	    	return $return;
+	    }
+
+	    if(base64_encode(base64_decode($enc_data))!=$enc_data) {
+	    	$return["code"] = "91";
+			$return["msg"] = "인코딩 오류 발생";
+	    	return $return;
+		}
+
+		if ($enc_data != "") {
+	        $plaindata = `$cb_encode_path DEC $sitecode $sitepasswd $enc_data`;		// 암호화된 결과 데이터의 복호화
+
+	        if ($plaindata == -1){
+				$return["code"] = "92";
+				$return["msg"] = "암/복호화 시스템 오류";
+		    	return $return;
+	        }else if ($plaindata == -4){
+				$return["code"] = "92";
+				$return["msg"] = "복호화 처리 오류";
+		    	return $return;
+	        }else if ($plaindata == -5){
+				$return["code"] = "93";
+				$return["msg"] = "HASH값 불일치 - 복호화 데이터는 리턴됨";
+		    	return $return;
+	        }else if ($plaindata == -6){
+				$return["code"] = "93";
+				$return["msg"] = "복호화 데이터 오류";
+		    	return $return;
+	        }else if ($plaindata == -9){
+				$return["code"] = "93";
+				$return["msg"] = "입력값 오류";
+		    	return $return;
+	        }else if ($plaindata == -12){
+				$return["code"] = "93";
+				$return["msg"] = "사이트 비밀번호 오류";
+		    	return $return;
+	        }else{
+	        	if($type=="success"){
+	        		# 정상 처리
+		            $ciphertime = `$cb_encode_path CTS $sitecode $sitepasswd $enc_data`;
+
+		            $return["requestnumber"] = $this->getNiceValue($plaindata , "REQ_SEQ");
+		            $return["responsenumber"] = $this->getNiceValue($plaindata , "RES_SEQ");
+		            $return["authtype"] = $this->getNiceValue($plaindata , "AUTH_TYPE");
+		            $return["name"] = $this->getNiceValue($plaindata , "UTF8_NAME");
+		            $return["birthdate"] = $this->getNiceValue($plaindata , "BIRTHDATE");
+		            $return["gender"] = $this->getNiceValue($plaindata , "GENDER");
+		            $return["nationalinfo"] = $this->getNiceValue($plaindata , "NATIONALINFO");
+		            $return["dupinfo"] = $this->getNiceValue($plaindata , "DI");
+		            //$return["conninfo"] = $this->getNiceValue($plaindata , "CI");
+					$return["mobileno"] = $this->getNiceValue($plaindata , "MOBILE_NO");
+		            //$return["mobileco"] = $this->getNiceValue($plaindata , "MOBILE_CO");
+
+		            if(strcmp($_SESSION["REQ_SEQ"], $return["requestnumber"]) != 0){
+		                $return["code"] = "94";
+						$return["msg"] = "세션 정보 불일치";
+				    	return $return;
+		            }else{
+		            	$return["code"] = "00";
+						$return["msg"] = "처리 성공";
+				    	return $return;
+		            }
+	        	}else{
+	        		# 정상 처리
+		            $ciphertime = `$cb_encode_path CTS $sitecode $sitepasswd $enc_data`;
+
+		            $return["errcode"] = $this->getNiceValue($plaindata , "ERR_CODE");
+		            $return["authtype"] = $this->getNiceValue($plaindata , "AUTH_TYPE");
+		            $return["code"] = "97";
+					$return["msg"] = "본인인증 확인 실패하였습니다.[errorCode : ".$return["errcode"]."]";
+			    	return $return;
+	        	}
+	        }
+	    }
+	}
+
+	function getNiceValue($str,$name)
+    {
+    	try{
+	        $pos1 = 0;  //length의 시작 위치
+	        $pos2 = 0;  //:의 위치
+
+	        while( $pos1 <= strlen($str) )
+	        {
+	            $pos2 = strpos( $str , ":" , $pos1);
+	            $len = substr($str , $pos1 , $pos2 - $pos1);
+	            $key = substr($str , $pos2 + 1 , $len);
+	            $pos1 = $pos2 + $len + 1;
+	            if( $key == $name )
+	            {
+	                $pos2 = strpos( $str , ":" , $pos1);
+	                $len = substr($str , $pos1 , $pos2 - $pos1);
+	                $value = substr($str , $pos2 + 1 , $len);
+	                return $value;
+	            }
+	            else
+	            {
+	                // 다르면 스킵한다.
+	                $pos2 = strpos( $str , ":" , $pos1);
+	                $len = substr($str , $pos1 , $pos2 - $pos1);
+	                $pos1 = $pos2 + $len + 1;
+	            }
+	        }
+		}catch(Exception $ex){
+			return "";
+		}
+    }
+
+
+	######################################
+	# END nice 모률 처리
+	######################################
+
+
+
+	######################################
+	# 회원처리 START
+	######################################
+
+	# 주소 GPS정보 등록
+	function insertAddress($data){
+		return $this->db_insert("st_address",$data);
+	}
+
+	# 주소 GPS정보 수정
+	function updateAddress($data,$where){
+		return $this->db_update("st_address",$data,$where);
+	}
+
+	# 주소 GPS정보 수정
+	function getAddress($where){
+		return $this->db_row("st_address",$where);
+	}
+
+	# 주소 GPS정보 삭제
+	function deleteAddress($where){
+		return $this->db_delete("st_address",$where);
+	}
+
+	# 주소 GPS정보 수정
+	function getAddressList($where){
+		$addr_list = $this->db_list("st_address",$where,"*",["ad_idx"=>"desc"]);
+
+		foreach($addr_list as $key => $row){
+			if($row["ad_addr"]=="지역 선택 없음"){
+				unset($addr_list[$key]);
+			}
+		}
+
+		return $addr_list;
+	}
+
+    # 비회원 수정
+	function updateGuest($data,$where){
+		return $this->db_update("st_guest",$data,$where);
+	}
+
+	# 비회원 조회
+	function getGuest($where){
+		return $this->db_row("st_guest",$data,$where);
+	}
+
+	# 회원정보 조회 : 기본
+	function getMember($where){
+		return $this->db_row("st_member",$where);
+	}
+
+	# 회원추가정보 조회
+	function getMemberInfo($mm_idx){
+		$sql = "
+			select aa.*
+                ,mi.ma_age
+                ,ad.ad_addr
+                ,ifnull(bb.cnt,0) as req_cnt
+                ,ifnull(cc.cnt,0) as fav_cnt
+                ,ifnull(dd.cnt,0) as hit_cnt
+                ,ifnull(eval_num,5) as eval_num
+			FROM st_member aa
+				left join st_member_info mi
+					on aa.mm_idx = mi.mm_idx
+                left join (
+                	select mm_idx,count(*) as cnt
+                    FROM st_member_request
+                    group by mm_idx
+                ) bb on aa.mm_idx = bb.mm_idx
+                left join (
+                	select bb.mm_idx,count(*) as cnt
+                    FROM st_bookmark aa
+                        inner join st_resume bb
+                            on aa.bk_key = bb.ru_idx
+                    where aa.bk_type = 'RESUME'
+                    group by bb.mm_idx
+                ) cc on aa.mm_idx = cc.mm_idx
+                left join (
+                    select aa.mm_idx,sum(aa.ru_hit)  as cnt
+                    FROM st_resume aa
+                    group by aa.mm_idx
+                ) dd on aa.mm_idx = dd.mm_idx
+                left join (
+                    select ru_mm_idx
+                        ,sum(iv_non_cnt) as non_cnt
+                        ,sum(iv_abs_cnt) as abs_cnt
+                        ,sum(iv_lv_cnt) as lv_cnt
+                        ,ROUND(avg((case when iv_eval_yn = 'Y' then ((iv_eval_num1 + iv_eval_num2 + iv_eval_num3)/3) else 0 end)),1) as eval_num
+                        ,count(*) as cnt
+                    FROM st_interview
+                    group by ru_mm_idx
+                ) iv
+                    on aa.mm_idx = iv.ru_mm_idx
+         	left join st_address ad
+                on aa.mm_idx = ad.mm_idx and ad.ad_type = 'MEMBER'
+			where aa.mm_idx = '$mm_idx'
+		";
+
+		$query = $this->db->query($sql);
+		return $query->row_array();
+	}
+
+	# 회원정보 등록
+	function insertMember($data){
+		return $this->db_insert("st_member",$data);
+	}
+
+    # 회원정보 수정
+    function updateMember($data,$where){
+        # 업데이트 자동 추가
+        $data["up_dt"] = get_today();
+        return $this->db_update("st_member",$data,$where);
+    }
+
+	# 회원정보 등록
+	function insertMemberInfo($data){
+		return $this->db_insert("st_member_info",$data);
+	}
+
+	# 회원정보 등록
+	function insertMemberCareer($data){
+		return $this->db_insert("st_member_career",$data);
+	}
+
+	# 회원정보 등록
+	function insertMemberCerti($data){
+		return $this->db_insert("st_member_certi",$data);
+	}
+
+	function getMemberCareerList($where){
+		return $this->db_list("st_member_career",$where,"*",["mc_idx"=>"asc"]);
+	}
+
+	function getMemberCertiList($where){
+		return $this->db_list("st_member_certi",$where,"*",["mc_idx"=>"asc"]);
+	}
+
+	function isMemberDevice($where){
+		return $this->db_is_data("st_member_device",$where);
+	}
+
+	# 회원기기정보 조회
+	function getMemberDevice($where){
+		return $this->db_row("st_member_device",$where);
+	}
+
+	# 회원기기정보 조회
+	function deleteMemberDevice($where){
+		return $this->db_delete("st_member_device",$where);
+	}
+
+	# 회원기기정보 등록
+	function insertMemberDevice($data){
+		return $this->db_insert("st_member_device",$data);
+	}
+
+	# 회원기기정보 업데이트
+	function updateMemberDevice($data,$where){
+		return $this->db_update("st_member_device",$data,$where);
+	}
+
+	# 회원기기정보 업데이트
+	function setMemberDevice($data,$where){
+		if($this->isMemberDevice($where)==true){
+			$data["up_dt"] = get_today();
+			return $this->updateMemberDevice($data,$where);
+		}else{
+			return $this->insertMemberDevice($data);
+		}
+	}
+
+	//회원 리스트
+	function getMemberList($params)
+	{
+		//컬럼
+		$cols = [
+			"aa.*,bb.ma_work"
+			,"(case when mm_type = 'COMP' then '기업' else '개인' end) as mm_type_nm"
+			,"ad.ad_addr"
+			,"(
+				case when mm_status = 'Y' then '가입회원'
+					 when mm_status = 'N' then '탈퇴회원'
+                     when mm_status = 'S' then '자격정지'
+					 else ''
+			    end) as mm_status_nm"
+			,"(
+				case when mm_join_type = 'KAKAO' then '카카오'
+					 when mm_join_type = 'APPLE' then '애플'
+					 when mm_join_type = 'WEB' then '이메일'
+					 else ''
+			    end) as mm_join_type_nm"
+			];
+
+		//바디
+		$body = "
+			st_member aa
+                left join st_member_info bb
+                    on aa.mm_idx = bb.mm_idx
+                left join st_address ad
+                    on aa.mm_idx = ad.mm_idx and ad.ad_type = 'MEMBER'
+		";
+
+		//조건
+		$where = [];
+
+		$where[] = 	" and mm_status in ('Y','N','S')  ";
+
+		if($params["search_value"]!=""){
+			if($params["search_type"]==""){
+				$where[] = 	" and (mm_id like '%".$this->inject($params["search_value"])."%'
+							  or mm_phone like '%".$this->inject($params["search_value"])."%'
+                              or ad.ad_addr like '%".$this->inject($params["search_value"])."%'
+                              or mm_comp_name like '%".$this->inject($params["search_value"])."%'
+							  or mm_name like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="mm_id"){
+				$where[] = 	" and (mm_id like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="mm_name"){
+				$where[] = 	" and (mm_name like '%".$this->inject($params["search_value"])."%' or mm_comp_name like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="mm_phone"){
+				$where[] = 	" and (mm_phone like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="ad_addr"){
+				$where[] = 	" and (ad.ad_addr like '%".$this->inject($params["search_value"])."%')  ";
+			}
+		}
+
+		//등급 설정
+		if($params["mm_type"]!=""){
+			$where[] = 	" and (aa.mm_type = '".$this->inject($params["mm_type"])."')  ";
+		}
+
+		//회원상태 설정
+		if($params["mm_status"]!=""){
+			$where[] = 	" and (mm_status = '".$this->inject($params["mm_status"])."')  ";
+		}
+
+        //회원상태 설정
+		if($params["mm_sex"]!=""){
+			$where[] = 	" and (mm_sex = '".$this->inject($params["mm_sex"])."')  ";
+		}
+
+        //회원상태 설정
+		if($params["mm_nation"]!=""){
+			$where[] = 	" and (mm_nation = '".$this->inject($params["mm_nation"])."')  ";
+		}
+
+		//정렬
+		$order_by = "aa.mm_idx desc";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"]);
+   	}
+
+
+	# 업체 리스트 조회
+	function getRecoCompList(){
+
+	}
+
+	######################################
+	# END 회원처리
+	######################################
+
+	######################################
+	# 이력서 처리 START
+	######################################
+
+	# 이력서 조회 : 기본
+	function getResume($where){
+		return $this->db_row("st_resume",$where);
+	}
+
+    # 이력서 조회 : 기본
+	function getResumeDetail($ru_idx,$mm_idx){
+        $sql = "
+            select bb.*
+                ,group_concat(ad.ad_addr) as ad_addr
+                ,aa.mm_name
+                ,aa.mm_nation
+                ,mi.ma_age
+                ,(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn
+                ,ifnull(mq.cnt,0) as req_cnt
+                ,ifnull(bk.cnt,0) as fav_cnt
+                ,ifnull(iv.non_cnt,0) as non_cnt
+                ,ifnull(iv.abs_cnt,0) as abs_cnt
+                ,ifnull(iv.lv_cnt,0) as lv_cnt
+                ,ifnull(iv.eval_num,0) as eval_num
+                ,(ifnull(iv.eval_num,0) * 20) as eval_per
+            from st_member aa
+            left join st_member_info mi
+                on aa.mm_idx = mi.mm_idx
+            inner join st_resume bb
+                on aa.mm_idx = bb.mm_idx
+            inner join st_address ad
+                    on bb.mm_idx = ad.mm_idx and bb.ru_idx = ad.ad_key and ad.ad_type = 'RESUME'
+            left join st_bookmark dd
+                on bb.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '$mm_idx'
+            left join (
+                select ru_idx,count(*) as cnt
+                FROM st_member_request
+                group by ru_idx
+            ) mq
+                on bb.ru_idx = mq.ru_idx
+            left join (
+                select bk_key,count(*) as cnt
+                FROM st_bookmark
+                where bk_type = 'RESUME'
+                group by bk_key
+            ) bk
+                on bb.ru_idx = bk.bk_key
+            left join (
+                select ru_idx
+                    ,sum(iv_non_cnt) as non_cnt
+                    ,sum(iv_abs_cnt) as abs_cnt
+                    ,sum(iv_lv_cnt) as lv_cnt
+                    ,ROUND(avg((case when iv_eval_yn = 'Y' then ((iv_eval_num1 + iv_eval_num2 + iv_eval_num3)/3) else 0 end)),1) as eval_num
+                    ,count(*) as cnt
+                FROM st_interview
+                group by ru_idx
+            ) iv
+                on bb.ru_idx = iv.ru_idx
+            where bb.ru_idx = '$ru_idx'
+       ";
+
+       $query = $this->db->query($sql);
+       return $query->row_array();
+	}
+
+	# 이력서 조회 : 기본
+	function getResumeList($where){
+		return $this->db_list("st_resume",$where,"",["ru_idx"=>"desc"]);
+	}
+
+	# 이력서 조회 : 기본
+	function getResumeListV2($params){
+		//컬럼
+		$cols = [
+			"aa.*,group_concat(ad.ad_addr) as ad_addr"
+		];
+
+		//바디
+		$body = "
+			st_resume aa
+                left join st_address ad
+                    on aa.mm_idx = ad.mm_idx and aa.ru_idx = ad.ad_key and ad.ad_type = 'RESUME'
+		";
+
+		//조건
+		$where = [];
+		$where[] = 	" and (aa.mm_idx = '".$this->inject($params["mm_idx"])."')  ";
+
+		//정렬
+		$order_by = "aa.ru_idx desc";
+		$group_by = "group by aa.ru_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by);
+	}
+
+
+	# 이력서 등록
+	function insertResume($data){
+		return $this->db_insert("st_resume",$data);
+	}
+
+	  # 회원정보 수정
+    function updateResume($data,$where){
+        # 업데이트 자동 추가
+        $data["up_dt"] = get_today();
+        return $this->db_update("st_resume",$data,$where);
+    }
+
+	# 이력서 삭제
+	function deleteResume($where){
+		return $this->db_delete("st_resume",$where);
+	}
+
+	# 이력서 등록
+	function getResumeCount($where){
+		return $this->db_count("st_resume",$where);
+	}
+
+	# 이력서 경력 등록
+	function insertResumeCareer($data){
+		return $this->db_insert("st_resume_career",$data);
+	}
+
+	# 이력서 자격증 등록
+	function insertResumeCerti($data){
+		return $this->db_insert("st_resume_certi",$data);
+	}
+
+	# 이력서 경력 등록
+	function deleteResumeCareer($where){
+		return $this->db_delete("st_resume_career",$where);
+	}
+
+	# 이력서 자격증 등록
+	function deleteResumeCerti($where){
+		return $this->db_delete("st_resume_certi",$where);
+	}
+
+	# 이력서 경력 조회
+	function getResumeCareerList($where){
+		return $this->db_list("st_resume_career",$where,"*",["ru_idx"=>"asc"]);
+	}
+
+	# 이력서 자격증 조회
+	function getResumeCertiList($where){
+		return $this->db_list("st_resume_certi",$where,"*",["rc_idx"=>"asc"]);
+	}
+
+	######################################
+	# END 이력서 처리
+	######################################
+
+	######################################
+	# 공고 처리 START
+	######################################
+
+	# 공고 조회 : 기본
+	function getRecruit($where){
+		return $this->db_row("st_recruit",$where,"*",["rc_idx"=>"desc"]);
+	}
+
+	# 공고 조회 : 자세히
+	function getRecruitDetail($rc_idx,$mm_idx){
+		$sql = "
+			select bb.*
+				,cc.ad_addr
+				,cc.ad_doro
+				,cc.ad_detail
+				,(case
+					when rc_nation = '내국인,외국인' then '내국인,외국인'
+					when rc_nation = '내국인' then '내국인'
+					when rc_nation = '외국인' then '외국인'
+					else '무관' end) as rc_nation_nm
+				,(case
+					when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
+					when rc_sage <> '' then concat(rc_sage, '세 이상')
+					when rc_eage <> '' then concat(rc_eage, '세 이하')
+					else '무관' end) as rc_age_nm
+				,(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn
+				,aa.mm_phone
+				,aa.mm_comp_name
+                ,ifnull(bk.cnt,0) as fav_cnt
+			FROM st_member aa
+			inner join st_recruit bb
+				on aa.mm_idx = bb.mm_idx
+			inner join st_address cc
+				on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RECRUIT' and cc.ad_key = bb.rc_idx
+			left join st_bookmark dd
+				on bb.rc_idx = dd.bk_key and dd.bk_type = 'RECRUIT' and dd.mm_idx = '$mm_idx'
+            left join (
+                select bk_key,count(*) as cnt
+                FROM st_bookmark
+                where bk_type = 'RESUME'
+                group by bk_key
+            ) bk
+                on bb.rc_idx = bk.bk_key
+			where bb.rc_idx = '$rc_idx'
+		";
+
+		$query = $this->db->query($sql);
+		return $query->row_array();
+	}
+
+	# 공고 조회 : 기본
+	function getRecruitRecent($mm_idx){
+		$sql = "
+			select *
+			FROM st_recruit aa
+			where aa.mm_idx = '$mm_idx'
+			and rc_show_yn = 'Y' and rc_status = 'Y'
+			order by aa.rc_idx desc
+			limit 0,1
+		";
+
+		$query = $this->db->query($sql);
+		return $query->row_array();
+	}
+
+	# 공고 조회 : 기본
+	function getRecruitActaiveList($mm_idx){
+		$sql = "
+			select *
+			FROM st_recruit aa
+			where aa.mm_idx = '$mm_idx'
+			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
+			order by aa.rc_idx desc
+		";
+
+		$query = $this->db->query($sql);
+		return $query->result_array();
+	}
+
+	# 공고조회 : 기본
+	function getRecruitList($where){
+		return $this->db_list("st_recruit",$where,"",["rc_idx"=>"desc"]);
+	}
+
+    # 공고조회 : 기본
+	function getAddrRecruitList($mm_idx){
+        $sql = "
+			select aa.*
+                ,trim(bb.ad_addr) as ad_addr
+			FROM st_recruit aa
+                inner join st_address bb
+                    on aa.rc_idx = bb.ad_key and bb.ad_type = 'RECRUIT'
+			where aa.mm_idx = '$mm_idx'
+			and aa.rc_status = 'Y'
+			order by aa.rc_idx desc
+		";
+        $query = $this->db->query($sql);
+		return $query->result_array();
+	}
+
+	# 공고조회 : 기본
+	function getRecruitListV2($params){
+		//컬럼
+		$cols = [
+			"aa.*,group_concat(ad.ad_addr) as ad_addr"
+		];
+
+		//바디
+		$body = "
+			st_recruit aa
+                left join st_address ad
+                    on aa.mm_idx = ad.mm_idx and aa.rc_idx = ad.ad_key and ad.ad_type = 'RECRUIT'
+		";
+
+		//조건
+		$where = [];
+		$where[] = 	" and aa.rc_status = 'Y'  ";
+		$where[] = 	" and (aa.mm_idx = '".$this->inject($params["mm_idx"])."')  ";
+
+		//정렬
+		$order_by = "aa.rc_idx desc";
+		$group_by = "group by aa.rc_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by);
+	}
+
+	# 공고 등록
+	function insertRecruit($data){
+		return $this->db_insert("st_recruit",$data);
+	}
+
+	  # 공고 수정
+    function updateRecruit($data,$where){
+        # 업데이트 자동 추가
+        $data["up_dt"] = get_today();
+        return $this->db_update("st_recruit",$data,$where);
+    }
+
+	# 공고 삭제
+	function deleteRecruit($where){
+		return $this->db_delete("st_recruit",$where);
+	}
+
+	# 공고 카운터
+	function getRecruitCount($where){
+		return $this->db_count("st_recruit",$where);
+	}
+
+	function getRecruitTodayCnt($mm_idx){
+		$sql = "
+			select count(*) as cnt
+			FROM st_recruit aa
+			where aa.mm_idx = '$mm_idx'
+			and date_format(reg_dt,'%Y%m%d') = date_format(now(),'%Y%m%d')
+		";
+
+		$query = $this->db->query($sql);
+		$info = $query->row_array();
+		if($info==null){
+			return 0;
+		}else{
+			return $info["cnt"];
+		}
+	}
+
+	# 지원하기 중복이면 삭제후 재등록한다.
+	function setMemberRequest($data,$where){
+		$is_data = $this->db_is_data("st_member_request",$where);
+		if($is_data){
+			$this->db_delete("st_member_request",$where);
+		}
+
+		return $this->db_insert("st_member_request",$data);
+	}
+
+	# 지원 삭제
+	function deleteMemberRequest($where){
+		return $this->db_delete("st_member_request",$where);
+	}
+
+	# 지원하기 중복이면 삭제후 재등록한다.
+	function checkMemberRequestPoint($data){
+		$mq_type = $data["mq_type"];
+		$mm_idx = $data["mm_idx"];
+		$mq_idxs = $data["mq_idxs"];
+
+		if($mq_type=="RESUME"){
+			$sql = "
+				SELECT 1 as idx,count(*) as cnt FROM `st_member_request`
+				WHERE mm_idx = '$mm_idx'
+				and mq_type = 'RESUME'
+				and reg_dt <= concat(date_format(date_sub(now(),INTERVAL 1 DAY),'%Y-%m-%d'),' 23:59:59')
+				UNION ALL
+				SELECT 2 as idx,count(*) as cnt FROM `st_member_request`
+				WHERE mm_idx = '$mm_idx'
+				and mq_type = 'RESUME'
+				and reg_dt > concat(date_format(date_sub(now(),INTERVAL 1 DAY),'%Y-%m-%d'),' 23:59:59')
+			";
+
+			$query = $this->db->query($sql);
+			$list_info = $query->result_array();
+
+			$prev_cnt = $list_info[0]["cnt"];
+			$today_cnt = $list_info[1]["cnt"];
+			$total_cnt = $prev_cnt + $today_cnt;
+
+			# 전체 갯수가 10보다 작으면 계속 무료
+			# 전체 갯수가 10보다 크면서 오늘 갯수가 2보다 작으면 무료
+			# 전체 갯수가 10보다 크면서 오늘갯수가 2보다 크면 유료
+			# 처리하려는 갯수 오늘 남은갯수 : 2 - 오늘 추가한갯수 최소치 0
+
+			if($total_cnt + count($mq_idxs) <= 10){
+				return 0;
+			}else if($total_cnt + count($mq_idxs) > 10 && ($today_cnt + count($mq_idxs)) <=2){
+				return 0;
+			}else{
+				# 요청한 갯수에서 남은 갯수 뺀후 과금
+				return count($mq_idxs) - (2- ($today_cnt > 2 ? 2 : $today_cnt));
+			}
+
+		}else{
+			$sql = "
+				SELECT 1 as idx,count(*) as cnt FROM `st_member_request`
+				WHERE mm_idx = '$mm_idx'
+				and mq_type = 'RECRUIT'
+				and reg_dt <= concat(date_format(date_sub(now(),INTERVAL 1 DAY),'%Y-%m-%d'),' 23:59:59')
+				UNION ALL
+				SELECT 2 as idx,count(*) as cnt FROM `st_member_request`
+				WHERE mm_idx = '$mm_idx'
+				and mq_type = 'RECRUIT'
+				and reg_dt > concat(date_format(date_sub(now(),INTERVAL 1 DAY),'%Y-%m-%d'),' 23:59:59')
+			";
+
+			$query = $this->db->query($sql);
+			$list_info = $query->result_array();
+
+			$prev_cnt = $list_info[0]["cnt"];
+			$today_cnt = $list_info[1]["cnt"];
+			$total_cnt = $prev_cnt + $today_cnt;
+
+			# 전체 갯수가 10보다 작으면 계속 무료
+			# 전체 갯수가 10보다 크면서 오늘 갯수가 2보다 작으면 무료
+			# 전체 갯수가 10보다 크면서 오늘갯수가 2보다 크면 유료
+			# 처리하려는 갯수 오늘 남은갯수 : 2 - 오늘 추가한갯수 최소치 0
+
+			if($total_cnt + count($mq_idxs) <= 10){
+				return 0;
+			}else if($total_cnt + count($mq_idxs) > 10 && ($today_cnt + count($mq_idxs)) <=2){
+				return 0;
+			}else{
+				# 요청한 갯수에서 남은 갯수 뺀후 과금
+				return count($mq_idxs) - (2- ($today_cnt > 2 ? 2 : 0));
+			}
+		}
+	}
+
+
+	# 지원하기 중복이면 삭제후 재등록한다.
+	function checkMemberRequest($data){
+		$mq_type = $data["mq_type"];
+		$mm_idx = $data["mm_idx"];
+		$rc_idx = $data["rc_idx"];
+		$ru_idx = $data["ru_idx"];
+
+		if($mq_type=="RECRUIT"){
+			$sql = "
+				select ifnull(bb.rc_name,'') as subject
+				FROM st_member_request aa
+					inner join st_recruit bb
+						on aa.mq_type = 'RECRUIT' and aa.rc_idx = bb.rc_idx
+				where aa.mm_idx = '$mm_idx'
+				and aa.rc_idx = '$rc_idx'
+			";
+		}else{
+			$sql = "
+				select ifnull(bb.ru_name,'') as subject
+				FROM st_member_request aa
+					inner join st_resume bb
+						on aa.mq_type = 'RESUME' and aa.ru_idx = bb.ru_idx
+				where aa.mm_idx = '$mm_idx'
+				and aa.ru_idx = '$ru_idx'
+			";
+		}
+
+		$query = $this->db->query($sql);
+		$info = $query->row_array();
+		return $info;
+	}
+
+	######################################
+	# 공고 이력서 처리
+	######################################
+
+    function getRecruitSearchParamsList($page_size = 20){
+        $data = [];
+
+		$mm_idx = $this->user->getUserIdx();
+        $page = input_post("page",1);
+        $text = input_post("text","");
+        $skm = input_post("skm","");
+        $ekm = input_post("ekm","");
+        $category = input_post("category","");
+        $work_type = input_post("work_type","");
+        $week = input_post("week","");
+        $price_type = input_post("price_type","");
+        $sex = input_post("sex","");
+        $sage = input_post("sage","");
+        $eage = input_post("eage","");
+        $save_yn = input_post("save_yn","N");
+
+        $addr_info = $this->user->getAddrInfo();
+
+        # 저장인경우 파라미터 그대로 사용하고 아니면 기존 검색 정보 가져와 설정한다.
+        if($save_yn == "N"){
+            $site_log = $this->site_model->getSiteLog([
+                "session_id"=>session_id()
+                ,"sl_type"=>"SEARCH_RECRUIT"
+                ,"sl_step"=>"검색"
+            ]);
+
+            if($site_log==null){
+                if($this->user->isLogin()){
+					$site_log = $this->site_model->getSiteLog([
+		                "mm_idx"=>$mm_idx
+		                ,"sl_type"=>"SEARCH_RECRUIT"
+		                ,"sl_step"=>"검색"
+		        	]);
+				}
+            }
+
+            if($site_log!=null){
+                $json_info = json_decode($site_log["sl_txt"],true);
+                $text = $json_info["text"];
+                $skm = $json_info["skm"];
+                $ekm = $json_info["ekm"];
+                $category = $json_info["category"];
+                $work_type = $json_info["work_type"];
+                $week = $json_info["week"];
+                $price_type = $json_info["price_type"];
+                $sex = $json_info["sex"];
+                $sage = $json_info["sage"];
+                $eage = $json_info["eage"];
+            }
+        }
+
+        $params = [
+            "pagesize" => $page_size,
+            "page" => $page,
+            "gps_x" => $addr_info["ad_gps_x"],
+            "gps_y" => $addr_info["ad_gps_y"],
+            "text" => $text,
+            "mm_idx" => $mm_idx,
+            "skm" => $skm,
+            "ekm" => $ekm,
+            "category" => $category,
+            "work_type" => $work_type,
+            "week" => $week,
+            "price_type" => $price_type,
+            "sex" => $sex,
+            "sage" => $sage,
+            "eage" => $eage,
+        ];
+
+        $result = $this->getRecruitSearchList($params);
+        $list = $result["list"];
+
+        foreach($list as $key=> $row){
+            $list[$key]["rt_recruit_img"] = getRecruitImg($row);
+            $list[$key]["ad_addr"] = getAddrSimple($row["ad_addr"]);
+            $list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"],3);
+            $list[$key]["rt_work_type"] = getWorkType($row["rc_work_type"]);
+            $list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"],$row);
+            $list[$key]["rt_price"] = getRecuitPrice($row);
+        }
+
+        # 검색어 저장
+        #로그 생성
+        $search_txt = [
+            "text" => $text,
+            "skm" => $skm,
+            "ekm" => $ekm,
+            "category" => $category,
+            "work_type" => $work_type,
+            "week" => $week,
+            "price_type" => $price_type,
+            "sex" => $sex,
+            "sage" => $sage,
+            "eage" => $eage,
+        ];
+
+        if($this->user->isLogin()){
+            $this->site_model->deleteSiteLog(
+                [
+                     "session_id"=>session_id()
+                    ,"sl_type"=>"SEARCH_RECRUIT"
+                    ,"sl_step"=>"검색"
+                ]
+            );
+
+            $this->site_model->deleteSiteLog(
+                [
+                     "mm_idx"=>$mm_idx
+                    ,"sl_type"=>"SEARCH_RECRUIT"
+                    ,"sl_step"=>"검색"
+                ]
+            );
+        }else{
+            $this->site_model->deleteSiteLog(
+                [
+                     "session_id"=>session_id()
+                    ,"sl_type"=>"SEARCH_RECRUIT"
+                    ,"sl_step"=>"검색"
+                ]
+            );
+        }
+
+        $this->site_model->setSiteLog(
+            [
+                "session_id"=>session_id()
+                ,"mm_idx"=>$mm_idx
+                ,"sl_type"=>"SEARCH_RECRUIT"
+                ,"sl_step"=>"검색"
+                ,"sl_txt"=>json_encode($search_txt,JSON_UNESCAPED_UNICODE)
+            ]
+        );
+
+        //리턴 설정
+        $data = [
+            "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
+            "result_list" => $list,
+            "result_count" => $result["count"],
+        ];
+
+        return $data;
+    }
+
+    # 업체 리스트 조회 : 메인화면용
+	function getRecruitSearchList($params){
+		$gps_x = $params["gps_x"];
+		$gps_y = $params["gps_y"];
+
+		# 지역검색 제외
+		$is_addr = true;
+		if($gps_x == "127.028361548" && $gps_y == "37.496486063" || ($gps_x == "") ||($gps_y == "")){
+			$is_addr = false;
+		}
+
+		//컬럼
+		$cols = [
+			"aa.*",
+			"aa.ad_addr",
+			"aa.ad_gps_x",
+			"aa.ad_gps_y",
+			"gps_km as distance",
+			"(case
+				when rc_nation = '내국인,외국인' then '내국인,외국인'
+				when rc_nation = '내국인' then '내국인'
+				when rc_nation = '외국인' then '외국인'
+				else '무관' end) as rc_nation_nm",
+			"(case
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
+				when rc_sage <> '' then concat(rc_sage, '세 이상')
+				when rc_eage <> '' then concat(rc_eage, '세 이하')
+				else '무관' end) as rc_age_nm",
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+        # 거리 처리
+		$add_addr = "";
+		//if($params["skm"] > 0){
+		//	$add_addr .= " and ROUND(6371*acos(cos(radians($gps_y))*cos(radians(ad_gps_y))*cos(radians(ad_gps_x)
+		//				-radians($gps_x))+sin(radians($gps_y))*sin(radians(ad_gps_y))),1) >= " . $params["skm"];
+		//}
+
+		if($params["ekm"] > 0 && $is_addr == true){
+			$add_addr .= " and ROUND(6371*acos(cos(radians($gps_y))*cos(radians(ad_gps_y))*cos(radians(ad_gps_x)
+						-radians($gps_x))+sin(radians($gps_y))*sin(radians(ad_gps_y))),1) <= " . $params["ekm"];
+		}
+
+		//바디
+		$body = "
+            (
+                select aa.mm_id
+                    ,aa.mm_status
+                    ,aa.mm_comp_name
+                    ,bb.*
+                    ,(select count(*) as cnt FROM st_bookmark where bk_type = 'RECRUIT' and bk_key = bb.rc_idx) as book_cnt
+                    ,ifnull(min(po.pm_sdate),'2050-01-01 00:00:00') as max_date
+                    ,gps_km
+                    ,cc.ad_addr
+                    ,cc.ad_gps_x
+                    ,cc.ad_gps_y
+                FROM st_member aa
+                inner join st_recruit bb
+                    on aa.mm_idx = bb.mm_idx
+                inner join (
+                    SELECT *
+                        ,ROUND(6371*acos(cos(radians($gps_y))*cos(radians(ad_gps_y))*cos(radians(ad_gps_x)
+                            -radians($gps_x))+sin(radians($gps_y))*sin(radians(ad_gps_y))),1)
+                        AS gps_km
+                    FROM st_address
+                    where 1=1
+                    $add_addr
+                ) cc
+                    on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RECRUIT' and cc.ad_key = bb.rc_idx
+                left join st_promotion po
+                    on bb.rc_idx = po.rc_idx and (po.pm_sdate <= now() and po.pm_edate >= now())
+                group by bb.rc_idx
+            ) aa
+			left join st_bookmark dd
+				on aa.rc_idx = dd.bk_key and dd.bk_type = 'RECRUIT' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' and aa.rc_show_yn = 'Y' and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now() ";
+
+
+        # 검색어
+        if($params["text"]!=""){
+			$where[] = 	" and (aa.rc_name like '%".$this->inject($params["text"])."%')";
+		}
+
+        # 나이
+        if($params["sage"]!=""){
+			$where[] = 	" and (aa.rc_sage != 0 and aa.rc_sage >= '".$this->inject($params["sage"])."')";
+		}
+
+        # 나이
+        if($params["eage"]!=""){
+			$where[] = 	" and (aa.rc_eage != 0 and aa.rc_eage <= '".$this->inject($params["eage"])."')";
+		}
+
+        # 카테고리
+        if($params["category"]!=""){
+			$cate_where = $this->getMultiAnd($params["category"],"aa.rc_work");
+			$where[] = $cate_where;
+		}
+
+        # 근무유형
+        if($params["work_type"]!=""){
+			$work_type_where = $this->getMultiAnd($params["work_type"],"aa.rc_work_type");
+			$where[] = $work_type_where;
+		}
+
+        # 요일
+        if($params["week"]!=""){
+			$week_where = $this->getMultiAnd($params["week"],"aa.rc_week");
+			$where[] = $week_where;
+		}
+
+        # 금여유형
+        if($params["price_type"]!=""){
+			$price_type_where = $this->getMultiAnd($params["price_type"],"aa.rc_price_type");
+			$where[] = $price_type_where;
+		}
+
+        # 성별
+        if($params["sex"]!=""){
+			$sex_where = $this->getMultiAnd($params["sex"],"aa.rc_sex");
+			$where[] = $sex_where;
+		}
+
+		//정렬
+		$order_by = "distance asc";
+		$group_by = "group by aa.rc_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by);
+	}
+
+	# 업체 리스트 조회 : 웹용
+	function getRecruitWebSearchList($params){
+		$gps_x = $params["gps_x"];
+		$gps_y = $params["gps_y"];
+
+		//컬럼
+		$cols = [
+			"aa.*",
+			"aa.ad_addr",
+			"aa.ad_gps_x",
+			"aa.ad_gps_y",
+			"(case
+				when rc_nation = '내국인,외국인' then '내국인,외국인'
+				when rc_nation = '내국인' then '내국인'
+				when rc_nation = '외국인' then '외국인'
+				else '무관' end) as rc_nation_nm",
+			"(case
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
+				when rc_sage <> '' then concat(rc_sage, '세 이상')
+				when rc_eage <> '' then concat(rc_eage, '세 이하')
+				else '무관' end) as rc_age_nm",
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+        # 거리 처리
+		$search_addr = "";
+		if($params["addr1"]!=""){
+			$search_addr .= $params["addr1"];
+		}
+
+		if($params["addr2"]!=""){
+			$search_addr .= " " . $params["addr2"];
+		}
+
+		if($params["addr3"]!=""){
+			$search_addr .= " " . $params["addr3"];
+		}
+
+		//바디
+		$body = "
+            (
+                select aa.mm_id
+                    ,aa.mm_status
+                    ,bb.*
+                    ,(select count(*) as cnt FROM st_bookmark where bk_type = 'RECRUIT' and bk_key = bb.rc_idx) as book_cnt
+                    ,ifnull(min(po.pm_sdate),'2050-01-01 00:00:00') as max_date
+                    ,cc.ad_addr
+                    ,cc.ad_gps_x
+                    ,cc.ad_gps_y
+                FROM st_member aa
+                inner join st_recruit bb
+                    on aa.mm_idx = bb.mm_idx
+                inner join st_address cc
+                    on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RECRUIT' and cc.ad_key = bb.rc_idx
+                left join st_promotion po
+                    on bb.rc_idx = po.rc_idx and (po.pm_sdate <= now() and po.pm_edate >= now())
+                group by bb.rc_idx
+            ) aa
+			left join st_bookmark dd
+				on aa.rc_idx = dd.bk_key and dd.bk_type = 'RECRUIT' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' and aa.rc_show_yn = 'Y' and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now() ";
+
+
+        # 검색어
+        if($params["text"]!=""){
+			$where[] = 	" and (
+				aa.rc_name like '%".$this->inject($params["text"])."%' or
+				aa.rc_nation like '%".$this->inject($params["text"])."%' or
+				aa.rc_sex like '%".$this->inject($params["text"])."%' or
+				aa.rc_work like '%".$this->inject($params["text"])."%' or
+				aa.rc_work_type like '%".$this->inject($params["text"])."%' or
+				aa.rc_price_type like '%".$this->inject($params["text"])."%' or
+				aa.rc_hash like '%".$this->inject($params["text"])."%'
+			)";
+		}
+
+        # 나이
+        if($params["sage"]!=""){
+			$where[] = 	" and (aa.rc_sage != 0 and aa.rc_sage >= '".$this->inject($params["sage"])."')";
+		}
+
+        # 나이
+        if($params["eage"]!=""){
+			$where[] = 	" and (aa.rc_eage != 0 and aa.rc_eage <= '".$this->inject($params["eage"])."')";
+		}
+
+		if($search_addr!=""){
+			$where[] = 	" and (aa.ad_addr like '%".$search_addr."%')";
+		}
+
+        # 카테고리
+        if($params["category"]!=""){
+			$cate_where = $this->getMultiAnd($params["category"],"aa.rc_work");
+			$where[] = $cate_where;
+		}
+
+        # 근무유형
+        if($params["work_type"]!=""){
+			$work_type_where = $this->getMultiAnd($params["work_type"],"aa.rc_work_type");
+			$where[] = $work_type_where;
+		}
+
+        # 요일
+        if($params["week"]!=""){
+			$week_where = $this->getMultiAnd($params["week"],"aa.rc_week");
+			$where[] = $week_where;
+		}
+
+        # 금여유형
+        if($params["price_type"]!=""){
+			$price_type_where = $this->getMultiAnd($params["price_type"],"aa.rc_price_type");
+			$where[] = $price_type_where;
+		}
+
+        # 성별
+        if($params["sex"]!=""){
+			$sex_where = $this->getMultiAnd($params["sex"],"aa.rc_sex");
+			$where[] = $sex_where;
+		}
+
+		//정렬
+		if($params["order_by"]=="recent"){
+			$order_by = "reg_dt desc";
+		}else{
+			$order_by = "book_cnt desc";
+		}
+		$group_by = "group by aa.rc_idx";
+
+
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by,false,true);
+	}
+
+
+	# 업체 리스트 조회 : 관리자용
+	function getRecruitSearchListV2($params){
+
+		//컬럼
+		$cols = [
+			"bb.*",
+			"aa.mm_name,aa.mm_id,aa.mm_comp_name,aa.mm_type,aa.mm_phone",
+			"cc.ad_addr",
+			"(case
+				when rc_nation = '내국인,외국인' then '내국인,외국인'
+				when rc_nation = '내국인' then '내국인'
+				when rc_nation = '외국인' then '외국인'
+				else '무관' end) as rc_nation_nm",
+			"(case
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
+				when rc_sage <> '' then concat(rc_sage, '세 이상')
+				when rc_eage <> '' then concat(rc_eage, '세 이하')
+				else '무관' end) as rc_age_nm",
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+		//바디
+		$body = "
+			st_member aa
+			inner join st_recruit bb
+				on aa.mm_idx = bb.mm_idx
+			inner join st_address cc
+				on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RECRUIT' and cc.ad_key = bb.rc_idx
+			left join st_bookmark dd
+				on bb.rc_idx = dd.bk_key and dd.bk_type = 'RECRUIT' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+
+		$where[] = 	" and rc_status in ('Y','H') ";
+
+		if($params["search_value"]!=""){
+			if($params["search_type"]==""){
+				$where[] = 	" and (mm_id like '%".$this->inject($params["search_value"])."%'
+							  or rc_name like '%".$this->inject($params["search_value"])."%'
+                              or cc.ad_addr like '%".$this->inject($params["search_value"])."%'
+                              or mm_comp_name like '%".$this->inject($params["search_value"])."%'
+							  or mm_name like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="mm_name"){
+				$where[] = 	" and (mm_name like '%".$this->inject($params["search_value"])."%' or mm_comp_name like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="ad_addr"){
+				$where[] = 	" and (cc.ad_addr like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="rc_name"){
+				$where[] = 	" and (bb.rc_name like '%".$this->inject($params["search_value"])."%')  ";
+			}
+		}
+
+		# 카테고리
+        if($params["category"]!=""){
+			$cate_where = $this->getMultiAnd($params["category"],"bb.rc_work");
+			$where[] = $cate_where;
+		}
+
+		if($params["show_yn"]!=""){
+            if($params["show_yn"]=="H"){
+                $where[] = 	" and (bb.rc_status = '".$this->inject($params["show_yn"])."')";
+            }else{
+                $where[] = 	" and (bb.rc_show_yn = '".$this->inject($params["show_yn"])."') and rc_status <> 'H' ";
+            }
+		}
+
+		//정렬
+		$order_by = "bb.rc_idx desc";
+		$group_by = "group by bb.rc_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by);
+	}
+
+    ######################################
+	# 인재정보 처리
+	######################################
+
+    function getResumeSearchParamsList($page_size = 20){
+        $data = [];
+
+		$mm_idx = $this->user->getUserIdx();
+        $page = input_post("page",1);
+        $text = input_post("text","");
+        $skm = input_post("skm","");
+        $ekm = input_post("ekm","");
+        $category = input_post("category","");
+        $work_type = input_post("work_type","");
+        $week = input_post("week","");
+        $price_type = input_post("price_type","");
+        $sex = input_post("sex","");
+        $sage = input_post("sage","");
+        $eage = input_post("eage","");
+        $save_yn = input_post("save_yn","N");
+
+        $addr_info = $this->user->getAddrInfo();
+
+        # 저장인경우 파라미터 그대로 사용하고 아니면 기존 검색 정보 가져와 설정한다.
+        if($save_yn == "N"){
+            $site_log = $this->site_model->getSiteLog([
+                "session_id"=>session_id()
+                ,"sl_type"=>"SEARCH_RESUME"
+                ,"sl_step"=>"검색"
+            ]);
+
+            if($site_log==null){
+                if($this->user->isLogin()){
+					$site_log = $this->site_model->getSiteLog([
+		                "mm_idx"=>$mm_idx
+		                ,"sl_type"=>"SEARCH_RESUME"
+		                ,"sl_step"=>"검색"
+		        	]);
+				}
+            }
+
+            if($site_log!=null){
+                $json_info = json_decode($site_log["sl_txt"],true);
+                $text = $json_info["text"];
+                $skm = $json_info["skm"];
+                $ekm = $json_info["ekm"];
+                $category = $json_info["category"];
+                $work_type = $json_info["work_type"];
+                $week = $json_info["week"];
+                $price_type = $json_info["price_type"];
+                $sex = $json_info["sex"];
+                $sage = $json_info["sage"];
+                $eage = $json_info["eage"];
+            }
+        }
+
+        $params = [
+            "pagesize" => $page_size,
+            "page" => $page,
+            "gps_x" => $addr_info["ad_gps_x"],
+            "gps_y" => $addr_info["ad_gps_y"],
+            "text" => $text,
+            "mm_idx" => $mm_idx,
+            "skm" => $skm,
+            "ekm" => $ekm,
+            "category" => $category,
+            "work_type" => $work_type,
+            "week" => $week,
+            "price_type" => $price_type,
+            "sex" => $sex,
+            "sage" => $sage,
+            "eage" => $eage,
+        ];
+
+        $result = $this->getResumeSearchList($params);
+        $list = $result["list"];
+
+        foreach($list as $key=> $row){
+            $list[$key]["ru_resume_img"] = getResumeImg($row);
+            $list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
+            $list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"]);
+            $list[$key]["ru_price_type"] = getPriceTypePoint($row["ru_price_type"],$row);
+            $list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
+            $list[$key]["ru_week"] = getWeekYoil($row["ru_week"]);
+			$list[$key]["mm_name"] = getAstrik($row["mm_name"]);
+        }
+
+        # 검색어 저장
+        #로그 생성
+        $search_txt = [
+            "text" => $text,
+            "skm" => $skm,
+            "ekm" => $ekm,
+            "category" => $category,
+            "work_type" => $work_type,
+            "week" => $week,
+            "price_type" => $price_type,
+            "sex" => $sex,
+            "sage" => $sage,
+            "eage" => $eage,
+        ];
+
+        if($this->user->isLogin()){
+            $this->site_model->deleteSiteLog(
+                [
+                     "session_id"=>session_id()
+                    ,"sl_type"=>"SEARCH_RESUME"
+                    ,"sl_step"=>"검색"
+                ]
+            );
+
+            $this->site_model->deleteSiteLog(
+                [
+                     "mm_idx"=>$mm_idx
+                    ,"sl_type"=>"SEARCH_RESUME"
+                    ,"sl_step"=>"검색"
+                ]
+            );
+        }else{
+            $this->site_model->deleteSiteLog(
+                [
+                     "session_id"=>session_id()
+                    ,"sl_type"=>"SEARCH_RESUME"
+                    ,"sl_step"=>"검색"
+                ]
+            );
+        }
+
+        $this->site_model->setSiteLog(
+            [
+                "session_id"=>session_id()
+                ,"mm_idx"=>$mm_idx
+                ,"sl_type"=>"SEARCH_RESUME"
+                ,"sl_step"=>"검색"
+                ,"sl_txt"=>json_encode($search_txt,JSON_UNESCAPED_UNICODE)
+            ]
+        );
+
+        //리턴 설정
+        $data = [
+            "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
+            "result_list" => $list,
+            "result_count" => $result["count"],
+        ];
+
+        return $data;
+    }
+
+    # 업체 리스트 조회 : 메인화면용
+	function getResumeSearchList($params){
+		$gps_x = $params["gps_x"];
+		$gps_y = $params["gps_y"];
+
+		# 지역검색 제외
+		$is_addr = true;
+		if($gps_x == "127.028361548" && $gps_y == "37.496486063" || ($gps_x == "") ||($gps_y == "")){
+			$is_addr = false;
+		}
+
+		//컬럼
+		$cols = [
+			"bb.*",
+			"cc.ad_addr",
+            "cc.ad_gps_x",
+            "cc.ad_gps_y",
+            "aa.mm_name",
+            "aa.mm_nation",
+            "aa.mm_id",
+            "mi.ma_age",
+			"distance",
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+		$add_addr = "";
+
+		# 거리 처리
+		//if($params["skm"] > 0){
+		//	$add_addr .= " and ROUND(6371*acos(cos(radians($gps_y))*cos(radians(ad_gps_y))*cos(radians(ad_gps_x)
+		//				-radians($gps_x))+sin(radians($gps_y))*sin(radians(ad_gps_y))),1) >= " . $params["skm"];
+		//}
+
+		if($params["ekm"] > 0 && $is_addr == true){
+			$add_addr .= " and ROUND(6371*acos(cos(radians($gps_y))*cos(radians(ad_gps_y))*cos(radians(ad_gps_x)
+						-radians($gps_x))+sin(radians($gps_y))*sin(radians(ad_gps_y))),1) <= " . $params["ekm"];
+		}
+
+		//바디
+		$body = "
+			st_member aa
+            inner join st_member_info mi
+                on aa.mm_idx = mi.mm_idx
+			inner join st_resume bb
+				on aa.mm_idx = bb.mm_idx
+			inner join (
+				SELECT *
+					,ROUND(6371*acos(cos(radians($gps_y))*cos(radians(ad_gps_y))*cos(radians(ad_gps_x)
+						-radians($gps_x))+sin(radians($gps_y))*sin(radians(ad_gps_y))),1)
+					AS distance
+				FROM st_address
+				where 1=1
+				$add_addr
+			) cc
+				on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
+			left join st_bookmark dd
+				on bb.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' and bb.ru_status = 'Y' ";
+
+
+        # 검색어
+        if($params["text"]!=""){
+			$where[] = 	" and (aa.mm_name like '%".$this->inject($params["text"])."%')";
+		}
+
+        # 나이
+        if($params["sage"]!=""){
+			$where[] = 	" and (mi.ma_age >= '".$this->inject($params["sage"])."')";
+		}
+
+        # 나이
+        if($params["eage"]!=""){
+			$where[] = 	" and (mi.ma_age <= '".$this->inject($params["eage"])."')";
+		}
+
+        # 카테고리
+        if($params["category"]!=""){
+			$cate_where = $this->getMultiAnd($params["category"],"bb.ru_work");
+			$where[] = $cate_where;
+		}
+
+        # 근무유형
+        if($params["work_type"]!=""){
+			$work_type_where = $this->getMultiAnd($params["work_type"],"bb.ru_work_type");
+			$where[] = $work_type_where;
+		}
+
+        # 요일
+        if($params["week"]!=""){
+			$week_where = $this->getMultiAnd($params["week"],"bb.ru_week");
+			$where[] = $week_where;
+		}
+
+        # 금여유형
+        if($params["price_type"]!=""){
+			$price_type_where = $this->getMultiAnd($params["price_type"],"bb.ru_price_type");
+			$where[] = $price_type_where;
+		}
+
+        # 성별
+        if($params["sex"]!=""){
+			$sex_where = $this->getMultiAnd($params["sex"],"mi.ma_sex");
+			$where[] = $sex_where;
+		}
+
+		//정렬
+		$order_by = "distance asc";
+		$group_by = "group by bb.ru_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by);
+	}
+
+	# 업체 리스트 조회 : 웹용
+	function getResumeWebSearchList($params){
+		$gps_x = $params["gps_x"];
+		$gps_y = $params["gps_y"];
+
+		//컬럼
+		$cols = [
+			"aa.*",
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+		$add_addr = "";
+
+		# 거리 처리
+		$search_addr = "";
+		if($params["addr1"]!=""){
+			$search_addr .= $params["addr1"];
+		}
+
+		if($params["addr2"]!=""){
+			$search_addr .= " " . $params["addr2"];
+		}
+
+		if($params["addr3"]!=""){
+			$search_addr .= " " . $params["addr3"];
+		}
+
+		//바디
+		$body = "
+			(
+				select bb.*
+					,cc.ad_addr
+					,cc.ad_gps_x
+					,cc.ad_gps_y
+					,aa.mm_name
+					,aa.mm_nation
+					,aa.mm_id
+					,aa.mm_status
+					,mi.ma_age
+					,mi.ma_sex
+				 	,(select count(*) as cnt FROM st_bookmark where bk_type = 'RESUME' and bk_key = bb.ru_idx) as book_cnt
+				FROM st_member aa
+				inner join st_member_info mi
+	                on aa.mm_idx = mi.mm_idx
+				inner join st_resume bb
+					on aa.mm_idx = bb.mm_idx
+				inner join st_address cc
+					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
+			) aa
+			left join st_bookmark dd
+				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' ";
+
+		if($search_addr!=""){
+			$where[] = 	" and (aa.ad_addr like '%".$search_addr."%')";
+		}
+
+        # 검색어
+        if($params["text"]!=""){
+			$where[] = 	" and (
+				aa.mm_name like '%".$this->inject($params["text"])."%' or
+				aa.mm_nation like '%".$this->inject($params["text"])."%' or
+				ru_work like '%".$this->inject($params["text"])."%' or
+				ru_name like '%".$this->inject($params["text"])."%' or
+				ru_addr like '%".$this->inject($params["text"])."%'  or
+				ru_price_type like '%".$this->inject($params["text"])."%' or
+				ru_work_type like '%".$this->inject($params["text"])."%' or
+				ru_my_type like '%".$this->inject($params["text"])."%'
+			)";
+
+		}
+
+        # 나이
+        if($params["sage"]!=""){
+			$where[] = 	" and (aa.ma_age >= '".$this->inject($params["sage"])."')";
+		}
+
+        # 나이
+        if($params["eage"]!=""){
+			$where[] = 	" and (aa.ma_age <= '".$this->inject($params["eage"])."')";
+		}
+
+        # 카테고리
+        if($params["category"]!=""){
+			$cate_where = $this->getMultiAnd($params["category"],"aa.ru_work");
+			$where[] = $cate_where;
+		}
+
+        # 근무유형
+        if($params["work_type"]!=""){
+			$work_type_where = $this->getMultiAnd($params["work_type"],"aa.ru_work_type");
+			$where[] = $work_type_where;
+		}
+
+        # 요일
+        if($params["week"]!=""){
+			$week_where = $this->getMultiAnd($params["week"],"aa.ru_week");
+			$where[] = $week_where;
+		}
+
+        # 금여유형
+        if($params["price_type"]!=""){
+			$price_type_where = $this->getMultiAnd($params["price_type"],"aa.ru_price_type");
+			$where[] = $price_type_where;
+		}
+
+        # 성별
+        if($params["sex"]!=""){
+			$sex_where = $this->getMultiAnd($params["sex"],"aa.ma_sex");
+			$where[] = $sex_where;
+		}
+
+		//정렬
+		if($params["order_by"]=="recent"){
+			$order_by = "reg_dt desc";
+		}else{
+			$order_by = "book_cnt desc";
+		}
+
+		$group_by = "group by aa.ru_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by,false,true);
+	}
+
+	# 이력서 리스트 조회 : 관리자
+	function getResumeSearchListV2($params){
+		//컬럼
+		$cols = [
+			"bb.*",
+			"group_concat(cc.ad_addr) as ad_addr",
+            "aa.mm_name",
+            "aa.mm_nation",
+            "aa.mm_sex",
+            "mi.ma_age",
+		];
+
+		$add_addr = "";
+
+		//바디
+		$body = "
+			st_member aa
+            inner join st_member_info mi
+                on aa.mm_idx = mi.mm_idx
+			inner join st_resume bb
+				on aa.mm_idx = bb.mm_idx
+			inner join st_address cc
+				on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
+			left join st_bookmark dd
+				on bb.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and ru_status in ('Y','H') ";
+
+		if($params["search_value"]!=""){
+			if($params["search_type"]==""){
+				$where[] = 	" and (mm_id like '%".$this->inject($params["search_value"])."%'
+							  or ru_name like '%".$this->inject($params["search_value"])."%'
+                              or cc.ad_addr like '%".$this->inject($params["search_value"])."%'
+                              or mm_comp_name like '%".$this->inject($params["search_value"])."%'
+							  or mm_name like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="mm_name"){
+				$where[] = 	" and (mm_name like '%".$this->inject($params["search_value"])."%' or mm_comp_name like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="ad_addr"){
+				$where[] = 	" and (cc.ad_addr like '%".$this->inject($params["search_value"])."%')  ";
+			}else if($params["search_type"]=="rc_name"){
+				$where[] = 	" and (bb.rc_name like '%".$this->inject($params["search_value"])."%')  ";
+			}
+		}
+
+		# 카테고리
+        if($params["category"]!=""){
+			$cate_where = $this->getMultiAnd($params["category"],"bb.ru_work");
+			$where[] = $cate_where;
+		}
+
+		if($params["show_yn"]!=""){
+            if($params["show_yn"]=="H"){
+                $where[] = 	" and (bb.ru_status = '".$this->inject($params["show_yn"])."')";
+            }else{
+                $where[] = 	" and (bb.ru_show_yn = '".$this->inject($params["show_yn"])."') and ru_status <> 'H' ";
+            }
+		}
+
+
+		//정렬
+		$order_by = "bb.ru_idx desc";
+		$group_by = "group by bb.ru_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by);
+	}
+
+
+	# 멀티 조건 만들기
+	function getMultiAnd($arry,$col_name){
+		$arr_category = explode("^",$arry);
+
+		$where_category = "";
+		if(count($arr_category) > 0){
+			$where_category .= " and (";
+			foreach($arr_category as $key=>$row){
+				if($key==0){
+					$where_category .= " $col_name like '%".$row."%' ";
+				}else{
+					$where_category .= " or $col_name like '%".$row."%' ";
+				}
+			}
+			$where_category .= " )";
+		}
+		return $where_category;
+	}
+
+
+
+    # 마이페이지 북마크 : 즐겨찾기 이력서 리스트
+	function getBookMarkResumeList($params){
+		//컬럼
+		$cols = [
+			"bb.*",
+			"bk.bk_idx",
+			"bk.reg_dt as bk_reg_dt",
+            "aa.mm_name",
+            "aa.mm_id",
+            "aa.mm_phone",
+            "aa.mm_nation",
+            "mem.mm_name as mem_mm_name",
+			"mem.mm_comp_name as mem_mm_comp_name",
+			"mem.mm_id as mem_mm_id",
+			"mem.mm_phone as mem_mm_phone",
+            "mi.ma_age",
+            "ad.ad_addr",
+            "(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+		//바디
+		$body = "
+			st_member aa
+            inner join st_member_info mi
+                on aa.mm_idx = mi.mm_idx
+			inner join st_resume bb
+				on aa.mm_idx = bb.mm_idx
+			left join st_address ad
+                on aa.mm_idx = ad.mm_idx and ad.ad_type = 'MEMBER' and ad.ad_key = aa.mm_idx
+            inner join st_bookmark bk
+                on bk.bk_key = bb.ru_idx and bk.bk_type = 'RESUME'
+            inner join st_member mem
+            	on bk.mm_idx = mem.mm_idx
+            left join st_bookmark dd
+                on bb.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' ";
+
+		if(isset($params["mm_idx"]) && $params["mm_idx"] !=""){
+        	$where[] = 	" and bk.mm_idx = '".$this->inject($params["mm_idx"])."' ";
+		}
+
+		//정렬
+		$order_by = "bk.bk_idx desc";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"]);
+	}
+
+    # 마이페이지 북마크 : 지원받은 공고
+	function getBookMarkRequestResumeList($params){
+		//컬럼
+		$cols = [
+			"bb.*",
+			"mq.mq_idx",
+			"mq.reg_dt as mq_reg_dt",
+			"'지원중' as mq_status",
+            "aa.mm_name",
+            "aa.mm_id",
+            "aa.mm_phone",
+            "aa.mm_nation",
+            "mi.ma_age",
+
+            "aa.mm_name as target_name",
+            "rcmm.mm_comp_name as user_name",
+            "bb.ru_img1 as target_img",
+			"rc.rc_img1 as user_img",
+			"aa.mm_id as target_id",
+            "rcmm.mm_id as user_id",
+            "rc.rc_idx",
+            "(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+		//바디
+		$body = "
+			st_member aa
+            inner join st_member_info mi
+                on aa.mm_idx = mi.mm_idx
+			inner join st_resume bb
+				on aa.mm_idx = bb.mm_idx
+            inner join st_member_request mq
+                on mq.ru_idx = bb.ru_idx and mq.mq_type = 'RECRUIT'
+            inner join st_recruit rc
+                on mq.rc_idx = rc.rc_idx
+            inner join st_member rcmm
+                on rc.mm_idx = rcmm.mm_idx
+            left join st_bookmark dd
+                on bb.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' ";
+
+
+		if(isset($params["mm_idx"]) && $params["mm_idx"]!=""){
+			$where[] = 	" and rc.mm_idx = '".$this->inject($params["mm_idx"])."' ";
+		}
+
+		if(isset($params["rc_idx"]) && $params["rc_idx"]!=""){
+			$where[] = 	" and mq.rc_idx = '".$this->inject($params["rc_idx"])."' ";
+		}
+
+		//정렬
+		$order_by = "mq.mq_idx desc";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"]);
+	}
+
+
+    # 마이페이지 북마크 : 즐겨찾기 이력서 리스트
+	function getBookMarkRecruitList($params){
+		//컬럼
+		$cols = [
+            "bb.*",
+			"cc.ad_addr",
+			"bk.bk_idx",
+			"bk.reg_dt as bk_reg_dt",
+			"aa.mm_name",
+			"aa.mm_comp_name",
+			"aa.mm_id",
+			"aa.mm_phone",
+			"mem.mm_name as mem_mm_name",
+			"mem.mm_comp_name as mem_mm_comp_name",
+			"mem.mm_id as mem_mm_id",
+			"mem.mm_phone as mem_mm_phone",
+			"(case
+				when rc_nation = '내국인,외국인' then '내국인,외국인'
+				when rc_nation = '내국인' then '내국인'
+				when rc_nation = '외국인' then '외국인'
+				else '무관' end) as rc_nation_nm",
+			"(case
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
+				when rc_sage <> '' then concat(rc_sage, '세 이상')
+				when rc_eage <> '' then concat(rc_eage, '세 이하')
+				else '무관' end) as rc_age_nm",
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+
+		];
+
+		//바디
+		$body = "
+            st_member aa
+            inner join st_recruit bb
+                on aa.mm_idx = bb.mm_idx
+            inner join st_bookmark bk
+                on bk.bk_key = bb.rc_idx and bk.bk_type = 'RECRUIT'
+            inner join st_member mem
+            	on bk.mm_idx = mem.mm_idx
+            left join st_address cc
+                on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RECRUIT' and cc.ad_key = bb.rc_idx
+            left join st_bookmark dd
+                on bb.rc_idx = dd.bk_key and dd.bk_type = 'RECRUIT' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+	    ";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' ";
+
+		if(isset($params["mm_idx"]) && $params["mm_idx"] !=""){
+			$where[] = 	" and bk.mm_idx = '".$this->inject($params["mm_idx"])."' ";
+		}
+
+		if(isset($params["search_type"]) && isset($params["search_value"])){
+			if($params["search_value"]!=""){
+				if($params["search_type"]==""){
+					$where[] = 	" and (mem.mm_id like '%".$this->inject($params["search_value"])."%'
+				 				  or bb.rc_name like '%".$this->inject($params["search_value"])."%'
+	                              or mem.mm_name like '%".$this->inject($params["search_value"])."%') ";
+				}else if($params["search_type"]=="mem_id"){
+					$where[] = 	" and (mem.mm_id like '%".$this->inject($params["search_value"])."%')  ";
+				}else if($params["search_type"]=="mem_name"){
+					$where[] = 	" and (mem.mm_name like '%".$this->inject($params["search_value"])."%' or mm_comp_name like '%".$this->inject($params["search_value"])."%')  ";
+				}else if($params["search_type"]=="rc_name"){
+					$where[] = 	" and (bb.rc_name like '%".$this->inject($params["search_value"])."%')  ";
+				}else if($params["search_type"]=="ad_addr"){
+					$where[] = 	" and (ad.ad_addr like '%".$this->inject($params["search_value"])."%')  ";
+				}
+			}
+		}
+
+		//정렬
+		$order_by = "bk.bk_idx desc";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"]);
+	}
+
+    # 마이페이지 북마크 : 제안받은 공고
+	function getBookMarkRequestRecruitList($params){
+		//컬럼
+		$cols = [
+            "cc.*",
+            "bb.mq_idx",
+            "bb.reg_dt as req_reg_dt",
+			"'지원중' as req_status",
+			"ee.ad_addr",
+			"dd.mm_name",
+			"dd.mm_id",
+			"dd.mm_phone",
+			"ff.bk_idx",
+			"(case
+				when rc_nation = '내국인,외국인' then '내국인,외국인'
+				when rc_nation = '내국인' then '내국인'
+				when rc_nation = '외국인' then '외국인'
+				else '무관' end) as rc_nation_nm",
+			"(case
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
+				when rc_sage <> '' then concat(rc_sage, '세 이상')
+				when rc_eage <> '' then concat(rc_eage, '세 이하')
+				else '무관' end) as rc_age_nm",
+			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+
+		];
+
+		//바디
+		$body = "
+            st_resume aa
+			inner join st_member_request bb
+		    	on aa.ru_idx = bb.ru_idx and bb.mq_type = 'RESUME'
+		    inner join st_recruit cc
+		    	on bb.rc_idx = cc.rc_idx
+		    inner join st_member dd
+		    	on cc.mm_idx = dd.mm_idx
+		    left join st_address ee
+		        on dd.mm_idx = ee.mm_idx and ee.ad_type = 'RECRUIT' and ee.ad_key = cc.rc_idx
+			left join st_bookmark ff
+				on cc.rc_idx = ff.bk_key and ff.bk_type = 'RECRUIT' and ff.mm_idx = '".$this->inject($params["mm_idx"])."'
+	    ";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and dd.mm_status = 'Y' ";
+
+		if(isset($params["mm_idx"]) && $params["mm_idx"]!=""){
+			$where[] = 	" and aa.mm_idx = '".$this->inject($params["mm_idx"])."' ";
+		}
+
+		if(isset($params["ru_idx"]) && $params["ru_idx"]!=""){
+			$where[] = 	" and aa.ru_idx = '".$this->inject($params["ru_idx"])."' ";
+		}
+
+
+
+		//정렬
+		$order_by = "bb.mq_idx desc";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"]);
+	}
+
+
+	# 마이페이지 북마크 : 지원중인 공고
+	function getMemRequestRecruitList($params){
+		//컬럼
+		$cols = [
+            "cc.*",
+			"ee.ad_addr",
+			"bb.mq_idx",
+			"bb.reg_dt as req_reg_dt",
+			"'지원중' as req_status",
+			"bb.mq_idx",
+			"aa.ru_name",
+			"aa.ru_idx",
+			"dd.mm_name",
+			"dd.mm_id",
+			"dd.mm_phone",
+			"(case
+				when rc_nation = '내국인,외국인' then '내국인,외국인'
+				when rc_nation = '내국인' then '내국인'
+				when rc_nation = '외국인' then '외국인'
+				else '무관' end) as rc_nation_nm",
+			"(case
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
+				when rc_sage <> '' then concat(rc_sage, '세 이상')
+				when rc_eage <> '' then concat(rc_eage, '세 이하')
+				else '무관' end) as rc_age_nm",
+			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+
+		];
+
+		//바디
+		$body = "
+            st_resume aa
+			inner join st_member_request bb
+		    	on aa.ru_idx = bb.ru_idx and bb.mq_type = 'RECRUIT'
+		    inner join st_recruit cc
+		    	on bb.rc_idx = cc.rc_idx
+		    inner join st_member dd
+		    	on cc.mm_idx = dd.mm_idx
+		    left join st_address ee
+		        on dd.mm_idx = ee.mm_idx and ee.ad_type = 'RECRUIT' and ee.ad_key = cc.rc_idx
+			left join st_bookmark ff
+				on cc.rc_idx = ff.bk_key and ff.bk_type = 'RECRUIT' and ff.mm_idx = '".$this->inject($params["mm_idx"])."'
+	    ";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and dd.mm_status = 'Y' ";
+
+		if(isset($params["mm_idx"]) && $params["mm_idx"]!=""){
+			$where[] = 	" and aa.mm_idx = '".$this->inject($params["mm_idx"])."' ";
+		}
+
+		if(isset($params["rc_idx"]) && $params["rc_idx"]!=""){
+			$where[] = 	" and bb.rc_idx = '".$this->inject($params["rc_idx"])."' ";
+		}
+
+		if(isset($params["ru_idx"]) && $params["ru_idx"]!=""){
+			$where[] = 	" and bb.ru_idx = '".$this->inject($params["ru_idx"])."' ";
+		}
+
+		//정렬
+		$order_by = "bb.mq_idx desc";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"]);
+	}
+
+    # 마이페이지 북마크 : 중고상품 블겨찾기
+	function getBookMarkTradeList($params){
+		//컬럼
+		$cols = [
+			"aa.*
+				,(case when cc.bk_idx is not null then 'Y' else 'N' end) as book_yn
+                ,group_concat(bb.ad_addr) as ad_addr"
+		];
+
+		//바디
+		$body = "
+                st_trade aa
+                inner join st_bookmark bk
+                    on aa.td_idx = bk.bk_key and bk.bk_type = 'TRADE'
+                left join st_bookmark cc
+                    on aa.td_idx = cc.bk_key and cc.bk_type = 'TRADE' and cc.mm_idx = '$mm_idx'
+                left join st_address bb
+					on aa.td_idx = bb.ad_key and bb.ad_type = 'TRADE'
+		";
+
+		# 조건
+		$where = [];
+        $where[] = 	" and bk.mm_idx = '".$this->inject($params["mm_idx"])."' ";
+
+		//정렬
+		$order_by = "bk.bk_idx desc";
+        $group_by = "group by aa.td_idx";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"],$group_by);
+	}
+
+
+    # 채팅방 : 지원한 공고
+	function getRequestRecruitList($params){
+		//컬럼
+		$cols = [
+			"bb.*",
+            "aa.mm_name as target_name",
+            "rcmm.mm_comp_name as user_name",
+			"bb.ru_img1 as target_img",
+			"rc.rc_img1 as user_img",
+            "aa.mm_name",
+            "aa.mm_nation",
+            "aa.mm_id as target_id",
+            "rcmm.mm_id as user_id",
+            "mi.ma_age",
+            "ad.ad_addr",
+            "rc.rc_idx",
+            "rc.rc_name",
+            "(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+		];
+
+		//바디
+		$body = "
+			st_member aa
+            inner join st_member_info mi
+                on aa.mm_idx = mi.mm_idx
+			inner join st_resume bb
+				on aa.mm_idx = bb.mm_idx
+            inner join st_member_request mq
+                on mq.ru_idx = bb.ru_idx and mq.mq_type = 'RECRUIT'
+            inner join st_recruit rc
+                on mq.rc_idx = rc.rc_idx
+            inner join st_member rcmm
+                on rc.mm_idx = rcmm.mm_idx
+            left join st_bookmark dd
+                on bb.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '".$this->inject($params["mm_idx"])."'
+            left join st_address ad
+                on aa.mm_idx = ad.mm_idx and ad.ad_type = 'MEMBER'
+		";
+
+		# 조건
+		$where = [];
+		$where[] = 	" and aa.mm_status = 'Y' ";
+        $where[] = 	" and rc.mm_idx = '".$this->inject($params["mm_idx"])."' ";
+
+		//정렬
+		$order_by = "mq.mq_idx desc";
+
+   		return $this->db_paging_list($cols,$body,$where,$order_by,$params["page"],$params["pagesize"]);
+	}
+
+	# 아웃소싱 리스트
+	function getOutSourcingList($comp_num){
+		$sql = "
+            select *
+            FROM st_member
+            where mm_type = 'COMP'
+            and mm_comp_type = 'COMP'
+            and mm_comp_num = '$comp_num'
+            order by reg_dt desc
+       ";
+
+       $query = $this->db->query($sql);
+       return $query->result_array();
+	}
+
+	# 북마크 삭제
+	function deleteBookmark($where){
+		return $this->db_delete("st_bookmark",$where);
+	}
+}

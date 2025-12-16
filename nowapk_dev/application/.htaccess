@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteCond $1 !^(index\.php|resource|views|shop|_assets|patner|res|uploads|img|design|phpmyadmin|robots|robots\.txt)
+RewriteRule ^(.*)$ index.php [L]
+</IfModule>

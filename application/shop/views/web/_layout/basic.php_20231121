@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=1920">
+    <title>지금 뜨는, 좋은 일자리 NOW JOB</title>
+    <meta name="description" content="구인구직 정보 플랫폼">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="지금 뜨는, 좋은 일자리 NOW JOB">
+    <meta property="og:url" content="http://페이지주소">
+    <meta property="og:description" content="구인구직 정보 플랫폼">
+    <meta property="og:image" content="static/img/social_card.png">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="http://페이지주소">
+    <meta property="twitter:description" content="구인구직 정보 플랫폼">
+    <meta property="twitter:image" content="static/img/social_card.png">
+    <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/resource/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/resource/favicon.ico" type="image/x-icon">
+
+    <?=getCashJs(RES_PATH . "/js/lib/jquery-3.5.1.min.js")?>
+    <?=getCashJs(RES_PATH . "/js/lib/proj4.js")?>
+    <?=getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js")?>
+    <?=getCashJs(RES_PATH . "/js/add.js")?>
+	<script src="https://nowjob.co.kr:3030/socket.io/socket.io.js?v=0001"></script>
+    <script src="/chatting/js/common.js"></script>
+    <script src="/chatting/js/chatting.js"></script>
+
+    <!-- Style -->
+    <?=getCachCss(RES_PATH . "/css/keen-slider.min.css")?>
+    <?=getCachCss(RES_PATH . "/css/main.css")?>
+    <?=getCachCss(RES_PATH . "/js/lib/preview/magnific-popup.css")?>
+    <?=getCachCss(RES_PATH . "/css/add.css")?>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXR9Q1W94K"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-PXR9Q1W94K');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TQC25Z8B');</script>
+    <!-- End Google Tag Manager -->
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '869026064607445');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=869026064607445&ev=PageView&noscript=1" /></noscript>
+    <!-- End Meta Pixel Code -->
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TQC25Z8B"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <a href="#content" class="skip">메뉴 건너띄기</a>
+    <header id="header" class="<?=$header_class!=null ? $header_class:""?>">
+        <div class="container">
+            <h1 class="top-logo"><a href="/"><span class="sr-text">지금 뜨는, 좋은 일자리 나우잡</span></a></h1>
+            <nav class="gnb">
+                <ul class="top-menu">
+                    <li><a href="/recruit/wlist">채용정보</a></li>
+                    <li><a href="/resume/wlist">인재정보</a></li>
+                    <li><a href="/trade/wlist">중고거래</a></li>
+                    <li><a href="/community/community_list">커뮤니티</a></li>
+                    <li><a href="/community/event_list">이벤트</a></li>
+                </ul>
+            </nav>
+            <div class="rt">
+                <?php if($this->user->isLogin()==false) : ?>
+                    <ul class="account-menu">
+                        <li><a href="/member/login">로그인</a></li>
+                        <li><a href="/member/join_start">회원가입</a></li>
+                        <li><a href="/mypage">마이페이지</a></li>
+                    </ul>
+                <?php else : ?>
+                    <ul class="account-menu">
+                    <li>
+                        <div class="dropdown-wrap">
+                            <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown"><em class="user-name"><?=$this->user->getUserName()?></em>님</a>
+                            <div role="dialog" id="memberPanel" tabindex="-1" class="dropdown" hidden>
+                                <div class="member-card">
+                                    <div class="card-body">
+                                        <div class="thumb">
+                                            <img src="<?=$this->user->getUserImg()?>" alt="" >
+                                        </div>
+                                        <div class="profile-meta">
+                                            <p class="name"><em><?=$this->user->getUserName()?></em>님</p>
+                                            <p class="email"><?=$this->user->getUserId()?></p>
+                                            <p class="point txt-color1"><em><?=number_format($this->user->getUserPoint())?></em>P</p>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="/mypage/">포인트 충전관리</a>
+                                        <?php if($this->user->getJoinType()=="WEB") : ?>
+                                        <a href="javascript:void(0);" id="chgPwd">비밀번호 변경</a>
+                                        <?php endif;?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><a href="/mypage/">마이페이지</a></li>
+                    <li><a href="javascript:void(0);" id="btnLogout">로그아웃</a></li>
+                </ul>
+                <?php endif; ?>
+                <?php include_once (get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
+            </div>
+        </div>
+    </header>
+    <?=$contents?>
+    <footer id="footer">
+        <div class="container">
+
+            <p class="company-name">NAU INTERNATIONAL Co., Ltd (주)나우 인터내셔널</p>
+            <div class="lt-wrap">
+                <ul class="footer-menu">
+                    <li>
+                        <a href="/home/about">ABOUT US</a>
+                        <small>회사소개</small>
+                    </li>
+                    <li>
+                        <a href="/home/site_policy">TERMS OF USE</a>
+                        <small>이용약관</small>
+                    </li>
+                    <li>
+                        <a href="/home/site_privacy">PERSONAL PROTECTION POLICY</a>
+                        <small>개인정보처리방침</small>
+                    </li>
+                    <li>
+                        <a href="/home/site_terms3">Location Services Terms of Use</a>
+                        <small>위치서비스 이용약관</small>
+                    </li>
+                    <li>
+                        <a href="/community/faq_list">FAQ</a>
+                         <small>자주 묻는 질문</small>
+                    </li>
+                    <li>
+                        <a href="/community/notice_list">NOTICE</a>
+                        <small>공지사항</small>
+                    </li>
+                    <li>
+                        <a href="/mypage/">Service center</a>
+                        <small>고객센터</small>
+                    </li>
+                </ul>
+                <div class="footer-info">
+                    <p>
+                        Representative name : HAN OG CHOI  |  Business registration number : 769-88-01746  |  Mail order business : 2023-화성남양-0060
+						<br/>Adress : 2, Juseok-ro 80beon-gil, Namyang-eup, Hwaseong-si, Gyeonggi-do, Republic of Korea
+                    </p>
+                    <p class="copyright">Copyright NAUINTERNATIONAL all right reserved.</p>
+                </div>
+            </div>
+            <div class="footer-contact">
+                <p class="title">지금 뜨는, 좋은 일자리 <em>나우잡과 함께하세요.</em></p>
+                <p class="tel">고객센터 <em>031-255-0119</em></p>
+                <ul class="social">
+                    <li><a href="https://www.instagram.com/nowjob0119" target="_blank" class="social1"><span class="sr-text">인스타 바로가기</span></a></li>
+                    <li><a href="https://www.facebook.com/profile.php?id=100088563777787" target="_blank" class="social2"><span class="sr-text">페이스북 바로가기</span></a></li>
+                    <li><a href="http://pf.kakao.com/_xkbxcFxj" target="_blank" class="social3"><span class="sr-text">카카오채널 바로가기</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+
+    <a href="#chat" role="button" aria-haspopup="dialog" aria-controls="chatPopup" class="btn-chat js-open-chat"><span class="sr-text">채팅열기</span></a>
+     <?php include_once (get_base_url() . '/application/shop/views/web/_layout/chatting_cont.php'); ?>
+
+
+    <!-- //채팅팝업 -->
+    <a href="#header" role="button" class="btn-top js-goto-top"><span class="sr-text">맨위로</span></a>
+
+
+    <!-- 현재위치 변경 레이어팝업 -->
+    <div id="chgPwdCont" class="layer-panel card-type" tabindex="-1" style="position:fixed;">
+       <div class="panel-container" style="max-width:500px;margin:0 auto;top:50%;margin-top:-270px;height:540px;">
+           <div class="panel-header">
+               <h2 class="sr-text">비밀번호 변경</h2>
+               <button type="button" aria-controls="chgPwdCont" class="btn-close-popup js-toggle-panel btnClosePwd"><span class="sr-text">닫기</span></button>
+           </div>
+           <div class="panel-body">
+               <div class="panel-content">
+                   <div class="page-join">
+                       <h2 class="primary-title align-center">비밀번호 변경<h2>
+                       <div class="find-loc-form">
+                           <form id="frm_pwd" onsubmit="return false">
+                              <div class="form-row">
+                                  <label>
+                                      <span class="form-label" style="font-size:18px;">기존 비밀번호</span>
+                                      <input type="password" id="mm_pwd" name="mm_pwd" autocomplete="off" aria-required="true" required class="form-text">
+                                  </label>
+                              </div>
+
+                              <div class="form-row">
+                                  <label>
+                                      <span class="form-label" style="font-size:18px;">새 비밀번호</span>
+                                      <input type="password" id="change_pwd" name="change_pwd" autocomplete="off" aria-required="true" required class="form-text">
+                                  </label>
+                                  <p class="help-msg rule" style="padding-left:0px;">비밀번호는 8~20자 이내, 숫자/특수문자/영문대소문자를 사용해 주세요.</p>
+                              </div>
+
+                              <div class="form-row">
+                                  <label>
+                                      <span class="form-label" style="font-size:18px;">새 비밀번호 확인</span>
+                                      <input type="password" id="change_pwd_c" name="change_pwd_c" autocomplete="off" aria-required="true" required class="form-text">
+                                  </label>
+                              </div>
+
+                              <div class="sticky-bottom" style="margin-top:20px;">
+                                  <button type="button" id="btnChgPwd" class="btn btn-primary" style="width:100%;padding:16px;">변경하기</button>
+                              </div>
+
+                          </form>
+                       </div>
+                   </div>
+
+               </div>
+           </div>
+       </div>
+   </div>
+
+	<!-- Script -->
+	<?=getCashJs(RES_PATH . "/js/lib/lozad.min.js")?>
+	<?=getCashJs(RES_PATH . "/js/lib/keen-slider.js")?>
+	<?=getCashJs(RES_PATH . "/js/lib/flatpickr.js")?>
+	<?=getCashJs(RES_PATH . "/js/lib/l10n/ko.js")?>
+	<?=getCashJs(RES_PATH . "/js/lib/plugins/monthSelect/index.js")?>
+	<?=getCashJs(RES_PATH . "/js/main.js")?>
+
+	<input type="hidden" id="is_login" name="is_login" value="<?=$this->user->isLogin()==true ? "Y":"N"?>" />
+    <input type="hidden" id="user_id" name="user_id" value="<?=$this->user->isLogin()==true ? $this->user->getUserId():""?>" />
+    <input type="hidden" id="os_type" name="os_type" value="web" />
+</body>
+</html>

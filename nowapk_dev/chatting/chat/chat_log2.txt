@@ -1,0 +1,1276 @@
+2025-10-28T05:10:14.430Z: [서버로그]::mtIslaJ6__JrB2xvAACJ :: connected!!
+2025-10-28T05:11:12.225Z: [서버로그]::O-5GTninINF-0pvlAACM :: connected!!
+2025-10-28T05:11:12.250Z: [서버로그]::ntrz76Tv2Cb3eVtpAACN :: connected!!
+2025-10-28T05:11:13.597Z: [서버로그]::LTvnFjI0pylN-PzGAACQ :: connected!!
+2025-10-28T05:11:13.632Z: [서버로그]::nC5t-MJ9EiuQ_I6wAACR :: connected!!
+2025-10-28T05:11:15.087Z: [서버로그]::ApJ-ySbsELIeMc5UAACU :: connected!!
+2025-10-28T05:11:15.110Z: [서버로그]::rH1K0yOOIFSiFXAKAACV :: connected!!
+2025-10-28T05:11:17.897Z: [서버로그]::mBM7c2RoVwX0Q6TBAACY :: connected!!
+2025-10-28T05:11:18.116Z: [서버로그]::6pdvrKvynRNPGjqwAACZ :: connected!!
+2025-10-28T05:11:20.284Z: [서버로그]::0Cju1TvEt8lkyNnpAACc :: connected!!
+2025-10-28T05:11:20.325Z: [서버로그]::TuzkWGIhhygqOBvnAACd :: connected!!
+2025-10-28T05:11:22.362Z: [서버로그]::d2jzZw6t7GAc71-5AACg :: connected!!
+2025-10-28T05:11:22.399Z: [서버로그]::qQuQBzLhNXbyKRpfAACh :: connected!!
+2025-10-28T05:11:23.898Z: [서버로그]::6qGD9fqR7pEE_IPHAACk :: connected!!
+2025-10-28T05:11:23.935Z: [서버로그]::LZlndVIrSEwRO6yKAACl :: connected!!
+2025-10-28T05:11:26.392Z: [서버로그]::ZVYyztAYP8JtxjryAACo :: connected!!
+2025-10-28T05:11:26.427Z: [서버로그]::BjxPtvg6_U9qFJPDAACp :: connected!!
+2025-10-28T05:11:35.169Z: [서버로그]::y701I6wQzKNd4vLvAACs :: connected!!
+2025-10-28T05:11:35.170Z: [서버로그]::fzgbsLUJJvFqUlDjAACt :: connected!!
+2025-10-28T05:11:40.845Z: [서버로그]::eHVeHqPWrL8uETRlAACw :: connected!!
+2025-10-28T05:11:40.846Z: [서버로그]::UVFDgrRfC03dCY0zAACx :: connected!!
+2025-10-28T05:11:49.332Z: [서버로그]::Jn1XYwa3nZ6J3jjWAAC0 :: connected!!
+2025-10-28T05:11:49.349Z: [서버로그]::T53wfJVcfxEoE3ssAAC1 :: connected!!
+2025-10-28T05:11:50.306Z: [서버로그]::hHxmHlWth_CHtB05AAC4 :: connected!!
+2025-10-28T05:11:50.325Z: [서버로그]::XL0YnPoN-NCJyphBAAC5 :: connected!!
+2025-10-28T05:11:52.038Z: [서버로그]::t_dV17wzi8a1-y3CAAC8 :: connected!!
+2025-10-28T05:11:52.057Z: [서버로그]::Jipe7CzwZWEuMgUWAAC9 :: connected!!
+2025-10-28T05:11:54.105Z: [서버로그]::szEWBIXAzvaZ81biAADA :: connected!!
+2025-10-28T05:11:54.121Z: [서버로그]::80HeVA7_IDLJgyRoAADB :: connected!!
+2025-10-28T05:11:55.744Z: [서버로그]::2vjfN6bRa6Bo7J3aAADE :: connected!!
+2025-10-28T05:11:55.758Z: [서버로그]::zuARfB5s7ALbMwKfAADF :: connected!!
+2025-10-28T05:11:57.623Z: [서버로그]::aRGi5fsViK59Jf-nAADI :: connected!!
+2025-10-28T05:11:57.637Z: [서버로그]::YXwHY2oD5agBe9KNAADJ :: connected!!
+2025-10-28T05:11:58.622Z: [서버로그]::OFS8aC-MjQapU6oPAADM :: connected!!
+2025-10-28T05:11:58.644Z: [서버로그]::6IBfEZDXQDRSYvvSAADN :: connected!!
+2025-10-28T05:12:08.100Z: [서버로그]::YFLmgpruBD8ieazrAADQ :: connected!!
+2025-10-28T05:12:08.101Z: [서버로그]::4NGqkBvEMrhadNyAAADR :: connected!!
+2025-10-28T05:12:10.153Z: [서버로그]::x_eds1HCT0D-2cjVAADU :: connected!!
+2025-10-28T05:12:10.173Z: [서버로그]::jsz5T6SG40ho9GwQAADV :: connected!!
+2025-10-28T05:12:21.842Z: [서버로그]::gNCx00_bWiaUFVItAADX :: connected!!
+2025-10-28T05:12:29.735Z: [서버로그]::DZLc_KS60-Vjo_tjAADZ :: connected!!
+2025-10-28T05:12:33.344Z: [서버로그]::211246TgkzXkARHUAADb :: connected!!
+2025-10-28T05:12:36.473Z: [서버로그]::zk1_l16Kqj3_4rX9AADd :: connected!!
+2025-10-28T05:13:33.323Z: [서버로그]::i7GOexf082YfxylGAADf :: connected!!
+2025-10-28T05:13:37.118Z: [서버로그]::JQb5ledEqenC_MKzAADh :: connected!!
+2025-10-28T05:13:40.344Z: [서버로그]::MW3K-5qTB9zeYkP1AADj :: connected!!
+2025-10-28T05:13:45.491Z: [서버로그]::n-0M4jpGC9jDUQKdAADl :: connected!!
+2025-10-28T05:13:46.658Z: [서버로그]::--YkVBs7iJaSPGKgAADn :: connected!!
+2025-10-28T05:13:52.261Z: [서버로그]::aziKMhsT1MuzIuPxAADp :: connected!!
+2025-10-28T05:14:10.204Z: [서버로그]::Bi_jIfdRhn2TmWigAADr :: connected!!
+2025-10-28T05:14:13.604Z: [서버로그]::NGH0jy5ZYhKenwsWAADt :: connected!!
+2025-10-28T05:14:16.370Z: [서버로그]::YLIW9yLwAOYyVmpaAADv :: connected!!
+2025-10-28T05:14:21.065Z: [서버로그]::3HYioIKcBwiNeeVtAADx :: connected!!
+2025-10-28T05:14:29.037Z: [서버로그]::x4h5jPcq-S0Tc3tAAADz :: connected!!
+2025-10-28T05:14:32.643Z: [서버로그]::-MHBCh9nNW1GmVieAAD1 :: connected!!
+2025-10-28T05:14:42.027Z: [서버로그]::IC7FP-hmRE5U5DZTAAD3 :: connected!!
+2025-10-28T05:14:45.220Z: [서버로그]::k_vUQrUFBOlv3cjlAAD5 :: connected!!
+2025-10-28T05:15:05.274Z: [서버로그]::PQ_j_lQJ667rk4lIAAD7 :: connected!!
+2025-10-28T05:15:08.186Z: [서버로그]::mRObIDWXTFslBtGnAAD9 :: connected!!
+2025-10-28T05:15:08.542Z: [서버로그]::gnBOxmBrgn8e7O6cAAD_ :: connected!!
+2025-10-28T05:15:09.297Z: [서버로그]::GlRDp6ODxWY0GwPUAAEB :: connected!!
+2025-10-28T05:15:28.364Z: [서버로그]::6ipvgXc9i2P8f00iAAED :: connected!!
+2025-10-28T05:15:45.351Z: [서버로그]::Q3ZEoDcm1iI2waH0AAEF :: connected!!
+2025-10-28T05:15:51.147Z: [서버로그]::rVroji8EgQXFmA0NAAEH :: connected!!
+2025-10-28T05:15:55.962Z: [서버로그]::gbJmfX1U1Tih-7ZJAAEJ :: connected!!
+2025-10-28T05:16:05.987Z: [서버로그]::MEsuZXs25j2eXTEPAAEL :: connected!!
+2025-10-28T05:16:07.308Z: [서버로그]::4Rv9QZRYz7jMYiNZAAEN :: connected!!
+2025-10-28T05:16:08.573Z: [서버로그]::K21aLWFoWjMYgNoFAAEP :: connected!!
+2025-10-28T05:16:10.376Z: [서버로그]::KDw8OkK74-h2xxW7AAER :: connected!!
+2025-10-28T05:16:11.395Z: [서버로그]::uvpEwh-Kj9_j-BjCAAET :: connected!!
+2025-10-28T05:16:14.060Z: [서버로그]::FziQhZ8urkvAPqW_AAEV :: connected!!
+2025-10-28T05:16:15.143Z: [서버로그]::NARxzYSw0UaY0GFaAAEX :: connected!!
+2025-10-28T05:16:16.720Z: [서버로그]::BdkQcuBJyzQSHGzwAAEZ :: connected!!
+2025-10-28T05:16:17.748Z: [서버로그]::0v0qcB9-_my70ogyAAEb :: connected!!
+2025-10-28T05:16:26.121Z: [서버로그]::2tqIvOJ3zFUBYB9iAAEd :: connected!!
+2025-10-28T05:16:38.491Z: [서버로그]::JUozXdmKzUk9-HiiAAEf :: connected!!
+2025-10-28T05:16:47.407Z: [서버로그]::aUK0zF6auqNMoxGtAAEh :: connected!!
+2025-10-28T05:16:57.571Z: [서버로그]::opn3h6qd2Soc2nFhAAEj :: connected!!
+2025-10-28T05:17:00.302Z: [서버로그]::GSBusyU1GgQpfvZ6AAEl :: connected!!
+2025-10-28T05:17:03.035Z: [서버로그]::LY6fMnEX4hYb_mEvAAEn :: connected!!
+2025-10-28T05:17:03.116Z: [서버로그]::room_info recv:: {"rm_idx":674,"con_user_id":"01077417262"}
+2025-10-28T05:17:03.116Z: [서버로그]::update multiple : rm_idx::674::user_id:01077417262
+2025-10-28T05:17:03.120Z: [서버로그]::Error in updateMessageUserCount: undefined
+2025-10-28T05:17:03.128Z: [서버로그]::room_info_return::674
+2025-10-28T05:17:05.688Z: [서버로그]::=== 채팅 메시지 수신 시작 ===
+2025-10-28T05:17:05.688Z: [서버로그]::message_insert recv:: {"rm_idx":674,"user_id":"01077417262","chat_type":"recruit","mg_type":"text","mg_text":"ㅊㅇㅅㅍㅇㅅ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:15:41.393Z","mg_reads":[{"read_yn":"N","user_id":"01083092881"},{"read_yn":"Y","user_id":"01077417262"}]}
+2025-10-28T05:17:05.689Z: [서버로그]::rm_users:: [{"user_id":"01083092881"},{"user_id":"01077417262"}]
+2025-10-28T05:17:05.689Z: [서버로그]::socket.id:: LY6fMnEX4hYb_mEvAAEn
+2025-10-28T05:17:05.689Z: [서버로그]::메시지 정보 - user_id: 01077417262, rm_idx: 674, text: ㅊㅇㅅㅍㅇㅅ
+2025-10-28T05:17:05.689Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 674, user_id: 01077417262
+2025-10-28T05:17:05.689Z: [서버로그]::방 정보 조회 시작
+2025-10-28T05:17:05.691Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-28T05:17:05.691Z: [서버로그]::사용자 정보 조회 시작
+2025-10-28T05:17:05.694Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-28T05:17:05.694Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-28T05:17:05.696Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-10-28T05:17:05.706Z: [서버로그]::방 정보 업데이트 시작
+2025-10-28T05:17:05.708Z: [서버로그]::방 정보 업데이트 완료
+2025-10-28T05:17:05.708Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":2631,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-28T05:17:05.702Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"01077417262","mg_idx":2632,"mg_type":"text","mg_text":"ㅊㅇㅅㅍㅇㅅ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:17:05.706Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"LY6fMnEX4hYb_mEvAAEn","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:13:33.169Z"}]}]
+2025-10-28T05:17:05.709Z: [서버로그]::메시지 삽입 결과: {"code":"00","msg":"등록성공","data":[{"user_id":"","mg_idx":2631,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-28T05:17:05.702Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"01077417262","mg_idx":2632,"mg_type":"text","mg_text":"ㅊㅇㅅㅍㅇㅅ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:17:05.706Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"LY6fMnEX4hYb_mEvAAEn","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:13:33.169Z"}]}]}
+2025-10-28T05:17:05.709Z: [서버로그]::메시지 삽입 성공 여부: 성공
+2025-10-28T05:17:05.710Z: [서버로그]::클라이언트에게 message_insert_return 전송 완료
+2025-10-28T05:17:05.710Z: [서버로그]::=== DB에서 채팅방 사용자 조회 시작 ===
+2025-10-28T05:17:05.710Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-28T05:17:05.710Z: [서버로그]::요청 파라미터: {"rm_idx":674}
+2025-10-28T05:17:05.710Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-28T05:17:05.710Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 674
+2025-10-28T05:17:05.712Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-28T05:17:05.713Z: [서버로그]::채팅방 정보: {"rm_idx":674,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-28T05:17:05.713Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-28T05:17:05.713Z: [서버로그]::사용자 목록: [{"user_id":"user_1048","user_nick":"사용자_1048"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01077417262"}]
+2025-10-28T05:17:05.713Z: [서버로그]::DB에서 조회한 사용자 수: 3
+2025-10-28T05:17:05.713Z: [서버로그]::=== 기존 방 정보 조회 시작 ===
+2025-10-28T05:17:05.722Z: [서버로그]::기존 방 정보 사용자 수: 3
+2025-10-28T05:17:05.722Z: [서버로그]::최종 사용자 목록 수: 4
+2025-10-28T05:17:05.722Z: [서버로그]::최종 사용자 목록: [{"user_id":"user_1048","user_nick":"조회안됨"},{"user_id":"target_user","user_nick":"조회안됨"},{"user_id":"01077417262","user_nick":"원아웃소싱"},{"user_id":"01083092881"}]
+2025-10-28T05:17:05.722Z: [서버로그]::발신자 ID: 01077417262
+2025-10-28T05:17:05.722Z: [서버로그]::사용자 필터링 - user_id: user_1048, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:17:05.723Z: [서버로그]::사용자 필터링 - user_id: target_user, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:17:05.723Z: [서버로그]::사용자 필터링 - user_id: 01077417262, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:17:05.723Z: [서버로그]::사용자 필터링 - user_id: 01083092881, g_user_id: 01077417262, isRealUser: true
+2025-10-28T05:17:05.724Z: [서버로그]::발신자 이름: 원아웃소싱
+2025-10-28T05:17:05.724Z: [서버로그]::현재 접속 중인 사용자: ["01083092881","01077417262"]
+2025-10-28T05:17:05.725Z: [서버로그]::방 참여자 수: 4
+2025-10-28T05:17:05.725Z: [서버로그]::실시간 알림 표시 - 접속 중인 사용자: 01083092881
+2025-10-28T05:17:05.725Z: [서버로그]::=== 푸시 알림 대상 사용자 처리 시작 ===
+2025-10-28T05:17:05.725Z: [서버로그]::대상 사용자 수: 1
+2025-10-28T05:17:05.725Z: [서버로그]::대상 사용자 목록: [{"user_id":"01083092881"}]
+2025-10-28T05:17:05.725Z: [서버로그]::--- 사용자 처리 시작: 01083092881 ---
+2025-10-28T05:17:05.725Z: [서버로그]::초기 토큰 상태: 없음
+2025-10-28T05:17:05.725Z: [서버로그]::MongoDB에서 토큰이 없음, MySQL에서 조회 시도 - user_id: 01083092881
+2025-10-28T05:17:05.726Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-10-28T05:17:05.728Z: [서버로그]::MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:17:05.728Z: [서버로그]::✅ MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:17:05.729Z: [서버로그]::🚀 푸시 알림 발송 시작 - 발신자: 원아웃소싱, 대상: 01083092881, 채팅유형: recruit
+2025-10-28T05:17:05.729Z: [서버로그]::푸시 데이터: {"user_id":"01083092881","no_subject":"채용공고 메시지 알림","no_text":"[원아웃소싱]님의 채용공고 메시지가 도착했습니다.","no_url":"","no_token":"ckfm4qx6TP-04vKgmlxIh_:APA91bEZriF88Oi4cf4Hoz3eqmIOs6v2v5-7cwUyCo6jytDPdQBKaNz_s5U2BoFB5zCyFwLP2sRFxj75w3jY2DfZaSsyTgzBVIxmbVCsArivAqieaYVCSZM","no_result":"","reg_dt":"2025-10-28T05:17:05.729Z"}
+2025-10-28T05:17:05.729Z: [서버로그]::--- 사용자 처리 완료: 01083092881 ---
+2025-10-28T05:17:05.734Z: [서버로그]::푸시 알림 DB 저장 결과 - idx: 787
+2025-10-28T05:17:05.735Z: [서버로그]::FCM 푸시 알림 전송 시작 - idx: 787
+2025-10-28T05:17:05.735Z: [서버로그]::=== FCM 푸시 알림 전송 시작 ===
+2025-10-28T05:17:05.735Z: [서버로그]::FCM 발송 시도 - 사용자ID: 01083092881, 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:17:05.735Z: [서버로그]::FCM 발송 데이터 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:17:05.735Z: [서버로그]::FCM 토큰 형식 확인 - 토큰 길이: 142, 토큰 시작: ckfm4qx6TP
+2025-10-28T05:17:05.735Z: [서버로그]::FCM 메시지 구성 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:17:05.735Z: [서버로그]::FCM 메시지 전송 시작 - 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:17:05.736Z: [서버로그]::✅ FCM 푸시 발송 완료 → user_id: 01083092881
+2025-10-28T05:17:05.746Z: [서버로그]::rm_idx::674::mg_idx:2631::user_id:01077417262
+2025-10-28T05:17:05.757Z: [서버로그]::rm_idx::674::mg_idx:2632::user_id:01077417262
+2025-10-28T05:17:06.183Z: [서버로그]::=== FCM 푸시 메시지 전송 성공 ===
+2025-10-28T05:17:06.183Z: [서버로그]::푸시 메시지[성공]:::projects/nowjob-cb256/messages/0:1761628538434673%6868c5066868c506
+2025-10-28T05:17:06.188Z: [서버로그]::푸시 알림 DB 업데이트 성공 - send_yn: Y
+2025-10-28T05:17:18.021Z: [서버로그]::mGATAX2SLVvFfPNrAAEp :: connected!!
+2025-10-28T05:17:52.024Z: [서버로그]::zqFo7J1dY8AjTIdPAAEr :: connected!!
+2025-10-28T05:17:54.205Z: [서버로그]::RkoQUaWfWk8PdJV8AAEt :: connected!!
+2025-10-28T05:17:58.639Z: [서버로그]::XgcMExoDEhGEDU9HAAEv :: connected!!
+2025-10-28T05:18:06.548Z: [서버로그]::A7xlKYLw_9AWplA9AAEx :: connected!!
+2025-10-28T05:18:10.384Z: [서버로그]::QyBr1fE9_EjqPGqJAAEz :: connected!!
+2025-10-28T05:18:13.107Z: [서버로그]::fMc5PV6jV8GNaBKoAAE1 :: connected!!
+2025-10-28T05:18:16.749Z: [서버로그]::-dj-YXyEDw5IC_voAAE3 :: connected!!
+2025-10-28T05:18:19.480Z: [서버로그]::3tk0YqXsxlPkigi1AAE5 :: connected!!
+2025-10-28T05:18:19.562Z: [서버로그]::room_info recv:: {"rm_idx":674,"con_user_id":"01077417262"}
+2025-10-28T05:18:19.563Z: [서버로그]::update multiple : rm_idx::674::user_id:01077417262
+2025-10-28T05:18:19.565Z: [서버로그]::Error in updateMessageUserCount: undefined
+2025-10-28T05:18:19.570Z: [서버로그]::room_info_return::674
+2025-10-28T05:18:23.557Z: [서버로그]::=== 채팅 메시지 수신 시작 ===
+2025-10-28T05:18:23.559Z: [서버로그]::메시지 정보 - user_id: 01077417262, rm_idx: 674, text: ㅜㅜ
+2025-10-28T05:18:23.559Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 674, user_id: 01077417262
+2025-10-28T05:18:23.559Z: [서버로그]::방 정보 조회 시작
+2025-10-28T05:18:23.557Z: [서버로그]::message_insert recv:: {"rm_idx":674,"user_id":"01077417262","chat_type":"recruit","mg_type":"text","mg_text":"ㅜㅜ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:16:59.261Z","mg_reads":[{"read_yn":"N","user_id":"01083092881"},{"read_yn":"Y","user_id":"01077417262"}]}
+2025-10-28T05:18:23.558Z: [서버로그]::rm_users:: [{"user_id":"01083092881"},{"user_id":"01077417262"}]
+2025-10-28T05:18:23.558Z: [서버로그]::socket.id:: 3tk0YqXsxlPkigi1AAE5
+2025-10-28T05:18:23.564Z: [서버로그]::사용자 정보 조회 시작
+2025-10-28T05:18:23.564Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-28T05:18:23.567Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-28T05:18:23.571Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-28T05:18:23.573Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-28T05:18:23.579Z: [서버로그]::방 정보 업데이트 시작
+2025-10-28T05:18:23.581Z: [서버로그]::방 정보 업데이트 완료
+2025-10-28T05:18:23.581Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01077417262","mg_idx":2633,"mg_type":"text","mg_text":"ㅜㅜ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:18:23.578Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"3tk0YqXsxlPkigi1AAE5","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:18:06.314Z"}]}]
+2025-10-28T05:18:23.581Z: [서버로그]::메시지 삽입 결과: {"code":"00","msg":"등록성공","data":[{"user_id":"01077417262","mg_idx":2633,"mg_type":"text","mg_text":"ㅜㅜ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:18:23.578Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"3tk0YqXsxlPkigi1AAE5","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:18:06.314Z"}]}]}
+2025-10-28T05:18:23.581Z: [서버로그]::메시지 삽입 성공 여부: 성공
+2025-10-28T05:18:23.582Z: [서버로그]::클라이언트에게 message_insert_return 전송 완료
+2025-10-28T05:18:23.584Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-28T05:18:23.584Z: [서버로그]::요청 파라미터: {"rm_idx":674}
+2025-10-28T05:18:23.584Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-28T05:18:23.584Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 674
+2025-10-28T05:18:23.583Z: [서버로그]::=== DB에서 채팅방 사용자 조회 시작 ===
+2025-10-28T05:18:23.593Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-28T05:18:23.594Z: [서버로그]::채팅방 정보: {"rm_idx":674,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-28T05:18:23.594Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-28T05:18:23.594Z: [서버로그]::사용자 목록: [{"user_id":"user_1048","user_nick":"사용자_1048"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01077417262"}]
+2025-10-28T05:18:23.594Z: [서버로그]::DB에서 조회한 사용자 수: 3
+2025-10-28T05:18:23.594Z: [서버로그]::=== 기존 방 정보 조회 시작 ===
+2025-10-28T05:18:23.601Z: [서버로그]::기존 방 정보 사용자 수: 3
+2025-10-28T05:18:23.601Z: [서버로그]::최종 사용자 목록 수: 4
+2025-10-28T05:18:23.602Z: [서버로그]::최종 사용자 목록: [{"user_id":"user_1048","user_nick":"조회안됨"},{"user_id":"target_user","user_nick":"조회안됨"},{"user_id":"01077417262","user_nick":"원아웃소싱"},{"user_id":"01083092881"}]
+2025-10-28T05:18:23.602Z: [서버로그]::발신자 ID: 01077417262
+2025-10-28T05:18:23.603Z: [서버로그]::사용자 필터링 - user_id: user_1048, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:23.603Z: [서버로그]::사용자 필터링 - user_id: target_user, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:23.603Z: [서버로그]::사용자 필터링 - user_id: 01077417262, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:23.603Z: [서버로그]::사용자 필터링 - user_id: 01083092881, g_user_id: 01077417262, isRealUser: true
+2025-10-28T05:18:23.606Z: [서버로그]::발신자 이름: 원아웃소싱
+2025-10-28T05:18:23.606Z: [서버로그]::현재 접속 중인 사용자: ["01083092881","01077417262"]
+2025-10-28T05:18:23.606Z: [서버로그]::방 참여자 수: 4
+2025-10-28T05:18:23.606Z: [서버로그]::실시간 알림 표시 - 접속 중인 사용자: 01083092881
+2025-10-28T05:18:23.607Z: [서버로그]::=== 푸시 알림 대상 사용자 처리 시작 ===
+2025-10-28T05:18:23.607Z: [서버로그]::대상 사용자 수: 1
+2025-10-28T05:18:23.607Z: [서버로그]::대상 사용자 목록: [{"user_id":"01083092881"}]
+2025-10-28T05:18:23.607Z: [서버로그]::--- 사용자 처리 시작: 01083092881 ---
+2025-10-28T05:18:23.607Z: [서버로그]::초기 토큰 상태: 없음
+2025-10-28T05:18:23.607Z: [서버로그]::MongoDB에서 토큰이 없음, MySQL에서 조회 시도 - user_id: 01083092881
+2025-10-28T05:18:23.607Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-10-28T05:18:23.609Z: [서버로그]::MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:23.609Z: [서버로그]::✅ MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:23.609Z: [서버로그]::🚀 푸시 알림 발송 시작 - 발신자: 원아웃소싱, 대상: 01083092881, 채팅유형: recruit
+2025-10-28T05:18:23.609Z: [서버로그]::푸시 데이터: {"user_id":"01083092881","no_subject":"채용공고 메시지 알림","no_text":"[원아웃소싱]님의 채용공고 메시지가 도착했습니다.","no_url":"","no_token":"ckfm4qx6TP-04vKgmlxIh_:APA91bEZriF88Oi4cf4Hoz3eqmIOs6v2v5-7cwUyCo6jytDPdQBKaNz_s5U2BoFB5zCyFwLP2sRFxj75w3jY2DfZaSsyTgzBVIxmbVCsArivAqieaYVCSZM","no_result":"","reg_dt":"2025-10-28T05:18:23.609Z"}
+2025-10-28T05:18:23.610Z: [서버로그]::--- 사용자 처리 완료: 01083092881 ---
+2025-10-28T05:18:23.614Z: [서버로그]::푸시 알림 DB 저장 결과 - idx: 788
+2025-10-28T05:18:23.614Z: [서버로그]::FCM 푸시 알림 전송 시작 - idx: 788
+2025-10-28T05:18:23.614Z: [서버로그]::=== FCM 푸시 알림 전송 시작 ===
+2025-10-28T05:18:23.614Z: [서버로그]::FCM 발송 시도 - 사용자ID: 01083092881, 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:23.615Z: [서버로그]::FCM 발송 데이터 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:18:23.615Z: [서버로그]::FCM 토큰 형식 확인 - 토큰 길이: 142, 토큰 시작: ckfm4qx6TP
+2025-10-28T05:18:23.615Z: [서버로그]::FCM 메시지 구성 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:18:23.615Z: [서버로그]::FCM 메시지 전송 시작 - 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:23.617Z: [서버로그]::✅ FCM 푸시 발송 완료 → user_id: 01083092881
+2025-10-28T05:18:23.622Z: [서버로그]::rm_idx::674::mg_idx:2633::user_id:01077417262
+2025-10-28T05:18:23.845Z: [서버로그]::=== FCM 푸시 메시지 전송 성공 ===
+2025-10-28T05:18:23.846Z: [서버로그]::푸시 메시지[성공]:::projects/nowjob-cb256/messages/0:1761628616104111%6868c5066868c506
+2025-10-28T05:18:23.848Z: [서버로그]::푸시 알림 DB 업데이트 성공 - send_yn: Y
+2025-10-28T05:18:28.315Z: [서버로그]::=== 채팅 메시지 수신 시작 ===
+2025-10-28T05:18:28.315Z: [서버로그]::message_insert recv:: {"rm_idx":674,"user_id":"01077417262","chat_type":"recruit","mg_type":"text","mg_text":"ㅑ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:17:04.020Z","mg_reads":[{"read_yn":"N","user_id":"01083092881"},{"read_yn":"Y","user_id":"01077417262"}]}
+2025-10-28T05:18:28.315Z: [서버로그]::rm_users:: [{"user_id":"01083092881"},{"user_id":"01077417262"}]
+2025-10-28T05:18:28.315Z: [서버로그]::socket.id:: 3tk0YqXsxlPkigi1AAE5
+2025-10-28T05:18:28.315Z: [서버로그]::메시지 정보 - user_id: 01077417262, rm_idx: 674, text: ㅑ
+2025-10-28T05:18:28.316Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 674, user_id: 01077417262
+2025-10-28T05:18:28.316Z: [서버로그]::방 정보 조회 시작
+2025-10-28T05:18:28.318Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-28T05:18:28.318Z: [서버로그]::사용자 정보 조회 시작
+2025-10-28T05:18:28.320Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-28T05:18:28.320Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-28T05:18:28.322Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-28T05:18:28.326Z: [서버로그]::방 정보 업데이트 시작
+2025-10-28T05:18:28.328Z: [서버로그]::방 정보 업데이트 완료
+2025-10-28T05:18:28.328Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01077417262","mg_idx":2634,"mg_type":"text","mg_text":"ㅑ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:18:28.325Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"3tk0YqXsxlPkigi1AAE5","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:18:06.314Z"}]}]
+2025-10-28T05:18:28.330Z: [서버로그]::메시지 삽입 결과: {"code":"00","msg":"등록성공","data":[{"user_id":"01077417262","mg_idx":2634,"mg_type":"text","mg_text":"ㅑ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:18:28.325Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"3tk0YqXsxlPkigi1AAE5","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:18:06.314Z"}]}]}
+2025-10-28T05:18:28.330Z: [서버로그]::메시지 삽입 성공 여부: 성공
+2025-10-28T05:18:28.331Z: [서버로그]::클라이언트에게 message_insert_return 전송 완료
+2025-10-28T05:18:28.331Z: [서버로그]::=== DB에서 채팅방 사용자 조회 시작 ===
+2025-10-28T05:18:28.331Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-28T05:18:28.331Z: [서버로그]::요청 파라미터: {"rm_idx":674}
+2025-10-28T05:18:28.331Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-28T05:18:28.331Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 674
+2025-10-28T05:18:28.333Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-28T05:18:28.335Z: [서버로그]::채팅방 정보: {"rm_idx":674,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-28T05:18:28.336Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-28T05:18:28.336Z: [서버로그]::사용자 목록: [{"user_id":"user_1048","user_nick":"사용자_1048"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01077417262"}]
+2025-10-28T05:18:28.336Z: [서버로그]::DB에서 조회한 사용자 수: 3
+2025-10-28T05:18:28.336Z: [서버로그]::=== 기존 방 정보 조회 시작 ===
+2025-10-28T05:18:28.341Z: [서버로그]::기존 방 정보 사용자 수: 3
+2025-10-28T05:18:28.341Z: [서버로그]::최종 사용자 목록 수: 4
+2025-10-28T05:18:28.342Z: [서버로그]::최종 사용자 목록: [{"user_id":"user_1048","user_nick":"조회안됨"},{"user_id":"target_user","user_nick":"조회안됨"},{"user_id":"01077417262","user_nick":"원아웃소싱"},{"user_id":"01083092881"}]
+2025-10-28T05:18:28.342Z: [서버로그]::발신자 ID: 01077417262
+2025-10-28T05:18:28.342Z: [서버로그]::사용자 필터링 - user_id: user_1048, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:28.342Z: [서버로그]::사용자 필터링 - user_id: target_user, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:28.342Z: [서버로그]::사용자 필터링 - user_id: 01077417262, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:28.343Z: [서버로그]::사용자 필터링 - user_id: 01083092881, g_user_id: 01077417262, isRealUser: true
+2025-10-28T05:18:28.345Z: [서버로그]::발신자 이름: 원아웃소싱
+2025-10-28T05:18:28.346Z: [서버로그]::현재 접속 중인 사용자: ["01083092881","01077417262"]
+2025-10-28T05:18:28.346Z: [서버로그]::방 참여자 수: 4
+2025-10-28T05:18:28.346Z: [서버로그]::실시간 알림 표시 - 접속 중인 사용자: 01083092881
+2025-10-28T05:18:28.346Z: [서버로그]::=== 푸시 알림 대상 사용자 처리 시작 ===
+2025-10-28T05:18:28.346Z: [서버로그]::대상 사용자 수: 1
+2025-10-28T05:18:28.346Z: [서버로그]::대상 사용자 목록: [{"user_id":"01083092881"}]
+2025-10-28T05:18:28.346Z: [서버로그]::--- 사용자 처리 시작: 01083092881 ---
+2025-10-28T05:18:28.346Z: [서버로그]::초기 토큰 상태: 없음
+2025-10-28T05:18:28.346Z: [서버로그]::MongoDB에서 토큰이 없음, MySQL에서 조회 시도 - user_id: 01083092881
+2025-10-28T05:18:28.346Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-10-28T05:18:28.348Z: [서버로그]::MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:28.348Z: [서버로그]::✅ MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:28.348Z: [서버로그]::🚀 푸시 알림 발송 시작 - 발신자: 원아웃소싱, 대상: 01083092881, 채팅유형: recruit
+2025-10-28T05:18:28.348Z: [서버로그]::푸시 데이터: {"user_id":"01083092881","no_subject":"채용공고 메시지 알림","no_text":"[원아웃소싱]님의 채용공고 메시지가 도착했습니다.","no_url":"","no_token":"ckfm4qx6TP-04vKgmlxIh_:APA91bEZriF88Oi4cf4Hoz3eqmIOs6v2v5-7cwUyCo6jytDPdQBKaNz_s5U2BoFB5zCyFwLP2sRFxj75w3jY2DfZaSsyTgzBVIxmbVCsArivAqieaYVCSZM","no_result":"","reg_dt":"2025-10-28T05:18:28.348Z"}
+2025-10-28T05:18:28.351Z: [서버로그]::--- 사용자 처리 완료: 01083092881 ---
+2025-10-28T05:18:28.362Z: [서버로그]::푸시 알림 DB 저장 결과 - idx: 789
+2025-10-28T05:18:28.362Z: [서버로그]::FCM 푸시 알림 전송 시작 - idx: 789
+2025-10-28T05:18:28.362Z: [서버로그]::=== FCM 푸시 알림 전송 시작 ===
+2025-10-28T05:18:28.363Z: [서버로그]::FCM 발송 시도 - 사용자ID: 01083092881, 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:28.364Z: [서버로그]::FCM 발송 데이터 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:18:28.364Z: [서버로그]::FCM 토큰 형식 확인 - 토큰 길이: 142, 토큰 시작: ckfm4qx6TP
+2025-10-28T05:18:28.364Z: [서버로그]::FCM 메시지 구성 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:18:28.366Z: [서버로그]::FCM 메시지 전송 시작 - 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:28.367Z: [서버로그]::✅ FCM 푸시 발송 완료 → user_id: 01083092881
+2025-10-28T05:18:28.378Z: [서버로그]::rm_idx::674::mg_idx:2634::user_id:01077417262
+2025-10-28T05:18:28.594Z: [서버로그]::=== FCM 푸시 메시지 전송 성공 ===
+2025-10-28T05:18:28.594Z: [서버로그]::푸시 메시지[성공]:::projects/nowjob-cb256/messages/0:1761628620866884%6868c5066868c506
+2025-10-28T05:18:28.595Z: [서버로그]::푸시 알림 DB 업데이트 성공 - send_yn: Y
+2025-10-28T05:18:30.841Z: [서버로그]::=== 채팅 메시지 수신 시작 ===
+2025-10-28T05:18:30.841Z: [서버로그]::message_insert recv:: {"rm_idx":674,"user_id":"01077417262","chat_type":"recruit","mg_type":"text","mg_text":"ㅛ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:17:06.548Z","mg_reads":[{"read_yn":"N","user_id":"01083092881"},{"read_yn":"Y","user_id":"01077417262"}]}
+2025-10-28T05:18:30.842Z: [서버로그]::rm_users:: [{"user_id":"01083092881"},{"user_id":"01077417262"}]
+2025-10-28T05:18:30.842Z: [서버로그]::socket.id:: 3tk0YqXsxlPkigi1AAE5
+2025-10-28T05:18:30.842Z: [서버로그]::메시지 정보 - user_id: 01077417262, rm_idx: 674, text: ㅛ
+2025-10-28T05:18:30.842Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 674, user_id: 01077417262
+2025-10-28T05:18:30.842Z: [서버로그]::방 정보 조회 시작
+2025-10-28T05:18:30.846Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-28T05:18:30.846Z: [서버로그]::사용자 정보 조회 시작
+2025-10-28T05:18:30.862Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-28T05:18:30.862Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-28T05:18:30.865Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-28T05:18:30.872Z: [서버로그]::방 정보 업데이트 시작
+2025-10-28T05:18:30.875Z: [서버로그]::방 정보 업데이트 완료
+2025-10-28T05:18:30.875Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01077417262","mg_idx":2635,"mg_type":"text","mg_text":"ㅛ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:18:30.870Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"3tk0YqXsxlPkigi1AAE5","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:18:06.314Z"}]}]
+2025-10-28T05:18:30.875Z: [서버로그]::메시지 삽입 결과: {"code":"00","msg":"등록성공","data":[{"user_id":"01077417262","mg_idx":2635,"mg_type":"text","mg_text":"ㅛ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T05:18:30.870Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"3tk0YqXsxlPkigi1AAE5","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"ecmI1NnOT9arPNWbQV3stR:APA91bHHH_rSpXNMWocOggWEMD22o2uBHQCfANTn9CVyxq6_8Hmeh2dVhqLSlFRBdWwHyusvrol03o1PJCrU_MScpl6XVeo3aT3FBz2WHmO-dRPk9-hxYvc","last_location":"chat_room","last_update":"2025-10-28T05:18:06.314Z"}]}]}
+2025-10-28T05:18:30.876Z: [서버로그]::메시지 삽입 성공 여부: 성공
+2025-10-28T05:18:30.878Z: [서버로그]::클라이언트에게 message_insert_return 전송 완료
+2025-10-28T05:18:30.878Z: [서버로그]::=== DB에서 채팅방 사용자 조회 시작 ===
+2025-10-28T05:18:30.878Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-28T05:18:30.878Z: [서버로그]::요청 파라미터: {"rm_idx":674}
+2025-10-28T05:18:30.879Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-28T05:18:30.879Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 674
+2025-10-28T05:18:30.883Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-28T05:18:30.885Z: [서버로그]::채팅방 정보: {"rm_idx":674,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-28T05:18:30.886Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-28T05:18:30.886Z: [서버로그]::사용자 목록: [{"user_id":"user_1048","user_nick":"사용자_1048"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01077417262"}]
+2025-10-28T05:18:30.886Z: [서버로그]::DB에서 조회한 사용자 수: 3
+2025-10-28T05:18:30.886Z: [서버로그]::=== 기존 방 정보 조회 시작 ===
+2025-10-28T05:18:30.896Z: [서버로그]::기존 방 정보 사용자 수: 3
+2025-10-28T05:18:30.896Z: [서버로그]::최종 사용자 목록 수: 4
+2025-10-28T05:18:30.896Z: [서버로그]::최종 사용자 목록: [{"user_id":"user_1048","user_nick":"조회안됨"},{"user_id":"target_user","user_nick":"조회안됨"},{"user_id":"01077417262","user_nick":"원아웃소싱"},{"user_id":"01083092881"}]
+2025-10-28T05:18:30.896Z: [서버로그]::발신자 ID: 01077417262
+2025-10-28T05:18:30.896Z: [서버로그]::사용자 필터링 - user_id: user_1048, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:30.897Z: [서버로그]::사용자 필터링 - user_id: target_user, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:30.897Z: [서버로그]::사용자 필터링 - user_id: 01077417262, g_user_id: 01077417262, isRealUser: false
+2025-10-28T05:18:30.897Z: [서버로그]::사용자 필터링 - user_id: 01083092881, g_user_id: 01077417262, isRealUser: true
+2025-10-28T05:18:30.904Z: [서버로그]::발신자 이름: 원아웃소싱
+2025-10-28T05:18:30.904Z: [서버로그]::현재 접속 중인 사용자: ["01083092881","01077417262"]
+2025-10-28T05:18:30.904Z: [서버로그]::방 참여자 수: 4
+2025-10-28T05:18:30.904Z: [서버로그]::실시간 알림 표시 - 접속 중인 사용자: 01083092881
+2025-10-28T05:18:30.904Z: [서버로그]::=== 푸시 알림 대상 사용자 처리 시작 ===
+2025-10-28T05:18:30.904Z: [서버로그]::대상 사용자 수: 1
+2025-10-28T05:18:30.904Z: [서버로그]::대상 사용자 목록: [{"user_id":"01083092881"}]
+2025-10-28T05:18:30.904Z: [서버로그]::--- 사용자 처리 시작: 01083092881 ---
+2025-10-28T05:18:30.904Z: [서버로그]::초기 토큰 상태: 없음
+2025-10-28T05:18:30.904Z: [서버로그]::MongoDB에서 토큰이 없음, MySQL에서 조회 시도 - user_id: 01083092881
+2025-10-28T05:18:30.905Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-10-28T05:18:30.908Z: [서버로그]::MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:30.909Z: [서버로그]::✅ MySQL에서 FCM 토큰 발견: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:30.909Z: [서버로그]::🚀 푸시 알림 발송 시작 - 발신자: 원아웃소싱, 대상: 01083092881, 채팅유형: recruit
+2025-10-28T05:18:30.911Z: [서버로그]::푸시 데이터: {"user_id":"01083092881","no_subject":"채용공고 메시지 알림","no_text":"[원아웃소싱]님의 채용공고 메시지가 도착했습니다.","no_url":"","no_token":"ckfm4qx6TP-04vKgmlxIh_:APA91bEZriF88Oi4cf4Hoz3eqmIOs6v2v5-7cwUyCo6jytDPdQBKaNz_s5U2BoFB5zCyFwLP2sRFxj75w3jY2DfZaSsyTgzBVIxmbVCsArivAqieaYVCSZM","no_result":"","reg_dt":"2025-10-28T05:18:30.911Z"}
+2025-10-28T05:18:30.912Z: [서버로그]::--- 사용자 처리 완료: 01083092881 ---
+2025-10-28T05:18:30.916Z: [서버로그]::rm_idx::674::mg_idx:2635::user_id:01077417262
+2025-10-28T05:18:30.923Z: [서버로그]::푸시 알림 DB 저장 결과 - idx: 790
+2025-10-28T05:18:30.923Z: [서버로그]::FCM 푸시 알림 전송 시작 - idx: 790
+2025-10-28T05:18:30.923Z: [서버로그]::=== FCM 푸시 알림 전송 시작 ===
+2025-10-28T05:18:30.923Z: [서버로그]::FCM 발송 시도 - 사용자ID: 01083092881, 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:30.924Z: [서버로그]::FCM 발송 데이터 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:18:30.924Z: [서버로그]::FCM 토큰 형식 확인 - 토큰 길이: 142, 토큰 시작: ckfm4qx6TP
+2025-10-28T05:18:30.924Z: [서버로그]::FCM 메시지 구성 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T05:18:30.924Z: [서버로그]::FCM 메시지 전송 시작 - 토큰: ckfm4qx6TP-04vKgmlxI...
+2025-10-28T05:18:30.924Z: [서버로그]::✅ FCM 푸시 발송 완료 → user_id: 01083092881
+2025-10-28T05:18:31.151Z: [서버로그]::=== FCM 푸시 메시지 전송 성공 ===
+2025-10-28T05:18:31.151Z: [서버로그]::푸시 메시지[성공]:::projects/nowjob-cb256/messages/0:1761628623407058%6868c5066868c506
+2025-10-28T05:18:31.156Z: [서버로그]::푸시 알림 DB 업데이트 성공 - send_yn: Y
+2025-10-28T05:19:57.739Z: [서버로그]::P3fICyrcJ3jY6ZlDAAE7 :: connected!!
+2025-10-28T05:21:22.050Z: [서버로그]::m4f5o94VNjwxvfIfAAE9 :: connected!!
+2025-10-28T05:21:26.282Z: [서버로그]::waemoFqGzdtOs6IPAAE_ :: connected!!
+2025-10-28T05:21:42.661Z: [서버로그]::w9S3DfSZ77yv1EezAAFB :: connected!!
+2025-10-28T05:28:11.290Z: [서버로그]::SDDhTtRBn51kx49RAAFD :: connected!!
+2025-10-28T05:28:25.738Z: [서버로그]::6hS4l52wofZEBxZ6AAFF :: connected!!
+2025-10-28T05:28:40.605Z: [서버로그]::XhNGPZlujaiO0E2IAAFH :: connected!!
+2025-10-28T05:28:55.666Z: [서버로그]::EVEEN-lTAX7HPr-IAAFJ :: connected!!
+2025-10-28T05:29:00.410Z: [서버로그]::lCaKRdVFnQF4MlDNAAFL :: connected!!
+2025-10-28T05:29:01.144Z: [서버로그]::ZrUxOsfYCnCL7nG7AAFN :: connected!!
+2025-10-28T05:42:06.626Z: [서버로그]::XnxGYe7E783t-NDQAAFP :: connected!!
+2025-10-28T05:49:26.758Z: [서버로그]::lVGOfUFxLJzuB3yxAAFS :: connected!!
+2025-10-28T05:49:26.783Z: [서버로그]::Ihwq56fbVkeiwXJhAAFT :: connected!!
+2025-10-28T05:49:28.098Z: [서버로그]::r57OjJFPTBVntlzHAAFW :: connected!!
+2025-10-28T05:49:28.117Z: [서버로그]::tD1UAmVTpV4Bn4HiAAFX :: connected!!
+2025-10-28T05:49:38.396Z: [서버로그]::zXguwBZvQq0qahVLAAFa :: connected!!
+2025-10-28T05:49:38.416Z: [서버로그]::S4PeVFutB59MtmRMAAFb :: connected!!
+2025-10-28T05:49:40.245Z: [서버로그]::8yVAd9qqv3IHRm4gAAFd :: connected!!
+2025-10-28T05:50:13.458Z: [서버로그]::GQc_et_Y5xDNVsOTAAFg :: connected!!
+2025-10-28T05:50:13.476Z: [서버로그]::LPgooodM54NP6CSBAAFh :: connected!!
+2025-10-28T05:50:15.499Z: [서버로그]::q6NWcspUuK7Jht4uAAFk :: connected!!
+2025-10-28T05:50:15.520Z: [서버로그]::K7bYKVuiFufzbOUGAAFl :: connected!!
+2025-10-28T05:50:19.603Z: [서버로그]::ktUa99cgTD9rDzXEAAFo :: connected!!
+2025-10-28T05:50:19.617Z: [서버로그]::BXC-CuyPl-RJvTClAAFp :: connected!!
+2025-10-28T05:50:20.721Z: [서버로그]::F-SnANcVn1xWC6s3AAFr :: connected!!
+2025-10-28T05:50:22.848Z: [서버로그]::vSSVas0_tlQbGEIXAAFt :: connected!!
+2025-10-28T05:50:32.636Z: [서버로그]::ThNl2T_CVfJk55tTAAFv :: connected!!
+2025-10-28T05:50:41.442Z: [서버로그]::s86ospHERkNfhoPQAAFx :: connected!!
+2025-10-28T05:50:42.102Z: [서버로그]::bYGCplIscnSOS2QzAAFz :: connected!!
+2025-10-28T05:50:43.501Z: [서버로그]::AZiTl4GIuapNK2YIAAF2 :: connected!!
+2025-10-28T05:50:43.530Z: [서버로그]::Nou1kFw5NbWv4U2pAAF3 :: connected!!
+2025-10-28T05:50:44.930Z: [서버로그]::GdQMEBhlFej-nJQ3AAF5 :: connected!!
+2025-10-28T05:50:46.299Z: [서버로그]::VStIzOY28pCO42OkAAF8 :: connected!!
+2025-10-28T05:50:46.325Z: [서버로그]::whvdiKfObaBfDpS2AAF9 :: connected!!
+2025-10-28T05:50:47.967Z: [서버로그]::Wv8XJFldstp5mbvRAAGA :: connected!!
+2025-10-28T05:50:47.990Z: [서버로그]::eSx_j5cmx3jHu4W-AAGB :: connected!!
+2025-10-28T05:50:52.051Z: [서버로그]::15Zto5qUoBhh8KzvAAGE :: connected!!
+2025-10-28T05:50:52.068Z: [서버로그]::D1KJ_QrrbgzNAs8UAAGF :: connected!!
+2025-10-28T05:50:53.754Z: [서버로그]::ZPinj69eGo4IOkTEAAGH :: connected!!
+2025-10-28T05:50:54.210Z: [서버로그]::MAS5uL9TLmAKhG6CAAGJ :: connected!!
+2025-10-28T05:50:57.339Z: [서버로그]::9CxvdvXNJbbsh6DCAAGL :: connected!!
+2025-10-28T05:50:58.691Z: [서버로그]::bzLO3B4gBD22b3iFAAGN :: connected!!
+2025-10-28T05:51:00.196Z: [서버로그]::-GNrM7jE0AgybIw0AAGP :: connected!!
+2025-10-28T05:51:01.428Z: [서버로그]::EQQ11LiyQzhsTraDAAGS :: connected!!
+2025-10-28T05:51:01.445Z: [서버로그]::QfmypOa1H9256LO5AAGT :: connected!!
+2025-10-28T05:51:01.842Z: [서버로그]::2sJ-77clQvZM8kk2AAGV :: connected!!
+2025-10-28T05:51:03.504Z: [서버로그]::N630-9HDPV1iVCphAAGX :: connected!!
+2025-10-28T05:51:03.641Z: [서버로그]::njvTVzvh0fWGRvI8AAGa :: connected!!
+2025-10-28T05:51:03.659Z: [서버로그]::_hkpShf7igQHv1EaAAGb :: connected!!
+2025-10-28T05:51:04.371Z: [서버로그]::x93v7IIGdMyyTKlYAAGe :: connected!!
+2025-10-28T05:51:04.573Z: [서버로그]::XRGyoG6ErglnLq9MAAGf :: connected!!
+2025-10-28T05:51:07.824Z: [서버로그]::qUKAQaVFT2PMoUbfAAGi :: connected!!
+2025-10-28T05:51:07.841Z: [서버로그]::HZKnl6e2ntUsKO01AAGj :: connected!!
+2025-10-28T05:51:10.016Z: [서버로그]::pHq8ft8NAhIeYaU5AAGl :: connected!!
+2025-10-28T05:51:28.968Z: [서버로그]::PyCghvAxlHLsxeO5AAGo :: connected!!
+2025-10-28T05:51:28.993Z: [서버로그]::Csn26qSXFUUB2NZVAAGp :: connected!!
+2025-10-28T05:51:30.620Z: [서버로그]::Bm7SUMwFFvNqiKtFAAGs :: connected!!
+2025-10-28T05:51:30.638Z: [서버로그]::VDJtm_bouzry6oAHAAGt :: connected!!
+2025-10-28T05:51:34.141Z: [서버로그]::RqEsJVjNSZECugOAAAGw :: connected!!
+2025-10-28T05:51:34.160Z: [서버로그]::KL4Gfcuur32Z7bWsAAGx :: connected!!
+2025-10-28T05:51:35.741Z: [서버로그]::mCwg_mDNpXtahxrHAAGz :: connected!!
+2025-10-28T05:52:22.489Z: [서버로그]::eG3XrO1o5CxX3JlmAAG1 :: connected!!
+2025-10-28T05:52:24.210Z: [서버로그]::vHM0XCT5tugw1nyEAAG3 :: connected!!
+2025-10-28T05:55:06.637Z: [서버로그]::n0B9uHk3hiJAMAFGAAG5 :: connected!!
+2025-10-28T05:55:06.803Z: [서버로그]::ivOGo6Ias-WUh9dtAAG7 :: connected!!
+2025-10-28T05:55:07.391Z: [서버로그]::5MN4M8VP8uh0CazTAAG9 :: connected!!
+2025-10-28T05:55:09.264Z: [서버로그]::6H83hJm200mGCD1wAAHA :: connected!!
+2025-10-28T05:55:09.306Z: [서버로그]::I1BZnDGegh2qTMpiAAHB :: connected!!
+2025-10-28T05:55:15.992Z: [서버로그]::CoohwT3tmq8wcvuoAAHD :: connected!!
+2025-10-28T05:55:17.175Z: [서버로그]::wxENUqgPIW1j6eYLAAHG :: connected!!
+2025-10-28T05:55:17.198Z: [서버로그]::ly3v6BeSeo8OF46oAAHH :: connected!!
+2025-10-28T05:55:18.213Z: [서버로그]::E_UofjNVJnNuEhJSAAHJ :: connected!!
+2025-10-28T05:55:23.226Z: [서버로그]::p8fIkqociPZE8vbVAAHM :: connected!!
+2025-10-28T05:55:23.252Z: [서버로그]::r0s9N7TnODbdJysCAAHN :: connected!!
+2025-10-28T05:55:24.143Z: [서버로그]::kdD3HddfljYPLkLVAAHP :: connected!!
+2025-10-28T05:55:25.377Z: [서버로그]::qZzOAlhfQp0xpGIMAAHR :: connected!!
+2025-10-28T05:55:25.588Z: [서버로그]::o_aOgqB1-jgOIzk9AAHT :: connected!!
+2025-10-28T05:55:27.243Z: [서버로그]::I2ycBifxsG_zxC0HAAHW :: connected!!
+2025-10-28T05:55:27.263Z: [서버로그]::wzyYcRNaREYMhn2CAAHX :: connected!!
+2025-10-28T05:55:30.469Z: [서버로그]::A6zS3gUGfZV1Hjc9AAHa :: connected!!
+2025-10-28T05:55:30.489Z: [서버로그]::tE4K5VzX2hg-9QSJAAHb :: connected!!
+2025-10-28T05:55:31.759Z: [서버로그]::NyVnGdnGusLmfCc5AAHd :: connected!!
+2025-10-28T05:55:33.770Z: [서버로그]::qTKgfEmOVK3u3wKaAAHg :: connected!!
+2025-10-28T05:55:33.804Z: [서버로그]::Ltvk8q7gKKFZJIpbAAHh :: connected!!
+2025-10-28T06:13:41.492Z: [서버로그]::jCdrHpA90ULPgykMAAHj :: connected!!
+2025-10-28T06:13:44.815Z: [서버로그]::cVhw19lrOv3e43keAAHl :: connected!!
+2025-10-28T06:13:46.996Z: [서버로그]::_UjcgrC3-_id0q-nAAHn :: connected!!
+2025-10-28T06:22:55.489Z: [서버로그]::AIY_bvtbH5Jn5hyCAAHp :: connected!!
+2025-10-28T06:22:56.761Z: [서버로그]::AgRvYzjJudT7CIHsAAHr :: connected!!
+2025-10-28T06:41:13.779Z: [서버로그]::slB3aQEZN9aUxzS_AAHy :: connected!!
+2025-10-28T06:41:14.898Z: [서버로그]::Sdbpf2BaUY9TohcgAAH0 :: connected!!
+2025-10-28T06:41:25.539Z: [서버로그]::bIahYS-FgXyzd4bHAAH2 :: connected!!
+2025-10-28T06:41:29.412Z: [서버로그]::RLRqVdjgs1ewRwPKAAH4 :: connected!!
+2025-10-28T06:43:18.209Z: [서버로그]::dZLgefZ05SwzELYXAAH6 :: connected!!
+2025-10-28T06:43:32.938Z: [서버로그]::6bMuo4nxJK64ZKQgAAH8 :: connected!!
+2025-10-28T06:43:46.898Z: [서버로그]::etEHLW6owNw7pj-cAAH- :: connected!!
+2025-10-28T06:44:06.406Z: [서버로그]::nfC8v41sYWjkuX0EAAIA :: connected!!
+2025-10-28T06:48:51.461Z: [서버로그]::7eOI3QE0QtsGmzAiAAIC :: connected!!
+2025-10-28T06:48:52.461Z: [서버로그]::z9kgjY1K__PWVA_zAAIE :: connected!!
+2025-10-28T06:48:53.233Z: [서버로그]::MGFm_NbTKOs3qf5fAAIG :: connected!!
+2025-10-28T06:51:49.411Z: [서버로그]::Afi47nzl36-z9ETZAAII :: connected!!
+2025-10-28T06:51:50.386Z: [서버로그]::XD9e5KnL_xH3GxywAAIK :: connected!!
+2025-10-28T06:53:46.914Z: [서버로그]::1xg7NkaPL6JUux1LAAIM :: connected!!
+2025-10-28T06:53:52.289Z: [서버로그]::aEREBvEqaqGCRdWyAAIO :: connected!!
+2025-10-28T06:53:54.714Z: [서버로그]::Bt9sBpRPDQ5rtaWBAAIQ :: connected!!
+2025-10-28T06:53:55.863Z: [서버로그]::1AtB0unxMtfxc9UsAAIS :: connected!!
+2025-10-28T06:54:11.148Z: [서버로그]::i9hEpfUmHWS4pU5BAAIU :: connected!!
+2025-10-28T06:55:37.855Z: [서버로그]::Uhqk67aNHDsoWGmzAAIW :: connected!!
+2025-10-28T06:55:43.201Z: [서버로그]::sNdjJM04jw0kCBzlAAIZ :: connected!!
+2025-10-28T06:55:43.222Z: [서버로그]::ljDadu_NFlivZHpQAAIa :: connected!!
+2025-10-28T06:55:56.797Z: [서버로그]::cXa9-LF3iKVTdddlAAId :: connected!!
+2025-10-28T06:55:56.811Z: [서버로그]::80Jvntt18iqNDDLgAAIe :: connected!!
+2025-10-28T06:55:58.573Z: [서버로그]::ICaYsVM8zVlRtY21AAIh :: connected!!
+2025-10-28T06:55:58.597Z: [서버로그]::qW8SWxta23O-xqrkAAIi :: connected!!
+2025-10-28T06:55:59.663Z: [서버로그]::YOIjvniuzT-XIycFAAIk :: connected!!
+2025-10-28T06:59:54.569Z: [서버로그]::brZK6DVbBUrSMXz7AAIo :: connected!!
+2025-10-28T06:59:55.530Z: [서버로그]::oA0c5vj11PCUMCj1AAIq :: connected!!
+2025-10-28T07:00:23.442Z: [서버로그]::mYJK_R8pg3vS87RaAAIs :: connected!!
+2025-10-28T07:00:55.668Z: [서버로그]::RYem-l9-LJ3Z-RIZAAIu :: connected!!
+2025-10-28T07:01:08.376Z: [서버로그]::osaZ1FpuVi-na32uAAIw :: connected!!
+2025-10-28T07:01:09.411Z: [서버로그]::8JcVppm5ukhwNKExAAIy :: connected!!
+2025-10-28T07:01:13.495Z: [서버로그]::j-nhcP4nNXcMqntAAAI0 :: connected!!
+2025-10-28T07:01:14.658Z: [서버로그]::LHPZmZL1_vL8_MqDAAI2 :: connected!!
+2025-10-28T07:01:18.009Z: [서버로그]::OJulQLmLyyhCbyAqAAI4 :: connected!!
+2025-10-28T07:01:21.797Z: [서버로그]::7XcmQKZCx6FBJZEIAAI6 :: connected!!
+2025-10-28T07:01:24.255Z: [서버로그]::TFo4JdHoCYLlI_Y0AAI8 :: connected!!
+2025-10-28T07:03:35.996Z: [서버로그]::NYvWSpBydfWt5-NSAAI- :: connected!!
+2025-10-28T07:03:52.573Z: [서버로그]::wZup1NCjg0PDH7OAAAJA :: connected!!
+2025-10-28T07:03:53.518Z: [서버로그]::-LWRNtPnzIRtux3hAAJC :: connected!!
+2025-10-28T07:07:17.828Z: [서버로그]::wvq7Ic-maJPugRX_AAJE :: connected!!
+2025-10-28T07:07:18.555Z: [서버로그]::6shfsMrT6hZCwq-nAAJG :: connected!!
+2025-10-28T07:10:08.368Z: [서버로그]::og4ee_WAHM2WGiVxAAJI :: connected!!
+2025-10-28T07:10:09.603Z: [서버로그]::JE3hZVnVE9yh2GFHAAJK :: connected!!
+2025-10-28T07:11:20.823Z: [서버로그]::kszUuNVzrNiWoWtbAAJM :: connected!!
+2025-10-28T07:11:52.422Z: [서버로그]::lWHBQxc1BdbhmVQ2AAJO :: connected!!
+2025-10-28T07:12:58.067Z: [서버로그]::V4dvkPJiRwp9WC0_AAJQ :: connected!!
+2025-10-28T07:13:22.923Z: [서버로그]::6omXVkQY8g5aK7bcAAJS :: connected!!
+2025-10-28T07:14:58.820Z: [서버로그]::miKwquLW06eGpExMAAJU :: connected!!
+2025-10-28T07:32:21.617Z: [서버로그]::1lHShjWwuJKPT4jSAAJY :: connected!!
+2025-10-28T07:33:46.735Z: [서버로그]::bqyml8QMpdm8v1UFAAJa :: connected!!
+2025-10-28T07:34:06.655Z: [서버로그]::V7LfWm90hu5iBubnAAJc :: connected!!
+2025-10-28T07:34:19.021Z: [서버로그]::YnPV5UIeIcxdA8QhAAJe :: connected!!
+2025-10-28T07:34:20.898Z: [서버로그]::SGtHpZzV2hpDbXg-AAJg :: connected!!
+2025-10-28T07:34:22.138Z: [서버로그]::3UKCbjtU6XyerWtDAAJi :: connected!!
+2025-10-28T07:34:27.809Z: [서버로그]::D1tZN5z_XPK0Yd99AAJk :: connected!!
+2025-10-28T07:34:29.164Z: [서버로그]::hrS1WUIFXboJYbLtAAJm :: connected!!
+2025-10-28T07:34:46.832Z: [서버로그]::4UFHctTSPqjcFpoIAAJo :: connected!!
+2025-10-28T07:34:49.798Z: [서버로그]::kodB3UV_do4wzKekAAJq :: connected!!
+2025-10-28T07:35:17.502Z: [서버로그]::-ovMjLCd3K8ll886AAJs :: connected!!
+2025-10-28T07:35:18.891Z: [서버로그]::N0_twQUCqmH7QqTkAAJu :: connected!!
+2025-10-28T07:35:27.735Z: [서버로그]::Cljc8HbqCBfkBRfVAAJw :: connected!!
+2025-10-28T07:35:28.720Z: [서버로그]::nZ7iBV4JJ98O4yJ7AAJy :: connected!!
+2025-10-28T07:35:38.490Z: [서버로그]::fHSh_lSUE13Wd5-5AAJ0 :: connected!!
+2025-10-28T07:35:40.540Z: [서버로그]::h_WOi1M0xAVDJ0jLAAJ2 :: connected!!
+2025-10-28T07:35:43.531Z: [서버로그]::QU4pGZx7fPNwLCcCAAJ4 :: connected!!
+2025-10-28T07:35:45.986Z: [서버로그]::8Lc_3x0z-m-__HA3AAJ6 :: connected!!
+2025-10-28T07:35:46.860Z: [서버로그]::iH2lZrbj7gyyK4dzAAJ8 :: connected!!
+2025-10-28T07:35:56.070Z: [서버로그]::v9b_0MQhyAkk_hD0AAJ- :: connected!!
+2025-10-28T07:37:03.307Z: [서버로그]::XQUC1pyTNwqHSfxxAAKA :: connected!!
+2025-10-28T07:37:37.692Z: [서버로그]::vlRQ4AVVJ6TwxlF6AAKC :: connected!!
+2025-10-28T07:37:39.448Z: [서버로그]::W89e9_MpgCXezU6AAAKE :: connected!!
+2025-10-28T07:37:40.232Z: [서버로그]::-zQI8Y7VVsnjGL5PAAKG :: connected!!
+2025-10-28T07:37:58.727Z: [서버로그]::ymcbmZ149M-FkzAcAAKI :: connected!!
+2025-10-28T07:38:00.472Z: [서버로그]::v3t3awxfFTq66V5gAAKK :: connected!!
+2025-10-28T07:38:01.102Z: [서버로그]::W3O7-wvQZDOa73TyAAKM :: connected!!
+2025-10-28T07:38:03.069Z: [서버로그]::-0SfSFnBUUgz7KqMAAKO :: connected!!
+2025-10-28T07:38:07.285Z: [서버로그]::XFPHAkvP7gD9XVsAAAKQ :: connected!!
+2025-10-28T07:43:18.873Z: [서버로그]::O9E5UzldkRHpA4sTAAKS :: connected!!
+2025-10-28T07:43:25.462Z: [서버로그]::-xLhTuNW-Rh7Ue7XAAKU :: connected!!
+2025-10-28T07:43:29.333Z: [서버로그]::LzVTwwatI5wmZDstAAKW :: connected!!
+2025-10-28T07:43:38.594Z: [서버로그]::mF83hV3VcSaPVdrxAAKY :: connected!!
+2025-10-28T07:43:39.541Z: [서버로그]::LuOj1BBJ5LEQK1YmAAKa :: connected!!
+2025-10-28T07:51:59.286Z: [서버로그]::Mw-4NcXB_dc96EzZAAKc :: connected!!
+2025-10-28T07:52:01.703Z: [서버로그]::ytMtNqB_3jm8hHRSAAKe :: connected!!
+2025-10-28T07:52:14.655Z: [서버로그]::Mpat-6XNyfeOI9VuAAKg :: connected!!
+2025-10-28T07:53:01.143Z: [서버로그]::CrZm8l_lNBqgb5sjAAKi :: connected!!
+2025-10-28T07:53:03.013Z: [서버로그]::QZB-NIxae3Z1DT9tAAKk :: connected!!
+2025-10-28T07:53:05.462Z: [서버로그]::Pa5dk-Ac_GnLO-91AAKm :: connected!!
+2025-10-28T07:53:37.633Z: [서버로그]::C61ivp66d4QPCx_KAAKo :: connected!!
+2025-10-28T07:53:52.090Z: [서버로그]::apDPelQveIUTOd1pAAKq :: connected!!
+2025-10-28T07:54:38.729Z: [서버로그]::_5zsbUOxT9FS0IkGAAKs :: connected!!
+2025-10-28T07:55:24.420Z: [서버로그]::zZ5aIswurRqgiLrcAAKu :: connected!!
+2025-10-28T07:55:25.744Z: [서버로그]::U09RSgYUT8xMJIThAAKw :: connected!!
+2025-10-28T07:56:17.718Z: [서버로그]::aSdSnVjRWudahdbJAAKy :: connected!!
+2025-10-28T07:56:24.942Z: [서버로그]::2ZpvtX39g-5ZoZqoAAK0 :: connected!!
+2025-10-28T07:56:26.653Z: [서버로그]::2XvfA-lNB-St4uNJAAK2 :: connected!!
+2025-10-28T07:56:27.400Z: [서버로그]::w-WgxWCTUtuvhTvRAAK4 :: connected!!
+2025-10-28T07:57:16.131Z: [서버로그]::gSROCxn6huh67C47AAK6 :: connected!!
+2025-10-28T07:57:18.207Z: [서버로그]::4eU6VRBFbOXvWyC-AAK8 :: connected!!
+2025-10-28T07:59:11.403Z: [서버로그]::Le4WaZCx-ncO6uwTAAK- :: connected!!
+2025-10-28T08:00:15.865Z: [서버로그]::NR4Pv5g6BaI_IW23AALA :: connected!!
+2025-10-28T08:00:17.924Z: [서버로그]::Bv6WdT8oEKim7aX1AALC :: connected!!
+2025-10-28T08:01:08.597Z: [서버로그]::slif6IhPoS1aqcKhAALE :: connected!!
+2025-10-28T08:02:00.480Z: [서버로그]::05tdOkx3mCFkGsw8AALH :: connected!!
+2025-10-28T08:02:00.494Z: [서버로그]::VL_CYsXSShCP-vLdAALI :: connected!!
+2025-10-28T08:03:32.457Z: [서버로그]::VrckY7OfXgh6oA9lAALL :: connected!!
+2025-10-28T08:03:32.468Z: [서버로그]::jVtI5sKhYDb3DCe0AALM :: connected!!
+2025-10-28T08:03:34.929Z: [서버로그]::TAnMj6MVlfj1DzkFAALP :: connected!!
+2025-10-28T08:03:34.961Z: [서버로그]::1PDTA4gbfpzJZO0lAALQ :: connected!!
+2025-10-28T08:03:35.877Z: [서버로그]::b4vzkgkWCipgMhtDAALT :: connected!!
+2025-10-28T08:03:35.895Z: [서버로그]::GRjIZVg4Wnlc9DaaAALU :: connected!!
+2025-10-28T08:03:40.179Z: [서버로그]::l4iEiwf8TiCqL_xCAALX :: connected!!
+2025-10-28T08:03:40.201Z: [서버로그]::FcewD4f7DmqZJISJAALY :: connected!!
+2025-10-28T08:03:41.470Z: [서버로그]::T6YWTo8FK2SYQ_fCAALb :: connected!!
+2025-10-28T08:03:41.506Z: [서버로그]::Uz8nkudQSZG-ErYnAALc :: connected!!
+2025-10-28T08:03:50.969Z: [서버로그]::6UEKG886uFWNlPrJAALf :: connected!!
+2025-10-28T08:03:50.972Z: [서버로그]::4_zzExbYvT6KwCmvAALg :: connected!!
+2025-10-28T08:03:56.195Z: [서버로그]::x2idHWrb0c8GYuv7AALj :: connected!!
+2025-10-28T08:03:56.214Z: [서버로그]::9330dixGY-KG82UWAALk :: connected!!
+2025-10-28T08:04:00.584Z: [서버로그]::NfyOXDSLONUfPMDrAALm :: connected!!
+2025-10-28T08:04:04.060Z: [서버로그]::ipkVvEoV8JhNUZ5EAALo :: connected!!
+2025-10-28T08:04:05.678Z: [서버로그]::U3tk3xYrACPgUYItAALq :: connected!!
+2025-10-28T08:04:52.187Z: [서버로그]::LUx6uDgYK95VqFKHAALs :: connected!!
+2025-10-28T08:05:13.075Z: [서버로그]::uEv_rv-akhB_RVoYAALu :: connected!!
+2025-10-28T08:05:21.180Z: [서버로그]::LM0ae9d51M67IkH-AALw :: connected!!
+2025-10-28T08:05:27.924Z: [서버로그]::uH7hKz4N7_POQTEMAALy :: connected!!
+2025-10-28T08:05:28.810Z: [서버로그]::8CE4mtZAWqKOccuUAAL0 :: connected!!
+2025-10-28T08:05:33.368Z: [서버로그]::YwbqFFs4Fxw9Sm1LAAL2 :: connected!!
+2025-10-28T08:05:38.531Z: [서버로그]::9dn6DefIYLAAOkU9AAL4 :: connected!!
+2025-10-28T08:05:41.445Z: [서버로그]::YNhZldY2-Bt3ynI4AAL6 :: connected!!
+2025-10-28T08:05:47.130Z: [서버로그]::JIlpLDlcYF62vnsYAAL8 :: connected!!
+2025-10-28T08:05:59.476Z: [서버로그]::VnExjYGWMQDbQKxgAAL- :: connected!!
+2025-10-28T08:06:06.381Z: [서버로그]::1lNwgfy3R3wbVIOSAAMA :: connected!!
+2025-10-28T08:06:10.465Z: [서버로그]::0qOSz8XdjbOGsFdhAAMC :: connected!!
+2025-10-28T08:06:16.798Z: [서버로그]::XS8epL1ZKOJCDUKSAAME :: connected!!
+2025-10-28T08:06:17.703Z: [서버로그]::fXa32gFplaGocYx5AAMG :: connected!!
+2025-10-28T08:06:20.174Z: [서버로그]::qZK7Y7Ren2MIBbc7AAMI :: connected!!
+2025-10-28T08:06:21.917Z: [서버로그]::FW2EpVizbORPEj7WAAML :: connected!!
+2025-10-28T08:06:22.224Z: [서버로그]::bYXrAa-g7rExb0fZAAMM :: connected!!
+2025-10-28T08:06:24.643Z: [서버로그]::sxgDoO7YOLwx1RYqAAMO :: connected!!
+2025-10-28T08:06:24.706Z: [서버로그]::room_info recv:: {"rm_idx":675,"con_user_id":"01077417262"}
+2025-10-28T08:06:24.706Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-28T08:06:24.711Z: [서버로그]::Error in updateMessageUserCount: undefined
+2025-10-28T08:06:24.728Z: [서버로그]::room_info_return::675
+2025-10-28T08:06:26.766Z: [서버로그]::=== 채팅 메시지 수신 시작 ===
+2025-10-28T08:06:26.766Z: [서버로그]::message_insert recv:: {"rm_idx":675,"user_id":"01077417262","chat_type":"recruit","mg_type":"text","mg_text":"ㅎㅇㅅㅍ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T08:05:03.058Z","mg_reads":[{"read_yn":"N","user_id":"01083092881"},{"read_yn":"Y","user_id":"01077417262"}]}
+2025-10-28T08:06:26.766Z: [서버로그]::rm_users:: [{"user_id":"01083092881"},{"user_id":"01077417262"}]
+2025-10-28T08:06:26.766Z: [서버로그]::socket.id:: sxgDoO7YOLwx1RYqAAMO
+2025-10-28T08:06:26.766Z: [서버로그]::메시지 정보 - user_id: 01077417262, rm_idx: 675, text: ㅎㅇㅅㅍ
+2025-10-28T08:06:26.766Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 675, user_id: 01077417262
+2025-10-28T08:06:26.766Z: [서버로그]::방 정보 조회 시작
+2025-10-28T08:06:26.768Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-28T08:06:26.768Z: [서버로그]::사용자 정보 조회 시작
+2025-10-28T08:06:26.770Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-28T08:06:26.770Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-28T08:06:26.771Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-10-28T08:06:26.781Z: [서버로그]::방 정보 업데이트 시작
+2025-10-28T08:06:26.787Z: [서버로그]::방 정보 업데이트 완료
+2025-10-28T08:06:26.787Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":2636,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-28T08:06:26.778Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"01077417262","mg_idx":2637,"mg_type":"text","mg_text":"ㅎㅇㅅㅍ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T08:06:26.780Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"sxgDoO7YOLwx1RYqAAMO","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"c96FtK9SSH6AxG0bCmfhmN:APA91bEPtnyTsZY5eoVdK5y4uJ7daypp8BBqF6CLPGftGVNow325N4ZLlHaUrCuxzukXFgYPCUMlmyy3tFxjVqw4_MkZWigzm3U9Ik5YIaRpBN70JDinikI","last_location":"chat_room","last_update":"2025-10-28T05:21:42.540Z"}]}]
+2025-10-28T08:06:26.789Z: [서버로그]::메시지 삽입 결과: {"code":"00","msg":"등록성공","data":[{"user_id":"","mg_idx":2636,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-28T08:06:26.778Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"01077417262","mg_idx":2637,"mg_type":"text","mg_text":"ㅎㅇㅅㅍ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-28T08:06:26.780Z","mg_reads":[{"user_id":"user_1048","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01077417262","read_yn":"Y"}],"user_info":[{"_id":"682ab8527daf76133f200269","user_idx":"","user_id":"01077417262","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"원아웃소싱","user_img":"/resource/uploads/member/127c4e5949c3cd47ea1c12a214c4cfe4.jpg","user_desc":"","user_status":"Y","socket_id":"sxgDoO7YOLwx1RYqAAMO","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"c96FtK9SSH6AxG0bCmfhmN:APA91bEPtnyTsZY5eoVdK5y4uJ7daypp8BBqF6CLPGftGVNow325N4ZLlHaUrCuxzukXFgYPCUMlmyy3tFxjVqw4_MkZWigzm3U9Ik5YIaRpBN70JDinikI","last_location":"chat_room","last_update":"2025-10-28T05:21:42.540Z"}]}]}
+2025-10-28T08:06:26.789Z: [서버로그]::메시지 삽입 성공 여부: 성공
+2025-10-28T08:06:26.792Z: [서버로그]::클라이언트에게 message_insert_return 전송 완료
+2025-10-28T08:06:26.792Z: [서버로그]::=== DB에서 채팅방 사용자 조회 시작 ===
+2025-10-28T08:06:26.792Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-28T08:06:26.792Z: [서버로그]::요청 파라미터: {"rm_idx":675}
+2025-10-28T08:06:26.792Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-28T08:06:26.792Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 675
+2025-10-28T08:06:26.795Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-28T08:06:26.795Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-28T08:06:26.795Z: [서버로그]::채팅방 정보: {"rm_idx":675,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-28T08:06:26.795Z: [서버로그]::사용자 목록: [{"user_id":"user_1048","user_nick":"사용자_1048"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01077417262"}]
+2025-10-28T08:06:26.795Z: [서버로그]::DB에서 조회한 사용자 수: 3
+2025-10-28T08:06:26.795Z: [서버로그]::=== 기존 방 정보 조회 시작 ===
+2025-10-28T08:06:26.801Z: [서버로그]::기존 방 정보 사용자 수: 3
+2025-10-28T08:06:26.801Z: [서버로그]::최종 사용자 목록 수: 4
+2025-10-28T08:06:26.801Z: [서버로그]::최종 사용자 목록: [{"user_id":"user_1048","user_nick":"조회안됨"},{"user_id":"target_user","user_nick":"조회안됨"},{"user_id":"01077417262","user_nick":"원아웃소싱"},{"user_id":"01083092881"}]
+2025-10-28T08:06:26.801Z: [서버로그]::발신자 ID: 01077417262
+2025-10-28T08:06:26.801Z: [서버로그]::사용자 필터링 - user_id: user_1048, g_user_id: 01077417262, isRealUser: false
+2025-10-28T08:06:26.802Z: [서버로그]::사용자 필터링 - user_id: target_user, g_user_id: 01077417262, isRealUser: false
+2025-10-28T08:06:26.802Z: [서버로그]::사용자 필터링 - user_id: 01077417262, g_user_id: 01077417262, isRealUser: false
+2025-10-28T08:06:26.802Z: [서버로그]::사용자 필터링 - user_id: 01083092881, g_user_id: 01077417262, isRealUser: true
+2025-10-28T08:06:26.807Z: [서버로그]::발신자 이름: 원아웃소싱
+2025-10-28T08:06:26.807Z: [서버로그]::현재 접속 중인 사용자: ["01083092881","01077417262"]
+2025-10-28T08:06:26.807Z: [서버로그]::방 참여자 수: 4
+2025-10-28T08:06:26.807Z: [서버로그]::실시간 알림 표시 - 접속 중인 사용자: 01083092881
+2025-10-28T08:06:26.807Z: [서버로그]::=== 푸시 알림 대상 사용자 처리 시작 ===
+2025-10-28T08:06:26.807Z: [서버로그]::대상 사용자 수: 1
+2025-10-28T08:06:26.807Z: [서버로그]::대상 사용자 목록: [{"user_id":"01083092881"}]
+2025-10-28T08:06:26.808Z: [서버로그]::--- 사용자 처리 시작: 01083092881 ---
+2025-10-28T08:06:26.809Z: [서버로그]::초기 토큰 상태: 없음
+2025-10-28T08:06:26.809Z: [서버로그]::MongoDB에서 토큰이 없음, MySQL에서 조회 시도 - user_id: 01083092881
+2025-10-28T08:06:26.809Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-10-28T08:06:26.813Z: [서버로그]::MySQL에서 FCM 토큰 발견: fNplCUPRRdGTOw-CfF0v...
+2025-10-28T08:06:26.813Z: [서버로그]::✅ MySQL에서 FCM 토큰 발견: fNplCUPRRdGTOw-CfF0v...
+2025-10-28T08:06:26.814Z: [서버로그]::🚀 푸시 알림 발송 시작 - 발신자: 원아웃소싱, 대상: 01083092881, 채팅유형: recruit
+2025-10-28T08:06:26.814Z: [서버로그]::푸시 데이터: {"user_id":"01083092881","no_subject":"채용공고 메시지 알림","no_text":"[원아웃소싱]님의 채용공고 메시지가 도착했습니다.","no_url":"","no_token":"fNplCUPRRdGTOw-CfF0vFi:APA91bEfMDjjQ9R6oK3uGG7PUPRG_lXnlgC_Dx3UFKrNF50VKe4aYoqDXbWvaji1f5OynGQJFnITug9Sjm-ju3I2w0hUgiC74aisWQKJhtYROK1cpQvDPlc","no_result":"","reg_dt":"2025-10-28T08:06:26.814Z"}
+2025-10-28T08:06:26.814Z: [서버로그]::--- 사용자 처리 완료: 01083092881 ---
+2025-10-28T08:06:26.820Z: [서버로그]::푸시 알림 DB 저장 결과 - idx: 791
+2025-10-28T08:06:26.821Z: [서버로그]::FCM 푸시 알림 전송 시작 - idx: 791
+2025-10-28T08:06:26.821Z: [서버로그]::=== FCM 푸시 알림 전송 시작 ===
+2025-10-28T08:06:26.822Z: [서버로그]::FCM 발송 시도 - 사용자ID: 01083092881, 토큰: fNplCUPRRdGTOw-CfF0v...
+2025-10-28T08:06:26.822Z: [서버로그]::FCM 발송 데이터 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T08:06:26.822Z: [서버로그]::FCM 토큰 형식 확인 - 토큰 길이: 142, 토큰 시작: fNplCUPRRd
+2025-10-28T08:06:26.822Z: [서버로그]::FCM 메시지 구성 - 제목: 채용공고 메시지 알림, 내용: [원아웃소싱]님의 채용공고 메시지가 도착했습니다.
+2025-10-28T08:06:26.822Z: [서버로그]::FCM 메시지 전송 시작 - 토큰: fNplCUPRRdGTOw-CfF0v...
+2025-10-28T08:06:26.823Z: [서버로그]::✅ FCM 푸시 발송 완료 → user_id: 01083092881
+2025-10-28T08:06:26.830Z: [서버로그]::rm_idx::675::mg_idx:2636::user_id:01077417262
+2025-10-28T08:06:26.841Z: [서버로그]::rm_idx::675::mg_idx:2637::user_id:01077417262
+2025-10-28T08:06:27.325Z: [서버로그]::=== FCM 푸시 메시지 전송 성공 ===
+2025-10-28T08:06:27.325Z: [서버로그]::푸시 메시지[성공]:::projects/nowjob-cb256/messages/0:1761638699560858%6868c5066868c506
+2025-10-28T08:06:27.330Z: [서버로그]::푸시 알림 DB 업데이트 성공 - send_yn: Y
+2025-10-28T08:06:30.757Z: [서버로그]::J3x9SOt_sL32MwMOAAMQ :: connected!!
+2025-10-28T08:06:32.579Z: [서버로그]::-NEYDD6qevPr7QG4AAMS :: connected!!
+2025-10-28T08:06:33.273Z: [서버로그]::8WPcXChVzafxjJxPAAMU :: connected!!
+2025-10-28T08:06:37.610Z: [서버로그]::ahL1bFR4KydQ_8LdAAMW :: connected!!
+2025-10-28T08:06:49.983Z: [서버로그]::vauCJvmvpN4ocahxAAMY :: connected!!
+2025-10-28T08:06:55.550Z: [서버로그]::0901iX_qOP4fE0SjAAMa :: connected!!
+2025-10-28T08:06:56.281Z: [서버로그]::-YzRx4MscrEA9QyqAAMc :: connected!!
+2025-10-28T08:07:09.369Z: [서버로그]::bbIdGWec7LxpS5vJAAMe :: connected!!
+2025-10-28T08:07:14.592Z: [서버로그]::pFfsHNQisWCufJe1AAMg :: connected!!
+2025-10-28T08:07:18.050Z: [서버로그]::mRtBACOT5-lo06kWAAMi :: connected!!
+2025-10-28T08:07:19.524Z: [서버로그]::1NEE4M_bkQaKVR5hAAMk :: connected!!
+2025-10-28T08:07:21.535Z: [서버로그]::BSuu91xx9zgAMrWxAAMm :: connected!!
+2025-10-28T08:07:22.331Z: [서버로그]::ulhGeh5Un2Xlv50aAAMo :: connected!!
+2025-10-28T08:07:22.397Z: [서버로그]::wRvcrsY2XpmzGLi2AAMq :: connected!!
+2025-10-28T08:07:30.086Z: [서버로그]::ZQEg4eVfTWU_UA2SAAMs :: connected!!
+2025-10-28T08:07:31.645Z: [서버로그]::70ZycHFYpr0bHsm5AAMu :: connected!!
+2025-10-28T08:07:42.472Z: [서버로그]::v8a586jwLfS09dpcAAMw :: connected!!
+2025-10-28T08:07:45.643Z: [서버로그]::5noqyZ7HIddjH_9FAAMy :: connected!!
+2025-10-28T08:07:46.211Z: [서버로그]::luvWfZcXMUvayDr_AAM0 :: connected!!
+2025-10-28T08:08:08.828Z: [서버로그]::BFWvHbOpfbOa15c8AAM2 :: connected!!
+2025-10-28T08:08:09.737Z: [서버로그]::CN6Lm8m8NiFGkfklAAM4 :: connected!!
+2025-10-28T08:08:13.644Z: [서버로그]::0q_p7XIN6CfGTh5TAAM6 :: connected!!
+2025-10-28T08:09:39.789Z: [서버로그]::TgoD0U2Qyh2MlVE7AAM8 :: connected!!
+2025-10-28T08:09:41.297Z: [서버로그]::ifDGlqMG0OkHfGYNAAM- :: connected!!
+2025-10-28T08:09:47.048Z: [서버로그]::YNf1wywyd7MaZpKvAANA :: connected!!
+2025-10-28T08:10:21.277Z: [서버로그]::WfBDAqMDQoVyJgAJAANC :: connected!!
+2025-10-28T08:10:24.956Z: [서버로그]::yy1ej_uChOuHvmfsAANE :: connected!!
+2025-10-28T08:10:26.247Z: [서버로그]::FymqV84xlg17qQYjAANG :: connected!!
+2025-10-28T08:10:39.183Z: [서버로그]::1Iqgscvt0q9Uv2bbAANI :: connected!!
+2025-10-28T08:10:48.535Z: [서버로그]::2fLydBpxeAd5KERjAANK :: connected!!
+2025-10-28T08:11:55.604Z: [서버로그]::rbMGqXD2LlMAcUpCAANM :: connected!!
+2025-10-28T08:13:48.413Z: [서버로그]::QOfhURjLCtrk7GFRAANO :: connected!!
+2025-10-28T08:13:52.529Z: [서버로그]::NYj5jyDuKAh88KRnAANQ :: connected!!
+2025-10-28T08:14:46.941Z: [서버로그]::UYvp5fxt6EJrj7HWAANS :: connected!!
+2025-10-28T08:14:50.173Z: [서버로그]::X2g_nzYOHbjjiLk4AANU :: connected!!
+2025-10-28T08:14:51.754Z: [서버로그]::m8eAPen8QKFahULYAANW :: connected!!
+2025-10-28T08:15:05.097Z: [서버로그]::2mtGA7k28x0vPbXaAANY :: connected!!
+2025-10-28T08:15:10.566Z: [서버로그]::kltR3t2g43HfLinxAANa :: connected!!
+2025-10-28T08:16:00.487Z: [서버로그]::Q10FD8JyV37VGVuSAANc :: connected!!
+2025-10-28T08:17:11.538Z: [서버로그]::hz8EeDcEJgLwQ2lvAANe :: connected!!
+2025-10-28T08:17:12.828Z: [서버로그]::xebr5j6RcLgpl9mZAANg :: connected!!
+2025-10-28T08:17:13.543Z: [서버로그]::yt3BQ_GZL5bCjPqoAANi :: connected!!
+2025-10-28T08:17:29.525Z: [서버로그]::fpaiDmKHWPMABH8QAANk :: connected!!
+2025-10-28T08:17:30.585Z: [서버로그]::3zwSqAqIDoqI9C61AANm :: connected!!
+2025-10-28T08:17:34.888Z: [서버로그]::NtKAJ10d5NNQNzefAANo :: connected!!
+2025-10-28T08:17:38.115Z: [서버로그]::T7Hqc5DLhJvG8WuJAANq :: connected!!
+2025-10-28T08:19:29.852Z: [서버로그]::LhE10ySxwwTjiAmpAANs :: connected!!
+2025-10-28T08:20:13.106Z: [서버로그]::_LTzmoLyGcKdvm_DAANu :: connected!!
+2025-10-28T08:20:16.609Z: [서버로그]::7L24NPRhrLKXDy13AANw :: connected!!
+2025-10-28T08:20:21.074Z: [서버로그]::RWrD95b7g-cB_dBrAANy :: connected!!
+2025-10-28T08:20:36.506Z: [서버로그]::L4sF8KRegqDew8_2AAN0 :: connected!!
+2025-10-28T08:20:40.701Z: [서버로그]::ovs7RtmHs4Vp3YmiAAN2 :: connected!!
+2025-10-28T08:20:48.541Z: [서버로그]::7NdcwyMp0BOWuA-5AAN4 :: connected!!
+2025-10-28T08:23:06.562Z: [서버로그]::TfOV9WISrc8VwQ5sAAN6 :: connected!!
+2025-10-28T08:23:13.026Z: [서버로그]::nSemUbBuuue0hwVhAAN8 :: connected!!
+2025-10-28T08:23:30.993Z: [서버로그]::xk_ioNXNtKCeyJPlAAN- :: connected!!
+2025-10-28T08:23:51.788Z: [서버로그]::DhHqGqsNPBAujn0-AAOC :: connected!!
+2025-10-28T08:23:55.464Z: [서버로그]::dFxunp81Uiz5pPhiAAOE :: connected!!
+2025-10-28T08:23:56.934Z: [서버로그]::1LrNhe2If5DCMwmiAAOG :: connected!!
+2025-10-28T08:23:58.500Z: [서버로그]::cg63nDGY_OIWuuc5AAOH :: connected!!
+2025-10-28T08:24:05.516Z: [서버로그]::6HYjD6knoyhgY5e9AAOK :: connected!!
+2025-10-28T08:26:55.232Z: [서버로그]::IHn6j8kGPRyujksDAAOM :: connected!!
+2025-10-28T08:26:57.060Z: [서버로그]::elhiA7Nj5TbEqqfRAAOO :: connected!!
+2025-10-28T08:27:00.425Z: [서버로그]::6Ap2DeKer22mXLIzAAOQ :: connected!!
+2025-10-28T08:27:47.978Z: [서버로그]::sakpL-opsHtWaaxEAAOS :: connected!!
+2025-10-28T08:27:50.914Z: [서버로그]::wC0d9wmrPSxlLxnEAAOU :: connected!!
+2025-10-28T08:28:01.383Z: [서버로그]::Ste6Kr22Dq2Raq4BAAOW :: connected!!
+2025-10-28T08:28:02.816Z: [서버로그]::XMpiHv8ov9sQJVAnAAOY :: connected!!
+2025-10-28T08:28:04.204Z: [서버로그]::EQMicPwaGdfYlLGfAAOa :: connected!!
+2025-10-28T08:28:07.264Z: [서버로그]::7WrXxZhaUN6y2FB_AAOc :: connected!!
+2025-10-28T08:28:08.961Z: [서버로그]::N99zp219rLXizZzKAAOe :: connected!!
+2025-10-28T08:28:14.982Z: [서버로그]::b3zzEDY2aJIjxVLGAAOg :: connected!!
+2025-10-28T08:28:16.020Z: [서버로그]::FF1AqwF3KWytrOWaAAOi :: connected!!
+2025-10-28T08:28:33.438Z: [서버로그]::tNbSO7nKLPY1Qv0EAAOk :: connected!!
+2025-10-28T08:28:35.439Z: [서버로그]::i2W8vl75shM73r4OAAOm :: connected!!
+2025-10-28T08:28:38.327Z: [서버로그]::puG9rI4MKQRm026fAAOo :: connected!!
+2025-10-28T08:29:46.000Z: [서버로그]::bdxYbrDmnfNS4btEAAOq :: connected!!
+2025-10-28T08:30:19.775Z: [서버로그]::tQBZZQrsqsq11A0PAAOs :: connected!!
+2025-10-28T08:30:31.171Z: [서버로그]::qgfVK2OLrtYnWNFoAAOu :: connected!!
+2025-10-28T08:30:58.444Z: [서버로그]::Fu1nIe8DOXAnn8NmAAOw :: connected!!
+2025-10-28T08:31:00.600Z: [서버로그]::_yWtsBueT1dl5psqAAOy :: connected!!
+2025-10-28T08:31:10.794Z: [서버로그]::DD5hmIp19cYAWKoMAAO0 :: connected!!
+2025-10-28T08:34:15.710Z: [서버로그]::yqjMBmal0EBISDnYAAO2 :: connected!!
+2025-10-28T08:43:38.051Z: [서버로그]::iz9qDTsoFqv8k24SAAO4 :: connected!!
+2025-10-28T08:46:33.142Z: [서버로그]::x3Xxm-7YaGI9DJo8AAO6 :: connected!!
+2025-10-28T08:48:13.145Z: [서버로그]::ZVXkKIkH9Rn36moBAAO8 :: connected!!
+2025-10-28T08:48:27.583Z: [서버로그]::StLzwt1Z6dmOAsCRAAO- :: connected!!
+2025-10-28T08:48:41.875Z: [서버로그]::vcjYuAGLfTluMxaxAAPA :: connected!!
+2025-10-28T08:48:58.666Z: [서버로그]::pALxpxfYkbOCRZ0HAAPC :: connected!!
+2025-10-28T08:52:34.560Z: [서버로그]::fwHFd60YDqyHdhBGAAPF :: connected!!
+2025-10-28T08:52:34.699Z: [서버로그]::eNIqVAMlZ_IWfpCnAAPG :: connected!!
+2025-10-28T08:52:37.149Z: [서버로그]::zwr6UabodNE8OKZmAAPJ :: connected!!
+2025-10-28T08:52:37.207Z: [서버로그]::fA9_YR2EZdBzdWRVAAPK :: connected!!
+2025-10-28T08:55:57.215Z: [서버로그]::zofBryzRxlWjD7bUAAPM :: connected!!
+2025-10-28T08:59:48.249Z: [서버로그]::lElmfBbh-bgW3u15AAPP :: connected!!
+2025-10-28T09:02:53.684Z: [서버로그]::4tMOcpTE-M4_v6q0AAPR :: connected!!
+2025-10-28T09:02:56.151Z: [서버로그]::3AkBo0rzo4giQtmXAAPT :: connected!!
+2025-10-28T09:03:07.979Z: [서버로그]::GGrGPfsun2K-OEEOAAPV :: connected!!
+2025-10-28T09:03:08.111Z: [서버로그]::V1KgHKYFRCRIe5M8AAPX :: connected!!
+2025-10-28T09:03:22.595Z: [서버로그]::SbcpwqQeSSA2IloPAAPZ :: connected!!
+2025-10-28T09:03:25.523Z: [서버로그]::ZyAA0qZgJf6FxLaUAAPb :: connected!!
+2025-10-28T09:03:26.790Z: [서버로그]::UZxAh4fDbq4MjUvdAAPd :: connected!!
+2025-10-28T09:03:30.971Z: [서버로그]::r0EWK4zV_xnxMf2CAAPg :: connected!!
+2025-10-28T09:03:31.024Z: [서버로그]::_J4M7qyIroE6nqm1AAPh :: connected!!
+2025-10-28T09:04:05.937Z: [서버로그]::eYe4Ltjbnt8AWc-iAAPk :: connected!!
+2025-10-28T09:04:05.974Z: [서버로그]::j-kNx0E74zEpq5_jAAPl :: connected!!
+2025-10-28T09:05:18.378Z: [서버로그]::0zB1xB99-J8XWFPCAAPo :: connected!!
+2025-10-28T09:05:18.404Z: [서버로그]::jR1yiPwNIdouuKmbAAPp :: connected!!
+2025-10-28T09:05:23.156Z: [서버로그]::e2PJnC2w1r4k5iwEAAPs :: connected!!
+2025-10-28T09:05:23.220Z: [서버로그]::ZakCZxNO_qBBiPyhAAPt :: connected!!
+2025-10-28T09:05:33.143Z: [서버로그]::BhiHqEk6l9Bb7tuyAAPw :: connected!!
+2025-10-28T09:05:33.189Z: [서버로그]::qh8t3mUxdzM5u9oTAAPx :: connected!!
+2025-10-28T09:05:43.222Z: [서버로그]::wWwQX51i5rOtdAZ9AAP0 :: connected!!
+2025-10-28T09:05:43.307Z: [서버로그]::_nb45zP-NF2ONtkeAAP1 :: connected!!
+2025-10-28T09:07:03.653Z: [서버로그]::VINEqNm4NPUnCGHUAAP4 :: connected!!
+2025-10-28T09:07:03.664Z: [서버로그]::IoBKMd97vLXxrCdRAAP5 :: connected!!
+2025-10-28T09:07:35.553Z: [서버로그]::MkzbTS01IFrun4pFAAP7 :: connected!!
+2025-10-28T09:07:35.662Z: [서버로그]::M5T9dPiltguJje3zAAP9 :: connected!!
+2025-10-28T09:13:15.309Z: [서버로그]::9fucVT8uXvpe70KyAAP_ :: connected!!
+2025-10-28T09:13:29.583Z: [서버로그]::OjgJX4zTZ-5r2lj8AAQB :: connected!!
+2025-10-28T09:29:31.593Z: [서버로그]::HXQ_NamGTpfBRRJOAAQG :: connected!!
+2025-10-28T09:29:31.607Z: [서버로그]::Uf8ej9Igpj06VsIVAAQH :: connected!!
+2025-10-28T09:29:34.885Z: [서버로그]::fgEU6OubHJvpMFZYAAQK :: connected!!
+2025-10-28T09:29:35.342Z: [서버로그]::N69SBwaqMwh3K5vwAAQL :: connected!!
+2025-10-28T09:32:35.647Z: [서버로그]::oelBrDJYDgWvAZSyAAQN :: connected!!
+2025-10-28T09:42:17.097Z: [서버로그]::5Mousf5h6jkNfCiyAAQP :: connected!!
+2025-10-28T09:42:58.232Z: [서버로그]::Mfdx1rZ4c4SXCjO0AAQT :: connected!!
+2025-10-28T09:53:28.531Z: [서버로그]::bveFnRe6FgB7Er4uAAQV :: connected!!
+2025-10-28T10:28:23.581Z: [서버로그]::HmUODgctOT3jWSv9AAQa :: connected!!
+2025-10-28T10:28:37.740Z: [서버로그]::F1m_Gen87oUav7gKAAQc :: connected!!
+2025-10-28T10:28:52.802Z: [서버로그]::gg7gyGN5ZJ37GituAAQe :: connected!!
+2025-10-28T10:58:46.553Z: [서버로그]::ueExcR2-YS7S0NzoAAQg :: connected!!
+2025-10-28T10:59:58.324Z: [서버로그]::uMXAicTTRi4m1QSVAAQi :: connected!!
+2025-10-28T11:35:25.467Z: [서버로그]::rX3UDXc29GsmgEziAAQl :: connected!!
+2025-10-28T11:35:53.796Z: [서버로그]::ikd3b9_4EpJOpqcNAAQo :: connected!!
+2025-10-28T11:43:50.046Z: [서버로그]::VAMd5GX7VbJGI8_5AAQq :: connected!!
+2025-10-28T12:29:56.357Z: [서버로그]::lwoUsUQMjv415SmCAAQs :: connected!!
+2025-10-28T12:30:24.624Z: [서버로그]::VhMTqAuHBY_CJC_OAAQu :: connected!!
+2025-10-28T12:30:38.662Z: [서버로그]::q2Y6pDJO20REXH99AAQw :: connected!!
+2025-10-28T12:58:21.996Z: [서버로그]::hO7SAU0heVMjuHiFAAQy :: connected!!
+2025-10-28T12:59:11.074Z: [서버로그]::ocMsFSFfrstn-wQ6AAQ0 :: connected!!
+2025-10-28T12:59:14.031Z: [서버로그]::2ekTvw2KE9VobMg1AAQ2 :: connected!!
+2025-10-28T12:59:15.945Z: [서버로그]::2k6WTVg2T27MJkzIAAQ4 :: connected!!
+2025-10-28T12:59:18.713Z: [서버로그]::8qg96lyciCtQ4ET2AAQ6 :: connected!!
+2025-10-28T12:59:20.864Z: [서버로그]::t83zQzmPg-0-Thl6AAQ8 :: connected!!
+2025-10-28T12:59:24.702Z: [서버로그]::fD1cEsPp_6W4g_BsAAQ- :: connected!!
+2025-10-28T12:59:31.269Z: [서버로그]::Y6i164XgY_3xPCU6AARA :: connected!!
+2025-10-28T12:59:33.611Z: [서버로그]::MYkr6DOfpHZy_CJTAARC :: connected!!
+2025-10-28T12:59:37.256Z: [서버로그]::ck3w-7yVq4huPSK3AARE :: connected!!
+2025-10-28T12:59:42.479Z: [서버로그]::d6EkHhkpEQSthNMIAARG :: connected!!
+2025-10-28T12:59:44.635Z: [서버로그]::-e-kEv-CKtxqLC49AARI :: connected!!
+2025-10-28T12:59:46.671Z: [서버로그]::wU5t7C1nNUrjAb3EAARK :: connected!!
+2025-10-28T12:59:50.038Z: [서버로그]::1KS9-eJC6uH0mCPOAARM :: connected!!
+2025-10-28T12:59:55.715Z: [서버로그]::X3-opDmCm5b2hkSVAARO :: connected!!
+2025-10-28T13:58:48.921Z: [서버로그]::I4zxWwRwyXMog3ViAARQ :: connected!!
+2025-10-28T13:59:32.527Z: [서버로그]::nsTkvh8A6Z8UiZuFAARS :: connected!!
+2025-10-28T14:03:19.295Z: [서버로그]::HQA9H2Eyc9CdgEOoAARU :: connected!!
+2025-10-28T14:05:05.539Z: [서버로그]::uY1F5GDjhujbv8iOAARW :: connected!!
+2025-10-28T14:05:20.058Z: [서버로그]::re8FUe-T0X5e9snyAARY :: connected!!
+2025-10-28T14:05:34.077Z: [서버로그]::N-8s2tLvIJY-iHQoAARa :: connected!!
+2025-10-28T14:05:48.209Z: [서버로그]::IyOUl0ISuUnRaywZAARc :: connected!!
+2025-10-28T14:18:07.270Z: [서버로그]::QAjXZdzDOz3fFSE0AARe :: connected!!
+2025-10-28T14:52:14.067Z: [서버로그]::l-WTMH2Y82wSjBUTAARg :: connected!!
+2025-10-28T15:45:20.902Z: [서버로그]::fwvGMSBijYrYxFvSAARi :: connected!!
+2025-10-28T15:45:57.762Z: [서버로그]::Hs4CXUah7kZqDRyaAARk :: connected!!
+2025-10-28T15:45:58.199Z: [서버로그]::0ITmGs0ze2rrkRc_AARm :: connected!!
+2025-10-28T16:06:27.733Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-28T16:06:27.747Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-28T16:06:27.847Z: [서버로그]::mysql connection success!!
+2025-10-28T16:06:27.851Z: [서버로그]::MongoDB 연결 성공
+2025-10-28T16:06:27.852Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-28T16:06:27.852Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-28T20:59:31.821Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-28T21:42:55.863Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-28T21:43:02.109Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-29T00:06:28.900Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-29T00:06:28.913Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-29T00:06:29.009Z: [서버로그]::MongoDB 연결 성공
+2025-10-29T00:06:29.012Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-29T00:06:29.023Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-29T00:06:29.024Z: [서버로그]::mysql connection success!!
+2025-10-29T08:06:30.200Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-29T08:06:30.215Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-29T08:06:30.322Z: [서버로그]::MongoDB 연결 대기 중... (2/50)
+2025-10-29T08:06:30.335Z: [서버로그]::MongoDB 연결 성공
+2025-10-29T08:06:30.336Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-29T08:06:30.338Z: [서버로그]::mysql connection success!!
+2025-10-29T08:06:30.422Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-29T16:06:31.285Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-29T16:06:31.300Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-29T16:06:31.393Z: [서버로그]::mysql connection success!!
+2025-10-29T16:06:31.397Z: [서버로그]::MongoDB 연결 성공
+2025-10-29T16:06:31.398Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-29T16:06:31.401Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-30T00:06:32.101Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-30T00:06:32.114Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-30T00:06:32.222Z: [서버로그]::MongoDB 연결 성공
+2025-10-30T00:06:32.223Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-30T00:06:32.224Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-30T00:06:32.225Z: [서버로그]::mysql connection success!!
+2025-10-30T02:05:54.506Z: [서버로그]::update multiple : rm_idx::676::user_id:01055161877
+2025-10-30T02:05:54.629Z: [서버로그]::room check :::: rm_idx::676::usersRoom:[object Object]
+2025-10-30T02:05:54.638Z: [서버로그]::update multiple : rm_idx::676::user_id:01055161877
+2025-10-30T02:05:57.730Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 676, user_id: 01055161877
+2025-10-30T02:05:57.730Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:05:57.732Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:05:57.732Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:05:57.734Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:05:57.734Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:05:57.736Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-10-30T02:05:57.747Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:05:57.748Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:05:57.748Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":2638,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-30T02:05:57.740Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"01055161877","mg_idx":2639,"mg_type":"text","mg_text":"안녕하세요","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:05:57.746Z","mg_reads":[{"user_id":"user_1258","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01055161877","read_yn":"Y"}],"user_info":[{"_id":"6900780f7daf76c968695eaa","user_idx":"","user_id":"01055161877","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"GS25당진합덕센터점","user_img":"","user_desc":"","user_status":"Y","socket_id":"O5ze3o4ZOxgct-DZAAIa","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site"}]}]
+2025-10-30T02:05:57.749Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:05:57.750Z: [서버로그]::요청 파라미터: {"rm_idx":676}
+2025-10-30T02:05:57.751Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:05:57.751Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 676
+2025-10-30T02:05:57.754Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:05:57.754Z: [서버로그]::채팅방 정보: {"rm_idx":676,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:05:57.754Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:05:57.754Z: [서버로그]::사용자 목록: [{"user_id":"user_1258","user_nick":"사용자_1258"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01055161877"}]
+2025-10-30T02:05:57.763Z: [서버로그]::rm_idx::676::mg_idx:2638::user_id:01055161877
+2025-10-30T02:05:57.764Z: [서버로그]::rm_idx::676::mg_idx:2639::user_id:01055161877
+2025-10-30T02:06:20.694Z: [서버로그]::update multiple : rm_idx::676::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:07:28.356Z: [서버로그]::update multiple : rm_idx::677::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:07:30.708Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 677, user_id: naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:07:30.708Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:07:30.711Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:07:30.711Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:07:30.712Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:07:30.712Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:07:30.714Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-10-30T02:07:30.719Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:07:30.720Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:07:30.721Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":2640,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-30T02:07:30.716Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","mg_idx":2641,"mg_type":"text","mg_text":"ㅎㅇ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:07:30.719Z","mg_reads":[{"user_id":"user_1260","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","read_yn":"Y"}],"user_info":[{"_id":"68a8051d7daf760c4aa377e4","user_idx":"","user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","user_pwd":"*FECC8F6C0DAD96A616574531B25FE3A514127E7D","user_nick":"이건희","user_img":"","user_desc":"","user_status":"Y","socket_id":"mG5LkPn1RMt33JhdAAI6","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"dsX1GkYlRoSZSGzfjXlgBX:APA91bE8BQXtb14E7G1L7YwV2Z_-RVI1c1C_Isw92PRKGRWKm4ywCEvjtj5RDZAZePVfbODZs6DnA0qBqnE9rv4AFtc4lpaxvEVwKBdwl4ywDfKgAKTUhGU","last_location":"chat_room","last_update":"2025-10-30T02:07:20.322Z"}]}]
+2025-10-30T02:07:30.722Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:07:30.722Z: [서버로그]::요청 파라미터: {"rm_idx":677}
+2025-10-30T02:07:30.722Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:07:30.723Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 677
+2025-10-30T02:07:30.724Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:07:30.724Z: [서버로그]::채팅방 정보: {"rm_idx":677,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:07:30.724Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:07:30.724Z: [서버로그]::사용자 목록: [{"user_id":"user_1260","user_nick":"사용자_1260"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0"}]
+2025-10-30T02:07:30.730Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01051068846
+2025-10-30T02:07:30.734Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01051068846
+2025-10-30T02:07:30.754Z: [서버로그]::rm_idx::677::mg_idx:2640::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:07:30.795Z: [서버로그]::rm_idx::677::mg_idx:2641::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:07:53.582Z: [서버로그]::update multiple : rm_idx::677::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:07:58.912Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 677, user_id: naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:07:58.912Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:07:58.915Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:07:58.915Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:07:58.916Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:07:58.916Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:07:58.920Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:07:58.932Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:07:58.944Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:07:58.944Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","mg_idx":2642,"mg_type":"text","mg_text":"안녕","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:07:58.931Z","mg_reads":[{"user_id":"user_1260","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","read_yn":"Y"}],"user_info":[{"_id":"68a8051d7daf760c4aa377e4","user_idx":"","user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","user_pwd":"*FECC8F6C0DAD96A616574531B25FE3A514127E7D","user_nick":"이건희","user_img":"","user_desc":"","user_status":"Y","socket_id":"jHyXKvhROP-EH9ffAAJE","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"dsX1GkYlRoSZSGzfjXlgBX:APA91bE8BQXtb14E7G1L7YwV2Z_-RVI1c1C_Isw92PRKGRWKm4ywCEvjtj5RDZAZePVfbODZs6DnA0qBqnE9rv4AFtc4lpaxvEVwKBdwl4ywDfKgAKTUhGU","last_location":"chat_room","last_update":"2025-10-30T02:07:45.827Z"}]}]
+2025-10-30T02:07:58.945Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:07:58.947Z: [서버로그]::요청 파라미터: {"rm_idx":677}
+2025-10-30T02:07:58.948Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:07:58.948Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 677
+2025-10-30T02:07:58.952Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:07:58.952Z: [서버로그]::채팅방 정보: {"rm_idx":677,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:07:58.952Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:07:58.952Z: [서버로그]::사용자 목록: [{"user_id":"user_1260","user_nick":"사용자_1260"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0"}]
+2025-10-30T02:07:58.965Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01051068846
+2025-10-30T02:07:58.966Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01051068846
+2025-10-30T02:07:58.973Z: [서버로그]::rm_idx::677::mg_idx:2642::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:08:18.838Z: [서버로그]::room check :::: rm_idx::523::usersRoom:[object Object]
+2025-10-30T02:08:18.849Z: [서버로그]::update multiple : rm_idx::523::user_id:01051068846
+2025-10-30T02:10:06.366Z: [서버로그]::update multiple : rm_idx::677::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:08.165Z: [서버로그]::update multiple : rm_idx::678::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:08.272Z: [서버로그]::room check :::: rm_idx::678::usersRoom:[object Object]
+2025-10-30T02:10:08.280Z: [서버로그]::update multiple : rm_idx::678::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:09.843Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 678, user_id: naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:09.844Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:10:09.845Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:10:09.845Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:10:09.847Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:10:09.847Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:10:09.848Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-10-30T02:10:09.857Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:10:09.858Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:10:09.858Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":2643,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-30T02:10:09.853Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","mg_idx":2644,"mg_type":"text","mg_text":"0","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:10:09.856Z","mg_reads":[{"user_id":"user_1192","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","read_yn":"Y"}],"user_info":[{"_id":"68a8051d7daf760c4aa377e4","user_idx":"","user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","user_pwd":"*FECC8F6C0DAD96A616574531B25FE3A514127E7D","user_nick":"이건희","user_img":"","user_desc":"","user_status":"Y","socket_id":"5SOzr4u7hMIz74POAAJ8","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site","last_update":"2025-10-30T02:08:57.422Z"}]}]
+2025-10-30T02:10:09.859Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:10:09.859Z: [서버로그]::요청 파라미터: {"rm_idx":678}
+2025-10-30T02:10:09.859Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:10:09.859Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 678
+2025-10-30T02:10:09.861Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:10:09.861Z: [서버로그]::채팅방 정보: {"rm_idx":678,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:10:09.861Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:10:09.861Z: [서버로그]::사용자 목록: [{"user_id":"user_1192","user_nick":"사용자_1192"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0"}]
+2025-10-30T02:10:09.865Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01051068846
+2025-10-30T02:10:09.867Z: [서버로그]::MySQL에서 FCM 토큰 발견: dsX1GkYlRoSZSGzfjXlg...
+2025-10-30T02:10:09.870Z: [서버로그]::rm_idx::678::mg_idx:2643::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:09.872Z: [서버로그]::rm_idx::678::mg_idx:2644::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:20.729Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 678, user_id: naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:20.729Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:10:20.731Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:10:20.731Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:10:20.732Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:10:20.732Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:10:20.734Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:10:20.739Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:10:20.740Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:10:20.740Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","mg_idx":2645,"mg_type":"text","mg_text":"1","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:10:20.738Z","mg_reads":[{"user_id":"user_1192","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","read_yn":"Y"}],"user_info":[{"_id":"68a8051d7daf760c4aa377e4","user_idx":"","user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","user_pwd":"*FECC8F6C0DAD96A616574531B25FE3A514127E7D","user_nick":"이건희","user_img":"","user_desc":"","user_status":"Y","socket_id":"5SOzr4u7hMIz74POAAJ8","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site","last_update":"2025-10-30T02:08:57.422Z"}]}]
+2025-10-30T02:10:20.740Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:10:20.740Z: [서버로그]::요청 파라미터: {"rm_idx":678}
+2025-10-30T02:10:20.741Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:10:20.741Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 678
+2025-10-30T02:10:20.743Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:10:20.743Z: [서버로그]::채팅방 정보: {"rm_idx":678,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:10:20.743Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:10:20.743Z: [서버로그]::사용자 목록: [{"user_id":"user_1192","user_nick":"사용자_1192"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0"}]
+2025-10-30T02:10:20.748Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01051068846
+2025-10-30T02:10:20.749Z: [서버로그]::MySQL에서 FCM 토큰 발견: dsX1GkYlRoSZSGzfjXlg...
+2025-10-30T02:10:20.750Z: [서버로그]::rm_idx::678::mg_idx:2645::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:23.325Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 678, user_id: naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:23.325Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:10:23.327Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:10:23.327Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:10:23.328Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:10:23.328Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:10:23.330Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:10:23.333Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:10:23.333Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:10:23.334Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","mg_idx":2646,"mg_type":"text","mg_text":"2","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:10:23.332Z","mg_reads":[{"user_id":"user_1192","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","read_yn":"Y"}],"user_info":[{"_id":"68a8051d7daf760c4aa377e4","user_idx":"","user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","user_pwd":"*FECC8F6C0DAD96A616574531B25FE3A514127E7D","user_nick":"이건희","user_img":"","user_desc":"","user_status":"Y","socket_id":"5SOzr4u7hMIz74POAAJ8","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site","last_update":"2025-10-30T02:08:57.422Z"}]}]
+2025-10-30T02:10:23.334Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:10:23.334Z: [서버로그]::요청 파라미터: {"rm_idx":678}
+2025-10-30T02:10:23.334Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:10:23.335Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 678
+2025-10-30T02:10:23.336Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:10:23.338Z: [서버로그]::채팅방 정보: {"rm_idx":678,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:10:23.338Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:10:23.338Z: [서버로그]::사용자 목록: [{"user_id":"user_1192","user_nick":"사용자_1192"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0"}]
+2025-10-30T02:10:23.342Z: [서버로그]::rm_idx::678::mg_idx:2646::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:23.345Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01051068846
+2025-10-30T02:10:23.347Z: [서버로그]::MySQL에서 FCM 토큰 발견: dsX1GkYlRoSZSGzfjXlg...
+2025-10-30T02:10:25.199Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 678, user_id: naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:25.199Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:10:25.201Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:10:25.201Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:10:25.202Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:10:25.202Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:10:25.203Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:10:25.206Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:10:25.208Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:10:25.208Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","mg_idx":2647,"mg_type":"text","mg_text":"4","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:10:25.205Z","mg_reads":[{"user_id":"user_1192","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","read_yn":"Y"}],"user_info":[{"_id":"68a8051d7daf760c4aa377e4","user_idx":"","user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0","user_pwd":"*FECC8F6C0DAD96A616574531B25FE3A514127E7D","user_nick":"이건희","user_img":"","user_desc":"","user_status":"Y","socket_id":"5SOzr4u7hMIz74POAAJ8","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site","last_update":"2025-10-30T02:08:57.422Z"}]}]
+2025-10-30T02:10:25.209Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:10:25.209Z: [서버로그]::요청 파라미터: {"rm_idx":678}
+2025-10-30T02:10:25.209Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:10:25.209Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 678
+2025-10-30T02:10:25.211Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:10:25.211Z: [서버로그]::채팅방 정보: {"rm_idx":678,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:10:25.212Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:10:25.212Z: [서버로그]::사용자 목록: [{"user_id":"user_1192","user_nick":"사용자_1192"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0"}]
+2025-10-30T02:10:25.217Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01051068846
+2025-10-30T02:10:25.218Z: [서버로그]::rm_idx::678::mg_idx:2647::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:10:25.220Z: [서버로그]::MySQL에서 FCM 토큰 발견: dsX1GkYlRoSZSGzfjXlg...
+2025-10-30T02:11:13.818Z: [서버로그]::room check :::: rm_idx::523::usersRoom:[object Object]
+2025-10-30T02:11:13.827Z: [서버로그]::update multiple : rm_idx::523::user_id:01051068846
+2025-10-30T02:13:05.150Z: [서버로그]::update multiple : rm_idx::679::user_id:01076698677
+2025-10-30T02:13:05.270Z: [서버로그]::room check :::: rm_idx::679::usersRoom:[object Object]
+2025-10-30T02:13:05.279Z: [서버로그]::update multiple : rm_idx::679::user_id:01076698677
+2025-10-30T02:13:06.782Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 679, user_id: 01076698677
+2025-10-30T02:13:06.782Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:13:06.784Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:13:06.784Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:13:06.786Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:13:06.786Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:13:06.787Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-10-30T02:13:06.794Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:13:06.796Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:13:06.797Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":2648,"mg_type":"timeline","mg_text":"","mg_dt":"2025-10-30T02:13:06.790Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"01076698677","mg_idx":2649,"mg_type":"text","mg_text":"1","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:13:06.793Z","mg_reads":[{"user_id":"user_1201","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01076698677","read_yn":"Y"}],"user_info":[{"_id":"68ec57df7daf762446dfaba6","user_idx":"","user_id":"01076698677","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"부부짐휘트니스","user_img":"/resource/uploads/member/94ed61a6d210a94f3f3a6c9ec4880703.png","user_desc":"","user_status":"Y","socket_id":"X88jI3DFigg32qIfAAK2","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site"}]}]
+2025-10-30T02:13:06.797Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:13:06.797Z: [서버로그]::요청 파라미터: {"rm_idx":679}
+2025-10-30T02:13:06.798Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:13:06.798Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 679
+2025-10-30T02:13:06.800Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:13:06.800Z: [서버로그]::채팅방 정보: {"rm_idx":679,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:13:06.801Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:13:06.801Z: [서버로그]::사용자 목록: [{"user_id":"user_1201","user_nick":"사용자_1201"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01076698677"}]
+2025-10-30T02:13:06.809Z: [서버로그]::rm_idx::679::mg_idx:2648::user_id:01076698677
+2025-10-30T02:13:06.810Z: [서버로그]::rm_idx::679::mg_idx:2649::user_id:01076698677
+2025-10-30T02:13:07.132Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 679, user_id: 01076698677
+2025-10-30T02:13:07.133Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:13:07.135Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:13:07.135Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:13:07.136Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:13:07.136Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:13:07.137Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:13:07.140Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:13:07.141Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:13:07.142Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01076698677","mg_idx":2650,"mg_type":"text","mg_text":"2","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:13:07.140Z","mg_reads":[{"user_id":"user_1201","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01076698677","read_yn":"Y"}],"user_info":[{"_id":"68ec57df7daf762446dfaba6","user_idx":"","user_id":"01076698677","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"부부짐휘트니스","user_img":"/resource/uploads/member/94ed61a6d210a94f3f3a6c9ec4880703.png","user_desc":"","user_status":"Y","socket_id":"X88jI3DFigg32qIfAAK2","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site"}]}]
+2025-10-30T02:13:07.142Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:13:07.142Z: [서버로그]::요청 파라미터: {"rm_idx":679}
+2025-10-30T02:13:07.142Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:13:07.142Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 679
+2025-10-30T02:13:07.144Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:13:07.144Z: [서버로그]::채팅방 정보: {"rm_idx":679,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:13:07.144Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:13:07.144Z: [서버로그]::사용자 목록: [{"user_id":"user_1201","user_nick":"사용자_1201"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01076698677"}]
+2025-10-30T02:13:07.150Z: [서버로그]::rm_idx::679::mg_idx:2650::user_id:01076698677
+2025-10-30T02:13:07.682Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 679, user_id: 01076698677
+2025-10-30T02:13:07.683Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:13:07.685Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:13:07.685Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:13:07.686Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:13:07.686Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:13:07.689Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:13:07.693Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:13:07.694Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:13:07.694Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01076698677","mg_idx":2651,"mg_type":"text","mg_text":"4","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:13:07.691Z","mg_reads":[{"user_id":"user_1201","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01076698677","read_yn":"Y"}],"user_info":[{"_id":"68ec57df7daf762446dfaba6","user_idx":"","user_id":"01076698677","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"부부짐휘트니스","user_img":"/resource/uploads/member/94ed61a6d210a94f3f3a6c9ec4880703.png","user_desc":"","user_status":"Y","socket_id":"X88jI3DFigg32qIfAAK2","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site"}]}]
+2025-10-30T02:13:07.694Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:13:07.694Z: [서버로그]::요청 파라미터: {"rm_idx":679}
+2025-10-30T02:13:07.695Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:13:07.695Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 679
+2025-10-30T02:13:07.696Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:13:07.696Z: [서버로그]::채팅방 정보: {"rm_idx":679,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:13:07.696Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:13:07.696Z: [서버로그]::사용자 목록: [{"user_id":"user_1201","user_nick":"사용자_1201"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01076698677"}]
+2025-10-30T02:13:07.701Z: [서버로그]::rm_idx::679::mg_idx:2651::user_id:01076698677
+2025-10-30T02:13:08.182Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 679, user_id: 01076698677
+2025-10-30T02:13:08.183Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:13:08.185Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:13:08.185Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:13:08.186Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:13:08.186Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:13:08.198Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:13:08.203Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:13:08.204Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:13:08.209Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01076698677","mg_idx":2652,"mg_type":"text","mg_text":"5","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:13:08.202Z","mg_reads":[{"user_id":"user_1201","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01076698677","read_yn":"Y"}],"user_info":[{"_id":"68ec57df7daf762446dfaba6","user_idx":"","user_id":"01076698677","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"부부짐휘트니스","user_img":"/resource/uploads/member/94ed61a6d210a94f3f3a6c9ec4880703.png","user_desc":"","user_status":"Y","socket_id":"X88jI3DFigg32qIfAAK2","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site"}]}]
+2025-10-30T02:13:08.209Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:13:08.209Z: [서버로그]::요청 파라미터: {"rm_idx":679}
+2025-10-30T02:13:08.209Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:13:08.210Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 679
+2025-10-30T02:13:08.211Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:13:08.211Z: [서버로그]::채팅방 정보: {"rm_idx":679,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:13:08.211Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:13:08.212Z: [서버로그]::사용자 목록: [{"user_id":"user_1201","user_nick":"사용자_1201"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01076698677"}]
+2025-10-30T02:13:08.219Z: [서버로그]::rm_idx::679::mg_idx:2652::user_id:01076698677
+2025-10-30T02:13:09.567Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 679, user_id: 01076698677
+2025-10-30T02:13:09.569Z: [서버로그]::방 정보 조회 시작
+2025-10-30T02:13:09.605Z: [서버로그]::방 정보 조회 결과: 성공
+2025-10-30T02:13:09.605Z: [서버로그]::사용자 정보 조회 시작
+2025-10-30T02:13:09.610Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-10-30T02:13:09.610Z: [서버로그]::마지막 메시지 조회 시작
+2025-10-30T02:13:09.615Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-10-30T02:13:09.622Z: [서버로그]::방 정보 업데이트 시작
+2025-10-30T02:13:09.624Z: [서버로그]::방 정보 업데이트 완료
+2025-10-30T02:13:09.624Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01076698677","mg_idx":2653,"mg_type":"text","mg_text":"12","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-10-30T02:13:09.619Z","mg_reads":[{"user_id":"user_1201","read_yn":"N"},{"user_id":"target_user","read_yn":"N"},{"user_id":"01076698677","read_yn":"Y"}],"user_info":[{"_id":"68ec57df7daf762446dfaba6","user_idx":"","user_id":"01076698677","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"부부짐휘트니스","user_img":"/resource/uploads/member/94ed61a6d210a94f3f3a6c9ec4880703.png","user_desc":"","user_status":"Y","socket_id":"X88jI3DFigg32qIfAAK2","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site"}]}]
+2025-10-30T02:13:09.624Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-10-30T02:13:09.624Z: [서버로그]::요청 파라미터: {"rm_idx":679}
+2025-10-30T02:13:09.625Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-10-30T02:13:09.625Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 679
+2025-10-30T02:13:09.627Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-10-30T02:13:09.627Z: [서버로그]::채팅방 정보: {"rm_idx":679,"rm_subject":"채용공고 채팅방","rm_users_count":3}
+2025-10-30T02:13:09.627Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 3
+2025-10-30T02:13:09.627Z: [서버로그]::사용자 목록: [{"user_id":"user_1201","user_nick":"사용자_1201"},{"user_id":"target_user","user_nick":"대상 사용자"},{"user_id":"01076698677"}]
+2025-10-30T02:13:09.632Z: [서버로그]::rm_idx::679::mg_idx:2653::user_id:01076698677
+2025-10-30T02:13:16.211Z: [서버로그]::update multiple : rm_idx::679::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T02:13:45.235Z: [서버로그]::update multiple : rm_idx::680::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:11:07.051Z: [서버로그]::update multiple : rm_idx::680::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:11:34.125Z: [서버로그]::update multiple : rm_idx::680::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:23:00.786Z: [서버로그]::update multiple : rm_idx::679::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:23:05.934Z: [서버로그]::update multiple : rm_idx::678::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:23:10.060Z: [서버로그]::update multiple : rm_idx::676::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:23:31.067Z: [서버로그]::update multiple : rm_idx::676::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:23:56.737Z: [서버로그]::update multiple : rm_idx::676::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T06:50:53.300Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-30T06:50:53.417Z: [서버로그]::room check :::: rm_idx::675::usersRoom:[object Object]
+2025-10-30T06:50:53.423Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-30T06:51:20.396Z: [서버로그]::update multiple : rm_idx::667::user_id:01084031597
+2025-10-30T06:51:20.524Z: [서버로그]::room check :::: rm_idx::667::usersRoom:[object Object]
+2025-10-30T06:51:20.532Z: [서버로그]::update multiple : rm_idx::667::user_id:01084031597
+2025-10-30T06:51:37.106Z: [서버로그]::update multiple : rm_idx::667::user_id:01084031597
+2025-10-30T06:51:48.226Z: [서버로그]::update multiple : rm_idx::667::user_id:01084031597
+2025-10-30T06:56:42.675Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-30T06:56:42.919Z: [서버로그]::room check :::: rm_idx::675::usersRoom:[object Object]
+2025-10-30T06:56:43.148Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-30T06:56:49.373Z: [서버로그]::update multiple : rm_idx::475::user_id:01077417262
+2025-10-30T06:56:49.476Z: [서버로그]::room check :::: rm_idx::475::usersRoom:[object Object]
+2025-10-30T06:56:49.481Z: [서버로그]::update multiple : rm_idx::475::user_id:01077417262
+2025-10-30T06:56:51.475Z: [서버로그]::update multiple : rm_idx::479::user_id:01077417262
+2025-10-30T06:56:51.606Z: [서버로그]::room check :::: rm_idx::479::usersRoom:[object Object]
+2025-10-30T06:56:51.611Z: [서버로그]::update multiple : rm_idx::479::user_id:01077417262
+2025-10-30T07:01:44.782Z: [서버로그]::update multiple : rm_idx::679::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-30T07:02:46.221Z: [서버로그]::update multiple : rm_idx::679::user_id:01076698677
+2025-10-30T07:02:46.781Z: [서버로그]::update multiple : rm_idx::679::user_id:01076698677
+2025-10-30T07:07:23.558Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-30T07:07:31.519Z: [서버로그]::update multiple : rm_idx::446::user_id:01077417262
+2025-10-30T07:07:31.555Z: [서버로그]::room check :::: rm_idx::446::usersRoom:null
+2025-10-30T07:07:44.533Z: [서버로그]::update multiple : rm_idx::475::user_id:01077417262
+2025-10-30T07:09:18.164Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-30T10:10:26.190Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-30T10:10:26.206Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-30T10:10:26.308Z: [서버로그]::MongoDB 연결 대기 중... (2/50)
+2025-10-30T10:10:26.362Z: [서버로그]::mysql connection success!!
+2025-10-30T10:10:26.368Z: [서버로그]::MongoDB 연결 성공
+2025-10-30T10:10:26.370Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-30T10:10:26.410Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-30T18:10:27.243Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-30T18:10:27.258Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-30T18:10:27.338Z: [서버로그]::mysql connection success!!
+2025-10-30T18:10:27.343Z: [서버로그]::MongoDB 연결 성공
+2025-10-30T18:10:27.345Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-30T18:10:27.358Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-31T02:01:34.933Z: [서버로그]::update multiple : rm_idx::676::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-31T02:02:01.254Z: [서버로그]::update multiple : rm_idx::676::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-31T02:02:01.348Z: [서버로그]::room check :::: rm_idx::676::usersRoom:[object Object]
+2025-10-31T02:02:01.356Z: [서버로그]::update multiple : rm_idx::676::user_id:naver_Ys43OhvorzCKzH6sf3wRuX1rBuA52YV5VOcxY2NToZ0
+2025-10-31T02:10:28.197Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-31T02:10:28.212Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-31T02:10:28.303Z: [서버로그]::mysql connection success!!
+2025-10-31T02:10:28.308Z: [서버로그]::MongoDB 연결 성공
+2025-10-31T02:10:28.309Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-31T02:10:28.313Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-31T03:05:31.401Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:49:57.342Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:50:07.704Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:56:12.261Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:56:12.891Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:56:37.317Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:56:37.978Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:59:53.237Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:59:53.952Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:59:57.396Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:59:58.193Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T04:59:58.953Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:00:10.235Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:00:10.474Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:00:10.709Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:00:10.968Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:00:21.125Z: [서버로그]::update multiple : rm_idx::674::user_id:01077417262
+2025-10-31T05:00:28.282Z: [서버로그]::update multiple : rm_idx::446::user_id:01077417262
+2025-10-31T05:00:35.897Z: [서버로그]::update multiple : rm_idx::479::user_id:01077417262
+2025-10-31T05:00:42.897Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:02:14.963Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:10:46.447Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T05:13:49.647Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T07:11:36.136Z: [서버로그]::update multiple : rm_idx::675::user_id:01077417262
+2025-10-31T07:53:50.143Z: [서버로그]::update multiple : rm_idx::676::user_id:01055161877
+2025-10-31T07:53:50.227Z: [서버로그]::room check :::: rm_idx::676::usersRoom:[object Object]
+2025-10-31T07:53:50.235Z: [서버로그]::update multiple : rm_idx::676::user_id:01055161877
+2025-10-31T07:59:45.925Z: [서버로그]::update multiple : rm_idx::453::user_id:01083092881
+2025-10-31T07:59:49.019Z: [서버로그]::update multiple : rm_idx::675::user_id:01083092881
+2025-10-31T07:59:51.790Z: [서버로그]::update multiple : rm_idx::471::user_id:01083092881
+2025-10-31T08:00:02.843Z: [서버로그]::update multiple : rm_idx::453::user_id:01083092881
+2025-10-31T08:00:06.443Z: [서버로그]::update multiple : rm_idx::471::user_id:01083092881
+2025-10-31T08:00:12.592Z: [서버로그]::update multiple : rm_idx::472::user_id:01083092881
+2025-10-31T08:00:23.003Z: [서버로그]::update multiple : rm_idx::675::user_id:01083092881
+2025-10-31T08:00:26.829Z: [서버로그]::update multiple : rm_idx::674::user_id:01083092881
+2025-10-31T08:01:02.245Z: [서버로그]::update multiple : rm_idx::675::user_id:01083092881
+2025-10-31T08:01:31.248Z: [서버로그]::update multiple : rm_idx::675::user_id:01083092881
+2025-10-31T08:01:44.340Z: [서버로그]::update multiple : rm_idx::674::user_id:01083092881
+2025-10-31T08:02:58.143Z: [서버로그]::update multiple : rm_idx::453::user_id:01083092881
+2025-10-31T08:03:01.044Z: [서버로그]::update multiple : rm_idx::675::user_id:01083092881
+2025-10-31T08:03:03.986Z: [서버로그]::update multiple : rm_idx::581::user_id:01083092881
+2025-10-31T08:03:03.994Z: [서버로그]::room check :::: rm_idx::581::usersRoom:null
+2025-10-31T08:03:56.441Z: [서버로그]::update multiple : rm_idx::472::user_id:01083092881
+2025-10-31T08:03:59.880Z: [서버로그]::update multiple : rm_idx::471::user_id:01083092881
+2025-10-31T10:10:29.175Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-31T10:10:29.189Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-31T10:10:29.272Z: [서버로그]::MongoDB 연결 성공
+2025-10-31T10:10:29.273Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-31T10:10:29.281Z: [서버로그]::mysql connection success!!
+2025-10-31T10:10:29.289Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-31T18:10:30.352Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-10-31T18:10:30.372Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-10-31T18:10:30.491Z: [서버로그]::MongoDB 연결 성공
+2025-10-31T18:10:30.492Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-10-31T18:10:30.501Z: [서버로그]::MongoDB 연결 확인됨
+2025-10-31T18:10:30.515Z: [서버로그]::mysql connection success!!
+2025-11-01T02:10:31.173Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-11-01T02:10:31.188Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-11-01T02:10:31.262Z: [서버로그]::MongoDB 연결 성공
+2025-11-01T02:10:31.263Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-11-01T02:10:31.271Z: [서버로그]::mysql connection success!!
+2025-11-01T02:10:31.288Z: [서버로그]::MongoDB 연결 확인됨
+2025-11-01T10:10:31.866Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-11-01T10:10:31.880Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-11-01T10:10:31.951Z: [서버로그]::MongoDB 연결 성공
+2025-11-01T10:10:31.953Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-11-01T10:10:31.965Z: [서버로그]::mysql connection success!!
+2025-11-01T10:10:31.980Z: [서버로그]::MongoDB 연결 확인됨
+2025-11-01T18:10:32.795Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-11-01T18:10:32.809Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-11-01T18:10:32.883Z: [서버로그]::MongoDB 연결 성공
+2025-11-01T18:10:32.892Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-11-01T18:10:32.893Z: [서버로그]::mysql connection success!!
+2025-11-01T18:10:32.909Z: [서버로그]::MongoDB 연결 확인됨
+2025-11-02T02:10:33.494Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-11-02T02:10:33.508Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-11-02T02:10:33.581Z: [서버로그]::mysql connection success!!
+2025-11-02T02:10:33.585Z: [서버로그]::MongoDB 연결 성공
+2025-11-02T02:10:33.587Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-11-02T02:10:33.609Z: [서버로그]::MongoDB 연결 확인됨
+2025-11-02T10:10:34.210Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-11-02T10:10:34.224Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-11-02T10:10:34.306Z: [서버로그]::mysql connection success!!
+2025-11-02T10:10:34.310Z: [서버로그]::MongoDB 연결 성공
+2025-11-02T10:10:34.311Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-11-02T10:10:34.324Z: [서버로그]::MongoDB 연결 확인됨
+2025-11-02T18:10:35.424Z: [서버로그]::MongoDB 연결 시작: mongodb://localhost:27017
+2025-11-02T18:10:35.439Z: [서버로그]::MongoDB 연결 대기 중... (1/50)
+2025-11-02T18:10:35.524Z: [서버로그]::mysql connection success!!
+2025-11-02T18:10:35.537Z: [서버로그]::MongoDB 연결 성공
+2025-11-02T18:10:35.540Z: [서버로그]::MongoDB 컬렉션 초기화 완료
+2025-11-02T18:10:35.550Z: [서버로그]::MongoDB 연결 확인됨
+2025-11-02T23:58:08.607Z: [서버로그]::update multiple : rm_idx::453::user_id:01083092881
+2025-11-03T00:48:53.378Z: [서버로그]::update multiple : rm_idx::471::user_id:01083092881
+2025-11-03T01:06:10.879Z: [서버로그]::update multiple : rm_idx::471::user_id:01083092881

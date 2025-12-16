@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# ❗ ads.txt 요청은 rewrite 하지 않고 직접 파일 처리하도록 예외
+RewriteRule ^ads\.txt$ - [L]
+
+# ✅ sitemap.xml, robots.txt 는 index.php로 넘기지 않음
+RewriteCond %{REQUEST_URI} !^/sitemap\.xml$
+RewriteCond %{REQUEST_URI} !^/robots\.txt$
+
+# 🆕 ads.txt 예외가 추가되었으므로 다음 조건에도 포함할 수 있음
+RewriteCond %{REQUEST_URI} !^/ads\.txt$
+
+RewriteCond $1 !^(index\.php|.well-known|chatting|resource|uploads|outer|phpmyadmin|robots|robots\.txt)
+RewriteRule ^(.*)$ index.php [L]
+</IfModule>

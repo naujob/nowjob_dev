@@ -1,0 +1,263 @@
+<div id="content" class="page page-view">
+    <main class="page-content">
+        <div class="item-view person">
+            <div class="container">
+                <!-- 컨텐츠 영역 -->
+                <div class="view-content">
+                    <div class="section view-header">
+                        <div class="profile">
+                            <div class="thumb">
+                                <img data-src="<?=getMemberImg($mem_info)?>" alt="" class="lozad">
+                            </div>
+                            <div class="profile-detail">
+                                <!-- 이름 -->
+                                <p class="name"><em><?=$mem_info["mm_name"]?></em>님</p>
+                                <div class="meta">
+                                    <!-- 추가사항 -->
+                                    <p><span><?=$mem_info["mm_nation"]?></span> / <span><?=$mem_info["ma_age"]?>세</span></p>
+                                    <p><?=$mem_info["ad_addr"]?></p>
+                                    <p><?=$mem_info["mm_phone"]?></p>
+                                    <p><?=$mem_info["mm_id"]?></p>
+                                </div>
+                            </div>
+                            <ul class="profile-record">
+                                <li><span class="label">프로필 조회</span><em class="value"><?=$info["ru_hit"]?></em></li>
+                                <li><span class="label">받은제안</span><em class="value"><?=$info["req_cnt"]?></em></li>
+                                <li><span class="label">관심인재</span><em class="value"><?=$info["fav_cnt"]?></em></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="inline-group">
+                            <p class="help-msg">개인 연락처는 면접결정시 기업에 공유할수 있습니다.</p>
+                        </div>
+
+                        <div class="summary">
+                            <div class="inline-group">
+                                <div class="col">
+                                    <h3 class="secondary-title">희망근무조건</h3>
+                                    <table class="info-table">
+                                        <caption><span class="sr-text">희망근무조건</span></caption>
+                                        <colgroup><col><col></colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td class="label">업무구분</td>
+                                                <td class="value">
+                                                    <!-- 직종라벨 -->
+                                                    <?=getWorkingImg($info["ru_work"])?>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">희망근무지역</td>
+                                                <td class="value">
+                                                	<?php foreach($addr as $key=> $ad) : ?>
+				                                		<?=$key==0 ? $ad["ad_addr"]:" ," . $ad["ad_addr"]?>
+				                                	<?php endforeach; ?>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">급여형태</td>
+                                                <td class="value"><?=$info["ru_work_type"]?></td>
+                                            </tr>
+                                            <?php if(strpos($info["ru_price_type"],"월급")!==false && $info["ru_month_price"]!="0") : ?>
+                                            <tr>
+                                                <td class="label">희망연봉</td>
+                                                <td class="value"><?=number_format($info["ru_month_price"])?>원</td>
+                                            </tr>
+                                            <?php endif; ?>
+                                            <tr>
+                                                <td class="label">근무형태</td>
+                                                <td class="value"><?=$info["ru_price_type"]?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">근무 희망요일</td>
+                                                <td class="value">
+                                                    <ul class="working-day">
+                                                        <?=getWeekYoil($info["ru_week"])?>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">근무희망일</td>
+                                                <td class="value"><?=(get_date($info["ru_work_dt"]))?>(<?=get_yoil($info["ru_work_dt"])?>)</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col">
+                                    <h3 class="secondary-title">경력소개</h3>
+                                    <table class="info-table">
+                                        <caption><span class="sr-text">경력</span></caption>
+                                        <colgroup><col><col></colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td class="label">최종학력</td>
+                                                <td class="value"><?=$info["ru_edu"]?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">경력사항</td>
+                                                <td class="value">
+                                                    <ul class="period-list">
+                                                    	<?php foreach($career_list as $row) : ?>
+					                                    <li>
+					                                        <span><?=$row["rc_type"]?></span>
+					                                        <span><?=$row["rc_name"]?></span>
+					                                        <?php
+					                                        	$is_date = false;
+					                                        	$sdate = "";
+																$edate = "";
+					                                        	$arr_date = explode("~",$row["rc_date"]);
+																if(count($arr_date) > 1){
+																	$is_date = true;
+																	$sdate = str_replace(".","-",trim($arr_date[0])) . "-01";
+																	$edate = str_replace(".","-",trim($arr_date[1])) . "-01";
+																}
+					                                        ?>
+					                                        <em><?=$row["rc_date"]?><?=$is_date ? "(" . get_date_diff_txt($sdate,$edate) . ")" : ""?></em>
+					                                    </li>
+					                                    <?php endforeach; ?>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">자격증</td>
+                                                <td class="value">
+                                                    <ul class="period-list">
+                                                        <?php foreach($certi_list as $row) : ?>
+					                                    <li>
+					                                    	<span>자격증</span>
+					                                        <span><?=$row["rc_name"]?></span>
+					                                        <em><?=$row["rc_dt"]?></em>
+					                                    </li>
+					                                    <?php endforeach; ?>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section view-introduce">
+                        <h3 class="secondary-title">자기소개</h3>
+                        <div class="introduce-wrap">
+                           <?=str_replace("\n","<br/>",$row["ru_desc"])?>
+                        </div>
+                        <div class="hashtag">
+                            <?=getMyType($info["ru_my_type"])?>
+                        </div>
+                    </div>
+                    
+                    <!--div class="section view-portfolio">
+                        <h3 class="secondary-title">포트폴리오</h3>
+                        <p>
+                            <a href="#" target="_blank" download class="file-download">portfilo.zip</a>
+                        </p>
+                    </div-->
+                    
+                    <div class="section view-attachment">
+                        <h3 class="secondary-title">첨부사진</h3>
+                        <div class="pic-group">
+                            <?php if($info["ru_img1"]!="") : ?>
+		                    <div class="pic-card"><img data-src="<?=$info["ru_img1"]?>" alt="" class="lozad"></div>
+		                    <?php endif; ?>
+		                    <?php if($info["ru_img2"]!="") : ?>
+		                    <div class="pic-card"><img data-src="<?=$info["ru_img2"]?>" alt="" class="lozad"></div>
+		                    <?php endif; ?>
+		                    <?php if($info["ru_img3"]!="") : ?>
+		                    <div class="pic-card"><img data-src="<?=$info["ru_img3"]?>" alt="" class="lozad"></div>
+		                    <?php endif; ?>
+		                    <?php if($info["ru_img4"]!="") : ?>
+		                    <div class="pic-card"><img data-src="<?=$info["ru_img4"]?>" alt="" class="lozad"></div>
+		                    <?php endif; ?>
+		                    <?php if($info["ru_img5"]!="") : ?>
+		                    <div class="pic-card"><img data-src="<?=$info["ru_img5"]?>" alt="" class="lozad"></div>
+		                    <?php endif; ?>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- 컨텐츠 영역 -->
+                
+                <!-- aside -->
+                <div class="view-aside">
+
+                    <div class="sticky-group">
+                        <div class="summary-card">
+                            <div class="top">
+                                <div class="inline-group">
+                                    <!-- 카테고리 라벨 -->
+                                    <?=getWorkingImg($info["ru_work"])?>
+                                </div>
+                            </div>
+                            <!-- 타이틀 -->
+                            <p class="title"><?=$mem_info["mm_name"]?></p>
+                            <!-- 기타정보 -->
+                            <p class="type"><span><?=$mem_info["mm_nation"]?></span> / <span><?=$mem_info["ma_age"]?>세</span> / <span><?=$mem_info["ad_addr"]?></span></p>
+                            <!-- 평점 -->
+                            <p class="star-rating">
+                                <!-- 평점 아이콘 : (width: 점수 / 5 * 100) --> 
+                                <span class="star" style="width:80%;"></span>
+                                <span class="sr-text">평점</span>
+                                <span class="sr-text">5</span>
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+                <!-- //aside -->
+                
+            </div>
+        </div>
+
+        <div class="view-footer">
+            <div class="form-action-wrap">
+                <button type="button" id="btnDelete" aria-haspopup="dialog" class="btn-round btn-secondary js-remove">삭제</button>
+                <button type="button" id="btnEdit" class="btn-round btn-tertiary">수정</button>
+            </div>
+        </div>
+
+    </main><!-- //page-content -->
+</div><!-- //page -->
+
+
+<input type="hidden" name="ru_idx" value="<?=$info["ru_idx"]?>" />
+<input type="hidden" name="ru_name" value="<?=$info["ru_name"]?>" />
+<script>
+	$(document).ready(function(){
+		$("#btnDelete").click(function(){
+			var ru_name = $("[name=ru_name]").val();
+			var ru_idx = $("[name=ru_idx]").val();
+            openPopup('confirm', {
+                content: '<em>“'+ru_name+'”</em><br> 이력서를 삭제하시겠습니까?<br> 등록하신 모든 데이터는<br> 삭제됩니다.',
+                firstButton: '취소',
+                secondButton: '삭제',
+                secondCallback: function () {
+                    var params = {};
+                    params["ru_idx"] = ru_idx;
+		            comAjax("/mypage_proc/resume_delete",params,function(ret){
+		                if(ret.code=="00"){
+		                    location.replace("/mypage/resume_list");
+		                }else{
+		                    commonAlert(ret.msg,function(){});
+		                    return;
+		                }
+		            });
+                }
+            });
+		});
+
+		$("#btnEdit").click(function(){
+			comAjax("/mypage_proc/resume_start",{},function(ret){
+                if(ret.code=="00"){
+                    location.href="/mypage/resume_write/" + $("[name=ru_idx]").val();
+                }else{
+                    commonAlert(ret.msg,function(){});
+                    return;
+                }
+            });
+		});
+	});
+</script>

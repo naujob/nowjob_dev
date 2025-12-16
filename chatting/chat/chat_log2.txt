@@ -1,0 +1,904 @@
+2025-12-09T05:01:12.602Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:13.500Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:41.686Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:42.529Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:46.023Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:46.982Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:47.819Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:48.913Z: [서버로그]::update multiple : rm_idx::821::user_id:01077417262
+2025-12-09T05:01:55.894Z: [서버로그]::update multiple : rm_idx::0::user_id:01077417262
+2025-12-09T05:13:38.621Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T05:14:00.127Z: [서버로그]::update multiple : rm_idx::565::user_id:01095215889
+2025-12-09T05:14:00.214Z: [서버로그]::room check :::: rm_idx::565::usersRoom:[object Object]
+2025-12-09T05:14:00.223Z: [서버로그]::update multiple : rm_idx::565::user_id:01095215889
+2025-12-09T05:14:03.112Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T05:14:03.112Z: [서버로그]::방 정보 조회 시작
+2025-12-09T05:14:03.113Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T05:14:03.114Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T05:14:03.119Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T05:14:03.119Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T05:14:03.122Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T05:14:03.122Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T05:14:03.132Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T05:14:03.134Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T05:14:03.134Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3031,"mg_type":"text","mg_text":"sssssssssssssa","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T05:14:03.127Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"68HZ48-ChdepqQFMAAQE","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"site","mm_id":"01095215889","last_update":"2025-12-09T01:11:17.315Z"}]}]
+2025-12-09T05:14:03.134Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T05:14:03.134Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T05:14:03.135Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T05:14:03.135Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T05:14:03.137Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T05:14:03.137Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T05:14:03.137Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T05:14:03.137Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T05:14:03.143Z: [서버로그]::rm_idx::565::mg_idx:3031::user_id:01095215889
+2025-12-09T05:14:03.144Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T05:14:03.150Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T05:34:53.394Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T05:34:55.982Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01029480913
+2025-12-09T05:34:55.983Z: [서버로그]::방 정보 조회 시작
+2025-12-09T05:34:55.984Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T05:34:55.985Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T05:34:55.986Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T05:34:55.986Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T05:34:55.988Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T05:34:55.989Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T05:34:55.992Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T05:34:55.993Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T05:34:55.993Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01029480913","mg_idx":3032,"mg_type":"text","mg_text":"iouio","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T05:34:55.991Z","mg_reads":[{"user_id":"01095215889","read_yn":"N"},{"user_id":"01029480913","read_yn":"Y"}],"user_info":[{"_id":"666f15557daf76c21e7d49b6","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"1-sOJEUVdtgV42GHAAR6","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-07T04:57:44.564Z"},{"_id":"68f725b97daf7624761f4dc3","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"C7TzMx3B4TUWeurDAAAR","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"cvqSvAsfTveyFk6InigjyJ:APA91bH8y9T6PfSWvhnIhuxyzFWamweYBLJrHtZ2aXqPH2-2RH4KvFbVe0dphreziGO4QeRt0TcPrn8t4qOt2u8ikN91jm6tORJxk2GdpyVPnBiwmTP1PRA","last_location":"site"}]}]
+2025-12-09T05:34:55.994Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T05:34:55.994Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T05:34:55.994Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T05:34:55.994Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T05:34:55.996Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T05:34:55.996Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T05:34:55.996Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T05:34:55.996Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T05:34:56.001Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01095215889
+2025-12-09T05:34:56.003Z: [서버로그]::rm_idx::565::mg_idx:3032::user_id:01029480913
+2025-12-09T05:34:56.004Z: [서버로그]::rm_idx::565::mg_idx:3032::user_id:01095215889
+2025-12-09T05:34:56.005Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T05:35:16.396Z: [서버로그]::update multiple : rm_idx::821::user_id:01095215889
+2025-12-09T05:35:57.747Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T05:36:01.946Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01029480913
+2025-12-09T05:36:01.946Z: [서버로그]::방 정보 조회 시작
+2025-12-09T05:36:01.949Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T05:36:01.949Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T05:36:01.950Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T05:36:01.950Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T05:36:01.952Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T05:36:01.953Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T05:36:01.957Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T05:36:01.958Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T05:36:01.959Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01029480913","mg_idx":3033,"mg_type":"text","mg_text":"555","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T05:36:01.956Z","mg_reads":[{"user_id":"01095215889","read_yn":"N"},{"user_id":"01029480913","read_yn":"Y"}],"user_info":[{"_id":"666f15557daf76c21e7d49b6","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"QcCzisnVPinySo8xAASg","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-07T04:57:44.564Z"},{"_id":"68f725b97daf7624761f4dc3","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"C7TzMx3B4TUWeurDAAAR","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"cvqSvAsfTveyFk6InigjyJ:APA91bH8y9T6PfSWvhnIhuxyzFWamweYBLJrHtZ2aXqPH2-2RH4KvFbVe0dphreziGO4QeRt0TcPrn8t4qOt2u8ikN91jm6tORJxk2GdpyVPnBiwmTP1PRA","last_location":"site"}]}]
+2025-12-09T05:36:01.959Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T05:36:01.959Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T05:36:01.959Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T05:36:01.960Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T05:36:01.962Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T05:36:01.962Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T05:36:01.962Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T05:36:01.962Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T05:36:01.968Z: [서버로그]::rm_idx::565::mg_idx:3033::user_id:01095215889
+2025-12-09T05:36:01.969Z: [서버로그]::rm_idx::565::mg_idx:3033::user_id:01029480913
+2025-12-09T05:36:01.973Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01095215889
+2025-12-09T05:36:01.975Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T05:36:32.832Z: [서버로그]::update multiple : rm_idx::565::user_id:01095215889
+2025-12-09T05:39:45.405Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T05:40:03.610Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01029480913
+2025-12-09T05:40:03.610Z: [서버로그]::방 정보 조회 시작
+2025-12-09T05:40:03.613Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T05:40:03.613Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T05:40:03.614Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T05:40:03.614Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T05:40:03.617Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T05:40:03.617Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T05:40:03.620Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T05:40:03.621Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T05:40:03.622Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01029480913","mg_idx":3034,"mg_type":"text","mg_text":"fdsfdf","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T05:40:03.619Z","mg_reads":[{"user_id":"01095215889","read_yn":"N"},{"user_id":"01029480913","read_yn":"Y"}],"user_info":[{"_id":"666f15557daf76c21e7d49b6","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"oG8_C6QJwURDEuAhAATQ","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-07T04:57:44.564Z"},{"_id":"68f725b97daf7624761f4dc3","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"C7TzMx3B4TUWeurDAAAR","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"cvqSvAsfTveyFk6InigjyJ:APA91bH8y9T6PfSWvhnIhuxyzFWamweYBLJrHtZ2aXqPH2-2RH4KvFbVe0dphreziGO4QeRt0TcPrn8t4qOt2u8ikN91jm6tORJxk2GdpyVPnBiwmTP1PRA","last_location":"site"}]}]
+2025-12-09T05:40:03.622Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T05:40:03.622Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T05:40:03.623Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T05:40:03.624Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T05:40:03.626Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T05:40:03.626Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T05:40:03.627Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T05:40:03.627Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T05:40:03.630Z: [서버로그]::rm_idx::565::mg_idx:3034::user_id:01029480913
+2025-12-09T05:40:03.634Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01095215889
+2025-12-09T05:40:03.635Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T05:42:05.825Z: [서버로그]::update multiple : rm_idx::565::user_id:01095215889
+2025-12-09T05:48:58.395Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T05:49:01.393Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01029480913
+2025-12-09T05:49:01.393Z: [서버로그]::방 정보 조회 시작
+2025-12-09T05:49:01.396Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T05:49:01.396Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T05:49:01.397Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T05:49:01.397Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T05:49:01.399Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T05:49:01.399Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T05:49:01.404Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T05:49:01.407Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T05:49:01.407Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01029480913","mg_idx":3035,"mg_type":"text","mg_text":"dsdsds","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T05:49:01.402Z","mg_reads":[{"user_id":"01095215889","read_yn":"N"},{"user_id":"01029480913","read_yn":"Y"}],"user_info":[{"_id":"666f15557daf76c21e7d49b6","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"5RNICSVz5oufbGzpAATy","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-07T04:57:44.564Z"},{"_id":"68f725b97daf7624761f4dc3","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"C7TzMx3B4TUWeurDAAAR","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"cvqSvAsfTveyFk6InigjyJ:APA91bH8y9T6PfSWvhnIhuxyzFWamweYBLJrHtZ2aXqPH2-2RH4KvFbVe0dphreziGO4QeRt0TcPrn8t4qOt2u8ikN91jm6tORJxk2GdpyVPnBiwmTP1PRA","last_location":"site"}]}]
+2025-12-09T05:49:01.408Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T05:49:01.408Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T05:49:01.409Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T05:49:01.409Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T05:49:01.411Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T05:49:01.411Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T05:49:01.411Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T05:49:01.412Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T05:49:01.417Z: [서버로그]::rm_idx::565::mg_idx:3035::user_id:01029480913
+2025-12-09T05:49:01.419Z: [서버로그]::rm_idx::565::mg_idx:3035::user_id:01029480913
+2025-12-09T05:49:01.425Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01095215889
+2025-12-09T05:49:01.427Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T05:49:38.859Z: [서버로그]::update multiple : rm_idx::565::user_id:01095215889
+2025-12-09T05:49:41.328Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T05:49:41.329Z: [서버로그]::방 정보 조회 시작
+2025-12-09T05:49:41.331Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T05:49:41.331Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T05:49:41.332Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T05:49:41.332Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T05:49:41.334Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T05:49:41.335Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T05:49:41.338Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T05:49:41.339Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T05:49:41.339Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3036,"mg_type":"text","mg_text":"jhgjhj","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T05:49:41.337Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"cXxF8uE2w-b6E2FJAAUA","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T01:11:17.315Z"}]}]
+2025-12-09T05:49:41.340Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T05:49:41.340Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T05:49:41.340Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T05:49:41.341Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T05:49:41.344Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T05:49:41.344Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T05:49:41.344Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T05:49:41.344Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T05:49:41.363Z: [서버로그]::rm_idx::565::mg_idx:3036::user_id:01029480913
+2025-12-09T05:49:41.364Z: [서버로그]::rm_idx::565::mg_idx:3036::user_id:01029480913
+2025-12-09T05:49:41.364Z: [서버로그]::rm_idx::565::mg_idx:3036::user_id:01095215889
+2025-12-09T05:49:41.373Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T05:49:41.375Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T05:50:02.831Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T06:00:20.869Z: [서버로그]::update multiple : rm_idx::565::user_id:01095215889
+2025-12-09T06:00:23.395Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:00:23.395Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:00:23.398Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:00:23.398Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:00:23.399Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:00:23.399Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:00:23.401Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:00:23.401Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:00:23.404Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:00:23.405Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:00:23.405Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3037,"mg_type":"text","mg_text":"ㄹㄴㅇㄹㄴㅇ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:00:23.403Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"DNaBurVO2wSDAoMUAAVW","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:00:23.406Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:00:23.406Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:00:23.406Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:00:23.406Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:00:23.408Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:00:23.408Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:00:23.408Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:00:23.409Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:00:23.412Z: [서버로그]::rm_idx::565::mg_idx:3037::user_id:01095215889
+2025-12-09T06:00:23.413Z: [서버로그]::rm_idx::565::mg_idx:3037::user_id:01095215889
+2025-12-09T06:00:23.414Z: [서버로그]::rm_idx::565::mg_idx:3037::user_id:01029480913
+2025-12-09T06:00:23.415Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:00:23.417Z: [서버로그]::rm_idx::565::mg_idx:3037::user_id:01029480913
+2025-12-09T06:00:23.419Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:00:31.473Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:00:31.473Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:00:31.475Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:00:31.475Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:00:31.476Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:00:31.477Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:00:31.479Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:00:31.479Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:00:31.483Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:00:31.485Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:00:31.485Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3038,"mg_type":"text","mg_text":"ㅓ호ㅓㅎ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:00:31.481Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"DNaBurVO2wSDAoMUAAVW","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:00:31.486Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:00:31.486Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:00:31.486Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:00:31.486Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:00:31.488Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:00:31.488Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:00:31.488Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:00:31.489Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:00:31.492Z: [서버로그]::rm_idx::565::mg_idx:3038::user_id:01029480913
+2025-12-09T06:00:31.493Z: [서버로그]::rm_idx::565::mg_idx:3038::user_id:01029480913
+2025-12-09T06:00:31.494Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:00:31.496Z: [서버로그]::rm_idx::565::mg_idx:3038::user_id:01095215889
+2025-12-09T06:00:31.498Z: [서버로그]::rm_idx::565::mg_idx:3038::user_id:01095215889
+2025-12-09T06:00:31.502Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:01:23.854Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T06:01:28.316Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:01:28.316Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:01:28.319Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:01:28.319Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:01:28.321Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:01:28.321Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:01:28.324Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:01:28.325Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:01:28.328Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:01:28.330Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:01:28.330Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3039,"mg_type":"text","mg_text":"ㄴㅁㄴㅁㄴ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:01:28.328Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"DNaBurVO2wSDAoMUAAVW","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:01:28.331Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:01:28.331Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:01:28.331Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:01:28.332Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:01:28.334Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:01:28.334Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:01:28.334Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:01:28.335Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:01:28.338Z: [서버로그]::rm_idx::565::mg_idx:3039::user_id:01095215889
+2025-12-09T06:01:28.339Z: [서버로그]::rm_idx::565::mg_idx:3039::user_id:01095215889
+2025-12-09T06:01:28.339Z: [서버로그]::rm_idx::565::mg_idx:3039::user_id:01029480913
+2025-12-09T06:01:28.340Z: [서버로그]::rm_idx::565::mg_idx:3039::user_id:01029480913
+2025-12-09T06:01:28.349Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:01:28.351Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:04:07.941Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:04:07.941Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:04:07.944Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:04:07.944Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:04:07.945Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:04:07.945Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:04:07.949Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:04:07.949Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:04:07.953Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:04:07.954Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:04:07.955Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3040,"mg_type":"text","mg_text":";ㅏㅣ;ㅏ;","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:04:07.952Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"DNaBurVO2wSDAoMUAAVW","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:04:07.956Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:04:07.957Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:04:07.958Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:04:07.958Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:04:07.970Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:04:07.970Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:04:07.970Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:04:07.972Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:04:07.973Z: [서버로그]::rm_idx::565::mg_idx:3040::user_id:01029480913
+2025-12-09T06:04:07.974Z: [서버로그]::rm_idx::565::mg_idx:3040::user_id:01029480913
+2025-12-09T06:04:07.975Z: [서버로그]::rm_idx::565::mg_idx:3040::user_id:01095215889
+2025-12-09T06:04:07.975Z: [서버로그]::rm_idx::565::mg_idx:3040::user_id:01095215889
+2025-12-09T06:04:07.986Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:04:07.989Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:04:30.950Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T06:07:01.833Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:07:01.833Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:07:01.838Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:07:01.838Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:07:01.840Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:07:01.840Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:07:01.844Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:07:01.844Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:07:01.848Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:07:01.849Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:07:01.849Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3041,"mg_type":"text","mg_text":"ㅛㅅ굓","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:07:01.847Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"DNaBurVO2wSDAoMUAAVW","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:07:01.850Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:07:01.850Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:07:01.850Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:07:01.850Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:07:01.854Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:07:01.854Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:07:01.855Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:07:01.855Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:07:01.856Z: [서버로그]::rm_idx::565::mg_idx:3041::user_id:01095215889
+2025-12-09T06:07:01.857Z: [서버로그]::rm_idx::565::mg_idx:3041::user_id:01095215889
+2025-12-09T06:07:01.859Z: [서버로그]::rm_idx::565::mg_idx:3041::user_id:01029480913
+2025-12-09T06:07:01.860Z: [서버로그]::rm_idx::565::mg_idx:3041::user_id:01029480913
+2025-12-09T06:07:01.869Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:07:01.872Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:07:25.099Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:07:25.099Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:07:25.102Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:07:25.102Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:07:25.103Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:07:25.104Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:07:25.106Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:07:25.106Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:07:25.109Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:07:25.110Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:07:25.110Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3042,"mg_type":"text","mg_text":"ㄹㄴㄹㄴ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:07:25.108Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"DNaBurVO2wSDAoMUAAVW","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:07:25.111Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:07:25.111Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:07:25.111Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:07:25.111Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:07:25.114Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:07:25.114Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:07:25.114Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:07:25.114Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:07:25.118Z: [서버로그]::rm_idx::565::mg_idx:3042::user_id:01095215889
+2025-12-09T06:07:25.119Z: [서버로그]::rm_idx::565::mg_idx:3042::user_id:01095215889
+2025-12-09T06:07:25.119Z: [서버로그]::rm_idx::565::mg_idx:3042::user_id:01029480913
+2025-12-09T06:07:25.120Z: [서버로그]::rm_idx::565::mg_idx:3042::user_id:01029480913
+2025-12-09T06:07:25.121Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:07:25.129Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:07:30.877Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T06:07:51.840Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T06:07:55.003Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01029480913
+2025-12-09T06:07:55.003Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:07:55.005Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:07:55.005Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:07:55.006Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:07:55.006Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:07:55.009Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:07:55.009Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:07:55.013Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:07:55.014Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:07:55.014Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01029480913","mg_idx":3043,"mg_type":"text","mg_text":"ㄹㄴㄹㅇ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:07:55.012Z","mg_reads":[{"user_id":"01095215889","read_yn":"N"},{"user_id":"01029480913","read_yn":"Y"}],"user_info":[{"_id":"666f15557daf76c21e7d49b6","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"4rydoF83qgV4aJJQAAWm","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-07T04:57:44.564Z"},{"_id":"68f725b97daf7624761f4dc3","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"C7TzMx3B4TUWeurDAAAR","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"cvqSvAsfTveyFk6InigjyJ:APA91bH8y9T6PfSWvhnIhuxyzFWamweYBLJrHtZ2aXqPH2-2RH4KvFbVe0dphreziGO4QeRt0TcPrn8t4qOt2u8ikN91jm6tORJxk2GdpyVPnBiwmTP1PRA","last_location":"site"}]}]
+2025-12-09T06:07:55.015Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:07:55.015Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:07:55.015Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:07:55.015Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:07:55.018Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:07:55.018Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:07:55.018Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:07:55.018Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:07:55.021Z: [서버로그]::rm_idx::565::mg_idx:3043::user_id:01029480913
+2025-12-09T06:07:55.023Z: [서버로그]::rm_idx::565::mg_idx:3043::user_id:01095215889
+2025-12-09T06:07:55.024Z: [서버로그]::rm_idx::565::mg_idx:3043::user_id:01029480913
+2025-12-09T06:07:55.026Z: [서버로그]::rm_idx::565::mg_idx:3043::user_id:01095215889
+2025-12-09T06:07:55.028Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01095215889
+2025-12-09T06:07:55.030Z: [서버로그]::rm_idx::565::mg_idx:3043::user_id:01029480913
+2025-12-09T06:07:55.031Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T06:08:04.654Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01029480913
+2025-12-09T06:08:04.654Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:08:04.658Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:08:04.659Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:08:04.660Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:08:04.661Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:08:04.664Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:08:04.664Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:08:04.668Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:08:04.670Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:08:04.670Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01029480913","mg_idx":3044,"mg_type":"text","mg_text":"ㅏㅓㅣㅓㅏ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:08:04.667Z","mg_reads":[{"user_id":"01095215889","read_yn":"N"},{"user_id":"01029480913","read_yn":"Y"}],"user_info":[{"_id":"666f15557daf76c21e7d49b6","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"4rydoF83qgV4aJJQAAWm","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-07T04:57:44.564Z"},{"_id":"68f725b97daf7624761f4dc3","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"C7TzMx3B4TUWeurDAAAR","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"cvqSvAsfTveyFk6InigjyJ:APA91bH8y9T6PfSWvhnIhuxyzFWamweYBLJrHtZ2aXqPH2-2RH4KvFbVe0dphreziGO4QeRt0TcPrn8t4qOt2u8ikN91jm6tORJxk2GdpyVPnBiwmTP1PRA","last_location":"site"}]}]
+2025-12-09T06:08:04.671Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:08:04.671Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:08:04.672Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:08:04.672Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:08:04.676Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:08:04.676Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:08:04.676Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:08:04.676Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:08:04.678Z: [서버로그]::rm_idx::565::mg_idx:3044::user_id:01029480913
+2025-12-09T06:08:04.680Z: [서버로그]::rm_idx::565::mg_idx:3044::user_id:01029480913
+2025-12-09T06:08:04.684Z: [서버로그]::rm_idx::565::mg_idx:3044::user_id:01095215889
+2025-12-09T06:08:04.685Z: [서버로그]::rm_idx::565::mg_idx:3044::user_id:01029480913
+2025-12-09T06:08:04.696Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01095215889
+2025-12-09T06:08:04.700Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T06:10:34.039Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T06:10:37.513Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01029480913
+2025-12-09T06:10:37.513Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:10:37.515Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:10:37.515Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:10:37.516Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:10:37.516Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:10:37.520Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:10:37.520Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:10:37.524Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:10:37.525Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:10:37.525Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01029480913","mg_idx":3045,"mg_type":"text","mg_text":"ㅇㅇㅇㅇㅇㅇㅇㅇㅇ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:10:37.522Z","mg_reads":[{"user_id":"01095215889","read_yn":"N"},{"user_id":"01029480913","read_yn":"Y"}],"user_info":[{"_id":"666f15557daf76c21e7d49b6","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"qN_mLOhAqpGkwl1WAAXS","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-07T04:57:44.564Z"},{"_id":"68f725b97daf7624761f4dc3","user_idx":"","user_id":"01029480913","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"헐크인력","user_img":"","user_desc":"","user_status":"Y","socket_id":"C7TzMx3B4TUWeurDAAAR","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":"cvqSvAsfTveyFk6InigjyJ:APA91bH8y9T6PfSWvhnIhuxyzFWamweYBLJrHtZ2aXqPH2-2RH4KvFbVe0dphreziGO4QeRt0TcPrn8t4qOt2u8ikN91jm6tORJxk2GdpyVPnBiwmTP1PRA","last_location":"site"}]}]
+2025-12-09T06:10:37.526Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:10:37.526Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:10:37.526Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:10:37.526Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:10:37.529Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:10:37.529Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:10:37.529Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:10:37.529Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:10:37.535Z: [서버로그]::rm_idx::565::mg_idx:3045::user_id:01095215889
+2025-12-09T06:10:37.536Z: [서버로그]::rm_idx::565::mg_idx:3045::user_id:01029480913
+2025-12-09T06:10:37.538Z: [서버로그]::rm_idx::565::mg_idx:3045::user_id:01029480913
+2025-12-09T06:10:37.541Z: [서버로그]::rm_idx::565::mg_idx:3045::user_id:01029480913
+2025-12-09T06:10:37.542Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01095215889
+2025-12-09T06:10:37.548Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T06:10:52.956Z: [서버로그]::update multiple : rm_idx::565::user_id:01095215889
+2025-12-09T06:10:59.976Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:10:59.976Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:10:59.979Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:10:59.979Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:10:59.980Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:10:59.980Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:10:59.983Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:10:59.983Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:10:59.986Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:10:59.987Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:10:59.987Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3046,"mg_type":"text","mg_text":"ㅓㅗㅓㅓㅗㅓㅗ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:10:59.985Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"ltngkmw6ibY3qgt5AAXo","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:10:59.988Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:10:59.988Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:10:59.989Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:10:59.989Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:10:59.992Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:10:59.992Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:10:59.992Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:10:59.993Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:10:59.997Z: [서버로그]::rm_idx::565::mg_idx:3046::user_id:01029480913
+2025-12-09T06:10:59.997Z: [서버로그]::rm_idx::565::mg_idx:3046::user_id:01095215889
+2025-12-09T06:10:59.998Z: [서버로그]::rm_idx::565::mg_idx:3046::user_id:01029480913
+2025-12-09T06:10:59.999Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:11:00.000Z: [서버로그]::rm_idx::565::mg_idx:3046::user_id:01095215889
+2025-12-09T06:11:00.003Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:13:09.420Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:13:09.420Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:13:09.423Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:13:09.423Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:13:09.424Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:13:09.424Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:13:09.427Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:13:09.427Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:13:09.431Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:13:09.432Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:13:09.432Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3047,"mg_type":"text","mg_text":"ㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:13:09.430Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"ltngkmw6ibY3qgt5AAXo","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:13:09.433Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:13:09.434Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:13:09.434Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:13:09.434Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:13:09.436Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:13:09.436Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:13:09.437Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:13:09.437Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:13:09.439Z: [서버로그]::rm_idx::565::mg_idx:3047::user_id:01029480913
+2025-12-09T06:13:09.440Z: [서버로그]::rm_idx::565::mg_idx:3047::user_id:01095215889
+2025-12-09T06:13:09.442Z: [서버로그]::rm_idx::565::mg_idx:3047::user_id:01095215889
+2025-12-09T06:13:09.444Z: [서버로그]::rm_idx::565::mg_idx:3047::user_id:01029480913
+2025-12-09T06:13:09.448Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:13:09.453Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:13:33.998Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:13:33.999Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:13:34.001Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:13:34.001Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:13:34.003Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:13:34.004Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:13:34.008Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:13:34.008Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:13:34.011Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:13:34.012Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:13:34.013Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3048,"mg_type":"text","mg_text":"ㅏ;ㅏㅏㅏㅏㅏ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:13:34.010Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"ltngkmw6ibY3qgt5AAXo","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:13:34.014Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:13:34.014Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:13:34.014Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:13:34.014Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:13:34.017Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:13:34.017Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:13:34.018Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:13:34.018Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:13:34.019Z: [서버로그]::rm_idx::565::mg_idx:3048::user_id:01029480913
+2025-12-09T06:13:34.020Z: [서버로그]::rm_idx::565::mg_idx:3048::user_id:01095215889
+2025-12-09T06:13:34.022Z: [서버로그]::rm_idx::565::mg_idx:3048::user_id:01095215889
+2025-12-09T06:13:34.022Z: [서버로그]::rm_idx::565::mg_idx:3048::user_id:01029480913
+2025-12-09T06:13:34.029Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:13:34.031Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:13:44.798Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T06:18:52.567Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 565, user_id: 01095215889
+2025-12-09T06:18:52.567Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:18:52.570Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:18:52.570Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:18:52.571Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:18:52.571Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:18:52.574Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:18:52.574Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:18:52.577Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:18:52.578Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:18:52.578Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01095215889","mg_idx":3049,"mg_type":"text","mg_text":"ㅑㅑㅑㅑㅑㅑㅑㅑㅑ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:18:52.576Z","mg_reads":[{"user_id":"01095215889","read_yn":"Y"},{"user_id":"01029480913","read_yn":"N"}],"user_info":[{"_id":"67735dfd7daf761364f5be7b","user_idx":"","user_id":"01095215889","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"황광룡","user_img":"/resource/uploads/member/5026194504d7b16f4e8f674f53c46afd.png","user_desc":"","user_status":"Y","socket_id":"ltngkmw6ibY3qgt5AAXo","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01095215889","last_update":"2025-12-09T05:52:22.213Z"}]}]
+2025-12-09T06:18:52.579Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:18:52.579Z: [서버로그]::요청 파라미터: {"rm_idx":565}
+2025-12-09T06:18:52.579Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:18:52.579Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 565
+2025-12-09T06:18:52.582Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:18:52.583Z: [서버로그]::채팅방 정보: {"rm_idx":565,"rm_subject":"","rm_users_count":2}
+2025-12-09T06:18:52.583Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:18:52.583Z: [서버로그]::사용자 목록: [{"user_id":"01095215889"},{"user_id":"01029480913"}]
+2025-12-09T06:18:52.585Z: [서버로그]::rm_idx::565::mg_idx:3049::user_id:01095215889
+2025-12-09T06:18:52.589Z: [서버로그]::rm_idx::565::mg_idx:3049::user_id:01095215889
+2025-12-09T06:18:52.590Z: [서버로그]::rm_idx::565::mg_idx:3049::user_id:01029480913
+2025-12-09T06:18:52.593Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01029480913
+2025-12-09T06:18:52.596Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: 01029480913
+2025-12-09T06:38:35.639Z: [서버로그]::update multiple : rm_idx::681::user_id:01083092881
+2025-12-09T06:38:35.650Z: [서버로그]::room_info:: getRoom 결과 - ret:{"code":"00","msg":"조회 성공","data":{"_id":"690844db7daf76f2209c1278","rm_idx":681,"rm_type":"recruit","rm_subject":"채용공고 채팅방","rm_last_msg":"","rm_last_dt":"2025-11-03T05:59:55.931Z","rm_users":[{"user_id":"user_1250","user_nick":"조회안됨","user_img":"","user_desc":"","user_status":"N","user_idx":0},{"user_id":"target_user","user_nick":"조회안됨","user_img":"","user_desc":"","user_status":"N","user_idx":0},{"user_id":"01083092881","user_idx":"","user_nick":"신건","user_img":"/resource/uploads/member/2d8ad8dfe6cfe2cf52b1e61f8a835926.png","user_desc":"","user_status":"Y"}]}}, ret.data 존재:Y
+2025-12-09T06:38:42.900Z: [서버로그]::update multiple : rm_idx::681::user_id:01083092881
+2025-12-09T06:38:42.905Z: [서버로그]::room_info:: getRoom 결과 - ret:{"code":"00","msg":"조회 성공","data":{"_id":"690844db7daf76f2209c1278","rm_idx":681,"rm_type":"recruit","rm_subject":"채용공고 채팅방","rm_last_msg":"","rm_last_dt":"2025-11-03T05:59:55.931Z","rm_users":[{"user_id":"user_1250","user_nick":"조회안됨","user_img":"","user_desc":"","user_status":"N","user_idx":0},{"user_id":"target_user","user_nick":"조회안됨","user_img":"","user_desc":"","user_status":"N","user_idx":0},{"user_id":"01083092881","user_idx":"","user_nick":"신건","user_img":"/resource/uploads/member/2d8ad8dfe6cfe2cf52b1e61f8a835926.png","user_desc":"","user_status":"N"}]}}, ret.data 존재:Y
+2025-12-09T06:41:01.170Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T06:41:01.176Z: [서버로그]::room_info:: getRoom 결과 - ret:{"code":"00","msg":"조회 성공","data":null}, ret.data 존재:N
+2025-12-09T06:41:01.177Z: [서버로그]::room_info:: 방 정보 없음 - 새 방 생성 시작 - rm_idx:826
+2025-12-09T06:41:01.177Z: [서버로그]::room_info:: room_data 생성 완료 - user_list:[{"user_id":"01083092881"}], user_list 개수:1
+2025-12-09T06:41:01.178Z: [서버로그]::room check :::: rm_idx::826::usersRoom:null
+2025-12-09T06:41:01.178Z: [서버로그]::chat_controller:: insertRoom 호출 전 - data.user_list 존재:Y, data.user_list 개수:1, data.rm_users 존재:N
+2025-12-09T06:41:01.178Z: [서버로그]::chat_model:: insertRoom 시작 - rm_idx:826, user_list 존재:Y, rm_users 존재:N, 최종 user_list 개수:1
+2025-12-09T06:41:01.179Z: [서버로그]::chat_model:: chat_room 생성 완료 - rm_users 개수:1, rm_users:[{"user_id":"01083092881"}]
+2025-12-09T06:41:01.180Z: [서버로그]::chat_model:: insertRoom DB 저장 완료 - rm_idx:826, 저장된 rm_users 개수:성공
+2025-12-09T06:41:01.180Z: [서버로그]::chat_controller:: insertRoom 완료 - room_idx:826
+2025-12-09T06:41:01.180Z: [서버로그]::room_info:: insertRoom 호출 완료 - insert_ret:{"code":"00","msg":"등록성공","data":826}
+2025-12-09T06:41:01.183Z: [서버로그]::room_info:: 생성 후 재조회 결과 - new_ret.data 존재:Y, rm_users 존재:Y, rm_users 개수:1
+2025-12-09T06:41:03.532Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: 01083092881
+2025-12-09T06:41:03.532Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:41:03.535Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:41:03.536Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:41:03.545Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:41:03.545Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:41:03.547Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-12-09T06:41:03.548Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:1
+2025-12-09T06:41:03.557Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:41:03.558Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:41:03.558Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":3050,"mg_type":"timeline","mg_text":"","mg_dt":"2025-12-09T06:41:03.552Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"01083092881","mg_idx":3051,"mg_type":"text","mg_text":"fdsfdsfs","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:41:03.556Z","mg_reads":[{"user_id":"01083092881","read_yn":"Y"}],"user_info":[{"_id":"67659da77daf766456f2ed76","user_idx":"","user_id":"01083092881","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"신건","user_img":"/resource/uploads/member/2d8ad8dfe6cfe2cf52b1e61f8a835926.png","user_desc":"","user_status":"Y","socket_id":"5Nlu0CbD-tZWJb3DAAat","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01083092881","last_update":"2025-12-09T06:10:05.496Z"}]}]
+2025-12-09T06:41:03.558Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:41:03.558Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T06:41:03.559Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:41:03.559Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T06:41:03.560Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:41:03.560Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":1}
+2025-12-09T06:41:03.560Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 1
+2025-12-09T06:41:03.560Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"}]
+2025-12-09T06:41:03.565Z: [서버로그]::rm_idx::826::mg_idx:3050::user_id:01083092881
+2025-12-09T06:41:03.566Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:03.568Z: [서버로그]::rm_idx::826::mg_idx:3051::user_id:01083092881
+2025-12-09T06:41:03.569Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:08.844Z: [서버로그]::update multiple : rm_idx::826::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:11.329Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:11.329Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:41:11.331Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:41:11.331Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:41:11.332Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:41:11.332Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:41:11.333Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:41:11.333Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:1
+2025-12-09T06:41:11.337Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:41:11.338Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:41:11.339Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","mg_idx":3052,"mg_type":"text","mg_text":"ㅏㅘㅓㅗ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:41:11.336Z","mg_reads":[{"user_id":"01083092881","read_yn":"N"}],"user_info":[{"_id":"68f042ef7daf766c18dfaba6","user_idx":"","user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","user_pwd":"*94B5279FECB3577CD3ED28B22989547B0626C63A","user_nick":"테스트11","user_img":"","user_desc":"","user_status":"Y","socket_id":"DtFDrzt98E4ZKBquAAaz","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-13T05:18:53.180Z"}]}]
+2025-12-09T06:41:11.339Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T06:41:11.339Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:41:11.340Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T06:41:11.339Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:41:11.341Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:41:11.341Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":1}
+2025-12-09T06:41:11.341Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 1
+2025-12-09T06:41:11.341Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"}]
+2025-12-09T06:41:11.347Z: [서버로그]::rm_idx::826::mg_idx:3052::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:11.347Z: [서버로그]::rm_idx::826::mg_idx:3052::user_id:01083092881
+2025-12-09T06:41:11.348Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-12-09T06:41:11.351Z: [서버로그]::MySQL에서 FCM 토큰 발견: cmna4GcatU2Kpu7u3qYY...
+2025-12-09T06:41:15.507Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:15.508Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:41:15.509Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:41:15.509Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:41:15.510Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:41:15.510Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:41:15.511Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:41:15.512Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:41:15.514Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:41:15.515Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:41:15.516Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","mg_idx":3053,"mg_type":"text","mg_text":"ㅣㅓㅏㅣ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:41:15.514Z","mg_reads":[{"user_id":"01083092881","read_yn":"N"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"Y"}],"user_info":[{"_id":"68f042ef7daf766c18dfaba6","user_idx":"","user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","user_pwd":"*94B5279FECB3577CD3ED28B22989547B0626C63A","user_nick":"테스트11","user_img":"","user_desc":"","user_status":"Y","socket_id":"DtFDrzt98E4ZKBquAAaz","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-13T05:18:53.180Z"}]}]
+2025-12-09T06:41:15.516Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:41:15.516Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T06:41:15.516Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:41:15.516Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T06:41:15.518Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:41:15.518Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":2}
+2025-12-09T06:41:15.518Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:41:15.518Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T06:41:15.523Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-12-09T06:41:15.524Z: [서버로그]::rm_idx::826::mg_idx:3053::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:15.525Z: [서버로그]::MySQL에서 FCM 토큰 발견: cmna4GcatU2Kpu7u3qYY...
+2025-12-09T06:41:19.543Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T06:41:26.711Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:26.712Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:41:26.714Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:41:26.714Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:41:26.715Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:41:26.715Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:41:26.717Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:41:26.717Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:41:26.720Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:41:26.721Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:41:26.722Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","mg_idx":3054,"mg_type":"text","mg_text":"ㅏㅗㅓㅏㅓㅘ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:41:26.720Z","mg_reads":[{"user_id":"01083092881","read_yn":"N"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"Y"}],"user_info":[{"_id":"68f042ef7daf766c18dfaba6","user_idx":"","user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","user_pwd":"*94B5279FECB3577CD3ED28B22989547B0626C63A","user_nick":"테스트11","user_img":"","user_desc":"","user_status":"Y","socket_id":"DtFDrzt98E4ZKBquAAaz","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-13T05:18:53.180Z"}]}]
+2025-12-09T06:41:26.722Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:41:26.722Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T06:41:26.722Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:41:26.722Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T06:41:26.724Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:41:26.725Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":2}
+2025-12-09T06:41:26.725Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:41:26.725Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T06:41:26.728Z: [서버로그]::rm_idx::826::mg_idx:3054::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:26.731Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-12-09T06:41:26.733Z: [서버로그]::MySQL에서 FCM 토큰 발견: cmna4GcatU2Kpu7u3qYY...
+2025-12-09T06:41:39.031Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T06:41:42.330Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: 01083092881
+2025-12-09T06:41:42.331Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:41:42.332Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:41:42.333Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:41:42.334Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:41:42.338Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:41:42.340Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:41:42.341Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:41:42.345Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:41:42.347Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:41:42.348Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01083092881","mg_idx":3055,"mg_type":"text","mg_text":"rtertretr","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:41:42.344Z","mg_reads":[{"user_id":"01083092881","read_yn":"Y"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"N"}],"user_info":[{"_id":"67659da77daf766456f2ed76","user_idx":"","user_id":"01083092881","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"신건","user_img":"/resource/uploads/member/2d8ad8dfe6cfe2cf52b1e61f8a835926.png","user_desc":"","user_status":"Y","socket_id":"ZBuWdf8xeJyxFQSyAAbL","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01083092881","last_update":"2025-12-09T06:10:05.496Z"}]}]
+2025-12-09T06:41:42.348Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:41:42.348Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T06:41:42.349Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:41:42.349Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T06:41:42.351Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:41:42.351Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":2}
+2025-12-09T06:41:42.352Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:41:42.352Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T06:41:42.355Z: [서버로그]::rm_idx::826::mg_idx:3055::user_id:01083092881
+2025-12-09T06:41:42.360Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:41:42.361Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:47:45.184Z: [서버로그]::update multiple : rm_idx::826::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:47:49.083Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:47:49.084Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:47:49.086Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:47:49.086Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:47:49.089Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:47:49.090Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:47:49.098Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:47:49.098Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:47:49.110Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:47:49.115Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:47:49.115Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","mg_idx":3056,"mg_type":"text","mg_text":"ㄹㄴㅇㄹㄴ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:47:49.108Z","mg_reads":[{"user_id":"01083092881","read_yn":"N"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"Y"}],"user_info":[{"_id":"68f042ef7daf766c18dfaba6","user_idx":"","user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","user_pwd":"*94B5279FECB3577CD3ED28B22989547B0626C63A","user_nick":"테스트11","user_img":"","user_desc":"","user_status":"Y","socket_id":"FCcjlnMo-v9AtTBAAAdP","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-13T05:18:53.180Z"}]}]
+2025-12-09T06:47:49.116Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:47:49.116Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T06:47:49.117Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:47:49.117Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T06:47:49.119Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:47:49.119Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":2}
+2025-12-09T06:47:49.119Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:47:49.119Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T06:47:49.124Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-12-09T06:47:49.125Z: [서버로그]::rm_idx::826::mg_idx:3056::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:47:49.128Z: [서버로그]::MySQL에서 FCM 토큰 발견: cmna4GcatU2Kpu7u3qYY...
+2025-12-09T06:48:25.485Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T06:48:28.245Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: 01083092881
+2025-12-09T06:48:28.245Z: [서버로그]::방 정보 조회 시작
+2025-12-09T06:48:28.247Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T06:48:28.248Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T06:48:28.250Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T06:48:28.250Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T06:48:28.252Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T06:48:28.252Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T06:48:28.254Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T06:48:28.255Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T06:48:28.255Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01083092881","mg_idx":3057,"mg_type":"text","mg_text":"ㅎㅀㅇㅀ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T06:48:28.254Z","mg_reads":[{"user_id":"01083092881","read_yn":"Y"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"N"}],"user_info":[{"_id":"67659da77daf766456f2ed76","user_idx":"","user_id":"01083092881","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"신건","user_img":"/resource/uploads/member/2d8ad8dfe6cfe2cf52b1e61f8a835926.png","user_desc":"","user_status":"Y","socket_id":"sLhKw5YqiohP820aAAdd","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01083092881","last_update":"2025-12-09T06:10:05.496Z"}]}]
+2025-12-09T06:48:28.256Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T06:48:28.256Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T06:48:28.256Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T06:48:28.256Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T06:48:28.259Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T06:48:28.259Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":2}
+2025-12-09T06:48:28.259Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T06:48:28.259Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T06:48:28.262Z: [서버로그]::rm_idx::826::mg_idx:3057::user_id:01083092881
+2025-12-09T06:48:28.265Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T06:48:28.267Z: [서버로그]::MySQL에서 FCM 토큰 없음 - user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:00:56.902Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:08:01.127Z: [서버로그]::update multiple : rm_idx::826::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:08:06.952Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 826, user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:08:06.953Z: [서버로그]::방 정보 조회 시작
+2025-12-09T07:08:06.955Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T07:08:06.955Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T07:08:06.957Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T07:08:06.957Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T07:08:06.959Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T07:08:06.959Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T07:08:06.962Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T07:08:06.963Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T07:08:06.963Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","mg_idx":3058,"mg_type":"text","mg_text":"ㄹㄴㅇㄹㄴㅇ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T07:08:06.961Z","mg_reads":[{"user_id":"01083092881","read_yn":"N"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"Y"}],"user_info":[{"_id":"68f042ef7daf766c18dfaba6","user_idx":"","user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","user_pwd":"*94B5279FECB3577CD3ED28B22989547B0626C63A","user_nick":"테스트11","user_img":"","user_desc":"","user_status":"Y","socket_id":"Yl5diNKyhJ3Z4qPtAAgh","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-13T05:18:53.180Z"}]}]
+2025-12-09T07:08:06.963Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T07:08:06.963Z: [서버로그]::요청 파라미터: {"rm_idx":826}
+2025-12-09T07:08:06.964Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T07:08:06.964Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 826
+2025-12-09T07:08:06.967Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T07:08:06.967Z: [서버로그]::채팅방 정보: {"rm_idx":826,"rm_subject":"채용공고 채팅방","rm_users_count":2}
+2025-12-09T07:08:06.967Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T07:08:06.967Z: [서버로그]::사용자 목록: [{"user_id":"01083092881"},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T07:08:06.971Z: [서버로그]::rm_idx::826::mg_idx:3058::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:08:06.973Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-12-09T07:08:06.976Z: [서버로그]::MySQL에서 FCM 토큰 발견: cmna4GcatU2Kpu7u3qYY...
+2025-12-09T07:17:25.665Z: [서버로그]::update multiple : rm_idx::0::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:18:03.056Z: [서버로그]::update multiple : rm_idx::827::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:18:03.059Z: [서버로그]::room_info:: getRoom 결과 - ret:{"code":"00","msg":"조회 성공","data":null}, ret.data 존재:N
+2025-12-09T07:18:03.059Z: [서버로그]::room_info:: 방 정보 없음 - 새 방 생성 시작 - rm_idx:827
+2025-12-09T07:18:03.059Z: [서버로그]::room_info:: room_data 생성 완료 - user_list:[{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}], user_list 개수:1
+2025-12-09T07:18:03.061Z: [서버로그]::room check :::: rm_idx::827::usersRoom:null
+2025-12-09T07:18:03.061Z: [서버로그]::chat_controller:: insertRoom 호출 전 - data.user_list 존재:Y, data.user_list 개수:1, data.rm_users 존재:N
+2025-12-09T07:18:03.061Z: [서버로그]::chat_model:: insertRoom 시작 - rm_idx:827, user_list 존재:Y, rm_users 존재:N, 최종 user_list 개수:1
+2025-12-09T07:18:03.061Z: [서버로그]::chat_model:: chat_room 생성 완료 - rm_users 개수:1, rm_users:[{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T07:18:03.066Z: [서버로그]::chat_model:: insertRoom DB 저장 완료 - rm_idx:827, 저장된 rm_users 개수:성공
+2025-12-09T07:18:03.067Z: [서버로그]::chat_controller:: insertRoom 완료 - room_idx:827
+2025-12-09T07:18:03.067Z: [서버로그]::room_info:: insertRoom 호출 완료 - insert_ret:{"code":"00","msg":"등록성공","data":827}
+2025-12-09T07:18:03.070Z: [서버로그]::room_info:: 생성 후 재조회 결과 - new_ret.data 존재:Y, rm_users 존재:Y, rm_users 개수:1
+2025-12-09T07:18:12.638Z: [서버로그]::방 정보 조회 시작
+2025-12-09T07:18:12.638Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 827, user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:18:12.639Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T07:18:12.639Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T07:18:12.640Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T07:18:12.641Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T07:18:12.642Z: [서버로그]::마지막 메시지 조회 결과: 없음
+2025-12-09T07:18:12.642Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:1
+2025-12-09T07:18:12.647Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T07:18:12.648Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T07:18:12.648Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"","mg_idx":3059,"mg_type":"timeline","mg_text":"","mg_dt":"2025-12-09T07:18:12.644Z","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_reads":[],"user_info":{}},{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","mg_idx":3060,"mg_type":"text","mg_text":"ㄹㄴㄹㄴㅇㄹ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T07:18:12.646Z","mg_reads":[{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"Y"}],"user_info":[{"_id":"68f042ef7daf766c18dfaba6","user_idx":"","user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","user_pwd":"*94B5279FECB3577CD3ED28B22989547B0626C63A","user_nick":"테스트11","user_img":"","user_desc":"","user_status":"Y","socket_id":"ar1LPoBY9IQM0hBtAAhb","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-13T05:18:53.180Z"}]}]
+2025-12-09T07:18:12.649Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T07:18:12.649Z: [서버로그]::요청 파라미터: {"rm_idx":827}
+2025-12-09T07:18:12.649Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T07:18:12.649Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 827
+2025-12-09T07:18:12.651Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T07:18:12.651Z: [서버로그]::채팅방 정보: {"rm_idx":827,"rm_subject":"채용공고 채팅방","rm_users_count":1}
+2025-12-09T07:18:12.651Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 1
+2025-12-09T07:18:12.651Z: [서버로그]::사용자 목록: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T07:18:12.655Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-12-09T07:18:12.656Z: [서버로그]::rm_idx::827::mg_idx:3059::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:18:12.656Z: [서버로그]::rm_idx::827::mg_idx:3060::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:18:12.657Z: [서버로그]::MySQL에서 FCM 토큰 발견: cmna4GcatU2Kpu7u3qYY...
+2025-12-09T07:18:18.480Z: [서버로그]::update multiple : rm_idx::827::user_id:01083092881
+2025-12-09T07:18:24.178Z: [서버로그]::update multiple : rm_idx::827::user_id:01083092881
+2025-12-09T07:18:28.265Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 827, user_id: 01083092881
+2025-12-09T07:18:28.265Z: [서버로그]::방 정보 조회 시작
+2025-12-09T07:18:28.267Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T07:18:28.267Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T07:18:28.269Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T07:18:28.269Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T07:18:28.270Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T07:18:28.271Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:1
+2025-12-09T07:18:28.275Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T07:18:28.276Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T07:18:28.276Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"01083092881","mg_idx":3061,"mg_type":"text","mg_text":"ㅎㅇㅀㅇㅎ","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T07:18:28.274Z","mg_reads":[{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"N"}],"user_info":[{"_id":"67659da77daf766456f2ed76","user_idx":"","user_id":"01083092881","user_pwd":"*85EF5B87C31EF74CAF2999D17FC1B8FB6A68F8ED","user_nick":"신건","user_img":"/resource/uploads/member/2d8ad8dfe6cfe2cf52b1e61f8a835926.png","user_desc":"","user_status":"Y","socket_id":"Bw3Nt_-GEjmhuUuwAAht","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"N","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","mm_id":"01083092881","last_update":"2025-12-09T06:10:05.496Z"}]}]
+2025-12-09T07:18:28.277Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T07:18:28.277Z: [서버로그]::요청 파라미터: {"rm_idx":827}
+2025-12-09T07:18:28.278Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T07:18:28.278Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 827
+2025-12-09T07:18:28.280Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T07:18:28.280Z: [서버로그]::채팅방 정보: {"rm_idx":827,"rm_subject":"채용공고 채팅방","rm_users_count":1}
+2025-12-09T07:18:28.281Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 1
+2025-12-09T07:18:28.281Z: [서버로그]::사용자 목록: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"}]
+2025-12-09T07:18:28.289Z: [서버로그]::rm_idx::827::mg_idx:3061::user_id:01083092881
+2025-12-09T07:18:28.297Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:18:28.299Z: [서버로그]::MySQL에서 FCM 토큰 발견: cY84EdYeS3-tFZJlCI3M...
+2025-12-09T07:20:09.715Z: [서버로그]::update multiple : rm_idx::827::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:20:16.454Z: [서버로그]::insertMessage 함수 시작 - rm_idx: 827, user_id: naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:20:16.454Z: [서버로그]::방 정보 조회 시작
+2025-12-09T07:20:16.456Z: [서버로그]::방 정보 조회 결과: 성공
+2025-12-09T07:20:16.456Z: [서버로그]::사용자 정보 조회 시작
+2025-12-09T07:20:16.457Z: [서버로그]::사용자 정보 조회 결과: 성공
+2025-12-09T07:20:16.458Z: [서버로그]::마지막 메시지 조회 시작
+2025-12-09T07:20:16.459Z: [서버로그]::마지막 메시지 조회 결과: 있음
+2025-12-09T07:20:16.459Z: [서버로그]::insertMessage:: rm_users 존재 - 개수:2
+2025-12-09T07:20:16.463Z: [서버로그]::방 정보 업데이트 시작
+2025-12-09T07:20:16.468Z: [서버로그]::방 정보 업데이트 완료
+2025-12-09T07:20:16.468Z: [서버로그]::insertMessage 함수 완료 - 반환 데이터: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","mg_idx":3062,"mg_type":"text","mg_text":"22222222222","mg_req_dt":"","mg_img":"","mg_file":"","mg_imoti":"","mg_dt":"2025-12-09T07:20:16.461Z","mg_reads":[{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","read_yn":"Y"},{"user_id":"01083092881","read_yn":"N"}],"user_info":[{"_id":"68f042ef7daf766c18dfaba6","user_idx":"","user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow","user_pwd":"*94B5279FECB3577CD3ED28B22989547B0626C63A","user_nick":"테스트11","user_img":"","user_desc":"","user_status":"Y","socket_id":"apL48qAR4fRNKEZUAAh3","alarm_chat":"Y","alarm_resume":"Y","alarm_fav":"Y","alarm_adv":"Y","alarm_deny_yn":"N","alarm_deny_yoil":"","alarm_deny_stime":"","alarm_deny_etime":"","token":null,"last_location":"chat_room","last_update":"2025-11-13T05:18:53.180Z"}]}]
+2025-12-09T07:20:16.469Z: [서버로그]::=== getRoomUsersFromDB 시작 ===
+2025-12-09T07:20:16.469Z: [서버로그]::요청 파라미터: {"rm_idx":827}
+2025-12-09T07:20:16.469Z: [서버로그]::MongoDB 연결 상태: 연결됨
+2025-12-09T07:20:16.469Z: [서버로그]::MongoDB에서 채팅방 조회 시도 - rm_idx: 827
+2025-12-09T07:20:16.471Z: [서버로그]::MongoDB 조회 결과: 채팅방 발견
+2025-12-09T07:20:16.471Z: [서버로그]::채팅방 정보: {"rm_idx":827,"rm_subject":"채용공고 채팅방","rm_users_count":2}
+2025-12-09T07:20:16.471Z: [서버로그]::✅ MongoDB에서 채팅방 사용자 조회 성공 - count: 2
+2025-12-09T07:20:16.472Z: [서버로그]::사용자 목록: [{"user_id":"naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow"},{"user_id":"01083092881"}]
+2025-12-09T07:20:16.476Z: [서버로그]::rm_idx::827::mg_idx:3062::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:20:16.482Z: [서버로그]::getUserTokenFromMySQL 시작 - user_id: 01083092881
+2025-12-09T07:20:16.483Z: [서버로그]::MySQL에서 FCM 토큰 발견: cmna4GcatU2Kpu7u3qYY...
+2025-12-09T07:25:00.205Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:25:08.730Z: [서버로그]::update multiple : rm_idx::827::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:25:13.820Z: [서버로그]::update multiple : rm_idx::826::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:26:05.087Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:26:08.813Z: [서버로그]::update multiple : rm_idx::827::user_id:01083092881
+2025-12-09T07:26:12.049Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:38:19.736Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:38:20.712Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:42:06.704Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:42:07.729Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:43:47.649Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:43:48.554Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:45:28.485Z: [서버로그]::update multiple : rm_idx::826::user_id:naver_L35FV9EGOXgfhNfx4uxkR3h9GfCAMQ0cD3RUseNs4Ow
+2025-12-09T07:47:06.841Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:47:07.898Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:47:10.685Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:47:11.715Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:47:51.251Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:47:52.301Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:47:55.306Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:47:56.208Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:48:38.621Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:48:39.561Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:48:44.941Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:48:45.897Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:49:09.349Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:49:10.334Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:49:23.122Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:49:23.993Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:50:27.610Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:50:28.584Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:52:13.393Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:52:14.312Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:53:50.094Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:53:51.002Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:54:47.079Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:54:48.042Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:56:26.458Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:56:27.395Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:57:32.645Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:57:33.561Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:58:38.267Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:58:39.205Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:59:18.262Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T07:59:19.206Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:00:25.401Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:00:26.469Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:02:42.784Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:02:43.766Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:05:43.100Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:05:44.175Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:06:22.513Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:06:23.474Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:07:18.864Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:07:19.867Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:07:24.486Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:07:25.422Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:07:41.156Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:07:42.114Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:08:43.911Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:08:44.946Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:09:00.165Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:09:01.228Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:11:47.780Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:11:48.830Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:11:53.826Z: [서버로그]::update multiple : rm_idx::0::user_id:01083092881
+2025-12-09T08:12:01.446Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:12:04.203Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:13:10.596Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:13:11.584Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:15:14.493Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:15:15.538Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:17:53.212Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:17:54.254Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:18:54.535Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:18:55.234Z: [서버로그]::update multiple : rm_idx::682::user_id:01083092881
+2025-12-09T08:18:58.027Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:18:59.018Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:19:33.267Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:19:34.400Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:21:50.274Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:21:51.287Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:21:53.008Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:21:53.979Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:22:42.855Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:22:43.927Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:23:45.807Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:23:49.380Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:23:50.555Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:23:51.381Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:23:51.862Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:29:27.255Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:29:28.167Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:29:34.667Z: [서버로그]::update multiple : rm_idx::0::user_id:01083092881
+2025-12-09T08:29:51.927Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:30:43.878Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:32:06.232Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:32:09.269Z: [서버로그]::update multiple : rm_idx::827::user_id:01083092881
+2025-12-09T08:32:12.488Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:33:26.995Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:33:28.052Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:33:31.084Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:33:32.001Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:33:49.679Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:33:50.623Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:37:15.261Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:37:16.312Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:38:43.369Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:38:44.291Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:39:07.918Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:39:08.900Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:40:02.527Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:40:03.655Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:40:50.687Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:40:51.704Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:48:53.387Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:48:54.342Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:48:55.509Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:48:55.904Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:48:57.493Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:48:58.636Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:49:06.755Z: [서버로그]::update multiple : rm_idx::827::user_id:01083092881
+2025-12-09T08:49:09.647Z: [서버로그]::update multiple : rm_idx::826::user_id:01083092881
+2025-12-09T08:49:17.737Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:49:18.578Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:49:19.986Z: [서버로그]::update multiple : rm_idx::565::user_id:01029480913
+2025-12-09T08:49:25.040Z: [서버로그]::update multiple : rm_idx::827::user_id:01083092881
+2025-12-09T08:49:28.092Z: [서버로그]::update multiple : rm_idx::827::user_id:01083092881

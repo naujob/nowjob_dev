@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="410" height="58" viewBox="0 0 410 58">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="사각형_1978" data-name="사각형 1978" width="40.266" height="36.454" fill="#fff"/>
+    </clipPath>
+  </defs>
+  <g id="그룹_7446" data-name="그룹 7446" transform="translate(-892 -1189)">
+    <rect id="사각형_1982" data-name="사각형 1982" width="410" height="58" transform="translate(892 1189)" fill="none"/>
+    <g id="그룹_7444" data-name="그룹 7444" transform="translate(103.133 -59.773)">
+      <text id="NAVER로_시작하기" data-name="NAVER로 시작하기" transform="translate(950.5 1284.5)" fill="#fff" font-size="18" font-family="Pretendard-Medium, Pretendard" font-weight="500" letter-spacing="0.04em"><tspan x="0" y="0">NAVER로 시작하기</tspan></text>
+      <g id="그룹_7442" data-name="그룹 7442" transform="translate(894.867 1259.773)">
+        <g id="그룹_7441" data-name="그룹 7441" transform="translate(0 0)" clip-path="url(#clip-path)">
+          <path id="패스_14" data-name="패스 14" d="M0,0H14.01s12.714,19.679,13.1,20.209.426,0,.426,0c-.595-3.045-1.228-4.414-1.228-9.28V0H40.266V36.454H26.309S13.851,17.822,13.472,17.311s-.425,0-.425,0a24.838,24.838,0,0,1,.9,7.3V36.454H0Z" transform="translate(0 -0.001)" fill="#fff"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

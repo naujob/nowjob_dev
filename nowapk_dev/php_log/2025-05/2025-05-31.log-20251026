@@ -1,0 +1,42 @@
+
+query(2025-05-31 19:48:32):
+
+			SELECT 
+			 aa.*,
+ (case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn,
+ p0.pm_idx,
+ p0.reg_dt as pm_reg_dt,
+ GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt
+			 FROM 
+			( /* querylog */
+				select bb.*
+					,cc.ad_addr
+					,cc.ad_gps_x
+					,cc.ad_gps_y
+					,aa.mm_name
+					,aa.mm_nation
+					,aa.mm_status
+					,mi.ma_age
+          ,aa.mm_birth
+					,mi.ma_sex
+          ,aa.mm_sex
+          ,aa.mm_thumb
+				 	,(select count(*) as cnt FROM st_bookmark where bk_type = 'RESUME' and bk_key = bb.ru_idx) as book_cnt
+				FROM st_member aa
+				inner join st_member_info mi
+	                on aa.mm_idx = mi.mm_idx
+				inner join st_resume bb
+					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
+				left join st_address cc
+					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
+          and cc.ad_addr <> ''
+			) aa
+			left join st_bookmark dd
+				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '-1'  LEFT JOIN st_promotion p0 ON p0.rc_idx = aa.ru_idx AND p0.pm_code = 'M001' AND p0.pm_sdate < NOW() AND p0.pm_edate > NOW() AND p0.pm_status = 'Y'  LEFT JOIN st_promotion p1 ON p1.rc_idx = aa.ru_idx AND p1.pm_code = 'M002' AND p1.pm_sdate < NOW() AND p1.pm_edate > NOW() AND p1.pm_status = 'Y'  LEFT JOIN st_promotion p2 ON p2.rc_idx = aa.ru_idx AND p2.pm_code = 'M003' AND p2.pm_sdate < NOW() AND p2.pm_edate > NOW() AND p2.pm_status = 'Y'  LEFT JOIN st_promotion p  ON  p.rc_idx = aa.ru_idx AND p.pm_code in('M002','M003') AND NOW() BETWEEN p.pm_sdate AND p.pm_edate 
+			 WHERE 1=1 
+  and aa.mm_status = 'Y' 
+
+            group by aa.ru_idx
+			 order by  p0.pm_idx desc,   GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC 
+			 LIMIT 0 , 10 
+		

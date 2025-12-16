@@ -1,0 +1,265 @@
+<div class="page page-write">
+    <div class="top-bar">
+        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <h1 class="title">채용공고등록</h1>
+        <ol class="progress-steps">
+            <li>1</li>
+            <li title="헌재위치" class="active">2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+        </ol>
+    </div><!-- //top-bar -->
+    <div class="page-content">
+        <form id="frm" onsubmit="return false" autocomplete="false">
+        	<input type="hidden" id="rc_idx" name="rc_idx" value="<?=$info["rc_idx"]?>" />
+            <div class="section addition-info-form">
+                <div class="container">
+                    <div class="form-row">
+                        <p class="form-label">업무구분 <em>다중선택가능</em></p>
+                        <div class="form-toggle-group col-4">
+                            <?php foreach($rc_wrok_list as $row) : ?>
+                            <label class="form-toggle-btn2 sm">
+                                <input type="checkbox" name="rc_work[]" data-select-limit="2" value="<?=$row["cd_val"]?>" data-img="<?=$row["cd_val2"]?>" <?=in_array_return($row["cd_val"],$info["rc_work"],"check")?>>
+                                <span class="btn"><?=$row["cd_val"]?></span>
+                            </label>
+                            <?php endforeach;?>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <p class="form-label">희망성별 <em>다중선택가능</em></p>
+                        <div class="form-toggle-group col-2">
+                            <label class="form-toggle-btn2">
+                                <input type="checkbox" name="rc_sex[]" value="남자" <?=in_array_return("남자",$info["rc_sex"],"check")?>>
+                                <span class="btn">남자</span>
+                            </label>
+                            <label class="form-toggle-btn2">
+                                <input type="checkbox" name="rc_sex[]" value="여자" <?=in_array_return("여자",$info["rc_sex"],"check")?>>
+                                <span class="btn">여자</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <p class="form-label">희망국적 <em>다중선택가능</em></p>
+                        <div class="form-toggle-group col-2">
+                            <label class="form-toggle-btn2">
+                                <input type="checkbox" name="rc_nation[]" value="내국인" <?=in_array_return("내국인",$info["rc_nation"],"check")?>>
+                                <span class="btn">내국인</span>
+                            </label>
+                            <label class="form-toggle-btn2">
+                                <input type="checkbox" name="rc_nation[]" value="외국인" <?=in_array_return("외국인",$info["rc_nation"],"check")?>>
+                                <span class="btn">외국인</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!--div class="form-row">
+                        <p class="form-label">희망나이</p>
+                        <div class="inline-group">
+                            <div class="col">
+                                <label>
+                                    <span class="sr-text">최소나이 선택</span>
+                                    <input type="text" name="rc_sage" placeholder="최소" value="<?=$info["rc_sage"]?>" readonly required class="form-text js-wheel">
+                                </label>
+                                <div class="wheel-wrapper"><div id="minWheel" class="wheel"></div></div>
+                            </div>
+                            <span class="entity">~</span>
+                            <div class="col">
+                                <label>
+                                    <span class="sr-text">최대나이 선택</span>
+                                    <input type="text" name="rc_eage" placeholder="최대" value="<?=$info["rc_eage"]?>" readonly required class="form-text js-wheel">
+                                </label>
+                                <div class="wheel-wrapper"><div id="maxWheel" class="wheel"></div></div>
+                            </div>
+                        </div>
+                    </div-->
+                    
+                    <div class="form-row">
+					    <p class="form-label">희망나이</p>
+					    <div class="inline-group">
+					        <div class="col">
+					            <select name="rc_sage" style="width:100%;height:30px;padding-left:12px;">
+					                <option value="">선택</option>
+					                <?php for($icnt=20;$icnt <= 80;$icnt++) : ?>
+					                <option value="<?=$icnt?>" <?=$info["rc_sage"]==$icnt ? "selected":""?>><?=$icnt?>세</option>
+					                <?php endfor;?>
+					            </select>
+					        </div>
+					        <span class="entity">~</span>
+					        <div class="col">
+					            <select name="rc_eage" style="width:100%;height:30px;padding-left:12px;">
+					                <option value="">선택</option>
+					                <?php for($icnt=20;$icnt <= 80;$icnt++) : ?>
+					                <option value="<?=$icnt?>" <?=$info["rc_eage"]==$icnt ? "selected":""?>><?=$icnt?>세</option>
+					                <?php endfor;?>
+					            </select>
+					        </div>
+					    </div>
+					</div>
+                        <div class="sticky-bottom">
+                            <button id="btnPrev" type="button" class="btn btn-secondary">이전</button>
+                            <button id="btnStep" type="button" class="btn btn-primary">다음</button>
+                        </div>
+                    </div>
+                </div>
+            
+            </form>
+        </div><!-- //page-content -->
+    </div>
+<!-- 20221122 수정 -->
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        if (typeof Wheel == undefined) return;
+
+        function closeActive () {
+            var active = document.querySelector('.js-wheel.is-focus');
+            var activeWheel = document.querySelector('.wheel-wrapper.on');
+
+            if (active) {
+                active.classList.remove('is-focus');
+            }
+
+            if (activeWheel) {
+                activeWheel.classList.remove('on');
+                activeWheel.hidden = true;
+            }
+        }
+		
+		/*
+        document.querySelector('[name="rc_sage"]').addEventListener('change', function (e) {
+            var min = parseInt(this.value);
+            var max = document.querySelector('[name="rc_eage"]');
+
+            if (parseInt(max.value) < min) {
+                max.value = min + '세';
+            }
+        });
+
+        document.querySelector('[name="rc_eage"]').addEventListener('change', function (e) {
+            var max = parseInt(this.value);
+            var min = document.querySelector('[name="rc_sage"]');
+
+            if (parseInt(min.value) > max) {
+                min.value = max + '세';
+            }
+        });
+		*/
+		
+        document.querySelectorAll('.js-wheel').forEach(function (el) {
+            var wheel = el.parentNode.parentNode.querySelector('.wheel');
+
+            new Wheel(wheel, {
+                initIdx: 0,
+                loop: true,
+                width: 24,
+                length: 60,//총갯수
+                start: 20,//시작숫자
+                altInput: el,
+                label: '세',
+            });
+
+            el.addEventListener('focus', function (e) {
+                /* 옵션창 표시 */
+                var parent = el.parentNode;
+                var xpos = parent.offsetLeft;
+                var ypos = parent.offsetTop + el.offsetHeight + 10;
+                var max = {
+                    xpos: window.innerWidth - 100,
+                    ypos: document.querySelector('.page-content').scrollHeight - 200,
+                };
+
+                closeActive();
+
+                this.classList.add('is-focus');
+
+                if (max.ypos <= parent.getBoundingClientRect().top + el.offsetHeight + 10) {
+                    ypos = parent.offsetTop + 10;
+                    wheel.parentNode.style.top = ''; 
+                    wheel.parentNode.style.bottom = ypos + 'px';
+                } else {
+                    wheel.parentNode.style.bottom = '';
+                    wheel.parentNode.style.top = ypos + 'px';
+                }
+
+                if (max.xpos <= parent.getBoundingClientRect().left + el.offsetWidth) {
+                    wheel.parentNode.style.left = '';
+                    wheel.parentNode.style.right = 0;
+                } else {
+                    wheel.parentNode.style.right = '';
+                    wheel.parentNode.style.left = xpos + 'px';
+                }
+
+                wheel.parentNode.hidden = false;
+                wheel.parentNode.classList.add('on');
+            });
+        });
+        
+        window.addEventListener('click', function (e) {
+            /* 옵션창 숨김 */
+            var target = e.target;
+
+            if (target.classList && (target.classList.contains('js-wheel') || target.closest('.wheel-wrapper'))) return;
+
+            closeActive();
+        });
+    });
+</script>
+<script>
+	$(document).ready(function(){
+		//처리
+		$("#btnStep").click(function(){
+			if($("[name='rc_work[]']").is(":checked")==false){
+                commonAlert("희망업무는 하나이상 선택해주세요.",function(){});
+                return;
+            }
+
+            if($("[name='rc_sex[]']").is(":checked")==false){
+                commonAlert("희망성별은 하나이상 선택해주세요.",function(){});
+                return;
+            }
+
+            if($("[name='rc_nation[]']").is(":checked")==false){
+                commonAlert("희망국적은 하나이상 선택해주세요.",function(){});
+                return;
+            }
+            
+            if($("[name='ma_sage']").val()==""){
+                commonAlert("희망나이를 선택해주세요.",function(){});
+                return;
+            }
+            
+            if($("[name='ma_eage']").val()==""){
+                commonAlert("희망나이를 선택해주세요.",function(){});
+                return;
+            }
+            
+			if($("[name='ma_sage']").val()!="" && $("[name='ma_eage']").val()!="" && $("[name='ma_sage']").val() > $("[name='ma_eage']").val()){
+                commonAlert("희망나이는 앞에 설정한 나이가 뒤에 설정한 나이보다 클 수 없습니다.",function(){});
+                return;
+            }
+	        
+	        var params = $("#frm").serialize();
+	        comAjax("/compage_proc/recruit_write2",params,function(ret){
+	            if(ret.code=="00"){
+	            	if($("[name=rc_idx]").val()!="0"){
+	            		//location.href="/compage/recruit_write3/" + $("[name=rc_idx]").val();
+	            		_replace("/compage/recruit_write3/" + $("[name=rc_idx]").val());
+	            	}else{
+	            		//location.href="/compage/recruit_write3";
+	            		_replace("/compage/recruit_write3");
+	            	}
+	            }else{
+	                commonAlert(ret.msg,function(){});
+	                return;
+	            }
+	        });
+		});
+		
+		// 뒤로가기
+		$("#btnPrev").click(function(){
+			history.go(-1);
+		});
+	});
+</script>

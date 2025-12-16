@@ -1,0 +1,2261 @@
+<?php
+class Common_proc extends CI_Controller
+{
+	function __construct()
+	{
+		parent::__construct();
+
+		$this->load->model('sitemodel', 'site_model');
+		$this->load->model('membermodel', 'member_model');
+		$this->load->model('settingmodel', 'setting_model');
+		$this->load->model('mongomodel', 'mongo_model');
+		$this->load->model('commonmodel', 'common_model');
+
+		$this->load->library('user');
+		$this->load->library('common');
+	}
+
+	/**
+	 * 비즈니스 로직 오류를 파일에 기록하는 함수
+	 */
+	private function log_business_error($function_name, $error_message, $data = [])
+	{
+		try {
+			$log_data = [
+				'timestamp' => date('Y-m-d H:i:s'),
+				'function' => $function_name,
+				'error' => $error_message,
+				'data' => $data,
+				'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown',
+				'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown'
+			];
+
+			$log_file = '/website/nowapk/logs/business_error_' . date('Y-m-d') . '.log';
+			$log_line = json_encode($log_data, JSON_UNESCAPED_UNICODE) . "\n";
+
+			file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX);
+		} catch (Exception $e) {
+			// 로그 기록 실패 시 무시
+		}
+	}
+
+	/**
+	 * 웹뷰에서 호출하는 디버그 로깅 함수
+	 */
+	function log_webview_debug()
+	{
+		$function_name = input_post("function_name", "unknown");
+		$error_message = input_post("error_message", "");
+		$data_json = input_post("data", "{}");
+
+		// JSON 데이터 파싱
+		$data = [];
+		if ($data_json && $data_json !== "{}") {
+			$data = json_decode($data_json, true);
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				$data = ['raw_data' => $data_json];
+			}
+		}
+
+		// 비즈니스 로그 기록
+		$this->log_business_error($function_name, $error_message, $data);
+
+		// JSON 응답
+		json_return("00", "로그 기록 완료");
+	}
+
+	function set_uuid()
+	{
+		$uuid = input_post("uuid", "");
+		$push_yn = input_post("push_yn", "N");
+		$marketing_yn = input_post("marketing_yn", "N");
+		$token = input_post("token", ""); // FCM 토큰 추가
+
+		$this->log_business_error('set_uuid', 'FCM 토큰 등록 시도', [
+			'uuid' => $uuid,
+			'push_yn' => $push_yn,
+			'token_length' => strlen($token)
+		]);
+
+		if ($uuid != "") {
+			$info = [
+				"uuid" => $uuid,
+				"push_yn" => $push_yn,
+				"marketing_yn" => $marketing_yn,
+				"md_step2" => "Y",
+			];
+
+			// FCM 토큰이 있으면 함께 저장
+			if ($token != "") {
+				$info["token"] = $token;
+			}
+
+			$result = $this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
+			$this->log_business_error('set_uuid', 'FCM 토큰 등록 결과', [
+				'result' => $result ? "성공" : "실패",
+				'uuid' => $uuid
+			]);
+
+			// FCM 토큰이 있고 푸시 동의가 Y인 경우 MongoDB에도 등록
+			if ($token != "" && $push_yn == "Y") {
+				$mem_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+				if ($mem_device && $mem_device["mm_idx"] > 0) {
+					// 이미 사용자와 연결된 경우 MongoDB에 동기화
+					$mem_info = $this->member_model->getMember(["mm_idx" => $mem_device["mm_idx"]]);
+					if ($mem_info) {
+						$mongo_info = [
+							'mm_id' => $mem_info["mm_id"],
+							'token' => $token,
+							'last_update' => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate()
+						];
+						$mongo_result = $this->mongo_model->updateUserInfo($mongo_info);
+						$this->log_business_error('set_uuid', 'MongoDB FCM 토큰 등록 결과', [
+							'result' => $mongo_result ? "성공" : "실패",
+							'uuid' => $uuid,
+							'mm_idx' => $mem_device["mm_idx"]
+						]);
+					}
+				} else {
+					// 사용자와 연결되지 않은 경우, 나중에 연결할 수 있도록 토큰만 저장
+					$this->log_business_error('set_uuid', '로그인 전 FCM 토큰 저장', [
+						'uuid' => $uuid,
+						'token_length' => strlen($token),
+						'message' => '로그인 후 connect_token_to_user API 호출로 사용자와 연결 가능'
+					]);
+				}
+			}
+		}
+
+		json_return("00", "성공");
+	}
+
+	// 테스트용 FCM 토큰 등록 (로그인 없이)
+	function test_token()
+	{
+		$token = input_post("token", "");
+		$uuid = input_post("uuid", "");
+
+		$this->log_business_error('test_token', '테스트 FCM 토큰 등록 시도', [
+			'uuid' => $uuid,
+			'token_length' => strlen($token)
+		]);
+
+		if ($token == "") {
+			$this->log_business_error('test_token', '토큰이 비어있음', [
+				'uuid' => $uuid,
+				'token' => $token
+			]);
+			json_return("90", "FCM 토큰이 필요합니다.");
+			return;
+		}
+
+		if ($uuid == "") {
+			$this->log_business_error('test_token', 'UUID가 비어있음', [
+				'uuid' => $uuid,
+				'token_length' => strlen($token)
+			]);
+			json_return("90", "UUID가 필요합니다.");
+			return;
+		}
+
+		try {
+			// MySQL에 토큰 저장
+			$info = [
+				"token" => $token,
+				"push_yn" => "Y",
+				"up_dt" => date('Y-m-d H:i:s')
+			];
+			$result = $this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
+			$this->log_business_error('test_token', 'MySQL 저장 결과', [
+				'result' => $result ? "성공" : "실패",
+				'uuid' => $uuid
+			]);
+
+			if ($result) {
+				json_return("00", "테스트 FCM 토큰이 성공적으로 등록되었습니다.");
+			} else {
+				json_return("90", "테스트 FCM 토큰 등록에 실패했습니다.");
+			}
+		} catch (Exception $e) {
+			json_return("90", "테스트 FCM 토큰 등록 중 오류가 발생했습니다.");
+		}
+	}
+
+	// 앱에서 FCM 토큰 등록 (로그인 후)
+	function update_token()
+	{
+		// 세션 강제 시작 (앱에서 세션 문제 해결)
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		// User 객체가 없으면 다시 로드 시도
+		if (!isset($this->user) || !is_object($this->user)) {
+			$this->load->library('user');
+		}
+
+		// User 객체 초기화 상태 확인
+		$user_object_exists = isset($this->user) && is_object($this->user);
+		$is_login_result = $user_object_exists ? $this->user->isLogin() : 'user_object_not_found';
+		$mm_idx = $user_object_exists ? $this->user->getUserIdx() : -999;
+
+		$token = input_post("token", "");
+		$uuid = input_post("uuid", "");
+		$app_mm_idx = input_post("mm_idx", 0);
+
+		$this->log_business_error('update_token', 'FCM 토큰 업데이트 시도', [
+			'user_object_exists' => $user_object_exists ? 'true' : 'false',
+			'is_login_result' => $is_login_result,
+			'mm_idx' => $mm_idx,
+			'uuid' => $uuid,
+			'token_length' => strlen($token),
+			'session_id' => session_id(),
+			'app_mm_idx' => $app_mm_idx
+		]);
+
+		// 세션 정보 확인
+		$session_user_info = $this->common->getSession("USER_INFO");
+
+		// 세션 진단 로그
+		$this->log_business_error('update_token', '세션 진단', [
+			'session_user_info' => $session_user_info ? '있음' : '없음',
+			'session_user_mm_idx' => $session_user_info ? $session_user_info["mm_idx"] : 'null',
+			'session_user_mm_id' => $session_user_info ? $session_user_info["mm_id"] : 'null',
+			'session_id' => session_id(),
+			'session_status' => session_status(),
+			'cookie_params' => session_get_cookie_params(),
+			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown',
+			'cookies' => $_COOKIE,
+			'headers' => apache_request_headers()
+		]);
+
+		// 앱에서는 UUID로 사용자 찾기 (세션 의존하지 않음)
+		if ($uuid != "") {
+			$device_info = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+			$this->log_business_error('update_token', 'UUID 디바이스 조회 결과', [
+				'uuid' => $uuid,
+				'device_info' => $device_info ? '있음' : '없음',
+				'device_mm_idx' => $device_info ? $device_info["mm_idx"] : 'null',
+				'device_token' => $device_info ? $device_info["token"] : 'null',
+				'device_push_yn' => $device_info ? $device_info["push_yn"] : 'null',
+				'device_up_dt' => $device_info ? $device_info["up_dt"] : 'null',
+				'device_full_info' => $device_info
+			]);
+
+			if ($device_info && $device_info["mm_idx"] > 0) {
+				$mm_idx = $device_info["mm_idx"];
+				$this->log_business_error('update_token', 'UUID로 사용자 찾음', [
+					'mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+			} else {
+				// UUID로 사용자를 찾을 수 없으면 현재 로그인한 사용자에게 연결
+				if ($session_user_info && isset($session_user_info["mm_idx"]) && $session_user_info["mm_idx"] > 0) {
+					$mm_idx = $session_user_info["mm_idx"];
+					$this->log_business_error('update_token', 'UUID를 현재 로그인 사용자에게 연결', [
+						'uuid' => $uuid,
+						'mm_idx' => $mm_idx,
+						'device_info' => $device_info ? '있음' : '없음',
+						'device_mm_idx' => $device_info ? $device_info["mm_idx"] : 'null'
+					]);
+
+					// UUID를 현재 사용자에게 연결
+					$update_data = [
+						"mm_idx" => $mm_idx,
+						"push_yn" => "Y",
+						"up_dt" => date('Y-m-d H:i:s')
+					];
+					$update_result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
+					$this->log_business_error('update_token', 'UUID 사용자 연결 결과', [
+						'result' => $update_result ? '성공' : '실패',
+						'uuid' => $uuid,
+						'mm_idx' => $mm_idx
+					]);
+				} else {
+					// 세션에서 사용자 정보를 가져올 수 없으면, 앱에서 전송한 사용자 정보를 사용
+					$app_mm_idx = input_post("mm_idx", 0);
+					if ($app_mm_idx > 0) {
+						$mm_idx = $app_mm_idx;
+						$this->log_business_error('update_token', '앱에서 전송한 사용자 정보로 UUID 연결', [
+							'uuid' => $uuid,
+							'mm_idx' => $mm_idx,
+							'device_info' => $device_info ? '있음' : '없음',
+							'device_mm_idx' => $device_info ? $device_info["mm_idx"] : 'null'
+						]);
+
+						// UUID를 앱에서 전송한 사용자에게 연결
+						$update_data = [
+							"mm_idx" => $mm_idx,
+							"push_yn" => "Y",
+							"up_dt" => date('Y-m-d H:i:s')
+						];
+						$update_result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
+						$this->log_business_error('update_token', 'UUID 사용자 연결 결과 (앱 정보)', [
+							'result' => $update_result ? '성공' : '실패',
+							'uuid' => $uuid,
+							'mm_idx' => $mm_idx
+						]);
+					} else {
+						$this->log_business_error('update_token', 'UUID로 사용자를 찾을 수 없음', [
+							'uuid' => $uuid,
+							'device_info' => $device_info ? '있음' : '없음',
+							'device_mm_idx' => $device_info ? $device_info["mm_idx"] : 'null',
+							'reason' => $device_info ? 'mm_idx가 0이거나 없음' : '디바이스 정보 없음'
+						]);
+					}
+				}
+			}
+		}
+		// 세션으로 사용자 찾기 (웹에서만 사용)
+		else if ($session_user_info && isset($session_user_info["mm_idx"]) && $session_user_info["mm_idx"] > 0) {
+			$mm_idx = $session_user_info["mm_idx"];
+			$this->log_business_error('update_token', '세션으로 사용자 찾음', [
+				'mm_idx' => $mm_idx
+			]);
+		}
+
+		// UUID가 있으면 토큰 업데이트 진행 (로그아웃 상태도 허용)
+		if ($mm_idx <= 0 && $uuid == "") {
+			$this->log_business_error('update_token', '사용자 식별 실패', [
+				'mm_idx' => $mm_idx,
+				'uuid' => $uuid,
+				'reason' => 'UUID와 세션 모두 없음'
+			]);
+			json_return("90", "UUID가 필요합니다.");
+			return;
+		}
+
+		// UUID가 있으면 로그인 상태와 무관하게 토큰 등록 허용
+		if ($uuid != "" && $token != "") {
+			// UUID로 디바이스 정보 업데이트 (로그인 상태 무관)
+			$device_info = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+			if ($device_info) {
+				// 토큰만 업데이트하고 사용자 연결은 나중에 처리
+				$update_data = [
+					"token" => $token,
+					"push_yn" => "Y",
+					"up_dt" => date('Y-m-d H:i:s')
+				];
+
+				// mm_idx가 0이면 토큰만 저장하고 나중에 연결
+				if ($device_info["mm_idx"] == 0) {
+					$update_data["mm_idx"] = 0; // 사용자 연결 없이 토큰만 저장
+				} else {
+					$update_data["mm_idx"] = $device_info["mm_idx"]; // 기존 사용자와 연결
+				}
+
+				$result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
+				$this->log_business_error('update_token', 'UUID 토큰 업데이트 결과', [
+					'result' => $result ? '성공' : '실패',
+					'uuid' => $uuid,
+					'mm_idx' => $device_info["mm_idx"],
+					'token_length' => strlen($token)
+				]);
+
+				// 사용자가 연결되어 있으면 MongoDB에도 동기화
+				if ($device_info["mm_idx"] > 0) {
+					$mem_info = $this->member_model->getMember(["mm_idx" => $device_info["mm_idx"]]);
+					if ($mem_info) {
+						$mongo_info = [
+							'mm_id' => $mem_info["mm_id"],
+							'token' => $token,
+							'last_update' => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate()
+						];
+						$mongo_result = $this->mongo_model->updateUserInfo($mongo_info);
+						$this->log_business_error('update_token', 'MongoDB 토큰 동기화 결과', [
+							'result' => $mongo_result ? '성공' : '실패',
+							'mm_idx' => $device_info["mm_idx"],
+							'mm_id' => $mem_info["mm_id"]
+						]);
+					}
+				}
+
+				json_return("00", "FCM 토큰이 성공적으로 등록되었습니다.");
+				return;
+			}
+		}
+
+		// UUID로 찾은 사용자가 실제로 로그인된 상태인지 확인 (기존 로직 유지)
+		$member_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+		if (!$member_info || $member_info["mm_status"] != "Y") {
+			$this->log_business_error('update_token', '사용자 상태 확인 실패', [
+				'mm_idx' => $mm_idx,
+				'member_info' => $member_info ? '있음' : '없음',
+				'mm_status' => $member_info ? $member_info["mm_status"] : 'null'
+			]);
+			json_return("90", "사용자 정보를 찾을 수 없습니다.");
+			return;
+		}
+
+		// UUID로 디바이스 정보 업데이트 (로그인된 사용자의 디바이스에 토큰 저장)
+		if ($uuid != "") {
+			$device_info = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+			if ($device_info && $device_info["mm_idx"] == $mm_idx) {
+				$this->log_business_error('update_token', 'UUID로 디바이스 확인', [
+					'device_mm_idx' => $device_info["mm_idx"],
+					'current_mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+			} else if ($device_info && $device_info["mm_idx"] != $mm_idx) {
+				$this->log_business_error('update_token', 'UUID가 다른 사용자에게 할당됨', [
+					'device_mm_idx' => $device_info["mm_idx"],
+					'current_mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+				// 현재 사용자에게 UUID 재할당
+				$this->member_model->setMemberDevice(["mm_idx" => $mm_idx], ["uuid" => $uuid]);
+			} else {
+				$this->log_business_error('update_token', 'UUID로 디바이스를 찾을 수 없음', [
+					'uuid' => $uuid,
+					'current_mm_idx' => $mm_idx
+				]);
+			}
+		}
+
+		if ($token == "") {
+			$this->log_business_error('update_token', '토큰이 비어있음', [
+				'mm_idx' => $mm_idx,
+				'uuid' => $uuid
+			]);
+			json_return("90", "FCM 토큰이 필요합니다.");
+			return;
+		}
+
+		// FCM 토큰 유효성 검증 (더 관대하게 수정)
+		if (strlen($token) < 50) {
+			$this->log_business_error('update_token', '토큰 길이가 너무 짧음', [
+				'mm_idx' => $mm_idx,
+				'uuid' => $uuid,
+				'token_length' => strlen($token)
+			]);
+			json_return("90", "유효하지 않은 FCM 토큰입니다.");
+			return;
+		}
+
+		// FCM 토큰 형식 검증 (Firebase FCM 토큰은 보통 163자 이상)
+		if (!preg_match('/^[A-Za-z0-9:_-]+$/', $token)) {
+			$this->log_business_error('update_token', '토큰 형식이 올바르지 않음', [
+				'mm_idx' => $mm_idx,
+				'uuid' => $uuid,
+				'token_length' => strlen($token)
+			]);
+			json_return("90", "올바르지 않은 FCM 토큰 형식입니다.");
+			return;
+		}
+
+		try {
+			// 기존 토큰과 중복 확인
+			$existing_device = $this->member_model->getMemberDevice(["token" => $token]);
+			if ($existing_device && $existing_device["mm_idx"] != $mm_idx) {
+				$this->log_business_error('update_token', '다른 사용자가 사용 중인 토큰', [
+					'mm_idx' => $mm_idx,
+					'existing_mm_idx' => $existing_device["mm_idx"],
+					'uuid' => $uuid
+				]);
+				json_return("90", "이미 다른 사용자가 사용 중인 토큰입니다.");
+				return;
+			}
+
+			// MySQL에 토큰 저장
+			$mysql_success = false;
+			if ($uuid != "") {
+				$info = [
+					"token" => $token,
+					"push_yn" => "Y", // 토큰 등록 시 푸시 동의로 설정
+					"up_dt" => date('Y-m-d H:i:s')
+				];
+				$result = $this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
+				$mysql_success = $result;
+				$this->log_business_error('update_token', 'MySQL FCM 토큰 저장 결과', [
+					'result' => $result ? "성공" : "실패",
+					'mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+			}
+
+			// MongoDB에 토큰 저장
+			$mongo_success = false;
+			$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+			if ($mem_info) {
+				$mongo_info = [
+					'mm_id' => $mem_info["mm_id"],
+					'token' => $token,
+					'last_update' => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate()
+				];
+				$mongo_result = $this->mongo_model->updateUserInfo($mongo_info);
+				$mongo_success = $mongo_result;
+				$this->log_business_error('update_token', 'MongoDB FCM 토큰 저장 결과', [
+					'result' => $mongo_result ? "성공" : "실패",
+					'mm_idx' => $mm_idx,
+					'mm_id' => $mem_info["mm_id"]
+				]);
+			}
+
+			// Socket.IO 서버에도 토큰 등록 (chat_server.js의 update_token 이벤트와 동일)
+			$socket_success = false;
+			try {
+				$socket_data = [
+					"user_id" => $mem_info["mm_id"],
+					"token" => $token
+				];
+
+				$socket_url = "https://nowjob.co.kr:3030";
+				$socket_data_json = json_encode($socket_data);
+
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $socket_url . "/update_token");
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $socket_data_json);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, [
+					'Content-Type: application/json',
+					'Content-Length: ' . strlen($socket_data_json)
+				]);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+				$socket_result = curl_exec($ch);
+				$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				$socket_success = ($http_code == 200);
+				$this->log_business_error('update_token', 'Socket.IO FCM 토큰 등록 결과', [
+					'http_code' => $http_code,
+					'response' => $socket_result,
+					'mm_idx' => $mm_idx
+				]);
+			} catch (Exception $socket_error) {
+				$this->log_business_error('update_token', 'Socket.IO FCM 토큰 등록 에러', [
+					'error' => $socket_error->getMessage(),
+					'mm_idx' => $mm_idx
+				]);
+			}
+
+			// 결과 로깅 (chat_server.js와 동일한 로그 형식)
+			$this->log_business_error('update_token', 'FCM 토큰 등록 완료', [
+				'mm_idx' => $mm_idx,
+				'mysql_success' => $mysql_success ? "성공" : "실패",
+				'mongo_success' => $mongo_success ? "성공" : "실패",
+				'socket_success' => $socket_success ? "성공" : "실패"
+			]);
+
+			// 최소 하나라도 성공하면 성공으로 처리 (chat_server.js의 로직과 동일)
+			if ($mysql_success || $mongo_success) {
+				json_return("00", "FCM 토큰이 성공적으로 등록되었습니다.");
+			} else {
+				json_return("90", "FCM 토큰 등록에 실패했습니다.");
+			}
+		} catch (Exception $e) {
+			json_return("90", "FCM 토큰 등록 중 오류가 발생했습니다.");
+		}
+	}
+
+	// FCM 토큰을 로그인한 사용자와 연결 (로그인 후 호출)
+	function connect_token_to_user()
+	{
+		// 세션 강제 시작
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		// User 객체가 없으면 다시 로드 시도
+		if (!isset($this->user) || !is_object($this->user)) {
+			$this->load->library('user');
+		}
+
+		$uuid = input_post("uuid", "");
+
+		$this->log_business_error('connect_token_to_user', 'FCM 토큰 사용자 연결 시도', [
+			'uuid' => $uuid,
+			'is_login' => $this->user->isLogin(),
+			'mm_idx' => $this->user->getUserIdx()
+		]);
+
+		// 로그인 확인
+		if ($this->user->isLogin() == false) {
+			$this->log_business_error('connect_token_to_user', '로그인 필요', [
+				'uuid' => $uuid
+			]);
+			json_return("90", "로그인이 필요합니다.");
+			return;
+		}
+
+		if ($uuid == "") {
+			$this->log_business_error('connect_token_to_user', 'UUID가 비어있음', [
+				'uuid' => $uuid
+			]);
+			json_return("90", "UUID가 필요합니다.");
+			return;
+		}
+
+		$mm_idx = $this->user->getUserIdx();
+
+		try {
+			// UUID로 디바이스 정보 조회
+			$device_info = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+			if (!$device_info) {
+				$this->log_business_error('connect_token_to_user', '디바이스 정보 없음', [
+					'uuid' => $uuid,
+					'mm_idx' => $mm_idx
+				]);
+				json_return("90", "디바이스 정보를 찾을 수 없습니다.");
+				return;
+			}
+
+			// 토큰이 있는지 확인
+			if (empty($device_info["token"])) {
+				$this->log_business_error('connect_token_to_user', 'FCM 토큰이 없음', [
+					'uuid' => $uuid,
+					'mm_idx' => $mm_idx,
+					'device_token' => $device_info["token"]
+				]);
+				json_return("90", "FCM 토큰이 등록되지 않았습니다.");
+				return;
+			}
+
+			// UUID를 현재 로그인한 사용자에게 연결 (기존 update_token 로직 활용)
+			if ($device_info && $device_info["mm_idx"] == $mm_idx) {
+				$this->log_business_error('connect_token_to_user', 'UUID로 디바이스 확인', [
+					'device_mm_idx' => $device_info["mm_idx"],
+					'current_mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+				// 이미 연결되어 있음
+			} else if ($device_info && $device_info["mm_idx"] != $mm_idx) {
+				$this->log_business_error('connect_token_to_user', 'UUID가 다른 사용자에게 할당됨', [
+					'device_mm_idx' => $device_info["mm_idx"],
+					'current_mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+				// 현재 사용자에게 UUID 재할당
+				$update_data = [
+					"mm_idx" => $mm_idx,
+					"push_yn" => "Y",
+					"up_dt" => date('Y-m-d H:i:s')
+				];
+				$result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
+				$this->log_business_error('connect_token_to_user', 'UUID 사용자 재할당 결과', [
+					'result' => $result ? '성공' : '실패',
+					'uuid' => $uuid,
+					'mm_idx' => $mm_idx
+				]);
+			} else {
+				$this->log_business_error('connect_token_to_user', 'UUID로 디바이스를 찾을 수 없음', [
+					'uuid' => $uuid,
+					'current_mm_idx' => $mm_idx
+				]);
+				json_return("90", "디바이스 정보를 찾을 수 없습니다.");
+				return;
+			}
+
+			// MongoDB에도 토큰 동기화
+			$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+			if ($mem_info) {
+				$mongo_info = [
+					'mm_id' => $mem_info["mm_id"],
+					'token' => $device_info["token"],
+					'last_update' => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate()
+				];
+				$mongo_result = $this->mongo_model->updateUserInfo($mongo_info);
+				$this->log_business_error('connect_token_to_user', 'MongoDB 토큰 동기화 결과', [
+					'result' => $mongo_result ? '성공' : '실패',
+					'mm_idx' => $mm_idx,
+					'mm_id' => $mem_info["mm_id"]
+				]);
+			}
+
+			json_return("00", "FCM 토큰이 로그인한 사용자와 성공적으로 연결되었습니다.");
+		} catch (Exception $e) {
+			json_return("90", "FCM 토큰 연결 중 오류가 발생했습니다.");
+		}
+	}
+
+	// FCM 토큰 갱신 및 동기화 (앱에서 주기적으로 호출)
+	function refresh_token()
+	{
+		$mm_idx = $this->user->getUserIdx();
+		$token = input_post("token", "");
+		$uuid = input_post("uuid", "");
+
+		$this->log_business_error('refresh_token', 'FCM 토큰 갱신 시도', [
+			'mm_idx' => $mm_idx,
+			'uuid' => $uuid,
+			'token_length' => strlen($token)
+		]);
+
+		// 로그인 확인
+		if ($this->user->isLogin() == false) {
+			$this->log_business_error('refresh_token', '로그인 필요', [
+				'mm_idx' => $mm_idx,
+				'uuid' => $uuid
+			]);
+			json_return("90", "로그인이 필요합니다.");
+			return;
+		}
+
+		if ($token == "") {
+			$this->log_business_error('refresh_token', '토큰이 비어있음', [
+				'mm_idx' => $mm_idx,
+				'uuid' => $uuid
+			]);
+			json_return("90", "FCM 토큰이 필요합니다.");
+			return;
+		}
+
+		// FCM 토큰 유효성 검증
+		if (strlen($token) < 100) {
+			$this->log_business_error('refresh_token', '토큰 길이가 너무 짧음', [
+				'mm_idx' => $mm_idx,
+				'uuid' => $uuid,
+				'token_length' => strlen($token)
+			]);
+			json_return("90", "유효하지 않은 FCM 토큰입니다.");
+			return;
+		}
+
+		try {
+			// 기존 토큰과 비교하여 변경사항 확인
+			$existing_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+			if ($existing_device && $existing_device["token"] == $token) {
+				$this->log_business_error('refresh_token', '토큰이 동일함, 갱신 불필요', [
+					'mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+				json_return("00", "토큰이 이미 최신 상태입니다.");
+				return;
+			}
+
+			// 토큰 갱신 (update_token과 동일한 로직)
+			$mysql_success = false;
+			if ($uuid != "") {
+				$info = [
+					"token" => $token,
+					"push_yn" => "Y",
+					"up_dt" => date('Y-m-d H:i:s')
+				];
+				$result = $this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
+				$mysql_success = $result;
+				$this->log_business_error('refresh_token', 'MySQL FCM 토큰 갱신 결과', [
+					'result' => $result ? '성공' : '실패',
+					'mm_idx' => $mm_idx,
+					'uuid' => $uuid
+				]);
+			}
+
+			// MongoDB 토큰 갱신
+			$mongo_success = false;
+			$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+			if ($mem_info) {
+				$mongo_info = [
+					'mm_id' => $mem_info["mm_id"],
+					'token' => $token,
+					'last_update' => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate()
+				];
+				$mongo_result = $this->mongo_model->updateUserInfo($mongo_info);
+				$mongo_success = $mongo_result;
+				$this->log_business_error('refresh_token', 'MongoDB FCM 토큰 갱신 결과', [
+					'result' => $mongo_result ? '성공' : '실패',
+					'mm_idx' => $mm_idx,
+					'mm_id' => $mem_info['mm_id']
+				]);
+			}
+
+			// Socket.IO 서버에도 토큰 갱신
+			$socket_success = false;
+			try {
+				$socket_data = [
+					"user_id" => $mem_info["mm_id"],
+					"token" => $token
+				];
+
+				$socket_url = "https://nowjob.co.kr:3030";
+				$socket_data_json = json_encode($socket_data);
+
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $socket_url . "/update_token");
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $socket_data_json);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, [
+					'Content-Type: application/json',
+					'Content-Length: ' . strlen($socket_data_json)
+				]);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+				$socket_result = curl_exec($ch);
+				$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				$socket_success = ($http_code == 200);
+				$this->log_business_error('refresh_token', 'Socket.IO FCM 토큰 갱신 결과', [
+					'http_code' => $http_code,
+					'response' => $socket_result,
+					'mm_idx' => $mm_idx
+				]);
+			} catch (Exception $socket_error) {
+				$this->log_business_error('refresh_token', 'Socket.IO FCM 토큰 갱신 에러', [
+					'error' => $socket_error->getMessage(),
+					'mm_idx' => $mm_idx
+				]);
+			}
+
+			// 결과 로깅
+			$this->log_business_error('refresh_token', 'FCM 토큰 갱신 완료', [
+				'mm_idx' => $mm_idx,
+				'mysql_success' => $mysql_success ? "성공" : "실패",
+				'mongo_success' => $mongo_success ? "성공" : "실패",
+				'socket_success' => $socket_success ? "성공" : "실패"
+			]);
+
+			// 최소 하나라도 성공하면 성공으로 처리
+			if ($mysql_success || $mongo_success) {
+				json_return("00", "FCM 토큰이 성공적으로 갱신되었습니다.");
+			} else {
+				json_return("90", "FCM 토큰 갱신에 실패했습니다.");
+			}
+		} catch (Exception $e) {
+			json_return("90", "FCM 토큰 갱신 중 오류가 발생했습니다.");
+		}
+	}
+
+	// UUID로 기존 동의 정보 조회
+	function get_uuid_consent()
+	{
+		$uuid = input_post("uuid", "");
+
+		if ($uuid != "") {
+			$mem_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+
+			if ($mem_device != null) {
+				// 이미 동의 정보가 있는 경우
+				$result = [
+					"has_consent" => true,
+					"push_yn" => $mem_device["push_yn"],
+					"marketing_yn" => $mem_device["marketing_yn"],
+					"md_step2" => $mem_device["md_step2"]
+				];
+			} else {
+				// 동의 정보가 없는 경우
+				$result = [
+					"has_consent" => false,
+					"push_yn" => "N",
+					"marketing_yn" => "N",
+					"md_step2" => "N"
+				];
+			}
+		} else {
+			$result = [
+				"has_consent" => false,
+				"push_yn" => "N",
+				"marketing_yn" => "N",
+				"md_step2" => "N"
+			];
+		}
+
+		json_return("00", "성공", $result);
+	}
+
+
+	# 즐겨찾기 처리
+	function bookmark()
+	{
+		try {
+			$bk_type = input_post("bk_type", "");
+			$bk_key = input_post("bk_key", "");
+			$mm_idx = $this->user->getUserIdx();
+			$mm_id = $this->user->getUserId();
+			$mm_name = $this->user->getUserName();
+
+			// 로그인 체크
+			if ($this->user->isLogin() == false) {
+				json_return("10", "로그인후 이용해주세요.");
+			}
+
+			// 파라미터 검증
+			if (empty($bk_type) || empty($bk_key) || empty($mm_idx)) {
+				json_return("90", "필수 파라미터가 누락되었습니다.");
+			}
+
+			// 즐겨찾기 처리
+			$result = $this->site_model->setBookmark(["bk_type" => $bk_type, "bk_key" => $bk_key, "mm_idx" => $mm_idx]);
+
+			if ($result == "Y") {
+				try {
+					$book_user_info = $this->site_model->getBookmarkUser(["bk_type" => $bk_type, "bk_key" => $bk_key]);
+
+					if ($book_user_info && !empty($book_user_info["mm_id"])) {
+						#####################################################
+						# 푸시 발송
+						#####################################################
+						$temp = $book_user_info;
+						$token_list = [];
+						$yoil = get_yoil(get_today());
+						$time = get_today("H:i");
+
+						$skip = false;
+						if (!empty($temp["token"]) && $temp["alarm_deny_yn"] == "Y" && $temp["alarm_deny_yoil"] == $yoil && ($temp["alarm_deny_stime"] < $time && $temp["alarm_deny_etime"] > $time)) {
+							$skip = true;
+						}
+
+						if ($skip == false && !empty($temp["token"])) {
+							$token_list[] = $temp["token"];
+						}
+
+						if (!empty($token_list)) {
+							$info = [
+								"title" => "NowJob 관심등록 알림",
+								"body" => $mm_name . "님이 즐겨찾기 등록 했습니다.",
+								"img" => "",
+								"url" => "",
+							];
+							$fcm_result = sendFcm($info, $token_list);
+						}
+						#####################################################
+
+						#####################################################
+						# 알림 등록 (MongoDB 에러 방지)
+						#####################################################
+						try {
+							$tbl_alarm = get_mongodb("alarm");
+
+							if ($tbl_alarm) {
+								//알림 추가
+								$alarm = [
+									"user_id" => $book_user_info["mm_id"],
+									"al_type" => "bookmark",
+									"al_key" => "" . $mm_idx,
+									"al_text" => "<strong><em>" . $mm_name . "</em>님이 <em>즐겨찾기 등록</em>했습니다.</strong>",
+									"al_etc" => "",
+									"al_url" => "",
+									"show_yn" => "N",
+									"reg_dt" => get_today(),
+								];
+
+								$tbl_alarm->insert($alarm);
+							}
+						} catch (Exception $mongo_error) {
+							// MongoDB 에러는 무시하고 계속 진행
+						}
+						#####################################################
+					}
+				} catch (Exception $push_error) {
+					// 푸시/알림 에러는 무시하고 계속 진행
+				}
+			}
+
+			json_return("00", "처리완료", ["yn" => $result, "user_name" => $mm_name]);
+		} catch (Exception $e) {
+			json_return("90", "처리 중 오류가 발생했습니다.");
+		}
+	}
+
+	function update_alarm_show()
+	{
+		$user_id = $this->user->getUserId();
+
+		# 미확인 업데이트
+		if ($user_id != "") {
+			$tbl_alarm = get_mongodb("alarm");
+			$tbl_alarm->update(
+				["user_id" => $user_id],
+				['$set' => ['show_yn' => "Y"]],
+				['upsert' => true, 'multiple' => true]
+			);
+		}
+
+		json_return("00", "조회성공");
+	}
+
+	function get_member_info()
+	{
+		$mm_idx = $this->user->getUserIdx();
+
+		# 로그인 유무 확인
+		if ($this->user->isLogin() == false) {
+			json_return("90", "로그인이 필요합니다.");
+		}
+
+		$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+		if ($mem_info == null) {
+			json_return("90", "로그인후 이용해주세요.");
+		} else {
+			json_return("00", "조회 성공", $mem_info);
+		}
+	}
+
+	# 즐겨찾기,지원하기등
+	function member_request()
+	{
+		try {
+			// 출력 버퍼 시작
+			ob_start();
+
+			$mq_type = input_post("mq_type");
+			$mq_idxs = input_post("mq_idxs");
+			$rc_idx = input_post("rc_idx");
+			$mm_idx = $this->user->getUserIdx();
+
+			// 입력값 검증
+			if (empty($mq_type)) {
+				json_return("90", "요청 타입이 올바르지 않습니다.");
+			}
+
+			if (empty($mq_idxs) || !is_array($mq_idxs)) {
+				json_return("90", "요청 데이터가 올바르지 않습니다.");
+			}
+
+			if (empty($mm_idx)) {
+				json_return("90", "사용자 정보가 올바르지 않습니다.");
+			}
+
+			# 로그인 유무 확인
+			if ($this->user->isLogin() == false) {
+				json_return("90", "로그인후 이용해주세요.");
+			}
+
+			# rc_idx 유효성 검사 (RESUME 타입일 때)
+			if ($mq_type == "RESUME" && (empty($rc_idx) || $rc_idx == "")) {
+				json_return("90", "채용공고를 선택해주세요.");
+			}
+
+			# 채용공고 존재 여부만 확인 (소유권 검증 제거 - 다른 사용자 채용공고에 제안하는 것이 정상)
+			if ($mq_type == "RESUME" && !empty($rc_idx)) {
+				$sql = "SELECT mm_idx FROM st_recruit WHERE rc_idx = '$rc_idx' AND rc_status = 'Y'";
+				$query = $this->db->query($sql);
+				$recruit_info = $query->row_array();
+
+				if (!$recruit_info) {
+					json_return("90", "선택한 채용공고가 존재하지 않습니다.");
+				}
+			}
+
+			# 이력서 정보 가져오기 (RESUME 타입일 때만)
+			$resume = null;
+			if ($mq_type == "RESUME") {
+				$resume = $this->member_model->getResume(["mm_idx" => $mm_idx, "ru_show_yn" => "Y"]);
+
+				// 기업회원이 이력서를 조회하려고 할 때는 해당 인재의 이력서 정보를 가져옴
+				if (!$resume) {
+					$resume = $this->member_model->getResume(["ru_idx" => $mq_idxs[0]]);
+				}
+			}
+
+			# 중복체크
+			$is_data = false;
+			$is_name = "";
+			foreach ($mq_idxs as $idx) {
+				$data["mq_type"] = $mq_type;
+				$data["mm_idx"] = $mm_idx;
+				if ($mq_type == "RECRUIT") {
+					$data["rc_idx"] = $idx;
+					$data["ru_idx"] = $resume["ru_idx"];
+				} else if ($mq_type == "RESUME") {
+					$data["ru_idx"] = $idx;
+					$data["rc_idx"] = $rc_idx;
+					// 기업회원이 제안할 때는 이력서 작성자 정보가 필요
+					if (!$resume) {
+						continue;
+					}
+				}
+
+				$check = $this->member_model->checkMemberRequest($data);
+
+				if ($check != null) {
+					$is_data = true;
+					$is_name = $check["subject"];
+					break;
+				}
+			}
+
+			if ($is_data == true) {
+				if ($mq_type == "RECRUIT") {
+
+					//2025.02.03 오늘 지원했으면 내일 지원하도록 안내
+					//todo
+					$query_today_dup_chk  = "
+            select sum(cnt) todaycnt from (
+              select count(*) cnt from st_member_request
+              where mq_type = 'RECRUIT'
+              and DATE(reg_dt) = CURRENT_DATE()
+              and ru_idx = '" . $data["ru_idx"] . "'
+              and rc_idx = '" . $data["rc_idx"] . "'
+              union all
+              select count(*) cnt from st_member_request_dup
+              where mq_type = 'RECRUIT'
+              and DATE(reg_dt) = CURRENT_DATE()
+              and ru_idx = '" . $data["ru_idx"] . "'
+              and rc_idx = '" . $data["rc_idx"] . "'
+            ) xx ";
+					//json_return("99",$query_today_dup_chk);
+					$result_today_dup_chk = $this->db->query($query_today_dup_chk);
+					$list_today_dup_chk = $result_today_dup_chk->result_array();
+					$todaycnt = $list_today_dup_chk[0]["todaycnt"];
+					//echo "result[".$todaycnt."]";
+
+					if ($todaycnt > 0) {
+						//2025.02.03 오늘은 했으니 내일 하도록 안내
+						json_return("01", "<em>다음날</em> 다시 제안이 가능합니다.");
+					}
+
+					// 2025.02.03 다른날또 지원이 가능해지면서 의미 없는 부분 주석 처리
+					// if(count($mq_idxs)==1){
+					//   //2024.09.09 이미지원했어도 다음날 가능하도록, 이미 있으면 중복기록으로만 저장
+					// 	//json_return("90","이미 지원중인 공고('$is_name') 입니다.");
+					//   $query_dup_ins  = "INSERT INTO st_member_request_dup (mq_type, mm_idx, rc_idx, reg_dt) ";
+					//   $query_dup_ins .= "VALUES ('RECRUIT','".$mm_idx."','".$data["rc_idx"]."',now() ) ";
+					//   $result = $this->db->query($query_dup_ins);
+					//
+					//   json_return("00","처리완료");
+					//
+					// }else{
+					// 	json_return("90","이미 지원중인 공고('$is_name')가 포함되어 있습니다.");
+					// }
+				} else if ($mq_type == "RESUME") {
+					//2025.02.03 오늘 지원했으면 내일 지원하도록 안내
+					//todo
+					$query_today_dup_chk  = "
+            select sum(cnt) todaycnt from (
+              select count(*) cnt from st_member_request
+              where mq_type = 'RESUME'
+              and DATE(reg_dt) = CURRENT_DATE()
+              and ru_idx = '" . $data["ru_idx"] . "'
+              and rc_idx = '" . $data["rc_idx"] . "'
+              union all
+              select count(*) cnt from st_member_request_dup
+              where mq_type = 'RESUME'
+              and DATE(reg_dt) = CURRENT_DATE()
+              and ru_idx = '" . $data["ru_idx"] . "'
+              and rc_idx = '" . $data["rc_idx"] . "'
+            ) xx ";
+					$result_today_dup_chk = $this->db->query($query_today_dup_chk);
+					$list_today_dup_chk = $result_today_dup_chk->result_array();
+					$todaycnt = $list_today_dup_chk[0]["todaycnt"];
+					//echo "result[".$todaycnt."]";
+
+					if ($todaycnt > 0) {
+						//2025.02.03 오늘은 했으니 내일 하도록 안내
+						json_return("01", "<em>다음날</em> 다시 제안이 가능합니다.");
+					}
+
+
+					if (count($mq_idxs) == 1) {
+						//2024.09.09 이미제안했어도 다음날 가능하도록, 이미 있으면 중복기록으로만 저장
+						//json_return("90","이미 제안중인 인재정보('$is_name') 입니다.");
+						$query_dup_ins  = "INSERT INTO st_member_request_dup (mq_type, mm_idx, rc_idx, ru_idx, reg_dt) ";
+						$query_dup_ins .= "VALUES ('RESUME','" . $mm_idx . "','" . $data["rc_idx"] . "','" . $data["ru_idx"] . "',now() ) ";
+						$result = $this->db->query($query_dup_ins);
+
+						json_return("00", "처리완료");
+					} else {
+						json_return("90", "이미 제안중인 인재정보('$is_name')가 포함되어 있습니다.");
+					}
+				}
+			}
+
+			$point_data = [];
+			$point_data["mq_type"] = $mq_type;
+			$point_data["mq_idxs"] = $mq_idxs;
+			$point_data["mm_idx"] = $mm_idx;
+
+			# 제안갯수 확인및 과금 포인트 갯수 확인
+			$point_price = 0;
+			$point_yn = "Y";
+			$point_cnt = $this->member_model->checkMemberRequestPoint($point_data);
+
+			# 회원 포인트 확인
+			if ($point_cnt > 0) {
+				# 포인트 정보
+				$point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U020"]);
+
+				# 회원 포인트 정보
+				$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+				$point_price = ($point_info["cd_val3"] * $point_cnt);
+				if ($mem_info["mm_point"] < $point_price) {
+					json_return("90", "매일 2회 무료 제안보내기를 사용하셨습니다.<br/>포인트가 부족하여 인재정보 제안하기를 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "P<br/>사용포인트 : " . $point_price . "P");
+				} else {
+					# 포인트 차감
+					$last_point = $mem_info["mm_point"] - $point_price;
+					$insert = [
+						"mm_idx" => $mm_idx,
+						"o_num" => "",
+						"pm_idx" => 0,
+						"pt_type" => "EVENT",
+						"pl_type" => "minus",
+						"pl_point" => $point_price,
+						"pl_last_point" => $last_point,
+						"pl_desc" => "인재정보 제안하기(" . $point_price . "P차감)",
+						"reg_id" => "system",
+					];
+					$result_point = $this->site_model->insertPointList($insert);
+
+					if ($result_point["code"] != "00") {
+						$this->db->trans_rollback();
+						json_return("92", "포인트 차감시 문제가 발생하였습니다. 관리자에 문의 바랍니다.");
+					} else {
+						$this->member_model->updateMember(["mm_point" => $last_point], ["mm_idx" => $mm_idx]);
+					}
+				}
+			}
+
+			# 등록처리
+			foreach ($mq_idxs as $idx) {
+				$data = [
+					"mq_type" => $mq_type,
+					"mm_idx" => $mm_idx,
+				];
+
+				# RECRUIT_FAV : 즐겨찾기 공고,RECRUIT_RECV : 제안받은 공고,TRADE_FAV : 중고상품 즐겨찾기,RESUME_FAV : 즐겨찾기한인재
+				if ($mq_type == "RECRUIT") {
+					$data["rc_idx"] = $idx;
+					$data["ru_idx"] = $resume ? $resume["ru_idx"] : 0;
+				} else if ($mq_type == "RESUME") {
+					$data["ru_idx"] = $idx;
+					$data["rc_idx"] = $rc_idx;
+				}
+
+				$result = $this->member_model->setMemberRequest($data, $data);
+
+				//채팅창 동시 생성.2023.11.20
+				try {
+					$info_chat = [
+						"rm_idx" => '',
+						"rc_idx" => $data["rc_idx"],
+						"ru_idx" => $data["ru_idx"],
+						"td_idx" => 0,
+						"mm_idx" => $mm_idx,
+					];
+					$info_chat['point_yn'] = 'N';
+
+					// 채팅방 생성에 타임아웃 설정 (10초)
+					$result_chat = $this->common_model->insertRoom($info_chat);
+
+					if ($result_chat && $result_chat["code"] == "00") {
+						$rm_idx = $result_chat["key"];
+
+						// MongoDB 채팅 서버에도 방 정보 생성 (간소화된 버전)
+						try {
+							$this->createChatRoomInMongoDBSafe($rm_idx, $data, $mm_idx);
+						} catch (Exception $mongo_error) {
+							// MongoDB 오류는 무시하고 계속 진행
+						} catch (Error $mongo_error) {
+							// 치명적 오류도 무시하고 계속 진행
+						}
+
+						//json_return("00","생성완료",["rm_idx"=>$result["key"],"first_yn"=>"Y"]);
+					} else {
+						// 채팅방 생성 실패해도 제안 처리는 계속 진행
+					}
+				} catch (Exception $chat_error) {
+					// 채팅방 생성 오류는 무시하고 제안 처리는 계속 진행
+				}
+				//채팅창 동시 생성.2023.11.20
+
+				// 제안하기/지원하기 후 FCM 푸시알림 발송
+
+				// 지원하기 푸시알림 (채용공고 소유자에게)
+				if ($mq_type == "RECRUIT") {
+					try {
+						// 채용공고 소유자의 mm_idx 조회
+						$recruit_sql = "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_show_yn = 'Y'";
+						$recruit_result = $this->db->query($recruit_sql, [$idx]);
+						$recruit_info = $recruit_result->row_array();
+
+						if ($recruit_info) {
+							// 회원 정보 조회
+							$member_sql = "SELECT mm_id FROM st_member WHERE mm_idx = ? AND mm_status = 'Y'";
+							$member_result = $this->db->query($member_sql, [$recruit_info['mm_idx']]);
+							$member_info = $member_result->row_array();
+
+							if ($member_info) {
+								// FCM 토큰 조회 (여러 방법으로 시도)
+								// 1. mm_idx로 조회 시도
+								$token_sql = "SELECT ifnull(token,'') as token, push_yn FROM st_member_device WHERE mm_idx = ? AND push_yn = 'Y' ORDER BY up_dt DESC LIMIT 1";
+								$token_result = $this->db->query($token_sql, [$recruit_info['mm_idx']]);
+								$token_info = $token_result->row_array();
+
+								// 2. mm_idx로 조회 실패 시 mm_id로 조회 시도
+								if (!$token_info || empty($token_info['token'])) {
+									$token_sql2 = "SELECT ifnull(token,'') as token, push_yn FROM st_member_device WHERE mm_idx = (SELECT mm_idx FROM st_member WHERE mm_id = ? AND mm_status = 'Y') AND push_yn = 'Y' ORDER BY up_dt DESC LIMIT 1";
+									$token_result2 = $this->db->query($token_sql2, [$member_info['mm_id']]);
+									$token_info = $token_result2->row_array();
+								}
+
+								// MongoDB에서도 토큰 조회 시도
+								$mongo_token = null;
+								try {
+									$tbl_user = get_mongodb("user");
+									if ($tbl_user && is_object($tbl_user)) {
+										$mongo_user = $tbl_user->findOne(["mm_id" => $member_info['mm_id']]);
+										if ($mongo_user && isset($mongo_user['token'])) {
+											$mongo_token = $mongo_user['token'];
+										}
+									}
+								} catch (Exception $mongo_error) {
+									// MongoDB 오류는 무시하고 계속 진행
+								}
+
+								// 토큰 우선순위: MySQL > MongoDB
+								$final_token = null;
+								if ($token_info && !empty($token_info['token'])) {
+									$final_token = $token_info['token'];
+								} else if ($mongo_token && !empty($mongo_token)) {
+									$final_token = $mongo_token;
+								}
+
+								// 지원한 구직자 정보 조회
+								$applicant_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+								if ($applicant_info && !empty($applicant_info["mm_name"])) {
+									$applicant_name = !empty($applicant_info["mm_name"]) ? $applicant_info["mm_name"] : "구직자";
+
+									// FCM 푸시알림 발송 (토큰이 있는 경우에만)
+									if ($final_token) {
+										$token_list = [$final_token];
+										$info = [
+											"title" => "NowJob 지원 알림",
+											"body" => $applicant_name . "님이 채용공고에 지원했습니다.",
+											"url" => "/resume/hr_post/" . $data["ru_idx"],
+											"type" => "job_application"
+										];
+
+										$fcm_result = sendFcm($info, $token_list);
+									}
+
+									// MongoDB 알림 등록 (토큰 유무와 관계없이 항상 등록)
+									try {
+										$tbl_alarm = get_mongodb("alarm");
+										if ($tbl_alarm && is_object($tbl_alarm)) {
+											$alarm = [
+												"user_id" => $member_info['mm_id'],
+												"al_type" => "job_application",
+												"al_key" => "" . $mm_idx,
+												"al_text" => "<strong><em>" . $applicant_name . "</em>님이 <em>채용공고에 지원</em>했습니다.</strong><br><small>지원서를 확인하고 연락해보세요.</small>",
+												"al_etc" => json_encode([
+													"applicant_name" => $applicant_name,
+													"applicant_idx" => $mm_idx,
+													"recruit_idx" => $idx
+												]),
+												"al_url" => "/resume/hr_post/" . $data["ru_idx"],
+												"show_yn" => "N",
+												"reg_dt" => get_today(),
+											];
+											$tbl_alarm->insert($alarm);
+										}
+									} catch (Exception $mongo_error) {
+										// 알림 등록 오류는 무시하고 계속 진행
+									}
+								}
+							}
+						}
+					} catch (Exception $e) {
+						// 푸시 알림 처리 오류는 무시하고 계속 진행
+					}
+				}
+
+				if ($mq_type == "RESUME") {
+					try {
+						// 이력서 소유자의 mm_idx 조회
+						$resume_sql = "SELECT mm_idx FROM st_resume WHERE ru_idx = ? AND ru_show_yn = 'Y'";
+						$resume_result = $this->db->query($resume_sql, [$idx]);
+						$resume_info = $resume_result->row_array();
+
+						if ($resume_info) {
+							// 회원 정보 조회
+							$member_sql = "SELECT mm_id FROM st_member WHERE mm_idx = ? AND mm_status = 'Y'";
+							$member_result = $this->db->query($member_sql, [$resume_info['mm_idx']]);
+							$member_info = $member_result->row_array();
+
+							if ($member_info) {
+								// FCM 토큰 조회 (여러 방법으로 시도)
+								// 1. mm_idx로 조회 시도
+								$token_sql = "SELECT ifnull(token,'') as token, push_yn FROM st_member_device WHERE mm_idx = ? AND push_yn = 'Y' ORDER BY up_dt DESC LIMIT 1";
+								$token_result = $this->db->query($token_sql, [$resume_info['mm_idx']]);
+								$token_info = $token_result->row_array();
+
+								// 2. mm_idx로 조회 실패 시 mm_id로 조회 시도
+								if (!$token_info || empty($token_info['token'])) {
+									$token_sql2 = "SELECT ifnull(token,'') as token, push_yn FROM st_member_device WHERE mm_idx = (SELECT mm_idx FROM st_member WHERE mm_id = ? AND mm_status = 'Y') AND push_yn = 'Y' ORDER BY up_dt DESC LIMIT 1";
+									$token_result2 = $this->db->query($token_sql2, [$member_info['mm_id']]);
+									$token_info = $token_result2->row_array();
+								}
+
+								// MongoDB에서도 토큰 조회 시도
+								$mongo_token = null;
+								try {
+									$tbl_user = get_mongodb("user");
+									if ($tbl_user && is_object($tbl_user)) {
+										$mongo_user = $tbl_user->findOne(["mm_id" => $member_info['mm_id']]);
+										if ($mongo_user && isset($mongo_user['token'])) {
+											$mongo_token = $mongo_user['token'];
+										}
+									}
+								} catch (Exception $mongo_error) {
+									// MongoDB 오류는 무시하고 계속 진행
+								}
+
+								// 토큰 우선순위: MySQL > MongoDB
+								$final_token = null;
+								if ($token_info && !empty($token_info['token'])) {
+									$final_token = $token_info['token'];
+								} else if ($mongo_token && !empty($mongo_token)) {
+									$final_token = $mongo_token;
+								}
+
+								// 제안한 기업 정보 조회
+								$company_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+								if ($company_info && !empty($company_info["mm_comp_name"])) {
+									$company_name = !empty($company_info["mm_comp_name"]) ? $company_info["mm_comp_name"] : "기업";
+
+									// FCM 푸시알림 발송 (토큰이 있는 경우에만)
+									if ($final_token) {
+										$token_list = [$final_token];
+										$info = [
+											"title" => "NowJob 제안 알림",
+											"body" => $company_name . "에서 채용 제안을 보냈습니다.",
+											"url" => "/recruit/job_post/" . $data["rc_idx"],
+											"type" => "job_offer"
+										];
+
+										$fcm_result = sendFcm($info, $token_list);
+									}
+
+									// MongoDB 알림 등록 (토큰 유무와 관계없이 항상 등록)
+									try {
+										$tbl_alarm = get_mongodb("alarm");
+										if ($tbl_alarm && is_object($tbl_alarm)) {
+											$alarm = [
+												"user_id" => $member_info['mm_id'],
+												"al_type" => "job_offer",
+												"al_key" => "" . $mm_idx,
+												"al_text" => "<strong><em>" . $company_name . "</em>에서 <em>채용 제안</em>을 보냈습니다.</strong><br><small>이력서를 확인하고 제안에 응답해보세요.</small>",
+												"al_etc" => json_encode([
+													"company_name" => $company_name,
+													"company_idx" => $mm_idx,
+													"resume_idx" => $idx
+												]),
+												"al_url" => "/recruit/job_post/" . $data["rc_idx"],
+												"show_yn" => "N",
+												"reg_dt" => get_today(),
+											];
+											$tbl_alarm->insert($alarm);
+										}
+									} catch (Exception $mongo_error) {
+										// 알림 등록 오류는 무시하고 계속 진행
+									}
+								}
+							}
+						}
+					} catch (Exception $push_error) {
+						// 푸시/알림 처리 오류는 무시하고 계속 진행
+					}
+				}
+			}
+
+			// JSON 응답 전에 출력 버퍼 정리
+			ob_end_clean();
+
+			// 직접 JSON 응답 처리 (header 문제 방지)
+			header('Access-Control-Allow-Origin: *');
+			header('Content-type: application/json');
+			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => []]);
+			exit;
+		} catch (Exception $e) {
+			// JSON 응답 전에 출력 버퍼 정리
+			ob_end_clean();
+
+			json_return("90", "처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+		} catch (Error $e) {
+			// JSON 응답 전에 출력 버퍼 정리
+			ob_end_clean();
+
+			json_return("90", "시스템 오류가 발생했습니다. 관리자에게 문의해주세요.");
+		}
+	}
+
+	# 제안보내기 갯수 확인
+	function member_request_check()
+	{
+		$mq_type = input_post("mq_type");
+		$mq_idxs = input_post("mq_idxs");
+		$rc_idx = input_post("rc_idx");
+		$mm_idx = $this->user->getUserIdx();
+
+		# 로그인 유무 확인
+		if ($this->user->isLogin() == false) {
+			json_return("90", "로그인후 이용해주세요.");
+		}
+
+		$data = [];
+		$data["mq_type"] = $mq_type;
+		$data["mq_idxs"] = $mq_idxs;
+		$data["mm_idx"] = $mm_idx;
+
+		# 제안갯수 확인및 과금 포인트 갯수 확인
+		$point_price = 0;
+		$point_yn = "N";
+		$point_cnt = $this->member_model->checkMemberRequestPoint($data);
+
+		# 회원 포인트 확인
+		if ($point_cnt > 0) {
+			# 포인트 정보
+			$point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U020"]);
+
+			# 회원 포인트 정보
+			$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+			$point_price = ($point_info["cd_val3"] * $point_cnt);
+			if ($mem_info["mm_point"] < $point_price) {
+				json_return("90", "매일 2회 무료 제안보내기를 사용하셨습니다.<br/>포인트가 부족하여 인재정보 제안하기를 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "P<br/>사용포인트 : " . $point_price . "P");
+			}
+			$point_yn = "Y";
+		}
+
+		json_return("00", "처리완료", ["point_price" => $point_price, "point_yn" => $point_yn]);
+	}
+
+	function request_cancel()
+	{
+		$proc_type = input_post("proc_type");
+		$mq_idxs = input_post("mq_idxs");
+
+		if ($proc_type == "member_request") {
+			foreach ($mq_idxs as $idx) {
+				$result = $this->member_model->deleteMemberRequest(["mq_idx" => $idx]);
+			}
+		} else if ($proc_type == "bookmark") {
+			foreach ($mq_idxs as $idx) {
+				$result = $this->member_model->deleteBookmark(["bk_idx" => $idx]);
+			}
+		}
+
+		json_return("00", "처리완료");
+	}
+
+	function set_addr_info()
+	{
+		# GPS 정보 저장
+		$ad_zipcode = input_post("ad_zipcode", "");
+		$ad_jibun = input_post("ad_jibun", "");
+		$ad_doro = input_post("ad_doro", "");
+		$ad_addr = input_post("ad_addr", "");
+		$ad_detail = input_post("ad_detail", "");
+		$ad_gps_x = input_post("ad_gps_x", "");
+		$ad_gps_y = input_post("ad_gps_y", "");
+
+
+		$info = [
+			"ad_zipcode" => $ad_zipcode,
+			"ad_jibun" => $ad_jibun,
+			"ad_doro" => $ad_doro,
+			"ad_addr" => $ad_addr,
+			"ad_detail" => $ad_detail,
+			"ad_gps_x" => $ad_gps_x,
+			"ad_gps_y" => $ad_gps_y,
+		];
+
+
+		if ($this->user->isLogin() == true) {
+			$mm_idx = $this->user->getUserIdx();
+			$this->member_model->updateAddress($info, ["ad_type" => "MEMBER", "mm_idx" => $mm_idx]);
+
+			# 세션 다시 생성
+			$user_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+			$user = [
+				"mm_idx" => $user_info["mm_idx"],
+				"mm_id" => $user_info["mm_id"],
+				"mm_name" => $user_info["mm_name"],
+				"mm_type" => $user_info["mm_type"],
+				"ad_addr" => $ad_addr,
+				"ad_gps_x" => $ad_gps_x,
+				"ad_gps_y" => $ad_gps_y,
+			];
+
+			$this->common->setSession("USER_INFO", $user);
+
+
+			$addr_info = $this->member_model->getAddress(["mm_idx" => $mm_idx, "ad_type" => "MEMBER"]);
+			if ($addr_info == null) {
+				# 본인 주소 다시 설정
+				$arr_addr = [
+					"mm_idx" => $user_info["mm_idx"],
+					"ad_type" => "MEMBER",
+					"ad_key" => $user_info["mm_idx"],
+					"ad_zipcode" => $ad_zipcode,
+					"ad_jibun" => $ad_jibun,
+					"ad_doro" => $ad_doro,
+					"ad_detail" => $ad_detail,
+					"ad_addr" => $ad_addr,
+					"ad_gps_x" => $ad_gps_x,
+					"ad_gps_y" => $ad_gps_y,
+				];
+
+				$result_addr = $this->member_model->insertAddress($arr_addr);
+			} else {
+				# 본인 주소 다시 설정
+				$arr_addr = [
+					"mm_idx" => $user_info["mm_idx"],
+					"ad_type" => "MEMBER",
+					"ad_key" => $user_info["mm_idx"],
+					"ad_zipcode" => $ad_zipcode,
+					"ad_jibun" => $ad_jibun,
+					"ad_doro" => $ad_doro,
+					"ad_detail" => $ad_detail,
+					"ad_addr" => $ad_addr,
+					"ad_gps_x" => $ad_gps_x,
+					"ad_gps_y" => $ad_gps_y,
+				];
+				$result_addr = $this->member_model->updateAddress($arr_addr, ["ad_idx" => $addr_info["ad_idx"]]);
+			}
+		} else {
+			//비회원
+			$session_idx = session_id();
+			$this->member_model->updateGuest($info, ["gt_session_id" => $session_idx]);
+
+			# 세션 다시 생성
+			//$guest_info = $this->member_model->getGuest(["gt_session_id"=>$session_idx]);
+			$guest_info = [
+				"mm_idx" => "",
+				"mm_id" => "",
+				"mm_name" => "",
+				"mm_type" => "",
+				"ad_addr" => $ad_addr,
+				"ad_gps_x" => $ad_gps_x,
+				"ad_gps_y" => $ad_gps_y,
+			];
+
+			$this->common->setSession("GUEST_INFO", $guest_info);
+		}
+		json_return("00", "처리완료");
+	}
+
+	# GPS정보로 주소 검색
+	function get_gps_address()
+	{
+		try {
+			$x = input_post("x", "");
+			$y = input_post("y", "");
+			$params = array(
+				'x' => $x,
+				'y' => $y,
+			);
+
+			$result = kakaoRestApi("coord2address", $params);
+			if ($result["meta"]["total_count"] == 0) {
+				json_return("10", "검색된 주소가 없습니다.");
+			} else {
+				if (count($result["documents"]) > 0) {
+					$addr_name = "";
+					if ($result["documents"][0]["road_address"] == null) {
+						//$addr_name = $result["documents"][0]["address"]["address_name"];
+						$addr_name  = $result["documents"][0]["address"]["region_1depth_name"] . " ";
+						$addr_name .= $result["documents"][0]["address"]["region_2depth_name"] . " ";
+						$addr_name .= $result["documents"][0]["address"]["region_3depth_name"] . " ";
+					} else {
+						//$addr_name = $result["documents"][0]["road_address"]["address_name"];
+						$addr_name  = $result["documents"][0]["road_address"]["region_1depth_name"] . " ";
+						$addr_name .= $result["documents"][0]["road_address"]["region_2depth_name"] . " ";
+						$addr_name .= $result["documents"][0]["road_address"]["region_3depth_name"] . " ";
+					}
+					$addr_name .= "^" . $result["documents"][0]["address"]["address_name"] . "";
+					$addr_name .= "^" . $result["documents"][0]["road_address"]["address_name"] . "";
+					$addr_name .= "^" . $result["documents"][0]["road_address"]["zone_no"] . "";
+					$addr_name .= "^" . $result["documents"][0]["address"]["x"] . "";
+					$addr_name .= "^" . $result["documents"][0]["address"]["y"] . "";
+					json_return("00", "조회성공", $addr_name);
+				} else {
+					json_return("10", "검색된 주소가 없습니다.");
+				}
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 주소 리스트 검색
+	function get_address_list()
+	{
+		try {
+			$query = input_post("query", "");
+			$page = input_post("page", "1");
+			$params = array(
+				'query' => $query,
+				'page' => $page,
+				'analyze_type' => 'similar',
+				'size' => '20'
+			);
+
+
+			$result = kakaoRestApi("address", $params);
+
+			if (count($result["documents"]) == 0) {
+				json_return("10", "검색된 주소가 없습니다.");
+			} else {
+				$addr_list = [];
+
+
+
+				foreach ($result["documents"] as $row) {
+					$addr_list[] = [
+						"address_name" => $row["road_address"]["address_name"],
+						"zone_no" => $row["road_address"]["zone_no"],
+						"x" => $row["x"],
+						"y" => $row["y"],
+					];
+				}
+
+				$data = [
+					"addr_list" => $addr_list,
+					"is_end" => $result["meta"]["is_end"],
+					"pageable_count" => $result["meta"]["pageable_count"],
+					"total_count" => $result["meta"]["total_count"],
+				];
+
+				json_return("00", "조회성공", $addr_name);
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 주소로 GPS정보 찾기
+	function get_gps_info()
+	{
+		try {
+			$query = input_post("query", "");
+			$params = array(
+				'query' => $query,
+				'exact' => 'exact',
+				'size' => '3'
+			);
+
+			$result = kakaoRestApi("address", $params);
+
+			if (count($result["documents"]) == 0) {
+				json_return("10", "GPS정보를 조회하지 못했습니다.");
+			} else {
+				$return = [
+					"x" => $result["documents"][0]["x"],
+					"y" => $result["documents"][0]["y"]
+				];
+
+				//쇼트 주소 검색
+				$ad_addr = $this->site_model->getAddrShort($query);
+
+				if ($ad_addr == "") {
+					json_return("11", "매칭되는 주소 정보가 없습니다.");
+				} else {
+					$return["addr"] = $ad_addr;
+					json_return("00", "조회성공", $return);
+				}
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 주소로 GPS정보 찾기
+	function get_addr_name()
+	{
+		try {
+			$query = input_post("query", "");
+			$ad_addr = $this->site_model->getAddrShort($query);
+
+			if ($ad_addr == "") {
+				json_return("11", "매칭되는 주소 정보가 없습니다.");
+			} else {
+				$return["addr"] = $ad_addr;
+				json_return("00", "조회성공", $return);
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 이미지 변경
+	function change_img()
+	{
+		$mm_idx = $this->user->getUserIdx();
+
+		# 기존 등록 이미지 있으면 삭제
+		$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+		# 이미지 처리.
+		$mm_thumb = $this->common->img_upload_resize_url("member", "mm_img1", 600);
+
+		if ($mm_thumb != "") {
+			if ($mem_info["mm_thumb"] != "") {
+				file_remove($mem_info["mm_thumb"]);
+			}
+
+			$result = $this->member_model->updateMember(["mm_thumb" => $mm_thumb, "mm_img1" => $mm_thumb], ["mm_idx" => $mm_idx]);
+
+			#몽고 업데이트
+			$update = [
+				"user_id" => $mem_info["mm_id"],
+				"user_img" => $mm_thumb,
+			];
+			$update["mm_id"] = $mem_info["mm_id"];
+			$this->mongo_model->updateUserInfo($update);
+
+			json_return($result["code"], $result["msg"]);
+		} else {
+			json_return("90", "이미지가 업로드 되지 않았습니다.");
+		}
+	}
+
+	function send_sms($phone, $msg)
+	{
+		exit;
+		$_api_url = 'https://message.ppurio.com/api/send_utf8_json.php';     // UTF-8 인코딩과 JSON 응답용 호출 페이지
+		$_param['userid'] = 'dongwonstec124';           // [필수] 뿌리오 아이디
+		$_param['callback'] = '07077122610';    // [필수] 발신번호 - 숫자만
+		$_param['phone'] = '01091190227';       // [필수] 수신번호 - 여러명일 경우 |로 구분 '010********|010********|010********'
+		$_param['msg'] = '진우씨 테스트발송입니다.';   // [필수] 문자내용 - 이름(names)값이 있다면 [*이름*]가 치환되서 발송됨
+		$_param['names'] = '';            // [선택] 이름 - 여러명일 경우 |로 구분 '홍길동|이순신|김철수'
+		$_param['appdate'] = '';  // [선택] 예약발송 (현재시간 기준 10분이후 예약가능)
+		$_param['subject'] = '';          // [선택] 제목 (30byte)
+		$_param['file1'] = ''; // [선택] 포토발송 (jpg, jpeg만 지원  300 K  이하)
+
+		$_curl = curl_init();
+		curl_setopt($_curl, CURLOPT_URL, $_api_url);
+		curl_setopt($_curl, CURLOPT_POST, true);
+		curl_setopt($_curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($_curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_param);
+		$_result = curl_exec($_curl);
+		curl_close($_curl);
+		$_result = json_decode($_result);
+	}
+
+	function get_addrlist()
+	{
+		$depth = input_post("depth", 1);
+		$addr1 = input_post("addr1", "");
+		$addr2 = input_post("addr2", "");
+		$list = $this->site_model->getDepthAddrList($depth, $addr1, $addr2);
+
+		json_return("00", "조회성공", ["list" => $list]);
+	}
+
+	function get_addrlist_keylike()
+	{
+		$addr = input_post("addr", "");
+		$list = $this->site_model->getAddrListKeyLike($addr);
+
+		json_return("00", "조회성공", ["list" => $list]);
+	}
+
+	function alarm_count()
+	{
+		# 알림 카운트
+		if ($this->user->isLogin() == false) {
+			return 0;
+		}
+
+		$mm_id = $this->user->getUserId();
+
+		$tbl_alarm = get_mongodb("alarm");
+		$alarm_cnt = $tbl_alarm->find(["show_yn" => "N", "user_id" => $mm_id])->count();
+		json_return("00", "조회성공", ["count" => $alarm_cnt]);
+	}
+
+	function get_location_data()
+	{
+		$step = $this->db->escape_str(input_post('step', 1));
+		$sido_name = $this->db->escape_str(input_post('sido_name', ''));
+		$gugun_name = $this->db->escape_str(input_post('gugun_name', ''));
+
+		$sql = "";
+
+		if ($step == 1) {
+			$sql .= "
+					SELECT DISTINCT sido_name
+					FROM location_data
+					WHERE step = 1
+					ORDER BY sido_name ASC
+				";
+		} else if ($step == 2 && $sido_name) {
+			$sql .= "
+					SELECT DISTINCT gugun_name
+					FROM location_data
+					WHERE step = 2
+					  AND sido_name = '" . $sido_name . "'
+					ORDER BY gugun_name ASC
+				";
+		} else if ($step == 3 && $sido_name && $gugun_name) {
+			$sql .= "
+					SELECT DISTINCT b_dong_name
+					FROM location_data
+					WHERE step = 3
+					  AND sido_name = '" . $sido_name . "'
+					  AND gugun_name = '" . $gugun_name . "'
+					ORDER BY b_dong_name ASC
+				";
+		} else {
+			json_return("99", "요청 파라미터 오류", null);
+			return;
+		}
+
+		$result = $this->db->query($sql)->result_array();
+		json_return("00", "조회 성공", $result);
+	}
+
+	function get_location_search()
+	{
+		$keyword = $this->db->escape_str(input_post('search_keyword', ''));
+
+		if ($keyword) {
+			$sql = "
+          SELECT DISTINCT search_b_dong, step
+          FROM location_data
+          WHERE search_b_dong LIKE '%{$keyword}%'
+          ORDER BY search_b_dong ASC
+        ";
+		} else {
+			json_return("99", "요청 파라미터 오류", null);
+			return;
+		}
+
+		$result = $this->db->query($sql)->result_array();
+		json_return("00", "조회 성공", $result);
+	}
+
+	function get_search_b_dong()
+	{
+		$lat = $this->db->escape_str(input_post('lat', ''));
+		$lng = $this->db->escape_str(input_post('lng', ''));
+		$dong = $this->db->escape_str(input_post('dong', ''));
+		$nKm = $this->db->escape_str(input_post('nKm', ''));
+
+		$sql = "";
+
+		if ($lat && $lng && $dong && $nKm) {
+			$sql .= "
+SELECT 
+    search_b_dong, 
+    MIN(distance_km) AS distance_km
+FROM (
+    SELECT 
+        ld1.search_b_dong,
+        ROUND(
+            6371 * ACOS(
+                COS(RADIANS(" . $lat . ")) * COS(RADIANS(ld1.b_latitude)) *
+                COS(RADIANS(ld1.b_longitude) - RADIANS(" . $lng . ")) +
+                SIN(RADIANS(" . $lat . ")) * SIN(RADIANS(ld1.b_latitude))
+            ),
+            2
+        ) AS distance_km
+    FROM location_data ld1
+    WHERE ld1.step = 3
+    HAVING distance_km <= " . $nKm . "
+
+    UNION ALL
+
+    SELECT 
+        ld2.search_b_dong,
+        ROUND(
+            6371 * ACOS(
+                COS(RADIANS(center.center_lat)) *
+                COS(RADIANS(ld2.b_latitude)) *
+                COS(RADIANS(ld2.b_longitude) - RADIANS(center.center_lng)) +
+                SIN(RADIANS(center.center_lat)) *
+                SIN(RADIANS(ld2.b_latitude))
+            ),
+            2
+        ) AS distance_km
+    FROM location_data ld2
+    JOIN (
+        SELECT b_latitude AS center_lat, b_longitude AS center_lng
+        FROM location_data
+        WHERE step = 3
+          AND search_b_dong LIKE '" . $dong . "'
+        LIMIT 1
+    ) AS center
+    WHERE ld2.step = 3
+    HAVING distance_km <= " . $nKm . "
+) AS combined
+GROUP BY search_b_dong
+ORDER BY distance_km ASC;
+
+				";
+		} else {
+			json_return("99", "요청 파라미터 오류", null);
+			return;
+		}
+
+		$result = $this->db->query($sql)->result_array();
+		json_return("00", "조회 성공", $result);
+	}
+
+	/**
+	 * MongoDB 채팅 서버에 방 정보 생성 (최소한의 버전)
+	 */
+	private function createChatRoomInMongoDBSafe($rm_idx, $data, $mm_idx)
+	{
+		try {
+
+			// MongoDB 연결 시도
+			$mongo = null;
+			$database = null;
+			$collection = null;
+
+			try {
+				// 최신 MongoDB 드라이버 시도
+				if (class_exists('MongoDB\Client')) {
+					$mongo = new MongoDB\Client("mongodb://localhost:27017");
+					$database = $mongo->chat;
+					$collection = $database->room;
+				} else {
+					// 구식 드라이버 fallback
+					$mongo = new Mongo("mongodb://localhost:27017");
+					$database = $mongo->chat;
+					$collection = $database->room;
+				}
+			} catch (Exception $mongo_connect_error) {
+				return false;
+			}
+
+			// 최소한의 방 정보만 생성 (사용자 정보 조회 없이)
+			$room_document = [
+				"rm_idx" => (int)$rm_idx,
+				"rc_idx" => (int)$data["rc_idx"],
+				"ru_idx" => (int)$data["ru_idx"],
+				"rm_type" => "recruit",
+				"rm_subject" => "채용공고 채팅방",
+				"rm_desc" => "채용공고 관련 채팅방",
+				"rm_last_msg" => "",
+				"rm_last_dt" => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate(),
+				"rm_users" => [
+					[
+						"user_id" => "user_" . $mm_idx,
+						"user_nick" => "사용자_" . $mm_idx,
+						"user_img" => "",
+						"user_desc" => "",
+						"user_status" => "Y"
+					],
+					[
+						"user_id" => "target_user",
+						"user_nick" => "대상 사용자",
+						"user_img" => "",
+						"user_desc" => "",
+						"user_status" => "N"
+					]
+				],
+				"rm_status" => "N",
+				"rm_messages" => []
+			];
+
+			// MongoDB에 방 정보 삽입
+			$collection->insert($room_document);
+
+			return true;
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+
+	/**
+	 * MongoDB 채팅 서버에 방 정보 생성 (기존 버전)
+	 */
+	private function createChatRoomInMongoDB($rm_idx, $data, $mm_idx)
+	{
+		try {
+
+			// MongoDB 연결 시도 (최신 드라이버 사용)
+			$mongo = null;
+			try {
+				// 최신 MongoDB 드라이버 시도
+				if (class_exists('MongoDB\Client')) {
+					$mongo = new MongoDB\Client("mongodb://localhost:27017");
+					$database = $mongo->chat;
+					$collection = $database->room;
+				} else {
+					// 구식 드라이버 fallback
+					$mongo = new Mongo("mongodb://localhost:27017");
+					$database = $mongo->chat;
+					$collection = $database->room;
+				}
+			} catch (Exception $mongo_connect_error) {
+				// MongoDB 연결 실패 시 채팅방 생성을 건너뛰고 계속 진행
+				return;
+			}
+
+			// 사용자 정보 조회
+			$user_info = $this->member_model->getMemberInfo($mm_idx);
+			$target_user_info = null;
+
+			if ($data["mq_type"] == "RECRUIT") {
+				// 제안하기: 이력서 소유자 정보 조회
+				$target_user_info = $this->getMemberInfoByResume($data["ru_idx"]);
+			} else if ($data["mq_type"] == "RESUME") {
+				// 지원하기: 채용공고 소유자 정보 조회
+				try {
+					$target_user_info = $this->getMemberInfoByRecruit($data["rc_idx"]);
+				} catch (Exception $e) {
+					$target_user_info = null;
+				}
+			}
+
+			if (!$user_info) {
+				return;
+			}
+
+			if (!$target_user_info) {
+				// 대상 사용자 정보가 없어도 채팅방은 생성 (기본값으로 처리)
+				$target_user_info = [
+					"mm_idx" => 0,
+					"mm_name" => "알 수 없음",
+					"mm_phone" => "",
+					"mm_img1" => "",
+					"mm_desc" => ""
+				];
+			}
+
+			// 방 정보 생성
+			$room_document = [
+				"rm_idx" => (int)$rm_idx,
+				"rc_idx" => (int)$data["rc_idx"],
+				"ru_idx" => (int)$data["ru_idx"],
+				"rm_type" => "recruit",
+				"rm_img" => "",
+				"rm_subject" => "채용공고 채팅방",
+				"rm_desc" => "채용공고 관련 채팅방",
+				"rm_last_msg" => "",
+				"rm_last_dt" => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate(),
+				"rm_users" => [
+					[
+						"user_id" => $user_info["mm_phone"],
+						"user_nick" => $user_info["mm_name"],
+						"user_img" => isset($user_info["mm_img1"]) ? $user_info["mm_img1"] : "",
+						"user_desc" => isset($user_info["mm_desc"]) ? $user_info["mm_desc"] : "",
+						"user_status" => "Y"
+					],
+					[
+						"user_id" => $target_user_info["mm_phone"],
+						"user_nick" => $target_user_info["mm_name"],
+						"user_img" => isset($target_user_info["mm_img1"]) ? $target_user_info["mm_img1"] : "",
+						"user_desc" => isset($target_user_info["mm_desc"]) ? $target_user_info["mm_desc"] : "",
+						"user_status" => "N"
+					]
+				],
+				"user_info" => [
+					[
+						"user_id" => $user_info["mm_phone"],
+						"user_nick" => $user_info["mm_name"],
+						"user_img" => isset($user_info["mm_img1"]) ? $user_info["mm_img1"] : "",
+						"user_desc" => isset($user_info["mm_desc"]) ? $user_info["mm_desc"] : "",
+						"user_status" => "Y"
+					],
+					[
+						"user_id" => $target_user_info["mm_phone"],
+						"user_nick" => $target_user_info["mm_name"],
+						"user_img" => isset($target_user_info["mm_img1"]) ? $target_user_info["mm_img1"] : "",
+						"user_desc" => isset($target_user_info["mm_desc"]) ? $target_user_info["mm_desc"] : "",
+						"user_status" => "N"
+					]
+				],
+				"rm_status" => "N",
+				"rm_messages" => []
+			];
+
+			// MongoDB에 방 정보 삽입
+			$collection->insert($room_document);
+
+			// 사용자 정보도 MongoDB에 등록
+			$this->createUserInMongoDB($user_info);
+			$this->createUserInMongoDB($target_user_info);
+		} catch (Exception $e) {
+			// MongoDB 채팅방 생성 오류는 무시
+		}
+	}
+
+	/**
+	 * MongoDB에 사용자 정보 생성
+	 */
+	private function createUserInMongoDB($user_info)
+	{
+		try {
+			// MongoDB 연결 시도 (최신 드라이버 사용)
+			$mongo = null;
+			try {
+				// 최신 MongoDB 드라이버 시도
+				if (class_exists('MongoDB\Client')) {
+					$mongo = new MongoDB\Client("mongodb://localhost:27017");
+					$database = $mongo->chat;
+					$collection = $database->user;
+				} else {
+					// 구식 드라이버 fallback
+					$mongo = new Mongo("mongodb://localhost:27017");
+					$database = $mongo->chat;
+					$collection = $database->user;
+				}
+			} catch (Exception $mongo_connect_error) {
+				return;
+			}
+
+			// 기존 사용자 확인
+			$existing_user = $collection->findOne(["user_id" => $user_info["mm_phone"]]);
+
+			if (!$existing_user) {
+				// 새 사용자 생성
+				$user_document = [
+					"user_id" => $user_info["mm_phone"],
+					"user_nick" => $user_info["mm_name"],
+					"user_img" => isset($user_info["mm_img1"]) ? $user_info["mm_img1"] : "",
+					"user_desc" => isset($user_info["mm_desc"]) ? $user_info["mm_desc"] : "",
+					"user_status" => "N", // 기본값: 비접속
+					"token" => "", // FCM 토큰은 나중에 등록
+					"socket_id" => "",
+					"reg_dt" => class_exists('MongoDB\BSON\UTCDateTime') ? new MongoDB\BSON\UTCDateTime() : new MongoDate()
+				];
+
+				$collection->insert($user_document);
+			}
+		} catch (Exception $e) {
+			// MongoDB 사용자 생성 오류는 무시
+		}
+	}
+
+	/**
+	 * 이력서 소유자 정보 조회
+	 */
+	private function getMemberInfoByResume($ru_idx)
+	{
+		$sql = "
+			SELECT aa.mm_idx, aa.mm_name, aa.mm_phone, aa.mm_img1, aa.mm_desc
+			FROM st_member aa
+			INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx
+			WHERE bb.ru_idx = '$ru_idx'
+		";
+		$query = $this->db->query($sql);
+		return $query->row_array();
+	}
+
+	/**
+	 * 채용공고 소유자 정보 조회
+	 */
+	private function getMemberInfoByRecruit($rc_idx)
+	{
+		try {
+			$sql = "
+				SELECT aa.mm_idx, aa.mm_name, aa.mm_phone, aa.mm_img1, aa.mm_desc
+				FROM st_member aa
+				INNER JOIN st_recruit bb ON aa.mm_idx = bb.mm_idx
+				WHERE bb.rc_idx = '$rc_idx'
+			";
+
+			// SQL 쿼리 타임아웃 설정 (30초로 증가)
+			$this->db->query("SET SESSION wait_timeout = 30");
+			$query = $this->db->query($sql);
+			$result = $query->row_array();
+			return $result;
+		} catch (Exception $e) {
+			return null;
+		}
+	}
+}

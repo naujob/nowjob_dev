@@ -1,0 +1,737 @@
+<?php
+class Common_proc extends CI_Controller
+{
+	function __construct()
+	{
+		parent::__construct();
+
+		$this->load->model('sitemodel', 'site_model');
+		$this->load->model('membermodel', 'member_model');
+		$this->load->model('settingmodel', 'setting_model');
+		$this->load->model('mongomodel', 'mongo_model');
+		$this->load->model('commonmodel', 'common_model');
+	}
+
+	function set_uuid()
+	{
+		$uuid = input_post("uuid", "");
+		$push_yn = input_post("push_yn", "N");
+		$marketing_yn = input_post("marketing_yn", "N");
+
+		if ($uuid != "") {
+			$info = [
+				"uuid" => $uuid,
+				"push_yn" => $push_yn,
+				"marketing_yn" => $marketing_yn,
+				"md_step2" => "Y",
+			];
+			$this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
+		}
+
+		json_return("00", "성공");
+	}
+
+	function update_token()
+	{
+		$uuid = input_post("uuid", "");
+		$token = input_post("token", "");
+
+		// 토큰 업데이트 로그 추가
+		$log_message = "[" . date('Y-m-d H:i:s') . "] 토큰 업데이트 시도 - UUID: " . $uuid . ", 토큰: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token) . "\n";
+		file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+
+		if ($uuid != "" && $token != "") {
+			$info = [
+				"uuid" => $uuid,
+				"token" => $token,
+			];
+			$result = $this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
+			$log_message = "[" . date('Y-m-d H:i:s') . "] 토큰 업데이트 완료 - UUID: " . $uuid . ", 결과: " . ($result ? "성공" : "실패") . "\n";
+			file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+
+			# 몽고디비 업데이트 - 조건 수정
+			$mem_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
+			$log_message = "[" . date('Y-m-d H:i:s') . "] 디바이스 정보 조회 - UUID: " . $uuid . ", mm_idx: " . ($mem_device ? $mem_device["mm_idx"] : "없음") . "\n";
+			file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+
+			if ($mem_device != null && $mem_device["mm_idx"] > 0) {
+				$log_message = "[" . date('Y-m-d H:i:s') . "] 조건 통과 - mm_idx: " . $mem_device["mm_idx"] . "\n";
+				file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+
+				$mem_info = $this->member_model->getMember(["mm_idx" => $mem_device["mm_idx"]]);
+				$log_message = "[" . date('Y-m-d H:i:s') . "] 회원 정보 조회 결과: " . ($mem_info ? "있음" : "없음") . "\n";
+				file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+
+				if ($mem_info != null) {
+					$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 시도 - 사용자ID: " . $mem_info["mm_id"] . ", 토큰: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token) . "\n";
+					file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+
+					$mongo_info = [
+						'mm_id' => $mem_info["mm_id"],
+						'token' => $token  // 방금 업데이트한 토큰 사용
+					];
+					$mongo_result = $this->mongo_model->updateUserInfo($mongo_info);
+					$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 결과: " . ($mongo_result ? "성공" : "실패") . "\n";
+					file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+				} else {
+					$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 실패 - 회원 정보 없음, mm_idx: " . $mem_device["mm_idx"] . "\n";
+					file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+				}
+			} else {
+				$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 실패 - 디바이스 정보 없음 또는 mm_idx가 0 이하, mm_idx: " . ($mem_device ? $mem_device["mm_idx"] : "없음") . "\n";
+				file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+			}
+		} else {
+			$log_message = "[" . date('Y-m-d H:i:s') . "] 토큰 업데이트 실패 - UUID 또는 토큰이 비어있음, UUID: " . $uuid . ", 토큰 길이: " . strlen($token) . "\n";
+			file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+		}
+
+		json_return("00", "성공");
+	}
+
+	# 즐겨찾기 처리
+	function bookmark()
+	{
+		$bk_type = input_post("bk_type", "");
+		$bk_key = input_post("bk_key", "");
+		$mm_idx = $this->user->getUserIdx();
+		$mm_id = $this->user->getUserId();
+		$mm_name = $this->user->getUserName();
+
+		if ($this->user->isLogin() == false) {
+			json_return("10", "로그인후 이용해주세요.");
+		}
+
+		$result = $this->site_model->setBookmark(["bk_type" => $bk_type, "bk_key" => $bk_key, "mm_idx" => $mm_idx]);
+
+		if ($result == "Y") {
+			$book_user_info = $this->site_model->getBookmarkUser(["bk_type" => $bk_type, "bk_key" => $bk_key]);
+			#####################################################
+			# 푸시 발송
+			#####################################################
+			$temp = $book_user_info;
+			$token_list = [];
+			$yoil = get_yoil(get_today());
+			$time = get_today("H:i");
+
+			// 즐겨찾기 푸시 발송 시 토큰 로그 추가
+			error_log("즐겨찾기 푸시 발송 - 대상 사용자ID: " . $temp["mm_id"] . ", 토큰: " . (strlen($temp["token"]) > 20 ? substr($temp["token"], 0, 20) . '...' : $temp["token"]));
+
+			$skip = false;
+			if ($temp["token"] != "" && $temp["alarm_deny_yn"] == "Y" && $temp["alarm_deny_yoil"] == $yoil && ($temp["alarm_deny_stime"] < $time && $temp["alarm_deny_etime"] > $time)) {
+				$skip = true;
+				error_log("즐겨찾기 푸시 발송 스킵 - 알림 차단 시간대");
+			}
+
+			if ($skip == false) {
+				$token_list[] = $temp["token"];
+				error_log("즐겨찾기 푸시 발송 대상 추가 - 토큰 개수: " . count($token_list));
+			}
+
+			$info = [
+				"title" => "NowJob 관심등록 알림",
+				"body" => $mm_name . "님이 즐겨찾기 등록 했습니다.",
+				"img" => "",
+				"url" => "",
+			];
+			$fcm_result = sendFcm($info, $token_list);
+			#####################################################
+
+			#####################################################
+			# 알림 등록
+			#####################################################
+
+			$tbl_alarm = get_mongodb("alarm");
+
+			//알림 추가
+			$alarm = [
+				"user_id" => $book_user_info["mm_id"],
+				"al_type" => "bookmark",
+				"al_key" => "" . $mm_idx,
+				"al_text" => "<strong><em>" . $mm_name . "</em>님이 <em>즐겨찾기 등록</em>했습니다.</strong>",
+				"al_etc" => "",
+				"al_url" => "",
+				"show_yn" => "N",
+				"reg_dt" => get_today(),
+			];
+
+			$tbl_alarm->insert($alarm);
+
+			#####################################################
+		}
+
+		json_return("00", "처리완료", ["yn" => $result, "user_name" => $mm_name]);
+	}
+
+	function update_alarm_show()
+	{
+		$user_id = $this->user->getUserId();
+
+		# 미확인 업데이트
+		if ($user_id != "") {
+			$tbl_alarm = get_mongodb("alarm");
+			$tbl_alarm->update(
+				["user_id" => $user_id],
+				['$set' => ['show_yn' => "Y"]],
+				['upsert' => true, 'multiple' => true]
+			);
+		}
+
+		json_return("00", "조회성공");
+	}
+
+	function get_member_info()
+	{
+		$mm_idx = $this->user->getUserIdx();
+
+		# 로그인 유무 확인
+		if ($this->user->isLogin() == false) {
+			json_return("90", "로그인이 필요합니다.");
+		}
+
+		$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+		if ($mem_info == null) {
+			json_return("90", "로그인후 이용해주세요.");
+		} else {
+			json_return("00", "조회 성공", $mem_info);
+		}
+	}
+
+	# 즐겨찾기,지원하기등
+	function member_request()
+	{
+		$mq_type = input_post("mq_type");
+		$mq_idxs = input_post("mq_idxs");
+		$rc_idx = input_post("rc_idx");
+		$mm_idx = $this->user->getUserIdx();
+
+		# 로그인 유무 확인
+		if ($this->user->isLogin() == false) {
+			json_return("90", "로그인후 이용해주세요.");
+		}
+
+		# 이력서 정보 가져오기
+		$resume = $this->member_model->getResume(["mm_idx" => $mm_idx, "ru_show_yn" => "Y"]);
+
+		# 중복체크
+		$is_data = false;
+		$is_name = "";
+		foreach ($mq_idxs as $idx) {
+			$data["mq_type"] = $mq_type;
+			$data["mm_idx"] = $mm_idx;
+			if ($mq_type == "RECRUIT") {
+				$data["rc_idx"] = $idx;
+				$data["ru_idx"] = $resume["ru_idx"];
+			} else if ($mq_type == "RESUME") {
+				$data["ru_idx"] = $idx;
+				$data["rc_idx"] = $rc_idx;
+			}
+
+			$check = $this->member_model->checkMemberRequest($data);
+
+			if ($check != null) {
+				$is_data = true;
+				$is_name = $check["subject"];
+				break;
+			}
+		}
+
+		if ($is_data == true) {
+			if ($mq_type == "RECRUIT") {
+				if (count($mq_idxs) == 1) {
+					json_return("90", "이미 지원중인 공고('$is_name') 입니다.");
+				} else {
+					json_return("90", "이미 지원중인 공고('$is_name')가 포함되어 있습니다.");
+				}
+			} else if ($mq_type == "RESUME") {
+				if (count($mq_idxs) == 1) {
+					json_return("90", "이미 제안중인 인재정보('$is_name') 입니다.");
+				} else {
+					json_return("90", "이미 제안중인 인재정보('$is_name')가 포함되어 있습니다.");
+				}
+			}
+		}
+
+		$point_data = [];
+		$point_data["mq_type"] = $mq_type;
+		$point_data["mq_idxs"] = $mq_idxs;
+		$point_data["mm_idx"] = $mm_idx;
+
+		# 제안갯수 확인및 과금 포인트 갯수 확인
+		$point_price = 0;
+		$point_yn = "Y";
+		$point_cnt = $this->member_model->checkMemberRequestPoint($point_data);
+
+		# 회원 포인트 확인
+		if ($point_cnt > 0) {
+			# 포인트 정보
+			$point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U020"]);
+
+			# 회원 포인트 정보
+			$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+			$point_price = ($point_info["cd_val3"] * $point_cnt);
+			if ($mem_info["mm_point"] < $point_price) {
+				json_return("90", "매일 2회 무료 제안보내기를 사용하셨습니다.<br/>포인트가 부족하여 인재정보 제안하기를 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "P<br/>사용포인트 : " . $point_price . "P");
+			} else {
+				# 포인트 차감
+				$last_point = $mem_info["mm_point"] - $point_price;
+				$insert = [
+					"mm_idx" => $mm_idx,
+					"o_num" => "",
+					"pm_idx" => 0,
+					"pt_type" => "EVENT",
+					"pl_type" => "minus",
+					"pl_point" => $point_price,
+					"pl_last_point" => $last_point,
+					"pl_desc" => "인재정보 제안하기(" . $point_price . "P차감)",
+					"reg_id" => "system",
+				];
+				$result_point = $this->site_model->insertPointList($insert);
+
+				if ($result_point["code"] != "00") {
+					$this->db->trans_rollback();
+					json_return("92", "포인트 차감시 문제가 발생하였습니다. 관리자에 문의 바랍니다.");
+				} else {
+					$this->member_model->updateMember(["mm_point" => $last_point], ["mm_idx" => $mm_idx]);
+				}
+			}
+		}
+
+		# 등록처리
+		foreach ($mq_idxs as $idx) {
+			$data = [
+				"mq_type" => $mq_type,
+				"mm_idx" => $mm_idx,
+			];
+
+			# RECRUIT_FAV : 즐겨찾기 공고,RECRUIT_RECV : 제안받은 공고,TRADE_FAV : 중고상품 즐겨찾기,RESUME_FAV : 즐겨찾기한인재
+			if ($mq_type == "RECRUIT") {
+				$data["rc_idx"] = $idx;
+				$data["ru_idx"] = $resume["ru_idx"];
+			} else if ($mq_type == "RESUME") {
+				$data["ru_idx"] = $idx;
+				$data["rc_idx"] = $rc_idx;
+			}
+
+			$result = $this->member_model->setMemberRequest($data, $data);
+
+			//채팅창 동시 생성.2023.11.20
+			$info_chat = [
+				"rm_idx" => '',
+				"rc_idx" => $data["rc_idx"],
+				"ru_idx" => $data["ru_idx"],
+				"td_idx" => 0,
+				"mm_idx" => $mm_idx,
+			];
+			$info_chat["point_yn"] = "N";
+			$result_chat = $this->common_model->insertRoom($info_chat);
+			if ($result_chat["code"] == "00") {
+				//json_return("00","생성완료",["rm_idx"=>$result["key"],"first_yn"=>"Y"]);
+			} else {
+				//json_return("90","채팅방 생성시 오류가 발생하였습니다.다시 시도해주세요.");
+			}
+			//채팅창 동시 생성.2023.11.20
+
+
+		}
+
+		json_return("00", "처리완료");
+	}
+
+	# 제안보내기 갯수 확인
+	function member_request_check()
+	{
+		$mq_type = input_post("mq_type");
+		$mq_idxs = input_post("mq_idxs");
+		$rc_idx = input_post("rc_idx");
+		$mm_idx = $this->user->getUserIdx();
+
+		# 로그인 유무 확인
+		if ($this->user->isLogin() == false) {
+			json_return("90", "로그인후 이용해주세요.");
+		}
+
+		$data = [];
+		$data["mq_type"] = $mq_type;
+		$data["mq_idxs"] = $mq_idxs;
+		$data["mm_idx"] = $mm_idx;
+
+		# 제안갯수 확인및 과금 포인트 갯수 확인
+		$point_price = 0;
+		$point_yn = "N";
+		$point_cnt = $this->member_model->checkMemberRequestPoint($data);
+
+		# 회원 포인트 확인
+		if ($point_cnt > 0) {
+			# 포인트 정보
+			$point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U020"]);
+
+			# 회원 포인트 정보
+			$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+			$point_price = ($point_info["cd_val3"] * $point_cnt);
+			if ($mem_info["mm_point"] < $point_price) {
+				json_return("90", "매일 2회 무료 제안보내기를 사용하셨습니다.<br/>포인트가 부족하여 인재정보 제안하기를 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "P<br/>사용포인트 : " . $point_price . "P");
+			}
+			$point_yn = "Y";
+		}
+
+		json_return("00", "처리완료", ["point_price" => $point_price, "point_yn" => $point_yn]);
+	}
+
+	function request_cancel()
+	{
+		$proc_type = input_post("proc_type");
+		$mq_idxs = input_post("mq_idxs");
+
+		if ($proc_type == "member_request") {
+			foreach ($mq_idxs as $idx) {
+				$result = $this->member_model->deleteMemberRequest(["mq_idx" => $idx]);
+			}
+		} else if ($proc_type == "bookmark") {
+			foreach ($mq_idxs as $idx) {
+				$result = $this->member_model->deleteBookmark(["bk_idx" => $idx]);
+			}
+		}
+
+		json_return("00", "처리완료");
+	}
+
+	function set_addr_info()
+	{
+		# GPS 정보 저장
+		$ad_zipcode = input_post("ad_zipcode", "");
+		$ad_jibun = input_post("ad_jibun", "");
+		$ad_doro = input_post("ad_doro", "");
+		$ad_addr = input_post("ad_addr", "");
+		$ad_detail = input_post("ad_detail", "");
+		$ad_gps_x = input_post("ad_gps_x", "");
+		$ad_gps_y = input_post("ad_gps_y", "");
+
+		//error_log("set_addr_info called....!!!", "3", "/testlog/php_log");
+
+		$info = [
+			"ad_zipcode" => $ad_zipcode,
+			"ad_jibun" => $ad_jibun,
+			"ad_doro" => $ad_doro,
+			"ad_addr" => $ad_addr,
+			"ad_detail" => $ad_detail,
+			"ad_gps_x" => $ad_gps_x,
+			"ad_gps_y" => $ad_gps_y,
+		];
+
+		//error_log("info ".$info, "3", "/testlog/php_log");
+		//error_log("\ninfo ".implode(",",$info), "3", "/testlog/php_log");
+
+		if ($this->user->isLogin() == true) {
+			$mm_idx = $this->user->getUserIdx();
+			$this->member_model->updateAddress($info, ["ad_type" => "MEMBER", "mm_idx" => $mm_idx]);
+
+			# 세션 다시 생성
+			$user_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+			$user = [
+				"mm_idx" => $user_info["mm_idx"],
+				"mm_id" => $user_info["mm_id"],
+				"mm_name" => $user_info["mm_name"],
+				"mm_type" => $user_info["mm_type"],
+				"ad_addr" => $ad_addr,
+				"ad_gps_x" => $ad_gps_x,
+				"ad_gps_y" => $ad_gps_y,
+			];
+
+			$this->common->setSession("USER_INFO", $user);
+
+
+			$addr_info = $this->member_model->getAddress(["mm_idx" => $mm_idx, "ad_type" => "MEMBER"]);
+			if ($addr_info == null) {
+				# 본인 주소 다시 설정
+				$arr_addr = [
+					"mm_idx" => $user_info["mm_idx"],
+					"ad_type" => "MEMBER",
+					"ad_key" => $user_info["mm_idx"],
+					"ad_zipcode" => $ad_zipcode,
+					"ad_jibun" => $ad_jibun,
+					"ad_doro" => $ad_doro,
+					"ad_detail" => $ad_detail,
+					"ad_addr" => $ad_addr,
+					"ad_gps_x" => $ad_gps_x,
+					"ad_gps_y" => $ad_gps_y,
+				];
+
+				$result_addr = $this->member_model->insertAddress($arr_addr);
+			} else {
+				# 본인 주소 다시 설정
+				$arr_addr = [
+					"mm_idx" => $user_info["mm_idx"],
+					"ad_type" => "MEMBER",
+					"ad_key" => $user_info["mm_idx"],
+					"ad_zipcode" => $ad_zipcode,
+					"ad_jibun" => $ad_jibun,
+					"ad_doro" => $ad_doro,
+					"ad_detail" => $ad_detail,
+					"ad_addr" => $ad_addr,
+					"ad_gps_x" => $ad_gps_x,
+					"ad_gps_y" => $ad_gps_y,
+				];
+				$result_addr = $this->member_model->updateAddress($arr_addr, ["ad_idx" => $addr_info["ad_idx"]]);
+			}
+		} else {
+			//비회원
+			//error_log("nomember\n", "3", "/testlog/php_log");
+			$session_idx = session_id();
+			//error_log("\nsession_idx:".$session_idx."\n", "3", "/testlog/php_log");
+			$this->member_model->updateGuest($info, ["gt_session_id" => $session_idx]);
+			//error_log("updated\n", "3", "/testlog/php_log");
+
+			# 세션 다시 생성
+			//$guest_info = $this->member_model->getGuest(["gt_session_id"=>$session_idx]);
+			$guest_info = [
+				"mm_idx" => "",
+				"mm_id" => "",
+				"mm_name" => "",
+				"mm_type" => "",
+				"ad_addr" => $ad_addr,
+				"ad_gps_x" => $ad_gps_x,
+				"ad_gps_y" => $ad_gps_y,
+			];
+
+			//error_log("\nsession up1\n", "3", "/testlog/php_log");
+			$this->common->setSession("GUEST_INFO", $guest_info);
+			//error_log("\nsession up2\n", "3", "/testlog/php_log");
+
+		}
+		json_return("00", "처리완료");
+	}
+
+	# GPS정보로 주소 검색
+	function get_gps_address()
+	{
+		try {
+			$x = input_post("x", "");
+			$y = input_post("y", "");
+			$params = array(
+				'x' => $x,
+				'y' => $y,
+			);
+
+			$result = kakaoRestApi("coord2address", $params);
+			if ($result["meta"]["total_count"] == 0) {
+				json_return("10", "검색된 주소가 없습니다.");
+			} else {
+				if (count($result["documents"]) > 0) {
+					$addr_name = "";
+					if ($result["documents"][0]["road_address"] == null) {
+						$addr_name = $result["documents"][0]["address"]["address_name"];
+					} else {
+						$addr_name = $result["documents"][0]["road_address"]["address_name"];
+					}
+					json_return("00", "조회성공", $addr_name);
+				} else {
+					json_return("10", "검색된 주소가 없습니다.");
+				}
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 주소 리스트 검색
+	function get_address_list()
+	{
+		try {
+			$query = input_post("query", "");
+			$page = input_post("page", "1");
+			$params = array(
+				'query' => $query,
+				'page' => $page,
+				'analyze_type' => 'similar',
+				'size' => '20'
+			);
+
+			error_log("get_address_list " . $_SERVER["REQUEST_URI"], "3", "/testlog/php_log");
+
+			$result = kakaoRestApi("address", $params);
+
+			if (count($result["documents"]) == 0) {
+				json_return("10", "검색된 주소가 없습니다.");
+			} else {
+				$addr_list = [];
+
+				error_log("get_address_list " . $_SERVER["REQUEST_URI"], "3", "/testlog/php_log");
+
+
+				foreach ($result["documents"] as $row) {
+					$addr_list[] = [
+						"address_name" => $row["road_address"]["address_name"],
+						"zone_no" => $row["road_address"]["zone_no"],
+						"x" => $row["x"],
+						"y" => $row["y"],
+					];
+				}
+
+				$data = [
+					"addr_list" => $addr_list,
+					"is_end" => $result["meta"]["is_end"],
+					"pageable_count" => $result["meta"]["pageable_count"],
+					"total_count" => $result["meta"]["total_count"],
+				];
+
+				json_return("00", "조회성공", $addr_name);
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 주소로 GPS정보 찾기
+	function get_gps_info()
+	{
+		try {
+			$query = input_post("query", "");
+			$params = array(
+				'query' => $query,
+				'exact' => 'exact',
+				'size' => '3'
+			);
+
+			$result = kakaoRestApi("address", $params);
+
+			if (count($result["documents"]) == 0) {
+				json_return("10", "GPS정보를 조회하지 못했습니다.");
+			} else {
+				$return = [
+					"x" => $result["documents"][0]["x"],
+					"y" => $result["documents"][0]["y"]
+				];
+
+				//쇼트 주소 검색
+				$ad_addr = $this->site_model->getAddrShort($query);
+
+				if ($ad_addr == "") {
+					json_return("11", "매칭되는 주소 정보가 없습니다.");
+				} else {
+					$return["addr"] = $ad_addr;
+					json_return("00", "조회성공", $return);
+				}
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 주소로 GPS정보 찾기
+	function get_addr_name()
+	{
+		try {
+			$query = input_post("query", "");
+			$ad_addr = $this->site_model->getAddrShort($query);
+
+			if ($ad_addr == "") {
+				json_return("11", "매칭되는 주소 정보가 없습니다.");
+			} else {
+				$return["addr"] = $ad_addr;
+				json_return("00", "조회성공", $return);
+			}
+		} catch (Exception $ex) {
+			json_return("90", "주소 검색시 오류 발생");
+		}
+	}
+
+	# 이미지 변경
+	function change_img()
+	{
+		$mm_idx = $this->user->getUserIdx();
+
+		# 기존 등록 이미지 있으면 삭제
+		$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+		# 이미지 처리.
+		$mm_thumb = $this->common->img_upload_resize_url("member", "mm_img1", 600);
+
+		if ($mm_thumb != "") {
+			if ($mem_info["mm_thumb"] != "") {
+				file_remove($mem_info["mm_thumb"]);
+			}
+
+			$result = $this->member_model->updateMember(["mm_thumb" => $mm_thumb, "mm_img1" => $mm_thumb], ["mm_idx" => $mm_idx]);
+
+			#몽고 업데이트
+			$update = [
+				"user_id" => $mem_info["mm_id"],
+				"user_img" => $mm_thumb,
+			];
+			$update["mm_id"] = $mem_info["mm_id"];
+			$this->mongo_model->updateUserInfo($update);
+
+			json_return($result["code"], $result["msg"]);
+		} else {
+			json_return("90", "이미지가 업로드 되지 않았습니다.");
+		}
+	}
+
+	function send_sms($phone, $msg)
+	{
+		exit;
+		$_api_url = 'https://message.ppurio.com/api/send_utf8_json.php';     // UTF-8 인코딩과 JSON 응답용 호출 페이지
+		$_param['userid'] = 'dongwonstec124';           // [필수] 뿌리오 아이디
+		$_param['callback'] = '07077122610';    // [필수] 발신번호 - 숫자만
+		$_param['phone'] = '01091190227';       // [필수] 수신번호 - 여러명일 경우 |로 구분 '010********|010********|010********'
+		$_param['msg'] = '진우씨 테스트발송입니다.';   // [필수] 문자내용 - 이름(names)값이 있다면 [*이름*]가 치환되서 발송됨
+		$_param['names'] = '';            // [선택] 이름 - 여러명일 경우 |로 구분 '홍길동|이순신|김철수'
+		$_param['appdate'] = '';  // [선택] 예약발송 (현재시간 기준 10분이후 예약가능)
+		$_param['subject'] = '';          // [선택] 제목 (30byte)
+		$_param['file1'] = ''; // [선택] 포토발송 (jpg, jpeg만 지원  300 K  이하)
+
+		$_curl = curl_init();
+		curl_setopt($_curl, CURLOPT_URL, $_api_url);
+		curl_setopt($_curl, CURLOPT_POST, true);
+		curl_setopt($_curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($_curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_param);
+		$_result = curl_exec($_curl);
+		curl_close($_curl);
+		$_result = json_decode($_result);
+	}
+
+	function get_addrlist()
+	{
+		$depth = input_post("depth", 1);
+		$addr1 = input_post("addr1", "");
+		$addr2 = input_post("addr2", "");
+		$list = $this->site_model->getDepthAddrList($depth, $addr1, $addr2);
+
+		json_return("00", "조회성공", ["list" => $list]);
+	}
+
+	function alarm_count()
+	{
+		# 알림 카운트
+		if ($this->user->isLogin() == false) {
+			return 0;
+		}
+
+		$mm_id = $this->user->getUserId();
+
+		$tbl_alarm = get_mongodb("alarm");
+		$alarm_cnt = $tbl_alarm->find(["show_yn" => "N", "user_id" => $mm_id])->count();
+		json_return("00", "조회성공", ["count" => $alarm_cnt]);
+	}
+
+	// Summernote 에디터용 이미지 업로드 처리
+	function img_upload()
+	{
+		// Common.php의 img_upload_url 함수 사용
+		$result = $this->common->img_upload_url("editor", "file");
+
+		if ($result != "") {
+			// 성공 시 URL만 반환 (Summernote가 기대하는 형식)
+			echo $result;
+		} else {
+			// 업로드 실패 시 에러 반환
+			echo json_encode(["code" => "90", "msg" => "이미지 업로드 실패"]);
+		}
+	}
+}
