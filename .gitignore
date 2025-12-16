@@ -10,4 +10,5 @@ resource/fonts/
 resource/home/
 resource/uploads/
 resource/vendor/
+application/shop/logs/
 application/common/config/database.php
