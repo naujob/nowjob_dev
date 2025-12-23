@@ -2385,7 +2385,7 @@ input:checked~.benefit-label.btn:after {
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
-    
+
     overflow: hidden;
 }
 
@@ -3390,7 +3390,7 @@ body {
     max-width: 1632px;
     margin: 0 auto;
     padding: 0 116px;
-   
+
 }
 
 /* Header */
@@ -4403,7 +4403,7 @@ body {
     position: relative;
     min-width: 0;
     padding: 0 0 0 20px;
-    font-weight: 400;
+
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;
@@ -12463,11 +12463,13 @@ body {
     line-height: 1;
     flex-shrink: 0;
 }
+
 .board-write .form-label p {
     margin: 0;
     margin-top: 10px;
     white-space: nowrap;
 }
+
 .board-write .value {
     flex: 1;
     min-width: 0;

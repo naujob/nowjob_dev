@@ -144,7 +144,7 @@
                                             <input type="hidden" name="ad_detail[]" value="<?= isset($row["ad_detail"]) ? $row["ad_detail"] : "" ?>" />
                                             <input type="hidden" name="ad_gps_x[]" value="<?= $row["ad_gps_x"] ?>" />
                                             <input type="hidden" name="ad_gps_y[]" value="<?= $row["ad_gps_y"] ?>" />
-                                            <span class="location-text"><?= $row["ad_addr"] ?><?= !empty($row["ad_detail"]) ? " " . $row["ad_detail"] : "" ?></span>
+                                            <span class="location-text addr-display"><?= $row["ad_addr"] ?><?= !empty($row["ad_detail"]) ? " " . $row["ad_detail"] : "" ?></span>
                                             <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
                                         </li>
                                 <?php
@@ -287,13 +287,16 @@
     function createAddressListItem(addrData) {
         if (!addrData || !addrData.ad_addr) return "";
         var detail = addrData.ad_detail ? addrData.ad_detail : "";
-        var displayAddr = addrData.ad_addr + (detail ? " " + detail : "");
         var zipcode = addrData.ad_zipcode ? addrData.ad_zipcode : "";
         var jibun = addrData.ad_jibun ? addrData.ad_jibun : "";
         var doro = addrData.ad_doro ? addrData.ad_doro : "";
         var gpsX = addrData.ad_gps_x ? addrData.ad_gps_x : "";
         var gpsY = addrData.ad_gps_y ? addrData.ad_gps_y : "";
         var detailValue = detail ? detail : "";
+        
+        // 주소 정리 함수로 지번 주소를 정리하여 표시
+        var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
+        displayAddr = displayAddr + (detail ? " " + detail : "");
 
         return '' +
             '<li class="location-field-item">' +
@@ -486,6 +489,21 @@
     }
 
     $(document).ready(function() {
+        // 페이지 로드 시 기존 주소들을 주소 정리 함수로 처리하여 표시
+        if (typeof fRemoveBigAdrJS === 'function') {
+            $("#addr_location .addr-display").each(function() {
+                var $display = $(this);
+                var $li = $display.closest("li");
+                var jibun = $li.find('input[name="ad_jibun[]"]').val();
+                var detail = $li.find('input[name="ad_detail[]"]').val();
+                if (jibun) {
+                    var displayAddr = fRemoveBigAdrJS(jibun);
+                    displayAddr = displayAddr + (detail ? " " + detail : "");
+                    $display.text(displayAddr);
+                }
+            });
+        }
+        
         loadResumeStep1Data();
         ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
 

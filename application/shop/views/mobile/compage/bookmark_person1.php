@@ -605,17 +605,58 @@ function getConvertResumePriceType($price_type)
         }
       });
 
-      $(document).on('click', '.desc', function() {
-        $(this).closest('.content-li').toggleClass('on');
-      });
+    });
 
-      $(document).on('click', '.img', function() {
-        var ruIdx = $(this).closest('.content-li').data('ru_idx');
-        if (ruIdx) {
-          var url = '/resume/hr_post/' + ruIdx;
-          location.href = url;
+    // desc 영역 클릭 시 제안하기 기능
+    $(document).on('click', '.desc', function(e) {
+      // 즐겨찾기 버튼 클릭은 제외
+      if ($(e.target).closest('.btnBookMark').length > 0) {
+        return;
+      }
+      
+      // 로그인 여부 확인
+      if ($("#is_login").val() != "Y") {
+        commonLogin();
+        return;
+      }
+
+      var ruIdx = $(this).closest('.content-li').data('ru_idx');
+      if (!ruIdx) {
+        return;
+      }
+
+      var mq_idxs = [ruIdx];
+      
+      openPopup('confirm', {
+        content: '<em>해당 인재</em>에게<br> 제안하시겠습니까?',
+        secondCallback: function() {
+          var params = {};
+          params["mq_idxs"] = mq_idxs;
+          params["mq_type"] = "RESUME";
+          comAjax("/common_proc/member_request", params, function(ret) {
+            if (ret.code == "00") {
+              commonAlert("제안 신청 되었습니다.", function() {});
+            } else {
+              commonAlert(ret.msg, function() {});
+              return;
+            }
+          });
         }
       });
+    });
+
+    // img 영역 클릭 시 인재 상세정보로 이동
+    $(document).on('click', '.img', function(e) {
+      // 즐겨찾기 버튼 클릭은 제외
+      if ($(e.target).closest('.btnBookMark').length > 0) {
+        return;
+      }
+      
+      var ruIdx = $(this).closest('.content-li').data('ru_idx');
+      if (ruIdx) {
+        var url = '/resume/hr_post/' + ruIdx;
+        location.href = url;
+      }
     });
 
     // 주소 정리 함수 적용 (add.js의 fRemoveBigAdrJS 사용)

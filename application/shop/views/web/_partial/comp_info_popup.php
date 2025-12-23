@@ -98,7 +98,7 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
         <input type="hidden" id="biznoauth">
         <input type="hidden" name="comp_type" id="comp_type" value="COMP">
         <div class="comp-popup-header">
-            <h3 class="comp-popup-title">사업자등록 인증</h3>
+            <h3 class="comp-popup-title">사업자정보 인증</h3>
             <button type="button" class="comp-popup-close" aria-label="닫기" onclick="$('#dimwrap,#dimcont').hide();">&times;</button>
         </div>
         <div class="comp-popup-body">
@@ -112,6 +112,7 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
     </div>
 </div>
 
+<?php /* 사용하지 않는 코드 - 주석 처리
 <form name="form_chk" method="post">
     <input type="hidden" name="m" value="checkplusService">
     <input type="hidden" name="EncodeData" value="<?= $comp_popup_enc_data ?>">
@@ -224,14 +225,18 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
         <button onclick="$('#dimcont6').hide();" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
     </div>
 </div>
+*/ ?>
 
+<?php /* 사용하지 않는 코드 - 주석 처리
 <div id="thumbImgPop" style="display:none; position: fixed; top: 33%; left: calc(50% - 140px); width: 280px; height: 216px; z-index: 20; background-color: #fff; padding: 0px; overflow: hidden;">
     <img src="<?= getData($comp_popup_info, "mm_thumb") ?>" style="width: 100%; ">
     <a href="javascript:$('#dimwrap,#thumbImgPop').hide();" style="position: absolute; right: 10px; font-size: 32px; top: 10px; background-color:#fff; padding: 0px 10px 2px 10px; border-radius: 20px;">×</a>
     <button style="position: absolute; top: 180px; left: 0; width: 50%; height: 36px; border: 0; background-color: #ccc; color: #fff;" onclick="fThumbDel();">삭제</button>
     <button style="position: absolute; top: 180px; right: 0; width: 50%; height: 36px; border: 0; background-color: #38b898; color: #fff;" onclick="$('#mm_thumb').trigger('click');">변경</button>
 </div>
+*/ ?>
 
+<?php /* 사용하지 않는 코드 - 주석 처리
 <div id="dimcont7" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 380px; height: 625px; z-index: 20; background-color: #fff; padding: 40px;">
     <div>
         <div style="font-size: 1.4em; font-weight: 600;">기업로고 변경</div>
@@ -260,7 +265,10 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
         </div>
     </div>
 </div>
+*/ ?>
+
 <script>
+<?php /* 사용하지 않는 코드 - 주석 처리
     let profileBlob = null;
     let newProfileImageSelected = false;
     $(document).ready(function() {
@@ -328,8 +336,9 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
             $('#dimwrap, #dimcont7').hide();
         });
     });
+*/ ?>
 
-
+<?php /* 사용하지 않는 코드 - 주석 처리
     function fManCheck() {
         if ($("[name=EncodeData]").val() == "") {
             alert("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요.");
@@ -365,8 +374,10 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
             }
         });
     }
+*/ ?>
 
     $(document).ready(function() {
+<?php /* 사용하지 않는 코드 - 주석 처리
         $("#btnCancel").click(function() {
             history.back();
         });
@@ -387,7 +398,7 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
 
             fileAjax("/compage_proc/com_biz_updateAll", params, function(ret) {
                 if (ret.code == "00") {
-                    commonAlert("수정 되었습니다.", function() {
+                    commonAlert("사업자정보가 인증 되었습니다.", function() {
                         location.reload();
                     });
                 } else {
@@ -395,22 +406,25 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
                 }
             });
         });
+*/ ?>
 
         // btnSave 이벤트를 이벤트 위임 방식으로 변경 (팝업이 나중에 표시되어도 작동)
         $(document).off('click', '#btnSave').on('click', '#btnSave', function() {
+            // 사업자명 입력 확인 (항상 필수)
+            if ($("[name=comp_name]").val() == "" || $("[name=comp_name]").val().trim() == "") {
+                commonAlert("사업자명을 입력해주세요.", function() {
+                    $("[name=comp_name]").focus();
+                });
+                return;
+            }
+
             // 완료 버튼에서 인증까지 처리
             fBizAuth(function() {
+<?php /* 사용하지 않는 코드 - 주석 처리
                 // 인증번호와 입력번호 일치 확인
                 if (($("[name=compUpdateType]").val() == "bizno" || $("[name=compUpdateType]").val() == "all") && $("[name=comp_num]").val() !== $("#biznoauth").val()) {
                     commonAlert("사업자등록번호를 인증해주세요.", function() {
                         $("[name=comp_num]").focus();
-                    });
-                    return;
-                }
-
-                if (($("[name=compUpdateType]").val() == "compname" || $("[name=compUpdateType]").val() == "all") && $("[name=comp_name]").val() == "") {
-                    commonAlert("사업자명을 선택해주세요.", function() {
-                        $("[name=comp_name]").focus();
                     });
                     return;
                 }
@@ -457,12 +471,12 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
                 } else {
                     $('input[name="comp_type"]').val('COMP');
                 }
-
+*/ ?>
                 var form = $('#frm1');
                 var params = new FormData(form[0]);
                 fileAjax("/compage_proc/com_biz_update", params, function(ret) {
                     if (ret.code == "00") {
-                        commonAlert("수정 되었습니다.", function() {
+                        commonAlert("사업자정보가 인증 되었습니다.", function() {
                             // 페이지 이동 없이 팝업만 닫기
                             $('#dimwrap').hide();
                             $('#dimcont').hide();
@@ -474,6 +488,9 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
             });
         });
 
+    }); // $(document).ready 닫기
+
+<?php /* 사용하지 않는 코드 - 주석 처리
         // btnSave2 이벤트를 이벤트 위임 방식으로 변경
         $(document).off('click', '#btnSave2').on('click', '#btnSave2', function() {
 
@@ -496,7 +513,7 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
             var params = new FormData(form[0]);
             fileAjax("/compage_proc/com_biz_update2", params, function(ret) {
                 if (ret.code == "00") {
-                    commonAlert("수정 되었습니다.", function() {
+                    commonAlert("사업자정보가 인증 되었습니다.", function() {
                         // 페이지 이동 없이 팝업만 닫기
                         $('#dimwrap').hide();
                         $('#dimcont').hide();
@@ -611,7 +628,9 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
         <?php } else if (!$is_authenticated) { ?>
             $('#btnInfoUpdate').trigger('click');
         <?php } ?>
+*/ ?>
 
+<?php /* 사용하지 않는 코드 - 주석 처리
         $('#toggle-password0').click(function() {
             const input = $('#mm_pass_old');
             const type = input.attr('type') === 'password' ? 'text' : 'password';
@@ -667,7 +686,9 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
         });
 
     });
+*/ ?>
 
+<?php /* 사용하지 않는 코드 - 주석 처리
     function fPassValid() {
         var password = $("[name=mm_pass]").val();
         var regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/;
@@ -679,6 +700,7 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
         }
 
     }
+*/ ?>
 
     function fBizAuth(onSuccess) {
 
@@ -735,6 +757,7 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
 
     }
 
+<?php /* 사용하지 않는 코드 - 주석 처리
     function fMemUpdateType(type) {
         // 모든 타입에서 중앙 정렬 유지
         const centerPopup = () => {
@@ -801,5 +824,6 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
         });
 
     }
+*/ ?>
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>

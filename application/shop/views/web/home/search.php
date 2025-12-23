@@ -605,6 +605,45 @@
     font-weight: 600;
   }
 
+  /* ru_price_type 클래스에 대한 스타일 추가 */
+  .ru_price_type {
+    color: #1B9D7D;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* ru_price_type 내의 em 태그 기울임 제거 */
+  .ru_price_type em {
+    font-style: normal;
+    position: relative;
+  }
+
+  /* ru_price_type 내의 구분자 스타일 */
+  .ru_price_type span {
+    color: rgb(35, 33, 33);
+  }
+
+  /* 구분자 전용 스타일 */
+  .item-info .price_type_wrap .ru_price_type em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777777;
+  }
+
+  .item-info .price_type_wrap .ru_price_type em:not(:first-child) {
+    padding-left: 5px;
+  }
+
+  .item-info .price_type_wrap .ru_price_type em:not(:last-child) {
+    padding-right: 5px;
+  }
+
   .person-card .meta p {
     position: relative;
     flex: 1;
@@ -830,9 +869,10 @@
           </div>
         </div>
 
-        <div style="align-content: center;width:20%;text-align: center;">
-          <span class="type price_type">{{ru_work_type}}{{ru_price_type}}</span>
+        <div style="align-content: center;width:20%;text-align: center;" class="price_type_wrap">
+          <span class="type price_type">{{ru_work_type}}</span>
           <span class="area">{{ad_addr}}</span>
+          <span class="ru_price_type">{{ru_price_type}}</span>
         </div>
         <ul class="working-day">
           {{ru_week}}
@@ -1057,11 +1097,11 @@
         $content = $content.replaceAll("{{ma_age}}", row.mm_age + "세");
       }
 
-      $content = $content.replaceAll("{{ru_price_type}}", getConvertPriceType(row.ru_price_type));
+      $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
       $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-      $content = $content.replaceAll("{{ru_work_type}}", getConvertWorkType(row.ru_work_type));
+      $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
-      $content = $content.replaceAll("{{ad_addr}}", formatAddr(row.ad_addr));
+      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
 
       $clone.html($content);
       $(list_id_2).append($clone.html());
@@ -1175,6 +1215,56 @@
         return `<em>${type}</em>`;
       }
     }).join('');
+  }
+
+  // hr_list.php와 동일한 데이터 정리 함수들
+  function getPriceType(price_type) {
+    if (!price_type) {
+      return "";
+    }
+    if (price_type === "일급,주급,월급") {
+      return "급여협의";
+    }
+
+    // <em> 태그 제거하고 실제 텍스트만 추출
+    const cleanPriceType = price_type.replace(/<\/?em>/g, '');
+
+    // 첫 번째 값만 반환
+    const firstType = cleanPriceType.split(',')[0].trim();
+    return `<em>${firstType}</em>`;
+  }
+
+  function getWorkType(work_type) {
+    if (!work_type) {
+      return "";
+    }
+
+    let items = [];
+    
+    // <span> 태그가 있으면 파싱
+    const spanMatches = work_type.match(/<span>(.*?)<\/span>/g);
+    if (spanMatches && spanMatches.length > 0) {
+      items = spanMatches.map(match => match.replace(/<\/?span>/g, '').trim());
+    } else {
+      // 쉼표로 구분된 문자열 처리
+      items = work_type.split(',').map(item => item.trim()).filter(item => item !== '');
+    }
+
+    if (items.length === 0) {
+      return "";
+    }
+
+    // 첫 번째 값만 사용
+    const text = items[0];
+    let cls = '';
+    if (text === '주간') {
+      cls = 'wtype1';
+    } else if (text === '야간') {
+      cls = 'wtype2';
+    } else if (text === '2교대') {
+      cls = 'wtype3';
+    }
+    return `<em class="${cls}">${text}</em>`;
   }
 
   function getHashTagJS(hash, max = 10) {

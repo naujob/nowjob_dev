@@ -14,6 +14,8 @@ function fHashSet($txt)
 
     return $result;
 }
+// 주소 정리 함수 - JavaScript 함수(fRemoveBigAdrJS) 사용으로 주석처리
+/*
 function fRemoveBigAdr($arg)
 {
 
@@ -60,6 +62,7 @@ function fRemoveBigAdr($arg)
         return $arg;
     }
 }
+*/
 ?>
 <style>
     .info-table .working-day>li {
@@ -131,7 +134,7 @@ function fRemoveBigAdr($arg)
                                 <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
                                 <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "세") ?></span>
                             </p>
-                            <p><span><?= fRemoveBigAdr($mem_info["ad_addr"]) ?></span></p>
+                            <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p>
                         </div>
                         <!-- 즐겨찾기 -->
                         <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
@@ -201,15 +204,14 @@ function fRemoveBigAdr($arg)
                             </tr>
                             <tr>
                                 <td class="label">지역</td>
-                                <td class="value">
+                                <td class="value" id="addr-display">
                                     <?php $addr_cnt = 0; ?>
                                     <?php foreach ($addr as $key => $ad) : ?>
-                                        <? //=$key==0 ? $ad["ad_addr"]:" ," . $ad["ad_addr"]
-                                        ?>
                                         <?php if ($ad["ad_addr"] != "") {
                                             if ($addr_cnt > 0) echo ", ";
                                             $addr_cnt++;
-                                            echo $ad["ad_addr"];
+                                            // JavaScript 함수로 주소 정리하여 출력
+                                            echo '<span class="addr-item" data-addr="' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '</span>';
                                         } ?>
                                     <?php endforeach; ?>
                                 </td>
@@ -633,6 +635,30 @@ function fRemoveBigAdr($arg)
 <!-- //제안 리스트 -->
 
 <script>
+    // 페이지 로드 시 주소 정리 함수 적용
+    $(document).ready(function() {
+        // 주소 정리 함수가 정의되어 있는지 확인
+        if (typeof fRemoveBigAdrJS === 'function') {
+            // 희망근무조건의 지역 주소 정리
+            $('#addr-display .addr-item').each(function() {
+                var originalAddr = $(this).attr('data-addr');
+                if (originalAddr) {
+                    var cleanedAddr = fRemoveBigAdrJS(originalAddr);
+                    $(this).text(cleanedAddr);
+                }
+            });
+            
+            // 프로필의 주소 정리
+            $('.addr-display-profile').each(function() {
+                var originalAddr = $(this).attr('data-addr');
+                if (originalAddr) {
+                    var cleanedAddr = fRemoveBigAdrJS(originalAddr);
+                    $(this).text(cleanedAddr);
+                }
+            });
+        }
+    });
+
     var check_user_type = "<?= $this->user->getUserType(); ?>";
     $(".btnRequest").click(function() {
         //로그인 여부 확인
@@ -684,34 +710,53 @@ function fRemoveBigAdr($arg)
             commonAlert("채용공고를 올바르게 선택해주세요.", function() {});
             return;
         }
-        var mq_idxs = new Array();
-        mq_idxs.push($("[name='ru_idx']").val());
-        openPopup('confirm', {
-            content: '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?',
-            firstCallback: function() {
+        //오늘 제안여부 및 지원 여부 확인
+        var paramsToday = {};
+        paramsToday["ru_idx"] = $("[name='ru_idx']").val();
+        paramsToday["rc_idx"] = rc_idx;
 
-            },
-            secondCallback: function() {
-                var params = {};
-                params["mq_idxs"] = mq_idxs;
-                params["rc_idx"] = rc_idx;
-                params["mq_type"] = "RESUME";
-                comAjax("/common_proc/member_request", params, function(ret) {
-                    //console.log(ret);
-                    if (ret.code == "00") {
-                        commonAlert("선택한 채용공고로 제안하였습니다.", function() {
-                            $("#selectPanel").removeClass("on");
+        comAjax("/resume_proc/todayapply", paramsToday, function(ret) {
+            if (ret.code == "00") {
+                var mq_idxs = new Array();
+                mq_idxs.push($("[name='ru_idx']").val());
+                openPopup('confirm', {
+                    content: '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?',
+                    firstCallback: function() {
+
+                    },
+                    secondCallback: function() {
+                        var params = {};
+                        params["mq_idxs"] = mq_idxs;
+                        params["rc_idx"] = rc_idx;
+                        params["mq_type"] = "RESUME";
+                        comAjax("/common_proc/member_request", params, function(ret) {
+                            //console.log(ret);
+                            if (ret.code == "00") {
+                                commonAlert("선택한 채용공고로 제안하였습니다.", function() {
+                                    $("#selectPanel").removeClass("on");
+                                });
+                            } else {
+                                commonAlert(ret.msg, function() {
+                                    $("#selectPanel").removeClass("on");
+                                });
+                                return;
+                            }
                         });
-                    } else {
-                        commonAlert(ret.msg, function() {
-                            $("#selectPanel").removeClass("on");
-                        });
-                        return;
                     }
                 });
+                $('.btn-close-popup').hide();
+            } else if (ret.code == "01") {
+                commonAlert("<em>다음날</em> 다시 제안이 가능합니다.", function() {});
+                return;
+            } else if (ret.code == "90") {
+                // 지원이 이미 있는 경우
+                commonAlert(ret.msg, function() {});
+                return;
+            } else {
+                commonAlert(ret.msg, function() {});
+                return;
             }
         });
-        $('.btn-close-popup').hide();
 
     });
 

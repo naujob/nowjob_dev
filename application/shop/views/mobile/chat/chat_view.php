@@ -337,6 +337,13 @@
         height: 1.5rem;
         display: block;
     }
+
+    /* page-chat-view 넓이를 web 버전과 동일하게 설정 */
+    .page-chat-view {
+        max-width: 500px;
+        margin: 0 auto;
+        width: 100%;
+    }
 </style>
 
 <script>
@@ -352,21 +359,90 @@
         };
         var backUrl = backMap[from] || '/chat/chat_list';
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // iOS WebView에서 더 확실하게 동작하도록 즉시 실행 + DOMContentLoaded 둘 다 처리
+        function initChatBackButtons() {
+            let lastRun = 0;
+
+            function handleBack(e) {
+                // 중복 실행 방지 (touch → click)
+                const now = Date.now();
+                if (now - lastRun < 600) return;
+                lastRun = now;
+
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }
+
+                // img 태그에서 이벤트가 발생한 경우 부모 a 태그 찾기
+                const a = this.closest('.js-chat-back') || this;
+
+                if (a.classList.contains('btn-exit')) {
+                    exitChatRoom(a.dataset.backUrl || backUrl);
+                } else {
+                    location.href = a.dataset.backUrl || backUrl;
+                }
+                
+                return false;
+            }
+
             document.querySelectorAll('.js-chat-back').forEach(function(a) {
                 a.dataset.backUrl = backUrl;
-                a.addEventListener('click', function(e) {
+                
+                // iOS WebView에서 touchstart가 더 안정적 (다른 파일들에서도 사용하는 패턴)
+                a.addEventListener('touchstart', function(e) {
                     e.preventDefault();
-                    // 나가기 버튼인 경우 채팅방 나가기 처리
-                    if (this.classList.contains('btn-exit')) {
-                        exitChatRoom(backUrl);
-                    } else {
-                        // 뒤로가기 버튼은 바로 이동
-                        location.href = this.dataset.backUrl || '/chat/chat_list';
-                    }
-                });
+                    handleBack.call(this, e);
+                }, { passive: false });
+                
+                // touchend도 함께 처리
+                a.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    handleBack.call(this, e);
+                }, { passive: false });
+
+                // click (PC/Android)
+                a.addEventListener('click', handleBack);
+                
+                // img 태그에도 이벤트 전달 (iOS에서 img 클릭 시 이벤트가 링크로 전달되지 않을 수 있음)
+                var img = a.querySelector('img');
+                if (img) {
+                    img.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleBack.call(a, e);
+                    }, { passive: false });
+                    
+                    img.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleBack.call(a, e);
+                    }, { passive: false });
+                    
+                    img.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleBack.call(a, e);
+                    });
+                }
             });
-        });
+        }
+
+        // DOMContentLoaded와 즉시 실행 둘 다 처리
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initChatBackButtons);
+        } else {
+            initChatBackButtons();
+        }
+        
+        // 추가 안전장치: 약간의 지연 후에도 시도
+        setTimeout(initChatBackButtons, 100);
+
+        // iOS 감지 함수
+        function isIOS() {
+            return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        }
 
         // 채팅방 나가기 함수
         function exitChatRoom(redirectUrl) {
@@ -384,7 +460,14 @@
                 return;
             }
 
-            // 확인 메시지
+            // iOS WebView에서는 confirm/alert이 touch 이벤트 내에서 막히므로 바로 실행
+            if (isIOS()) {
+                // iOS에서는 확인 없이 바로 실행 (WebView에서 confirm이 동작하지 않음)
+                doExitRoom(rm_idx, g_user_id, redirectUrl);
+                return;
+            }
+
+            // Android/Web에서는 확인 메시지 표시
             if (typeof commonConfirm === "function") {
                 commonConfirm("채팅방을 나가시겠습니까?", function() {
                     doExitRoom(rm_idx, g_user_id, redirectUrl);
@@ -420,8 +503,10 @@
                         socket.emit("message_insert", systemMsg, rm_info.rm_users);
                     }
 
-                    // 목록 페이지로 이동
-                    location.href = redirectUrl || '/chat/chat_list';
+                    // 목록 페이지로 이동 (캐시 무시를 위한 타임스탬프 추가)
+                    var finalUrl = redirectUrl || '/chat/chat_list';
+                    var separator = finalUrl.indexOf('?') > -1 ? '&' : '?';
+                    location.href = finalUrl + separator + '_t=' + Date.now();
                 } else {
                     commonAlert(ret.msg || "채팅방 나가기에 실패했습니다.", function() {});
                 }
@@ -447,96 +532,90 @@
             <?php if ($user_type == "COMP") : ?>
                 <!-- 채용정보 -->
                 <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
-                <div class="item-info person angle-link">
-                    <div class="thumb-wrap">
-                        <!-- 즐겨찾기 버튼 -->
-                        <button type="button" data-bk_type="RESUME" data-bk_key="<?= $resume["ru_idx"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $resume["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
-                        <!-- 썸네일: 배경이미지 + 폴백 -->
-                        <?php
-                        // getResumeImg() 함수가 이미 성별에 따른 기본 아바타를 반환함
-                        $resumeThumb = getResumeImg($resume);
-
-                        // 기본 아바타 경로 설정 (이미지 로드 실패 시 사용)
-                        $mmSex = isset($resume["mm_sex"]) ? trim($resume["mm_sex"]) : "";
-                        $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png"; // 기본값은 여성 아바타
-                        if ($mmSex === "남") {
-                            $defaultAvatar = "/resource/shop/web/img/avatar_icon2_m.png";
-                        } else if ($mmSex === "여") {
-                            $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png";
-                        }
-                        ?>
-                        <div class="thumb thumb-bg" style="background-image:url('<?= $resumeThumb ?>');" data-default-img="<?= $defaultAvatar ?>">
-                            <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>" aria-label="이력서 보기"></a>
-                        </div>
-                        <!-- 추천 배지 -->
-                        <p class="recomm-badge"><span>추천</span></p>
-
-                        <!-- <p class="star-rating"> -->
-                        <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
-                        <!-- <span class="star" style="width:100%;"></span>
-                            <span class="sr-text">평점</span>
-                            <span class="sr-text">5</span>
-                        </p> -->
-                        <!-- 공고보기 -->
-                        <!-- <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>" class="btn-line">인재정보</a> -->
-                    </div>
-                    <div class="content-wrap">
-                        <div class="meta top">
-                            <!-- 직종라벨 -->
-                            <p class="category"><?= getWorkingImg($resume["ru_work"]) ?></p>
-                            <!-- 조건 -->
-                            <p class="condition">
-                                <span class="working-time"><?= (strpos($resume["ru_work_type"], ',') !== false) ? str_replace(',', '|', $resume["ru_work_type"]) : $resume["ru_work_type"] ?></span>
-                            </p>
-                        </div>
-                        <div class="title-wrap">
-                            <!-- 이력서 제목 -->
-                            <p class="title"><strong><a href="/resume/hr_post/<?= $resume["ru_idx"] ?>"><?= !empty($resume["ru_name"]) ? $resume["ru_name"] : $resume["mm_name"] ?></a></strong></p>
-                        </div>
-                        <ul class="working-day">
-                            <?php
-                            $ru_week = isset($resume["ru_week"]) ? trim($resume["ru_week"]) : "";
-                            $week_display = ($ru_week !== "") ? $ru_week : "월,화,수,목,금,토,일";
-                            echo getWeekYoil($week_display);
-                            ?>
-                        </ul>
-                        <!-- 추가사항 -->
-                        <div class="meta">
-                            <p><?= $resume["mm_nation"] ?></p>
-                            <span>|</span>
-                            <p><?= $resume["ma_age"] ?>세</p>
-                            <?php
-                            // 주소에서 '시'가 포함된 토큰을 찾고, 없으면 두 번째 토큰 사용
-                            $city_name = "";
-                            if (!empty($resume["ad_addr"])) {
-                                $parts = preg_split('/\s+/', trim($resume["ad_addr"]));
-                                // '시'가 포함된 첫 토큰을 우선 사용
-                                foreach ($parts as $p) {
-                                    if (mb_strpos($p, "시") !== false) {
-                                        $city_name = $p;
-                                        break;
-                                    }
-                                }
-                                // '시'가 없으면 두 번째 토큰을 사용 (인덱스 1)
-                                if ($city_name === "" && count($parts) >= 2) {
-                                    $city_name = $parts[1];
-                                }
+                <?php
+                // 이미지 경로 설정
+                $resumeThumb = getResumeImg($resume);
+                
+                // 근무희망요일 처리
+                $ru_week = isset($resume["ru_week"]) ? trim($resume["ru_week"]) : "";
+                $ru_week_yn = isset($resume["ru_week_yn"]) ? $resume["ru_week_yn"] : "N";
+                if ($ru_week_yn !== "Y" && ($ru_week === "" || $ru_week === null)) {
+                    $ru_week = "월,화,수,목,금";
+                }
+                $week_display = getWeekYoil($ru_week);
+                
+                // 가격 타입 처리
+                $price_type_display = "";
+                if (!empty($resume["ru_price_type"])) {
+                    $price_type_display = getPriceType($resume["ru_price_type"]);
+                }
+                
+                // 근무 타입 처리 (hr_list.php와 동일하게 <em> 태그로 변환, 쉼표 제거)
+                $work_type_display = "";
+                if (!empty($resume["ru_work_type"])) {
+                    $work_type_html = getWorkType($resume["ru_work_type"]);
+                    // <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
+                    if (!empty($work_type_html)) {
+                        $work_type_display = preg_replace_callback('/<span>(.*?)<\/span>/', function($matches) {
+                            $text = trim($matches[1]);
+                            $cls = '';
+                            if ($text === '주간') {
+                                $cls = 'wtype1';
+                            } else if ($text === '야간') {
+                                $cls = 'wtype2';
+                            } else if ($text === '2교대') {
+                                $cls = 'wtype3';
                             }
-                            if ($city_name !== "") : ?>
-                                <span>|</span>
-                                <p><?= $city_name ?></p>
-                            <?php endif; ?>
-                            <?php if (!empty($resume["ru_price_type"])) : ?>
-                                <p class="period" style="margin-left: auto;"><?= (strpos($resume["ru_price_type"], ',') !== false) ? str_replace(',', '|', $resume["ru_price_type"]) : $resume["ru_price_type"] ?></p>
-                            <?php endif; ?>
+                            return '<em class="' . $cls . '">' . $text . '</em>';
+                        }, $work_type_html);
+                        // 쉼표 제거
+                        $work_type_display = str_replace(',', '', $work_type_display);
+                    }
+                }
+                
+                // 주소 처리 (fRemoveBigAdrJS 함수 사용)
+                $addr_display = !empty($resume["ad_addr"]) ? $resume["ad_addr"] : "";
+                ?>
+                <div class="chat-resume-content-li recomm" data-ru_idx="<?= $resume["ru_idx"] ?>">
+                    <div class="chat-resume-content-info">
+                        <div class="chat-resume-content-body">
+                            <div class="chat-resume-img">
+                                <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>" aria-label="이력서 보기">
+                                    <img src="<?= $resumeThumb ?>" alt="">
+                                </a>
+                                <button type="button" data-bk_type="RESUME" data-bk_key="<?= $resume["ru_idx"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $resume["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
+                                
+                            </div>
+                            <div class="chat-resume-desc">
+                                <div class="chat-resume-wicon"><?= getWorkingImg($resume["ru_work"]) ?></div>
+                                <div class="chat-resume-title ellipsis">
+                                    <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>"><?= !empty($resume["ru_name"]) ? $resume["ru_name"] : $resume["mm_name"] ?></a>
+                                </div>
+                                <div class="chat-resume-summary">
+                                    <ul class="working-day"><?= $week_display ?></ul>
+                                </div>
+                                <div class="chat-resume-summary">
+                                    <p><?= $resume["mm_nation"] ?></p>
+                                    <p><?= $resume["ma_age"] ?>세</p>
+                                    <?php if ($addr_display !== "") : ?>
+                                        <p class="js-chat-resume-addr" data-addr="<?= htmlspecialchars($addr_display, ENT_QUOTES) ?>"></p>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if ($price_type_display !== "") : ?>
+                                    <div class="chat-resume-summary2">
+                                        <p class="pricetype"><?= $price_type_display ?></p>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($work_type_display !== "") : ?>
+                                    <div class="chat-resume-summary3">
+                                        <p class="worktype"><?= $work_type_display ?></p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                        <!-- 해시태그 -->
-                        <!-- <div class="hashtag">
-                            <?= $resume["ru_my_type"] ?>
-                        </div> -->
                     </div>
                     <!-- 인재정보 보기 -->
-                    <a href="#chatSummary" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="btn-wrapper js-toggle-panel"><span class="sr-text">인재정보보기</span></a>
+                    <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>" class="chat-resume-btn-wrapper"><span class="sr-text">인재정보보기</span></a>
                 </div>
                 <!-- //채용정보 -->
 
@@ -685,45 +764,93 @@
                 <!-- //일정 -->
             <?php else : ?>
                 <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
-                <div class="item-info recruit angle-link">
-                    <div class="thumb-wrap">
-                        <!-- 썸네일 -->
-                        <?php
-                        // getRecruitImg() 함수가 이미 기본 이미지를 반환함
-                        $recruitThumb = getRecruitImg($recruit);
-                        $defaultRecruitImg = "/resource/shop/mobile/img/common/noimage4.png";
-                        ?>
-                        <div class="thumb thumb-bg" style="background-image:url('<?= $recruitThumb ?>');" data-default-img="<?= $defaultRecruitImg ?>">
-                            <a href="/recruit/job_post/<?= $recruit["ru_idx"] ?>" aria-label="채용공고 보기"></a>
+                <?php
+                // 이미지 경로 설정
+                $recruitThumb = getRecruitImg($recruit);
+                
+                // 가격 타입 처리
+                $price_type_display = "";
+                if (!empty($recruit["rc_price_type"])) {
+                    $price_type_display = getPriceType($recruit["rc_price_type"]);
+                }
+                
+                // 급여 처리
+                $price_pay_display = getRecuitPrice($recruit);
+                
+                // 근무 타입 처리 (job_list.php와 동일하게 <em> 태그로 변환, 쉼표 제거)
+                $work_type_display = "";
+                if (!empty($recruit["rc_work_type"])) {
+                    $work_type_html = getWorkType($recruit["rc_work_type"], "span");
+                    // <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
+                    if (!empty($work_type_html)) {
+                        $work_type_display = preg_replace_callback('/<span>(.*?)<\/span>/', function($matches) {
+                            $text = trim($matches[1]);
+                            $cls = '';
+                            if ($text === '주간') {
+                                $cls = 'wtype1';
+                            } else if ($text === '야간') {
+                                $cls = 'wtype2';
+                            } else if ($text === '2교대') {
+                                $cls = 'wtype3';
+                            }
+                            return '<em class="' . $cls . '">' . $text . '</em>';
+                        }, $work_type_html);
+                        // 쉼표 제거
+                        $work_type_display = str_replace(',', '', $work_type_display);
+                    }
+                }
+                
+                // 주소 처리 (fRemoveBigAdrJS 함수 사용)
+                $addr_display = !empty($recruit["ad_addr"]) ? $recruit["ad_addr"] : "";
+                
+                // 국적 표시 처리
+                $nation_display = $recruit["rc_nation_nm"];
+                if ($nation_display == "무관" || $nation_display == "내국인,외국인") {
+                    $nation_display = "국적무관";
+                }
+                ?>
+                <div class="chat-recruit-content-li recomm" data-rc_idx="<?= $recruit["rc_idx"] ?>">
+                    <div class="chat-recruit-content-info">
+                        <div class="chat-recruit-content-body">
+                            
+                            <div class="chat-recruit-img">
+                                <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>" aria-label="채용공고 보기">
+                                    <img src="<?= $recruitThumb ?>" alt="">
+                                </a>
+                                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $recruit["rc_idx"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $recruit["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
+                            </div>
+                            <div class="chat-recruit-desc">
+                                <div class="chat-recruit-wicon">
+                                    <?= getWorkingImg($recruit["rc_work"]) ?>
+                                </div>
+                                <div class="chat-recruit-title ellipsis">
+                                    <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>"><?= $recruit["rc_name"] ?></a>
+                                </div>
+                                <div class="chat-recruit-summary">
+                                    <p><?= $nation_display ?></p>
+                                    <p><?= $recruit["rc_age_nm"] ?></p>
+                                </div>
+                                <div class="chat-recruit-summary area">
+                                    <?php if ($addr_display !== "") : ?>
+                                        <p class="js-chat-addr" data-addr="<?= htmlspecialchars($addr_display, ENT_QUOTES) ?>"></p>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="chat-recruit-summary2">
+                                    <?php if ($price_type_display !== "") : ?>
+                                        <p class="period"><?= $price_type_display ?></p>
+                                    <?php endif; ?>
+                                    <?php if ($price_pay_display !== "") : ?>
+                                        <p class="amount"><?= $price_pay_display ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
-                        <!-- <a href="/recruit/job_post/<?= $recruit["ru_idx"] ?>" class="btn-line">지원한공고</a> -->
-                    </div>
-                    <div class="content-wrap">
-                        <div class="meta top">
-                            <!-- 직종라벨 -->
-                            <p class="category">
-                                <?= getWorkingImg($recruit["rc_work"]) ?>
-                            </p>
-                            <!-- 근무시간 -->
-                            <p class="working-time"><?= getWorkType($recruit["rc_work_type"]) ?></p>
-                        </div>
-                        <!-- 제목 -->
-                        <!-- 주요정보패널 링크 -->
-                        <p class="title"><strong><a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>"><?= $recruit["rc_name"] ?></a></strong></p>
-                        <!-- 추가조건 -->
-                        <div class="meta">
-                            <p><?= $recruit["rc_nation_nm"] ?></p>
-                            <span>/</span>
-                            <p><?= $recruit["rc_age_nm"] ?></p>
-                            <p class="period"><?= getPriceType($recruit["rc_price_type"]) ?></p>
-                        </div>
-                        <div class="area-pay">
-                            <p class="area js-chat-addr" data-addr="<?= htmlspecialchars($recruit["ad_addr"], ENT_QUOTES) ?>"></p>
-                            <p class="amount"><?= getRecuitPrice($recruit) ?></p>
-                        </div>
+                        <?php if ($work_type_display !== "") : ?>
+                            <div class="chat-recruit-summary3"><?= $work_type_display ?></div>
+                        <?php endif; ?>
                     </div>
                     <!-- 주요정보패널 보기 -->
-                    <a href="#chatSummary" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="btn-wrapper js-toggle-panel"><span class="sr-text">주요정보보기</span></a>
+                    <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>" class="chat-recruit-btn-wrapper"><span class="sr-text">주요정보보기</span></a>
                 </div>
                 <!-- //채용정보 -->
                 <div id="mem_top_2" class="chat-appointment" style="display:none;">
@@ -831,6 +958,542 @@
     /* 자격증이 1개일 때 | 구분자 숨기기 */
     #chatSummary .period-list.single-item span:first-child:after {
         content: none;
+    }
+
+    /* 채팅 뷰 인재정보 카드 스타일 (hr_list.php와 통일) */
+    .chat-view-header .chat-resume-content-li {
+        position: relative;
+        width: 100%;
+        height: 115px;
+        overflow: hidden;
+        font-size: 12px;
+        border-radius: 10px;
+        background: #fff;
+        margin-bottom: 10px;
+        transition: background 0.2s ease;
+        cursor: pointer; /* 카드 전체 클릭 가능 표시 */
+    }
+
+    .chat-view-header .chat-resume-content-li:hover {
+        background: #f8f8f8;
+    }
+
+    .chat-view-header .chat-resume-content-li * {
+        padding: 0;
+        margin: 0;
+    }
+
+    .chat-view-header .chat-resume-content-info {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+    }
+
+    .chat-view-header .chat-resume-wicon img {
+        height: 19px;
+    }
+
+    .chat-view-header .chat-resume-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 1px 0px;
+    }
+
+    .chat-view-header .chat-resume-title a {
+        color: #000;
+        text-decoration: none;
+        position: relative;
+        z-index: 2; /* 링크가 다른 요소 위에 표시되도록 */
+    }
+
+    .chat-view-header .chat-resume-content-body {
+        position: relative;
+        overflow: hidden;
+        height: 95px;
+    }
+
+    .chat-view-header .chat-resume-desc {
+        position: relative;
+        height: 100%;
+        margin: 0 0 0 110px;
+        cursor: pointer;
+    }
+
+    .chat-view-header .chat-resume-desc .ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .chat-view-header .chat-resume-img {
+        position: absolute;
+        width: 95px;
+        height: 95px;
+        border: 0;
+        border-radius: 5px;
+        color: #888;
+        overflow: hidden;
+        z-index: 2; /* 이미지 링크가 클릭 가능하도록 */
+    }
+
+    .chat-view-header .chat-resume-img a {
+        position: relative;
+        z-index: 2;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .chat-view-header .chat-resume-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .chat-view-header .chat-resume-summary {
+        display: flex;
+        font-size: 16px;
+        gap: 5px;
+        position: relative;
+    }
+
+    .chat-view-header .chat-resume-summary p {
+        position: relative;
+        padding-right: 5px;
+        margin: 0;
+        color: #000;
+        font-weight: 600;
+    }
+
+    .chat-view-header .chat-resume-summary p:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #ACACAC;
+    }
+
+    .chat-view-header .chat-resume-summary>* {
+        min-width: 0;
+        max-width: 100%;
+        margin-right: 4px;
+        margin-bottom: -3px;
+    }
+
+    .chat-view-header .chat-resume-summary2 {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #1b9d7d;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .chat-view-header .chat-resume-summary2 p {
+        margin: 0;
+        text-align: right;
+    }
+
+    .chat-view-header .chat-resume-summary2 .pricetype {
+        display: flex;
+        gap: 5px;
+        justify-content: flex-end;
+        position: relative;
+    }
+
+    .chat-view-header .chat-resume-summary2 .pricetype em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+    }
+
+    .chat-view-header .chat-resume-summary2 .pricetype em:not(:last-child) {
+        padding-right: 5px;
+    }
+
+    .chat-view-header .chat-resume-summary2 .pricetype em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777777;
+    }
+
+    .chat-view-header .chat-resume-summary3 {
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .chat-view-header .chat-resume-summary3 p {
+        margin: 0;
+        text-align: right;
+    }
+
+    .chat-view-header .chat-resume-summary3 .worktype {
+        display: flex;
+        gap: 5px;
+        justify-content: flex-end;
+        position: relative;
+    }
+
+    .chat-view-header .chat-resume-summary3 .worktype em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+    }
+
+    .chat-view-header .chat-resume-summary3 .worktype em.wtype1 {
+        color: #3a70db;
+    }
+
+    .chat-view-header .chat-resume-summary3 .worktype em.wtype2 {
+        color: #F86048;
+    }
+
+    .chat-view-header .chat-resume-summary3 .worktype em.wtype3 {
+        color: #1B9D7D;
+    }
+
+    .chat-view-header .chat-resume-summary3 .worktype em:not(:last-child) {
+        padding-right: 5px;
+    }
+
+    .chat-view-header .chat-resume-summary3 .worktype em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777777;
+    }
+
+    .chat-view-header .working-day {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        margin: 0 0 -4px;
+        list-style: none;
+    }
+
+    .chat-view-header .working-day>li {
+        width: 1.8em;
+        height: 1.8em;
+        margin: 0 0.5em 4px 0;
+        font-size: 13px;
+        color: #BEBFC9;
+        line-height: 1.5;
+        text-align: center;
+        text-indent: -1px;
+        border-radius: 100%;
+        border: 1px solid #BEBFC9;
+        background: #fff;
+        float: left;
+    }
+
+    .chat-view-header .working-day>li:last-child {
+        margin-right: 0;
+    }
+
+    .chat-view-header .working-day li[aria-hidden=false] {
+        color: #fff;
+        border-color: transparent;
+        background-color: #1B9D7D;
+    }
+
+    .chat-view-header .recomm-badge {
+        position: absolute;
+        top: 0;
+        background: #EB5349;
+        z-index: 3; /* 뱃지가 다른 요소 위에 표시되도록 */
+        margin: 3px;
+        padding: 3px;
+        border-radius: 3px;
+    }
+
+    /* 즐겨찾기 버튼이 링크를 가리지 않도록 z-index 조정 */
+    .chat-view-header .chat-resume-img .btn-bookmark,
+    .chat-view-header .chat-recruit-img .btn-bookmark {
+        position: absolute;
+        z-index: 3; /* 버튼이 링크 위에 표시되도록 */
+    }
+
+    .chat-view-header .recomm-badge span {
+        color: #fff;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .chat-view-header .chat-resume-btn-wrapper {
+        display: block;
+        text-align: center;
+        padding: 10px;
+        background: #f8f8f8;
+        border-top: 1px solid #e0e0e0;
+        text-decoration: none;
+        color: #333;
+        position: relative;
+        z-index: 2; /* 버튼 링크가 클릭 가능하도록 */
+    }
+
+    .chat-view-header .chat-resume-btn-wrapper:hover {
+        background: #e8e8e8;
+    }
+
+    /* 채팅 뷰 채용정보 카드 스타일 (job_list.php와 통일) */
+    .chat-view-header .chat-recruit-content-li {
+        position: relative;
+        width: 100%;
+        height: 115px;
+        overflow: hidden;
+        font-size: 12px;
+        border-radius: 10px;
+        background: #fff;
+        margin-bottom: 10px;
+        transition: background 0.2s ease;
+        cursor: pointer; /* 카드 전체 클릭 가능 표시 */
+    }
+
+    .chat-view-header .chat-recruit-content-li:hover {
+        background: #f8f8f8;
+    }
+
+    .chat-view-header .chat-recruit-content-li * {
+        padding: 0;
+        margin: 0;
+    }
+
+    .chat-view-header .chat-recruit-content-info {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+    }
+
+    .chat-view-header .chat-recruit-wicon img {
+        height: 19px;
+    }
+
+    .chat-view-header .chat-recruit-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 1px 0px;
+    }
+
+    .chat-view-header .chat-recruit-title a {
+        color: #000;
+        text-decoration: none;
+        position: relative;
+        z-index: 2; /* 링크가 다른 요소 위에 표시되도록 */
+    }
+
+    .chat-view-header .chat-recruit-summary3 {
+        position: absolute;
+        top: 6px;
+        right: 10px;
+        color: #000;
+        height: 17px;
+        text-align: right;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .chat-view-header .chat-recruit-summary3 em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        padding-left: 5px;
+    }
+
+    .chat-view-header .chat-recruit-summary3 em:not(:last-child) {
+        padding-right: 5px;
+    }
+
+    .chat-view-header .chat-recruit-summary3 em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777777;
+    }
+
+    .chat-view-header .chat-recruit-summary3 em.wtype1 {
+        color: #3a70db;
+    }
+
+    .chat-view-header .chat-recruit-summary3 em.wtype2 {
+        color: #F86048;
+    }
+
+    .chat-view-header .chat-recruit-summary3 em.wtype3 {
+        color: #1B9D7D;
+    }
+
+    .chat-view-header .chat-recruit-content-body {
+        position: relative;
+        height: 95px;
+        overflow: hidden;
+    }
+
+    .chat-view-header .chat-recruit-desc {
+        position: relative;
+        height: 95px;
+        margin: 0 0 0 105px;
+        cursor: pointer;
+    }
+
+    .chat-view-header .chat-recruit-desc .ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .chat-view-header .chat-recruit-img {
+        position: absolute;
+        width: 95px;
+        height: 95px;
+        border: 0;
+        border-radius: 5px;
+        color: #888;
+        overflow: hidden;
+        z-index: 2; /* 이미지 링크가 클릭 가능하도록 */
+    }
+
+    .chat-view-header .chat-recruit-img a {
+        position: relative;
+        z-index: 2;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .chat-view-header .chat-recruit-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .chat-view-header .chat-recruit-summary {
+        display: flex;
+        font-size: 16px;
+        gap: 5px;
+        position: relative;
+    }
+
+    .chat-view-header .chat-recruit-summary p {
+        position: relative;
+        padding-right: 5px;
+        margin: 0;
+        color: #999;
+    }
+
+    .chat-view-header .chat-recruit-summary p:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #ACACAC;
+    }
+
+    .chat-view-header .chat-recruit-summary>* {
+        min-width: 0;
+        max-width: 100%;
+        margin-right: 4px;
+        margin-bottom: -3px;
+    }
+
+    .chat-view-header .chat-recruit-summary.area p {
+        color: #000;
+        font-weight: 600;
+    }
+
+    .chat-view-header .chat-recruit-summary2 {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .chat-view-header .chat-recruit-summary2 p {
+        margin: 0;
+        text-align: right;
+    }
+
+    .chat-view-header .chat-recruit-summary2 .period {
+        display: flex;
+        gap: 5px;
+        justify-content: flex-end;
+        position: relative;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .chat-view-header .chat-recruit-summary2 .amount em {
+        font-style: normal;
+    }
+
+    .chat-view-header .chat-recruit-summary2 .period em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
+    }
+
+    .chat-view-header .chat-recruit-summary2 .period em.on {
+        color: #1B9D7D;
+    }
+
+    .chat-view-header .chat-recruit-btn-wrapper {
+        display: block;
+        text-align: center;
+        padding: 10px;
+        background: #f8f8f8;
+        border-top: 1px solid #e0e0e0;
+        text-decoration: none;
+        color: #333;
+        position: relative;
+        z-index: 2; /* 버튼 링크가 클릭 가능하도록 */
+    }
+
+    .chat-view-header .chat-recruit-btn-wrapper:hover {
+        background: #e8e8e8;
     }
 </style>
 
@@ -1117,11 +1780,41 @@
     var rm_length = 20;
     var rm_count = 0;
     var userIdAlertShown = false;
-    // 주소 정리: 채팅 헤더에 표시되는 채용지 주소를 공용 헬퍼로 축약
+    // 주소 정리: 채팅 헤더에 표시되는 채용지 주소와 인재정보 주소를 공용 헬퍼로 축약
     document.addEventListener('DOMContentLoaded', function() {
+        // 채용지 주소 처리
         document.querySelectorAll('.js-chat-addr').forEach(function(el) {
             var addr = el.dataset.addr || '';
             el.textContent = fRemoveBigAdrJS(addr);
+        });
+        // 인재정보 주소 처리
+        document.querySelectorAll('.js-chat-resume-addr').forEach(function(el) {
+            var addr = el.dataset.addr || '';
+            el.textContent = fRemoveBigAdrJS(addr);
+        });
+
+        // 채팅 뷰 헤더의 채용정보/인재정보 카드 클릭 이벤트 처리
+        // 링크나 버튼을 클릭한 경우는 기본 동작 유지, 그 외 영역 클릭 시 상세페이지로 이동
+        $(document).on('click', '.chat-resume-content-li, .chat-recruit-content-li', function(e) {
+            // 링크나 버튼을 클릭한 경우는 기본 동작 유지
+            if ($(e.target).is('a') || $(e.target).closest('a').length > 0 || 
+                $(e.target).is('button') || $(e.target).closest('button').length > 0) {
+                return;
+            }
+
+            // 인재정보 카드인 경우 (data-ru_idx가 있으면)
+            var ru_idx = $(this).attr('data-ru_idx');
+            if (ru_idx) {
+                window.location.href = '/resume/hr_post/' + ru_idx;
+                return;
+            }
+
+            // 채용정보 카드인 경우 (data-rc_idx가 있으면)
+            var rc_idx = $(this).attr('data-rc_idx');
+            if (rc_idx) {
+                window.location.href = '/recruit/job_post/' + rc_idx;
+                return;
+            }
         });
     });
 
@@ -1204,6 +1897,318 @@
         return currentUserId;
     }
 
+    // 공통 메시지 출력 처리 함수 (안드로이드/웹 공통 사용) -------------------------------------------
+    var user_type = $("[name='user_type']").val();
+
+    function showMessage(info, is_prepend) {
+        // 🔥 임시 메시지는 중복 체크 제외 (서버 응답으로 교체됨)
+        if (!info.temp_yn && processedIdx.includes(info.mg_idx)) {
+            console.log('🔥 [showMessage] 중복 메시지 무시:', info.mg_idx);
+            return; // Exit if the idx is already in the array
+        }
+
+        // 임시 메시지가 아니면 processedIdx에 추가
+        if (!info.temp_yn) {
+            processedIdx.push(info.mg_idx);
+        }
+
+        //유형에 따른 처리
+        if (info.mg_type == "timeline") {
+            var content = "<p class='chat-divider'>";
+            content += "         " + getFormatDate(new Date(info.mg_dt), 'kor');
+            content += "</p>";
+        } else {
+            var your_text_yn = (info.user_id == g_user_id ? "Y" : "N");
+            var item = info.user_id + "^" + getFormatDate(new Date(info.mg_dt), 'ymd') + "^" + getFormatDate(new Date(info.mg_dt), 'hh:mm');
+
+            if (info.mg_type == "text") {
+                if (your_text_yn == "Y") {
+                    var readcount = 0;
+                    for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
+                        if (info.mg_reads[icnt].read_yn == "N") {
+                            readcount++;
+                        }
+                    }
+                    // 🔥 임시 메시지인 경우 data-temp-message 속성 추가
+                    var temp_attr = info.temp_yn ? " data-temp-message='true'" : "";
+                    var content = "<div class='msg-item chat-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "'" + temp_attr + ">";
+                    content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
+                    if (readcount > 0) {
+                        content += "    <div class='readcount'>" + readcount + "</div>";
+                    } else {
+                        content += "    <div class='readcount'></div>";
+                    }
+                    content += "    </div>";
+                    content += "    <div class='meta'>";
+                    content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
+                    content += "    </div>";
+                    content += "</div>";
+                } else {
+                    var content = "<div class='msg-item chat-bubble diff' data-info='" + item + "' >";
+                    content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />") + "</div>";
+                    content += "    <div class='meta'>";
+                    content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
+                    content += "    </div>";
+                    content += "</div>";
+                }
+            } else if (info.mg_type == "file") {
+
+            } else if (info.mg_type == "img") {
+
+            } else if (info.mg_type == "system_exit") {
+                // 시스템 메시지: 채팅방 나가기 알림
+                var content = "<p class='msg-item chat-notify' data-info='" + item + "'>";
+                content += info.mg_text;
+                content += "</p>";
+            } else if (info.mg_type == "면접일정확인") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                $("#top_dt1").html(dt);
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접일 확정 요청 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "로 면접일 요청이 왔습니다.수락하시겠습니까?(수락시 연락처 공개)</div>";
+                    content += "    <div class='alert-footer'>";
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-secondary btn-round bntInterviewCancel' data-mg_idx='" + info.mg_idx + "'>면접취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntInterviewChange' data-mg_idx='" + info.mg_idx + "'>변경신청</button>";
+                        content += "        <button type='button' class='btn-tertiary btn-round bntInterviewOK' data-mg_idx='" + info.mg_idx + "'>면접수락</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-secondary btn-round bntInterviewCancel' data-mg_idx='" + info.mg_idx + "' disabled>면접취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntInterviewChange' data-mg_idx='" + info.mg_idx + "' disabled>변경신청</button>";
+                        content += "        <button type='button' class='btn-tertiary btn-round bntInterviewOK' data-mg_idx='" + info.mg_idx + "' disabled>면접수락</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                }
+            } else if (info.mg_type == "개인면접수락") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접 수락 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var recruit_name = $("[name=recruit_name]").val();
+                    var recruit_phone = $("[name=recruit_phone]").val();
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "로 면접이 확정되었습니다.<br> 연락처 공유드립니다.</div>";
+                    content += "    <div class='alert-footer-bar'>";
+                    content += "         <p class='call'>" + recruit_name + " : <a href='tel:" + recruit_phone + "'>" + recruit_phone + "</a></p>";
+                    content += "    </div>";
+                    content += "</div>";
+                }
+            } else if (info.mg_type == "개인면접변경요청") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>면접일 변경 요청이 왔습니다<br> 수락하시겠습니까?</div>";
+                    content += "    <div class='alert-footer'>";
+
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-secondary btn-round bntInterviewCompCancel' data-mg_idx='" + info.mg_idx + "'>면접취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntInterviewChangeOK' data-mg_idx='" + info.mg_idx + "'>변경수락</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-secondary btn-round bntInterviewCompCancel' data-mg_idx='" + info.mg_idx + "' disabled>면접취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntInterviewChangeOK' data-mg_idx='" + info.mg_idx + "' disabled>변경수락</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접일 변경요청 하였습니다.";
+                    content += "</p>";
+                }
+            } else if (info.mg_type == "개인면접변경수락") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접일 변경 수락 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접일 변경 수락 하였습니다.";
+                    content += "</p>";
+                }
+            } else if (info.mg_type == "개인면접취소요청") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "면접 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
+                    content += "    <div class='alert-footer'>";
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접 취소 신청 하였습니다.";
+                    content += "</p>";
+                }
+            } else if (info.mg_type == "기업면접취소요청") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접 취소 신청 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "면접 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
+                    content += "    <div class='alert-footer'>";
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                }
+            } else if (info.mg_type == "면접취소") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접이 취소 되었습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 면접이 취소 되었습니다.";
+                    content += "</p>";
+                }
+            } else if (info.mg_type == "채용일정확인") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                $("#top_dt2").html(dt);
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 채용 확정 요청 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "로 근로예정일 요청이 왔습니다<br> 수락하시겠습니까?</div>";
+                    content += "    <div class='alert-footer'>";
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-secondary btn-round bntRecruitCancel' data-mg_idx='" + info.mg_idx + "'>요청취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntRecruitChange' data-mg_idx='" + info.mg_idx + "'>변경신청</button>";
+                        content += "        <button type='button' class='btn-tertiary btn-round bntRecruitOK' data-mg_idx='" + info.mg_idx + "'>요청수락</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-secondary btn-round bntRecruitCancel' data-mg_idx='" + info.mg_idx + "' disabled>요청취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntRecruitChange' data-mg_idx='" + info.mg_idx + "' disabled>변경신청</button>";
+                        content += "        <button type='button' class='btn-tertiary btn-round bntRecruitOK' data-mg_idx='" + info.mg_idx + "' disabled>요청수락</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                }
+            } else if (info.mg_type == "개인채용수락") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 채용 수락 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var recruit_name = $("[name=recruit_name]").val();
+                    var recruit_phone = $("[name=recruit_phone]").val();
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "로 채용이 확정되었습니다.<br> 연락처 공유드립니다.</div>";
+                    content += "    <div class='alert-footer-bar'>";
+                    content += "         <p class='call'>" + recruit_name + " : <a href='tel:" + recruit_phone + "'>" + recruit_phone + "</a></p>";
+                    content += "    </div>";
+                    content += "</div>";
+                }
+            } else if (info.mg_type == "개인채용변경요청") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>근로예정일 변경 요청이 왔습니다<br> 수락하시겠습니까?</div>";
+                    content += "    <div class='alert-footer'>";
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-secondary btn-round bntRecruitCompCancel' data-mg_idx='" + info.mg_idx + "'>채용취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntRecruitChangeOK' data-mg_idx='" + info.mg_idx + "'>변경수락</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-secondary btn-round bntRecruitCompCancel' data-mg_idx='" + info.mg_idx + "' disabled>채용취소</button>";
+                        content += "        <button type='button' class='btn-primary btn-round bntRecruitChangeOK' data-mg_idx='" + info.mg_idx + "' disabled>변경수락</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 근로예정일 변경 요청 하였습니다.";
+                    content += "</p>";
+                }
+            } else if (info.mg_type == "개인채용변경수락") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 근로예정일 변경 수락 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 근로예정일 변경 수락 하였습니다.";
+                    content += "</p>";
+                }
+            } else if (info.mg_type == "개인채용취소요청") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "채용 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
+                    content += "    <div class='alert-footer'>";
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 채용 취소 신청 하였습니다.";
+                    content += "</p>";
+                }
+            } else if (info.mg_type == "기업채용취소요청") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 채용 취소 신청 하였습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
+                    content += "    <div class='content'>" + dt + "채용 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
+                    content += "    <div class='alert-footer'>";
+                    if (info.mg_imoti == null) {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
+                    } else {
+                        content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
+                    }
+                    content += "    </div>";
+                    content += "</div>";
+                }
+            } else if (info.mg_type == "채용취소") {
+                var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
+                if (user_type == "COMP") {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 채용을 취소하였습니다.";
+                    content += "</p>";
+                } else {
+                    var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
+                    content += dt + " 채용을 취소하였습니다.";
+                    content += "</p>";
+                }
+            }
+        }
+
+        if (is_prepend == true) {
+            $("#chat_list").prepend(content);
+        } else {
+            $("#chat_list").append(content);
+        }
+    }
+
+    // 채팅 화면 스크롤을 맨 아래로 이동하는 공통 함수
+    function scrollBottom() {
+        $("#chat_body").scrollTop($("#chat_body")[0].scrollHeight);
+    }
 
     if (rm_idx == null || rm_idx == "") {
         commonAlert("잘못된 접근입니다.", function() {
@@ -1851,317 +2856,7 @@
             });
         }
 
-        //메시지 출력 처리
-        var user_type = $("[name='user_type']").val();
-
-        function showMessage(info, is_prepend) {
-            // 🔥 임시 메시지는 중복 체크 제외 (서버 응답으로 교체됨)
-            if (!info.temp_yn && processedIdx.includes(info.mg_idx)) {
-                console.log('🔥 [showMessage] 중복 메시지 무시:', info.mg_idx);
-                return; // Exit if the idx is already in the array
-            }
-
-            // 임시 메시지가 아니면 processedIdx에 추가
-            if (!info.temp_yn) {
-                processedIdx.push(info.mg_idx);
-            }
-
-            //유형에 따른 처리
-            if (info.mg_type == "timeline") {
-                var content = "<p class='chat-divider'>";
-                content += "         " + getFormatDate(new Date(info.mg_dt), 'kor');
-                content += "</p>";
-            } else {
-                var your_text_yn = (info.user_id == g_user_id ? "Y" : "N");
-                var item = info.user_id + "^" + getFormatDate(new Date(info.mg_dt), 'ymd') + "^" + getFormatDate(new Date(info.mg_dt), 'hh:mm');
-
-                if (info.mg_type == "text") {
-                    if (your_text_yn == "Y") {
-                        var readcount = 0;
-                        for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
-                            if (info.mg_reads[icnt].read_yn == "N") {
-                                readcount++;
-                            }
-                        }
-                        // 🔥 임시 메시지인 경우 data-temp-message 속성 추가
-                        var temp_attr = info.temp_yn ? " data-temp-message='true'" : "";
-                        var content = "<div class='msg-item chat-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "'" + temp_attr + ">";
-                        content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
-                        if (readcount > 0) {
-                            content += "    <div class='readcount'>" + readcount + "</div>";
-                        } else {
-                            content += "    <div class='readcount'></div>";
-                        }
-                        content += "    </div>";
-                        content += "    <div class='meta'>";
-                        content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<div class='msg-item chat-bubble diff' data-info='" + item + "' >";
-                        content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />") + "</div>";
-                        content += "    <div class='meta'>";
-                        content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "file") {
-
-                } else if (info.mg_type == "img") {
-
-                } else if (info.mg_type == "system_exit") {
-                    // 시스템 메시지: 채팅방 나가기 알림
-                    var content = "<p class='msg-item chat-notify' data-info='" + item + "'>";
-                    content += info.mg_text;
-                    content += "</p>";
-                } else if (info.mg_type == "면접일정확인") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    $("#top_dt1").html(dt);
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 확정 요청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 면접일 요청이 왔습니다.수락하시겠습니까?(수락시 연락처 공개)</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCancel' data-mg_idx='" + info.mg_idx + "'>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChange' data-mg_idx='" + info.mg_idx + "'>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntInterviewOK' data-mg_idx='" + info.mg_idx + "'>면접수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCancel' data-mg_idx='" + info.mg_idx + "' disabled>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChange' data-mg_idx='" + info.mg_idx + "' disabled>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntInterviewOK' data-mg_idx='" + info.mg_idx + "' disabled>면접수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인면접수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var recruit_name = $("[name=recruit_name]").val();
-                        var recruit_phone = $("[name=recruit_phone]").val();
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 면접이 확정되었습니다.<br> 연락처 공유드립니다.</div>";
-                        content += "    <div class='alert-footer-bar'>";
-                        content += "         <p class='call'>" + recruit_name + " : <a href='tel:" + recruit_phone + "'>" + recruit_phone + "</a></p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인면접변경요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>면접일 변경 요청이 왔습니다<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCompCancel' data-mg_idx='" + info.mg_idx + "'>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChangeOK' data-mg_idx='" + info.mg_idx + "'>변경수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCompCancel' data-mg_idx='" + info.mg_idx + "' disabled>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChangeOK' data-mg_idx='" + info.mg_idx + "' disabled>변경수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 변경요청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인면접변경수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인면접취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "면접 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접 취소 신청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "기업면접취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접 취소 신청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "면접 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "면접취소") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접이 취소 되었습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접이 취소 되었습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "채용일정확인") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    $("#top_dt2").html(dt);
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 확정 요청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 근로예정일 요청이 왔습니다<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCancel' data-mg_idx='" + info.mg_idx + "'>요청취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChange' data-mg_idx='" + info.mg_idx + "'>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntRecruitOK' data-mg_idx='" + info.mg_idx + "'>요청수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCancel' data-mg_idx='" + info.mg_idx + "' disabled>요청취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChange' data-mg_idx='" + info.mg_idx + "' disabled>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntRecruitOK' data-mg_idx='" + info.mg_idx + "' disabled>요청수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인채용수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var recruit_name = $("[name=recruit_name]").val();
-                        var recruit_phone = $("[name=recruit_phone]").val();
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 채용이 확정되었습니다.<br> 연락처 공유드립니다.</div>";
-                        content += "    <div class='alert-footer-bar'>";
-                        content += "         <p class='call'>" + recruit_name + " : <a href='tel:" + recruit_phone + "'>" + recruit_phone + "</a></p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인채용변경요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>근로예정일 변경 요청이 왔습니다<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCompCancel' data-mg_idx='" + info.mg_idx + "'>채용취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChangeOK' data-mg_idx='" + info.mg_idx + "'>변경수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCompCancel' data-mg_idx='" + info.mg_idx + "' disabled>채용취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChangeOK' data-mg_idx='" + info.mg_idx + "' disabled>변경수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 근로예정일 변경 요청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인채용변경수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 근로예정일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 근로예정일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인채용취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "채용 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 취소 신청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "기업채용취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 취소 신청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "채용 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "채용취소") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용을 취소하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용을 취소하였습니다.";
-                        content += "</p>";
-                    }
-                }
-            }
-
-            if (is_prepend == true) {
-                $("#chat_list").prepend(content);
-            } else {
-                $("#chat_list").append(content);
-            }
-        }
-
-        function scrollBottom() {
-            $("#chat_body").scrollTop($("#chat_body")[0].scrollHeight);
-        }
+        //메시지 출력 처리 함수는 공통 스크립트 영역에 정의되어 있음 (showMessage, scrollBottom)
 
         function setEnabledButton($this, rm_idx, mg_idx, text) {
             APP_NOWAPK.message_update_status(JSON.stringify({
@@ -2681,316 +3376,7 @@
             });
         }
 
-        //메시지 출력 처리
-        var user_type = $("[name='user_type']").val();
-
-        function showMessage(info, is_prepend) {
-            // 🔥 임시 메시지는 중복 체크 제외 (서버 응답으로 교체됨)
-            if (!info.temp_yn && processedIdx.includes(info.mg_idx)) {
-                console.log('🔥 [showMessage] 중복 메시지 무시:', info.mg_idx);
-                return; // Exit if the idx is already in the array
-            }
-
-            // 임시 메시지가 아니면 processedIdx에 추가
-            if (!info.temp_yn) {
-                processedIdx.push(info.mg_idx);
-            }
-
-            //유형에 따른 처리
-            if (info.mg_type == "timeline") {
-                var content = "<p class='chat-divider'>";
-                content += "         " + getFormatDate(new Date(info.mg_dt), 'kor');
-                content += "</p>";
-            } else {
-                var your_text_yn = (info.user_id == g_user_id ? "Y" : "N");
-                var item = info.user_id + "^" + getFormatDate(new Date(info.mg_dt), 'ymd') + "^" + getFormatDate(new Date(info.mg_dt), 'hh:mm');
-
-                if (info.mg_type == "text") {
-                    if (your_text_yn == "Y") {
-                        var readcount = 0;
-                        for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
-                            if (info.mg_reads[icnt].read_yn == "N") {
-                                readcount++;
-                            }
-                        }
-                        // 🔥 임시 메시지인 경우 data-temp-message 속성 추가
-                        var temp_attr = info.temp_yn ? " data-temp-message='true'" : "";
-                        var content = "<div class='msg-item chat-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "'" + temp_attr + ">";
-                        content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
-                        if (readcount > 0) {
-                            content += "    <div class='readcount'>" + readcount + "</div>";
-                        } else {
-                            content += "    <div class='readcount'></div>";
-                        }
-                        content += "    </div>";
-                        content += "    <div class='meta'>";
-                        content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<div class='msg-item chat-bubble diff' data-info='" + item + "' >";
-                        content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />") + "</div>";
-                        content += "    <div class='meta'>";
-                        content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "file") {
-
-                } else if (info.mg_type == "img") {
-
-                } else if (info.mg_type == "system_exit") {
-                    // 시스템 메시지: 채팅방 나가기 알림
-                    var content = "<p class='msg-item chat-notify' data-info='" + item + "'>";
-                    content += info.mg_text;
-                    content += "</p>";
-                } else if (info.mg_type == "면접일정확인") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    $("#top_dt1").html(dt);
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 확정 요청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 면접일 요청이 왔습니다.수락하시겠습니까?(수락시 연락처 공개)</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCancel' data-mg_idx='" + info.mg_idx + "'>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChange' data-mg_idx='" + info.mg_idx + "'>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntInterviewOK' data-mg_idx='" + info.mg_idx + "'>면접수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCancel' data-mg_idx='" + info.mg_idx + "' disabled>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChange' data-mg_idx='" + info.mg_idx + "' disabled>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntInterviewOK' data-mg_idx='" + info.mg_idx + "' disabled>면접수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인면접수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var recruit_name = $("[name=recruit_name]").val();
-                        var recruit_phone = $("[name=recruit_phone]").val();
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 면접이 확정되었습니다.<br> 연락처 공유드립니다.</div>";
-                        content += "    <div class='alert-footer-bar'>";
-                        content += "         <p class='call'>" + recruit_name + " : <a href='tel:" + recruit_phone + "'>" + recruit_phone + "</a></p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인면접변경요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>면접일 변경 요청이 왔습니다<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCompCancel' data-mg_idx='" + info.mg_idx + "'>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChangeOK' data-mg_idx='" + info.mg_idx + "'>변경수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntInterviewCompCancel' data-mg_idx='" + info.mg_idx + "' disabled>면접취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntInterviewChangeOK' data-mg_idx='" + info.mg_idx + "' disabled>변경수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 변경요청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인면접변경수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인면접취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "면접 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접 취소 신청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "기업면접취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접 취소 신청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "면접 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "면접취소") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접이 취소 되었습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 면접이 취소 되었습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "채용일정확인") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    $("#top_dt2").html(dt);
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 확정 요청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 근로예정일 요청이 왔습니다<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCancel' data-mg_idx='" + info.mg_idx + "'>요청취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChange' data-mg_idx='" + info.mg_idx + "'>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntRecruitOK' data-mg_idx='" + info.mg_idx + "'>요청수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCancel' data-mg_idx='" + info.mg_idx + "' disabled>요청취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChange' data-mg_idx='" + info.mg_idx + "' disabled>변경신청</button>";
-                            content += "        <button type='button' class='btn-tertiary btn-round bntRecruitOK' data-mg_idx='" + info.mg_idx + "' disabled>요청수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인채용수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var recruit_name = $("[name=recruit_name]").val();
-                        var recruit_phone = $("[name=recruit_phone]").val();
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "로 채용이 확정되었습니다.<br> 연락처 공유드립니다.</div>";
-                        content += "    <div class='alert-footer-bar'>";
-                        content += "         <p class='call'>" + recruit_name + " : <a href='tel:" + recruit_phone + "'>" + recruit_phone + "</a></p>";
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "개인채용변경요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>근로예정일 변경 요청이 왔습니다<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCompCancel' data-mg_idx='" + info.mg_idx + "'>채용취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChangeOK' data-mg_idx='" + info.mg_idx + "'>변경수락</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-secondary btn-round bntRecruitCompCancel' data-mg_idx='" + info.mg_idx + "' disabled>채용취소</button>";
-                            content += "        <button type='button' class='btn-primary btn-round bntRecruitChangeOK' data-mg_idx='" + info.mg_idx + "' disabled>변경수락</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 근로예정일 변경 요청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인채용변경수락") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 근로예정일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 근로예정일 변경 수락 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "개인채용취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "채용 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 취소 신청 하였습니다.";
-                        content += "</p>";
-                    }
-                } else if (info.mg_type == "기업채용취소요청") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용 취소 신청 하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<div class='msg-item chat-alert' data-info='" + item + "'>";
-                        content += "    <div class='content'>" + dt + "채용 취소 요청이 왔습니다.<br> 수락하시겠습니까?</div>";
-                        content += "    <div class='alert-footer'>";
-                        if (info.mg_imoti == null) {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "'>확인</button>";
-                        } else {
-                            content += "        <button type='button' class='btn-tertiary btn-round btnRecruitCancelOK' data-mg_idx='" + info.mg_idx + "' disabled>확인</button>";
-                        }
-                        content += "    </div>";
-                        content += "</div>";
-                    }
-                } else if (info.mg_type == "채용취소") {
-                    var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
-                    if (user_type == "COMP") {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용을 취소하였습니다.";
-                        content += "</p>";
-                    } else {
-                        var content = "<p class='msg-item chat-notify' data-info='" + item + "' >";
-                        content += dt + " 채용을 취소하였습니다.";
-                        content += "</p>";
-                    }
-                }
-            }
-
-            if (is_prepend == true) {
-                $("#chat_list").prepend(content);
-            } else {
-                $("#chat_list").append(content);
-            }
-        }
-
-        function scrollBottom() {
-            $("#chat_body").scrollTop($("#chat_body")[0].scrollHeight);
-        }
+        //메시지 출력 처리 함수는 공통 스크립트 영역에 정의되어 있음 (showMessage, scrollBottom)
 
         function setEnabledButton($this, rm_idx, mg_idx, text) {
             socket.emit("message_update_status", {

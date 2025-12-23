@@ -583,6 +583,26 @@
           json_return("01","이미제안",$result);
           return;
         }
+        
+        // 회원이 이미 지원한 공고-이력서 조합인지 확인 (rc_idx가 있을 때만)
+        if (!empty($rc_idx) && !empty($ru_idx)) {
+            $sql_support = "
+                SELECT COUNT(*) as cnt
+                FROM st_member_request
+                WHERE mq_type = 'RECRUIT'
+                AND rc_idx = '" . $this->db->escape_str($rc_idx) . "'
+                AND ru_idx = '" . $this->db->escape_str($ru_idx) . "'
+            ";
+            $query_support = $this->db->query($sql_support);
+            $support_result = $query_support->row_array();
+            
+            if ($support_result && $support_result["cnt"] > 0) {
+                // 지원이 이미 있는 경우 알림창 표시
+                json_return("90", "이미 회원이 지원한 공고입니다.<br/>같은 공고와 같은 이력서로 제안할 수 없습니다.");
+                return;
+            }
+        }
+        
         json_return("00","조회성공",$result);
 
   		}

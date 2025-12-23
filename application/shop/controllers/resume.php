@@ -235,7 +235,8 @@ class Resume extends CI_Controller
     $info["ru_hit"] = $info["ru_hit"] + 1;
     $data["view_list"] = $view_list;
     $data["reco_list"] = $reco_list["list"];
-    $data["recruit_list"] = $this->member_model->getRecruitActaiveList($this->mm_idx);
+    // hr_post.php에서는 모든 게재 중인 공고를 조회 (제안 조건 없음)
+    $data["recruit_list"] = $this->member_model->getRecruitActaiveListAll($this->mm_idx);
     $data["info"] = $info;
     $data["addr"] = $addr;
     $data["kakao_key"] = $kakao_key;

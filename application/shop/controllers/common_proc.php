@@ -30,12 +30,19 @@ class Common_proc extends CI_Controller
 				'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown'
 			];
 
-			$log_file = '/website/nowapk/logs/business_error_' . date('Y-m-d') . '.log';
+			$log_dir = '/website/nowapk/logs';
+			// 로그 디렉토리가 없으면 생성
+			if (!is_dir($log_dir)) {
+				@mkdir($log_dir, 0755, true);
+			}
+
+			$log_file = $log_dir . '/business_error_' . date('Y-m-d') . '.log';
 			$log_line = json_encode($log_data, JSON_UNESCAPED_UNICODE) . "\n";
 
-			file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX);
+			// 로그 파일에 기록 (실패해도 예외 발생하지 않도록)
+			@file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX);
 		} catch (Exception $e) {
-			// 로그 기록 실패 시 무시
+			// 로그 기록 실패 시 무시 (에러 로그도 남기지 않음)
 		}
 	}
 
@@ -56,6 +63,42 @@ class Common_proc extends CI_Controller
 			'timestamp' => date('Y-m-d H:i:s')
 		]);
 
+		json_return("00", "로그 기록 완료");
+	}
+
+	/**
+	 * 웹뷰에서 호출하는 디버그 로깅 함수
+	 */
+	function log_webview_debug()
+	{
+		// CORS 헤더 설정 (필요한 경우)
+		header('Access-Control-Allow-Origin: *');
+		header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+		header('Access-Control-Allow-Headers: Content-Type');
+		
+		// OPTIONS 요청 처리
+		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			http_response_code(200);
+			exit;
+		}
+
+		$function_name = input_post("function_name", "unknown");
+		$error_message = input_post("error_message", "");
+		$data_json = input_post("data", "{}");
+
+		// JSON 데이터 파싱
+		$data = [];
+		if ($data_json && $data_json !== "{}") {
+			$data = json_decode($data_json, true);
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				$data = ['raw_data' => $data_json, 'json_error' => json_last_error_msg()];
+			}
+		}
+
+		// 비즈니스 로그 기록
+		$this->log_business_error($function_name, $error_message, $data);
+
+		// JSON 응답
 		json_return("00", "로그 기록 완료");
 	}
 
@@ -802,9 +845,10 @@ class Common_proc extends CI_Controller
 		# 미확인 업데이트
 		if ($user_id != "") {
 			$tbl_alarm = get_mongodb("alarm");
+			// 읽음 처리 시점 저장 (show_dt 필드 추가)
 			$tbl_alarm->update(
-				["user_id" => $user_id],
-				['$set' => ['show_yn' => "Y"]],
+				["user_id" => $user_id, "show_yn" => "N"],
+				['$set' => ['show_yn' => "Y", 'show_dt' => get_today()]],
 				['upsert' => true, 'multiple' => true]
 			);
 		}
@@ -899,6 +943,22 @@ class Common_proc extends CI_Controller
 				if ($mq_type == "RECRUIT") {
 					$data["rc_idx"] = $idx;
 					$data["ru_idx"] = $resume["ru_idx"];
+					
+					// 기업이 이미 제안한 공고-이력서 조합인지 확인 (mm_idx 제외하고 rc_idx와 ru_idx만으로 확인)
+					$sql_proposal = "
+						SELECT COUNT(*) as cnt
+						FROM st_member_request
+						WHERE mq_type = 'RESUME'
+						AND rc_idx = '" . $this->db->escape_str($data["rc_idx"]) . "'
+						AND ru_idx = '" . $this->db->escape_str($data["ru_idx"]) . "'
+					";
+					$query_proposal = $this->db->query($sql_proposal);
+					$proposal_result = $query_proposal->row_array();
+					
+					if ($proposal_result && $proposal_result["cnt"] > 0) {
+						// 제안이 이미 있는 경우 알림창 표시
+						json_return("90", "이미 기업에서 제안한 공고입니다.<br/>같은 공고와 같은 이력서로 지원할 수 없습니다.");
+					}
 				} else if ($mq_type == "RESUME") {
 					$data["ru_idx"] = $idx;
 					$data["rc_idx"] = $rc_idx;
@@ -1367,24 +1427,24 @@ class Common_proc extends CI_Controller
 		if ($proc_type == "member_request") {
 			// MongoDB 채팅방 삭제 처리를 위한 정보 수집
 			$rooms_to_close = [];
-			
+
 			foreach ($mq_idxs as $idx) {
 				// 삭제 전에 ru_idx와 rc_idx 조회
 				$sql = "SELECT ru_idx, rc_idx FROM st_member_request WHERE mq_idx = '" . $this->db->escape_str($idx) . "'";
 				$query = $this->db->query($sql);
 				$request_info = $query->row_array();
-				
+
 				if ($request_info && !empty($request_info["ru_idx"]) && !empty($request_info["rc_idx"])) {
 					$rooms_to_close[] = [
 						"ru_idx" => (int)$request_info["ru_idx"],
 						"rc_idx" => (int)$request_info["rc_idx"]
 					];
 				}
-				
+
 				// MySQL에서 제안 정보 삭제
 				$result = $this->member_model->deleteMemberRequest(["mq_idx" => $idx]);
 			}
-			
+
 			// MongoDB에서 채팅방 삭제 처리
 			if (!empty($rooms_to_close)) {
 				try {
@@ -1392,16 +1452,16 @@ class Common_proc extends CI_Controller
 					@$mongo = new Mongo($uri);
 					$database = $mongo->chat;
 					$collection = $database->room;
-					
+
 					foreach ($rooms_to_close as $room_info) {
 						// ru_idx와 rc_idx로 채팅방 찾기
 						$query = [
 							'ru_idx' => $room_info["ru_idx"],
 							'rc_idx' => $room_info["rc_idx"]
 						];
-						
+
 						$room = $collection->findOne($query);
-						
+
 						if ($room) {
 							// 채팅방 상태를 CLOSED로 변경 (삭제 대신 상태 변경)
 							$update_data = ['$set' => ['rm_status' => 'CLOSED']];

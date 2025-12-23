@@ -1002,7 +1002,13 @@
                               </label>
 
                             </div>
-                            <!-- 점프업(8시간)은 광고지역 선택이 없으므로 해당 라벨/필드 제거 -->
+                            <div class="form-row">
+                              <p class="form-label">*광고지역:<span id="ad_area_pop3"></span></p>
+                              <label>
+                                <span class="sr-text"></span>
+                              </label>
+
+                            </div>
                             <div class="form-row">
                               <p class="form-label">*광고기간:<span id="ad_duration_pop3"></span></p>
                               <label>
@@ -1047,7 +1053,7 @@
             <div class="adinfo1">
               <div class="adbox1">
                 <div class="image-container">
-                  <img src="/resource/shop/web/img/ad_img_comp1.png" alt="광고 노출 위치">
+                <img src="/resource/shop/web/img/ad_reco2.png" alt="추천공고등록">
                 </div>
               </div>
               <div class="adbox3">
@@ -1163,7 +1169,7 @@
                       <img src="/resource/shop/web/img/ad_reco1.png" alt="광고 이미지 1">
                     </div>
                     <div class="swiper-slide">
-                      <img src="/resource/shop/web/img/ad_reco2.png" alt="광고 이미지 2">
+                    <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(4시간)">
                     </div>
                   </div>
                   <!-- 네비게이션 버튼 비활성화 -->
@@ -1177,6 +1183,8 @@
               <!-- 폼 영역 -->
               <div class="adbox3">
                 <div class="form-container">
+                  <!-- 공고 선택 기능 주석처리 (사용하지 않음) -->
+                  <!--
                   <div class="form-group">
                     <label class="form-label">공고 선택</label>
                     <select id="ad_resume2" onchange="fAddrSet(this.value,'ad_addr2');">
@@ -1188,6 +1196,7 @@
                       ?>
                     </select>
                   </div>
+                  -->
                   <!-- 포인트 정보 테이블 -->
                   <div class="table-container">
                     <table class="adinfo_tab">
@@ -1286,11 +1295,22 @@
             <div class="adinfo3">
               <div class="adbox1">
                 <div class="image-container">
-                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="광고 이미지 1">
+                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(8시간)">
                 </div>
               </div>
               <div class="adbox3">
                 <div class="form-container">
+                  <div class="form-group">
+                    <label class="form-label">공고 선택</label>
+                    <select id="ad_resume3" onchange="fAddrSet(this.value,'ad_addr3');">
+                      <?php
+                      echo "<option value=\"\"></option>";
+                      foreach ($recruit_list as $resume) {
+                        echo "<option value=\"" . $resume['rc_idx'] . "\">" . $resume['rc_name'] . "</option>";
+                      }
+                      ?>
+                    </select>
+                  </div>
                   <!-- 포인트 정보 테이블 -->
                   <div class="table-container">
                     <table class="adinfo_tab">
@@ -1325,7 +1345,7 @@
                       </tbody>
                     </table>
                   </div>
-                  <div class="form-group" style="display: none;">
+                  <div class="form-group">
                     <label class="form-label">광고지역</label>
                     <div class="input-group">
                       <input id="ad_addr3" name="ad_addr3" onclick="$('#changeArea').addClass('on');">
@@ -1386,7 +1406,7 @@
             <div class="adinfo4">
               <div class="adbox1">
                 <div class="image-container">
-                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="광고 이미지 1">
+                <img src="/resource/shop/web/img/ad_img_comp1.png" alt="지금뜨는 업체">
                 </div>
               </div>
               <div class="adbox3">
@@ -1630,7 +1650,7 @@
       }
       if (code == "C002") {
         params["pm_sdate"] = sdate2 + ' ' + formattedHour2 + ':' + formattedMinute2;
-        params["rc_idx"] = $('#ad_resume2').val();
+        params["rc_idx"] = ""; // 공고 선택 기능을 사용하지 않으므로 빈 문자열
         params["pm_duration"] = $('#ad_duration2 option:selected').val();
         params["pm_addr"] = addr2;
       }
@@ -1874,21 +1894,25 @@
           }
           content = content.replace('<span id="ad_point_pop' + adNo + '"></span>', ' <span id="ad_point_pop' + adNo + '">' + pointTxt + 'P</span>');
 
-          if ($('#ad_resume' + adNo + '').val() == '') {
-            commonAlert("광고하실 채용공고를 선택하세요", function() {});
-            return;
+          // adNo가 '2'인 경우(점프업 4시간)는 공고 선택 기능을 사용하지 않으므로 체크 건너뛰기
+          if (adNo !== '2') {
+            if ($('#ad_resume' + adNo + '').val() == '') {
+              commonAlert("광고하실 채용공고를 선택하세요", function() {});
+              return;
+            }
+
+            var addrIdx = $('#ad_resume' + adNo).val();
+            const matchingPromotionBuyItem = promotionBuyArray.find(item => item.idx === parseInt(addrIdx));
+            var rtnPromotionBuyItem = matchingPromotionBuyItem ? true : false;
+            if (rtnPromotionBuyItem) {
+              commonAlert("해당공고는 이미 유료광고를 구매한 상태입니다", function() {});
+              return false;
+            }
           }
 
-          var addrIdx = $('#ad_resume' + adNo).val();
-          const matchingPromotionBuyItem = promotionBuyArray.find(item => item.idx === parseInt(addrIdx));
-          var rtnPromotionBuyItem = matchingPromotionBuyItem ? true : false;
-          if (rtnPromotionBuyItem) {
-            commonAlert("해당공고는 이미 유료광고를 구매한 상태입니다", function() {});
-            return false;
-          }
-
-          // 점프업(8시간, adNo=3)과 지금뜨는 업체(adNo=4)는 광고지역 입력이 없음
-          if (adNo !== '3' && adNo !== '4') {
+          // 점프업(4시간, adNo=2)과 지금뜨는 업체(adNo=4)는 광고지역 입력이 없음
+          // 점프업(8시간, adNo=3)은 광고지역 선택이 필요함
+          if (adNo !== '2' && adNo !== '4') {
             if ($('#ad_addr' + adNo + '').val() == '') {
               commonAlert("광고하실 지역을 선택하세요", function() {});
               return;

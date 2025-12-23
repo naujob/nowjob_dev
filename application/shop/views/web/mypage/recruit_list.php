@@ -467,7 +467,8 @@ function fRemoveBigAdr($arg)
                             <div class="summary">
                               <p class="wtype"><?= getWorkType2025($row["rc_work_type"]) ?></p>
                             </div>
-                            <p class="area"><?= fRemoveBigAdr($row["ad_addr"]) ?></p>
+                            <!-- PHP 함수 주석처리: <p class="area"><?= fRemoveBigAdr($row["ad_addr"]) ?></p> -->
+                            <p class="area" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"></p>
                           </div>
 
                           <div class="desc3">
@@ -542,5 +543,16 @@ function fRemoveBigAdr($arg)
       var url = '/recruit/job_post/' + rcIdx;
       window.open(url, '_blank');
     }
+  });
+
+  // 주소 변환: fRemoveBigAdrJS 함수 사용
+  $(document).ready(function() {
+    $('.area[data-addr]').each(function() {
+      var originalAddr = $(this).attr('data-addr');
+      if (originalAddr && typeof fRemoveBigAdrJS === 'function') {
+        var convertedAddr = fRemoveBigAdrJS(originalAddr);
+        $(this).text(convertedAddr);
+      }
+    });
   });
 </script>

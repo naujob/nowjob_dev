@@ -884,6 +884,24 @@ class Recruit_proc extends CI_Controller
 			json_return("01", "이미지원", $result);
 			return;
 		}
+		
+		// 기업이 이미 제안한 공고-이력서 조합인지 확인
+		$sql_proposal = "
+			SELECT COUNT(*) as cnt
+			FROM st_member_request
+			WHERE mq_type = 'RESUME'
+			AND rc_idx = '" . $this->db->escape_str($rc_idx) . "'
+			AND ru_idx = '" . $this->db->escape_str($ru_idx) . "'
+		";
+		$query_proposal = $this->db->query($sql_proposal);
+		$proposal_result = $query_proposal->row_array();
+		
+		if ($proposal_result && $proposal_result["cnt"] > 0) {
+			// 제안이 이미 있는 경우 알림창 표시
+			json_return("90", "이미 기업에서 제안한 공고입니다.<br/>같은 공고와 같은 이력서로 지원할 수 없습니다.");
+			return;
+		}
+		
 		json_return("00", "조회성공", $result);
 	}
 }

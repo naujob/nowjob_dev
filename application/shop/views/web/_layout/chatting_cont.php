@@ -6,22 +6,546 @@
  <input type="hidden" name="rm_status" value="" />
  <input type="hidden" name="recruit_phone" value="" />
  <input type="hidden" name="recruit_name" value="" />
- <style>
- 	.chat_noread_cnt {
- 		position: absolute;
- 		top: 25px;
- 		right: 8px;
- 		width: 26px;
- 		height: 26px;
- 		color: #fff;
- 		z-index: 100;
- 		font-size: 14px;
- 		background-color: rgb(248, 96, 72);
- 		text-align: center;
- 		line-height: 26px;
- 		border-radius: 13px;
- 	}
- </style>
+<style>
+	.chat_noread_cnt {
+		position: absolute;
+		top: 25px;
+		right: 8px;
+		width: 26px;
+		height: 26px;
+		color: #fff;
+		z-index: 100;
+		font-size: 14px;
+		background-color: rgb(248, 96, 72);
+		text-align: center;
+		line-height: 26px;
+		border-radius: 13px;
+	}
+
+	/* 채팅 뷰 채용정보 카드 스타일 (mobile chat_view.php와 동일, main.css 참조 방지) */
+	.chat-view-header .chat-recruit-content-li {
+		position: relative !important;
+		width: 100% !important;
+		height: 115px !important;
+		overflow: hidden !important;
+		font-size: 12px !important;
+		border-radius: 10px !important;
+		background: #fff !important;
+		margin-bottom: 10px !important;
+		transition: background 0.2s ease !important;
+		cursor: pointer !important;
+	}
+
+	.chat-view-header .chat-recruit-content-li:hover {
+		background: #f8f8f8 !important;
+	}
+
+	.chat-view-header .chat-recruit-content-li * {
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+
+	.chat-view-header .chat-recruit-content-info {
+		width: 100% !important;
+		height: 100% !important;
+		padding: 10px !important;
+	}
+
+	.chat-view-header .chat-recruit-wicon {
+		margin: 0 !important;
+	}
+	
+	.chat-view-header .chat-recruit-wicon img {
+		height: 19px !important;
+	}
+
+	.chat-view-header .chat-recruit-title {
+		font-size: 18px !important;
+		font-weight: bold !important;
+		margin: 0 !important;
+	}
+
+	.chat-view-header .chat-recruit-title a {
+		color: #000 !important;
+		text-decoration: none !important;
+	}
+
+	.chat-view-header .chat-recruit-summary3 {
+		position: absolute !important;
+		top: 6px !important;
+		right: 10px !important;
+		color: #000 !important;
+		height: 17px !important;
+		text-align: right !important;
+		font-size: 16px !important;
+		font-weight: 600 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary3 em {
+		position: relative !important;
+		display: inline-block !important;
+		font-style: normal !important;
+		padding-left: 5px !important;
+	}
+
+	.chat-view-header .chat-recruit-summary3 em:not(:last-child) {
+		padding-right: 5px !important;
+	}
+
+	.chat-view-header .chat-recruit-summary3 em:not(:last-child)::after {
+		content: "" !important;
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 1px !important;
+		height: 0.5em !important;
+		margin: auto !important;
+		border-right: 1px solid #777777 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary3 em.wtype1 {
+		color: #3a70db !important;
+	}
+
+	.chat-view-header .chat-recruit-summary3 em.wtype2 {
+		color: #F86048 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary3 em.wtype3 {
+		color: #1B9D7D !important;
+	}
+
+	.chat-view-header .chat-recruit-content-body {
+		position: relative !important;
+		height: 95px !important;
+		overflow: hidden !important;
+	}
+
+	.chat-view-header .chat-recruit-desc {
+		position: relative !important;
+		height: 95px !important;
+		margin: 0 0 0 105px !important;
+		cursor: pointer !important;
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 4px !important;
+	}
+
+	.chat-view-header .chat-recruit-desc .ellipsis {
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		white-space: nowrap !important;
+	}
+
+	.chat-view-header .chat-recruit-img {
+		position: absolute !important;
+		width: 95px !important;
+		height: 95px !important;
+		border: 0 !important;
+		border-radius: 5px !important;
+		color: #888 !important;
+		overflow: hidden !important;
+	}
+
+	.chat-view-header .chat-recruit-img img {
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover !important;
+		display: block !important;
+	}
+
+	.chat-view-header .chat-recruit-summary {
+		display: flex !important;
+		font-size: 16px !important;
+		gap: 5px !important;
+		position: relative !important;
+		margin: 0 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary p {
+		position: relative !important;
+		padding-right: 5px !important;
+		margin: 0 !important;
+		color: #999 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary p:not(:last-child)::after {
+		content: "" !important;
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 1px !important;
+		height: 0.5em !important;
+		margin: auto !important;
+		border-right: 1px solid #ACACAC !important;
+	}
+
+	.chat-view-header .chat-recruit-summary>* {
+		min-width: 0 !important;
+		max-width: 100% !important;
+		margin-right: 4px !important;
+		margin-bottom: -3px !important;
+	}
+
+	.chat-view-header .chat-recruit-summary.area p {
+		color: #000 !important;
+		font-weight: 600 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 {
+		position: absolute !important;
+		right: 0px !important;
+		bottom: 0px !important;
+		font-size: 18px !important;
+		font-weight: 700 !important;
+		letter-spacing: 0 !important;
+		color: #222 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: flex-end !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 p {
+		margin: 0 !important;
+		text-align: right !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 .period {
+		display: flex !important;
+		gap: 5px !important;
+		justify-content: flex-end !important;
+		position: relative !important;
+		font-size: 16px !important;
+		font-weight: 600 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 .amount em {
+		font-style: normal !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 .period em {
+		position: relative !important;
+		display: inline-block !important;
+		font-style: normal !important;
+		color: #777 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 .period em.on {
+		color: #1B9D7D !important;
+	}
+
+	.chat-view-header .chat-recruit-btn-wrapper {
+		display: block !important;
+		text-align: center !important;
+		padding: 10px !important;
+		background: #f8f8f8 !important;
+		border-top: 1px solid #e0e0e0 !important;
+		text-decoration: none !important;
+		color: #333 !important;
+	}
+
+	.chat-view-header .chat-recruit-btn-wrapper:hover {
+		background: #e8e8e8 !important;
+	}
+
+	/* 채팅 뷰 인재정보 카드 스타일 (mobile chat_view.php와 동일, main.css 참조 방지) */
+	.chat-view-header .chat-resume-content-li {
+		position: relative !important;
+		width: 100% !important;
+		height: 115px !important;
+		overflow: hidden !important;
+		font-size: 12px !important;
+		border-radius: 10px !important;
+		background: #fff !important;
+		margin-bottom: 10px !important;
+		transition: background 0.2s ease !important;
+		cursor: pointer !important;
+	}
+
+	.chat-view-header .chat-resume-content-li:hover {
+		background: #f8f8f8 !important;
+	}
+
+	.chat-view-header .chat-resume-content-li * {
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+
+	.chat-view-header .chat-resume-content-info {
+		width: 100% !important;
+		height: 100% !important;
+		padding: 10px !important;
+	}
+
+	.chat-view-header .chat-resume-wicon img {
+		height: 19px !important;
+	}
+
+	.chat-view-header .chat-resume-title {
+		font-size: 18px !important;
+		font-weight: bold !important;
+		/* margin은 chat-resume-desc > * 선택자로 제거되므로 gap으로 간격 조정 */
+	}
+
+	.chat-view-header .chat-resume-title a {
+		color: #000 !important;
+		text-decoration: none !important;
+	}
+
+	.chat-view-header .chat-resume-content-body {
+		position: relative !important;
+		overflow: hidden !important;
+		height: 95px !important;
+	}
+
+	.chat-view-header .chat-resume-desc {
+		position: relative !important;
+		height: 100% !important;
+		margin: 0 0 0 110px !important;
+		cursor: pointer !important;
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 4px !important;
+	}
+
+	/* chat-resume-desc 내부 자식 요소들의 margin 제거하여 gap으로 일정한 간격 유지 */
+	.chat-view-header .chat-resume-desc > * {
+		margin: 0 !important;
+	}
+
+	.chat-view-header .chat-resume-desc .ellipsis {
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		white-space: nowrap !important;
+	}
+
+	.chat-view-header .chat-resume-img {
+		position: absolute !important;
+		width: 95px !important;
+		height: 95px !important;
+		border: 0 !important;
+		border-radius: 5px !important;
+		color: #888 !important;
+		overflow: hidden !important;
+	}
+
+	.chat-view-header .chat-resume-img img {
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover !important;
+		display: block !important;
+	}
+
+	.chat-view-header .chat-resume-summary {
+		display: flex !important;
+		font-size: 16px !important;
+		gap: 5px !important;
+		position: relative !important;
+	}
+
+	.chat-view-header .chat-resume-summary p {
+		position: relative !important;
+		padding-right: 5px !important;
+		margin: 0 !important;
+		color: #000 !important;
+		font-weight: 600 !important;
+	}
+
+	.chat-view-header .chat-resume-summary p:not(:last-child)::after {
+		content: "" !important;
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 1px !important;
+		height: 0.5em !important;
+		margin: auto !important;
+		border-right: 1px solid #ACACAC !important;
+	}
+
+	.chat-view-header .chat-resume-summary>* {
+		min-width: 0 !important;
+		max-width: 100% !important;
+		margin-right: 4px !important;
+		margin-bottom: -3px !important;
+	}
+
+	.chat-view-header .chat-resume-summary2 {
+		position: absolute !important;
+		right: 0px !important;
+		bottom: 0px !important;
+		font-size: 16px !important;
+		font-weight: 600 !important;
+		letter-spacing: 0 !important;
+		color: #1b9d7d !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: flex-end !important;
+	}
+
+	.chat-view-header .chat-resume-summary2 p {
+		margin: 0 !important;
+		text-align: right !important;
+	}
+
+	.chat-view-header .chat-resume-summary2 .pricetype {
+		display: flex !important;
+		gap: 5px !important;
+		justify-content: flex-end !important;
+		position: relative !important;
+	}
+
+	/* pricetype 내부 em 태그 기본 폰트 스타일 제거 (mobile chat_view.php와 동일) */
+	.chat-view-header .chat-resume-summary2 .pricetype em {
+		position: relative !important;
+		display: inline-block !important;
+		font-style: normal !important;
+	}
+
+	.chat-view-header .chat-resume-summary2 .pricetype em:not(:last-child) {
+		padding-right: 5px !important;
+	}
+
+	.chat-view-header .chat-resume-summary2 .pricetype em:not(:last-child)::after {
+		content: "" !important;
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 1px !important;
+		height: 0.5em !important;
+		margin: auto !important;
+		border-right: 1px solid #777777 !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 {
+		position: absolute !important;
+		right: 0px !important;
+		top: 0px !important;
+		font-size: 16px !important;
+		font-weight: 600 !important;
+		letter-spacing: 0 !important;
+		color: #333 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: flex-end !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 p {
+		margin: 0 !important;
+		text-align: right !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 .worktype {
+		display: flex !important;
+		gap: 5px !important;
+		justify-content: flex-end !important;
+		position: relative !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 .worktype em {
+		position: relative !important;
+		display: inline-block !important;
+		font-style: normal !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 .worktype em.wtype1 {
+		color: #3a70db !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 .worktype em.wtype2 {
+		color: #F86048 !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 .worktype em.wtype3 {
+		color: #1B9D7D !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 .worktype em:not(:last-child) {
+		padding-right: 5px !important;
+	}
+
+	.chat-view-header .chat-resume-summary3 .worktype em:not(:last-child)::after {
+		content: "" !important;
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 1px !important;
+		height: 0.5em !important;
+		margin: auto !important;
+		border-right: 1px solid #777777 !important;
+	}
+
+	.chat-view-header .working-day {
+		display: flex !important;
+		margin: 0 0 -4px !important;
+		list-style: none !important;
+	}
+
+	.chat-view-header .working-day>li {
+		width: 1.8em !important;
+		height: 1.8em !important;
+		margin: 0 0.5em 4px 0 !important;
+		font-size: 13px !important;
+		color: #BEBFC9 !important;
+		line-height: 1.5 !important;
+		text-align: center !important;
+		text-indent: -1px !important;
+		border-radius: 100% !important;
+		border: 1px solid #BEBFC9 !important;
+		background: #fff !important;
+		float: left !important;
+	}
+
+	.chat-view-header .working-day>li:last-child {
+		margin-right: 0 !important;
+	}
+
+	.chat-view-header .working-day li[aria-hidden=false] {
+		color: #fff !important;
+		border-color: transparent !important;
+		background-color: #1B9D7D !important;
+	}
+
+	.chat-view-header .chat-resume-btn-wrapper {
+		display: block !important;
+		text-align: center !important;
+		padding: 10px !important;
+		background: #f8f8f8 !important;
+		border-top: 1px solid #e0e0e0 !important;
+		text-decoration: none !important;
+		color: #333 !important;
+	}
+
+	.chat-view-header .chat-resume-btn-wrapper:hover {
+		background: #e8e8e8 !important;
+	}
+
+	/* chat-view 넓이 확대 */
+	.chat-view {
+		width: 500px !important;
+		min-width: 500px;
+	}
+
+	/* title 클래스 font-size 설정 (main.css 참조 방지를 위해 구체적인 선택자 사용) */
+	#chatPopup .title-wrap p.title,
+	#chatPopup .add-new p.title {
+		font-size: 1.3rem;
+	}
+
+	/* angle-link 클래스 font-weight 설정 (main.css 참조 방지를 위해 구체적인 선택자 사용) */
+	#chatPopup .angle-link {
+		font-weight: 400;
+	}
+
+	/* latest 클래스 내부 category-label height 설정 (main.css 참조 방지를 위해 구체적인 선택자 사용) */
+	#chatPopup p.latest .category-label {
+		height: 19px;
+	}
+</style>
  <div id="chatPopup" class="layer-popup">
  	<div role="dialog" aria-labelledby="chatTitle" aria-modal="true" class="popup-container">
  		<div class="popup-content">
@@ -47,10 +571,10 @@
  							<ul role="tablist" class="tabs">
  								<?php if ($user_type == "MEM") { ?>
  									<li class="on chat_tab1" style="width:50%;">
- 										<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">지원한공고</span></a>
+ 										<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">지원한 공고</span></a>
  									</li>
  									<li class="chat_tab2" style="width:50%;">
- 										<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안받은공고</span></a>
+ 										<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안받은 공고</span></a>
  									</li>
  								<?php } ?>
  								<?php if ($user_type == "COMP") { ?>
@@ -71,7 +595,7 @@
  						<div class="chat-list-body">
 
  							<div role="tabpanel" id="chatPanel1" aria-labelledby="chatTab1" tabindex="0" class="tab-panel" hidden>
- 								<!-- 기업회원 채용공고 탭/개인의 지원한 공고 목록 항목 -->
+ 								<!-- 기업회원 제안받은 인재 -->
  								<ol class="list" id="chat_list1" style="width:100%;float:left;">
 
  								</ol>
@@ -79,9 +603,9 @@
  									<p>지원자 목록이 없습니다.</p>
  								</div>
  							</div>
- 							<!-- 중고거래 내용 -->
+ 							
  							<div role="tabpanel" id="chatPanel2" aria-labelledby="chatTab2" tabindex="0" class="tab-panel" hidden>
- 								<!-- 기업회원 제안보낸인재 / 개인의 제안받은 공고 목록 항목 -->
+ 								<!-- 기업회원 제안보낸 인재 -->
  								<ol class="list" id="chat_list2" style="width:100%;float:left;">
 
  								</ol>
@@ -108,157 +632,88 @@
  							<h4 class="view-title" id="top_name">1:1 채팅</h4>
 
  							<!-- 채용정보 -->
- 							<?php if ($user_type == "MEM") : ?>
- 								<div id="top_recruit" class="item-info recruit angle-link" style="display:none;">
- 									<div class="thumb-wrap">
- 										<!-- 추천라벨 -->
- 										<!-- 썸네일 -->
- 										<div class="thumb"><img id="top_img" src="" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" /></div>
- 										<!-- 공고보기 -->
- 										<a id="top_link" href="" class="btn-line js-toggle-summary">지원한 공고</a>
- 									</div>
- 									<div class="content-wrap">
- 										<div class="meta top">
- 											<!-- 직종라벨 -->
- 											<p class="category" id="top_work_img">
-
- 											</p>
- 											<!-- 근무시간 -->
- 											<p class="type" id="top_work_type"><em>주간</em>,<em>야간</em></p>
- 										</div>
- 										<!-- 제목 -->
- 										<!-- 주요정보패널 링크 -->
- 										<p class="title"><strong id="top_title">인천 연수구 14만원 칸막이일</strong></p>
- 										<!-- 지역 -->
- 										<div class="meta">
- 											<p class="area" id="top_area" style="background: url(/resource/shop/web/img/ic_meta_loc.svg) no-repeat 0 0;background-size: 11px auto; padding-left: 14px;">인천 미추홀구</p>
- 										</div>
- 										<!-- 추가조건 -->
- 										<div class="meta">
- 											<p id="top_nation">내국인만</p>
- 											<span>/</span>
- 											<p id="top_age">60세 이하</p>
- 										</div>
- 										<!-- 지불방식 -->
- 										<div class="pay">
- 											<p class="type" id="top_price_type"><em>일급</em>,주급</p>
- 											<p class="amount" id="top_price"><em class="num">120,000</em> 원</p>
- 										</div>
- 									</div>
- 									<!-- 주요정보패널 보기 -->
- 									<a href="#chatSummary" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="btn-wrapper js-toggle-summary"><span class="sr-text">주요정보보기</span></a>
- 									<!-- <a href="#chatSummary" id="detailgo" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="btn-wrapper js-toggle-summary"><span class="sr-text">주요정보보기</span></a> -->
-
- 								</div>
- 							<?php else : ?>
- 								<div id="top_recruit" class="item-info person angle-link" style="display:none;">
- 									<div class="thumb-wrap">
- 										<!-- 썸네일 -->
- 										<div class="thumb">
- 											<img id="top_img" src="" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" />
- 										</div>
- 										<!-- 평점 -->
- 										<p class="star-rating">
- 											<!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
- 											<span class="star" style="width:100%;"></span>
- 											<span class="sr-text">평점</span>
- 											<span class="sr-text">5</span>
- 										</p>
- 										<!-- 공고보기 -->
- 										<a href="#" id="top_link" class="btn-line js-toggle-summary">인재 정보</a>
- 									</div>
- 									<div class="content-wrap">
- 										<div class="meta top">
- 											<p class="category" id="top_reg_dt" style="display: block; width: 100%;"></p>
- 											<!-- 직종라벨 -->
- 											<p class="category" id="top_work_img">
-
- 											</p>
- 											<!-- 조건 -->
- 											<p class="condition" style="position: absolute; top:37px; right:10px;"><em class="period" id="top_price_type">월급</em><br><span class="working-time" id="top_work_type">주간</span></p>
- 										</div>
- 										<div class="title-wrap" style="display:block;">
- 											<!-- 이름 -->
- 											<p class="title"><strong id="top_name_mem"></strong></p>
- 											<!-- 추가사항 -->
- 											<div class="meta" style="margin:1px 0 0 0;">
- 												<p id="top_nation">외국인</p>
- 												<span>|</span>
- 												<p id="top_age">70세</p>
- 											</div>
- 										</div>
- 										<!-- 지역 -->
- 										<div class="meta">
- 											<p class="loc" id="top_area">인천 연수구</p>
- 										</div>
- 										<!-- 해시태그 -->
- 										<div class="hashtag" id="top_tag" style="margin-top:6px;">
- 											<p class="tag">#성실해요</p>
- 											<p class="tag">#친절해요</p>
- 										</div>
- 										<!-- 요일 -->
- 										<style>
- 											.weekday li[aria-hidden="true"] {
- 												border: 1px solid #BEBFC9;
- 												background-color: white;
- 												color: #BEBFC9;
- 											}
-
- 											.weekday li[aria-hidden="false"] {
- 												border: 1px solid #57CCAF;
- 												background-color: #57CCAF;
- 												/* Mint color */
- 												color: #fff;
- 											}
-
- 											.weekday li {
- 												font-size: 12px;
- 												list-style: none;
- 												/* Remove bullet points */
- 												display: inline-block;
- 												/* Arrange items in a row */
- 												padding: 5px 7px;
- 												/* Padding around text */
- 												margin-right: 3px;
- 												/* Space between items */
- 												border-radius: 15px;
- 											}
- 										</style>
- 										<div class="weekday" id="top_weekday" style="margin-top:8px;width: 209px;">
- 										</div>
- 									</div>
- 									<!-- 주요정보패널 보기 -->
- 									<a id="detailgo" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="btn-wrapper" style="width: 40px; right: 0; left: auto; top: 32px; height: 45px;"><span class="sr-text">주요정보보기</span></a>
- 									<!-- <a href="#chatSummary" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="btn-wrapper js-toggle-summary" style="width: 40px; right: 0; left: auto; top: 40px; height: 45px;"><span class="sr-text">주요정보보기</span></a> -->
- 								</div>
- 								<!-- //채용정보 -->
+							<?php if ($user_type == "MEM") : ?>
+								<div id="top_recruit" class="chat-recruit-content-li recomm" style="display:none;">
+									<div class="chat-recruit-content-info">
+										<div class="chat-recruit-content-body">
+											<div class="chat-recruit-img">
+												<a id="top_link" href="" aria-label="채용공고 보기">
+													<img id="top_img" src="" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" />
+												</a>
+												<!-- 북마크 버튼 (웹 채팅 팝업에서는 사용 안 함)
+												<button type="button" data-bk_type="RECRUIT" id="top_bookmark" class="btnBookMark btn-bookmark js-toggle-bookmark"><span class="sr-text">즐겨찾기 추가</span></button>
+												-->
+											</div>
+											<div class="chat-recruit-desc">
+												<div class="chat-recruit-wicon" id="top_work_img">
+													<!-- 직종 아이콘 -->
+												</div>
+												<div class="chat-recruit-title ellipsis">
+													<a id="top_title_link" href=""><strong id="top_title"></strong></a>
+												</div>
+												<div class="chat-recruit-summary">
+													<p id="top_nation"></p>
+													<p id="top_age"></p>
+												</div>
+												<div class="chat-recruit-summary area">
+													<p class="js-chat-addr" id="top_area" data-addr=""></p>
+												</div>
+												<div class="chat-recruit-summary2">
+													<p class="period" id="top_price_type"></p>
+													<p class="amount" id="top_price"></p>
+												</div>
+											</div>
+										</div>
+										<div class="chat-recruit-summary3" id="top_work_type">
+											<!-- 근무 타입 -->
+										</div>
+									</div>
+									<!-- 주요정보패널 보기 -->
+									<a href="#chatSummary" id="detailgo" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="chat-recruit-btn-wrapper js-toggle-summary"><span class="sr-text">주요정보보기</span></a>
+								</div>
+							<?php else : ?>
+								<div id="top_recruit" class="chat-resume-content-li recomm" style="display:none;">
+									<div class="chat-resume-content-info">
+										<div class="chat-resume-content-body">
+											<div class="chat-resume-img">
+												<a id="top_link" href="" aria-label="이력서 보기">
+													<img id="top_img" src="" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" />
+												</a>
+												<!-- 북마크 버튼 (웹 채팅 팝업에서는 사용 안 함)
+												<button type="button" data-bk_type="RESUME" id="top_bookmark" class="btnBookMark btn-bookmark js-toggle-bookmark"><span class="sr-text">즐겨찾기 추가</span></button>
+												-->
+											</div>
+											<div class="chat-resume-desc">
+												<div class="chat-resume-wicon" id="top_work_img">
+													<!-- 직종 아이콘 -->
+												</div>
+												<div class="chat-resume-title ellipsis">
+													<a id="top_title_link" href=""><strong id="top_name_mem"></strong></a>
+												</div>
+												<div class="chat-resume-summary">
+													<ul class="working-day" id="top_weekday"></ul>
+												</div>
+												<div class="chat-resume-summary">
+													<p id="top_nation"></p>
+													<p id="top_age"></p>
+													<p class="js-chat-resume-addr" id="top_area" data-addr=""></p>
+												</div>
+												<div class="chat-resume-summary2" id="top_price_type">
+													<!-- 가격 타입 -->
+												</div>
+												<div class="chat-resume-summary3" id="top_work_type">
+													<!-- 근무 타입 -->
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- 인재정보 보기 -->
+									<a href="#chatSummary" id="detailgo" role="button" aria-haspopup="dialog" aria-controls="chatSummary" class="chat-resume-btn-wrapper js-toggle-summary"><span class="sr-text">인재정보보기</span></a>
+								</div>
+								<!-- //인재정보 -->
  							<?php endif; ?>
 
- 							<!-- 중고판매정보 -->
- 							<div id="top_trade" class="item-info sale angle-link" style="display:none;">
- 								<div class="thumb-wrap">
- 									<!-- 즐겨찾기 추가된 목록: on -->
- 									<button type="button" class="btn-bookmark js-toggle-bookmark on"><span class="sr-text">즐겨찾기 해제</span></button>
- 									<!-- 썸네일 -->
- 									<div class="thumb"><img id="td_img" src="" alt=""></div>
- 								</div>
- 								<div class="content-wrap">
- 									<p class="title"><strong id="td_title">애플워치3 실버 38mm</strong></p>
- 									<div class="meta">
- 										<p class="area" id="td_area">인천 미추홀구</p>
- 									</div>
- 									<div class="price-wrap">
- 										<p class="amount"><em class="num" id="td_price">120,000</em> 원</p>
- 										<p class="date" id="td_date">2022.02.12</p>
- 									</div>
- 									<div class="meta" id="td_price_yn">
- 										<p class="nego txt-red">가격제안불가</p>
- 									</div>
- 								</div>
- 								<!-- 중고판매 상세 이동 -->
- 								<a href="#" id="td_link" class="btn-wrapper"><span class="sr-text">상세보기</span></a>
- 							</div>
- 							<!-- //중고판매정보 -->
+ 							
 
  							<!-- 일정 -->
  							<?php if ($user_type == "COMP") : ?>
@@ -624,7 +1079,7 @@
  </div>
  <!-- //채팅팝업 -->
  <!--
- 기업회원 제안보낸인재 / 채용공고 탭의 공고 목록 항목 표시
+ 기업회원 제안받은 인재 / 제안보낸 인재 탭의 항목 표시
 -->
  <template id="tpl_chat">
  	<li class="list-item">
@@ -635,21 +1090,16 @@
  						<img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
  					</div>
  				</div>
- 				<div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
- 					<div class="timestamp" style="font-size: 12px;">등록일 : {{reg_dt}}</div>
- 					<div class="inline-group" style="height: 20px; font-size: 12px;">
- 						<!-- 직종라벨 -->
- 						<p class="category">{{rc_work}}</p>
- 					</div>
- 					<div class="title-wrap">
- 						<p class="title"><strong>{{rc_name}}</strong></p>
- 					</div>
- 					<!-- 추가조건 -->
- 					<div class="meta" style="font-size: 12px;">
- 						<!-- 근무시간 -->
- 						<p>{{rc_nation}}</p>
- 					</div>
- 				</div>
+				<div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
+					<div class="timestamp" style="font-size: 12px;color:#777;">{{mm_comp_name}}</div>
+					<div class="title-wrap">
+						<p class="title"><strong>{{rc_name}}</strong></p>
+					</div>
+					<!-- 채팅방 개수 -->
+					<div class="meta" style="font-size: 12px;color:#999;">
+						<p class="room-count-text">채팅방 {{room_count}}명</p>
+					</div>
+				</div>
  			</div>
  		</a>
  	</li>
@@ -657,35 +1107,27 @@
  <!-- //채팅팝업 -->
 
  <!-- 
-템플릿: tpl_chat_mem
-용도: 개인회원용 지원한 공고 목록 항목
-사용 위치: getChatTargetList() 함수 (1458줄)
-표시 위치: #chat_list1 (지원한 공고 탭)
-사용자: 개인회원(MEM) 전용
-기능: 지원한 공고 목록 표시, 클릭 시 채팅방 열기
+개인회원 지원한공고탬플릿
 -->
  <template id="tpl_chat_mem">
  	<li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}" data-regdt="{{reg_dt}}">
  		<a href="#" class="angle-link js-open-view" style="padding:0;" data-regdt="{{reg_dt}}">
  			<div class="item-info person" style="width:100%;">
  				<div class="thumb-wrap">
- 					<div class="thumb">
- 						<img src="{{rc_thumb}}" alt="">
+ 					<div class="thumb" style="border-radius: 50%; overflow: hidden;">
+ 						<img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
  					</div>
  				</div>
  				<div class="content-wrap">
- 					<div class="timestamp" style="font-size: 12px;">등록일 : {{reg_dt}}</div>
- 					<div class="inline-group" style="height: 20px; font-size: 12px;">
- 						<!-- 직종라벨 -->
- 						<p class="category">{{rc_work}}</p>
- 					</div>
+ 					<div class="timestamp" style="font-size: 12px;color:#777;">{{mm_comp_name}}</div>
+ 					
  					<div class="title-wrap">
  						<p class="title"><strong>{{rc_name}}</strong></p>
  					</div>
- 					<!-- 추가조건 -->
- 					<div class="meta" style="font-size: 12px;">
- 						<!-- 근무시간 -->
- 						<p>{{rc_nation}}</p>
+ 					<!-- 마지막 메시지 -->
+ 					<div class="meta" style="font-size: 12px;color:#999;">
+ 						<p class="last-msg">{{last_msg_preview}}</p>
+ 						
  					</div>
  				</div>
  			</div>
@@ -694,11 +1136,10 @@
  </template>
 
  <!-- 
-기업회원은 제안보낸  목록, 개인회원은 제안받은  목록을 표시
-  - 클릭 시 angle-link-resume 클래스로 채팅방 생성/열기
+개인의 제안받은 공고 탬플릿
 -->
  <template id="tpl_chat2">
- 	<!-- 기업회원 제안보낸인재 / 개인의 제안받은 공고 목록 항목 -->
+ 	<!-- 개인의 제안받은 공고 목록 항목 -->
  	<li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}" data-regdt="{{reg_dt}}">
  		<a href="#" class="angle-link js-open-view angle-link-resume" style="padding:0;"
  			aria-haspopup="dialog"
@@ -710,35 +1151,32 @@
  			data-user_img="{{user_img}}"
  			data-target_name="{{target_name}}"
  			data-user_name="{{user_name}}"
- 			data-subject="{{rc_name}}">
- 			<div class="item-info person" style="width:100%;">
- 				<div class="thumb-wrap">
- 					<div class="thumb">
- 						<img src="{{rc_thumb}}" alt="">
- 					</div>
- 				</div>
- 				<div class="content-wrap">
- 					<div class="timestamp" style="font-size: 12px;">등록일 : {{reg_dt}}</div>
- 					<div class="inline-group" style="height: 20px; font-size: 12px;">
- 						<!-- 직종라벨 -->
- 						<p class="category">{{rc_work}}</p>
- 					</div>
- 					<div class="title-wrap">
- 						<p class="title"><strong>{{rc_name}}</strong></p>
- 					</div>
- 					<!-- 추가조건 -->
- 					<div class="meta" style="font-size: 12px;">
- 						<!-- 근무시간 -->
- 						<p>{{rc_nation}}</p>
- 					</div>
- 				</div>
- 			</div>
- 		</a>
- 	</li>
- </template>
+			data-subject="{{rc_name}}">
+			<div class="item-info person" style="width:100%;">
+				<div class="thumb-wrap">
+					<div class="thumb" style="border-radius: 50%; overflow: hidden;">
+						<img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+					</div>
+				</div>
+				<div class="content-wrap">
+					<div class="timestamp" style="font-size: 12px;color:#777;">{{mm_comp_name}}</div>
+					
+					<div class="title-wrap">
+						<p class="title"><strong>{{rc_name}}</strong></p>
+					</div>
+					<!-- 마지막 메시지 -->
+					<div class="meta" style="font-size: 12px;color:#999;">
+						<p class="last-msg">{{last_msg_preview}}</p>
+						
+					</div>
+				</div>
+			</div>
+		</a>
+	</li>
+</template>
 
  <!-- 
-용도: 기업회원용 - 특정 채용공고에 지원한 인재 목록 항목
+용도: 기업회원용 - 특정 채용공고에 지원한 인재 목록 항목 탬플릿
 -->
  <template id="tpl_chat_by_recruite">
  	<li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}">
@@ -754,13 +1192,13 @@
  			data-user_name="{{user_name}}"
  			data-subject="{{rc_name}}">
 
- 			<div class="thumb"><img src="{{ru_thumb}}" alt=""></div>
- 			<div class="mid">
- 				<p class="name">{{target_name}}</p>
- 				<p class="latest">{{meminfo}}</p>
- 				<!-- <p class="latest"></p> -->
- 				<p class="time">{{up_dt}}</p>
- 			</div>
+			<div class="thumb"><img src="{{ru_thumb}}" alt=""></div>
+			<div class="mid">
+				<p class="latest">{{meminfo}}</p>
+				<p class="name">{{ru_name}}</p>
+				<!-- <p class="latest"></p> -->
+				<p class="time">{{last_msg_preview}}</p>
+			</div>
  		</a>
  		<button type="button" onclick="deleteItem(this.parentNode);" class="btn-primary btn-trash js-del-item">
  			<span class="sr-text">삭제</span>
@@ -844,16 +1282,63 @@
  	//대화내용 중복 차단 내역 초기화
  	let processedIdx = [];
 
- 	function maskingName(name) {
- 		if (name == null) {
- 			return "";
- 		}
- 		if (name.length <= 2) {
- 			return name.replace(name.substring(0, 1), "*");
- 		}
+	function maskingName(name) {
+		if (name == null) {
+			return "";
+		}
+		if (name.length <= 2) {
+			return name.replace(name.substring(0, 1), "*");
+		}
 
- 		return name.substring(0, 1) + "**";
- 	}
+		return name.substring(0, 1) + "**";
+	}
+
+	// 주소 정리 함수 (chat_view.php와 동일)
+	function fRemoveBigAdrJS(arg) {
+		// null 또는 undefined 체크
+		if (!arg || typeof arg !== 'string') {
+			return '';
+		}
+		const parts1 = arg.split(",");
+		arg = parts1[0];
+		arg = arg.replace("서울특별시 ", "서울시 ");
+		arg = arg.replace("경기 ", "");
+		arg = arg.replace("강원 ", "");
+		arg = arg.replace("충남 ", "");
+		arg = arg.replace("충북 ", "");
+		arg = arg.replace("경남 ", "");
+		arg = arg.replace("경북 ", "");
+		arg = arg.replace("전남 ", "");
+		arg = arg.replace("전북 ", "");
+		arg = arg.replace("제주 ", "");
+		arg = arg.replace("경기도 ", "");
+		arg = arg.replace("강원특별자치도 ", "");
+		arg = arg.replace("충청남도 ", "");
+		arg = arg.replace("충청북도 ", "");
+		arg = arg.replace("경상남도 ", "");
+		arg = arg.replace("경상북도 ", "");
+		arg = arg.replace("전라남도 ", "");
+		arg = arg.replace("전북특별자치도 ", "");
+		arg = arg.replace("제주특별자치도 ", "");
+		arg = arg.replace("세종특별자치시 ", "세종시 ");
+		arg = arg.replace("광주광역시 ", "광주시 ");
+		arg = arg.replace("인천광역시 ", "인천시 ");
+		arg = arg.replace("울산광역시 ", "울산시 ");
+		arg = arg.replace("부산광역시 ", "부산시 ");
+		arg = arg.replace("대구광역시 ", "대구시 ");
+		arg = arg.replace("대전광역시 ", "대전시 ");
+		const parts = arg.split(" ");
+		if (parts.length >= 3) {
+			// parts[2]가 숫자를 포함하고 있으면 parts[1]만 결합 (parts[2]는 제외)
+			if (/\d/.test(parts[2])) {
+				return parts[0] + " " + parts[1];
+			} else {
+				return parts[0] + " " + parts[2];
+			}
+		} else {
+			return arg;
+		}
+	}
  </script>
  <?php if ($this->user->isLogin() !== false) : ?>
  	<script>
@@ -899,11 +1384,33 @@
  				setShow("2");
  			});
 
- 			$(".chat_tab3").click(function() {
- 				setShow("3");
- 			});
+			$(".chat_tab3").click(function() {
+				setShow("3");
+			});
 
- 			$("#chatTxt").keyup(function(e) {
+			// top_recruit 클릭 시 상세페이지로 이동
+			$(document).on("click", "#top_recruit", function(e) {
+				// 링크나 버튼을 클릭한 경우는 기본 동작 유지
+				if ($(e.target).is("a") || $(e.target).closest("a").length > 0 || 
+					$(e.target).is("button") || $(e.target).closest("button").length > 0) {
+					return;
+				}
+				
+				// 채용정보인 경우 (data-rc_idx가 있으면)
+				var rc_idx = $(this).attr("data-rc_idx");
+				if (rc_idx) {
+					window.location.href = "/recruit/job_post/" + rc_idx;
+					return;
+				}
+				
+				// 인재정보인 경우 (data-ru_idx가 있으면)
+				var ru_idx = $(this).attr("data-ru_idx");
+				if (ru_idx) {
+					window.location.href = "/resume/hr_post/" + ru_idx;
+				}
+			});
+
+			$("#chatTxt").keyup(function(e) {
  				if (e.keyCode === 13) {
  					e.preventDefault();
  					send_message();
@@ -1103,45 +1610,81 @@
  							if (readNCount > 0) {
  								$('#chat_list2 .room_idx_' + rm_idx).append('<span class="chat_noread_cnt" style="top:33px; right:30px;">' + readNCount + '</span>');
  							}
- 						<?php } ?>
+						<?php } ?>
 
- 					}
- 				}
+					}
+				}
+
+				// 전체 안읽은 메시지 카운트 계산하여 noreadcountall 업데이트
+				var countAll = 0;
+				for (const key in results) {
+					if (results.hasOwnProperty(key)) {
+						const result = results[key];
+						const { rm_messages } = result;
+						
+						rm_messages.forEach(message => {
+							if (message.mg_reads) {
+								message.mg_reads.forEach(read => {
+									if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
+										countAll++;
+									}
+								});
+							}
+						});
+					}
+				}
+
+				// noreadcountall 업데이트
+				if (countAll > 0) {
+					if (countAll > 99) {
+						$('#noreadcountall').html('99+');
+						$('#noreadcountall').css('width', '40px');
+					} else {
+						$('#noreadcountall').html(countAll);
+						$('#noreadcountall').css('width', '30px');
+					}
+					$('#noreadcountall').show();
+				} else {
+					$('#noreadcountall').hide();
+				}
 
 
- 			}); //comAjax
+			}); //comAjax
 
- 		}
+		}
 
- 		//더블클릭 이벤트 처리
- 		$(document).on("click", ".room-item", function() {
+		//더블클릭 이벤트 처리
+		// 기업회원 제안받은 인재 / 제안보낸 인재 탭의 항목 클릭시 채팅방 진입
+		$(document).on("click", ".room-item", function() {
+			//대화내용 중복 차단 내역 초기화
+			processedIdx = [];
 
- 			//대화내용 중복 차단 내역 초기화
- 			processedIdx = [];
+			//alert('제안보낸리스트 클릭');
 
- 			//alert('제안보낸리스트 클릭');
+			//제안보낸 목록 클릭시
+			// 초기화
+			click_type = "list";
+			rm_start = 0;
+			$("#chat_view").html("");
+			rm_idx = $(this).data("target_id");
+			// get_chat_info 중복 호출 방지 플래그 초기화
+			window.chat_info_called = false;
+			//alert('1:'+rm_idx);
 
- 			//제안보낸 목록 클릭시
- 			// 초기화
- 			click_type = "list";
- 			rm_start = 0;
- 			$("#chat_view").html("");
- 			rm_idx = $(this).data("target_id");
- 			//alert('1:'+rm_idx);
 
-
- 			//룸 호출
- 			socket.emit("room_join", {
- 				rm_idx: Number(rm_idx),
- 				con_user_id: g_user_id
- 			});
- 			//alert(rm_idx);
- 			//alert(g_user_id);
- 			socket.emit("room_info", {
- 				rm_idx: Number(rm_idx),
- 				con_user_id: g_user_id
- 			});
- 			//alert('room_info_call');//test
+			//룸 호출
+			socket.emit("room_join", {
+				rm_idx: Number(rm_idx),
+				con_user_id: g_user_id
+			});
+			//alert(rm_idx);
+			//alert(g_user_id);
+			// 채팅방 정보 조회
+			socket.emit("room_info", {
+				rm_idx: Number(rm_idx),
+				con_user_id: g_user_id
+			});
+			//alert('room_info_call');//test
 
  			//2024.08.02 대화내용 있으면 가져오도록 추가
  			//메시지 리스트 조회
@@ -1163,30 +1706,40 @@
  			//$('#top_work_img').before("<p>"+$(this).data("regdt")+"</p>");
  			$('#top_reg_dt').html($(this).data("regdt"));
 
- 			var $li = $(this); // 클릭한 li 요소
- 			var $ol = $li.closest('ol'); // 부모 ol 요소
+			var $li = $(this); // 클릭한 li 요소
+			var $ol = $li.closest('ol'); // 부모 ol 요소
 
- 			// 클릭한 li 요소를 부모 ol의 맨 윗줄로 이동
- 			// 2024.08.06 맨위로 이동하는 것 제거
- 			//console.log($(this).parent().attr('id'));
- 			//console.log($(this).parent().parent().parent().attr('id'));
- 			if ($(this).parent().attr('id') == 'chat_list2' || $(this).parent().attr('id') == 'chat_list1') {
- 				//$li.prependTo($ol);
- 				//$li.find('.chat_noread_cnt').html(0);
- 				//$li.find('.chat_noread_cnt').hide();
- 			} else if ($(this).parent().parent().parent().attr('id') == 'chat_list1') {
- 				//$(this).parent().parent().prependTo($ol);
- 				//$(this).parent().parent().find('.chat_noread_cnt').html(0);
- 				//$(this).parent().parent().find('.chat_noread_cnt').hide();
- 			}
- 			//$('.chat-list-body').scrollTop(0);
- 			//미확인 카운트수 다시 조회(화면 하단 플로팅)
- 			socket.emit("message_user_read_count", {
- 				user_id: $("#user_id").val()
- 			});
+			// 클릭한 li 요소를 부모 ol의 맨 윗줄로 이동
+			// 2024.08.06 맨위로 이동하는 것 제거
+			//console.log($(this).parent().attr('id'));
+			//console.log($(this).parent().parent().parent().attr('id'));
+			if ($(this).parent().attr('id') == 'chat_list2' || $(this).parent().attr('id') == 'chat_list1') {
+				//$li.prependTo($ol);
+				//$li.find('.chat_noread_cnt').html(0);
+				//$li.find('.chat_noread_cnt').hide();
+			} else if ($(this).parent().parent().parent().attr('id') == 'chat_list1') {
+				//$(this).parent().parent().prependTo($ol);
+				//$(this).parent().parent().find('.chat_noread_cnt').html(0);
+				//$(this).parent().parent().find('.chat_noread_cnt').hide();
+			}
 
- 			//공고리스트에 미확인 채팅건수 조회 확인
- 			//fSearchNoReadCount();
+			// 채팅방 진입 시 안읽은 메시지 카운트 제거
+			// 지원한 공고, 제안받은 공고, resumebox_ 내부 인재 목록 등 모든 room-item 클릭 시 처리
+			// chat_noread_cnt, chat_noread_cnt c11 등 모든 변형 제거
+			// 클릭한 room-item 내부의 모든 chat_noread_cnt 제거
+			$li.find('.chat_noread_cnt').remove();
+			$li.find('[class*="chat_noread_cnt"]').remove();
+			// room_idx_ 클래스를 가진 모든 요소에서 chat_noread_cnt 제거 (다른 위치에 있을 수 있음)
+			$('.room_idx_' + rm_idx).find('.chat_noread_cnt').remove();
+			$('.room_idx_' + rm_idx).find('[class*="chat_noread_cnt"]').remove();
+			//$('.chat-list-body').scrollTop(0);
+			//미확인 카운트수 다시 조회(화면 하단 플로팅)
+			socket.emit("message_user_read_count", {
+				user_id: $("#user_id").val()
+			});
+
+			//공고리스트에 미확인 채팅건수 조회 확인 및 noreadcountall 업데이트
+			fSearchNoReadCount();
 
 
  		});
@@ -1373,30 +1926,29 @@
  			}
  		});
 
- 		function setShow(type) {
+		function setShow(type) {
+			if (type == "1") {
+				$(".chat_tab1").addClass("on");
+				$(".chat_tab2").removeClass("on");
+				$(".chat_tab3").removeClass("on");
+				$("#chatPanel1").addClass("on");
+				$("#chatPanel1").removeAttr("hidden");
+				$("#chatPanel2").attr("hidden", "");
+				$("#chatPanel3").attr("hidden", "");
 
- 			if (type == "1") {
- 				$(".chat_tab1").addClass("on");
- 				$(".chat_tab2").removeClass("on");
- 				$(".chat_tab3").removeClass("on");
- 				$("#chatPanel1").addClass("on");
- 				$("#chatPanel1").removeAttr("hidden");
- 				$("#chatPanel2").attr("hidden", "");
- 				$("#chatPanel3").attr("hidden", "");
+				// //지원자목록에 2단계펼침 여부 확인
+				// if(chatDetailShow){
+				// 	$('.chat-list').css('width','690px');
+				// }else{
+				// 	$('.chat-list').css('width','345px');
+				// }
 
- 				// //지원자목록에 2단계펼침 여부 확인
- 				// if(chatDetailShow){
- 				// 	$('.chat-list').css('width','690px');
- 				// }else{
- 				// 	$('.chat-list').css('width','345px');
- 				// }
+				chat_tab_id = "1";
+				$("#top_trade").hide();
+				$("#top_recruit").show();
+				$(".chat-view").attr("hidden", "");
 
- 				chat_tab_id = "1";
- 				$("#top_trade").hide();
- 				$("#top_recruit").show();
- 				$(".chat-view").attr("hidden", "");
-
- 				getChatTargetList(1);
+				getChatTargetList(1);
 
  				//1:1 채팅 전체 리스트 get
  				//공고별과 비교 하기 위해
@@ -1408,27 +1960,27 @@
  				$('.chat-view').hide();
 
 
- 			} else if (type == "2") {
- 				$(".chat_tab1").removeClass("on");
- 				$(".chat_tab2").addClass("on");
- 				$(".chat_tab3").removeClass("on");
- 				$("#chatPanel2").addClass("on");
- 				$("#chatPanel2").removeAttr("hidden");
- 				$("#chatPanel1").attr("hidden", "");
- 				$("#chatPanel3").attr("hidden", "");
+			} else if (type == "2") {
+				$(".chat_tab1").removeClass("on");
+				$(".chat_tab2").addClass("on");
+				$(".chat_tab3").removeClass("on");
+				$("#chatPanel2").addClass("on");
+				$("#chatPanel2").removeAttr("hidden");
+				$("#chatPanel1").attr("hidden", "");
+				$("#chatPanel3").attr("hidden", "");
 
- 				chat_tab_id = "2";
- 				$("#top_trade").hide();
- 				$("#top_recruit").show();
- 				$(".chat-view").attr("hidden", "");
+				chat_tab_id = "2";
+				$("#top_trade").hide();
+				$("#top_recruit").show();
+				$(".chat-view").attr("hidden", "");
 
- 				<?php if ($user_type == "MEM") { ?>
- 					getChatTargetList2();
- 				<?php } ?>
- 				<?php if ($user_type == "COMP") { ?>
- 					//24.10.17 채용공고리스트로 변경
- 					getChatTargetList(2);
- 				<?php } ?>
+				<?php if ($user_type == "MEM") { ?>
+					getChatTargetList(2); //제안받은공고탭
+				<?php } ?>
+				<?php if ($user_type == "COMP") { ?>
+					//24.10.17 채용공고리스트로 변경
+					getChatTargetList(2);
+				<?php } ?>
 
  			} else if (type == "3") {
  				$(".chat_tab1").removeClass("on");
@@ -1454,17 +2006,18 @@
  			}
  		}
 
- 		function getChatTargetList(arg) {
- 			//지원자목록-공고목록
- 			//alert(arg);
- 			var getUrl = "get_chat_target_list_recruit";
- 			<?php if ($user_type == "MEM") { ?>
- 				getUrl = "get_chat_target_list_recruit_mem";
- 			<?php } ?>
- 			<?php if ($user_type == "COMP") { ?>
- 				if (arg == '1') getUrl = "get_chat_target_list_recruit"; //기업 회원의 게재 중인 채용공고 목록을 조회하는 API입니다. 채용공고 탭(chat_list1)에서 사용됩니다.
- 				if (arg == '2') getUrl = "get_chat_target_list_recruit2"; //기업회원 제안보낸 인재 탭에서  공고 목록
- 			<?php } ?>
+		function getChatTargetList(arg) {
+			
+			//alert(arg);
+			var getUrl = "get_chat_target_list_recruit";
+			<?php if ($user_type == "MEM") { ?>
+				if (arg == '1') getUrl = "get_chat_target_list_recruit_mem"; //지원한공고탭 회사정보가져오기
+				if (arg == '2') getUrl = "get_chat_target_list2_mem"; //제안받은공고탭 회사정보가져오기
+			<?php } ?>
+			<?php if ($user_type == "COMP") { ?>
+				if (arg == '1') getUrl = "get_chat_target_list_recruit"; //기업 회원의 제안받은 인재 탭에서  회사공고 목록
+				if (arg == '2') getUrl = "get_chat_target_list_recruit2"; //기업회원 제안보낸 인재 탭에서  회사공고 목록
+			<?php } ?>
 
  			comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
 
@@ -1474,18 +2027,20 @@
  				//채팅목록 call
  				//socket.emit("room_list",{user_id : g_user_id,rm_type : "chat"});
 
- 				$("#chat_list" + arg).html("");
- 				//console.log('chat_list1');
- 				//console.log(ret);
+				$("#chat_list" + arg).html("");
+				//console.log('chat_list1');
+				//console.log(ret);
 
 
- 				if (ret.code == "00") {
- 					var list = ret.data.list;
- 					list.forEach(function(row) {
- 						//console.log(row);
+				if (ret.code == "00") {
+					// 배열이 아닐 경우를 대비하여 배열 체크 및 기본값 설정
+					var list = Array.isArray(ret.data.list) ? ret.data.list : [];
+					list.forEach(function(row) {
+						//console.log(row);
 
  						<?php if ($user_type == "MEM") { ?>
- 							var $clone = $("#tpl_chat_mem").clone();
+ 							// 탭1: 지원한 공고 (tpl_chat_mem), 탭2: 제안받은 공고 (tpl_chat2)
+ 							var $clone = (arg == '2') ? $("#tpl_chat2").clone() : $("#tpl_chat_mem").clone();
  						<?php } ?>
  						<?php if ($user_type == "COMP") { ?>
  							var $clone = $("#tpl_chat").clone(); //기업회원 제안보낸인재/채용공고 탭의의 공고 목록 항목
@@ -1516,10 +2071,16 @@
  						$content = $content.replaceAll("{{target_name}}", row.target_name);
  						$content = $content.replaceAll("{{user_name}}", row.user_name);
 
- 						$content = $content.replaceAll("{{rc_name}}", row.rc_name);
- 						$content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb);
- 						$content = $content.replaceAll("{{reg_dt}}", row.reg_dt);
- 						$content = $content.replaceAll("{{rc_work}}", row.rc_work);
+						$content = $content.replaceAll("{{rc_name}}", row.rc_name);
+						$content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb);
+						$content = $content.replaceAll("{{reg_dt}}", row.reg_dt);
+						$content = $content.replaceAll("{{rc_work}}", row.rc_work);
+						// 회사명 추가
+						$content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
+						
+						// 마지막 메시지 표시 (HTML 태그 제거 및 줄바꿈 처리)
+						var lastMsg = (row.last_msg_preview || "").replace(/\n/g, "<br/>");
+						$content = $content.replaceAll("{{last_msg_preview}}", lastMsg);
 
  						// 연령이 0세로 내려오는 경우는 무관 처리
  						var hasStartAge = row.rc_sage && row.rc_sage !== "0";
@@ -1547,10 +2108,32 @@
  						if (nationStr === "") {
  							nationStr = "무관";
  						}
- 						$content = $content.replaceAll("{{rc_nation}}", nationStr);
+						$content = $content.replaceAll("{{rc_nation}}", nationStr);
+						
+						<?php if ($user_type == "MEM") { ?>
+							// 탭2 (제안받은 공고)일 때만 추가 처리
+							if (arg == '2') {
+								// tpl_chat2 템플릿용 필드 처리
+								$content = $content.replaceAll("{{rc_work}}", row.rc_work || "");
+								$content = $content.replaceAll("{{rc_nation}}", row.rc_nation || "");
+							}
+						<?php } ?>
 
- 						//복사한 내용 다시 넣기
- 						$clone.html($content);
+						// 채팅방 개수 계산
+						var roomCount = 0;
+						if (row.rm_idx_list && row.rm_idx_list !== "()" && row.rm_idx_list.trim() !== "") {
+							// 괄호 제거하고 콤마로 분리
+							var roomIdxArray = row.rm_idx_list.replace(/[()]/g, '').split(',');
+							// 빈 문자열 필터링하고 숫자로 변환
+							roomIdxArray = roomIdxArray.filter(function(idx) {
+								return idx.trim() !== '';
+							});
+							roomCount = roomIdxArray.length;
+						}
+						$content = $content.replaceAll("{{room_count}}", roomCount);
+
+						//복사한 내용 다시 넣기
+						$clone.html($content);
 
  						$("#chat_list" + arg).append($clone.html());
 
@@ -1608,159 +2191,28 @@
  			});
  		}
 
- 		function getChatTargetList2() {
- 			//지원자목록-org
-
- 			var getUrl = "get_chat_target_list2";
- 			<?php if ($user_type == "MEM") { ?>
- 				getUrl = "get_chat_target_list2_mem";
- 			<?php } ?>
- 			<?php if ($user_type == "COMP") { ?>
- 				getUrl = "get_chat_target_list2";
- 			<?php } ?>
-
- 			comAjax("/chat_proc/" + getUrl, {}, function(ret) {
- 				//console.log('get_chat_target_list2');
- 				//console.log(ret);
- 				$("#chat_list2").html("");
- 				if (ret.code == "00") {
- 					var list = ret.data.list;
- 					list.forEach(function(row) {
- 						var $clone = $("#tpl_chat2").clone();
- 						var $content = $clone.html();
- 						$content = $content.replaceAll("{{reg_dt}}", row.reg_dt);
-
- 						$content = $content.replaceAll("{{room_idx}}", row.rm_idx);
- 						$content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
- 						$content = $content.replaceAll("{{target_id}}", row.target_id);
- 						$content = $content.replaceAll("{{user_id}}", row.user_id);
- 						$content = $content.replaceAll("{{user_img}}", row.user_img);
- 						$content = $content.replaceAll("{{user_name}}", row.user_name);
- 						$content = $content.replaceAll("{{target_img}}", row.target_img);
- 						$content = $content.replaceAll("{{target_name}}", row.target_name);
-
- 						<?php if ($user_type == "MEM") { ?>
- 							// 프로필 이미지는 모바일과 동일하게 빈 값 대비 기본 이미지로 처리
- 							$content = $content.replaceAll("{{rc_thumb}}", (row.rc_thumb && row.rc_thumb.trim() !== '') ? row.rc_thumb : '/resource/shop/mobile/img/common/noimage4.png');
- 							$content = $content.replaceAll("{{rc_work}}", row.rc_work);
- 							$content = $content.replaceAll("{{rc_name}}", row.rc_name);
- 							$content = $content.replaceAll("{{rc_nation}}", row.rc_nation);
- 							$content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
- 						<?php } ?>
- 						<?php if ($user_type == "COMP") { ?>
- 							// 프로필 이미지는 모바일과 동일하게 빈 값 대비 기본 이미지로 처리
- 							$content = $content.replaceAll("{{rc_thumb}}", (row.ru_img1 && row.ru_img1.trim() !== '') ? row.ru_img1 : '/resource/shop/mobile/img/common/noimage4.png');
- 							$content = $content.replaceAll("{{rc_work}}", row.ru_work);
- 							$content = $content.replaceAll("{{rc_name}}", row.ru_name);
- 							$content = $content.replaceAll("{{rc_nation}}", row.mm_nation);
- 							$content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
- 						<?php } ?>
-
- 						//복사한 내용 다시 넣기
- 						$clone.html($content);
-
- 						$("#chat_list2").append($clone.html());
-
- 						//최신순으로 정렬
- 						//var $list = $('#chat_list2');
- 						//var $listItems = $list.children('.list-item');
- 						//$listItems.sort(function(a, b) {
- 						//    var dateA = new Date($(a).data('regdt'));
- 						//    var dateB = new Date($(b).data('regdt'));
- 						//    return dateB - dateA; // 최신순 정렬
- 						//});
- 						//$list.append($listItems);
+		
+		//룸생성처리
+		$(document).on("click", ".angle-link-resume", function() { //.btn-view-chat
+			//alert($('#top_name_mem').html());
+			//alert($(this).data("regdt"));
 
 
- 						fSearchNoReadCount();
+			//console.log('angle-link-resume');
+			first_yn = "N";
+			var g_rm_type = "recruit";
+			var g_td_idx = 0;
+			var target_id = $(this).data("target_id");
+			var user_id = $(this).data("user_id");
+			var target_img = $(this).data("target_img");
+			var user_img = $(this).data("user_img");
+			var target_name = $(this).data("target_name");
+			var user_name = $(this).data("user_name");
+			var subject = $(this).data("subject");
 
- 						/*
- 						//공고리스트에 미확인 채팅건수 조회 확인
- 						comAjax("/chat_proc/fSearchNoReadCount",{},function(ret){
-
- 											const results = ret.data.result;
-
- 											// Iterate over each rm_idx and log the required information
- 											for (const key in results) {
- 													if (results.hasOwnProperty(key)) {
- 															const result = results[key];
- 															const { rm_idx, rm_subject, rm_messages } = result;
- 															let readNCount = 0;
-
- 															// Count the number of read_yn === 'Y'
- 															rm_messages.forEach(message => {
- 																	message.mg_reads.forEach(read => {
- 																			if (read.read_yn === 'N') {
- 																					readNCount++;
- 																			}
- 																	});
- 															});
-
- 															// Log the information
- 															//console.log(`rm_idx: ${rm_idx}, rm_subject: ${rm_subject}, read_yn N count: ${readNCount}`);
-
- 															$('#chat_list2 .room-item').each(function() {
- 																	//console.log($(this).html());
- 																	if($(this).hasClass('room_idx_'+rm_idx) && $(this).data('noread')==undefined){
- 																		//console.log('has');
-
- 																		<?php if ($user_type == "MEM") { ?>
- 																			$(this).append('<span class="chat_noread_cnt" style="top:45px;right:30px;">'+readNCount+'</span>');
- 																		<?php } ?>
- 																		<?php if ($user_type == "COMP") { ?>
- 																			$(this).append('<span class="chat_noread_cnt" style="top:38px;right:30px;">'+readNCount+'</span>');
- 																		<?php } ?>
-
- 																		$(this).data('noread',readNCount);
- 																	}
- 															});
-
- 													}
- 											}
-
-
- 						}); //comAjax
- 						*/
-
- 					});
-
- 					//hide show 처리
- 					if ($("#chat_list2").find("li").length == 0) {
- 						$("#chat_empty2").show();
- 						$("#chat_list1").hide();
- 					} else {
- 						$("#chat_list2").show();
- 						$("#chat_empty2").hide();
- 					}
-
- 				} else {
- 					commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
- 					return;
- 				}
- 			});
- 		}
-
- 		//룸생성처리
- 		$(document).on("click", ".angle-link-resume", function() { //.btn-view-chat
- 			//alert($('#top_name_mem').html());
- 			//alert($(this).data("regdt"));
-
-
- 			//console.log('angle-link-resume');
- 			first_yn = "N";
- 			var g_rm_type = "recruit";
- 			var g_td_idx = 0;
- 			var target_id = $(this).data("target_id");
- 			var user_id = $(this).data("user_id");
- 			var target_img = $(this).data("target_img");
- 			var user_img = $(this).data("user_img");
- 			var target_name = $(this).data("target_name");
- 			var user_name = $(this).data("user_name");
- 			var subject = $(this).data("subject");
-
- 			//키값 설정
- 			g_rc_idx = $(this).data("rc_idx");
- 			g_ru_idx = $(this).data("ru_idx");
+			//키값 설정
+			g_rc_idx = $(this).data("rc_idx");
+			g_ru_idx = $(this).data("ru_idx");
 
  			var params = {};
  			params["rm_type"] = g_rm_type;
@@ -2001,170 +2453,320 @@
  		});
  	</script>
 
- 	<!-- 채팅 상세 처리 -->
- 	<script>
- 		//지원자목록에 2단계펼침 여부 확인
- 		var chatDetailShow = false;
+	<!-- 채팅 상세 처리 -->
+	<script>
+		//지원자목록에 2단계펼침 여부 확인
+		var chatDetailShow = false;
 
- 		//방생성 확인 및 방번호 확인
- 		socket.on("room_info_return", function(ret) {
- 			//console.log('room_info_return1471');
- 			console.log('room_info_return:: 전체 ret 객체:', ret);
- 			console.log('room_info_return:: ret.code:', ret.code);
- 			console.log('room_info_return:: ret.msg:', ret.msg);
- 			console.log('room_info_return:: 현재 접속 사용자 ID (g_user_id):', g_user_id);
- 			console.log('room_info_return:: ret.data 존재:', ret.data ? 'Y' : 'N');
- 			if (ret.data) {
- 				console.log('room_info_return:: ret.data 상세:', JSON.stringify(ret.data, null, 2));
- 				// user_id 관련 정보 확인
- 				if (ret.data.rm_users && Array.isArray(ret.data.rm_users)) {
- 					console.log('room_info_return:: ret.data.rm_users:', ret.data.rm_users);
- 					ret.data.rm_users.forEach(function(user, index) {
- 						console.log('room_info_return:: rm_users[' + index + '].user_id:', user.user_id);
- 					});
- 				}
- 				if (ret.data.user_info && Array.isArray(ret.data.user_info)) {
- 					console.log('room_info_return:: ret.data.user_info:', ret.data.user_info);
- 					ret.data.user_info.forEach(function(user, index) {
- 						console.log('room_info_return:: user_info[' + index + '].user_id:', user.user_id);
- 					});
- 				}
- 			}
- 			//alert('room_info_return1471');
- 			//alert('return');//test
+		//방생성 확인 및 방번호 확인
+		socket.on("room_info_return", function(ret) {
+			//alert('room_info_return1471');
+			//alert('return');//test
 
- 			if (ret.code != "00") {
- 				alert("데이터 조회시 문제가 발생하였습니다. 관리자에게 문의 해주세요.");
- 			} else {
- 				//채팅방 정보
- 				rm_info = ret.data;
+			if (ret.code != "00") {
+				alert("데이터 조회시 문제가 발생하였습니다. 관리자에게 문의 해주세요.");
+			} else {
+				//채팅방 정보
+				rm_info = ret.data;
+				// get_chat_info 중복 호출 방지 - 이미 호출되었으면 스킵
+				if (window.chat_info_called) {
+					return;
+				}
+				window.chat_info_called = true; // 호출 전에 플래그 설정
 
- 				//상세정보 가져오기
- 				//$("#top_recruit").hide();
- 				//$("#top_trade").hide();
- 				comAjaxV2("/chat_proc/get_chat_info", {
- 					rm_idx: rm_idx,
- 					mm_type: mm_type
- 				}, function(ret) {
- 					//console.log("get_chat_info--");
- 					console.log(ret);
- 					//console.log("get_chat_info--");
+				//상세정보 가져오기
+				//$("#top_recruit").hide();
+				//$("#top_trade").hide();
+			
+			// ajax_first_num 초기화하여 중복 호출 알림 방지
+			if (typeof ajax_first_num !== 'undefined') {
+				ajax_first_num = 0;
+			}
+			
+			comAjaxV2("/chat_proc/get_chat_info", {
+				rm_idx: rm_idx,
+				mm_type: mm_type,
+				chat_tab_id: chat_tab_id
+			}, function(ret) {
+				if (ret.code == "00") {
 
- 					if (ret.code == "00") {
+					if (ret.data.type == "recruit") {
+						
+						// 채용정보 표시 (MEM: 지원한 공고/제안받은 공고, COMP: 제안받은 인재/제안보낸 인재)
+						// 표시할 정보는 ret.data에 포함된 정보에 따라 결정
+						
+						if (mm_type == "MEM") {
+								// 개인회원: 지원한 공고 또는 제안받은 공고의 채용정보 표시
+								$("#top_recruit").show();
+								$("#top_trade").hide();
+								
+								$("#top_name").html(ret.data.mm_comp_name || "");
+								
+								// 이미지 및 링크 설정
+								var recruitImg = ret.data.rt_recruit_img || '/resource/shop/mobile/img/common/noimage4.png';
+								$("#top_img").attr("src", recruitImg);
+								var recruitLink = ret.data.rc_idx ? "/recruit/job_post/" + ret.data.rc_idx : "";
+								if (recruitLink) {
+									$("#top_link").attr("href", recruitLink);
+									$("#top_title_link").attr("href", recruitLink);
+								}
+								
+								// 즐겨찾기 버튼 설정
+								if (ret.data.rc_idx) {
+									$("#top_bookmark").attr("data-bk_key", ret.data.rc_idx);
+									if (ret.data.book_yn == "Y") {
+										$("#top_bookmark").addClass("on");
+									} else {
+										$("#top_bookmark").removeClass("on");
+									}
+								}
+								
+								// 직종 아이콘
+								$("#top_work_img").html(ret.data.rt_work_img || "");
+								
+								// 제목
+								$("#top_title").html(ret.data.rc_name || "");
+								
+								// 국적 처리 (무관 또는 내국인,외국인인 경우 국적무관으로 표시)
+								var nationDisplay = ret.data.rc_nation_nm || "";
+								if (nationDisplay == "무관" || nationDisplay == "내국인,외국인") {
+									nationDisplay = "국적무관";
+								}
+								$("#top_nation").html(nationDisplay);
+								
+								// 나이 데이터가 0세(또는 0세 문자열)로 내려오면 무관 처리
+								var rcSAge = parseInt(ret.data.rc_sage, 10);
+								var rcEAge = parseInt(ret.data.rc_eage, 10);
+								var rcAgeLabel = ret.data.rc_age_nm || "";
+								var hasOnlyZeroNumber = ((isNaN(rcSAge) || rcSAge === 0) && (isNaN(rcEAge) || rcEAge === 0));
+								var hasZeroWord = rcAgeLabel.replace(/\s/g, "").indexOf("0세") !== -1;
+								if (hasOnlyZeroNumber || hasZeroWord) {
+									rcAgeLabel = "무관";
+								}
+								$("#top_age").html(rcAgeLabel);
+								$("#bt_age").html(rcAgeLabel);
+								
+								// 주소 처리 (fRemoveBigAdrJS 함수 사용)
+								if (ret.data.ad_addr) {
+									var addrDisplay = fRemoveBigAdrJS(ret.data.ad_addr);
+									$("#top_area").html(addrDisplay).attr("data-addr", ret.data.ad_addr).closest(".chat-recruit-summary.area").show();
+								} else {
+									$("#top_area").closest(".chat-recruit-summary.area").hide();
+								}
+								
+								// 가격 타입 및 급여 (값이 있을 때만 표시)
+								if (ret.data.rt_price_type) {
+									$("#top_price_type").html(ret.data.rt_price_type).show();
+								} else {
+									$("#top_price_type").hide();
+								}
+								if (ret.data.rt_price) {
+									$("#top_price").html(ret.data.rt_price).show();
+								} else {
+									$("#top_price").hide();
+								}
+								
+								// 근무 타입 처리 (서버에서 이미 처리된 경우 그대로 사용, 필요시 클라이언트에서 변환)
+								var workTypeHtml = ret.data.rt_work_type || "";
+								// <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
+								if (workTypeHtml) {
+									workTypeHtml = workTypeHtml.replace(/<span>(.*?)<\/span>/g, function(match, text) {
+										text = text.trim();
+										var cls = '';
+										if (text === '주간') {
+											cls = 'wtype1';
+										} else if (text === '야간') {
+											cls = 'wtype2';
+										} else if (text === '2교대') {
+											cls = 'wtype3';
+										}
+										return '<em class="' + cls + '">' + text + '</em>';
+									});
+									// 쉼표 제거
+									workTypeHtml = workTypeHtml.replace(/,/g, '');
+									$("#top_work_type").html(workTypeHtml).closest(".chat-recruit-summary3").show();
+								} else {
+									$("#top_work_type").closest(".chat-recruit-summary3").hide();
+								}
+								
+								// 주요정보보기 링크
+								if (ret.data.rc_idx) {
+									$("#detailgo").attr("href", "/recruit/job_post/" + ret.data.rc_idx);
+								}
+								
+								// top_recruit에 data-rc_idx 추가
+								if (ret.data.rc_idx) {
+									$("#top_recruit").attr("data-rc_idx", ret.data.rc_idx);
+								}
 
- 						if (ret.data.type == "recruit") {
+								$("#bt_title").html(ret.data.rc_name || "");
+								$("#bt_date").html(ret.data.rt_date || "");
+								$("#bt_work_img").html(ret.data.rt_work_img || "");
+								$("#bt_price_info").html(ret.data.rt_price_info || "");
+								$("#bt_work_type").html(ret.data.rt_work_type || "");
+								$("#bt_nation").html(ret.data.rc_nation_nm || "");
+								$("#bt_sex").html(ret.data.rc_sex || "");
+								$("#bt_yoil").html(ret.data.rt_week || "");
+								$("#bt_time").html(ret.data.rt_time || "");
+								if (ret.data.rc_idx) {
+									$("#bt_link").attr("href", "/recruit/recruit_detail/" + ret.data.rc_idx);
+								}
+							$("#top_name").data('chatotherid', ret.data.mm_id || "");
 
- 							if (mm_type == "MEM") {
- 								//채용정보
- 								$("#top_name").html(ret.data.mm_comp_name);
- 								$("#top_img").attr("src", ret.data.rt_recruit_img || '/resource/shop/mobile/img/common/noimage4.png');
- 								$("#top_title").html(ret.data.rc_name);
- 								$("#top_work_img").html(ret.data.rt_work_img);
- 								$("#top_area").html(ret.data.ad_addr);
- 								$("#top_work_type").html(ret.data.rt_work_type);
- 								$("#top_nation").html(ret.data.rc_nation_nm);
- 								// 나이 데이터가 0세(또는 0세 문자열)로 내려오면 무관 처리
- 								var rcSAge = parseInt(ret.data.rc_sage, 10);
- 								var rcEAge = parseInt(ret.data.rc_eage, 10);
- 								var rcAgeLabel = ret.data.rc_age_nm || "";
- 								var hasOnlyZeroNumber = ((isNaN(rcSAge) || rcSAge === 0) && (isNaN(rcEAge) || rcEAge === 0));
- 								var hasZeroWord = rcAgeLabel.replace(/\s/g, "").indexOf("0세") !== -1;
- 								if (hasOnlyZeroNumber || hasZeroWord) {
- 									rcAgeLabel = "무관";
- 								}
- 								// 상단 요약과 상세 패널 모두 동일 라벨 사용
- 								$("#top_age").html(rcAgeLabel);
- 								$("#bt_age").html(rcAgeLabel);
- 								$("#top_price_type").html(ret.data.rt_price_type);
- 								$("#top_price").html(ret.data.rt_price);
- 								//$("#top_link").attr("href","/recruit/recruit_detail/" + ret.data.rc_idx);
- 								$("#detailgo").attr("href", "/recruit/recruit_detail/" + ret.data.rc_idx);
+						} else {
+							
+							// 기업회원: 제안받은 인재 또는 제안보낸 인재의 인재정보 표시
+							$("#top_recruit").show();
+							$("#top_trade").hide();
+								
+								$("#top_name").html(ret.data.mm_name || "");
+								
+								// 이미지 및 링크 설정
+								var resumeImg = ret.data.ru_resume_img || '/resource/shop/mobile/img/common/noimage4.png';
+								$("#top_img").attr("src", resumeImg);
+								var resumeLink = ret.data.ru_idx ? "/resume/hr_post/" + ret.data.ru_idx : "";
+								if (resumeLink) {
+									$("#top_link").attr("href", resumeLink);
+									$("#top_title_link").attr("href", resumeLink);
+								}
+								
+								// 즐겨찾기 버튼 설정
+								if (ret.data.ru_idx) {
+									$("#top_bookmark").attr("data-bk_key", ret.data.ru_idx);
+									if (ret.data.book_yn == "Y") {
+										$("#top_bookmark").addClass("on");
+									} else {
+										$("#top_bookmark").removeClass("on");
+									}
+								}
+								
+								// 직종 아이콘
+								$("#top_work_img").html(ret.data.ru_work_img || "");
+								
+								// 이력서명 (이름 대신 이력서명 표시)
+								$("#top_name_mem").html(ret.data.ru_name || ret.data.mm_name || "");
+								
+								// 근무희망요일
+								$("#top_weekday").html(ret.data.ru_week || "");
+								
+								// 국적 및 나이
+								$("#top_nation").html(ret.data.mm_nation || "");
+								var ageDisplay = ret.data.ma_age || "";
+								if (ageDisplay) {
+									ageDisplay = ageDisplay + "세";
+								}
+								$("#top_age").html(ageDisplay);
+								
+								// 주소 처리 (fRemoveBigAdrJS 함수 사용)
+								if (ret.data.ad_addr) {
+									var addrDisplay = fRemoveBigAdrJS(ret.data.ad_addr);
+									$("#top_area").html(addrDisplay).attr("data-addr", ret.data.ad_addr).show();
+								} else {
+									$("#top_area").hide();
+								}
+								
+								// 가격 타입 처리
+								if (ret.data.ru_price_type) {
+									var priceTypeHtml = ret.data.ru_price_type || "";
+									$("#top_price_type").html('<p class="pricetype">' + priceTypeHtml + '</p>').closest(".chat-resume-summary2").show();
+								} else {
+									$("#top_price_type").closest(".chat-resume-summary2").hide();
+								}
+								
+								// 근무 타입 처리 (서버에서 이미 처리된 경우 그대로 사용, 필요시 클라이언트에서 변환)
+								var workTypeHtml = ret.data.ru_work_type || "";
+								// <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
+								if (workTypeHtml) {
+									workTypeHtml = workTypeHtml.replace(/<span>(.*?)<\/span>/g, function(match, text) {
+										text = text.trim();
+										var cls = '';
+										if (text === '주간') {
+											cls = 'wtype1';
+										} else if (text === '야간') {
+											cls = 'wtype2';
+										} else if (text === '2교대') {
+											cls = 'wtype3';
+										}
+										return '<em class="' + cls + '">' + text + '</em>';
+									});
+									// 쉼표 제거
+									workTypeHtml = workTypeHtml.replace(/,/g, '');
+									$("#top_work_type").html('<p class="worktype">' + workTypeHtml + '</p>').closest(".chat-resume-summary3").show();
+								} else {
+									$("#top_work_type").closest(".chat-resume-summary3").hide();
+								}
+								
+								// 인재정보보기 링크
+								if (ret.data.ru_idx) {
+									$("#detailgo").attr("href", "/resume/hr_post/" + ret.data.ru_idx);
+								}
+								
+								// top_recruit에 data-ru_idx 추가
+								if (ret.data.ru_idx) {
+									$("#top_recruit").attr("data-ru_idx", ret.data.ru_idx);
+								}
 
- 								$("#bt_title").html(ret.data.rc_name);
- 								$("#bt_date").html(ret.data.rt_date);
- 								$("#bt_work_img").html(ret.data.rt_work_img);
- 								$("#bt_price_info").html(ret.data.rt_price_info);
- 								$("#bt_work_type").html(ret.data.rt_work_type);
- 								$("#bt_nation").html(ret.data.rc_nation_nm);
- 								$("#bt_sex").html(ret.data.rc_sex);
- 								$("#bt_yoil").html(ret.data.rt_week);
- 								$("#bt_time").html(ret.data.rt_time);
- 								$("#bt_link").attr("href", "/recruit/recruit_detail/" + ret.data.rc_idx);
- 								$("#top_name").data('chatotherid', ret.data.mm_id);
+								$("#bt_title").html(ret.data.mm_name || "");
+								$("#bt_nation").html(ret.data.mm_nation || "");
+								$("#bt_age").html(ret.data.ma_age || "");
+								$("#bt_area").html(ret.data.ad_addr || "");
+								$("#bt_work_dt").html(ret.data.ru_work_dt || "");
+								$("#bt_edu").html(ret.data.ru_edu || "");
+								$("#bt_desc").html(ret.data.ru_desc || "");
 
- 							} else {
- 								//인재정보
- 								$("#top_name_mem").html(ret.data.mm_name);
- 								//$("#top_img").attr("src",ret.data.ru_img1);
- 								$("#top_img").attr("src", ret.data.ru_resume_img || '/resource/shop/mobile/img/common/noimage4.png');
- 								$("#top_work_img").html(ret.data.ru_work_img);
- 								$("#top_area").html(ret.data.ad_addr);
- 								$("#top_work_type").html(ret.data.ru_work_type);
- 								$("#top_nation").html(ret.data.mm_nation);
- 								$("#top_age").html(ret.data.ma_age);
- 								$("#top_price_type").html(ret.data.ru_price_type);
- 								$("#top_tag").html(ret.data.ru_my_type.replace('text-align:right', 'text-align:left'));
- 								$("#top_weekday").html(ret.data.ru_week);
- 								//$("#top_link").attr("href","/recruit/recruit_detail/" + ret.data.rc_idx);
- 								$("#detailgo").attr("href", "/resume/resume_detail/" + ret.data.ru_idx);
+								var bt_career = "";
+								if (ret.data.career_list && ret.data.career_list.length > 0) {
+									for (var icnt = 0; icnt < ret.data.career_list.length; icnt++) {
+										bt_career += "<li>";
+										bt_career += "      <span>" + (ret.data.career_list[icnt].rc_type || "") + "</span>";
+										bt_career += "      <span>" + (ret.data.career_list[icnt].rc_name || "") + "</span>";
+										bt_career += "      <em>" + (ret.data.career_list[icnt].rc_date || "") + "</em>";
+										bt_career += "</li>";
+									}
+								}
 
- 								$("#bt_title").html(ret.data.mm_name);
- 								$("#bt_nation").html(ret.data.mm_nation);
- 								$("#bt_age").html(ret.data.ma_age);
- 								$("#bt_area").html(ret.data.ad_addr);
- 								$("#bt_work_dt").html(ret.data.ru_work_dt);
- 								$("#bt_edu").html(ret.data.ru_edu);
- 								$("#bt_desc").html(ret.data.ru_desc);
+								var bt_certi = "";
+								if (ret.data.certi_list && ret.data.certi_list.length > 0) {
+									for (var icnt = 0; icnt < ret.data.certi_list.length; icnt++) {
+										bt_certi += "<li>";
+										bt_certi += "      <span>자격증</span>";
+										bt_certi += "      <span>" + (ret.data.certi_list[icnt].rc_name || "") + "</span>";
+										bt_certi += "      <em>" + (ret.data.certi_list[icnt].rc_dt || "") + "</em>";
+										bt_certi += "</li>";
+									}
+								}
+								$("#bt_career").html(bt_career);
+								$("#bt_certi").html(bt_certi);
 
- 								var bt_career = "";
- 								for (var icnt = 0; icnt < ret.data.career_list.length; icnt++) {
- 									bt_career += "<li>";
- 									bt_career += "      <span>" + ret.data.career_list[icnt].rc_type + "</span>";
- 									bt_career += "      <span>" + ret.data.career_list[icnt].rc_name + "</span>";
- 									bt_career += "      <em>" + ret.data.career_list[icnt].rc_date + "</em>";
- 									bt_career += "</li>";
- 								}
+								if (ret.data.ru_idx) {
+									$("#bt_link").attr("href", "/resume/resume_detail/" + ret.data.ru_idx);
+								}
+							}
 
- 								var bt_certi = "";
- 								for (var icnt = 0; icnt < ret.data.certi_list.length; icnt++) {
- 									bt_certi += "<li>";
- 									bt_certi += "      <span>자격증</span>";
- 									bt_certi += "      <span>" + ret.data.certi_list[icnt].rc_name + "</span>";
- 									bt_certi += "      <em>" + ret.data.certi_list[icnt].rc_dt + "</em>";
- 									bt_certi += "</li>";
- 								}
- 								$("#bt_career").html(bt_career);
- 								$("#bt_certi").html(bt_certi);
-
- 								$("#bt_link").attr("href", "/resume/resume_detail/" + ret.data.ru_idx);
- 							}
-
- 							$("[name='recruit_phone']").val(ret.data.recruit_phone);
- 							$("[name='recruit_name']").val(ret.data.recruit_name);
- 						} else {
- 							// comp_top_1이 주석처리되어 있어도 에러 방지를 위한 체크
- 							if ($("#comp_top_1").length > 0) {
- 								$("#comp_top_1").hide();
- 							}
- 							$("#top_name_mem").html(maskingName(ret.data.mm_name));
- 							$("#td_img").attr("src", ret.data.td_img1);
- 							$("#td_title").html(ret.data.td_name);
- 							$("#td_area").html(ret.data.td_area);
- 							$("#td_price").html(ret.data.td_price);
- 							$("#td_date").html(ret.data.reg_dt);
- 							if (ret.data.td_price_req_yn == "Y") {
- 								$("#td_price_yn").show();
- 							} else {
- 								$("#td_price_yn").hide();
- 							}
- 							$("#td_link").attr("href", "/trade/trade_detail/" + ret.data.td_idx);
- 						}
- 					} else {
-
- 					}
+							$("[name='recruit_phone']").val(ret.data.recruit_phone);
+							$("[name='recruit_name']").val(ret.data.recruit_name);
+						} else {
+							// comp_top_1이 주석처리되어 있어도 에러 방지를 위한 체크
+							if ($("#comp_top_1").length > 0) {
+								$("#comp_top_1").hide();
+							}
+							$("#top_name_mem").html(maskingName(ret.data.mm_name));
+							$("#td_img").attr("src", ret.data.td_img1);
+							$("#td_title").html(ret.data.td_name);
+							$("#td_area").html(ret.data.td_area);
+							$("#td_price").html(ret.data.td_price);
+							$("#td_date").html(ret.data.reg_dt);
+							if (ret.data.td_price_req_yn == "Y") {
+								$("#td_price_yn").show();
+							} else {
+								$("#td_price_yn").hide();
+							}
+							$("#td_link").attr("href", "/trade/trade_detail/" + ret.data.td_idx);
+						}
+					}
 
 
- 					//메시지 리스트 조회
+					//메시지 리스트 조회
  					var params = {
  						rm_idx: Number(rm_idx),
  						skip: rm_start,
@@ -2409,23 +3011,318 @@
 
 
  		//방생성 확인 및 방번호 확인
- 		socket.on("message_list_return", function(ret) {
- 			//지원한 공고 목록에서 공고 클릭시 해당 채팅창 room 조회 결과
- 			//console.log(ret);
- 			//console.log("message_list_return1703");
- 			//alert("message_list_return1703");
- 			//메시지 리스트 가져오기
- 			var message_list = ret.data;
- 			for (var icnt = 0; icnt < message_list.length; icnt++) {
- 				//alert('b');
- 				//2024.08.05 글을 읽음 처리 해버려서 주석 처리
- 				showMessage(message_list[icnt].rm_messages, true);
- 			}
- 			if (pagging_yn == false) {
- 				scrollBottom();
- 			}
- 			pagging_yn = false;
- 		});
+		socket.on("message_list_return", function(ret) {
+			//지원한 공고 목록에서 공고 클릭시 해당 채팅창 room 조회 결과
+			//console.log(ret);
+			//console.log("message_list_return1703");
+			//alert("message_list_return1703");
+			//메시지 리스트 가져오기
+			var message_list = ret.data;
+			for (var icnt = 0; icnt < message_list.length; icnt++) {
+				//alert('b');
+				//2024.08.05 글을 읽음 처리 해버려서 주석 처리
+				showMessage(message_list[icnt].rm_messages, true);
+			}
+			if (pagging_yn == false) {
+				scrollBottom();
+			}
+			pagging_yn = false;
+			
+			// room_info_return 이벤트가 발생하지 않는 경우를 대비하여
+			// message_list_return 이후에 get_chat_info를 호출
+			// 단, 이미 get_chat_info가 호출되었는지 확인
+			if (rm_idx && !window.chat_info_called) {
+				window.chat_info_called = true; // 중복 호출 방지
+				
+				// ajax_first_num 초기화하여 중복 호출 알림 방지
+				if (typeof ajax_first_num !== 'undefined') {
+					ajax_first_num = 0;
+				}
+				
+				//상세정보 가져오기
+				comAjaxV2("/chat_proc/get_chat_info", {
+					rm_idx: rm_idx,
+					mm_type: mm_type,
+					chat_tab_id: chat_tab_id
+				}, function(ret) {
+					if (ret.code == "00") {
+
+						if (ret.data.type == "recruit") {
+							
+							// 채용정보 표시 (MEM: 지원한 공고/제안받은 공고, COMP: 제안받은 인재/제안보낸 인재)
+							// 표시할 정보는 ret.data에 포함된 정보에 따라 결정
+							
+							if (mm_type == "MEM") {
+								
+								$("#top_recruit").show();
+								$("#top_trade").hide();
+								
+								$("#top_name").html(ret.data.mm_comp_name || "");
+								
+								// 이미지 및 링크 설정
+								var recruitImg = ret.data.rt_recruit_img || '/resource/shop/mobile/img/common/noimage4.png';
+								$("#top_img").attr("src", recruitImg);
+								var recruitLink = ret.data.rc_idx ? "/recruit/job_post/" + ret.data.rc_idx : "";
+								if (recruitLink) {
+									$("#top_link").attr("href", recruitLink);
+									$("#top_title_link").attr("href", recruitLink);
+								}
+								
+								// 즐겨찾기 버튼 설정
+								if (ret.data.rc_idx) {
+									$("#top_bookmark").attr("data-bk_key", ret.data.rc_idx);
+									if (ret.data.book_yn == "Y") {
+										$("#top_bookmark").addClass("on");
+									} else {
+										$("#top_bookmark").removeClass("on");
+									}
+								}
+								
+								// 직종 아이콘
+								$("#top_work_img").html(ret.data.rt_work_img || "");
+								
+								// 제목
+								$("#top_title").html(ret.data.rc_name || "");
+								
+								// 국적 처리 (무관 또는 내국인,외국인인 경우 국적무관으로 표시)
+								var nationDisplay = ret.data.rc_nation_nm || "";
+								if (nationDisplay == "무관" || nationDisplay == "내국인,외국인") {
+									nationDisplay = "국적무관";
+								}
+								$("#top_nation").html(nationDisplay);
+								
+								// 나이 데이터가 0세(또는 0세 문자열)로 내려오면 무관 처리
+								var rcSAge = parseInt(ret.data.rc_sage, 10);
+								var rcEAge = parseInt(ret.data.rc_eage, 10);
+								var rcAgeLabel = ret.data.rc_age_nm || "";
+								var hasOnlyZeroNumber = ((isNaN(rcSAge) || rcSAge === 0) && (isNaN(rcEAge) || rcEAge === 0));
+								var hasZeroWord = rcAgeLabel.replace(/\s/g, "").indexOf("0세") !== -1;
+								if (hasOnlyZeroNumber || hasZeroWord) {
+									rcAgeLabel = "무관";
+								}
+								$("#top_age").html(rcAgeLabel);
+								$("#bt_age").html(rcAgeLabel);
+								
+								// 주소 처리 (fRemoveBigAdrJS 함수 사용)
+								if (ret.data.ad_addr) {
+									var addrDisplay = fRemoveBigAdrJS(ret.data.ad_addr);
+									$("#top_area").html(addrDisplay).attr("data-addr", ret.data.ad_addr).closest(".chat-recruit-summary.area").show();
+								} else {
+									$("#top_area").closest(".chat-recruit-summary.area").hide();
+								}
+								
+								// 가격 타입 및 급여 (값이 있을 때만 표시)
+								if (ret.data.rt_price_type) {
+									$("#top_price_type").html(ret.data.rt_price_type).show();
+								} else {
+									$("#top_price_type").hide();
+								}
+								if (ret.data.rt_price) {
+									$("#top_price").html(ret.data.rt_price).show();
+								} else {
+									$("#top_price").hide();
+								}
+								
+								// 근무 타입 처리 (서버에서 이미 처리된 경우 그대로 사용, 필요시 클라이언트에서 변환)
+								var workTypeHtml = ret.data.rt_work_type || "";
+								// <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
+								if (workTypeHtml) {
+									workTypeHtml = workTypeHtml.replace(/<span>(.*?)<\/span>/g, function(match, text) {
+										text = text.trim();
+										var cls = '';
+										if (text === '주간') {
+											cls = 'wtype1';
+										} else if (text === '야간') {
+											cls = 'wtype2';
+										} else if (text === '2교대') {
+											cls = 'wtype3';
+										}
+										return '<em class="' + cls + '">' + text + '</em>';
+									});
+									// 쉼표 제거
+									workTypeHtml = workTypeHtml.replace(/,/g, '');
+									$("#top_work_type").html(workTypeHtml).closest(".chat-recruit-summary3").show();
+								} else {
+									$("#top_work_type").closest(".chat-recruit-summary3").hide();
+								}
+								
+								// 주요정보보기 링크
+								if (ret.data.rc_idx) {
+									$("#detailgo").attr("href", "/recruit/job_post/" + ret.data.rc_idx);
+								}
+								
+								// top_recruit에 data-rc_idx 추가
+								if (ret.data.rc_idx) {
+									$("#top_recruit").attr("data-rc_idx", ret.data.rc_idx);
+								}
+
+								$("#bt_title").html(ret.data.rc_name || "");
+								$("#bt_date").html(ret.data.rt_date || "");
+								$("#bt_work_img").html(ret.data.rt_work_img || "");
+								$("#bt_price_info").html(ret.data.rt_price_info || "");
+								$("#bt_work_type").html(ret.data.rt_work_type || "");
+								$("#bt_nation").html(ret.data.rc_nation_nm || "");
+								$("#bt_sex").html(ret.data.rc_sex || "");
+								$("#bt_yoil").html(ret.data.rt_week || "");
+								$("#bt_time").html(ret.data.rt_time || "");
+								if (ret.data.rc_idx) {
+									$("#bt_link").attr("href", "/recruit/recruit_detail/" + ret.data.rc_idx);
+								}
+								$("#top_name").data('chatotherid', ret.data.mm_id || "");
+
+							} else {
+								
+								$("#top_recruit").show();
+								$("#top_trade").hide();
+								
+							$("#top_name").html(ret.data.mm_name || "");
+							
+							// 이미지 및 링크 설정
+							var resumeImg = ret.data.ru_resume_img || '/resource/shop/mobile/img/common/noimage4.png';
+							$("#top_img").attr("src", resumeImg);
+							var resumeLink = ret.data.ru_idx ? "/resume/hr_post/" + ret.data.ru_idx : "";
+							if (resumeLink) {
+								$("#top_link").attr("href", resumeLink);
+								$("#top_title_link").attr("href", resumeLink);
+							}
+							
+							// 즐겨찾기 버튼 설정
+							if (ret.data.ru_idx) {
+								$("#top_bookmark").attr("data-bk_key", ret.data.ru_idx);
+								if (ret.data.book_yn == "Y") {
+									$("#top_bookmark").addClass("on");
+								} else {
+									$("#top_bookmark").removeClass("on");
+								}
+							}
+							
+							// 직종 아이콘
+							$("#top_work_img").html(ret.data.ru_work_img || "");
+							
+							// 이력서명 (이름 대신 이력서명 표시)
+							$("#top_name_mem").html(ret.data.ru_name || ret.data.mm_name || "");
+							
+							// 근무희망요일
+							$("#top_weekday").html(ret.data.ru_week || "");
+							
+							// 국적 및 나이
+							$("#top_nation").html(ret.data.mm_nation || "");
+							var ageDisplay = ret.data.ma_age || "";
+							if (ageDisplay) {
+								ageDisplay = ageDisplay + "세";
+							}
+							$("#top_age").html(ageDisplay);
+							
+							// 주소 처리 (fRemoveBigAdrJS 함수 사용)
+							if (ret.data.ad_addr) {
+								var addrDisplay = fRemoveBigAdrJS(ret.data.ad_addr);
+								$("#top_area").html(addrDisplay).attr("data-addr", ret.data.ad_addr).show();
+							} else {
+								$("#top_area").hide();
+							}
+							
+							// 가격 타입 처리
+							if (ret.data.ru_price_type) {
+								var priceTypeHtml = ret.data.ru_price_type || "";
+								$("#top_price_type").html('<p class="pricetype">' + priceTypeHtml + '</p>').closest(".chat-resume-summary2").show();
+							} else {
+								$("#top_price_type").closest(".chat-resume-summary2").hide();
+							}
+							
+							// 근무 타입 처리 (서버에서 이미 처리된 경우 그대로 사용, 필요시 클라이언트에서 변환)
+							var workTypeHtml = ret.data.ru_work_type || "";
+							// <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
+							if (workTypeHtml) {
+								workTypeHtml = workTypeHtml.replace(/<span>(.*?)<\/span>/g, function(match, text) {
+									text = text.trim();
+									var cls = '';
+									if (text === '주간') {
+										cls = 'wtype1';
+									} else if (text === '야간') {
+										cls = 'wtype2';
+									} else if (text === '2교대') {
+										cls = 'wtype3';
+									}
+									return '<em class="' + cls + '">' + text + '</em>';
+								});
+								// 쉼표 제거
+								workTypeHtml = workTypeHtml.replace(/,/g, '');
+								$("#top_work_type").html('<p class="worktype">' + workTypeHtml + '</p>').closest(".chat-resume-summary3").show();
+							} else {
+								$("#top_work_type").closest(".chat-resume-summary3").hide();
+							}
+							
+							// 인재정보보기 링크
+							if (ret.data.ru_idx) {
+								$("#detailgo").attr("href", "/resume/hr_post/" + ret.data.ru_idx);
+							}
+							
+							// top_recruit에 data-ru_idx 추가
+							if (ret.data.ru_idx) {
+								$("#top_recruit").attr("data-ru_idx", ret.data.ru_idx);
+							}
+
+								$("#bt_title").html(ret.data.mm_name || "");
+								$("#bt_nation").html(ret.data.mm_nation || "");
+								$("#bt_age").html(ret.data.ma_age || "");
+								$("#bt_area").html(ret.data.ad_addr || "");
+								$("#bt_work_dt").html(ret.data.ru_work_dt || "");
+								$("#bt_edu").html(ret.data.ru_edu || "");
+								$("#bt_desc").html(ret.data.ru_desc || "");
+
+								var bt_career = "";
+								if (ret.data.career_list && ret.data.career_list.length > 0) {
+									for (var icnt = 0; icnt < ret.data.career_list.length; icnt++) {
+										bt_career += "<li>";
+										bt_career += "      <span>" + (ret.data.career_list[icnt].rc_type || "") + "</span>";
+										bt_career += "      <span>" + (ret.data.career_list[icnt].rc_name || "") + "</span>";
+										bt_career += "      <em>" + (ret.data.career_list[icnt].rc_date || "") + "</em>";
+										bt_career += "</li>";
+									}
+								}
+
+								var bt_certi = "";
+								if (ret.data.certi_list && ret.data.certi_list.length > 0) {
+									for (var icnt = 0; icnt < ret.data.certi_list.length; icnt++) {
+										bt_certi += "<li>";
+										bt_certi += "      <span>자격증</span>";
+										bt_certi += "      <span>" + (ret.data.certi_list[icnt].rc_name || "") + "</span>";
+										bt_certi += "      <em>" + (ret.data.certi_list[icnt].rc_dt || "") + "</em>";
+										bt_certi += "</li>";
+									}
+								}
+								$("#bt_career").html(bt_career);
+								$("#bt_certi").html(bt_certi);
+
+								if (ret.data.ru_idx) {
+									$("#bt_link").attr("href", "/resume/resume_detail/" + ret.data.ru_idx);
+								}
+							}
+
+							$("[name='recruit_phone']").val(ret.data.recruit_phone);
+							$("[name='recruit_name']").val(ret.data.recruit_name);
+						} else {
+							// comp_top_1이 주석처리되어 있어도 에러 방지를 위한 체크
+							if ($("#comp_top_1").length > 0) {
+								$("#comp_top_1").hide();
+							}
+							$("#top_name_mem").html(maskingName(ret.data.mm_name));
+							$("#td_img").attr("src", ret.data.td_img1);
+							$("#td_title").html(ret.data.td_name);
+							$("#td_area").html(ret.data.td_area);
+							$("#td_price").html(ret.data.td_price);
+							$("#td_date").html(ret.data.reg_dt);
+							if (ret.data.td_price_req_yn == "Y") {
+								$("#td_price_yn").show();
+							} else {
+								$("#td_price_yn").hide();
+							}
+							$("#td_link").attr("href", "/trade/trade_detail/" + ret.data.td_idx);
+						}
+					}
+				});
+			}
+		});
 
  		//방 조인
  		socket.on("room_join_return", function(ret) {
@@ -2653,11 +3550,9 @@
  			}
  			processedIdx.push(info.mg_idx);
 
- 			//alert('showMessage');
+			//alert('showMessage');
 
- 			console.log('showMessage');
- 			console.log(info);
- 			//console.log(is_prepend);
+			//console.log(is_prepend);
  			//console.log('showMessage');
  			//alert('showMessage');
  			//유형에 따른 처리
@@ -2969,10 +3864,9 @@
  			//상태 변경 UI 처리
  			$this.closest("div").find("button").prop("disabled", true);
  		}
-
- 		function fShowChatListByRecruite(ru_idx, obj) {
- 			//console.log('fShowChatListByRecruite:'+ru_idx);
- 			console.log($(obj).parent().parent().parent().attr('id'));
+		// 기업회원 제안받은 인재 / 제안보낸 인재 탭의 회사 공고 클릭시 아래 인재정보 가져오는 함수
+		function fShowChatListByRecruite(ru_idx, obj) {
+			//console.log('fShowChatListByRecruite:'+ru_idx);
 
  			if ($(obj).data('open') == null || $(obj).data('open') == 'N') {
  				$(obj).data('open', 'Y');
@@ -3000,17 +3894,18 @@
  			params["rc_idx"] = ru_idx; // 기업회원: rc_idx는 채용공고 번호
  			params["chatgbn"] = parentListId; // chat_list1 또는 chat_list2
 
- 			comAjax("/chat_proc/get_chat_target_list_by_recruit_new", params, function(ret) {
- 				$(".resumebox_" + ru_idx + "").remove();
+			comAjax("/chat_proc/get_chat_target_list_by_recruit_new", params, function(ret) {
+				$(".resumebox_" + ru_idx + "").remove();
 
- 				//console.log("get_chat_target_list");
- 				//console.log(ret);
+				//console.log("get_chat_target_list");
+				//console.log(ret);
 
 
- 				if (ret.code == "00") {
- 					var list = ret.data.list;
- 					list.forEach(function(row) {
- 						//console.log(row);
+				if (ret.code == "00") {
+					// 배열이 아닐 경우를 대비하여 배열 체크 및 기본값 설정
+					var list = Array.isArray(ret.data.list) ? ret.data.list : [];
+					list.forEach(function(row) {
+						//console.log(row);
  						//console.log('req:'+ru_idx+',res:'+row.rc_idx);
 
  						// 채용공고 번호로 비교
@@ -3037,23 +3932,25 @@
  							$content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
  							$content = $content.replaceAll("{{target_id}}", row.target_id);
  							$content = $content.replaceAll("{{user_id}}", row.user_id);
- 							$content = $content.replaceAll("{{target_img}}", row.target_img);
- 							$content = $content.replaceAll("{{user_img}}", row.user_img);
- 							$content = $content.replaceAll("{{target_name}}", row.target_name);
- 							$content = $content.replaceAll("{{user_name}}", row.user_name);
+							$content = $content.replaceAll("{{target_img}}", row.target_img);
+							$content = $content.replaceAll("{{user_img}}", row.user_img);
+							$content = $content.replaceAll("{{target_name}}", row.target_name);
+							$content = $content.replaceAll("{{user_name}}", row.user_name);
+							// 이력서 제목 표시를 위해 ru_name 필드 추가
+							$content = $content.replaceAll("{{ru_name}}", row.ru_name || row.target_name || "");
 
- 							$content = $content.replaceAll("{{rc_name}}", row.rc_name);
- 							$content = $content.replaceAll("{{room_idx}}", row.rm_idx); //test row.room_idx 204
- 							//$content = $content.replaceAll("{{rc_thumb}}",'/resource/uploads/member/58ae42eee368a36e2c2de2694d3d94c3.png'); //row.rc_thumb
- 							$content = $content.replaceAll("{{target_name}}", row.target_name);
- 							$content = $content.replaceAll("{{up_dt}}", row.up_dt);
+							$content = $content.replaceAll("{{rc_name}}", row.rc_name);
+							$content = $content.replaceAll("{{room_idx}}", row.rm_idx); //test row.room_idx 204
+							//$content = $content.replaceAll("{{rc_thumb}}",'/resource/uploads/member/58ae42eee368a36e2c2de2694d3d94c3.png'); //row.rc_thumb
+							$content = $content.replaceAll("{{target_name}}", row.target_name);
+							// 마지막 대화내용 표시 (HTML 태그 제거 및 줄바꿈 처리)
+							var lastMsg = (row.last_msg_preview || "").replace(/\n/g, "<br/>");
+							$content = $content.replaceAll("{{last_msg_preview}}", lastMsg);
+							$content = $content.replaceAll("{{up_dt}}", row.up_dt);
 
- 							var meminfo = "";
- 							if (row.ru_work != "") meminfo = row.ru_work + "<br>";
- 							if (row.mm_nation != "") meminfo += row.mm_nation;
- 							if (row.mm_nation != "" && row.ma_age != "" && row.ma_age != "0") meminfo += " | ";
- 							if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "세";
- 							$content = $content.replaceAll("{{meminfo}}", meminfo);
+							// getWorkingImg 함수로 처리된 ru_work_img 사용
+							var meminfo = row.ru_work_img || "";
+							$content = $content.replaceAll("{{meminfo}}", meminfo);
 
  							//복사한 내용 다시 넣기
  							$clone.html($content);

@@ -21,9 +21,9 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 // 백그라운드에서 푸시 알림 수신 시 처리
-messaging.onBackgroundMessage(function(payload) {
+messaging.onBackgroundMessage(function (payload) {
   console.log('📱 백그라운드 푸시 메시지 수신:', payload);
-  
+
   const notificationTitle = payload.notification.title || 'NowJob 알림';
   const notificationOptions = {
     body: payload.notification.body || '새로운 알림이 있습니다.',
@@ -49,21 +49,21 @@ messaging.onBackgroundMessage(function(payload) {
 });
 
 // 알림 클릭 시 처리
-self.addEventListener('notificationclick', function(event) {
+self.addEventListener('notificationclick', function (event) {
   console.log('📱 알림 클릭 이벤트:', event);
-  
+
   event.notification.close();
-  
+
   // 클릭한 액션에 따라 처리
   if (event.action === 'close') {
     return;
   }
-  
+
   // URL이 있으면 해당 페이지로 이동
   if (event.notification.data && event.notification.data.url) {
     const url = event.notification.data.url;
     console.log('🔗 알림 클릭 URL 처리:', url);
-    
+
     // 새 탭에서 열기
     event.waitUntil(
       clients.openWindow(url)
@@ -77,27 +77,27 @@ self.addEventListener('notificationclick', function(event) {
 });
 
 // 알림 닫기 시 처리
-self.addEventListener('notificationclose', function(event) {
+self.addEventListener('notificationclose', function (event) {
   console.log('📱 알림 닫기 이벤트:', event);
 });
 
 // 메시지 이벤트 처리 (메인 스레드와 통신)
-self.addEventListener('message', function(event) {
+self.addEventListener('message', function (event) {
   console.log('📱 Service Worker 메시지 수신:', event.data);
-  
+
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
 // 설치 이벤트
-self.addEventListener('install', function(event) {
+self.addEventListener('install', function (event) {
   console.log('📱 Service Worker 설치됨');
   self.skipWaiting();
 });
 
 // 활성화 이벤트
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function (event) {
   console.log('📱 Service Worker 활성화됨');
   event.waitUntil(self.clients.claim());
 });

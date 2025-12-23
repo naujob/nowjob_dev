@@ -207,6 +207,15 @@
             </div>
         </div>
 
+        <div class="section view-benefit">
+            <div class="container">
+                <h3 class="secondary-title">복리후생</h3>
+                <ul class="benefit-group">
+                    <?= getLifeType($info["rc_life_type"], "-v2") ?>
+                </ul>
+            </div>
+        </div>
+
         <div class="section view-location">
             <div class="container">
                 <h3 class="secondary-title">기본정보</h3>
@@ -327,15 +336,6 @@
             </div>
             <!-- 20220929 수정 -->
 
-        </div>
-
-        <div class="section view-benefit">
-            <div class="container">
-                <h3 class="secondary-title">복리후생</h3>
-                <ul class="benefit-group">
-                    <?= getLifeType($info["rc_life_type"], "-v2") ?>
-                </ul>
-            </div>
         </div>
 
         <div class="section view-desc">

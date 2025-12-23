@@ -793,6 +793,7 @@ function sendFcm($info, $token_list)
 
 	// FCM HTTP v1 API 메시지 구성
 	$messages = [];
+
 	foreach ($token_list as $token) {
 		// 토큰 유효성 검사
 		if (empty($token) || $token === null || $token === '') {
@@ -823,7 +824,8 @@ function sendFcm($info, $token_list)
 				],
 				'apns' => [
 					'headers' => [
-						'apns-priority' => '10'
+						'apns-priority' => '10',
+						'apns-push-type' => 'alert'  // iOS 알림 타입 명시 (소리 재생을 위해 필수)
 					],
 					'payload' => [
 						'aps' => [
@@ -831,8 +833,9 @@ function sendFcm($info, $token_list)
 								'title' => $info['title'],
 								'body' => $info['body']
 							],
-							'sound' => 'default',
-							'content-available' => 1  // iOS 백그라운드 알림 수신을 위한 설정
+							'sound' => 'default',  // iOS 알림 소리 (커스텀 사운드 사용 시 네이티브 앱에 파일 추가 필요)
+							'badge' => 1,
+							'interruption-level' => 'active'
 						]
 					]
 				]
@@ -968,7 +971,7 @@ function sendFcm($info, $token_list)
 						if (isset($json_result['error'])) {
 							$error_code = isset($json_result['error']['code']) ? $json_result['error']['code'] : null;
 							$error_message = isset($json_result['error']['message']) ? $json_result['error']['message'] : null;
-							
+
 							// FCM 에러 코드 추출
 							if (isset($json_result['error']['details']) && is_array($json_result['error']['details'])) {
 								foreach ($json_result['error']['details'] as $detail) {
@@ -979,11 +982,11 @@ function sendFcm($info, $token_list)
 								}
 							}
 						}
-						
+
 						// iOS 토큰 타입 감지 (토큰 길이로 판단)
 						$token_length = strlen($message['message']['token']);
 						$is_ios_token = ($token_length > 140); // iOS FCM 토큰은 보통 150자 이상
-						
+
 						debug_log("FCM HTTP 오류", 'FCM', [
 							'http_code' => $httpCode,
 							'attempt' => $retry_count,
@@ -993,7 +996,7 @@ function sendFcm($info, $token_list)
 							'token_preview' => substr($message['message']['token'], 0, 20) . '...',
 							'result' => $json_result
 						]);
-						
+
 						// SENDER_ID_MISMATCH 같은 특정 에러는 재시도하지 않음
 						$should_retry = true;
 						if ($error_code === 'SENDER_ID_MISMATCH' || $error_code === 'UNREGISTERED') {
@@ -1001,12 +1004,12 @@ function sendFcm($info, $token_list)
 							debug_log("FCM 치명적 에러 - 재시도 안 함", 'FCM', [
 								'error_code' => $error_code,
 								'token_type' => $is_ios_token ? 'iOS' : 'Android',
-								'message' => $is_ios_token ? 
+								'message' => $is_ios_token ?
 									'iOS 앱의 Firebase 설정(Sender ID)이 서버의 Firebase 프로젝트와 일치하지 않습니다. GoogleService-Info.plist 파일을 확인하세요.' :
 									'Android 앱의 Firebase 설정(Sender ID)이 서버의 Firebase 프로젝트와 일치하지 않습니다.'
 							]);
 						}
-						
+
 						if ($retry_count >= $max_retries || !$should_retry) {
 							$fail_count++;
 							$results[] = [
@@ -1218,6 +1221,9 @@ function kakaoRestApi($type, $parameter = array(), $content_type = 'json')
  */
 function debug_log($message, $type = 'INFO', $data = [])
 {
+	// 로그 비활성화 처리 - 로그 기록하지 않음
+	return;
+	
 	$log_dir = './debug_log';
 	if (!is_dir($log_dir)) {
 		mkdir($log_dir, 0755, true);
@@ -1300,4 +1306,3 @@ function checkDuplicatePhoneForSns($phone)
 
 	return $result;
 }
-

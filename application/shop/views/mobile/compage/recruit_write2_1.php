@@ -91,10 +91,7 @@
             <input type="hidden" id="rc_idx" name="rc_idx" value="<?= isset($info["rc_idx"]) ? $info["rc_idx"] : "0" ?>" />
             <div class="section addition-info-form">
                 <div class="container">
-                    <div class="resume-title-header">
-                        <h2 class="form-label"><span class="required-asterisk">*</span>복리후생</h2>
-                        <span class="required-label"><span class="required-asterisk">*</span>필수입력</span>
-                    </div>
+                    
                     <div class="form-row">
                         <!-- 보험 섹션 -->
                         <div class="form-row">

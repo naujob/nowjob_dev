@@ -115,6 +115,7 @@ function fEmailMasking($email)
                         <button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 10px; margin-top: 0px; position: absolute; width: 64px; right: 0px;">입력</button>
                       </td>
                     </tr>
+                    <?php /* 최근수정일 - 주석처리됨
                     <tr>
                       <td style=" font-size: 18px; font-weight: 600; color: #777;">최근수정일</td>
                       <td>
@@ -124,6 +125,7 @@ function fEmailMasking($email)
                         </label>
                       </td>
                     </tr>
+                    */ ?>
                     <!-- <tr>
                       <td style=" font-size: 20px; font-weight: 700;"></td>
                       <td>

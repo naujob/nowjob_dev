@@ -186,8 +186,13 @@
         var xpos = $btnItem.attr("data-xpos");
         var ypos = $btnItem.attr("data-ypos");
 
-        // 클릭한 버튼에 따라 전체 주소 선택 (도로명 또는 지번)
-        var selectedAddr = isDoro ? doro : jibun;
+        // resume_write 페이지에서는 도로명을 클릭하든 지번을 클릭하든 항상 지번을 선택
+        var currentPath = window.location.pathname;
+        var isResumeWritePage = currentPath.indexOf('/mypage/resume_write') !== -1 || 
+                                 currentPath.indexOf('/mypage/resume_write1') !== -1;
+        
+        // 클릭한 버튼에 따라 전체 주소 선택 (resume_write 페이지에서는 항상 지번)
+        var selectedAddr = (isResumeWritePage) ? jibun : (isDoro ? doro : jibun);
 
         console.log("[주소선택] 추출된 주소 정보:", {
             zipcode: post,

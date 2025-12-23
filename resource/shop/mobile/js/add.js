@@ -1,80 +1,80 @@
-$(document).ready(function(){
-	$(".bottom-nav .menu").after().click(function(){
-		$("#menu").removeClass("open");
-	});
+$(document).ready(function () {
+    $(".bottom-nav .menu").after().click(function () {
+        $("#menu").removeClass("open");
+    });
 
-	$(".btn-back").click(function(){
-		 history.back();
-		 return false;
-	});
+    $(".btn-back").click(function () {
+        history.back();
+        return false;
+    });
 
-	$(document).on("click",".btn-replace",function(){
-		var url = $(this).attr("data-url");
-		_replace(url);
-	});
+    $(document).on("click", ".btn-replace", function () {
+        var url = $(this).attr("data-url");
+        _replace(url);
+    });
 
-	$(document).on("click",".go-replace",function(){
-		var url = $(this).attr("data-url");
-		_replace(url);
-	});
+    $(document).on("click", ".go-replace", function () {
+        var url = $(this).attr("data-url");
+        _replace(url);
+    });
 
-	$(".btn-home").click(function(){
-		location.href="/";
-	});
+    $(".btn-home").click(function () {
+        location.href = "/";
+    });
 
-	$("a,button").click(function(){
-		var scrollPosition = $("#app > .page").scrollTop();
-      	localStorage.setItem("divScrollPositon", scrollPosition);
-	});
+    $("a,button").click(function () {
+        var scrollPosition = $("#app > .page").scrollTop();
+        localStorage.setItem("divScrollPositon", scrollPosition);
+    });
 
-	$(document).on("click",".click-item",function(){
-		var link = $(this).attr("data-link");
-		location.href=link;
-	});
+    $(document).on("click", ".click-item", function () {
+        var link = $(this).attr("data-link");
+        location.href = link;
+    });
 
-   	window.addEventListener('pageshow', function (event) {
-		if (event.persisted || window.performance && window.performance.navigation.type == 2) {
-  			$("#app > .page").scrollTop(localStorage.getItem("divScrollPositon"));
-		}
-	});
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted || window.performance && window.performance.navigation.type == 2) {
+            $("#app > .page").scrollTop(localStorage.getItem("divScrollPositon"));
+        }
+    });
 
-	//북마크 처리
-	$(document).on("click",".btnBookMark",function(){
-	    var params = {};
-	    params["bk_key"] = $(this).attr("data-bk_key");
-	    params["bk_type"] = $(this).attr("data-bk_type");
-		var target_user_id = $(this).attr("data-user_id");
+    //북마크 처리
+    $(document).on("click", ".btnBookMark", function () {
+        var params = {};
+        params["bk_key"] = $(this).attr("data-bk_key");
+        params["bk_type"] = $(this).attr("data-bk_type");
+        var target_user_id = $(this).attr("data-user_id");
 
-	    var $this = $(this);
-	   	comAjax("/common_proc/bookmark",params,function(ret){
-	   		if(ret.code !="00"){
-	   			$this.removeClass("on");
-	   			commonAlert(ret.msg,function(){});
-	   			return;
-	   		}else{
-	   			if(ret.data.yn =="Y"){
-		        	$this.addClass("on");
-		        }else{
-		        	$this.removeClass("on");
-		        }
-	   		}
-	    });
-	});
+        var $this = $(this);
+        comAjax("/common_proc/bookmark", params, function (ret) {
+            if (ret.code != "00") {
+                $this.removeClass("on");
+                commonAlert(ret.msg, function () { });
+                return;
+            } else {
+                if (ret.data.yn == "Y") {
+                    $this.addClass("on");
+                } else {
+                    $this.removeClass("on");
+                }
+            }
+        });
+    });
 
-	$(".btn-toggle-menu").click(function(){
-		callVibrate(400);
-	});
+    $(".btn-toggle-menu").click(function () {
+        callVibrate(400);
+    });
 });
 
-function _replace(url){
-  if(history.replaceState){
-    // history의 replaceState 기능이 사용 가능한 경우
-    history.replaceState(null, document.title, url);
-    history.go(0);
-  }else{
-    // history의 replaceState 기능이 사용 가능하지 않은 경우
-    location.replace(url);
-  }
+function _replace(url) {
+    if (history.replaceState) {
+        // history의 replaceState 기능이 사용 가능한 경우
+        history.replaceState(null, document.title, url);
+        history.go(0);
+    } else {
+        // history의 replaceState 기능이 사용 가능하지 않은 경우
+        location.replace(url);
+    }
 }
 
 function callVibrate(time) {
@@ -102,20 +102,20 @@ function callVibrate(time) {
 };
 
 //쿠키 설정
-var setCookie = function(name, value, day) {
+var setCookie = function (name, value, day) {
     var date = new Date();
     date.setTime(date.getTime() + day * 60 * 60 * 24 * 1000);
     document.cookie = name + '=' + value + ';expires=' + date.toUTCString() + ';path=/';
 };
 
 //쿠키 가져오기
-var getCookie = function(name) {
+var getCookie = function (name) {
     var value = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-    return value? value[2] : null;
+    return value ? value[2] : null;
 };
 
 //쿠키 삭제
-var deleteCookie = function(name) {
+var deleteCookie = function (name) {
     var date = new Date();
     document.cookie = name + "= " + "; expires=" + date.toUTCString() + "; path=/";
 }
@@ -143,8 +143,8 @@ function PopupCenter(url, title, w, h) {
 /**
  * 숫자 포맷
  */
-Number.prototype.format = function(){
-    if(this==0) return 0;
+Number.prototype.format = function () {
+    if (this == 0) return 0;
 
     var reg = /(^[+-]?\d+)(\d{3})/;
     var n = (this + '');
@@ -157,83 +157,83 @@ Number.prototype.format = function(){
 /**
 * 숫자 포맷
  */
-String.prototype.format = function(){
+String.prototype.format = function () {
     var num = parseFloat(this);
-    if( isNaN(num) ) return "0";
+    if (isNaN(num)) return "0";
 
     return num.format();
 };
 
-String.prototype.replaceAll = function(org, dest) {
-	return this.split(org).join(dest);
+String.prototype.replaceAll = function (org, dest) {
+    return this.split(org).join(dest);
 }
 
 // 주소 텍스트에서 광역·도 명칭을 정리해 짧은 주소로 반환
 function fRemoveBigAdrJS(arg) {
-  if (typeof arg !== "string") {
-    return "";
-  }
-
-  var raw = arg.trim();
-  if (raw === "") {
-    return "";
-  }
-
-  // 쉼표 포함 시 첫 토큰만 사용
-  var firstPart = raw.split(",")[0];
-
-  var replacements = [
-    ["서울특별시 ", "서울시 "],
-    ["경기도 ", ""],
-    ["강원특별자치도 ", ""],
-    ["충청남도 ", ""],
-    ["충청북도 ", ""],
-    ["경상남도 ", ""],
-    ["경상북도 ", ""],
-    ["전라남도 ", ""],
-    ["전북특별자치도 ", ""],
-    ["제주특별자치도 ", ""],
-    ["세종특별자치시 ", "세종시 "],
-    ["광주광역시 ", "광주시 "],
-    ["인천광역시 ", "인천시 "],
-    ["울산광역시 ", "울산시 "],
-    ["부산광역시 ", "부산시 "],
-    ["대구광역시 ", "대구시 "],
-    ["대전광역시 ", "대전시 "],
-    ["경기 ", ""],
-    ["강원 ", ""],
-    ["충남 ", ""],
-    ["충북 ", ""],
-    ["경남 ", ""],
-    ["경북 ", ""],
-    ["전남 ", ""],
-    ["전북 ", ""],
-    ["제주 ", ""]
-  ];
-
-  replacements.forEach(function(pair) {
-    firstPart = firstPart.replace(pair[0], pair[1]);
-  });
-
-  var parts = firstPart.split(" ");
-  if (parts.length >= 3) {
-    // 세 번째 토큰이 숫자를 포함하면 첫 두 토큰만 사용
-    if (/\d/.test(parts[2])) {
-      return parts[0] + " " + parts[1];
+    if (typeof arg !== "string") {
+        return "";
     }
-    return parts[0] + " " + parts[2];
-  }
 
-  return firstPart;
+    var raw = arg.trim();
+    if (raw === "") {
+        return "";
+    }
+
+    // 쉼표 포함 시 첫 토큰만 사용
+    var firstPart = raw.split(",")[0];
+
+    var replacements = [
+        ["서울특별시 ", "서울시 "],
+        ["경기도 ", ""],
+        ["강원특별자치도 ", ""],
+        ["충청남도 ", ""],
+        ["충청북도 ", ""],
+        ["경상남도 ", ""],
+        ["경상북도 ", ""],
+        ["전라남도 ", ""],
+        ["전북특별자치도 ", ""],
+        ["제주특별자치도 ", ""],
+        ["세종특별자치시 ", "세종시 "],
+        ["광주광역시 ", "광주시 "],
+        ["인천광역시 ", "인천시 "],
+        ["울산광역시 ", "울산시 "],
+        ["부산광역시 ", "부산시 "],
+        ["대구광역시 ", "대구시 "],
+        ["대전광역시 ", "대전시 "],
+        ["경기 ", ""],
+        ["강원 ", ""],
+        ["충남 ", ""],
+        ["충북 ", ""],
+        ["경남 ", ""],
+        ["경북 ", ""],
+        ["전남 ", ""],
+        ["전북 ", ""],
+        ["제주 ", ""]
+    ];
+
+    replacements.forEach(function (pair) {
+        firstPart = firstPart.replace(pair[0], pair[1]);
+    });
+
+    var parts = firstPart.split(" ");
+    if (parts.length >= 3) {
+        // 세 번째 토큰이 숫자를 포함하면 첫 두 토큰만 사용
+        if (/\d/.test(parts[2])) {
+            return parts[0] + " " + parts[1];
+        }
+        return parts[0] + " " + parts[2];
+    }
+
+    return firstPart;
 }
 
 
-function showAjaxLoading(){
-	$("body").append("<div id='ajax_loding'><img src='/resource/shop/mobile/img/common/loading.svg' /></div>")
+function showAjaxLoading() {
+    $("body").append("<div id='ajax_loding'><img src='/resource/shop/mobile/img/common/loading.svg' /></div>")
 }
 
-function hideAjaxLoading(){
-	$("#ajax_loding").remove();
+function hideAjaxLoading() {
+    $("#ajax_loding").remove();
 }
 
 /**
@@ -243,27 +243,27 @@ function hideAjaxLoading(){
  * @param callback : 콜백
  */
 var ajax_first_num = 0;
-function comAjax(url,params,callback) {
+function comAjax(url, params, callback) {
     $.ajax({
         type: "POST",
         url: url,
         data: params,
-        beforeSend : function(xhr, opts) {
-	        ajax_first_num = ajax_first_num + 1;
-			if(ajax_first_num!=1){
-				commonAlert("데이터 처리중입니다.",function(){});
-				xhr.abort();
-				return false;
-			}
-	    },
+        beforeSend: function (xhr, opts) {
+            ajax_first_num = ajax_first_num + 1;
+            if (ajax_first_num != 1) {
+                commonAlert("데이터 처리중입니다.", function () { });
+                xhr.abort();
+                return false;
+            }
+        },
         success: function (result) {
-        	ajax_first_num = 0;
-        	$(".layer-popup").remove();
+            ajax_first_num = 0;
+            $(".layer-popup").remove();
             callback(result);
         },
         error: function (xhr, status, error) {
-        	ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error,function(){});
+            ajax_first_num = 0;
+            commonAlert('통신오류 : ' + error, function () { });
         }
     });
 }
@@ -274,7 +274,7 @@ function comAjax(url,params,callback) {
  * @param params : 파라미터
  * @param callback : 콜백
  */
-function fileAjax(url,params,callback) {
+function fileAjax(url, params, callback) {
     $.ajax({
         type: "POST",
         url: url,
@@ -282,51 +282,51 @@ function fileAjax(url,params,callback) {
         contentType: false,
         cache: false,
         processData: false,
-        beforeSend : function(xhr, opts) {
-	        ajax_first_num = ajax_first_num + 1;
-			if(ajax_first_num!=1){
-				commonAlert("데이터 처리중입니다.",function(){});
-				xhr.abort();
-				return false;
-			}
-	    },
+        beforeSend: function (xhr, opts) {
+            ajax_first_num = ajax_first_num + 1;
+            if (ajax_first_num != 1) {
+                commonAlert("데이터 처리중입니다.", function () { });
+                xhr.abort();
+                return false;
+            }
+        },
         success: function (result) {
-        	ajax_first_num = 0;
-        	$(".layer-popup").remove();
+            ajax_first_num = 0;
+            $(".layer-popup").remove();
             callback(result);
         },
         error: function (xhr, status, error) {
-        	ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error,function(){});
+            ajax_first_num = 0;
+            commonAlert('통신오류 : ' + error, function () { });
         }
     });
 }
 
 var ajax_first_num = 0;
-function comAjaxLoading(url,params,callback) {
+function comAjaxLoading(url, params, callback) {
     $.ajax({
         type: "POST",
         url: url,
         data: params,
-        beforeSend : function(xhr, opts) {
-	        ajax_first_num = ajax_first_num + 1;
-			if(ajax_first_num!=1){
-				commonAlert("데이터 처리중입니다.",function(){});
-				xhr.abort();
-				return false;
-			}
-			showAjaxLoading();
-	    },
+        beforeSend: function (xhr, opts) {
+            ajax_first_num = ajax_first_num + 1;
+            if (ajax_first_num != 1) {
+                commonAlert("데이터 처리중입니다.", function () { });
+                xhr.abort();
+                return false;
+            }
+            showAjaxLoading();
+        },
         success: function (result) {
-        	hideAjaxLoading();
-        	$(".layer-popup").remove();
-        	ajax_first_num = 0;
+            hideAjaxLoading();
+            $(".layer-popup").remove();
+            ajax_first_num = 0;
             callback(result);
         },
         error: function (xhr, status, error) {
-        	hideAjaxLoading();
-        	ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error,function(){});
+            hideAjaxLoading();
+            ajax_first_num = 0;
+            commonAlert('통신오류 : ' + error, function () { });
         }
     });
 }
@@ -337,7 +337,7 @@ function comAjaxLoading(url,params,callback) {
  * @param params : 파라미터
  * @param callback : 콜백
  */
-function fileAjaxLoading(url,params,callback) {
+function fileAjaxLoading(url, params, callback) {
     $.ajax({
         type: "POST",
         url: url,
@@ -345,25 +345,25 @@ function fileAjaxLoading(url,params,callback) {
         contentType: false,
         cache: false,
         processData: false,
-        beforeSend : function(xhr, opts) {
-	        ajax_first_num = ajax_first_num + 1;
-			if(ajax_first_num!=1){
-				commonAlert("데이터 처리중입니다.",function(){});
-				xhr.abort();
-				return false;
-			}
-			showAjaxLoading();
-	    },
+        beforeSend: function (xhr, opts) {
+            ajax_first_num = ajax_first_num + 1;
+            if (ajax_first_num != 1) {
+                commonAlert("데이터 처리중입니다.", function () { });
+                xhr.abort();
+                return false;
+            }
+            showAjaxLoading();
+        },
         success: function (result) {
-        	hideAjaxLoading();
-        	$(".layer-popup").remove();
-        	ajax_first_num = 0;
+            hideAjaxLoading();
+            $(".layer-popup").remove();
+            ajax_first_num = 0;
             callback(result);
         },
         error: function (xhr, status, error) {
-        	hideAjaxLoading();
-        	ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error,function(){});
+            hideAjaxLoading();
+            ajax_first_num = 0;
+            commonAlert('통신오류 : ' + error, function () { });
         }
     });
 }
@@ -391,185 +391,185 @@ function getDateAdd(sDate, nNum, type) {
     return '' + yy + '-' + mm + '-' + dd;
 }
 
-function getToday(format){
-	var date = new Date();
-	return getTempDate(date,format);
+function getToday(format) {
+    var date = new Date();
+    return getTempDate(date, format);
 }
 
-function getTempDate(date,format){
+function getTempDate(date, format) {
     var year = date.getFullYear();
     var month = (1 + date.getMonth());
     var day = date.getDate();
     var hours = date.getHours();
-	var minute = date.getMinutes();
-	var second = date.getSeconds();
+    var minute = date.getMinutes();
+    var second = date.getSeconds();
 
     month = month >= 10 ? month : '0' + month;
     day = day >= 10 ? day : '0' + day;
 
-    if(format=="ymd"){
-        return  year + '' + month + '' + day;
-    }else if(format=="y-m-d"){
-        return  year + '-' + month + '-' + day;
+    if (format == "ymd") {
+        return year + '' + month + '' + day;
+    } else if (format == "y-m-d") {
+        return year + '-' + month + '-' + day;
     }
 }
 
 
-function getFormatDate(date,format){
+function getFormatDate(date, format) {
     var year = date.getFullYear();
     var month = (1 + date.getMonth());
     var day = date.getDate();
     var hours = date.getHours();
-	var minute = date.getMinutes();
-	var second = date.getSeconds();
+    var minute = date.getMinutes();
+    var second = date.getSeconds();
 
     month = month >= 10 ? month : '0' + month;
     day = day >= 10 ? day : '0' + day;
 
-    if(format=="ymd"){
-        return  year + '' + month + '' + day;
-    }else if(format=="y-m-d"){
-        return  year + '-' + month + '-' + day;
+    if (format == "ymd") {
+        return year + '' + month + '' + day;
+    } else if (format == "y-m-d") {
+        return year + '-' + month + '-' + day;
     }
 }
 
 
-function commonAlert(msg,callback){
+function commonAlert(msg, callback) {
     openPopup('alert2', {
-       content : msg,
-       firstButton : '확인',
-       firstCallback: function () {
-           callback();
-       },
-   });
+        content: msg,
+        firstButton: '확인',
+        firstCallback: function () {
+            callback();
+        },
+    });
 }
 
-function commonLogin(){
-	commonAlert("로그인후 이용해주세요!",function(){
+function commonLogin() {
+    commonAlert("로그인후 이용해주세요!", function () {
 
-	});
+    });
 }
 
-function toastShow(msg){
-	new ToasterBox({
-		msg: msg,
-		html: true,
-		duration: 2000,
-		className: null,
-		closeButton: true,
-		maxWidth: '100%',
-		autoOpen: true,
-		position: 'top-center',
-		backgroundColor: null,
-		closeIcon: null
-	});
+function toastShow(msg) {
+    new ToasterBox({
+        msg: msg,
+        html: true,
+        duration: 2000,
+        className: null,
+        closeButton: true,
+        maxWidth: '100%',
+        autoOpen: true,
+        position: 'top-center',
+        backgroundColor: null,
+        closeIcon: null
+    });
 }
 
-function removeElement(ele){
-    $(ele).fadeOut("normal", function() { $(this).remove(); });
+function removeElement(ele) {
+    $(ele).fadeOut("normal", function () { $(this).remove(); });
 }
 
 
 //ajax 캐싱
 $.CashingAjax = function (pm) {
-	$(document).click(function () {
-		sessionStorage.setItem(pm.cashing_id + "_list_data", $(pm.list_id).html());
-		sessionStorage.setItem(pm.cashing_id + "_category_list", $(pm.category_list_id).html());
-		sessionStorage.setItem(pm.cashing_id + "_scroll_top", $(window).scrollTop());
-		sessionStorage.setItem(pm.cashing_id + "_page", $(pm.list_id).attr("data-page"));
+    $(document).click(function () {
+        sessionStorage.setItem(pm.cashing_id + "_list_data", $(pm.list_id).html());
+        sessionStorage.setItem(pm.cashing_id + "_category_list", $(pm.category_list_id).html());
+        sessionStorage.setItem(pm.cashing_id + "_scroll_top", $(window).scrollTop());
+        sessionStorage.setItem(pm.cashing_id + "_page", $(pm.list_id).attr("data-page"));
 
-		if (pm.list_params != null && pm.list_params != "") {
-			if (pm.list_params.length > 0) {
-				for (var icnt = 0; icnt < pm.list_params.length; icnt++) {
-					sessionStorage.setItem(pm.cashing_id + pm.list_params[icnt], getParameter(pm.list_params[icnt]));
-				}
-			}
-		}
-		if (pm.more_id != "") {
-			sessionStorage.setItem(pm.cashing_id + "more_list", $(pm.more_id).hasClass("hidden") ? "TRUE" : "FALSE");
-		}
+        if (pm.list_params != null && pm.list_params != "") {
+            if (pm.list_params.length > 0) {
+                for (var icnt = 0; icnt < pm.list_params.length; icnt++) {
+                    sessionStorage.setItem(pm.cashing_id + pm.list_params[icnt], getParameter(pm.list_params[icnt]));
+                }
+            }
+        }
+        if (pm.more_id != "") {
+            sessionStorage.setItem(pm.cashing_id + "more_list", $(pm.more_id).hasClass("hidden") ? "TRUE" : "FALSE");
+        }
 
-		if (pm.total_cnt_id != "") {
-			sessionStorage.setItem(pm.cashing_id + "total_cnt", $(pm.total_cnt_id).text());
-		}
-	});
+        if (pm.total_cnt_id != "") {
+            sessionStorage.setItem(pm.cashing_id + "total_cnt", $(pm.total_cnt_id).text());
+        }
+    });
 
-	//뒤로왔을때 상품 유지
-	window.addEventListener('pageshow', function (event) {
-		if (event.persisted || window.performance && window.performance.navigation.type == 2) {
-			//데이터 가져오기
-			var list_data = sessionStorage.getItem(pm.cashing_id + "_list_data");
-			var scroll_top = sessionStorage.getItem(pm.cashing_id + "_scroll_top");
-			var category_list = sessionStorage.getItem(pm.cashing_id + "_category_list");
-			var page = sessionStorage.getItem(pm.cashing_id + "_page");
+    //뒤로왔을때 상품 유지
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted || window.performance && window.performance.navigation.type == 2) {
+            //데이터 가져오기
+            var list_data = sessionStorage.getItem(pm.cashing_id + "_list_data");
+            var scroll_top = sessionStorage.getItem(pm.cashing_id + "_scroll_top");
+            var category_list = sessionStorage.getItem(pm.cashing_id + "_category_list");
+            var page = sessionStorage.getItem(pm.cashing_id + "_page");
 
-			//데이터 설정
-			$(pm.list_id).html(list_data);
-			$(pm.list_id).attr("data-page",page);
-			//pm.scroll_obj.scrollTop(scroll_top);
-			$(window).scrollTop(scroll_top);
+            //데이터 설정
+            $(pm.list_id).html(list_data);
+            $(pm.list_id).attr("data-page", page);
+            //pm.scroll_obj.scrollTop(scroll_top);
+            $(window).scrollTop(scroll_top);
 
-			// 카테고리 캐싱 설정
-			// @TODO: 선택한 카테고리 표기
-			$(pm.category_list_id).html(category_list);
-			if($('.swiper-slide').length > 1){
-				new Swiper('.category-wrap.swiper-container', {
-					slidesPerView: 'auto',
-					spaceBetween: 0,
-					speed: 200,
-					pagination: {
-						el: '.swiper-pagination'
-					}
-				});
-			}
+            // 카테고리 캐싱 설정
+            // @TODO: 선택한 카테고리 표기
+            $(pm.category_list_id).html(category_list);
+            if ($('.swiper-slide').length > 1) {
+                new Swiper('.category-wrap.swiper-container', {
+                    slidesPerView: 'auto',
+                    spaceBetween: 0,
+                    speed: 200,
+                    pagination: {
+                        el: '.swiper-pagination'
+                    }
+                });
+            }
 
-			//파라미터 설정
-			if (pm.list_params != null && pm.list_params != "") {
-				if (pm.list_params.length > 0) {
-					for (var icnt = 0; icnt < pm.list_params.length; icnt++) {
-						var param_data = sessionStorage.getItem(pm.cashing_id + pm.list_params[icnt]);
-						setParameter(pm.list_params[icnt], param_data);
+            //파라미터 설정
+            if (pm.list_params != null && pm.list_params != "") {
+                if (pm.list_params.length > 0) {
+                    for (var icnt = 0; icnt < pm.list_params.length; icnt++) {
+                        var param_data = sessionStorage.getItem(pm.cashing_id + pm.list_params[icnt]);
+                        setParameter(pm.list_params[icnt], param_data);
 
-						//파라미터 옵션 예외처리
-						if (pm.list_params[icnt] == "data-option") {
-							$(".jsFilter").removeClass("on");
-							for (var jcnt = 0; jcnt < $(".jsFilter").length; jcnt++) {
-								if ($(".jsFilter").eq(jcnt).attr("data-option") == param_data) {
-									$(".jsFilterOpen").html($(".jsFilter").eq(jcnt).html());
-									$(".jsFilter").eq(jcnt).addClass("on");
-								}
-							}
-						}
-					}
-				}
-			}
+                        //파라미터 옵션 예외처리
+                        if (pm.list_params[icnt] == "data-option") {
+                            $(".jsFilter").removeClass("on");
+                            for (var jcnt = 0; jcnt < $(".jsFilter").length; jcnt++) {
+                                if ($(".jsFilter").eq(jcnt).attr("data-option") == param_data) {
+                                    $(".jsFilterOpen").html($(".jsFilter").eq(jcnt).html());
+                                    $(".jsFilter").eq(jcnt).addClass("on");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
-			//수량 처리
-			if (pm.total_cnt_id != "") {
-				var total_cnt = sessionStorage.getItem(pm.cashing_id + "total_cnt");
-				$(pm.total_cnt_id).text(total_cnt);
-			}
+            //수량 처리
+            if (pm.total_cnt_id != "") {
+                var total_cnt = sessionStorage.getItem(pm.cashing_id + "total_cnt");
+                $(pm.total_cnt_id).text(total_cnt);
+            }
 
-			//더보기 처리
-			if (pm.more_id != "") {
-				var more_list = sessionStorage.getItem(pm.cashing_id + "more_list");
-				if (more_list == "FALSE") {
-					$(pm.more_id).removeClass("hidden")
-				}
-			}
-			pm.fn_cashing();
-		} else {
-			pm.fn_load();
-		}
-	}, false);
+            //더보기 처리
+            if (pm.more_id != "") {
+                var more_list = sessionStorage.getItem(pm.cashing_id + "more_list");
+                if (more_list == "FALSE") {
+                    $(pm.more_id).removeClass("hidden")
+                }
+            }
+            pm.fn_cashing();
+        } else {
+            pm.fn_load();
+        }
+    }, false);
 
-	function getParameter(key) {
-		return $(pm.list_id).attr(key);
-	}
+    function getParameter(key) {
+        return $(pm.list_id).attr(key);
+    }
 
-	function setParameter(key, val) {
-		$(pm.list_id).attr(key, val);
-	}
+    function setParameter(key, val) {
+        $(pm.list_id).attr(key, val);
+    }
 };
 
 /* 쿠키추가 */
@@ -588,19 +588,19 @@ function getCookie(cookie_name) {
 }
 
 /* 쿠키체크 후 팝업 열기 */
-function showNotice (selector, cookie_name) {
+function showNotice(selector, cookie_name) {
     if (getCookie(cookie_name) < 0) {
         openPanel(document.querySelector(selector));
     }
 }
 
 /* 모바일 유형 */
-function checkMobile(){
+function checkMobile() {
     var varUA = navigator.userAgent.toLowerCase(); //userAgent 값 얻기
-    if ( varUA.indexOf('android') > -1) {
+    if (varUA.indexOf('android') > -1) {
         //안드로이드
         return "android";
-    } else if ( varUA.indexOf("iphone") > -1||varUA.indexOf("ipad") > -1||varUA.indexOf("ipod") > -1 ) {
+    } else if (varUA.indexOf("iphone") > -1 || varUA.indexOf("ipad") > -1 || varUA.indexOf("ipod") > -1) {
         //IOS
         return "ios";
     } else {
@@ -625,19 +625,19 @@ function handleAndroidBack() {
     try {
         // 현재 경로만 추출 (쿼리 파라미터 제외)
         const current = location.pathname;
-        
+
         // 🟢 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음
         if (current === "/") {
             console.log("홈 화면 → 뒤로가기 차단 (JS)");
             return;
         }
-        
+
         // 🟢 뒤로가기 커스텀 규칙 맵
         const backCustomMap = {
             // /compage/index → 홈화면
             "/compage/index": "/"
         };
-        
+
         // 🟢 현재 페이지가 커스텀 목록에 포함되어 있나요?
         for (const key in backCustomMap) {
             // startsWith를 사용하여 경로 패턴 매칭
@@ -647,7 +647,7 @@ function handleAndroidBack() {
                 return;
             }
         }
-        
+
         // 🟢 커스텀 페이지가 아니면 일반 history.back() 처리
         if (window.history.length > 1) {
             // 히스토리가 있으면 뒤로가기
@@ -656,7 +656,7 @@ function handleAndroidBack() {
             // 히스토리가 없으면 홈으로 이동 (replace 사용)
             location.replace("/");
         }
-        
+
     } catch (error) {
         console.error("handleAndroidBack 오류:", error);
         // 오류 발생 시 기본 동작 (뒤로가기)

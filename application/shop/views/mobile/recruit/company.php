@@ -409,7 +409,7 @@ if (count($banner_list) > 0) {
           top: 0.975rem;
         }
       </style>
-      <!-- 현재 위치 -->
+      <?php /* 현재 위치 - 주석처리됨
       <div class="current-area">
         <div class="container">
           <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
@@ -423,6 +423,7 @@ if (count($banner_list) > 0) {
         </div>
       </div>
       <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
+      */ ?>
     </div>
 
     <div class="section is-last">

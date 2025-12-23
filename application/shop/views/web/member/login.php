@@ -6,12 +6,21 @@
                 <h1 class="title-logo"><img src="/resource/shop/web/img/login_logo.svg" alt="NOW JOB"></h1>
                 <div class="form-container">
                     <?php
+                    // 카카오 로그인 URL 생성
+                    $kakao_redirect = urlencode("https://nowjob.co.kr/member/kakao_login_callback");
+                    $kakao_client_id = "5643430bdfed15f491b8be74ad1522b1"; // 카카오 클라이언트 ID
+                    // prompt=login 파라미터 추가: 항상 로그인 화면을 표시하도록 함
+                    $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf . "&prompt=login";
+                    
                     // 네이버 로그인 URL 생성
                     $naver_redirect = urlencode("https://nowjob.co.kr/member/naver_login_callback");
                     // 컨트롤러에서 전달받은 네이버 클라이언트 ID 사용
                     $naver_client_id = isset($naver_client_id) ? $naver_client_id : "";
                     if (!empty($naver_client_id)) {
-                        $naver_login = "https://nid.naver.com/oauth2.0/authorize?client_id=" . $naver_client_id . "&redirect_uri=" . $naver_redirect . "&response_type=code&state=" . $csrf;
+                        // prompt=login과 auth_type=reauthenticate 파라미터 추가: 항상 로그인 화면을 표시하도록 함
+                        // 매번 고유한 state 값 사용 (타임스탬프 추가)하여 세션 우회 시도
+                        $unique_state = $csrf . "_" . time() . "_" . mt_rand(1000, 9999);
+                        $naver_login = "https://nid.naver.com/oauth2.0/authorize?client_id=" . $naver_client_id . "&redirect_uri=" . $naver_redirect . "&response_type=code&state=" . urlencode($unique_state) . "&prompt=login&auth_type=reauthenticate";
                     } else {
                         // 클라이언트 ID가 없으면 빈 문자열
                         $naver_login = "";
@@ -56,7 +65,7 @@
                         <div class="vendor-login">
                             <h2 class="title">간편로그인</h2>
                             <div class="social-login-buttons">
-                                <a href="javascript:void(0);" id="btnKakao" class="social-btn kakao-btn"></a>
+                                <a href="<?= $kakao_login ?>" id="btnKakao" class="social-btn kakao-btn"></a>
                                 <?php if (!empty($naver_login)) : ?>
                                     <a href="<?= $naver_login ?>" id="btnNaver" class="social-btn naver-btn"></a>
                                 <?php else : ?>
@@ -74,7 +83,6 @@
 </div><!-- //page -->
 
 
-<script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script>
     $(document).ready(function() {
         //로그인
@@ -88,105 +96,9 @@
             }
         })
 
-        //카카오 로그인
-        $("#btnKakao").click(function() {
-            if (!Kakao.isInitialized()) {
-                Kakao.init("5643430bdfed15f491b8be74ad1522b1"); // <? /* $kakao_key["인증키"] */ ?>
-            }
-
-            Kakao.Auth.login({
-                success: function(authObj) {
-                    // 로그인 성공시, API를 호출합니다.
-                    Kakao.API.request({
-                        url: '/v2/user/me',
-                        success: function(res) {
-                            // 카카오 사용자 정보 추출
-                            var kakaoid = res.id;
-                            var kakaoname = (res.kakao_account && res.kakao_account.name) ? res.kakao_account.name : "";
-                            var kakaophone = (res.kakao_account && res.kakao_account.phone_number) ? res.kakao_account.phone_number : "";
-                            var kakaogender = (res.kakao_account && res.kakao_account.gender) ? res.kakao_account.gender : "";
-                            var kakaobirthyear = (res.kakao_account && res.kakao_account.birthyear) ? res.kakao_account.birthyear : "";
-                            var kakaobirthday = (res.kakao_account && res.kakao_account.birthday) ? res.kakao_account.birthday : "";
-                            var kakaoemail = (res.kakao_account && res.kakao_account.email) ? res.kakao_account.email : "";
-
-                            // 전화번호 포맷 변환: +82 10-9002-5528 → 01090025528
-                            if (kakaophone) {
-                                kakaophone = kakaophone.replace(/\+82\s*10-/, '010').replace(/[-\s]/g, '');
-                            }
-
-                            // 성별 변환 (male -> MALE, female -> FEMALE)
-                            var gender = "";
-                            if (kakaogender == "male") {
-                                gender = "MALE";
-                            } else if (kakaogender == "female") {
-                                gender = "FEMALE";
-                            }
-
-                            var params = {};
-                            params["mm_join_type"] = "KAKAO";
-                            params["mm_join_key"] = kakaoid;
-                            // 7개 파라미터 전달
-                            params["kakaoid"] = kakaoid;
-                            params["kakaoname"] = kakaoname;
-                            params["kakaophone"] = kakaophone;
-                            params["kakaogender"] = gender;
-                            params["kakaobirthyear"] = kakaobirthyear;
-                            params["kakaobirthday"] = kakaobirthday;
-                            params["kakaoemail"] = kakaoemail;
-
-                            comAjax("/member_proc/login", params, function(ret) {
-                                if (ret.code == "00") {
-                                    sessionStorage.removeItem("chat_user_connect");
-                                    location.href = "/";
-                                } else {
-                                    if (ret.code == "91") {
-                                        // 전화번호가 이미 가입되어 있는 경우
-                                        commonAlert(ret.msg, function() {
-                                            location.href = "/member/login";
-                                        });
-                                    } else if (ret.code == "90") {
-                                        openPopup('confirm', {
-                                            id: 'permission',
-                                            content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-                                            firstButton: '취소',
-                                            secondButton: '회원가입',
-                                            firstCallback: function() {
-
-                                            },
-                                            secondCallback: function() {
-                                                // 추가 정보와 함께 회원가입 페이지로 이동
-                                                var joinUrl = "/member/join_sns_start?join_key=" + kakaoid + "&join_type=KAKAO";
-                                                if (kakaoname) joinUrl += "&username=" + encodeURIComponent(kakaoname);
-                                                if (kakaoemail) joinUrl += "&email=" + encodeURIComponent(kakaoemail);
-                                                if (gender) joinUrl += "&gender=" + encodeURIComponent(gender);
-                                                if (kakaophone) joinUrl += "&phonenum=" + encodeURIComponent(kakaophone);
-                                                location.href = joinUrl;
-                                            },
-                                        });
-                                    } else {
-                                        commonAlert(ret.msg, function() {});
-                                    }
-                                }
-                            });
-                        },
-                        fail: function(error) {
-                            alert(JSON.stringify(error));
-                        }
-                    });
-                },
-                fail: function(err) {
-                    alert(JSON.stringify(err));
-                }
-            });
-
-        });
-        //네이버 로그인
+        //네이버 로그인 - href로 직접 이동하므로 클릭 이벤트는 필요 없지만, 설정되지 않은 경우만 처리
         $("#btnNaver").click(function(e) {
-            <?php if (!empty($naver_login)) : ?>
-                // 네이버 로그인 URL로 리다이렉트
-                <?php // URL이 이미 href에 설정되어 있으므로 기본 동작 사용 
-                ?>
-            <?php else : ?>
+            <?php if (empty($naver_login)) : ?>
                 // 네이버 클라이언트 ID가 설정되지 않은 경우
                 e.preventDefault();
                 alert("네이버 로그인이 설정되지 않았습니다.");

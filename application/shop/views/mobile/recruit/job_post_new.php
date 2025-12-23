@@ -698,8 +698,14 @@ window.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        //$('.btn-close-popup').hide();
-        openPopup('confirm', {
+        //오늘 지원여부 및 제안 여부 확인
+        var paramsToday = {};
+        paramsToday["rc_idx"] = $("[name=rc_idx]").val();
+
+        comAjax("/recruit_proc/todayapply", paramsToday, function(ret) {
+            if (ret.code == "00") {
+                //$('.btn-close-popup').hide();
+                openPopup('confirm', {
             content: '<em>“'+$("[name=rc_name]").val()+'”</em>으로<br> 지원하시겠습니까?',
             firstCallback: function () {
                 $('.btn-close-popup').show();
@@ -724,8 +730,20 @@ window.addEventListener('DOMContentLoaded', function() {
 			               }
 			          });
             }
+                });
+                $('.btn-close-popup').hide();
+            } else if (ret.code == "01") {
+                commonAlert("<em>다음날</em> 다시 지원이 가능합니다..", function() {});
+                return;
+            } else if (ret.code == "90") {
+                // 제안이 이미 있는 경우
+                commonAlert(ret.msg, function() {});
+                return;
+            } else {
+                commonAlert(ret.msg, function() {});
+                return;
+            }
         });
-        $('.btn-close-popup').hide();
     });
 });
 </script>

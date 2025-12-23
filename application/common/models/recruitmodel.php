@@ -968,7 +968,7 @@ class recruitModel extends MY_Model
 	function getRecruitCountForTab($mm_idx)
 	{
 		$sql = "
-			select count(*) as allcnt,
+			select sum(case when aa.rc_edate >= now() then 1 else 0 end) as allcnt,
             sum(case when aa.rc_sdate <= now() and aa.rc_edate >= now() then 1 else 0 end) ingcnt,
             sum(case when aa.rc_sdate > now()                           then 1 else 0 end) waitcnt,
             sum(case when aa.rc_edate < now()                           then 1 else 0 end) closecnt

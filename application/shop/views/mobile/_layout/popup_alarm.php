@@ -5,7 +5,28 @@ $alarm_list = [];
 
 if ($user_id != "") {
     $tbl_alarm = get_mongodb("alarm");
-    $alarm_list = $tbl_alarm->find(["user_id" => $user_id])->sort(['reg_dt' => -1]);
+
+    // 7일 전 날짜 계산 (읽음 처리된 알림 중 7일이 지난 것은 제외)
+    $seven_days_ago = date('Y-m-d H:i:s', strtotime('-7 days'));
+
+    // 알림 목록 조회 조건
+    // - 미읽음 알림 (show_yn != "Y") 또는
+    // - 읽음 알림이지만 7일 이내인 것 (show_yn == "Y" && show_dt >= 7일전)
+    $query = [
+        "user_id" => $user_id,
+        '$or' => [
+            ["show_yn" => ['$ne' => "Y"]],  // 미읽음 알림
+            [
+                "show_yn" => "Y",
+                '$or' => [
+                    ["show_dt" => ['$exists' => false]],  // show_dt가 없는 경우 (기존 데이터 호환)
+                    ["show_dt" => ['$gte' => $seven_days_ago]]  // 7일 이내 읽음 처리된 알림
+                ]
+            ]
+        ]
+    ];
+
+    $alarm_list = $tbl_alarm->find($query)->sort(['reg_dt' => -1]);
 }
 ?>
 
@@ -25,7 +46,27 @@ if ($user_id != "") {
                             <?php foreach ($alarm_list as $alarm) : ?>
                                 <?php //print_r($alarm_list); 
                                 ?>
-                                <li data-type="<?= $alarm["al_type"] ?>">
+                                <?php
+                                // 채팅방 이동을 위한 URL 생성
+                                $chat_url = "";
+                                $al_type = isset($alarm["al_type"]) ? $alarm["al_type"] : "";
+                                $al_key = isset($alarm["al_key"]) ? $alarm["al_key"] : "";
+
+                                // 메시지 관련 알림인 경우 채팅방으로 이동
+                                if ($al_type == "recruit" || $al_type == "chat" || $al_type == "trade") {
+                                    if (!empty($al_key)) {
+                                        // 알림 타입에 따라 from 파라미터 설정
+                                        $from_param = "applied";
+                                        if ($al_type == "chat") {
+                                            $from_param = "talent_received";
+                                        } else if ($al_type == "trade") {
+                                            $from_param = "trade";
+                                        }
+                                        $chat_url = "/chat/chat_view?rm_idx=" . $al_key . "&from=" . $from_param;
+                                    }
+                                }
+                                ?>
+                                <li data-type="<?= $al_type ?>" data-rm-idx="<?= $al_key ?>" <?= !empty($chat_url) ? 'class="alarm-clickable"' : '' ?>>
                                     <p class="title"><?= str_replace("[undefined]님의 ", "", $alarm["al_text"]) ?></p>
                                     <p class="date"><?= $alarm["reg_dt"] ?></p>
                                 </li>
@@ -142,6 +183,27 @@ if ($user_id != "") {
             }, 300);
         }
     }
+
+    // 알림 클릭 시 채팅방으로 이동
+    $(document).on("click", ".alarm-list .alarm-clickable", function() {
+        var $li = $(this);
+        var al_type = $li.data("type");
+        var rm_idx = $li.data("rm-idx");
+
+        // rm_idx가 있는 경우에만 이동
+        if (rm_idx && rm_idx !== "") {
+            // 알림 타입에 따라 from 파라미터 설정
+            var from_param = "applied";
+            if (al_type == "chat") {
+                from_param = "talent_received";
+            } else if (al_type == "trade") {
+                from_param = "trade";
+            }
+
+            // 채팅방으로 이동
+            location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&from=" + from_param;
+        }
+    });
 </script>
 
 <style>
@@ -151,5 +213,19 @@ if ($user_id != "") {
         color: #666;
         margin-top: 4px;
         font-weight: normal;
+    }
+
+    /* 클릭 가능한 알림 항목 스타일 */
+    .alarm-list .alarm-clickable {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .alarm-list .alarm-clickable:hover {
+        background-color: #f5f5f5;
+    }
+
+    .alarm-list .alarm-clickable:active {
+        background-color: #e8e8e8;
     }
 </style>

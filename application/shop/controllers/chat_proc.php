@@ -10,7 +10,7 @@ class Chat_proc extends CI_Controller
 		$this->load->model('commonmodel', 'common_model');
 		$this->load->model('settingmodel', 'setting_model');
 	}
-	//기업 회원의 게재 중인 채용공고 목록을 조회하는 API입니다. 채용공고 탭(chat_list1)에서 사용됩니다.
+	//기업 회원의 제안받은 인재
 	function get_chat_target_list_recruit()
 	{
 		//지원자목록-공고리스트
@@ -197,16 +197,27 @@ class Chat_proc extends CI_Controller
 				}
 
 				// 채팅방이 없는 공고는 제외하여 공고 등록 직후 노출 방지
+				// 단, 제안받은 인재가 있는 경우(reqcnt > 0)에는 채팅방이 없어도 표시
 				if (empty($filtered_rm_idx_list)) {
-					unset($temp_list[$key]);
-					continue;
+					// 제안받은 인재가 있는지 확인 (개인이 지원한 경우 포함)
+					$reqcnt = isset($row["reqcnt"]) ? (int)$row["reqcnt"] : 0;
+					if ($reqcnt == 0) {
+						unset($temp_list[$key]);
+						continue;
+					}
 				}
 
 				// 필터링된 rm_idx_list를 문자열로 변환하여 반환 (room_count 계산용)
 				if (!empty($filtered_rm_idx_list)) {
 					$temp_list[$key]["rm_idx_list"] = "(" . implode(",", $filtered_rm_idx_list) . ")";
 				} else {
-					$temp_list[$key]["rm_idx_list"] = "()";
+					// 필터링된 리스트가 비어있으면 원본 rm_idx_list 사용 (모델에서 반환된 값)
+					// MongoDB 연결 실패나 모든 채팅방에서 나간 경우에도 원본 값 사용
+					if (!empty($row["rm_idx_list"]) && $row["rm_idx_list"] !== "()") {
+						$temp_list[$key]["rm_idx_list"] = $row["rm_idx_list"];
+					} else {
+						$temp_list[$key]["rm_idx_list"] = "()";
+					}
 				}
 
 				// 기본값 설정
@@ -240,6 +251,12 @@ class Chat_proc extends CI_Controller
 				} else {
 					$temp_list[$key]["mm_comp_name"] = "";
 				}
+				
+				// rm_idx_list 설정 (모델에서 반환된 원본 값 사용)
+				if (empty($temp_list[$key]["rm_idx_list"])) {
+					$temp_list[$key]["rm_idx_list"] = isset($row["rm_idx_list"]) ? $row["rm_idx_list"] : "()";
+				}
+				
 				$temp_list[$key]["last_msg_preview"] = "";
 				$temp_list[$key]["last_msg_time"] = "";
 				$temp_list[$key]["unread_count"] = 0;
@@ -924,7 +941,7 @@ class Chat_proc extends CI_Controller
 
 	function get_chat_target_list2_mem()
 	{
-		//제안보낸 인재
+		//제안받은공고
 
 		$data = [];
 		$ru_idx = input_post("ru_idx", "");
@@ -958,6 +975,9 @@ class Chat_proc extends CI_Controller
 				$temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"], 0);
 				$temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"], 1);
 				$temp_list[$key]["ru_week"] = getWeekYoil($row["ru_week"]);
+
+				// 회사명 설정 (user_name을 mm_comp_name으로도 복사)
+				$temp_list[$key]["mm_comp_name"] = isset($row["user_name"]) ? $row["user_name"] : "";
 
 				// 마지막 메시지 조회
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
@@ -1034,6 +1054,9 @@ class Chat_proc extends CI_Controller
 		} catch (Exception $e) {
 			// MongoDB 연결 실패 시 기본값 설정
 			foreach ($temp_list as $key => $row) {
+				// 회사명 설정 (user_name을 mm_comp_name으로도 복사)
+				$temp_list[$key]["mm_comp_name"] = isset($row["user_name"]) ? $row["user_name"] : "";
+				
 				if (empty($temp_list[$key]["last_msg_preview"])) {
 					$temp_list[$key]["last_msg_preview"] = "";
 				}
@@ -1331,8 +1354,11 @@ class Chat_proc extends CI_Controller
 				$info["rc_idx"] = $room["rc_idx"];
 				$info["ru_resume_img"] = getResumeImg($info);
 				$info["ru_work_img"] = getWorkingImg($info["ru_work"]);
-				$info["ru_work_type"] = getWorkType($info["ru_work_type"], "em", 0);
-				$info["ru_price_type"] = getPriceType($info["ru_price_type"], "span", 0);
+				// chat_view.php와 동일하게 기본값 사용 (기본값: $tag = "span", $max = 10)
+				// 클라이언트 측에서 <span>을 <em>으로 변환하는 로직이 있으므로 서버에서는 기본값 사용
+				$info["ru_work_type"] = getWorkType($info["ru_work_type"]);
+				// chat_view.php와 동일하게 기본값($max = 3) 사용하여 모든 급여 타입 표시
+				$info["ru_price_type"] = getPriceType($info["ru_price_type"]);
 				$info["ru_my_type"] = getMyType($info["ru_my_type"], 1);
 				$info["ru_week"] = getWeekYoil($info["ru_week"]);
 

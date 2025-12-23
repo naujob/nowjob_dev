@@ -856,6 +856,17 @@ function fRemoveBigAdr($arg)
             </div>
           <?php } ?>
 
+          <div class="section view-desc">
+            <h3 class="secondary-title">상세업무정보</h3>
+            <!-- 작성내용 -->
+            <div class="desc" style="clear:both;">
+              <?= str_replace("src=\"h-ttps", "src=\"https", str_replace("\n", "<br/>", str_replace("src=\"https", "src=\"h-ttps", $info["rc_desc"]))) ?>
+              <div class="hashtag">
+                <?= getHashTag(convertHashtagString($info["rc_hash"])) ?>
+              </div>
+            </div>
+          </div>
+
           <div class="section view-ext">
             <div class="inline-group">
               <div class="col">
@@ -924,17 +935,6 @@ function fRemoveBigAdr($arg)
                   });
                 </script>
 
-              </div>
-            </div>
-          </div>
-
-          <div class="section view-desc">
-            <h3 class="secondary-title">상세업무정보</h3>
-            <!-- 작성내용 -->
-            <div class="desc" style="clear:both;">
-              <?= str_replace("src=\"h-ttps", "src=\"https", str_replace("\n", "<br/>", str_replace("src=\"https", "src=\"h-ttps", $info["rc_desc"]))) ?>
-              <div class="hashtag">
-                <?= getHashTag(convertHashtagString($info["rc_hash"])) ?>
               </div>
             </div>
           </div>
@@ -1302,6 +1302,10 @@ function fRemoveBigAdr($arg)
 
         } else if (ret.code == "01") {
           commonAlert("<em>다음날</em> 다시 지원이 가능합니다..", function() {});
+          return;
+        } else if (ret.code == "90") {
+          // 제안이 이미 있는 경우
+          commonAlert(ret.msg, function() {});
           return;
         } else {
           commonAlert(ret.msg, function() {});

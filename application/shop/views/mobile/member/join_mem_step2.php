@@ -68,6 +68,9 @@
 <script>
 //$(document).ready(function(){
 window.addEventListener('load', function(){
+
+	location.href="/member/join_mem_step3";
+
 	$("#btnSearchAddr").click(function(){
 		searchText();
 	});
@@ -78,12 +81,14 @@ window.addEventListener('load', function(){
 		}
 	})
 
-	//위치 정보 검색
+	//위치 정보 검색 - 사용자가 버튼을 클릭했을 때만 실행
 	$("#btnGps").click(function(){
 		getLocation();
 	});
 
-	getLocation();
+	// 페이지 로드 시 자동으로 위치 정보를 요청하는 코드 제거
+	// macOS와 iOS에서 위치 동의 팝업이 자동으로 뜨는 문제 해결
+	// getLocation();
 
 });
 
@@ -154,7 +159,8 @@ function getLocation() {
         //commonAlert('GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.',function(){});
   	}
 
-	location.href="/member/join_mem_step3";
+	// 위치 정보 요청과 무관하게 자동으로 페이지를 이동시키는 버그 수정
+	// location.href="/member/join_mem_step3";
 
 }
 </script>

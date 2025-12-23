@@ -35,9 +35,9 @@ require_once __DIR__ . '/bottom_sheet_template.php';
 
     <!-- 헤더 -->
     <div class="bottom-sheet-header">
-      <h2 class="bottom-sheet-title">사업자등록 인증</h2>
+      <h2 class="bottom-sheet-title">사업자정보 인증</h2>
       <!-- 닫기 버튼: 바텀시트 즉시 닫기 -->
-      <button type="button" class="comp-info-close-btn" aria-label="사업자등록 인증 닫기" onclick="event.stopPropagation(); closeCompInfoPanel();">&times;</button>
+    
     </div>
 
     <!-- 본문 -->
@@ -152,7 +152,7 @@ require_once __DIR__ . '/bottom_sheet_template.php';
 renderBottomSheet(
   'bizAuthSuccessPanel',
   '인증 완료',
-  '<p>사업자번호 인증완료</p>',
+  '<p>사업자정보가 인증 되었습니다.</p>',
   '확인',
   'btnAuthConfirm',
   'closeBizAuthSuccessPanel();'

@@ -1973,12 +1973,59 @@
     });
 
 
+    // SmartEditor2 에디터 생성 및 폰트 크기 기본값을 14pt로 설정
     var oEditors = [];
     nhn.husky.EZCreator.createInIFrame({
       oAppRef: oEditors,
       elPlaceHolder: "rc_desc",
       sSkinURI: "/resource/shop/web/smarteditor2/SmartEditor2Skin_ko_KR.html",
-      fCreator: "createSEditor2"
+      fCreator: "createSEditor2",
+      fOnAppLoad: function() {
+        setTimeout(function() {
+          try {
+            var oEditor = oEditors.getById["rc_desc"];
+            if (!oEditor) return;
+            
+            // 에디터 body의 기본 폰트 크기를 14pt로 설정
+            var oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
+            if (oWYSIWYGDocument && oWYSIWYGDocument.body) {
+              oWYSIWYGDocument.body.style.fontSize = "14pt";
+            }
+            
+            // 폰트 크기 플러그인 찾아서 기본값 설정
+            var oApp = oEditor.oApp;
+            if (oApp && oApp.aPlugins) {
+              for (var i = 0; i < oApp.aPlugins.length; i++) {
+                var oPlugin = oApp.aPlugins[i];
+                if (oPlugin && oPlugin.sDefaultText !== undefined && oPlugin.elFontSizeLabel) {
+                  oPlugin.sDefaultText = "14pt";
+                  oPlugin.elFontSizeLabel.innerHTML = "14pt";
+                  
+                  // 14pt 항목 활성화
+                  if (oPlugin.aLIFontSizes && oPlugin.aLIFontSizes.length > 0) {
+                    for (var j = 0; j < oPlugin.aLIFontSizes.length; j++) {
+                      var elLi = oPlugin.aLIFontSizes[j];
+                      if (!elLi) continue;
+                      
+                      var elSpan = elLi.querySelector("span span");
+                      if (elSpan && elSpan.style && elSpan.style.fontSize === "14pt") {
+                        if (typeof oPlugin._clearFontSizeSelection === "function") {
+                          oPlugin._clearFontSizeSelection();
+                        }
+                        elLi.className = (elLi.className + " active").trim();
+                        break;
+                      }
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+          } catch(e) {
+            console.error("폰트 크기 기본값 설정 중 오류:", e);
+          }
+        }, 200);
+      }
     });
 
     setTimeout(function() {

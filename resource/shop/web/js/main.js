@@ -2,7 +2,7 @@
     'use strict';
 
     /* Lazy Loader : https://github.com/ApoorvSaxena/lozad.js */
-    (function setLazyLoadImg () {
+    (function setLazyLoadImg() {
         if (typeof lozad == 'undefined') return;
 
         var observer = lozad();
@@ -10,13 +10,13 @@
     }());
 
     /* 전체검색 표시/숨김 */
-    (function toggleTopSearch () {
-        if(!document.querySelector('.btn-top-search')) return;
+    (function toggleTopSearch() {
+        if (!document.querySelector('.btn-top-search')) return;
 
         var body = document.body;
         var header = document.querySelector('#header');
 
-        function close () {
+        function close() {
             header.classList.remove('searching');
             body.style.overflow = '';
         }
@@ -27,7 +27,7 @@
             if (header.classList.contains('searching')) {
                 body.style.overflowY = 'hidden';
                 setTimeout(function () {
-                    document.querySelector('.top-search input[autofocus]').focus({focusVisible: true});
+                    document.querySelector('.top-search input[autofocus]').focus({ focusVisible: true });
                 }, 200);
             } else {
                 body.style.overflowY = '';
@@ -47,23 +47,23 @@
         });
 
         header.addEventListener('keydown', function (e) {
-            if(e.keyCode == 27 && header.classList.contains('searching')) {
+            if (e.keyCode == 27 && header.classList.contains('searching')) {
                 close();
             }
         });
     }());
 
     /* 드롭다운 */
-    (function setDropdown () {
+    (function setDropdown() {
         if (!document.querySelector('.js-toggle-dropdown')) return;
 
-        function collapse (el) {
+        function collapse(el) {
             el.hidden = true;
             el.classList.remove('on');
             el.parentNode.querySelector('.js-toggle-dropdown').setAttribute('aria-expanded', false);
         }
 
-        function toggle (el) {
+        function toggle(el) {
             var dropdown = el.parentNode.querySelector('.dropdown');
             var active = document.querySelector('.dropdown.on');
             var status = false;
@@ -76,7 +76,7 @@
 
             status = dropdown.classList.contains('on') ? false : true;
 
-            if(status) {
+            if (status) {
                 dropdown.hidden = false;
                 setTimeout(function () { dropdown.focus(); }, 100);
             } else {
@@ -97,7 +97,7 @@
 
         document.querySelectorAll('.dropdown').forEach(function (el) {
             el.addEventListener('keydown', function (ev) {
-                if(ev.keyCode == 27) {
+                if (ev.keyCode == 27) {
                     collapse(this);
                 }
             });
@@ -113,13 +113,13 @@
     }());
 
     /* 모달 팝업 */
-    (function setModal () {
+    (function setModal() {
 
-        function setFocus ($el) {
+        function setFocus($el) {
             if (!$el) return false;
 
             var $focusableEl = $el.querySelectorAll('a, button, input, select, textarea');
-            var $firstEl = $el.querySelector('[autofocus]')||$focusableEl[0];
+            var $firstEl = $el.querySelector('[autofocus]') || $focusableEl[0];
             var $lastEl = $focusableEl[$focusableEl.length - 1];
 
             $el.addEventListener('keydown', function (ev) {
@@ -180,7 +180,7 @@
             var $popup = document.createElement('div');
             var index = document.querySelectorAll('.layer-popup').length || 1;
             var id = options.id ? options.id.toString() : '';
-            var title =  options.title ? options.title.toString() : '알림';
+            var title = options.title ? options.title.toString() : '알림';
             var content = options.content || '내용이 없습니다.';
             var firstButton = options.firstButton ? options.firstButton.toString() : '';
             var secondButton = options.secondButton ? options.secondButton.toString() : '';
@@ -188,62 +188,62 @@
             var firstCallback = options.firstCallback || null;
             var secondCallback = options.secondCallback || null;
             var thirdCallback = options.thirdCallback || null;
-            var removeClose = options.removeClose==false ? '' : ' js-close-popup ';
-            var clickOnce = options.clickOnce ==false ? false : true;
+            var removeClose = options.removeClose == false ? '' : ' js-close-popup ';
+            var clickOnce = options.clickOnce == false ? false : true;
 
-            if(type == 'confirm') {
+            if (type == 'confirm') {
                 id = id ? id + index : 'confirmDialog' + index;
                 firstButton = firstButton ? firstButton : '취소';
                 secondButton = secondButton ? secondButton : '확인';
-                thirdButton = thirdButton ? '<button type="submit" aria-controls="'+ id +'" class="btn btn-tertiary js-close-popup js-popup-action3">'+ thirdButton +'</button>' : thirdButton;
+                thirdButton = thirdButton ? '<button type="submit" aria-controls="' + id + '" class="btn btn-tertiary js-close-popup js-popup-action3">' + thirdButton + '</button>' : thirdButton;
 
-                html = '<div id="'+ id +'" class="layer-popup">'+
-                    '<div role="alertdialog" aria-labelledby="confirmTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                    '<h4 id="confirmTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
+                html = '<div id="' + id + '" class="layer-popup">' +
+                    '<div role="alertdialog" aria-labelledby="confirmTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="confirmTitle' + index + '" class="sr-text">' + title + '</h4>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
                     '<div class="popup-content">' +
-                    '<div class="msg">'+ content +'</div>' +
+                    '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn btn-secondary  js-close-popup js-popup-action1">'+ firstButton +'</button>'+
-                    '<button type="submit" aria-controls="'+ id +'" class="btn btn-primary js-close-popup js-popup-action2">'+ secondButton +'</button>' + thirdButton +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-secondary  js-close-popup js-popup-action1">' + firstButton + '</button>' +
+                    '<button type="submit" aria-controls="' + id + '" class="btn btn-primary js-close-popup js-popup-action2">' + secondButton + '</button>' + thirdButton +
                     '</div> </div> </div>';
             } else if (type == 'alert') {
                 id = id ? id + index : 'alertDialog' + index;
-                html = '<div id="'+ id +'" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                    '<h4 id="alertTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
+                html = '<div id="' + id + '" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="alertTitle' + index + '" class="sr-text">' + title + '</h4>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
                     '<div class="popup-content">' +
-                    '<div class="msg">'+ content +'</div>' +
+                    '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn btn-primary js-close-popup js-popup-action1">확인</button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary js-close-popup js-popup-action1">확인</button>' +
                     '</div> </div> </div>';
             } else if (type == 'alert2') {
                 id = id ? id + index : 'alertDialog' + index;
-                html = '<div id="'+ id +'" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                    '<h4 id="alertTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
+                html = '<div id="' + id + '" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="alertTitle' + index + '" class="sr-text">' + title + '</h4>' +
                     '<div class="popup-content">' +
-                    '<div class="msg">'+ content +'</div>' +
+                    '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn btn-primary '+removeClose+' js-popup-action1">확인</button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">확인</button>' +
                     '</div> </div> </div>';
             } else if (type == 'modal') {
                 id = id ? id + index : 'defaultDialog' + index;
 
                 if (firstButton && !secondButton) {
-                    firstButton = '<button type="button" aria-controls="'+ id +'" class="btn btn-primary js-close-popup js-popup-action1">'+ firstButton +'</button>';
+                    firstButton = '<button type="button" aria-controls="' + id + '" class="btn btn-primary js-close-popup js-popup-action1">' + firstButton + '</button>';
                 } else if (firstButton && secondButton) {
-                    firstButton = '<button type="button" aria-controls="'+ id +'" class="btn btn-secondary js-close-popup js-popup-action1">'+ firstButton +'</button>';
-                    secondButton = '<button type="button" aria-controls="'+ id +'" class="btn btn-primary  js-close-popup js-popup-action2">'+ secondButton +'</button>';
+                    firstButton = '<button type="button" aria-controls="' + id + '" class="btn btn-secondary js-close-popup js-popup-action1">' + firstButton + '</button>';
+                    secondButton = '<button type="button" aria-controls="' + id + '" class="btn btn-primary  js-close-popup js-popup-action2">' + secondButton + '</button>';
                 }
 
-                thirdButton = thirdButton ? '<button type="button" aria-controls="'+ id +'" class="btn btn-tertiary js-close-popup js-popup-action3">'+ thirdButton +'</button>' : thirdButton;
+                thirdButton = thirdButton ? '<button type="button" aria-controls="' + id + '" class="btn btn-tertiary js-close-popup js-popup-action3">' + thirdButton + '</button>' : thirdButton;
 
-                html = '<div id="'+ id +'" class="layer-popup"><div role="dialog" aria-labelledby="popupTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                '<h4 id="popupTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
-                '<button type="button" aria-controls="'+ id +'" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
-                '<div class="popup-content">' + content + '</div>' +
-                (firstButton ? '<div class="popup-footer">'+ firstButton + secondButton + thirdButton +'</div>' : '')+
-                '</div> </div>';
+                html = '<div id="' + id + '" class="layer-popup"><div role="dialog" aria-labelledby="popupTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="popupTitle' + index + '" class="sr-text">' + title + '</h4>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
+                    '<div class="popup-content">' + content + '</div>' +
+                    (firstButton ? '<div class="popup-footer">' + firstButton + secondButton + thirdButton + '</div>' : '') +
+                    '</div> </div>';
             }
 
             $popup.innerHTML = html;
@@ -256,7 +256,7 @@
             $popup.querySelectorAll('.js-close-popup').forEach(function (closeBtn) {
                 closeBtn.addEventListener('click', function (e) {
                     closePopup($popup);
-                }, {once: true});
+                }, { once: true });
             });
 
             if (type === 'alert') return;
@@ -266,7 +266,7 @@
                     setTimeout(function () {
                         firstCallback();
                     }, 100);
-                }, {once: true});
+                }, { once: true });
             }
 
             if (secondButton && secondCallback && typeof secondCallback === 'function') {
@@ -274,7 +274,7 @@
                     setTimeout(function () {
                         secondCallback();
                     }, 100);
-                }, {once: true});
+                }, { once: true });
             }
 
             if (thirdButton && thirdCallback && typeof thirdCallback === 'function') {
@@ -282,18 +282,18 @@
                     setTimeout(function () {
                         thirdCallback();
                     }, 100);
-                }, {once: true});
+                }, { once: true });
             }
         };
 
     }());
 
     /* Tooltip */
-    (function setTooltip () {
+    (function setTooltip() {
 
-        ['mouseover', 'focusin'].forEach(function(evt) {
+        ['mouseover', 'focusin'].forEach(function (evt) {
             window.addEventListener(evt, function (e) {
-                if(e.target.classList && !e.target.classList.contains('js-toggle-tooltip')) {
+                if (e.target.classList && !e.target.classList.contains('js-toggle-tooltip')) {
                     if (document.querySelector('.tooltip.on')) {
                         document.querySelector('.tooltip.on').classList.remove('on');
                     }
@@ -305,12 +305,12 @@
                 var $tooltip = e.target.parentNode.querySelector('.tooltip');
                 var offset = 27,
                     xpos = e.target.offsetLeft + (e.target.offsetWidth / 2) - offset,
-                    ypos = e.target.offsetTop+ e.target.offsetHeight;
+                    ypos = e.target.offsetTop + e.target.offsetHeight;
 
                 if (!$tooltip) return;
 
                 if (!$tooltip.classList.contains('right') && xpos + $tooltip.offsetWidth > window.innerWidth) {
-                    $tooltip.classList.remove('center','left');
+                    $tooltip.classList.remove('center', 'left');
                     $tooltip.classList.add('right');
                     xpos = xpos - $tooltip.offsetWidth + (offset * 2);
                 } else if ($tooltip.classList.contains('center')) {
@@ -345,8 +345,8 @@
     }());
 
     /* 폼파일 이미지 미리보기 */
-    (function setFormFilePreview () {
-        function previewPic (input) {
+    (function setFormFilePreview() {
+        function previewPic(input) {
             var fileReader = new FileReader();
             var preview = input.parentNode.querySelector('.preview');
             var img = document.createElement('IMG');
@@ -373,8 +373,8 @@
     }());
 
     /* 폼파일 파일명 표시 */
-    (function setFormFile () {
-        function showFilename (container, input) {
+    (function setFormFile() {
+        function showFilename(container, input) {
             var filename = container.querySelector('.file-name');
             if (input.files && input.files[0]) {
                 filename.value = input.files[0].name;
@@ -391,10 +391,10 @@
     }());
 
     /* Custom input Range Slider */
-    (function setRangeSlider () {
+    (function setRangeSlider() {
         if (!document.querySelector('.js-range-slider')) return;
 
-        function chgValue (slider, input) {
+        function chgValue(slider, input) {
             var fill = slider.querySelector('.fill'),
                 min = slider.querySelector('.min input').value,
                 max = slider.querySelector('.max input').value,
@@ -414,7 +414,7 @@
             min = min / rangeMax * 100;
             max = 100 - (max / rangeMax * 100);
 
-            fill.style.clipPath = 'inset(0px '+ max +'% 0px ' + min +'%)';
+            fill.style.clipPath = 'inset(0px ' + max + '% 0px ' + min + '%)';
             thumb.style.transform = 'translateX(' + total * (input.value / rangeMax) + 'px)';
             label.innerHTML = input.value + unit;
         }
@@ -435,7 +435,7 @@
     }());
 
     /*!Keen-slider : https://keen-slider.io */
-    (function initKeenSlider () {
+    (function initKeenSlider() {
         /* Keen Slider dots plugin */
         window.sliderDots = function (slider) {
             var container, dots;
@@ -468,7 +468,7 @@
 
                 slider.track.details.slides.forEach(function (_e, idx) {
                     var dot = createButton("dot");
-                    dot.innerHTML = '<span>'+ (idx+1) +'</span>';
+                    dot.innerHTML = '<span>' + (idx + 1) + '</span>';
                     dot.addEventListener("click", function () {
                         slider.moveToIdx(idx);
                     });
@@ -624,12 +624,12 @@
     }());
 
     /* Toggle Bookmark */
-    (function setBtnBookmark () {
-        function toggle (btn) {
+    (function setBtnBookmark() {
+        function toggle(btn) {
             if (btn.classList.contains('on')) {
-                btn.children[0].textContent = btn.textContent.replace('해제','추가');
+                btn.children[0].textContent = btn.textContent.replace('해제', '추가');
             } else {
-                btn.children[0].textContent = btn.textContent.replace('추가','해제');
+                btn.children[0].textContent = btn.textContent.replace('추가', '해제');
             }
 
             btn.classList.toggle('on');
@@ -643,7 +643,7 @@
     }());
 
     /* Delete Item */
-    (function deleteItem () {
+    (function deleteItem() {
         window.addEventListener('click', function (e) {
             if (e.target.classList && e.target.classList.contains('js-del-item')) {
                 var item = e.target.parentNode;
@@ -658,10 +658,10 @@
     }());
 
     /* Accordion List Toggle */
-    (function setAccordionList () {
+    (function setAccordionList() {
         var currentEl = null;
 
-        function toggle (el) {
+        function toggle(el) {
             var content = el.parentNode.querySelector('.accordion-content');
             var isOpen = content.hidden;
 
@@ -692,8 +692,8 @@
     }());
 
     /* AutoHeight TextArea */
-    (function autoHeightTextarea () {
-        ['input','keydown'].forEach(function (evt) {
+    (function autoHeightTextarea() {
+        ['input', 'keydown'].forEach(function (evt) {
             window.addEventListener(evt, function (e) {
                 var target = e.target;
                 if (target.classList && target.classList.contains('js-autoheight')) {
@@ -716,9 +716,9 @@
         var selectbox = el.querySelector('select'),
             liner = el.querySelector('.liner');
 
-        if(!selectbox) return;//20221107 수정
+        if (!selectbox) return;//20221107 수정
 
-        function getValue (el) {
+        function getValue(el) {
             var value;
 
             el.setAttribute('autocompleted', 'off');
@@ -752,7 +752,7 @@
     }());
 
     /* 맨위로 가기 */
-    (function setBtnTop () {
+    (function setBtnTop() {
         if (!document.querySelector('.js-goto-top')) return;
 
         var body = document.body;
@@ -760,7 +760,7 @@
 
         window.addEventListener('scroll', function (e) {
             var curpos = this.scrollY;
-            if ((window.innerHeight/2 / 10) <= curpos) {
+            if ((window.innerHeight / 2 / 10) <= curpos) {
                 body.classList.add('is-scrolled');
                 btnTop.classList.add('show');
             } else {
@@ -771,7 +771,7 @@
 
         btnTop.addEventListener('click', function (e) {
             e.preventDefault();
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
         });
 
         setTimeout(function () {
@@ -780,12 +780,12 @@
     }());
 
     /* 커스텀 스크롤바  */
-    (function setJsScrollbar () {
+    (function setJsScrollbar() {
         var scrollbars = document.querySelectorAll('.js-scrollbar');
 
         if (!scrollbars) return;
 
-        function doScroll (e, item) {
+        function doScroll(e, item) {
             e = window.event || e;
             var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
@@ -814,11 +814,11 @@
             item.thumb.style.height = Math.round(item.tHeight * item.height / item.cHeight) + 'px';
 
             scrollbar.addEventListener("mousewheel", function (e) {
-                doScroll(e,item);
+                doScroll(e, item);
             });
 
             scrollbar.addEventListener("DOMMouseScroll", function (e) {
-                doScroll(e,item);
+                doScroll(e, item);
             });
 
             window.addEventListener('load', function () {
@@ -831,7 +831,7 @@
     }());
 
     /* 탭목록 표시/숨김 */
-	/*
+    /*
     (function setTabList() {
         function close (el) {
             var tabPanel = document.getElementById(el.getAttribute('aria-controls'));
@@ -920,9 +920,9 @@
             });
         }
     }());
-	*/
+    */
     /* 채팅창 열기/닫기 */
-    (function toggleChat () {
+    (function toggleChat() {
         var popup = document.getElementById('chatPopup');
 
         if (!popup) return;
@@ -933,11 +933,11 @@
         var openBtn = document.querySelector('.js-open-chat');
         var closeBtn = document.querySelector('.btn-close-chat');
 
-        function setFocus ($el) {
+        function setFocus($el) {
             if (!$el) return false;
 
             var $focusableEl = $el.querySelectorAll('a, button');
-            var $firstEl = $el.querySelector('[autofocus]')||$focusableEl[0];
+            var $firstEl = $el.querySelector('[autofocus]') || $focusableEl[0];
             var $lastEl = $focusableEl[$focusableEl.length - 1];
 
             $el.addEventListener('keydown', function (ev) {
@@ -968,29 +968,29 @@
         }
 
         window.openView = function (trigger) {
-            if(!view) return;
+            if (!view) return;
 
             var active = document.querySelector('.js-open-view.on');
 
-            if(active) {
+            if (active) {
                 active.classList.remove('on');
             }
 
             view.hidden = false;
             container.classList.add('is-viewing');
 
-            if(trigger) {
+            if (trigger) {
                 trigger.classList.add('on');
             }
         };
 
         window.closeView = function () {
-            if(!view) return;
+            if (!view) return;
             var trigger = document.querySelector('.js-open-view.on');
             view.hidden = true;
             container.classList.remove('is-viewing');
 
-            if(trigger) {
+            if (trigger) {
                 trigger.classList.remove('on');
                 trigger.focus();
             }
@@ -1005,7 +1005,7 @@
             setFocus(popup);
         });
 
-        document.querySelectorAll('.js-close-chat').forEach( function (btn) {
+        document.querySelectorAll('.js-close-chat').forEach(function (btn) {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 closeView();
@@ -1042,12 +1042,12 @@
     }());
 
     /* 탭메뉴 넘칠때 휠 이벤트 */
-    (function setOverflowTabs () {
+    (function setOverflowTabs() {
         var allContainer = document.querySelectorAll('.tabs-wrap .tabs');
 
         if (!allContainer.length) return;
 
-        function isScrolled (el) {
+        function isScrolled(el) {
             setTimeout(function () {
                 if (el.scrollLeft < 100) {
                     el.parentNode.classList.remove('is-scrolled');
@@ -1057,7 +1057,7 @@
             }, 1);
         }
 
-        function chkWidth (el) {
+        function chkWidth(el) {
             if (el.scrollWidth > el.offsetWidth) {
                 el.parentNode.classList.add('has-scroll');
                 el.scrollLeft = el.querySelector('.on').offsetLeft - 23;

@@ -11,13 +11,6 @@
                     <li><a href="/chat/index_comp" class="tab">제안받은 인재</a></li>
                     <li class="on"><a href="/chat/chat_list3" class="tab">제안보낸인재</a></li>
                 <?php endif; ?>
-                <?php if ($user_type == "MEM") : ?>
-                    <li><a href="/chat/chat_list" class="tab">지원한공고</a></li>
-                    <li class="on"><a href="/chat/chat_list2" class="tab">제안받은공고</a></li>
-                    <!--<li><a href="/chat/index_comp" class="tab">지원자목록</a></li>
-                    <li class="on"><a href="/chat/chat_list" class="tab">1:1 채팅</a></li>-->
-                <?php endif; ?>
-                <!--<li><a href="/chat/trade_list" class="tab">중고거래</a></li>-->
             </ul>
         </div>
 
@@ -238,7 +231,8 @@
         </style>
         <div class="tab-panel">
             <div class="container">
-                <h2 class="sr-text">채용공고</h2>
+                <!-- 제안보낸 인재 탭 전용 페이지 (기업회원용) -->
+                <h2 class="sr-text">제안보낸 인재</h2>
 
                 <div class="chat-list">
                     <ol class="list" id="chat_list">
@@ -261,7 +255,6 @@
 </div>
 
 <script>
-    var g_user_id = "";
     // 뒤로가기 시 메인 페이지로 이동 (탭 간 이동 방지)
     (function() {
         if (window.history && window.history.pushState) {
@@ -289,33 +282,11 @@
             fSearchNoReadCount();
         });
 
-        // 안드로이드에서도 소켓 이벤트 리스너 등록
-        // 인재목록 클릭 시 채팅방 목록 업데이트
-
-        /**
-         * Socket.IO 이벤트: room_list_return
-         * 
-         * [주의] 현재 이 함수는 거의 실행되지 않습니다.
-         * 
-         * 실행 조건:
-         * - socket.emit("room_list", ...) 호출 시 서버에서 room_list_return 이벤트를 emit하면 실행됨
-         * - 현재 코드에서 socket.emit("room_list", ...) 호출이 대부분 주석 처리되어 있음 (435, 456번 라인)
-         * - message_list_refresh 이벤트 핸들러(417번 라인)에서만 socket.emit("room_list", ...) 호출됨
-         * 
-         * 현재 데이터 로딩 방식:
-         * - 실제로는 getChatTargetList() 함수가 AJAX(comAjax)로 데이터를 가져옴
-         * - Socket.IO 기반 room_list 이벤트는 사용하지 않음
-         * 
-         * 함수 기능:
-         * - 서버로부터 받은 채팅방 목록(ret)을 화면에 업데이트
-         * - resumebox_가 있는 경우: 인재 목록을 보호하면서 기존 항목만 업데이트 (스마트 업데이트 모드)
-         * - resumebox_가 없는 경우: 전체 리스트를 리셋하고 새로 렌더링
-         * 
-         * @param {Array} ret - 서버로부터 받은 채팅방 목록 배열
-         *   - ret[].rm_idx: 채팅방 번호
-         *   - ret[].not_read: 읽지 않은 메시지 수
-         *   - ret[].rm_last_dt: 마지막 메시지 시간
-         */
+        // [사용되지 않음] 소켓 기반 채팅방 목록 조회 - 현재는 AJAX 기반으로 동작
+        // Socket.IO 이벤트: room_list_return
+        // 현재 데이터 로딩 방식: getChatTargetList() 함수가 AJAX(comAjax)로 데이터를 가져옴
+        // Socket.IO 기반 room_list 이벤트는 사용하지 않음
+        /*
         socket.on("room_list_return", function(ret) {
             g_user_id = $("#user_id").val();
 
@@ -444,8 +415,10 @@
                 }
             }
         });
+        */
 
-        //실시간 메시지 정보 리스트
+        // [사용되지 않음] 소켓 기반 실시간 메시지 정보 리스트 갱신 - 현재는 AJAX 기반으로 동작
+        /*
         socket.on("message_list_refresh", function(ret) {
             g_user_id = $("#user_id").val();
             socket.emit("room_list", {
@@ -454,19 +427,17 @@
             });
         });
 
-        //[공통] : 알림 메시지 수신
+        // [사용되지 않음] 소켓 기반 실시간 알림 메시지 수신 - 현재는 AJAX 기반으로 동작
         socket.on("realtime_message", function(ret) {
             if (ret.type == "chat") {
                 //alert(ret.not_read);
             }
         });
+        */
     <?php else: ?>
         // 웹에서 실행
         $(document).ready(function() {
             getChatTargetList(2);
-            //룸정보 가져오기
-            //g_user_id = $("#user_id").val();
-            //socket.emit("room_list",{user_id : g_user_id,rm_type : "chat"});
         });
 
         // 페이지 복귀 시 미확인 메시지 갱신
@@ -475,29 +446,13 @@
         });
     <?php endif; ?>
 
+    // 제안보낸 인재 목록 조회 함수 (기업회원 전용)
     function getChatTargetList(arg) {
-        //지원자목록-공고목록
-        //alert(arg);
-        var getUrl = "get_chat_target_list_recruit";
-        <?php if ($user_type == "MEM") { ?>
-            getUrl = "get_chat_target_list_recruit_mem";
-        <?php } ?>
-        <?php if ($user_type == "COMP") { ?>
-            getUrl = "get_chat_target_list_recruit2";
-        <?php } ?>
+        // 제안보낸 인재 탭 전용 API 엔드포인트
+        var getUrl = "get_chat_target_list_recruit2";
 
-        comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
-
-
-            //console.log("get_chat_target_list_recruit:"+g_user_id);
-            //socket.emit("room_list2",{user_id : g_user_id,rm_type : "chat"});
-            //채팅목록 call
-            //socket.emit("room_list",{user_id : g_user_id,rm_type : "chat"});
-
+        comAjax("/chat_proc/" + getUrl, {}, function(ret) {
             $("#chat_list").html("");
-            //console.log('chat_list1');
-            //console.log(ret);
-
 
             if (ret.code == "00") {
                 var list = ret.data.list;
@@ -509,19 +464,11 @@
                 }
 
                 list.forEach(function(row) {
-
-                    <?php if ($user_type == "MEM") { ?>
-                        var $clone = $("#tpl_chat_mem").clone();
-                        if ($clone.length == 0) {
-                            return;
-                        }
-                    <?php } ?>
-                    <?php if ($user_type == "COMP") { ?>
-                        var $clone = $("#tpl_chat").clone();
-                        if ($clone.length == 0) {
-                            return;
-                        }
-                    <?php } ?>
+                    // 기업회원 전용 템플릿 사용
+                    var $clone = $("#tpl_chat").clone();
+                    if ($clone.length == 0) {
+                        return;
+                    }
 
                     var $content = $clone.html();
 
@@ -595,11 +542,6 @@
                     var htmlContent = $clone.html();
 
                     $("#chat_list").append(htmlContent);
-
-                    //미확인 채팅 있는지 확인
-                    //socket.emit("room_info",{rm_idx : Number(rm_idx),con_user_id : g_user_id});
-                    //socket.emit("room_list",{user_id : g_user_id,rm_type : "chat"});
-
                 });
 
                 //hide show 처리
@@ -632,16 +574,15 @@
         });
     }
 
+    // 제안보낸 인재 목록의 미확인 채팅건수 조회
     function fSearchNoReadCount() {
-
         // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 초기화
         $('#chat_list .content-wrap').each(function() {
             $(this).attr('data-noreadcnt', '0');
         });
 
-        //공고리스트에 미확인 채팅건수 조회 확인
+        // 공고리스트에 미확인 채팅건수 조회 확인
         comAjax("/chat_proc/fSearchNoReadCount", {}, function(ret) {
-            console.log(ret);
             var myId = $("#user_id").val();
 
             let result = ret.data.result;
@@ -725,7 +666,7 @@
         });
     }
 
-    //더블클릭 이벤트 처리
+    // 제안보낸 인재 목록 아이템 클릭 이벤트 처리
     $(document).on("click", ".room-item", function(e) {
         // fShowChatListByRecruite 함수가 있는 경우에는 바로 채팅방으로 이동하지 않음
         if ($(this).find('.angle-link[onclick*="fShowChatListByRecruite"]').length > 0) {
@@ -733,40 +674,16 @@
         }
 
         var target_id = $(this).data("target_id");
+        // 제안보낸 인재 탭에서 채팅방으로 이동 (from=talent_sent 파라미터 사용)
         location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_sent";
     });
 
-    // 웹에서도 소켓 이벤트 리스너 등록 (안드로이드와 동일)
+    // [사용되지 않음] 웹 버전 소켓 기반 채팅방 목록 조회 - 현재는 AJAX 기반으로 동작
     <?php if ($this->common->getSession("os_type") != "android") : ?>
-        /////////////////////////////////////////////////////////
-        // 리턴 처리
-        /////////////////////////////////////////////////////////
-
-        /**
-         * Socket.IO 이벤트: room_list_return (웹 버전)
-         * 
-         * [주의] 현재 이 함수는 거의 실행되지 않습니다.
-         * 
-         * 실행 조건:
-         * - socket.emit("room_list", ...) 호출 시 서버에서 room_list_return 이벤트를 emit하면 실행됨
-         * - 현재 코드에서 socket.emit("room_list", ...) 호출이 주석 처리되어 있음 (435번 라인)
-         * - message_list_refresh 이벤트 핸들러(820번 라인)에서만 socket.emit("room_list", ...) 호출됨
-         * 
-         * 현재 데이터 로딩 방식:
-         * - 실제로는 getChatTargetList() 함수가 AJAX(comAjax)로 데이터를 가져옴
-         * - Socket.IO 기반 room_list 이벤트는 사용하지 않음
-         * 
-         * 함수 기능:
-         * - 서버로부터 받은 채팅방 목록(ret)을 화면에 업데이트
-         * - resumebox_가 있는 경우: 인재 목록을 보호하면서 기존 항목만 업데이트 (스마트 업데이트 모드)
-         * - resumebox_가 없는 경우: 전체 리스트를 리셋하고 새로 렌더링
-         * 
-         * @param {Array} ret - 서버로부터 받은 채팅방 목록 배열
-         *   - ret[].rm_idx: 채팅방 번호
-         *   - ret[].not_read: 읽지 않은 메시지 수
-         *   - ret[].rm_last_dt: 마지막 메시지 시간
-         */
-        //회원리스트 가져오기
+        // Socket.IO 이벤트: room_list_return (웹 버전)
+        // 현재 데이터 로딩 방식: getChatTargetList() 함수가 AJAX(comAjax)로 데이터를 가져옴
+        // Socket.IO 기반 room_list 이벤트는 사용하지 않음
+        /*
         socket.on("room_list_return", function(ret) {
             g_user_id = $("#user_id").val();
 
@@ -898,7 +815,8 @@
             }
         });
 
-        //실시간 메시지 정보 리스트
+        // [사용되지 않음] 소켓 기반 실시간 메시지 정보 리스트 갱신 - 현재는 AJAX 기반으로 동작
+        /*
         socket.on("message_list_refresh", function(ret) {
             g_user_id = $("#user_id").val();
             socket.emit("room_list", {
@@ -907,12 +825,13 @@
             });
         });
 
-        //[공통] : 알림 메시지 수신
+        // [사용되지 않음] 소켓 기반 실시간 알림 메시지 수신 - 현재는 AJAX 기반으로 동작
         socket.on("realtime_message", function(ret) {
             if (ret.type == "chat") {
                 //alert(ret.not_read);
             }
         });
+        */
     <?php endif; ?>
 
     function fShowChatListByRecruite(ru_idx, obj) {
@@ -945,23 +864,13 @@
 
         chatDetailShow = true;
 
-        //$('.chat-list').css('width','690px');
-        //$('#chat_list1').css('width','50%');
-        //$('#chat_list1').css('height','539px');
-        //$('#chat_list1').css('border-right','1px solid #ccc');
-        //$('#chat_list1_1').css('width','50%');
-
-        //지원자목록-공고목록
+        // 제안보낸 인재 목록 조회 (특정 채용공고의 인재 목록)
         var params = {};
         params["ru_idx"] = rc_idx; // 백엔드에서 ru_idx로 받지만 실제로는 rc_idx 값
         params["chatgbn"] = $(obj).parent().parent().parent().attr('id');
         params["chatgbn"] = 'chatPanel2';
 
         comAjax("/chat_proc/get_chat_target_list", params, function(ret) {
-            $("#chat_list1_1").html("");
-            // 이미 토글에서 제거했으므로 여기서는 제거하지 않음
-
-
             if (ret.code == "00") {
                 var list = ret.data.list;
                 var listCnt = 0;
@@ -1005,10 +914,10 @@
 
                         var rcNameByRecruit = truncateRcTitle(row.rc_name || "");
                         $content = $content.replaceAll("{{rc_name}}", rcNameByRecruit);
-                        $content = $content.replaceAll("{{room_idx}}", row.rm_idx); //test row.room_idx 204
-                        //$content = $content.replaceAll("{{rc_thumb}}",'/resource/uploads/member/58ae42eee368a36e2c2de2694d3d94c3.png'); //row.rc_thumb
+                        $content = $content.replaceAll("{{room_idx}}", row.rm_idx);
                         $content = $content.replaceAll("{{target_name}}", row.target_name);
                         $content = $content.replaceAll("{{up_dt}}", row.up_dt);
+                        $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
                         // 백엔드에서 이미 처리된 ru_resume_img 사용 (hr_list.php 참고)
                         // 이미지가 없거나 공백이면 성별에 맞는 기본 아바타로 교체
@@ -1089,10 +998,8 @@
                         if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "세";
                         $content = $content.replaceAll("{{meminfo}}", meminfo);
 
-                        //복사한 내용 다시 넣기
+                        // 복사한 내용 다시 넣기
                         $clone.html($content);
-
-                        //$("#chat_list1_1").append($clone.html());
 
                         var resumeboxHtml = "<div id='resumebox_" + rc_idx + "' class='resumebox_" + rc_idx + " resumebox_' style='border-top: 1px solid #ccc;'>" + $clone.html() + "</div>";
 
@@ -1134,25 +1041,13 @@
                     } //if
 
                 });
-
-                //hide show 처리
-                /*
-                if($("#chat_list1_1").find("li").length == 0){
-                    $("#chat_empty1_1").show();
-                    $("#chat_list1_1").hide();
-                }else{
-                    $("#chat_list1_1").show();
-                    $("#chat_empty1_1").hide();
-                }
-                */
-
             } else {
                 console.error('[fShowChatListByRecruite] AJAX 오류 - code: ' + ret.code + ', msg: ' + ret.msg);
                 commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
                 return;
             }
 
-            //안 읽은 글 수 표시
+            // 미확인 채팅건수 조회
             fSearchNoReadCount();
 
         });
@@ -1208,9 +1103,7 @@
                     <div class="title ellipsis">{{ru_name}}</div>
 
                     <div class="summary">
-                        <p>{{mm_nation}}</p>
-                        <p>{{ma_age}}</p>
-
+                        <p class="last-message">{{last_msg_preview}}</p>
                     </div>
 
                     <div class="summary3">

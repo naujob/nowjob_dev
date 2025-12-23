@@ -798,18 +798,60 @@ class memberModel extends MY_Model
          ) pm_name,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate,
-         CONCAT('(', GROUP_CONCAT(sr_room.rm_idx ORDER BY sr_room.rm_idx ASC SEPARATOR ', '), ')') AS rm_idx_list,
+         IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT rm_idx ORDER BY rm_idx ASC SEPARATOR ', '), ')')
+          FROM st_room
+          WHERE rc_idx = aa.rc_idx
+          AND (ru_idx IN (SELECT ru_idx FROM st_member_request WHERE mq_type = 'RECRUIT' AND rc_idx = aa.rc_idx))
+         ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa
-      LEFT JOIN st_room AS sr_room ON aa.rc_idx = sr_room.rc_idx
-                       and sr_room.mm_idx <> aa.mm_idx
+			where aa.mm_idx = '$mm_idx'
+			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
+      AND EXISTS (
+          SELECT 1 FROM st_member_request mq
+          WHERE mq.rc_idx = aa.rc_idx
+          AND mq.mq_type = 'RECRUIT'
+      )
+      GROUP BY aa.rc_idx
+			order by max_up_dt desc, aa.rc_idx desc
+		";
+
+		//error_log("\n".$sql."\n", "3", "/testlog/php_log");
+		$query = $this->db->query($sql);
+		return $query->result_array();
+	}
+
+	# 공고 조회 : 기본 - 게재중인 (모든 공고, 제안 조건 없음)
+	function getRecruitActaiveListAll($mm_idx)
+	{
+		$sql = "
+			select aa.*,
+        (SELECT COUNT(*) FROM st_member_request
+				 WHERE mq_type = 'RECRUIT'
+         AND   rc_idx = aa.rc_idx) reqcnt,
+         (SELECT COUNT(vw.mv_idx) FROM st_member_view vw, st_member_request req
+ 				 WHERE vw.mv_type='resume'
+ 				 AND   req.mq_type = 'RECRUIT'
+				 AND   req.rc_idx = aa.rc_idx
+ 				 AND   vw.mv_key = req.ru_idx
+         AND   vw.mm_idx = aa.mm_idx) viewcnt,
+         (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
+         ) pm_name,
+         (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
+         ) pm_edate,
+         IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT rm_idx ORDER BY rm_idx ASC SEPARATOR ', '), ')')
+          FROM st_room
+          WHERE rc_idx = aa.rc_idx
+          AND (ru_idx IN (SELECT ru_idx FROM st_member_request WHERE mq_type = 'RECRUIT' AND rc_idx = aa.rc_idx))
+         ), '()') AS rm_idx_list,
+         (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
+			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
       GROUP BY aa.rc_idx
 			order by max_up_dt desc, aa.rc_idx desc
 		";
 
-		//error_log("\n".$sql."\n", "3", "/testlog/php_log");
 		$query = $this->db->query($sql);
 		return $query->result_array();
 	}
@@ -4056,7 +4098,7 @@ class memberModel extends MY_Model
 			"mem.mm_phone as mem_mm_phone",
 			"mi.ma_age",
 			"mi.ma_sex",
-			"ad.ad_addr",
+			"(SELECT ad_addr FROM st_address WHERE mm_idx = aa.mm_idx AND ad_type = 'RESUME' AND ad_key = bb.ru_idx LIMIT 1) as ad_addr",  // 서브쿼리로 주소 하나만 가져오기 (중복 방지)
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 
@@ -4067,8 +4109,6 @@ class memberModel extends MY_Model
                 on aa.mm_idx = mi.mm_idx
 			inner join st_resume bb
 				on aa.mm_idx = bb.mm_idx
-			left join st_address ad
-                on aa.mm_idx = ad.mm_idx and ad.ad_type = 'RESUME' and ad.ad_key = bb.ru_idx
             inner join st_bookmark bk
                 on bk.bk_key = bb.ru_idx and bk.bk_type = 'RESUME'
             inner join st_member mem
@@ -4140,7 +4180,7 @@ class memberModel extends MY_Model
 			left join st_address ad
                 on aa.mm_idx = ad.mm_idx and ad.ad_type = 'RESUME' and ad.ad_key = bb.ru_idx
             inner join st_member_request mq
-                on mq.ru_idx = bb.ru_idx and mq.mq_type = 'RECRUIT'
+                on mq.ru_idx = bb.ru_idx 
             inner join st_recruit rc
                 on mq.rc_idx = rc.rc_idx
             inner join st_member rcmm
@@ -4152,6 +4192,9 @@ class memberModel extends MY_Model
 		# 조건
 		$where = [];
 		//$where[] = 	" and aa.mm_status = 'Y' ";
+		
+		// mq_type 조건: RECRUIT이거나, RESUME이면서 mm_idx가 다른 경우
+		$where[] = " and (mq.mq_type = 'RECRUIT' OR (mq.mq_type = 'RESUME' AND mq.mm_idx != rc.mm_idx)) ";
 
 		if (isset($params["gbn"]) && $params["gbn"] != "") {
 			if ($params["gbn"] == "view") {
@@ -4460,7 +4503,7 @@ class memberModel extends MY_Model
 			inner join st_resume bb
 				on aa.mm_idx = bb.mm_idx
             inner join st_member_request mq
-                on mq.ru_idx = bb.ru_idx and mq.mq_type = 'RECRUIT'
+                on mq.ru_idx = bb.ru_idx 
             inner join st_recruit rc
                 on mq.rc_idx = rc.rc_idx
             inner join st_member rcmm
@@ -4476,6 +4519,8 @@ class memberModel extends MY_Model
 		# 조건
 		$where = [];
 		$where[] = 	" and aa.mm_status = 'Y' ";
+		// mq_type 조건: RECRUIT이거나, RESUME이면서 mm_idx가 다른 경우
+		$where[] = " and (mq.mq_type = 'RECRUIT' OR (mq.mq_type = 'RESUME' AND mq.mm_idx != rc.mm_idx)) ";
     $where[] = 	" and rc.mm_idx = '".$this->inject($params["mm_idx"])."' ";
 
     if($params["ru_idx"]!=""){
@@ -4515,7 +4560,11 @@ FROM (
                         INNER JOIN st_resume bb
                                 ON aa.mm_idx = bb.mm_idx
             INNER JOIN st_member_request mq
-                ON mq.ru_idx = bb.ru_idx AND mq.mq_type = 'RECRUIT'
+                ON mq.ru_idx = bb.ru_idx 
+                AND (
+                    mq.mq_type = 'RECRUIT' 
+                    OR (mq.mq_type = 'RESUME' AND mq.mm_idx != '" . $this->inject($params["mm_idx"]) . "')
+                )
             INNER JOIN st_recruit rc
                 ON mq.rc_idx = rc.rc_idx
             INNER JOIN st_member rcmm
@@ -4963,6 +5012,11 @@ function getRequestRecruitList2Mem($params){
        stop_dt, rc_hit, -- reg_dt,
        up_dt, rc_price_rep, mq_reg_dt reg_dt, target_name, user_name, target_img, user_img,
        mm_name, mm_nation, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, ru_idx, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt,
+       IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT rm_idx ORDER BY rm_idx ASC SEPARATOR ', '), ')')
+         FROM st_room
+         WHERE rc_idx = innertable.rc_idx
+         AND ru_idx IN (SELECT ru_idx FROM st_member_request WHERE mq_type = 'RESUME' AND rc_idx = innertable.rc_idx AND mm_idx = '" . $this->inject($params["mm_idx"]) . "')
+       ), '()') AS rm_idx_list,
        (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = innertable.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 FROM (
 SELECT
@@ -5004,6 +5058,8 @@ SELECT
  WHERE 1=1
   AND aa.mm_status = 'Y'
   AND bb.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
+  AND rc.rc_status = 'Y'
+  AND rc.rc_edate >= NOW()
   ) innertable
 GROUP BY
        rc_idx, mm_idx, rc_show_yn, rc_name, rc_sdate, rc_edate, rc_nation, rc_sex, rc_sage, rc_eage,

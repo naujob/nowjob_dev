@@ -1,0 +1,95 @@
+[2025-12-16 15:24:12] [FCM] FCM 함수 시작 | DATA: {"info":{"title":"NowJob 제안 알림","body":"원아웃소싱에서 채용 제안을 보냈습니다.","url":"\/recruit\/job_post\/3799","type":"job_offer"},"token_count":1}
+[2025-12-16 15:24:12] [FCM] Firebase Access Token 생성 시작 | DATA: {"file":".\/firebase-service-account.json"}
+[2025-12-16 15:24:13] [FCM] Firebase Access Token 생성 성공 | DATA: {"expires_in":3599}
+[2025-12-16 15:24:13] [FCM] FCM 메시지 구성 시작 | DATA: {"token":"deXvV0gZN0kuupKCy_ph..."}
+[2025-12-16 15:24:13] [FCM] FCM 메시지 전송 시작 | DATA: {"message_count":1}
+[2025-12-16 15:24:13] [FCM] FCM 메시지 전송 시도 | DATA: {"attempt":1,"max_retries":3}
+[2025-12-16 15:24:13] [FCM] FCM cURL 실행 시작 | DATA: {"token":"deXvV0gZN0kuupKCy_ph...","attempt":1}
+[2025-12-16 15:24:13] [FCM] FCM cURL 실행 완료 | DATA: {"http_code":200,"error":"","result_length":64,"attempt":1}
+[2025-12-16 15:24:13] [FCM] FCM 메시지 전송 성공 | DATA: {"attempt":1}
+[2025-12-16 15:24:13] [FCM] FCM 최종 결과 | DATA: {"overall_success":true,"success_count":1,"fail_count":0,"total_count":1,"results":[{"token":"deXvV0gZN0kuupKCy_phJZ:APA91bHWSqEKLOmGAQQPpFF0_Eq2wcxBdT4mSx7XgBO_Is7i0VeiKBpvSO-0Te9bGfReivJwp7a8_MqPWVQoNbCpKl6N5fQHBba9lwLkVleT6wtDELIx2bw","success":true,"error":null,"http_code":200,"result":{"name":"projects\/nowjob-cb256\/messages\/1765866150929779"},"retry_count":1}]}
+[2025-12-16 15:32:52] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:32:52"}
+[2025-12-16 15:33:08] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:33:08"}
+[2025-12-16 15:33:11] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:33:11"}
+[2025-12-16 15:33:12] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:33:12"}
+[2025-12-16 15:33:13] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:33:13"}
+[2025-12-16 15:54:21] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:54:21"}
+[2025-12-16 15:54:22] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:54:22"}
+[2025-12-16 15:54:24] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:54:24"}
+[2025-12-16 15:55:31] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:55:31"}
+[2025-12-16 15:55:32] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:55:32"}
+[2025-12-16 15:57:36] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:57:36"}
+[2025-12-16 15:57:39] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:57:39"}
+[2025-12-16 15:57:40] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:57:40"}
+[2025-12-16 15:58:01] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 15:58:01"}
+[2025-12-16 16:01:54] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 16:01:54"}
+[2025-12-16 16:02:49] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 16:02:49"}
+[2025-12-16 16:03:44] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 16:03:44"}
+[2025-12-16 16:03:51] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"eGzV1xG44E4GvEo731Qh...","status":"success","timestamp":"2025-12-16 16:03:51"}
+[2025-12-16 16:04:56] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:04:56"}
+[2025-12-16 16:05:11] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:05:11"}
+[2025-12-16 16:05:13] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:05:13"}
+[2025-12-16 16:05:14] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:05:14"}
+[2025-12-16 16:05:16] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:05:16"}
+[2025-12-16 16:05:32] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:05:32"}
+[2025-12-16 16:06:02] [FCM] FCM 함수 시작 | DATA: {"info":{"title":"NowJob 제안 알림","body":"원아웃소싱에서 채용 제안을 보냈습니다.","url":"\/recruit\/job_post\/3799","type":"job_offer"},"token_count":1}
+[2025-12-16 16:06:02] [FCM] Firebase Access Token 생성 시작 | DATA: {"file":".\/firebase-service-account.json"}
+[2025-12-16 16:06:02] [FCM] Firebase Access Token 생성 성공 | DATA: {"expires_in":3599}
+[2025-12-16 16:06:02] [FCM] FCM 메시지 구성 시작 | DATA: {"token":"e_ZjwOlhZEcyqyyAbqK0..."}
+[2025-12-16 16:06:02] [FCM] FCM 메시지 전송 시작 | DATA: {"message_count":1}
+[2025-12-16 16:06:02] [FCM] FCM 메시지 전송 시도 | DATA: {"attempt":1,"max_retries":3}
+[2025-12-16 16:06:02] [FCM] FCM cURL 실행 시작 | DATA: {"token":"e_ZjwOlhZEcyqyyAbqK0...","attempt":1}
+[2025-12-16 16:06:02] [FCM] FCM cURL 실행 완료 | DATA: {"http_code":200,"error":"","result_length":64,"attempt":1}
+[2025-12-16 16:06:02] [FCM] FCM 메시지 전송 성공 | DATA: {"attempt":1}
+[2025-12-16 16:06:02] [FCM] FCM 최종 결과 | DATA: {"overall_success":true,"success_count":1,"fail_count":0,"total_count":1,"results":[{"token":"e_ZjwOlhZEcyqyyAbqK0QY:APA91bHxvUBDxrPkiUtyFEMGzoflqO3CA9lKtEqOj2Dog_SPqWKTXo5N51Ulodf26-1D4tAhzoGGnDwN8xg_TR0rdQFARBi_W9pjzktEZX9DM1wrDqn3kuk","success":true,"error":null,"http_code":200,"result":{"name":"projects\/nowjob-cb256\/messages\/1765868660108882"},"retry_count":1}]}
+[2025-12-16 16:06:11] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:06:11"}
+[2025-12-16 16:06:13] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:06:13"}
+[2025-12-16 16:06:15] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:06:15"}
+[2025-12-16 16:06:17] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:06:17"}
+[2025-12-16 16:06:18] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:06:18"}
+[2025-12-16 16:06:19] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:06:19"}
+[2025-12-16 16:06:20] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:06:20"}
+[2025-12-16 16:35:17] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:35:17"}
+[2025-12-16 16:35:21] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 16:35:21"}
+[2025-12-16 16:38:15] [FCM] FCM 함수 시작 | DATA: {"info":{"title":"NowJob 지원 알림","body":"QUAN RONG님이 채용공고에 지원했습니다.","url":"\/resume\/hr_post\/613","type":"job_application"},"token_count":1}
+[2025-12-16 16:38:15] [FCM] Firebase Access Token 생성 시작 | DATA: {"file":".\/firebase-service-account.json"}
+[2025-12-16 16:38:15] [FCM] Firebase Access Token 생성 성공 | DATA: {"expires_in":3599}
+[2025-12-16 16:38:15] [FCM] FCM 메시지 구성 시작 | DATA: {"token":"dDQLZUklST6OuMZzR8Wx..."}
+[2025-12-16 16:38:15] [FCM] FCM 메시지 전송 시작 | DATA: {"message_count":1}
+[2025-12-16 16:38:15] [FCM] FCM 메시지 전송 시도 | DATA: {"attempt":1,"max_retries":3}
+[2025-12-16 16:38:15] [FCM] FCM cURL 실행 시작 | DATA: {"token":"dDQLZUklST6OuMZzR8Wx...","attempt":1}
+[2025-12-16 16:38:18] [FCM] FCM cURL 실행 완료 | DATA: {"http_code":200,"error":"","result_length":83,"attempt":1}
+[2025-12-16 16:38:18] [FCM] FCM 메시지 전송 성공 | DATA: {"attempt":1}
+[2025-12-16 16:38:18] [FCM] FCM 최종 결과 | DATA: {"overall_success":true,"success_count":1,"fail_count":0,"total_count":1,"results":[{"token":"dDQLZUklST6OuMZzR8Wx4J:APA91bFNetwj0oChvSjaDukgqCdZtonAv4AEPsHgZo0T1gcGVXGTa8gQG4ihTZc2CXVG5fOyrPsrVgeOY_vcDaK8o5bEDRZ2Lir1eX5FzZoE5cqBrRq9mrA","success":true,"error":null,"http_code":200,"result":{"name":"projects\/nowjob-cb256\/messages\/0:1765870595767858%6868c5066868c506"},"retry_count":1}]}
+[2025-12-16 17:17:52] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 17:17:52"}
+[2025-12-16 17:18:45] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 17:18:45"}
+[2025-12-16 17:18:48] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 17:18:48"}
+[2025-12-16 17:24:03] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dgnnvbYzeE7LuBG69qMC...","status":"success","timestamp":"2025-12-16 17:24:03"}
+[2025-12-16 17:24:06] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dgnnvbYzeE7LuBG69qMC...","status":"success","timestamp":"2025-12-16 17:24:06"}
+[2025-12-16 17:24:31] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dgnnvbYzeE7LuBG69qMC...","status":"success","timestamp":"2025-12-16 17:24:31"}
+[2025-12-16 17:24:35] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dgnnvbYzeE7LuBG69qMC...","status":"success","timestamp":"2025-12-16 17:24:35"}
+[2025-12-16 17:25:12] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:25:12"}
+[2025-12-16 17:26:27] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:27"}
+[2025-12-16 17:26:31] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:31"}
+[2025-12-16 17:26:32] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:32"}
+[2025-12-16 17:26:34] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:34"}
+[2025-12-16 17:26:35] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:35"}
+[2025-12-16 17:26:36] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:36"}
+[2025-12-16 17:26:38] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:38"}
+[2025-12-16 17:26:39] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:39"}
+[2025-12-16 17:26:42] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:42"}
+[2025-12-16 17:26:50] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:26:50"}
+[2025-12-16 17:27:21] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:21"}
+[2025-12-16 17:27:25] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:25"}
+[2025-12-16 17:27:26] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:26"}
+[2025-12-16 17:27:28] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:28"}
+[2025-12-16 17:27:28] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:28"}
+[2025-12-16 17:27:54] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:54"}
+[2025-12-16 17:27:57] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:57"}
+[2025-12-16 17:27:59] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:27:59"}
+[2025-12-16 17:28:00] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:28:00"}
+[2025-12-16 17:28:01] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"dGJh5vRLvkthgbylZANp...","status":"success","timestamp":"2025-12-16 17:28:01"}
+[2025-12-16 17:40:41] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 17:40:41"}
+[2025-12-16 17:40:41] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 17:40:41"}
+[2025-12-16 17:40:43] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 17:40:43"}
+[2025-12-16 17:41:56] [TOKEN_SEND] 토큰 전송 시도 | DATA: {"user_id":"01083092881","token_preview":"e_ZjwOlhZEcyqyyAbqK0...","status":"success","timestamp":"2025-12-16 17:41:56"}

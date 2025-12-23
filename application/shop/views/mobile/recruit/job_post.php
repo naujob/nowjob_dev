@@ -285,6 +285,28 @@ function formatPhoneNumber($number)
             </div>
         </div>
 
+        <div class="section view-benefit">
+            <div class="container">
+                <h3 class="secondary-title">복리후생</h3>
+                <ul class="benefit-group">
+                    <?= getLifeType($info["rc_life_type"], "-v2") ?>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section view-desc">
+            <div class="container">
+                <h3 class="secondary-title" onclick="alert('<?= $user_agent ?>');">상세업무정보</h3>
+                <!-- 작성내용 -->
+                <div class="desc" style="width: 100%; overflow-x: auto;">
+                    <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
+                </div>
+                <div class="hashtag">
+                    <?= getHashTag($info["rc_hash"]) ?>
+                </div>
+            </div>
+        </div>
+
         <div class="section view-location">
             <div class="container">
                 <h3 class="secondary-title">기본정보</h3>
@@ -354,28 +376,6 @@ function formatPhoneNumber($number)
                         marker.setMap(map);
                     });
                 </script>
-            </div>
-        </div>
-
-        <div class="section view-benefit">
-            <div class="container">
-                <h3 class="secondary-title">복리후생</h3>
-                <ul class="benefit-group">
-                    <?= getLifeType($info["rc_life_type"], "-v2") ?>
-                </ul>
-            </div>
-        </div>
-
-        <div class="section view-desc">
-            <div class="container">
-                <h3 class="secondary-title" onclick="alert('<?= $user_agent ?>');">상세업무정보</h3>
-                <!-- 작성내용 -->
-                <div class="desc" style="width: 100%; overflow-x: auto;">
-                    <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
-                </div>
-                <div class="hashtag">
-                    <?= getHashTag($info["rc_hash"]) ?>
-                </div>
             </div>
         </div>
         <div class="view-footer">
@@ -758,8 +758,14 @@ function formatPhoneNumber($number)
                 return;
             }
 
-            //$('.btn-close-popup').hide();
-            openPopup('confirm', {
+            //오늘 지원여부 및 제안 여부 확인
+            var paramsToday = {};
+            paramsToday["rc_idx"] = $("[name=rc_idx]").val();
+
+            comAjax("/recruit_proc/todayapply", paramsToday, function(ret) {
+                if (ret.code == "00") {
+                    //$('.btn-close-popup').hide();
+                    openPopup('confirm', {
                 content: '<em>“' + $("[name=rc_name]").val() + '”</em>으로<br> 지원하시겠습니까?',
                 firstCallback: function() {
                     $('.btn-close-popup').show();
@@ -784,8 +790,20 @@ function formatPhoneNumber($number)
                         }
                     });
                 }
+                    });
+                    $('.btn-close-popup').hide();
+                } else if (ret.code == "01") {
+                    commonAlert("<em>다음날</em> 다시 지원이 가능합니다..", function() {});
+                    return;
+                } else if (ret.code == "90") {
+                    // 제안이 이미 있는 경우
+                    commonAlert(ret.msg, function() {});
+                    return;
+                } else {
+                    commonAlert(ret.msg, function() {});
+                    return;
+                }
             });
-            $('.btn-close-popup').hide();
         });
         // 이력서 작성 버튼 클릭 이벤트 20250919
         $("#btnResume").click(function(e) {

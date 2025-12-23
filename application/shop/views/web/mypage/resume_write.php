@@ -124,7 +124,7 @@
                                                             <input type="hidden" name="ad_addr[]" value="<?= $row["ad_addr"] ?>" />
                                                             <input type="hidden" name="ad_gps_x[]" value="<?= $row["ad_gps_x"] ?>" />
                                                             <input type="hidden" name="ad_gps_y[]" value="<?= $row["ad_gps_y"] ?>" />
-                                                            <p><?= $row["ad_addr"] ?></p>
+                                                            <p class="addr-display"><?= $row["ad_addr"] ?></p>
                                                             <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
                                                         </li>
                                                     <?php endif; ?>
@@ -813,6 +813,8 @@
 <script>
     // 검색 완료 선택 처리
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
+        // 주소 정리 함수로 지번 주소를 정리하여 표시
+        var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
 
         var html = "";
         html += '<li>';
@@ -823,7 +825,7 @@
         html += '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />';
         html += '<input type="hidden" name="ad_gps_x[]" value="' + x + '" />';
         html += '<input type="hidden" name="ad_gps_y[]" value="' + y + '" />';
-        html += '<p>' + addr + '</p>';
+        html += '<p>' + displayAddr + '</p>';
         html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
         html += '</li>';
 
@@ -842,6 +844,17 @@
     }
 
     $(document).ready(function() {
+        // 페이지 로드 시 기존 주소들을 주소 정리 함수로 처리하여 표시
+        if (typeof fRemoveBigAdrJS === 'function') {
+            $("#addr_location .addr-display").each(function() {
+                var $display = $(this);
+                var $li = $display.closest("li");
+                var jibun = $li.find('input[name="ad_jibun[]"]').val();
+                if (jibun) {
+                    $display.text(fRemoveBigAdrJS(jibun));
+                }
+            });
+        }
 
         <?php
         // SNS 로그인 여부 확인

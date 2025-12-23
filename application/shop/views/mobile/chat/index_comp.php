@@ -164,88 +164,13 @@
         margin-left: 1rem;
       }
 
-      /*
-        .page page-chat{
-          overflow: auto; / * 스크롤 허용 * /
-          -webkit-overflow-scrolling: touch; / * 부드러운 스크롤 * /
-        }
-        .page-content{
-          overflow: auto; / * 스크롤 허용 * /
-          -webkit-overflow-scrolling: touch; / * 부드러운 스크롤 * /
-        }
-        */
     </style>
     <div class="tab-panel">
       <div class="container">
-        <h2 class="sr-text">인재정보</h2>
+        <!-- 제안받은 인재 탭 전용 페이지 (기업회원용) -->
+        <h2 class="sr-text">제안받은 인재</h2>
         <div class="chat-list">
           <ol class="list" id="chat_list">
-            <?php /* foreach($list as $row) : ?>
-                        <li class="list-item">
-                            <div class="item-info person">
-                                <div class="thumb-wrap">
-                                    <button type="button" data-bk_type="RESUME" data-bk_key="<?=$row["ru_idx"]?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row["book_yn"]=="Y" ? "on":""?>"><span class="sr-text">즐겨찾기 추가</span></button>
-                                    <!-- 썸네일 -->
-                                    <div class="thumb">
-                                        <a href="/resume/hr_post/<?=$row["ru_idx"]?>"><img data-src="<?=getResumeImg($row)?>" alt="" class="lozad"></a>
-                                    </div>
-                                    <!-- 평점 -->
-                                    <p class="star-rating">
-                                        <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
-                                        <span class="star" style="width:100%;"></span>
-                                        <span class="sr-text">평점</span>
-                                        <span class="sr-text">5</span>
-                                    </p>
-                                    <a href="/compage/recruit_view/<?=$row["rc_idx"]?>" class="btn-line">지원한 공고</a>
-                                </div>
-
-                                <div class="content-wrap">
-                                    <div class="meta top">
-                                        <!-- 직종라벨 -->
-                                        <p class="category">
-                                            <?=getWorkingImg($row["ru_work"])?>
-                                        </p>
-                                        <!-- 조건 -->
-                                        <p class="condition">
-                                        	<em class="period"><?=(strpos($row["ru_price_type"],",")!==false ? "협의" : ($row["ru_price_type"]))?></em>,
-                                        	<span class="working-time"><?=(strpos($row["ru_work_type"],",")!==false ? "협의" : ($row["ru_work_type"]))?></span>
-                                        </p>
-                                    </div>
-                                    <div class="title-wrap">
-                                        <!-- 이름 -->
-                                        <p class="title"><strong><a href="/resume/hr_post/<?=$row["ru_idx"]?>"><?=$row["mm_name"]?></a></strong></p>
-                                        <!-- 추가사항 -->
-                                        <div class="meta">
-                                            <p><?=$row["mm_nation"]?></p>
-                                            <span>/</span>
-                                            <p><?=$row["ma_age"]?>세</p>
-                                        </div>
-                                    </div>
-                                    <ul class="working-day">
-                                        <?=getWeekYoil($row["ru_week"])?>
-                                    </ul>
-                                    <!-- 해시태그 -->
-                                    <div class="hashtag">
-                                        <?=getMyType($row["ru_my_type"])?>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- //인재정보 -->
-                            <div class="inline-group">
-                                <a href="/resume/hr_post/<?=$row["ru_idx"]?>" class="btn-view-resume">이력서 보기</a>
-                                <a href="#" aria-haspopup="dialog"
-                                	data-ru_idx="<?=$row["ru_idx"]?>"
-                                	data-rc_idx="<?=$row["rc_idx"]?>"
-                                	data-target_id="<?=$row["target_id"]?>"
-                                	data-user_id="<?=$row["user_id"]?>"
-                                	data-target_img="<?=$row["target_img"]?>"
-                                	data-user_img="<?=$row["user_img"]?>"
-                                    data-target_name="<?=$row["target_name"]?>"
-                                	data-user_name="<?=$row["user_name"]?>"
-                                	data-subject="<?=$row["rc_name"]?>" class="btn-view-chat">1:1 채팅하기</a>
-                            </div>
-                        </li>
-                        <?php endforeach; */ ?>
           </ol>
 
           <div class="chat-empty" id="chat_empty1">
@@ -293,6 +218,17 @@
     // 페이지 포커스 시 카운트 갱신 (chat_view에서 돌아왔을 때)
     window.addEventListener('focus', function() {
       fSearchNoReadCount();
+      // 채팅방 목록도 갱신 (나간 채팅방 제외)
+      getChatTargetList(1);
+    });
+
+    // pageshow 이벤트 추가 (뒤로가기/앞으로가기 대응)
+    window.addEventListener('pageshow', function(event) {
+      // BFCache에서 복원된 경우 또는 일반 페이지 로드
+      if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+        getChatTargetList(1);
+        fSearchNoReadCount();
+      }
     });
     /**
      * [사용 안 됨] 레거시 함수 - APP_NOWAPK 콜백용
@@ -508,16 +444,10 @@
       });
     });
 
-    // 안드로이드에서도 사용할 함수들 추가
+    // 제안받은 인재 목록 조회 함수 (기업회원 전용)
     function getChatTargetList(arg) {
-      //지원자목록-공고목록
+      // 제안받은 인재 탭 전용 API 엔드포인트
       var getUrl = "get_chat_target_list_recruit";
-      <?php if ($user_type == "MEM") { ?>
-        getUrl = "get_chat_target_list_recruit_mem";
-      <?php } ?>
-      <?php if ($user_type == "COMP") { ?>
-        getUrl = "get_chat_target_list_recruit";
-      <?php } ?>
 
       comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
 
@@ -533,19 +463,11 @@
           }
 
           list.forEach(function(row) {
-
-            <?php if ($user_type == "MEM") { ?>
-              var $clone = $("#tpl_chat_mem").clone();
-              if ($clone.length == 0) {
-                return;
-              }
-            <?php } ?>
-            <?php if ($user_type == "COMP") { ?>
-              var $clone = $("#tpl_chat").clone();
-              if ($clone.length == 0) {
-                return;
-              }
-            <?php } ?>
+            // 기업회원 전용 템플릿 사용
+            var $clone = $("#tpl_chat").clone();
+            if ($clone.length == 0) {
+              return;
+            }
 
             var $content = $clone.html();
 
@@ -591,6 +513,12 @@
               });
               roomCount = roomIdxArray.length;
             }
+            
+            // 채팅방 개수가 0이면 해당 공고 리스트 항목을 표시하지 않음
+            if (roomCount === 0) {
+              return; // 다음 항목으로 넘어감
+            }
+            
             $content = $content.replaceAll("{{room_count}}", roomCount);
 
             var nationStr = '';
@@ -788,39 +716,37 @@
   </script>
 <?php else: ?>
   <script>
-    socket.on("room_list_return", function(ret) {
-      alert('return');
-    });
-
+    // 페이지 로드 시 제안받은 인재 목록 조회
     window.addEventListener('DOMContentLoaded', function() {
-
       getChatTargetList(1);
-      //룸정보 가져오기
-      //g_user_id = $("#user_id").val();
-      //socket.emit("room_list",{user_id : g_user_id,rm_type : "chat"});
 
       document.addEventListener("touchmove", function(e) {
         // 기본 동작을 차단하지 않음
       }, {
         passive: true
       }); // passive: true로 설정하면 기본 스크롤 허용
-
     });
 
     // 페이지 포커스 시 카운트 갱신 (chat_view에서 돌아왔을 때)
     window.addEventListener('focus', function() {
       fSearchNoReadCount();
+      // 채팅방 목록도 갱신 (나간 채팅방 제외)
+      getChatTargetList(1);
     });
 
+    // pageshow 이벤트 추가 (뒤로가기/앞으로가기 대응)
+    window.addEventListener('pageshow', function(event) {
+      // BFCache에서 복원된 경우 또는 일반 페이지 로드
+      if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+        getChatTargetList(1);
+        fSearchNoReadCount();
+      }
+    });
+
+    // 제안받은 인재 목록 조회 함수 (기업회원 전용)
     function getChatTargetList(arg) {
-      //지원자목록-공고목록
+      // 제안받은 인재 탭 전용 API 엔드포인트
       var getUrl = "get_chat_target_list_recruit";
-      <?php if ($user_type == "MEM") { ?>
-        getUrl = "get_chat_target_list_recruit_mem";
-      <?php } ?>
-      <?php if ($user_type == "COMP") { ?>
-        getUrl = "get_chat_target_list_recruit";
-      <?php } ?>
 
       comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
 
@@ -836,19 +762,11 @@
           }
 
           list.forEach(function(row) {
-
-            <?php if ($user_type == "MEM") { ?>
-              var $clone = $("#tpl_chat_mem").clone();
-              if ($clone.length == 0) {
-                return;
-              }
-            <?php } ?>
-            <?php if ($user_type == "COMP") { ?>
-              var $clone = $("#tpl_chat").clone();
-              if ($clone.length == 0) {
-                return;
-              }
-            <?php } ?>
+            // 기업회원 전용 템플릿 사용
+            var $clone = $("#tpl_chat").clone();
+            if ($clone.length == 0) {
+              return;
+            }
 
             var $content = $clone.html();
 
@@ -894,6 +812,12 @@
               });
               roomCount = roomIdxArray.length;
             }
+            
+            // 채팅방 개수가 0이면 해당 공고 리스트 항목을 표시하지 않음
+            if (roomCount === 0) {
+              return; // 다음 항목으로 넘어감
+            }
+            
             $content = $content.replaceAll("{{room_count}}", roomCount);
 
             var nationStr = '';
@@ -1113,49 +1037,26 @@
       });
     }
 
-    /*
-    //뒤로왔을때 상품 유지
-    window.addEventListener('pageshow', function (event) {
-        alert('뒤로가기 캐치');
-        location.reload();
-        if (event.persisted || window.performance && window.performance.navigation.type == 2) {
-            alert('뒤로가기 캐치');
-        }
-    }, false);
-    */
+    // BFCache를 통해 페이지 접근할 경우 새로고침
     window.onpageshow = function(event) {
-      // 앞/뒤로가기 버튼 클릭 시
-      if (
-        window.performance &&
-        window.performance.navigation &&
-        window.performance.navigation.type == 2
-      ) {
-        // 처리 로직
-        //alert('111');
-      }
-    };
-
-    window.onpageshow = function(event) {
-      // BFCache를 통해 페이지 접근할 경우
       if (event.persisted) {
-        //alert('22');
         window.location.reload(); // 페이지 새로고침
       }
     };
 
-    //방생성 확인 및 방번호 확인
-    socket.on("room_insert_return", function(ret) {
-      //채팅방 실시간 쏘기
-      if (first_yn == "Y") {
-        socket.emit("message_insert", first_message, first_users);
-      }
-
-      if (ret.code == "00") {
-        location.href = "/chat/chat_list?view=true&rm_idx=" + ret.data;
-      } else {
-        commonAlert(ret.msg, function() {});
-      }
-    });
+    // [사용되지 않음] 소켓 기반 채팅방 생성 - 현재는 AJAX 기반으로 동작
+    // 방생성 확인 및 방번호 확인
+    // socket.on("room_insert_return", function(ret) {
+    //   //채팅방 실시간 쏘기
+    //   if (first_yn == "Y") {
+    //     socket.emit("message_insert", first_message, first_users);
+    //   }
+    //   if (ret.code == "00") {
+    //     location.href = "/chat/chat_list?view=true&rm_idx=" + ret.data;
+    //   } else {
+    //     commonAlert(ret.msg, function() {});
+    //   }
+    // });
   </script>
 
   <script>
@@ -1267,7 +1168,7 @@
                     user_nick: target_name
                   });
 
-                  //방생성
+                  //방생성 (소켓 기반 - 웹 버전)
                   click_type = "chat";
                   socket.emit("room_insert", room_info);
                 } else {
@@ -1336,7 +1237,7 @@
                 user_nick: target_name
               });
 
-              //방생성
+              //방생성 (소켓 기반 - 웹 버전)
               click_type = "chat";
               socket.emit("room_insert", room_info);
             } else {
@@ -1441,6 +1342,7 @@
             $content = $content.replaceAll("{{room_idx}}", row.rm_idx);
             $content = $content.replaceAll("{{target_name}}", row.target_name);
             $content = $content.replaceAll("{{up_dt}}", row.up_dt);
+            $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
             var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
             var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
@@ -1536,43 +1438,6 @@
 
 
 
-  /*
-  document.addEventListener("mousedown", (e) => {
-    console.log('mousedown');
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    console.log('mousemove');
-  });
-
-  document.addEventListener("mouseup", () => {
-    console.log('mouseup');
-  });
-  */
-  let startY = 0;
-  let scrollY = 0;
-  /*
-  // 터치 이벤트 (모바일 지원)
-  document.addEventListener("touchstart", (e) => {
-    console.log('touchstart');
-    startY = e.touches[0].clientY;
-    scrollY = window.scrollY;
-  });
-
-  document.addEventListener("touchmove", (e) => {
-    console.log('touchmove:'+e.touches[0].clientY);
-    const deltaY = startY - e.touches[0].clientY;
-
-    window.scrollTo(0, scrollY + deltaY);
-  });
-
-  document.addEventListener("touchend", () => {
-    console.log('touchend');
-  });
-  */
-  window.onscroll = function() {
-    console.log('onscroll');
-  };
 </script>
 
 <template id="tpl_chat">
@@ -1624,9 +1489,7 @@
           <div class="title ellipsis">{{ru_name}}</div>
 
           <div class="summary">
-            <p>{{mm_nation}}</p>
-            <p>{{ma_age}}</p>
-
+            <p class="last-message">{{last_msg_preview}}</p>
           </div>
 
           <div class="summary3">

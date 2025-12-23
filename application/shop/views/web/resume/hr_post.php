@@ -444,7 +444,7 @@ function getConvertResumePriceType($price_type)
   .history-body .content-info .summary .working-day li[aria-hidden=false] {
     color: #fff;
     border-color: transparent;
-    background-color: #57CCAF;
+    background-color:#1B9D7D;
   }
 
 
@@ -750,16 +750,17 @@ function getConvertResumePriceType($price_type)
                           <?php
                           // 요일무관 체크 여부 확인
                           $isWeekUnlimited = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
-                          // 저장된 요일 값 확인
-                          $hasSavedWeek = isset($info["ru_week"]) && trim((string) $info["ru_week"]) !== "";
-                          // 저장된 값이 없으면 간편등록 기본값(평일) 사용
-                          $weekDisplaySource = $hasSavedWeek ? $info["ru_week"] : "월,화,수,목,금";
+                          // 원본 요일 값 (빈값 체크용)
+                          $originalWeek = isset($info["ru_week"]) ? trim((string) $info["ru_week"]) : "";
+                          
+                          // 비어있거나 모든 요일(월,화,수,목,금,토,일)인지 체크
+                          $isAllWeek = ($originalWeek === "" || $originalWeek === "월,화,수,목,금,토,일");
                           ?>
-                          <?php if ($isWeekUnlimited) : ?>
+                          <?php if ($isWeekUnlimited || $isAllWeek) : ?>
                             무관
                           <?php else : ?>
                             <ul class="working-day">
-                              <?= getWeekYoil($weekDisplaySource) ?>
+                              <?= getWeekYoil($originalWeek) ?>
                             </ul>
                           <?php endif; ?>
                         </td>
@@ -1147,22 +1148,27 @@ function getConvertResumePriceType($price_type)
         <div class="terms-wrap">
           <div class="post-list">
             <ul class="list">
-              <?php foreach ($recruit_list as $row) : ?>
-                <li>
-                  <div class="selectable-item" style="position:relative;">
-                    <label class="form-checkbox" style="position:absolute;top:40px;">
-                      <input type="radio" name="chk_request[]" value="<?= $row["rc_idx"] ?>" data-rc_name="<?= $row["rc_name"] ?>">
-                      <span class="label"></span>
-                      <span class="sr-text">선택</span>
-                    </label>
-                    <p style="padding:20px;padding-left:30px;">
-                      <strong><?= $row["rc_name"] ?></strong><br />
-                      <span class="date"><?= get_yyyymmdd($row["rc_sdate"]) ?> ~ <?= get_yyyymmdd($row["rc_edate"]) ?></span>
-                    </p>
-                  </div>
-                </li>
-              <?php endforeach; ?>
-              <?php if (count($recruit_list) == 0) : ?>
+              <?php 
+              // 변수가 존재하고 배열인지 확인
+              $hasRecruits = isset($recruit_list) && is_array($recruit_list) && count($recruit_list) > 0;
+              ?>
+              <?php if ($hasRecruits) : ?>
+                <?php foreach ($recruit_list as $row) : ?>
+                  <li>
+                    <div class="selectable-item" style="position:relative;">
+                      <label class="form-checkbox" style="position:absolute;top:40px;">
+                        <input type="radio" name="chk_request[]" value="<?= $row["rc_idx"] ?>" data-rc_name="<?= $row["rc_name"] ?>">
+                        <span class="label"></span>
+                        <span class="sr-text">선택</span>
+                      </label>
+                      <p style="padding:20px;padding-left:30px;">
+                        <strong><?= $row["rc_name"] ?></strong><br />
+                        <span class="date"><?= get_yyyymmdd($row["rc_sdate"]) ?> ~ <?= get_yyyymmdd($row["rc_edate"]) ?></span>
+                      </p>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              <?php else : ?>
                 <div class="is-empty-v2">
                   <p>등록된 채용공고가 없습니다.</p>
                 </div>
@@ -1225,13 +1231,14 @@ function getConvertResumePriceType($price_type)
 
 
     //오늘 제안여부 확인
+    var rc_idx = $("[name='chk_request[]']:checked").eq(0).val();
     var paramsToday = {};
     paramsToday["ru_idx"] = $("[name=ru_idx]").val();
+    paramsToday["rc_idx"] = rc_idx;
     comAjax("/resume_proc/todayapply", paramsToday, function(ret) {
 
       if (ret.code == "00") {
         //제안가능
-        var rc_idx = $("[name='chk_request[]']:checked").eq(0).val();
         var mq_idxs = new Array();
         mq_idxs.push($("[name='ru_idx']").val());
 
@@ -1361,6 +1368,10 @@ function getConvertResumePriceType($price_type)
 
       } else if (ret.code == "01") {
         commonAlert("<em>다음날</em> 다시 제안이 가능합니다.", function() {});
+        return;
+      } else if (ret.code == "90") {
+        // 지원이 이미 있는 경우
+        commonAlert(ret.msg, function() {});
         return;
       } else {
         commonAlert(ret.msg, function() {});

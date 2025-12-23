@@ -504,6 +504,7 @@ class Member extends CI_Controller
 	# 로그아웃
 	function logout()
 	{
+		
 		$this->common->removeSession("USER_INFO");
 		go_location("/member/login");
 	}
@@ -1414,3 +1415,4 @@ class Member extends CI_Controller
 		$this->layout->shop('/member/join_wcomp_step4', $data);
 	}
 }
+

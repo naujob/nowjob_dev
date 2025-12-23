@@ -256,8 +256,13 @@
       }
     }
   </script>
-  <script src="/chatting/js/common.js?v=10009"></script>
-  <script src="/chatting/js/chatting.js?v=10009"></script>
+  <!-- 기존 고정 버전 번호 방식 (파일 변경 시 캐시 문제 발생 가능) -->
+  <!-- <script src="/chatting/js/common.js?v=10009"></script> -->
+  <!-- <script src="/chatting/js/chatting.js?v=10009"></script> -->
+  
+  <!-- 파일 수정 시간 기반 버전 관리 (파일 변경 시 자동으로 새 버전 로드) -->
+  <script src="/chatting/js/common.js?vs=<?= getFileVersion('/chatting/js/common.js') ?>"></script>
+  <script src="/chatting/js/chatting.js?vs=<?= getFileVersion('/chatting/js/chatting.js') ?>"></script>
 
   <!-- Style -->
   <?= getCachCss(RES_PATH . "/css/keen-slider.min.css") ?>
@@ -401,8 +406,11 @@
   <!-- 푸시 알림 클릭 처리 전역 스크립트 -->
   <script>
     /**
-     * 푸시 알림 클릭 시 Android 앱에서 호출되는 함수
+     * 푸시 알림 클릭 시 Android/iOS 네이티브 앱에서 호출되는 함수
      * @param {string} url - 푸시 알림으로 전달받은 URL
+     * 
+     * Android: 네이티브 앱에서 직접 JavaScript 함수 호출
+     * iOS: 네이티브 앱에서 window.onPushOpen(url) 호출 필요
      */
     window.onPushOpen = function(url) {
       // URL이 유효한지 확인
@@ -417,13 +425,16 @@
           normalizedUrl = window.location.origin + url;
         }
 
+        // 페이지 이동
         window.location.href = normalizedUrl;
 
       } catch (error) {
         // 에러 발생 시 기본 동작으로 fallback
         try {
           window.location.href = url;
-        } catch (fallbackError) {}
+        } catch (fallbackError) {
+          // Fallback도 실패하면 무시
+        }
       }
     };
 
@@ -694,7 +705,9 @@
     // 스와이프 뒤로가기 비활성화 페이지 목록
     const disableSwipePages = [
       '/mypage/resume_list',
-      '/compage/recruit_list'
+      '/compage/recruit_list',
+      '/resume/hr_list',
+      '/recruit/job_list'
     ];
     const isDisableSwipePage = disableSwipePages.includes(currentPath);
 
