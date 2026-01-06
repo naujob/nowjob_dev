@@ -8,8 +8,8 @@
     <div class="tab-container">
       <ul class="tab-list">
         <?php if ($user_type == "MEM") : ?>
-          <li class="on"><a href="/chat/chat_list" class="tab">지원한공고</a></li>
-          <li><a href="/chat/chat_list2" class="tab">제안받은공고</a></li>
+          <li class="on"><a href="/chat/chat_list" class="tab">지원한공고<span class="tab-badge"></span></a></li>
+          <li><a href="/chat/chat_list2" class="tab">제안받은공고<span class="tab-badge"></span></a></li>
         <?php endif; ?>
       </ul>
     </div>
@@ -49,6 +49,48 @@
       /* content-wrap 클래스에 왼쪽 마진 추가 */
       .content-wrap {
         margin-left: 1rem;
+      }
+
+      /* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) */
+      .page-chat .tab-container .tab-list li {
+        position: relative;
+      }
+
+      .page-chat .tab-container .tab-list li .tab {
+        position: relative;
+      }
+
+      .page-chat .tab-container .tab-list li .tab-badge {
+        position: absolute;
+        top: 8px;
+        right: -12px;
+        width: 8px;
+        height: 8px;
+        min-width: 8px;
+        min-height: 8px;
+        max-width: 8px;
+        max-height: 8px;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        line-height: 1;
+        flex-shrink: 0;
+        flex-grow: 0;
+        align-self: flex-start;
+        background-color: rgb(248, 96, 72);
+        border-radius: 50%;
+        display: none;
+        z-index: 10;
+      }
+
+      .page-chat .tab-container .tab-list li .tab-badge::before,
+      .page-chat .tab-container .tab-list li .tab-badge::after {
+        content: none;
+        display: none;
+      }
+
+      .page-chat .tab-container .tab-list li.has-unread .tab-badge {
+        display: block;
       }
     </style>
     <div class="tab-panel">
@@ -127,6 +169,54 @@
 
       // 미확인 채팅건수 조회
       fSearchNoReadCount();
+      
+      // URL 파라미터에서 auto_open_rc_idx 확인하여 해당 채팅방 자동 진입
+      var urlParams = new URLSearchParams(window.location.search);
+      var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');
+      if (autoOpenRcIdx && ret.code == "00" && ret.data && ret.data.list) {
+        // URL에서 auto_open_rc_idx 파라미터 제거 (뒤로가기 시 재진입 방지)
+        urlParams.delete('auto_open_rc_idx');
+        var newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+        
+        // 목록 로드 완료 후 해당 rc_idx를 가진 채팅방 찾기
+        setTimeout(function() {
+          var targetRmIdx = null;
+          var chatList = ret.data.list;
+          
+          // DOM에서 해당 rc_idx를 가진 채팅방 찾기
+          $("#chat_list .room-item").each(function() {
+            var $item = $(this);
+            // data 속성이나 텍스트에서 rc_idx 확인
+            var itemRcIdx = $item.data('rc_idx') || $item.find('[data-rc_idx]').data('rc_idx');
+            if (itemRcIdx == autoOpenRcIdx) {
+              targetRmIdx = $item.data('target_id') || $item.attr('data-target_id');
+              return false; // break
+            }
+          });
+          
+          // DOM에서 찾지 못한 경우 API 응답 데이터에서 찾기
+          if (!targetRmIdx) {
+            for (var i = 0; i < chatList.length; i++) {
+              var item = chatList[i];
+              if (item.rc_idx == autoOpenRcIdx) {
+                if (item.rm_idx) {
+                  targetRmIdx = item.rm_idx;
+                  break;
+                } else if (item.target_id) {
+                  targetRmIdx = item.target_id;
+                  break;
+                }
+              }
+            }
+          }
+          
+          // 채팅방을 찾았으면 자동으로 진입 (메시지 자동 전송 플래그 포함)
+          if (targetRmIdx) {
+            location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=applied";
+          }
+        }, 500); // 목록 렌더링 대기
+      }
     });
   }
 
@@ -135,6 +225,10 @@
     comAjax("/chat_proc/fSearchNoReadCount", {}, function(ret) {
       var myId = $("#user_id").val();
       let result = ret.data.result;
+
+      // 탭별 읽지 않은 메시지 개수 계산
+      var tab1UnreadCount = 0; // 지원한공고 탭
+      var tab2UnreadCount = 0; // 제안받은공고 탭
 
       $.each(result, function(key, room) {
         let count = 0;
@@ -152,11 +246,30 @@
           $unreadElement.html(count);
           if (count > 0) {
             $unreadElement.show();
+            // 지원한공고 탭에 속한 채팅방
+            tab1UnreadCount += count;
           } else {
             $unreadElement.hide();
           }
         }
       });
+
+      // 탭1 (지원한공고) 확인
+      var hasUnreadTab1 = tab1UnreadCount > 0;
+      if (hasUnreadTab1) {
+        $('.page-chat .tab-list li:first-child').addClass('has-unread');
+      } else {
+        $('.page-chat .tab-list li:first-child').removeClass('has-unread');
+      }
+
+      // 탭2 (제안받은공고) 확인 - DOM 요소도 확인 (하위 호환성)
+      var hasUnreadTab2DOM = $('#chat_list .room_rec_unread_cnt:visible').length > 0;
+      var hasUnreadTab2 = tab2UnreadCount > 0 || hasUnreadTab2DOM;
+      if (hasUnreadTab2) {
+        $('.page-chat .tab-list li:last-child').addClass('has-unread');
+      } else {
+        $('.page-chat .tab-list li:last-child').removeClass('has-unread');
+      }
     });
   }
 
@@ -178,6 +291,19 @@
     // 지원한공고 탭에서 채팅방으로 이동 (from=applied 파라미터 사용)
     location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=applied";
   });
+
+  // 뒤로가기 막기 - 히스토리에 현재 페이지 추가
+  window.addEventListener('load', function() {
+    window.history.pushState(null, null, location.href);
+
+    // 뒤로가기 시 현재 페이지로 다시 이동
+    window.addEventListener('popstate', function() {
+      window.history.pushState(null, null, location.href);
+    });
+  });
+
+  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
+  window.DISABLE_SWIPE_BACK = true;
 </script>
 
 <!-- 지원한공고 탭 전용 템플릿 (개인회원용) -->

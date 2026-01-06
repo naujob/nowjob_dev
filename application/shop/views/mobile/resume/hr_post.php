@@ -71,6 +71,28 @@ function fRemoveBigAdr($arg)
         font-size: 1rem;
         line-height: 1.5rem;
     }
+
+    /* 개인회원이 자신의 이력서를 볼 때 view-footer 버튼 스타일 */
+    .view-footer {
+        display: flex;
+        gap: 0;
+    }
+
+    .view-footer .btn-edit {
+        flex: 1;
+        background-color: #57CCAF;
+        color: #fff;
+        border: 1px solid #57CCAF;
+        font-weight: 700;
+    }
+
+    .view-footer .btn-promotion {
+        flex: 1;
+        background-color: #1B9D7D;
+        color: #fff;
+        font-weight: 700;
+        
+    }
 </style>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <div class="page page-view">
@@ -403,8 +425,19 @@ function fRemoveBigAdr($arg)
             </div>
         </div -->
 
+        <?php 
+        // 개인회원이 자신의 이력서를 볼 경우를 판단
+        $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+        ?>
         <div class="view-footer">
-            <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn btn-primary">제안보내기</button>
+            <?php if ($isOwnResume) { ?>
+                <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 버튼 -->
+                <button type="button" id="btnEditResume" class="btn btn-edit">수정</button>
+                <button type="button" id="btnPromotionResume" class="btn btn-promotion">광고신청</button>
+            <?php } else { ?>
+                <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
+                <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn btn-primary">제안보내기</button>
+            <?php } ?>
         </div>
 
     </div><!-- //page-content -->
@@ -732,9 +765,16 @@ function fRemoveBigAdr($arg)
                         comAjax("/common_proc/member_request", params, function(ret) {
                             //console.log(ret);
                             if (ret.code == "00") {
-                                commonAlert("선택한 채용공고로 제안하였습니다.", function() {
+                                // 알림창 주석처리 - 바로 채팅방으로 이동
+                                // commonAlert("선택한 채용공고로 제안하였습니다.", function() {
+                                //     $("#selectPanel").removeClass("on");
+                                // });
+                                
                                     $("#selectPanel").removeClass("on");
-                                });
+                                
+                                // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
+                                // URL 파라미터로 rc_idx 전달하여 목록 페이지에서 자동으로 채팅방 찾아서 열기
+                                location.href = "/chat/chat_list3?auto_open_rc_idx=" + rc_idx;
                             } else {
                                 commonAlert(ret.msg, function() {
                                     $("#selectPanel").removeClass("on");
@@ -758,6 +798,19 @@ function fRemoveBigAdr($arg)
             }
         });
 
+    });
+
+    // 개인회원이 자신의 이력서를 볼 때: 수정 버튼 클릭 이벤트
+    $(document).on('click', '#btnEditResume', function() {
+        var ruIdx = $("[name=ru_idx]").val();
+        if (ruIdx) {
+            location.href = "/mypage/resume_view/" + ruIdx;
+        }
+    });
+
+    // 개인회원이 자신의 이력서를 볼 때: 광고신청 버튼 클릭 이벤트
+    $(document).on('click', '#btnPromotionResume', function() {
+        location.href = "/mypage/point_promotion_buy";
     });
 
     // 사업자 인증 버튼 클릭 이벤트 - 기업정보입력 팝업 기능 (사용 안 함 - 주석처리)

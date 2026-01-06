@@ -1091,6 +1091,87 @@ if (count($banner_list) > 0) {
   .person-card .tag:last-child {
     margin-right: 0;
   }
+
+  /* tpl_chat 템플릿용 스타일 추가 - chatting_cont.php의 제안받은 인재/제안보낸 인재 탭 */
+  /* job_list.php와 동일한 스타일 적용을 위해 main.css 기본값 사용 */
+  .item-info.person {
+    display: flex;
+    align-items: center;
+  }
+
+  .item-info.person .thumb-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .item-info.person .thumb {
+    position: relative;
+    width: 80px;
+    height: 0;
+    padding: 100% 0 0;
+    background: #F7F7F7;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  .item-info.person .thumb img {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    min-height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+  }
+
+  .item-info.person .content-wrap {
+    display: flex;
+    position: relative;
+    min-width: 0;
+    padding: 0 0 0 20px;
+    flex: 1;
+    flex-direction: column;
+    word-break: keep-all;
+  }
+
+  .item-info.person .content-wrap .timestamp {
+    font-size: 12px;
+    color: #777;
+    margin-bottom: 4px;
+  }
+
+  .item-info.person .content-wrap .title-wrap {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .item-info.person .content-wrap .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .item-info.person .content-wrap .meta {
+    display: flex;
+    min-width: 0;
+    margin: 6px -2px 0 0;
+    font-size: 12px;
+    color: #999;
+    flex-wrap: wrap;
+  }
+
+  .item-info.person .content-wrap .meta p {
+    min-width: 0;
+    max-width: 100%;
+    margin-right: 4px;
+    padding: 0;
+  }
 </style>
 <div id="content" class="page page-person">
   <main class="page-content">
@@ -1362,7 +1443,7 @@ if (count($banner_list) > 0) {
 
 <!-- 리스트 템플릿 -->
 <template id="tpl_list">
-  <li class="list-item item-hover" data-ru_idx="{{ru_idx}}">
+  <li class="list-item item-hover" data-ru_idx="{{ru_idx}}" data-mm_idx="{{mm_idx}}">
     <div class="item-info">
 
       <div class="img">
@@ -1403,7 +1484,7 @@ if (count($banner_list) > 0) {
 <!-- 추천 리스트 템플릿 -->
 <template id="tpl_reco_list">
   <div class="keen-slider__slide ">
-    <div class="person-card" data-ru_idx="{{ru_idx}}">
+    <div class="person-card" data-ru_idx="{{ru_idx}}" data-mm_idx="{{mm_idx}}">
       <div class="thumb-wrap">
         <div class="img">
           <img src="{{ru_resume_img}}">
@@ -1437,6 +1518,10 @@ if (count($banner_list) > 0) {
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <script>
+  // 현재 로그인한 사용자 정보
+  var currentUserMmIdx = <?php echo $this->user->isLogin() ? $this->user->getUserIdx() : 'null'; ?>;
+  var currentUserType = '<?php echo isset($mm_type) ? $mm_type : ""; ?>';
+
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
@@ -1597,6 +1682,7 @@ if (count($banner_list) > 0) {
         }
 
         $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
+        $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
         $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
         $content = $content.replaceAll("{{mm_name}}", row.ru_name || "");
         $content = $content.replaceAll("{{ru_week}}", row.ru_week || "");
@@ -1659,6 +1745,7 @@ if (count($banner_list) > 0) {
           var $content = $clone.html();
 
           $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
+          $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
           $content = $content.replaceAll("{{mm_name}}", row.mm_name);
           $content = $content.replaceAll("{{ru_week}}", row.ru_week);
@@ -1833,17 +1920,29 @@ if (count($banner_list) > 0) {
   });
 
   $(document).on('click', '.desc', function() {
-    <?php if ($mm_type !== "COMP") { ?>
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-      return;
-    <?php } else { ?>
-      var ruIdx = $(this).closest('.list-item,.person-card').data('ru_idx');
+    var $target = $(this).closest('.list-item,.person-card');
+    var ruIdx = $target.data('ru_idx');
+    var resumeMmIdx = $target.data('mm_idx'); // 이력서 소유자 인덱스
+    
+    // 개인회원이고 자신의 이력서인 경우 클릭 가능
+    if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
       if (ruIdx) {
         var url = '/resume/hr_post/' + ruIdx;
         window.open(url, '_blank');
       }
+      return;
+    }
+    
+    // 기업회원인 경우 클릭 가능
+    <?php if ($mm_type === "COMP") { ?>
+      if (ruIdx) {
+        var url = '/resume/hr_post/' + ruIdx;
+        window.open(url, '_blank');
+      }
+    <?php } else { ?>
+      // 개인회원이지만 자신의 이력서가 아닌 경우
+      commonAlert("기업회원 전용 서비스입니다.", function() {});
     <?php } ?>
-
   });
 </script>
 

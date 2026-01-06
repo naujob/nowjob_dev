@@ -254,15 +254,7 @@ function fEmailMasking($email)
                         </label>
                       </td>
                     </tr>
-                    <tr>
-                      <td style=" font-size: 18px; font-weight: 600; color: #777;">최근수정일</td>
-                      <td>
-                        <label class="col">
-                          <span class="sr-text">최근수정일</span>
-                          <input type="text" name="bizCode" placeholder="최근수정일" value="<?= (getData($info, "mem_info_up_dt") == '' ? getData($info, "up_dt") : getData($info, "mem_info_up_dt")) ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
-                        </label>
-                      </td>
-                    </tr>
+                    
                     <!-- <tr>
                       <td style=" font-size: 20px; font-weight: 700;"></td>
                       <td>

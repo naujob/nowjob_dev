@@ -162,6 +162,8 @@ class Member_proc extends CI_Controller
                         // SNS 정보 로그 저장
                         $this->site_model->setSiteLog(
                             [
+                                // 현재 사용자의 세션 ID를 저장 (소셜 로그 기록, 추후 회원가입시 정보 연동 목적)
+                                // session_id() 함수는 현재 세션의 고유 식별자인 세션 ID 문자열을 반환합니다. 이 값은 사용자의 세션을 구분하는 데 사용됩니다.
                                 "session_id" => session_id(),
                                 "sl_type" => "JOIN",
                                 "sl_step" => "SNS",
@@ -267,13 +269,18 @@ class Member_proc extends CI_Controller
         # 접속 처리
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mm_id]);
 
-        # 헤더 정보 업데이트 : 매칭안되어 있으면 업데이트 처리한다.
+        # 헤더 정보 업데이트 : UUID로 디바이스를 찾아 현재 로그인한 회원과 연결한다.
         $headers = apache_request_headers();
         if (isset($headers["uuid"])) {
-            $mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"], "mm_idx" => 0]);
+            // UUID로 디바이스 정보를 조회한다 (mm_idx 조건 없이)
+            $mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"]]);
             # 빈값이 아니라면
             if ($mem_device != null) {
-                $this->member_model->setMemberDevice(["mm_idx" => $mem_info["mm_idx"]], ["uuid" => $headers["uuid"]]);
+                // 해당 디바이스를 로그인한 회원(mm_idx)과 연결 (기존 연결 관계와 무관하게 재할당)
+                $this->member_model->setMemberDevice(
+                    ["mm_idx" => $mem_info["mm_idx"]],
+                    ["uuid" => $headers["uuid"]]
+                );
             }
         }
 
@@ -283,56 +290,52 @@ class Member_proc extends CI_Controller
 
         if ($is_ios && (!isset($headers["uuid"]) || empty($headers["uuid"]))) {
             $uuid_cookie = isset($_COOKIE['uuid']) ? $_COOKIE['uuid'] : '';
-            if ($uuid_cookie != "") {
-                // 쿠키의 UUID로 디바이스 찾기
-                $cookie_device = $this->member_model->getMemberDevice(["uuid" => $uuid_cookie, "mm_idx" => 0]);
+            
+            // 토큰이 있는 디바이스를 우선적으로 찾기 (푸시 알림을 위해 토큰이 있는 디바이스가 중요)
+            $sql = "SELECT * FROM st_member_device 
+                    WHERE token IS NOT NULL 
+                    AND token != '' 
+                    AND os_type = 'ios'
+                    ORDER BY reg_dt DESC 
+                    LIMIT 1";
+            $query = $this->db->query($sql);
+            $token_device = $query->row_array();
+            
+            $target_uuid = null;
+            
+            if ($token_device && !empty($token_device["token"])) {
+                // 토큰이 있는 디바이스가 있으면 이것을 우선적으로 연결
+                $target_uuid = $token_device["uuid"];
+            } else if ($uuid_cookie != "") {
+                // 토큰이 있는 디바이스가 없으면 쿠키의 UUID 사용 (mm_idx 조건 없이)
+                $cookie_device = $this->member_model->getMemberDevice(["uuid" => $uuid_cookie]);
                 if ($cookie_device != null) {
-                    // 쿠키의 UUID로 디바이스 연결
-                    $this->member_model->setMemberDevice(["mm_idx" => $mem_info["mm_idx"]], ["uuid" => $uuid_cookie]);
-
-                    // 토큰이 없으면, 최근에 생성된 mm_idx=0이고 토큰이 있는 디바이스 찾아서 연결
-                    if (empty($cookie_device["token"])) {
-                        // DB에서 mm_idx=0이고 토큰이 있는 최근 디바이스 찾기
-                        $sql = "SELECT * FROM st_member_device 
-                                WHERE mm_idx = 0 
-                                AND token IS NOT NULL 
-                                AND token != '' 
-                                AND os_type = 'ios'
-                                ORDER BY reg_dt DESC 
-                                LIMIT 1";
-                        $query = $this->db->query($sql);
-                        $token_device = $query->row_array();
-
-                        if ($token_device && !empty($token_device["token"])) {
-                            // 토큰이 있는 디바이스를 현재 사용자로 연결
-                            $this->member_model->setMemberDevice(
-                                ["mm_idx" => $mem_info["mm_idx"]],
-                                ["uuid" => $token_device["uuid"]]
-                            );
-                        }
-                    }
-                } else {
-                    // 쿠키의 UUID로 디바이스를 찾을 수 없으면, 토큰이 있는 디바이스 찾아서 연결
-                    $sql = "SELECT * FROM st_member_device 
-                            WHERE mm_idx = 0 
-                            AND token IS NOT NULL 
-                            AND token != '' 
-                            AND os_type = 'ios'
-                            ORDER BY reg_dt DESC 
-                            LIMIT 1";
-                    $query = $this->db->query($sql);
-                    $token_device = $query->row_array();
-
-                    if ($token_device && !empty($token_device["token"])) {
-                        // 토큰이 있는 디바이스를 현재 사용자로 연결
-                        $this->member_model->setMemberDevice(
-                            ["mm_idx" => $mem_info["mm_idx"]],
-                            ["uuid" => $token_device["uuid"]]
-                        );
-                    }
+                    $target_uuid = $uuid_cookie;
                 }
             }
+            
+            // 하나의 디바이스만 연결 (중복 방지)
+            if ($target_uuid != null) {
+                // 기존에 같은 mm_idx로 연결된 다른 디바이스가 있으면 mm_idx를 0으로 되돌림
+                $sql = "UPDATE st_member_device 
+                        SET mm_idx = 0, up_dt = NOW() 
+                        WHERE mm_idx = ? AND uuid != ?";
+                $this->db->query($sql, [$mem_info["mm_idx"], $target_uuid]);
+                
+                // 선택한 디바이스 연결
+                $this->member_model->setMemberDevice(
+                    ["mm_idx" => $mem_info["mm_idx"]],
+                    ["uuid" => $target_uuid]
+                );
+            }
         }
+
+        # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+        // 토큰이 있는 디바이스만 푸시 알림 활성화 (토큰이 없으면 활성화하지 않음)
+        $sql = "UPDATE st_member_device 
+                SET push_yn = 'Y', up_dt = NOW() 
+                WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+        $this->db->query($sql, [$mem_info["mm_idx"]]);
 
         # 몽고 회원정보 DB업데이트
         $mem_device = $this->member_model->getMemberDevice(["mm_idx" => $mem_info["mm_idx"]]);
@@ -393,6 +396,12 @@ class Member_proc extends CI_Controller
                 $this->member_model->setMemberDevice(["mm_idx" => $mem_info["mm_idx"]], ["uuid" => $headers["uuid"]]);
             }
         }
+
+        # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+        $sql = "UPDATE st_member_device 
+                SET push_yn = 'Y', up_dt = NOW() 
+                WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+        $this->db->query($sql, [$mem_info["mm_idx"]]);
 
         # 몽고 회원정보 DB업데이트
         $mem_device = $this->member_model->getMemberDevice(["mm_idx" => $mem_info["mm_idx"]]);
@@ -1375,6 +1384,12 @@ class Member_proc extends CI_Controller
 
         # 접속 처리
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mm_id]);
+
+        # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+        $sql = "UPDATE st_member_device 
+                SET push_yn = 'Y', up_dt = NOW() 
+                WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+        $this->db->query($sql, [$mem_info["mm_idx"]]);
 
         json_return("00", "로그인 완료");
     }
@@ -2514,6 +2529,12 @@ class Member_proc extends CI_Controller
                 # 접속 처리
                 $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $arr_mem["mm_id"]]);
 
+                # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+                $sql = "UPDATE st_member_device 
+                        SET push_yn = 'Y', up_dt = NOW() 
+                        WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+                $this->db->query($sql, [$mem_info["mm_idx"]]);
+
                 # 완료 로그
                 $this->site_model->setSiteLog(
                     [
@@ -2880,6 +2901,12 @@ class Member_proc extends CI_Controller
                 # 접속 처리
                 $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $arr_mem["mm_id"]]);
 
+                # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+                $sql = "UPDATE st_member_device 
+                        SET push_yn = 'Y', up_dt = NOW() 
+                        WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+                $this->db->query($sql, [$mem_info["mm_idx"]]);
+
                 # 완료 로그
                 $this->site_model->setSiteLog(
                     [
@@ -3160,6 +3187,12 @@ class Member_proc extends CI_Controller
 
                 # 접속 처리
                 $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $arr_mem["mm_id"]]);
+
+                # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+                $sql = "UPDATE st_member_device 
+                        SET push_yn = 'Y', up_dt = NOW() 
+                        WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+                $this->db->query($sql, [$mem_info["mm_idx"]]);
 
                 # 완료 로그
                 $this->site_model->setSiteLog(
@@ -3479,6 +3512,12 @@ class Member_proc extends CI_Controller
 
                 # 접속 처리
                 $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $arr_mem["mm_id"]]);
+
+                # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+                $sql = "UPDATE st_member_device 
+                        SET push_yn = 'Y', up_dt = NOW() 
+                        WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+                $this->db->query($sql, [$mem_info["mm_idx"]]);
 
                 # 완료 로그
                 $this->site_model->setSiteLog(

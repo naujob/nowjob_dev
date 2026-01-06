@@ -783,6 +783,8 @@ class recruitModel extends MY_Model
 
 		$where = [];
 		$where[] = 	" and dd.mm_status = 'Y' ";
+		// 지원취소된 항목 제외 (mq_status가 'cancel'이 아닌 것만)
+		$where[] = 	" and (bb.mq_status IS NULL OR bb.mq_status != 'cancel') ";
 
 		if (isset($params["mm_idx"]) && $params["mm_idx"] != "") {
 			$where[] = 	" and aa.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";

@@ -50,31 +50,55 @@ if (strpos($_SERVER['SERVER_NAME'], '19job') !== false) {
     exit;
 }
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) {
-    ini_set("session.cookie_samesite", "none");
-    ini_set("session.cookie_secure", 1);
-}
-
+// 도메인 설정 (session_start() 전에 필요)
 $domain_name = $_SERVER['SERVER_NAME'];
 $domain_name = str_replace("www.", "", $domain_name);
 $domain_name = str_replace("home.", "", $domain_name);
 $domain_name = str_replace("app.", "", $domain_name);
 $domain_name = str_replace("admin.", "", $domain_name);
 
-$lifetimecookie = 360 * 24 * 60 * 60; // A month
-session_cache_limiter("private");
+// session_start() 호출 전에 모든 세션 설정을 먼저 적용
+// session_cache_limiter("private") 제거 - iOS에서 앱 종료 시 쿠키가 삭제되는 문제 방지
+// private는 브라우저 종료 시 쿠키를 만료시키므로 영구 쿠키를 사용하려면 제거해야 함
 date_default_timezone_set('Asia/Seoul');
-ini_set('session.cookie_samesite', 'None');
-ini_set("session.cookie_lifetime", 3600 * 24 * 360);
+
+// HTTPS인 경우 쿠키 보안 설정
+if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) {
+    ini_set("session.cookie_samesite", "none");
+    ini_set("session.cookie_secure", 1);
+} else {
+    ini_set('session.cookie_samesite', 'Lax');
+    ini_set("session.cookie_secure", 0);
+}
+
+// 세션 쿠키 및 세션 파일 수명 설정 (session_start() 전에 설정해야 적용됨)
+ini_set("session.cookie_lifetime", 3600 * 24 * 360); // 1년
 ini_set("session.cache_expire", 3600 * 24 * 360);
-ini_set("session.gc_maxlifetime", 3600 * 24 * 360);
+ini_set("session.gc_maxlifetime", 3600 * 24 * 360); // 세션 파일 수명 1년
 ini_set("session.use_cookies", 1);
 ini_set("session.cookie_domain", "." . $domain_name);
 ini_set("session.cookie_path", "/");
-setcookie(session_name(), session_id(), time() + $lifetimecookie, "/;samesite=None ", "." . $domain_name, 1);
+
+// 그 다음에 session_start() 호출
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// 세션 쿠키 갱신 (세션 ID가 이미 생성된 후 쿠키 설정)
+// iOS에서 앱을 닫아도 로그인 상태 유지를 위해 영구 쿠키로 설정
+$lifetimecookie = 360 * 24 * 60 * 60; // 1년
+$is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+
+if ($is_https) {
+    // HTTPS: Secure, SameSite=None, HttpOnly
+    // setcookie 함수로는 SameSite=None을 정확히 설정하기 어려우므로 header 직접 사용
+    $cookie_value = session_id();
+    $expires = gmdate('D, d-M-Y H:i:s T', time() + $lifetimecookie);
+    header('Set-Cookie: ' . session_name() . '=' . $cookie_value . '; expires=' . $expires . '; path=/; domain=.' . $domain_name . '; Secure; HttpOnly; SameSite=None', false);
+} else {
+    // HTTP: HttpOnly만 설정
+    setcookie(session_name(), session_id(), time() + $lifetimecookie, "/", "." . $domain_name, false, true);
+}
 
 
 /**
@@ -399,4 +423,6 @@ require_once 'config/initialize.php';
  * And away we go...
  */
 require_once BASEPATH . 'core/CodeIgniter.php';
+
+
 

@@ -163,6 +163,7 @@ class Chat extends CI_Controller
   {
     $data = [];
     $rm_idx = input_get("rm_idx");
+    $rc_idx = input_get("rc_idx"); // URL 파라미터에서 rc_idx 가져오기 (자동 이동 시)
     $user_id = $this->user->getUserId();
 
     # 룸정보 가져오기
@@ -170,6 +171,9 @@ class Chat extends CI_Controller
 
     // 나간 채팅방인지 확인 (MongoDB에서 exit_yn 체크)
     $uri = "mongodb://localhost:27017";
+    $mongo_ru_idx = null;
+    $mongo_rc_idx = null;
+    
     try {
       @$mongo = new Mongo($uri);
       $database = $mongo->chat;
@@ -179,6 +183,14 @@ class Chat extends CI_Controller
       $mongo_room = $collection->findOne($query);
 
       if ($mongo_room) {
+        // MongoDB에서 ru_idx와 rc_idx 가져오기
+        if (isset($mongo_room["ru_idx"])) {
+          $mongo_ru_idx = $mongo_room["ru_idx"];
+        }
+        if (isset($mongo_room["rc_idx"])) {
+          $mongo_rc_idx = $mongo_room["rc_idx"];
+        }
+        
         $rm_users = isset($mongo_room["rm_users"]) ? $mongo_room["rm_users"] : [];
         $user_exited = false;
 
@@ -202,19 +214,132 @@ class Chat extends CI_Controller
       // MongoDB 오류 시 계속 진행 (기존 동작 유지)
     }
 
-    if ($room["rm_type"] == "recruit") {
-      $data["recruit"] = $this->member_model->getRecruitDetail($room["rc_idx"], $this->mm_idx);
-      $data["resume"] = $this->member_model->getResumeDetail($room["ru_idx"], $this->mm_idx);
-
-      $data["career_list"] = $this->member_model->getResumeCareerList(["ru_idx" => $room["ru_idx"]]);
-      $data["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx" => $room["ru_idx"]]);
+    // rc_idx와 ru_idx 결정 (우선순위: MySQL room > MongoDB > URL 파라미터)
+    $final_rc_idx = null;
+    $final_ru_idx = null;
+    
+    if ($room && isset($room["rm_type"]) && $room["rm_type"] == "recruit") {
+      // MySQL room에서 가져온 값 우선 사용
+      $final_rc_idx = isset($room["rc_idx"]) ? $room["rc_idx"] : null;
+      $final_ru_idx = isset($room["ru_idx"]) ? $room["ru_idx"] : null;
+    }
+    
+    // MySQL에 없으면 MongoDB에서 가져온 값 사용
+    if (!$final_rc_idx && $mongo_rc_idx) {
+      $final_rc_idx = $mongo_rc_idx;
+    }
+    if (!$final_ru_idx && $mongo_ru_idx) {
+      $final_ru_idx = $mongo_ru_idx;
+    }
+    
+    // MongoDB에도 없으면 URL 파라미터 사용 (자동 이동 시)
+    if (!$final_rc_idx && $rc_idx) {
+      $final_rc_idx = $rc_idx;
+    }
+    
+    // ru_idx가 없으면 member_request 테이블에서 조회 (제안하기 완료 후 자동 이동 시)
+    if (!$final_ru_idx && $final_rc_idx) {
+      // 제안하기 완료 후 자동 이동 시, 해당 rc_idx에 대한 ru_idx를 찾기 위해 member_request 테이블 조회
+      $member_request = $this->db->query("
+        SELECT ru_idx 
+        FROM st_member_request 
+        WHERE mm_idx = ? 
+        AND rc_idx = ? 
+        AND mq_type = 'RESUME' 
+        ORDER BY mq_idx DESC 
+        LIMIT 1
+      ", [$this->mm_idx, $final_rc_idx])->row_array();
+      
+      if ($member_request && isset($member_request["ru_idx"])) {
+        $final_ru_idx = $member_request["ru_idx"];
+      }
     }
 
-    $data["user_type"] = $this->user->getUserType();
+    // recruit 타입이고 rc_idx와 ru_idx가 있으면 데이터 로드
+    if (($room && isset($room["rm_type"]) && $room["rm_type"] == "recruit") || ($final_rc_idx && $final_ru_idx)) {
+      if ($final_rc_idx) {
+        $data["recruit"] = $this->member_model->getRecruitDetail($final_rc_idx, $this->mm_idx);
+      }
+      if ($final_ru_idx) {
+        $data["resume"] = $this->member_model->getResumeDetail($final_ru_idx, $this->mm_idx);
+        
+        if ($final_ru_idx) {
+          $data["career_list"] = $this->member_model->getResumeCareerList(["ru_idx" => $final_ru_idx]);
+          $data["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx" => $final_ru_idx]);
+        }
+      }
+    }
+
+    // 상대방 ID 찾기 (MongoDB에 상대방이 입장하기 전에는 정보가 없으므로 서버에서 찾기)
+    $opponent_user_id = null;
+    $user_type = $this->user->getUserType();
+    
+    if ($user_type == "COMP") {
+      // 기업회원이 제안한 경우: 이력서 소유자가 상대방
+      if (isset($data["resume"]) && isset($data["resume"]["mm_id"])) {
+        $opponent_user_id = $data["resume"]["mm_id"];
+      }
+    } else {
+      // 개인회원이 지원한 경우: 채용공고 소유자가 상대방
+      if (isset($data["recruit"]) && isset($data["recruit"]["mm_id"])) {
+        $opponent_user_id = $data["recruit"]["mm_id"];
+      }
+    }
+    
+    // 상대방 ID를 찾지 못한 경우 member_request 테이블에서 조회
+    if (!$opponent_user_id && $final_rc_idx && $final_ru_idx) {
+      if ($user_type == "COMP") {
+        // 제안하기의 경우: 이력서 소유자 찾기
+        $resume_owner = $this->db->query("
+          SELECT aa.mm_id 
+          FROM st_member aa
+          INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx
+          WHERE bb.ru_idx = ?
+          LIMIT 1
+        ", [$final_ru_idx])->row_array();
+        
+        if ($resume_owner && isset($resume_owner["mm_id"])) {
+          $opponent_user_id = $resume_owner["mm_id"];
+        }
+      } else {
+        // 지원하기의 경우: 채용공고 소유자 찾기
+        $recruit_owner = $this->db->query("
+          SELECT aa.mm_id 
+          FROM st_member aa
+          INNER JOIN st_recruit bb ON aa.mm_idx = bb.mm_idx
+          WHERE bb.rc_idx = ?
+          LIMIT 1
+        ", [$final_rc_idx])->row_array();
+        
+        if ($recruit_owner && isset($recruit_owner["mm_id"])) {
+          $opponent_user_id = $recruit_owner["mm_id"];
+        }
+      }
+    }
+
+    $data["user_type"] = $user_type;
     $data["rm_idx"] = $rm_idx;
-    $data["room"] = $room;
-    //print_r($data);
-    //exit;
+    $data["opponent_user_id"] = $opponent_user_id; // 상대방 ID 전달
+    
+    // room이 없거나 rc_idx/ru_idx가 없을 때를 대비해 기본값 설정
+    if (!$room) {
+      $data["room"] = [
+        "rm_idx" => $rm_idx,
+        "rm_type" => "recruit",
+        "rc_idx" => $final_rc_idx,
+        "ru_idx" => $final_ru_idx
+      ];
+    } else {
+      $data["room"] = $room;
+      // room에 rc_idx와 ru_idx가 없으면 추가
+      if (!isset($data["room"]["rc_idx"]) && $final_rc_idx) {
+        $data["room"]["rc_idx"] = $final_rc_idx;
+      }
+      if (!isset($data["room"]["ru_idx"]) && $final_ru_idx) {
+        $data["room"]["ru_idx"] = $final_ru_idx;
+      }
+    }
+    
     $this->layout->shop('/chat/chat_view', $data);
   }
 

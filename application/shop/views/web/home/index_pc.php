@@ -160,7 +160,7 @@ $banner_list = getBannerList("BN00010005");
     overflow: hidden;
     top: 0;
     background-color: #fff;
-    border: 1px solid #E9EAF4;
+    border: 1px solid #EB5349;
     border-radius: 8px;
   }
 
@@ -476,7 +476,7 @@ $banner_list = getBannerList("BN00010005");
 <!-- 인재 리스트 템플릿 -->
 <template id="tpl_person_list">
   <div class="keen-slider__slide ">
-    <div class="person-card" data-ru_idx="{{ru_idx}}">
+    <div class="person-card" data-ru_idx="{{ru_idx}}" data-mm_idx="{{mm_idx}}">
       <div class="thumb-wrap">
         <div class="img">
           <img src="{{ru_resume_img}}">
@@ -663,6 +663,7 @@ $banner_list = getBannerList("BN00010005");
           var $content = $clone.html();
 
           $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
+          $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
           $content = $content.replaceAll("{{mm_name}}", row.mm_name);
           $content = $content.replaceAll("{{ru_week}}", row.ru_week);
@@ -789,21 +790,38 @@ $banner_list = getBannerList("BN00010005");
     return result;
   }
 
+  // 현재 로그인한 사용자 정보
+  var currentUserMmIdx = <?php echo $this->user->isLogin() ? $this->user->getUserIdx() : 'null'; ?>;
+  var currentUserType = '<?php echo isset($mm_type) ? $mm_type : ""; ?>';
+
   window.addEventListener('DOMContentLoaded', function() {
     getRecoList();
     getRecoPersonList();
   });
 
   $(document).on('click', '#my-keen-slider2 .desc', function() {
-    <?php if ($mm_type !== "COMP") { ?>
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-      return;
-    <?php } else { ?>
-      var ruIdx = $(this).closest('.person-card').data('ru_idx');
+    var $personCard = $(this).closest('.person-card');
+    var ruIdx = $personCard.data('ru_idx');
+    var resumeMmIdx = $personCard.data('mm_idx'); // 이력서 소유자 인덱스
+    
+    // 개인회원이고 자신의 이력서인 경우 클릭 가능
+    if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
       if (ruIdx) {
         var url = '/resume/hr_post/' + ruIdx;
         window.open(url, '_blank');
       }
+      return;
+    }
+    
+    // 기업회원인 경우 클릭 가능
+    <?php if ($mm_type === "COMP") { ?>
+      if (ruIdx) {
+        var url = '/resume/hr_post/' + ruIdx;
+        window.open(url, '_blank');
+      }
+    <?php } else { ?>
+      // 개인회원이지만 자신의 이력서가 아닌 경우
+      commonAlert("기업회원 전용 서비스입니다.", function() {});
     <?php } ?>
   });
 

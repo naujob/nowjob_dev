@@ -78,52 +78,53 @@ function getConvertPrice($rc_price_pay)
   return number_format($rc_price_pay) . "원";
 }
 
-function fRemoveBigAdr($arg)
-{
-
-  $parts1 = explode(",", $arg);
-  $arg = $parts1[0];
-
-  $replacements = [
-    "서울특별시 " => "서울시 ",
-    "경기도 " => "",
-    "강원특별자치도 " => "",
-    "충청남도 " => "",
-    "충청북도 " => "",
-    "경상남도 " => "",
-    "경상북도 " => "",
-    "전라남도 " => "",
-    "전북특별자치도 " => "",
-    "제주특별자치도 " => "",
-    "세종특별자치시 " => "세종시 ",
-    "광주광역시 " => "광주시 ",
-    "인천광역시 " => "인천시 ",
-    "울산광역시 " => "울산시 ",
-    "부산광역시 " => "부산시 ",
-    "대구광역시 " => "대구시 ",
-    "대전광역시 " => "대전시 ",
-    "경기 " => "",
-    "강원 " => "",
-    "충남 " => "",
-    "충북 " => "",
-    "경남 " => "",
-    "경북 " => "",
-    "전남 " => "",
-    "전북 " => "",
-    "제주 " => ""
-  ];
-
-  foreach ($replacements as $search => $replace) {
-    $arg = str_replace($search, $replace, $arg);
-  }
-
-  $parts = explode(" ", $arg);
-  if (count($parts) >= 3) {
-    return $parts[0] . " " . $parts[2];
-  } else {
-    return $arg;
-  }
-}
+// 기존 PHP 함수 주석 처리 - JavaScript 함수 fRemoveBigAdrJS 사용
+// function fRemoveBigAdr($arg)
+// {
+// 
+//   $parts1 = explode(",", $arg);
+//   $arg = $parts1[0];
+// 
+//   $replacements = [
+//     "서울특별시 " => "서울시 ",
+//     "경기도 " => "",
+//     "강원특별자치도 " => "",
+//     "충청남도 " => "",
+//     "충청북도 " => "",
+//     "경상남도 " => "",
+//     "경상북도 " => "",
+//     "전라남도 " => "",
+//     "전북특별자치도 " => "",
+//     "제주특별자치도 " => "",
+//     "세종특별자치시 " => "세종시 ",
+//     "광주광역시 " => "광주시 ",
+//     "인천광역시 " => "인천시 ",
+//     "울산광역시 " => "울산시 ",
+//     "부산광역시 " => "부산시 ",
+//     "대구광역시 " => "대구시 ",
+//     "대전광역시 " => "대전시 ",
+//     "경기 " => "",
+//     "강원 " => "",
+//     "충남 " => "",
+//     "충북 " => "",
+//     "경남 " => "",
+//     "경북 " => "",
+//     "전남 " => "",
+//     "전북 " => "",
+//     "제주 " => ""
+//   ];
+// 
+//   foreach ($replacements as $search => $replace) {
+//     $arg = str_replace($search, $replace, $arg);
+//   }
+// 
+//   $parts = explode(" ", $arg);
+//   if (count($parts) >= 3) {
+//     return $parts[0] . " " . $parts[2];
+//   } else {
+//     return $arg;
+//   }
+// }
 ?>
 
 <style>
@@ -139,7 +140,7 @@ function fRemoveBigAdr($arg)
     font-size: 12px;
     line-height: 1.5;
     border-radius: 10px;
-    border: 1px solid #57CCAF;
+    border: 1px solid #b0b0b0;
     overflow: hidden;
     background: #fff;
     margin-bottom: 10px;
@@ -375,6 +376,13 @@ function fRemoveBigAdr($arg)
   .page-recruit .top-bar .btn-replace {
     left: -10px;
   }
+
+  /* iOS 스크롤 활성화 */
+  .page-recruit,
+  .page-content {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
 </style>
 <div class="page-recruit">
 
@@ -409,7 +417,7 @@ function fRemoveBigAdr($arg)
                           <p><?= $row["rc_age_nm"] ?></p>
                         </div>
                         <div class="summary area">
-                          <p><?= fRemoveBigAdr($row["ad_addr"]) ?></p>
+                          <p data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
                         </div>
                         <div class="summary2">
                           <p class="period"><?= getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]) ?></p>
@@ -447,7 +455,38 @@ function fRemoveBigAdr($arg)
 </div>
 <script>
   $(document).ready(function() {
-    $('body').css('overflow', 'auto'); //24.11.25 임시처리
+    // iOS 스크롤 활성화
+    $('body').css({
+      'overflow': 'auto',
+      'overflow-y': 'auto',
+      '-webkit-overflow-scrolling': 'touch'
+    });
+    
+    $('html').css({
+      'overflow': 'auto',
+      'overflow-y': 'auto'
+    });
+    
+    // 스크롤 컨테이너에도 iOS 스크롤 적용
+    ['.page-recruit', '.page-content'].forEach(function(selector) {
+      var $container = $(selector);
+      if ($container.length && $container.css('overflow') !== 'hidden') {
+        $container.css({
+          'overflow-y': 'auto',
+          '-webkit-overflow-scrolling': 'touch',
+          'touch-action': 'pan-y'
+        });
+      }
+    });
+    
+    // 주소 변환 처리 - fRemoveBigAdrJS 함수 사용
+    $('.summary.area p[data-addr]').each(function() {
+      var originalAddr = $(this).attr('data-addr');
+      if (originalAddr && typeof fRemoveBigAdrJS === 'function') {
+        var convertedAddr = fRemoveBigAdrJS(originalAddr);
+        $(this).text(convertedAddr);
+      }
+    });
   });
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.content-li').data('rc_idx');

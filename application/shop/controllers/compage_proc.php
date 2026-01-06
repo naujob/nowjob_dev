@@ -1230,7 +1230,7 @@ class Compage_proc extends CI_Controller
         // "rc_price_type_main" => isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "", // DB 컬럼 없음 (rc_price_type에 저장됨)
         "rc_price_type" => $rc_price_type_value,
         // "rc_price_amount" => isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0, // DB 컬럼 없음 (rc_price_rep, rc_price_pay에 저장됨)
-        "rc_price_rep" => isset($step1["rc_price_amount"]) ? $step1["rc_price_amount"] : "",
+        "rc_price_rep" => isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "",
         "rc_price_pay" => isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0,
         // "rc_price_daily" => isset($step1["rc_price_daily"]) ? $step1["rc_price_daily"] : "N", // DB 컬럼 없음 (rc_day_price에 저장됨)
         // "rc_price_weekly" => isset($step1["rc_price_weekly"]) ? $step1["rc_price_weekly"] : "N", // DB 컬럼 없음 (rc_week_price에 저장됨)
@@ -1351,7 +1351,7 @@ class Compage_proc extends CI_Controller
         // "rc_price_type_main" => isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "", // DB 컬럼 없음 (rc_price_type에 저장됨)
         "rc_price_type" => $rc_price_type_value,
         // "rc_price_amount" => isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0, // DB 컬럼 없음 (rc_price_rep, rc_price_pay에 저장됨)
-        "rc_price_rep" => isset($step1["rc_price_amount"]) ? $step1["rc_price_amount"] : "",
+        "rc_price_rep" => isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "",
         "rc_price_pay" => isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0,
         // "rc_price_daily" => isset($step1["rc_price_daily"]) ? $step1["rc_price_daily"] : "N", // DB 컬럼 없음 (rc_day_price에 저장됨)
         // "rc_price_weekly" => isset($step1["rc_price_weekly"]) ? $step1["rc_price_weekly"] : "N", // DB 컬럼 없음 (rc_week_price에 저장됨)
@@ -2676,7 +2676,7 @@ class Compage_proc extends CI_Controller
           $rc_price_type_value = $rc_price_type_main;
         }
 
-        $rc_price_rep_value = isset($step1["rc_price_amount"]) ? $step1["rc_price_amount"] : "";
+        $rc_price_rep_value = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
         $rc_price_pay_value = isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;
         $rc_day_price_value = isset($step1["rc_price_daily"]) && $step1["rc_price_daily"] == "Y" && isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;
         $rc_week_price_value = isset($step1["rc_price_weekly"]) && $step1["rc_price_weekly"] == "Y" && isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;
@@ -2881,7 +2881,7 @@ class Compage_proc extends CI_Controller
           $rc_price_type_value_new = $rc_price_type_main;
         }
 
-        $rc_price_rep_value_new = isset($step1["rc_price_amount"]) ? $step1["rc_price_amount"] : "";
+        $rc_price_rep_value_new = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
         $rc_price_pay_value_new = isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;
         $rc_day_price_value_new = isset($step1["rc_price_daily"]) && $step1["rc_price_daily"] == "Y" && isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;
         $rc_week_price_value_new = isset($step1["rc_price_weekly"]) && $step1["rc_price_weekly"] == "Y" && isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;

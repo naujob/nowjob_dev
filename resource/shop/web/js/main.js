@@ -998,10 +998,15 @@
 
         openBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            body.classList.add('has-popup');
+            // 배경 dim 및 스크롤 잠금 제거: body.classList.add('has-popup');
             openBtn.classList.add('is-trigger');
             popup.classList.add('in');
             closeBtn.classList.add('show');
+            // 채팅 팝업이 열릴 때 하단 채팅 버튼 숨기기
+            var bottomChatBtn = document.getElementById('bottomchatbtn');
+            if (bottomChatBtn) {
+                bottomChatBtn.style.display = 'none';
+            }
             setFocus(popup);
         });
 
@@ -1013,6 +1018,11 @@
                 closeBtn.classList.remove('show');
                 openBtn.classList.remove('is-trigger');
                 body.classList.remove('has-popup');
+                // 채팅 팝업이 닫힐 때 하단 채팅 버튼 다시 보이기
+                var bottomChatBtn = document.getElementById('bottomchatbtn');
+                if (bottomChatBtn) {
+                    bottomChatBtn.style.display = '';
+                }
                 setTimeout(function () {
                     openBtn.focus();
                 }, 100);
@@ -1085,6 +1095,95 @@
             });
         });
 
+    }());
+
+    /* 레이어 패널 열기/닫기 */
+    (function setTogglePanel() {
+        // openPanel 함수 정의
+        window.openPanel = function (el) {
+            if (!el) return;
+            el.classList.add('on');
+            el.hidden = false;
+            document.body.style.overflow = 'hidden';
+            // 포커스 설정
+            setTimeout(function () {
+                el.focus();
+            }, 100);
+        };
+
+        // closePanel 함수 정의
+        window.closePanel = function (el) {
+            if (!el) return;
+            el.classList.remove('on');
+            el.hidden = true;
+            document.body.style.overflow = '';
+        };
+
+        // js-toggle-panel 클릭 이벤트 처리
+        document.addEventListener('click', function (e) {
+            var target = e.target;
+            var toggleBtn = target.closest('.js-toggle-panel');
+
+            if (!toggleBtn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            // aria-controls 속성 또는 href 속성으로 패널 ID 가져오기
+            var panelId = toggleBtn.getAttribute('aria-controls');
+            if (!panelId) {
+                var href = toggleBtn.getAttribute('href');
+                if (href && href.indexOf('#') === 0) {
+                    panelId = href.replace('#', '');
+                }
+            }
+
+            if (!panelId) return;
+
+            var panel = document.getElementById(panelId);
+            if (!panel) return;
+
+            // 패널 열기/닫기 토글
+            if (panel.classList.contains('on')) {
+                closePanel(panel);
+            } else {
+                // 다른 열려있는 패널 닫기
+                document.querySelectorAll('.layer-panel.on').forEach(function (openPanel) {
+                    if (openPanel !== panel) {
+                        closePanel(openPanel);
+                    }
+                });
+                openPanel(panel);
+            }
+        });
+
+        // 배경 클릭 시 패널 닫기
+        document.addEventListener('click', function (e) {
+            var openPanel = document.querySelector('.layer-panel.on');
+            if (!openPanel) return;
+
+            var panelContainer = openPanel.querySelector('.panel-container');
+
+            // 패널 컨테이너 내부를 클릭한 경우 닫지 않음
+            if (panelContainer && panelContainer.contains(e.target)) {
+                return;
+            }
+
+            // 배경을 클릭한 경우 패널 닫기
+            if (openPanel === e.target || (openPanel.contains(e.target) && !panelContainer.contains(e.target))) {
+                closePanel(openPanel);
+            }
+        });
+
+        // ESC 키로 패널 닫기
+        document.addEventListener('keydown', function (e) {
+            if (e.keyCode === 27) { // ESC 키
+                var openPanel = document.querySelector('.layer-panel.on');
+                if (openPanel) {
+                    closePanel(openPanel);
+                }
+            }
+        });
     }());
 
 }());

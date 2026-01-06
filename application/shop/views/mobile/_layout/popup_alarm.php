@@ -66,9 +66,36 @@ if ($user_id != "") {
                                     }
                                 }
                                 ?>
+                                <?php
+                                // 날짜 포맷팅 (시간을 두 자리로 표시)
+                                $reg_dt = $alarm["reg_dt"];
+                                $formatted_date = "";
+                                
+                                // MongoDB UTCDateTime 객체인 경우
+                                if ($reg_dt instanceof MongoDB\BSON\UTCDateTime) {
+                                    $formatted_date = $reg_dt->toDateTime()->format('Y-m-d H:i:s');
+                                }
+                                // DateTime 객체인 경우
+                                else if ($reg_dt instanceof DateTime) {
+                                    $formatted_date = $reg_dt->format('Y-m-d H:i:s');
+                                }
+                                // 문자열인 경우
+                                else if (is_string($reg_dt)) {
+                                    $timestamp = strtotime($reg_dt);
+                                    if ($timestamp !== false) {
+                                        $formatted_date = date('Y-m-d H:i:s', $timestamp);
+                                    } else {
+                                        $formatted_date = $reg_dt;
+                                    }
+                                }
+                                // 기타 경우
+                                else {
+                                    $formatted_date = $reg_dt;
+                                }
+                                ?>
                                 <li data-type="<?= $al_type ?>" data-rm-idx="<?= $al_key ?>" <?= !empty($chat_url) ? 'class="alarm-clickable"' : '' ?>>
                                     <p class="title"><?= str_replace("[undefined]님의 ", "", $alarm["al_text"]) ?></p>
-                                    <p class="date"><?= $alarm["reg_dt"] ?></p>
+                                    <p class="date"><?= $formatted_date ?></p>
                                 </li>
                             <?php endforeach; ?>
                         </ol>

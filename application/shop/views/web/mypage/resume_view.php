@@ -214,9 +214,26 @@ function fRemoveBigAdrPHP($arg)
             <div class="introduce-wrap">
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
             </div>
+            <?php if (!empty($info["ru_my_type"])) : ?>
+              <h3 class="secondary-title" style="margin-top: 30px;">나의강점</h3>
             <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
+                <?php
+                // 나의강점 데이터 처리 (resume_write.php 팝업 표시 방식 참고)
+                // 쉼표로 구분된 문자열을 배열로 변환
+                $my_type_array = explode(",", $info["ru_my_type"]);
+                foreach ($my_type_array as $type) {
+                  $type = trim($type);
+                  if (!empty($type)) {
+                    // 해시태그가 없으면 추가
+                    if (strpos($type, "#") === false) {
+                      $type = "#" . $type;
+                    }
+                    echo "<p class='tag'>" . htmlspecialchars($type, ENT_QUOTES, 'UTF-8') . "</p>";
+                  }
+                }
+                ?>
             </div>
+            <?php endif; ?>
           </div>
           <div class="section view-profile">
             <div class="summary">

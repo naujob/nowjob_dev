@@ -472,6 +472,14 @@ function getConvertResumePriceType($price_type)
         padding: 2px 6px;
         border-radius: 3px;
     }
+
+    /* 탭 컨테이너 스크롤 시 상단 고정 */
+    .page.page-mypage-view .top-bar~.page-content .tab-container {
+        position: sticky;
+        top: 0 !important;
+        z-index: 10;
+        background: #fff;
+    }
 </style>
 <div class="page page-mypage-view">
     <div class="top-bar">
@@ -533,10 +541,10 @@ function getConvertResumePriceType($price_type)
                         </ol>
                         <!-- //목록 -->
                     </div>
-                    <div class="sticky-bottom">
+                    <!-- <div class="sticky-bottom">
                         <button type="button" aria-haspopup="dialog" id="btnReqeust" class="btn btn-primary">제안보내기</button>
                         <button id="btnCancel" type="button" class="btn btn-secondary js-remove">취소하기</button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -545,91 +553,96 @@ function getConvertResumePriceType($price_type)
 
 <script>
     window.addEventListener('DOMContentLoaded', function() {
-        $("#btnReqeust").click(function() {
-            //로그인 여부 확인
-            if ($("#is_login").val() != "Y") {
-                commonLogin();
+        // $("#btnReqeust").click(function() {
+        //     //로그인 여부 확인
+        //     if ($("#is_login").val() != "Y") {
+        //         commonLogin();
+        //         return;
+        //     }
+
+        //     var mq_idxs = [];
+
+        //     // bookmark_person1.php와 동일한 방식으로 선택된 항목 수집
+        //     $(".content-li.on").each(function() {
+        //         var mq_idx = $(this).data("mq_idx");
+        //         if (mq_idx) {
+        //             mq_idxs.push(mq_idx);
+        //         }
+        //     });
+
+        //     if (mq_idxs.length == 0) {
+        //         commonAlert("제안하실 공고를 선택해주세요.", function() {});
+        //         return;
+        //     }
+
+        //     openPopup('confirm', {
+        //         content: '<em>선택한 </em>이력서에<br> 제안하시겠습니까?',
+        //         secondCallback: function() {
+        //             var params = {};
+        //             params["mq_idxs"] = mq_idxs;
+        //             params["mq_type"] = "RESUME";
+        //             comAjax("/common_proc/member_request", params, function(ret) {
+        //                 if (ret.code == "00") {
+        //                     commonAlert("제안 신청 되었습니다.", function() {
+        //                         $(".content-li").removeClass("on");
+        //                     });
+        //                 } else {
+        //                     commonAlert(ret.msg, function() {});
+        //                     return;
+        //                 }
+        //             });
+        //         }
+        //     });
+        // });
+
+        // $("#btnCancel").click(function() {
+        //     var mq_idxs = [];
+
+        //     // bookmark_person1.php와 동일한 방식으로 선택된 항목 수집
+        //     $(".content-li.on").each(function() {
+        //         var mq_idx = $(this).data("mq_idx");
+        //         if (mq_idx) {
+        //             mq_idxs.push(mq_idx);
+        //         }
+        //     });
+
+        //     if (mq_idxs.length == 0) {
+        //         commonAlert("취소하실 제안받은 인재를 선택해주세요.", function() {});
+        //         return;
+        //     }
+
+        //     openPopup('confirm', {
+        //         content: '<em>선택한</em> 지원받은 인재를<br> 취소하시겠습니까?',
+        //         secondCallback: function() {
+        //             var params = {};
+        //             params["proc_type"] = "member_request";
+        //             params["mq_idxs"] = mq_idxs;
+        //             comAjax("/common_proc/request_cancel", params, function(ret) {
+        //                 if (ret.code == "00") {
+        //                     commonAlert("취소 되었습니다.", function() {
+        //                         location.reload();
+        //                     });
+        //                 } else {
+        //                     commonAlert(ret.msg, function() {});
+        //                     return;
+        //                 }
+        //             });
+        //         }
+        //     });
+        // });
+
+        // content-li 영역 클릭 시 인재 상세정보로 이동
+        $(document).on('click', '.content-li', function(e) {
+            // 즐겨찾기 버튼 클릭은 제외
+            if ($(e.target).closest('.btnBookMark').length > 0) {
                 return;
             }
-
-            var mq_idxs = [];
-
-            // bookmark_person1.php와 동일한 방식으로 선택된 항목 수집
-            $(".content-li.on").each(function() {
-                var mq_idx = $(this).data("mq_idx");
-                if (mq_idx) {
-                    mq_idxs.push(mq_idx);
-                }
-            });
-
-            if (mq_idxs.length == 0) {
-                commonAlert("제안하실 공고를 선택해주세요.", function() {});
+            // 지원한 공고 링크 클릭은 제외
+            if ($(e.target).closest('.job-link').length > 0) {
                 return;
             }
-
-            openPopup('confirm', {
-                content: '<em>선택한 </em>이력서에<br> 제안하시겠습니까?',
-                secondCallback: function() {
-                    var params = {};
-                    params["mq_idxs"] = mq_idxs;
-                    params["mq_type"] = "RESUME";
-                    comAjax("/common_proc/member_request", params, function(ret) {
-                        if (ret.code == "00") {
-                            commonAlert("제안 신청 되었습니다.", function() {
-                                $(".content-li").removeClass("on");
-                            });
-                        } else {
-                            commonAlert(ret.msg, function() {});
-                            return;
-                        }
-                    });
-                }
-            });
-        });
-
-        $("#btnCancel").click(function() {
-            var mq_idxs = [];
-
-            // bookmark_person1.php와 동일한 방식으로 선택된 항목 수집
-            $(".content-li.on").each(function() {
-                var mq_idx = $(this).data("mq_idx");
-                if (mq_idx) {
-                    mq_idxs.push(mq_idx);
-                }
-            });
-
-            if (mq_idxs.length == 0) {
-                commonAlert("취소하실 제안받은 인재를 선택해주세요.", function() {});
-                return;
-            }
-
-            openPopup('confirm', {
-                content: '<em>선택한</em> 지원받은 인재를<br> 취소하시겠습니까?',
-                secondCallback: function() {
-                    var params = {};
-                    params["proc_type"] = "member_request";
-                    params["mq_idxs"] = mq_idxs;
-                    comAjax("/common_proc/request_cancel", params, function(ret) {
-                        if (ret.code == "00") {
-                            commonAlert("취소 되었습니다.", function() {
-                                location.reload();
-                            });
-                        } else {
-                            commonAlert(ret.msg, function() {});
-                            return;
-                        }
-                    });
-                }
-            });
-        });
-
-        // bookmark_person1.php와 동일한 클릭 이벤트
-        $(document).on('click', '.desc', function() {
-            $(this).closest('.content-li').toggleClass('on');
-        });
-
-        $(document).on('click', '.img', function() {
-            var ruIdx = $(this).closest('.content-li').data('ru_idx');
+            
+            var ruIdx = $(this).data('ru_idx');
             if (ruIdx) {
                 var url = '/resume/hr_post/' + ruIdx;
                 location.href = url;

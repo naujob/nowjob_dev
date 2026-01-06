@@ -73,57 +73,117 @@ function send_fcm(idx, data) {
 	// 채팅방 URL 추출 (푸시 알림 클릭 시 이동할 URL)
 	const chat_url = data["no_url"] || "";
 
-	// FCM 메시지 구성 (Firebase Admin SDK는 data 필드의 모든 값이 문자열이어야 함)
-	const message = {
-		notification: {
-			title: data["no_subject"],
-			body: message_text,
-		},
-		data: {
-			title: String(data["no_subject"] || ""),
-			body: String(message_text || ""),
-			url: String(chat_url || ""),  // URL을 문자열로 명시적 변환
-			type: "chat_message",
-			timestamp: String(Date.now()),
-			click_action: String(chat_url || "")  // Android용 click_action 추가
-		},
-		// Android용 추가 설정
-		android: {
-			priority: "high",  // 메시지 우선순위 (high로 설정 시 즉시 전달)
-			notification: {
-				clickAction: chat_url || "",  // Android에서 알림 클릭 시 실행할 액션
-				channelId: "nowapk_default",  // 알림 채널 ID (앱의 CH_ID와 일치해야 함)
-				sound: "default",  // 알림 소리
-				defaultSound: true,  // 기본 소리 사용
-				defaultVibrateTimings: true,  // 기본 진동 패턴 사용
-				visibility: "public"  // 잠금 화면에도 알림 표시 (public: 완전 표시, private: 일부만, secret: 표시 안함)
+	// iOS 배지 숫자: 실제 미확인 알림 개수 조회
+	let badge_count = 0; // 기본값: 조회 실패 시 배지 숨김
+	if (data["user_id"]) {
+		// 미확인 알림 개수 조회
+		$exe.alarm.getAlarmCount({ user_id: data["user_id"], show_yn: "N" }, function (ret) {
+			if (ret && ret.data !== undefined) {
+				badge_count = ret.data || 0; // 실제 알림 개수 (0이면 배지 숨김)
+			} else {
+				badge_count = 0; // 조회 실패 시 배지 숨김
 			}
-		},
-		// iOS용 추가 설정
-		apns: {
-			payload: {
-				aps: {
-					sound: "default",
-					badge: 1
+
+			// 각 알림마다 고유한 notificationId 생성 (네이티브 앱의 PendingIntent 고유성 보장을 위해)
+			// 타임스탬프 + 랜덤 값 조합으로 고유성 보장
+			const notificationId = (Date.now() % 2147483647) + Math.floor(Math.random() * 1000);
+
+			// FCM 메시지 구성 (Firebase Admin SDK는 data 필드의 모든 값이 문자열이어야 함)
+			// notification 페이로드 제거: 안드로이드 13+에서 OS가 알림을 자동 생성하여 onMessageReceived()가 호출되지 않음
+			// data 페이로드만 사용하여 onMessageReceived()가 항상 호출되도록 보장
+			const message = {
+				data: {
+					title: String(data["no_subject"] || ""),
+					body: String(message_text || ""),
+					url: String(chat_url || ""),  // URL을 문자열로 명시적 변환
+					type: "chat_message",
+					timestamp: String(Date.now()),
+					notificationId: String(notificationId),  // 네이티브 앱에서 PendingIntent의 requestCode로 사용
+					click_action: String(chat_url || "")  // Android용 click_action 추가
 				},
-				url: chat_url || ""  // iOS용 커스텀 데이터
-			}
-		},
-		token: registrationToken
-	};
+				// Android용 추가 설정
+				android: {
+					priority: "high"  // 메시지 우선순위 (high로 설정 시 즉시 전달)
+					// android.notification 제거: data 페이로드만 사용하여 클라이언트에서 커스텀 알림 생성
+				},
+				// iOS용 추가 설정
+				apns: {
+					payload: {
+						aps: {
+							sound: "default",
+							badge: badge_count  // 실제 미확인 알림 개수로 설정
+						},
+						url: chat_url || ""  // iOS용 커스텀 데이터
+					}
+				},
+				token: registrationToken
+			};
 
-
-	// Send a message to the device corresponding to the provided
-	// registration token.
-	fcm_admin.messaging().send(message)
-		.then((response) => {
-			//푸시 성공처리
-			$exe.alarm.updateNotification(idx, { send_yn: "Y" }, function (ret) { });
-		})
-		.catch((error) => {
-			//푸시 실패처리
-			$exe.alarm.updateNotification(idx, { send_yn: "N", no_result: error }, function (ret) { });
+			// Send a message to the device corresponding to the provided
+			// registration token.
+			fcm_admin.messaging().send(message)
+				.then((response) => {
+					//푸시 성공처리
+					$exe.alarm.updateNotification(idx, { send_yn: "Y" }, function (ret) { });
+				})
+				.catch((error) => {
+					//푸시 실패처리
+					$exe.alarm.updateNotification(idx, { send_yn: "N", no_result: error }, function (ret) { });
+				});
 		});
+	} else {
+		// user_id가 없는 경우 기본값으로 처리
+		const message = {
+			notification: {
+				title: data["no_subject"],
+				body: message_text,
+			},
+			data: {
+				title: String(data["no_subject"] || ""),
+				body: String(message_text || ""),
+				url: String(chat_url || ""),  // URL을 문자열로 명시적 변환
+				type: "chat_message",
+				timestamp: String(Date.now()),
+				notification_id: notification_id,  // Android 앱에서 고유한 PendingIntent 생성에 사용
+				click_action: String(chat_url || "")  // Android용 click_action 추가
+			},
+			// Android용 추가 설정
+			android: {
+				priority: "high",  // 메시지 우선순위 (high로 설정 시 즉시 전달)
+				notification: {
+					clickAction: chat_url || "",  // Android에서 알림 클릭 시 실행할 액션
+					channelId: "nowapk_default",  // 알림 채널 ID (앱의 CH_ID와 일치해야 함)
+					sound: "default",  // 알림 소리
+					defaultSound: true,  // 기본 소리 사용
+					defaultVibrateTimings: true,  // 기본 진동 패턴 사용
+					visibility: "public"  // 잠금 화면에도 알림 표시 (public: 완전 표시, private: 일부만, secret: 표시 안함)
+				}
+			},
+			// iOS용 추가 설정
+			apns: {
+				payload: {
+					aps: {
+						sound: "default",
+						badge: badge_count  // 기본값 0 (배지 숨김)
+					},
+					url: chat_url || ""  // iOS용 커스텀 데이터
+				}
+			},
+			token: registrationToken
+		};
+
+		// Send a message to the device corresponding to the provided
+		// registration token.
+		fcm_admin.messaging().send(message)
+			.then((response) => {
+				//푸시 성공처리
+				$exe.alarm.updateNotification(idx, { send_yn: "Y" }, function (ret) { });
+			})
+			.catch((error) => {
+				//푸시 실패처리
+				$exe.alarm.updateNotification(idx, { send_yn: "N", no_result: error }, function (ret) { });
+			});
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -315,11 +375,96 @@ io.on('connection', function (socket) {
 	// 룸 접속 처리
 	socket.on('room_join', function (data) {
 		socket.join(data.rm_idx);
+
+		// 무엇을 update하지? → "방 입장 정보"를 update하는 동작입니다.
+		// updateEnterRoom 함수는 사용자가 채팅방(rm_idx)에 입장할 때, 해당 사용자의 입장(읽음) 정보를 DB에 기록하고
+		// 아직 읽지 않은 메시지들의 정보를 조회해서 전달합니다.
 		$exe.chat.updateEnterRoom(data, function (ret) {
 			//모두 리턴한다.
 			//$common.writeLog('room_join_return::' + ret.data);
 			//socket.to(data.rm_idx).emit('room_join_return', ret);
-			socket.emit('room_join_return', ret);
+
+			// ret는 { code: "00", msg: "처리성공", data: { list: [...] } } 형식
+			// ret.data.list에 실제 리스트가 있음
+			/**
+			 * actualList 구조:
+			 * - 타입: Array
+			 * - 내용: 채팅방 입장 시 읽음 처리 전 상태의 읽지 않은 메시지 정보 배열
+			 * - 각 항목 구조:
+			 *   {
+			 *     "_id": Number,    // 메시지 ID (mg_idx)
+			 *     "count": Number   // 해당 메시지를 읽지 않은 사용자 수 (read_yn="N"인 사용자 수)
+			 *   }
+			 *  { _id: mg_idx, count: 읽지 않은 사용자 수 }
+			 * 예시:
+			 * [
+			 *   { "_id": 4306, "count": 1 },  // 메시지 4306번을 1명이 읽지 않음
+			 *   { "_id": 4307, "count": 1 }   // 메시지 4307번을 1명이 읽지 않음
+			 * ]
+			 * 
+			 * 참고:
+			 * - updateEnterRoom 함수에서 읽음 처리 전(read_yn="N") 상태를 먼저 조회하여 반환
+			 * - 이후 DB에서 실제 읽음 처리(read_yn="N" → "Y") 실행
+			 * - 따라서 actualList는 읽음 처리 전 상태의 데이터임
+			 */
+			var actualList = (ret && ret.data && ret.data.list) ? ret.data.list : [];
+
+			// ret를 { code, msg, list } 형식으로 변환하여 전송
+			var returnData = {
+				code: ret ? ret.code : "00",
+				msg: ret ? ret.msg : "success",
+				list: actualList
+			};
+			socket.emit('room_join_return', returnData);
+
+			// 🔥 실시간 읽음 처리: 채팅방 입장 시 읽음 처리된 모든 메시지의 읽음 카운트를 실시간으로 업데이트
+			// actualList에는 읽음 처리 전 { _id: mg_idx, count: 읽지 않은 개수 } 형태의 배열이 있음
+			// 입장한 사용자가 읽음 처리했으므로, 각 메시지의 실제 읽음 카운트를 계산해야 함
+			if (actualList && Array.isArray(actualList) && actualList.length > 0) {
+				// 🔥 각 메시지에 대해 실제 읽음 카운트 계산
+				var processMessage = function (index) {
+					if (index >= actualList.length) return;
+
+					var msgInfo = actualList[index];
+
+					// 🔥 mg_idx가 null이면 건너뛰기
+					if (!msgInfo._id || msgInfo._id === null || msgInfo._id === undefined) {
+						processMessage(index + 1);
+						return;
+					}
+
+					// 🔥 실제 읽음 카운트 계산 (입장한 사용자가 읽은 후의 count)
+					// actualList의 count는 읽음 처리 전 상태이므로, 입장한 사용자가 읽었으므로 1을 뺌
+					// 단, 입장한 사용자가 보낸 메시지의 경우 원래 count에 입장한 사용자가 포함되어 있지 않을 수 있음
+					// 따라서 실제 읽음 카운트를 계산하기 위해 updateMessageReturnCount를 호출
+					$exe.chat.updateMessageReturnCount({
+						rm_idx: data.rm_idx,
+						mg_idx: msgInfo._id,
+						user_id: data.con_user_id
+					}, function (ret) {
+						// 🔥 ret는 {code, msg, data: {count, mg_idx}} 형태로 반환됨
+						var resultData = (ret && ret.data) ? ret.data : ret;
+						var mg_idx = resultData.mg_idx;
+						var count = resultData.count;
+
+						// 🔥 mg_idx가 null이면 emit하지 않음
+						if (mg_idx && mg_idx !== null && mg_idx !== undefined) {
+							io.sockets.in(data.rm_idx).emit('message_read_count_return', {
+								data: {
+									count: count,  // 실제 읽음 카운트
+									mg_idx: mg_idx
+								}
+							});
+						}
+
+						// 다음 메시지 처리
+						processMessage(index + 1);
+					});
+				};
+
+				// 첫 번째 메시지부터 처리 시작
+				processMessage(0);
+			}
 		});
 	});
 
@@ -339,61 +484,126 @@ io.on('connection', function (socket) {
 
 	//룸 조회하기
 	socket.on('room_info', function (data) {
-		//메시지 읽음 처리
-		$exe.chat.updateMessageUserCount(data, function (err, ret22) {
-			$exe.chat.getRoom(data, function (ret) {
-				// getRoom 결과 로그
-				$common.writeLog('room_info:: getRoom 결과 - ret:' + JSON.stringify(ret) + ', ret.data 존재:' + (ret && ret.data ? 'Y' : 'N'));
+		// 🔥 읽음 처리: 채팅방에 입장할 때만 읽음 처리
+		// room_join과 함께 호출될 때는 읽음 처리를 하되,
+		// 단독으로 호출될 때(예: 채팅방 목록 새로고침)는 읽음 처리하지 않음
+		// 이를 구분하기 위해 소켓이 이미 해당 방에 join되어 있는지 확인
+		// room_join이 먼저 호출되면 socket.join으로 방에 join되므로, room_info에서는 읽음 처리하지 않음
+		var is_already_joined = socket.rooms.has(String(data.rm_idx));
 
-				// 방 정보가 없으면 자동으로 생성
-				if (!ret || !ret.data) {
-					$common.writeLog('room_info:: 방 정보 없음 - 새 방 생성 시작 - rm_idx:' + data.rm_idx);
-					// 새 방 정보 생성
-					var room_data = {
-						rm_idx: data.rm_idx,
-						rc_idx: 0,
-						rm_type: "recruit",
-						rm_img: "",
-						rm_subject: "채용공고 채팅방",
-						rm_desc: "채용공고 관련 채팅방",
-						rm_last_msg: "",
-						rm_last_dt: $common.getCurrentDate(),
-						user_list: [
-							{ user_id: data.con_user_id }
-						],
-						rm_status: "N",
-						rm_messages: []
+		// 🔥 읽음 처리: room_join이 먼저 호출되지 않았을 때만 읽음 처리
+		// room_join이 먼저 호출되면 socket.join으로 방에 join되므로, room_info에서는 읽음 처리하지 않음
+		// (room_join에서 이미 읽음 처리를 했으므로)
+		if (!is_already_joined) {
+			$exe.chat.updateEnterRoom(data, function (ret) {
+
+				// room_join과 동일하게 각 메시지의 readcount를 계산하여 emit
+				var actualList = (ret && ret.list) ? ret.list : [];
+
+				if (actualList && Array.isArray(actualList) && actualList.length > 0) {
+					// 🔥 각 메시지에 대해 실제 읽음 카운트 계산
+					var processMessage = function (index) {
+						if (index >= actualList.length) {
+							// 모든 메시지 처리 완료 후 방 정보 조회
+							$exe.chat.getRoom(data, function (ret) {
+								processRoomInfo(ret, data, socket);
+							});
+							return;
+						}
+
+						var msgInfo = actualList[index];
+
+						// 🔥 mg_idx가 null이면 건너뛰기
+						if (!msgInfo._id || msgInfo._id === null || msgInfo._id === undefined) {
+							processMessage(index + 1);
+							return;
+						}
+
+						// 🔥 실제 읽음 카운트 계산
+						$exe.chat.updateMessageReturnCount({
+							rm_idx: data.rm_idx,
+							mg_idx: msgInfo._id,
+							user_id: data.con_user_id
+						}, function (ret) {
+							// 🔥 ret는 {code, msg, data: {count, mg_idx}} 형태로 반환됨
+							var resultData = (ret && ret.data) ? ret.data : ret;
+							var mg_idx = resultData.mg_idx;
+							var count = resultData.count;
+
+							// 🔥 mg_idx가 null이면 emit하지 않음
+							if (mg_idx && mg_idx !== null && mg_idx !== undefined) {
+								io.sockets.in(data.rm_idx).emit('message_read_count_return', {
+									data: {
+										count: count,
+										mg_idx: mg_idx
+									}
+								});
+							}
+
+							// 다음 메시지 처리
+							processMessage(index + 1);
+						});
 					};
 
-					$common.writeLog('room_info:: room_data 생성 완료 - user_list:' + JSON.stringify(room_data.user_list) + ', user_list 개수:' + (room_data.user_list ? room_data.user_list.length : 0));
-
-					$exe.chat.insertRoom(room_data, function (insert_ret) {
-						$common.writeLog('room_info:: insertRoom 호출 완료 - insert_ret:' + JSON.stringify(insert_ret));
-						// 생성된 방 정보로 다시 조회
-						$exe.chat.getRoom(data, function (new_ret) {
-							$common.writeLog('room_info:: 생성 후 재조회 결과 - new_ret.data 존재:' + (new_ret && new_ret.data ? 'Y' : 'N') + ', rm_users 존재:' + (new_ret && new_ret.data && new_ret.data.rm_users ? 'Y' : 'N') + ', rm_users 개수:' + (new_ret && new_ret.data && new_ret.data.rm_users ? new_ret.data.rm_users.length : 0));
-
-							//채팅방 접속
-							socket.room = data.rm_idx;
-							socket.join(data.rm_idx);
-
-							//소켓 리턴
-							socket.emit('room_info_return', new_ret);
-						});
-					});
+					// 첫 번째 메시지부터 처리 시작
+					processMessage(0);
 				} else {
-					//채팅방 접속
-					socket.room = data.rm_idx;
-					socket.join(data.rm_idx);
-
-					//소켓 리턴
-					socket.emit('room_info_return', ret);
+					// 읽지 않은 메시지가 없으면 바로 방 정보 조회
+					$exe.chat.getRoom(data, function (ret) {
+						processRoomInfo(ret, data, socket);
+					});
 				}
 			});
+		} else {
+			// 이미 방에 join되어 있으면 (room_join이 먼저 호출됨) 읽음 처리하지 않고 정보만 조회
+			$exe.chat.getRoom(data, function (ret) {
+				processRoomInfo(ret, data, socket);
+			});
+		}
+
+		function processRoomInfo(ret, data, socket) {
+			// 방 정보가 없으면 자동으로 생성
+			if (!ret || !ret.data) {
+				// 새 방 정보 생성
+				var room_data = {
+					rm_idx: data.rm_idx,
+					rc_idx: 0,
+					rm_type: "recruit",
+					rm_img: "",
+					rm_subject: "채용공고 채팅방",
+					rm_desc: "채용공고 관련 채팅방",
+					rm_last_msg: "",
+					rm_last_dt: $common.getCurrentDate(),
+					user_list: [
+						{ user_id: data.con_user_id }
+					],
+					rm_status: "N",
+					rm_messages: []
+				};
+
+				$exe.chat.insertRoom(room_data, function (insert_ret) {
+					// 생성된 방 정보로 다시 조회
+					$exe.chat.getRoom(data, function (new_ret) {
+						//채팅방 접속
+						socket.room = data.rm_idx;
+						socket.join(data.rm_idx);
+
+						//소켓 리턴
+						socket.emit('room_info_return', new_ret);
+					});
+				});
+			} else {
+				//채팅방 접속
+				socket.room = data.rm_idx;
+				socket.join(data.rm_idx);
+
+				//소켓 리턴
+				socket.emit('room_info_return', ret);
+			}
 
 			//모두 리턴한다.
 			socket.to(data.rm_idx).emit('room_join_alarm', data.con_user_id);
-		});
+		}
 	});
 
 	//알람 메시지 발송
@@ -446,9 +656,40 @@ io.on('connection', function (socket) {
 		$exe.chat.updateMessageStatus(data, function (ret) { });
 	});
 
+	// 🔥 디버그 로깅 함수
+	function writeDebugLog(logData) {
+		try {
+			const logDir = '/website/nowapk/debug_log';
+			if (!fs.existsSync(logDir)) {
+				fs.mkdirSync(logDir, { recursive: true });
+			}
+			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
+			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
+			fs.appendFileSync(logFile, logLine, 'utf8');
+		} catch (err) {
+			console.error('[로깅 오류]', err);
+		}
+	}
+
+	// 🔥 디버그 로그 수신 핸들러
+	socket.on('debug_log', function (logData) {
+		writeDebugLog(logData);
+	});
+
 	//메시지 전송 : 등록
 	socket.on('message_insert', async function (data, rm_users) {
 		try {
+			// 🔥 로깅: message_insert 시작
+			writeDebugLog({
+				type: "message_insert_start",
+				rm_idx: data.rm_idx,
+				user_id: data.user_id,
+				mg_text: data.mg_text,
+				client_rm_users: rm_users,
+				client_mg_reads: data.mg_reads,
+				timestamp: new Date().toISOString()
+			});
+
 			// MongoDB 연결 상태 확인
 			if (!$db.isConnected()) {
 				socket.emit('message_insert_return', {
@@ -459,9 +700,13 @@ io.on('connection', function (socket) {
 				return;
 			}
 
+			// g_user_id: 메시지를 보내는 사용자 ID
 			const g_user_id = data.user_id;
+			// target_rm_idx: 메시지를 보낼 채팅방(rm_idx) 번호
 			const target_rm_idx = data.rm_idx;
+			// target_chat_type: 메시지의 채팅 타입 (ex: 일반, 이미지 등)
 			const target_chat_type = data.chat_type;
+			// target_mg_text: 메시지의 실제 텍스트 내용
 			const target_mg_text = data.mg_text;
 
 			// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
@@ -489,9 +734,154 @@ io.on('connection', function (socket) {
 				}
 			}
 
+			// ✅ 실제 채팅방에 접속한 사용자만 확인하여 mg_reads 설정
+			// 클라이언트에서 보낸 mg_reads는 무시하고 항상 서버에서 실제 접속 사용자 확인
+			// 방 정보 조회 (getRoom 대신 직접 DB에서 조회하여 rm_users 확실히 가져오기)
+			const room_for_reads = await $db.cs_room.findOne({ rm_idx: target_rm_idx });
+
+			// 사용자 목록: DB의 rm_users와 클라이언트에서 보낸 rm_users 병합 (클라이언트가 더 정확할 수 있음)
+			let all_room_users = [];
+			if (room_for_reads && room_for_reads.rm_users && room_for_reads.rm_users.length > 0) {
+				all_room_users = [...room_for_reads.rm_users];
+			}
+
+			// 클라이언트에서 보낸 rm_users가 있으면 병합 (상대방이 아직 DB에 등록되지 않았을 수 있음)
+			if (rm_users && Array.isArray(rm_users) && rm_users.length > 0) {
+				rm_users.forEach(rm_user => {
+					if (rm_user && rm_user.user_id) {
+						// 중복 체크
+						const exists = all_room_users.find(u => u.user_id === rm_user.user_id);
+						if (!exists) {
+							all_room_users.push({ user_id: rm_user.user_id });
+						}
+					}
+				});
+			}
+
+			if (all_room_users.length > 0) {
+				// Socket.IO를 통해 실제 접속한 소켓 ID 확인
+				const roomSockets = io.sockets.adapter.rooms.get(String(target_rm_idx));
+				const connectedUserIds = new Set();
+
+				// 접속한 소켓의 사용자 ID 수집 (DB에서 socket_id로 조회)
+				if (roomSockets && roomSockets.size > 0) {
+					const socketIdArray = Array.from(roomSockets);
+					for (let i = 0; i < socketIdArray.length; i++) {
+						const socketId = socketIdArray[i];
+						try {
+							// DB에서 socket_id로 사용자 조회
+							const user = await $db.cs_user.findOne({ socket_id: socketId });
+							if (user && user.user_id) {
+								connectedUserIds.add(user.user_id);
+							}
+						} catch (err) {
+							// socket_id로 사용자 조회 실패 시 무시
+						}
+					}
+				}
+
+				// 보낸 사람은 항상 접속한 것으로 간주
+				connectedUserIds.add(g_user_id);
+
+				// mg_reads 생성: 실제 접속한 사용자만 read_yn='Y', 나머지는 'N'
+				// 클라이언트에서 보낸 mg_reads는 무시하고 서버에서 새로 생성
+				// all_room_users에는 DB의 rm_users와 클라이언트에서 보낸 rm_users가 모두 포함되어 있음
+				data.mg_reads = [];
+				for (var icnt = 0; icnt < all_room_users.length; icnt++) {
+					const user_id = all_room_users[icnt].user_id;
+					if (user_id === g_user_id) {
+						// 보낸 사람은 항상 읽음
+						data.mg_reads.push({ user_id: user_id, read_yn: 'Y' });
+					} else if (connectedUserIds.has(user_id)) {
+						// 실제 접속한 사용자는 읽음
+						data.mg_reads.push({ user_id: user_id, read_yn: 'Y' });
+					} else {
+						// 접속하지 않은 사용자는 읽지 않음
+						data.mg_reads.push({ user_id: user_id, read_yn: 'N' });
+					}
+				}
+
+				// 서버에서 설정한 mg_reads임을 표시
+				data.server_set_reads = true;
+			} else {
+				// 방 정보가 없으면 보낸 사람만 읽음 처리
+				data.mg_reads = [{ user_id: g_user_id, read_yn: 'Y' }];
+				data.server_set_reads = true;
+			}
+
+			// ✅ DB의 rm_users 업데이트: 클라이언트에서 보낸 rm_users에 있는 사용자가 DB에 없으면 추가
+			// ⚠️ 중요: insertMessage 호출 전에 rm_users를 먼저 업데이트해야 함
+			// insertMessage 함수에서 room_info.rm_users를 조회하여 mg_reads를 생성하기 때문
+			if (all_room_users.length > 0 && room_for_reads) {
+				const db_rm_users = room_for_reads.rm_users || [];
+				const db_user_ids = db_rm_users.map(u => u.user_id);
+				const users_to_add = all_room_users.filter(u => !db_user_ids.includes(u.user_id));
+
+				// 🔥 로깅: rm_users 업데이트 전
+				writeDebugLog({
+					type: "rm_users_update_before",
+					rm_idx: target_rm_idx,
+					db_rm_users: db_rm_users,
+					all_room_users: all_room_users,
+					users_to_add: users_to_add,
+					timestamp: new Date().toISOString()
+				});
+
+				if (users_to_add.length > 0) {
+					try {
+						await $db.cs_room.updateOne(
+							{ rm_idx: target_rm_idx },
+							{ $push: { rm_users: { $each: users_to_add } } }
+						);
+						// rm_users 업데이트 후 room_for_reads도 갱신 (insertMessage에서 사용)
+						room_for_reads.rm_users = [...db_rm_users, ...users_to_add];
+
+						// 🔥 로깅: rm_users 업데이트 후
+						writeDebugLog({
+							type: "rm_users_update_after",
+							rm_idx: target_rm_idx,
+							updated_rm_users: room_for_reads.rm_users,
+							timestamp: new Date().toISOString()
+						});
+					} catch (err) {
+						// DB의 rm_users 업데이트 실패 시 무시
+						writeDebugLog({
+							type: "rm_users_update_error",
+							rm_idx: target_rm_idx,
+							error: err.message,
+							timestamp: new Date().toISOString()
+						});
+					}
+				}
+			}
+
+			// 🔥 로깅: insertMessage 호출 전
+			writeDebugLog({
+				type: "insertMessage_before",
+				rm_idx: target_rm_idx,
+				data_mg_reads: data.mg_reads,
+				data_server_set_reads: data.server_set_reads,
+				room_for_reads_rm_users: room_for_reads ? room_for_reads.rm_users : null,
+				timestamp: new Date().toISOString()
+			});
+
 			// 메시지 DB 저장
 			const ret = await new Promise((resolve) => {
 				$exe.chat.insertMessage(data, (res) => resolve(res));
+			});
+
+			// 🔥 로깅: insertMessage 호출 후
+			writeDebugLog({
+				type: "insertMessage_after",
+				rm_idx: target_rm_idx,
+				ret_code: ret.code,
+				ret_data: ret.data ? ret.data.map(msg => ({
+					mg_idx: msg.rm_messages ? msg.rm_messages.mg_idx : null,
+					user_id: msg.rm_messages ? msg.rm_messages.user_id : null,
+					mg_text: msg.rm_messages ? msg.rm_messages.mg_text : null,
+					mg_reads: msg.rm_messages ? msg.rm_messages.mg_reads : null
+				})) : null,
+				timestamp: new Date().toISOString()
 			});
 
 			// 모든 클라이언트에게 메시지 전송
@@ -654,6 +1044,8 @@ io.on('connection', function (socket) {
 								if (socket_id) {
 									// message_list_refresh 이벤트 발송 (채팅리스트 페이지에 있는 경우)
 									if (last_location === "chat_list") {
+
+
 										io.to(socket_id).emit('message_list_refresh', "refresh");
 									}
 
@@ -699,11 +1091,100 @@ io.on('connection', function (socket) {
 							reg_dt: $common.getCurrentDate(),
 						};
 
-
-						// DB에 푸시 내역 기록 후 전송
+						// DB에 푸시 내역 기록 (항상 실행)
 						$exe.alarm.insertNotification(push, function (idx) {
-							if (idx && idx !== "[object Object]") {
-								send_fcm(idx, push);
+							if (!idx || idx === "[object Object]") {
+								return;
+							}
+
+							// PHP API 성공 여부 추적
+							let phpApiSuccess = false;
+							let notificationIdx = idx;
+
+							// PHP API를 먼저 시도 (common_proc와 동일한 방식)
+							try {
+								const https_module = require('https');
+								const postData = JSON.stringify({
+									token: token,
+									info: {
+										title: push.no_subject,
+										body: push.no_text,
+										url: chat_url,
+										type: "chat_message",
+										user_id: target_user_id
+									}
+								});
+
+								const options = {
+									hostname: 'nowjob.co.kr',
+									port: 443,
+									path: '/common_proc/send_chat_push',
+									method: 'POST',
+									headers: {
+										'Content-Type': 'application/json',
+										'Content-Length': Buffer.byteLength(postData),
+										'User-Agent': 'Node.js Chat Server'
+									},
+									timeout: 3000 // 3초 타임아웃
+								};
+
+								const req = https_module.request(options, (res) => {
+									let responseData = '';
+									res.on('data', (chunk) => {
+										responseData += chunk;
+									});
+									res.on('end', () => {
+										try {
+											const result = JSON.parse(responseData);
+											if (result.code === "00") {
+												phpApiSuccess = true;
+												console.log('✅ PHP API 푸시 발송 성공');
+												// PHP API 성공 시 결과 업데이트
+												$exe.alarm.updateNotification(notificationIdx, { send_yn: "Y" }, function (ret) { });
+											} else {
+												// PHP API 실패 시 기존 방식으로 fallback
+												fallbackToOriginalMethod();
+											}
+										} catch (e) {
+											// 파싱 실패 시 기존 방식으로 fallback
+											fallbackToOriginalMethod();
+										}
+									});
+								});
+
+								req.on('error', (error) => {
+									// PHP API 호출 실패 시 기존 방식으로 fallback
+									fallbackToOriginalMethod();
+								});
+
+								req.on('timeout', () => {
+									req.destroy();
+									// 타임아웃 시 기존 방식으로 fallback
+									fallbackToOriginalMethod();
+								});
+
+								req.write(postData);
+								req.end();
+
+								// 3.5초 후에도 응답이 없으면 기존 방식으로 fallback
+								setTimeout(() => {
+									if (!phpApiSuccess) {
+										fallbackToOriginalMethod();
+									}
+								}, 3500);
+
+							} catch (e) {
+								// PHP API 호출 실패 시 기존 방식으로 fallback
+								fallbackToOriginalMethod();
+							}
+
+							// 기존 방식으로 fallback하는 함수
+							function fallbackToOriginalMethod() {
+								if (phpApiSuccess) {
+									return; // 이미 PHP API가 성공했으면 기존 방식 호출 안 함
+								}
+								// 기존 방식으로 푸시 발송 (send_fcm이 updateNotification도 처리)
+								send_fcm(notificationIdx, push);
 							}
 						});
 					}
@@ -731,11 +1212,33 @@ io.on('connection', function (socket) {
 
 	//메시지 읽음 처리
 	socket.on('message_read_return', function (data) {
+		// 🔥 mg_idx가 없으면 처리하지 않음
+		if (!data.mg_idx || data.mg_idx === null || data.mg_idx === undefined) {
+			return;
+		}
+
 		$exe.chat.updateMessageReturnCount(data, function (ret) {
 			//모두 리턴한다.
 			//socket.to(data.rm_idx).emit('message_read_count_return', ret);
 			//socket.to(data.rm_idx).emit('message_read_count_return', ret);
-			io.sockets.in(data.rm_idx).emit('message_read_count_return', ret);
+			// 기존 형식과 일관성을 위해 data 객체로 감싸서 전송
+			// 메시지의 읽음(리드) 카운트가 변경되었을 때 해당 채팅방(rm_idx)의 모든 소켓(사용자)에게
+			// 'message_read_count_return' 이벤트를 emit하여 읽음 수를 실시간으로 업데이트해주는 역할입니다.
+
+			// 🔥 ret는 {code, msg, data: {count, mg_idx}} 형태로 반환됨
+			var resultData = (ret && ret.data) ? ret.data : ret;
+			var mg_idx = resultData.mg_idx;
+			var count = resultData.count;
+
+			// 🔥 mg_idx가 null이면 emit하지 않음
+			if (mg_idx && mg_idx !== null && mg_idx !== undefined) {
+				io.sockets.in(data.rm_idx).emit('message_read_count_return', {
+					data: {
+						count: count,
+						mg_idx: mg_idx
+					}
+				});
+			}
 		});
 	});
 
@@ -781,6 +1284,7 @@ io.on('connection', function (socket) {
 	// 로그아웃 상태 처리
 	socket.on('buyguest_status', function () {
 		//회원 접속정보 변경. : 접속 끝내기
+		// MongoDB user_status를 'N'으로 업데이트하고, MySQL의 push_yn도 'N'으로 업데이트
 		var params = { socket_id: socket.id, user_status: "N" };
 		$exe.user.updateUserStatus(params, function (ret) { });
 	});
@@ -789,6 +1293,7 @@ io.on('connection', function (socket) {
 	// 접속 종료 알림
 	socket.on('disconnect', function () {
 		//회원 접속정보 변경. : 접속 끝내기
+		// MongoDB user_status를 'N'으로 업데이트하고, MySQL의 push_yn도 'N'으로 업데이트
 		var params = { socket_id: socket.id, user_status: "N" };
 		$exe.user.updateUserStatus(params, function (ret) { });
 

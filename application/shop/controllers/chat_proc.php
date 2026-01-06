@@ -762,6 +762,50 @@ class Chat_proc extends CI_Controller
 				$temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"], 0);
 				$temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"], 1);
 				$temp_list[$key]["ru_week"] = getWeekYoil($row["ru_week"]);
+				// 인재정보 필드 명시적으로 전달 (인재정보 표시용)
+				if (isset($row["ru_name"])) {
+					$temp_list[$key]["ru_name"] = $row["ru_name"];
+				}
+				if (isset($row["ru_idx"])) {
+					$temp_list[$key]["ru_idx"] = $row["ru_idx"];
+				}
+				if (isset($row["mm_name"])) {
+					$temp_list[$key]["mm_name"] = $row["mm_name"];
+				}
+				if (isset($row["mm_nation"])) {
+					$temp_list[$key]["mm_nation"] = $row["mm_nation"];
+				}
+				if (isset($row["ma_age"])) {
+					$temp_list[$key]["ma_age"] = $row["ma_age"];
+				}
+				if (isset($row["ad_addr"])) {
+					$temp_list[$key]["ad_addr"] = $row["ad_addr"];
+				}
+				if (isset($row["rc_idx"])) {
+					$temp_list[$key]["rc_idx"] = $row["rc_idx"];
+				}
+				if (isset($row["rc_name"])) {
+					$temp_list[$key]["rc_name"] = $row["rc_name"];
+				}
+				if (isset($row["target_id"])) {
+					$temp_list[$key]["target_id"] = $row["target_id"];
+				}
+				if (isset($row["user_id"])) {
+					$temp_list[$key]["user_id"] = $row["user_id"];
+				}
+				if (isset($row["target_name"])) {
+					$temp_list[$key]["target_name"] = $row["target_name"];
+				}
+				if (isset($row["user_name"])) {
+					$temp_list[$key]["user_name"] = $row["user_name"];
+				}
+				if (isset($row["up_dt"])) {
+					$temp_list[$key]["up_dt"] = $row["up_dt"];
+				}
+				// mm_sex 정보 명시적으로 전달 (JavaScript에서 기본 아바타 결정에 사용)
+				if (isset($row["mm_sex"])) {
+					$temp_list[$key]["mm_sex"] = $row["mm_sex"];
+				}
 				// rc_thumb가 null/빈 값이면 대체 이미지 적용
 				if (empty($row["rc_thumb"])) {
 					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
@@ -788,6 +832,50 @@ class Chat_proc extends CI_Controller
 				$temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"], 0);
 				$temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"], 1);
 				$temp_list[$key]["ru_week"] = getWeekYoil($row["ru_week"]);
+				// 인재정보 필드 명시적으로 전달 (인재정보 표시용)
+				if (isset($row["ru_name"])) {
+					$temp_list[$key]["ru_name"] = $row["ru_name"];
+				}
+				if (isset($row["ru_idx"])) {
+					$temp_list[$key]["ru_idx"] = $row["ru_idx"];
+				}
+				if (isset($row["mm_name"])) {
+					$temp_list[$key]["mm_name"] = $row["mm_name"];
+				}
+				if (isset($row["mm_nation"])) {
+					$temp_list[$key]["mm_nation"] = $row["mm_nation"];
+				}
+				if (isset($row["ma_age"])) {
+					$temp_list[$key]["ma_age"] = $row["ma_age"];
+				}
+				if (isset($row["ad_addr"])) {
+					$temp_list[$key]["ad_addr"] = $row["ad_addr"];
+				}
+				if (isset($row["rc_idx"])) {
+					$temp_list[$key]["rc_idx"] = $row["rc_idx"];
+				}
+				if (isset($row["rc_name"])) {
+					$temp_list[$key]["rc_name"] = $row["rc_name"];
+				}
+				if (isset($row["target_id"])) {
+					$temp_list[$key]["target_id"] = $row["target_id"];
+				}
+				if (isset($row["user_id"])) {
+					$temp_list[$key]["user_id"] = $row["user_id"];
+				}
+				if (isset($row["target_name"])) {
+					$temp_list[$key]["target_name"] = $row["target_name"];
+				}
+				if (isset($row["user_name"])) {
+					$temp_list[$key]["user_name"] = $row["user_name"];
+				}
+				if (isset($row["up_dt"])) {
+					$temp_list[$key]["up_dt"] = $row["up_dt"];
+				}
+				// mm_sex 정보 명시적으로 전달 (JavaScript에서 기본 아바타 결정에 사용)
+				if (isset($row["mm_sex"])) {
+					$temp_list[$key]["mm_sex"] = $row["mm_sex"];
+				}
 				// rc_thumb가 null/빈 값이면 대체 이미지 적용
 				if (empty($row["rc_thumb"])) {
 					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
@@ -1127,12 +1215,52 @@ class Chat_proc extends CI_Controller
 		if ($rm_type == "recruit") {
 			$chk = $this->common_model->getRoom(["rm_type" => $rm_type, "ru_idx" => $ru_idx, "rc_idx" => $rc_idx]);
 			if ($chk != null) {
-				json_return("00", "이미있음", ["rm_idx" => $chk["rm_idx"], "first_yn" => "N"]);
+				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
+				$message_count = 0;
+				$uri = "mongodb://localhost:27017";
+				try {
+					@$mongo = new Mongo($uri);
+					$database = $mongo->chat;
+					$collection = $database->room;
+					
+					$query = ['rm_idx' => (int)$chk["rm_idx"]];
+					$mongo_room = $collection->findOne($query);
+					
+					if ($mongo_room && isset($mongo_room["rm_messages"]) && is_array($mongo_room["rm_messages"])) {
+						$message_count = count($mongo_room["rm_messages"]);
+					}
+				} catch (Exception $e) {
+					// MongoDB 연결 실패 시 기본값 유지
+				}
+				
+				// 메시지가 없으면 first_yn: "Y" (첫 메시지 전송 필요)
+				$first_yn = ($message_count === 0) ? "Y" : "N";
+				json_return("00", "이미있음", ["rm_idx" => $chk["rm_idx"], "first_yn" => $first_yn]);
 			}
 		} else if ($rm_type == "trade") {
 			$chk = $this->common_model->getRoom(["rm_type" => $rm_type, "td_idx" => $td_idx, "mm_idx" => $mm_idx]);
 			if ($chk != null) {
-				json_return("00", "이미있음", ["rm_idx" => $chk["rm_idx"], "first_yn" => "N"]);
+				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
+				$message_count = 0;
+				$uri = "mongodb://localhost:27017";
+				try {
+					@$mongo = new Mongo($uri);
+					$database = $mongo->chat;
+					$collection = $database->room;
+					
+					$query = ['rm_idx' => (int)$chk["rm_idx"]];
+					$mongo_room = $collection->findOne($query);
+					
+					if ($mongo_room && isset($mongo_room["rm_messages"]) && is_array($mongo_room["rm_messages"])) {
+						$message_count = count($mongo_room["rm_messages"]);
+					}
+				} catch (Exception $e) {
+					// MongoDB 연결 실패 시 기본값 유지
+				}
+				
+				// 메시지가 없으면 first_yn: "Y" (첫 메시지 전송 필요)
+				$first_yn = ($message_count === 0) ? "Y" : "N";
+				json_return("00", "이미있음", ["rm_idx" => $chk["rm_idx"], "first_yn" => $first_yn]);
 			}
 		}
 
@@ -1178,12 +1306,52 @@ class Chat_proc extends CI_Controller
 		if ($rm_type == "recruit") {
 			$chk = $this->common_model->getRoom(["rm_type" => $rm_type, "ru_idx" => $ru_idx, "rc_idx" => $rc_idx]);
 			if ($chk != null) {
-				json_return("00", "생성완료", ["rm_idx" => $chk["rm_idx"], "first_yn" => "N"]);
+				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
+				$message_count = 0;
+				$uri = "mongodb://localhost:27017";
+				try {
+					@$mongo = new Mongo($uri);
+					$database = $mongo->chat;
+					$collection = $database->room;
+					
+					$query = ['rm_idx' => (int)$chk["rm_idx"]];
+					$mongo_room = $collection->findOne($query);
+					
+					if ($mongo_room && isset($mongo_room["rm_messages"]) && is_array($mongo_room["rm_messages"])) {
+						$message_count = count($mongo_room["rm_messages"]);
+					}
+				} catch (Exception $e) {
+					// MongoDB 연결 실패 시 기본값 유지
+				}
+				
+				// 메시지가 없으면 first_yn: "Y" (첫 메시지 전송 필요)
+				$first_yn = ($message_count === 0) ? "Y" : "N";
+				json_return("00", "생성완료", ["rm_idx" => $chk["rm_idx"], "first_yn" => $first_yn]);
 			}
 		} else if ($rm_type == "trade") {
 			$chk = $this->common_model->getRoom(["rm_type" => $rm_type, "td_idx" => $td_idx, "mm_idx" => $mm_idx]);
 			if ($chk != null) {
-				json_return("00", "생성완료", ["rm_idx" => $chk["rm_idx"], "first_yn" => "N"]);
+				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
+				$message_count = 0;
+				$uri = "mongodb://localhost:27017";
+				try {
+					@$mongo = new Mongo($uri);
+					$database = $mongo->chat;
+					$collection = $database->room;
+					
+					$query = ['rm_idx' => (int)$chk["rm_idx"]];
+					$mongo_room = $collection->findOne($query);
+					
+					if ($mongo_room && isset($mongo_room["rm_messages"]) && is_array($mongo_room["rm_messages"])) {
+						$message_count = count($mongo_room["rm_messages"]);
+					}
+				} catch (Exception $e) {
+					// MongoDB 연결 실패 시 기본값 유지
+				}
+				
+				// 메시지가 없으면 first_yn: "Y" (첫 메시지 전송 필요)
+				$first_yn = ($message_count === 0) ? "Y" : "N";
+				json_return("00", "생성완료", ["rm_idx" => $chk["rm_idx"], "first_yn" => $first_yn]);
 			}
 		}
 
@@ -1306,6 +1474,80 @@ class Chat_proc extends CI_Controller
 
 		# 히스토리 등록
 		$this->common_model->insertRoomHistory(["rm_idx" => $rm_idx, "mm_idx" => $mm_idx, "rh_status" => $rm_status]);
+	}
+
+	# 지원 상태 확인 (개인회원이 지원취소했는지 확인)
+	function check_request_status()
+	{
+		$mq_idx = input_post("mq_idx", "");
+		$ru_idx = input_post("ru_idx", "");
+		$rc_idx = input_post("rc_idx", "");
+
+		// mq_idx가 있으면 mq_idx로 확인하고, ru_idx와 rc_idx도 일치하는지 확인
+		if (!empty($mq_idx)) {
+			$sql = "
+				SELECT mq_idx, mq_type, ru_idx, rc_idx, mq_status
+				FROM st_member_request 
+				WHERE mq_idx = '" . $this->db->escape_str($mq_idx) . "'
+				LIMIT 1
+			";
+			$query = $this->db->query($sql);
+			$result = $query->row_array();
+
+			if ($result == null || empty($result)) {
+				// 지원 정보가 없으면 지원취소된 것으로 판단
+				json_return("91", "지원취소");
+			} else {
+				// mq_status가 'cancel'이면 지원취소된 것으로 판단
+				if (isset($result["mq_status"]) && $result["mq_status"] == "cancel") {
+					json_return("91", "지원취소");
+				}
+				
+				// ru_idx와 rc_idx가 제공된 경우 일치하는지 확인
+				if (!empty($ru_idx) && !empty($rc_idx)) {
+					// mq_type이 RECRUIT인지 확인하고, ru_idx와 rc_idx가 일치하는지 확인
+					if ($result["mq_type"] == "RECRUIT" && 
+						$result["ru_idx"] == $ru_idx && 
+						$result["rc_idx"] == $rc_idx) {
+						// 모든 조건이 일치하면 정상
+						json_return("00", "정상");
+					} else {
+						// 조건이 일치하지 않으면 지원취소된 것으로 판단
+						json_return("91", "지원취소");
+					}
+				} else {
+					// ru_idx와 rc_idx가 없으면 mq_idx만으로 확인
+					json_return("00", "정상");
+				}
+			}
+		} 
+		// mq_idx가 없으면 ru_idx와 rc_idx로 확인 (하위 호환성)
+		else if (!empty($ru_idx) && !empty($rc_idx)) {
+			$sql = "
+				SELECT mq_idx, mq_status
+				FROM st_member_request 
+				WHERE mq_type = 'RECRUIT' 
+				AND ru_idx = '" . $this->db->escape_str($ru_idx) . "' 
+				AND rc_idx = '" . $this->db->escape_str($rc_idx) . "'
+				LIMIT 1
+			";
+			$query = $this->db->query($sql);
+			$result = $query->row_array();
+
+			if ($result == null || empty($result)) {
+				// 지원 정보가 없으면 지원취소된 것으로 판단
+				json_return("91", "지원취소");
+			} else {
+				// mq_status가 'cancel'이면 지원취소된 것으로 판단
+				if (isset($result["mq_status"]) && $result["mq_status"] == "cancel") {
+					json_return("91", "지원취소");
+				}
+				// 지원 정보가 있고 취소 상태가 아니면 정상
+				json_return("00", "정상");
+			}
+		} else {
+			json_return("90", "필수 파라미터가 누락되었습니다.");
+		}
 	}
 
 	# 중고상품 채팅상세

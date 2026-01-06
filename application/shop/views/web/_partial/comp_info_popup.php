@@ -477,9 +477,10 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
                 fileAjax("/compage_proc/com_biz_update", params, function(ret) {
                     if (ret.code == "00") {
                         commonAlert("사업자정보가 인증 되었습니다.", function() {
-                            // 페이지 이동 없이 팝업만 닫기
+                            // 팝업 닫기 후 페이지 새로고침하여 업데이트된 데이터 반영
                             $('#dimwrap').hide();
                             $('#dimcont').hide();
+                            location.reload();
                         });
                     } else {
                         commonAlert(ret.msg, function() {});

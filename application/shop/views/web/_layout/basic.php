@@ -91,6 +91,8 @@
                         user_id: user_id,
                         last_location: location
                     });
+                    // Socket 연결 확인 후 미확인 메시지 카운트 조회
+                    fSearchNoReadCountMainBottom();
                 } else {
                     socket.emit("buyguest_status", {});
                 }
@@ -246,6 +248,12 @@
                     <li><a href="/community/event_list">이벤트</a></li>
                 </ul>
             </nav>
+            <?php if ($this->user->isLogin()) : ?>
+                <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
+                    <span class="sr-text">미확인 알림메세지</span>
+                    <span class="cnt"><?= isset($g_alarm_cnt) ? $g_alarm_cnt : '0' ?></span>
+                </a>
+            <?php endif; ?>
             <?php if ($this->user->isLogin() == false) : ?>
                 <div class="rt">
                     <ul class="account-menu">
@@ -491,142 +499,76 @@
                                     //미확인 메시지 카운트
                                     //socket.emit("message_user_read_count",{user_id : $("#user_id").val()});
                                     //console.log('message_user_read_count['+$("#user_id").val()+']');
-                                    fSearchNoReadCountMainBottom();
+                                    
+                                    // DOM이 완전히 로드된 후 실행 (chatting_cont.php include 후)
+                                    setTimeout(function() {
+                                        fSearchNoReadCountMainBottom();
+                                    }, 100);
                                 });
 
 
                                 function fSearchNoReadCountMainBottom() {
+                                    // 로그인 체크
+                                    if ($("#is_login").val() != "Y") {
+                                        return;
+                                    }
 
-
-                                    var room_alert_check_url = '';
-                                    <?php if ($this->user->getUserType() == "COMP") { ?>
-                                        room_alert_check_url = '/chat/index_comp_ajax';
-                                    <?php } else { ?>
-                                        room_alert_check_url = '/chat_proc/get_chat_target_list_recruit_mem';
-                                    <?php } ?>
-                                    room_alert_check_url = '/chat_proc/getRoomListActaive';
-
-
-                                    var rmIdxArray = [];
+                                    // chatting_cont.php의 fSearchNoReadCount()와 동일한 로직 사용
+                                    // 방 목록 필터링 없이 모든 안읽은 메시지 카운트
                                     $.ajax({
-                                        url: room_alert_check_url,
+                                        url: '/chat_proc/fSearchNoReadCount',
                                         type: 'GET',
                                         dataType: 'json',
-                                        success: function(response) {
-                                            //console.log('index_comp');
-                                            //console.log(response);
+                                        success: function(ret) {
+                                            if (ret.code != "00" || !ret.data || !ret.data.result) {
+                                                return;
+                                            }
 
+                                            // Extract the result object
+                                            const results = ret.data.result;
 
-                                            //방목록 확인
-                                            var roomCnt = 0;
-                                            $.each(response.data.list, function(key, item) {
-                                                //console.log(item);
-                                                //console.log('1:'+item.rm_idx);
-                                                //console.log('1:'+item.rm_idx_list);
-                                                rmIdxArray.push(item.rm_idx);
-                                                roomCnt++;
-
-
-                                                if (item.rm_idx !== undefined) {
-                                                    rmIdxArray.push(item.rm_idx);
-                                                }
-
-
-                                                // item.rm_idx_list가 undefined가 아니고 "(338, 344, 347)" 형태라면 처리
-                                                if (item.rm_idx_list !== undefined && /^\(\d+(,\s*\d+)*\)$/.test(item.rm_idx_list)) {
-                                                    // 괄호를 제거하고 콤마로 분리
-                                                    var idxList = item.rm_idx_list.replace(/[()]/g, "").split(',');
-
-
-                                                    // 각 숫자를 rmIdxArray에 추가
-                                                    idxList.forEach(function(idx) {
-                                                        rmIdxArray.push(idx.trim());
-                                                    });
-                                                }
-
-
-                                            });
-                                            //console.log('111:roomCnt:'+roomCnt);
-
-
-                                            //node 방 확인 시작
-                                            $.ajax({
-                                                url: '/chat_proc/fSearchNoReadCount',
-                                                type: 'GET',
-                                                dataType: 'json',
-                                                success: function(response) {
-                                                    //console.log(response);
-                                                    var myId = $("#user_id").val();
-
-
-                                                    let result = response.data.result;
-
-
-                                                    let countAll = 0;
-
-
-                                                    //console.log(rmIdxArray);
-
-
-                                                    $.each(result, function(key, room) {
-                                                        //console.log(room);
-                                                        //console.log('2:'+room.rm_idx);
-                                                        //console.log($.inArray(''+room.rm_idx, rmIdxArray));
-
-
-                                                        var exists = false;
-                                                        if ($.inArray('' + room.rm_idx, rmIdxArray) > -1) {
-                                                            exists = true;
-                                                        } else {
-                                                            exists = false;
-                                                        }
-                                                        //console.log(exists);
-
-
-                                                        $.each(room.rm_messages, function(index, message) {
-                                                            $.each(message.mg_reads, function(i, readEntry) {
-                                                                if (readEntry.user_id === myId && readEntry.read_yn === 'N') {
-                                                                    //console.log(room);
-                                                                    //console.log(message);
-                                                                    if (exists) {
+                                            // 전체 안읽은 메시지 카운트 계산
+                                            var countAll = 0;
+                                            for (const key in results) {
+                                                if (results.hasOwnProperty(key)) {
+                                                    const result = results[key];
+                                                    const { rm_messages } = result;
+                                                    
+                                                    if (rm_messages) {
+                                                        rm_messages.forEach(message => {
+                                                            if (message.mg_reads) {
+                                                                message.mg_reads.forEach(read => {
+                                                                    if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
                                                                         countAll++;
-                                                                        //console.log('bottom count up');
                                                                     }
-                                                                }
-                                                            });
-                                                        });
-
-
-                                                    });
-                                                    if (countAll > 0) {
-                                                        //$('#msgNoReadCountMainBottom').html(countAll);
-                                                        //$('#msgNoReadCountMainBottom').show();
-                                                        if (countAll > 0) {
-                                                            if (countAll > 99) {
-                                                                $('#noreadcountall').html('99+');
-                                                                $('#noreadcountall').css('width', '40px');
-                                                            } else {
-                                                                $('#noreadcountall').html(countAll);
+                                                                });
                                                             }
-                                                            $('#noreadcountall').show();
-                                                        } else {
-                                                            $('#noreadcountall').hide();
-                                                        }
-
-
+                                                        });
                                                     }
-                                                },
-                                                error: function(xhr, status, error) {
-                                                    console.error('AJAX 호출 중 오류 발생:', error);
                                                 }
-                                            });
-                                            //nopde 방 확인 종료
+                                            }
 
-
+                                            // noreadcountall 업데이트
+                                            var $noreadcountall = $('#noreadcountall');
+                                            if ($noreadcountall.length > 0) {
+                                                if (countAll > 0) {
+                                                    if (countAll > 99) {
+                                                        $noreadcountall.html('99+');
+                                                        $noreadcountall.css('width', '40px');
+                                                    } else {
+                                                        $noreadcountall.html(countAll);
+                                                        $noreadcountall.css('width', '30px');
+                                                    }
+                                                    $noreadcountall.show();
+                                                } else {
+                                                    $noreadcountall.hide();
+                                                }
+                                            }
+                                        },
+                                        error: function(xhr, status, error) {
+                                            console.error('미확인 메시지 카운트 조회 오류:', error);
                                         }
                                     });
-
-
                                 }
 
 
@@ -797,6 +739,9 @@
 
 
     <?php include_once(get_base_url() . '/application/shop/views/web/_layout/chatting_cont.php'); ?>
+
+    <!-- 알림목록 -->
+    <?php include_once(get_base_url() . '/application/shop/views/web/_layout/popup_alarm.php'); ?>
 
 
 

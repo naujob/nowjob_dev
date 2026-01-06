@@ -1205,7 +1205,7 @@
                   <div class="value" style="min-height: 398px; height: auto;">
                     <label>
                       <span class="sr-text">상세업무정보 입력</span>
-                      <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight" style="height:300px;"><?= $info["rc_desc"] ?></textarea>
+                      <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight" style="height:600px; min-height:600px;"><?= $info["rc_desc"] ?></textarea>
                     </label>
                   </div>
                 </div>

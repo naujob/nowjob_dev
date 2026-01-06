@@ -638,7 +638,7 @@
                                     <div class="value">
                                         <label class="full-width">
                                             <span class="sr-text">자기소개 입력</span>
-                                            <textarea name="ru_desc" maxlength="500" class="form-textarea js-autoheight"><?= $info["ru_desc"] ?></textarea>
+                                            <textarea name="ru_desc" maxlength="500" class="form-textarea" style="min-height: 324px;"><?= $info["ru_desc"] ?></textarea>
                                         </label>
                                     </div>
                                     <p class="help-msg text-only">*개인 연락처 및 카카오톡 아이디 첨부 시 게시물 삭제 및 이용제제 처리될 수 있습니다.</p>
@@ -1075,6 +1075,36 @@
             }
         });
 
+        // 자기소개 textarea 높이 자동 조절 (스크롤 위치 보존)
+        var $ruDesc = $("textarea[name='ru_desc']");
+        var minHeight = 324; // 최소 높이
+        
+        function adjustHeight() {
+            if ($ruDesc.length && $ruDesc[0]) {
+                // 스크롤 위치 저장
+                var scrollTop = $ruDesc[0].scrollTop;
+                // 높이를 1px로 초기화하여 정확한 scrollHeight 측정
+                $ruDesc.css('height', '1px');
+                // scrollHeight를 기준으로 높이 설정 (최소 높이 보장)
+                var newHeight = Math.max($ruDesc[0].scrollHeight, minHeight);
+                $ruDesc.css('height', newHeight + 'px');
+                // 스크롤 위치 복원
+                $ruDesc[0].scrollTop = scrollTop;
+            }
+        }
+        
+        // 초기 설정
+        setTimeout(adjustHeight, 100);
+        
+        // 입력 시 높이 재설정 (스크롤 위치 보존)
+        $ruDesc.on('input', function() {
+            var scrollTop = this.scrollTop;
+            setTimeout(function() {
+                adjustHeight();
+                $ruDesc[0].scrollTop = scrollTop;
+            }, 10);
+        });
+
     }); //ready
 
     function showPreviewInfo(info) {
@@ -1145,9 +1175,48 @@
         if (info.ru_price_type.indexOf("월급") > -1 && info.ru_month_price != "0") {
             str_month_price = '<tr><td class="label">급여</td><td class="value">' + info.ru_month_price.format() + '원</td></tr>';
         }
-        if (info.ru_addr == '') {
-            info.ru_addr = '무관';
+        
+        // 주소 처리: fRemoveBigAdrJS 함수 적용
+        var displayAddr = '';
+        
+        // ru_addr이 배열인 경우 처리
+        if (Array.isArray(info.ru_addr)) {
+            // 배열을 쉼표로 구분된 문자열로 변환
+            displayAddr = info.ru_addr.filter(function(addr) {
+                return addr && addr.trim() !== '';
+            }).join(',');
+        } else {
+            // 문자열인 경우 그대로 사용
+            displayAddr = info.ru_addr || '';
         }
+        
+        // 주소가 있고 '무관'이 아니면 fRemoveBigAdrJS 함수 적용
+        if (displayAddr && displayAddr !== '' && displayAddr !== '무관' && typeof fRemoveBigAdrJS === 'function') {
+            // 쉼표로 구분된 여러 주소 처리
+            if (displayAddr.indexOf(',') > -1) {
+                var addrArray = displayAddr.split(',').map(function(addr) {
+                    return addr.trim();
+                }).filter(function(addr) {
+                    return addr !== '';
+                });
+                var formattedAddrs = [];
+                addrArray.forEach(function(addr) {
+                    var formatted = fRemoveBigAdrJS(addr);
+                    if (formatted && formattedAddrs.indexOf(formatted) === -1) {
+                        formattedAddrs.push(formatted);
+                    }
+                });
+                displayAddr = formattedAddrs.length > 0 ? formattedAddrs.join(' | ') : '';
+            } else {
+                displayAddr = fRemoveBigAdrJS(displayAddr);
+            }
+        }
+        
+        // 주소가 비어있으면 '무관'으로 설정
+        if (!displayAddr || displayAddr === '') {
+            displayAddr = '무관';
+        }
+        
         if (str_ru_week == '') {
             str_ru_week = '무관';
         }
@@ -1171,7 +1240,7 @@
                 '</tr>' +
                 '<tr>' +
                 '<td class="label">지역</td>' +
-                '<td class="value">' + info.ru_addr + '</td>' +
+                '<td class="value">' + displayAddr + '</td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td class="label">급여형태</td>' +
@@ -1218,6 +1287,9 @@
                 '</tr>' +
                 '<tr>' +
                 '<td colspan="2" class="value introduce"><div style="word-wrap: break-word; white-space: normal; width: 410px;">' + info.ru_desc + '</div></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="label">나의강점</td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td colspan="2" class="value">' +

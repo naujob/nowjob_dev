@@ -119,27 +119,29 @@ if (count($banner_list) > 0) {
     right: 10px;
     color: #000;
     height: 17px;
-    text-align: right;
     font-size: 16px;
     font-weight: 600;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
   }
 
   .content-info .summary3 em {
     position: relative;
     display: inline-block;
     font-style: normal;
-    padding-left: 5px;
+    margin-left: 8px;
   }
 
-  .content-info .summary3 em:not(:last-child) {
-    padding-right: 5px;
+  .content-info .summary3 em:first-child {
+    margin-left: 0;
   }
 
   .content-info .summary3 em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -4px;
     bottom: 0;
     width: 1px;
     height: 0.5em;
@@ -271,11 +273,15 @@ if (count($banner_list) > 0) {
 
   .content-info .summary2 .period {
     display: flex;
-    gap: 5px;
     justify-content: flex-end;
     position: relative;
     font-size: 16px;
     font-weight: 600;
+    align-items: center;
+  }
+
+  .content-info .summary2 .amount {
+    color: #1b9d7d;
   }
 
   .content-info .summary2 .amount em {
@@ -287,6 +293,23 @@ if (count($banner_list) > 0) {
     display: inline-block;
     font-style: normal;
     color: #777;
+    margin-left: 8px;
+  }
+
+  .content-info .summary2 .period em:first-child {
+    margin-left: 0;
+  }
+
+  .content-info .summary2 .period em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777777;
   }
 
   .content-info .summary2 .period em.on {
@@ -548,35 +571,40 @@ if (count($banner_list) > 0) {
 
   var tab_list = [];
   tab_list.push({
+    df: "근무지역",
+    text: "",
+    active: ""
+  }); //0 - 지역 정보
+  tab_list.push({
     df: "카테고리",
     text: "",
     active: ""
-  }); //2
+  }); //1
   tab_list.push({
     df: "근무형태",
     text: "",
     active: ""
-  }); //3
+  }); //2
   tab_list.push({
     df: "근무요일",
     text: "",
     active: ""
-  }); //4
+  }); //3
   tab_list.push({
     df: "급여",
     text: "",
     active: ""
-  }); //5
+  }); //4
   tab_list.push({
     df: "성별",
     text: "",
     active: ""
-  }); //6
+  }); //5
   tab_list.push({
     df: "나이",
     text: "",
     active: ""
-  }); //7
+  }); //6
 
   $(document).on("click", ".btn-category", function() {
     $("#advancedSearch").addClass("on");
@@ -744,27 +772,10 @@ if (count($banner_list) > 0) {
   }
 
   function getConvertPriceType(rc_price_type, rc_price_rep) {
-
-    // 급여협의인 경우 "급여협의" 표시
-    if (rc_price_type == "협의" || rc_price_type == "급여협의") {
-      return '급여협의';
-    }
-
     const types = rc_price_type.split(',');
-
-    // 메인과 서브가 모두 있는 경우 (2개): "주급,일급" 형식
-    if (types.length === 2) {
-      const mainType = types[0].trim(); // 메인 급여형태
-      const subType = types[1].trim(); // 서브 급여형태
-      return `<em class="on">${mainType}</em> I <em>${subType}</em>`;
-    }
-
-    // 메인만 있는 경우 (1개)
     if (types.length === 1) {
       return `<em class="on">${types[0]}</em>`;
     }
-
-    // 기존 로직 (3개 이상인 경우 - 기존 호환성 유지)
     return types.map(type => {
       if (type === rc_price_rep) {
         return `<em class="on">${type}</em>`;
@@ -870,6 +881,16 @@ if (count($banner_list) > 0) {
       }
     });
     searchAreaStr = JSON.stringify(searchArea);
+
+    // 페이지 로드 시 선택된 지역 정보를 selectedRegions에 반영
+    if (typeof selectedRegions === 'undefined') {
+      window.selectedRegions = [];
+    }
+    if (addrNames.length > 0) {
+      window.selectedRegions = addrNames.slice(0, 3); // 최대 3개까지만
+    } else {
+      window.selectedRegions = [];
+    }
 
     initCategory();
     initTabUi();

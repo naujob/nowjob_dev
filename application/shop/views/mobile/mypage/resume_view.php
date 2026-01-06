@@ -58,10 +58,18 @@
                             </tr>
                             <tr>
                                 <td class="label">지역</td>
-                                <td class="value">
-                                    <?php foreach ($addr as $key => $ad) : ?>
-                                        <?= $key == 0 ? $ad["ad_addr"] : " ," . $ad["ad_addr"] ?>
-                                    <?php endforeach; ?>
+                                <td class="value" id="addr-display" data-addrs="<?= htmlspecialchars(json_encode(array_filter(array_column($addr, 'ad_addr'))), ENT_QUOTES, 'UTF-8') ?>">
+                                    <?php
+                                    // 기존 주소 표시 (JavaScript로 처리되기 전까지 표시)
+                                    $addr_cnt = 0;
+                                    foreach ($addr as $key => $ad) :
+                                        if (!empty($ad["ad_addr"])) :
+                                            if ($addr_cnt > 0) echo ", ";
+                                            $addr_cnt++;
+                                            echo htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8');
+                                        endif;
+                                    endforeach;
+                                    ?>
                                 </td>
                             </tr>
                             <tr>
@@ -200,6 +208,32 @@
 <input type="hidden" name="ru_name" value="<?= $info["ru_name"] ?>" />
 <script>
     $(document).ready(function() {
+        // 주소 처리: fRemoveBigAdrJS 함수 적용
+        var $addrDisplay = $('#addr-display');
+        if ($addrDisplay.length > 0) {
+            var addrArray = $addrDisplay.data('addrs');
+            if (addrArray && Array.isArray(addrArray) && typeof fRemoveBigAdrJS === 'function') {
+                var processedAddrs = [];
+                var formattedAddrs = [];
+                
+                addrArray.forEach(function(originalAddr) {
+                    if (originalAddr && originalAddr.trim() !== '') {
+                        var formattedAddr = fRemoveBigAdrJS(originalAddr);
+                        // 중복 체크: 이미 처리된 주소가 아니면 추가
+                        if (formattedAddr && processedAddrs.indexOf(formattedAddr) === -1) {
+                            processedAddrs.push(formattedAddr);
+                            formattedAddrs.push(formattedAddr);
+                        }
+                    }
+                });
+                
+                // 정리된 주소들을 ", "로 연결하여 표시
+                if (formattedAddrs.length > 0) {
+                    $addrDisplay.text(formattedAddrs.join(', '));
+                }
+            }
+        }
+        
         $("#btnDelete").click(function() {
             var ru_name = $("[name=ru_name]").val();
             var ru_idx = $("[name=ru_idx]").val();

@@ -8,8 +8,8 @@
         <div class="tab-container">
             <ul class="tab-list">
                 <?php if ($user_type == "MEM") : ?>
-                    <li><a href="/chat/chat_list" class="tab">지원한공고</a></li>
-                    <li class="on"><a href="/chat/chat_list2" class="tab">제안받은공고</a></li>
+                    <li><a href="/chat/chat_list" class="tab">지원한공고<span class="tab-badge"></span></a></li>
+                    <li class="on"><a href="/chat/chat_list2" class="tab">제안받은공고<span class="tab-badge"></span></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -70,6 +70,48 @@
             /* content-wrap 클래스에 왼쪽 마진 추가 */
             .content-wrap {
                 margin-left: 1rem;
+            }
+
+            /* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) */
+            .page-chat .tab-container .tab-list li {
+                position: relative;
+            }
+
+            .page-chat .tab-container .tab-list li .tab {
+                position: relative;
+            }
+
+            .page-chat .tab-container .tab-list li .tab-badge {
+                position: absolute;
+                top: 8px;
+                right: -12px;
+                width: 8px;
+                height: 8px;
+                min-width: 8px;
+                min-height: 8px;
+                max-width: 8px;
+                max-height: 8px;
+                box-sizing: border-box;
+                padding: 0;
+                margin: 0;
+                line-height: 1;
+                flex-shrink: 0;
+                flex-grow: 0;
+                align-self: flex-start;
+                background-color: rgb(248, 96, 72);
+                border-radius: 50%;
+                display: none;
+                z-index: 10;
+            }
+
+            .page-chat .tab-container .tab-list li .tab-badge::before,
+            .page-chat .tab-container .tab-list li .tab-badge::after {
+                content: none;
+                display: none;
+            }
+
+            .page-chat .tab-container .tab-list li.has-unread .tab-badge {
+                display: block;
             }
         </style>
         <div class="tab-panel">
@@ -165,6 +207,10 @@
             var myId = $("#user_id").val();
             let result = ret.data.result;
 
+            // 탭별 읽지 않은 메시지 개수 계산
+            var tab1UnreadCount = 0; // 지원한공고 탭
+            var tab2UnreadCount = 0; // 제안받은공고 탭
+
             $.each(result, function(key, room) {
                 let count = 0;
                 $.each(room.rm_messages, function(index, message) {
@@ -178,14 +224,37 @@
                 // 현재 페이지의 chat_list 컨테이너 내에서만 요소 찾기
                 var $unreadElement = $('#chat_list #room_idx_unread_cnt_' + room.rm_idx);
                 if ($unreadElement.length > 0) {
+                    // 현재 페이지에 있는 채팅방 (제안받은공고 탭)
                     $unreadElement.html(count);
                     if (count > 0) {
                         $unreadElement.show();
+                        tab2UnreadCount += count;
                     } else {
                         $unreadElement.hide();
                     }
+                } else {
+                    // 현재 페이지에 없는 채팅방 (지원한공고 탭)
+                    if (count > 0) {
+                        tab1UnreadCount += count;
+                    }
                 }
             });
+
+            // 탭1 (지원한공고) 확인
+            var hasUnreadTab1 = tab1UnreadCount > 0;
+            if (hasUnreadTab1) {
+                $('.page-chat .tab-list li:first-child').addClass('has-unread');
+            } else {
+                $('.page-chat .tab-list li:first-child').removeClass('has-unread');
+            }
+
+            // 탭2 (제안받은공고) 확인
+            var hasUnreadTab2 = tab2UnreadCount > 0;
+            if (hasUnreadTab2) {
+                $('.page-chat .tab-list li:last-child').addClass('has-unread');
+            } else {
+                $('.page-chat .tab-list li:last-child').removeClass('has-unread');
+            }
         });
     }
 
@@ -207,6 +276,19 @@
         // 제안받은공고 탭에서 채팅방으로 이동 (from=proposed_job 파라미터 사용)
         location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=proposed_job";
     });
+
+    // 뒤로가기 막기 - 히스토리에 현재 페이지 추가
+    window.addEventListener('load', function() {
+        window.history.pushState(null, null, location.href);
+
+        // 뒤로가기 시 현재 페이지로 다시 이동
+        window.addEventListener('popstate', function() {
+            window.history.pushState(null, null, location.href);
+        });
+    });
+
+    // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
+    window.DISABLE_SWIPE_BACK = true;
 </script>
 
 <!-- 제안받은공고 탭 전용 템플릿 (개인회원용) -->

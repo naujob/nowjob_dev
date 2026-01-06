@@ -428,15 +428,23 @@ class Member extends CI_Controller
 			# 접속 처리
 			$this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
 
-			# 헤더 정보 업데이트 : 매칭안되어 있으면 업데이트 처리한다.
+			# 헤더 정보 업데이트 : UUID로 디바이스를 찾아 현재 로그인한 회원과 연결한다.
 			$headers = apache_request_headers();
 			if (isset($headers["uuid"])) {
-				$mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"], "mm_idx" => 0]);
+				// UUID로 디바이스 정보를 조회한다 (mm_idx 조건 없이)
+				$mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"]]);
 				# 빈값이 아니라면
 				if ($mem_device != null) {
+					// 해당 디바이스를 로그인한 회원(mm_idx)과 연결 (기존 연결 관계와 무관하게 재할당)
 					$this->member_model->setMemberDevice(["mm_idx" => $mem_info["mm_idx"]], ["uuid" => $headers["uuid"]]);
 				}
 			}
+
+			# 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
+			$sql = "UPDATE st_member_device 
+					SET push_yn = 'Y', up_dt = NOW() 
+					WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+			$this->db->query($sql, [$mem_info["mm_idx"]]);
 
 			# 몽고 회원정보 DB업데이트
 			$mem_device = $this->member_model->getMemberDevice(["mm_idx" => $mem_info["mm_idx"]]);
@@ -504,8 +512,75 @@ class Member extends CI_Controller
 	# 로그아웃
 	function logout()
 	{
+		// 세션에서 사용자 정보 조회
+		$user_info = $this->common->getSession("USER_INFO");
 		
+		if ($user_info && isset($user_info["mm_idx"]) && $user_info["mm_idx"] > 0) {
+			$mm_idx = $user_info["mm_idx"];
+			$mm_id = isset($user_info["mm_id"]) ? $user_info["mm_id"] : "";
+			
+			// 해당 사용자의 모든 디바이스의 push_yn을 'N'으로 업데이트 (푸시 알림 비활성화)
+			$this->member_model->updateMemberDevice(
+				["push_yn" => "N"],
+				["mm_idx" => $mm_idx]
+			);
+			
+			// MongoDB의 사용자 상태도 'N'으로 업데이트 (채팅 서버와의 일관성 유지)
+			if (!empty($mm_id)) {
+				try {
+					$mongo_user = get_mongodb("user");
+					if ($mongo_user) {
+						$mongo_user->update(
+							['user_id' => $mm_id],
+							['$set' => ['user_status' => 'N']]
+						);
+					}
+				} catch (Exception $e) {
+					// MongoDB 업데이트 실패 시에도 계속 진행
+					error_log("로그아웃 시 MongoDB 업데이트 실패: " . $e->getMessage());
+				}
+			}
+		}
+		
+		// USER_INFO만 삭제 (다른 세션 데이터는 유지)
 		$this->common->removeSession("USER_INFO");
+		
+		// iOS 감지
+		$headers = apache_request_headers();
+		$user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$is_ios = preg_match('/nowjobswift|CFNetwork|Darwin/i', $user_agent) || preg_match('/\b(iPhone|iPad|iPod)\b/i', $user_agent);
+		
+		// iOS인 경우 세션 쿠키를 명시적으로 삭제하고 세션 ID 재생성
+		if ($is_ios) {
+			// 도메인 설정 (index.php와 동일한 로직)
+			$domain_name = $_SERVER['SERVER_NAME'];
+			$domain_name = str_replace("www.", "", $domain_name);
+			$domain_name = str_replace("home.", "", $domain_name);
+			$domain_name = str_replace("app.", "", $domain_name);
+			$domain_name = str_replace("admin.", "", $domain_name);
+			
+			// 세션 쿠키 삭제 (도메인과 경로를 정확히 맞춰야 함)
+			$session_name = session_name();
+			if (isset($_COOKIE[$session_name])) {
+				// 서브도메인 포함 쿠키 삭제
+				setcookie($session_name, '', time() - 3600, '/', '.' . $domain_name, true, true);
+				// 메인 도메인 쿠키 삭제
+				setcookie($session_name, '', time() - 3600, '/', $domain_name, true, true);
+				// 경로만 지정한 쿠키 삭제
+				setcookie($session_name, '', time() - 3600, '/', '', true, true);
+			}
+			
+			// 세션 ID 재생성 (이전 세션 파일 삭제, 현재 세션 데이터는 새 세션으로 이동)
+			if (session_status() === PHP_SESSION_ACTIVE) {
+				session_regenerate_id(true);
+			}
+		} else {
+			// 안드로이드/기타: 세션 ID만 재생성 (이전 세션 파일 삭제)
+			if (session_status() === PHP_SESSION_ACTIVE) {
+				session_regenerate_id(true);
+			}
+		}
+		
 		go_location("/member/login");
 	}
 

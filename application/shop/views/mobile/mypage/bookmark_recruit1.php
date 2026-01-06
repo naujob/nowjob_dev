@@ -430,6 +430,15 @@ function fRemoveBigAdr($arg)
   .result-list .list-item+.list-item {
     border-top: 0;
   }
+
+  /* 탭 컨테이너 스크롤 시 상단 고정 */
+  .page.page-mypage-view .top-bar~.page-content .tab-container {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    background: #fff !important;
+  }
 </style>
 
 <div class="page page-mypage-view">

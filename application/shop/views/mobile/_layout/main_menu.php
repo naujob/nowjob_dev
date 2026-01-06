@@ -788,8 +788,15 @@ renderSelectBottomSheet(
   });
 </script>
 <script>
+  // 디바운싱을 위한 타이머 변수
+  var fSearchNoReadCountMainBottomTimer = null;
+  var noreadCountPollingTimer = null;
+
   $(document).ready(function() {
     fSearchNoReadCountMainBottom();
+    
+    // 실시간 업데이트 초기화
+    initRealTimeNoReadCountUpdate();
   });
 
   function fSearchNoReadCountMainBottom() {
@@ -875,8 +882,117 @@ renderSelectBottomSheet(
         $('#msgNoReadCountMainBottom').html(countAll);
         $('#msgNoReadCountMainBottom').show();
 
-      });
       */
+  }
+
+  /**
+   * 디바운싱을 적용한 fSearchNoReadCountMainBottom 호출 함수
+   * 중복 호출을 방지하여 서버 부하를 줄임
+   */
+  function fSearchNoReadCountMainBottomDebounced() {
+    if (fSearchNoReadCountMainBottomTimer) {
+      clearTimeout(fSearchNoReadCountMainBottomTimer);
+    }
+    fSearchNoReadCountMainBottomTimer = setTimeout(function() {
+      fSearchNoReadCountMainBottom();
+    }, 500); // 500ms 디바운싱
+  }
+
+  /**
+   * 주기적 폴링 시작 함수
+   * 10초마다 읽지 않은 메시지 수를 자동으로 업데이트
+   */
+  function startNoreadCountPolling() {
+    // 기존 타이머가 있으면 제거
+    if (noreadCountPollingTimer) {
+      clearInterval(noreadCountPollingTimer);
+    }
+    
+    // 로그인 상태일 때만 폴링 시작
+    if ($("#user_id").val() == '') {
+      return;
+    }
+    
+    // 10초마다 실행
+    noreadCountPollingTimer = setInterval(function() {
+      fSearchNoReadCountMainBottomDebounced();
+    }, 10000); // 10초마다
+  }
+
+  /**
+   * 주기적 폴링 중지 함수
+   */
+  function stopNoreadCountPolling() {
+    if (noreadCountPollingTimer) {
+      clearInterval(noreadCountPollingTimer);
+      noreadCountPollingTimer = null;
+    }
+  }
+
+  /**
+   * 실시간 업데이트 초기화 함수
+   * WebSocket 이벤트 리스너 등록 및 주기적 폴링 시작
+   */
+  function initRealTimeNoReadCountUpdate() {
+    // 로그인 상태가 아니면 실시간 업데이트 불필요
+    if ($("#user_id").val() == '') {
+      return;
+    }
+
+    // WebSocket이 존재하는지 확인
+    if (typeof window.socket === 'undefined' || !window.socket) {
+      // WebSocket이 아직 준비되지 않았으면 잠시 후 재시도
+      setTimeout(function() {
+        initRealTimeNoReadCountUpdate();
+      }, 1000);
+      return;
+    }
+
+    var socket = window.socket;
+
+    // 기존 이벤트 리스너 제거 (중복 등록 방지)
+    socket.off('realtime_message');
+    socket.off('chat_notification');
+    socket.off('message_read_count_return');
+
+    // 실시간 메시지 수신 이벤트
+    socket.on('realtime_message', function(ret) {
+      if (ret && ret.type == "chat") {
+        // 채팅 메시지 수신 시 읽지 않은 메시지 카운트 업데이트
+        fSearchNoReadCountMainBottomDebounced();
+      }
+    });
+
+    // 채팅 알림 수신 이벤트
+    socket.on('chat_notification', function(ret) {
+      // 채팅 알림 수신 시 읽지 않은 메시지 카운트 업데이트
+      fSearchNoReadCountMainBottomDebounced();
+    });
+
+    // 메시지 읽음 카운트 변경 이벤트
+    socket.on('message_read_count_return', function(ret) {
+      // 읽음 카운트 변경 시 전체 읽지 않은 메시지 수 업데이트
+      fSearchNoReadCountMainBottomDebounced();
+    });
+
+    // 페이지 포커스 시 즉시 업데이트
+    $(window).on('focus', function() {
+      fSearchNoReadCountMainBottomDebounced();
+    });
+
+    // 페이지가 보이지 않을 때는 폴링 중지 (성능 최적화)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        stopNoreadCountPolling();
+      } else {
+        // 페이지가 다시 보이면 즉시 업데이트 후 폴링 재시작
+        fSearchNoReadCountMainBottomDebounced();
+        startNoreadCountPolling();
+      }
+    });
+
+    // 주기적 폴링 시작
+    startNoreadCountPolling();
   }
 
   /**

@@ -606,6 +606,11 @@
     const currentPage = window.location.pathname + window.location.search; // 현재 페이지 전체 URL (쿼리 파라미터 포함)
     const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || []; // 방문 기록 스택
 
+    // splash 페이지는 히스토리 스택에 추가하지 않음 (뒤로가기 시 splash로 이동하는 문제 방지)
+    if (currentPath === '/home/splash') {
+      return;
+    }
+
     const compagePaths1 = [
       "/compage/point_promotion_buy",
       "/compage/point_charge_step1",
@@ -670,16 +675,63 @@
     // 페이지 이동 실행
     //setTimeout(() => {
 
+    // chat_view 페이지는 자체 뒤로가기 로직 사용 (from 파라미터 기반)
+    const currentPath = window.location.pathname;
+    if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
+      // URL 파라미터에서 from 값 읽기
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get('from') || '';
+      
+      // from 파라미터에 따른 뒤로가기 URL 매핑
+      const backMap = {
+        applied: '/chat/chat_list', // 지원한 공고
+        proposed_job: '/chat/chat_list2', // 제안받은 공고
+        talent_received: '/chat/index_comp', // 제안받은 인재
+        talent_sent: '/chat/chat_list3' // 제안보낸 인재
+      };
+      
+      const backUrl = backMap[from] || '/chat/chat_list';
+      
+      // historyStack에서 현재 페이지 제거
+      const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+      if (historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
+        historyStack.pop();
+        sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+      }
+      
+      // 해당 페이지로 이동
+      window.location.href = backUrl;
+      return;
+    }
+
     const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
 
     // 방문 기록이 2개 이상일 때만 동작
     if (historyStack.length > 1) {
       historyStack.pop(); // 현재 페이지 제거
-      const previousPage = historyStack[historyStack.length - 1]; // 이전 페이지 가져오기
+      let previousPage = historyStack[historyStack.length - 1]; // 이전 페이지 가져오기
+      
+      // 이전 페이지가 splash이면 splash를 제거하고 그 다음 페이지 확인
+      if (previousPage && previousPage.indexOf('/home/splash') > -1) {
+        historyStack.pop(); // splash 제거
+        if (historyStack.length > 0) {
+          previousPage = historyStack[historyStack.length - 1]; // 그 다음 페이지 가져오기
+        } else {
+          // 히스토리가 없으면 홈으로 이동
+          previousPage = '/home/index';
+        }
+      }
+      
+      // 이전 페이지가 여전히 splash이면 홈으로 이동
+      if (previousPage && previousPage.indexOf('/home/splash') > -1) {
+        previousPage = '/home/index';
+      }
+      
       sessionStorage.setItem('historyStack', JSON.stringify(historyStack)); // 기록 업데이트
       window.location.href = previousPage; // 이전 페이지로 이동
     } else {
-      //console.log("No more history to go back to!");
+      // 히스토리가 없거나 1개만 있으면 홈으로 이동
+      window.location.href = '/home/index';
     }
 
     //}, 600); // 애니메이션 지속 시간과 일치
@@ -707,7 +759,9 @@
       '/mypage/resume_list',
       '/compage/recruit_list',
       '/resume/hr_list',
-      '/recruit/job_list'
+      '/recruit/job_list',
+      '/chat/chat_list',
+      '/chat/chat_list2'
     ];
     const isDisableSwipePage = disableSwipePages.includes(currentPath);
 
@@ -730,31 +784,48 @@
   }
 
   if (isIOS()) {
+    let isSwipeBackGesture = false; // 스와이프 뒤로가기 제스처 여부
+
     document.addEventListener('touchstart', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;
 
       //console.log('touchstart');
       startX = event.touches[0].clientX;
-    });
+      isSwipeBackGesture = false; // 초기화
+    }, { passive: true });
 
     document.addEventListener('touchmove', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;
 
       endX = event.touches[0].clientX;
-    });
+      
+      // 왼쪽 가장자리에서 시작하고 오른쪽으로 스와이프하는 경우
+      if (startX < screenWidth * 0.1 && endX - startX > 30) {
+        isSwipeBackGesture = true;
+        // iOS 네이티브 스와이프 뒤로가기 방지
+        event.preventDefault();
+      }
+    }, { passive: false });
 
-    document.addEventListener('touchend', () => {
+    document.addEventListener('touchend', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;
 
-      if (startX < screenWidth * 0.1 && endX - startX > 50) {
+      if (isSwipeBackGesture && startX < screenWidth * 0.1 && endX - startX > 50) {
+        // iOS 네이티브 스와이프 뒤로가기 방지
+        event.preventDefault();
         // 아이폰에서만 왼쪽으로 스와이프 시 뒤로 가기
         //history.back(); // 이전 페이지로 이동
         customBack();
       }
-    });
+      
+      // 초기화
+      isSwipeBackGesture = false;
+      startX = 0;
+      endX = 0;
+    }, { passive: false });
   }
 
   socket.on('connect_error', function(error) {

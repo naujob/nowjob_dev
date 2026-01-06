@@ -177,7 +177,7 @@ function getConvertResumePriceType($price_type)
         width: 100%;
         height: 120px;
         overflow: visible;
-        font-size: 12px;
+        font-size: 16px;
         line-height: 1.5;
         border: 0px;
         transition: background 0.2s ease;
@@ -323,40 +323,39 @@ function getConvertResumePriceType($price_type)
         display: flex;
         flex-direction: column;
         height: 100%;
-        width: 280px;
-        min-width: 180px;
-        flex-shrink: 0;
+        width: 300px;
         align-items: center;
         justify-content: center;
+    }
+
+    /* price_type_wrap 스타일 */
+    .result-list .content-info .desc .desc2 .price_type_wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         gap: 5px;
     }
 
-    .result-list .content-info .desc .desc2 p.area {
-        color: #000;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .result-list .content-info .desc .desc2 .wtype {
+    .result-list .content-info .desc .desc2 .price_type_wrap .price_type {
         display: flex;
         gap: 5px;
-        justify-content: flex-end;
+        justify-content: center;
         position: relative;
         font-weight: 600;
     }
 
-    .result-list .content-info .desc .desc2 .wtype em {
+    .result-list .content-info .desc .desc2 .price_type_wrap .price_type em {
         position: relative;
         display: inline-block;
         font-style: normal;
         color: #333;
     }
 
-    .result-list .content-info .desc .desc2 .wtype em:not(:last-child) {
+    .result-list .content-info .desc .desc2 .price_type_wrap .price_type em:not(:last-child) {
         padding-right: 5px;
     }
 
-    .result-list .content-info .desc .desc2 .wtype em:not(:last-child)::after {
+    .result-list .content-info .desc .desc2 .price_type_wrap .price_type em:not(:last-child)::after {
         content: "";
         position: absolute;
         top: 0;
@@ -368,41 +367,39 @@ function getConvertResumePriceType($price_type)
         border-right: 1px solid #777;
     }
 
-    .result-list .content-info .desc .desc2 .wtype em.wtype1 {
+    .result-list .content-info .desc .desc2 .price_type_wrap .price_type em.wtype1 {
         color: #3a70db;
     }
 
-    .result-list .content-info .desc .desc2 .wtype em.wtype2 {
+    .result-list .content-info .desc .desc2 .price_type_wrap .price_type em.wtype2 {
         color: #F86048;
     }
 
-    .result-list .content-info .desc .desc2 .wtype em.wtype3 {
+    .result-list .content-info .desc .desc2 .price_type_wrap .price_type em.wtype3 {
         color: #1B9D7D;
     }
 
-    .result-list .content-info .desc .desc2 .period {
-        display: flex;
-        gap: 5px;
-        justify-content: flex-end;
-        position: relative;
+    .result-list .content-info .desc .desc2 .price_type_wrap .area {
+        color: #000;
+        font-size: 18px;
         font-weight: 600;
     }
 
-    .result-list .content-info .desc .desc2 .period em {
-        position: relative;
-        display: inline-block;
+    /* ru_price_type 클래스에 대한 스타일 */
+    .result-list .content-info .desc .desc2 .price_type_wrap .ru_price_type {
+        color: #1B9D7D;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    /* ru_price_type 내의 em 태그 기울임 제거 */
+    .result-list .content-info .desc .desc2 .price_type_wrap .ru_price_type em {
         font-style: normal;
+        position: relative;
     }
 
-    .result-list .content-info .desc .desc2 .period em:not(:last-child) {
-        padding-right: 5px;
-    }
-
-    .result-list .content-info .desc .desc2 .period em.on {
-        color: #1b9d7d;
-    }
-
-    .result-list .content-info .desc .desc2 .period em:not(:last-child)::after {
+    /* ru_price_type 내의 구분자 스타일 */
+    .result-list .content-info .desc .desc2 .price_type_wrap .ru_price_type em:not(:last-child)::after {
         content: "";
         position: absolute;
         top: 0;
@@ -411,7 +408,15 @@ function getConvertResumePriceType($price_type)
         width: 1px;
         height: 0.5em;
         margin: auto;
-        border-right: 1px solid #777;
+        border-right: 1px solid #777777;
+    }
+
+    .result-list .content-info .desc .desc2 .price_type_wrap .ru_price_type em:not(:first-child) {
+        padding-left: 5px;
+    }
+
+    .result-list .content-info .desc .desc2 .price_type_wrap .ru_price_type em:not(:last-child) {
+        padding-right: 5px;
     }
 
     .result-list .content-info .desc .desc3 {
@@ -513,11 +518,11 @@ function getConvertResumePriceType($price_type)
                                                         </div>
                                                     </div>
                                                     <div class="desc2">
-                                                        <div class="summary">
-                                                            <p class="wtype"><?= getWorkType2025($row["ru_work_type"]) ?></p>
-                                                            <p class="period"><?= getConvertResumePriceType($row["ru_price_type"]) ?></p>
+                                                        <div class="price_type_wrap">
+                                                            <span class="type price_type" data-work-type="<?= htmlspecialchars($row["ru_work_type"], ENT_QUOTES, 'UTF-8') ?>"></span>
+                                                            <span class="area" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"></span>
+                                                            <span class="ru_price_type" data-price-type="<?= htmlspecialchars($row["ru_price_type"], ENT_QUOTES, 'UTF-8') ?>"></span>
                                                         </div>
-                                                        <p class="area" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
                                                     </div>
                                                     <div class="desc3">
                                                         <ul class="working-day">
@@ -590,14 +595,90 @@ function getConvertResumePriceType($price_type)
         }
     });
 
-    // 주소 정리 함수 적용 (add.js의 fRemoveBigAdrJS 사용)
+    // hr_list.php와 동일한 데이터 정리 함수들
+    function getPriceType(price_type) {
+        if (!price_type) {
+            return "";
+        }
+        if (price_type === "일급,주급,월급") {
+            return "급여협의";
+        }
+
+        // <em> 태그 제거하고 실제 텍스트만 추출
+        const cleanPriceType = price_type.replace(/<\/?em>/g, '');
+
+        // 첫 번째 값만 반환
+        const firstType = cleanPriceType.split(',')[0].trim();
+        return `<em>${firstType}</em>`;
+    }
+
+    function getWorkType(work_type) {
+        if (!work_type) {
+            return "";
+        }
+
+        let items = [];
+        
+        // <span> 태그가 있으면 파싱
+        const spanMatches = work_type.match(/<span>(.*?)<\/span>/g);
+        if (spanMatches && spanMatches.length > 0) {
+            items = spanMatches.map(match => match.replace(/<\/?span>/g, '').trim());
+        } else {
+            // 쉼표로 구분된 문자열 처리
+            items = work_type.split(',').map(item => item.trim()).filter(item => item !== '');
+        }
+
+        if (items.length === 0) {
+            return "";
+        }
+
+        // 첫 번째 값만 사용
+        const text = items[0];
+        let cls = '';
+        if (text === '주간') {
+            cls = 'wtype1';
+        } else if (text === '야간') {
+            cls = 'wtype2';
+        } else if (text === '2교대') {
+            cls = 'wtype3';
+        }
+        return `<em class="${cls}">${text}</em>`;
+    }
+
+    // 데이터 정리 함수 적용 (hr_list.php와 동일)
     $(document).ready(function() {
+        // 주소 정리
         $('.area[data-addr]').each(function() {
             var $this = $(this);
             var originalAddr = $this.data('addr');
             if (originalAddr && typeof fRemoveBigAdrJS === 'function') {
                 var formattedAddr = fRemoveBigAdrJS(originalAddr);
                 $this.text(formattedAddr);
+            }
+        });
+
+        // 근무형태 정리
+        $('.price_type[data-work-type]').each(function() {
+            var $this = $(this);
+            var workType = $this.data('work-type');
+            if (workType) {
+                var formattedWorkType = getWorkType(workType);
+                if (formattedWorkType) {
+                    $this.html(formattedWorkType);
+                } else {
+                    // 디버깅: 데이터가 있지만 포맷팅 실패한 경우
+                    console.log('근무형태 포맷팅 실패:', workType);
+                }
+            }
+        });
+
+        // 급여형태 정리
+        $('.ru_price_type[data-price-type]').each(function() {
+            var $this = $(this);
+            var priceType = $this.data('price-type');
+            if (priceType) {
+                var formattedPriceType = getPriceType(priceType);
+                $this.html(formattedPriceType);
             }
         });
     });

@@ -7182,6 +7182,14 @@ body {
     content: none;
 }
 
+/* 채팅 팝업 배경 흐려짐 제거 및 뒤 페이지 클릭 가능 */
+#chatPopup {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    pointer-events: none;
+}
+
 #chatPopup .popup-container {
     position: relative;
     display: block;
@@ -7215,12 +7223,18 @@ body {
     background: transparent;
     opacity: 0;
     overflow: visible;
+    pointer-events: auto;
 }
 
 #chatPopup.in .popup-content {
     opacity: 1;
     -webkit-animation: slide-left 0.2s 0.2s both;
     animation: slide-left 0.2s 0.2s both;
+}
+
+/* 채팅 팝업이 열릴 때 하단 채팅 버튼 숨기기 */
+#chatPopup.in~#bottomchatbtn {
+    display: none !important;
 }
 
 .chat-container {
@@ -7464,7 +7478,8 @@ body {
     display: -ms-flexbox;
     display: flex;
     position: relative;
-    width: 365px;
+    width: 500px;
+    min-width: 500px;
     height: 100%;
     margin: 0 0 0 -20px;
     -webkit-box-flex: 1;

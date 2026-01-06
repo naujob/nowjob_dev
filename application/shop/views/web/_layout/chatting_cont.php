@@ -525,8 +525,8 @@
 	}
 
 	/* chat-view 넓이 확대 */
-	.chat-view {
-		width: 500px !important;
+	#chatPopup .popup-content .chat-view {
+		width: 500px;
 		min-width: 500px;
 	}
 
@@ -544,6 +544,55 @@
 	/* latest 클래스 내부 category-label height 설정 (main.css 참조 방지를 위해 구체적인 선택자 사용) */
 	#chatPopup p.latest .category-label {
 		height: 19px;
+	}
+
+	/* 채팅팝업 닫기 버튼 z-index 설정 - 다른 요소들 위에 표시되도록 */
+	#chatPopup .btn-close-chat {
+		z-index: 1000;
+		pointer-events: auto;
+	}
+
+	/* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) - main.css의 .tabs .tab flex 스타일과 충돌 방지 */
+	#chatPopup .chat-list-header .tabs li {
+		position: relative;
+	}
+
+	#chatPopup .chat-list-header .tabs li .tab {
+		position: relative;
+	}
+
+	#chatPopup .chat-list-header .tabs li .tab-badge {
+		position: absolute;
+		top: 8px;
+		right: 30px;
+		width: 8px;
+		height: 8px;
+		min-width: 8px;
+		min-height: 8px;
+		max-width: 8px;
+		max-height: 8px;
+		box-sizing: border-box;
+		padding: 0;
+		margin: 0;
+		line-height: 1;
+		flex-shrink: 0;
+		flex-grow: 0;
+		align-self: flex-start;
+		background-color: rgb(248, 96, 72);
+		border-radius: 50%;
+		display: none;
+		z-index: 10;
+	}
+
+	/* ::before와 ::after 사용 방지 */
+	#chatPopup .chat-list-header .tabs li .tab-badge::before,
+	#chatPopup .chat-list-header .tabs li .tab-badge::after {
+		content: none;
+		display: none;
+	}
+
+	#chatPopup .chat-list-header .tabs li.has-unread .tab-badge {
+		display: block;
 	}
 </style>
  <div id="chatPopup" class="layer-popup">
@@ -569,22 +618,22 @@
  						<div class="chat-list-header">
  							<!-- 탭목록 -->
  							<ul role="tablist" class="tabs">
- 								<?php if ($user_type == "MEM") { ?>
- 									<li class="on chat_tab1" style="width:50%;">
- 										<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">지원한 공고</span></a>
- 									</li>
- 									<li class="chat_tab2" style="width:50%;">
- 										<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안받은 공고</span></a>
- 									</li>
- 								<?php } ?>
- 								<?php if ($user_type == "COMP") { ?>
- 									<li class="on chat_tab1" style="width:50%;">
- 										<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안받은 인재</span></a>
- 									</li>
- 									<li class="chat_tab2" style="width:50%;">
- 										<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안보낸 인재</span></a>
- 									</li>
- 								<?php } ?>
+							<?php if ($user_type == "MEM") { ?>
+								<li class="on chat_tab1" style="width:50%;">
+									<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">지원한 공고</span><span class="tab-badge"></span></a>
+								</li>
+								<li class="chat_tab2" style="width:50%;">
+									<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안받은 공고</span><span class="tab-badge"></span></a>
+								</li>
+							<?php } ?>
+							<?php if ($user_type == "COMP") { ?>
+								<li class="on chat_tab1" style="width:50%;">
+									<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">지원한 인재</span><span class="tab-badge"></span></a>
+								</li>
+								<li class="chat_tab2" style="width:50%;">
+									<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안한 인재</span><span class="tab-badge"></span></a>
+								</li>
+							<?php } ?>
  								<!--
 																<li class="chat_tab3">
                                     <a href="#chatPanel3" role="tab" aria-selected="false" aria-controls="chatPanel3" id="chatTab3" class="tab"><span>중고거래</span></a>
@@ -1095,10 +1144,6 @@
 					<div class="title-wrap">
 						<p class="title"><strong>{{rc_name}}</strong></p>
 					</div>
-					<!-- 채팅방 개수 -->
-					<div class="meta" style="font-size: 12px;color:#999;">
-						<p class="room-count-text">채팅방 {{room_count}}명</p>
-					</div>
 				</div>
  			</div>
  		</a>
@@ -1279,8 +1324,49 @@
  <script>
  	var room_list_all = {};
 
- 	//대화내용 중복 차단 내역 초기화
- 	let processedIdx = [];
+	//대화내용 중복 차단 내역 초기화
+	let processedIdx = [];
+	
+	// 🔥 채팅방 입장 시 읽음 카운트 정보 저장 (room_join_return에서 받은 정보)
+	let pendingReadCounts = {};
+	// 🔥 room_join_return에서 받은 메시지 리스트 저장 (상대방이 읽은 메시지 추적)
+	let roomJoinReadMessages = [];
+	// 🔥 메시지 전송 시간 기록 (메시지 전송 직후 readcount 보호용)
+	let messageSentTimes = {};
+	// 🔥 timeline 메시지의 mg_idx 추적 (readcount 업데이트 방지용)
+	let timelineMessageIdx = [];
+	// 🔥 fSearchNoReadCount 디바운싱을 위한 타이머 변수
+	let fSearchNoReadCountTimer = null;
+
+	// 채팅방 진입 시 processedIdx 초기화
+	function resetProcessedIdx() {
+		processedIdx = [];
+		timelineMessageIdx = []; // timeline 메시지 추적도 초기화
+	}
+	
+	// 🔥 읽음 카운트 업데이트 함수 (메시지 요소가 있을 때 사용)
+	// ✅ force: true이면 강제 업데이트, false이면 이미 readcount가 있으면 업데이트하지 않음
+	function updateReadCount(mg_idx, count, force) {
+		var $msgElement = $("#mg_idx_" + mg_idx);
+		if ($msgElement.length > 0) {
+			// ✅ force가 false이고 이미 readcount가 있으면 업데이트하지 않음 (message_insert_return에서 설정한 값 보존)
+			if (!force) {
+				var currentReadcount = $msgElement.find(".readcount").html();
+				if (currentReadcount && currentReadcount.trim() !== "") {
+					// 이미 readcount가 있으면 업데이트하지 않음
+					return true;
+				}
+			}
+			
+			if (count == 0) {
+				$msgElement.find(".readcount").html("");
+			} else {
+				$msgElement.find(".readcount").html(count);
+			}
+			return true; // 업데이트 성공
+		}
+		return false; // 메시지 요소 없음
+	}
 
 	function maskingName(name) {
 		if (name == null) {
@@ -1355,18 +1441,61 @@
  		var chat_tab_id = "1";
  		var last_send_dt = "";
  		var rm_idx = "";
- 		var rm_info = {};
- 		var rm_start = 0;
- 		var rm_length = 20;
- 		var rm_count = 0;
- 		$(document).ready(function() {
- 			$("#top_trade").hide();
- 			$("#top_recruit").show();
+		//  채팅방(room)의 정보를 저장할 변수 선언부
+		// 현재 채팅방에 속한 사용자, 상태 등 방 상세 정보를 전역에서 관리/활용하려고 초기화한다.
+		// 이변수는 무엇을 의미? : rm_info는 현재 사용자가 입장한 채팅방의 정보(예: 참가자, 상태, 채팅방 번호 등)를 담기 위한 객체다.
+		var rm_info = {}; // 채팅방 정보 저장용 객체
+		var rm_info_ready = false; // 채팅방 정보 준비 완료 플래그 (실무에서 사용하는 방법)
+		var rm_start = 0;
+		var rm_length = 20;
+		var rm_count = 0;
+		var g_chat_other_id = ""; // ✅ 채팅방 생성 시점의 상대방 user_id 저장 (최초 메시지 전송 시 사용)
+		// 🔥 주기적 폴링을 위한 타이머 변수
+		var noreadCountPollingTimer = null;
+		// 🔥 탭별 rm_idx 리스트 저장 (tab-badge 실시간 업데이트용)
+		var tab1RoomIdxList = []; // 탭1에 속한 rm_idx 리스트
+		var tab2RoomIdxList = []; // 탭2에 속한 rm_idx 리스트
+		
+		$(document).ready(function() {
+			$("#top_trade").hide();
+			$("#top_recruit").show();
 
- 			//룸정보 가져오기
- 			g_user_id = $("#user_id").val();
+			//룸정보 가져오기
+			g_user_id = $("#user_id").val();
+			
+			// 🔥 주기적 폴링: 10초마다 읽지 않은 메시지 카운트 업데이트 (채팅방에 입장하지 않은 경우 대비)
+			// 페이지가 포커스를 받을 때도 즉시 업데이트
+			function startNoreadCountPolling() {
+				// 기존 타이머가 있으면 제거
+				if (noreadCountPollingTimer) {
+					clearInterval(noreadCountPollingTimer);
+				}
+				// 10초마다 실행
+				noreadCountPollingTimer = setInterval(function() {
+					//console.log("⏰ 주기적 폴링 - fSearchNoReadCountDebounced() 호출");
+					fSearchNoReadCountDebounced();
+				}, 10000); // 10초마다
+			}
+			
+			// 페이지 포커스 시 즉시 업데이트
+			$(window).on('focus', function() {
+				//console.log("👁️ 페이지 포커스 - fSearchNoReadCountDebounced() 호출");
+				fSearchNoReadCountDebounced();
+			});
+			
+			// 주기적 폴링 시작
+			startNoreadCountPolling();
+			
+			// 🔥 초기 로드 시 탭2도 미리 로드하여 tab2RoomIdxList 채우기 (tab-badge 실시간 업데이트용)
+			// 탭을 클릭하지 않아도 tab-badge가 실시간으로 업데이트되도록 함
+			<?php if ($user_type == "MEM") { ?>
+				getChatTargetList(2); // 제안받은 공고 탭 미리 로드
+			<?php } ?>
+			<?php if ($user_type == "COMP") { ?>
+				getChatTargetList(2); // 제안보낸 인재 탭 미리 로드
+			<?php } ?>
 
- 			$(".js-open-chat").click(function() {
+			$(".js-open-chat").click(function() {
  				if (mm_type == "MEM") {
  					//$(".chat_tab1").html("");
  					//setShow("2");
@@ -1420,14 +1549,27 @@
 
  		}); //ready
 
- 		//var noReadCountProc = false;
- 		function fSearchNoReadCount() {
- 			//alert(1);
- 			//if(noReadCountProc) return;
- 			//noReadCountProc = true;
+		//var noReadCountProc = false;
+		// 🔥 디바운싱을 적용한 fSearchNoReadCount 호출 함수
+		function fSearchNoReadCountDebounced() {
+			//console.log("🔥 fSearchNoReadCountDebounced() 호출됨");
+			if (fSearchNoReadCountTimer) {
+				clearTimeout(fSearchNoReadCountTimer);
+				//console.log("⏱️ 기존 타이머 취소");
+			}
+			fSearchNoReadCountTimer = setTimeout(function() {
+				//console.log("✅ fSearchNoReadCount() 실행 (디바운싱 완료)");
+				fSearchNoReadCount();
+			}, 500); // 500ms 디바운싱
+		}
+		
+		function fSearchNoReadCount() {
+			//alert(1);
+			//if(noReadCountProc) return;
+			//noReadCountProc = true;
 
- 			//공고리스트에 미확인 채팅건수 조회 확인
- 			comAjax("/chat_proc/fSearchNoReadCount", {}, function(ret) {
+			//공고리스트에 미확인 채팅건수 조회 확인
+			comAjax("/chat_proc/fSearchNoReadCount", {}, function(ret) {
  				//console.log('fSearchNoReadCount');
  				//console.log(ret);
 
@@ -1480,140 +1622,101 @@
  					}
  				}
 
- 				//console.log(readCounts);
+				//console.log(readCounts);
 
- 				//////////////
+				//////////////
 
- 				// Iterate over each rm_idx and log the required information
- 				for (const key in results) {
- 					if (results.hasOwnProperty(key)) {
- 						const result = results[key];
- 						const {
- 							rm_idx,
- 							rm_subject,
- 							rm_messages
- 						} = result;
- 						let readNCount = 0;
+				<?php if ($user_type == "COMP") { ?>
+					// c11 처리를 위해 모든 content-wrap의 data-noreadcnt 초기화 및 기존 c11 제거
+					$('#chat_list1 .content-wrap, #chat_list2 .content-wrap').each(function() {
+						$(this).data('noreadcnt', 0);
+						$(this).find('.chat_noread_cnt.c11').remove();
+					});
+				<?php } ?>
 
- 						// Count the number of read_yn === 'Y'
- 						rm_messages.forEach(message => {
- 							message.mg_reads.forEach(read => {
- 								if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
- 									readNCount++;
- 								}
- 							});
- 						});
+				// Iterate over each rm_idx and log the required information
+				for (const key in results) {
+					if (results.hasOwnProperty(key)) {
+						const result = results[key];
+						const {
+							rm_idx,
+							rm_subject,
+							rm_messages
+						} = result;
+						let readNCount = 0;
 
- 						// Log the information
- 						//console.log(`rm_idx: ${rm_idx}, rm_subject: ${rm_subject}, read_yn N count: ${readNCount}`);
+						// Count the number of read_yn === 'Y'
+						rm_messages.forEach(message => {
+							message.mg_reads.forEach(read => {
+								if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
+									readNCount++;
+								}
+							});
+						});
 
- 						<?php if ($user_type == "MEM") { ?>
- 							//alert(rm_idx+':'+readNCount);
- 							if (readNCount > 0) {
- 								$('#chat_list1 .room_idx_' + rm_idx).append('<span class="chat_noread_cnt" style="top:44px; right:30px;">' + readNCount + '</span>');
- 								$('#chat_list2 .room_idx_' + rm_idx).append('<span class="chat_noread_cnt" style="top:44px; right:30px;">' + readNCount + '</span>');
- 							}
- 						<?php } ?>
- 						<?php if ($user_type == "COMP") { ?>
- 							//alert('read');
- 							$('#chat_list1 .content-wrap').each(function() { //#chat_list1 .content-wrap
- 								//alert('cont');
- 								//$(this).data('noreadcnt','0');
+						// Log the information
+						//console.log(`rm_idx: ${rm_idx}, rm_subject: ${rm_subject}, read_yn N count: ${readNCount}`);
 
- 								var roomIdxList = $(this).data('room_idx_list');
- 								//alert(roomIdxList);
- 								if (roomIdxList != undefined) {
- 									//alert('if');
- 									//alert($(this).data('noreadcnt'));
- 									//alert(rm_idx);
+						<?php if ($user_type == "MEM") { ?>
+							//alert(rm_idx+':'+readNCount);
+							if (readNCount > 0) {
+								$('#chat_list1 .room_idx_' + rm_idx).append('<span class="chat_noread_cnt c11" style="top:44px; right:30px;">' + readNCount + '</span>');
+								$('#chat_list2 .room_idx_' + rm_idx).append('<span class="chat_noread_cnt c11" style="top:44px; right:30px;">' + readNCount + '</span>');
+							}
+						<?php } ?>
+						<?php if ($user_type == "COMP") { ?>
+							//alert('read');
+							// c11: content-wrap의 data-noreadcnt에 누적 (모든 rm_idx 처리 후 마지막에 한 번만 표시)
+							$('#chat_list1 .content-wrap, #chat_list2 .content-wrap').each(function() {
+								var roomIdxList = $(this).data('room_idx_list');
+								if (roomIdxList != undefined) {
+									// 괄호를 제거하고, 문자열을 콤마로 분리하여 배열로 변환
+									var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',');
 
- 									// 괄호를 제거하고, 문자열을 콤마로 분리하여 배열로 변환
- 									var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',');
+									// 숫자 값으로 변환
+									roomIdxArray = roomIdxArray.map(function(idx) {
+										return parseInt(idx.trim(), 10);
+									});
 
- 									// 숫자 값으로 변환
- 									roomIdxArray = roomIdxArray.map(function(idx) {
- 										return parseInt(idx.trim(), 10);
- 									});
+									if (roomIdxArray.includes(rm_idx)) {
+										// data-noreadcnt에 readNCount 누적 (NaN 방지를 위해 기본값 0 사용)
+										var currentCnt = parseInt($(this).data('noreadcnt')) || 0;
+										$(this).data('noreadcnt', currentCnt + readNCount);
+									}
+								}
+							});
+							
+							// c12: room-item에 직접 추가
+							$('#chat_list1 .room-item').each(function() {
+								if ($(this).hasClass('room_idx_' + rm_idx)) {
+									if (readNCount > 0) {
+										$(this).append('<span class="chat_noread_cnt c12" style="top:32px; right:30px;">' + readNCount + '</span>');
+									}
+								}
+							});
 
- 									if (roomIdxArray.includes(rm_idx)) {
- 										//console.log("roomIdxArray:"+rm_idx);
- 										//console.log(parseInt($(this).data('noreadcnt')));
- 										//console.log(readNCount);
-
- 										$(this).data('noreadcnt', parseInt($(this).data('noreadcnt')) + readNCount);
- 										//console.log($(this).html());
- 										//console.log($(this).data('noreadcnt'));
-
- 										var $chatNoreadCnt = $(this).find('.chat_noread_cnt');
- 										//if ($chatNoreadCnt.length==0) {
- 										//console.log('set1');
- 										if ($(this).data('noreadcnt') > 0) {
- 											//console.log('set2');
- 											$(this).append('<span class="chat_noread_cnt c11">' + $(this).data('noreadcnt') + '</span>');
- 										}
- 										//}
- 									};
-
-
- 									// if (roomIdxList.indexOf('('+rm_idx+')') > -1) {
- 									// 		alert('ifif');
- 									// 		$(this).append('<span class="chat_noread_cnt">'+$(this).data('noreadcnt')+'</span>');
- 									// }
- 								}
- 							});
- 							$('#chat_list1 .room-item').each(function() {
- 								if ($(this).hasClass('room_idx_' + rm_idx)) {
- 									if (readNCount > 0) {
- 										$(this).append('<span class="chat_noread_cnt c12" style="top:32px; right:30px;">' + readNCount + '</span>');
- 									}
-
- 									//$(this).parent().parent().find('.angle-link').first().append('<span class="chat_noread_cnt" style="top:44px; right:30px;">'+readNCount+'</span>');
-
- 									//채팅목록의 부모창 (채용공고 에 카운트 up 하는 부분 숨김, 이미 data 속성으로 처리했음)
- 									//var $firstAngleLink = $(this).parent().parent().find('.angle-link').first();
- 									//var $chatNoreadCnt = $firstAngleLink.find('.chat_noread_cnt');
-
- 									//if ($chatNoreadCnt.length) {
- 									//	// If chat_noread_cnt exists, update the count
- 									//	var currentCount = parseInt($chatNoreadCnt.text(), 10);
- 									//	var newCount = currentCount + readNCount;
- 									//	$chatNoreadCnt.text(newCount);
- 									//} else {
- 									//	// If chat_noread_cnt doesn't exist, append new element
- 									//	$firstAngleLink.append('<span class="chat_noread_cnt" style="top:44px; right:30px;">' + readNCount + '</span>');
- 									//}
-
- 								}
- 							});
- 							$('#chat_list2 .content-wrap').each(function() {
- 								var roomIdxList = $(this).data('room_idx_list');
- 								if (roomIdxList != undefined) {
- 									var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',');
-
- 									roomIdxArray = roomIdxArray.map(function(idx) {
- 										return parseInt(idx.trim(), 10);
- 									});
-
- 									if (roomIdxArray.includes(rm_idx)) {
- 										$(this).data('noreadcnt', parseInt($(this).data('noreadcnt')) + readNCount);
-
- 										var $chatNoreadCnt = $(this).find('.chat_noread_cnt');
- 										//if ($chatNoreadCnt.length==0) {
- 										if ($(this).data('noreadcnt') > 0) {
- 											$(this).append('<span class="chat_noread_cnt c11">' + $(this).data('noreadcnt') + '</span>');
- 										}
- 										//}
- 									};
- 								}
- 							});
-
- 							if (readNCount > 0) {
- 								$('#chat_list2 .room_idx_' + rm_idx).append('<span class="chat_noread_cnt" style="top:33px; right:30px;">' + readNCount + '</span>');
- 							}
+							if (readNCount > 0) {
+								$('#chat_list2 .room_idx_' + rm_idx).append('<span class="chat_noread_cnt" style="top:33px; right:30px;">' + readNCount + '</span>');
+							}
 						<?php } ?>
 
 					}
 				}
+
+				<?php if ($user_type == "COMP") { ?>
+					// 모든 rm_idx 처리 완료 후 c11 표시 (누적된 data-noreadcnt 값 사용)
+					$('#chat_list1 .content-wrap, #chat_list2 .content-wrap').each(function() {
+						var noreadcnt = parseInt($(this).data('noreadcnt')) || 0;
+						
+						// 기존 c11 제거 (혹시 남아있을 수 있음)
+						$(this).find('.chat_noread_cnt.c11').remove();
+						
+						// 새로운 카운트가 0보다 크면 추가
+						if (noreadcnt > 0) {
+							$(this).append('<span class="chat_noread_cnt c11">' + noreadcnt + '</span>');
+						}
+					});
+				<?php } ?>
 
 				// 전체 안읽은 메시지 카운트 계산하여 noreadcountall 업데이트
 				var countAll = 0;
@@ -1648,6 +1751,63 @@
 					$('#noreadcountall').hide();
 				}
 
+				// 탭에 읽지 않은 메시지 알림 표시
+				// 🔥 서버 응답에서 직접 탭별 읽지 않은 메시지 개수 계산 (DOM 요소에 의존하지 않음)
+				var tab1UnreadCount = 0;
+				var tab2UnreadCount = 0;
+				
+				// 서버 응답에서 각 rm_idx의 읽지 않은 메시지 개수를 탭별로 계산
+				for (const key in results) {
+					if (results.hasOwnProperty(key)) {
+						const result = results[key];
+						const { rm_idx, rm_messages } = result;
+						
+						// 해당 rm_idx의 읽지 않은 메시지 개수 계산
+						let readNCount = 0;
+						rm_messages.forEach(message => {
+							message.mg_reads.forEach(read => {
+								if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
+									readNCount++;
+								}
+							});
+						});
+						
+						// 탭1에 속한 rm_idx인지 확인
+						if (tab1RoomIdxList.indexOf(rm_idx) !== -1) {
+							tab1UnreadCount += readNCount;
+						}
+						
+						// 탭2에 속한 rm_idx인지 확인
+						if (tab2RoomIdxList.indexOf(rm_idx) !== -1) {
+							tab2UnreadCount += readNCount;
+						}
+					}
+				}
+				
+				// 탭1 (chat_list1) 확인
+				// DOM 요소도 확인 (하위 호환성)
+				var hasUnreadTab1DOM = $('#chat_list1 .chat_noread_cnt.c11').length > 0;
+				var hasUnreadTab1 = tab1UnreadCount > 0 || hasUnreadTab1DOM;
+				if (hasUnreadTab1) {
+					$('.chat_tab1').addClass('has-unread');
+					//console.log("✅ 탭1 has-unread 추가 - 서버 응답:", tab1UnreadCount, "DOM:", hasUnreadTab1DOM);
+				} else {
+					$('.chat_tab1').removeClass('has-unread');
+					//console.log("ℹ️ 탭1 has-unread 제거 - 서버 응답:", tab1UnreadCount, "DOM:", hasUnreadTab1DOM);
+				}
+
+				// 탭2 (chat_list2) 확인
+				// DOM 요소도 확인 (하위 호환성)
+				var hasUnreadTab2DOM = $('#chat_list2 .chat_noread_cnt.c11').length > 0 || $('#chat_list2 .chat_noread_cnt').length > 0;
+				var hasUnreadTab2 = tab2UnreadCount > 0 || hasUnreadTab2DOM;
+				if (hasUnreadTab2) {
+					$('.chat_tab2').addClass('has-unread');
+					//console.log("✅ 탭2 has-unread 추가 - 서버 응답:", tab2UnreadCount, "DOM:", hasUnreadTab2DOM);
+				} else {
+					$('.chat_tab2').removeClass('has-unread');
+					//console.log("ℹ️ 탭2 has-unread 제거 - 서버 응답:", tab2UnreadCount, "DOM:", hasUnreadTab2DOM);
+				}
+
 
 			}); //comAjax
 
@@ -1657,7 +1817,7 @@
 		// 기업회원 제안받은 인재 / 제안보낸 인재 탭의 항목 클릭시 채팅방 진입
 		$(document).on("click", ".room-item", function() {
 			//대화내용 중복 차단 내역 초기화
-			processedIdx = [];
+			resetProcessedIdx();
 
 			//alert('제안보낸리스트 클릭');
 
@@ -1669,6 +1829,13 @@
 			rm_idx = $(this).data("target_id");
 			// get_chat_info 중복 호출 방지 플래그 초기화
 			window.chat_info_called = false;
+			// 채팅방 정보 준비 상태 초기화 (실무 방법)
+			rm_info_ready = false;
+			rm_info = {};
+			// ✅ g_chat_other_id 초기화 제거: room_info_return에서 상대방 ID를 찾아서 설정하므로 초기화 불필요
+			// 또한 .angle-link-resume 클릭 후 채팅방 생성 시점에 저장된 g_chat_other_id를 보존하기 위해 초기화하지 않음
+			// g_chat_other_id = ""; // 제거됨
+			$("#btnSend").prop("disabled", true); // 버튼 비활성화
 			//alert('1:'+rm_idx);
 
 
@@ -1726,12 +1893,39 @@
 			// 채팅방 진입 시 안읽은 메시지 카운트 제거
 			// 지원한 공고, 제안받은 공고, resumebox_ 내부 인재 목록 등 모든 room-item 클릭 시 처리
 			// chat_noread_cnt, chat_noread_cnt c11 등 모든 변형 제거
-			// 클릭한 room-item 내부의 모든 chat_noread_cnt 제거
+			// 클릭한 room-item 내부의 모든 chat_noread_cnt 제거 (특정 room-item만 처리)
 			$li.find('.chat_noread_cnt').remove();
 			$li.find('[class*="chat_noread_cnt"]').remove();
-			// room_idx_ 클래스를 가진 모든 요소에서 chat_noread_cnt 제거 (다른 위치에 있을 수 있음)
-			$('.room_idx_' + rm_idx).find('.chat_noread_cnt').remove();
-			$('.room_idx_' + rm_idx).find('[class*="chat_noread_cnt"]').remove();
+			// 클릭한 특정 room-item의 c12만 제거 (여러 room_idx_가 있을 수 있으므로 클릭한 것만 처리)
+			$li.find('.chat_noread_cnt.c12').remove();
+			
+			// c11 처리: 클릭한 요소 내부의 content-wrap에서 c11 카운트 제거 (c12와 동일한 방식)
+			<?php if ($user_type == "COMP") { ?>
+				// 클릭한 li 요소 내부의 content-wrap에서 c11 제거
+				var $contentWrap = $li.find('.content-wrap');
+				if ($contentWrap.length > 0) {
+					$contentWrap.find('.chat_noread_cnt.c11').remove();
+				}
+				
+				// 클릭한 요소가 room-item이 아닌 경우 (tpl_chat 템플릿 사용 시)를 대비하여
+				// rm_idx가 포함된 모든 content-wrap에서도 제거
+				$('#chat_list1 .content-wrap, #chat_list2 .content-wrap').each(function() {
+					var roomIdxList = $(this).data('room_idx_list');
+					if (roomIdxList != undefined) {
+						var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',');
+						roomIdxArray = roomIdxArray.map(function(idx) {
+							return parseInt(idx.trim(), 10);
+						});
+						
+						if (roomIdxArray.includes(rm_idx)) {
+							var $chatNoreadCnt = $(this).find('.chat_noread_cnt.c11');
+							if ($chatNoreadCnt.length > 0) {
+								$chatNoreadCnt.remove();
+							}
+						}
+					}
+				});
+			<?php } ?>
 			//$('.chat-list-body').scrollTop(0);
 			//미확인 카운트수 다시 조회(화면 하단 플로팅)
 			socket.emit("message_user_read_count", {
@@ -1748,9 +1942,11 @@
  		// 리턴 처리
  		/////////////////////////////////////////////////////////
 
- 		//회원리스트 가져오기
- 		//console.log("room_list_return set");
- 		socket.on("room_list_return", function(ret) {
+		//회원리스트 가져오기
+		//console.log("room_list_return set");
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_list_return");
+		socket.on("room_list_return", function(ret) {
  			//console.log("room_list_return 1");
  			//alert('room_list_return 1');
  			//console.log(ret);
@@ -1833,9 +2029,11 @@
  			}
  		});
 
- 		//회원리스트 가져오기2
- 		var roomIdxArr = [];
- 		socket.on("room_list_return2", function(ret) {
+		//회원리스트 가져오기2
+		var roomIdxArr = [];
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_list_return2");
+		socket.on("room_list_return2", function(ret) {
  			//console.log('room_list_return2');
  			//alert('room_list_return2');
 
@@ -1906,25 +2104,58 @@
  			}
  		});
 
- 		//실시간 메시지 정보 리스트
- 		socket.on("message_list_refresh", function(ret) {
- 			//alert("message_list_refresh");
- 			g_user_id = $("#user_id").val();
- 			socket.emit("room_list", {
- 				user_id: g_user_id,
- 				rm_type: (chat_tab_id == "2" ? "chat" : "trade")
- 			});
- 		});
+		//실시간 메시지 정보 리스트
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("message_list_refresh");
+		socket.on("message_list_refresh", function(ret) {
+			//console.log("=== message_list_refresh 이벤트 수신 ===");
+			//console.log("ret:", ret);
+			//alert("message_list_refresh");
+			g_user_id = $("#user_id").val();
+			socket.emit("room_list", {
+				user_id: g_user_id,
+				rm_type: (chat_tab_id == "2" ? "chat" : "trade")
+			});
+			// 🔥 메시지 리스트 갱신 시 읽지 않은 메시지 카운트 업데이트 (디바운싱 적용)
+			// 채팅방에 입장하지 않은 상태에서도 메시지가 올 때 카운트 업데이트
+			//console.log("✅ message_list_refresh - fSearchNoReadCountDebounced() 호출");
+			fSearchNoReadCountDebounced();
+		});
 
  		//console.log('user_id:'+g_user_id);
 
- 		//[공통] : 알림 메시지 수신
- 		socket.on("realtime_message", function(ret) {
- 			//alert("realtime_message");
- 			if (ret.type == "chat") {
- 				//alert(ret.not_read);
- 			}
- 		});
+		//[공통] : 알림 메시지 수신
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("realtime_message");
+		socket.on("realtime_message", function(ret) {
+			//console.log("=== realtime_message 이벤트 수신 ===");
+			//console.log("ret:", ret);
+			//console.log("ret.type:", ret.type);
+			//alert("realtime_message");
+			if (ret.type == "chat") {
+				//alert(ret.not_read);
+				// 🔥 실시간 메시지 수신 시 읽지 않은 메시지 카운트 업데이트 (디바운싱 적용)
+				//console.log("✅ realtime_message 이벤트 수신 (type: chat) - fSearchNoReadCountDebounced() 호출");
+				fSearchNoReadCountDebounced();
+			} else {
+				//console.log("ℹ️ realtime_message 이벤트 수신 (type: " + ret.type + ") - 처리하지 않음");
+			}
+		});
+
+		// 🔥 chat_notification 이벤트 핸들러 추가 (채팅방에 입장하지 않은 상태에서도 메시지 수신 시)
+		socket.off("chat_notification");
+		// [기능설명] 실시간 채팅 알림이 오면(채팅방에 입장하지 않은 경우) 안읽은 메시지 카운트를 새로 계산해서 UI에 표시하는 역할
+		socket.on("chat_notification", function(ret) {
+			//console.log("=== chat_notification 이벤트 수신 ===");
+			//console.log("ret:", ret);
+			//console.log("ret.rm_idx:", ret.rm_idx);
+			//console.log("ret.mg_idx:", ret.mg_idx);
+			//console.log("ret.sender_name:", ret.sender_name);
+			//console.log("ret.message:", ret.message);
+			// 🔥 채팅 알림 수신 시 읽지 않은 메시지 카운트 업데이트 (디바운싱 적용)
+			//console.log("✅ chat_notification 이벤트 수신 - fSearchNoReadCountDebounced() 호출");
+			fSearchNoReadCountDebounced();
+		});
 
 		function setShow(type) {
 			if (type == "1") {
@@ -2035,8 +2266,48 @@
 				if (ret.code == "00") {
 					// 배열이 아닐 경우를 대비하여 배열 체크 및 기본값 설정
 					var list = Array.isArray(ret.data.list) ? ret.data.list : [];
+					
+					// 🔥 탭별 rm_idx 리스트 저장 (tab-badge 실시간 업데이트용)
+					if (arg == '1') {
+						tab1RoomIdxList = [];
+					} else if (arg == '2') {
+						tab2RoomIdxList = [];
+					}
+					
 					list.forEach(function(row) {
 						//console.log(row);
+						
+						// 🔥 탭별 rm_idx 리스트에 추가
+						if (row.rm_idx) {
+							if (arg == '1') {
+								if (tab1RoomIdxList.indexOf(row.rm_idx) === -1) {
+									tab1RoomIdxList.push(row.rm_idx);
+								}
+							} else if (arg == '2') {
+								if (tab2RoomIdxList.indexOf(row.rm_idx) === -1) {
+									tab2RoomIdxList.push(row.rm_idx);
+								}
+							}
+						}
+						
+						// 🔥 room_idx_list가 있으면 그것도 추가 (기업회원의 경우)
+						if (row.rm_idx_list) {
+							var roomIdxArray = row.rm_idx_list.replace(/[()]/g, '').split(',');
+							roomIdxArray = roomIdxArray.map(function(idx) {
+								return parseInt(idx.trim(), 10);
+							});
+							roomIdxArray.forEach(function(rmIdx) {
+								if (arg == '1') {
+									if (tab1RoomIdxList.indexOf(rmIdx) === -1) {
+										tab1RoomIdxList.push(rmIdx);
+									}
+								} else if (arg == '2') {
+									if (tab2RoomIdxList.indexOf(rmIdx) === -1) {
+										tab2RoomIdxList.push(rmIdx);
+									}
+								}
+							});
+						}
 
  						<?php if ($user_type == "MEM") { ?>
  							// 탭1: 지원한 공고 (tpl_chat_mem), 탭2: 제안받은 공고 (tpl_chat2)
@@ -2119,19 +2390,6 @@
 							}
 						<?php } ?>
 
-						// 채팅방 개수 계산
-						var roomCount = 0;
-						if (row.rm_idx_list && row.rm_idx_list !== "()" && row.rm_idx_list.trim() !== "") {
-							// 괄호 제거하고 콤마로 분리
-							var roomIdxArray = row.rm_idx_list.replace(/[()]/g, '').split(',');
-							// 빈 문자열 필터링하고 숫자로 변환
-							roomIdxArray = roomIdxArray.filter(function(idx) {
-								return idx.trim() !== '';
-							});
-							roomCount = roomIdxArray.length;
-						}
-						$content = $content.replaceAll("{{room_count}}", roomCount);
-
 						//복사한 내용 다시 넣기
 						$clone.html($content);
 
@@ -2213,7 +2471,16 @@
 			//키값 설정
 			g_rc_idx = $(this).data("rc_idx");
 			g_ru_idx = $(this).data("ru_idx");
-
+			
+			// ✅ 채팅방 생성 시점의 상대방 user_id 저장 (최초 메시지 전송 시 사용)
+			// target_id가 비어있지 않을 때만 저장 (get_chat_info에서 받은 값 사용 가능)
+			if (target_id && target_id !== "" && target_id !== null && target_id !== undefined) {
+				g_chat_other_id = target_id;
+			} else {
+				// target_id가 비어있으면 초기화 (get_chat_info에서 받은 값 사용)
+				g_chat_other_id = "";
+			}
+			
  			var params = {};
  			params["rm_type"] = g_rm_type;
  			params["rc_idx"] = g_rc_idx;
@@ -2260,46 +2527,56 @@
  										user_id: user_id,
  										user_list: chat_suer,
  										rm_idx: Number(ret2.data.rm_idx),
- 										rc_idx: g_rc_idx,
- 										rm_type: "chat",
- 										rm_img: "",
- 										rm_subject: subject,
- 										rm_desc: "",
- 									};
+										rc_idx: g_rc_idx,
+										rm_type: "chat",
+										rm_img: "",
+										rm_subject: subject,
+										rm_desc: "",
+									};
 
- 									//기본 문구 전송
- 									first_yn = ret2.data.first_yn;
- 									first_message = {
- 										rm_idx: Number(ret2.data.rm_idx),
- 										user_id: user_id,
- 										chat_type: "recruit",
- 										mg_type: "text",
- 										mg_text: "1:1 채팅을 시작합니다!",
- 										mg_req_dt: "",
- 										mg_img: "",
- 										mg_file: "",
- 										mg_imoti: "",
- 										mg_dt: getCurrentDate(),
- 										mg_reads: new Array(),
- 									};
- 									first_message.mg_reads.push({
- 										read_yn: "Y",
- 										user_id: user_id
- 									});
- 									first_message.mg_reads.push({
- 										read_yn: "N",
- 										user_id: target_id
- 									});
+									//기본 문구 전송
+									first_yn = ret2.data.first_yn;
+									//console.log("=== first_message 및 first_users 정의 (recruit - rc_idx 포함) ===");
+									//console.log("first_yn:", first_yn);
+									//console.log("user_id:", user_id);
+									//console.log("target_id:", target_id);
+									//console.log("user_name:", user_name);
+									//console.log("target_name:", target_name);
+									
+									first_message = {
+										rm_idx: Number(ret2.data.rm_idx),
+										user_id: user_id,
+										chat_type: "recruit",
+										mg_type: "text",
+										mg_text: "1:1 채팅을 시작합니다!",
+										mg_req_dt: "",
+										mg_img: "",
+										mg_file: "",
+										mg_imoti: "",
+										mg_dt: getCurrentDate(),
+										mg_reads: new Array(),
+									};
+									first_message.mg_reads.push({
+										read_yn: "Y",
+										user_id: user_id
+									});
+									first_message.mg_reads.push({
+										read_yn: "N",
+										user_id: target_id
+									});
+									//console.log("first_message:", JSON.stringify(first_message));
 
- 									//회원정보
- 									first_users.push({
- 										user_id: user_id,
- 										user_nick: user_name
- 									});
- 									first_users.push({
- 										user_id: target_id,
- 										user_nick: target_name
- 									});
+									//회원정보
+									first_users = []; // 초기화
+									first_users.push({
+										user_id: user_id,
+										user_nick: user_name
+									});
+									first_users.push({
+										user_id: target_id,
+										user_nick: target_name
+									});
+									//console.log("first_users:", JSON.stringify(first_users));
 
  									//발생성
  									click_type = "chat";
@@ -2326,49 +2603,59 @@
  								user_name: target_name
  							});
 
- 							var room_info = {
- 								user_id: user_id,
- 								user_list: chat_suer,
- 								rm_idx: Number(ret2.data.rm_idx),
- 								rm_type: "chat",
- 								rm_img: "",
- 								rm_subject: subject,
- 								rm_desc: "",
- 							};
+							var room_info = {
+								user_id: user_id,
+								user_list: chat_suer,
+								rm_idx: Number(ret2.data.rm_idx),
+								rm_type: "chat",
+								rm_img: "",
+								rm_subject: subject,
+								rm_desc: "",
+							};
 
- 							//기본 문구 전송
- 							first_yn = ret2.data.first_yn;
- 							first_message = {
- 								rm_idx: Number(ret2.data.rm_idx),
- 								user_id: user_id,
- 								chat_type: "recruit",
- 								mg_type: "text",
- 								mg_text: "1:1 채팅을 시작합니다!",
- 								mg_req_dt: "",
- 								mg_img: "",
- 								mg_file: "",
- 								mg_imoti: "",
- 								mg_dt: getCurrentDate(),
- 								mg_reads: new Array(),
- 							};
- 							first_message.mg_reads.push({
- 								read_yn: "Y",
- 								user_id: user_id
- 							});
- 							first_message.mg_reads.push({
- 								read_yn: "N",
- 								user_id: target_id
- 							});
+							//기본 문구 전송
+							first_yn = ret2.data.first_yn;
+							//console.log("=== first_message 및 first_users 정의 (recruit - rc_idx 없음) ===");
+							//console.log("first_yn:", first_yn);
+							//console.log("user_id:", user_id);
+							//console.log("target_id:", target_id);
+							//console.log("user_name:", user_name);
+							//console.log("target_name:", target_name);
+							
+							first_message = {
+								rm_idx: Number(ret2.data.rm_idx),
+								user_id: user_id,
+								chat_type: "recruit",
+								mg_type: "text",
+								mg_text: "1:1 채팅을 시작합니다!",
+								mg_req_dt: "",
+								mg_img: "",
+								mg_file: "",
+								mg_imoti: "",
+								mg_dt: getCurrentDate(),
+								mg_reads: new Array(),
+							};
+							first_message.mg_reads.push({
+								read_yn: "Y",
+								user_id: user_id
+							});
+							first_message.mg_reads.push({
+								read_yn: "N",
+								user_id: target_id
+							});
+							//console.log("first_message:", JSON.stringify(first_message));
 
- 							//회원정보
- 							first_users.push({
- 								user_id: user_id,
- 								user_nick: user_name
- 							});
- 							first_users.push({
- 								user_id: target_id,
- 								user_nick: target_name
- 							});
+							//회원정보
+							first_users = []; // 초기화
+							first_users.push({
+								user_id: user_id,
+								user_nick: user_name
+							});
+							first_users.push({
+								user_id: target_id,
+								user_nick: target_name
+							});
+							//console.log("first_users:", JSON.stringify(first_users));
 
  							//발생성
  							click_type = "chat";
@@ -2382,61 +2669,84 @@
  			});
  		});
 
- 		//방생성 확인 및 방번호 확인
- 		socket.on("room_insert_return", function(ret) {
- 			//console.log('room_insert_return1409');
- 			//alert('room_insert_return1409');
+		//방생성 확인 및 방번호 확인
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_insert_return");
+		socket.on("room_insert_return", function(ret) {
+			//console.log('room_insert_return1409');
+			//alert('room_insert_return1409');
 
- 			if (ret.code == "00") {
- 				if (click_type == "trade") {
- 					$("body").addClass('has-popup');
- 					$(".js-open-chat").addClass("is-trigger");
- 					$("#chatPopup").addClass("in");
- 					$(".btn-close-chat").addClass("btn-close-chat");
- 					$(".js-close-chat").addClass("show");
+			if (ret.code == "00") {
+				// 🔥 로깅: room_insert_return 수신 시 g_chat_other_id 상태 확인
+				var g_chat_other_id_before_room_insert = g_chat_other_id;
+				
+				// 채팅방 정보 준비 상태 초기화 (실무 방법)
+				rm_info_ready = false;
+				rm_info = {};
+				// ✅ g_chat_other_id는 유지 (채팅방 생성 시점에 저장한 상대방 ID 보존)
+				// g_chat_other_id는 초기화하지 않음
+				
+				$("#btnSend").prop("disabled", true); // 버튼 비활성화
+				
+				if (click_type == "trade") {
+					// 배경 dim 및 스크롤 잠금 제거: $("body").addClass('has-popup');
+					$(".js-open-chat").addClass("is-trigger");
+					$("#chatPopup").addClass("in");
+					$(".btn-close-chat").addClass("btn-close-chat");
+					$(".js-close-chat").addClass("show");
+					// 채팅 팝업이 열릴 때 하단 채팅 버튼 숨기기
+					$("#bottomchatbtn").hide();
 
- 					//채팅방 실시간 쏘기
- 					if (first_yn == "Y") {
- 						socket.emit("message_insert", first_message, first_users);
- 					} else {
- 						setShow("3");
- 					}
+					//페이징 시작 초기화
+					rm_start = 0;
+					rm_idx = ret.data;
+
+					// ✅ 먼저 채팅방 입장 (메시지 전송 전에 입장해야 함)
+					socket.emit("room_join", {
+						rm_idx: Number(rm_idx),
+						con_user_id: g_user_id
+					});
+					//alert(1);
+					//채팅방 정보를 실시간으로 서버에서 받아오기 위해 방 입장 후 방 정보를 요청하는 코드입니다.
+					// 채팅방 정보를 서버에서 다시 받아오는 이유:
+					// 방 생성 직후 최신 정보(참여자 목록, 마지막 메시지, 안 읽은 메시지 등)를 갱신해서,
+					// 바로 채팅화면에 보여주기 위함임. (입장하자마자 채팅방의 최신 상태 필요)
+					// 다른 곳에서도 방에 입장할 때 항상 room_info를 서버에 요청 → 실시간 동기화
+					socket.emit("room_info", {
+						rm_idx: Number(rm_idx),
+						con_user_id: g_user_id
+					});
+
+					// ✅ 입장 후 메시지 전송 (채팅방 입장 후 메시지를 보내야 readcount가 정상적으로 표시됨)
+					//console.log("=== room_insert_return (trade) - 메시지 전송 체크 ===");
+					//console.log("first_yn:", first_yn);
+					//console.log("first_message:", first_message);
+					//console.log("first_users:", first_users);
+					if (first_yn == "Y") {
+						//console.log("✅ first_yn == 'Y' - message_insert 이벤트 전송");
+						//console.log("전송할 메시지:", JSON.stringify(first_message));
+						//console.log("전송할 사용자 목록:", JSON.stringify(first_users));
+						socket.emit("message_insert", first_message, first_users);
+						//console.log("✅ message_insert 이벤트 전송 완료");
+					} else {
+						//console.log("❌ first_yn != 'Y' - 메시지 전송하지 않음, first_yn:", first_yn);
+						setShow("3");
+					}
+
+				} else {
+					// 배경 dim 및 스크롤 잠금 제거: $("body").addClass('has-popup');
+					$(".js-open-chat").addClass("is-trigger");
+					$("#chatPopup").addClass("in");
+					$(".btn-close-chat").addClass("btn-close-chat");
+					$(".js-close-chat").addClass("show");
+					// 채팅 팝업이 열릴 때 하단 채팅 버튼 숨기기
+					$("#bottomchatbtn").hide();
 
  					//페이징 시작 초기화
  					rm_start = 0;
  					rm_idx = ret.data;
 
- 					//룸 호출
- 					socket.emit("room_join", {
- 						rm_idx: Number(rm_idx),
- 						con_user_id: g_user_id
- 					});
- 					//alert(1);
- 					socket.emit("room_info", {
- 						rm_idx: Number(rm_idx),
- 						con_user_id: g_user_id
- 					});
-
- 				} else {
- 					$("body").addClass('has-popup');
- 					$(".js-open-chat").addClass("is-trigger");
- 					$("#chatPopup").addClass("in");
- 					$(".btn-close-chat").addClass("btn-close-chat");
- 					$(".js-close-chat").addClass("show");
-
- 					//채팅방 실시간 쏘기
- 					if (first_yn == "Y") {
- 						socket.emit("message_insert", first_message, first_users);
- 					} else {
- 						//두번째 탭 활성화
- 						//setShow("2");
- 					}
-
- 					//페이징 시작 초기화
- 					rm_start = 0;
- 					rm_idx = ret.data;
-
- 					//룸 호출
+ 					// ✅ 먼저 채팅방 입장 (메시지 전송 전에 입장해야 함)
  					socket.emit("room_join", {
  						rm_idx: Number(rm_idx),
  						con_user_id: g_user_id
@@ -2446,6 +2756,23 @@
  						rm_idx: Number(rm_idx),
  						con_user_id: g_user_id
  					});
+
+					// ✅ 입장 후 메시지 전송 (채팅방 입장 후 메시지를 보내야 readcount가 정상적으로 표시됨)
+					//console.log("=== room_insert_return (recruit) - 메시지 전송 체크 ===");
+					//console.log("first_yn:", first_yn);
+					//console.log("first_message:", first_message);
+					//console.log("first_users:", first_users);
+					if (first_yn == "Y") {
+						//console.log("✅ first_yn == 'Y' - message_insert 이벤트 전송");
+						//console.log("전송할 메시지:", JSON.stringify(first_message));
+						//console.log("전송할 사용자 목록:", JSON.stringify(first_users));
+						socket.emit("message_insert", first_message, first_users);
+						//console.log("✅ message_insert 이벤트 전송 완료");
+					} else {
+						//console.log("❌ first_yn != 'Y' - 메시지 전송하지 않음, first_yn:", first_yn);
+						//두번째 탭 활성화
+						//setShow("2");
+					}
  				}
  			} else {
  				commonAlert(ret.msg, function() {});
@@ -2459,15 +2786,86 @@
 		var chatDetailShow = false;
 
 		//방생성 확인 및 방번호 확인
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_info_return");
 		socket.on("room_info_return", function(ret) {
-			//alert('room_info_return1471');
-			//alert('return');//test
-
 			if (ret.code != "00") {
 				alert("데이터 조회시 문제가 발생하였습니다. 관리자에게 문의 해주세요.");
+				rm_info_ready = false; // 실패 시 플래그 해제
+				$("#btnSend").prop("disabled", true); // 버튼 비활성화
 			} else {
+				// 채팅방 진입 시 중복 메시지 방지 배열 초기화
+				resetProcessedIdx();
+				// 🔥 room_join_return에서 받은 메시지 리스트 초기화
+				roomJoinReadMessages = [];
+				// 🔥 메시지 전송 시간 기록 초기화
+				messageSentTimes = {};
+				
 				//채팅방 정보
 				rm_info = ret.data;
+				rm_info_ready = true; // 채팅방 정보 준비 완료
+				
+				// 🔥 로깅: room_info_return 수신 시 g_chat_other_id 상태 확인
+				var g_chat_other_id_before = g_chat_other_id;
+				var rm_users_before = rm_info && rm_info.rm_users ? JSON.stringify(rm_info.rm_users) : "null";
+				
+				// ✅ room_info_return에서 받은 rm_users에서 상대방 ID 찾아서 저장 (기존 채팅방 진입 시)
+				// 단, g_chat_other_id가 이미 있으면 유지 (채팅방 생성 시점에 저장한 값 보존)
+				var found_other_in_rm_users = false;
+				if (rm_info && rm_info.rm_users && rm_info.rm_users.length > 0) {
+					for (var i = 0; i < rm_info.rm_users.length; i++) {
+						if (rm_info.rm_users[i].user_id != g_user_id) {
+							found_other_in_rm_users = true;
+							// g_chat_other_id가 없을 때만 업데이트 (채팅방 생성 시점 값 보존)
+							if (!g_chat_other_id) {
+								g_chat_other_id = rm_info.rm_users[i].user_id;
+							}
+							break;
+						}
+					}
+				}
+				
+				// ✅ g_chat_other_id가 없으면 다른 소스에서 찾기 (채팅방 생성 시점 값 복구)
+				if (!g_chat_other_id) {
+					// 1. $("#top_name").data('chatotherid') 확인 (get_chat_info에서 설정된 값)
+					var chatotherid_from_data = $("#top_name").data('chatotherid');
+					if (chatotherid_from_data) {
+						g_chat_other_id = chatotherid_from_data;
+					}
+				}
+				
+				// ✅ rm_info.rm_users에 상대방이 없고 g_chat_other_id가 있으면 추가 (최초 메시지 전송 시)
+				if (!found_other_in_rm_users && g_chat_other_id) {
+					if (!rm_info.rm_users) {
+						rm_info.rm_users = [];
+					}
+					// 현재 사용자가 없으면 추가
+					var found_current_user = false;
+					for (var i = 0; i < rm_info.rm_users.length; i++) {
+						if (rm_info.rm_users[i].user_id == g_user_id) {
+							found_current_user = true;
+							break;
+						}
+					}
+					if (!found_current_user) {
+						rm_info.rm_users.push({ user_id: g_user_id });
+					}
+					// 상대방 추가
+					rm_info.rm_users.push({ user_id: g_chat_other_id });
+				}
+				
+				// 🔥 room_info_return에서는 첫 메시지 전송하지 않음
+				// 첫 메시지는 room_insert_return에서 first_yn == "Y"일 때 이미 전송됨
+				// room_info_return은 채팅방 정보를 받아오는 용도이므로 여기서는 메시지 전송하지 않음
+				var message_count = (rm_info && rm_info.rm_count !== undefined) ? rm_info.rm_count : 
+				                   (rm_info && rm_info.rm_messages && Array.isArray(rm_info.rm_messages)) ? rm_info.rm_messages.length : 0;
+				//console.log("=== room_info_return - 메시지 개수 확인 (전송하지 않음) ===");
+				//console.log("message_count:", message_count);
+				//console.log("rm_info.rm_count:", rm_info ? rm_info.rm_count : "undefined");
+				//console.log("rm_info.rm_messages:", rm_info && rm_info.rm_messages ? rm_info.rm_messages.length : "undefined");
+				//console.log("첫 메시지는 room_insert_return에서 이미 처리됨");
+				
+				$("#btnSend").prop("disabled", false); // 버튼 활성화
 				// get_chat_info 중복 호출 방지 - 이미 호출되었으면 스킵
 				if (window.chat_info_called) {
 					return;
@@ -2612,6 +3010,11 @@
 									$("#bt_link").attr("href", "/recruit/recruit_detail/" + ret.data.rc_idx);
 								}
 							$("#top_name").data('chatotherid', ret.data.mm_id || "");
+							
+							// ✅ get_chat_info에서 받은 상대방 ID를 g_chat_other_id에도 저장 (room_info_return에 없을 경우 대비)
+							if (ret.data.mm_id) {
+								g_chat_other_id = ret.data.mm_id;
+							}
 
 						} else {
 							
@@ -2785,8 +3188,10 @@
 
  		});
 
- 		//방접속시 알림
- 		socket.on("room_join_alarm", function(ret_user_id) {
+		//방접속시 알림
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_join_alarm");
+		socket.on("room_join_alarm", function(ret_user_id) {
  			$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
  			//내가 읽은게 아니라 내가 보낸 글에도 숫자가 없어져서 주석 처리 $(".readcount").html("");
  		});
@@ -2820,209 +3225,455 @@
  		// 리턴 처리
  		/////////////////////////////////////////////////////////
 
- 		function send_message() {
- 			//alert('send_message');
- 			var txt = $("#chatTxt").val();
- 			if (txt == "") {
- 				return;
- 			}
+		function send_message() {
+			//alert('send_message');
+			var txt = $("#chatTxt").val();
+			if (txt == "") {
+				return;
+			}
 
- 			var message = {
- 				rm_idx: Number(rm_idx),
- 				user_id: g_user_id,
- 				chat_type: "recruit",
- 				mg_type: "text",
- 				mg_text: txt,
- 				mg_req_dt: "",
- 				mg_img: "",
- 				mg_file: "",
- 				mg_imoti: "",
- 				mg_dt: getCurrentDate(),
- 				mg_reads: new Array(),
- 			};
- 			//console.log(message);
- 			//console.log(rm_info);
+			// ✅ 모바일과 동일: 플래그 변수로 채팅방 정보 준비 상태 확인
+			if (!rm_info_ready || !rm_info) {
+				commonAlert("채팅방 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", function() {});
+				return;
+			}
 
- 			//리드 카운터 초기화 한다.
- 			if (rm_info != null) {
- 				//alert('send_message1');
- 				for (var icnt = 0; icnt < rm_info.rm_users.length; icnt++) {
- 					if (g_user_id == rm_info.rm_users[icnt].user_id) {
- 						message.mg_reads.push({
- 							read_yn: "Y",
- 							user_id: rm_info.rm_users[icnt].user_id
- 						});
- 					} else {
- 						message.mg_reads.push({
- 							read_yn: "N",
- 							user_id: rm_info.rm_users[icnt].user_id
- 						});
- 					}
- 				}
- 			} else {
- 				//alert('send_message2');
- 				first_yn = "Y";
- 				var rm_info = {
- 					rm_users: [{
- 							user_id: $("#top_name").data('chatotherid')
- 						},
- 						{
- 							user_id: g_user_id
- 						}
- 					]
- 				};
+			// ✅ 모바일과 동일: 상대방 ID 가져오기 (항상 값 보장)
+			// 1. g_chat_other_id 우선 사용 (채팅방 생성 시점에 저장된 값)
+			var chatotherid = g_chat_other_id;
+			
+			// 2. g_chat_other_id가 없으면 rm_info.rm_users에서 찾기 (기존 채팅방 진입 시)
+			if (!chatotherid && rm_info && rm_info.rm_users && rm_info.rm_users.length > 0) {
+				for (var i = 0; i < rm_info.rm_users.length; i++) {
+					if (rm_info.rm_users[i].user_id != g_user_id) {
+						chatotherid = rm_info.rm_users[i].user_id;
+						// ✅ 찾은 값을 g_chat_other_id에 저장하여 다음 메시지 전송 시에도 사용
+						g_chat_other_id = chatotherid;
+						break;
+					}
+				}
+			}
 
- 				//mongo db에 새로운 방 생성
- 				var params = {
- 					rm_idx: rm_idx,
- 					user_id1: g_user_id,
- 					user_id2: $("#top_name").data('chatotherid'),
- 					user_name1: g_user_id,
- 					user_name2: $("#top_name").data('chatotherid')
- 				};
- 				comAjax("/chat_proc/newroommake", params, function(ret) {
- 					//console.log(ret);
- 					//alert('message_insert1');
- 					socket.emit("message_insert", message, rm_info.rm_users);
- 					$("#chatTxt").val(""); //.focus();
- 					return; // 첫 번째 메시지 전송 후 종료
- 				});
+			// ✅ 모바일과 동일: rm_info.rm_users와 chatotherid 체크
+			if (!rm_info.rm_users && !chatotherid) {
+				commonAlert("채팅방 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", function() {});
+				return;
+			}
 
- 			}
- 			//console.log('for //');
- 			//console.log(rm_info.rm_users);
+			var message = {
+				rm_idx: Number(rm_idx),
+				user_id: g_user_id,
+				chat_type: "recruit",
+				mg_type: "text",
+				mg_text: txt,
+				mg_req_dt: "",
+				mg_img: "",
+				mg_file: "",
+				mg_imoti: "",
+				mg_dt: getCurrentDate(),
+				mg_reads: new Array(),
+			};
+			//console.log(message);
+			//console.log(rm_info);
 
- 			//채팅방 실시간 쏘기
- 			//alert('message_insert2');
- 			//24.08.02 위에서 emit message_insert 했으므로, 메시지가 두번 가서 주석 처리
- 			//socket.emit("message_insert", message, rm_info.rm_users);
- 			//console.log('message_insert');
+			//리드 카운터 초기화 한다.
+			// rm_info가 없으면 위에서 이미 return 했으므로 여기서는 항상 rm_info가 존재함
+			// chatotherid는 위에서 이미 선언됨
+			var found_other_user = false;
+			var found_current_user = false;
+			
+			// rm_info.rm_users에 있는 사용자들 처리
+			if (rm_info.rm_users && rm_info.rm_users.length > 0) {
+				for (var icnt = 0; icnt < rm_info.rm_users.length; icnt++) {
+					if (g_user_id == rm_info.rm_users[icnt].user_id) {
+						message.mg_reads.push({
+							read_yn: "Y",
+							user_id: rm_info.rm_users[icnt].user_id
+						});
+						found_current_user = true;
+					} else {
+						message.mg_reads.push({
+							read_yn: "N",
+							user_id: rm_info.rm_users[icnt].user_id
+						});
+						// 상대방이 rm_info.rm_users에 있는지 확인
+						if (chatotherid && rm_info.rm_users[icnt].user_id == chatotherid) {
+							found_other_user = true;
+						}
+					}
+				}
+			}
+			
+			// 현재 사용자가 rm_info.rm_users에 없으면 추가
+			if (!found_current_user) {
+				message.mg_reads.push({
+					read_yn: "Y",
+					user_id: g_user_id
+				});
+			}
+			
+			// 상대방이 rm_info.rm_users에 없으면 직접 추가 (상대방이 아직 채팅방에 입장하지 않은 경우)
+			if (chatotherid && !found_other_user) {
+				message.mg_reads.push({
+					read_yn: "N",
+					user_id: chatotherid
+				});
+				// ✅ rm_info.rm_users에도 추가하여 서버로 전송 (서버에서 mg_reads 생성 시 사용)
+				if (!rm_info.rm_users) {
+					rm_info.rm_users = [];
+				}
+				rm_info.rm_users.push({
+					user_id: chatotherid
+				});
+			}
 
- 			//채팅창 클리어
- 			$("#chatTxt").val(""); //.focus();
+			//채팅방 실시간 쏘기
+			socket.emit("message_insert", message, rm_info.rm_users);
+			
+			//채팅창 클리어
+			$("#chatTxt").val(""); //.focus();
  		}
 
+		//메시지 정보 리턴
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("message_insert_return");
+		socket.on("message_insert_return", function(ret) {
+			// 🔥 디버깅: message_insert_return 이벤트 수신 확인
+			//console.log("=== message_insert_return 이벤트 수신 ===");
+			//console.log("전체 ret 객체:", ret);
+			//console.log("ret.code:", ret.code);
+			//console.log("ret.msg:", ret.msg);
+			//console.log("ret.data:", ret.data);
+			//console.log("ret.data 타입:", typeof ret.data);
+			//console.log("ret.data가 배열인가?", Array.isArray(ret.data));
+			//console.log("ret.data 길이:", ret.data ? ret.data.length : 0);
+			//console.log("first_yn:", first_yn);
+			//console.log("rm_idx:", rm_idx);
+			//console.log("g_user_id:", g_user_id);
+			
+			if (first_yn == "Y") {
+				first_yn = "N";
+				if (click_type == "trade") {
+					setShow("3");
+				} else {
+					if (!$('.chat_tab2').hasClass('on')) {
+						// 2024.08.05 전송 후 화면 새로고침 안되도록 주석 처리
+						//setShow("2");
+					}
+				}
+			}
+
+			//전송하면서 해당 채팅방 목록을 방목록 맨위로 이동
+			if ($('.chat_tab1').hasClass('on')) {
+
+				<?php if ($user_type == "MEM") { ?>
+					var targetLi = $('#chat_list1 li.room_idx_' + rm_idx);
+					// 만약 해당 li 요소가 존재하면
+					if (targetLi.length) {
+						// 해당 li 요소를 목록의 가장 위로 이동시킴
+						targetLi.prependTo('#chat_list1');
+					}
+				<?php } ?>
+				<?php if ($user_type == "COMP") { ?>
+					$('#chat_list1 li').each(function() {
+						var $contentWrapDiv = $(this).find('div.content-wrap');
+
+						// 해당 div의 data-room_idx_list 속성을 가져옴
+						var roomIdxList = $contentWrapDiv.data('room_idx_list');
+						if (roomIdxList != undefined) {
+
+							// 괄호를 제거하고, 문자열을 콤마로 분리하여 배열로 변환
+							var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',');
+							// 숫자 값으로 변환
+							roomIdxArray = roomIdxArray.map(function(idx) {
+								return parseInt(idx.trim(), 10);
+							});
+
+							if (roomIdxArray.includes(rm_idx)) {
+
+								// 해당 li 요소를 목록의 가장 위로 이동시킴
+								$(this).prependTo('#chat_list1');
+								return false; // 첫 번째 조건에 맞는 요소를 찾으면 반복문을 종료
+
+							}
+
+						}
+
+					});
+				<?php } ?>
+
+			} else if ($('.chat_tab2').hasClass('on')) {
+
+				var targetLi = $('#chat_list2 li.room_idx_' + rm_idx);
+				// 만약 해당 li 요소가 존재하면
+				if (targetLi.length) {
+					// 해당 li 요소를 목록의 가장 위로 이동시킴
+					//targetLi.prependTo('#chat_list2');
+				}
+			} //.chat_tab2
+
+			// 🔥 실시간 채팅: 보내는 사람과 받는 사람 모두 처리
+			var message_list = ret.data || [];
+			//console.log("=== 메시지 처리 시작 ===");
+			//console.log("message_list:", message_list);
+			//console.log("message_list.length:", message_list.length);
+			//console.log("processedIdx:", processedIdx);
+			
+			for (var icnt = 0; icnt < message_list.length; icnt++) {
+				var received_message = message_list[icnt];
+				//console.log("--- 메시지[" + icnt + "] 처리 ---");
+				//console.log("received_message:", received_message);
+				//console.log("received_message.mg_idx:", received_message.mg_idx);
+				//console.log("received_message.user_id:", received_message.user_id);
+				//console.log("received_message.mg_type:", received_message.mg_type);
+				//console.log("received_message.mg_text:", received_message.mg_text);
+				//console.log("received_message.mg_reads:", received_message.mg_reads);
+				//console.log("g_user_id:", g_user_id);
+				
+				var is_my_message = (received_message.user_id == g_user_id);
+				//console.log("is_my_message:", is_my_message);
+				//console.log("processedIdx.includes(received_message.mg_idx):", processedIdx.includes(received_message.mg_idx));
+
+				if (is_my_message) {
+					// 🔥 내가 보낸 메시지: 표시 (중복 방지 체크)
+					if (!processedIdx.includes(received_message.mg_idx)) {
+						// 🔥 메시지 전송 시간 기록 (readcount 보호용)
+						if (received_message.mg_idx) {
+							messageSentTimes[received_message.mg_idx] = Date.now();
+							//console.log("✅ 메시지 전송 시간 기록 - mg_idx:", received_message.mg_idx, "time:", messageSentTimes[received_message.mg_idx]);
+						}
+						//console.log("✅ 내가 보낸 메시지 표시 - showMessage 호출 전");
+						showMessage(received_message, false);
+						//console.log("✅ 내가 보낸 메시지 표시 - showMessage 호출 후");
+					} else {
+						//console.log("❌ 내가 보낸 메시지 중복 - 표시하지 않음");
+					}
+					// 내가 보낸 메시지는 읽음 처리하지 않음 (상대방이 읽을 때까지 readcount가 0이 아니어야 함)
+				} else {
+					// 🔥 상대방이 보낸 메시지: 새로 표시 (중복 방지 체크)
+					if (!processedIdx.includes(received_message.mg_idx)) {
+						//console.log("✅ 상대방이 보낸 메시지 표시 - showMessage 호출 전");
+						showMessage(received_message, false);
+						//console.log("✅ 상대방이 보낸 메시지 표시 - showMessage 호출 후");
+						
+						// 🔥 실시간 읽음 처리: 상대방이 보낸 메시지를 받았을 때 자동으로 읽음 처리
+						// 단, 현재 열려있는 채팅방의 메시지이고 채팅 팝업이 열려있을 때만 읽음 처리
+						// message_insert_return은 해당 채팅방의 모든 클라이언트에게 전송되므로,
+						// 현재 열려있는 채팅방(rm_idx)이 있으면 해당 채팅방의 메시지로 간주
+						var is_current_room = (rm_idx && rm_idx !== "" && rm_idx !== null);
+						var is_chat_popup_open = $(".js-close-chat").hasClass("show") || $("#chatPopup").is(":visible");
+						
+						if (is_current_room && is_chat_popup_open) {
+							//console.log("✅ 현재 채팅방 메시지이고 채팅 팝업이 열려있음 - 읽음 처리");
+							var readParams = {
+								rm_idx: Number(rm_idx),
+								mg_idx: Number(received_message.mg_idx),
+								user_id: g_user_id
+							};
+							socket.emit("message_read_return", readParams);
+						} else {
+							//console.log("⚠️ 채팅방에 없거나 팝업이 닫혀있음 - 읽음 처리하지 않음", {
+							//	current_rm_idx: rm_idx,
+							//	is_current_room: is_current_room,
+							//	is_chat_popup_open: is_chat_popup_open
+							//});
+						}
+					} else {
+						//console.log("❌ 상대방이 보낸 메시지 중복 - 표시하지 않음");
+					}
+				}
+			}
+			//console.log("=== 메시지 처리 완료 ===");
+			
+			// 🔥 상대방이 메시지를 보낸 경우 읽지 않은 메시지 카운트 업데이트 (디바운싱 적용)
+			var hasOtherUserMessage = false;
+			for (var icnt = 0; icnt < message_list.length; icnt++) {
+				if (message_list[icnt].user_id != g_user_id) {
+					hasOtherUserMessage = true;
+					//console.log("✅ 상대방이 보낸 메시지 감지 - user_id:", message_list[icnt].user_id, "g_user_id:", g_user_id);
+					break;
+				}
+			}
+			if (hasOtherUserMessage) {
+				// 상대방이 보낸 메시지가 있으면 실시간 카운트 업데이트
+				//console.log("✅ fSearchNoReadCountDebounced() 호출 - 상대방 메시지 수신");
+				fSearchNoReadCountDebounced();
+			} else {
+				//console.log("ℹ️ 본인이 보낸 메시지이므로 fSearchNoReadCountDebounced() 호출하지 않음");
+			}
+			
+			//웹에서만 리스트 다시 부름
+			socket.emit("room_list", {
+				user_id: g_user_id,
+				rm_type: (chat_tab_id == "2" ? "chat" : "trade")
+			});
+			scrollBottom();
+		});
+
  		//메시지 정보 리턴
- 		socket.on("message_insert_return", function(ret) {
- 			//console.log("message_insert_return");
- 			//console.log(ret);
- 			//alert("message_insert_return");
- 			//alert(first_yn);
- 			if (first_yn == "Y") {
- 				first_yn = "N";
- 				if (click_type == "trade") {
- 					setShow("3");
- 				} else {
- 					//alert('setShow 2');
- 					if (!$('.chat_tab2').hasClass('on')) {
- 						//alert('on');
- 						// 2024.08.05 전송 후 화면 새로고침 안되도록 주석 처리
- 						//setShow("2");
- 					}
- 					//alert('setShow 2-1');
- 				}
- 			}
-
- 			//전송하면서 해당 채팅방 목록을 방목록 맨위로 이동
- 			if ($('.chat_tab1').hasClass('on')) {
-
- 				<?php if ($user_type == "MEM") { ?>
- 					var targetLi = $('#chat_list1 li.room_idx_' + rm_idx);
- 					// 만약 해당 li 요소가 존재하면
- 					if (targetLi.length) {
- 						// 해당 li 요소를 목록의 가장 위로 이동시킴
- 						targetLi.prependTo('#chat_list1');
- 					}
- 				<?php } ?>
- 				<?php if ($user_type == "COMP") { ?>
- 					$('#chat_list1 li').each(function() {
- 						var $contentWrapDiv = $(this).find('div.content-wrap');
-
- 						// 해당 div의 data-room_idx_list 속성을 가져옴
- 						var roomIdxList = $contentWrapDiv.data('room_idx_list');
- 						if (roomIdxList != undefined) {
-
- 							// 괄호를 제거하고, 문자열을 콤마로 분리하여 배열로 변환
- 							var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',');
- 							// 숫자 값으로 변환
- 							roomIdxArray = roomIdxArray.map(function(idx) {
- 								return parseInt(idx.trim(), 10);
- 							});
-
- 							if (roomIdxArray.includes(rm_idx)) {
-
- 								// 해당 li 요소를 목록의 가장 위로 이동시킴
- 								$(this).prependTo('#chat_list1');
- 								return false; // 첫 번째 조건에 맞는 요소를 찾으면 반복문을 종료
-
- 							}
-
- 						}
-
- 					});
- 				<?php } ?>
-
- 			} else if ($('.chat_tab2').hasClass('on')) {
-
- 				var targetLi = $('#chat_list2 li.room_idx_' + rm_idx);
- 				// 만약 해당 li 요소가 존재하면
- 				if (targetLi.length) {
- 					// 해당 li 요소를 목록의 가장 위로 이동시킴
- 					//targetLi.prependTo('#chat_list2');
- 				}
- 			} //.chat_tab2
-
- 			var message_list = ret.data;
- 			for (var icnt = 0; icnt < message_list.length; icnt++) {
- 				//alert('a');
- 				showMessage(message_list[icnt], false);
- 				//메시지 리스트 조회
- 				var params = {
- 					rm_idx: Number(rm_idx),
- 					mg_idx: Number(message_list[icnt].mg_idx),
- 					user_id: g_user_id
- 				};
- 				socket.emit("message_read_return", params);
- 			}
- 			//웹에서만 리스트 다시 부름
- 			//alert('room_list:'+g_user_id);
- 			//alert('room_list:chat_tab_id:'+chat_tab_id);
- 			socket.emit("room_list", {
- 				user_id: g_user_id,
- 				rm_type: (chat_tab_id == "2" ? "chat" : "trade")
- 			});
- 			scrollBottom();
- 		});
-
- 		//메시지 정보 리턴
- 		socket.on("message_read_count_return", function(ret) {
- 			//console.log("message_read_count_return1687");
- 			//alert("message_read_count_return");
- 			//리턴받은 카운트 메시지 정보 업데이트
- 			$("[id^=mg_idx_]").last().prop("id", "mg_idx_" + ret.data.mg_idx)
- 			if (ret.data.count == 0) {
- 				$("[id^=mg_idx_]").last().find(".readcount").html("");
- 				$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
- 			} else {
- 				$(".room_idx_" + rm_idx).find(".badge").html("<span>" + ret.data.count + "</span>");
- 				$("[id^=mg_idx_]").last().find(".readcount").html(ret.data.count);
- 			}
- 		});
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("message_read_count_return");
+		socket.on("message_read_count_return", function(ret) {
+			//리턴받은 카운트 메시지 정보 업데이트
+			// ret.data 또는 ret에서 count와 mg_idx 추출
+			var count = (ret.data && ret.data.count !== undefined) ? ret.data.count : (ret.count !== undefined ? ret.count : 0);
+			var mg_idx = (ret.data && ret.data.mg_idx !== undefined) ? ret.data.mg_idx : (ret.mg_idx !== undefined ? ret.mg_idx : null);
+			
+			//console.log("=== message_read_count_return 이벤트 수신 ===");
+			//console.log("ret:", ret);
+			//console.log("mg_idx:", mg_idx);
+			//console.log("count:", count);
+			
+			// 🔥 mg_idx가 null이면 처리하지 않음
+			if (!mg_idx || mg_idx === null || mg_idx === undefined) {
+				//console.log("⚠️ message_read_count_return: mg_idx가 null이므로 처리하지 않음");
+				return;
+			}
+			
+			// ✅ count가 0보다 작으면 0으로 처리 (서버 오류 방지)
+			if (count < 0) count = 0;
+			
+			// 🔥 timeline 메시지의 mg_idx인지 확인 (readcount 업데이트 방지)
+			if (mg_idx && timelineMessageIdx.indexOf(mg_idx) !== -1) {
+				//console.log("⚠️ message_read_count_return: timeline 메시지는 readcount를 업데이트하지 않음 - mg_idx:", mg_idx);
+				return;
+			}
+			
+			// ✅ 모바일과 동일: 채팅방 참여 여부 체크 없이 서버에서 받은 count를 그대로 표시
+			if (mg_idx) {
+				// 특정 메시지의 읽음 카운트 업데이트
+				var $msgElement = $("#mg_idx_" + mg_idx);
+				if ($msgElement.length > 0) {
+					// 🔥 timeline 메시지는 readcount를 업데이트하지 않음 (chat-divider 클래스 확인)
+					var isTimelineMessage = $msgElement.hasClass("chat-divider") || $msgElement.closest(".chat-divider").length > 0;
+					if (isTimelineMessage) {
+						//console.log("⚠️ message_read_count_return: timeline 메시지는 readcount를 업데이트하지 않음 - mg_idx:", mg_idx);
+						return;
+					}
+					
+					// 🔥 본인이 보낸 메시지인지 확인 (chat-bubble 클래스가 있고 diff 클래스가 없으면 본인 메시지)
+					var isMyMessage = $msgElement.hasClass("chat-bubble") && !$msgElement.hasClass("diff");
+					
+					// 🔥 room_join_return에서 받은 메시지 리스트에 있는지 확인 (상대방이 실제로 읽은 메시지)
+					var isRoomJoinReadMessage = roomJoinReadMessages.indexOf(mg_idx) !== -1;
+					
+					// 🔥 메시지 전송 시간 확인 (메시지 전송 직후 보호)
+					var sentTime = messageSentTimes[mg_idx];
+					var timeSinceSent = sentTime ? (Date.now() - sentTime) : null;
+					var isRecentlySent = timeSinceSent !== null && timeSinceSent < 3000; // 3초 이내
+					
+					// 🔥 본인이 보낸 메시지이고 count가 0일 때:
+					// - room_join_return에서 받은 메시지 리스트에 있으면 업데이트 (상대방이 실제로 읽음)
+					// - 리스트에 없고 전송 직후(3초 이내)면 업데이트하지 않음 (메시지 전송 직후 잘못된 업데이트 방지)
+					if (isMyMessage && count == 0 && !isRoomJoinReadMessage) {
+						if (isRecentlySent) {
+							//console.log("⚠️ message_read_count_return: 본인이 보낸 메시지이고 전송 직후(3초 이내)이므로 count 0으로 업데이트하지 않음 - mg_idx:", mg_idx, "timeSinceSent:", timeSinceSent + "ms");
+							return; // 메시지 전송 직후 잘못된 업데이트 방지
+						} else {
+							//console.log("⚠️ message_read_count_return: 본인이 보낸 메시지이고 room_join 리스트에 없으므로 count 0으로 업데이트하지 않음 - mg_idx:", mg_idx);
+							return; // 메시지 전송 직후 잘못된 업데이트 방지
+						}
+					}
+					
+					// 🔥 이미 readcount가 있고 count가 0이면 덮어쓰지 않음 (단, room_join 리스트에 있거나 전송 후 3초 이상 지났으면 업데이트)
+					var currentReadcount = $msgElement.find(".readcount").html();
+					if (currentReadcount && currentReadcount.trim() !== "" && count == 0 && !isRoomJoinReadMessage) {
+						if (isRecentlySent) {
+							//console.log("⚠️ message_read_count_return: readcount가 이미 있고 전송 직후(3초 이내)이므로 0으로 덮어쓰지 않음 - mg_idx:", mg_idx, "current:", currentReadcount, "timeSinceSent:", timeSinceSent + "ms");
+							return; // 메시지 전송 직후 잘못된 업데이트 방지
+						} else {
+							//console.log("⚠️ message_read_count_return: readcount가 이미 있고 room_join 리스트에 없으므로 0으로 덮어쓰지 않음 - mg_idx:", mg_idx, "current:", currentReadcount);
+							return; // 메시지 전송 직후 잘못된 업데이트 방지
+						}
+					}
+					
+					if (count == 0) {
+						$msgElement.find(".readcount").html("");
+						$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
+						// 🔥 읽음 처리로 카운트가 0이 되면 전체 카운트도 업데이트 (디바운싱 적용)
+						fSearchNoReadCountDebounced();
+					} else {
+						$(".room_idx_" + rm_idx).find(".badge").html("<span>" + count + "</span>");
+						$msgElement.find(".readcount").html(count);
+					}
+				} else {
+					// 메시지가 아직 DOM에 없으면 마지막 메시지 업데이트 (하위 호환성)
+					// 🔥 timeline 메시지가 아닌 본인이 보낸 텍스트 메시지인지 확인
+					var $lastMsg = $("[id^=mg_idx_]").last();
+					var isLastMsgTimeline = $lastMsg.hasClass("chat-divider") || $lastMsg.closest(".chat-divider").length > 0;
+					var isLastMsgMyText = $lastMsg.hasClass("chat-bubble") && !$lastMsg.hasClass("diff") && !isLastMsgTimeline;
+					
+					// timeline 메시지이거나 본인이 보낸 텍스트 메시지가 아니면 업데이트하지 않음
+					if (isLastMsgTimeline || !isLastMsgMyText) {
+						//console.log("⚠️ message_read_count_return: 마지막 메시지가 timeline이거나 본인이 보낸 텍스트 메시지가 아니므로 readcount를 업데이트하지 않음 - mg_idx:", mg_idx);
+						return;
+					}
+					
+					$lastMsg.prop("id", "mg_idx_" + mg_idx);
+					if (count == 0) {
+						$lastMsg.find(".readcount").html("");
+						$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
+						// 🔥 읽음 처리로 카운트가 0이 되면 전체 카운트도 업데이트 (디바운싱 적용)
+						fSearchNoReadCountDebounced();
+					} else {
+						$(".room_idx_" + rm_idx).find(".badge").html("<span>" + count + "</span>");
+						$lastMsg.find(".readcount").html(count);
+					}
+				}
+			} else {
+				// mg_idx가 없으면 마지막 메시지 업데이트 (기존 로직 유지)
+				// 🔥 timeline 메시지가 아닌 본인이 보낸 텍스트 메시지인지 확인
+				var $lastMsg = $("[id^=mg_idx_]").last();
+				var isLastMsgTimeline = $lastMsg.hasClass("chat-divider") || $lastMsg.closest(".chat-divider").length > 0;
+				var isLastMsgMyText = $lastMsg.hasClass("chat-bubble") && !$lastMsg.hasClass("diff") && !isLastMsgTimeline;
+				
+				// timeline 메시지이거나 본인이 보낸 텍스트 메시지가 아니면 업데이트하지 않음
+				if (isLastMsgTimeline || !isLastMsgMyText) {
+					//console.log("⚠️ message_read_count_return: 마지막 메시지가 timeline이거나 본인이 보낸 텍스트 메시지가 아니므로 readcount를 업데이트하지 않음");
+					return;
+				}
+				
+				if (count == 0) {
+					$lastMsg.find(".readcount").html("");
+					$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
+					// 🔥 읽음 처리로 카운트가 0이 되면 전체 카운트도 업데이트 (디바운싱 적용)
+					fSearchNoReadCountDebounced();
+				} else {
+					$(".room_idx_" + rm_idx).find(".badge").html("<span>" + count + "</span>");
+					$lastMsg.find(".readcount").html(count);
+				}
+			}
+		});
 
 
  		//방생성 확인 및 방번호 확인
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("message_list_return");
 		socket.on("message_list_return", function(ret) {
-			//지원한 공고 목록에서 공고 클릭시 해당 채팅창 room 조회 결과
-			//console.log(ret);
-			//console.log("message_list_return1703");
-			//alert("message_list_return1703");
+			// 메시지 로딩 시 중복 방지 배열 초기화 (새로운 메시지 로딩이므로)
+			if (pagging_yn == false) {
+				resetProcessedIdx();
+			}
+			
 			//메시지 리스트 가져오기
 			var message_list = ret.data;
 			for (var icnt = 0; icnt < message_list.length; icnt++) {
-				//alert('b');
-				//2024.08.05 글을 읽음 처리 해버려서 주석 처리
 				showMessage(message_list[icnt].rm_messages, true);
 			}
+			
+			// 🔥 메시지 로드 후 저장된 읽음 카운트 정보 업데이트
+			// ✅ force: false - 이미 readcount가 있으면 업데이트하지 않음 (message_insert_return에서 설정한 값 보존)
+			if (Object.keys(pendingReadCounts).length > 0) {
+				for (var mg_idx in pendingReadCounts) {
+					if (pendingReadCounts.hasOwnProperty(mg_idx)) {
+						var count = pendingReadCounts[mg_idx];
+						updateReadCount(mg_idx, count, false);
+					}
+				}
+				// 업데이트 완료 후 초기화
+				pendingReadCounts = {};
+			}
+			
 			if (pagging_yn == false) {
 				scrollBottom();
 			}
@@ -3169,6 +3820,11 @@
 									$("#bt_link").attr("href", "/recruit/recruit_detail/" + ret.data.rc_idx);
 								}
 								$("#top_name").data('chatotherid', ret.data.mm_id || "");
+								
+								// ✅ get_chat_info에서 받은 상대방 ID를 g_chat_other_id에도 저장 (room_info_return에 없을 경우 대비)
+								if (ret.data.mm_id) {
+									g_chat_other_id = ret.data.mm_id;
+								}
 
 							} else {
 								
@@ -3324,23 +3980,53 @@
 			}
 		});
 
- 		//방 조인
- 		socket.on("room_join_return", function(ret) {
- 			//alert("room_join_return");//test
- 			$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
- 			//$(".readcount").html("");
- 		});
+		//방 조인
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_join_return");
+		socket.on("room_join_return", function(ret) {
+			$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
+			
+			// 🔥 채팅방 입장 시 읽음 카운트 정보 저장 (메시지 로드 후 업데이트)
+			// 서버에서 ret.list에 { _id: mg_idx, count: 읽지 않은 개수 } 형태의 배열을 보냄
+			if (ret && ret.list && Array.isArray(ret.list)) {
+				//console.log("=== room_join_return - 읽음 카운트 업데이트 ===");
+				//console.log("ret.list:", ret.list);
+				// 🔥 room_join_return에서 받은 메시지 리스트 저장 (상대방이 읽은 메시지 추적)
+				roomJoinReadMessages = ret.list.map(function(msgInfo) { return msgInfo._id; });
+				//console.log("roomJoinReadMessages:", roomJoinReadMessages);
+				
+				// 읽음 카운트 정보를 저장 (메시지 로드 후 업데이트)
+				pendingReadCounts = {};
+				for (var i = 0; i < ret.list.length; i++) {
+					var msgInfo = ret.list[i];
+					var mg_idx = msgInfo._id;
+					var count = msgInfo.count || 0;
+					pendingReadCounts[mg_idx] = count;
+					
+					//console.log("mg_idx:", mg_idx, "count:", count);
+					
+					// 메시지가 이미 DOM에 있으면 즉시 업데이트
+					// ✅ force: false - 이미 readcount가 있으면 업데이트하지 않음 (message_insert_return에서 설정한 값 보존)
+					var updated = updateReadCount(mg_idx, count, false);
+					//console.log("updateReadCount 결과:", updated ? "업데이트됨" : "업데이트 안됨 (이미 readcount 존재)");
+				}
+			}
+		});
 
- 		//접속 끊길때 방 정리
- 		socket.on("room_leave_alarm", function(ret) {
+		//접속 끊길때 방 정리
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_leave_alarm");
+		socket.on("room_leave_alarm", function(ret) {
  			//alert("접속이 끊겼습니다.");
  			socket.emit("room_leave", {
  				rm_idx: Number(rm_idx)
  			});
  		});
 
- 		//방해제 처리
- 		socket.on("room_leave_return", function(ret) {
+		//방해제 처리
+		// 중복 등록 방지: 기존 핸들러 제거 후 등록
+		socket.off("room_leave_return");
+		socket.on("room_leave_return", function(ret) {
  			//alert("방에 접속하셨습니다.");
  		});
 
@@ -3543,12 +4229,32 @@
  		//메시지 출력 처리
  		var user_type = "<?= $user_type ?>";
 
- 		function showMessage(info, is_prepend) {
+		function showMessage(info, is_prepend) {
+			// 🔥 디버깅: showMessage 함수 호출 확인
+			//console.log("=== showMessage 함수 호출 ===");
+			//console.log("info:", info);
+			//console.log("info.mg_idx:", info.mg_idx);
+			//console.log("info.mg_type:", info.mg_type);
+			//console.log("info.mg_text:", info.mg_text);
+			//console.log("info.user_id:", info.user_id);
+			//console.log("info.mg_reads:", info.mg_reads);
+			//console.log("info.temp_yn:", info.temp_yn);
+			//console.log("is_prepend:", is_prepend);
+			//console.log("g_user_id:", g_user_id);
+			//console.log("processedIdx:", processedIdx);
+			//console.log("processedIdx.includes(info.mg_idx):", processedIdx.includes(info.mg_idx));
+			
+			// 🔥 임시 메시지는 중복 체크 제외 (서버 응답으로 교체됨)
+			if (!info.temp_yn && processedIdx.includes(info.mg_idx)) {
+				//console.log("❌ showMessage 중단: 이미 처리된 메시지 (mg_idx:", info.mg_idx + ")");
+				return; // Exit if the idx is already in the array
+			}
 
- 			if (processedIdx.includes(info.mg_idx)) {
- 				return; // Exit if the idx is already in the array
- 			}
- 			processedIdx.push(info.mg_idx);
+			// 임시 메시지가 아니면 processedIdx에 추가
+			if (!info.temp_yn) {
+				processedIdx.push(info.mg_idx);
+				//console.log("✅ processedIdx에 추가:", info.mg_idx);
+			}
 
 			//alert('showMessage');
 
@@ -3556,37 +4262,68 @@
  			//console.log('showMessage');
  			//alert('showMessage');
  			//유형에 따른 처리
- 			if (info.mg_type == "timeline") {
- 				//날짜 구분선이 이미 있으면 return
- 				if ($('.date_' + getFormatDate(new Date(info.mg_dt), 'ymd')).length > 0) return;
+ 			// ✅ readcount를 함수 스코프 상단에서 선언 (DOM 추가 후 로깅에서 사용)
+			var readcount = 0;
+			
+			if (info.mg_type == "timeline") {
+				//날짜 구분선이 이미 있으면 return
+				if ($('.date_' + getFormatDate(new Date(info.mg_dt), 'ymd')).length > 0) return;
 
- 				var content = "<p class='chat-divider date_" + getFormatDate(new Date(info.mg_dt), 'ymd') + "'>";
- 				content += "         " + getFormatDate(new Date(info.mg_dt), 'kor');
- 				content += "</p>";
- 			} else {
- 				var your_text_yn = (info.user_id == g_user_id ? "Y" : "N");
- 				var item = info.user_id + "^" + getFormatDate(new Date(info.mg_dt), 'ymd') + "^" + getFormatDate(new Date(info.mg_dt), 'hh:mm');
+				// 🔥 timeline 메시지의 mg_idx 추적 (readcount 업데이트 방지용)
+				if (info.mg_idx) {
+					timelineMessageIdx.push(info.mg_idx);
+					//console.log("✅ timeline 메시지 mg_idx 추적:", info.mg_idx);
+				}
 
- 				if (info.mg_type == "text") {
+				var content = "<p class='chat-divider date_" + getFormatDate(new Date(info.mg_dt), 'ymd') + "'>";
+				content += "         " + getFormatDate(new Date(info.mg_dt), 'kor');
+				content += "</p>";
+			} else {
+				var your_text_yn = (info.user_id == g_user_id ? "Y" : "N");
+				var item = info.user_id + "^" + getFormatDate(new Date(info.mg_dt), 'ymd') + "^" + getFormatDate(new Date(info.mg_dt), 'hh:mm');
+				//console.log("your_text_yn:", your_text_yn);
 
- 					if (your_text_yn == "Y") {
- 						var readcount = 0;
- 						for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
- 							if (info.mg_reads[icnt].read_yn == "N") {
- 								readcount++;
- 							}
- 						}
+				if (info.mg_type == "text") {
+					//console.log("✅ 텍스트 메시지 처리 시작");
 
- 						//이미 추가한 대화내용이면 return
- 						if ($('#mg_idx_' + info.mg_idx).length > 0) return;
+					if (your_text_yn == "Y") {
+						readcount = 0;
+						// ✅ 모바일과 동일: 모든 mg_reads에서 read_yn == "N"인 것을 카운트 (채팅방 참여 여부와 관계없이)
+						// ✅ mg_reads가 존재하고 배열인지 확인
+						//console.log("=== readcount 계산 시작 ===");
+						//console.log("info.mg_reads:", info.mg_reads);
+						//console.log("info.mg_reads가 배열인가?", Array.isArray(info.mg_reads));
+						//console.log("info.mg_reads.length:", info.mg_reads ? info.mg_reads.length : 0);
+						
+						if (info.mg_reads && Array.isArray(info.mg_reads) && info.mg_reads.length > 0) {
+							for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
+								//console.log("mg_reads[" + icnt + "]:", info.mg_reads[icnt]);
+								//console.log("read_yn:", info.mg_reads[icnt].read_yn);
+								if (info.mg_reads[icnt].read_yn == "N") {
+									readcount++;
+									//console.log("readcount 증가:", readcount);
+								}
+							}
+						}
+						//console.log("최종 readcount:", readcount);
+						
+						//이미 추가한 대화내용이면 return
+						if ($('#mg_idx_' + info.mg_idx).length > 0) return;
 
- 						var content = "<div class='msg-item chat-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' >";
- 						content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
- 						if (readcount > 0) {
- 							content += "    <div class='readcount'>" + readcount + "</div>";
- 						} else {
- 							content += "    <div class='readcount'></div>";
- 						}
+						//console.log("=== DOM에 메시지 추가 - readcount 확인 ===");
+						//console.log("mg_idx:", info.mg_idx);
+						//console.log("readcount:", readcount);
+						//console.log("readcount > 0:", readcount > 0);
+
+						var content = "<div class='msg-item chat-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' >";
+						content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
+						if (readcount > 0) {
+							content += "    <div class='readcount'>" + readcount + "</div>";
+							//console.log("✅ readcount 추가됨:", readcount);
+						} else {
+							content += "    <div class='readcount'></div>";
+							//console.log("❌ readcount가 0이므로 빈 div 추가");
+						}
  						content += "    </div>";
  						content += "    <div class='meta'>";
  						content += "        <p class='date-time'>" + getFormatDate(new Date(info.mg_dt), 'hh:mm') + "</p>";
@@ -3841,13 +4578,26 @@
  				}
  			}
 
- 			if (is_prepend == true) {
- 				//alert('4');
- 				$("#chat_view").prepend(content);
- 			} else {
- 				//alert('5');
- 				$("#chat_view").append(content);
- 			}
+			if (is_prepend == true) {
+				//alert('4');
+				//console.log("✅ DOM에 메시지 prepend - mg_idx:", info.mg_idx, "mg_type:", info.mg_type, "mg_text:", info.mg_text);
+				$("#chat_view").prepend(content);
+				//console.log("✅ DOM prepend 완료 - mg_idx:", info.mg_idx);
+			} else {
+				//alert('5');
+				//console.log("✅ DOM에 메시지 append - mg_idx:", info.mg_idx, "mg_type:", info.mg_type, "mg_text:", info.mg_text);
+				//console.log("content 길이:", content ? content.length : 0);
+				$("#chat_view").append(content);
+				//console.log("✅ DOM append 완료 - mg_idx:", info.mg_idx);
+				// DOM 추가 후 실제로 추가되었는지 확인
+				var $addedElement = $("#mg_idx_" + info.mg_idx);
+				//console.log("DOM 추가 확인 - $addedElement.length:", $addedElement.length);
+				if ($addedElement.length > 0) {
+					//console.log("✅ 메시지가 DOM에 성공적으로 추가됨 - mg_idx:", info.mg_idx);
+				} else {
+					//console.log("❌ 메시지가 DOM에 추가되지 않음 - mg_idx:", info.mg_idx);
+				}
+			}
  		}
 
  		function scrollBottom() {
@@ -3867,6 +4617,24 @@
 		// 기업회원 제안받은 인재 / 제안보낸 인재 탭의 회사 공고 클릭시 아래 인재정보 가져오는 함수
 		function fShowChatListByRecruite(ru_idx, obj) {
 			//console.log('fShowChatListByRecruite:'+ru_idx);
+
+			// 다른 항목이 열려있으면 자동으로 닫기
+			// 현재 클릭한 항목이 아닌 모든 resumebox_ 제거
+			$('[class*="resumebox_"]').each(function() {
+				var $resumebox = $(this);
+				var classList = $resumebox.attr('class') || '';
+				var match = classList.match(/resumebox_(\d+)/);
+				if (match && match[1] != ru_idx) {
+					$resumebox.remove();
+				}
+			});
+			
+			// 다른 항목의 열림 상태 초기화
+			$('.angle-link[onclick*="fShowChatListByRecruite"]').each(function() {
+				if ($(this)[0] !== obj) {
+					$(this).data('open', 'N');
+				}
+			});
 
  			if ($(obj).data('open') == null || $(obj).data('open') == 'N') {
  				$(obj).data('open', 'Y');
@@ -3973,7 +4741,7 @@
  							//       </div>
  							//     </li>
  							//   </ol>
- 							$(obj).parent().append("<div class='resumebox_" + ru_idx + "'>" + $clone.html() + "</div>");
+ 							$(obj).parent().append("<div class='resumebox_" + ru_idx + "' style='background-color: #f9f9f9;'>" + $clone.html() + "</div>");
 
  						} //if
 
@@ -4004,3 +4772,4 @@
  		}
  	</script>
  <?php endif; ?>
+

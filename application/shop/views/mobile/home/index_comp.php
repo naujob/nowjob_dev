@@ -202,7 +202,7 @@ if ($g_ios_publish == true) {
     font-size: 12px;
     line-height: 1.5;
     border-radius: 10px;
-    border: 1px solid #b0b0b0;
+    border: 1px solid #EB5349;
     overflow: hidden;
     background: #fff;
     margin-bottom: 10px;

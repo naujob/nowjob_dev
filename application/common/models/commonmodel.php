@@ -765,6 +765,7 @@ class commonModel extends MY_Model {
 
 		$cols = [
 			"bb.*",
+      "aa.mm_idx",
       "aa.mm_name",
       "aa.mm_nation",
       "aa.mm_birth",

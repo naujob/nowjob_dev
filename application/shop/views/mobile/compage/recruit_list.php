@@ -33,7 +33,7 @@
                     <?php endforeach; ?>
                     <?php if (count($published_list) == 0) : ?>
                         <div class="is-empty">
-                            <p>등록된 채용공고가 없습니다.</p>
+                            <!-- <p>등록된 채용공고가 없습니다.</p> -->
                         </div>
                     <?php endif; ?>
                 </ul>
@@ -53,7 +53,15 @@
     </div><!-- //page-content -->
 </div>
 
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
+
 <style>
+    /* form#frm 스타일: main.css와 충돌 방지를 위한 구체적인 선택자 사용 */
+    .page.page-mypage .page-content form#frm {
+        position: relative;
+        top: 0vh;
+    }
+
     /* top-bar 내부의 btn-back 클릭 영역을 top-bar 높이만큼 확장 */
     .top-bar {
         position: relative;
@@ -104,13 +112,18 @@
     .quick-compage-link {
         position: fixed;
         right: 18px;
-        bottom: 44px;
+        bottom: 97px;
         --quick-compage-size: 45px;
         /* 버튼 크기 변수 */
         width: var(--quick-compage-size);
         height: var(--quick-compage-size);
         background: url("/resource/shop/mobile/img/ic_url_arrow.svg") no-repeat center center;
         background-size: var(--quick-compage-size) auto;
+    }
+
+    /* is-empty 스타일: main.css와 충돌 방지를 위한 구체적인 선택자 사용 */
+    .page.page-mypage .page-content .post-list .list .is-empty {
+        top: 75px;
     }
 </style>
 
@@ -158,104 +171,52 @@
             });
         });
 
-        /**
-         * 기업정보 입력 팝업 호출 함수 (모바일용)
-         * 바텀시트 형태로 변경됨
-         */
-        function openCompInfoPopup() {
-            var $panel = document.getElementById('compInfoPanel');
-
-            if (!$panel) {
-                commonAlert("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
-                return;
-            }
-
-            // fMemUpdateType 함수가 존재하면 호출 (바텀시트 열기 포함)
-            if (typeof fMemUpdateType === 'function') {
-                fMemUpdateType('all');
-            } else if (typeof openCompInfoPanel === 'function') {
-                // fMemUpdateType이 없으면 직접 바텀시트 열기
-                openCompInfoPanel();
-            }
-        }
-
-        /**
-         * 기업 인증 확인 함수 (모바일용)
-         * 기업 미인증 시 팝업 표시 및 false 반환
-         */
-        function requireCompCertWithGuide() {
-            // 로그인 여부 확인
-            if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
-                openPopup('alert2', {
-                    content: "로그인 후 이용해주세요.",
-                    firstButton: '확인',
-                    removeClose: false,
-                    firstCallback: function() {
-                        location.href = '/member/login';
-                    }
-                });
-                return false;
-            }
-
-            // 기업회원 확인
-            if (NOWJOB_COMP_INFO.userType !== 'COMP') {
-                openPopup('alert2', {
-                    content: "기업회원만 채용공고 작성이 가능합니다.",
-                    firstButton: '확인',
-                    removeClose: false
-                });
-                return false;
-            }
-
-            // 기업 인증 확인
-            if (!NOWJOB_COMP_INFO.hasCompCert) {
-                openPopup('modal', {
-                    id: 'popupRecruitGuide',
-                    content: '<div class="popup-guide-msg">기업정보 입력 후 공고등록을 하실 수 있습니다.</div>',
-                    firstButton: '<div class="btn-comp-info">기업정보입력</div>',
-                    firstCallback: function() {
-                        setTimeout(function() {
-                            openCompInfoPopup();
-                        }, 150);
-                    }
-                });
-                setTimeout(function() {
-                    $('.layer-popup').last().find('.btn-close-popup').hide();
-                }, 0);
-                return false;
-            }
-
-            return true;
-        }
-
         //처리
         $("#btnRecruit").click(function() {
-            // 기업 인증 확인 (클라이언트 측에서 먼저 확인)
-            if (!requireCompCertWithGuide()) {
-                return;
+            // 기업 인증 확인 (main_menu.php의 전역 함수 사용)
+            // 기업 미인증 시 사업자정보 인증 바텀시트가 자동으로 열림
+            if (typeof window.requireCompCertWithGuide === 'function') {
+                if (!window.requireCompCertWithGuide()) {
+                    return;
+                }
+            } else {
+                // 전역 함수가 없는 경우 (안전장치)
+                if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
+                    openPopup('alert2', {
+                        content: "로그인 후 이용해주세요.",
+                        firstButton: '확인',
+                        removeClose: false,
+                        firstCallback: function() {
+                            location.href = '/member/login';
+                        }
+                    });
+                    return;
+                }
+                if (NOWJOB_COMP_INFO.userType !== 'COMP') {
+                    openPopup('alert2', {
+                        content: "기업회원만 채용공고 작성이 가능합니다.",
+                        firstButton: '확인',
+                        removeClose: false
+                    });
+                    return;
+                }
+                if (!NOWJOB_COMP_INFO.hasCompCert) {
+                    if (typeof window.openCompInfoPopup === 'function') {
+                        window.openCompInfoPopup();
+                    }
+                    return;
+                }
             }
 
             comAjax("/compage_proc/recruit_start", {}, function(ret) {
                 console.log(ret);
                 if ((ret.code == "00" || ret.code == "01") && (ret.data.comAuthStat == "N" || ret.data.passAuthStat == "N")) {
-                    if (ret.data.comAuthStat == "N" && ret.data.passAuthStat == "N") {
-                        openPopup('modal', {
-                            content: '<div style="padding: 50px;">기업정보 입력 후 공고등록을 하실 수 있습니다.</div>',
-                            firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">기업정보입력</div>',
-                            firstCallback: function() {
-                                location.href = "/compage/index?gbn=compcert";
-                            }
-                        });
-
-                    } else if (ret.data.comAuthStat == "N" && ret.data.passAuthStat == "Y") {
-                        openPopup('modal', {
-                            content: '<div style="padding: 50px;">기업정보 입력 후 공고등록을 하실 수 있습니다.</div>',
-                            firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">기업정보입력</div>',
-                            firstCallback: function() {
-                                location.href = "/compage/index?gbn=compcert";
-                            }
-                        });
-
+                    // 기업 미인증 시 사업자정보 인증 바텀시트 열기
+                    if (ret.data.comAuthStat == "N") {
+                        if (typeof window.openCompInfoPopup === 'function') {
+                            window.openCompInfoPopup();
+                        }
+                        return;
                     } else if (ret.data.comAuthStat == "Y" && ret.data.passAuthStat == "N") {
                         // 기업정보 인증 완료, PASS 인증만 필요한 경우는 팝업 표시하지 않음
                         // (PASS 인증 버튼 삭제로 인해 이 케이스는 처리하지 않음)

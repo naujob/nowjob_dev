@@ -1,3 +1,80 @@
+<?php
+function getConvertPriceType($rc_price_type, $rc_price_rep)
+{
+  $allTypes = ['일급', '주급', '월급'];
+
+  // 모든 급여 유형이 포함된 경우
+  $containsAll = true;
+  foreach ($allTypes as $type) {
+    if (strpos($rc_price_type, $type) === false) {
+      $containsAll = false;
+      break;
+    }
+  }
+
+  if ($containsAll) {
+    return '<em>급여협의</em>';
+  }
+
+  // 쉼표로 분리
+  $types = preg_split('/\s*,\s*/', $rc_price_type);
+
+  if (count($types) === 1) {
+    return '<em class="on">' . $types[0] . '</em>';
+  }
+
+  // 다중 유형 처리
+  $result = '';
+  foreach ($types as $type) {
+    $type = trim($type);
+    if ($type === $rc_price_rep) {
+      $result .= '<em class="on">' . $type . '</em>';
+    } else {
+      $result .= '<em>' . $type . '</em>';
+    }
+  }
+
+  return $result;
+}
+?>
+<style>
+    .info-table .pay {
+        align-items: center;
+    }
+
+    .info-table .pay span {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .info-table .pay span em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
+    }
+
+    .info-table .pay span em:not(:last-child) {
+        padding-right: 5px;
+    }
+
+    .info-table .pay span em.on {
+        color: #1b9d7d;
+    }
+
+    .info-table .pay span em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
+    }
+</style>
 <div class="page page-view">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
@@ -111,12 +188,12 @@
                                         <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
                                             <em class="amount">급여협의</em>
                                         <?php } else {
-                                            // rc_price_type에서 첫 번째 급여 유형 추출 (일급, 주급, 월급 등)
-                                            $price_types = preg_split('/\s*,\s*/', $info["rc_price_type"]);
-                                            $display_type = !empty($price_types[0]) ? trim($price_types[0]) : "";
+                                            // getConvertPriceType 함수를 사용하여 job_post.php와 동일한 형식으로 표시
+                                            $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
+                                            $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
                                         ?>
                                             <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
-                                            <span>(<?= $display_type ?>)</span>
+                                            <span>(<?= $price_type_html ?>)</span>
                                         <?php } ?>
                                     </span>
                                 </td>
@@ -213,6 +290,19 @@
                 <ul class="benefit-group">
                     <?= getLifeType($info["rc_life_type"], "-v2") ?>
                 </ul>
+            </div>
+        </div>
+
+        <div class="section view-desc">
+            <div class="container">
+                <h3 class="secondary-title">상세업무정보</h3>
+                <!-- 작성내용 -->
+                <div class="desc">
+                    <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
+                </div>
+                <div class="hashtag">
+                    <?= getHashTag($info["rc_hash"]) ?>
+                </div>
             </div>
         </div>
 
@@ -336,19 +426,6 @@
             </div>
             <!-- 20220929 수정 -->
 
-        </div>
-
-        <div class="section view-desc">
-            <div class="container">
-                <h3 class="secondary-title">상세업무정보</h3>
-                <!-- 작성내용 -->
-                <div class="desc">
-                    <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
-                </div>
-                <div class="hashtag">
-                    <?= getHashTag($info["rc_hash"]) ?>
-                </div>
-            </div>
         </div>
 
         <div class="view-footer">

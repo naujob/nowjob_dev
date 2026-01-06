@@ -74,6 +74,16 @@ container.updateUserSocketId = async function(data,callback){
 //유저 상태 변경
 container.updateUserStatus = async function(data,callback){
 	$user.updateUserStatus(data,async function(ret){
+		// user_status가 'N'이면 MySQL의 push_yn도 'N'으로 업데이트 (로그아웃 처리)
+		if (data.user_status === "N" && data.socket_id) {
+			$user.updatePushYnFromMySQL(data.socket_id, "N", function(success){
+				if (success) {
+					$common.writeLog('updateUserStatus: MySQL push_yn 업데이트 완료');
+				} else {
+					$common.writeLog('updateUserStatus: MySQL push_yn 업데이트 실패');
+				}
+			});
+		}
 		callback($common.jsonReturn("00","수정완료",""));
 	});
 }

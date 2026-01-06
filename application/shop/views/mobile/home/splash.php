@@ -94,8 +94,9 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        -webkit-animation: portrait-ani 1s cubic-bezier(.39, .575, .565, 1.000) both;
-        animation: portrait-ani 1s cubic-bezier(.39, .575, .565, 1.000) both
+        /* 아래에서 위로 올라오는 애니메이션 비활성화 */
+        /* -webkit-animation: portrait-ani 1s cubic-bezier(.39, .575, .565, 1.000) both;
+        animation: portrait-ani 1s cubic-bezier(.39, .575, .565, 1.000) both */
     }
 
     .visual .shadow {
@@ -153,36 +154,70 @@
     var hasConsent = false; // 기존 동의 정보가 있는지 확인
     var grantPopupTimeout = null; // 권한 팝업 완료 후 페이지 이동을 위한 타임아웃
 
-    //alert(uuid); //test
-    //alert(step); //test
-
-    /* UUID로 기존 동의 정보 확인 */
-    if (uuid != "" && step == "grant") {
-        checkExistingConsent();
-    } else if (step == "grant") {
-        // UUID가 없는 경우 기존 로직대로 팝업 표시
-        setTimeout(function() {
-            pop_alarm();
-        }, 2700);
-    } else if (step == "login") {
-        setTimeout(function() {
-            //alert(checkMobile());
-            if (checkMobile() == "android") {
-                APP_NOWAPK.goHomeLogin();
-                //location.replace("/member/login");
-            } else {
-                location.replace("/member/login");
-            }
-        }, 3200);
+    // ✅ 푸시 알림 URL 확인 (URL 파라미터 또는 네이티브에서 전달받은 값)
+    var pushURL = null;
+    
+    // 1. URL 파라미터에서 확인
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlParam = urlParams.get('push_url');
+    if (urlParam) {
+        pushURL = decodeURIComponent(urlParam);
+        console.log('📱 URL 파라미터에서 푸시 URL 발견:', pushURL);
+    }
+    
+    // 2. 전역 변수로 저장된 푸시 URL 확인 (네이티브 앱에서 설정한 경우)
+    if (window.pendingPushURL) {
+        pushURL = window.pendingPushURL;
+        window.pendingPushURL = null; // 사용 후 초기화
+        console.log('📱 전역 변수에서 푸시 URL 발견:', pushURL);
+    }
+    
+    // ✅ 푸시 URL이 있으면 splash를 건너뛰고 해당 URL로 이동
+    if (pushURL) {
+        console.log('📱 푸시 알림 URL로 이동:', pushURL);
+        
+        // URL 정규화
+        var normalizedURL = pushURL;
+        if (pushURL.startsWith('/')) {
+            normalizedURL = window.location.origin + pushURL;
+        }
+        
+        // splash 화면을 건너뛰고 바로 이동
+        window.location.replace(normalizedURL);
+        // 이후 로직 실행 중단 (return 없이 스크립트 종료)
     } else {
-        setTimeout(function() {
-            if (checkMobile() == "android") {
-                //APP_NOWAPK.goHomeReal();
-                location.replace("/home/index");
-            } else {
-                location.replace("/home/index");
-            }
-        }, 3200);
+        // 푸시 URL이 없는 경우에만 기존 로직 실행
+        //alert(uuid); //test
+        //alert(step); //test
+
+        /* UUID로 기존 동의 정보 확인 */
+        if (uuid != "" && step == "grant") {
+            checkExistingConsent();
+        } else if (step == "grant") {
+            // UUID가 없는 경우 기존 로직대로 팝업 표시
+            setTimeout(function() {
+                pop_alarm();
+            }, 2700);
+        } else if (step == "login") {
+            setTimeout(function() {
+                //alert(checkMobile());
+                if (checkMobile() == "android") {
+                    APP_NOWAPK.goHomeLogin();
+                    //location.replace("/member/login");
+                } else {
+                    location.replace("/member/login");
+                }
+            }, 3200);
+        } else {
+            setTimeout(function() {
+                if (checkMobile() == "android") {
+                    //APP_NOWAPK.goHomeReal();
+                    location.replace("/home/index");
+                } else {
+                    location.replace("/home/index");
+                }
+            }, 3200);
+        }
     }
 
 
@@ -415,4 +450,46 @@
         // 권한 팝업 완료 후 로그인 페이지로 이동
         location.replace("/member/login");
     }
+
+    // ✅ 웹뷰 로드 완료 후 푸시 URL 확인 (네이티브 앱에서 지연 전달된 경우 대비)
+    window.addEventListener('load', function() {
+        // 페이지 로드 완료 후 짧은 딜레이를 두고 푸시 URL 재확인
+        setTimeout(function() {
+            // 전역 변수로 저장된 푸시 URL 확인
+            if (window.pendingPushURL) {
+                var delayedPushURL = window.pendingPushURL;
+                window.pendingPushURL = null;
+                
+                console.log('📱 페이지 로드 완료 후 푸시 URL 발견:', delayedPushURL);
+                
+                // URL 정규화
+                var normalizedURL = delayedPushURL;
+                if (delayedPushURL.startsWith('/')) {
+                    normalizedURL = window.location.origin + delayedPushURL;
+                }
+                
+                // 푸시 URL로 이동
+                window.location.replace(normalizedURL);
+            }
+        }, 500); // 0.5초 후 확인
+    });
+
+    // ✅ iOS 네이티브 앱에서 푸시 URL을 전달받을 수 있도록 전역 함수 제공
+    window.setPendingPushURL = function(url) {
+        if (url && url.trim() !== '') {
+            console.log('📱 네이티브 앱에서 푸시 URL 전달받음:', url);
+            
+            // 현재 splash 페이지인 경우 즉시 이동
+            if (window.location.pathname === '/home/splash') {
+                var normalizedURL = url;
+                if (url.startsWith('/')) {
+                    normalizedURL = window.location.origin + url;
+                }
+                window.location.replace(normalizedURL);
+            } else {
+                // 다른 페이지인 경우 전역 변수에 저장 (onPushOpen에서 처리)
+                window.pendingPushURL = url;
+            }
+        }
+    };
 </script>

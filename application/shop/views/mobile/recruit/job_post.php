@@ -21,6 +21,44 @@ function formatPhoneNumber($number)
 
     return $number;
 }
+
+function getConvertPriceType($rc_price_type, $rc_price_rep)
+{
+  $allTypes = ['일급', '주급', '월급'];
+
+  // 모든 급여 유형이 포함된 경우
+  $containsAll = true;
+  foreach ($allTypes as $type) {
+    if (strpos($rc_price_type, $type) === false) {
+      $containsAll = false;
+      break;
+    }
+  }
+
+  if ($containsAll) {
+    return '<em>급여협의</em>';
+  }
+
+  // 쉼표로 분리
+  $types = preg_split('/\s*,\s*/', $rc_price_type);
+
+  if (count($types) === 1) {
+    return '<em class="on">' . $types[0] . '</em>';
+  }
+
+  // 다중 유형 처리
+  $result = '';
+  foreach ($types as $type) {
+    $type = trim($type);
+    if ($type === $rc_price_rep) {
+      $result .= '<em class="on">' . $type . '</em>';
+    } else {
+      $result .= '<em>' . $type . '</em>';
+    }
+  }
+
+  return $result;
+}
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
@@ -29,6 +67,64 @@ function formatPhoneNumber($number)
         height: 1.8rem;
         font-size: 1rem;
         line-height: 1.5rem;
+    }
+
+    /* 기업회원이 자신의 채용공고를 볼 때 view-footer 버튼 스타일 */
+    .view-footer {
+        display: flex;
+        gap: 0;
+    }
+
+    .view-footer .btn-edit {
+        flex: 1;
+        background-color: #57CCAF;
+        color: #fff;
+        border: 1px solid #57CCAF;
+        font-weight: 700;
+    }
+
+    .view-footer .btn-promotion {
+        flex: 1;
+        background-color: #1B9D7D;
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .info-table .pay {
+        align-items: center;
+    }
+
+    .info-table .pay span {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .info-table .pay span em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
+    }
+
+    .info-table .pay span em:not(:last-child) {
+        padding-right: 5px;
+    }
+
+    .info-table .pay span em.on {
+        color: #1b9d7d;
+    }
+
+    .info-table .pay span em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
     }
 </style>
 <div class="page page-view">
@@ -198,12 +294,12 @@ function formatPhoneNumber($number)
                                         <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
                                             <em class="amount">급여협의</em>
                                         <?php } else {
-                                            // rc_price_type에서 첫 번째 급여 유형 추출 (일급, 주급, 월급 등)
-                                            $price_types = preg_split('/\s*,\s*/', $info["rc_price_type"]);
-                                            $display_type = !empty($price_types[0]) ? trim($price_types[0]) : "";
+                                            // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
+                                            $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
+                                            $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
                                         ?>
                                             <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
-                                            <span>(<?= $display_type ?>)</span>
+                                            <span>(<?= $price_type_html ?>)</span>
                                         <?php } ?>
                                     </span>
                                 </td>
@@ -378,14 +474,21 @@ function formatPhoneNumber($number)
                 </script>
             </div>
         </div>
+        <?php 
+        // 기업회원이 자신의 채용공고를 볼 경우를 판단
+        $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+        ?>
         <div class="view-footer">
-            <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn btn-secondary">지원하기</button>
-            <?php //print_r($info); 
-            ?>
-            <?php //echo $info[mm_phone]; 
-            ?>
-            <!-- <button type="button" aria-haspopup="dialog" class="btn btn-primary" onclick="location.href='tel:<?= $info["mm_phone"] ?>';">전화하기</button> -->
-            <a href="tel:<?= $info["mm_phone"] ?>" class="btn btn-primary">전화하기</a>
+            <?php if ($isOwnRecruit) { ?>
+                <!-- 기업회원이 자신의 채용공고를 볼 때: 수정 및 광고신청 버튼 -->
+                <button type="button" id="btnEditRecruit" class="btn btn-edit">수정</button>
+                <button type="button" id="btnPromotionRecruit" class="btn btn-promotion">광고신청</button>
+            <?php } else { ?>
+                <!-- 개인회원이 볼 때: 지원하기 버튼 -->
+                <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn btn-secondary">지원하기</button>
+                <!-- <button type="button" aria-haspopup="dialog" class="btn btn-primary" onclick="location.href='tel:<?= $info["mm_phone"] ?>';">전화하기</button> -->
+                <a href="tel:<?= $info["mm_phone"] ?>" class="btn btn-primary">전화하기</a>
+            <?php } ?>
         </div>
 
     </div><!-- //page-content -->
@@ -776,14 +879,21 @@ function formatPhoneNumber($number)
                     mq_idxs.push($("[name=rc_idx]").val());
                     params["mq_idxs"] = mq_idxs;
                     params["mq_type"] = "RECRUIT";
+                    var rc_idx = $("[name=rc_idx]").val();
+                    
                     comAjax("/common_proc/member_request", params, function(ret) {
                         console.log(ret);
                         $('.btn-close-popup').show();
 
                         if (ret.code == "00") {
-                            commonAlert("지원 신청 되었습니다.", function() {
-                                location.reload();
-                            });
+                            // 알림창 주석처리 - 바로 채팅 목록으로 이동
+                            // commonAlert("지원 신청 되었습니다.", function() {
+                            //     location.reload();
+                            // });
+                            
+                            // 지원한 공고 탭으로 이동하고 해당 공고의 채팅방 자동 진입
+                            // URL 파라미터로 rc_idx 전달하여 목록 페이지에서 자동으로 채팅방 찾아서 열기
+                            location.href = "/chat/chat_list?auto_open_rc_idx=" + rc_idx;
                         } else {
                             commonAlert(ret.msg, function() {});
                             return;
@@ -829,6 +939,19 @@ function formatPhoneNumber($number)
                 }
             });
             $('.btn-close-popup').hide();
+        });
+
+        // 기업회원이 자신의 채용공고를 볼 때: 수정 버튼 클릭 이벤트
+        $(document).on('click', '#btnEditRecruit', function() {
+            var rcIdx = $("[name=rc_idx]").val();
+            if (rcIdx) {
+                location.href = "/compage/recruit_view/" + rcIdx;
+            }
+        });
+
+        // 기업회원이 자신의 채용공고를 볼 때: 광고신청 버튼 클릭 이벤트
+        $(document).on('click', '#btnPromotionRecruit', function() {
+            location.href = "/compage/point_promotion_buy";
         });
     });
 </script>

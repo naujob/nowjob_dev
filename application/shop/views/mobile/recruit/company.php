@@ -8,6 +8,17 @@ if (count($banner_list) > 0) {
 <style>
   .page-content {
     background: #fff;
+    /* iOS 스크롤 활성화 */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  .page-recruit {
+    /* iOS 스크롤 활성화 */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   .current-area .btn {
@@ -925,6 +936,29 @@ if (count($banner_list) > 0) {
       fn_load: initLoadData,
     };
     $.CashingAjax(params);
-    $('body').css('overflow', 'auto');
+    
+    // iOS 스크롤 활성화
+    $('body').css({
+      'overflow': 'auto',
+      'overflow-y': 'auto',
+      '-webkit-overflow-scrolling': 'touch'
+    });
+    
+    $('html').css({
+      'overflow': 'auto',
+      'overflow-y': 'auto'
+    });
+    
+    // 스크롤 컨테이너에도 iOS 스크롤 적용
+    ['.page-recruit', '.page-content'].forEach(function(selector) {
+      var $container = $(selector);
+      if ($container.length && $container.css('overflow') !== 'hidden') {
+        $container.css({
+          'overflow-y': 'auto',
+          '-webkit-overflow-scrolling': 'touch',
+          'touch-action': 'pan-y'
+        });
+      }
+    });
   });
 </script>

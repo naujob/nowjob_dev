@@ -363,7 +363,8 @@ class Mypage_proc extends CI_Controller
     $ru_week_yn = ($ru_week_yn == "" ? "N" : $ru_week_yn);
     $ru_week = input_post("ru_week", "");
     $arr_career = input_post("arr_career", "");
-    $ru_my_type = input_post("ru_my_type", "");
+    // ru_my_type은 체크박스 배열이므로 $_POST에서 직접 가져오기
+    $ru_my_type = isset($_POST["ru_my_type"]) ? (array)$_POST["ru_my_type"] : [];
     $ru_month_price = input_post("ru_month_price", "0");
 
     # 데이터 검증
@@ -485,9 +486,17 @@ class Mypage_proc extends CI_Controller
     );
 
     #로그 생성3
+    // ru_my_type 배열을 문자열로 변환하여 저장
+    $ru_my_type_str = "";
+    if (is_array($ru_my_type) && count($ru_my_type) > 0) {
+      $ru_my_type_str = implode(",", $ru_my_type);
+    } elseif (!empty($ru_my_type) && !is_array($ru_my_type)) {
+      $ru_my_type_str = $ru_my_type;
+    }
+    
     $sl_txt = [
       "arr_career" => $arr_career,
-      "ru_my_type" => $ru_my_type
+      "ru_my_type" => $ru_my_type_str
     ];
 
     $this->site_model->setSiteLog(
@@ -975,7 +984,8 @@ class Mypage_proc extends CI_Controller
         "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
-        "ru_my_type" => isset($step4["ru_my_type"]) && is_array($step4["ru_my_type"]) ? arr_implode(",", $step4["ru_my_type"]) : (isset($step4["ru_my_type"]) ? $step4["ru_my_type"] : ""),
+        // ru_my_type은 step3에 저장됨
+        "ru_my_type" => isset($step3["ru_my_type"]) && is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : (isset($step3["ru_my_type"]) ? $step3["ru_my_type"] : ""),
         "ru_desc" => isset($step4["ru_desc"]) ? $step4["ru_desc"] : "",
         // 이미지 관련 (NOT NULL)
         "ru_thumb" => isset($step4["ru_thumb"]) ? $step4["ru_thumb"] : "",
@@ -1147,7 +1157,8 @@ class Mypage_proc extends CI_Controller
         "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
-        "ru_my_type" => isset($step4["ru_my_type"]) && is_array($step4["ru_my_type"]) ? arr_implode(",", $step4["ru_my_type"]) : (isset($step4["ru_my_type"]) ? $step4["ru_my_type"] : ""),
+        // ru_my_type은 step3에 저장됨
+        "ru_my_type" => isset($step3["ru_my_type"]) && is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : (isset($step3["ru_my_type"]) ? $step3["ru_my_type"] : ""),
         "ru_desc" => isset($step4["ru_desc"]) ? $step4["ru_desc"] : "",
         // 이미지 관련 (NOT NULL)
         "ru_thumb" => isset($step4["ru_thumb"]) ? $step4["ru_thumb"] : "",

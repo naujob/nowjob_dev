@@ -4195,6 +4195,8 @@ class memberModel extends MY_Model
 		
 		// mq_type 조건: RECRUIT이거나, RESUME이면서 mm_idx가 다른 경우
 		$where[] = " and (mq.mq_type = 'RECRUIT' OR (mq.mq_type = 'RESUME' AND mq.mm_idx != rc.mm_idx)) ";
+		// 지원취소된 항목 제외 (mq_status가 'cancel'이 아닌 것만)
+		$where[] = " and (mq.mq_status IS NULL OR mq.mq_status != 'cancel') ";
 
 		if (isset($params["gbn"]) && $params["gbn"] != "") {
 			if ($params["gbn"] == "view") {
@@ -4535,7 +4537,7 @@ class memberModel extends MY_Model
        ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
        ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
        ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-       user_name, target_img, user_img, mm_name, mm_nation, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
+       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
 FROM (
  SELECT
                          bb.*,
@@ -4545,6 +4547,8 @@ FROM (
  rc.rc_img1 AS user_img,
  aa.mm_name,
  aa.mm_nation,
+ aa.mm_sex,
+ aa.mm_thumb,
  aa.mm_id AS target_id,
  rcmm.mm_id AS user_id,
  mi.ma_age,
@@ -4588,7 +4592,7 @@ GROUP BY
        ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
        ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
        ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-       user_name, target_img, user_img, mm_name, mm_nation, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn
+       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn
 order by rm_up_dt desc
         LIMIT 0 , 200 ";
 
@@ -4610,7 +4614,7 @@ order by rm_up_dt desc
      ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
      ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
      ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-     user_name, target_img, user_img, mm_name, mm_nation, mm_sex, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
+     user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
       FROM (
           SELECT bb.*,
               aa.mm_name AS target_name,
@@ -4620,6 +4624,7 @@ order by rm_up_dt desc
               aa.mm_name,
               aa.mm_nation,
               aa.mm_sex,
+              aa.mm_thumb,
               aa.mm_id AS target_id,
               rcmm.mm_id AS user_id,
               mi.ma_age,
@@ -4662,7 +4667,7 @@ order by rm_up_dt desc
                ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
                ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
                ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-               user_name, target_img, user_img, mm_name, mm_nation, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn
+               user_name, target_img, user_img, mm_name, mm_nation, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn
           order by rm_up_dt desc
           LIMIT 0 , 200 ";
 

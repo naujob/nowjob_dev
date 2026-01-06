@@ -1156,8 +1156,10 @@ class Common_proc extends CI_Controller
 				//채팅창 동시 생성.2023.11.20
 
 				// 제안하기/지원하기 후 FCM 푸시알림 발송
+				// 푸시 알림 발송 비활성화 (2025.01.05)
 
-				// 지원하기 푸시알림 (채용공고 소유자에게)
+				// 지원하기 푸시알림 (채용공고 소유자에게) - 비활성화
+				/*
 				if ($mq_type == "RECRUIT") {
 					try {
 						// 채용공고 소유자의 mm_idx 조회
@@ -1256,7 +1258,10 @@ class Common_proc extends CI_Controller
 						// 푸시 알림 처리 오류는 무시하고 계속 진행
 					}
 				}
+				*/
 
+				// 제안하기 푸시알림 (이력서 소유자에게) - 비활성화
+				/*
 				if ($mq_type == "RESUME") {
 					try {
 						// 이력서 소유자의 mm_idx 조회
@@ -1355,6 +1360,7 @@ class Common_proc extends CI_Controller
 						// 푸시/알림 처리 오류는 무시하고 계속 진행
 					}
 				}
+				*/
 			}
 
 			// JSON 응답 전에 출력 버퍼 정리
@@ -1425,11 +1431,14 @@ class Common_proc extends CI_Controller
 		$mq_idxs = input_post("mq_idxs");
 
 		if ($proc_type == "member_request") {
+			// 트랙젝션 시작
+			$this->db->trans_begin();
+			
 			// MongoDB 채팅방 삭제 처리를 위한 정보 수집
 			$rooms_to_close = [];
 
 			foreach ($mq_idxs as $idx) {
-				// 삭제 전에 ru_idx와 rc_idx 조회
+				// 상태 변경 전에 ru_idx와 rc_idx 조회
 				$sql = "SELECT ru_idx, rc_idx FROM st_member_request WHERE mq_idx = '" . $this->db->escape_str($idx) . "'";
 				$query = $this->db->query($sql);
 				$request_info = $query->row_array();
@@ -1441,9 +1450,21 @@ class Common_proc extends CI_Controller
 					];
 				}
 
-				// MySQL에서 제안 정보 삭제
-				$result = $this->member_model->deleteMemberRequest(["mq_idx" => $idx]);
+				// MySQL에서 지원 정보 상태를 'cancel'로 변경 (삭제 대신 상태 변경)
+				$sql = "UPDATE st_member_request SET mq_status = 'cancel' WHERE mq_idx = '" . $this->db->escape_str($idx) . "'";
+				$query = $this->db->query($sql);
+				$affectedRows = $this->db->affected_rows();
+
+				if (!$query || $affectedRows != 1) {
+					// 상태 변경 실패 시 롤백
+					$this->db->trans_rollback();
+					json_return("01", "지원취소 처리 중 오류가 발생하였습니다.");
+					return;
+				}
 			}
+			
+			// 트랙젝션 완료
+			$this->db->trans_commit();
 
 			// MongoDB에서 채팅방 삭제 처리
 			if (!empty($rooms_to_close)) {
@@ -2142,6 +2163,67 @@ ORDER BY distance_km ASC;
 			return $result;
 		} catch (Exception $e) {
 			return null;
+		}
+	}
+
+	/**
+	 * 채팅 푸시 알림 발송 API (Node.js에서 호출)
+	 * common_proc의 sendFcm() 함수를 사용하여 채팅 푸시를 발송
+	 */
+	function send_chat_push()
+	{
+		// CORS 헤더 설정 (Node.js에서 호출 가능하도록)
+		header('Access-Control-Allow-Origin: *');
+		header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+		header('Access-Control-Allow-Headers: Content-Type');
+		
+		// OPTIONS 요청 처리
+		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			http_response_code(200);
+			exit;
+		}
+
+		try {
+			// JSON 입력 데이터 받기
+			$input = file_get_contents('php://input');
+			$data = json_decode($input, true);
+
+			// 필수 파라미터 검증
+			if (!isset($data['token']) || empty($data['token'])) {
+				json_return("90", "토큰이 필요합니다.");
+				return;
+			}
+
+			if (!isset($data['info']) || !is_array($data['info'])) {
+				json_return("90", "푸시 정보가 필요합니다.");
+				return;
+			}
+
+			$token = $data['token'];
+			$info = $data['info'];
+
+			// 필수 필드 검증
+			if (!isset($info['title']) || !isset($info['body']) || !isset($info['url'])) {
+				json_return("90", "제목, 내용, URL이 필요합니다.");
+				return;
+			}
+
+			// 토큰 리스트 생성
+			$token_list = [$token];
+
+			// common_proc와 동일한 sendFcm() 함수 사용
+			$fcm_result = sendFcm($info, $token_list);
+
+			// 결과 반환
+			if ($fcm_result && isset($fcm_result['success']) && $fcm_result['success']) {
+				json_return("00", "푸시 발송 완료", $fcm_result);
+			} else {
+				$error_msg = isset($fcm_result['error']) ? $fcm_result['error'] : "푸시 발송 실패";
+				json_return("90", $error_msg, $fcm_result);
+			}
+
+		} catch (Exception $e) {
+			json_return("99", "서버 오류: " . $e->getMessage());
 		}
 	}
 }

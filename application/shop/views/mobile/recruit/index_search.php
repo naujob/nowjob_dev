@@ -539,52 +539,59 @@
      search_array.sage = $("[name='sage']").val();
      search_array.eage = $("[name='eage']").val();
 
-     for (var icnt = 0; icnt < tab_list.length; icnt++) {
-       tab_list[icnt].text = "";
-       tab_list[icnt].active = "";
-     }
+    for (var icnt = 0; icnt < tab_list.length; icnt++) {
+      tab_list[icnt].text = "";
+      tab_list[icnt].active = "";
+    }
 
-     if (search_array.category != "") {
-       tab_list[0].text = search_array.category.replaceAll("^", ",");
-       tab_list[0].active = "on";
-     }
+    // 지역 정보 처리 (tab_list[0])
+    var regions = window.selectedRegions || (typeof selectedRegions !== 'undefined' ? selectedRegions : []);
+    if (regions.length > 0) {
+      tab_list[0].text = regions.join(", ");
+      tab_list[0].active = "on";
+    }
 
-     if (search_array.work_type != "") {
-       tab_list[1].text = search_array.work_type.replaceAll("^", ",");
-       tab_list[1].active = "on";
-     }
+    if (search_array.category != "") {
+      tab_list[1].text = search_array.category.replaceAll("^", ",");
+      tab_list[1].active = "on";
+    }
 
-     if (search_array.week != "") {
-       if (search_array.week == "일^월^화^수^목^금^토") {
-         tab_list[2].text = "일~토";
-       } else {
-         tab_list[2].text = search_array.week.replaceAll("^", ",");
-       }
-       tab_list[2].active = "on";
-     }
+    if (search_array.work_type != "") {
+      tab_list[2].text = search_array.work_type.replaceAll("^", ",");
+      tab_list[2].active = "on";
+    }
 
-     if (search_array.price_type != "") {
-       tab_list[3].text = search_array.price_type.replaceAll("^", ",");
-       tab_list[3].active = "on";
-     }
+    if (search_array.week != "") {
+      if (search_array.week == "일^월^화^수^목^금^토") {
+        tab_list[3].text = "일~토";
+      } else {
+        tab_list[3].text = search_array.week.replaceAll("^", ",");
+      }
+      tab_list[3].active = "on";
+    }
 
-     if (search_array.sex != "") {
-       tab_list[4].text = search_array.sex.replaceAll("^", ",");
-       tab_list[4].active = "on";
-     }
+    if (search_array.price_type != "") {
+      tab_list[4].text = search_array.price_type.replaceAll("^", ",");
+      tab_list[4].active = "on";
+    }
 
-     if (search_array.sage != "" || search_array.eage != "") {
-       if (search_array.sage != "" && search_array.eage == "") {
-         tab_list[5].text = search_array.sage + "세 ~";
-         tab_list[5].active = "on";
-       } else if (search_array.sage == "" && search_array.eage != "") {
-         tab_list[5].text = " ~" + search_array.eage + "세";
-         tab_list[5].active = "on";
-       } else if (search_array.sage != "" && search_array.eage != "") {
-         tab_list[5].text = search_array.sage + "세" + " ~ " + search_array.eage + "세";
-         tab_list[5].active = "on";
-       }
-     }
+    if (search_array.sex != "") {
+      tab_list[5].text = search_array.sex.replaceAll("^", ",");
+      tab_list[5].active = "on";
+    }
+
+    if (search_array.sage != "" || search_array.eage != "") {
+      if (search_array.sage != "" && search_array.eage == "") {
+        tab_list[6].text = search_array.sage + "세 ~";
+        tab_list[6].active = "on";
+      } else if (search_array.sage == "" && search_array.eage != "") {
+        tab_list[6].text = " ~" + search_array.eage + "세";
+        tab_list[6].active = "on";
+      } else if (search_array.sage != "" && search_array.eage != "") {
+        tab_list[6].text = search_array.sage + "세" + " ~ " + search_array.eage + "세";
+        tab_list[6].active = "on";
+      }
+    }
    }
 
    function initTabUi() {
@@ -619,9 +626,12 @@
      $("#advancedSearch").removeClass("on");
    });
 
-   // 지역 선택 관련 변수
-   var selectedRegions = [];
-   var maxRegions = 3;
+  // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
+  if (typeof selectedRegions === 'undefined') {
+    window.selectedRegions = [];
+  }
+  var selectedRegions = window.selectedRegions;
+  var maxRegions = 3;
 
    // 지역 선택 버튼 클릭 시 changeArea 팝업 열기
    $("#regionSelectBtn").click(function() {
@@ -630,40 +640,51 @@
      $("body").css("overflow", "hidden");
    });
 
-   // 지역 선택 개수 업데이트 함수
-   function updateRegionCounter() {
-     var count = selectedRegions.length;
-     $("#regionCounter").html('<span style="color: #57CCAF;">' + count + '</span><span class="separator">/</span><span class="max-count">' + maxRegions + '</span>');
-   }
+  // 지역 선택 개수 업데이트 함수
+  function updateRegionCounter() {
+    var regions = window.selectedRegions || selectedRegions || [];
+    var count = regions.length;
+    $("#regionCounter").html('<span style="color: #57CCAF;">' + count + '</span><span class="separator">/</span><span class="max-count">' + maxRegions + '</span>');
+  }
 
-   // 선택된 지역 표시 업데이트 함수
-   function updateSelectedRegionsDisplay() {
-     var container = $("#selectedRegionsContainer");
-     container.empty();
+  // 선택된 지역 표시 업데이트 함수
+  function updateSelectedRegionsDisplay() {
+    var container = $("#selectedRegionsContainer");
+    container.empty();
 
-     selectedRegions.forEach(function(region, index) {
-       var regionItem = $('<div class="selected-region-item">' +
-         '<span>' + region + '</span>' +
-         //  '<button type="button" class="selected-region-remove" data-index="' + index + '">×</button>' +
-         '</div>');
-       container.append(regionItem);
-     });
+    // 전역 변수에서 지역 정보 가져오기
+    var regions = window.selectedRegions || selectedRegions || [];
+    regions.forEach(function(region, index) {
+      var regionItem = $('<div class="selected-region-item">' +
+        '<span>' + region + '</span>' +
+        //  '<button type="button" class="selected-region-remove" data-index="' + index + '">×</button>' +
+        '</div>');
+      container.append(regionItem);
+    });
 
-     updateRegionCounter();
-   }
+    updateRegionCounter();
+  }
 
-   // 지역 삭제 버튼 클릭 이벤트 (이벤트 위임 사용)
-   $(document).on('click', '.selected-region-remove', function() {
-     var index = parseInt($(this).data('index'));
-     selectedRegions.splice(index, 1);
-     updateSelectedRegionsDisplay();
-   });
+  // 지역 삭제 버튼 클릭 이벤트 (이벤트 위임 사용)
+  $(document).on('click', '.selected-region-remove', function() {
+    var index = parseInt($(this).data('index'));
+    window.selectedRegions.splice(index, 1);
+    selectedRegions = window.selectedRegions;
+    updateSelectedRegionsDisplay();
+    // 지역 삭제 후 tab_list 업데이트
+    initCategory();
+    initTabUi();
+  });
 
-   // 팝업에서 지역 선택 완료 시 호출될 전역 함수
-   window.onRegionSelectionComplete = function(regions) {
-     selectedRegions = regions.slice(0, maxRegions); // 최대 3개까지만
-     updateSelectedRegionsDisplay();
-   };
+  // 팝업에서 지역 선택 완료 시 호출될 전역 함수
+  window.onRegionSelectionComplete = function(regions) {
+    window.selectedRegions = regions.slice(0, maxRegions); // 최대 3개까지만
+    selectedRegions = window.selectedRegions;
+    updateSelectedRegionsDisplay();
+    // 지역 선택 후 tab_list 업데이트
+    initCategory();
+    initTabUi();
+  };
 
    // 근무형태 전체/개별 선택 동기화 로직
    var $workTypeAnyCheckbox = $('input[name="work_type_any"]');
@@ -956,6 +977,7 @@
 
    $("#btnReset").click(function() {
      // 지역
+     window.selectedRegions = [];
      selectedRegions = [];
      updateSelectedRegionsDisplay();
 

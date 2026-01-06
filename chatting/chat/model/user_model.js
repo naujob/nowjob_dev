@@ -137,6 +137,45 @@ container.getUserTokenFromMySQL = async function(user_id, callback){
 	}
 }
 
+//MySQL에서 push_yn 업데이트 (로그아웃 시 사용)
+container.updatePushYnFromMySQL = async function(socket_id, push_yn, callback){
+	try {
+		// 먼저 MongoDB에서 socket_id로 user_id 조회
+		var mongo_user = await $db.cs_user.findOne({socket_id : socket_id});
+		
+		if (!mongo_user || !mongo_user.user_id) {
+			$common.writeLog('updatePushYnFromMySQL: socket_id로 사용자를 찾을 수 없음 - socket_id: ' + socket_id);
+			callback(false);
+			return;
+		}
+		
+		var user_id = mongo_user.user_id;
+		
+		// MySQL 연결 및 쿼리 실행
+		const mysql = require('mysql2/promise');
+		const connection = await mysql.createConnection({
+			host: 'localhost',
+			user: 'root',
+			password: 'password',
+			database: 'nowapk'
+		});
+		
+		// 사용자 ID로 mm_idx 조회 후 push_yn 업데이트
+		const [updateResult] = await connection.execute(
+			'UPDATE st_member_device SET push_yn = ?, up_dt = NOW() WHERE mm_idx = (SELECT mm_idx FROM st_member WHERE mm_id = ? AND mm_status = "Y")',
+			[push_yn, user_id]
+		);
+		
+		await connection.end();
+		
+		$common.writeLog('updatePushYnFromMySQL: push_yn 업데이트 완료 - user_id: ' + user_id + ', push_yn: ' + push_yn);
+		callback(true);
+	} catch (error) {
+		$common.writeLog('MySQL push_yn 업데이트 오류: ' + error.message);
+		callback(false);
+	}
+}
+
 
 
 

@@ -8,8 +8,8 @@
         <div class="tab-container">
             <ul class="tab-list">
                 <?php if ($user_type == "COMP") : ?>
-                    <li><a href="/chat/index_comp" class="tab">제안받은 인재</a></li>
-                    <li class="on"><a href="/chat/chat_list3" class="tab">제안보낸인재</a></li>
+                    <li><a href="/chat/index_comp" class="tab">지원한 인재<span class="tab-badge"></span></a></li>
+                    <li class="on"><a href="/chat/chat_list3" class="tab">제안한 인재<span class="tab-badge"></span></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -85,6 +85,48 @@
                 background: url(/resource/shop/web/img/empty_chat.svg) no-repeat 50% 0;
                 background-size: 115px auto;
                 color: #777;
+            }
+
+            /* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) */
+            .page-chat .tab-container .tab-list li {
+                position: relative;
+            }
+
+            .page-chat .tab-container .tab-list li .tab {
+                position: relative;
+            }
+
+            .page-chat .tab-container .tab-list li .tab-badge {
+                position: absolute;
+                top: 8px;
+                right: -12px;
+                width: 8px;
+                height: 8px;
+                min-width: 8px;
+                min-height: 8px;
+                max-width: 8px;
+                max-height: 8px;
+                box-sizing: border-box;
+                padding: 0;
+                margin: 0;
+                line-height: 1;
+                flex-shrink: 0;
+                flex-grow: 0;
+                align-self: flex-start;
+                background-color: rgb(248, 96, 72);
+                border-radius: 50%;
+                display: none;
+                z-index: 10;
+            }
+
+            .page-chat .tab-container .tab-list li .tab-badge::before,
+            .page-chat .tab-container .tab-list li .tab-badge::after {
+                content: none;
+                display: none;
+            }
+
+            .page-chat .tab-container .tab-list li.has-unread .tab-badge {
+                display: block;
             }
         </style>
         <style>
@@ -255,20 +297,6 @@
 </div>
 
 <script>
-    // 뒤로가기 시 메인 페이지로 이동 (탭 간 이동 방지)
-    (function() {
-        if (window.history && window.history.pushState) {
-            // 이전 히스토리를 메인 페이지로 교체
-            window.history.replaceState(null, '', 'https://nowjob.co.kr/');
-            // 현재 페이지를 히스토리에 추가
-            window.history.pushState(null, '', window.location.href);
-            // 뒤로가기 이벤트 감지
-            window.addEventListener('popstate', function(event) {
-                // 뒤로가기 시 메인 페이지로 이동
-                window.location.href = 'https://nowjob.co.kr/';
-            });
-        }
-    })();
 
     // 안드로이드와 웹을 구분하여 처리
     <?php if ($this->common->getSession("os_type") == "android") : ?>
@@ -503,19 +531,6 @@
                     $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
                     $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
-                    // 채팅방 개수 계산
-                    var roomCount = 0;
-                    if (row.rm_idx_list && row.rm_idx_list !== "()" && row.rm_idx_list.trim() !== "") {
-                        // 괄호 제거하고 콤마로 분리
-                        var roomIdxArray = row.rm_idx_list.replace(/[()]/g, '').split(',');
-                        // 빈 문자열 필터링하고 숫자로 변환
-                        roomIdxArray = roomIdxArray.filter(function(idx) {
-                            return idx.trim() !== '';
-                        });
-                        roomCount = roomIdxArray.length;
-                    }
-                    $content = $content.replaceAll("{{room_count}}", roomCount);
-
                     var nationStr = '';
                     nationStr = row.rc_nation;
                     if (row.rc_nation != "" && (row.rc_sage != "0" || row.rc_eage != "0")) {
@@ -571,6 +586,77 @@
 
             fSearchNoReadCount();
 
+            // URL 파라미터에서 auto_open_rc_idx 확인하여 해당 채팅방 자동 진입
+            var urlParams = new URLSearchParams(window.location.search);
+            var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');
+            if (autoOpenRcIdx && ret.code == "00" && ret.data && ret.data.list) {
+                // URL에서 auto_open_rc_idx 파라미터 제거 (뒤로가기 시 재진입 방지)
+                urlParams.delete('auto_open_rc_idx');
+                var newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+                window.history.replaceState({}, '', newUrl);
+                
+                // 목록 로드 완료 후 해당 rc_idx를 가진 채팅방 찾기
+                setTimeout(function() {
+                    var targetRmIdx = null;
+                    var chatList = ret.data.list;
+                    var recruitClicked = false;
+                    var checkCount = 0;
+                    var maxCheckCount = 30;
+                    
+                    var checkInterval = setInterval(function() {
+                        checkCount++;
+                        
+                        // 이미 펼쳐진 인재 목록에서 채팅방 찾기
+                        $("#chat_list .room-item").each(function() {
+                            var $item = $(this);
+                            var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
+                                          $item.find('a[data-rc_idx]').data('rc_idx') ||
+                                          $item.data('rc_idx');
+                            if (itemRcIdx == autoOpenRcIdx) {
+                                targetRmIdx = $item.data('target_id');
+                                return false; // break
+                            }
+                        });
+                        
+                        // 채팅방을 찾았으면 자동으로 진입
+                        if (targetRmIdx) {
+                            clearInterval(checkInterval);
+                            location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=talent_sent";
+                            return;
+                        }
+                        
+                        // 공고를 아직 클릭하지 않은 경우
+                        if (!recruitClicked) {
+                            var $targetRecruitItem = null;
+                            $("#chat_list .list-item").each(function() {
+                                var $item = $(this);
+                                var $link = $item.find('a[onclick*="fShowChatListByRecruite"]');
+                                if ($link.length > 0) {
+                                    var onclickAttr = $link.attr('onclick') || '';
+                                    var match = onclickAttr.match(/fShowChatListByRecruite\('(\d+)'/);
+                                    if (match && match[1] == autoOpenRcIdx) {
+                                        $targetRecruitItem = $link;
+                                        return false; // break
+                                    }
+                                }
+                            });
+                            
+                            // 공고를 찾았으면 한 번만 클릭하여 인재 목록 펼치기
+                            if ($targetRecruitItem && $targetRecruitItem.length > 0) {
+                                recruitClicked = true;
+                                $targetRecruitItem.trigger('click');
+                                return;
+                            }
+                        }
+                        
+                        // 최대 시도 횟수에 도달한 경우
+                        if (checkCount >= maxCheckCount) {
+                            clearInterval(checkInterval);
+                        }
+                    }, 500); // 0.5초마다 확인
+                }, 500); // 목록 렌더링 대기
+            }
+
         });
     }
 
@@ -587,6 +673,28 @@
 
             let result = ret.data.result;
 
+            // 탭별 읽지 않은 메시지 개수 계산
+            var tab1UnreadCount = 0; // 지원한 인재 탭
+            var tab2UnreadCount = 0; // 제안한 인재 탭
+
+            // 공고별 room_idx_list 수집 (공고명 클릭 전에도 확인 가능)
+            var tab2RoomIdxList = [];
+            $('#chat_list .content-wrap').each(function() {
+                var roomIdxList = $(this).attr('data-room_idx_list');
+                if (roomIdxList) {
+                    var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',').map(function(idx) {
+                        return Number(idx.trim());
+                    }).filter(function(idx) {
+                        return !isNaN(idx) && idx > 0;
+                    });
+                    roomIdxArray.forEach(function(rmIdx) {
+                        if (tab2RoomIdxList.indexOf(rmIdx) === -1) {
+                            tab2RoomIdxList.push(rmIdx);
+                        }
+                    });
+                }
+            });
+
             // 모든 채팅방에 대한 미확인 메시지를 먼저 반영
             $.each(result, function(key, room) {
                 let count = 0;
@@ -598,9 +706,10 @@
                     });
                 });
 
-                // 현재 페이지의 chat_list 컨테이너 내에서만 요소 찾기
+                // 하위 인재 리스트의 개별 채팅방 뱃지 업데이트 (DOM에 있는 경우)
                 var $unreadElement = $('#chat_list #room_idx_unread_cnt_' + room.rm_idx);
                 if ($unreadElement.length > 0) {
+                    // 현재 페이지에 있는 채팅방 (제안한 인재 탭)
                     $unreadElement.html(count);
                     if (count > 0) {
                         $unreadElement.show();
@@ -609,9 +718,19 @@
                     }
                 }
 
-                // 상위 공고 뱃지 집계
-                if (count > 0) {
-                    fSetNoReadCntRecruit(room.rm_idx, count);
+                // 탭별 읽지 않은 메시지 개수 계산 (data-room_idx_list 기반)
+                if (tab2RoomIdxList.indexOf(room.rm_idx) !== -1) {
+                    // 탭2에 속한 채팅방 (제안한 인재)
+                    if (count > 0) {
+                        tab2UnreadCount += count;
+                        // 상위 공고 목록의 뱃지에 카운트 추가 (DOM에 요소가 없어도 data-room_idx_list 기반으로 처리)
+                        fSetNoReadCntRecruit(room.rm_idx, count);
+                    }
+                } else {
+                    // 탭1에 속한 채팅방 (지원한 인재)
+                    if (count > 0) {
+                        tab1UnreadCount += count;
+                    }
                 }
             });
 
@@ -631,6 +750,22 @@
                     $badge.hide();
                 }
             });
+
+            // 탭1 (지원한 인재) 확인
+            var hasUnreadTab1 = tab1UnreadCount > 0;
+            if (hasUnreadTab1) {
+                $('.page-chat .tab-list li:first-child').addClass('has-unread');
+            } else {
+                $('.page-chat .tab-list li:first-child').removeClass('has-unread');
+            }
+
+            // 탭2 (제안한 인재) 확인
+            var hasUnreadTab2 = tab2UnreadCount > 0;
+            if (hasUnreadTab2) {
+                $('.page-chat .tab-list li:last-child').addClass('has-unread');
+            } else {
+                $('.page-chat .tab-list li:last-child').removeClass('has-unread');
+            }
 
         });
     }
@@ -840,6 +975,20 @@
         // rc_idx = Recruit ID (채용공고 번호)
         var rc_idx = ru_idx; // 실제로는 채용공고 번호
 
+        // 다른 항목이 열려있으면 자동으로 닫기
+        // 현재 클릭한 항목이 아닌 모든 resumebox_ 제거 및 닫기
+        $('[class*="resumebox_"]').each(function() {
+            var $resumebox = $(this);
+            var classList = $resumebox.attr('class') || '';
+            var match = classList.match(/resumebox_(\d+)/);
+            if (match && match[1] != rc_idx) {
+                $resumebox.hide();
+                $resumebox.remove();
+                // 해당 항목의 angle-link에서 'on' 클래스 제거
+                $('.angle-link[onclick*="fShowChatListByRecruite(\'' + match[1] + '\'"]').removeClass('on');
+            }
+        });
+
         // 토글 기능: 이미 인재 리스트가 보이면 숨기기
         // 같은 채용공고의 모든 인재 리스트를 숨김/표시 처리 (클래스로 선택)
         var $resumebox = $('.resumebox_' + rc_idx);
@@ -919,21 +1068,30 @@
                         $content = $content.replaceAll("{{up_dt}}", row.up_dt);
                         $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
-                        // 백엔드에서 이미 처리된 ru_resume_img 사용 (hr_list.php 참고)
-                        // 이미지가 없거나 공백이면 성별에 맞는 기본 아바타로 교체
+                        // getResumeImg() 함수와 동일한 로직 적용 (chat_view.php 참고)
+                        // 컨트롤러에서 이미 getResumeImg()로 처리된 값이 오므로, 실제 이미지 경로가 있으면 그대로 사용
                         var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
                         var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
+                        var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
                         var profileImg = (typeof row.ru_resume_img === "string") ? row.ru_resume_img.trim() : "";
                         var mmSex = (row.mm_sex || "").trim();
-                        var defaultAvatar = femaleAvatarPath;
+                        
+                        // 디버깅: 실제 전달되는 값 확인 (개발 후 제거 가능)
+                        // console.log("ru_resume_img:", profileImg, "mm_sex:", mmSex);
+                        
+                        var defaultAvatar = noImagePath; // 기본값은 noimage4.png (getResumeImg 함수와 동일)
                         if (mmSex === "남") {
                             defaultAvatar = maleAvatarPath;
                         } else if (mmSex === "여") {
                             defaultAvatar = femaleAvatarPath;
                         }
-                        if (!profileImg || profileImg.indexOf("noimage4.png") !== -1) {
+                        // 이미지가 없거나 noimage4.png인 경우에만 기본 아바타로 교체
+                        // profileImg가 빈 문자열이거나, noimage4.png를 포함하는 경우에만 기본 아바타 사용
+                        // 실제 이미지 경로(/resource/uploads/...)가 있으면 그대로 사용
+                        if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
                             profileImg = defaultAvatar;
                         }
+                        // profileImg가 실제 이미지 경로인 경우 그대로 사용 (컨트롤러에서 이미 getResumeImg()로 처리됨)
                         $content = $content.replaceAll("{{profile_img}}", profileImg);
                         $content = $content.replaceAll("{{default_avatar}}", defaultAvatar);
 
@@ -1001,7 +1159,7 @@
                         // 복사한 내용 다시 넣기
                         $clone.html($content);
 
-                        var resumeboxHtml = "<div id='resumebox_" + rc_idx + "' class='resumebox_" + rc_idx + " resumebox_' style='border-top: 1px solid #ccc;'>" + $clone.html() + "</div>";
+                        var resumeboxHtml = "<div id='resumebox_" + rc_idx + "' class='resumebox_" + rc_idx + " resumebox_' style='border-top: 1px solid #ccc; background-color: #f9f9f9;'>" + $clone.html() + "</div>";
 
                         // DOM 추가 위치: li 요소 안에 추가 (angle-link 다음에)
                         var $li = $(obj).closest('li');
@@ -1052,6 +1210,19 @@
 
         });
     }
+
+    // 뒤로가기 막기 - 히스토리에 현재 페이지 추가
+    window.addEventListener('load', function() {
+        window.history.pushState(null, null, location.href);
+
+        // 뒤로가기 시 현재 페이지로 다시 이동
+        window.addEventListener('popstate', function() {
+            window.history.pushState(null, null, location.href);
+        });
+    });
+
+    // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
+    window.DISABLE_SWIPE_BACK = true;
 </script>
 
 <template id="tpl_chat">
@@ -1067,10 +1238,6 @@
                     <div class="timestamp" style="font-size: 12px; color: #777;">{{mm_comp_name}}</div>
                     <div class="title-wrap">
                         <p class="title"><strong>{{rc_name}}</strong></p>
-                    </div>
-                    <!-- 채팅방 개수 -->
-                    <div class="meta" style="font-size: 12px; color: #777;">
-                        <p class="room-count-text">채팅방 {{room_count}}명</p>
                     </div>
                 </div>
             </div>

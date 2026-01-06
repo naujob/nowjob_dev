@@ -2,7 +2,7 @@
     'use strict';
 
     /* 맨위로 가기 */
-    (function setBtnTop () {
+    (function setBtnTop() {
         if (!document.querySelector('.js-goto-top')) return;
 
         var btnTop = document.querySelector('.js-goto-top');
@@ -20,18 +20,18 @@
 
             btnTop.addEventListener('click', function (e) {
                 e.preventDefault();
-                elm.scrollTo(0,0);
+                elm.scrollTo(0, 0);
             });
         });
     }());
 
     /* 홈메뉴 열기,닫기 */
-    (function setBottomNav () {
+    (function setBottomNav() {
         if (!document.querySelector('.bottom-nav')) return;
 
         var menu = document.querySelector('.bottom-nav .menu');
 
-        function toggleMenu () {
+        function toggleMenu() {
             if (menu.classList.contains('open')) {
                 document.body.style.overflow = '';
             } else {
@@ -63,7 +63,7 @@
     }());
 
     /* Lazy Loader : https://github.com/ApoorvSaxena/lozad.js */
-    (function setLazyLoadImg () {
+    (function setLazyLoadImg() {
         if (typeof lozad == 'undefined') return;
 
         var observer = lozad();
@@ -71,13 +71,13 @@
     }());
 
     /* 모달 팝업 */
-    (function setModal () {
+    (function setModal() {
 
-        function setFocus ($el) {
+        function setFocus($el) {
             if (!$el) return false;
 
             var $focusableEl = $el.querySelectorAll('a, button, input, select, textarea');
-            var $firstEl = $el.querySelector('[autofocus]')||$focusableEl[0];
+            var $firstEl = $el.querySelector('[autofocus]') || $focusableEl[0];
             var $lastEl = $focusableEl[$focusableEl.length - 1];
 
             $el.addEventListener('keydown', function (ev) {
@@ -138,7 +138,7 @@
             var $popup = document.createElement('div');
             var index = document.querySelectorAll('.layer-popup').length || 1;
             var id = options.id ? options.id.toString() : '';
-            var title =  options.title ? options.title.toString() : '알림';
+            var title = options.title ? options.title.toString() : '알림';
             var content = options.content || '내용이 없습니다.';
             var firstButton = options.firstButton ? options.firstButton.toString() : '';
             var secondButton = options.secondButton ? options.secondButton.toString() : '';
@@ -146,64 +146,67 @@
             var firstCallback = options.firstCallback || null;
             var secondCallback = options.secondCallback || null;
             var thirdCallback = options.thirdCallback || null;
-            var removeClose = options.removeClose==false ? '' : ' js-close-popup ';
-            var clickOnce = options.clickOnce ==false ? false : true;
+            var removeClose = options.removeClose == false ? '' : ' js-close-popup ';
+            var clickOnce = options.clickOnce == false ? false : true;
 
-            if(type == 'confirm') {
+            if (type == 'confirm') {
                 id = id ? id + index : 'confirmDialog' + index;
                 firstButton = firstButton ? firstButton : '취소';
                 secondButton = secondButton ? secondButton : '확인';
-                thirdButton = thirdButton ? '<button type="submit" aria-controls="'+ id +'" class="btn btn-tertiary '+removeClose+' js-popup-action3">'+ thirdButton +'</button>' : thirdButton;
+                thirdButton = thirdButton ? '<button type="submit" aria-controls="' + id + '" class="btn btn-tertiary ' + removeClose + ' js-popup-action3">' + thirdButton + '</button>' : thirdButton;
 
-                html = '<div id="'+ id +'" class="layer-popup">'+
-                    '<div role="alertdialog" aria-labelledby="confirmTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                    '<h4 id="confirmTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn-close-popup  js-close-popup"><span class="sr-text">닫기</span></button>' +
+                html = '<div id="' + id + '" class="layer-popup">' +
+                    '<div role="alertdialog" aria-labelledby="confirmTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="confirmTitle' + index + '" class="sr-text">' + title + '</h4>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup  js-close-popup"><span class="sr-text">닫기</span></button>' +
                     '<div class="popup-content">' +
-                    '<div class="msg">'+ content +'</div>' +
+                    '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn btn-secondary  '+removeClose+' js-popup-action1">'+ firstButton +'</button>'+
-                    '<button type="submit" aria-controls="'+ id +'" class="btn btn-primary '+removeClose+' js-popup-action2">'+ secondButton +'</button>' + thirdButton +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-secondary  ' + removeClose + ' js-popup-action1">' + firstButton + '</button>' +
+                    '<button type="submit" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action2">' + secondButton + '</button>' + thirdButton +
                     '</div> </div> </div>';
             } else if (type == 'alert') {
                 id = id ? id + index : 'alertDialog' + index;
-                html = '<div id="'+ id +'" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                    '<h4 id="alertTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn-close-popup  js-close-popup"><span class="sr-text">닫기</span></button>' +
+                html = '<div id="' + id + '" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="alertTitle' + index + '" class="sr-text">' + title + '</h4>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup  js-close-popup"><span class="sr-text">닫기</span></button>' +
                     '<div class="popup-content">' +
-                    '<div class="msg">'+ content +'</div>' +
+                    '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn btn-primary '+removeClose+' js-popup-action1">확인</button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">확인</button>' +
                     '</div> </div> </div>';
             } else if (type == 'alert2') {
                 id = id ? id + index : 'alertDialog' + index;
-                var closeButtonHtml = options.removeClose == false ? '' : '<button type="button" aria-controls="'+ id +'" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>';
-                html = '<div id="'+ id +'" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                    '<h4 id="alertTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
+                var closeButtonHtml = options.removeClose == false ? '' : '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>';
+                html = '<div id="' + id + '" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="alertTitle' + index + '" class="sr-text">' + title + '</h4>' +
                     closeButtonHtml +
                     '<div class="popup-content">' +
-                    '<div class="msg">'+ content +'</div>' +
+                    '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="'+ id +'" class="btn btn-primary '+removeClose+' js-popup-action1">확인</button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">확인</button>' +
                     '</div> </div> </div>';
             } else if (type == 'modal') {
                 id = id ? id + index : 'defaultDialog' + index;
 
                 if (firstButton && !secondButton) {
-                    firstButton = '<button type="button" aria-controls="'+ id +'" class="btn btn-primary '+removeClose+' js-popup-action1">'+ firstButton +'</button>';
+                    firstButton = '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">' + firstButton + '</button>';
                 } else if (firstButton && secondButton) {
-                    firstButton = '<button type="button" aria-controls="'+ id +'" class="btn btn-secondary '+removeClose+' js-popup-action1">'+ firstButton +'</button>';
-                    secondButton = '<button type="button" aria-controls="'+ id +'" class="btn btn-primary  '+removeClose+' js-popup-action2">'+ secondButton +'</button>';
+                    firstButton = '<button type="button" aria-controls="' + id + '" class="btn btn-secondary ' + removeClose + ' js-popup-action1">' + firstButton + '</button>';
+                    secondButton = '<button type="button" aria-controls="' + id + '" class="btn btn-primary  ' + removeClose + ' js-popup-action2">' + secondButton + '</button>';
                 }
 
-                thirdButton = thirdButton ? '<button type="button" aria-controls="'+ id +'" class="btn btn-tertiary '+removeClose+' js-popup-action3">'+ thirdButton +'</button>' : thirdButton;
+                thirdButton = thirdButton ? '<button type="button" aria-controls="' + id + '" class="btn btn-tertiary ' + removeClose + ' js-popup-action3">' + thirdButton + '</button>' : thirdButton;
 
-                html = '<div id="'+ id +'" class="layer-popup"><div role="dialog" aria-labelledby="popupTitle'+ index +'" aria-modal="true" class="popup-container">' +
-                '<h4 id="popupTitle'+ index +'" class="sr-text">'+ title +'</h4>' +
-                '<button type="button" aria-controls="'+ id +'" class="btn-close-popup  js-close-popup"><span class="sr-text">닫기</span></button>' +
-                '<div class="popup-content">' + content + '</div>' +
-                (firstButton ? '<div class="popup-footer">'+ firstButton + secondButton + thirdButton +'</div>' : '')+
-                '</div> </div>';
+                // removeClose 옵션이 false일 때 닫기 버튼 제거
+                var closeButtonHtml = options.removeClose == false ? '' : '<button type="button" aria-controls="' + id + '" class="btn-close-popup  js-close-popup"><span class="sr-text">닫기</span></button>';
+
+                html = '<div id="' + id + '" class="layer-popup"><div role="dialog" aria-labelledby="popupTitle' + index + '" aria-modal="true" class="popup-container">' +
+                    '<h4 id="popupTitle' + index + '" class="sr-text">' + title + '</h4>' +
+                    closeButtonHtml +
+                    '<div class="popup-content">' + content + '</div>' +
+                    (firstButton ? '<div class="popup-footer">' + firstButton + secondButton + thirdButton + '</div>' : '') +
+                    '</div> </div>';
             }
 
             $popup.innerHTML = html;
@@ -216,7 +219,7 @@
             $popup.querySelectorAll('.js-close-popup').forEach(function (closeBtn) {
                 closeBtn.addEventListener('click', function (e) {
                     closePopup($popup);
-                }, {once: clickOnce});
+                }, { once: clickOnce });
             });
 
             //if (type === 'alert') return;
@@ -226,7 +229,7 @@
                     setTimeout(function () {
                         firstCallback();
                     }, 100);
-                }, {once: clickOnce});
+                }, { once: clickOnce });
             }
 
             if (secondButton && secondCallback && typeof secondCallback === 'function') {
@@ -234,7 +237,7 @@
                     setTimeout(function () {
                         secondCallback();
                     }, 100);
-                }, {once: clickOnce});
+                }, { once: clickOnce });
             }
 
             if (thirdButton && thirdCallback && typeof thirdCallback === 'function') {
@@ -242,7 +245,7 @@
                     setTimeout(function () {
                         thirdCallback();
                     }, 100);
-                }, {once: clickOnce});
+                }, { once: clickOnce });
             }
         };
 
@@ -272,17 +275,17 @@
 
             // 4단계: 레이아웃 계산 완료 후 정확한 높이 측정 및 고정
             // 세 번의 requestAnimationFrame으로 레이아웃 계산 완료 보장
-            requestAnimationFrame(function() {
-                requestAnimationFrame(function() {
-                    requestAnimationFrame(function() {
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
                         // 이제 정확한 scrollHeight를 측정할 수 있음 (레이아웃 계산 완료 후)
                         if (container) {
                             var fixedHeight = container.scrollHeight;
                             // 높이를 픽셀로 고정 (transform 시작 전에 고정하여 reflow 방지)
                             container.style.height = fixedHeight + 'px';
-                            
+
                             // height 고정이 적용되도록 한 프레임 더 대기
-                            requestAnimationFrame(function() {
+                            requestAnimationFrame(function () {
                                 // 이제 transform 애니메이션 시작 (높이가 이미 고정되어 있음)
                                 // transition은 CSS에서 이미 선언되어 있으므로 그대로 사용
                                 $el.classList.add('on');
@@ -307,7 +310,7 @@
                         }
 
                         // 포커스 설정
-                        setTimeout(function() {
+                        setTimeout(function () {
                             $el.focus();
                         }, 100);
                     });
@@ -319,7 +322,7 @@
             if (container) {
                 // transitionend 이벤트로 애니메이션 완료 감지
                 var transitionEnded = false;
-                var onTransitionEnd = function(e) {
+                var onTransitionEnd = function (e) {
                     // transform 속성의 transition이 끝났을 때만 처리
                     if (!transitionEnded && (e.propertyName === 'transform' || e.propertyName === '-webkit-transform' || e.target === container)) {
                         transitionEnded = true;
@@ -336,7 +339,7 @@
                 container.addEventListener('webkitTransitionEnd', onTransitionEnd);
 
                 // 안전장치: transitionend가 발생하지 않을 경우를 대비해 400ms 후에도 해제
-                setTimeout(function() {
+                setTimeout(function () {
                     if ($el.isOpening && !transitionEnded) {
                         transitionEnded = true;
                         $el.isOpening = false;
@@ -350,7 +353,7 @@
                 }, 400);
             } else {
                 // 컨테이너가 없으면 기본 타이밍으로 해제
-                setTimeout(function() {
+                setTimeout(function () {
                     $el.isOpening = false;
                     // 바텀시트 transform 애니메이션 완료 후 스크롤만 0으로 이동 (body 위치 변경 없이)
                     window.scrollTo(0, 0);
@@ -393,7 +396,7 @@
 
             // transform 애니메이션이 완료된 후 height: auto로 복구 (튕김 방지)
             if (container) {
-                var restoreHeight = function(e) {
+                var restoreHeight = function (e) {
                     // transform 속성의 transition이 끝났을 때만 처리
                     if (e.propertyName === 'transform' || e.propertyName === '-webkit-transform' || e.target === container) {
                         container.style.height = '';
@@ -405,7 +408,7 @@
                 container.addEventListener('webkitTransitionEnd', restoreHeight);
 
                 // 안전장치: transitionend가 발생하지 않을 경우를 대비해 400ms 후에도 복구
-                setTimeout(function() {
+                setTimeout(function () {
                     container.style.height = '';
                     container.removeEventListener('transitionend', restoreHeight);
                     container.removeEventListener('webkitTransitionEnd', restoreHeight);
@@ -427,7 +430,7 @@
         window.addEventListener('click', function (e) {
             // e.target이 DOM 요소인지 확인
             if (!e.target || typeof e.target.getAttribute !== 'function') return;
-            
+
             if (e.target.classList && !e.target.classList.contains('js-toggle-panel') && !e.target.parentNode.classList.contains('js-toggle-panel')) return;
 
             e.preventDefault();
@@ -455,9 +458,9 @@
             // 클릭한 요소가 패널 컨테이너 내부인지 확인 (기존 패널 및 바텀시트 모두 체크)
             var $panelContainer = $openPanel.querySelector('.panel-container');
             var $bottomSheetContainer = $openPanel.querySelector('.bottom-sheet-container');
-            
+
             // 패널 내부 또는 바텀시트 내부를 클릭한 경우 닫지 않음
-            if (($panelContainer && $panelContainer.contains(e.target)) || 
+            if (($panelContainer && $panelContainer.contains(e.target)) ||
                 ($bottomSheetContainer && $bottomSheetContainer.contains(e.target))) {
                 return;
             }
@@ -471,50 +474,50 @@
         // 레이어 패널 배경 클릭 이벤트 직접 처리 (stopPropagation 우회)
         // 모든 레이어 패널에 배경 클릭 이벤트 추가
         function initPanelBackgroundClick() {
-            document.querySelectorAll('.layer-panel').forEach(function($panel) {
+            document.querySelectorAll('.layer-panel').forEach(function ($panel) {
                 // 이미 이벤트가 추가되었는지 확인
                 if ($panel.hasAttribute('data-bg-click-handler')) return;
                 $panel.setAttribute('data-bg-click-handler', 'true');
-                
-                $panel.addEventListener('click', function(e) {
+
+                $panel.addEventListener('click', function (e) {
                     // 레이어 패널이 열려있지 않으면 무시
                     if (!$panel.classList.contains('on')) return;
-                    
+
                     // 클릭한 요소가 컨테이너 내부인지 확인
                     var $panelContainer = $panel.querySelector('.panel-container');
                     var $bottomSheetContainer = $panel.querySelector('.bottom-sheet-container');
-                    
+
                     // 컨테이너 내부를 클릭한 경우 닫지 않음
-                    if (($panelContainer && $panelContainer.contains(e.target)) || 
+                    if (($panelContainer && $panelContainer.contains(e.target)) ||
                         ($bottomSheetContainer && $bottomSheetContainer.contains(e.target))) {
                         return;
                     }
-                    
+
                     // 레이어 패널 자체 또는 배경 영역을 클릭한 경우 닫기
                     // e.target이 레이어 패널 자체이거나, 컨테이너 외부인 경우
-                    if ($panel === e.target || 
-                        ($panel.contains(e.target) && 
-                         !($panelContainer && $panelContainer.contains(e.target)) &&
-                         !($bottomSheetContainer && $bottomSheetContainer.contains(e.target)))) {
+                    if ($panel === e.target ||
+                        ($panel.contains(e.target) &&
+                            !($panelContainer && $panelContainer.contains(e.target)) &&
+                            !($bottomSheetContainer && $bottomSheetContainer.contains(e.target)))) {
                         closePanel($panel);
                     }
                 });
             });
         }
-        
+
         // DOMContentLoaded 또는 즉시 실행
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initPanelBackgroundClick);
         } else {
             initPanelBackgroundClick();
         }
-        
+
         // 동적으로 추가되는 레이어 패널을 위해 주기적으로 체크
         setTimeout(initPanelBackgroundClick, 100);
 
         document.querySelectorAll('.layer-pannel').forEach(function (elm) {
             var $focusableEl = elm.querySelectorAll('a, button, input, select, textarea');
-            var $firstEl = elm.querySelector('[autofocus]')||$focusableEl[0];
+            var $firstEl = elm.querySelector('[autofocus]') || $focusableEl[0];
             var $lastEl = $focusableEl[$focusableEl.length - 1];
 
             elm.addEventListener('keydown', function (ev) {
@@ -543,12 +546,12 @@
     }());
 
     /* Tooltip */
-    (function setTooltip () {
+    (function setTooltip() {
 
-        function show (el) {
+        function show(el) {
             // el이 유효한 DOM 요소인지 확인
             if (!el || !el.parentNode || typeof el.parentNode.querySelector !== 'function') return;
-            
+
             var $tooltip = el.parentNode.querySelector('.tooltip');
             var offset = 27,
                 xpos = el.offsetLeft + (el.offsetWidth / 2) - offset,
@@ -557,7 +560,7 @@
             if (!$tooltip) return;
 
             if (!$tooltip.classList.contains('right') && xpos + $tooltip.offsetWidth > window.innerWidth) {
-                $tooltip.classList.remove('center','left');
+                $tooltip.classList.remove('center', 'left');
                 $tooltip.classList.add('right');
                 xpos = xpos - $tooltip.offsetWidth + (offset * 2);
             } else if ($tooltip.classList.contains('center')) {
@@ -583,9 +586,9 @@
             }, 1);
         }
 
-        ['click','mouseover'].forEach(function(etype) {
-            window.addEventListener(etype, function (e){
-                if(e.target.classList && !e.target.classList.contains('js-toggle-tooltip')) {
+        ['click', 'mouseover'].forEach(function (etype) {
+            window.addEventListener(etype, function (e) {
+                if (e.target.classList && !e.target.classList.contains('js-toggle-tooltip')) {
                     if (document.querySelector('.tooltip.on')) {
                         document.querySelector('.tooltip.on').classList.remove('on');
                     }
@@ -605,8 +608,8 @@
     }());
 
     /* 폼파일 이미지 미리보기 */
-    (function setFormFilePreview () {
-        function previewPic (input) {
+    (function setFormFilePreview() {
+        function previewPic(input) {
             var fileReader = new FileReader();
             var preview = input.parentNode.querySelector('.preview');
             var img = document.createElement('IMG');
@@ -633,8 +636,8 @@
     }());
 
     /* 폼파일 파일명 표시 */
-    (function setFormFile () {
-        function showFilename (container, input) {
+    (function setFormFile() {
+        function showFilename(container, input) {
             var filename = container.querySelector('.file-name');
             if (input.files && input.files[0]) {
                 filename.value = input.files[0].name;
@@ -651,72 +654,72 @@
     }());
 
     /* Custom input Range Slider */
-   (function setRangeSlider () {
-       if (!document.querySelector('.js-range-slider')) return;
+    (function setRangeSlider() {
+        if (!document.querySelector('.js-range-slider')) return;
 
-       function chgValue (slider, input) {
-           var fill = slider.querySelector('.fill'),
-               minEl = slider.querySelector('.min input'),
-               maxEl = slider.querySelector('.max input'),
-               parent = input.parentNode,
-               label = parent.querySelector('.label'),
-               thumb = parent.querySelector('.thumb'),
-               unit = input.getAttribute('data-unit'),
-               step = parseInt(input.getAttribute('step')),
-               rangeMin = parseInt(input.getAttribute('min')),
-               rangeMax = parseInt(input.getAttribute('max')) - rangeMin,
-               curVal = parseInt(input.value),
-               total = input.offsetWidth - thumb.offsetWidth + 4;
+        function chgValue(slider, input) {
+            var fill = slider.querySelector('.fill'),
+                minEl = slider.querySelector('.min input'),
+                maxEl = slider.querySelector('.max input'),
+                parent = input.parentNode,
+                label = parent.querySelector('.label'),
+                thumb = parent.querySelector('.thumb'),
+                unit = input.getAttribute('data-unit'),
+                step = parseInt(input.getAttribute('step')),
+                rangeMin = parseInt(input.getAttribute('min')),
+                rangeMax = parseInt(input.getAttribute('max')) - rangeMin,
+                curVal = parseInt(input.value),
+                total = input.offsetWidth - thumb.offsetWidth + 4;
 
-           if (minEl && parseInt(maxEl.value) <= parseInt(minEl.value)) {
-               minEl.value = parseInt(maxEl.value) - step;
-           }
+            if (minEl && parseInt(maxEl.value) <= parseInt(minEl.value)) {
+                minEl.value = parseInt(maxEl.value) - step;
+            }
 
-           if (minEl && parseInt(minEl.value) >= parseInt(maxEl.value)) {
-               maxEl.value = parseInt(minEl.value) + step;
-           }
+            if (minEl && parseInt(minEl.value) >= parseInt(maxEl.value)) {
+                maxEl.value = parseInt(minEl.value) + step;
+            }
 
-           if (curVal !== parseInt(input.value)) {
-               curVal = parseInt(input.value);
-           }
+            if (curVal !== parseInt(input.value)) {
+                curVal = parseInt(input.value);
+            }
 
-           if (curVal == 0) {
-               label.style.opacity = 0;
-           } else {
-               label.style.opacity = '';
-           }
+            if (curVal == 0) {
+                label.style.opacity = 0;
+            } else {
+                label.style.opacity = '';
+            }
 
-           if (minEl) {
-               fill.style.clipPath = 'inset(0px '+ (100 - ((parseInt(maxEl.value) / rangeMax * 100) - (rangeMin / rangeMax * 100))) +'% 0px ' + ((parseInt(minEl.value) / rangeMax * 100) - (rangeMin / rangeMax * 100)) +'%)';
-           } else {
-               fill.style.clipPath = 'inset(0px '+ (100 - ((parseInt(maxEl.value) / rangeMax * 100) - (rangeMin / rangeMax * 100))) +'% 0px 0px)';
-           }
+            if (minEl) {
+                fill.style.clipPath = 'inset(0px ' + (100 - ((parseInt(maxEl.value) / rangeMax * 100) - (rangeMin / rangeMax * 100))) + '% 0px ' + ((parseInt(minEl.value) / rangeMax * 100) - (rangeMin / rangeMax * 100)) + '%)';
+            } else {
+                fill.style.clipPath = 'inset(0px ' + (100 - ((parseInt(maxEl.value) / rangeMax * 100) - (rangeMin / rangeMax * 100))) + '% 0px 0px)';
+            }
 
-           thumb.style.transform = 'translateX(' + total * ((curVal / rangeMax) - (rangeMin / rangeMax)) + 'px)';
-           label.innerHTML = curVal + unit;
-       }
+            thumb.style.transform = 'translateX(' + total * ((curVal / rangeMax) - (rangeMin / rangeMax)) + 'px)';
+            label.innerHTML = curVal + unit;
+        }
 
-       document.querySelectorAll('.js-range-slider input[type="range"]').forEach(function (input) {
-           var slider = input.closest('.js-range-slider');
+        document.querySelectorAll('.js-range-slider input[type="range"]').forEach(function (input) {
+            var slider = input.closest('.js-range-slider');
 
-           setTimeout(function () {
-               input.addEventListener('input', function (e) {
-                   chgValue(slider, this);
-               });
+            setTimeout(function () {
+                input.addEventListener('input', function (e) {
+                    chgValue(slider, this);
+                });
 
-               window.addEventListener('resize', function () {
-                   chgValue(input.closest('.js-range-slider'), input);
-               });
+                window.addEventListener('resize', function () {
+                    chgValue(input.closest('.js-range-slider'), input);
+                });
 
-               chgValue(slider, input);
-           }, 1);
-       });
+                chgValue(slider, input);
+            }, 1);
+        });
 
-   }());
+    }());
 
 
     /*!Keen-slider : https://keen-slider.io */
-    (function initKeenSlider () {
+    (function initKeenSlider() {
         /* Keen Slider dots plugin */
         window.sliderDots = function (slider) {
             var container, dots;
@@ -749,7 +752,7 @@
 
                 slider.track.details.slides.forEach(function (_e, idx) {
                     var dot = createButton("dot");
-                    dot.innerHTML = '<span>'+ (idx+1) +'</span>';
+                    dot.innerHTML = '<span>' + (idx + 1) + '</span>';
                     dot.addEventListener("click", function () {
                         slider.moveToIdx(idx);
                     });
@@ -897,12 +900,12 @@
     }());
 
     /* Toggle Bookmark */
-    (function setBtnBookmark () {
-        function toggle (btn) {
+    (function setBtnBookmark() {
+        function toggle(btn) {
             if (btn.classList.contains('on')) {
-                btn.children[0].textContent = btn.textContent.replace('해제','추가');
+                btn.children[0].textContent = btn.textContent.replace('해제', '추가');
             } else {
-                btn.children[0].textContent = btn.textContent.replace('추가','해제');
+                btn.children[0].textContent = btn.textContent.replace('추가', '해제');
             }
 
             btn.classList.toggle('on');
@@ -916,7 +919,7 @@
     }());
 
     /* 탭목록 init */
-    (function setTabList () {
+    (function setTabList() {
         var tabContainer = document.querySelectorAll('.tab-container');
         var maxWidth = window.innerWidth;
         var offset = 30;
@@ -924,7 +927,7 @@
         tabContainer.forEach(function (con) {
             var activeItem = con.querySelector('.on');
 
-            con.scrollTo(0,0);
+            con.scrollTo(0, 0);
 
             if (activeItem && maxWidth < activeItem.offsetLeft + activeItem.offsetWidth) {
                 setTimeout(function () {
@@ -935,14 +938,14 @@
     }());
 
     /* Detect touchEvent */
-    (function detectTouchEvent () {
+    (function detectTouchEvent() {
         var flag = false;
         var target = null;
         var direction = null;
         var startX, startY;
 
         function deleteBefore() {
-            target.parentNode.classList.remove('is-swipe-left','is-swipe-right','is-swipe-down','is-swipe-up');
+            target.parentNode.classList.remove('is-swipe-left', 'is-swipe-right', 'is-swipe-down', 'is-swipe-up');
         }
 
         function onStart(e) {
@@ -967,7 +970,7 @@
             target = e.target;
             flag = true;
 
-            target.addEventListener('touchend', onEnd, {once:true});
+            target.addEventListener('touchend', onEnd, { once: true });
         }
 
         function onEnd(e) {
@@ -1008,7 +1011,7 @@
     }());
 
     /* Delete Item */
-    (function deleteItem () {
+    (function deleteItem() {
         window.addEventListener('click', function (e) {
             if (e.target.classList && e.target.classList.contains('js-del-item')) {
                 var item = e.target.parentNode;
@@ -1022,10 +1025,10 @@
     }());
 
     /* Accordion List Toggle */
-    (function setAccordionList () {
+    (function setAccordionList() {
         var currentEl = null;
 
-        function toggle (el) {
+        function toggle(el) {
             var content = el.parentNode.querySelector('.accordion-content');
             var isOpen = content.hidden;
 
@@ -1056,8 +1059,8 @@
     }());
 
     /* AutoHeight TextArea */
-    (function autoHeightTextarea () {
-        ['input','keydown'].forEach(function (evt) {
+    (function autoHeightTextarea() {
+        ['input', 'keydown'].forEach(function (evt) {
             window.addEventListener(evt, function (e) {
                 var target = e.target;
                 if (target.classList && target.classList.contains('js-autoheight')) {
@@ -1082,7 +1085,7 @@
 
         if (!selectbox) return;//20221107 수정
 
-        function getValue (el) {
+        function getValue(el) {
             var value;
 
             el.setAttribute('autocompleted', 'off');

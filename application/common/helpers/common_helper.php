@@ -791,6 +791,22 @@ function sendFcm($info, $token_list)
 		];
 	}
 
+	// iOS 배지 숫자: 실제 미확인 알림 개수 조회
+	$badge_count = 0; // 기본값: 조회 실패 시 배지 숨김
+	if (isset($info['user_id']) && !empty($info['user_id'])) {
+		try {
+			$tbl_alarm = get_mongodb("alarm");
+			if ($tbl_alarm) {
+				$alarm_cnt = $tbl_alarm->find(["show_yn" => "N", "user_id" => $info['user_id']])->count();
+				$badge_count = $alarm_cnt; // 실제 알림 개수 (0이면 배지 숨김)
+			}
+		} catch (Exception $e) {
+			// MongoDB 조회 실패 시 배지 숨김 (0)
+			debug_log("알림 개수 조회 실패 - 배지 숨김", 'FCM', ['error' => $e->getMessage()]);
+			$badge_count = 0;
+		}
+	}
+
 	// FCM HTTP v1 API 메시지 구성
 	$messages = [];
 
@@ -801,26 +817,30 @@ function sendFcm($info, $token_list)
 			continue;
 		}
 
-		debug_log("FCM 메시지 구성 시작", 'FCM', ['token' => substr($token, 0, 20) . '...']);
+		// 각 알림마다 고유한 notificationId 생성 (네이티브 앱의 PendingIntent 고유성 보장을 위해)
+		// 타임스탬프 + 마이크로초 + 랜덤 값 조합으로 고유성 보장
+		$notificationId = (int)((microtime(true) * 1000) % PHP_INT_MAX) + mt_rand(1, 1000);
+
+		debug_log("FCM 메시지 구성 시작", 'FCM', ['token' => substr($token, 0, 20) . '...', 'notificationId' => $notificationId]);
 
 		$message = [
 			'message' => [
 				'token' => $token,
-				'notification' => [
-					'title' => $info['title'],
-					'body' => $info['body']
-				],
+				// notification 페이로드 제거: 안드로이드 13+에서 OS가 알림을 자동 생성하여 onMessageReceived()가 호출되지 않음
+				// data 페이로드만 사용하여 onMessageReceived()가 항상 호출되도록 보장
 				'data' => [
 					'title' => $info['title'],
 					'body' => $info['body'],
 					'url' => isset($info['url']) ? $info['url'] : '',
 					'type' => isset($info['type']) ? $info['type'] : 'general',
 					'timestamp' => (string)time(),
+					'notificationId' => (string)$notificationId,  // 네이티브 앱에서 PendingIntent의 requestCode로 사용
 					'click_action' => isset($info['url']) ? $info['url'] : ''
 				],
 				'android' => [
-					'priority' => 'high',
+					'priority' => 'high',  // 메시지 우선순위 (high로 설정 시 즉시 전달)
 					'ttl' => '3600s'
+					// android.notification 제거: data 페이로드만 사용하여 클라이언트에서 커스텀 알림 생성
 				],
 				'apns' => [
 					'headers' => [
@@ -834,9 +854,9 @@ function sendFcm($info, $token_list)
 								'body' => $info['body']
 							],
 							'sound' => 'default',  // iOS 알림 소리 (커스텀 사운드 사용 시 네이티브 앱에 파일 추가 필요)
-							'badge' => 1,
-							'interruption-level' => 'active'
-						]
+							'badge' => $badge_count  // 실제 미확인 알림 개수로 설정
+						],
+						'url' => isset($info['url']) ? $info['url'] : ''  // iOS용 커스텀 데이터 (알림 클릭 시 이동할 URL)
 					]
 				]
 			]

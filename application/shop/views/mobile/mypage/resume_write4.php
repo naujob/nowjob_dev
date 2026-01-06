@@ -1248,8 +1248,50 @@
         if (info.ru_price_type.indexOf("월급") > -1 && info.ru_month_price != "0") {
             str_month_price = '<tr><td class="label">희망급여</td><td class="value">' + info.ru_month_price.format() + '원</td></tr>';
         }
+        
+        // 주소 처리: fRemoveBigAdrJS 함수 적용
+        var displayAddr = '';
+        
+        // ru_addr이 배열인 경우 처리
+        if (Array.isArray(info.ru_addr)) {
+            // 배열을 쉼표로 구분된 문자열로 변환
+            displayAddr = info.ru_addr.filter(function(addr) {
+                return addr && addr.trim() !== '';
+            }).join(',');
+        } else {
+            // 문자열인 경우 그대로 사용
+            displayAddr = info.ru_addr || '';
+        }
+        
+        // 주소가 있고 '무관'이 아니면 fRemoveBigAdrJS 함수 적용
+        if (displayAddr && displayAddr !== '' && displayAddr !== '무관' && typeof fRemoveBigAdrJS === 'function') {
+            // 쉼표로 구분된 여러 주소 처리
+            if (displayAddr.indexOf(',') > -1) {
+                var addrArray = displayAddr.split(',').map(function(addr) {
+                    return addr.trim();
+                }).filter(function(addr) {
+                    return addr !== '';
+                });
+                var formattedAddrs = [];
+                addrArray.forEach(function(addr) {
+                    var formatted = fRemoveBigAdrJS(addr);
+                    if (formatted && formattedAddrs.indexOf(formatted) === -1) {
+                        formattedAddrs.push(formatted);
+                    }
+                });
+                displayAddr = formattedAddrs.length > 0 ? formattedAddrs.join(' | ') : '';
+            } else {
+                displayAddr = fRemoveBigAdrJS(displayAddr);
+            }
+        }
+        
+        // 주소가 비어있으면 '무관'으로 설정
+        if (!displayAddr || displayAddr === '') {
+            displayAddr = '무관';
+        }
 
         openPopup('modal', {
+            removeClose: false,
             content: '<div class="regist-info">' +
                 '<h5 class="name">' + info.mm_name + '</h5>' +
                 '<table>' +
@@ -1264,7 +1306,7 @@
                 '</tr>' +
                 '<tr>' +
                 '<td class="label">지역</td>' +
-                '<td class="value">' + info.ru_addr + '</td>' +
+                '<td class="value">' + displayAddr + '</td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td class="label">급여형태</td>' +
@@ -1320,81 +1362,11 @@
             firstButton: '정보수정',
             secondButton: '등록',
             firstCallback: function() {
-                // 정보수정 버튼 클릭 시 현재 입력 내용 저장 후 이력서 수정 페이지로 이동
-                // 희망요일 데이터 처리
-                var ru_week = [];
-                $("[name='ru_week[]']:checked").each(function() {
-                    ru_week.push($(this).val());
-                });
-                var ru_week_str = ru_week.join(",");
-                var ru_week_yn_value = $("[name='ru_week_yn']").is(":checked") ? "Y" : "N";
-
-                // 경력사항 데이터 처리
-                var arr_career = "";
-                var $careerList = $(".form-row[data-section='career'] .added-list");
-                $careerList.children("li").each(function() {
-                    if (!$(this).hasClass('is-deleted')) {
-                        var category = $(this).find("[name='career_category[]']").val();
-                        var company = $(this).find("[name='career_company[]']").val();
-                        var period = $(this).find("[name='career_period[]']").val();
-
-                        if (category != "" && company != "" && period != "") {
-                            if (arr_career == "") {
-                                arr_career = category + "|||" + company + "|||" + period;
-                            } else {
-                                arr_career = arr_career + "&&&" + category + "|||" + company + "|||" + period;
-                            }
-                        }
-                    }
-                });
-                $("[name=arr_career]").val(arr_career);
-
-                // 자격증 데이터 처리
-                var arr_certi = "";
-                var $licenseList = $(".form-row[data-section='license'] .added-list");
-                $licenseList.children("li").each(function() {
-                    if (!$(this).hasClass('is-deleted')) {
-                        var license = $(this).find("[name='license[]']").val();
-                        var regdate = $(this).find("[name='regdate[]']").val();
-
-                        if (license != "" && regdate != "") {
-                            if (arr_certi == "") {
-                                arr_certi = license + "|||" + regdate;
-                            } else {
-                                arr_certi = arr_certi + "&&&" + license + "|||" + regdate;
-                            }
-                        }
-                    }
-                });
-                $("[name=arr_certi]").val(arr_certi);
-
-                // step4 데이터 저장
-                var form = $('#frm');
-                var params = new FormData(form[0]);
-                params.append("ru_week_yn", ru_week_yn_value);
-                if (ru_week_str) {
-                    params.append("ru_week", ru_week_str);
+                // 팝업 닫기
+                var $popup = document.querySelector('.layer-popup.in');
+                if ($popup && typeof closePopup === 'function') {
+                    closePopup($popup);
                 }
-
-                fileAjaxLoading("/mypage_proc/resume_write4", params, function(ret) {
-                    if (ret.code == "00") {
-                        // 저장 성공 시 이력서 상세보기 페이지로 이동
-                        var ru_idx = $("[name=ru_idx]").val();
-                        clearResumeDraft(ru_idx);
-                        if (ru_idx && ru_idx != "0") {
-                            // 수정 모드: resume_view 페이지로 이동
-                            location.href = "/mypage/resume_view/" + ru_idx;
-                        } else {
-                            // 신규 등록 모드: 이력서 목록으로 이동
-                            location.href = "/mypage/resume_list";
-                        }
-                    } else {
-                        // 에러 메시지 표시
-                        var errorMsg = ret.msg || "데이터 저장 중 오류가 발생했습니다. 다시 시도해주세요.";
-                        commonAlert(errorMsg, function() {});
-                        return;
-                    }
-                });
             },
             secondCallback: function() {
                 // 확인 버튼 클릭 시 데이터 저장 후 최종 저장 처리
