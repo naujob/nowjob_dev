@@ -249,6 +249,15 @@ https.listen(port, () => {
 //	});
 //});
 
+//MongoDB 채팅방 생성 API (common_proc.php에서 호출)
+app.post('/newroommake', function (req, res) {
+	var data = req.body;
+
+	$exe.chat.insertRoom(data, function (ret) {
+		res.send(ret);
+	});
+});
+
 //룸 리스트
 app.post('/room_list', function (req, res) {
 	var data = req.body;
@@ -564,34 +573,68 @@ io.on('connection', function (socket) {
 		function processRoomInfo(ret, data, socket) {
 			// 방 정보가 없으면 자동으로 생성
 			if (!ret || !ret.data) {
-				// 새 방 정보 생성
-				var room_data = {
-					rm_idx: data.rm_idx,
-					rc_idx: 0,
-					rm_type: "recruit",
-					rm_img: "",
-					rm_subject: "채용공고 채팅방",
-					rm_desc: "채용공고 관련 채팅방",
-					rm_last_msg: "",
-					rm_last_dt: $common.getCurrentDate(),
-					user_list: [
-						{ user_id: data.con_user_id }
-					],
-					rm_status: "N",
-					rm_messages: []
-				};
+				// 🔥 MySQL에서 실제 rm_idx 확인 (rc_idx, ru_idx로 기존 MongoDB 방 찾기)
+				$exe.chat.findExistingRoomByMySQL(data, function (existing_room_result) {
+					if (existing_room_result && existing_room_result.existing_rm_idx) {
+						// 기존 방으로 조회
+						var existing_data = {
+							rm_idx: existing_room_result.existing_rm_idx,
+							con_user_id: data.con_user_id
+						};
+						$exe.chat.getRoom(existing_data, function (existing_ret) {
+							if (existing_ret && existing_ret.data) {
+								//채팅방 접속
+								socket.room = existing_room_result.existing_rm_idx;
+								socket.join(existing_room_result.existing_rm_idx);
 
-				$exe.chat.insertRoom(room_data, function (insert_ret) {
-					// 생성된 방 정보로 다시 조회
-					$exe.chat.getRoom(data, function (new_ret) {
-						//채팅방 접속
-						socket.room = data.rm_idx;
-						socket.join(data.rm_idx);
-
-						//소켓 리턴
-						socket.emit('room_info_return', new_ret);
-					});
+								//소켓 리턴
+								socket.emit('room_info_return', existing_ret);
+							} else {
+								// 기존 방도 없으면 새로 생성
+								createNewRoom(existing_room_result);
+							}
+						});
+					} else if (existing_room_result && (existing_room_result.rc_idx || existing_room_result.ru_idx)) {
+						// MySQL에서 rc_idx, ru_idx는 찾았지만 MongoDB에 기존 방이 없음 - 새로 생성 (rc_idx, ru_idx 포함)
+						createNewRoom(existing_room_result);
+					} else {
+						// MySQL에서도 찾지 못했으면 새로 생성
+						createNewRoom(null);
+					}
 				});
+
+				// 새 방 생성 함수
+				function createNewRoom(mysql_room_info) {
+					// 새 방 정보 생성 (MySQL에서 조회한 rc_idx, ru_idx 사용)
+					var room_data = {
+						rm_idx: data.rm_idx,
+						rc_idx: (mysql_room_info && mysql_room_info.rc_idx) ? mysql_room_info.rc_idx : 0,
+						ru_idx: (mysql_room_info && mysql_room_info.ru_idx) ? mysql_room_info.ru_idx : null,
+						rm_type: "recruit",
+						rm_img: "",
+						rm_subject: "채용공고 채팅방",
+						rm_desc: "채용공고 관련 채팅방",
+						rm_last_msg: "",
+						rm_last_dt: $common.getCurrentDate(),
+						user_list: [
+							{ user_id: data.con_user_id }
+						],
+						rm_status: "N",
+						rm_messages: []
+					};
+
+					$exe.chat.insertRoom(room_data, function (insert_ret) {
+						// 생성된 방 정보로 다시 조회
+						$exe.chat.getRoom(data, function (new_ret) {
+							//채팅방 접속
+							socket.room = data.rm_idx;
+							socket.join(data.rm_idx);
+
+							//소켓 리턴
+							socket.emit('room_info_return', new_ret);
+						});
+					});
+				}
 			} else {
 				//채팅방 접속
 				socket.room = data.rm_idx;
@@ -656,40 +699,9 @@ io.on('connection', function (socket) {
 		$exe.chat.updateMessageStatus(data, function (ret) { });
 	});
 
-	// 🔥 디버그 로깅 함수
-	function writeDebugLog(logData) {
-		try {
-			const logDir = '/website/nowapk/debug_log';
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true });
-			}
-			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-			fs.appendFileSync(logFile, logLine, 'utf8');
-		} catch (err) {
-			console.error('[로깅 오류]', err);
-		}
-	}
-
-	// 🔥 디버그 로그 수신 핸들러
-	socket.on('debug_log', function (logData) {
-		writeDebugLog(logData);
-	});
-
 	//메시지 전송 : 등록
 	socket.on('message_insert', async function (data, rm_users) {
 		try {
-			// 🔥 로깅: message_insert 시작
-			writeDebugLog({
-				type: "message_insert_start",
-				rm_idx: data.rm_idx,
-				user_id: data.user_id,
-				mg_text: data.mg_text,
-				client_rm_users: rm_users,
-				client_mg_reads: data.mg_reads,
-				timestamp: new Date().toISOString()
-			});
-
 			// MongoDB 연결 상태 확인
 			if (!$db.isConnected()) {
 				socket.emit('message_insert_return', {
@@ -789,6 +801,10 @@ io.on('connection', function (socket) {
 				data.mg_reads = [];
 				for (var icnt = 0; icnt < all_room_users.length; icnt++) {
 					const user_id = all_room_users[icnt].user_id;
+					// 🔥 user_id가 null이거나 빈 문자열이면 건너뛰기 (readcount 오류 방지)
+					if (!user_id || user_id === null || user_id === "" || user_id === "null") {
+						continue;
+					}
 					if (user_id === g_user_id) {
 						// 보낸 사람은 항상 읽음
 						data.mg_reads.push({ user_id: user_id, read_yn: 'Y' });
@@ -817,16 +833,6 @@ io.on('connection', function (socket) {
 				const db_user_ids = db_rm_users.map(u => u.user_id);
 				const users_to_add = all_room_users.filter(u => !db_user_ids.includes(u.user_id));
 
-				// 🔥 로깅: rm_users 업데이트 전
-				writeDebugLog({
-					type: "rm_users_update_before",
-					rm_idx: target_rm_idx,
-					db_rm_users: db_rm_users,
-					all_room_users: all_room_users,
-					users_to_add: users_to_add,
-					timestamp: new Date().toISOString()
-				});
-
 				if (users_to_add.length > 0) {
 					try {
 						await $db.cs_room.updateOne(
@@ -835,53 +841,15 @@ io.on('connection', function (socket) {
 						);
 						// rm_users 업데이트 후 room_for_reads도 갱신 (insertMessage에서 사용)
 						room_for_reads.rm_users = [...db_rm_users, ...users_to_add];
-
-						// 🔥 로깅: rm_users 업데이트 후
-						writeDebugLog({
-							type: "rm_users_update_after",
-							rm_idx: target_rm_idx,
-							updated_rm_users: room_for_reads.rm_users,
-							timestamp: new Date().toISOString()
-						});
 					} catch (err) {
 						// DB의 rm_users 업데이트 실패 시 무시
-						writeDebugLog({
-							type: "rm_users_update_error",
-							rm_idx: target_rm_idx,
-							error: err.message,
-							timestamp: new Date().toISOString()
-						});
 					}
 				}
 			}
 
-			// 🔥 로깅: insertMessage 호출 전
-			writeDebugLog({
-				type: "insertMessage_before",
-				rm_idx: target_rm_idx,
-				data_mg_reads: data.mg_reads,
-				data_server_set_reads: data.server_set_reads,
-				room_for_reads_rm_users: room_for_reads ? room_for_reads.rm_users : null,
-				timestamp: new Date().toISOString()
-			});
-
 			// 메시지 DB 저장
 			const ret = await new Promise((resolve) => {
 				$exe.chat.insertMessage(data, (res) => resolve(res));
-			});
-
-			// 🔥 로깅: insertMessage 호출 후
-			writeDebugLog({
-				type: "insertMessage_after",
-				rm_idx: target_rm_idx,
-				ret_code: ret.code,
-				ret_data: ret.data ? ret.data.map(msg => ({
-					mg_idx: msg.rm_messages ? msg.rm_messages.mg_idx : null,
-					user_id: msg.rm_messages ? msg.rm_messages.user_id : null,
-					mg_text: msg.rm_messages ? msg.rm_messages.mg_text : null,
-					mg_reads: msg.rm_messages ? msg.rm_messages.mg_reads : null
-				})) : null,
-				timestamp: new Date().toISOString()
 			});
 
 			// 모든 클라이언트에게 메시지 전송

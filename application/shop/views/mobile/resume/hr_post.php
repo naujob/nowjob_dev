@@ -773,8 +773,9 @@ function fRemoveBigAdr($arg)
                                     $("#selectPanel").removeClass("on");
                                 
                                 // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
-                                // URL 파라미터로 rc_idx 전달하여 목록 페이지에서 자동으로 채팅방 찾아서 열기
-                                location.href = "/chat/chat_list3?auto_open_rc_idx=" + rc_idx;
+                                // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기
+                                var ru_idx = $("[name='ru_idx']").val();
+                                location.href = "/chat/chat_list3?auto_open_rc_idx=" + rc_idx + "&auto_open_ru_idx=" + ru_idx;
                             } else {
                                 commonAlert(ret.msg, function() {
                                     $("#selectPanel").removeClass("on");

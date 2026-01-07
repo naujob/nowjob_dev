@@ -1774,12 +1774,23 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                         // getCurrentDate 함수 확인
                         var currentDate = typeof getCurrentDate === 'function' ? getCurrentDate() : new Date().toISOString();
                         
+                        // 사용자 타입에 따른 메시지 내용 결정
+                        var current_user_type = typeof check_user_type !== 'undefined' ? check_user_type : "";
+                        var messageText = "";
+                        if (current_user_type === "COMP") {
+                            // 기업이 개인에게 제안보낼 경우
+                            messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+                        } else {
+                            // 개인이 기업에게 지원할 경우
+                            messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
+                        }
+                        
                         var firstMessage = {
                           rm_idx: Number(targetRmIdx),
                           user_id: g_user_id,
                           chat_type: "recruit",
                           mg_type: "text",
-                          mg_text: "1:1 채팅을 시작합니다!",
+                          mg_text: messageText,
                           mg_req_dt: "",
                           mg_img: "",
                           mg_file: "",

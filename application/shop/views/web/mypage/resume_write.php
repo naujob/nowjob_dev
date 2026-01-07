@@ -130,7 +130,7 @@
                                                     <?php endif; ?>
                                                 <?php endforeach; ?>
                                             </ul>
-                                            <a href="javascript:void(0);" onclick="showAddrInfo(2);" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn-add-more js-toggle-panel"><span class="sr-text">추가작성</span></a>
+                                            <a href="javascript:void(0);" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn-add-more js-add-address"><span class="sr-text">추가작성</span></a>
                                         </div>
                                     </div>
                                 </div>
@@ -840,10 +840,26 @@
             commonAlert("희망지역은 " + (maxlen - 1) + "개까지 등록 가능합니다.", function() {});
             return;
         }
-        $("#changeArea").addClass("on");
+        var $panel = $("#changeArea");
+        // 패널을 열 때 hidden 속성 제거 및 on 클래스 추가
+        $panel[0].hidden = false;
+        $panel.addClass("on");
+        // body 스크롤 잠금
+        document.body.style.overflow = 'hidden';
+        // 포커스 설정
+        setTimeout(function() {
+            $panel[0].focus();
+        }, 100);
     }
 
     $(document).ready(function() {
+        // 주소 추가 버튼 클릭 이벤트 처리
+        $(document).on('click', '.js-add-address', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showAddrInfo(2);
+        });
+
         // 페이지 로드 시 기존 주소들을 주소 정리 함수로 처리하여 표시
         if (typeof fRemoveBigAdrJS === 'function') {
             $("#addr_location .addr-display").each(function() {

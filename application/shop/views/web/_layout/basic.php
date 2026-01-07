@@ -249,10 +249,12 @@
                 </ul>
             </nav>
             <?php if ($this->user->isLogin()) : ?>
+                <?php /*
                 <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
                     <span class="sr-text">미확인 알림메세지</span>
                     <span class="cnt"><?= isset($g_alarm_cnt) ? $g_alarm_cnt : '0' ?></span>
                 </a>
+                */ ?>
             <?php endif; ?>
             <?php if ($this->user->isLogin() == false) : ?>
                 <div class="rt">

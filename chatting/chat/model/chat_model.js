@@ -33,7 +33,8 @@ container.insertRoom = async function (data, callback) {
 	//정보 만들기
 	var chat_room = {
 		rm_idx: data.rm_idx,
-		rc_idx: data.rc_idx,
+		rc_idx: data.rc_idx || 0,
+		ru_idx: data.ru_idx || null,
 		rm_type: data.rm_type,
 		rm_img: data.rm_img,
 		rm_subject: data.rm_subject,
@@ -59,22 +60,88 @@ container.getUsersRoom = async function (params) {
 
 //방정보 조회
 container.getRoom = async function (params) {
+	// 🔥 로깅: getRoom 시작
+	const fs = require('fs');
+	try {
+		const logDir = '/website/nowapk/debug_log';
+		if (!fs.existsSync(logDir)) {
+			fs.mkdirSync(logDir, { recursive: true });
+		}
+		const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
+		const logData = {
+			type: "getRoom_start",
+			rm_idx: params.rm_idx,
+			con_user_id: params.con_user_id,
+			timestamp: new Date().toISOString()
+		};
+		const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
+		fs.appendFileSync(logFile, logLine, 'utf8');
+	} catch (err) {
+		// 로깅 오류는 무시
+	}
+
 	var ret = await $db.cs_room.findOne({ rm_idx: params.rm_idx }, { projection: { rm_idx: 1, rm_type: 1, user_info: 1, rm_subject: 1, rm_last_msg: 1, rm_last_dt: 1, rm_users: 1 } });
+
+	// 🔥 로깅: MongoDB 조회 결과
+	try {
+		const logDir = '/website/nowapk/debug_log';
+		if (!fs.existsSync(logDir)) {
+			fs.mkdirSync(logDir, { recursive: true });
+		}
+		const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
+		const logData = {
+			type: "getRoom_mongodb_result",
+			rm_idx: params.rm_idx,
+			con_user_id: params.con_user_id,
+			room_exists: ret ? 'Y' : 'N',
+			rm_users_count: ret && ret.rm_users ? ret.rm_users.length : 0,
+			timestamp: new Date().toISOString()
+		};
+		const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
+		fs.appendFileSync(logFile, logLine, 'utf8');
+	} catch (err) {
+		// 로깅 오류는 무시
+	}
+
 	if (ret != null) {
 		// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
 		var user_exited = false;
+		var exit_yn_value = null;
 		for (var icnt = 0; icnt < ret.rm_users.length; icnt++) {
 			if (ret.rm_users[icnt].user_id == params.con_user_id) {
 				// exit_yn='Y'이면 나간 채팅방
 				if (ret.rm_users[icnt].exit_yn && ret.rm_users[icnt].exit_yn == "Y") {
 					user_exited = true;
+					exit_yn_value = "Y";
 					break;
+				} else {
+					exit_yn_value = ret.rm_users[icnt].exit_yn || "N";
 				}
 			}
 		}
 
 		// 나간 채팅방이면 null 반환 (접근 차단)
 		if (user_exited) {
+			// 🔥 로깅: exit_yn='Y'로 인한 null 반환
+			try {
+				const logDir = '/website/nowapk/debug_log';
+				if (!fs.existsSync(logDir)) {
+					fs.mkdirSync(logDir, { recursive: true });
+				}
+				const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
+				const logData = {
+					type: "getRoom_return_null_exit_yn",
+					rm_idx: params.rm_idx,
+					con_user_id: params.con_user_id,
+					exit_yn: exit_yn_value,
+					reason: "사용자가 나간 채팅방 (exit_yn='Y')",
+					timestamp: new Date().toISOString()
+				};
+				const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
+				fs.appendFileSync(logFile, logLine, 'utf8');
+			} catch (err) {
+				// 로깅 오류는 무시
+			}
 			return null;
 		}
 
@@ -120,6 +187,26 @@ container.getRoom = async function (params) {
 			ret.rm_count = 0;
 		}
 
+	} else {
+		// 🔥 로깅: MongoDB에 방이 없음
+		try {
+			const logDir = '/website/nowapk/debug_log';
+			if (!fs.existsSync(logDir)) {
+				fs.mkdirSync(logDir, { recursive: true });
+			}
+			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
+			const logData = {
+				type: "getRoom_return_null_no_room",
+				rm_idx: params.rm_idx,
+				con_user_id: params.con_user_id,
+				reason: "MongoDB에 방이 존재하지 않음",
+				timestamp: new Date().toISOString()
+			};
+			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
+			fs.appendFileSync(logFile, logLine, 'utf8');
+		} catch (err) {
+			// 로깅 오류는 무시
+		}
 	}
 	return ret;
 }
@@ -143,7 +230,7 @@ container.getRoomMessages = async function (params) {
 			{ $limit: params.limit },
 			{ $project: { rm_messages: '$rm_messages' } }
 		]).toArray();
-	
+
 	// 🔥 로깅: 메시지 조회 결과
 	const fs = require('fs');
 	try {
@@ -172,7 +259,7 @@ container.getRoomMessages = async function (params) {
 	} catch (err) {
 		// 로깅 오류는 무시
 	}
-	
+
 	return ret;
 }
 

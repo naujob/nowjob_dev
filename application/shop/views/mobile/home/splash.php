@@ -61,7 +61,9 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: url("/resource/shop/mobile/img/splash_bg.jpg") no-repeat 50% 50%;
+        /* 기존 배경 이미지 주석처리 */
+        /* background: url("/resource/shop/mobile/img/splash_bg.jpg") no-repeat 50% 50%; */
+        background: url("/resource/shop/mobile/img/splash.png") no-repeat 50% 50%;
         background-size: cover;
         overflow: hidden;
         -webkit-perspective: 20px;
@@ -139,10 +141,12 @@
 </style>
 
 <div class="splash">
+    <!-- 기존 로고 이미지 주석처리 -->
     <h1 class="logo"><img src="/resource/shop/mobile/img/title_logo.png" width="273" height="96" alt=""></h1>
-    <div class="visual">
+    <!-- 기존 portrait 이미지 주석처리 -->
+    <!-- <div class="visual">
         <img src="/resource/shop/mobile/img/splash_portrait.png" alt="" class="portrait">
-    </div>
+    </div> -->
 </div>
 
 <script>

@@ -586,16 +586,18 @@
 
             fSearchNoReadCount();
 
-            // URL 파라미터에서 auto_open_rc_idx 확인하여 해당 채팅방 자동 진입
+            // URL 파라미터에서 auto_open_rc_idx와 auto_open_ru_idx 확인하여 해당 채팅방 자동 진입
             var urlParams = new URLSearchParams(window.location.search);
             var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');
+            var autoOpenRuIdx = urlParams.get('auto_open_ru_idx'); // ru_idx 파라미터 가져오기
             if (autoOpenRcIdx && ret.code == "00" && ret.data && ret.data.list) {
-                // URL에서 auto_open_rc_idx 파라미터 제거 (뒤로가기 시 재진입 방지)
+                // URL에서 auto_open_rc_idx와 auto_open_ru_idx 파라미터 제거 (뒤로가기 시 재진입 방지)
                 urlParams.delete('auto_open_rc_idx');
+                urlParams.delete('auto_open_ru_idx');
                 var newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
                 window.history.replaceState({}, '', newUrl);
                 
-                // 목록 로드 완료 후 해당 rc_idx를 가진 채팅방 찾기
+                // 목록 로드 완료 후 해당 rc_idx와 ru_idx 모두 일치하는 채팅방 찾기
                 setTimeout(function() {
                     var targetRmIdx = null;
                     var chatList = ret.data.list;
@@ -606,15 +608,29 @@
                     var checkInterval = setInterval(function() {
                         checkCount++;
                         
-                        // 이미 펼쳐진 인재 목록에서 채팅방 찾기
+                        // 이미 펼쳐진 인재 목록에서 채팅방 찾기 (rc_idx와 ru_idx 모두 확인)
                         $("#chat_list .room-item").each(function() {
                             var $item = $(this);
                             var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
                                           $item.find('a[data-rc_idx]').data('rc_idx') ||
                                           $item.data('rc_idx');
+                            var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
+                                          $item.find('a[data-ru_idx]').data('ru_idx') ||
+                                          $item.data('ru_idx');
+                            // autoOpenRuIdx가 있으면 rc_idx와 ru_idx 모두 일치해야 함
+                            // autoOpenRuIdx가 없으면 rc_idx만 확인 (기존 로직 유지)
                             if (itemRcIdx == autoOpenRcIdx) {
-                                targetRmIdx = $item.data('target_id');
-                                return false; // break
+                                if (autoOpenRuIdx) {
+                                    // ru_idx가 전달된 경우: rc_idx와 ru_idx 모두 일치해야 함
+                                    if (itemRuIdx == autoOpenRuIdx) {
+                                        targetRmIdx = $item.data('target_id');
+                                        return false; // break
+                                    }
+                                } else {
+                                    // ru_idx가 전달되지 않은 경우: rc_idx만 확인 (기존 로직)
+                                    targetRmIdx = $item.data('target_id');
+                                    return false; // break
+                                }
                             }
                         });
                         
@@ -652,6 +668,42 @@
                         // 최대 시도 횟수에 도달한 경우
                         if (checkCount >= maxCheckCount) {
                             clearInterval(checkInterval);
+                            //console.error("채팅방을 찾을 수 없음 - rc_idx:", autoOpenRcIdx, "ru_idx:", autoOpenRuIdx);
+                            // ru_idx와 rc_idx 모두 일치하는 채팅방 찾기 (마지막 시도)
+                            var $matchedChatItem = null;
+                            $("#chat_list .room-item").each(function() {
+                                var $item = $(this);
+                                var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
+                                              $item.find('a[data-rc_idx]').data('rc_idx') ||
+                                              $item.data('rc_idx');
+                                var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
+                                              $item.find('a[data-ru_idx]').data('ru_idx') ||
+                                              $item.data('ru_idx');
+                                // autoOpenRuIdx가 있으면 rc_idx와 ru_idx 모두 일치해야 함
+                                // autoOpenRuIdx가 없으면 rc_idx만 확인 (기존 로직 유지)
+                                if (itemRcIdx == autoOpenRcIdx) {
+                                    if (autoOpenRuIdx) {
+                                        // ru_idx가 전달된 경우: rc_idx와 ru_idx 모두 일치해야 함
+                                        if (itemRuIdx == autoOpenRuIdx) {
+                                            $matchedChatItem = $item;
+                                            return false; // break
+                                        }
+                                    } else {
+                                        // ru_idx가 전달되지 않은 경우: rc_idx만 확인 (기존 로직)
+                                        $matchedChatItem = $item;
+                                        return false; // break
+                                    }
+                                }
+                            });
+                            
+                            if ($matchedChatItem && $matchedChatItem.length > 0) {
+                                var matchedRmIdx = $matchedChatItem.data('target_id');
+                                if (matchedRmIdx) {
+                                    location.href = "/chat/chat_view?rm_idx=" + matchedRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=talent_sent";
+                                }
+                            }
+                            // 매칭되는 채팅방을 찾지 못한 경우: 아무 동작도 하지 않음
+                            // 사용자가 채팅 목록에서 수동으로 선택할 수 있도록 함
                         }
                     }, 500); // 0.5초마다 확인
                 }, 500); // 목록 렌더링 대기

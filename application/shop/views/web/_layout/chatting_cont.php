@@ -594,6 +594,18 @@
 	#chatPopup .chat-list-header .tabs li.has-unread .tab-badge {
 		display: block;
 	}
+
+	/* 채팅 메시지 버블 내용 유동적 너비 및 줄바꿈 처리 */
+	.chat-view-body .msg-item.chat-bubble .bubble-content,
+	#chatPopup .chat-view-body .msg-item.chat-bubble .bubble-content {
+		/* 고정 너비 제거하고 내용에 따라 유동적으로 변경 */
+		width: auto !important;
+		min-width: 60px !important; /* 최소 너비 설정 (너무 작아지지 않도록) */
+		max-width: 70% !important; /* 최대 너비 설정 (화면의 70%를 넘지 않도록) */
+		/* 긴 텍스트 줄바꿈 처리: word-break: keep-all과 함께 사용하여 한글은 단어 단위로, 영문/숫자는 강제 줄바꿈 */
+		overflow-wrap: break-word !important;
+		word-wrap: break-word !important; /* 구형 브라우저 호환성 */
+	}
 </style>
  <div id="chatPopup" class="layer-popup">
  	<div role="dialog" aria-labelledby="chatTitle" aria-modal="true" class="popup-container">
@@ -2543,12 +2555,23 @@
 									//console.log("user_name:", user_name);
 									//console.log("target_name:", target_name);
 									
+									// 사용자 타입에 따른 메시지 내용 결정
+									var current_user_type = "<?= $user_type ?>";
+									var messageText = "";
+									if (current_user_type === "COMP") {
+										// 기업이 개인에게 제안보낼 경우
+										messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+									} else {
+										// 개인이 기업에게 지원할 경우
+										messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
+									}
+									
 									first_message = {
 										rm_idx: Number(ret2.data.rm_idx),
 										user_id: user_id,
 										chat_type: "recruit",
 										mg_type: "text",
-										mg_text: "1:1 채팅을 시작합니다!",
+										mg_text: messageText,
 										mg_req_dt: "",
 										mg_img: "",
 										mg_file: "",
@@ -2622,12 +2645,23 @@
 							//console.log("user_name:", user_name);
 							//console.log("target_name:", target_name);
 							
+							// 사용자 타입에 따른 메시지 내용 결정
+							var current_user_type = "<?= $user_type ?>";
+							var messageText = "";
+							if (current_user_type === "COMP") {
+								// 기업이 개인에게 제안보낼 경우
+								messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+							} else {
+								// 개인이 기업에게 지원할 경우
+								messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
+							}
+							
 							first_message = {
 								rm_idx: Number(ret2.data.rm_idx),
 								user_id: user_id,
 								chat_type: "recruit",
 								mg_type: "text",
-								mg_text: "1:1 채팅을 시작합니다!",
+								mg_text: messageText,
 								mg_req_dt: "",
 								mg_img: "",
 								mg_file: "",

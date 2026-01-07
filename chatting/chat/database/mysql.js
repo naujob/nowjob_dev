@@ -12,7 +12,7 @@ const await = require('await');
 // 커스텀 모듈 로드
 /////////////////////////////////////////////////////
 const $com = require("../common/common.js");
-const $config  = require('../config/config.json');
+const $config = require('../config/config.json');
 
 /////////////////////////////////////////////////////
 // 변수 설정
@@ -22,24 +22,24 @@ container.db_conn = null;
 /////////////////////////////////////////////////////
 // 기능 정의
 /////////////////////////////////////////////////////
-container.init = function(msg){
+container.init = function (msg) {
 	container.db_conn = mysql.createConnection(
 		{
-			host     : $config.mysql.host,
-			user     : $config.mysql.user,
-			password : $config.mysql.password,
-			database : $config.mysql.database,
+			host: $config.mysql.host,
+			user: $config.mysql.user,
+			password: $config.mysql.password,
+			database: $config.mysql.database,
 		}
 	);
-	
-	container.db_conn.connect(function(err) {
-        if(err){
-        	$com.writeLog('mysql connection error :: ' + err);
-        } 
-        else{
-        	$com.writeLog('mysql connection success!!');
+
+	container.db_conn.connect(function (err) {
+		if (err) {
+			$com.writeLog('mysql connection error :: ' + err);
 		}
-    });
+		else {
+			$com.writeLog('mysql connection success!!');
+		}
+	});
 }
 
 /////////////////////////////////////////////////////

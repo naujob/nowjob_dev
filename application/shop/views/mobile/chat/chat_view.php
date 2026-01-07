@@ -1519,9 +1519,16 @@
         background: #e8e8e8;
     }
 
-    /* 채팅 메시지 버블 내용 폰트 크기 설정 */
+    /* 채팅 메시지 버블 내용 폰트 크기 설정 및 유동적 너비 */
     .page-chat-view .chat-view-body .msg-item.chat-bubble .bubble-content {
         font-size: 15px;
+        /* 고정 너비 제거하고 내용에 따라 유동적으로 변경 */
+        width: auto !important;
+        min-width: 60px; /* 최소 너비 설정 (너무 작아지지 않도록) */
+        max-width: 70%; /* 최대 너비 설정 (화면의 70%를 넘지 않도록) */
+        /* 긴 텍스트 줄바꿈 처리: word-break: keep-all과 함께 사용하여 한글은 단어 단위로, 영문/숫자는 강제 줄바꿈 */
+        overflow-wrap: break-word;
+        word-wrap: break-word; /* 구형 브라우저 호환성 */
     }
 </style>
 
@@ -1861,7 +1868,8 @@
         rm_idx: rm_idx,
         rc_idx: autoSendRcIdx,
         messageListChecked: false,
-        targetUserId: null
+        targetUserId: null,
+        rm_info_received: false
     } : null;
 
     // 채팅방 진입 시 processedIdx 초기화
@@ -1906,13 +1914,31 @@
         
         var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
         
+        // 🔥 rm_info에서 올바른 rm_idx 가져오기 (room_info_return에서 받은 값 우선 사용)
+        var actualRmIdx = targetRmIdx;
+        if (typeof rm_info !== 'undefined' && rm_info && rm_info.rm_idx) {
+            actualRmIdx = rm_info.rm_idx;
+        }
+        
+        // 사용자 타입에 따른 메시지 내용 결정
+        var current_user_type = typeof user_type !== 'undefined' ? user_type : $("[name='user_type']").val();
+        var messageText = "";
+        
+        if (current_user_type === "COMP") {
+            // 기업이 개인에게 제안보낼 경우
+            messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+        } else {
+            // 개인이 기업에게 지원할 경우
+            messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
+        }
+        
         // 첫 메시지 생성
         var firstMessage = {
-            rm_idx: Number(targetRmIdx),
+            rm_idx: Number(actualRmIdx),
             user_id: g_user_id,
             chat_type: "recruit",
             mg_type: "text",
-            mg_text: "1:1 채팅을 시작합니다!",
+            mg_text: messageText,
             mg_req_dt: "",
             mg_img: "",
             mg_file: "",
@@ -1965,18 +1991,6 @@
             });
             userIdsInList.push(targetUserId);
         }
-        
-        // 🔥 로깅: 서버로 전송 전 데이터 확인
-        socket.emit("debug_log", {
-            type: "sendFirstMessageAfterProposal",
-            rm_idx: targetRmIdx,
-            user_id: g_user_id,
-            targetUserId: targetUserId,
-            firstMessage: firstMessage,
-            firstUsers: firstUsers,
-            rm_info_users: (typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users) ? rm_info.rm_users : null,
-            timestamp: new Date().toISOString()
-        });
         
         // 메시지 전송
         socket.emit("message_insert", firstMessage, firstUsers);
@@ -2417,8 +2431,10 @@
                 }
             }
             
-            // 메시지가 없으면 자동으로 첫 메시지 전송
-            if (!hasMessages) {
+            // 🔥 메시지가 없고 rm_info를 받았으면 자동으로 첫 메시지 전송
+            // room_info_return에서 rm_info를 받은 후 message_list를 요청했으므로,
+            // message_list_return에서 메시지가 없으면 바로 전송
+            if (!hasMessages && window.autoSendFirstMessage && window.autoSendFirstMessage.rm_info_received) {
                 window.autoSendFirstMessage.messageListChecked = true;
                 
                 var targetUserId = autoSendInfo.targetUserId;
@@ -2445,6 +2461,7 @@
                 if (targetUserId && window.sendFirstMessageAfterProposal) {
                     window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
                     window.autoSendFirstMessage = null;
+                    
                 } else {
                     // 상대방 ID를 찾지 못한 경우 재시도
                     setTimeout(function() {
@@ -2750,6 +2767,12 @@
                 //채팅방 정보
                 rm_info = ret.data;
                 
+                // 🔥 중요: 서버에서 받은 올바른 rm_idx로 업데이트 (rc_idx가 아닌 실제 rm_idx)
+                if (ret.data && ret.data.rm_idx) {
+                    var old_rm_idx = rm_idx; // 업데이트 전 값 저장
+                    rm_idx = ret.data.rm_idx;
+                }
+                
                 // 채팅방 정보 준비 완료 플래그 설정
                 rm_info_ready = true;
                 
@@ -2764,7 +2787,9 @@
                 };
                 socket.emit("message_list", params);
                 
-                // 제안하기/지원하기 완료 후 자동 메시지 전송 체크
+                // 🔥 제안하기/지원하기 완료 후 자동 메시지 전송 체크
+                // room_info_return에서 rm_info를 받았으므로, targetUserId를 저장하고
+                // message_list_return에서 메시지가 없으면 전송하도록 함
                 if (window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
                     var autoSendInfo = window.autoSendFirstMessage;
                     var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
@@ -2788,13 +2813,13 @@
                         }
                     }
                     
+                    // targetUserId를 저장 (message_list_return에서 사용)
                     if (targetUserId) {
                         window.autoSendFirstMessage.targetUserId = targetUserId;
-                        // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
-                        if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
-                            window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
-                            window.autoSendFirstMessage = null;
-                        }
+                        // rm_info도 받았음을 표시 (message_list_return에서 메시지가 없으면 바로 전송)
+                        window.autoSendFirstMessage.rm_info_received = true;
+                        
+                    } else {
                     }
                 }
             }
@@ -3460,6 +3485,13 @@
                 // 채팅방 정보를 저장
                 rm_info = ret.data;
                 
+                // 🔥 중요: 서버에서 받은 올바른 rm_idx로 업데이트 (rc_idx가 아닌 실제 rm_idx)
+                if (ret.data && ret.data.rm_idx) {
+                    var old_rm_idx = rm_idx; // 업데이트 전 값 저장
+                    rm_idx = ret.data.rm_idx;
+                
+                }
+                
                 // 채팅방 정보 준비 완료 플래그 설정
                 rm_info_ready = true;
                 
@@ -3476,7 +3508,9 @@
                 // 해당 채팅방의 메시지 리스트를 요청하는 역할을 합니다. 서버는 이 정보를 바탕으로 메시지 리스트를 반환합니다.
                 socket.emit("message_list", params);
                 
-                // 제안하기/지원하기 완료 후 자동 메시지 전송 체크
+                // 🔥 제안하기/지원하기 완료 후 자동 메시지 전송 체크
+                // room_info_return에서 rm_info를 받았으므로, targetUserId를 저장하고
+                // message_list_return에서 메시지가 없으면 전송하도록 함
                 if (window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
                     var autoSendInfo = window.autoSendFirstMessage;
                     var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
@@ -3500,13 +3534,14 @@
                         }
                     }
                     
+                    // targetUserId를 저장 (message_list_return에서 사용)
                     if (targetUserId) {
                         window.autoSendFirstMessage.targetUserId = targetUserId;
-                        // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
-                        if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
-                            window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
-                            window.autoSendFirstMessage = null;
-                        }
+                        // 🔥 중요: rm_info도 받았음을 표시 (message_list_return에서 메시지가 없으면 바로 전송)
+                        // 안드로이드와 동일하게 rm_info_received 설정 추가
+                        window.autoSendFirstMessage.rm_info_received = true;
+                        
+                    } else {
                     }
                 }
             }

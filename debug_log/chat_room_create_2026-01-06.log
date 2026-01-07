@@ -1,0 +1,137 @@
+[2026-01-06 13:46:26] member_request - 채팅방 생성 시작
+  rc_idx: 3922, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:46:26] member_request - 기존 채팅방 확인
+  existing_room: 없음
+[2026-01-06 13:46:26] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3922","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:46:26] member_request - 새 채팅방 생성 성공
+  rm_idx: 1160
+[2026-01-06 13:48:04] member_request - 채팅방 생성 시작
+  rc_idx: 3923, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:48:04] member_request - 기존 채팅방 확인
+  existing_room: 없음
+[2026-01-06 13:48:04] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3923","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:48:04] member_request - 새 채팅방 생성 성공
+  rm_idx: 1161
+[2026-01-06 13:49:15] member_request - 채팅방 생성 시작
+  rc_idx: 3922, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:49:15] member_request - 기존 채팅방 확인
+  existing_room: 없음
+[2026-01-06 13:49:15] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3922","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:49:15] member_request - 새 채팅방 생성 성공
+  rm_idx: 1162
+[2026-01-06 13:49:56] member_request - 채팅방 생성 시작
+  rc_idx: 3923, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:49:56] member_request - 기존 채팅방 확인
+  existing_room: 없음
+[2026-01-06 13:49:56] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3923","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:49:56] member_request - 새 채팅방 생성 성공
+  rm_idx: 1163
+[2026-01-06 13:53:54] member_request - 채팅방 생성 시작
+  rc_idx: 3922, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:53:54] member_request - 기존 채팅방 확인
+  existing_room: 없음
+[2026-01-06 13:53:54] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3922","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:53:54] member_request - 새 채팅방 생성 성공
+  rm_idx: 1164
+[2026-01-06 13:55:56] member_request - 채팅방 생성 시작
+  rc_idx: 3918, ru_idx: 661, mm_idx: 1678
+[2026-01-06 13:55:56] member_request - 기존 채팅방 확인
+  existing_room: 없음
+[2026-01-06 13:55:56] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3918","ru_idx":"661","td_idx":0,"mm_idx":"1678","point_yn":"N"}
+[2026-01-06 13:55:56] member_request - 새 채팅방 생성 성공
+  rm_idx: 1165
+[2026-01-06 13:56:45] member_request - 채팅방 생성 시작
+  rc_idx: 3922, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:56:45] member_request - 기존 채팅방 확인
+  existing_room: 없음
+[2026-01-06 13:56:45] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3922","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:56:45] member_request - 새 채팅방 생성 성공
+  rm_idx: 1166
+[2026-01-06 13:57:57] member_request - 채팅방 생성 시작
+  rc_idx: 3923, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:57:57] member_request - 기존 채팅방 확인
+  rc_idx: 3923, ru_idx: 660
+  existing_room: 없음
+[2026-01-06 13:57:57] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3923","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:57:57] member_request - 새 채팅방 생성 성공
+  rm_idx: 1167
+[2026-01-06 13:59:17] member_request - 채팅방 생성 시작
+  rc_idx: 3922, ru_idx: 660, mm_idx: 1048
+[2026-01-06 13:59:17] member_request - 기존 채팅방 확인
+  rc_idx: 3922, ru_idx: 660
+  existing_room: 없음
+[2026-01-06 13:59:17] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3922","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 13:59:17] member_request - 새 채팅방 생성 성공
+  rm_idx: 1168
+[2026-01-06 14:00:07] member_request - 채팅방 생성 시작
+  rc_idx: 3923, ru_idx: 660, mm_idx: 1048
+[2026-01-06 14:00:07] member_request - SQL 쿼리 실행
+  쿼리: SELECT rm_idx, rc_idx, ru_idx, mm_idx FROM st_room WHERE rc_idx = 3923 AND ru_idx = 660
+  결과 개수: 0
+[2026-01-06 14:00:07] member_request - 기존 채팅방 확인
+  rc_idx: 3923, ru_idx: 660
+  existing_room: 없음
+[2026-01-06 14:00:07] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3923","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 14:00:07] member_request - 새 채팅방 생성 성공
+  rm_idx: 1169
+[2026-01-06 14:04:46] member_request - 채팅방 생성 시작
+  rc_idx: 3922, ru_idx: 660, mm_idx: 1048
+[2026-01-06 14:04:46] member_request - SQL 쿼리 실행
+  원본 rc_idx: 3922 (타입: string), 변환 후: 3922
+  원본 ru_idx: 660 (타입: string), 변환 후: 660
+  쿼리: SELECT rm_idx, rc_idx, ru_idx, mm_idx FROM st_room WHERE rc_idx = 3922 AND ru_idx = 660
+  결과 개수: 0
+[2026-01-06 14:04:46] member_request - 기존 채팅방 확인
+  rc_idx: 3922, ru_idx: 660
+  existing_room: 없음
+[2026-01-06 14:04:46] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3922","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 14:04:46] member_request - 새 채팅방 생성 성공
+  rm_idx: 1170
+  result_chat 전체: {"code":"00","msg":"\ub4f1\ub85d \ub418\uc5c8\uc2b5\ub2c8\ub2e4.","key":1170}
+  ✅ INSERT 확인 성공: {"rm_idx":"1170","rc_idx":"3922","ru_idx":"660","mm_idx":"1048"}
+[2026-01-06 14:05:39] member_request - 채팅방 생성 시작
+  rc_idx: 3923, ru_idx: 660, mm_idx: 1048
+[2026-01-06 14:05:39] member_request - SQL 쿼리 실행
+  원본 rc_idx: 3923 (타입: string), 변환 후: 3923
+  원본 ru_idx: 660 (타입: string), 변환 후: 660
+  쿼리: SELECT rm_idx, rc_idx, ru_idx, mm_idx FROM st_room WHERE rc_idx = 3923 AND ru_idx = 660
+  결과 개수: 0
+  유사 데이터 (rc_idx 또는 ru_idx 일치): [{"rm_idx":"1170","rc_idx":"3922","ru_idx":"660","mm_idx":"1048"}]
+[2026-01-06 14:05:39] member_request - 기존 채팅방 확인
+  rc_idx: 3923, ru_idx: 660
+  existing_room: 없음
+[2026-01-06 14:05:39] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3923","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 14:05:39] member_request - 새 채팅방 생성 성공
+  rm_idx: 1171
+  result_chat 전체: {"code":"00","msg":"\ub4f1\ub85d \ub418\uc5c8\uc2b5\ub2c8\ub2e4.","key":1171}
+  ✅ INSERT 확인 성공: {"rm_idx":"1171","rc_idx":"3923","ru_idx":"660","mm_idx":"1048"}
+  ✅ rc_idx와 ru_idx로 조회 성공: rm_idx=1171, rc_idx=3923 (타입: string), ru_idx=660 (타입: string)
+[2026-01-06 14:06:50] member_request - 채팅방 생성 시작
+  rc_idx: 3922, ru_idx: 660, mm_idx: 1048
+[2026-01-06 14:06:50] member_request - SQL 쿼리 실행
+  원본 rc_idx: 3922 (타입: string), 변환 후: 3922
+  원본 ru_idx: 660 (타입: string), 변환 후: 660
+  쿼리: SELECT rm_idx, rc_idx, ru_idx, mm_idx FROM st_room WHERE rc_idx = 3922 AND ru_idx = 660
+  결과 개수: 0
+[2026-01-06 14:06:50] member_request - 기존 채팅방 확인
+  rc_idx: 3922, ru_idx: 660
+  existing_room: 없음
+[2026-01-06 14:06:50] member_request - 새 채팅방 생성 시도
+  info_chat: {"rm_idx":"","rc_idx":"3922","ru_idx":"660","td_idx":0,"mm_idx":"1048","point_yn":"N"}
+[2026-01-06 14:06:50] member_request - 새 채팅방 생성 성공
+  rm_idx: 1172
+  result_chat 전체: {"code":"00","msg":"\ub4f1\ub85d \ub418\uc5c8\uc2b5\ub2c8\ub2e4.","key":1172}
+  ✅ INSERT 확인 성공: {"rm_idx":"1172","rc_idx":"3922","ru_idx":"660","mm_idx":"1048"}
+  ✅ rc_idx와 ru_idx로 조회 성공: rm_idx=1172, rc_idx=3922 (타입: string), ru_idx=660 (타입: string)

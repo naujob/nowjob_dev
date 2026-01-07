@@ -3,7 +3,7 @@
     <div class="panel-container" style="max-width:500px;margin:0 auto;top:50%;left:20%;transform:translate(-50%, -50%);bottom:auto;">
         <div class="panel-header">
             <h2 class="sr-text">현재 위치 변경</h2>
-            <button type="button" aria-controls="changeArea" class="btn-close-popup js-toggle-panel btnCloseArea"><span class="sr-text">닫기</span></button>
+            <button type="button" aria-controls="changeArea" class="btn-close-popup btnCloseArea"><span class="sr-text">닫기</span></button>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -60,8 +60,19 @@
 <!-- //현재위치 변경 레이어팝업 -->
 <script>
     $(document).ready(function() {
-        $(".btnCloseArea").click(function() {
-            $("#changeArea").removeClass("on");
+        $(".btnCloseArea").click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // main.js의 closePanel 함수 사용 (hidden 속성 및 body 스크롤 처리)
+            var panel = document.getElementById("changeArea");
+            if (panel && typeof window.closePanel === 'function') {
+                window.closePanel(panel);
+            } else {
+                // fallback: 직접 처리
+                $("#changeArea").removeClass("on");
+                $("#changeArea")[0].hidden = true;
+                document.body.style.overflow = '';
+            }
         });
 
         $("#btnSearchAddr").click(function() {

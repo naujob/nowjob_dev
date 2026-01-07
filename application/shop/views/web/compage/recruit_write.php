@@ -1516,7 +1516,17 @@
 
 <script>
   $("[name=rc_addr_doro]").click(function() {
-    $("#changeArea").addClass("on");
+    var $panel = $("#changeArea");
+    // 패널을 열 때 hidden 속성 제거 및 on 클래스 추가
+    // $panel[0].hidden = false; 
+    // 해당 코드는 jQuery 객체 '$panel'의 첫 번째 원소(일반적으로 DOM 요소)를 가져와서,
+    // HTML5의 hidden 속성을 false로 설정함으로써 패널(주소변경 팝업 레이어)이 화면에 표시되도록 한다.
+    // 즉, $('#changeArea')[0].hidden = false; 와 동일하며,
+    // changeArea 레이어의 숨김 상태를 해제(visible)시키는 역할을 한다.
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    // body 스크롤 잠금
+    document.body.style.overflow = 'hidden';
     // 팝업을 열 때 기존 입력창 포커스를 제거하고 팝업 입력창으로 이동해 오타를 방지
     $(this).blur();
     var $popupAddrInput = $("#changeArea").find("#txt_addr_popup");
@@ -1524,7 +1534,9 @@
       // DOM 갱신 이후 안전하게 포커스를 옮김
       setTimeout(function() {
         $popupAddrInput.focus();
-      }, 0);
+        // 패널에 포커스 설정
+        $panel[0].focus();
+      }, 100);
     }
   });
 

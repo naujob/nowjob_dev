@@ -1322,6 +1322,7 @@ function getConvertResumePriceType($price_type)
     }
 
     $("[name='chk_request[]']").prop("checked", false);
+    // [설명] '제안 보내기' 버튼 클릭 시 제안 선택 패널을 화면에 표시
     $("#selectPanel").addClass("on");
 
   });
@@ -1360,6 +1361,8 @@ function getConvertResumePriceType($price_type)
                   if (ret.code == "00") {
                     // 알림창 주석처리 - 바로 채팅방으로 이동
                     // commonAlert("선택한 채용공고로 제안하였습니다.", function() {
+                      
+                      // '제안보내기' 패널을 닫는다.
                       $("#selectPanel").removeClass("on");
 
                       //채팅창 오픈
@@ -1393,11 +1396,13 @@ function getConvertResumePriceType($price_type)
                         var checkCount = 0;
                         var maxCheckCount = 30; // 최대 15초 대기 (0.5초 * 30)
                         var recruitClicked = false; // 공고 클릭 플래그
+                        // 현재 인재의 ru_idx 가져오기 (정확한 채팅방 찾기 위해 필요)
+                        var currentRuIdx = $("[name=ru_idx]").val();
                         var checkInterval = setInterval(function() {
                           try {
                             checkCount++;
                             
-                            // 제안한 인재 탭에서 해당 rc_idx와 일치하는 채팅방 찾기
+                            // 제안한 인재 탭에서 해당 rc_idx와 ru_idx 모두 일치하는 채팅방 찾기
                             var targetRmIdx = null;
                             
                             // 이미 펼쳐진 인재 목록에서 채팅방 찾기 (우선 확인)
@@ -1406,7 +1411,14 @@ function getConvertResumePriceType($price_type)
                               var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
                                             $item.find('a[data-rc_idx]').data('rc_idx') ||
                                             $item.data('rc_idx');
-                              if (itemRcIdx == rc_idx) {
+                              var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
+                                            $item.find('a[data-ru_idx]').data('ru_idx') ||
+                                            $item.data('ru_idx');
+                              // rc_idx와 ru_idx 모두 일치해야 정확한 채팅방을 찾을 수 있음
+                              if (itemRcIdx == rc_idx && itemRuIdx == currentRuIdx) {
+                                // targetRmIdx는 해당 채팅방(room-item)의 고유 식별자(target_id)를 의미함. 
+                                // 즉, 열어야 할 채팅방의 rm_idx(채팅방 인덱스) 값이며
+                                // 이후 openChatRoom(targetRmIdx) 호출 시 바로 이 값을 사용.
                                 targetRmIdx = $item.data('target_id');
                                 return false; // break
                               }
@@ -1448,15 +1460,31 @@ function getConvertResumePriceType($price_type)
                             // 최대 시도 횟수에 도달한 경우
                             if (checkCount >= maxCheckCount) {
                               clearInterval(checkInterval);
-                              //console.error("채팅방을 찾을 수 없음 - rc_idx:", rc_idx);
-                              // 첫 번째 채팅방 사용
-                              var $firstChatItem = $("#chat_list2 .room-item:first");
-                              if ($firstChatItem.length > 0) {
-                                var firstRmIdx = $firstChatItem.data('target_id');
-                                if (firstRmIdx) {
-                                  openChatRoom(firstRmIdx);
+                              //console.error("채팅방을 찾을 수 없음 - rc_idx:", rc_idx, "ru_idx:", currentRuIdx);
+                              // ru_idx와 rc_idx 모두 일치하는 채팅방 찾기 (마지막 시도)
+                              var $matchedChatItem = null;
+                              $("#chat_list2 .room-item").each(function() {
+                                var $item = $(this);
+                                var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
+                                              $item.find('a[data-rc_idx]').data('rc_idx') ||
+                                              $item.data('rc_idx');
+                                var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
+                                              $item.find('a[data-ru_idx]').data('ru_idx') ||
+                                              $item.data('ru_idx');
+                                if (itemRcIdx == rc_idx && itemRuIdx == currentRuIdx) {
+                                  $matchedChatItem = $item;
+                                  return false; // break
+                                }
+                              });
+                              
+                              if ($matchedChatItem && $matchedChatItem.length > 0) {
+                                var matchedRmIdx = $matchedChatItem.data('target_id');
+                                if (matchedRmIdx) {
+                                  openChatRoom(matchedRmIdx);
                                 }
                               }
+                              // 매칭되는 채팅방을 찾지 못한 경우: 아무 동작도 하지 않음
+                              // 사용자가 채팅 목록에서 수동으로 선택할 수 있도록 함
                             }
                           } catch (error) {
                             //console.error("채팅방 찾기 오류:", error);
@@ -1471,6 +1499,70 @@ function getConvertResumePriceType($price_type)
                             return;
                           }
                           
+                          // 첫 메시지 전송 함수를 먼저 정의 (이벤트 리스너에서 사용하기 위해)
+                          if (!window.sendFirstMessageAfterProposal) {
+                            window.sendFirstMessageAfterProposal = function(targetUserId, targetRmIdx) {
+                              if (!targetUserId || !targetRmIdx || typeof socket === 'undefined' || !socket) {
+                                //console.error("첫 메시지 전송 실패 - targetUserId:", targetUserId, "targetRmIdx:", targetRmIdx, "socket:", typeof socket);
+                                return;
+                              }
+                              
+                              // g_user_id 가져오기
+                              var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
+                              
+                              // getCurrentDate 함수 확인
+                              var currentDate = typeof getCurrentDate === 'function' ? getCurrentDate() : new Date().toISOString();
+                              
+                              // 사용자 타입에 따른 메시지 내용 결정
+                              var current_user_type = typeof check_user_type !== 'undefined' ? check_user_type : "";
+                              var messageText = "";
+                              if (current_user_type === "COMP") {
+                                // 기업이 개인에게 제안보낼 경우
+                                messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+                              } else {
+                                // 개인이 기업에게 지원할 경우
+                                messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
+                              }
+                              
+                              var firstMessage = {
+                                rm_idx: Number(targetRmIdx),
+                                user_id: g_user_id,
+                                chat_type: "recruit",
+                                mg_type: "text",
+                                mg_text: messageText,
+                                mg_req_dt: "",
+                                mg_img: "",
+                                mg_file: "",
+                                mg_imoti: "",
+                                mg_dt: currentDate,
+                                mg_reads: new Array(),
+                              };
+                              
+                              // 읽음 상태 설정
+                              firstMessage.mg_reads.push({
+                                read_yn: "Y",
+                                user_id: g_user_id
+                              });
+                              firstMessage.mg_reads.push({
+                                read_yn: "N",
+                                user_id: targetUserId
+                              });
+                              
+                              // 사용자 목록
+                              var firstUsers = [];
+                              firstUsers.push({
+                                user_id: g_user_id,
+                                user_nick: ""
+                              });
+                              firstUsers.push({
+                                user_id: targetUserId,
+                                user_nick: ""
+                              });
+                              
+                              // 메시지 전송
+                              socket.emit("message_insert", firstMessage, firstUsers);
+                            };
+                          }
                           
                           // chatting_cont.php의 .room-item 클릭 핸들러와 동일한 로직 실행
                           // 대화내용 중복 차단 내역 초기화
@@ -1768,60 +1860,6 @@ function getConvertResumePriceType($price_type)
                               window.autoSendFirstMessage = null;
                             }
                           });
-                          
-                          // 첫 메시지 전송 함수 (전역 함수로 정의)
-                          window.sendFirstMessageAfterProposal = function(targetUserId, targetRmIdx) {
-                            if (!targetUserId || !targetRmIdx || typeof socket === 'undefined' || !socket) {
-                              //console.error("첫 메시지 전송 실패 - targetUserId:", targetUserId, "targetRmIdx:", targetRmIdx, "socket:", typeof socket);
-                              return;
-                            }
-                            
-                            
-                            // g_user_id 가져오기
-                            var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                            
-                            // getCurrentDate 함수 확인
-                            var currentDate = typeof getCurrentDate === 'function' ? getCurrentDate() : new Date().toISOString();
-                            
-                            var firstMessage = {
-                              rm_idx: Number(targetRmIdx),
-                              user_id: g_user_id,
-                              chat_type: "recruit",
-                              mg_type: "text",
-                              mg_text: "1:1 채팅을 시작합니다!",
-                              mg_req_dt: "",
-                              mg_img: "",
-                              mg_file: "",
-                              mg_imoti: "",
-                              mg_dt: currentDate,
-                              mg_reads: new Array(),
-                            };
-                            
-                            // 읽음 상태 설정
-                            firstMessage.mg_reads.push({
-                              read_yn: "Y",
-                              user_id: g_user_id
-                            });
-                            firstMessage.mg_reads.push({
-                              read_yn: "N",
-                              user_id: targetUserId
-                            });
-                            
-                            // 사용자 목록
-                            var firstUsers = [];
-                            firstUsers.push({
-                              user_id: g_user_id,
-                              user_nick: ""
-                            });
-                            firstUsers.push({
-                              user_id: targetUserId,
-                              user_nick: ""
-                            });
-                            
-                            
-                            // 메시지 전송
-                            socket.emit("message_insert", firstMessage, firstUsers);
-                          };
                         }
                       } else {
                         //console.error("getChatTargetList 함수를 찾을 수 없음");

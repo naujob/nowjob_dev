@@ -16,53 +16,10 @@ class Common_proc extends CI_Controller
 	}
 
 	/**
-	 * 비즈니스 로직 오류를 파일에 기록하는 함수
-	 */
-	private function log_business_error($function_name, $error_message, $data = [])
-	{
-		try {
-			$log_data = [
-				'timestamp' => date('Y-m-d H:i:s'),
-				'function' => $function_name,
-				'error' => $error_message,
-				'data' => $data,
-				'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown',
-				'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown'
-			];
-
-			$log_dir = '/website/nowapk/logs';
-			// 로그 디렉토리가 없으면 생성
-			if (!is_dir($log_dir)) {
-				@mkdir($log_dir, 0755, true);
-			}
-
-			$log_file = $log_dir . '/business_error_' . date('Y-m-d') . '.log';
-			$log_line = json_encode($log_data, JSON_UNESCAPED_UNICODE) . "\n";
-
-			// 로그 파일에 기록 (실패해도 예외 발생하지 않도록)
-			@file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX);
-		} catch (Exception $e) {
-			// 로그 기록 실패 시 무시 (에러 로그도 남기지 않음)
-		}
-	}
-
-	/**
 	 * 토큰 전송 로그 기록 (클라이언트에서 호출)
 	 */
 	function log_token_send()
 	{
-		$user_id = input_post("user_id", "");
-		$token_preview = input_post("token_preview", "");
-		$status = input_post("status", "");
-
-		// 디버그 로그 기록
-		debug_log("토큰 전송 시도", 'TOKEN_SEND', [
-			'user_id' => $user_id,
-			'token_preview' => $token_preview,
-			'status' => $status,
-			'timestamp' => date('Y-m-d H:i:s')
-		]);
-
 		json_return("00", "로그 기록 완료");
 	}
 
@@ -81,22 +38,6 @@ class Common_proc extends CI_Controller
 			http_response_code(200);
 			exit;
 		}
-
-		$function_name = input_post("function_name", "unknown");
-		$error_message = input_post("error_message", "");
-		$data_json = input_post("data", "{}");
-
-		// JSON 데이터 파싱
-		$data = [];
-		if ($data_json && $data_json !== "{}") {
-			$data = json_decode($data_json, true);
-			if (json_last_error() !== JSON_ERROR_NONE) {
-				$data = ['raw_data' => $data_json, 'json_error' => json_last_error_msg()];
-			}
-		}
-
-		// 비즈니스 로그 기록
-		$this->log_business_error($function_name, $error_message, $data);
 
 		// JSON 응답
 		json_return("00", "로그 기록 완료");
@@ -1137,19 +1078,63 @@ class Common_proc extends CI_Controller
 					];
 					$info_chat['point_yn'] = 'N';
 
-					// 채팅방 생성에 타임아웃 설정 (10초)
-					$result_chat = $this->common_model->insertRoom($info_chat);
+			// 채팅방 생성에 타임아웃 설정 (10초)
+			$result_chat = $this->common_model->insertRoom($info_chat);
 
-					if ($result_chat && $result_chat["code"] == "00") {
-						$rm_idx = $result_chat["key"];
+			if ($result_chat && $result_chat["code"] == "00") {
+				$rm_idx = $result_chat["key"];
 
-						// MongoDB 채팅방 생성은 newroommake API를 통해 처리됨
-						// (chat_proc/newroommake 엔드포인트 사용)
+				// 🔥 MongoDB 채팅방도 즉시 생성 (rc_idx, ru_idx 포함)
+				// 이렇게 하면 재입장 시 기존 방을 찾을 수 있음
+				$mongo_room_data = [
+					"rm_idx" => (int)$rm_idx,
+					"rc_idx" => (int)$data["rc_idx"],
+					"ru_idx" => (int)$data["ru_idx"],
+					"rm_type" => "recruit",
+					"rm_img" => "",
+					"rm_subject" => "채용공고 채팅방",
+					"rm_desc" => "채용공고 관련 채팅방",
+					"rm_last_msg" => "",
+					"rm_last_dt" => date('Y-m-d H:i:s'),
+					"rm_users" => [
+						["user_id" => $user_id]
+					],
+					"user_info" => [
+						["user_id" => $user_id]
+					],
+					"rm_status" => "N",
+					"rm_messages" => []
+				];
 
-						//json_return("00","생성완료",["rm_idx"=>$result["key"],"first_yn"=>"Y"]);
-					} else {
-						// 채팅방 생성 실패해도 제안 처리는 계속 진행
-					}
+				// MongoDB 채팅방 생성 API 호출
+				try {
+					// 내부 서버에서는 localhost 사용 (포트 3030)
+					$chat_server_url = "https://127.0.0.1:3030/newroommake";
+					$ch = curl_init($chat_server_url);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_POST, true);
+					curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mongo_room_data));
+					curl_setopt($ch, CURLOPT_HTTPHEADER, [
+						'Content-Type: application/json'
+					]);
+					curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 5초 타임아웃
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL 검증 비활성화
+					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // SSL 호스트 검증 비활성화
+					
+					$response = curl_exec($ch);
+					$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+					$curl_error = curl_error($ch);
+					curl_close($ch);
+
+					// MongoDB 생성 실패해도 제안 처리는 계속 진행
+				} catch (Exception $e) {
+					// MongoDB 생성 실패해도 제안 처리는 계속 진행
+				}
+
+				//json_return("00","생성완료",["rm_idx"=>$result["key"],"first_yn"=>"Y"]);
+			} else {
+				// 채팅방 생성 실패해도 제안 처리는 계속 진행
+			}
 				} catch (Exception $chat_error) {
 					// 채팅방 생성 오류는 무시하고 제안 처리는 계속 진행
 				}
