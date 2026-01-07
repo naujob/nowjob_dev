@@ -778,7 +778,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 
                   <tr>
                     <td class="label">근무형태</td>
-                    <td class="value txt-color2"><?= getWorkTypeV2($info["rc_work_type"]) ?></td>
+                    <td class="value txt-color2"><?= getWorkType2025($info["rc_work_type"]) ?></td>
 
 
                     <td class="label">희망성별</td>
@@ -806,7 +806,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                       <?php if ($info["rc_sage"] > 0 || $info["rc_eage"] > 0) : ?>
                         <?= $info["rc_sage"] ?>세 ~ <?= $info["rc_eage"] ?>세
                       <?php else : ?>
-                        무관
+                        나이무관
                       <?php endif; ?>
                     </td>
                   </tr>

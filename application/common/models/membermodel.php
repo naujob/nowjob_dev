@@ -688,7 +688,7 @@ class memberModel extends MY_Model
 					when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세 이상',' ~ ',rc_eage,'세 이하')
 					when rc_sage <> '' then concat(rc_sage, '세 이상')
 					when rc_eage <> '' then concat(rc_eage, '세 이하')
-					else '무관' end) as rc_age_nm
+					else '나이무관' end) as rc_age_nm
 				,(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn
 				,aa.mm_phone
 				,aa.mm_comp_name

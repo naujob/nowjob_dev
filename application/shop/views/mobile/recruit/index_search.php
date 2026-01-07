@@ -619,11 +619,54 @@
    });
 
    $(".btn-close-panel").click(function() {
-     $("body").css("overflow", "auto");
+     // 팝업 닫기
+     var $panel = $("#advancedSearch")[0];
+     if ($panel) {
+       $panel.classList.remove('on');
+       document.body.style.overflow = '';
+       $panel.scrollTo(0, 0);
+     }
+
+     // body 스타일 즉시 초기화 (스크롤 복원)
+     if (typeof restoreBodyScroll === 'function') {
+       restoreBodyScroll();
+     } else if (typeof forceRestoreBodyScroll === 'function') {
+       forceRestoreBodyScroll();
+     } else {
+       // fallback: 기본 스크롤 복원
+       $("body").css({
+         "overflow": "auto",
+         "overflow-y": "auto",
+         "-webkit-overflow-scrolling": "touch"
+       }).removeClass('no-scroll');
+       $("html").css({
+         "overflow": "auto",
+         "overflow-y": "auto"
+       });
+     }
+
+     // 여러 시점에서 body 스타일 확인 및 복구 (iOS 웹뷰 대응)
      setTimeout(function() {
-       $("body").css("overflow", "auto");
+       if (typeof restoreBodyScroll === 'function') {
+         restoreBodyScroll();
+       } else if (typeof forceRestoreBodyScroll === 'function') {
+         forceRestoreBodyScroll();
+       }
+     }, 50);
+     setTimeout(function() {
+       if (typeof restoreBodyScroll === 'function') {
+         restoreBodyScroll();
+       } else if (typeof forceRestoreBodyScroll === 'function') {
+         forceRestoreBodyScroll();
+       }
+     }, 200);
+     setTimeout(function() {
+       if (typeof restoreBodyScroll === 'function') {
+         restoreBodyScroll();
+       } else if (typeof forceRestoreBodyScroll === 'function') {
+         forceRestoreBodyScroll();
+       }
      }, 500);
-     $("#advancedSearch").removeClass("on");
    });
 
   // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
@@ -977,9 +1020,24 @@
 
    $("#btnReset").click(function() {
      // 지역
+     
      window.selectedRegions = [];
      selectedRegions = [];
      updateSelectedRegionsDisplay();
+
+     // job_list.php의 지역 관련 변수 및 UI 초기화
+     if (typeof addrName !== 'undefined') {
+       addrName = '전체';
+       $('.addrName').text('전체');
+     }
+     if (typeof search_addr !== 'undefined') {
+       search_addr = [];
+     }
+     if (typeof searchAreaStr !== 'undefined') {
+       searchAreaStr = JSON.stringify([]);
+     }
+     // .selbtn 요소들도 초기화 (addr_popup2025_new.php에서 관리되는 요소)
+     $('.selbtn').remove();
 
      // 업직종
      $('input[name="category[]"]').prop('checked', false);

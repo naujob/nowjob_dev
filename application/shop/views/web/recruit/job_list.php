@@ -750,7 +750,7 @@ if (count($banner_list) > 0) {
           $images.slice(2).remove();
           var $categoryHtml = $images.parent().html();
           $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
+          $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
           if (row.rc_price_type.indexOf('협의') > -1) {
             $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
           } else {
@@ -806,6 +806,10 @@ if (count($banner_list) > 0) {
     if (!work_type) {
       return "";
     }
+    // "시간협의"를 "근무협의"로 변환
+    if (work_type.includes('시간협의')) {
+      work_type = work_type.replace(/시간협의/g, '근무협의');
+    }
     let items = [];
     const spanRegex = /<span>(.*?)<\/span>/g;
     let match;
@@ -822,6 +826,10 @@ if (count($banner_list) > 0) {
     if (has_jugan && has_yagan && has_2shift) {
       return '<em class="wtype0">근무협의</em>';
     }
+    // "근무협의"가 단독으로 있는 경우 처리
+    if (item_set.length === 1 && item_set[0] === '근무협의') {
+      return '<em class="wtype0">근무협의</em>';
+    }
     let result = '';
     item_set.forEach(text => {
       if (text === '') return;
@@ -832,6 +840,8 @@ if (count($banner_list) > 0) {
         cls = 'wtype2';
       } else if (text === '2교대') {
         cls = 'wtype3';
+      } else if (text === '근무협의') {
+        cls = 'wtype0';
       }
       result += `<em class="${cls}">${text}</em>`;
     });

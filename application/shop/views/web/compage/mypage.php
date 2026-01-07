@@ -54,6 +54,7 @@ function fEmailMasking($email)
             <p style="font-size: 1.3em; width: max-content;">회원정보 확인·관리</p>
           </div>
           <form id="frmAll" onsubmit="return false" style="max-width: 900px; display: block; margin: 0 auto;">
+            <!-- proc_mode는 현재 처리 모드(예: 등록/수정 등)를 서버에 전달하여, 회원정보 처리방식을 구분하는 hidden input입니다. -->
             <input type="hidden" name="proc_mode" value="<?= getProcMode($info) ?>" />
             <input type="hidden" name="bd_idx" value="<?= getData($info, "bd_idx") ?>" />
             <div class="form-row toggle-form" style=" border-top:1px solid #ccc;">
@@ -1155,3 +1156,161 @@ function fEmailMasking($email)
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>
 */ ?>
+
+<!-- 기업로고 크롭 팝업 (주석 처리된 부분에서 활성화) -->
+<div id="dimwrap" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background-color: #000; opacity: 0.3;"></div>
+<div id="dimcont7" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 380px; height: 625px; z-index: 20; background-color: #fff; padding: 40px;">
+  <div>
+    <div style="font-size: 1.4em; font-weight: 600;">기업로고 변경</div>
+    <div id="profileCancel" style="position: absolute; right: 45px; font-size: 36px; top: 30px;cursor:pointer;">×</div>
+  </div>
+  <div style="">
+    <link type='text/css' rel='stylesheet' href='/resource/shop/web/css/cropper.min.css?vs=1753162724' />
+    <script src='/resource/shop/web/js/lib/cropper.min.js?vs=1753162724'></script>
+    <style>
+      .crop-wrapper {
+        position: relative;
+        width: 300px;
+        height: 450px;
+        margin: 20px 0;
+      }
+
+      .cropper-crop-box {
+        overflow: hidden;
+      }
+    </style>
+    <div class="crop-wrapper">
+      <img id="previewImage" style="max-width: 100%;" />
+    </div>
+    <div style="text-align: center;margin-top: 20px;">
+      <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 파일 업로드 및 크롭 관련 변수
+  let profileBlob = null;
+  let newProfileImageSelected = false;
+
+  $(document).ready(function() {
+    const $previewImage = $('#previewImage');
+    const $newInput = $('#newLogo');
+    const $resultCanvas = $('#companyLogo');
+    const $cancel = $('#profileCancel');
+    const $crop = $('#profileCrop');
+    let cropper;
+
+    // 파일 입력 클릭 시 초기화
+    $newInput.on('click', function() {
+      this.value = null;
+    });
+
+    // 파일 선택 시 크롭 팝업 표시
+    $newInput.on('change', function(e) {
+      const file = e.target.files[0]; // file은 'input[type="file"]'에서 사용자가 선택한 첫 번째 파일(이미지 파일 등)을 가리킴
+      if (!file) return;
+      
+      // 파일 타입 검증
+      if (!file.type.match('image.*')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+      }
+
+      $('#dimwrap, #dimcont7').show();
+      newProfileImageSelected = true;
+
+      const url = URL.createObjectURL(file);
+      $previewImage.attr('src', url);
+
+      $previewImage.on('load', function() {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(this, {
+          aspectRatio: 1,
+          viewMode: 1,
+          background: false,
+          dragMode: 'move',
+          guides: true,
+          highlight: false,
+          cropBoxMovable: false,
+          cropBoxResizable: false,
+          autoCropArea: 1,
+        });
+      });
+    });
+
+    // 취소 버튼 클릭
+    $cancel.on('click', function() {
+      profileBlob = null;
+      newProfileImageSelected = false;
+      if (cropper) cropper.destroy();
+      $('#dimwrap, #dimcont7').hide();
+    });
+
+    // 크롭 완료 버튼 클릭
+    $crop.on('click', function() {
+      if (!cropper) return;
+
+      const profileCanvas = cropper.getCroppedCanvas({
+        width: 300,
+        height: 300,
+        imageSmoothingQuality: 'high',
+      });
+      if (!profileCanvas) {
+        alert('이미지가 생성되지 않았습니다.');
+        return;
+      }
+      const newProfile = profileCanvas.toDataURL('image/png');
+      $resultCanvas.attr('src', newProfile);
+
+      profileCanvas.toBlob(function(blob) {
+        profileBlob = blob;
+      }, 'image/png');
+      
+      if (cropper) cropper.destroy();
+      $('#dimwrap, #dimcont7').hide();
+    });
+
+    // 저장 버튼 클릭 이벤트 (기존 이벤트가 있으면 덮어쓰기)
+    $("#btnSaveAll").off('click').on('click', function() {
+      var form = $('#frmAll');
+      var params = new FormData(form[0]);
+
+      // 새로운 이미지가 선택되었지만 크롭이 완료되지 않은 경우
+      if (newProfileImageSelected && !profileBlob) {
+        alert('새로운 기업로고를 확인해주세요.');
+        return;
+      }
+      
+      // 크롭된 이미지가 있으면 추가
+      if (profileBlob) {
+        params.append('mm_thumb', profileBlob, 'newlogo.png');
+      }
+
+      // 이 함수는 "/compage_proc/com_biz_updateAll"로 폼 데이터를 비동기로 전송하고, 완료 시 콜백함수를 실행합니다.
+      fileAjax("/compage_proc/com_biz_updateAll", params, function(ret) {
+        if (ret.code == "00") {
+          commonAlert("수정 되었습니다.", function() {
+            location.reload();
+          });
+        } else {
+          commonAlert(ret.msg, function() {});
+        }
+      });
+    });
+  });
+
+  // 기업로고 삭제 함수
+  function fThumbDel() {
+    openPopup('confirm', {
+      content: "삭제 하시겠습니까?",
+      firstButton: '취소',
+      secondButton: '확인',
+      firstCallback: function() {},
+      secondCallback: function() {
+        $('input[name=mm_thumb_del]').val('Y');
+        $('#btnSaveAll').trigger('click');
+      },
+    });
+  }
+</script>

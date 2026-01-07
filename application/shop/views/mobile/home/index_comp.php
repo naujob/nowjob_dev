@@ -1008,6 +1008,10 @@ if ($g_ios_publish == true) {
     if (!work_type) {
       return "";
     }
+    // "시간협의"를 "근무협의"로 변환
+    if (work_type.includes('시간협의')) {
+      work_type = work_type.replace(/시간협의/g, '근무협의');
+    }
     let items = [];
     const spanRegex = /<span>(.*?)<\/span>/g;
     let match;
@@ -1035,6 +1039,8 @@ if ($g_ios_publish == true) {
       cls = 'wtype2';
     } else if (firstItem === '2교대') {
       cls = 'wtype3';
+    } else if (firstItem === '근무협의') {
+      cls = 'wtype0';
     }
 
     return `<em class="${cls}">${firstItem}</em>`;

@@ -22,6 +22,49 @@ function formatPhoneNumber($number)
     return $number;
 }
 
+function getWorkType2025($work_type)
+{
+  if (!$work_type) {
+    return "";
+  }
+
+  $items = [];
+
+  if (preg_match_all('/<span>(.*?)<\/span>/', $work_type, $matches)) {
+    $items = $matches[1];
+  } else {
+    $items = preg_split('/\s*,\s*/', $work_type);
+  }
+
+  $item_set = array_unique(array_map('trim', $items));
+
+  $has_jugan = in_array('주간', $item_set);
+  $has_yagan = in_array('야간', $item_set);
+  $has_2shift = in_array('2교대', $item_set);
+
+  if ($has_jugan && $has_yagan && $has_2shift) {
+    return '<em class="wtype0">근무협의</em>';
+  }
+
+  $result = '';
+  foreach ($item_set as $text) {
+    if ($text === '') continue;
+
+    $cls = '';
+    if ($text === '주간') {
+      $cls = 'wtype1';
+    } else if ($text === '야간') {
+      $cls = 'wtype2';
+    } else if ($text === '2교대') {
+      $cls = 'wtype3';
+    }
+
+    $result .= '<em class="' . $cls . '">' . $text . '</em>';
+  }
+
+  return $result;
+}
+
 function getConvertPriceType($rc_price_type, $rc_price_rep)
 {
   $allTypes = ['일급', '주급', '월급'];
@@ -125,6 +168,45 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
         height: 0.5em;
         margin: auto;
         border-right: 1px solid #777;
+    }
+
+    /* 근무형태 스타일 */
+    .working-time em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+    }
+
+    .working-time em:not(:last-child) {
+        padding-right: 5px;
+    }
+
+    .working-time em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
+    }
+
+    .working-time em.wtype0 {
+        color: #333;
+    }
+
+    .working-time em.wtype1 {
+        color: #3a70db;
+    }
+
+    .working-time em.wtype2 {
+        color: #F86048;
+    }
+
+    .working-time em.wtype3 {
+        color: #1B9D7D;
     }
 </style>
 <div class="page page-view">
@@ -307,7 +389,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                             <tr>
                                 <td class="label">근무형태</td>
                                 <td class="value">
-                                    <span class="working-time"><?= $info["rc_work_type"] ?></span>
+                                    <span class="working-time"><?= getWorkType2025($info["rc_work_type"]) ?></span>
                                 </td>
                             </tr>
                             <?php /* 근무시간 표시 주석처리
@@ -351,17 +433,17 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                             */ ?>
                             <tr>
                                 <td class="label">희망국적</td>
-                                <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></td>
+                                <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "국적무관" : $info["rc_nation"]) ?></td>
                             </tr>
                             <tr>
                                 <td class="label">희망성별</td>
-                                <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "무관" : $info["rc_sex"]) ?></td>
+                                <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "성별무관" : $info["rc_sex"]) ?></td>
                             </tr>
                             <tr>
                                 <td class="label">희망나이</td>
                                 <td class="value"><?php
                                                     if ($info["rc_sage"] == "0" && $info["rc_eage"] == "0") {
-                                                        echo "무관";
+                                                        echo "나이무관";
                                                     } else {
                                                         echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
                                                     }

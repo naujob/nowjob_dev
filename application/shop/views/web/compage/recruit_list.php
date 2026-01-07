@@ -702,36 +702,10 @@
         });
 
 
+        // btnWriteList 버튼도 btnWrite와 동일한 로직 사용
         $("#btnWriteList").click(function() {
-            if (typeof requireCompCertWithGuide === 'function' && !requireCompCertWithGuide()) {
-                return;
-            }
-            comAjax("/compage_proc/recruit_start", {}, function(ret) {
-                if (ret.code == "00") {
-                    location.href = "/compage/recruit_write";
-                } else if (ret.code == "01") {
-                    openPopup('confirm', {
-                        //20220929 수정
-                        content: '<p>채용공고등록은 <em>1일 5건 무료</em>입니다<br> 추가로 공고를 등록하시려면<br> 포인트에서 차감됩니다.</p><p class="required-point">채용공고등록: <span>' + ret.data.use_point + 'P</span>차감</p>',
-                        secondButton: '유료등록',
-                        secondCallback: function() {
-                            comAjax("/compage_proc/recruit_start_point", {}, function(ret2) {
-                                if (ret2.code == "00") {
-                                    location.href = "/compage/recruit_write";
-                                } else if (ret2.code == "01") {
-                                    commonAlert("보유하신 포인트가 부족합니다.(보유포인트 : " + ret2.data.mm_point.format() + "P)<br/>포인트 구매후 등록부탁드립니다.", function() {});
-                                } else {
-                                    commonAlert(ret2.msg, function() {});
-                                    return;
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    commonAlert(ret.msg, function() {});
-                    return;
-                }
-            });
+            // top_line.php의 btnWrite와 동일한 로직이므로 btnWrite 클릭 이벤트 트리거
+            $("#btnWrite").trigger('click');
         });
 
 

@@ -1091,8 +1091,6 @@
                             $('[name="rc_month_price"]').val('');
                           }
                           // 전체 시급 적용전까지 임시처리 끝
-
-                          //console.log(JSON.stringify({ rc_price_type, rc_price_rep: rep, rc_price_pay: amount }, null, 2));
                         }
 
                       });
@@ -1349,46 +1347,6 @@
   </main><!-- //page-content -->
 </div><!-- //page -->
 
-<div id="dimwrap" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background-color: #000; opacity: 0.3;"></div>
-
-<div id="dimcont" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 365px; z-index: 20; background-color: #fff; padding: 40px;">
-  <form id="frm1_recruit" name="frm1_recruit" onsubmit="return false">
-    <div>
-      <div style="font-size: 1.4em; font-weight: 600;">사업자등록번호 <span style="color:#57CCAF">인증</span>이 필요합니다.</div>
-      <a href="javascript:$('#dimwrap,#dimcont').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
-    </div>
-    <div style="font-size: 1.2em; margin-top: 50px;">
-      <div>
-        <input type="text" name="comp_num" id="bizno_recruit" placeholder="사업자 등록번호를 입력해 주세요" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 100px);">
-        <input type="hidden" id="biznoauth_recruit">
-        <input type="hidden" name="comp_type" value="COMP">
-        <button onclick="fBizAuth();" style="margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">인증하기</button>
-      </div>
-      <div style="font-size: 16px; margin-top: 10px; color: #57CCAF">* 사업자등록번호 인증시 인증마크 부여</div>
-      <div style="font-size: 16px; margin-top: 10px; color: #57CCAF">* 유료광고(지금뜨는 업체 7일권)</div>
-    </div>
-  </form>
-  <div style="text-align: center;margin-top: 50px;">
-    <button onclick="$('#dimcont2').show();" style="font-size: 16px; padding: 10px 16px;background-color: #fff; color: #57CCAF; border: 1px solid #57CCAF">건너뛰기</button>
-    <button id="btnSave" style="font-size: 16px; padding: 10px 36px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
-  </div>
-</div>
-
-<div id="dimcont2" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 365px; z-index: 20; background-color: #fff; padding: 40px;">
-  <div>
-    <div style="font-size: 1.4em; font-weight: 600;">사업자등록번호 인증을 안했을 경우</div>
-    <a href="javascript:$('#dimcont2').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
-  </div>
-  <div style="font-size: 1.1em; margin-top: 50px;">
-    <div style="margin-top: 26px;">1. 인증마크 미부여</div>
-    <div style="margin-top: 26px;">2. 유료광고 비노출(지금뜨는 업체 7일 사용권) </div>
-    <div style="margin-top: 26px;">3. 허위광고 및 신뢰 문제로 인한 지원자 감소가 우려됩니다.</div>
-  </div>
-  <div style="text-align: center;margin-top: 50px;">
-    <button onclick="$('#dimcont2').hide();" style="font-size: 16px; padding: 10px 36px;background-color: #fff; color: #57CCAF; border: 1px solid #57CCAF">이전</button>
-    <button onclick="$('#mm_comp_num').val('N'); $('#dimwrap,#dimcont,#dimcont2').hide();" style="font-size: 16px; padding: 10px 36px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
-  </div>
-</div>
 
 <div class="law_popup">
   <div class="tab_menu">
@@ -1542,27 +1500,6 @@
 
   // 검색 완료 선택 처리 - recruit_write 전용 함수
   function selectAddrInfoRecruit(zipcode, doro, jibun, addr, x, y) {
-    console.log("[selectAddrInfoRecruit] 함수 호출됨 - 파라미터:", {
-      zipcode: zipcode,
-      doro: doro,
-      jibun: jibun,
-      addr: addr,
-      x: x,
-      y: y
-    });
-
-    // 필드 존재 여부 확인
-    console.log("[selectAddrInfoRecruit] 필드 존재 여부 확인:");
-    console.log("  - #ad_zipcode:", $("#ad_zipcode").length);
-    console.log("  - #ad_jibun:", $("#ad_jibun").length);
-    console.log("  - #ad_doro:", $("#ad_doro").length);
-    console.log("  - #ad_addr:", $("#ad_addr").length);
-    console.log("  - #ad_gps_x:", $("#ad_gps_x").length);
-    console.log("  - #ad_gps_y:", $("#ad_gps_y").length);
-    console.log("  - [name=rc_addr_doro]:", $("[name=rc_addr_doro]").length);
-    console.log("  - [name=changeArea]:", $("[name=changeArea]").length);
-    console.log("  - #changeArea:", $("#changeArea").length);
-
     $("#ad_zipcode").val(zipcode);
     $("#ad_jibun").val(jibun); // 지번 주소
     $("#ad_doro").val(doro); // 도로명 주소
@@ -1572,18 +1509,11 @@
     $("#ad_gps_y").val(y);
     // 선택된 주소(도로명 또는 지번)를 rc_addr_doro 필드에 설정
     // addr 파라미터는 사용자가 클릭한 버튼에 따라 도로명 또는 지번 전체 주소가 전달됨
-    console.log("[selectAddrInfoRecruit] 근무지역 필드에 설정할 주소:", addr);
     $("[name=rc_addr_doro]").val(addr);
     $("[name=changeArea]").val(addr);
     $("#changeArea").removeClass("on");
-
-    // 값 설정 후 확인
-    console.log("[selectAddrInfoRecruit] 값 설정 완료:");
-    console.log("  - #ad_zipcode 값:", $("#ad_zipcode").val());
-    console.log("  - #ad_doro 값 (도로명):", $("#ad_doro").val());
-    console.log("  - #ad_jibun 값 (지번):", $("#ad_jibun").val());
-    console.log("  - [name=rc_addr_doro] 값 (근무지역 표시):", $("[name=rc_addr_doro]").val());
-    console.log("  - [name=changeArea] 값:", $("[name=changeArea]").val());
+    // 패널이 닫힐 때 스크롤 복원
+    document.body.style.overflow = '';
   }
 
   // 기존 selectAddrInfo 함수를 recruit_write용으로 재정의
@@ -1592,8 +1522,44 @@
   $(document).ready(function() {
     if (window.location.pathname.indexOf('/compage/recruit_write') !== -1) {
       window.selectAddrInfo = selectAddrInfoRecruit;
-      console.log("[recruit_write] selectAddrInfo 함수를 selectAddrInfoRecruit로 재정의함");
-      console.log("[recruit_write] 재정의된 함수:", typeof window.selectAddrInfo);
+      
+      // 패널이 닫힐 때 스크롤 복원을 위한 감시자 추가
+      // changeArea 패널의 on 클래스가 제거될 때 스크롤 복원
+      var $panel = $("#changeArea");
+      if ($panel.length > 0) {
+        // MutationObserver를 사용하여 패널의 클래스 변경 감지
+        var observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              var $target = $(mutation.target);
+              // on 클래스가 제거되었고 패널이 숨겨진 경우 스크롤 복원
+              if (!$target.hasClass('on') && ($target[0].hidden === true || $target.css('display') === 'none')) {
+                document.body.style.overflow = '';
+              }
+            }
+            // hidden 속성이 변경된 경우도 처리
+            if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
+              var $target = $(mutation.target);
+              if ($target[0].hidden === true) {
+                document.body.style.overflow = '';
+              }
+            }
+          });
+        });
+        
+        // 패널 요소의 속성 변경 감시 시작
+        observer.observe($panel[0], {
+          attributes: true,
+          attributeFilter: ['class', 'hidden', 'style']
+        });
+        
+        // 패널 닫기 버튼 클릭 시에도 스크롤 복원 (추가 안전장치)
+        $(document).on('click', '#changeArea .btn-close-popup, #changeArea .btnCloseArea', function() {
+          setTimeout(function() {
+            document.body.style.overflow = '';
+          }, 100);
+        });
+      }
     }
   });
 </script>
@@ -1634,31 +1600,6 @@
 </style>
 
 <script>
-  function fCertReq() {
-    <?php
-    // SNS 로그인 여부 확인
-    $mem_info_di = isset($info["mem_info"]["mm_di"]) ? $info["mem_info"]["mm_di"] : null;
-    $mem_info_join_type = isset($info["mem_info"]["mm_join_type"]) ? $info["mem_info"]["mm_join_type"] : null;
-    $is_sns_login = !empty($mem_info_join_type) && in_array(strtoupper($mem_info_join_type), ["KAKAO", "APPLE", "NAVER"]);
-    // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
-    $is_pass_authenticated = ($mem_info_di != null && (strpos($mem_info_di, "MC0") === 0 || $is_sns_login));
-    ?>
-    openPopup('modal', {
-      content: '<div style="padding: 50px;">기업정보 입력 후 공고등록을 하실 수 있습니다.</div>',
-      <?php if ($info == null || $info["mem_info"] == null || ($info["mem_info"]["mm_comp_num"] == "")) { ?>
-        firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">기업정보입력</div>',
-        firstCallback: function() {
-          location.href = "/compage/mypage?reqgbn=compcert";
-        }
-      <?php } else { ?>
-        firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; cursor: no-drop; background: #BEBFC9;" onclick="return false;">기업정보 인증</div>',
-        firstCallback: function() {
-          fCertReq();
-        }
-      <?php } ?>
-    });
-  }
-
   $(document).ready(function() {
 
     <?php
@@ -1671,11 +1612,9 @@
     // 기업정보 인증 여부 확인
     $is_comp_authenticated = ($info != null && $info["mem_info"] != null && !empty($info["mem_info"]["mm_comp_num"]));
 
-    // 둘 다 인증되어야 공고 등록 가능
-    if (!$is_pass_authenticated || !$is_comp_authenticated) {
+    // recruit_list.php에서 인증 후 이동한 경우이므로 자동 팝업 표시하지 않음
+    // (recruit_list.php에서 이미 팝업을 표시했으므로)
     ?>
-      fCertReq();
-    <?php } ?>
 
     $("[name='rc_work_type[]']").change(function() {
       $("#time_cont").attr("hidden", "");
@@ -1879,17 +1818,34 @@
 
     fFoldAll('Y');
 
-    $("#btnSave").click(function() {
-      if ($('#mm_comp_num').val() == "" || $('#mm_comp_num').val() == "N") {
-        commonAlert("사업자 등록번호를 인증해 주세요.", function() {
-          $("#bizno_recruit").focus();
+    // recruit_write.php 페이지에서만 btnSave 동작 오버라이드
+    if (window.location.pathname.indexOf('/compage/recruit_write') !== -1) {
+      $(document).off('click', '#btnSave').on('click', '#btnSave', function() {
+        // 사업자명 입력 확인
+        if ($("[name=comp_name]").val() == "" || $("[name=comp_name]").val().trim() == "") {
+          commonAlert("사업자명을 입력해주세요.", function() {
+            $("[name=comp_name]").focus();
+          });
+          return;
+        }
+
+        // 사업자 인증 처리
+        fBizAuth(function() {
+          var form = $('#frm1');
+          var params = new FormData(form[0]);
+          fileAjax("/compage_proc/com_biz_update", params, function(ret) {
+            if (ret.code == "00") {
+              // 팝업 닫기 후 공고 등록 진행 (페이지 새로고침하지 않음)
+              $('#dimwrap').hide();
+              $('#dimcont').hide();
+              $("#btnStep").click();
+            } else {
+              commonAlert(ret.msg, function() {});
+            }
+          });
         });
-        return;
-      } else {
-        $('#dimwrap,#dimcont').hide();
-        $("#btnStep").click();
-      }
-    });
+      });
+    }
 
     <?php if ($_GET["gbn"] == "re") { ?>
       const today = new Date();
@@ -2382,53 +2338,6 @@
     }
   }
 
-  function fBizAuth() {
-    if ($('#bizno_recruit').val() == '') {
-      commonAlert("사업자 등록번호를 입력해주세요.", function() {
-        $("#bizno_recruit").focus();
-      });
-      return;
-    }
-    var data = {
-      "b_no": [$("#bizno_recruit").val()]
-    };
-    $.ajax({
-      url: "https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=nbqW%2FFUs8GPs9gugbRl6wK2fqyEhU%2F4kDV1UzIEmA%2BgNYC9C1IyNsLwER%2FR5ALL5p20DpErEsQ2QlWm38oD%2FGA%3D%3D", // serviceKey 값을 xxxxxx에 입력
-      type: "POST",
-      data: JSON.stringify(data),
-      dataType: "JSON",
-      contentType: "application/json",
-      accept: "application/json",
-      success: function(result) {
-        if (result.status_code == "OK") {
-          if (result.data[0].b_stt_cd == "01" || result.data[0].b_stt_cd == "01") {
-            bus_yn = true;
-            $('#mm_comp_num').val($("#bizno_recruit").val());
-            commonAlert("사업자번호 인증완료", function() {});
-            return;
-          } else if (result.data[0].b_stt_cd == "03") {
-            bus_yn = false;
-            commonAlert("폐업된 사업자 번호입니다.", function() {
-              $("#bizno_recruit").focus();
-            });
-            return;
-          } else {
-            bus_yn = false;
-            commonAlert("등록되지 않은 사업자 번호입니다.", function() {
-              $("#bizno_recruit").focus();
-            });
-            return;
-          }
-        } else {
-          bus_yn = false;
-          commonAlert("사업자 번호가 유효 하지 않습니다.", function() {});
-        }
-      },
-      error: function(result) {
-        bus_yn = true;
-      }
-    });
-  }
 </script>
 
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>

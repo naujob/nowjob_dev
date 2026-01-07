@@ -463,8 +463,8 @@ function getConvertResumePriceType($price_type)
     /* 지원한 공고 링크 스타일 */
     .content-info .job-link {
         position: absolute;
-        bottom: 0;
-        right: 37px;
+        bottom: 25px;
+        right: -1px;
         font-size: 12px;
         color: #5085BB;
         text-decoration: none;
@@ -490,7 +490,7 @@ function getConvertResumePriceType($price_type)
         <div class="tab-container">
             <ul class="tab-list">
                 <li><a href="javascript:_replace('/compage/bookmark_person1');" class="tab">즐겨찾기한 인재</a></li>
-                <li class="on"><span class="tab">지원받은 인재</span></li>
+                <li class="on"><span class="tab">지원한 인재</span></li>
             </ul>
         </div>
         <div class="tab-panel">

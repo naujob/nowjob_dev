@@ -263,7 +263,7 @@ $addr_info = replaceRegionNames(trim($addr_info));
     position: absolute;
     right: 0px;
     bottom: 0px;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 600;
     letter-spacing: 0;
     color: #1b9d7d;
@@ -323,7 +323,7 @@ $addr_info = replaceRegionNames(trim($addr_info));
     color: #000;
     height: 17px;
     text-align: right;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 600;
   }
 

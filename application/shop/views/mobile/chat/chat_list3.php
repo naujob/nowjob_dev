@@ -297,12 +297,64 @@
 </div>
 
 <script>
+    // 디바운싱을 위한 타이머 변수
+    var fSearchNoReadCountTimer = null;
+
+    // 디바운싱된 fSearchNoReadCount 함수
+    function fSearchNoReadCountDebounced() {
+        if (fSearchNoReadCountTimer) {
+            clearTimeout(fSearchNoReadCountTimer);
+        }
+        fSearchNoReadCountTimer = setTimeout(function() {
+            fSearchNoReadCount();
+        }, 300); // 300ms 디바운싱
+    }
+
+    // 실시간 소켓 이벤트 리스너 초기화
+    function initRealTimeTabBadgeUpdate() {
+        // WebSocket이 존재하는지 확인
+        if (typeof window.socket === 'undefined' || !window.socket) {
+            // WebSocket이 아직 준비되지 않았으면 잠시 후 재시도
+            setTimeout(function() {
+                initRealTimeTabBadgeUpdate();
+            }, 1000);
+            return;
+        }
+
+        var socket = window.socket;
+
+        // 기존 이벤트 리스너 제거 (중복 등록 방지)
+        socket.off('realtime_message');
+        socket.off('chat_notification');
+        socket.off('message_read_count_return');
+
+        // 실시간 메시지 수신 이벤트
+        socket.on('realtime_message', function(ret) {
+            if (ret && ret.type == "chat") {
+                // 채팅 메시지 수신 시 탭 배지 업데이트
+                fSearchNoReadCountDebounced();
+            }
+        });
+
+        // 채팅 알림 수신 이벤트
+        socket.on('chat_notification', function(ret) {
+            // 채팅 알림 수신 시 탭 배지 업데이트
+            fSearchNoReadCountDebounced();
+        });
+
+        // 메시지 읽음 카운트 변경 이벤트
+        socket.on('message_read_count_return', function(ret) {
+            // 읽음 카운트 변경 시 탭 배지 업데이트
+            fSearchNoReadCountDebounced();
+        });
+    }
 
     // 안드로이드와 웹을 구분하여 처리
     <?php if ($this->common->getSession("os_type") == "android") : ?>
         // 안드로이드 앱에서 실행
         window.addEventListener('DOMContentLoaded', function() {
             getChatTargetList(2);
+            initRealTimeTabBadgeUpdate();
         });
 
         // 페이지 복귀 시 미확인 메시지 갱신
@@ -466,6 +518,7 @@
         // 웹에서 실행
         $(document).ready(function() {
             getChatTargetList(2);
+            initRealTimeTabBadgeUpdate();
         });
 
         // 페이지 복귀 시 미확인 메시지 갱신

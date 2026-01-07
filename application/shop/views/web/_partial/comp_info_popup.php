@@ -476,12 +476,23 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
                 var params = new FormData(form[0]);
                 fileAjax("/compage_proc/com_biz_update", params, function(ret) {
                     if (ret.code == "00") {
-                        commonAlert("사업자정보가 인증 되었습니다.", function() {
-                            // 팝업 닫기 후 페이지 새로고침하여 업데이트된 데이터 반영
+                        // 채용공고 등록 버튼을 통해 열렸는지 확인
+                        var fromRecruitWrite = $('#dimcont').data('from-recruit-write');
+                        
+                        if (fromRecruitWrite) {
+                            // 채용공고 등록 버튼을 통해 열린 경우 recruit_write로 이동
                             $('#dimwrap').hide();
                             $('#dimcont').hide();
-                            location.reload();
-                        });
+                            $('#dimcont').removeData('from-recruit-write'); // 플래그 제거
+                            location.href = "/compage/recruit_write";
+                        } else {
+                            // 일반적인 경우 페이지 새로고침
+                            commonAlert("사업자정보가 인증 되었습니다.", function() {
+                                $('#dimwrap').hide();
+                                $('#dimcont').hide();
+                                location.reload();
+                            });
+                        }
                     } else {
                         commonAlert(ret.msg, function() {});
                     }

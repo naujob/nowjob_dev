@@ -487,7 +487,7 @@ function getConvertResumePriceType($price_type)
     <div class="tab-container">
       <ul class="tab-list">
         <li class="on"><span class="tab">즐겨찾기한 인재</span></li>
-        <li><a href="javascript:_replace('/compage/bookmark_person2');" class="tab">지원받은 인재</a></li>
+        <li><a href="javascript:_replace('/compage/bookmark_person2');" class="tab">지원한 인재</a></li>
       </ul>
     </div>
     <div class="tab-panel">

@@ -226,6 +226,21 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
 
     //처리
     $("#btnWrite").click(function() {
+        // 사업자 인증 여부 확인
+        <?php
+        $is_comp_authenticated = ($mem_info != null && !empty($mem_info["mm_comp_num"]));
+        ?>
+        var isCompAuthenticated = <?= $is_comp_authenticated ? 'true' : 'false' ?>;
+        
+        // 사업자 인증이 안 된 경우 팝업 표시
+        if (!isCompAuthenticated) {
+            // 채용공고 등록 버튼을 통해 열렸음을 표시하는 플래그 설정
+            $('#dimcont').data('from-recruit-write', true);
+            $('#dimwrap, #dimcont').show();
+            return;
+        }
+        
+        // 사업자 인증이 완료된 경우에만 공고 등록 진행
         comAjax("/compage_proc/recruit_start", {}, function(ret) {
             if (ret.code == "00") {
                 location.href = "/compage/recruit_write";

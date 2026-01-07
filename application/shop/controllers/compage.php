@@ -1387,6 +1387,7 @@ class Compage extends CI_Controller
 			"rc_work_negotiation" => "",
 			"rc_price_type_main" => "",
 			"rc_price_amount" => "",
+			"rc_price_possible" => "",
 			"rc_price_daily" => "",
 			"rc_price_weekly" => "",
 			"rc_price_monthly" => "",
@@ -1408,8 +1409,49 @@ class Compage extends CI_Controller
 			$info["rc_work"] = explode(",", $recruit_info["rc_work"]);
 			$info["rc_work_type"] = explode(",", $recruit_info["rc_work_type"]);
 			$info["rc_work_negotiation"] = isset($recruit_info["rc_work_negotiation"]) ? $recruit_info["rc_work_negotiation"] : "";
-			$info["rc_price_type_main"] = isset($recruit_info["rc_price_type_main"]) ? $recruit_info["rc_price_type_main"] : (isset($recruit_info["rc_price_type"]) ? $recruit_info["rc_price_type"] : "");
-			$info["rc_price_amount"] = isset($recruit_info["rc_price_amount"]) ? $recruit_info["rc_price_amount"] : "";
+			
+			// 급여형태 정보 변환: DB 필드(rc_price_rep, rc_price_pay, rc_price_type)를 폼 필드(rc_price_type_main, rc_price_amount, rc_price_possible)로 변환
+			// 급여협의 처리: rc_price_type이 "급여협의"이거나 rc_price_rep이 "협의"/"급여협의"인 경우
+			$is_negotiation = false;
+			if (isset($recruit_info["rc_price_type"]) && $recruit_info["rc_price_type"] == "급여협의") {
+				$is_negotiation = true;
+			} else if (isset($recruit_info["rc_price_rep"]) && ($recruit_info["rc_price_rep"] == "협의" || $recruit_info["rc_price_rep"] == "급여협의")) {
+				$is_negotiation = true;
+			}
+			
+			if ($is_negotiation) {
+				// 급여협의인 경우
+				$info["rc_price_type_main"] = "급여협의";
+				$info["rc_price_amount"] = "";
+				$info["rc_price_possible"] = "";
+			} else {
+				// 급여협의가 아닌 경우
+				// rc_price_rep가 있으면 우선 사용, 없으면 rc_price_type에서 첫 번째 값 추출
+				if (isset($recruit_info["rc_price_rep"]) && $recruit_info["rc_price_rep"] != "") {
+					$info["rc_price_type_main"] = $recruit_info["rc_price_rep"];
+				} else if (isset($recruit_info["rc_price_type"]) && $recruit_info["rc_price_type"] != "") {
+					// rc_price_type에서 첫 번째 값 추출 (예: "시급,일급" → "시급")
+					$price_type_parts = explode(",", $recruit_info["rc_price_type"]);
+					$info["rc_price_type_main"] = trim($price_type_parts[0]);
+				} else {
+					$info["rc_price_type_main"] = "";
+				}
+				
+				// 급여 금액: rc_price_pay 사용
+				$info["rc_price_amount"] = isset($recruit_info["rc_price_pay"]) && $recruit_info["rc_price_pay"] > 0 ? $recruit_info["rc_price_pay"] : "";
+				
+				// rc_price_possible: rc_price_type에서 서브 타입 파싱 (예: "시급,일급" → "일급가능")
+				$info["rc_price_possible"] = "";
+				if (isset($recruit_info["rc_price_type"]) && $recruit_info["rc_price_type"] != "" && $recruit_info["rc_price_type"] != "급여협의") {
+					$price_type_parts = explode(",", $recruit_info["rc_price_type"]);
+					if (count($price_type_parts) > 1) {
+						// 서브 타입이 있는 경우 (예: "시급,일급")
+						$sub_type = trim($price_type_parts[1]);
+						$info["rc_price_possible"] = $sub_type . "가능"; // "일급" → "일급가능"
+					}
+				}
+			}
+			
 			$info["rc_price_daily"] = isset($recruit_info["rc_price_daily"]) ? $recruit_info["rc_price_daily"] : "";
 			$info["rc_price_weekly"] = isset($recruit_info["rc_price_weekly"]) ? $recruit_info["rc_price_weekly"] : "";
 			$info["rc_price_monthly"] = isset($recruit_info["rc_price_monthly"]) ? $recruit_info["rc_price_monthly"] : "";
@@ -1444,6 +1486,7 @@ class Compage extends CI_Controller
 				$info["rc_work_negotiation"] = isset($temp_info["rc_work_negotiation"]) ? $temp_info["rc_work_negotiation"] : "";
 				$info["rc_price_type_main"] = isset($temp_info["rc_price_type_main"]) ? $temp_info["rc_price_type_main"] : "";
 				$info["rc_price_amount"] = isset($temp_info["rc_price_amount"]) ? $temp_info["rc_price_amount"] : "";
+				$info["rc_price_possible"] = isset($temp_info["rc_price_possible"]) ? $temp_info["rc_price_possible"] : "";
 				$info["rc_price_daily"] = isset($temp_info["rc_price_daily"]) ? $temp_info["rc_price_daily"] : "";
 				$info["rc_price_weekly"] = isset($temp_info["rc_price_weekly"]) ? $temp_info["rc_price_weekly"] : "";
 				$info["rc_price_monthly"] = isset($temp_info["rc_price_monthly"]) ? $temp_info["rc_price_monthly"] : "";
