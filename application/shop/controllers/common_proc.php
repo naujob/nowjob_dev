@@ -962,32 +962,28 @@ class Common_proc extends CI_Controller
 					// 	json_return("90","이미 지원중인 공고('$is_name')가 포함되어 있습니다.");
 					// }
 				} else if ($mq_type == "RESUME") {
-					//2025.02.03 오늘 지원했으면 내일 지원하도록 안내
-					//todo
+					// 최근 5분 내 중복 제안 방지
 					$query_today_dup_chk  = "
             select sum(cnt) todaycnt from (
               select count(*) cnt from st_member_request
               where mq_type = 'RESUME'
-              and DATE(reg_dt) = CURRENT_DATE()
+              and reg_dt >= date_sub(now(), interval 5 minute)
               and ru_idx = '" . $data["ru_idx"] . "'
               and rc_idx = '" . $data["rc_idx"] . "'
               union all
               select count(*) cnt from st_member_request_dup
               where mq_type = 'RESUME'
-              and DATE(reg_dt) = CURRENT_DATE()
+              and reg_dt >= date_sub(now(), interval 5 minute)
               and ru_idx = '" . $data["ru_idx"] . "'
               and rc_idx = '" . $data["rc_idx"] . "'
             ) xx ";
 					$result_today_dup_chk = $this->db->query($query_today_dup_chk);
 					$list_today_dup_chk = $result_today_dup_chk->result_array();
 					$todaycnt = $list_today_dup_chk[0]["todaycnt"];
-					//echo "result[".$todaycnt."]";
 
 					if ($todaycnt > 0) {
-						//2025.02.03 오늘은 했으니 내일 하도록 안내
-						json_return("01", "<em>다음날</em> 다시 제안이 가능합니다.");
+						json_return("01", "<em>5분 후</em> 다시 제안이 가능합니다.");
 					}
-
 
 					if (count($mq_idxs) == 1) {
 						//2024.09.09 이미제안했어도 다음날 가능하도록, 이미 있으면 중복기록으로만 저장

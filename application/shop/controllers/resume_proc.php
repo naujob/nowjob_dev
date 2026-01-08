@@ -544,13 +544,13 @@
         $ru_idx = input_post("ru_idx","");
         $rc_idx = input_post("rc_idx","");
 
-        //지원내역이 오늘인지 확인해서 리턴
+        // 최근 5분 이내 제안 이력 확인
         $query  = "SELECT count(*) cnt FROM st_member_request ";
         $query .= "WHERE mq_type = 'RESUME'  ";
         $query .= "  AND ru_idx = '".$ru_idx."' ";
         $query .= "  AND rc_idx = '".$rc_idx."' ";
         $query .= "  AND mm_idx = '".$mm_idx."'  "; // 제안하는 기업
-        $query .= "  AND reg_dt LIKE '".date("Y-m-d")."%'  ";
+        $query .= "  AND reg_dt >= date_sub(now(), interval 5 minute)  ";
 
         $result = $this->db->query($query);
         $count = $result->row_array();
@@ -564,13 +564,13 @@
           return;
         }
 
-        //중복지원내역에 오늘이 있는지 확인해서 리턴
+        // 중복 제안 기록에 최근 5분 이내 이력이 있는지 확인
         $query  = "SELECT count(*) cnt FROM st_member_request_dup ";
         $query .= "WHERE mq_type = 'RESUME'  ";
         $query .= "  AND ru_idx = '".$ru_idx."' ";
         $query .= "  AND rc_idx = '".$rc_idx."' ";
         $query .= "  AND mm_idx = '".$mm_idx."'  "; // 지원자
-        $query .= "  AND reg_dt LIKE '".date("Y-m-d")."%'  ";
+        $query .= "  AND reg_dt >= date_sub(now(), interval 5 minute)  ";
 
         $result = $this->db->query($query);
         $count = $result->row_array();

@@ -701,7 +701,7 @@
   /* adinfo3의 point-info-container 위치 조정 - 아래로 내리기 */
   .adinfo3 .adbox3 .point-info-container {
     position: relative;
-    top: 140px;
+    top: -50px;
   }
 </style>
 
@@ -1060,359 +1060,6 @@
                 <div class="form-container">
                   <div class="form-group">
                     <label class="form-label">공고 선택</label>
-                    <select id="ad_resume1" onchange="fAddrSet(this.value,'ad_addr1');">
-                      <?php
-                      echo "<option value=\"\"></option>";
-                      foreach ($recruit_list as $resume) {
-                        echo "<option value=\"" . $resume['rc_idx'] . "\">" . $resume['rc_name'] . "</option>";
-                      }
-                      ?>
-                    </select>
-                  </div>
-                  <!-- 포인트 정보 테이블 -->
-                  <div class="table-container">
-                    <table class="adinfo_tab">
-                      <thead>
-                        <tr>
-                          <th>광고기간</th>
-                          <th>추가혜택</th>
-                          <th>차감포인트</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><span>5일</span></td>
-                          <td><span>+1일</span></td>
-                          <td class="adusepoint">-10,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>10일</span></td>
-                          <td><span>+3일</span></td>
-                          <td class="adusepoint">-20,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>20일</span></td>
-                          <td><span>+7일</span></td>
-                          <td class="adusepoint">-40,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>30일</span></td>
-                          <td><span>+10일</span></td>
-                          <td class="adusepoint">-60,000P</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">광고지역</label>
-                    <div class="input-group">
-                      <input id="ad_addr1" name="ad_addr1" onclick="$('#changeArea').addClass('on');">
-                      <button type="button" id="btnTopSearch1" class="btn-search" onclick="$('#changeArea').addClass('on');">
-                        <span class="sr-text">검색</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">광고시작일</label>
-                    <div class="datetime-group">
-                      <input id="ad_startdate1" name="ad_startdate1" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration();">
-                      <span class="unit">일</span>
-                      <select id="ad_starthour1" name="ad_starthour1">
-                        <?php
-                        for ($h = 0; $h <= 23; $h++) {
-                          echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
-                        }
-                        ?>
-                      </select>
-                      <span class="unit">시</span>
-                      <input id="ad_startmin1" name="ad_startmin1" value="0">
-                      <span class="unit">분</span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">광고기간</label>
-                    <div class="duration-group">
-                      <select id="ad_duration1" name="ad_duration1" onchange="fMakeDuration();">
-                        <option value="5">5일</option>
-                        <option value="10">10일</option>
-                        <option value="20">20일</option>
-                        <option value="30">30일</option>
-                      </select>
-                      <span class="plus-day">+1일</span>
-                      <span id="ad_duration_txt1"></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="point-info-container">
-                  <!-- 포인트 정보 박스 -->
-                  <div class="point-info">
-
-                    <div class="total-point"><span>결제포인트</span><span id="usepoint1">0</span></div>
-                  </div>
-                  <!-- 버튼 컨테이너 -->
-                  <div class="button-container">
-                    <a href="/mypage/point_charge_step1">충전하기</a>
-                    <!-- 추천공고등록 구매 팝업 -->
-                    <a href="#promo1" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
-                  </div>
-                </div>
-              </div>
-            </div><!-- // adinfo1 -->
-
-            <div class="adinfo2">
-              <!-- Swiper 컨테이너 -->
-              <div class="adbox1">
-                <div class="swiper-container">
-                  <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                      <img src="/resource/shop/web/img/ad_reco1.png" alt="광고 이미지 1">
-                    </div>
-                    <div class="swiper-slide">
-                    <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(4시간)">
-                    </div>
-                  </div>
-                  <!-- 네비게이션 버튼 비활성화 -->
-                  <!-- <div class="swiper-button-next"></div> -->
-                  <!-- <div class="swiper-button-prev"></div> -->
-                  <!-- 페이지네이션 -->
-                  <div class="swiper-pagination"></div>
-                </div>
-              </div>
-
-              <!-- 폼 영역 -->
-              <div class="adbox3">
-                <div class="form-container">
-                  <!-- 공고 선택 기능 주석처리 (사용하지 않음) -->
-                  <!--
-                  <div class="form-group">
-                    <label class="form-label">공고 선택</label>
-                    <select id="ad_resume2" onchange="fAddrSet(this.value,'ad_addr2');">
-                      <?php
-                      echo "<option value=\"\"></option>";
-                      foreach ($recruit_list as $resume) {
-                        echo "<option value=\"" . $resume['rc_idx'] . "\">" . $resume['rc_name'] . "</option>";
-                      }
-                      ?>
-                    </select>
-                  </div>
-                  -->
-                  <!-- 포인트 정보 테이블 -->
-                  <div class="table-container">
-                    <table class="adinfo_tab">
-                      <thead>
-                        <tr>
-                          <th>광고기간</th>
-                          <th>추가혜택</th>
-                          <th>차감포인트</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><span>5일</span></td>
-                          <td><span>+1일</span></td>
-                          <td class="adusepoint">-5,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>10일</span></td>
-                          <td><span>+3일</span></td>
-                          <td class="adusepoint">-10,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>20일</span></td>
-                          <td><span>+7일</span></td>
-                          <td class="adusepoint">-20,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>30일</span></td>
-                          <td><span>+10일</span></td>
-                          <td class="adusepoint">-30,000P</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">광고지역</label>
-                    <div class="input-group">
-                      <input id="ad_addr2" name="ad_addr2" onclick="$('#changeArea').addClass('on');">
-                      <button type="button" id="btnTopSearch2" class="btn-search" onclick="$('#changeArea').addClass('on');">
-                        <span class="sr-text">검색</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">광고시작일</label>
-                    <div class="datetime-group">
-                      <input id="ad_startdate2" name="ad_startdate2" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration2();">
-                      <span class="unit">일</span>
-                      <select id="ad_starthour2" name="ad_starthour2">
-                        <?php
-                        for ($h = 0; $h <= 23; $h++) {
-                          echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
-                        }
-                        ?>
-                      </select>
-                      <span class="unit">시</span>
-                      <input id="ad_startmin2" name="ad_startmin2" value="0">
-                      <span class="unit">분</span>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">광고기간</label>
-                    <div class="duration-group">
-                      <select id="ad_duration2" name="ad_duration2" onchange="fMakeDuration2();">
-                        <option value="5">5일</option>
-                        <option value="10">10일</option>
-                        <option value="20">20일</option>
-                        <option value="30">30일</option>
-                      </select>
-                      <span class="plus-day">+1일</span>
-                      <span id="ad_duration_txt2"></span>
-                    </div>
-                  </div>
-                </div>
-
-
-                <div class="point-info-container">
-                  <!-- 포인트 정보 박스 -->
-                  <div class="point-info">
-                    <div class="total-point"><span>결제포인트</span><span id="usepoint2">0</span></div>
-                  </div>
-                  <!-- 버튼 컨테이너 -->
-                  <div class="button-container">
-                    <a href="/mypage/point_charge_step1">충전하기</a>
-                    <!-- 점프업(4시간) 구매 팝업 -->
-                    <a href="#promo2" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- // adinfo2 -->
-
-            <!-- adinfo3 - 점프업(8시간) -->
-            <div class="adinfo3">
-              <div class="adbox1">
-                <div class="image-container">
-                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(8시간)">
-                </div>
-              </div>
-              <div class="adbox3">
-                <div class="form-container">
-                  <div class="form-group">
-                    <label class="form-label">공고 선택</label>
-                    <select id="ad_resume3" onchange="fAddrSet(this.value,'ad_addr3');">
-                      <?php
-                      echo "<option value=\"\"></option>";
-                      foreach ($recruit_list as $resume) {
-                        echo "<option value=\"" . $resume['rc_idx'] . "\">" . $resume['rc_name'] . "</option>";
-                      }
-                      ?>
-                    </select>
-                  </div>
-                  <!-- 포인트 정보 테이블 -->
-                  <div class="table-container">
-                    <table class="adinfo_tab">
-                      <thead>
-                        <tr>
-                          <th>광고기간</th>
-                          <th>추가혜택</th>
-                          <th>차감포인트</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><span>5일</span></td>
-                          <td><span>+1일</span></td>
-                          <td class="adusepoint">-10,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>10일</span></td>
-                          <td><span>+3일</span></td>
-                          <td class="adusepoint">-20,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>20일</span></td>
-                          <td><span>+7일</span></td>
-                          <td class="adusepoint">-40,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>30일</span></td>
-                          <td><span>+10일</span></td>
-                          <td class="adusepoint">-60,000P</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">광고지역</label>
-                    <div class="input-group">
-                      <input id="ad_addr3" name="ad_addr3" onclick="$('#changeArea').addClass('on');">
-                      <button type="button" id="btnTopSearch3" class="btn-search" onclick="$('#changeArea').addClass('on');">
-                        <span class="sr-text">검색</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">광고시작일</label>
-                    <div class="datetime-group">
-                      <input id="ad_startdate3" name="ad_startdate3" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration3();">
-                      <span class="unit">일</span>
-                      <select id="ad_starthour3" name="ad_starthour3">
-                        <?php
-                        for ($h = 0; $h <= 23; $h++) {
-                          echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
-                        }
-                        ?>
-                      </select>
-                      <span class="unit">시</span>
-                      <input id="ad_startmin3" name="ad_startmin3" value="0">
-                      <span class="unit">분</span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">광고기간</label>
-                    <div class="duration-group">
-                      <select id="ad_duration3" name="ad_duration3" onchange="fMakeDuration3();">
-                        <option value="5">5일</option>
-                        <option value="10">10일</option>
-                        <option value="20">20일</option>
-                        <option value="30">30일</option>
-                      </select>
-                      <span class="plus-day">+1일</span>
-                      <span id="ad_duration_txt3"></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="point-info-container">
-                  <!-- 포인트 정보 박스 -->
-                  <div class="point-info">
-
-                    <div class="total-point"><span>결제포인트</span><span id="usepoint3">0</span></div>
-                  </div>
-                  <!-- 버튼 컨테이너 -->
-                  <div class="button-container">
-                    <a href="/mypage/point_charge_step1">충전하기</a>
-                    <!-- 점프업(8시간) 구매 팝업 -->
-                    <a href="#promo3" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
-                  </div>
-                </div>
-              </div>
-            </div><!-- // adinfo3 -->
-
-            <!-- adinfo4 - 지금뜨는 업체 -->
-            <div class="adinfo4">
-              <div class="adbox1">
-                <div class="image-container">
-                <img src="/resource/shop/web/img/ad_img_comp1.png" alt="지금뜨는 업체">
-                </div>
-              </div>
-              <div class="adbox3">
-                <div class="form-container">
-                  <div class="form-group">
-                    <label class="form-label">공고 선택</label>
                     <select id="ad_resume4" onchange="fAddrSet(this.value,'ad_addr4');">
                       <?php
                       echo "<option value=\"\"></option>";
@@ -1506,10 +1153,368 @@
                   <!-- 버튼 컨테이너 -->
                   <div class="button-container">
                     <a href="/mypage/point_charge_step1">충전하기</a>
+                    <!-- 추천공고등록 구매 팝업 -->
+                    <a href="#promo1" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
+                  </div>
+                </div>
+              </div>
+            </div><!-- // adinfo1 -->
+
+            <div class="adinfo2">
+              <!-- Swiper 컨테이너 -->
+              <div class="adbox1">
+                <div class="swiper-container">
+                  <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                      <img src="/resource/shop/web/img/ad_reco1.png" alt="광고 이미지 1">
+                    </div>
+                    <div class="swiper-slide">
+                    <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(4시간)">
+                    </div>
+                  </div>
+                  <!-- 네비게이션 버튼 비활성화 -->
+                  <!-- <div class="swiper-button-next"></div> -->
+                  <!-- <div class="swiper-button-prev"></div> -->
+                  <!-- 페이지네이션 -->
+                  <div class="swiper-pagination"></div>
+                </div>
+              </div>
+
+              <!-- 폼 영역 -->
+              <div class="adbox3">
+                <div class="form-container">
+                  <div class="form-group">
+                    <label class="form-label">공고 선택</label>
+                    <select id="ad_resume2_temp" onchange="fAddrSet(this.value,'ad_addr3');">
+                      <?php
+                      echo "<option value=\"\"></option>";
+                      foreach ($recruit_list as $resume) {
+                        echo "<option value=\"" . $resume['rc_idx'] . "\">" . $resume['rc_name'] . "</option>";
+                      }
+                      ?>
+                    </select>
+                  </div>
+                  <!-- 포인트 정보 테이블 -->
+                  <div class="table-container">
+                    <table class="adinfo_tab">
+                      <thead>
+                        <tr>
+                          <th>광고기간</th>
+                          <th>추가혜택</th>
+                          <th>차감포인트</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span>5일</span></td>
+                          <td><span>+1일</span></td>
+                          <td class="adusepoint">-10,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>10일</span></td>
+                          <td><span>+3일</span></td>
+                          <td class="adusepoint">-20,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>20일</span></td>
+                          <td><span>+7일</span></td>
+                          <td class="adusepoint">-40,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>30일</span></td>
+                          <td><span>+10일</span></td>
+                          <td class="adusepoint">-60,000P</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">광고지역</label>
+                    <div class="input-group">
+                      <input id="ad_addr3" name="ad_addr3" onclick="$('#changeArea').addClass('on');">
+                      <button type="button" id="btnTopSearch3" class="btn-search" onclick="$('#changeArea').addClass('on');">
+                        <span class="sr-text">검색</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">광고시작일</label>
+                    <div class="datetime-group">
+                      <input id="ad_startdate3" name="ad_startdate3" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration3();">
+                      <span class="unit">일</span>
+                      <select id="ad_starthour3" name="ad_starthour3">
+                        <?php
+                        for ($h = 0; $h <= 23; $h++) {
+                          echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
+                        }
+                        ?>
+                      </select>
+                      <span class="unit">시</span>
+                      <input id="ad_startmin3" name="ad_startmin3" value="0">
+                      <span class="unit">분</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">광고기간</label>
+                    <div class="duration-group">
+                      <select id="ad_duration3" name="ad_duration3" onchange="fMakeDuration3();">
+                        <option value="5">5일</option>
+                        <option value="10">10일</option>
+                        <option value="20">20일</option>
+                        <option value="30">30일</option>
+                      </select>
+                      <span class="plus-day">+1일</span>
+                      <span id="ad_duration_txt3"></span>
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="point-info-container">
+                  <!-- 포인트 정보 박스 -->
+                  <div class="point-info">
+
+                    <div class="total-point"><span>결제포인트</span><span id="usepoint2">0</span></div>
+                  </div>
+                  <!-- 버튼 컨테이너 -->
+                  <div class="button-container">
+                    <a href="/mypage/point_charge_step1">충전하기</a>
+                    <!-- 점프업(4시간) 구매 팝업 -->
+                    <a href="#promo2" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- // adinfo2 -->
+
+            <!-- adinfo3 - 점프업(8시간) -->
+            <div class="adinfo3">
+              <div class="adbox1">
+                <div class="image-container">
+                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(8시간)">
+                </div>
+              </div>
+              <div class="adbox3">
+                <div class="form-container">
+                  <div class="form-group">
+                    <label class="form-label">공고 선택</label>
+                    <select id="ad_resume3" onchange="fAddrSet(this.value,'ad_addr2');">
+                      <?php
+                      echo "<option value=\"\"></option>";
+                      foreach ($recruit_list as $resume) {
+                        echo "<option value=\"" . $resume['rc_idx'] . "\">" . $resume['rc_name'] . "</option>";
+                      }
+                      ?>
+                    </select>
+                  </div>
+                  <!-- 포인트 정보 테이블 -->
+                  <div class="table-container">
+                    <table class="adinfo_tab">
+                      <thead>
+                        <tr>
+                          <th>광고기간</th>
+                          <th>추가혜택</th>
+                          <th>차감포인트</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span>5일</span></td>
+                          <td><span>+1일</span></td>
+                          <td class="adusepoint">-5,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>10일</span></td>
+                          <td><span>+3일</span></td>
+                          <td class="adusepoint">-10,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>20일</span></td>
+                          <td><span>+7일</span></td>
+                          <td class="adusepoint">-20,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>30일</span></td>
+                          <td><span>+10일</span></td>
+                          <td class="adusepoint">-30,000P</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">광고지역</label>
+                    <div class="input-group">
+                      <input id="ad_addr2" name="ad_addr2" onclick="$('#changeArea').addClass('on');">
+                      <button type="button" id="btnTopSearch2" class="btn-search" onclick="$('#changeArea').addClass('on');">
+                        <span class="sr-text">검색</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">광고시작일</label>
+                    <div class="datetime-group">
+                      <input id="ad_startdate2" name="ad_startdate2" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration2();">
+                      <span class="unit">일</span>
+                      <select id="ad_starthour2" name="ad_starthour2">
+                        <?php
+                        for ($h = 0; $h <= 23; $h++) {
+                          echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
+                        }
+                        ?>
+                      </select>
+                      <span class="unit">시</span>
+                      <input id="ad_startmin2" name="ad_startmin2" value="0">
+                      <span class="unit">분</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">광고기간</label>
+                    <div class="duration-group">
+                      <select id="ad_duration2" name="ad_duration2" onchange="fMakeDuration2();">
+                        <option value="5">5일</option>
+                        <option value="10">10일</option>
+                        <option value="20">20일</option>
+                        <option value="30">30일</option>
+                      </select>
+                      <span class="plus-day">+1일</span>
+                      <span id="ad_duration_txt2"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="point-info-container">
+                  <!-- 포인트 정보 박스 -->
+                  <div class="point-info">
+                    <div class="total-point"><span>결제포인트</span><span id="usepoint3">0</span></div>
+                  </div>
+                  <!-- 버튼 컨테이너 -->
+                  <div class="button-container">
+                    <a href="/mypage/point_charge_step1">충전하기</a>
+                    <!-- 점프업(8시간) 구매 팝업 -->
+                    <a href="#promo3" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
+                  </div>
+                </div>
+              </div>
+            </div><!-- // adinfo3 -->
+
+            <!-- adinfo4 - 지금뜨는 업체 -->
+            <div class="adinfo4">
+              <div class="adbox1">
+                <div class="image-container">
+                <img src="/resource/shop/web/img/ad_img_comp1.png" alt="지금뜨는 업체">
+                </div>
+              </div>
+              <div class="adbox3">
+                <div class="form-container">
+                  <!-- 공고 선택 기능 주석처리 (사용하지 않음) -->
+                  <!--
+                  <div class="form-group">
+                    <label class="form-label">공고 선택</label>
+                    <select id="ad_resume1" onchange="fAddrSet(this.value,'ad_addr1');">
+                      <?php
+                      echo "<option value=\"\"></option>";
+                      foreach ($recruit_list as $resume) {
+                        echo "<option value=\"" . $resume['rc_idx'] . "\">" . $resume['rc_name'] . "</option>";
+                      }
+                      ?>
+                    </select>
+                  </div>
+                  -->
+                  <!-- 포인트 정보 테이블 -->
+                  <div class="table-container">
+                    <table class="adinfo_tab">
+                      <thead>
+                        <tr>
+                          <th>광고기간</th>
+                          <th>추가혜택</th>
+                          <th>차감포인트</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span>5일</span></td>
+                          <td><span>+1일</span></td>
+                          <td class="adusepoint">-10,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>10일</span></td>
+                          <td><span>+3일</span></td>
+                          <td class="adusepoint">-20,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>20일</span></td>
+                          <td><span>+7일</span></td>
+                          <td class="adusepoint">-40,000P</td>
+                        </tr>
+                        <tr>
+                          <td><span>30일</span></td>
+                          <td><span>+10일</span></td>
+                          <td class="adusepoint">-60,000P</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- 광고지역 입력 필드 제거 (지금뜨는 업체는 지역선택 없음) -->
+                  <!--
+                  <div class="form-group">
+                    <label class="form-label">광고지역</label>
+                    <div class="input-group">
+                      <input id="ad_addr1" name="ad_addr1" onclick="$('#changeArea').addClass('on');">
+                      <button type="button" id="btnTopSearch1" class="btn-search" onclick="$('#changeArea').addClass('on');">
+                        <span class="sr-text">검색</span>
+                      </button>
+                    </div>
+                  </div>
+                  -->
+                  <div class="form-group">
+                    <label class="form-label">광고시작일</label>
+                    <div class="datetime-group">
+                      <input id="ad_startdate1" name="ad_startdate1" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration();">
+                      <span class="unit">일</span>
+                      <select id="ad_starthour1" name="ad_starthour1">
+                        <?php
+                        for ($h = 0; $h <= 23; $h++) {
+                          echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
+                        }
+                        ?>
+                      </select>
+                      <span class="unit">시</span>
+                      <input id="ad_startmin1" name="ad_startmin1" value="0">
+                      <span class="unit">분</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">광고기간</label>
+                    <div class="duration-group">
+                      <select id="ad_duration1" name="ad_duration1" onchange="fMakeDuration();">
+                        <option value="5">5일</option>
+                        <option value="10">10일</option>
+                        <option value="20">20일</option>
+                        <option value="30">30일</option>
+                      </select>
+                      <span class="plus-day">+1일</span>
+                      <span id="ad_duration_txt1"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="point-info-container">
+                  <!-- 포인트 정보 박스 -->
+                  <div class="point-info">
+
+                    <div class="total-point"><span>결제포인트</span><span id="usepoint1">0</span></div>
+                  </div>
+                  <!-- 버튼 컨테이너 -->
+                  <div class="button-container">
+                    <a href="/mypage/point_charge_step1">충전하기</a>
                     <!-- 지금뜨는 업체 구매 팝업 -->
                     <a href="#promo4" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
                   </div>
                 </div>
+
+                
               </div>
             </div><!-- // adinfo4 -->
 
@@ -1643,28 +1648,28 @@
       var params = {};
       params["pm_code"] = code;
       if (code == "C001") {
-        params["pm_sdate"] = sdate + ' ' + formattedHour + ':' + formattedMinute;
-        params["rc_idx"] = $('#ad_resume1').val();
-        params["pm_duration"] = $('#ad_duration1 option:selected').val();
-        params["pm_addr"] = addr;
+        params["pm_sdate"] = sdate4 + ' ' + formattedHour4 + ':' + formattedMinute4;
+        params["rc_idx"] = $('#ad_resume4').val();
+        params["pm_duration"] = $('#ad_duration4 option:selected').val();
+        params["pm_addr"] = addr4;
       }
       if (code == "C002") {
-        params["pm_sdate"] = sdate2 + ' ' + formattedHour2 + ':' + formattedMinute2;
-        params["rc_idx"] = ""; // 공고 선택 기능을 사용하지 않으므로 빈 문자열
-        params["pm_duration"] = $('#ad_duration2 option:selected').val();
-        params["pm_addr"] = addr2;
-      }
-      if (code == "C003") {
         params["pm_sdate"] = sdate3 + ' ' + formattedHour3 + ':' + formattedMinute3;
-        params["rc_idx"] = $('#ad_resume3').val();
+        params["rc_idx"] = ""; // 공고 선택 기능을 사용하지 않으므로 빈 문자열
         params["pm_duration"] = $('#ad_duration3 option:selected').val();
         params["pm_addr"] = addr3;
       }
+      if (code == "C003") {
+        params["pm_sdate"] = sdate2 + ' ' + formattedHour2 + ':' + formattedMinute2;
+        params["rc_idx"] = $('#ad_resume3').val();
+        params["pm_duration"] = $('#ad_duration2 option:selected').val();
+        params["pm_addr"] = addr2;
+      }
       if (code == "C004") {
-        params["pm_sdate"] = sdate4 + ' ' + formattedHour4 + ':' + formattedMinute4;
+        params["pm_sdate"] = sdate + ' ' + formattedHour + ':' + formattedMinute;
         params["rc_idx"] = "";
-        params["pm_duration"] = $('#ad_duration4 option:selected').val();
-        params["pm_addr"] = addr4;
+        params["pm_duration"] = $('#ad_duration1 option:selected').val();
+        params["pm_addr"] = addr;
       }
 
       comAjax("/compage_proc/point_promotion", params, function(ret) {
@@ -1732,6 +1737,9 @@
       $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
     }
 
+    // 날짜 선택용 js-datepicker 클래스 인풋에 flatpickr 달력 위젯을 초기화하고,
+    // 달력 스타일 및 옵션(한국어, 포맷, 오늘 이후만 선택 등)을 세팅한 뒤,
+    // 달력이 준비될 때 광고기간 계산 함수(fMakeDuration 등)를 호출해 해당 인풋과 연동되는 광고기간 등의 값을 자동 갱신해줍니다.
     function initDatepicker() {
       if (typeof flatpickr == 'undefined') return false;
 
@@ -1799,95 +1807,117 @@
           console.log(content);
 
           var adNo = id.replace('#promo', '');
-          content = content.replace('<span id="ad_area_pop' + adNo + '"></span>', ' <span id="ad_area_pop' + adNo + '">' + $('#ad_addr' + adNo).val() + '</span>');
+          // adNo에 따라 실제 사용하는 요소 번호 결정 (adbox3 교체로 인한 매핑)
+          var actualNo = adNo;
+          var actualAddrNo = adNo; // 광고지역용 요소 번호
+          var actualDateTimeNo = adNo; // 시간/분/기간용 요소 번호
+          if (adNo == '1') {
+            actualNo = '4'; // 추천공고등록은 4번 요소 사용
+            actualAddrNo = '4';
+            actualDateTimeNo = '4';
+          } else if (adNo == '2') {
+            actualNo = '3'; // 점프업(4시간)은 3번 요소 사용
+            actualAddrNo = '3';
+            actualDateTimeNo = '3';
+          } else if (adNo == '3') {
+            actualNo = '3'; // 점프업(8시간)은 공고선택만 3번 요소 사용
+            actualAddrNo = '2'; // 점프업(8시간)은 광고지역은 2번 요소 사용
+            actualDateTimeNo = '2'; // 점프업(8시간)은 시간/분/기간은 2번 요소 사용
+          } else if (adNo == '4') {
+            actualNo = '1'; // 지금뜨는 업체는 1번 요소 사용
+            actualAddrNo = '1';
+            actualDateTimeNo = '1';
+          }
+          content = content.replace('<span id="ad_area_pop' + adNo + '"></span>', ' <span id="ad_area_pop' + adNo + '">' + $('#ad_addr' + actualAddrNo).val() + '</span>');
 
           var point = 0;
           var pointTxt = 0;
           if (adNo == '1') {
-            if ($('#ad_duration1 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
+            if ($('#ad_duration4 option:selected').val() == '2') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
               point = 4000;
               pointTxt = '4,000';
-            } else if ($('#ad_duration1 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">5일 결제(+1일)</span>' + '</span>');
+            } else if ($('#ad_duration4 option:selected').val() == '5') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">5일 결제(+1일)</span>' + '</span>');
               point = 30000;
               pointTxt = '30,000';
-            } else if ($('#ad_duration1 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">10일 결제(+3일)</span>' + '</span>');
+            } else if ($('#ad_duration4 option:selected').val() == '10') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">10일 결제(+3일)</span>' + '</span>');
               point = 60000;
               pointTxt = '60,000';
-            } else if ($('#ad_duration1 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">20일 결제(+7일)</span>' + '</span>');
+            } else if ($('#ad_duration4 option:selected').val() == '20') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">20일 결제(+7일)</span>' + '</span>');
               point = 120000;
               pointTxt = '120,000';
-            } else if ($('#ad_duration1 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">30일 결제(+10일)</span>' + '</span>');
+            } else if ($('#ad_duration4 option:selected').val() == '30') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">30일 결제(+10일)</span>' + '</span>');
               point = 180000;
               pointTxt = '180,000';
             }
           } else if (adNo == '2') {
-            if ($('#ad_duration2 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
+            // 점프업 4시간은 3번 요소 사용
+            if ($('#ad_duration3 option:selected').val() == '2') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
               point = 1000;
               pointTxt = '1,000';
-            } else if ($('#ad_duration2 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
+            } else if ($('#ad_duration3 option:selected').val() == '5') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
               point = 10000;
               pointTxt = '10,000';
-            } else if ($('#ad_duration2 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
+            } else if ($('#ad_duration3 option:selected').val() == '10') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
               point = 20000;
               pointTxt = '20,000';
-            } else if ($('#ad_duration2 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
+            } else if ($('#ad_duration3 option:selected').val() == '20') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
               point = 40000;
               pointTxt = '40,000';
-            } else if ($('#ad_duration2 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
+            } else if ($('#ad_duration3 option:selected').val() == '30') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
               point = 60000;
               pointTxt = '60,000';
             }
           } else if (adNo == '3') {
-            if ($('#ad_duration3 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
+            if ($('#ad_duration2 option:selected').val() == '2') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
               point = 800;
               pointTxt = '800';
-            } else if ($('#ad_duration3 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
+            } else if ($('#ad_duration2 option:selected').val() == '5') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
               point = 5000;
               pointTxt = '5,000';
-            } else if ($('#ad_duration3 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
+            } else if ($('#ad_duration2 option:selected').val() == '10') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
               point = 10000;
               pointTxt = '10,000';
-            } else if ($('#ad_duration3 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
+            } else if ($('#ad_duration2 option:selected').val() == '20') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
               point = 20000;
               pointTxt = '20,000';
-            } else if ($('#ad_duration3 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
+            } else if ($('#ad_duration2 option:selected').val() == '30') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
               point = 30000;
               pointTxt = '30,000';
             }
           } else if (adNo == '4') {
-            if ($('#ad_duration4 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
+            if ($('#ad_duration1 option:selected').val() == '2') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
               point = 1000;
               pointTxt = '1000';
-            } else if ($('#ad_duration4 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
+            } else if ($('#ad_duration1 option:selected').val() == '5') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
               point = 10000;
               pointTxt = '10,000';
-            } else if ($('#ad_duration4 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
+            } else if ($('#ad_duration1 option:selected').val() == '10') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
               point = 20000;
               pointTxt = '20,000';
-            } else if ($('#ad_duration4 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
+            } else if ($('#ad_duration1 option:selected').val() == '20') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
               point = 40000;
               pointTxt = '40,000';
-            } else if ($('#ad_duration4 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
+            } else if ($('#ad_duration1 option:selected').val() == '30') {
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
               point = 60000;
               pointTxt = '60,000';
             }
@@ -1895,13 +1925,16 @@
           content = content.replace('<span id="ad_point_pop' + adNo + '"></span>', ' <span id="ad_point_pop' + adNo + '">' + pointTxt + 'P</span>');
 
           // adNo가 '2'인 경우(점프업 4시간)는 공고 선택 기능을 사용하지 않으므로 체크 건너뛰기
-          if (adNo !== '2') {
-            if ($('#ad_resume' + adNo + '').val() == '') {
+          // adNo가 '4'인 경우(지금뜨는 업체)도 공고 선택 기능이 주석처리되어 있으므로 체크 건너뛰기
+          if (adNo !== '2' && adNo !== '4') {
+            // adNo가 '3'인 경우(점프업 8시간)는 adinfo3 내부의 ad_resume3만 선택
+            var resumeSelector = adNo == '3' ? '.adinfo3 #ad_resume3' : '#ad_resume' + actualNo;
+            if ($(resumeSelector).val() == '' || $(resumeSelector).val() == null) {
               commonAlert("광고하실 채용공고를 선택하세요", function() {});
               return;
             }
 
-            var addrIdx = $('#ad_resume' + adNo).val();
+            var addrIdx = $(resumeSelector).val();
             const matchingPromotionBuyItem = promotionBuyArray.find(item => item.idx === parseInt(addrIdx));
             var rtnPromotionBuyItem = matchingPromotionBuyItem ? true : false;
             if (rtnPromotionBuyItem) {
@@ -1910,17 +1943,17 @@
             }
           }
 
-          // 점프업(4시간, adNo=2)과 지금뜨는 업체(adNo=4)는 광고지역 입력이 없음
-          // 점프업(8시간, adNo=3)은 광고지역 선택이 필요함
-          if (adNo !== '2' && adNo !== '4') {
-            if ($('#ad_addr' + adNo + '').val() == '') {
+          // 지금뜨는 업체(adNo=4)만 광고지역 입력이 없음
+          // 점프업(4시간, adNo=2)과 점프업(8시간, adNo=3)은 광고지역 선택이 필요함
+          if (adNo !== '4') {
+            if ($('#ad_addr' + actualAddrNo + '').val() == '') {
               commonAlert("광고하실 지역을 선택하세요", function() {});
               return;
             }
           }
 
-          var hour = document.getElementById('ad_starthour' + adNo + '').value;
-          var minute = document.getElementById('ad_startmin' + adNo + '').value;
+          var hour = document.getElementById('ad_starthour' + actualDateTimeNo + '').value;
+          var minute = document.getElementById('ad_startmin' + actualDateTimeNo + '').value;
 
           // 두 자리 숫자 형식으로 변환
           var formattedHour = padNumber(hour);
@@ -1988,19 +2021,19 @@
 
     if (duration == 2) {
       duration += 1;
-      $('#usepoint1').html('-4,000p');
+      $('#usepoint1').html('-1,000p');
     } else if (duration == 5) {
       duration += 1;
-      $('#usepoint1').html('-30,000p');
+      $('#usepoint1').html('-10,000p');
     } else if (duration == 10) {
       duration += 3;
-      $('#usepoint1').html('-60,000p');
+      $('#usepoint1').html('-20,000p');
     } else if (duration == 20) {
       duration += 7;
-      $('#usepoint1').html('-120,000p');
+      $('#usepoint1').html('-40,000p');
     } else if (duration == 30) {
       duration += 10;
-      $('#usepoint1').html('-180,000p');
+      $('#usepoint1').html('-60,000p');
     }
 
     // 날짜 형식으로 변환
@@ -2024,6 +2057,46 @@
     // 기간(일 수) 가져오기
     var duration = parseInt(document.getElementById('ad_duration2').value);
 
+    // 점프업 8시간용 포인트 업데이트 (usepoint3 사용)
+    if (duration == 2) {
+      duration += 1;
+      $('#usepoint3').html('-1,000p');
+    } else if (duration == 5) {
+      duration += 1;
+      $('#usepoint3').html('-5,000p');
+    } else if (duration == 10) {
+      duration += 3;
+      $('#usepoint3').html('-10,000p');
+    } else if (duration == 20) {
+      duration += 7;
+      $('#usepoint3').html('-20,000p');
+    } else if (duration == 30) {
+      duration += 10;
+      $('#usepoint3').html('-30,000p');
+    }
+
+    // 날짜 형식으로 변환
+    var date = new Date(startDate);
+    // 선택된 일 수 만큼 날짜에 추가
+    date.setDate(date.getDate() + (duration - 1));
+
+    // 결과 날짜를 YYYY-MM-DD 형식으로 변환
+    var endDate = date.toISOString().split('T')[0];
+
+    // 결과 문자열 만들기
+    var result = startDate + " 부터 " + endDate + " 까지";
+
+    // 결과를 ad_duration_txt 요소에 설정
+    document.getElementById('ad_duration_txt2').innerHTML = result;
+  }
+
+  function fMakeDuration3() {
+    // 시작 날짜 가져오기
+    var startDate = document.getElementById('ad_startdate3').value;
+    // 기간(일 수) 가져오기
+    var duration = parseInt(document.getElementById('ad_duration3').value);
+
+    // 점프업 4시간용 포인트 업데이트 (usepoint2 사용)
     if (duration == 2) {
       duration += 1;
       $('#usepoint2').html('-1,000p');
@@ -2053,44 +2126,6 @@
     var result = startDate + " 부터 " + endDate + " 까지";
 
     // 결과를 ad_duration_txt 요소에 설정
-    document.getElementById('ad_duration_txt2').innerHTML = result;
-  }
-
-  function fMakeDuration3() {
-    // 시작 날짜 가져오기
-    var startDate = document.getElementById('ad_startdate3').value;
-    // 기간(일 수) 가져오기
-    var duration = parseInt(document.getElementById('ad_duration3').value);
-
-    if (duration == 2) {
-      duration += 1;
-      $('#usepoint3').html('-800p');
-    } else if (duration == 5) {
-      duration += 1;
-      $('#usepoint3').html('-5,000p');
-    } else if (duration == 10) {
-      duration += 3;
-      $('#usepoint3').html('-10,000p');
-    } else if (duration == 20) {
-      duration += 7;
-      $('#usepoint3').html('-20,000p');
-    } else if (duration == 30) {
-      duration += 10;
-      $('#usepoint3').html('-30,000p');
-    }
-
-    // 날짜 형식으로 변환
-    var date = new Date(startDate);
-    // 선택된 일 수 만큼 날짜에 추가
-    date.setDate(date.getDate() + (duration - 1));
-
-    // 결과 날짜를 YYYY-MM-DD 형식으로 변환
-    var endDate = date.toISOString().split('T')[0];
-
-    // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
-
-    // 결과를 ad_duration_txt 요소에 설정
     document.getElementById('ad_duration_txt3').innerHTML = result;
   }
 
@@ -2105,16 +2140,16 @@
       $('#usepoint4').html('-1,000p');
     } else if (duration == 5) {
       duration += 1;
-      $('#usepoint4').html('-10,000p');
+      $('#usepoint4').html('-30,000p');
     } else if (duration == 10) {
       duration += 3;
-      $('#usepoint4').html('-20,000p');
+      $('#usepoint4').html('-60,000p');
     } else if (duration == 20) {
       duration += 7;
-      $('#usepoint4').html('-40,000p');
+      $('#usepoint4').html('-120,000p');
     } else if (duration == 30) {
       duration += 10;
-      $('#usepoint4').html('-60,000p');
+      $('#usepoint4').html('-180,000p');
     }
 
     // 날짜 형식으로 변환

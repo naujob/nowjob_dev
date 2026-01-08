@@ -1200,10 +1200,16 @@ function getConvertResumePriceType($price_type) {
 
 
       }else if(ret.code=="01"){
-          commonAlert("<em>다음날</em> 다시 제안이 가능합니다.",function(){});
+          commonAlert("<em>5분 후</em> 다시 제안이 가능합니다.",function(){
+            // 알림 후 패널 닫기
+            $("#selectPanel").removeClass("on");
+          });
           return;
       }else{
-          commonAlert(ret.msg,function(){});
+          commonAlert(ret.msg,function(){
+            // 알림 후 패널 닫기
+            $("#selectPanel").removeClass("on");
+          });
           return;
       }
 

@@ -78,8 +78,8 @@
         width: 65.942vw;
         margin: auto;
         z-index: 1;
-        -webkit-animation: logo-ani 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) 1s both;
-        animation: logo-ani 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) 1.1s both;
+        -webkit-animation: logo-ani 0.6s cubic-bezier(0.550, 0.085, 0.680, 0.530) 0.2s both;
+        animation: logo-ani 0.6s cubic-bezier(0.550, 0.085, 0.680, 0.530) 0.2s both;
     }
 
     .logo img {
@@ -201,7 +201,7 @@
             // UUID가 없는 경우 기존 로직대로 팝업 표시
             setTimeout(function() {
                 pop_alarm();
-            }, 2700);
+            }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
         } else if (step == "login") {
             setTimeout(function() {
                 //alert(checkMobile());
@@ -211,7 +211,7 @@
                 } else {
                     location.replace("/member/login");
                 }
-            }, 3200);
+            }, 1500); // 3200ms -> 1500ms로 단축하여 더 빠르게 이동
         } else {
             setTimeout(function() {
                 if (checkMobile() == "android") {
@@ -220,7 +220,7 @@
                 } else {
                     location.replace("/home/index");
                 }
-            }, 3200);
+            }, 1500); // 3200ms -> 1500ms로 단축하여 더 빠르게 이동
         }
     }
 
@@ -401,18 +401,18 @@
                         } else {
                             location.replace("/member/login");
                         }
-                    }, 2700);
+                    }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
                 } else {
                     // 동의 정보가 없는 경우 팝업 표시
                     setTimeout(function() {
                         pop_alarm();
-                    }, 2700);
+                    }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
                 }
             } else {
                 // API 호출 실패 시 기존 로직대로 팝업 표시
                 setTimeout(function() {
                     pop_alarm();
-                }, 2700);
+                }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
             }
         });
     }
@@ -432,6 +432,7 @@
     }
 
     // getLocation() 호출 후 위치 권한 처리 콜백 함수
+   
     function returnLocation(lat, lng) {
         // 위치 팝업이 완료되었고, 권한 팝업도 이미 표시되었다면 바로 페이지 이동
         // (권한 팝업이 먼저 뜨고 위치 팝업이 나중에 뜨는 경우)

@@ -518,6 +518,7 @@
         // 웹에서 실행
         $(document).ready(function() {
             getChatTargetList(2);
+            
             initRealTimeTabBadgeUpdate();
         });
 
@@ -527,11 +528,10 @@
         });
     <?php endif; ?>
 
-    // 제안보낸 인재 목록 조회 함수 (기업회원 전용)
+    // 제안한 인재탭의 전체 공고 목록 조회 함수 (템플릿: #tpl_chat (공고 목록 템플릿))
     function getChatTargetList(arg) {
-        // 제안보낸 인재 탭 전용 API 엔드포인트
+        // 제안한 인재탭의 전체 공고 목록 조회 API 엔드포인트
         var getUrl = "get_chat_target_list_recruit2";
-
         comAjax("/chat_proc/" + getUrl, {}, function(ret) {
             $("#chat_list").html("");
 
@@ -724,17 +724,22 @@
                             //console.error("채팅방을 찾을 수 없음 - rc_idx:", autoOpenRcIdx, "ru_idx:", autoOpenRuIdx);
                             // ru_idx와 rc_idx 모두 일치하는 채팅방 찾기 (마지막 시도)
                             var $matchedChatItem = null;
+                            // $("#chat_list .room-item")가 가리키는 태그는?
+                            // <li class="list-item ... room-item ..."> 인 li 태그임 (채팅방/공고 항목 리스트의 각 아이템)
                             $("#chat_list .room-item").each(function() {
                                 var $item = $(this);
+                                // itemRcIdx: 각 채팅방 아이템(li)이 나타내는 공고(rc_idx) 값
                                 var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
                                               $item.find('a[data-rc_idx]').data('rc_idx') ||
                                               $item.data('rc_idx');
+                                // itemRuIdx는 각 채팅방(li)의 data-ru_idx 값 (즉, 인재의 ru_idx), 없으면 undefined
                                 var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
                                               $item.find('a[data-ru_idx]').data('ru_idx') ||
                                               $item.data('ru_idx');
-                                // autoOpenRuIdx가 있으면 rc_idx와 ru_idx 모두 일치해야 함
-                                // autoOpenRuIdx가 없으면 rc_idx만 확인 (기존 로직 유지)
+                               
+                                // itemRcIdx가 autoOpenRcIdx(자동으로 열고자 하는 공고의 rc_idx)와 같은지 확인
                                 if (itemRcIdx == autoOpenRcIdx) {
+                                    // autoOpenRuIdx가 전달된 경우: rc_idx와 ru_idx 모두 일치해야 함
                                     if (autoOpenRuIdx) {
                                         // ru_idx가 전달된 경우: rc_idx와 ru_idx 모두 일치해야 함
                                         if (itemRuIdx == autoOpenRuIdx) {
@@ -784,15 +789,19 @@
 
             // 공고별 room_idx_list 수집 (공고명 클릭 전에도 확인 가능)
             var tab2RoomIdxList = [];
+            // 제안한 인재탭의 공고 목록에 대한 room_idx_list 수집
+            // 이 채팅방이 제안한 인재 탭에 속하는가?를 빠르게 판별하기 위해 room_idx_list를 수집
             $('#chat_list .content-wrap').each(function() {
                 var roomIdxList = $(this).attr('data-room_idx_list');
                 if (roomIdxList) {
+                    // roomIdxArray는 data-room_idx_list 속성에서 ()을 제거하고 콤마(,)로 분리한 후, 각 값을 숫자로 변환한 채팅방(room_idx) ID 배열입니다.
                     var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',').map(function(idx) {
                         return Number(idx.trim());
                     }).filter(function(idx) {
                         return !isNaN(idx) && idx > 0;
                     });
                     roomIdxArray.forEach(function(rmIdx) {
+                        // tab2RoomIdxList 배열에 rmIdx가 없으면 추가
                         if (tab2RoomIdxList.indexOf(rmIdx) === -1) {
                             tab2RoomIdxList.push(rmIdx);
                         }
@@ -800,11 +809,25 @@
                 }
             });
 
-            // 모든 채팅방에 대한 미확인 메시지를 먼저 반영
+           
+            // result: 서버에서 반환된, 채팅방별 데이터 객체의 배열 또는 객체입니다.
+            // 각 room은 단일 채팅방의 정보, 해당 채팅방의 메시지, 읽음 여부 등을 포함합니다.
+            // 예시: [{
+            //   rm_idx: 101, // 채팅방(룸) ID
+            //   rm_messages: [
+            //      {
+            //          mg_idx: 205, // 메시지 ID
+            //          mg_reads: [{user_id: "abc", read_yn: "N"}, ...] // 메시지별 읽음 정보
+            //      }, ...
+            //   ]
+            // }]
             $.each(result, function(key, room) {
-                let count = 0;
+                let count = 0; // 현재 채팅방(room)의 미확인 메시지 개수
+                // room.rm_messages는 현재 채팅방(room)에 포함된 모든 메시지 배열입니다.
                 $.each(room.rm_messages, function(index, message) {
+                    // message.mg_reads는 현재 메시지(message)에 대한 읽음 처리 상태 배열입니다.
                     $.each(message.mg_reads, function(i, readEntry) {
+                        // readEntry.user_id === myId && readEntry.read_yn === 'N'는 현재 사용자(myId)가 메시지를 읽지 않은 상태인지 확인하는 조건입니다.
                         if (readEntry.user_id === myId && readEntry.read_yn === 'N') {
                             count++;
                         }
@@ -874,7 +897,7 @@
 
         });
     }
-
+    // fSetNoReadCntRecruit: 제안한 인재탭의 공고 목록에 대한 미확인 메시지 카운트 업데이트 함수
     function fSetNoReadCntRecruit(room_idx, cnt) {
 
         // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 처리
@@ -913,7 +936,8 @@
             return; // fShowChatListByRecruite 함수가 처리하도록 함
         }
 
-        var target_id = $(this).data("target_id");
+        // target_id는 채팅방의 고유 식별자인 room_idx(채팅방 인덱스)를 의미합니다.
+        var target_id = $(this).data("target_id"); // 즉, 해당 li.room-item의 data-target_id 속성값 = room_idx
         // 제안보낸 인재 탭에서 채팅방으로 이동 (from=talent_sent 파라미터 사용)
         location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_sent";
     });
@@ -1084,10 +1108,15 @@
         // 현재 클릭한 항목이 아닌 모든 resumebox_ 제거 및 닫기
         $('[class*="resumebox_"]').each(function() {
             var $resumebox = $(this);
+            // $resumebox.attr('class')는 현재 jQuery 객체 $resumebox가 가진 class attribute의 문자열 값을 가져온다. 즉, 해당 요소에 설정된 클래스 목록을 문자열로 반환한다.
             var classList = $resumebox.attr('class') || '';
+            // classList.match(/resumebox_(\d+)/)는 classList 문자열에서 resumebox_ 클래스가 있는지 확인하고, 그 뒤에 숫자가 있는지 확인한다.
             var match = classList.match(/resumebox_(\d+)/);
+            // match가 존재하고 match[1]이 rc_idx와 다른 경우
             if (match && match[1] != rc_idx) {
+                // match[1]은 현재 resumebox_ 클래스가 있는 요소의 클래스 목록 중에서 숫자만 추출한 값이다.
                 $resumebox.hide();
+                // 해당 항목의 요소를 제거하여 화면에서 숨김/삭제   
                 $resumebox.remove();
                 // 해당 항목의 angle-link에서 'on' 클래스 제거
                 $('.angle-link[onclick*="fShowChatListByRecruite(\'' + match[1] + '\'"]').removeClass('on');
@@ -1123,7 +1152,7 @@
         params["ru_idx"] = rc_idx; // 백엔드에서 ru_idx로 받지만 실제로는 rc_idx 값
         params["chatgbn"] = $(obj).parent().parent().parent().attr('id');
         params["chatgbn"] = 'chatPanel2';
-
+        //get_chat_target_list: 제안한 인재 목록 조회
         comAjax("/chat_proc/get_chat_target_list", params, function(ret) {
             if (ret.code == "00") {
                 var list = ret.data.list;
@@ -1329,7 +1358,7 @@
     // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
     window.DISABLE_SWIPE_BACK = true;
 </script>
-
+<!-- 제안한 인재탭의 공고 템플릿 -->
 <template id="tpl_chat">
     <li class="list-item room-item" data-target_id="{{rc_idx}}">
         <a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
@@ -1339,6 +1368,12 @@
                         <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
                     </div>
                 </div>
+                <!-- 
+                    data-room_idx_list="{{room_idx_list}}"의 의미:
+                    공고(rc_idx)별로 관련된 채팅방(room_idx)들의 리스트(콤마 분리 문자열 등)가 이 속성에 세팅됩니다.
+                    예: data-room_idx_list="101,102,103"이면, 해당 공고를 통해 오간 채팅방 room_idx가 101, 102, 103 총 3개 있음을 의미함.
+                    여러 명에게 제안했을 때 생기는 채팅방들의 room_idx 식별용 데이터입니다.
+                 -->
                 <div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
                     <div class="timestamp" style="font-size: 12px; color: #777;">{{mm_comp_name}}</div>
                     <div class="title-wrap">
@@ -1350,7 +1385,7 @@
         <span class="room_rec_unread_cnt"></span>
     </li>
 </template>
-
+<!-- 제안한 인재탭의 인재 템플릿 -->
 <template id="tpl_chat_by_recruite">
     <li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}">
         <a href="#" class="angle-link js-open-view angle-link-resume"

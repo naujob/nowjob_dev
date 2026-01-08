@@ -399,6 +399,7 @@
     window.NOWJOB_COMP_INFO = {
       isLogin: <?= $this->user->isLogin() ? 'true' : 'false' ?>,
       userType: '<?= $this->user->isLogin() ? $this->user->getUserType() : '' ?>',
+      // hasCompCert: true면 "기업회원이고 사업자등록번호가 입력/인증된 상태"를 의미합니다.
       hasCompCert: <?= ($this->user->isLogin() && $this->user->getUserType() == 'COMP' && !empty($current_user_info["mm_comp_num"])) ? 'true' : 'false' ?>
     };
   </script>
@@ -511,25 +512,24 @@
       document.cookie = name + "=" + (value || "") + expires + "; path=/";
     }
 
-    // Android 앱에서 FCM 토큰 업데이트 시 호출되는 함수 (현재 앱측에서 미구현)
+ 
     window.onFcmTokenUpdate = function(token) {
       console.log('📱 Android FCM 토큰 업데이트 - 토큰: ' + (token ? token.substring(0, 20) + '...' : '없음'));
 
-      // 서버에 토큰 업데이트 요청
+      
       if (token) {
-        // 기존 토큰과 비교하여 갱신 여부 결정
+      
         var existingToken = getCookie('fcm_token') || '';
         var isTokenChanged = (existingToken !== token);
 
         console.log('📱 토큰 변경 여부: ' + (isTokenChanged ? '변경됨' : '동일함'));
 
-        // 토큰이 변경되었거나 첫 등록인 경우에만 서버에 전송
+        
         if (isTokenChanged || existingToken === '') {
-          // 쿠키에 새 토큰 저장
-          setCookie('fcm_token', token, 30); // 30일 유효
+       
 
           $.ajax({
-            url: '/common_proc/refresh_token', // 갱신 API 사용
+            url: '/common_proc/refresh_token', 
             type: 'POST',
             data: {
               token: token,
@@ -742,6 +742,8 @@
 
 
   // 전역 변수: 스와이프 뒤로가기 비활성화 플래그 (기본값 false)
+  // 'true'는 스와이프 뒤로가기(화면을 왼쪽에서 오른쪽으로 밀어서 이전 페이지로 가는 동작)를 "비활성화"하라는 의미입니다.
+  // 이 플래그가 true면 iOS 등에서 스와이프 제스처로 뒤로가기가 동작하지 않도록 막습니다.
   window.DISABLE_SWIPE_BACK = window.DISABLE_SWIPE_BACK || false;
 
   // 특정 페이지에서 스와이프 뒤로가기 비활성화
@@ -782,10 +784,11 @@
   function isIOS() {
     return /iPhone|iPad|iPod/i.test(navigator.userAgent);
   }
-
+// JavaScript로 구현한 iOS 스와이프 뒤로가기 방지 로직
   if (isIOS()) {
     let isSwipeBackGesture = false; // 스와이프 뒤로가기 제스처 여부
 
+    // 사용자가 화면을 터치(손가락을 대기 시작)할 때 발생하는 이벤트입니다.
     document.addEventListener('touchstart', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;

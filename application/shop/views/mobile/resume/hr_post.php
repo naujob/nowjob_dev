@@ -111,6 +111,11 @@ function fRemoveBigAdr($arg)
                 <div class="container">
                     <div class="thumb-wrap">
                         <div class="thumb">
+                            <!--
+                                역할: 이 부분은 이력서의 프로필 사진(썸네일)을 출력하는 코드입니다.
+                                getResumeImg($info) 함수를 사용해 해당 인물의 프로필 이미지를 불러오며,
+                                만약 이미지가 없을 경우 onError 이벤트를 통해 기본 이미지를 대체하여 보여줍니다.
+                            -->
                             <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
                         </div>
                         <!-- 평점 -->
@@ -172,10 +177,14 @@ function fRemoveBigAdr($arg)
                     <?php } else { //comp 
                     ?>
                         <?php
-                        // SNS 로그인 여부 확인
+                        
+                        // 현재 로그인한 회원의 정보
                         $current_user_info = $this->user->getCurrentUserInfo();
                         $is_sns_login = !empty($current_user_info["mm_join_type"]) && in_array(strtoupper($current_user_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
                         // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
+                        // PASS로 인증한 회원의 DI 값은 'MC0'로 시작하므로, PASS 본인인증 여부를 확인하기 위해 mm_di가 'MC0'로 시작하는지 확인함.
+                        // 또는 SNS 로그인을 한 경우에도 인증된 것으로 간주함.
+                        // $is_authenticated 변수는 현재 사용자가 PASS 본인인증(PASS 인증시 mm_di가 'MC0'로 시작) 또는 카카오/애플/네이버 SNS 로그인($is_sns_login) 중 하나라도 만족하면 true가 됩니다. 즉, 인증된 회원인지를 나타냄.
                         $is_authenticated = ($current_user_info["mm_di"] != null && (strpos($current_user_info["mm_di"], "MC0") === 0 || $is_sns_login));
 
                         if ($current_user_info["mm_comp_num"] == "" || !$is_authenticated) { ?>
@@ -727,20 +736,33 @@ function fRemoveBigAdr($arg)
     });
 
     $(".btnProcess").click(function() {
-        if ($("[name='chk_request[]']:checked").length == 0) {
+        // 체크박스 선택 상태 확인
+        var $checkedBoxes = $("[name='chk_request[]']:checked");
+        if ($checkedBoxes.length == 0) {
             commonAlert("제안하실 공고를 선택해주세요.", function() {});
             return;
         }
 
-        var $checkedRadio = $("[name='chk_request[]']:checked").eq(0);
+        // 선택된 첫 번째 체크박스 가져오기
+        var $checkedRadio = $checkedBoxes.eq(0);
+        
+        // 체크박스 요소가 유효한지 확인
+        if ($checkedRadio.length == 0) {
+            commonAlert("제안하실 공고를 선택해주세요.", function() {});
+            return;
+        }
+        
         var rc_idx = $checkedRadio.val();
         var ru_title = $checkedRadio.data('rc_name');
 
         // rc_idx 유효성 검사 (더 엄격한 검증)
         // 빈 문자열, null, undefined, 0, "0" 모두 체크
         if (!rc_idx || rc_idx === "" || rc_idx === undefined || rc_idx === null || rc_idx === "0" || rc_idx === 0 || isNaN(parseInt(rc_idx))) {
-            console.error("채용공고 선택 오류 - rc_idx:", rc_idx);
-            commonAlert("채용공고를 올바르게 선택해주세요.", function() {});
+            console.error("채용공고 선택 오류 - rc_idx:", rc_idx, "checkedBoxes:", $checkedBoxes.length);
+            commonAlert("제안하실 공고를 다시 선택해주세요.", function() {
+                // 패널 닫기
+                $("#selectPanel").removeClass("on");
+            });
             return;
         }
         //오늘 제안여부 및 지원 여부 확인
@@ -787,14 +809,23 @@ function fRemoveBigAdr($arg)
                 });
                 $('.btn-close-popup').hide();
             } else if (ret.code == "01") {
-                commonAlert("<em>다음날</em> 다시 제안이 가능합니다.", function() {});
+                commonAlert("<em>5분 후</em> 다시 제안이 가능합니다.", function() {
+                    // 알림 후 패널 닫기
+                    $("#selectPanel").removeClass("on");
+                });
                 return;
             } else if (ret.code == "90") {
                 // 지원이 이미 있는 경우
-                commonAlert(ret.msg, function() {});
+                commonAlert(ret.msg, function() {
+                    // 알림 후 패널 닫기
+                    $("#selectPanel").removeClass("on");
+                });
                 return;
             } else {
-                commonAlert(ret.msg, function() {});
+                commonAlert(ret.msg, function() {
+                    // 알림 후 패널 닫기
+                    $("#selectPanel").removeClass("on");
+                });
                 return;
             }
         });

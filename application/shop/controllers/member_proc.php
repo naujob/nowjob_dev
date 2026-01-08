@@ -284,21 +284,24 @@ class Member_proc extends CI_Controller
             }
         }
 
-        // iOS일 때 쿠키의 UUID로 디바이스 연결 (헤더에 uuid가 없는 경우)
+        // iOS/Android일 때 쿠키의 UUID로 디바이스 연결 (헤더에 uuid가 없는 경우)
         $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
         $is_ios = preg_match('/nowjobswift|CFNetwork|Darwin/i', $user_agent) || preg_match('/\b(iPhone|iPad|iPod)\b/i', $user_agent);
+        $is_android = preg_match('/NowJobApp_Android|Android/i', $user_agent);
 
-        if ($is_ios && (!isset($headers["uuid"]) || empty($headers["uuid"]))) {
+        // 헤더에 UUID가 없고, iOS 또는 Android인 경우 쿠키의 UUID 사용
+        if (($is_ios || $is_android) && (!isset($headers["uuid"]) || empty($headers["uuid"]))) {
             $uuid_cookie = isset($_COOKIE['uuid']) ? $_COOKIE['uuid'] : '';
             
-            // 토큰이 있는 디바이스를 우선적으로 찾기 (푸시 알림을 위해 토큰이 있는 디바이스가 중요)
+            // OS 타입에 따라 토큰이 있는 디바이스를 우선적으로 찾기 (푸시 알림을 위해 토큰이 있는 디바이스가 중요)
+            $os_type_for_query = $is_ios ? 'ios' : 'android';
             $sql = "SELECT * FROM st_member_device 
                     WHERE token IS NOT NULL 
                     AND token != '' 
-                    AND os_type = 'ios'
+                    AND os_type = ?
                     ORDER BY reg_dt DESC 
                     LIMIT 1";
-            $query = $this->db->query($sql);
+            $query = $this->db->query($sql, [$os_type_for_query]);
             $token_device = $query->row_array();
             
             $target_uuid = null;
@@ -311,6 +314,20 @@ class Member_proc extends CI_Controller
                 $cookie_device = $this->member_model->getMemberDevice(["uuid" => $uuid_cookie]);
                 if ($cookie_device != null) {
                     $target_uuid = $uuid_cookie;
+                } else {
+                    // 쿠키의 UUID로 디바이스가 없으면 새로 생성 (안드로이드에서 디바이스 정보가 없는 경우 대비)
+                    $new_device_data = [
+                        "uuid" => $uuid_cookie,
+                        "mm_idx" => $mem_info["mm_idx"],
+                        "os_type" => $os_type_for_query,
+                        "push_yn" => "N",
+                        "reg_dt" => date('Y-m-d H:i:s'),
+                        "up_dt" => date('Y-m-d H:i:s')
+                    ];
+                    $insert_result = $this->member_model->insertMemberDevice($new_device_data);
+                    if ($insert_result) {
+                        $target_uuid = $uuid_cookie;
+                    }
                 }
             }
             

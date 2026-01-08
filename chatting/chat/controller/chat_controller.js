@@ -79,76 +79,13 @@ container.insertRoom = async function(data,callback){
 	}
 	*/
 
-	// 🔥 로깅: insertRoom 시작
-	const fs = require('fs');
-	try {
-		const logDir = '/website/nowapk/debug_log';
-		if (!fs.existsSync(logDir)) {
-			fs.mkdirSync(logDir, { recursive: true });
-		}
-		const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-		const logData = {
-			type: "insertRoom_start",
-			rm_idx: data.rm_idx,
-			rc_idx: data.rc_idx || 0,
-			rm_type: data.rm_type || "recruit",
-			user_list_count: data.user_list ? data.user_list.length : 0,
-			rm_users_count: data.rm_users ? data.rm_users.length : 0,
-			timestamp: new Date().toISOString()
-		};
-		const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-		fs.appendFileSync(logFile, logLine, 'utf8');
-	} catch (err) {
-		// 로깅 오류는 무시
-	}
-
 	var usersRoom = await $chat.getUsersRoom(
 		{ "rm_idx" : data.rm_idx}
 	);
 
 	$common.writeLog("room check :::: rm_idx" + '::' + data.rm_idx + '::usersRoom:' + usersRoom);
 
-	// 🔥 로깅: 기존 방 체크 결과
-	try {
-		const logDir = '/website/nowapk/debug_log';
-		if (!fs.existsSync(logDir)) {
-			fs.mkdirSync(logDir, { recursive: true });
-		}
-		const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-		const logData = {
-			type: "insertRoom_check_existing",
-			rm_idx: data.rm_idx,
-			existing_room: usersRoom ? 'Y' : 'N',
-			existing_room_rm_idx: usersRoom ? usersRoom.rm_idx : null,
-			timestamp: new Date().toISOString()
-		};
-		const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-		fs.appendFileSync(logFile, logLine, 'utf8');
-	} catch (err) {
-		// 로깅 오류는 무시
-	}
-
 	if(usersRoom!=null){
-		// 🔥 로깅: 중복 방 생성 시도 차단
-		try {
-			const logDir = '/website/nowapk/debug_log';
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true });
-			}
-			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-			const logData = {
-				type: "insertRoom_duplicate_blocked",
-				rm_idx: data.rm_idx,
-				existing_room_rm_idx: usersRoom.rm_idx,
-				reason: "이미 존재하는 방 (중복 생성 차단)",
-				timestamp: new Date().toISOString()
-			};
-			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-			fs.appendFileSync(logFile, logLine, 'utf8');
-		} catch (err) {
-			// 로깅 오류는 무시
-		}
-
 		callback($common.jsonReturn("00","이미 존재하는 채널방이 있습니다.",usersRoom.rm_idx));
 		return;
 	}
@@ -156,25 +93,6 @@ container.insertRoom = async function(data,callback){
 	$common.writeLog('chat_controller:: insertRoom 호출 전 - data.user_list 존재:' + (data.user_list ? 'Y' : 'N') + ', data.user_list 개수:' + (data.user_list ? data.user_list.length : 0) + ', data.rm_users 존재:' + (data.rm_users ? 'Y' : 'N'));
 
 	$chat.insertRoom(data,async function(room_idx){
-		// 🔥 로깅: 방 생성 완료
-		try {
-			const logDir = '/website/nowapk/debug_log';
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true });
-			}
-			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-			const logData = {
-				type: "insertRoom_completed",
-				rm_idx: data.rm_idx,
-				room_idx: room_idx,
-				timestamp: new Date().toISOString()
-			};
-			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-			fs.appendFileSync(logFile, logLine, 'utf8');
-		} catch (err) {
-			// 로깅 오류는 무시
-		}
-
 		$common.writeLog('chat_controller:: insertRoom 완료 - room_idx:' + room_idx);
 		callback($common.jsonReturn("00","등록성공",room_idx));
 		return;
@@ -193,74 +111,18 @@ container.findExistingRoomByMySQL = async function(data, callback){
 		const $mysql = require("../database/mysql.js");
 		const $db = require("../database/database.js");
 		
-		// 🔥 로깅: MySQL 조회 시작
-		const fs = require('fs');
-		try {
-			const logDir = '/website/nowapk/debug_log';
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true });
-			}
-			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-			const logData = {
-				type: "findExistingRoomByMySQL_start",
-				rm_idx: data.rm_idx,
-				con_user_id: data.con_user_id,
-				timestamp: new Date().toISOString()
-			};
-			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-			fs.appendFileSync(logFile, logLine, 'utf8');
-		} catch (err) {
-			// 로깅 오류는 무시
-		}
-
 		// MySQL에서 rm_idx로 rc_idx, ru_idx 조회
 		return new Promise((resolve, reject) => {
 			const sql = "SELECT rm_idx, rc_idx, ru_idx FROM st_room WHERE rm_idx = ?";
 			$mysql.db_conn.query(sql, [data.rm_idx], async function(err, results) {
 				if (err) {
-					// 🔥 로깅: MySQL 조회 오류
-					try {
-						const logDir = '/website/nowapk/debug_log';
-						if (!fs.existsSync(logDir)) {
-							fs.mkdirSync(logDir, { recursive: true });
-						}
-						const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-						const logData = {
-							type: "findExistingRoomByMySQL_mysql_error",
-							rm_idx: data.rm_idx,
-							error: err.message,
-							timestamp: new Date().toISOString()
-						};
-						const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-						fs.appendFileSync(logFile, logLine, 'utf8');
-					} catch (logErr) {
-						// 로깅 오류는 무시
-					}
 					callback(null);
 					resolve(null);
 					return;
 				}
 
 				if (!results || results.length === 0) {
-					// 🔥 로깅: MySQL에 방 없음
-					try {
-						const logDir = '/website/nowapk/debug_log';
-						if (!fs.existsSync(logDir)) {
-							fs.mkdirSync(logDir, { recursive: true });
-						}
-						const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-						const logData = {
-							type: "findExistingRoomByMySQL_mysql_no_room",
-							rm_idx: data.rm_idx,
-							timestamp: new Date().toISOString()
-						};
-						const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-						fs.appendFileSync(logFile, logLine, 'utf8');
-					} catch (logErr) {
-						// 로깅 오류는 무시
-					}
-
-					// 🔥 MySQL에 방이 없을 때: 클라이언트가 전달한 rm_idx가 실제로는 rc_idx일 가능성 고려
+					// MySQL에 방이 없을 때: 클라이언트가 전달한 rm_idx가 실제로는 rc_idx일 가능성 고려
 					// 1. data에 rc_idx, ru_idx가 있으면 사용
 					if (data.rc_idx && data.ru_idx) {
 						const rc_idx = data.rc_idx;
@@ -272,29 +134,6 @@ container.findExistingRoomByMySQL = async function(data, callback){
 							ru_idx: ru_idx,
 							rm_type: "recruit"
 						});
-
-						// 🔥 로깅: MongoDB 조회 결과
-						try {
-							const logDir = '/website/nowapk/debug_log';
-							if (!fs.existsSync(logDir)) {
-								fs.mkdirSync(logDir, { recursive: true });
-							}
-							const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-							const logData = {
-								type: existing_room ? "findExistingRoomByMySQL_mongodb_found_from_data" : "findExistingRoomByMySQL_mongodb_not_found_from_data",
-								client_rm_idx: data.rm_idx,
-								search_rc_idx: rc_idx,
-								search_ru_idx: ru_idx,
-								existing_rm_idx: existing_room ? existing_room.rm_idx : null,
-								existing_room_rc_idx: existing_room ? existing_room.rc_idx : null,
-								existing_room_ru_idx: existing_room ? existing_room.ru_idx : null,
-								timestamp: new Date().toISOString()
-							};
-							const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-							fs.appendFileSync(logFile, logLine, 'utf8');
-						} catch (logErr) {
-							// 로깅 오류는 무시
-						}
 
 						if (existing_room) {
 							callback({
@@ -333,55 +172,12 @@ container.findExistingRoomByMySQL = async function(data, callback){
 							const rc_idx = mysql_room2.rc_idx;
 							const ru_idx = mysql_room2.ru_idx;
 
-							// 🔥 로깅: rc_idx로 MySQL 조회 성공
-							try {
-								const logDir = '/website/nowapk/debug_log';
-								if (!fs.existsSync(logDir)) {
-									fs.mkdirSync(logDir, { recursive: true });
-								}
-								const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-								const logData = {
-									type: "findExistingRoomByMySQL_rc_idx_found",
-									client_rm_idx: data.rm_idx,
-									rc_idx: rc_idx,
-									ru_idx: ru_idx,
-									timestamp: new Date().toISOString()
-								};
-								const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-								fs.appendFileSync(logFile, logLine, 'utf8');
-							} catch (logErr) {
-								// 로깅 오류는 무시
-							}
-
 							// MongoDB에서 기존 방 찾기
 							const existing_room = await $db.cs_room.findOne({ 
 								rc_idx: rc_idx, 
 								ru_idx: ru_idx,
 								rm_type: "recruit"
 							});
-
-							// 🔥 로깅: MongoDB 조회 결과
-							try {
-								const logDir = '/website/nowapk/debug_log';
-								if (!fs.existsSync(logDir)) {
-									fs.mkdirSync(logDir, { recursive: true });
-								}
-								const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-								const logData = {
-									type: existing_room ? "findExistingRoomByMySQL_mongodb_found_from_rc_idx" : "findExistingRoomByMySQL_mongodb_not_found_from_rc_idx",
-									client_rm_idx: data.rm_idx,
-									search_rc_idx: rc_idx,
-									search_ru_idx: ru_idx,
-									existing_rm_idx: existing_room ? existing_room.rm_idx : null,
-									existing_room_rc_idx: existing_room ? existing_room.rc_idx : null,
-									existing_room_ru_idx: existing_room ? existing_room.ru_idx : null,
-									timestamp: new Date().toISOString()
-								};
-								const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-								fs.appendFileSync(logFile, logLine, 'utf8');
-							} catch (logErr) {
-								// 로깅 오류는 무시
-							}
 
 							if (existing_room) {
 								callback({
@@ -423,26 +219,6 @@ container.findExistingRoomByMySQL = async function(data, callback){
 				const rc_idx = mysql_room.rc_idx;
 				const ru_idx = mysql_room.ru_idx;
 
-				// 🔥 로깅: MySQL 조회 결과
-				try {
-					const logDir = '/website/nowapk/debug_log';
-					if (!fs.existsSync(logDir)) {
-						fs.mkdirSync(logDir, { recursive: true });
-					}
-					const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-					const logData = {
-						type: "findExistingRoomByMySQL_mysql_result",
-						rm_idx: data.rm_idx,
-						rc_idx: rc_idx,
-						ru_idx: ru_idx,
-						timestamp: new Date().toISOString()
-					};
-					const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-					fs.appendFileSync(logFile, logLine, 'utf8');
-				} catch (logErr) {
-					// 로깅 오류는 무시
-				}
-
 				// rc_idx와 ru_idx가 있으면 MongoDB에서 기존 방 찾기
 				if (rc_idx && ru_idx) {
 					// MongoDB에서 rc_idx와 ru_idx로 기존 방 찾기
@@ -451,29 +227,6 @@ container.findExistingRoomByMySQL = async function(data, callback){
 						ru_idx: ru_idx,
 						rm_type: "recruit"
 					});
-
-					// 🔥 로깅: MongoDB 조회 결과
-					try {
-						const logDir = '/website/nowapk/debug_log';
-						if (!fs.existsSync(logDir)) {
-							fs.mkdirSync(logDir, { recursive: true });
-						}
-						const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-						const logData = {
-							type: existing_room ? "findExistingRoomByMySQL_mongodb_found" : "findExistingRoomByMySQL_mongodb_not_found",
-							client_rm_idx: data.rm_idx,
-							search_rc_idx: rc_idx,
-							search_ru_idx: ru_idx,
-							existing_rm_idx: existing_room ? existing_room.rm_idx : null,
-							existing_room_rc_idx: existing_room ? existing_room.rc_idx : null,
-							existing_room_ru_idx: existing_room ? existing_room.ru_idx : null,
-							timestamp: new Date().toISOString()
-						};
-						const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-						fs.appendFileSync(logFile, logLine, 'utf8');
-					} catch (logErr) {
-						// 로깅 오류는 무시
-					}
 
 					if (existing_room) {
 						callback({
@@ -504,25 +257,6 @@ container.findExistingRoomByMySQL = async function(data, callback){
 			});
 		});
 	} catch (error) {
-		// 🔥 로깅: 오류 발생
-		try {
-			const fs = require('fs');
-			const logDir = '/website/nowapk/debug_log';
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true });
-			}
-			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-			const logData = {
-				type: "findExistingRoomByMySQL_error",
-				rm_idx: data.rm_idx,
-				error: error.message,
-				timestamp: new Date().toISOString()
-			};
-			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-			fs.appendFileSync(logFile, logLine, 'utf8');
-		} catch (logErr) {
-			// 로깅 오류는 무시
-		}
 		callback(null);
 	}
 }

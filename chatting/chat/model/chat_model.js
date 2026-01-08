@@ -60,48 +60,7 @@ container.getUsersRoom = async function (params) {
 
 //방정보 조회
 container.getRoom = async function (params) {
-	// 🔥 로깅: getRoom 시작
-	const fs = require('fs');
-	try {
-		const logDir = '/website/nowapk/debug_log';
-		if (!fs.existsSync(logDir)) {
-			fs.mkdirSync(logDir, { recursive: true });
-		}
-		const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-		const logData = {
-			type: "getRoom_start",
-			rm_idx: params.rm_idx,
-			con_user_id: params.con_user_id,
-			timestamp: new Date().toISOString()
-		};
-		const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-		fs.appendFileSync(logFile, logLine, 'utf8');
-	} catch (err) {
-		// 로깅 오류는 무시
-	}
-
 	var ret = await $db.cs_room.findOne({ rm_idx: params.rm_idx }, { projection: { rm_idx: 1, rm_type: 1, user_info: 1, rm_subject: 1, rm_last_msg: 1, rm_last_dt: 1, rm_users: 1 } });
-
-	// 🔥 로깅: MongoDB 조회 결과
-	try {
-		const logDir = '/website/nowapk/debug_log';
-		if (!fs.existsSync(logDir)) {
-			fs.mkdirSync(logDir, { recursive: true });
-		}
-		const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-		const logData = {
-			type: "getRoom_mongodb_result",
-			rm_idx: params.rm_idx,
-			con_user_id: params.con_user_id,
-			room_exists: ret ? 'Y' : 'N',
-			rm_users_count: ret && ret.rm_users ? ret.rm_users.length : 0,
-			timestamp: new Date().toISOString()
-		};
-		const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-		fs.appendFileSync(logFile, logLine, 'utf8');
-	} catch (err) {
-		// 로깅 오류는 무시
-	}
 
 	if (ret != null) {
 		// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
@@ -122,26 +81,6 @@ container.getRoom = async function (params) {
 
 		// 나간 채팅방이면 null 반환 (접근 차단)
 		if (user_exited) {
-			// 🔥 로깅: exit_yn='Y'로 인한 null 반환
-			try {
-				const logDir = '/website/nowapk/debug_log';
-				if (!fs.existsSync(logDir)) {
-					fs.mkdirSync(logDir, { recursive: true });
-				}
-				const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-				const logData = {
-					type: "getRoom_return_null_exit_yn",
-					rm_idx: params.rm_idx,
-					con_user_id: params.con_user_id,
-					exit_yn: exit_yn_value,
-					reason: "사용자가 나간 채팅방 (exit_yn='Y')",
-					timestamp: new Date().toISOString()
-				};
-				const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-				fs.appendFileSync(logFile, logLine, 'utf8');
-			} catch (err) {
-				// 로깅 오류는 무시
-			}
 			return null;
 		}
 
@@ -187,26 +126,6 @@ container.getRoom = async function (params) {
 			ret.rm_count = 0;
 		}
 
-	} else {
-		// 🔥 로깅: MongoDB에 방이 없음
-		try {
-			const logDir = '/website/nowapk/debug_log';
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true });
-			}
-			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-			const logData = {
-				type: "getRoom_return_null_no_room",
-				rm_idx: params.rm_idx,
-				con_user_id: params.con_user_id,
-				reason: "MongoDB에 방이 존재하지 않음",
-				timestamp: new Date().toISOString()
-			};
-			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-			fs.appendFileSync(logFile, logLine, 'utf8');
-		} catch (err) {
-			// 로깅 오류는 무시
-		}
 	}
 	return ret;
 }
@@ -230,35 +149,6 @@ container.getRoomMessages = async function (params) {
 			{ $limit: params.limit },
 			{ $project: { rm_messages: '$rm_messages' } }
 		]).toArray();
-
-	// 🔥 로깅: 메시지 조회 결과
-	const fs = require('fs');
-	try {
-		const logDir = '/website/nowapk/debug_log';
-		if (!fs.existsSync(logDir)) {
-			fs.mkdirSync(logDir, { recursive: true });
-		}
-		const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-		const logData = {
-			type: "getRoomMessages",
-			rm_idx: params.rm_idx,
-			skip: params.skip,
-			limit: params.limit,
-			message_count: ret.length,
-			messages: ret.map(item => ({
-				mg_idx: item.rm_messages ? item.rm_messages.mg_idx : null,
-				user_id: item.rm_messages ? item.rm_messages.user_id : null,
-				mg_text: item.rm_messages ? item.rm_messages.mg_text : null,
-				mg_type: item.rm_messages ? item.rm_messages.mg_type : null,
-				mg_reads: item.rm_messages ? item.rm_messages.mg_reads : null
-			})),
-			timestamp: new Date().toISOString()
-		};
-		const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-		fs.appendFileSync(logFile, logLine, 'utf8');
-	} catch (err) {
-		// 로깅 오류는 무시
-	}
 
 	return ret;
 }
@@ -500,31 +390,6 @@ container.insertMessage = async function (data, callback) {
 		} else {
 			// rm_users가 없으면 현재 사용자만 읽음 처리
 			read_users.push({ user_id: data.user_id, read_yn: 'Y' });
-		}
-
-		// 🔥 로깅: read_users 생성 후
-		const fs = require('fs');
-		try {
-			const logDir = '/website/nowapk/debug_log';
-			if (!fs.existsSync(logDir)) {
-				fs.mkdirSync(logDir, { recursive: true });
-			}
-			const logFile = `${logDir}/chat_debug_${new Date().toISOString().split('T')[0]}.log`;
-			const logData = {
-				type: "insertMessage_read_users",
-				rm_idx: data.rm_idx,
-				user_id: data.user_id,
-				mg_text: data.mg_text,
-				server_set_reads: data.server_set_reads,
-				data_mg_reads: data.mg_reads,
-				room_info_rm_users: room_info.rm_users,
-				final_read_users: read_users,
-				timestamp: new Date().toISOString()
-			};
-			const logLine = `[${new Date().toISOString()}] ${JSON.stringify(logData)}\n`;
-			fs.appendFileSync(logFile, logLine, 'utf8');
-		} catch (err) {
-			// 로깅 오류는 무시
 		}
 
 		if (date_line == "Y") {
