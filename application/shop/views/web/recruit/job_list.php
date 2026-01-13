@@ -370,6 +370,11 @@ if (count($banner_list) > 0) {
     margin: auto;
     border-right: 1px solid #777;
   }
+
+  /* 추천 슬라이더 배경색 설정 */
+  .recomm-slider.recruit {
+    background-color: #fff;
+  }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>

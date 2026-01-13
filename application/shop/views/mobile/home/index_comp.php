@@ -411,6 +411,11 @@ if ($g_ios_publish == true) {
     color: #1B9D7D;
   }
 
+  .content-info .summary3 .worktype em.wtype0,
+  .content-info .summary3 em.wtype0 {
+    color: #000;
+  }
+
   .content-info .summary3 .worktype em:not(:last-child) {
     padding-right: 5px;
   }

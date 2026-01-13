@@ -2973,7 +2973,7 @@
 								var hasOnlyZeroNumber = ((isNaN(rcSAge) || rcSAge === 0) && (isNaN(rcEAge) || rcEAge === 0));
 								var hasZeroWord = rcAgeLabel.replace(/\s/g, "").indexOf("0세") !== -1;
 								if (hasOnlyZeroNumber || hasZeroWord) {
-									rcAgeLabel = "무관";
+									rcAgeLabel = "나이무관";
 								}
 								$("#top_age").html(rcAgeLabel);
 								$("#bt_age").html(rcAgeLabel);
@@ -3585,42 +3585,8 @@
 						return;
 					}
 					
-					// 🔥 본인이 보낸 메시지인지 확인 (chat-bubble 클래스가 있고 diff 클래스가 없으면 본인 메시지)
-					var isMyMessage = $msgElement.hasClass("chat-bubble") && !$msgElement.hasClass("diff");
-					
-					// 🔥 room_join_return에서 받은 메시지 리스트에 있는지 확인 (상대방이 실제로 읽은 메시지)
-					var isRoomJoinReadMessage = roomJoinReadMessages.indexOf(mg_idx) !== -1;
-					
-					// 🔥 메시지 전송 시간 확인 (메시지 전송 직후 보호)
-					var sentTime = messageSentTimes[mg_idx];
-					var timeSinceSent = sentTime ? (Date.now() - sentTime) : null;
-					var isRecentlySent = timeSinceSent !== null && timeSinceSent < 3000; // 3초 이내
-					
-					// 🔥 본인이 보낸 메시지이고 count가 0일 때:
-					// - room_join_return에서 받은 메시지 리스트에 있으면 업데이트 (상대방이 실제로 읽음)
-					// - 리스트에 없고 전송 직후(3초 이내)면 업데이트하지 않음 (메시지 전송 직후 잘못된 업데이트 방지)
-					if (isMyMessage && count == 0 && !isRoomJoinReadMessage) {
-						if (isRecentlySent) {
-							//console.log("⚠️ message_read_count_return: 본인이 보낸 메시지이고 전송 직후(3초 이내)이므로 count 0으로 업데이트하지 않음 - mg_idx:", mg_idx, "timeSinceSent:", timeSinceSent + "ms");
-							return; // 메시지 전송 직후 잘못된 업데이트 방지
-						} else {
-							//console.log("⚠️ message_read_count_return: 본인이 보낸 메시지이고 room_join 리스트에 없으므로 count 0으로 업데이트하지 않음 - mg_idx:", mg_idx);
-							return; // 메시지 전송 직후 잘못된 업데이트 방지
-						}
-					}
-					
-					// 🔥 이미 readcount가 있고 count가 0이면 덮어쓰지 않음 (단, room_join 리스트에 있거나 전송 후 3초 이상 지났으면 업데이트)
-					var currentReadcount = $msgElement.find(".readcount").html();
-					if (currentReadcount && currentReadcount.trim() !== "" && count == 0 && !isRoomJoinReadMessage) {
-						if (isRecentlySent) {
-							//console.log("⚠️ message_read_count_return: readcount가 이미 있고 전송 직후(3초 이내)이므로 0으로 덮어쓰지 않음 - mg_idx:", mg_idx, "current:", currentReadcount, "timeSinceSent:", timeSinceSent + "ms");
-							return; // 메시지 전송 직후 잘못된 업데이트 방지
-						} else {
-							//console.log("⚠️ message_read_count_return: readcount가 이미 있고 room_join 리스트에 없으므로 0으로 덮어쓰지 않음 - mg_idx:", mg_idx, "current:", currentReadcount);
-							return; // 메시지 전송 직후 잘못된 업데이트 방지
-						}
-					}
-					
+					// ✅ 모바일과 동일: 서버에서 받은 count를 그대로 반영
+					// 서버에서 보낸 count는 실제 읽음 처리 결과이므로 신뢰하고 그대로 반영
 					if (count == 0) {
 						$msgElement.find(".readcount").html("");
 						$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
@@ -3783,7 +3749,7 @@
 								var hasOnlyZeroNumber = ((isNaN(rcSAge) || rcSAge === 0) && (isNaN(rcEAge) || rcEAge === 0));
 								var hasZeroWord = rcAgeLabel.replace(/\s/g, "").indexOf("0세") !== -1;
 								if (hasOnlyZeroNumber || hasZeroWord) {
-									rcAgeLabel = "무관";
+									rcAgeLabel = "나이무관";
 								}
 								$("#top_age").html(rcAgeLabel);
 								$("#bt_age").html(rcAgeLabel);

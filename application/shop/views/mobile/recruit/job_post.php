@@ -985,7 +985,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                     });
                     $('.btn-close-popup').hide();
                 } else if (ret.code == "01") {
-                    commonAlert("<em>다음날</em> 다시 지원이 가능합니다..", function() {});
+                    commonAlert("<em>5분 후</em> 다시 지원이 가능합니다.", function() {});
                     return;
                 } else if (ret.code == "90") {
                     // 제안이 이미 있는 경우

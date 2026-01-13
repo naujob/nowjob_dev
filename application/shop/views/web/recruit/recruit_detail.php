@@ -984,7 +984,7 @@ $(document).ready(function(){
                });
 
              }else if(ret.code=="01"){
-                 commonAlert("<em>다음날</em> 다시 지원이 가능합니다..",function(){});
+                 commonAlert("<em>5분 후</em> 다시 지원이 가능합니다.",function(){});
                  return;
              }else{
                  commonAlert(ret.msg,function(){});

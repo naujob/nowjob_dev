@@ -1,4 +1,4 @@
-<div class="tab-container">
+<div class="tab-container" style="position: -webkit-sticky; position: sticky; top: 0; z-index: 100; background: #fff;">
     <ul class="tab-list">
         <li class="<?=$tab_on=="tab1" ? "on":""?>"><a href="javascript:_replace('/mypage/point_charge_step1');" class="tab">포인트충전</a></li>
         <li class="<?=$tab_on=="tab2" ? "on":""?>"><a href="javascript:_replace('/mypage/point_charge_list');" class="tab">포인트충전내역</a></li>

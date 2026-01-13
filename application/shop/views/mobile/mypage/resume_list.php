@@ -27,7 +27,7 @@
                     <?php endforeach; ?>
                     <?php if (count($resume_list) == 0) : ?>
                         <div class="is-empty">
-                            <p>등록된 채용공고가 없습니다.</p>
+                            <!-- <p>등록된 채용공고가 없습니다.</p> -->
                         </div>
                     <?php endif; ?>
                 </ul>

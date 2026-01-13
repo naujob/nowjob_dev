@@ -4625,7 +4625,7 @@ body {
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
     flex-direction: column;
-    background: #F4F4F4;
+    background: #eeeeee;
 }
 
 .section {
@@ -4797,11 +4797,15 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
+    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
+    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
+    padding-bottom: max(env(safe-area-inset-bottom) - 1rem, 0px);
+    background: #fff;
     z-index: 5;
 }
 
 .sticky-bottom .btn {
-    padding: 1.4rem 0;
+    padding: 1.35rem 0;
     font-size: 1.3rem;
     font-weight: 900;
     -webkit-box-flex: 1;
@@ -4819,7 +4823,10 @@ body {
     left: 0;
     right: 0;
     margin: auto 0 0;
-    padding: 0.625rem 1.4375rem 0.625rem;
+    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
+    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
+    padding: 0.625rem 1.4375rem calc(0.625rem + max(env(safe-area-inset-bottom) - 1rem, 0px));
+    /* padding: 0.625rem 1.4375rem calc(0.625rem + env(safe-area-inset-bottom)); */
     -webkit-box-pack: justify;
     -ms-flex-pack: justify;
     justify-content: space-between;
@@ -4830,9 +4837,10 @@ body {
 .bottom-nav .btn {
     width: 33.3%;
     font-size: 0.8125rem;
-    color: #BEBFC9;
+    color: #777777;
     line-height: 1.1;
     text-align: center;
+    font-weight: 700;
 }
 
 .bottom-nav .btn.active {
@@ -4843,36 +4851,47 @@ body {
 .bottom-nav .btn:before {
     content: "";
     display: block;
-    width: 1.375rem;
-    height: 1.375rem;
+    width: 2.4rem;
+    height: 2.4rem;
     margin: 0 auto 7px;
     background-repeat: no-repeat;
     background-position: 0 0;
     background-size: contain;
+    position: relative;
+    top: 10px;
+    /* 아래로 약간 이동 */
+}
+
+.bottom-nav .menu-home {
+    font-size: 0.8rem;
 }
 
 .bottom-nav .menu-home:before {
-    background-image: url("../img/ic_menu_home_off.svg");
+    background-image: url("../img/ic_menu_home_off.svg?v=2.0");
 }
 
 .bottom-nav .active.menu-home:before {
-    background-image: url("../img/ic_menu_home_on.svg");
+    background-image: url("../img/ic_menu_home_on.svg?v=2.0");
+}
+
+.bottom-nav .menu-chat {
+    font-size: 0.8rem;
 }
 
 .bottom-nav .menu-chat:before {
-    background-image: url("../img/ic_menu_chat_off.svg");
+    background-image: url("../img/ic_menu_chat_off.svg?v=2.0");
 }
 
 .bottom-nav .active.menu-chat:before {
-    background-image: url("../img/ic_menu_chat_on.svg");
+    background-image: url("../img/ic_menu_chat_on.svg?v=2.0");
 }
 
 .bottom-nav .btn-toggle-menu {
-    width: 2.8125rem;
-    height: 2.8125rem;
+    width: 3.8125rem;
+    height: 3.8125rem;
     border-radius: 100%;
     border: 0;
-    background: #fff url("../img/btn_menus.svg") no-repeat 50% 50%;
+    background: #fff url("../img/home_bar.svg") no-repeat 50% 50%;
     background-size: contain;
 }
 
@@ -6758,7 +6777,7 @@ form#frm {
 
 .btn-top {
     position: fixed;
-    bottom: 4.6875rem;
+    bottom: 5.4rem;
     right: 10px;
     width: 2rem;
     height: 2rem;
@@ -7023,8 +7042,8 @@ form#frm {
 .btn-map {
     position: fixed;
     right: 18px;
-    bottom: 88px;
-    --btn-map-size: 45px;
+    bottom: 105px;
+    --btn-map-size: 55px;
     /* 버튼 크기 변수 */
     width: var(--btn-map-size);
     height: var(--btn-map-size);
@@ -7429,7 +7448,7 @@ form#frm {
 }
 
 .top-bar .current-area {
-    margin: -0.375rem 0 -0.4375rem;
+    margin: -0.375rem 1rem -0.4375rem;
     padding: 0;
     float: left;
 }
@@ -9374,6 +9393,7 @@ form#frm {
     position: relative;
     background: #fff;
     z-index: 2;
+    border-bottom: 1px solid #F4F4F4;
 }
 
 .chat-view-header .btn-wrapper {
@@ -9422,8 +9442,10 @@ form#frm {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    padding: 0.875rem;
-    background: #fff;
+    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
+    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
+    padding: 0.875rem 0.875rem calc(0.875rem + max(env(safe-area-inset-bottom) - 1rem, 0px));
+    background: #F4F4F4;
 }
 
 .chat-view-body .write-form form {
@@ -9442,13 +9464,13 @@ form#frm {
 
 .chat-view-body .write-form input {
     width: 100%;
-    height: 2.625rem;
+    height: 3rem;
     padding: 0 1.25rem;
-    font-size: 15px;
+    font-size: 17px;
     text-align: center;
     border-radius: 3.125rem;
     border: 0;
-    background: #F6F6F6;
+    background: #fff;
     -webkit-box-shadow: none;
     box-shadow: none;
     outline: 0;
@@ -9608,7 +9630,7 @@ form#frm {
     order: 1;
     word-break: keep-all;
     border-radius: 5px;
-    background: #FF6D6D;
+    background: #1B9D7D;
 }
 
 .chat-bubble .bubble-content:before {
@@ -9621,7 +9643,7 @@ form#frm {
     height: 0;
     border: 6px solid transparent;
     border-right: 0;
-    border-left: 8px solid #FF6D6D;
+    border-left: 8px solid #57CCAF;
 }
 
 .chat-bubble.diff .bubble-content {
@@ -9630,14 +9652,15 @@ form#frm {
     -webkit-box-ordinal-group: inherit;
     -ms-flex-order: inherit;
     order: inherit;
-    background-color: #31A182;
+    background-color: #fff;
+    color: #555;
 }
 
 .chat-bubble.diff .bubble-content:before {
     right: auto;
     left: -8px;
     border-left: 0;
-    border-right: 8px solid #31A182;
+    border-right: 8px solid #F4F4F4;
 }
 
 .chat-bubble .meta {

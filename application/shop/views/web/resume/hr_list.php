@@ -1172,6 +1172,11 @@ if (count($banner_list) > 0) {
     margin-right: 4px;
     padding: 0;
   }
+
+  /* 추천 슬라이더 배경색 설정 */
+  .recomm-slider.person {
+    background-color: #fff;
+  }
 </style>
 <div id="content" class="page page-person">
   <main class="page-content">

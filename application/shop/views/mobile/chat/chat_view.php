@@ -1530,6 +1530,7 @@
         overflow-wrap: break-word;
         word-wrap: break-word; /* 구형 브라우저 호환성 */
     }
+
 </style>
 
 <?php if ($user_type == "COMP") : ?>

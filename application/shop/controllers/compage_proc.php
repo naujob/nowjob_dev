@@ -454,7 +454,7 @@ class Compage_proc extends CI_Controller
   # 웹등록
   function recruit_write_new()
   {
-    $rc_show_yn = input_post("rc_show_yn", "");
+    // $rc_show_yn = input_post("rc_show_yn", "");
     $rc_name = input_post("rc_name", "");
     $rc_date = input_post("rc_date", "");
     $ad_zipcode = input_post("ad_zipcode", "");
@@ -543,7 +543,7 @@ class Compage_proc extends CI_Controller
 
     #로그 생성
     $sl_txt = [
-      "rc_show_yn" => $rc_show_yn,
+      // "rc_show_yn" => $rc_show_yn,
       "rc_name" => $rc_name,
       "rc_date" => $rc_date,
       "ad_zipcode" => $ad_zipcode,
@@ -737,7 +737,7 @@ class Compage_proc extends CI_Controller
     $work_img = $this->common->getSessionDataList("WORK_TYPE");
 
     $arr_recruit = [
-      "rc_show_yn" => $step1["rc_show_yn"],
+      // "rc_show_yn" => $step1["rc_show_yn"],
       "rc_name" => $step1["rc_name"],
       "rc_sdate" => $step1["rc_sdate"],
       "rc_edate" => $step1["rc_edate"],

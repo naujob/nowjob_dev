@@ -195,13 +195,16 @@
         //alert(step); //test
 
         /* UUID로 기존 동의 정보 확인 */
+        // step == "grant"는 현재 splash 로딩 단계가 '권한(동의) 화면'임을 의미함
         if (uuid != "" && step == "grant") {
             checkExistingConsent();
         } else if (step == "grant") {
-            // UUID가 없는 경우 기존 로직대로 팝업 표시
+            // UUID가 없는 경우 팝업 없이 기본값으로 설정하고 바로 진행
+            push_yn = "N";
+            marketing_yn = "N";
             setTimeout(function() {
-                pop_alarm();
-            }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
+                setUUid();
+            }, 1000);
         } else if (step == "login") {
             setTimeout(function() {
                 //alert(checkMobile());
@@ -225,80 +228,86 @@
     }
 
 
-    function pop_alarm() {
-        openPopup('confirm', {
-            id: 'permission',
-            content: '<strong>나우잡에서 알림을 보내고자 합니다.</strong><small>경고, 사운드 및 아이콘 배지가 알림에<br> 포함될 수 있습니다<br> 설정에서 이를 변경할 수 있습니다.</small>',
-            firstButton: '허용안함',
-            secondButton: '허용',
-            firstCallback: function() {
-                push_yn = "N";
-                pop_grant();
-            },
-            secondCallback: function() {
-                push_yn = "Y";
-                pop_grant();
-            },
-        });
-    }
+    // 팝업 함수들 비활성화 (더 이상 사용하지 않음)
+    // function pop_alarm() {
+    //     openPopup('confirm', {
+    //         id: 'permission',
+    //         content: '<strong>나우잡에서 알림을 보내고자 합니다.</strong><small>경고, 사운드 및 아이콘 배지가 알림에<br> 포함될 수 있습니다<br> 설정에서 이를 변경할 수 있습니다.</small>',
+    //         firstButton: '허용안함',
+    //         secondButton: '허용',
+    //         firstCallback: function() {
+    //             push_yn = "N";
+    //             pop_grant();
+    //         },
+    //         secondCallback: function() {
+    //             push_yn = "Y";
+    //             pop_grant();
+    //         },
+    //     });
+    // }
 
-    function pop_grant() {
-        openPopup('modal', {
-            id: 'permission',
-            content: '<div class="alert-msg">' +
-                '<div class="permission2">' +
-                '<p class="headline">고객님의 편리한<br> 나우잡 사용을 위해 아래<br> 접근권한의 허용이 필요합니다.</p>' +
-                '<ul>' +
-                '<li>' +
-                '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission1.svg" alt=""></span>' +
-                '<em class="title">위치(선택)</em><span class="desc">지역 선택에서 현위치 선택 및 지도 사용시 필요한 권한입니다.</span>' +
-                '</li>' +
-                '<li>' +
-                '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission2.svg" alt=""></span>' +
-                '<em class="title">카메라(선택)</em><span class="desc">사진 촬영 업로드 시 필요한 권한입니다.</span>' +
-                '</li>' +
-                '<li>' +
-                '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission3.svg" alt=""></span>' +
-                '<em class="title">저장공간(선택)</em><span class="desc">사진등록, 파일등록시 필요한 권한입니다.</span>' +
-                '</li>' +
-                '</ul>' +
-                '<p>설정&gt;나우잡 앱&gt;나우잡 접근 허용에서 권한 설정을 변경하실 수 있습니다.</p>' +
-                '<p class="notice">위 접근권한은 고객님께 더 나은 서비스를<br> 제공하기 위해 사용됩니다. 허용에 동의하지<br> 않으셔도 나우잡을 사용하실 수 있습니다.</p>' +
-                '</div>' +
-                '</div>',
-            firstButton: '확인',
-            firstCallback: function() {
-                //openPopup('alert',{content:'허용안함 Callback'});
-                pop_marketing();
+    // function pop_grant() {
+    //     openPopup('modal', {
+    //         id: 'permission',
+    //         content: '<div class="alert-msg">' +
+    //             '<div class="permission2">' +
+    //             '<p class="headline">고객님의 편리한<br> 나우잡 사용을 위해 아래<br> 접근권한의 허용이 필요합니다.</p>' +
+    //             '<ul>' +
+    //             '<li>' +
+    //             '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission1.svg" alt=""></span>' +
+    //             '<em class="title">위치(선택)</em><span class="desc">지역 선택에서 현위치 선택 및 지도 사용시 필요한 권한입니다.</span>' +
+    //             '</li>' +
+    //             '<li>' +
+    //             '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission2.svg" alt=""></span>' +
+    //             '<em class="title">카메라(선택)</em><span class="desc">사진 촬영 업로드 시 필요한 권한입니다.</span>' +
+    //             '</li>' +
+    //             '<li>' +
+    //             '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission3.svg" alt=""></span>' +
+    //             '<em class="title">저장공간(선택)</em><span class="desc">사진등록, 파일등록시 필요한 권한입니다.</span>' +
+    //             '</li>' +
+    //             '</ul>' +
+    //             '<p>설정&gt;나우잡 앱&gt;나우잡 접근 허용에서 권한 설정을 변경하실 수 있습니다.</p>' +
+    //             '<p class="notice">위 접근권한은 고객님께 더 나은 서비스를<br> 제공하기 위해 사용됩니다. 허용에 동의하지<br> 않으셔도 나우잡을 사용하실 수 있습니다.</p>' +
+    //             '</div>' +
+    //             '</div>',
+    //         firstButton: '확인',
+    //         firstCallback: function() {
+    //             //openPopup('alert',{content:'허용안함 Callback'});
+    //             pop_marketing();
 
-            },
-            secondCallback: function() {
-                //openPopup('alert',{content:'허용 Callback'});
-                pop_marketing();
-            },
-        });
-    }
+    //         },
+    //         secondCallback: function() {
+    //             //openPopup('alert',{content:'허용 Callback'});
+    //             pop_marketing();
+    //         },
+    //     });
+    // }
 
-    function pop_marketing() {
-        openPopup('confirm', {
-            id: 'permission',
-            content: '<strong>나우잡 마케팅 동의</strong><small>채용정보와 이벤트 등의 알림을 받으려면<br> 수신동의를 눌러주세요<br> 알림은 알림설정에서 변경하실 수 있습니다. </small>',
-            firstButton: '허용안함',
-            secondButton: '허용',
-            firstCallback: function() {
-                marketing_yn = "N";
-                //APP_NOWAPK.grantPopup();
-                //location.href="/member/login";
-                setUUid();
-            },
-            secondCallback: function() {
-                //location.href="/member/login";
-                marketing_yn = "Y";
-                setUUid();
-            },
-        });
-    }
+    // function pop_marketing() {
+    //     openPopup('confirm', {
+    //         id: 'permission',
+    //         content: '<strong>나우잡 마케팅 동의</strong><small>채용정보와 이벤트 등의 알림을 받으려면<br> 수신동의를 눌러주세요<br> 알림은 알림설정에서 변경하실 수 있습니다. </small>',
+    //         firstButton: '허용안함',
+    //         secondButton: '허용',
+    //         firstCallback: function() {
+    //             marketing_yn = "N";
+    //             
+    //             setUUid();
+    //         },
+    //         secondCallback: function() {
+    //            
+    //             marketing_yn = "Y";
+    //             setUUid();
+    //         },
+    //     });
+    // }
 
+    /**
+     * 단말기 UUID, 푸시/마케팅 수신여부를 서버에 저장한 뒤
+     * 단말 OS(android/ios)에 따라 권한 팝업 또는 위치 권한 요청을 진행합니다.
+     * 서버 응답 성공 시, android는 앱 객체 기능 호출, ios는 webkit 메시지 전송.
+     * 각 권한 팝업에 응답하지 않거나 예외 발생 시 10초 후 로그인 페이지로 자동 이동합니다.
+     */
     function setUUid() {
         var params = {};
         params["uuid"] = uuid;
@@ -403,16 +412,20 @@
                         }
                     }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
                 } else {
-                    // 동의 정보가 없는 경우 팝업 표시
+                    // 동의 정보가 없는 경우 팝업 없이 기본값으로 설정하고 바로 진행
+                    push_yn = "N";
+                    marketing_yn = "N";
                     setTimeout(function() {
-                        pop_alarm();
-                    }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
+                        setUUid();
+                    }, 1000);
                 }
             } else {
-                // API 호출 실패 시 기존 로직대로 팝업 표시
+                // API 호출 실패 시 팝업 없이 기본값으로 설정하고 바로 진행
+                push_yn = "N";
+                marketing_yn = "N";
                 setTimeout(function() {
-                    pop_alarm();
-                }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
+                    setUUid();
+                }, 1000);
             }
         });
     }

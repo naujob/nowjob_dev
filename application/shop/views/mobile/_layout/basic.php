@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <!-- meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" -->
-  <meta name="viewport" content="width=460, user-scalable=no">
+  <!-- iOS Home Indicator Safe Area 대응을 위한 viewport-fit=cover 추가 -->
+  <meta name="viewport" content="width=460, user-scalable=no, viewport-fit=cover">
   <title>지금 뜨는, 좋은 일자리 나우잡(NOWJOB)</title>
   <meta name="description" content="구인구직 정보 플랫폼">
   <meta name="format-detection" content="address=no, email=no, telephone=no">
@@ -88,7 +89,7 @@
     window.fcmToken = window.fcmToken || null; // 기존 토큰 보존
 
     // ============================================
-    // ① Native(iOS/Android)에서 토큰을 받을 때 실행
+    // ① Native(iOS/Android)에서 토큰을 받을 때 실행 (현재 실행x)
     // ============================================
     window.setToken = function(token) {
       console.log("🔥 [setToken] 토큰 수신:", token ? token.substring(0, 20) + '...' : 'null');
@@ -111,7 +112,7 @@
     };
 
     // ============================================
-    // ③ 조건 충족 시 서버로 토큰 전송 (중복 방지)
+    // ③ 조건 충족 시 서버로 토큰 전송 (중복 방지)(현재 실행x)
     // ============================================
     function trySendTokenToServer() {
       // 이미 전송했으면 종료 (중복 방지)
@@ -440,7 +441,9 @@
     };
 
     console.log('📱 onPushOpen 함수가 전역에 등록되었습니다.');
-
+    // ❌ 사용되지 않는 함수: registerFcmTokenOnAppStart
+      // 상태: Android에서 호출되지만 APP_NOWAPK.getFcmToken() 함수가 없어서 실패
+    // 로그 분석 결과: "Android 앱 FCM 토큰 함수가 없음" 경고만 발생
     // 앱 시작 시 FCM 토큰 등록 시도(현재 앱측에서 미구현)
     function registerFcmTokenOnAppStart() {
       console.log('📱 앱 시작 시 FCM 토큰 등록 시도');
@@ -457,12 +460,13 @@
     // 페이지 로드 시 FCM 토큰 등록 시도 (현재 앱측에서 미구현)
     $(document).ready(function() {
       console.log('📱 페이지 로드 완료 - FCM 토큰 등록 시도');
-      setTimeout(registerFcmTokenOnAppStart, 1000); // 1초 후 실행
-
+      setTimeout(registerFcmTokenOnAppStart, 1000); // 1초 후 실행 // ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
+      
       // 주기적으로 FCM 토큰 갱신 (5분마다)
+         // ⚠️ 주의: refreshFcmToken() 함수가 APP_NOWAPK.getFcmToken() 함수가 없어서 실패함
       setInterval(function() {
         console.log('📱 주기적 FCM 토큰 갱신 시도');
-        refreshFcmToken();
+        refreshFcmToken();// ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
       }, 5 * 60 * 1000); // 5분마다 실행
     });
 
@@ -470,7 +474,7 @@
     document.addEventListener('visibilitychange', function() {
       if (!document.hidden) {
         console.log('📱 앱이 포그라운드로 돌아옴 - FCM 토큰 갱신 시도');
-        setTimeout(refreshFcmToken, 500); // 0.5초 후 실행
+        setTimeout(refreshFcmToken, 500); // 0.5초 후 실행 // ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
       }
     });
 
@@ -512,7 +516,12 @@
       document.cookie = name + "=" + (value || "") + expires + "; path=/";
     }
 
- 
+    // ❌ 사용되지 않는 함수: onFcmTokenUpdate
+    // 상태: Android에서 정의되어 있지만 네이티브 앱에서 호출되지 않음
+    // 로그 분석 결과: Android 로그에서 이 함수 호출 기록 없음
+    // 용도: Android 네이티브 앱에서 FCM 토큰을 받아서 서버로 전송하는 함수
+    // 문제: Android 네이티브 앱에서 window.onFcmTokenUpdate(token) 호출이 없음
+    // 해결: Android 네이티브 앱에서 FCM 토큰을 받으면 이 함수를 호출해야 함
     window.onFcmTokenUpdate = function(token) {
       console.log('📱 Android FCM 토큰 업데이트 - 토큰: ' + (token ? token.substring(0, 20) + '...' : '없음'));
 
@@ -761,7 +770,9 @@
       '/mypage/resume_list',
       '/compage/recruit_list',
       '/resume/hr_list',
+      '/resume/hr_map',  // 인재 지도 페이지 추가 (핀치 제스처 충돌 방지)
       '/recruit/job_list',
+      '/recruit/job_map',  // 지도 페이지 추가 (핀치 제스처 충돌 방지)
       '/chat/chat_list',
       '/chat/chat_list2'
     ];
@@ -793,6 +804,9 @@
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;
 
+      // 핀치 제스처(2손가락 이상)는 스와이프로 인식하지 않음
+      if (event.touches.length >= 2) return;
+
       //console.log('touchstart');
       startX = event.touches[0].clientX;
       isSwipeBackGesture = false; // 초기화
@@ -801,6 +815,12 @@
     document.addEventListener('touchmove', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;
+
+      // 핀치 제스처(2손가락 이상)는 스와이프로 인식하지 않음
+      if (event.touches.length >= 2) {
+        isSwipeBackGesture = false; // 핀치 제스처 중에는 스와이프 플래그 해제
+        return;
+      }
 
       endX = event.touches[0].clientX;
       
@@ -815,6 +835,12 @@
     document.addEventListener('touchend', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;
+
+      // 핀치 제스처 중에는 뒤로가기 실행하지 않음
+      if (event.touches.length >= 2) {
+        isSwipeBackGesture = false;
+        return;
+      }
 
       if (isSwipeBackGesture && startX < screenWidth * 0.1 && endX - startX > 50) {
         // iOS 네이티브 스와이프 뒤로가기 방지

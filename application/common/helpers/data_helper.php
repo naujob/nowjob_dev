@@ -576,7 +576,7 @@ function getWorkType($work_type, $tag = "span", $max = 10)
 	$arr_type = explode(",", $work_type);
 
 	if (count(explode(",", $work_type)) > 2) {
-		return "<$tag>" . "시간협의" . "</$tag>";
+		return "<$tag>" . "근무협의" . "</$tag>";
 	}
 
 	foreach ($arr_type as $key => $txt) {
@@ -592,7 +592,7 @@ function getWorkTypeV2($work_type)
 {
 	$arr_type = explode(",", $work_type);
 	if (count(explode(",", $work_type)) > 2) {
-		return "<span>시간협의</span>";
+		return "<span>근무협의</span>";
 	}
 	return $work_type;
 }
@@ -604,7 +604,7 @@ function getWorkTypePoint($work_type)
 	$arr_type = explode(",", $work_type);
 
 	if (count($arr_type) > 2) {
-		return "<span>" . "시간협의" . "</span>";
+		return "<span>" . "근무협의" . "</span>";
 	} else {
 		$return = "<span>";
 		foreach ($arr_type as $key => $txt) {

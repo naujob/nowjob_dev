@@ -1,13 +1,37 @@
-body {overflow-x:hidden;overflow-y:auto;}
-.page {overflow:unset;overflow-x:hidden;height:100%;}
-#ajax_loding {top:0;bottom:0;right:0;left:0;z-index:99999999;background:rgba(33,33,33,0.1);position:fixed;}
-#ajax_loding img {top:50%;left:50%;margin-left:-8px;margin-top:-8px;position:absolute;}
+body {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.page {
+    overflow: unset;
+    overflow-x: hidden;
+    height: 100%;
+}
+
+#ajax_loding {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 99999999;
+    background: rgba(33, 33, 33, 0.1);
+    position: fixed;
+}
+
+#ajax_loding img {
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    position: absolute;
+}
 
 /* 중복팝업 처리 */
-.layer-popup.in ~ .layer-popup {
+.layer-popup.in~.layer-popup {
     background: rgba(0, 0, 0, 0.35);
     -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
 }
 
 .btn-replace {
@@ -22,7 +46,8 @@ body {overflow-x:hidden;overflow-y:auto;}
 
 /* top-bar 내부의 btn-replace 클릭 영역을 top-bar 높이만큼 확장 */
 .top-bar {
-    position: relative; /* absolute 위치 지정을 위한 기준점 설정 (sticky와 호환) */
+    position: relative;
+    /* absolute 위치 지정을 위한 기준점 설정 (sticky와 호환) */
 }
 
 .top-bar .btn-replace {
@@ -30,23 +55,29 @@ body {overflow-x:hidden;overflow-y:auto;}
     top: 0;
     left: 0;
     height: 100%;
-    width: 3rem; /* 클릭 영역 확장을 위한 충분한 너비 */
-    background: url("../img/ic_back.svg") no-repeat 1.4375rem center; /* 아이콘을 원래 위치에 유지 */
+    width: 3rem;
+    /* 클릭 영역 확장을 위한 충분한 너비 */
+    background: url("../img/ic_back.svg") no-repeat 1.4375rem center;
+    /* 아이콘을 원래 위치에 유지 */
     background-size: auto 0.9375rem;
-    float: none; /* float 제거 */
+    float: none;
+    /* float 제거 */
     box-sizing: border-box;
 }
 
 /* top-bar 내부의 btn-back 클릭 영역을 top-bar 높이만큼 확장 */
 .top-bar .btn-back {
     position: absolute;
-    top: 0;
+    top: 2px;
     left: -13px;
     height: 100%;
-    width: 3rem; /* 클릭 영역 확장을 위한 충분한 너비 */
-    background: url("../img/ic_back.svg") no-repeat 1.4375rem center; /* 아이콘을 원래 위치에 유지 */
+    width: 4rem;
+    /* 클릭 영역 확장을 위한 충분한 너비 */
+    background: url("../img/ic_back.svg") no-repeat 1.4375rem center;
+    /* 아이콘을 원래 위치에 유지 */
     background-size: auto 0.9375rem;
-    float: none; /* float 제거 */
+    float: none;
+    /* float 제거 */
     box-sizing: border-box;
 }
 
@@ -62,40 +93,61 @@ body {overflow-x:hidden;overflow-y:auto;}
 }
 
 .btnX {
-	position:absolute;
-	top:20px;
-	left:20px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
 }
 
-.btnX img {width:20px;}
+.btnX img {
+    width: 20px;
+}
 
 /* 빈화면처리 */
 .is-empty_v2 {
-    padding:20px 20px;
-    width:100%;
-    display:inline-block;
-    padding:20px;
+    padding: 20px 20px;
+    width: 100%;
+    display: inline-block;
+    padding: 20px;
     color: #BEBFC9;
     text-align: center;
     white-space: nowrap;
 }
 
-.hidden {display:none;}
+.hidden {
+    display: none;
+}
+
 /*.result-wrap {max-height:400px;overflow-y:auto;}*/
 
 /* rectuit item */
 .item-info .km {
-	position:absolute;
+    position: absolute;
 }
 
 
 /* 위치 찾기 검색버튼 추가 */
 .search-cont {}
-.search-input {position:relative;vertical-align:middle;}
-.search-cont .icon {position:absolute;right:10px;top:50%;margin-top:-13px;}
-.search-cont .icon img {width:24px;}
 
-.form-toggle-btn2 .cate {max-width:120px;overflow:hidden;}
+.search-input {
+    position: relative;
+    vertical-align: middle;
+}
+
+.search-cont .icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    margin-top: -13px;
+}
+
+.search-cont .icon img {
+    width: 24px;
+}
+
+.form-toggle-btn2 .cate {
+    max-width: 120px;
+    overflow: hidden;
+}
 
 .form-toggle-btn2 .cate {
     display: block;
@@ -126,11 +178,23 @@ body {overflow-x:hidden;overflow-y:auto;}
     line-height: 1.9285714286;
 }
 
-.form-toggle-btn2.on .cate {background:#57CCAF;color:#fff;border:1px solid #57CCAF;}
+.form-toggle-btn2.on .cate {
+    background: #57CCAF;
+    color: #fff;
+    border: 1px solid #57CCAF;
+}
 
-.chat-divider:before, .chat-divider:after {width:calc(50% - 5.2rem);}
+.chat-divider:before,
+.chat-divider:after {
+    width: calc(50% - 5.2rem);
+}
 
-.chat-bubble .bubble-content .readcount {position:absolute;left:-6px;top:-3px;font-size:10px !important;min-width: 1.0625rem;
+.chat-bubble .bubble-content .readcount {
+    position: absolute;
+    left: -6px;
+    top: -3px;
+    font-size: 10px !important;
+    min-width: 1.0625rem;
     max-width: 100%;
     padding: 0 6px;
     font-family: "Poppins", sans-serif;
@@ -139,12 +203,13 @@ body {overflow-x:hidden;overflow-y:auto;}
     line-height: 1.4166666667;
     text-align: center;
     -o-text-overflow: ellipsis;
-       text-overflow: ellipsis;
+    text-overflow: ellipsis;
     vertical-align: top;
     white-space: nowrap;
     border-radius: 100px;
     background: #fff;
-    overflow: hidden;}
+    overflow: hidden;
+}
 
 
 
@@ -162,6 +227,7 @@ body {overflow-x:hidden;overflow-y:auto;}
     pointer-events: none;
     z-index: 1;
 }
+
 .js-range-slider input[type=range]::-moz-range-thumb {
     /* 20230323 수정 */
     width: 1.5rem;
@@ -170,9 +236,10 @@ body {overflow-x:hidden;overflow-y:auto;}
     border-radius: 0px;
     background: red;
     -moz-appearance: inherit;
-         appearance: inherit;
+    appearance: inherit;
     pointer-events: all;
 }
+
 .js-range-slider input[type=range]::-webkit-slider-thumb {
     /* 20230323 수정 */
     width: 1.5rem;
@@ -181,9 +248,10 @@ body {overflow-x:hidden;overflow-y:auto;}
     border-radius: 0px;
     background: red;
     -webkit-appearance: inherit;
-            appearance: inherit;
+    appearance: inherit;
     pointer-events: all;
 }
+
 .js-range-slider input[type=range]::-ms-thumb {
     /* 20230323 수정 */
     width: 1.5rem;
@@ -200,40 +268,77 @@ body {overflow-x:hidden;overflow-y:auto;}
 }
 
 /* 모바일 이력서 리스트 추가 */
-.selectable-item .important-label{
-	display: inline-block;
-	margin: 0;
-	font-size: 16px;
-	font-weight: 600;
-	font-style: normal;
-	color: #F86048;
-	line-height: 1;
-	vertical-align: middle;
-	flex-shrink: 0;
+.selectable-item .important-label {
+    display: inline-block;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    font-style: normal;
+    color: #F86048;
+    line-height: 1;
+    vertical-align: middle;
+    flex-shrink: 0;
 }
 
 .bottom-nav .menu:after {
-	 background-image:url(/resource/shop/mobile/img/icon_close_w.png);
-	 background-size:30px 30px;
-	 background-repeat:no-repeat;
-	 background-position-y:14px;
-	 background-position-x:50%;
-	 cursor:pointer;
+    background-image: url(/resource/shop/mobile/img/icon_close_w.png);
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    background-position-y: 14px;
+    background-position-x: 50%;
+    cursor: pointer;
 }
 
-.btn-round:disabled {background:#eee;color:#999;}
+.btn-round:disabled {
+    background: #eee;
+    color: #999;
+}
 
-.footer {padding:0rem;}
+.footer {
+    padding: 0rem;
+}
 
-.benefit-group .item {width:25%;}
-.btn-loc-init {position:absolute; margin-top:10px;right:0px;border:solid 1px #57CCAF;padding:4px 16px;color:#57CCAF;border-radius:5px;font-size:13px;font-weight:bold;}
+.benefit-group .item {
+    width: 25%;
+}
+
+.btn-loc-init {
+    position: absolute;
+    margin-top: 10px;
+    right: 0px;
+    border: solid 1px #57CCAF;
+    padding: 4px 16px;
+    color: #57CCAF;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: bold;
+}
 
 
-.current-area .btn {max-width:100%;font-size:1.4rem;}
+.current-area .btn {
+    max-width: 100%;
+    font-size: 1.4rem;
+}
 
-.view-visual-slider {position:relative;}
-.view-visual-slider .bigsize {position:absolute;bottom:10px;right:10px;z-index:1;}
+.view-visual-slider {
+    position: relative;
+}
+
+.view-visual-slider .bigsize {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1;
+}
 
 
-.item-info .comp_name {font-size:0.875rem;color:#555;font-weight:bold;margin-top:2px;}
-.item-info .pay {margin:-1rem 0 0;}
+.item-info .comp_name {
+    font-size: 0.875rem;
+    color: #555;
+    font-weight: bold;
+    margin-top: 2px;
+}
+
+.item-info .pay {
+    margin: -1rem 0 0;
+}

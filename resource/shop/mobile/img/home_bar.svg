@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70">
+  <g id="home_bar" data-name="home bar" transform="translate(9504 10122)">
+    <circle id="Rectangle_12" data-name="Rectangle 12" cx="35" cy="35" r="35" transform="translate(-9504 -10122)" fill="#57ccaf"/>
+    <g id="그룹_122" data-name="그룹 122" transform="translate(-9485.133 -10103.133)">
+      <g id="그룹_118" data-name="그룹 118" transform="translate(18.7 18.7)">
+        <path id="패스_159" data-name="패스 159" d="M682.643,712.379H670.106a.71.71,0,0,1-.709-.709V699.133a.71.71,0,0,1,.709-.709h12.537a.709.709,0,0,1,.709.709V711.67A.709.709,0,0,1,682.643,712.379Z" transform="translate(-669.397 -698.423)" fill="#fff"/>
+      </g>
+      <g id="그룹_119" data-name="그룹 119" transform="translate(18.7 0)">
+        <path id="패스_160" data-name="패스 160" d="M682.643,692.436H670.106a.709.709,0,0,1-.709-.709V679.189a.709.709,0,0,1,.709-.709h12.537a.709.709,0,0,1,.709.709v12.538A.709.709,0,0,1,682.643,692.436Z" transform="translate(-669.397 -678.48)" fill="#fff"/>
+      </g>
+      <g id="그룹_120" data-name="그룹 120" transform="translate(0 0)">
+        <path id="패스_161" data-name="패스 161" d="M662.7,692.436H650.163a.709.709,0,0,1-.709-.709V679.189a.709.709,0,0,1,.709-.709H662.7a.709.709,0,0,1,.709.709v12.538A.709.709,0,0,1,662.7,692.436Z" transform="translate(-649.453 -678.48)" fill="#fff"/>
+      </g>
+      <g id="그룹_121" data-name="그룹 121" transform="translate(0 18.7)">
+        <path id="패스_162" data-name="패스 162" d="M662.7,712.379H650.163a.709.709,0,0,1-.709-.709V699.133a.709.709,0,0,1,.709-.709H662.7a.709.709,0,0,1,.709.709V711.67A.709.709,0,0,1,662.7,712.379Z" transform="translate(-649.453 -698.423)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

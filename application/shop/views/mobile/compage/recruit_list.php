@@ -123,7 +123,7 @@
 
     /* is-empty 스타일: main.css와 충돌 방지를 위한 구체적인 선택자 사용 */
     .page.page-mypage .page-content .post-list .list .is-empty {
-        top: 75px;
+        top: 340px;
     }
 </style>
 

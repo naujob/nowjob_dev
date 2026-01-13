@@ -23,7 +23,8 @@
     <meta property="twitter:description" content="구인구직 정보 플랫폼">
     <meta property="twitter:image" content="https://nowjob.co.kr/resource/shop/web/img/nowjob_info.png">
     <!--<meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />-->
-    <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" />
+    <!-- <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" /> -->
+    <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
     <!-- Favicon -->
     <link rel="shortcut icon" href="https://nowjob.co.kr/resource/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/resource/favicon.ico" type="image/x-icon">
@@ -416,9 +417,9 @@
                                         return;
                                     }
 
-                                    if (typeof fMemUpdateType === 'function') {
-                                        fMemUpdateType('all');
-                                    }
+                                    // if (typeof fMemUpdateType === 'function') {
+                                    //     fMemUpdateType('all');
+                                    // }
                                     $dimwrap.show();
                                     $compPopup.show();
                                 }

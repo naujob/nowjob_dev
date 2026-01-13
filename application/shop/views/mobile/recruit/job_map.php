@@ -392,7 +392,7 @@ $addr_info = replaceRegionNames(trim($addr_info));
 
 <div class="page page-map">
   <div class="top-bar is-transparency">
-    <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+    <a href="#" class="btn-back" style="background-image: url('/resource/shop/mobile/img/ic_back_dark.svg');"><span class="sr-text">이전으로</span></a>
     <h2 class="current-area">
       <span id="myLocation" class="myLocationBtn"><?= $ad_addr != "" ? $ad_addr : "서울 중구 태평로1가" ?></span>
     </h2>
@@ -495,6 +495,13 @@ $addr_info = replaceRegionNames(trim($addr_info));
           kakao.maps.event.addListener(map, 'idle', function() {
             currentLevel = map.getLevel();
           });
+          // 지도 드래그 시작 시 card-slider 숨김 처리
+          kakao.maps.event.addListener(map, 'dragstart', function() {
+            var cardSlider = document.querySelector('.card-slider');
+            if (cardSlider) {
+              cardSlider.style.display = 'none';
+            }
+          });
           kakao.maps.event.addListener(clusterer, 'clusterclick', function(cluster) {
             const markerList = cluster.getMarkers();
             const uidList = markerList.map(m => m.uid);
@@ -508,6 +515,11 @@ $addr_info = replaceRegionNames(trim($addr_info));
             currentLongitude = latlng.La;
             searchAddrFromCoords(latlng, displayCenterInfo);
             fetchRecruitList();
+            // 클러스터 클릭 시 card-slider 표시
+            var cardSlider = document.querySelector('.card-slider');
+            if (cardSlider) {
+              cardSlider.style.display = '';
+            }
           });
 
           function searchAddrFromCoords(coords, callback) {

@@ -289,6 +289,10 @@ if (count($banner_list) > 0) {
     color: #1B9D7D;
   }
 
+  .content-info .summary3 .worktype em.wtype0 {
+    color: #000;
+  }
+
   .content-info .summary3 .worktype em:not(:last-child) {
     padding-right: 5px;
   }
@@ -814,6 +818,13 @@ if (count($banner_list) > 0) {
         cls = 'wtype2';
       } else if (text === '2교대') {
         cls = 'wtype3';
+      } else if (text === '근무협의' || text === '시간협의') {
+        // 근무협의는 근무형태가 3개 이상 선택된 경우 (시간협의도 호환성을 위해 처리)
+        cls = 'wtype0';
+        // 시간협의가 오면 근무협의로 변환
+        if (text === '시간협의') {
+          text = '근무협의';
+        }
       }
       return `<em class="${cls}">${text}</em>`;
     }).join('');

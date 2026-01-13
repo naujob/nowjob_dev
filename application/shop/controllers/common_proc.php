@@ -921,19 +921,18 @@ class Common_proc extends CI_Controller
 			if ($is_data == true) {
 				if ($mq_type == "RECRUIT") {
 
-					//2025.02.03 오늘 지원했으면 내일 지원하도록 안내
-					//todo
+					// 최근 5분 이내 지원 이력 확인 (시간 기준으로 변경)
 					$query_today_dup_chk  = "
             select sum(cnt) todaycnt from (
               select count(*) cnt from st_member_request
               where mq_type = 'RECRUIT'
-              and DATE(reg_dt) = CURRENT_DATE()
+              and reg_dt >= date_sub(now(), interval 5 minute)
               and ru_idx = '" . $data["ru_idx"] . "'
               and rc_idx = '" . $data["rc_idx"] . "'
               union all
               select count(*) cnt from st_member_request_dup
               where mq_type = 'RECRUIT'
-              and DATE(reg_dt) = CURRENT_DATE()
+              and reg_dt >= date_sub(now(), interval 5 minute)
               and ru_idx = '" . $data["ru_idx"] . "'
               and rc_idx = '" . $data["rc_idx"] . "'
             ) xx ";
@@ -944,8 +943,8 @@ class Common_proc extends CI_Controller
 					//echo "result[".$todaycnt."]";
 
 					if ($todaycnt > 0) {
-						//2025.02.03 오늘은 했으니 내일 하도록 안내
-						json_return("01", "<em>다음날</em> 다시 제안이 가능합니다.");
+						// 5분 후 다시 지원 가능하도록 안내
+						json_return("01", "<em>5분 후</em> 다시 지원이 가능합니다.");
 					}
 
 					// 2025.02.03 다른날또 지원이 가능해지면서 의미 없는 부분 주석 처리

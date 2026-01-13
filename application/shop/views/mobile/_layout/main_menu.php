@@ -1,6 +1,6 @@
 <div class="bottom-nav">
   <!-- 활성화된 메뉴 : active 클래스 -->
-  <a href="/" class="btn menu-home <?= $select_menu == "home" ? "active" : "" ?>">메인</a>
+  <a href="/" class="btn menu-home <?= $select_menu == "home" ? "active" : "" ?>"></a>
   <button type="button" aria-controls="menu" aria-expanded="false" class="btn-toggle-menu js-toggle-menu"><span class="sr-text">메뉴열기</span></button>
   <nav id="menu" class="menu">
     <!-- 개인 사용자 -->
@@ -71,7 +71,7 @@
     <div id="messageBox" style="position: absolute; top: 0%; left: 0%; background-color: #ccc; padding: 20px; border-radius: 10px; font-size: 13px; color: #000; border: 1px solid #ccc;">준비중 입니다</div>
   </div>
 
-  <a href="#" class="btn menu-chat <?= $select_menu == "chat" ? "active" : "" ?>" id="btnChat" style="position: relative;">채팅방<span id="msgNoReadCountMainBottom"></span></a>
+  <a href="#" class="btn menu-chat <?= $select_menu == "chat" ? "active" : "" ?>" id="btnChat" style="position: relative;"><span id="msgNoReadCountMainBottom"></span></a>
   <style>
     #msgNoReadCountMainBottom {
       position: absolute;
@@ -258,7 +258,9 @@ renderSelectBottomSheet(
 
   /* 바텀시트 Footer 스타일 */
   .bottom-sheet-footer {
-    padding: 1.5rem 1.5rem 2.5rem;
+    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
+    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
+    padding: 1.5rem 1.5rem calc(2.5rem + max(env(safe-area-inset-bottom) - 1rem, 0px));
   }
 
   /* 바텀시트 Sticky-bottom 스타일 (main.css의 .layer-panel .panel-footer .sticky-bottom 속성 참고) */

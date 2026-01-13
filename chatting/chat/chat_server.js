@@ -449,6 +449,8 @@ io.on('connection', function (socket) {
 					$exe.chat.updateMessageReturnCount({
 						rm_idx: data.rm_idx,
 						mg_idx: msgInfo._id,
+						// con_user_id는 현재 채팅방에 입장한(읽음 처리를 하는) 사용자의 ID를 의미함.
+						// 예) 본인이 방에 입장할 때 자신의 user_id가 con_user_id로 전달됨
 						user_id: data.con_user_id
 					}, function (ret) {
 						// 🔥 ret는 {code, msg, data: {count, mg_idx}} 형태로 반환됨

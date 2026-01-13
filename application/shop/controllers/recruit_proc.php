@@ -845,43 +845,32 @@ class Recruit_proc extends CI_Controller
 			return;
 		}
 
-		//지원내역이 오늘인지 확인해서 리턴 (ru_idx 추가)
-		$query  = "SELECT count(*) cnt FROM st_member_request ";
-		$query .= "WHERE mq_type = 'RECRUIT'  ";
-		$query .= "  AND rc_idx = '" . $rc_idx . "' ";
-		$query .= "  AND mm_idx = '" . $mm_idx . "'  "; // 지원자
-		$query .= "  AND ru_idx = '" . $ru_idx . "'  "; // 이력서 추가
-		$query .= "  AND reg_dt LIKE '" . date("Y-m-d") . "%'  ";
+		// 최근 5분 이내 지원 이력 확인 (시간 기준으로 변경)
+		$query  = "SELECT sum(cnt) as total_cnt FROM (";
+		$query .= "  SELECT count(*) cnt FROM st_member_request ";
+		$query .= "  WHERE mq_type = 'RECRUIT'  ";
+		$query .= "    AND rc_idx = '" . $rc_idx . "' ";
+		$query .= "    AND mm_idx = '" . $mm_idx . "'  "; // 지원자
+		$query .= "    AND ru_idx = '" . $ru_idx . "'  "; // 이력서 추가
+		$query .= "    AND reg_dt >= date_sub(now(), interval 5 minute)  ";
+		$query .= "  UNION ALL ";
+		$query .= "  SELECT count(*) cnt FROM st_member_request_dup ";
+		$query .= "  WHERE mq_type = 'RECRUIT'  ";
+		$query .= "    AND rc_idx = '" . $rc_idx . "' ";
+		$query .= "    AND mm_idx = '" . $mm_idx . "'  "; // 지원자
+		$query .= "    AND ru_idx = '" . $ru_idx . "'  "; // 이력서 추가
+		$query .= "    AND reg_dt >= date_sub(now(), interval 5 minute)  ";
+		$query .= ") as combined ";
 
 		$result = $this->db->query($query);
 		$count = $result->row_array();
 		$today_cnt = 0;
-		if ($count != null) {
-			$today_cnt = $count["cnt"];
+		if ($count != null && isset($count["total_cnt"])) {
+			$today_cnt = intval($count["total_cnt"]);
 		}
 
 		if ($today_cnt > 0) {
-			json_return("01", "이미지원", $result);
-			return;
-		}
-
-		//중복지원내역에 오늘이 있는지 확인해서 리턴 (ru_idx 추가)
-		$query  = "SELECT count(*) cnt FROM st_member_request_dup ";
-		$query .= "WHERE mq_type = 'RECRUIT'  ";
-		$query .= "  AND rc_idx = '" . $rc_idx . "' ";
-		$query .= "  AND mm_idx = '" . $mm_idx . "'  "; // 지원자
-		$query .= "  AND ru_idx = '" . $ru_idx . "'  "; // 이력서 추가
-		$query .= "  AND reg_dt LIKE '" . date("Y-m-d") . "%'  ";
-
-		$result = $this->db->query($query);
-		$count = $result->row_array();
-		$today_cnt = 0;
-		if ($count != null) {
-			$today_cnt = $count["cnt"];
-		}
-
-		if ($today_cnt > 0) {
-			json_return("01", "이미지원", $result);
+			json_return("01", "5분 후 다시 지원이 가능합니다.", $result);
 			return;
 		}
 		
