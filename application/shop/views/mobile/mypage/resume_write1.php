@@ -130,34 +130,12 @@
                         <p class="form-label"><span class="required-asterisk">*</span>희망지역<em>희망지역은 2개까지 선택 가능</em></p>
                         <div class="location-field-group">
                             <ul class="added-location-new" id="addr_location">
-                                <?php
-                                $addr_count = 0;
-                                foreach ($addr_list as $row) :
-                                    if (!empty($row["ad_addr"])) :
-                                        $addr_count++;
-                                ?>
-                                        <li class="location-field-item">
-                                            <input type="hidden" name="ad_zipcode[]" value="<?= $row["ad_zip_code"] ?>" />
-                                            <input type="hidden" name="ad_jibun[]" value="<?= $row["ad_jibun"] ?>" />
-                                            <input type="hidden" name="ad_doro[]" value="<?= $row["ad_doro"] ?>" />
-                                            <input type="hidden" name="ad_addr[]" value="<?= $row["ad_addr"] ?>" />
-                                            <input type="hidden" name="ad_detail[]" value="<?= isset($row["ad_detail"]) ? $row["ad_detail"] : "" ?>" />
-                                            <input type="hidden" name="ad_gps_x[]" value="<?= $row["ad_gps_x"] ?>" />
-                                            <input type="hidden" name="ad_gps_y[]" value="<?= $row["ad_gps_y"] ?>" />
-                                            <span class="location-text addr-display"><?= $row["ad_addr"] ?><?= !empty($row["ad_detail"]) ? " " . $row["ad_detail"] : "" ?></span>
-                                            <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
-                                        </li>
-                                <?php
-                                    endif;
-                                endforeach;
-                                ?>
-                                <?php if ($addr_count < 2) : ?>
-                                    <li class="location-field-item location-field-add">
-                                        <a href="javascript:void(0);" onclick="showAddrInfo(2);" role="button" class="location-add-btn">
-                                            <span class="add-icon">+</span>
-                                        </a>
-                                    </li>
-                                <?php endif; ?>
+                                <!-- 주소는 JavaScript에서만 렌더링 -->
+                                <li class="location-field-item location-field-add">
+                                    <a href="javascript:void(0);" onclick="showAddrInfo(2);" role="button" class="location-add-btn">
+                                        <span class="add-icon">+</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -266,6 +244,24 @@
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <script>
+    // 이력서 작성 페이지의 뒤로가기 버튼 핸들러를 가장 먼저 등록 (전역 핸들러보다 우선)
+    (function() {
+        $(document).on("click", ".btn-back", function(e) {
+            var currentPath = window.location.pathname;
+            if (currentPath.indexOf('/mypage/resume_write1') > -1) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                var ruIdx = $("[name='ru_idx']").val() || "0";
+                // clearResumeDraft 함수가 정의되어 있으면 호출
+                if (typeof clearResumeDraft === 'function') {
+                    clearResumeDraft(ruIdx);
+                }
+                location.href = "/mypage/resume_list";
+                return false;
+            }
+        });
+    })();
+
     function getResumeDraftKey(step) {
         var ruIdx = $("[name='ru_idx']").val() || "0";
         return "resume_draft_" + ruIdx + "_step" + step;
@@ -281,6 +277,13 @@
                 localStorage.setItem(newKey, saved);
             }
             localStorage.removeItem(oldKey);
+        });
+    }
+
+    function clearResumeDraft(ruIdx) {
+        var targetIdx = ruIdx || $("[name='ru_idx']").val() || "0";
+        ["resume_draft_" + targetIdx + "_step1", "resume_draft_" + targetIdx + "_step4"].forEach(function(key) {
+            localStorage.removeItem(key);
         });
     }
 
@@ -389,6 +392,15 @@
     }
 
     function loadResumeStep1Data() {
+        // URL 파라미터로 복원 여부 확인 (더 확실한 방법)
+        var urlParams = new URLSearchParams(window.location.search);
+        var fromStep4 = urlParams.get('from') === 'step4';
+        
+        // resume_write4에서 온 경우가 아니면 복원하지 않음
+        if (!fromStep4) {
+            return;
+        }
+        
         var storageKey = getResumeDraftKey(1);
         var saved = localStorage.getItem(storageKey);
         if (!saved) return;
@@ -431,6 +443,23 @@
 
             if (Array.isArray(formData.addr_list)) {
                 rebuildAddressList(formData.addr_list);
+                
+                // 주소 정리 함수로 처리 (복원 후 표시 형식 정리)
+                if (typeof fRemoveBigAdrJS === 'function') {
+                    setTimeout(function() {
+                        $("#addr_location .location-field-item:not(.location-field-add)").each(function() {
+                            var $li = $(this);
+                            var $display = $li.find('.location-text');
+                            var jibun = $li.find('input[name="ad_jibun[]"]').val();
+                            var detail = $li.find('input[name="ad_detail[]"]').val();
+                            if (jibun) {
+                                var displayAddr = fRemoveBigAdrJS(jibun);
+                                displayAddr = displayAddr + (detail ? " " + detail : "");
+                                $display.text(displayAddr);
+                            }
+                        });
+                    }, 50);
+                }
             } else {
                 ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
             }
@@ -488,24 +517,14 @@
         $("#changeArea").addClass("on");
     }
 
-    $(document).ready(function() {
-        // 페이지 로드 시 기존 주소들을 주소 정리 함수로 처리하여 표시
-        if (typeof fRemoveBigAdrJS === 'function') {
-            $("#addr_location .addr-display").each(function() {
-                var $display = $(this);
-                var $li = $display.closest("li");
-                var jibun = $li.find('input[name="ad_jibun[]"]').val();
-                var detail = $li.find('input[name="ad_detail[]"]').val();
-                if (jibun) {
-                    var displayAddr = fRemoveBigAdrJS(jibun);
-                    displayAddr = displayAddr + (detail ? " " + detail : "");
-                    $display.text(displayAddr);
-                }
-            });
-        }
-        
+    // DOMContentLoaded 이벤트로 더 빠르게 처리 (깜빡임 방지)
+    document.addEventListener('DOMContentLoaded', function() {
+        // resume_write4에서 온 경우에만 로컬스토리지 임시 데이터 복원
         loadResumeStep1Data();
         ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
+    });
+
+    $(document).ready(function() {
 
         // 희망지역 삭제 버튼 이벤트
         $(document).on("click", "#addr_location .js-del-item", function() {
@@ -656,6 +675,17 @@
         $(".comma").on("keyup", function() {
             $(this).val($(this).val().replace(/\,/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'));
             saveResumeStep1Data();
+        });
+
+        // 뒤로가기 핸들러는 스크립트 시작 부분에서 이미 등록됨
+
+        // Android 물리적 뒤로가기 버튼 및 iOS 스와이프 뒤로가기 처리
+        history.pushState(null, null, location.href);
+        
+        window.addEventListener('popstate', function(e) {
+            history.pushState(null, null, location.href);
+            clearResumeDraft($("[name='ru_idx']").val() || "0");
+            location.href = "/mypage/resume_list";
         });
     });
 </script>

@@ -1254,9 +1254,25 @@ function getConvertResumePriceType($price_type)
               <?php 
               // 변수가 존재하고 배열인지 확인
               $hasRecruits = isset($recruit_list) && is_array($recruit_list) && count($recruit_list) > 0;
+              $validRecruitCount = 0; // 실제로 출력된 유효한 채용공고 개수
+              
+              if ($hasRecruits) {
+                  // 유효한 채용공고 개수 먼저 계산
+                  foreach ($recruit_list as $row) {
+                      if (!empty($row["rc_idx"]) && $row["rc_idx"] != "0" && $row["rc_idx"] != 0) {
+                          $validRecruitCount++;
+                      }
+                  }
+              }
               ?>
-              <?php if ($hasRecruits) : ?>
+              <?php if ($hasRecruits && $validRecruitCount > 0) : ?>
                 <?php foreach ($recruit_list as $row) : ?>
+                  <?php
+                  // rc_idx가 유효한지 확인 (null, 빈 값, 0 체크)
+                  if (empty($row["rc_idx"]) || $row["rc_idx"] == "0" || $row["rc_idx"] == 0) {
+                      continue; // 유효하지 않은 항목은 건너뛰기
+                  }
+                  ?>
                   <li>
                     <div class="selectable-item" style="position:relative;">
                       <label class="form-checkbox" style="position:absolute;top:40px;">
@@ -1283,18 +1299,35 @@ function getConvertResumePriceType($price_type)
         </div>
       </div>
     </div>
+    <?php if ($validRecruitCount > 0) : ?>
     <div class="panel-footer">
       <div class="sticky-bottom" style="width:100%;">
         <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
       </div>
     </div>
+    <?php endif; ?>
   </div>
 </div>
 <!-- //제안 리스트 -->
 
 <script>
   var check_user_type = "<?= $this->user->getUserType(); ?>";
-  $(".btnRequest").click(function() {
+  
+  // 이벤트 위임 방식으로 변경하여 팝업 닫은 후에도 버튼 클릭이 정상 동작하도록 수정
+  // 네임스페이스를 사용하여 중복 등록 방지
+  $(document).off('click', '.btnRequest').on('click', '.btnRequest', function(e) {
+    var $btn = $(this);
+    
+    // 버튼이 disabled 상태인지 확인
+    if ($btn.prop('disabled') || $btn.hasClass('disabled')) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+
+    // 이벤트 전파 중단 (다른 핸들러와의 충돌 방지)
+    e.stopImmediatePropagation();
+    
     //로그인 여부 확인
     if ($("#is_login").val() != "Y") {
       //commonLogin();
@@ -1313,18 +1346,52 @@ function getConvertResumePriceType($price_type)
         },
       });
 
-      return;
+      return false;
     }
 
     if (check_user_type != "COMP") {
       commonAlert("일반 회원은 제안 할 수 없습니다.", function() {});
-      return;
+      return false;
     }
 
     $("[name='chk_request[]']").prop("checked", false);
     // [설명] '제안 보내기' 버튼 클릭 시 제안 선택 패널을 화면에 표시
-    $("#selectPanel").addClass("on");
+    // main.js의 openPanel 함수 사용
+    if (typeof openPanel === 'function') {
+      var selectPanel = document.getElementById('selectPanel');
+      if (selectPanel) {
+        openPanel(selectPanel);
+      } else {
+        $("#selectPanel").addClass("on");
+      }
+    } else {
+      $("#selectPanel").addClass("on");
+    }
 
+    return false;
+  });
+
+  // 닫기 버튼 클릭 이벤트 처리
+  // 이벤트 위임 방식으로 처리하여 확실하게 작동하도록 함
+  $(document).on('click', '.btn-close-panel[aria-controls="selectPanel"]', function(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    
+    // 패널 닫기
+    var selectPanel = document.getElementById('selectPanel');
+    if (selectPanel) {
+      // main.js의 closePanel 함수 사용
+      if (typeof closePanel === 'function') {
+        closePanel(selectPanel);
+      } else {
+        // closePanel 함수가 없으면 직접 처리
+        $("#selectPanel").removeClass("on");
+        selectPanel.hidden = true;
+        document.body.style.overflow = '';
+      }
+    }
+    
+    return false;
   });
 
   $(".btnProcess").click(function() {
@@ -1909,6 +1976,44 @@ function getConvertResumePriceType($price_type)
 
     });
 
+  });
+
+  // 라디오 버튼 직접 클릭 시 기본 동작 보장
+  $(document).on('click', 'input[type="radio"][name="chk_request[]"]', function(e) {
+    // 라디오 버튼의 기본 동작을 보장하기 위해 이벤트 전파 중단하지 않음
+    // 기본 동작으로 라디오 버튼이 선택됨
+  });
+
+  // label 클릭 시 기본 동작 보장
+  $(document).on('click', '.selectable-item label', function(e) {
+    // label 클릭 시 라디오 버튼이 자동으로 선택되므로 기본 동작 유지
+    e.stopPropagation(); // selectable-item 클릭 이벤트로 전파되지 않도록
+  });
+
+  // selectable-item 클릭 시 해당 항목의 radio 버튼 선택
+  $(document).on('click', '.selectable-item', function(e) {
+    // label, input, 또는 그 자식 요소를 클릭한 경우는 기본 동작 유지
+    if ($(e.target).is('label') || 
+        $(e.target).is('input[type="radio"]') || 
+        $(e.target).is('span') ||
+        $(e.target).closest('label').length > 0 ||
+        $(e.target).closest('input[type="radio"]').length > 0) {
+      // 라디오 버튼이나 label을 클릭한 경우는 기본 동작만 수행
+      return;
+    }
+    
+    // selectable-item의 다른 부분을 클릭한 경우에만 radio 버튼 선택
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // 해당 항목 내의 radio 버튼 찾기
+    var $radio = $(this).find('input[type="radio"][name="chk_request[]"]');
+    if ($radio.length > 0) {
+      // radio 버튼 선택
+      $radio.prop('checked', true);
+      // radio 버튼의 change 이벤트 트리거
+      $radio.trigger('change');
+    }
   });
 
   function getRecoList() {

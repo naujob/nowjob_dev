@@ -111,6 +111,8 @@ body {
     color: #BEBFC9;
     text-align: center;
     white-space: nowrap;
+
+
 }
 
 .hidden {
@@ -280,14 +282,14 @@ body {
     flex-shrink: 0;
 }
 
-.bottom-nav .menu:after {
+/* .bottom-nav .menu:after {
     background-image: url(/resource/shop/mobile/img/icon_close_w.png);
     background-size: 30px 30px;
     background-repeat: no-repeat;
     background-position-y: 14px;
     background-position-x: 50%;
     cursor: pointer;
-}
+} */
 
 .btn-round:disabled {
     background: #eee;

@@ -833,6 +833,9 @@
 
         //팝업 종료
         $("#changeArea").removeClass("on");
+        $("#changeArea")[0].hidden = true;
+        // body 스크롤 잠금 해제
+        document.body.style.overflow = '';
     }
 
     function showAddrInfo(maxlen) {

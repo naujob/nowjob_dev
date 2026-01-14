@@ -209,8 +209,10 @@
    .addr_list_sel_box {
      flex: 0 0 auto;
      max-height: 225px;
-     overflow-y: auto;
-     padding: 10px;
+    overflow-y: auto;
+    
+    /* iOS 홈 인디케이터와 겹침 방지 */
+    padding-bottom: calc(max(env(safe-area-inset-bottom), 0px));
      box-sizing: border-box;
    }
 
@@ -357,6 +359,8 @@
      display: flex;
      gap: 10px;
      justify-content: space-between;
+     margin-right: 10px;
+     margin-left: 10px;
    }
 
    .addr_sel_init {
@@ -370,13 +374,14 @@
    .addr_sel_init,
    .addr_sel_apply {
      background-color: #31A182;
-     font-size: 1rem;
+     font-size: 1.3rem;
      color: white;
-     font-weight: 600;
+     font-weight: 900;
      text-align: center;
-     padding: 12px;
+     padding: 1rem 0;
      border-radius: 6px;
      cursor: pointer;
+     
    }
 
    .search-input {

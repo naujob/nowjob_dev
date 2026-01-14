@@ -62,6 +62,37 @@ if (count($banner_list) > 0) {
     font-style: normal;
     font-weight: 500;
     color: #1B9D7D;
+    position: relative;
+  }
+
+  /* 근무타입이 2개 이상일 때 구분선 추가 */
+  .recruit-card .type em:not(:last-child) {
+    padding-right: 5px;
+  }
+
+  .recruit-card .type em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 2px;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777;
+  }
+
+  /* 근무타입별 색상 지정 */
+  .recruit-card .type em.wtype1 {
+    color: #3a70db;
+  }
+
+  .recruit-card .type em.wtype2 {
+    color: #F86048;
+  }
+
+  .recruit-card .type em.wtype3 {
+    color: #1B9D7D;
   }
 
   .btn-bookmark {

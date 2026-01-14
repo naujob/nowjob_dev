@@ -76,6 +76,9 @@ function fRemoveBigAdr($arg)
     .view-footer {
         display: flex;
         gap: 0;
+        background-color: #fff;
+        /* iOS home indicator와 겹치지 않도록 하단 여백 추가 */
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .view-footer .btn-edit {
@@ -92,6 +95,19 @@ function fRemoveBigAdr($arg)
         color: #fff;
         font-weight: 700;
         
+    }
+
+    /* view-footer 내 버튼에 padding, font-size, font-weight 적용 */
+    .view-footer #btnEditResume,
+    .view-footer #btnPromotionResume,
+    .view-footer .btnRequest {
+        padding: 1.3rem 0;
+        font-size: 1.3rem;
+        font-weight: 900;
+    }
+   .panel-body .post-list{
+    position: relative;
+    top: -1.75rem;
     }
 </style>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
@@ -161,7 +177,7 @@ function fRemoveBigAdr($arg)
                                 <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
                                 <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "세") ?></span>
                             </p>
-                            <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p>
+                            <!-- <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p> -->
                         </div>
                         <!-- 즐겨찾기 -->
                         <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
@@ -634,29 +650,44 @@ function fRemoveBigAdr($arg)
 
                     <div class="post-list">
                         <ul class="list">
-                            <?php foreach ($recruit_list as $row) : ?>
-                                <?php
-                                // rc_idx가 유효한지 확인 (null, 빈 값, 0 체크)
-                                if (empty($row["rc_idx"]) || $row["rc_idx"] == "0" || $row["rc_idx"] == 0) {
-                                    continue; // 유효하지 않은 항목은 건너뛰기
+                            <?php 
+                            // 변수가 존재하고 배열인지 확인
+                            $hasRecruits = isset($recruit_list) && is_array($recruit_list) && count($recruit_list) > 0;
+                            $validRecruitCount = 0; // 실제로 출력된 유효한 채용공고 개수
+                            
+                            if ($hasRecruits) {
+                                // 유효한 채용공고 개수 먼저 계산
+                                foreach ($recruit_list as $row) {
+                                    if (!empty($row["rc_idx"]) && $row["rc_idx"] != "0" && $row["rc_idx"] != 0) {
+                                        $validRecruitCount++;
+                                    }
                                 }
-                                ?>
-                                <li style="border: 1px solid #ccc; border-radius: 10px; margin-bottom: 10px;">
-                                    <div class="selectable-item">
-                                        <label class="form-checkbox">
-                                            <input type="radio" name="chk_request[]" value="<?= htmlspecialchars($row["rc_idx"], ENT_QUOTES, 'UTF-8') ?>" data-rc_name="<?= htmlspecialchars(isset($row["rc_name"]) ? $row["rc_name"] : '', ENT_QUOTES, 'UTF-8') ?>">
-                                            <span class="label"></span>
-                                            <span class="sr-text">선택</span>
-                                        </label>
-                                        <a href="javascript:void(0);" class="angle-link" style="background:none;">
-                                            <strong><?= $row["rc_name"] ?></strong>
-                                            <span class="date"><?= get_yyyymmdd($row["rc_sdate"]) ?> ~ <?= get_yyyymmdd($row["rc_edate"]) ?></span>
-                                        </a>
-                                    </div>
-                                </li>
-                            <?php endforeach; ?>
-                            <?php if (count($recruit_list) == 0) : ?>
-                                <div class="is-empty-v2">
+                            }
+                            ?>
+                            <?php if ($hasRecruits && $validRecruitCount > 0) : ?>
+                                <?php foreach ($recruit_list as $row) : ?>
+                                    <?php
+                                    // rc_idx가 유효한지 확인 (null, 빈 값, 0 체크)
+                                    if (empty($row["rc_idx"]) || $row["rc_idx"] == "0" || $row["rc_idx"] == 0) {
+                                        continue; // 유효하지 않은 항목은 건너뛰기
+                                    }
+                                    ?>
+                                    <li style="border: 1px solid #ccc; border-radius: 10px; margin-bottom: 10px;">
+                                        <div class="selectable-item">
+                                            <label class="form-checkbox">
+                                                <input type="radio" name="chk_request[]" value="<?= htmlspecialchars($row["rc_idx"], ENT_QUOTES, 'UTF-8') ?>" data-rc_name="<?= htmlspecialchars(isset($row["rc_name"]) ? $row["rc_name"] : '', ENT_QUOTES, 'UTF-8') ?>">
+                                                <span class="label"></span>
+                                                <span class="sr-text">선택</span>
+                                            </label>
+                                            <a href="javascript:void(0);" class="angle-link" style="background:none;">
+                                                <strong><?= $row["rc_name"] ?></strong>
+                                                <span class="date"><?= get_yyyymmdd($row["rc_sdate"]) ?> ~ <?= get_yyyymmdd($row["rc_edate"]) ?></span>
+                                            </a>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <div class="is-empty_v2">
                                     <p>등록된 채용공고가 없습니다.</p>
                                 </div>
                             <?php endif; ?>
@@ -667,11 +698,13 @@ function fRemoveBigAdr($arg)
                 </div>
             </div>
         </div>
+        <?php if ($validRecruitCount > 0) : ?>
         <div class="panel-footer">
             <div class="sticky-bottom">
                 <button type="button" id="" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </div>
 <!-- //제안 리스트 -->
@@ -830,6 +863,23 @@ function fRemoveBigAdr($arg)
             }
         });
 
+    });
+
+    // selectable-item 클릭 시 해당 항목의 radio 버튼 선택
+    $(document).on('click', '.selectable-item', function(e) {
+        // label이나 input을 직접 클릭한 경우는 기본 동작 유지
+        if ($(e.target).is('label') || $(e.target).is('input') || $(e.target).closest('label').length > 0) {
+            return;
+        }
+        
+        // 해당 항목 내의 radio 버튼 찾기
+        var $radio = $(this).find('input[type="radio"][name="chk_request[]"]');
+        if ($radio.length > 0) {
+            // radio 버튼 선택
+            $radio.prop('checked', true);
+            // radio 버튼의 change 이벤트 트리거 (필요한 경우)
+            $radio.trigger('change');
+        }
     });
 
     // 개인회원이 자신의 이력서를 볼 때: 수정 버튼 클릭 이벤트

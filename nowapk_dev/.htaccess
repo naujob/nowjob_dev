@@ -1,6 +1,0 @@
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteBase /nowapk_dev/
-RewriteCond $1 !^(index\.php|.well-known|chatting|resource|uploads|outer|phpmyadmin|robots|robots\.txt)
-RewriteRule ^(.*)$ index.php [L]
-</IfModule>

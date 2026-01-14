@@ -1291,6 +1291,11 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
 <input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
+<?php
+  // 모집 마감 여부: 종료일이 현재 시각보다 과거면 마감 처리
+  $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
+?>
+<input type="hidden" id="is_closed" value="<?= $is_closed ? "Y" : "N" ?>" />
 <script>
   //티맵 길안내
   function tMap(name, lat, lng) {
@@ -1340,7 +1345,13 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
     });
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";
+    // 모집 마감 여부 (마감 시 즉시 안내 후 중단)
+    var isClosedRecruit = $("#is_closed").val() === "Y";
     $("#btnRecruit").click(function() {
+      if (isClosedRecruit) {
+        commonAlert("마감된 공고입니다", function() {});
+        return;
+      }
       //로그인 여부 확인
       if ($("#is_login").val() != "Y") {
         //commonLogin();

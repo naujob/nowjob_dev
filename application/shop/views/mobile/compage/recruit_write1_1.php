@@ -292,19 +292,10 @@
                     <!-- 주소등록 섹션 -->
                     <div class="form-row">
                         <p class="form-label"><span class="required-asterisk">*</span>주소등록</p>
-                        <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="address-add-btn js-toggle-panel <?= isset($info["addr"]["ad_addr"]) && $info["addr"]["ad_addr"] != "" ? "has-address" : "" ?>" id="btnAddrAdd">
+                        <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="address-add-btn js-toggle-panel" id="btnAddrAdd">
                             <span class="add-icon">+</span>
-                            <span class="address-text"><?php
-                                                        $display_addr = "";
-                                                        if (isset($info["addr"]["ad_addr"]) && $info["addr"]["ad_addr"] != "") {
-                                                            $display_addr = $info["addr"]["ad_addr"];
-                                                            // 상세주소가 있으면 함께 표시
-                                                            if (isset($info["addr"]["ad_detail"]) && $info["addr"]["ad_detail"] != "") {
-                                                                $display_addr .= " " . $info["addr"]["ad_detail"];
-                                                            }
-                                                        }
-                                                        echo $display_addr;
-                                                        ?></span>
+                            <!-- 주소는 JavaScript에서만 렌더링 -->
+                            <span class="address-text"></span>
                         </a>
                     </div>
 
@@ -422,6 +413,20 @@
 </div>
 
 <script>
+    // rc_idx 변경 시 localStorage 키 마이그레이션 함수
+    function migrateRecruitDraftKeys(oldIdx, newIdx, pages) {
+        if (!oldIdx || !newIdx || oldIdx === newIdx) return;
+        (pages || []).forEach(function(page) {
+            var oldKey = "recruit_draft_" + oldIdx + "_page" + page;
+            var newKey = "recruit_draft_" + newIdx + "_page" + page;
+            var saved = localStorage.getItem(oldKey);
+            if (saved && !localStorage.getItem(newKey)) {
+                localStorage.setItem(newKey, saved);
+            }
+            localStorage.removeItem(oldKey);
+        });
+    }
+
     // localStorage 저장/복원 함수
     function savePage1Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
@@ -465,23 +470,23 @@
             var formData = JSON.parse(saved);
             if (!formData) return;
 
-            // 입력 필드 복원 (서버 데이터가 없을 때만)
-            if (formData.rc_name && $("[name='rc_name']").val() == "") {
+            // 입력 필드 복원
+            if (typeof formData.rc_name !== "undefined") {
                 $("[name='rc_name']").val(formData.rc_name);
             }
-            if (formData.ad_zipcode && $("#ad_zipcode").val() == "") {
+            if (formData.ad_zipcode) {
                 $("#ad_zipcode").val(formData.ad_zipcode);
             }
-            if (formData.ad_jibun && $("#ad_jibun").val() == "") {
+            if (formData.ad_jibun) {
                 $("#ad_jibun").val(formData.ad_jibun);
             }
-            if (formData.ad_doro && $("#ad_doro").val() == "") {
+            if (formData.ad_doro) {
                 $("#ad_doro").val(formData.ad_doro);
             }
-            if (formData.ad_detail && $("#ad_detail").val() == "") {
+            if (formData.ad_detail) {
                 $("#ad_detail").val(formData.ad_detail);
             }
-            if (formData.ad_addr && $("#ad_addr").val() == "") {
+            if (formData.ad_addr) {
                 $("#ad_addr").val(formData.ad_addr);
                 // 주소 버튼 업데이트
                 var displayAddr = formData.ad_addr;
@@ -491,17 +496,15 @@
                 $("#btnAddrAdd").find(".address-text").text(displayAddr);
                 $("#btnAddrAdd").addClass("has-address");
             }
-            if (formData.ad_gps_x && $("#ad_gps_x").val() == "") {
+            if (formData.ad_gps_x) {
                 $("#ad_gps_x").val(formData.ad_gps_x);
             }
-            if (formData.ad_gps_y && $("#ad_gps_y").val() == "") {
+            if (formData.ad_gps_y) {
                 $("#ad_gps_y").val(formData.ad_gps_y);
             }
 
             // 급여형태 복원
-            var currentPriceType = $("#rc_price_type_main").val();
-            // 서버 데이터가 없거나 기본값(급여협의)일 때 복원
-            if (formData.rc_price_type_main && (currentPriceType == "" || currentPriceType == "급여협의")) {
+            if (formData.rc_price_type_main) {
                 $("#rc_price_type_main").val(formData.rc_price_type_main);
                 // 급여형태 변경 후 옵션 업데이트
                 updateSalaryOptions();
@@ -516,28 +519,29 @@
                 $("[name='rc_price_possible'][value='" + formData.rc_price_possible + "']").prop("checked", true);
             }
 
-            if (formData.rc_price_amount && $("#rc_price_amount").val() == "") {
+            if (formData.rc_price_amount) {
                 $("#rc_price_amount").val(formData.rc_price_amount);
             }
 
-            // 체크박스 복원 (서버 데이터가 없을 때만)
-            if (formData.rc_work && formData.rc_work.length > 0 && $("[name='rc_work[]']:checked").length == 0) {
-                $("[name='rc_work[]']").prop("checked", false);
+            // 체크박스 복원
+            $("[name='rc_work[]']").prop("checked", false);
+            if (Array.isArray(formData.rc_work) && formData.rc_work.length > 0) {
                 formData.rc_work.forEach(function(val) {
                     $("[name='rc_work[]'][value='" + val + "']").prop("checked", true);
                 });
             }
 
-            if (formData.rc_work_negotiation === "Y" && !$("[name='rc_work_negotiation']").is(":checked")) {
+            if (formData.rc_work_negotiation === "Y") {
                 $("[name='rc_work_negotiation']").prop("checked", true).trigger("change");
             }
 
-            if (formData.rc_work_type && formData.rc_work_type.length > 0 && $("[name='rc_work_type[]']:checked").length == 0) {
-                $("[name='rc_work_type[]']").prop("checked", false);
+            $("[name='rc_work_type[]']").prop("checked", false);
+            if (Array.isArray(formData.rc_work_type) && formData.rc_work_type.length > 0) {
                 formData.rc_work_type.forEach(function(val) {
                     $("[name='rc_work_type[]'][value='" + val + "']").prop("checked", true);
                 });
             }
+            
         } catch (e) {
             console.error("페이지1 데이터 복원 오류:", e);
         }
@@ -620,6 +624,15 @@
             $optionsGroup.find("input[value='일급가능']").closest("label").show();
             $optionsGroup.find("input[value='주급가능']").closest("label").show();
         }
+    }
+
+    // localStorage 초기화 함수 (등록 완료 후 또는 새 등록 시작 시)
+    function clearRecruitDraftData(rcIdx) {
+        if (!rcIdx) rcIdx = "0";
+        // 해당 rc_idx의 모든 페이지 데이터 삭제
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
     }
 
     window.addEventListener('DOMContentLoaded', function() {
@@ -778,19 +791,24 @@
             }
             $("[name=rc_work_img]").val(rc_work_img);
 
-            // 저장 후 전송
             savePage1Data();
 
             var params = $("#frm").serialize();
+            var prevIdx = $("[name='rc_idx']").val() || "0";
             comAjax("/compage_proc/recruit_write1_1", params, function(ret) {
                 if (ret.code == "00") {
-                    // 서버 저장 성공 시 rc_idx 업데이트
+                    var newIdx = prevIdx;
                     if (ret.data && ret.data.rc_idx) {
-                        $("[name='rc_idx']").val(ret.data.rc_idx);
+                        newIdx = ret.data.rc_idx;
+                        if (newIdx && newIdx !== prevIdx) {
+                            // rc_idx가 변경되면 localStorage 키 마이그레이션
+                            migrateRecruitDraftKeys(prevIdx, newIdx, [1, 2, 3]);
+                            $("[name='rc_idx']").val(newIdx);
+                        }
                     }
 
-                    if ($("[name=rc_idx]").val() != "0") {
-                        location.href = "/compage/recruit_write2_1/" + $("[name=rc_idx]").val();
+                    if (newIdx != "0") {
+                        location.href = "/compage/recruit_write2_1/" + newIdx;
                     } else {
                         location.href = "/compage/recruit_write2_1";
                     }
@@ -801,11 +819,29 @@
             });
         });
 
-        // 뒤로가기
-        $(".btn-back").click(function() {
-            savePage1Data(); // 저장 후 이동
-            history.go(-1);
+        // 뒤로가기 - compage/recruit_list로 이동
+        $(".btn-back").click(function(e) {
+            e.preventDefault();
+            savePage1Data();
+            clearRecruitDraftData($("[name='rc_idx']").val() || "0");
+            location.href = "/compage/recruit_list";
         });
+
+        // Android 물리적 뒤로가기 버튼 및 iOS 스와이프 뒤로가기 처리
+        // 히스토리 스택에 항목 추가하여 popstate 이벤트 감지 가능하게 함
+        history.pushState(null, null, location.href);
+        
+        // popstate 이벤트로 뒤로가기 버튼 및 iOS 스와이프 제스처 감지
+        window.addEventListener('popstate', function(e) {
+            // 뒤로가기를 막기 위해 다시 히스토리 스택에 추가
+            history.pushState(null, null, location.href);
+            // 데이터 저장 후 원하는 페이지로 이동
+            savePage1Data();
+            // 페이지를 벗어나므로 데이터 삭제
+            clearRecruitDraftData($("[name='rc_idx']").val() || "0");
+            location.href = "/compage/recruit_list";
+        });
+
     });
 </script>
 

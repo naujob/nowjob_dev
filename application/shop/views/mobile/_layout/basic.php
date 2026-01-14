@@ -713,6 +713,51 @@
       return;
     }
 
+    // 채용공고 작성 페이지들은 compage/recruit_list로 이동
+    if (currentPath.indexOf('/compage/recruit_write1_1') > -1 || 
+        currentPath.indexOf('/compage/recruit_write2_1') > -1 || 
+        currentPath.indexOf('/compage/recruit_write3_1') > -1) {
+    
+      // historyStack은 사용자가 방문(이동)한 페이지들의 경로(주소)를 순서대로 담고 있는 배열입니다.
+      // 이 배열은 sessionStorage에 저장되며, SPA식 동작이나 뒤로가기/앞으로가기 처리를 위해 사용됩니다.
+      // 가장 최근에 방문한 페이지가 배열의 마지막에 위치합니다.
+      const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+      if (historyStack.length > 0) {
+        // historyStack의 마지막(가장 최근) 방문 페이지를 가져옵니다.
+        const lastPage = historyStack[historyStack.length - 1]; // historyStack.length - 1은 배열의 마지막 인덱스를 의미
+        if (lastPage.indexOf('/compage/recruit_write1_1') > -1 || 
+            lastPage.indexOf('/compage/recruit_write2_1') > -1 || 
+            lastPage.indexOf('/compage/recruit_write3_1') > -1) {
+          // 배열 historyStack에서 현재 페이지(마지막 요소)를 제거
+          historyStack.pop();
+          sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+        }
+      }
+      
+      // compage/recruit_list로 이동
+      window.location.href = '/compage/recruit_list';
+      return;
+    }
+
+    // 이력서 작성 페이지들은 mypage/resume_list로 이동
+    if (currentPath.indexOf('/mypage/resume_write1') > -1 || 
+        currentPath.indexOf('/mypage/resume_write4') > -1) {
+      // historyStack에서 현재 페이지 제거
+      const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+      if (historyStack.length > 0) {
+        const lastPage = historyStack[historyStack.length - 1];
+        if (lastPage.indexOf('/mypage/resume_write1') > -1 || 
+            lastPage.indexOf('/mypage/resume_write4') > -1) {
+          historyStack.pop();
+          sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+        }
+      }
+      
+      // mypage/resume_list로 이동
+      window.location.href = '/mypage/resume_list';
+      return;
+    }
+
     const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
 
     // 방문 기록이 2개 이상일 때만 동작

@@ -464,7 +464,7 @@ function getConvertResumePriceType($price_type)
     .content-info .job-link {
         position: absolute;
         bottom: 25px;
-        right: -1px;
+        right: 0px;
         font-size: 12px;
         color: #5085BB;
         text-decoration: none;

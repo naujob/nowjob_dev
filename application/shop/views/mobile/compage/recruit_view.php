@@ -74,6 +74,8 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
         margin: auto;
         border-right: 1px solid #777;
     }
+   
+
 </style>
 <div class="page page-view">
     <div class="top-bar">
@@ -546,6 +548,17 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
             };
             comAjax("/compage_proc/recruit_publish", params, function(ret) {
                 if (ret.code == "00") {
+                    // 등록 완료 후 localStorage 정리
+                    if (rc_idx && rc_idx != "0") {
+                        localStorage.removeItem("recruit_draft_" + rc_idx + "_page1");
+                        localStorage.removeItem("recruit_draft_" + rc_idx + "_page2");
+                        localStorage.removeItem("recruit_draft_" + rc_idx + "_page3");
+                    }
+                    // "0" 키도 정리 (새 등록 시 사용했을 수 있음)
+                    localStorage.removeItem("recruit_draft_0_page1");
+                    localStorage.removeItem("recruit_draft_0_page2");
+                    localStorage.removeItem("recruit_draft_0_page3");
+                    
                     commonAlert("채용공고가 등록되었습니다.", function() {
                         // 등록 후 목록 페이지로 이동
                         location.href = "/compage/recruit_list";

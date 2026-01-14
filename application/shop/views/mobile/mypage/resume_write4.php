@@ -431,6 +431,22 @@
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <script>
+    (function() {
+        $(document).on("click", ".btn-back", function(e) {
+            var currentPath = window.location.pathname;
+            if (currentPath.indexOf('/mypage/resume_write4') > -1) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                var ruIdx = $("[name='ru_idx']").val() || "0";
+                if (typeof clearResumeDraft === 'function') {
+                    clearResumeDraft(ruIdx);
+                }
+                location.href = "/mypage/resume_list";
+                return false;
+            }
+        });
+    })();
+
     function getResumeDraftKey(step) {
         var ruIdx = $("[name='ru_idx']").val() || "0";
         return "resume_draft_" + ruIdx + "_step" + step;
@@ -743,9 +759,16 @@
             }
         }, 200);
 
-        $("#btnPrev").click(function() {
+        $("#btnPrev").click(function(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
             saveResumeStep4Data();
-            history.go(-1);
+            var ruIdx = $("[name='ru_idx']").val() || "0";
+            var url = (ruIdx !== "0") 
+                ? "/mypage/resume_write1/" + ruIdx 
+                : "/mypage/resume_write1";
+            // URL 파라미터로 복원 여부 표시
+            location.href = url + "?from=step4";
         });
 
         $("#btnStep").click(function() {
@@ -918,7 +941,14 @@
             saveResumeStep4Data();
         });
 
-        $("[name='ru_week[]']").on("change", saveResumeStep4Data);
+        // 요일 체크박스 변경 시 요일무관이 체크되어 있으면 해제
+        $("[name='ru_week[]']").on("change", function() {
+            // 요일무관이 체크되어 있으면 해제
+            if ($("[name='ru_week_yn']").is(":checked")) {
+                $("[name='ru_week_yn']").prop("checked", false);
+            }
+            saveResumeStep4Data();
+        });
         $("[name='ru_my_type[]']").on("change", saveResumeStep4Data);
         $("[name='ru_desc']").on("input", saveResumeStep4Data);
         $(document).on("input change", "[name='career_category[]'], [name='career_company[]'], [name='career_period[]'], [name='license[]'], [name='regdate[]']", function() {
@@ -1466,12 +1496,20 @@
         }, 100);
     }
 
-    //뒤로 왔을때 마이페이지로 이동
+    // Android 물리적 뒤로가기 버튼 및 iOS 스와이프 뒤로가기 처리
+    history.pushState(null, null, location.href);
+    
+    window.addEventListener('popstate', function(e) {
+        history.pushState(null, null, location.href);
+        clearResumeDraft($("[name='ru_idx']").val() || "0");
+        location.href = "/mypage/resume_list";
+    });
+
+    //뒤로 왔을때 마이페이지로 이동 및 데이터 삭제
     window.addEventListener('pageshow', function(event) {
         if (event.persisted || window.performance && window.performance.navigation.type == 2) {
+            clearResumeDraft($("[name='ru_idx']").val() || "0");
             _replace("/mypage/index");
-        } else {
-
         }
     }, false);
 </script>

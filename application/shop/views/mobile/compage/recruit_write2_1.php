@@ -213,6 +213,20 @@
 </div>
 
 <script>
+    // rc_idx 변경 시 localStorage 키 마이그레이션 함수
+    function migrateRecruitDraftKeys(oldIdx, newIdx, pages) {
+        if (!oldIdx || !newIdx || oldIdx === newIdx) return;
+        (pages || []).forEach(function(page) {
+            var oldKey = "recruit_draft_" + oldIdx + "_page" + page;
+            var newKey = "recruit_draft_" + newIdx + "_page" + page;
+            var saved = localStorage.getItem(oldKey);
+            if (saved && !localStorage.getItem(newKey)) {
+                localStorage.setItem(newKey, saved);
+            }
+            localStorage.removeItem(oldKey);
+        });
+    }
+
     // localStorage 저장/복원 함수
     function savePage2Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
@@ -239,13 +253,10 @@
 
         try {
             var formData = JSON.parse(saved);
-
-            // 서버에서 이미 값이 있으면 복원하지 않음 (서버 데이터 우선)
-            var hasServerData = $("[name='rc_life_type[]']:checked").length > 0;
-            if (hasServerData) return;
+            if (!formData) return;
 
             // 체크박스 복원
-            if (formData && formData.rc_life_type && formData.rc_life_type.length > 0) {
+            if (formData.rc_life_type && formData.rc_life_type.length > 0) {
                 $("[name='rc_life_type[]']").prop("checked", false);
                 formData.rc_life_type.forEach(function(val) {
                     $("[name='rc_life_type[]'][value='" + val + "']").prop("checked", true);
@@ -254,6 +265,15 @@
         } catch (e) {
             console.error("페이지2 데이터 복원 오류:", e);
         }
+    }
+
+    // localStorage 초기화 함수 (등록 완료 후 또는 새 등록 시작 시)
+    function clearRecruitDraftData(rcIdx) {
+        if (!rcIdx) rcIdx = "0";
+        // 해당 rc_idx의 모든 페이지 데이터 삭제
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
     }
 
     window.addEventListener('DOMContentLoaded', function() {
@@ -265,18 +285,24 @@
 
         // 다음 버튼 클릭 처리
         $("#btnStep").click(function() {
-            savePage2Data(); // 저장 후 전송
+            savePage2Data();
 
             var params = $("#frm").serialize();
+            var prevIdx = $("[name='rc_idx']").val() || "0";
             comAjax("/compage_proc/recruit_write2_1", params, function(ret) {
                 if (ret.code == "00") {
-                    // 서버 저장 성공 시 rc_idx 업데이트
+                    var newIdx = prevIdx;
                     if (ret.data && ret.data.rc_idx) {
-                        $("[name='rc_idx']").val(ret.data.rc_idx);
+                        newIdx = ret.data.rc_idx;
+                        if (newIdx && newIdx !== prevIdx) {
+                            // rc_idx가 변경되면 localStorage 키 마이그레이션
+                            migrateRecruitDraftKeys(prevIdx, newIdx, [1, 2, 3]);
+                            $("[name='rc_idx']").val(newIdx);
+                        }
                     }
 
-                    if ($("[name=rc_idx]").val() != "0") {
-                        location.href = "/compage/recruit_write3_1/" + $("[name=rc_idx]").val();
+                    if (newIdx != "0") {
+                        location.href = "/compage/recruit_write3_1/" + newIdx;
                     } else {
                         location.href = "/compage/recruit_write3_1";
                     }
@@ -289,12 +315,33 @@
 
         // 이전 버튼
         $("#btnPrev").click(function() {
-            savePage2Data(); // 저장 후 이동
+            savePage2Data();
             if ($("[name=rc_idx]").val() != "0") {
                 location.href = "/compage/recruit_write1_1/" + $("[name=rc_idx]").val();
             } else {
                 location.href = "/compage/recruit_write1_1";
             }
         });
+
+        // 뒤로가기 - compage/recruit_list로 이동
+        $(".btn-back").click(function(e) {
+            e.preventDefault();
+            savePage2Data();
+            clearRecruitDraftData($("[name='rc_idx']").val() || "0");
+            location.href = "/compage/recruit_list";
+        });
+
+        // Android 물리적 뒤로가기 버튼 및 iOS 스와이프 뒤로가기 처리
+        // 히스토리 스택에 항목 추가하여 popstate 이벤트 감지 가능하게 함
+        history.pushState(null, null, location.href);
+        
+        // popstate 이벤트로 뒤로가기 버튼 및 iOS 스와이프 제스처 감지
+        window.addEventListener('popstate', function(e) {
+            history.pushState(null, null, location.href);
+            savePage2Data();
+            clearRecruitDraftData($("[name='rc_idx']").val() || "0");
+            location.href = "/compage/recruit_list";
+        });
+
     });
 </script>

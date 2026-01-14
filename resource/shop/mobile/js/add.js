@@ -3,7 +3,16 @@ $(document).ready(function () {
         $("#menu").removeClass("open");
     });
 
+    // 이력서 작성 페이지에서는 전역 핸들러 실행하지 않음 (각 페이지에서 개별 처리)
     $(".btn-back").click(function () {
+        // 현재 경로가 이력서 작성 페이지인지 확인
+        const currentPath = window.location.pathname;
+        if (currentPath.indexOf('/mypage/resume_write1') > -1 ||
+            currentPath.indexOf('/mypage/resume_write4') > -1) {
+            // 이력서 작성 페이지는 각 페이지의 핸들러가 처리하므로 여기서는 실행하지 않음
+            return false;
+        }
+
         history.back();
         return false;
     });

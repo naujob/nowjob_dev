@@ -461,10 +461,12 @@
          <button id="btnSearch" type="button" class="btn btn-primary btn-search">검색</button>
        </div>
      </div>
-   </div>
- </div>
+  </div>
+</div>
 
- <script>
+<script>
+  // 현재 사용자 ID 가져오기 (로그인하지 않은 경우 빈 문자열)
+  var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
    function initCategory() {
      var arr_category = "";
      var arr_work_type = "";
@@ -593,6 +595,119 @@
       }
     }
    }
+
+  // 상세검색 조건을 세션 스토리지에 저장
+  function saveSearchStateToStorage() {
+    try {
+      var state = {
+        userId: currentUserId, // 현재 사용자 ID 저장
+        addrName: addrName,
+        searchAreaStr: searchAreaStr,
+        search_addr: Array.isArray(search_addr) ? search_addr : [],
+        selectedRegions: Array.isArray(window.selectedRegions) ? window.selectedRegions : [],
+        category: search_array.category ? search_array.category.split("^") : [],
+        work_type: search_array.work_type ? search_array.work_type.split("^") : [],
+        week: search_array.week ? search_array.week.split("^") : [],
+        price_type: search_array.price_type ? search_array.price_type.split("^") : [],
+        sex: search_array.sex ? search_array.sex.split("^") : [],
+        sage: search_array.sage || "",
+        eage: search_array.eage || "",
+        priceNegotiable: $("[name='priceNegotiable']").is(":checked"),
+        workingDay: $("[name='workingDay']").is(":checked"),
+      };
+      // 사용자 ID를 키에 포함하여 저장
+      var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+      sessionStorage.setItem(storageKey, JSON.stringify(state));
+    } catch (e) {
+      console.error("검색 조건 저장 실패:", e);
+    }
+  }
+
+  // 저장된 상세검색 조건을 로드해 UI에 반영
+  function loadSearchStateFromStorage() {
+    // 현재 사용자 ID에 해당하는 키로 불러오기
+    var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+    var raw = sessionStorage.getItem(storageKey);
+    if (!raw) return;
+
+    try {
+      var state = JSON.parse(raw);
+      
+      // 저장된 사용자 ID와 현재 사용자 ID가 다르면 무시 (보안)
+      if (state.userId !== currentUserId) {
+        return;
+      }
+
+      if (state.addrName) {
+        addrName = state.addrName;
+        $(".addrName").text(state.addrName);
+      }
+      if (Array.isArray(state.search_addr)) {
+        search_addr = state.search_addr.slice();
+      }
+      if (state.searchAreaStr) {
+        searchAreaStr = state.searchAreaStr;
+      }
+
+      var areaList = [];
+      try {
+        areaList = state.searchAreaStr ? JSON.parse(state.searchAreaStr) : [];
+      } catch (e) {
+        areaList = [];
+      }
+      var names = Array.isArray(state.selectedRegions) ? state.selectedRegions : [];
+      var $selBox = $(".addr_list_sel_box .div2");
+      if ($selBox.length) {
+        $selBox.empty();
+        areaList.forEach(function(area, idx) {
+          var label = names[idx] || area.addr;
+          var $btn = $("<div>")
+            .addClass("selbtn")
+            .attr("data-step", area.step)
+            .attr("data-addr", area.addr)
+            .text(label)
+            .append($("<div>").addClass("selbtnclose").text("x"));
+          $selBox.append($btn);
+        });
+        $(".addr_sel_cnt").text(areaList.length);
+      }
+
+      window.selectedRegions = names.slice(0, 3);
+      selectedRegions = window.selectedRegions;
+      updateSelectedRegionsDisplay();
+
+      function applyCheckedValues(selector, values) {
+        $(selector).each(function() {
+          $(this).prop("checked", values.indexOf($(this).val()) !== -1);
+        });
+      }
+
+      applyCheckedValues("input[name='category[]']", state.category || []);
+      applyCheckedValues("input[name='work_type[]']", state.work_type || []);
+      applyCheckedValues("input[name='week[]']", state.week || []);
+      applyCheckedValues("input[name='price_type[]']", state.price_type || []);
+      applyCheckedValues("input[name='sex[]']", state.sex || []);
+
+      $("[name='priceNegotiable']").prop("checked", !!state.priceNegotiable);
+      $("[name='workingDay']").prop("checked", !!state.workingDay);
+
+      $("#sageInput").val(state.sage || "");
+      $("#eageInput").val(state.eage || "");
+
+      updateCategoryCounter();
+      updateWorkTypeSelectionState();
+      updateWeekSelectionState();
+      updatePriceTypeSelectionState();
+      updateSexSelectionState();
+      updateAgeSelectionState();
+      updateRegionCounter();
+
+      initCategory();
+      initTabUi();
+    } catch (e) {
+      console.error("검색 조건 불러오기 실패:", e);
+    }
+  }
 
    function initTabUi() {
      $("#tab_list").html("");
@@ -984,6 +1099,11 @@
     });
   }
 
+  // 페이지 진입 시 저장된 상세검색 조건 복원
+  $(document).ready(function() {
+    loadSearchStateFromStorage();
+  });
+
   $("#btnSearch").click(function() {
     list_page = 1;
 
@@ -991,6 +1111,9 @@
     // initCategory()는 체크박스 상태를 읽어서 search_array를 설정하므로 팝업 닫기 전에 호출
     initCategory();
     initTabUi();
+
+    // 검색 조건 저장
+    saveSearchStateToStorage();
 
     // 검색 실행 (팝업 닫기 전에 먼저 실행 - closePanel이 체크박스를 초기화함)
     $(list_id).html("");
@@ -1038,6 +1161,20 @@
      }
      // .selbtn 요소들도 초기화 (addr_popup2025_new.php에서 관리되는 요소)
      $('.selbtn').remove();
+     // 지역 선택 영역(.div2)도 비우기
+     $('.addr_list_sel_box .div2').empty();
+     // 지역 선택 카운트도 초기화
+     $('.addr_sel_cnt').text('0');
+     // addr_list 영역의 선택 상태 초기화 (addr_on 클래스 제거)
+     $('.addr_list li.addr_on').removeClass('addr_on');
+     $('.search_addr li.addr_on').removeClass('addr_on');
+     // 동적으로 로드된 시·군·구, 읍·면·동 리스트도 비우기
+     $('.addr_dept2 ul').empty();
+     $('.addr_dept3 ul').empty();
+     // addr_popup2025_new.php의 updateSelectedCount 함수가 있으면 호출
+     if (typeof updateSelectedCount === 'function') {
+       updateSelectedCount();
+     }
 
      // 업직종
      $('input[name="category[]"]').prop('checked', false);
@@ -1082,6 +1219,10 @@
      updatePriceTypeSelectionState();
      updateSexSelectionState();
      updateAgeSelectionState();
+
+    // 현재 사용자 ID에 해당하는 키 삭제
+    var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+    sessionStorage.removeItem(storageKey);
 
      initCategory();
      initTabUi();

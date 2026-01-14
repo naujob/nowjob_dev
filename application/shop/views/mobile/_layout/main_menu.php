@@ -8,45 +8,51 @@
       <?php if ($this->user->getUserType() == "COMP") { ?>
         <style>
           .bottom-nav .sub-menu1:before {
-            background-image: url('/resource/shop/web/img/rating_stars_on.svg');
-            background-size: cover !important;
+            background-image: url('/resource/shop/mobile/img/rating_stars_on_2.svg');
+            background-size: 80%;
+            position: relative;
+           
+            right: -9px;
           }
 
           /* .bottom-nav .menu a:before { background-size: cover; } */
         </style>
-        <li><a href="/compage/bookmark_person1" class="sub-menu1">관심인재</a></li>
-        <li><a href="/recruit/job_list" class="sub-menu2">채용정보</a></li>
-        <li><a href="javascript:void(0);" class="sub-menu3" id="btnRecruitWrite">채용공고</a></li>
-        <li><a href="/resume/hr_list" class="sub-menu4">인재정보</a></li>
+        <li><a href="/compage/bookmark_person1" class="sub-menu1"><span>관심인재</span></a></li>
+        <li><a href="/recruit/job_list" class="sub-menu2"><span>채용정보</span></a></li>
+        <li><a href="javascript:void(0);" class="sub-menu3" id="btnRecruitWrite"><span>채용공고</span></a></li>
+        <li><a href="/resume/hr_list" class="sub-menu4"><span>인재정보</span></a></li>
         <?php if ($this->user->isLogin()) : ?>
-          <li><a href="/<?= ($this->user->getUserType() == "COMP") ? "compage" : "mypage" ?>/index" class="sub-menu5">마이페이지</a></li>
+          <li><a href="/<?= ($this->user->getUserType() == "COMP") ? "compage" : "mypage" ?>/index" class="sub-menu5"><span>마이페이지</span></a></li>
         <?php else : ?>
-          <li><a href="/member/login" class="sub-menu5">로그인</a></li>
+          <li><a href="/member/login" class="sub-menu5"><span>로그인</span></a></li>
         <?php endif; ?>
 
       <?php } else if ($this->user->getUserType() == "MEM") { ?>
         <style>
           .bottom-nav .sub-menu1:before {
-            background-image: url('/resource/shop/web/img/ic_top_search_on.svg');
+            background-image: url('/resource/shop/mobile/img/ic_top_search_2.svg');
+            position: relative;
+           
+            right: -12px;
           }
         </style>
-        <li><a href="/recruit/job_view_list" class="sub-menu1">최근본공고</a></li>
-        <li><a href="/resume/hr_list" class="sub-menu2">인재정보</a></li>
-        <li><a href="javascript:void(0);" class="sub-menu3" id="btnResumeWrite">이력서</a></li>
-        <li><a href="/recruit/job_list" class="sub-menu4">채용정보</a></li>
+        <li><a href="/recruit/job_view_list" class="sub-menu1"><span>최근본공고</span></a></li>
+        <li><a href="/resume/hr_list" class="sub-menu2"><span>인재정보</span></a></li>
+        <li><a href="javascript:void(0);" class="sub-menu3" id="btnResumeWrite"><span>이력서</span></a></li>
+        <li><a href="/recruit/job_list" class="sub-menu4"><span>채용정보</span></a></li>
         <?php if ($this->user->isLogin()) : ?>
-          <li><a href="/<?= ($this->user->getUserType() == "COMP") ? "compage" : "mypage" ?>/index" class="sub-menu5">마이페이지</a></li>
+          <li><a href="/<?= ($this->user->getUserType() == "COMP") ? "compage" : "mypage" ?>/index" class="sub-menu5"><span>마이페이지</span></a></li>
         <?php else : ?>
-          <li><a href="/member/login" class="sub-menu5">로그인</a></li>
+          <li><a href="/member/login" class="sub-menu5"><span>로그인</span></a></li>
         <?php endif; ?>
 
       <?php } else { ?>
 
-        <li><a href="/member/login" class="sub-menu1">로그인</a></li>
-        <li><a href="/resume/hr_list" class="sub-menu2">인재정보</a></li>
-        <li><a href="/compage/recruit_list" class="sub-menu3" id="btnRecruitMenu">공고등록</a></li>
-        <li><a href="/recruit/job_list" class="sub-menu4">채용정보</a></li>
-        <li><a href="/recruit/job_view_list" class="sub-menu5" id="btnJobViewList">최근본공고</a></li>
+        <li><a href="/member/login" class="sub-menu1"><span>로그인</span></a></li>
+        <li><a href="/resume/hr_list" class="sub-menu2"><span>인재정보</span></a></li>
+        <li><a href="/compage/recruit_list" class="sub-menu3" id="btnRecruitMenu"><span>공고등록</span></a></li>
+        <li><a href="/recruit/job_list" class="sub-menu4"><span>채용정보</span></a></li>
+        <li><a href="/recruit/job_view_list" class="sub-menu5" id="btnJobViewList"><span>최근본공고</span></a></li>
 
       <?php } ?>
       <?php /* //org ?>

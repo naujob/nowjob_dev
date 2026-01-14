@@ -76,52 +76,6 @@ function getConvertPrice($rc_price_pay)
   return number_format($rc_price_pay) . " 원";
 }
 
-function fRemoveBigAdr($arg)
-{
-
-  $parts1 = explode(",", $arg);
-  $arg = $parts1[0];
-
-  $replacements = [
-    "서울특별시 " => "서울시 ",
-    "경기도 " => "",
-    "강원특별자치도 " => "",
-    "충청남도 " => "",
-    "충청북도 " => "",
-    "경상남도 " => "",
-    "경상북도 " => "",
-    "전라남도 " => "",
-    "전북특별자치도 " => "",
-    "제주특별자치도 " => "",
-    "세종특별자치시 " => "세종시 ",
-    "광주광역시 " => "광주시 ",
-    "인천광역시 " => "인천시 ",
-    "울산광역시 " => "울산시 ",
-    "부산광역시 " => "부산시 ",
-    "대구광역시 " => "대구시 ",
-    "대전광역시 " => "대전시 ",
-    "경기 " => "",
-    "강원 " => "",
-    "충남 " => "",
-    "충북 " => "",
-    "경남 " => "",
-    "경북 " => "",
-    "전남 " => "",
-    "전북 " => "",
-    "제주 " => ""
-  ];
-
-  foreach ($replacements as $search => $replace) {
-    $arg = str_replace($search, $replace, $arg);
-  }
-
-  $parts = explode(" ", $arg);
-  if (count($parts) >= 3) {
-    return $parts[0] . " " . $parts[2];
-  } else {
-    return $arg;
-  }
-}
 ?>
 <style>
   .btn-bookmark {
@@ -466,7 +420,7 @@ function fRemoveBigAdr($arg)
                               <p><?= $row["rc_age_nm"] ?></p>
                             </div>
                             <div class="summary area">
-                              <p><?= fRemoveBigAdr($row["ad_addr"]) ?></p>
+                              <p class="area-addr" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
                             </div>
                             <div class="summary2">
                               <p class="period"><?= getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]) ?></p>
@@ -545,5 +499,16 @@ function fRemoveBigAdr($arg)
       var url = '/recruit/job_post/' + rcIdx;
       location.href = url;
     }
+  });
+
+  // 주소 처리: fRemoveBigAdrJS 함수 사용
+  $(document).ready(function() {
+    $('.area-addr[data-addr]').each(function() {
+      var originalAddr = $(this).data('addr');
+      if (originalAddr && typeof fRemoveBigAdrJS === 'function') {
+        var processedAddr = fRemoveBigAdrJS(originalAddr);
+        $(this).text(processedAddr);
+      }
+    });
   });
 </script>

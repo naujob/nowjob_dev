@@ -116,6 +116,9 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
     .view-footer {
         display: flex;
         gap: 0;
+        background-color: #fff;
+        /* iOS home indicator와 겹치지 않도록 하단 여백 추가 */
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .view-footer .btn-edit {
@@ -131,6 +134,16 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
         background-color: #1B9D7D;
         color: #fff;
         font-weight: 700;
+    }
+
+    /* view-footer 내 버튼과 링크에 padding 및 font-size 적용 */
+    .view-footer #btnEditRecruit,
+    .view-footer #btnPromotionRecruit,
+    .view-footer #btnRecruit,
+    .view-footer a.btn.btn-primary {
+        padding: 1.3rem 0;
+        font-size: 1.3rem;
+        font-weight: 900;
     }
 
     .info-table .pay {
@@ -185,7 +198,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
         content: "";
         position: absolute;
         top: 0;
-        right: 0;
+        right: 2px;
         bottom: 0;
         width: 1px;
         height: 0.5em;
@@ -709,6 +722,11 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
 <input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
+<?php
+    // 모집 마감 여부 계산 (종료일이 현재 시각 이전이면 마감)
+    $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
+?>
+<input type="hidden" id="is_closed" value="<?= $is_closed ? "Y" : "N" ?>" />
 <script>
     var sel_lat = 0;
     var sel_lng = 0;
@@ -914,7 +932,13 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
         });
 
         var user_type = "<?= $this->user->getUserType(); ?>";
+        // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
+        var isClosedRecruit = $("#is_closed").val() === "Y";
         $("#btnRecruit").click(function() {
+            if (isClosedRecruit) {
+                commonAlert("마감된 공고입니다", function() {});
+                return;
+            }
             //로그인 여부 확인
             if ($("#is_login").val() != "Y") {
                 //commonLogin();

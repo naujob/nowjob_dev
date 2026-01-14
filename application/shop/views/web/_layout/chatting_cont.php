@@ -230,6 +230,23 @@
 		display: inline-block !important;
 		font-style: normal !important;
 		color: #777 !important;
+		margin-left: 8px !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 .period em:first-child {
+		margin-left: 0 !important;
+	}
+
+	.chat-view-header .chat-recruit-summary2 .period em:not(:last-child)::after {
+		content: "" !important;
+		position: absolute !important;
+		top: 0 !important;
+		right: -7px !important;
+		bottom: 0 !important;
+		width: 1px !important;
+		height: 0.5em !important;
+		margin: auto !important;
+		border-right: 1px solid #777777 !important;
 	}
 
 	.chat-view-header .chat-recruit-summary2 .period em.on {
@@ -605,6 +622,12 @@
 		/* 긴 텍스트 줄바꿈 처리: word-break: keep-all과 함께 사용하여 한글은 단어 단위로, 영문/숫자는 강제 줄바꿈 */
 		overflow-wrap: break-word !important;
 		word-wrap: break-word !important; /* 구형 브라우저 호환성 */
+	}
+
+	/* 보내는 사람의 텍스트 색상 (diff 클래스가 없는 경우만) */
+	.chat-view-body .msg-item.chat-bubble:not(.diff) .bubble-content,
+	#chatPopup .chat-view-body .msg-item.chat-bubble:not(.diff) .bubble-content {
+		color: #fff;
 	}
 </style>
  <div id="chatPopup" class="layer-popup">
@@ -1436,6 +1459,32 @@
 		} else {
 			return arg;
 		}
+	}
+
+	// job_list.php와 동일한 로직: 급여 타입 변환 함수
+	function getConvertPriceType(rc_price_type, rc_price_rep) {
+		if (!rc_price_type) {
+			return "";
+		}
+		const types = rc_price_type.split(',');
+		if (types.length === 1) {
+			return `<em class="on">${types[0]}</em>`;
+		}
+		return types.map(type => {
+			if (type === rc_price_rep) {
+				return `<em class="on">${type}</em>`;
+			} else {
+				return `<em>${type}</em>`;
+			}
+		}).join('');
+	}
+
+	// job_list.php와 동일한 로직: 급여 변환 함수
+	function getConvertPrice(rc_price_pay) {
+		if (!rc_price_pay || rc_price_pay == 0) {
+			return '';
+		}
+		return Number(rc_price_pay).toLocaleString() + "원";
 	}
  </script>
  <?php if ($this->user->isLogin() !== false) : ?>
@@ -2986,14 +3035,30 @@
 									$("#top_area").closest(".chat-recruit-summary.area").hide();
 								}
 								
-								// 가격 타입 및 급여 (값이 있을 때만 표시)
-								if (ret.data.rt_price_type) {
-									$("#top_price_type").html(ret.data.rt_price_type).show();
+								// 가격 타입 및 급여 (job_list.php와 동일한 로직 적용)
+								if (ret.data.rc_price_type) {
+									// 협의인 경우 빈 문자열로 처리
+									if (ret.data.rc_price_type.indexOf('협의') > -1) {
+										$("#top_price_type").html("").hide();
+									} else {
+										var priceTypeHtml = getConvertPriceType(ret.data.rc_price_type, ret.data.rc_price_rep || "");
+										$("#top_price_type").html(priceTypeHtml).show();
+									}
 								} else {
 									$("#top_price_type").hide();
 								}
-								if (ret.data.rt_price) {
-									$("#top_price").html(ret.data.rt_price).show();
+								if (ret.data.rc_price_pay) {
+									// 협의인 경우 "급여협의" 표시
+									if (ret.data.rc_price_type && ret.data.rc_price_type.indexOf('협의') > -1) {
+										$("#top_price").html("급여협의").show();
+									} else {
+										var priceHtml = getConvertPrice(ret.data.rc_price_pay);
+										if (priceHtml) {
+											$("#top_price").html(priceHtml).show();
+										} else {
+											$("#top_price").hide();
+										}
+									}
 								} else {
 									$("#top_price").hide();
 								}
@@ -3762,14 +3827,30 @@
 									$("#top_area").closest(".chat-recruit-summary.area").hide();
 								}
 								
-								// 가격 타입 및 급여 (값이 있을 때만 표시)
-								if (ret.data.rt_price_type) {
-									$("#top_price_type").html(ret.data.rt_price_type).show();
+								// 가격 타입 및 급여 (job_list.php와 동일한 로직 적용)
+								if (ret.data.rc_price_type) {
+									// 협의인 경우 빈 문자열로 처리
+									if (ret.data.rc_price_type.indexOf('협의') > -1) {
+										$("#top_price_type").html("").hide();
+									} else {
+										var priceTypeHtml = getConvertPriceType(ret.data.rc_price_type, ret.data.rc_price_rep || "");
+										$("#top_price_type").html(priceTypeHtml).show();
+									}
 								} else {
 									$("#top_price_type").hide();
 								}
-								if (ret.data.rt_price) {
-									$("#top_price").html(ret.data.rt_price).show();
+								if (ret.data.rc_price_pay) {
+									// 협의인 경우 "급여협의" 표시
+									if (ret.data.rc_price_type && ret.data.rc_price_type.indexOf('협의') > -1) {
+										$("#top_price").html("급여협의").show();
+									} else {
+										var priceHtml = getConvertPrice(ret.data.rc_price_pay);
+										if (priceHtml) {
+											$("#top_price").html(priceHtml).show();
+										} else {
+											$("#top_price").hide();
+										}
+									}
 								} else {
 									$("#top_price").hide();
 								}

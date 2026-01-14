@@ -284,12 +284,10 @@ class memberModel extends MY_Model
                     group by mm_idx
                 ) bb on aa.mm_idx = bb.mm_idx
                 left join (
-                	select bb.mm_idx,count(*) as cnt
-                    FROM st_bookmark aa
-                        inner join st_resume bb
-                            on aa.bk_key = bb.ru_idx
-                    where aa.bk_type = 'RESUME'
-                    group by bb.mm_idx
+                	select mm_idx,count(*) as cnt
+                    FROM st_bookmark
+                    where bk_type = 'RECRUIT'
+                    group by mm_idx
                 ) cc on aa.mm_idx = cc.mm_idx
                 left join (
                     select aa.mm_idx,sum(aa.ru_hit)  as cnt
@@ -806,7 +804,7 @@ class memberModel extends MY_Model
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
+			and aa.rc_status = 'Y'
       AND EXISTS (
           SELECT 1 FROM st_member_request mq
           WHERE mq.rc_idx = aa.rc_idx
@@ -822,6 +820,7 @@ class memberModel extends MY_Model
 	}
 
 	# 공고 조회 : 기본 - 게재중인 (모든 공고, 제안 조건 없음)
+	# 진행중인 채용공고만 표시하도록 rc_edate 조건 추가
 	function getRecruitActaiveListAll($mm_idx)
 	{
 		$sql = "
@@ -885,7 +884,7 @@ class memberModel extends MY_Model
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
+			and aa.rc_status = 'Y'
 			AND EXISTS (
 			    SELECT 1 FROM st_member_request mq
 			    WHERE mq.rc_idx = aa.rc_idx
@@ -943,7 +942,7 @@ class memberModel extends MY_Model
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa,st_member_request req /* membermodel.getRecruitActaiveListMem queryXlog */
 			where req.mq_type = 'RECRUIT' AND req.rc_idx = aa.rc_idx AND req.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
+			and aa.rc_status = 'Y'
 			order by max_up_dt desc, aa.rc_idx desc
 		";
 
@@ -5258,6 +5257,7 @@ LIMIT 0 , 200
 	}
 
 	# 채팅방 목록 - 공고, 이력서가 모두 오픈상태인
+	# 마감된 공고의 채팅방도 목록에 표시되도록 rc_edate 조건 제거
 	function getRoomListActaive($mm_idx)
 	{
 
@@ -5265,7 +5265,6 @@ LIMIT 0 , 200
               FROM st_room rm
               LEFT JOIN st_recruit rc
                  ON  rc.rc_show_yn = 'Y' AND rc.rc_status = 'Y'
-                 AND NOW() BETWEEN rc.rc_sdate AND rc.rc_edate
               LEFT JOIN st_resume ru
                  ON  ru.ru_show_yn = 'Y' AND ru.ru_status = 'Y'
               WHERE rm.rc_idx = rc.rc_idx

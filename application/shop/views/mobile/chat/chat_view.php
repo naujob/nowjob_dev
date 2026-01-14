@@ -788,17 +788,57 @@
             <?php else : ?>
                 <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
                 <?php
+                // job_list.php와 동일한 로직을 위한 함수 정의
+                // 급여 타입 변환 함수 (job_list.php의 getConvertPriceType과 동일)
+                if (!function_exists('getConvertPriceType')) {
+                    function getConvertPriceType($rc_price_type, $rc_price_rep) {
+                        if (empty($rc_price_type)) {
+                            return "";
+                        }
+                        $types = explode(',', $rc_price_type);
+                        $types = array_map('trim', $types);
+                        
+                        if (count($types) === 1) {
+                            return '<em class="on">' . htmlspecialchars($types[0], ENT_QUOTES) . '</em>';
+                        }
+                        
+                        $result = '';
+                        foreach ($types as $type) {
+                            if ($type === $rc_price_rep) {
+                                $result .= '<em class="on">' . htmlspecialchars($type, ENT_QUOTES) . '</em>';
+                            } else {
+                                $result .= '<em>' . htmlspecialchars($type, ENT_QUOTES) . '</em>';
+                            }
+                        }
+                        return $result;
+                    }
+                }
+                
+                // 급여 변환 함수 (job_list.php의 getConvertPrice와 동일)
+                if (!function_exists('getConvertPrice')) {
+                    function getConvertPrice($rc_price_pay) {
+                        if (empty($rc_price_pay) || $rc_price_pay == 0) {
+                            return '';
+                        }
+                        return number_format($rc_price_pay) . "원";
+                    }
+                }
+                
                 // 이미지 경로 설정
                 $recruitThumb = getRecruitImg($recruit);
                 
-                // 가격 타입 처리
+                // 가격 타입 처리 (job_list.php와 동일한 로직 적용)
                 $price_type_display = "";
                 if (!empty($recruit["rc_price_type"])) {
-                    $price_type_display = getPriceType($recruit["rc_price_type"]);
+                    $rc_price_rep = isset($recruit["rc_price_rep"]) ? $recruit["rc_price_rep"] : "";
+                    $price_type_display = getConvertPriceType($recruit["rc_price_type"], $rc_price_rep);
                 }
                 
-                // 급여 처리
-                $price_pay_display = getRecuitPrice($recruit);
+                // 급여 처리 (job_list.php와 동일한 로직 적용)
+                $price_pay_display = "";
+                if (!empty($recruit["rc_price_pay"])) {
+                    $price_pay_display = getConvertPrice($recruit["rc_price_pay"]);
+                }
                 
                 // 근무 타입 처리 (job_list.php와 동일하게 <em> 태그로 변환, 쉼표 제거)
                 $work_type_display = "";
@@ -1497,6 +1537,23 @@
         display: inline-block;
         font-style: normal;
         color: #777;
+        margin-left: 8px;
+    }
+
+    .chat-view-header .chat-recruit-summary2 .period em:first-child {
+        margin-left: 0;
+    }
+
+    .chat-view-header .chat-recruit-summary2 .period em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: -7px;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777777;
     }
 
     .chat-view-header .chat-recruit-summary2 .period em.on {
