@@ -284,6 +284,20 @@ class Home extends CI_Controller
 		$this->layout->shop('/home/splash', $data);
 	}
 
+	# QR 코드 다운로드 페이지
+	function qr_ko()
+	{
+		$data = [];
+		$this->layout->shop('/home/qr_ko', $data);
+	}
+
+	# QR 코드 다운로드 페이지 (중문)
+	function qr_ch()
+	{
+		$data = [];
+		$this->layout->shop('/home/qr_ch', $data);
+	}
+
 	function about()
 	{
 		$data = [];
