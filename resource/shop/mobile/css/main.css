@@ -1,5 +1,23 @@
 @charset "UTF-8";
 
+/* 공통: 버튼/링크 눌림 표시 제거 */
+a,
+button,
+input,
+textarea,
+select,
+[role="button"],
+div[data-rc_idx],
+.content-li {
+    outline: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 모든 요소의 :active 상태 시각적 피드백 제거 */
+*:active {
+    -webkit-tap-highlight-color: transparent !important;
+}
+
 .category-label-row {
     display: flex;
     justify-content: space-between;
@@ -3307,6 +3325,9 @@ fieldset {
     background: url("../img/ic_layer_close.svg") no-repeat 50% 50%;
     background-size: 11px auto;
     z-index: 1;
+    /* 모바일 탭 하이라이트/포커스 잔상 제거 */
+    outline: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .layer-panel.card-type .btn-close-panel {
@@ -4557,8 +4578,8 @@ body {
     position: absolute;
     top: 50%;
     right: 1.375rem;
-    width: 1.5rem;
-    height: 1.75rem;
+    width: 2rem;
+    height: 2rem;
     margin: -0.6875rem 0 0;
     background: url("../img/ic_top_alarm.svg") no-repeat 0 0;
     background-size: contain;
@@ -4878,11 +4899,11 @@ body {
 }
 
 .bottom-nav .menu-home:before {
-    background-image: url("../img/ic_menu_home_off.svg?v=2.0");
+    background-image: url("../img/ic_menu_home_off.svg?v=3.0");
 }
 
 .bottom-nav .active.menu-home:before {
-    background-image: url("../img/ic_menu_home_on.svg?v=2.0");
+    background-image: url("../img/ic_menu_home_on.svg?v=3.0");
 }
 
 .bottom-nav .menu-chat {
@@ -4890,11 +4911,11 @@ body {
 }
 
 .bottom-nav .menu-chat:before {
-    background-image: url("../img/ic_menu_chat_off.svg?v=2.0");
+    background-image: url("../img/ic_menu_chat_off.svg?v=3.0");
 }
 
 .bottom-nav .active.menu-chat:before {
-    background-image: url("../img/ic_menu_chat_on.svg?v=2.0");
+    background-image: url("../img/ic_menu_chat_on.svg?v=3.0");
 }
 
 .bottom-nav .btn-toggle-menu {
@@ -6881,12 +6902,30 @@ form#frm {
     border-bottom: 0;
 }
 
-.alarm-list .title {
+.alarm-list .title-wrap {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start;
     margin: 0 0 5px;
+    gap: 10px;
+}
+
+.alarm-list .title {
+    margin: 0;
     font-size: 1.0625rem;
     font-weight: 700;
     color: #222;
     line-height: 1.9411764706;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 0;
 }
 
 .alarm-list .title em {
@@ -6941,11 +6980,35 @@ form#frm {
 }
 
 .alarm-list .date {
+    margin: 0;
     font-family: "Poppins", sans-serif;
     font-size: 0.9375rem;
     color: #777;
     letter-spacing: 0;
-    line-height: 1.1;
+    line-height: 1.9411764706;
+    white-space: nowrap;
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+}
+
+/* 알림 클릭 가능 항목 스타일 */
+.alarm-list .list>li.alarm-clickable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.alarm-list .list>li.alarm-clickable:hover:not(.read) {
+    background-color: #f6f6f6;
+}
+
+/* 클릭 후 배경색 유지 - read 클래스가 있을 때는 항상 배경색 유지 */
+.alarm-list .list>li.alarm-clickable.read {
+    background-color: #f6f6f6;
+}
+
+.alarm-list .list>li.alarm-clickable.read:hover {
+    background-color: #f6f6f6;
 }
 
 /* 채용공고 */

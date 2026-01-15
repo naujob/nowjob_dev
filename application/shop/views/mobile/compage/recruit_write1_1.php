@@ -413,6 +413,10 @@
 </div>
 
 <script>
+    // 서버에서 받은 주소 데이터를 JavaScript 변수로 전달
+    // 수정 모드(rc_idx가 0이 아니고 공고명이 있을 때)일 때만 주소 데이터 전달
+    var serverAddrData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0 && !empty($info["rc_name"]) && isset($info["addr"]) && is_array($info["addr"]) && !empty($info["addr"]["ad_addr"])) ? json_encode($info["addr"], JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
+    
     // rc_idx 변경 시 localStorage 키 마이그레이션 함수
     function migrateRecruitDraftKeys(oldIdx, newIdx, pages) {
         if (!oldIdx || !newIdx || oldIdx === newIdx) return;
@@ -457,6 +461,41 @@
         });
 
         localStorage.setItem(storageKey, JSON.stringify(formData));
+    }
+
+    // 서버에서 받은 주소 데이터를 로드하는 함수
+    // 수정 모드(rc_idx가 0이 아니고 공고명이 있을 때)일 때만 로드
+    function loadServerAddressData() {
+        var rcIdx = $("[name='rc_idx']").val() || "0";
+        var rcName = $("[name='rc_name']").val() || "";
+        
+        // 수정 모드가 아니면 주소 데이터를 로드하지 않음
+        if (rcIdx == "0" || rcName == "") {
+            return false;
+        }
+        
+        if (typeof serverAddrData !== 'undefined' && serverAddrData !== null && serverAddrData.ad_addr) {
+            // 주소 필드에 값 설정
+            $("#ad_zipcode").val(serverAddrData.ad_zipcode || "");
+            $("#ad_jibun").val(serverAddrData.ad_jibun || "");
+            $("#ad_doro").val(serverAddrData.ad_doro || "");
+            $("#ad_addr").val(serverAddrData.ad_addr || "");
+            $("#ad_detail").val(serverAddrData.ad_detail || "");
+            $("#ad_gps_x").val(serverAddrData.ad_gps_x || "");
+            $("#ad_gps_y").val(serverAddrData.ad_gps_y || "");
+            
+            // 주소 버튼 업데이트
+            var $btnAddr = $("#btnAddrAdd");
+            var displayAddr = serverAddrData.ad_addr || "";
+            if (serverAddrData.ad_detail && serverAddrData.ad_detail.trim() !== "") {
+                displayAddr = displayAddr + " " + serverAddrData.ad_detail.trim();
+            }
+            $btnAddr.find(".address-text").text(displayAddr);
+            $btnAddr.addClass("has-address");
+            
+            return true; // 서버 데이터가 있음을 반환
+        }
+        return false; // 서버 데이터가 없음을 반환
     }
 
     function loadPage1Data() {
@@ -636,8 +675,14 @@
     }
 
     window.addEventListener('DOMContentLoaded', function() {
+        // 먼저 서버에서 받은 주소 데이터를 로드
+        var hasServerData = loadServerAddressData();
+        
         // 페이지 로드 시 데이터 복원
-        loadPage1Data();
+        // 서버 데이터가 없을 때만 로컬스토리지에서 복원
+        if (!hasServerData) {
+            loadPage1Data();
+        }
 
         // 페이지 로드 시 초기 옵션 설정
         updateSalaryOptions();
@@ -751,9 +796,17 @@
                 return;
             }
 
-            // 주소 검증
-            if ($("#ad_addr").val() == "") {
-                commonAlert("주소를 등록해주세요.", function() {});
+            // 주소 검증 - 주소가 입력되지 않았으면 다음 단계로 이동 불가
+            var adAddr = $("#ad_addr").val();
+            var adZipcode = $("#ad_zipcode").val();
+            var hasAddressClass = $("#btnAddrAdd").hasClass("has-address");
+            
+            // 주소가 입력되지 않은 경우 (주소 값이 없거나, 주소 버튼에 has-address 클래스가 없는 경우)
+            if (!adAddr || adAddr.trim() === "" || !adZipcode || adZipcode.trim() === "" || !hasAddressClass) {
+                commonAlert("주소를 등록해주세요.", function() {
+                    // 주소 등록 버튼으로 포커스 이동
+                    $("#btnAddrAdd").focus();
+                });
                 return;
             }
 

@@ -595,6 +595,14 @@ renderSelectBottomSheet(
   });
 
   $(document).on('click', '#btnResumeWritePanel', function() {
+    // 새 이력서 작성을 위해 임시저장 데이터 초기화
+    // 새 이력서는 ru_idx가 0이므로 해당 키들을 삭제
+    localStorage.removeItem("resume_draft_0_step1");
+    localStorage.removeItem("resume_draft_0_step2");
+    localStorage.removeItem("resume_draft_0_step3");
+    localStorage.removeItem("resume_draft_0_step4");
+    localStorage.removeItem("resume_draft_0_step5");
+    
     location.href = "/mypage/resume_write1";
   });
 
@@ -604,6 +612,14 @@ renderSelectBottomSheet(
   });
 
   $(document).on('click', '#btnRecruitWritePanel', function() {
+    // 새 채용공고 작성을 위해 임시저장 데이터 초기화
+    // 새 채용공고는 rc_idx가 0이므로 해당 키들을 삭제
+    localStorage.removeItem("recruit_draft_0_page1");
+    localStorage.removeItem("recruit_draft_0_page2");
+    localStorage.removeItem("recruit_draft_0_page3");
+    localStorage.removeItem("recruit_draft_0_page4");
+    localStorage.removeItem("recruit_draft_0_page5");
+    
     location.href = "/compage/recruit_write1_1";
   });
 

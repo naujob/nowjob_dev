@@ -206,8 +206,8 @@
     overflow: hidden;
   }
 
-  /* adinfo2가 표시될 때 블록 레이아웃 적용 */
-  .adinfo2.show {
+  /* adinfo1이 표시될 때 블록 레이아웃 적용 */
+  .adinfo1.show {
     display: block;
   }
 
@@ -250,8 +250,8 @@
     box-sizing: border-box;
   }
 
-  /* adinfo1, adinfo3, adinfo4의 이미지 컨테이너 스타일 */
-  .adinfo1 .image-container,
+  /* adinfo2, adinfo3, adinfo4의 이미지 컨테이너 스타일 */
+  .adinfo2 .image-container,
   .adinfo3 .image-container,
   .adinfo4 .image-container {
     display: flex;
@@ -262,7 +262,7 @@
     padding: 20px;
   }
 
-  .adinfo1 .image-container img,
+  .adinfo2 .image-container img,
   .adinfo3 .image-container img,
   .adinfo4 .image-container img {
     width: 100%;
@@ -272,7 +272,7 @@
   }
 
   /* Swiper 컨테이너 스타일 */
-  .adinfo2 .swiper-container {
+  .adinfo1 .swiper-container {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -280,14 +280,14 @@
     left: 0;
   }
 
-  .adinfo2 .swiper-slide {
+  .adinfo1 .swiper-slide {
     display: flex;
     align-items: center;
     justify-content: center;
     /* background-color: #ededed; */
   }
 
-  .adinfo2 .swiper-slide img {
+  .adinfo1 .swiper-slide img {
     width: 100%;
     height: 100%;
     max-height: 100%;
@@ -334,7 +334,7 @@
   */
 
   /* Swiper 페이지네이션 스타일 */
-  .adinfo2 .swiper-pagination {
+  .adinfo1 .swiper-pagination {
     position: absolute;
     bottom: 20px;
     left: 50%;
@@ -342,7 +342,7 @@
     z-index: 10;
   }
 
-  .adinfo2 .swiper-pagination-bullet {
+  .adinfo1 .swiper-pagination-bullet {
     width: 12px;
     height: 12px;
     background: rgba(26, 25, 25, 0.5);
@@ -352,12 +352,12 @@
     transition: all 0.3s ease;
   }
 
-  .adinfo2 .swiper-pagination-bullet-active {
+  .adinfo1 .swiper-pagination-bullet-active {
     background: #1B9D7D;
     transform: scale(1.2);
   }
 
-  .adinfo2 .swiper-pagination-bullet:hover {
+  .adinfo1 .swiper-pagination-bullet:hover {
     background: #1B9D7D
   }
 
@@ -790,7 +790,7 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();">취소</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
                         <button type="button" data-code="C004" data-point="<?= $point4["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
                       </div>
                     </div>
@@ -869,7 +869,7 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();">취소</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
                         <button type="button" data-code="C001" data-point="<?= $point1["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
                       </div>
                     </div>
@@ -949,7 +949,7 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();">취소</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
                         <button type="button" data-code="C002" data-point="<?= $point2["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
                       </div>
                     </div>
@@ -1028,7 +1028,7 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();">취소</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
                         <button type="button" data-code="C003" data-point="<?= $point3["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
                       </div>
                     </div>
@@ -1051,9 +1051,22 @@
             <p class="help-msg" style="display:none;">메인배너 광고건은 나우잡 고객센터 032-833-0019에 문의바랍니다. (별도협의필요)</p>
             <!-- adinfo1 - 추천공고등록 -->
             <div class="adinfo1">
+              <!-- Swiper 컨테이너 -->
               <div class="adbox1">
-                <div class="image-container">
-                <img src="/resource/shop/web/img/ad_reco2.png" alt="추천공고등록">
+                <div class="swiper-container">
+                  <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                      <img src="/resource/shop/web/img/ad_reco2.png" alt="추천공고등록">
+                    </div>
+                    <div class="swiper-slide">
+                      <img src="/resource/shop/web/img/ad_reco1.png" alt="추천공고등록 이미지 2">
+                    </div>
+                  </div>
+                  <!-- 네비게이션 버튼 비활성화 -->
+                  <!-- <div class="swiper-button-next"></div> -->
+                  <!-- <div class="swiper-button-prev"></div> -->
+                  <!-- 페이지네이션 -->
+                  <div class="swiper-pagination"></div>
                 </div>
               </div>
               <div class="adbox3">
@@ -1161,22 +1174,9 @@
             </div><!-- // adinfo1 -->
 
             <div class="adinfo2">
-              <!-- Swiper 컨테이너 -->
               <div class="adbox1">
-                <div class="swiper-container">
-                  <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                      <img src="/resource/shop/web/img/ad_reco1.png" alt="광고 이미지 1">
-                    </div>
-                    <div class="swiper-slide">
-                    <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(4시간)">
-                    </div>
-                  </div>
-                  <!-- 네비게이션 버튼 비활성화 -->
-                  <!-- <div class="swiper-button-next"></div> -->
-                  <!-- <div class="swiper-button-prev"></div> -->
-                  <!-- 페이지네이션 -->
-                  <div class="swiper-pagination"></div>
+                <div class="image-container">
+                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(4시간)">
                 </div>
               </div>
 
@@ -1532,8 +1532,8 @@
 
 <script>
   $(document).ready(function() {
-    // Swiper 초기화 - 자동넘김 활성화
-    var swiper = new Swiper('.adinfo2 .swiper-container', {
+    // adinfo1 Swiper 초기화 - 자동넘김 활성화
+    var swiper1 = new Swiper('.adinfo1 .swiper-container', {
       loop: true,
       speed: 500,
       autoplay: {
@@ -1543,11 +1543,11 @@
       },
       // 네비게이션 버튼 비활성화
       // navigation: {
-      //   nextEl: '.adinfo2 .swiper-button-next',
-      //   prevEl: '.adinfo2 .swiper-button-prev',
+      //   nextEl: '.adinfo1 .swiper-button-next',
+      //   prevEl: '.adinfo1 .swiper-button-prev',
       // },
       pagination: {
-        el: '.adinfo2 .swiper-pagination',
+        el: '.adinfo1 .swiper-pagination',
         clickable: true,
         dynamicBullets: true,
       },
@@ -1559,10 +1559,10 @@
       }
     });
 
-    // 슬라이드 클릭 시 해당 슬라이드로 이동하는 기능 복구
-    $('.adinfo2 .swiper-slide').on('click', function() {
+    // 슬라이드 클릭 시 해당 슬라이드로 이동하는 기능
+    $('.adinfo1 .swiper-slide').on('click', function() {
       var slideIndex = $(this).index();
-      swiper.slideTo(slideIndex);
+      swiper1.slideTo(slideIndex);
     });
 
     // 카드-섹션 매핑 (카드 순서와 adinfo 번호가 다르므로 명시)
@@ -1603,8 +1603,8 @@
           paddingTop: '0px'
         }, 600);
 
-        // adinfo2만 슬라이드 스타일이 필요하므로 show 클래스 유지
-        if (targetSelector === '.adinfo2') {
+        // adinfo1은 슬라이드 스타일이 필요하므로 show 클래스 유지
+        if (targetSelector === '.adinfo1') {
           $(targetSelector).addClass('show');
         }
       }

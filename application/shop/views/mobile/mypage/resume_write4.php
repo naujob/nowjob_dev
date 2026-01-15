@@ -170,7 +170,7 @@
 
 <div class="page page-write">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="javascript:void(0);" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">이력서</h1>
         <span class="required-label"><span class="required-asterisk">*</span>필수입력</span>
     </div><!-- //top-bar -->
@@ -431,20 +431,29 @@
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <script>
+    // 이력서 작성 페이지의 뒤로가기 버튼 핸들러를 가장 먼저 등록 (전역 핸들러보다 우선)
+    // 캡처 단계에서 등록하여 다른 핸들러보다 먼저 실행되도록 함
     (function() {
-        $(document).on("click", ".btn-back", function(e) {
-            var currentPath = window.location.pathname;
-            if (currentPath.indexOf('/mypage/resume_write4') > -1) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                var ruIdx = $("[name='ru_idx']").val() || "0";
-                if (typeof clearResumeDraft === 'function') {
-                    clearResumeDraft(ruIdx);
+        // 네이티브 이벤트 리스너를 캡처 단계에서 등록
+        document.addEventListener("click", function(e) {
+            var target = e.target;
+            // btn-back 요소 또는 그 자식 요소인지 확인
+            var btnBack = target.closest(".btn-back");
+            if (btnBack) {
+                var currentPath = window.location.pathname;
+                if (currentPath.indexOf('/mypage/resume_write4') > -1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    var ruIdx = $("[name='ru_idx']").val() || "0";
+                    if (typeof clearResumeDraft === 'function') {
+                        clearResumeDraft(ruIdx);
+                    }
+                    location.href = "/mypage/resume_list";
+                    return false;
                 }
-                location.href = "/mypage/resume_list";
-                return false;
             }
-        });
+        }, true); // 캡처 단계에서 실행
     })();
 
     function getResumeDraftKey(step) {

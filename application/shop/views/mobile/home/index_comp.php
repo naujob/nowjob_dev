@@ -520,8 +520,9 @@ if ($g_ios_publish == true) {
   }
 
   .person-card .desc {
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
+    font-weight: 400;
   }
 
   .person-card .content-wrap {
@@ -630,7 +631,7 @@ if ($g_ios_publish == true) {
     display: inline-block;
     margin: 0 4px 0 0;
     padding: 0 8px;
-    font-size: 10px;
+    font-size: 11px;
     color: #3A70DB;
     line-height: 2;
     text-align: center;

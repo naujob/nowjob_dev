@@ -76,7 +76,7 @@
 
 <div class="page page-write">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="javascript:void(0);" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">이력서</h1>
     </div><!-- //top-bar -->
     <div class="page-content">
@@ -244,22 +244,34 @@
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <script>
+    // 서버에서 받은 주소 데이터를 JavaScript 변수로 전달
+    // 수정 모드(ru_idx가 0이 아니고 이력서명이 있을 때)일 때만 주소 데이터 전달
+    var serverAddrList = <?= (isset($info["ru_idx"]) && $info["ru_idx"] != 0 && !empty($info["ru_name"]) && isset($addr_list) && is_array($addr_list)) ? json_encode($addr_list, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : '[]' ?>;
+    
     // 이력서 작성 페이지의 뒤로가기 버튼 핸들러를 가장 먼저 등록 (전역 핸들러보다 우선)
+    // 캡처 단계에서 등록하여 다른 핸들러보다 먼저 실행되도록 함
     (function() {
-        $(document).on("click", ".btn-back", function(e) {
-            var currentPath = window.location.pathname;
-            if (currentPath.indexOf('/mypage/resume_write1') > -1) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                var ruIdx = $("[name='ru_idx']").val() || "0";
-                // clearResumeDraft 함수가 정의되어 있으면 호출
-                if (typeof clearResumeDraft === 'function') {
-                    clearResumeDraft(ruIdx);
+        // 네이티브 이벤트 리스너를 캡처 단계에서 등록
+        document.addEventListener("click", function(e) {
+            var target = e.target;
+            // btn-back 요소 또는 그 자식 요소인지 확인
+            var btnBack = target.closest(".btn-back");
+            if (btnBack) {
+                var currentPath = window.location.pathname;
+                if (currentPath.indexOf('/mypage/resume_write1') > -1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    var ruIdx = $("[name='ru_idx']").val() || "0";
+                    // clearResumeDraft 함수가 정의되어 있으면 호출
+                    if (typeof clearResumeDraft === 'function') {
+                        clearResumeDraft(ruIdx);
+                    }
+                    location.href = "/mypage/resume_list";
+                    return false;
                 }
-                location.href = "/mypage/resume_list";
-                return false;
             }
-        });
+        }, true); // 캡처 단계에서 실행
     })();
 
     function getResumeDraftKey(step) {
@@ -391,6 +403,41 @@
         }
     }
 
+    // 서버에서 받은 주소 데이터를 로드하는 함수
+    // 수정 모드(ru_idx가 0이 아니고 이력서명이 있을 때)일 때만 로드
+    function loadServerAddressData() {
+        var ruIdx = $("[name='ru_idx']").val() || "0";
+        var ruName = $("[name='ru_name']").val() || "";
+        
+        // 수정 모드가 아니면 주소 데이터를 로드하지 않음
+        if (ruIdx == "0" || ruName == "") {
+            return false;
+        }
+        
+        if (typeof serverAddrList !== 'undefined' && Array.isArray(serverAddrList) && serverAddrList.length > 0) {
+            rebuildAddressList(serverAddrList);
+            
+            // 주소 정리 함수로 처리 (서버 데이터 로드 후 표시 형식 정리)
+            if (typeof fRemoveBigAdrJS === 'function') {
+                setTimeout(function() {
+                    $("#addr_location .location-field-item:not(.location-field-add)").each(function() {
+                        var $li = $(this);
+                        var $display = $li.find('.location-text');
+                        var jibun = $li.find('input[name="ad_jibun[]"]').val();
+                        var detail = $li.find('input[name="ad_detail[]"]').val();
+                        if (jibun) {
+                            var displayAddr = fRemoveBigAdrJS(jibun);
+                            displayAddr = displayAddr + (detail ? " " + detail : "");
+                            $display.text(displayAddr);
+                        }
+                    });
+                }, 50);
+            }
+            return true; // 서버 데이터가 있음을 반환
+        }
+        return false; // 서버 데이터가 없음을 반환
+    }
+
     function loadResumeStep1Data() {
         // URL 파라미터로 복원 여부 확인 (더 확실한 방법)
         var urlParams = new URLSearchParams(window.location.search);
@@ -519,8 +566,15 @@
 
     // DOMContentLoaded 이벤트로 더 빠르게 처리 (깜빡임 방지)
     document.addEventListener('DOMContentLoaded', function() {
+        // 먼저 서버에서 받은 주소 데이터를 로드
+        var hasServerData = loadServerAddressData();
+        
         // resume_write4에서 온 경우에만 로컬스토리지 임시 데이터 복원
-        loadResumeStep1Data();
+        // 서버 데이터가 없을 때만 로컬스토리지에서 복원
+        if (!hasServerData) {
+            loadResumeStep1Data();
+        }
+        
         ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
     });
 
