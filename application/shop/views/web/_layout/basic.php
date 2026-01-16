@@ -16,12 +16,12 @@
     <meta property="og:title" content="지금 뜨는, 좋은 일자리 NOW JOB">
     <meta property="og:url" content="https://nowjob.co.kr/">
     <meta property="og:description" content="구인구직 정보 플랫폼">
-    <meta property="og:image" content="https://nowjob.co.kr/resource/shop/web/img/nowjob_info?v=20260115.png">
+    <meta property="og:image" content="https://nowjob.co.kr/resource/shop/web/img/nowjob_info_logo.png">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://nowjob.co.kr/">
     <meta property="twitter:description" content="구인구직 정보 플랫폼">
-    <meta property="twitter:image" content="https://nowjob.co.kr/resource/shop/web/img/nowjob_info?v=20260115.png">
+    <meta property="twitter:image" content="https://nowjob.co.kr/resource/shop/web/img/nowjob_info_logo.png">
     <!--<meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />-->
     <!-- <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" /> -->
     <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
