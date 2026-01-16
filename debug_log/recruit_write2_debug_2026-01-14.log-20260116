@@ -1,0 +1,778 @@
+[2026-01-14 11:14:28] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:12:37.501Z",
+  "checked_count": 1,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:14:28] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:12:37.759Z",
+  "checked_count": 2,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:14:29] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:12:37.993Z",
+  "checked_count": 3,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:14:29] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:12:38.220Z",
+  "checked_count": 4,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당",
+        "석식제공"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당","석식제공"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:14:31] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "",
+  "timestamp": "2026-01-14T02:12:39.982Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:15:46] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:13:55.093Z",
+  "checked_count": 0,
+  "saved_data": {"rc_life_type":[]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:01] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:10.296Z",
+  "checked_count": 1,
+  "form_data": {
+    "rc_life_type": [
+        "산재보험"
+    ]
+},
+  "saved_data": {"rc_life_type":["산재보험"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:01] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:10.640Z",
+  "checked_count": 2,
+  "form_data": {
+    "rc_life_type": [
+        "산재보험",
+        "여름휴가"
+    ]
+},
+  "saved_data": {"rc_life_type":["산재보험","여름휴가"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:01] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:10.891Z",
+  "checked_count": 3,
+  "form_data": {
+    "rc_life_type": [
+        "산재보험",
+        "여름휴가",
+        "장기근속수당"
+    ]
+},
+  "saved_data": {"rc_life_type":["산재보험","여름휴가","장기근속수당"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:02] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:11.154Z",
+  "checked_count": 4,
+  "form_data": {
+    "rc_life_type": [
+        "산재보험",
+        "여름휴가",
+        "장기근속수당",
+        "석식제공"
+    ]
+},
+  "saved_data": {"rc_life_type":["산재보험","여름휴가","장기근속수당","석식제공"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:03] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:12.079Z",
+  "checked_count": 4,
+  "checked_values": "산재보험,여름휴가,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:04] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:13.259Z",
+  "checked_count": 4,
+  "checked_values": "산재보험,여름휴가,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:05] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:14.257Z",
+  "checked_count": 4,
+  "checked_values": "산재보험,여름휴가,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:08] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:16.922Z",
+  "checked_count": 4,
+  "checked_values": "산재보험,여름휴가,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:18] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:27.908Z",
+  "checked_count": 4,
+  "checked_values": "산재보험,여름휴가,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:19] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:28.458Z",
+  "checked_count": 4,
+  "checked_values": "산재보험,여름휴가,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:19] [savePage2Data_check] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:28.511Z",
+  "checked_count": 0,
+  "before_save": {"rc_life_type":["산재보험","여름휴가","장기근속수당","석식제공"]},
+  "after_save": {"rc_life_type":["산재보험","여름휴가","장기근속수당","석식제공"]},
+  "save_success": true,
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:23] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:32.278Z",
+  "checked_count": 0,
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:25] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:34.221Z",
+  "checked_count": 1,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:25] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:34.476Z",
+  "checked_count": 2,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:25] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:34.712Z",
+  "checked_count": 3,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:26] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:34.998Z",
+  "checked_count": 4,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당",
+        "석식제공"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당","석식제공"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:26] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:35.559Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:27] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:36.357Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:27] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:36.870Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:28] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:37.370Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:29] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:37.923Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:29] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:38.436Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:30] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:38.970Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:30] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:39.461Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:31] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:39.931Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:31] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:40.406Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:31] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:40.860Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:32] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:41.345Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:32] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:41.786Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:33] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:42.328Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:33] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:42.777Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:34] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:43.225Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:35] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:44.428Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:36] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:44.963Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:38] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:47.251Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:38] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:47.841Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:39] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:48.335Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:39] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:48.782Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:16:40] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:14:49.315Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:17:10] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:15:19.583Z",
+  "checked_count": 4,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당",
+        "석식제공"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당","석식제공"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:17:16] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:15:25.618Z",
+  "checked_count": 1,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:17:16] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:15:25.813Z",
+  "checked_count": 2,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:17:17] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:15:26.040Z",
+  "checked_count": 3,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:17:17] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:15:26.239Z",
+  "checked_count": 4,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당",
+        "석식제공"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당","석식제공"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:17:18] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:15:26.926Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:18:07] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:16:16.712Z",
+  "checked_count": 0,
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:18:50] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:16:59.684Z",
+  "checked_count": 1,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:18:51] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:16:59.949Z",
+  "checked_count": 2,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:18:51] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:17:00.218Z",
+  "checked_count": 3,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:18:51] [savePage2Data] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:17:00.461Z",
+  "checked_count": 4,
+  "form_data": {
+    "rc_life_type": [
+        "국민연금",
+        "월차",
+        "장기근속수당",
+        "석식제공"
+    ]
+},
+  "saved_data": {"rc_life_type":["국민연금","월차","장기근속수당","석식제공"]},
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:18:52] [btnPrev_click] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:17:01.377Z",
+  "checked_count": 4,
+  "checked_values": "국민연금,월차,장기근속수당,석식제공",
+  "ip_address": "112.170.223.212"
+}
+
+[2026-01-14 11:18:52] [savePage2Data_check] {
+  "mm_idx": "1048",
+  "mm_id": "01077417262",
+  "rc_idx": "0",
+  "storage_key": "recruit_draft_0_page2",
+  "timestamp": "2026-01-14T02:17:01.480Z",
+  "checked_count": 0,
+  "before_save": {"rc_life_type":["국민연금","월차","장기근속수당","석식제공"]},
+  "after_save": {"rc_life_type":["국민연금","월차","장기근속수당","석식제공"]},
+  "save_success": true,
+  "ip_address": "112.170.223.212"
+}
+
