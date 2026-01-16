@@ -44,7 +44,7 @@ if (count($banner_list) > 0) {
 
   .search-cont {
     padding: 20px;
-    background: #F6F8FA;
+    background: #ffffff;
     display: flex;
     border: 1px solid #E8E8E8;
     border-radius: 5px 5px 0 0;
@@ -133,7 +133,7 @@ if (count($banner_list) > 0) {
 
   .addr_title {
     padding: 5px 8px;
-    background: #F6F8FA;
+    background: #f9f9f9;
     font-weight: bold;
     flex: 0 0 auto;
     border-bottom: 1px solid #E8E8E8;
@@ -444,10 +444,10 @@ if (count($banner_list) > 0) {
     font-size: 16px;
     color: #ACAEB9;
     line-height: 1.5;
-    border: 1px solid #ACACAC;
+    border: 1px solid #e8e8e8;
     border-radius: 5px;
     text-align: center;
-    background-color: #f4f4f6;
+    background-color: #ffffff;
   }
 
   .search-list-options li label.checked {
@@ -589,7 +589,7 @@ if (count($banner_list) > 0) {
   .search-wrap-header {
     position: relative;
     padding: 10px 10px;
-    background: #F6F8FA;
+    background: #ffffff;
     border-radius: 10px 10px 0 0;
   }
 
@@ -726,8 +726,8 @@ if (count($banner_list) > 0) {
   }
 
   .searchOptionBtn {
-    background-color: #F6F8FA;
-    color: #ACACAC;
+    background-color: #ffffff;
+    color: #222222;
     font-size: 16px;
     line-height: 1.5;
     text-align: center;
