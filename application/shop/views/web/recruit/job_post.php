@@ -1025,12 +1025,12 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
                   <div class="dropdown">
                     <!-- 카카오톡 공유 기능 주석처리 -->
-                    <!--
+                    
                     <a href="javascript:void(0);" onclick="shareMessage();return false;" class="share-link1">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_vendor1.svg" alt=""></span>
                       <span>카카오톡</span>
                     </a>
-                    -->
+                    
                     <a href="javascript:void(0);" onclick="CopyUrl();return false;" class="share-link2">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_copy_url.svg" alt=""></span>
                       <span>URL복사</span>
@@ -1038,10 +1038,10 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                   </div>
 
                   <!-- 카카오 SDK 스크립트 주석처리 -->
-                  <!-- <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script> -->
+                 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
                   <script>
                     /* 카카오톡 공유 기능 주석처리 */
-                    /*
+                  
                     function shareMessage() {
                       if (!Kakao.isInitialized()) {
                         //Kakao.init("a0a27ea14e36a89cbe2de50dc61323b8");
@@ -1066,24 +1066,16 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                             },
                           },
                           buttons: [{
-                              title: '웹으로 보기',
+                              title: '바로가기',
                               link: {
                                 mobileWebUrl: url,
                                 webUrl: url
                               },
-                            },
-                            {
-                              title: '앱으로 보기',
-                              link: {
-                                mobileWebUrl: appUrl,
-                                webUrl: url
-                              },
-                            },
-                          ],
+                            }],
                         });
                       }, 100);
                     }
-                    */
+                    
 
                     /* URL 복사 */
                     function CopyUrl() {
