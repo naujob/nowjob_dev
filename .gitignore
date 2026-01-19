@@ -12,3 +12,58 @@ resource/uploads/
 resource/vendor/
 application/shop/logs/
 application/common/config/database.php
+firebase-service-account.json
+
+# =========================
+# 환경 변수 / 보안 정보
+# =========================
+.env
+.env*
+config/*.env
+*.pem
+*.key
+.my.cnf*
+.mysql*
+
+# =========================
+# 의존성 / 빌드 결과물
+# =========================
+node_modules/
+dist/
+build/
+
+# =========================
+# 로그 / 런타임 파일
+# =========================
+logs/
+*.log
+debug_log
+php_log
+chat_log.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# OS / 에디터 관련
+# =========================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursor
+*.swp
+*.swo
+
+# =========================
+# 임시 파일
+# =========================
+tmp/
+temp/
+.cache/
+
+# =========================
+# PM2 / 프로세스 관련
+# =========================
+pids/
+*.pid
