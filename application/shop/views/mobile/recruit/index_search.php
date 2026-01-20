@@ -196,12 +196,22 @@
      transition: background-color 0.2s ease;
    }
 
-   .selected-region-remove:hover {
-     background-color: rgba(255, 255, 255, 0.2);
-   }
+  .selected-region-remove:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  /* 상세 검색 패널 내용 아래에 고정 바 공간 확보 */
+  #advancedSearch .panel-content {
+    padding-bottom: calc(72px + constant(safe-area-inset-bottom));
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
 
-   /* 반응형 대응 */
-   @media (max-width: 480px) {
+  .advanced-search-form .container {
+    padding-top: 2.125rem;
+    padding-bottom: calc(2.625rem + 72px + constant(safe-area-inset-bottom));
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+}
+  /* 반응형 대응 */
+  @media (max-width: 480px) {
 
      .work-type-group {
        gap: 6px;
@@ -224,7 +234,7 @@
        <div class="panel-content">
 
          <div class="section advanced-search-form">
-           <div class="container" style="padding: 30px;">
+           <div class="container">
 
              <!-- 지역 선택 섹션 -->
              <div class="region-section">

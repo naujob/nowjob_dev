@@ -3345,6 +3345,8 @@ fieldset {
     background: inherit;
     overflow: hidden;
     overflow-y: auto;
+    padding-bottom: calc(72px + constant(safe-area-inset-bottom));
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
 }
 
 .layer-panel.card-type .panel-body {
@@ -3361,6 +3363,7 @@ fieldset {
 
 .layer-panel .panel-content {
     position: relative;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
 }
 
 .layer-panel .event-banner img {
@@ -7709,7 +7712,8 @@ form#frm {
 
 .advanced-search-form .container {
     padding-top: 2.125rem;
-    padding-bottom: 2.625rem;
+    padding-bottom: calc(2.625rem + 72px + constant(safe-area-inset-bottom));
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
 }
 
 .advanced-search-form .current-area {

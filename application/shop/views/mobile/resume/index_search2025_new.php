@@ -144,7 +144,7 @@
       <div class="panel-content">
 
         <div class="section advanced-search-form">
-          <div class="container" style="padding: 30px;">
+          <div class="container">
 
             <div class="form-row">
               <div class="category-label-row">

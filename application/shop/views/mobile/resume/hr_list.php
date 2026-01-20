@@ -442,9 +442,9 @@ if (count($banner_list) > 0) {
 
     <div class="section is-last">
       <style>
-        .section .container {
+        /* .section .container {
           padding-top: 0;
-        }
+        } */
 
         .item-info .thumb {
           width: 5rem;
