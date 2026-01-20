@@ -64,7 +64,8 @@
 					</ul>
 				</div>
             </div>
-            <div class="nav">
+                <?php $navCurrentUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); ?>
+                <div class="nav">
 				<div class="nav_box">
 					<ul>
 						<?php foreach($top_menu as $menu) : ?>
@@ -73,6 +74,9 @@
 						<li class=""><a href="<?=$menu["action"]?>" class="btns <?=$menu["active"]?>"><?=$menu["name"]?></a></li>
             <?php ?>
 						<?php endforeach; ?>
+                        <li class="<?=$navCurrentUrl === '/admin/setting/version_policy' ? 'hit' : ''?>">
+                            <a href="/admin/setting/version_policy" class="btns <?=$navCurrentUrl === '/admin/setting/version_policy' ? 'hit' : ''?>">앱 업데이트 정책</a>
+                        </li>
 					</ul>
 				</div>
 			</div>
@@ -105,7 +109,8 @@
                         "/admin/setting/basic/config_point_edit",
                         "/admin/setting/basic/config_usepoint",
                         "/admin/setting/basic/config_usepoint_edit",
-                        "/admin/setting/basic/policy"
+                        "/admin/setting/basic/policy",
+                        "/admin/setting/version_policy"
                     ];
                      ?>
                     <?php if(in_array($currentUrl, $allowedUrls)){ //$p_menu["name"]=="기본설정" && $left_menu_idx == 0
@@ -120,6 +125,7 @@
                             <li><a href="/admin/setting/basic/config_point" class="">구매포인트 설정</a></li>
                             <li><a href="/admin/setting/basic/config_usepoint" class="">사용포인트 설정</a></li>
                             <li><a href="/admin/setting/basic/policy" class="">이용약관 관리</a></li>
+                            <li><a href="/admin/setting/version_policy" class="">앱 업데이트 정책</a></li>
                         </ul>
                       </li>
                     <?php } ?>
@@ -137,6 +143,7 @@
         if($currentUrl=="/admin/setting/basic/config_usepoint")       $short_menu_title="사용포인트 설정";
         if($currentUrl=="/admin/setting/basic/config_usepoint_edit")  $short_menu_title="구매포인트 설정";
         if($currentUrl=="/admin/setting/basic/policy")                $short_menu_title="이용약관 관리";
+        if($currentUrl=="/admin/setting/version_policy")              $short_menu_title="앱 업데이트 정책";
         ?>
         <?=$short_menu_title?>
 			</h2>
