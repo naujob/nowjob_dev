@@ -929,7 +929,7 @@
                             </span>
                           </div>
                           <div class="amountNotice">
-                            <p>최저임금제도 : 시급 <span>10,030</span>원</p>
+                            <p>최저임금제도 : 시급 <span>10,320</span>원</p>
                           </div>
                         </div>
 

@@ -141,7 +141,7 @@
             <p class="form-label">
               급여형태 
               <span class="option amountNotice">
-                  최저임금제도 : 시급 <span>10,030</span>원
+                  최저임금제도 : 시급 <span>10,320</span>원
               </span>
             </p>                      
               

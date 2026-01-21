@@ -281,7 +281,7 @@
 
       
 
-<div class="form-label">급여형태 <div class="amountNotice option"><p>최저임금제도 : 시급 <span>10,030</span>원</p></div></div>
+<div class="form-label">급여형태 <div class="amountNotice option"><p>최저임금제도 : 시급 <span>10,320</span>원</p></div></div>
     <div class="pay-select-wrap">
       <div class="pay-select" id="priceSelect">
         <div class="pay-select-trigger"><?= htmlspecialchars($info['rc_price_rep']) ?></div>

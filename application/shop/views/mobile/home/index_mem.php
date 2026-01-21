@@ -542,16 +542,17 @@ if ($g_ios_publish == true) {
   #app-intercept-layer .app-intercept-actions button {
     flex: 1 1 45%;
     min-width: 105px;
+     height: 60px; 
     padding: 0.75rem 1rem;
     border-radius: 8px;
     border: none;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     cursor: pointer;
   }
 
   #app-intercept-layer .app-intercept-actions .app-intercept-open {
-    background: linear-gradient(135deg, #f95f4b, #ff794a);
+    background: linear-gradient(135deg, #57CCAF, #57CCAF);
     color: #fff;
   }
 
@@ -988,6 +989,15 @@ if ($g_ios_publish == true) {
       return /Android|iPhone|iPad|iPod/i.test(ua);
     }
 
+    function isAppViaUrl() {
+      try {
+        const query = new URLSearchParams(window.location.search);
+        return query.get('is_app') === 'true';
+      } catch (ignore) {
+        return false;
+      }
+    }
+
     function writeCooldown() {
       try {
         localStorage.setItem(COOL_DOWN_KEY, Date.now().toString());
@@ -1072,7 +1082,7 @@ if ($g_ios_publish == true) {
     }
 
     function initializePrompt() {
-      if (!isMobileBrowser()) {
+      if (!isMobileBrowser() || isAppViaUrl()) {
         return;
       }
       if (shouldShowLayer()) {

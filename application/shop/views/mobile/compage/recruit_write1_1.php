@@ -363,7 +363,7 @@
                     <div class="form-row">
                         <p class="form-label salary-label">
                             <span class="required-asterisk">*</span>급여형태
-                            <span class="min-wage-info">최저임금제도 : 시급 <span class="highlight">10,030</span> 원</span>
+                            <span class="min-wage-info">최저임금제도 : 시급 <span class="highlight">10,320</span> 원</span>
                         </p>
                         <div class="salary-type-row">
                             <label class="form-selectbox">
