@@ -49,7 +49,7 @@ if (strpos($_SERVER['SERVER_NAME'], '19job') !== false) {
     header('Location: https://nowjob.co.kr');
     exit;
 }
-
+// $_SERVER['SERVER_NAME'] = nowjob.co.kr
 // 도메인 설정 (session_start() 전에 필요)
 $domain_name = $_SERVER['SERVER_NAME'];
 $domain_name = str_replace("www.", "", $domain_name);

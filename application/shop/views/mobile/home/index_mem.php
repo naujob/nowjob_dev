@@ -476,6 +476,103 @@ if ($g_ios_publish == true) {
     height: 100%;
   }
 </style>
+<style>
+  #app-intercept-layer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0 1rem 1rem;
+    z-index: 1300;
+    pointer-events: none;
+    transform: translateY(110%);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+  }
+
+  #app-intercept-layer.visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #app-intercept-layer .app-intercept-panel {
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+    padding: 1.25rem;
+    border: 1px solid #f0f0f0;
+    text-align: center;
+  }
+
+  #app-intercept-layer .app-intercept-label {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #57CCAF;
+    margin-bottom: 0.35rem;
+  }
+
+  #app-intercept-layer .app-intercept-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    color: #1b1b1b;
+  }
+
+  #app-intercept-layer .app-intercept-description {
+    margin: 0.35rem 0 1.15rem;
+    font-size: 0.95rem;
+    color: #5b5b5b;
+  }
+
+  #app-intercept-layer .app-intercept-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  #app-intercept-layer .app-intercept-actions button {
+    flex: 1 1 45%;
+    min-width: 105px;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  #app-intercept-layer .app-intercept-actions .app-intercept-open {
+    background: linear-gradient(135deg, #f95f4b, #ff794a);
+    color: #fff;
+  }
+
+  #app-intercept-layer .app-intercept-actions .app-intercept-close {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+</style>
+
+<div id="app-intercept-layer" aria-hidden="true">
+  <div class="app-intercept-panel">
+    <p class="app-intercept-label">나우잡</p>
+    <p class="app-intercept-title">앱에서 더 빠르게 NOW JOB</p>
+    <p class="app-intercept-description">앱으로 이동하면 알림과 맞춤 추천을 바로 확인할 수 있어요.</p>
+    <div class="app-intercept-actions">
+      <button type="button" class="app-intercept-open">앱으로 볼래요</button>
+      <button type="button" class="app-intercept-close">이대로 볼래요</button>
+    </div>
+  </div>
+</div>
 <div class="page page-home">
   <div class="header is-transparency">
     <h1 class="top-logo"><span class="sr-text">지금 뜨는, 좋은 일자리 NOW JOB</span></h1>
@@ -865,4 +962,136 @@ if ($g_ios_publish == true) {
       window.location.href = url;
     }
   });
+</script>
+<script>
+  (function() {
+    const layer = document.getElementById("app-intercept-layer");
+    if (!layer) {
+      return;
+    }
+
+    const COOL_DOWN_KEY = "nowjobAppLayerCooldownAt";
+    // const COOL_DOWN_MS = 2 * 60 * 60 * 1000;
+    const COOL_DOWN_MS = 0;
+    const OPEN_SCHEME = "nowjob://home";
+    const ANDROID_STORE = "https://play.google.com/store/apps/details?id=app.nowapk.com";
+    const IOS_STORE = "https://apps.apple.com/kr/app/id6446226901";
+    const OPEN_DELAY = 1500;
+
+    const openButton = layer.querySelector(".app-intercept-open");
+    const closeButton = layer.querySelector(".app-intercept-close");
+
+    let fallbackTimer = null;
+
+    function isMobileBrowser() {
+      const ua = navigator.userAgent || "";
+      return /Android|iPhone|iPad|iPod/i.test(ua);
+    }
+
+    function writeCooldown() {
+      try {
+        localStorage.setItem(COOL_DOWN_KEY, Date.now().toString());
+      } catch (ignore) {}
+    }
+
+    function readCooldown() {
+      try {
+        const stored = localStorage.getItem(COOL_DOWN_KEY);
+        const timestamp = Number(stored);
+        return Number.isNaN(timestamp) ? null : timestamp;
+      } catch (ignore) {
+        return null;
+      }
+    }
+
+    function shouldShowLayer() {
+      const timestamp = readCooldown();
+      if (!timestamp) {
+        return true;
+      }
+      return Date.now() - timestamp >= COOL_DOWN_MS;
+    }
+
+    function showLayer() {
+      layer.classList.add("visible");
+      layer.setAttribute("aria-hidden", "false");
+    }
+
+    function hideLayer() {
+      layer.classList.remove("visible");
+      layer.setAttribute("aria-hidden", "true");
+    }
+
+    function attachFallbackCancels() {
+      function cleanup() {
+        cancelFallback();
+        window.removeEventListener("pagehide", cleanup);
+        window.removeEventListener("blur", cleanup);
+        document.removeEventListener("visibilitychange", visibilityHandler);
+      }
+
+      function visibilityHandler() {
+        if (document.visibilityState === "hidden") {
+          cleanup();
+        }
+      }
+
+      window.addEventListener("pagehide", cleanup);
+      window.addEventListener("blur", cleanup);
+      document.addEventListener("visibilitychange", visibilityHandler);
+
+      return cleanup;
+    }
+
+    function cancelFallback() {
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
+    }
+
+    function openApp() {
+      writeCooldown();
+      hideLayer();
+
+      const ua = navigator.userAgent || "";
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const storeUrl = isIOS ? IOS_STORE : ANDROID_STORE;
+
+      location.href = OPEN_SCHEME;
+      const removeCancelHandlers = attachFallbackCancels();
+      fallbackTimer = setTimeout(function() {
+        removeCancelHandlers();
+        location.href = storeUrl;
+      }, OPEN_DELAY);
+    }
+
+    function dismissLayer() {
+      writeCooldown();
+      hideLayer();
+    }
+
+    function initializePrompt() {
+      if (!isMobileBrowser()) {
+        return;
+      }
+      if (shouldShowLayer()) {
+        showLayer();
+      }
+    }
+
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      initializePrompt();
+    } else {
+      window.addEventListener("DOMContentLoaded", initializePrompt);
+    }
+
+    if (openButton) {
+      openButton.addEventListener("click", openApp);
+    }
+
+    if (closeButton) {
+      closeButton.addEventListener("click", dismissLayer);
+    }
+  })();
 </script>
