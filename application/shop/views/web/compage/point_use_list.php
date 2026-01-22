@@ -14,7 +14,7 @@
                                 <div class="log-info">
                                     <p class="point txt-red"><strong>-<?=$row["pl_point"]?>P</strong></p>
                                     <div class="meta">
-                                        <p>사용일 : <em><?=($row["reg_dt"])?></em></p>
+                                        <p>사용일 : <em><?=substr($row["reg_dt"], 0, 10)?></em></p>
                                     </div>
                                 </div>
                                 <div class="status">

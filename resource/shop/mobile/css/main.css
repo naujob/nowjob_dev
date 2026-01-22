@@ -1197,7 +1197,7 @@ object {
     text-overflow: ellipsis;
     vertical-align: middle;
     border: 0;
-    border-bottom: 1px solid #000;
+    
     border-radius: 0;
     background: transparent;
     -webkit-box-shadow: none;
@@ -2263,7 +2263,7 @@ fieldset {
 }
 
 .secondary-title {
-    margin: 0 0 0.875rem;
+    margin: 1.5rem 0 0.875rem;
     font-size: 1.3rem;
     font-weight: 700;
     line-height: 1.1;
@@ -2364,15 +2364,15 @@ fieldset {
 .benefit-label:before {
     content: "";
     display: block;
-    width: 2.5rem;
-    height: 1.875rem;
+    width: 3.75rem;
+    height: 2.8125rem;
     margin: 0 auto 4px;
     background-repeat: no-repeat;
     background-position: 0 0;
     background-size: contain;
-    -webkit-transform: translatez(0);
-    -ms-transform: translatez(0);
-    transform: translatez(0);
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .benefit-label.benefit1-1:before {

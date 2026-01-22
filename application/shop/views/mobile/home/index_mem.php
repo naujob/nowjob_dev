@@ -563,7 +563,7 @@ if ($g_ios_publish == true) {
 
 </style>
 
-<div id="app-intercept-layer" aria-hidden="true">
+<!-- <div id="app-intercept-layer" aria-hidden="true">
   <div class="app-intercept-panel">
     <p class="app-intercept-label">나우잡</p>
     <p class="app-intercept-title">앱에서 더 빠르게 NOW JOB</p>
@@ -573,7 +573,7 @@ if ($g_ios_publish == true) {
       <button type="button" class="app-intercept-close">이대로 볼래요</button>
     </div>
   </div>
-</div>
+</div> -->
 <div class="page page-home">
   <div class="header is-transparency">
     <h1 class="top-logo"><span class="sr-text">지금 뜨는, 좋은 일자리 NOW JOB</span></h1>
@@ -965,143 +965,143 @@ if ($g_ios_publish == true) {
   });
 </script>
 <script>
-  (function() {
-    const layer = document.getElementById("app-intercept-layer");
-    if (!layer) {
-      return;
-    }
+  // (function() {
+  //   const layer = document.getElementById("app-intercept-layer");
+  //   if (!layer) {
+  //     return;
+  //   }
 
-    const COOL_DOWN_KEY = "nowjobAppLayerCooldownAt";
+  //   const COOL_DOWN_KEY = "nowjobAppLayerCooldownAt";
     // const COOL_DOWN_MS = 2 * 60 * 60 * 1000;
-    const COOL_DOWN_MS = 0;
-    const OPEN_SCHEME = "nowjob://home";
-    const ANDROID_STORE = "https://play.google.com/store/apps/details?id=app.nowapk.com";
-    const IOS_STORE = "https://apps.apple.com/kr/app/id6446226901";
-    const OPEN_DELAY = 1500;
+  //   const COOL_DOWN_MS = 0;
+  //   const OPEN_SCHEME = "nowjob://home";
+  //   const ANDROID_STORE = "https://play.google.com/store/apps/details?id=app.nowapk.com";
+  //   const IOS_STORE = "https://apps.apple.com/kr/app/id6446226901";
+  //   const OPEN_DELAY = 1500;
 
-    const openButton = layer.querySelector(".app-intercept-open");
-    const closeButton = layer.querySelector(".app-intercept-close");
+  //   const openButton = layer.querySelector(".app-intercept-open");
+  //   const closeButton = layer.querySelector(".app-intercept-close");
 
-    let fallbackTimer = null;
+  //   let fallbackTimer = null;
 
-    function isMobileBrowser() {
-      const ua = navigator.userAgent || "";
-      return /Android|iPhone|iPad|iPod/i.test(ua);
-    }
+  //   function isMobileBrowser() {
+  //     const ua = navigator.userAgent || "";
+  //     return /Android|iPhone|iPad|iPod/i.test(ua);
+  //   }
 
-    function isAppViaUrl() {
-      try {
-        const query = new URLSearchParams(window.location.search);
-        return query.get('is_app') === 'true';
-      } catch (ignore) {
-        return false;
-      }
-    }
+  //   function isAppViaUrl() {
+  //     try {
+  //       const query = new URLSearchParams(window.location.search);
+  //       return query.get('is_app') === 'true';
+  //     } catch (ignore) {
+  //       return false;
+  //     }
+  //   }
 
-    function writeCooldown() {
-      try {
-        localStorage.setItem(COOL_DOWN_KEY, Date.now().toString());
-      } catch (ignore) {}
-    }
+  //   function writeCooldown() {
+  //     try {
+  //       localStorage.setItem(COOL_DOWN_KEY, Date.now().toString());
+  //     } catch (ignore) {}
+  //   }
 
-    function readCooldown() {
-      try {
-        const stored = localStorage.getItem(COOL_DOWN_KEY);
-        const timestamp = Number(stored);
-        return Number.isNaN(timestamp) ? null : timestamp;
-      } catch (ignore) {
-        return null;
-      }
-    }
+  //   function readCooldown() {
+  //     try {
+  //       const stored = localStorage.getItem(COOL_DOWN_KEY);
+  //       const timestamp = Number(stored);
+  //       return Number.isNaN(timestamp) ? null : timestamp;
+  //     } catch (ignore) {
+  //       return null;
+  //     }
+  //   }
 
-    function shouldShowLayer() {
-      const timestamp = readCooldown();
-      if (!timestamp) {
-        return true;
-      }
-      return Date.now() - timestamp >= COOL_DOWN_MS;
-    }
+  //   function shouldShowLayer() {
+  //     const timestamp = readCooldown();
+  //     if (!timestamp) {
+  //       return true;
+  //     }
+  //     return Date.now() - timestamp >= COOL_DOWN_MS;
+  //   }
 
-    function showLayer() {
-      layer.classList.add("visible");
-      layer.setAttribute("aria-hidden", "false");
-    }
+  //   function showLayer() {
+  //     layer.classList.add("visible");
+  //     layer.setAttribute("aria-hidden", "false");
+  //   }
 
-    function hideLayer() {
-      layer.classList.remove("visible");
-      layer.setAttribute("aria-hidden", "true");
-    }
+  //   function hideLayer() {
+  //     layer.classList.remove("visible");
+  //     layer.setAttribute("aria-hidden", "true");
+  //   }
 
-    function attachFallbackCancels() {
-      function cleanup() {
-        cancelFallback();
-        window.removeEventListener("pagehide", cleanup);
-        window.removeEventListener("blur", cleanup);
-        document.removeEventListener("visibilitychange", visibilityHandler);
-      }
+  //   function attachFallbackCancels() {
+  //     function cleanup() {
+  //       cancelFallback();
+  //       window.removeEventListener("pagehide", cleanup);
+  //       window.removeEventListener("blur", cleanup);
+  //       document.removeEventListener("visibilitychange", visibilityHandler);
+  //     }
 
-      function visibilityHandler() {
-        if (document.visibilityState === "hidden") {
-          cleanup();
-        }
-      }
+  //     function visibilityHandler() {
+  //       if (document.visibilityState === "hidden") {
+  //         cleanup();
+  //       }
+  //     }
 
-      window.addEventListener("pagehide", cleanup);
-      window.addEventListener("blur", cleanup);
-      document.addEventListener("visibilitychange", visibilityHandler);
+  //     window.addEventListener("pagehide", cleanup);
+  //     window.addEventListener("blur", cleanup);
+  //     document.addEventListener("visibilitychange", visibilityHandler);
 
-      return cleanup;
-    }
+  //     return cleanup;
+  //   }
 
-    function cancelFallback() {
-      if (fallbackTimer) {
-        clearTimeout(fallbackTimer);
-        fallbackTimer = null;
-      }
-    }
+  //   function cancelFallback() {
+  //     if (fallbackTimer) {
+  //       clearTimeout(fallbackTimer);
+  //       fallbackTimer = null;
+  //     }
+  //   }
 
-    function openApp() {
-      writeCooldown();
-      hideLayer();
+  //   function openApp() {
+  //     writeCooldown();
+  //     hideLayer();
 
-      const ua = navigator.userAgent || "";
-      const isIOS = /iPhone|iPad|iPod/i.test(ua);
-      const storeUrl = isIOS ? IOS_STORE : ANDROID_STORE;
+  //     const ua = navigator.userAgent || "";
+  //     const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  //     const storeUrl = isIOS ? IOS_STORE : ANDROID_STORE;
 
-      location.href = OPEN_SCHEME;
-      const removeCancelHandlers = attachFallbackCancels();
-      fallbackTimer = setTimeout(function() {
-        removeCancelHandlers();
-        location.href = storeUrl;
-      }, OPEN_DELAY);
-    }
+  //     location.href = OPEN_SCHEME;
+  //     const removeCancelHandlers = attachFallbackCancels();
+  //     fallbackTimer = setTimeout(function() {
+  //       removeCancelHandlers();
+  //       location.href = storeUrl;
+  //     }, OPEN_DELAY);
+  //   }
 
-    function dismissLayer() {
-      writeCooldown();
-      hideLayer();
-    }
+  //   function dismissLayer() {
+  //     writeCooldown();
+  //     hideLayer();
+  //   }
 
-    function initializePrompt() {
-      if (!isMobileBrowser() || isAppViaUrl()) {
-        return;
-      }
-      if (shouldShowLayer()) {
-        showLayer();
-      }
-    }
+  //   function initializePrompt() {
+  //     if (!isMobileBrowser() || isAppViaUrl()) {
+  //       return;
+  //     }
+  //     if (shouldShowLayer()) {
+  //       showLayer();
+  //     }
+  //   }
 
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-      initializePrompt();
-    } else {
-      window.addEventListener("DOMContentLoaded", initializePrompt);
-    }
+  //   if (document.readyState === "complete" || document.readyState === "interactive") {
+  //     initializePrompt();
+  //   } else {
+  //     window.addEventListener("DOMContentLoaded", initializePrompt);
+  //   }
 
-    if (openButton) {
-      openButton.addEventListener("click", openApp);
-    }
+  //   if (openButton) {
+  //     openButton.addEventListener("click", openApp);
+  //   }
 
-    if (closeButton) {
-      closeButton.addEventListener("click", dismissLayer);
-    }
-  })();
+  //   if (closeButton) {
+  //     closeButton.addEventListener("click", dismissLayer);
+  //   }
+  // })();
 </script>

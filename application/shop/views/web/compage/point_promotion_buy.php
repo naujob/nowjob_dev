@@ -477,9 +477,13 @@
   .adinfo2 .adbox3 .point-info .total-point,
   .adinfo3 .adbox3 .point-info .total-point,
   .adinfo4 .adbox3 .point-info .total-point {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
     font-size: 16px;
     font-weight: bold;
-
+    white-space: nowrap;
   }
 
   .adinfo1 .adbox3 .point-info .total-point span:first-child,
@@ -493,7 +497,8 @@
   .adinfo2 .adbox3 .point-info .total-point span:last-child,
   .adinfo3 .adbox3 .point-info .total-point span:last-child,
   .adinfo4 .adbox3 .point-info .total-point span:last-child {
-    padding-left: 211px;
+    margin-left: auto;
+    padding-right: 16px;
   }
 
   /* 버튼 컨테이너 스타일 */

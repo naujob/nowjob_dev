@@ -95,7 +95,7 @@
     <div class="qr-hero">
         <div class="header">
             <h1 class="qr-top-logo">
-                <img src="<?= RES_PATH ?>/img/qr/qr_toplogo.svg" alt="NOW JOB">
+                <img src="<?= RES_PATH ?>/img/qr/qr_toplogo_ch.svg" alt="NOW JOB">
             </h1>
         </div>
         <div class="qr-store">

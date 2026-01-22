@@ -14,15 +14,19 @@
                                 <div class="log-info">
                                     <p class="point"><strong><?=number_format($row["pl_point"])?>P</strong></p>
                                     <div class="meta">
-                                        <p>충전일 : <em><?=$row["pl_reg_dt"]?></em></p>
+                                        <p>충전일 : <em><?=substr($row["pl_reg_dt"], 0, 10)?></em></p>
                                         <?php if($mem_info["mm_point"] > $row["pl_point"] && date("Y-m-d H:i:s") <= $row["o_refund_allow_dt"] && $row["o_status"]=="결제완료") : ?>
                                         	<p>환불가능기간 : <em><?=get_yyyymmdd($row["o_pay_dt"])?> ~ <?=get_yyyymmdd($row["o_refund_allow_dt"])?></em></p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
 
+                                <?php $description = $row["pl_desc"]; ?>
+                                <?php if (strpos($description, "첫 공고 등록 포인트 지급") === 0) : ?>
+                                    <?php $description = preg_replace('/\s*\([^)]*\)$/', "", $description); ?>
+                                <?php endif; ?>
                                 <div class="status">
-                                	<p class="txt-color2"><?=$row["pl_desc"]?></p>
+                                	<p class="txt-color2"><?=$description?></p>
                                      <?php if(date("Y-m-d H:i:s") <= $row["o_refund_allow_dt"] && $row["o_status"]=="결제완료") : ?>
                                     <button type="button" aria-haspopup="dialog" class="btn-dark btn-round btnRefund" data-date="<?=get_yyyymmdd($row["o_pay_dt"])?>" data-point="<?=($row["pl_point"])?>" data-o_num="<?=$row["o_num"]?>">환불가능</button>
                                     <?php endif; ?>

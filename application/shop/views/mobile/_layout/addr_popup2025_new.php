@@ -50,11 +50,11 @@
 
    .search-input input {
      flex: 1;
-     height: 30px;
+     height: 45px;
      padding: 5px 10px;
      font-size: 14px;
      background-color: #ffff;
-     border: 1px solid #ccc;
+     
      border-radius: 3px;
    }
 
@@ -93,12 +93,12 @@
 
    .addr_dept1 {
      width: 20%;
-     border-right: 1px solid #777;
+     border-right: 1px solid #ccc;
    }
 
    .addr_dept2 {
      width: 40%;
-     border-right: 1px solid #777;
+     border-right: 1px solid #ccc;
    }
 
    .addr_dept3 {
@@ -236,10 +236,9 @@
      display: flex;
      align-items: center;
      justify-content: space-between;
-     padding: 0;
-     margin: 10px 0;
+     padding: 3px;
      position: relative;
-     font-size: 1rem;
+     font-size: 1.1rem;
      white-space: nowrap;
      overflow: hidden;
      text-overflow: ellipsis;

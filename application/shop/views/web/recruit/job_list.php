@@ -479,7 +479,7 @@ if (count($banner_list) > 0) {
             </div>
             <div class="adBanner adBanner1">
               <a href="/community/event_view/8403" target="_blank">
-                <img src="/outer/ad/nowjob-banner-vertical.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
+                <img src="/outer/ad/nowjob-banner-vertical_v2.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
               </a>
             </div>
           </div>
