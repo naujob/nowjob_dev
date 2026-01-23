@@ -116,6 +116,8 @@
        
     </div>
     <div class="qr-bottom-logo">
-        <img src="<?= RES_PATH ?>/img/qr/qr_bottomlogo.svg" alt="NOW JOB">
+        <a href="/" target="_blank" rel="noopener noreferrer">
+            <img src="<?= RES_PATH ?>/img/qr/ch_qr_bottomlogo.svg" alt="NOW JOB">
+        </a>
     </div>
 </div>

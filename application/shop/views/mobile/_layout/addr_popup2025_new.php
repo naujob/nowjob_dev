@@ -57,6 +57,11 @@
      
      border-radius: 3px;
    }
+   .search-input input::placeholder {
+     color: #1e1e1e;
+     opacity: 1;
+     font-weight: 500;
+   }
 
    .search-input .icon {
      margin-left: 5px;
@@ -67,8 +72,8 @@
      display: flex;
      flex-direction: row;
      min-height: 100px;
-     border-top: 1px solid #777;
-     border-bottom: 1px solid #777;
+     border-top: 1px solid #ccc;
+     border-bottom: 1px solid #ccc;
    }
 
    .search_addr,
@@ -114,24 +119,31 @@
      text-align: center;
    }
 
-   .search_addr ul,
-   .addr_dept1 ul,
-   .addr_dept2 ul,
-   .addr_dept3 ul {
-     flex: 1 1 auto;
-     margin: 0;
-     padding: 0;
-     list-style: none;
-     overflow-y: auto;
-   }
+  .search_addr ul,
+  .addr_dept1 ul,
+  .addr_dept2 ul,
+  .addr_dept3 ul {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
 
-   .addr_dept1 ul li.selectable:hover,
-   .addr_dept2 ul li.selectable:hover,
-   .addr_dept1 ul li.selectable.addr_on,
-   .addr_dept2 ul li.selectable.addr_on {
-     background-color: #31A182;
-     color: #fff;
-   }
+  .addr_dept1 ul::-webkit-scrollbar,
+  .addr_dept2 ul::-webkit-scrollbar,
+  .addr_dept3 ul::-webkit-scrollbar,
+  .search_addr ul::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .addr_dept1 ul li.selectable.addr_on,
+  .addr_dept2 ul li.selectable.addr_on {
+    background-color: #31A182;
+    color: #fff;
+  }
 
    .search_addr ul li {
      display: flex;
@@ -155,11 +167,10 @@
      cursor: pointer;
    }
 
-   .search_addr ul li label:hover,
-   .search_addr ul li.addr_on label {
-     background-color: #fff;
-     color: #31A182;
-   }
+  .search_addr ul li.addr_on label {
+    background-color: #fff;
+    color: #31A182;
+  }
 
    .search_addr ul li .text {
      flex: 1;
@@ -255,14 +266,12 @@
      cursor: pointer;
    }
 
-   .addr_dept1 ul li label:hover,
-   .addr_dept2 ul li label:hover,
-   .addr_dept3 ul li label:hover,
-   .addr_dept2 ul li.addr_on label,
-   .addr_dept3 ul li.addr_on label {
-     background-color: #fff;
-     color: #31A182;
-   }
+  .addr_dept1 ul li.addr_on label,
+  .addr_dept2 ul li.addr_on label,
+  .addr_dept3 ul li.addr_on label {
+    background-color: #fff;
+    color: #31A182;
+  }
 
    .addr_dept1 ul li .text,
    .addr_dept2 ul li .text,
