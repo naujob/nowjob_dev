@@ -13,7 +13,7 @@ resource/vendor/
 application/shop/logs/
 application/common/config/database.php
 firebase-service-account.json
-
+chatting/chat/config
 # =========================
 # 환경 변수 / 보안 정보
 # =========================

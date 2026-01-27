@@ -23,16 +23,8 @@
                                     <!-- 사용포인트 -->
                                     <p class="point txt-red">-<?=number_format($row["pm_point"])?>P</p>
                                     <!-- 지역 -->
-                                    <?php if($row["pm_code"]!="C004"){ ?><p class="loc" style="width: max-content;"><?=$row["pm_addr"]=="" ? "-":$row["pm_addr"]?></p><?php } ?>
+                                    <?php if($row["pm_code"]!="C004"){ ?><p class="loc" style="text-align: right;" data-addr="<?=htmlspecialchars($row["pm_addr"], ENT_QUOTES, 'UTF-8')?>"></p><?php } ?>
                                 </div>
-                                 <?php if($row["pm_sdate"] > get_today() && $row["pm_edate"] > get_today()) : ?>
-                                <div class="status" style="width:11.625em;">
-                                    <button type="button" data-pm_idx="<?=$row["pm_idx"]?>" data-pm_name="<?=$row["pm_name"]?>" aria-haspopup="dialog" class="btnCancel btn-secondary btn-round">취소하기</button>
-                                </div>
-                                <?php else : ?>
-                                <div class="status" style="width:11.625em;">
-                                	</div>
-                                <?php endif;?>
                             </li>
 	                        <?php endforeach; ?>
 	                      	<?php if(count($promotion_list)==0) : ?>
@@ -58,6 +50,18 @@
 
 <script>
 $(document).ready(function(){
+    $(".loc").each(function(){
+        var addr = $(this).data("addr");
+        if (!addr) {
+            $(this).text("-");
+            return;
+        }
+        if (typeof fRemoveBigAdrJS === "function") {
+            $(this).text(fRemoveBigAdrJS(addr));
+        } else {
+            $(this).text(addr);
+        }
+    });
 	$(".btnCancel").click(function(){
 		var pm_name = $(this).attr("data-pm_name");
 		var pm_idx = $(this).attr("data-pm_idx");

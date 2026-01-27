@@ -417,9 +417,7 @@ if (count($banner_list) > 0) {
 
     <div class="search-option has-option">
       <style>
-        .current-area {
-          padding: 0.5rem 0 0.50rem;
-        }
+       
 
         .search-option.has-option .btn-option {
           top: 0.975rem;

@@ -145,7 +145,7 @@ if (count($banner_list) > 0) {
   .result-list .content-li {
     position: relative;
     width: 100%;
-    height: 120px;
+    height: 130px;
     overflow: hidden;
     font-size: 12px;
     line-height: 1.5;
@@ -162,7 +162,8 @@ if (count($banner_list) > 0) {
   .result-list .content-li .content-info {
     width: 100%;
     height: 100%;
-    padding: 5px;
+    padding: 10px;
+    box-sizing: border-box;
   }
 
   .result-list .content-info .content-body {
@@ -176,7 +177,7 @@ if (count($banner_list) > 0) {
   .result-list .content-info .img {
     position: relative;
     width: 130px;
-    height: 110px;
+    height: 120px;
     border: 0;
     border-radius: 5px;
     color: #888;
@@ -202,8 +203,9 @@ if (count($banner_list) > 0) {
     display: flex;
     flex-direction: column;
     height: 100%;
-    width: 60%;
+    width: 70%;
     justify-content: center;
+    min-width: 0;
   }
 
   .result-list .content-info .desc .desc1 .timestamp {
@@ -224,6 +226,9 @@ if (count($banner_list) > 0) {
   .result-list .content-info .desc .desc1 .title {
     font-size: 20px;
     font-weight: 600;
+    display: block;
+    width: 100%;
+   
   }
 
   .result-list .content-info .desc .desc1 .ellipsis {
@@ -292,6 +297,7 @@ if (count($banner_list) > 0) {
     width: 20%;
     align-items: center;
     justify-content: center;
+   
   }
 
   .result-list .content-info .desc .desc2 p.area {
@@ -433,9 +439,6 @@ if (count($banner_list) > 0) {
     <div class="section">
       <div class="container">
         <div class="search-result">
-          <div class="sidebar">
-
-          </div>
           <div class="content-area">
             <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php'); ?>
             <div class="result-wrap">

@@ -52,13 +52,12 @@
      flex: 1;
      height: 45px;
      padding: 5px 10px;
-     font-size: 14px;
+     font-size: 15px;
      background-color: #ffff;
-     
-     border-radius: 3px;
+     border-radius: 7px;
    }
    .search-input input::placeholder {
-     color: #1e1e1e;
+     color: #999;
      opacity: 1;
      font-weight: 500;
    }
@@ -239,6 +238,7 @@
      flex-wrap: wrap;
      gap: 5px;
      margin-bottom: 15px;
+     margin-left: 10px;
    }
 
    .addr_dept1 ul li,
@@ -346,8 +346,8 @@
    }
 
    .selbtn {
-     background-color: #57CCAF;
-     color: #fff;
+     background-color: #eee;
+     color: #666666;
      font-size: 1rem;
      padding: 8px;
      border-radius: 6px;

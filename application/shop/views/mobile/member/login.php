@@ -34,11 +34,9 @@
   // echo $userAgent;
   $iosapp = false;
   if (strpos($userAgent, 'NowJobApp_iOS') !== false) {
-    // app_ios가 포함된 경우
-    //echo "iOS 앱에서 접속함";
-    // echo "true";
     $iosapp = true;
   }
+  $isIosBrowser = preg_match('/(iPhone|iPad|iPod)/i', $userAgent) === 1;
   // echo "end";
   ?>
   <div class="login-form">
@@ -82,7 +80,7 @@
           <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
                     <a href="#" id="btnKakaoAndApp2" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.callVibrate(); alert(2); return false;">진동</a> -->
 
-          <?php if ($os_type == "ios") : ?>
+          <?php if ($os_type == "ios" || $isIosBrowser) : ?>
             <a href="<?= $apple_login ?>" id="btnApple" class="btn-primary vendor-type2">Apple로 로그인</a>
           <?php endif; ?>
 

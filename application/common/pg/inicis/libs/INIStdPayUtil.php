@@ -1,5 +1,6 @@
 <?php
-
+	
+	# 이니시스 결제 모듈 클래스는 이니시스 결제 모듈을 사용하기 위한 클래스입니다.
 	class INIStdPayUtil	{
 		function getTimestamp()	{
 			// timezone 을 설정하지 않으면 getTimestapme() 실행시 오류가 발생한다.
@@ -62,6 +63,7 @@
 		}
 		
 		//결제보안 추가 인증.
+		
 		function makeSignatureAuth($parameters) {
 
 			if ($parameters == null || sizeof($parameters) == 0) {

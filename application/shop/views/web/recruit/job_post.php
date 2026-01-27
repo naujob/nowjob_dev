@@ -535,6 +535,13 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
     background-size: 35px 35px;
     padding-left: 45px;
   }
+  /* 근무요일 스타일 */
+ .item-view.recruit .view-content .working-day.week-display-36>li {
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    font-size: 18px;
+}
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -870,7 +877,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                       <?php if ($isWeekUnlimited) { ?>
                         무관
                       <?php } else { ?>
-                        <ul class="working-day">
+                        <ul class="working-day week-display-36">
                           <?= getWeekYoil($weekDisplaySource) ?>
                         </ul>
                       <?php } ?>
@@ -894,7 +901,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                       <?php if ($isWeekUnlimited) { ?>
                         무관
                       <?php } else { ?>
-                        <ul class="working-day">
+                        <ul class="working-day week-display-36">
                           <?= getWeekYoil($weekDisplaySource) ?>
                         </ul>
                       <?php } ?>

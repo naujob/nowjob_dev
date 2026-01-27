@@ -198,7 +198,7 @@ $(document).ready(function(){
         }
 
         if($("[name=payment]:checked").val()=="BANK"){
-            commonAlert("계좌이체(현금결제)는 고객센터로 문의 바랍니다.(*현금영수증 발행을 희망하는 경우 꼭 말씀해주세요.)<br/>고객센터 : 031-255-0119",function(){});
+            commonAlert("계좌이체(현금결제)는 고객센터로 문의 바랍니다.(*현금영수증 발행을 희망하는 경우 꼭 말씀해주세요.)<br/>고객센터 : 032-833-0019",function(){});
             return;
         }
 
@@ -224,7 +224,7 @@ $(document).ready(function(){
 
 						//여기서 데이터 설정
 						$("#frmInicis").find("[name=gopaymethod ]").val(ini_result.data.paytype);
-						$("#frmInicis").find("[name=mid]").val(ini_result.data.mid);
+						$("#frmInicis").find("[name=mid]").val(ini_result.data.mid);//$info["sp_test_yn"] == "N" ? $info["sp_test_id"] : $info["sp_shop_id"]
 						$("#frmInicis").find("[name=goodname]").val(ini_result.data.goodsname);
 						$("#frmInicis").find("[name=oid]").val(ini_result.data.o_num);
 						$("#frmInicis").find("[name=price]").val(ini_result.data.price);

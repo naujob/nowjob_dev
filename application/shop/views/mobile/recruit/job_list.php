@@ -377,9 +377,7 @@ if (count($banner_list) > 0) {
     <!-- 상세 검색 옵션 선택시: has-option 클래스 추가 -->
     <div class="search-option has-option">
       <style>
-        .current-area {
-          padding: 0.5rem 0 0.50rem;
-        }
+        
 
         .search-option.has-option .btn-option {
           top: 0.975rem;
@@ -403,9 +401,7 @@ if (count($banner_list) > 0) {
 
     <div class="section is-last">
       <style>
-        .section .container {
-          padding-top: 0;
-        }
+       
 
         .item-info .thumb {
           width: 5rem;

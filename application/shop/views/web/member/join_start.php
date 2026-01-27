@@ -192,6 +192,9 @@
     <input type="hidden" name="m" value="checkplusService">
     <input type="hidden" name="EncodeData" value="<?= $enc_data ?>">
 </form>
+<!--인증 결과를 받아서 가입에 필요한 회원정보를 담아 보낼 폼
+(nice_success)에서 인증 데이터를 opener.document로 밀어넣고, 그 직후 fsubmit()을 호출해 전송함으로써 처리
+-->
 <form id="frm2" name="frm2" action="./join_wmem_step1" method="post" onsubmit="/* return false */">
     <input type="hidden" name="mm_name" readonly placeholder="가입자명(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onfocus="commonAlert('본인인증을 완료하면 자동으로 입력됩니다.',function(){});">
     <input type="hidden" name="mm_phone" id="mm_phone">
@@ -212,7 +215,7 @@
         }
         window.open('', 'popupChk', 'width=500, height=550, top=100, left=100, fullscreen=no, menubar=no, status=no, toolbar=no, titlebar=yes, location=no, scrollbar=no');
         document.form_chk.action = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb";
-        document.form_chk.target = "popupChk";
+        document.form_chk.target = "popupChk"; // 본인인증 데이터의 결과 화면을 보여줄 팝업 창 
         document.form_chk.submit();
     }
 </script>

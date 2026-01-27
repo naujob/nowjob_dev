@@ -1910,7 +1910,7 @@ object {
     display: inline-block;
     position: relative;
     max-width: 100%;
-    margin: 0 0.5rem 0.5rem 0;
+    margin: 0.8rem 0.5rem 0.5rem 0;
     vertical-align: top;
 }
 
@@ -4680,7 +4680,7 @@ body {
 }
 
 .section .container {
-    padding-top: 1.5625rem;
+    padding-top: 0.5625rem;
     padding-bottom: 1.5625rem;
 }
 
@@ -5434,9 +5434,9 @@ form#frm {
 /* Apple 버튼 (검은색 배경)  */
 .vendor-type2 {
     background-color: #000;
-    background-image: url('/resource/shop/mobile/img/ic-login_apple.png');
-    background-size: 85% auto;
-    background-position: 40% center;
+    background-image: url('/resource/shop/mobile/img/ic_login_apple.png');
+    background-size: 10% auto;
+    background-position: 28% 25%;
     background-repeat: no-repeat;
 }
 
@@ -6315,7 +6315,7 @@ form#frm {
 }
 
 .current-area {
-    padding: 1rem 0 1.1875rem;
+    padding: 1rem 0 0;
     line-height: 1;
     background: #fff;
 }

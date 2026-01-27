@@ -4,7 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 
 //const https = require("http").createServer(app);
-var options = {
+var options = { //  HTTPS(SSL) 설정
 	key: fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_2025043053993.key.pem'),
 	cert: fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_2025043053993.crt.pem')
 
@@ -46,7 +46,7 @@ const fcm_admin = admin.initializeApp({
 	projectId: 'nowjob-cb256'
 });
 
-
+// FCM 발송 함수
 function send_fcm(idx, data) {
 	//토큰이 없거나 비어있으면 실행하지 않는다.
 	if (!data["no_token"] || data["no_token"] == "" || data["no_token"] == null) {

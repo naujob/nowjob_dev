@@ -51,6 +51,7 @@ if (strpos($_SERVER['SERVER_NAME'], '19job') !== false) {
 }
 // $_SERVER['SERVER_NAME'] = nowjob.co.kr
 // 도메인 설정 (session_start() 전에 필요)
+// 로그인 상태를 모든 서브 도메인(admin, api 등)에서 똑같이 공유하기 위해 도메인 설정
 $domain_name = $_SERVER['SERVER_NAME'];
 $domain_name = str_replace("www.", "", $domain_name);
 $domain_name = str_replace("home.", "", $domain_name);
@@ -92,7 +93,7 @@ $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERV
 if ($is_https) {
     // HTTPS: Secure, SameSite=None, HttpOnly
     // setcookie 함수로는 SameSite=None을 정확히 설정하기 어려우므로 header 직접 사용
-    $cookie_value = session_id();
+    $cookie_value = session_id(); // 내장 함수 session_id()를 사용하여 세션 ID 가져옴
     $expires = gmdate('D, d-M-Y H:i:s T', time() + $lifetimecookie);
     header('Set-Cookie: ' . session_name() . '=' . $cookie_value . '; expires=' . $expires . '; path=/; domain=.' . $domain_name . '; Secure; HttpOnly; SameSite=None', false);
 } else {
@@ -224,10 +225,11 @@ defined('SHAREDPATH') || define('SHAREDPATH', $application_folder . '/common/');
 
 //분기처리
 $hostname = $_SERVER["HTTP_HOST"];
+// 주소를 점(.) 기준으로 쪼개기. [admin, nowjob, co, kr] 
 $urls = explode(".", $hostname);
 $first_str = "";
 if (isset($urls)) {
-    $first_str = $urls[0];
+    $first_str = $urls[0]; //주소 맨 앞 글자($first_str)를 보고 보여줄 폴더를 갈아끼우기
 }
 
 if ($first_str == "admin") {

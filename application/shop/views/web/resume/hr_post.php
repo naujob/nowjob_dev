@@ -395,7 +395,7 @@ function getConvertResumePriceType($price_type)
     position: relative;
     padding-right: 5px;
     margin: 0;
-    color: #999;
+    color: #000;
   }
 
   .history-body .content-info .summary p:not(:last-child)::after {

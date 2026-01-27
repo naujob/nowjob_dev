@@ -19,6 +19,8 @@ if (count($banner_list) > 0) {
     -webkit-box-flex: 0;
     -ms-flex: 0 0 200px;
     flex: 0 0 200px;
+    position: sticky;
+    top: 90px;
   }
 
   /*--상세검색--*/
@@ -1202,7 +1204,7 @@ if (count($banner_list) > 0) {
     <div class="section">
       <div class="container">
         <div class="search-result">
-          <div class="sidebar"></div>
+          
           <div class="content-area">
             <div class="search-wrap">
 
@@ -1439,7 +1441,16 @@ if (count($banner_list) > 0) {
               </script>
             </div><!-- //result-wrap -->
           </div><!-- //content-area -->
-          <div class="sidebar"></div>
+          <div class="sidebar">
+            <div class="adBanner adBanner2">
+              <img src="/outer/ad/ad1.jpg" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
+            </div>
+            <div class="adBanner adBanner1">
+              <a href="/community/event_view/8403" target="_blank">
+                <img src="/outer/ad/nowjob-banner-vertical_v2.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
+              </a>
+            </div>
+          </div>
         </div><!-- //search-result -->
       </div><!-- //container -->
     </div>

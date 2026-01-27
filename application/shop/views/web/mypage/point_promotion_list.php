@@ -22,16 +22,8 @@
                                     <!-- 사용포인트 -->
                                     <p class="point txt-red">-<?=number_format($row["pm_point"])?>P</p>
                                     <!-- 지역 -->
-                                    <p class="loc"><?=$row["pm_addr"]=="" ? "-":$row["pm_addr"]?></p>
+                                    <p class="loc"><?=$row["pm_addr"]=="" ? " ":$row["pm_addr"]?></p>
                                 </div>
-                                 <?php if($row["pm_sdate"] > get_today() && $row["pm_edate"] > get_today()) : ?>
-                                <div class="status" style="width:11.625em;">
-                                    <button type="button" data-pm_idx="<?=$row["pm_idx"]?>" data-pm_name="<?=$row["pm_name"]?>" aria-haspopup="dialog" class="btnCancel btn-secondary btn-round">취소하기</button>
-                                </div>
-                                <?php else : ?>
-                                <div class="status" style="width:11.625em;">
-                                	</div>
-                                <?php endif;?>
                             </li>
 	                        <?php endforeach; ?>
 	                      	<?php if(count($promotion_list)==0) : ?>

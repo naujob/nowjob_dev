@@ -1730,6 +1730,7 @@ json_return("00", "조회완료", $data);
 	}
 
 	//채팅방 생성
+	// 현재 사용하지 않음
 	function newroommake()
 	{
 
