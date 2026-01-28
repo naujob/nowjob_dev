@@ -975,14 +975,16 @@ if ($g_ios_publish == true) {
     // const COOL_DOWN_MS = 2 * 60 * 60 * 1000;
     const COOL_DOWN_MS = 0;
     const OPEN_SCHEME = "nowjob://home";
+
     const ANDROID_STORE = "https://play.google.com/store/apps/details?id=app.nowapk.com";
     const IOS_STORE = "https://apps.apple.com/kr/app/id6446226901";
-    const OPEN_DELAY = 1500;
+    const OPEN_DELAY = 100;
 
     const openButton = layer.querySelector(".app-intercept-open");
     const closeButton = layer.querySelector(".app-intercept-close");
 
     let fallbackTimer = null;
+    let hiddenTimer = null;
 
     function isMobileBrowser() {
       const ua = navigator.userAgent || "";
@@ -1034,20 +1036,34 @@ if ($g_ios_publish == true) {
 
     function attachFallbackCancels() {
       function cleanup() {
-        cancelFallback();
-        window.removeEventListener("pagehide", cleanup);
-        window.removeEventListener("blur", cleanup);
+        window.removeEventListener("pagehide", pagehideHandler);
         document.removeEventListener("visibilitychange", visibilityHandler);
-      }
-
-      function visibilityHandler() {
-        if (document.visibilityState === "hidden") {
-          cleanup();
+        if (hiddenTimer) { // 화면이 숨겨질 때 타이머 취소
+          clearTimeout(hiddenTimer);
+          hiddenTimer = null;
         }
       }
 
-      window.addEventListener("pagehide", cleanup);
-      window.addEventListener("blur", cleanup);
+      function pagehideHandler() {
+        // Page is actually leaving (app opened), cancel store fallback.
+        cancelFallback();
+        cleanup();
+      }
+      // 화면이 숨겨질 때 타이머 설정
+      function visibilityHandler() {
+        if (document.visibilityState === "hidden") {
+          // Debounce hidden so brief UI changes (alert, scheme prompt) don't cancel fallback.
+          hiddenTimer = setTimeout(function() {
+            cancelFallback();
+            cleanup();
+          }, 200);
+        } else if (hiddenTimer) {
+          clearTimeout(hiddenTimer);
+          hiddenTimer = null;
+        }
+      }
+
+      window.addEventListener("pagehide", pagehideHandler);
       document.addEventListener("visibilitychange", visibilityHandler);
 
       return cleanup;
@@ -1064,14 +1080,28 @@ if ($g_ios_publish == true) {
       writeCooldown();
       hideLayer();
 
-      const ua = navigator.userAgent || "";
+      const ua = navigator.userAgent || ""; // iOS인지 안드로이드인지 판별 확인
       const isIOS = /iPhone|iPad|iPod/i.test(ua);
-      const storeUrl = isIOS ? IOS_STORE : ANDROID_STORE;
-      location.href = OPEN_SCHEME;
+      const storeUrl = isIOS ? IOS_STORE : ANDROID_STORE; // 스토어 URL 설정
+      if (isIOS) { // iOS 인 경우
+        // Use hidden iframe to reduce Safari invalid-address alert impact.
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = OPEN_SCHEME;
+        document.body.appendChild(iframe);
+        setTimeout(function() {
+          document.body.removeChild(iframe);
+        }, 1000);
+      } else {
+        location.href = OPEN_SCHEME;
+      }
     
       const removeCancelHandlers = attachFallbackCancels();
       fallbackTimer = setTimeout(function() {
         removeCancelHandlers();
+        if (document.visibilityState === "hidden") {
+          return;
+        }
         location.href = storeUrl;
       }, OPEN_DELAY);
     }
