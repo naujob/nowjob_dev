@@ -353,6 +353,7 @@ class Recruit extends CI_Controller
       "addrName" => "",
       "searchAreaStr" => "",
     ];
+    $skip_search_state_load = false;
 
     $site_log = $this->site_model->getSiteLog([
       "session_id" => session_id(),
@@ -386,6 +387,21 @@ class Recruit extends CI_Controller
       $search_txt["searchAreaStr"] = $json_info["searchAreaStr"];
     }
 
+    $price_type_param = input_get("price_type", "");
+    if ($price_type_param !== "" && $price_type_param !== null) {
+      $price_type_values = [];
+      if (is_array($price_type_param)) {
+        $price_type_values = $price_type_param;
+      } else {
+        $price_type_values = preg_split("/[\^,]/", $price_type_param);
+      }
+      $price_type_values = array_values(array_filter(array_map("trim", $price_type_values), "strlen"));
+      if (!empty($price_type_values)) {
+        $search_txt["price_type"] = $price_type_values;
+        $skip_search_state_load = true;
+      }
+    }
+
     $data["mm_type"] = $this->mm_type;
     $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
@@ -393,6 +409,7 @@ class Recruit extends CI_Controller
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
     $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["search_txt"]  = $search_txt;
+    $data["skip_search_state_load"] = $skip_search_state_load;
 
     $this->layout->shop('/recruit/job_list', $data);
   }

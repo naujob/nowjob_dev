@@ -477,6 +477,7 @@
 <script>
   // 현재 사용자 ID 가져오기 (로그인하지 않은 경우 빈 문자열)
   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
+  var skipSearchStateLoad = <?= (isset($skip_search_state_load) && $skip_search_state_load) ? "true" : "false" ?>;
    function initCategory() {
      var arr_category = "";
      var arr_work_type = "";
@@ -1111,7 +1112,9 @@
 
   // 페이지 진입 시 저장된 상세검색 조건 복원
   $(document).ready(function() {
-    loadSearchStateFromStorage();
+    if (!skipSearchStateLoad) {
+      loadSearchStateFromStorage();
+    }
   });
 
   $("#btnSearch").click(function() {
