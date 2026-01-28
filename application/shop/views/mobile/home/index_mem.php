@@ -980,7 +980,7 @@ if ($g_ios_publish == true) {
     const ANDROID_STORE_MARKET = "market://details?id=" + ANDROID_PKG;
     const ANDROID_STORE_WEB = "https://play.google.com/store/apps/details?id=" + ANDROID_PKG;
     const IOS_STORE = "https://apps.apple.com/kr/app/id6446226901";
-    const OPEN_DELAY = 1000;
+    const OPEN_DELAY = 200;
 
     const openButton = layer.querySelector(".app-intercept-open");
     const closeButton = layer.querySelector(".app-intercept-close");
@@ -1085,19 +1085,7 @@ if ($g_ios_publish == true) {
       const ua = navigator.userAgent || ""; // iOS인지 안드로이드인지 판별 확인
       const isIOS = /iPhone|iPad|iPod/i.test(ua);
       const storeUrl = isIOS ? IOS_STORE : ANDROID_STORE_INTENT; // 스토어 URL 설정
-      if (isIOS) { // iOS 인 경우
-        // Use hidden iframe to reduce Safari invalid-address alert impact.
-        const iframe = document.createElement("iframe");
-        iframe.style.display = "none";
-        iframe.src = OPEN_SCHEME;
-        document.body.appendChild(iframe);
-        setTimeout(function() {
-          document.body.removeChild(iframe);
-        }, 1000);
-      } else {
-        location.href = OPEN_SCHEME;
-      }
-    
+
       const removeCancelHandlers = attachFallbackCancels();
       fallbackTimer = setTimeout(function() {
         removeCancelHandlers();
@@ -1114,13 +1102,13 @@ if ($g_ios_publish == true) {
             return;
           }
           location.href = ANDROID_STORE_MARKET;
-        }, 400);
+        }, 300);
         setTimeout(function() {
           if (document.visibilityState === "hidden") {
             return;
           }
           location.href = ANDROID_STORE_WEB;
-        }, 800);
+        }, 900);
       }, OPEN_DELAY);
     }
 
