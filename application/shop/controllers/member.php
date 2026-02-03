@@ -78,8 +78,8 @@ class Member extends CI_Controller
 	{
 		// callback 으로 들어온 값을 확인한다.
 		$this->load->library('KakaoLogin');
-		$kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
-		$kakao_key = "5643430bdfed15f491b8be74ad1522b1"; // nau2023@naver.com의 키
+		$kakao_setting = $this->setting_model->getSettingInfo(["st_group" => "카카오"]);
+		$kakao_key = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
 		$code = $_REQUEST["code"];
 		$state = $_REQUEST["state"];
 		$error = $_REQUEST["error"];
@@ -92,7 +92,7 @@ class Member extends CI_Controller
 
 		// 카카오로그인 객체 생성
 		//$kakao = new KakaoLogin($kakao_key["인증키"],$this->common->getSession("csrf-token"));
-		$kakao = new KakaoLogin("5643430bdfed15f491b8be74ad1522b1", $this->common->getSession("csrf-token")); // nau2023@naver.com의 키
+		$kakao = new KakaoLogin($kakao_key, $this->common->getSession("csrf-token"));
 
 		// 토큰 받기
 		$tokenData = $kakao->getToken($code);
@@ -1490,4 +1490,3 @@ class Member extends CI_Controller
 		$this->layout->shop('/member/join_wcomp_step4', $data);
 	}
 }
-

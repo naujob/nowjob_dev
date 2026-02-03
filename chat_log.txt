@@ -8687,3 +8687,12 @@
 2025-04-30T08:21:12.458Z: room_info-updateMessageUserCount error
 2025-04-30T08:21:12.459Z: room_info-updateProcessed
 2025-04-30T08:21:12.459Z: room_join_alarm  01083092881
+2026-02-03T02:34:23.772Z: model.chat getRoomList [object Object]
+2026-02-03T02:34:23.773Z: model.chat getRoomList chat
+2026-02-03T02:34:23.773Z: model.chat getRoomList 01077417262
+2026-02-03T02:34:32.955Z: model.chat getRoomList [object Object]
+2026-02-03T02:34:32.955Z: model.chat getRoomList chat
+2026-02-03T02:34:32.955Z: model.chat getRoomList 01077417262
+2026-02-03T02:34:34.019Z: model.chat getRoomList [object Object]
+2026-02-03T02:34:34.019Z: model.chat getRoomList chat
+2026-02-03T02:34:34.019Z: model.chat getRoomList 01077417262

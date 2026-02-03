@@ -8,7 +8,8 @@
                     <?php
                     // 카카오 로그인 URL 생성
                     $kakao_redirect = urlencode("https://nowjob.co.kr/member/kakao_login_callback");
-                    $kakao_client_id = "5643430bdfed15f491b8be74ad1522b1"; // 카카오 클라이언트 ID
+                    $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
+                    $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
                     // prompt=login 파라미터 추가: 항상 로그인 화면을 표시하도록 함
                     $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf . "&prompt=login";
                     

@@ -40,7 +40,7 @@ const https = require("https").createServer(options,app);
 // FCM 설정
 /////////////////////////////////////////////////////
 const admin = require('firebase-admin');
-const serviceAccount = require('./config/nowjob-cb256-firebase-adminsdk-nh112-505a61fb39.json');
+const serviceAccount = require('./config/firebase-service-account.json');
 const fcm_admin = admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 	projectId: 'nowjob-cb256'

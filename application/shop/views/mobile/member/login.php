@@ -55,7 +55,9 @@
 
           // $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=".$kakao_key["인증키"]."&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
           // $kakao_login = "";
-          $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=5643430bdfed15f491b8be74ad1522b1&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
+          $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
+          $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+          $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
           ?>
           <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
           <?php //echo "[".$os_type."]";
@@ -196,7 +198,11 @@ window.onload = function() {
       //alert('web call');
 
       if (!Kakao.isInitialized()) {
-        Kakao.init("5643430bdfed15f491b8be74ad1522b1");
+        <?php
+        $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
+        $kakao_js_key = isset($kakao_setting["인증키"]) ? $kakao_setting["인증키"] : "";
+        ?>
+        Kakao.init("<?= $kakao_js_key ?>");
         <?php // =$kakao_key["인증키"]
         ?>
       }

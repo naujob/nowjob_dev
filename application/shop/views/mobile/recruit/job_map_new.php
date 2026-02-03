@@ -334,7 +334,7 @@
             <div id="jsMap" class="js-map"></div>          
         </div>
 
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3403cd4931a126e5cd22459c8bd9e8e0&libraries=clusterer,services"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=clusterer,services"></script>
         <script>		  
           var data = [];
           var recruitlist = [];

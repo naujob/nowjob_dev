@@ -1181,7 +1181,8 @@ function kakaoRestApi($type, $parameter = array(), $content_type = 'json')
 {
 	// Request 정보
 	$host = "https://dapi.kakao.com";
-	$api_key = "2b5edfe27e6799f8cb394cf04354535f";
+	$setting = getSettingInfo(["st_group" => "카카오"]);
+	$api_key = isset($setting["REST_API_KEY"]) ? $setting["REST_API_KEY"] : "";
 	$headers = array("Authorization: KakaoAK {$api_key}");
 
 	$query = http_build_query($parameter);

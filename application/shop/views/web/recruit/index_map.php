@@ -420,7 +420,7 @@
             <button class="search_map_btn"><span id="centerSearch" class="btn_text">주변 검색</span></button>
           </div>
         </div>
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3403cd4931a126e5cd22459c8bd9e8e0&libraries=services"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
         <script>		  
           var referenceLatitude = <?=$ad_gps_y>1?$ad_gps_y:37.5665 ?>;
           var referenceLongitude = <?=$ad_gps_x>1?$ad_gps_x:126.9780 ?>;		
