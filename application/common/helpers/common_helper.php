@@ -763,22 +763,55 @@ function sendFcm($info, $token_list)
 		error_log("FCM 토큰[" . $index . "]: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token));
 	}
 
-	// FCM HTTP v1 API 설정
-	$project_id = 'nowjob-cb256'; // Firebase 프로젝트 ID (서비스 계정 파일과 일치)
-	$fcmUrl = "https://fcm.googleapis.com/v1/projects/{$project_id}/messages:send";
+	// Firebase 서비스 계정 파일 경로 결정
+	$project_root = realpath(__DIR__ . '/../../../');
+	$env_service_account_file = getenv('FIREBASE_SERVICE_ACCOUNT_PATH');
+	if (!$env_service_account_file) {
+		$env_service_account_file = getenv('CHAT_FIREBASE_SERVICE_ACCOUNT_PATH');
+	}
 
-	// Firebase Admin SDK 서비스 계정 키 파일 경로
-	$service_account_file = './firebase-service-account.json';
+	$candidate_paths = [];
+	if (!empty($env_service_account_file)) {
+		$candidate_paths[] = $env_service_account_file;
+	}
+	if (!empty($project_root)) {
+		$candidate_paths[] = $project_root . '/firebase-service-account.json';
+		$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account.json';
+		$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account-dev.json';
+	}
+
+	$service_account_file = '';
+	foreach ($candidate_paths as $candidate_path) {
+		if (!empty($candidate_path) && file_exists($candidate_path)) {
+			$service_account_file = $candidate_path;
+			break;
+		}
+	}
 
 	// 서비스 계정 키 파일 존재 확인
-	if (!file_exists($service_account_file)) {
-		debug_log("FCM 서비스 계정 파일 없음", 'FCM', ['file' => $service_account_file]);
+	if (empty($service_account_file) || !file_exists($service_account_file)) {
+		debug_log("FCM 서비스 계정 파일 없음", 'FCM', [
+			'file' => $service_account_file,
+			'project_root' => $project_root,
+			'candidates' => $candidate_paths
+		]);
 		return [
 			'success' => false,
 			'error' => 'Firebase 서비스 계정 파일을 찾을 수 없습니다',
 			'result' => null
 		];
 	}
+
+	// FCM HTTP v1 API 설정 (환경변수 > 서비스계정 > 기본값)
+	$service_account_json = json_decode(file_get_contents($service_account_file), true);
+	$project_id = getenv('CHAT_FIREBASE_PROJECT_ID');
+	if (!$project_id && is_array($service_account_json) && isset($service_account_json['project_id'])) {
+		$project_id = $service_account_json['project_id'];
+	}
+	if (!$project_id) {
+		$project_id = 'nowjob-cb256';
+	}
+	$fcmUrl = "https://fcm.googleapis.com/v1/projects/{$project_id}/messages:send";
 
 	// Access Token 생성
 	$access_token = getFirebaseAccessToken($service_account_file);

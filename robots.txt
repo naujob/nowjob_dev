@@ -1,11 +1,3 @@
+robots.txt
 User-agent: *
-Disallow: /mypage/
-Disallow: /compage/
-Disallow: /setting/
-Disallow: /member/
-Disallow: /chat/
-Disallow: /outer/ 
-Disallow: /php_log/ 
-Allow: /
-
-Sitemap: https://nowjob.co.kr/sitemap.xml
+Disallow: /

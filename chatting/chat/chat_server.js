@@ -4,21 +4,27 @@ const path = require('path');
 const app = express();
 const bodyParser = require('body-parser');
 require('./config/env_loader');
+const app_env = (process.env.APP_ENV || 'production').toLowerCase();
+const runtime_path = `${process.cwd()}|${__dirname}`.toLowerCase();
+const is_dev_runtime =
+	['dev', 'development', 'local', 'test', 'testing', 'stage', 'staging'].includes(app_env) ||
+	runtime_path.includes('/dev_nowapk') ||
+	runtime_path.includes('\\dev_nowapk');
 
-//const https = require("http").createServer(app);
-const ssl_key_path = process.env.CHAT_SSL_KEY_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.key.pem';
-const ssl_cert_path = process.env.CHAT_SSL_CERT_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.crt.pem';
-var options = { //  HTTPS(SSL) 설정
-	key: fs.readFileSync(ssl_key_path),
-	cert: fs.readFileSync(ssl_cert_path)
-
-	//  key:  fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_202405089ECF3.key.pem'),
-	//  cert: fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_202405089ECF3.crt.pem')
-	//  key: fs.readFileSync('/etc/pki/ssl/www.nowjob.co.kr_2023050820108.key.pem'),
-	//  cert: fs.readFileSync('/etc/pki/ssl/www.nowjob.co.kr_2023050820108.crt.pem')
-};
-const https = require("https").createServer(options, app);
-const io = require('socket.io')(https, {
+let server;
+if (is_dev_runtime) {
+	// 개발: Apache(HTTPS) -> Node(HTTP) 내부 프록시 구조
+	server = require("http").createServer(app);
+} else {
+	const ssl_key_path = process.env.CHAT_SSL_KEY_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.key.pem';
+	const ssl_cert_path = process.env.CHAT_SSL_CERT_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.crt.pem';
+	var options = { //  HTTPS(SSL) 설정
+		key: fs.readFileSync(ssl_key_path),
+		cert: fs.readFileSync(ssl_cert_path)
+	};
+	server = require("https").createServer(options, app);
+}
+const io = require('socket.io')(server, {
 	cors: {
 		origin: "*",
 		methods: ["GET", "POST"],
@@ -44,7 +50,6 @@ const https = require("https").createServer(options,app);
 // FCM 설정
 /////////////////////////////////////////////////////
 const admin = require('firebase-admin');
-const app_env = (process.env.APP_ENV || 'production').toLowerCase();
 const firebase_prod_path = path.join(__dirname, 'config', 'firebase-service-account.json');
 const firebase_dev_path = path.join(__dirname, 'config', 'firebase-service-account-dev.json');
 
@@ -233,7 +238,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); //url의 크�
 app.use(bodyParser.json());
 
 //서버 시작
-https.listen(port, () => {
+server.listen(port, () => {
 	//데이터베이스 초기화
 	$db.init();
 

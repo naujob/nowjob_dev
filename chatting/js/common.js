@@ -22,7 +22,8 @@ if (typeof firebase !== 'undefined') {
 }
 
 // socket 객체는 전역에서 설정되므로 여기서는 참조만
-let socket;
+// (layout에서 var socket을 사용할 수 있어 let/const 재선언 충돌을 피한다)
+var socket = window.socket || null;
 
 // socket 객체가 설정될 때까지 대기
 waitForSocket();

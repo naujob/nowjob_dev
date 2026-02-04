@@ -993,6 +993,13 @@ if ($g_ios_publish == true) {
       return /Android|iPhone|iPad|iPod/i.test(ua);
     }
 
+    function isIOSWebView() {
+      const ua = navigator.userAgent || "";
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isSafari = /Safari/i.test(ua);
+      return isIOS && !isSafari;
+    }
+
     function isAppViaUrl() {
       try {
         const query = new URLSearchParams(window.location.search);
@@ -1000,6 +1007,17 @@ if ($g_ios_publish == true) {
       } catch (ignore) {
         return false;
       }
+    }
+
+    function ensureAppFlagForIOSWebView() {
+      if (!isIOSWebView() || isAppViaUrl()) {
+        return;
+      }
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("is_app", "true");
+        window.history.replaceState(null, "", url.toString());
+      } catch (ignore) {}
     }
 
     function writeCooldown() {
@@ -1118,6 +1136,7 @@ if ($g_ios_publish == true) {
     }
 
     function initializePrompt() {
+      ensureAppFlagForIOSWebView();
       if (!isMobileBrowser() || isAppViaUrl()) {
         return;
       }

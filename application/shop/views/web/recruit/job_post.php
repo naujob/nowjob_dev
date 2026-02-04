@@ -129,9 +129,43 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
   return $result;
 }
 
+$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+$job_posting_title = !empty($info["rc_name"]) ? $info["rc_name"] : "내 주변 일자리 - 채용공고 확인하기";
+$job_posting_url = $app_base_url . '/recruit/job_post/' . (!empty($info["rc_idx"]) ? $info["rc_idx"] : '');
+$job_posting_desc = "나우잡에서 당신의 집 주변 딱 맞는 일자리를 지금 바로 확인하세요!";
+$job_posting_company = !empty($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "나우잡";
+$job_posting_date_raw = !empty($info["reg_dt"]) ? $info["reg_dt"] : (!empty($info["rc_sdate"]) ? $info["rc_sdate"] : date('Y-m-d'));
+$job_posting_date_ts = strtotime($job_posting_date_raw);
+$job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) : date('Y-m-d');
 
 // fRemoveBigAdr PHP 함수 제거 - JavaScript의 fRemoveBigAdrJS 함수 사용 (resource/shop/web/js/add.js)
 ?>
+<?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": <?= json_encode($job_posting_title, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+  "url": <?= json_encode($job_posting_url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+  "description": <?= json_encode($job_posting_desc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+  "datePosted": "<?= $job_posting_date ?>",
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": <?= json_encode($job_posting_company, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+    "sameAs": <?= json_encode($app_base_url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+    "logo": <?= json_encode($app_base_url . '/resource/shop/web/img/nowjob_info_logo.png', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "전국",
+      "addressRegion": "스마트 매칭"
+    }
+  }
+}
+</script>
+<?php endif; ?>
 <style>
   .adBanner {
     position: relative;
@@ -1517,7 +1551,80 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                         messageListChecked: false, // message_list_return에서 메시지가 없다고 확인했는지 여부
                         targetUserId: null // room_info_return에서 찾은 상대방 ID
                       };
-                      
+
+                      // 리스너를 emit보다 먼저 등록해 응답 레이스로 이벤트를 놓치지 않도록 보강
+                      var earlyBindSocketOnce = function(eventName, handler) {
+                        if (!socket || typeof handler !== 'function') return;
+                        if (typeof socket.once === 'function') {
+                          socket.once(eventName, handler);
+                          return;
+                        }
+                        if (typeof socket.on === 'function') {
+                          var wrapped = function(ret) {
+                            if (typeof socket.off === 'function') {
+                              socket.off(eventName, wrapped);
+                            }
+                            handler(ret);
+                          };
+                          socket.on(eventName, wrapped);
+                        }
+                      };
+
+                      earlyBindSocketOnce("room_info_return", function(ret) {
+                        if (!ret || ret.code !== "00" || !window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) return;
+                        if (!ret.data || Number(ret.data.rm_idx) !== Number(window.autoSendFirstMessage.rm_idx)) return;
+
+                        // chatting_cont.php의 전송 조건(rm_info_ready/rm_info)을 만족시키도록 동기화
+                        if (typeof rm_info !== 'undefined') {
+                          rm_info = ret.data;
+                        }
+                        if (typeof rm_info_ready !== 'undefined') {
+                          rm_info_ready = true;
+                        }
+
+                        var targetUserId = null;
+                        if (ret.data.rm_users && Array.isArray(ret.data.rm_users)) {
+                          for (var i = 0; i < ret.data.rm_users.length; i++) {
+                            if (ret.data.rm_users[i].user_id && ret.data.rm_users[i].user_id != g_user_id) {
+                              targetUserId = ret.data.rm_users[i].user_id;
+                              break;
+                            }
+                          }
+                        }
+
+                        if (targetUserId) {
+                          window.autoSendFirstMessage.targetUserId = targetUserId;
+                          if (typeof g_chat_other_id !== 'undefined' && !g_chat_other_id) {
+                            g_chat_other_id = targetUserId;
+                          }
+                          if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
+                            window.sendFirstMessageAfterProposal(targetUserId, window.autoSendFirstMessage.rm_idx);
+                            window.autoSendFirstMessage = null;
+                          }
+                        }
+                      });
+
+                      earlyBindSocketOnce("message_list_return", function(ret) {
+                        if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) return;
+                        var messageList = ret && ret.data ? ret.data : [];
+                        var hasMessages = false;
+                        if (Array.isArray(messageList) && messageList.length > 0) {
+                          for (var i = 0; i < messageList.length; i++) {
+                            if (messageList[i].rm_messages && Array.isArray(messageList[i].rm_messages) && messageList[i].rm_messages.length > 0) {
+                              hasMessages = true;
+                              break;
+                            }
+                          }
+                        }
+                        if (!hasMessages) {
+                          window.autoSendFirstMessage.messageListChecked = true;
+                          if (window.autoSendFirstMessage.targetUserId && window.sendFirstMessageAfterProposal) {
+                            window.sendFirstMessageAfterProposal(window.autoSendFirstMessage.targetUserId, window.autoSendFirstMessage.rm_idx);
+                            window.autoSendFirstMessage = null;
+                          }
+                        }
+                      });
+
                       // 룸 호출
                       socket.emit("room_join", {
                         rm_idx: Number(targetRmIdx),
@@ -1577,8 +1684,25 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                         });
                       }
                       
+                      function bindSocketOnce(eventName, handler) {
+                        if (!socket || typeof handler !== 'function') return;
+                        if (typeof socket.once === 'function') {
+                          socket.once(eventName, handler);
+                          return;
+                        }
+                        if (typeof socket.on === 'function') {
+                          var wrapped = function(ret) {
+                            if (typeof socket.off === 'function') {
+                              socket.off(eventName, wrapped);
+                            }
+                            handler(ret);
+                          };
+                          socket.on(eventName, wrapped);
+                        }
+                      }
+
                       // room_info_return 이벤트를 한 번만 리스닝하여 상대방 ID 저장 및 메시지 전송 시도
-                      socket.once("room_info_return", function(ret) {
+                      bindSocketOnce("room_info_return", function(ret) {
                         if (ret.code == "00" && window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
                           var autoSendInfo = window.autoSendFirstMessage;
                           
@@ -1643,7 +1767,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                       });
                       
                       // message_list_return 이벤트를 한 번만 리스닝하여 메시지 개수 확인
-                      socket.once("message_list_return", function(ret) {
+                      bindSocketOnce("message_list_return", function(ret) {
                         // 이미 전송되었으면 스킵 (room_info_return에서 전송했을 수 있음)
                         if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
                           return;

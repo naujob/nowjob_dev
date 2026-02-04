@@ -1060,7 +1060,7 @@ class Common_proc extends CI_Controller
 					$data["rc_idx"] = $rc_idx;
 				}
 
-				$result = $this->member_model->setMemberRequest($data, $data);
+					$result = $this->member_model->setMemberRequest($data, $data);
 
 				//채팅창 동시 생성.2023.11.20
 				try {
@@ -1074,7 +1074,7 @@ class Common_proc extends CI_Controller
 					$info_chat['point_yn'] = 'N';
 
 			// 채팅방 생성에 타임아웃 설정 (10초)
-			$result_chat = $this->common_model->insertRoom($info_chat);
+				$result_chat = $this->common_model->insertRoom($info_chat);
 
 			if ($result_chat && $result_chat["code"] == "00") {
 				$rm_idx = $result_chat["key"];
@@ -1116,23 +1116,23 @@ class Common_proc extends CI_Controller
 					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL 검증 비활성화
 					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // SSL 호스트 검증 비활성화
 					
-					$response = curl_exec($ch);
-					$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-					$curl_error = curl_error($ch);
-					curl_close($ch);
+						$response = curl_exec($ch);
+						$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+						$curl_error = curl_error($ch);
+						curl_close($ch);
 
-					// MongoDB 생성 실패해도 제안 처리는 계속 진행
-				} catch (Exception $e) {
-					// MongoDB 생성 실패해도 제안 처리는 계속 진행
-				}
+						// MongoDB 생성 실패해도 제안 처리는 계속 진행
+					} catch (Exception $e) {
+						// MongoDB 생성 실패해도 제안 처리는 계속 진행
+					}
 
 				//json_return("00","생성완료",["rm_idx"=>$result["key"],"first_yn"=>"Y"]);
-			} else {
-				// 채팅방 생성 실패해도 제안 처리는 계속 진행
-			}
-				} catch (Exception $chat_error) {
-					// 채팅방 생성 오류는 무시하고 제안 처리는 계속 진행
+				} else {
+					// 채팅방 생성 실패해도 제안 처리는 계속 진행
 				}
+					} catch (Exception $chat_error) {
+						// 채팅방 생성 오류는 무시하고 제안 처리는 계속 진행
+					}
 				//채팅창 동시 생성.2023.11.20
 
 				// 제안하기/지원하기 후 FCM 푸시알림 발송
@@ -2162,6 +2162,29 @@ ORDER BY distance_km ASC;
 			http_response_code(200);
 			exit;
 		}
+
+		// host/env 디버그 로그 (dev/prod 환경값 확인)
+		$debug_dir = __DIR__ . '/debug_log';
+		if (!is_dir($debug_dir)) {
+			@mkdir($debug_dir, 0777, true);
+		}
+		$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+		$debug_row = [
+			'dt' => date('Y-m-d H:i:s'),
+			'host' => $host,
+			'server_name' => isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '',
+			'request_uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
+			'app_env' => getenv('APP_ENV') ?: (isset($_ENV['APP_ENV']) ? $_ENV['APP_ENV'] : ''),
+			'chat_push_host' => getenv('CHAT_PUSH_HOST') ?: (isset($_ENV['CHAT_PUSH_HOST']) ? $_ENV['CHAT_PUSH_HOST'] : ''),
+			'chat_push_port' => getenv('CHAT_PUSH_PORT') ?: (isset($_ENV['CHAT_PUSH_PORT']) ? $_ENV['CHAT_PUSH_PORT'] : ''),
+			'chat_push_path' => getenv('CHAT_PUSH_PATH') ?: (isset($_ENV['CHAT_PUSH_PATH']) ? $_ENV['CHAT_PUSH_PATH'] : ''),
+			'chat_firebase_project_id' => getenv('CHAT_FIREBASE_PROJECT_ID') ?: (isset($_ENV['CHAT_FIREBASE_PROJECT_ID']) ? $_ENV['CHAT_FIREBASE_PROJECT_ID'] : ''),
+		];
+		@file_put_contents(
+			$debug_dir . '/host.txt',
+			json_encode($debug_row, JSON_UNESCAPED_UNICODE) . PHP_EOL,
+			FILE_APPEND | LOCK_EX
+		);
 
 		try {
 			// JSON 입력 데이터 받기

@@ -1511,13 +1511,39 @@
 		var rm_length = 20;
 		var rm_count = 0;
 		var g_chat_other_id = ""; // ✅ 채팅방 생성 시점의 상대방 user_id 저장 (최초 메시지 전송 시 사용)
+		var first_message_emit_pending = false;
+		var first_message_emit_room_idx = "";
 		// 🔥 주기적 폴링을 위한 타이머 변수
 		var noreadCountPollingTimer = null;
 		// 🔥 탭별 rm_idx 리스트 저장 (tab-badge 실시간 업데이트용)
-		var tab1RoomIdxList = []; // 탭1에 속한 rm_idx 리스트
-		var tab2RoomIdxList = []; // 탭2에 속한 rm_idx 리스트
-		
-		$(document).ready(function() {
+			var tab1RoomIdxList = []; // 탭1에 속한 rm_idx 리스트
+			var tab2RoomIdxList = []; // 탭2에 속한 rm_idx 리스트
+
+			function tryEmitFirstMessage() {
+				if (first_yn !== "Y") return;
+				if (!first_message || !first_message.rm_idx) return;
+				if (!first_users || !Array.isArray(first_users) || first_users.length === 0) return;
+				if (!socket || !socket.connected) return;
+
+				var targetRoomIdx = String(first_message.rm_idx);
+				if (first_message_emit_pending && first_message_emit_room_idx === targetRoomIdx) {
+					return;
+				}
+
+				first_message_emit_pending = true;
+				first_message_emit_room_idx = targetRoomIdx;
+				socket.emit("message_insert", first_message, first_users);
+
+				// 제안 직후 레이스 대비 1회 재시도
+				setTimeout(function() {
+					if (first_yn === "Y" && first_message_emit_pending && first_message_emit_room_idx === targetRoomIdx) {
+						first_message_emit_pending = false;
+						tryEmitFirstMessage();
+					}
+				}, 350);
+			}
+			
+			$(document).ready(function() {
 			$("#top_trade").hide();
 			$("#top_recruit").show();
 
@@ -1712,8 +1738,8 @@
 								if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
 									readNCount++;
 								}
-							});
-						});
+			});
+		});
 
 						// Log the information
 						//console.log(`rm_idx: ${rm_idx}, rm_subject: ${rm_subject}, read_yn N count: ${readNCount}`);
@@ -2806,11 +2832,7 @@
 					//console.log("first_message:", first_message);
 					//console.log("first_users:", first_users);
 					if (first_yn == "Y") {
-						//console.log("✅ first_yn == 'Y' - message_insert 이벤트 전송");
-						//console.log("전송할 메시지:", JSON.stringify(first_message));
-						//console.log("전송할 사용자 목록:", JSON.stringify(first_users));
-						socket.emit("message_insert", first_message, first_users);
-						//console.log("✅ message_insert 이벤트 전송 완료");
+						tryEmitFirstMessage();
 					} else {
 						//console.log("❌ first_yn != 'Y' - 메시지 전송하지 않음, first_yn:", first_yn);
 						setShow("3");
@@ -2846,11 +2868,7 @@
 					//console.log("first_message:", first_message);
 					//console.log("first_users:", first_users);
 					if (first_yn == "Y") {
-						//console.log("✅ first_yn == 'Y' - message_insert 이벤트 전송");
-						//console.log("전송할 메시지:", JSON.stringify(first_message));
-						//console.log("전송할 사용자 목록:", JSON.stringify(first_users));
-						socket.emit("message_insert", first_message, first_users);
-						//console.log("✅ message_insert 이벤트 전송 완료");
+						tryEmitFirstMessage();
 					} else {
 						//console.log("❌ first_yn != 'Y' - 메시지 전송하지 않음, first_yn:", first_yn);
 						//두번째 탭 활성화
@@ -3331,8 +3349,20 @@
 				return;
 			}
 
-			// ✅ 모바일과 동일: 플래그 변수로 채팅방 정보 준비 상태 확인
-			if (!rm_info_ready || !rm_info) {
+			// ✅ 방 정보 가드(제안/지원 직후 레이스로 rm_info_ready만 false인 경우 자동 보정)
+			var hasRoomUsers = !!(rm_info && rm_info.rm_users && rm_info.rm_users.length > 0);
+			if (!hasRoomUsers && g_chat_other_id) {
+				rm_info = rm_info || {};
+				rm_info.rm_users = [
+					{ user_id: g_user_id },
+					{ user_id: g_chat_other_id }
+				];
+				hasRoomUsers = true;
+			}
+			if (hasRoomUsers && !rm_info_ready) {
+				rm_info_ready = true;
+			}
+			if (!rm_info_ready || !rm_info || !hasRoomUsers) {
 				commonAlert("채팅방 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", function() {});
 				return;
 			}
@@ -3452,6 +3482,8 @@
 			
 			if (first_yn == "Y") {
 				first_yn = "N";
+				first_message_emit_pending = false;
+				first_message_emit_room_idx = "";
 				if (click_type == "trade") {
 					setShow("3");
 				} else {
@@ -4066,6 +4098,7 @@
 		socket.off("room_join_return");
 		socket.on("room_join_return", function(ret) {
 			$(".room_idx_" + rm_idx).find(".badge").html("<span></span>");
+			tryEmitFirstMessage();
 			
 			// 🔥 채팅방 입장 시 읽음 카운트 정보 저장 (메시지 로드 후 업데이트)
 			// 서버에서 ret.list에 { _id: mg_idx, count: 읽지 않은 개수 } 형태의 배열을 보냄
@@ -4853,4 +4886,3 @@
  		}
  	</script>
  <?php endif; ?>
-
