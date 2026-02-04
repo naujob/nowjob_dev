@@ -2,16 +2,20 @@
 RewriteEngine On
 RewriteBase /
 
-# ❗ ads.txt 요청은 rewrite 하지 않고 직접 파일 처리하도록 예외
-RewriteRule ^ads\.txt$ - [L]
+# index.php 직접 요청은 그대로 처리
+RewriteRule ^index\.php$ - [L]
 
-# ✅ sitemap.xml, robots.txt 는 index.php로 넘기지 않음
-RewriteCond %{REQUEST_URI} !^/sitemap\.xml$
-RewriteCond %{REQUEST_URI} !^/robots\.txt$
+# ACME 인증 경로
+RewriteRule ^\.well-known/ - [L]
 
-# 🆕 ads.txt 예외가 추가되었으므로 다음 조건에도 포함할 수 있음
-RewriteCond %{REQUEST_URI} !^/ads\.txt$
+# 검색엔진/광고 파일은 rewrite 제외
+RewriteRule ^(ads\.txt|robots\.txt|sitemap\.xml)$ - [L]
 
-RewriteCond $1 !^(index\.php|.well-known|chatting|resource|uploads|outer|phpmyadmin|robots|robots\.txt)
-RewriteRule ^(.*)$ index.php [L]
+# 실제 파일/디렉터리는 그대로 서빙
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 나머지는 모두 프론트 컨트롤러로 전달
+RewriteRule ^ index.php [L,QSA]
 </IfModule>
