@@ -1,4 +1,9 @@
-const base_url = "https://nowjob.co.kr:3030";
+const default_base_url = (typeof window !== 'undefined')
+    ? `${window.location.protocol}//${window.location.hostname}:3030`
+    : '';
+const base_url = (typeof window !== 'undefined' && window.__CHAT_BASE_URL)
+    ? window.__CHAT_BASE_URL
+    : default_base_url;
 const weekday = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
 // Firebase 설정

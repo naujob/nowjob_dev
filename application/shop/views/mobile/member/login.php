@@ -49,8 +49,9 @@
         <div class="vendor-login">
 
           <?php
+          $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
           $apple_redirect = urlencode("https://nowjob.co.kr/member/apple_login_callback");
-          $kakao_redirect = urlencode("https://nowjob.co.kr/member/kakao_login_callback");
+          $kakao_redirect = urlencode($app_base_url . "/member/kakao_login_callback");
           $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
 
           // $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=".$kakao_key["인증키"]."&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;

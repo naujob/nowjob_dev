@@ -22,38 +22,67 @@ $base_path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
  * ------------------------------------------------------------
  */
 $server_name = '';
-// $tmp:['nowjob.co.kr']
 if (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && $_SERVER['HTTP_X_FORWARDED_HOST'] !== '') {
     $tmp = explode(',', $_SERVER['HTTP_X_FORWARDED_HOST']);
-    // $server_name: 'nowjob.co.kr'
     $server_name = trim($tmp[0]);
 } elseif (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] !== '') {
     $server_name = $_SERVER['HTTP_HOST'];
 } elseif (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME'] !== '') {
     $server_name = $_SERVER['SERVER_NAME'];
-    // $server_name: 'nowjob.co.kr'
 }
 
 $server_name = strtolower($server_name);
 
-// 포트 제거 (포트 제거 후 $host_no_port: 'nowjob.co.kr')
+// 포트 제거
 $host_no_port = $server_name;
 $pos = strpos($host_no_port, ':');
 if ($pos !== false) {
     $host_no_port = substr($host_no_port, 0, $pos);
 }
 
-/**
- * ------------------------------------------------------------
- * 2. 환경 판별 (dev / prod)
- * ------------------------------------------------------------
- */
-$is_dev = false;
-if (strpos($host_no_port, 'dev.nowjob.co.kr') !== false) {
-    $is_dev = true;
+// 도메인 파생값 (하드코딩 최소화)
+$normalized_host = preg_replace('/^www\./', '', $host_no_port);
+$base_domain = preg_replace('/^(dev|admin|api)\./', '', $normalized_host);
+if ($base_domain === '') {
+    $base_domain = $normalized_host;
 }
 
-define('ENVIRONMENT', $is_dev ? 'development' : 'production');
+$main_domain = getenv('APP_MAIN_DOMAIN');
+if ($main_domain === false || $main_domain === '') {
+    $main_domain = $base_domain;
+}
+
+$dev_domain = getenv('APP_DEV_DOMAIN');
+if ($dev_domain === false || $dev_domain === '') {
+    $dev_domain = 'dev.' . $main_domain;
+}
+
+/**
+ * ------------------------------------------------------------
+ * 2. 환경 판별 (APP_ENV 우선, 없으면 호스트 기반)
+ * ------------------------------------------------------------
+ */
+$env_from_app_env = '';
+$raw_app_env = getenv('APP_ENV');
+if ($raw_app_env !== false && $raw_app_env !== '') {
+    $raw_app_env = strtolower(trim($raw_app_env));
+    if (in_array($raw_app_env, ['dev', 'development', 'local', 'test', 'testing', 'stage', 'staging'], true)) {
+        $env_from_app_env = 'development';
+    } elseif (in_array($raw_app_env, ['prod', 'production', 'live'], true)) {
+        $env_from_app_env = 'production';
+    }
+}
+
+if ($env_from_app_env !== '') {
+    define('ENVIRONMENT', $env_from_app_env);
+    $is_dev = (ENVIRONMENT === 'development');
+} else {
+    $is_dev = false;
+    if ($normalized_host === $dev_domain || strpos($normalized_host, 'dev.') === 0) {
+        $is_dev = true;
+    }
+    define('ENVIRONMENT', $is_dev ? 'development' : 'production');
+}
 
 /**
  * ------------------------------------------------------------
@@ -62,9 +91,9 @@ define('ENVIRONMENT', $is_dev ? 'development' : 'production');
  */
 if (strpos($host_no_port, '19job') !== false) {
     if ($is_dev) {
-        header('Location: https://dev.nowjob.co.kr');
+        header('Location: https://' . $dev_domain);
     } else {
-        header('Location: https://nowjob.co.kr');
+        header('Location: https://' . $main_domain);
     }
     exit;
 }
@@ -81,7 +110,12 @@ date_default_timezone_set('Asia/Seoul');
  * 5. 세션 / 쿠키 정책 (session_start 이전)
  * ------------------------------------------------------------
  */
-$cookie_domain = $is_dev ? 'dev.nowjob.co.kr' : '.nowjob.co.kr';
+$cookie_domain_env = getenv('APP_COOKIE_DOMAIN');
+if ($cookie_domain_env !== false && $cookie_domain_env !== '') {
+    $cookie_domain = $cookie_domain_env;
+} else {
+    $cookie_domain = $is_dev ? $dev_domain : '.' . $main_domain;
+}
 
 $is_https = false;
 if (
@@ -176,7 +210,6 @@ if (!is_dir($system_path)) {
 }
 
 // application 경로 분기 (admin / api / shop)
-// $host_no_port: 'nowjob.co.kr'
 // $host_parts: ['nowjob', 'co', 'kr']
 $host_parts = explode('.', $host_no_port);
 // $sub: 'nowjob'
@@ -249,4 +282,3 @@ if (ENVIRONMENT === 'development') {
 require_once FCPATH . 'config/functions.php';
 require_once FCPATH . 'config/initialize.php';
 require_once BASEPATH . 'core/CodeIgniter.php';
-

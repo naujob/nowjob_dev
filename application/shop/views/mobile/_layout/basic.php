@@ -1,3 +1,11 @@
+<?php
+$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+$socket_base_url = rtrim($this->config->item('socket_base_url') ?: ($app_base_url . ':3030'), '/');
+$socket_io_script_url = $this->config->item('socket_io_script_url');
+if (!$socket_io_script_url) {
+  $socket_io_script_url = $socket_base_url . '/socket.io/socket.io.js';
+}
+?>
 <!DOCTYPE html>
 <html lang="ko">
 
@@ -18,7 +26,7 @@
   <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/add.js") ?>
-  <script src="https://nowjob.co.kr:3030/socket.io/socket.io.js"></script>
+  <script src="<?= $socket_io_script_url ?>"></script>
   <script>
     // Socket.IO 즉시 초기화 (DOM 로드 대기 없음)
     (function() {
@@ -43,7 +51,7 @@
 
     function createSocket() {
       // Socket 연결 초기화
-      const base_url = "https://nowjob.co.kr:3030";
+      const base_url = "<?= $socket_base_url ?>";
       const socket = io(base_url, {
         secure: true,
         rejectUnauthorized: false, // SSL 인증서 검증 비활성화

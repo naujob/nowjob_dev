@@ -14,8 +14,16 @@ class KakaoLogin {
      * @param string $csrf_token
      */
 	public function __construct($api_key="",$csrf_token = "") {
+		$ci = function_exists('get_instance') ? get_instance() : null;
+		$app_base_url = '';
+		if ($ci && isset($ci->config)) {
+			$app_base_url = rtrim($ci->config->item('app_base_url') ?: base_url(), '/');
+		}
+		if ($app_base_url === '') {
+			$app_base_url = rtrim((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost'), '/');
+		}
 
-		$this->callback_url = "https://nowjob.co.kr/member/kakao_login_callback";   // 콜백 URL
+		$this->callback_url = $app_base_url . "/member/kakao_login_callback";   // 콜백 URL
 		$this->auth_url = "https://kauth.kakao.com";    // 카카오 인증서버
 		$this->api_url = "https://kapi.kakao.com";      // 카카오 API 서버
 		$this->cliend_id = $api_key;

@@ -4,6 +4,11 @@
 	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 	header("Cache-Control: post-check=0, pre-check=0", false);
 	header("Pragma: no-cache");
+	$chat_port = getenv('CHAT_SERVER_PORT') ? getenv('CHAT_SERVER_PORT') : '3030';
+	$chat_scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+	$chat_host = isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] !== '' ? $_SERVER['HTTP_HOST'] : 'localhost';
+	$chat_host_no_port = preg_replace('/:\d+$/', '', $chat_host);
+	$chat_base_url = $chat_scheme . '://' . $chat_host_no_port . ':' . $chat_port;
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -26,7 +31,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-    <script src="https://nowapk.co.kr:3030/socket.io/socket.io.js"></script>
+    <script src="<?= $chat_base_url ?>/socket.io/socket.io.js"></script>
     <script src="/chatting/js/common.js"></script>
     <script src="/chatting/js/chatting.js"></script>
     

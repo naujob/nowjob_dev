@@ -223,7 +223,8 @@ class Member extends CI_Controller
 			exit();
 		}
 
-		$callback_url = "https://nowjob.co.kr/member/naver_login_callback";
+		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$callback_url = $app_base_url . "/member/naver_login_callback";
 
 		// 토큰 받기
 		$token_url = "https://nid.naver.com/oauth2.0/token";

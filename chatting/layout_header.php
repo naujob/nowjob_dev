@@ -4,6 +4,16 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
+
+$is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+$scheme = $is_https ? 'https' : 'http';
+$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$host = preg_replace('/:\d+$/', '', $host);
+$chat_port = getenv('CHAT_SERVER_PORT');
+if ($chat_port === false || $chat_port === '') {
+    $chat_port = '3030';
+}
+$chat_base_url = $scheme . '://' . $host . ':' . $chat_port;
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -27,7 +37,10 @@ header("Pragma: no-cache");
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-    <script src="https://nowapk.co.kr:3030/socket.io/socket.io.js"></script>
+    <script>
+        window.__CHAT_BASE_URL = "<?= $chat_base_url ?>";
+    </script>
+    <script src="<?= $chat_base_url ?>/socket.io/socket.io.js"></script>
 
     <!-- Firebase SDK 추가 (안드로이드 앱에서만 필요) -->
     <?php if (isset($_GET['os_type']) && $_GET['os_type'] == 'android'): ?>

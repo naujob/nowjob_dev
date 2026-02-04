@@ -44,6 +44,7 @@
 ?>
 
 <form name="saForm">
+<?php $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/'); ?>
 
 <input type="hidden" name="mid" value="<?php echo $mid ?>">
 <input type="hidden" name="reqSvcCd" value="<?php echo $reqSvcCd ?>">
@@ -56,8 +57,8 @@
 <input type="hidden" name="userHash" value="<?php echo $userHash ?>">
 <input type="hidden" name="reservedMsg" value="<?php echo $reservedMsg ?>">
 <input type="hidden" name="directAgency" value="">
-<input type="hidden" name="successUrl" value="https://nowapk.co.kr/member/join_pass_success?join_type=<?=$join_type?>"> 
-<input type="hidden" name="failUrl" value="https://nowapk.co.kr/member/join_pass_fail?join_type=<?=$join_type?>">
+<input type="hidden" name="successUrl" value="<?= $app_base_url ?>/member/join_pass_success?join_type=<?=$join_type?>"> 
+<input type="hidden" name="failUrl" value="<?= $app_base_url ?>/member/join_pass_fail?join_type=<?=$join_type?>">
 <!-- successUrl/failUrl 은 분리하여도 됩니다. !-->
 				
 </form>	

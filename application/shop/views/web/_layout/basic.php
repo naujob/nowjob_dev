@@ -1,3 +1,13 @@
+<?php
+$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+$socket_base_url = rtrim($this->config->item('socket_base_url') ?: ($app_base_url . ':3030'), '/');
+$socket_io_script_url = $this->config->item('socket_io_script_url');
+if (!$socket_io_script_url) {
+    $socket_io_script_url = $socket_base_url . '/socket.io/socket.io.js?v=0001';
+}
+$og_image_url = $app_base_url . '/resource/shop/web/img/nowjob_info_logo.png';
+$favicon_url = $app_base_url . '/resource/favicon.ico';
+?>
 <!DOCTYPE html>
 <html lang="ko">
 
@@ -14,19 +24,19 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="지금 뜨는, 좋은 일자리 NOW JOB">
-    <meta property="og:url" content="https://nowjob.co.kr/">
+    <meta property="og:url" content="<?= $app_base_url ?>/">
     <meta property="og:description" content="구인구직 정보 플랫폼">
-    <meta property="og:image" content="https://nowjob.co.kr/resource/shop/web/img/nowjob_info_logo.png">
+    <meta property="og:image" content="<?= $og_image_url ?>">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://nowjob.co.kr/">
+    <meta property="twitter:url" content="<?= $app_base_url ?>/">
     <meta property="twitter:description" content="구인구직 정보 플랫폼">
-    <meta property="twitter:image" content="https://nowjob.co.kr/resource/shop/web/img/nowjob_info_logo.png">
+    <meta property="twitter:image" content="<?= $og_image_url ?>">
     <!--<meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />-->
     <!-- <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" /> -->
     <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
     <!-- Favicon -->
-    <link rel="shortcut icon" href="https://nowjob.co.kr/resource/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="<?= $favicon_url ?>" type="image/x-icon">
     <link rel="icon" href="/resource/favicon.ico" type="image/x-icon">
 
 
@@ -34,7 +44,7 @@
     <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
     <?= getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js") ?>
     <?= getCashJs(RES_PATH . "/js/add.js") ?>
-    <script src="https://nowjob.co.kr:3030/socket.io/socket.io.js?v=0001"></script>
+    <script src="<?= $socket_io_script_url ?>"></script>
     <script>
         // Socket.IO 즉시 초기화 (DOM 로드 대기 없음)
         (function() {
@@ -59,7 +69,7 @@
 
         function createSocket() {
             // Socket 연결 초기화
-            const base_url = "https://nowjob.co.kr:3030";
+            const base_url = "<?= $socket_base_url ?>";
             const socket = io(base_url, {
                 secure: true,
                 rejectUnauthorized: false, // SSL 인증서 검증 비활성화
@@ -214,7 +224,7 @@
             "@context": "http://schema.org",
             "@type": "Organization",
             "name": "지금 뜨는, 좋은 일자리 나우잡(NOWJOB)",
-            "url": "https://nowjob.co.kr/",
+            "url": "<?= $app_base_url ?>/",
             "sameAs": [
                 "https://play.google.com/store/apps/details?id=app.nowapk.com&pcampaignid=web_share",
                 "https://apps.apple.com/kr/app/%EB%82%98%EC%9A%B0%EC%9E%A1/id6446226901",

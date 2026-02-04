@@ -70,10 +70,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | The $query_builder variables lets you determine whether or not to load
 | the query builder class.
 */
+/*
+| -------------------------------------------------------------------
+| NOTE
+| -------------------------------------------------------------------
+| 이 파일은 현재 운영 기준으로 실사용 우선 설정이 아닙니다.
+| 공통 환경 분기 설정은 아래 파일을 우선 사용합니다.
+| - application/common/config/production/database.php
+| - application/common/config/development/database.php
+| 이 파일은 보조/호환 목적의 설정으로 유지합니다.
+*/
 $active_group = 'default';
 $query_builder = TRUE;
 
-$db['default'] = array(
+$db['default'] = array( // legacy/support
 	'dsn'	=> '',
 	'hostname' => 'localhost',
 	'username' => 'db_sysnet99',

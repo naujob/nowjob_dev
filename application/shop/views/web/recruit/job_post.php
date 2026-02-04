@@ -1052,7 +1052,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                     function shareMessage() {
                       if (!Kakao.isInitialized()) {
                         //Kakao.init("a0a27ea14e36a89cbe2de50dc61323b8");
-                        Kakao.init("844a775ddd4bfd3e56f838762708ef04");
+                        Kakao.init("<?= $kakao_key["인증키"] ?>");
                       }
 
                       var title = document.querySelector('.view-title').textContent.replace(/\s/g, ''),

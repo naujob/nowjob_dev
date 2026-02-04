@@ -880,7 +880,8 @@ function fRemoveBigAdr($arg) {
                                         function shareMessage() {
                                             if (!Kakao.isInitialized()) {
                                                 //Kakao.init("a0a27ea14e36a89cbe2de50dc61323b8");
-                                                Kakao.init("844a775ddd4bfd3e56f838762708ef04");
+                                                // 미사용 하드코딩 키(현재 운영 키와 불일치)로 주석 처리
+                                                // Kakao.init("844a775ddd4bfd3e56f838762708ef04");
                                             }
 
                                             var title = document.querySelector('.view-title').textContent.replace(/\s/g,''),

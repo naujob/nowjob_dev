@@ -1,12 +1,16 @@
 const express = require("express");
 const fs = require('fs');
+const path = require('path');
 const app = express();
 const bodyParser = require('body-parser');
+require('./config/env_loader');
 
 //const https = require("http").createServer(app);
+const ssl_key_path = process.env.CHAT_SSL_KEY_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.key.pem';
+const ssl_cert_path = process.env.CHAT_SSL_CERT_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.crt.pem';
 var options = { //  HTTPS(SSL) 설정
-	key: fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_2025043053993.key.pem'),
-	cert: fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_2025043053993.crt.pem')
+	key: fs.readFileSync(ssl_key_path),
+	cert: fs.readFileSync(ssl_cert_path)
 
 	//  key:  fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_202405089ECF3.key.pem'),
 	//  cert: fs.readFileSync('/etc/pki/ssl/nowjob.co.kr_202405089ECF3.crt.pem')
@@ -40,10 +44,27 @@ const https = require("https").createServer(options,app);
 // FCM 설정
 /////////////////////////////////////////////////////
 const admin = require('firebase-admin');
-const serviceAccount = require('./config/firebase-service-account.json');
+const app_env = (process.env.APP_ENV || 'production').toLowerCase();
+const firebase_prod_path = path.join(__dirname, 'config', 'firebase-service-account.json');
+const firebase_dev_path = path.join(__dirname, 'config', 'firebase-service-account-dev.json');
+
+let firebase_service_account_path = process.env.CHAT_FIREBASE_SERVICE_ACCOUNT_PATH || '';
+if (!firebase_service_account_path) {
+	const default_paths = (app_env === 'development' || app_env === 'dev' || app_env === 'local')
+		? [firebase_dev_path, firebase_prod_path]
+		: [firebase_prod_path, firebase_dev_path];
+	firebase_service_account_path = default_paths.find((p) => fs.existsSync(p)) || default_paths[0];
+}
+
+if (!fs.existsSync(firebase_service_account_path)) {
+	throw new Error(`Firebase service account file not found: ${firebase_service_account_path}`);
+}
+
+const serviceAccount = JSON.parse(fs.readFileSync(firebase_service_account_path, 'utf8'));
+const firebase_project_id = process.env.CHAT_FIREBASE_PROJECT_ID || serviceAccount.project_id;
 const fcm_admin = admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
-	projectId: 'nowjob-cb256'
+	projectId: firebase_project_id
 });
 
 // FCM 발송 함수
@@ -194,7 +215,10 @@ const $db = require("./database/database.js");
 const $mysql = require("./database/mysql.js");
 const $model = require("./model/model.js");
 const $exe = require("./controller/controller.js");
-const $config = require('./config/config.json');
+const $config = require('./config/config.js');
+const push_api_host = process.env.CHAT_PUSH_HOST || process.env.APP_MAIN_DOMAIN || 'localhost';
+const push_api_port = parseInt(process.env.CHAT_PUSH_PORT || '443', 10);
+const push_api_path = process.env.CHAT_PUSH_PATH || '/common_proc/send_chat_push';
 
 /////////////////////////////////////////////////////
 // 변수 초기화
@@ -1086,9 +1110,9 @@ io.on('connection', function (socket) {
 								});
 
 								const options = {
-									hostname: 'nowjob.co.kr',
-									port: 443,
-									path: '/common_proc/send_chat_push',
+									hostname: push_api_host,
+									port: push_api_port,
+									path: push_api_path,
 									method: 'POST',
 									headers: {
 										'Content-Type': 'application/json',

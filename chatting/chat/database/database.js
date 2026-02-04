@@ -11,7 +11,7 @@ const await = require('await');
 // 커스텀 모듈 로드
 /////////////////////////////////////////////////////
 const $common = require("../common/common.js");
-const $config  = require('../config/config.json');
+const $config  = require('../config/config.js');
 
 /////////////////////////////////////////////////////
 // 변수 설정
