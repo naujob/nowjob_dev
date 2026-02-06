@@ -1048,7 +1048,7 @@
               echo "];";
               ?>
             </script>
-            <p class="help-msg" style="display:none;">메인배너 광고건은 나우잡 고객센터 032-833-0019에 문의바랍니다. (별도협의필요)</p>
+            <p class="help-msg" style="display:none;">메인배너 광고건은 나우잡 고객센터 032-833-0018에 문의바랍니다. (별도협의필요)</p>
             <!-- adinfo1 - 추천공고등록 -->
             <div class="adinfo1">
               <div class="adbox1">

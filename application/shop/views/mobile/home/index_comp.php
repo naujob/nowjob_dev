@@ -786,7 +786,7 @@ if ($g_ios_publish == true) {
             Mail order business : 2025-인천연수구-1886<br />
             Address : 14, Songdogukje-daero 286beon-gil, Yeonsu-gu, Incheon<br />
             Business of disseminating job information : J15000202540002<br />
-            Tel : 032-833-0019 E-mail : nau2023@naver.com
+            Tel : 032-833-0018 E-mail : nau2023@naver.com
           </span>
         </p>
         <p>Copyright NOW D&I Co., Ltd all right reserved.</p>

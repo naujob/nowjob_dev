@@ -763,21 +763,53 @@ function sendFcm($info, $token_list)
 		error_log("FCM 토큰[" . $index . "]: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token));
 	}
 
-	// Firebase 서비스 계정 파일 경로 결정
+	// Firebase 서비스 계정 파일 경로 결정 (환경별 우선순위 적용)
 	$project_root = realpath(__DIR__ . '/../../../');
+	$environment = defined('ENVIRONMENT') ? strtolower(ENVIRONMENT) : '';
+	$is_dev_env = in_array($environment, ['development', 'dev', 'local', 'test', 'testing', 'stage', 'staging'], true);
+
+	$candidate_paths = [];
+
+	// 1) 환경별 전용 환경변수 우선
+	if ($is_dev_env) {
+		$env_service_account_file = getenv('FIREBASE_SERVICE_ACCOUNT_PATH_DEV');
+		if (!$env_service_account_file) {
+			$env_service_account_file = getenv('CHAT_FIREBASE_SERVICE_ACCOUNT_PATH_DEV');
+		}
+	} else {
+		$env_service_account_file = getenv('FIREBASE_SERVICE_ACCOUNT_PATH_PROD');
+		if (!$env_service_account_file) {
+			$env_service_account_file = getenv('CHAT_FIREBASE_SERVICE_ACCOUNT_PATH_PROD');
+		}
+	}
+	if (!empty($env_service_account_file)) {
+		$candidate_paths[] = $env_service_account_file;
+	}
+
+	// 2) 공통 환경변수
 	$env_service_account_file = getenv('FIREBASE_SERVICE_ACCOUNT_PATH');
 	if (!$env_service_account_file) {
 		$env_service_account_file = getenv('CHAT_FIREBASE_SERVICE_ACCOUNT_PATH');
 	}
-
-	$candidate_paths = [];
 	if (!empty($env_service_account_file)) {
 		$candidate_paths[] = $env_service_account_file;
 	}
+
+	// 3) 파일명 규칙 기반 fallback (개발/운영 우선순위 분리)
 	if (!empty($project_root)) {
-		$candidate_paths[] = $project_root . '/firebase-service-account.json';
-		$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account.json';
-		$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account-dev.json';
+		if ($is_dev_env) {
+			$candidate_paths[] = $project_root . '/firebase-service-account-dev.json';
+			$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account-dev.json';
+			$candidate_paths[] = $project_root . '/firebase-service-account.json';
+			$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account.json';
+		} else {
+			$candidate_paths[] = $project_root . '/firebase-service-account-prod.json';
+			$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account-prod.json';
+			$candidate_paths[] = $project_root . '/firebase-service-account.json';
+			$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account.json';
+			$candidate_paths[] = $project_root . '/firebase-service-account-dev.json';
+			$candidate_paths[] = $project_root . '/chatting/chat/config/firebase-service-account-dev.json';
+		}
 	}
 
 	$service_account_file = '';
@@ -804,7 +836,14 @@ function sendFcm($info, $token_list)
 
 	// FCM HTTP v1 API 설정 (환경변수 > 서비스계정 > 기본값)
 	$service_account_json = json_decode(file_get_contents($service_account_file), true);
-	$project_id = getenv('CHAT_FIREBASE_PROJECT_ID');
+	if ($is_dev_env) {
+		$project_id = getenv('CHAT_FIREBASE_PROJECT_ID_DEV');
+	} else {
+		$project_id = getenv('CHAT_FIREBASE_PROJECT_ID_PROD');
+	}
+	if (!$project_id) {
+		$project_id = getenv('CHAT_FIREBASE_PROJECT_ID');
+	}
 	if (!$project_id && is_array($service_account_json) && isset($service_account_json['project_id'])) {
 		$project_id = $service_account_json['project_id'];
 	}

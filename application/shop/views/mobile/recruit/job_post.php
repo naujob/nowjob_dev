@@ -113,7 +113,7 @@ $job_posting_date_ts = strtotime($job_posting_date_raw);
 $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) : date('Y-m-d');
 ?>
 <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
-<script type="application/ld+json">
+    <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "JobPosting",
@@ -124,8 +124,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   "hiringOrganization": {
     "@type": "Organization",
     "name": <?= json_encode($job_posting_company, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-    "sameAs": <?= json_encode($app_base_url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-    "logo": <?= json_encode($app_base_url . '/resource/shop/web/img/nowjob_info_logo.png', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+    "sameAs": "<?= $app_base_url ?>",
+    "logo": "<?= $app_base_url ?>/resource/shop/web/img/nowjob_info_logo.png"
   },
   "jobLocation": {
     "@type": "Place",

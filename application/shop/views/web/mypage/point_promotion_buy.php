@@ -244,7 +244,7 @@
                 </div>
               </li>
             </ul>
-            <p class="help-msg" style="display:none;">메인배너 광고건은 나우잡 고객센터 032-833-0019에 문의바랍니다. (별도협의필요)</p>
+            <p class="help-msg" style="display:none;">메인배너 광고건은 나우잡 고객센터 032-833-0018에 문의바랍니다. (별도협의필요)</p>
             <div class="adinfo1" style="display:none; margin-top: 50px; border-top: 3px solid #57CCAF;">
               <div class="adboxtitle" style="background-color: #ededed; padding: 10px; margin: 20px auto; width: 400px; border-radius: 15px;">
                 <div style="width: 140px; font-size: 20px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">

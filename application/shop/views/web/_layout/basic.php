@@ -5,6 +5,9 @@ $socket_base_url = $app_base_url;
 $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js?v=0001';
 $og_image_url = $app_base_url . '/resource/shop/web/img/nowjob_info_logo.png';
 $favicon_url = $app_base_url . '/resource/favicon.ico';
+$is_prod_env = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
+$app_base_host = parse_url($app_base_url, PHP_URL_HOST);
+$is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -14,11 +17,12 @@ $favicon_url = $app_base_url . '/resource/favicon.ico';
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=1920">
     <title>지금 뜨는, 좋은 일자리 나우잡(NOWJOB)</title>
-    <meta name="description" content="구인구직 정보 플랫폼">
     <!-- Google Fonts - Noto Sans KR -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <?php if ($is_prod_env && $is_nowjob_domain) : ?>
+    <meta name="description" content="구인구직 정보 플랫폼">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="지금 뜨는, 좋은 일자리 NOW JOB">
@@ -33,6 +37,22 @@ $favicon_url = $app_base_url . '/resource/favicon.ico';
     <!--<meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />-->
     <!-- <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" /> -->
     <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "Organization",
+      "name": "나우잡",
+      "url": "https://nowjob.co.kr",
+      "sameAs": [
+        "https://www.youtube.com/@NOWJOB_NOU",
+        "https://www.instagram.com/nowjob_nou",
+        "https://blog.naver.com/nowjobofficial"
+      ]
+    }
+    </script>
+    <?php else : ?>
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <?php endif; ?>
     <!-- Favicon -->
     <link rel="shortcut icon" href="<?= $favicon_url ?>" type="image/x-icon">
     <link rel="icon" href="/resource/favicon.ico" type="image/x-icon">
@@ -294,55 +314,56 @@ $favicon_url = $app_base_url . '/resource/favicon.ico';
     <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
         <script type="application/ld+json">
             {
-                "@context": "https://schema.org",
-                "@type": "Organization",
-                "name": "지금 뜨는, 좋은 일자리 나우잡(NOWJOB)",
-                "url": "<?= $app_base_url ?>/",
-                "sameAs": [
-                    "https://play.google.com/store/apps/details?id=app.nowapk.com&pcampaignid=web_share",
-                    "https://apps.apple.com/kr/app/%EB%82%98%EC%9A%B0%EC%9E%A1/id6446226901",
-                    "https://blog.naver.com/nowjobofficial"
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "지금 뜨는, 좋은 일자리 나우잡(NOWJOB)",
+            "url": "<?= $app_base_url ?>/",
+            "sameAs": [
+                "https://www.youtube.com/@NOWJOB_NOU",
+                "https://www.instagram.com/nowjob_nou",
+                "https://blog.naver.com/nowjobofficial"
                 ]
             }
         </script>
-        <script type="application/ld+json">
+        </script>
+            <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": [
             {
-                "@context": "https://schema.org",
-                "@type": "ItemList",
-                "itemListElement": [
-                    {
-                        "@type": "ListItem",
-                        "position": 1,
-                        "item": {
-                            "@type": "Organization",
-                            "url": "<?= $app_base_url ?>/recruit/job_list",
-                            "name": "채용정보",
-                            "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_recruit.png"
-                        }
-                    },
-                    {
-                        "@type": "ListItem",
-                        "position": 2,
-                        "item": {
-                            "@type": "Organization",
-                            "url": "<?= $app_base_url ?>/resume/hr_list",
-                            "name": "인재정보",
-                            "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_resume.png"
-                        }
-                    },
-                    {
-                        "@type": "ListItem",
-                        "position": 3,
-                        "item": {
-                            "@type": "Organization",
-                            "url": "<?= $app_base_url ?>/member/login",
-                            "name": "회원가입",
-                            "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_join.png"
-                        }
-                    }
-                ]
+                "@type": "ListItem",
+                "position": 1,
+                "item": {
+                "@type": "WebPage",
+                "url": "<?= $app_base_url ?>/recruit/job_list",
+                "name": "채용정보",
+                "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_recruit.png"
+                }
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "item": {
+                "@type": "WebPage",
+                "url": "<?= $app_base_url ?>/resume/hr_list",
+                "name": "인재정보",
+                "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_resume.png"
+                }
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "item": {
+                "@type": "WebPage",
+                "url": "<?= $app_base_url ?>/member/login",
+                "name": "회원가입",
+                "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_join.png"
+                }
             }
-        </script>
+            ]
+        }
+      </script>
     <?php endif; ?>
 
 
@@ -773,7 +794,7 @@ $favicon_url = $app_base_url . '/resource/favicon.ico';
                         <li><a href="https://pf.kakao.com/_xbgvUn" target="_blank" class="social3"><span class="sr-text">카카오채널 바로가기</span></a></li>
                     </ul>
                     <p class="title">지금 뜨는, 좋은 일자리 <em>나우잡</em></p>
-                    <p class="tel">고객센터 <em>032-833-0019</em></p>
+                    <p class="tel">고객센터 <em>032-833-0018</em></p>
                 </div>
             </div>
             <ul class="footer-menu">

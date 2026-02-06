@@ -2568,11 +2568,11 @@
 				g_chat_other_id = "";
 			}
 			
- 			var params = {};
- 			params["rm_type"] = g_rm_type;
- 			params["rc_idx"] = g_rc_idx;
- 			params["ru_idx"] = g_ru_idx;
- 			params["td_idx"] = g_td_idx;
+			var params = {};
+			params["rm_type"] = g_rm_type;
+			params["rc_idx"] = g_rc_idx;
+			params["ru_idx"] = g_ru_idx;
+			params["td_idx"] = g_td_idx;
 
  			comAjax("/chat_proc/insert_room_check", params, function(chk) {
  				if (chk.code == "10") {
@@ -2596,7 +2596,7 @@
  						secondCallback: function() {
 
 
- 							comAjax("/chat_proc/insert_room", params, function(ret2) {
+							comAjax("/chat_proc/insert_room", params, function(ret2) {
  								if (ret2.code == "00") {
  									var chat_suer = [];
  									chat_suer.push({
@@ -2687,7 +2687,7 @@
  						}
  					});
  				} else {
- 					comAjax("/chat_proc/insert_room", params, function(ret2) {
+					comAjax("/chat_proc/insert_room", params, function(ret2) {
  						if (ret2.code == "00") {
  							var chat_suer = [];
  							chat_suer.push({

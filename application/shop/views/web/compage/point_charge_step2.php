@@ -198,7 +198,7 @@ $(document).ready(function(){
         }
 
         if($("[name=payment]:checked").val()=="BANK"){
-            commonAlert("계좌이체(현금결제)는 고객센터로 문의 바랍니다.(*현금영수증 발행을 희망하는 경우 꼭 말씀해주세요.)<br/>고객센터 : 032-833-0019",function(){});
+            commonAlert("계좌이체(현금결제)는 고객센터로 문의 바랍니다.(*현금영수증 발행을 희망하는 경우 꼭 말씀해주세요.)<br/>고객센터 : 032-833-0018",function(){});
             return;
         }
 

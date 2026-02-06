@@ -2,6 +2,9 @@
 $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 $socket_base_url = $app_base_url;
 $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
+$is_prod_env = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
+$app_base_host = parse_url($app_base_url, PHP_URL_HOST);
+$is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -12,9 +15,26 @@ $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
   <!-- iOS Home Indicator Safe Area 대응을 위한 viewport-fit=cover 추가 -->
   <meta name="viewport" content="width=460, user-scalable=no, viewport-fit=cover">
   <title>지금 뜨는, 좋은 일자리 나우잡(NOWJOB)</title>
+  <?php if ($is_prod_env && $is_nowjob_domain) : ?>
   <meta name="description" content="구인구직 정보 플랫폼">
-  <meta name="format-detection" content="address=no, email=no, telephone=no">
   <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": "나우잡",
+    "url": "https://nowjob.co.kr",
+    "sameAs": [
+      "https://www.youtube.com/@NOWJOB_NOU",
+      "https://www.instagram.com/nowjob_nou",
+      "https://blog.naver.com/nowjobofficial"
+    ]
+  }
+  </script>
+  <?php else : ?>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <?php endif; ?>
+  <meta name="format-detection" content="address=no, email=no, telephone=no">
   <link rel="shortcut icon" href="/resource/favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Script -->
@@ -415,13 +435,13 @@ $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
         "name": "지금 뜨는, 좋은 일자리 나우잡(NOWJOB)",
         "url": "<?= $app_base_url ?>/",
         "sameAs": [
-          "https://play.google.com/store/apps/details?id=app.nowapk.com&pcampaignid=web_share",
-          "https://apps.apple.com/kr/app/%EB%82%98%EC%9A%B0%EC%9E%A1/id6446226901",
+          "https://www.youtube.com/@NOWJOB_NOU",
+          "https://www.instagram.com/nowjob_nou",
           "https://blog.naver.com/nowjobofficial"
         ]
       }
-    </script>
-    <script type="application/ld+json">
+</script>
+<script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "ItemList",
@@ -430,7 +450,7 @@ $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
             "@type": "ListItem",
             "position": 1,
             "item": {
-              "@type": "Organization",
+              "@type": "WebPage",
               "url": "<?= $app_base_url ?>/recruit/job_list",
               "name": "채용정보",
               "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_recruit.png"
@@ -440,7 +460,7 @@ $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
             "@type": "ListItem",
             "position": 2,
             "item": {
-              "@type": "Organization",
+              "@type": "WebPage",
               "url": "<?= $app_base_url ?>/resume/hr_list",
               "name": "인재정보",
               "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_resume.png"
@@ -450,7 +470,7 @@ $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
             "@type": "ListItem",
             "position": 3,
             "item": {
-              "@type": "Organization",
+              "@type": "WebPage",
               "url": "<?= $app_base_url ?>/member/login",
               "name": "회원가입",
               "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_join.png"
@@ -458,7 +478,7 @@ $socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
           }
         ]
       }
-    </script>
+</script>
   <?php endif; ?>
 </head>
 
