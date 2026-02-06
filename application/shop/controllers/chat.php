@@ -170,13 +170,15 @@ class Chat extends CI_Controller
     $room = $this->common_model->getRoom(["rm_idx" => $rm_idx]);
 
     // 나간 채팅방인지 확인 (MongoDB에서 exit_yn 체크)
-    $uri = "mongodb://localhost:27017";
+    $uri = get_mongo_uri();
+
+    $dbName = get_mongo_db_name();
     $mongo_ru_idx = null;
     $mongo_rc_idx = null;
     
     try {
       @$mongo = new Mongo($uri);
-      $database = $mongo->chat;
+      $database = $mongo->$dbName;
       $collection = $database->room;
 
       $query = ['rm_idx' => (int)$rm_idx];

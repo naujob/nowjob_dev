@@ -1449,9 +1449,11 @@ class Common_proc extends CI_Controller
 			// MongoDB에서 채팅방 삭제 처리
 			if (!empty($rooms_to_close)) {
 				try {
-					$uri = "mongodb://localhost:27017";
+					$uri = get_mongo_uri();
+
+					$dbName = get_mongo_db_name();
 					@$mongo = new Mongo($uri);
-					$database = $mongo->chat;
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 
 					foreach ($rooms_to_close as $room_info) {
@@ -1945,19 +1947,20 @@ ORDER BY distance_km ASC;
 	private function createChatRoomInMongoDB($rm_idx, $data, $mm_idx)
 	{
 		try {
+			$dbName = get_mongo_db_name();
 
 			// MongoDB 연결 시도 (최신 드라이버 사용)
 			$mongo = null;
 			try {
 				// 최신 MongoDB 드라이버 시도
 				if (class_exists('MongoDB\Client')) {
-					$mongo = new MongoDB\Client("mongodb://localhost:27017");
-					$database = $mongo->chat;
+					$mongo = new MongoDB\Client(get_mongo_uri());
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 				} else {
 					// 구식 드라이버 fallback
-					$mongo = new Mongo("mongodb://localhost:27017");
-					$database = $mongo->chat;
+					$mongo = new Mongo(get_mongo_uri());
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 				}
 			} catch (Exception $mongo_connect_error) {
@@ -2067,18 +2070,20 @@ ORDER BY distance_km ASC;
 	private function createUserInMongoDB($user_info)
 	{
 		try {
+			$dbName = get_mongo_db_name();
+
 			// MongoDB 연결 시도 (최신 드라이버 사용)
 			$mongo = null;
 			try {
 				// 최신 MongoDB 드라이버 시도
 				if (class_exists('MongoDB\Client')) {
-					$mongo = new MongoDB\Client("mongodb://localhost:27017");
-					$database = $mongo->chat;
+					$mongo = new MongoDB\Client(get_mongo_uri());
+					$database = $mongo->$dbName;
 					$collection = $database->user;
 				} else {
 					// 구식 드라이버 fallback
-					$mongo = new Mongo("mongodb://localhost:27017");
-					$database = $mongo->chat;
+					$mongo = new Mongo(get_mongo_uri());
+					$database = $mongo->$dbName;
 					$collection = $database->user;
 				}
 			} catch (Exception $mongo_connect_error) {

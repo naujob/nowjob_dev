@@ -28,10 +28,12 @@ class Chat_proc extends CI_Controller
 		$preview_byte_length = 20;
 
 		// MongoDB 연결하여 마지막 메시지, 시간, 미확인 카운트 조회
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			$rtn = "";
@@ -287,10 +289,12 @@ class Chat_proc extends CI_Controller
 		$preview_byte_length = 20;
 
 		// MongoDB 연결하여 마지막 메시지, 시간, 미확인 카운트 조회
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			$rtn = "";
@@ -513,10 +517,12 @@ class Chat_proc extends CI_Controller
 		$preview_byte_length = 20;
 
 		// MongoDB 연결하여 마지막 메시지 조회
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			$rtn = "";
@@ -679,12 +685,14 @@ class Chat_proc extends CI_Controller
 		$preview_byte_length = 20;
 
 		// MongoDB 연결하여 나간 채팅방 필터링
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		$filtered_list = [];
 
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			foreach ($temp_list as $key => $row) {
@@ -920,10 +928,12 @@ class Chat_proc extends CI_Controller
 		$preview_byte_length = 20;
 
 		// MongoDB 연결하여 마지막 메시지 조회
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			foreach ($temp_list as $key => $row) {
@@ -1050,10 +1060,12 @@ class Chat_proc extends CI_Controller
 		$preview_byte_length = 20;
 
 		// MongoDB 연결하여 마지막 메시지 조회
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			foreach ($temp_list as $key => $row) {
@@ -1217,10 +1229,12 @@ class Chat_proc extends CI_Controller
 			if ($chk != null) {
 				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
 				$message_count = 0;
-				$uri = "mongodb://localhost:27017";
+				$uri = get_mongo_uri();
+
+				$dbName = get_mongo_db_name();
 				try {
 					@$mongo = new Mongo($uri);
-					$database = $mongo->chat;
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 					
 					$query = ['rm_idx' => (int)$chk["rm_idx"]];
@@ -1242,10 +1256,12 @@ class Chat_proc extends CI_Controller
 			if ($chk != null) {
 				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
 				$message_count = 0;
-				$uri = "mongodb://localhost:27017";
+				$uri = get_mongo_uri();
+
+				$dbName = get_mongo_db_name();
 				try {
 					@$mongo = new Mongo($uri);
-					$database = $mongo->chat;
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 					
 					$query = ['rm_idx' => (int)$chk["rm_idx"]];
@@ -1308,10 +1324,12 @@ class Chat_proc extends CI_Controller
 			if ($chk != null) {
 				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
 				$message_count = 0;
-				$uri = "mongodb://localhost:27017";
+				$uri = get_mongo_uri();
+
+				$dbName = get_mongo_db_name();
 				try {
 					@$mongo = new Mongo($uri);
-					$database = $mongo->chat;
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 					
 					$query = ['rm_idx' => (int)$chk["rm_idx"]];
@@ -1333,10 +1351,12 @@ class Chat_proc extends CI_Controller
 			if ($chk != null) {
 				// 🔥 기존 채팅방이 있어도 메시지가 없으면 first_yn: "Y"로 반환
 				$message_count = 0;
-				$uri = "mongodb://localhost:27017";
+				$uri = get_mongo_uri();
+
+				$dbName = get_mongo_db_name();
 				try {
 					@$mongo = new Mongo($uri);
-					$database = $mongo->chat;
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 					
 					$query = ['rm_idx' => (int)$chk["rm_idx"]];
@@ -1632,17 +1652,18 @@ class Chat_proc extends CI_Controller
 	{
 
 		// MongoDB 연결 정보
-		$uri = "mongodb://localhost:27017";
-		$dbName = "chat"; // 사용할 데이터베이스 이름
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 
 		try {
 			// MongoDB 클라이언트 생성 및 연결
 			//$client = new MongoDB\Client($uri);
 			//MongoClient 를 쓰라는 오류 메시지 안나오도록 "@" 추가
-			@$mongo = new Mongo("mongodb://localhost:27017");
+			@$mongo = new Mongo(get_mongo_uri());
 
 			// 데이터베이스 선택
-			$database = $mongo->chat; //$client->$dbName;
+			$database = $mongo->$dbName; //$client->$dbName;
 
 			// 컬렉션 선택 (room 컬렉션)
 			$collection = $database->room;
@@ -1736,17 +1757,18 @@ json_return("00", "조회완료", $data);
 
 
 		// MongoDB 연결 정보
-		$uri = "mongodb://localhost:27017";
-		$dbName = "chat"; // 사용할 데이터베이스 이름
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 
 		try {
 			// MongoDB 클라이언트 생성 및 연결
 			//$client = new MongoDB\Client($uri);
 			//MongoClient 를 쓰라는 오류 메시지 안나오도록 "@" 추가
-			@$mongo = new Mongo("mongodb://localhost:27017");
+			@$mongo = new Mongo(get_mongo_uri());
 
 			// 데이터베이스 선택
-			$database = $mongo->chat; //$client->$dbName;
+			$database = $mongo->$dbName; //$client->$dbName;
 
 			// 컬렉션 선택 (room 컬렉션)
 			$collection = $database->room;
@@ -1836,10 +1858,12 @@ json_return("00", "조회완료", $data);
 		$temp_list = $result;
 
 		// MongoDB 연결하여 마지막 메시지, 시간, 미확인 카운트 조회
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			foreach ($temp_list as $key => $row) {
@@ -1994,10 +2018,12 @@ json_return("00", "조회완료", $data);
 		$temp_list = $result;
 
 		// MongoDB 연결하여 마지막 메시지, 시간, 미확인 카운트 조회
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			foreach ($temp_list as $key => $row) {
@@ -2212,10 +2238,12 @@ json_return("00", "조회완료", $data);
 				$temp_list[$key]["rm_idx"] = $room["rm_idx"];
 
 				// MongoDB에서 마지막 메시지, 시간 조회
-				$uri = "mongodb://localhost:27017";
+				$uri = get_mongo_uri();
+
+				$dbName = get_mongo_db_name();
 				try {
 					@$mongo = new Mongo($uri);
-					$database = $mongo->chat;
+					$database = $mongo->$dbName;
 					$collection = $database->room;
 
 					$query = ['rm_idx' => (int)$room["rm_idx"]];
@@ -2291,10 +2319,12 @@ json_return("00", "조회완료", $data);
 		}
 
 		// MongoDB 연결
-		$uri = "mongodb://localhost:27017";
+		$uri = get_mongo_uri();
+
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->chat;
+			$database = $mongo->$dbName;
 			$collection = $database->room;
 
 			// 채팅방 조회

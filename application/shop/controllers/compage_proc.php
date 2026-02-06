@@ -3759,9 +3759,11 @@ class Compage_proc extends CI_Controller
       // MongoDB에서 채팅방 삭제 처리
       if (!empty($ru_idx) && !empty($rc_idx)) {
         try {
-          $uri = "mongodb://localhost:27017";
+          $uri = get_mongo_uri();
+
+          $dbName = get_mongo_db_name();
           @$mongo = new Mongo($uri);
-          $database = $mongo->chat;
+          $database = $mongo->$dbName;
           $collection = $database->room;
           
           // ru_idx와 rc_idx로 채팅방 찾기
