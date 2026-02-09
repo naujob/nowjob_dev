@@ -8,6 +8,7 @@ $favicon_url = $app_base_url . '/resource/favicon.ico';
 $is_prod_env = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
 $app_base_host = parse_url($app_base_url, PHP_URL_HOST);
 $is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
+$is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -21,7 +22,7 @@ $is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
-    <?php if ($is_prod_env && $is_nowjob_domain) : ?>
+<?php if ($is_prod_env && ($is_nowjob_domain || $is_dev_domain)) : ?>
     <meta name="description" content="구인구직 정보 플랫폼">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
