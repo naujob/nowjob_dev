@@ -9,6 +9,7 @@ var container = {};
 const Promise = require('promise');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const path = require('path');
 
 //로그 쓰기
 container.writeLog = function (msg) {
@@ -16,20 +17,15 @@ container.writeLog = function (msg) {
     var logMsg = date.toISOString() + ": [서버로그]::" + msg + "\n";
     console.log("[서버로그]::" + msg);
 
-    // 로그 파일 쓰기 기능 주석처리
-    // // 날짜별 로그 파일명 생성 (YYYY-MM-DD 형식)
-    // var dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
-    // var logFile = 'chat_log2_' + dateStr + '.txt';
-    // 
-    // // 날짜별 로그 파일에 저장
-    // fs.appendFile(logFile, logMsg, (err) => {
-    //     if(err) console.log('로그 파일 쓰기 오류:', err);
-    // });
-    // 
-    // // 기존 chat_log2.txt에도 저장 (하위 호환성)
-    // fs.appendFile('chat_log2.txt', logMsg, (err) => {
-    //     if(err) console.log('기존 로그 파일 쓰기 오류:', err);
-    // });
+    // 날짜별 로그 파일명 생성 (YYYY-MM-DD 형식)
+    var dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    var logDir = path.resolve(__dirname, "../../../logs");
+    var logFile = path.join(logDir, 'chat_trace_' + dateStr + '.log');
+
+    // 날짜별 로그 파일에 저장
+    fs.appendFile(logFile, logMsg, (err) => {
+        if (err) console.log('로그 파일 쓰기 오류:', err);
+    });
 }
 
 //로그 쓰기

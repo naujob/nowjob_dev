@@ -110,12 +110,14 @@ container.findExistingRoomByMySQL = async function(data, callback){
 	try {
 		const $mysql = require("../database/mysql.js");
 		const $db = require("../database/database.js");
-		
+		$common.writeLog("MySQL(st_room) findExistingRoomByMySQL 시작 rm_idx=" + data.rm_idx + " rc_idx=" + (data.rc_idx || "") + " ru_idx=" + (data.ru_idx || ""));
+
 		// MySQL에서 rm_idx로 rc_idx, ru_idx 조회
 		return new Promise((resolve, reject) => {
 			const sql = "SELECT rm_idx, rc_idx, ru_idx FROM st_room WHERE rm_idx = ?";
 			$mysql.db_conn.query(sql, [data.rm_idx], async function(err, results) {
 				if (err) {
+					$common.writeLog("MySQL(st_room) findExistingRoomByMySQL 오류: " + err.message);
 					callback(null);
 					resolve(null);
 					return;
@@ -134,6 +136,7 @@ container.findExistingRoomByMySQL = async function(data, callback){
 							ru_idx: ru_idx,
 							rm_type: "recruit"
 						});
+						$common.writeLog("MongoDB(cs_room) findExistingRoomByMySQL rc_idx/ru_idx 조회 rc_idx=" + rc_idx + " ru_idx=" + ru_idx + " found=" + (existing_room ? "Y" : "N"));
 
 						if (existing_room) {
 							callback({
@@ -178,6 +181,7 @@ container.findExistingRoomByMySQL = async function(data, callback){
 								ru_idx: ru_idx,
 								rm_type: "recruit"
 							});
+							$common.writeLog("MongoDB(cs_room) findExistingRoomByMySQL(rc_idx fallback) rc_idx=" + rc_idx + " ru_idx=" + ru_idx + " found=" + (existing_room ? "Y" : "N"));
 
 							if (existing_room) {
 								callback({
@@ -208,6 +212,7 @@ container.findExistingRoomByMySQL = async function(data, callback){
 						}
 
 						// rc_idx로도 찾지 못했으면 null 반환
+						$common.writeLog("MySQL(st_room) findExistingRoomByMySQL rc_idx fallback 결과 없음 rm_idx=" + data.rm_idx);
 						callback(null);
 						resolve(null);
 						return;
@@ -219,6 +224,7 @@ container.findExistingRoomByMySQL = async function(data, callback){
 				const rc_idx = mysql_room.rc_idx;
 				const ru_idx = mysql_room.ru_idx;
 
+				$common.writeLog("MySQL(st_room) findExistingRoomByMySQL 결과 rm_idx=" + data.rm_idx + " rc_idx=" + rc_idx + " ru_idx=" + ru_idx);
 				// rc_idx와 ru_idx가 있으면 MongoDB에서 기존 방 찾기
 				if (rc_idx && ru_idx) {
 					// MongoDB에서 rc_idx와 ru_idx로 기존 방 찾기
@@ -227,6 +233,7 @@ container.findExistingRoomByMySQL = async function(data, callback){
 						ru_idx: ru_idx,
 						rm_type: "recruit"
 					});
+					$common.writeLog("MongoDB(cs_room) findExistingRoomByMySQL 조회 rc_idx=" + rc_idx + " ru_idx=" + ru_idx + " found=" + (existing_room ? "Y" : "N"));
 
 					if (existing_room) {
 						callback({

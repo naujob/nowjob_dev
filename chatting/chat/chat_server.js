@@ -412,6 +412,7 @@ io.on('connection', function (socket) {
 
 	// 룸 접속 처리
 	socket.on('room_join', function (data) {
+		$common.writeLog("socket room_join 시작 rm_idx=" + data.rm_idx + " con_user_id=" + data.con_user_id);
 		socket.join(data.rm_idx);
 
 		// 무엇을 update하지? → "방 입장 정보"를 update하는 동작입니다.
@@ -446,6 +447,7 @@ io.on('connection', function (socket) {
 			 * - 따라서 actualList는 읽음 처리 전 상태의 데이터임
 			 */
 			var actualList = (ret && ret.data && ret.data.list) ? ret.data.list : [];
+			$common.writeLog("socket room_join updateEnterRoom 완료 rm_idx=" + data.rm_idx + " unread_messages=" + (actualList ? actualList.length : 0));
 
 			// ret를 { code, msg, list } 형식으로 변환하여 전송
 			var returnData = {
@@ -524,6 +526,7 @@ io.on('connection', function (socket) {
 
 	//룸 조회하기
 	socket.on('room_info', function (data) {
+		$common.writeLog("socket room_info 시작 rm_idx=" + data.rm_idx + " con_user_id=" + data.con_user_id);
 		// 🔥 읽음 처리: 채팅방에 입장할 때만 읽음 처리
 		// room_join과 함께 호출될 때는 읽음 처리를 하되,
 		// 단독으로 호출될 때(예: 채팅방 목록 새로고침)는 읽음 처리하지 않음
@@ -539,6 +542,7 @@ io.on('connection', function (socket) {
 
 				// room_join과 동일하게 각 메시지의 readcount를 계산하여 emit
 				var actualList = (ret && ret.list) ? ret.list : [];
+				$common.writeLog("socket room_info updateEnterRoom 완료 rm_idx=" + data.rm_idx + " unread_messages=" + (actualList ? actualList.length : 0));
 
 				if (actualList && Array.isArray(actualList) && actualList.length > 0) {
 					// 🔥 각 메시지에 대해 실제 읽음 카운트 계산
@@ -588,6 +592,7 @@ io.on('connection', function (socket) {
 					// 첫 번째 메시지부터 처리 시작
 					processMessage(0);
 				} else {
+					$common.writeLog("socket room_info updateEnterRoom unread_messages=0 rm_idx=" + data.rm_idx);
 					// 읽지 않은 메시지가 없으면 바로 방 정보 조회
 					$exe.chat.getRoom(data, function (ret) {
 						processRoomInfo(ret, data, socket);
@@ -604,9 +609,11 @@ io.on('connection', function (socket) {
 		function processRoomInfo(ret, data, socket) {
 			// 방 정보가 없으면 자동으로 생성
 			if (!ret || !ret.data) {
+				$common.writeLog("socket room_info 방정보 없음 rm_idx=" + data.rm_idx + " -> findExistingRoomByMySQL");
 				// 🔥 MySQL에서 실제 rm_idx 확인 (rc_idx, ru_idx로 기존 MongoDB 방 찾기)
 				$exe.chat.findExistingRoomByMySQL(data, function (existing_room_result) {
 					if (existing_room_result && existing_room_result.existing_rm_idx) {
+						$common.writeLog("findExistingRoomByMySQL 기존방 발견 rm_idx=" + existing_room_result.existing_rm_idx);
 						// 기존 방으로 조회
 						var existing_data = {
 							rm_idx: existing_room_result.existing_rm_idx,
@@ -621,14 +628,17 @@ io.on('connection', function (socket) {
 								//소켓 리턴
 								socket.emit('room_info_return', existing_ret);
 							} else {
+								$common.writeLog("findExistingRoomByMySQL 결과로도 방 없음 -> 새 방 생성");
 								// 기존 방도 없으면 새로 생성
 								createNewRoom(existing_room_result);
 							}
 						});
 					} else if (existing_room_result && (existing_room_result.rc_idx || existing_room_result.ru_idx)) {
+						$common.writeLog("findExistingRoomByMySQL rc_idx/ru_idx만 확인됨 -> 새 방 생성 rc_idx=" + existing_room_result.rc_idx + " ru_idx=" + existing_room_result.ru_idx);
 						// MySQL에서 rc_idx, ru_idx는 찾았지만 MongoDB에 기존 방이 없음 - 새로 생성 (rc_idx, ru_idx 포함)
 						createNewRoom(existing_room_result);
 					} else {
+						$common.writeLog("findExistingRoomByMySQL 결과 없음 -> 새 방 생성 rm_idx=" + data.rm_idx);
 						// MySQL에서도 찾지 못했으면 새로 생성
 						createNewRoom(null);
 					}

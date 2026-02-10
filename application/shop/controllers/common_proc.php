@@ -1103,8 +1103,11 @@ class Common_proc extends CI_Controller
 
 				// MongoDB 채팅방 생성 API 호출
 				try {
-					// 내부 서버에서는 localhost 사용 (포트 3030)
-					$chat_server_url = "https://127.0.0.1:3030/newroommake";
+					// 내부 서버에서는 localhost 사용 (환경별 포트/프로토콜 분기)
+					$is_dev_env = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
+					$chat_server_url = $is_dev_env
+						? "http://127.0.0.1:3031/newroommake"
+						: "https://127.0.0.1:3030/newroommake";
 					$ch = curl_init($chat_server_url);
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 					curl_setopt($ch, CURLOPT_POST, true);
@@ -1449,11 +1452,9 @@ class Common_proc extends CI_Controller
 			// MongoDB에서 채팅방 삭제 처리
 			if (!empty($rooms_to_close)) {
 				try {
-					$uri = get_mongo_uri();
-
-					$dbName = get_mongo_db_name();
+					$uri = "mongodb://localhost:27017";
 					@$mongo = new Mongo($uri);
-					$database = $mongo->$dbName;
+					$database = $mongo->chat;
 					$collection = $database->room;
 
 					foreach ($rooms_to_close as $room_info) {
@@ -1947,20 +1948,19 @@ ORDER BY distance_km ASC;
 	private function createChatRoomInMongoDB($rm_idx, $data, $mm_idx)
 	{
 		try {
-			$dbName = get_mongo_db_name();
 
 			// MongoDB 연결 시도 (최신 드라이버 사용)
 			$mongo = null;
 			try {
 				// 최신 MongoDB 드라이버 시도
 				if (class_exists('MongoDB\Client')) {
-					$mongo = new MongoDB\Client(get_mongo_uri());
-					$database = $mongo->$dbName;
+					$mongo = new MongoDB\Client("mongodb://localhost:27017");
+					$database = $mongo->chat;
 					$collection = $database->room;
 				} else {
 					// 구식 드라이버 fallback
-					$mongo = new Mongo(get_mongo_uri());
-					$database = $mongo->$dbName;
+					$mongo = new Mongo("mongodb://localhost:27017");
+					$database = $mongo->chat;
 					$collection = $database->room;
 				}
 			} catch (Exception $mongo_connect_error) {
@@ -2070,20 +2070,18 @@ ORDER BY distance_km ASC;
 	private function createUserInMongoDB($user_info)
 	{
 		try {
-			$dbName = get_mongo_db_name();
-
 			// MongoDB 연결 시도 (최신 드라이버 사용)
 			$mongo = null;
 			try {
 				// 최신 MongoDB 드라이버 시도
 				if (class_exists('MongoDB\Client')) {
-					$mongo = new MongoDB\Client(get_mongo_uri());
-					$database = $mongo->$dbName;
+					$mongo = new MongoDB\Client("mongodb://localhost:27017");
+					$database = $mongo->chat;
 					$collection = $database->user;
 				} else {
 					// 구식 드라이버 fallback
-					$mongo = new Mongo(get_mongo_uri());
-					$database = $mongo->$dbName;
+					$mongo = new Mongo("mongodb://localhost:27017");
+					$database = $mongo->chat;
 					$collection = $database->user;
 				}
 			} catch (Exception $mongo_connect_error) {
@@ -2167,29 +2165,6 @@ ORDER BY distance_km ASC;
 			http_response_code(200);
 			exit;
 		}
-
-		// host/env 디버그 로그 (dev/prod 환경값 확인)
-		$debug_dir = __DIR__ . '/debug_log';
-		if (!is_dir($debug_dir)) {
-			@mkdir($debug_dir, 0777, true);
-		}
-		$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-		$debug_row = [
-			'dt' => date('Y-m-d H:i:s'),
-			'host' => $host,
-			'server_name' => isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '',
-			'request_uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
-			'app_env' => getenv('APP_ENV') ?: (isset($_ENV['APP_ENV']) ? $_ENV['APP_ENV'] : ''),
-			'chat_push_host' => getenv('CHAT_PUSH_HOST') ?: (isset($_ENV['CHAT_PUSH_HOST']) ? $_ENV['CHAT_PUSH_HOST'] : ''),
-			'chat_push_port' => getenv('CHAT_PUSH_PORT') ?: (isset($_ENV['CHAT_PUSH_PORT']) ? $_ENV['CHAT_PUSH_PORT'] : ''),
-			'chat_push_path' => getenv('CHAT_PUSH_PATH') ?: (isset($_ENV['CHAT_PUSH_PATH']) ? $_ENV['CHAT_PUSH_PATH'] : ''),
-			'chat_firebase_project_id' => getenv('CHAT_FIREBASE_PROJECT_ID') ?: (isset($_ENV['CHAT_FIREBASE_PROJECT_ID']) ? $_ENV['CHAT_FIREBASE_PROJECT_ID'] : ''),
-		];
-		@file_put_contents(
-			$debug_dir . '/host.txt',
-			json_encode($debug_row, JSON_UNESCAPED_UNICODE) . PHP_EOL,
-			FILE_APPEND | LOCK_EX
-		);
 
 		try {
 			// JSON 입력 데이터 받기

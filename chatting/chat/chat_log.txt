@@ -31,3 +31,15 @@
 2026-01-06T05:56:07.525Z: model.chat getRoomList [object Object]
 2026-01-06T05:56:07.525Z: model.chat getRoomList chat
 2026-01-06T05:56:07.525Z: model.chat getRoomList 01077417262
+2026-02-10T02:46:42.750Z: model.chat getRoomList [object Object]
+2026-02-10T02:46:42.750Z: model.chat getRoomList kakao_4736719936
+2026-02-10T02:46:42.750Z: model.chat getRoomList chat
+2026-02-10T02:48:04.722Z: model.chat getRoomList [object Object]
+2026-02-10T02:48:04.722Z: model.chat getRoomList chat
+2026-02-10T02:48:04.722Z: model.chat getRoomList kakao_4736719936
+2026-02-10T02:48:11.136Z: model.chat getRoomList [object Object]
+2026-02-10T02:48:11.137Z: model.chat getRoomList chat
+2026-02-10T02:48:11.137Z: model.chat getRoomList kakao_4736719936
+2026-02-10T02:55:07.534Z: model.chat getRoomList [object Object]
+2026-02-10T02:55:07.534Z: model.chat getRoomList chat
+2026-02-10T02:55:07.534Z: model.chat getRoomList kakao_4736719936

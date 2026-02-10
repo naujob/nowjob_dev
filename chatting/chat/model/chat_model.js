@@ -6,6 +6,7 @@ var container = {};
 const Promise = require('promise');
 const async = require('async');
 const await = require('await');
+const fs = require('fs');
 
 /////////////////////////////////////////////////////
 // 모듈 로드
@@ -23,6 +24,7 @@ const $common = require("../common/common.js");
 
 //방정보 등록
 container.insertRoom = async function (data, callback) {
+	$common.writeLog("MongoDB(cs_room) insertRoom 시작 rm_idx=" + data.rm_idx + " rc_idx=" + (data.rc_idx || 0) + " ru_idx=" + (data.ru_idx || ""));
 	//기본키 가져오기
 	//var room_idx = await $db.getNextSequence('room');
 	//data.room_idx = room_idx;
@@ -49,6 +51,7 @@ container.insertRoom = async function (data, callback) {
 
 	//디비 등록
 	var ret = await $db.cs_room.insertOne(chat_room);
+	$common.writeLog("MongoDB(cs_room) insertRoom 완료 rm_idx=" + data.rm_idx);
 	callback(data.rm_idx);
 }
 
@@ -180,6 +183,7 @@ getLastMessage = async function (rm_idx) {
 }
 
 container.updateMessageReturnCount = async function (data, callback) {
+	$common.writeLog("MongoDB(cs_room) updateMessageReturnCount 시작 rm_idx=" + data.rm_idx + " mg_idx=" + data.mg_idx + " user_id=" + data.user_id);
 	var ret1 = await $db.cs_room.updateOne(
 		{ "rm_idx": data.rm_idx }, { $set: { "rm_messages.$[message].mg_reads.$[read].read_yn": "Y" } },
 		{ arrayFilters: [{ "message.mg_idx": data.mg_idx }, { "read.user_id": data.user_id }] }
@@ -204,6 +208,7 @@ container.updateMessageReturnCount = async function (data, callback) {
 		return_count = 0;
 	}
 
+	$common.writeLog("MongoDB(cs_room) updateMessageReturnCount 완료 rm_idx=" + data.rm_idx + " mg_idx=" + data.mg_idx + " unread_count=" + return_count);
 	callback({ count: return_count, mg_idx: data.mg_idx });
 }
 
@@ -295,6 +300,7 @@ container.getNotReadCountList = async function (data) {
 }
 
 container.updateEnterRoom = async function (data, callback) {
+	$common.writeLog("MongoDB(cs_room) updateEnterRoom 시작 rm_idx=" + data.rm_idx + " con_user_id=" + data.con_user_id);
 
 	//완료후 카운터 리턴
 	// 채팅방에 입장할 때 읽지 않은 메시지(안 읽은 메시지) 개수를 집계하기 위해 aggregate를 사용하여 집계 쿼리를 실행한다.
@@ -324,6 +330,7 @@ container.updateEnterRoom = async function (data, callback) {
 		result.list = [];
 	}
 
+	$common.writeLog("MongoDB(cs_room) updateEnterRoom 완료 rm_idx=" + data.rm_idx + " unread_messages=" + result.list.length);
 	callback(result);
 }
 

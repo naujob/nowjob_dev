@@ -1578,9 +1578,22 @@ class Chat_proc extends CI_Controller
 		$mm_idx = $this->user->getUserIdx();
 		$rm_idx = input_post("rm_idx");
 		$mm_type = input_post("mm_type");
+		$this->log_chat_trace("get_chat_info:start", [
+			"rm_idx" => $rm_idx,
+			"mm_idx" => $mm_idx,
+			"mm_type" => $mm_type,
+			"db" => "MySQL(st_room)"
+		]);
 
 		# 룸정보 가져오기
 		$room = $this->common_model->getRoom(["rm_idx" => $rm_idx]);
+		$this->log_chat_trace("get_chat_info:room_loaded", [
+			"rm_idx" => $rm_idx,
+			"rm_type" => isset($room["rm_type"]) ? $room["rm_type"] : null,
+			"rc_idx" => isset($room["rc_idx"]) ? $room["rc_idx"] : null,
+			"ru_idx" => isset($room["ru_idx"]) ? $room["ru_idx"] : null,
+			"db" => "MySQL(st_room)"
+		]);
 		if ($room["rm_type"] == "recruit") {
 			if ($mm_type == "MEM") {
 				$info = $this->member_model->getRecruitDetail($room["rc_idx"], $mm_idx);
@@ -2433,6 +2446,19 @@ json_return("00", "조회완료", $data);
 		} catch (Exception $e) {
 			json_return("90", "처리 중 오류가 발생했습니다: " . $e->getMessage(), []);
 		}
+	}
+
+	// 채팅 진입/DB 추적용 로그
+	private function log_chat_trace($step, $data = [])
+	{
+		$log_dir = dirname(dirname(dirname(__DIR__))) . "/logs";
+		$log_file = $log_dir . "/chat_trace_" . date("Y-m-d") . ".log";
+		$log_data = [
+			"ts" => date("c"),
+			"step" => $step,
+			"data" => $data
+		];
+		@file_put_contents($log_file, json_encode($log_data, JSON_UNESCAPED_UNICODE) . PHP_EOL, FILE_APPEND | LOCK_EX);
 	}
 
 	// 채팅방 나가기 디버깅 로그 함수
