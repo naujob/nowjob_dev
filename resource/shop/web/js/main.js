@@ -479,6 +479,7 @@
             }
 
             function updateClasses() {
+                if (!slider.track || !slider.track.details || !dots) return;
                 var slide = slider.track.details.rel;
                 Array.from(dots.children).forEach(function (dot, idx) {
                     if (idx === slide) {
@@ -534,7 +535,12 @@
             }
 
             function updateClasses() {
+                if (!slider.track || !slider.track.details || !arrowLeft || !arrowRight) return;
                 var slide = slider.track.details.rel;
+                var perView = 1;
+                if (slider.options && slider.options.slides && slider.options.slides.perView) {
+                    perView = slider.options.slides.perView === "auto" ? 1 : slider.options.slides.perView;
+                }
 
                 if (slide === 0) {
                     arrowLeft.classList.add("arrow--disabled");
@@ -542,7 +548,7 @@
                     arrowLeft.classList.remove("arrow--disabled");
                 }
 
-                if (slide === slider.track.details.slides.length - slider.options.slides.perView) {
+                if (slide === slider.track.details.slides.length - perView) {
                     arrowRight.classList.add("arrow--disabled");
                 } else {
                     arrowRight.classList.remove("arrow--disabled");
@@ -1187,4 +1193,3 @@
     }());
 
 }());
-
