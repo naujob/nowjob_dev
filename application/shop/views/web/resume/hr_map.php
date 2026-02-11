@@ -490,8 +490,16 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
               window.drawPin = function() {
                 clearMarkers();
                 data.forEach(function(d) {
+                  // 2025.02.10 위치 보안 및 시각적 효과를 위해 마커 위치를 랜덤하게 산개 (Jittering)
+                  // 0.003도 약 300m 범위 내 랜덤 분포
+                  var lat = parseFloat(d.ad_gps_y);
+                  var lng = parseFloat(d.ad_gps_x);
+                  var scatterFactor = 0.01; 
+                  var rLat = lat + (Math.random() - 0.5) * scatterFactor;
+                  var rLng = lng + (Math.random() - 0.5) * scatterFactor;
+                  
                   var marker = new kakao.maps.Marker({
-                    position: new kakao.maps.LatLng(d.ad_gps_y, d.ad_gps_x)
+                    position: new kakao.maps.LatLng(rLat, rLng)
                   });
                   marker.uid = d.ru_idx;
                   markers.push(marker);

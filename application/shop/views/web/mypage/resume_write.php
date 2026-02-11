@@ -4,6 +4,12 @@
             <?php $tab_on = "tab2"; ?>
             <?php $tab_on2 = "menu2"; ?>
             <?php include_once(get_base_url() . '/application/shop/views/web/mypage/top_line_2025.php'); ?>
+            <?php
+            // 카카오 키 가져오기 for Geocoding
+            $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
+            ?>
+            <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
+
             <style>
                 .foldbtn {
                     display: none;
@@ -813,29 +819,57 @@
 <script>
     // 검색 완료 선택 처리
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
-        // 주소 정리 함수로 지번 주소를 정리하여 표시
-        var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
+        // 2025.02.10 위치 보안: 상세 주소 대신 동네 중심점 좌표 저장
+        var geocoder = new kakao.maps.services.Geocoder();
+        
+        // 지번 주소에서 번지 및 그 뒤의 건물명 등을 모두 제거하고 동(읍/면)까지만 추출
+        // 예: "경기도 시흥시 정왕동 1866-1 정왕3동주민센터" -> "경기도 시흥시 정왕동"
+        // 숫자(번지)가 나오기 직전까지만 잘라냄
+        var dongAddr = jibun;
+        var match = jibun.match(/^(.*?)(\d+[\d\-]*)/); // 숫자(번지) 시작 부분 찾기
+        if (match) {
+            dongAddr = match[1].trim(); 
+        }
 
-        var html = "";
-        html += '<li>';
-        html += '<input type="hidden" name="ad_zipcode[]" value="' + zipcode + '" />';
-        html += '<input type="hidden" name="ad_jibun[]" value="' + jibun + '" />';
-        html += '<input type="hidden" name="ad_doro[]" value="' + doro + '" />';
-        // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
-        html += '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />';
-        html += '<input type="hidden" name="ad_gps_x[]" value="' + x + '" />';
-        html += '<input type="hidden" name="ad_gps_y[]" value="' + y + '" />';
-        html += '<p>' + displayAddr + '</p>';
-        html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
-        html += '</li>';
+        geocoder.addressSearch(dongAddr, function(result, status) {
+            var finalX = x; // 기본값: 원래 받아온 x
+            var finalY = y; // 기본값: 원래 받아온 y
 
-        $("#addr_location").append(html);
+            if (status === kakao.maps.services.Status.OK) {
+                 if(result[0].x && result[0].y) {
+                     finalX = result[0].x;
+                     finalY = result[0].y;
+                 }
+            }
 
-        //팝업 종료
-        $("#changeArea").removeClass("on");
-        $("#changeArea")[0].hidden = true;
-        // body 스크롤 잠금 해제
-        document.body.style.overflow = '';
+            // ---------- 기존 주소 추가 로직 ----------
+            // 주소 정리 함수로 지번 주소를 정리하여 표시
+            var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
+
+            var html = "";
+            html += '<li>';
+            html += '<input type="hidden" name="ad_zipcode[]" value="' + zipcode + '" />';
+            html += '<input type="hidden" name="ad_jibun[]" value="' + jibun + '" />';
+            html += '<input type="hidden" name="ad_doro[]" value="' + doro + '" />';
+            // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
+            html += '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />';
+            
+            // 여기서 변경된 좌표(finalX, finalY)를 사용
+            html += '<input type="hidden" name="ad_gps_x[]" value="' + finalX + '" />';
+            html += '<input type="hidden" name="ad_gps_y[]" value="' + finalY + '" />';
+            
+            html += '<p>' + displayAddr + '</p>';
+            html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
+            html += '</li>';
+
+            $("#addr_location").append(html);
+
+            //팝업 종료
+            $("#changeArea").removeClass("on");
+            $("#changeArea")[0].hidden = true;
+            // body 스크롤 잠금 해제
+            document.body.style.overflow = '';
+        });
     }
 
     function showAddrInfo(maxlen) {
