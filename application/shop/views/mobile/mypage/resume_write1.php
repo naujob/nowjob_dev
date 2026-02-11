@@ -1,3 +1,9 @@
+<?php
+// 카카오 키 가져오기 for Geocoding
+$kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
+?>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
+
 <style>
     /* 이력서 작성 페이지 스타일 */
     .resume-title-header {
@@ -527,32 +533,65 @@
 
         detail = detail || "";
 
-        var item = {
-            ad_zipcode: zipcode,
-            ad_jibun: jibun,
-            ad_doro: doro,
-            // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
-            ad_addr: jibun,
-            ad_detail: detail,
-            ad_gps_x: x,
-            ad_gps_y: y
-        };
-        var html = createAddressListItem(item);
-        if (html === "") {
-            $("#changeArea").removeClass("on");
+        // 2025.02.10 위치 보안: 상세 주소 대신 동네 중심점 좌표 저장
+        var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
+        if (!geocoderAvailable) {
+            finalizeAddrInfo(x, y);
             return;
         }
 
-        var $addBtn = $("#addr_location .location-field-add");
-        if ($addBtn.length > 0) {
-            $addBtn.before(html);
-        } else {
-            $("#addr_location").append(html);
+        var geocoder = new kakao.maps.services.Geocoder();
+        // 지번 주소에서 번지 및 그 뒤의 건물명 등을 모두 제거하고 동(읍/면)까지만 추출
+        // 예: "경기도 시흥시 정왕동 1866-1 정왕3동주민센터" -> "경기도 시흥시 정왕동"
+        // 숫자(번지)가 나오기 직전까지만 잘라냄
+        var dongAddr = jibun;
+        var match = jibun.match(/^(.*?)(\d+[\d\-]*)/);
+        if (match) {
+            dongAddr = match[1].trim();
         }
 
-        ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
-        $("#changeArea").removeClass("on");
-        saveResumeStep1Data();
+        geocoder.addressSearch(dongAddr, function(result, status) {
+            var finalX = x;
+            var finalY = y;
+
+            if (status === kakao.maps.services.Status.OK) {
+                if (result[0].x && result[0].y) {
+                    finalX = result[0].x;
+                    finalY = result[0].y;
+                }
+            }
+
+            finalizeAddrInfo(finalX, finalY);
+        });
+
+        function finalizeAddrInfo(finalX, finalY) {
+            var item = {
+                ad_zipcode: zipcode,
+                ad_jibun: jibun,
+                ad_doro: doro,
+                // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
+                ad_addr: jibun,
+                ad_detail: detail,
+                ad_gps_x: finalX,
+                ad_gps_y: finalY
+            };
+            var html = createAddressListItem(item);
+            if (html === "") {
+                $("#changeArea").removeClass("on");
+                return;
+            }
+
+            var $addBtn = $("#addr_location .location-field-add");
+            if ($addBtn.length > 0) {
+                $addBtn.before(html);
+            } else {
+                $("#addr_location").append(html);
+            }
+
+            ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
+            $("#changeArea").removeClass("on");
+            saveResumeStep1Data();
+        }
     }
 
     function showAddrInfo(maxlen) {
