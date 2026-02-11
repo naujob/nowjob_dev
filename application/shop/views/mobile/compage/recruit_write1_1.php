@@ -246,7 +246,7 @@
 
     /* 추가정보 폼 섹션 위치 조정 */
     .section.addition-info-form {
-        margin-top: -10px;
+        margin-top: -20px;
         /* 원하는 만큼 조정 (음수 값으로 위로 이동) */
     }
 

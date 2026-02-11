@@ -1,10 +1,10 @@
 <?php
 $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-$socket_base_url = $app_base_url;
-$socket_io_script_url = $app_base_url . '/socket.io/socket.io.js';
-$is_prod_env = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
-$app_base_host = parse_url($app_base_url, PHP_URL_HOST);
-$is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
+$socket_base_url = rtrim($this->config->item('socket_base_url') ?: ($app_base_url . ':3030'), '/');
+$socket_io_script_url = $this->config->item('socket_io_script_url');
+if (!$socket_io_script_url) {
+  $socket_io_script_url = $socket_base_url . '/socket.io/socket.io.js';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -12,29 +12,11 @@ $is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
 <head>
   <meta charset="UTF-8">
   <!-- meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" -->
-  <!-- iOS Home Indicator Safe Area 대응을 위한 viewport-fit=cover 추가 -->
-  <meta name="viewport" content="width=460, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=460, user-scalable=no">
   <title>지금 뜨는, 좋은 일자리 나우잡(NOWJOB)</title>
-  <?php if ($is_prod_env && $is_nowjob_domain) : ?>
   <meta name="description" content="구인구직 정보 플랫폼">
-  <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
-  <script type="application/ld+json">
-  {
-    "@context": "http://schema.org",
-    "@type": "Organization",
-    "name": "나우잡",
-    "url": "https://nowjob.co.kr",
-    "sameAs": [
-      "https://www.youtube.com/@NOWJOB_NOU",
-      "https://www.instagram.com/nowjob_nou",
-      "https://blog.naver.com/nowjobofficial"
-    ]
-  }
-  </script>
-  <?php else : ?>
-  <meta name="robots" content="noindex, nofollow, noarchive">
-  <?php endif; ?>
   <meta name="format-detection" content="address=no, email=no, telephone=no">
+  <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
   <link rel="shortcut icon" href="/resource/favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Script -->
@@ -43,114 +25,40 @@ $is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
   <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/add.js") ?>
+  <script src="<?= $socket_io_script_url ?>"></script>
   <script>
-    // 전역 socket 참조를 항상 보장(초기 로드 시점 undefined 방지)
-    // + 실제 소켓 연결 전 등록된 on/off/emit을 대기 후 연결 시점에 반영
-    window.socket = window.socket || (function() {
-      var real = null;
-      var onQueue = [];
-      var onceQueue = [];
-      var offQueue = [];
-      var emitQueue = [];
-
-      function flush() {
-        if (!real) return;
-        offQueue.forEach(function(item) { real.off(item[0], item[1]); });
-        onQueue.forEach(function(item) { real.on(item[0], item[1]); });
-        onceQueue.forEach(function(item) { real.once(item[0], item[1]); });
-        emitQueue.forEach(function(item) { real.emit.apply(real, item); });
-        onQueue = [];
-        onceQueue = [];
-        offQueue = [];
-        emitQueue = [];
-      }
-
-      return {
-        get connected() {
-          return real ? !!real.connected : false;
-        },
-        get id() {
-          return real ? (real.id || null) : null;
-        },
-        on: function(evt, handler) {
-          if (real) return real.on(evt, handler);
-          onQueue.push([evt, handler]);
-        },
-        once: function(evt, handler) {
-          if (real) return real.once(evt, handler);
-          onceQueue.push([evt, handler]);
-        },
-        off: function(evt, handler) {
-          if (real) return real.off(evt, handler);
-          offQueue.push([evt, handler]);
-        },
-        emit: function() {
-          var args = Array.prototype.slice.call(arguments);
-          if (real) return real.emit.apply(real, args);
-          emitQueue.push(args);
-        },
-        __bindRealSocket: function(sock) {
-          real = sock;
-          flush();
-        }
-      };
-    })();
-    var socket = window.socket;
-
-    // Socket.IO 즉시 초기화 (CDN 우선, 실패 시 내부 경로 fallback)
+    // Socket.IO 즉시 초기화 (DOM 로드 대기 없음)
     (function() {
-      function loadScript(src, onload, onerror) {
+      // Socket.IO 라이브러리 로드 확인
+      if (typeof io === 'undefined') {
+        console.error('Socket.IO 라이브러리를 로드할 수 없습니다.');
+        // 대체 CDN에서 로드 시도
         var script = document.createElement('script');
-        script.src = src;
-        script.onload = onload;
-        script.onerror = onerror;
-        document.head.appendChild(script);
-      }
-
-      if (typeof io !== 'undefined') {
-        createSocket();
-        return;
-      }
-
-      loadScript(
-        'https://cdn.socket.io/4.5.4/socket.io.min.js',
-        function() {
+        script.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
+        script.onload = function() {
           console.log('Socket.IO 라이브러리 로드 성공 (CDN)');
           createSocket();
-        },
-        function() {
-          console.error('Socket.IO CDN 로드 실패, 내부 경로로 재시도합니다.');
-          loadScript(
-            '<?= $socket_io_script_url ?>',
-            function() {
-              console.log('Socket.IO 라이브러리 로드 성공 (LOCAL)');
-              createSocket();
-            },
-            function() {
-              console.error('Socket.IO 라이브러리를 로드할 수 없습니다.');
-            }
-          );
-        }
-      );
+        };
+        script.onerror = function() {
+          console.error('Socket.IO 라이브러리 로드 실패');
+        };
+        document.head.appendChild(script);
+      } else {
+        createSocket();
+      }
     })();
 
     function createSocket() {
       // Socket 연결 초기화
       const base_url = "<?= $socket_base_url ?>";
-      const realSocket = io(base_url, {
+      const socket = io(base_url, {
         secure: true,
         rejectUnauthorized: false, // SSL 인증서 검증 비활성화
         transports: ['websocket', 'polling']
       });
 
-      // 전역 proxy에 실제 소켓 바인딩
-      if (window.socket && typeof window.socket.__bindRealSocket === 'function') {
-        window.socket.__bindRealSocket(realSocket);
-        socket = window.socket;
-      } else {
-        window.socket = realSocket;
-        socket = realSocket;
-      }
+      // 전역 socket 객체 설정
+      window.socket = socket;
 
       // 연결 상태 모니터링
       socket.on('connect', function() {
@@ -427,59 +335,6 @@ $is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
   </script>
   <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=869026064607445&ev=PageView&noscript=1" /></noscript>
   <!-- End Meta Pixel Code -->
-  <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "지금 뜨는, 좋은 일자리 나우잡(NOWJOB)",
-        "url": "<?= $app_base_url ?>/",
-        "sameAs": [
-          "https://www.youtube.com/@NOWJOB_NOU",
-          "https://www.instagram.com/nowjob_nou",
-          "https://blog.naver.com/nowjobofficial"
-        ]
-      }
-</script>
-<script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "item": {
-              "@type": "WebPage",
-              "url": "<?= $app_base_url ?>/recruit/job_list",
-              "name": "채용정보",
-              "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_recruit.png"
-            }
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "item": {
-              "@type": "WebPage",
-              "url": "<?= $app_base_url ?>/resume/hr_list",
-              "name": "인재정보",
-              "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_resume.png"
-            }
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "item": {
-              "@type": "WebPage",
-              "url": "<?= $app_base_url ?>/member/login",
-              "name": "회원가입",
-              "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_join.png"
-            }
-          }
-        ]
-      }
-</script>
-  <?php endif; ?>
 </head>
 
 <body>

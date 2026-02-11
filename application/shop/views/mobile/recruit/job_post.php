@@ -102,42 +102,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 
   return $result;
 }
-
-$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-$job_posting_title = !empty($info["rc_name"]) ? $info["rc_name"] : "내 주변 일자리 - 채용공고 확인하기";
-$job_posting_url = $app_base_url . '/recruit/job_post/' . (!empty($info["rc_idx"]) ? $info["rc_idx"] : '');
-$job_posting_desc = "나우잡에서 당신의 집 주변 딱 맞는 일자리를 지금 바로 확인하세요!";
-$job_posting_company = !empty($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "나우잡";
-$job_posting_date_raw = !empty($info["reg_dt"]) ? $info["reg_dt"] : (!empty($info["rc_sdate"]) ? $info["rc_sdate"] : date('Y-m-d'));
-$job_posting_date_ts = strtotime($job_posting_date_raw);
-$job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) : date('Y-m-d');
 ?>
-<?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "JobPosting",
-  "title": <?= json_encode($job_posting_title, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-  "url": <?= json_encode($job_posting_url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-  "description": <?= json_encode($job_posting_desc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-  "datePosted": "<?= $job_posting_date ?>",
-  "hiringOrganization": {
-    "@type": "Organization",
-    "name": <?= json_encode($job_posting_company, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-    "sameAs": "<?= $app_base_url ?>",
-    "logo": "<?= $app_base_url ?>/resource/shop/web/img/nowjob_info_logo.png"
-  },
-  "jobLocation": {
-    "@type": "Place",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "전국",
-      "addressRegion": "스마트 매칭"
-    }
-  }
-}
-</script>
-<?php endif; ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
     .info-table .working-day>li {
@@ -152,8 +117,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
         display: flex;
         gap: 0;
         background-color: #fff;
-        /* iOS home indicator와 겹치지 않도록 하단 여백 추가 */
-        padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: 0;
     }
 
     .view-footer .btn-edit {

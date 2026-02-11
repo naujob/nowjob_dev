@@ -77,8 +77,7 @@ function fRemoveBigAdr($arg)
         display: flex;
         gap: 0;
         background-color: #fff;
-        /* iOS home indicator와 겹치지 않도록 하단 여백 추가 */
-        padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: 0;
     }
 
     .view-footer .btn-edit {

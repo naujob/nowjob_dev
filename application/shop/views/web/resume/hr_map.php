@@ -496,7 +496,7 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
                   var lng = parseFloat(d.ad_gps_x);
                   var scatterFactor = 0.01; 
                   var rLat = lat + (Math.random() - 0.5) * scatterFactor;
-                  var rLng = lng + (Math.random() - 0.5) * scatterFactor;
+                  var rLng = lng + (Math.random() -0.5) * scatterFactor;
                   
                   var marker = new kakao.maps.Marker({
                     position: new kakao.maps.LatLng(rLat, rLng)

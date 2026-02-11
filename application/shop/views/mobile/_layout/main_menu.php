@@ -264,9 +264,7 @@ renderSelectBottomSheet(
 
   /* 바텀시트 Footer 스타일 */
   .bottom-sheet-footer {
-    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
-    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
-    padding: 1.5rem 1.5rem calc(2.5rem + max(env(safe-area-inset-bottom) - 1rem, 0px));
+    padding: 1.5rem 1.5rem 2.5rem;
   }
 
   /* 바텀시트 Sticky-bottom 스타일 (main.css의 .layer-panel .panel-footer .sticky-bottom 속성 참고) */

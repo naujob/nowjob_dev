@@ -1,4 +1,4 @@
- <style>
+<style>
    .layer-panel.card-type .panel-header {
      padding-top: 1.25rem;
      padding-bottom: 1.25rem;
@@ -220,9 +220,7 @@
      flex: 0 0 auto;
      max-height: 225px;
     overflow-y: auto;
-    
-    /* iOS 홈 인디케이터와 겹침 방지 */
-    padding-bottom: calc(max(env(safe-area-inset-bottom), 0px));
+    padding-bottom: 0;
      box-sizing: border-box;
    }
 

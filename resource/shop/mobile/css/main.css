@@ -1197,7 +1197,7 @@ object {
     text-overflow: ellipsis;
     vertical-align: middle;
     border: 0;
-    
+
     border-radius: 0;
     background: transparent;
     -webkit-box-shadow: none;
@@ -3345,8 +3345,7 @@ fieldset {
     background: inherit;
     overflow: hidden;
     overflow-y: auto;
-    padding-bottom: calc(72px + constant(safe-area-inset-bottom));
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    padding-bottom: 72px;
 }
 
 .layer-panel.card-type .panel-body {
@@ -3363,7 +3362,7 @@ fieldset {
 
 .layer-panel .panel-content {
     position: relative;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    padding-bottom: 72px;
 }
 
 .layer-panel .event-banner img {
@@ -3408,8 +3407,7 @@ fieldset {
     left: 0;
     right: 0;
     bottom: 0;
-    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 */
-    padding-bottom: max(env(safe-area-inset-bottom) - 1rem, 0px);
+    padding-bottom: 0;
     z-index: 5;
 }
 
@@ -4832,9 +4830,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
-    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
-    padding-bottom: max(env(safe-area-inset-bottom) - 1rem, 0px);
+    padding-bottom: 0;
     background: #fff;
     z-index: 5;
 }
@@ -4858,10 +4854,7 @@ body {
     left: 0;
     right: 0;
     margin: auto 0 0;
-    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
-    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
-    padding: 0.625rem 1.4375rem calc(0.625rem + max(env(safe-area-inset-bottom) - 1.7rem, 0px));
-    /* padding: 0.625rem 1.4375rem calc(0.625rem + env(safe-area-inset-bottom)); */
+    padding: 0.625rem 1.4375rem 0.625rem;
     -webkit-box-pack: justify;
     -ms-flex-pack: justify;
     justify-content: space-between;
@@ -7488,13 +7481,6 @@ form#frm {
     z-index: 5;
 }
 
-/* iOS(사파리)에서만 홈 인디케이터 여백+0.5rem 적용 */
-@supports (-webkit-touch-callout: none) {
-    .view-footer {
-        padding-bottom: calc(env(safe-area-inset-bottom));
-    }
-}
-
 /* padding 영역에만 배경색 적용 */
 .view-footer::after {
     content: '';
@@ -7502,7 +7488,7 @@ form#frm {
     bottom: 0;
     left: 0;
     right: 0;
-    height: calc(env(safe-area-inset-bottom) + 1rem);
+    height: 1rem;
     background-color: #fff;
     z-index: -1;
 }
@@ -7712,8 +7698,7 @@ form#frm {
 
 .advanced-search-form .container {
     padding-top: 2.125rem;
-    padding-bottom: calc(2.625rem + 72px + constant(safe-area-inset-bottom));
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    padding-bottom: 50px;
 }
 
 .advanced-search-form .current-area {
@@ -9605,9 +9590,7 @@ form#frm {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    /* iOS Home Indicator와 겹침 방지를 위한 Safe Area 대응 (Android 하단 시스템 UI 겹침 방지) */
-    /* max() 함수로 최소값 0px 보장: Android는 0px, iOS는 Safe Area - 1rem 적용 */
-    padding: 0.875rem 0.875rem calc(0.875rem + max(env(safe-area-inset-bottom) - 1rem, 0px));
+    padding: 0.875rem 0.875rem 0.875rem;
     background: #F4F4F4;
 }
 
