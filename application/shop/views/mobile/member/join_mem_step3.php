@@ -245,19 +245,20 @@
               console.log('rd_agree5 is checked');
       }
 
-			var params = {};
+      var params = {};
       params["proc_type"] = "join_mem_step3";
       params["agree1"] = agree1;
       params["agree2"] = agree2;
       params["agree3"] = agree3;
       params["agree4"] = agree4;
       params["agree5"] = agree5;
-      comAjax("/member_proc/join_mem_step3",params,function(ret){
-            if(ret.code=="00"){
-                location.href="/member/join_mem_step4_1";
-            }else{
-            	commonAlert(ret.msg,function(){});
-            }
+
+      comAjax("/member_proc/join_mem_step3", params, function(ret) {
+        if (ret && ret.code === "00") {
+          location.href = "/member/join_mem_step4_1";
+        } else {
+          commonAlert((ret && ret.msg) ? ret.msg : "약관 동의 처리에 실패했습니다.", function(){});
+        }
       });
 
 		});

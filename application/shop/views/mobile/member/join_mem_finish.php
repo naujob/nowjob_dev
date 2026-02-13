@@ -18,7 +18,7 @@
              <a href="/" class="btn btn-primary">메인으로 바로가기</a>
          </div>
      </div><!-- //page-content -->
- </div>
+</div>
  <script>
      if (getCookie("non_mem_last_cont") != '') {
          var msg = '';
@@ -27,4 +27,5 @@
          $('#non_mem_last_cont').show();
          setCookie('non_mem_last_cont', '', 1);
      }
+
  </script>

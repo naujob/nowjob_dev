@@ -561,6 +561,142 @@ if ($g_ios_publish == true) {
     color: #333;
   }
 
+  /* Auto resume flow loading */
+  #auto-resume-loading {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+  }
+
+  #auto-resume-loading .loading-card {
+    width: min(86vw, 320px);
+    padding: 20px 18px;
+    border-radius: 16px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  }
+
+  #auto-resume-loading .loading-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1B9D7D;
+    margin: 0 0 6px;
+  }
+
+  #auto-resume-loading .loading-desc {
+    font-size: 0.9rem;
+    color: #6b6b6b;
+    margin: 0 0 14px;
+  }
+
+  #auto-resume-loading .loading-spinner {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid #e8f4f1;
+    border-top-color: #1B9D7D;
+    animation: auto-resume-spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes auto-resume-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+</style>
+
+<?php
+// 공통 바텀시트 템플릿 로드
+require_once __DIR__ . '/../_partial/bottom_sheet_template.php';
+// 위치 동의 여부 확인 (주소가 없거나 "지역 선택 없음"이면 미동의로 간주)
+$addr_info = $this->user->getAddrInfo();
+$has_location_consent = isset($addr_info["ad_addr"]) && trim($addr_info["ad_addr"]) !== "" && trim($addr_info["ad_addr"]) !== "지역 선택 없음";
+
+// 이력서 미작성 회원 안내 바텀시트 (로그인 + 이력서 없음 조건에서 노출)
+renderBottomSheet(
+  'resumeGuidePanel',
+  '5초 간편 이력서 등록',
+  '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
+  '내 주변 일자리 찾기',
+  'btnResumeGuide',
+  '',
+  'resume-guide-bottom-sheet-container',
+  'resume-guide-bottom-sheet-header',
+  'resume-guide-bottom-sheet-title',
+  'resume-guide-content'
+);
+
+// 위치 동의 안내 바텀시트 (권한 미동의 시 노출)
+renderSelectBottomSheet(
+  'locationConsentPanel',
+  '내 주변 일자리를 놓칠수 있어요!',
+  '<p class="location-consent-desc">나우잡에서 공고를 찾아드릴수있게<br>정확한 위치 설정이 필요합니다</p>',
+  '주소 직접입력 하기',
+  'btnManualAddress',
+  "location.href='/mypage/resume_write1';",
+  '내 주변 일자리 찾기!',
+  'btnResumeGuideLocation',
+  '',
+  'location-consent-bottom-sheet-container'
+);
+?>
+
+<style>
+  /* Location consent bottom sheet (home/index_mem.php) */
+  .location-consent-bottom-sheet-container {
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+  }
+
+  #locationConsentPanel .bottom-sheet-header {
+    padding: 1.1rem 1.25rem 0.2rem;
+  }
+
+  #locationConsentPanel .bottom-sheet-title {
+    color: #1B9D7D;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  .location-consent-desc {
+    font-size: 0.95rem;
+    color: #6b6b6b;
+    line-height: 1.45;
+    margin: 0 1.25rem 0.75rem;
+  }
+
+  #locationConsentPanel .select-bottom-sheet-buttons {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem 1.25rem;
+  }
+
+  #locationConsentPanel .btn-select-bottom-sheet {
+    flex: 1 1 50%;
+    height: 48px;
+    border-radius: 24px;
+    font-weight: 700;
+  }
+
+  #locationConsentPanel .btn-bottom-sheet-secondary {
+    border: 2px solid #1B9D7D;
+    color: #1B9D7D;
+    background: #fff;
+  }
+
+  #locationConsentPanel .btn-bottom-sheet-primary {
+    background: #1B9D7D;
+    color: #fff;
+  }
 </style>
 
 <div id="app-intercept-layer" aria-hidden="true">
@@ -572,6 +708,13 @@ if ($g_ios_publish == true) {
       <button type="button" class="app-intercept-open">앱으로 볼래요</button>
       <button type="button" class="app-intercept-close">이대로 볼래요</button>
     </div>
+  </div>
+</div>
+<div id="auto-resume-loading" aria-hidden="true">
+  <div class="loading-card" role="status" aria-live="polite">
+    <p class="loading-title">이력서 자동 작성 중</p>
+    <p class="loading-desc">잠시만 기다려주세요.</p>
+    <div class="loading-spinner" aria-hidden="true"></div>
   </div>
 </div>
 <div class="page page-home">
@@ -962,6 +1105,234 @@ if ($g_ios_publish == true) {
       var url = '/recruit/job_post/' + rcIdx;
       window.location.href = url;
     }
+  });
+
+  $(document).on('click', '#btnResumeGuideLocation', function() {
+    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.requestLocationPermission === 'function') {
+      APP_NOWAPK.requestLocationPermission();
+      return;
+    }
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
+      window.webkit.messageHandlers.requestLocationPermission.postMessage({});
+    }
+  });
+
+  $(document).on('click', '#btnResumeGuide', function() {
+    // 새 이력서 작성을 위해 임시저장 데이터 초기화
+    localStorage.removeItem("resume_draft_0_step1");
+    localStorage.removeItem("resume_draft_0_step2");
+    localStorage.removeItem("resume_draft_0_step3");
+    localStorage.removeItem("resume_draft_0_step4");
+    localStorage.removeItem("resume_draft_0_step5");
+
+    if (typeof window.showAutoResumeLoading === 'function') {
+      window.showAutoResumeLoading();
+    }
+    // 중복 이동 방지용 플래그
+    window.__resumeAutoNavigated = false;
+
+    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') {
+      APP_NOWAPK.getLocation();
+    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.startGettingLocation) {
+      window.webkit.messageHandlers.startGettingLocation.postMessage({});
+    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getLocation) {
+      window.webkit.messageHandlers.getLocation.postMessage({});
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        returnLocation(position.coords.latitude, position.coords.longitude);
+      }, function() {
+        proceedResumeAutoFlowWithoutLocation();
+      }, {
+        enableHighAccuracy: false,
+        maximumAge: 0,
+        timeout: 10000
+      });
+    } else {
+      proceedResumeAutoFlowWithoutLocation();
+    }
+
+    // 네이티브 콜백이 없을 때를 대비한 백업 타임아웃
+    setTimeout(function() {
+      if (!window.__resumeAutoNavigated) {
+        proceedResumeAutoFlowWithoutLocation();
+      }
+    }, 12000);
+  });
+
+  (function() {
+    var LOCATION_PERMISSION_KEY = "nowjob_location_permission_status";
+
+    function normalizePermissionStatus(value) {
+      if (value === true || value === "true" || value === "granted" || value === 1 || value === "1") {
+        return "granted";
+      }
+      if (value === false || value === "false" || value === "denied" || value === 0 || value === "0" || value === "never_ask_again") {
+        return value === "never_ask_again" ? "never_ask_again" : "denied";
+      }
+      return null;
+    }
+
+    function setStoredPermissionStatus(status) {
+      try {
+        if (status) {
+          localStorage.setItem(LOCATION_PERMISSION_KEY, status);
+        }
+      } catch (e) {}
+    }
+
+    function getStoredPermissionStatus() {
+      try {
+        return localStorage.getItem(LOCATION_PERMISSION_KEY);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // 네이티브가 호출할 콜백 함수
+    window.onLocationPermissionResult = function(status) {
+      var normalized = normalizePermissionStatus(status);
+      if (!normalized) return;
+      setStoredPermissionStatus(normalized);
+    };
+
+    // 페이지 초기화 시 전역으로 노출 (DOM 로드 전에도 접근 가능)
+    window.getLocationPermissionStatus = getStoredPermissionStatus;
+  })();
+
+  window.showAutoResumeLoading = function() {
+    var el = document.getElementById('auto-resume-loading');
+    if (!el) return;
+    el.style.display = 'flex';
+    el.setAttribute('aria-hidden', 'false');
+  };
+
+  window.hideAutoResumeLoading = function() {
+    var el = document.getElementById('auto-resume-loading');
+    if (!el) return;
+    el.style.display = 'none';
+    el.setAttribute('aria-hidden', 'true');
+  };
+
+  (function() {
+    var RESUME_AUTOFILL_KEY = "resume_autofill_payload";
+    var RESUME_AUTOFILL_TS_KEY = "resume_autofill_ts";
+    var RESUME_AUTOFILL_MAX_AGE = 5 * 60 * 1000;
+
+    function setAutofillPayload(payload) {
+      try {
+        localStorage.setItem(RESUME_AUTOFILL_KEY, JSON.stringify(payload || {}));
+        localStorage.setItem(RESUME_AUTOFILL_TS_KEY, String(Date.now()));
+      } catch (e) {
+        console.error("resume autofill 저장 실패:", e);
+      }
+    }
+
+    function navigateToResumeWrite1(payload) {
+      if (window.__resumeAutoNavigated) return;
+      window.__resumeAutoNavigated = true;
+      setAutofillPayload(payload);
+      location.href = "/mypage/resume_write1?autofill=1";
+    }
+
+    window.proceedResumeAutoFlowWithoutLocation = function() {
+      commonAlert("위치 정보를 가져오는 데 실패했습니다.", function() {
+        location.href = "/home/index";
+      });
+    };
+
+    window.returnLocation = function(lat, lng) {
+      // 위치 권한이 없거나 거부된 경우
+      if (!lat || !lng || lat === "0" || lng === "0") {
+        proceedResumeAutoFlowWithoutLocation();
+        return;
+      }
+
+      comAjax("/common_proc/get_gps_address", {
+        x: lng,
+        y: lat
+      }, function(ret) {
+        if (ret.code === "00" && ret.data) {
+          var parts = String(ret.data).split("^");
+          // 개인정보 보호: 시/구/동까지만 사용 + 주소 정리
+          var frontPart = (parts[0] || "").trim();
+          if (typeof fRemoveBigAdrJS === 'function') {
+            frontPart = fRemoveBigAdrJS(frontPart) || frontPart;
+          }
+          var ad_jibun = frontPart;
+          var ad_doro = "";
+          var ad_zipcode = "";
+
+          var payload = {
+            ru_name_seed_addr: frontPart,
+            ad_addr: ad_jibun,
+            ad_jibun: ad_jibun,
+            ad_doro: ad_doro,
+            ad_zipcode: ad_zipcode,
+            ad_gps_x: lng,
+            ad_gps_y: lat
+          };
+
+          comAjax("/common_proc/set_addr_info", {
+            ad_zipcode: ad_zipcode,
+            ad_jibun: ad_jibun,
+            ad_doro: ad_doro,
+            ad_addr: payload.ad_addr,
+            ad_detail: "",
+            ad_gps_x: lng,
+            ad_gps_y: lat
+          }, function() {
+            navigateToResumeWrite1(payload);
+          });
+        } else {
+          proceedResumeAutoFlowWithoutLocation();
+        }
+      });
+    };
+
+    // 오래된 자동작성 payload 정리
+    try {
+      var ts = parseInt(localStorage.getItem(RESUME_AUTOFILL_TS_KEY), 10) || 0;
+      if (ts && Date.now() - ts > RESUME_AUTOFILL_MAX_AGE) {
+        localStorage.removeItem(RESUME_AUTOFILL_KEY);
+        localStorage.removeItem(RESUME_AUTOFILL_TS_KEY);
+      }
+    } catch (e) {}
+  })();
+
+  window.addEventListener('DOMContentLoaded', function() {
+    var isLogin = <?php echo $this->user->isLogin() ? 'true' : 'false'; ?>;
+    var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
+    var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
+      ? window.getLocationPermissionStatus()
+      : null;
+    var hasLocationConsent = storedPermission === 'granted';
+
+    if (!isLogin || !isMem) return;
+
+    if (typeof initPanelSwipe === 'function') {
+      initPanelSwipe('resumeGuidePanel');
+      initPanelSwipe('locationConsentPanel');
+    }
+
+    $.ajax({
+      url: '/mypage_proc/getResumeCount',
+      type: 'GET',
+      dataType: 'json',
+      success: function(ret) {
+        var count = 0;
+        if (ret && ret.data && typeof ret.data.count !== 'undefined') {
+          count = parseInt(ret.data.count, 10) || 0;
+        }
+
+        if (count <= 0) {
+          var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
+          var panel = document.getElementById(targetPanelId);
+          if (panel && typeof openPanel === 'function') {
+            openPanel(panel);
+          }
+        }
+      }
+    });
   });
 </script>
 <script>

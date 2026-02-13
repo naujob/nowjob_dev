@@ -1,4 +1,7 @@
 <style>
+    html.autofill-hide {
+        visibility: hidden;
+    }
     /* resume_write4 페이지 스타일 */
     .required-asterisk {
         color: #ff3333;
@@ -166,7 +169,16 @@
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         /* 위쪽 그림자로 구분 */
     }
+
 </style>
+<script>
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('autofill') === '1') {
+            document.documentElement.classList.add('autofill-hide');
+        }
+    })();
+</script>
 
 <div class="page page-write">
     <div class="top-bar">
@@ -752,9 +764,59 @@
                 }
             }
         }
+
+        function applyResumeAutoFill() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('autofill') !== '1') return;
+
+            window.__resumeAutoFlow = true;
+
+            var payload = {};
+            try {
+                payload = JSON.parse(localStorage.getItem("resume_autofill_payload") || "{}");
+            } catch (e) {
+                payload = {};
+            }
+            // 자동작성 모드에서는 화면을 숨겨 플리커를 방지
+            document.documentElement.style.visibility = 'hidden';
+
+            var ruName = payload.ru_name || "";
+            if ($("[name='ru_desc']").val() === "" && ruName) {
+                $("[name='ru_desc']").val(ruName);
+                if (typeof autoHeight === 'function') {
+                    setTimeout(function() {
+                        autoHeight($("[name='ru_desc']")[0]);
+                    }, 50);
+                }
+            }
+
+            // 나의강점 2개 랜덤 선택
+            var $allTypes = $("[name='ru_my_type[]']");
+            if ($allTypes.length > 0) {
+                $allTypes.prop("checked", false);
+                var candidates = $allTypes.toArray();
+                for (var i = candidates.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = candidates[i];
+                    candidates[i] = candidates[j];
+                    candidates[j] = temp;
+                }
+                var pickCount = Math.min(2, candidates.length);
+                for (var k = 0; k < pickCount; k++) {
+                    $(candidates[k]).prop("checked", true);
+                }
+            }
+
+            saveResumeStep4Data();
+
+            setTimeout(function() {
+                $("#btnStep").trigger("click");
+            }, 200);
+        }
         // 페이지 로드 시 빈 li 정리 후 임시 데이터 복원
         cleanupEmptyListItems();
         loadResumeStep4Data();
+        applyResumeAutoFill();
 
         // 페이지 로드 시 희망요일이 하나도 선택되지 않았으면 기본값(월~금) 설정
         setTimeout(function() {
@@ -885,6 +947,24 @@
                             migrateResumeDraftKeys(prevIdx, newIdx, [1, 4]);
                             $("[name=ru_idx]").val(newIdx);
                         }
+                    }
+                    if (window.__resumeAutoFlow === true) {
+                        var finalIdx = $("[name=ru_idx]").val() || "0";
+                        comAjax("/mypage_proc/resume_complete", {
+                            ru_idx: finalIdx
+                        }, function(ret2) {
+                            if (ret2.code == "00") {
+                                clearResumeDraft(finalIdx);
+                                try {
+                                    localStorage.removeItem("resume_autofill_payload");
+                                    localStorage.removeItem("resume_autofill_ts");
+                                } catch (e) {}
+                                location.href = "/recruit/job_list";
+                            } else {
+                                commonAlert(ret2.msg, function() {});
+                            }
+                        });
+                        return;
                     }
                     // 미리보기 팝업 표시 (버튼 변경은 팝업에서 확인 버튼 클릭 시 수행)
                     showPreviewInfo(ret.data, $btn);

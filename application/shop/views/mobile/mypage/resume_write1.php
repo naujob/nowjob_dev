@@ -2,6 +2,19 @@
 // 카카오 키 가져오기 for Geocoding
 $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
 ?>
+<style>
+    html.autofill-hide {
+        visibility: hidden;
+    }
+</style>
+<script>
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('autofill') === '1') {
+            document.documentElement.classList.add('autofill-hide');
+        }
+    })();
+</script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
 
 <style>
@@ -78,6 +91,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     form#frm {
         top: 0vh;
     }
+
 </style>
 
 <div class="page page-write">
@@ -521,6 +535,93 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
+    function getDongFromAddr(addr) {
+        if (!addr || typeof addr !== "string") return "";
+        var tokens = addr.trim().split(/\s+/);
+        return tokens.length ? tokens[tokens.length - 1] : "";
+    }
+
+    function applyResumeAutoFill() {
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autofill') !== '1') return;
+
+        // 자동작성 모드에서는 화면을 숨겨 플리커를 방지
+        document.documentElement.style.visibility = 'hidden';
+
+        var payload = {};
+        try {
+            payload = JSON.parse(localStorage.getItem("resume_autofill_payload") || "{}");
+        } catch (e) {
+            payload = {};
+        }
+
+        var adAddr = payload.ad_addr || payload.ad_jibun || payload.ru_name_seed_addr || "";
+        var regionName = (adAddr || "").trim();
+        var dongName = getDongFromAddr(adAddr);
+
+        var titleTemplates = [
+            "[지역명] 기반, 준비된 맞춤형 인재입니다!",
+            "번개처럼 빠르게 적응하는 [지역명] 구직자",
+            "성실함이 무기! [지역명] 근처 바로 출근 가능합니다.",
+            "나우잡이 추천하는 우리 동네 열정 인재 프로필",
+            "복잡한 건 생략! 실력으로 보여드릴 [지역명] 지원자",
+            "지금 즉시 매칭 가능한 [지역명] 최적화 이력서",
+            "누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!",
+            "[지역명] 거주 중! 꼼꼼함과 책임감을 겸비한 인재",
+            "사장님이 찾으시던 바로 그 [지역명] 꿀알바 지원생",
+            "지금바로 출근준비되어있습니다."
+        ];
+
+        var chosenTitle = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
+        if (chosenTitle.indexOf("[지역명]") > -1) {
+            chosenTitle = chosenTitle.replace("[지역명]", regionName || dongName || "우리 동네");
+        }
+
+        if ($("[name='ru_name']").val() === "") {
+            $("[name='ru_name']").val(chosenTitle);
+        }
+
+        // 희망업무 자동 선택: 생산, 물류
+        $("[name='ru_work[]']").prop("checked", false);
+        ["생산", "물류"].forEach(function(val) {
+            $("[name='ru_work[]'][value='" + val + "']").prop("checked", true);
+        });
+
+        // 희망급여: 급여협의 자동 선택 (전체 급여 타입 자동 체크)
+        $("[name='ru_salary_negotiation']").prop("checked", true).trigger("change");
+
+        // 근무형태: 근무협의 자동 선택 (전체 근무형태 자동 체크)
+        $("[name='ru_work_negotiation']").prop("checked", true).trigger("change");
+
+        // 희망지역 자동 선택
+        if (adAddr) {
+            var addrItem = {
+                ad_zipcode: payload.ad_zipcode || "",
+                ad_jibun: payload.ad_jibun || adAddr,
+                ad_doro: payload.ad_doro || "",
+                ad_addr: payload.ad_addr || adAddr,
+                ad_detail: "",
+                ad_gps_x: payload.ad_gps_x || "",
+                ad_gps_y: payload.ad_gps_y || ""
+            };
+            rebuildAddressList([addrItem]);
+        }
+
+        // step4에서 사용할 수 있도록 ru_name 저장
+        payload.ru_name = $("[name='ru_name']").val() || chosenTitle;
+        try {
+            localStorage.setItem("resume_autofill_payload", JSON.stringify(payload));
+            localStorage.setItem("resume_autofill_ts", String(Date.now()));
+        } catch (e) {}
+
+        saveResumeStep1Data();
+        window.__resumeAutoFlow = true;
+
+        setTimeout(function() {
+            $("#btnStep").trigger("click");
+        }, 150);
+    }
+
     // 검색 완료 선택 처리 (상세주소 파라미터 추가)
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y, detail) {
         var currentCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
@@ -615,6 +716,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
         
         ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
+        applyResumeAutoFill();
     });
 
     $(document).ready(function() {
@@ -753,15 +855,16 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         }
                     }
 
-                    if (newIdx != "0") {
-                        location.href = "/mypage/resume_write4/" + newIdx;
-                    } else {
-                        location.href = "/mypage/resume_write4";
-                    }
-                } else {
-                    commonAlert(ret.msg, function() {});
-                    return;
-                }
+            var autoParam = (window.__resumeAutoFlow === true) ? "?autofill=1" : "";
+            if (newIdx != "0") {
+                location.href = "/mypage/resume_write4/" + newIdx + autoParam;
+            } else {
+                location.href = "/mypage/resume_write4" + autoParam;
+            }
+        } else {
+            commonAlert(ret.msg, function() {});
+            return;
+        }
             });
         });
 
@@ -781,6 +884,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             location.href = "/mypage/resume_list";
         });
     });
+
 </script>
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>

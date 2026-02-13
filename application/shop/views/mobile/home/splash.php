@@ -322,9 +322,9 @@
                     // APP_NOWAPK 객체 존재 여부 확인
                     if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK) {
                         try {
-                            // Android: 위치 권한 요청 (위치 팝업 표시)
-                            if (typeof APP_NOWAPK.getLocation === 'function') {
-                                APP_NOWAPK.getLocation();
+                            // Android: 위치 권한만 요청
+                            if (typeof APP_NOWAPK.requestLocationPermission === 'function') {
+                                APP_NOWAPK.requestLocationPermission();
                             }
 
                             // 권한 팝업 표시
@@ -345,9 +345,9 @@
                         location.replace("/member/login");
                     }
                 } else if (mobileType == "ios") {
-                    // iOS: 위치 권한 요청
-                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getLocation) {
-                        window.webkit.messageHandlers.getLocation.postMessage({});
+                    // iOS: 위치 권한만 요청
+                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
+                        window.webkit.messageHandlers.requestLocationPermission.postMessage({});
                     }
 
                     grantPopupTimeout = setTimeout(function() {
@@ -382,8 +382,8 @@
                         if (mobileType == "android") {
                             if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK) {
                                 try {
-                                    if (typeof APP_NOWAPK.getLocation === 'function') {
-                                        APP_NOWAPK.getLocation();
+                                    if (typeof APP_NOWAPK.requestLocationPermission === 'function') {
+                                        APP_NOWAPK.requestLocationPermission();
                                     }
 
                                     if (typeof APP_NOWAPK.grantPopup === 'function') {
@@ -400,8 +400,8 @@
                                 location.replace("/member/login");
                             }
                         } else if (mobileType == "ios") {
-                            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getLocation) {
-                                window.webkit.messageHandlers.getLocation.postMessage({});
+                            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
+                                window.webkit.messageHandlers.requestLocationPermission.postMessage({});
                             }
 
                             grantPopupTimeout = setTimeout(function() {
