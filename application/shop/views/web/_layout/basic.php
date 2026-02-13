@@ -1,8 +1,11 @@
 <?php
 // app_base_url: 최상위 도메인 정보를 담고 있음. ex) https://nowjob.co.kr
 $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-$socket_base_url = $app_base_url;
-$socket_io_script_url = $app_base_url . '/socket.io/socket.io.js?v=0001';
+$socket_base_url = rtrim($this->config->item('socket_base_url') ?: $app_base_url, '/');
+$socket_io_script_url = $this->config->item('socket_io_script_url');
+if (!$socket_io_script_url) {
+    $socket_io_script_url = rtrim($socket_base_url, '/') . '/socket.io/socket.io.js?v=0001';
+}
 $og_image_url = $app_base_url . '/resource/shop/web/img/nowjob_info_logo.png';
 $favicon_url = $app_base_url . '/resource/favicon.ico';
 $is_prod_env = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
@@ -63,6 +66,9 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
     <?= getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js") ?>
     <?= getCashJs(RES_PATH . "/js/add.js") ?>
+    <script>
+        window.__CHAT_BASE_URL = "<?= $socket_base_url ?>";
+    </script>
     <script>
         // 전역 socket 참조를 항상 보장(초기 로드 시점 undefined 방지)
         // + 실제 소켓 연결 전 등록된 on/off/emit을 대기 후 연결 시점에 반영

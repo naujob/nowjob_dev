@@ -1,5 +1,5 @@
 const default_base_url = (typeof window !== 'undefined')
-    ? `${window.location.protocol}//${window.location.hostname}:3030`
+    ? window.location.origin
     : '';
 const base_url = (typeof window !== 'undefined' && window.__CHAT_BASE_URL)
     ? window.__CHAT_BASE_URL
@@ -57,10 +57,14 @@ function updateSocket(){
 		var user_id = getUserId();
 		var location = getLocation();
 		if(user_id!=""){
-			APP_NOWAPK.update_status(user_id,location);
+			if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.update_status === 'function') {
+				APP_NOWAPK.update_status(user_id,location);
+			}
 			return true;
 		}else{
-			APP_NOWAPK.buyguest_status();
+			if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.buyguest_status === 'function') {
+				APP_NOWAPK.buyguest_status();
+			}
 			return true;
 		}
 	}

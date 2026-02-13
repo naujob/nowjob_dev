@@ -9,11 +9,15 @@ $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 $scheme = $is_https ? 'https' : 'http';
 $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
 $host = preg_replace('/:\d+$/', '', $host);
-$chat_port = getenv('CHAT_SERVER_PORT');
-if ($chat_port === false || $chat_port === '') {
-    $chat_port = '3030';
+$chat_base_url = getenv('SOCKET_BASE_URL');
+if ($chat_base_url === false || $chat_base_url === '') {
+    $chat_port = getenv('CHAT_SERVER_PORT');
+    if ($chat_port === false || $chat_port === '') {
+        $chat_port = '3030';
+    }
+    $chat_base_url = $scheme . '://' . $host . ':' . $chat_port;
 }
-$chat_base_url = $scheme . '://' . $host . ':' . $chat_port;
+$chat_base_url = rtrim($chat_base_url, '/');
 ?>
 <!DOCTYPE html>
 <html lang="ko">

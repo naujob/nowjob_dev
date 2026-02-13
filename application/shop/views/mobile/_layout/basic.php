@@ -1,6 +1,6 @@
 <?php
 $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-$socket_base_url = rtrim($this->config->item('socket_base_url') ?: ($app_base_url . ':3030'), '/');
+$socket_base_url = rtrim($this->config->item('socket_base_url') ?: $app_base_url, '/');
 $socket_io_script_url = $this->config->item('socket_io_script_url');
 if (!$socket_io_script_url) {
   $socket_io_script_url = $socket_base_url . '/socket.io/socket.io.js';
@@ -25,6 +25,9 @@ if (!$socket_io_script_url) {
   <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/add.js") ?>
+  <script>
+    window.__CHAT_BASE_URL = "<?= $socket_base_url ?>";
+  </script>
   <script src="<?= $socket_io_script_url ?>"></script>
   <script>
     // Socket.IO 즉시 초기화 (DOM 로드 대기 없음)
@@ -909,15 +912,17 @@ if (!$socket_io_script_url) {
     }, { passive: false });
   }
 
-  socket.on('connect_error', function(error) {
-    console.error('Socket connection error:', error);
+  if (typeof socket !== 'undefined' && socket && typeof socket.on === 'function') {
+    socket.on('connect_error', function(error) {
+      console.error('Socket connection error:', error);
 
-    // 사용자에게 경고 메시지 표시
-    //alert('서버 연결에 실패했습니다.\n다시 연결합니다.');
+      // 사용자에게 경고 메시지 표시
+      //alert('서버 연결에 실패했습니다.\n다시 연결합니다.');
 
-    // 화면 새로고침
-    //setTimeout(function () {
-    //    location.reload();
-    //}, 2000); // 2초 후 새로고침
-  });
+      // 화면 새로고침
+      //setTimeout(function () {
+      //    location.reload();
+      //}, 2000); // 2초 후 새로고침
+    });
+  }
 </script>
