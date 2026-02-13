@@ -2451,6 +2451,9 @@ json_return("00", "조회완료", $data);
 	// 채팅 진입/DB 추적용 로그
 	private function log_chat_trace($step, $data = [])
 	{
+		// chat_trace 로그 파일 기록 비활성화
+		return;
+
 		$log_dir = dirname(dirname(dirname(__DIR__))) . "/logs";
 		$log_file = $log_dir . "/chat_trace_" . date("Y-m-d") . ".log";
 		$log_data = [

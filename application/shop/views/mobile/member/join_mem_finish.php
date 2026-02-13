@@ -1,4 +1,6 @@
 <?php
+// Kakao Maps SDK 키 로드 (지오코딩 사용)
+$kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
 // 공통 바텀시트 템플릿 로드
 require_once __DIR__ . '/../_partial/bottom_sheet_template.php';
 // 바텀시트 공통 함수(initPanelSwipe) 로드
@@ -25,13 +27,17 @@ renderSelectBottomSheet(
   '<p class="location-consent-desc">나우잡에서 공고를 찾아드릴수있게<br>정확한 위치 설정이 필요합니다</p>',
   '주소 직접입력 하기',
   'btnManualAddress',
-  "location.href='/mypage/resume_write1';",
+  '',
   '내 주변 일자리 찾기!',
   'btnResumeGuideLocation',
   '',
   'location-consent-bottom-sheet-container'
 );
 ?>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
+
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 
 <style>
   /* Auto resume flow loading */
@@ -396,4 +402,62 @@ renderSelectBottomSheet(
       proceedResumeAutoFlowWithoutLocation();
     }
   });
+
+  $(document).on('click', '#btnManualAddress', function() {
+    $("#changeArea").addClass("on");
+  });
+
+  window.onChangeAreaApply = function(payload) {
+    var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : [];
+    if (areaList.length === 0 || !areaList[0] || !areaList[0].addr) {
+      alert("주소를 선택해 주세요.");
+      return true;
+    }
+
+    var addr = String(areaList[0].addr || "").trim();
+    if (!addr) {
+      alert("주소를 선택해 주세요.");
+      return true;
+    }
+
+    var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
+    if (!geocoderAvailable) {
+      alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
+      location.reload();
+      return true;
+    }
+
+    var geocoder = new kakao.maps.services.Geocoder();
+    geocoder.addressSearch(addr, function(result, status) {
+      if (status !== kakao.maps.services.Status.OK || !result || !result[0] || !result[0].x || !result[0].y) {
+        alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
+        location.reload();
+        return;
+      }
+
+      var autoPayload = {
+        ru_name_seed_addr: addr,
+        ad_addr: addr,
+        ad_jibun: addr,
+        ad_doro: "",
+        ad_zipcode: "",
+        ad_detail: "",
+        ad_gps_x: result[0].x,
+        ad_gps_y: result[0].y
+      };
+
+      try {
+        localStorage.setItem("resume_autofill_payload", JSON.stringify(autoPayload));
+        localStorage.setItem("resume_autofill_ts", String(Date.now()));
+      } catch (e) {}
+
+      if (typeof window.showAutoResumeLoading === 'function') {
+        window.showAutoResumeLoading();
+      }
+      window.__resumeAutoNavigated = false;
+      location.href = "/mypage/resume_write1?autofill=1";
+    });
+
+    return true;
+  };
 </script>

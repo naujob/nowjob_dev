@@ -919,11 +919,30 @@
                window.onRegionSelectionComplete(addrNames);
              }
 
-             list_page = 1;
+             // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
+             var handled = false;
+             if (typeof window.onChangeAreaApply === 'function') {
+               try {
+                 handled = window.onChangeAreaApply({
+                   addrNames: addrNames,
+                   addrNameText: addrName,
+                   searchArea: searchArea,
+                   searchAreaStr: searchAreaStr
+                 }) === true;
+               } catch (e) {
+                 console.error("onChangeAreaApply error:", e);
+               }
+             }
+
              $("#changeArea").removeClass("on");
 
-             $(list_id).html("");
-             getBoardList("Y");
+             if (!handled) {
+               if (typeof list_page !== "undefined") list_page = 1;
+               if (typeof list_id !== "undefined" && typeof getBoardList === 'function') {
+                 $(list_id).html("");
+                 getBoardList("Y");
+               }
+             }
 
              // iOS 웹뷰 대응: body 스타일 복원 (개선 버전)
              // 개선된 함수 우선 사용, 없으면 기존 함수, 둘 다 없으면 fallback
