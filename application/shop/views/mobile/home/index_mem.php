@@ -613,92 +613,6 @@ if ($g_ios_publish == true) {
 
 </style>
 
-<?php
-// 공통 바텀시트 템플릿 로드
-require_once __DIR__ . '/../_partial/bottom_sheet_template.php';
-// 위치 동의 여부 확인 (주소가 없거나 "지역 선택 없음"이면 미동의로 간주)
-$addr_info = $this->user->getAddrInfo();
-$has_location_consent = isset($addr_info["ad_addr"]) && trim($addr_info["ad_addr"]) !== "" && trim($addr_info["ad_addr"]) !== "지역 선택 없음";
-
-// 이력서 미작성 회원 안내 바텀시트 (로그인 + 이력서 없음 조건에서 노출)
-renderBottomSheet(
-  'resumeGuidePanel',
-  '5초 간편 이력서 등록',
-  '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
-  '내 주변 일자리 찾기',
-  'btnResumeGuide',
-  '',
-  'resume-guide-bottom-sheet-container',
-  'resume-guide-bottom-sheet-header',
-  'resume-guide-bottom-sheet-title',
-  'resume-guide-content'
-);
-
-// 위치 동의 안내 바텀시트 (권한 미동의 시 노출)
-renderSelectBottomSheet(
-  'locationConsentPanel',
-  '내 주변 일자리를 놓칠수 있어요!',
-  '<p class="location-consent-desc">나우잡에서 공고를 찾아드릴수있게<br>정확한 위치 설정이 필요합니다</p>',
-  '주소 직접입력 하기',
-  'btnManualAddress',
-  "location.href='/mypage/resume_write1';",
-  '내 주변 일자리 찾기!',
-  'btnResumeGuideLocation',
-  '',
-  'location-consent-bottom-sheet-container'
-);
-?>
-
-<style>
-  /* Location consent bottom sheet (home/index_mem.php) */
-  .location-consent-bottom-sheet-container {
-    background: #fff;
-    border-radius: 16px 16px 0 0;
-  }
-
-  #locationConsentPanel .bottom-sheet-header {
-    padding: 1.1rem 1.25rem 0.2rem;
-  }
-
-  #locationConsentPanel .bottom-sheet-title {
-    color: #1B9D7D;
-    font-weight: 800;
-    font-size: 1.25rem;
-    letter-spacing: -0.02em;
-  }
-
-  .location-consent-desc {
-    font-size: 0.95rem;
-    color: #6b6b6b;
-    line-height: 1.45;
-    margin: 0 1.25rem 0.75rem;
-  }
-
-  #locationConsentPanel .select-bottom-sheet-buttons {
-    display: flex;
-    gap: 0.75rem;
-    padding: 0.75rem 1.25rem 1.25rem;
-  }
-
-  #locationConsentPanel .btn-select-bottom-sheet {
-    flex: 1 1 50%;
-    height: 48px;
-    border-radius: 24px;
-    font-weight: 700;
-  }
-
-  #locationConsentPanel .btn-bottom-sheet-secondary {
-    border: 2px solid #1B9D7D;
-    color: #1B9D7D;
-    background: #fff;
-  }
-
-  #locationConsentPanel .btn-bottom-sheet-primary {
-    background: #1B9D7D;
-    color: #fff;
-  }
-</style>
-
 <div id="app-intercept-layer" aria-hidden="true">
   <div class="app-intercept-panel">
     <p class="app-intercept-label">나우잡</p>
@@ -1196,6 +1110,7 @@ renderSelectBottomSheet(
     };
 
     // 페이지 초기화 시 전역으로 노출 (DOM 로드 전에도 접근 가능)
+    // 위치 권한 동의 여부 값 가져오기
     window.getLocationPermissionStatus = getStoredPermissionStatus;
   })();
 
@@ -1299,41 +1214,6 @@ renderSelectBottomSheet(
     } catch (e) {}
   })();
 
-  window.addEventListener('DOMContentLoaded', function() {
-    var isLogin = <?php echo $this->user->isLogin() ? 'true' : 'false'; ?>;
-    var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
-    var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
-      ? window.getLocationPermissionStatus()
-      : null;
-    var hasLocationConsent = storedPermission === 'granted';
-
-    if (!isLogin || !isMem) return;
-
-    if (typeof initPanelSwipe === 'function') {
-      initPanelSwipe('resumeGuidePanel');
-      initPanelSwipe('locationConsentPanel');
-    }
-
-    $.ajax({
-      url: '/mypage_proc/getResumeCount',
-      type: 'GET',
-      dataType: 'json',
-      success: function(ret) {
-        var count = 0;
-        if (ret && ret.data && typeof ret.data.count !== 'undefined') {
-          count = parseInt(ret.data.count, 10) || 0;
-        }
-
-        if (count <= 0) {
-          var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
-          var panel = document.getElementById(targetPanelId);
-          if (panel && typeof openPanel === 'function') {
-            openPanel(panel);
-          }
-        }
-      }
-    });
-  });
 </script>
 <script>
   (function() {

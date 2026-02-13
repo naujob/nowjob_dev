@@ -3,7 +3,7 @@
         <div class="container">
 
             <div class="join-welcome">
-                <h2 class="primary-title">가입을 축하드립니다</h2>
+                <h2 class="primary-title">가입 축하드립니다</h2>
                 <p>나우잡의 제공하는 채용정보및 다양한혜택을<br> 이용하실 수 있습니다.</p>
                 <div class="form-action-wrap" id="non_mem_last_cont" style="display:none;">
                 </div>

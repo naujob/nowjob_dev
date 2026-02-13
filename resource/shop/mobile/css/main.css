@@ -3263,6 +3263,7 @@ fieldset {
     z-index: 1;
 }
 
+
 .layer-panel.on .panel-container {
     -webkit-transform: translateY(0);
     -ms-transform: translateY(0);
@@ -3274,6 +3275,7 @@ fieldset {
     transition: transform 0.6s cubic-bezier(0.5, 1, 0.89, 1), visibility 0s 0s, -webkit-transform 0.6s cubic-bezier(0.5, 1, 0.89, 1);
 }
 
+
 .layer-panel.card-type .panel-container {
     position: absolute;
     bottom: 0;
@@ -3284,6 +3286,7 @@ fieldset {
     border-radius: 1.5625rem 1.5625rem 0 0;
     background: #fff;
 }
+
 
 .layer-panel .panel-header {
     position: relative;

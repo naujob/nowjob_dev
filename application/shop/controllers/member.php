@@ -1009,6 +1009,7 @@ class Member extends CI_Controller
 	function join_mem_finish()
 	{
 		$data = [];
+		$data["mm_type"] = $this->user->isLogin() ? $this->user->getUserType() : "";
 		$this->layout->shop('/member/join_mem_finish', $data);
 	}
 
