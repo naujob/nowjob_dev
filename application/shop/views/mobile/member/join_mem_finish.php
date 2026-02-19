@@ -404,6 +404,10 @@ renderSelectBottomSheet(
   });
 
   $(document).on('click', '#btnManualAddress', function() {
+    window.__hideAllRegionsInAddrPopup = true;
+    if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
+      window.applyAddrPopupAllRegionFilter();
+    }
     $("#changeArea").addClass("on");
   });
 

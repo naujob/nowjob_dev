@@ -539,6 +539,38 @@
            const $targetContainers = $('.search_addr, .addr_dept1, .addr_dept2, .addr_dept3');
            let debounceTimer = null;
 
+           if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') {
+             window.__hideAllRegionsInAddrPopup = false;
+           }
+
+           function shouldHideAllRegions() {
+             return window.__hideAllRegionsInAddrPopup === true;
+           }
+
+           window.applyAddrPopupAllRegionFilter = function() {
+             if (!shouldHideAllRegions()) return;
+
+             $('.search_addr ul li, .addr_dept2 ul li, .addr_dept3 ul li').each(function() {
+               const text = $(this).find('.text').text().trim();
+               if (text.endsWith('전체')) {
+                 $(this).remove();
+               }
+             });
+
+             $('.div2 .selbtn').each(function() {
+               const text = $(this).clone().children().remove().end().text().trim();
+               if (text.endsWith('전체')) {
+                 $(this).remove();
+               }
+             });
+
+             updateSelectedCount();
+           };
+
+           function resetAllRegionFlag() {
+             window.__hideAllRegionsInAddrPopup = false;
+           }
+
            function updateSearchView() {
              if ($.trim($txtInput.val()) !== '') {
                $iconImg.attr('src', 'https://nowjob.co.kr/resource/shop/mobile/img/ic_close2025.svg').attr('alt', 'clear');
@@ -630,6 +662,10 @@
              const text = $clickedLi.text().trim();
              var combinedText = "";
              const textParts = text.split(" ");
+             if (shouldHideAllRegions() && textParts[textParts.length - 1] === "전체") {
+               $clickedLi.removeClass('addr_on');
+               return;
+             }
              if (textParts[textParts.length - 1] === "전체") {
                if (currentStep === 1) {
                  combinedText = replaceRegionNames(text)
@@ -792,20 +828,22 @@
                    const addr1 = addr;
                    const isSelected = $(`.selbtn[data-step="1"][data-addr="${addr1}"]`).length > 0;
 
-                   const allLi = $('<li>')
-                     .attr('data-step', '1')
-                     .attr('data-addr', addr1)
-                     .toggleClass('addr_on', isSelected)
-                     .append(
-                       $('<label>').append(
-                         $('<span>').addClass('text').text(replaceRegionNames(sido_name) + ' 전체'),
-                         $('<input>').attr({
-                           type: 'checkbox',
-                           name: 'chk[]'
-                         })
-                       )
-                     );
-                   $('.addr_dept2 ul').append(allLi);
+                   if (!shouldHideAllRegions()) {
+                     const allLi = $('<li>')
+                       .attr('data-step', '1')
+                       .attr('data-addr', addr1)
+                       .toggleClass('addr_on', isSelected)
+                       .append(
+                         $('<label>').append(
+                           $('<span>').addClass('text').text(replaceRegionNames(sido_name) + ' 전체'),
+                           $('<input>').attr({
+                             type: 'checkbox',
+                             name: 'chk[]'
+                           })
+                         )
+                       );
+                     $('.addr_dept2 ul').append(allLi);
+                   }
 
                    $.each(ret.data, function(i, item) {
                      const addr2 = addr + ' ' + item.gugun_name;
@@ -828,20 +866,22 @@
                    const addr2 = addr;
                    const isSelected = $(`.selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
 
-                   const allLi = $('<li>')
-                     .attr('data-step', '2')
-                     .attr('data-addr', addr2)
-                     .toggleClass('addr_on', isSelected)
-                     .append(
-                       $('<label>').append(
-                         $('<span>').addClass('text').text(gugun_name + ' 전체'),
-                         $('<input>').attr({
-                           type: 'checkbox',
-                           name: 'chk[]'
-                         })
-                       )
-                     );
-                   $('.addr_dept3 ul').append(allLi);
+                   if (!shouldHideAllRegions()) {
+                     const allLi = $('<li>')
+                       .attr('data-step', '2')
+                       .attr('data-addr', addr2)
+                       .toggleClass('addr_on', isSelected)
+                       .append(
+                         $('<label>').append(
+                           $('<span>').addClass('text').text(gugun_name + ' 전체'),
+                           $('<input>').attr({
+                             type: 'checkbox',
+                             name: 'chk[]'
+                           })
+                         )
+                       );
+                     $('.addr_dept3 ul').append(allLi);
+                   }
 
                    $.each(ret.data, function(i, item) {
                      const addr3 = addr + ' ' + item.b_dong_name;
@@ -877,6 +917,7 @@
              $('.div2 .selbtn').remove();
              updateSelectedCount();
              updateSearchView();
+             resetAllRegionFlag();
            });
 
            // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
@@ -935,6 +976,7 @@
              }
 
              $("#changeArea").removeClass("on");
+             resetAllRegionFlag();
 
              if (!handled) {
                if (typeof list_page !== "undefined") list_page = 1;
@@ -1009,6 +1051,10 @@
              setTimeout(attemptRestoreScroll, 500);
            });
 
+           $(document).on('click', '.js-close-popup', function() {
+             resetAllRegionFlag();
+           });
+
            function updateSelectedCount() {
              const count = $('.selbtn').length;
 
@@ -1039,6 +1085,7 @@
                    $.each(ret.data, function(i, item) {
                      const addr = item.search_b_dong;
                      const step = item.step;
+                     if (shouldHideAllRegions() && step < 3) return;
                      const isSelected = $(`.selbtn[data-step="${step}"][data-addr="${addr}"]`).length > 0;
 
                      const displayText = step < 3 ? addr + ' 전체' : addr;

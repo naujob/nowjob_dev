@@ -211,14 +211,32 @@
   /* iOS 바텀시트 영역 터치 시 배경 스크롤 차단 */\n\
   .layer-panel.card-type {\n\
     position: fixed;\n\
+    top: 0;\n\
     left: 0;\n\
     right: 0;\n\
     bottom: 0;\n\
+    height: 100%;\n\
     /* iOS가 터치 이벤트를 sheet로만 가게 하는 핵심 코드 */\n\
     touch-action: none !important;\n\
     /* 스크롤은 sheet 내부만 */\n\
     overflow-y: auto;\n\
     -webkit-overflow-scrolling: touch;\n\
+  }\n\
+\n\
+  /* 바텀시트 배경 오버레이 (배경 조작 차단) */\n\
+  .layer-panel.card-type::before {\n\
+    content: "";\n\
+    position: absolute;\n\
+    inset: 0;\n\
+    background: rgba(0, 0, 0, 0.35);\n\
+    opacity: 0;\n\
+    pointer-events: none;\n\
+    transition: opacity 0.2s ease;\n\
+  }\n\
+\n\
+  .layer-panel.card-type.on::before {\n\
+    opacity: 1;\n\
+    pointer-events: auto;\n\
   }\n\
 \n\
   /* iOS 배경 깜빡임 방지를 위한 하드웨어 가속 최적화 */\n\

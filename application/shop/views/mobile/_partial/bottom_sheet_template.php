@@ -17,7 +17,7 @@
 function renderBottomSheet($id, $title, $content, $buttonText, $buttonId, $buttonOnclick = '', $containerClass = '', $headerClass = '', $titleClass = '', $contentClass = 'bottom-sheet-text-content')
 {
 ?>
-    <div id="<?php echo $id; ?>" class="layer-panel card-type" tabindex="-1">
+    <div id="<?php echo $id; ?>" class="layer-panel card-type" tabindex="-1" data-disable-bg-close="true">
         <div class="bottom-sheet-container <?php echo $containerClass; ?>">
             <!-- Handlebar (드래그용 가로선) -->
             <div class="bottom-sheet-handlebar"></div>
@@ -64,7 +64,7 @@ function renderBottomSheet($id, $title, $content, $buttonText, $buttonId, $butto
 function renderSelectBottomSheet($id, $title, $content, $button1Text, $button1Id, $button1Onclick = '', $button2Text, $button2Id, $button2Onclick = '', $containerClass = '', $headerClass = '', $titleClass = '', $contentClass = 'select-bottom-sheet-content-wrapper')
 {
 ?>
-    <div id="<?php echo $id; ?>" class="layer-panel card-type" tabindex="-1">
+    <div id="<?php echo $id; ?>" class="layer-panel card-type" tabindex="-1" data-disable-bg-close="true">
         <div class="bottom-sheet-container <?php echo $containerClass; ?>">
             <!-- Handlebar (드래그용 가로선) -->
             <div class="bottom-sheet-handlebar"></div>

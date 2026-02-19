@@ -454,6 +454,7 @@
             // 열려있는 레이어 패널 찾기
             var $openPanel = document.querySelector('.layer-panel.on');
             if (!$openPanel) return;
+            if ($openPanel.getAttribute('data-disable-bg-close') === 'true') return;
 
             // 클릭한 요소가 패널 컨테이너 내부인지 확인 (기존 패널 및 바텀시트 모두 체크)
             var $panelContainer = $openPanel.querySelector('.panel-container');
@@ -482,6 +483,7 @@
                 $panel.addEventListener('click', function (e) {
                     // 레이어 패널이 열려있지 않으면 무시
                     if (!$panel.classList.contains('on')) return;
+                    if ($panel.getAttribute('data-disable-bg-close') === 'true') return;
 
                     // 클릭한 요소가 컨테이너 내부인지 확인
                     var $panelContainer = $panel.querySelector('.panel-container');
