@@ -619,6 +619,38 @@ if (!$socket_io_script_url) {
 
 </html>
 <script>
+  // iOS 권한 결과 콜백이 없는 페이지에서도 공통 처리
+  (function initLocationPermissionHandler() {
+    if (typeof window.onLocationPermissionResult === 'function') return;
+
+    function normalizePermissionStatus(value) {
+      if (value === true || value === "true" || value === "granted" || value === 1 || value === "1") {
+        return "granted";
+      }
+      if (value === false || value === "false" || value === "denied" || value === 0 || value === "0" || value === "never_ask_again") {
+        return value === "never_ask_again" ? "never_ask_again" : "denied";
+      }
+      if (value === "restricted") return "restricted";
+      if (value === "not_determined") return "not_determined";
+      return null;
+    }
+
+    window.onLocationPermissionResult = function(status) {
+      var normalized = normalizePermissionStatus(status);
+      if (!normalized) return;
+
+      try {
+        localStorage.setItem("nowjob_location_permission_status", normalized);
+      } catch (e) {}
+
+      if (normalized === "denied" || normalized === "never_ask_again") {
+        if (window.location.pathname !== "/member/join_mem_finish") {
+          window.location.href = "/member/join_mem_finish";
+        }
+      }
+    };
+  })();
+
   // 방문 기록 관리
   (function manageHistory() {
     const currentPath = window.location.pathname; // 현재 페이지 경로 (쿼리 파라미터 제외)
