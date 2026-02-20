@@ -1071,13 +1071,13 @@ class Mypage_proc extends CI_Controller
         $ad_gps_y = isset($step1["ad_gps_y"]) && is_array($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : [];
 
         $this->member_model->deleteAddress(["ad_type" => "RESUME", "mm_idx" => $this->mm_idx, "ad_key" => $ru_idx]);
-        if (!empty($ad_zipcode)) {
-          foreach ($ad_zipcode as $idx => $row) {
+        if (!empty($ad_addr) && isset($ad_addr[0]) && $ad_addr[0] != "") {
+          foreach ($ad_addr as $idx => $row) {
             $arr_addr = [
               "mm_idx" => $this->mm_idx,
               "ad_type" => "RESUME",
               "ad_key" => $ru_idx,
-              "ad_zipcode" => $ad_zipcode[$idx],
+              "ad_zipcode" => isset($ad_zipcode[$idx]) ? $ad_zipcode[$idx] : "",
               "ad_jibun" => isset($ad_jibun[$idx]) ? $ad_jibun[$idx] : "",
               "ad_doro" => isset($ad_doro[$idx]) ? $ad_doro[$idx] : "",
               "ad_detail" => isset($ad_detail[$idx]) ? $ad_detail[$idx] : "",
@@ -1244,9 +1244,9 @@ class Mypage_proc extends CI_Controller
         $ad_gps_x = isset($step1["ad_gps_x"]) && is_array($step1["ad_gps_x"]) ? $step1["ad_gps_x"] : [];
         $ad_gps_y = isset($step1["ad_gps_y"]) && is_array($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : [];
 
-        if (!empty($ad_zipcode) && isset($ad_zipcode[0]) && $ad_zipcode[0] != "") {
+        if (!empty($ad_addr) && isset($ad_addr[0]) && $ad_addr[0] != "") {
 
-          foreach ($ad_zipcode as $idx => $row) {
+          foreach ($ad_addr as $idx => $row) {
 
             //$this->db->trans_rollback();
             //return json_return("90","11.[".$ad_zipcode[$idx]."]");
@@ -1255,7 +1255,7 @@ class Mypage_proc extends CI_Controller
               "mm_idx" => $this->mm_idx,
               "ad_type" => "RESUME",
               "ad_key" => $result_resume["key"],
-              "ad_zipcode" => $ad_zipcode[$idx],
+              "ad_zipcode" => isset($ad_zipcode[$idx]) ? $ad_zipcode[$idx] : "",
               "ad_jibun" => isset($ad_jibun[$idx]) ? $ad_jibun[$idx] : "",
               "ad_doro" => isset($ad_doro[$idx]) ? $ad_doro[$idx] : "",
               "ad_detail" => isset($ad_detail[$idx]) ? $ad_detail[$idx] : "",
