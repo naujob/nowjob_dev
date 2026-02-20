@@ -1,6 +1,47 @@
 (function () {
     'use strict';
 
+    /* iOS/Android location permission result bridge */
+    (function setLocationPermissionBridge() {
+        var LOCATION_PERMISSION_KEY = 'nowjob_location_permission_status';
+
+        function normalizePermissionStatus(value) {
+            if (value === true || value === 'true' || value === 'granted' || value === 1 || value === '1') {
+                return 'granted';
+            }
+            if (value === false || value === 'false' || value === 'denied' || value === 0 || value === '0' || value === 'never_ask_again') {
+                return value === 'never_ask_again' ? 'never_ask_again' : 'denied';
+            }
+            return null;
+        }
+
+        function setStoredPermissionStatus(status) {
+            try {
+                if (status) {
+                    localStorage.setItem(LOCATION_PERMISSION_KEY, status);
+                }
+            } catch (e) {}
+        }
+
+        function getStoredPermissionStatus() {
+            try {
+                return localStorage.getItem(LOCATION_PERMISSION_KEY);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Native -> Web callback
+        window.onLocationPermissionResult = function (status) {
+            var normalized = normalizePermissionStatus(status);
+            if (!normalized) return;
+            setStoredPermissionStatus(normalized);
+        };
+
+        // Global getter for any page
+        window.getLocationPermissionStatus = getStoredPermissionStatus;
+    }());
+
     /* 맨위로 가기 */
     (function setBtnTop() {
         if (!document.querySelector('.js-goto-top')) return;

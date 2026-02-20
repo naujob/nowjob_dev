@@ -7,17 +7,15 @@ require_once __DIR__ . '/../_partial/bottom_sheet_template.php';
 include_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_helpers.php');
 
 // 이력서 미작성 회원 안내 바텀시트 (로그인 + 이력서 없음 조건에서 노출)
-renderBottomSheet(
-  'resumeGuidePanel',
-  '5초 간편 이력서 등록',
-  '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
-  '내 주변 일자리 찾기',
-  'btnResumeGuide',
-  '',
-  'resume-guide-bottom-sheet-container',
-  'resume-guide-bottom-sheet-header',
-  'resume-guide-bottom-sheet-title',
-  'resume-guide-content'
+  renderBottomSheet(
+    'resumeGuidePanel',
+    '5초 간편 이력서 등록',
+    '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
+    '내 주변 일자리 찾기',
+    'btnResumeGuide',
+    '',
+  'bottom-sheet-content-container',
+  'bottom-sheet-content-body'
 );
 
 // 위치 동의 안내 바텀시트 (권한 미동의 시 노출)
@@ -114,17 +112,18 @@ renderSelectBottomSheet(
     margin: 0 1.25rem 0.75rem;
   }
 
-  #locationConsentPanel .select-bottom-sheet-buttons {
+  #locationConsentPanel .bottom-sheet-actions--split {
     display: flex;
     gap: 0.75rem;
     padding: 0.75rem 1.25rem 1.25rem;
   }
 
-  #locationConsentPanel .btn-select-bottom-sheet {
+  #locationConsentPanel .bottom-sheet-action {
     flex: 1 1 50%;
-    height: 48px;
-    border-radius: 24px;
+    height: 60px;
+    border-radius: 30px;
     font-weight: 700;
+    font-size: 1.05rem;
   }
 
   #locationConsentPanel .btn-bottom-sheet-secondary {
@@ -214,6 +213,9 @@ renderSelectBottomSheet(
       var normalized = normalizePermissionStatus(status);
       if (!normalized) return;
       setStoredPermissionStatus(normalized);
+      try {
+        sessionStorage.setItem("ios_permission_resumed", "1");
+      } catch (e) {}
     };
 
     // 페이지 초기화 시 전역으로 노출 (DOM 로드 전에도 접근 가능)
@@ -263,6 +265,10 @@ renderSelectBottomSheet(
     };
 
     window.returnLocation = function(lat, lng) {
+      try {
+        sessionStorage.setItem("ios_permission_resumed", "1");
+      } catch (e) {}
+
       // 위치 권한이 없거나 거부된 경우
       if (!lat || !lng || lat === "0" || lng === "0") {
         proceedResumeAutoFlowWithoutLocation();
@@ -324,36 +330,67 @@ renderSelectBottomSheet(
   window.addEventListener('DOMContentLoaded', function() {
     var isLogin = <?php echo $this->user->isLogin() ? 'true' : 'false'; ?>;
     var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
-    var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
-      ? window.getLocationPermissionStatus()
-      : null;
-    var hasLocationConsent = storedPermission === 'granted';
     var hasOpenPanel = (typeof window.openPanel === 'function');
+    var DEBUG_PREFIX = '[join_mem_finish][bottomsheet]';
 
     if (!isLogin || !isMem) return;
 
-    if (typeof initPanelSwipe === 'function') {
-      initPanelSwipe('resumeGuidePanel');
-      initPanelSwipe('locationConsentPanel');
-    }
+    function openGuidePanelByPermission() {
+      var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
+        ? window.getLocationPermissionStatus()
+        : null;
+      var hasLocationConsent = storedPermission === 'granted';
 
-    $.ajax({
-      url: '/mypage_proc/getResumeCount',
-      type: 'GET',
-      dataType: 'json',
-      success: function(ret) {
-        var count = 0;
-        if (ret && ret.data && typeof ret.data.count !== 'undefined') {
-          count = parseInt(ret.data.count, 10) || 0;
-        }
+      console.log(DEBUG_PREFIX, 'check', {
+        storedPermission: storedPermission,
+        hasLocationConsent: hasLocationConsent,
+        hasOpenPanel: (typeof window.openPanel === 'function')
+      });
 
-        if (count <= 0) {
-          var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
-          var panel = document.getElementById(targetPanelId);
-          if (panel && typeof openPanel === 'function') {
+      $.ajax({
+        url: '/mypage_proc/getResumeCount',
+        type: 'GET',
+        dataType: 'json',
+        success: function(ret) {
+          var count = 0;
+          if (ret && ret.data && typeof ret.data.count !== 'undefined') {
+            count = parseInt(ret.data.count, 10) || 0;
+          }
+
+          if (count <= 0) {
+            var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
+            var panel = document.getElementById(targetPanelId);
+            if (!panel) {
+              console.warn(DEBUG_PREFIX, 'panel not found', targetPanelId);
+              return;
+            }
+            if (typeof openPanel !== 'function') {
+              console.warn(DEBUG_PREFIX, 'openPanel not available');
+              return;
+            }
+
+            console.log(DEBUG_PREFIX, 'open panel', targetPanelId);
             openPanel(panel);
+          } else {
+            console.log(DEBUG_PREFIX, 'resume count > 0, skip panel', count);
           }
         }
+        ,error: function(xhr, status, error) {
+          console.warn(DEBUG_PREFIX, 'getResumeCount error', status, error);
+        }
+      });
+    }
+
+    openGuidePanelByPermission();
+
+    // iOS: 설정으로 이동 후 복귀 시 권한 상태 재확인
+    window.addEventListener('pageshow', function() {
+      openGuidePanelByPermission();
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') {
+        openGuidePanelByPermission();
       }
     });
   });
@@ -388,16 +425,6 @@ renderSelectBottomSheet(
       window.webkit.messageHandlers.startGettingLocation.postMessage({});
     } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getLocation) {
       window.webkit.messageHandlers.getLocation.postMessage({});
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        returnLocation(position.coords.latitude, position.coords.longitude);
-      }, function() {
-        proceedResumeAutoFlowWithoutLocation();
-      }, {
-        enableHighAccuracy: false,
-        maximumAge: 0,
-        timeout: 10000
-      });
     } else {
       proceedResumeAutoFlowWithoutLocation();
     }

@@ -89,21 +89,8 @@ if ($g_ios_publish == true) {
 
 <script>
   function getLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        // 좌표값 alert 제거됨
-      }, function(error) {
-        if (error.message == "User denied Geolocation") {
-          alert("위치사용을 허용해주세요");
-        }
-      }, {
-        enableHighAccuracy: false,
-        maximumAge: 0,
-        timeout: Infinity
-      });
-    } else {
-      alert('GPS를 지원하지 않습니다');
-    }
+    alert('GPS 기능이 비활성화되었습니다');
+    return;
   }
   //getLocation();
 </script>

@@ -2272,6 +2272,16 @@ class Member_proc extends CI_Controller
             $step4_3_info = $this->site_model->getStepData($list, "스텝4_3");
             $step4_4_info = $this->site_model->getStepData($list, "스텝4_4");
 
+            // 방어 처리: 누락된 단계 데이터 기본값 세팅 (iOS 500 방지)
+            if (!is_array($step_auth)) $step_auth = [];
+            if (!is_array($step1_info)) $step1_info = [];
+            if (!is_array($step2_info)) $step2_info = [];
+            if (!is_array($step3_info)) $step3_info = [];
+            if (!is_array($step4_1_info)) $step4_1_info = [];
+            if (!is_array($step4_2_info)) $step4_2_info = [];
+            if (!is_array($step4_3_info)) $step4_3_info = [];
+            if (!is_array($step4_4_info)) $step4_4_info = [];
+
             // 디버깅 로그: SNS 데이터 확인
             if ($proc_type == "ALL") {
                 # 트랜젝션 시작
@@ -2328,8 +2338,8 @@ class Member_proc extends CI_Controller
 
                 $arr_mem = [
                     "mm_type" => "MEM",
-                    "mm_id" => $step1_info["mm_id"],
-                    "mm_pwd" => $this->common->getSqlPass($step1_info["mm_pwd"]),
+                    "mm_id" => isset($step1_info["mm_id"]) ? $step1_info["mm_id"] : "",
+                    "mm_pwd" => $this->common->getSqlPass(isset($step1_info["mm_pwd"]) ? $step1_info["mm_pwd"] : ""),
                     "mm_name" => $mm_name_init,
                     "mm_status" => "Y",
                     "mm_phone" => $mm_phone_init,
@@ -2338,12 +2348,12 @@ class Member_proc extends CI_Controller
                     "mm_nation" => $mm_nation_init,
                     "mm_ci" => $mm_ci_init,
                     "mm_di" => $mm_di_init,
-                    "mm_thumb" => $step4_4_info["mm_thumb"],
-                    "mm_img1" => $step4_4_info["mm_img1"],
-                    "mm_img2" => $step4_4_info["mm_img2"],
-                    "mm_img3" => $step4_4_info["mm_img3"],
-                    "mm_img4" => $step4_4_info["mm_img4"],
-                    "mm_img5" => $step4_4_info["mm_img5"],
+                    "mm_thumb" => isset($step4_4_info["mm_thumb"]) ? $step4_4_info["mm_thumb"] : "",
+                    "mm_img1" => isset($step4_4_info["mm_img1"]) ? $step4_4_info["mm_img1"] : "",
+                    "mm_img2" => isset($step4_4_info["mm_img2"]) ? $step4_4_info["mm_img2"] : "",
+                    "mm_img3" => isset($step4_4_info["mm_img3"]) ? $step4_4_info["mm_img3"] : "",
+                    "mm_img4" => isset($step4_4_info["mm_img4"]) ? $step4_4_info["mm_img4"] : "",
+                    "mm_img5" => isset($step4_4_info["mm_img5"]) ? $step4_4_info["mm_img5"] : "",
                     "mm_join_ip" => $this->common->getIpAddr(),
                     "alarm_chat" => $alarm["alarm_chat"],
                     "alarm_resume" => $alarm["alarm_resume"],
@@ -2438,13 +2448,13 @@ class Member_proc extends CI_Controller
                     "mm_idx" => $result_join["key"],
                     "ad_type" => "MEMBER",
                     "ad_key" => $result_join["key"],
-                    "ad_zipcode" => $step2_info["ad_zipcode"],
-                    "ad_jibun" => $step2_info["ad_jibun"],
-                    "ad_doro" => $step2_info["ad_doro"],
-                    "ad_detail" => $step2_info["ad_detail"],
-                    "ad_addr" => $step2_info["ad_addr"],
-                    "ad_gps_x" => $step2_info["ad_gps_x"],
-                    "ad_gps_y" => $step2_info["ad_gps_y"],
+                    "ad_zipcode" => isset($step2_info["ad_zipcode"]) ? $step2_info["ad_zipcode"] : "",
+                    "ad_jibun" => isset($step2_info["ad_jibun"]) ? $step2_info["ad_jibun"] : "",
+                    "ad_doro" => isset($step2_info["ad_doro"]) ? $step2_info["ad_doro"] : "",
+                    "ad_detail" => isset($step2_info["ad_detail"]) ? $step2_info["ad_detail"] : "",
+                    "ad_addr" => isset($step2_info["ad_addr"]) ? $step2_info["ad_addr"] : "",
+                    "ad_gps_x" => isset($step2_info["ad_gps_x"]) ? $step2_info["ad_gps_x"] : "",
+                    "ad_gps_y" => isset($step2_info["ad_gps_y"]) ? $step2_info["ad_gps_y"] : "",
                 ];
 
                 $result_addr = $this->member_model->insertAddress($arr_addr);
@@ -2459,16 +2469,16 @@ class Member_proc extends CI_Controller
                 $ma_age = getKoreanAge($birth_for_age);
                 $arr_mem_info = [
                     "mm_idx" => $result_join["key"],
-                    "ma_work" => arr_implode(",", $step4_1_info["ma_work"]),
-                    "ma_price_type" => arr_implode(",", $step4_1_info["ma_price_type"]),
+                    "ma_work" => arr_implode(",", isset($step4_1_info["ma_work"]) ? $step4_1_info["ma_work"] : []),
+                    "ma_price_type" => arr_implode(",", isset($step4_1_info["ma_price_type"]) ? $step4_1_info["ma_price_type"] : []),
                     "ma_age" => $ma_age,
-                    "ma_work_type" => arr_implode(",", $step4_1_info["ma_work_type"]),
-                    "ma_week_yn" => $step4_1_info["ma_week_yn"],
-                    "ma_week" => arr_implode(",", $step4_1_info["ma_week"]),
-                    "ma_edu" => $step4_2_info["ma_edu"],
-                    "ma_work_dt" => $step4_2_info["ma_work_dt"],
-                    "ma_my_type" => arr_implode(",", $step4_3_info["ma_my_type"]),
-                    "ma_desc" => $step4_4_info["ma_desc"],
+                    "ma_work_type" => arr_implode(",", isset($step4_1_info["ma_work_type"]) ? $step4_1_info["ma_work_type"] : []),
+                    "ma_week_yn" => isset($step4_1_info["ma_week_yn"]) ? $step4_1_info["ma_week_yn"] : "",
+                    "ma_week" => arr_implode(",", isset($step4_1_info["ma_week"]) ? $step4_1_info["ma_week"] : []),
+                    "ma_edu" => isset($step4_2_info["ma_edu"]) ? $step4_2_info["ma_edu"] : "",
+                    "ma_work_dt" => isset($step4_2_info["ma_work_dt"]) ? $step4_2_info["ma_work_dt"] : "",
+                    "ma_my_type" => arr_implode(",", isset($step4_3_info["ma_my_type"]) ? $step4_3_info["ma_my_type"] : []),
+                    "ma_desc" => isset($step4_4_info["ma_desc"]) ? $step4_4_info["ma_desc"] : "",
                 ];
 
                 $result_info = $this->member_model->insertMemberInfo($arr_mem_info);
@@ -2478,31 +2488,31 @@ class Member_proc extends CI_Controller
                     json_return("93", "[03]회원가입시 오류가 발생하였습니다.");
                 }
 
-                if ($step4_3_info["arr_career"] != "") {
+                if (isset($step4_3_info["arr_career"]) && $step4_3_info["arr_career"] != "") {
                     $arr_temp = explode("&&&", $step4_3_info["arr_career"]);
                     foreach ($arr_temp as $row) {
                         $arr_data = explode("|||", $row);
 
                         $info = [
                             "mm_idx" => $result_join["key"],
-                            "mc_type" => $arr_data[0],
-                            "mc_name" => $arr_data[1],
-                            "mc_date" => $arr_data[2],
+                            "mc_type" => isset($arr_data[0]) ? $arr_data[0] : "",
+                            "mc_name" => isset($arr_data[1]) ? $arr_data[1] : "",
+                            "mc_date" => isset($arr_data[2]) ? $arr_data[2] : "",
                         ];
 
                         $this->member_model->insertMemberCareer($info);
                     }
                 }
 
-                if ($step4_4_info["arr_certi"] != "") {
+                if (isset($step4_4_info["arr_certi"]) && $step4_4_info["arr_certi"] != "") {
                     $arr_temp = explode("&&&", $step4_4_info["arr_certi"]);
                     foreach ($arr_temp as $row) {
                         $arr_data = explode("|||", $row);
 
                         $info = [
                             "mm_idx" => $result_join["key"],
-                            "mc_name" => $arr_data[0],
-                            "mc_dt" => $arr_data[1],
+                            "mc_name" => isset($arr_data[0]) ? $arr_data[0] : "",
+                            "mc_dt" => isset($arr_data[1]) ? $arr_data[1] : "",
                         ];
 
                         $this->member_model->insertMemberCerti($info);

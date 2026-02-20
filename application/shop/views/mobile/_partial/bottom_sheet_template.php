@@ -10,20 +10,21 @@
  * @param string $buttonId - 버튼 ID
  * @param string $buttonOnclick - 버튼 onclick 이벤트
  * @param string $containerClass - 컨테이너 추가 클래스 (선택)
- * @param string $headerClass - 헤더 추가 클래스 (선택)
- * @param string $titleClass - 타이틀 추가 클래스 (선택)
  * @param string $contentClass - 본문 콘텐츠 클래스 (기본: bottom-sheet-text-content)
  */
-function renderBottomSheet($id, $title, $content, $buttonText, $buttonId, $buttonOnclick = '', $containerClass = '', $headerClass = '', $titleClass = '', $contentClass = 'bottom-sheet-text-content')
+function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass = '', $contentClass = 'bottom-sheet-text-content')
 {
+    $buttons = is_array($buttons) ? array_values($buttons) : [];
+    $buttonCount = count($buttons);
+    $actionsClass = 'bottom-sheet-actions' . ($buttonCount > 1 ? ' bottom-sheet-actions--split' : '');
 ?>
     <div id="<?php echo $id; ?>" class="layer-panel card-type" tabindex="-1" data-disable-bg-close="true">
         <div class="bottom-sheet-container <?php echo $containerClass; ?>">
             <!-- Handlebar (드래그용 가로선) -->
             <div class="bottom-sheet-handlebar"></div>
 
-            <div class="bottom-sheet-header <?php echo $headerClass; ?>">
-                <h2 class="bottom-sheet-title <?php echo $titleClass; ?>"><?php echo htmlspecialchars($title); ?></h2>
+            <div class="bottom-sheet-header">
+                <h2 class="bottom-sheet-title"><?php echo htmlspecialchars($title); ?></h2>
             </div>
 
             <div class="bottom-sheet-body">
@@ -35,13 +36,34 @@ function renderBottomSheet($id, $title, $content, $buttonText, $buttonId, $butto
             </div>
 
             <div class="bottom-sheet-footer">
-                <div class="bottom-sheet-sticky-bottom">
-                    <button type="button" id="<?php echo $buttonId; ?>" <?php echo $buttonOnclick ? 'onclick="' . htmlspecialchars($buttonOnclick) . '"' : ''; ?> class="btn-bottom-sheet btn-bottom-sheet-primary btn-login-guide"><?php echo htmlspecialchars($buttonText); ?></button>
+                <div class="bottom-sheet-sticky-bottom <?php echo $actionsClass; ?>">
+                    <?php foreach ($buttons as $button): ?>
+                        <?php
+                            $btnText = isset($button['text']) ? $button['text'] : '';
+                            $btnId = isset($button['id']) ? $button['id'] : '';
+                            $btnOnclick = isset($button['onclick']) ? $button['onclick'] : '';
+                            $btnVariant = isset($button['variant']) ? $button['variant'] : 'primary';
+                        ?>
+                        <button type="button" id="<?php echo htmlspecialchars($btnId); ?>" <?php echo $btnOnclick ? 'onclick="' . htmlspecialchars($btnOnclick) . '"' : ''; ?> class="btn-bottom-sheet btn-bottom-sheet-<?php echo htmlspecialchars($btnVariant); ?> bottom-sheet-action"><?php echo htmlspecialchars($btnText); ?></button>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
     </div>
 <?php
+}
+
+function renderBottomSheet($id, $title, $content, $buttonText, $buttonId, $buttonOnclick = '', $containerClass = '', $contentClass = 'bottom-sheet-text-content')
+{
+    $buttons = [
+        [
+            'text' => $buttonText,
+            'id' => $buttonId,
+            'onclick' => $buttonOnclick,
+            'variant' => 'primary'
+        ]
+    ];
+    renderBottomSheetBase($id, $title, $content, $buttons, $containerClass, $contentClass);
 }
 
 /**
@@ -57,38 +79,24 @@ function renderBottomSheet($id, $title, $content, $buttonText, $buttonId, $butto
  * @param string $button2Id - 두 번째 버튼 ID
  * @param string $button2Onclick - 두 번째 버튼 onclick 이벤트
  * @param string $containerClass - 컨테이너 추가 클래스 (선택)
- * @param string $headerClass - 헤더 추가 클래스 (선택)
- * @param string $titleClass - 타이틀 추가 클래스 (선택)
- * @param string $contentClass - 본문 콘텐츠 클래스 (기본: select-bottom-sheet-content-wrapper)
+ * @param string $contentClass - 본문 콘텐츠 클래스 (기본: bottom-sheet-content-body)
  */
-function renderSelectBottomSheet($id, $title, $content, $button1Text, $button1Id, $button1Onclick = '', $button2Text, $button2Id, $button2Onclick = '', $containerClass = '', $headerClass = '', $titleClass = '', $contentClass = 'select-bottom-sheet-content-wrapper')
+function renderSelectBottomSheet($id, $title, $content, $button1Text, $button1Id, $button1Onclick = '', $button2Text, $button2Id, $button2Onclick = '', $containerClass = '', $contentClass = 'bottom-sheet-content-body')
 {
-?>
-    <div id="<?php echo $id; ?>" class="layer-panel card-type" tabindex="-1" data-disable-bg-close="true">
-        <div class="bottom-sheet-container <?php echo $containerClass; ?>">
-            <!-- Handlebar (드래그용 가로선) -->
-            <div class="bottom-sheet-handlebar"></div>
-
-            <div class="bottom-sheet-header <?php echo $headerClass; ?>">
-                <h2 class="bottom-sheet-title <?php echo $titleClass; ?>"><?php echo htmlspecialchars($title); ?></h2>
-            </div>
-
-            <div class="bottom-sheet-body">
-                <div class="bottom-sheet-content">
-                    <div class="<?php echo $contentClass; ?>">
-                        <?php echo $content; ?>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bottom-sheet-footer">
-                <div class="bottom-sheet-sticky-bottom select-bottom-sheet-buttons">
-                    <button type="button" id="<?php echo $button1Id; ?>" <?php echo $button1Onclick ? 'onclick="' . htmlspecialchars($button1Onclick) . '"' : ''; ?> class="btn-bottom-sheet btn-bottom-sheet-secondary btn-select-bottom-sheet"><?php echo htmlspecialchars($button1Text); ?></button>
-                    <button type="button" id="<?php echo $button2Id; ?>" <?php echo $button2Onclick ? 'onclick="' . htmlspecialchars($button2Onclick) . '"' : ''; ?> class="btn-bottom-sheet btn-bottom-sheet-primary btn-select-bottom-sheet"><?php echo htmlspecialchars($button2Text); ?></button>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php
+    $buttons = [
+        [
+            'text' => $button1Text,
+            'id' => $button1Id,
+            'onclick' => $button1Onclick,
+            'variant' => 'secondary'
+        ],
+        [
+            'text' => $button2Text,
+            'id' => $button2Id,
+            'onclick' => $button2Onclick,
+            'variant' => 'primary'
+        ]
+    ];
+    renderBottomSheetBase($id, $title, $content, $buttons, $containerClass, $contentClass);
 }
 ?>

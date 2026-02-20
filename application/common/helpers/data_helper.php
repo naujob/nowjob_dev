@@ -929,11 +929,29 @@ function getKoreanAge($birth)
 {
 	if ($birth == null || $birth == "") {
 		return 0;
-	} else {
-		$birthday = new DateTime($birth);
+	}
+
+	$birth = trim((string)$birth);
+	// Expect YYYYMMDD. If invalid, return 0 to avoid exceptions.
+	if (strlen($birth) !== 8 || !ctype_digit($birth)) {
+		return 0;
+	}
+	$month = substr($birth, 4, 2);
+	$day = substr($birth, 6, 2);
+	if ($month === "00" || $day === "00") {
+		return 0;
+	}
+
+	try {
+		$birthday = DateTime::createFromFormat('Ymd', $birth);
+		if (!$birthday) {
+			return 0;
+		}
 		$referenceDate = new DateTime(Date('Y-m-d'));
 		$age = $birthday->diff($referenceDate)->y;
 		return $age;
+	} catch (Exception $e) {
+		return 0;
 	}
 }
 

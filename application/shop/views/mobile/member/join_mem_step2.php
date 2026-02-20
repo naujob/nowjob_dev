@@ -130,34 +130,8 @@ function selectAddrInfo(zipcode,doro,jibun,addr,x,y){
 }
 
 function getLocation() {
-	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(function(position) {
-            //alert(position.coords.longitude + "::" + position.coords.latitude);
-			comAjax("/common_proc/get_gps_address",{x:position.coords.longitude,y : position.coords.latitude},function(ret){
-				if(ret.code=="00"){
-
-					getSearchApi(ret.data,"gps",function(html){
-						$(".post-list").removeClass("hidden");
-						$(".post-list").html("");
-						$(".post-list").append(html);
-					})
-				}else{
-					//commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.',function(){});
-				}
-			});
-		}, function(error) {
-		  	if(error.message=="User denied Geolocation"){
-				//commonAlert('위치사용을 허용 또는  주소를 입력하여 조회 해주세요.',function(){});
-      		}
-    	}, {
-	      enableHighAccuracy: false,
-	      maximumAge: 0,
-	      timeout: Infinity});
-  	} else {
-        showDaum("");
-		//alert('GPS를 지원하지 않습니다');
-        //commonAlert('GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.',function(){});
-  	}
+	showDaum("");
+	//commonAlert('GPS 기능이 비활성화되었습니다. 주소를 입력하여 조회해 주세요.',function(){});
 
 	// 위치 정보 요청과 무관하게 자동으로 페이지를 이동시키는 버그 수정
 	// location.href="/member/join_mem_step3";

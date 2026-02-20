@@ -958,6 +958,8 @@
                                 try {
                                     localStorage.removeItem("resume_autofill_payload");
                                     localStorage.removeItem("resume_autofill_ts");
+                                    sessionStorage.setItem("resume_auto_completed", "1");
+                                    
                                 } catch (e) {}
                                 location.href = "/recruit/job_list";
                             } else {

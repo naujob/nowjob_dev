@@ -138,7 +138,7 @@ require_once __DIR__ . '/bottom_sheet_template.php';
     <!-- 푸터 -->
     <div class="bottom-sheet-footer">
       <div class="bottom-sheet-sticky-bottom">
-        <button type="button" id="btnBizAuth" onclick="fBizAuth();" class="btn-bottom-sheet btn-bottom-sheet-primary btn-login-guide">확인</button>
+        <button type="button" id="btnBizAuth" onclick="fBizAuth();" class="btn-bottom-sheet btn-bottom-sheet-primary bottom-sheet-action">확인</button>
         <?php /* 주석처리 - 완료 버튼
         <button id="btnSave" class="btn-bottom-sheet-primary" style="width: 100%; height: 50px; font-size: 16px; border-radius: 8px;">완료</button>
         */ ?>
