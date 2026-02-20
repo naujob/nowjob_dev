@@ -146,7 +146,7 @@ renderSelectBottomSheet(
         localStorage.setItem(RESUME_AUTOFILL_KEY, JSON.stringify(payload || {}));
         localStorage.setItem(RESUME_AUTOFILL_TS_KEY, String(Date.now()));
       } catch (e) {
-        console.error("resume autofill 저장 실패:", e);
+        // noop
       }
     }
 
@@ -231,20 +231,75 @@ renderSelectBottomSheet(
     var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
     var hasOpenPanel = (typeof window.openPanel === 'function');
     var DEBUG_PREFIX = '[join_mem_finish][bottomsheet]';
+    var RESUME_AUTO_ONCE_KEY = "resume_auto_once_started";
 
     if (!isLogin || !isMem) return;
+
+    function hasAutoStartedOnce() {
+      try {
+        return localStorage.getItem(RESUME_AUTO_ONCE_KEY) === "1";
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function markAutoStartedOnce() {
+      try {
+        localStorage.setItem(RESUME_AUTO_ONCE_KEY, "1");
+      } catch (e) {}
+    }
+
+    function isLocationBridgeReady() {
+      return (
+        (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') ||
+        (window.webkit && window.webkit.messageHandlers && (window.webkit.messageHandlers.startGettingLocation || window.webkit.messageHandlers.getLocation))
+      );
+    }
+
+    function waitForLocationBridgeReady(timeoutMs, intervalMs, onReady, onTimeout) {
+      var startedAt = Date.now();
+      (function checkReady() {
+        if (isLocationBridgeReady()) {
+          onReady();
+          return;
+        }
+        if (Date.now() - startedAt >= timeoutMs) {
+          onTimeout();
+          return;
+        }
+        setTimeout(checkReady, intervalMs);
+      })();
+    }
+
+    function startAutoResumeFlowOnce() {
+      if (window.__resumeAutoStartTriggered) return;
+      window.__resumeAutoStartTriggered = true;
+
+      var tryTrigger = function() {
+        $("#btnResumeGuide").trigger("click");
+      };
+
+      // 즉시 시도 + 브릿지 준비 대기 후 1회 재시도
+      if (isLocationBridgeReady()) {
+        tryTrigger();
+      } else {
+        waitForLocationBridgeReady(1500, 100, tryTrigger, function() {});
+      }
+
+      // 사용자 제스처가 필요한 경우를 대비한 1회 재시도
+      var retryOnGesture = function() {
+        if (window.__resumeAutoNavigated) return;
+        tryTrigger();
+      };
+      document.addEventListener('touchstart', retryOnGesture, { once: true, passive: true });
+      document.addEventListener('mousedown', retryOnGesture, { once: true, passive: true });
+    }
 
     function openGuidePanelByPermission() {
       var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
         ? window.getLocationPermissionStatus()
         : null;
       var hasLocationConsent = storedPermission === 'granted';
-
-      console.log(DEBUG_PREFIX, 'check', {
-        storedPermission: storedPermission,
-        hasLocationConsent: hasLocationConsent,
-        hasOpenPanel: (typeof window.openPanel === 'function')
-      });
 
       $.ajax({
         url: '/mypage_proc/getResumeCount',
@@ -257,25 +312,28 @@ renderSelectBottomSheet(
           }
 
           if (count <= 0) {
+            if (hasLocationConsent && !hasAutoStartedOnce()) {
+              markAutoStartedOnce();
+              startAutoResumeFlowOnce();
+              return;
+            }
+            if (hasLocationConsent) {
+              return;
+            }
             var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
             var panel = document.getElementById(targetPanelId);
             if (!panel) {
-              console.warn(DEBUG_PREFIX, 'panel not found', targetPanelId);
               return;
             }
             if (typeof openPanel !== 'function') {
-              console.warn(DEBUG_PREFIX, 'openPanel not available');
               return;
             }
 
-            console.log(DEBUG_PREFIX, 'open panel', targetPanelId);
             openPanel(panel);
           } else {
-            console.log(DEBUG_PREFIX, 'resume count > 0, skip panel', count);
           }
         }
         ,error: function(xhr, status, error) {
-          console.warn(DEBUG_PREFIX, 'getResumeCount error', status, error);
         }
       });
     }
