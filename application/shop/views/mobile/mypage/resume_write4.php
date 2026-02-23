@@ -1545,7 +1545,7 @@
                 if (ru_week_str) {
                     params.append("ru_week", ru_week_str);
                 }
-
+                
                 fileAjaxLoading("/mypage_proc/resume_write4", params, function(ret) {
                     if (ret.code == "00") {
                         // 최종 저장 처리

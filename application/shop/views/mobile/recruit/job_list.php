@@ -847,32 +847,6 @@ if (count($banner_list) > 0) {
       height: 'auto'
     });
 
-    (function showResumeAutoCompleteAlert() {
-      var shouldShow = false;
-      var fromIosResume = false;
-      var rawAuto = null;
-      var rawIos = null;
-      try {
-        rawAuto = sessionStorage.getItem("resume_auto_completed");
-        rawIos = sessionStorage.getItem("ios_permission_resumed");
-        shouldShow = rawAuto === "1";
-        fromIosResume = rawIos === "1";
-      } catch (e) {}
-
-      if (!shouldShow || !fromIosResume) return;
-
-      try {
-        sessionStorage.removeItem("resume_auto_completed");
-        sessionStorage.removeItem("ios_permission_resumed");
-      } catch (e) {}
-
-      if (typeof commonAlert === 'function') {
-        commonAlert("이력서 자동작성 완료!", function() {});
-      } else {
-        alert("이력서 자동작성 완료!");
-      }
-    })();
-
     const count = $('.selbtn').length;
     var addrNames = [];
 

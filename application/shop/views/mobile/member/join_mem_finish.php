@@ -39,8 +39,8 @@ renderSelectBottomSheet(
 
 <div id="auto-resume-loading" aria-hidden="true">
   <div class="loading-card" role="status" aria-live="polite">
-    <p class="loading-title">이력서 자동 작성 중</p>
-    <p class="loading-desc">잠시만 기다려주세요.</p>
+    <p class="loading-title">맞춤형 공고 나우잡이 찾아드립니다.</p>
+    <p class="loading-desc">딱 맞는 공고만 선별중입니다. 잠시만 기다려주세요.</p>
     <div class="loading-spinner" aria-hidden="true"></div>
   </div>
 </div>
