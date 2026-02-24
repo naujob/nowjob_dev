@@ -890,6 +890,136 @@
     }
 
     $(document).ready(function() {
+        // 자동 이력서 입력 (웹) - join_mem_finish에서 저장한 payload 사용
+        (function() {
+            var RESUME_AUTOFILL_KEY = "resume_autofill_payload";
+            var RESUME_AUTOFILL_TS_KEY = "resume_autofill_ts";
+            var RESUME_AUTOFILL_MAX_AGE = 5 * 60 * 1000;
+
+            function getQueryParam(name) {
+                var params = new URLSearchParams(window.location.search || "");
+                return params.get(name);
+            }
+
+            function clearAutofillPayload() {
+                try {
+                    localStorage.removeItem(RESUME_AUTOFILL_KEY);
+                    localStorage.removeItem(RESUME_AUTOFILL_TS_KEY);
+                } catch (e) {}
+            }
+
+            if (getQueryParam("autofill") !== "1") {
+                return;
+            }
+
+            var payloadRaw = null;
+            var payload = null;
+            var ts = 0;
+            try {
+                payloadRaw = localStorage.getItem(RESUME_AUTOFILL_KEY);
+                ts = parseInt(localStorage.getItem(RESUME_AUTOFILL_TS_KEY), 10) || 0;
+                payload = payloadRaw ? JSON.parse(payloadRaw) : null;
+            } catch (e) {
+                payload = null;
+            }
+
+            if (!payload || !ts || Date.now() - ts > RESUME_AUTOFILL_MAX_AGE) {
+                clearAutofillPayload();
+                return;
+            }
+
+            if ($("#addr_location").find("li").length > 0) {
+                clearAutofillPayload();
+                return;
+            }
+
+            if (payload.ru_name_seed_addr && $("[name='ru_name']").val() === "") {
+                $("[name='ru_name']").val(payload.ru_name_seed_addr + " 이력서");
+            }
+
+            if (typeof selectAddrInfo === "function") {
+                selectAddrInfo(
+                    payload.ad_zipcode || "",
+                    payload.ad_doro || "",
+                    payload.ad_jibun || "",
+                    payload.ad_addr || "",
+                    payload.ad_gps_x || "",
+                    payload.ad_gps_y || ""
+                );
+            }
+
+            clearAutofillPayload();
+
+            // 자동 저장 플로우 시작
+            window.__autoResumeFlow = true;
+            setTimeout(function() {
+                // 필수값 자동 설정
+                if ($("[name='ru_name']").val() === "") {
+                    var rawAddr = (payload.ad_jibun || payload.ad_addr || payload.ru_name_seed_addr || "").trim();
+                    var regionName = "우리 동네";
+                    if (rawAddr) {
+                        var parts = rawAddr.split(/\s+/);
+                        if (parts.length > 0) {
+                            regionName = parts[parts.length - 1];
+                            if (!/[동면읍리]$/.test(regionName) && parts.length > 1) {
+                                regionName = parts[parts.length - 2];
+                            }
+                        }
+                    }
+
+                    var titleTemplates = [
+                        "[지역명] 기반, 준비된 맞춤형 인재입니다!",
+                        "번개처럼 빠르게 적응하는 [지역명] 구직자",
+                        "성실함이 무기! [지역명] 근처 바로 출근 가능합니다.",
+                        "나우잡이 추천하는 우리 동네 열정 인재 프로필",
+                        "복잡한 건 생략! 실력으로 보여드릴 [지역명] 지원자",
+                        "지금 즉시 매칭 가능한 [지역명] 최적화 이력서",
+                        "누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!",
+                        "[지역명] 거주 중! 꼼꼼함과 책임감을 겸비한 인재",
+                        "사장님이 찾으시던 바로 그 [지역명] 꿀알바 지원생",
+                        "지금바로 출근준비되어있습니다."
+                    ];
+
+                    var chosen = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
+                    var finalTitle = chosen.replace("[지역명]", regionName);
+                    $("[name='ru_name']").val(finalTitle);
+                }
+
+                if ($("[name='ru_nationality']:checked").length === 0) {
+                    var $nation = $("[name='ru_nationality'][value='내국인']");
+                    if ($nation.length) {
+                        $nation.prop("checked", true);
+                    } else {
+                        $("[name='ru_nationality']").first().prop("checked", true);
+                    }
+                }
+
+                if ($("[name='ru_work[]']:checked").length === 0) {
+                    $("[name='ru_work[]']").first().prop("checked", true);
+                }
+
+                if ($("[name='ru_price_type[]']:checked").length === 0) {
+                    $("[name='ru_price_type[]']").first().prop("checked", true);
+                }
+
+                if ($("[name='ru_work_type[]']:checked").length === 0) {
+                    $("[name='ru_work_type[]']").first().prop("checked", true);
+                }
+
+                if ($("[name=ru_img1]").val() == "" && $("[name=ru_img1_ori]").val() == "") {
+                    // 기본 프로필 이미지로 대체
+                    var $form = $("#frmAll");
+                    if ($form.find("[name=ru_img1_ori]").length === 0) {
+                        $form.append('<input type="hidden" name="ru_img1_ori" value="/resource/shop/web/img/avatar_resume_w.png">');
+                    } else {
+                        $form.find("[name=ru_img1_ori]").val("/resource/shop/web/img/avatar_resume_w.png");
+                    }
+                }
+
+                $("#btnStep").trigger("click");
+            }, 400);
+        })();
+
         // 주소 추가 버튼 클릭 이벤트 처리
         $(document).on('click', '.js-add-address', function(e) {
             e.preventDefault();
@@ -1161,6 +1291,25 @@
     }); //ready
 
     function showPreviewInfo(info) {
+        if (window.__autoResumeFlow === true) {
+            if (info && info.ru_idx) {
+                $("[name=ru_idx]").val(info.ru_idx);
+            }
+            var params = {};
+            params["ru_idx"] = $("[name=ru_idx]").val();
+            comAjax("/mypage_proc/resume_complete", params, function(ret) {
+                if (ret.code == "00") {
+                    location.href = "/recruit/job_list?auto_resume=1";
+                } else if (ret.code == "91") {
+                    commonAlert(ret.msg, function() {
+                        fManCheck();
+                    });
+                } else {
+                    commonAlert(ret.msg, function() {});
+                }
+            });
+            return;
+        }
         var str_ru_work_img = "";
         var str_ru_week = "";
         var str_ru_career = "";

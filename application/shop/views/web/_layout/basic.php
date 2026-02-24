@@ -971,6 +971,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <input type="hidden" id="is_login" name="is_login" value="<?= $this->user->isLogin() == true ? "Y" : "N" ?>" />
     <input type="hidden" id="user_id" name="user_id" value="<?= $this->user->isLogin() == true ? $this->user->getUserId() : "" ?>" />
     <input type="hidden" id="os_type" name="os_type" value="web" />
+
 </body>
 <script>
     function fGoEvent(gbn, arg) {

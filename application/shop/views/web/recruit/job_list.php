@@ -937,6 +937,27 @@ if (count($banner_list) > 0) {
     $('.btn-map').insertBefore('#bottomchatbtn');
     getRecoList();
     initPage(false);
+
+    // 자동 이력서 완료 후 이동 시 팝업 표시
+    try {
+      var params = new URLSearchParams(window.location.search || "");
+      if (params.get("auto_resume") === "1") {
+        params.delete("auto_resume");
+        var newUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "");
+        window.history.replaceState({}, "", newUrl);
+
+        var toast = document.createElement('div');
+        toast.className = 'auto-resume-toast';
+        toast.innerHTML = '<p class="title">이력서 작성 완료</p><p class="desc">맞춤형 공고 나우잡이 찾아드립니다.</p>';
+        document.body.appendChild(toast);
+
+        setTimeout(function() {
+          if (toast && toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 4000);
+      }
+    } catch (e) {}
   });
 
   $("#btnRegist").click(function() {

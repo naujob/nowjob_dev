@@ -43,6 +43,7 @@ class Common_proc extends CI_Controller
 		json_return("00", "로그 기록 완료");
 	}
 
+
 	/**
 	 * UUID 및 FCM 토큰 등록 (현재 미사용)
 	 * 

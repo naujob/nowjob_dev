@@ -538,9 +538,91 @@ $addr_info = replaceRegionNames(trim($addr_info));
                   break;
                 }
               }
+              $('#myLocation').html(replaceRegionNames(currentDong));
               var jibun = !!result[0].address ? result[0].address.address_name : '';
               var doro = !!result[0].road_address ? result[0].road_address.address_name : '';
-              updateAddrInfo('', doro, jibun, currentDong, currentLongitude, currentLatitude);
+              // updateAddrInfo('', doro, jibun, currentDong, currentLongitude, currentLatitude);
+            }
+          }
+
+          function isLocationBridgeReady() {
+            return (
+              (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') ||
+              (window.webkit && window.webkit.messageHandlers && (window.webkit.messageHandlers.startGettingLocation || window.webkit.messageHandlers.getLocation))
+            );
+          }
+
+          function requestBridgeLocation() {
+            if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') {
+              APP_NOWAPK.getLocation();
+              return true;
+            }
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.startGettingLocation) {
+              window.webkit.messageHandlers.startGettingLocation.postMessage({});
+              return true;
+            }
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getLocation) {
+              window.webkit.messageHandlers.getLocation.postMessage({});
+              return true;
+            }
+            return false;
+          }
+
+          function waitForLocationBridgeReady(timeoutMs, intervalMs, onReady, onTimeout) {
+            var startedAt = Date.now();
+            (function checkReady() {
+              if (isLocationBridgeReady()) {
+                onReady();
+                return;
+              }
+              if (Date.now() - startedAt >= timeoutMs) {
+                if (typeof onTimeout === 'function') {
+                  onTimeout();
+                }
+                return;
+              }
+              setTimeout(checkReady, intervalMs);
+            })();
+          }
+
+          function applyRealtimeLocation(lat, lng) {
+            var nLat = parseFloat(lat);
+            var nLng = parseFloat(lng);
+            if (!isFinite(nLat) || !isFinite(nLng) || nLat === 0 || nLng === 0) {
+              console.log('[job_map][location] invalid location payload:', lat, lng);
+              return;
+            }
+            console.log('[job_map][location] apply:', nLat, nLng);
+            currentLatitude = nLat;
+            currentLongitude = nLng;
+            var latlng = new kakao.maps.LatLng(nLat, nLng);
+            map.setCenter(latlng);
+            searchAddrFromCoords(latlng, displayCenterInfo);
+            selectClusterByCoordinates();
+          }
+
+          window.returnLocation = function(lat, lng) {
+            console.log('[job_map][location] returnLocation called:', lat, lng);
+            applyRealtimeLocation(lat, lng);
+          };
+
+          function initRealtimeLocationFromBridge() {
+            var status = null;
+            try {
+              status = localStorage.getItem("nowjob_location_permission_status");
+            } catch (e) {}
+            if (status !== "granted") {
+              console.log('[job_map][location] permission not granted:', status);
+              return;
+            }
+            console.log('[job_map][location] permission granted, requesting bridge location');
+            var tryRequest = function() {
+              requestBridgeLocation();
+            };
+            if (isLocationBridgeReady()) {
+              tryRequest();
+            } else {
+              waitForLocationBridgeReady(1500, 100, tryRequest, function() {});
             }
           }
 
@@ -676,6 +758,7 @@ $addr_info = replaceRegionNames(trim($addr_info));
           };
 
 
+          initRealtimeLocationFromBridge();
         });
 
       });

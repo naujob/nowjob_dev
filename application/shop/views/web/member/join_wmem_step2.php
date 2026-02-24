@@ -230,6 +230,79 @@
 
 <script>
 $(document).ready(function(){
+    // 위치 권한 팝업: 위치 서비스 이용약관/모두 동의 체크 시 요청
+    var LOCATION_PERMISSION_KEY = "nowjob_location_permission_status";
+
+    function getStoredPermissionStatus() {
+        try {
+            return localStorage.getItem(LOCATION_PERMISSION_KEY);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function setStoredPermissionStatus(status) {
+        try {
+            if (status) {
+                localStorage.setItem(LOCATION_PERMISSION_KEY, status);
+            }
+        } catch (e) {}
+    }
+
+    function requestLocationPermissionByCheckbox() {
+        var stored = getStoredPermissionStatus();
+        if (stored === "granted" || stored === "denied") {
+            return;
+        }
+        if (!navigator.geolocation) {
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            function() {
+                setStoredPermissionStatus("granted");
+            },
+            function(err) {
+                // 사용자 선택 없이 타임아웃된 경우도 거부로 처리
+                setStoredPermissionStatus("denied");
+            },
+            {
+                enableHighAccuracy: false,
+                maximumAge: 0
+            }
+        );
+    }
+
+    function isTrustedEvent(e) {
+        if (!e) return false;
+        if (e.isTrusted === true) return true;
+        if (e.originalEvent && e.originalEvent.isTrusted === true) return true;
+        return false;
+    }
+
+    function maybeRequestLocationFromClick(e) {
+        if (!isTrustedEvent(e)) {
+            return;
+        }
+        // 클릭 후 체크 상태 확인
+        setTimeout(function() {
+            if ($("#agree3").is(":checked") || $(".js-check-all").is(":checked")) {
+                requestLocationPermissionByCheckbox();
+            }
+        }, 0);
+    }
+
+    $(document).on("click", "#agree3, .js-check-all", function(e) {
+        maybeRequestLocationFromClick(e);
+    });
+
+    $(document).on("click", "a.js-open-Popup[data-idx=\"3\"]", function(e) {
+        maybeRequestLocationFromClick(e);
+    });
+
+    $(document).on("click", ".js-check-all + .label-red, .js-check-all ~ .label-red", function(e) {
+        maybeRequestLocationFromClick(e);
+    });
+
 	$("#btnSearchAddr").click(function(){
 		searchText();
 	});
@@ -242,7 +315,8 @@ $(document).ready(function(){
 
 	//위치 정보 검색
 	$("#btnGps").click(function(){
-		getLocation();
+        window.__nowjobGpsRequested = true;
+		getJoinMemLocation(true);
 	});
 
 	$("#btnNextMem").click(function(){
@@ -346,7 +420,7 @@ function selectAddrInfo(zipcode,doro,jibun,addr,x,y){
 	$("#ad_gps_y").val(y);
 }
 
-function getLocation() {
+function getJoinMemLocation(fromUser) {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(position) {
             //alert(position.coords.longitude + "::" + position.coords.latitude);
@@ -364,7 +438,9 @@ function getLocation() {
 			});
 		}, function(error) {
 		  	if(error.message=="User denied Geolocation"){
-				commonAlert('위치사용을 허용 또는  주소를 입력하여 조회 해주세요.',function(){});
+                if (fromUser === true || window.__nowjobGpsRequested === true) {
+				    commonAlert('위치사용을 허용 또는  주소를 입력하여 조회 해주세요.',function(){});
+                }
       		}
     	}, {
 	      enableHighAccuracy: false,
@@ -373,7 +449,9 @@ function getLocation() {
   	} else {
         showDaum("");
 		//alert('GPS를 지원하지 않습니다');
-        commonAlert('GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.',function(){});
+        if (fromUser === true || window.__nowjobGpsRequested === true) {
+            commonAlert('GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.',function(){});
+        }
   	}
 }
 
