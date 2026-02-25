@@ -35,6 +35,49 @@ class Member_proc extends CI_Controller
         }
     }
 
+    /**
+     * Google ID Token 검증
+     */
+    private function verify_google_id_token($id_token, $allowed_client_ids = [])
+    {
+        if ($id_token == "") {
+            return ["ok" => false, "error" => "id_token 없음"];
+        }
+
+        $url = "https://oauth2.googleapis.com/tokeninfo?id_token=" . urlencode($id_token);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false || $http_code != 200) {
+            return ["ok" => false, "error" => "토큰 검증 실패: " . $curl_error];
+        }
+
+        $data = json_decode($response, true);
+        if (!is_array($data) || empty($data["sub"])) {
+            return ["ok" => false, "error" => "토큰 정보 파싱 실패"];
+        }
+
+        if (!empty($allowed_client_ids)) {
+            $aud = isset($data["aud"]) ? $data["aud"] : "";
+            if ($aud == "" || !in_array($aud, $allowed_client_ids, true)) {
+                return ["ok" => false, "error" => "클라이언트 ID 불일치"];
+            }
+        }
+
+        if (isset($data["exp"]) && (int)$data["exp"] < time()) {
+            return ["ok" => false, "error" => "토큰 만료"];
+        }
+
+        return ["ok" => true, "data" => $data];
+    }
+
     # 로그인 처리
     function login()
     {
@@ -364,6 +407,216 @@ class Member_proc extends CI_Controller
             setcookie("saved_id", "", time() + (86400 * 365), "/");
         }
 
+        json_return("00", "로그인 완료");
+    }
+
+    # 구글 로그인 처리
+    function google_login()
+    {
+        $id_token = input_post("id_token", "");
+        $email = input_post("email", "");
+        $name = input_post("name", "");
+
+        if ($id_token == "") {
+            json_return("99", "정상적인 접근이 아닙니다.");
+            exit;
+        }
+
+        $google_setting = getSettingInfo(["st_group" => "구글"]);
+        $client_ids = [];
+        if (is_array($google_setting) && !empty($google_setting["WEB_CLIENT_ID"])) {
+            $client_ids[] = $google_setting["WEB_CLIENT_ID"];
+        }
+
+        if (empty($client_ids)) {
+            json_return("99", "구글 로그인 설정이 없습니다. 관리자에게 문의해주세요.");
+            exit;
+        }
+
+        $verify = $this->verify_google_id_token($id_token, $client_ids);
+        if (!$verify["ok"]) {
+            $this->log_business_error("google_login", "구글 토큰 검증 실패", ["error" => $verify["error"]]);
+            json_return("99", "구글 로그인에 실패했습니다.");
+            exit;
+        }
+
+        $token_data = $verify["data"];
+        $google_sub = $token_data["sub"];
+        if ($email == "" && !empty($token_data["email"])) {
+            $email = $token_data["email"];
+        }
+        if ($name == "" && !empty($token_data["name"])) {
+            $name = $token_data["name"];
+        }
+
+        // 1) 구글 가입 회원인지 조회 (정상 회원만)
+        $mem_info = $this->member_model->getMember([
+            "mm_join_type" => "GOOGLE",
+            "mm_join_key" => $google_sub,
+            "mm_status" => "Y"
+        ]);
+
+        if ($mem_info == null) {
+            // 2) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
+            $query  = "select * from st_member ";
+            $query .= "where mm_join_type = 'GOOGLE' ";
+            $query .= "and   mm_join_key = '" . $google_sub . "'  ";
+            $query .= "and   mm_status = 'N'  ";
+            $query .= "order by mm_idx desc limit 1 ";
+
+            $result = $this->db->query($query);
+            $mem_info = $result->row_array();
+            if ($mem_info == null) {
+                // 3) 회원이 없으면 SNS 정보 임시 저장 (회원가입으로 이어질 수 있도록)
+                $sns_info = [
+                    "join_type" => "GOOGLE",
+                    "join_key" => $google_sub,
+                    "username" => !empty($name) ? $name : "google_" . $google_sub,
+                    "email" => !empty($email) ? $email : "",
+                ];
+
+                // 기존 SNS 임시 로그 삭제 후 새로 저장
+                $this->site_model->deleteSiteLog(["session_id" => session_id(), "sl_status" => "Y"]);
+                $this->site_model->setSiteLog(
+                    [
+                        "session_id" => session_id(),
+                        "sl_type" => "JOIN",
+                        "sl_step" => "SNS",
+                        "sl_txt" => json_encode($sns_info, JSON_UNESCAPED_UNICODE)
+                    ],
+                    [
+                        "session_id" => session_id(),
+                        "sl_type" => "JOIN",
+                        "sl_step" => "SNS",
+                        "sl_status" => "Y"
+                    ]
+                );
+
+                // 회원 없음 응답 + 가입용 키 전달
+                json_return("90", "회원정보를 찾을수 없습니다.", [
+                    "join_key" => $google_sub,
+                    "join_type" => "GOOGLE"
+                ]);
+                exit;
+            }
+
+            if ($mem_info["mm_status"] != "Y") {
+                // 4) 탈퇴 회원이면 탈퇴 후 15일 이내 여부에 따라 메시지 분기
+                $fireDate = new DateTime($mem_info["fire_dt"]); // 탈퇴일
+                $currentDate = new DateTime(); // 현재 시간
+                $interval = $fireDate->diff($currentDate)->days; // 두 날짜 차이 계산 (일 단위)
+
+                if ($interval < 15) {
+                    json_return("91", "탈퇴한 회원입니다.");
+                } else {
+                    json_return("90", "회원정보를 찾을수 없습니다.");
+                }
+                exit;
+            }
+        }
+
+        // 5) 로그인 성공: 세션에 사용자 정보 저장
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+        $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mem_info["mm_thumb"],
+            "ad_addr" => $addr_info["ad_addr"],
+            "ad_gps_x" => $addr_info["ad_gps_x"],
+            "ad_gps_y" => $addr_info["ad_gps_y"],
+            "mm_sex" => $mem_info["mm_sex"],
+        ]);
+
+        // 6) 최근 로그인 시각 갱신
+        $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+        // 7) 헤더의 uuid로 디바이스 연결(푸시/디바이스 관리용)
+        $headers = apache_request_headers();
+        if (isset($headers["uuid"])) {
+            $mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"]]);
+            if ($mem_device != null) {
+                $this->member_model->setMemberDevice(
+                    ["mm_idx" => $mem_info["mm_idx"]],
+                    ["uuid" => $headers["uuid"]]
+                );
+            }
+        }
+
+        // 8) 앱/모바일 UA이면서 헤더 uuid가 없으면 쿠키 uuid로 디바이스 연결
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $is_ios = preg_match('/nowjobswift|CFNetwork|Darwin/i', $user_agent) || preg_match('/\b(iPhone|iPad|iPod)\b/i', $user_agent);
+        $is_android = preg_match('/NowJobApp_Android|Android/i', $user_agent);
+
+        if (($is_ios || $is_android) && (!isset($headers["uuid"]) || empty($headers["uuid"]))) {
+            $uuid_cookie = isset($_COOKIE['uuid']) ? $_COOKIE['uuid'] : '';
+            $os_type_for_query = $is_ios ? 'ios' : 'android';
+            // 토큰이 있는 디바이스를 우선 연결 (푸시를 위해)
+            $sql = "SELECT * FROM st_member_device 
+                    WHERE token IS NOT NULL 
+                    AND token != '' 
+                    AND os_type = ?
+                    ORDER BY reg_dt DESC 
+                    LIMIT 1";
+            $query = $this->db->query($sql, [$os_type_for_query]);
+            $token_device = $query->row_array();
+
+            $target_uuid = null;
+
+            if ($token_device && !empty($token_device["token"])) {
+                // 토큰 보유 디바이스 우선 연결
+                $target_uuid = $token_device["uuid"];
+            } else if ($uuid_cookie != "") {
+                // 토큰 디바이스가 없으면 쿠키의 uuid 사용
+                $cookie_device = $this->member_model->getMemberDevice(["uuid" => $uuid_cookie]);
+                if ($cookie_device != null) {
+                    $target_uuid = $uuid_cookie;
+                } else {
+                    // 쿠키 uuid로 디바이스가 없으면 생성
+                    $new_device_data = [
+                        "uuid" => $uuid_cookie,
+                        "mm_idx" => $mem_info["mm_idx"],
+                        "os_type" => $os_type_for_query,
+                        "push_yn" => "N",
+                        "reg_dt" => date('Y-m-d H:i:s'),
+                        "up_dt" => date('Y-m-d H:i:s')
+                    ];
+                    $insert_result = $this->member_model->insertMemberDevice($new_device_data);
+                    if ($insert_result) {
+                        $target_uuid = $uuid_cookie;
+                    }
+                }
+            }
+
+            if ($target_uuid != null) {
+                // 동일 사용자에 연결된 다른 디바이스는 해제 (중복 방지)
+                $sql = "UPDATE st_member_device 
+                        SET mm_idx = 0, up_dt = NOW() 
+                        WHERE mm_idx = ? AND uuid != ?";
+                $this->db->query($sql, [$mem_info["mm_idx"], $target_uuid]);
+
+                // 선택된 디바이스만 연결
+                $this->member_model->setMemberDevice(
+                    ["mm_idx" => $mem_info["mm_idx"]],
+                    ["uuid" => $target_uuid]
+                );
+            }
+        }
+
+        // 9) 토큰 보유 디바이스의 푸시 알림 활성화
+        $sql = "UPDATE st_member_device 
+                SET push_yn = 'Y', up_dt = NOW() 
+                WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+        $this->db->query($sql, [$mem_info["mm_idx"]]);
+
+        // 10) 몽고 DB에 사용자 정보/토큰 동기화
+        $mem_device = $this->member_model->getMemberDevice(["mm_idx" => $mem_info["mm_idx"]]);
+        $this->mongo_model->insertUserInfo($mem_info, $mem_device != null ? $mem_device["token"] : "");
+
+        // 11) 로그인 완료 응답
         json_return("00", "로그인 완료");
     }
 

@@ -129,7 +129,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             function(r) { return r + " 기반, 준비된 맞춤형 인재입니다!"; },
             function(r) { return "번개처럼 빠르게 적응하는 " + r + " 구직자"; },
             function(r) { return "성실함이 무기! " + r + " 근처 바로 출근 가능합니다."; },
-            function(r) { return "나우잡이 추천하는" r+ " 열정 인재"; },
+            function(r) { return "나우잡이 추천하는" + r+ " 열정 인재"; },
             function(r) { return "복잡한 건 생략! 실력으로 보여드릴 " + r + " 지원자"; },
             function(r) { return "지금 즉시 매칭 가능한 " + r + " 최적화 인재"; },
             function(r) { return r+"에서 누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!"; },

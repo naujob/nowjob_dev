@@ -28,6 +28,16 @@
       margin-top: 20px;
       /* 추가 여백으로 겹침 방지 */
     }
+    /* 구글 로그인 버튼 (텍스트만) */
+    .vendor-login .vendor-type5 {
+      background: #fff;
+      border: 1px solid #ddd;
+      color: #111;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 56px;
+      text-align: center;
+    }
   </style>
   <?php
   $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -71,6 +81,8 @@
           <?php else : ?>
             <a href="<?= $kakao_login ?>" id="btnKakao" class="btn-primary vendor-type1"></a>
           <?php endif; ?>
+
+          <a href="javascript:void(0);" id="btnGoogle" class="btn-primary vendor-type5">Google로 로그인</a>
 
           <?php if ($iosapp) { ?>
             <a href="<?= $naver_login ?>" id="btnNaver" class="btn-primary vendor-type4"></a>
@@ -180,6 +192,22 @@ window.onload = function() {
       e.stopPropagation(); // 이벤트 버블링 방지
       APP_NOWAPK.kakaoLoginAnd();
       return false; // 추가 안전장치
+    });
+
+    // 구글 로그인
+    $("#btnGoogle").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      <?php if ($os_type == "android") { ?>
+        if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.googleLoginAnd === 'function') {
+          APP_NOWAPK.googleLoginAnd();
+        } else {
+          alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+        }
+      <?php } else { ?>
+        alert("구글 로그인은 준비중입니다.");
+      <?php } ?>
+      return false;
     });
 
     //카카오 로그인
@@ -901,6 +929,67 @@ window.onload = function() {
     } else {
       alert("네이버 로그인 실패");
     }
+  }
+
+  // Android 앱에서 호출됨 (Google)
+  function googleLoginAndCallback(status, idToken, email, name) {
+    if (status !== "success") {
+      alert("구글 로그인 실패");
+      return;
+    }
+
+    $.post(
+      "/member_proc/google_login",
+      {
+        id_token: idToken,
+        email: email || "",
+        name: name || ""
+      },
+      function(ret) {
+        if (typeof ret === "string") {
+          try {
+            ret = JSON.parse(ret);
+          } catch (e) {
+            ret = { code: "99", msg: "응답 파싱 실패" };
+          }
+        }
+
+        if (ret.code == "00") {
+          sessionStorage.removeItem("chat_user_connect");
+
+          // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
+          if (typeof window.connectFCMTokenToUser === 'function') {
+            window.connectFCMTokenToUser().then(function() {
+              _replace("/");
+            });
+          } else {
+            _replace("/");
+          }
+        } else if (ret.code == "90" && ret.data && ret.data.join_key) {
+          openPopup('confirm', {
+            id: 'permission',
+            content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
+            firstButton: '취소',
+            secondButton: '회원가입',
+            firstCallback: function() {
+              return false;
+            },
+            secondCallback: function() {
+              var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(ret.data.join_key) +
+                "&join_type=GOOGLE";
+              if (email) joinUrl += "&email=" + encodeURIComponent(email);
+              if (name) joinUrl += "&username=" + encodeURIComponent(name);
+              location.href = joinUrl;
+            },
+          });
+        } else {
+          commonAlert(ret.msg || "로그인 실패", function() {});
+        }
+      },
+      "json"
+    ).fail(function() {
+      commonAlert("로그인 실패", function() {});
+    });
   }
 
   /*

@@ -382,9 +382,10 @@
       var resumelist = [];
       var currentLatitude = <?= $ad_gps_y > 1 ? $ad_gps_y : 37.5665 ?>;
       var currentLongitude = <?= $ad_gps_x > 1 ? $ad_gps_x : 126.9780 ?>;
-      var currentLevel = <?= $search_txt["mapLevel"] ? $search_txt["mapLevel"] : 6 ?>;
+      var currentLevel = 8; // 진입 시 2km 수준으로 더 줌 (필요 시 조정)
       var currentDong = "<?= $ad_addr != "" ? $ad_addr : "서울특별시 중구 태평로1가" ?>";
       var pins = [];
+      var HR_MAP_DEBUG = '[hr_map][debug]';
 
       window.addEventListener('DOMContentLoaded', function() {
         kakao.maps.load(function() {
@@ -394,6 +395,7 @@
             minLevel: 5,
             maxLevel: 10,
           });
+          console.log(HR_MAP_DEBUG, 'init center:', currentLatitude, currentLongitude, 'level:', currentLevel);
           var geocoder = new kakao.maps.services.Geocoder();
           var clusterer = new kakao.maps.MarkerClusterer({
             map: map,
@@ -570,8 +572,8 @@
             currentLatitude = nLat;
             currentLongitude = nLng;
             var latlng = new kakao.maps.LatLng(nLat, nLng);
-            map.setCenter();
-            searchAddrFromlatlngCoords(latlng, displayCenterInfo);
+            map.setCenter(latlng);
+            searchAddrFromCoords(latlng, displayCenterInfo);
             selectClusterByCoordinates();
           }
 

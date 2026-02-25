@@ -3846,6 +3846,67 @@ body.no-scroll {
 .bottom-sheet-action.btn-bottom-sheet-primary:hover {
     background-color: #158a6f;
 }
+/* google join quickinfo */
+.quickinfo-bottom-sheet .bottom-sheet-header {
+    display: none;
+}
+
+.quickinfo-sheet {
+    padding: 0 1.5rem 0.75rem;
+}
+
+.quickinfo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.quickinfo-title .fa-bolt {
+    color: #1B9D7D;
+}
+
+.quickinfo-group {
+    margin-bottom: 1rem;
+}
+
+.quickinfo-label {
+    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #222;
+}
+
+.quickinfo-region-field {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1.125rem;
+    border: 1px solid #D6D6D6;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.9375rem;
+    color: #666;
+}
+
+.quickinfo-region-field .fa-location-dot {
+    color: #222;
+}
+
+.quickinfo-sheet .form-toggle-btn2 .btn {
+    min-width: 3.6rem;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    padding: 0 0.55rem;
+    border-radius: 16px;
+}
+/* google join quickinfo end */
 
 /* Tooltip */
 .tooltip {

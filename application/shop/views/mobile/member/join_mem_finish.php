@@ -5,15 +5,17 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 require_once __DIR__ . '/../_partial/bottom_sheet_template.php';
 // 바텀시트 공통 함수(initPanelSwipe) 로드
 include_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_helpers.php');
+// 가입 완료 페이지 전용 바텀시트 로드 (임시 비활성화)
+// require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
 
 // 이력서 미작성 회원 안내 바텀시트 (로그인 + 이력서 없음 조건에서 노출)
-  renderBottomSheet(
-    'resumeGuidePanel',
-    '5초 간편 이력서 등록',
-    '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
-    '내 주변 일자리 찾기',
-    'btnResumeGuide',
-    '',
+renderBottomSheet(
+  'resumeGuidePanel',
+  '5초 간편 이력서 등록',
+  '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
+  '내 주변 일자리 찾기',
+  'btnResumeGuide',
+  '',
   'bottom-sheet-content-container',
   'bottom-sheet-content-body'
 );
@@ -449,3 +451,5 @@ renderSelectBottomSheet(
     return true;
   };
 </script>
+
+<?php // <?= getCashJs(RES_PATH . "/js/member/join_quickinfo_bottom_sheet.js") ?> ?>

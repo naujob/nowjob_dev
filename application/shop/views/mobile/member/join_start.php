@@ -231,12 +231,12 @@
 			//alert($('#join_type').val());
 			// SNS 인증에서도 NICE 창이 뜨도록 수정
 			location.href = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>";
-		} else if (os_type == "android") {
-			// 2025-01-17: 안드로이드 앱 전용 처리 - 팝업 없이 직접 이동 (WebView 보안 정책 문제 해결)
-			// SNS 인증에서도 NICE 창이 뜨도록 수정
-			// location.replace()를 사용하여 PASS 인증 페이지가 히스토리에 남지 않도록 처리
-			location.replace("https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>");
-		} else {
+	} else if (os_type == "android") {
+		// 2025-01-17: 안드로이드 앱 전용 처리 - 팝업 없이 직접 이동 (WebView 보안 정책 문제 해결)
+		// SNS 인증에서도 NICE 창이 뜨도록 수정
+		// Android 뒤로가기를 위해 히스토리에 남도록 처리
+		location.href = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>";
+	} else {
 			// 웹 브라우저용 기존 로직
 			//alert('open');
 			//window.open('', 'popupChk' + name_ver, 'width=500, height=550, top=100, left=100, fullscreen=no, menubar=no, status=no, toolbar=no, titlebar=yes, location=no, scrollbar=no');
