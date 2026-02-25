@@ -954,35 +954,8 @@
             window.__autoResumeFlow = true;
             setTimeout(function() {
                 // 필수값 자동 설정
-                if ($("[name='ru_name']").val() === "") {
-                    var rawAddr = (payload.ad_jibun || payload.ad_addr || payload.ru_name_seed_addr || "").trim();
-                    var regionName = "우리 동네";
-                    if (rawAddr) {
-                        var parts = rawAddr.split(/\s+/);
-                        if (parts.length > 0) {
-                            regionName = parts[parts.length - 1];
-                            if (!/[동면읍리]$/.test(regionName) && parts.length > 1) {
-                                regionName = parts[parts.length - 2];
-                            }
-                        }
-                    }
-
-                    var titleTemplates = [
-                        "[지역명] 기반, 준비된 맞춤형 인재입니다!",
-                        "번개처럼 빠르게 적응하는 [지역명] 구직자",
-                        "성실함이 무기! [지역명] 근처 바로 출근 가능합니다.",
-                        "나우잡이 추천하는 우리 동네 열정 인재 프로필",
-                        "복잡한 건 생략! 실력으로 보여드릴 [지역명] 지원자",
-                        "지금 즉시 매칭 가능한 [지역명] 최적화 이력서",
-                        "누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!",
-                        "[지역명] 거주 중! 꼼꼼함과 책임감을 겸비한 인재",
-                        "사장님이 찾으시던 바로 그 [지역명] 꿀알바 지원생",
-                        "지금바로 출근준비되어있습니다."
-                    ];
-
-                    var chosen = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
-                    var finalTitle = chosen.replace("[지역명]", regionName);
-                    $("[name='ru_name']").val(finalTitle);
+                if ($("[name='ru_name']").val() === "" && payload.ru_name) {
+                    $("[name='ru_name']").val(payload.ru_name);
                 }
 
                 if ($("[name='ru_nationality']:checked").length === 0) {

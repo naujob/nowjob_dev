@@ -64,6 +64,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function getStoredPermissionStatus() {
+        // 로컬스토리지에 저장된 위치 권한 상태 조회
         try {
             return localStorage.getItem(LOCATION_PERMISSION_KEY);
         } catch (e) {
@@ -72,6 +73,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function hasAutoStartedOnce() {
+        // 자동 이력서 흐름이 이미 시작됐는지 확인 (중복 실행 방지)
         try {
             return localStorage.getItem(RESUME_AUTO_ONCE_KEY) === "1";
         } catch (e) {
@@ -80,17 +82,20 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function markAutoStartedOnce() {
+        // 자동 이력서 흐름 시작 플래그 저장
         try {
             localStorage.setItem(RESUME_AUTO_ONCE_KEY, "1");
         } catch (e) {}
     }
 
     function navigateToResumeWrite(addrPayload) {
+        // 웹 자동 작성은 페이지 이동 없이 처리
         // Deprecated: 웹 자동 작성은 페이지 이동 없이 처리
         autoSaveResume(addrPayload);
     }
 
     function openManualAddressPopup() {
+        // 주소 직접 입력 팝업 열기
         window.__hideAllRegionsInAddrPopup = true;
         if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
             window.applyAddrPopupAllRegionFilter();
@@ -107,6 +112,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function getRegionName(rawAddr) {
+        // 주소 문자열에서 동/읍/면/리 단위 지역명 추출
         var addr = String(rawAddr || "").trim();
         if (!addr) return "우리 동네";
         var parts = addr.split(/\s+/);
@@ -117,24 +123,26 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function buildResumeTitle(rawAddr) {
+        // 지역명을 기반으로 랜덤 이력서 제목 생성
         var regionName = getRegionName(rawAddr);
         var titleTemplates = [
-            "[지역명] 기반, 준비된 맞춤형 인재입니다!",
-            "번개처럼 빠르게 적응하는 [지역명] 구직자",
-            "성실함이 무기! [지역명] 근처 바로 출근 가능합니다.",
-            "나우잡이 추천하는 우리 동네 열정 인재 프로필",
-            "복잡한 건 생략! 실력으로 보여드릴 [지역명] 지원자",
-            "지금 즉시 매칭 가능한 [지역명] 최적화 이력서",
-            "누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!",
-            "[지역명] 거주 중! 꼼꼼함과 책임감을 겸비한 인재",
-            "사장님이 찾으시던 바로 그 [지역명] 꿀알바 지원생",
-            "지금바로 출근준비되어있습니다."
+            function(r) { return r + " 기반, 준비된 맞춤형 인재입니다!"; },
+            function(r) { return "번개처럼 빠르게 적응하는 " + r + " 구직자"; },
+            function(r) { return "성실함이 무기! " + r + " 근처 바로 출근 가능합니다."; },
+            function(r) { return "나우잡이 추천하는" r+ " 열정 인재"; },
+            function(r) { return "복잡한 건 생략! 실력으로 보여드릴 " + r + " 지원자"; },
+            function(r) { return "지금 즉시 매칭 가능한 " + r + " 최적화 인재"; },
+            function(r) { return r+"에서 누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!"; },
+            function(r) { return r + " 거주 중! 꼼꼼함과 책임감을 겸비한 인재"; },
+            function(r) { return "사장님이 찾으시던 바로 그 " + r + " 꿀알바 지원생"; },
+            function(r) { return r+"에서 지금 바로 출근준비 되어있습니다."; }
         ];
         var chosen = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
-        return chosen.replace("[지역명]", regionName);
+        return chosen(regionName);
     }
 
     function safeCommonAlert(msg, callback) {
+        // "처리완료" 메시지는 알럿 표시 없이 무시
         if (!msg) return;
         if (String(msg).indexOf("처리완료") !== -1) {
             if (typeof callback === 'function') {
@@ -146,6 +154,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function autoSaveResume(addrPayload) {
+        // 자동 이력서 저장 및 완료 처리
         // 자동작성 중 "처리완료" 공통 알럿 차단 (팝업 방해 방지)
         if (typeof window.commonAlert === 'function' && !window.__autoResumeAlertWrapped) {
             window.__autoResumeAlertWrapped = true;
@@ -179,6 +188,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             ru_img1_ori: "/resource/shop/web/img/avatar_resume_w.png"
         };
 
+        // 자동완성용 제목을 payload에 포함 (resume_write에서 재사용)
+        addrPayload.ru_name = title;
+
         comAjax("/mypage_proc/resume_write", params, function(ret) {
             if (typeof ret === "string") {
                 try { ret = JSON.parse(ret); } catch (e) {}
@@ -211,6 +223,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     // 주소 선택(모바일 UI) 시 자동 이력서 작성 플로우
     window.onChangeAreaApply = function(payload) {
+        // 주소 선택 팝업에서 선택된 주소를 받아 자동 이력서 저장 실행
         var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : [];
         if (areaList.length === 0 || !areaList[0] || !areaList[0].addr) {
             alert("주소를 선택해 주세요.");
@@ -256,11 +269,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     };
 
     function requestLocationAndStart() {
+        // 브라우저 위치 가져오기 후 주소 변환 → 자동 이력서 저장
         if (!navigator.geolocation) {
             return;
         }
 
-        var completed = false;
+        var completed = false; // 아직 이력서 작성 중임을 표시
         var timeoutId = setTimeout(function() {
             if (completed) return;
             completed = true;
@@ -317,6 +331,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function startAutoResumeFlowIfNeeded() {
+        // 자동 이력서 흐름 시작 조건 확인 (권한/이력서 개수)
         var stored = getStoredPermissionStatus();
         if (hasAutoStartedOnce()) return;
 
