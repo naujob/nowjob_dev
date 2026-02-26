@@ -5885,7 +5885,7 @@ form#frm {
 /* 카카오톡 버튼 (노란색 배경) */
 .vendor-type1 {
     background-color: #FEE500;
-    background-image: url('/resource/shop/mobile/img/ic-kakao-login.svg');
+    background-image: url('/resource/shop/mobile/img/member/ic-kakao-login.svg');
     background-size: 85% auto;
     background-position: 40% center;
     background-repeat: no-repeat;
@@ -5894,7 +5894,7 @@ form#frm {
 /* 전화번호 버튼 (흰색 배경) */
 .vendor-type3 {
     background-color: #fff;
-    background-image: url('/resource/shop/mobile/img/ic-phone-login.svg');
+    background-image: url('/resource/shop/mobile/img/member/ic-nowjob-login.svg');
     background-size: 85% auto;
     background-position: 40% center;
     background-repeat: no-repeat;
@@ -5903,10 +5903,22 @@ form#frm {
 /* 네이버 버튼 (초록색 배경) */
 .vendor-type4 {
     background-color: #03C75A;
-    background-image: url('/resource/shop/mobile/img/ic-naver-login.svg');
+    background-image: url('/resource/shop/mobile/img/member/ic-naver-login.svg');
     background-size: 85% auto;
     background-position: 40% center;
     background-repeat: no-repeat;
+}
+
+/* 구글 버튼 (흰색 배경) */
+.vendor-type5 {
+    background-color: #fff;
+    background-image: url('/resource/shop/mobile/img/member/ic-google-login.svg');
+    background-size: 85% auto;
+    background-position: 40% center;
+    background-repeat: no-repeat;
+    border: 1px solid #ddd;
+    color: transparent;
+    text-shadow: none;
 }
 
 /* Apple 버튼 (검은색 배경)  */
@@ -5934,7 +5946,7 @@ form#frm {
 .btn-signup {
     background-color: rgba(10, 10, 10, 0.51);
     ;
-    background-image: url('../img/join_m.svg');
+    background-image: url('../img/member/ic-register.png');
     background-size: 100% auto;
     background-position: 50% center;
     background-repeat: no-repeat;
@@ -5957,7 +5969,7 @@ form#frm {
     height: 56px;
     line-height: 56px;
     background-color: rgba(10, 10, 10, 51%);
-    background-image: url('../img/login_go_back.svg');
+    background-image: url('../img/member/ic-back.svg');
     background-size: 100% auto;
     background-position: 50% center;
     background-repeat: no-repeat;
@@ -5976,7 +5988,7 @@ form#frm {
 /*nowjob_login버튼 스타일*/
 .nowjob-login {
     height: 56px;
-    background-image: url('../img/login_start_m.svg');
+    background-image: url('../img/member/ic-login.svg');
     background-size: 100% auto;
     background-position: 40% center;
     background-repeat: no-repeat;

@@ -28,16 +28,6 @@
       margin-top: 20px;
       /* 추가 여백으로 겹침 방지 */
     }
-    /* 구글 로그인 버튼 (텍스트만) */
-    .vendor-login .vendor-type5 {
-      background: #fff;
-      border: 1px solid #ddd;
-      color: #111;
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 56px;
-      text-align: center;
-    }
   </style>
   <?php
   $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -47,6 +37,12 @@
     $iosapp = true;
   }
   $isIosBrowser = preg_match('/(iPhone|iPad|iPod)/i', $userAgent) === 1;
+  // os_type이 비어 있으면 User-Agent로 iOS 판별하여 보정
+  if (!isset($os_type) || $os_type === '') {
+    if ($isIosBrowser || $iosapp) {
+      $os_type = 'ios';
+    }
+  }
   // echo "end";
   ?>
   <div class="login-form">
@@ -73,15 +69,6 @@
           <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
           <?php //echo "[".$os_type."]";
           ?>
-          <!-- 전화번호로 시작하기 버튼 -->
-          <a href="#" id="btnPhone" class="btn-primary vendor-type3" onclick="goPhoneLogin(); return false;">
-          </a>
-          <?php if ($os_type == "android") : ?>
-            <a href="javascript:void(0);" id="btnKakaoAndroid" class="btn-primary vendor-type1"></a>
-          <?php else : ?>
-            <a href="<?= $kakao_login ?>" id="btnKakao" class="btn-primary vendor-type1"></a>
-          <?php endif; ?>
-
           <a href="javascript:void(0);" id="btnGoogle" class="btn-primary vendor-type5">Google로 로그인</a>
 
           <?php if ($iosapp) { ?>
@@ -91,6 +78,16 @@
           <?php } else { ?>
             <a href="#" id="btnNaver" class="btn-primary vendor-type4" onclick=""></a>
           <?php } ?>
+
+          <?php if ($os_type == "android") : ?>
+            <a href="javascript:void(0);" id="btnKakaoAndroid" class="btn-primary vendor-type1"></a>
+          <?php else : ?>
+            <a href="<?= $kakao_login ?>" id="btnKakao" class="btn-primary vendor-type1"></a>
+          <?php endif; ?>
+
+          <!-- 전화번호로 시작하기 버튼 (가장 아래) -->
+          <a href="#" id="btnPhone" class="btn-primary vendor-type3" onclick="goPhoneLogin(); return false;">
+          </a>
 
           <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
                     <a href="#" id="btnKakaoAndApp2" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.callVibrate(); alert(2); return false;">진동</a> -->
@@ -201,6 +198,14 @@ window.onload = function() {
       <?php if ($os_type == "android") { ?>
         if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.googleLoginAnd === 'function') {
           APP_NOWAPK.googleLoginAnd();
+        } else {
+          alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+        }
+      <?php } else if ($os_type == "ios") { ?>
+        if (typeof window.webkit !== 'undefined' &&
+            typeof window.webkit.messageHandlers !== 'undefined' &&
+            typeof window.webkit.messageHandlers.googleLogin !== 'undefined') {
+          window.webkit.messageHandlers.googleLogin.postMessage('');
         } else {
           alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
         }
