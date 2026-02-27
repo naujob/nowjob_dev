@@ -115,9 +115,23 @@ function fPassClick(){
     params["ma_type"] = "MEM";
     params["proc_type"] = "PART";
     params["uuid"] = "<?=$uuid?>";
+    try {
+      var joinType = localStorage.getItem("join_sns_type") || sessionStorage.getItem("join_sns_type") || "";
+      var joinKey = localStorage.getItem("join_sns_key") || sessionStorage.getItem("join_sns_key") || "";
+      if (joinType) params["join_type"] = joinType;
+      if (joinKey) params["join_key"] = joinKey;
+    } catch (e) {}
 
           comAjax("/member_proc/join_complete_proc",params,function(ret){
               if(ret.code=="00"){
+                  try {
+                      localStorage.removeItem("join_sns_type");
+                      localStorage.removeItem("join_sns_key");
+                      sessionStorage.removeItem("join_sns_type");
+                      sessionStorage.removeItem("join_sns_key");
+                      document.cookie = "join_sns_type=; path=/; max-age=0";
+                      document.cookie = "join_sns_key=; path=/; max-age=0";
+                  } catch (e) {}
                   location.href="/member/join_mem_finish";
               }else{
                   commonAlert(ret.msg,function(){});

@@ -24,22 +24,20 @@ class Common_proc extends CI_Controller
 	}
 
 	/**
-	 * 웹뷰에서 호출하는 디버그 로깅 함수
+	 * 웹뷰 디버그 로깅 함수 (사용 종료)
 	 */
 	function log_webview_debug()
 	{
-		// CORS 헤더 설정 (필요한 경우)
-		header('Access-Control-Allow-Origin: *');
-		header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-		header('Access-Control-Allow-Headers: Content-Type');
-		
-		// OPTIONS 요청 처리
-		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			http_response_code(200);
-			exit;
-		}
+		// 호출은 허용하되 더 이상 파일 기록은 하지 않음
+		json_return("00", "로그 기록 완료");
+	}
 
-		// JSON 응답
+	/**
+	 * QuickInfo 적용하기 로그 (사용 종료)
+	 */
+	function log_quickinfo_apply()
+	{
+		// 호출은 허용하되 더 이상 파일 기록은 하지 않음
 		json_return("00", "로그 기록 완료");
 	}
 

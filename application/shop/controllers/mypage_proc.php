@@ -619,6 +619,8 @@ class Mypage_proc extends CI_Controller
     $ru_nationality = input_post("ru_nationality", "");
     $ru_salary_negotiation = input_post("ru_salary_negotiation", "N");
     $ru_work_negotiation = input_post("ru_work_negotiation", "N");
+    $quickinfo_gender = input_post("quickinfo_gender", "");
+    $quickinfo_age = input_post("quickinfo_age", "");
 
     // 주소 배열 데이터 처리
     $ad_zipcode = isset($_POST["ad_zipcode"]) ? (array)$_POST["ad_zipcode"] : [];
@@ -659,6 +661,8 @@ class Mypage_proc extends CI_Controller
       "ru_price_type" => $ru_price_type,
       "ru_work_type" => $ru_work_type,
       "ru_nationality" => $ru_nationality,
+      "quickinfo_gender" => $quickinfo_gender,
+      "quickinfo_age" => $quickinfo_age,
       "ru_salary_negotiation" => $ru_salary_negotiation,
       "ru_work_negotiation" => $ru_work_negotiation,
       "ad_zipcode" => $ad_zipcode,
@@ -686,6 +690,201 @@ class Mypage_proc extends CI_Controller
       ]
     );
     json_return("00", "처리완료");
+  }
+
+  # QuickInfo 자동이력서: 서버에서 스텝1/4 저장 후 완료 처리
+  function resume_autofill_complete()
+  {
+    // 기본 입력값
+    $ru_name = input_post("ru_name", "");
+    $ru_addr = input_post("ru_addr", "");
+    $ru_nationality = input_post("ru_nationality", "");
+    $ru_salary_negotiation = input_post("ru_salary_negotiation", "Y");
+    $ru_work_negotiation = input_post("ru_work_negotiation", "Y");
+    $quickinfo_gender = input_post("quickinfo_gender", "");
+    $quickinfo_age = input_post("quickinfo_age", "");
+
+    // 배열 입력값
+    $ru_work = isset($_POST["ru_work"]) ? (array)$_POST["ru_work"] : [];
+    $ru_price_type = isset($_POST["ru_price_type"]) ? (array)$_POST["ru_price_type"] : [];
+    $ru_work_type = isset($_POST["ru_work_type"]) ? (array)$_POST["ru_work_type"] : [];
+
+    $ad_zipcode = isset($_POST["ad_zipcode"]) ? (array)$_POST["ad_zipcode"] : [];
+    $ad_jibun = isset($_POST["ad_jibun"]) ? (array)$_POST["ad_jibun"] : [];
+    $ad_doro = isset($_POST["ad_doro"]) ? (array)$_POST["ad_doro"] : [];
+    $ad_addr = isset($_POST["ad_addr"]) ? (array)$_POST["ad_addr"] : [];
+    $ad_detail = isset($_POST["ad_detail"]) ? (array)$_POST["ad_detail"] : [];
+    $ad_gps_x = isset($_POST["ad_gps_x"]) ? (array)$_POST["ad_gps_x"] : [];
+    $ad_gps_y = isset($_POST["ad_gps_y"]) ? (array)$_POST["ad_gps_y"] : [];
+
+    // 주소 텍스트 기본값 보정
+    if ($ru_addr == "") {
+      if (isset($ad_addr[0]) && $ad_addr[0] != "") {
+        $ru_addr = $ad_addr[0];
+      }
+    }
+
+    // 기본값 자동 채움 (코드리스트 기반)
+    if (empty($ru_work)) {
+      $work_list = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+      foreach ($work_list as $row) {
+        if (isset($row["cd_val"])) $ru_work[] = $row["cd_val"];
+        if (count($ru_work) >= 2) break;
+      }
+    }
+    if (empty($ru_price_type)) {
+      $price_list = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
+      foreach ($price_list as $row) {
+        if (isset($row["cd_val"])) $ru_price_type[] = $row["cd_val"];
+        if (count($ru_price_type) >= 2) break;
+      }
+    }
+    if (empty($ru_work_type)) {
+      $type_list = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
+      foreach ($type_list as $row) {
+        if (isset($row["cd_val"])) $ru_work_type[] = $row["cd_val"];
+        if (count($ru_work_type) >= 2) break;
+      }
+    }
+    if ($ru_nationality == "") {
+      $ru_nationality = "내국인";
+    }
+    if ($ru_name == "") {
+      $seed = $ru_addr != "" ? $ru_addr : "우리 동네";
+      $title_templates = [
+        "[지역명] 기반, 준비된 맞춤형 인재입니다!",
+        "번개처럼 빠르게 적응하는 [지역명] 구직자",
+        "성실함이 무기! [지역명] 근처 바로 출근 가능합니다.",
+        "나우잡이 추천하는 [지역명] 열정 인재 ",
+        "복잡한 건 생략! 실력으로 보여드릴 [지역명] 지원자",
+        "지금 즉시 매칭 가능한 [지역명] 최적화 인재",
+        "[지역명]에서 누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!",
+        "[지역명] 거주 중! 꼼꼼함과 책임감을 겸비한 인재",
+        "사장님이 찾으시던 바로 그 [지역명] 꿀알바 지원생",
+        "[지역명] 에서 지금바로 출근준비되어있습니다."
+      ];
+      $pick_idx = 0;
+      if (!empty($title_templates)) {
+        $pick_idx = random_int(0, count($title_templates) - 1);
+      }
+      $template = $title_templates[$pick_idx];
+      $ru_name = str_replace("[지역명]", $seed, $template);
+    }
+
+    // 최소 유효성 검사
+    if ($ru_name == "") {
+      json_return("99", "이력서 관리명이 확인되지 않습니다.");
+    }
+    if (empty($ru_work)) {
+      json_return("99", "희망업무 선택이 확인되지 않습니다.");
+    }
+    if (empty($ru_price_type)) {
+      json_return("99", "희망급여 선택이 확인되지 않습니다.");
+    }
+    if (empty($ru_work_type)) {
+      json_return("99", "근무형태 선택이 확인되지 않습니다.");
+    }
+    if ($ru_nationality == "") {
+      json_return("99", "국적 선택이 확인되지 않습니다.");
+    }
+
+    // 스텝1 로그 저장
+    $sl_txt_step1 = [
+      "ru_name" => $ru_name,
+      "ru_work" => $ru_work,
+      "ru_addr" => $ru_addr,
+      "ru_work_img" => [],
+      "ru_price_type" => $ru_price_type,
+      "ru_work_type" => $ru_work_type,
+      "ru_nationality" => $ru_nationality,
+      "quickinfo_gender" => $quickinfo_gender,
+      "quickinfo_age" => $quickinfo_age,
+      "ru_salary_negotiation" => $ru_salary_negotiation,
+      "ru_work_negotiation" => $ru_work_negotiation,
+      "ad_zipcode" => $ad_zipcode,
+      "ad_jibun" => $ad_jibun,
+      "ad_doro" => $ad_doro,
+      "ad_addr" => $ad_addr,
+      "ad_detail" => $ad_detail,
+      "ad_gps_x" => $ad_gps_x,
+      "ad_gps_y" => $ad_gps_y
+    ];
+
+    $this->site_model->setSiteLog(
+      [
+        "session_id" => session_id(),
+        "mm_idx" => $this->mm_idx,
+        "sl_type" => "RESUME",
+        "sl_step" => "스텝1",
+        "sl_txt" => json_encode($sl_txt_step1, JSON_UNESCAPED_UNICODE)
+      ],
+      [
+        "session_id" => session_id(),
+        "mm_idx" => $this->mm_idx,
+        "sl_type" => "RESUME",
+        "sl_step" => "스텝1"
+      ]
+    );
+
+    // 스텝4 기본값 생성
+    $ru_desc = input_post("ru_desc", "");
+    if ($ru_desc == "") $ru_desc = $ru_name;
+    $ru_week_yn = input_post("ru_week_yn", "N");
+    $ru_week = input_post("ru_week", "월,화,수,목,금");
+    $ru_edu = input_post("ru_edu", "");
+    if ($ru_edu == "") {
+      $edu_list = $this->site_model->getCodeList(["cd_grp" => "최종학력"]);
+      if (!empty($edu_list) && isset($edu_list[0]["cd_val"])) {
+        $ru_edu = $edu_list[0]["cd_val"];
+      }
+    }
+    $ru_my_type = input_post("ru_my_type", []);
+    if (empty($ru_my_type)) {
+      $type_list = $this->site_model->getCodeList(["cd_grp" => "나의강점"]);
+      $ru_my_type = [];
+      foreach ($type_list as $row) {
+        if (isset($row["cd_val"])) $ru_my_type[] = $row["cd_val"];
+        if (count($ru_my_type) >= 2) break;
+      }
+    }
+
+    $sl_txt_step4 = [
+      "arr_certi" => "",
+      "arr_career" => "",
+      "ru_desc" => $ru_desc,
+      "ru_my_type" => $ru_my_type,
+      "ru_week_yn" => $ru_week_yn,
+      "ru_week" => $ru_week,
+      "ru_edu" => $ru_edu,
+      "ru_work_dt" => "",
+      "ru_img1" => "",
+      "ru_img2" => "",
+      "ru_img3" => "",
+      "ru_img4" => "",
+      "ru_img5" => "",
+      "ru_thumb" => "",
+    ];
+
+    $this->site_model->setSiteLog(
+      [
+        "session_id" => session_id(),
+        "mm_idx" => $this->mm_idx,
+        "sl_type" => "RESUME",
+        "sl_step" => "스텝4",
+        "sl_txt" => json_encode($sl_txt_step4, JSON_UNESCAPED_UNICODE)
+      ],
+      [
+        "session_id" => session_id(),
+        "mm_idx" => $this->mm_idx,
+        "sl_type" => "RESUME",
+        "sl_step" => "스텝4"
+      ]
+    );
+
+    if (!isset($_POST["ru_idx"])) {
+      $_POST["ru_idx"] = 0;
+    }
+    return $this->resume_complete();
   }
 
   # 스텝2
@@ -934,6 +1133,36 @@ class Mypage_proc extends CI_Controller
       json_return("99", "스텝4 데이터가 존재하지 않습니다.");
     }
 
+    // QuickInfo 성별/나이(연령대) -> 생년월일 변환
+    $quickinfo_gender = isset($step1["quickinfo_gender"]) ? $step1["quickinfo_gender"] : "";
+    $quickinfo_age = isset($step1["quickinfo_age"]) ? $step1["quickinfo_age"] : "";
+    $quickinfo_birth = "";
+    if ($quickinfo_age != "") {
+      $currentYear = intval(date('Y'));
+      $ageMid = 0;
+      switch ($quickinfo_age) {
+        case "20s":
+          $ageMid = 25;
+          break;
+        case "30s":
+          $ageMid = 35;
+          break;
+        case "40s":
+          $ageMid = 45;
+          break;
+        case "50s":
+          $ageMid = 55;
+          break;
+        case "60s_plus":
+          $ageMid = 65;
+          break;
+      }
+      if ($ageMid > 0) {
+        $birthYear = $currentYear - $ageMid;
+        $quickinfo_birth = sprintf('%04d-01-01', $birthYear);
+      }
+    }
+
     # 이력서 갯수 확인후 처리
     $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
     if ($ru_idx == 0 && $count >= 5) {
@@ -1008,11 +1237,20 @@ class Mypage_proc extends CI_Controller
 
       if ($result_resume["code"] == "00") {
         // 이력서 수정 시 회원의 국적 정보도 함께 업데이트
-        if (isset($step1["ru_nationality"]) && $step1["ru_nationality"] != "") {
-          $this->member_model->updateMember(
-            ["mm_nation" => $step1["ru_nationality"]],
-            ["mm_idx" => $this->mm_idx]
-          );
+        if ((isset($step1["ru_nationality"]) && $step1["ru_nationality"] != "") || $quickinfo_gender != "" || $quickinfo_birth != "") {
+          $member_update = [];
+          if (isset($step1["ru_nationality"]) && $step1["ru_nationality"] != "") {
+            $member_update["mm_nation"] = $step1["ru_nationality"];
+          }
+          if ($quickinfo_gender != "") {
+            $member_update["mm_sex"] = $quickinfo_gender;
+          }
+          if ($quickinfo_birth != "") {
+            $member_update["mm_birth"] = $quickinfo_birth;
+          }
+          if (!empty($member_update)) {
+            $this->member_model->updateMember($member_update, ["mm_idx" => $this->mm_idx]);
+          }
         }
 
         $this->member_model->deleteResumeCareer(["ru_idx" => $ru_idx]);
@@ -1184,11 +1422,20 @@ class Mypage_proc extends CI_Controller
 
       if ($result_resume["code"] == "00") {
         // 이력서 등록 시 회원의 국적 정보도 함께 업데이트
-        if (isset($step1["ru_nationality"]) && $step1["ru_nationality"] != "") {
-          $this->member_model->updateMember(
-            ["mm_nation" => $step1["ru_nationality"]],
-            ["mm_idx" => $this->mm_idx]
-          );
+        if ((isset($step1["ru_nationality"]) && $step1["ru_nationality"] != "") || $quickinfo_gender != "" || $quickinfo_birth != "") {
+          $member_update = [];
+          if (isset($step1["ru_nationality"]) && $step1["ru_nationality"] != "") {
+            $member_update["mm_nation"] = $step1["ru_nationality"];
+          }
+          if ($quickinfo_gender != "") {
+            $member_update["mm_sex"] = $quickinfo_gender;
+          }
+          if ($quickinfo_birth != "") {
+            $member_update["mm_birth"] = $quickinfo_birth;
+          }
+          if (!empty($member_update)) {
+            $this->member_model->updateMember($member_update, ["mm_idx" => $this->mm_idx]);
+          }
         }
 
         // 간단경력 데이터는 스텝3에 저장되므로 스텝3에서 먼저 확인, 없으면 스텝4에서 확인

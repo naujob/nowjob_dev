@@ -489,8 +489,8 @@ $banner_list = getBannerList("BN00010005");
             {{ru_work_img}}
           </p>
           <div class="title-wrap">
-            <p class="title"><strong>{{mm_name}}</strong></p>
-            <p class="area">{{ad_addr}}</p>
+            <p class="title"><strong>{{ru_name}}</strong></p>
+            
           </div>
           <div class="meta">
             <p class="national">{{mm_nation}}</p>
@@ -665,7 +665,7 @@ $banner_list = getBannerList("BN00010005");
           $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
           $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{mm_name}}", row.mm_name);
+          $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
           $content = $content.replaceAll("{{ru_week}}", row.ru_week);
           $content = $content.replaceAll("{{distance}}", row.distance + "km");
           $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);

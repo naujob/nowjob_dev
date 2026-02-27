@@ -491,7 +491,6 @@ class Member_proc extends CI_Controller
                         "sl_status" => "Y"
                     ]
                 );
-
                 // 회원 없음 응답 + 가입용 키 전달
                 json_return("90", "회원정보를 찾을수 없습니다.", [
                     "join_key" => $google_sub,
@@ -2476,7 +2475,14 @@ class Member_proc extends CI_Controller
         $proc_type = input_post("proc_type", "");
         $ma_type = input_post("ma_type", "");
         $uuid = input_post("uuid", "");
-
+        $join_type = input_post("join_type", "");
+        $join_key = input_post("join_key", "");
+        if ($join_type == "" && isset($_COOKIE["join_sns_type"])) {
+            $join_type = $_COOKIE["join_sns_type"];
+        }
+        if ($join_key == "" && isset($_COOKIE["join_sns_key"])) {
+            $join_key = $_COOKIE["join_sns_key"];
+        }
         $alarm = [
             "uuid" => "",
             "alarm_chat" => "Y",
@@ -2534,6 +2540,20 @@ class Member_proc extends CI_Controller
             if (!is_array($step4_2_info)) $step4_2_info = [];
             if (!is_array($step4_3_info)) $step4_3_info = [];
             if (!is_array($step4_4_info)) $step4_4_info = [];
+
+            // 클라이언트에서 전달된 join_type/join_key가 있고 SNS 로그가 없으면 보완
+            if ((!is_array($step_sns) || empty($step_sns)) && ($join_type !== "" || $join_key !== "")) {
+                $step_sns = [
+                    "join_type" => $join_type,
+                    "join_key" => $join_key,
+                    "username" => "",
+                    "email" => "",
+                    "gender" => "",
+                    "birthyear" => "",
+                    "birthday" => "",
+                    "phonenum" => ""
+                ];
+            }
 
             // 디버깅 로그: SNS 데이터 확인
             if ($proc_type == "ALL") {
@@ -2683,7 +2703,14 @@ class Member_proc extends CI_Controller
                     $arr_mem["mm_join_key"] = "";
                 }
 
-                // 디버깅 로그: DB 저장 직전 arr_mem 확인
+                // 디버깅 로그: mm_id 누락 시 원인 추적 (iOS 500 대응)
+                // mm_id 누락 시 500 방지
+                if (empty($arr_mem["mm_id"])) {
+                    json_return("91", "가입 정보가 누락되었습니다. 다시 로그인해주세요.");
+                    exit;
+                }
+
+                // DB 저장
                 $result_join = $this->member_model->insertMember($arr_mem);
 
                 // 디버깅 로그: DB 저장 결과 확인

@@ -26,10 +26,13 @@
           <!-- 이름 -->
           <p class="name"><em><?= ((strpos(getData($mem_info, "mm_name"), '010') !== 0 && strpos(getData($mem_info, "mm_name"), 'kakao') !== 0 && strpos(getData($mem_info, "mm_name"), 'apple') !== 0) ? getData($mem_info, "mm_name") : "guest") ?></em>님</p>
           <div class="meta">
-            <!-- 연락처 -->
-            <p class="phone"><?= $mem_info["mm_phone"] ?></p>
-            <!-- 메일주소 -->
-            <p class="email"><?= $mem_info["mm_email"] ?></p>
+            <?php $is_google_login = !empty($mem_info["mm_join_type"]) && strtoupper($mem_info["mm_join_type"]) === "GOOGLE"; ?>
+            <?php if (!$is_google_login) : ?>
+              <!-- 연락처 -->
+              <p class="phone"><?= $mem_info["mm_phone"] ?></p>
+              <!-- 메일주소 -->
+              <p class="email"><?= $mem_info["mm_email"] ?></p>
+            <?php endif; ?>
             <!-- 포인트 -->
             <p class="point"><?= number_format($mem_info["mm_point"]) ?>P</p>
           </div>

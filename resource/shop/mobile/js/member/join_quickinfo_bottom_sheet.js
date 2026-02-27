@@ -9,13 +9,10 @@
     }
   }
 
-  // 바텀시트를 열고 스와이프 동작 초기화
+  // 바텀시트를 열기 (QuickInfo는 닫기 스와이프 비활성)
   function openQuickInfoPanel() {
     var panel = document.getElementById('quickInfoPanel');
     if (!panel) return;
-    if (typeof initPanelSwipe === 'function') {
-      initPanelSwipe('quickInfoPanel');
-    }
     if (typeof openPanel === 'function') {
       openPanel(panel);
     }
@@ -23,6 +20,7 @@
 
   // 이 페이지의 기존 주소 팝업 열기
   function openRegionPopup() {
+    window.__quickInfoManualAddrMode = true;
     window.__hideAllRegionsInAddrPopup = true;
     if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
       window.applyAddrPopupAllRegionFilter();
@@ -49,9 +47,15 @@
     }
   }
 
-  // 페이지 준비 완료 시 초기화
+  // 외부에서 바텀시트를 열 수 있도록 전역으로 노출
+  window.openQuickInfoPanel = openQuickInfoPanel;
+
+  // 페이지 준비 완료 시 초기화 (자동 오픈 제거)
   onReady(function() {
-    openQuickInfoPanel();
+    var panel = document.getElementById('quickInfoPanel');
+    if (panel) {
+      panel.setAttribute('data-disable-esc-close', 'true');
+    }
     document.addEventListener('click', handleActionClick);
   });
 })();

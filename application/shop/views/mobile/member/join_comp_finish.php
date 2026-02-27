@@ -24,6 +24,16 @@
 
  </div>
  <script>
+     // 가입 완료 페이지 진입 시 SNS 임시 키 정리 (iOS WebView 안정화)
+     try {
+         localStorage.removeItem("join_sns_type");
+         localStorage.removeItem("join_sns_key");
+         sessionStorage.removeItem("join_sns_type");
+         sessionStorage.removeItem("join_sns_key");
+         document.cookie = "join_sns_type=; path=/; max-age=0";
+         document.cookie = "join_sns_key=; path=/; max-age=0";
+     } catch (e) {}
+
      if (getCookie("non_mem_last_resume") != '') {
          var msg = '';
          // msg = '<a href="'+getCookie("non_mem_last_resume")+'" class="btn-round btn-tertiary" style="margin-bottom: 20px; padding: 0.625rem 1.525rem;">인재정보 계속보기</a><br />';

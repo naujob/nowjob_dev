@@ -568,6 +568,9 @@
 
                 switch (keycode) {
                     case 27: // esc key
+                        if (elm.getAttribute('data-disable-esc-close') === 'true') {
+                            break;
+                        }
                         closePanel(elm);
                         break;
                     case 9: // tab key

@@ -15,6 +15,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     })();
 </script>
+<script>
+    // webview_debug 로그 제거 (서버 자동완성 방식으로 전환)
+</script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
 
 <style>
@@ -102,6 +105,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     <div class="page-content">
         <form id="frm" onsubmit="return false" autocomplete="false">
             <input type="hidden" name="ru_work_img" value="" />
+            <input type="hidden" name="quickinfo_gender" value="" />
+            <input type="hidden" name="quickinfo_age" value="" />
             <div class="section addition-info-form">
                 <div class="container">
                     <div class="form-row">
@@ -544,9 +549,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     function applyResumeAutoFill() {
         var urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('autofill') !== '1') return;
+        var isBgAutofill = (urlParams.get('bg') === '1');
 
         // 자동작성 모드에서는 화면을 숨겨 플리커를 방지
         document.documentElement.style.visibility = 'hidden';
+        // logWebview 제거
 
         var payload = {};
         try {
@@ -579,6 +586,16 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
         if ($("[name='ru_name']").val() === "") {
             $("[name='ru_name']").val(chosenTitle);
+        }
+
+        if (payload.ru_nationality) {
+            $("[name='ru_nationality'][value='" + payload.ru_nationality + "']").prop("checked", true);
+        }
+        if (payload.quickinfo_gender) {
+            $("[name='quickinfo_gender']").val(payload.quickinfo_gender);
+        }
+        if (payload.quickinfo_age) {
+            $("[name='quickinfo_age']").val(payload.quickinfo_age);
         }
 
         // 희망업무 자동 선택: 생산, 물류
@@ -616,6 +633,15 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
         saveResumeStep1Data();
         window.__resumeAutoFlow = true;
+        window.__resumeAutoBg = isBgAutofill;
+
+        // logWebview 제거
+
+        // 자동 이동이 지연되거나 실패할 경우 화면이 계속 숨겨지는 문제 방지
+        setTimeout(function() {
+            document.documentElement.style.visibility = 'visible';
+            document.documentElement.classList.remove('autofill-hide');
+        }, 700);
 
         setTimeout(function() {
             $("#btnStep").trigger("click");
@@ -855,17 +881,21 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         }
                     }
 
-            var autoParam = (window.__resumeAutoFlow === true) ? "?autofill=1" : "";
-            if (newIdx != "0") {
-                location.href = "/mypage/resume_write4/" + newIdx + autoParam;
-            } else {
-                location.href = "/mypage/resume_write4" + autoParam;
-            }
-        } else {
-            commonAlert(ret.msg, function() {});
-            return;
-        }
+                    var autoParam = "";
+                    if (window.__resumeAutoFlow === true) {
+                        autoParam = window.__resumeAutoBg ? "?autofill=1&bg=1" : "?autofill=1";
+                    }
+                    if (newIdx != "0") {
+                        location.href = "/mypage/resume_write4/" + newIdx + autoParam;
+                    } else {
+                        location.href = "/mypage/resume_write4" + autoParam;
+                    }
+                } else {
+                    commonAlert(ret.msg, function() {});
+                    return;
+                }
             });
+
         });
 
         $(".comma").on("keyup", function() {

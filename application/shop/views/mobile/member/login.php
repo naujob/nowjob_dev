@@ -69,24 +69,24 @@
           <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
           <?php //echo "[".$os_type."]";
           ?>
-          <a href="javascript:void(0);" id="btnGoogle" class="btn-primary vendor-type5">Google로 로그인</a>
+          <a href="javascript:void(0);" id="btnGoogle" class="vendor-type5">Google로 로그인</a>
 
           <?php if ($iosapp) { ?>
-            <a href="<?= $naver_login ?>" id="btnNaver" class="btn-primary vendor-type4"></a>
+            <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
           <?php } else if ($os_type == "android") { ?>
-            <a href="javascript:void(0);" id="btnNaver" class="btn-primary vendor-type4" onclick="APP_NOWAPK.naverLoginAnd(); return false;"></a>
+            <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="APP_NOWAPK.naverLoginAnd(); return false;"></a>
           <?php } else { ?>
-            <a href="#" id="btnNaver" class="btn-primary vendor-type4" onclick=""></a>
+            <a href="#" id="btnNaver" class="vendor-type4" onclick=""></a>
           <?php } ?>
 
           <?php if ($os_type == "android") : ?>
-            <a href="javascript:void(0);" id="btnKakaoAndroid" class="btn-primary vendor-type1"></a>
+            <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-type1"></a>
           <?php else : ?>
-            <a href="<?= $kakao_login ?>" id="btnKakao" class="btn-primary vendor-type1"></a>
+            <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
           <?php endif; ?>
 
           <!-- 전화번호로 시작하기 버튼 (가장 아래) -->
-          <a href="#" id="btnPhone" class="btn-primary vendor-type3" onclick="goPhoneLogin(); return false;">
+          <a href="#" id="btnPhone" class="vendor-type3" onclick="goPhoneLogin(); return false;">
           </a>
 
           <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
@@ -160,8 +160,6 @@ window.onload = function() {
   */
   // $(document).ready(function() {
   document.addEventListener('DOMContentLoaded', function() {
-    // WebView에서 로그 테스트
-    console.log("✅ WebView에서 로그 테스트 성공!");
     //로그인
     $("#btnLogin").click(function() {
       goLogin();
@@ -244,7 +242,7 @@ window.onload = function() {
       Kakao.Auth.login({
         scope: 'profile_nickname,profile_image,profile_name', // 스코프 추가: 이름, 별명, 프로필 이미지 접근 권한
         success: function(authObj) {
-          console.log(authObj);
+          // debug log removed
           //alert('success');
           // 로그인 성공시, API를 호출합니다.
           Kakao.API.request({
@@ -971,6 +969,14 @@ window.onload = function() {
             _replace("/");
           }
         } else if (ret.code == "90" && ret.data && ret.data.join_key) {
+          try {
+            localStorage.setItem("join_sns_type", "GOOGLE");
+            localStorage.setItem("join_sns_key", ret.data.join_key);
+            sessionStorage.setItem("join_sns_type", "GOOGLE");
+            sessionStorage.setItem("join_sns_key", ret.data.join_key);
+            document.cookie = "join_sns_type=GOOGLE; path=/; max-age=86400";
+            document.cookie = "join_sns_key=" + encodeURIComponent(ret.data.join_key) + "; path=/; max-age=86400";
+          } catch (e) {}
           openPopup('confirm', {
             id: 'permission',
             content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',

@@ -5,8 +5,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 require_once __DIR__ . '/../_partial/bottom_sheet_template.php';
 // 바텀시트 공통 함수(initPanelSwipe) 로드
 include_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_helpers.php');
-// 가입 완료 페이지 전용 바텀시트 로드 (임시 비활성화)
-// require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
+// 가입 완료 페이지 전용 바텀시트 로드
+require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
 
 // 이력서 미작성 회원 안내 바텀시트 (로그인 + 이력서 없음 조건에서 노출)
 renderBottomSheet(
@@ -124,6 +124,19 @@ renderSelectBottomSheet(
     window.getLocationPermissionStatus = getStoredPermissionStatus;
   })();
 
+  var JOIN_TYPE = "<?php echo $this->user->isLogin() ? $this->user->getJoinType() : ''; ?>";
+  var IS_GOOGLE_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "GOOGLE");
+  // 위치 콜백을 “UI 텍스트만 갱신”할지, “자동 이력서 흐름”으로 이어갈지 구분.
+  window.__quickInfoExpectLocation = false;
+  // QuickInfo 적용하기 버튼으로 시작된 흐름인지 여부
+  window.__quickInfoApplyFlow = false;
+  // QuickInfo에서 선택된 값(국적/성별/나이) 캐시
+  window.__quickInfoSelections = null;
+  // 주소 팝업을 QuickInfo 수동 주소 선택 모드로 열었는지 여부
+  window.__quickInfoManualAddrMode = false;
+  //  수동 주소 선택 결과 캐시 (권한 없음 + 적용하기 시 사용).
+  window.__quickInfoManualAddr = null;
+
   window.showAutoResumeLoading = function() {
     var el = document.getElementById('auto-resume-loading');
     if (!el) return;
@@ -138,6 +151,49 @@ renderSelectBottomSheet(
     el.setAttribute('aria-hidden', 'true');
   };
 
+  // 자동이력서 백그라운드 처리(iframe 기반)
+  window.__resumeAutoBackground = false;
+  function startResumeAutoBackground(payload) {
+    try {
+      localStorage.setItem("resume_autofill_payload", JSON.stringify(payload || {}));
+      localStorage.setItem("resume_autofill_ts", String(Date.now()));
+    } catch (e) {}
+
+    if (typeof window.showAutoResumeLoading === 'function') {
+      window.showAutoResumeLoading();
+    }
+
+    var frameId = "resumeAutoFrame";
+    var frame = document.getElementById(frameId);
+    if (!frame) {
+      frame = document.createElement("iframe");
+      frame.id = frameId;
+      frame.style.position = "fixed";
+      frame.style.left = "-9999px";
+      frame.style.top = "0";
+      frame.style.width = "1px";
+      frame.style.height = "1px";
+      frame.style.border = "0";
+      frame.setAttribute("aria-hidden", "true");
+      document.body.appendChild(frame);
+    }
+    frame.src = "/mypage/resume_write1?autofill=1&bg=1";
+  }
+
+  window.addEventListener('message', function(e) {
+    if (!e || !e.data) return;
+    if (e.data.type === 'resume_auto_complete') {
+      if (typeof window.hideAutoResumeLoading === 'function') {
+        window.hideAutoResumeLoading();
+      }
+      if (e.data.ok === true) {
+        location.href = "/recruit/job_list";
+      } else {
+        commonAlert(e.data.msg || "자동이력서 생성에 실패했습니다.", function() {});
+      }
+    }
+  });
+
   (function() {
     var RESUME_AUTOFILL_KEY = "resume_autofill_payload";
     var RESUME_AUTOFILL_TS_KEY = "resume_autofill_ts";
@@ -151,31 +207,128 @@ renderSelectBottomSheet(
         // noop
       }
     }
+    /**
+     * QuickInfo 하단시트에서 선택된 국적, 성별, 나이 값을 객체로 반환한다.
+     * 각 항목은 value와 이에 대응하는 한글 라벨로 치환되어 반환된다.
+     * @returns {Object} { nation: "내국인"|"외국인"|"", gender: "남"|"여"|"", age: string }
+     */
+    function getQuickInfoSelections() {
+      var nationVal = $('input[name="quickinfo_nation"]:checked').val() || "";
+      var genderVal = $('input[name="quickinfo_gender"]:checked').val() || "";
+      var ageVal = $('input[name="quickinfo_age"]:checked').val() || "";
 
+      var nationText = "";
+      if (nationVal === "foreign") {
+        nationText = "외국인";
+      } else if (nationVal === "domestic") {
+        nationText = "내국인";
+      }
+
+      var genderText = "";
+      if (genderVal === "male") {
+        genderText = "남";
+      } else if (genderVal === "female") {
+        genderText = "여";
+      }
+
+      return {
+        nation: nationText,
+        gender: genderText,
+        age: ageVal
+      };
+    }
+
+    // QuickInfo에서 고른 값(국적/성별/나이)**이 자동이력서 생성 흐름에 “주소 payload”와 별도로 존재하기 때문
+    // QuickInfo 선택값(국적/성별/나이)을 자동이력서 payload에 합치는 함수
+    function applyQuickInfoToPayload(payload, selections) {
+      var sel = selections || window.__quickInfoSelections || getQuickInfoSelections();
+      if (!sel) return payload;
+
+      if (sel.nation) {
+        payload.ru_nationality = sel.nation;
+      }
+      if (sel.gender) {
+        payload.quickinfo_gender = sel.gender;
+      }
+      if (sel.age) {
+        payload.quickinfo_age = sel.age;
+      }
+      return payload;
+    }
+
+    // 주소 payload + QuickInfo 선택값을 합쳐 자동이력서 작성으로 이동
+  function submitQuickInfoWithAddress(addrPayload, selections) {
+      // 주소/좌표 payload에 QuickInfo(국적/성별/나이) 합치기
+      var payload = applyQuickInfoToPayload(Object.assign({}, addrPayload), selections);
+      navigateToResumeWrite1(payload);
+    }
+
+    // payload를 저장하고 자동이력서 작성 화면으로 이동 (중복 이동 방지 포함)
     function navigateToResumeWrite1(payload) {
-      if (window.__resumeAutoNavigated) return;
-      window.__resumeAutoNavigated = true;
-      setAutofillPayload(payload);
+      try {
+        setAutofillPayload(payload || {});
+      } catch (e) {}
+
+      if (typeof window.showAutoResumeLoading === 'function') {
+        window.showAutoResumeLoading();
+      }
+      // 중복 이동 방지용 플래그
+      window.__resumeAutoNavigated = false;
       location.href = "/mypage/resume_write1?autofill=1";
     }
 
+    
+    // - getQuickInfoSelections: DOM에서 국적/성별/나이 선택값을 읽음
+    // - applyQuickInfoToPayload: 선택값을 주소 payload에 합침
+    // - submitQuickInfoWithAddress: payload 저장 후 자동이력서 화면으로 이동
+    window.getQuickInfoSelections = getQuickInfoSelections;
+    window.applyQuickInfoToPayload = applyQuickInfoToPayload;
+    window.submitQuickInfoWithAddress = submitQuickInfoWithAddress;
+
+    // 위치 실패 시 안내 후 홈으로 이동
     window.proceedResumeAutoFlowWithoutLocation = function() {
       commonAlert("위치 정보를 가져오는 데 실패했습니다.", function() {
         location.href = "/home/index";
       });
     };
-
+    /**
+     * 1) QuickInfo 열릴 때 “위치 표시만” 하는 경우
+        목적: 화면에 지역명만 표시
+        동작: .quickinfo-region-text 업데이트만 하고 끝
+        조건:
+        __quickInfoExpectLocation = true
+        __quickInfoApplyFlow = false
+        2) QuickInfo에서 “적용하기” 눌러 자동이력서 생성하는 경우
+        목적: 주소 + QuickInfo 선택값을 payload로 만들어 자동이력서로 이동
+        동작:
+        applyQuickInfoToPayload() → set_addr_info → /mypage/resume_write1
+        조건:
+        __quickInfoApplyFlow = true
+     * 
+     * 
+     */
+    // 네이티브 위치 콜백: 위도/경도 전달받아 주소 변환 및 자동이력서 흐름 연결
     window.returnLocation = function(lat, lng) {
+      // iOS 권한 재개 플래그 저장(앱 권한 팝업 후 복귀 처리용)
       try {
         sessionStorage.setItem("ios_permission_resumed", "1");
       } catch (e) {}
 
       // 위치 권한이 없거나 거부된 경우
       if (!lat || !lng || lat === "0" || lng === "0") {
+        // QuickInfo 위치 표시만 기다리는 상태라면 텍스트만 초기화
+        if (window.__quickInfoExpectLocation && !window.__quickInfoApplyFlow) {
+          window.__quickInfoExpectLocation = false;
+          var regionEl = document.querySelector('.quickinfo-region-text');
+          if (regionEl) regionEl.textContent = "근무 지역 선택";
+          return;
+        }
+        // 자동이력서 흐름이라면 위치 없이 진행
         proceedResumeAutoFlowWithoutLocation();
         return;
       }
 
+      // 좌표 -> 주소 변환 요청
       comAjax("/common_proc/get_gps_address", {
         x: lng,
         y: lat
@@ -187,6 +340,16 @@ renderSelectBottomSheet(
           if (typeof fRemoveBigAdrJS === 'function') {
             frontPart = fRemoveBigAdrJS(frontPart) || frontPart;
           }
+          // QuickInfo 위치 표시만 기다리는 상태라면 UI 텍스트만 갱신하고 종료
+          if (window.__quickInfoExpectLocation && !window.__quickInfoApplyFlow) {
+            window.__quickInfoExpectLocation = false;
+            var regionEl = document.querySelector('.quickinfo-region-text');
+            if (regionEl) {
+              regionEl.textContent = frontPart || "근무 지역 선택";
+            }
+            return;
+          }
+          // 자동이력서용 주소 필드 구성
           var ad_jibun = frontPart;
           var ad_doro = "";
           var ad_zipcode = "";
@@ -200,7 +363,12 @@ renderSelectBottomSheet(
             ad_gps_x: lng,
             ad_gps_y: lat
           };
+          // QuickInfo에서 넘어온 경우 국적/성별/나이도 payload에 합침
+          if (window.__quickInfoApplyFlow) {
+            applyQuickInfoToPayload(payload);
+          }
 
+          // 주소 정보를 서버 세션에 저장
           comAjax("/common_proc/set_addr_info", {
             ad_zipcode: ad_zipcode,
             ad_jibun: ad_jibun,
@@ -210,9 +378,11 @@ renderSelectBottomSheet(
             ad_gps_x: lng,
             ad_gps_y: lat
           }, function() {
+            // 자동이력서 작성 화면으로 이동
             navigateToResumeWrite1(payload);
           });
         } else {
+          // 주소 변환 실패 시 위치 없이 진행
           proceedResumeAutoFlowWithoutLocation();
         }
       });
@@ -226,9 +396,20 @@ renderSelectBottomSheet(
         localStorage.removeItem(RESUME_AUTOFILL_TS_KEY);
       }
     } catch (e) {}
+
   })();
 
   window.addEventListener('DOMContentLoaded', function() {
+    // 가입 완료 페이지 진입 시 SNS 임시 키 정리 (iOS WebView 안정화)
+    try {
+      localStorage.removeItem("join_sns_type");
+      localStorage.removeItem("join_sns_key");
+      sessionStorage.removeItem("join_sns_type");
+      sessionStorage.removeItem("join_sns_key");
+      document.cookie = "join_sns_type=; path=/; max-age=0";
+      document.cookie = "join_sns_key=; path=/; max-age=0";
+    } catch (e) {}
+
     var isLogin = <?php echo $this->user->isLogin() ? 'true' : 'false'; ?>;
     var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
     var hasOpenPanel = (typeof window.openPanel === 'function');
@@ -274,6 +455,7 @@ renderSelectBottomSheet(
     }
 
     function startAutoResumeFlowOnce() {
+      // 자동 트리거/이동 중복 방지
       if (window.__resumeAutoStartTriggered) return;
       window.__resumeAutoStartTriggered = true;
 
@@ -290,11 +472,59 @@ renderSelectBottomSheet(
 
       // 사용자 제스처가 필요한 경우를 대비한 1회 재시도
       var retryOnGesture = function() {
+        // : 자동 트리거/이동 중복 방지.
         if (window.__resumeAutoNavigated) return;
         tryTrigger();
       };
       document.addEventListener('touchstart', retryOnGesture, { once: true, passive: true });
       document.addEventListener('mousedown', retryOnGesture, { once: true, passive: true });
+    }
+
+    function setQuickInfoRegionText(text) {
+      var el = document.querySelector('.quickinfo-region-text');
+      if (el) el.textContent = text;
+    }
+
+    function requestQuickInfoLocation() {
+      // Android WebView 브릿지
+      if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') {
+        APP_NOWAPK.getLocation();
+        return;
+      }
+      // iOS WebView 브릿지 (startGettingLocation)
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.startGettingLocation) {
+        window.webkit.messageHandlers.startGettingLocation.postMessage({});
+        return;
+      }
+      // iOS WebView 브릿지 (getLocation)
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getLocation) {
+        window.webkit.messageHandlers.getLocation.postMessage({});
+        return;
+      }
+    }
+
+    // Google 가입자 전용 QuickInfo 오픈 흐름
+    // hasLocationConsent: 위치권한 동의 여부(granted면 true)
+    function openQuickInfoForGoogle(hasLocationConsent) {
+      // QuickInfo 바텀시트 열기
+      if (typeof window.openQuickInfoPanel === 'function') {
+        window.openQuickInfoPanel();
+      }
+      // 위치권한이 있으면 네이티브 위치 요청, 없으면 수동 선택 안내
+      if (hasLocationConsent) {
+        // 지역 텍스트를 로딩 상태로 표시
+        setQuickInfoRegionText("위치 확인 중...");
+        // 지금은 위치 콜백을 받아서 QuickInfo UI 텍스트만 갱신하려는 상태다”**라는 의미를 나타내는 플래그
+        window.__quickInfoExpectLocation = true;
+        // 적용하기 흐름이 아님(위치 수집 단계) 
+        // returnLocation에서 단순 UI 표시 vs 자동이력서 이동을 구분 하기 위해 필요
+        window.__quickInfoApplyFlow = false;
+        // 네이티브 위치 요청
+        requestQuickInfoLocation();
+      } else {
+        // 권한 미동의 시 수동 선택 유도
+        setQuickInfoRegionText("근무 지역 선택");
+      }
     }
 
     function openGuidePanelByPermission() {
@@ -311,6 +541,11 @@ renderSelectBottomSheet(
           var count = 0;
           if (ret && ret.data && typeof ret.data.count !== 'undefined') {
             count = parseInt(ret.data.count, 10) || 0;
+          }
+
+          if (IS_GOOGLE_JOIN && count <= 0) {
+            openQuickInfoForGoogle(hasLocationConsent);
+            return;
           }
 
           if (count <= 0) {
@@ -425,6 +660,7 @@ renderSelectBottomSheet(
         return;
       }
 
+      // 자동이력서 작성 화면으로 넘길 주소/좌표 payload
       var autoPayload = {
         ru_name_seed_addr: addr,
         ad_addr: addr,
@@ -435,21 +671,114 @@ renderSelectBottomSheet(
         ad_gps_x: result[0].x,
         ad_gps_y: result[0].y
       };
-
-      try {
-        localStorage.setItem("resume_autofill_payload", JSON.stringify(autoPayload));
-        localStorage.setItem("resume_autofill_ts", String(Date.now()));
-      } catch (e) {}
-
-      if (typeof window.showAutoResumeLoading === 'function') {
-        window.showAutoResumeLoading();
+      // QuickInfo 수동 주소 선택 모드라면:
+      // - 자동이력서로 즉시 이동하지 않고
+      // - 선택한 주소만 캐시 + UI 갱신 후 종료
+      if (window.__quickInfoManualAddrMode) {
+        // 1회성 모드 해제
+        window.__quickInfoManualAddrMode = false;
+        
+        // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
+        window.__quickInfoManualAddr = autoPayload;
+        var regionEl = document.querySelector('.quickinfo-region-text');
+        if (regionEl) {
+          // 선택된 주소를 화면에 반영(간단 정리)
+          regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+        }
+        // 여기서 종료(자동이력서 흐름 진행하지 않음)
+        return;
       }
-      window.__resumeAutoNavigated = false;
-      location.href = "/mypage/resume_write1?autofill=1";
+
+      // QuickInfo "적용하기" 흐름이라면
+      // - 선택한 주소/좌표 + QuickInfo 선택값을 합쳐
+      // - 자동이력서 작성 화면으로 이동
+      if (window.__quickInfoApplyFlow) {
+        submitQuickInfoWithAddress(autoPayload);
+        return;
+      }
+      navigateToResumeWrite1(autoPayload);
     });
 
     return true;
   };
+
+  window.handleQuickInfoApplyClick = function() {
+    var selections = getQuickInfoSelections();
+    var regionEl = document.querySelector('.quickinfo-region-text');
+    var regionText = regionEl ? regionEl.textContent.trim() : "";
+
+    if (!regionText || regionText === "근무 지역 선택" || regionText === "위치 확인 중...") {
+      commonAlert("근무 지역을 선택해주세요.", function() {
+        $('.quickinfo-region-field').trigger('click');
+      });
+      return;
+    }
+
+    if (!selections.nation) {
+      commonAlert("국적을 선택해주세요.", function() {});
+      return;
+    }
+
+    if (!selections.gender) {
+      commonAlert("성별을 선택해주세요.", function() {});
+      return;
+    }
+
+    if (!selections.age) {
+      commonAlert("나이를 선택해주세요.", function() {});
+      return;
+    }
+
+    // QuickInfo 선택값 캐시
+    window.__quickInfoSelections = selections;
+    // 자동이력서로 넘어가는 모드 플래그 / returnLocation 콜백을 상황별로 다르게 처리하기 위한 
+    window.__quickInfoApplyFlow = true;
+    // 위치 콜백 대기 안 함 / returnLocation 콜백을 상황별로 다르게 처리하기 위한 
+    window.__quickInfoExpectLocation = false;
+
+    var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
+      ? window.getLocationPermissionStatus()
+      : null;
+    var hasLocationConsent = storedPermission === 'granted';
+
+    if (!hasLocationConsent) {
+      if (window.__quickInfoManualAddr) {
+        submitQuickInfoWithAddress(window.__quickInfoManualAddr, selections);
+        return;
+      }
+      $('.quickinfo-region-field').trigger('click');
+      return;
+    }
+
+    $("#btnResumeGuide").trigger("click");
+  };
+
+  $(document).on('click', '#btnQuickInfoApply', function(e) {
+    e.preventDefault();
+    if (typeof window.handleQuickInfoApplyClick === 'function') {
+      window.handleQuickInfoApplyClick();
+    }
+  });
+
+  // QuickInfo 초기화 버튼: 기본값(외국인/남성)으로 복원, 나이/주소는 초기화
+  $(document).on('click', '#btnQuickInfoReset', function(e) {
+    e.preventDefault();
+
+    // 기본 선택값 복원
+    $('input[name="quickinfo_nation"][value="foreign"]').prop('checked', true).trigger('change');
+    $('input[name="quickinfo_gender"][value="male"]').prop('checked', true).trigger('change');
+    $('input[name="quickinfo_age"]').prop('checked', false);
+
+    // 지역 텍스트 초기화
+    var regionEl = document.querySelector('.quickinfo-region-text');
+    if (regionEl) regionEl.textContent = "근무 지역 선택";
+
+    // QuickInfo 캐시/상태 초기화
+    window.__quickInfoSelections = null;
+    window.__quickInfoManualAddrMode = false;
+    window.__quickInfoManualAddr = null;
+    window.__quickInfoExpectLocation = false;
+  });
 </script>
 
-<?php // <?= getCashJs(RES_PATH . "/js/member/join_quickinfo_bottom_sheet.js") ?> ?>
+<?= getCashJs(RES_PATH . "/js/member/join_quickinfo_bottom_sheet.js") ?>

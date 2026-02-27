@@ -179,6 +179,9 @@
         }
     })();
 </script>
+<script>
+    // webview_debug 로그 제거 (서버 자동완성 방식으로 전환)
+</script>
 
 <div class="page page-write">
     <div class="top-bar">
@@ -770,6 +773,8 @@
             if (urlParams.get('autofill') !== '1') return;
 
             window.__resumeAutoFlow = true;
+            window.__resumeAutoBackground = (urlParams.get('bg') === '1');
+            // logWebview 제거
 
             var payload = {};
             try {
@@ -953,6 +958,7 @@
                         comAjax("/mypage_proc/resume_complete", {
                             ru_idx: finalIdx
                         }, function(ret2) {
+                                // logWebview 제거
                             if (ret2.code == "00") {
                                 clearResumeDraft(finalIdx);
                                 try {
@@ -961,9 +967,17 @@
                                     sessionStorage.setItem("resume_auto_completed", "1");
                                     
                                 } catch (e) {}
-                                location.href = "/recruit/job_list";
+                                if (window.__resumeAutoBackground && window.parent) {
+                                    window.parent.postMessage({ type: 'resume_auto_complete', ok: true }, '*');
+                                } else {
+                                    location.href = "/recruit/job_list";
+                                }
                             } else {
-                                commonAlert(ret2.msg, function() {});
+                                if (window.__resumeAutoBackground && window.parent) {
+                                    window.parent.postMessage({ type: 'resume_auto_complete', ok: false, msg: ret2.msg }, '*');
+                                } else {
+                                    commonAlert(ret2.msg, function() {});
+                                }
                             }
                         });
                         return;

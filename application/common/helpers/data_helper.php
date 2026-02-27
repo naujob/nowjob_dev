@@ -932,6 +932,8 @@ function getKoreanAge($birth)
 	}
 
 	$birth = trim((string)$birth);
+	// Normalize to YYYYMMDD (strip non-digits like "-" and ".")
+	$birth = preg_replace('/[^0-9]/', '', $birth);
 	// Expect YYYYMMDD. If invalid, return 0 to avoid exceptions.
 	if (strlen($birth) !== 8 || !ctype_digit($birth)) {
 		return 0;

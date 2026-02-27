@@ -21,7 +21,7 @@ $quickInfoContent = <<<HTML
         <span class="btn">내국인</span>
       </label>
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_nation" value="foreign">
+        <input type="radio" name="quickinfo_nation" value="foreign" checked>
         <span class="btn">외국인</span>
       </label>
     </div>
@@ -31,7 +31,7 @@ $quickInfoContent = <<<HTML
     <div class="quickinfo-label">성별</div>
     <div class="form-toggle-group">
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_gender" value="male">
+        <input type="radio" name="quickinfo_gender" value="male" checked>
         <span class="btn">남성</span>
       </label>
       <label class="form-toggle-btn2">
@@ -78,7 +78,7 @@ renderSelectBottomSheet(
   '',
   '적용하기',
   'btnQuickInfoApply',
-  '',
+  'handleQuickInfoApplyClick()',
   'bottom-sheet-content-container quickinfo-bottom-sheet',
   'bottom-sheet-content-body'
 );
