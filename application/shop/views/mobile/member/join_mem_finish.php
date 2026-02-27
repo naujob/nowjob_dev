@@ -151,62 +151,7 @@ renderSelectBottomSheet(
     el.setAttribute('aria-hidden', 'true');
   };
 
-  // 자동이력서 백그라운드 처리(iframe 기반)
-  window.__resumeAutoBackground = false;
-  function startResumeAutoBackground(payload) {
-    try {
-      localStorage.setItem("resume_autofill_payload", JSON.stringify(payload || {}));
-      localStorage.setItem("resume_autofill_ts", String(Date.now()));
-    } catch (e) {}
-
-    if (typeof window.showAutoResumeLoading === 'function') {
-      window.showAutoResumeLoading();
-    }
-
-    var frameId = "resumeAutoFrame";
-    var frame = document.getElementById(frameId);
-    if (!frame) {
-      frame = document.createElement("iframe");
-      frame.id = frameId;
-      frame.style.position = "fixed";
-      frame.style.left = "-9999px";
-      frame.style.top = "0";
-      frame.style.width = "1px";
-      frame.style.height = "1px";
-      frame.style.border = "0";
-      frame.setAttribute("aria-hidden", "true");
-      document.body.appendChild(frame);
-    }
-    frame.src = "/mypage/resume_write1?autofill=1&bg=1";
-  }
-
-  window.addEventListener('message', function(e) {
-    if (!e || !e.data) return;
-    if (e.data.type === 'resume_auto_complete') {
-      if (typeof window.hideAutoResumeLoading === 'function') {
-        window.hideAutoResumeLoading();
-      }
-      if (e.data.ok === true) {
-        location.href = "/recruit/job_list";
-      } else {
-        commonAlert(e.data.msg || "자동이력서 생성에 실패했습니다.", function() {});
-      }
-    }
-  });
-
   (function() {
-    var RESUME_AUTOFILL_KEY = "resume_autofill_payload";
-    var RESUME_AUTOFILL_TS_KEY = "resume_autofill_ts";
-    var RESUME_AUTOFILL_MAX_AGE = 5 * 60 * 1000;
-
-    function setAutofillPayload(payload) {
-      try {
-        localStorage.setItem(RESUME_AUTOFILL_KEY, JSON.stringify(payload || {}));
-        localStorage.setItem(RESUME_AUTOFILL_TS_KEY, String(Date.now()));
-      } catch (e) {
-        // noop
-      }
-    }
     /**
      * QuickInfo 하단시트에서 선택된 국적, 성별, 나이 값을 객체로 반환한다.
      * 각 항목은 value와 이에 대응하는 한글 라벨로 치환되어 반환된다.
@@ -256,25 +201,61 @@ renderSelectBottomSheet(
       return payload;
     }
 
-    // 주소 payload + QuickInfo 선택값을 합쳐 자동이력서 작성으로 이동
+    // 주소 payload + QuickInfo 선택값을 합쳐 서버 자동완성 호출
   function submitQuickInfoWithAddress(addrPayload, selections) {
       // 주소/좌표 payload에 QuickInfo(국적/성별/나이) 합치기
       var payload = applyQuickInfoToPayload(Object.assign({}, addrPayload), selections);
-      navigateToResumeWrite1(payload);
+      submitQuickInfoToServer(payload);
     }
 
-    // payload를 저장하고 자동이력서 작성 화면으로 이동 (중복 이동 방지 포함)
-    function navigateToResumeWrite1(payload) {
-      try {
-        setAutofillPayload(payload || {});
-      } catch (e) {}
+    // 서버 자동완성 호출 (iOS/Android 공통)
+    function submitQuickInfoToServer(payload) {
+      // 서버 자동완성 중복 호출 방지
+      if (window.__quickInfoSubmitting) return;
+      window.__quickInfoSubmitting = true;
 
       if (typeof window.showAutoResumeLoading === 'function') {
         window.showAutoResumeLoading();
       }
-      // 중복 이동 방지용 플래그
-      window.__resumeAutoNavigated = false;
-      location.href = "/mypage/resume_write1?autofill=1";
+
+      var params = Object.assign({}, payload || {});
+      params.ru_name = params.ru_name || params.ru_name_seed_addr || "";
+      params.ru_addr = params.ru_addr || params.ad_addr || params.ru_name_seed_addr || "";
+
+      // 주소 필드는 배열 형태로 전달되도록 보정
+      if (params.ad_addr && !Array.isArray(params.ad_addr)) {
+        params.ad_addr = [params.ad_addr];
+      }
+      if (params.ad_jibun && !Array.isArray(params.ad_jibun)) {
+        params.ad_jibun = [params.ad_jibun];
+      }
+      if (params.ad_doro && !Array.isArray(params.ad_doro)) {
+        params.ad_doro = [params.ad_doro];
+      }
+      if (params.ad_zipcode && !Array.isArray(params.ad_zipcode)) {
+        params.ad_zipcode = [params.ad_zipcode];
+      }
+      if (params.ad_detail && !Array.isArray(params.ad_detail)) {
+        params.ad_detail = [params.ad_detail];
+      }
+      if (params.ad_gps_x && !Array.isArray(params.ad_gps_x)) {
+        params.ad_gps_x = [params.ad_gps_x];
+      }
+      if (params.ad_gps_y && !Array.isArray(params.ad_gps_y)) {
+        params.ad_gps_y = [params.ad_gps_y];
+      }
+
+      comAjax("/mypage_proc/resume_autofill_quick", params, function(ret) {
+        window.__quickInfoSubmitting = false;
+        if (typeof window.hideAutoResumeLoading === 'function') {
+          window.hideAutoResumeLoading();
+        }
+        if (ret && ret.code === "00") {
+          location.href = "/recruit/job_list";
+        } else {
+          commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});
+        }
+      });
     }
 
     
@@ -284,6 +265,7 @@ renderSelectBottomSheet(
     window.getQuickInfoSelections = getQuickInfoSelections;
     window.applyQuickInfoToPayload = applyQuickInfoToPayload;
     window.submitQuickInfoWithAddress = submitQuickInfoWithAddress;
+    window.submitQuickInfoToServer = submitQuickInfoToServer;
 
     // 위치 실패 시 안내 후 홈으로 이동
     window.proceedResumeAutoFlowWithoutLocation = function() {
@@ -378,8 +360,8 @@ renderSelectBottomSheet(
             ad_gps_x: lng,
             ad_gps_y: lat
           }, function() {
-            // 자동이력서 작성 화면으로 이동
-            navigateToResumeWrite1(payload);
+            // 자동이력서 서버 처리
+            submitQuickInfoToServer(payload);
           });
         } else {
           // 주소 변환 실패 시 위치 없이 진행
@@ -387,15 +369,6 @@ renderSelectBottomSheet(
         }
       });
     };
-
-    // 오래된 자동작성 payload 정리
-    try {
-      var ts = parseInt(localStorage.getItem(RESUME_AUTOFILL_TS_KEY), 10) || 0;
-      if (ts && Date.now() - ts > RESUME_AUTOFILL_MAX_AGE) {
-        localStorage.removeItem(RESUME_AUTOFILL_KEY);
-        localStorage.removeItem(RESUME_AUTOFILL_TS_KEY);
-      }
-    } catch (e) {}
 
   })();
 
@@ -472,8 +445,6 @@ renderSelectBottomSheet(
 
       // 사용자 제스처가 필요한 경우를 대비한 1회 재시도
       var retryOnGesture = function() {
-        // : 자동 트리거/이동 중복 방지.
-        if (window.__resumeAutoNavigated) return;
         tryTrigger();
       };
       document.addEventListener('touchstart', retryOnGesture, { once: true, passive: true });
@@ -610,9 +581,6 @@ renderSelectBottomSheet(
     if (typeof window.showAutoResumeLoading === 'function') {
       window.showAutoResumeLoading();
     }
-    // 중복 이동 방지용 플래그
-    window.__resumeAutoNavigated = false;
-
     if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') {
       APP_NOWAPK.getLocation();
     } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.startGettingLocation) {
@@ -696,7 +664,9 @@ renderSelectBottomSheet(
         submitQuickInfoWithAddress(autoPayload);
         return;
       }
-      navigateToResumeWrite1(autoPayload);
+      if (typeof window.submitQuickInfoToServer === 'function') {
+        window.submitQuickInfoToServer(autoPayload);
+      }
     });
 
     return true;

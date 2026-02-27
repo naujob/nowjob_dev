@@ -887,6 +887,12 @@ class Mypage_proc extends CI_Controller
     return $this->resume_complete();
   }
 
+  // 자동완성 전용 엔드포인트 (resume_autofill_complete 래핑)
+  function resume_autofill_quick()
+  {
+    return $this->resume_autofill_complete();
+  }
+
   # 스텝2
   function resume_write2()
   {
