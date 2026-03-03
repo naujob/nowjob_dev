@@ -18,16 +18,6 @@
     .vendor-login .vendor-type3 {
       background: #02c75a;
     } */
-    /* 비회원 둘러보기 버튼 위치 조정 */
-    .try-trial-container {
-      position: relative;
-      top: -20px;
-      /* 비회원 둘러보기 위치 조정 - 네이버 버튼과 겹치지 않도록 */
-      height: 56px;
-      /* 버튼 높이 추가 */
-      margin-top: 20px;
-      /* 추가 여백으로 겹침 방지 */
-    }
   </style>
   <?php
   $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -45,8 +35,10 @@
   }
   // echo "end";
   ?>
-  <div class="login-form">
-    <div class="form-container">
+  <img src="/resource/shop/mobile/img/member/ic-nowjob-logo.svg" alt="NowJob Logo" class="login-logo login-logo-centered">
+  <div class="login-form-wrap">
+    <div class="login-form">
+      <div class="form-container">
       <form id="frm" onsubmit="return false">
 
 
@@ -69,8 +61,6 @@
           <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
           <?php //echo "[".$os_type."]";
           ?>
-          <a href="javascript:void(0);" id="btnGoogle" class="vendor-type5">Google로 로그인</a>
-
           <?php if ($iosapp) { ?>
             <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
           <?php } else if ($os_type == "android") { ?>
@@ -85,6 +75,8 @@
             <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
           <?php endif; ?>
 
+          <a href="javascript:void(0);" id="btnGoogle" class="vendor-type5">Google로 로그인</a>
+
           <!-- 전화번호로 시작하기 버튼 (가장 아래) -->
           <a href="#" id="btnPhone" class="vendor-type3" onclick="goPhoneLogin(); return false;">
           </a>
@@ -92,7 +84,7 @@
           <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
                     <a href="#" id="btnKakaoAndApp2" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.callVibrate(); alert(2); return false;">진동</a> -->
           
-           <!-- Apple 로그인 버튼 주석 처리 -->
+          <!-- Apple 로그인 버튼 주석 처리 -->
           <?php if ($os_type == "ios" || $isIosBrowser) : ?>
             <!-- <a href="<?= $apple_login ?>" id="btnApple" class="btn-primary vendor-type2">Apple로 로그인</a> -->
           <?php endif; ?>
@@ -108,9 +100,6 @@
 
       </form>
 
-      <p class="try-trial"><a href="/">비회원 둘러보기</a></p>
-      <a href="/member/join_start" class="btn-primary btn-signup"></a>
-
       <!--
             <button onclick="window.APP_NOWAPK.kakaoLoginAnd()">카카오 로그인</button>
             <button onclick="window.APP_NOWAPK.kakaoLoginAnd()">카카오 로그인</button>
@@ -118,6 +107,11 @@
             <button onclick="testKakaoLogin()">카카오 로그인 테스트</button>
             <button onclick="NowJobBridge.getLocation()">Location</button>
           -->
+      </div>
+    </div>
+    <div class="try-trial-container">
+        <p class="try-trial"><a href="/">비회원 둘러보기</a></p>
+        <a href="/member/join_start" class="btn-primary btn-signup"></a>
     </div>
   </div>
 </div>
