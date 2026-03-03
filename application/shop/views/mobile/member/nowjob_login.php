@@ -1,4 +1,5 @@
 <div class="page page-login">
+    <img src="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg') ?>" alt="" class="login-bg-img" decoding="async" fetchpriority="high">
     <img src="/resource/shop/mobile/img/member/ic-nowjob-logo.svg" alt="NowJob Logo" class="login-logo login-logo-centered">
     <div class="login-form">
         <div class="form-container">

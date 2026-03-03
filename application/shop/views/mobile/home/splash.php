@@ -63,11 +63,25 @@
         height: 100vh;
         /* 기존 배경 이미지 주석처리 */
         /* background: url("/resource/shop/mobile/img/splash_bg.jpg") no-repeat 50% 50%; */
-        background: url("/resource/shop/mobile/img/splash.png") no-repeat 50% 50%;
-        background-size: cover;
+        background: #000;
         overflow: hidden;
         -webkit-perspective: 20px;
         perspective: 20px;
+    }
+
+    .splash-bg-img {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .splash > :not(.splash-bg-img) {
+        position: relative;
+        z-index: 1;
     }
 
     .logo {
@@ -141,6 +155,7 @@
 </style>
 
 <div class="splash">
+    <img src="/resource/shop/mobile/img/splash.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/splash.jpg') ?>" alt="" class="splash-bg-img" decoding="async" fetchpriority="high">
     <!-- 기존 로고 이미지 주석처리 -->
     <h1 class="logo"><img src="/resource/shop/mobile/img/title_logo.png" width="273" height="96" alt=""></h1>
     <!-- 기존 portrait 이미지 주석처리 -->

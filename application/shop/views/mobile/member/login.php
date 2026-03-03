@@ -1,4 +1,5 @@
 <div class="page page-login">
+  <img src="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg') ?>" alt="" class="login-bg-img" decoding="async" fetchpriority="high">
   <style>
     /* 자동완성 배경색 없애기 */
     input:-webkit-autofill,

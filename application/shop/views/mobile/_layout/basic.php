@@ -17,6 +17,23 @@ if (!$socket_io_script_url) {
   <meta name="description" content="구인구직 정보 플랫폼">
   <meta name="format-detection" content="address=no, email=no, telephone=no">
   <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
+  <?php
+  $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+  $is_login_page = (strpos($request_uri, '/member/login') !== false) || (strpos($request_uri, '/member/nowjob_login') !== false);
+  $is_home_page = (strpos($request_uri, '/home') !== false) || (strpos($request_uri, '/index_mem') !== false);
+  $is_splash_page = (strpos($request_uri, '/home/splash') !== false);
+  ?>
+  <?php if ($is_login_page) : ?>
+    <link rel="preload" as="image" href="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg">
+    <link rel="preload" as="image" href="/resource/shop/mobile/img/member/ic-naver-login.svg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/ic-naver-login.svg') ?>">
+    <link rel="preload" as="image" href="/resource/shop/mobile/img/member/ic-kakao-login.svg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/ic-kakao-login.svg') ?>">
+    <link rel="preload" as="image" href="/resource/shop/mobile/img/member/ic-google-login.svg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/ic-google-login.svg') ?>">
+    <link rel="preload" as="image" href="/resource/shop/mobile/img/member/ic-nowjob-login.svg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/ic-nowjob-login.svg') ?>">
+  <?php elseif ($is_splash_page) : ?>
+    <link rel="preload" as="image" href="/resource/shop/mobile/img/splash.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/splash.jpg') ?>">
+  <?php elseif ($is_home_page) : ?>
+    <link rel="prefetch" as="image" href="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg">
+  <?php endif; ?>
   <link rel="shortcut icon" href="/resource/favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Script -->
