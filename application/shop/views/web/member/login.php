@@ -27,6 +27,11 @@
                         // 클라이언트 ID가 없으면 빈 문자열
                         $naver_login = "";
                     }
+
+                    // 구글 로그인 URL 생성 (서버 주도 OAuth 시작)
+                    $google_setting = getSettingInfo(["st_group" => "구글"]);
+                    $google_client_id = isset($google_setting["WEB_CLIENT_ID"]) ? $google_setting["WEB_CLIENT_ID"] : "";
+                    $google_login = !empty($google_client_id) ? ($app_base_url . "/member/google_login") : "";
                     ?>
                     <form action="/">
 
@@ -73,6 +78,11 @@
                                 <?php else : ?>
                                     <a href="javascript:void(0);" id="btnNaver" class="social-btn naver-btn"></a>
                                 <?php endif; ?>
+                                <?php if (!empty($google_login)) : ?>
+                                    <a href="<?= $google_login ?>" id="btnGoogle" class="social-btn google-btn" aria-label="Google 로그인"></a>
+                                <?php else : ?>
+                                    <a href="javascript:void(0);" id="btnGoogle" class="social-btn google-btn" aria-label="Google 로그인"></a>
+                                <?php endif; ?>
                             </div>
                             <!--a href="#" class="btn vendor-type2">Apple 로그인</a-->
                         </div>
@@ -104,6 +114,13 @@
                 // 네이버 클라이언트 ID가 설정되지 않은 경우
                 e.preventDefault();
                 alert("네이버 로그인이 설정되지 않았습니다.");
+            <?php endif; ?>
+        });
+        // 구글 로그인 - 설정되지 않은 경우만 처리
+        $("#btnGoogle").click(function(e) {
+            <?php if (empty($google_login)) : ?>
+                e.preventDefault();
+                alert("구글 로그인이 설정되지 않았습니다.");
             <?php endif; ?>
         });
         //애플 로그인

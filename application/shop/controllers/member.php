@@ -223,6 +223,7 @@ class Member extends CI_Controller
 			exit();
 		}
 
+		// app_base_url: 환경변수 APP_BASE_URL 또는 요청 도메인/스킴 기반으로 결정되는 앱 기본 URL
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 		$callback_url = $app_base_url . "/member/naver_login_callback";
 
@@ -363,6 +364,154 @@ class Member extends CI_Controller
 		}
 	} //naver_login_callback
 
+	// 구글 로그인 시작 (서버 주도 OAuth)
+	function google_login()
+	{	
+		// 1. 설정 모델에서 "구글"이라는 그룹의 정보를 가져와서 상자에 담기
+		$google_setting_info = $this->setting_model->getSettingInfo(["st_group" => "구글"]);
+		$google_client_id = isset($google_setting_info["WEB_CLIENT_ID"]) ? $google_setting_info["WEB_CLIENT_ID"] : "";
+		$google_client_secret = isset($google_setting_info["WEB_CLIENT_SECRET"]) ? $google_setting_info["WEB_CLIENT_SECRET"] : "";
+
+		if (empty($google_client_id) || empty($google_client_secret)) {
+			$this->common->scriptReplace("/member/login", "구글 로그인 설정이 올바르지 않습니다.");
+			exit();
+		}
+
+		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$redirect_uri = $app_base_url . "/member/google_login_callback";
+
+		// 매번 고유한 state 값 사용
+		$state = make_token() . "_" . time() . "_" . mt_rand(1000, 9999);
+		$this->common->setSession("google-oauth-state", $state);
+
+		$scope = urlencode("openid email profile");
+		$auth_url = "https://accounts.google.com/o/oauth2/v2/auth?response_type=code"
+			. "&client_id=" . urlencode($google_client_id)
+			. "&redirect_uri=" . urlencode($redirect_uri)
+			. "&scope=" . $scope
+			. "&state=" . urlencode($state)
+			. "&prompt=select_account";
+
+		go_location($auth_url);
+	}
+
+	function google_login_callback()
+	{
+		$code = isset($_REQUEST["code"]) ? $_REQUEST["code"] : "";
+		$state = isset($_REQUEST["state"]) ? $_REQUEST["state"] : "";
+		$error = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
+		$error_description = isset($_REQUEST["error_description"]) ? $_REQUEST["error_description"] : "";
+
+		if ($error) {
+			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(1)";
+			if (!empty($error_description)) {
+				$error_msg .= " - " . $error_description;
+			}
+			$this->common->scriptReplace("/member/login", $error_msg);
+			exit();
+		}
+
+		if (empty($code)) {
+			$this->common->scriptReplace("/member/login", "구글 로그인 인증 코드를 받지 못했습니다.");
+			exit();
+		}
+
+		$saved_state = $this->common->getSession("google-oauth-state");
+		if (empty($saved_state) || $saved_state !== $state) {
+			$this->common->scriptReplace("/member/login", "구글 로그인 상태값 검증에 실패했습니다.");
+			exit();
+		}
+
+		$google_setting_info = $this->setting_model->getSettingInfo(["st_group" => "구글"]);
+		$google_client_id = isset($google_setting_info["WEB_CLIENT_ID"]) ? $google_setting_info["WEB_CLIENT_ID"] : "";
+		$google_client_secret = isset($google_setting_info["WEB_CLIENT_SECRET"]) ? $google_setting_info["WEB_CLIENT_SECRET"] : "";
+
+		if (empty($google_client_id) || empty($google_client_secret)) {
+			$this->common->scriptReplace("/member/login", "구글 로그인 설정이 올바르지 않습니다.");
+			exit();
+		}
+
+		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$redirect_uri = $app_base_url . "/member/google_login_callback";
+
+		$token_url = "https://oauth2.googleapis.com/token";
+		$token_data = array(
+			"code" => $code,
+			"client_id" => $google_client_id,
+			"client_secret" => $google_client_secret,
+			"redirect_uri" => $redirect_uri,
+			"grant_type" => "authorization_code"
+		);
+		$token_headers = array(
+			"Content-type: application/x-www-form-urlencoded;charset=utf-8"
+		);
+
+		$token_result = $this->call_google_api($token_headers, $token_url, $token_data);
+		$token_response = json_decode($token_result[0], true);
+
+		if (empty($token_response["id_token"])) {
+			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(2)";
+			if (isset($token_response["error"])) {
+				$error_msg .= " - 오류: " . $token_response["error"];
+			}
+			if (isset($token_response["error_description"])) {
+				$error_msg .= " - " . $token_response["error_description"];
+			}
+			$this->common->scriptReplace("/member/login", $error_msg);
+			exit();
+		}
+
+		$verify = $this->verify_google_id_token($token_response["id_token"], [$google_client_id]);
+		if (!$verify["ok"]) {
+			$this->common->scriptReplace("/member/login", "구글 토큰 검증에 실패했습니다.");
+			exit();
+		}
+
+		$token_data = $verify["data"];
+		// Google 계정의 고유 식별자(sub, subject)
+		$google_sub = $token_data["sub"];
+		$email = isset($token_data["email"]) ? $token_data["email"] : "";
+		$name = "";
+
+		// 사용자 정보 가져오기 (가능한 경우)
+		if (!empty($token_response["access_token"])) {
+			$user_info_url = "https://openidconnect.googleapis.com/v1/userinfo";
+			$user_info_headers = array(
+				"Authorization: Bearer " . $token_response["access_token"]
+			);
+			$user_info_result = $this->call_google_api($user_info_headers, $user_info_url);
+			$user_info_response = json_decode($user_info_result[0], true);
+
+			if (is_array($user_info_response)) {
+				if (isset($user_info_response["email"]) && $user_info_response["email"] != "") {
+					$email = $user_info_response["email"];
+				}
+				if (isset($user_info_response["name"]) && $user_info_response["name"] != "") {
+					$name = $user_info_response["name"];
+				} else if (isset($user_info_response["given_name"]) && $user_info_response["given_name"] != "") {
+					$name = $user_info_response["given_name"];
+				}
+			}
+		}
+
+		$return = $this->login_process("GOOGLE", $google_sub);
+		if ($return["code"] == "00") {
+			$this->common->scriptReplace("/");
+			exit;
+		} else if ($return["code"] == "90") {
+			$join_url = "/member/join_sns_start?join_key=" . urlencode($google_sub) . "&join_type=GOOGLE";
+			if (!empty($email)) {
+				$join_url .= "&email=" . urlencode($email);
+			}
+			if (!empty($name)) {
+				$join_url .= "&username=" . urlencode($name);
+			}
+			go_location($join_url);
+		} else {
+			go_location("/member/login?msg_code=" . $return["code"]);
+		}
+	}
+
 	/**
 	 * 네이버 API 호출 메서드
 	 * @param array $headers
@@ -403,6 +552,91 @@ class Member extends CI_Controller
 			echo $e->getMessage();
 			return array("false");
 		}
+	}
+
+	/**
+	 * 구글 API 호출 메서드
+	 * @param array $headers
+	 * @param string $url
+	 * @param array $postData
+	 * @return array
+	 */
+	private function call_google_api($headers, $url, $postData = null)
+	{
+		try {
+			$postDataString = "";
+			if (is_array($postData)) {
+				$postDataString = http_build_query($postData);
+			}
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($ch, CURLOPT_HEADER, false);
+
+			if ($postData !== null) {
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $postDataString);
+			} else {
+				curl_setopt($ch, CURLOPT_POST, false);
+			}
+
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+			$result[0] = curl_exec($ch);
+			$result[1] = curl_errno($ch);
+			$result[2] = curl_error($ch);
+			$result[3] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+			return $result;
+		} catch (Exception $e) {
+			echo $e->getMessage();
+			return array("false");
+		}
+	}
+
+	/**
+	 * Google ID Token 검증
+	 */
+	private function verify_google_id_token($id_token, $allowed_client_ids = [])
+	{
+		if ($id_token == "") {
+			return ["ok" => false, "error" => "id_token 없음"];
+		}
+
+		$url = "https://oauth2.googleapis.com/tokeninfo?id_token=" . urlencode($id_token);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		$response = curl_exec($ch);
+		$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$curl_error = curl_error($ch);
+		curl_close($ch);
+
+		if ($response === false || $http_code != 200) {
+			return ["ok" => false, "error" => "토큰 검증 실패: " . $curl_error];
+		}
+
+		$data = json_decode($response, true);
+		if (!is_array($data) || empty($data["sub"])) {
+			return ["ok" => false, "error" => "토큰 정보 파싱 실패"];
+		}
+
+		if (!empty($allowed_client_ids)) {
+			$aud = isset($data["aud"]) ? $data["aud"] : "";
+			if ($aud == "" || !in_array($aud, $allowed_client_ids, true)) {
+				return ["ok" => false, "error" => "클라이언트 ID 불일치"];
+			}
+		}
+
+		if (isset($data["exp"]) && (int)$data["exp"] < time()) {
+			return ["ok" => false, "error" => "토큰 만료"];
+		}
+
+		return ["ok" => true, "data" => $data];
 	}
 
 	function login_process($join_type, $join_key)

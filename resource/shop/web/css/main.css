@@ -5061,6 +5061,16 @@ body {
 
 }
 
+.google-btn {
+    background-image: url("/resource/shop/mobile/img/member/ic-google-login.svg");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #ffffff;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
 /* .vendor-login .vendor-type2 {
     background-color: #161616;
 }

@@ -1,6 +1,10 @@
 <?php
 // Kakao Maps SDK 키 로드 (지오코딩 사용)
 $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
+// 구글 가입자용 QuickInfo 바텀시트 로드
+require_once __DIR__ . '/../../mobile/_partial/bottom_sheet_template.php';
+require_once __DIR__ . '/../../mobile/_partial/bottom_sheet_helpers.php';
+require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 ?>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
 
@@ -24,6 +28,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     </main><!-- //page-content -->
 </div><!-- //page -->
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
+<div id="auto-resume-loading-web" class="auto-resume-loading-web" aria-hidden="true">
+  <div class="loading-card" role="status" aria-live="polite">
+    <p class="loading-title">맞춤형 공고 나우잡이 찾아드립니다.</p>
+    <p class="loading-desc">딱 맞는 공고만 선별중입니다. 잠시만 기다려주세요.</p>
+    <div class="loading-spinner" aria-hidden="true"></div>
+  </div>
+</div>
 <style>
   /* join_mem_finish에서만 주소 팝업 크기 축소 */
   #changeArea .panel-container {
@@ -38,6 +49,130 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
   #changeArea .panel-body {
     max-height: calc(86vh - 64px);
     overflow: auto;
+  }
+
+  /* PC용 QuickInfo 바텀시트 레이아웃 보정 */
+  .layer-panel {
+    display: none;
+  }
+  .layer-panel.on {
+    display: block;
+  }
+  .layer-panel.card-type {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+  }
+  .layer-panel.card-type::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .layer-panel.card-type.on::before {
+    opacity: 1;
+  }
+  .layer-panel.card-type .bottom-sheet-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 420px;
+    max-width: 92vw;
+    background: #fff;
+    border-radius: 24px;
+    transform: translate(-50%, calc(-50% + 24px));
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+  }
+  .layer-panel.card-type.on .bottom-sheet-container {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  .bottom-sheet-content-container {
+    background: #fff;
+  }
+  .bottom-sheet-content-body {
+    padding: 0 24px 16px;
+  }
+  .bottom-sheet-actions--split {
+    display: flex;
+    gap: 12px;
+    padding: 12px 24px 20px;
+  }
+  .bottom-sheet-action {
+    flex: 1;
+    height: 56px;
+    border-radius: 28px;
+    font-weight: 700;
+    border: 0;
+    cursor: pointer;
+  }
+  .bottom-sheet-action.btn-bottom-sheet-secondary {
+    background: #fff;
+    border: 1px solid #1B9D7D;
+    color: #1B9D7D;
+  }
+  .bottom-sheet-action.btn-bottom-sheet-primary {
+    background: #1B9D7D;
+    color: #fff;
+  }
+  .bottom-sheet-handlebar {
+    width: 100%;
+    padding: 10px 0 4px;
+  }
+  .bottom-sheet-handlebar::before {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 4px;
+    background: #d9d9d9;
+    border-radius: 2px;
+    margin: 0 auto;
+  }
+  .quickinfo-sheet {
+    padding: 4px 24px 12px;
+  }
+  .quickinfo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 6px 0 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+  }
+  .quickinfo-region-field {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid #d6d6d6;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 14px;
+    color: #666;
+  }
+  .quickinfo-group {
+    margin-bottom: 14px;
+  }
+  .quickinfo-label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+  }
+  .quickinfo-sheet .form-toggle-btn2 .btn {
+    min-width: 60px;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 12px;
+    border-radius: 18px;
   }
 </style>
 
@@ -57,6 +192,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     var LOCATION_PERMISSION_KEY = "nowjob_location_permission_status";
     var isLogin = <?= $this->user->isLogin() ? 'true' : 'false' ?>;
     var isMem = <?= ($this->user->isLogin() && $this->user->getUserType() === 'MEM') ? 'true' : 'false' ?>;
+    var JOIN_TYPE = "<?= $this->user->isLogin() ? $this->user->getJoinType() : '' ?>";
+    var IS_GOOGLE_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "GOOGLE");
+    // QuickInfo 상태 플래그
+    window.__quickInfoExpectLocation = false;
+    window.__quickInfoApplyFlow = false;
+    window.__quickInfoSelections = null;
+    window.__quickInfoManualAddrMode = false;
+    window.__quickInfoManualAddr = null;
 
     if (!isLogin || !isMem) {
         return;
@@ -77,6 +220,20 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         autoSaveResume(addrPayload);
     }
 
+    function showAutoResumeLoading() {
+        var el = document.getElementById("auto-resume-loading-web");
+        if (!el) return;
+        el.style.display = "flex";
+        el.setAttribute("aria-hidden", "false");
+    }
+
+    function hideAutoResumeLoading() {
+        var el = document.getElementById("auto-resume-loading-web");
+        if (!el) return;
+        el.style.display = "none";
+        el.setAttribute("aria-hidden", "true");
+    }
+
     function openManualAddressPopup() {
         // 주소 직접 입력 팝업 열기
         window.__hideAllRegionsInAddrPopup = true;
@@ -92,6 +249,86 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             panel.hidden = false;
             document.body.style.overflow = 'hidden';
         }
+    }
+
+    function setQuickInfoRegionText(text) {
+        var el = document.querySelector('.quickinfo-region-text');
+        if (el) el.textContent = text;
+    }
+
+    function getQuickInfoSelections() {
+        var nationVal = $('input[name="quickinfo_nation"]:checked').val() || "";
+        var genderVal = $('input[name="quickinfo_gender"]:checked').val() || "";
+        var ageVal = $('input[name="quickinfo_age"]:checked').val() || "";
+
+        var nationText = "";
+        if (nationVal === "foreign") {
+            nationText = "외국인";
+        } else if (nationVal === "domestic") {
+            nationText = "내국인";
+        }
+
+        var genderText = "";
+        if (genderVal === "male") {
+            genderText = "남";
+        } else if (genderVal === "female") {
+            genderText = "여";
+        }
+
+        return {
+            nation: nationText,
+            gender: genderText,
+            age: ageVal
+        };
+    }
+
+    function applyQuickInfoToPayload(payload, selections) {
+        var sel = selections || window.__quickInfoSelections || getQuickInfoSelections();
+        if (!sel) return payload;
+
+        if (sel.nation) {
+            payload.ru_nationality = sel.nation;
+        }
+        if (sel.gender) {
+            payload.quickinfo_gender = sel.gender;
+        }
+        if (sel.age) {
+            payload.quickinfo_age = sel.age;
+        }
+        return payload;
+    }
+
+    function submitQuickInfoWithAddress(addrPayload, selections) {
+        var payload = applyQuickInfoToPayload(Object.assign({}, addrPayload), selections);
+        submitQuickInfoToServer(payload);
+    }
+
+    function submitQuickInfoToServer(payload) {
+        if (window.__quickInfoSubmitting) return;
+        window.__quickInfoSubmitting = true;
+        showAutoResumeLoading();
+
+        var params = Object.assign({}, payload || {});
+        params.ru_name = params.ru_name || params.ru_name_seed_addr || "";
+        params.ru_addr = params.ru_addr || params.ad_addr || params.ru_name_seed_addr || "";
+
+        if (params.ad_addr && !Array.isArray(params.ad_addr)) params.ad_addr = [params.ad_addr];
+        if (params.ad_jibun && !Array.isArray(params.ad_jibun)) params.ad_jibun = [params.ad_jibun];
+        if (params.ad_doro && !Array.isArray(params.ad_doro)) params.ad_doro = [params.ad_doro];
+        if (params.ad_zipcode && !Array.isArray(params.ad_zipcode)) params.ad_zipcode = [params.ad_zipcode];
+        if (params.ad_detail && !Array.isArray(params.ad_detail)) params.ad_detail = [params.ad_detail];
+        if (params.ad_gps_x && !Array.isArray(params.ad_gps_x)) params.ad_gps_x = [params.ad_gps_x];
+        if (params.ad_gps_y && !Array.isArray(params.ad_gps_y)) params.ad_gps_y = [params.ad_gps_y];
+
+        comAjax("/mypage_proc/resume_autofill_quick", params, function(ret) {
+            window.__quickInfoSubmitting = false;
+            hideAutoResumeLoading();
+            if (ret && ret.code === "00") {
+                location.href = "/recruit/job_list";
+            } else {
+                commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});
+            }
+        });
     }
 
     function getRegionName(rawAddr) {
@@ -245,6 +482,23 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 ad_gps_y: result[0].y
             };
 
+            // QuickInfo 수동 주소 선택 모드라면: 주소만 캐시 + UI 갱신
+            if (window.__quickInfoManualAddrMode) {
+                window.__quickInfoManualAddrMode = false;
+                window.__quickInfoManualAddr = addrPayload;
+                var regionEl = document.querySelector('.quickinfo-region-text');
+                if (regionEl) {
+                    regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+                }
+                return;
+            }
+
+            // QuickInfo 적용하기 흐름이라면 자동이력서 생성
+            if (window.__quickInfoApplyFlow) {
+                submitQuickInfoWithAddress(addrPayload);
+                return;
+            }
+
             autoSaveResume(addrPayload);
         });
 
@@ -315,6 +569,46 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     function startAutoResumeFlowIfNeeded() {
         // 자동 이력서 흐름 시작 조건 확인 (권한/이력서 개수)
+        if (IS_GOOGLE_JOIN) {
+            if (typeof window.openQuickInfoPanel === 'function') {
+                window.openQuickInfoPanel();
+            }
+            // 위치 텍스트 업데이트 시도
+            setQuickInfoRegionText("위치 확인 중...");
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    comAjax("/common_proc/get_gps_address", { x: lng, y: lat }, function(ret) {
+                        if (ret.code === "00" && ret.data) {
+                            var parts = String(ret.data).split("^");
+                            var frontPart = (parts[0] || "").trim();
+                            if (typeof fRemoveBigAdrJS === 'function') {
+                                frontPart = fRemoveBigAdrJS(frontPart) || frontPart;
+                            }
+                            setQuickInfoRegionText(frontPart || "근무 지역 선택");
+                            window.__quickInfoManualAddr = {
+                                ru_name_seed_addr: frontPart,
+                                ad_zipcode: "",
+                                ad_jibun: frontPart,
+                                ad_doro: "",
+                                ad_addr: frontPart,
+                                ad_detail: "",
+                                ad_gps_x: lng,
+                                ad_gps_y: lat
+                            };
+                        } else {
+                            setQuickInfoRegionText("근무 지역 선택");
+                        }
+                    });
+                }, function() {
+                    setQuickInfoRegionText("근무 지역 선택");
+                }, { enableHighAccuracy: false, maximumAge: 0, timeout: 6000 });
+            } else {
+                setQuickInfoRegionText("근무 지역 선택");
+            }
+            return;
+        }
         var stored = getStoredPermissionStatus();
         if (stored === "granted") {
             requestLocationAndStart();
@@ -324,6 +618,70 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     document.addEventListener('DOMContentLoaded', startAutoResumeFlowIfNeeded);
- 
+
+    // QuickInfo 지역 선택 클릭 시 주소 팝업 오픈
+    $(document).on('click', '.quickinfo-region-field', function(e) {
+        e.preventDefault();
+        window.__quickInfoManualAddrMode = true;
+        openManualAddressPopup();
+    });
+
+    // QuickInfo 적용하기
+    window.handleQuickInfoApplyClick = function() {
+        var selections = getQuickInfoSelections();
+        var regionEl = document.querySelector('.quickinfo-region-text');
+        var regionText = regionEl ? regionEl.textContent.trim() : "";
+
+        if (!regionText || regionText === "근무 지역 선택" || regionText === "위치 확인 중...") {
+            commonAlert("근무 지역을 선택해주세요.", function() {
+                $('.quickinfo-region-field').trigger('click');
+            });
+            return;
+        }
+        if (!selections.nation) {
+            commonAlert("국적을 선택해주세요.", function() {});
+            return;
+        }
+        if (!selections.gender) {
+            commonAlert("성별을 선택해주세요.", function() {});
+            return;
+        }
+        if (!selections.age) {
+            commonAlert("나이를 선택해주세요.", function() {});
+            return;
+        }
+
+        window.__quickInfoSelections = selections;
+        window.__quickInfoApplyFlow = true;
+        window.__quickInfoExpectLocation = false;
+
+        if (window.__quickInfoManualAddr) {
+            submitQuickInfoWithAddress(window.__quickInfoManualAddr, selections);
+            return;
+        }
+        $('.quickinfo-region-field').trigger('click');
+    };
+
+    $(document).on('click', '#btnQuickInfoApply', function(e) {
+        e.preventDefault();
+        if (typeof window.handleQuickInfoApplyClick === 'function') {
+            window.handleQuickInfoApplyClick();
+        }
+    });
+
+    $(document).on('click', '#btnQuickInfoReset', function(e) {
+        e.preventDefault();
+        $('input[name="quickinfo_nation"][value="foreign"]').prop('checked', true).trigger('change');
+        $('input[name="quickinfo_gender"][value="male"]').prop('checked', true).trigger('change');
+        $('input[name="quickinfo_age"]').prop('checked', false);
+        setQuickInfoRegionText("근무 지역 선택");
+        window.__quickInfoSelections = null;
+        window.__quickInfoManualAddrMode = false;
+        window.__quickInfoManualAddr = null;
+        window.__quickInfoExpectLocation = false;
+    });
+
 })();
 </script>
+
+<?= getCashJs("/resource/shop/mobile/js/member/join_quickinfo_bottom_sheet.js") ?>
