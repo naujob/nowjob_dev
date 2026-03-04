@@ -1148,6 +1148,10 @@
 
             var panel = document.getElementById(panelId);
             if (!panel) return;
+            // QuickInfo에서 열린 주소 팝업은 닫기 버튼으로 닫지 않음
+            if (panelId === 'changeArea' && window.__disableChangeAreaClose) {
+                return;
+            }
 
             // 패널 열기/닫기 토글
             if (panel.classList.contains('on')) {
@@ -1165,18 +1169,27 @@
 
         // 배경 클릭 시 패널 닫기
         document.addEventListener('click', function (e) {
-            var openPanel = document.querySelector('.layer-panel.on');
-            if (!openPanel) return;
-
-            var panelContainer = openPanel.querySelector('.panel-container');
-
-            // 패널 컨테이너 내부를 클릭한 경우 닫지 않음
-            if (panelContainer && panelContainer.contains(e.target)) {
+            // 팝업이 열려있는 동안에는 패널 닫기 동작을 막음
+            if (document.body.classList.contains('has-popup') || e.target.closest('.layer-popup')) {
                 return;
             }
 
+            var openPanel = document.querySelector('.layer-panel.on');
+            if (!openPanel) return;
+            // QuickInfo에서 열린 주소 팝업은 배경 클릭으로 닫지 않음
+            if (openPanel.id === 'changeArea' && window.__disableChangeAreaClose) {
+                return;
+            }
+
+            var panelContainer = openPanel.querySelector('.panel-container, .bottom-sheet-container');
+
+            // 패널 컨테이너 내부를 클릭한 경우 닫지 않음
+                if (panelContainer && panelContainer.contains(e.target)) {
+                    return;
+                }
+
             // 배경을 클릭한 경우 패널 닫기
-            if (openPanel === e.target || (openPanel.contains(e.target) && !panelContainer.contains(e.target))) {
+            if (openPanel === e.target || (openPanel.contains(e.target) && (!panelContainer || !panelContainer.contains(e.target)))) {
                 closePanel(openPanel);
             }
         });
@@ -1186,6 +1199,9 @@
             if (e.keyCode === 27) { // ESC 키
                 var openPanel = document.querySelector('.layer-panel.on');
                 if (openPanel) {
+                    if (openPanel.id === 'changeArea' && window.__disableChangeAreaClose) {
+                        return;
+                    }
                     closePanel(openPanel);
                 }
             }

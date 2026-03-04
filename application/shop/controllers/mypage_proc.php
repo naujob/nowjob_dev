@@ -252,6 +252,8 @@ class Mypage_proc extends CI_Controller
     json_return("00", "처리완료");
   }
 
+  // (debug endpoint removed)
+
   function point_promotion_cancel()
   {
     # 데이터 추가.

@@ -929,11 +929,11 @@
            });
 
            // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
-           $(document).on('click', '.addr_sel_apply', function() {
+          $(document).on('click', '.addr_sel_apply', function() {
 
-             const count = $('.selbtn').length;
-             //if (count<1) return;
-             var addrNames = [];
+            const count = $('.selbtn').length;
+            //if (count<1) return;
+            var addrNames = [];
 
              if ($('.selbtn').length > 0) {
                $('.selbtn').each(function() {
@@ -963,18 +963,18 @@
              });
              searchAreaStr = JSON.stringify(searchArea);
 
-             // index_search.php의 전역 함수 호출하여 선택된 지역 정보 전달
-             if (typeof window.onRegionSelectionComplete === 'function') {
-               window.onRegionSelectionComplete(addrNames);
-             }
+            // index_search.php의 전역 함수 호출하여 선택된 지역 정보 전달
+            if (typeof window.onRegionSelectionComplete === 'function') {
+              window.onRegionSelectionComplete(addrNames);
+            }
 
-             // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
-             var handled = false;
-             if (typeof window.onChangeAreaApply === 'function') {
-               try {
-                 handled = window.onChangeAreaApply({
-                   addrNames: addrNames,
-                   addrNameText: addrName,
+            // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
+            var handled = false;
+            if (typeof window.onChangeAreaApply === 'function') {
+              try {
+                handled = window.onChangeAreaApply({
+                  addrNames: addrNames,
+                  addrNameText: addrName,
                    searchArea: searchArea,
                    searchAreaStr: searchAreaStr
                  }) === true;
@@ -983,8 +983,17 @@
                }
              }
 
-             $("#changeArea").removeClass("on");
-             resetAllRegionFlag();
+            $("#changeArea").removeClass("on");
+            resetAllRegionFlag();
+            // QuickInfo 플로우에서 열린 경우 다시 기본 닫기 동작 허용
+            if (window.__disableChangeAreaClose) {
+              window.__disableChangeAreaClose = false;
+            }
+            // QuickInfo 패널에서 열린 경우, 적용 후 다시 열기 (PC)
+            if (window.__returnToQuickInfo && typeof window.openQuickInfoPanel === 'function') {
+              window.__returnToQuickInfo = false;
+              window.openQuickInfoPanel();
+            }
 
              if (!handled) {
                if (typeof list_page !== "undefined") list_page = 1;

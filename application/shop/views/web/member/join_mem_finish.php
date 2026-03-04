@@ -201,6 +201,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
     window.__quickInfoManualAddrMode = false;
     window.__quickInfoManualAddr = null;
 
+
     if (!isLogin || !isMem) {
         return;
     }
@@ -456,6 +457,10 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             return true;
         }
 
+        // 주소 선택 직후 UI 텍스트를 먼저 갱신 (PC에서 중복 alert 방지)
+        var displayAddr = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+        setQuickInfoRegionText(displayAddr);
+
         var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
         if (!geocoderAvailable) {
             alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
@@ -580,6 +585,10 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     var lat = position.coords.latitude;
                     var lng = position.coords.longitude;
                     comAjax("/common_proc/get_gps_address", { x: lng, y: lat }, function(ret) {
+                        // 사용자가 이미 수동으로 주소를 선택했으면 GPS 결과로 덮어쓰지 않음
+                        if (window.__quickInfoManualAddr || window.__quickInfoManualAddrMode) {
+                            return;
+                        }
                         if (ret.code === "00" && ret.data) {
                             var parts = String(ret.data).split("^");
                             var frontPart = (parts[0] || "").trim();
@@ -598,14 +607,21 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                                 ad_gps_y: lat
                             };
                         } else {
-                            setQuickInfoRegionText("근무 지역 선택");
+                            // 수동 선택이 없을 때만 기본값으로 복원
+                            if (!window.__quickInfoManualAddr && !window.__quickInfoManualAddrMode) {
+                                setQuickInfoRegionText("근무 지역 선택");
+                            }
                         }
                     });
                 }, function() {
-                    setQuickInfoRegionText("근무 지역 선택");
+                    if (!window.__quickInfoManualAddr && !window.__quickInfoManualAddrMode) {
+                        setQuickInfoRegionText("근무 지역 선택");
+                    }
                 }, { enableHighAccuracy: false, maximumAge: 0, timeout: 6000 });
             } else {
-                setQuickInfoRegionText("근무 지역 선택");
+                if (!window.__quickInfoManualAddr && !window.__quickInfoManualAddrMode) {
+                    setQuickInfoRegionText("근무 지역 선택");
+                }
             }
             return;
         }
@@ -623,19 +639,39 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
     $(document).on('click', '.quickinfo-region-field', function(e) {
         e.preventDefault();
         window.__quickInfoManualAddrMode = true;
+        // 주소 팝업 적용 후 QuickInfo 패널로 돌아가기 위한 플래그
+        window.__returnToQuickInfo = true;
+        // QuickInfo에서 열린 주소 팝업은 배경/X로 닫히지 않게
+        window.__disableChangeAreaClose = true;
         openManualAddressPopup();
     });
 
     // QuickInfo 적용하기
     window.handleQuickInfoApplyClick = function() {
+        if (window.__quickInfoApplyClickLock) return;
+        window.__quickInfoApplyClickLock = true;
+        setTimeout(function() { window.__quickInfoApplyClickLock = false; }, 300);
+
         var selections = getQuickInfoSelections();
         var regionEl = document.querySelector('.quickinfo-region-text');
         var regionText = regionEl ? regionEl.textContent.trim() : "";
 
         if (!regionText || regionText === "근무 지역 선택" || regionText === "위치 확인 중...") {
-            commonAlert("근무 지역을 선택해주세요.", function() {
-                $('.quickinfo-region-field').trigger('click');
-            });
+            // 안내 팝업 없이 바로 주소 선택 팝업 오픈 (가장 단순하고 확실)
+            window.__quickInfoManualAddrMode = true;
+            window.__returnToQuickInfo = true;
+            if (typeof openManualAddressPopup === 'function') {
+                openManualAddressPopup();
+            } else {
+                var panel = document.getElementById("changeArea");
+                if (panel) {
+                    panel.classList.add("on");
+                    panel.hidden = false;
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    $('.quickinfo-region-field').trigger('click');
+                }
+            }
             return;
         }
         if (!selections.nation) {
@@ -647,7 +683,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             return;
         }
         if (!selections.age) {
-            commonAlert("나이를 선택해주세요.", function() {});
+            // 가장 단순한 방식으로 안내
+            alert("나이를 선택해주세요.");
             return;
         }
 
@@ -662,6 +699,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         $('.quickinfo-region-field').trigger('click');
     };
 
+    // inline onclick이 막히는 환경 대비용 핸들러 (중복 호출은 lock으로 방지)
     $(document).on('click', '#btnQuickInfoApply', function(e) {
         e.preventDefault();
         if (typeof window.handleQuickInfoApplyClick === 'function') {
