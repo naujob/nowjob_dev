@@ -655,6 +655,14 @@
              get_location_data(step, addr);
            }
 
+           /**
+            * 선택된 주소 항목(리스트 아이템)을 토글하고, 선택된 상태에 따라
+            * UI(버튼 등)를 신규 생성 또는 제거 및 최대 선택 개수(3개) 제한 로직을 처리하는 함수입니다.
+            * 
+            * @param {number|string} step - 주소단계(1,2,3 등)
+            * @param {string} addr - 주소값
+            * @param {jQuery} $clickedLi - 클릭된 li 주소 jQuery 객체
+            */
            function searchSelect(step, addr, $clickedLi) {
              const isSelected = $clickedLi.toggleClass('addr_on').hasClass('addr_on');
              const currentStep = parseInt(step, 10);

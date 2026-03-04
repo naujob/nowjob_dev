@@ -13,7 +13,9 @@ if (count($banner_list) > 0) {
   .current-area .btn {
     max-width: 90%;
   }
-
+  .search-option .categories .cate {
+    display: none;
+  }
   .btn-bookmark {
     display: block;
     position: absolute;
@@ -965,6 +967,14 @@ if (count($banner_list) > 0) {
     setTimeout(attemptRestoreScroll, 50);
     setTimeout(attemptRestoreScroll, 200);
   });
+  // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
+  window.onChangeAreaApply = function() {
+    $(".search-option").addClass("hide-cate");
+    if (typeof saveSearchStateToStorage === "function") {
+      saveSearchStateToStorage();
+    }
+  };
+  
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.content-li').data('rc_idx');
     if (rcIdx) {
