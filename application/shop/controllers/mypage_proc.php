@@ -750,25 +750,25 @@ class Mypage_proc extends CI_Controller
       $ru_nationality = "내국인";
     }
     if ($ru_name == "") {
-      $seed = $ru_addr != "" ? $ru_addr : "우리 동네";
-      $title_templates = [
-        "[지역명] 기반, 준비된 맞춤형 인재입니다!",
-        "번개처럼 빠르게 적응하는 [지역명] 구직자",
-        "성실함이 무기! [지역명] 근처 바로 출근 가능합니다.",
-        "나우잡이 추천하는 [지역명] 열정 인재 ",
-        "복잡한 건 생략! 실력으로 보여드릴 [지역명] 지원자",
-        "지금 즉시 매칭 가능한 [지역명] 최적화 인재",
-        "[지역명]에서 누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!",
-        "[지역명] 거주 중! 꼼꼼함과 책임감을 겸비한 인재",
-        "사장님이 찾으시던 바로 그 [지역명] 꿀알바 지원생",
-        "[지역명] 에서 지금바로 출근준비되어있습니다."
-      ];
-      $pick_idx = 0;
-      if (!empty($title_templates)) {
-        $pick_idx = random_int(0, count($title_templates) - 1);
-      }
-      $template = $title_templates[$pick_idx];
-      $ru_name = str_replace("[지역명]", $seed, $template);
+    $seed = $ru_addr != "" ? $ru_addr : "우리 동네";
+    $title_templates = [
+      "[지역명] 기반, 준비된 맞춤형 인재입니다!",
+      "번개처럼 빠르게 적응하는 [지역명] 구직자",
+      "성실함이 무기! [지역명] 근처 바로 출근 가능합니다.",
+      "나우잡이 추천하는 [지역명] 열정 인재 ",
+      "복잡한 건 생략! 실력으로 보여드릴 [지역명] 지원자",
+      "지금 즉시 매칭 가능한 [지역명] 최적화 인재",
+      "[지역명]에서 누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!",
+      "[지역명] 거주 중! 꼼꼼함과 책임감을 겸비한 인재",
+      "사장님이 찾으시던 바로 그 [지역명] 꿀알바 지원생",
+      "[지역명] 에서 지금바로 출근준비되어있습니다."
+    ];
+    $pick_idx = 0;
+    if (!empty($title_templates)) {
+      $pick_idx = random_int(0, count($title_templates) - 1);
+    }
+    $template = $title_templates[$pick_idx];
+    $ru_name = str_replace("[지역명]", $seed, $template);
     }
 
     // 최소 유효성 검사

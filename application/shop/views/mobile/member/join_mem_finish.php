@@ -387,23 +387,8 @@ renderSelectBottomSheet(
     var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
     var hasOpenPanel = (typeof window.openPanel === 'function');
     var DEBUG_PREFIX = '[join_mem_finish][bottomsheet]';
-    var RESUME_AUTO_ONCE_KEY = "resume_auto_once_started";
 
     if (!isLogin || !isMem) return;
-
-    function hasAutoStartedOnce() {
-      try {
-        return localStorage.getItem(RESUME_AUTO_ONCE_KEY) === "1";
-      } catch (e) {
-        return false;
-      }
-    }
-
-    function markAutoStartedOnce() {
-      try {
-        localStorage.setItem(RESUME_AUTO_ONCE_KEY, "1");
-      } catch (e) {}
-    }
 
     function isLocationBridgeReady() {
       return (
@@ -504,46 +489,25 @@ renderSelectBottomSheet(
         : null;
       var hasLocationConsent = storedPermission === 'granted';
 
-      $.ajax({
-        url: '/mypage_proc/getResumeCount',
-        type: 'GET',
-        dataType: 'json',
-        success: function(ret) {
-          var count = 0;
-          if (ret && ret.data && typeof ret.data.count !== 'undefined') {
-            count = parseInt(ret.data.count, 10) || 0;
-          }
+      if (IS_GOOGLE_JOIN) {
+        openQuickInfoForGoogle(hasLocationConsent);
+        return;
+      }
 
-          if (IS_GOOGLE_JOIN && count <= 0) {
-            openQuickInfoForGoogle(hasLocationConsent);
-            return;
-          }
+      if (hasLocationConsent) {
+        startAutoResumeFlowOnce();
+        return;
+      }
+      var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
+      var panel = document.getElementById(targetPanelId);
+      if (!panel) {
+        return;
+      }
+      if (typeof openPanel !== 'function') {
+        return;
+      }
 
-          if (count <= 0) {
-            if (hasLocationConsent && !hasAutoStartedOnce()) {
-              markAutoStartedOnce();
-              startAutoResumeFlowOnce();
-              return;
-            }
-            if (hasLocationConsent) {
-              return;
-            }
-            var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
-            var panel = document.getElementById(targetPanelId);
-            if (!panel) {
-              return;
-            }
-            if (typeof openPanel !== 'function') {
-              return;
-            }
-
-            openPanel(panel);
-          } else {
-          }
-        }
-        ,error: function(xhr, status, error) {
-        }
-      });
+      openPanel(panel);
     }
 
     openGuidePanelByPermission();

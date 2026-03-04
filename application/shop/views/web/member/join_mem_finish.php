@@ -55,7 +55,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 (function() {
     // 위치 권한 동의 시 자동 이력서 작성 흐름 (웹)
     var LOCATION_PERMISSION_KEY = "nowjob_location_permission_status";
-    var RESUME_AUTO_ONCE_KEY = "web_resume_auto_once_started";
     var isLogin = <?= $this->user->isLogin() ? 'true' : 'false' ?>;
     var isMem = <?= ($this->user->isLogin() && $this->user->getUserType() === 'MEM') ? 'true' : 'false' ?>;
 
@@ -70,22 +69,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         } catch (e) {
             return null;
         }
-    }
-
-    function hasAutoStartedOnce() {
-        // 자동 이력서 흐름이 이미 시작됐는지 확인 (중복 실행 방지)
-        try {
-            return localStorage.getItem(RESUME_AUTO_ONCE_KEY) === "1";
-        } catch (e) {
-            return false;
-        }
-    }
-
-    function markAutoStartedOnce() {
-        // 자동 이력서 흐름 시작 플래그 저장
-        try {
-            localStorage.setItem(RESUME_AUTO_ONCE_KEY, "1");
-        } catch (e) {}
     }
 
     function navigateToResumeWrite(addrPayload) {
@@ -333,27 +316,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     function startAutoResumeFlowIfNeeded() {
         // 자동 이력서 흐름 시작 조건 확인 (권한/이력서 개수)
         var stored = getStoredPermissionStatus();
-        if (hasAutoStartedOnce()) return;
-
-        $.ajax({
-            url: '/mypage_proc/getResumeCount',
-            type: 'GET',
-            dataType: 'json',
-            success: function(ret) {
-                var count = 0;
-                if (ret && ret.data && typeof ret.data.count !== 'undefined') {
-                    count = parseInt(ret.data.count, 10) || 0;
-                }
-                if (count <= 0) {
-                    if (stored === "granted") {
-                        markAutoStartedOnce();
-                        requestLocationAndStart();
-                    } else {
-                        openManualAddressPopup();
-                    }
-                }
-            }
-        });
+        if (stored === "granted") {
+            requestLocationAndStart();
+        } else {
+            openManualAddressPopup();
+        }
     }
 
     document.addEventListener('DOMContentLoaded', startAutoResumeFlowIfNeeded);

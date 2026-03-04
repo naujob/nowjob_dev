@@ -415,7 +415,7 @@ $addr_info = replaceRegionNames(trim($addr_info));
       var recruitlist = [];
       var currentLatitude = <?= $ad_gps_y > 1 ? $ad_gps_y : 37.5665 ?>;
       var currentLongitude = <?= $ad_gps_x > 1 ? $ad_gps_x : 126.9780 ?>;
-      var currentLevel = <?= $search_txt["mapLevel"] ? $search_txt["mapLevel"] : 6 ?>;
+      var currentLevel = 8; // 진입 시 2km 수준으로 더 줌 (필요 시 조정)
       var currentDong = "<?= $ad_addr != "" ? $ad_addr : "서울특별시 중구 태평로1가" ?>";
       var pins = [];
 
