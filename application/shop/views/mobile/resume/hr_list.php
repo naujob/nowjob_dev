@@ -553,8 +553,11 @@ if (count($banner_list) > 0) {
 
 <script>
   // 현재 로그인한 사용자 정보
-  var currentUserMmIdx = <?php echo $this->user->isLogin() ? $this->user->getUserIdx() : 'null'; ?>;
-  var currentUserType = '<?php echo isset($mm_type) ? $mm_type : ""; ?>';
+  var currentUserMmIdx = <?php
+    $mm_idx = $this->user->isLogin() ? $this->user->getUserIdx() : null;
+    echo json_encode($mm_idx ? (int)$mm_idx : null);
+  ?>;
+  var currentUserType = <?php echo json_encode(isset($mm_type) ? $mm_type : ""); ?>;
 </script>
 
 <style>
@@ -593,7 +596,7 @@ if (count($banner_list) > 0) {
 
 
 <script>
-  var ad_addr = "<?= $addr_info["ad_addr"] ?>";
+  var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;

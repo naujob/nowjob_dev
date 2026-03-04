@@ -632,7 +632,7 @@ class Mypage_proc extends CI_Controller
     $ad_gps_y = isset($_POST["ad_gps_y"]) ? (array)$_POST["ad_gps_y"] : [];
 
     # 데이터 검증 (배열인 경우 count 체크)
-    if ($ru_name == "") {
+    if ($ru_name == "" ) {
       json_return("99", "이력서 관리명이 확인되지 않습니다.");
     }
 
@@ -749,7 +749,7 @@ class Mypage_proc extends CI_Controller
     if ($ru_nationality == "") {
       $ru_nationality = "내국인";
     }
-    if ($ru_name == "") {
+    if ($ru_name == "" || $ru_name == $ru_addr) {
     $seed = $ru_addr != "" ? $ru_addr : "우리 동네";
     $title_templates = [
       "[지역명] 기반, 준비된 맞춤형 인재입니다!",
@@ -765,7 +765,12 @@ class Mypage_proc extends CI_Controller
     ];
     $pick_idx = 0;
     if (!empty($title_templates)) {
-      $pick_idx = random_int(0, count($title_templates) - 1);
+      $max_idx = count($title_templates) - 1;
+      if (function_exists('random_int')) {
+        $pick_idx = random_int(0, $max_idx);
+      } else {
+        $pick_idx = mt_rand(0, $max_idx);
+      }
     }
     $template = $title_templates[$pick_idx];
     $ru_name = str_replace("[지역명]", $seed, $template);
