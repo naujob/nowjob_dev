@@ -1,0 +1,13 @@
+[codex]
+instructions = [
+    "내 PHP 버전은 5.4.16이야. 최신 문법은 피하고 isset()을 써줘.",
+    "초등학생 눈높이로 친절하게 설명해줘."
+    
+]
+# Codex가 작업을 시작할 때 항상 머릿속에 담아두어야 할 파일들입니다.
+project_context = [
+    ".agents/ARCHITECTURE.md", 
+    ".agents/skills/debug_logger/SKILL.md",
+    ".agents/skills/error_fixer/SKILL.md",
+    ".agents/skills/work_process/SKILL.md"
+]

@@ -1,5 +1,15 @@
 <script language="javascript">
 	//검색처리
+	/**
+	 * getSearchApi
+	 * 주소 검색어(API) 요청을 처리하는 함수
+	 * 
+	 * @param {string} keyword - 검색할 주소 키워드
+	 * @param {string} type - 검색 유형 (예: "search", "gps" 등)
+	 * @param {number|string} xpos - X(경도) 좌표값
+	 * @param {number|string} ypos - Y(위도) 좌표값
+	 * @param {function} callback - 검색 결과 처리 콜백 함수
+	 */
 	function getSearchApi(keyword, type, xpos, ypos, callback) {
 		$("#searchApiFrm").find("[name=keyword]").val(keyword);
 
@@ -7,6 +17,21 @@
 
 	}
 
+	/**
+	 * getAddr
+	 * 주소 검색 API 호출 및 결과 처리 함수
+	 *
+	 * @param {string} type - 검색 유형 (예: "search", "gps" 등)
+	 * @param {number|string} xpos - X(경도) 좌표 또는 0
+	 * @param {number|string} ypos - Y(위도) 좌표 또는 0
+	 * @param {function} callback - 검색 결과를 처리할 콜백 함수
+	 *
+	 * 설명:
+	 * - 검색어 유효성 체크를 수행하고, 실패 시 함수 실행을 중단합니다.
+	 * - juso.go.kr 주소검색 API를 비동기 호출합니다.
+	 * - 호출 결과의 오류 코드와 메시지를 확인하여 예외 상황에 대응합니다.
+	 * - 정상적인 검색 결과(juso 배열이 1개 이상) 경우 makeListJson을 호출하고, 결과가 없으면 기본 주소 리스트를 생성합니다.
+	 */
 	function getAddr(type, xpos, ypos, callback) {
 		// 적용예 (api 호출 전에 검색어 체크)
 		if (!checkSearchedWord(document.searchApiFrm.keyword)) {

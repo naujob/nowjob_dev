@@ -355,10 +355,10 @@
                 if(ret.code=="00"){
                     if($("[name=ru_idx]").val()!="0"){
                 		//_replace("/mypage/resume_write4/" + $("[name=ru_idx]").val());
-                    location.href="/mypage/resume_write4/" + $("[name=ru_idx]").val();
+                    location.href="/mypage/resume_write1/" + $("[name=ru_idx]").val();
                 	}else{
                 		//_replace("/mypage/resume_write4");
-                    location.href="/mypage/resume_write4";
+                    location.href="/mypage/resume_write1";
                 	}
                 }else{
                     commonAlert(ret.msg,function(){});

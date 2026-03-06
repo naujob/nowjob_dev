@@ -95,6 +95,133 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         top: 0vh;
     }
 
+    .detail-register-btn {
+        display: block;
+        width: 100%;
+        height: 3.5rem;
+        margin-top: 0.875rem;
+        padding: 0 1.25rem;
+        font-size: 1rem;
+        font-weight: 400;
+        color: #222;
+        line-height: 3.5rem;
+        text-align: center;
+        text-decoration: none;
+        border: 1px solid #BEBFC9;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .detail-register-btn .add-icon {
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin-right: 4px;
+        vertical-align: middle;
+    }
+
+    .datepicker-wrapper {
+        position: relative;
+        display: block;
+    }
+
+    .datepicker-wrapper .form-text {
+        padding-right: 2.5rem;
+        cursor: pointer;
+        background-color: #fff;
+    }
+
+    .datepicker-wrapper .form-text:focus {
+        border-color: #57CCAF;
+        outline: none;
+    }
+
+    .datepicker-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.25rem;
+        height: 1.25rem;
+        pointer-events: none;
+        color: #999;
+    }
+
+    .datepicker-icon::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .datepicker-wrapper .form-text[readonly] {
+        cursor: pointer;
+        background-color: #fff;
+    }
+
+    .flatpickr-calendar {
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .flatpickr-monthSelect-month.selected,
+    .flatpickr-monthSelect-month.startRange,
+    .flatpickr-monthSelect-month.endRange {
+        background: #57CCAF;
+        color: #fff;
+    }
+
+    .flatpickr-monthSelect-month.inRange {
+        background: rgba(87, 204, 175, 0.2);
+    }
+
+    .form-row.intro-section {
+        margin-top: 1.875rem;
+    }
+
+    .form-row.my-strength-section {
+        margin-top: 1.25rem;
+    }
+
+    .form-row.my-strength-section + .form-row.js-detail-section,
+    .form-row.js-detail-section {
+        display: none;
+        margin-top: 0.875rem;
+    }
+
+    .form-row.js-detail-section.show {
+        display: block;
+    }
+
+    textarea[name="ru_desc"] {
+        min-height: 20.25rem;
+    }
+
+    .page.page-write .page-content {
+        padding-bottom: 5.5rem;
+    }
+
+    .page.page-write .page-content .section.addition-info-form {
+        padding-bottom: 1rem;
+    }
+
+    .page.page-write .page-content .section.addition-info-form .container {
+        padding-bottom: 1rem;
+    }
+
+    .page.page-write form#frm {
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    .page.page-write .sticky-bottom {
+        z-index: 5;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
 </style>
 
 <div class="page page-write">
@@ -107,6 +234,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             <input type="hidden" name="ru_work_img" value="" />
             <input type="hidden" name="quickinfo_gender" value="" />
             <input type="hidden" name="quickinfo_age" value="" />
+            <input type="hidden" name="arr_career" value="" />
+            <input type="hidden" name="arr_certi" value="" />
             <div class="section addition-info-form">
                 <div class="container">
                     <div class="form-row">
@@ -144,6 +273,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 }
                             ?>
                                 <label class="form-toggle-btn2 sm">
+                                    <!--
+                                        희망업무 체크박스
+                                        name="ru_work[]": 사용자가 선택한 희망업무를 배열로 전송
+                                        data-select-limit="2": 최대 2개까지 선택 가능하도록 JS에서 제어
+                                        value="<?= $row["cd_val"] ?>": 업무 코드값(예: 생산, 사무직 등)
+                                        data-img="<?= $row["cd_val2"] ?>": 각각의 업무에 해당하는 이미지 경로(썸네일 등)
+                                        <?= in_array_return($row["cd_val"], $info["ru_work"], "check") ?>: 이미 선택된 값들은 checked 처리
+                                    -->
                                     <input type="checkbox" name="ru_work[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" data-img="<?= $row["cd_val2"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work"], "check") ?>>
                                     <span class="btn"><?= $row["cd_val"] ?></span>
                                 </label>
@@ -203,8 +340,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                             <?php endforeach; ?>
                         </div>
                     </div>
-                </div>
-            </div>
             <script>
                 //선택목록 제한
                 (function() {
@@ -260,8 +395,242 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 }());
             </script>
 
+            <div class="form-row intro-section">
+                <p class="form-label"><span class="required-asterisk">*</span>자기소개<em>최대500자</em></p>
+                <label>
+                    <span class="sr-text">자기소개 입력</span>
+                    <textarea name="ru_desc" maxlength="500" class="form-textarea js-autoheight"><?= $info["ru_desc"] ?></textarea>
+                </label>
+
+            </div>
+            <div class="form-row my-strength-section">
+                <p class="form-label"><span class="required-asterisk">*</span>나의강점 <em>나의강점을 선택하세요(최대6개까지)</em></p>
+                <div class="form-toggle-group col-3">
+                    <?php
+                    $ru_my_type_list = isset($ru_my_type_list) ? $ru_my_type_list : [];
+                    $info_ru_my_type = isset($info["ru_my_type"]) ? (is_array($info["ru_my_type"]) ? $info["ru_my_type"] : explode(",", $info["ru_my_type"])) : [];
+                    $ru_my_type_list_limited = array_slice($ru_my_type_list, 0, 12);
+                    foreach ($ru_my_type_list_limited as $row) :
+                        if (!isset($row["cd_val"]) || trim($row["cd_val"]) === "") {
+                            continue;
+                        }
+                    ?>
+                        <label class="form-toggle-btn2 sm tag">
+                            <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info_ru_my_type, "check") ?>>
+                            <span class="btn"><?= $row["cd_val"] ?></span>
+                        </label>
+                    <?php endforeach; ?>
+
+                    <?php if (!empty($info_ru_my_type)) : ?>
+                        <?php foreach ($info_ru_my_type as $row) : ?>
+                            <?php
+                            if (trim((string)$row) === "") {
+                                continue;
+                            }
+                            $is_arr = false;
+                            foreach ($ru_my_type_list as $temp) {
+                                if (isset($temp["cd_val"]) && $temp["cd_val"] == $row) {
+                                    $is_arr = true;
+                                }
+                            }
+                            if ($is_arr == false) :
+                            ?>
+                                <label class="form-toggle-btn2 sm tag">
+                                    <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row ?>" <?= in_array_return($row, $info_ru_my_type, "check") ?>>
+                                    <span class="btn"><?= $row ?></span>
+                                </label>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="form-row js-detail-section">
+                <p class="form-label">
+                    희망요일 <em>다중선택가능</em>
+                    <span class="option">
+                        <label class="form-checkbox">
+                            <input type="checkbox" name="ru_week_yn" value="Y" class="sr-text js-week-all" <?= isset($info["ru_week_yn"]) && $info["ru_week_yn"] == "Y" ? "checked" : "" ?>>
+                            <span class="label">요일무관</span>
+                        </label>
+                    </span>
+                </p>
+                <div class="form-toggle-group align-justify">
+                    <?php
+                    if (!isset($ru_week_list) || empty($ru_week_list)) {
+                        $ru_week_list = [
+                            ["cd_val" => "월"],
+                            ["cd_val" => "화"],
+                            ["cd_val" => "수"],
+                            ["cd_val" => "목"],
+                            ["cd_val" => "금"],
+                            ["cd_val" => "토"],
+                            ["cd_val" => "일"]
+                        ];
+                    }
+                    $info_ru_week = isset($info["ru_week"]) ? (is_array($info["ru_week"]) ? $info["ru_week"] : explode(",", $info["ru_week"])) : [];
+                    if (empty($info_ru_week)) {
+                        $info_ru_week = ["월", "화", "수", "목", "금"];
+                    }
+                    foreach ($ru_week_list as $row) :
+                    ?>
+                        <label class="form-toggle-btn2 js-week-item">
+                            <input type="checkbox" name="ru_week[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info_ru_week, "check") ?>>
+                            <span class="btn"><?= $row["cd_val"] ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="form-row js-detail-section" data-section="career">
+                <p class="form-label">경력사항 <em>최대 3개까지만 등록가능</em></p>
+                <ol class="added-list">
+                    <?php $arr_career_count = 0; ?>
+                    <?php if (isset($info["arr_career"]) && $info["arr_career"] != "") :
+                        $arr_career = explode("&&&", $info["arr_career"]);
+                        $arr_career_count = count($arr_career);
+                        foreach ($arr_career as $row) :
+                            $arr_temp = explode("|||", $row);
+                    ?>
+                            <li>
+                                <div class="form-group">
+                                    <div class="col sm">
+                                        <label class="form-selectbox js-career-category">
+                                            <span class="sr-text">업종선택</span>
+                                            <select name="career_category[]">
+                                                <option value="">업종</option>
+                                                <option value="생산" <?= equal_return("생산", $arr_temp[0], "select") ?>>생산</option>
+                                                <option value="물류" <?= equal_return("물류", $arr_temp[0], "select") ?>>물류</option>
+                                                <option value="건설" <?= equal_return("건설", $arr_temp[0], "select") ?>>건설</option>
+                                                <option value="식당" <?= equal_return("식당", $arr_temp[0], "select") ?>>식당</option>
+                                                <option value="사무직" <?= equal_return("사무직", $arr_temp[0], "select") ?>>사무직</option>
+                                                <option value="서비스" <?= equal_return("서비스", $arr_temp[0], "select") ?>>서비스</option>
+                                                <option value="상담" <?= equal_return("상담", $arr_temp[0], "select") ?>>상담</option>
+                                                <option value="운전배달" <?= equal_return("운전배달", $arr_temp[0], "select") ?>>운전배달</option>
+                                                <option value="기타" <?= equal_return("기타", $arr_temp[0], "select") ?>>기타</option>
+                                            </select>
+                                            <span class="liner"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col">
+                                        <div class="meta">
+                                            <label>
+                                                <span class="sr-text">업체명 입력</span>
+                                                <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?= isset($arr_temp[1]) ? $arr_temp[1] : "" ?>" autocomplete="off" class="form-text">
+                                            </label>
+                                            <label class="datepicker-wrapper">
+                                                <span class="sr-text">근무기간 입력</span>
+                                                <input type="text" name="career_period[]" placeholder="근무기간을 선택하세요" value="<?= isset($arr_temp[2]) ? $arr_temp[2] : "" ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
+                                                <span class="datepicker-icon"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </ol>
+                <button type="button" class="btn-add-item js-add-career">등록</button>
+
+                <template id="careerTemp">
+                    <li>
+                        <div class="form-group">
+                            <div class="col sm">
+                                <label class="form-selectbox js-career-category">
+                                    <span class="sr-text">업종선택</span>
+                                    <select name="career_category[]">
+                                        <option value="">업종</option>
+                                        <option value="생산">생산</option>
+                                        <option value="물류">물류</option>
+                                        <option value="건설">건설</option>
+                                        <option value="식당">식당</option>
+                                        <option value="사무직">사무직</option>
+                                        <option value="서비스">서비스</option>
+                                        <option value="상담">상담</option>
+                                        <option value="운전배달">운전배달</option>
+                                        <option value="기타">기타</option>
+                                    </select>
+                                    <span class="liner"></span>
+                                </label>
+                            </div>
+                            <div class="col">
+                                <div class="meta">
+                                    <label>
+                                        <span class="sr-text">업체명 입력</span>
+                                        <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" autocomplete="off" class="form-text">
+                                    </label>
+                                    <label class="datepicker-wrapper">
+                                        <span class="sr-text">근무기간 입력</span>
+                                        <input type="text" name="career_period[]" placeholder="근무기간을 선택하세요" autocomplete="off" class="form-text num js-career-datepicker" readonly>
+                                        <span class="datepicker-icon"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                    </li>
+                </template>
+            </div>
+            <div class="form-row js-detail-section" data-section="license">
+                <p class="form-label">자격증 <em>허위사실 기재시 합격이 취소될 수 있습니다</em></p>
+                <ol class="added-list">
+                    <?php $arr_count = 0; ?>
+                    <?php if ($info["arr_certi"] != "") :
+                        $arr_crtyi = explode("&&&", $info["arr_certi"]);
+                        $arr_count = count($arr_crtyi);
+                        foreach ($arr_crtyi as $row):
+                            $arr_temp = explode("|||", $row);
+                    ?>
+                            <li>
+                                <div class="form-group">
+                                    <div class="col md">
+                                        <label>
+                                            <span class="sr-text">자격증명 입력</span>
+                                            <input type="text" name="license[]" maxlength="13" placeholder="자격증명" value="<?= $arr_temp[0] ?>" autocomplete="off" class="form-text name">
+                                        </label>
+                                    </div>
+                                    <div class="col">
+                                        <label>
+                                            <span class="sr-text">취득일자 입력</span>
+                                            <input type="text" name="regdate[]" placeholder="취득일자" value="<?= $arr_temp[1] ?>" autocomplete="off" class="form-text num js-datepicker">
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </ol>
+                <button type="button" class="btn-add-item js-add-license">등록</button>
+
+                <template id="licenseTemp">
+                    <li>
+                        <div class="form-group">
+                            <div class="col md">
+                                <label>
+                                    <span class="sr-text">자격증명 입력</span>
+                                    <input type="text" name="license[]" maxlength="13" placeholder="자격증명" autocomplete="off" class="form-text name">
+                                </label>
+                            </div>
+                            <div class="col">
+                                <label>
+                                    <span class="sr-text">취득일자 입력</span>
+                                    <input type="text" name="regdate[]" placeholder="취득일자" autocomplete="off" class="form-text num js-datepicker">
+                                </label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                    </li>
+                </template>
+            </div>
+            <div class="form-row">
+                <a href="javascript:void(0);" class="detail-register-btn js-detail-register">
+                    <span class="add-icon">+</span>상세등록
+                </a>
+            </div>
             <div class="sticky-bottom">
-                <button id="btnStep" type="button" class="btn btn-primary">다음</button>
+                <button id="btnStep" type="button" class="btn btn-primary">미리보기</button>
+            </div>
+                </div>
             </div>
         </form>
     </div><!-- //page-content -->
@@ -428,6 +797,258 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
+    function saveResumeStep4Data() {
+        try {
+            var storageKey = getResumeDraftKey(4);
+            var data = {
+                ru_desc: $("[name='ru_desc']").val() || "",
+                ru_my_type: [],
+                ru_week_yn: $("[name='ru_week_yn']").is(":checked") ? "Y" : "N",
+                ru_week: [],
+                detail_open: $(".js-detail-section").hasClass("show"),
+                arr_career: [],
+                arr_certi: []
+            };
+
+            $("[name='ru_my_type[]']:checked").each(function() {
+                data.ru_my_type.push($(this).val());
+            });
+            $("[name='ru_week[]']:checked").each(function() {
+                data.ru_week.push($(this).val());
+            });
+
+            $(".form-row[data-section='career'] .added-list").children("li").each(function() {
+                if ($(this).find(".form-group").length === 0) return;
+                data.arr_career.push({
+                    category: $(this).find("[name='career_category[]']").val() || "",
+                    company: $(this).find("[name='career_company[]']").val() || "",
+                    period: $(this).find("[name='career_period[]']").val() || ""
+                });
+            });
+
+            $(".form-row[data-section='license'] .added-list").children("li").each(function() {
+                if ($(this).find(".form-group").length === 0) return;
+                data.arr_certi.push({
+                    license: $(this).find("[name='license[]']").val() || "",
+                    regdate: $(this).find("[name='regdate[]']").val() || ""
+                });
+            });
+
+            localStorage.setItem(storageKey, JSON.stringify(data));
+        } catch (e) {
+            console.error("resume step4 저장 실패:", e);
+        }
+    }
+
+    function cleanupEmptyListItems() {
+        $(".form-row[data-section='career'] .added-list, .form-row[data-section='license'] .added-list").each(function() {
+            var $list = $(this);
+            var listElement = this;
+
+            $list.children("li").each(function() {
+                var $li = $(this);
+                var liElement = this;
+
+                if ($li.hasClass('is-deleted')) {
+                    if (liElement.parentNode) {
+                        liElement.parentNode.removeChild(liElement);
+                    }
+                    return;
+                }
+
+                if ($li.find('.form-group').length === 0) {
+                    if (liElement.parentNode) {
+                        liElement.parentNode.removeChild(liElement);
+                    }
+                    return;
+                }
+
+                if (liElement.parentNode !== listElement) {
+                    if (liElement.parentNode) {
+                        liElement.parentNode.removeChild(liElement);
+                    }
+                    return;
+                }
+            });
+        });
+    }
+
+    (function() {
+        document.addEventListener("click", function(e) {
+            var target = e.target;
+            var delBtn = null;
+
+            if (target.classList && target.classList.contains('js-del-item')) {
+                delBtn = target;
+            } else {
+                var parent = target.parentElement;
+                while (parent && parent !== document.body) {
+                    if (parent.classList && parent.classList.contains('js-del-item')) {
+                        delBtn = parent;
+                        break;
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+
+            if (delBtn) {
+                var $delBtn = $(delBtn);
+                var $item = $delBtn.closest("li");
+                var $list = $item.closest(".added-list");
+
+                var $formRow = $list.closest(".form-row");
+                if ($formRow.length > 0 && ($formRow.data("section") === "career" || $formRow.data("section") === "license")) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+
+                    var itemElement = $item[0];
+                    if (itemElement && itemElement.parentNode) {
+                        itemElement.classList.remove('is-deleted');
+                        itemElement.style.height = '';
+                        itemElement.style.width = '';
+
+                        var parentNode = itemElement.parentNode;
+                        parentNode.removeChild(itemElement);
+                    }
+
+                    setTimeout(function() {
+                        cleanupEmptyListItems();
+                        saveResumeStep4Data();
+                    }, 50);
+
+                    var $addBtn = $list.siblings(".js-add-career, .js-add-license");
+                    if ($addBtn.length > 0) {
+                        $addBtn.css('display', '').show();
+                    }
+
+                    return false;
+                }
+            }
+        }, true);
+    })();
+
+    function renderCareerItems(items) {
+        var $list = $(".form-row[data-section='career'] .added-list");
+        if ($list.length === 0 || !Array.isArray(items) || items.length === 0) return;
+        $list.empty();
+
+        items.forEach(function(item) {
+            var template = $("#careerTemp").html();
+            if (!template) return;
+            var $node = $(template);
+            $node.find("[name='career_category[]']").val(item.category || "");
+            $node.find("[name='career_company[]']").val(item.company || "");
+            $node.find("[name='career_period[]']").val(item.period || "");
+            initCareerDatepicker($node.find(".js-career-datepicker")[0]);
+            if (typeof initSelectbox === 'function') {
+                initSelectbox($node.find(".js-career-category")[0]);
+            }
+            $list.append($node);
+        });
+    }
+
+    function renderLicenseItems(items) {
+        var $list = $(".form-row[data-section='license'] .added-list");
+        if ($list.length === 0 || !Array.isArray(items) || items.length === 0) return;
+        $list.empty();
+
+        items.forEach(function(item) {
+            var template = $("#licenseTemp").html();
+            if (!template) return;
+            var $node = $(template);
+            $node.find("[name='license[]']").val(item.license || "");
+            $node.find("[name='regdate[]']").val(item.regdate || "");
+            initLicenseDatepicker($node.find(".js-datepicker")[0]);
+            $list.append($node);
+        });
+    }
+
+    function loadResumeStep4Data() {
+        var storageKey = getResumeDraftKey(4);
+        var saved = localStorage.getItem(storageKey);
+
+        var defaultWeekDays = ["월", "화", "수", "목", "금"];
+        var hasSavedData = false;
+
+        if (saved) {
+            try {
+                var formData = JSON.parse(saved);
+                if (formData) {
+                    hasSavedData = true;
+
+                    if (typeof formData.ru_desc !== "undefined") {
+                        $("[name='ru_desc']").val(formData.ru_desc);
+                        if (typeof autoHeight === 'function') {
+                            setTimeout(function() {
+                                autoHeight($("[name='ru_desc']")[0]);
+                            }, 50);
+                        }
+                    }
+
+                    $("[name='ru_my_type[]']").prop("checked", false);
+                    if (Array.isArray(formData.ru_my_type)) {
+                        formData.ru_my_type.forEach(function(val) {
+                            $("[name='ru_my_type[]'][value='" + val + "']").prop("checked", true);
+                        });
+                    }
+
+                    $("[name='ru_week_yn']").prop("checked", formData.ru_week_yn === "Y");
+                    $("[name='ru_week[]']").prop("checked", false);
+                    if (Array.isArray(formData.ru_week) && formData.ru_week.length > 0) {
+                        formData.ru_week.forEach(function(val) {
+                            $("[name='ru_week[]'][value='" + val + "']").prop("checked", true);
+                        });
+                    } else {
+                        defaultWeekDays.forEach(function(val) {
+                            $("[name='ru_week[]'][value='" + val + "']").prop("checked", true);
+                        });
+                        saveResumeStep4Data();
+                    }
+                }
+            } catch (e) {
+                console.error("resume step4 복원 실패:", e);
+            }
+        }
+
+        if (!hasSavedData) {
+            $("[name='ru_week[]']").prop("checked", false);
+            defaultWeekDays.forEach(function(val) {
+                $("[name='ru_week[]'][value='" + val + "']").prop("checked", true);
+            });
+            saveResumeStep4Data();
+        }
+
+        if (saved && hasSavedData) {
+            try {
+                var formData = JSON.parse(saved);
+                if (formData) {
+                    if (formData.detail_open) {
+                        $(".js-detail-section").addClass("show").show();
+                    }
+
+                    if (Array.isArray(formData.arr_career)) {
+                        $(".form-row[data-section='career'] .added-list").empty();
+                        if (formData.arr_career.length > 0) {
+                            renderCareerItems(formData.arr_career);
+                        }
+                    }
+
+                    if (Array.isArray(formData.arr_certi)) {
+                        $(".form-row[data-section='license'] .added-list").empty();
+                        if (formData.arr_certi.length > 0) {
+                            renderLicenseItems(formData.arr_certi);
+                        }
+                    }
+
+                    cleanupEmptyListItems();
+                }
+            } catch (e) {
+                console.error("resume step4 복원 실패:", e);
+            }
+        }
+    }
+
     // 서버에서 받은 주소 데이터를 로드하는 함수
     // 수정 모드(ru_idx가 0이 아니고 이력서명이 있을 때)일 때만 로드
     function loadServerAddressData() {
@@ -464,15 +1085,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     function loadResumeStep1Data() {
-        // URL 파라미터로 복원 여부 확인 (더 확실한 방법)
-        var urlParams = new URLSearchParams(window.location.search);
-        var fromStep4 = urlParams.get('from') === 'step4';
-        
-        // resume_write4에서 온 경우가 아니면 복원하지 않음
-        if (!fromStep4) {
-            return;
-        }
-        
         var storageKey = getResumeDraftKey(1);
         var saved = localStorage.getItem(storageKey);
         if (!saved) return;
@@ -635,7 +1247,34 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         window.__resumeAutoFlow = true;
         window.__resumeAutoBg = isBgAutofill;
 
-        // logWebview 제거
+        // step4 자동작성
+        var ruName = payload.ru_name || "";
+        if ($("[name='ru_desc']").val() === "" && ruName) {
+            $("[name='ru_desc']").val(ruName);
+            if (typeof autoHeight === 'function') {
+                setTimeout(function() {
+                    autoHeight($("[name='ru_desc']")[0]);
+                }, 50);
+            }
+        }
+
+        var $allTypes = $("[name='ru_my_type[]']");
+        if ($allTypes.length > 0) {
+            $allTypes.prop("checked", false);
+            var candidates = $allTypes.toArray();
+            for (var i = candidates.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = candidates[i];
+                candidates[i] = candidates[j];
+                candidates[j] = temp;
+            }
+            var pickCount = Math.min(2, candidates.length);
+            for (var k = 0; k < pickCount; k++) {
+                $(candidates[k]).prop("checked", true);
+            }
+        }
+
+        saveResumeStep4Data();
 
         // 자동 이동이 지연되거나 실패할 경우 화면이 계속 숨겨지는 문제 방지
         setTimeout(function() {
@@ -735,13 +1374,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         // 먼저 서버에서 받은 주소 데이터를 로드
         var hasServerData = loadServerAddressData();
         
-        // resume_write4에서 온 경우에만 로컬스토리지 임시 데이터 복원
         // 서버 데이터가 없을 때만 로컬스토리지에서 복원
         if (!hasServerData) {
             loadResumeStep1Data();
         }
         
         ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
+        cleanupEmptyListItems();
+        loadResumeStep4Data();
         applyResumeAutoFill();
     });
 
@@ -814,6 +1454,135 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         $("[name='ru_work[]']").on("change", saveResumeStep1Data);
         $("[name='ru_price_type[]']").on("change", saveResumeStep1Data);
         $("[name='ru_work_type[]']").on("change", saveResumeStep1Data);
+        $("[name='ru_my_type[]']").on("change", function() {
+            var limit = 6;
+            var childItems = document.querySelectorAll('[name="ru_my_type[]"]:checked');
+
+            if (this.checked && childItems.length > limit) {
+                this.checked = false;
+                commonAlert("최대 " + limit + "개까지 선택 가능합니다.", function() {});
+                return;
+            }
+            saveResumeStep4Data();
+        });
+        $("[name='ru_desc']").on("input", saveResumeStep4Data);
+        $(document).on("input change", "[name='career_category[]'], [name='career_company[]'], [name='career_period[]'], [name='license[]'], [name='regdate[]']", function() {
+            saveResumeStep4Data();
+        });
+
+        $(".js-detail-register").click(function(e) {
+            e.preventDefault();
+            var $sections = $(".js-detail-section");
+            var $button = $(this);
+
+            var isVisible = $sections.hasClass("show");
+
+            if (isVisible) {
+                $sections.removeClass("show").slideUp(300);
+            } else {
+                $sections.addClass("show").slideDown(300, function() {
+                    var buttonTop = $button.offset().top;
+                    var windowHeight = $(window).height();
+                    var scrollTarget = buttonTop - (windowHeight / 2);
+                    $('html, body').animate({
+                        scrollTop: scrollTarget
+                    }, 400);
+                });
+            }
+            setTimeout(saveResumeStep4Data, 350);
+        });
+
+        $("[name='ru_week_yn']").on("change", function() {
+            if ($(this).is(":checked")) {
+                $("[name='ru_week[]']").prop("checked", true);
+            } else {
+                $("[name='ru_week[]']").prop("checked", false);
+            }
+            saveResumeStep4Data();
+        });
+
+        $("[name='ru_week[]']").on("change", function() {
+            if ($("[name='ru_week_yn']").is(":checked")) {
+                $("[name='ru_week_yn']").prop("checked", false);
+            }
+            saveResumeStep4Data();
+        });
+
+        $(".js-add-career").on("click", function(e) {
+            e.preventDefault();
+            var $list = $(this).siblings(".added-list");
+
+            cleanupEmptyListItems();
+
+            var currentCount = 0;
+            var listElement = $list[0];
+
+            $list.children("li").each(function() {
+                var $li = $(this);
+                var liElement = this;
+
+                if (!$li.hasClass('is-deleted') &&
+                    liElement.parentNode === listElement &&
+                    document.body.contains(liElement) &&
+                    $li.find('.form-group').length > 0) {
+                    currentCount++;
+                }
+            });
+
+            if (currentCount >= 3) {
+                commonAlert("경력사항은 최대 3개까지만 등록 가능합니다.", function() {});
+                return;
+            }
+
+            var $temp = $("#careerTemp").html();
+            var $newItem = $("<li>").html($temp);
+            $list.append($newItem);
+
+            initCareerDatepicker($newItem.find(".js-career-datepicker")[0]);
+
+            if (typeof initSelectbox === 'function') {
+                initSelectbox($newItem.find(".js-career-category")[0]);
+            }
+
+            $(this).css('display', '').show();
+            saveResumeStep4Data();
+        });
+
+        $(".js-add-license").on("click", function(e) {
+            e.preventDefault();
+            var $list = $(this).siblings(".added-list");
+
+            cleanupEmptyListItems();
+
+            var currentCount = 0;
+            var listElement = $list[0];
+
+            $list.children("li").each(function() {
+                var $li = $(this);
+                var liElement = this;
+
+                if (!$li.hasClass('is-deleted') &&
+                    liElement.parentNode === listElement &&
+                    document.body.contains(liElement) &&
+                    $li.find('.form-group').length > 0) {
+                    currentCount++;
+                }
+            });
+
+            if (currentCount >= 5) {
+                commonAlert("자격증은 최대 5개까지만 등록 가능합니다.", function() {});
+                return;
+            }
+
+            var $temp = $("#licenseTemp").html();
+            var $newItem = $("<li>").html($temp);
+            $list.append($newItem);
+
+            initLicenseDatepicker($newItem.find(".js-datepicker")[0]);
+
+            $(this).css('display', '').show();
+            saveResumeStep4Data();
+        });
 
         $("[name='ru_price_type[]']").change(function() {
             if ($("[name='ru_price_type[]']").eq(2).is(":checked")) {
@@ -823,9 +1592,114 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
         });
 
+        function saveStep4AndPreview($btn) {
+            var ru_week = [];
+            $("[name='ru_week[]']:checked").each(function() {
+                ru_week.push($(this).val());
+            });
+            var ru_week_str = ru_week.join(",");
+            var ru_week_yn_value = $("[name='ru_week_yn']").is(":checked") ? "Y" : "N";
+
+            var arr_career = "";
+            var $careerList = $(".form-row[data-section='career'] .added-list");
+            $careerList.children("li").each(function() {
+                if (!$(this).hasClass('is-deleted')) {
+                    var category = $(this).find("[name='career_category[]']").val();
+                    var company = $(this).find("[name='career_company[]']").val();
+                    var period = $(this).find("[name='career_period[]']").val();
+
+                    if (category != "" && company != "" && period != "") {
+                        if (arr_career == "") {
+                            arr_career = category + "|||" + company + "|||" + period;
+                        } else {
+                            arr_career = arr_career + "&&&" + category + "|||" + company + "|||" + period;
+                        }
+                    }
+                }
+            });
+            $("[name=arr_career]").val(arr_career);
+
+            var arr_certi = "";
+            var $licenseList = $(".form-row[data-section='license'] .added-list");
+            $licenseList.children("li").each(function() {
+                if (!$(this).hasClass('is-deleted')) {
+                    var license = $(this).find("[name='license[]']").val();
+                    var regdate = $(this).find("[name='regdate[]']").val();
+
+                    if (license != "" && regdate != "") {
+                        if (arr_certi == "") {
+                            arr_certi = license + "|||" + regdate;
+                        } else {
+                            arr_certi = arr_certi + "&&&" + license + "|||" + regdate;
+                        }
+                    }
+                }
+            });
+            $("[name=arr_certi]").val(arr_certi);
+
+            var form = $('#frm');
+            var params = new FormData(form[0]);
+            params.append("ru_idx", $("[name=ru_idx]").val() || "0");
+            params.append("ru_week_yn", ru_week_yn_value);
+            if (ru_week_str) {
+                params.append("ru_week", ru_week_str);
+            }
+            fileAjaxLoading("/mypage_proc/resume_write4", params, function(ret) {
+                if (ret.code == "00") {
+                    var prevIdx = $("[name=ru_idx]").val() || "0";
+                    if (ret.data && ret.data.ru_idx) {
+                        var newIdx = ret.data.ru_idx;
+                        if (newIdx && newIdx !== prevIdx) {
+                            migrateResumeDraftKeys(prevIdx, newIdx, [1, 4]);
+                            $("[name=ru_idx]").val(newIdx);
+                        }
+                    }
+                    if (window.__resumeAutoFlow === true) {
+                        var finalIdx = $("[name=ru_idx]").val() || "0";
+                        comAjax("/mypage_proc/resume_complete", {
+                            ru_idx: finalIdx
+                        }, function(ret2) {
+                            if (ret2.code == "00") {
+                                clearResumeDraft(finalIdx);
+                                try {
+                                    localStorage.removeItem("resume_autofill_payload");
+                                    localStorage.removeItem("resume_autofill_ts");
+                                    sessionStorage.setItem("resume_auto_completed", "1");
+                                } catch (e) {}
+                                if (window.__resumeAutoBg && window.parent) {
+                                    window.parent.postMessage({
+                                        type: 'resume_auto_complete',
+                                        ok: true
+                                    }, '*');
+                                } else {
+                                    location.href = "/recruit/job_list";
+                                }
+                            } else {
+                                if (window.__resumeAutoBg && window.parent) {
+                                    window.parent.postMessage({
+                                        type: 'resume_auto_complete',
+                                        ok: false,
+                                        msg: ret2.msg
+                                    }, '*');
+                                } else {
+                                    commonAlert(ret2.msg, function() {});
+                                }
+                            }
+                        });
+                        return;
+                    }
+                    showPreviewInfo(ret.data, $btn);
+                } else {
+                    commonAlert(ret.msg, function() {});
+                    return;
+                }
+            });
+        }
+
         //처리
         $("#btnStep").click(function() {
             saveResumeStep1Data();
+            saveResumeStep4Data();
 
             if ($("[name='ru_name']").val() == "") {
                 commonAlert("이력서명을 입력해주세요.", function() {
@@ -858,6 +1732,18 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 return;
             }
 
+            if ($("[name='ru_desc']").val() == "") {
+                commonAlert("자기소개를 입력해주세요.", function() {
+                    $("[name='ru_desc']").focus();
+                });
+                return;
+            }
+
+            if ($("[name='ru_my_type[]']:checked").length == 0) {
+                commonAlert("나의강점을 하나 이상 선택해주세요.", function() {});
+                return;
+            }
+
             var ru_work_img = "";
             for (var icnt = 0; icnt < $("[name='ru_work[]']:checked").length; icnt++) {
                 if (ru_work_img == "") {
@@ -870,6 +1756,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
             var params = $("#frm").serialize();
             var prevIdx = $("[name=ru_idx]").val() || "0";
+            var $btn = $(this);
             comAjax("/mypage_proc/resume_write1", params, function(ret) {
                 if (ret.code == "00") {
                     var newIdx = prevIdx;
@@ -880,28 +1767,45 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                             $("[name=ru_idx]").val(newIdx);
                         }
                     }
-
-                    var autoParam = "";
-                    if (window.__resumeAutoFlow === true) {
-                        autoParam = window.__resumeAutoBg ? "?autofill=1&bg=1" : "?autofill=1";
-                    }
-                    if (newIdx != "0") {
-                        location.href = "/mypage/resume_write4/" + newIdx + autoParam;
-                    } else {
-                        location.href = "/mypage/resume_write4" + autoParam;
-                    }
+                    saveStep4AndPreview($btn);
                 } else {
                     commonAlert(ret.msg, function() {});
                     return;
                 }
             });
-
         });
 
         $(".comma").on("keyup", function() {
             $(this).val($(this).val().replace(/\,/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'));
             saveResumeStep1Data();
         });
+
+        setTimeout(function() {
+            $(".form-row[data-section='career'] .js-career-datepicker").each(function() {
+                if (!$(this).data('flatpickr')) {
+                    initCareerDatepicker(this);
+                }
+            });
+        }, 100);
+
+        setTimeout(function() {
+            $(".form-row[data-section='license'] .js-datepicker").each(function() {
+                if (!$(this).data('flatpickr')) {
+                    initLicenseDatepicker(this);
+                }
+            });
+        }, 100);
+
+        setTimeout(function() {
+            var checkedCount = $("[name='ru_week[]']:checked").length;
+            if (checkedCount === 0) {
+                var defaultWeekDays = ["월", "화", "수", "목", "금"];
+                defaultWeekDays.forEach(function(val) {
+                    $("[name='ru_week[]'][value='" + val + "']").prop("checked", true);
+                });
+                saveResumeStep4Data();
+            }
+        }, 200);
 
         // 뒤로가기 핸들러는 스크립트 시작 부분에서 이미 등록됨
 
@@ -914,6 +1818,403 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             location.href = "/mypage/resume_list";
         });
     });
+
+    function initCareerDatepicker(el) {
+        if (typeof flatpickr == 'undefined' || !el) return;
+
+        function chgYear(instance) {
+            var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
+                year = instance.currentYear;
+            $con.innerHTML = '<span class="month">' + year + '</span>';
+        }
+
+        var existingValue = $(el).val();
+        var defaultDate = null;
+        if (existingValue && existingValue.indexOf('~') > -1) {
+            var dates = existingValue.split(' ~ ');
+            if (dates.length === 2) {
+                var startDate = dates[0].trim().replace(/\./g, '-') + '-01';
+                var endDate = dates[1].trim().replace(/\./g, '-') + '-01';
+                defaultDate = [startDate, endDate];
+            }
+        }
+
+        flatpickr(el, {
+            mode: 'range',
+            locale: 'ko',
+            altInput: true,
+            altFormat: 'Y.m',
+            dateFormat: 'Y-m-d',
+            defaultDate: defaultDate,
+            nextArrow: '<span class="sr-text">다음</span>',
+            prevArrow: '<span class="sr-text">이전</span>',
+            disableMobile: true,
+            clickOpens: true,
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "Y.m",
+                    altFormat: "Y.m",
+                })
+            ],
+            onYearChange: function(selectedDates, dateStr, instance) {
+                chgYear(this);
+            },
+            onReady: function() {
+                chgYear(this);
+            },
+            onClose: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length > 1) {
+                    var nextBtn = instance.calendarContainer.querySelector('.flatpickr-next-month');
+                    if (nextBtn) {
+                        nextBtn.click();
+                    }
+                }
+            },
+            onOpen: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length > 1) {
+                    var prevBtn = instance.calendarContainer.querySelector('.flatpickr-prev-month');
+                    if (prevBtn) {
+                        prevBtn.click();
+                    }
+                }
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
+                    month.classList.remove('startRange', 'inRange', 'endRange')
+                });
+
+                if (dateStr && dateStr.indexOf(' to ') > -1) {
+                    var dates = dateStr.split(' to ');
+                    if (dates.length === 2) {
+                        var startDate = dates[0].substring(0, 7).replace(/-/g, '.');
+                        var endDate = dates[1].substring(0, 7).replace(/-/g, '.');
+                        var formattedDate = startDate + ' ~ ' + endDate;
+                        $(el).val(formattedDate);
+                    }
+                } else if (dateStr) {
+                    var formattedDate = dateStr.substring(0, 7).replace(/-/g, '.');
+                    $(el).val(formattedDate);
+                }
+                saveResumeStep4Data();
+            }
+        });
+    }
+
+    function initLicenseDatepicker(el) {
+        if (typeof flatpickr == 'undefined' || !el) return;
+
+        function chgYear(instance) {
+            var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
+                year = instance.currentYear;
+            $con.innerHTML = '<span class="month">' + year + '</span>';
+        }
+
+        flatpickr(el, {
+            locale: 'ko',
+            nextArrow: '<span class="sr-text">다음</span>',
+            prevArrow: '<span class="sr-text">이전</span>',
+            disableMobile: true,
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "Y.m",
+                    altFormat: "Y.m",
+                })
+            ],
+            onYearChange: function(selectedDates, dateStr, instance) {
+                chgYear(this);
+            },
+            onReady: function() {
+                chgYear(this);
+            },
+            onClose: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length > 1) {
+                    document.querySelector('.flatpickr-next-month').click();
+                }
+            },
+            onOpen: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length > 1) {
+                    document.querySelector('.flatpickr-prev-month').click();
+                }
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
+                    month.classList.remove('startRange', 'inRange', 'endRange')
+                });
+                saveResumeStep4Data();
+            }
+        });
+    }
+
+    function showPreviewInfo(info, $btnElement) {
+        var str_ru_work_img = "";
+        var str_ru_week = "";
+        var str_ru_career = "";
+        var str_ru_certi = "";
+        var str_ru_type = "";
+        var str_month_price = "";
+
+        if (info.ru_work_img) {
+            for (var icnt = 0; icnt < info.ru_work_img.length; icnt++) {
+                str_ru_work_img += "<img src='" + info.ru_work_img[icnt] + "' alt='생산' class='category-label'>";
+            }
+        }
+
+        var ru_week_yn_value = info.ru_week_yn || ($("[name='ru_week_yn']").is(":checked") ? "Y" : "N");
+
+        if (ru_week_yn_value == "Y") {
+            str_ru_week = "<li aria-hidden='false'>무관</li>";
+        } else if (info.ru_week) {
+            var weekArray = typeof info.ru_week === 'string' ? info.ru_week.split(",") : info.ru_week;
+            if (weekArray && weekArray.length > 0) {
+                for (var icnt = 0; icnt < weekArray.length; icnt++) {
+                    var weekValue = weekArray[icnt].trim();
+                    if (weekValue) {
+                        str_ru_week += "<li aria-hidden='false'>" + weekValue + "</li>";
+                    }
+                }
+            }
+        }
+
+        if (info.arr_career) {
+            for (var icnt = 0; icnt < info.arr_career.split("&&&").length; icnt++) {
+                var temp = info.arr_career.split("&&&")[icnt].split("|||");
+                if (temp.length > 2) {
+                    str_ru_career += "<li><span>" + temp[0] + "</span><span>" + temp[1] + "</span><em>" + temp[2] + "(1년 2개월)</em></li>";
+                }
+            }
+        }
+
+        if (info.arr_certi) {
+            for (var icnt = 0; icnt < info.arr_certi.split("&&&").length; icnt++) {
+                var temp = info.arr_certi.split("&&&")[icnt].split("|||");
+                if (temp.length > 1) {
+                    str_ru_certi += "<li><span>자격증</span><span>" + temp[0] + "</span><em>" + temp[1] + "</em></li>";
+                }
+            }
+        }
+
+        if (info.ru_my_type) {
+            var ru_my_type_array = typeof info.ru_my_type === 'string' ? info.ru_my_type.split(",") : info.ru_my_type;
+            if (ru_my_type_array && ru_my_type_array.length > 0) {
+                for (var icnt = 0; icnt < ru_my_type_array.length; icnt++) {
+                    var typeValue = ru_my_type_array[icnt].trim().replace(/,/g, '');
+                    if (typeValue) {
+                        str_ru_type += "<p class='tag'>" + typeValue + "</p>";
+                    }
+                }
+            }
+        }
+
+        if (info.ru_price_type.indexOf("월급") > -1 && info.ru_month_price != "0") {
+            str_month_price = '<tr><td class="label">희망급여</td><td class="value">' + info.ru_month_price.format() + '원</td></tr>';
+        }
+
+        var displayAddr = '';
+
+        if (Array.isArray(info.ru_addr)) {
+            displayAddr = info.ru_addr.filter(function(addr) {
+                return addr && addr.trim() !== '';
+            }).join(',');
+        } else {
+            displayAddr = info.ru_addr || '';
+        }
+
+        if (displayAddr && displayAddr !== '' && displayAddr !== '무관' && typeof fRemoveBigAdrJS === 'function') {
+            if (displayAddr.indexOf(',') > -1) {
+                var addrArray = displayAddr.split(',').map(function(addr) {
+                    return addr.trim();
+                }).filter(function(addr) {
+                    return addr !== '';
+                });
+                var formattedAddrs = [];
+                addrArray.forEach(function(addr) {
+                    var formatted = fRemoveBigAdrJS(addr);
+                    if (formatted && formattedAddrs.indexOf(formatted) === -1) {
+                        formattedAddrs.push(formatted);
+                    }
+                });
+                displayAddr = formattedAddrs.length > 0 ? formattedAddrs.join(' | ') : '';
+            } else {
+                displayAddr = fRemoveBigAdrJS(displayAddr);
+            }
+        }
+
+        if (!displayAddr || displayAddr === '') {
+            displayAddr = '무관';
+        }
+
+        openPopup('modal', {
+            removeClose: false,
+            content: '<div class="regist-info">' +
+                '<h5 class="name">' + info.mm_name + '</h5>' +
+                '<table>' +
+                '<caption><span class="sr-text">회원가입정보</span></caption>' +
+                '<colgroup><col><col></colgroup>' +
+                '<tbody>' +
+                '<tr>' +
+                '<td class="label">업무</td>' +
+                '<td class="value">' +
+                str_ru_work_img +
+                '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">지역</td>' +
+                '<td class="value">' + displayAddr + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">급여형태</td>' +
+                '<td class="value">' + info.ru_price_type + '</td>' +
+                '</tr>' + str_month_price +
+                '<tr>' +
+                '<td class="label">근무형태</td>' +
+                '<td class="value">' + info.ru_work_type + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">희망요일</td>' +
+                '<td class="value">' +
+                '<ul class="working-day">' +
+                str_ru_week +
+                '</ul>' +
+                '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">경력사항</td>' +
+                '<td class="value">' +
+                '<ul class="period-list">' +
+                str_ru_career +
+                '</ul>' +
+                '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">자격증</td>' +
+                '<td class="value">' +
+                '<ul class="period-list">' +
+                str_ru_certi +
+                '</ul>' +
+                '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="label">자기소개</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="value introduce">' + info.ru_desc + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="label">나의강점</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="value">' +
+                '<div class="hashtag">' +
+                str_ru_type +
+                '</div>' +
+                '</td>' +
+                '</tr>' +
+                '</tbody>' +
+                '</table>' +
+                '</div>',
+            firstButton: '정보수정',
+            secondButton: '등록',
+            firstCallback: function() {
+                var $popup = document.querySelector('.layer-popup.in');
+                if ($popup && typeof closePopup === 'function') {
+                    closePopup($popup);
+                }
+            },
+            secondCallback: function() {
+                var ru_week = [];
+                $("[name='ru_week[]']:checked").each(function() {
+                    ru_week.push($(this).val());
+                });
+                var ru_week_str = ru_week.join(",");
+                var ru_week_yn_value = $("[name='ru_week_yn']").is(":checked") ? "Y" : "N";
+
+                var arr_career = "";
+                var $careerList = $(".form-row[data-section='career'] .added-list");
+                $careerList.children("li").each(function() {
+                    if (!$(this).hasClass('is-deleted')) {
+                        var category = $(this).find("[name='career_category[]']").val();
+                        var company = $(this).find("[name='career_company[]']").val();
+                        var period = $(this).find("[name='career_period[]']").val();
+
+                        if (category != "" && company != "" && period != "") {
+                            if (arr_career == "") {
+                                arr_career = category + "|||" + company + "|||" + period;
+                            } else {
+                                arr_career = arr_career + "&&&" + category + "|||" + company + "|||" + period;
+                            }
+                        }
+                    }
+                });
+                $("[name=arr_career]").val(arr_career);
+
+                var arr_certi = "";
+                var $licenseList = $(".form-row[data-section='license'] .added-list");
+                $licenseList.children("li").each(function() {
+                    if (!$(this).hasClass('is-deleted')) {
+                        var license = $(this).find("[name='license[]']").val();
+                        var regdate = $(this).find("[name='regdate[]']").val();
+
+                        if (license != "" && regdate != "") {
+                            if (arr_certi == "") {
+                                arr_certi = license + "|||" + regdate;
+                            } else {
+                                arr_certi = arr_certi + "&&&" + license + "|||" + regdate;
+                            }
+                        }
+                    }
+                });
+                $("[name=arr_certi]").val(arr_certi);
+
+                var form = $('#frm');
+                var params = new FormData(form[0]);
+                params.append("ru_idx", $("[name=ru_idx]").val() || "0");
+                params.append("ru_week_yn", ru_week_yn_value);
+                if (ru_week_str) {
+                    params.append("ru_week", ru_week_str);
+                }
+
+                fileAjaxLoading("/mypage_proc/resume_write4", params, function(ret) {
+                    if (ret.code == "00") {
+                        var completeParams = {};
+                        completeParams["ru_idx"] = $("[name=ru_idx]").val();
+                        comAjax("/mypage_proc/resume_complete", completeParams, function(completeRet) {
+                            if (completeRet.code == "00") {
+                                commonAlert("저장이 완료되었습니다.", function() {
+                                    clearResumeDraft($("[name=ru_idx]").val());
+                                    location.href = "/mypage/resume_list";
+                                });
+                            } else {
+                                var errorMsg = completeRet.msg || "저장 중 오류가 발생했습니다. 다시 시도해주세요.";
+                                commonAlert(errorMsg, function() {});
+                                return;
+                            }
+                        });
+                    } else {
+                        var errorMsg = ret.msg || "데이터 저장 중 오류가 발생했습니다. 다시 시도해주세요.";
+                        commonAlert(errorMsg, function() {});
+                        return;
+                    }
+                });
+            }
+        });
+
+        setTimeout(function() {
+            var $closeBtn = $('.layer-popup .js-close-popup');
+            if ($closeBtn.length > 0) {
+                $closeBtn.off('click.preview').on('click.preview', function(e) {
+                });
+            }
+        }, 100);
+    }
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted || window.performance && window.performance.navigation.type == 2) {
+            clearResumeDraft($("[name='ru_idx']").val() || "0");
+            _replace("/mypage/index");
+        }
+    }, false);
 
 </script>
 

@@ -90,7 +90,7 @@ $banner_list = getBannerList("BN00010005");
   }
 
   .person-card .title {
-    width: 50%;
+    width: 100%;
   }
 
   .person-card .area {

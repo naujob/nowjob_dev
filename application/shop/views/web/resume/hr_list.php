@@ -1052,7 +1052,7 @@ if (count($banner_list) > 0) {
   }
 
   .person-card .title {
-    width: 30%;
+    width: 90%;
   }
 
   .person-card .area {

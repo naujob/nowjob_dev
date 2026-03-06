@@ -799,14 +799,12 @@ if (!$socket_io_script_url) {
     }
 
     // 이력서 작성 페이지들은 mypage/resume_list로 이동
-    if (currentPath.indexOf('/mypage/resume_write1') > -1 || 
-        currentPath.indexOf('/mypage/resume_write4') > -1) {
+    if (currentPath.indexOf('/mypage/resume_write1') > -1) {
       // historyStack에서 현재 페이지 제거
       const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
       if (historyStack.length > 0) {
         const lastPage = historyStack[historyStack.length - 1];
-        if (lastPage.indexOf('/mypage/resume_write1') > -1 || 
-            lastPage.indexOf('/mypage/resume_write4') > -1) {
+        if (lastPage.indexOf('/mypage/resume_write1') > -1) {
           historyStack.pop();
           sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
         }

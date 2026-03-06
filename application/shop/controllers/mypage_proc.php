@@ -1,5 +1,5 @@
 <?php
-class Mypage_proc extends CI_Controller
+class Mypage_proc extends CI_ControllerP
 {
   # 전역변수 선언
   public $mm_idx;

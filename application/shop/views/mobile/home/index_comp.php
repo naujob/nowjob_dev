@@ -553,7 +553,7 @@ if ($g_ios_publish == true) {
   }
 
   .person-card .title {
-    width: 30%;
+    width: 85%;
     margin: 0 5px 0 0;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -853,8 +853,7 @@ if ($g_ios_publish == true) {
             {{ru_work_img}}
           </p>
           <div class="title-wrap">
-            <p class="title"><strong>{{mm_name}}</strong></p>
-            <p class="area">{{ad_addr}}</p>
+            <p class="title"><strong>{{ru_name}}</strong></p>
           </div>
           <div class="meta">
             <p class="national">{{mm_nation}}</p>
@@ -918,7 +917,7 @@ if ($g_ios_publish == true) {
 
               $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
               $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-              $content = $content.replaceAll("{{mm_name}}", row.mm_name || "");
+              $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
               $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
               $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || "");
               $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "세");
@@ -926,7 +925,6 @@ if ($g_ios_publish == true) {
               $content = $content.replaceAll("{{ru_work_type}}", getConvertWorkType(row.ru_work_type));
               $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
               $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-              $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
 
               $clone.html($content);
               $("#recomm-list").append($clone.html());

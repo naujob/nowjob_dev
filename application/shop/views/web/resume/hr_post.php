@@ -220,7 +220,7 @@ function getConvertResumePriceType($price_type)
   }
 
   .person-card .title {
-    width: 50%;
+    width: 90%;
   }
 
   .person-card .area {
@@ -1212,8 +1212,7 @@ function getConvertResumePriceType($price_type)
             {{ru_work_img}}
           </p>
           <div class="title-wrap">
-            <p class="title"><strong>{{mm_name}}</strong></p>
-            <p class="area">{{ad_addr}}</p>
+            <p class="title"><strong>{{ru_name}}</strong></p>
           </div>
           <div class="meta">
             <p class="national">{{mm_nation}}</p>
@@ -2118,7 +2117,7 @@ function getConvertResumePriceType($price_type)
 
           $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{mm_name}}", row.mm_name);
+          $content = $content.replaceAll("{{ru_name}}", row.ru_name);
           $content = $content.replaceAll("{{ru_week}}", row.ru_week);
           $content = $content.replaceAll("{{distance}}", row.distance + "km");
           $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
@@ -2136,7 +2135,6 @@ function getConvertResumePriceType($price_type)
           $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
           $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
           $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-          $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
           $content = $content.replaceAll("{{timestamp}}", row.timestamp);
 
           $clone.html($content);

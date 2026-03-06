@@ -973,10 +973,10 @@
             if (typeof window.onChangeAreaApply === 'function') {
               try {
                 handled = window.onChangeAreaApply({
-                  addrNames: addrNames,
-                  addrNameText: addrName,
-                   searchArea: searchArea,
-                   searchAreaStr: searchAreaStr
+                  addrNames: addrNames, // [\"고덕동\"]
+                  addrNameText: addrName, // 고덕동
+                   searchArea: searchArea, // [{\"addr\":\"서울특별시 강동구 고덕동\",\"step\":3}]
+                   searchAreaStr: searchAreaStr // [{\"addr\":\"서울특별시 강동구 고덕동\",\"step\":3}]
                  }) === true;
                } catch (e) {
                  console.error("onChangeAreaApply error:", e);

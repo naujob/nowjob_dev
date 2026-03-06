@@ -43,7 +43,7 @@ chat_log.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
+server_error.log
 # =========================
 # OS / 에디터 관련
 # =========================

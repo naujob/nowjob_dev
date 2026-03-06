@@ -195,11 +195,13 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
     var JOIN_TYPE = "<?= $this->user->isLogin() ? $this->user->getJoinType() : '' ?>";
     var IS_GOOGLE_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "GOOGLE");
     // QuickInfo 상태 플래그
-    window.__quickInfoExpectLocation = false;
-    window.__quickInfoApplyFlow = false;
-    window.__quickInfoSelections = null;
-    window.__quickInfoManualAddrMode = false;
-    window.__quickInfoManualAddr = null;
+    window.__quickInfoExpectLocation = false; // 위치 확인 플로우 진행 중 여부 (true면 위치 확인 UI를 기대)
+    window.__quickInfoApplyFlow = false; // QuickInfo '적용하기'로 제출하는 흐름인지 여부
+    window.__quickInfoSelections = null; // 사용자가 선택한 QuickInfo 값 캐시 (nation/gender/age)
+    window.__quickInfoManualAddrMode = false; // 주소 팝업이 QuickInfo 수동 선택 모드로 열렸는지 여부
+    window.__quickInfoManualAddr = null; // 수동 선택된 주소 payload 캐시 (있으면 GPS 결과보다 우선)
+    window.__returnToQuickInfo = false; // 주소 팝업 적용 후 QuickInfo 패널을 다시 열지 여부
+    window.__disableChangeAreaClose = false; // QuickInfo에서 연 changeArea를 X/배경/ESC로 닫지 않도록 제어
 
 
     if (!isLogin || !isMem) {
@@ -235,6 +237,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         el.setAttribute("aria-hidden", "true");
     }
 
+    // 주소 선택 팝업을 열고 필요한 필터/상태를 세팅
     function openManualAddressPopup() {
         // 주소 직접 입력 팝업 열기
         window.__hideAllRegionsInAddrPopup = true;
@@ -252,11 +255,13 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         }
     }
 
+    // QuickInfo 영역에 표시되는 지역 텍스트 업데이트
     function setQuickInfoRegionText(text) {
         var el = document.querySelector('.quickinfo-region-text');
         if (el) el.textContent = text;
     }
 
+    // QuickInfo에서 선택된 값(국적/성별/나이)을 수집
     function getQuickInfoSelections() {
         var nationVal = $('input[name="quickinfo_nation"]:checked').val() || "";
         var genderVal = $('input[name="quickinfo_gender"]:checked').val() || "";
@@ -283,6 +288,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         };
     }
 
+    // 선택된 QuickInfo 값을 서버 전송 payload에 병합
     function applyQuickInfoToPayload(payload, selections) {
         var sel = selections || window.__quickInfoSelections || getQuickInfoSelections();
         if (!sel) return payload;
@@ -299,17 +305,19 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         return payload;
     }
 
+    // 주소 + QuickInfo 값을 합쳐 서버로 제출
     function submitQuickInfoWithAddress(addrPayload, selections) {
         var payload = applyQuickInfoToPayload(Object.assign({}, addrPayload), selections);
         submitQuickInfoToServer(payload);
     }
 
+    // QuickInfo 최종 제출 및 자동 이력서 생성 처리
     function submitQuickInfoToServer(payload) {
         if (window.__quickInfoSubmitting) return;
-        window.__quickInfoSubmitting = true;
+        window.__quickInfoSubmitting = true; // QuickInfo 중복 제출 방지 플래그
         showAutoResumeLoading();
 
-        var params = Object.assign({}, payload || {});
+        var params = Object.assign({}, payload || {}); // 서버 전송 파라미터 기본값: ru_name/ru_addr, ad_addr/ad_jibun/ad_doro/ad_zipcode/ad_detail, ad_gps_x/ad_gps_y 등 주소 정보
         params.ru_name = params.ru_name || params.ru_name_seed_addr || "";
         params.ru_addr = params.ru_addr || params.ad_addr || params.ru_name_seed_addr || "";
 
@@ -443,31 +451,32 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
     }
 
     // 주소 선택(모바일 UI) 시 자동 이력서 작성 플로우
+    // 주소 팝업 적용 시 선택된 주소를 처리
     window.onChangeAreaApply = function(payload) {
         // 주소 선택 팝업에서 선택된 주소를 받아 자동 이력서 저장 실행
-        var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : [];
+        var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : []; // 주소 팝업에서 선택된 지역 목록
         if (areaList.length === 0 || !areaList[0] || !areaList[0].addr) {
             alert("주소를 선택해 주세요.");
             return true;
         }
-
-        var addr = String(areaList[0].addr || "").trim();
+        // addr 고덕동
+        var addr = String(areaList[0].addr || "").trim(); // 선택된 첫 번째 지역 문자열(예: "서울특별시 강동구 고덕동")
         if (!addr) {
             alert("주소를 선택해 주세요.");
             return true;
         }
 
         // 주소 선택 직후 UI 텍스트를 먼저 갱신 (PC에서 중복 alert 방지)
-        var displayAddr = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+        var displayAddr = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr); // 화면에 표시할 축약 주소
         setQuickInfoRegionText(displayAddr);
 
-        var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
+        var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder); // 카카오 지오코더 사용 가능 여부
         if (!geocoderAvailable) {
             alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
             location.reload();
             return true;
         }
-
+        // 주소 -> 좌표 / addr 고덕동
         var geocoder = new kakao.maps.services.Geocoder();
         geocoder.addressSearch(addr, function(result, status) {
             if (status !== kakao.maps.services.Status.OK || !result || !result[0] || !result[0].x || !result[0].y) {
@@ -476,7 +485,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 return;
             }
 
-            var addrPayload = {
+            var addrPayload = { // 서버에 전달할 주소 payload
                 ru_name_seed_addr: addr,
                 ad_zipcode: "",
                 ad_jibun: addr,
@@ -510,13 +519,14 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         return true;
     };
 
+    // 브라우저 위치 권한을 요청하고 성공 시 자동 작성 시작
     function requestLocationAndStart() {
         // 브라우저 위치 가져오기 후 주소 변환 → 자동 이력서 저장
         if (!navigator.geolocation) {
             return;
         }
 
-        var completed = false; // 아직 이력서 작성 중임을 표시
+        var completed = false; // 위치 흐름 완료 여부(중복 처리 방지)
         var timeoutId = setTimeout(function() {
             if (completed) return;
             completed = true;
@@ -572,6 +582,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         );
     }
 
+    // 자동 이력서 플로우 시작 조건 판단 및 초기 UI 세팅
     function startAutoResumeFlowIfNeeded() {
         // 자동 이력서 흐름 시작 조건 확인 (권한/이력서 개수)
         if (IS_GOOGLE_JOIN) {
@@ -625,7 +636,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             }
             return;
         }
-        var stored = getStoredPermissionStatus();
+        var stored = getStoredPermissionStatus(); // 로컬스토리지에 저장된 위치 권한 상태
         if (stored === "granted") {
             requestLocationAndStart();
         } else {
@@ -647,14 +658,16 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
     });
 
     // QuickInfo 적용하기
+    // QuickInfo "적용하기" 클릭 핸들러
     window.handleQuickInfoApplyClick = function() {
         if (window.__quickInfoApplyClickLock) return;
+        // 한 번에 여러 번 클릭되는 것을 방지하기 위한 lock 변수 (중복 클릭 방지)
         window.__quickInfoApplyClickLock = true;
         setTimeout(function() { window.__quickInfoApplyClickLock = false; }, 300);
 
-        var selections = getQuickInfoSelections();
-        var regionEl = document.querySelector('.quickinfo-region-text');
-        var regionText = regionEl ? regionEl.textContent.trim() : "";
+        var selections = getQuickInfoSelections(); // QuickInfo 폼에서 수집한 선택값 (nation/gender/age)
+        var regionEl = document.querySelector('.quickinfo-region-text'); // 지역 텍스트가 표시되는 DOM
+        var regionText = regionEl ? regionEl.textContent.trim() : ""; // 현재 화면에 보이는 지역 문자열
 
         if (!regionText || regionText === "근무 지역 선택" || regionText === "위치 확인 중...") {
             // 안내 팝업 없이 바로 주소 선택 팝업 오픈 (가장 단순하고 확실)

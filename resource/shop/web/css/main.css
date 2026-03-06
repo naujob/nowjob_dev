@@ -4968,6 +4968,25 @@ body {
     font-weight: 700;
     letter-spacing: 0;
     border-radius: 100px;
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+}
+
+.login-form .btn-primary:hover,
+.login-form .btn-primary:focus {
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.login-form .btn-primary:active {
+    transform: translateY(0);
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.16),
+        inset 0 2px 5px rgba(0, 0, 0, 0.18);
 }
 
 .login-form .btn-find {
@@ -5038,15 +5057,32 @@ body {
     text-decoration: none;
     font-size: 16px;
     font-weight: 500;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
     position: relative;
     background-size: 80% auto;
     background-position: center;
     background-repeat: no-repeat;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.08);
 }
 
 .social-btn:hover {
-    opacity: 0.9;
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow:
+        0 6px 14px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.social-btn:active {
+    transform: translateY(0);
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.12),
+        inset 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .kakao-btn {
@@ -5068,7 +5104,6 @@ body {
     background-repeat: no-repeat;
     background-color: #ffffff;
     border: 1px solid #e6e6e6;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* .vendor-login .vendor-type2 {
@@ -6721,7 +6756,7 @@ body {
 }
 
 .person-card .title {
-    max-width: 4.1666666667em;
+    /* max-width: 4.1666666667em; */
     margin: 0 12px 0 0;
     font-size: 24px;
     -o-text-overflow: ellipsis;

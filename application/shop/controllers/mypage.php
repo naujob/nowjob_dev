@@ -444,6 +444,12 @@
 				"ru_addr"=>"",
 				"ru_price_type"=>"",
 				"ru_work_type"=>"",
+				"ru_desc"=>"",
+				"ru_my_type"=>"",
+				"ru_week_yn"=>"N",
+				"ru_week"=>"",
+				"arr_career"=>"",
+				"arr_certi"=>"",
 				"ru_nationality"=>isset($mem_info["mm_nation"]) ? $mem_info["mm_nation"] : "내국인", // 회원의 국적 정보 불러오기
 			];
 			$resume_info = $this->member_model->getResume(["ru_idx"=>$ru_idx]);
@@ -458,9 +464,39 @@
 				$info["ru_addr"] = $resume_info["ru_addr"];
 				$info["ru_price_type"] = explode(",",$resume_info["ru_price_type"]);
 				$info["ru_work_type"] = explode(",",$resume_info["ru_work_type"]);
+				$info["ru_desc"] = $resume_info["ru_desc"];
+				$info["ru_my_type"] = isset($resume_info["ru_my_type"]) ? explode(",", $resume_info["ru_my_type"]) : [];
+				$info["ru_week_yn"] = isset($resume_info["ru_week_yn"]) ? $resume_info["ru_week_yn"] : "N";
+				$info["ru_week"] = isset($resume_info["ru_week"]) ? $resume_info["ru_week"] : "";
 				// 이력서가 있으면 회원의 국적 정보 사용 (이미 위에서 설정됨)
 
 				$data["addr_list"] = $this->member_model->getAddressList(["ad_type"=>"RESUME","mm_idx"=>$this->mm_idx,"ad_key"=>$ru_idx]);
+
+				$arr_career = "";
+				$career_list = $this->member_model->getResumeCareerList(["ru_idx"=>$ru_idx]);
+				if($career_list!=null){
+					foreach($career_list as $row){
+						if($arr_career==""){
+							$arr_career = $row["rc_type"] . "|||" . $row["rc_name"] . "|||" . $row["rc_date"];
+						}else{
+							$arr_career .= "&&&" . $row["rc_type"] . "|||" . $row["rc_name"] . "|||" . $row["rc_date"];
+						}
+					}
+					$info["arr_career"] = $arr_career;
+				}
+
+				$arr_certi = "";
+				$certi_list = $this->member_model->getResumeCertiList(["ru_idx"=>$ru_idx]);
+				if($certi_list!=null){
+					foreach($certi_list as $row){
+						if($arr_certi==""){
+							$arr_certi = $row["rc_name"] . "|||" . $row["rc_dt"];
+						}else{
+							$arr_certi .= "&&&" . $row["rc_name"] . "|||" . $row["rc_dt"];
+						}
+					}
+					$info["arr_certi"] = $arr_certi;
+				}
 			}else{
 				$temp_info  = $this->site_model->getStepTempDataMember($this->mm_idx,"RESUME","스텝1");
 				if($temp_info!=null){
@@ -508,6 +544,7 @@
 			$data["ru_price_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망급여"]);
 			$data["ru_work_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무형태"]);
 			$data["ru_week_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무요일"]);
+			$data["ru_my_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"나의강점"]);
 
 			$this->layout->shop('/mypage/resume_write1',$data);
 		}
@@ -642,100 +679,8 @@
 
 		# 이력서 등록4
 		function resume_write4($ru_idx = 0){
-			$data = [];
-
-			# 데이터 검증및 뒤로가기 처리 (resume_write1에서 바로 이동하므로 스텝1 체크)
-			$is_check = $this->site_model->checkSiteLog("RESUME","스텝1");
-			if($is_check==false){
-				//go_location("/mypage/resume_list","데이터 가 유효하지 않습니다. 이력서 등록을 다시 진행해주세요.");
-				$this->common->scriptReplace("/mypage/index");
-			}
-
-			# 데이터 조회
-			$info = [
-				"ru_idx"=>$ru_idx,
-				"ru_desc"=>"",
-				"arr_certi"=>"",
-				"ru_img1"=>"",
-				"ru_img2"=>"",
-				"ru_img3"=>"",
-				"ru_img4"=>"",
-				"ru_img5"=>"",
-				"ru_week_yn"=>"N",
-				"ru_week"=>"",
-			];
-			$resume_info = $this->member_model->getResume(["ru_idx"=>$ru_idx]);
-
-			if($ru_idx !=0 && $resume_info==null){
-				go_location("/mypage/resume_list","이력서가 존재하지 않습니다.");
-			}
-
-			if($resume_info!=null){
-				$arr_certi = "";
-				$certi_list = $this->member_model->getResumeCertiList(["ru_idx"=>$ru_idx]);
-
-				foreach($certi_list as $row){
-					if($arr_certi==""){
-						$arr_certi = $row["rc_name"] . "|||" . $row["rc_dt"];
-					}else{
-						$arr_certi .= "&&&" . $row["rc_name"] . "|||" . $row["rc_dt"];
-					}
-				}
-
-				$info["arr_certi"] = $arr_certi;
-				$info["ru_desc"] = $resume_info["ru_desc"];
-				$info["ru_my_type"] = explode(",", $resume_info["ru_my_type"]);
-				$info["ru_week_yn"] = isset($resume_info["ru_week_yn"]) ? $resume_info["ru_week_yn"] : "N";
-				$info["ru_week"] = isset($resume_info["ru_week"]) ? $resume_info["ru_week"] : "";
-				$info["ru_img1"] = $resume_info["ru_img1"];
-				$info["ru_img2"] = $resume_info["ru_img2"];
-				$info["ru_img3"] = $resume_info["ru_img3"];
-				$info["ru_img4"] = $resume_info["ru_img4"];
-				$info["ru_img5"] = $resume_info["ru_img5"];
-			}else{
-				$temp_info  = $this->site_model->getStepTempDataMember($this->mm_idx,"RESUME","스텝4");
-				if($temp_info!=null){
-					$info["arr_certi"] = $temp_info["arr_certi"];
-					$info["ru_desc"] = $temp_info["ru_desc"];
-					$info["ru_my_type"] = isset($temp_info["ru_my_type"]) ? (is_array($temp_info["ru_my_type"]) ? $temp_info["ru_my_type"] : explode(",", $temp_info["ru_my_type"])) : [];
-					$info["ru_week_yn"] = isset($temp_info["ru_week_yn"]) ? $temp_info["ru_week_yn"] : "N";
-					$info["ru_week"] = isset($temp_info["ru_week"]) ? $temp_info["ru_week"] : "";
-					$info["ru_img1"] = $temp_info["ru_img1"];
-					$info["ru_img2"] = $temp_info["ru_img2"];
-					$info["ru_img3"] = $temp_info["ru_img3"];
-					$info["ru_img4"] = $temp_info["ru_img4"];
-					$info["ru_img5"] = $temp_info["ru_img5"];
-				}else{
-					$add_info = $this->member_model->getMemberInfo($this->mm_idx);
-
-					if($add_info!=null){
-						$arr_certi = "";
-						$certi_list = $this->member_model->getMemberCertiList(["mm_idx"=>$this->mm_idx]);
-						$info["arr_certi"] = "";
-						if($certi_list!=null){
-							foreach($certi_list as $row){
-								if($arr_certi==""){
-									$arr_certi = $row["mc_name"] . "|||" . $row["mc_dt"];
-								}else{
-									$arr_certi .= "&&&" . $row["mc_name"] . "|||" . $row["mc_dt"];
-								}
-							}
-							$info["arr_certi"] = $arr_certi;
-						}
-						$info["ru_desc"] = $add_info["ma_desc"];
-						$info["ru_img1"] = $add_info["mm_img1"];
-						$info["ru_img2"] = $add_info["mm_img2"];
-						$info["ru_img3"] = $add_info["mm_img3"];
-						$info["ru_img4"] = $add_info["mm_img4"];
-						$info["ru_img5"] = $add_info["mm_img5"];
-					}
-				}
-			}
-
-			# 데이터 리스트
-			$data["info"] = $info;
-			$data["ru_my_type_list"] = $this->site_model->getCodeList(["cd_grp"=>"나의강점"]);
-			$this->layout->shop('/mypage/resume_write4',$data);
+			$target = ($ru_idx && $ru_idx != 0) ? "/mypage/resume_write1/" . $ru_idx : "/mypage/resume_write1";
+			$this->common->scriptReplace($target);
 		}
 
 		# 북마크 공고(검토용)
