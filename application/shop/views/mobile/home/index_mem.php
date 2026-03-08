@@ -172,44 +172,10 @@ if ($g_ios_publish == true) {
   }
 
   .result-list .content-li {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
-    border-radius: 10px;
     border: 1px solid #EB5349;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-    transition: background 0.2s ease;
-  }
-
-  .content-li * {
-    padding: 0;
-    margin: 0;
-  }
-
-  .content-li .content-info {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-  }
-
-  .content-info .wicon img {
-    height: 19px;
-  }
-
-  .content-info .title {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 1px 0px;
   }
 
   .content-info .summary3 {
-    position: absolute;
-    top: 6px;
-    right: 10px;
     color: #000;
     height: 17px;
     text-align: right;
@@ -253,105 +219,17 @@ if ($g_ios_publish == true) {
   }
 
   .content-info .content-body {
-    position: relative;
     height: 95px;
-    overflow: hidden;
-  }
-
-  .content-info .desc {
-    position: relative;
-    height: 95px;
-    margin: 0 0 0 105px;
   }
 
   .content-info .desc .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     width: 80%;
   }
 
-  .content-info .img {
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .content-info .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 이미지 비율 유지하며 박스를 꽉 채움 */
-    display: block;
-  }
-
-  .content-info .link {
-    color: #5085BB;
-  }
-
-  .content-info .summary {
-    display: flex;
-    font-size: 16px;
-    gap: 5px;
-    position: relative;
-  }
-
-  .content-info .summary p {
-    position: relative;
-    padding-right: 5px;
-    margin: 0;
-    color: #999;
-  }
-
-  .content-info .summary p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #ACACAC;
-  }
-
-  .content-info .summary>* {
-    min-width: 0;
-    max-width: 100%;
-    margin-right: 4px;
-    margin-bottom: -3px;
-  }
-
-  .content-info .summary.area p {
-    color: #000;
-    font-weight: 600;
-  }
-
-  .content-info .summary.reco p {
-    color: #1b9d7d;
-    font-weight: 600;
-  }
-
   .content-info .summary2 {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
     font-size: 18px;
     font-weight: 700;
-    letter-spacing: 0;
     color: #1b9d7d;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .content-info .summary2 .summary2 p {
-    margin: 0;
-    text-align: right;
   }
 
   .content-info .summary2 .period {
@@ -392,10 +270,6 @@ if ($g_ios_publish == true) {
     height: 0.5em;
     margin: auto;
     border-right: 1px solid #777777;
-  }
-
-  .result-list .list-item+.list-item {
-    border-top: 0;
   }
 
   .section .container {
@@ -670,6 +544,10 @@ if ($g_ios_publish == true) {
         window.addEventListener('DOMContentLoaded', function() {
           new KeenSlider(".visual-slider .slider-wrap", {
             loop: true,
+            // slides: {
+            //   perView: 1,
+            //   spacing: 12,
+            // },
             defaultAnimation: {
               duration: 2000,
             },
@@ -696,11 +574,11 @@ if ($g_ios_publish == true) {
         <!-- <a href="/recruit/clist" class="btn-view-all">더보기</a> -->
         <style>
           .hot-list .keen-slider__slide {
-            max-width: 8rem;
+            width: 33.3333%;
           }
 
           .hot-list .thumb {
-            width: 7.5rem;
+            width: 100%;
             padding: 100% 0 0;
             /* 72.5% */
           }
@@ -731,7 +609,7 @@ if ($g_ios_publish == true) {
               loop: false,
               mode: 'free',
               slides: {
-                perView: "auto"
+                perView: 3
               },
             });
           });
@@ -742,7 +620,7 @@ if ($g_ios_publish == true) {
     <div class="section">
       <div class="container">
         <h2 class="secondary-title">추천공고</h2>
-        <ol class="result-list">
+        <ol class="result-list result-list-card">
         </ol>
         <a href="/recruit/job_list" class="btn-view-all" style="font-weight: 600;">더보기</a>
       </div>
@@ -812,13 +690,15 @@ if ($g_ios_publish == true) {
             <div class="summary area">
               <p>{{ad_addr}}</p>
             </div>
+          </div>
+          <div class="summary-container">
+            <div class="summary3">{{rt_work_type}}</div>
             <div class="summary2">
               <p class="period">{{rc_price_type}}</p>
               <p class="amount">{{rc_price_pay}}</p>
             </div>
           </div>
         </div>
-        <div class="summary3">{{rt_work_type}}</div>
       </div>
     </div>
   </li>

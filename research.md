@@ -1,74 +1,59 @@
-# Research: recruit_write1_1.php + recruit_write2_1.php + recruit_write3_1.php 통합
+# Research: result-list 공통화 가능성
 
 ## 대상 파일
-- source A: `application/shop/views/mobile/compage/recruit_write1_1.php`
-- source B: `application/shop/views/mobile/compage/recruit_write2_1.php`
-- source C: `application/shop/views/mobile/compage/recruit_write3_1.php`
+- application/shop/views/mobile/home/index_comp.php
+- application/shop/views/mobile/home/index_mem.php
+- application/shop/views/mobile/resume/hr_list.php
+- application/shop/views/mobile/recruit/job_list.php
 
-## recruit_write1_1.php 핵심 구조/동작
-- UI 구조
-  - `.page.page-write` 내부 `form#frm` 단일 폼.
-  - 섹션: 공고제목, 주소등록(주소 팝업), 업무구분(2개 제한), 근무형태(2개 제한 + 근무협의), 급여형태(급여협의 시 금액 비활성).
-  - 하단 `sticky-bottom`에 `#btnStep`(“다음”).
-- 주소 처리
-  - hidden fields: `ad_zipcode`, `ad_jibun`, `ad_doro`, `ad_detail`, `ad_addr`, `ad_gps_x`, `ad_gps_y`.
-  - 서버 주소 데이터 `serverAddrData`가 있을 때 버튼 텍스트/클래스 갱신.
-  - `selectAddrInfo(...)` 콜백으로 주소 입력 + 버튼 UI 업데이트.
-- 로컬스토리지
-  - 키: `recruit_draft_{rc_idx}_page1`.
-  - `savePage1Data`, `loadPage1Data`, `migrateRecruitDraftKeys`, `clearRecruitDraftData`.
-- 검증/이동 흐름
-  - `#btnStep` 클릭 시 필수 검증(공고제목, 주소, 업무구분, 근무형태, 급여금액).
-  - 저장: `/compage_proc/recruit_write1_1`.
-  - 성공 후 `/compage/recruit_write2_1`로 이동.
-- 뒤로가기
-  - `.btn-back` 및 `popstate`에서 draft 삭제 후 `/compage/recruit_list` 이동.
+## 공통 구조
+네 파일 모두 다음과 같은 마크업 구조를 공유함.
+- `<ol class="result-list">` 내부에 `<li class="list-item">`.
+- `.content-li > .content-info > .content-body` 구조.
+- `.content-body` 내부에 `.img` + `.desc` 영역.
+- `.desc` 내부에 `.wicon`, `.title`, `.summary`, `.summary area`, `.summary2`.
+- `.content-info` 하단에 `.summary3`.
 
-## recruit_write2_1.php 핵심 구조/동작
-- UI 구조
-  - 복리후생(보험/휴가/수당/생활편의 등) 체크박스 그룹 `rc_life_type[]`.
-  - 하단 `sticky-bottom`에 `#btnPrev`(이전) + `#btnStep`(다음).
-- 로컬스토리지
-  - 키: `recruit_draft_{rc_idx}_page2`.
-  - `savePage2Data`, `loadPage2Data`.
-- 저장/이동 흐름
-  - `#btnStep` 클릭 시 `/compage_proc/recruit_write2_1` 저장 후 `/compage/recruit_write3_1` 이동.
-  - `#btnPrev`는 `/compage/recruit_write1_1` 이동.
-- 뒤로가기
-  - `.btn-back` 및 `popstate`에서 draft 삭제 후 `/compage/recruit_list` 이동.
+## 공통 스타일(동일 혹은 거의 동일)
+다음 규칙들은 네 파일에서 대부분 동일하며 main.css로 이동 가능.
+- `.result-list .content-li`의 기본 카드 박스(크기/라운딩/배경/여백/트랜지션)
+- `.content-li * { margin:0; padding:0; }`
+- `.content-li .content-info` 레이아웃 패딩
+- `.content-info .wicon img` 높이
+- `.content-info .title` 폰트 크기/굵기/마진
+- `.content-info .content-body` 기본 높이/position/overflow
+- `.content-info .desc` 기본 위치/높이/마진
+- `.content-info .desc .ellipsis` 처리
+- `.content-info .img`, `.content-info .img img` 이미지 박스/cover
+- `.content-info .summary` 레이아웃(display:flex, gap, font-size)
+- `.content-info .summary p`, `.summary p:not(:last-child)::after`
+- `.content-info .summary>*`
+- `.content-info .summary.area p`, `.summary.reco p`
+- `.content-info .summary2` 기본 배치(position/right/bottom/flex column)
+- `.content-info .summary2 p` 공통 텍스트 정렬
+- `.content-info .summary3` 기본 배치(position/right/top)
+- `.content-info .summary3 .worktype`와 `.worktype em` 기본 정렬
+- `.content-info .summary3 .worktype em:not(:last-child)::after`
+- `.result-list .list-item+.list-item { border-top: 0; }`
 
-## recruit_write3_1.php 핵심 구조/동작
-- UI 구조
-  - 상세업무정보, 해시태그(기본+직접입력), 채용공고기간(flatpickr), 상세등록(요일/성별/국적/나이/첨부사진), 상세등록 버튼.
-  - 하단 `sticky-bottom`에 `#btnPrev`(이전) + `#btnStep`(미리보기).
-- 로컬스토리지
-  - 키: `recruit_draft_{rc_idx}_page3`.
-  - `savePage3Data`, `loadPage3Data` (해시태그 동적 추가 복원 포함).
-- 날짜 처리
-  - 시작/종료일 flatpickr 초기화, 60일 제한, start 변경 시 end min/max 업데이트.
-- 파일 업로드
-  - 이미지 4개 미리보기, 파일 존재 시 `FormData`로 전송.
-- 저장/미리보기/완료
-  - `#btnStep` 검증 후 `/compage_proc/recruit_write3_1` 저장.
-  - 성공 시 `/compage_proc/recruit_complete` 호출하여 미리보기 이동.
-- 뒤로가기
-  - `.btn-back` 및 `popstate`에서 draft 삭제 후 `/compage/recruit_list` 이동.
+## 차이점(페이지별 유지 필요)
+페이지별로 다음 차이가 있어, 공통화 시 분리 필요.
+- `.result-list .content-li`의 `border` 색상/굵기와 hover 처리
+  - index_comp: 빨간 테두리 + hover 배경
+  - index_mem: 빨간 테두리, hover 없음
+  - hr_list/job_list: 기본 회색 테두리 + `.recomm` 강조
+- `.content-info .summary3` 내부 구조가 다름
+  - index_comp/hr_list: `.summary3 .worktype em` 구조
+  - index_mem/job_list: `.summary3 em` 직접 사용
+- `.content-info .summary2` 폰트 크기/굵기/색상 차이
+- `.content-info .desc` 좌측 마진 값 차이 (105px vs 110px)
+- `.content-info .desc .ellipsis` width 지정 여부
+- `.recomm-badge`는 hr_list/job_list에만 존재
 
-## 통합 시 주요 충돌/조정 포인트
-- **중복 요소**
-  - `form#frm`, `rc_idx` hidden, `sticky-bottom`, `migrateRecruitDraftKeys`/`clearRecruitDraftData`, back/popstate 핸들러.
-- **로컬스토리지**
-  - page1/2/3 저장 로직을 단일 draft 키(예: `recruit_draft_{rc_idx}_single`)로 합치는지, 기존 키를 유지하며 통합 저장을 병행할지 결정 필요.
-- **이동 흐름**
-  - 기존 페이지 이동(`/recruit_write2_1`, `/recruit_write3_1`) 제거.
-  - 단일 페이지에서 임시저장/미리보기/최종저장으로 재정렬 필요.
-- **UI/스크롤**
-  - 세 페이지의 스타일이 모두 인라인 `<style>`에 있어 충돌 가능.
-  - 단일 페이지 스크롤 기준으로 `sticky-bottom`과 섹션 간격 재조정 필요.
-- **검증 순서**
-  - page1/3의 필수 검증(공고제목, 주소, 급여, 상세업무정보, 기간)을 단일 제출 흐름에서 재배치해야 함.
+## main.css 현황
+- `resource/shop/mobile/css/main.css`에 `.result-list` 기본 스타일만 존재.
+- `.content-li` 관련 상세 카드 스타일은 main.css에 없음.
 
-## 요청 기능 해석
-- `recruit_write2_1.php`, `recruit_write3_1.php`의 UI/스크립트를 `recruit_write1_1.php`에 병합하여 단일 페이지 폼으로 구성.
-- 스크롤 기반 입력이 자연스럽도록 레이아웃/스타일 조정.
-- 임시저장/미리보기/최종저장 흐름을 **단일 페이지 기준**으로 재정렬.
+## 결론
+공통 요소는 `main.css`로 이동하고, 페이지별 차이는 각 페이지 스타일에 남기는 방식이 적합.
+안전성을 위해 새로운 공통 클래스(예: `.result-list-card`)를 추가하면 다른 페이지에 영향 최소화 가능.

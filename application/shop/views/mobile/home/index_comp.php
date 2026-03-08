@@ -195,146 +195,26 @@ if ($g_ios_publish == true) {
   }
 
   .result-list .content-li {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
     line-height: 1.5;
-    border-radius: 10px;
     border: 1px solid #EB5349;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-    transition: background 0.2s ease;
   }
 
   .result-list .content-li:hover {
     background: #f8f8f8;
   }
 
-  .content-li * {
-    padding: 0;
-    margin: 0;
-  }
-
-  .content-li .content-info {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-  }
-
-  .content-info .wicon img {
-    height: 19px;
-  }
-
-  .content-info .title {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 1px 0px;
-  }
-
-  .content-info .content-body {
-    position: relative;
-    overflow: hidden;
-    height: 95px;
-  }
-
   .content-info .desc {
-    position: relative;
-    height: 100%;
-    margin: 0 0 0 110px;
     cursor: pointer;
   }
 
-  .content-info .desc .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .content-info .img {
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .content-info .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 이미지 비율 유지하며 박스를 꽉 채움 */
-    display: block;
-  }
-
-  .content-info .link {
-    color: #5085BB;
-  }
-
-  .content-info .summary {
-    display: flex;
-    font-size: 16px;
-    gap: 5px;
-    position: relative;
-  }
-
   .content-info .summary p {
-    position: relative;
-    padding-right: 5px;
-    margin: 0;
-    color: #999;
-    font-weight: 600;
-  }
-
-  .content-info .summary p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #ACACAC;
-  }
-
-  .content-info .summary>* {
-    min-width: 0;
-    max-width: 100%;
-    margin-right: 4px;
-    margin-bottom: -3px;
-  }
-
-  .content-info .summary.area p {
-    color: #000;
-    font-weight: 600;
-  }
-
-  .content-info .summary.reco p {
-    color: #1b9d7d;
     font-weight: 600;
   }
 
   .content-info .summary2 {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
     font-size: 16px;
     font-weight: 600;
-    letter-spacing: 0;
     color: #1b9d7d;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .content-info .summary2 p {
-    margin: 0;
-    text-align: right;
   }
 
   .content-info .summary2 .pricetype {
@@ -367,9 +247,6 @@ if ($g_ios_publish == true) {
   }
 
   .content-info .summary3 {
-    position: absolute;
-    right: 10px;
-    top: 6px;
     font-size: 16px;
     font-weight: 600;
     letter-spacing: 0;
@@ -472,10 +349,6 @@ if ($g_ios_publish == true) {
     color: #fff;
     border-color: transparent;
     background-color: #1B9D7D;
-  }
-
-  .result-list .list-item+.list-item {
-    border-top: 0;
   }
 
   .recomm-slider.person .keen-slider__slide {
@@ -756,7 +629,7 @@ if ($g_ios_publish == true) {
       <div class="container">
         <h2 class="secondary-title">추천공고</h2>
         <!-- 목록 -->
-        <ol class="result-list">
+        <ol class="result-list result-list-card">
         </ol>
         <!-- //목록 -->
         <a href="/recruit/job_list" class="btn-view-all" style="top: 0.90rem;font-weight: 600;">더보기</a>
@@ -827,13 +700,15 @@ if ($g_ios_publish == true) {
             <div class="summary area">
               <p>{{ad_addr}}</p>
             </div>
+          </div>
+          <div class="summary-container">
+            <div class="summary3">{{rt_work_type}}</div>
             <div class="summary2">
               <p class="period">{{rc_price_type}}</p>
               <p class="amount">{{rc_price_pay}}</p>
             </div>
           </div>
         </div>
-        <div class="summary3">{{rt_work_type}}</div>
       </div>
     </div>
   </li>

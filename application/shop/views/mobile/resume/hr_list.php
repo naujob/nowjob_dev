@@ -71,17 +71,7 @@ if (count($banner_list) > 0) {
   }
 
   .result-list .content-li {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
-    border-radius: 10px;
     border: 1px solid #b0b0b0;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-    transition: background 0.2s ease;
   }
 
   .result-list .content-li.recomm {
@@ -92,128 +82,23 @@ if (count($banner_list) > 0) {
     background: #f8f8f8;
   }
 
-  .content-li * {
-    padding: 0;
-    margin: 0;
-  }
-
-  .content-li .content-info {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-  }
-
-  .content-info .wicon img {
-    height: 19px;
-  }
-
-  .content-info .title {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 1px 0px;
-  }
-
-  .content-info .content-body {
-    position: relative;
-    overflow: hidden;
-    height: 95px;
-  }
-
   .content-info .desc {
-    position: relative;
-    height: 100%;
-    margin: 0 0 0 110px;
     cursor: pointer;
   }
 
-  .content-info .desc .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .content-info .img {
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .content-info .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 이미지 비율 유지하며 박스를 꽉 채움 */
-    display: block;
-  }
-
-  .content-info .link {
-    color: #5085BB;
-  }
-
-  .content-info .summary {
-    display: flex;
-    font-size: 16px;
-    gap: 5px;
-    position: relative;
-  }
-
   .content-info .summary p {
-    position: relative;
-    padding-right: 5px;
-    margin: 0;
     color: #000;
     font-weight: 600;
   }
 
-  .content-info .summary p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #ACACAC;
-  }
-
-  .content-info .summary>* {
-    min-width: 0;
-    max-width: 100%;
-    margin-right: 4px;
-    margin-bottom: -3px;
-  }
-
-  .content-info .summary.area p {
-    color: #000;
-    font-weight: 600;
-  }
-
-  .content-info .summary.reco p {
-    color: #1b9d7d;
-    font-weight: 600;
+  .content-info .summary + .summary {
+    margin-top: 4px;
   }
 
   .content-info .summary2 {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
     font-size: 16px;
     font-weight: 600;
-    letter-spacing: 0;
     color: #1b9d7d;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .content-info .summary2 p {
-    margin: 0;
-    text-align: right;
   }
 
   .content-info .summary2 .pricetype {
@@ -246,9 +131,6 @@ if (count($banner_list) > 0) {
   }
 
   .content-info .summary3 {
-    position: absolute;
-    right: 0px;
-    top: 0px;
     font-size: 16px;
     font-weight: 600;
     letter-spacing: 0;
@@ -351,18 +233,10 @@ if (count($banner_list) > 0) {
     background-color: #1B9D7D;
   }
 
-  .result-list .list-item+.list-item {
-    border-top: 0;
-  }
-
   .recomm-badge {
     position: absolute;
-    top: 0;
     background: #EB5349;
     z-index: 1;
-    margin: 3px;
-    padding: 3px;
-    border-radius: 3px;
   }
 
   .search-option .categories .form-toggle-btn2 {
@@ -488,7 +362,7 @@ if (count($banner_list) > 0) {
       </style>
       <div class="container">
         <h2 class="sr-text">채용공고</h2>
-        <ol class="result-list" id="ajaxList" data-page="1" data-more="Y">
+        <ol class="result-list result-list-card" id="ajaxList" data-page="1" data-more="Y">
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p>등록된 정보가 없습니다.</p>
@@ -527,11 +401,13 @@ if (count($banner_list) > 0) {
               <p>{{ma_age}}</p>
               <p>{{ad_addr}}</p>
             </div>
-            <div class="summary2">
-              <p class="pricetype">{{ru_price_type}}</p>
-            </div>
+          </div>
+          <div class="summary-container">
             <div class="summary3">
               <p class="worktype">{{ru_work_type}}</p>
+            </div>
+            <div class="summary2">
+              <p class="pricetype">{{ru_price_type}}</p>
             </div>
           </div>
         </div>

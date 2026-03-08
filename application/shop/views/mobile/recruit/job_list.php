@@ -77,48 +77,14 @@ if (count($banner_list) > 0) {
   }
 
   .result-list .content-li {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
-    border-radius: 10px;
     border: 1px solid #b0b0b0;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-    transition: background 0.2s ease;
   }
 
   .result-list .content-li.recomm {
     border: 1.5px solid #EB5349;
   }
 
-  .content-li * {
-    padding: 0;
-    margin: 0;
-  }
-
-  .content-li .content-info {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-  }
-
-  .content-info .wicon img {
-    height: 19px;
-  }
-
-  .content-info .title {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 1px 0px;
-  }
-
   .content-info .summary3 {
-    position: absolute;
-    top: 6px;
-    right: 10px;
     color: #000;
     height: 17px;
     font-size: 16px;
@@ -164,113 +130,19 @@ if (count($banner_list) > 0) {
   }
 
   .content-info .content-body {
-    position: relative;
     height: 95px;
-    overflow: hidden;
   }
 
   .recomm-badge {
     position: absolute;
     background: #EB5349;
     z-index: 1;
-    margin: 3px;
-    padding: 3px;
-    border-radius: 3px;
-  }
-
-  .content-info .desc {
-    position: relative;
-    height: 95px;
-    margin: 0 0 0 105px;
-  }
-
-  .content-info .desc .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .content-info .img {
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .content-info .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 이미지 비율 유지하며 박스를 꽉 채움 */
-    display: block;
-  }
-
-  .content-info .link {
-    color: #5085BB;
-  }
-
-  .content-info .summary {
-    display: flex;
-    font-size: 16px;
-    gap: 5px;
-    position: relative;
-  }
-
-  .content-info .summary p {
-    position: relative;
-    padding-right: 5px;
-    margin: 0;
-    color: #999;
-  }
-
-  .content-info .summary p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #ACACAC;
-  }
-
-  .content-info .summary>* {
-    min-width: 0;
-    max-width: 100%;
-    margin-right: 4px;
-    margin-bottom: -3px;
-  }
-
-  .content-info .summary.area p {
-    color: #000;
-    font-weight: 600;
-  }
-
-  .content-info .summary.reco p {
-    color: #1b9d7d;
-    font-weight: 600;
   }
 
   .content-info .summary2 {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
     font-size: 18px;
     font-weight: 700;
-    letter-spacing: 0;
     color: #222;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .content-info .summary2 .summary2 p {
-    margin: 0;
-    text-align: right;
   }
 
   .content-info .summary2 .period {
@@ -321,10 +193,6 @@ if (count($banner_list) > 0) {
 
 
 
-
-  .result-list .list-item+.list-item {
-    border-top: 0;
-  }
 
   .search-option .categories .form-toggle-btn2 {
     display: none;
@@ -449,7 +317,7 @@ if (count($banner_list) > 0) {
       </style>
       <div class="container">
         <h2 class="sr-text">채용공고</h2>
-        <ol class="result-list" id="ajaxList" data-page="1" data-more="Y">
+        <ol class="result-list result-list-card" id="ajaxList" data-page="1" data-more="Y">
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p>등록된 정보가 없습니다.</p>
@@ -471,10 +339,10 @@ if (count($banner_list) > 0) {
     <div class="content-li recomm" data-rc_idx="{{rc_idx}}">
       <div class="content-info">
         <div class="content-body">
-          <p class="recomm-badge"><span>추천</span></p>
           <div class="img">
             <img src="{{rt_recruit_img}}">
             <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+            <p class="recomm-badge"><span>추천</span></p>
           </div>
           <div class="desc">
             <div class="wicon">
@@ -490,13 +358,15 @@ if (count($banner_list) > 0) {
             <div class="summary area">
               <p>{{ad_addr}}</p>
             </div>
+          </div>
+          <div class="summary-container">
+            <div class="summary3">{{rt_work_type}}</div>
             <div class="summary2">
               <p class="period">{{rc_price_type}}</p>
               <p class="amount">{{rc_price_pay}}</p>
             </div>
           </div>
         </div>
-        <div class="summary3">{{rt_work_type}}</div>
       </div>
     </div>
   </li>

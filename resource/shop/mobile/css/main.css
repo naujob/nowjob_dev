@@ -1,5 +1,18 @@
 @charset "UTF-8";
 
+:root {
+    --result-card-padding: 10px;
+    --result-card-img-size: 95px;
+    --result-card-gap: 15px;
+    --result-card-right-space: 80px;
+    --result-card-summary-right: 2px;
+    --result-card-summary-top: 6px;
+    --result-card-summary-bottom: 0px;
+    --result-card-badge-margin: 3px;
+    --result-card-badge-padding: 3px;
+    --result-card-badge-radius: 3px;
+}
+
 /* 공통: 버튼/링크 눌림 표시 제거 */
 a,
 button,
@@ -6908,6 +6921,159 @@ form#frm {
 
 .result-list .list-item+.list-item {
     border-top: 1px solid #dcdcdc;
+}
+
+.result-list-card .content-li {
+    position: relative;
+    width: 100%;
+    height: 115px;
+    overflow: hidden;
+    font-size: 12px;
+    border-radius: 10px;
+    background: #fff;
+    margin-bottom: 10px;
+    transition: background 0.2s ease;
+}
+
+.result-list-card .content-li * {
+    padding: 0;
+    margin: 0;
+}
+
+.result-list-card .content-info {
+    width: 100%;
+    height: 100%;
+    padding: var(--result-card-padding);
+}
+
+.result-list-card .content-info .wicon img {
+    height: 19px;
+}
+
+.result-list-card .content-info .title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 1px 0;
+}
+
+.result-list-card .content-info .content-body {
+    position: relative;
+    height: var(--result-card-img-size);
+    overflow: hidden;
+}
+
+.result-list-card .content-info .desc {
+    position: relative;
+    height: 100%;
+    margin: 0 0 0 calc(var(--result-card-img-size) + var(--result-card-gap));
+    padding-right: var(--result-card-right-space);
+}
+
+.result-list-card .content-info .desc .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.result-list-card .content-info .img {
+    position: absolute;
+    width: var(--result-card-img-size);
+    height: var(--result-card-img-size);
+    border: 0;
+    border-radius: 5px;
+    color: #888;
+    overflow: hidden;
+}
+
+.result-list-card .content-info .img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.result-list-card .content-info .img .recomm-badge {
+    top: 0;
+    left: 0;
+    margin: var(--result-card-badge-margin);
+    padding: var(--result-card-badge-padding);
+    border-radius: var(--result-card-badge-radius);
+}
+
+.result-list-card .content-info .link {
+    color: #5085BB;
+}
+
+.result-list-card .content-info .summary {
+    display: flex;
+    font-size: 16px;
+    gap: 5px;
+    position: relative;
+}
+
+.result-list-card .content-info .summary p {
+    position: relative;
+    padding-right: 5px;
+    margin: 0;
+    color: #999;
+}
+
+.result-list-card .content-info .summary p:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #ACACAC;
+}
+
+.result-list-card .content-info .summary>* {
+    min-width: 0;
+    max-width: 100%;
+    margin-right: 4px;
+    margin-bottom: -3px;
+}
+
+.result-list-card .content-info .summary.area p {
+    color: #000;
+    font-weight: 600;
+}
+
+.result-list-card .content-info .summary.reco p {
+    color: #1b9d7d;
+    font-weight: 600;
+}
+
+.result-list-card .content-info .summary2 {
+    letter-spacing: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.result-list-card .content-info .summary2 p {
+    margin: 0;
+    text-align: right;
+}
+
+.result-list-card .content-info .summary-container {
+    position: absolute;
+    right: var(--result-card-summary-right);
+    top: var(--result-card-summary-top);
+    bottom: var(--result-card-summary-bottom);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.result-list-card .content-info .summary-container .summary2 {
+    margin-top: auto;
+}
+.result-list-card .list-item+.list-item {
+    border-top: 0;
 }
 
 .item-info {
