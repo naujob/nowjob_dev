@@ -11,28 +11,22 @@
             <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
 
             <style>
-                .foldbtn {
-                    display: none;
-                    position: absolute;
-                    top: 0px;
-                    right: 0px;
-                    cursor: pointer;
+                .addition-info-form .form-row {
+                    padding: 18px 0;
+                    border-bottom: 1px solid #eee;
                 }
 
-                .foldbtn img.upside {
-                    height: 18px;
-                    margin-top: 5px;
-                    -ms-transform: rotate(270deg);
-                    -webkit-transform: rotate(270deg);
-                    transform: rotate(270deg);
+                .addition-info-form .form-row:last-child {
+                    border-bottom: none;
                 }
 
-                .foldbtn img.dwside {
-                    height: 18px;
-                    margin-top: 5px;
-                    -ms-transform: rotate(90deg);
-                    -webkit-transform: rotate(90deg);
-                    transform: rotate(90deg);
+                .addition-info-form .form-label {
+                    margin-bottom: 10px;
+                    display: block;
+                }
+
+                .addition-info-form .value {
+                    margin-top: 4px;
                 }
             </style>
             <div class="tab-panel on">
@@ -48,19 +42,11 @@
                             <div class="form-table">
                                 <div class="form-row">
                                     <p class="form-label" style="font-size: 0.9em;"><span class="fixed">*</span>표시는 필수 입력 항목입니다.</p>
-                                    <div class="form-group" style="position:absolute; right:0px; ">
-                                        <label class="form-toggle-btn2" onclick="fFoldAll('Y');">
-                                            <input type="radio" name="rc_simple_yn" value="Y" checked>
-                                            <span class="btn">간편등록</span>
-                                        </label>
-                                        <label class="form-toggle-btn2" onclick="fFoldAll('N');">
-                                            <input type="radio" name="rc_simple_yn" value="N">
-                                            <span class="btn">상세</span>
-                                        </label>
+                                    <div class="form-group" style="position:static; right:auto;">
+                                        <span class="sr-text">간편등록 단일 폼</span>
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn1" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label"><span class="fixed">*</span>이력서명 <em>이력서 제목으로 등록됩니다.</em></p>
                                     <div class="value">
                                         <label>
@@ -70,7 +56,6 @@
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn_nationality" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label"><span class="fixed">*</span>국적 <em>국적을 선택해 주세요.</em></p>
                                     <div class="value">
                                         <div class="form-group">
@@ -93,7 +78,6 @@
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn2" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label"><span class="fixed">*</span>희망업무 <em>희망업무는 2개까지 선택가능합니다.</em></p>
                                     <div class="value">
                                         <div class="form-group">
@@ -116,7 +100,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn3" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label"><span class="fixed">*</span>희망지역 <em>희망지역은 2개까지 가능합니다.</em></p>
                                     <div class="value">
                                         <div class="form-group">
@@ -142,7 +125,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn4" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label"><span class="fixed">*</span>급여형태 <em>급여형는 2개까지 가능합니다.</em></p>
                                     <div class="value">
                                         <div class="form-group">
@@ -172,7 +154,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn5" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label"><span class="fixed">*</span>근무형태 <em>다중선택가능</em></p>
                                     <div class="value">
                                         <div class="form-group">
@@ -247,7 +228,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn6" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label">근무희망요일 <em>다중선택가능</em></p>
                                     <div class="value">
                                         <div class="inline-group week-day">
@@ -273,7 +253,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn7" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label">근무희망일</p>
                                     <div class="value">
                                         <div class="calendar">
@@ -328,7 +307,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn8" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label">최종학력</p>
                                     <div class="value">
                                         <div class="form-group">
@@ -343,7 +321,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn9" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label">간단경력 <em>간단경력은 최대 10개의 경력사항을 기입가능합니다.<br> 업체명 최대 13자</em></p>
 
                                     <div class="value">
@@ -551,7 +528,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn10" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label">나의강점 <em>나의강점을 선택하세요(최대6개까지)</em></p>
                                     <div class="value">
                                         <div class="form-group col-8 full-width">
@@ -639,7 +615,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn11" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label">자기소개 <em>(최대500자)</em></p>
                                     <div class="value">
                                         <label class="full-width">
@@ -651,7 +626,6 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <span class="foldbtn" id="btn12" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
                                     <p class="form-label">자격증 <em>허위사실 기재시 합격이 취소될 수 있습니다</em></p>
 
                                     <div class="value">
@@ -1197,29 +1171,23 @@
             }
         });
 
-        fFoldAll('Y');
+        // 평일(월~금) 기본값 설정 (페이지 로드 시)
+        var weekdays = ['월', '화', '수', '목', '금'];
+        var hasChecked = false;
 
-        // 간편등록 모드일 때 평일 기본값 설정 (페이지 로드 시)
-        if ($("[name='rc_simple_yn']:checked").val() == 'Y') {
-            var weekdays = ['월', '화', '수', '목', '금'];
-            var hasChecked = false;
+        $("[name='ru_week[]']:checked").each(function() {
+            hasChecked = true;
+        });
 
-            // 기존에 체크된 요일이 있는지 확인
-            $("[name='ru_week[]']:checked").each(function() {
-                hasChecked = true;
+        if (!hasChecked) {
+            $("[name='ru_week[]']").each(function() {
+                if (weekdays.indexOf($(this).val()) !== -1) {
+                    $(this).prop('checked', true);
+                } else {
+                    $(this).prop('checked', false);
+                }
             });
-
-            // 체크된 요일이 없을 때만 평일을 기본값으로 설정
-            if (!hasChecked) {
-                $("[name='ru_week[]']").each(function() {
-                    if (weekdays.indexOf($(this).val()) !== -1) {
-                        $(this).prop('checked', true);
-                    } else {
-                        $(this).prop('checked', false);
-                    }
-                });
-                $("[name='ru_week_yn']").prop('checked', false);
-            }
+            $("[name='ru_week_yn']").prop('checked', false);
         }
 
         comAjax("/common_proc/get_member_info", {}, function(ret) {
@@ -1502,102 +1470,6 @@
         });
     }
 
-    function fFold(obj, req = -1) {
-
-        var act = 'close';
-        if (req == 1) {
-            act = 'open';
-        } else if (req == 0) {
-            act = 'close';
-        } else {
-            if ($(obj).parent().css('height').replace('px', '') < 30) {
-                act = 'open';
-            } else {
-                act = 'close';
-            }
-        }
-        $(obj).parent().css('overflow', 'hidden');
-        if (act == 'open') { //$(obj).parent().css('height').replace('px','') < 30
-            //show
-            $(obj).parent().show();
-            //$(obj).parent().animate({ padding: '26px 0px'});
-            //$(obj).parent().css('height', 'auto');
-            //$(obj).find('img').addClass('dwside');
-            //$(obj).find('img').removeClass('upside');
-            //$(obj).parent().find('.form-label').css('margin-top','0px');
-            //$(obj).parent().find('.form-group').css('margin-top','0px');
-            //$(obj).parent().find('.value').css('margin-top','0px');
-        } else {
-            //hide
-            $(obj).parent().hide();
-            //$(obj).parent().css('height','28px');
-            //$(obj).parent().animate({ padding: '10px 0px'});
-            //$(obj).find('img').addClass('upside');
-            //$(obj).find('img').removeClass('dwside');
-            //$(obj).parent().find('.form-label').css('margin-top','10px');
-            //$(obj).parent().find('.form-group').css('margin-top','20px');
-            //$(obj).parent().find('.value').css('margin-top','20px');
-        }
-    }
-
-    function fFoldAll(gbn) {
-        if (gbn == 'Y') {
-            //간편
-            fFold($('#btn1'), 1);
-            fFold($('#btn_nationality'), 1); // 국적 항목 추가
-            fFold($('#btn2'), 1);
-            fFold($('#btn3'), 1);
-            fFold($('#btn4'), 1);
-            fFold($('#btn5'), 1);
-            fFold($('#btn6'), 0);
-            fFold($('#btn7'), 0);
-            fFold($('#btn8'), 0);
-            fFold($('#btn9'), 0);
-            fFold($('#btn10'), 0);
-            fFold($('#btn11'), 0);
-            fFold($('#btn12'), 0);
-            fFold($('#btn13'), 0);
-            fFold($('#btn14'), 1);
-
-            // 간편등록 모드일 때 평일(월~금)을 기본값으로 설정
-            var weekdays = ['월', '화', '수', '목', '금'];
-            var hasChecked = false;
-
-            // 기존에 체크된 요일이 있는지 확인
-            $("[name='ru_week[]']:checked").each(function() {
-                hasChecked = true;
-            });
-
-            // 체크된 요일이 없을 때만 평일을 기본값으로 설정
-            if (!hasChecked) {
-                $("[name='ru_week[]']").each(function() {
-                    if (weekdays.indexOf($(this).val()) !== -1) {
-                        $(this).prop('checked', true);
-                    } else {
-                        $(this).prop('checked', false);
-                    }
-                });
-                $("[name='ru_week_yn']").prop('checked', false);
-            }
-        } else {
-            //상세
-            fFold($('#btn1'), 1);
-            fFold($('#btn_nationality'), 1); // 국적 항목 추가
-            fFold($('#btn2'), 1);
-            fFold($('#btn3'), 1);
-            fFold($('#btn4'), 1);
-            fFold($('#btn5'), 1);
-            fFold($('#btn6'), 1);
-            fFold($('#btn7'), 1);
-            fFold($('#btn8'), 1);
-            fFold($('#btn9'), 1);
-            fFold($('#btn10'), 1);
-            fFold($('#btn11'), 1);
-            fFold($('#btn12'), 1);
-            fFold($('#btn13'), 1);
-            fFold($('#btn14'), 1);
-        }
-    }
 </script>
 
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>
