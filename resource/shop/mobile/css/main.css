@@ -2290,6 +2290,67 @@ fieldset {
     line-height: 1.1;
 }
 
+.title-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.title-form .secondary-title {
+    margin: 1.5rem 0 0.875rem;
+}
+
+.title-form__aside {
+    margin: 1.5rem 0 0.875rem;
+}
+
+.detail-recruit-content__preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid #DCDCDC;
+    border-radius: 0.25rem;
+    background: #fff;
+    color: #333;
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.detail-recruit-content__preview .fa-solid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.9rem;
+    height: 0.9rem;
+    font-size: 0.85rem;
+}
+
+.detail-recruit-content__preview .screen-out {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+}
+
+.desc-guide {
+    margin: 0 0 0.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.desc-guide__highlight {
+    color: #FF3B30;
+    font-weight: 700;
+}
+
 .point-word {
     font-style: normal;
     color: #1B9D7D;

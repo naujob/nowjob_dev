@@ -486,8 +486,17 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 
         <div class="section view-desc">
             <div class="container">
-                <h3 class="secondary-title" onclick="alert('<?= $user_agent ?>');">상세업무정보</h3>
+                <div class="title-form">
+                    <h3 class="secondary-title" onclick="alert('<?= $user_agent ?>');">상세업무정보</h3>
+                    <div class="title-form__aside">
+                        <button class="detail-recruit-content__preview" type="button" aria-label="새 창으로 보기">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <span class="screen-out">새 창으로 보기</span>
+                        </button>
+                    </div>
+                </div>
                 <!-- 작성내용 -->
+                <p class="desc-guide">상세요강을 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
                 <div class="desc" style="width: 100%; overflow-x: auto;">
                     <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
                 </div>
@@ -1008,6 +1017,40 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
         });
 
         var user_type = "<?= $this->user->getUserType(); ?>";
+        // 새 창으로 크게 보기 버튼 처리
+        $(document).on('click', '.detail-recruit-content__preview', function() {
+            var descHtml = $('.view-desc .desc').html();
+            if (!descHtml) {
+                commonAlert("표시할 내용이 없습니다.", function() {});
+                return;
+            }
+
+            var previewWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+            if (!previewWindow) {
+                commonAlert("팝업 차단이 해제되어야 열 수 있습니다.", function() {});
+                return;
+            }
+
+            previewWindow.document.open();
+            previewWindow.document.write(
+                '<!doctype html>' +
+                '<html lang="ko">' +
+                '<head>' +
+                '<meta charset="utf-8">' +
+                '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">' +
+                '<title>상세업무정보</title>' +
+                '<style>' +
+                'body{margin:20px;font-family:Apple SD Gothic Neo,Malgun Gothic,system-ui,-apple-system,Segoe UI,sans-serif;font-size:16px;line-height:1.6;color:#222;}' +
+                '.desc{width:100%;}' +
+                '</style>' +
+                '</head>' +
+                '<body>' +
+                '<div class="desc">' + descHtml + '</div>' +
+                '</body>' +
+                '</html>'
+            );
+            previewWindow.document.close();
+        });
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
         $("#btnRecruit").click(function() {
