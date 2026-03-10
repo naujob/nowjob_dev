@@ -168,8 +168,8 @@
     //alert('splash');
     var push_yn = "N";
     var marketing_yn = "N";
-    var uuid = "<?= $uuid ?>";
-    var step = "<?= $step ?>";
+    var uuid = <?= json_encode($uuid) ?>;
+    var step = <?= json_encode($step) ?>;
     var hasConsent = false; // 기존 동의 정보가 있는지 확인
     var grantPopupTimeout = null; // 권한 팝업 완료 후 페이지 이동을 위한 타임아웃
 

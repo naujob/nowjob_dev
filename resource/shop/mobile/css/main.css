@@ -2441,13 +2441,20 @@ fieldset {
     line-height: 1.1;
     text-align: center;
     white-space: nowrap;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
 }
 
 .benefit-label:before {
     content: "";
     display: block;
-    width: 3.75rem;
-    height: 2.8125rem;
+    width: 4rem;
+    height: 3.5rem;
     margin: 0 auto 4px;
     background-repeat: no-repeat;
     background-position: 0 0;
@@ -2649,8 +2656,8 @@ fieldset {
     top: 0.75rem;
     left: 0;
     right: 0;
-    width: 2.5rem;
-    height: 1.875rem;
+    width: 4rem;
+    height: 3.5rem;
     margin: auto;
     opacity: 0;
     background-repeat: no-repeat;
@@ -2659,91 +2666,91 @@ fieldset {
 }
 
 .benefit-label.benefit1-1:after {
-    background-image: url("../img/ic_benefit1_1_on.svg");
+    background-image: url("../img/ic_benefit1_1_on.png?v=20260309");
 }
 
 .benefit-label.benefit1-2:after {
-    background-image: url("../img/ic_benefit1_2_on.svg");
+    background-image: url("../img/ic_benefit1_2_on.png?v=20260309");
 }
 
 .benefit-label.benefit1-3:after {
-    background-image: url("../img/ic_benefit1_3_on.svg");
+    background-image: url("../img/ic_benefit1_3_on.png?v=20260309");
 }
 
 .benefit-label.benefit1-4:after {
-    background-image: url("../img/ic_benefit1_4_on.svg");
+    background-image: url("../img/ic_benefit1_4_on.png?v=20260309");
 }
 
 .benefit-label.benefit2-1:after {
-    background-image: url("../img/ic_benefit2_1_on.svg");
+    background-image: url("../img/ic_benefit2_1_on.png?v=20260309");
 }
 
 .benefit-label.benefit2-2:after {
-    background-image: url("../img/ic_benefit2_2_on.svg");
+    background-image: url("../img/ic_benefit2_2_on.png?v=20260309");
 }
 
 .benefit-label.benefit2-3:after {
-    background-image: url("../img/ic_benefit2_3_on.svg");
+    background-image: url("../img/ic_benefit2_3_on.png?v=20260309");
 }
 
 .benefit-label.benefit3-1:after {
-    background-image: url("../img/ic_benefit3_1_on.svg");
+    background-image: url("../img/ic_benefit3_1_on.png?v=20260309");
 }
 
 .benefit-label.benefit3-2:after {
-    background-image: url("../img/ic_benefit3_2_on.svg");
+    background-image: url("../img/ic_benefit3_2_on.png?v=20260309");
 }
 
 .benefit-label.benefit3-3:after {
-    background-image: url("../img/ic_benefit3_3_on.svg");
+    background-image: url("../img/ic_benefit3_3_on.png?v=20260309");
 }
 
 .benefit-label.benefit3-4:after {
-    background-image: url("../img/ic_benefit3_4_on.svg");
+    background-image: url("../img/ic_benefit3_4_on.png?v=20260309");
 }
 
 .benefit-label.benefit3-5:after {
-    background-image: url("../img/ic_benefit3_5_on.svg");
+    background-image: url("../img/ic_benefit3_5_on.png?v=20260309");
 }
 
 .benefit-label.benefit3-6:after {
-    background-image: url("../img/ic_benefit3_6_on.svg");
+    background-image: url("../img/ic_benefit3_6_on.png?v=20260309");
 }
 
 .benefit-label.benefit3-7:after {
-    background-image: url("../img/ic_benefit3_7_on.svg");
+    background-image: url("../img/ic_benefit3_7_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-1:after {
-    background-image: url("../img/ic_benefit4_1_on.svg");
+    background-image: url("../img/ic_benefit4_1_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-1:after {
-    background-image: url("../img/ic_benefit4_1_on.svg");
+    background-image: url("../img/ic_benefit4_1_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-2:after {
-    background-image: url("../img/ic_benefit4_2_on.svg");
+    background-image: url("../img/ic_benefit4_2_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-3:after {
-    background-image: url("../img/ic_benefit4_3_on.svg");
+    background-image: url("../img/ic_benefit4_3_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-4:after {
-    background-image: url("../img/ic_benefit4_4_on.svg");
+    background-image: url("../img/ic_benefit4_4_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-5:after {
-    background-image: url("../img/ic_benefit4_5_on.svg");
+    background-image: url("../img/ic_benefit4_5_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-6:after {
-    background-image: url("../img/ic_benefit4_6_on.svg");
+    background-image: url("../img/ic_benefit4_6_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-7:after {
-    background-image: url("../img/ic_benefit4_7_on.svg");
+    background-image: url("../img/ic_benefit4_7_on.png?v=20260309");
 }
 
 .working-day {
@@ -8211,6 +8218,9 @@ form#frm {
     width: 20%;
     margin: 0 0 2.0769230769em;
     float: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .view-desc {

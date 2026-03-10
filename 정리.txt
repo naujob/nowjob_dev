@@ -194,4 +194,3 @@ set ca_num = 17
 where ca_ad1 = '제주';
 
 
-
