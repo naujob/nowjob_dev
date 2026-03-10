@@ -218,12 +218,8 @@ if ($g_ios_publish == true) {
     color: #1B9D7D;
   }
 
-  .content-info .content-body {
-    height: 95px;
-  }
-
   .content-info .desc .ellipsis {
-    width: 80%;
+    width: 128%;
   }
 
   .content-info .summary2 {

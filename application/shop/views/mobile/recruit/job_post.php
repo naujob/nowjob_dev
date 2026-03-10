@@ -1054,7 +1054,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                 return Math.sqrt(dx * dx + dy * dy);
             }
 
-            function applyTransform() {
+            function applyTransform() { // 손가락이 움직인 만큼 화면의 위치(translateX, translateY)를 더하거나 빼서 옮기기
                 descEl.style.transform =
                     'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
             }
@@ -1065,11 +1065,11 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                     isPanning = false;
                     wasPinching = false;
                     lastTap = 0; // 핀치 시 더블탭 타이머 리셋
-                    startDist = getDistance(e.touches[0], e.touches[1]);
+                    startDist = getDistance(e.touches[0], e.touches[1]); // 가장 먼저 닿은 첫 번째 손가락와 추가로 닿은 두 번째 손가락의 정보 / 처음 두 손가락이 닿았을 때의 거리
                     lastScale = scale;
 
-                    var rect = descEl.getBoundingClientRect();
-                    originX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                    var rect = descEl.getBoundingClientRect(); // 실시간으로 내 눈에 보이는 위치를 알려주는 함수
+                    originX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left; //두 손가락의 정중앙
                     originY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
 
                     descEl.classList.add('pinching');
@@ -1084,9 +1084,9 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 
             descEl.addEventListener('touchmove', function(e) {
                 if (isPinching && e.touches.length === 2) {
-                    var dist = getDistance(e.touches[0], e.touches[1]);
-                    var newScale = lastScale * (dist / startDist);
-                    newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
+                    var dist = getDistance(e.touches[0], e.touches[1]); // 손가락을 움직일 때(touchmove) 실시간 거리(dist)
+                    var newScale = lastScale * (dist / startDist); // 
+                    newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale)); // 처음보다 몇 배나 멀어졌는지
 
                     var scaleChange = newScale / scale;
                     translateX = originX - scaleChange * (originX - translateX);

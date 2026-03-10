@@ -3,6 +3,7 @@
 :root {
     --result-card-padding: 10px;
     --result-card-img-size: 95px;
+    --result-card-img-height: 120px;
     --result-card-gap: 15px;
     --result-card-right-space: 80px;
     --result-card-summary-right: 2px;
@@ -6974,7 +6975,7 @@ form#frm {
 .result-list-card .content-li {
     position: relative;
     width: 100%;
-    height: 115px;
+    height: 140px;
     overflow: hidden;
     font-size: 12px;
     border-radius: 10px;
@@ -7006,7 +7007,7 @@ form#frm {
 
 .result-list-card .content-info .content-body {
     position: relative;
-    height: var(--result-card-img-size);
+    height: var(--result-card-img-height);
     overflow: hidden;
 }
 
@@ -7015,6 +7016,9 @@ form#frm {
     height: 100%;
     margin: 0 0 0 calc(var(--result-card-img-size) + var(--result-card-gap));
     padding-right: var(--result-card-right-space);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
 .result-list-card .content-info .desc .ellipsis {
@@ -7026,7 +7030,7 @@ form#frm {
 .result-list-card .content-info .img {
     position: absolute;
     width: var(--result-card-img-size);
-    height: var(--result-card-img-size);
+    height: var(--result-card-img-height);
     border: 0;
     border-radius: 5px;
     color: #888;
