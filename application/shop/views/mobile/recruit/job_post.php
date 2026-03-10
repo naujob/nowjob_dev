@@ -220,6 +220,19 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
     .working-time em.wtype3 {
         color: #1B9D7D;
     }
+
+    /* 상세업무정보(.desc) 핀치 줌 스타일 */
+    .view-desc .desc {
+        transform-origin: 0 0;
+        transition: none;
+        will-change: transform;
+        overflow: visible;
+        cursor: zoom-in;
+    }
+
+    .view-desc .desc.pinching {
+        cursor: grabbing;
+    }
 </style>
 <div class="page page-view">
     <div class="top-bar">
@@ -1015,6 +1028,116 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
             },
             type: 'image' // this is default type
         });
+
+        // .desc 영역 핀치 줌 기능
+        (function() {
+            var descEl = document.querySelector('.view-desc .desc');
+            if (!descEl) return;
+
+            var scale = 1;
+            var lastScale = 1;
+            var startDist = 0;
+            var originX = 0, originY = 0;
+            var translateX = 0, translateY = 0;
+            var isPinching = false;
+            var isPanning = false;
+            var wasPinching = false;
+            var panStartX = 0, panStartY = 0;
+            var lastTap = 0;
+
+            var MIN_SCALE = 1;
+            var MAX_SCALE = 5;
+
+            function getDistance(t1, t2) {
+                var dx = t2.clientX - t1.clientX;
+                var dy = t2.clientY - t1.clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            function applyTransform() {
+                descEl.style.transform =
+                    'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
+            }
+
+            descEl.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    isPinching = true;
+                    isPanning = false;
+                    wasPinching = false;
+                    lastTap = 0; // 핀치 시 더블탭 타이머 리셋
+                    startDist = getDistance(e.touches[0], e.touches[1]);
+                    lastScale = scale;
+
+                    var rect = descEl.getBoundingClientRect();
+                    originX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                    originY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+
+                    descEl.classList.add('pinching');
+                    e.preventDefault();
+                } else if (e.touches.length === 1 && scale > 1) {
+                    isPanning = true;
+                    isPinching = false;
+                    panStartX = e.touches[0].clientX - translateX;
+                    panStartY = e.touches[0].clientY - translateY;
+                }
+            }, { passive: false });
+
+            descEl.addEventListener('touchmove', function(e) {
+                if (isPinching && e.touches.length === 2) {
+                    var dist = getDistance(e.touches[0], e.touches[1]);
+                    var newScale = lastScale * (dist / startDist);
+                    newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
+
+                    var scaleChange = newScale / scale;
+                    translateX = originX - scaleChange * (originX - translateX);
+                    translateY = originY - scaleChange * (originY - translateY);
+
+                    scale = newScale;
+                    applyTransform();
+                    e.preventDefault();
+                } else if (isPanning && e.touches.length === 1 && scale > 1) {
+                    translateX = e.touches[0].clientX - panStartX;
+                    translateY = e.touches[0].clientY - panStartY;
+                    applyTransform();
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            descEl.addEventListener('touchend', function(e) {
+                if (e.touches.length < 2) {
+                    if (isPinching) wasPinching = true;
+                    isPinching = false;
+                    descEl.classList.remove('pinching');
+                }
+                if (e.touches.length === 0) {
+                    isPanning = false;
+                    if (scale <= MIN_SCALE) {
+                        scale = 1;
+                        translateX = 0;
+                        translateY = 0;
+                        applyTransform();
+                    }
+                }
+            }, { passive: true });
+
+            // 더블탭으로 초기화
+            descEl.addEventListener('touchend', function(e) {
+                // 핀치가 방금 끝난 경우 더블탭 감지 skip
+                if (wasPinching) {
+                    wasPinching = false;
+                    lastTap = 0;
+                    return;
+                }
+                var now = Date.now();
+                if (now - lastTap < 300 && e.changedTouches.length === 1) {
+                    scale = 1;
+                    translateX = 0;
+                    translateY = 0;
+                    applyTransform();
+                }
+                lastTap = now;
+            }, { passive: true });
+        })();
 
         var user_type = "<?= $this->user->getUserType(); ?>";
         // 새 창으로 크게 보기 버튼 처리

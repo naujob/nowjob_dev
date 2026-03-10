@@ -1374,6 +1374,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     window.onChangeAreaApply = function(payload) {
+        // 선택된 지역을 searchArea 배열에서 가져오기
         var searchArea = payload.searchArea || [];
         var maxCount = 2;
         var currentCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
