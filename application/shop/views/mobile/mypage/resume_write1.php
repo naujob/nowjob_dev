@@ -1366,8 +1366,78 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             commonAlert("희망지역은 " + maxlen + "개까지 등록 가능합니다.", function() {});
             return;
         }
+        window.__hideAllRegionsInAddrPopup = true;
+        if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
+            window.applyAddrPopupAllRegionFilter();
+        }
         $("#changeArea").addClass("on");
     }
+
+    window.onChangeAreaApply = function(payload) {
+        var searchArea = payload.searchArea || [];
+        var maxCount = 2;
+        var currentCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
+        var remaining = maxCount - currentCount;
+
+        if (searchArea.length === 0) return true;
+
+        // 2개 초과 선택 시 앞에서 remaining개만 처리
+        var toProcess = searchArea.slice(0, remaining);
+        if (toProcess.length === 0) {
+            commonAlert("희망지역은 2개까지 등록 가능합니다.", function() {});
+            return true;
+        }
+        if (searchArea.length > toProcess.length) {
+            commonAlert("희망지역은 최대 2개까지 등록됩니다. 앞의 " + toProcess.length + "개만 적용됩니다.", function() {});
+        }
+
+        var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
+
+        function addAddrFromRegion(addr, x, y) {
+            var item = {
+                ad_zipcode: "",
+                ad_jibun: addr,
+                ad_doro: "",
+                ad_addr: addr,
+                ad_detail: "",
+                ad_gps_x: x,
+                ad_gps_y: y
+            };
+            var html = createAddressListItem(item);
+            if (html === "") return;
+            var $addBtn = $("#addr_location .location-field-add");
+            if ($addBtn.length > 0) {
+                $addBtn.before(html);
+            } else {
+                $("#addr_location").append(html);
+            }
+            var newCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
+            ensureAddressAddButton(newCount);
+            saveResumeStep1Data();
+        }
+
+        function processItem(addr) {
+            if (!geocoderAvailable) {
+                addAddrFromRegion(addr, "", "");
+                return;
+            }
+            var geocoder = new kakao.maps.services.Geocoder();
+            geocoder.addressSearch(addr, function(result, status) {
+                var x = "", y = "";
+                if (status === kakao.maps.services.Status.OK && result[0]) {
+                    x = result[0].x;
+                    y = result[0].y;
+                }
+                addAddrFromRegion(addr, x, y);
+            });
+        }
+
+        toProcess.forEach(function(item) {
+            processItem(item.addr);
+        });
+
+        return true; // 기본 목록 갱신(getBoardList) 생략
+    };
 
     // DOMContentLoaded 이벤트로 더 빠르게 처리 (깜빡임 방지)
     document.addEventListener('DOMContentLoaded', function() {
@@ -2218,4 +2288,4 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
 </script>
 
-<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
