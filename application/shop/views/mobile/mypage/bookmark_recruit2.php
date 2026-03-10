@@ -120,263 +120,6 @@ function fRemoveBigAdr($arg) {
 }
 ?>
 <style>
-  .btn-bookmark {
-    display: block;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    width: 40px;
-    height: 40px;
-    border: 0;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
-    background-size: 0px;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .btn-bookmark:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-top: 40px solid #f8f8f8;
-    border-left: 40px solid transparent;
-    z-index: -1;
-  }
-  .btn-bookmark:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    width: 16px;
-    height: 16px;
-    border-style: hidden;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
-    background-size: contain;
-    pointer-events: all;
-    z-index: 1;
-  }
-  .btn-bookmark.on:after {
-    background-image: inherit;
-  }
-  .sr-text {
-    display: block;
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: 0;
-    padding: 0;
-    font-size: 1px;
-    color: transparent;
-    pointer-events: none;
-    white-space: nowrap;
-    overflow: hidden;
-    border: 0;
-    outline: 0;
-  }
-
-  .result-list .content-li {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom:10px;
-    transition: background 0.2s ease;
-  }
-  .result-list .content-li.on {
-    border: 1px solid #57CCAF;
-  }
-  .content-li * {padding: 0;margin: 0;}
-  .content-li .content-info {width: 100%;height: 100%;padding:10px;}
-  .content-info .wicon img{height: 18px;}
-  .content-info .title {font-size: 16px;font-weight: bold;margin: 1px 0px;}
-  .content-info .summary3 {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    font-size: 15px;
-    font-weight: 600; 
-    letter-spacing: 0;
-    color: #333;
-    display: flex;
-    gap: 5px;
-    align-items: flex-end;
-  }
-  .content-info .summary3 p {
-    margin: 0;
-    text-align: right;
-  }
-
-  .content-info .summary3 em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
-  }
-  .content-info .summary3 em.wtype1 {
-    color:#3a70db;
-  }
-  .content-info .summary3 em.wtype2 {
-    color:#F86048;
-  }
-  .content-info .summary3 em.wtype3 {
-    color:#1B9D7D;
-  }
-  .content-info .summary3 em:not(:last-child) {
-    padding-right: 5px; 
-  }
-  .content-info .summary3 em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-
-  .content-info .content-body {
-    position: relative;
-    height: 95px;  
-    overflow: hidden;
-  }
-  .recomm-badge {
-    position: absolute;
-    background: #EB5349;
-    z-index: 1;
-    margin: 3px;
-    padding: 3px;
-    border-radius: 3px;
-  }
-  .content-info .desc {
-    position: relative;
-    height: 95px;
-    margin: 0 0 0 105px;
-  }
-  .content-info .desc .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width:80%;
-  }
-  .content-info .img {
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .content-info .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* 이미지 비율 유지하며 박스를 꽉 채움 */
-    display: block;
-  }
-  .content-info .link {color: #5085BB;}
-  .content-info .summary {
-    display: flex;
-    font-size: 15px;
-    gap: 5px;
-    position: relative;
-  }
-  .content-info .summary p {
-    position: relative;
-    padding-right: 5px;
-    margin: 0;
-    color: #999;
-  }
-  .content-info .summary p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #ACACAC;
-  }
-
-  .content-info .summary > * {
-    min-width: 0;
-    max-width: 100%;
-    margin-right: 4px;
-    margin-bottom: -3px;
-  }
-
-  .content-info .summary.area p{
-    color: #000;
-    font-weight: 600;
-  }
-  .content-info .summary.reco p{
-    color: #1b9d7d;
-    font-weight: 600;
-  }
-  .content-info .summary2 {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 0;
-    color: #1b9d7d;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-  .content-info .summary2 .summary2 p {
-    margin: 0;
-    text-align: right;
-  }
-  .content-info .summary2 .period{
-    display: flex;
-    gap: 5px;
-    justify-content: flex-end;
-    position: relative;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .content-info .summary2 .amount em {
-    font-style: normal;
-  }
-  .content-info .summary2 .period em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
-    color:#777;
-  }
-  .content-info .summary2 .period em.on {
-    color: #1B9D7D;
-  }
-  .content-info .summary2 .period em:not(:last-child) {
-    padding-right: 5px;
-  }
-  .content-info .summary2 .period em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-  .result-list .list-item + .list-item {
-    border-top: 0;
-  }
-
   /* 탭 컨테이너 스크롤 시 상단 고정 */
   .page.page-mypage-view .top-bar~.page-content .tab-container {
     position: -webkit-sticky !important;
@@ -385,7 +128,6 @@ function fRemoveBigAdr($arg) {
     z-index: 10 !important;
     background: #fff !important;
   }
-  
 </style>
 
 <div class="page page-mypage-view">
@@ -408,7 +150,7 @@ function fRemoveBigAdr($arg) {
           <h2 class="sr-text">제안받은 공고</h3>
           <div class="result-wrap">
             <!-- 목록 -->
-            <ol class="result-list">
+            <ol class="result-list result-list-card">
               <?php foreach($list as $row) : ?>
                 <li class="list-item">
                   <div class="content-li" data-rc_idx="<?=$row["rc_idx"]?>">
@@ -431,11 +173,13 @@ function fRemoveBigAdr($arg) {
                           <div class="summary area">
                             <p><?=fRemoveBigAdr($row["ad_addr"])?></p>
                           </div>
+                        </div>
+                        <div class="summary-container">
+                          <div class="summary3"><?=getConvertWorkType($row["rc_work_type"])?></div>
                           <div class="summary2">
                             <p class="period"><?=getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"])?></p>
                             <p class="amount"><?=getConvertPrice($row["rc_price_pay"])?></p>
                           </div>
-                          <div class="summary3"><?=getConvertWorkType($row["rc_work_type"])?></div>
                         </div>
                       </div>
                     </div>

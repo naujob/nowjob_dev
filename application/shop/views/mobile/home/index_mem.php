@@ -111,71 +111,12 @@ if ($g_ios_publish == true) {
   </script>
 <?php endif; ?>
 <style>
-  .btn-bookmark {
-    display: block;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    width: 40px;
-    height: 40px;
-    border: 0;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
-    background-size: 0px;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .btn-bookmark:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-top: 40px solid #f8f8f8;
-    border-left: 40px solid transparent;
-    z-index: -1;
-  }
-
-  .btn-bookmark:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    width: 16px;
-    height: 16px;
-    border-style: hidden;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
-    background-size: contain;
-    pointer-events: all;
-    z-index: 1;
-  }
-
-  .btn-bookmark.on:after {
-    background-image: inherit;
-  }
-
-  .sr-text {
-    display: block;
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: 0;
-    padding: 0;
-    font-size: 1px;
-    color: transparent;
-    pointer-events: none;
-    white-space: nowrap;
-    overflow: hidden;
-    border: 0;
-    outline: 0;
-  }
-
-  .result-list .content-li {
+  /* 홈 페이지 특화 스타일 */
+  .result-list-card .content-li {
     border: 1px solid #EB5349;
   }
 
-  .content-info .summary3 {
+  .result-list-card .content-info .summary3 {
     color: #000;
     height: 17px;
     text-align: right;
@@ -183,89 +124,23 @@ if ($g_ios_publish == true) {
     font-weight: 600;
   }
 
-  .content-info .summary3 em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
+  .result-list-card .content-info .summary3 em {
     padding-left: 5px;
   }
 
-  .content-info .summary3 em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .content-info .summary3 em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-
-  .content-info .summary3 em.wtype1 {
-    color: #3a70db;
-  }
-
-  .content-info .summary3 em.wtype2 {
-    color: #F86048;
-  }
-
-  .content-info .summary3 em.wtype3 {
-    color: #1B9D7D;
-  }
-
-  .content-info .desc .ellipsis {
+  .result-list-card .content-info .desc .ellipsis {
     width: 128%;
   }
 
-  .content-info .summary2 {
+  .result-list-card .content-info .summary2 {
     font-size: 18px;
     font-weight: 700;
     color: #1b9d7d;
   }
 
-  .content-info .summary2 .period {
-    display: flex;
-    gap: 5px;
-    justify-content: flex-end;
-    position: relative;
+  .result-list-card .content-info .summary2 .period {
     font-size: 16px;
     font-weight: 600;
-  }
-
-  .content-info .summary2 .amount em {
-    font-style: normal;
-  }
-
-  .content-info .summary2 .period em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
-    color: #777;
-  }
-
-  .content-info .summary2 .period em.on {
-    color: #1B9D7D;
-  }
-
-  .content-info .summary2 .period em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .content-info .summary2 .period em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
   }
 
   .section .container {

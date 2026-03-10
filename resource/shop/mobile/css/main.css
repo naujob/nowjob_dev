@@ -6979,6 +6979,7 @@ form#frm {
     overflow: hidden;
     font-size: 12px;
     border-radius: 10px;
+    border: 1px solid #e0e0e0;
     background: #fff;
     margin-bottom: 10px;
     transition: background 0.2s ease;
@@ -6987,6 +6988,10 @@ form#frm {
 .result-list-card .content-li * {
     padding: 0;
     margin: 0;
+}
+
+.result-list-card .content-li.on {
+    border-color: #57CCAF;
 }
 
 .result-list-card .content-info {
@@ -7124,6 +7129,51 @@ form#frm {
 .result-list-card .content-info .summary-container .summary2 {
     margin-top: auto;
 }
+
+.result-list-card .content-info .summary3 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: #333;
+    display: flex;
+    gap: 5px;
+    align-items: flex-end;
+}
+
+.result-list-card .content-info .summary3 em {
+    position: relative;
+    display: inline-block;
+    font-style: normal;
+}
+
+.result-list-card .content-info .summary3 em.wtype1 {
+    color: #3a70db;
+}
+
+.result-list-card .content-info .summary3 em.wtype2 {
+    color: #F86048;
+}
+
+.result-list-card .content-info .summary3 em.wtype3 {
+    color: #1B9D7D;
+}
+
+.result-list-card .content-info .summary3 em:not(:last-child) {
+    padding-right: 5px;
+}
+
+.result-list-card .content-info .summary3 em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777777;
+}
+
 .result-list-card .list-item+.list-item {
     border-top: 0;
 }
