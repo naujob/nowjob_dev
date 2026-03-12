@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright"
+    ]
+  },
+  "additionalDirectories": [
+    "/mnt/c/Users/ssi06/Desktop/nowjobswift 2510"
+  ]
+}

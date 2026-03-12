@@ -1,11 +1,11 @@
 @charset "UTF-8";
 
 :root {
-    --result-card-padding: 10px;
+    --result-card-padding: 5px;
     --result-card-img-size: 95px;
-    --result-card-img-height: 120px;
+    --result-card-img-height: 110px;
     --result-card-gap: 15px;
-    --result-card-right-space: 80px;
+    --result-card-right-space: 35px;
     --result-card-summary-right: 2px;
     --result-card-summary-top: 6px;
     --result-card-summary-bottom: 0px;
@@ -1561,7 +1561,7 @@ object {
 
 .form-label>em {
     display: inline-block;
-    margin: 1px 0 0 6px;
+    margin: 2px 0 0 6px;
     font-size: 0.8125rem;
     color: #1B9D7D;
     font-style: normal;
@@ -1589,7 +1589,7 @@ object {
 }
 
 .form-row+.form-row {
-    margin-top: 1.875rem;
+    margin-top: 2.875rem;
 }
 
 .form-row .form-row {
@@ -1814,6 +1814,44 @@ object {
     color: #fff;
 }
 
+.required-asterisk {
+    color: #ff3333;
+    margin-right: 2px;
+}
+
+.required-label {
+    font-size: 0.9375rem;
+    color: rgb(0, 0, 0);
+    font-weight: 400;
+}
+
+.form-label-with-checkbox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-label-with-checkbox .form-checkbox {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: auto;
+}
+
+.form-label-with-checkbox .form-checkbox .label {
+    font-weight: normal;
+}
+
+.form-label-with-checkbox em {
+    display: inline-block;
+    margin: 1px 0 0 6px;
+    font-size: 0.8125rem;
+    color: #1B9D7D;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.1538461538;
+    vertical-align: top;
+}
+
 /* 20221022 수정 */
 .form-toggle-btn {
     display: block;
@@ -2017,7 +2055,6 @@ object {
     white-space: nowrap;
     border: 1px solid #57CCAF;
     border-radius: 5px;
-    border: 1px solid #57CCAF;
     background: #fff;
     overflow: hidden;
 }
@@ -2525,10 +2562,6 @@ fieldset {
     background-image: url("../img/ic_benefit4_1.png?v=20260309");
 }
 
-.benefit-label.benefit4-1:before {
-    background-image: url("../img/ic_benefit4_1.png?v=20260309");
-}
-
 .benefit-label.benefit4-2:before {
     background-image: url("../img/ic_benefit4_2.png?v=20260309");
 }
@@ -2613,10 +2646,6 @@ fieldset {
     background-image: url("../img/ic_benefit4_1.png?v=20260309");
 }
 
-.benefit-label.benefit4-1-v2:before {
-    background-image: url("../img/ic_benefit4_1.png?v=20260309");
-}
-
 .benefit-label.benefit4-2-v2:before {
     background-image: url("../img/ic_benefit4_2.png?v=20260309");
 }
@@ -2642,12 +2671,26 @@ fieldset {
 }
 
 .benefit-label.btn {
+    position: relative;
     margin: 0 0 -8px;
     padding: 0.75rem 0;
+    min-height: calc(0.75rem + 3.5rem + 0.75rem + 1rem);
     font-size: 1.0rem;
     -o-text-overflow: inherit;
     text-overflow: inherit;
     border-color: #BEBFC9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.benefit-label.btn:before {
+    position: absolute;
+    top: 0.75rem;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
 }
 
 .benefit-label.btn:after {
@@ -2659,7 +2702,7 @@ fieldset {
     right: 0;
     width: 4rem;
     height: 3.5rem;
-    margin: auto;
+    margin: 0 auto;
     opacity: 0;
     background-repeat: no-repeat;
     background-position: 0 0;
@@ -2720,10 +2763,6 @@ fieldset {
 
 .benefit-label.benefit3-7:after {
     background-image: url("../img/ic_benefit3_7_on.png?v=20260309");
-}
-
-.benefit-label.benefit4-1:after {
-    background-image: url("../img/ic_benefit4_1_on.png?v=20260309");
 }
 
 .benefit-label.benefit4-1:after {
@@ -6975,7 +7014,7 @@ form#frm {
 .result-list-card .content-li {
     position: relative;
     width: 100%;
-    height: 140px;
+    height: 125px;
     overflow: hidden;
     font-size: 12px;
     border-radius: 10px;
@@ -7005,7 +7044,7 @@ form#frm {
 }
 
 .result-list-card .content-info .title {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     margin: 1px 0;
 }
@@ -7024,6 +7063,7 @@ form#frm {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    cursor: pointer;
 }
 
 .result-list-card .content-info .desc .ellipsis {
@@ -7072,7 +7112,8 @@ form#frm {
     position: relative;
     padding-right: 5px;
     margin: 0;
-    color: #999;
+    color: #777;
+    font-weight: 600;
 }
 
 .result-list-card .content-info .summary p:not(:last-child)::after {
@@ -7114,6 +7155,56 @@ form#frm {
 .result-list-card .content-info .summary2 p {
     margin: 0;
     text-align: right;
+}
+
+.result-list-card .content-info .summary2 .period {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.result-list-card .content-info .summary2 .amount {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1b9d7d;
+}
+
+.result-list-card .content-info .summary2 .amount em {
+    font-style: normal;
+}
+
+.result-list-card .content-info .summary2 .period em {
+    position: relative;
+    display: inline-block;
+    font-style: normal;
+    color: #777;
+}
+
+.result-list-card .content-info .summary2 .period em.on {
+    color: #1B9D7D;
+}
+
+.result-list-card .content-info .summary2 .period em:not(:last-child) {
+    padding-right: 5px;
+}
+
+.result-list-card .content-info .summary2 .period em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777777;
+}
+
+/* 추천 공고 카드 테두리 강조 */
+.result-list-card .content-li.recomm {
+    border: 1.5px solid #EB5349;
 }
 
 .result-list-card .content-info .summary-container {
@@ -7176,6 +7267,37 @@ form#frm {
 
 .result-list-card .list-item+.list-item {
     border-top: 0;
+}
+
+/* 카드 hover */
+.result-list-card .content-li:hover {
+    background: #f8f8f8;
+}
+
+/* 별점 */
+.result-list-card .content-info .star-rating {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    width: 85px;
+    height: 15px;
+    margin: 5px auto 0;
+}
+
+/* 요일 원 크기 - 카드용 (전역 2.6em → 1.8em) */
+.result-list-card .working-day > li {
+    width: 1.8em;
+    height: 1.8em;
+    margin: 0 0.5em 4px 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* 활성 요일 원 색상 - 카드용 */
+.result-list-card .working-day li[aria-hidden=false] {
+    color: #fff;
+    border-color: transparent;
+    background-color: #1B9D7D;
 }
 
 .item-info {
@@ -8293,6 +8415,812 @@ form#frm {
     margin: auto 0 0;
     padding-bottom: 0;
     z-index: 5;
+}
+
+/* 채용공고 작성 */
+.page-recruit-write .resume-title-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.875rem;
+}
+
+.page-recruit-write .resume-title-header label {
+    margin: 0;
+}
+
+.page-recruit-write .resume-title-header .form-label {
+    margin: 0;
+}
+
+.page-recruit-write .page-content {
+    padding-bottom: 7rem;
+}
+
+.page-recruit-write .address-add-btn {
+    display: block;
+    width: 100%;
+    height: 3.5rem;
+    padding: 0 1.25rem;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #222;
+    line-height: 3.5rem;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    position: relative;
+}
+
+.page-recruit-write .address-add-btn .add-icon {
+    font-size: 2rem;
+    font-weight: 300;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.page-recruit-write .address-add-btn.has-address .add-icon {
+    display: none;
+}
+
+.page-recruit-write .address-add-btn.has-address {
+    text-align: left;
+}
+
+.page-recruit-write .address-add-btn .address-text {
+    display: none;
+}
+
+.page-recruit-write .address-add-btn.has-address .address-text {
+    display: inline;
+}
+
+.page-recruit-write .form-row>.form-label.salary-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-recruit-write .min-wage-info {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: #222;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.page-recruit-write .min-wage-info::before {
+    content: "!";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #ff3333;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.page-recruit-write .min-wage-info .highlight {
+    color: #ff3333;
+    font-weight: bold;
+}
+
+.page-recruit-write .form-row>label {
+    display: block;
+    width: 100%;
+    margin-top: 1.875rem;
+}
+
+.page-recruit-write .form-row>label>.form-text {
+    width: 100%;
+    height: 3.5rem;
+    padding: 0 1.25rem;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #222;
+    line-height: 3.5rem;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.page-recruit-write .form-row>label>.form-text::placeholder {
+    color: #666;
+    text-align: center;
+    font-weight: 400;
+    font-size: 1.2rem;
+}
+
+.page-recruit-write .form-row>label>.form-text:focus {
+    outline: none;
+    border-color: #1B9D7D;
+}
+
+.page-recruit-write .salary-type-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.875rem;
+    margin-bottom: 0.875rem;
+}
+
+.page-recruit-write .salary-type-row .form-selectbox {
+    flex: 1;
+    min-height: 3.5rem;
+}
+
+.page-recruit-write .salary-type-row .form-selectbox .liner {
+    min-height: 3.5rem;
+    height: 3.5rem;
+    padding: 0 1.25rem;
+    line-height: 3.5rem;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background-color: #fff;
+    background-position: calc(100% - 1.25rem) 50%;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #222;
+    text-align: left;
+}
+
+.page-recruit-write .salary-type-row .form-selectbox select:focus~.liner {
+    border-color: #1B9D7D;
+    box-shadow: none;
+}
+
+.page-recruit-write .salary-type-row .form-text {
+    flex: 1;
+    height: 3.5rem;
+    padding: 0 1.25rem;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #222;
+    line-height: 3.5rem;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.page-recruit-write .salary-type-row .form-text:focus {
+    outline: none;
+    border-color: #1B9D7D;
+}
+
+.page-recruit-write .salary-amount-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.page-recruit-write .salary-amount-wrapper .form-text {
+    flex: 1;
+}
+
+.page-recruit-write .salary-amount-wrapper .unit {
+    font-size: 1rem;
+    color: #222;
+    white-space: nowrap;
+}
+
+.page-recruit-write .salary-options-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.875rem;
+}
+
+.page-recruit-write .addition-info-form .form-row .form-row {
+    margin-top: 1.5rem;
+}
+
+.page-recruit-write .addition-info-form .form-row>.form-row:first-child {
+    margin-top: 0;
+}
+
+.page-recruit-write .addition-info-form .form-toggle-group {
+    margin-top: 0.5rem;
+}
+
+.page-recruit-write .addition-info-form h2.form-label {
+    font-size: 1.125rem;
+}
+
+.page-recruit-write .section.addition-info-form {
+    margin-top: 0;
+}
+
+.page-recruit-write .form-toggle-group .form-toggle-btn2 .btn {
+    height: 3.5rem;
+    line-height: 3.5rem;
+}
+
+.page-recruit-write .detail-register-btn {
+    display: block;
+    width: 100%;
+    height: 3.5rem;
+    margin-top: 0.875rem;
+    padding: 0 1.25rem;
+    font-size: 17px;
+    font-weight: 400;
+    color: #222;
+    line-height: 3.5rem;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.page-recruit-write .detail-register-btn .add-icon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.page-recruit-write .datepicker-wrapper {
+    position: relative;
+    display: block;
+    flex: 1;
+}
+
+.page-recruit-write .datepicker-wrapper .form-text {
+    width: 100%;
+    height: 3.5rem;
+    padding: 0 1.25rem;
+    padding-right: 2.5rem;
+    font-size: 17px;
+    font-weight: 400;
+    color: #222;
+    line-height: 3.5rem;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.page-recruit-write .datepicker-wrapper .form-text:focus {
+    outline: none;
+    border-color: #1B9D7D;
+}
+
+.page-recruit-write .datepicker-wrapper .flatpickr-input {
+    text-align: center;
+}
+
+.page-recruit-write .datepicker-icon {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    pointer-events: none;
+    color: #999;
+}
+
+.page-recruit-write .datepicker-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+    align-items: center;
+    margin-top: 1.875rem;
+}
+
+.page-recruit-write .datepicker-separator {
+    line-height: 3.5rem;
+    color: #222;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.page-recruit-write .datepicker-icon::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.page-recruit-write .datepicker-wrapper .form-text[readonly] {
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.page-recruit-write .form-row.js-detail-section {
+    display: none;
+    margin-top: 0.875rem;
+}
+
+.page-recruit-write .form-row.js-detail-section.show {
+    display: block;
+}
+
+.page-recruit-write .age-range-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.875rem;
+}
+
+.page-recruit-write .age-range-group select {
+    flex: 1;
+    height: 3.5rem;
+    padding: 0 1.25rem;
+    padding-right: 2.5rem;
+    font-size: 17px;
+    font-weight: 400;
+    color: #222;
+    text-align: center;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23999' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 1.25rem) 50%;
+    background-size: 12px 8px;
+    cursor: pointer;
+}
+
+.page-recruit-write .age-range-group select:focus {
+    outline: none;
+    border-color: #1B9D7D;
+}
+
+.page-recruit-write .age-range-group .age-separator {
+    font-size: 1rem;
+    color: #222;
+    font-weight: 400;
+    line-height: 3.5rem;
+}
+
+.page-recruit-write .form-pic-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+}
+
+.page-recruit-write .form-pic-group .form-pic {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #BEBFC9;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 1;
+}
+
+.page-recruit-write .form-pic-group .form-pic:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-image: url("/resource/shop/mobile/img/camera.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 2.5rem 2.5rem;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.page-recruit-write .form-pic-group .form-pic.has-image:before {
+    display: none;
+}
+
+.page-recruit-write .form-pic-group .form-pic input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    outline: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.page-recruit-write .form-pic-group .form-pic .label {
+    display: none;
+}
+
+.page-recruit-write .form-pic-group .form-pic .preview {
+    display: block;
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+}
+
+.page-recruit-write .form-pic-group .form-pic .preview img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+}
+
+.page-recruit-write .form-toggle-group.col-3 {
+    margin-top: 0.875rem;
+}
+
+.page-recruit-write .form-toggle-group.col-3 .form-toggle-btn2.tag {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    vertical-align: top;
+}
+
+.page-recruit-write .form-toggle-group.col-3 .form-toggle-btn2.tag .btn {
+    min-width: calc(33.333% - 0.5rem);
+    height: 3.5rem;
+    padding: 0 0.75rem;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 3.5rem;
+    color: #222;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    text-align: center;
+}
+
+.page-recruit-write .form-toggle-group.col-3 .form-toggle-btn2.tag input:checked~.btn {
+    color: #fff;
+    font-weight: 500;
+    border-color: #35c8a3;
+    background-color: #35c8a3;
+}
+
+.page-recruit-write .form-toggle-group.col-3 .btn-add-more {
+    display: inline-block;
+    min-width: calc(33.333% - 0.5rem);
+    height: 3.5rem;
+    padding: 0;
+    margin-top: 0.8rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: #999;
+    line-height: 3.5rem;
+    text-align: center;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+.page-recruit-write .form-toggle-group.col-3 .btn-add-more:hover,
+.page-recruit-write .form-toggle-group.col-3 .btn-add-more:focus {
+    border-color: #1B9D7D;
+    color: #1B9D7D;
+}
+
+.page-recruit-write .hashtag-input-area {
+    margin-top: 0.875rem;
+    display: none;
+}
+
+.page-recruit-write .hashtag-input-area.show {
+    display: block;
+}
+
+.page-recruit-write .hashtag-input-area .input-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.page-recruit-write .hashtag-input-area .form-text {
+    height: 3.5rem;
+    padding: 0 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: #222;
+    line-height: 3.5rem;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.page-recruit-write .hashtag-input-area .form-text:focus {
+    outline: none;
+    border-color: #1B9D7D;
+}
+
+.page-recruit-write .hashtag-input-area .btn-confirm {
+    height: 3.5rem;
+    padding: 0 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #1B9D7D;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.page-recruit-write .hashtag-input-area .btn-confirm:hover,
+.page-recruit-write .hashtag-input-area .btn-confirm:focus {
+    background-color: #158a6f;
+}
+
+.page-recruit-write .day-of-week-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+    justify-content: space-between;
+}
+
+.page-recruit-write .day-of-week-group .day-btn {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+    max-width: 3.5rem;
+}
+
+.page-recruit-write .day-of-week-group .day-btn input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    outline: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.page-recruit-write .day-of-week-group .day-btn .btn {
+    display: block;
+    width: 100%;
+    height: 3.5rem;
+    min-width: 3.5rem;
+    padding: 0;
+    font-size: 17px;
+    font-weight: 400;
+    color: #999;
+    line-height: 3.5rem;
+    text-align: center;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.page-recruit-write .day-of-week-group .day-btn input:checked~.btn {
+    color: #fff;
+    font-weight: 500;
+    border-color: #57CCAF;
+    background-color: #57CCAF;
+}
+
+.page-recruit-write .sticky-bottom {
+    display: flex;
+}
+
+.page-recruit-write .sticky-bottom .btn {
+    flex: 1;
+}
+
+.page-recruit-write #frm {
+    top: 0;
+}
+
+.page-recruit-write .sticky-bottom #btnPreview {
+    background: #ffffff;
+    color: #1B9D7D;
+    border: 1px solid #1B9D7D;
+}
+
+.page-recruit-write .sticky-bottom #btnSubmit {
+    background: #1B9D7D;
+    color: #ffffff;
+    border: 1px solid #1B9D7D;
+}
+
+.page-recruit-write .form-label em {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.8125rem;
+    color: #1B9D7D;
+    font-style: normal;
+    font-weight: 400;
+}
+
+.page-recruit-write .form-label em.notice-text {
+    margin-left: 8px;
+}
+
+/* 이력서 작성 */
+.page-resume-write .resume-title-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.875rem;
+}
+
+.page-resume-write .resume-title-header label {
+    margin: 0;
+}
+
+.page-resume-write .resume-title-header .form-label {
+    margin: 0;
+}
+
+.page-resume-write .nationality-toggle-group {
+    margin-top: 0.875rem;
+}
+
+.page-resume-write .cont-price-row {
+    padding-left: 60px;
+    width: 270px;
+}
+
+.page-resume-write .cont-price-row .label {
+    width: 90px;
+    position: absolute;
+    left: 0px;
+    top: 10px;
+}
+
+.page-resume-write .detail-register-btn {
+    display: block;
+    width: 100%;
+    height: 3.5rem;
+    margin-top: 0.875rem;
+    padding: 0 1.25rem;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #222;
+    line-height: 3.5rem;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid #BEBFC9;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.page-resume-write .detail-register-btn .add-icon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.page-resume-write .datepicker-wrapper {
+    position: relative;
+    display: block;
+}
+
+.page-resume-write .datepicker-wrapper .form-text {
+    padding-right: 2.5rem;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.page-resume-write .datepicker-wrapper .form-text:focus {
+    border-color: #57CCAF;
+    outline: none;
+}
+
+.page-resume-write .datepicker-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    pointer-events: none;
+    color: #999;
+}
+
+.page-resume-write .datepicker-icon::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.page-resume-write .datepicker-wrapper .form-text[readonly] {
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.page-resume-write .flatpickr-calendar {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.page-resume-write .flatpickr-monthSelect-month.selected,
+.page-resume-write .flatpickr-monthSelect-month.startRange,
+.page-resume-write .flatpickr-monthSelect-month.endRange {
+    background: #57CCAF;
+    color: #fff;
+}
+
+.page-resume-write .flatpickr-monthSelect-month.inRange {
+    background: rgba(87, 204, 175, 0.2);
+}
+
+.page-resume-write .form-row.intro-section {
+    margin-top: 1.875rem;
+}
+
+.page-resume-write .form-row.my-strength-section {
+    margin-top: 1.25rem;
+}
+
+.page-resume-write .form-row.my-strength-section + .form-row.js-detail-section,
+.page-resume-write .form-row.js-detail-section {
+    display: none;
+    margin-top: 0.875rem;
+}
+
+.page-resume-write .form-row.js-detail-section.show {
+    display: block;
+}
+
+.page-resume-write textarea[name="ru_desc"] {
+    min-height: 20.25rem;
+}
+
+.page-resume-write .page-content {
+    padding-bottom: 5.5rem;
+}
+
+.page-resume-write .page-content .section.addition-info-form {
+    padding-bottom: 1rem;
+}
+
+.page-resume-write .page-content .section.addition-info-form .container {
+    padding-bottom: 1rem;
+}
+
+.page-resume-write form#frm {
+    top: 0vh;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.page-resume-write .sticky-bottom {
+    z-index: 5;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* padding 영역에만 배경색 적용 */
@@ -11714,6 +12642,221 @@ form#frm {
     text-align: center;
     line-height: 25px;
     display: none;
+}
+
+/* ============================================================
+   인재 카드 공통 스타일 (bookmark_person, hr_list 공유)
+   .desc 내부에 summary2/3를 배치하는 절대위치 방식
+   ============================================================ */
+
+/* 추천 인재 카드 테두리 강조 */
+.result-list .content-li.recomm {
+    border-color: #EB5349;
+}
+
+/* .desc 내 급여유형 - 우하단 절대위치 */
+.content-info .desc .summary2 {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: #1b9d7d;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.content-info .desc .summary2 p {
+    margin: 0;
+    text-align: right;
+}
+
+.content-info .desc .summary2 .pricetype {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.content-info .desc .summary2 .pricetype em {
+    position: relative;
+    display: inline-block;
+    font-style: normal;
+}
+
+.content-info .desc .summary2 .pricetype em:not(:last-child) {
+    padding-right: 5px;
+}
+
+.content-info .desc .summary2 .pricetype em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777777;
+}
+
+/* .desc 내 근무형태 - 우상단 절대위치 */
+.content-info .desc .summary3 {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.content-info .desc .summary3 p {
+    margin: 0;
+    text-align: right;
+}
+
+.content-info .desc .summary3 .worktype {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.content-info .desc .summary3 .worktype em {
+    position: relative;
+    display: inline-block;
+    font-style: normal;
+}
+
+.content-info .desc .summary3 .worktype em.wtype0 { color: #000; }
+.content-info .desc .summary3 .worktype em.wtype1 { color: #3a70db; }
+.content-info .desc .summary3 .worktype em.wtype2 { color: #F86048; }
+.content-info .desc .summary3 .worktype em.wtype3 { color: #1B9D7D; }
+
+.content-info .desc .summary3 .worktype em:not(:last-child) {
+    padding-right: 5px;
+}
+
+.content-info .desc .summary3 .worktype em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777777;
+}
+
+/* ============================================================
+   인재 카드 - btn-bookmark 카드용 오버라이드
+   (bookmark_person1/2, hr_list 공용)
+   ============================================================ */
+.result-list .content-li .btn-bookmark {
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
+    background-size: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.result-list .content-li .btn-bookmark:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: auto;
+    width: auto;
+    height: auto;
+    
+    background: none;
+    z-index: -1;
+}
+
+.result-list .content-li .btn-bookmark:after {
+    top: 3px;
+    right: 3px;
+    width: 16px;
+    height: 16px;
+    border-style: hidden;
+    border-width: 0;
+    border-color: transparent;
+    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
+    background-size: contain;
+    pointer-events: all;
+    z-index: 1;
+}
+
+.result-list .content-li .btn-bookmark.on:after {
+    background-image: inherit;
+}
+
+/* ============================================================
+   인재 카드 - 즐겨찾기/지원 목록 오버라이드
+   (.my-bookmark 범위, result-list-card 기본값 대비 차이나는 것만)
+   ============================================================ */
+
+/* 카드 높이: result-list-card 기본 130px → 115px */
+.my-bookmark .result-list .content-li {
+    height: 115px;
+    line-height: 1.5;
+}
+
+.my-bookmark .result-list .content-li:hover {
+    background: #f8f8f8;
+}
+
+.my-bookmark .result-list .list-item + .list-item {
+    border-top: 0;
+}
+
+
+
+/* 내용 영역 높이: 110px → 95px */
+.my-bookmark .content-info .content-body {
+    height: 95px;
+}
+
+/* 이미지 높이: 110px → 95px (너비 95px은 동일) */
+.my-bookmark .content-info .img {
+    height: 95px;
+}
+
+/* desc: flex 해제, padding-right 제거 */
+.my-bookmark .content-info .desc {
+    display: block;
+    padding-right: 0;
+    cursor: pointer;
+}
+
+
+/* 즐겨찾기 추천 배지 - 카드 이미지 위 절대위치 */
+.my-bookmark .content-info .img .recomm-badge {
+    position: absolute;
+    top: 0;
+    margin: 3px;
+    padding: 3px;
+    border-radius: 3px;
+    z-index: 1;
+}
+
+/* 탭 컨테이너 스크롤 시 상단 고정 */
+.page.page-mypage-view .top-bar ~ .page-content .tab-container {
+    position: sticky;
+    top: 0 !important;
+    z-index: 10;
+    background: #fff;
 }
 
 /* #Print */

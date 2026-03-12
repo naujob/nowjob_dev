@@ -173,7 +173,8 @@
     var hasConsent = false; // 기존 동의 정보가 있는지 확인
     var grantPopupTimeout = null; // 권한 팝업 완료 후 페이지 이동을 위한 타임아웃
 
-    // ✅ 푸시 알림 URL 확인 (URL 파라미터 또는 네이티브에서 전달받은 값)
+
+// ✅ 푸시 알림 URL 확인 (URL 파라미터 또는 네이티브에서 전달받은 값)
     var pushURL = null;
     
     // 1. URL 파라미터에서 확인
@@ -363,6 +364,9 @@
                     // iOS: 위치 권한만 요청
                     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
                         window.webkit.messageHandlers.requestLocationPermission.postMessage({});
+                    } else {
+                        location.replace("/member/login");
+                        return;
                     }
 
                     grantPopupTimeout = setTimeout(function() {
@@ -417,6 +421,9 @@
                         } else if (mobileType == "ios") {
                             if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
                                 window.webkit.messageHandlers.requestLocationPermission.postMessage({});
+                            } else {
+                                location.replace("/member/login");
+                                return;
                             }
 
                             grantPopupTimeout = setTimeout(function() {
@@ -471,6 +478,15 @@
             // 페이지 이동
             location.replace("/member/login");
         }
+    }
+
+    // iOS에서 위치 권한 결과를 받으면 로그인 페이지로 이동
+    function onLocationPermissionResult(status) {
+        if (grantPopupTimeout) {
+            clearTimeout(grantPopupTimeout);
+            grantPopupTimeout = null;
+        }
+        location.replace("/member/login");
     }
 
     function finishGrant(args) {

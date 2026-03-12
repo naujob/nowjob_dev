@@ -85,3 +85,22 @@ pm2 logs        # 로그 확인
 
 - `develop` — 개발 브랜치 (현재)
 - `master` — 프로덕션 배포 브랜치 (PR 대상)
+
+## PHP 코딩 표준
+
+### Null 병합 처리
+
+**PHP ?? null 병합 연산자 사용 금지**
+
+레거시 PHP 버전 호환성을 위해 `??` 연산자를 사용하지 말 것.
+
+```php
+// ❌ 사용 금지
+$value = $array['key'] ?? 'default';
+
+// ✅ 사용할 것
+$value = isset($array['key']) ? $array['key'] : 'default';
+
+// 또는 helper 함수
+$value = in_array_return($array['key'], $checked, 'check') ? 'checked' : '';
+```

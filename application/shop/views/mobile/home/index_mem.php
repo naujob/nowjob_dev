@@ -538,42 +538,8 @@ if ($g_ios_publish == true) {
 <!-- 알림목록 -->
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
-<template id="tpl_list">
-  <li class="list-item">
-    <div class="content-li" data-rc_idx="{{rc_idx}}">
-      <div class="content-info">
-        <div class="content-body">
-          <div class="img">
-            <img src="{{rt_recruit_img}}">
-            <?php if ($mm_type === "MEM") { ?><button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
-          </div>
-          <div class="desc">
-            <div class="wicon">
-              {{rt_work_img}}
-            </div>
-            <div class="title ellipsis">
-              {{rc_name}}
-            </div>
-            <div class="summary">
-              <p>{{rc_nation_nm}}</p>
-              <p>{{rc_age_nm}}</p>
-            </div>
-            <div class="summary area">
-              <p>{{ad_addr}}</p>
-            </div>
-          </div>
-          <div class="summary-container">
-            <div class="summary3">{{rt_work_type}}</div>
-            <div class="summary2">
-              <p class="period">{{rc_price_type}}</p>
-              <p class="amount">{{rc_price_pay}}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </li>
-</template>
+<?php $tpl_id = 'tpl_list'; ?>
+<?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 
 <script>
   function iosTest(args) {

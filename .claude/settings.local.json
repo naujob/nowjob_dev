@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright",
+      "Bash(cat > /tmp/temp_additional_fields.txt << 'EOF'\n\t\t\t$info[\"rc_desc\"] = isset\\($temp_info[\"rc_desc\"]\\) ? $temp_info[\"rc_desc\"] : \"\";\n\t\t\t$info[\"rc_hash\"] = isset\\($temp_info[\"rc_hash\"]\\) ? $temp_info[\"rc_hash\"] : \"\";\n\t\t\t$info[\"rc_life_type\"] = isset\\($temp_info[\"rc_life_type\"]\\) && is_array\\($temp_info[\"rc_life_type\"]\\) ? $temp_info[\"rc_life_type\"] : \\(isset\\($temp_info[\"rc_life_type\"]\\) ? explode\\(\",\", $temp_info[\"rc_life_type\"]\\) : []\\);\n\t\t\t$info[\"rc_day\"] = isset\\($temp_info[\"rc_day\"]\\) && is_array\\($temp_info[\"rc_day\"]\\) ? $temp_info[\"rc_day\"] : \\(isset\\($temp_info[\"rc_day\"]\\) ? explode\\(\",\", $temp_info[\"rc_day\"]\\) : []\\);\n\t\t\t$info[\"rc_day_all\"] = isset\\($temp_info[\"rc_day_all\"]\\) ? $temp_info[\"rc_day_all\"] : \"\";\n\t\t\t$info[\"rc_sex\"] = isset\\($temp_info[\"rc_sex\"]\\) && is_array\\($temp_info[\"rc_sex\"]\\) ? $temp_info[\"rc_sex\"] : \\(isset\\($temp_info[\"rc_sex\"]\\) ? explode\\(\",\", $temp_info[\"rc_sex\"]\\) : []\\);\n\t\t\t$info[\"rc_sex_all\"] = isset\\($temp_info[\"rc_sex_all\"]\\) ? $temp_info[\"rc_sex_all\"] : \"\";\n\t\t\t$info[\"rc_nation\"] = isset\\($temp_info[\"rc_nation\"]\\) && is_array\\($temp_info[\"rc_nation\"]\\) ? $temp_info[\"rc_nation\"] : \\(isset\\($temp_info[\"rc_nation\"]\\) ? explode\\(\",\", $temp_info[\"rc_nation\"]\\) : []\\);\n\t\t\t$info[\"rc_nation_all\"] = isset\\($temp_info[\"rc_nation_all\"]\\) ? $temp_info[\"rc_nation_all\"] : \"\";\n\t\t\t$info[\"rc_sage\"] = isset\\($temp_info[\"rc_sage\"]\\) ? $temp_info[\"rc_sage\"] : \"\";\n\t\t\t$info[\"rc_eage\"] = isset\\($temp_info[\"rc_eage\"]\\) ? $temp_info[\"rc_eage\"] : \"\";\n\t\t\t$info[\"rc_age_all\"] = isset\\($temp_info[\"rc_age_all\"]\\) ? $temp_info[\"rc_age_all\"] : \"\";\nEOF\nsed -i '1526r /tmp/temp_additional_fields.txt' /home/nowapk/dev_nowapk/application/shop/controllers/compage.php)"
+    ]
+  },
+  "additionalDirectories": [
+    "/mnt/c/Users/ssi06/Desktop/nowjobswift 2510"
+  ]
+}

@@ -1384,14 +1384,30 @@ class Compage extends CI_Controller
 			"addr" => "",
 			"rc_work" => "",
 			"rc_work_type" => "",
-			"rc_work_negotiation" => "",
+			"rc_work_negotiation" => "Y",
 			"rc_price_type_main" => "",
 			"rc_price_amount" => "",
 			"rc_price_possible" => "",
-			"rc_price_daily" => "",
-			"rc_price_weekly" => "",
-			"rc_price_monthly" => "",
-		];
+		"rc_price_daily" => "",
+		"rc_price_weekly" => "",
+		"rc_price_monthly" => "",
+		"rc_desc" => "",
+		"rc_hash" => "",
+		"rc_life_type" => [],
+		"rc_day" => [],
+		"rc_day_all" => "",
+		"rc_sex" => [],
+		"rc_sex_all" => "",
+		"rc_nation" => [],
+		"rc_nation_all" => "",
+		"rc_sage" => "",
+		"rc_eage" => "",
+		"rc_age_all" => "",
+		"rc_img1" => "",
+		"rc_img2" => "",
+		"rc_img3" => "",
+		"rc_img4" => "",
+	];
 
 		$recruit_info = $this->recruit_model->getRecruit(["rc_idx" => $rc_idx]);
 		if ($rc_idx != 0 && $recruit_info == null) {
@@ -1455,6 +1471,24 @@ class Compage extends CI_Controller
 			$info["rc_price_daily"] = isset($recruit_info["rc_price_daily"]) ? $recruit_info["rc_price_daily"] : "";
 			$info["rc_price_weekly"] = isset($recruit_info["rc_price_weekly"]) ? $recruit_info["rc_price_weekly"] : "";
 			$info["rc_price_monthly"] = isset($recruit_info["rc_price_monthly"]) ? $recruit_info["rc_price_monthly"] : "";
+
+		// 추가 정보 로드
+		$info["rc_desc"] = isset($recruit_info["rc_desc"]) ? $recruit_info["rc_desc"] : "";
+		$info["rc_hash"] = isset($recruit_info["rc_hash"]) ? $recruit_info["rc_hash"] : "";
+		$info["rc_life_type"] = isset($recruit_info["rc_life_type"]) && $recruit_info["rc_life_type"] != "" ? explode(",", $recruit_info["rc_life_type"]) : [];
+		$info["rc_day"] = isset($recruit_info["rc_day"]) && $recruit_info["rc_day"] != "" ? explode(",", $recruit_info["rc_day"]) : [];
+		$info["rc_day_all"] = isset($recruit_info["rc_day_all"]) ? $recruit_info["rc_day_all"] : "";
+		$info["rc_sex"] = isset($recruit_info["rc_sex"]) && $recruit_info["rc_sex"] != "" ? explode(",", $recruit_info["rc_sex"]) : [];
+		$info["rc_sex_all"] = isset($recruit_info["rc_sex_all"]) ? $recruit_info["rc_sex_all"] : "";
+		$info["rc_nation"] = isset($recruit_info["rc_nation"]) && $recruit_info["rc_nation"] != "" ? explode(",", $recruit_info["rc_nation"]) : [];
+		$info["rc_nation_all"] = isset($recruit_info["rc_nation_all"]) ? $recruit_info["rc_nation_all"] : "";
+		$info["rc_sage"] = isset($recruit_info["rc_sage"]) ? $recruit_info["rc_sage"] : "";
+		$info["rc_eage"] = isset($recruit_info["rc_eage"]) ? $recruit_info["rc_eage"] : "";
+		$info["rc_age_all"] = isset($recruit_info["rc_age_all"]) ? $recruit_info["rc_age_all"] : "";
+		$info["rc_img1"] = isset($recruit_info["rc_img1"]) ? $recruit_info["rc_img1"] : "";
+		$info["rc_img2"] = isset($recruit_info["rc_img2"]) ? $recruit_info["rc_img2"] : "";
+		$info["rc_img3"] = isset($recruit_info["rc_img3"]) ? $recruit_info["rc_img3"] : "";
+		$info["rc_img4"] = isset($recruit_info["rc_img4"]) ? $recruit_info["rc_img4"] : "";
 		} else {
 			$temp_info  = $this->site_model->getStepTempDataMember($this->mm_idx, "RECRUIT", "스텝1");
 			if ($temp_info != null) {
@@ -1490,6 +1524,18 @@ class Compage extends CI_Controller
 				$info["rc_price_daily"] = isset($temp_info["rc_price_daily"]) ? $temp_info["rc_price_daily"] : "";
 				$info["rc_price_weekly"] = isset($temp_info["rc_price_weekly"]) ? $temp_info["rc_price_weekly"] : "";
 				$info["rc_price_monthly"] = isset($temp_info["rc_price_monthly"]) ? $temp_info["rc_price_monthly"] : "";
+			$info["rc_desc"] = isset($temp_info["rc_desc"]) ? $temp_info["rc_desc"] : "";
+			$info["rc_hash"] = isset($temp_info["rc_hash"]) ? $temp_info["rc_hash"] : "";
+			$info["rc_life_type"] = isset($temp_info["rc_life_type"]) && is_array($temp_info["rc_life_type"]) ? $temp_info["rc_life_type"] : (isset($temp_info["rc_life_type"]) ? explode(",", $temp_info["rc_life_type"]) : []);
+			$info["rc_day"] = isset($temp_info["rc_day"]) && is_array($temp_info["rc_day"]) ? $temp_info["rc_day"] : (isset($temp_info["rc_day"]) ? explode(",", $temp_info["rc_day"]) : []);
+			$info["rc_day_all"] = isset($temp_info["rc_day_all"]) ? $temp_info["rc_day_all"] : "";
+			$info["rc_sex"] = isset($temp_info["rc_sex"]) && is_array($temp_info["rc_sex"]) ? $temp_info["rc_sex"] : (isset($temp_info["rc_sex"]) ? explode(",", $temp_info["rc_sex"]) : []);
+			$info["rc_sex_all"] = isset($temp_info["rc_sex_all"]) ? $temp_info["rc_sex_all"] : "";
+			$info["rc_nation"] = isset($temp_info["rc_nation"]) && is_array($temp_info["rc_nation"]) ? $temp_info["rc_nation"] : (isset($temp_info["rc_nation"]) ? explode(",", $temp_info["rc_nation"]) : []);
+			$info["rc_nation_all"] = isset($temp_info["rc_nation_all"]) ? $temp_info["rc_nation_all"] : "";
+			$info["rc_sage"] = isset($temp_info["rc_sage"]) ? $temp_info["rc_sage"] : "";
+			$info["rc_eage"] = isset($temp_info["rc_eage"]) ? $temp_info["rc_eage"] : "";
+			$info["rc_age_all"] = isset($temp_info["rc_age_all"]) ? $temp_info["rc_age_all"] : "";
 			} else {
 				$add_info = $this->member_model->getMemberInfo($this->mm_idx);
 				$mem_addr = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $this->mm_idx, "ad_type" => "MEMBER"]);

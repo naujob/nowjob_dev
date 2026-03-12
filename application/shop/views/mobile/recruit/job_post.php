@@ -22,86 +22,9 @@ function formatPhoneNumber($number)
     return $number;
 }
 
-function getWorkType2025($work_type)
-{
-  if (!$work_type) {
-    return "";
-  }
 
-  $items = [];
 
-  if (preg_match_all('/<span>(.*?)<\/span>/', $work_type, $matches)) {
-    $items = $matches[1];
-  } else {
-    $items = preg_split('/\s*,\s*/', $work_type);
-  }
 
-  $item_set = array_unique(array_map('trim', $items));
-
-  $has_jugan = in_array('주간', $item_set);
-  $has_yagan = in_array('야간', $item_set);
-  $has_2shift = in_array('2교대', $item_set);
-
-  if ($has_jugan && $has_yagan && $has_2shift) {
-    return '<em class="wtype0">근무협의</em>';
-  }
-
-  $result = '';
-  foreach ($item_set as $text) {
-    if ($text === '') continue;
-
-    $cls = '';
-    if ($text === '주간') {
-      $cls = 'wtype1';
-    } else if ($text === '야간') {
-      $cls = 'wtype2';
-    } else if ($text === '2교대') {
-      $cls = 'wtype3';
-    }
-
-    $result .= '<em class="' . $cls . '">' . $text . '</em>';
-  }
-
-  return $result;
-}
-
-function getConvertPriceType($rc_price_type, $rc_price_rep)
-{
-  $allTypes = ['일급', '주급', '월급'];
-
-  // 모든 급여 유형이 포함된 경우
-  $containsAll = true;
-  foreach ($allTypes as $type) {
-    if (strpos($rc_price_type, $type) === false) {
-      $containsAll = false;
-      break;
-    }
-  }
-
-  if ($containsAll) {
-    return '<em>급여협의</em>';
-  }
-
-  // 쉼표로 분리
-  $types = preg_split('/\s*,\s*/', $rc_price_type);
-
-  if (count($types) === 1) {
-    return '<em class="on">' . $types[0] . '</em>';
-  }
-
-  // 다중 유형 처리
-  $result = '';
-  foreach ($types as $type) {
-    $type = trim($type);
-    if ($type === $rc_price_rep) {
-      $result .= '<em class="on">' . $type . '</em>';
-    } else {
-      $result .= '<em>' . $type . '</em>';
-    }
-  }
-
-  return $result;
-}
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
@@ -222,11 +145,17 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
     }
 
     /* 상세업무정보(.desc) 핀치 줌 스타일 */
+    .view-desc .desc-clip {
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
     .view-desc .desc {
         transform-origin: 0 0;
         transition: none;
         will-change: transform;
-        overflow: visible;
+        overflow-x: auto;
         cursor: zoom-in;
     }
 
@@ -510,8 +439,10 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
                 </div>
                 <!-- 작성내용 -->
                 <p class="desc-guide">상세요강을 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
-                <div class="desc" style="width: 100%; overflow-x: auto;">
-                    <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
+                <div class="desc-clip">
+                    <div class="desc" style="width: 100%;">
+                        <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
+                    </div>
                 </div>
                 <div class="hashtag">
                     <?= getHashTag($info["rc_hash"]) ?>
@@ -1055,6 +986,16 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
             }
 
             function applyTransform() { // 손가락이 움직인 만큼 화면의 위치(translateX, translateY)를 더하거나 빼서 옮기기
+                // 경계 제한(clamp) - 스케일에 따른 유효 이동 범위 계산
+                var cw = descEl.offsetWidth;
+                var ch = descEl.offsetHeight;
+                var minTx = -(cw * (scale - 1));
+                var maxTx = 0;
+                var minTy = -(ch * (scale - 1));
+                var maxTy = 0;
+                translateX = Math.max(minTx, Math.min(maxTx, translateX));
+                translateY = Math.max(minTy, Math.min(maxTy, translateY));
+
                 descEl.style.transform =
                     'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
             }
