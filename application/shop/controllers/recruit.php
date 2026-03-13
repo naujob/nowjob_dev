@@ -113,7 +113,7 @@ class Recruit extends CI_Controller
       foreach ($view_list as $key => $row) {
         $view_list[$key]["rt_recruit_img"] = getRecruitImg($row);
         $view_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
-        $view_list[$key]["rt_work_type"] = getWorkType($row["rc_work_type"]);
+        $view_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
         $view_list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
         $view_list[$key]["rt_price"] = getRecuitPrice($row);
       }
@@ -310,7 +310,7 @@ class Recruit extends CI_Controller
     foreach ($view_list as $key => $row) {
       $view_list[$key]["rt_recruit_img"] = getRecruitImg($row);
       $view_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
-      $view_list[$key]["rt_work_type"] = getWorkType($row["rc_work_type"], "span");
+      $view_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
     }
     $data["view_list"] = $view_list;
     $data["mm_type"] = $this->mm_type;
@@ -328,7 +328,7 @@ class Recruit extends CI_Controller
     foreach ($view_list as $key => $row) {
       $view_list[$key]["rt_recruit_img"] = getRecruitImg($row);
       $view_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
-      $view_list[$key]["rt_work_type"] = getWorkType($row["rc_work_type"], "span");
+      $view_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
     }
     $data["view_list"] = $view_list;
     $data["mm_type"] = $this->mm_type;
@@ -622,7 +622,7 @@ class Recruit extends CI_Controller
       foreach ($view_list as $key => $row) {
         $view_list[$key]["rt_recruit_img"] = getRecruitImg($row);
         $view_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
-        $view_list[$key]["rt_work_type"] = getWorkType($row["rc_work_type"]);
+        $view_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
         $view_list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
         $view_list[$key]["rt_price"] = getRecuitPrice($row);
       }

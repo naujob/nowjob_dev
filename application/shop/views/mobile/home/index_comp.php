@@ -818,16 +818,12 @@ if ($g_ios_publish == true) {
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
           $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-          // rc_name 처리: 18자 제한 및 HTML 이스케이프
-          var __rc_name = (row.rc_name || "");
-          if (__rc_name.length > 18) {
-            __rc_name = Array.from(__rc_name).slice(0, 18).join('') + '…';
+          // 제목이 18자 이상이면 ...으로 자르기
+          var rc_name = row.rc_name;
+          if (rc_name && rc_name.length > 18) {
+            rc_name = rc_name.substring(0, 18) + '...';
           }
-          __rc_name = String(__rc_name).replace(/[&<>"']/g, function(ch) {
-            var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-            return map[ch];
-          });
-          $content = $content.replaceAll("{{rc_name}}", __rc_name);
+          $content = $content.replaceAll("{{rc_name}}", rc_name);
           $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
           $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
           $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);

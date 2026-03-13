@@ -108,3 +108,7 @@ $value = isset($array['key']) ? $array['key'] : 'default';
 // 또는 helper 함수
 $value = in_array_return($array['key'], $checked, 'check') ? 'checked' : '';
 ```
+
+### Refactoring 전략
+
+- 함수가 있는지 확인하고 만들기 (function_exists)

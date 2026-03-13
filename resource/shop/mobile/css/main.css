@@ -7233,6 +7233,9 @@ form#frm {
     display: flex;
     gap: 5px;
     align-items: flex-end;
+    text-align: right;
+    height: 17px;
+
 }
 
 .result-list-card .content-info .summary3 em {

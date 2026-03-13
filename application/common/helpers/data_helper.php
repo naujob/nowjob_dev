@@ -622,6 +622,33 @@ function getWorkTypePoint($work_type)
 	return $return;
 }
 
+# 근무타입 색상 포함 버전 (색상 클래스 + em 태그 래핑)
+function getWorkTypeWithColor($work_type)
+{
+	$arr_type = explode(",", $work_type);
+
+	// 3개 이상이면 "근무협의"만 표시
+	if (count($arr_type) > 2) {
+		return '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+	}
+
+	$worktype_map = [
+		"주간"  => "wtype1",
+		"야간"  => "wtype2",
+		"2교대" => "wtype3",
+		"근무협의" => "wtype0"
+	];
+
+	$return = '<div class="worktype">';
+	foreach ($arr_type as $key => $txt) {
+		$txt = trim($txt);
+		$class = isset($worktype_map[$txt]) ? $worktype_map[$txt] : "wtype0";
+		$return .= '<em class="' . $class . '">' . $txt . '</em>';
+	}
+	$return .= '</div>';
+
+	return $return;
+}
 
 # 나의 타입
 function getLifeType($type, $add_class = "")

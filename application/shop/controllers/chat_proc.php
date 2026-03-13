@@ -1601,7 +1601,7 @@ class Chat_proc extends CI_Controller
 				$info["type"] = "recruit";
 				$info["rt_recruit_img"] = getRecruitImg($info);
 				$info["rt_work_img"] = getWorkingImg($info["rc_work"]);
-				$info["rt_work_type"] = getWorkType($info["rc_work_type"]);
+				$info["rt_work_type"] = getWorkTypeWithColor($info["rc_work_type"]);
 				$info["rt_price_type"] = getPriceType($info["rc_price_type"]);
 				$info["rt_price_info"] = getPriceType($info["rc_price_type"], "amount");
 				$info["rt_price"] = getRecuitPrice($info);

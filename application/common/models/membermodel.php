@@ -1372,7 +1372,7 @@ class memberModel extends MY_Model
 		foreach ($list as $key => $row) {
 			$list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
-			$list[$key]["rt_work_type"] = getWorkType($row["rc_work_type"]);
+			$list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
 			$list[$key]["rt_price"] = getRecuitPrice($row);
 		}
@@ -1518,7 +1518,7 @@ class memberModel extends MY_Model
 		foreach ($list as $key => $row) {
 			$list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
-			$list[$key]["rt_work_type"] = getWorkType($row["rc_work_type"]);
+			$list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
 			$list[$key]["rt_price"] = getRecuitPrice($row);
 		}

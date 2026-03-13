@@ -842,31 +842,7 @@
                       "월급" => "원/월",
                       "협의" => "-"
                     ];
-
-                    function getConvertPriceType($rc_price_type, $rc_price_rep)
-                    {
-
-                      if ($rc_price_rep === "협의") {
-                        return '';
-                      }
-
-                      $types = explode(',', $rc_price_type);
-
-                      if (count($types) === 1) {
-                        return '<em class="on">' . htmlspecialchars($types[0]) . '</em>';
-                      }
-
-                      $result = array_map(function ($type) use ($rc_price_rep) {
-                        if ($type === $rc_price_rep) {
-                          return '<em class="on">' . htmlspecialchars($type) . '</em>';
-                        } else {
-                          return '<em>' . htmlspecialchars($type) . '</em>';
-                        }
-                      }, $types);
-
-                      return implode('', $result);
-                    }
-
+                    // getConvertPriceType()는 data_helper.php에서 정의됨
                     ?>
                     <div class="row">
 

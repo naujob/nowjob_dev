@@ -128,9 +128,7 @@ if ($g_ios_publish == true) {
     padding-left: 5px;
   }
 
-  .result-list-card .content-info .desc .ellipsis {
-    width: 128%;
-  }
+
 
   .result-list-card .content-info .summary2 {
     font-size: 18px;
@@ -577,7 +575,13 @@ if ($g_ios_publish == true) {
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
           $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-          $content = $content.replaceAll("{{rc_name}}", row.rc_name);
+          // 제목이 18자 이상이면 ...으로 자르기
+          var rc_name = row.rc_name;
+          if (rc_name && rc_name.length > 18) {
+            rc_name = rc_name.substring(0, 18) + '...';
+          }
+
+          $content = $content.replaceAll("{{rc_name}}", rc_name);
           $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
           $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
           $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
