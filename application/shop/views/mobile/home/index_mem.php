@@ -143,6 +143,10 @@ if ($g_ios_publish == true) {
     font-weight: 600;
   }
 
+  .result-list-card .content-info .summary2 .period em.on {
+    color: #1b9d7d;
+  }
+
   .section .container {
     padding-top: 0;
   }
@@ -165,10 +169,6 @@ if ($g_ios_publish == true) {
 
   .item-info .meta {
     margin: 2px -2px 0 0;
-  }
-
-  .item-info .period {
-    /* font-size: 0.7rem; */
   }
 
   .item-info .working-time {
@@ -581,14 +581,14 @@ if ($g_ios_publish == true) {
           $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
           $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
           $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-          $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
+          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
           if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
             $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
           } else {
             $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
           }
-          $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-          $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay));
+          $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
+          $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
           $clone.html($content);
 
           $(".result-list").append($clone.html());
@@ -644,72 +644,6 @@ if ($g_ios_publish == true) {
     } else {
       return arg;
     }
-  }
-
-  function getConvertWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    let items = [];
-    const spanRegex = /<span>(.*?)<\/span>/g;
-    let match;
-    while ((match = spanRegex.exec(work_type)) !== null) {
-      items.push(match[1]);
-    }
-    if (items.length === 0) {
-      items = work_type.split(/\s*,\s*/);
-    }
-    const item_set = [...new Set(items.map(s => s.trim()))];
-    const has_jugan = item_set.includes('주간');
-    const has_yagan = item_set.includes('야간');
-    const has_2shift = item_set.includes('2교대');
-    if (has_jugan && has_yagan && has_2shift) {
-      return '<em class="wtype0">근무협의</em>';
-    }
-    let result = '';
-    item_set.forEach(text => {
-      if (text === '') return;
-      let cls = '';
-      if (text === '주간') {
-        cls = 'wtype1';
-      } else if (text === '야간') {
-        cls = 'wtype2';
-      } else if (text === '2교대') {
-        cls = 'wtype3';
-      }
-      result += `<em class="${cls}">${text}</em>`;
-    });
-    return result;
-  }
-
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
-
-    if (rc_price_type == "협의") {
-      return '';
-    }
-
-    const types = rc_price_type.split(',');
-
-    if (types.length === 1) {
-      return `<em class="on">${types[0]}</em>`;
-    }
-
-    return types.map(type => {
-      if (type === rc_price_rep) {
-        return `<em class="on">${type}</em>`;
-      } else {
-        return `<em>${type}</em>`;
-      }
-    }).join('');
-  }
-
-  function getConvertPrice(rc_price_pay) {
-
-    if (!rc_price_pay) {
-      return '급여협의';
-    }
-
-    return Number(rc_price_pay).toLocaleString() + "원";
   }
 
   window.addEventListener('DOMContentLoaded', function() {

@@ -7182,6 +7182,10 @@ form#frm {
     color: #777;
 }
 
+.result-list-card .content-info .summary2 .period em:only-child {
+    color: #1b9d7d;
+}
+
 .result-list-card .content-info .summary2 .period em.on {
     color: #1B9D7D;
 }

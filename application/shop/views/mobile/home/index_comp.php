@@ -237,6 +237,10 @@ if ($g_ios_publish == true) {
     border-right: 1px solid #777777;
   }
 
+  .content-info .summary2 .period em.on {
+    color: #1b9d7d;
+  }
+
   .content-info .summary3 {
     font-size: 16px;
     font-weight: 600;
