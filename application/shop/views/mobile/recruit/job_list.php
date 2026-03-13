@@ -384,7 +384,7 @@ if (count($banner_list) > 0) {
       $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
       $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
       $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-      $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay));
+      $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay, row.rc_price_type));
 
       $clone.html($content);
       $(list_id).append($clone.html());
@@ -432,25 +432,16 @@ if (count($banner_list) > 0) {
   }
 
   function getConvertPriceType(rc_price_type, rc_price_rep) {
-    const types = rc_price_type.split(',');
-    if (types.length === 1) {
-      return `<em class="on">${types[0]}</em>`;
-    }
-    return types.map(type => {
-      if (type === rc_price_rep) {
-        return `<em class="on">${type}</em>`;
-      } else {
-        return `<em>${type}</em>`;
-      }
-    }).join('');
-  }
-
-  function getConvertPrice(rc_price_pay) {
-
-    if (!rc_price_pay || rc_price_pay == 0) {
+    if (!rc_price_type) {
       return '';
     }
+    return `<em>${rc_price_type}</em>`;
+  }
 
+  function getConvertPrice(rc_price_pay, rc_price_type) {
+    if (!rc_price_pay || rc_price_pay == 0 || rc_price_type === '급여협의') {
+      return '';
+    }
     return Number(rc_price_pay).toLocaleString() + "원";
   }
 

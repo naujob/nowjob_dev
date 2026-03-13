@@ -12825,7 +12825,7 @@ form#frm {
 
 /* 내용 영역 높이: 110px → 95px */
 .my-bookmark .content-info .content-body {
-    height: 95px;
+    height: 100px;
 }
 
 /* 이미지 높이: 110px → 95px (너비 95px은 동일) */

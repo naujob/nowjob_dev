@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 언어 및 커뮤니케이션 규칙
 
 - **기본 응답 언어**: 한국어
-- **코드 주석**: 한국어로 작성
+- **코드 주석**: 한국어로 작성 / 주요함수와 변수에 대한 설명 주석 넣기
 - **커밋 메시지**: 한국어로 작성
 - **문서화**: 한국어로 작성
 - **변수명/함수명**: 영어 (코드 표준 준수)
@@ -87,6 +87,10 @@ pm2 logs        # 로그 확인
 - `master` — 프로덕션 배포 브랜치 (PR 대상)
 
 ## PHP 코딩 표준
+
+### 프로젝트 PHP version 5.4 버전
+
+- PHP 버전에 맞는 문법 사용(import)
 
 ### Null 병합 처리
 

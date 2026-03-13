@@ -1096,40 +1096,22 @@ function getConvertWorkType($work_type)
 
 /**
  * 채용공고 급여유형을 <em> HTML로 변환
- * 협의 시 "급여협의", 단일/복수 유형 처리
  */
 function getConvertPriceType($rc_price_type, $rc_price_rep)
 {
-	if ($rc_price_type == "협의") {
-		return '<em>급여협의</em>';
+	if (!$rc_price_type) {
+		return '';
 	}
-
-	$types = preg_split('/\s*,\s*/', $rc_price_type);
-
-	if (count($types) === 1) {
-		return '<em class="on">' . $types[0] . '</em>';
-	}
-
-	$result = '';
-	foreach ($types as $type) {
-		$type = trim($type);
-		if ($type === $rc_price_rep) {
-			$result .= '<em class="on">' . $type . '</em>';
-		} else {
-			$result .= '<em>' . $type . '</em>';
-		}
-	}
-
-	return $result;
+	return '<em>' . $rc_price_type . '</em>';
 }
 
 /**
  * 채용공고 급여금액 포맷 변환
  */
-function getConvertPrice($rc_price_pay)
+function getConvertPrice($rc_price_pay, $rc_price_type = '')
 {
-	if (!$rc_price_pay) {
-		return '<em>급여협의</em>';
+	if (!$rc_price_pay || $rc_price_type === '급여협의') {
+		return '';
 	}
 	return number_format($rc_price_pay) . " 원";
 }

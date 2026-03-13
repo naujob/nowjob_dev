@@ -827,7 +827,7 @@ if ($g_ios_publish == true) {
             $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
           }
           $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-          $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay));
+          $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay, row.rc_price_type));
           $clone.html($content);
 
           $(".result-list").append($clone.html());
@@ -883,28 +883,16 @@ if ($g_ios_publish == true) {
   }
 
   function getConvertPriceType(rc_price_type, rc_price_rep) {
-
-    if (rc_price_type == "협의" || rc_price_type == "급여협의") {
+    if (!rc_price_type) {
       return '';
     }
-
-    const types = rc_price_type.split(',');
-
-    if (types.length === 0) {
-      return '';
-    }
-
-    // 첫 번째 값만 반환
-    const firstType = types[0].trim();
-    return `<em class="on">${firstType}</em>`;
+    return `<em>${rc_price_type}</em>`;
   }
 
-  function getConvertPrice(rc_price_pay) {
-
-    if (!rc_price_pay) {
-      return '급여협의';
+  function getConvertPrice(rc_price_pay, rc_price_type) {
+    if (!rc_price_pay || rc_price_type === '급여협의') {
+      return '';
     }
-
     return Number(rc_price_pay).toLocaleString() + "원";
   }
 
