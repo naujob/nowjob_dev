@@ -382,9 +382,9 @@ if (count($banner_list) > 0) {
 
       $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
       $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-      $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
-      $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-      $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay, row.rc_price_type));
+      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
+      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
 
       $clone.html($content);
       $(list_id).append($clone.html());
@@ -395,55 +395,6 @@ if (count($banner_list) > 0) {
 
   }
 
-  function getConvertWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    let items = [];
-    const spanRegex = /<span>(.*?)<\/span>/g;
-    let match;
-    while ((match = spanRegex.exec(work_type)) !== null) {
-      items.push(match[1]);
-    }
-    if (items.length === 0) {
-      items = work_type.split(/\s*,\s*/);
-    }
-    const item_set = [...new Set(items.map(s => s.trim()))];
-    const has_jugan = item_set.includes('주간');
-    const has_yagan = item_set.includes('야간');
-    const has_2shift = item_set.includes('2교대');
-    if (has_jugan && has_yagan && has_2shift) {
-      return '<em class="wtype0">근무협의</em>';
-    }
-    let result = '';
-    item_set.forEach(text => {
-      if (text === '') return;
-      let cls = '';
-      if (text === '주간') {
-        cls = 'wtype1';
-      } else if (text === '야간') {
-        cls = 'wtype2';
-      } else if (text === '2교대') {
-        cls = 'wtype3';
-      }
-      result += `<em class="${cls}">${text}</em>`;
-    });
-    return result;
-  }
-
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
-    if (!rc_price_type) {
-      return '';
-    }
-    return `<em>${rc_price_type}</em>`;
-  }
-
-  function getConvertPrice(rc_price_pay, rc_price_type) {
-    if (!rc_price_pay || rc_price_pay == 0 || rc_price_type === '급여협의') {
-      return '';
-    }
-    return Number(rc_price_pay).toLocaleString() + "원";
-  }
 
 
   function showEmpty() {

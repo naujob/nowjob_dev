@@ -7103,7 +7103,7 @@ form#frm {
 
 .result-list-card .content-info .summary {
     display: flex;
-    font-size: 16px;
+    font-size: 17px;
     gap: 5px;
     position: relative;
 }
@@ -7161,7 +7161,7 @@ form#frm {
     display: flex;
     gap: 5px;
     justify-content: flex-end;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 600;
 }
 
@@ -7222,7 +7222,7 @@ form#frm {
 }
 
 .result-list-card .content-info .summary3 {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
     letter-spacing: 0;
     color: #333;
@@ -12787,8 +12787,8 @@ form#frm {
 .result-list .content-li .btn-bookmark:after {
     top: 3px;
     right: 3px;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     border-style: hidden;
     border-width: 0;
     border-color: transparent;

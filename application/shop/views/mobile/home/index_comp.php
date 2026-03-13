@@ -753,10 +753,10 @@ if ($g_ios_publish == true) {
               $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
               $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || "");
               $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "세");
-              $content = $content.replaceAll("{{ru_price_type}}", getConvertPriceType(row.ru_price_type, row.ru_price_rep));
-              $content = $content.replaceAll("{{ru_work_type}}", getConvertWorkType(row.ru_work_type));
+              $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
+              $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || "");
               $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-              $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
+              $content = $content.replaceAll("{{ru_my_type}}", row.ru_my_type || "");
 
               $clone.html($content);
               $("#recomm-list").append($clone.html());
@@ -814,20 +814,27 @@ if ($g_ios_publish == true) {
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
           $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-          var __rc_name = truncateText(row.rc_name || "", 18);
-          __rc_name = escapeHtml(__rc_name);
+          // rc_name 처리: 18자 제한 및 HTML 이스케이프
+          var __rc_name = (row.rc_name || "");
+          if (__rc_name.length > 18) {
+            __rc_name = Array.from(__rc_name).slice(0, 18).join('') + '…';
+          }
+          __rc_name = String(__rc_name).replace(/[&<>"']/g, function(ch) {
+            var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+            return map[ch];
+          });
           $content = $content.replaceAll("{{rc_name}}", __rc_name);
           $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
           $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
           $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-          $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
+          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
           if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
             $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
           } else {
             $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
           }
-          $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-          $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay, row.rc_price_type));
+          $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
+          $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
           $clone.html($content);
 
           $(".result-list").append($clone.html());
@@ -840,119 +847,6 @@ if ($g_ios_publish == true) {
   }
 
 
-  function getConvertWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    // "시간협의"를 "근무협의"로 변환
-    if (work_type.includes('시간협의')) {
-      work_type = work_type.replace(/시간협의/g, '근무협의');
-    }
-    let items = [];
-    const spanRegex = /<span>(.*?)<\/span>/g;
-    let match;
-    while ((match = spanRegex.exec(work_type)) !== null) {
-      items.push(match[1]);
-    }
-    if (items.length === 0) {
-      items = work_type.split(/\s*,\s*/);
-    }
-
-    if (items.length === 0) {
-      return "";
-    }
-
-    // 첫 번째 값만 사용
-    const firstItem = items[0].trim();
-    if (firstItem === '') {
-      return "";
-    }
-
-    let cls = '';
-    if (firstItem === '주간') {
-      cls = 'wtype1';
-    } else if (firstItem === '야간') {
-      cls = 'wtype2';
-    } else if (firstItem === '2교대') {
-      cls = 'wtype3';
-    } else if (firstItem === '근무협의') {
-      cls = 'wtype0';
-    }
-
-    return `<em class="${cls}">${firstItem}</em>`;
-  }
-
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
-    if (!rc_price_type) {
-      return '';
-    }
-    return `<em>${rc_price_type}</em>`;
-  }
-
-  function getConvertPrice(rc_price_pay, rc_price_type) {
-    if (!rc_price_pay || rc_price_type === '급여협의') {
-      return '';
-    }
-    return Number(rc_price_pay).toLocaleString() + "원";
-  }
-
-  // 문자열을 안전하게 maxLength 만큼 자르고 줄임표 추가
-  // 한글/이모지 등 서러게이트 페어 안전 처리
-  function truncateText(text, maxLength) {
-    // 방어적 코딩: null/undefined 대응
-    if (typeof text !== 'string') {
-      return '';
-    }
-    // 유니코드 코드포인트 단위 분해 (서러게이트 페어 포함)
-    var chars = Array.from(text);
-    if (chars.length <= maxLength) {
-      return text;
-    }
-    return chars.slice(0, maxLength).join('') + '…';
-  }
-
-  // HTML 이스케이프 처리 (XSS 방지)
-  function escapeHtml(str) {
-    if (typeof str !== 'string') {
-      return '';
-    }
-    return str.replace(/[&<>"']/g, function(ch) {
-      switch (ch) {
-        case '&':
-          return '&amp;';
-        case '<':
-          return '&lt;';
-        case '>':
-          return '&gt;';
-        case '"':
-          return '&quot;';
-        case "'":
-          return '&#39;';
-        default:
-          return ch;
-      }
-    });
-  }
-
-  function getHashTagJS(hash, max = 10) {
-    let result = "";
-    let tmp = hash;
-    tmp = tmp.replaceAll("<p class=\'tag\' style=\'width:100%;text-align:right;\'>", "");
-    tmp = tmp.replaceAll("</p>", "");
-    let arr_hash = tmp.trim().split(" ");
-    arr_hash.forEach(function(txt, key) {
-      if (key < max) {
-        if (!txt.includes("#") && txt.trim() !== "") {
-          txt = "#" + txt.trim();
-        }
-        if (txt.trim() !== "") {
-          result += ` <p class='tag'>${txt}</p>`;
-        }
-      }
-    });
-
-    return result;
-  }
 
 
   window.addEventListener('DOMContentLoaded', function() {

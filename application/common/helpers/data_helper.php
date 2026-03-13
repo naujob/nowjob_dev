@@ -1096,13 +1096,32 @@ function getConvertWorkType($work_type)
 
 /**
  * 채용공고 급여유형을 <em> HTML로 변환
+ * 2개 이상일 때: rc_price_rep과 일치하는 것만 class="on" 적용
  */
 function getConvertPriceType($rc_price_type, $rc_price_rep)
 {
 	if (!$rc_price_type) {
 		return '';
 	}
-	return '<em>' . $rc_price_type . '</em>';
+
+	$types = array_map('trim', explode(',', $rc_price_type));
+
+	// 1개일 때
+	if (count($types) === 1) {
+		return '<em>' . $types[0] . '</em>';
+	}
+
+	// 2개 이상일 때: rc_price_rep과 일치하는 것만 강조
+	$result = '';
+	foreach ($types as $type) {
+		if ($type === $rc_price_rep) {
+			$result .= '<em class="on">' . $type . '</em>';
+		} else {
+			$result .= '<em>' . $type . '</em>';
+		}
+	}
+
+	return $result;
 }
 
 /**
