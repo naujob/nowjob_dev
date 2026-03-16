@@ -5168,7 +5168,7 @@ body {
     width: 2rem;
     height: 2rem;
     margin: -0.6875rem 0 0;
-    background: url("../img/ic_top_alarm.svg") no-repeat 0 0;
+    background: url("../img/bell.svg") no-repeat 0 0;
     background-size: contain;
     z-index: 1;
 }
@@ -6832,7 +6832,7 @@ form#frm {
     height: 29.35vw;
     /* 38.6473429952vw; */
     padding: 4.875rem 0 1.75rem;
-    border-radius: 0 0 0 3.125rem;
+   
     -webkit-box-sizing: content-box;
     box-sizing: content-box;
     background: #000;
@@ -7964,7 +7964,7 @@ form#frm {
 
 .top-visual .visual-content {
     margin: 4.875rem 0 0 49.2753623188vw;
-    padding: 0 7.729468599vw 7.2463768116vw;
+    
     font-size: 3.6231884058vw;
     color: #fff;
     word-break: keep-all;
@@ -7993,13 +7993,21 @@ form#frm {
     text-decoration: underline;
 }
 
+/* 상단 배너 액션 버튼 (채용공고/이력서 등록) */
+.top-visual-action-btn {
+    position: absolute;
+    top: 7.5rem;
+    right: 1.5rem;
+    border: 1px solid #57CCAF;
+}
+
 .top-visual .visual-img {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: 0 0 0 3.125rem;
+
     background: #57CCAF;
     overflow: hidden;
     z-index: -1;

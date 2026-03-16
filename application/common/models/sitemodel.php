@@ -1131,10 +1131,28 @@ class siteModel extends MY_Model
 		return $this->db_update("st_promotion", $data, $where);
 	}
 
-	# 프로모션 리스트 조회
+	# 프로모션 리스트 조회 (기간이 지난 광고 제외)
 	function getPromotionList($where)
 	{
-		return $this->db_list("st_promotion", $where, "*, (select rc_name from st_recruit where rc_idx = st_promotion.rc_idx) as rc_name", ["pm_idx" => "desc"]);
+		// pm_status = 'Y'이고 현재 기간 내인 광고만 조회
+		$sql = "SELECT *, (select rc_name from st_recruit where rc_idx = st_promotion.rc_idx) as rc_name
+				FROM st_promotion
+				WHERE 1=1";
+
+		// 동적 WHERE 절 구성
+		foreach ($where as $key => $value) {
+			if ($value !== null && $value !== '') {
+				$sql .= " AND " . $key . " = '" . $this->db->escape_str($value) . "'";
+			}
+		}
+
+		// 기간이 지난 광고 제외 (종료일이 현재보다 크거나 같아야 함)
+		$sql .= " AND pm_edate >= NOW()";
+
+		$sql .= " ORDER BY pm_idx DESC";
+
+		$query = $this->db->query($sql);
+		return $query->result_array();
 	}
 
 	# 프로모션 조회 ONE

@@ -1045,6 +1045,14 @@
 
 
             <script>
+              /**
+               const promotionBuyArray = [ 
+                  { idx: 101 }, 
+                  { idx: 102 }, 
+                  { idx: 103 }, 
+                  ];
+               */
+              
               <?php
               echo "const promotionBuyArray = [ ";
               foreach ($promotion_buy_list as $promotion_buy) {

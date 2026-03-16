@@ -40,36 +40,16 @@ if (count($banner_list) > 0) {
   }
 </style>
 <div class="page-recruit">
-  <div class="header is-transparency">
-    <h1 class="top-logo"><span class="sr-text">지금 뜨는, 좋은 일자리 NOW JOB</span></h1>
-    <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
-      <span class="sr-text">미확인 알림메세지</span>
+ 
+    <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
+      <span class="sr-text">미확인 알림메세지</span> -->
       <!-- 미확인 알림개수 -->
-      <span class="cnt"><?= $g_alarm_cnt ?></span>
-    </a>
+      <!-- <span class="cnt"><?= $g_alarm_cnt ?></span> -->
+   
   </div><!-- //header -->
 
   <div class="page-content">
-    <?php if ($banner != null) : ?>
-      <div class="top-visual">
-        <style>
-          .top-visual .visual-content {
-            padding: 0 7.729468599vw 6.14vw;
-          }
-        </style>
-        <div class="visual-content" style="margin: 4.7rem 49.2753623188vw 0.0rem 0;">
-          <p><?= $banner["bn_text1"] ?></p>
-          <p class="headline" style="font-size: 6vw;"><?= $banner["bn_text2"] ?></p>
-          <!-- 이력서 작성 버튼 일반회원만 보이게 -->
-          <?php if ($mm_type === "MEM") : ?>
-            <a href="#" class="btn" id="btnResumeList" style="position: absolute; top: 7.5rem; right: 1.5rem; border: 1px solid #57CCAF;">이력서 등록</a>
-          <?php endif; ?>
-        </div>
-        <div class="visual-img">
-          <img src="<?= $banner["bg_img"] ?>" alt="">
-        </div>
-      </div>
-    <?php endif; ?>
+  <?php include(APPPATH . 'views/mobile/_partial/top_visual.php'); ?>
 
     <!-- 상세 검색 옵션 선택시: has-option 클래스 추가 -->
     <div class="search-option has-option">

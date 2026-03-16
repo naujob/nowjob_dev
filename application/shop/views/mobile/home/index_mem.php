@@ -101,7 +101,7 @@ if ($g_ios_publish == true) {
           },
         }, [
           addActiveClass,
-          sliderDots,
+         // sliderDots,
           function autoplay(slider) {
             sliderAutoplay(slider, 4000, false);
           }
@@ -199,24 +199,6 @@ if ($g_ios_publish == true) {
   .section+.section {
     margin-top: 0;
     border-top: 0;
-  }
-
-  /* 메인 비주얼 슬라이더: 활성 슬라이드만 클릭 가능하도록 처리 */
-  /* 겹쳐진 슬라이드가 클릭을 가로채는 문제 예방 */
-  .main-visual .visual-slider .slider-wrap .keen-slider__slide {
-    pointer-events: none;
-  }
-
-  .main-visual .visual-slider .slider-wrap .keen-slider__slide.active {
-    pointer-events: auto;
-    z-index: 1;
-  }
-
-  /* 배너 이미지 전체가 클릭 영역이 되도록 앵커를 블록화 */
-  .main-visual .visual-slider .visual-img a {
-    display: block;
-    width: 100%;
-    height: 100%;
   }
 </style>
 <style>
@@ -367,6 +349,7 @@ if ($g_ios_publish == true) {
     </div>
   </div>
 </div>
+
 <div id="auto-resume-loading" aria-hidden="true">
   <div class="loading-card" role="status" aria-live="polite">
     <p class="loading-title">이력서 자동 작성 중</p>
@@ -375,68 +358,20 @@ if ($g_ios_publish == true) {
   </div>
 </div>
 <div class="page page-home">
-  <div class="header is-transparency">
-    <h1 class="top-logo"><span class="sr-text">지금 뜨는, 좋은 일자리 NOW JOB</span></h1>
-    <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
+ 
+    
+  
+<!-- 알림 패널 - 주석처리됨 -->
+<!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
       <span class="sr-text">미확인 알림메세지</span>
       <span class="cnt"><?= $g_alarm_cnt ?></span>
-    </a>
-  </div><!-- //header -->
+    </a> -->
 
   <div class="page-content">
-
-    <div class="main-visual">
-      <div class="visual-slider">
-        <div class="slider-wrap keen-slider">
-          <?php foreach ($banner_list as $banner) : ?>
-            <div class="keen-slider__slide">
-              <div class="visual-img">
-                <?php if ($banner["bn_link_yn"] == "Y") : ?>
-                  <?php
-                  // community가 포함된 링크를 setting으로 변경
-                  $banner_link = str_replace("community", "setting", $banner["bn_link"]);
-                  // _blank를 _self로 변경
-                  $banner_target = ($banner["bn_link_type"] == "_blank") ? "_self" : $banner["bn_link_type"];
-                  ?>
-                  <a href="<?= $banner_link ?>" target="<?= $banner_target ?>">
-                    <img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지">
-                  </a>
-                <?php else : ?>
-                  <img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지">
-                <?php endif; ?>
-              </div>
-            </div>
-          <?php endforeach; ?>
-        </div>
-      </div>
-      <script>
-        window.addEventListener('DOMContentLoaded', function() {
-          new KeenSlider(".visual-slider .slider-wrap", {
-            loop: true,
-            // slides: {
-            //   perView: 1,
-            //   spacing: 12,
-            // },
-            defaultAnimation: {
-              duration: 2000,
-            },
-            detailsChanged: function(s) {
-              s.slides.forEach(function(element, idx) {
-                element.style.opacity = s.track.details.slides[idx].portion;
-              });
-            },
-            renderMode: 'custom',
-          }, [
-            sliderDots,
-            addActiveClass,
-            function autoplay(slider) {
-              sliderAutoplay(slider, 4000, false);
-            }
-          ]);
-        });
-      </script>
-    </div>
-
+  <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
+    
+    
+    <!--지금뜨는업체-->
     <div class="section" style="border-bottom: none;">
       <div class="container" style="padding-top: 1.15rem; padding-bottom: 1.15rem;">
         <h2 class="secondary-title">지금 뜨는 업체</h2>
@@ -533,7 +468,7 @@ if ($g_ios_publish == true) {
   <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
   <!-- //bottom-nav -->
 </div>
-<!-- 알림목록 -->
+<!-- 알림목록 - 주석처리됨 -->
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
 <?php $tpl_id = 'tpl_list'; ?>
