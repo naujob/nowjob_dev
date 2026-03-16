@@ -1093,7 +1093,7 @@ object {
     right: 0;
     width: 0.875rem;
     height: 0.875rem;
-    background: url("../img/ic_bookmark.svg") no-repeat 0 0;
+    /* background: url("../img/ic_bookmark.svg") no-repeat 0 0; */
     background-size: contain;
     z-index: 1;
 }

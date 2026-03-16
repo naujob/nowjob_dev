@@ -6,325 +6,26 @@ if (count($banner_list) > 0) {
 }
 ?>
 <style>
+  /* 페이지 레이아웃 */
   .page-content {
     background: #fff;
-    /* iOS 스크롤 활성화 */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
   }
 
   .page-recruit {
-    /* iOS 스크롤 활성화 */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
   }
 
   .current-area .btn {
-    max-width: 90%;
-  }
-
-  .btn-bookmark {
-    display: block;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    width: 40px;
-    height: 40px;
-    border: 0;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
-    background-size: 0px;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .btn-bookmark:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-top: 40px solid #f8f8f8;
-    border-left: 40px solid transparent;
-    z-index: -1;
-  }
-
-  .btn-bookmark:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    width: 16px;
-    height: 16px;
-    border-style: hidden;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
-    background-size: contain;
-    pointer-events: all;
-    z-index: 1;
-  }
-
-  .btn-bookmark.on:after {
-    background-image: inherit;
-  }
-
-  .sr-text {
-    display: block;
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: 0;
-    padding: 0;
-    font-size: 1px;
-    color: transparent;
-    pointer-events: none;
-    white-space: nowrap;
-    overflow: hidden;
-    border: 0;
-    outline: 0;
-  }
-
-  .result-list .content-li {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 10px;
-    border: 1px solid #b0b0b0;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-    transition: background 0.2s ease;
-  }
-
-  .result-list .content-li.recomm {
-    border: 1px solid #b0b0b0;
-  }
-
-  .content-li * {
-    padding: 0;
-    margin: 0;
-  }
-
-  .content-li .content-info {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-  }
-
-  .content-info .wicon img {
-    height: 19px;
-  }
-
-  .content-info .title {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 1px 0px;
-  }
-
-  .content-info .summary3 {
-    position: absolute;
-    top: 6px;
-    right: 10px;
-    color: #000;
-    height: 17px;
-    text-align: right;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .content-info .summary3 em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
-    padding-left: 5px;
-  }
-
-  .content-info .summary3 em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .content-info .summary3 em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-
-  .content-info .summary3 em.wtype1 {
-    color: #3a70db;
-  }
-
-  .content-info .summary3 em.wtype2 {
-    color: #F86048;
-  }
-
-  .content-info .summary3 em.wtype3 {
-    color: #1B9D7D;
-  }
-
-  .content-info .content-body {
-    position: relative;
-    height: 95px;
-    overflow: hidden;
-  }
-
-  .recomm-badge {
-    position: absolute;
-    background: #EB5349;
-    z-index: 1;
-    margin: 3px;
-    padding: 3px;
-    border-radius: 3px;
-  }
-
-  .content-info .desc {
-    position: relative;
-    height: 95px;
-    margin: 0 0 0 105px;
-  }
-
-  .content-info .desc .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .content-info .img {
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .content-info .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 이미지 비율 유지하며 박스를 꽉 채움 */
-    display: block;
-  }
-
-  .content-info .link {
-    color: #5085BB;
-  }
-
-  .content-info .summary {
-    display: flex;
-    font-size: 16px;
-    gap: 5px;
-    position: relative;
-  }
-
-  .content-info .summary p {
-    position: relative;
-    padding-right: 5px;
-    margin: 0;
-    color: #999;
-  }
-
-  .content-info .summary p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #ACACAC;
-  }
-
-  .content-info .summary>* {
-    min-width: 0;
     max-width: 100%;
-    margin-right: 4px;
-    margin-bottom: -3px;
+    font-size: 1.8rem;
   }
 
-  .content-info .summary.area p {
-    color: #000;
-    font-weight: 600;
-  }
-
-  .content-info .summary.reco p {
-    color: #1b9d7d;
-    font-weight: 600;
-  }
-
-  .content-info .summary2 {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 0;
-    color: #1b9d7d;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .content-info .summary2 .summary2 p {
-    margin: 0;
-    text-align: right;
-  }
-
-  .content-info .summary2 .period {
-    display: flex;
-    gap: 5px;
-    justify-content: flex-end;
-    position: relative;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .content-info .summary2 .amount em {
-    font-style: normal;
-  }
-
-  .content-info .summary2 .period em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
-    color: #777;
-  }
-
-  .content-info .summary2 .period em.on {
-    color: #1B9D7D;
-  }
-
-  .content-info .summary2 .period em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .content-info .summary2 .period em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-
-  .result-list .list-item+.list-item {
-    border-top: 0;
-  }
-
+  /* 검색 옵션 카테고리 */
   .search-option .categories .form-toggle-btn2 {
     display: none;
   }
@@ -338,11 +39,7 @@ if (count($banner_list) > 0) {
     margin-bottom: 10px;
   }
 
-  .current-area .btn {
-    max-width: 100%;
-    font-size: 1.8rem;
-  }
-
+  /* 기업 상단 이미지 영역 */
   .comp-info {
     position: relative;
     height: 300px;
@@ -438,56 +135,9 @@ if (count($banner_list) > 0) {
     </div>
 
     <div class="section is-last">
-      <style>
-        .section .container {
-          padding-top: 0;
-        }
-
-        .item-info .thumb {
-          width: 5rem;
-        }
-
-        .item-info {
-          padding: 0.4rem 0;
-        }
-
-        .item-info .comp_name {
-          margin-top: 2px;
-        }
-
-        .item-info .title {
-          margin: 2px 0 2px;
-        }
-
-        .item-info .meta {
-          margin: 2px -2px 0 0;
-        }
-
-        .item-info .period {
-          /* font-size: 0.7rem; */
-        }
-
-        .item-info .working-time {
-          /* font-size: 0.7rem; */
-          line-height: 1rem;
-        }
-
-        .item-info .area {
-          max-height: 1.3rem;
-          margin-top: 4px;
-        }
-
-        .item-info {
-          margin: 5px 0;
-        }
-
-        .item-info .amount {
-          letter-spacing: -2px;
-        }
-      </style>
       <div class="container">
         <h2 class="sr-text">채용공고</h2>
-        <ol class="result-list" id="ajaxList" data-page="1" data-more="Y">
+        <ol class="result-list result-list-card" id="ajaxList" data-page="1" data-more="Y">
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p>등록된 정보가 없습니다.</p>
@@ -501,43 +151,13 @@ if (count($banner_list) > 0) {
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
-<template id="tpl_list">
-  <li class="list-item">
-    <div class="content-li recomm" data-rc_idx="{{rc_idx}}">
-      <div class="content-info">
-        <div class="content-body">
-          <p class="recomm-badge"><span>추천</span></p>
-          <div class="img">
-            <img src="{{rt_recruit_img}}">
-            <?php if ($mm_type === "MEM") { ?><button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
-          </div>
-          <div class="desc">
-            <a href="/recruit/job_post/{{rc_idx}}">
-              <div class="wicon">
-                {{rt_work_img}}
-              </div>
-              <div class="title ellipsis">
-                {{rc_name}}
-              </div>
-              <div class="summary">
-                <p>{{rc_nation_nm}}</p>
-                <p>{{rc_age_nm}}</p>
-              </div>
-              <div class="summary area">
-                <p>{{ad_addr}}</p>
-              </div>
-              <div class="summary2">
-                <p class="period">{{rc_price_type}}</p>
-                <p class="amount">{{rc_price_pay}}</p>
-              </div>
-            </a>
-          </div>
-        </div>
-        <div class="summary3">{{rt_work_type}}</div>
-      </div>
-    </div>
-  </li>
-</template>
+<?php /* 채용공고 카드 템플릿 파셜 include */ ?>
+<?php
+$tpl_id = 'tpl_list';
+$tpl_recomm_class = true;
+$mm_type = $this->user->getUserType();
+include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
+?>
 
 <template id="tpl_category">
   <label class="form-toggle-btn2 sm {{active}} btn-category">
@@ -744,9 +364,9 @@ if (count($banner_list) > 0) {
       $content = $content.replaceAll("{{rc_name}}", row.rc_name);
       $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
       $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-      $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
-      $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-      $content = $content.replaceAll("{{rc_price_pay}}", getConvertPrice(row.rc_price_pay));
+      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || "");
+      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || "");
 
       $clone.html($content);
       $(list_id).append($clone.html());
@@ -757,71 +377,6 @@ if (count($banner_list) > 0) {
 
   }
 
-  function getConvertWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    let items = [];
-    const spanRegex = /<span>(.*?)<\/span>/g;
-    let match;
-    while ((match = spanRegex.exec(work_type)) !== null) {
-      items.push(match[1]);
-    }
-    if (items.length === 0) {
-      items = work_type.split(/\s*,\s*/);
-    }
-    const item_set = [...new Set(items.map(s => s.trim()))];
-    const has_jugan = item_set.includes('주간');
-    const has_yagan = item_set.includes('야간');
-    const has_2shift = item_set.includes('2교대');
-    if (has_jugan && has_yagan && has_2shift) {
-      return '<em class="wtype0">근무협의</em>';
-    }
-    let result = '';
-    item_set.forEach(text => {
-      if (text === '') return;
-      let cls = '';
-      if (text === '주간') {
-        cls = 'wtype1';
-      } else if (text === '야간') {
-        cls = 'wtype2';
-      } else if (text === '2교대') {
-        cls = 'wtype3';
-      }
-      result += `<em class="${cls}">${text}</em>`;
-    });
-    return result;
-  }
-
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
-
-    if (rc_price_type == "협의") {
-      return '';
-    }
-
-    const types = rc_price_type.split(',');
-
-    if (types.length === 1) {
-      return `<em class="on">${types[0]}</em>`;
-    }
-
-    return types.map(type => {
-      if (type === rc_price_rep) {
-        return `<em class="on">${type}</em>`;
-      } else {
-        return `<em>${type}</em>`;
-      }
-    }).join('');
-  }
-
-  function getConvertPrice(rc_price_pay) {
-
-    if (!rc_price_pay) {
-      return '급여협의';
-    }
-
-    return Number(rc_price_pay).toLocaleString() + "원";
-  }
 
   function fRemoveBigAdrJS(arg) {
     const parts1 = arg.split(",");
@@ -869,6 +424,14 @@ if (count($banner_list) > 0) {
       $(list_empty_id).hide();
     }
   }
+
+  // desc 클릭 시 채용공고 상세 페이지로 이동
+  $(document).on('click', '.desc', function() {
+    var rcIdx = $(this).closest('.content-li').data('rc_idx');
+    if (rcIdx) {
+      window.location.href = '/recruit/job_post/' + rcIdx;
+    }
+  });
 
   $(window).scroll(function() {
     var $window = $(this);

@@ -81,10 +81,7 @@ pm2 logs        # 로그 확인
 
 코드 내에서 `APP_ENV` 환경 변수 또는 경로명(`/dev_nowapk` vs `/nowapk`)으로 dev/prod 자동 판별.
 
-## 브랜치 전략
 
-- `develop` — 개발 브랜치 (현재)
-- `master` — 프로덕션 배포 브랜치 (PR 대상)
 
 ## PHP 코딩 표준
 
