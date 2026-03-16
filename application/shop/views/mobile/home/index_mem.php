@@ -376,48 +376,26 @@ if ($g_ios_publish == true) {
       <div class="container" style="padding-top: 1.15rem; padding-bottom: 1.15rem;">
         <h2 class="secondary-title">지금 뜨는 업체</h2>
         <!-- <a href="/recruit/clist" class="btn-view-all">더보기</a> -->
-        <style>
-          .hot-list .keen-slider__slide {
-            width: 33.3333%;
-          }
-
-          .hot-list .thumb {
-            width: 100%;
-            padding: 100% 0 0;
-            /* 72.5% */
-          }
-
-          .main-visual .visual-slider .dots {
-            bottom: 10%;
-          }
-        </style>
         <div class="hot-list">
-          <div class="slider-wrap keen-slider">
-            <?php foreach ($up_list as $row) : ?>
+          <div class="slider-wrap">
+            <?php
+              // 최대 4개 업체만 표시 (2x2 그리드)
+              $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 4) : array();
+              foreach ($limited_up_list as $row) :
+            ?>
               <div class="keen-slider__slide">
                 <a href="/recruit/company/<?= $row["mm_idx"] ?>">
                   <!-- 로고 -->
                   <div class="thumb">
-                    <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad" style="top:32%; max-width: 65%; max-height: 60%;">
-                    <p class="name" style="position: absolute; bottom: 20%; /* 26%; */ width: 100%; text-align: center; font-size: 0.7375rem;"><?= $row["mm_comp_name"] ?></p>
-                    <p class="name" style="position: absolute; bottom: 2%; width: 100%; text-align: center; font-size: 0.8rem; color: #1B9D7D; "><?= $row["cnt"] ?> <span style="color:#222;">건</span></p>
+                    <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
+                    <p class="name" style="position: absolute; bottom: 10%; /* 26%; */ width: 100%; text-align: center; font-size: 0.7375rem;"><?= $row["mm_comp_name"] ?></p>
+
                   </div>
                 </a>
               </div>
             <?php endforeach; ?>
           </div>
         </div>
-        <script>
-          window.addEventListener('DOMContentLoaded', function() {
-            new KeenSlider(".hot-list .slider-wrap", {
-              loop: false,
-              mode: 'free',
-              slides: {
-                perView: 3
-              },
-            });
-          });
-        </script>
       </div>
     </div>
 

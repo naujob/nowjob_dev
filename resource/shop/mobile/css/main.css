@@ -2322,7 +2322,7 @@ fieldset {
 }
 
 .secondary-title {
-    margin: 1.5rem 0 0.875rem;
+    margin: 1.5rem 9px 0.875rem;
     font-size: 1.3rem;
     font-weight: 700;
     line-height: 1.1;
@@ -2587,88 +2587,89 @@ fieldset {
 }
 
 .benefit-label.benefit1-1-v2:before {
-    background-image: url("../img/ic_benefit1_1.png?v=20260309");
+    background-image: url("../img/ic_benefit1_1.png?v=20260316");
 }
 
 .benefit-label.benefit1-2-v2:before {
-    background-image: url("../img/ic_benefit1_2.png?v=20260309");
+    background-image: url("../img/ic_benefit1_2.png?v=20260316");
 }
 
 .benefit-label.benefit1-3-v2:before {
-    background-image: url("../img/ic_benefit1_3.png?v=20260309");
+    background-image: url("../img/ic_benefit1_3.png?v=20260316");
 }
 
 .benefit-label.benefit1-4-v2:before {
-    background-image: url("../img/ic_benefit1_4.png?v=20260309");
+    background-image: url("../img/ic_benefit1_4.png?v=20260316");
 }
 
 .benefit-label.benefit2-1-v2:before {
-    background-image: url("../img/ic_benefit2_1.png?v=20260309");
+    background-image: url("../img/ic_benefit2_1.png?v=20260316");
 }
 
 .benefit-label.benefit2-2-v2:before {
-    background-image: url("../img/ic_benefit2_2.png?v=20260309");
+    background-image: url("../img/ic_benefit2_2.png?v=20260316");
 }
 
 .benefit-label.benefit2-3-v2:before {
-    background-image: url("../img/ic_benefit2_3.png?v=20260309");
+    background-image: url("../img/ic_benefit2_3.png?v=20260316");
 }
 
 .benefit-label.benefit3-1-v2:before {
-    background-image: url("../img/ic_benefit3_1.png?v=20260309");
+    background-image: url("../img/ic_benefit3_1.png?v=20260316");
 }
 
 .benefit-label.benefit3-2-v2:before {
-    background-image: url("../img/ic_benefit3_2.png?v=20260309");
+    background-image: url("../img/ic_benefit3_2.png?v=20260316");
 }
 
 .benefit-label.benefit3-3-v2:before {
-    background-image: url("../img/ic_benefit3_3.png?v=20260309");
+    background-image: url("../img/ic_benefit3_3.png?v=20260316");
 }
 
 .benefit-label.benefit3-4-v2:before {
-    background-image: url("../img/ic_benefit3_4.png?v=20260309");
+    background-image: url("../img/ic_benefit3_4.png?v=20260316");
 }
 
 .benefit-label.benefit3-5-v2:before {
-    background-image: url("../img/ic_benefit3_5.png?v=20260309");
+    background-image: url("../img/ic_benefit3_5.png?v=20260316");
 }
 
 .benefit-label.benefit3-6-v2:before {
-    background-image: url("../img/ic_benefit3_6.png?v=20260309");
+    background-image: url("../img/ic_benefit3_6.png?v=20260316");
 }
 
 .benefit-label.benefit3-7-v2:before {
-    background-image: url("../img/ic_benefit3_7.png?v=20260309");
+    background-image: url("../img/ic_benefit3_7.png?v=20260316");
 }
 
 .benefit-label.benefit4-1-v2:before {
-    background-image: url("../img/ic_benefit4_1.png?v=20260309");
+    background-image: url("../img/ic_benefit4_1.png?v=20260316");
 }
 
 .benefit-label.benefit4-2-v2:before {
-    background-image: url("../img/ic_benefit4_2.png?v=20260309");
+    background-image: url("../img/ic_benefit4_2.png?v=20260316");
 }
 
 .benefit-label.benefit4-3-v2:before {
-    background-image: url("../img/ic_benefit4_3.png?v=20260309");
+    background-image: url("../img/ic_benefit4_3.png?v=20260316");
 }
 
 .benefit-label.benefit4-4-v2:before {
-    background-image: url("../img/ic_benefit4_4.png?v=20260309");
+    background-image: url("../img/ic_benefit4_4.png?v=20260316");
 }
 
 .benefit-label.benefit4-5-v2:before {
-    background-image: url("../img/ic_benefit4_5.png?v=20260309");
+    background-image: url("../img/ic_benefit4_5.png?v=20260316");
 }
 
 .benefit-label.benefit4-6-v2:before {
-    background-image: url("../img/ic_benefit4_6.png?v=20260309");
+    background-image: url("../img/ic_benefit4_6.png?v=20260316");
 }
 
 .benefit-label.benefit4-7-v2:before {
-    background-image: url("../img/ic_benefit4_7.png?v=20260309");
+    background-image: url("../img/ic_benefit4_7.png?v=20260316");
 }
+
 
 .benefit-label.btn {
     position: relative;
@@ -6829,7 +6830,7 @@ form#frm {
 
 .visual-slider .slider-wrap {
     /* 20230721 수정 */
-    height: 29.35vw;
+    height: 26.35vw;
     /* 38.6473429952vw; */
     padding: 4.875rem 0 1.75rem;
    
@@ -7242,6 +7243,8 @@ form#frm {
     position: relative;
     display: inline-block;
     font-style: normal;
+   
+    
 }
 
 .result-list-card .content-info .summary3 em.wtype1 {
@@ -7665,29 +7668,33 @@ form#frm {
     overflow: visible;
 }
 
+/* 2x2 그리드 레이아웃 */
 .hot-list .slider-wrap {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
     overflow: visible;
 }
 
 .hot-list .keen-slider__slide {
-    width: 38.6473429952vw;
-    max-width: 10rem;
-    padding-right: 10px;
+    padding: 0;
 }
 
 .hot-list .thumb {
     position: relative;
-    width: 9.375rem;
-    height: 0;
-    padding: 73.3333333333% 0 0;
+    width: 100%;
+   
+    padding: 80% 0 0;
     border: 1px solid #ccc;
     background: #fff;
     overflow: hidden;
+    border-radius: 30px;
 }
 
 .hot-list .thumb img {
+    display: block;
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     max-width: 70%;
     max-height: 70%;
@@ -7699,14 +7706,16 @@ form#frm {
 }
 
 .hot-list .name {
-    margin: 0.875rem 0 0;
-    font-size: 0.9375rem;
+    display: block;
+    margin: 6px 4px 2px;
+    font-size: 0.8125rem;
     font-weight: 500;
     color: #222;
+    text-align: center;
+    overflow: hidden;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow: hidden;
 }
 
 .hot-list a:focus {
@@ -8003,7 +8012,7 @@ form#frm {
 
 .top-visual .visual-img {
     position: absolute;
-    top: 0;
+    top: -106px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -12823,10 +12832,10 @@ form#frm {
    ============================================================ */
 
 /* 카드 높이: result-list-card 기본 130px → 115px */
-.my-bookmark .result-list .content-li {
+/* .my-bookmark .result-list .content-li {
     height: 115px;
     line-height: 1.5;
-}
+} */
 
 .my-bookmark .result-list .content-li:hover {
     background: #f8f8f8;
@@ -12839,21 +12848,21 @@ form#frm {
 
 
 /* 내용 영역 높이: 110px → 95px */
-.my-bookmark .content-info .content-body {
+/* .my-bookmark .content-info .content-body {
     height: 100px;
-}
+} */
 
 /* 이미지 높이: 110px → 95px (너비 95px은 동일) */
-.my-bookmark .content-info .img {
+/* .my-bookmark .content-info .img {
     height: 95px;
-}
+} */
 
 /* desc: flex 해제, padding-right 제거 */
-.my-bookmark .content-info .desc {
+/* .my-bookmark .content-info .desc {
     display: block;
     padding-right: 0;
     cursor: pointer;
-}
+} */
 
 
 /* 즐겨찾기 추천 배지 - 카드 이미지 위 절대위치 */

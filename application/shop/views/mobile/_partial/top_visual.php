@@ -1,7 +1,7 @@
 <style>
   /* 상단 비주얼 배너 높이 설정 */
   .top-visual {
-    height: 210px;
+    height: 180px;
     overflow: hidden;
   }
 
