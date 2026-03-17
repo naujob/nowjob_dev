@@ -13,7 +13,7 @@ const path = require('path');
 
 //로그 쓰기
 container.writeLog = function (msg) {
-    // chat_trace 로그 파일 기록 비활성화
+    // 로그 파일 기록 비활성화
     return;
 
     var date = new Date();

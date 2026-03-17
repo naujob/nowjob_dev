@@ -48,86 +48,86 @@ function formatPhoneNumber($number)
   return $number;
 }
 
-function getWorkType2025($work_type)
-{
-  if (!$work_type) {
-    return "";
-  }
+// function getWorkType2025($work_type)
+// {
+//   if (!$work_type) {
+//     return "";
+//   }
 
-  $items = [];
+//   $items = [];
 
-  if (preg_match_all('/<span>(.*?)<\/span>/', $work_type, $matches)) {
-    $items = $matches[1];
-  } else {
-    $items = preg_split('/\s*,\s*/', $work_type);
-  }
+//   if (preg_match_all('/<span>(.*?)<\/span>/', $work_type, $matches)) {
+//     $items = $matches[1];
+//   } else {
+//     $items = preg_split('/\s*,\s*/', $work_type);
+//   }
 
-  $item_set = array_unique(array_map('trim', $items));
+//   $item_set = array_unique(array_map('trim', $items));
 
-  $has_jugan = in_array('주간', $item_set);
-  $has_yagan = in_array('야간', $item_set);
-  $has_2shift = in_array('2교대', $item_set);
+//   $has_jugan = in_array('주간', $item_set);
+//   $has_yagan = in_array('야간', $item_set);
+//   $has_2shift = in_array('2교대', $item_set);
 
-  if ($has_jugan && $has_yagan && $has_2shift) {
-    return '<em class="wtype0">근무협의</em>';
-  }
+//   if ($has_jugan && $has_yagan && $has_2shift) {
+//     return '<em class="wtype0">근무협의</em>';
+//   }
 
-  $result = '';
-  foreach ($item_set as $text) {
-    if ($text === '') continue;
+//   $result = '';
+//   foreach ($item_set as $text) {
+//     if ($text === '') continue;
 
-    $cls = '';
-    if ($text === '주간') {
-      $cls = 'wtype1';
-    } else if ($text === '야간') {
-      $cls = 'wtype2';
-    } else if ($text === '2교대') {
-      $cls = 'wtype3';
-    }
+//     $cls = '';
+//     if ($text === '주간') {
+//       $cls = 'wtype1';
+//     } else if ($text === '야간') {
+//       $cls = 'wtype2';
+//     } else if ($text === '2교대') {
+//       $cls = 'wtype3';
+//     }
 
-    $result .= '<em class="' . $cls . '">' . $text . '</em>';
-  }
+//     $result .= '<em class="' . $cls . '">' . $text . '</em>';
+//   }
 
-  return $result;
-}
+//   return $result;
+// }
 
-function getConvertPriceType($rc_price_type, $rc_price_rep)
-{
-  $allTypes = ['일급', '주급', '월급'];
+// function getConvertPriceType($rc_price_type, $rc_price_rep)
+// {
+//   $allTypes = ['일급', '주급', '월급'];
 
-  // 모든 급여 유형이 포함된 경우
-  $containsAll = true;
-  foreach ($allTypes as $type) {
-    if (strpos($rc_price_type, $type) === false) {
-      $containsAll = false;
-      break;
-    }
-  }
+//   // 모든 급여 유형이 포함된 경우
+//   $containsAll = true;
+//   foreach ($allTypes as $type) {
+//     if (strpos($rc_price_type, $type) === false) {
+//       $containsAll = false;
+//       break;
+//     }
+//   }
 
-  if ($containsAll) {
-    return '<em>급여협의</em>';
-  }
+//   if ($containsAll) {
+//     return '<em>급여협의</em>';
+//   }
 
-  // 쉼표로 분리
-  $types = preg_split('/\s*,\s*/', $rc_price_type);
+//   // 쉼표로 분리
+//   $types = preg_split('/\s*,\s*/', $rc_price_type);
 
-  if (count($types) === 1) {
-    return '<em class="on">' . $types[0] . '</em>';
-  }
+//   if (count($types) === 1) {
+//     return '<em class="on">' . $types[0] . '</em>';
+//   }
 
-  // 다중 유형 처리
-  $result = '';
-  foreach ($types as $type) {
-    $type = trim($type);
-    if ($type === $rc_price_rep) {
-      $result .= '<em class="on">' . $type . '</em>';
-    } else {
-      $result .= '<em>' . $type . '</em>';
-    }
-  }
+//   // 다중 유형 처리
+//   $result = '';
+//   foreach ($types as $type) {
+//     $type = trim($type);
+//     if ($type === $rc_price_rep) {
+//       $result .= '<em class="on">' . $type . '</em>';
+//     } else {
+//       $result .= '<em>' . $type . '</em>';
+//     }
+//   }
 
-  return $result;
-}
+//   return $result;
+// }
 
 $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 $job_posting_title = !empty($info["rc_name"]) ? $info["rc_name"] : "내 주변 일자리 - 채용공고 확인하기";

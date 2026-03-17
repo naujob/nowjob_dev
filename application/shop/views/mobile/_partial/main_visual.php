@@ -1,5 +1,10 @@
 <style>
   /* 메인 비주얼 헤더 스타일 */
+  .main-visual {
+    height: 180px;
+    overflow: hidden;
+}
+
   .main-visual-header {
     display: flex;
     justify-content: space-between;
@@ -45,6 +50,19 @@
   .main-visual .visual-slider .slider-wrap .keen-slider__slide.active {
     pointer-events: auto;
     z-index: 1;
+  }
+
+  /* 배너 이미지를 높이에 맞춤 */
+  .main-visual .visual-slider .visual-img {
+    height: 180px;
+    overflow: hidden;
+  }
+
+  .main-visual .visual-slider .visual-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+   
   }
 
   /* 배너 이미지 전체가 클릭 영역이 되도록 앵커를 블록화 */

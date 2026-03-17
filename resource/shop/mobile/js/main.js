@@ -472,7 +472,7 @@
             // e.target이 DOM 요소인지 확인
             if (!e.target || typeof e.target.getAttribute !== 'function') return;
 
-            if (e.target.classList && !e.target.classList.contains('js-toggle-panel') && !e.target.parentNode.classList.contains('js-toggle-panel')) return;
+            if (e.target.classList && !e.target.classList.contains('js-toggle-panel') && !(e.target.parentNode && e.target.parentNode.classList && e.target.parentNode.classList.contains('js-toggle-panel'))) return;
 
             e.preventDefault();
 

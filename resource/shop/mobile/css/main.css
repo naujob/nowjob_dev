@@ -2321,9 +2321,10 @@ fieldset {
     color: #1B9D7D;
 }
 
+
 .secondary-title {
-    margin: 1.5rem 9px 0.875rem;
-    font-size: 1.3rem;
+    margin: 1.5rem 0px 0.875rem;
+    font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.1;
 }
@@ -2474,7 +2475,7 @@ fieldset {
 }
 
 .benefit-label {
-    font-size: 0.8125rem;
+    font-size: 1.1rem;
     color: #222;
     line-height: 1.1;
     text-align: center;
@@ -2486,6 +2487,7 @@ fieldset {
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
+    font-weight: 600;
 }
 
 .benefit-label:before {
@@ -5044,7 +5046,7 @@ body {
 .top-bar {
     position: sticky;
     top: 0;
-    padding: 1rem 1.4375rem 0.9375rem;
+    padding: 1.3rem 1.4375rem;
     color: #fff;
     background: #57CCAF;
     z-index: 5;
@@ -5057,7 +5059,7 @@ body {
 .top-bar .title {
     margin: -2px 0 0;
     max-width: 14rem;
-    font-size: 1.1875rem;
+    font-size: 1.3rem;
     line-height: 1.1;
     white-space: nowrap;
     -o-text-overflow: ellipsis;
@@ -5252,12 +5254,10 @@ body {
     position: relative;
     border-bottom: 1px solid #E5E5E5;
     background: #fff;
+    
 }
 
-.section+.section {
-    margin-top: 4px;
-    border-top: 1px solid #E5E5E5;
-}
+
 
 .section:only-child,
 .section.is-last {
@@ -5265,7 +5265,6 @@ body {
 }
 
 .section .container {
-    padding-top: 0.5625rem;
     padding-bottom: 1.5625rem;
 }
 
@@ -6044,7 +6043,7 @@ form#frm {
 /* 구글 버튼 (흰색 배경) */
 .vendor-type5 {
     
-    background-image: url('/resource/shop/mobile/img/member/ic-google-login.svg');
+    background-image: url('/resource/shop/mobile/img/member/ic-google-login.svg?v=20260317');
     background-size: 100% auto;
     background-position: 40% center;
     background-repeat: no-repeat;
@@ -6641,18 +6640,19 @@ form#frm {
 }
 
 .info-table .label {
-    width: 4.5rem;
+    width: 5.5rem;
     padding: 0.3571428571em 0;
-    font-size: 0.875rem;
+    font-size: 1.1rem;
     color: #222;
     line-height: 1.6428571429;
     vertical-align: top;
+    font-weight: 400;
 }
 
 .info-table .value {
     padding: 0.2857142857em 0;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-weight: 600;
     color: #222;
     line-height: 1.5625;
     vertical-align: top;
@@ -6674,7 +6674,7 @@ form#frm {
 }
 
 .info-table .pay .amount {
-    font-size: 1.25em;
+    font-size: 1.1em;
     font-style: normal;
     font-weight: 700;
     letter-spacing: 0;
@@ -6830,10 +6830,9 @@ form#frm {
 
 .visual-slider .slider-wrap {
     /* 20230721 수정 */
-    height: 26.35vw;
+    height: 48.35vw;
     /* 38.6473429952vw; */
-    padding: 4.875rem 0 1.75rem;
-   
+
     -webkit-box-sizing: content-box;
     box-sizing: content-box;
     background: #000;
@@ -6989,10 +6988,10 @@ form#frm {
 .btn-view-all {
     display: block;
     position: absolute;
-    top: 1.625rem;
+    top: 30px;
     right: 1.4375rem;
     font-size: 0.8125rem;
-    font-weight: 300;
+    font-weight: 600;
 }
 
 .btn-view-all:before {
@@ -7253,6 +7252,7 @@ form#frm {
 
 .result-list-card .content-info .summary3 em.wtype2 {
     color: #F86048;
+    margin-left: 4px;
 }
 
 .result-list-card .content-info .summary3 em.wtype3 {
@@ -7668,27 +7668,40 @@ form#frm {
     overflow: visible;
 }
 
-/* 2x2 그리드 레이아웃 */
+/* KeenSlider 컨테이너 */
 .hot-list .slider-wrap {
+    overflow: hidden;
+}
+
+/* 슬라이드 내부 2x2 그리드 */
+.hot-list .hot-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 28px;
-    overflow: visible;
+    gap: 10px;
+    width: 100%;
 }
 
 .hot-list .keen-slider__slide {
-    padding: 0;
+    padding: 4px;
+    min-width: 100%;
+    width: 100%;
+}
+
+/* 그리드 아이템 (링크) 높이 설정 */
+.hot-list .hot-grid > a {
+    display: flex;
+    flex-direction: column;
 }
 
 .hot-list .thumb {
     position: relative;
     width: 100%;
-   
     padding: 80% 0 0;
-    border: 1px solid #ccc;
+    border: 1px solid #fcf8f8;
     background: #fff;
     overflow: hidden;
-    border-radius: 30px;
+    border-radius: 25px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .hot-list .thumb img {
@@ -7709,7 +7722,7 @@ form#frm {
     display: block;
     margin: 6px 4px 2px;
     font-size: 0.8125rem;
-    font-weight: 500;
+    font-weight: 600;
     color: #222;
     text-align: center;
     overflow: hidden;
@@ -7961,9 +7974,7 @@ form#frm {
     padding-bottom: 0;
 }
 
-.page-view .secondary-title {
-    font-size: 1.0625rem;
-}
+
 
 .top-visual {
     position: relative;
@@ -8327,18 +8338,27 @@ form#frm {
 
 .view-header .title-wrap {
     position: relative;
+    
 }
 
 .view-header .title-wrap .container {
     padding-bottom: 0;
+   
 }
 
 .view-header .summary {
     position: relative;
 }
 
+/* 구인정보 요약 섹션 래퍼 */
+.summary-wrapper {
+    margin-top: 20px;
+    border-top: 2px solid #E5E5E5;
+    
+}
+
 .recruit-period {
-    margin: 0 0 -22px;
+    
     padding: 0 0 0 0.875rem;
     font-size: 0.8125rem;
     color: #222;
@@ -8346,6 +8366,8 @@ form#frm {
     line-height: 1.1;
     background: url("../img/ic_date_range.svg") no-repeat 0 50%;
     background-size: 0.6875rem auto;
+    margin-top: 10px;
+    
 }
 
 .recruit-period em {
@@ -8355,7 +8377,7 @@ form#frm {
 }
 
 .view-title {
-    margin: 0 2.8125rem 0.4347826087em 0;
+
     font-size: 1.4375rem;
     font-weight: 700;
     line-height: 1.3333333333;
@@ -9877,7 +9899,7 @@ form#frm {
 }
 
 .introduce-wrap {
-    font-size: 0.875rem;
+    font-size: 1.1rem;
     color: #222;
     line-height: 2.7777777778;
     word-break: keep-all;
@@ -11694,7 +11716,7 @@ form#frm {
 }
 
 .item-info-summary .info-table .value {
-    font-size: 0.875rem;
+    font-size: 1.1rem;
 }
 
 .item-info-summary .view-all {

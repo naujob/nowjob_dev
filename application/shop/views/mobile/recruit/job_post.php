@@ -162,6 +162,7 @@ function formatPhoneNumber($number)
     .view-desc .desc.pinching {
         cursor: grabbing;
     }
+    
 </style>
 <div class="page page-view">
     <div class="top-bar">
@@ -208,7 +209,7 @@ function formatPhoneNumber($number)
                     </div>
                 <?php endif; ?>
             </div>
-            <a href="javascript:void(0);" class="bigsize"><img src="/resource/shop/web/img/bigsize.png" /></a>
+            <!-- <a href="javascript:void(0);" class="bigsize"><img src="/resource/shop/web/img/bigsize.png" /></a> -->
         </div>
 
         <script>
@@ -253,7 +254,7 @@ function formatPhoneNumber($number)
                         <em><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></em>
                     </p>
                     <!-- 신고하기 -->
-                    <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                    <!-- <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button> -->
                 </div>
             </div>
 
@@ -306,9 +307,10 @@ function formatPhoneNumber($number)
                 });
             </script>
 
-            <div class="summary">
+            <div class="summary-wrapper">
+                <div class="summary">
                 <div class="container">
-                    <h3 class="secondary-title">구인정보</h3>
+                    <h3 class="secondary-title jobinfo-title">구인정보</h3>
                     <table class="info-table">
                         <caption><span class="sr-text">구인정보</span></caption>
                         <colgroup>
@@ -416,6 +418,7 @@ function formatPhoneNumber($number)
                 </div>
             </div>
         </div>
+            </div>
 
         <div class="section view-benefit">
             <div class="container">
@@ -441,7 +444,7 @@ function formatPhoneNumber($number)
                 <p class="desc-guide">상세요강을 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
                 <div class="desc-clip">
                     <div class="desc" style="width: 100%;">
-                        <p><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
+                        <p class="desc-content" style="font-size: 1.1rem;"><?= str_replace("\n", "<br/>", $info["rc_desc"]) ?></p><br>
                     </div>
                 </div>
                 <div class="hashtag">

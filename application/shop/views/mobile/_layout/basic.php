@@ -1,6 +1,9 @@
 <?php
-$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+// https://www.nowjob.com
+$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/'); 
+// https://nowjob.co.kr:3030
 $socket_base_url = rtrim($this->config->item('socket_base_url') ?: $app_base_url, '/');
+//서버와 실시간으로 통신하기 위해 필요한 자바스크립트 파일(socket.io.js)이 있는 주소
 $socket_io_script_url = $this->config->item('socket_io_script_url');
 if (!$socket_io_script_url) {
   $socket_io_script_url = $socket_base_url . '/socket.io/socket.io.js';
@@ -18,6 +21,7 @@ if (!$socket_io_script_url) {
   <meta name="format-detection" content="address=no, email=no, telephone=no">
   <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
   <?php
+  // $_SERVER['REQUEST_URI']: 사용자가 지금 어떤 페이지 주소로 접속했는지 알려주는 정보 /member/login
   $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
   $is_login_page = (strpos($request_uri, '/member/login') !== false) || (strpos($request_uri, '/member/nowjob_login') !== false);
   $is_home_page = (strpos($request_uri, '/home') !== false) || (strpos($request_uri, '/index_mem') !== false);

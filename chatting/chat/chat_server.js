@@ -239,6 +239,19 @@ app.use(bodyParser.json());
 
 //서버 시작
 server.listen(port, () => {
+	// 서버 시작 로그
+	$common.writeLog('========== 채팅 서버 시작 ==========');
+	$common.writeLog('포트: ' + port);
+	$common.writeLog('환경: ' + (is_dev_runtime ? 'development' : 'production'));
+	$common.writeLog('========== 환경변수 정보 ==========');
+	$common.writeLog('APP_ENV: ' + process.env.APP_ENV);
+	$common.writeLog('CHAT_SERVER_PORT: ' + process.env.CHAT_SERVER_PORT);
+	$common.writeLog('CHAT_MONGO_DB: ' + process.env.CHAT_MONGO_DB);
+	$common.writeLog('CHAT_MONGO_URL: ' + process.env.CHAT_MONGO_URL);
+	$common.writeLog('CHAT_MYSQL_HOST: ' + process.env.CHAT_MYSQL_HOST);
+	$common.writeLog('CHAT_MYSQL_DB: ' + process.env.CHAT_MYSQL_DB);
+	$common.chkLog('채팅 서버가 포트 ' + port + '에서 시작되었습니다.');
+
 	//데이터베이스 초기화
 	$db.init();
 

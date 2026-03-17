@@ -314,18 +314,23 @@ if (count($banner_list) > 0) {
     font-weight: 600;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em {
+  .result-list .content-info .desc .desc2 .wtype .worktype {
+    display: flex;
+    gap: 5px;
+  }
+
+  .result-list .content-info .desc .desc2 .wtype .worktype em {
     position: relative;
     display: inline-block;
     font-style: normal;
     color: #333;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em:not(:last-child) {
+  .result-list .content-info .desc .desc2 .wtype .worktype em:not(:last-child) {
     padding-right: 5px;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em:not(:last-child)::after {
+  .result-list .content-info .desc .desc2 .wtype .worktype em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
@@ -337,15 +342,15 @@ if (count($banner_list) > 0) {
     border-right: 1px solid #777;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em.wtype1 {
+  .result-list .content-info .desc .desc2 .wtype .worktype em.wtype1 {
     color: #3a70db;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em.wtype2 {
+  .result-list .content-info .desc .desc2 .wtype .worktype em.wtype2 {
     color: #F86048;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em.wtype3 {
+  .result-list .content-info .desc .desc2 .wtype .worktype em.wtype3 {
     color: #1B9D7D;
   }
 
@@ -514,8 +519,8 @@ if (count($banner_list) > 0) {
               </div>
             </div>
             <div class="desc2">
-              <div class="summary">
-                <p class="wtype">{{rt_work_type}}</p>
+              <div class="summary wtype">
+                {{rt_work_type}}
               </div>
               <p class="area">{{ad_addr}}</p>
             </div>
@@ -549,7 +554,7 @@ if (count($banner_list) > 0) {
         </div>
         <p class="title"><strong><a href="/recruit/job_post/{{rc_idx}}" target="_blank">{{rc_name}}</a></strong></p>
         <div class="meta">
-          <p class="type">{{rt_work_type}}</p>
+          <div class="type">{{rt_work_type}}</div>
           <p>{{rc_nation_nm}}</p>
           <p>{{rc_age_nm}}</p>
         </div>
@@ -721,12 +726,12 @@ if (count($banner_list) > 0) {
       var $categoryHtml = $images.parent().html();
       $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
 
-      $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
+      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
 
       if (row.rc_price_type.indexOf('협의') > -1) {
         $content = $content.replaceAll("{{rc_price_type}}", "");
       } else {
-        $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
+        $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
       }
 
       if (row.rc_price_type.indexOf('협의') > -1) {
@@ -789,11 +794,11 @@ if (count($banner_list) > 0) {
           $images.slice(2).remove();
           var $categoryHtml = $images.parent().html();
           $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-          $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
+          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
           if (row.rc_price_type.indexOf('협의') > -1) {
             $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
           } else {
-            $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
+            $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
           }
           if (row.rc_price_type.indexOf('협의') > -1) {
             $content = $content.replaceAll("{{rc_price_pay}}", "급여협의");
@@ -839,66 +844,6 @@ if (count($banner_list) > 0) {
 
       }
     });
-  }
-
-  function getConvertWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    // "시간협의"를 "근무협의"로 변환
-    if (work_type.includes('시간협의')) {
-      work_type = work_type.replace(/시간협의/g, '근무협의');
-    }
-    let items = [];
-    const spanRegex = /<span>(.*?)<\/span>/g;
-    let match;
-    while ((match = spanRegex.exec(work_type)) !== null) {
-      items.push(match[1]);
-    }
-    if (items.length === 0) {
-      items = work_type.split(/\s*,\s*/);
-    }
-    const item_set = [...new Set(items.map(s => s.trim()))];
-    const has_jugan = item_set.includes('주간');
-    const has_yagan = item_set.includes('야간');
-    const has_2shift = item_set.includes('2교대');
-    if (has_jugan && has_yagan && has_2shift) {
-      return '<em class="wtype0">근무협의</em>';
-    }
-    // "근무협의"가 단독으로 있는 경우 처리
-    if (item_set.length === 1 && item_set[0] === '근무협의') {
-      return '<em class="wtype0">근무협의</em>';
-    }
-    let result = '';
-    item_set.forEach(text => {
-      if (text === '') return;
-      let cls = '';
-      if (text === '주간') {
-        cls = 'wtype1';
-      } else if (text === '야간') {
-        cls = 'wtype2';
-      } else if (text === '2교대') {
-        cls = 'wtype3';
-      } else if (text === '근무협의') {
-        cls = 'wtype0';
-      }
-      result += `<em class="${cls}">${text}</em>`;
-    });
-    return result;
-  }
-
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
-    const types = rc_price_type.split(',');
-    if (types.length === 1) {
-      return `<em class="on">${types[0]}</em>`;
-    }
-    return types.map(type => {
-      if (type === rc_price_rep) {
-        return `<em class="on">${type}</em>`;
-      } else {
-        return `<em>${type}</em>`;
-      }
-    }).join('');
   }
 
   function getHashTagJS(hash, max = 10, rc_work) {

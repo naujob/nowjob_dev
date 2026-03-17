@@ -58,7 +58,7 @@
 
 <?php if ($banner != null) : ?>
   <div class="top-visual">
-    <div class="visual-content">
+   
       <!-- 채용공고 작성 버튼: 기업회원 + resume/hr_list에서만 보이게 -->
       <?php if ($mm_type === "COMP" && strpos(current_url(), "/resume/hr_list") !== false) : ?>
             <a href="#" class="btn top-visual-action-btn" id="btnRecruitList">채용공고 등록</a>
@@ -71,6 +71,6 @@
         <img src="<?= $banner["bg_img"] ?>" alt="">
       </div>
 
-    </div>
+    
   </div>
 <?php endif; ?>

@@ -304,7 +304,7 @@ function fRemoveBigAdr($arg)
                         </tbody>
                     </table>
                     <!-- 신고하기 -->
-                    <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                    <!-- <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button> -->
                 </div>
             </div>
         </div>

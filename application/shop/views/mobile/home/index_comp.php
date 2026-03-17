@@ -562,7 +562,7 @@ if ($g_ios_publish == true) {
         <ol class="result-list result-list-card">
         </ol>
         <!-- //목록 -->
-        <a href="/recruit/job_list" class="btn-view-all" style="top: 0.90rem;font-weight: 600;">더보기</a>
+        <a href="/recruit/job_list" class="btn-view-all">더보기</a>
       </div>
     </div>
 

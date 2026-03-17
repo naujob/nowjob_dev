@@ -110,6 +110,27 @@ if ($g_ios_publish == true) {
     });
   </script>
 <?php endif; ?>
+
+<script>
+  // 지금 뜨는 업체 슬라이더 초기화 (조건 밖에서 실행)
+  window.addEventListener('DOMContentLoaded', function() {
+    var hotSlider = document.querySelector('.hot-list .slider-wrap');
+
+    if (hotSlider && typeof KeenSlider !== 'undefined') {
+      // 이미 초기화되었으면 스킵
+      if (!hotSlider.__keenslider__) {
+        new KeenSlider(hotSlider, {
+          loop: true,  // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
+          slides: { perView: 1 },
+          drag: true,
+          dragMinDist: 0,
+          rubberband: true,  // 끝에서 탄력적인 바운스
+          renderMode: 'performance'  // 성능 최적화
+        });
+      }
+    }
+  });
+</script>
 <style>
   /* 홈 페이지 특화 스타일 */
   .result-list-card .content-li {
@@ -144,6 +165,8 @@ if ($g_ios_publish == true) {
   .result-list-card .content-info .summary2 .period em.on {
     color: #1b9d7d;
   }
+
+
 
   .section .container {
     padding-top: 0;
@@ -187,14 +210,7 @@ if ($g_ios_publish == true) {
     letter-spacing: -2px;
   }
 
-  .btn-view-all {
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 1.4375rem;
-    font-size: 0.8125rem;
-    font-weight: 300;
-  }
+ 
 
   .section+.section {
     margin-top: 0;
@@ -373,25 +389,30 @@ if ($g_ios_publish == true) {
     
     <!--지금뜨는업체-->
     <div class="section" style="border-bottom: none;">
-      <div class="container" style="padding-top: 1.15rem; padding-bottom: 1.15rem;">
+      <div class="container">
         <h2 class="secondary-title">지금 뜨는 업체</h2>
         <!-- <a href="/recruit/clist" class="btn-view-all">더보기</a> -->
         <div class="hot-list">
-          <div class="slider-wrap">
+          <div class="slider-wrap keen-slider">
             <?php
-              // 최대 4개 업체만 표시 (2x2 그리드)
-              $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 4) : array();
-              foreach ($limited_up_list as $row) :
+              // 최대 8개 업체 (2페이지 × 4개)
+              $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
+              // 4개씩 청크로 분할 (한 슬라이드 = 2x2 그리드)
+              $chunked_up_list = array_chunk($limited_up_list, 4);
+              foreach ($chunked_up_list as $chunk) :
             ?>
               <div class="keen-slider__slide">
-                <a href="/recruit/company/<?= $row["mm_idx"] ?>">
-                  <!-- 로고 -->
-                  <div class="thumb">
-                    <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
-                    <p class="name" style="position: absolute; bottom: 10%; /* 26%; */ width: 100%; text-align: center; font-size: 0.7375rem;"><?= $row["mm_comp_name"] ?></p>
-
-                  </div>
-                </a>
+                <div class="hot-grid">
+                  <?php foreach ($chunk as $row) : ?>
+                    <a href="/recruit/company/<?= $row["mm_idx"] ?>">
+                      <!-- 로고 -->
+                      <div class="thumb">
+                        <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
+                        <p class="name" style="position: absolute; bottom: 5%; /* 26%; */ width: 100%; text-align: center; font-size: 1rem;"><?= $row["mm_comp_name"] ?></p>
+                      </div>
+                    </a>
+                  <?php endforeach; ?>
+                </div>
               </div>
             <?php endforeach; ?>
           </div>
@@ -404,7 +425,7 @@ if ($g_ios_publish == true) {
         <h2 class="secondary-title">추천공고</h2>
         <ol class="result-list result-list-card">
         </ol>
-        <a href="/recruit/job_list" class="btn-view-all" style="font-weight: 600;">더보기</a>
+        <a href="/recruit/job_list" class="btn-view-all">더보기</a>
       </div>
     </div>
 

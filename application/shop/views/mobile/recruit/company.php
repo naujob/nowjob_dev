@@ -44,6 +44,9 @@ if (count($banner_list) > 0) {
     position: relative;
     height: 300px;
     width: 100%;
+    margin-top: 25px;
+    margin-bottom: 25px;;
+  
   }
 
   .comp-info .comp-img {
@@ -90,14 +93,7 @@ if (count($banner_list) > 0) {
   }
 </style>
 <div class="page-recruit">
-  <div class="header">
-    <h1 class="top-logo"><span class="sr-text">지금 뜨는, 좋은 일자리 NOW JOB</span></h1>
-    <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
-      <span class="sr-text">미확인 알림메세지</span>
-      <!-- 미확인 알림개수 -->
-      <span class="cnt"><?= $g_alarm_cnt ?></span>
-    </a>
-  </div><!-- //header -->
+  <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/main_visual_header.php'); ?>
 
   <div class="page-content">
     <div class="comp-info">

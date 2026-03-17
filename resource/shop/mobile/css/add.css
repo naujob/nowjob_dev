@@ -68,7 +68,7 @@ body {
 /* top-bar 내부의 btn-back 클릭 영역을 top-bar 높이만큼 확장 */
 .top-bar .btn-back {
     position: absolute;
-    top: 2px;
+    top: 0px;
     left: -13px;
     height: 100%;
     width: 4rem;
