@@ -137,13 +137,7 @@ if ($g_ios_publish == true) {
     border: 1px solid #EB5349;
   }
 
-  .result-list-card .content-info .summary3 {
-    color: #000;
-    height: 17px;
-    text-align: right;
-    font-size: 16px;
-    font-weight: 600;
-  }
+ 
 
   .result-list-card .content-info .summary3 em {
     padding-left: 5px;

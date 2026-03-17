@@ -5252,7 +5252,7 @@ body {
 
 .section {
     position: relative;
-    border-bottom: 1px solid #E5E5E5;
+    border-bottom: 2px solid #E5E5E5;
     background: #fff;
     
 }
@@ -8353,7 +8353,7 @@ form#frm {
 /* 구인정보 요약 섹션 래퍼 */
 .summary-wrapper {
     margin-top: 20px;
-    border-top: 2px solid #E5E5E5;
+    border-top: 1px solid #fff;
     
 }
 
@@ -8434,6 +8434,7 @@ form#frm {
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
     list-style: none;
+    padding-top: 0.3571428571em;
 }
 
 .benefit-group .item {

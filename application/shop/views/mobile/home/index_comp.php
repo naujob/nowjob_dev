@@ -241,16 +241,7 @@ if ($g_ios_publish == true) {
     color: #1b9d7d;
   }
 
-  .content-info .summary3 {
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0;
-    color: #3a70db;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-style: normal;
-  }
+ 
 
   .content-info .summary3 p {
     margin: 0;
