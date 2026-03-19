@@ -136,10 +136,15 @@
 </style>
 <div id="advancedSearch" class="layer-panel" tabindex="-1">
   <div class="panel-container">
-    <div class="panel-header">
-      <h2 class="panel-title">인재정보 상세검색</h2>
-      <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
-    </div>
+    <?php
+    // top-bar.php 파일로 헤더 대체 (패널 헤더 컴포넌트화)
+    $top_bar = array(
+        'title'      => '인재정보 상세검색',
+        'back_type'  => 'none',
+        'right_html' => '<button type="button" aria-controls="advancedSearch" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>'
+    );
+    include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
+    ?>
     <div class="panel-body">
       <div class="panel-content">
 
@@ -1013,15 +1018,11 @@
   }
 
   $(".btn-close-panel").click(function() {
-    var $panel = $("#advancedSearch")[0];
-    $("#advancedSearch").removeClass("on");
+    // 패널 닫기 (on 클래스 제거로 CSS 애니메이션 트리거)
+    var $panel = $("#advancedSearch");
+    $panel.removeClass("on");
 
-    // closePanel 함수 호출 (main.js의 함수 활용)
-    if (typeof window.closePanel === 'function' && $panel) {
-      window.closePanel($panel);
-    }
-
-    // body 스타일 복구
+    // body 스타일 및 스크롤 복구 (여러 시점에서 확인)
     setTimeout(function() {
       restoreBodyScroll();
     }, 50);
@@ -1058,14 +1059,10 @@
     $(list_id).html("");
     getBoardList("Y");
 
-    // 팝업 닫기 (검색 실행 후에 닫기)
-    // closePanel을 호출하지 않고 수동으로 처리 (closePanel이 체크박스를 초기화함)
-    var $panel = $("#advancedSearch")[0];
-    if ($panel) {
-      $panel.classList.remove('on');
-      document.body.style.overflow = '';
-      $panel.scrollTo(0, 0);
-    }
+    // 패널 닫기 (검색 실행 후)
+    var $panel = $("#advancedSearch");
+    $panel.removeClass("on");
+    $panel.scrollTop(0);  // 패널 내부 스크롤을 맨 위로 리셋
 
     // body 스타일 즉시 초기화
     restoreBodyScroll();
