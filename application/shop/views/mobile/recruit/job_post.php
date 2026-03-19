@@ -36,12 +36,7 @@ function formatPhoneNumber($number)
     }
 
     /* 기업회원이 자신의 채용공고를 볼 때 view-footer 버튼 스타일 */
-    .view-footer {
-        display: flex;
-        gap: 0;
-        background-color: #fff;
-        padding-bottom: 0;
-    }
+ 
 
     .view-footer .btn-edit {
         flex: 1;
@@ -51,22 +46,10 @@ function formatPhoneNumber($number)
         font-weight: 700;
     }
 
-    .view-footer .btn-promotion {
-        flex: 1;
-        background-color: #1B9D7D;
-        color: #fff;
-        font-weight: 700;
-    }
+   
 
     /* view-footer 내 버튼과 링크에 padding 및 font-size 적용 */
-    .view-footer #btnEditRecruit,
-    .view-footer #btnPromotionRecruit,
-    .view-footer #btnRecruit,
-    .view-footer a.btn.btn-primary {
-        padding: 1.3rem 0;
-        font-size: 1.3rem;
-        font-weight: 900;
-    }
+   
 
     .info-table .pay {
         align-items: center;

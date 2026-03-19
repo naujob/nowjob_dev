@@ -1,12 +1,14 @@
-<div class="page page-mypage-view">
-  <div class="top-bar">
-    <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-    <h1 class="title">쿠폰 관리</h1>
-  </div><!-- //top-bar -->
+<div class="page page-mypage-view page-coupon-list">
+  <?php
+  $top_bar = array(
+      'title' => '쿠폰 관리',
+  );
+  include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
+  ?>
 
   <div class="page-content">
 
-    <div class="tab-container" style="overflow: auto; position: absolute; width: 100%;">
+    <div class="tab-container">
       <ul class="tab-list">
         <li <?php if ($_GET[gbn] == 'N') {
               echo "class=\"on\"";
@@ -34,17 +36,17 @@
                     <p class="date">사용기간 : <em><?= str_replace("-", ".", substr($row["cl_use_sdate"], 0, 10)) ?>~<?= str_replace("-", ".", substr($row["cl_use_edate"], 0, 10)) ?></em></p>
                     <p class="date" style="color:#aaa;">최소사용금액 : <em><?= $row["cl_limit_price"] ?></em></p>
                     <?php if ($row["cl_use_yn"] == "Y") { ?>
-                      <a href="" style="color: #fff; background-color: #57CCAF; padding: 5px 10px; border-radius: 7px; margin-top: 6px; display: inline-block; width: fit-content;">사용완료</a>
+                      <a href="" class="coupon-status-btn">사용완료</a>
                     <?php } else if ($row["cl_use_edate"] < date("Y-m-d H:i:s")) { ?>
-                      <a href="" style="color: #fff; background-color: #57CCAF; padding: 5px 10px; border-radius: 7px; margin-top: 6px; display: inline-block; width: fit-content;">기간만료</a>
+                      <a href="" class="coupon-status-btn">기간만료</a>
                     <?php } else { ?>
-                      <a href="javascript:_replace('/compage/point_charge_step2/<?= $row["cl_idx"] ?>');" onclick="/* return fGoPointPay('<?= $row["cl_price"] ?>','<?= $row["cl_dan"] ?>'); */" style="color: #fff; background-color: #57CCAF; padding: 5px 10px; border-radius: 7px; margin-top: 6px; display: inline-block; width: fit-content;">사용하기</a>
+                      <a href="javascript:_replace('/compage/point_charge_step2/<?= $row["cl_idx"] ?>');" onclick="/* return fGoPointPay('<?= $row["cl_price"] ?>','<?= $row["cl_dan"] ?>'); */" class="coupon-status-btn">사용하기</a>
                     <?php } ?>
                   </div>
                   <?php if ($row["cl_use_yn"] == "Y") { ?>
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; opacity: 0.7; text-align: center; padding-top: 19%; font-size: 26px; color: #fff;">사용 쿠폰</div>
+                    <div class="coupon-overlay">사용 쿠폰</div>
                   <?php } else if ($row["cl_use_edate"] < date("Y-m-d H:i:s")) { ?>
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; opacity: 0.7; text-align: center; padding-top: 19%; font-size: 26px; color: #fff;">기간 만료</div>
+                    <div class="coupon-overlay">기간 만료</div>
                   <?php } ?>
                 </div>
               </li>

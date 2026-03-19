@@ -40,7 +40,7 @@
                     </div>
                 </div>
             <?php endif; ?>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button id="btnDefault" type="button" class="btn btn-primary">대표 이력서로 설정</button>
             </div>
         </form>

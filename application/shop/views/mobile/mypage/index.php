@@ -2,11 +2,12 @@
   .page.page-mypage .profile .container .thumb-wrap form#frm {
     top: 0vh;
   }
+  
 </style>
 <div class="page page-mypage">
   <div class="page-content">
     <div class="profile">
-      <div class="container">
+      <div class="container settings-profile">
         <div class="thumb-wrap">
           <form id="frm" onsubmit="return false">
             <label class="form-pic">
@@ -99,15 +100,19 @@
 <!-- 설정 -->
 <div id="settings" class="layer-panel" tabindex="-1">
   <div class="panel-container">
-    <div class="panel-header">
-      <h2 class="panel-title">설정</h2>
-      <button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
-    </div>
+    <?php
+    $top_bar = array(
+        'title'      => '설정',
+        'back_type'  => 'none',
+        'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>'
+    );
+    include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
+    ?>
     <div class="panel-body">
       <div class="panel-content">
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">가입자정보
               <?php
               // SNS 로그인 여부 확인
@@ -154,7 +159,7 @@
         </div>
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">회원정보 수정</h3>
             <ul class="settings-list">
               <?php
@@ -193,7 +198,7 @@
         </div>
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">알림</h3>
             <ul class="settings-list">
               <li>
@@ -204,7 +209,7 @@
         </div>
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <ul class="settings-menus">
               <li><a href="/setting/notice" class="menu">공지사항</a></li>
               <li><a href="/setting/community" class="menu">커뮤니티</a></li>
@@ -218,7 +223,7 @@
         </div>
 
         <div class="section is-last">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">약관</h3>
             <ul class="settings-list">
               <li><a href="/setting/site_policy" class="menu">개인회원 이용약관</a></li>

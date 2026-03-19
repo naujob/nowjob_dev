@@ -1,9 +1,11 @@
 <div class="page page-mypage-view">
-    <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">중고상품 관리</h1>
-        <a href="/trade/trade_write" class="btn-action">중고거래 등록</a>
-    </div><!-- //top-bar -->
+    <?php
+    $top_bar = array(
+        'title' => '중고상품 관리',
+        'right_html' => '<a href="/trade/trade_write" class="btn-action">중고거래 등록</a>',
+    );
+    include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
+    ?>
 
     <div class="page-content">
         <div class="section is-last">

@@ -21,7 +21,7 @@
               </ol>
               <!-- //목록 -->
             </div>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
               <button id="btnCancel" type="button" class="btn btn-secondary js-remove">취소하기</button>
             </div>
         </div>

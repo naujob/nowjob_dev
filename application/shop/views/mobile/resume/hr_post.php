@@ -73,37 +73,14 @@ function fRemoveBigAdr($arg)
     }
 
     /* 개인회원이 자신의 이력서를 볼 때 view-footer 버튼 스타일 */
-    .view-footer {
-        display: flex;
-        gap: 0;
-        background-color: #fff;
-        padding-bottom: 0;
-    }
+  
 
-    .view-footer .btn-edit {
-        flex: 1;
-        background-color: #57CCAF;
-        color: #fff;
-        border: 1px solid #57CCAF;
-        font-weight: 700;
-    }
+  
 
-    .view-footer .btn-promotion {
-        flex: 1;
-        background-color: #1B9D7D;
-        color: #fff;
-        font-weight: 700;
-        
-    }
+   
 
     /* view-footer 내 버튼에 padding, font-size, font-weight 적용 */
-    .view-footer #btnEditResume,
-    .view-footer #btnPromotionResume,
-    .view-footer .btnRequest {
-        padding: 1.3rem 0;
-        font-size: 1.3rem;
-        font-weight: 900;
-    }
+  
    .panel-body .post-list{
     position: relative;
     top: -1.75rem;

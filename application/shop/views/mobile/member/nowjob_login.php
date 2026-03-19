@@ -40,7 +40,7 @@
     /* 로그인 페이지 입력 필드 스타일 2025-07-31 */
     .page-login .nowjob-input::placeholder {
         font-family: inherit;
-        font-weight: 300;
+        font-weight: 500;
         color: #BEBFC9;
         opacity: 1;
         text-indent: 0 !important;

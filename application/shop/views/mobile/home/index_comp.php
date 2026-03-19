@@ -536,9 +536,9 @@ if ($g_ios_publish == true) {
   <div class="page-content">
   <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
-    <div class="section">
+    <div class="section index_comp">
       <div class="container">
-        <h2 class="secondary-title">추천인재</h2>
+        <h2 class="secondary-title index">추천인재</h2>
         <div class="recomm-slider person">
           <div class="slider-wrap keen-slider" id="recomm-list">
           </div>
@@ -546,14 +546,14 @@ if ($g_ios_publish == true) {
       </div>
     </div>
 
-    <div class="section">
+    <div class="section index_comp">
       <div class="container">
         <h2 class="secondary-title">추천공고</h2>
         <!-- 목록 -->
         <ol class="result-list result-list-card">
         </ol>
         <!-- //목록 -->
-        <a href="/recruit/job_list" class="btn-view-all">더보기</a>
+        <!-- <a href="/recruit/job_list" class="btn-view-all">더보기</a> -->
       </div>
     </div>
 

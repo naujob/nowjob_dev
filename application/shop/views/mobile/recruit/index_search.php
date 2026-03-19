@@ -226,7 +226,7 @@
  </style>
  <div id="advancedSearch" class="layer-panel" tabindex="-1">
    <div class="panel-container">
-     <div class="panel-header">
+     <div class="panel-header top-bar">
        <h2 class="panel-title">채용정보 상세검색</h2>
        <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
      </div>
@@ -466,7 +466,7 @@
        </div>
      </div>
      <div class="panel-footer">
-       <div class="sticky-bottom dual">
+       <div class="sticky-bottom view-footer">
          <button id="btnReset" type="button" class="btn btn-reset">초기화</button>
          <button id="btnSearch" type="button" class="btn btn-primary btn-search">검색</button>
        </div>

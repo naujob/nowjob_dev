@@ -382,29 +382,45 @@ if ($g_ios_publish == true) {
     
     
     <!--지금뜨는업체-->
-    <div class="section" style="border-bottom: none;">
+    <div class="section">
       <div class="container">
-        <h2 class="secondary-title">지금 뜨는 업체</h2>
+        <h2 class="secondary-title index">지금 뜨는 업체</h2>
         <!-- <a href="/recruit/clist" class="btn-view-all">더보기</a> -->
         <div class="hot-list">
           <div class="slider-wrap keen-slider">
             <?php
-              // 최대 8개 업체 (2페이지 × 4개)
+              // 최대 8개 업체 (2슬라이드 × 4개)
               $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
               // 4개씩 청크로 분할 (한 슬라이드 = 2x2 그리드)
               $chunked_up_list = array_chunk($limited_up_list, 4);
+
+              // 마지막 청크 null 패딩
+              if (!empty($chunked_up_list)) {
+                $last_idx = count($chunked_up_list) - 1;
+                while (count($chunked_up_list[$last_idx]) < 4) {
+                  $chunked_up_list[$last_idx][] = null;
+                }
+              }
+
               foreach ($chunked_up_list as $chunk) :
             ?>
               <div class="keen-slider__slide">
                 <div class="hot-grid">
                   <?php foreach ($chunk as $row) : ?>
-                    <a href="/recruit/company/<?= $row["mm_idx"] ?>">
-                      <!-- 로고 -->
-                      <div class="thumb">
-                        <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
-                        <p class="name" style="position: absolute; bottom: 5%; /* 26%; */ width: 100%; text-align: center; font-size: 1rem;"><?= $row["mm_comp_name"] ?></p>
+                    <?php if ($row !== null) : ?>
+                      <!-- 실제 업체 아이템 -->
+                      <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
+                        <div class="thumb">
+                          <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
+                          <p class="name"><?= $row["mm_comp_name"] ?></p>
+                        </div>
+                      </a>
+                    <?php else : ?>
+                      <!-- 빈 패딩 셀: 그리드 자리 유지 -->
+                      <div class="hot-item hot-item--empty">
+                        <div class="thumb"></div>
                       </div>
-                    </a>
+                    <?php endif; ?>
                   <?php endforeach; ?>
                 </div>
               </div>
@@ -419,10 +435,9 @@ if ($g_ios_publish == true) {
         <h2 class="secondary-title">추천공고</h2>
         <ol class="result-list result-list-card">
         </ol>
-        <a href="/recruit/job_list" class="btn-view-all">더보기</a>
+        <!-- <a href="/recruit/job_list" class="btn-view-all">더보기</a> -->
       </div>
     </div>
-
     <div class="footer">
       <p class="name">
         <span class="company-text"><strong>NOW D&I Co., Ltd (주)나우디앤아이</strong></span>
@@ -452,9 +467,10 @@ if ($g_ios_publish == true) {
         <p>Copyright NOW D&I Co., Ltd all right reserved.</p>
       </div>
     </div>
-
     <a href="#app" class="btn-top js-goto-top"><span class="sr-text">Top</span></a>
   </div><!-- //page-content -->
+
+
 
   <!-- bottom-nav -->
   <?php $select_menu = "home"; ?>

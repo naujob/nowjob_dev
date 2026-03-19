@@ -551,7 +551,9 @@ div[data-rc_idx],
     gap: 0;
 }
 
-.sticky-bottom.dual .btn {
+
+.btn.btn-reset {
+    background-color: #1a9276;
     flex: 1;
     height: 59px;
     border: 0;
@@ -562,10 +564,6 @@ div[data-rc_idx],
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.sticky-bottom.dual .btn.btn-reset {
-    background-color: #1a9276;
 
 }
 
@@ -951,6 +949,7 @@ object {
     vertical-align: middle;
     border: 0;
     background: #57CCAF;
+    font-size: 1.3rem;
 }
 
 .btn-primary:active {
@@ -2322,8 +2321,11 @@ fieldset {
 }
 
 
+.section.index {
+    border-bottom: none;
+}
 .secondary-title {
-    margin: 1.5rem 0px 0.875rem;
+    margin: 1.3rem 0px 1.1rem;
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.1;
@@ -2336,13 +2338,8 @@ fieldset {
     gap: 0.5rem;
 }
 
-.title-form .secondary-title {
-    margin: 1.5rem 0 0.875rem;
-}
 
-.title-form__aside {
-    margin: 1.5rem 0 0.875rem;
-}
+
 
 .detail-recruit-content__preview {
     display: inline-flex;
@@ -3406,7 +3403,6 @@ fieldset {
     left: 0;
     width: 100%;
     color: #fff;
-    padding: 1rem 1.4375rem 0.9375rem;
     background: #57CCAF;
 }
 
@@ -3416,9 +3412,18 @@ fieldset {
     background: inherit;
 }
 
+/* layer-panel 내부의 top-bar (통합 헤더) */
+
+.layer-panel .top-bar .title {
+    text-align: center;
+    max-width: 100%;
+  
+    flex: 1;
+}
+
 .layer-panel .panel-title {
     margin: -2px 0 0;
-    font-size: 1.1875rem;
+    font-size: 1.3rem;
     font-weight: 700;
     line-height: 1.1;
     text-align: center;
@@ -3516,15 +3521,7 @@ fieldset {
     opacity: 1;
 }
 
-.layer-panel .panel-footer .sticky-bottom {
-    position: fixed;
-    /* 기본 sticky-bottom 동작 유지 */
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding-bottom: 0;
-    z-index: 5;
-}
+
 
 .layer-panel.notify .panel-header {
     padding: 0;
@@ -5047,6 +5044,7 @@ body {
     position: sticky;
     top: 0;
     padding: 1.3rem 1.4375rem;
+    /* padding: 1rem 1.4375rem 0.9375rem; */
     color: #fff;
     background: #57CCAF;
     z-index: 5;
@@ -5252,7 +5250,7 @@ body {
 
 .section {
     position: relative;
-    border-bottom: 2px solid #E5E5E5;
+    border-bottom: 1px solid #E5E5E5;
     background: #fff;
     
 }
@@ -5263,7 +5261,10 @@ body {
 .section.is-last {
     border-bottom: 0;
 }
-
+.section .container.settings-profile {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
 .section .container {
     padding-bottom: 1.5625rem;
 }
@@ -5408,28 +5409,6 @@ body {
     display: none;
 }
 
-.sticky-bottom {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding-bottom: 0;
-    background: #fff;
-    z-index: 5;
-}
-
-.sticky-bottom .btn {
-    padding: 1.3rem 0;
-    font-size: 1.3rem;
-    font-weight: 900;
-    -webkit-box-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-    line-height: 1;
-}
 
 .bottom-nav {
     display: -webkit-box;
@@ -5440,7 +5419,7 @@ body {
     left: 0;
     right: 0;
     margin: auto 0 0;
-    padding: 0.625rem 1.4375rem 0.625rem;
+    /* padding: 1.3rem 1.4375rem; */
     -webkit-box-pack: justify;
     -ms-flex-pack: justify;
     justify-content: space-between;
@@ -5501,7 +5480,7 @@ body {
 }
 
 .bottom-nav .btn-toggle-menu {
-    width: 3.8125rem;
+    width: 2.8125rem;
     height: 3.8125rem;
     border-radius: 100%;
     border: 0;
@@ -6988,7 +6967,7 @@ form#frm {
 .btn-view-all {
     display: block;
     position: absolute;
-    top: 30px;
+    top: 16px;
     right: 1.4375rem;
     font-size: 0.8125rem;
     font-weight: 600;
@@ -7687,10 +7666,17 @@ form#frm {
     width: 100%;
 }
 
-/* 그리드 아이템 (링크) 높이 설정 */
-.hot-list .hot-grid > a {
+/* 그리드 아이템 — a/div 태그 무관하게 클래스로 통일 */
+.hot-list .hot-grid > .hot-item {
     display: flex;
     flex-direction: column;
+    text-decoration: none;
+}
+
+/* 빈 패딩 셀 — 그리드 공간 차지, 클릭 불가 */
+.hot-list .hot-grid > .hot-item--empty {
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .hot-list .thumb {
@@ -7718,10 +7704,14 @@ form#frm {
     transform: translate(-50%, -50%);
 }
 
+/* 업체명 */
 .hot-list .name {
     display: block;
-    margin: 6px 4px 2px;
-    font-size: 0.8125rem;
+    position: absolute;
+    bottom: 5%;
+    width: 100%;
+    margin: 0;
+    font-size: 1rem;
     font-weight: 600;
     color: #222;
     text-align: center;
@@ -7999,13 +7989,13 @@ form#frm {
 
 .top-visual .btn {
     display: inline-block;
-    min-width: 6.875rem;
-    padding: 0.5714285714em 1.4285714286em 0.7142857143em;
-    font-size: 3.3816425121vw;
+    min-width: 7rem;
+    padding: 0.5em 1em 0.5em;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #1B9D7D;
     vertical-align: top;
-    border-radius: 2px;
+    border-radius: 25px;
     background: #fff;
 }
 
@@ -8016,9 +8006,9 @@ form#frm {
 /* 상단 배너 액션 버튼 (채용공고/이력서 등록) */
 .top-visual-action-btn {
     position: absolute;
-    top: 7.5rem;
+    bottom: 25px;
     right: 1.5rem;
-    border: 1px solid #57CCAF;
+    
 }
 
 .top-visual .visual-img {
@@ -8351,11 +8341,7 @@ form#frm {
 }
 
 /* 구인정보 요약 섹션 래퍼 */
-.summary-wrapper {
-    margin-top: 20px;
-    border-top: 1px solid #fff;
-    
-}
+
 
 .recruit-period {
     
@@ -9283,19 +9269,39 @@ form#frm {
 }
 
 .view-footer .btn {
-    padding: 1.0625rem 0 1.0625rem;
+    /* padding: 1.0625rem 0 1.0625rem; */
+    padding: 1.3rem 0;
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;
     line-height: 1;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #fff;
+}
+.view-footer .btn-promotion {
+   
+    background-color: #1B9D7D;
+    color: #fff;
+    
+}
+
+.view-footer .btn-edit {
+
+    background-color: #57CCAF;
+    
+    border: 1px solid #57CCAF;
+    
+}
+.sticky-bottom.view-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+  
 }
 
 /* page-view 내부의 view-footer 버튼 패딩 조정 (recruit_view, resume_view 등) */
-.page-view .view-footer>button {
-    padding: 1.3rem 0;
-    font-size: 1.3rem;
-    font-weight: 900;
-}
+
 
 .vendor-links {
     display: -webkit-box;
@@ -11806,9 +11812,13 @@ form#frm {
 
 /* 설정 */
 #settings .secondary-title {
-    margin-bottom: 0.75rem;
+    margin: 0.3rem 0px 0.5rem;
     font-size: 1.0625rem;
 }
+
+/* #settings .section:first-of-type .secondary-title {
+    margin: 0rem 0px 0.5rem;
+} */
 
 #settings .btn-top {
     bottom: 10px;
@@ -11832,7 +11842,7 @@ form#frm {
 
 .settings-list .value {
     display: block;
-    margin: 0 0 0 6.25rem;
+    margin: 0 0 0 -4.75rem;
     padding: 4px 0;
     font-family: "Poppins", "Noto Sans KR", sans-serif;
     font-style: normal;
@@ -12923,3 +12933,48 @@ form#frm {
         page-break-inside: avoid;
     }
 }
+
+/* coupon status button */
+.coupon-status-btn {
+    color: #fff;
+    background-color: #57CCAF;
+    padding: 5px 10px;
+    border-radius: 7px;
+    margin-top: 6px;
+    display: inline-block;
+    width: fit-content;
+    text-decoration: none;
+}
+
+.coupon-status-btn:active,
+.coupon-status-btn:hover {
+    background-color: #4ab89f;
+}
+
+/* coupon overlay (used or expired) */
+.coupon-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: 0.7;
+    text-align: center;
+    padding-top: 19%;
+    font-size: 26px;
+    color: #fff;
+}
+
+/* coupon list page layout */
+.page-coupon-list .page-content {
+    padding-top: 0;
+}
+
+.page-coupon-list .tab-container {
+    position: static;
+    overflow: visible;
+    margin-top: 0;
+}
+
+

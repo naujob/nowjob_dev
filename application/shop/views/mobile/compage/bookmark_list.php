@@ -1,8 +1,10 @@
 <div class="page page-mypage-view">
-    <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">즐겨찾기 관리</h1>
-    </div><!-- //top-bar -->
+    <?php
+    $top_bar = array(
+        'title' => '즐겨찾기 관리',
+    );
+    include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
+    ?>
 
     <div class="page-content">
 

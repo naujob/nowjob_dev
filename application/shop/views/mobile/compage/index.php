@@ -43,7 +43,7 @@ function fBizNoMasking($bizNo)
   <div class="page-content">
 
     <div class="profile">
-      <div class="container">
+      <div class="container settings-profile">
         <div class="thumb-wrap">
           <form id="frm" onsubmit="return false">
             <label class="form-pic">
@@ -130,15 +130,19 @@ function fBizNoMasking($bizNo)
 <!-- 설정 -->
 <div id="settings" class="layer-panel" tabindex="-1">
   <div class="panel-container">
-    <div class="panel-header">
-      <h2 class="panel-title">설정</h2>
-      <button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
-    </div>
+    <?php
+    $top_bar = array(
+        'title'      => '설정',
+        'back_type'  => 'none',
+        'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>'
+    );
+    include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
+    ?>
     <div class="panel-body">
       <div class="panel-content">
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">기업정보
               <?php
               if ($mem_info == null || ($mem_info["mm_comp_num"] == "")) {
@@ -152,9 +156,9 @@ function fBizNoMasking($bizNo)
               <li style="display: block; height: 26px;">
                 <span class="label">사업자명</span>
                 <?php if ($mem_info == null || ($mem_info["mm_comp_num"] == "")) {   ?>
-                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -28px;">인증</button>
+                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -24px;">인증</button>
                 <?php } else {   ?>
-                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -28px;">변경</button>
+                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -24px;">변경</button>
                 <?php }        ?>
                 <em class="value" style="display:inline-block; float:right; height: 30px; margin-top: 0px;"><?= ($mem_info == null || ($mem_info["mm_comp_num"] == "")) ? "기업회원" : $mem_info["mm_comp_name"] ?></em></p>
               </li>
@@ -176,7 +180,7 @@ function fBizNoMasking($bizNo)
         </div>
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">가입자정보
               <?php
               // SNS 로그인 여부 확인
@@ -219,7 +223,7 @@ function fBizNoMasking($bizNo)
         </div>
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">회원정보 수정</h3>
             <ul class="settings-list">
               <?php
@@ -257,7 +261,7 @@ function fBizNoMasking($bizNo)
         </div>
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">알림</h3>
             <ul class="settings-list">
               <li>
@@ -268,7 +272,7 @@ function fBizNoMasking($bizNo)
         </div>
 
         <div class="section">
-          <div class="container">
+          <div class="container settings-profile">
             <ul class="settings-menus">
               <li><a href="/setting/notice" class="menu">공지사항</a></li>
               <li><a href="/setting/community" class="menu">커뮤니티</a></li>
@@ -282,7 +286,7 @@ function fBizNoMasking($bizNo)
         </div>
 
         <div class="section is-last">
-          <div class="container">
+          <div class="container settings-profile">
             <h3 class="secondary-title">약관</h3>
             <ul class="settings-list">
               <li><a href="/setting/site_policy2" class="menu">기업회원 이용약관</a></li>

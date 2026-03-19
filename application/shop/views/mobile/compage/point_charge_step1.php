@@ -45,7 +45,7 @@
                                  <?php endforeach; ?>
 
                              </div>
-                             <div class="sticky-bottom">
+                             <div class="sticky-bottom view-footer">
                                  <button id="btnNext" type="button" class="btn btn-primary">충전하기</button>
                              </div>
                          </form>

@@ -44,11 +44,7 @@ body {
     float: left;
 }
 
-/* top-bar 내부의 btn-replace 클릭 영역을 top-bar 높이만큼 확장 */
-.top-bar {
-    position: relative;
-    /* absolute 위치 지정을 위한 기준점 설정 (sticky와 호환) */
-}
+
 
 .top-bar .btn-replace {
     position: absolute;
