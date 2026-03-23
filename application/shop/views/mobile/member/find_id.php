@@ -21,7 +21,7 @@
                         <p class="error-2 help-msg is-fail hidden">등록된 휴대폰번호가 없습니다.</p>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button id="btnFind" type="button" aria-haspopup="dialog" class="btn btn-primary">찾기</button>
                     </div>
 

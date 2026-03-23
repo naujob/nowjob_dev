@@ -289,7 +289,7 @@
                         </div>
                     </div>
                     
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" id="btnStep" class="btn btn-primary">다음</button>
                     </div>
                 </form>

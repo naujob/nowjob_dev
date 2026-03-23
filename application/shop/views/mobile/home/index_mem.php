@@ -37,7 +37,7 @@ if ($g_ios_publish == true) {
         </div>
       </div>
       <div class="panel-footer">
-        <div class="sticky-bottom">
+      <div class="sticky-bottom view-footer">
           <button type="button" aria-controls="notice1Panel" onclick="setCookie('notice1Panel', 'hide', 1);return false;" class="btn btn-secondary js-toggle-panel">오늘 하루 열지 않기</button>
           <button type="button" aria-controls="notice1Panel" class="btn btn-primary js-toggle-panel">확인</button>
         </div>

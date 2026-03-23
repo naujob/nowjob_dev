@@ -132,7 +132,7 @@
       </div>
     </div>
     <div class="panel-footer">
-      <div class="sticky-bottom">
+      <div class="sticky-bottom view-footer">
         <button id="btnSearch" type="button" class="btn btn-primary">검색하기</button>
       </div>
     </div>

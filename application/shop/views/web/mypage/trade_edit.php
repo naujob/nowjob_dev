@@ -366,7 +366,7 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" aria-controls="terms1Panel" class="btn btn-primary js-toggle-panel">확인</button>
                 </div>
             </div>
@@ -388,7 +388,7 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" aria-controls="terms2Panel" class="btn btn-primary js-toggle-panel">확인</button>
                 </div>
             </div>

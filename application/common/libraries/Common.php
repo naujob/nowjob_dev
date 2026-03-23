@@ -327,9 +327,9 @@ class common
 		return str_pad($rand, 6, "0", STR_PAD_LEFT);
 	}
 
-	//class to object
+	//**'배열(Array)'**강제로 변환
 	function getClsArray($data)
-	{
+	{   
 		return json_decode(json_encode($data), true);
 	}
 
@@ -422,6 +422,7 @@ class common
 		if (!isset($_SESSION[$name])) {
 			return null;
 		} else {
+		// $array: 데이터를 쓰기 쉽게 하기 위해서 배열로 변환
 			$array = $this->getClsArray($_SESSION[$name]);
 			return $array;
 		}
@@ -438,7 +439,7 @@ class common
 	//접속경로 확인
 	function getLocation()
 	{
-		$headers = apache_request_headers();
+		$headers = apache_request_headers(); // 헤더에 적힌 정보들을 배열에 담는 함수
 		if (isset($headers["os_type"]) && $headers["os_type"] != "") {
 			return "M";
 		}
@@ -1184,12 +1185,17 @@ class common
 		return $data;
 	}
 
-	//sms 발송처리
+	//sms 발송처리 뿌리오
 	function sendSms($phone, $msg, $auth = "")
 	{
 		$db = DB('default', true);
 
 		$_api_url = 'https://message.ppurio.com/api/send_utf8_json.php';     // UTF-8 인코딩과 JSON 응답용 호출 페이지
+		// Android SMS Retriever API용 앱 해시값 (AppSignatureHelper로 추출한 11자리 값)
+		// 해시값 추출 방법: 앱에서 AppSignatureHelper 실행 후 로그 확인
+		$android_hash = "b7Yd0JKDM2U"; // Android SMS Retriever API 앱 해시값 (릴리즈 서명 기준)
+		$msg = $msg . "\n" . $android_hash;
+
 		$_param['userid'] = 'dongwonstec124';           // [필수] 뿌리오 아이디
 		$_param['callback'] = '0312550119';    // [필수] 발신번호 - 숫자만 07077122610
 		$_param['phone'] = $phone;       // [필수] 수신번호 - 여러명일 경우 |로 구분 '010********|010********|010********'

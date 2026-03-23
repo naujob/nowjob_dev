@@ -98,7 +98,7 @@
 	                </div>
 	            </div>
 	            <?php if($this->user->getUserId()==$info["mm_id"]) : ?>
-	            <div class="sticky-bottom">
+	            <div class="sticky-bottom view-footer">
 	                <button type="button" class="btn btn-secondary js-remove">삭제</button>
 	                <button type="button" onclick="location.href='/setting/community_write/<?=$info["bd_idx"]?>';" class="btn btn-primary">수정</button>
 	            </div>

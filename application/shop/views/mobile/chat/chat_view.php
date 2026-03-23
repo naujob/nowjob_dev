@@ -553,94 +553,21 @@
         <div class="chat-view-header">
             <!-- 채용정보 -->
             <?php if ($user_type == "COMP") : ?>
-                <!-- 채용정보 -->
+                <!-- 인재정보 -->
                 <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
                 <?php
-                // 이미지 경로 설정
-                $resumeThumb = getResumeImg($resume);
-                
-                // 근무희망요일 처리
-                $ru_week = isset($resume["ru_week"]) ? trim($resume["ru_week"]) : "";
-                $ru_week_yn = isset($resume["ru_week_yn"]) ? $resume["ru_week_yn"] : "N";
-                if ($ru_week_yn !== "Y" && ($ru_week === "" || $ru_week === null)) {
-                    $ru_week = "월,화,수,목,금";
+                // 이름 정규화: ru_name이 없으면 mm_name 사용
+                $row = $resume;
+                if (empty($row['ru_name'])) {
+                    $row['ru_name'] = isset($row['mm_name']) ? $row['mm_name'] : '';
                 }
-                $week_display = getWeekYoil($ru_week);
-                
-                // 가격 타입 처리
-                $price_type_display = "";
-                if (!empty($resume["ru_price_type"])) {
-                    $price_type_display = getPriceType($resume["ru_price_type"]);
-                }
-                
-                // 근무 타입 처리 (hr_list.php와 동일하게 <em> 태그로 변환, 쉼표 제거)
-                $work_type_display = "";
-                if (!empty($resume["ru_work_type"])) {
-                    $work_type_html = getWorkType($resume["ru_work_type"]);
-                    // <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
-                    if (!empty($work_type_html)) {
-                        $work_type_display = preg_replace_callback('/<span>(.*?)<\/span>/', function($matches) {
-                            $text = trim($matches[1]);
-                            $cls = '';
-                            if ($text === '주간') {
-                                $cls = 'wtype1';
-                            } else if ($text === '야간') {
-                                $cls = 'wtype2';
-                            } else if ($text === '2교대') {
-                                $cls = 'wtype3';
-                            }
-                            return '<em class="' . $cls . '">' . $text . '</em>';
-                        }, $work_type_html);
-                        // 쉼표 제거
-                        $work_type_display = str_replace(',', '', $work_type_display);
-                    }
-                }
-                
-                // 주소 처리 (fRemoveBigAdrJS 함수 사용)
-                $addr_display = !empty($resume["ad_addr"]) ? $resume["ad_addr"] : "";
+                $mm_type           = 'COMP';
+                $show_recomm_badge = true;
                 ?>
-                <div class="chat-resume-content-li recomm" data-ru_idx="<?= $resume["ru_idx"] ?>">
-                    <div class="chat-resume-content-info">
-                        <div class="chat-resume-content-body">
-                            <div class="chat-resume-img">
-                                <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>" aria-label="이력서 보기">
-                                    <img src="<?= $resumeThumb ?>" alt="">
-                                </a>
-                                <button type="button" data-bk_type="RESUME" data-bk_key="<?= $resume["ru_idx"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $resume["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
-                                
-                            </div>
-                            <div class="chat-resume-desc">
-                                <div class="chat-resume-wicon"><?= getWorkingImg($resume["ru_work"]) ?></div>
-                                <div class="chat-resume-title ellipsis">
-                                    <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>"><?= !empty($resume["ru_name"]) ? $resume["ru_name"] : $resume["mm_name"] ?></a>
-                                </div>
-                                <div class="chat-resume-summary">
-                                    <ul class="working-day"><?= $week_display ?></ul>
-                                </div>
-                                <div class="chat-resume-summary">
-                                    <p><?= $resume["mm_nation"] ?></p>
-                                    <p><?= $resume["ma_age"] ?>세</p>
-                                    <?php if ($addr_display !== "") : ?>
-                                        <p class="js-chat-resume-addr" data-addr="<?= htmlspecialchars($addr_display, ENT_QUOTES) ?>"></p>
-                                    <?php endif; ?>
-                                </div>
-                                <?php if ($price_type_display !== "") : ?>
-                                    <div class="chat-resume-summary2">
-                                        <p class="pricetype"><?= $price_type_display ?></p>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($work_type_display !== "") : ?>
-                                    <div class="chat-resume-summary3">
-                                        <p class="worktype"><?= $work_type_display ?></p>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 인재정보 보기 -->
-                    <a href="/resume/hr_post/<?= $resume["ru_idx"] ?>" class="chat-resume-btn-wrapper"><span class="sr-text">인재정보보기</span></a>
-                </div>
-                <!-- //채용정보 -->
+                <ul class="result-list result-list-card">
+                    <?php include(APPPATH . 'views/mobile/_partial/resume_card.php'); ?>
+                </ul>
+                <!-- //인재정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -788,133 +715,20 @@
             <?php else : ?>
                 <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
                 <?php
-                // job_list.php와 동일한 로직을 위한 함수 정의
-                // 급여 타입 변환 함수 (job_list.php의 getConvertPriceType과 동일)
-                if (!function_exists('getConvertPriceType')) {
-                    function getConvertPriceType($rc_price_type, $rc_price_rep) {
-                        if (empty($rc_price_type)) {
-                            return "";
-                        }
-                        $types = explode(',', $rc_price_type);
-                        $types = array_map('trim', $types);
-                        
-                        if (count($types) === 1) {
-                            return '<em class="on">' . htmlspecialchars($types[0], ENT_QUOTES) . '</em>';
-                        }
-                        
-                        $result = '';
-                        foreach ($types as $type) {
-                            if ($type === $rc_price_rep) {
-                                $result .= '<em class="on">' . htmlspecialchars($type, ENT_QUOTES) . '</em>';
-                            } else {
-                                $result .= '<em>' . htmlspecialchars($type, ENT_QUOTES) . '</em>';
-                            }
-                        }
-                        return $result;
-                    }
+                // 국적 표시 정규화 후 공통 카드 파셜에 전달
+                $row = $recruit;
+                if ($row['rc_nation_nm'] == "무관" || $row['rc_nation_nm'] == "내국인,외국인") {
+                    $row['rc_nation_nm'] = "국적무관";
                 }
-                
-                // 급여 변환 함수 (job_list.php의 getConvertPrice와 동일)
-                if (!function_exists('getConvertPrice')) {
-                    function getConvertPrice($rc_price_pay) {
-                        if (empty($rc_price_pay) || $rc_price_pay == 0) {
-                            return '';
-                        }
-                        return number_format($rc_price_pay) . "원";
-                    }
-                }
-                
-                // 이미지 경로 설정
-                $recruitThumb = getRecruitImg($recruit);
-                
-                // 가격 타입 처리 (job_list.php와 동일한 로직 적용)
-                $price_type_display = "";
-                if (!empty($recruit["rc_price_type"])) {
-                    $rc_price_rep = isset($recruit["rc_price_rep"]) ? $recruit["rc_price_rep"] : "";
-                    $price_type_display = getConvertPriceType($recruit["rc_price_type"], $rc_price_rep);
-                }
-                
-                // 급여 처리 (job_list.php와 동일한 로직 적용)
-                $price_pay_display = "";
-                if (!empty($recruit["rc_price_pay"])) {
-                    $price_pay_display = getConvertPrice($recruit["rc_price_pay"]);
-                }
-                
-                // 근무 타입 처리 (job_list.php와 동일하게 <em> 태그로 변환, 쉼표 제거)
-                $work_type_display = "";
-                if (!empty($recruit["rc_work_type"])) {
-                    $work_type_html = getWorkType($recruit["rc_work_type"], "span");
-                    // <span> 태그를 <em> 태그로 변환하고 클래스 추가, 쉼표 제거
-                    if (!empty($work_type_html)) {
-                        $work_type_display = preg_replace_callback('/<span>(.*?)<\/span>/', function($matches) {
-                            $text = trim($matches[1]);
-                            $cls = '';
-                            if ($text === '주간') {
-                                $cls = 'wtype1';
-                            } else if ($text === '야간') {
-                                $cls = 'wtype2';
-                            } else if ($text === '2교대') {
-                                $cls = 'wtype3';
-                            }
-                            return '<em class="' . $cls . '">' . $text . '</em>';
-                        }, $work_type_html);
-                        // 쉼표 제거
-                        $work_type_display = str_replace(',', '', $work_type_display);
-                    }
-                }
-                
-                // 주소 처리 (fRemoveBigAdrJS 함수 사용)
-                $addr_display = !empty($recruit["ad_addr"]) ? $recruit["ad_addr"] : "";
-                
-                // 국적 표시 처리
-                $nation_display = $recruit["rc_nation_nm"];
-                if ($nation_display == "무관" || $nation_display == "내국인,외국인") {
-                    $nation_display = "국적무관";
-                }
+                $card_options = [
+                    'show_bookmark' => true,
+                    'use_js_addr'   => true,
+                    'recomm_badge'  => true,
+                ];
                 ?>
-                <div class="chat-recruit-content-li recomm" data-rc_idx="<?= $recruit["rc_idx"] ?>">
-                    <div class="chat-recruit-content-info">
-                        <div class="chat-recruit-content-body">
-                            
-                            <div class="chat-recruit-img">
-                                <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>" aria-label="채용공고 보기">
-                                    <img src="<?= $recruitThumb ?>" alt="">
-                                </a>
-                                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $recruit["rc_idx"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $recruit["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
-                            </div>
-                            <div class="chat-recruit-desc">
-                                <div class="chat-recruit-wicon">
-                                    <?= getWorkingImg($recruit["rc_work"]) ?>
-                                </div>
-                                <div class="chat-recruit-title ellipsis">
-                                    <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>"><?= $recruit["rc_name"] ?></a>
-                                </div>
-                                <div class="chat-recruit-summary">
-                                    <p><?= $nation_display ?></p>
-                                    <p><?= $recruit["rc_age_nm"] ?></p>
-                                </div>
-                                <div class="chat-recruit-summary area">
-                                    <?php if ($addr_display !== "") : ?>
-                                        <p class="js-chat-addr" data-addr="<?= htmlspecialchars($addr_display, ENT_QUOTES) ?>"></p>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="chat-recruit-summary2">
-                                    <?php if ($price_type_display !== "") : ?>
-                                        <p class="period"><?= $price_type_display ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($price_pay_display !== "") : ?>
-                                        <p class="amount"><?= $price_pay_display ?></p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                        <?php if ($work_type_display !== "") : ?>
-                            <div class="chat-recruit-summary3"><?= $work_type_display ?></div>
-                        <?php endif; ?>
-                    </div>
-                    <!-- 주요정보패널 보기 -->
-                    <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>" class="chat-recruit-btn-wrapper"><span class="sr-text">주요정보보기</span></a>
-                </div>
+                <ul class="result-list-card">
+                    <?php include(APPPATH . 'views/mobile/_partial/recruit_card_row.php'); ?>
+                </ul>
                 <!-- //채용정보 -->
                 <div id="mem_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -1023,557 +837,10 @@
         content: none;
     }
 
-    /* 채팅 뷰 인재정보 카드 스타일 (hr_list.php와 통일) */
-    .chat-view-header .chat-resume-content-li {
-        position: relative;
-        width: 100%;
-        height: 115px;
-        overflow: hidden;
-        font-size: 12px;
-        border-radius: 10px;
-        background: #fff;
-        margin-bottom: 10px;
-        transition: background 0.2s ease;
-        cursor: pointer; /* 카드 전체 클릭 가능 표시 */
-    }
-
-    .chat-view-header .chat-resume-content-li:hover {
-        background: #f8f8f8;
-    }
-
-    .chat-view-header .chat-resume-content-li * {
-        padding: 0;
-        margin: 0;
-    }
-
-    .chat-view-header .chat-resume-content-info {
-        width: 100%;
-        height: 100%;
-        padding: 10px;
-    }
-
-    .chat-view-header .chat-resume-wicon img {
-        height: 19px;
-    }
-
-    .chat-view-header .chat-resume-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin: 1px 0px;
-    }
-
-    .chat-view-header .chat-resume-title a {
-        color: #000;
-        text-decoration: none;
-        position: relative;
-        z-index: 2; /* 링크가 다른 요소 위에 표시되도록 */
-    }
-
-    .chat-view-header .chat-resume-content-body {
-        position: relative;
-        overflow: hidden;
-        height: 95px;
-    }
-
-    .chat-view-header .chat-resume-desc {
-        position: relative;
-        height: 100%;
-        margin: 0 0 0 110px;
-        cursor: pointer;
-    }
-
-    .chat-view-header .chat-resume-desc .ellipsis {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .chat-view-header .chat-resume-img {
+    /* 즐겨찾기 버튼 z-index 조정 */
+    .chat-view-header .result-list-card .img .btn-bookmark {
         position: absolute;
-        width: 95px;
-        height: 95px;
-        border: 0;
-        border-radius: 5px;
-        color: #888;
-        overflow: hidden;
-        z-index: 2; /* 이미지 링크가 클릭 가능하도록 */
-    }
-
-    .chat-view-header .chat-resume-img a {
-        position: relative;
-        z-index: 2;
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
-
-    .chat-view-header .chat-resume-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    .chat-view-header .chat-resume-summary {
-        display: flex;
-        font-size: 16px;
-        gap: 5px;
-        position: relative;
-    }
-
-    .chat-view-header .chat-resume-summary p {
-        position: relative;
-        padding-right: 5px;
-        margin: 0;
-        color: #000;
-        font-weight: 600;
-    }
-
-    .chat-view-header .chat-resume-summary p:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #ACACAC;
-    }
-
-    .chat-view-header .chat-resume-summary>* {
-        min-width: 0;
-        max-width: 100%;
-        margin-right: 4px;
-        margin-bottom: -3px;
-    }
-
-    .chat-view-header .chat-resume-summary2 {
-        position: absolute;
-        right: 0px;
-        bottom: 0px;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: 0;
-        color: #1b9d7d;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    .chat-view-header .chat-resume-summary2 p {
-        margin: 0;
-        text-align: right;
-    }
-
-    .chat-view-header .chat-resume-summary2 .pricetype {
-        display: flex;
-        gap: 5px;
-        justify-content: flex-end;
-        position: relative;
-    }
-
-    .chat-view-header .chat-resume-summary2 .pricetype em {
-        position: relative;
-        display: inline-block;
-        font-style: normal;
-    }
-
-    .chat-view-header .chat-resume-summary2 .pricetype em:not(:last-child) {
-        padding-right: 5px;
-    }
-
-    .chat-view-header .chat-resume-summary2 .pricetype em:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #777777;
-    }
-
-    .chat-view-header .chat-resume-summary3 {
-        position: absolute;
-        right: 0px;
-        top: 0px;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: 0;
-        color: #333;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    .chat-view-header .chat-resume-summary3 p {
-        margin: 0;
-        text-align: right;
-    }
-
-    .chat-view-header .chat-resume-summary3 .worktype {
-        display: flex;
-        gap: 5px;
-        justify-content: flex-end;
-        position: relative;
-    }
-
-    .chat-view-header .chat-resume-summary3 .worktype em {
-        position: relative;
-        display: inline-block;
-        font-style: normal;
-    }
-
-    .chat-view-header .chat-resume-summary3 .worktype em.wtype1 {
-        color: #3a70db;
-    }
-
-    .chat-view-header .chat-resume-summary3 .worktype em.wtype2 {
-        color: #F86048;
-    }
-
-    .chat-view-header .chat-resume-summary3 .worktype em.wtype3 {
-        color: #1B9D7D;
-    }
-
-    .chat-view-header .chat-resume-summary3 .worktype em:not(:last-child) {
-        padding-right: 5px;
-    }
-
-    .chat-view-header .chat-resume-summary3 .worktype em:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #777777;
-    }
-
-    .chat-view-header .working-day {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        margin: 0 0 -4px;
-        list-style: none;
-    }
-
-    .chat-view-header .working-day>li {
-        width: 1.8em;
-        height: 1.8em;
-        margin: 0 0.5em 4px 0;
-        font-size: 13px;
-        color: #BEBFC9;
-        line-height: 1.5;
-        text-align: center;
-        text-indent: -1px;
-        border-radius: 100%;
-        border: 1px solid #BEBFC9;
-        background: #fff;
-        float: left;
-    }
-
-    .chat-view-header .working-day>li:last-child {
-        margin-right: 0;
-    }
-
-    .chat-view-header .working-day li[aria-hidden=false] {
-        color: #fff;
-        border-color: transparent;
-        background-color: #1B9D7D;
-    }
-
-    .chat-view-header .recomm-badge {
-        position: absolute;
-        top: 0;
-        background: #EB5349;
-        z-index: 3; /* 뱃지가 다른 요소 위에 표시되도록 */
-        margin: 3px;
-        padding: 3px;
-        border-radius: 3px;
-    }
-
-    /* 즐겨찾기 버튼이 링크를 가리지 않도록 z-index 조정 */
-    .chat-view-header .chat-resume-img .btn-bookmark,
-    .chat-view-header .chat-recruit-img .btn-bookmark {
-        position: absolute;
-        z-index: 3; /* 버튼이 링크 위에 표시되도록 */
-    }
-
-    .chat-view-header .recomm-badge span {
-        color: #fff;
-        font-size: 11px;
-        font-weight: bold;
-    }
-
-    .chat-view-header .chat-resume-btn-wrapper {
-        display: block;
-        text-align: center;
-        padding: 10px;
-        background: #f8f8f8;
-        border-top: 1px solid #e0e0e0;
-        text-decoration: none;
-        color: #333;
-        position: relative;
-        z-index: 2; /* 버튼 링크가 클릭 가능하도록 */
-    }
-
-    .chat-view-header .chat-resume-btn-wrapper:hover {
-        background: #e8e8e8;
-    }
-
-    /* 채팅 뷰 채용정보 카드 스타일 (job_list.php와 통일) */
-    .chat-view-header .chat-recruit-content-li {
-        position: relative;
-        width: 100%;
-        height: 115px;
-        overflow: hidden;
-        font-size: 12px;
-        border-radius: 10px;
-        background: #fff;
-        margin-bottom: 10px;
-        transition: background 0.2s ease;
-        cursor: pointer; /* 카드 전체 클릭 가능 표시 */
-    }
-
-    .chat-view-header .chat-recruit-content-li:hover {
-        background: #f8f8f8;
-    }
-
-    .chat-view-header .chat-recruit-content-li * {
-        padding: 0;
-        margin: 0;
-    }
-
-    .chat-view-header .chat-recruit-content-info {
-        width: 100%;
-        height: 100%;
-        padding: 10px;
-    }
-
-    .chat-view-header .chat-recruit-wicon img {
-        height: 19px;
-    }
-
-    .chat-view-header .chat-recruit-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin: 1px 0px;
-    }
-
-    .chat-view-header .chat-recruit-title a {
-        color: #000;
-        text-decoration: none;
-        position: relative;
-        z-index: 2; /* 링크가 다른 요소 위에 표시되도록 */
-    }
-
-    .chat-view-header .chat-recruit-summary3 {
-        position: absolute;
-        top: 6px;
-        right: 10px;
-        color: #000;
-        height: 17px;
-        text-align: right;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    .chat-view-header .chat-recruit-summary3 em {
-        position: relative;
-        display: inline-block;
-        font-style: normal;
-        padding-left: 5px;
-    }
-
-    .chat-view-header .chat-recruit-summary3 em:not(:last-child) {
-        padding-right: 5px;
-    }
-
-    .chat-view-header .chat-recruit-summary3 em:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #777777;
-    }
-
-    .chat-view-header .chat-recruit-summary3 em.wtype1 {
-        color: #3a70db;
-    }
-
-    .chat-view-header .chat-recruit-summary3 em.wtype2 {
-        color: #F86048;
-    }
-
-    .chat-view-header .chat-recruit-summary3 em.wtype3 {
-        color: #1B9D7D;
-    }
-
-    .chat-view-header .chat-recruit-content-body {
-        position: relative;
-        height: 95px;
-        overflow: hidden;
-    }
-
-    .chat-view-header .chat-recruit-desc {
-        position: relative;
-        height: 95px;
-        margin: 0 0 0 105px;
-        cursor: pointer;
-    }
-
-    .chat-view-header .chat-recruit-desc .ellipsis {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .chat-view-header .chat-recruit-img {
-        position: absolute;
-        width: 95px;
-        height: 95px;
-        border: 0;
-        border-radius: 5px;
-        color: #888;
-        overflow: hidden;
-        z-index: 2; /* 이미지 링크가 클릭 가능하도록 */
-    }
-
-    .chat-view-header .chat-recruit-img a {
-        position: relative;
-        z-index: 2;
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
-
-    .chat-view-header .chat-recruit-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    .chat-view-header .chat-recruit-summary {
-        display: flex;
-        font-size: 16px;
-        gap: 5px;
-        position: relative;
-    }
-
-    .chat-view-header .chat-recruit-summary p {
-        position: relative;
-        padding-right: 5px;
-        margin: 0;
-        color: #999;
-    }
-
-    .chat-view-header .chat-recruit-summary p:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #ACACAC;
-    }
-
-    .chat-view-header .chat-recruit-summary>* {
-        min-width: 0;
-        max-width: 100%;
-        margin-right: 4px;
-        margin-bottom: -3px;
-    }
-
-    .chat-view-header .chat-recruit-summary.area p {
-        color: #000;
-        font-weight: 600;
-    }
-
-    .chat-view-header .chat-recruit-summary2 {
-        position: absolute;
-        right: 0px;
-        bottom: 0px;
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 0;
-        color: #222;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    .chat-view-header .chat-recruit-summary2 p {
-        margin: 0;
-        text-align: right;
-    }
-
-    .chat-view-header .chat-recruit-summary2 .period {
-        display: flex;
-        gap: 5px;
-        justify-content: flex-end;
-        position: relative;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    .chat-view-header .chat-recruit-summary2 .amount em {
-        font-style: normal;
-    }
-
-    .chat-view-header .chat-recruit-summary2 .period em {
-        position: relative;
-        display: inline-block;
-        font-style: normal;
-        color: #777;
-        margin-left: 8px;
-    }
-
-    .chat-view-header .chat-recruit-summary2 .period em:first-child {
-        margin-left: 0;
-    }
-
-    .chat-view-header .chat-recruit-summary2 .period em:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: -7px;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #777777;
-    }
-
-    .chat-view-header .chat-recruit-summary2 .period em.on {
-        color: #1B9D7D;
-    }
-
-    .chat-view-header .chat-recruit-btn-wrapper {
-        display: block;
-        text-align: center;
-        padding: 10px;
-        background: #f8f8f8;
-        border-top: 1px solid #e0e0e0;
-        text-decoration: none;
-        color: #333;
-        position: relative;
-        z-index: 2; /* 버튼 링크가 클릭 가능하도록 */
-    }
-
-    .chat-view-header .chat-recruit-btn-wrapper:hover {
-        background: #e8e8e8;
+        z-index: 3;
     }
 
     /* 채팅 메시지 버블 내용 폰트 크기 설정 및 유동적 너비 */
@@ -1693,7 +960,7 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" aria-controls="chatSummary" class="btn btn-primary js-toggle-panel">확인</button>
                 </div>
             </div>
@@ -1830,7 +1097,7 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" aria-controls="chatSummary" class="btn btn-primary js-toggle-panel">확인</button>
                 </div>
             </div>
@@ -1875,20 +1142,15 @@
     var userIdAlertShown = false;
     // 주소 정리: 채팅 헤더에 표시되는 채용지 주소와 인재정보 주소를 공용 헬퍼로 축약
     document.addEventListener('DOMContentLoaded', function() {
-        // 채용지 주소 처리
-        document.querySelectorAll('.js-chat-addr').forEach(function(el) {
-            var addr = el.dataset.addr || '';
-            el.textContent = fRemoveBigAdrJS(addr);
-        });
-        // 인재정보 주소 처리
-        document.querySelectorAll('.js-chat-resume-addr').forEach(function(el) {
+        // 채용지 주소 처리 (recruit_card_row 파셜의 area-addr 클래스)
+        document.querySelectorAll('.chat-view-header .area-addr').forEach(function(el) {
             var addr = el.dataset.addr || '';
             el.textContent = fRemoveBigAdrJS(addr);
         });
 
         // 채팅 뷰 헤더의 채용정보/인재정보 카드 클릭 이벤트 처리
         // 링크나 버튼을 클릭한 경우는 기본 동작 유지, 그 외 영역 클릭 시 상세페이지로 이동
-        $(document).on('click', '.chat-resume-content-li, .chat-recruit-content-li', function(e) {
+        $(document).on('click', '.chat-view-header .result-list-card .content-li', function(e) {
             // 링크나 버튼을 클릭한 경우는 기본 동작 유지
             if ($(e.target).is('a') || $(e.target).closest('a').length > 0 || 
                 $(e.target).is('button') || $(e.target).closest('button').length > 0) {

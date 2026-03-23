@@ -226,7 +226,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" id="" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
             </div>
         </div>

@@ -972,22 +972,8 @@ window.onload = function() {
             document.cookie = "join_sns_type=GOOGLE; path=/; max-age=86400";
             document.cookie = "join_sns_key=" + encodeURIComponent(ret.data.join_key) + "; path=/; max-age=86400";
           } catch (e) {}
-          openPopup('confirm', {
-            id: 'permission',
-            content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-            firstButton: '취소',
-            secondButton: '회원가입',
-            firstCallback: function() {
-              return false;
-            },
-            secondCallback: function() {
-              var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(ret.data.join_key) +
-                "&join_type=GOOGLE";
-              if (email) joinUrl += "&email=" + encodeURIComponent(email);
-              if (name) joinUrl += "&username=" + encodeURIComponent(name);
-              location.href = joinUrl;
-            },
-          });
+          // 전화번호 인증 팝업 표시 (구글 회원가입 전 전화번호 중복 확인 및 인증)
+          openGoogleJoinPhonePopup(ret.data.join_key, email, name);
         } else {
           commonAlert(ret.msg || "로그인 실패", function() {});
         }
@@ -1008,4 +994,281 @@ window.onload = function() {
   };
   */
   // alert(navigator.userAgent.toLowerCase());
+
+  /* =========================================================
+   * 구글 회원가입 전화번호 인증 팝업
+   * - 전화번호가 DB에 존재하면 "이미 가입된 회원" 알림
+   * - 전화번호가 없으면 뿌리오 SMS 인증 후 회원가입 진행
+   * ========================================================= */
+  var gPhoneJoinKey = "";
+  var gPhoneEmail   = "";
+  var gPhoneName    = "";
+  var gPhoneTimer;
+  var gPhoneRemainTime = 180;
+  var gPhoneIsAuth     = false;
+
+  /**
+   * Android SMS Retriever에서 인증번호 수신 시 자동 호출되는 브릿지 함수
+   * @param {string} code  추출된 6자리 인증번호
+   */
+  function fillAuthCode(code) {
+    var inputField = document.getElementById('gphone-auth-input');
+    if (inputField) {
+      inputField.value = code;
+    }
+  }
+
+  /**
+   * 구글 회원가입 전화번호 인증 팝업 열기
+   * @param {string} joinKey  구글 join_key
+   * @param {string} email    구글 이메일
+   * @param {string} name     구글 이름
+   */
+  /**
+   * 구글 회원가입 전화번호 인증 팝업 열기 — bottom sheet 애니메이션
+   */
+  function openGoogleJoinPhonePopup(joinKey, email, name) {
+    gPhoneJoinKey = joinKey;
+    gPhoneEmail   = email || "";
+    gPhoneName    = name  || "";
+    gPhoneIsAuth  = false;
+
+    // 팝업 초기화
+    $("#gphone-input").val("");
+    $("#gphone-auth-input").val("");
+    $("#gphone-remain-time").html("0 : 00");
+    $(".gphone-error").addClass("hidden");
+    $(".gphone-auth-row").addClass("hidden");
+    $("#gphone-btn-auth").css("background-color", "#ccc");
+    $("#gphone-btn-join").prop("disabled", true);
+
+    // bottom에서 부드럽게 올라오는 애니메이션
+    $("#google-phone-popup").css({ display: "block", background: "rgba(0,0,0,0)" });
+    setTimeout(function() {
+      $("#google-phone-popup").css("background", "rgba(0,0,0,0.5)");
+      $("#google-phone-sheet").css("transform", "translateY(0)");
+    }, 10);
+  }
+
+  /** 팝업 닫기 — bottom으로 내려가는 애니메이션 후 display:none */
+  function closeGoogleJoinPhonePopup() {
+    $("#google-phone-popup").css("background", "rgba(0,0,0,0)");
+    $("#google-phone-sheet").css("transform", "translateY(100%)");
+    setTimeout(function() {
+      $("#google-phone-popup").css("display", "none");
+    }, 350);
+  }
+
+  /**
+   * 자동으로 사라지는 토스트 메시지
+   * @param {string} msg       표시할 메시지
+   * @param {number} duration  표시 시간(ms), 기본 2000
+   */
+  function gPhoneToast(msg, duration) {
+    duration = duration || 2000;
+    var $t = $('<div class="gphone-toast-msg">' + msg + '</div>');
+    $("body").append($t);
+    setTimeout(function() { $t.addClass("gphone-toast-show"); }, 10);
+    setTimeout(function() {
+      $t.removeClass("gphone-toast-show");
+      setTimeout(function() { $t.remove(); }, 350);
+    }, duration);
+  }
+
+  /** 전화번호 형식 체크 및 인증요청 버튼 활성화 */
+  function gPhoneNumCheck() {
+    $(".gphone-error").addClass("hidden");
+    var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
+    $("#gphone-input").val(phone);
+
+    var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
+    if (phoneRule.test(phone)) {
+      $("#gphone-btn-auth").css("background-color", "#1B9D7D");
+    } else {
+      $("#gphone-btn-auth").css("background-color", "#ccc");
+    }
+  }
+
+  /** 인증번호 남은 시간 카운트다운 */
+  function gPhoneUpdateTime() {
+    var minutes = Math.floor(gPhoneRemainTime / 60);
+    var seconds = gPhoneRemainTime % 60;
+    if (seconds < 10) { seconds = "0" + seconds; }
+    $("#gphone-remain-time").html(minutes + " : " + seconds);
+
+    if (gPhoneRemainTime > 0) {
+      gPhoneRemainTime--;
+    } else {
+      clearInterval(gPhoneTimer);
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", function() {
+
+    // 취소 버튼 — bottom sheet 닫기 애니메이션
+    $("#gphone-btn-cancel").click(function() {
+      clearInterval(gPhoneTimer);
+      closeGoogleJoinPhonePopup();
+    });
+
+    // 오버레이 터치 시 닫기
+    $("#google-phone-popup").click(function(e) {
+      if ($(e.target).is("#google-phone-popup")) {
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+      }
+    });
+
+    // 인증요청 버튼 — 전화번호 DB 조회 후 미가입 시 SMS 발송
+    $("#gphone-btn-auth").click(function() {
+      $(".gphone-error").addClass("hidden");
+
+      var phone = $("#gphone-input").val();
+      var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
+      if (!phoneRule.test(phone)) {
+        $(".gphone-error-format").removeClass("hidden");
+        return;
+      }
+
+      var params = { mm_phone: phone };
+      comAjax("/member_proc/check_google_phone", params, function(ret) {
+        if (ret.code == "00") {
+          // 미가입 — 인증번호 발송 완료, 인증번호 입력 영역 표시
+          $(".gphone-auth-row").removeClass("hidden");
+          gPhoneIsAuth     = false;
+          gPhoneRemainTime = 180;
+          clearInterval(gPhoneTimer);
+          gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
+          gPhoneUpdateTime();
+          gPhoneToast("인증번호를 발송하였습니다."); // 자동으로 사라지는 토스트
+        } else if (ret.code == "99") {
+          // 이미 가입된 회원 — 시트 위에 토스트로 표시 후 자동 소멸
+          gPhoneToast(ret.msg, 1200);
+        } else if (ret.code == "98") {
+          commonAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
+        } else {
+          commonAlert("오류가 발생하였습니다. (" + ret.code + ")", function() {});
+        }
+      });
+    });
+
+    // 인증번호 확인 버튼
+    var gPhoneAuthCount = 0;
+    $("#gphone-btn-confirm").click(function() {
+      if ($("#gphone-remain-time").html() == "0 : 00") {
+        commonAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
+        return;
+      }
+
+      var phone  = $("#gphone-input").val();
+      var params = { mm_phone: phone, auth: $("#gphone-auth-input").val() };
+      comAjax("/member_proc/check_google_phone_auth", params, function(ret) {
+        if (ret.code == "00") {
+          // 인증 성공 — 회원가입 버튼 활성화 + 자동으로 사라지는 토스트
+          gPhoneIsAuth = true;
+          clearInterval(gPhoneTimer);
+          $("#gphone-btn-join").prop("disabled", false);
+          gPhoneToast("인증이 완료되었습니다.", 1500); // 1.5초 후 자동으로 사라짐
+        } else {
+          gPhoneAuthCount++;
+          if (gPhoneAuthCount > 3) {
+            commonAlert("인증번호 확인이 3회 이상 실패하였습니다.\n처음부터 다시 진행해주세요.", function() {
+              clearInterval(gPhoneTimer);
+              closeGoogleJoinPhonePopup();
+            });
+            return;
+          }
+          commonAlert("잘못된 인증번호입니다. 다시 입력해주세요.", function() {
+            $("#gphone-auth-input").val("").focus();
+          });
+        }
+      });
+    });
+
+    // 회원가입 버튼 — 인증 완료 후 join_sns_start 이동 (인증된 전화번호 포함 전달)
+    $("#gphone-btn-join").click(function() {
+      if (!gPhoneIsAuth) {
+        commonAlert("인증 완료 후 진행해주세요.", function() {});
+        return;
+      }
+      clearInterval(gPhoneTimer);
+      closeGoogleJoinPhonePopup();
+
+      var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
+      var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=GOOGLE";
+      if (gPhoneEmail) { joinUrl += "&email="    + encodeURIComponent(gPhoneEmail); }
+      if (gPhoneName)  { joinUrl += "&username=" + encodeURIComponent(gPhoneName);  }
+      if (phoneVal)    { joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);     } // mm_phone에 전화번호가 올바르게 저장되도록 전달
+      // 팝업 닫기 애니메이션(350ms) 이후 페이지 이동
+      setTimeout(function() { location.href = joinUrl; }, 360);
+    });
+
+  });
 </script>
+
+<!-- 구글 회원가입 전화번호 인증 — bottom sheet 팝업 -->
+<style>
+  /* 토스트 메시지 */
+  .gphone-toast-msg {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 1.5;
+    z-index: 10001;
+    opacity: 0;
+    white-space: pre-line;
+    text-align: center;
+    max-width: 95%;
+    width: 95%;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .gphone-toast-msg.gphone-toast-show { opacity: 1; }
+
+  /* google-phone 시트/오버레이 스타일은 main.css .bs-overlay, .bs-sheet 공통 클래스로 관리 */
+</style>
+<!--뿌리오 전화번호 인증 팝업-->
+<div id="google-phone-popup" class="bs-overlay">
+  <div id="google-phone-sheet" class="bs-sheet">
+    <!-- 핸들 바 -->
+    <div class="bs-handlebar"></div>
+
+    <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;">전화번호 인증</h3>
+    <p style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">구글 회원가입을 위해 전화번호 인증이 필요합니다.</p>
+
+    <div class="form-row" style="margin-bottom:20px;">
+      <p class="form-label" style="font-size:18px;">휴대폰번호</p>
+      <div class="inline-group">
+        <label class="col">
+          <span class="sr-text">휴대폰번호 입력</span>
+          <input type="text" id="gphone-input" placeholder="휴대폰번호를 입력해 주세요" autocomplete="off" class="form-text" onkeyup="gPhoneNumCheck();">
+        </label>
+        <button id="gphone-btn-auth" type="button" class="btn btn-tertiary" style="background-color:#ccc;">인증 요청</button>
+      </div>
+      <p class="gphone-error gphone-error-format help-msg is-fail hidden">형식에 맞지 않는 휴대폰번호입니다.</p>
+    </div>
+
+    <div class="form-row gphone-auth-row hidden" style="margin-bottom:32px;">
+      <p class="form-label">인증번호</p>
+      <div class="inline-group">
+        <label class="col" style="position:relative;">
+          <span class="sr-text">인증번호 입력</span>
+          <input type="text" id="gphone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" class="form-text">
+          <span id="gphone-remain-time" style="position:absolute;width:48px;right:0;top:7px;color:#FF6D6D;text-align:right;font-weight:600;">0 : 00</span>
+        </label>
+        <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary">확인</button>
+      </div>
+    </div>
+
+    <div class="bs-actions">
+      <button id="gphone-btn-cancel" type="button" class="btn btn-secondary" style="flex:1;">취소</button>
+      <button id="gphone-btn-join"   type="button" class="btn btn-primary"   style="flex:2;" disabled>회원가입</button>
+    </div>
+  </div>
+</div>

@@ -33,7 +33,7 @@
                         </label>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" id="btnChange" class="btn btn-primary">변경하기</button>
                     </div>
 

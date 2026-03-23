@@ -15,7 +15,7 @@
 	                        <h2 class="primary-title">점프업</h3>
 	                        <p class="required-point">차감포인트 : <em>500</em>P</p>
 	                        <p class="desc">등록하신 이력서를 상위목록으로 노출시킬 수 있습니다.<br> 점프업은 광고구매하기 기준으로 업데이트 됩니다.</p>
-	                        <div class="sticky-bottom">
+	                        <div class="sticky-bottom view-footer">
 	                            <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary">광고구매하기</button>
 	                        </div>
 	                    </div>
@@ -102,7 +102,7 @@
                                         }());
                                     </script>
                                 </div>
-                                <div class="sticky-bottom">
+                                <div class="sticky-bottom view-footer">
                                     <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary">광고구매하기</button>
                                 </div>
 	                        </div>

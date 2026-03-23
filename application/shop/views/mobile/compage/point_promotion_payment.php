@@ -156,7 +156,7 @@
                                     </div>
                                 </div>
 								                <?php endif; ?>
-                                <div class="sticky-bottom">
+                                <div class="sticky-bottom view-footer">
                                     <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary">광고구매하기</button>
                                 </div>
 	                        </div>

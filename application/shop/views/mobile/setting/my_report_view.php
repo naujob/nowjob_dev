@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" id="btnDelete" aria-haspopup="dialog" class="btn btn-secondary js-action1">신고취소</button>
             </div>
           

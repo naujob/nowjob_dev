@@ -56,7 +56,7 @@
           <p class="error-5 help-msg is-fail">형식에 맞지 않는 인증번호입니다.</p>
         </div>
 
-        <div class="sticky-bottom">
+        <div class="sticky-bottom view-footer">
           <button type="button" id="btnFind" aria-haspopup="dialog" class="btn btn-primary">임시비밀번호 발송</button>
         </div>
 

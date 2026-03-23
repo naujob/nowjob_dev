@@ -51,7 +51,7 @@
                     <!-- //목록 -->
                 </div>
 
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" class="btnRequest btn btn-primary">채팅으로 거래하기</button>
                 </div>
             </div>

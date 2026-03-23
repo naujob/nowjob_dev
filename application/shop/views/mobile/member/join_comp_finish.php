@@ -16,7 +16,7 @@
          <div class="form-action-wrap" id="non_mem_last_cont" style="text-align: center;">
              <!-- <a href="/compage/recruit_write" class="btn-round btn-tertiary" style="">채용공고 등록하러 가기</a> -->
          </div>
-         <div class="sticky-bottom">
+         <div class="sticky-bottom view-footer">
              <a href="/" class="btn btn-primary">메인으로 바로가기</a>
          </div>
 

@@ -434,7 +434,7 @@
                             <span class="add-icon">+</span>상세등록
                         </a>
                     </div>
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" class="btn btn-secondary" id="btnPrev">이전</button>
                         <button type="button" class="btn btn-primary" id="btnStep">미리보기</button>
                     </div>

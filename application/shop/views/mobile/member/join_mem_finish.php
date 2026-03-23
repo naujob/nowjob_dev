@@ -63,7 +63,7 @@ renderSelectBottomSheet(
          <div class="form-action-wrap" id="non_mem_last_cont" style="text-align: center;display:none;">
              <!-- <a href="/mypage/resume_list" class="btn-round btn-tertiary" style="">이력서 등록하러 가기</a> -->
          </div>
-         <div class="sticky-bottom">
+         <div class="sticky-bottom view-footer">
              <a href="/" class="btn btn-primary">메인으로 바로가기</a>
          </div>
      </div><!-- //page-content -->

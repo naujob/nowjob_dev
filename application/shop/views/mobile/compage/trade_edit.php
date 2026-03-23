@@ -229,7 +229,7 @@
                 </div>
             </div>
 
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button id="btnSave" type="button" class="btn btn-primary">수정완료</button>
             </div>
 
@@ -255,7 +255,7 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" aria-controls="terms1Panel" class="btn btn-primary js-toggle-panel">확인</button>
                 </div>
             </div>
@@ -282,7 +282,7 @@
                 </div>
             </div>
             <div class="panel-footer">
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" aria-controls="terms2Panel" class="btn btn-primary js-toggle-panel">확인</button>
                 </div>
             </div>

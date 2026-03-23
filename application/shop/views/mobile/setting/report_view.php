@@ -57,7 +57,7 @@
             	</div>
             <?php endif; ?>
             <?php if($this->user->getUserId()==$info["mm_id"]) : ?>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" id="btnDelete" class="btn btn-secondary js-remove btnDelete">삭제</button>
                 <button type="button" id="btnEdit" class="btn btn-primary">수정</button>
             </div>

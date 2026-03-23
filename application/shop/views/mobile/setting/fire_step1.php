@@ -19,7 +19,7 @@
                     <p>탈퇴 후 회원님의 구매하셨던 포인트(P)는 소멸되므로 유의하여 주시길 바랍니다. 탈퇴하신 후 잔여 포인트에 대한 환불은 불가합니다.</p>
                 </div>
 
-                <div class="sticky-bottom">
+                <div class="sticky-bottom view-footer">
                     <button type="button" id="btnNext" class="btn btn-primary">다음</button>
                 </div>
             </div>

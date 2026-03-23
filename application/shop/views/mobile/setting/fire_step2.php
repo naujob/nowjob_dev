@@ -51,7 +51,7 @@
                         </label>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" id="btnNext" class="btn btn-primary js-leave">회원탈퇴</button>
                     </div>
                 </form>

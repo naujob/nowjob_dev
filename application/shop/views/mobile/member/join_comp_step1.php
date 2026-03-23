@@ -20,7 +20,7 @@
                         <li><a href="#terms6Panel" role="button" aria-haspopup="dialog" aria-controls="terms6Panel" class="js-toggle-panel">계정 이용 정지 규정</a></li>
                     </ul>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" id="btnStep" class="btn btn-primary">동의합니다</button>
                     </div>
 
@@ -69,7 +69,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="terms5Panel" class="btn btn-primary js-toggle-panel">확인</button>
             </div>
         </div>
@@ -114,7 +114,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="terms6Panel" class="btn btn-primary js-toggle-panel">확인</button>
             </div>
         </div>

@@ -1,4 +1,4 @@
- <div class="page page-settings-view">
+<div class="page page-settings-view">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">알림</h1>
@@ -142,7 +142,7 @@
                 </div>
 
             </div>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" id="btnSave" class="btn btn-primary">설정</button>
             </div>
         </form>

@@ -139,7 +139,7 @@
                         </div>
                     </fieldset>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" id="btnStep" class="btn btn-primary">다음</button>
                     </div>
 					<input type="hidden" name="mm_comp_name" />
@@ -167,7 +167,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="chkTypePanel" onclick="toggleFieldset('type2Fieldset');" class="btn btn-secondary js-toggle-panel">아니오</button>
                 <button type="button" aria-controls="chkTypePanel" onclick="toggleFieldset('type3Fieldset');" class="btn btn-primary js-toggle-panel">네</button>
             </div>

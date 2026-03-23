@@ -43,7 +43,7 @@
                     <p class="help-msg">채용공고 등록은 최대 10개까지만 가능합니다.<br> 채용공고기간이 3개월지날시 자동삭제됩니다.</p>
                 </div>
             <?php endif; ?>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <!-- <button id="btnDefault" type="button" class="btn btn-primary">공개 채용공고로 설정</button> -->
             </div>
         </form>

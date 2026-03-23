@@ -61,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" id="btnSave" class="btn btn-primary">작성완료</button>
                     </div>
                 </div>

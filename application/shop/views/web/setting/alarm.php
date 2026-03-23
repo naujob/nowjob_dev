@@ -142,7 +142,7 @@
                 </div>
 
             </div>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" id="btnSave" class="btn btn-primary">설정</button>
             </div>
         </form>

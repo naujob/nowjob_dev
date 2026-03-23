@@ -76,7 +76,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" id="btnSearch"class="btn btn-primary">검색하기</button>
             </div>
         </div>

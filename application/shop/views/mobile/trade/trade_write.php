@@ -214,7 +214,7 @@
                 </div>
             </div>
 
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button id="btnSave" type="button" class="btn btn-primary">등록완료</button>
             </div>
 

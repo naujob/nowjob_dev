@@ -60,7 +60,7 @@
                         <p class="msg-mm_pwd_c help-msg is-fail hidden">비밀번호가 일치하지 않습니다.</p>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button id="btnStep" type="button" class="btn btn-primary">다음</button>
                     </div>
                 </form>

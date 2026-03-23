@@ -523,7 +523,7 @@
               </script>
           </div>
           
-          <div class="sticky-bottom">
+          <div class="sticky-bottom view-footer">
             <button id="btnPrev" type="button" class="btn btn-secondary">이전</button>
             <button id="btnStep" type="button" class="btn btn-primary">다음</button>
           </div>

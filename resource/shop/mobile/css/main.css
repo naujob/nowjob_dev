@@ -1217,7 +1217,7 @@ object {
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     vertical-align: middle;
-    border: 0;
+    border: 1px solid red;
 
     border-radius: 0;
     background: transparent;
@@ -3533,6 +3533,53 @@ fieldset {
 
 .layer-panel.notify .panel-content {
     padding: 0;
+}
+
+/* ─── 공통 Bottom Sheet 오버레이 패턴 ─────────────────────────────────── */
+/* 오버레이: 화면 전체를 덮는 dimmed 배경 */
+.bs-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0);
+    z-index: 9999;
+    transition: background 0.35s ease;
+}
+
+/* 시트: 하단에서 올라오는 흰색 카드 */
+.bs-sheet {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 32px 24px 48px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* 핸들바: 상단 드래그 인디케이터 */
+.bs-handlebar {
+    width: 36px; height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 0 auto 20px;
+}
+
+/* 버튼 행: 취소+완료 버튼 가로 정렬 */
+.bs-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* bs-actions 내 버튼 크기 및 radius 공통 */
+.bs-actions .btn-primary,
+.bs-actions .btn-secondary {
+    height: 56px;
+    font-size: 1.5rem;
+    border-radius: 40px;
 }
 
 /* Bottom sheet base */
@@ -7695,7 +7742,8 @@ form#frm {
     position: absolute;
     top: 40%;
     left: 50%;
-    max-width: 70%;
+    width: 100%;
+    max-width: 100%;
     max-height: 70%;
     -o-object-fit: contain;
     object-fit: contain;
@@ -11347,6 +11395,31 @@ form#frm {
     height: 100%;
 }
 
+/* 채팅 뷰 헤더 채용/인재 카드 (result-list-card 공통 스타일 재사용) */
+.chat-view-header .result-list-card {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+
+.chat-view-header .result-list-card .content-li {
+    height: 115px;
+    border: none;
+    cursor: pointer;
+}
+
+.chat-view-header .result-list-card .content-info .content-body {
+    height: 115px;
+}
+
+/* 채팅 뷰 헤더 근무요일 배지 (일반 목록보다 작게) */
+.chat-view-header .working-day > li {
+    width: 1.8em;
+    height: 1.8em;
+    margin: 0 0.5em 4px 0;
+    font-size: 13px;
+}
+
 .chat-view-body {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -11584,7 +11657,7 @@ form#frm {
     height: 0;
     border: 6px solid transparent;
     border-right: 0;
-    border-left: 8px solid #57CCAF;
+    border-left: 8px solid #1B9D7D;
 }
 
 .chat-bubble.diff .bubble-content {
@@ -11812,8 +11885,8 @@ form#frm {
 
 /* 설정 */
 #settings .secondary-title {
-    margin: 0.3rem 0px 0.5rem;
-    font-size: 1.0625rem;
+    margin: 0.3rem 0px 0.8rem;
+    font-size: 1.1rem;
 }
 
 /* #settings .section:first-of-type .secondary-title {
@@ -11827,7 +11900,7 @@ form#frm {
 
 .settings-list {
     margin: -4px 0;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 300;
     line-height: 1.1;
     list-style: none;

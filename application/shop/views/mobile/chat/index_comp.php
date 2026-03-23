@@ -1,7 +1,10 @@
+<?php
+$top_bar = array(
+    'title' => '채팅방'
+);
+?>
 <div class="page page-chat">
-  <div class="header">
-    <h1 class="title">채팅방</h1>
-  </div><!-- //header -->
+  <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php'); ?>
   <div class="page-content">
     <div class="tab-container">
       <ul class="tab-list">

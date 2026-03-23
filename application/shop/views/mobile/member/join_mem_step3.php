@@ -62,7 +62,7 @@
             </ul>
         </div>
 
-        <div class="sticky-bottom">
+        <div class="sticky-bottom view-footer">
             <button type="button" id="btnStep" class="btn btn-primary" style="background-color:#ccc;">다음</button>
         </div>
 
@@ -89,7 +89,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="terms1Panel" class="btn btn-primary js-toggle-panel" onclick="checkContent(1);">확인</button>
             </div>
         </div>
@@ -116,7 +116,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="terms2Panel" class="btn btn-primary js-toggle-panel" onclick="checkContent(2);">확인</button>
             </div>
         </div>
@@ -143,7 +143,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="terms3Panel" class="btn btn-primary js-toggle-panel" onclick="checkContent(3);">확인</button>
             </div>
         </div>
@@ -170,7 +170,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="terms4Panel" class="btn btn-primary js-toggle-panel" onclick="checkContent(4);">확인</button>
             </div>
         </div>
@@ -198,7 +198,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button type="button" aria-controls="terms5Panel" class="btn btn-primary js-toggle-panel" onclick="checkContent(5);">확인</button>
             </div>
         </div>

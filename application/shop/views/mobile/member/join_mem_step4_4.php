@@ -240,7 +240,7 @@
                         <p class="help-msg is-fail">사진을 추가하시면 취업활동에 더 좋습니다.<br> 기본프로필을 사용시 면접에 영향이 갈수도 있습니다.</p>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" class="btn btn-secondary" id="btnPrev">이전</button>
                         <button type="button" class="btn btn-primary" id="btnStep">등록완료</button>
                     </div>

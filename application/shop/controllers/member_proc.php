@@ -88,6 +88,13 @@ class Member_proc extends CI_Controller
         $mem_info = null;
         $idsave = input_post("idsave", "");
 
+        // 세션 및 쿠키 정보 로그 기록 (디버깅용)
+        // $debug_log = "========== [LOGIN_ATTEMPT] time: " . date("Y-m-d H:i:s") . " ==========\n";
+        // $debug_log .= "SESSION: \n" . print_r($_SESSION, true) . "\n";
+        // $debug_log .= "COOKIE: \n" . print_r($_COOKIE, true) . "\n";
+        // $log_dir = dirname(dirname(dirname(__DIR__))) . "/logs"; // /home/nowapk/dev_nowapk/logs
+        // @file_put_contents($log_dir . "/login_debug_" . date('Y-m-d') . ".log", $debug_log, FILE_APPEND | LOCK_EX);
+
         if ($mm_join_type == "web") {
             # 로그인처리
             if ($mm_id == "") {
@@ -475,7 +482,8 @@ class Member_proc extends CI_Controller
                     "email" => !empty($email) ? $email : "",
                 ];
 
-                // 기존 SNS 임시 로그 삭제 후 새로 저장
+                // **"회원가입을 하러 온 손님의 정보를 장부에 임시로 적어두는 과정"**
+                // 사용자가 구글 로그인을 성공한 직후, 실제 회원가입 버튼을 누르기 전까지 그 정보를 잃어버리지 않게 서버 데이터베이스(DB)라는 창고에 **'임시 저장'**
                 $this->site_model->deleteSiteLog(["session_id" => session_id(), "sl_status" => "Y"]);
                 $this->site_model->setSiteLog(
                     [
@@ -787,6 +795,75 @@ class Member_proc extends CI_Controller
                 json_return("99", "SMS발송시 오류가 발생하였습니다. 관리자에 문의 해주세요.");
             }
         }
+    }
+
+    # 구글 회원가입용 전화번호 확인 및 SMS 인증번호 발송
+    function check_google_phone()
+    {
+        $phone = input_post("mm_phone");
+
+        // 전화번호 정규화 (하이픈, 공백, 점 제거)
+        $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+
+        if ($normalized_phone == '') {
+            json_return("91", "전화번호를 입력해주세요.");
+            return;
+        }
+
+        // 전화번호로 회원 조회 (가입 타입 무관하게 모두 조회)
+        $query = "SELECT * FROM st_member
+                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                  AND mm_status = 'Y'
+                  LIMIT 1";
+        $result = $this->db->query($query);
+        $mem_info = $result->row_array();
+
+        if ($mem_info != null) {
+            // 이미 가입된 회원 — 가입 경로별 메시지 반환
+            $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "WEB";
+
+            if ($join_type === "GOOGLE") {
+                $provider_label = "구글";
+            } elseif ($join_type === "KAKAO") {
+                $provider_label = "카카오";
+            } elseif ($join_type === "NAVER") {
+                $provider_label = "네이버";
+            } elseif ($join_type === "APPLE") {
+                $provider_label = "애플";
+            } else {
+                $provider_label = "휴대폰";
+            }
+
+            json_return("99", $provider_label . "으로 가입된 회원입니다.\n로그인 페이지에서 로그인해주세요.");
+        } else {
+            // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
+            $count_result = $this->site_model->checkSmsSendCount($phone, "구글가입인증");
+
+            if ($count_result["code"] != "00") {
+                json_return("98", "하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.");
+                return;
+            }
+
+            $authNum = rand(100000, 999999);
+            $result = $this->common->sendSms($phone, "나우잡 인증 번호 발송 [" . $authNum . "]", $authNum);
+
+            if ($result["code"] == "00") {
+                json_return("00", "인증번호를 발송하였습니다.");
+            } else {
+                json_return("99", "SMS 발송 오류: " . $result["text"]);
+            }
+        }
+    }
+
+    # 구글 회원가입용 전화번호 인증번호 확인
+    function check_google_phone_auth()
+    {
+        $phone = input_post("mm_phone");
+        $auth  = input_post("auth");
+
+        $check = $this->site_model->checkSmsAuth($phone, $auth);
+
+        json_return($check["code"], $check["msg"]);
     }
 
     # 가입 인증 문자 발송 처리

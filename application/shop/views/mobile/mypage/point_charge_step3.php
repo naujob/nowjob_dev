@@ -10,7 +10,7 @@
                 <p>충전 금액 : <?=number_format($point_info["cd_val2"]) . "원"?></p>
             </div>
         </div>
-        <div class="sticky-bottom">
+        <div class="sticky-bottom view-footer">
             <a id="btnGoHistory" href="javascript:void(0);" class="btn btn-primary">충전내역 확인</a>
         </div>
     </div><!-- //page-content -->

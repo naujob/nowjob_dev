@@ -127,64 +127,8 @@ function fRemoveBigAdrPHP($arg)
   }
 }
 
-function getWorkType2025($work_type)
-{
-  if (!$work_type) {
-    return "";
-  }
 
-  $items = [];
 
-  if (preg_match_all('/<span>(.*?)<\/span>/', $work_type, $matches)) {
-    $items = $matches[1];
-  } else {
-    $items = preg_split('/\s*,\s*/', $work_type);
-  }
-
-  if (empty($items)) {
-    return "";
-  }
-
-  // 첫 번째 값만 사용 (em 태그 없이 텍스트만 반환)
-  $firstItem = trim($items[0]);
-  if ($firstItem === '') {
-    return "";
-  }
-
-  return $firstItem;
-}
-function getConvertResumePriceType($price_type)
-{
-  if (!$price_type) {
-    return "";
-  }
-
-  // <em> 태그 제거하고 실제 텍스트만 추출
-  $cleanPriceType = preg_replace('/<\/?em>/', '', $price_type);
-
-  if ($cleanPriceType === "일급,주급,월급") {
-    return "급여협의";
-  }
-
-  // 모든 값을 <em> 태그로 감싸서 반환 (직선 구분자로 구분)
-  $types = preg_split('/\s*,\s*/', $cleanPriceType);
-  if (empty($types)) {
-    return "";
-  }
-
-  $result = "";
-  foreach ($types as $index => $type) {
-    $trimmedType = trim($type);
-    if ($trimmedType !== "") {
-      if ($index > 0) {
-        $result .= " ";
-      }
-      $result .= "<em>" . htmlspecialchars($trimmedType, ENT_QUOTES, 'UTF-8') . "</em>";
-    }
-  }
-  
-  return $result;
-}
 ?>
 <style>
   .item-view .info-table .working-day>li {

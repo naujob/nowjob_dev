@@ -423,7 +423,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     <span class="add-icon">+</span>상세등록
                 </a>
             </div>
-            <div class="sticky-bottom">
+            <div class="sticky-bottom view-footer">
                 <button id="btnStep" type="button" class="btn btn-primary">미리보기</button>
             </div>
                 </div>

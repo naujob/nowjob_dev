@@ -27,7 +27,7 @@
             ]);
         });
     </script>
-    <div class="sticky-bottom">
+    <div class="sticky-bottom view-footer">
         <a href="javascript:void(0);" id="btnStart" class="btn btn-primary">시작하기</a>
     </div>
 </div>

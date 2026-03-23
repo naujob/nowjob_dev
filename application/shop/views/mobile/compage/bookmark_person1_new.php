@@ -466,7 +466,7 @@ function getConvertResumePriceType($price_type) {
             </ol>
             <!-- //목록 -->
           </div>
-          <div class="sticky-bottom">
+          <div class="sticky-bottom view-footer">
             <button type="button" aria-haspopup="dialog" id="btnReqeust" class="btn btn-primary">제안보내기</button>
             <button id="btnCancel" type="button" class="btn btn-secondary js-remove">취소하기</button>
           </div>

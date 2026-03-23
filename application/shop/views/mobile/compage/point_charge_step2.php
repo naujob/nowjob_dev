@@ -103,7 +103,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button type="button" id="btnPrev" class="btn btn-secondary">이전단계</button>
                         <button type="button" id="btnNext" class="btn btn-primary">결제하기</button>
                     </div>

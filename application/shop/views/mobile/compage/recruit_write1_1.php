@@ -422,7 +422,7 @@
                         </a>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button id="btnPreview" type="button" class="btn btn-primary">미리보기</button>
                         <button id="btnSubmit" type="button" class="btn btn-primary">최종저장</button>
                     </div>

@@ -84,7 +84,7 @@
                         <p class="help-msg">사진을 추가하시면 구인활동에 더 좋습니다.</p>
                     </div>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button id="btnPrev" type="button" class="btn btn-secondary">이전</button>
                         <button id="btnStep" type="button" class="btn btn-primary"><?=$info["rc_idx"]!="0" ? "수정":"등록"?>완료</button>
                     </div>

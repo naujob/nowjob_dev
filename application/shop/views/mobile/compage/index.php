@@ -156,9 +156,9 @@ function fBizNoMasking($bizNo)
               <li style="display: block; height: 26px;">
                 <span class="label">사업자명</span>
                 <?php if ($mem_info == null || ($mem_info["mm_comp_num"] == "")) {   ?>
-                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -24px;">인증</button>
+                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -35px;">인증</button>
                 <?php } else {   ?>
-                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -24px;">변경</button>
+                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -35px;">변경</button>
                 <?php }        ?>
                 <em class="value" style="display:inline-block; float:right; height: 30px; margin-top: 0px;"><?= ($mem_info == null || ($mem_info["mm_comp_num"] == "")) ? "기업회원" : $mem_info["mm_comp_name"] ?></em></p>
               </li>

@@ -91,7 +91,7 @@
                         }());
                     </script>
 
-                    <div class="sticky-bottom">
+                    <div class="sticky-bottom view-footer">
                         <button id="btnStep" type="button" class="btn btn-primary">다음</button>
                     </div>
 
