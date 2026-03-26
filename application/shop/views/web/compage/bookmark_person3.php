@@ -49,75 +49,8 @@ function fRemoveBigAdr($arg)
 }
 */
 
-function getWorkType2025($work_type)
-{
-    if (!$work_type) {
-        return "";
-    }
 
-    $items = [];
 
-    if (preg_match_all('/<span>(.*?)<\/span>/', $work_type, $matches)) {
-        $items = $matches[1];
-    } else {
-        $items = preg_split('/\s*,\s*/', $work_type);
-    }
-
-    $item_set = array_unique(array_map('trim', $items));
-
-    $has_jugan = in_array('주간', $item_set);
-    $has_yagan = in_array('야간', $item_set);
-    $has_2shift = in_array('2교대', $item_set);
-
-    if ($has_jugan && $has_yagan && $has_2shift) {
-        return '<em class="wtype0">근무협의</em>';
-    }
-
-    $result = '';
-    foreach ($item_set as $text) {
-        if ($text === '') continue;
-
-        $cls = '';
-        if ($text === '주간') {
-            $cls = 'wtype1';
-        } else if ($text === '야간') {
-            $cls = 'wtype2';
-        } else if ($text === '2교대') {
-            $cls = 'wtype3';
-        }
-
-        $result .= '<em class="' . $cls . '">' . $text . '</em>';
-    }
-
-    return $result;
-}
-
-function getConvertResumePriceType($price_type)
-{
-    $allTypes = ['일급', '주급', '월급'];
-
-    $containsAll = true;
-    foreach ($allTypes as $type) {
-        if (strpos($price_type, $type) === false) {
-            $containsAll = false;
-            break;
-        }
-    }
-
-    if ($containsAll) {
-        return '<em>급여협의</em>';
-    }
-
-    $types = preg_split('/\s*,\s*/', $price_type);
-
-    $result = '';
-    foreach ($types as $type) {
-        $type = trim($type);
-        $result .= '<em>' . $type . '</em>';
-    }
-
-    return $result;
-}
 
 ?>
 <style>

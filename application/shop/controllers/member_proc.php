@@ -627,6 +627,290 @@ class Member_proc extends CI_Controller
         json_return("00", "로그인 완료");
     }
 
+    /**
+     * 위챗 임시 code → access_token + openid 교환
+     * @param string $code      위챗 임시 인증 코드
+     * @param string $app_id    위챗 AppID
+     * @param string $app_secret  위챗 AppSecret
+     * @return array|false  성공 시 access_token·openid·unionid 포함 배열, 실패 시 false
+     */
+    private function verify_wechat_code($code, $app_id, $app_secret)
+    {
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token"
+             . "?appid=" . $app_id
+             . "&secret=" . $app_secret
+             . "&code=" . $code
+             . "&grant_type=authorization_code";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        if (!$response) {
+            return false;
+        }
+        $data = json_decode($response, true);
+        if (!is_array($data) || isset($data["errcode"])) {
+            return false;
+        }
+        return $data;
+    }
+
+    /**
+     * 위챗 사용자 정보 조회 (openid, sex, unionid)
+     * @param string $access_token  위챗 access_token
+     * @param string $openid        위챗 openid
+     * @return array|false  성공 시 응답 배열, 실패 시 false
+     */
+    private function get_wechat_user_info($access_token, $openid)
+    {
+        $url = "https://api.weixin.qq.com/sns/userinfo"
+             . "?access_token=" . $access_token
+             . "&openid=" . $openid
+             . "&lang=zh_CN";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        if (!$response) {
+            return false;
+        }
+        $data = json_decode($response, true);
+        if (!is_array($data) || isset($data["errcode"])) {
+            return false;
+        }
+        return $data;
+    }
+
+    /**
+     * 위챗 로그인 처리
+     * POST 파라미터: code (위챗 임시 인증 코드)
+     * 사용 데이터: openid, sex, unionid
+     */
+    function wechat_login()
+    {
+        $code = input_post("code", "");
+
+        if ($code == "") {
+            json_return("99", "정상적인 접근이 아닙니다.");
+            exit;
+        }
+
+        // st_setting 테이블에서 위챗 AppID, AppSecret 조회
+        $wechat_setting = getSettingInfo(["st_group" => "위챗"]);
+        $app_id     = (isset($wechat_setting["APP_ID"]) && $wechat_setting["APP_ID"] != "")
+                        ? $wechat_setting["APP_ID"] : "";
+        $app_secret = (isset($wechat_setting["APP_SECRET"]) && $wechat_setting["APP_SECRET"] != "")
+                        ? $wechat_setting["APP_SECRET"] : "";
+
+        if ($app_id == "" || $app_secret == "") {
+            json_return("99", "위챗 로그인 설정이 없습니다. 관리자에게 문의해주세요.");
+            exit;
+        }
+
+        // 1) code → access_token + openid 교환
+        $token_data = $this->verify_wechat_code($code, $app_id, $app_secret);
+        if (!$token_data) {
+            json_return("99", "위챗 인증에 실패했습니다.");
+            exit;
+        }
+
+        $access_token = $token_data["access_token"];
+        $openid       = $token_data["openid"];
+
+        // 2) 위챗 사용자 정보 조회 (openid, sex, unionid 사용)
+        $user_info = $this->get_wechat_user_info($access_token, $openid);
+        $sex_code  = ($user_info && isset($user_info["sex"])) ? intval($user_info["sex"]) : 0;
+        $unionid   = ($user_info && isset($user_info["unionid"])) ? $user_info["unionid"] : "";
+        // 위챗 sex: 1=남, 2=여, 0=미지정 → 내부 표준: MALE/FEMALE/""
+        if ($sex_code == 1) {
+            $gender = "MALE";
+        } elseif ($sex_code == 2) {
+            $gender = "FEMALE";
+        } else {
+            $gender = "";
+        }
+
+        // 3) 위챗 가입 회원인지 조회 (정상 회원만)
+        $mem_info = $this->member_model->getMember([
+            "mm_join_type" => "WECHAT",
+            "mm_join_key"  => $openid,
+            "mm_status"    => "Y"
+        ]);
+
+        if ($mem_info == null) {
+            // 4) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
+            $query  = "select * from st_member ";
+            $query .= "where mm_join_type = 'WECHAT' ";
+            $query .= "and   mm_join_key = '" . $openid . "'  ";
+            $query .= "and   mm_status = 'N'  ";
+            $query .= "order by mm_idx desc limit 1 ";
+
+            $result   = $this->db->query($query);
+            $mem_info = $result->row_array();
+
+            if ($mem_info == null) {
+                // 5) 회원이 없으면 SNS 정보 임시 저장 (회원가입으로 이어질 수 있도록)
+                $sns_info = [
+                    "join_type" => "WECHAT",
+                    "join_key"  => $openid,
+                    "gender"    => $gender,
+                    "unionid"   => $unionid,
+                ];
+
+                $this->site_model->deleteSiteLog(["session_id" => session_id(), "sl_status" => "Y"]);
+                $this->site_model->setSiteLog(
+                    [
+                        "session_id" => session_id(),
+                        "sl_type"    => "JOIN",
+                        "sl_step"    => "SNS",
+                        "sl_txt"     => json_encode($sns_info, JSON_UNESCAPED_UNICODE)
+                    ],
+                    [
+                        "session_id" => session_id(),
+                        "sl_type"    => "JOIN",
+                        "sl_step"    => "SNS",
+                        "sl_status"  => "Y"
+                    ]
+                );
+                // 신규 회원 응답: 전화번호 인증 후 회원가입 진행
+                json_return("90", "회원정보를 찾을수 없습니다.", [
+                    "join_key"  => $openid,
+                    "join_type" => "WECHAT",
+                ]);
+                exit;
+            }
+
+            if ($mem_info["mm_status"] != "Y") {
+                // 6) 탈퇴 회원이면 탈퇴 후 15일 이내 여부에 따라 메시지 분기
+                $fireDate    = new DateTime($mem_info["fire_dt"]);
+                $currentDate = new DateTime();
+                $interval    = $fireDate->diff($currentDate)->days;
+
+                if ($interval < 15) {
+                    json_return("91", "탈퇴한 회원입니다.");
+                } else {
+                    json_return("90", "회원정보를 찾을수 없습니다.");
+                }
+                exit;
+            }
+        }
+
+        // 7) 로그인 성공: 세션에 사용자 정보 저장
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+        $this->user->setUser([
+            "mm_idx"       => $mem_info["mm_idx"],
+            "mm_id"        => $mem_info["mm_id"],
+            "mm_point"     => $mem_info["mm_point"],
+            "mm_name"      => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type"      => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img"       => $mem_info["mm_thumb"],
+            "ad_addr"      => $addr_info["ad_addr"],
+            "ad_gps_x"     => $addr_info["ad_gps_x"],
+            "ad_gps_y"     => $addr_info["ad_gps_y"],
+            "mm_sex"       => $mem_info["mm_sex"],
+        ]);
+
+        // 8) 최근 로그인 시각 갱신
+        $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+        // 9) 헤더의 uuid로 디바이스 연결 (푸시/디바이스 관리용)
+        $headers = apache_request_headers();
+        if (isset($headers["uuid"])) {
+            $mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"]]);
+            if ($mem_device != null) {
+                $this->member_model->setMemberDevice(
+                    ["mm_idx" => $mem_info["mm_idx"]],
+                    ["uuid"   => $headers["uuid"]]
+                );
+            }
+        }
+
+        // 10) 앱/모바일 UA이면서 헤더 uuid가 없으면 쿠키 uuid로 디바이스 연결
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $is_ios     = preg_match('/nowjobswift|CFNetwork|Darwin/i', $user_agent) || preg_match('/\b(iPhone|iPad|iPod)\b/i', $user_agent);
+        $is_android = preg_match('/NowJobApp_Android|Android/i', $user_agent);
+
+        if (($is_ios || $is_android) && (!isset($headers["uuid"]) || empty($headers["uuid"]))) {
+            $uuid_cookie       = isset($_COOKIE['uuid']) ? $_COOKIE['uuid'] : '';
+            $os_type_for_query = $is_ios ? 'ios' : 'android';
+
+            // 토큰이 있는 디바이스를 우선 연결 (푸시를 위해)
+            $sql = "SELECT * FROM st_member_device
+                    WHERE token IS NOT NULL
+                    AND token != ''
+                    AND os_type = ?
+                    ORDER BY reg_dt DESC
+                    LIMIT 1";
+            $query        = $this->db->query($sql, [$os_type_for_query]);
+            $token_device = $query->row_array();
+
+            $target_uuid = null;
+
+            if ($token_device && !empty($token_device["token"])) {
+                // 토큰 보유 디바이스 우선 연결
+                $target_uuid = $token_device["uuid"];
+            } else if ($uuid_cookie != "") {
+                // 토큰 디바이스가 없으면 쿠키의 uuid 사용
+                $cookie_device = $this->member_model->getMemberDevice(["uuid" => $uuid_cookie]);
+                if ($cookie_device != null) {
+                    $target_uuid = $uuid_cookie;
+                } else {
+                    // 쿠키 uuid로 디바이스가 없으면 생성
+                    $new_device_data = [
+                        "uuid"    => $uuid_cookie,
+                        "mm_idx"  => $mem_info["mm_idx"],
+                        "os_type" => $os_type_for_query,
+                        "push_yn" => "N",
+                        "reg_dt"  => date('Y-m-d H:i:s'),
+                        "up_dt"   => date('Y-m-d H:i:s')
+                    ];
+                    $insert_result = $this->member_model->insertMemberDevice($new_device_data);
+                    if ($insert_result) {
+                        $target_uuid = $uuid_cookie;
+                    }
+                }
+            }
+
+            if ($target_uuid != null) {
+                // 동일 사용자에 연결된 다른 디바이스는 해제 (중복 방지)
+                $sql = "UPDATE st_member_device
+                        SET mm_idx = 0, up_dt = NOW()
+                        WHERE mm_idx = ? AND uuid != ?";
+                $this->db->query($sql, [$mem_info["mm_idx"], $target_uuid]);
+
+                // 선택된 디바이스만 연결
+                $this->member_model->setMemberDevice(
+                    ["mm_idx" => $mem_info["mm_idx"]],
+                    ["uuid"   => $target_uuid]
+                );
+            }
+        }
+
+        // 11) 토큰 보유 디바이스의 푸시 알림 활성화
+        $sql = "UPDATE st_member_device
+                SET push_yn = 'Y', up_dt = NOW()
+                WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+        $this->db->query($sql, [$mem_info["mm_idx"]]);
+
+        // 12) 몽고 DB에 사용자 정보/토큰 동기화
+        $mem_device = $this->member_model->getMemberDevice(["mm_idx" => $mem_info["mm_idx"]]);
+        $this->mongo_model->insertUserInfo($mem_info, $mem_device != null ? $mem_device["token"] : "");
+
+        // 13) 로그인 완료 응답
+        json_return("00", "로그인 완료");
+    }
+
     # 자동 로그인
     function auto_login()
     {

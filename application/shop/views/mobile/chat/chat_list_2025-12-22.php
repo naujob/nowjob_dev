@@ -167,7 +167,7 @@
             nationStr += " | ";
           }
           if (row.rc_sage == "0") {
-            nationStr += row.rc_sage + "세";
+            nationStr += row.rc_sage + "대";
           }
           if (row.rc_sage == "0" && row.rc_eage == "0") {
             nationStr += "";
@@ -177,7 +177,7 @@
           if (row.rc_eage == "0") {
             nationStr += "";
           } else {
-            nationStr += row.rc_eage + "세";
+            nationStr += row.rc_eage + "대";
           }
           $content = $content.replaceAll("{{rc_nation}}", nationStr);
 

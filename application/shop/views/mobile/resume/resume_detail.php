@@ -67,7 +67,7 @@ function fHashSet($txt){
                             ?>
                             <p><span><?=$mem_info["mm_nation"]?></span>
                                 <span class="gapbar1" style="<?=$gapbar1?>">|</span>
-                                <span><?=(getKoreanAge($mem_info["mm_birth"])=="0"?"":getKoreanAge($mem_info["mm_birth"])."세")?></span>
+                                <span><?=(getKoreanAge($mem_info["mm_birth"])=="0"?"":getKoreanAge($mem_info["mm_birth"])."대")?></span>
                                 <span class="gapbar2" style="<?=$gapbar2?>">|</span>
                                 <span><?=$mem_info["ad_addr"]?></span></p>
                             <!-- 메일주소 -->

@@ -6078,6 +6078,16 @@ form#frm {
     text-shadow: none;
 }
 
+/* 위챗 버튼 */
+.vendor-type6 {
+    background-image: url('/resource/shop/mobile/img/member/ic-wechat-login.png');
+    background-size: 100% auto;
+    background-position: 40% center;
+    background-repeat: no-repeat;
+    color: transparent;
+    text-shadow: none;
+}
+
 /* Apple 버튼 (검은색 배경)  */
 .vendor-type2 {
     background-color: #000;

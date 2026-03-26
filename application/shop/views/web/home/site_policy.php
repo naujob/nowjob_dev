@@ -25,12 +25,7 @@
                         <li>
                             <a href="/home/site_terms5" class="tab"><span>광고성 정보 수신 동의</span></a>
                         </li>
-                        <li>
-                            <a href="/home/site_terms4" class="tab"><span>중고거래 이용약관</span></a>
-                        </li>
-                        <li>
-                            <a href="/home/site_terms6" class="tab"><span>중고거래 운영정책</span></a>
-                        </li>
+                       
                     </ul>
                 </div>
 

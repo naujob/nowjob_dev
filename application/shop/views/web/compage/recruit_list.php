@@ -541,7 +541,7 @@
                                                             <p>
                                                                 <?= $row["rc_work_type"] ?> |
                                                                 <?= ($row["rc_nation"] == "무관" || $row["rc_nation"] == "내국인,외국인" || $row["rc_nation"] == "") ? "국적무관" : $row["rc_nation"] ?> |
-                                                                <?= ($row["rc_sage"] == "0" && $row["rc_eage"] == "0") ? "나이무관" : (($row["rc_sage"] == "0" ? "" : $row["rc_sage"] . "세") . (($row["rc_sage"] == "0" && $row["rc_eage"] == "0") ? "" : " ~ ") . ($row["rc_eage"] == "0" ? "" : $row["rc_eage"] . "세")) ?>
+                                                                <?= ($row["rc_sage"] == "0" && $row["rc_eage"] == "0") ? "나이무관" : (($row["rc_sage"] == "0" ? "" : $row["rc_sage"] . "대") . (($row["rc_sage"] == "0" && $row["rc_eage"] == "0") ? "" : " ~ ") . ($row["rc_eage"] == "0" ? "" : $row["rc_eage"] . "대")) ?>
                                                             </p>
                                                         </div>
                                                     </div>

@@ -554,10 +554,10 @@
                 tab_list[7].text = search_array.sage + "세 ~";
                 tab_list[7].active = "on";
             }else if(search_array.sage=="" && search_array.eage!=""){
-                tab_list[7].text = " ~" + search_array.eage + "세";
+                tab_list[7].text = " ~" + search_array.eage + "대";
                 tab_list[7].active = "on";
             }else if(search_array.sage!="" && search_array.eage!=""){
-                tab_list[7].text = search_array.sage + "세" + " ~ " + search_array.eage + "세";
+                tab_list[7].text = search_array.sage + "대" + " ~ " + search_array.eage + "대";
                 tab_list[7].active = "on";
             }
 		}
@@ -654,11 +654,11 @@
 			}else{
 				$content = $content.replaceAll("<p style=\"display:inline-block;\">{{mm_nation}}</p>","<p style=\"display:none;\"></p>");
 			}
-			//$content = $content.replaceAll("{{ma_age}}",row.ma_age);
-			if(getKoreanAge(row.mm_birth)=='0'){
+			// 서버에서 이미 계산된 mm_age 사용 (범위: 20, 30, 40 등)
+			if(row.mm_age=='0' || row.mm_age==''){
 				$content = $content.replaceAll("{{ma_age}}세","");
 			}else{
-				$content = $content.replaceAll("{{ma_age}}",getKoreanAge(row.mm_birth));
+				$content = $content.replaceAll("{{ma_age}}",row.mm_age);
 			}
 			$content = $content.replaceAll("{{ru_price_type}}",row.ru_price_type);
 			$content = $content.replaceAll("{{ru_my_type}}",row.ru_my_type);
@@ -753,21 +753,6 @@
 		}
 	});
 
-	function getKoreanAge(birth) {
-	    if (!birth || birth.length !== 8) {
-	        return 0; // 생년월일이 없으면 0 반환
-	    }
-
-			let formattedBirth = birth.slice(0, 4) + "-" + birth.slice(4, 6) + "-" + birth.slice(6, 8);
-
-	    let birthday = new Date(formattedBirth); // 생년월일을 Date 객체로 변환
-			//console.log(birthday.getFullYear());
-	    let currentDate = new Date(); // 현재 날짜 가져오기
-
-	    let age = currentDate.getFullYear() - birthday.getFullYear(); // 연도 차이 계산
-
-	    return age;
-	}
 
 </script>
 

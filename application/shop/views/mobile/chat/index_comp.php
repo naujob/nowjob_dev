@@ -591,7 +591,7 @@ $top_bar = array(
               nationStr += " | ";
             }
             if (row.rc_sage == "0") {
-              nationStr += row.rc_sage + "세";
+              nationStr += row.rc_sage + "대";
             }
             if (row.rc_sage == "0" && row.rc_eage == "0") {
               nationStr += "";
@@ -601,7 +601,7 @@ $top_bar = array(
             if (row.rc_eage == "0") {
               nationStr += "";
             } else {
-              nationStr += row.rc_eage + "세";
+              nationStr += row.rc_eage + "대";
             }
             $content = $content.replaceAll("{{rc_nation}}", nationStr);
 
@@ -613,7 +613,7 @@ $top_bar = array(
 
             var maAge = "";
             if (row.ma_age && row.ma_age != '' && row.ma_age != '0') {
-              maAge = row.ma_age + "세";
+              maAge = row.ma_age + "대";
             }
             if (maAge != "") {
               $content = $content.replaceAll("{{ma_age}}", maAge);
@@ -672,7 +672,7 @@ $top_bar = array(
             if (row.ru_work != "") meminfo = row.ru_work + "<br>";
             if (row.mm_nation != "") meminfo += row.mm_nation;
             if (row.mm_nation != "" && row.ma_age != "" && row.ma_age != "0") meminfo += " | ";
-            if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "세";
+            if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "대";
             $content = $content.replaceAll("{{meminfo}}", meminfo);
 
             $clone.html($content);
@@ -979,7 +979,7 @@ $top_bar = array(
               nationStr += " | ";
             }
             if (row.rc_sage == "0") {
-              nationStr += row.rc_sage + "세";
+              nationStr += row.rc_sage + "대";
             }
             if (row.rc_sage == "0" && row.rc_eage == "0") {
               nationStr += "";
@@ -989,7 +989,7 @@ $top_bar = array(
             if (row.rc_eage == "0") {
               nationStr += "";
             } else {
-              nationStr += row.rc_eage + "세";
+              nationStr += row.rc_eage + "대";
             }
             $content = $content.replaceAll("{{rc_nation}}", nationStr);
 
@@ -1001,7 +1001,7 @@ $top_bar = array(
 
             var maAge = "";
             if (row.ma_age && row.ma_age != '' && row.ma_age != '0') {
-              maAge = row.ma_age + "세";
+              maAge = row.ma_age + "대";
             }
             if (maAge != "") {
               $content = $content.replaceAll("{{ma_age}}", maAge);
@@ -1063,7 +1063,7 @@ $top_bar = array(
             if (row.ru_work != "") meminfo = row.ru_work + "<br>";
             if (row.mm_nation != "") meminfo += row.mm_nation;
             if (row.mm_nation != "" && row.ma_age != "" && row.ma_age != "0") meminfo += " | ";
-            if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "세";
+            if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "대";
             $content = $content.replaceAll("{{meminfo}}", meminfo);
 
             $clone.html($content);
@@ -1601,7 +1601,7 @@ $top_bar = array(
 
             var maAge = "";
             if (row.ma_age && row.ma_age != '' && row.ma_age != '0') {
-              maAge = row.ma_age + "세";
+              maAge = row.ma_age + "대";
             }
             if (maAge != "") {
               $content = $content.replaceAll("{{ma_age}}", maAge);

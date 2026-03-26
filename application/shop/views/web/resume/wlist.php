@@ -126,7 +126,7 @@
                                 <!-- 추가사항 -->
                                 <div class="meta">
                                     <p class="national"><?=$row["mm_nation"]?></p>
-                                    <p class="age"><?=($row["ma_age"]=="0"?"":$row["ma_age"]."세")?></p>
+                                    <p class="age"><?=($row["ma_age"]=="0"?"":$row["ma_age"]."대")?></p>
                                     <p class="txt-color2"><?=fWorkColor(strpos($row["ru_work_type"],",")!==false ? "협의" : ($row["ru_work_type"]))?></p>
 																		<p class="txt-color2"><?=(strpos($row["ru_price_type"],",")!==false ? "협의" : ($row["ru_price_type"]))?></p>
                                 </div>
@@ -1825,13 +1825,13 @@ function fSelect(rc_idx){
 			// 	$content = $content.replaceAll("{{ma_age}}","");
 			// 	$content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"","class=\"age\" style=\"display: none;\"");
 			// }else{
-			// 	$content = $content.replaceAll("{{ma_age}}",row.ma_age+"세");
+			// 	$content = $content.replaceAll("{{ma_age}}",row.ma_age+"대");
 			// }
 			if(row.mm_birth=='' || row.mm_birth=='0' || getKoreanAge(row.mm_birth)=='0'){
 				$content = $content.replaceAll("{{ma_age}}","");
 				$content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"","class=\"age\" style=\"display: none;\"");
 			}else{
-				$content = $content.replaceAll("{{ma_age}}",getKoreanAge(row.mm_birth)+"세");
+				$content = $content.replaceAll("{{ma_age}}",getKoreanAge(row.mm_birth)+"대");
 			}
 			//console.log(row.mm_birth);
 
@@ -2165,20 +2165,5 @@ function fSelect(rc_idx){
 
 	}
 
-	function getKoreanAge(birth) {
-	    if (!birth || birth.length !== 8) {
-	        return 0; // 생년월일이 없으면 0 반환
-	    }
-
-			let formattedBirth = birth.slice(0, 4) + "-" + birth.slice(4, 6) + "-" + birth.slice(6, 8);
-
-	    let birthday = new Date(formattedBirth); // 생년월일을 Date 객체로 변환
-			//console.log(birthday.getFullYear());
-	    let currentDate = new Date(); // 현재 날짜 가져오기
-
-	    let age = currentDate.getFullYear() - birthday.getFullYear(); // 연도 차이 계산
-
-	    return age;
-	}
 
 </script>

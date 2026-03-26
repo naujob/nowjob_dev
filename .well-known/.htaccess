@@ -1,0 +1,4 @@
+# apple-app-site-association 파일을 application/json으로 서빙
+<Files "apple-app-site-association">
+    Header set Content-Type "application/json"
+</Files>

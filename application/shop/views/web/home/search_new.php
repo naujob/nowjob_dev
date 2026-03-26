@@ -951,7 +951,7 @@
 				$content = $content.replaceAll("{{ma_age}}","");
 				$content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"","class=\"age\" style=\"display: none;\"");
 			}else{
-				$content = $content.replaceAll("{{ma_age}}",row.mm_age+"세");
+				$content = $content.replaceAll("{{ma_age}}",row.mm_age+"대");
 			}
 
 			$content = $content.replaceAll("{{ru_price_type}}",getConvertPriceType(row.ru_price_type));

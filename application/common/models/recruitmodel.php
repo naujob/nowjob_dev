@@ -46,9 +46,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
         when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -138,9 +138,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
         when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
         else '나이무관' end) as rc_age_nm",
 			/*
       "aa.mm_comp_name",
@@ -366,9 +366,9 @@ class recruitModel extends MY_Model
 					when rc_nation = '외국인' then '외국인'
 					else '국적무관' end) as rc_nation_nm,
 				(case
-					when rc_sage <> '' and rc_eage <> '' then concat(rc_sage,' ~ ',rc_eage,'세')
+					when rc_sage <> '' and rc_eage <> '' then concat(rc_sage,' ~ ',rc_eage,'대')
 					when rc_sage <> '' then concat(rc_sage, '세 ~')
-					when rc_eage <> '' then concat('~ ',rc_eage, '세')
+					when rc_eage <> '' then concat('~ ',rc_eage, '대')
 					else '나이무관' end) as rc_age_nm,
         (case
           when rc_sex = '남자,여자' then '성별무관'
@@ -436,9 +436,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
         when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -517,9 +517,9 @@ class recruitModel extends MY_Model
           when rc_nation = '외국인' then '외국인'
           else '국적무관' end) as rc_nation_nm,
         (case
-          when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+          when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
           when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-          when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+          when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
           else '나이무관' end) as rc_age_nm
       FROM st_recruit aa
         inner join st_member_view bb
@@ -561,9 +561,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
         when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
         else '나이무관' end) as rc_age_nm",
 			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt"
 		];
@@ -631,9 +631,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
         when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -702,9 +702,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
         when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -760,9 +760,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'세')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
         when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '세')
+        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];

@@ -276,8 +276,7 @@ function fBizNoMasking($bizNo){
                             <li><a href="/setting/site_terms2" class="menu">개인정보 수집 및 이용동의</a></li>
                             <li><a href="/setting/site_terms3" class="menu">위치기반서비스 이용약관</a></li>
                             <li><a href="/setting/site_terms5" class="menu">광고성 정보 수신 동의</a></li>
-                            <li><a href="/setting/site_terms4" class="menu">중고거래 이용약관</a></li>
-                            <li><a href="/setting/site_terms6" class="menu">중고거래 운영정책</a></li>
+                           
                         </ul>
                     </div>
                 </div>

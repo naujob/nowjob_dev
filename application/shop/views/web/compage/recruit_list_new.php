@@ -63,7 +63,7 @@
                                                             <!-- 근무시간 -->
                                                             <p><?=$row["rc_nation"]?></p>
                                                             <span><?=(($row["rc_nation"]!="" && ($row["rc_sage"]!="0" || $row["rc_eage"]!="0"))?" | ":"")?></span>
-                                                            <p><?=($row["rc_sage"]=="0"?"":$row["rc_sage"]."세")?><?=(($row["rc_sage"]=="0" && $row["rc_eage"]=="0")?"":" ~ ")?><?=($row["rc_eage"]=="0"?"":$row["rc_eage"]."세")?></p>
+                                                            <p><?=($row["rc_sage"]=="0"?"":$row["rc_sage"]."대")?><?=(($row["rc_sage"]=="0" && $row["rc_eage"]=="0")?"":" ~ ")?><?=($row["rc_eage"]=="0"?"":$row["rc_eage"]."대")?></p>
                                                         </div>
                                                     </div>
                                                 </div>

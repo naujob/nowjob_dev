@@ -978,7 +978,13 @@ function getKoreanAge($birth)
 		}
 		$referenceDate = new DateTime(Date('Y-m-d'));
 		$age = $birthday->diff($referenceDate)->y;
-		return $age;
+
+		// 나이를 범위로 변환 (20세 → "20", 26세 → "20", 30세 → "30" 등)
+		if ($age == 0) {
+			return 0;
+		}
+		$age_range = (int)($age / 10) * 10;
+		return (string)$age_range;
 	} catch (Exception $e) {
 		return 0;
 	}

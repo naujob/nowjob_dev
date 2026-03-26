@@ -20,7 +20,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=1920">
-    <title>지금 뜨는, 좋은 일자리 나우잡(NOWJOB)</title>
+    <title>지금 뜨는, 좋은 일자리 NOWJOB</title>
     <!-- Google Fonts - Noto Sans KR -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

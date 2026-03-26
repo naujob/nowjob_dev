@@ -904,16 +904,6 @@
 
   }
 
-  function getKoreanAge(birth) {
-    if (!birth || birth.length !== 8) {
-      return 0;
-    }
-    let formattedBirth = birth.slice(0, 4) + "-" + birth.slice(4, 6) + "-" + birth.slice(6, 8);
-    let birthday = new Date(formattedBirth);
-    let currentDate = new Date();
-    let age = currentDate.getFullYear() - birthday.getFullYear();
-    return age;
-  }
 
   function getPriceType(price_type) {
     if (!price_type) {

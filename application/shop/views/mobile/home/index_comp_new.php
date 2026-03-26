@@ -838,7 +838,7 @@ if ($g_ios_publish == true) {
             $content = $content.replaceAll("{{mm_name}}", row.mm_name);
             $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
             $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-            $content = $content.replaceAll("{{mm_age}}", row.mm_age + "세");
+            $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
             $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
             $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
             $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
@@ -890,7 +890,7 @@ if ($g_ios_publish == true) {
             $content = $content.replaceAll("{{mm_name}}", row.mm_name);
             $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
             $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-            $content = $content.replaceAll("{{mm_age}}", row.mm_age + "세");
+            $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
             $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
             $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
             $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);

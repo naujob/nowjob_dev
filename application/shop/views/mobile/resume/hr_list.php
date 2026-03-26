@@ -351,7 +351,7 @@ if (count($banner_list) > 0) {
         $content = $content.replaceAll("{{ma_age}}", "");
         $content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"", "class=\"age\" style=\"display: none;\"");
       } else {
-        $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "세");
+        $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "대");
       }
 
       $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
@@ -368,16 +368,6 @@ if (count($banner_list) > 0) {
   }
 
 
-  function getKoreanAge(birth) {
-    if (!birth || birth.length !== 8) {
-      return 0;
-    }
-    let formattedBirth = birth.slice(0, 4) + "-" + birth.slice(4, 6) + "-" + birth.slice(6, 8);
-    let birthday = new Date(formattedBirth);
-    let currentDate = new Date();
-    let age = currentDate.getFullYear() - birthday.getFullYear();
-    return age;
-  }
 
   function getPriceType(price_type) {
     if (!price_type) {

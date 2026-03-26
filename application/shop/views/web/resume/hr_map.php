@@ -834,7 +834,7 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
         '		  </div>' +
         '		  <div class="summary">' +
         '			<p>' + (d.mm_nation == '' ? '-' : d.mm_nation) + '</p>' +
-        '			<p>' + d.mm_age + '세</p>' +
+        '			<p>' + d.mm_age + '대</p>' +
         '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' +
         '		  </div>' +
         '		  <div class="summary2">' +
@@ -952,16 +952,6 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
 
   }
 
-  function getKoreanAge(birth) {
-    if (!birth || birth.length !== 8) {
-      return 0;
-    }
-    let formattedBirth = birth.slice(0, 4) + "-" + birth.slice(4, 6) + "-" + birth.slice(6, 8);
-    let birthday = new Date(formattedBirth);
-    let currentDate = new Date();
-    let age = currentDate.getFullYear() - birthday.getFullYear();
-    return age;
-  }
 
   function getPriceType(price_type) {
     if (!price_type) {

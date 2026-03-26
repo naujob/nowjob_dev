@@ -62,6 +62,14 @@
           <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
           <?php //echo "[".$os_type."]";
           ?>
+          <?php if ($os_type == "android") : ?>
+            <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-type1"></a>
+          <?php else : ?>
+            <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
+          <?php endif; ?>
+
+          <a href="javascript:void(0);" id="btnWeChat" class="vendor-type6"></a>
+          
           <?php if ($iosapp) { ?>
             <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
           <?php } else if ($os_type == "android") { ?>
@@ -70,13 +78,11 @@
             <a href="#" id="btnNaver" class="vendor-type4" onclick=""></a>
           <?php } ?>
 
-          <?php if ($os_type == "android") : ?>
-            <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-type1"></a>
-          <?php else : ?>
-            <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
-          <?php endif; ?>
+          
 
           <a href="javascript:void(0);" id="btnGoogle" class="vendor-type5">Google로 로그인</a>
+
+          
 
           <!-- 전화번호로 시작하기 버튼 (가장 아래) -->
           <a href="#" id="btnPhone" class="vendor-type3" onclick="goPhoneLogin(); return false;">
@@ -204,6 +210,30 @@ window.onload = function() {
         }
       <?php } else { ?>
         alert("구글 로그인은 준비중입니다.");
+      <?php } ?>
+      return false;
+    });
+
+    // 위챗 로그인
+    $("#btnWeChat").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      <?php if ($os_type == "android") { ?>
+        if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.wechatLoginAnd === 'function') {
+          APP_NOWAPK.wechatLoginAnd();
+        } else {
+          alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+        }
+      <?php } else if ($os_type == "ios") { ?>
+        if (typeof window.webkit !== 'undefined' &&
+            typeof window.webkit.messageHandlers !== 'undefined' &&
+            typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
+          window.webkit.messageHandlers.wechatLoginIos.postMessage('');
+        } else {
+          alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+        }
+      <?php } else { ?>
+        alert("위챗 로그인은 앱에서만 사용 가능합니다.");
       <?php } ?>
       return false;
     });
@@ -984,6 +1014,56 @@ window.onload = function() {
     });
   }
 
+  // Android 앱에서 호출됨 (WeChat) - HomeActivity.onWeChatLoginCallback() → loadUrl("javascript:onWeChatLoginAndCallback(status, code)")
+  function onWeChatLoginAndCallback(status, code) {
+    if (status !== 'success' || !code) {
+      alert("위챗 로그인에 실패했습니다.");
+      return;
+    }
+
+    $.post(
+      "/member_proc/wechat_login",
+      { code: code },
+      function(ret) {
+        if (typeof ret === "string") {
+          try { ret = JSON.parse(ret); } catch (e) { ret = { code: "99", msg: "응답 파싱 실패" }; }
+        }
+
+        if (ret.code == "00") {
+          sessionStorage.removeItem("chat_user_connect");
+
+          // 로그인 성공 후 FCM 토큰 연결
+          if (typeof window.connectFCMTokenToUser === 'function') {
+            window.connectFCMTokenToUser().then(function() { _replace("/"); });
+          } else {
+            _replace("/");
+          }
+        } else if (ret.code == "90" && ret.data && ret.data.join_key) {
+          try {
+            localStorage.setItem("join_sns_type", "WECHAT");
+            localStorage.setItem("join_sns_key", ret.data.join_key);
+            sessionStorage.setItem("join_sns_type", "WECHAT");
+            sessionStorage.setItem("join_sns_key", ret.data.join_key);
+            document.cookie = "join_sns_type=WECHAT; path=/; max-age=86400";
+            document.cookie = "join_sns_key=" + encodeURIComponent(ret.data.join_key) + "; path=/; max-age=86400";
+          } catch (e) {}
+          // 구글과 동일한 전화번호 인증 팝업 재사용 (gPhoneJoinType=WECHAT)
+          openGoogleJoinPhonePopup(ret.data.join_key, "", ret.data.username || "", "WECHAT");
+        } else {
+          commonAlert(ret.msg || "로그인 실패", function() {});
+        }
+      },
+      "json"
+    ).fail(function() {
+      commonAlert("로그인 실패", function() {});
+    });
+  }
+
+  // iOS 앱에서 호출됨 (WeChat) - ViewController: WXApiDelegate.onResp() → webView.evaluateJavaScript("onWeChatLoginIosCallback(status, code)")
+  function onWeChatLoginIosCallback(status, code) {
+    onWeChatLoginAndCallback(status, code); // Android와 동일한 처리 로직 재사용
+  }
+
   /*
   window.onload = function() {
       if (typeof APP_NOWAPK !== 'undefined') {
@@ -1000,9 +1080,10 @@ window.onload = function() {
    * - 전화번호가 DB에 존재하면 "이미 가입된 회원" 알림
    * - 전화번호가 없으면 뿌리오 SMS 인증 후 회원가입 진행
    * ========================================================= */
-  var gPhoneJoinKey = "";
-  var gPhoneEmail   = "";
-  var gPhoneName    = "";
+  var gPhoneJoinKey  = "";
+  var gPhoneJoinType = ""; // 소셜 로그인 타입 (GOOGLE, WECHAT 등) - 팝업 열 때 설정
+  var gPhoneEmail    = "";
+  var gPhoneName     = "";
   var gPhoneTimer;
   var gPhoneRemainTime = 180;
   var gPhoneIsAuth     = false;
@@ -1027,10 +1108,15 @@ window.onload = function() {
   /**
    * 구글 회원가입 전화번호 인증 팝업 열기 — bottom sheet 애니메이션
    */
-  function openGoogleJoinPhonePopup(joinKey, email, name) {
-    gPhoneJoinKey = joinKey;
-    gPhoneEmail   = email || "";
-    gPhoneName    = name  || "";
+  function openGoogleJoinPhonePopup(joinKey, email, name, joinType) {
+    gPhoneJoinKey  = joinKey;
+    gPhoneJoinType = joinType || "GOOGLE";
+    gPhoneEmail    = email || "";
+    gPhoneName     = name  || "";
+
+    // 로그인 유형에 따라 안내 문구 변경
+    var typeLabel = gPhoneJoinType === "WECHAT" ? "위챗" : "구글";
+    $("#google-phone-popup p").first().text(typeLabel + " 회원가입을 위해 전화번호 인증이 필요합니다.");
     gPhoneIsAuth  = false;
 
     // 팝업 초기화
@@ -1195,7 +1281,7 @@ window.onload = function() {
       closeGoogleJoinPhonePopup();
 
       var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
-      var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=GOOGLE";
+      var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=" + gPhoneJoinType;
       if (gPhoneEmail) { joinUrl += "&email="    + encodeURIComponent(gPhoneEmail); }
       if (gPhoneName)  { joinUrl += "&username=" + encodeURIComponent(gPhoneName);  }
       if (phoneVal)    { joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);     } // mm_phone에 전화번호가 올바르게 저장되도록 전달

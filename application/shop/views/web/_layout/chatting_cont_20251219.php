@@ -2789,7 +2789,7 @@
 								$("#top_nation").html(ret.data.mm_nation || "");
 								var ageDisplay = ret.data.ma_age || "";
 								if (ageDisplay) {
-									ageDisplay = ageDisplay + "세";
+									ageDisplay = ageDisplay + "대";
 								}
 								$("#top_age").html(ageDisplay);
 								
@@ -3345,7 +3345,7 @@
 							$("#top_nation").html(ret.data.mm_nation || "");
 							var ageDisplay = ret.data.ma_age || "";
 							if (ageDisplay) {
-								ageDisplay = ageDisplay + "세";
+								ageDisplay = ageDisplay + "대";
 							}
 							$("#top_age").html(ageDisplay);
 							

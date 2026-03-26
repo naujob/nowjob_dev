@@ -2371,9 +2371,9 @@ class memberModel extends MY_Model
 				when rc_nation = '외국인' then '외국인'
 				else '국적무관' end) as rc_nation_nm",
 			"(case
-				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세',' ~ ',rc_eage,'세')
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '대',' ~ ',rc_eage,'대')
 				when rc_sage <> '' then concat(rc_sage, '세 ~')
-				when rc_eage <> '' then concat('~ ',rc_eage, '세')
+				when rc_eage <> '' then concat('~ ',rc_eage, '대')
 				else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn",
 			"p0.pm_idx",
@@ -2536,9 +2536,9 @@ class memberModel extends MY_Model
 				when rc_nation = '외국인' then '외국인'
 				else '국적무관' end) as rc_nation_nm",
 			"(case
-				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세',' ~ ',rc_eage,'세')
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '대',' ~ ',rc_eage,'대')
 				when rc_sage <> '' then concat(rc_sage, '세 ~')
-				when rc_eage <> '' then concat('~ ',rc_eage, '세')
+				when rc_eage <> '' then concat('~ ',rc_eage, '대')
 				else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn",
 			"p0.pm_idx",
@@ -4253,9 +4253,9 @@ class memberModel extends MY_Model
 				when rc_nation = '외국인' then '외국인'
 				else '국적무관' end) as rc_nation_nm",
 			"(case
-				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '세',' ~ ',rc_eage,'세')
+				when rc_sage <> '' and rc_eage <> '' then concat(rc_sage, '대',' ~ ',rc_eage,'대')
 				when rc_sage <> '' then concat(rc_sage, '세 ~')
-				when rc_eage <> '' then concat('~', rc_eage, '세')
+				when rc_eage <> '' then concat('~', rc_eage, '대')
 				else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 

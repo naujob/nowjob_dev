@@ -424,10 +424,10 @@
                 tab_list[7].text = search_array.sage + "세 ~";
                 tab_list[7].active = "on";
             }else if(search_array.sage=="" && search_array.eage!=""){
-                tab_list[7].text = " ~" + search_array.eage + "세";
+                tab_list[7].text = " ~" + search_array.eage + "대";
                 tab_list[7].active = "on";
             }else if(search_array.sage!="" && search_array.eage!=""){
-                tab_list[7].text = search_array.sage + "세" + " ~ " + search_array.eage + "세";
+                tab_list[7].text = search_array.sage + "대" + " ~ " + search_array.eage + "대";
                 tab_list[7].active = "on";
             }
 		}

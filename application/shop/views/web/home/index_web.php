@@ -436,7 +436,7 @@ function getNego($txt)
                                         <!-- 추가사항 -->
                                         <div class="meta">
                                             <p class="national"><?= $row["mm_nation"] ?></p>
-                                            <p class="age"><?= ($row["ma_age"] == "0" ? "" : $row["ma_age"] . "세") ?></p>
+                                            <p class="age"><?= ($row["ma_age"] == "0" ? "" : $row["ma_age"] . "대") ?></p>
                                             <p class="txt-color2"><?= fWorkColor(strpos($row["ru_work_type"], ",") !== false ? "협의" : ($row["ru_work_type"])) ?></p>
                                             <p class="txt-color2"><?= (strpos($row["ru_price_type"], ",") !== false ? "협의" : ($row["ru_price_type"])) ?></p>
                                         </div>

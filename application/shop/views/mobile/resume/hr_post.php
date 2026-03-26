@@ -151,7 +151,7 @@ function fRemoveBigAdr($arg)
                             ?>
                             <p><span><?= $mem_info["mm_nation"] ?></span>
                                 <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
-                                <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "세") ?></span>
+                                <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대") ?></span>
                             </p>
                             <!-- <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p> -->
                         </div>

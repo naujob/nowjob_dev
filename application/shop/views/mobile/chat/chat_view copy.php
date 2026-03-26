@@ -1807,7 +1807,7 @@
                                         if ($startAge === 0 && $endAge === 0) {
                                             echo "무관";
                                         } elseif ($startAge !== 0 && $endAge !== 0) {
-                                            echo $startAge . "~" . $endAge . "세";
+                                            echo $startAge . "~" . $endAge . "대";
                                         } elseif ($startAge !== 0) {
                                             echo $startAge . "세 이상";
                                         } else {

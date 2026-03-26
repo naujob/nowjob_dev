@@ -2073,7 +2073,7 @@ function fRemoveBigAdrPHP($arg)
             $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
           }
 
-          $content = $content.replaceAll("{{mm_age}}", row.mm_age + "세");
+          $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
 
           $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
           $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));

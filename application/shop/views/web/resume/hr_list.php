@@ -1717,7 +1717,7 @@ if (count($banner_list) > 0) {
           $content = $content.replaceAll("{{ma_age}}", "");
           $content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"", "class=\"age\" style=\"display: none;\"");
         } else {
-          $content = $content.replaceAll("{{ma_age}}", row.mm_age + "세");
+          $content = $content.replaceAll("{{ma_age}}", row.mm_age + "대");
         }
 
         $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
@@ -1776,7 +1776,7 @@ if (count($banner_list) > 0) {
             $content = $content.replaceAll("{{mm_nation}}", nationText);
           }
 
-          $content = $content.replaceAll("{{mm_age}}", row.mm_age + "세");
+          $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
 
           $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
           $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));

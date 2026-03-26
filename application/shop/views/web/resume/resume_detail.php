@@ -636,7 +636,7 @@ function convertHashtagString($input) {
 	                                <!-- 추가사항 -->
 	                                <div class="meta">
 	                                    <p class="national"><?=$row["mm_nation"]?></p>
-	                                    <p class="age"><?=($row["ma_age"]=="0"?"":$row["ma_age"]."세")?></p>
+	                                    <p class="age"><?=($row["ma_age"]=="0"?"":$row["ma_age"]."대")?></p>
 
 	                                    <p class="txt-color2" style=""><?=fWorkColor(getWorkType($row["ru_work_type"]))?></p>
                                       <p class="txt-color2" style="/* width: 42.5px; overflow: hidden; height: 20px; padding: 0 5px; */"><?=fPay(fNoEmTag(getPriceType($row["ru_price_type"])))?></p>

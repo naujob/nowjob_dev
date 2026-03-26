@@ -496,10 +496,10 @@
                 tab_list[7].text = search_array.sage + "세 ~";
                 tab_list[7].active = "on";
             }else if(search_array.sage=="" && search_array.eage!=""){
-                tab_list[7].text = " ~" + search_array.eage + "세";
+                tab_list[7].text = " ~" + search_array.eage + "대";
                 tab_list[7].active = "on";
             }else if(search_array.sage!="" && search_array.eage!=""){
-                tab_list[7].text = search_array.sage + "세" + " ~ " + search_array.eage + "세";
+                tab_list[7].text = search_array.sage + "대" + " ~ " + search_array.eage + "대";
                 tab_list[7].active = "on";
             }
 		}
@@ -622,7 +622,7 @@
 
 	function getAge(arg){
 		arg = arg.replaceAll("세 이상 ~", "~");
-		arg = arg.replaceAll("세 이하", "세");
+		arg = arg.replaceAll("세 이하", "대");
 		arg = arg.replaceAll("무관", "나이무관");
 		return arg;
 	}

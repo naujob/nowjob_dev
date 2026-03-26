@@ -111,7 +111,7 @@ function fRemoveBigAdr($arg) {
                             ?>
                             <p><span><?=$mem_info["mm_nation"]?></span>
                                 <span class="gapbar1" style="<?=$gapbar1?>">|</span>
-                                <span><?=(getKoreanAge($mem_info["mm_birth"])=="0"?"":getKoreanAge($mem_info["mm_birth"])."세")?></span></p>
+                                <span><?=(getKoreanAge($mem_info["mm_birth"])=="0"?"":getKoreanAge($mem_info["mm_birth"])."대")?></span></p>
                              <p><span><?=fRemoveBigAdr($mem_info["ad_addr"])?></span></p>
                         </div>
                         <!-- 즐겨찾기 -->

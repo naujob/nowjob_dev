@@ -16,7 +16,7 @@ if (!$socket_io_script_url) {
   <meta charset="UTF-8">
   <!-- meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" -->
   <meta name="viewport" content="width=460, user-scalable=no">
-  <title>지금 뜨는, 좋은 일자리 나우잡(NOWJOB)</title>
+  <title>지금 뜨는, 좋은 일자리 NOWJOB</title>
   <meta name="description" content="구인구직 정보 플랫폼">
   <meta name="format-detection" content="address=no, email=no, telephone=no">
   <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
