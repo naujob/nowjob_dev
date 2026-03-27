@@ -5039,10 +5039,10 @@ body {
     text-align: center;
 }
 
-/* 소셜 로그인 버튼 */
+/* 소셜 로그인 버튼 - 2x2 그리드 레이아웃 */
 .social-login-buttons {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-top: 20px;
 }
@@ -5059,14 +5059,14 @@ body {
     font-weight: 500;
     transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
     position: relative;
-    background-size: 80% auto;
+    background-size: 80% 80% ;
     background-position: center;
     background-repeat: no-repeat;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    /* border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow:
         0 4px 10px rgba(0, 0, 0, 0.12),
         inset 0 1px 0 rgba(255, 255, 255, 0.35),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+        inset 0 -1px 0 rgba(0, 0, 0, 0.08); */
 }
 
 .social-btn:hover {
@@ -5086,25 +5086,53 @@ body {
 }
 
 .kakao-btn {
-    background-image: url("/resource/shop/web/img/ic-start-kakao-20250724.svg");
-    background-color: #FEE500;
+    background-image: url("/resource/shop/web/img/ic-kakao-login.png");
+  
 
 }
 
 .naver-btn {
-    background-image: url("/resource/shop/web/img/ic-start-naver-20250724.svg");
-    background-color: #03C75A;
+    background-image: url("/resource/shop/web/img/ic-naver-login.png");
+   
 
 }
 
 .google-btn {
-    background-image: url("/resource/shop/mobile/img/member/ic-google-login.svg");
+    background-image: url("/resource/shop/web/img/ic-google-login.png?20260326");
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
     background-color: #ffffff;
-    border: 1px solid #e6e6e6;
+
 }
+
+/* 소셜 로그인 버튼 이미지 공통 스타일 */
+.social-login-buttons a {
+    display: block;
+}
+
+.social-login-buttons a img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 50px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.social-login-buttons a:hover img {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
+}
+
+.social-login-buttons a:active img {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+    transform: translateY(0);
+}
+
+/* 위챗 로그인 버튼 */
+
 
 /* .vendor-login .vendor-type2 {
     background-color: #161616;

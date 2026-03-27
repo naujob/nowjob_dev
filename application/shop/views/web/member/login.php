@@ -72,17 +72,16 @@
                         <div class="vendor-login">
                             <h2 class="title">간편로그인</h2>
                             <div class="social-login-buttons">
-                                <a href="<?= $kakao_login ?>" id="btnKakao" class="social-btn kakao-btn"></a>
+                                <!-- 1행: 카카오 + 위챗 -->
+                                <a href="<?= $kakao_login ?>" id="btnKakao"><img src="/resource/shop/web/img/ic-kakao-login.png" alt="카카오 로그인"></a>
+                                <a href="javascript:void(0);" id="btnWechat"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                <!-- 2행: 네이버 + 구글 -->
                                 <?php if (!empty($naver_login)) : ?>
-                                    <a href="<?= $naver_login ?>" id="btnNaver" class="social-btn naver-btn"></a>
+                                    <a href="<?= $naver_login ?>" id="btnNaver"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
                                 <?php else : ?>
-                                    <a href="javascript:void(0);" id="btnNaver" class="social-btn naver-btn"></a>
+                                    <a href="javascript:void(0);" id="btnNaver"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
                                 <?php endif; ?>
-                                <?php if (!empty($google_login)) : ?>
-                                    <a href="<?= $google_login ?>" id="btnGoogle" class="social-btn google-btn" aria-label="Google 로그인"></a>
-                                <?php else : ?>
-                                    <a href="javascript:void(0);" id="btnGoogle" class="social-btn google-btn" aria-label="Google 로그인"></a>
-                                <?php endif; ?>
+                                <a href="javascript:void(0);" id="btnGoogle"><img src="/resource/shop/web/img/ic-google-login.png" alt="Google 로그인"></a>
                             </div>
                             <!--a href="#" class="btn vendor-type2">Apple 로그인</a-->
                         </div>
@@ -94,8 +93,42 @@
     </main><!-- //page-content -->
 </div><!-- //page -->
 
+<!-- 구글 로그인 전화번호 인증 팝업 -->
+<div id="google-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:9999; align-items:center; justify-content:center;">
+    <div id="google-phone-sheet" style="background:#fff; border-radius:12px; padding:30px; width:400px; max-width:90%; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+        <h3 style="margin-bottom:16px; font-size:18px;">전화번호 인증</h3>
+        <p id="gphone-desc" style="margin-bottom:20px; color:#666; font-size:14px;">구글 회원가입을 위해 전화번호 인증이 필요합니다.</p>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <input type="tel" id="gphone-input" placeholder="휴대폰번호 (- 없이 입력)" class="form-text" style="flex:1;">
+            <button type="button" id="gphone-btn-auth" style="white-space:nowrap; padding:0 16px; background:#ccc; color:#fff; border:none; border-radius:4px; cursor:pointer;">인증요청</button>
+        </div>
+        <div class="gphone-auth-row" style="display:none; margin-bottom:12px;">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" id="gphone-auth-input" placeholder="인증번호 6자리" class="form-text" style="flex:1;" maxlength="6">
+                <span id="gphone-timer" style="color:#e74c3c; font-size:13px; white-space:nowrap;"></span>
+            </div>
+            <button type="button" id="gphone-btn-check" style="width:100%; margin-top:8px; padding:10px; background:#4285f4; color:#fff; border:none; border-radius:4px; cursor:pointer;">인증번호 확인</button>
+        </div>
+        <button type="button" id="gphone-btn-join" disabled style="width:100%; padding:12px; background:#ccc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-bottom:8px;">회원가입</button>
+        <button type="button" id="gphone-btn-close" style="width:100%; padding:10px; background:#f5f5f5; color:#666; border:none; border-radius:4px; cursor:pointer;">닫기</button>
+    </div>
+</div>
+
 
 <script>
+    // 구글 클라이언트 ID 전역 선언 (onGoogleLibraryLoad 시점에 접근 가능해야 함)
+    var google_client_id = '<?= isset($google_client_id) ? $google_client_id : "" ?>';
+
+    // GIS 라이브러리 로드 완료 후 자동 호출되는 콜백 (async defer 타이밍 문제 해결)
+    window.onGoogleLibraryLoad = function() {
+        if (google_client_id) {
+            google.accounts.id.initialize({
+                client_id: google_client_id,
+                callback: handleGoogleCredentialResponse
+            });
+        }
+    };
+
     $(document).ready(function() {
         //로그인
         $("#btnLogin").click(function() {
@@ -116,12 +149,37 @@
                 alert("네이버 로그인이 설정되지 않았습니다.");
             <?php endif; ?>
         });
-        // 구글 로그인 - 설정되지 않은 경우만 처리
+        // 위챗 로그인 - 준비중 알림
+        $("#btnWechat").click(function(e) {
+            e.preventDefault();
+            alert("준비중입니다.");
+        });
+        // 구글 로그인 - GIS SDK 팝업
         $("#btnGoogle").click(function(e) {
-            <?php if (empty($google_login)) : ?>
-                e.preventDefault();
+            e.preventDefault();
+            if (!google_client_id) {
                 alert("구글 로그인이 설정되지 않았습니다.");
-            <?php endif; ?>
+                return;
+            }
+            // google 객체 미로드 시 서버사이드 OAuth로 직접 이동
+            if (typeof google === 'undefined') {
+                <?php if (!empty($google_login)) : ?>
+                location.href = '<?= $google_login ?>';
+                <?php else : ?>
+                alert("구글 로그인을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+                <?php endif; ?>
+                return;
+            }
+            //One Tap(원터치) 로그인 팝업창을 화면에 실제로 띄우기
+            google.accounts.id.prompt(function(notification) {
+                // One Tap 표시 불가 시 서버사이드 OAuth로 폴백
+                // googleOneTapUsed: 인증 완료 후 isDismissedMoment 오탐으로 인한 이중 리다이렉트 방지
+                if (!googleOneTapUsed && notification.isNotDisplayed()) {
+                    <?php if (!empty($google_login)) : ?>
+                    location.href = '<?= $google_login ?>';
+                    <?php endif; ?>
+                }
+            });
         });
         //애플 로그인
         //$("#btnApple").click(function(){
@@ -233,6 +291,7 @@
 </script>
 
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
 <!--div id="appleid-signin" data-color="black" data-border="true" data-type="sign in" style="height:40px;margin-top:10px;"></div-->
 <script type="text/javascript">
@@ -310,4 +369,158 @@
         }).join(''));
         return JSON.parse(jsonPayload);
     }
+</script>
+
+<script>
+    // One Tap 인증 완료 플래그 (isDismissedMoment 오탐 방지)
+    var googleOneTapUsed = false;
+
+    // 구글 로그인 콜백 함수
+    //  id_token (JWT) 발급
+    function handleGoogleCredentialResponse(response) {
+        googleOneTapUsed = true;
+        var params = {};
+        params['id_token'] = response.credential;
+        comAjax('/member_proc/google_login', params, function(ret) {
+            if (ret.code == '00') {
+                sessionStorage.removeItem('chat_user_connect');
+                location.href = '/';
+            } else if (ret.code == '90') {
+                // 신규 회원 → SMS 인증 팝업
+                var joinKey  = ret.data ? ret.data.join_key : '';
+                var email    = ret.data ? ret.data.email  : '';
+                var name     = ret.data ? ret.data.name   : '';
+                openGoogleJoinPhonePopup(joinKey, email, name);
+            } else {
+                commonAlert(ret.msg || '구글 로그인 오류가 발생하였습니다.', function() {});
+            }
+        });
+    }
+
+    // 전역 변수
+    var gPhoneJoinKey = '', gPhoneJoinType = 'GOOGLE', gPhoneEmail = '', gPhoneName = '';
+    var gPhoneIsAuth = false, gPhoneTimer = null, gPhoneRemainTime = 0, gPhoneAuthCount = 0;
+    // 뿌리오 문자인증을 위한 입력창 표시
+    function openGoogleJoinPhonePopup(joinKey, email, name, joinType) {
+        gPhoneJoinKey = joinKey;
+        gPhoneJoinType = joinType || 'GOOGLE';
+        gPhoneEmail = email || '';
+        gPhoneName = name || '';
+        gPhoneIsAuth = false;
+        gPhoneAuthCount = 0;
+        $('#gphone-input').val('');
+        $('#gphone-auth-input').val('');
+        $('.gphone-auth-row').hide();
+        $('#gphone-btn-auth').css('background-color', '#ccc');
+        $('#gphone-btn-join').prop('disabled', true).css('background-color', '#ccc');
+        $('#gphone-timer').text('');
+        $('#google-phone-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
+        setTimeout(function() {
+            $('#google-phone-popup').css('background', 'rgba(0,0,0,0.5)');
+        }, 10);
+    }
+
+    function closeGoogleJoinPhonePopup() {
+        clearInterval(gPhoneTimer);
+        $('#google-phone-popup').css('background', 'rgba(0,0,0,0)');
+        setTimeout(function() {
+            $('#google-phone-popup').hide();
+        }, 200);
+    }
+
+    function gPhoneUpdateTime() {
+        gPhoneRemainTime--;
+        if (gPhoneRemainTime <= 0) {
+            clearInterval(gPhoneTimer);
+            $('#gphone-timer').text('만료');
+            return;
+        }
+        var m = Math.floor(gPhoneRemainTime / 60);
+        var s = gPhoneRemainTime % 60;
+        $('#gphone-timer').text(m + ':' + (s < 10 ? '0' + s : s));
+    }
+
+    // 전화번호 입력 실시간 검증 및 버튼 색상 변경
+    $('#gphone-input').on('input keyup', function() {
+        var phone = $(this).val().replace(/[^0-9]/g, '');
+        var isValid = /^01[016789][0-9]{7,8}$/.test(phone);
+
+        if (isValid) {
+            $('#gphone-btn-auth').prop('disabled', false).css({
+                'background-color': '#57CCAF',
+                'cursor': 'pointer'
+            });
+        } else {
+            $('#gphone-btn-auth').prop('disabled', true).css({
+                'background-color': '#ccc',
+                'cursor': 'not-allowed'
+            });
+        }
+    });
+
+    // 인증번호 요청
+    $('#gphone-btn-auth').click(function() {
+        var phone = $('#gphone-input').val().replace(/[^0-9]/g, '');
+        if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
+            alert('올바른 휴대폰번호를 입력해주세요.');
+            return;
+        }
+        comAjax('/member_proc/check_google_phone', {mm_phone: phone}, function(ret) {
+            if (ret.code == '00') {
+                $('.gphone-auth-row').show();
+                clearInterval(gPhoneTimer);
+                gPhoneRemainTime = 180;
+                gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
+                gPhoneUpdateTime();
+                alert('인증번호를 발송하였습니다.');
+            } else if (ret.code == '99') {
+                commonAlert(ret.msg, function() {});
+            } else if (ret.code == '98') {
+                commonAlert('하루 SMS 발송 횟수를 초과하였습니다.', function() {});
+            } else {
+                commonAlert(ret.msg || '오류가 발생하였습니다.', function() {});
+            }
+        });
+    });
+
+    // 인증번호 확인
+    $('#gphone-btn-check').click(function() {
+        var phone = $('#gphone-input').val().replace(/[^0-9]/g, '');
+        var auth = $('#gphone-auth-input').val();
+        comAjax('/member_proc/check_google_phone_auth', {mm_phone: phone, auth: auth}, function(ret) {
+            if (ret.code == '00') {
+                gPhoneIsAuth = true;
+                clearInterval(gPhoneTimer);
+                $('#gphone-btn-join').prop('disabled', false).css('background-color', '#4285f4');
+                alert('인증이 완료되었습니다.');
+            } else {
+                gPhoneAuthCount++;
+                if (gPhoneAuthCount > 3) {
+                    commonAlert('인증 오류가 3회 초과되었습니다.', function() {
+                        closeGoogleJoinPhonePopup();
+                    });
+                } else {
+                    alert('인증번호가 일치하지 않습니다. (' + gPhoneAuthCount + '/3)');
+                }
+            }
+        });
+    });
+
+    // 회원가입 버튼
+    $('#gphone-btn-join').click(function() {
+        if (!gPhoneIsAuth) { return; }
+        var phone = $('#gphone-input').val().replace(/[^0-9]/g, '');
+        var joinUrl = '/member/join_sns_start'
+            + '?join_key=' + encodeURIComponent(gPhoneJoinKey)
+            + '&join_type=' + gPhoneJoinType
+            + (gPhoneEmail ? '&email=' + encodeURIComponent(gPhoneEmail) : '')
+            + (gPhoneName  ? '&username=' + encodeURIComponent(gPhoneName) : '')
+            + '&phonenum=' + encodeURIComponent(phone);
+        location.href = joinUrl;
+    });
+
+    // 닫기
+    $('#gphone-btn-close').click(function() {
+        closeGoogleJoinPhonePopup();
+    });
 </script>

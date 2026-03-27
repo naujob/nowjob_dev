@@ -499,10 +499,12 @@ class Member_proc extends CI_Controller
                         "sl_status" => "Y"
                     ]
                 );
-                // 회원 없음 응답 + 가입용 키 전달
+                // 회원 없음 응답 + 가입용 키/이름/이메일 전달
                 json_return("90", "회원정보를 찾을수 없습니다.", [
-                    "join_key" => $google_sub,
-                    "join_type" => "GOOGLE"
+                    "join_key"  => $google_sub,
+                    "join_type" => "GOOGLE",
+                    "name"      => !empty($name) ? $name : "",
+                    "email"     => !empty($email) ? $email : ""
                 ]);
                 exit;
             }

@@ -23,7 +23,7 @@
                     <div class="form-row">
                         <label>
                             <span class="form-label">전화번호</span>
-                            <input type="text" id="mm_phone" name="mm_phone" value="<?=$mm_phone?>" required class="form-text" readonly style="background-color:#cdcdcd; padding-top: 10px; padding-left: 10px;">
+                            <input type="text" id="mm_phone" name="mm_phone" value="<?=$mm_phone?>" required class="form-text" readonly style="background-color:#cdcdcd;">
                         </label>
                         <!-- 폼검사 실패메세지 -->
                         <p class="msg-mm_id help-msg is-fail hidden" style="display:none;">이메일 형식에 맞지 않는 주소입니다.</p>
@@ -34,13 +34,22 @@
                       -webkit-box-shadow: 0 0 0px 1000px white inset !important; /* 배경색 덮어쓰기 */
                       -webkit-text-fill-color: #000 !important; /* 텍스트 색상 복원 */
                     }
+
+                    /* 키보드 올라왔을 때 스크롤 가능하도록:
+                       .page-content를 독립 스크롤 컨테이너로 지정
+                       오버플로우 공간 생성을 위한 padding-bottom 설정 */
+                    .page-join .page-content {
+                        overflow-y: auto;
+                        -webkit-overflow-scrolling: touch;
+                        padding-bottom: 120px;
+                    }
                     </style>
                     <div class="form-row" style="margin-top: 60px;">
                         <label>
                             <span class="form-label">비밀번호</span>
                             <input type="password"  id="mm_pwd" name="mm_pwd" placeholder="비밀번호를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fPassChk();" style="background-color:#fff!important;" autocomplete="new-password">
                             <span class="toggle-password" id="toggle-password" style="position:absolute;right:0;"><!-- 👁 -->️
-                              <img id="eye_icon" src="/resource/shop/web/img/eye_close.png" style="margin-top:5px; margin-right: 10px; width: 24px;">
+                              <img id="eye_icon" src="/resource/shop/web/img/eye_close.png" style="margin-top:5px; margin-right: 10px; width: 32px;">
                             </span>
                         </label>
                         <!-- 폼검사 실패메세지 -->
@@ -53,7 +62,7 @@
                             <span class="form-label">비밀번호 확인</span>
                             <input type="password"  id="mm_pwd_c" name="mm_pwd_c" placeholder="비밀번호를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fPassChk2();">
                             <span class="toggle-password" id="toggle-password2" style="position:absolute;right:0;"><!-- 👁 -->️
-                              <img id="eye_icon2" src="/resource/shop/web/img/eye_close.png" style="margin-top:5px; margin-right: 10px; width: 24px;">
+                              <img id="eye_icon2" src="/resource/shop/web/img/eye_close.png" style="margin-top:5px; margin-right: 10px; width: 32px;">
                             </span>
                         </label>
                         <!-- 폼검사 실패메세지 -->
