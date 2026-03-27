@@ -15,7 +15,7 @@ $quickInfoContent = <<<HTML
 
   <div class="quickinfo-group">
     <div class="quickinfo-label">국적</div>
-    <div class="form-toggle-group">
+    <div class="form-toggle-group col-2">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_nation" value="domestic">
         <span class="btn">내국인</span>
@@ -29,7 +29,7 @@ $quickInfoContent = <<<HTML
 
   <div class="quickinfo-group">
     <div class="quickinfo-label">성별</div>
-    <div class="form-toggle-group">
+    <div class="form-toggle-group col-2">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_gender" value="male" checked>
         <span class="btn">남성</span>
@@ -43,7 +43,7 @@ $quickInfoContent = <<<HTML
 
   <div class="quickinfo-group">
     <div class="quickinfo-label">나이</div>
-    <div class="form-toggle-group">
+    <div class="form-toggle-group col-5">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_age" value="20s">
         <span class="btn">20대</span>

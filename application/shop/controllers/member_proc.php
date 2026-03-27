@@ -1116,7 +1116,9 @@ class Member_proc extends CI_Controller
                 $provider_label = "네이버";
             } elseif ($join_type === "APPLE") {
                 $provider_label = "애플";
-            } else {
+            } elseif ($join_type === "WECHAT") {
+                $provider_label = "위쳇";
+            }else {
                 $provider_label = "휴대폰";
             }
 
@@ -1173,7 +1175,13 @@ class Member_proc extends CI_Controller
             } elseif ($join_type === "KAKAO") {
                 $provider_label = "카카오톡";
                 $postposition = "으로";
-            } else {
+            } elseif ($join_type === "WECHAT") {
+                $provider_label = "위쳇";
+                $postposition = "으로";
+            }  elseif ($join_type === "GOOGLE") {
+                $provider_label = "구글";
+                $postposition = "에서";
+            }else {
                 $provider_label = "NOWJOB";
                 $postposition = "에서";
             }

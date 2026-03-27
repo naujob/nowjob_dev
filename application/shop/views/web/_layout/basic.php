@@ -435,7 +435,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                         $comp_name = ($is_comp_user && isset($user_info_source['mm_comp_name'])) ? $user_info_source['mm_comp_name'] : '';
                         $display_comp_name = $is_comp_user
                             ? (($comp_certified && $comp_name) ? $comp_name : '기업회원')
-                            : $this->user->getUserName();
+                            : '개인회원';
                         ?>
                         <ul class="account-menu">
                             <li>

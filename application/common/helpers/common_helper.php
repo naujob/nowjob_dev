@@ -4,8 +4,8 @@
 
 function get_mongodb($name)
 {
-	$m = new MongoClient(get_mongo_uri());
-	$db = $m->{get_mongo_db_name()};
+	$m = new MongoClient("mongodb://127.0.0.1/");
+	$db = $m->chat;
 	$collection = null;
 	if ($name == "user") {
 		$collection = $db->user;
@@ -20,26 +20,6 @@ function get_mongodb($name)
 	}
 
 	return $collection;
-}
-
-function get_mongo_uri()
-{
-	$CI = &get_instance();
-	$uri = $CI->config->item('mongo_uri');
-	if ($uri === null || $uri === '') {
-		return 'mongodb://localhost:27017';
-	}
-	return $uri;
-}
-
-function get_mongo_db_name()
-{
-	$CI = &get_instance();
-	$db = $CI->config->item('mongo_db');
-	if ($db === null || $db === '') {
-		return (defined('ENVIRONMENT') && ENVIRONMENT === 'development') ? 'dev_chat' : 'chat';
-	}
-	return $db;
 }
 
 function key_mongodb($tbl_name)
@@ -1408,6 +1388,12 @@ function checkDuplicatePhoneForSns($phone)
 		} elseif ($join_type === "APPLE") {
 			$provider_label = "애플";
 			$postposition = "로";
+		} elseif ($join_type === "GOOGLE") {
+			$provider_label = "구글";
+			$postposition = "에서";
+		} elseif ($join_type === "WECHAT") {
+			$provider_label = "위쳇";
+			$postposition = "으로";
 		} else {
 			$provider_label = "NOWJOB";
 			$postposition = "에서";

@@ -1325,7 +1325,7 @@ window.onload = function() {
     <!-- 핸들 바 -->
     <div class="bs-handlebar"></div>
 
-    <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;">전화번호 인증</h3>
+    <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;color:#1B9D7D;">전화번호 인증</h3>
     <p style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">구글 회원가입을 위해 전화번호 인증이 필요합니다.</p>
 
     <div class="form-row" style="margin-bottom:20px;">
@@ -1346,7 +1346,7 @@ window.onload = function() {
         <label class="col" style="position:relative;">
           <span class="sr-text">인증번호 입력</span>
           <input type="text" id="gphone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" class="form-text">
-          <span id="gphone-remain-time" style="position:absolute;width:48px;right:0;top:7px;color:#FF6D6D;text-align:right;font-weight:600;">0 : 00</span>
+          <span id="gphone-remain-time" style="position:absolute;width:48px;right: 6px;;top:11px;color:#FF6D6D;text-align:right;font-weight:600;">0 : 00</span>
         </label>
         <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary">확인</button>
       </div>
@@ -1354,7 +1354,7 @@ window.onload = function() {
 
     <div class="bs-actions">
       <button id="gphone-btn-cancel" type="button" class="btn btn-secondary" style="flex:1;">취소</button>
-      <button id="gphone-btn-join"   type="button" class="btn btn-primary"   style="flex:2;" disabled>회원가입</button>
+      <button id="gphone-btn-join"   type="button" class="btn btn-primary"   style="flex:1;" disabled>회원가입</button>
     </div>
   </div>
 </div>

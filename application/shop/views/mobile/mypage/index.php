@@ -25,15 +25,17 @@
         </div>
         <div class="profile-detail">
           <!-- 이름 -->
-          <p class="name"><em><?= ((strpos(getData($mem_info, "mm_name"), '010') !== 0 && strpos(getData($mem_info, "mm_name"), 'kakao') !== 0 && strpos(getData($mem_info, "mm_name"), 'apple') !== 0) ? getData($mem_info, "mm_name") : "guest") ?></em>님</p>
-          <div class="meta">
+          <!-- <p class="name"><em><?= ((strpos(getData($mem_info, "mm_name"), '010') !== 0 && strpos(getData($mem_info, "mm_name"), 'kakao') !== 0 && strpos(getData($mem_info, "mm_name"), 'apple') !== 0) ? getData($mem_info, "mm_name") : "guest") ?></em>님</p> -->
+          <div class="meta index">
             <?php $is_google_login = !empty($mem_info["mm_join_type"]) && strtoupper($mem_info["mm_join_type"]) === "GOOGLE"; ?>
             <?php if (!$is_google_login) : ?>
-              <!-- 연락처 -->
-              <p class="phone"><?= $mem_info["mm_phone"] ?></p>
+              
               <!-- 메일주소 -->
               <p class="email"><?= $mem_info["mm_email"] ?></p>
+
             <?php endif; ?>
+            <!-- 연락처 -->
+            <p class="phone"><?= $mem_info["mm_phone"] ?></p>
             <!-- 포인트 -->
             <p class="point"><?= number_format($mem_info["mm_point"]) ?>P</p>
           </div>
@@ -116,7 +118,7 @@
             <h3 class="secondary-title">가입자정보
               <?php
               // SNS 로그인 여부 확인
-              $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
+              $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER","GOOGLE","WECHAT"]);
               // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
               $is_authenticated = ($mem_info != null && $mem_info["mm_di"] != null && (strpos($mem_info["mm_di"], "MC0") === 0 || $is_sns_login));
 
@@ -139,11 +141,11 @@
               <!-- <button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; margin-top: -32px; height: 1.5rem; line-height: 0.2; min-width: 3.6rem; width: 3.6rem; margin-left: 6.25rem">변경</button> -->
             <?php  }      ?>
             <ul class="settings-list">
-              <li style="height: 34px; line-height: 20px;">
+              <!-- <li style="height: 34px; line-height: 20px;">
                 <span class="label">가입자명</span>
                 <em class="value" style="float: right;"><?= ((strpos(getData($mem_info, "mm_name"), '010') !== 0 && strpos(getData($mem_info, "mm_name"), 'kakao') !== 0 && strpos(getData($mem_info, "mm_name"), 'apple') !== 0) ? getData($mem_info, "mm_name") : "guest") ?></em></p>
                 <input type="hidden" name="bizName" value="<?= (getData($mem_info, "mm_name") == "" ? "guest" : getData($mem_info, "mm_name")) ?>" readonly>
-              </li>
+              </li> -->
               <li>
                 <span class="label">연락처</span>
                 <em class="value"><?= $mem_info["mm_phone"] ?></em>
@@ -164,7 +166,7 @@
             <ul class="settings-list">
               <?php
               // SNS 로그인 여부 확인 (카카오, 네이버, 애플)
-              $is_sns_login_pwd = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
+              $is_sns_login_pwd = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER","GOOGLE","WECHAT"]);
               // SNS 로그인이 아닌 경우에만 비밀번호 변경 링크 표시
               if (!$is_sns_login_pwd) {
               ?>

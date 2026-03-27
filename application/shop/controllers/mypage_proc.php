@@ -322,7 +322,7 @@ class Mypage_proc extends CI_Controller
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
 
     // SNS 로그인 여부 확인
-    $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
+    $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER","GOOGLE","WECHAT"]);
     // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
     $is_authenticated = ($mem_info != null && (strpos($mem_info["mm_di"], "MC0") === 0 || $is_sns_login));
 

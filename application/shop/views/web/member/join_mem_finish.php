@@ -735,4 +735,39 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 })();
 </script>
 
+<script>
+// join_mem_finish: quickInfoPanel·changeArea 강제 닫기 차단
+(function() {
+    function preventPanelClose() {
+        // 배경 클릭 및 ESC 닫기 차단 (data 속성)
+        var ids = ['quickInfoPanel', 'changeArea'];
+        for (var i = 0; i < ids.length; i++) {
+            var panel = document.getElementById(ids[i]);
+            if (panel) {
+                panel.setAttribute('data-disable-bg-close', 'true');
+                panel.setAttribute('data-disable-esc-close', 'true');
+            }
+        }
+
+        // closePanel 오버라이드: 두 패널 모두 외부 닫기 차단
+        if (typeof window.closePanel === 'function' && !window.__closePanel_joinFinish_patched) {
+            window.__closePanel_joinFinish_patched = true;
+            var _origClosePanel = window.closePanel;
+            window.closePanel = function(el) {
+                if (el && (el.id === 'quickInfoPanel' || el.id === 'changeArea')) {
+                    return;
+                }
+                _origClosePanel(el);
+            };
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', preventPanelClose);
+    } else {
+        preventPanelClose();
+    }
+})();
+</script>
+
 <?= getCashJs("/resource/shop/mobile/js/member/join_quickinfo_bottom_sheet.js") ?>

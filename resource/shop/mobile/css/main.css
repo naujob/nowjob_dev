@@ -1177,6 +1177,7 @@ object {
     font-weight: 300;
     color: #BEBFC9;
     opacity: 1;
+    text-indent: 10px;
 }
 
 ::-moz-placeholder {
@@ -1185,6 +1186,7 @@ object {
     font-weight: 300;
     color: #BEBFC9;
     opacity: 1;
+    text-indent: 10px;
 }
 
 :-ms-input-placeholder {
@@ -1193,6 +1195,7 @@ object {
     font-weight: 300;
     color: #BEBFC9;
     opacity: 1;
+    text-indent: 10px;
 }
 
 ::-ms-input-placeholder {
@@ -1201,6 +1204,7 @@ object {
     font-weight: 300;
     color: #BEBFC9;
     opacity: 1;
+    text-indent: 10px;
 }
 
 ::placeholder {
@@ -1209,6 +1213,7 @@ object {
     font-weight: 300;
     color: #BEBFC9;
     opacity: 1;
+    text-indent: 10px;
 }
 
 .form-text {
@@ -1232,6 +1237,7 @@ object {
     appearance: none;
     -moz-appearance: textfield;
     outline: 0;
+    padding-left: 10px;
 }
 
 .form-text:focus {
@@ -3557,12 +3563,13 @@ fieldset {
     position: absolute;
     bottom: 0; left: 0; right: 0;
     background: #fff;
-    border-radius: 16px 16px 0 0;
-    padding: 32px 24px 48px;
+    border-radius: 50px 50px 0 0;
+    padding: 22px 24px 48px;
     transform: translateY(100%);
     transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
     max-height: 90vh;
     overflow-y: auto;
+   
 }
 
 /* 핸들바: 상단 드래그 인디케이터 */
@@ -3585,6 +3592,18 @@ fieldset {
     height: 56px;
     font-size: 1.5rem;
     border-radius: 40px;
+    background:#1B9D7D;
+}
+
+/* bs-actions 취소 버튼: 아웃라인 스타일 (이미지 참고) */
+.bs-actions .btn-secondary {
+    background: #fff;
+    color: #1B9D7D;
+    border: 2px solid #1B9D7D;
+}
+
+.bs-actions .btn-secondary:active {
+    background: #f0faf7;
 }
 
 /* Bottom sheet base */
@@ -3664,7 +3683,7 @@ fieldset {
     display: -ms-flexbox;
     display: flex;
     min-height: 0;
-    padding: 0 1.375rem;
+    padding: 0 1.5rem;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
@@ -3726,7 +3745,7 @@ fieldset {
     width: 100%;
     padding-top: 2.25rem;
     padding-bottom: 1.25rem;
-    padding-left: 2.5rem;
+    padding-left: 1.5rem;
     padding-right: 1.375rem;
     background: inherit;
 }
@@ -3918,7 +3937,7 @@ body.no-scroll {
 }
 
 .bottom-sheet-content-body {
-    padding: 0 1.25rem 0.5rem;
+    /* padding: 0 1.25rem 0.5rem; */
 }
 
 .resume-guide-desc {
@@ -4004,9 +4023,7 @@ body.no-scroll {
     display: none;
 }
 
-.quickinfo-sheet {
-    padding: 0 1.5rem 0.75rem;
-}
+
 
 .quickinfo-title {
     display: flex;
@@ -4054,10 +4071,10 @@ body.no-scroll {
 
 .quickinfo-sheet .form-toggle-btn2 .btn {
     min-width: 3.6rem;
-    height: 2.5rem;
+    height: 3rem;
     line-height: 2.5rem;
     padding: 0 0.55rem;
-    border-radius: 16px;
+    border-radius: 30px;
 }
 /* google join quickinfo end */
 
@@ -5413,7 +5430,7 @@ body {
     line-height: 2.5;
     -ms-flex-negative: 0;
     flex-shrink: 0;
-    height: 3rem;
+    height: 3.1rem;
 }
 
 .inline-group .btn-round:last-child {
@@ -9856,6 +9873,7 @@ form#frm {
     font-size: 0.875rem;
     color: #fff;
     line-height: 1.1;
+    position: relative;
 }
 
 .profile-detail .name {
@@ -9867,6 +9885,13 @@ form#frm {
     font-size: 1.7142857143em;
     font-weight: 700;
     font-style: normal;
+}
+.profile-detail .meta.index {
+    display: block;
+    color: inherit;
+    font-size: 1.5em;
+    position:absolute;
+    top: 10px;
 }
 
 .profile-detail .meta {
@@ -9892,7 +9917,7 @@ form#frm {
     padding-left: 1.25rem;
     letter-spacing: 0;
     background: url("../img/ic_profile_phone.svg") no-repeat 1px 0;
-    background-size: 0.875rem auto;
+    background-size: 1rem auto;
 }
 
 .profile-detail .meta .email {
@@ -9905,8 +9930,8 @@ form#frm {
 .profile-detail .meta .point {
     padding-left: 1.25rem;
     letter-spacing: 0;
-    background: url("../img/ic_profile_point.svg") no-repeat 1px 0;
-    background-size: 0.875rem auto;
+    background: url("../img/ic_profile_point.svg") no-repeat 1px 4px;
+    background-size: 1rem auto;
 }
 
 .profile-record {
@@ -10422,8 +10447,8 @@ form#frm {
 .btn-settings {
     display: block;
     position: absolute;
-    top: 1.25rem;
-    right: 1.4375rem;
+    top: -0.75rem;
+    right: -1.5625rem;
     width: 1.625rem;
     height: 1.625rem;
     background: url("../img/ic_settings.svg") no-repeat 0 0;
