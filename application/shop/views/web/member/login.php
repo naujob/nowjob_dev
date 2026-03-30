@@ -32,6 +32,12 @@
                     $google_setting = getSettingInfo(["st_group" => "구글"]);
                     $google_client_id = isset($google_setting["WEB_CLIENT_ID"]) ? $google_setting["WEB_CLIENT_ID"] : "";
                     $google_login = !empty($google_client_id) ? ($app_base_url . "/member/google_login") : "";
+
+                    // 위챗 로그인 설정
+                    $wechat_setting = getSettingInfo(["st_group" => "위챗"]);
+                    $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
+                    // 위챗 로그인 Callback URL
+                    $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
                     ?>
                     <form action="/">
 
@@ -93,29 +99,85 @@
     </main><!-- //page-content -->
 </div><!-- //page -->
 
-<!-- 구글 로그인 전화번호 인증 팝업 -->
-<div id="google-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:9999; align-items:center; justify-content:center;">
-    <div id="google-phone-sheet" style="background:#fff; border-radius:12px; padding:30px; width:400px; max-width:90%; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+<!-- 위챗 QR 로그인 팝업 -->
+<div id="wechat-qr-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:9999; align-items:center; justify-content:center;">
+    <div id="wechat-qr-sheet" style="background:#fff; border-radius:12px; padding:30px; width:400px; max-width:90%; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+        <h3 style="margin-bottom:16px; font-size:18px;">WeChat 로그인</h3>
+        <p style="margin-bottom:20px; color:#666; font-size:14px;">위챗 앱으로 QR 코드를 스캔하여 로그인해주세요.</p>
+        <div id="wechat-qr-container" style="text-align:center; margin-bottom:20px;"></div>
+        <button type="button" id="wechat-qr-close" style="width:100%; padding:10px; background:#f5f5f5; color:#666; border:none; border-radius:4px; cursor:pointer;">닫기</button>
+    </div>
+</div>
+
+<!-- SNS 회원가입 전화번호 인증 팝업 (구글, 위챗, 애플 등 공용) -->
+<div id="sns-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:2000; align-items:center; justify-content:center;">
+    <div id="sns-phone-sheet" style="background:#fff; border-radius:12px; padding:30px; width:400px; max-width:90%; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
         <h3 style="margin-bottom:16px; font-size:18px;">전화번호 인증</h3>
-        <p id="gphone-desc" style="margin-bottom:20px; color:#666; font-size:14px;">구글 회원가입을 위해 전화번호 인증이 필요합니다.</p>
+        <p id="sns-phone-desc" style="margin-bottom:20px; color:#666; font-size:14px;">회원가입을 위해 전화번호 인증이 필요합니다.</p>
         <div style="display:flex; gap:8px; margin-bottom:12px;">
-            <input type="tel" id="gphone-input" placeholder="휴대폰번호 (- 없이 입력)" class="form-text" style="flex:1;">
-            <button type="button" id="gphone-btn-auth" style="white-space:nowrap; padding:0 16px; background:#ccc; color:#fff; border:none; border-radius:4px; cursor:pointer;">인증요청</button>
+            <input type="tel" id="sns-phone-input" placeholder="휴대폰번호 (- 없이 입력)" class="form-text" style="flex:1;">
+            <button type="button" id="sns-phone-btn-auth" style="white-space:nowrap; padding:0 16px; background:#ccc; color:#fff; border:none; border-radius:4px; cursor:pointer;">인증요청</button>
         </div>
-        <div class="gphone-auth-row" style="display:none; margin-bottom:12px;">
+        <div class="sns-phone-auth-row" style="display:none; margin-bottom:12px;">
             <div style="display:flex; gap:8px; align-items:center;">
-                <input type="text" id="gphone-auth-input" placeholder="인증번호 6자리" class="form-text" style="flex:1;" maxlength="6">
-                <span id="gphone-timer" style="color:#e74c3c; font-size:13px; white-space:nowrap;"></span>
+                <input type="text" id="sns-phone-auth-input" placeholder="인증번호 6자리" class="form-text" style="flex:1;" maxlength="6">
+                <span id="sns-phone-timer" style="color:#e74c3c; font-size:13px; white-space:nowrap;"></span>
             </div>
-            <button type="button" id="gphone-btn-check" style="width:100%; margin-top:8px; padding:10px; background:#4285f4; color:#fff; border:none; border-radius:4px; cursor:pointer;">인증번호 확인</button>
+            <button type="button" id="sns-phone-btn-check" style="width:100%; margin-top:8px; padding:10px; background:#4285f4; color:#fff; border:none; border-radius:4px; cursor:pointer;">인증번호 확인</button>
         </div>
-        <button type="button" id="gphone-btn-join" disabled style="width:100%; padding:12px; background:#ccc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-bottom:8px;">회원가입</button>
-        <button type="button" id="gphone-btn-close" style="width:100%; padding:10px; background:#f5f5f5; color:#666; border:none; border-radius:4px; cursor:pointer;">닫기</button>
+        <button type="button" id="sns-phone-btn-proceed" disabled style="width:100%; padding:12px; background:#ccc; color:#fff; border:none; border-radius:4px; cursor:pointer; margin-bottom:8px;">계속</button>
+        <button type="button" id="sns-phone-btn-close" style="width:100%; padding:10px; background:#f5f5f5; color:#666; border:none; border-radius:4px; cursor:pointer;">닫기</button>
     </div>
 </div>
 
 
 <script>
+    // SNS 회원가입 파라미터 감지 (WeChat/Apple 콜백)
+    var urlParams = new URLSearchParams(window.location.search);
+    var joinSns = urlParams.get('join_sns');
+    var joinKey = urlParams.get('join_key');
+    var joinType = urlParams.get('join_type');
+    var snsUsername = urlParams.get('username');
+    var snsEmail = urlParams.get('email');
+    var snsGender = urlParams.get('gender');
+
+    // 위챗 AppID 전역 선언
+    var wechat_app_id = '<?= $wechat_app_id ?>';
+
+    // 위챗 QR 팝업 오픈
+    function openWechatQrPopup() {
+        // 팝업 표시
+        $('#wechat-qr-container').empty();
+        $('#wechat-qr-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
+        setTimeout(function() {
+            $('#wechat-qr-popup').css('background', 'rgba(0,0,0,0.5)');
+        }, 10);
+
+        // WeChat WxLogin SDK로 QR 코드 생성
+        if (typeof WxLogin !== 'undefined') {
+            var obj = new WxLogin({
+                self_redirect: false,   // 현재 창에서 redirect_uri로 이동
+                id: "wechat-qr-container",
+                appid: wechat_app_id,
+                scope: "snsapi_login",
+                redirect_uri: '<?= $wechat_redirect ?>',
+                state: '<?= $csrf ?>',
+                style: "black",
+                href: ""
+            });
+        } else {
+            alert("WeChat SDK를 로드할 수 없습니다.");
+        }
+    }
+
+    // 위챗 QR 팝업 닫기
+    function closeWechatQrPopup() {
+        $('#wechat-qr-popup').css('background', 'rgba(0,0,0,0)');
+        setTimeout(function() {
+            $('#wechat-qr-popup').hide();
+        }, 200);
+    }
+
     // 구글 클라이언트 ID 전역 선언 (onGoogleLibraryLoad 시점에 접근 가능해야 함)
     var google_client_id = '<?= isset($google_client_id) ? $google_client_id : "" ?>';
 
@@ -130,6 +192,15 @@
     };
 
     $(document).ready(function() {
+        // WeChat/Apple 콜백으로부터의 phone popup 자동 호출
+        if (joinSns && joinKey && joinType) {
+            setTimeout(function() {
+                openSnsPhonePopup(joinKey, snsEmail, snsUsername, joinType);
+                // URL에서 파라미터 제거 (뒤로가기 시 재호출 방지)
+                window.history.replaceState({}, document.title, '/member/login');
+            }, 100);
+        }
+
         //로그인
         $("#btnLogin").click(function() {
             goLogin();
@@ -149,10 +220,18 @@
                 alert("네이버 로그인이 설정되지 않았습니다.");
             <?php endif; ?>
         });
-        // 위챗 로그인 - 준비중 알림
+        // 위챗 로그인 - QR 모달 팝업
         $("#btnWechat").click(function(e) {
             e.preventDefault();
-            alert("준비중입니다.");
+            if (!wechat_app_id) {
+                alert("위챗 로그인이 설정되지 않았습니다.");
+                return;
+            }
+            openWechatQrPopup();
+        });
+        // 위챗 QR 팝업 닫기
+        $('#wechat-qr-close').click(function() {
+            closeWechatQrPopup();
         });
         // 구글 로그인 - GIS SDK 팝업
         $("#btnGoogle").click(function(e) {
@@ -291,6 +370,7 @@
 </script>
 
 
+<script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
 <!--div id="appleid-signin" data-color="black" data-border="true" data-type="sign in" style="height:40px;margin-top:10px;"></div-->
@@ -390,68 +470,85 @@
                 var joinKey  = ret.data ? ret.data.join_key : '';
                 var email    = ret.data ? ret.data.email  : '';
                 var name     = ret.data ? ret.data.name   : '';
-                openGoogleJoinPhonePopup(joinKey, email, name);
+                openSnsPhonePopup(joinKey, email, name, 'GOOGLE');
             } else {
+                // phone popup이 띠워져있으면 닫고 alert 띄우기
+                if ($('#sns-phone-popup').css('display') != 'none') {
+                    $('#sns-phone-popup').hide();
+                }
                 commonAlert(ret.msg || '구글 로그인 오류가 발생하였습니다.', function() {});
             }
         });
     }
 
-    // 전역 변수
-    var gPhoneJoinKey = '', gPhoneJoinType = 'GOOGLE', gPhoneEmail = '', gPhoneName = '';
-    var gPhoneIsAuth = false, gPhoneTimer = null, gPhoneRemainTime = 0, gPhoneAuthCount = 0;
-    // 뿌리오 문자인증을 위한 입력창 표시
-    function openGoogleJoinPhonePopup(joinKey, email, name, joinType) {
-        gPhoneJoinKey = joinKey;
-        gPhoneJoinType = joinType || 'GOOGLE';
-        gPhoneEmail = email || '';
-        gPhoneName = name || '';
-        gPhoneIsAuth = false;
-        gPhoneAuthCount = 0;
-        $('#gphone-input').val('');
-        $('#gphone-auth-input').val('');
-        $('.gphone-auth-row').hide();
-        $('#gphone-btn-auth').css('background-color', '#ccc');
-        $('#gphone-btn-join').prop('disabled', true).css('background-color', '#ccc');
-        $('#gphone-timer').text('');
-        $('#google-phone-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
+    // 전역 변수 (SNS 회원가입 공용)
+    var sPhoneJoinKey = '', sPhoneJoinType = 'GOOGLE', sPhoneEmail = '', sPhoneName = '';
+    var sPhoneIsAuth = false, sPhoneTimer = null, sPhoneRemainTime = 0, sPhoneAuthCount = 0;
+
+    // SNS 전화번호 인증 팝업 오픈 (구글, 위챗, 애플 등 공용)
+    function openSnsPhonePopup(joinKey, email, name, joinType) {
+        sPhoneJoinKey = joinKey;
+        sPhoneJoinType = joinType || 'GOOGLE';
+        sPhoneEmail = email || '';
+        sPhoneName = name || '';
+        sPhoneIsAuth = false;
+        sPhoneAuthCount = 0;
+
+        // 팝업 설명 변경
+        var desc = '회원가입을 위해 전화번호 인증이 필요합니다.';
+        if (joinType === 'GOOGLE') {
+            desc = '구글 회원가입을 위해 전화번호 인증이 필요합니다.';
+        } else if (joinType === 'WECHAT') {
+            desc = '위챗 회원가입을 위해 전화번호 인증이 필요합니다.';
+        } else if (joinType === 'APPLE') {
+            desc = '애플 회원가입을 위해 전화번호 인증이 필요합니다.';
+        }
+        $('#sns-phone-desc').text(desc);
+
+        $('#sns-phone-input').val('');
+        $('#sns-phone-auth-input').val('');
+        $('.sns-phone-auth-row').hide();
+        $('#sns-phone-btn-auth').css('background-color', '#ccc');
+        $('#sns-phone-btn-proceed').prop('disabled', true).css('background-color', '#ccc');
+        $('#sns-phone-timer').text('');
+        $('#sns-phone-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
         setTimeout(function() {
-            $('#google-phone-popup').css('background', 'rgba(0,0,0,0.5)');
+            $('#sns-phone-popup').css('background', 'rgba(0,0,0,0.5)');
         }, 10);
     }
 
-    function closeGoogleJoinPhonePopup() {
-        clearInterval(gPhoneTimer);
-        $('#google-phone-popup').css('background', 'rgba(0,0,0,0)');
+    function closeSnsPhonePopup() {
+        clearInterval(sPhoneTimer);
+        $('#sns-phone-popup').css('background', 'rgba(0,0,0,0)');
         setTimeout(function() {
-            $('#google-phone-popup').hide();
+            $('#sns-phone-popup').hide();
         }, 200);
     }
 
-    function gPhoneUpdateTime() {
-        gPhoneRemainTime--;
-        if (gPhoneRemainTime <= 0) {
-            clearInterval(gPhoneTimer);
-            $('#gphone-timer').text('만료');
+    function sPhoneUpdateTime() {
+        sPhoneRemainTime--;
+        if (sPhoneRemainTime <= 0) {
+            clearInterval(sPhoneTimer);
+            $('#sns-phone-timer').text('만료');
             return;
         }
-        var m = Math.floor(gPhoneRemainTime / 60);
-        var s = gPhoneRemainTime % 60;
-        $('#gphone-timer').text(m + ':' + (s < 10 ? '0' + s : s));
+        var m = Math.floor(sPhoneRemainTime / 60);
+        var s = sPhoneRemainTime % 60;
+        $('#sns-phone-timer').text(m + ':' + (s < 10 ? '0' + s : s));
     }
 
     // 전화번호 입력 실시간 검증 및 버튼 색상 변경
-    $('#gphone-input').on('input keyup', function() {
+    $('#sns-phone-input').on('input keyup', function() {
         var phone = $(this).val().replace(/[^0-9]/g, '');
         var isValid = /^01[016789][0-9]{7,8}$/.test(phone);
 
         if (isValid) {
-            $('#gphone-btn-auth').prop('disabled', false).css({
+            $('#sns-phone-btn-auth').prop('disabled', false).css({
                 'background-color': '#57CCAF',
                 'cursor': 'pointer'
             });
         } else {
-            $('#gphone-btn-auth').prop('disabled', true).css({
+            $('#sns-phone-btn-auth').prop('disabled', true).css({
                 'background-color': '#ccc',
                 'cursor': 'not-allowed'
             });
@@ -459,68 +556,83 @@
     });
 
     // 인증번호 요청
-    $('#gphone-btn-auth').click(function() {
-        var phone = $('#gphone-input').val().replace(/[^0-9]/g, '');
+    $('#sns-phone-btn-auth').click(function() {
+        var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
         if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
             alert('올바른 휴대폰번호를 입력해주세요.');
             return;
         }
-        comAjax('/member_proc/check_google_phone', {mm_phone: phone}, function(ret) {
+        comAjax('/member_proc/check_sns_phone', {mm_phone: phone}, function(ret) {
             if (ret.code == '00') {
-                $('.gphone-auth-row').show();
-                clearInterval(gPhoneTimer);
-                gPhoneRemainTime = 180;
-                gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
-                gPhoneUpdateTime();
+                $('.sns-phone-auth-row').show();
+                clearInterval(sPhoneTimer);
+                sPhoneRemainTime = 180;
+                sPhoneTimer = setInterval(sPhoneUpdateTime, 1000);
+                sPhoneUpdateTime();
                 alert('인증번호를 발송하였습니다.');
             } else if (ret.code == '99') {
-                commonAlert(ret.msg, function() {});
+                // phone popup 임시 숨기고 alert 띄우기
+                var phonePopupDisplay = $('#sns-phone-popup').css('display');
+                $('#sns-phone-popup').hide();
+                commonAlert(ret.msg, function() {
+                    $('#sns-phone-popup').css('display', phonePopupDisplay);
+                });
             } else if (ret.code == '98') {
-                commonAlert('하루 SMS 발송 횟수를 초과하였습니다.', function() {});
+                var phonePopupDisplay = $('#sns-phone-popup').css('display');
+                $('#sns-phone-popup').hide();
+                commonAlert('하루 SMS 발송 횟수를 초과하였습니다.', function() {
+                    $('#sns-phone-popup').css('display', phonePopupDisplay);
+                });
             } else {
-                commonAlert(ret.msg || '오류가 발생하였습니다.', function() {});
+                var phonePopupDisplay = $('#sns-phone-popup').css('display');
+                $('#sns-phone-popup').hide();
+                commonAlert(ret.msg || '오류가 발생하였습니다.', function() {
+                    $('#sns-phone-popup').css('display', phonePopupDisplay);
+                });
             }
         });
     });
 
     // 인증번호 확인
-    $('#gphone-btn-check').click(function() {
-        var phone = $('#gphone-input').val().replace(/[^0-9]/g, '');
-        var auth = $('#gphone-auth-input').val();
-        comAjax('/member_proc/check_google_phone_auth', {mm_phone: phone, auth: auth}, function(ret) {
+    $('#sns-phone-btn-check').click(function() {
+        var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
+        var auth = $('#sns-phone-auth-input').val();
+        comAjax('/member_proc/check_sns_phone_auth', {mm_phone: phone, auth: auth}, function(ret) {
             if (ret.code == '00') {
-                gPhoneIsAuth = true;
-                clearInterval(gPhoneTimer);
-                $('#gphone-btn-join').prop('disabled', false).css('background-color', '#4285f4');
+                sPhoneIsAuth = true;
+                clearInterval(sPhoneTimer);
+                $('#sns-phone-btn-proceed').prop('disabled', false).css('background-color', '#4285f4');
                 alert('인증이 완료되었습니다.');
             } else {
-                gPhoneAuthCount++;
-                if (gPhoneAuthCount > 3) {
+                sPhoneAuthCount++;
+                if (sPhoneAuthCount > 3) {
+                    var phonePopupDisplay = $('#sns-phone-popup').css('display');
+                    $('#sns-phone-popup').hide();
                     commonAlert('인증 오류가 3회 초과되었습니다.', function() {
-                        closeGoogleJoinPhonePopup();
+                        closeSnsPhonePopup();
                     });
                 } else {
-                    alert('인증번호가 일치하지 않습니다. (' + gPhoneAuthCount + '/3)');
+                    alert('인증번호가 일치하지 않습니다. (' + sPhoneAuthCount + '/3)');
                 }
             }
         });
     });
 
-    // 회원가입 버튼
-    $('#gphone-btn-join').click(function() {
-        if (!gPhoneIsAuth) { return; }
-        var phone = $('#gphone-input').val().replace(/[^0-9]/g, '');
+    // 계속 버튼 - join_sns_start로 이동 (phonenum 포함)
+    $('#sns-phone-btn-proceed').click(function() {
+        if (!sPhoneIsAuth) { return; }
+        var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
         var joinUrl = '/member/join_sns_start'
-            + '?join_key=' + encodeURIComponent(gPhoneJoinKey)
-            + '&join_type=' + gPhoneJoinType
-            + (gPhoneEmail ? '&email=' + encodeURIComponent(gPhoneEmail) : '')
-            + (gPhoneName  ? '&username=' + encodeURIComponent(gPhoneName) : '')
+            + '?join_key=' + encodeURIComponent(sPhoneJoinKey)
+            + '&join_type=' + sPhoneJoinType
+            + (sPhoneEmail ? '&email=' + encodeURIComponent(sPhoneEmail) : '')
+            + (sPhoneName  ? '&username=' + encodeURIComponent(sPhoneName) : '')
             + '&phonenum=' + encodeURIComponent(phone);
         location.href = joinUrl;
     });
 
     // 닫기
-    $('#gphone-btn-close').click(function() {
-        closeGoogleJoinPhonePopup();
+    $('#sns-phone-btn-close').click(function() {
+        closeSnsPhonePopup();
     });
 </script>

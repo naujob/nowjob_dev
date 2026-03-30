@@ -125,7 +125,7 @@ renderSelectBottomSheet(
   })();
 
   var JOIN_TYPE = "<?php echo $this->user->isLogin() ? $this->user->getJoinType() : ''; ?>";
-  var IS_GOOGLE_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "GOOGLE");
+  var IS_GOOGLE_JOIN = (["GOOGLE", "WECHAT"].indexOf(String(JOIN_TYPE || "").toUpperCase()) !== -1);
   // 위치 콜백을 “UI 텍스트만 갱신”할지, “자동 이력서 흐름”으로 이어갈지 구분.
   window.__quickInfoExpectLocation = false;
   // QuickInfo 적용하기 버튼으로 시작된 흐름인지 여부

@@ -194,6 +194,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
     var isMem = <?= ($this->user->isLogin() && $this->user->getUserType() === 'MEM') ? 'true' : 'false' ?>;
     var JOIN_TYPE = "<?= $this->user->isLogin() ? $this->user->getJoinType() : '' ?>";
     var IS_GOOGLE_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "GOOGLE");
+    var IS_WECHAT_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "WECHAT");
     // QuickInfo 상태 플래그
     window.__quickInfoExpectLocation = false; // 위치 확인 플로우 진행 중 여부 (true면 위치 확인 UI를 기대)
     window.__quickInfoApplyFlow = false; // QuickInfo '적용하기'로 제출하는 흐름인지 여부
@@ -584,8 +585,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 
     // 자동 이력서 플로우 시작 조건 판단 및 초기 UI 세팅
     function startAutoResumeFlowIfNeeded() {
-        // 자동 이력서 흐름 시작 조건 확인 (권한/이력서 개수)
-        if (IS_GOOGLE_JOIN) {
+        // 자동 이력서 흐름 시작 조건 확인 (권한/이력서 개수) - Google/WeChat 가입자
+        if (IS_GOOGLE_JOIN || IS_WECHAT_JOIN) {
             if (typeof window.openQuickInfoPanel === 'function') {
                 window.openQuickInfoPanel();
             }

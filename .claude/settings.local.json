@@ -13,7 +13,8 @@
       "Bash(echo \"=== $file ===\")",
       "Read(//home/nowapk/dev_nowapk/**)",
       "Bash(done)",
-      "Bash(find /home/nowapk/dev_nowapk -name common.js -not -path */smarteditor*)"
+      "Bash(find /home/nowapk/dev_nowapk -name common.js -not -path */smarteditor*)",
+      "WebFetch(domain:developers.weixin.qq.com)"
     ]
   },
   "additionalDirectories": [

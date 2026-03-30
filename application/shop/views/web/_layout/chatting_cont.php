@@ -1014,7 +1014,7 @@
  															<td class="label">업무구분</td>
  															<td class="value" id="bt_work_img">
  																<!-- 직종라벨 -->
- 																<img src="static/img/job_cate2_label1.svg" alt="건설" class="category-label">
+ 																<img  alt="건설" class="category-label">
  															</td>
  														</tr>
  														<tr>

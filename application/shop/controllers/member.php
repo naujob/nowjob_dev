@@ -67,8 +67,9 @@ class Member extends CI_Controller
 			$this->common->scriptReplace("/");
 			exit;
 		} else if ($return["code"] == "90") {
-			//회원정보를 찾을 수 없습니다.
-			go_location("/member/join_sns_start?join_key=" . $key . "&join_type=" . "APPLE");
+			// 신규 회원: login.php로 리다이렉트 + 파라미터 (phone popup 띄우기)
+			$login_url = "/member/login?join_sns=1&join_key=" . urlencode($key) . "&join_type=APPLE";
+			go_location($login_url);
 		} else {
 			go_location("/member/login?msg_code=" . $return["code"]);
 		}
@@ -191,6 +192,169 @@ class Member extends CI_Controller
 		}
 	} //kakao_login_callback
 
+	/**
+	 * 위챗 로그인 콜백 처리
+	 * WeChat OAuth 리다이렉트 후 code를 이용해 로그인/회원가입 처리
+	 */
+	function wechat_login_callback()
+	{
+		$code  = isset($_GET["code"])  ? $_GET["code"]  : "";
+		$state = isset($_GET["state"]) ? $_GET["state"] : "";
+
+		
+
+		if (empty($code)) {
+			
+			$this->common->scriptReplace("/member/login", "위챗 로그인에 실패하였습니다.(1)");
+			exit;
+		}
+
+		// 위챗 설정 조회 (login.php와 동일하게 WEB_APP_ID/WEB_APP_SECRET 사용, 없으면 APP_ID/APP_SECRET 폴백)
+		$wechat_setting = $this->setting_model->getSettingInfo(["st_group" => "위챗"]);
+		$app_id     = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : (isset($wechat_setting["APP_ID"]) ? $wechat_setting["APP_ID"] : "");
+		$app_secret = isset($wechat_setting["WEB_APP_SECRET"]) ? $wechat_setting["WEB_APP_SECRET"] : (isset($wechat_setting["APP_SECRET"]) ? $wechat_setting["APP_SECRET"] : "");
+
+		// Callback URL (네이버처럼 명시적으로 설정)
+		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$callback_url = $app_base_url . "/member/wechat_login_callback";
+
+	
+
+		if (empty($app_id) || empty($app_secret)) {
+		
+			$this->common->scriptReplace("/member/login", "위챗 로그인 설정이 없습니다.");
+			exit;
+		}
+
+		// code → access_token + openid 교환
+		$token_url = "https://api.weixin.qq.com/sns/oauth2/access_token"
+			. "?appid=" . $app_id
+			. "&secret=" . $app_secret
+			. "&code=" . $code
+			. "&grant_type=authorization_code";
+
+		// cURL 호출
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $token_url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$token_response = curl_exec($ch);
+		$curl_error = curl_error($ch);
+		curl_close($ch);
+
+
+
+		if (!$token_response) {
+			$this->common->scriptReplace("/member/login", "위챗 인증에 실패하였습니다.(2)");
+			exit;
+		}
+
+		$token_data = json_decode($token_response, true);
+
+	
+
+		if (!is_array($token_data) || isset($token_data["errcode"])) {
+
+			$this->common->scriptReplace("/member/login", "위챗 인증에 실패하였습니다.(3)");
+			exit;
+		}
+
+		$access_token = $token_data["access_token"];
+		$openid       = $token_data["openid"];
+
+		// 사용자 정보 조회
+		$info_url = "https://api.weixin.qq.com/sns/userinfo"
+			. "?access_token=" . $access_token
+			. "&openid=" . $openid
+			. "&lang=zh_CN";
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $info_url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$info_response = curl_exec($ch);
+		$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+
+
+
+		$user_info = $info_response ? json_decode($info_response, true) : null;
+		$sex_code  = ($user_info && isset($user_info["sex"]))     ? intval($user_info["sex"])    : 0;
+		$unionid   = ($user_info && isset($user_info["unionid"])) ? $user_info["unionid"]        : "";
+		$nickname  = ($user_info && isset($user_info["nickname"])) ? $user_info["nickname"]       : "";
+
+		// sex 변환: 1=남, 2=여, 0=미지정
+		$gender = ($sex_code == 1) ? "남" : (($sex_code == 2) ? "여" : "");
+
+		// 로그인 처리
+		$return = $this->login_process("WECHAT", $openid);
+
+		if ($return["code"] == "00") {
+			$this->common->scriptReplace("/");
+			exit;
+		}
+
+		// 탈퇴 회원 처리
+		if ($return["code"] == "91") {
+			$this->common->scriptReplace("/member/login", $return["msg"]);
+			exit;
+		}
+
+		// 신규 회원 (code == "90"): 회원가입 유도
+		$sns_info = array(
+			"join_type" => "WECHAT",
+			"join_key"  => $openid,
+			"username"  => !empty($nickname) ? $nickname : "wechat_" . $openid,
+			"email"     => "",
+			"gender"    => $gender,
+			"phonenum"  => "",
+			"birthyear" => "",
+			"birthday"  => "",
+		);
+		if (!empty($unionid)) {
+			$sns_info["unionid"] = $unionid;
+		}
+
+		// DB 로그 저장
+		$this->site_model->deleteSiteLog(array("session_id" => session_id(), "sl_status" => "Y"));
+		$this->site_model->setSiteLog(
+			array(
+				"session_id" => session_id(),
+				"sl_type"    => "JOIN",
+				"sl_step"    => "SNS",
+				"sl_txt"     => json_encode($sns_info, JSON_UNESCAPED_UNICODE)
+			),
+			array(
+				"session_id" => session_id(),
+				"sl_type"    => "JOIN",
+				"sl_step"    => "SNS",
+				"sl_status"  => "Y"
+			)
+		);
+
+		// code "90" (신규 회원) 처리: login.php로 리다이렉트 + 파라미터 (phone popup 띄우기)
+		if ($return["code"] == "90") {
+			$login_url = "/member/login"
+				. "?join_sns=1"
+				. "&join_key=" . urlencode($openid)
+				. "&join_type=WECHAT"
+				. (!empty($nickname) ? "&username=" . urlencode($nickname) : "")
+				. (!empty($gender) ? "&gender=" . urlencode($gender) : "");
+			go_location($login_url);
+			exit;
+		}
+
+		$data["code"]     = $return["code"];
+		$data["msg"]      = $return["msg"];
+		$data["res_id"]   = $openid;
+		$data["sns_info"] = $sns_info;
+		$data["enc_data"] = $this->member_model->getNiceEncData();
+
+		$this->layout->shop('/member/wechat_login_callback', $data);
+	} //wechat_login_callback
+
 	function naver_login_callback()
 	{
 		// callback 으로 들어온 값을 확인한다.
@@ -254,13 +418,7 @@ class Member extends CI_Controller
 			if (isset($token_response["error_description"])) {
 				$error_msg .= " - " . $token_response["error_description"];
 			}
-			// 디버깅을 위한 로그
-			if (isset($token_result[0])) {
-				error_log("Naver Token Error: " . $token_result[0]);
-			}
-			if (isset($token_result[3]) && $token_result[3] != 200) {
-				error_log("Naver Token HTTP Status: " . $token_result[3]);
-			}
+			
 			$this->common->scriptReplace("/member/login", $error_msg);
 			exit();
 		}
@@ -355,10 +513,7 @@ class Member extends CI_Controller
 			if (isset($user_info_response["errorMessage"])) {
 				$error_msg .= " - " . $user_info_response["errorMessage"];
 			}
-			// 디버깅을 위한 로그
-			if (isset($user_info_result[0])) {
-				error_log("Naver User Info Error: " . $user_info_result[0]);
-			}
+			
 			$this->common->scriptReplace("/member/login", $error_msg);
 			exit();
 		}
@@ -772,7 +927,7 @@ class Member extends CI_Controller
 					}
 				} catch (Exception $e) {
 					// MongoDB 업데이트 실패 시에도 계속 진행
-					error_log("로그아웃 시 MongoDB 업데이트 실패: " . $e->getMessage());
+					
 				}
 			}
 		}
@@ -856,14 +1011,18 @@ class Member extends CI_Controller
 		$birthday = input_get("birthday", ""); // URL 파라미터로 생일 받기
 		// 클라이언트에서 이미 포맷 변환된 데이터를 받음 (중복 변환 제거)
 
-		// 간편로그인 회원가입 시작 시 전화번호로 기존 회원 존재 여부 확인
-		if (!empty($phonenum)) {
-			$duplicate_check = checkDuplicatePhoneForSns($phonenum);
-			if ($duplicate_check["is_duplicate"]) {
-				// 중복이 있으면 로그인 페이지로 리다이렉트
-				go_location("/member/login", $duplicate_check["message"]);
-				exit;
-			}
+		// 간편로그인 회원가입 시작 시 전화번호 필수
+		if (empty($phonenum)) {
+			go_location("/member/login", "전화번호 인증이 필요합니다. 다시 시도해주세요.");
+			exit;
+		}
+
+		// 전화번호로 기존 회원 존재 여부 확인
+		$duplicate_check = checkDuplicatePhoneForSns($phonenum);
+		if ($duplicate_check["is_duplicate"]) {
+			// 중복이 있으면 로그인 페이지로 리다이렉트
+			go_location("/member/login", $duplicate_check["message"]);
+			exit;
 		}
 
 		// 기존 SNS 데이터 확인 (앱에서 저장한 생년월일 정보 유지)

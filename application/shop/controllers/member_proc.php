@@ -463,8 +463,19 @@ class Member_proc extends CI_Controller
             "mm_status" => "Y"
         ]);
 
+        // 2) GOOGLE이 없으면 이메일로 기존 회원 조회 (다른 SNS로 이미 가입된 회원)
+        if ($mem_info == null && !empty($email)) {
+            $mem_info = $this->member_model->getMember([
+                "mm_email" => $email,
+                "mm_status" => "Y"
+            ]);
+            // 이메일로 찾은 회원이 있으면, 위챗/카카오 등 다른 SNS로 가입된 회원
+            // 이 경우 구글 정보를 추가할 수 있도록 later 처리
+            // 여기서는 기존 회원으로 로그인 처리
+        }
+
         if ($mem_info == null) {
-            // 2) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
+            // 3) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
             $query  = "select * from st_member ";
             $query .= "where mm_join_type = 'GOOGLE' ";
             $query .= "and   mm_join_key = '" . $google_sub . "'  ";
@@ -474,7 +485,7 @@ class Member_proc extends CI_Controller
             $result = $this->db->query($query);
             $mem_info = $result->row_array();
             if ($mem_info == null) {
-                // 3) 회원이 없으면 SNS 정보 임시 저장 (회원가입으로 이어질 수 있도록)
+                // 4) 회원이 없으면 SNS 정보 임시 저장 (회원가입으로 이어질 수 있도록)
                 $sns_info = [
                     "join_type" => "GOOGLE",
                     "join_key" => $google_sub,
@@ -510,7 +521,7 @@ class Member_proc extends CI_Controller
             }
 
             if ($mem_info["mm_status"] != "Y") {
-                // 4) 탈퇴 회원이면 탈퇴 후 15일 이내 여부에 따라 메시지 분기
+                // 5) 탈퇴 회원이면 탈퇴 후 15일 이내 여부에 따라 메시지 분기
                 $fireDate = new DateTime($mem_info["fire_dt"]); // 탈퇴일
                 $currentDate = new DateTime(); // 현재 시간
                 $interval = $fireDate->diff($currentDate)->days; // 두 날짜 차이 계산 (일 단위)
@@ -1145,6 +1156,77 @@ class Member_proc extends CI_Controller
 
     # 구글 회원가입용 전화번호 인증번호 확인
     function check_google_phone_auth()
+    {
+        $phone = input_post("mm_phone");
+        $auth  = input_post("auth");
+
+        $check = $this->site_model->checkSmsAuth($phone, $auth);
+
+        json_return($check["code"], $check["msg"]);
+    }
+
+    # SNS 회원가입용 전화번호 확인 및 SMS 인증번호 발송 (위챗/애플 등)
+    function check_sns_phone()
+    {
+        $phone = input_post("mm_phone");
+
+        // 전화번호 정규화 (하이픈, 공백, 점 제거)
+        $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+
+        if ($normalized_phone == '') {
+            json_return("91", "전화번호를 입력해주세요.");
+            return;
+        }
+
+        // 전화번호로 회원 조회 (가입 타입 무관하게 모두 조회)
+        $query = "SELECT * FROM st_member
+                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                  AND mm_status = 'Y'
+                  LIMIT 1";
+        $result = $this->db->query($query);
+        $mem_info = $result->row_array();
+
+        if ($mem_info != null) {
+            // 이미 가입된 회원 — 가입 경로별 메시지 반환
+            $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "WEB";
+
+            if ($join_type === "GOOGLE") {
+                $provider_label = "구글";
+            } elseif ($join_type === "KAKAO") {
+                $provider_label = "카카오";
+            } elseif ($join_type === "NAVER") {
+                $provider_label = "네이버";
+            } elseif ($join_type === "APPLE") {
+                $provider_label = "애플";
+            } elseif ($join_type === "WECHAT") {
+                $provider_label = "위쳇";
+            }else {
+                $provider_label = "휴대폰";
+            }
+
+            json_return("99", $provider_label . "으로 가입된 회원입니다.\n로그인 페이지에서 로그인해주세요.");
+        } else {
+            // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
+            $count_result = $this->site_model->checkSmsSendCount($phone, "SNS가입인증");
+
+            if ($count_result["code"] != "00") {
+                json_return("98", "하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.");
+                return;
+            }
+
+            $authNum = rand(100000, 999999);
+            $result = $this->common->sendSms($phone, "나우잡 인증 번호 발송 [" . $authNum . "]", $authNum);
+
+            if ($result["code"] == "00") {
+                json_return("00", "인증번호를 발송하였습니다.");
+            } else {
+                json_return("99", "SMS 발송 오류: " . $result["text"]);
+            }
+        }
+    }
+
+    # SNS 회원가입용 전화번호 인증번호 확인
+    function check_sns_phone_auth()
     {
         $phone = input_post("mm_phone");
         $auth  = input_post("auth");
