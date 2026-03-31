@@ -2,6 +2,18 @@
 	exit('No direct script access allowed');
 }
 
+function get_mongo_uri()
+{
+	$CI = &get_instance();
+	return isset($CI->config->config['mongo_uri']) ? $CI->config->config['mongo_uri'] : 'mongodb://localhost';
+}
+
+function get_mongo_db_name()
+{
+	$CI = &get_instance();
+	return isset($CI->config->config['mongo_db']) ? $CI->config->config['mongo_db'] : 'chat';
+}
+
 function get_mongodb($name)
 {
 	$m = new MongoClient("mongodb://127.0.0.1/");

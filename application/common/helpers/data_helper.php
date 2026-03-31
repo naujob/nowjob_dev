@@ -1191,9 +1191,16 @@ function getConvertResumePriceType($price_type)
 	$types = preg_split('/\s*,\s*/', $price_type);
 
 	$result = '';
+	$count = 0;
 	foreach ($types as $type) {
 		$type = trim($type);
-		$result .= '<em>' . $type . '</em>';
+		if ($type !== '') {
+			if ($count > 0) {
+				$result .= ' <span class="price-divider">|</span> ';
+			}
+			$result .= '<em>' . $type . '</em>';
+			$count++;
+		}
 	}
 
 	return $result;

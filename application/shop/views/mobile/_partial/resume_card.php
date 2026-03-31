@@ -55,7 +55,7 @@ if (!empty($row['mm_birth'])) {
               <p><?= $row['mm_nation'] ?></p>
             <?php endif; ?>
             <?php if ($_age !== '' && $_age != 0) : ?>
-              <p><?= $_age ?>세</p>
+              <p><?= $_age ?>대</p>
             <?php endif; ?>
             <?php if (!empty($row['ad_addr'])) : ?>
               <p class="area-addr" data-addr="<?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?>"><?= fRemoveBigAdr($row['ad_addr']) ?></p>

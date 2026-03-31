@@ -589,10 +589,10 @@ function fRemoveBigAdrPHP($arg)
                 <span class="sr-text">평점</span>
                 <span class="sr-text">5</span>
               </p>
-              <div class="profile-detail">
+              <!-- <div class="profile-detail"> -->
                 <!-- 이름 -->
-                <p class="name"><em class="view-title"><?= getAstrik($mem_info["mm_name"]) ?></em>님</p>
-              </div>
+                <!-- <p class="name"><em class="view-title"><?= getAstrik($mem_info["mm_name"]) ?></em>님</p>
+              </div> -->
               <?php
               // 기업회원 정보 캐싱 (카카오/네이버 간편가입자는 PASS 미인증으로 간주)
               $currentUserInfo = $this->user->getCurrentUserInfo();
@@ -996,7 +996,7 @@ function fRemoveBigAdrPHP($arg)
               <?php } else { ?>
                 <!-- 기업회원이 볼 때: 기존 타이틀 및 기타정보 -->
                 <!-- 타이틀 -->
-                <p class="title"><?= getAstrik($mem_info["mm_name"]) ?></p>
+                <p class="title"><?= htmlspecialchars($info["ru_name"], ENT_QUOTES, 'UTF-8') ?></p>
                 <!-- 기타정보 -->
 
                 <?php $mem_info["ad_addr"] = isset($addr[0]['ad_addr']) ? $addr[0]['ad_addr'] : ''; ?>
@@ -1030,7 +1030,7 @@ function fRemoveBigAdrPHP($arg)
                 ?>
                   <span><?= $mem_info["mm_nation"] ?></span>
                   <span class="gapbar1" style="<?= $gapbar1 ?>">/</span>
-                  <span><?= getKoreanAge($mem_info["mm_birth"]) ?>세</span>
+                  <span><?= getKoreanAge($mem_info["mm_birth"]) ?>대</span>
                   <span class="gapbar2" style="<?= $gapbar2 ?>">/</span>
                   <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span>
                 </p>

@@ -1124,7 +1124,7 @@ window.onload = function() {
     $("#gphone-auth-input").val("");
     $("#gphone-remain-time").html("0 : 00");
     $(".gphone-error").addClass("hidden");
-    $(".gphone-auth-row").addClass("hidden");
+    // $(".gphone-auth-row").addClass("hidden");
     $("#gphone-btn-auth").css("background-color", "#ccc");
     $("#gphone-btn-join").prop("disabled", true);
 
@@ -1333,20 +1333,20 @@ window.onload = function() {
       <div class="inline-group">
         <label class="col">
           <span class="sr-text">휴대폰번호 입력</span>
-          <input type="text" id="gphone-input" placeholder="휴대폰번호를 입력해 주세요" autocomplete="off" class="form-text" onkeyup="gPhoneNumCheck();">
+          <input type="text" id="gphone-input" placeholder="휴대폰번호를 입력해 주세요" autocomplete="off" class="form-text gphone-input" onkeyup="gPhoneNumCheck();">
         </label>
         <button id="gphone-btn-auth" type="button" class="btn btn-tertiary" style="background-color:#ccc;">인증 요청</button>
       </div>
       <p class="gphone-error gphone-error-format help-msg is-fail hidden">형식에 맞지 않는 휴대폰번호입니다.</p>
     </div>
 
-    <div class="form-row gphone-auth-row hidden" style="margin-bottom:32px;">
+    <div class="form-row gphone-auth-row" style="margin-bottom:32px;">
       <p class="form-label">인증번호</p>
       <div class="inline-group">
         <label class="col" style="position:relative;">
           <span class="sr-text">인증번호 입력</span>
-          <input type="text" id="gphone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" class="form-text">
-          <span id="gphone-remain-time" style="position:absolute;width:48px;right: 6px;;top:11px;color:#FF6D6D;text-align:right;font-weight:600;">0 : 00</span>
+          <input type="text" id="gphone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" class="form-text gphone-input">
+          <span id="gphone-remain-time" style="position:absolute;width:48px;right: 6px;;top:20px;color:#FF6D6D;text-align:right;font-weight:600;font-size:1.2rem">0 : 00</span>
         </label>
         <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary">확인</button>
       </div>

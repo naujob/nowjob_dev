@@ -36,9 +36,9 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
             </span>
         </label>
     </div>
-    <div class="profile-name">
+    <!-- <div class="profile-name"> -->
         <!-- 이름 -->
-        <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
+        <!-- <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p> -->
         <!-- 평점 -->
         <!-- <p class="star-rating v2">
            
@@ -46,7 +46,7 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
             <span class="sr-text">평점</span>
             <span class="sr-text"><?= $mem_info["eval_num"] ?></span>
         </p> -->
-    </div>
+    <!-- </div> -->
     <div class="profile-detail">
         <div class="meta">
             <!-- 연락처 -->

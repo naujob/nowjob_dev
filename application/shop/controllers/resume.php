@@ -194,12 +194,12 @@ class Resume extends CI_Controller
           // 자신의 이력서이므로 계속 진행
         } else {
           // 자신의 이력서가 아닌 경우 리다이렉트
-          error_log("푸시알림 디버깅 - 개인회원이 타인의 이력서 접근 시도: mm_type=" . $this->mm_type);
+         
           go_location("https://nowjob.co.kr/mypage/resume_list", "기업회원 전용 서비스입니다.");
         }
       } else {
         // 이력서 정보를 찾을 수 없는 경우
-        error_log("푸시알림 디버깅 - 이력서 정보를 찾을 수 없음: ru_idx=" . $ru_idx);
+        
         go_location("https://nowjob.co.kr/mypage/resume_list", "기업회원 전용 서비스입니다.");
       }
     }

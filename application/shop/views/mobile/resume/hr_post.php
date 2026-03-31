@@ -120,7 +120,7 @@ function fRemoveBigAdr($arg)
                     </div>
                     <div class="profile-detail">
                         <!-- 이름 -->
-                        <p class="name"><em class="view-title"><?= getAstrik($mem_info["mm_name"]) ?></em>님</p>
+                        <p class="name"><em class="view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></em></p>
                         <div class="meta">
                             <!-- 연락처 -->
                             <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {

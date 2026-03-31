@@ -116,7 +116,7 @@
                        <?=getMemberStatus($row["mm_status"])?>
                    </td>
                    <td><?=getCompType($row["mm_comp_type"])?> <?=($row["mm_comp_type"]=="OUT" && $row["mm_comp_out_yn"]=="N") ? "<p style='margin-top:5px;'>승인대기</p>":""?></td>
-                   <td><?=$row["mm_join_type_nm"]?></td>
+                   <td><?=($row["mm_join_type_nm"]=="이메일") ? "PASS" : $row["mm_join_type_nm"]?></td>
                    <td><?=$row["mm_id"]?></td>
                    <td><?=$row["mm_comp_name"]?></td>
                    <td><?=$row["mm_phone"]?></td>

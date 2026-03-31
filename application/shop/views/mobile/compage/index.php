@@ -14,14 +14,7 @@ function fBizNoMasking($bizNo)
     padding-bottom: 2.6875rem;
   }
 
-  .form-pic .preview {
-    display: block;
-    position: relative;
-    width: 100%;
-    padding: 100% 0 0;
-    border-radius: 10px;
-    overflow: hidden;
-  }
+
 
   .profile .form-pic:before {
     top: auto;
@@ -38,6 +31,10 @@ function fBizNoMasking($bizNo)
   .profile-detail {
     padding-top: 1.3rem;
   }
+ .profile .thumb-wrap{
+  position: relative;
+  top:-18px;
+ }
 </style>
 <div class="page page-mypage">
   <div class="page-content">
@@ -54,8 +51,8 @@ function fBizNoMasking($bizNo)
         </div>
         <div class="profile-detail">
           <!-- 이름 -->
-          <p class="name"><em><?= ($mem_info == null || ($mem_info["mm_comp_num"] == "")) ? "기업회원" : $mem_info["mm_comp_name"] ?></em></p>
-          <div class="meta">
+          <!-- <p class="name"><em><?= ($mem_info == null || ($mem_info["mm_comp_num"] == "")) ? "기업회원" : $mem_info["mm_comp_name"] ?></em></p> -->
+          <div class="meta index">
             <!-- 연락처 -->
             <p class="phone"><?= $mem_info["mm_phone"] ?></p>
             <!-- 메일주소 -->

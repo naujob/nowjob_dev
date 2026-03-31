@@ -5933,6 +5933,11 @@ body {
     vertical-align: top;
 }
 
+.info-table .value .price-divider {
+    color: #777777;
+    margin: 0 2px;
+}
+
 .info-table .category-label {
     height: 1.1428571429em;
     margin-left: -4px;
@@ -9961,6 +9966,7 @@ body {
     border: 2px solid #1B9D7D;
     border-radius: 10px;
     background: #E8FFF9;
+    margin-left: 10px;   
 }
 
 .item-view .profile-record>li {

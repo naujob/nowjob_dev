@@ -167,7 +167,8 @@
 		position: relative !important;
 		padding-right: 5px !important;
 		margin: 0 !important;
-		color: #999 !important;
+		color: #777 !important;
+		font-weight:600
 	}
 
 	.chat-view-header .chat-recruit-summary p:not(:last-child)::after {
@@ -201,7 +202,7 @@
 		font-size: 18px !important;
 		font-weight: 700 !important;
 		letter-spacing: 0 !important;
-		color: #222 !important;
+		color: #1b9d7d !important;
 		display: flex !important;
 		flex-direction: column !important;
 		align-items: flex-end !important;
@@ -713,7 +714,11 @@
  					<div class="chat-view" tabindex="0" hidden>
  						<div class="chat-view-header">
  							<!-- 회사명 -->
- 							<h4 class="view-title" id="top_name">1:1 채팅</h4>
+ 							<?php if ($user_type == "COMP"): ?>
+ 								<h4 class="view-title" id="top_name"></h4>
+ 							<?php else: ?>
+ 								<h4 class="view-title" id="top_name">1:1 채팅</h4>
+ 							<?php endif; ?>
 
  							<!-- 채용정보 -->
 							<?php if ($user_type == "MEM") : ?>
@@ -3139,7 +3144,7 @@
 							$("#top_recruit").show();
 							$("#top_trade").hide();
 								
-								$("#top_name").html(ret.data.mm_name || "");
+								$("#top_name").html(ret.data.ru_name || "");
 								
 								// 이미지 및 링크 설정
 								var resumeImg = ret.data.ru_resume_img || '/resource/shop/mobile/img/common/noimage4.png';
@@ -3944,7 +3949,7 @@
 								$("#top_recruit").show();
 								$("#top_trade").hide();
 								
-							$("#top_name").html(ret.data.mm_name || "");
+							$("#top_name").html(ret.data.ru_name || "");
 							
 							// 이미지 및 링크 설정
 							var resumeImg = ret.data.ru_resume_img || '/resource/shop/mobile/img/common/noimage4.png';

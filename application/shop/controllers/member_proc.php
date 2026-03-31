@@ -1572,7 +1572,13 @@ class Member_proc extends CI_Controller
                 } elseif ($join_type === "KAKAO") {
                     $provider_label = "카카오";
                     $postposition = "로";
-                } else {
+                } elseif ($join_type === "GOOGLE") {
+                    $provider_label = "구글";
+                    $postposition = "에서";
+                }elseif ($join_type === "WECHAT") {
+                    $provider_label = "위쳇";
+                    $postposition = "에서";
+                }else {
                     $provider_label = "NOWJOB";
                     $postposition = "에서";
                 }
@@ -1682,7 +1688,13 @@ class Member_proc extends CI_Controller
                     } elseif ($join_type === "KAKAO") {
                         $provider_label = "카카오";
                         $postposition = "로"; // 카카오로
-                    } else {
+                    } elseif ($join_type === "GOOGLE") {
+                        $provider_label = "구글";
+                        $postposition = "에서";
+                    }elseif ($join_type === "WECHAT") {
+                        $provider_label = "위쳇";
+                        $postposition = "에서";
+                    }else {
                         // 알 수 없는 타입일 경우 NOWJOB으로 처리
                         $provider_label = "NOWJOB";
                         $postposition = "에서";

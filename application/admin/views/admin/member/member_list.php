@@ -116,10 +116,10 @@
 	                		 <br/><p class="" style="color:#f33;margin-top:4px;">자격정지이력</p>
 	                	<?php endif; ?>
 	                </td>
-	                <td><?=$row["mm_join_type_nm"]?></td>
+	                <td><?=$row["mm_join_type"]?></td>
                     <td><?=$row["mm_id"]?></td>
 	                <td><?=$row["mm_name"]?></td>
-	                <td><?=$row["mm_phone"]?></td>
+	                <td><?=str_replace("-", "", $row["mm_phone"])?></td>
 	                <td><?=$row["mm_nation"]?></td>
 	                <td><?=$row["mm_sex"]?></td>
 	                <td><?=$row["ad_addr"]?></td>

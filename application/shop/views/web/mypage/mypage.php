@@ -86,7 +86,7 @@ function fEmailMasking($email)
                 <!--<button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: -60px;">인증</button>-->
                 <table>
                   <tbody>
-                    <tr>
+                    <!-- <tr>
                       <td style=" font-size: 18px; font-weight: 600; color: #777;">가입자명</td>
                       <td>
                         <label>
@@ -94,7 +94,7 @@ function fEmailMasking($email)
                           <input type="text" name="bizName" placeholder="guest" value="<?= ((strpos(getData($info, "mm_name"), '010') !== 0 && strpos(getData($info, "mm_name"), 'kakao') !== 0 && strpos(getData($info, "mm_name"), 'apple') !== 0) ? getData($info, "mm_name") : "guest") ?>" aria-required="true" class="form-text" style="border: none;" readonly>
                         </label>
                       </td>
-                    </tr>
+                    </tr> -->
                     <tr>
                       <td style=" font-size: 18px; font-weight: 600; color: #777;">연 락 처</td>
                       <td>
