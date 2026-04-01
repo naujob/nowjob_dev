@@ -337,10 +337,137 @@ if ($g_ios_publish == true) {
     background-color: #1B9D7D;
   }
 
+
+  /* 슬라이더 슬라이드: 전체 너비 */
   .recomm-slider.person .keen-slider__slide {
-    flex: 0 0 180px !important;
-    width: 180px !important;
-    min-width: 180px;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  /* 슬라이드 내 2x2 그리드 */
+  .recomm-slider.person .person-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* 그리드 아이템 - width 조절 가능 */
+  .recomm-slider.person .person-grid-item {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    
+   
+  }
+
+  /* 카드 높이 최소화 */
+  .recomm-slider.person .person-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .recomm-slider.person .person-card .thumb {
+    
+  }
+
+ 
+
+  .recomm-slider.person .person-card .title-wrap {
+    margin: 0 0 2px;
+  }
+
+  .recomm-slider.person .person-card .title-wrap .title {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    color: #333;
+  }
+
+  .recomm-slider.person .person-card .meta {
+    font-size: 15px;
+    font-weight: 500;
+    color:#000;
+    margin: 2px 0 0;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .recomm-slider.person .person-card .meta p {
+    flex: 0 1 auto;
+    padding: 0;
+    margin: 0;
+    color: #000;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  .recomm-slider.person .person-card .meta p:after {
+    content: "";
+    display: none;
+  }
+
+  .recomm-slider.person .person-card .meta-divider {
+    padding: 0 11px;
+    color: #ccc;
+    font-size: 9px;
+    flex: 0 0 auto;
+  }
+
+  .recomm-slider.person .person-card .addr {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 2px 0 0;
+    padding: 0;
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .recomm-slider.person .person-card .hashtag {
+    font-size: 0;
+    height: 50px;
+    max-height: 22px;
+    
+   
+    border-top: none;
+    background-color: #3A70DB;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    line-height: 1.3;
+    
+  }
+
+  .recomm-slider.person .person-card .tag {
+    font-size: 16px;
+    color: #fff;
+    text-align: center!important;
+  }
+
+  /* 카드 스타일 */
+  .recomm-slider.person .person-card {
+    padding-top: 10px;
+    border: 1px solid #e9e9e9;
+    border-radius: 40px;
+    background: #fff;
+    overflow: hidden;
+    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  }
+
+  .recomm-slider.person .person-card .desc {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .person-card {
@@ -349,6 +476,8 @@ if ($g_ios_publish == true) {
 
   .person-card .thumb-wrap {
     position: relative;
+    display: flex;
+    flex-direction: column;
   }
 
   .person-card .recomm-badge {
@@ -359,10 +488,50 @@ if ($g_ios_publish == true) {
 
   .person-card .thumb {
     position: relative;
-    padding: 100% 0 0;
-    border-radius: 16px;
+    left: 31%;
+    border-radius: 50px;
     overflow: hidden;
     background: #f0f0f0;
+    width: 80px;
+    height: 75px;
+  }
+
+  /* 뱃지 래퍼: 이미지 아래 배치 */
+  .person-card .person-badge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+  }
+
+  /* 뱃지 아이콘 */
+  .person-card .person-badge-icon {
+    font-size: 0;
+  }
+
+  .person-card .person-badge-icon img {
+    width: 47px;
+    height: 20px;
+    display: inline-block;
+  }
+
+  /* 뱃지 텍스트 */
+  .person-card .person-badge {
+    position: static;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    background-color: #1b9d7d;
+    border-radius: 100px;
+    line-height: 1.2;
+    white-space: nowrap;
+    max-width: 90%;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
   }
 
   .person-card .thumb img {
@@ -384,10 +553,17 @@ if ($g_ios_publish == true) {
     font-weight: 400;
   }
 
-  .person-card .content-wrap {
-    margin: -16px 0 0;
-    padding: 22px 5px 5px;
-    border-radius: 0 0 5px 5px;
+ 
+
+  /* 주소 */
+  .person-card .addr {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
   }
 
   .person-card .category {
@@ -455,18 +631,20 @@ if ($g_ios_publish == true) {
 
   .person-card .meta p:after {
     content: "";
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    width: 1px;
-    height: 6px;
-    margin: -3px 0 0;
-    background: #e9e9e9;
+    display: none;
   }
 
   .person-card .meta p:last-child:after {
     content: none;
+  }
+
+  /* 메타 구분자 */
+  .person-card .meta-divider {
+    flex: 0 0 auto;
+    padding: 0 2px;
+    font-size: 10px;
+    color: #ccc;
+    line-height: 1;
   }
 
   .person-card .meta p em {
@@ -474,29 +652,32 @@ if ($g_ios_publish == true) {
   }
 
   .person-card .hashtag {
-    height: 26px;
+    height: auto;
+    max-height: 24px;
     display: block;
-    margin: 5px 0 0;
-    padding: 5px 0 0;
+    margin: 4px 0 0;
+    padding: 1px 34px;
     font-size: 0;
+    background-color: #3A70DB;
+    border-radius: 4px;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
-    border-top: 1px solid #000;
+    border-top: none;
     overflow: hidden;
+    line-height: 1.3;
   }
 
   .person-card .tag {
     display: inline-block;
-    margin: 0 4px 0 0;
-    padding: 0 8px;
-    font-size: 11px;
-    color: #3A70DB;
-    line-height: 2;
+    margin: 0 3px 0 0;
+    padding: 0;
+    font-size: 10px;
+    color: #fff;
+    line-height: 1.2;
     text-align: center;
     vertical-align: top;
-    border-radius: 100px;
-
+    border-radius: 0;
   }
 
   .person-card .tag:last-child {
@@ -511,6 +692,12 @@ if ($g_ios_publish == true) {
     border-radius: 5px;
     color: #888;
     overflow: hidden;
+  }
+
+  /* 그리드 뷰에서 img 고정 크기 무효화 */
+  .recomm-slider.person .person-card .img {
+    width: auto;
+    height: auto;
   }
 
   .person-card .img img {
@@ -600,29 +787,30 @@ if ($g_ios_publish == true) {
 
 <?php $tpl_id = 'tpl_list'; ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-<template id="tpl_reco_list">
-  <div class="keen-slider__slide ">
+<template id="tpl_reco_item">
+  <div class="person-grid-item">
     <div class="person-card" data-ru_idx="{{ru_idx}}">
       <div class="thumb-wrap">
-        <div class="img">
-          <img src="{{ru_resume_img}}">
-          <?php if ($mm_type === "COMP") { ?><button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
+        <div class="thumb">
+          <img src="{{ru_resume_img}}" alt="프로필">
+        
+        </div>
+        <div class="person-badge-wrap">
+          <div class="person-badge-icon">{{ru_work_img}}</div>
+          
         </div>
       </div>
       <div class="desc">
         <div class="content-wrap">
-          <p class="category">
-            {{ru_work_img}}
-          </p>
-          <div class="title-wrap">
-            <p class="title"><strong>{{ru_name}}</strong></p>
-          </div>
+          
           <div class="meta">
-            <p class="national">{{mm_nation}}</p>
-            <p class="age">{{mm_age}}</p>
             <p class="work_type">{{ru_work_type}}</p>
+            <span class="meta-divider">|</span>
+            <p class="age">{{mm_age}}</p>
+            <span class="meta-divider">|</span>
             <p class="price_type">{{ru_price_type}}</p>
           </div>
+          <p class="addr">{{ad_addr}}</p>
           <div class="hashtag">
             {{ru_my_type}}
           </div>
@@ -649,6 +837,7 @@ if ($g_ios_publish == true) {
   }
 
 
+
   // 추천인재 데이터를 가져오는 함수
   function getRecoList() {
     var params = {
@@ -669,41 +858,79 @@ if ($g_ios_publish == true) {
         if (ret.code == "00") {
           var list = ret.data.list;
           $("#recomm-list").html("");
-          $(".arrow--left").remove();
-          $(".arrow--right").remove();
 
           if (list && list.length > 0) {
-            list.forEach(function(row) {
-              var $clone = $("#tpl_reco_list").clone();
-              var $content = $clone.html();
+            // 4개씩 청크로 분할 (한 슬라이드 = 2x2 그리드)
+            var chunked = [];
+            for (var i = 0; i < list.length; i += 4) {
+              chunked.push(list.slice(i, i + 4));
+            }
 
-              $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
-              $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-              $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
-              $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-              $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || "");
-              $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "대");
-              $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
-              $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || "");
-              $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-              $content = $content.replaceAll("{{ru_my_type}}", row.ru_my_type || "");
+            // 각 슬라이드 생성
+            chunked.forEach(function(chunk) {
+              var $slide = $("<div class='keen-slider__slide'><div class='person-grid'></div></div>");
+              var $grid = $slide.find(".person-grid");
 
-              $clone.html($content);
-              $("#recomm-list").append($clone.html());
+              // 슬라이드 내 4개 카드 추가 (2x2)
+              chunk.forEach(function(row) {
+                var $clone = $("#tpl_reco_item").clone();
+                var $content = $clone.html();
+
+                // 뱃지용 근무형태 텍스트 추출
+                var workTypeRaw = row.ru_work_type || "";
+                var badgeText = "";
+                var matchBadge = workTypeRaw.match(/<[^>]+>([^<]+)<\/[^>]+>/);
+                if (matchBadge) {
+                  badgeText = matchBadge[1];
+                } else if (workTypeRaw !== "") {
+                  badgeText = workTypeRaw.split(",")[0].trim();
+                }
+
+                // 해시태그 기본값 설정
+                var myTypeRaw = row.ru_my_type || "";
+                if (!myTypeRaw || myTypeRaw.trim() === "") {
+                  myTypeRaw = "<p class='tag'style='width:100%;text-align:right;'>#성실합니다</p><p class='tag' style='width:100%;text-align:right;'>#책임감있습니다</p><p class='tag' style='width:100%;text-align:right;'>#근면합니다</p>";
+                }
+
+                $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
+                $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
+                $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
+                $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "대");
+                $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
+                $content = $content.replaceAll("{{ru_work_type}}", workTypeRaw);
+                $content = $content.replaceAll("{{ru_work_type_badge}}", badgeText);
+                $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
+                $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
+                $content = $content.replaceAll("{{ru_my_type}}", myTypeRaw);
+                $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr || ""));
+
+                $clone.html($content);
+                $grid.append($clone.html());
+              });
+
+              $("#recomm-list").append($slide);
+            });
+
+            // 해시태그 배경색 랜덤 설정
+            var hashtagColors = ['#3A70DB', '#1b9d7d', '#57CCAF', '#503ed3', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'];
+            $(".recomm-slider.person .person-card .hashtag").each(function() {
+              var randomColor = hashtagColors[Math.floor(Math.random() * hashtagColors.length)];
+              $(this).css('background-color', randomColor);
             });
 
             // 슬라이더 초기화
-            new KeenSlider(".recomm-slider .slider-wrap", {
+            new KeenSlider(".recomm-slider.person .slider-wrap", {
               loop: false,
               mode: 'free-snap',
               slides: {
-                perView: "auto",
-                spacing: 10
+                perView: 1,
+                spacing: 0
               },
               breakpoints: {
                 "(min-width: 768px)": {
                   slides: {
-                    perView: 3
+                    perView: 2,
+                    spacing: 12
                   }
                 }
               }

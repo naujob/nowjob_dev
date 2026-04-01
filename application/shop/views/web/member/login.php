@@ -43,7 +43,7 @@
 
                         <div class="form-row">
                             <label>
-                                <span class="ico-label phone">휴대폰번호</span>
+                                <span class="ico-label phone">휴대폰d번호</span>
                                 <input type="email" name="mm_id" placeholder="휴대폰번호를 입력해 주세요" aria-required="true" autocomplete="off" required class="form-text">
                             </label>
                         </div>
