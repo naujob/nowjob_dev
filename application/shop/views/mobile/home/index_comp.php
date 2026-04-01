@@ -343,6 +343,7 @@ if ($g_ios_publish == true) {
     flex: 0 0 100% !important;
     width: 100% !important;
     min-width: 0;
+    padding-bottom: 10px !important;
   }
 
   /* 슬라이드 내 2x2 그리드 */
@@ -391,7 +392,7 @@ if ($g_ios_publish == true) {
   }
 
   .recomm-slider.person .person-card .meta {
-    font-size: 15px;
+    font-size: 1rem;
     font-weight: 500;
     color:#000;
     margin: 2px 0 0;
@@ -424,7 +425,7 @@ if ($g_ios_publish == true) {
   }
 
   .recomm-slider.person .person-card .addr {
-    font-size: 15px;
+    font-size: 1rem;
     font-weight: 700;
     margin: 2px 0 0;
     padding: 0;
@@ -455,13 +456,13 @@ if ($g_ios_publish == true) {
 
   /* 카드 스타일 */
   .recomm-slider.person .person-card {
-    padding-top: 10px;
-    border: 1px solid #e9e9e9;
-    border-radius: 40px;
+    padding: 10px 0 10px;
+    border: 1px solid #fcf8f8;
+    border-radius: 25px;
     background: #fff;
     overflow: hidden;
     -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
   }
 
   .recomm-slider.person .person-card .desc {
@@ -811,9 +812,9 @@ if ($g_ios_publish == true) {
             <p class="price_type">{{ru_price_type}}</p>
           </div>
           <p class="addr">{{ad_addr}}</p>
-          <div class="hashtag">
+          <!-- <div class="hashtag">
             {{ru_my_type}}
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
