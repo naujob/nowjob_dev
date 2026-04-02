@@ -346,7 +346,6 @@
                             try {
                                 window.webkit.messageHandlers.panelState.postMessage('open');
                             } catch (e) {
-                                console.log('Swift messageHandler not available');
                             }
                         }
 
@@ -431,7 +430,6 @@
                 try {
                     window.webkit.messageHandlers.panelState.postMessage('close');
                 } catch (e) {
-                    console.log('Swift messageHandler not available');
                 }
             }
 

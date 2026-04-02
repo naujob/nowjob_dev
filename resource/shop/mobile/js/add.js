@@ -87,26 +87,12 @@ function _replace(url) {
 }
 
 function callVibrate(time) {
-    console.log("");
-    console.log("[callVibrate] : [start]");
-    console.log("");
-
     // 네비게이션 사용해 진동 메소드 선언
     navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
 
     if (navigator.vibrate) {
-        console.log("");
-        console.log("[callVibrate] : [working]");
-        console.log("");
-
         navigator.vibrate(time); // 진동 수행 1000 = 1초
         // navigator.vibrate(0); // 진동 정지
-    }
-    else {
-        console.log("");
-        console.log("[callVibrate] : [not working]");
-        console.log("");
-        //alert("진동을 지원하지 않는 디바이스입니다 ....");
     }
 };
 
@@ -635,19 +621,18 @@ function handleAndroidBack() {
         // 현재 경로만 추출 (쿼리 파라미터 제외)
         const current = location.pathname;
 
-        // 🟢 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음
+        // 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음
         if (current === "/") {
-            console.log("홈 화면 → 뒤로가기 차단 (JS)");
             return;
         }
 
-        // 🟢 뒤로가기 커스텀 규칙 맵
+        // 뒤로가기 커스텀 규칙 맵
         const backCustomMap = {
             // /compage/index → 홈화면
             "/compage/index": "/"
         };
 
-        // 🟢 현재 페이지가 커스텀 목록에 포함되어 있나요?
+        // 현재 페이지가 커스텀 목록에 포함되어 있나요?
         for (const key in backCustomMap) {
             // startsWith를 사용하여 경로 패턴 매칭
             if (current.startsWith(key)) {
@@ -657,9 +642,8 @@ function handleAndroidBack() {
             }
         }
 
-        // 🟢 커스텀 페이지가 아니면 일반 history.back() 처리
+        // 커스텀 페이지가 아니면 일반 history.back() 처리
         if (window.history.length > 1) {
-            // 히스토리가 있으면 뒤로가기
             history.back();
         } else {
             // 히스토리가 없으면 홈으로 이동 (replace 사용)
@@ -667,7 +651,6 @@ function handleAndroidBack() {
         }
 
     } catch (error) {
-        console.error("handleAndroidBack 오류:", error);
         // 오류 발생 시 기본 동작 (뒤로가기)
         if (window.history.length > 1) {
             history.back();
