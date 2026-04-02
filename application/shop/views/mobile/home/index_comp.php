@@ -129,40 +129,6 @@ if ($g_ios_publish == true) {
   //getLocation();
 </script>
 <style>
-  .btn-bookmark {
-    display: block;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    width: 40px;
-    height: 40px;
-    border: 0;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
-    background-size: 0px;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  
-
-  .btn-bookmark:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    width: 16px;
-    height: 16px;
-    border-style: hidden;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
-    background-size: contain;
-    pointer-events: all;
-    z-index: 1;
-  }
-
-  .btn-bookmark.on:after {
-    background-image: inherit;
-  }
 
   .sr-text {
     display: block;
@@ -845,7 +811,7 @@ if ($g_ios_publish == true) {
       "addr1": "",
       "addr2": "",
       "addr3": "",
-      "limit": "10"
+      "limit": "8"
     };
 
     $.ajax({
@@ -912,30 +878,8 @@ if ($g_ios_publish == true) {
               $("#recomm-list").append($slide);
             });
 
-            // 해시태그 배경색 랜덤 설정
-            var hashtagColors = ['#3A70DB', '#1b9d7d', '#57CCAF', '#503ed3', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'];
-            $(".recomm-slider.person .person-card .hashtag").each(function() {
-              var randomColor = hashtagColors[Math.floor(Math.random() * hashtagColors.length)];
-              $(this).css('background-color', randomColor);
-            });
-
-            // 슬라이더 초기화
-            new KeenSlider(".recomm-slider.person .slider-wrap", {
-              loop: false,
-              mode: 'free-snap',
-              slides: {
-                perView: 1,
-                spacing: 0
-              },
-              breakpoints: {
-                "(min-width: 768px)": {
-                  slides: {
-                    perView: 2,
-                    spacing: 12
-                  }
-                }
-              }
-            });
+            // 슬라이더 초기화 - DOM 요소 확인 후 실행
+            initRecommSlider();
           } else {
             console.log("추천인재 데이터가 없습니다.");
             $("#recomm-list").html("<p style='text-align:center; padding:20px; color:#999;'>추천인재가 없습니다.</p>");
@@ -1002,6 +946,25 @@ if ($g_ios_publish == true) {
 
 
 
+
+  // 추천인재 슬라이더 초기화 함수
+  function initRecommSlider() {
+    var recommSlider = document.querySelector('.recomm-slider.person .slider-wrap');
+
+    if (recommSlider && typeof KeenSlider !== 'undefined') {
+      // 이미 초기화되었으면 스킵
+      if (!recommSlider.__keenslider__) {
+        new KeenSlider(recommSlider, {
+          loop: true,  // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
+          slides: { perView: 1 },
+          drag: true,
+          dragMinDist: 0,
+          rubberband: true,  // 끝에서 탄력적인 바운스
+          renderMode: 'performance'  // 성능 최적화
+        });
+      }
+    }
+  }
 
   window.addEventListener('DOMContentLoaded', function() {
     // 추천인재 데이터 로딩
