@@ -136,9 +136,10 @@ $banner_list = getBannerList("BN00010005");
     list-style: none;
     display: flex;
     width: 100%;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 23px;
     margin-top: 20px;
+    justify-content: space-between;
   }
 
   .bottom-recomm .comp-info {
@@ -147,14 +148,14 @@ $banner_list = getBannerList("BN00010005");
     display: flex;
     position: relative;
     align-items: center;
-    width: 180px;
+    flex: 0 0 calc(25% - 17.25px);
     height: 235px;
     cursor: pointer;
   }
 
   .bottom-recomm .comp-info .comp-img {
     position: absolute;
-    width: 180px;
+    width: 100%;
     height: 180px;
     padding: 10px;
     overflow: hidden;
@@ -162,6 +163,7 @@ $banner_list = getBannerList("BN00010005");
     background-color: #fff;
     border: 1px solid #EB5349;
     border-radius: 8px;
+    box-sizing: border-box;
   }
 
   .bottom-recomm .comp-info .comp-img img {
@@ -176,7 +178,7 @@ $banner_list = getBannerList("BN00010005");
     bottom: 20px;
     width: 100%;
     height: 24px;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
   }
 </style>
@@ -406,19 +408,7 @@ $banner_list = getBannerList("BN00010005");
         <a href="/recruit/job_list" target="_blank" class="btn-view-all">더보기</a>
       </div>
     </div>
-
-    <div class="section main-person recomm-slider person">
-      <div class="container">
-        <div class="section-headline">
-          <h3 class="primary-title">추천인재</h3>
-          <p class="desc">지금 뜨는, 좋은 일자리 나우잡에서 추천하는 인재입니다</p>
-        </div>
-        <div class="slider-wrap keen-slider" id="my-keen-slider2">
-        </div>
-        <a href="/resume/hr_list" target="_blank" class="btn-view-all">더보기</a>
-      </div>
-    </div>
-
+    
     <div class="section main-company">
       <div class="container">
         <h3 class="primary-title">지금 뜨는 업체</h3>
@@ -426,7 +416,7 @@ $banner_list = getBannerList("BN00010005");
           <?php
           $count = 0;
           foreach ($up_list as $row) :
-            if ($count >= 7) break;
+            if ($count >= 4) break;
           ?>
             <div class="comp-info" data-comm_idx="<?= $row["mm_idx"] ?>">
               <div class="comp-img">
@@ -442,6 +432,20 @@ $banner_list = getBannerList("BN00010005");
         <a href="/recruit/companies" class="btn-view-all">더보기</a>
       </div>
     </div>
+    
+    <div class="section main-person recomm-slider person">
+      <div class="container">
+        <div class="section-headline">
+          <h3 class="primary-title">추천인재</h3>
+          <p class="desc">지금 뜨는, 좋은 일자리 나우잡에서 추천하는 인재입니다</p>
+        </div>
+        <div class="slider-wrap keen-slider" id="my-keen-slider2">
+        </div>
+        <a href="/resume/hr_list" target="_blank" class="btn-view-all">더보기</a>
+      </div>
+    </div>
+
+    
   </main><!-- //page-content -->
 </div><!-- //page -->
 

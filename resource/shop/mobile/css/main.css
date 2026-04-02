@@ -5946,7 +5946,7 @@ body {
 /* 로그인 폼 위치 조정 */
 form#frm {
     position: relative;
-    top: 2vh;
+    top: 14px;
     /* 안전 영역 고려하여 조정 */
 }
 

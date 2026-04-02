@@ -28,10 +28,17 @@
     $iosapp = true;
   }
   $isIosBrowser = preg_match('/(iPhone|iPad|iPod)/i', $userAgent) === 1;
-  // os_type이 비어 있으면 User-Agent로 iOS 판별하여 보정
+
+  // os_type이 비어 있으면 User-Agent로 판별하여 보정
+  // ⚠️ 중요: iOS 앱과 iOS 웹브라우저를 구분해야 함
   if (!isset($os_type) || $os_type === '') {
-    if ($isIosBrowser || $iosapp) {
+    if ($iosapp) {
+      // iOS 네이티브 앱
       $os_type = 'ios';
+    } else if ($isIosBrowser) {
+      // iOS 웹브라우저 (Safari 등)
+      // 웹브라우저는 아무 플랫폼도 아님 (web으로 처리)
+      $os_type = 'web';
     }
   }
   // echo "end";
@@ -49,15 +56,48 @@
 
           <?php
           $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-          $apple_redirect = urlencode("https://nowjob.co.kr/member/apple_login_callback");
-          $kakao_redirect = urlencode($app_base_url . "/member/kakao_login_callback");
+
+          // redirect_uri 경로 생성 (URL 인코딩 하지 않음 - OAuth URL 생성 시 자동 인코딩됨)
+          $apple_redirect = "https://nowjob.co.kr/member/apple_login_callback";
+          $kakao_redirect = $app_base_url . "/member/kakao_login_callback";
+          $naver_redirect = $app_base_url . "/member/naver_login_callback";
+          $google_redirect = $app_base_url . "/member/google_login_callback";
+          $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
+
+          // 디버깅용 로그
+          error_log("=== SNS Redirect URI Debug ===");
+          error_log("app_base_url: " . $app_base_url);
+          error_log("naver_redirect: " . $naver_redirect);
+          error_log("google_redirect: " . $google_redirect);
+          error_log("wechat_redirect: " . $wechat_redirect);
+
           $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
 
-          // $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=".$kakao_key["인증키"]."&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
-          // $kakao_login = "";
+          // 카카오 설정
           $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
           $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
           $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
+
+          // 네이버 설정 (웹 버전과 동일한 로직)
+          $naver_setting = getSettingInfo(["st_group" => "네이버"]);
+          $naver_client_id = isset($naver_setting["Client ID"]) ? $naver_setting["Client ID"] : "";
+          if (!empty($naver_client_id)) {
+            // 웹 버전과 동일: urlencode된 redirect_uri 사용
+            $naver_redirect_encoded = urlencode($naver_redirect);
+            $unique_state = $csrf . "_" . time() . "_" . mt_rand(1000, 9999);
+            $naver_login = "https://nid.naver.com/oauth2.0/authorize?client_id=" . $naver_client_id . "&redirect_uri=" . $naver_redirect_encoded . "&response_type=code&state=" . urlencode($unique_state) . "&prompt=login&auth_type=reauthenticate";
+          } else {
+            $naver_login = "";
+          }
+
+          // 구글 설정 (웹 버전과 동일한 로직)
+          $google_setting = getSettingInfo(["st_group" => "구글"]);
+          $google_client_id = isset($google_setting["WEB_CLIENT_ID"]) ? $google_setting["WEB_CLIENT_ID"] : "";
+          $google_login = !empty($google_client_id) ? ($app_base_url . "/member/google_login") : "";
+
+          // 위챗 설정
+          $wechat_setting = getSettingInfo(["st_group" => "위챗"]);
+          $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
           ?>
           <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
           <?php //echo "[".$os_type."]";
@@ -69,13 +109,17 @@
           <?php endif; ?>
 
           <a href="javascript:void(0);" id="btnWeChat" class="vendor-type6"></a>
-          
+
           <?php if ($iosapp) { ?>
             <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
           <?php } else if ($os_type == "android") { ?>
             <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="APP_NOWAPK.naverLoginAnd(); return false;"></a>
           <?php } else { ?>
-            <a href="#" id="btnNaver" class="vendor-type4" onclick=""></a>
+            <?php if (!empty($naver_login)) { ?>
+              <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
+            <?php } else { ?>
+              <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;"></a>
+            <?php } ?>
           <?php } ?>
 
           
@@ -125,7 +169,24 @@
 
 
 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script src="/resource/shop/mobile/js/logger.js"></script>
 <script>
+  // 페이지 로드 시 redirect_uri 정보 로깅
+  window.addEventListener('load', function() {
+    BrowserLogger.info('로그인 페이지 로드 - redirect_uri 정보', {
+      naver_redirect: '<?= $naver_redirect ?>',
+      google_redirect: '<?= $google_redirect ?>',
+      wechat_redirect: '<?= $wechat_redirect ?>',
+      app_base_url: '<?= $app_base_url ?>',
+      user_agent: navigator.userAgent
+    });
+
+    console.log('=== SNS Redirect URI Debug ===');
+    console.log('naver_redirect:', '<?= $naver_redirect ?>');
+    console.log('google_redirect:', '<?= $google_redirect ?>');
+    console.log('wechat_redirect:', '<?= $wechat_redirect ?>');
+  });
+
   /*
 window.onload = function() {
   if (typeof APP_NOWAPK !== 'undefined') {
@@ -177,6 +238,11 @@ window.onload = function() {
     });
     //네이버 로그인
     $("#btnNaver").click(function() {
+      BrowserLogger.info('네이버 로그인 클릭', {
+        url: window.location.href,
+        os_type: '<?= isset($os_type) ? $os_type : "unknown" ?>'
+      });
+
       if (isIOSAppNaver()) {
         window.webkit.messageHandlers.naverLogin.postMessage(null);
         return;
@@ -194,13 +260,22 @@ window.onload = function() {
     $("#btnGoogle").click(function(e) {
       e.preventDefault();
       e.stopPropagation();
+
+      BrowserLogger.info('구글 로그인 클릭', {
+        url: window.location.href,
+        os_type: '<?= isset($os_type) ? $os_type : "unknown" ?>',
+        google_login_url: '<?= isset($google_login) ? substr($google_login, 0, 100) : "not_set" ?>'
+      });
+
       <?php if ($os_type == "android") { ?>
+        // Android 앱
         if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.googleLoginAnd === 'function') {
           APP_NOWAPK.googleLoginAnd();
         } else {
           alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
         }
       <?php } else if ($os_type == "ios") { ?>
+        // iOS 네이티브 앱
         if (typeof window.webkit !== 'undefined' &&
             typeof window.webkit.messageHandlers !== 'undefined' &&
             typeof window.webkit.messageHandlers.googleLogin !== 'undefined') {
@@ -209,7 +284,15 @@ window.onload = function() {
           alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
         }
       <?php } else { ?>
-        alert("구글 로그인은 준비중입니다.");
+        // 웹브라우저: 구글 로그인 서버 엔드포인트로 리다이렉트 (웹 버전과 동일)
+        <?php if (!empty($google_login)) { ?>
+          BrowserLogger.info('구글 로그인 시작', {
+            google_login_url: '<?= $google_login ?>'
+          });
+          window.location.href = "<?= $google_login ?>";
+        <?php } else { ?>
+          alert("구글 로그인이 설정되지 않았습니다.");
+        <?php } ?>
       <?php } ?>
       return false;
     });
@@ -218,13 +301,22 @@ window.onload = function() {
     $("#btnWeChat").click(function(e) {
       e.preventDefault();
       e.stopPropagation();
+
+      BrowserLogger.info('위챗 로그인 클릭', {
+        url: window.location.href,
+        os_type: '<?= isset($os_type) ? $os_type : "unknown" ?>',
+        wechat_app_id_set: <?= !empty($wechat_app_id) ? 'true' : 'false' ?>
+      });
+
       <?php if ($os_type == "android") { ?>
+        // Android 앱
         if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.wechatLoginAnd === 'function') {
           APP_NOWAPK.wechatLoginAnd();
         } else {
           alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
         }
       <?php } else if ($os_type == "ios") { ?>
+        // iOS 네이티브 앱
         if (typeof window.webkit !== 'undefined' &&
             typeof window.webkit.messageHandlers !== 'undefined' &&
             typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
@@ -233,7 +325,15 @@ window.onload = function() {
           alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
         }
       <?php } else { ?>
-        alert("위챗 로그인은 앱에서만 사용 가능합니다.");
+        // 웹브라우저: 위챗 QR 팝업 오픈
+        <?php if (!empty($wechat_app_id)) { ?>
+          BrowserLogger.info('위챗 QR 팝업 오픈 시작', {
+            wechat_redirect: '<?= $wechat_redirect ?>'
+          });
+          openWechatQrPopup();
+        <?php } else { ?>
+          alert("위챗 로그인이 설정되지 않았습니다.");
+        <?php } ?>
       <?php } ?>
       return false;
     });
@@ -1358,3 +1458,76 @@ window.onload = function() {
     </div>
   </div>
 </div>
+
+<!-- 위챗 QR 로그인 팝업 -->
+<div id="wechat-qr-popup" class="bs-overlay" style="display:none;">
+  <div id="wechat-qr-sheet" class="bs-sheet">
+    <h3 style="margin-bottom:16px; font-size:18px;">WeChat 로그인</h3>
+    <p style="margin-bottom:20px; color:#666; font-size:14px;">위챗 앱으로 QR 코드를 스캔하여 로그인해주세요.</p>
+    <div id="wechat-qr-container" style="text-align:center; margin-bottom:20px;"></div>
+    <button type="button" id="wechat-qr-close" class="btn btn-secondary" style="width:100%;">닫기</button>
+  </div>
+</div>
+
+<script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+<script>
+  // 위챗 관련 전역 변수
+  var wechat_app_id = '<?= $wechat_app_id ?>';
+  var wechat_redirect = '<?= $wechat_redirect ?>';
+  var csrf_token = '<?= $csrf ?>';
+
+  // 위챗 QR 팝업 오픈
+  function openWechatQrPopup() {
+    if (!wechat_app_id) {
+      commonAlert("위챗 로그인이 설정되지 않았습니다.");
+      return;
+    }
+
+    // 팝업 표시
+    $('#wechat-qr-container').empty();
+    $('#wechat-qr-popup').css({ display: "block", background: "rgba(0,0,0,0)" });
+    setTimeout(function() {
+      $('#wechat-qr-popup').css("background", "rgba(0,0,0,0.5)");
+      $('#wechat-qr-sheet').css("transform", "translateY(0)");
+    }, 10);
+
+    // WeChat WxLogin SDK로 QR 코드 생성
+    if (typeof WxLogin !== 'undefined') {
+      var obj = new WxLogin({
+        self_redirect: false,
+        id: "wechat-qr-container",
+        appid: wechat_app_id,
+        scope: "snsapi_login",
+        redirect_uri: wechat_redirect,
+        state: csrf_token,
+        style: "black",
+        href: ""
+      });
+    } else {
+      commonAlert("WeChat SDK를 로드할 수 없습니다.");
+    }
+  }
+
+  // 위챗 QR 팝업 닫기
+  function closeWechatQrPopup() {
+    $('#wechat-qr-popup').css("background", "rgba(0,0,0,0)");
+    $('#wechat-qr-sheet').css("transform", "translateY(100%)");
+    setTimeout(function() {
+      $('#wechat-qr-popup').css("display", "none");
+    }, 200);
+  }
+
+  $(document).ready(function() {
+    // 위챗 QR 팝업 닫기 버튼
+    $('#wechat-qr-close').click(function() {
+      closeWechatQrPopup();
+    });
+
+    // 위챗 QR 오버레이 클릭 시 닫기
+    $('#wechat-qr-popup').click(function(e) {
+      if ($(e.target).is('#wechat-qr-popup')) {
+        closeWechatQrPopup();
+      }
+    });
+  });
+</script>

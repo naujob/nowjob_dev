@@ -834,12 +834,12 @@ if ($g_ios_publish == true) {
             }
 
             // 각 슬라이드 생성
-            chunked.forEach(function(chunk) {
+            chunked.forEach(function(chunk, slideIndex) {
               var $slide = $("<div class='keen-slider__slide'><div class='person-grid'></div></div>");
               var $grid = $slide.find(".person-grid");
 
               // 슬라이드 내 4개 카드 추가 (2x2)
-              chunk.forEach(function(row) {
+              chunk.forEach(function(row, itemIndex) {
                 var $clone = $("#tpl_reco_item").clone();
                 var $content = $clone.html();
 
@@ -881,16 +881,13 @@ if ($g_ios_publish == true) {
             // 슬라이더 초기화 - DOM 요소 확인 후 실행
             initRecommSlider();
           } else {
-            console.log("추천인재 데이터가 없습니다.");
             $("#recomm-list").html("<p style='text-align:center; padding:20px; color:#999;'>추천인재가 없습니다.</p>");
           }
         } else {
-          console.error("추천인재 API 응답 오류:", ret.message);
           $("#recomm-list").html("<p style='text-align:center; padding:20px; color:#999;'>데이터를 불러올 수 없습니다.</p>");
         }
       },
       error: function(xhr, status, error) {
-        console.error("추천인재 데이터 가져오기 오류:", error);
         $("#recomm-list").html("<p style='text-align:center; padding:20px; color:#999;'>데이터를 불러올 수 없습니다.</p>");
       }
     });
