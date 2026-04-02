@@ -171,20 +171,8 @@
 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script src="/resource/shop/mobile/js/logger.js"></script>
 <script>
-  // 페이지 로드 시 redirect_uri 정보 로깅
+  // 페이지 로드
   window.addEventListener('load', function() {
-    BrowserLogger.info('로그인 페이지 로드 - redirect_uri 정보', {
-      naver_redirect: '<?= $naver_redirect ?>',
-      google_redirect: '<?= $google_redirect ?>',
-      wechat_redirect: '<?= $wechat_redirect ?>',
-      app_base_url: '<?= $app_base_url ?>',
-      user_agent: navigator.userAgent
-    });
-
-    console.log('=== SNS Redirect URI Debug ===');
-    console.log('naver_redirect:', '<?= $naver_redirect ?>');
-    console.log('google_redirect:', '<?= $google_redirect ?>');
-    console.log('wechat_redirect:', '<?= $wechat_redirect ?>');
   });
 
   /*
@@ -238,11 +226,6 @@ window.onload = function() {
     });
     //네이버 로그인
     $("#btnNaver").click(function() {
-      BrowserLogger.info('네이버 로그인 클릭', {
-        url: window.location.href,
-        os_type: '<?= isset($os_type) ? $os_type : "unknown" ?>'
-      });
-
       if (isIOSAppNaver()) {
         window.webkit.messageHandlers.naverLogin.postMessage(null);
         return;
@@ -260,12 +243,6 @@ window.onload = function() {
     $("#btnGoogle").click(function(e) {
       e.preventDefault();
       e.stopPropagation();
-
-      BrowserLogger.info('구글 로그인 클릭', {
-        url: window.location.href,
-        os_type: '<?= isset($os_type) ? $os_type : "unknown" ?>',
-        google_login_url: '<?= isset($google_login) ? substr($google_login, 0, 100) : "not_set" ?>'
-      });
 
       <?php if ($os_type == "android") { ?>
         // Android 앱
@@ -286,9 +263,6 @@ window.onload = function() {
       <?php } else { ?>
         // 웹브라우저: 구글 로그인 서버 엔드포인트로 리다이렉트 (웹 버전과 동일)
         <?php if (!empty($google_login)) { ?>
-          BrowserLogger.info('구글 로그인 시작', {
-            google_login_url: '<?= $google_login ?>'
-          });
           window.location.href = "<?= $google_login ?>";
         <?php } else { ?>
           alert("구글 로그인이 설정되지 않았습니다.");
@@ -301,12 +275,6 @@ window.onload = function() {
     $("#btnWeChat").click(function(e) {
       e.preventDefault();
       e.stopPropagation();
-
-      BrowserLogger.info('위챗 로그인 클릭', {
-        url: window.location.href,
-        os_type: '<?= isset($os_type) ? $os_type : "unknown" ?>',
-        wechat_app_id_set: <?= !empty($wechat_app_id) ? 'true' : 'false' ?>
-      });
 
       <?php if ($os_type == "android") { ?>
         // Android 앱
@@ -327,9 +295,6 @@ window.onload = function() {
       <?php } else { ?>
         // 웹브라우저: 위챗 QR 팝업 오픈
         <?php if (!empty($wechat_app_id)) { ?>
-          BrowserLogger.info('위챗 QR 팝업 오픈 시작', {
-            wechat_redirect: '<?= $wechat_redirect ?>'
-          });
           openWechatQrPopup();
         <?php } else { ?>
           alert("위챗 로그인이 설정되지 않았습니다.");
@@ -558,14 +523,11 @@ window.onload = function() {
         // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
         if (typeof window.connectFCMTokenToUser === 'function') {
           window.connectFCMTokenToUser().then(function(result) {
-            console.log('✅ connectFCMTokenToUser 완료, 결과:', result);
             _replace("/");
           }).catch(function(error) {
-            console.error('❌ connectFCMTokenToUser 에러:', error);
             _replace("/"); // 에러가 나도 페이지 이동
           });
         } else {
-          console.warn('⚠️ connectFCMTokenToUser 함수가 정의되지 않음');
           _replace("/");
         }
       } else {
