@@ -432,17 +432,12 @@ class Member extends CI_Controller
 		$error = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
 		$error_description = isset($_REQUEST["error_description"]) ? $_REQUEST["error_description"] : "";
 
-		// 네이버 OAuth 콜백 진입 로깅 (상세 진단용)
+		// 네이버 OAuth 콜백 진입 로깅
 		$this->logger->info('네이버 OAuth 콜백 진입', array(
-			'has_code'            => !empty($code),
-			'has_state'           => !empty($state),
-			'has_error'           => !empty($error),
-			'error'               => $error,
-			'error_description'   => $error_description,
-			'request_uri'         => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'not set',
-			'query_string'        => isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : 'not set',
-			'all_get_params'      => $_GET,
-			'user_agent'          => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+			'has_code'   => !empty($code),
+			'has_state'  => !empty($state),
+			'has_error'  => !empty($error),
+			'error'      => $error,
 		));
 
 		if ($error) {
@@ -664,19 +659,14 @@ class Member extends CI_Controller
 		$error = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
 		$error_description = isset($_REQUEST["error_description"]) ? $_REQUEST["error_description"] : "";
 
-		// 구글 OAuth 콜백 진입 로깅 (상세 진단용)
+		// 구글 OAuth 콜백 진입 로깅
 		$saved_state_temp = $this->common->getSession("google-oauth-state");
 		$this->logger->info('구글 OAuth 콜백 진입', array(
-			'has_code'            => !empty($code),
-			'has_state'           => !empty($state),
-			'has_error'           => !empty($error),
-			'error'               => $error,
-			'error_description'   => $error_description,
-			'request_uri'         => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'not set',
-			'query_string'        => isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : 'not set',
-			'all_get_params'      => $_GET,
-			'saved_state_set'     => !empty($saved_state_temp),
-			'user_agent'          => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+			'has_code'         => !empty($code),
+			'has_state'        => !empty($state),
+			'has_error'        => !empty($error),
+			'error'            => $error,
+			'saved_state_set'  => !empty($saved_state_temp),
 		));
 
 		if ($error) {
