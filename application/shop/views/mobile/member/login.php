@@ -57,8 +57,18 @@
           <?php
           $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 
+          // iOS Safari 호환성: HTTPS 강제 처리
+          // iOS Safari에서 X-Forwarded-Proto를 올바르게 처리하지 않을 수 있으므로
+          // app_base_url이 HTTP인 경우 HTTPS로 강제 변환
+          $is_ios_safari = preg_match('/(iPhone|iPad|iPod)/i', $_SERVER['HTTP_USER_AGENT']) === 1
+            && strpos($_SERVER['HTTP_USER_AGENT'], 'NowJobApp_iOS') === false;
+          if ($is_ios_safari && strpos($app_base_url, 'http://') === 0) {
+            $app_base_url = 'https://' . substr($app_base_url, 7);
+          }
+
           // redirect_uri 경로 생성 (URL 인코딩 하지 않음 - OAuth URL 생성 시 자동 인코딩됨)
-          $apple_redirect = "https://nowjob.co.kr/member/apple_login_callback";
+          // 모든 redirect_uri를 app_base_url 기반으로 통일
+          $apple_redirect = $app_base_url . "/member/apple_login_callback";
           $kakao_redirect = $app_base_url . "/member/kakao_login_callback";
           $naver_redirect = $app_base_url . "/member/naver_login_callback";
           $google_redirect = $app_base_url . "/member/google_login_callback";

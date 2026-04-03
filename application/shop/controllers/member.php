@@ -12,6 +12,25 @@ class Member extends CI_Controller
 		$this->load->model('mongomodel', 'mongo_model');
 	}
 
+	/**
+	 * iOS Safari 호환성: HTTPS 강제 처리
+	 * iOS Safari에서 X-Forwarded-Proto를 올바르게 처리하지 않을 수 있으므로
+	 * app_base_url이 HTTP인 경우 HTTPS로 강제 변환
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private function ensure_https_for_ios($url) {
+		$user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$is_ios_safari = preg_match('/(iPhone|iPad|iPod)/i', $user_agent) === 1
+			&& strpos($user_agent, 'NowJobApp_iOS') === false;
+
+		if ($is_ios_safari && strpos($url, 'http://') === 0) {
+			return 'https://' . substr($url, 7);
+		}
+		return $url;
+	}
+
 	# 로그인
 	function login()
 	{
@@ -201,10 +220,10 @@ class Member extends CI_Controller
 		$code  = isset($_GET["code"])  ? $_GET["code"]  : "";
 		$state = isset($_GET["state"]) ? $_GET["state"] : "";
 
-		
+
 
 		if (empty($code)) {
-			
+
 			$this->common->scriptReplace("/member/login", "위챗 로그인에 실패하였습니다.(1)");
 			exit;
 		}
@@ -214,8 +233,9 @@ class Member extends CI_Controller
 		$app_id     = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : (isset($wechat_setting["APP_ID"]) ? $wechat_setting["APP_ID"] : "");
 		$app_secret = isset($wechat_setting["WEB_APP_SECRET"]) ? $wechat_setting["WEB_APP_SECRET"] : (isset($wechat_setting["APP_SECRET"]) ? $wechat_setting["APP_SECRET"] : "");
 
-		// Callback URL (네이버처럼 명시적으로 설정)
+		// Callback URL (iOS Safari HTTPS 강제 처리)
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$app_base_url = $this->ensure_https_for_ios($app_base_url);
 		$callback_url = $app_base_url . "/member/wechat_login_callback";
 
 	
@@ -388,7 +408,9 @@ class Member extends CI_Controller
 		}
 
 		// app_base_url: 환경변수 APP_BASE_URL 또는 요청 도메인/스킴 기반으로 결정되는 앱 기본 URL
+		// iOS Safari HTTPS 강제 처리
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$app_base_url = $this->ensure_https_for_ios($app_base_url);
 		$callback_url = $app_base_url . "/member/naver_login_callback";
 
 		// 토큰 받기
@@ -521,7 +543,7 @@ class Member extends CI_Controller
 
 	// 구글 로그인 시작 (서버 주도 OAuth)
 	function google_login()
-	{	
+	{
 		// 1. 설정 모델에서 "구글"이라는 그룹의 정보를 가져와서 상자에 담기
 		$google_setting_info = $this->setting_model->getSettingInfo(["st_group" => "구글"]);
 		$google_client_id = isset($google_setting_info["WEB_CLIENT_ID"]) ? $google_setting_info["WEB_CLIENT_ID"] : "";
@@ -532,7 +554,9 @@ class Member extends CI_Controller
 			exit();
 		}
 
+		// iOS Safari HTTPS 강제 처리
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$app_base_url = $this->ensure_https_for_ios($app_base_url);
 		$redirect_uri = $app_base_url . "/member/google_login_callback";
 
 		// 매번 고유한 state 값 사용
@@ -586,7 +610,9 @@ class Member extends CI_Controller
 			exit();
 		}
 
+		// iOS Safari HTTPS 강제 처리
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$app_base_url = $this->ensure_https_for_ios($app_base_url);
 		$redirect_uri = $app_base_url . "/member/google_login_callback";
 
 		$token_url = "https://oauth2.googleapis.com/token";
