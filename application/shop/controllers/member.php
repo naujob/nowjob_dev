@@ -628,12 +628,13 @@ class Member extends CI_Controller
 		$error_description = isset($_REQUEST["error_description"]) ? $_REQUEST["error_description"] : "";
 
 		// 구글 OAuth 콜백 진입 로깅
+		$saved_state_temp = $this->common->getSession("google-oauth-state");
 		$this->logger->info('구글 OAuth 콜백 진입', array(
 			'has_code'         => !empty($code),
 			'has_state'        => !empty($state),
 			'has_error'        => !empty($error),
 			'error'            => $error,
-			'saved_state_set'  => !empty($this->common->getSession("google-oauth-state")),
+			'saved_state_set'  => !empty($saved_state_temp),
 			'user_agent'       => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
 		));
 
