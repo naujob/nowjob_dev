@@ -37,6 +37,10 @@ class Member extends CI_Controller
 		$is_ios_safari = preg_match('/(iPhone|iPad|iPod)/i', $user_agent) === 1
 			&& strpos($user_agent, 'NowJobApp_iOS') === false;
 
+		$naver_redirect = $this->ensure_https($app_base_url) . '/member/naver_login_callback';
+		$google_redirect = $this->ensure_https($app_base_url) . '/member/google_login_callback';
+		$wechat_redirect = $this->ensure_https($app_base_url) . '/member/wechat_login_callback';
+
 		echo json_encode([
 			'app_base_url' => $app_base_url,
 			'user_agent' => substr($user_agent, 0, 200),
@@ -45,9 +49,10 @@ class Member extends CI_Controller
 			'https' => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set',
 			'server_port' => isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 'not set',
 			'http_host' => isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'not set',
-			'naver_redirect' => $this->ensure_https($app_base_url) . '/member/naver_login_callback',
-			'google_redirect' => $this->ensure_https($app_base_url) . '/member/google_login_callback',
-			'wechat_redirect' => $this->ensure_https($app_base_url) . '/member/wechat_login_callback',
+			'naver_redirect' => $naver_redirect,
+			'google_redirect' => $google_redirect,
+			'wechat_redirect' => $wechat_redirect,
+			'wechat_console_note' => 'WeChat 개발자 콘솔에 등록된 redirect_uri와 위 URL이 정확히 일치해야 함 (프로토콜, 도메인, 경로 모두 동일)',
 		], JSON_UNESCAPED_SLASHES);
 		exit;
 	}
