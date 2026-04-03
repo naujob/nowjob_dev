@@ -70,6 +70,9 @@
           $google_redirect = $app_base_url . "/member/google_login_callback";
           $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
 
+          // 위챗 state 세션에 저장 (csrf 토큰 사용)
+          $this->common->setSession("wechat-oauth-state", $csrf);
+
           // 파일 로깅: SNS OAuth redirect_uri 생성 정보
           $this->logger->debug('SNS OAuth redirect_uri 생성', array(
             'app_base_url'      => $app_base_url,
@@ -95,6 +98,8 @@
             // 웹 버전과 동일: urlencode된 redirect_uri 사용
             $naver_redirect_encoded = urlencode($naver_redirect);
             $unique_state = $csrf . "_" . time() . "_" . mt_rand(1000, 9999);
+            // 네이버 state 세션에 저장 (콜백에서 검증 시 사용)
+            $this->common->setSession("naver-oauth-state", $unique_state);
             $naver_login = "https://nid.naver.com/oauth2.0/authorize?client_id=" . $naver_client_id . "&redirect_uri=" . $naver_redirect_encoded . "&response_type=code&state=" . urlencode($unique_state) . "&prompt=login&auth_type=reauthenticate";
           } else {
             $naver_login = "";
@@ -1447,6 +1452,9 @@ window.onload = function() {
   var wechat_app_id = '<?= $wechat_app_id ?>';
   var wechat_redirect = '<?= $wechat_redirect ?>';
   var csrf_token = '<?= $csrf ?>';
+
+  // 위챗 state 세션에 저장 (PHP 코드로 서버에 저장)
+  // 자바스크립트에서는 직접 저장 불가하므로 form submit으로 전달
 
   // 위챗 QR 팝업 오픈
   function openWechatQrPopup() {

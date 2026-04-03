@@ -253,6 +253,19 @@ class Member extends CI_Controller
 			exit;
 		}
 
+		// 위챗 OAuth state 검증
+		$saved_wechat_state = $this->common->getSession("wechat-oauth-state");
+		if (empty($saved_wechat_state) || $saved_wechat_state !== $state) {
+			$this->logger->warn('위챗 OAuth state 검증 실패', array(
+				'saved_state_empty' => empty($saved_wechat_state),
+				'state_match'       => ($saved_wechat_state === $state),
+				'session_id'        => session_id(),
+				'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+			));
+			$this->common->scriptReplace("/member/login", "위챗 로그인 상태값 검증에 실패했습니다.");
+			exit;
+		}
+
 		// 위챗 설정 조회 (login.php와 동일하게 WEB_APP_ID/WEB_APP_SECRET 사용, 없으면 APP_ID/APP_SECRET 폴백)
 		$wechat_setting = $this->setting_model->getSettingInfo(["st_group" => "위챗"]);
 		$app_id     = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : (isset($wechat_setting["APP_ID"]) ? $wechat_setting["APP_ID"] : "");
@@ -437,6 +450,19 @@ class Member extends CI_Controller
 			exit();
 		}
 
+		// 네이버 OAuth state 검증
+		$saved_naver_state = $this->common->getSession("naver-oauth-state");
+		if (empty($saved_naver_state) || $saved_naver_state !== $state) {
+			$this->logger->warn('네이버 OAuth state 검증 실패', array(
+				'saved_state_empty' => empty($saved_naver_state),
+				'state_match'       => ($saved_naver_state === $state),
+				'session_id'        => session_id(),
+				'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+			));
+			$this->common->scriptReplace("/member/login", "네이버 로그인 상태값 검증에 실패했습니다.");
+			exit();
+		}
+
 		// 네이버 로그인 설정 가져오기
 		$naver_setting_info = $this->setting_model->getSettingInfo(["st_group" => "네이버"]);
 		$naver_client_id = isset($naver_setting_info["Client ID"]) ? $naver_setting_info["Client ID"] : "";
@@ -454,6 +480,8 @@ class Member extends CI_Controller
 		$callback_url = $app_base_url . "/member/naver_login_callback";
 
 		// 토큰 받기
+		// ⚠️ 중요: authorize 단계에서 urlencode($redirect_uri)로 전송했으므로
+		// token 단계에서도 동일하게 인코딩하지 않은 원본 URL을 전송해야 네이버 검증을 통과
 		$token_url = "https://nid.naver.com/oauth2.0/token";
 		$token_data = array(
 			"grant_type" => "authorization_code",
