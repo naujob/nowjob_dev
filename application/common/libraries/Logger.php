@@ -28,6 +28,10 @@ class Logger {
      * 요청 ID 생성
      */
     private function generate_request_id() {
+        // substr($string, $start, $length);
+        // microtime(true) : 현재 Unix 타임스탬프를 마이크로초 단위로 반환
+        // mt_rand() : 더 나은 난수 생성기 사용
+        // md5() : 문자열을 32자리의 16진수로 변환
         return 'req-' . substr(md5(microtime(true) . mt_rand()), 0, 8);
     }
 
@@ -75,7 +79,7 @@ class Logger {
             'context' => $this->context,
             'data' => $data
         );
-
+        // "PHP 데이터를 JSON으로 변환"
         $log_line = json_encode($log_entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
 
         $date_dir = $this->log_dir . '/' . $this->current_date;
