@@ -14,22 +14,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 구인/구직 플랫폼 (잡 보드). PHP CodeIgniter 3.x + Node.js Socket.IO 기반의 멀티 도메인 웹 서비스.
 
-### 운영 환경 (실운영 서버)
+### 환경 구성
 
-**OS & 커널**
-- CentOS Linux release 7.9.2009 (Core)
-- Kernel: 3.10.x
+**로컬 개발 환경** (`/home/nowapk/dev_nowapk`)
+- WSL2 Linux (Windows Subsystem for Linux 2)
+- PHP 8.3.6 (현재 개발용)
+- 코드 스타일: PHP 5.4 호환성 준수
 
-**소프트웨어 버전**
-- PHP: 5.4.16 (cli) (built: Apr 1 2020 04:07:17)
-- CodeIgniter: 3.1.11
-- Node.js: (소켓 서버용, 버전 미기재)
+**원격 운영 서버** (실운영 배포 대상)
+- **OS**: CentOS Linux release 7.9.2009 (Core)
+- **커널**: 3.10.x
+- **PHP**: 5.4.16 (cli) (built: Apr 1 2020 04:07:17)
+- **CodeIgniter**: 3.1.11
+- **Node.js**: (소켓 서버용)
 
-**포트 구성**
-- Apache: 포트 80/443 (운영), 포트 8080 (추가 리슨)
-- Node.js 채팅 서버: 포트 3030 (운영), 3031 (개발)
-- MySQL: 포트 3306
-- MongoDB: 포트 27017 (로컬)
+**포트 구성** (운영 서버)
+- Apache: 80/443 (운영), 8080 (추가 리슨)
+- Node.js 채팅 서버: 3030 (운영), 3031 (개발)
+- MySQL: 3306
+- MongoDB: 27017 (로컬)
 
 ## 주요 명령어
 
