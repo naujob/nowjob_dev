@@ -57,12 +57,8 @@
           <?php
           $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 
-          // iOS Safari 호환성: HTTPS 강제 처리
-          // iOS Safari에서 X-Forwarded-Proto를 올바르게 처리하지 않을 수 있으므로
-          // app_base_url이 HTTP인 경우 HTTPS로 강제 변환
-          $is_ios_safari = preg_match('/(iPhone|iPad|iPod)/i', $_SERVER['HTTP_USER_AGENT']) === 1
-            && strpos($_SERVER['HTTP_USER_AGENT'], 'NowJobApp_iOS') === false;
-          if ($is_ios_safari && strpos($app_base_url, 'http://') === 0) {
+          // OAuth redirect_uri는 항상 HTTPS여야 함
+          if (strpos($app_base_url, 'http://') === 0) {
             $app_base_url = 'https://' . substr($app_base_url, 7);
           }
 
@@ -74,16 +70,16 @@
           $google_redirect = $app_base_url . "/member/google_login_callback";
           $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
 
-          // 디버깅용 로그
-          error_log("=== SNS Redirect URI Debug ===");
-          error_log("user_agent: " . $_SERVER['HTTP_USER_AGENT']);
-          error_log("is_ios_safari: " . ($is_ios_safari ? "true" : "false"));
-          error_log("app_base_url: " . $app_base_url);
-          error_log("naver_redirect: " . $naver_redirect);
-          error_log("google_redirect: " . $google_redirect);
-          error_log("wechat_redirect: " . $wechat_redirect);
-          error_log("x-forwarded-proto: " . (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : 'not set'));
-          error_log("https: " . (isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set'));
+          // 파일 로깅: SNS OAuth redirect_uri 생성 정보
+          $this->logger->debug('SNS OAuth redirect_uri 생성', array(
+            'app_base_url'      => $app_base_url,
+            'naver_redirect'    => $naver_redirect,
+            'google_redirect'   => $google_redirect,
+            'wechat_redirect'   => $wechat_redirect,
+            'x_forwarded_proto' => isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : 'not set',
+            'https_var'         => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set',
+            'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+          ));
 
           $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
 

@@ -13,19 +13,14 @@ class Member extends CI_Controller
 	}
 
 	/**
-	 * iOS Safari 호환성: HTTPS 강제 처리
-	 * iOS Safari에서 X-Forwarded-Proto를 올바르게 처리하지 않을 수 있으므로
-	 * app_base_url이 HTTP인 경우 HTTPS로 강제 변환
+	 * HTTP URL을 HTTPS로 강제 변환
+	 * OAuth redirect_uri는 항상 HTTPS여야 하므로 플랫폼 조건 없이 처리
 	 *
 	 * @param string $url
 	 * @return string
 	 */
-	private function ensure_https_for_ios($url) {
-		$user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-		$is_ios_safari = preg_match('/(iPhone|iPad|iPod)/i', $user_agent) === 1
-			&& strpos($user_agent, 'NowJobApp_iOS') === false;
-
-		if ($is_ios_safari && strpos($url, 'http://') === 0) {
+	private function ensure_https($url) {
+		if (strpos($url, 'http://') === 0) {
 			return 'https://' . substr($url, 7);
 		}
 		return $url;
@@ -50,9 +45,9 @@ class Member extends CI_Controller
 			'https' => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set',
 			'server_port' => isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 'not set',
 			'http_host' => isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'not set',
-			'naver_redirect' => $this->ensure_https_for_ios($app_base_url) . '/member/naver_login_callback',
-			'google_redirect' => $this->ensure_https_for_ios($app_base_url) . '/member/google_login_callback',
-			'wechat_redirect' => $this->ensure_https_for_ios($app_base_url) . '/member/wechat_login_callback',
+			'naver_redirect' => $this->ensure_https($app_base_url) . '/member/naver_login_callback',
+			'google_redirect' => $this->ensure_https($app_base_url) . '/member/google_login_callback',
+			'wechat_redirect' => $this->ensure_https($app_base_url) . '/member/wechat_login_callback',
 		], JSON_UNESCAPED_SLASHES);
 		exit;
 	}
@@ -246,10 +241,14 @@ class Member extends CI_Controller
 		$code  = isset($_GET["code"])  ? $_GET["code"]  : "";
 		$state = isset($_GET["state"]) ? $_GET["state"] : "";
 
-
+		// 위챗 OAuth 콜백 진입 로깅
+		$this->logger->info('위챗 OAuth 콜백 진입', array(
+			'has_code'   => !empty($code),
+			'has_state'  => !empty($state),
+			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+		));
 
 		if (empty($code)) {
-
 			$this->common->scriptReplace("/member/login", "위챗 로그인에 실패하였습니다.(1)");
 			exit;
 		}
@@ -261,7 +260,7 @@ class Member extends CI_Controller
 
 		// Callback URL (iOS Safari HTTPS 강제 처리)
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-		$app_base_url = $this->ensure_https_for_ios($app_base_url);
+		$app_base_url = $this->ensure_https($app_base_url);
 		$callback_url = $app_base_url . "/member/wechat_login_callback";
 
 	
@@ -301,6 +300,12 @@ class Member extends CI_Controller
 	
 
 		if (!is_array($token_data) || isset($token_data["errcode"])) {
+			// 토큰 요청 실패 로깅
+			$this->logger->error('위챗 토큰 요청 실패', array(
+				'curl_error'    => $curl_error,
+				'token_data'    => is_array($token_data) ? $token_data : $token_response,
+				'callback_url'  => $callback_url,
+			));
 
 			$this->common->scriptReplace("/member/login", "위챗 인증에 실패하였습니다.(3)");
 			exit;
@@ -409,6 +414,15 @@ class Member extends CI_Controller
 		$error = $_REQUEST["error"];
 		$error_description = $_REQUEST["error_description"];
 
+		// 네이버 OAuth 콜백 진입 로깅
+		$this->logger->info('네이버 OAuth 콜백 진입', array(
+			'has_code'   => !empty($code),
+			'has_state'  => !empty($state),
+			'has_error'  => !empty($error),
+			'error'      => $error,
+			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+		));
+
 		if ($error) {
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(1)";
 			if (!empty($error_description)) {
@@ -436,7 +450,7 @@ class Member extends CI_Controller
 		// app_base_url: 환경변수 APP_BASE_URL 또는 요청 도메인/스킴 기반으로 결정되는 앱 기본 URL
 		// iOS Safari HTTPS 강제 처리
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-		$app_base_url = $this->ensure_https_for_ios($app_base_url);
+		$app_base_url = $this->ensure_https($app_base_url);
 		$callback_url = $app_base_url . "/member/naver_login_callback";
 
 		// 토큰 받기
@@ -459,6 +473,12 @@ class Member extends CI_Controller
 
 		// 토큰 요청 오류 처리
 		if (empty($token_response["access_token"])) {
+			// 토큰 요청 실패 로깅
+			$this->logger->error('네이버 토큰 요청 실패', array(
+				'response'     => $token_response,
+				'redirect_uri' => $callback_url,
+			));
+
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(2)";
 			if (isset($token_response["error"])) {
 				$error_msg .= " - 오류: " . $token_response["error"];
@@ -466,7 +486,7 @@ class Member extends CI_Controller
 			if (isset($token_response["error_description"])) {
 				$error_msg .= " - " . $token_response["error_description"];
 			}
-			
+
 			$this->common->scriptReplace("/member/login", $error_msg);
 			exit();
 		}
@@ -582,7 +602,7 @@ class Member extends CI_Controller
 
 		// iOS Safari HTTPS 강제 처리
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-		$app_base_url = $this->ensure_https_for_ios($app_base_url);
+		$app_base_url = $this->ensure_https($app_base_url);
 		$redirect_uri = $app_base_url . "/member/google_login_callback";
 
 		// 매번 고유한 state 값 사용
@@ -607,6 +627,16 @@ class Member extends CI_Controller
 		$error = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
 		$error_description = isset($_REQUEST["error_description"]) ? $_REQUEST["error_description"] : "";
 
+		// 구글 OAuth 콜백 진입 로깅
+		$this->logger->info('구글 OAuth 콜백 진입', array(
+			'has_code'         => !empty($code),
+			'has_state'        => !empty($state),
+			'has_error'        => !empty($error),
+			'error'            => $error,
+			'saved_state_set'  => !empty($this->common->getSession("google-oauth-state")),
+			'user_agent'       => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+		));
+
 		if ($error) {
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(1)";
 			if (!empty($error_description)) {
@@ -623,6 +653,15 @@ class Member extends CI_Controller
 
 		$saved_state = $this->common->getSession("google-oauth-state");
 		if (empty($saved_state) || $saved_state !== $state) {
+			// state 검증 실패 로깅 (세션 소실 여부 진단 핵심)
+			$this->logger->warn('구글 OAuth state 검증 실패 (세션 소실 의심)', array(
+				'saved_state_empty' => empty($saved_state),
+				'state_match'       => ($saved_state === $state),
+				'session_id'        => session_id(),
+				'cookie_header'     => isset($_SERVER['HTTP_COOKIE']) ? substr($_SERVER['HTTP_COOKIE'], 0, 200) : 'none',
+				'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+			));
+
 			$this->common->scriptReplace("/member/login", "구글 로그인 상태값 검증에 실패했습니다.");
 			exit();
 		}
@@ -638,7 +677,7 @@ class Member extends CI_Controller
 
 		// iOS Safari HTTPS 강제 처리
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-		$app_base_url = $this->ensure_https_for_ios($app_base_url);
+		$app_base_url = $this->ensure_https($app_base_url);
 		$redirect_uri = $app_base_url . "/member/google_login_callback";
 
 		$token_url = "https://oauth2.googleapis.com/token";
@@ -657,6 +696,12 @@ class Member extends CI_Controller
 		$token_response = json_decode($token_result[0], true);
 
 		if (empty($token_response["id_token"])) {
+			// 토큰 요청 실패 로깅
+			$this->logger->error('구글 토큰 요청 실패', array(
+				'token_response' => isset($token_response['error']) ? $token_response['error'] : 'unknown',
+				'redirect_uri'   => $redirect_uri,
+			));
+
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(2)";
 			if (isset($token_response["error"])) {
 				$error_msg .= " - 오류: " . $token_response["error"];
