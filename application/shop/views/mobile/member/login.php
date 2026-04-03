@@ -76,10 +76,14 @@
 
           // 디버깅용 로그
           error_log("=== SNS Redirect URI Debug ===");
+          error_log("user_agent: " . $_SERVER['HTTP_USER_AGENT']);
+          error_log("is_ios_safari: " . ($is_ios_safari ? "true" : "false"));
           error_log("app_base_url: " . $app_base_url);
           error_log("naver_redirect: " . $naver_redirect);
           error_log("google_redirect: " . $google_redirect);
           error_log("wechat_redirect: " . $wechat_redirect);
+          error_log("x-forwarded-proto: " . (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : 'not set'));
+          error_log("https: " . (isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set'));
 
           $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
 
