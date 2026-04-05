@@ -1684,7 +1684,7 @@ class Mypage_proc extends CI_Controller
           $query = $this->db->query($sql);
           $corpList = $query->result_array();
 
-          error_log('[ALIMTALK] 이력서 공개 설정 완료 - 추천공고등록 대상 기업회원 수: ' . count($corpList));
+          //error_log('[ALIMTALK] 이력서 공개 설정 완료 - 추천공고등록 대상 기업회원 수: ' . count($corpList));
 
           if (!empty($corpList) && is_array($corpList)) {
             $sent_count = 0;
@@ -1692,15 +1692,15 @@ class Mypage_proc extends CI_Controller
               $phone = isset($corp['mm_phone']) ? trim($corp['mm_phone']) : '';
               if ($phone != '') {
                 $corpName = isset($corp['mm_comp_name']) ? trim($corp['mm_comp_name']) : '';
-                error_log('[ALIMTALK] 기업회원 발송 시도 - mm_id=' . $corp['mm_id'] . ', phone=' . $phone . ', name=' . $corpName);
+                //error_log('[ALIMTALK] 기업회원 발송 시도 - mm_id=' . $corp['mm_id'] . ', phone=' . $phone . ', name=' . $corpName);
                 // name=회사명, var3=이력서 제목, var4=URL
                 $ppurio->sendCorporateAlimtalk($phone, $corp_vars, array('name' => $corpName));
                 $sent_count++;
               }
             }
-            error_log('[ALIMTALK] 기업회원 발송 완료 - 총 대상: ' . count($corpList) . '명, 발송: ' . $sent_count . '명');
+            //error_log('[ALIMTALK] 기업회원 발송 완료 - 총 대상: ' . count($corpList) . '명, 발송: ' . $sent_count . '명');
           } else {
-            error_log('[ALIMTALK] 알림톡 발송 건너뛰기 - 추천공고등록 대상 기업회원 없음');
+            //error_log('[ALIMTALK] 알림톡 발송 건너뛰기 - 추천공고등록 대상 기업회원 없음');
           }
         }
       } catch (Exception $e) {

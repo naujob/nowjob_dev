@@ -742,12 +742,12 @@ function sendFcm($info, $token_list)
 	debug_log("FCM 함수 시작", 'FCM', ['info' => $info, 'token_count' => is_array($token_list) ? count($token_list) : 0]);
 
 	// 토큰 로그 추가
-	error_log("FCM 발송 시도 - 제목: " . (isset($info['title']) ? $info['title'] : '없음') . ", 토큰 개수: " . (is_array($token_list) ? count($token_list) : 0));
+	//error_log("FCM 발송 시도 - 제목: " . (isset($info['title']) ? $info['title'] : '없음') . ", 토큰 개수: " . (is_array($token_list) ? count($token_list) : 0));
 
 	// 입력값 검증
 	if (!is_array($info) || !isset($info['title']) || !isset($info['body'])) {
 		debug_log("FCM 입력값 검증 실패", 'FCM', ['info' => $info]);
-		error_log("FCM 발송 실패 - 필수 정보 누락 (title, body)");
+		//error_log("FCM 발송 실패 - 필수 정보 누락 (title, body)");
 		return [
 			'success' => false,
 			'error' => '필수 정보가 누락되었습니다 (title, body)',
@@ -762,7 +762,7 @@ function sendFcm($info, $token_list)
 	}
 
 	if (!is_array($token_list) || empty($token_list)) {
-		error_log("FCM 발송 실패 - 토큰 리스트가 비어있음");
+		//error_log("FCM 발송 실패 - 토큰 리스트가 비어있음");
 		return [
 			'success' => false,
 			'error' => '토큰 리스트가 비어있습니다',
@@ -772,7 +772,7 @@ function sendFcm($info, $token_list)
 
 	// 토큰 상세 로그 추가
 	foreach ($token_list as $index => $token) {
-		error_log("FCM 토큰[" . $index . "]: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token));
+		//error_log("FCM 토큰[" . $index . "]: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token));
 	}
 
 	// Firebase 서비스 계정 파일 경로 결정 (환경별 우선순위 적용)

@@ -585,10 +585,10 @@ class Recruit extends CI_Controller
   function job_post($rc_idx = null)
   {
     // FCM 푸시 알림 디버깅 로그 추가
-    error_log("job_post 함수 호출 - rc_idx: " . ($rc_idx ? $rc_idx : 'null') . ", User-Agent: " . $_SERVER['HTTP_USER_AGENT']);
+    //error_log("job_post 함수 호출 - rc_idx: " . ($rc_idx ? $rc_idx : 'null') . ", User-Agent: " . $_SERVER['HTTP_USER_AGENT']);
 
     if ($rc_idx == null) {
-      error_log("job_post 리다이렉트 - rc_idx가 null");
+      //error_log("job_post 리다이렉트 - rc_idx가 null");
       redirect('https://nowjob.co.kr/recruit/job_list');
     }
     $data = [];
@@ -597,14 +597,14 @@ class Recruit extends CI_Controller
     $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
 
     // 채용공고 정보 디버깅 로그
-    error_log("job_post 채용공고 조회 결과 - rc_idx: " . $rc_idx . ", info: " . ($info ? "존재" : "없음") . ", rc_show_yn: " . ($info ? $info["rc_show_yn"] : "N/A"));
+    //error_log("job_post 채용공고 조회 결과 - rc_idx: " . $rc_idx . ", info: " . ($info ? "존재" : "없음") . ", rc_show_yn: " . ($info ? $info["rc_show_yn"] : "N/A"));
 
     $addr_info = $this->member_model->getAddress(["ad_type" => "RECRUIT", "mm_idx" => $info["mm_idx"], "ad_key" => $rc_idx]);
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $bookmark = $this->site_model->getBookmark(["bk_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "bk_key" => $rc_idx]);
 
     if ($info == null || $info["rc_show_yn"] != "Y") {
-      error_log("job_post 리다이렉트 - 채용공고 없음 또는 비활성화, rc_idx: " . $rc_idx);
+      //error_log("job_post 리다이렉트 - 채용공고 없음 또는 비활성화, rc_idx: " . $rc_idx);
       go_location("/recruit/job_list", "채용공고를 조회 하지 못하였습니다.");
     }
 

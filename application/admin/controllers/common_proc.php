@@ -115,17 +115,17 @@ class Common_proc extends CI_Controller
 			$time = get_today("H:i");
 
 			// 즐겨찾기 푸시 발송 시 토큰 로그 추가
-			error_log("즐겨찾기 푸시 발송 - 대상 사용자ID: " . $temp["mm_id"] . ", 토큰: " . (strlen($temp["token"]) > 20 ? substr($temp["token"], 0, 20) . '...' : $temp["token"]));
+			//error_log("즐겨찾기 푸시 발송 - 대상 사용자ID: " . $temp["mm_id"] . ", 토큰: " . (strlen($temp["token"]) > 20 ? substr($temp["token"], 0, 20) . '...' : $temp["token"]));
 
 			$skip = false;
 			if ($temp["token"] != "" && $temp["alarm_deny_yn"] == "Y" && $temp["alarm_deny_yoil"] == $yoil && ($temp["alarm_deny_stime"] < $time && $temp["alarm_deny_etime"] > $time)) {
 				$skip = true;
-				error_log("즐겨찾기 푸시 발송 스킵 - 알림 차단 시간대");
+				//error_log("즐겨찾기 푸시 발송 스킵 - 알림 차단 시간대");
 			}
 
 			if ($skip == false) {
 				$token_list[] = $temp["token"];
-				error_log("즐겨찾기 푸시 발송 대상 추가 - 토큰 개수: " . count($token_list));
+				//error_log("즐겨찾기 푸시 발송 대상 추가 - 토큰 개수: " . count($token_list));
 			}
 
 			$info = [
@@ -551,7 +551,7 @@ class Common_proc extends CI_Controller
 				'size' => '20'
 			);
 
-			error_log("get_address_list " . $_SERVER["REQUEST_URI"], "3", "/testlog/php_log");
+			//error_log("get_address_list " . $_SERVER["REQUEST_URI"], "3", "/testlog/php_log");
 
 			$result = kakaoRestApi("address", $params);
 
@@ -560,7 +560,7 @@ class Common_proc extends CI_Controller
 			} else {
 				$addr_list = [];
 
-				error_log("get_address_list " . $_SERVER["REQUEST_URI"], "3", "/testlog/php_log");
+				//error_log("get_address_list " . $_SERVER["REQUEST_URI"], "3", "/testlog/php_log");
 
 
 				foreach ($result["documents"] as $row) {

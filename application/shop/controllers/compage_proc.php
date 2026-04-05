@@ -3167,7 +3167,7 @@ class Compage_proc extends CI_Controller
         $target_list = $query->result_array();
 
         $target_count = (!empty($target_list) && is_array($target_list)) ? count($target_list) : 0;
-        error_log('[ALIMTALK] 채용공고 등록 완료 - 추천인재등록 대상 개인회원 수: ' . $target_count);
+        //error_log('[ALIMTALK] 채용공고 등록 완료 - 추천인재등록 대상 개인회원 수: ' . $target_count);
 
         if (!empty($target_list) && is_array($target_list)) {
           $sent_count = 0;
@@ -3176,21 +3176,21 @@ class Compage_proc extends CI_Controller
             $phone = isset($tgt['mm_phone']) ? trim($tgt['mm_phone']) : '';
             if ($phone != '') {
               $memberName = isset($tgt['mm_name']) ? trim($tgt['mm_name']) : '';
-              error_log('[ALIMTALK] 개인회원 발송 시도 - mm_id=' . $tgt['mm_id'] . ', phone=' . $phone . ', name=' . $memberName);
+              //error_log('[ALIMTALK] 개인회원 발송 시도 - mm_id=' . $tgt['mm_id'] . ', phone=' . $phone . ', name=' . $memberName);
               // name=개인회원 이름, var1=공고명, var2=공고URL
               $ppurio->sendPersonalAlimtalk($phone, $personal_vars, array('name' => $memberName));
               $sent_count++;
             } else {
               $skip_count++;
-              error_log('[ALIMTALK] 건너뛰기 - 전화번호 없음: mm_id=' . $tgt['mm_id']);
+              //error_log('[ALIMTALK] 건너뛰기 - 전화번호 없음: mm_id=' . $tgt['mm_id']);
             }
           }
-          error_log('[ALIMTALK] 개인회원 발송 완료 - 총 대상: ' . $target_count . '명, 발송: ' . $sent_count . '명, 건너뛰기: ' . $skip_count . '명');
+          //error_log('[ALIMTALK] 개인회원 발송 완료 - 총 대상: ' . $target_count . '명, 발송: ' . $sent_count . '명, 건너뛰기: ' . $skip_count . '명');
         } else {
-          error_log('[ALIMTALK] 알림톡 발송 건너뛰기 - 추천인재등록 대상 개인회원 없음');
+          //error_log('[ALIMTALK] 알림톡 발송 건너뛰기 - 추천인재등록 대상 개인회원 없음');
         }
       } catch (Exception $e) {
-        error_log('[ALIMTALK] 발송 실패: ' . $e->getMessage());
+        //error_log('[ALIMTALK] 발송 실패: ' . $e->getMessage());
         if (function_exists('log_message')) {
           log_message('error', 'Kakao Alimtalk send (recruit_complete) failed: ' . $e->getMessage());
         }

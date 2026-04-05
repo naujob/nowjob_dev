@@ -177,10 +177,10 @@ class Resume extends CI_Controller
   function hr_post($ru_idx = 0)
   {
     // 푸시알림 디버깅 로그 추가
-    error_log("푸시알림 디버깅 - hr_post 접근: ru_idx=" . $ru_idx . ", mm_type=" . $this->mm_type . ", mm_idx=" . $this->mm_idx);
+    // error_log("푸시알림 디버깅 - hr_post 접근: ru_idx=" . $ru_idx . ", mm_type=" . $this->mm_type . ", mm_idx=" . $this->mm_idx);
 
     if ($ru_idx == 0) {
-      error_log("푸시알림 디버깅 - ru_idx가 0이므로 리다이렉트");
+      // error_log("푸시알림 디버깅 - ru_idx가 0이므로 리다이렉트");
       redirect('https://nowjob.co.kr/resume/hr_list');
     }
     

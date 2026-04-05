@@ -901,20 +901,20 @@ class memberModel extends MY_Model
 		// 2024.12.XX INNER JOIN을 EXISTS로 변경하여 중복 행 방지 및 GROUP BY 문제 해결
 
 		// 디버깅을 위한 SQL 로그 활성화
-		error_log("\n[getRecruitActaiveList2] SQL Query:\n" . $sql . "\n", 3, "/testlog/php_log");
+		//error_log("\n[getRecruitActaiveList2] SQL Query:\n" . $sql . "\n", 3, "/testlog/php_log");
 
 		$query = $this->db->query($sql);
 
 		// SQL 에러 확인 추가 (MY_Model.php 패턴과 동일하게)
 		$error = $this->db->error();
 		if ($error["code"] != 0) {
-			error_log("[getRecruitActaiveList2] SQL Error: " . $error["message"]);
-			error_log("[getRecruitActaiveList2] SQL Query: " . $sql);
+			//error_log("[getRecruitActaiveList2] SQL Error: " . $error["message"]);
+			//error_log("[getRecruitActaiveList2] SQL Query: " . $sql);
 			return [];
 		}
 
 		$result = $query->result_array();
-		error_log("[getRecruitActaiveList2] Result Count: " . count($result) . ", mm_idx: " . $mm_idx, 3, "/testlog/php_log");
+		//error_log("[getRecruitActaiveList2] Result Count: " . count($result) . ", mm_idx: " . $mm_idx, 3, "/testlog/php_log");
 
 		return $result;
 	}

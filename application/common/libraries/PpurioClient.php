@@ -38,17 +38,17 @@ class CI_PpurioClient
      */
     public function requestAccessToken()
     {
-        error_log('[PPURIO] ========== 토큰 발급 시작 ==========');
+        //error_log('[PPURIO] ========== 토큰 발급 시작 ==========');
 
         // 설정 검증
         $tokenUrl = $this->getConfigValue('token_url');
         $account = $this->getConfigValue('account');
         $accessKey = $this->getConfigValue('access_key');
 
-        error_log('[PPURIO][STEP1] 설정 확인 - token_url=' . $tokenUrl . ', account=' . $account . ', access_key=' . (empty($accessKey) ? 'EMPTY' : substr($accessKey, 0, 6) . '...' . substr($accessKey, -4)));
+        //error_log('[PPURIO][STEP1] 설정 확인 - token_url=' . $tokenUrl . ', account=' . $account . ', access_key=' . (empty($accessKey) ? 'EMPTY' : substr($accessKey, 0, 6) . '...' . substr($accessKey, -4)));
 
         if ($tokenUrl === '' || $account === '' || $accessKey === '') {
-            error_log('[PPURIO][STEP1-ERROR] 설정 누락 - token_url=' . $tokenUrl . ', account=' . $account . ', access_key=' . (empty($accessKey) ? 'EMPTY' : 'SET'));
+            //error_log('[PPURIO][STEP1-ERROR] 설정 누락 - token_url=' . $tokenUrl . ', account=' . $account . ', access_key=' . (empty($accessKey) ? 'EMPTY' : 'SET'));
             return array(
                 'ok' => false,
                 'access_token' => null,
@@ -58,7 +58,7 @@ class CI_PpurioClient
         }
 
         // 뿌리오 API 문서 기준: POST body 없이 Basic Auth 헤더만 사용
-        error_log('[PPURIO][STEP2] 토큰 요청 준비 - URL=' . $tokenUrl . ', account=' . $account);
+        //error_log('[PPURIO][STEP2] 토큰 요청 준비 - URL=' . $tokenUrl . ', account=' . $account);
 
         $ch = curl_init();
         if ($ch === false) {
@@ -77,7 +77,7 @@ class CI_PpurioClient
         $authBase64 = base64_encode($authString);
         $authHeader = 'Basic ' . $authBase64;
 
-        error_log('[PPURIO][STEP2] Basic Auth 헤더 생성 - account=' . $account . ', auth_string_length=' . strlen($authString) . ', auth_header=' . substr($authHeader, 0, 25) . '...');
+        //error_log('[PPURIO][STEP2] Basic Auth 헤더 생성 - account=' . $account . ', auth_string_length=' . strlen($authString) . ', auth_header=' . substr($authHeader, 0, 25) . '...');
 
         curl_setopt_array($ch, array(
             CURLOPT_URL => $tokenUrl,
@@ -97,7 +97,7 @@ class CI_PpurioClient
         if ($responseBody === false) {
             $err = curl_error($ch);
             curl_close($ch);
-            error_log('[PPURIO][STEP3-ERROR] 토큰 요청 cURL 실패 - error=' . $err);
+            //error_log('[PPURIO][STEP3-ERROR] 토큰 요청 cURL 실패 - error=' . $err);
             return array(
                 'ok' => false,
                 'access_token' => null,
@@ -109,10 +109,10 @@ class CI_PpurioClient
         $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        error_log('[PPURIO][STEP3] 토큰 응답 수신 - HTTP=' . $httpStatus . ', body_length=' . strlen($responseBody));
+        //error_log('[PPURIO][STEP3] 토큰 응답 수신 - HTTP=' . $httpStatus . ', body_length=' . strlen($responseBody));
 
         if ($httpStatus < 200 || $httpStatus >= 300) {
-            error_log('[PPURIO][STEP3-ERROR] 토큰 HTTP 오류 - status=' . $httpStatus . ', body=' . substr($responseBody, 0, 200));
+            //error_log('[PPURIO][STEP3-ERROR] 토큰 HTTP 오류 - status=' . $httpStatus . ', body=' . substr($responseBody, 0, 200));
             $decoded = json_decode($responseBody, true);
             return array(
                 'ok' => false,
@@ -124,7 +124,7 @@ class CI_PpurioClient
 
         $decoded = json_decode($responseBody, true);
         if (!is_array($decoded)) {
-            error_log('[PPURIO][STEP3-ERROR] 토큰 응답 JSON 파싱 실패 - body=' . substr($responseBody, 0, 200));
+            //error_log('[PPURIO][STEP3-ERROR] 토큰 응답 JSON 파싱 실패 - body=' . substr($responseBody, 0, 200));
             return array(
                 'ok' => false,
                 'access_token' => null,
@@ -141,7 +141,7 @@ class CI_PpurioClient
         }
 
         if ($token === null) {
-            error_log('[PPURIO][STEP3-ERROR] 토큰 응답에 access_token 없음 - decoded=' . json_encode($decoded, JSON_UNESCAPED_UNICODE));
+            //error_log('[PPURIO][STEP3-ERROR] 토큰 응답에 access_token 없음 - decoded=' . json_encode($decoded, JSON_UNESCAPED_UNICODE));
             return array(
                 'ok' => false,
                 'access_token' => null,
@@ -155,7 +155,7 @@ class CI_PpurioClient
             $expiresIn = $decoded['expires_in'];
         }
 
-        error_log('[PPURIO][STEP3-SUCCESS] 토큰 발급 성공 - token_prefix=' . substr($token, 0, 12) . ', expires_in=' . $expiresIn);
+        //error_log('[PPURIO][STEP3-SUCCESS] 토큰 발급 성공 - token_prefix=' . substr($token, 0, 12) . ', expires_in=' . $expiresIn);
 
         return array(
             'ok' => true,
@@ -194,7 +194,7 @@ class CI_PpurioClient
         // 뿌리오 기능 비활성화 체크
         $enabled = $this->getConfigValue('enabled');
         if ($enabled === false || $enabled === 0 || $enabled === 'false' || $enabled === '0') {
-            error_log('[PPURIO] 뿌리오 기능이 비활성화되어 있음 - 발송하지 않음');
+            //error_log('[PPURIO] 뿌리오 기능이 비활성화되어 있음 - 발송하지 않음');
             return array(
                 'ok' => false,
                 'response' => null,
@@ -202,16 +202,16 @@ class CI_PpurioClient
             );
         }
 
-        error_log('[PPURIO] ========== 알림톡 발송 시작 ==========');
-        error_log('[PPURIO][STEP4] 파라미터 확인 - to=' . $recipientPhone . ', template=' . $templateCode . ', variables=' . json_encode($templateVariables, JSON_UNESCAPED_UNICODE));
+        //error_log('[PPURIO] ========== 알림톡 발송 시작 ==========');
+        //error_log('[PPURIO][STEP4] 파라미터 확인 - to=' . $recipientPhone . ', template=' . $templateCode . ', variables=' . json_encode($templateVariables, JSON_UNESCAPED_UNICODE));
 
         // 필수 설정 로드
         $account = $this->getConfigValue('account');
         $kakaoUrl = $this->getConfigValue('kakao_send_url');
-        error_log('[PPURIO][STEP4] 설정 확인 - account=' . $account . ', kakao_url=' . $kakaoUrl);
+        //error_log('[PPURIO][STEP4] 설정 확인 - account=' . $account . ', kakao_url=' . $kakaoUrl);
 
         if ($account === '' || $kakaoUrl === '') {
-            error_log('[PPURIO][STEP4-ERROR] 설정 누락 - account=' . $account . ', kakao_url=' . $kakaoUrl);
+            //error_log('[PPURIO][STEP4-ERROR] 설정 누락 - account=' . $account . ', kakao_url=' . $kakaoUrl);
             return array(
                 'ok' => false,
                 'response' => null,
@@ -220,10 +220,10 @@ class CI_PpurioClient
         }
 
         // 액세스 토큰 발급
-        error_log('[PPURIO][STEP5] 토큰 발급 요청 시작');
+        //error_log('[PPURIO][STEP5] 토큰 발급 요청 시작');
         $tokenRes = $this->requestAccessToken();
         if (!(isset($tokenRes['ok']) && $tokenRes['ok'] === true)) {
-            error_log('[PPURIO][STEP5-ERROR] 토큰 발급 실패 - error=' . (isset($tokenRes['error']) ? $tokenRes['error'] : '원인 불명'));
+            //error_log('[PPURIO][STEP5-ERROR] 토큰 발급 실패 - error=' . (isset($tokenRes['error']) ? $tokenRes['error'] : '원인 불명'));
             return array(
                 'ok' => false,
                 'response' => null,
@@ -233,7 +233,7 @@ class CI_PpurioClient
 
         $accessToken = isset($tokenRes['access_token']) ? $tokenRes['access_token'] : '';
         if ($accessToken === '') {
-            error_log('[PPURIO][STEP5-ERROR] 토큰 값 누락');
+            //error_log('[PPURIO][STEP5-ERROR] 토큰 값 누락');
             return array(
                 'ok' => false,
                 'response' => null,
@@ -241,7 +241,7 @@ class CI_PpurioClient
             );
         }
 
-        error_log('[PPURIO][STEP5-SUCCESS] 토큰 발급 완료 - token_prefix=' . substr($accessToken, 0, 12));
+        //error_log('[PPURIO][STEP5-SUCCESS] 토큰 발급 완료 - token_prefix=' . substr($accessToken, 0, 12));
 
         // 기본값 구성
         $messageType = isset($options['messageType']) ? (string)$options['messageType'] : 'ALT';
@@ -258,7 +258,7 @@ class CI_PpurioClient
 
         // 휴대폰번호 정규화: 숫자만 남김
         $toPhone = preg_replace('/[^0-9]/', '', (string)$recipientPhone);
-        error_log('[PPURIO][STEP6] 알림톡 요청 준비 - messageType=' . $messageType . ', senderProfile=' . $senderProfile . ', to=' . $toPhone . ', refkey=' . $refkey);
+        //error_log('[PPURIO][STEP6] 알림톡 요청 준비 - messageType=' . $messageType . ', senderProfile=' . $senderProfile . ', to=' . $toPhone . ', refkey=' . $refkey);
 
         // changeWord 구성 (뿌리오 API 문서 기준: changeWord는 var1, var2, var3 등의 키 사용)
         // 템플릿 변수를 var1, var2, var3 형태로 변환
@@ -286,7 +286,7 @@ class CI_PpurioClient
         // 수신자 이름(name) 전달 옵션 지원 - 템플릿의 [*이름*] 치환에 사용
         if (isset($options['name']) && trim((string)$options['name']) !== '') {
             $target['name'] = (string)$options['name'];
-            error_log('[PPURIO][STEP6] target name 포함 - name=' . (string)$options['name']);
+            //error_log('[PPURIO][STEP6] target name 포함 - name=' . (string)$options['name']);
         }
 
         $targets = array($target);
@@ -325,7 +325,7 @@ class CI_PpurioClient
             );
         }
 
-        error_log('[PPURIO][STEP6] 알림톡 요청 payload - ' . json_encode($payload, JSON_UNESCAPED_UNICODE));
+        //error_log('[PPURIO][STEP6] 알림톡 요청 payload - ' . json_encode($payload, JSON_UNESCAPED_UNICODE));
         if (function_exists('log_message')) {
             log_message('info', '[PPURIO][KAKAO][REQ] ' . json_encode($payload, JSON_UNESCAPED_UNICODE));
         }
@@ -346,12 +346,12 @@ class CI_PpurioClient
             CURLOPT_SSL_VERIFYHOST => 2,
         ));
 
-        error_log('[PPURIO][STEP7] 알림톡 API 요청 전송 - URL=' . $kakaoUrl);
+        //error_log('[PPURIO][STEP7] 알림톡 API 요청 전송 - URL=' . $kakaoUrl);
         $responseBody = curl_exec($ch);
         if ($responseBody === false) {
             $err = curl_error($ch);
             curl_close($ch);
-            error_log('[PPURIO][STEP7-ERROR] 알림톡 요청 cURL 실패 - error=' . $err);
+            //error_log('[PPURIO][STEP7-ERROR] 알림톡 요청 cURL 실패 - error=' . $err);
             if (function_exists('log_message')) {
                 log_message('error', '[PPURIO][KAKAO][REQ-FAIL] ' . json_encode($payload, JSON_UNESCAPED_UNICODE) . ' | ' . $err);
             }
@@ -365,14 +365,14 @@ class CI_PpurioClient
         $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        error_log('[PPURIO][STEP7] 알림톡 응답 수신 - HTTP=' . $httpStatus . ', body_length=' . strlen($responseBody) . ', body=' . substr($responseBody, 0, 200));
+        //error_log('[PPURIO][STEP7] 알림톡 응답 수신 - HTTP=' . $httpStatus . ', body_length=' . strlen($responseBody) . ', body=' . substr($responseBody, 0, 200));
 
         $decoded = json_decode($responseBody, true);
         if (function_exists('log_message')) {
             log_message('info', '[PPURIO][KAKAO][RESP] status=' . $httpStatus . ' body=' . $responseBody);
         }
         if ($httpStatus < 200 || $httpStatus >= 300) {
-            error_log('[PPURIO][STEP7-ERROR] 알림톡 HTTP 오류 - status=' . $httpStatus . ', body=' . substr($responseBody, 0, 200));
+            //error_log('[PPURIO][STEP7-ERROR] 알림톡 HTTP 오류 - status=' . $httpStatus . ', body=' . substr($responseBody, 0, 200));
             return array(
                 'ok' => false,
                 'response' => ($decoded !== null ? $decoded : $responseBody),
@@ -380,8 +380,8 @@ class CI_PpurioClient
             );
         }
 
-        error_log('[PPURIO][STEP7-SUCCESS] 알림톡 발송 성공 - status=' . $httpStatus . ', refkey=' . $refkey . ', response=' . json_encode($decoded, JSON_UNESCAPED_UNICODE));
-        error_log('[PPURIO] ========== 알림톡 발송 완료 ==========');
+        //error_log('[PPURIO][STEP7-SUCCESS] 알림톡 발송 성공 - status=' . $httpStatus . ', refkey=' . $refkey . ', response=' . json_encode($decoded, JSON_UNESCAPED_UNICODE));
+        //error_log('[PPURIO] ========== 알림톡 발송 완료 ==========');
 
         return array(
             'ok' => true,
