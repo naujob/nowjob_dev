@@ -68,25 +68,34 @@ $banner_list = getBannerList("BN00010005");
     font-style: normal;
   }
 
-  .person-card .img {
+  .person-card .thumb {
     position: relative;
     width: 256px;
     height: 256px;
-    border: 0;
-    border-radius: 5px;
+    border: 1px solid #fcf8f8;
+    border-radius: 50px;
     color: #888;
     overflow: hidden;
+    box-shadow:2px 2px 5px rgba(0, 0, 0, 0.15);
+    background: #fff;
+    padding:0 ;
   }
 
-  .person-card .img img {
-    width: 100%;
-    height: 100%;
+  .person-card .thumb img {
+    width: 36%;
+    height: 37%;
     object-fit: cover;
     display: block;
+    min-width: 0%;
+    min-height: 0%;
+    border-radius: 50px;
+    top: 25%;
   }
 
   .person-card .desc {
     cursor: pointer;
+   
+    
   }
 
   .person-card .title {
@@ -178,6 +187,7 @@ $banner_list = getBannerList("BN00010005");
     font-size: 20px;
     font-weight: 700;
   }
+ 
 </style>
 
 <!-- 공지팝업 -->
@@ -476,34 +486,29 @@ $banner_list = getBannerList("BN00010005");
 
 <!-- 인재 리스트 템플릿 -->
 <template id="tpl_person_list">
-  <div class="keen-slider__slide ">
+  <div class="keen-slider__slide">
     <div class="person-card" data-ru_idx="{{ru_idx}}" data-mm_idx="{{mm_idx}}">
       <div class="thumb-wrap">
-        <div class="img">
-          <img src="{{ru_resume_img}}">
-          <?php if ($mm_type === "COMP") { ?><button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
+        <div class="thumb">
+          <img src="{{ru_resume_img}}" alt="프로필">
         </div>
-      </div>
-      <div class="desc">
-        <div class="content-wrap" style="padding: 46px 5px 24px;">
-          <p class="category">
-            {{ru_work_img}}
-          </p>
-          <div class="title-wrap">
-            <p class="title"><strong>{{ru_name}}</strong></p>
-            
-          </div>
+        <div class="person-badge-wrap">
+          <div class="person-badge-icon">{{ru_work_img}}</div>
+        </div>
+         <div class="desc">
+        <div class="content-wrap">
           <div class="meta">
-            <p class="national">{{mm_nation}}</p>
-            <p class="age">{{mm_age}}</p>
             <p class="work_type">{{ru_work_type}}</p>
+            <span class="meta-divider">|</span>
+            <p class="age">{{mm_age}}</p>
+            <span class="meta-divider">|</span>
             <p class="price_type">{{ru_price_type}}</p>
           </div>
-          <div class="hashtag">
-            {{ru_my_type}}
-          </div>
+          <p class="addr">{{ad_addr}}</p>
         </div>
       </div>
+      </div>
+     
     </div>
   </div>
 </template>
@@ -666,26 +671,12 @@ $banner_list = getBannerList("BN00010005");
           $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
           $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
-          $content = $content.replaceAll("{{ru_week}}", row.ru_week);
-          $content = $content.replaceAll("{{distance}}", row.distance + "km");
+          $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
           $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
-
-          if (row.mm_nation.trim() == '') {
-            $content = $content.replaceAll("{{mm_nation}}", "");
-            $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
-          } else {
-            $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-          }
-
           $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
-
           $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
           $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
-          $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
-          $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
           $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-          $content = $content.replaceAll("{{timestamp}}", row.timestamp);
 
           $clone.html($content);
 
