@@ -566,14 +566,13 @@ class commonModel extends MY_Model {
           on aa.mm_idx = rc.mm_idx
 			left join st_member_info bb
 					on aa.mm_idx = bb.mm_idx
-      LEFT JOIN st_promotion p
+      INNER JOIN st_promotion p
           ON p.mm_idx = aa.mm_idx AND p.pm_code = 'C004' AND p.pm_sdate < NOW() AND p.pm_edate > NOW() AND p.pm_status = 'Y'
 			where aa.mm_type= 'COMP'
 			  and aa.mm_status = 'Y'
 	      and rc.rc_status = 'Y'
         AND rc.rc_show_yn = 'Y'
 	      AND rc.rc_sdate < NOW() AND rc.rc_edate > NOW()
-        AND p.pm_status = 'Y'
       group by aa.mm_idx
 			ORDER BY RAND()
       limit 0,$length

@@ -120,7 +120,7 @@ class Home extends CI_Controller
 		$addr_info = $this->user->getAddrInfo();
 
 		# 뜨는 업체
-		$up_list = $this->common_model->getHomeUpCompList($addr_info, 7);
+		$up_list = $this->common_model->getHomeUpCompList($addr_info, 8);
 
 		# 팝업리스트
 		$popup_list = $this->common_model->getEventPopupList($this->user->getUserType());
@@ -168,7 +168,7 @@ class Home extends CI_Controller
 		$addr_info = $this->user->getAddrInfo();
 
 		# 뜨는 업체
-		$up_list = $this->common_model->getHomeUpCompList($addr_info, 7);
+		$up_list = $this->common_model->getHomeUpCompList($addr_info, 8);
 
 		# 팝업리스트
 		$popup_list = $this->common_model->getEventPopupList($this->user->getUserType());

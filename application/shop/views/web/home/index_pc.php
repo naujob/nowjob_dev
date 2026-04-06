@@ -134,21 +134,17 @@ $banner_list = getBannerList("BN00010005");
 
   .bottom-recomm {
     list-style: none;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     width: 100%;
-    flex-wrap: nowrap;
     gap: 23px;
     margin-top: 20px;
-    justify-content: space-between;
+    max-width: none !important;
   }
 
   .bottom-recomm .comp-info {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
     position: relative;
-    align-items: center;
-    flex: 0 0 calc(25% - 17.25px);
+    width: 100%;
     height: 235px;
     cursor: pointer;
   }
@@ -161,14 +157,15 @@ $banner_list = getBannerList("BN00010005");
     overflow: hidden;
     top: 0;
     background-color: #fff;
-    border: 1px solid #EB5349;
-    border-radius: 8px;
+    
+    border-radius: 25px;
     box-sizing: border-box;
+    box-shadow:2px 2px 5px rgba(0,0,0,0.15);
   }
 
   .bottom-recomm .comp-info .comp-img img {
     width: 100%;
-    height: 100%;
+    height: 100% !important;
     object-fit: contain;
     display: block;
   }
@@ -416,7 +413,7 @@ $banner_list = getBannerList("BN00010005");
           <?php
           $count = 0;
           foreach ($up_list as $row) :
-            if ($count >= 4) break;
+            if ($count >= 8) break;
           ?>
             <div class="comp-info" data-comm_idx="<?= $row["mm_idx"] ?>">
               <div class="comp-img">
