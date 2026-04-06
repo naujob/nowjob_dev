@@ -20,40 +20,67 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=1920">
-    <title>지금 뜨는, 좋은 일자리 NOWJOB</title>
+    <title>나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼</title>
     <!-- Google Fonts - Noto Sans KR -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
 <?php if ($is_prod_env && ($is_nowjob_domain || $is_dev_domain)) : ?>
-    <meta name="description" content="구인구직 정보 플랫폼">
+    <meta name="description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
+    <meta property="og:description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="지금 뜨는, 좋은 일자리 NOW JOB">
+    <meta property="og:title" content="나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼">
     <meta property="og:url" content="<?= $app_base_url ?>/">
-    <meta property="og:description" content="구인구직 정보 플랫폼">
+    
     <meta property="og:image" content="<?= $og_image_url ?>">
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="<?= $app_base_url ?>/">
-    <meta property="twitter:description" content="구인구직 정보 플랫폼">
-    <meta property="twitter:image" content="<?= $og_image_url ?>">
+    
     <!--<meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />-->
     <!-- <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" /> -->
     <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
+    <meta name="keywords" content="나우잡, NOWJOB,구인구직, 외국인채용, 알바, 급구, 일자리, 채용, 일당">
     <script type="application/ld+json">
-    {
-      "@context": "http://schema.org",
-      "@type": "Organization",
-      "name": "나우잡",
-      "url": "https://nowjob.co.kr",
-      "sameAs": [
-        "https://www.youtube.com/@NOWJOB_NOU",
-        "https://www.instagram.com/nowjob_nou",
-        "https://blog.naver.com/nowjobofficial"
-      ]
-    }
-    </script>
+        [
+        {
+            "@context": "http://schema.org",
+            "@type": "Organization",
+            "name": "나우잡",
+            "url": "https://nowjob.co.kr",
+            "sameAs": [
+            "https://www.youtube.com/@NOWJOB_NOU",
+            "https://www.instagram.com/nowjob_nou",
+            "https://blog.naver.com/nowjobofficial"
+            ]
+        },
+        {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": [
+            {
+            "@type": "ListItem",
+            "position": 1,
+            "url": "https://nowjob.co.kr/recruit/job_list", 
+            "name": "추천공고",
+            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_recruit.png" 
+            },
+            {
+            "@type": "ListItem",
+            "position": 2,
+            "url": "https://nowjob.co.kr/resume/hr_list",
+            "name": "추천인재",
+            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_resume.png"
+            },
+            {
+            "@type": "ListItem",
+            "position": 3,
+            "url": "https://nowjob.co.kr/member/login",
+            "name": "간편가입",
+            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_join.png"
+            }
+        ]
+        }
+        ]
+</script>
     <?php else : ?>
     <meta name="robots" content="noindex, nofollow, noarchive">
     <?php endif; ?>
@@ -319,58 +346,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     </script>
 
     <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
-        <script type="application/ld+json">
-            {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "지금 뜨는, 좋은 일자리 나우잡(NOWJOB)",
-            "url": "<?= $app_base_url ?>/",
-            "sameAs": [
-                "https://www.youtube.com/@NOWJOB_NOU",
-                "https://www.instagram.com/nowjob_nou",
-                "https://blog.naver.com/nowjobofficial"
-                ]
-            }
-        </script>
-        </script>
-            <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "ItemList",
-            "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "item": {
-                "@type": "WebPage",
-                "url": "<?= $app_base_url ?>/recruit/job_list",
-                "name": "채용정보",
-                "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_recruit.png"
-                }
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "item": {
-                "@type": "WebPage",
-                "url": "<?= $app_base_url ?>/resume/hr_list",
-                "name": "인재정보",
-                "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_resume.png"
-                }
-            },
-            {
-                "@type": "ListItem",
-                "position": 3,
-                "item": {
-                "@type": "WebPage",
-                "url": "<?= $app_base_url ?>/member/login",
-                "name": "회원가입",
-                "image": "<?= $app_base_url ?>/resource/uploads/meta/meta_join.png"
-                }
-            }
-            ]
-        }
-      </script>
+       
     <?php endif; ?>
 
 

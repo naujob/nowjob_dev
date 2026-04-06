@@ -1275,8 +1275,8 @@
                       </label>
                     </div>
                   </div>
-                  <p class="help-msg">사진을 추가하여 지원자들에게 업무를 소개해 보세요.
-                    <span style="display: block; color: #1B9D7D;"> ※ 권장사이즈 : 800 * 380</span>
+                  <p class="help-msg">첫 번쨰 등록된 사진이 채용공고 목록의 썸네일 이미지로 등록됩니다.
+                    <span style="display: block; color: #1B9D7D;"> ※ 권장사이즈 : 800 * 800</span>
                   </p>
                 </div>
 
