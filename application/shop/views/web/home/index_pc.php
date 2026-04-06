@@ -68,77 +68,86 @@ $banner_list = getBannerList("BN00010005");
     font-style: normal;
   }
 
-  .person-card .thumb {
-    position: relative;
-    width: 256px;
-    height: 256px;
+  /* 인재 카드 */
+  .person-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
     border: 1px solid #fcf8f8;
-    border-radius: 50px;
-    color: #888;
-    overflow: hidden;
-    box-shadow:2px 2px 5px rgba(0, 0, 0, 0.15);
+    border-radius: 25px;
     background: #fff;
-    padding:0 ;
+    margin-bottom: 3px;
+  }
+
+  .person-card .thumb {
+    width: 140px;
+    height: 140px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color:unset;
+    padding: 0px 0 0px;
+     
   }
 
   .person-card .thumb img {
-    width: 36%;
-    height: 37%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     display: block;
     min-width: 0%;
-    min-height: 0%;
-    border-radius: 50px;
-    top: 25%;
+     min-height: 0%;
+     border-radius: 50%;
   }
 
-  .person-card .desc {
-    cursor: pointer;
-   
-    
+  /* 뱃지 영역 */
+  .person-card .badge-wrap {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
-  .person-card .title {
-    width: 100%;
-  }
-
-  .person-card .area {
-    margin: 0;
+  /* 메타 정보 (주간 | 40대 | 월급) */
+  .person-card .meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+    font-size: 1rem;
     color: #000;
-    height: auto;
-    width: 50%;
-    text-align: right;
-    font-size: 18px;
-    font-weight: 600;
+    font-weight: 500;
+    width: 60%;
   }
 
-  .person-card .hashtag {
-    display: block;
-    margin: 14px 0 0;
-    padding: 5px 0 0;
-    font-size: 0;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    border-top: 1px solid #000;
-    overflow: hidden;
-  }
-
-  .person-card .tag {
-    display: inline-block;
-    margin: 0 8px 0 0;
-    padding: 0 12px;
-    font-size: 16px;
-    color: #3A70DB;
-    line-height: 2;
+  .person-card .meta p {
+    margin: 0;
+    flex: 1;
     text-align: center;
-    vertical-align: top;
-    border-radius: 100px;
-
+  }
+  .person-card .meta p:first-child {
+    text-align: center;
+  }
+  .person-card .meta .meta-divider {
+    color: #ccc;
+    flex-shrink: 0;
   }
 
-  .person-card .tag:last-child {
-    margin-right: 0;
+  /* main.css의 p:after 구분선 무효화 */
+  .person-card .meta p:after {
+    display: none;
+  }
+
+  /* 주소 */
+  .person-card .addr {
+    margin: 4px 0 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000;
+    text-align: center;
   }
 
   .bottom-recomm {
@@ -187,7 +196,14 @@ $banner_list = getBannerList("BN00010005");
     font-size: 20px;
     font-weight: 700;
   }
- 
+ /* 인재 카드 2줄 그리드 레이아웃 (4개씩 2줄) */
+ .person-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  gap: 16px 8px;
+ }
+
 </style>
 
 <!-- 공지팝업 -->
@@ -484,33 +500,8 @@ $banner_list = getBannerList("BN00010005");
   </div>
 </template>
 
-<!-- 인재 리스트 템플릿 -->
+<!-- 인재 리스트 템플릿 (JS에서 동적으로 생성하므로 참고용) -->
 <template id="tpl_person_list">
-  <div class="keen-slider__slide">
-    <div class="person-card" data-ru_idx="{{ru_idx}}" data-mm_idx="{{mm_idx}}">
-      <div class="thumb-wrap">
-        <div class="thumb">
-          <img src="{{ru_resume_img}}" alt="프로필">
-        </div>
-        <div class="person-badge-wrap">
-          <div class="person-badge-icon">{{ru_work_img}}</div>
-        </div>
-         <div class="desc">
-        <div class="content-wrap">
-          <div class="meta">
-            <p class="work_type">{{ru_work_type}}</p>
-            <span class="meta-divider">|</span>
-            <p class="age">{{mm_age}}</p>
-            <span class="meta-divider">|</span>
-            <p class="price_type">{{ru_price_type}}</p>
-          </div>
-          <p class="addr">{{ad_addr}}</p>
-        </div>
-      </div>
-      </div>
-     
-    </div>
-  </div>
 </template>
 
 <script>
@@ -664,27 +655,35 @@ $banner_list = getBannerList("BN00010005");
       if (ret.code == "00") {
         var list = ret.data.list;
         $("#my-keen-slider2").html("");
-        list.forEach(function(row) {
-          var $clone = $("#tpl_person_list").clone();
-          var $content = $clone.html();
 
-          $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
-          $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
-          $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
-          $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
-          $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
-          $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
-          $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
-          $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+        // 8개씩 묶어서 슬라이드 생성 (4개씩 2줄)
+        for (var i = 0; i < list.length; i += 8) {
+          var slideHtml = '<div class="keen-slider__slide"><div class="person-card-grid">';
 
-          $clone.html($content);
+          // 슬라이드당 최대 8개 카드 생성
+          for (var j = 0; j < 8 && i + j < list.length; j++) {
+            var row = list[i + j];
+            slideHtml +=
+              '<div class="person-card" data-ru_idx="' + row.ru_idx + '" data-mm_idx="' + (row.mm_idx || "") + '">' +
+                '<div class="thumb"><img src="' + row.ru_resume_img + '" alt="프로필"></div>' +
+                '<div class="badge-wrap">' + row.ru_work_img + '</div>' +
+                '<div class="meta">' +
+                  '<p class="work_type">' + getWorkType(row.ru_work_type) + '</p>' +
+                  '<span class="meta-divider">|</span>' +
+                  '<p class="age">' + row.mm_age + '대</p>' +
+                  '<span class="meta-divider">|</span>' +
+                  '<p class="price_type">' + getPriceType(row.ru_price_type) + '</p>' +
+                '</div>' +
+                '<p class="addr">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
+              '</div>';
+          }
 
-          $("#my-keen-slider2").append($clone.html());
-        });
+          slideHtml += '</div></div>';
+          $("#my-keen-slider2").append(slideHtml);
+        }
 
         var slideCount = document.querySelectorAll('.main-person .slider-wrap .keen-slider__slide').length;
-        var perView = 5;
+        var perView = 1;
 
         var slider = new KeenSlider(".main-person .slider-wrap", {
           loop: slideCount > perView,
@@ -791,7 +790,7 @@ $banner_list = getBannerList("BN00010005");
     getRecoPersonList();
   });
 
-  $(document).on('click', '#my-keen-slider2 .desc', function() {
+  $(document).on('click', '#my-keen-slider2 .person-card', function() {
     var $personCard = $(this).closest('.person-card');
     var ruIdx = $personCard.data('ru_idx');
     var resumeMmIdx = $personCard.data('mm_idx'); // 이력서 소유자 인덱스
