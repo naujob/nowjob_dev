@@ -3642,6 +3642,163 @@ body {
     font-style: normal;
 }
 
+/* ===== 2줄 헤더 구조 (신규) ===== */
+
+.header-top-row {
+    padding: 0;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.header-top-row .container {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 12px 64px;
+}
+
+.header-top-row .top-logo {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.header-top-row .top-logo a {
+    height: 40px;
+}
+
+/* 헤더 검색창: 항상 표시 */
+.header-search-wrap {
+    flex: 1;
+    max-width: 400px;
+    margin: 0 30px;
+}
+
+.header-search-form {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    border: 1.5px solid #ddd;
+    border-radius: 24px;
+    background: #fff;
+    padding: 0 16px;
+    height: 48px;
+    -webkit-transition: border-color 0.2s;
+    -o-transition: border-color 0.2s;
+    transition: border-color 0.2s;
+}
+
+.header-search-form:focus-within {
+    border-color: #57CCAF;
+}
+
+.header-search-form label {
+    flex: 1;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.header-search-form input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: #000;
+    outline: none;
+}
+
+.header-search-form input::placeholder {
+    color: #999;
+}
+
+.header-search-form .btn-search {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    margin-left: 8px;
+    border: none;
+    border-radius: 50%;
+    background: #57CCAF url("../img/ic_search.svg") no-repeat 50% 50%;
+    background-size: 18px auto;
+    cursor: pointer;
+    color: transparent;
+}
+
+.header-search-form .btn-search:hover,
+.header-search-form .btn-search:active {
+    background-color: #4bb5a0;
+}
+
+/* 헤더 계정메뉴 */
+.header-top-row .rt {
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+/* 네비게이션 2줄 */
+.header-nav-row {
+    padding: 0;
+    border-top: 1px solid #eee;
+}
+
+.header-nav-row.gnb {
+    width: 100%;
+}
+
+.header-nav-row .top-menu {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    padding: 0;
+    margin: 0;
+    height: auto;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 500;
+    list-style: none;
+}
+
+.header-nav-row .top-menu li {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    line-height: 48px;
+    border-right: 1px solid #eee;
+}
+
+.header-nav-row .top-menu li:last-child {
+    border-right: none;
+}
+
+.header-nav-row .top-menu a {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    -webkit-transition: background 0.2s;
+    -o-transition: background 0.2s;
+    transition: background 0.2s;
+}
+
+.header-nav-row .top-menu a:hover,
+.header-nav-row .top-menu a:focus {
+    background: #f5f5f5;
+}
+
 .rt .account-menu .member-card .name em {
     display: inline-block;
     max-width: 90%;
@@ -6045,14 +6202,20 @@ body {
 
 .main-visual {
     position: relative;
-    height: 635px;
-    padding: 138px 0 68px;
-    background: #000;
+    height: auto;
+    padding: 40px 0;
+    background: #f8f8f8;
     overflow: hidden;
 }
 
 .main-visual>.container {
     position: static;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
 }
 
 .main-visual .thumb-list {
@@ -6063,12 +6226,12 @@ body {
 }
 
 .main-visual .visual-slider {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
     width: 100%;
-    height: 100%;
-    z-index: 0;
+    max-width: 1000px;
+    height: auto;
+    z-index: 1;
+    margin: 0 auto;
 }
 
 .main-visual .visual-slider img {
@@ -6076,10 +6239,13 @@ body {
     top: 50%;
     left: 50%;
     width: 100%;
-    min-width: 1920px;
     height: 100%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    z-index: -1;
+    z-index: 0;
+    -o-object-fit: cover;
+    object-fit: cover;
 }
 
 .thumb-list .list-item {
@@ -6148,11 +6314,7 @@ body {
 }
 
 .visual-slider .keen-slider__slide {
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative !important;
     opacity: 0;
     -webkit-transition: opacity 1s;
     -o-transition: opacity 1s;
@@ -6164,15 +6326,38 @@ body {
     z-index: 1;
 }
 
+/* 카드형 비주얼 */
+.visual-card {
+    position: relative;
+    width: 100%;
+    min-height: 280px;
+    border-radius: 20px;
+    overflow: hidden;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
 .visual-slider .visual-content {
     position: relative;
-    margin: 0 0 0 26.78571%;
-    padding: 175px 30px 68px 48px;
+    width: 100%;
+    height: 100%;
+    padding: 48px 64px;
     font-size: 20px;
     font-weight: 500;
     color: #fff;
     word-break: keep-all;
     z-index: 1;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin: 0;
 }
 
 .visual-slider .container {
@@ -6180,10 +6365,10 @@ body {
 }
 
 .visual-slider .title {
-    margin: 18px 0 0;
     font-size: 2.5555555556em;
     font-weight: 700;
     line-height: 1.3043478261;
+    margin: 0;
 }
 
 .visual-slider .title:first-child {
@@ -6191,26 +6376,31 @@ body {
 }
 
 .visual-slider .desc {
-    margin: 20px 0 0;
-    font-size: 0.8888888889em;
+    margin: 16px 0 0;
+    font-size: 0.95em;
 }
 
 .visual-slider .btn {
     display: inline-block;
     min-width: 7.7777777778em;
-    margin: 30px 0 0;
+    margin: 20px 0 0 0;
+    padding: 12px 28px;
     font-weight: 700;
-    line-height: 2.5;
+    line-height: 1.5;
     vertical-align: top;
     border: 1px solid #fff;
+    border-radius: 6px;
+    color: #fff;
+    background: transparent;
     -webkit-transition: background 0.3s, color 0.3s;
     -o-transition: background 0.3s, color 0.3s;
     transition: background 0.3s, color 0.3s;
+    cursor: pointer;
 }
 
 .visual-slider .btn:hover,
 .visual-slider .btn:focus {
-    color: #57CCAF;
+    color: #5A5FD4;
     background-color: #fff;
 }
 

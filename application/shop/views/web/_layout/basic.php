@@ -364,34 +364,39 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <!-- End Google Tag Manager (noscript) -->
     <a href="#content" class="skip">메뉴 건너띄기</a>
     <header id="header" class="<?= $header_class != null ? $header_class : "" ?>">
-        <div class="container">
-            <h1 class="top-logo"><a href="/"><span class="sr-text">지금 뜨는, 좋은 일자리 나우잡</span></a></h1>
-            <nav class="gnb">
+        <!-- 헤더 1줄: 로고 + 검색창 + 계정메뉴 -->
+        <div class="header-top-row">
+            <div class="container">
+                <h1 class="top-logo"><a href="/"><span class="sr-text">지금 뜨는, 좋은 일자리 나우잡</span></a></h1>
+                <!-- 검색창 include -->
+                <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
+                <!-- 계정메뉴 (헤더 1줄) -->
+                <?php if ($this->user->isLogin() == false) : ?>
+                    <div class="rt">
+                        <ul class="account-menu">
+                            <li><a href="/member/login">로그인</a></li>
+                            <li><a href="/mypage">회원가입</a></li>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <!-- 헤더 2줄: 네비게이션 -->
+        <nav class="header-nav-row gnb">
+            <div class="container">
                 <ul class="top-menu">
                     <li><a href="/recruit/job_list">채용정보</a></li>
                     <li><a href="/resume/hr_list">인재정보</a></li>
-                    <!-- li><a href="/trade/wlist">중고거래</a></li -->
-                    <!--<li><a href="/community/community_list">커뮤니티</a></li>-->
+                    <li><a href="/community/community_list">커뮤니티</a></li>
                     <li><a href="/community/event_list">이벤트</a></li>
                 </ul>
-            </nav>
-            <?php if ($this->user->isLogin()) : ?>
-                <?php /*
-                <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
-                    <span class="sr-text">미확인 알림메세지</span>
-                    <span class="cnt"><?= isset($g_alarm_cnt) ? $g_alarm_cnt : '0' ?></span>
-                </a>
-                */ ?>
-            <?php endif; ?>
-            <?php if ($this->user->isLogin() == false) : ?>
-                <div class="rt">
-                    <ul class="account-menu">
-                        <li><a href="/member/login">로그인</a></li>
-                        <!-- <li><a href="/member/join_start">회원가입</a></li> -->
-                        <li><a href="/mypage">마이페이지</a></li>
-                    </ul>
-                <?php else : ?>
-                    <div class="rt" style="margin-top: -24px; /* -36px; */">
+            </div>
+        </nav>
+        <!-- 계정메뉴 영역 (로그인한 사용자용) -->
+        <div class="container">
+
+            <?php if ($this->user->isLogin() == true) : ?>
+                <div class="rt" style="margin-top: -24px; /* -36px; */">
                         <?php if ($this->user->getUserType() == 'MEM') { ?>
                             <input type="hidden" id="logingbn" value="MEM">
                         <?php } else if ($this->user->getUserType() == 'COMP') { ?>
@@ -727,6 +732,19 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
 
                     <?php endif; ?>
                     <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
+            </div>
+        </div>
+        <!-- 헤더 2줄: 네비게이션 -->
+        <nav class="header-nav-row gnb">
+            <ul class="top-menu">
+                <li><a href="/recruit/job_list">채용정보</a></li>
+                <li><a href="/resume/hr_list">인재정보</a></li>
+                <li><a href="/community/community_list">커뮤니티</a></li>
+                <li><a href="/community/event_list">이벤트</a></li>
+            </ul>
+        </nav>
+        <!-- 계정메뉴 영역 (로그인한 사용자용) -->
+        <div class="container">
                     </div>
                 </div>
     </header>

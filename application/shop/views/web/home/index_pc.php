@@ -292,7 +292,8 @@ $banner_list = getBannerList("BN00010005");
   <main class="page-content">
     <div class="main-visual">
       <div class="container">
-        <div class="thumb-list js-scrollbar">
+        <!-- 썸네일 목록 (숨김) -->
+        <div class="thumb-list js-scrollbar" style="display: none;">
           <div class="scroll-content">
             <?php foreach ($banner_list as $banner) : ?>
               <div class="list-item" data-back="<?= $banner["bn_bg_color"] ?>">
@@ -307,16 +308,17 @@ $banner_list = getBannerList("BN00010005");
             <div class="scrollbar-thumb"></div>
           </div>
         </div>
+        <!-- 카드형 슬라이더 -->
         <div class="visual-slider keen-slider">
           <?php foreach ($banner_list as $banner) : ?>
             <div class="keen-slider__slide">
-              <div class="container">
+              <div class="visual-card" style="background-color: <?= isset($banner['bn_bg_color']) ? $banner['bn_bg_color'] : '#5A5FD4' ?>;">
                 <div class="visual-content">
                   <?php if ($banner["bn_link_yn"] != "Y") : ?>
-                    <a href="<?= $banner["bn_link"] ?>" class="btn" target="<?= $banner["bn_link_type"] ?>" style="position:absolute;top: 390px;left:48px;">자세히 보기</a>
+                    <a href="<?= $banner["bn_link"] ?>" class="btn" target="<?= $banner["bn_link_type"] ?>">자세히 보기</a>
                   <?php endif; ?>
+                  <img data-src="<?= $banner["bg_img"] ?>" alt="" class="lozad">
                 </div>
-                <img data-src="<?= $banner["bg_img"] ?>" alt="" class="lozad">
               </div>
             </div>
           <?php endforeach; ?>
