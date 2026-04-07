@@ -327,7 +327,7 @@ if ($g_ios_publish == true) {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 99%;
     
    
   }

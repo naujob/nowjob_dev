@@ -145,7 +145,7 @@ if (count($banner_list) > 0) {
   .result-list .content-li {
     position: relative;
     width: 100%;
-    height: 130px;
+    height: 137px;
     overflow: hidden;
     font-size: 12px;
     line-height: 1.5;
@@ -153,6 +153,7 @@ if (count($banner_list) > 0) {
     overflow: hidden;
     transition: background 0.2s ease;
     cursor: pointer;
+    padding: 10px 0;
   }
 
   .result-list .content-li:hover {
@@ -170,7 +171,7 @@ if (count($banner_list) > 0) {
     position: relative;
     overflow: hidden;
     display: flex;
-    height: 100%;
+    height: 107%;
     gap: 10px;
   }
 

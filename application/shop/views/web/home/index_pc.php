@@ -93,8 +93,8 @@ $banner_list = getBannerList("BN00010005");
   }
 
   .person-card .thumb img {
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
     object-fit: cover;
     display: block;
     min-width: 0%;
@@ -117,7 +117,7 @@ $banner_list = getBannerList("BN00010005");
     align-items: center;
     justify-content: center;
     margin-top: 6px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: #000;
     font-weight: 500;
     width: 60%;
@@ -144,7 +144,7 @@ $banner_list = getBannerList("BN00010005");
   /* 주소 */
   .person-card .addr {
     margin: 4px 0 0;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #000;
     text-align: center;
@@ -155,7 +155,7 @@ $banner_list = getBannerList("BN00010005");
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     width: 100%;
-    gap: 23px;
+    gap: 48px;
     margin-top: 20px;
     max-width: none !important;
   }
@@ -170,7 +170,7 @@ $banner_list = getBannerList("BN00010005");
   .bottom-recomm .comp-info .comp-img {
     position: absolute;
     width: 100%;
-    height: 180px;
+    height: 250px;
     padding: 10px;
     overflow: hidden;
     top: 0;
@@ -190,17 +190,17 @@ $banner_list = getBannerList("BN00010005");
 
   .bottom-recomm .comp-info .comp-name {
     position: absolute;
-    bottom: 20px;
+    bottom: -47px;
     width: 100%;
     height: 24px;
-    font-size: 20px;
+    font-size: 1.2rem;
     font-weight: 700;
   }
  /* 인재 카드 2줄 그리드 레이아웃 (4개씩 2줄) */
  .person-card-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  width: 100%;
+  width: 99%;
   gap: 16px 8px;
  }
 
