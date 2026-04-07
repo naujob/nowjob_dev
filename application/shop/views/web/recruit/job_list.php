@@ -162,7 +162,7 @@ if (count($banner_list) > 0) {
   .result-list .content-li .content-info {
     width: 100%;
     height: 100%;
-    padding: 10px;
+   
     box-sizing: border-box;
   }
 

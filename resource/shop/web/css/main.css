@@ -1536,7 +1536,7 @@ fieldset {
     position: relative;
     width: 100%;
     padding: 100% 0 0;
-    border-radius: inherit;
+    border-radius: 10px;
     background-color: inherit;
     overflow: hidden;
 

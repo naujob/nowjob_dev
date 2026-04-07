@@ -165,7 +165,7 @@ function fEmailMasking($email)
                           }
                         </style>
                         <div class="thumb-wrap compinfo">
-                          <label class="form-pic" style="max-width:200px; max-height: 200px;">
+                          <label class="form-pic" style="max-width:265px; max-height: 200px; margin-right: 20px;">
                             <input type="file" id="newLogo" name="mm_thumb" accept="image/*">
                             <input type='hidden' name='mm_thumb_del' value='' />
                             <span class="preview">
@@ -175,8 +175,11 @@ function fEmailMasking($email)
                               <?php endif; ?>
                             </span>
                           </label>
+                         
                         </div>
                       </td>
+                     
+                       
                       <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;">사업자명 :</td>
                       <td>
                         <label>
@@ -201,6 +204,7 @@ function fEmailMasking($email)
                         </label>
                       </td>
                     </tr>
+                    
                     <!-- <tr>
                       <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;">사업자 주소 :</td>
                       <td>
@@ -223,7 +227,17 @@ function fEmailMasking($email)
                 </table>
               </div>
             </div>
-
+                <tr>
+                  <div style="margin-top: 12px;">
+                            <div style="font-size: 0.9em; font-weight: 600; color: #1B9D7D; margin-bottom: 6px;">
+                              기업로고 이미지 등록
+                            </div>
+                            <div style="font-size: 0.85em; color: #1B9D7D; line-height: 1.5;">
+                              권장사이즈: 900×300 (가로×세로)<br>
+                              💡 선택한 이미지는 자동으로 900×300 규격으로 조정됩니다.
+                            </div>
+                    </div>
+                  </tr>
             <div class="form-row toggle-form" style="margin-top:70px; border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
                 <p>가입자정보
@@ -345,140 +359,87 @@ function fEmailMasking($email)
 </div><!-- //page -->
 
 
-<!-- 기업로고 크롭 팝업 (주석 처리된 부분에서 활성화) -->
-<div id="dimwrap" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background-color: #000; opacity: 0.3;"></div>
-<div id="dimcont7" style="display:none; position: fixed; top: 30%; left: calc(50% - 450px); width: 900px; height: 600px; z-index: 20; background-color: #fff; padding: 40px;">
-  <div>
-    <div style="font-size: 1.4em; font-weight: 600;">기업로고 변경</div>
-    <div id="profileCancel" style="position: absolute; right: 45px; font-size: 36px; top: 30px;cursor:pointer;">×</div>
-  </div>
-  <div style="">
-    <link type='text/css' rel='stylesheet' href='/resource/shop/web/css/cropper.min.css?vs=1753162724' />
-    <script src='/resource/shop/web/js/lib/cropper.min.js?vs=1753162724'></script>
-    <style>
-      .crop-wrapper {
-        position: relative;
-        width: 800px;
-        height: 400px;
-        margin: 20px auto;
-        display: block;
-      }
-
-      .cropper-crop-box {
-        overflow: hidden;
-      }
-    </style>
-    <div class="crop-wrapper">
-      <img id="previewImage" style="max-width: 100%;" />
-    </div>
-    <div style="text-align: center;margin-top: 20px;">
-      <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
-    </div>
-  </div>
-</div>
 
 <script>
-  // 파일 업로드 및 크롭 관련 변수
+  // 파일 업로드 관련 변수
   let profileBlob = null;
-  let newProfileImageSelected = false;
 
   $(document).ready(function() {
-    const $previewImage = $('#previewImage');
     const $newInput = $('#newLogo');
     const $resultCanvas = $('#companyLogo');
-    const $cancel = $('#profileCancel');
-    const $crop = $('#profileCrop');
-    let cropper;
 
     // 파일 입력 클릭 시 초기화
     $newInput.on('click', function() {
       this.value = null;
     });
 
-    // 파일 선택 시 크롭 팝업 표시
+    // 파일 선택 시 바로 이미지 처리 (Cropper 팝업 없음)
     $newInput.on('change', function(e) {
-      const file = e.target.files[0]; // file은 'input[type="file"]'에서 사용자가 선택한 첫 번째 파일(이미지 파일 등)을 가리킴
+      const file = e.target.files[0];
       if (!file) return;
-      
+
       // 파일 타입 검증
       if (!file.type.match('image.*')) {
         alert('이미지 파일만 업로드 가능합니다.');
         return;
       }
 
-      $('#dimwrap, #dimcont7').show();
-      newProfileImageSelected = true;
+      // 원본 이미지를 읽어서 처리
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          // 원본 이미지를 캔버스에 그리기
+          const originalCanvas = document.createElement('canvas');
+          originalCanvas.width = img.width;
+          originalCanvas.height = img.height;
+          const origCtx = originalCanvas.getContext('2d');
+          origCtx.drawImage(img, 0, 0);
 
-      const url = URL.createObjectURL(file);
-      $previewImage.attr('src', url);
+          // 서버 규격: 정확히 900x300으로 리사이즈
+          const targetWidth = 900;
+          const targetHeight = 300;
 
-      $previewImage.on('load', function() {
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(this, {
-          aspectRatio: 3,
-          viewMode: 1,
-          background: false,
-          dragMode: 'move',
-          guides: true,
-          highlight: false,
-          cropBoxMovable: true,
-          cropBoxResizable: true,
-          autoCropArea: 1,
-          minContainerWidth: 800,
-          minContainerHeight: 400,
-        });
-      });
+          // 최종 캔버스 생성
+          const profileCanvas = document.createElement('canvas');
+          profileCanvas.width = targetWidth;
+          profileCanvas.height = targetHeight;
+          const ctx = profileCanvas.getContext('2d');
+
+          // 흰색 배경
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+          // 원본 이미지 전체를 무조건 900x300에 꽉 채우기 (비율 무시, 왜곡 가능)
+          // 잘림 없음 + 여백 없음 = 강제 리사이즈
+          ctx.drawImage(originalCanvas, 0, 0, targetWidth, targetHeight);
+
+          // 결과 이미지 미리보기
+          const newProfile = profileCanvas.toDataURL('image/png');
+          $resultCanvas.attr('src', newProfile);
+
+          // Blob으로 변환해서 저장
+          profileCanvas.toBlob(function(blob) {
+            profileBlob = blob;
+            alert('이미지가 자동으로 900×300 규격으로 조정되었습니다.');
+          }, 'image/png');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
     });
 
-    // 취소 버튼 클릭
-    $cancel.on('click', function() {
-      profileBlob = null;
-      newProfileImageSelected = false;
-      if (cropper) cropper.destroy();
-      $('#dimwrap, #dimcont7').hide();
-    });
-
-    // 크롭 완료 버튼 클릭
-    $crop.on('click', function() {
-      if (!cropper) return;
-
-      const profileCanvas = cropper.getCroppedCanvas({
-        width: 900,
-        height: 300,
-        imageSmoothingQuality: 'high',
-      });
-      if (!profileCanvas) {
-        alert('이미지가 생성되지 않았습니다.');
-        return;
-      }
-      const newProfile = profileCanvas.toDataURL('image/png');
-      $resultCanvas.attr('src', newProfile);
-
-      profileCanvas.toBlob(function(blob) {
-        profileBlob = blob;
-      }, 'image/png');
-      
-      if (cropper) cropper.destroy();
-      $('#dimwrap, #dimcont7').hide();
-    });
-
-    // 저장 버튼 클릭 이벤트 (기존 이벤트가 있으면 덮어쓰기)
+    // 저장 버튼 클릭 이벤트
     $("#btnSaveAll").off('click').on('click', function() {
       var form = $('#frmAll');
       var params = new FormData(form[0]);
 
-      // 새로운 이미지가 선택되었지만 크롭이 완료되지 않은 경우
-      if (newProfileImageSelected && !profileBlob) {
-        alert('새로운 기업로고를 확인해주세요.');
-        return;
-      }
-      
-      // 크롭된 이미지가 있으면 추가
+      // 새로운 이미지가 있으면 추가
       if (profileBlob) {
         params.append('mm_thumb', profileBlob, 'newlogo.png');
       }
 
-      // 이 함수는 "/compage_proc/com_biz_updateAll"로 폼 데이터를 비동기로 전송하고, 완료 시 콜백함수를 실행합니다.
+      // 폼 데이터를 서버에 전송
       fileAjax("/compage_proc/com_biz_updateAll", params, function(ret) {
         if (ret.code == "00") {
           commonAlert("수정 되었습니다.", function() {

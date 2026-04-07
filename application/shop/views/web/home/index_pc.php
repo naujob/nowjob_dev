@@ -132,7 +132,7 @@ $banner_list = getBannerList("BN00010005");
     text-align: center;
   }
   .person-card .meta .meta-divider {
-    color: #ccc;
+    color: #292c32;
     flex-shrink: 0;
   }
 
