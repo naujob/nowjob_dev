@@ -488,6 +488,7 @@ $banner_list = getBannerList("BN00010005");
       <?php if ($mm_type == "MEM") { ?><button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" class=" btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
       <div class="thumb">
         <img src="{{rt_recruit_img}}" alt="">
+        <div class="slider-dots">{{slider_dots}}</div>
       </div>
       <div class="content-wrap">
         <div class="inline-group">
@@ -583,7 +584,7 @@ $banner_list = getBannerList("BN00010005");
   function createSlider(list, sliderId, arrowClass) {
     $("#" + sliderId).html("");
 
-    list.forEach(function(row) {
+    list.forEach(function(row, index) {
       var $clone = $("#tpl_reco_list").clone();
       var $content = $clone.html();
 
@@ -616,6 +617,11 @@ $banner_list = getBannerList("BN00010005");
       } else {
         $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + "원");
       }
+
+      // 슬라이더 dots 생성 (3개 고정)
+      var sliderDots = '<span class="dot active"></span><span class="dot"></span><span class="dot"></span>';
+      $content = $content.replaceAll("{{slider_dots}}", sliderDots);
+
       $clone.html($content);
 
       $("#" + sliderId).append($clone.html());
