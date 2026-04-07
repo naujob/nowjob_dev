@@ -372,6 +372,25 @@ $banner_list = getBannerList("BN00010005");
             renderMode: 'custom',
           });
 
+          // 카드 클릭 시 다음 슬라이드로
+          var cards = document.querySelectorAll('.visual-card');
+          cards.forEach(function(card) {
+            card.addEventListener('click', function() {
+              clearTimeout(timeout);
+              var currentIdx = visualSlider.track.details.rel;
+              var nextIdx = currentIdx + 1;
+              if (nextIdx > visualSlider.slides.length - 1) {
+                nextIdx = 0;
+              }
+              deActive();
+              active(nextIdx);
+              visualSlider.moveToIdx(nextIdx);
+              nextTimeout();
+            });
+            // 커서 포인터 추가
+            card.style.cursor = 'pointer';
+          });
+
           visualSlider.on('detailsChanged', nextTimeout);
           next(0);
           nextTimeout();

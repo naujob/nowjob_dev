@@ -6296,6 +6296,14 @@ body {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
+    cursor: pointer;
+    -webkit-transition: opacity 0.3s;
+    -o-transition: opacity 0.3s;
+    transition: opacity 0.3s;
+}
+
+.visual-card:hover {
+    opacity: 0.95;
 }
 
 .visual-slider .visual-content {
