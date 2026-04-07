@@ -3654,13 +3654,14 @@ body {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    -webkit-box-pack: justify;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
     padding: 12px 64px;
+    gap: 20px;
 }
 
 .header-top-row .top-logo {
@@ -3675,8 +3676,9 @@ body {
 /* 헤더 검색창: 항상 표시 */
 .header-search-wrap {
     flex: 1;
-    max-width: 400px;
-    margin: 0 30px;
+    max-width: 500px;
+    min-width: 300px;
+    margin: 0 40px;
 }
 
 .header-search-form {
@@ -6203,7 +6205,7 @@ body {
 .main-visual {
     position: relative;
     height: auto;
-    padding: 40px 0;
+    padding: 120px 0 40px;
     background: #f8f8f8;
     overflow: hidden;
 }
@@ -6228,10 +6230,11 @@ body {
 .main-visual .visual-slider {
     position: relative;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1100px;
     height: auto;
     z-index: 1;
     margin: 0 auto;
+    padding: 0 40px;
 }
 
 .main-visual .visual-slider img {
@@ -6330,7 +6333,7 @@ body {
 .visual-card {
     position: relative;
     width: 100%;
-    min-height: 280px;
+    min-height: 300px;
     border-radius: 20px;
     overflow: hidden;
     display: -webkit-box;

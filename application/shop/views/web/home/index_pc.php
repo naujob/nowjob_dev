@@ -329,17 +329,12 @@ $banner_list = getBannerList("BN00010005");
           if (typeof KeenSlider === undefined) return;
 
           function deActive() {
-            thumbs.forEach(function(child) {
-              child.classList.remove('active');
-            });
             visualSlider.slides.forEach(function(child) {
               child.classList.remove('active');
             });
           }
 
           function active(idx) {
-            thumbs[idx].classList.add('active');
-            $(".main-visual").css("background-color", thumbs[idx].getAttribute("data-back"));
             visualSlider.slides[idx].classList.add('active');
           }
 
@@ -368,7 +363,6 @@ $banner_list = getBannerList("BN00010005");
           }
 
           var timeout;
-          var thumbs = document.querySelectorAll('.thumb-list .list-item');
           var visualSlider = new KeenSlider('.main-visual .visual-slider', {
             loop: true,
             defaultAnimation: {
@@ -376,12 +370,6 @@ $banner_list = getBannerList("BN00010005");
             },
             drag: false,
             renderMode: 'custom',
-          });
-
-          thumbs.forEach(function(child, idx) {
-            child.addEventListener('click', function() {
-              next(idx);
-            });
           });
 
           visualSlider.on('detailsChanged', nextTimeout);
