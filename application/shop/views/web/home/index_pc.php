@@ -2,6 +2,108 @@
 $banner_list = getBannerList("BN00010005");
 ?>
 <style>
+ 
+ 
+  /* 메인 비주얼 슬라이더 */
+  .mv-slider-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .mv-slides {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    margin-top: 20px;
+  }
+
+  .mv-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .mv-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mv-slide-img {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    z-index: 0;
+  }
+
+  .mv-slide-content {
+    position: relative;
+    z-index: 1;
+    padding: 48px 64px;
+    color: #fff;
+  }
+
+  .mv-slide-content .btn {
+    display: inline-block;
+    min-width: 7.7777777778em;
+    padding: 12px 28px;
+    font-weight: 700;
+    line-height: 1.5;
+    border: 1px solid #fff;
+    border-radius: 6px;
+    color: #fff;
+    background: transparent;
+    transition: background 0.3s, color 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .mv-slide-content .btn:hover,
+  .mv-slide-content .btn:focus {
+    color: #5A5FD4;
+    background-color: #fff;
+  }
+
+  /* dot 스타일 */
+  .mv-dots {
+    position: absolute;
+    top: 36px;
+    left: 59px;
+    display: flex;
+    gap: 6px;
+    z-index: 9;
+  }
+
+  .mv-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s;
+  }
+
+  .mv-dot.active {
+    background: #3ecf8e;
+  }
+
   .recruit-recomm .recruit-card {
     width: calc(100% - 18px);
   }
@@ -87,9 +189,8 @@ $banner_list = getBannerList("BN00010005");
     height: 140px;
     overflow: hidden;
     flex-shrink: 0;
-    background-color:unset;
+    background-color: unset;
     padding: 0px 0 0px;
-     
   }
 
   .person-card .thumb img {
@@ -98,8 +199,8 @@ $banner_list = getBannerList("BN00010005");
     object-fit: cover;
     display: block;
     min-width: 0%;
-     min-height: 0%;
-     border-radius: 50%;
+    min-height: 0%;
+    border-radius: 50%;
   }
 
   /* 뱃지 영역 */
@@ -175,10 +276,10 @@ $banner_list = getBannerList("BN00010005");
     overflow: hidden;
     top: 0;
     background-color: #fff;
-    
+
     border-radius: 25px;
     box-sizing: border-box;
-    box-shadow:2px 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
   }
 
   .bottom-recomm .comp-info .comp-img img {
@@ -292,109 +393,46 @@ $banner_list = getBannerList("BN00010005");
   <main class="page-content">
     <div class="main-visual">
       <div class="container">
-        <!-- 썸네일 목록 (숨김) -->
-        <div class="thumb-list js-scrollbar" style="display: none;">
-          <div class="scroll-content">
-            <?php foreach ($banner_list as $banner) : ?>
-              <div class="list-item" data-back="<?= $banner["bn_bg_color"] ?>">
-                <div class="inline-group">
-                  <div class="thumb"><img data-src="<?= $banner["bg_thumb"] ?>" alt="" class="lozad"></div>
-                  <p class="title"><?= $banner["bn_text1"] ?></p>
-                </div>
-              </div>
-            <?php endforeach; ?>
+        <div class="mv-slider-wrap">
+          <!-- dot 네비게이션 -->
+          <div class="mv-dots">
+            <?php $banner_count = 0; foreach ($banner_list as $banner) : ?>
+              <button class="mv-dot <?= $banner_count === 0 ? 'active' : '' ?>" data-index="<?= $banner_count ?>"></button>
+              <?php $banner_count++; endforeach; ?>
           </div>
-          <div class="scrollbar-track">
-            <div class="scrollbar-thumb"></div>
-          </div>
-        </div>
-        
-        <!-- 카드형 슬라이더 -->
-        <div class="visual-slider keen-slider">
-          <?php foreach ($banner_list as $banner) : ?>
-            <div class="keen-slider__slide">
-              <div class="visual-card" style="background-color: <?= isset($banner['bn_bg_color']) ? $banner['bn_bg_color'] : '#5A5FD4' ?>;">
-                <div class="visual-content">
+
+          <!-- 슬라이드 목록 -->
+          <div class="mv-slides">
+            <?php $banner_idx = 0; foreach ($banner_list as $banner) : ?>
+              <div class="mv-slide <?= $banner_idx === 0 ? 'active' : '' ?>" style="background-color: <?= isset($banner['bn_bg_color']) ? $banner['bn_bg_color'] : '#5A5FD4' ?>;">
+                <div class="mv-slide-content">
                   <?php if ($banner["bn_link_yn"] != "Y") : ?>
                     <a href="<?= $banner["bn_link"] ?>" class="btn" target="<?= $banner["bn_link_type"] ?>">자세히 보기</a>
                   <?php endif; ?>
-                  <img data-src="<?= $banner["bg_img"] ?>" alt="" class="lozad">
                 </div>
+                <img data-src="<?= $banner["bg_img"] ?>" alt="" class="lozad mv-slide-img">
               </div>
-            </div>
-          <?php endforeach; ?>
+              <?php $banner_idx++; endforeach; ?>
+          </div>
         </div>
       </div>
+
       <script>
+        // dot 클릭 시 슬라이드 이동 (자동 이동 없음)
         window.addEventListener('DOMContentLoaded', function() {
-          if (typeof KeenSlider === undefined) return;
+          var slides = document.querySelectorAll('.mv-slide');
+          var dots = document.querySelectorAll('.mv-dot');
 
-          function deActive() {
-            visualSlider.slides.forEach(function(child) {
-              child.classList.remove('active');
-            });
+          function goTo(idx) {
+            slides.forEach(function(s) { s.classList.remove('active'); });
+            dots.forEach(function(d) { d.classList.remove('active'); });
+            slides[idx].classList.add('active');
+            dots[idx].classList.add('active');
           }
 
-          function active(idx) {
-            visualSlider.slides[idx].classList.add('active');
-          }
-
-          function next(idx) {
-            clearTimeout(timeout);
-            deActive();
-            active(idx);
-            visualSlider.moveToIdx(idx);
-          }
-
-          function clearNextTimeout() {
-            clearTimeout(timeout);
-          }
-
-          function nextTimeout() {
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-              var idx = visualSlider.track.details.rel + 1;
-              if (idx > visualSlider.slides.length - 1) {
-                idx = 0;
-              }
-              deActive();
-              active(idx);
-              visualSlider.moveToIdx(idx);
-            }, 3000);
-          }
-
-          var timeout;
-          var visualSlider = new KeenSlider('.main-visual .visual-slider', {
-            loop: true,
-            defaultAnimation: {
-              duration: 2000,
-            },
-            drag: false,
-            renderMode: 'custom',
+          dots.forEach(function(dot, idx) {
+            dot.addEventListener('click', function() { goTo(idx); });
           });
-
-          // 카드 클릭 시 다음 슬라이드로
-          var cards = document.querySelectorAll('.visual-card');
-          cards.forEach(function(card) {
-            card.addEventListener('click', function() {
-              clearTimeout(timeout);
-              var currentIdx = visualSlider.track.details.rel;
-              var nextIdx = currentIdx + 1;
-              if (nextIdx > visualSlider.slides.length - 1) {
-                nextIdx = 0;
-              }
-              deActive();
-              active(nextIdx);
-              visualSlider.moveToIdx(nextIdx);
-              nextTimeout();
-            });
-            // 커서 포인터 추가
-            card.style.cursor = 'pointer';
-          });
-
-          visualSlider.on('detailsChanged', nextTimeout);
-          next(0);
-          nextTimeout();
         });
       </script>
     </div>

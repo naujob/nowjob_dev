@@ -370,15 +370,6 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                 <h1 class="top-logo"><a href="/"><span class="sr-text">지금 뜨는, 좋은 일자리 나우잡</span></a></h1>
                 <!-- 검색창 include -->
                 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
-                <!-- 계정메뉴 (헤더 1줄) -->
-                <?php if ($this->user->isLogin() == false) : ?>
-                    <div class="rt">
-                        <ul class="account-menu">
-                            <li><a href="/member/login">로그인</a></li>
-                            <li><a href="/mypage">회원가입</a></li>
-                        </ul>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
         <!-- 계정메뉴 영역 (로그인한 사용자용) -->
@@ -725,12 +716,23 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
         </div>
         <!-- 헤더 2줄: 네비게이션 -->
         <nav class="header-nav-row gnb">
-            <ul class="top-menu">
-                <li><a href="/recruit/job_list">채용정보</a></li>
-                <li><a href="/resume/hr_list">인재정보</a></li>
-                <li><a href="/community/community_list">커뮤니티</a></li>
-                <li><a href="/community/event_list">이벤트</a></li>
-            </ul>
+            <div class="container">
+                <ul class="top-menu">
+                    <li><a href="/recruit/job_list">채용정보</a></li>
+                    <li><a href="/resume/hr_list">인재정보</a></li>
+                    <li><a href="/community/community_list">커뮤니티</a></li>
+                    <li><a href="/community/event_list">이벤트</a></li>
+                </ul>
+                <!-- 계정메뉴 (우측 끝) -->
+                <?php if ($this->user->isLogin() == false) : ?>
+                    <div class="rt">
+                        <ul class="account-menu">
+                            <li><a href="/member/login">로그인</a></li>
+                            <li><a href="/mypage">회원가입</a></li>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+            </div>
         </nav>
         <!-- 계정메뉴 영역 (로그인한 사용자용) -->
         <div class="container">
