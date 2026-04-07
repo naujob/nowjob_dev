@@ -381,19 +381,8 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                 <?php endif; ?>
             </div>
         </div>
-        <!-- 헤더 2줄: 네비게이션 -->
-        <nav class="header-nav-row gnb">
-            <div class="container">
-                <ul class="top-menu">
-                    <li><a href="/recruit/job_list">채용정보</a></li>
-                    <li><a href="/resume/hr_list">인재정보</a></li>
-                    <li><a href="/community/community_list">커뮤니티</a></li>
-                    <li><a href="/community/event_list">이벤트</a></li>
-                </ul>
-            </div>
-        </nav>
         <!-- 계정메뉴 영역 (로그인한 사용자용) -->
-        <div class="container">
+        <div class="container" style="display: none;">
 
             <?php if ($this->user->isLogin() == true) : ?>
                 <div class="rt" style="margin-top: -24px; /* -36px; */">
