@@ -3498,9 +3498,7 @@ body {
     background-size: contain;
 }
 
-.transparency .top-logo a {
-    background-image: url("../img/top_logo_wh.svg");
-}
+
 
 .searching .top-logo a,
 .is-scrolled .top-logo a {
@@ -3666,13 +3664,10 @@ body {
 }
 
 .header-top-row .top-logo {
-    margin: 0;
     flex-shrink: 0;
-}
-
-.header-top-row .top-logo a {
-    height: 40px;
-    display: block;
+    width: 144px;
+    height: 50px;
+    margin: 0;
 }
 
 /* 헤더 검색창: 항상 표시 */
@@ -3755,7 +3750,10 @@ body {
 
 /* 네비게이션 2줄 - 숨김 */
 .header-nav-row {
-    display: none;
+    display: block;
+    background: #ffffff;
+    border-bottom: 1px solid #eee;
+    padding: 0;
 }
 
 .rt .account-menu .member-card .name em {
