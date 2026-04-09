@@ -1163,7 +1163,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 function getConvertPrice($rc_price_pay, $rc_price_type = '')
 {
 	if (!$rc_price_pay || $rc_price_type === '급여협의') {
-		return '';
+		return '급여협의';
 	}
 	return number_format($rc_price_pay) . " 원";
 }

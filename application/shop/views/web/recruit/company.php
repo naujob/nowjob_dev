@@ -324,16 +324,14 @@ if (count($banner_list) > 0) {
 
       $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
 
-      // 협의인 경우 처리
-      var is_negotiable = row.rc_price_type.indexOf('협의') > -1;
-
-      if (is_negotiable) {
+      // 협의인 경우 급여 타입 숨김 (서버에서 rt_price_pay는 "급여협의" 반환)
+      if (row.rc_price_type.indexOf('협의') > -1) {
         $content = $content.replaceAll("{{rc_price_type}}", "");
-        $content = $content.replaceAll("{{rc_price_display}}", "급여협의");
       } else {
         $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
-        $content = $content.replaceAll("{{rc_price_display}}", row.rt_price_pay);
       }
+
+      $content = $content.replaceAll("{{rc_price_display}}", row.rt_price_pay);
       $content = $content.replaceAll("{{mm_id}}", row.mm_id);
 
       $clone.html($content);
