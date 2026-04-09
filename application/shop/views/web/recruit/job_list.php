@@ -5,7 +5,7 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 ?>
-<?php include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_styles.php'); ?>
+<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
 <style>
   /* job_list.php 고유 스타일 - 추천 슬라이더 */
   .recruit-card .type em {

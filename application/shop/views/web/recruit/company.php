@@ -5,7 +5,7 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 ?>
-<?php include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_styles.php'); ?>
+<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
 <style>
   /* company.php 고유 스타일 - 기업 헤더 */
   .comp-info {
