@@ -529,7 +529,7 @@ if (count($banner_list) > 0) {
               <div class="summary">
                 <p class="period">{{rc_price_type}}</p>
               </div>
-              <p class="amount">{{rc_price_pay}}</p>
+              <p class="amount">{{rc_price_display}}</p>
             </div>
           </div>
         </div>
@@ -729,13 +729,16 @@ if (count($banner_list) > 0) {
 
       $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
 
-      if (row.rc_price_type.indexOf('협의') > -1) {
+      // 협의인 경우 처리
+      var is_negotiable = row.rc_price_type.indexOf('협의') > -1;
+
+      if (is_negotiable) {
         $content = $content.replaceAll("{{rc_price_type}}", "");
+        $content = $content.replaceAll("{{rc_price_display}}", "급여협의");
       } else {
         $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
+        $content = $content.replaceAll("{{rc_price_display}}", row.rt_price_pay);
       }
-
-      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay);
       $content = $content.replaceAll("{{mm_id}}", row.mm_id);
 
       $clone.html($content);
