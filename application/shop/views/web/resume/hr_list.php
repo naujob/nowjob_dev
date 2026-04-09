@@ -1183,7 +1183,7 @@ if (count($banner_list) > 0) {
 <div id="content" class="page page-person">
   <main class="page-content">
 
-    <div class="visual-banner person">
+    <!-- <div class="visual-banner person">
       <div class="container">
         <div class="visual-content">
           <p>새로 등록된 추천 인재</p>
@@ -1191,7 +1191,7 @@ if (count($banner_list) > 0) {
           <a href="javascript:void(0);" id="btnRegist" class="btn-round">채용공고 등록</a>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div class="recomm-slider person">
       <div class="container">
@@ -1204,7 +1204,7 @@ if (count($banner_list) > 0) {
     <div class="section">
       <div class="container">
         <div class="search-result">
-          
+
           <div class="content-area">
             <div class="search-wrap">
 
@@ -1514,7 +1514,7 @@ if (count($banner_list) > 0) {
           </p>
           <div class="title-wrap">
             <p class="title"><strong>{{ru_name}}</strong></p>
-          
+
           </div>
           <div class="meta">
             <p class="national">{{mm_nation}}</p>
@@ -1939,7 +1939,7 @@ if (count($banner_list) > 0) {
     var $target = $(this).closest('.list-item,.person-card');
     var ruIdx = $target.data('ru_idx');
     var resumeMmIdx = $target.data('mm_idx'); // 이력서 소유자 인덱스
-    
+
     // 개인회원이고 자신의 이력서인 경우 클릭 가능
     if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
       if (ruIdx) {
@@ -1948,7 +1948,7 @@ if (count($banner_list) > 0) {
       }
       return;
     }
-    
+
     // 기업회원인 경우 클릭 가능
     <?php if ($mm_type === "COMP") { ?>
       if (ruIdx) {

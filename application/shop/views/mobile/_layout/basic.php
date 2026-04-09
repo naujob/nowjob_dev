@@ -1,5 +1,7 @@
 <?php
 $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+$app_base_host = parse_url($app_base_url, PHP_URL_HOST);
+$is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
 $socket_base_url = rtrim($this->config->item('socket_base_url') ?: $app_base_url, '/');
 $socket_io_script_url = $this->config->item('socket_io_script_url');
 if (!$socket_io_script_url) {
@@ -14,11 +16,13 @@ if (!$socket_io_script_url) {
   <!-- meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" -->
   <meta name="viewport" content="width=460, user-scalable=no">
   <title>나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼</title>
-  <meta name="description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
-  <meta name="format-detection" content="address=no, email=no, telephone=no">
-  <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
-  <meta property="og:description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
-  <meta name="keywords" content="나우잡, NOWJOB,구인구직, 외국인채용, 알바, 급구, 일자리, 채용, 일당">
+  <?php if ($is_nowjob_domain) : ?>
+    <meta name="description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
+    <meta name="format-detection" content="address=no, email=no, telephone=no">
+    <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
+    <meta property="og:description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
+    <meta name="keywords" content="나우잡, NOWJOB,구인구직, 외국인채용, 알바, 급구, 일자리, 채용, 일당">
+  <?php endif; ?>
   <?php
   $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
   $is_login_page = (strpos($request_uri, '/member/login') !== false) || (strpos($request_uri, '/member/nowjob_login') !== false);
@@ -289,7 +293,7 @@ if (!$socket_io_script_url) {
   <!-- 기존 고정 버전 번호 방식 (파일 변경 시 캐시 문제 발생 가능) -->
   <!-- <script src="/chatting/js/common.js?v=10009"></script> -->
   <!-- <script src="/chatting/js/chatting.js?v=10009"></script> -->
-  
+
   <!-- 파일 수정 시간 기반 버전 관리 (파일 변경 시 자동으로 새 버전 로드) -->
   <script src="/chatting/js/common.js?vs=<?= getFileVersion('/chatting/js/common.js') ?>"></script>
   <script src="/chatting/js/chatting.js?vs=<?= getFileVersion('/chatting/js/chatting.js') ?>"></script>
@@ -419,6 +423,7 @@ if (!$socket_io_script_url) {
   <?= getCashJs(RES_PATH . "/js/lib/flatpickr.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/l10n/ko.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/plugins/monthSelect/index.js") ?>
+  <?= getCashJs(RES_PATH . "/js/format-utils.js") ?>
   <?= getCashJs(RES_PATH . "/js/main.js") ?>
 
   <input type="hidden" id="is_login" name="is_login" value="<?= $this->user->isLogin() == true ? "Y" : "N" ?>" />
@@ -471,7 +476,7 @@ if (!$socket_io_script_url) {
 
     console.log('📱 onPushOpen 함수가 전역에 등록되었습니다.');
     // ❌ 사용되지 않는 함수: registerFcmTokenOnAppStart
-      // 상태: Android에서 호출되지만 APP_NOWAPK.getFcmToken() 함수가 없어서 실패
+    // 상태: Android에서 호출되지만 APP_NOWAPK.getFcmToken() 함수가 없어서 실패
     // 로그 분석 결과: "Android 앱 FCM 토큰 함수가 없음" 경고만 발생
     // 앱 시작 시 FCM 토큰 등록 시도(현재 앱측에서 미구현)
     function registerFcmTokenOnAppStart() {
@@ -490,12 +495,12 @@ if (!$socket_io_script_url) {
     $(document).ready(function() {
       console.log('📱 페이지 로드 완료 - FCM 토큰 등록 시도');
       setTimeout(registerFcmTokenOnAppStart, 1000); // 1초 후 실행 // ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
-      
+
       // 주기적으로 FCM 토큰 갱신 (5분마다)
-         // ⚠️ 주의: refreshFcmToken() 함수가 APP_NOWAPK.getFcmToken() 함수가 없어서 실패함
+      // ⚠️ 주의: refreshFcmToken() 함수가 APP_NOWAPK.getFcmToken() 함수가 없어서 실패함
       setInterval(function() {
         console.log('📱 주기적 FCM 토큰 갱신 시도');
-        refreshFcmToken();// ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
+        refreshFcmToken(); // ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
       }, 5 * 60 * 1000); // 5분마다 실행
     });
 
@@ -554,20 +559,20 @@ if (!$socket_io_script_url) {
     window.onFcmTokenUpdate = function(token) {
       console.log('📱 Android FCM 토큰 업데이트 - 토큰: ' + (token ? token.substring(0, 20) + '...' : '없음'));
 
-      
+
       if (token) {
-      
+
         var existingToken = getCookie('fcm_token') || '';
         var isTokenChanged = (existingToken !== token);
 
         console.log('📱 토큰 변경 여부: ' + (isTokenChanged ? '변경됨' : '동일함'));
 
-        
+
         if (isTokenChanged || existingToken === '') {
-       
+
 
           $.ajax({
-            url: '/common_proc/refresh_token', 
+            url: '/common_proc/refresh_token',
             type: 'POST',
             data: {
               token: token,
@@ -751,7 +756,7 @@ if (!$socket_io_script_url) {
       // URL 파라미터에서 from 값 읽기
       const params = new URLSearchParams(window.location.search);
       const from = params.get('from') || '';
-      
+
       // from 파라미터에 따른 뒤로가기 URL 매핑
       const backMap = {
         applied: '/chat/chat_list', // 지원한 공고
@@ -759,26 +764,26 @@ if (!$socket_io_script_url) {
         talent_received: '/chat/index_comp', // 제안받은 인재
         talent_sent: '/chat/chat_list3' // 제안보낸 인재
       };
-      
+
       const backUrl = backMap[from] || '/chat/chat_list';
-      
+
       // historyStack에서 현재 페이지 제거
       const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
       if (historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
         historyStack.pop();
         sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
       }
-      
+
       // 해당 페이지로 이동
       window.location.href = backUrl;
       return;
     }
 
     // 채용공고 작성 페이지들은 compage/recruit_list로 이동
-    if (currentPath.indexOf('/compage/recruit_write1_1') > -1 || 
-        currentPath.indexOf('/compage/recruit_write2_1') > -1 || 
-        currentPath.indexOf('/compage/recruit_write3_1') > -1) {
-    
+    if (currentPath.indexOf('/compage/recruit_write1_1') > -1 ||
+      currentPath.indexOf('/compage/recruit_write2_1') > -1 ||
+      currentPath.indexOf('/compage/recruit_write3_1') > -1) {
+
       // historyStack은 사용자가 방문(이동)한 페이지들의 경로(주소)를 순서대로 담고 있는 배열입니다.
       // 이 배열은 sessionStorage에 저장되며, SPA식 동작이나 뒤로가기/앞으로가기 처리를 위해 사용됩니다.
       // 가장 최근에 방문한 페이지가 배열의 마지막에 위치합니다.
@@ -786,15 +791,15 @@ if (!$socket_io_script_url) {
       if (historyStack.length > 0) {
         // historyStack의 마지막(가장 최근) 방문 페이지를 가져옵니다.
         const lastPage = historyStack[historyStack.length - 1]; // historyStack.length - 1은 배열의 마지막 인덱스를 의미
-        if (lastPage.indexOf('/compage/recruit_write1_1') > -1 || 
-            lastPage.indexOf('/compage/recruit_write2_1') > -1 || 
-            lastPage.indexOf('/compage/recruit_write3_1') > -1) {
+        if (lastPage.indexOf('/compage/recruit_write1_1') > -1 ||
+          lastPage.indexOf('/compage/recruit_write2_1') > -1 ||
+          lastPage.indexOf('/compage/recruit_write3_1') > -1) {
           // 배열 historyStack에서 현재 페이지(마지막 요소)를 제거
           historyStack.pop();
           sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
         }
       }
-      
+
       // compage/recruit_list로 이동
       window.location.href = '/compage/recruit_list';
       return;
@@ -811,7 +816,7 @@ if (!$socket_io_script_url) {
           sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
         }
       }
-      
+
       // mypage/resume_list로 이동
       window.location.href = '/mypage/resume_list';
       return;
@@ -823,7 +828,7 @@ if (!$socket_io_script_url) {
     if (historyStack.length > 1) {
       historyStack.pop(); // 현재 페이지 제거
       let previousPage = historyStack[historyStack.length - 1]; // 이전 페이지 가져오기
-      
+
       // 이전 페이지가 splash이면 splash를 제거하고 그 다음 페이지 확인
       if (previousPage && previousPage.indexOf('/home/splash') > -1) {
         historyStack.pop(); // splash 제거
@@ -834,12 +839,12 @@ if (!$socket_io_script_url) {
           previousPage = '/home/index';
         }
       }
-      
+
       // 이전 페이지가 여전히 splash이면 홈으로 이동
       if (previousPage && previousPage.indexOf('/home/splash') > -1) {
         previousPage = '/home/index';
       }
-      
+
       sessionStorage.setItem('historyStack', JSON.stringify(historyStack)); // 기록 업데이트
       window.location.href = previousPage; // 이전 페이지로 이동
     } else {
@@ -874,9 +879,9 @@ if (!$socket_io_script_url) {
       '/mypage/resume_list',
       '/compage/recruit_list',
       '/resume/hr_list',
-      '/resume/hr_map',  // 인재 지도 페이지 추가 (핀치 제스처 충돌 방지)
+      '/resume/hr_map', // 인재 지도 페이지 추가 (핀치 제스처 충돌 방지)
       '/recruit/job_list',
-      '/recruit/job_map',  // 지도 페이지 추가 (핀치 제스처 충돌 방지)
+      '/recruit/job_map', // 지도 페이지 추가 (핀치 제스처 충돌 방지)
       '/chat/chat_list',
       '/chat/chat_list2'
     ];
@@ -899,7 +904,7 @@ if (!$socket_io_script_url) {
   function isIOS() {
     return /iPhone|iPad|iPod/i.test(navigator.userAgent);
   }
-// JavaScript로 구현한 iOS 스와이프 뒤로가기 방지 로직
+  // JavaScript로 구현한 iOS 스와이프 뒤로가기 방지 로직
   if (isIOS()) {
     let isSwipeBackGesture = false; // 스와이프 뒤로가기 제스처 여부
 
@@ -914,7 +919,9 @@ if (!$socket_io_script_url) {
       //console.log('touchstart');
       startX = event.touches[0].clientX;
       isSwipeBackGesture = false; // 초기화
-    }, { passive: true });
+    }, {
+      passive: true
+    });
 
     document.addEventListener('touchmove', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
@@ -927,14 +934,16 @@ if (!$socket_io_script_url) {
       }
 
       endX = event.touches[0].clientX;
-      
+
       // 왼쪽 가장자리에서 시작하고 오른쪽으로 스와이프하는 경우
       if (startX < screenWidth * 0.1 && endX - startX > 30) {
         isSwipeBackGesture = true;
         // iOS 네이티브 스와이프 뒤로가기 방지
         event.preventDefault();
       }
-    }, { passive: false });
+    }, {
+      passive: false
+    });
 
     document.addEventListener('touchend', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
@@ -953,12 +962,14 @@ if (!$socket_io_script_url) {
         //history.back(); // 이전 페이지로 이동
         customBack();
       }
-      
+
       // 초기화
       isSwipeBackGesture = false;
       startX = 0;
       endX = 0;
-    }, { passive: false });
+    }, {
+      passive: false
+    });
   }
 
   if (typeof socket !== 'undefined' && socket && typeof socket.on === 'function') {

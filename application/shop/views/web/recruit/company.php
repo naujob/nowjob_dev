@@ -81,7 +81,7 @@ if (count($banner_list) > 0) {
   .comp-info .comp-img img {
     width: 100%;
     height: 100%;
-    object-fit: none;
+    object-fit: contain;
     display: block;
   }
 

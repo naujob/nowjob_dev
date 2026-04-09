@@ -4702,7 +4702,7 @@ body.no-scroll {
 /* Tabs */
 .tab-container {
     position: sticky;
-    top: 0;
+    top: -1px;
     border-bottom: 1px solid #D1D1D1;
     background: #fff;
     overflow: hidden;
@@ -4716,9 +4716,7 @@ body.no-scroll {
     background: transparent;
 }
 
-.top-bar~.page-content .tab-container {
-    top: 3.125rem;
-}
+
 
 .tab-list {
     font-size: 0;

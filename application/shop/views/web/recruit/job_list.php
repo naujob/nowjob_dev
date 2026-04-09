@@ -163,7 +163,7 @@ if (count($banner_list) > 0) {
   .result-list .content-li .content-info {
     width: 100%;
     height: 100%;
-   
+
     box-sizing: border-box;
   }
 
@@ -229,7 +229,7 @@ if (count($banner_list) > 0) {
     font-weight: 600;
     display: block;
     width: 100%;
-   
+
   }
 
   .result-list .content-info .desc .desc1 .ellipsis {
@@ -298,7 +298,7 @@ if (count($banner_list) > 0) {
     width: 20%;
     align-items: center;
     justify-content: center;
-   
+
   }
 
   .result-list .content-info .desc .desc2 p.area {
@@ -423,78 +423,78 @@ if (count($banner_list) > 0) {
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <div id="content" class="page page-recruit">
   <main class="page-content">
-    <div class="visual-banner recruit">
+    <!-- <div class="visual-banner recruit">
       <div class="container">
         <div class="visual-content">
           <p>새로 등록된 추천 공고</p>
           <p class="headline">지금 뜨는, 좋은 일자리</p>
-          <?php if ($mm_type === "MEM") { ?>
-            <!-- 일반회원만 노출: 기업회원은 이력서 등록 버튼 숨김 -->
-            <a href="javascript:void(0);" id="btnRegist" class="btn-round">이력서 등록</a>
-          <?php } ?>
-        </div>
+          <?php if ($mm_type === "MEM") { ?> -->
+    <!-- 일반회원만 노출: 기업회원은 이력서 등록 버튼 숨김 -->
+    <!-- <a href="javascript:void(0);" id="btnRegist" class="btn-round">이력서 등록</a> -->
+  <?php } ?>
+  <!-- </div>
+      </div>
+    </div> -->
+  <div class="recomm-slider recruit">
+    <div class="container swiperX">
+      <h2 class="primary-title">추천공고</h2>
+      <div class="slider-wrap keen-slider swiper-wrapperX" id="my-keen-slider" style="width: calc(100% - 0px);">
       </div>
     </div>
-    <div class="recomm-slider recruit">
-      <div class="container swiperX">
-        <h2 class="primary-title">추천공고</h2>
-        <div class="slider-wrap keen-slider swiper-wrapperX" id="my-keen-slider" style="width: calc(100% - 0px);">
-        </div>
-      </div>
-    </div>
-    <div class="section">
-      <div class="container">
-        <div class="search-result">
-          <div class="content-area">
-            <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php'); ?>
-            <div class="result-wrap">
-              <div class="result-header">
-                <p class="total">채용정보 <em id="total_count"></em>건</p>
-                <div class="orderby">
-                  <label class="option">
-                    <input type="radio" name="order_by" value="recent" checked>
-                    <span class="label">최신순</span>
-                  </label>
-                  <label class="option">
-                    <input type="radio" name="order_by" value="fav">
-                    <span class="label">인기순</span>
-                  </label>
-                </div>
+  </div>
+  <div class="section">
+    <div class="container">
+      <div class="search-result">
+        <div class="content-area">
+          <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php'); ?>
+          <div class="result-wrap">
+            <div class="result-header">
+              <p class="total">채용정보 <em id="total_count"></em>건</p>
+              <div class="orderby">
+                <label class="option">
+                  <input type="radio" name="order_by" value="recent" checked>
+                  <span class="label">최신순</span>
+                </label>
+                <label class="option">
+                  <input type="radio" name="order_by" value="fav">
+                  <span class="label">인기순</span>
+                </label>
               </div>
-              <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
-              </ol>
-              <div id="page_cont">
-              </div>
-              <div class="list-action v2">
-                <a href="/recruit/job_map" title="지도에서 찾기" class="btn-map"><span class="sr-text">지도보기</span></a>
-              </div>
-              <script>
-                window.addEventListener('scroll', function() {
-                  var minY = document.querySelector('.result-wrap').getBoundingClientRect().top - (window.innerHeight / 2);
-                  var stickyElm = document.querySelector('.result-wrap .list-action');
-                  if (document.querySelector('.result-list').children.length < 3) return;
-                  if (minY <= document.body.scrollTop) {
-                    stickyElm.style.position = 'sticky';
-                  } else {
-                    stickyElm.style.position = '';
-                  }
-                });
-              </script>
-            </div><!-- //result-wrap -->
-          </div><!-- //content-area -->
-          <div class="sidebar">
-            <div class="adBanner adBanner2">
-              <img src="/outer/ad/ad1.jpg" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
             </div>
-            <div class="adBanner adBanner1">
-              <a href="/community/event_view/8403" target="_blank">
-                <img src="/outer/ad/nowjob-banner-vertical_v2.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
-              </a>
+            <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
+            </ol>
+            <div id="page_cont">
             </div>
+            <div class="list-action v2">
+              <a href="/recruit/job_map" title="지도에서 찾기" class="btn-map"><span class="sr-text">지도보기</span></a>
+            </div>
+            <script>
+              window.addEventListener('scroll', function() {
+                var minY = document.querySelector('.result-wrap').getBoundingClientRect().top - (window.innerHeight / 2);
+                var stickyElm = document.querySelector('.result-wrap .list-action');
+                if (document.querySelector('.result-list').children.length < 3) return;
+                if (minY <= document.body.scrollTop) {
+                  stickyElm.style.position = 'sticky';
+                } else {
+                  stickyElm.style.position = '';
+                }
+              });
+            </script>
+          </div><!-- //result-wrap -->
+        </div><!-- //content-area -->
+        <div class="sidebar">
+          <div class="adBanner adBanner2">
+            <img src="/outer/ad/ad1.jpg" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
           </div>
-        </div><!-- //search-result -->
-      </div><!-- //container -->
-    </div>
+          <div class="adBanner adBanner1">
+            <a href="/community/event_view/8403" target="_blank">
+              <img src="/outer/ad/nowjob-banner-vertical_v2.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
+            </a>
+          </div>
+        </div>
+      </div><!-- //search-result -->
+    </div><!-- //container -->
+  </div>
   </main><!-- //page-content -->
 </div><!-- //page -->
 

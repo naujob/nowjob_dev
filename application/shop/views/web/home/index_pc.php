@@ -2,110 +2,8 @@
 $banner_list = getBannerList("BN00010005");
 ?>
 <style>
- 
- 
-  /* 메인 비주얼 슬라이더 */
-  .mv-slider-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    border-radius: 20px;
-    overflow: hidden;
-  }
-
-  .mv-slides {
-    position: relative;
-    width: 100%;
-    height: 280px;
-    margin-top: 20px;
-  }
-
-  .mv-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  .mv-slide.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .mv-slide-img {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: auto;
-    object-fit: contain;
-    z-index: 0;
-  }
-
-  .mv-slide-content {
-    position: relative;
-    z-index: 1;
-    padding: 48px 64px;
-    color: #fff;
-  }
-
-  .mv-slide-content .btn {
-    display: inline-block;
-    min-width: 7.7777777778em;
-    padding: 12px 28px;
-    font-weight: 700;
-    line-height: 1.5;
-    border: 1px solid #fff;
-    border-radius: 6px;
-    color: #fff;
-    background: transparent;
-    transition: background 0.3s, color 0.3s;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  .mv-slide-content .btn:hover,
-  .mv-slide-content .btn:focus {
-    color: #5A5FD4;
-    background-color: #fff;
-  }
-
-  /* dot 스타일 */
-  .mv-dots {
-    position: absolute;
-    top: 36px;
-    left: 59px;
-    display: flex;
-    gap: 6px;
-    z-index: 9;
-  }
-
-  .mv-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition: background 0.2s;
-  }
-
-  .mv-dot.active {
-    background: #3ecf8e;
-  }
-
   .recruit-recomm .recruit-card {
-    width: calc(100% - 18px);
+    width: calc(25% - 18px);
   }
 
   .recruit-card .content-wrap {
@@ -221,7 +119,7 @@ $banner_list = getBannerList("BN00010005");
     font-size: 1.2rem;
     color: #000;
     font-weight: 500;
-    width: 60%;
+    width: 65%;
   }
 
   .person-card .meta p {
@@ -229,9 +127,11 @@ $banner_list = getBannerList("BN00010005");
     flex: 1;
     text-align: center;
   }
+
   .person-card .meta p:first-child {
     text-align: center;
   }
+
   .person-card .meta .meta-divider {
     color: #292c32;
     flex-shrink: 0;
@@ -297,14 +197,19 @@ $banner_list = getBannerList("BN00010005");
     font-size: 1.2rem;
     font-weight: 700;
   }
- /* 인재 카드 2줄 그리드 레이아웃 (4개씩 2줄) */
- .person-card-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  width: 99%;
-  gap: 16px 8px;
- }
 
+  /* 인재 카드 2줄 그리드 레이아웃 (4개씩 2줄) */
+  .person-card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    width: 99%;
+    gap: 16px 8px;
+  }
+
+  /* 화살표 숨김 */
+  .arrow {
+    display: none;
+  }
 </style>
 
 <!-- 공지팝업 -->
@@ -396,23 +301,22 @@ $banner_list = getBannerList("BN00010005");
         <div class="mv-slider-wrap">
           <!-- dot 네비게이션 -->
           <div class="mv-dots">
-            <?php $banner_count = 0; foreach ($banner_list as $banner) : ?>
+            <?php $banner_count = 0;
+            foreach ($banner_list as $banner) : ?>
               <button class="mv-dot <?= $banner_count === 0 ? 'active' : '' ?>" data-index="<?= $banner_count ?>"></button>
-              <?php $banner_count++; endforeach; ?>
+            <?php $banner_count++;
+            endforeach; ?>
           </div>
 
           <!-- 슬라이드 목록 -->
           <div class="mv-slides">
-            <?php $banner_idx = 0; foreach ($banner_list as $banner) : ?>
-              <div class="mv-slide <?= $banner_idx === 0 ? 'active' : '' ?>" style="background-color: <?= isset($banner['bn_bg_color']) ? $banner['bn_bg_color'] : '#5A5FD4' ?>;">
-                <div class="mv-slide-content">
-                  <?php if ($banner["bn_link_yn"] != "Y") : ?>
-                    <a href="<?= $banner["bn_link"] ?>" class="btn" target="<?= $banner["bn_link_type"] ?>">자세히 보기</a>
-                  <?php endif; ?>
-                </div>
+            <?php $banner_idx = 0;
+            foreach ($banner_list as $banner) : ?>
+              <div class="mv-slide <?= $banner_idx === 0 ? 'active' : '' ?>" style="background-color: <?= isset($banner['bn_bg_color']) ? $banner['bn_bg_color'] : '#5A5FD4' ?>;" data-link="<?= isset($banner['bn_link']) ? $banner['bn_link'] : '#' ?>" data-link-type="<?= isset($banner['bn_link_type']) ? $banner['bn_link_type'] : '_self' ?>">
                 <img data-src="<?= $banner["bg_img"] ?>" alt="" class="lozad mv-slide-img">
               </div>
-              <?php $banner_idx++; endforeach; ?>
+            <?php $banner_idx++;
+            endforeach; ?>
           </div>
         </div>
       </div>
@@ -424,14 +328,32 @@ $banner_list = getBannerList("BN00010005");
           var dots = document.querySelectorAll('.mv-dot');
 
           function goTo(idx) {
-            slides.forEach(function(s) { s.classList.remove('active'); });
-            dots.forEach(function(d) { d.classList.remove('active'); });
+            slides.forEach(function(s) {
+              s.classList.remove('active');
+            });
+            dots.forEach(function(d) {
+              d.classList.remove('active');
+            });
             slides[idx].classList.add('active');
             dots[idx].classList.add('active');
           }
 
           dots.forEach(function(dot, idx) {
-            dot.addEventListener('click', function() { goTo(idx); });
+            dot.addEventListener('click', function() {
+              goTo(idx);
+            });
+          });
+
+          // 슬라이드 클릭 시 이동
+          slides.forEach(function(slide) {
+            slide.style.cursor = 'pointer';
+            slide.addEventListener('click', function() {
+              var link = this.getAttribute('data-link');
+              var linkType = this.getAttribute('data-link-type');
+              if (link && link !== '#') {
+                window.open(link, linkType);
+              }
+            });
           });
         });
       </script>
@@ -440,7 +362,6 @@ $banner_list = getBannerList("BN00010005");
       <div class="container">
         <div class="section-headline">
           <h3 class="primary-title">추천공고</h3>
-          <p class="desc">지금 뜨는, 좋은 일자리 나우잡에서 추천하는 공고입니다</p>
         </div>
 
         <div class="recruit-recomm">
@@ -449,7 +370,7 @@ $banner_list = getBannerList("BN00010005");
             <button class="arrow arrow--left arrow--top"><span>Previous</span></button>
             <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-top">
             </div>
-            <button class="arrow arrow--right arrow--top"><span>Next</span></button>
+            <!-- <button class="arrow arrow--right arrow--top"><span>Next</span></button> -->
           </div>
 
           <!-- 두 번째 슬라이더 -->
@@ -457,7 +378,7 @@ $banner_list = getBannerList("BN00010005");
             <button class="arrow arrow--left arrow--second"><span>Previous</span></button>
             <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-second">
             </div>
-            <button class="arrow arrow--right arrow--second"><span>Next</span></button>
+            <!-- <button class="arrow arrow--right arrow--second"><span>Next</span></button> -->
           </div>
 
           <!-- 세 번째 슬라이더 -->
@@ -479,7 +400,7 @@ $banner_list = getBannerList("BN00010005");
         <a href="/recruit/job_list" target="_blank" class="btn-view-all">더보기</a>
       </div>
     </div>
-    
+
     <div class="section main-company">
       <div class="container">
         <h3 class="primary-title">지금 뜨는 업체</h3>
@@ -500,23 +421,22 @@ $banner_list = getBannerList("BN00010005");
           endforeach;
           ?>
         </div>
-        <a href="/recruit/companies" class="btn-view-all">더보기</a>
+        <!-- <a href="/recruit/companies" class="btn-view-all">더보기</a> -->
       </div>
     </div>
-    
+
     <div class="section main-person recomm-slider person">
       <div class="container">
         <div class="section-headline">
           <h3 class="primary-title">추천인재</h3>
-          <p class="desc">지금 뜨는, 좋은 일자리 나우잡에서 추천하는 인재입니다</p>
         </div>
         <div class="slider-wrap keen-slider" id="my-keen-slider2">
         </div>
-        <a href="/resume/hr_list" target="_blank" class="btn-view-all">더보기</a>
+        <!-- <a href="/resume/hr_list" target="_blank" class="btn-view-all">더보기</a> -->
       </div>
     </div>
 
-    
+
   </main><!-- //page-content -->
 </div><!-- //page -->
 
@@ -627,47 +547,75 @@ $banner_list = getBannerList("BN00010005");
   function createSlider(list, sliderId, arrowClass) {
     $("#" + sliderId).html("");
 
-    list.forEach(function(row) {
-      var $clone = $("#tpl_reco_list").clone();
-      var $content = $clone.html();
+    // 4개씩 묶어서 슬라이드 생성
+    for (var i = 0; i < list.length; i += 4) {
+      var slideHtml = '<div class="keen-slider__slide swiper-wrapper">';
 
-      if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
-      } else {
-        $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
+      // 슬라이드당 최대 4개 카드 생성
+      for (var j = 0; j < 4 && i + j < list.length; j++) {
+        var row = list[i + j];
+
+        if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
+          row.rc_nation_nm = "국적무관";
+        } else {
+          row.rc_nation_nm = row.rc_nation_nm.replace("만", "");
+        }
+
+        var $images = $('<div>' + row.rt_work_img + '</div>').find('img');
+        $images.slice(2).remove();
+        var $categoryHtml = $images.parent().html();
+
+        var priceType = "";
+        if (row.rc_price_type.indexOf('협의') > -1) {
+          priceType = "<em> </em>";
+        } else {
+          priceType = getConvertPriceType(row.rc_price_type, row.rc_price_rep);
+        }
+
+        var pricePay = "";
+        if (row.rc_price_type.indexOf('협의') > -1) {
+          pricePay = "급여협의";
+        } else {
+          pricePay = Number(row.rc_price_pay).toLocaleString() + "원";
+        }
+
+        slideHtml +=
+          '<div class="recruit-card category2 swiper-slide" data-rc_idx="' + row.rc_idx + '">' +
+          '<button type="button" data-bk_type="RECRUIT" data-bk_key="' + row.rc_idx + '" class=" btnBookMark btn-bookmark js-toggle-bookmark ' + (row.book_yn == "Y" ? "on" : "") + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
+          '<div class="thumb">' +
+          '<img src="' + row.rt_recruit_img + '" alt="">' +
+          '<div class="slider-dots">' +
+          '<span class="dot active"></span>' +
+          '<span class="dot"></span>' +
+          '<span class="dot"></span>' +
+          '</div>' +
+          '</div>' +
+          '<div class="content-wrap">' +
+          '<div class="inline-group">' +
+          $categoryHtml +
+          '<p class="area">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
+          '</div>' +
+          '<p class="title"><strong>' + row.rc_name + '</strong></p>' +
+          '<div class="meta">' +
+          '<p>' + row.rc_nation_nm + '</p>' +
+          '<p>' + row.rc_age_nm + '</p>' +
+          '</div>' +
+          '<div class="price-wrap" style="position: relative;">' +
+          '<p class="type" style="position: absolute; left:0px; top: 27px; ">' + row.rt_work_type + '</p>' +
+          '<p class="type">' + priceType + '</p>' +
+          '<p class="amount">' + pricePay + '</p>' +
+          '</div>' +
+          '</div>' +
+          '</div>';
       }
 
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-      $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-
-      var $images = $('<div>' + row.rt_work_img + '</div>').find('img');
-      $images.slice(2).remove();
-      var $categoryHtml = $images.parent().html();
-      $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
-      if (row.rc_price_type.indexOf('협의') > -1) {
-        $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
-      } else {
-        $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-      }
-      if (row.rc_price_type.indexOf('협의') > -1) {
-        $content = $content.replaceAll("{{rc_price_pay}}", "급여협의");
-      } else {
-        $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + "원");
-      }
-      $clone.html($content);
-
-      $("#" + sliderId).append($clone.html());
-    });
+      slideHtml += '</div>';
+      $("#" + sliderId).append(slideHtml);
+    }
 
     var container = document.querySelector('#' + sliderId);
-    var slide = document.querySelectorAll('#' + sliderId + ' .recruit-card');
-    var perView = 4;
+    var slide = document.querySelectorAll('#' + sliderId + ' .keen-slider__slide');
+    var perView = 1;
     var total = slide.length;
 
     function nauriControls(slider) {
@@ -691,12 +639,12 @@ $banner_list = getBannerList("BN00010005");
       renderMode: 'performance',
       rubberband: false,
       slides: {
-        perView: 4,
+        perView: 1,
       },
       // 자동 움직임 제거 - created, updated, animationEnded 콜백 제거
     }, [nauriControls]);
   }
-
+  // 추천인재 리스트 로드
   function getRecoPersonList() {
     var params = {
       "addr1": "",
@@ -718,16 +666,16 @@ $banner_list = getBannerList("BN00010005");
             var row = list[i + j];
             slideHtml +=
               '<div class="person-card" data-ru_idx="' + row.ru_idx + '" data-mm_idx="' + (row.mm_idx || "") + '">' +
-                '<div class="thumb"><img src="' + row.ru_resume_img + '" alt="프로필"></div>' +
-                '<div class="badge-wrap">' + row.ru_work_img + '</div>' +
-                '<div class="meta">' +
-                  '<p class="work_type">' + getWorkType(row.ru_work_type) + '</p>' +
-                  '<span class="meta-divider">|</span>' +
-                  '<p class="age">' + row.mm_age + '대</p>' +
-                  '<span class="meta-divider">|</span>' +
-                  '<p class="price_type">' + getPriceType(row.ru_price_type) + '</p>' +
-                '</div>' +
-                '<p class="addr">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
+              '<div class="thumb"><img src="' + row.ru_resume_img + '" alt="프로필"></div>' +
+              '<div class="badge-wrap">' + row.ru_work_img + '</div>' +
+              '<div class="meta">' +
+              '<p class="work_type">' + getWorkType(row.ru_work_type) + '</p>' +
+              '<span class="meta-divider">|</span>' +
+              '<p class="age">' + row.mm_age + '대</p>' +
+              '<span class="meta-divider">|</span>' +
+              '<p class="price_type">' + getPriceType(row.ru_price_type) + '</p>' +
+              '</div>' +
+              '<p class="addr">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
               '</div>';
           }
 
@@ -750,89 +698,6 @@ $banner_list = getBannerList("BN00010005");
     });
   }
 
-  function getConvertAgeLabel(age) {
-    let cleaned = age.replaceAll(" 이상", "").replaceAll(" 이하", "");
-    if (!age.includes("나이무관")) {
-      if (!age.includes("이상")) {
-        cleaned = "~ " + cleaned;
-      }
-      if (!age.includes("이하")) {
-        cleaned = cleaned + " ~";
-      }
-    }
-    return cleaned;
-  }
-
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
-    const types = rc_price_type.split(',');
-
-    if (types.length === 1) {
-      return `<em class="on">${types[0]}</em>`;
-    }
-
-    return types.map(type => {
-      if (type === rc_price_rep) {
-        return `<em class="on">${type}</em>`;
-      } else {
-        return `<em>${type}</em>`;
-      }
-    }).join('');
-  }
-
-  function getPriceType(price_type) {
-    if (!price_type) {
-      return "";
-    }
-    if (price_type === "일급,주급,월급") {
-      return "급여협의";
-    }
-    // 첫 번째 값만 반환
-    const firstType = price_type.split(',')[0].trim();
-    return firstType;
-  }
-
-  function getWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    const matches = work_type.match(/<span>(.*?)<\/span>/g);
-
-    if (!matches || matches.length === 0) {
-      return "";
-    }
-    // 첫 번째 값만 반환
-    const firstMatch = matches[0];
-    const text = firstMatch.replace(/<\/?span>/g, '').trim();
-    let cls = '';
-    if (text === '주간') {
-      cls = 'wtype1';
-    } else if (text === '야간') {
-      cls = 'wtype2';
-    } else if (text === '2교대') {
-      cls = 'wtype3';
-    }
-    return `<em class="${cls}">${text}</em>`;
-  }
-
-  function getHashTagJS(hash, max = 10) {
-    let result = "";
-    let tmp = hash;
-    tmp = tmp.replaceAll("<p class=\'tag\' style=\'width:100%;text-align:right;\'>", "");
-    tmp = tmp.replaceAll("</p>", "");
-    let arr_hash = tmp.trim().split(" ");
-    arr_hash.forEach(function(txt, key) {
-      if (key < max) {
-        if (!txt.includes("#") && txt.trim() !== "") {
-          txt = "#" + txt.trim();
-        }
-        if (txt.trim() !== "") {
-          result += ` <p class='tag'>${txt}</p>`;
-        }
-      }
-    });
-
-    return result;
-  }
 
   // 현재 로그인한 사용자 정보
   var currentUserMmIdx = <?php echo $this->user->isLogin() ? $this->user->getUserIdx() : 'null'; ?>;
@@ -847,7 +712,7 @@ $banner_list = getBannerList("BN00010005");
     var $personCard = $(this).closest('.person-card');
     var ruIdx = $personCard.data('ru_idx');
     var resumeMmIdx = $personCard.data('mm_idx'); // 이력서 소유자 인덱스
-    
+
     // 개인회원이고 자신의 이력서인 경우 클릭 가능
     if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
       if (ruIdx) {
@@ -856,7 +721,7 @@ $banner_list = getBannerList("BN00010005");
       }
       return;
     }
-    
+
     // 기업회원인 경우 클릭 가능
     <?php if ($mm_type === "COMP") { ?>
       if (ruIdx) {

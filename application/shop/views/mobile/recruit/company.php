@@ -45,8 +45,9 @@ if (count($banner_list) > 0) {
     height: 300px;
     width: 100%;
     margin-top: 25px;
-    margin-bottom: 25px;;
-  
+    margin-bottom: 25px;
+    ;
+
   }
 
   .comp-info .comp-img {
@@ -63,7 +64,7 @@ if (count($banner_list) > 0) {
   .comp-info .comp-img img {
     width: 100%;
     height: 100%;
-    object-fit: none;
+    object-fit: contain;
     display: block;
   }
 
@@ -495,19 +496,19 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
       fn_load: initLoadData,
     };
     $.CashingAjax(params);
-    
+
     // iOS 스크롤 활성화
     $('body').css({
       'overflow': 'auto',
       'overflow-y': 'auto',
       '-webkit-overflow-scrolling': 'touch'
     });
-    
+
     $('html').css({
       'overflow': 'auto',
       'overflow-y': 'auto'
     });
-    
+
     // 스크롤 컨테이너에도 iOS 스크롤 적용
     ['.page-recruit', '.page-content'].forEach(function(selector) {
       var $container = $(selector);

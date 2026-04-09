@@ -25,64 +25,98 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
-<?php if ($is_prod_env && ($is_nowjob_domain || $is_dev_domain)) : ?>
-    <meta name="description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
-    <meta property="og:description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼">
-    <meta property="og:url" content="<?= $app_base_url ?>/">
-    
-    <meta property="og:image" content="<?= $og_image_url ?>">
-    
-    <!--<meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />-->
-    <!-- <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" /> -->
-    <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
-    <meta name="keywords" content="나우잡, NOWJOB,구인구직, 외국인채용, 알바, 급구, 일자리, 채용, 일당">
-    <script type="application/ld+json">
-        [
-        {
-            "@context": "http://schema.org",
-            "@type": "Organization",
-            "name": "나우잡",
-            "url": "https://nowjob.co.kr",
-            "sameAs": [
-            "https://www.youtube.com/@NOWJOB_NOU",
-            "https://www.instagram.com/nowjob_nou",
-            "https://blog.naver.com/nowjobofficial"
+    <?php if ($is_prod_env || $is_nowjob_domain) : ?>
+        <!-- SEO Meta Tags -->
+        <meta name="description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
+        <!-- Open Graph / Facebook -->
+        <meta property="og:description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼">
+        <meta property="og:url" content="<?= $app_base_url ?>/">
+        <meta property="og:image" content="<?= $og_image_url ?>">
+        <!-- naver-site-verification -->
+        <!--<meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />-->
+        <!-- <meta name="naver-site-verification" content="2744b73772ebd4a579c885de8f8d22bb42035a89" /> -->
+        <meta name="naver-site-verification" content="20459c5bd907c133c314dd88161a57f212fce831" />
+        <meta name="keywords" content="나우잡, NOWJOB,구인구직, 외국인채용, 알바, 급구, 일자리, 채용, 일당">
+        <!-- Robots Meta Tag -->
+        <script type="application/ld+json">
+            [{
+                    "@context": "http://schema.org",
+                    "@type": "Organization",
+                    "name": "나우잡",
+                    "url": "https://nowjob.co.kr",
+                    "sameAs": [
+                        "https://www.youtube.com/@NOWJOB_NOU",
+                        "https://www.instagram.com/nowjob_nou",
+                        "https://blog.naver.com/nowjobofficial"
+                    ]
+                },
+                {
+                    "@context": "https://schema.org",
+                    "@type": "ItemList",
+                    "itemListElement": [{
+                            "@type": "ListItem",
+                            "position": 1,
+                            "url": "https://nowjob.co.kr/recruit/job_list",
+                            "name": "추천공고",
+                            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_recruit.png"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "url": "https://nowjob.co.kr/resume/hr_list",
+                            "name": "추천인재",
+                            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_resume.png"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "url": "https://nowjob.co.kr/member/login",
+                            "name": "간편가입",
+                            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_join.png"
+                        }
+                    ]
+                }
             ]
-        },
-        {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        "itemListElement": [
-            {
-            "@type": "ListItem",
-            "position": 1,
-            "url": "https://nowjob.co.kr/recruit/job_list", 
-            "name": "추천공고",
-            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_recruit.png" 
-            },
-            {
-            "@type": "ListItem",
-            "position": 2,
-            "url": "https://nowjob.co.kr/resume/hr_list",
-            "name": "추천인재",
-            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_resume.png"
-            },
-            {
-            "@type": "ListItem",
-            "position": 3,
-            "url": "https://nowjob.co.kr/member/login",
-            "name": "간편가입",
-            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_join.png"
+        </script>
+        <!-- Google AdSense - 광고 수익화를 위한 AdSense 스크립트 -->
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7573726661605583"
+            crossorigin="anonymous"></script>
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXR9Q1W94K"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
             }
-        ]
-        }
-        ]
-</script>
+            gtag('js', new Date());
+            gtag('config', 'G-PXR9Q1W94K');
+        </script>
+
+
+        <!-- Google Tag Manager -->
+        <script>
+            (function(w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start': new Date().getTime(),
+                    event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s),
+                    dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-TQC25Z8B');
+        </script>
+        <!-- End Google Tag Manager -->
     <?php else : ?>
-    <meta name="robots" content="noindex, nofollow, noarchive">
+        <meta name="robots" content="noindex, nofollow, noarchive">
     <?php endif; ?>
     <!-- Favicon -->
     <link rel="shortcut icon" href="<?= $favicon_url ?>" type="image/x-icon">
@@ -108,10 +142,18 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
 
             function flush() { // 실제 소켓 연결 후 큐에 등록된 이벤트 핸들러를 실행
                 if (!real) return;
-                offQueue.forEach(function(item) { real.off(item[0], item[1]); });
-                onQueue.forEach(function(item) { real.on(item[0], item[1]); });
-                onceQueue.forEach(function(item) { real.once(item[0], item[1]); });
-                emitQueue.forEach(function(item) { real.emit.apply(real, item); });
+                offQueue.forEach(function(item) {
+                    real.off(item[0], item[1]);
+                });
+                onQueue.forEach(function(item) {
+                    real.on(item[0], item[1]);
+                });
+                onceQueue.forEach(function(item) {
+                    real.once(item[0], item[1]);
+                });
+                emitQueue.forEach(function(item) {
+                    real.emit.apply(real, item);
+                });
                 onQueue = [];
                 onceQueue = [];
                 offQueue = [];
@@ -268,37 +310,6 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <?= getCachCss(RES_PATH . "/css/add.css") ?>
 
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXR9Q1W94K"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-        gtag('config', 'G-PXR9Q1W94K');
-    </script>
-
-
-    <!-- Google Tag Manager -->
-    <script>
-        (function(w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-TQC25Z8B');
-    </script>
-    <!-- End Google Tag Manager -->
 
 
     <!-- Meta Pixel Code -->
@@ -327,9 +338,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=869026064607445&ev=PageView&noscript=1" /></noscript>
     <!-- End Meta Pixel Code -->
 
-    <!-- Google AdSense - 광고 수익화를 위한 AdSense 스크립트 -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7573726661605583"
-        crossorigin="anonymous"></script>
+
 
     <script>
         $(document).on('keydown', function(event) {
@@ -346,7 +355,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     </script>
 
     <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
-       
+
     <?php endif; ?>
 
 
@@ -377,18 +386,280 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
 
             <?php if ($this->user->isLogin() == true) : ?>
                 <div class="rt" style="margin-top: -24px; /* -36px; */">
-                        <?php if ($this->user->getUserType() == 'MEM') { ?>
-                            <input type="hidden" id="logingbn" value="MEM">
-                        <?php } else if ($this->user->getUserType() == 'COMP') { ?>
-                            <input type="hidden" id="logingbn" value="COMP">
-                        <?php } else { ?>
-                            <input type="hidden" id="logingbn" value="">
-                        <?php } ?>
+                    <?php if ($this->user->getUserType() == 'MEM') { ?>
+                        <input type="hidden" id="logingbn" value="MEM">
+                    <?php } else if ($this->user->getUserType() == 'COMP') { ?>
+                        <input type="hidden" id="logingbn" value="COMP">
+                    <?php } else { ?>
+                        <input type="hidden" id="logingbn" value="">
+                    <?php } ?>
 
 
+                    <div style="position: absolute; top: 44px;">
+                        <?php $current_user_info = $this->user->isLogin() ? $this->user->getCurrentUserInfo() : []; ?>
+                        <script>
+                            function fGoRecruit() {
+                                //로그인 여부 확인
+                                if ($("#is_login").val() != "Y") {
+                                    commonLogin();
+                                    return;
+                                }
+
+
+                                <?php if ($this->user->getUserType() != 'COMP') { ?>
+                                    commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
+                                    return;
+                                <?php } ?>
+
+                                if (!requireCompCertWithGuide()) {
+                                    return;
+                                }
+
+                                // 기업회원일 때 채용공고 개수 확인 후 이동
+                                $.ajax({
+                                    url: "/compage_proc/getRecruitCount",
+                                    type: "post",
+                                    dataType: "json",
+                                    success: function(ret) {
+                                        if (ret.code == "00") {
+                                            var recruitCount = ret.data.count || 0;
+
+                                            // 채용공고가 0개이면 등록 페이지로, 1개 이상이면 목록 페이지로 이동
+                                            if (recruitCount == 0) {
+                                                location.href = "/compage/recruit_write";
+                                            } else {
+                                                location.href = "/compage/recruit_list";
+                                            }
+                                        } else {
+                                            commonAlert(ret.msg || "채용공고 개수를 확인할 수 없습니다.", function() {});
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error("채용공고 개수 확인 오류:", error);
+                                        commonAlert("채용공고 개수를 확인할 수 없습니다.", function() {});
+                                    }
+                                });
+                            }
+
+                            /**
+                             * 기업정보 입력 팝업 호출 (미인증 기업회원용)
+                             */
+                            function openCompInfoPopup() {
+                                var $dimwrap = $('#dimwrap');
+                                var $compPopup = $('#dimcont');
+
+                                if (!$dimwrap.length || !$compPopup.length) {
+                                    commonAlert("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
+                                    return;
+                                }
+
+                                // if (typeof fMemUpdateType === 'function') {
+                                //     fMemUpdateType('all');
+                                // }
+                                $dimwrap.show();
+                                $compPopup.show();
+                            }
+
+                            function ensureCompInfoPopup() {
+                                if (!window.NOWJOB_COMP_INFO) return true;
+                                if (!NOWJOB_COMP_INFO.isLogin) return true;
+                                if (NOWJOB_COMP_INFO.userType !== 'COMP') return true;
+                                if (NOWJOB_COMP_INFO.hasCompCert) return true;
+                                openCompInfoPopup();
+                                return false;
+                            }
+
+                            function requireCompCertWithGuide() {
+                                if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
+                                    if (typeof commonLogin === 'function') {
+                                        commonLogin();
+                                    } else {
+                                        location.href = "/member/login";
+                                    }
+                                    return false;
+                                }
+
+                                if (NOWJOB_COMP_INFO.userType !== 'COMP') {
+                                    commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
+                                    return false;
+                                }
+
+                                if (!NOWJOB_COMP_INFO.hasCompCert) {
+                                    // 안내 팝업 없이 바로 사업자등록 바텀시트 오픈
+                                    openCompInfoPopup();
+                                    return false;
+                                }
+
+                                return true;
+                            }
+
+                            function fGoResume() {
+                                //로그인 여부 확인
+                                if ($("#is_login").val() != "Y") {
+                                    commonLogin();
+                                    return;
+                                }
+
+
+                                <?php if ($this->user->getUserType() != 'MEM') { ?>
+                                    commonAlert("일반회원만 이력서 작성이 가능합니다.", function() {});
+                                    return;
+                                <?php } ?>
+
+                                // 개인회원일 때 이력서 개수 확인 후 이동
+                                $.ajax({
+                                    url: "/mypage_proc/getResumeCount",
+                                    type: "post",
+                                    dataType: "json",
+                                    success: function(ret) {
+                                        if (ret.code == "00") {
+                                            var resumeCount = ret.data.count || 0;
+
+                                            // 이력서가 0개이면 등록 페이지로, 1개 이상이면 목록 페이지로 이동
+                                            if (resumeCount == 0) {
+                                                location.href = "/mypage/resume_write";
+                                            } else {
+                                                location.href = "/mypage/resume_list";
+                                            }
+                                        } else {
+                                            commonAlert(ret.msg || "이력서 개수를 확인할 수 없습니다.", function() {});
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error("이력서 개수 확인 오류:", error);
+                                        commonAlert("이력서 개수를 확인할 수 없습니다.", function() {});
+                                    }
+                                });
+                            }
+
+
+                            $(document).ready(function() {
+                                //console.log('ready');
+                                //미확인 메시지 카운트
+                                //socket.emit("message_user_read_count",{user_id : $("#user_id").val()});
+                                //console.log('message_user_read_count['+$("#user_id").val()+']');
+
+                                // DOM이 완전히 로드된 후 실행 (chatting_cont.php include 후)
+                                setTimeout(function() {
+                                    fSearchNoReadCountMainBottom();
+                                }, 100);
+                            });
+
+
+                            function fSearchNoReadCountMainBottom() {
+                                // 로그인 체크
+                                if ($("#is_login").val() != "Y") {
+                                    return;
+                                }
+
+                                // chatting_cont.php의 fSearchNoReadCount()와 동일한 로직 사용
+                                // 방 목록 필터링 없이 모든 안읽은 메시지 카운트
+                                $.ajax({
+                                    url: '/chat_proc/fSearchNoReadCount',
+                                    type: 'GET',
+                                    dataType: 'json',
+                                    success: function(ret) {
+                                        if (ret.code != "00" || !ret.data || !ret.data.result) {
+                                            return;
+                                        }
+
+                                        // Extract the result object
+                                        const results = ret.data.result;
+
+                                        // 전체 안읽은 메시지 카운트 계산
+                                        var countAll = 0;
+                                        for (const key in results) {
+                                            if (results.hasOwnProperty(key)) {
+                                                const result = results[key];
+                                                const {
+                                                    rm_messages
+                                                } = result;
+
+                                                if (rm_messages) {
+                                                    rm_messages.forEach(message => {
+                                                        if (message.mg_reads) {
+                                                            message.mg_reads.forEach(read => {
+                                                                if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
+                                                                    countAll++;
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        // noreadcountall 업데이트
+                                        var $noreadcountall = $('#noreadcountall');
+                                        if ($noreadcountall.length > 0) {
+                                            if (countAll > 0) {
+                                                if (countAll > 99) {
+                                                    $noreadcountall.html('99+');
+                                                    $noreadcountall.css('width', '40px');
+                                                } else {
+                                                    $noreadcountall.html(countAll);
+                                                    $noreadcountall.css('width', '30px');
+                                                }
+                                                $noreadcountall.show();
+                                            } else {
+                                                $noreadcountall.hide();
+                                            }
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error('미확인 메시지 카운트 조회 오류:', error);
+                                    }
+                                });
+                            }
+
+
+                            //미확인 메시지 카운트 리턴
+                            socket.on("realtime_message", function(ret) {
+                                /*
+                                  console.log(ret);
+                                  console.log(ret.not_read);
+                                  if(ret.not_read > 0){
+                                      if(ret.not_read > 99){
+                                          $('#noreadcountall').html('99+');
+                                          $('#noreadcountall').css('width','40px');
+                                      }else{
+                                          $('#noreadcountall').html(ret.not_read);
+                                      }
+                                      $('#noreadcountall').show();
+                                  }else{
+                                      $('#noreadcountall').hide();
+                                  }
+                                */
+                            });
+                        </script>
+
+
+                    </div>
+
+
+                <?php endif; ?>
+                <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
+                </div>
+        </div>
+        <!-- 헤더 2줄: 네비게이션 -->
+        <nav class="header-nav-row gnb">
+            <div class="container">
+                <ul class="top-menu">
+                    <li><a href="/recruit/job_list">채용정보</a></li>
+                    <li><a href="/resume/hr_list">인재정보</a></li>
+                    <!-- <li><a href="/community/community_list">커뮤니티</a></li> -->
+                    <li><a href="/community/event_list">이벤트</a></li>
+                </ul>
+                <!-- 계정메뉴 (우측 끝) -->
+                <div class="rt">
+                    <?php if ($this->user->isLogin() == false) : ?>
+                        <ul class="account-menu">
+                            <li><a href="/member/login">로그인</a></li>
+                            <li><a href="/mypage">회원가입</a></li>
+                        </ul>
+                    <?php else : ?>
                         <?php
-                        // 기업회원 표기: 미인증 시 "기업회원", 인증 후 기업명 표시 (top_line.php와 동일한 로직)
-                        // 최신 사용자 정보 가져오기
+                        // 기업회원 표기: 미인증 시 "기업회원", 인증 후 기업명 표시
                         $current_user_info = $this->user->isLogin() ? $this->user->getCurrentUserInfo() : [];
                         $user_info_source = (isset($current_user_info) && is_array($current_user_info)) ? $current_user_info : [];
                         $is_comp_user = ($this->user->getUserType() == 'COMP') || (!empty($user_info_source['mm_comp_num']) || !empty($user_info_source['mm_comp_name']));
@@ -447,297 +718,33 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                         </div>
                                     </div>
                                 </li>
-                                <li><span style="border: 1px solid ; border-radius: 5px; padding: 3px 5px;cursor: pointer;margin-left: 10px;  <?= ($_SERVER['REQUEST_URI'] != "/" ? "background-color: #57CCAF; color: #fff;" : "") ?>" onclick="fGoResume();">이력서 등록</span>
-                                </li>
-                            <?php } else { ?>
+                                <li><span style="border: 1px solid ; border-radius: 5px; padding: 3px 5px;cursor: pointer;margin-left: 10px;color: #fff;background-color: #57CCAF;" onclick="fGoResume();">이력서 등록</span></li>
+                            <?php } ?>
+                            <?php if ($this->user->getUserType() == "COMP") { ?>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap" style="margin-top: -18px; margin-left: 23px;">
                                         <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
                                         <div role="dialog" id="memberPanel" tabindex="-1" class="dropdown" hidden>
                                             <div class="member-card" style="font-size: 14px; width: max-content;">
-                                                <a href="/compage/point_charge_step1" style="display:block; padding: 12px;">포인트 충전 · 광고 구매 / 관리</a>
-                                                <a href="/compage/recruit_list" style="display:block; padding: 0 12px 12px 12px;">채용공고 등록 및 관리</a>
-                                                <a href="/compage/bookmark_person1" style="display:block; padding: 0 12px 12px 12px;">관심인재 관리</a>
-                                                <!-- <a href="/compage/bookmark_list" style="display:block; padding: 0 12px 12px 12px;">즐겨찾기 관리</a> -->
-                                                <a href="/compage/coupon_list" style="display:block; padding: 0 12px 12px 12px;">쿠폰관리</a>
-                                                <!-- a href="/compage/trade_list" style="display:block; padding: 0 12px 12px 12px;color:#ccc;" onclick="return false;">중고거래 관리</a -->
-                                                <!-- <a href="/compage/interv_list" style="display:block; padding: 0 12px 12px 12px;">면접자관리</a> -->
+                                                <a href="/compage/recruit_list" style="display:block; padding: 12px;">공고 등록 및 관리</a>
+                                                <a href="/compage/mypage" style="display:block; padding: 0 12px 12px 12px;">회원정보 확인·수정</a>
+                                                <a href="/compage/point_charge_step1" style="display:block; padding: 0 12px 12px 12px;">포인트 충전 · 광고 구매 / 관리</a>
                                                 <a href="/compage/qna_list" style="display:block; padding: 0 12px 12px 12px;">고객센터</a>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
-                                <li><span style="border: 1px solid ; border-radius: 5px; padding: 3px 5px;cursor: pointer; <?= ($_SERVER['REQUEST_URI'] != "/" ? "background-color: #57CCAF; color: #fff;" : "") ?>" onclick="fGoRecruit();">채용공고 등록</span></li>
+                                <li><span style="border: 1px solid ; border-radius: 5px; padding: 3px 5px;cursor: pointer; color: #fff;background-color: #57CCAF;" onclick="fGoRecruit();">채용공고 등록</span></li>
                             <?php } ?>
                         </ul>
-                        <div style="position: absolute; top: 44px;">
-                            <?php $current_user_info = $this->user->isLogin() ? $this->user->getCurrentUserInfo() : []; ?>
-                            <script>
-                                function fGoRecruit() {
-                                    //로그인 여부 확인
-                                    if ($("#is_login").val() != "Y") {
-                                        commonLogin();
-                                        return;
-                                    }
-
-
-                                    <?php if ($this->user->getUserType() != 'COMP') { ?>
-                                        commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
-                                        return;
-                                    <?php } ?>
-
-                                    if (!requireCompCertWithGuide()) {
-                                        return;
-                                    }
-
-                                    // 기업회원일 때 채용공고 개수 확인 후 이동
-                                    $.ajax({
-                                        url: "/compage_proc/getRecruitCount",
-                                        type: "post",
-                                        dataType: "json",
-                                        success: function(ret) {
-                                            if (ret.code == "00") {
-                                                var recruitCount = ret.data.count || 0;
-
-                                                // 채용공고가 0개이면 등록 페이지로, 1개 이상이면 목록 페이지로 이동
-                                                if (recruitCount == 0) {
-                                                    location.href = "/compage/recruit_write";
-                                                } else {
-                                                    location.href = "/compage/recruit_list";
-                                                }
-                                            } else {
-                                                commonAlert(ret.msg || "채용공고 개수를 확인할 수 없습니다.", function() {});
-                                            }
-                                        },
-                                        error: function(xhr, status, error) {
-                                            console.error("채용공고 개수 확인 오류:", error);
-                                            commonAlert("채용공고 개수를 확인할 수 없습니다.", function() {});
-                                        }
-                                    });
-                                }
-
-                                /**
-                                 * 기업정보 입력 팝업 호출 (미인증 기업회원용)
-                                 */
-                                function openCompInfoPopup() {
-                                    var $dimwrap = $('#dimwrap');
-                                    var $compPopup = $('#dimcont');
-
-                                    if (!$dimwrap.length || !$compPopup.length) {
-                                        commonAlert("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
-                                        return;
-                                    }
-
-                                    // if (typeof fMemUpdateType === 'function') {
-                                    //     fMemUpdateType('all');
-                                    // }
-                                    $dimwrap.show();
-                                    $compPopup.show();
-                                }
-
-                                function ensureCompInfoPopup() {
-                                    if (!window.NOWJOB_COMP_INFO) return true;
-                                    if (!NOWJOB_COMP_INFO.isLogin) return true;
-                                    if (NOWJOB_COMP_INFO.userType !== 'COMP') return true;
-                                    if (NOWJOB_COMP_INFO.hasCompCert) return true;
-                                    openCompInfoPopup();
-                                    return false;
-                                }
-
-                                function requireCompCertWithGuide() {
-                                    if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
-                                        if (typeof commonLogin === 'function') {
-                                            commonLogin();
-                                        } else {
-                                            location.href = "/member/login";
-                                        }
-                                        return false;
-                                    }
-
-                                    if (NOWJOB_COMP_INFO.userType !== 'COMP') {
-                                        commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
-                                        return false;
-                                    }
-
-                                    if (!NOWJOB_COMP_INFO.hasCompCert) {
-                                        // 안내 팝업 없이 바로 사업자등록 바텀시트 오픈
-                                        openCompInfoPopup();
-                                        return false;
-                                    }
-
-                                    return true;
-                                }
-
-                                function fGoResume() {
-                                    //로그인 여부 확인
-                                    if ($("#is_login").val() != "Y") {
-                                        commonLogin();
-                                        return;
-                                    }
-
-
-                                    <?php if ($this->user->getUserType() != 'MEM') { ?>
-                                        commonAlert("일반회원만 이력서 작성이 가능합니다.", function() {});
-                                        return;
-                                    <?php } ?>
-
-                                    // 개인회원일 때 이력서 개수 확인 후 이동
-                                    $.ajax({
-                                        url: "/mypage_proc/getResumeCount",
-                                        type: "post",
-                                        dataType: "json",
-                                        success: function(ret) {
-                                            if (ret.code == "00") {
-                                                var resumeCount = ret.data.count || 0;
-
-                                                // 이력서가 0개이면 등록 페이지로, 1개 이상이면 목록 페이지로 이동
-                                                if (resumeCount == 0) {
-                                                    location.href = "/mypage/resume_write";
-                                                } else {
-                                                    location.href = "/mypage/resume_list";
-                                                }
-                                            } else {
-                                                commonAlert(ret.msg || "이력서 개수를 확인할 수 없습니다.", function() {});
-                                            }
-                                        },
-                                        error: function(xhr, status, error) {
-                                            console.error("이력서 개수 확인 오류:", error);
-                                            commonAlert("이력서 개수를 확인할 수 없습니다.", function() {});
-                                        }
-                                    });
-                                }
-
-
-                                $(document).ready(function() {
-                                    //console.log('ready');
-                                    //미확인 메시지 카운트
-                                    //socket.emit("message_user_read_count",{user_id : $("#user_id").val()});
-                                    //console.log('message_user_read_count['+$("#user_id").val()+']');
-                                    
-                                    // DOM이 완전히 로드된 후 실행 (chatting_cont.php include 후)
-                                    setTimeout(function() {
-                                        fSearchNoReadCountMainBottom();
-                                    }, 100);
-                                });
-
-
-                                function fSearchNoReadCountMainBottom() {
-                                    // 로그인 체크
-                                    if ($("#is_login").val() != "Y") {
-                                        return;
-                                    }
-
-                                    // chatting_cont.php의 fSearchNoReadCount()와 동일한 로직 사용
-                                    // 방 목록 필터링 없이 모든 안읽은 메시지 카운트
-                                    $.ajax({
-                                        url: '/chat_proc/fSearchNoReadCount',
-                                        type: 'GET',
-                                        dataType: 'json',
-                                        success: function(ret) {
-                                            if (ret.code != "00" || !ret.data || !ret.data.result) {
-                                                return;
-                                            }
-
-                                            // Extract the result object
-                                            const results = ret.data.result;
-
-                                            // 전체 안읽은 메시지 카운트 계산
-                                            var countAll = 0;
-                                            for (const key in results) {
-                                                if (results.hasOwnProperty(key)) {
-                                                    const result = results[key];
-                                                    const { rm_messages } = result;
-                                                    
-                                                    if (rm_messages) {
-                                                        rm_messages.forEach(message => {
-                                                            if (message.mg_reads) {
-                                                                message.mg_reads.forEach(read => {
-                                                                    if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
-                                                                        countAll++;
-                                                                    }
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                }
-                                            }
-
-                                            // noreadcountall 업데이트
-                                            var $noreadcountall = $('#noreadcountall');
-                                            if ($noreadcountall.length > 0) {
-                                                if (countAll > 0) {
-                                                    if (countAll > 99) {
-                                                        $noreadcountall.html('99+');
-                                                        $noreadcountall.css('width', '40px');
-                                                    } else {
-                                                        $noreadcountall.html(countAll);
-                                                        $noreadcountall.css('width', '30px');
-                                                    }
-                                                    $noreadcountall.show();
-                                                } else {
-                                                    $noreadcountall.hide();
-                                                }
-                                            }
-                                        },
-                                        error: function(xhr, status, error) {
-                                            console.error('미확인 메시지 카운트 조회 오류:', error);
-                                        }
-                                    });
-                                }
-
-
-                                //미확인 메시지 카운트 리턴
-                                socket.on("realtime_message", function(ret) {
-                                    /*
-                                      console.log(ret);
-                                      console.log(ret.not_read);
-                                      if(ret.not_read > 0){
-                                          if(ret.not_read > 99){
-                                              $('#noreadcountall').html('99+');
-                                              $('#noreadcountall').css('width','40px');
-                                          }else{
-                                              $('#noreadcountall').html(ret.not_read);
-                                          }
-                                          $('#noreadcountall').show();
-                                      }else{
-                                          $('#noreadcountall').hide();
-                                      }
-                                    */
-                                });
-                            </script>
-
-
-                        </div>
-
-
                     <?php endif; ?>
-                    <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
-            </div>
-        </div>
-        <!-- 헤더 2줄: 네비게이션 -->
-        <nav class="header-nav-row gnb">
-            <div class="container">
-                <ul class="top-menu">
-                    <li><a href="/recruit/job_list">채용정보</a></li>
-                    <li><a href="/resume/hr_list">인재정보</a></li>
-                    <li><a href="/community/community_list">커뮤니티</a></li>
-                    <li><a href="/community/event_list">이벤트</a></li>
-                </ul>
-                <!-- 계정메뉴 (우측 끝) -->
-                <?php if ($this->user->isLogin() == false) : ?>
-                    <div class="rt">
-                        <ul class="account-menu">
-                            <li><a href="/member/login">로그인</a></li>
-                            <li><a href="/mypage">회원가입</a></li>
-                        </ul>
-                    </div>
-                <?php endif; ?>
+                </div>
             </div>
         </nav>
         <!-- 계정메뉴 영역 (로그인한 사용자용) -->
         <div class="container">
-                    </div>
-                </div>
+        </div>
+        </div>
     </header>
     <?= $contents ?>
     <?php
@@ -950,6 +957,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     <?= getCashJs(RES_PATH . "/js/lib/flatpickr.js") ?>
     <?= getCashJs(RES_PATH . "/js/lib/l10n/ko.js") ?>
     <?= getCashJs(RES_PATH . "/js/lib/plugins/monthSelect/index.js") ?>
+    <?= getCashJs(RES_PATH . "/js/format-utils.js") ?>
     <?= getCashJs(RES_PATH . "/js/main.js") ?>
 
 
