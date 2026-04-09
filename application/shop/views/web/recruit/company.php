@@ -510,8 +510,8 @@ if (count($banner_list) > 0) {
               </div>
             </div>
             <div class="desc2">
-              <div class="summary">
-                <p class="wtype">{{rt_work_type}}</p>
+              <div class="summary wtype">
+                {{rt_work_type}}
               </div>
               <p class="area">{{ad_addr}}</p>
             </div>
@@ -686,19 +686,15 @@ if (count($banner_list) > 0) {
       var $categoryHtml = $images.parent().html();
       $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
 
-      $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
+      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
 
       if (row.rc_price_type.indexOf('협의') > -1) {
         $content = $content.replaceAll("{{rc_price_type}}", "");
       } else {
-        $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
+        $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
       }
 
-      if (row.rc_price_type.indexOf('협의') > -1) {
-        $content = $content.replaceAll("{{rc_price_pay}}", "급여협의");
-      } else {
-        $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + "원");
-      }
+      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay);
       $content = $content.replaceAll("{{mm_id}}", row.mm_id);
 
       $clone.html($content);
@@ -713,166 +709,6 @@ if (count($banner_list) > 0) {
     }
   }
 
-  // 기존 함수 (주석처리) - mobile 버전으로 교체
-  // function fRemoveBigAdrJS(arg) {
-  //
-  //   const parts1 = arg.split(",");
-  //   arg = parts1[0];
-  //
-  //   arg = arg.replace("서울특별시 ", "");
-  //   arg = arg.replace("경기 ", "");
-  //   arg = arg.replace("강원 ", "");
-  //   arg = arg.replace("충남 ", "");
-  //   arg = arg.replace("충북 ", "");
-  //   arg = arg.replace("경남 ", "");
-  //   arg = arg.replace("경북 ", "");
-  //   arg = arg.replace("전남 ", "");
-  //   arg = arg.replace("전북 ", "");
-  //   arg = arg.replace("제주 ", "");
-  //   arg = arg.replace("경기도 ", "");
-  //   arg = arg.replace("강원특별자치도 ", "");
-  //   arg = arg.replace("충청남도 ", "");
-  //   arg = arg.replace("충청북도 ", "");
-  //   arg = arg.replace("경상남도 ", "");
-  //   arg = arg.replace("경상북도 ", "");
-  //   arg = arg.replace("전라남도 ", "");
-  //   arg = arg.replace("전북특별자치도 ", "");
-  //   arg = arg.replace("제주특별자치도 ", "");
-  //   arg = arg.replace("세종특별자치시 ", "세종시 ");
-  //   arg = arg.replace("광주광역시 ", "광주시 ");
-  //   arg = arg.replace("인천광역시 ", "인천시 ");
-  //   arg = arg.replace("울산광역시 ", "울산시 ");
-  //   arg = arg.replace("부산광역시 ", "부산시 ");
-  //   arg = arg.replace("대구광역시 ", "대구시 ");
-  //   arg = arg.replace("대전광역시 ", "대전시 ");
-  //
-  //   const parts = arg.split(" ");
-  //   if (parts.length >= 3) {
-  //     return parts[0] + " " + parts[2];
-  //   } else {
-  //     return arg;
-  //   }
-  // }
-
-  // mobile 버전 함수 사용 - 주소 정리 함수
-  function fRemoveBigAdrJS(arg) {
-    const parts1 = arg.split(",");
-    arg = parts1[0];
-    arg = arg.replace("서울특별시 ", "서울시 ");
-    arg = arg.replace("경기 ", "");
-    arg = arg.replace("강원 ", "");
-    arg = arg.replace("충남 ", "");
-    arg = arg.replace("충북 ", "");
-    arg = arg.replace("경남 ", "");
-    arg = arg.replace("경북 ", "");
-    arg = arg.replace("전남 ", "");
-    arg = arg.replace("전북 ", "");
-    arg = arg.replace("제주 ", "");
-    arg = arg.replace("경기도 ", "");
-    arg = arg.replace("강원특별자치도 ", "");
-    arg = arg.replace("충청남도 ", "");
-    arg = arg.replace("충청북도 ", "");
-    arg = arg.replace("경상남도 ", "");
-    arg = arg.replace("경상북도 ", "");
-    arg = arg.replace("전라남도 ", "");
-    arg = arg.replace("전북특별자치도 ", "");
-    arg = arg.replace("제주특별자치도 ", "");
-    arg = arg.replace("세종특별자치시 ", "세종시 ");
-    arg = arg.replace("광주광역시 ", "광주시 ");
-    arg = arg.replace("인천광역시 ", "인천시 ");
-    arg = arg.replace("울산광역시 ", "울산시 ");
-    arg = arg.replace("부산광역시 ", "부산시 ");
-    arg = arg.replace("대구광역시 ", "대구시 ");
-    arg = arg.replace("대전광역시 ", "대전시 ");
-    const parts = arg.split(" ");
-    if (parts.length >= 3) {
-      return parts[0] + " " + parts[2];
-    } else {
-      return arg;
-    }
-  }
-
-  function getConvertWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    let items = [];
-    const spanRegex = /<span>(.*?)<\/span>/g;
-    let match;
-    while ((match = spanRegex.exec(work_type)) !== null) {
-      items.push(match[1]);
-    }
-    if (items.length === 0) {
-      items = work_type.split(/\s*,\s*/);
-    }
-    const item_set = [...new Set(items.map(s => s.trim()))];
-    const has_jugan = item_set.includes('주간');
-    const has_yagan = item_set.includes('야간');
-    const has_2shift = item_set.includes('2교대');
-    if (has_jugan && has_yagan && has_2shift) {
-      return '<em class="wtype0">근무협의</em>';
-    }
-    let result = '';
-    item_set.forEach(text => {
-      if (text === '') return;
-      let cls = '';
-      if (text === '주간') {
-        cls = 'wtype1';
-      } else if (text === '야간') {
-        cls = 'wtype2';
-      } else if (text === '2교대') {
-        cls = 'wtype3';
-      }
-      result += `<em class="${cls}">${text}</em>`;
-    });
-    return result;
-  }
-
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
-    const types = rc_price_type.split(',');
-
-    if (types.length === 1) {
-      return `<em class="on">${types[0]}</em>`;
-    }
-
-    return types.map(type => {
-      if (type === rc_price_rep) {
-        return `<em class="on">${type}</em>`;
-      } else {
-        return `<em>${type}</em>`;
-      }
-    }).join('');
-  }
-
-  function getHashTagJS(hash, max = 10, rc_work) {
-    let result = "";
-    let tmp = [...hash.matchAll(/<p[^>]*>#?([^<]+)<\/p>/g)]
-      .map(match => match[1])
-      .join(',');
-
-    let arr_hash = tmp.split(",");
-    let arr_work = rc_work.split(",");
-    arr_work.forEach(function(txt, key) {
-      if (key < max) {
-        if (txt.trim() !== "") {
-          arr_hash.push(txt);
-        }
-      }
-    });
-
-    arr_hash.forEach(function(txt, key) {
-      if (key < max) {
-        if (!txt.includes("#") && txt.trim() !== "") {
-          txt = "#" + txt.trim();
-        }
-        if (txt.trim() !== "") {
-          result += ` <p class='tag'>${txt}</p>`;
-        }
-      }
-    });
-
-    return result;
-  }
 </script>
 
 <script>

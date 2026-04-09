@@ -735,11 +735,7 @@ if (count($banner_list) > 0) {
         $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
       }
 
-      if (row.rc_price_type.indexOf('협의') > -1) {
-        $content = $content.replaceAll("{{rc_price_pay}}", "급여협의");
-      } else {
-        $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + "원");
-      }
+      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay);
       $content = $content.replaceAll("{{mm_id}}", row.mm_id);
 
       $clone.html($content);
@@ -847,35 +843,6 @@ if (count($banner_list) > 0) {
     });
   }
 
-  function getHashTagJS(hash, max = 10, rc_work) {
-    let result = "";
-    let tmp = [...hash.matchAll(/<p[^>]*>#?([^<]+)<\/p>/g)]
-      .map(match => match[1])
-      .join(',');
-
-    let arr_hash = tmp.split(",");
-    let arr_work = rc_work.split(",");
-    arr_work.forEach(function(txt, key) {
-      if (key < max) {
-        if (txt.trim() !== "") {
-          arr_hash.push(txt);
-        }
-      }
-    });
-
-    arr_hash.forEach(function(txt, key) {
-      if (key < max) {
-        if (!txt.includes("#") && txt.trim() !== "") {
-          txt = "#" + txt.trim();
-        }
-        if (txt.trim() !== "") {
-          result += ` <p class='tag'>${txt}</p>`;
-        }
-      }
-    });
-
-    return result;
-  }
 </script>
 
 <script>
