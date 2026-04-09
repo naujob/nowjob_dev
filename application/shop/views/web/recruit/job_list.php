@@ -422,8 +422,7 @@ if (count($banner_list) > 0) {
             $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + "원");
           }
           $content = $content.replaceAll("{{mm_id}}", row.mm_id);
-          $content = $content.replaceAll("{{rt_hash}}", getHashTagJS(row.rt_hash, 3, row.rc_work));
-
+          $content = $content.replaceAll("{{rt_hash}}", row.rt_hash);
 
           $content = $content.replaceAll("{{timestamp}}", row.timestamp);
 

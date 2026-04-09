@@ -459,6 +459,7 @@ class Recruit_proc extends CI_Controller
 			//$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			//$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt"] = getTimeText($row["up_dt"]);
+			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 		}
 		$result["list"] = $temp_list;
 
