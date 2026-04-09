@@ -7,7 +7,7 @@ if (count($banner_list) > 0) {
 ?>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_styles.php'); ?>
 <style>
-  /* company.php 고유 스타일 */
+  /* company.php 고유 스타일 - 기업 헤더 */
   .comp-info {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -74,7 +74,7 @@ if (count($banner_list) > 0) {
     padding: 80px 0 80px;
   }
 
-  /* company.php 레이아웃 조정 */
+  /* company.php 레이아웃 오버라이드 */
   .result-list .content-li {
     height: 120px;
   }

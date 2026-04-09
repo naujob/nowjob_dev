@@ -7,7 +7,7 @@ if (count($banner_list) > 0) {
 ?>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_styles.php'); ?>
 <style>
-  /* job_list.php 고유 스타일 */
+  /* job_list.php 고유 스타일 - 추천 슬라이더 */
   .recruit-card .type em {
     display: inline-block;
     font-style: normal;
@@ -16,7 +16,6 @@ if (count($banner_list) > 0) {
     position: relative;
   }
 
-  /* 근무타입이 2개 이상일 때 구분선 추가 */
   .recruit-card .type em:not(:last-child) {
     padding-right: 5px;
   }
@@ -33,7 +32,6 @@ if (count($banner_list) > 0) {
     border-right: 1px solid #777;
   }
 
-  /* 근무타입별 색상 지정 */
   .recruit-card .type em.wtype1 {
     color: #3a70db;
   }
@@ -46,12 +44,11 @@ if (count($banner_list) > 0) {
     color: #1B9D7D;
   }
 
-  /* 추천 슬라이더 배경색 설정 */
   .recomm-slider.recruit {
     background-color: #fff;
   }
 
-  /* job_list.php 레이아웃 조정 */
+  /* job_list.php 레이아웃 오버라이드 */
   .result-list .content-li {
     height: 137px;
     padding: 10px 0;
