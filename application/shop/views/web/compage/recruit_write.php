@@ -316,6 +316,63 @@
           display: none;
         }
 
+        /* 업무정보 섹션 */
+        .desc-value {
+          min-height: 398px;
+          height: auto;
+        }
+
+        .desc-textarea {
+          height: 600px;
+          min-height: 600px;
+        }
+
+        .hash-hidden {
+          display: none;
+        }
+
+        #hashbox {
+          display: block;
+          width: 100%;
+          float: left;
+          margin-top: 15px;
+          border: 1px solid #ADAEB9;
+          min-height: 100px;
+          background-color: #fff;
+          padding: 10px;
+          line-height: 38px;
+        }
+
+        .hash-tag-span {
+          margin-right: 10px;
+          border: none;
+          height: 28px;
+          display: inline-block;
+          line-height: 26px;
+          border-radius: 25px;
+          padding: 0 10px;
+          color: #aaa;
+        }
+
+        .hash-tag-input {
+          min-width: 90px;
+          max-width: 150px;
+          height: 24px;
+          border: none;
+          margin-left: 5px;
+        }
+
+        .hashdel {
+          margin-left: 5px;
+          cursor: pointer;
+          display: none;
+        }
+
+        .hash-help {
+          display: block;
+          margin-top: 10px;
+        }
+
         /* 섹션 레이아웃 */
         .form-section {
           margin-bottom: 50px;
@@ -1173,10 +1230,10 @@
                 <div class="form-table">
                   <div class="form-row">
                     <p class="form-label">상세업무정보 <em>최대500자</em></p>
-                    <div class="value" style="min-height: 398px; height: auto;">
+                    <div class="value desc-value">
                       <label>
                         <span class="sr-text">상세업무정보 입력</span>
-                        <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight" style="height:600px; min-height:600px;"><?= $info["rc_desc"] ?></textarea>
+                        <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
                       </label>
                     </div>
                   </div>
@@ -1187,9 +1244,9 @@
                       <label>
                       </label>
                       <span class="sr-text">상세업무정보 입력</span>
-                      <textarea style="display:none;" name="rc_hash" maxleng="100" placeholder="예) #경력무관, #나이무관 #생산" class="form-textarea sm"><?= $info["rc_hash"] ?></textarea>
+                      <textarea name="rc_hash" maxleng="100" placeholder="예) #경력무관, #나이무관 #생산" class="form-textarea sm hash-hidden"><?= $info["rc_hash"] ?></textarea>
                       <script>
-                        var hashInput = '<span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px;">#<input type="text" onkeyup="fHashKey(this,event);" style=" min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px; background-color: transparen;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>';
+                        var hashInput = '<span class="hash-tag-span">#<input type="text" onkeyup="fHashKey(this,event);" class="hash-tag-input" placeholder="태그 입력(최대 30개)"><span class="hashdel" onclick="fHashDel(this);">ⓧ</span></span>';
 
                         function fHashDel(obj) {
                           if ($('#hashbox').find('input').length == 1) {
@@ -1238,10 +1295,10 @@
                           }
                         }
                       </script>
-                      <div id="hashbox" style="display: block; width: 100%; float: left; margin-top: 15px; border: 1px solid #ADAEB9; min-height: 100px; background-color: #fff;padding: 10px;line-height: 38px;">
-                        <span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px; color:#aaa;">#<input type="text" onkeyup="fHashKey(this,event);" style="min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>
+                      <div id="hashbox">
+                        <span class="hash-tag-span">#<input type="text" onkeyup="fHashKey(this,event);" class="hash-tag-input" placeholder="태그 입력(최대 30개)"><span class="hashdel" onclick="fHashDel(this);">ⓧ</span></span>
                       </div>
-                      <span style="display: block; margin-top: 10px;">해시태그 입력 후 엔터키를 눌러 다른 해시태그를 작성할 수 있습니다</span>
+                      <span class="hash-help">해시태그 입력 후 엔터키를 눌러 다른 해시태그를 작성할 수 있습니다</span>
                     </div>
                   </div>
                 </div><!-- //form-table 업무정보 -->
