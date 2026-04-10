@@ -234,19 +234,7 @@
                     <span class="sr-text">간편등록 단일 폼</span>
                   </div>
                 </div>
-                <div class="form-row">
-                  <p class="form-label"><span class="fixed">*</span>공개여부</p>
-                  <div class="form-group">
-                    <label class="form-toggle-btn2">
-                      <input type="radio" name="rc_show_yn" value="Y" <?= $info["rc_show_yn"] != "N" ? "checked" : "" ?>>
-                      <span class="btn">공개</span>
-                    </label>
-                    <label class="form-toggle-btn2">
-                      <input type="radio" name="rc_show_yn" value="N" <?= $info["rc_show_yn"] == "N" ? "checked" : "" ?>>
-                      <span class="btn">비공개</span>
-                    </label>
-                  </div>
-                </div>
+                <input type="hidden" name="rc_show_yn" value="Y">
                 <div class="form-row">
                   <p class="form-label"><span class="fixed">*</span>공고명 <em>(최대 30자)</em></p>
                   <div class="value">
@@ -589,18 +577,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-row starting-date">
-                  <p class="form-label">근무시작일</p>
-                  <div class="value">
-                    <div class="inline-group">
-                      <p class="is-abs" style="display:none;">시작일</p>
-                      <label>
-                        <span class="sr-text">시작일 입력</span>
-                        <input type="text" name="rc_work_dt" aria-required="true" required class="form-text js-datepicker">
-                      </label>
-                    </div>
-                  </div>
-
                   <script>
                     (function() {
                       function chgMonth(instance) {
@@ -1566,20 +1542,55 @@
       $("#time_cont1").attr("hidden", "");
       $("#time_cont2").attr("hidden", "");
 
-      if ($("#rc_work_type_0").is(":checked") == true) {
+      var isJoogan = $("#rc_work_type_0").is(":checked");
+      var isYagan = $("#rc_work_type_1").is(":checked");
+      var is2Gyodae = $("#rc_work_type_2").is(":checked");
+      var isNoRelation = $("#rc_work_type_3").is(":checked");
+
+      if (isJoogan) {
         $("#time_cont").removeAttr("hidden");
         $("#time_cont1").removeAttr("hidden");
+        // 주간 선택 시 오전 시간 자동 설정: 09:00 ~ 18:00
+        if ($("[name='rc_am_stime']").val() == "" || $("[name='rc_am_stime']").val() == "00:00") {
+          $("#rc_am_stime_h").val("09");
+          $("[name='rc_am_stime_m']").val("00");
+          $("[name='rc_am_stime']").val("09:00");
+          $("#rc_am_etime_h").val("18");
+          $("[name='rc_am_etime_m']").val("00");
+          $("[name='rc_am_etime']").val("18:00");
+        }
       }
 
-      if ($("#rc_work_type_1").is(":checked") == true) {
+      if (isYagan) {
         $("#time_cont").removeAttr("hidden");
         $("#time_cont2").removeAttr("hidden");
       }
 
-      if ($("#rc_work_type_2").is(":checked") == true) {
+      if (is2Gyodae) {
         $("#time_cont").removeAttr("hidden");
         $("#time_cont1").removeAttr("hidden");
         $("#time_cont2").removeAttr("hidden");
+        // 2교대 선택 시 오전은 자동 설정: 09:00 ~ 18:00
+        if ($("[name='rc_am_stime']").val() == "" || $("[name='rc_am_stime']").val() == "00:00") {
+          $("#rc_am_stime_h").val("09");
+          $("[name='rc_am_stime_m']").val("00");
+          $("[name='rc_am_stime']").val("09:00");
+          $("#rc_am_etime_h").val("18");
+          $("[name='rc_am_etime_m']").val("00");
+          $("[name='rc_am_etime']").val("18:00");
+        }
+      }
+
+      if (isNoRelation) {
+        // 무관 선택 시 오전 시간 자동 설정: 09:00 ~ 18:00
+        if ($("[name='rc_am_stime']").val() == "" || $("[name='rc_am_stime']").val() == "00:00") {
+          $("#rc_am_stime_h").val("09");
+          $("[name='rc_am_stime_m']").val("00");
+          $("[name='rc_am_stime']").val("09:00");
+          $("#rc_am_etime_h").val("18");
+          $("[name='rc_am_etime_m']").val("00");
+          $("[name='rc_am_etime']").val("18:00");
+        }
       }
 
       if ($("[name='rc_work_type[]']:checked").length > 2) {
@@ -1941,7 +1952,7 @@
       }
     });
   }); //ready
-
+  // 이미지 삭제 버튼 추가 함수
   function fDelbtnAdd(arg) {
     var imgHtml = '<a href="javascript:if(confirm(\'이미지를 삭제하시겠습니까?\')){ $(\'#rc_img' + arg + '\').val(\'\'); $(\'#rc_img' + arg + '_ori\').val(\'\'); $(\'#prev' + arg + ' img\').hide(); } " id="delimgbtn' + arg + '" style="display:none; position: absolute; top: 5px; right: 5px; overflow: hidden; border-radius: 11px; width: 23px; height: 24px; z-index: 10;">';
     imgHtml += '<span style="font-size: 27px; margin-top: -5px; margin-left: -2px; display: block; background-color: #ccc;">ⓧ</span>';
@@ -1952,7 +1963,7 @@
       }
     }, 500);
   }
-
+  // 미리보기 정보 표시 함수
   function showPreviewInfo(info) {
 
     var str_rc_work_img = "";
@@ -2080,7 +2091,7 @@
     if ($('[name="rc_price_rep"]') != '급여협의') {
       rc_price_rep_txt = ' (대표급여형태 : ' + $('[name="rc_price_rep"]').val() + ')';
     }
-
+    // 챙용공고 등록 확인 팝업 열기
     openPopup('modal', {
       content: '<div class="regist-info">' +
         '<h5 class="name">' + info.rc_name + '</h5>' +

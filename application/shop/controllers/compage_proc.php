@@ -784,7 +784,7 @@ class Compage_proc extends CI_Controller
   function recruit_write1_new()
   {
     # 데이터 추가.
-    $rc_show_yn = input_post("rc_show_yn", "");
+    $rc_show_yn = input_post("rc_show_yn", "Y");
     $rc_name = input_post("rc_name", "");
     $rc_date = input_post("rc_date", "");
 
@@ -1586,7 +1586,7 @@ class Compage_proc extends CI_Controller
   # 웹등록
   function recruit_write()
   {
-    $rc_show_yn = input_post("rc_show_yn", "");
+    $rc_show_yn = input_post("rc_show_yn", "Y");
     $rc_name = input_post("rc_name", "");
     $rc_date = input_post("rc_date", "");
     $ad_zipcode = input_post("ad_zipcode", "");
@@ -1937,7 +1937,7 @@ class Compage_proc extends CI_Controller
   function recruit_write1()
   {
     # 데이터 추가.
-    $rc_show_yn = input_post("rc_show_yn", "");
+    $rc_show_yn = input_post("rc_show_yn", "Y");
     $rc_name = input_post("rc_name", "");
     $rc_date = input_post("rc_date", "");
 
