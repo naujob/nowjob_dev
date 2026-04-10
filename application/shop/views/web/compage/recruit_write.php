@@ -212,6 +212,69 @@
           margin-top: 4px;
         }
 
+        /* 근무조건 섹션 */
+        #work_type_memo {
+          display: none;
+          margin-left: 20px;
+        }
+
+        .time-label-sub {
+          text-align: right;
+          padding-right: 50px;
+          font-weight: normal;
+          font-size: 16px;
+        }
+
+        .time-value {
+          position: absolute;
+          top: 26px;
+          left: 258px;
+          width: 450px;
+        }
+
+        .time-col {
+          width: 200px;
+        }
+
+        .time-select {
+          float: left;
+          width: 60px;
+          height: 30px;
+          text-align: center;
+          color: #000;
+          border: 1px solid #ADAEB9;
+          border-radius: 10px;
+          position: relative;
+          opacity: initial;
+          appearance: auto;
+        }
+
+        .time-unit {
+          float: left;
+          height: 30px;
+          line-height: 30px;
+          padding: 0 7px;
+        }
+
+        .time-input-m {
+          float: left;
+          width: 60px;
+          height: 30px;
+          text-align: center;
+          background-color: #fff;
+          border: 1px solid #ADAEB9;
+          border-radius: 10px;
+        }
+
+        .time-separator {
+          display: inline-block;
+          margin-right: 30px;
+        }
+
+        .liner {
+          display: none;
+        }
+
         /* 근무정보 섹션 */
         .input-wide {
           width: 580px;
@@ -489,76 +552,72 @@
                         </label>
                       <?php endforeach; ?>
                     </div>
-                    <span id="work_type_memo" style="display:none; margin-left: 20px;">급여협의</span>
+                    <span id="work_type_memo">급여협의</span>
                   </div>
                   <div class="form-row" id="time_cont1" <?= (array_search("주간", $info["rc_work_type"]) !== false || array_search("2교대", $info["rc_work_type"]) !== false) ? "" : "hidden" ?>>
-                    <p class="form-label" style="text-align:right;padding-right:50px;font-weight:normal;font-size:16px;">근무시간(주간)</p>
-                    <div class="value" style="position: absolute; top: 26px; left: 258px; width: 450px;">
-                      <div class="inline-group" style="/* display: block; */">
-                        <label class="form-selectbox col" style="width: 200px;">
+                    <p class="form-label time-label-sub">근무시간(주간)</p>
+                    <div class="value time-value">
+                      <div class="inline-group">
+                        <label class="form-selectbox col time-col">
                           <span class="sr-text">시간 선택</span>
-                          <select id="rc_am_stime_h" name="rc_am_stime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
-                            <!-- <option value="">시</option> -->
+                          <select id="rc_am_stime_h" name="rc_am_stime_h" class="time-select">
                             <?php for ($t1 = 0; $t1 <= 23; $t1++) { ?>
                               <option value="<?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_am_stime"], 0, 2) == str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected" : ($t1 == 9 ? "selected" : "") ?>><?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?></option>
                             <?php } ?>
                           </select>
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-                          <input type="text" name="rc_am_stime_m" value="<?= substr($info["rc_am_stime"], 3, 2) ?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+                          <span class="time-unit">시</span>
+                          <input type="text" name="rc_am_stime_m" value="<?= substr($info["rc_am_stime"], 3, 2) ?>" placeholder="직접입력" class="time-input-m">
+                          <span class="time-unit">분</span>
                           <input type="hidden" name="rc_am_stime" value="<?= $info["rc_am_stime"] ?>">
-                          <span class="liner" style="display:none;"></span>
+                          <span class="liner"></span>
                         </label>
-                        <span class="entity" style="display: inline-block;margin-right: 30px;">~</span>
+                        <span class="entity time-separator">~</span>
                         <label class="form-selectbox col">
                           <span class="sr-text">시간 선택</span>
-                          <select id="rc_am_etime_h" name="rc_am_etime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
-                            <!-- <option value="">시</option> -->
+                          <select id="rc_am_etime_h" name="rc_am_etime_h" class="time-select">
                             <?php for ($t2 = 0; $t2 <= 23; $t2++) { ?>
                               <option value="<?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_am_etime"], 0, 2) == str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected" : ($t2 == 18 ? "selected" : "") ?>><?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?></option>
                             <?php } ?>
                           </select>
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-                          <input type="text" name="rc_am_etime_m" value="<?= substr($info["rc_am_etime"], 3, 2) ?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+                          <span class="time-unit">시</span>
+                          <input type="text" name="rc_am_etime_m" value="<?= substr($info["rc_am_etime"], 3, 2) ?>" placeholder="직접입력" class="time-input-m">
+                          <span class="time-unit">분</span>
                           <input type="hidden" name="rc_am_etime" value="<?= $info["rc_am_etime"] ?>">
-                          <span class="liner" style="display:none;"></span>
+                          <span class="liner"></span>
                         </label>
                       </div>
                     </div>
                   </div>
                   <div class="form-row" id="time_cont2" <?= (array_search("야간", $info["rc_work_type"]) !== false || array_search("2교대", $info["rc_work_type"]) !== false) ? "" : "hidden" ?>>
-                    <p class="form-label" style="text-align:right;padding-right:50px;font-weight:normal;font-size:16px;">근무시간(야간)</p>
-                    <div class="value" style="position: absolute; top: 26px; left: 258px; width: 450px;">
-                      <div class="inline-group" style="/* display: block; */">
-                        <label class="form-selectbox col" style="width: 200px;">
+                    <p class="form-label time-label-sub">근무시간(야간)</p>
+                    <div class="value time-value">
+                      <div class="inline-group">
+                        <label class="form-selectbox col time-col">
                           <span class="sr-text">시간 선택</span>
-                          <select id="rc_pm_stime_h" name="rc_pm_stime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
-                            <!-- <option value="">시</option> -->
+                          <select id="rc_pm_stime_h" name="rc_pm_stime_h" class="time-select">
                             <?php for ($t1 = 0; $t1 <= 23; $t1++) { ?>
                               <option value="<?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_pm_stime"], 0, 2) == str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected" : ($t1 == 21 ? "selected" : "") ?>><?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?></option>
                             <?php } ?>
                           </select>
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-                          <input type="text" name="rc_pm_stime_m" value="<?= substr($info["rc_pm_stime"], 3, 2) ?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+                          <span class="time-unit">시</span>
+                          <input type="text" name="rc_pm_stime_m" value="<?= substr($info["rc_pm_stime"], 3, 2) ?>" placeholder="직접입력" class="time-input-m">
+                          <span class="time-unit">분</span>
                           <input type="hidden" name="rc_pm_stime" value="<?= $info["rc_pm_stime"] ?>">
-                          <span class="liner" style="display:none;"></span>
+                          <span class="liner"></span>
                         </label>
-                        <span class="entity" style="display: inline-block;margin-right: 30px;">~</span>
+                        <span class="entity time-separator">~</span>
                         <label class="form-selectbox col">
                           <span class="sr-text">시간 선택</span>
-                          <select id="rc_pm_etime_h" name="rc_pm_etime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
-                            <!-- <option value="">시</option> -->
+                          <select id="rc_pm_etime_h" name="rc_pm_etime_h" class="time-select">
                             <?php for ($t2 = 0; $t2 <= 23; $t2++) { ?>
                               <option value="<?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_pm_etime"], 0, 2) == str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected" : ($t2 == 6 ? "selected" : "") ?>><?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?></option>
                             <?php } ?>
                           </select>
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-                          <input type="text" name="rc_pm_etime_m" value="<?= substr($info["rc_pm_etime"], 3, 2) ?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-                          <span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+                          <span class="time-unit">시</span>
+                          <input type="text" name="rc_pm_etime_m" value="<?= substr($info["rc_pm_etime"], 3, 2) ?>" placeholder="직접입력" class="time-input-m">
+                          <span class="time-unit">분</span>
                           <input type="hidden" name="rc_pm_etime" value="<?= $info["rc_pm_etime"] ?>">
-                          <span class="liner" style="display:none;"></span>
+                          <span class="liner"></span>
                         </label>
                       </div>
                     </div>
