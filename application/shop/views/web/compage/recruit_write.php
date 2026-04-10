@@ -211,6 +211,27 @@
         .addition-info-form .value {
           margin-top: 4px;
         }
+
+        /* 섹션 레이아웃 */
+        .form-section {
+          margin-bottom: 50px;
+          padding-bottom: 40px;
+          border-bottom: 1px solid #e0e0e0;
+        }
+
+        .form-section:last-child {
+          border-bottom: none;
+          margin-bottom: 0;
+        }
+
+        .form-section-title {
+          font-size: 18px;
+          font-weight: bold;
+          color: #333;
+          margin-bottom: 30px;
+          padding-bottom: 15px;
+          border-bottom: 2px solid #31A182;
+        }
       </style>
       <div class="tab-panel on">
         <div class="manage-my-content">
@@ -227,6 +248,9 @@
             <input type="hidden" id="mm_comp_num_org" name="mm_comp_num_org" value="<?= $info["mm_comp_num"] ?>" />
 
             <div class="addition-info-form">
+              <!-- 근무정보 섹션 -->
+              <div class="form-section">
+                <p class="form-section-title">근무정보</p>
               <div class="form-table">
                 <div class="form-row">
                   <p class="form-label" style="font-size: 0.9em;"><span class="fixed">*</span>표시는 필수 입력 항목입니다.</p>
@@ -235,6 +259,7 @@
                   </div>
                 </div>
                 <input type="hidden" name="rc_show_yn" value="Y">
+
                 <div class="form-row">
                   <p class="form-label"><span class="fixed">*</span>공고명 <em>(최대 30자)</em></p>
                   <div class="value">
@@ -412,6 +437,13 @@
                     <?php endforeach; ?>
                   </div>
                 </div>
+              </div><!-- //form-table 근무정보 -->
+              </div><!-- //근무정보 섹션 -->
+
+              <!-- 추가정보 섹션 -->
+              <div class="form-section">
+                <p class="form-section-title">추가정보</p>
+              <div class="form-table">
                 <div class="form-row">
                   <p class="form-label">희망국적 <em>다중선택가능</em></p>
                   <div class="form-group">
@@ -472,6 +504,13 @@
                     </div>
                   </div>
                 </div>
+              </div><!-- //form-table 추가정보 -->
+              </div><!-- //추가정보 섹션 -->
+
+              <!-- 근무조건 섹션 -->
+              <div class="form-section">
+                <p class="form-section-title">근무조건</p>
+              <div class="form-table">
                 <div class="form-row">
                   <p class="form-label"><span class="fixed">*</span>근무형태 <em>다중선택가능</em></p>
                   <div class="form-group">
@@ -577,695 +616,708 @@
                     </div>
                   </div>
                 </div>
-                  <script>
-                    (function() {
-                      function chgMonth(instance) {
-                        var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                          month = Number(instance.currentMonth) + 1,
-                          year = instance.currentYear;
-                        $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                <script>
+                  (function() {
+                    function chgMonth(instance) {
+                      var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
+                        month = Number(instance.currentMonth) + 1,
+                        year = instance.currentYear;
+                      $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                    }
+
+                    window.addEventListener('DOMContentLoaded', function() {
+                      if (typeof flatpickr == 'undefined') return false;
+
+                      //달력 생성
+                      <?php
+                      $rc_work_dt_defaultDate = $info["rc_work_dt"];
+                      if ($_GET["gbn"] == "re") {
+                        $rc_work_dt_defaultDate = Date("Y-m-d");
                       }
-
-                      window.addEventListener('DOMContentLoaded', function() {
-                        if (typeof flatpickr == 'undefined') return false;
-
-                        //달력 생성
-                        <?php
-                        $rc_work_dt_defaultDate = $info["rc_work_dt"];
-                        if ($_GET["gbn"] == "re") {
-                          $rc_work_dt_defaultDate = Date("Y-m-d");
-                        }
-                        ?>
-                        flatpickr('.starting-date .js-datepicker', {
-                          locale: 'ko',
-                          dateFormat: 'Y-m-d',
-                          ariaDateFormat: 'Y-m-d',
-                          altFormat: 'Y.m.d',
-                          defaultDate: '<?= $rc_work_dt_defaultDate ?>',
-                          altInput: true,
-                          nextArrow: '<span class="sr-text">다음</span>',
-                          prevArrow: '<span class="sr-text">이전</span>',
-                          disableMobile: true,
-                          position: 'bottom auto',
-                          monthSelectorType: 'select', // 월 선택 활성화
-                          //static: true, // 드롭다운 대신 정적 셀렉터
-                          yearSelectorType: 'select',
-                          onMonthChange: function(selectedDates, dateStr, instance) {
-                            chgMonth(this);
-                          },
-                          onDayCreate: function(dObj, dStr, fp, dayElem) {
-                            var day = new Date(dayElem.getAttribute('aria-label')).getDay();
-                            if (day == 0) {
-                              dayElem.classList.add('sun');
-                            } else if (day == 6) {
-                              dayElem.classList.add('sat');
-                            }
-                          },
-                          onReady: function(selectedDates, dateStr, instance) {
-                            //오늘버튼 추가
-                            const todayButton = document.createElement("button");
-                            todayButton.type = "button";
-                            todayButton.textContent = "오늘";
-                            todayButton.className = "flatpickr-today-button";
-                            todayButton.style = "position: absolute; top: 29px; right: 83px; font-size: 14px; padding: 2px 5px; background-color: #fff; border: 1px solid #ccc; color: #777;";
-                            todayButton.addEventListener('click', function() {
-                              const today = new Date();
-                              instance.setDate(new Date());
-
-                              // flatpickr 인터페이스 내 연도 및 월을 오늘 날짜로 업데이트
-                              instance.currentYear = today.getFullYear();
-                              instance.currentMonth = today.getMonth();
-                              instance.redraw(); // 달력 갱신
-
-                              $(this).parent().find('.month').html((today.getMonth() + 1) + '<small>월</small>');
-                              $(this).parent().find('.year').html(today.getFullYear());
-                            });
-                            instance.calendarContainer.appendChild(todayButton);
-
-                            /* //년도선택 시 달력은 변하는데, 달력위의 년도값이 변하지 않아서 일단 remark
-                            //년도선택 추가
-                            const yearSelect = document.createElement("select");
-                            yearSelect.className = "flatpickr-year-select";
-
-                            // 현재 연도를 구하고, 전후 10년을 범위로 설정
-                            const currentYear = new Date().getFullYear();
-                            for (let i = currentYear - 10; i <= currentYear + 10; i++) {
-                              const option = document.createElement("option");
-                              option.value = i;
-                              option.text = i;
-                              if (i === currentYear) {
-                                option.selected = true;
-                              }
-                              yearSelect.appendChild(option);
-                            }
-
-                            yearSelect.addEventListener('change', function() {
-                              instance.currentYear = parseInt(this.value, 10);
-                              instance.redraw();
-                            });
-
-                            // 달력 컨테이너에 연도 선택 추가
-                            instance.calendarContainer.appendChild(yearSelect);
-                            */
-
-                            chgMonth(this);
+                      ?>
+                      flatpickr('.starting-date .js-datepicker', {
+                        locale: 'ko',
+                        dateFormat: 'Y-m-d',
+                        ariaDateFormat: 'Y-m-d',
+                        altFormat: 'Y.m.d',
+                        defaultDate: '<?= $rc_work_dt_defaultDate ?>',
+                        altInput: true,
+                        nextArrow: '<span class="sr-text">다음</span>',
+                        prevArrow: '<span class="sr-text">이전</span>',
+                        disableMobile: true,
+                        position: 'bottom auto',
+                        monthSelectorType: 'select', // 월 선택 활성화
+                        //static: true, // 드롭다운 대신 정적 셀렉터
+                        yearSelectorType: 'select',
+                        onMonthChange: function(selectedDates, dateStr, instance) {
+                          chgMonth(this);
+                        },
+                        onDayCreate: function(dObj, dStr, fp, dayElem) {
+                          var day = new Date(dayElem.getAttribute('aria-label')).getDay();
+                          if (day == 0) {
+                            dayElem.classList.add('sun');
+                          } else if (day == 6) {
+                            dayElem.classList.add('sat');
                           }
-                          //onReady: function () {
-                          //  chgMonth(this);
-                          //}
-                        });
+                        },
+                        onReady: function(selectedDates, dateStr, instance) {
+                          //오늘버튼 추가
+                          const todayButton = document.createElement("button");
+                          todayButton.type = "button";
+                          todayButton.textContent = "오늘";
+                          todayButton.className = "flatpickr-today-button";
+                          todayButton.style = "position: absolute; top: 29px; right: 83px; font-size: 14px; padding: 2px 5px; background-color: #fff; border: 1px solid #ccc; color: #777;";
+                          todayButton.addEventListener('click', function() {
+                            const today = new Date();
+                            instance.setDate(new Date());
+
+                            // flatpickr 인터페이스 내 연도 및 월을 오늘 날짜로 업데이트
+                            instance.currentYear = today.getFullYear();
+                            instance.currentMonth = today.getMonth();
+                            instance.redraw(); // 달력 갱신
+
+                            $(this).parent().find('.month').html((today.getMonth() + 1) + '<small>월</small>');
+                            $(this).parent().find('.year').html(today.getFullYear());
+                          });
+                          instance.calendarContainer.appendChild(todayButton);
+
+                          /* //년도선택 시 달력은 변하는데, 달력위의 년도값이 변하지 않아서 일단 remark
+                          //년도선택 추가
+                          const yearSelect = document.createElement("select");
+                          yearSelect.className = "flatpickr-year-select";
+
+                          // 현재 연도를 구하고, 전후 10년을 범위로 설정
+                          const currentYear = new Date().getFullYear();
+                          for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+                            const option = document.createElement("option");
+                            option.value = i;
+                            option.text = i;
+                            if (i === currentYear) {
+                              option.selected = true;
+                            }
+                            yearSelect.appendChild(option);
+                          }
+
+                          yearSelect.addEventListener('change', function() {
+                            instance.currentYear = parseInt(this.value, 10);
+                            instance.redraw();
+                          });
+
+                          // 달력 컨테이너에 연도 선택 추가
+                          instance.calendarContainer.appendChild(yearSelect);
+                          */
+
+                          chgMonth(this);
+                        }
+                        //onReady: function () {
+                        //  chgMonth(this);
+                        //}
                       });
-                    }());
-                  </script>
-                </div>
+                    });
+                  }());
+                </script>
 
                 <div class="form-row">
-                  <p class="form-label"><span class="fixed">*</span>급여형태</p>
-                  <div class="value">
-                    <style>
-                      .row {
-                        display: flex;
-                        gap: 8px;
-                        flex-direction: column;
-                      }
+                <p class="form-label"><span class="fixed">*</span>급여형태</p>
+                <div class="value">
+                  <style>
+                    .row {
+                      display: flex;
+                      gap: 8px;
+                      flex-direction: column;
+                    }
 
-                      .extraField {
-                        display: flex;
-                        gap: 8px;
-                        flex-direction: column;
-                      }
+                    .extraField {
+                      display: flex;
+                      gap: 8px;
+                      flex-direction: column;
+                    }
 
-                      .checks {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-                        gap: 10px;
-                      }
+                    .checks {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+                      gap: 10px;
+                    }
 
-                      .chip {
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 8px;
-                        width: 100%;
-                        background: #fff;
-                        border: 1px solid #ADAEB9;
-                        border-radius: 999px;
-                        padding: 10px 12px;
-                        cursor: pointer;
-                        justify-content: center;
-                        color: #777;
-                      }
+                    .chip {
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;
+                      width: 100%;
+                      background: #fff;
+                      border: 1px solid #ADAEB9;
+                      border-radius: 999px;
+                      padding: 10px 12px;
+                      cursor: pointer;
+                      justify-content: center;
+                      color: #777;
+                    }
 
-                      .chip.on {
-                        background: #57CCAF;
-                        border: 1px solid #57CCAF;
-                        color: #fff;
-                      }
+                    .chip.on {
+                      background: #57CCAF;
+                      border: 1px solid #57CCAF;
+                      color: #fff;
+                    }
 
-                      .chip input[type="radio"],
-                      .chip2 input[type="radio"] {
-                        display: none;
-                      }
+                    .chip input[type="radio"],
+                    .chip2 input[type="radio"] {
+                      display: none;
+                    }
 
-                      .checks2 {
-                        display: flex;
-                        gap: 12px;
-                      }
+                    .checks2 {
+                      display: flex;
+                      gap: 12px;
+                    }
 
-                      .chip2 {
-                        position: relative;
-                        padding-left: 28px;
-                        cursor: pointer;
-                      }
+                    .chip2 {
+                      position: relative;
+                      padding-left: 28px;
+                      cursor: pointer;
+                    }
 
-                      .chip2.on {
-                        color: #57CCAF;
-                      }
+                    .chip2.on {
+                      color: #57CCAF;
+                    }
 
-                      .chip2::before {
-                        content: "";
-                        display: block;
-                        position: absolute;
-                        left: 5px;
-                        width: 1.25rem;
-                        height: 1.25rem;
-                        background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox_off.svg) no-repeat 0 0;
-                        background-size: contain;
-                        border-radius: 100%;
-                        z-index: 1;
-                      }
+                    .chip2::before {
+                      content: "";
+                      display: block;
+                      position: absolute;
+                      left: 5px;
+                      width: 1.25rem;
+                      height: 1.25rem;
+                      background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox_off.svg) no-repeat 0 0;
+                      background-size: contain;
+                      border-radius: 100%;
+                      z-index: 1;
+                    }
 
-                      .chip2.on::before {
-                        background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox_on.svg) no-repeat 0 0;
-                        background-size: contain;
-                      }
+                    .chip2.on::before {
+                      background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox_on.svg) no-repeat 0 0;
+                      background-size: contain;
+                    }
 
-                      .amountField {
-                        display: flex;
-                        gap: 8px;
-                        height: 34px;
-                      }
+                    .amountField {
+                      display: flex;
+                      gap: 8px;
+                      height: 34px;
+                    }
 
-                      .amountField .amount {
-                        display: flex;
-                        gap: 4px;
-                        align-items: center;
-                        width: 40%;
-                        border-radius: 999px;
-                        border: 1px solid #57CCAF;
-                      }
+                    .amountField .amount {
+                      display: flex;
+                      gap: 4px;
+                      align-items: center;
+                      width: 40%;
+                      border-radius: 999px;
+                      border: 1px solid #57CCAF;
+                    }
 
-                      .amountField .amount input[type="text"] {
-                        width: 100%;
-                        margin-left: 16px;
-                        border: none;
-                        outline: none;
-                      }
+                    .amountField .amount input[type="text"] {
+                      width: 100%;
+                      margin-left: 16px;
+                      border: none;
+                      outline: none;
+                    }
 
-                      .amountField .amount input[type="text"]:focus {}
+                    .amountField .amount input[type="text"]:focus {}
 
-                      .amountField .amountNotice {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      }
+                    .amountField .amountNotice {
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    }
 
-                      .amountField .amountNotice p {
-                        display: inline-block;
-                        padding-left: 20px;
-                        background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzMxQTE4MiIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNOCAxNkE4IDggMCAxIDAgOCAwYTggOCAwIDAgMCAwIDE2bS45My05LjQxMi0xIDQuNzA1Yy0uMDcuMzQuMDI5LjUzMy4zMDQuNTMzLjE5NCAwIC40ODctLjA3LjY4Ni0uMjQ2bC0uMDg4LjQxNmMtLjI4Ny4zNDYtLjkyLjU5OC0xLjQ2NS41OTgtLjcwMyAwLTEuMDAyLS40MjItLjgwOC0xLjMxOWwuNzM4LTMuNDY4Yy4wNjQtLjI5My4wMDYtLjM5OS0uMjg3LS40NzFsLS40NTEtLjA4MS4wODItLjM4MSAyLjI5LS4yODd6TTggNS41YTEgMSAwIDEgMSAwLTIgMSAxIDAgMCAxIDAgMiIvPgo8L3N2Zz4=) no-repeat left center;
-                        background-size: 16px 16px;
-                      }
+                    .amountField .amountNotice p {
+                      display: inline-block;
+                      padding-left: 20px;
+                      background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzMxQTE4MiIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNOCAxNkE4IDggMCAxIDAgOCAwYTggOCAwIDAgMCAwIDE2bS45My05LjQxMi0xIDQuNzA1Yy0uMDcuMzQuMDI5LjUzMy4zMDQuNTMzLjE5NCAwIC40ODctLjA3LjY4Ni0uMjQ2bC0uMDg4LjQxNmMtLjI4Ny4zNDYtLjkyLjU5OC0xLjQ2NS41OTgtLjcwMyAwLTEuMDAyLS40MjItLjgwOC0xLjMxOWwuNzM4LTMuNDY4Yy4wNjQtLjI5My4wMDYtLjM5OS0uMjg3LS40NzFsLS40NTEtLjA4MS4wODItLjM4MSAyLjI5LS4yODd6TTggNS41YTEgMSAwIDEgMSAwLTIgMSAxIDAgMCAxIDAgMiIvPgo8L3N2Zz4=) no-repeat left center;
+                      background-size: 16px 16px;
+                    }
 
-                      .amountField .amountNotice span {
-                        color: red;
-                      }
+                    .amountField .amountNotice span {
+                      color: red;
+                    }
 
-                      .unit {
-                        white-space: nowrap;
-                        padding-right: 12px;
-                      }
+                    .unit {
+                      white-space: nowrap;
+                      padding-right: 12px;
+                    }
 
-                      .hide {
-                        display: none !important;
-                      }
-                    </style>
-                    <?php
-                    $rc_price_type_list = ["시급", "일급", "주급", "월급", "급여협의"];
-                    $rc_price_type_unit = [
-                      "시급" => "원/시",
-                      "일급" => "원/일",
-                      "주급" => "원/주",
-                      "월급" => "원/월",
-                      "협의" => "-"
-                    ];
-                    // getConvertPriceType()는 data_helper.php에서 정의됨
-                    ?>
-                    <div class="row">
+                    .hide {
+                      display: none !important;
+                    }
+                  </style>
+                  <?php
+                  $rc_price_type_list = ["시급", "일급", "주급", "월급", "급여협의"];
+                  $rc_price_type_unit = [
+                    "시급" => "원/시",
+                    "일급" => "원/일",
+                    "주급" => "원/주",
+                    "월급" => "원/월",
+                    "협의" => "-"
+                  ];
+                  // getConvertPriceType()는 data_helper.php에서 정의됨
+                  ?>
+                  <div class="row">
 
-                      <input type="hidden" class="hidden_price_value" name="rc_price_type" value="<?= $info["rc_price_type"] ?>">
-                      <input type="hidden" class="hidden_price_value" name="rc_price_rep" value="<?= $info["rc_price_rep"] ?>">
-                      <input type="hidden" class="hidden_price_value" name="rc_price_pay" value="<?= $info["rc_price_pay"] ?>">
-                      <input type="hidden" class="hidden_price_value" name="rc_day_price" value="<?= $info["rc_day_price"] ?>">
-                      <input type="hidden" class="hidden_price_value" name="rc_week_price" value="<?= $info["rc_week_price"] ?>">
-                      <input type="hidden" class="hidden_price_value" name="rc_month_price" value="<?= $info["rc_month_price"] ?>">
+                    <input type="hidden" class="hidden_price_value" name="rc_price_type" value="<?= $info["rc_price_type"] ?>">
+                    <input type="hidden" class="hidden_price_value" name="rc_price_rep" value="<?= $info["rc_price_rep"] ?>">
+                    <input type="hidden" class="hidden_price_value" name="rc_price_pay" value="<?= $info["rc_price_pay"] ?>">
+                    <input type="hidden" class="hidden_price_value" name="rc_day_price" value="<?= $info["rc_day_price"] ?>">
+                    <input type="hidden" class="hidden_price_value" name="rc_week_price" value="<?= $info["rc_week_price"] ?>">
+                    <input type="hidden" class="hidden_price_value" name="rc_month_price" value="<?= $info["rc_month_price"] ?>">
 
-                      <div class="checks" id="repChecks">
+                    <div class="checks" id="repChecks">
+                      <?php foreach ($rc_price_type_list as $row) : ?>
+                        <label class="chip <?= ($info['rc_price_rep'] === $row ? 'on' : '') ?>">
+                          <input type="radio"
+                            name="rc_price_rep_check"
+                            value="<?= $row ?>"
+                            <?= ($info['rc_price_rep'] === $row ? 'checked' : '') ?> />
+                          <span><?= $row ?></span>
+                        </label>
+                      <?php endforeach; ?>
+                    </div>
+
+                    <div class="extraField <?= ($info['rc_price_rep'] === '급여협의' ? 'hide' : '') ?>" id="extraField">
+                      <div class="amountField">
+                        <div class="amount">
+                          <input type="text"
+                            class="form-text"
+                            id="rc_price_pay"
+                            value="<?= $info['rc_price_pay'] != null ? number_format($info['rc_price_pay']) : '' ?>"
+                            placeholder="금액 입력" />
+                          <span class="unit" id="amountUnit">
+                            <?= isset($rc_price_type_unit[$info['rc_price_rep']]) ? $rc_price_type_unit[$info['rc_price_rep']] : '' ?>
+                          </span>
+                        </div>
+                        <div class="amountNotice">
+                          <p>최저임금제도 : 시급 <span>10,320</span>원</p>
+                        </div>
+                      </div>
+
+                      <div class="checks2" id="extraChecks">
                         <?php foreach ($rc_price_type_list as $row) : ?>
-                          <label class="chip <?= ($info['rc_price_rep'] === $row ? 'on' : '') ?>">
-                            <input type="radio"
-                              name="rc_price_rep_check"
-                              value="<?= $row ?>"
-                              <?= ($info['rc_price_rep'] === $row ? 'checked' : '') ?> />
-                            <span><?= $row ?></span>
-                          </label>
+                          <?php if ($row !== $info['rc_price_rep'] && $row !== "급여협의") : ?>
+                            <label class="chip2 <?= (strpos($info['rc_price_type'], $row) !== false ? 'on' : '') ?>">
+                              <input type="radio"
+                                name="rc_price_extra"
+                                value="<?= $row ?>"
+                                <?= (strpos($info['rc_price_type'], $row) !== false ? 'checked' : '') ?> />
+                              <span><?= $row ?>가능</span>
+                            </label>
+                          <?php endif; ?>
                         <?php endforeach; ?>
                       </div>
-
-                      <div class="extraField <?= ($info['rc_price_rep'] === '급여협의' ? 'hide' : '') ?>" id="extraField">
-                        <div class="amountField">
-                          <div class="amount">
-                            <input type="text"
-                              class="form-text"
-                              id="rc_price_pay"
-                              value="<?= $info['rc_price_pay'] != null ? number_format($info['rc_price_pay']) : '' ?>"
-                              placeholder="금액 입력" />
-                            <span class="unit" id="amountUnit">
-                              <?= isset($rc_price_type_unit[$info['rc_price_rep']]) ? $rc_price_type_unit[$info['rc_price_rep']] : '' ?>
-                            </span>
-                          </div>
-                          <div class="amountNotice">
-                            <p>최저임금제도 : 시급 <span>10,320</span>원</p>
-                          </div>
-                        </div>
-
-                        <div class="checks2" id="extraChecks">
-                          <?php foreach ($rc_price_type_list as $row) : ?>
-                            <?php if ($row !== $info['rc_price_rep'] && $row !== "급여협의") : ?>
-                              <label class="chip2 <?= (strpos($info['rc_price_type'], $row) !== false ? 'on' : '') ?>">
-                                <input type="radio"
-                                  name="rc_price_extra"
-                                  value="<?= $row ?>"
-                                  <?= (strpos($info['rc_price_type'], $row) !== false ? 'checked' : '') ?> />
-                                <span><?= $row ?>가능</span>
-                              </label>
-                            <?php endif; ?>
-                          <?php endforeach; ?>
-                        </div>
-                      </div>
                     </div>
-                    <script>
-                      $(function() {
-                        const PAY_TYPES = ["시급", "일급", "주급", "월급", "급여협의"];
-                        const UNIT_BY_TYPE = {
-                          "시급": "원/시",
-                          "일급": "원/일",
-                          "주급": "원/주",
-                          "월급": "원/월",
-                          "협의": "-"
-                        };
-                        const $repChecks = $("#repChecks"),
-                          $amountUnit = $("#amountUnit"),
-                          $amountInput = $("#rc_price_pay"),
-                          $extraField = $("#extraField"),
-                          $extraChecks = $("#extraChecks");
+                  </div>
+                  <script>
+                    $(function() {
+                      const PAY_TYPES = ["시급", "일급", "주급", "월급", "급여협의"];
+                      const UNIT_BY_TYPE = {
+                        "시급": "원/시",
+                        "일급": "원/일",
+                        "주급": "원/주",
+                        "월급": "원/월",
+                        "급여협의": "-"
+                      };
+                      const $repChecks = $("#repChecks"),
+                        $amountUnit = $("#amountUnit"),
+                        $amountInput = $("#rc_price_pay"),
+                        $extraField = $("#extraField"),
+                        $extraChecks = $("#extraChecks");
 
-                        function getConvertPriceType(rc_price_type, rc_price_rep) {
+                      function getConvertPriceType(rc_price_type, rc_price_rep) {
 
-                          if (rc_price_rep === "급여협의") {
-                            return '';
-                          }
-
-                          const types = rc_price_type.split(',');
-
-                          if (types.length === 1) {
-                            return `<em class="on">${types[0]}</em>`;
-                          }
-
-                          return types.map(type => {
-                            if (type === rc_price_rep) {
-                              return `<em class="on">${type}</em>`;
-                            } else {
-                              return `<em>${type}</em>`;
-                            }
-                          }).join('');
+                        if (rc_price_rep === "급여협의") {
+                          return '';
                         }
 
-                        function buildExtraChecks(rep) {
-                          $extraChecks.empty();
-                          const extras = PAY_TYPES.filter(t => t !== rep && t !== "급여협의");
-                          extras.forEach((t, i) => {
-                            $extraChecks.append(`<label class="chip2"><input type="radio" name="rc_price_extra" value="${t}" /> <span>${t}가능</span></label>`);
-                          });
+                        const types = rc_price_type.split(',');
+
+                        if (types.length === 1) {
+                          return `<em class="on">${types[0]}</em>`;
                         }
 
-                        function setVisibility(rep) {
-                          const isNeg = rep === "협의";
-                          $extraField.toggleClass("hide", isNeg);
-                          if (isNeg) $amountInput.val("");
-                        }
-
-                        $(document).on("click", 'input[name="rc_price_rep_check"], input[name="rc_price_extra"]', function(e) {
-                          const $this = $(this);
-                          const name = $this.attr('name');
-                          const val = $this.val();
-
-                          $(`input[name="${name}"]`).closest('label').removeClass('on');
-
-                          if ($this.data("waschecked") === true) {
-                            $this.prop("checked", false).data("waschecked", false);
-
-                            if (name === "rc_price_rep_check") {
-                              $amountInput.val("");
-                              $('.hidden_price_value').val('');
-                              $extraChecks.empty();
-                              $extraField.addClass("hide");
-                            }
-                            pricePayUpdate();
-                            e.preventDefault();
-                            return;
+                        return types.map(type => {
+                          if (type === rc_price_rep) {
+                            return `<em class="on">${type}</em>`;
+                          } else {
+                            return `<em>${type}</em>`;
                           }
-                          $(`input[name="${name}"]`).data("waschecked", false);
-                          $this.data("waschecked", true).closest('label').addClass('on');
+                        }).join('');
+                      }
+
+                      function buildExtraChecks(rep) {
+                        $extraChecks.empty();
+                        const extras = PAY_TYPES.filter(t => t !== rep && t !== "급여협의");
+                        extras.forEach((t, i) => {
+                          $extraChecks.append(`<label class="chip2"><input type="radio" name="rc_price_extra" value="${t}" /> <span>${t}가능</span></label>`);
+                        });
+                      }
+
+                      function setVisibility(rep) {
+                        const isNeg = rep === "급여협의";
+                        $extraField.toggleClass("hide", isNeg);
+                        if (isNeg) $amountInput.val("");
+                      }
+
+                      $(document).on("click", 'input[name="rc_price_rep_check"], input[name="rc_price_extra"]', function(e) {
+                        const $this = $(this);
+                        const name = $this.attr('name');
+                        const val = $this.val();
+
+                        $(`input[name="${name}"]`).closest('label').removeClass('on');
+
+                        if ($this.data("waschecked") === true) {
+                          $this.prop("checked", false).data("waschecked", false);
 
                           if (name === "rc_price_rep_check") {
                             $amountInput.val("");
                             $('.hidden_price_value').val('');
-                            $amountUnit.text(UNIT_BY_TYPE[val] || "원");
-                            setVisibility(val);
-                            if (val !== "급여협의") buildExtraChecks(val);
+                            $extraChecks.empty();
+                            $extraField.addClass("hide");
                           }
                           pricePayUpdate();
-                        });
+                          e.preventDefault();
+                          return;
+                        }
+                        $(`input[name="${name}"]`).data("waschecked", false);
+                        $this.data("waschecked", true).closest('label').addClass('on');
 
-                        $amountInput.on("input", function() {
-                          let val = $(this).val().replace(/,/g, "");
-                          if (val && !isNaN(val)) {
-                            $(this).val(Number(val).toLocaleString());
-                          }
-                          pricePayUpdate();
-                        });
+                        if (name === "rc_price_rep_check") {
+                          $amountInput.val("");
+                          $('.hidden_price_value').val('');
+                          $amountUnit.text(UNIT_BY_TYPE[val] || "원");
+                          setVisibility(val);
+                          if (val !== "급여협의") buildExtraChecks(val);
+                        }
+                        pricePayUpdate();
+                      });
 
-                        function pricePayUpdate() {
-                          const rep = $('input[name="rc_price_rep_check"]:checked').val();
-                          if (!rep) {
+                      $amountInput.on("input", function() {
+                        let val = $(this).val().replace(/,/g, "");
+                        if (val && !isNaN(val)) {
+                          $(this).val(Number(val).toLocaleString());
+                        }
+                        pricePayUpdate();
+                      });
+
+                      function pricePayUpdate() {
+                        const rep = $('input[name="rc_price_rep_check"]:checked').val();
+                        if (!rep) {
+                          return;
+                        }
+
+                        const isNeg = rep === "급여협의";
+                        let amount = null;
+                        if (!isNeg) {
+                          amount = $amountInput.val().replace(/,/g, "");
+                          if (!amount) {
                             return;
                           }
-
-                          const isNeg = rep === "급여협의";
-                          let amount = null;
-                          if (!isNeg) {
-                            amount = $amountInput.val().replace(/,/g, "");
-                            if (!amount) {
-                              return;
-                            }
-                            amount = Number(amount);
-                          }
-
-                          const rc_price_type_tmp = [];
-                          $('input[name="rc_price_rep_check"]:checked, input[name="rc_price_extra"]:checked').each(function() {
-                            rc_price_type_tmp.push($(this).val());
-                          });
-
-                          const rc_price_type = rc_price_type_tmp
-                            .sort((a, b) => PAY_TYPES.indexOf(a) - PAY_TYPES.indexOf(b))
-                            .join(",");
-
-                          $('[name="rc_price_type"]').val(rc_price_type);
-                          $('[name="rc_price_rep"]').val(rep);
-                          $('[name="rc_price_pay"]').val(amount);
-
-                          // 전체 시급 적용전까지 임시처리 시작
-                          if (rep == '일급') {
-                            $('[name="rc_day_price"]').val(amount);
-                            $('[name="rc_week_price"]').val('');
-                            $('[name="rc_month_price"]').val('');
-                          }
-                          if (rep == '주급') {
-                            $('[name="rc_day_price"]').val('');
-                            $('[name="rc_week_price"]').val(amount);
-                            $('[name="rc_month_price"]').val('');
-                          }
-                          if (rep == '월급') {
-                            $('[name="rc_day_price"]').val('');
-                            $('[name="rc_week_price"]').val('');
-                            $('[name="rc_month_price"]').val(amount);
-                          }
-                          if (rep == '급여협의') {
-                            $('[name="rc_day_price"]').val('');
-                            $('[name="rc_week_price"]').val('');
-                            $('[name="rc_month_price"]').val('');
-                          }
-                          // 전체 시급 적용전까지 임시처리 끝
+                          amount = Number(amount);
                         }
 
-                      });
-                    </script>
-                  </div>
-                </div>
+                        const rc_price_type_tmp = [];
+                        $('input[name="rc_price_rep_check"]:checked, input[name="rc_price_extra"]:checked').each(function() {
+                          rc_price_type_tmp.push($(this).val());
+                        });
 
-                <div class="form-row services">
-                  <p class="form-label">복리후생</p>
-                  <div class="value">
-                    <p class="secondary-title">보험</p>
-                    <div class="form-group">
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="국민연금" <?= in_array_return("국민연금", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-1">국민연금</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="고용보험" <?= in_array_return("고용보험", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-2">고용보험</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="산재보험" <?= in_array_return("산재보험", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-3">산재보험</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="건강보험" <?= in_array_return("건강보험", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-4">건강보험</span>
-                      </label>
-                    </div>
-                    <p class="secondary-title">휴무/휴가</p>
-                    <div class="form-group">
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="연차" <?= in_array_return("연차", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit2-1">연차</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="월차" <?= in_array_return("월차", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit2-2">월차</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="여름휴가" <?= in_array_return("여름휴가", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit2-3">여름휴가</span>
-                      </label>
-                    </div>
-                    <p class="secondary-title">수당/퇴직금</p>
-                    <div class="form-group">
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="야근근로수당" <?= in_array_return("야근근로수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-1">야근근로수당</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="휴일근로수당" <?= in_array_return("휴일근로수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-2">휴일근로수당</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="장기근속수당" <?= in_array_return("장기근속수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-3">장기근속수당</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="연장근로수당" <?= in_array_return("연장근로수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-4">연장근로수당</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="인센티브제" <?= in_array_return("인센티브제", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-5">인센티브제</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="퇴직금" <?= in_array_return("퇴직금", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-6">퇴직금</span>
-                      </label>
-                    </div>
-                    <p class="secondary-title">생활편의지원</p>
-                    <div class="form-group">
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="조식제공" <?= in_array_return("조식제공", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-1">조식제공</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="중식제공" <?= in_array_return("중식제공", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-2">중식제공</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="석식제공" <?= in_array_return("석식제공", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-3">석식제공</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="근무복지급" <?= in_array_return("근무복지급", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-4">근무복지급</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="통근버스운행" <?= in_array_return("통근버스운행", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-5">통근버스운행</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="차량유류비지원" <?= in_array_return("차량유류비지원", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-6">차량유류비지원</span>
-                      </label>
-                      <label class="form-toggle-btn2">
-                        <input type="checkbox" name="rc_life_type[]" value="기숙사운영" <?= in_array_return("기숙사운영", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-7">기숙사운영</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
+                        const rc_price_type = rc_price_type_tmp
+                          .sort((a, b) => PAY_TYPES.indexOf(a) - PAY_TYPES.indexOf(b))
+                          .join(",");
 
-                <div class="form-row">
-                  <p class="form-label">상세업무정보 <em>최대500자</em></p>
-                  <div class="value" style="min-height: 398px; height: auto;">
-                    <label>
-                      <span class="sr-text">상세업무정보 입력</span>
-                      <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight" style="height:600px; min-height:600px;"><?= $info["rc_desc"] ?></textarea>
-                    </label>
-                  </div>
-                </div>
+                        $('[name="rc_price_type"]').val(rc_price_type);
+                        $('[name="rc_price_rep"]').val(rep);
+                        $('[name="rc_price_pay"]').val(amount);
 
-                <div class="form-row">
-                  <p class="form-label">해시태그</p>
-                  <div class="value">
-                    <label>
-                    </label>
-                    <span class="sr-text">상세업무정보 입력</span>
-                    <textarea style="display:none;" name="rc_hash" maxleng="100" placeholder="예) #경력무관, #나이무관 #생산" class="form-textarea sm"><?= $info["rc_hash"] ?></textarea>
-                    <script>
-                      var hashInput = '<span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px;">#<input type="text" onkeyup="fHashKey(this,event);" style=" min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px; background-color: transparen;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>';
-
-                      function fHashDel(obj) {
-                        if ($('#hashbox').find('input').length == 1) {
-                          alert('해시태그 입력란을 삭제 할 수 없습니다.');
-                          return;
+                        // 전체 시급 적용전까지 임시처리 시작
+                        if (rep == '일급') {
+                          $('[name="rc_day_price"]').val(amount);
+                          $('[name="rc_week_price"]').val('');
+                          $('[name="rc_month_price"]').val('');
                         }
-                        if ($(obj).parent().find('input').first().val() == '') {
-                          alert('해시태그 입력란을 삭제 할 수 없습니다.');
-                          return;
+                        if (rep == '주급') {
+                          $('[name="rc_day_price"]').val('');
+                          $('[name="rc_week_price"]').val(amount);
+                          $('[name="rc_month_price"]').val('');
                         }
-                        $(obj).parent().remove();
+                        if (rep == '월급') {
+                          $('[name="rc_day_price"]').val('');
+                          $('[name="rc_week_price"]').val('');
+                          $('[name="rc_month_price"]').val(amount);
+                        }
+                        if (rep == '급여협의') {
+                          $('[name="rc_day_price"]').val('');
+                          $('[name="rc_week_price"]').val('');
+                          $('[name="rc_month_price"]').val('');
+                        }
+                        // 전체 시급 적용전까지 임시처리 끝
                       }
 
-                      function fHashKey(obj, evt) {
-                        if (evt.keyCode == 13 && $(obj).val().replaceAll(' ', '') != '') {
-                          $(obj).css('border', 'none');
-                          $(obj).css('background-color', 'transparent');
-                          $(obj).attr('readonly', 'readonly');
-                          $(obj).parent().css('background-color', '#ccc');
-                          $(obj).parent().css('color', '#333');
-                          $(obj).parent().find('.hashdel').show();
-
-                          //24.09.04 input의 가로폭 변경 시작
-                          var temp = document.createElement('span');
-                          temp.style.visibility = 'hidden';
-                          temp.style.whiteSpace = 'nowrap';
-                          temp.style.width = 'fit-content';
-                          temp.style.fontSize = window.getComputedStyle(obj).fontSize;
-                          temp.style.fontFamily = window.getComputedStyle(obj).fontFamily;
-
-                          // Add input text to the temp element
-                          temp.textContent = obj.value || obj.placeholder;
-
-                          document.body.appendChild(temp);
-
-                          // Adjust the input width based on the temp element width
-                          obj.style.width = (temp.offsetWidth + 5) + 'px';
-                          obj.style.minWidth = 'auto';
-
-                          // Remove the temp element
-                          document.body.removeChild(temp);
-                          //24.09.04 input의 가로폭 변경 종료
-
-                          $('#hashbox').append(hashInput);
-                          $('#hashbox').find('input').last().focus();
-                        }
-                      }
-                    </script>
-                    <div id="hashbox" style="display: block; width: 100%; float: left; margin-top: 15px; border: 1px solid #ADAEB9; min-height: 100px; background-color: #fff;padding: 10px;line-height: 38px;">
-                      <span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px; color:#aaa;">#<input type="text" onkeyup="fHashKey(this,event);" style="min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>
-                    </div>
-                    <span style="display: block; margin-top: 10px;">해시태그 입력 후 엔터키를 눌러 다른 해시태그를 작성할 수 있습니다</span>
-                  </div>
+                    });
+                  </script>
                 </div>
-
-                <div class="form-row">
-                  <p class="form-label">첨부사진</p>
-                  <div class="value">
-                    <div class="form-pic-group">
-                      <label class="form-pic first">
-                        <input type="file" name="rc_img1" id="rc_img1" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(1);">
-                        <span class="label" style="margin-top: 20px;">기업을 대표하는<br>사진을 첨부해주세요</span>
-                        <span class="preview" id="prev1" onmouseover="$('#delimgbtn1').show();" onmouseout="$('#delimgbtn1').hide();">
-                          <?php if (getData($info, "rc_img1") != "") : ?>
-                            <img id="imgbox1" src="<?= getData($info, "rc_img1") ?>" />
-                            <input type='hidden' name='rc_img1_ori' id='rc_img1_ori' value='<?= getData($info, "rc_img1") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img2" id="rc_img2" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(2);">
-                        <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
-                        <span class="preview" id="prev2" onmouseover="$('#delimgbtn2').show();" onmouseout="$('#delimgbtn2').hide();">
-                          <?php if (getData($info, "rc_img2") != "") : ?>
-                            <img id="imgbox2" src="<?= getData($info, "rc_img2") ?>" onmouseover="$('#delimgbtn2').show();" onmouseout="$('#delimgbtn2').hide();" />
-                            <input type='hidden' name='rc_img2_ori' id='rc_img2_ori' value='<?= getData($info, "rc_img2") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img3" id="rc_img3" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(3);">
-                        <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
-                        <span class="preview" id="prev3" onmouseover="$('#delimgbtn3').show();" onmouseout="$('#delimgbtn3').hide();">
-                          <?php if (getData($info, "rc_img3") != "") : ?>
-                            <img id="imgbox3" src="<?= getData($info, "rc_img3") ?>" onmouseover="$('#delimgbtn3').show();" onmouseout="$('#delimgbtn3').hide();" />
-                            <input type='hidden' name='rc_img3_ori' id='rc_img3_ori' value='<?= getData($info, "rc_img3") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img4" id="rc_img4" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(4);">
-                        <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
-                        <span class="preview" id="prev4" onmouseover="$('#delimgbtn4').show();" onmouseout="$('#delimgbtn4').hide();">
-                          <?php if (getData($info, "rc_img4") != "") : ?>
-                            <img id="imgbox4" src="<?= getData($info, "rc_img4") ?>" onmouseover="$('#delimgbtn4').show();" onmouseout="$('#delimgbtn4').hide();" />
-                            <input type='hidden' name='rc_img4_ori' id='rc_img4_ori' value='<?= getData($info, "rc_img4") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img5" id="rc_img5" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(5);">
-                        <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
-                        <span class="preview" id="prev5" onmouseover="$('#delimgbtn5').show();" onmouseout="$('#delimgbtn5').hide();">
-                          <?php if (getData($info, "rc_img5") != "") : ?>
-                            <img id="imgbox5" src="<?= getData($info, "rc_img5") ?>" onmouseover="$('#delimgbtn5').show();" onmouseout="$('#delimgbtn5').hide();" />
-                            <input type='hidden' name='rc_img5_ori' id='rc_img5_ori' value='<?= getData($info, "rc_img5") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                  <p class="help-msg">첫 번쨰 등록된 사진이 채용공고 목록의 썸네일 이미지로 등록됩니다.
-                    <span style="display: block; color: #1B9D7D;"> ※ 권장사이즈 : 800 * 800</span>
-                  </p>
-                </div>
-
               </div>
+
+              <div class="form-row services">
+                <p class="form-label">복리후생</p>
+                <div class="value">
+                  <p class="secondary-title">보험</p>
+                  <div class="form-group">
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="국민연금" <?= in_array_return("국민연금", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit1-1">국민연금</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="고용보험" <?= in_array_return("고용보험", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit1-2">고용보험</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="산재보험" <?= in_array_return("산재보험", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit1-3">산재보험</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="건강보험" <?= in_array_return("건강보험", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit1-4">건강보험</span>
+                    </label>
+                  </div>
+                  <p class="secondary-title">휴무/휴가</p>
+                  <div class="form-group">
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="연차" <?= in_array_return("연차", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit2-1">연차</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="월차" <?= in_array_return("월차", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit2-2">월차</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="여름휴가" <?= in_array_return("여름휴가", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit2-3">여름휴가</span>
+                    </label>
+                  </div>
+                  <p class="secondary-title">수당/퇴직금</p>
+                  <div class="form-group">
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="야근근로수당" <?= in_array_return("야근근로수당", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit3-1">야근근로수당</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="휴일근로수당" <?= in_array_return("휴일근로수당", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit3-2">휴일근로수당</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="장기근속수당" <?= in_array_return("장기근속수당", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit3-3">장기근속수당</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="연장근로수당" <?= in_array_return("연장근로수당", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit3-4">연장근로수당</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="인센티브제" <?= in_array_return("인센티브제", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit3-5">인센티브제</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="퇴직금" <?= in_array_return("퇴직금", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit3-6">퇴직금</span>
+                    </label>
+                  </div>
+                  <p class="secondary-title">생활편의지원</p>
+                  <div class="form-group">
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="조식제공" <?= in_array_return("조식제공", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit4-1">조식제공</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="중식제공" <?= in_array_return("중식제공", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit4-2">중식제공</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="석식제공" <?= in_array_return("석식제공", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit4-3">석식제공</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="근무복지급" <?= in_array_return("근무복지급", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit4-4">근무복지급</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="통근버스운행" <?= in_array_return("통근버스운행", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit4-5">통근버스운행</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="차량유류비지원" <?= in_array_return("차량유류비지원", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit4-6">차량유류비지원</span>
+                    </label>
+                    <label class="form-toggle-btn2">
+                      <input type="checkbox" name="rc_life_type[]" value="기숙사운영" <?= in_array_return("기숙사운영", $info["rc_life_type"], "check") ?>>
+                      <span class="btn benefit-label benefit4-7">기숙사운영</span>
+                    </label>
+                  </div>
+                </div>
+              </div><!-- //복리후생 form-row -->
+              </div><!-- //form-table 근무조건 -->
+              </div><!-- //근무조건 섹션 -->
+
+              <!-- 업무정보 섹션 -->
+              <div class="form-section">
+                <p class="form-section-title">업무정보</p>
+              <div class="form-table">
+              <div class="form-row">
+                <p class="form-label">상세업무정보 <em>최대500자</em></p>
+                <div class="value" style="min-height: 398px; height: auto;">
+                  <label>
+                    <span class="sr-text">상세업무정보 입력</span>
+                    <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight" style="height:600px; min-height:600px;"><?= $info["rc_desc"] ?></textarea>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <p class="form-label">해시태그</p>
+                <div class="value">
+                  <label>
+                  </label>
+                  <span class="sr-text">상세업무정보 입력</span>
+                  <textarea style="display:none;" name="rc_hash" maxleng="100" placeholder="예) #경력무관, #나이무관 #생산" class="form-textarea sm"><?= $info["rc_hash"] ?></textarea>
+                  <script>
+                    var hashInput = '<span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px;">#<input type="text" onkeyup="fHashKey(this,event);" style=" min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px; background-color: transparen;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>';
+
+                    function fHashDel(obj) {
+                      if ($('#hashbox').find('input').length == 1) {
+                        alert('해시태그 입력란을 삭제 할 수 없습니다.');
+                        return;
+                      }
+                      if ($(obj).parent().find('input').first().val() == '') {
+                        alert('해시태그 입력란을 삭제 할 수 없습니다.');
+                        return;
+                      }
+                      $(obj).parent().remove();
+                    }
+
+                    function fHashKey(obj, evt) {
+                      if (evt.keyCode == 13 && $(obj).val().replaceAll(' ', '') != '') {
+                        $(obj).css('border', 'none');
+                        $(obj).css('background-color', 'transparent');
+                        $(obj).attr('readonly', 'readonly');
+                        $(obj).parent().css('background-color', '#ccc');
+                        $(obj).parent().css('color', '#333');
+                        $(obj).parent().find('.hashdel').show();
+
+                        //24.09.04 input의 가로폭 변경 시작
+                        var temp = document.createElement('span');
+                        temp.style.visibility = 'hidden';
+                        temp.style.whiteSpace = 'nowrap';
+                        temp.style.width = 'fit-content';
+                        temp.style.fontSize = window.getComputedStyle(obj).fontSize;
+                        temp.style.fontFamily = window.getComputedStyle(obj).fontFamily;
+
+                        // Add input text to the temp element
+                        temp.textContent = obj.value || obj.placeholder;
+
+                        document.body.appendChild(temp);
+
+                        // Adjust the input width based on the temp element width
+                        obj.style.width = (temp.offsetWidth + 5) + 'px';
+                        obj.style.minWidth = 'auto';
+
+                        // Remove the temp element
+                        document.body.removeChild(temp);
+                        //24.09.04 input의 가로폭 변경 종료
+
+                        $('#hashbox').append(hashInput);
+                        $('#hashbox').find('input').last().focus();
+                      }
+                    }
+                  </script>
+                  <div id="hashbox" style="display: block; width: 100%; float: left; margin-top: 15px; border: 1px solid #ADAEB9; min-height: 100px; background-color: #fff;padding: 10px;line-height: 38px;">
+                    <span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px; color:#aaa;">#<input type="text" onkeyup="fHashKey(this,event);" style="min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>
+                  </div>
+                  <span style="display: block; margin-top: 10px;">해시태그 입력 후 엔터키를 눌러 다른 해시태그를 작성할 수 있습니다</span>
+                </div>
+              </div>
+              </div><!-- //form-table 업무정보 -->
+              </div><!-- //업무정보 섹션 -->
+
+              <!-- 추가정보 섹션 (근무요일+첨부사진) -->
+              <div class="form-section">
+                <p class="form-section-title">추가정보</p>
+              <div class="form-table">
+              <div class="form-row">
+                <p class="form-label">첨부사진</p>
+                <div class="value">
+                  <div class="form-pic-group">
+                    <label class="form-pic first">
+                      <input type="file" name="rc_img1" id="rc_img1" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(1);">
+                      <span class="label" style="margin-top: 20px;">기업을 대표하는<br>사진을 첨부해주세요</span>
+                      <span class="preview" id="prev1" onmouseover="$('#delimgbtn1').show();" onmouseout="$('#delimgbtn1').hide();">
+                        <?php if (getData($info, "rc_img1") != "") : ?>
+                          <img id="imgbox1" src="<?= getData($info, "rc_img1") ?>" />
+                          <input type='hidden' name='rc_img1_ori' id='rc_img1_ori' value='<?= getData($info, "rc_img1") ?>' />
+                        <?php endif; ?>
+                      </span>
+                    </label>
+                    <label class="form-pic">
+                      <input type="file" name="rc_img2" id="rc_img2" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(2);">
+                      <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
+                      <span class="preview" id="prev2" onmouseover="$('#delimgbtn2').show();" onmouseout="$('#delimgbtn2').hide();">
+                        <?php if (getData($info, "rc_img2") != "") : ?>
+                          <img id="imgbox2" src="<?= getData($info, "rc_img2") ?>" onmouseover="$('#delimgbtn2').show();" onmouseout="$('#delimgbtn2').hide();" />
+                          <input type='hidden' name='rc_img2_ori' id='rc_img2_ori' value='<?= getData($info, "rc_img2") ?>' />
+                        <?php endif; ?>
+                      </span>
+                    </label>
+                    <label class="form-pic">
+                      <input type="file" name="rc_img3" id="rc_img3" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(3);">
+                      <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
+                      <span class="preview" id="prev3" onmouseover="$('#delimgbtn3').show();" onmouseout="$('#delimgbtn3').hide();">
+                        <?php if (getData($info, "rc_img3") != "") : ?>
+                          <img id="imgbox3" src="<?= getData($info, "rc_img3") ?>" onmouseover="$('#delimgbtn3').show();" onmouseout="$('#delimgbtn3').hide();" />
+                          <input type='hidden' name='rc_img3_ori' id='rc_img3_ori' value='<?= getData($info, "rc_img3") ?>' />
+                        <?php endif; ?>
+                      </span>
+                    </label>
+                    <label class="form-pic">
+                      <input type="file" name="rc_img4" id="rc_img4" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(4);">
+                      <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
+                      <span class="preview" id="prev4" onmouseover="$('#delimgbtn4').show();" onmouseout="$('#delimgbtn4').hide();">
+                        <?php if (getData($info, "rc_img4") != "") : ?>
+                          <img id="imgbox4" src="<?= getData($info, "rc_img4") ?>" onmouseover="$('#delimgbtn4').show();" onmouseout="$('#delimgbtn4').hide();" />
+                          <input type='hidden' name='rc_img4_ori' id='rc_img4_ori' value='<?= getData($info, "rc_img4") ?>' />
+                        <?php endif; ?>
+                      </span>
+                    </label>
+                    <label class="form-pic">
+                      <input type="file" name="rc_img5" id="rc_img5" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(5);">
+                      <span class="label" style="margin-top: 20px;"><!--사진등록--></span>
+                      <span class="preview" id="prev5" onmouseover="$('#delimgbtn5').show();" onmouseout="$('#delimgbtn5').hide();">
+                        <?php if (getData($info, "rc_img5") != "") : ?>
+                          <img id="imgbox5" src="<?= getData($info, "rc_img5") ?>" onmouseover="$('#delimgbtn5').show();" onmouseout="$('#delimgbtn5').hide();" />
+                          <input type='hidden' name='rc_img5_ori' id='rc_img5_ori' value='<?= getData($info, "rc_img5") ?>' />
+                        <?php endif; ?>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <p class="help-msg">첫 번쨰 등록된 사진이 채용공고 목록의 썸네일 이미지로 등록됩니다.
+                  <span style="display: block; color: #1B9D7D;"> ※ 권장사이즈 : 800 * 800</span>
+                </p>
+              </div>
+              </div><!-- //form-table 추가정보2 -->
+              </div><!-- //추가정보 섹션 -->
+
             </div>
-            <div class="form-action-wrap">
-              <button id="btnStep" type="button" class="btn-round btn-tertiary"><?= $info["rc_idx"] != "0" ? ($_GET["gbn"] == "re" ? "등록" : "수정") : "등록" ?>완료</button>
-            </div>
-          </form>
         </div>
+        <div class="form-action-wrap">
+          <button id="btnStep" type="button" class="btn-round btn-tertiary"><?= $info["rc_idx"] != "0" ? ($_GET["gbn"] == "re" ? "등록" : "수정") : "등록" ?>완료</button>
+        </div>
+        </form>
       </div>
     </div>
-  </main><!-- //page-content -->
+</div>
+</main><!-- //page-content -->
 </div><!-- //page -->
 
 
