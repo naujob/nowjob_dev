@@ -1133,10 +1133,12 @@ function getConvertWorkType($work_type)
  */
 function getConvertPriceType($rc_price_type, $rc_price_rep)
 {
+	// rc_price_type: "일급,주급", rc_price_rep: "주급" → "일급, <em class="on">주급</em>"
 	if (!$rc_price_type) {
 		return '';
 	}
-
+	// 쉼표로 분리 후 공백 제거
+	// types = ["일급", "주급"] 또는 ["일급", "주급", "월급"] 등
 	$types = array_map('trim', explode(',', $rc_price_type));
 
 	// 1개일 때
@@ -1163,7 +1165,7 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 function getConvertPrice($rc_price_pay, $rc_price_type = '')
 {
 	if (!$rc_price_pay || $rc_price_type === '급여협의') {
-		return '급여협의';
+		return '';
 	}
 	return number_format($rc_price_pay) . " 원";
 }

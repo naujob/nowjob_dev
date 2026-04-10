@@ -97,7 +97,7 @@ if ($g_ios_publish == true) {
           },
         }, [
           addActiveClass,
-        //  sliderDots,
+          //  sliderDots,
           function autoplay(slider) {
             sliderAutoplay(slider, 4000, false);
           }
@@ -129,7 +129,6 @@ if ($g_ios_publish == true) {
   //getLocation();
 </script>
 <style>
-
   .sr-text {
     display: block;
     position: absolute;
@@ -207,7 +206,7 @@ if ($g_ios_publish == true) {
     color: #1b9d7d;
   }
 
- 
+
 
   .content-info .summary3 p {
     margin: 0;
@@ -327,9 +326,9 @@ if ($g_ios_publish == true) {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    width: 99%;
-    
-   
+    width: 100%;
+
+
   }
 
   /* 카드 높이 최소화 */
@@ -339,11 +338,9 @@ if ($g_ios_publish == true) {
     flex-direction: column;
   }
 
-  .recomm-slider.person .person-card .thumb {
-    
-  }
+  .recomm-slider.person .person-card .thumb {}
 
- 
+
 
   .recomm-slider.person .person-card .title-wrap {
     margin: 0 0 2px;
@@ -358,9 +355,9 @@ if ($g_ios_publish == true) {
   }
 
   .recomm-slider.person .person-card .meta {
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: 500;
-    color:#000;
+    color: #000;
     margin: 2px 0 0;
     display: flex;
     text-align: center;
@@ -404,31 +401,30 @@ if ($g_ios_publish == true) {
     font-size: 0;
     height: 50px;
     max-height: 22px;
-    
-   
+
+
     border-top: none;
     background-color: #3A70DB;
     border-radius: 0 0 8px 8px;
     overflow: hidden;
     line-height: 1.3;
-    
+
   }
 
   .recomm-slider.person .person-card .tag {
     font-size: 16px;
     color: #fff;
-    text-align: center!important;
+    text-align: center !important;
   }
 
   /* 카드 스타일 */
   .recomm-slider.person .person-card {
     padding: 10px 0 10px;
-    border: 1px solid #fcf8f8;
+    border: 1px solid #d2cece;
     border-radius: 25px;
     background: #fff;
     overflow: hidden;
-    -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+
   }
 
   .recomm-slider.person .person-card .desc {
@@ -520,7 +516,7 @@ if ($g_ios_publish == true) {
     font-weight: 400;
   }
 
- 
+
 
   /* 주소 */
   .person-card .addr {
@@ -675,27 +671,33 @@ if ($g_ios_publish == true) {
   }
 </style>
 <div class="page page-home">
- 
-    <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
+
+  <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
       <span class="sr-text">미확인 알림메세지</span>
      
       <span class="cnt"><?= $g_alarm_cnt ?></span>
     </a> -->
- 
+
   <style>
     .main-visual .visual-slider .dots {
       bottom: 12%;
     }
   </style>
   <div class="page-content">
-  <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
+    <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
     <div class="section index_comp">
       <div class="container">
         <h2 class="secondary-title index">추천인재</h2>
         <div class="recomm-slider person">
+          <button class="slider-nav slider-nav-prev" aria-label="이전 슬라이드">
+            <i class="fas fa-chevron-left"></i>
+          </button>
           <div class="slider-wrap keen-slider" id="recomm-list">
           </div>
+          <button class="slider-nav slider-nav-next" aria-label="다음 슬라이드">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -760,16 +762,16 @@ if ($g_ios_publish == true) {
       <div class="thumb-wrap">
         <div class="thumb">
           <img src="{{ru_resume_img}}" alt="프로필">
-        
+
         </div>
         <div class="person-badge-wrap">
           <div class="person-badge-icon">{{ru_work_img}}</div>
-          
+
         </div>
       </div>
       <div class="desc">
         <div class="content-wrap">
-          
+
           <div class="meta">
             <p class="work_type">{{ru_work_type}}</p>
             <span class="meta-divider">|</span>
@@ -947,18 +949,36 @@ if ($g_ios_publish == true) {
   // 추천인재 슬라이더 초기화 함수
   function initRecommSlider() {
     var recommSlider = document.querySelector('.recomm-slider.person .slider-wrap');
+    var prevBtn = document.querySelector('.recomm-slider.person .slider-nav-prev');
+    var nextBtn = document.querySelector('.recomm-slider.person .slider-nav-next');
 
     if (recommSlider && typeof KeenSlider !== 'undefined') {
       // 이미 초기화되었으면 스킵
       if (!recommSlider.__keenslider__) {
-        new KeenSlider(recommSlider, {
-          loop: true,  // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
-          slides: { perView: 1 },
+        var slider = new KeenSlider(recommSlider, {
+          loop: true, // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
+          slides: {
+            perView: 1
+          },
           drag: true,
           dragMinDist: 0,
-          rubberband: true,  // 끝에서 탄력적인 바운스
-          renderMode: 'performance'  // 성능 최적화
+          rubberband: true, // 끝에서 탄력적인 바운스
+          renderMode: 'performance' // 성능 최적화
         });
+
+        // 이전 버튼 클릭
+        if (prevBtn) {
+          prevBtn.addEventListener('click', function() {
+            slider.prev();
+          });
+        }
+
+        // 다음 버튼 클릭
+        if (nextBtn) {
+          nextBtn.addEventListener('click', function() {
+            slider.next();
+          });
+        }
       }
     }
   }

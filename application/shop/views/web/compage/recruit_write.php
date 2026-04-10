@@ -248,10 +248,10 @@
                   </div>
                 </div>
                 <div class="form-row">
-                  <p class="form-label"><span class="fixed">*</span>공고제목 <em>(최대 30자)</em></p>
+                  <p class="form-label"><span class="fixed">*</span>공고명 <em>(최대 30자)</em></p>
                   <div class="value">
                     <label>
-                      <span class="sr-text">공고제목 입력</span>
+                      <span class="sr-text">공고명 입력</span>
                       <input style="width:580px;" type="text" name="rc_name" placeholder="공고명을 작성해주세요" value="<?= $info["rc_name"] ?>" placeholder="공고명을 작성해주세요" autocomplete="off" aria-required="true" required class="form-text">
                       <div onclick="$('#recruiteListBox').toggle();" style="position: absolute; top: 33px; left: 808px; /* border: 1px solid #999; */ padding: 11px 5px 0 5px; border-radius: 6px;"><img src="/resource/shop/web/img/ic_arrow_down.svg"></div>
                       <div id="recruiteListBox" style="display:none; width: 580px; max-height: 120px; border: 1px solid #ccc; overflow-y: auto; overflow-x: hidden; background-color:#fff; border-radius: 8px; box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px 5px 10px rgba(0, 0, 0, 0.2), 0px 10px 10px rgba(0, 0, 0, 0.2); ">
@@ -324,12 +324,12 @@
                   </div>
                 </div>
                 <div class="form-row">
-                  <p class="form-label"><span class="fixed">*</span>채용공고기간</p>
+                  <p class="form-label"><span class="fixed">*</span>모집일</p>
                   <div class="value">
                     <div class="inline-group">
                       <div class="recruit-range noti_duration">
                         <label>
-                          <span class="sr-text">채용공고기간 입력</em></span>
+                          <span class="sr-text">모집일 입력</em></span>
                           <input type="text" name="rc_date" aria-required="true" required class="form-text js-datepicker2" style="font-size: 16px;">
                         </label>
                       </div>
@@ -388,7 +388,7 @@
                   </script>
                 </div>
                 <div class="form-row address">
-                  <p class="form-label"><span class="fixed">*</span>근무지역 <em>(최대 30자)</em></p>
+                  <p class="form-label"><span class="fixed">*</span>근무지 <em>(최대 30자)</em></p>
                   <div class="value">
                     <!-- 현재 위치 -->
                     <label class="row">
@@ -406,10 +406,10 @@
                   </div>
                 </div>
                 <div class="form-row">
-                  <p class="form-label"><span class="fixed">*</span>업무구분 <em>최대 2개 선택가능</em></p>
+                  <p class="form-label"><span class="fixed">*</span>업직종 <em>최대 2개 선택가능</em></p>
                   <div class="form-group">
                     <?php
-                    // 표시 허용 업무구분 화이트리스트
+                    // 표시 허용 업직종 화이트리스트
                     $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
                     foreach ($rc_wrok_list as $row) :
                       // 허용 목록 이외 항목은 출력 제외
@@ -494,7 +494,7 @@
                       </label>
                     <?php endforeach; ?>
                   </div>
-                  <span id="work_type_memo" style="display:none; margin-left: 20px;">근무협의</span>
+                  <span id="work_type_memo" style="display:none; margin-left: 20px;">급여협의</span>
                 </div>
                 <div class="form-row" id="time_cont1" <?= (array_search("주간", $info["rc_work_type"]) !== false || array_search("2교대", $info["rc_work_type"]) !== false) ? "" : "hidden" ?>>
                   <p class="form-label" style="text-align:right;padding-right:50px;font-weight:normal;font-size:16px;">근무시간(주간)</p>
@@ -834,7 +834,7 @@
                       }
                     </style>
                     <?php
-                    $rc_price_type_list = ["시급", "일급", "주급", "월급", "협의"];
+                    $rc_price_type_list = ["시급", "일급", "주급", "월급", "급여협의"];
                     $rc_price_type_unit = [
                       "시급" => "원/시",
                       "일급" => "원/일",
@@ -865,7 +865,7 @@
                         <?php endforeach; ?>
                       </div>
 
-                      <div class="extraField <?= ($info['rc_price_rep'] === '협의' ? 'hide' : '') ?>" id="extraField">
+                      <div class="extraField <?= ($info['rc_price_rep'] === '급여협의' ? 'hide' : '') ?>" id="extraField">
                         <div class="amountField">
                           <div class="amount">
                             <input type="text"
@@ -884,7 +884,7 @@
 
                         <div class="checks2" id="extraChecks">
                           <?php foreach ($rc_price_type_list as $row) : ?>
-                            <?php if ($row !== $info['rc_price_rep'] && $row !== "협의") : ?>
+                            <?php if ($row !== $info['rc_price_rep'] && $row !== "급여협의") : ?>
                               <label class="chip2 <?= (strpos($info['rc_price_type'], $row) !== false ? 'on' : '') ?>">
                                 <input type="radio"
                                   name="rc_price_extra"
@@ -899,7 +899,7 @@
                     </div>
                     <script>
                       $(function() {
-                        const PAY_TYPES = ["시급", "일급", "주급", "월급", "협의"];
+                        const PAY_TYPES = ["시급", "일급", "주급", "월급", "급여협의"];
                         const UNIT_BY_TYPE = {
                           "시급": "원/시",
                           "일급": "원/일",
@@ -915,7 +915,7 @@
 
                         function getConvertPriceType(rc_price_type, rc_price_rep) {
 
-                          if (rc_price_rep === "협의") {
+                          if (rc_price_rep === "급여협의") {
                             return '';
                           }
 
@@ -936,7 +936,7 @@
 
                         function buildExtraChecks(rep) {
                           $extraChecks.empty();
-                          const extras = PAY_TYPES.filter(t => t !== rep && t !== "협의");
+                          const extras = PAY_TYPES.filter(t => t !== rep && t !== "급여협의");
                           extras.forEach((t, i) => {
                             $extraChecks.append(`<label class="chip2"><input type="radio" name="rc_price_extra" value="${t}" /> <span>${t}가능</span></label>`);
                           });
@@ -976,7 +976,7 @@
                             $('.hidden_price_value').val('');
                             $amountUnit.text(UNIT_BY_TYPE[val] || "원");
                             setVisibility(val);
-                            if (val !== "협의") buildExtraChecks(val);
+                            if (val !== "급여협의") buildExtraChecks(val);
                           }
                           pricePayUpdate();
                         });
@@ -995,7 +995,7 @@
                             return;
                           }
 
-                          const isNeg = rep === "협의";
+                          const isNeg = rep === "급여협의";
                           let amount = null;
                           if (!isNeg) {
                             amount = $amountInput.val().replace(/,/g, "");
@@ -1034,7 +1034,7 @@
                             $('[name="rc_week_price"]').val('');
                             $('[name="rc_month_price"]').val(amount);
                           }
-                          if (rep == '협의') {
+                          if (rep == '급여협의') {
                             $('[name="rc_day_price"]').val('');
                             $('[name="rc_week_price"]').val('');
                             $('[name="rc_month_price"]').val('');
@@ -1467,7 +1467,7 @@
   $(document).ready(function() {
     if (window.location.pathname.indexOf('/compage/recruit_write') !== -1) {
       window.selectAddrInfo = selectAddrInfoRecruit;
-      
+
       // 패널이 닫힐 때 스크롤 복원을 위한 감시자 추가
       // changeArea 패널의 on 클래스가 제거될 때 스크롤 복원
       var $panel = $("#changeArea");
@@ -1491,13 +1491,13 @@
             }
           });
         });
-        
+
         // 패널 요소의 속성 변경 감시 시작
         observer.observe($panel[0], {
           attributes: true,
           attributeFilter: ['class', 'hidden', 'style']
         });
-        
+
         // 패널 닫기 버튼 클릭 시에도 스크롤 복원 (추가 안전장치)
         $(document).on('click', '#changeArea .btn-close-popup, #changeArea .btnCloseArea', function() {
           setTimeout(function() {
@@ -1885,13 +1885,13 @@
           try {
             var oEditor = oEditors.getById["rc_desc"];
             if (!oEditor) return;
-            
+
             // 에디터 body의 기본 폰트 크기를 14pt로 설정
             var oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
             if (oWYSIWYGDocument && oWYSIWYGDocument.body) {
               oWYSIWYGDocument.body.style.fontSize = "14pt";
             }
-            
+
             // 폰트 크기 플러그인 찾아서 기본값 설정
             var oApp = oEditor.oApp;
             if (oApp && oApp.aPlugins) {
@@ -1900,13 +1900,13 @@
                 if (oPlugin && oPlugin.sDefaultText !== undefined && oPlugin.elFontSizeLabel) {
                   oPlugin.sDefaultText = "14pt";
                   oPlugin.elFontSizeLabel.innerHTML = "14pt";
-                  
+
                   // 14pt 항목 활성화
                   if (oPlugin.aLIFontSizes && oPlugin.aLIFontSizes.length > 0) {
                     for (var j = 0; j < oPlugin.aLIFontSizes.length; j++) {
                       var elLi = oPlugin.aLIFontSizes[j];
                       if (!elLi) continue;
-                      
+
                       var elSpan = elLi.querySelector("span span");
                       if (elSpan && elSpan.style && elSpan.style.fontSize === "14pt") {
                         if (typeof oPlugin._clearFontSizeSelection === "function") {
@@ -1921,7 +1921,7 @@
                 }
               }
             }
-          } catch(e) {
+          } catch (e) {
             console.error("폰트 크기 기본값 설정 중 오류:", e);
           }
         }, 200);
@@ -1991,8 +1991,8 @@
 
     str_price += '<em class="currency">' + $('[name="rc_price_pay"]').val() + '</em>';
 
-    if (info.rc_price_type == "협의") {
-      str_price = "협의";
+    if (info.rc_price_type == "급여협의") {
+      str_price = "급여협의";
     }
 
     if (info.rc_work_type.indexOf('2교대') > -1 || (info.rc_work_type.indexOf('주간') > -1 && info.rc_work_type.indexOf('야간') > -1)) {
@@ -2077,7 +2077,7 @@
     preview_desc = preview_desc.replaceAll(/\n/g, "<br>");
 
     var rc_price_rep_txt = '';
-    if ($('[name="rc_price_rep"]') != '협의') {
+    if ($('[name="rc_price_rep"]') != '급여협의') {
       rc_price_rep_txt = ' (대표급여형태 : ' + $('[name="rc_price_rep"]').val() + ')';
     }
 
@@ -2192,7 +2192,6 @@
       }
     });
   }
-
 </script>
 
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>

@@ -115,11 +115,13 @@ if ($g_ios_publish == true) {
   // 지금 뜨는 업체 슬라이더 초기화 (조건 밖에서 실행)
   window.addEventListener('DOMContentLoaded', function() {
     var hotSlider = document.querySelector('.hot-list .slider-wrap');
+    var prevBtn = document.querySelector('.slider-nav-prev');
+    var nextBtn = document.querySelector('.slider-nav-next');
 
     if (hotSlider && typeof KeenSlider !== 'undefined') {
       // 이미 초기화되었으면 스킵
       if (!hotSlider.__keenslider__) {
-        new KeenSlider(hotSlider, {
+        var slider = new KeenSlider(hotSlider, {
           loop: true,  // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
           slides: { perView: 1 },
           drag: true,
@@ -127,17 +129,31 @@ if ($g_ios_publish == true) {
           rubberband: true,  // 끝에서 탄력적인 바운스
           renderMode: 'performance'  // 성능 최적화
         });
+
+        // 이전 버튼 클릭
+        if (prevBtn) {
+          prevBtn.addEventListener('click', function() {
+            slider.prev();
+          });
+        }
+
+        // 다음 버튼 클릭
+        if (nextBtn) {
+          nextBtn.addEventListener('click', function() {
+            slider.next();
+          });
+        }
       }
     }
   });
 </script>
+  <!-- 홈 페이지 특화 스타일 -->
 <style>
-  /* 홈 페이지 특화 스타일 */
   .result-list-card .content-li {
     border: 1px solid #EB5349;
   }
 
- 
+
 
   .result-list-card .content-info .summary3 em {
     padding-left: 5px;
@@ -387,6 +403,9 @@ if ($g_ios_publish == true) {
         <h2 class="secondary-title index">지금 뜨는 업체</h2>
         <!-- <a href="/recruit/clist" class="btn-view-all">더보기</a> -->
         <div class="hot-list">
+          <button class="slider-nav slider-nav-prev" aria-label="이전 슬라이드">
+            <i class="fas fa-chevron-left"></i>
+          </button>
           <div class="slider-wrap keen-slider">
             <?php
               // 최대 8개 업체 (2슬라이드 × 4개)
@@ -426,6 +445,9 @@ if ($g_ios_publish == true) {
               </div>
             <?php endforeach; ?>
           </div>
+          <button class="slider-nav slider-nav-next" aria-label="다음 슬라이드">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
     </div>

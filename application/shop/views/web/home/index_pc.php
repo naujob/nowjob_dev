@@ -156,7 +156,7 @@ $banner_list = getBannerList("BN00010005");
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     width: 100%;
-    gap: 48px;
+    gap: 34px 12px;
     margin-top: 20px;
     max-width: none !important;
   }
@@ -172,14 +172,17 @@ $banner_list = getBannerList("BN00010005");
     position: absolute;
     width: 100%;
     height: 250px;
-    padding: 10px;
+    padding: 25px;
     overflow: hidden;
     top: 0;
     background-color: #fff;
-
     border-radius: 25px;
     box-sizing: border-box;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .bottom-recomm .comp-info .comp-img img {
@@ -190,12 +193,14 @@ $banner_list = getBannerList("BN00010005");
   }
 
   .bottom-recomm .comp-info .comp-name {
-    position: absolute;
-    bottom: -47px;
+    position: relative;
+    bottom: auto;
     width: 100%;
-    height: 24px;
+    height: auto;
     font-size: 1.2rem;
     font-weight: 700;
+    margin-top: 10px;
+    text-align: center;
   }
 
   /* 인재 카드 2줄 그리드 레이아웃 (4개씩 2줄) */
@@ -413,8 +418,9 @@ $banner_list = getBannerList("BN00010005");
             <div class="comp-info" data-comm_idx="<?= $row["mm_idx"] ?>">
               <div class="comp-img">
                 <img src="<?= getCompImg($row) ?>">
+                <p class="comp-name"><?= $row["mm_comp_name"] ?></p>
               </div>
-              <p class="comp-name"><?= $row["mm_comp_name"] ?></p>
+
             </div>
           <?php
             $count++;
@@ -447,11 +453,7 @@ $banner_list = getBannerList("BN00010005");
       <?php if ($mm_type == "MEM") { ?><button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" class=" btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
       <div class="thumb">
         <img src="{{rt_recruit_img}}" alt="">
-        <div class="slider-dots">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
+
       </div>
       <div class="content-wrap">
         <div class="inline-group">
@@ -545,11 +547,12 @@ $banner_list = getBannerList("BN00010005");
 
   // 슬라이더 생성 함수
   function createSlider(list, sliderId, arrowClass) {
-    $("#" + sliderId).html("");
+    var container = document.querySelector('#' + sliderId);
+    container.innerHTML = '';
 
     // 4개씩 묶어서 슬라이드 생성
     for (var i = 0; i < list.length; i += 4) {
-      var slideHtml = '<div class="keen-slider__slide swiper-wrapper">';
+      var slideHtml = '<div class="keen-slider__slide">';
 
       // 슬라이드당 최대 4개 카드 생성
       for (var j = 0; j < 4 && i + j < list.length; j++) {
@@ -584,11 +587,6 @@ $banner_list = getBannerList("BN00010005");
           '<button type="button" data-bk_type="RECRUIT" data-bk_key="' + row.rc_idx + '" class=" btnBookMark btn-bookmark js-toggle-bookmark ' + (row.book_yn == "Y" ? "on" : "") + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
           '<div class="thumb">' +
           '<img src="' + row.rt_recruit_img + '" alt="">' +
-          '<div class="slider-dots">' +
-          '<span class="dot active"></span>' +
-          '<span class="dot"></span>' +
-          '<span class="dot"></span>' +
-          '</div>' +
           '</div>' +
           '<div class="content-wrap">' +
           '<div class="inline-group">' +
@@ -610,39 +608,40 @@ $banner_list = getBannerList("BN00010005");
       }
 
       slideHtml += '</div>';
-      $("#" + sliderId).append(slideHtml);
+      container.insertAdjacentHTML('beforeend', slideHtml);
     }
 
-    var container = document.querySelector('#' + sliderId);
-    var slide = document.querySelectorAll('#' + sliderId + ' .keen-slider__slide');
-    var perView = 1;
-    var total = slide.length;
+    var slides = container.querySelectorAll('.keen-slider__slide');
+    var total = slides.length;
 
     function nauriControls(slider) {
       var leftArrow = document.querySelector('.' + arrowClass + '.arrow--left');
       var rightArrow = document.querySelector('.' + arrowClass + '.arrow--right');
 
-      // 왼쪽 화살표 클릭 - 이전 슬라이드로 이동
-      leftArrow.addEventListener('click', () => {
-        slider.prev();
-      });
+      if (leftArrow) {
+        leftArrow.addEventListener('click', function() {
+          slider.prev();
+        });
+      }
 
-      // 오른쪽 화살표 클릭 - 다음 슬라이드로 이동
-      rightArrow.addEventListener('click', () => {
-        slider.next();
-      });
+      if (rightArrow) {
+        rightArrow.addEventListener('click', function() {
+          slider.next();
+        });
+      }
     }
 
-    var slider = new KeenSlider('#' + sliderId, {
-      loop: total > perView,
-      drag: total > perView,
-      renderMode: 'performance',
-      rubberband: false,
-      slides: {
-        perView: 1,
-      },
-      // 자동 움직임 제거 - created, updated, animationEnded 콜백 제거
-    }, [nauriControls]);
+    if (total > 0) {
+      var slider = new KeenSlider('#' + sliderId, {
+        loop: total > 1,
+        drag: true,
+        renderMode: 'performance',
+        rubberband: true,
+        slides: {
+          perView: 1,
+        },
+      }, [nauriControls]);
+    }
   }
   // 추천인재 리스트 로드
   function getRecoPersonList() {

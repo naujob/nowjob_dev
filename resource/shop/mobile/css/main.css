@@ -7762,7 +7762,7 @@ form#frm {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    width: 100%;
+    width: 101%;
 }
 
 .hot-list .keen-slider__slide {
@@ -7788,11 +7788,11 @@ form#frm {
     position: relative;
     width: 100%;
     padding: 80% 0 0;
-    border: 1px solid #fcf8f8;
+    border: 1px solid #d2cece;
     background: #fff;
     overflow: hidden;
     border-radius: 25px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+    
 }
 
 .hot-list .thumb img {
@@ -8504,7 +8504,7 @@ form#frm {
 .view-location .map {
     position: relative;
     margin: 0.625rem 0 0;
-    padding: 46.6183574879vw 0 0;
+    padding: 93.2367149758vw 0 0;
     overflow: hidden;
     background: #f0f0f0;
     z-index: 1;
@@ -13115,6 +13115,46 @@ form#frm {
     position: static;
     overflow: visible;
     margin-top: 0;
+}
+
+/* 슬라이더 네비게이션 버튼 */
+.hot-list,
+.recomm-slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+   
+}
+
+.slider-nav {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 16px;
+}
+
+.slider-nav:hover {
+    border-color: #1b9d7d;
+    color: #1b9d7d;
+    background: #f5f5f5;
+}
+
+.slider-nav:active {
+    transform: scale(0.95);
+}
+
+.hot-list .slider-wrap,
+.recomm-slider .slider-wrap {
+    flex: 1;
 }
 
 

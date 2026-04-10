@@ -36,7 +36,7 @@ function formatPhoneNumber($number)
     }
 
     /* 기업회원이 자신의 채용공고를 볼 때 view-footer 버튼 스타일 */
- 
+
 
     .view-footer .btn-edit {
         flex: 1;
@@ -46,10 +46,10 @@ function formatPhoneNumber($number)
         font-weight: 700;
     }
 
-   
+
 
     /* view-footer 내 버튼과 링크에 padding 및 font-size 적용 */
-   
+
 
     .info-table .pay {
         align-items: center;
@@ -145,7 +145,15 @@ function formatPhoneNumber($number)
     .view-desc .desc.pinching {
         cursor: grabbing;
     }
-    
+
+    .location .btn-round {
+        min-width: 6.625rem;
+        height: 3.1875rem;
+
+        font-size: 1.2rem;
+        line-height: 1.5;
+
+    }
 </style>
 <div class="page page-view">
     <div class="top-bar">
@@ -292,46 +300,46 @@ function formatPhoneNumber($number)
 
             <div class="summary-wrapper">
                 <div class="summary">
-                <div class="container">
-                    <h3 class="secondary-title jobinfo-title">구인정보</h3>
-                    <table class="info-table">
-                        <caption><span class="sr-text">구인정보</span></caption>
-                        <colgroup>
-                            <col>
-                            <col>
-                        </colgroup>
-                        <tbody>
-                            <tr>
-                                <td class="label">업무구분</td>
-                                <td class="value">
-                                    <!-- 직종라벨 -->
-                                    <?= getWorkingImg($info["rc_work"]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label">급여</td>
-                                <td class="value">
-                                    <span class="pay">
-                                        <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
-                                            <em class="amount">급여협의</em>
-                                        <?php } else {
-                                            // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
-                                            $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                                            $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
-                                        ?>
-                                            <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
-                                            <span>(<?= $price_type_html ?>)</span>
-                                        <?php } ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label">근무형태</td>
-                                <td class="value">
-                                    <span class="working-time"><?= getWorkType2025($info["rc_work_type"]) ?></span>
-                                </td>
-                            </tr>
-                            <?php /* 근무시간 표시 주석처리
+                    <div class="container">
+                        <h3 class="secondary-title jobinfo-title">구인정보</h3>
+                        <table class="info-table">
+                            <caption><span class="sr-text">구인정보</span></caption>
+                            <colgroup>
+                                <col>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <td class="label">업무구분</td>
+                                    <td class="value">
+                                        <!-- 직종라벨 -->
+                                        <?= getWorkingImg($info["rc_work"]) ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="label">급여</td>
+                                    <td class="value">
+                                        <span class="pay">
+                                            <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
+                                                <em class="amount">급여협의</em>
+                                            <?php } else {
+                                                // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
+                                                $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
+                                                $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+                                            ?>
+                                                <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
+                                                <span>(<?= $price_type_html ?>)</span>
+                                            <?php } ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="label">근무형태</td>
+                                    <td class="value">
+                                        <span class="working-time"><?= getWorkType2025($info["rc_work_type"]) ?></span>
+                                    </td>
+                                </tr>
+                                <?php /* 근무시간 표시 주석처리
                             <tr>
                                 <td class="label">근무시간</td>
                                 <td class="value">
@@ -370,38 +378,38 @@ function formatPhoneNumber($number)
                                 </td>
                             </tr>
                             */ ?>
-                            <tr>
-                                <td class="label">희망국적</td>
-                                <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "국적무관" : $info["rc_nation"]) ?></td>
-                            </tr>
-                            <tr>
-                                <td class="label">희망성별</td>
-                                <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "성별무관" : $info["rc_sex"]) ?></td>
-                            </tr>
-                            <tr>
-                                <td class="label">희망나이</td>
-                                <td class="value"><?php
-                                                    if ($info["rc_sage"] == "0" && $info["rc_eage"] == "0") {
-                                                        echo "나이무관";
-                                                    } else {
-                                                        echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
-                                                    }
-                                                    ?></td>
-                            </tr>
-                            <tr>
-                                <td class="label">근무요일</td>
-                                <td class="value">
-                                    <ul class="working-day">
-                                        <?= getWeekYoil($info["rc_week"]) ?>
-                                    </ul>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                <tr>
+                                    <td class="label">희망국적</td>
+                                    <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "국적무관" : $info["rc_nation"]) ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">희망성별</td>
+                                    <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "성별무관" : $info["rc_sex"]) ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">희망나이</td>
+                                    <td class="value"><?php
+                                                        if ($info["rc_sage"] == "0" && $info["rc_eage"] == "0") {
+                                                            echo "나이무관";
+                                                        } else {
+                                                            echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
+                                                        }
+                                                        ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">근무요일</td>
+                                    <td class="value">
+                                        <ul class="working-day">
+                                            <?= getWeekYoil($info["rc_week"]) ?>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-            </div>
 
         <div class="section view-benefit">
             <div class="container">
@@ -490,8 +498,6 @@ function formatPhoneNumber($number)
                             level: 3,
                         });
 
-                        map.setZoomable(false);
-
                         marker = new kakao.maps.Marker({
                             position: coords,
                             image: new kakao.maps.MarkerImage(
@@ -507,7 +513,7 @@ function formatPhoneNumber($number)
                 </script>
             </div>
         </div>
-        <?php 
+        <?php
         // 기업회원이 자신의 채용공고를 볼 경우를 판단
         $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
         ?>
@@ -654,11 +660,11 @@ function formatPhoneNumber($number)
                             var titleElement = document.querySelector('.view-title');
                             var title = titleElement ? titleElement.textContent.trim() : document.title;
                             var url = window.location.href;
-                        
+
                             var payload = {
                                 title: title,
                                 url: url
-                          
+
                             };
 
                             if (hasAndroidBridge) {
@@ -738,8 +744,8 @@ function formatPhoneNumber($number)
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
 <input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <?php
-    // 모집 마감 여부 계산 (종료일이 현재 시각 이전이면 마감)
-    $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
+// 모집 마감 여부 계산 (종료일이 현재 시각 이전이면 마감)
+$is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
 ?>
 <input type="hidden" id="is_closed" value="<?= $is_closed ? "Y" : "N" ?>" />
 <script>
@@ -954,12 +960,15 @@ function formatPhoneNumber($number)
             var scale = 1;
             var lastScale = 1;
             var startDist = 0;
-            var originX = 0, originY = 0;
-            var translateX = 0, translateY = 0;
+            var originX = 0,
+                originY = 0;
+            var translateX = 0,
+                translateY = 0;
             var isPinching = false;
             var isPanning = false;
             var wasPinching = false;
-            var panStartX = 0, panStartY = 0;
+            var panStartX = 0,
+                panStartY = 0;
             var lastTap = 0;
 
             var MIN_SCALE = 1;
@@ -1007,7 +1016,9 @@ function formatPhoneNumber($number)
                     panStartX = e.touches[0].clientX - translateX;
                     panStartY = e.touches[0].clientY - translateY;
                 }
-            }, { passive: false });
+            }, {
+                passive: false
+            });
 
             descEl.addEventListener('touchmove', function(e) {
                 if (isPinching && e.touches.length === 2) {
@@ -1028,7 +1039,9 @@ function formatPhoneNumber($number)
                     applyTransform();
                     e.preventDefault();
                 }
-            }, { passive: false });
+            }, {
+                passive: false
+            });
 
             descEl.addEventListener('touchend', function(e) {
                 if (e.touches.length < 2) {
@@ -1045,7 +1058,9 @@ function formatPhoneNumber($number)
                         applyTransform();
                     }
                 }
-            }, { passive: true });
+            }, {
+                passive: true
+            });
 
             // 더블탭으로 초기화
             descEl.addEventListener('touchend', function(e) {
@@ -1063,7 +1078,9 @@ function formatPhoneNumber($number)
                     applyTransform();
                 }
                 lastTap = now;
-            }, { passive: true });
+            }, {
+                passive: true
+            });
         })();
 
         var user_type = "<?= $this->user->getUserType(); ?>";
@@ -1144,37 +1161,37 @@ function formatPhoneNumber($number)
                 if (ret.code == "00") {
                     //$('.btn-close-popup').hide();
                     openPopup('confirm', {
-                content: '<em>“' + $("[name=rc_name]").val() + '”</em>으로<br> 지원하시겠습니까?',
-                firstCallback: function() {
-                    $('.btn-close-popup').show();
-                },
-                secondCallback: function() {
-                    var params = {};
-                    var mq_idxs = [];
-                    mq_idxs.push($("[name=rc_idx]").val());
-                    params["mq_idxs"] = mq_idxs;
-                    params["mq_type"] = "RECRUIT";
-                    var rc_idx = $("[name=rc_idx]").val();
-                    
-                    comAjax("/common_proc/member_request", params, function(ret) {
-                        console.log(ret);
-                        $('.btn-close-popup').show();
+                        content: '<em>“' + $("[name=rc_name]").val() + '”</em>으로<br> 지원하시겠습니까?',
+                        firstCallback: function() {
+                            $('.btn-close-popup').show();
+                        },
+                        secondCallback: function() {
+                            var params = {};
+                            var mq_idxs = [];
+                            mq_idxs.push($("[name=rc_idx]").val());
+                            params["mq_idxs"] = mq_idxs;
+                            params["mq_type"] = "RECRUIT";
+                            var rc_idx = $("[name=rc_idx]").val();
 
-                        if (ret.code == "00") {
-                            // 알림창 주석처리 - 바로 채팅 목록으로 이동
-                            // commonAlert("지원 신청 되었습니다.", function() {
-                            //     location.reload();
-                            // });
-                            
-                            // 지원한 공고 탭으로 이동하고 해당 공고의 채팅방 자동 진입
-                            // URL 파라미터로 rc_idx 전달하여 목록 페이지에서 자동으로 채팅방 찾아서 열기
-                            location.href = "/chat/chat_list?auto_open_rc_idx=" + rc_idx;
-                        } else {
-                            commonAlert(ret.msg, function() {});
-                            return;
+                            comAjax("/common_proc/member_request", params, function(ret) {
+                                console.log(ret);
+                                $('.btn-close-popup').show();
+
+                                if (ret.code == "00") {
+                                    // 알림창 주석처리 - 바로 채팅 목록으로 이동
+                                    // commonAlert("지원 신청 되었습니다.", function() {
+                                    //     location.reload();
+                                    // });
+
+                                    // 지원한 공고 탭으로 이동하고 해당 공고의 채팅방 자동 진입
+                                    // URL 파라미터로 rc_idx 전달하여 목록 페이지에서 자동으로 채팅방 찾아서 열기
+                                    location.href = "/chat/chat_list?auto_open_rc_idx=" + rc_idx;
+                                } else {
+                                    commonAlert(ret.msg, function() {});
+                                    return;
+                                }
+                            });
                         }
-                    });
-                }
                     });
                     $('.btn-close-popup').hide();
                 } else if (ret.code == "01") {
