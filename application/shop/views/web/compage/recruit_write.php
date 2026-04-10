@@ -212,6 +212,47 @@
           margin-top: 4px;
         }
 
+        /* 근무정보 섹션 */
+        .input-wide {
+          width: 580px;
+        }
+
+        .recruit-list-arrow {
+          position: absolute;
+          top: 33px;
+          left: 808px;
+          padding: 11px 5px 0 5px;
+          border-radius: 6px;
+        }
+
+        #recruiteListBox {
+          display: none;
+          width: 580px;
+          max-height: 120px;
+          border: 1px solid #ccc;
+          overflow-y: auto;
+          overflow-x: hidden;
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px 5px 10px rgba(0, 0, 0, 0.2), 0px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .recruit-list-ul {
+          width: 580px;
+        }
+
+        .recruit-list-item {
+          list-style: none;
+          width: 100%;
+          height: 30px;
+          line-height: 30px;
+          padding-left: 10px;
+        }
+
+        .rc-desc-hidden {
+          display: none;
+        }
+
         /* 섹션 레이아웃 */
         .form-section {
           margin-bottom: 50px;
@@ -259,9 +300,9 @@
                     <div class="value">
                       <label>
                         <span class="sr-text">공고명 입력</span>
-                        <input style="width:580px;" type="text" name="rc_name" placeholder="공고명을 작성해주세요" value="<?= $info["rc_name"] ?>" placeholder="공고명을 작성해주세요" autocomplete="off" aria-required="true" required class="form-text">
-                        <div onclick="$('#recruiteListBox').toggle();" style="position: absolute; top: 33px; left: 808px; /* border: 1px solid #999; */ padding: 11px 5px 0 5px; border-radius: 6px;"><img src="/resource/shop/web/img/ic_arrow_down.svg"></div>
-                        <div id="recruiteListBox" style="display:none; width: 580px; max-height: 120px; border: 1px solid #ccc; overflow-y: auto; overflow-x: hidden; background-color:#fff; border-radius: 8px; box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px 5px 10px rgba(0, 0, 0, 0.2), 0px 10px 10px rgba(0, 0, 0, 0.2); ">
+                        <input type="text" name="rc_name" placeholder="공고명을 작성해주세요" value="<?= $info["rc_name"] ?>" placeholder="공고명을 작성해주세요" autocomplete="off" aria-required="true" required class="form-text input-wide">
+                        <div onclick="$('#recruiteListBox').toggle();" class="recruit-list-arrow"><img src="/resource/shop/web/img/ic_arrow_down.svg"></div>
+                        <div id="recruiteListBox">
                           <script>
                             var recruiteJson = {};
 
@@ -305,7 +346,7 @@
 
                             }
                           </script>
-                          <ul style=" width: 580px;">
+                          <ul class="recruit-list-ul">
                             <?php $recruite_idx = 0; ?>
                             <?php foreach ($rc_last_recruite_list as $row) : ?>
                               <script>
@@ -317,13 +358,13 @@
                                   rc_price_type: '<?= $row["rc_price_type"] ?>'
                                 };
                               </script>
-                              <li style="list-style: none; width: 100%; height: 30px; line-height: 30px; /* border-bottom: 1px solid #ccc; border-left: 1px solid #ccc; border-right: 1px solid #ccc; */ padding-left: 10px; " onclick="fSet('<?= $recruite_idx ?>');"><?= $row["rc_name"] ?></li>
+                              <li class="recruit-list-item" onclick="fSet('<?= $recruite_idx ?>');"><?= $row["rc_name"] ?></li>
                               <?php $recruite_idx++; ?>
                             <?php endforeach; ?>
                           </ul>
                           <?php $recruite_idx = 0; ?>
                           <?php foreach ($rc_last_recruite_list as $row) : ?>
-                            <textarea id="rc_desc_<?= $recruite_idx ?>" style="display:none;"><?= $row["rc_desc"] ?></textarea>
+                            <textarea id="rc_desc_<?= $recruite_idx ?>" class="rc-desc-hidden"><?= $row["rc_desc"] ?></textarea>
                             <?php $recruite_idx++; ?>
                           <?php endforeach; ?>
                         </div>
@@ -337,7 +378,7 @@
                         <div class="recruit-range noti_duration">
                           <label>
                             <span class="sr-text">모집일 입력</em></span>
-                            <input type="text" name="rc_date" aria-required="true" required class="form-text js-datepicker2" style="font-size: 16px;">
+                            <input type="text" name="rc_date" aria-required="true" required class="form-text js-datepicker2">
                           </label>
                         </div>
                         <p class="help-msg text-only">모집일 기준 최대 2개월까지 공고가 가능합니다.</p>
@@ -404,11 +445,11 @@
                       <!-- 시도 -->
                       <label class="row">
                         <span class="sr-text">상세주소1</span>
-                        <input type="text" style="width:580px;" name="rc_addr_doro" value="<?= $info["addr"]["ad_doro"] ?>" autocomplete="off" aria-required="true" required class="form-text">
+                        <input type="text" name="rc_addr_doro" value="<?= $info["addr"]["ad_doro"] ?>" autocomplete="off" aria-required="true" required class="form-text input-wide">
                       </label>
                       <label class="row">
                         <span class="sr-text">상세주소2</span>
-                        <input type="text" style="width:580px;" name="rc_addr_detail" value="<?= $info["addr"]["ad_detail"] ?>" placeholder="상세주소 입력" autocomplete="off" aria-required="true" required class="form-text">
+                        <input type="text" name="rc_addr_detail" value="<?= $info["addr"]["ad_detail"] ?>" placeholder="상세주소 입력" autocomplete="off" aria-required="true" required class="form-text input-wide">
                       </label>
                     </div>
                   </div>
