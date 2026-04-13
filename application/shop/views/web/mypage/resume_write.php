@@ -571,6 +571,81 @@
                 .rw-career .btn-add-item:hover {
                     background: #f5f5f5;
                 }
+
+                /* 경력/자격증 섹션 좌우 배치 */
+                .rw-dual-col {
+                    width: 100%;
+                    padding: 0;
+                }
+
+                .rw-dual-col .form-group {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    gap: 24px;
+                    width: 100%;
+                    -webkit-box-align: flex-start;
+                    -ms-flex-align: flex-start;
+                    align-items: flex-start;
+                }
+
+                .rw-col-half {
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                }
+
+                .rw-col-half .form-label {
+                    margin: 0 0 8px 0;
+                    padding: 0;
+                }
+
+                .rw-col-with-calendar {
+                    position: relative;
+                }
+
+                .btn-calendar {
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    -webkit-transform: translateY(-50%);
+                    -ms-transform: translateY(-50%);
+                    transform: translateY(-50%);
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    padding: 0;
+                    width: 20px;
+                    height: 20px;
+                }
+
+                .rw-career-period-wrapper {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    gap: 12px;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                }
+
+                .rw-career-period-wrapper .rw-period-field {
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    position: relative;
+                }
+
+                .rw-career-period-separator {
+                    color: #999;
+                }
             </style>
             <div class="tab-panel on">
                 <div class="manage-my-content">
@@ -922,11 +997,11 @@
                                             </ol>
                                             <!-- 업종 및 기업명 form-row -->
                                             <div class="form-row">
-                                                <div class="value" style="width: 100%; padding: 0;">
-                                                    <div class="form-group" style="display: flex; gap: 24px; width: 100%; align-items: flex-start;">
+                                                <div class="value rw-dual-col">
+                                                    <div class="form-group">
                                                         <!-- 업종 섹션 -->
-                                                        <div style="flex: 1; display: flex; flex-direction: column;">
-                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">업종</p>
+                                                        <div class="rw-col-half">
+                                                            <p class="form-label">업종</p>
                                                             <label class="form-selectbox">
                                                                 <span class="sr-text">업종선택</span>
                                                                 <select name="category[]" class="added-career-form">
@@ -947,8 +1022,8 @@
                                                             </label>
                                                         </div>
                                                         <!-- 기업명 섹션 -->
-                                                        <div style="flex: 1; display: flex; flex-direction: column;">
-                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">기업명</p>
+                                                        <div class="rw-col-half">
+                                                            <p class="form-label">기업명</p>
                                                             <label>
                                                                 <span class="sr-text">업체명 입력</span>
                                                                 <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
@@ -962,13 +1037,13 @@
                                             <div class="form-row">
                                                 <p class="form-label">근무기간</p>
                                                 <div class="value">
-                                                    <div class="form-group" style="display: flex; gap: 12px; align-items: center;">
-                                                        <div style="flex: 1; position: relative;">
+                                                    <div class="form-group rw-career-period-wrapper">
+                                                        <div class="rw-period-field">
                                                             <label style="display: block;">
                                                                 <span class="sr-text">근무기간 시작일</span>
                                                                 <input type="text" name="period_start[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
                                                             </label>
-                                                            <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
+                                                            <button type="button" class="btn-calendar">
                                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
                                                                     <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
@@ -976,13 +1051,13 @@
                                                                 </svg>
                                                             </button>
                                                         </div>
-                                                        <span style="color: #999;">~</span>
-                                                        <div style="flex: 1; position: relative;">
+                                                        <span class="rw-career-period-separator">~</span>
+                                                        <div class="rw-period-field">
                                                             <label style="display: block;">
                                                                 <span class="sr-text">근무기간 종료일</span>
                                                                 <input type="text" name="period_end[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
                                                             </label>
-                                                            <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
+                                                            <button type="button" class="btn-calendar">
                                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
                                                                     <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
@@ -1001,32 +1076,30 @@
 
                                             <!-- 자격증명 및 취득일자 form-row -->
                                             <div class="form-row">
-                                                <div class="value" style="width: 100%; padding: 0;">
-                                                    <div class="form-group" style="display: flex; gap: 24px; width: 100%; align-items: flex-start;">
+                                                <div class="value rw-dual-col">
+                                                    <div class="form-group">
                                                         <!-- 자격증명 섹션 -->
-                                                        <div style="flex: 1; display: flex; flex-direction: column;">
-                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">자격증명</p>
+                                                        <div class="rw-col-half">
+                                                            <p class="form-label">자격증명</p>
                                                             <label style="display: block;">
                                                                 <span class="sr-text">자격증명 입력</span>
                                                                 <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form">
                                                             </label>
                                                         </div>
                                                         <!-- 취득일자 섹션 -->
-                                                        <div style="flex: 1; display: flex; flex-direction: column; position: relative;">
-                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">취득일자</p>
-                                                            <div style="position: relative;">
-                                                                <label style="display: block;">
-                                                                    <span class="sr-text">취득일자 입력</span>
-                                                                    <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                                </label>
-                                                                <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
-                                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
-                                                                        <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-                                                                        <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
+                                                        <div class="rw-col-half rw-col-with-calendar">
+                                                            <p class="form-label">취득일자</p>
+                                                            <label style="display: block;">
+                                                                <span class="sr-text">취득일자 입력</span>
+                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                            </label>
+                                                            <button type="button" class="btn-calendar">
+                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
+                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                </svg>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
