@@ -592,6 +592,39 @@
                     height: var(--rw-input-height);
                     box-sizing: border-box;
                 }
+
+                /* 경력사항 섹션 입력 요소 border 추가 */
+                .rw-career .form-text {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 12px 16px;
+                    box-sizing: border-box;
+                }
+
+                .rw-career .form-selectbox select {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 12px 16px;
+                    box-sizing: border-box;
+                    background: #fff;
+                    color: #333;
+                    font-size: 16px;
+                }
+
+                .rw-career .btn-add-item {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 0 24px;
+                    background: #fff;
+                    color: #333;
+                    font-size: 16px;
+                    font-weight: normal;
+                    cursor: pointer;
+                }
+
+                .rw-career .btn-add-item:hover {
+                    background: #f5f5f5;
+                }
             </style>
             <div class="tab-panel on">
                 <div class="manage-my-content">
