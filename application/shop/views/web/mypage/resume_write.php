@@ -920,42 +920,40 @@
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </ol>
-                                            <!-- 업종 form-row -->
+                                            <!-- 업종 및 기업명 form-row -->
                                             <div class="form-row">
-                                                <p class="form-label">업종</p>
-                                                <div class="value">
-                                                    <div class="form-group">
-                                                        <label class="form-selectbox">
-                                                            <span class="sr-text">업종선택</span>
-                                                            <select name="category[]" class="added-career-form">
-                                                                <option value="" selected disabled>업종</option>
-                                                                <?php
-                                                                // 표시 허용 업종 화이트리스트 (간단경력용)
-                                                                $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
-                                                                foreach ($ru_wrok_list as $row) :
-                                                                    // 허용 목록 이외 항목은 출력 제외
-                                                                    if (!in_array($row["cd_val"], $allowed_work_list, true)) {
-                                                                        continue;
-                                                                    }
-                                                                ?>
-                                                                    <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
-                                                                <?php endforeach; ?>
-                                                            </select>
-                                                            <span class="liner"></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 기업명 form-row -->
-                                            <div class="form-row">
-                                                <p class="form-label">기업명</p>
-                                                <div class="value">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            <span class="sr-text">업체명 입력</span>
-                                                            <input type="text" name="company[]" maxlength="13" placeholder="업체명" autocomplete="off" class="form-text">
-                                                        </label>
+                                                <div class="value" style="width: 100%; padding: 0;">
+                                                    <div class="form-group" style="display: flex; gap: 24px; width: 100%; align-items: flex-start;">
+                                                        <!-- 업종 섹션 -->
+                                                        <div style="flex: 1; display: flex; flex-direction: column;">
+                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">업종</p>
+                                                            <label class="form-selectbox">
+                                                                <span class="sr-text">업종선택</span>
+                                                                <select name="category[]" class="added-career-form">
+                                                                    <option value="" selected disabled>업종</option>
+                                                                    <?php
+                                                                    // 표시 허용 업종 화이트리스트 (간단경력용)
+                                                                    $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
+                                                                    foreach ($ru_wrok_list as $row) :
+                                                                        // 허용 목록 이외 항목은 출력 제외
+                                                                        if (!in_array($row["cd_val"], $allowed_work_list, true)) {
+                                                                            continue;
+                                                                        }
+                                                                    ?>
+                                                                        <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                                <span class="liner"></span>
+                                                            </label>
+                                                        </div>
+                                                        <!-- 기업명 섹션 -->
+                                                        <div style="flex: 1; display: flex; flex-direction: column;">
+                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">기업명</p>
+                                                            <label>
+                                                                <span class="sr-text">업체명 입력</span>
+                                                                <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
