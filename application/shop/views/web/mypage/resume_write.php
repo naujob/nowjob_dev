@@ -964,11 +964,34 @@
                                             <div class="form-row">
                                                 <p class="form-label">근무기간</p>
                                                 <div class="value">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            <span class="sr-text">근무기간 입력</span>
-                                                            <input type="text" name="period[]" placeholder="근무기간" autocomplete="off" class="form-text num js-datepicker">
-                                                        </label>
+                                                    <div class="form-group" style="display: flex; gap: 12px; align-items: center;">
+                                                        <div style="flex: 1; position: relative;">
+                                                            <label style="display: block;">
+                                                                <span class="sr-text">근무기간 시작일</span>
+                                                                <input type="text" name="period_start[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                            </label>
+                                                            <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
+                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
+                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        <span style="color: #999;">~</span>
+                                                        <div style="flex: 1; position: relative;">
+                                                            <label style="display: block;">
+                                                                <span class="sr-text">근무기간 종료일</span>
+                                                                <input type="text" name="period_end[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                            </label>
+                                                            <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
+                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
+                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -978,28 +1001,30 @@
                                                 <button type="button" class="btn-add-item js-add-career">등록</button>
                                             </div>
 
-                                            <!-- 자격증명 form-row -->
+                                            <!-- 자격증명 및 취득일자 form-row -->
                                             <div class="form-row">
-                                                <p class="form-label">자격증명</p>
+                                                <p class="form-label">자격증·취득일</p>
                                                 <div class="value">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            <span class="sr-text">자격증명 입력</span>
-                                                            <input type="text" name="license[]" placeholder="자격증명" autocomplete="off" class="form-text added-license-form">
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 취득일자 form-row -->
-                                            <div class="form-row">
-                                                <p class="form-label">취득일자</p>
-                                                <div class="value">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            <span class="sr-text">취득일자 입력</span>
-                                                            <input type="text" name="regdate[]" placeholder="취득일자" autocomplete="off" class="form-text num js-datepicker">
-                                                        </label>
+                                                    <div class="form-group" style="display: flex; gap: 12px; align-items: center;">
+                                                        <div style="flex: 1;">
+                                                            <label style="display: block;">
+                                                                <span class="sr-text">자격증명 입력</span>
+                                                                <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form">
+                                                            </label>
+                                                        </div>
+                                                        <div style="flex: 1; position: relative;">
+                                                            <label style="display: block;">
+                                                                <span class="sr-text">취득일자 입력</span>
+                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                            </label>
+                                                            <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
+                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
+                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1054,7 +1079,7 @@
 
                                                     //달력 생성
                                                     flatpickr(el, {
-                                                        mode: 'range',
+                                                        mode: 'single',
                                                         locale: 'ko',
                                                         nextArrow: '<span class="sr-text">다음</span>',
                                                         prevArrow: '<span class="sr-text">이전</span>',
@@ -1071,27 +1096,26 @@
                                                         },
                                                         onReady: function() {
                                                             chgYear(this);
-                                                        },
-                                                        onClose: function(selectedDates, dateStr, instance) {
-                                                            if (selectedDates.length > 1) {
-                                                                instance.calendarContainer.querySelector('.flatpickr-next-month').click();
-                                                            }
-                                                        },
-                                                        onOpen: function(selectedDates, dateStr, instance) {
-                                                            if (selectedDates.length > 1) {
-                                                                instance.calendarContainer.querySelector('.flatpickr-prev-month').click();
-                                                            }
-                                                        },
-                                                        onChange: function(selectedDates, dateStr, instance) {
-                                                            instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
-                                                                month.classList.remove('startRange', 'inRange', 'endRange')
-                                                            });
                                                         }
                                                     });
                                                 }
 
                                                 window.addEventListener('DOMContentLoaded', function() {
-                                                    initDatepicker(document.querySelector('.added-career-form .js-datepicker'));
+                                                    // 모든 datepicker 초기화
+                                                    document.querySelectorAll('.js-datepicker').forEach(function(el) {
+                                                        initDatepicker(el);
+                                                    });
+
+                                                    // 달력 버튼 이벤트
+                                                    document.querySelectorAll('.btn-calendar').forEach(function(btn) {
+                                                        btn.addEventListener('click', function(e) {
+                                                            e.preventDefault();
+                                                            var input = this.parentNode.querySelector('.js-datepicker');
+                                                            if (input && input._flatpickr) {
+                                                                input._flatpickr.open();
+                                                            }
+                                                        });
+                                                    });
 
                                                     //경력 목록 추가
                                                     document.querySelector('.js-add-career').addEventListener('click', function(e) {
@@ -1104,7 +1128,8 @@
 
                                                         var category = btn.parentNode.querySelector('[name="category[]"]'),
                                                             company = btn.parentNode.querySelector('[name="company[]"]'),
-                                                            period = btn.parentNode.querySelector('[name="period[]"]');
+                                                            periodStart = btn.parentNode.querySelector('[name="period_start[]"]'),
+                                                            periodEnd = btn.parentNode.querySelector('[name="period_end[]"]');
 
                                                         if (!category.value) {
                                                             category.focus();
@@ -1120,11 +1145,13 @@
                                                             temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$company}', company.value);
                                                         }
 
-                                                        if (!period.value) {
-                                                            period.focus();
+                                                        if (!periodStart.value || !periodEnd.value) {
+                                                            if (!periodStart.value) periodStart.focus();
+                                                            else periodEnd.focus();
                                                             return;
                                                         } else {
-                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$period}', period.value + totalRange(period.value));
+                                                            var period = periodStart.value + ' ~ ' + periodEnd.value;
+                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$period}', period + totalRange(period));
                                                         }
 
                                                         if (list.children.length < max) {
@@ -1140,7 +1167,8 @@
                                                             category.children[0].selected = true;
                                                             category.parentNode.querySelector('.liner').textContent = category.children[0].textContent;
                                                             company.value = '';
-                                                            period.value = '';
+                                                            periodStart.value = '';
+                                                            periodEnd.value = '';
                                                         }
                                                     });
 
