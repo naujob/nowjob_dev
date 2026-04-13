@@ -602,9 +602,34 @@
                     flex-direction: column;
                 }
 
+                .rw-col-half {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-orient: horizontal;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: row;
+                    flex-direction: row;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    gap: 12px;
+                }
+
                 .rw-col-half .form-label {
-                    margin: 0 0 8px 0;
+                    margin: 0;
                     padding: 0;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 auto;
+                    flex: 0 0 auto;
+                    white-space: nowrap;
+                }
+
+                .rw-col-half > label,
+                .rw-col-half .form-selectbox {
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
                 }
 
                 .rw-col-with-calendar {
@@ -1024,10 +1049,7 @@
                                                         <!-- 기업명 섹션 -->
                                                         <div class="rw-col-half">
                                                             <p class="form-label">기업명</p>
-                                                            <label>
-                                                                <span class="sr-text">업체명 입력</span>
-                                                                <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
-                                                            </label>
+                                                            <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text" style="display: block;">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1081,25 +1103,21 @@
                                                         <!-- 자격증명 섹션 -->
                                                         <div class="rw-col-half">
                                                             <p class="form-label">자격증명</p>
-                                                            <label style="display: block;">
-                                                                <span class="sr-text">자격증명 입력</span>
-                                                                <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form">
-                                                            </label>
+                                                            <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form" style="display: block;">
                                                         </div>
                                                         <!-- 취득일자 섹션 -->
                                                         <div class="rw-col-half rw-col-with-calendar">
                                                             <p class="form-label">취득일자</p>
-                                                            <label style="display: block;">
-                                                                <span class="sr-text">취득일자 입력</span>
-                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                            </label>
-                                                            <button type="button" class="btn-calendar">
-                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
-                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
-                                                                </svg>
-                                                            </button>
+                                                            <div style="flex: 1; position: relative;">
+                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker" style="display: block;">
+                                                                <button type="button" class="btn-calendar">
+                                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
+                                                                        <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                                                                        <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
