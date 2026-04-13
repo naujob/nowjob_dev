@@ -446,7 +446,7 @@
                 }
 
                 .rw-career .form-label {
-                    width: 257px;
+                    width: 94px;
                     margin: 0;
                     padding: 0;
                     font-size: 20px;
@@ -547,14 +547,34 @@
                     box-sizing: border-box;
                 }
 
-                .rw-career .form-selectbox select {
+                .rw-career .form-selectbox {
                     border: 1px solid #ccc;
                     border-radius: 4px;
+                    overflow: hidden;
+                }
+
+                .rw-career .form-selectbox select {
+                    border: none;
+                    border-radius: 0;
                     padding: 12px 16px;
                     box-sizing: border-box;
                     background: #fff;
                     color: #333;
                     font-size: 16px;
+                    width: 100%;
+                    height: var(--rw-input-height);
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    appearance: none;
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                    background-repeat: no-repeat;
+                    background-position: right 12px center;
+                    background-size: 20px;
+                    padding-right: 36px;
+                }
+
+                .rw-career .form-selectbox .liner {
+                    display: none;
                 }
 
                 .rw-career .btn-add-item {
@@ -625,7 +645,7 @@
                     white-space: nowrap;
                 }
 
-                .rw-col-half > label,
+                .rw-col-half>label,
                 .rw-col-half .form-selectbox {
                     -webkit-box-flex: 1;
                     -ms-flex: 1;
@@ -1067,9 +1087,9 @@
                                                             </label>
                                                             <button type="button" class="btn-calendar">
                                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
-                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none" />
+                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5" />
                                                                 </svg>
                                                             </button>
                                                         </div>
@@ -1081,9 +1101,9 @@
                                                             </label>
                                                             <button type="button" class="btn-calendar">
                                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
-                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none" />
+                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5" />
                                                                 </svg>
                                                             </button>
                                                         </div>
@@ -1112,9 +1132,9 @@
                                                                 <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker" style="display: block;">
                                                                 <button type="button" class="btn-calendar">
                                                                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
-                                                                        <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-                                                                        <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                        <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none" />
+                                                                        <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+                                                                        <path d="M2 8h16" stroke="#333" stroke-width="1.5" />
                                                                     </svg>
                                                                 </button>
                                                             </div>
