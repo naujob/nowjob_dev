@@ -521,61 +521,8 @@
                     flex-direction: column;
                 }
 
-                /* 자격증 섹션 스타일 (.rw-certificate) */
-                .rw-certificate {
-                    padding: 20px 24px;
-                }
-
-                .rw-certificate .form-row {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    margin: 0;
-                    padding: 20px 0;
-                    -webkit-box-align: flex-start;
-                    -ms-flex-align: flex-start;
-                    align-items: flex-start;
-                    -ms-flex-wrap: wrap;
-                    flex-wrap: wrap;
-                    border-bottom: 1px solid #D8D8D8;
-                }
-
-                .rw-certificate .form-row:first-child {
-                    padding-top: 0;
-                }
-
-                .rw-certificate .form-row:last-child {
-                    border-bottom: none;
-                    padding-bottom: 0;
-                }
-
-                .rw-certificate .form-label {
-                    width: 257px;
-                    margin: 0;
-                    padding: 0;
-                    font-size: 20px;
-                    line-height: 1;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 255px;
-                    flex: 0 0 255px;
-                }
-
-                .rw-certificate .value {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    -webkit-box-flex: 1;
-                    -ms-flex: 1;
-                    flex: 1;
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    -ms-flex-direction: column;
-                    flex-direction: column;
-                }
-
                 /* 텍스트 입력창 높이 통일 */
-                .rw-career .form-text,
-                .rw-certificate .form-text {
+                .rw-career .form-text {
                     height: var(--rw-input-height);
                     box-sizing: border-box;
                 }
@@ -587,8 +534,7 @@
                 }
 
                 /* 액션 버튼 (등록/추가) 높이 통일 */
-                .rw-career .btn-add-item,
-                .rw-certificate .btn-add-item {
+                .rw-career .btn-add-item {
                     height: var(--rw-input-height);
                     box-sizing: border-box;
                 }
@@ -1246,53 +1192,6 @@
                                 </div>
                             </div>
 
-                            <!-- 자격증 섹션 (목록 표시만) -->
-                            <div class="rw-section">
-                                <h4 class="rw-section-title">자격증</h4>
-                                <div class="rw-certificate">
-                                    <div class="form-row">
-                                        <p class="form-label">자격증</p>
-                                        <div class="value">
-                                            <!-- 목록 -->
-                                            <ol class="added-list license_list">
-                                                <?php if (is_array($certi_list) && !empty($certi_list)) :
-                                                    foreach ($certi_list as $row):
-                                                        $rc_name = $row['rc_name'];
-                                                        $rc_date = $row['rc_dt'];
-                                                ?>
-                                                        <li>
-                                                            <div class="form-group">
-                                                                <div class="col md">
-                                                                    <input type="text" name="license[]" value="<?= $rc_name; ?>" disabled class="form-text">
-                                                                </div>
-                                                                <div class="col">
-                                                                    <input type="text" name="regdate[]" value="<?= $rc_date; ?>" disabled class="form-text num">
-                                                                </div>
-                                                            </div>
-                                                            <button type="button" class="btn-clear js-del-item">삭제</button>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </ol>
-                                        </div>
-
-                                        <!-- 입력폼 템플릿 -->
-                                        <template id="licenseTemp">
-                                            <li>
-                                                <div class="form-group">
-                                                    <div class="col md">
-                                                        <input type="text" name="license[]" value="{$license}" disabled class="form-text">
-                                                    </div>
-                                                    <div class="col">
-                                                        <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
-                                                    </div>
-                                                </div>
-                                                <button type="button" class="btn-clear js-del-item">삭제</button>
-                                            </li>
-                                        </template>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="form-action-wrap">
                                 <button type="button" id="btnStep" class="btn-round btn-tertiary"><?= $info != null && $info["ru_idx"] != "0" ? "수정" : "등록" ?>완료</button>
                             </div>
