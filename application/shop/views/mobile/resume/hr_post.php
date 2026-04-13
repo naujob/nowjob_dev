@@ -1,21 +1,21 @@
-<?php
-function fHashSet($txt)
-{
-    $tags = explode(",", $txt);
+SSH<?php
+    function fHashSet($txt)
+    {
+        $tags = explode(",", $txt);
 
-    // 각 요소를 # 태그로 변환하여 출력
-    $result = "";
-    foreach ($tags as $tag) {
-        $tag = trim($tag); // 공백 제거
-        if (!empty($tag)) { // 빈 값 방지
-            $result .= '<p class="tag" style="width:auto;text-align:left;">#' . htmlspecialchars($tag) . '</p>' . "\n";
+        // 각 요소를 # 태그로 변환하여 출력
+        $result = "";
+        foreach ($tags as $tag) {
+            $tag = trim($tag); // 공백 제거
+            if (!empty($tag)) { // 빈 값 방지
+                $result .= '<p class="tag" style="width:auto;text-align:left;">#' . htmlspecialchars($tag) . '</p>' . "\n";
+            }
         }
-    }
 
-    return $result;
-}
-// 주소 정리 함수 - JavaScript 함수(fRemoveBigAdrJS) 사용으로 주석처리
-/*
+        return $result;
+    }
+    // 주소 정리 함수 - JavaScript 함수(fRemoveBigAdrJS) 사용으로 주석처리
+    /*
 function fRemoveBigAdr($arg)
 {
 
@@ -63,7 +63,7 @@ function fRemoveBigAdr($arg)
     }
 }
 */
-?>
+    ?>
 <style>
     .info-table .working-day>li {
         width: 1.8rem;
@@ -73,17 +73,17 @@ function fRemoveBigAdr($arg)
     }
 
     /* 개인회원이 자신의 이력서를 볼 때 view-footer 버튼 스타일 */
-  
 
-  
 
-   
+
+
+
 
     /* view-footer 내 버튼에 padding, font-size, font-weight 적용 */
-  
-   .panel-body .post-list{
-    position: relative;
-    top: -1.75rem;
+
+    .panel-body .post-list {
+        position: relative;
+        top: -1.75rem;
     }
 </style>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
@@ -169,7 +169,7 @@ function fRemoveBigAdr($arg)
                     <?php } else { //comp 
                     ?>
                         <?php
-                        
+
                         // 현재 로그인한 회원의 정보
                         $current_user_info = $this->user->getCurrentUserInfo();
                         $is_sns_login = !empty($current_user_info["mm_join_type"]) && in_array(strtoupper($current_user_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
@@ -426,7 +426,7 @@ function fRemoveBigAdr($arg)
             </div>
         </div -->
 
-        <?php 
+        <?php
         // 개인회원이 자신의 이력서를 볼 경우를 판단
         $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
         ?>
@@ -648,11 +648,11 @@ function fRemoveBigAdr($arg)
                             var titleElement = document.querySelector('.view-title');
                             var title = ruName || (titleElement ? titleElement.textContent.trim() : document.title);
                             var url = window.location.href;
-                         
+
                             var payload = {
                                 title: title,
                                 url: url
-                           
+
                             };
 
                             if (hasAndroidBridge) {
@@ -703,11 +703,11 @@ function fRemoveBigAdr($arg)
 
                     <div class="post-list">
                         <ul class="list">
-                            <?php 
+                            <?php
                             // 변수가 존재하고 배열인지 확인
                             $hasRecruits = isset($recruit_list) && is_array($recruit_list) && count($recruit_list) > 0;
                             $validRecruitCount = 0; // 실제로 출력된 유효한 채용공고 개수
-                            
+
                             if ($hasRecruits) {
                                 // 유효한 채용공고 개수 먼저 계산
                                 foreach ($recruit_list as $row) {
@@ -752,11 +752,11 @@ function fRemoveBigAdr($arg)
             </div>
         </div>
         <?php if ($validRecruitCount > 0) : ?>
-        <div class="panel-footer">
-            <div class="sticky-bottom view-footer">
-                <button type="button" id="" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
+            <div class="panel-footer">
+                <div class="sticky-bottom view-footer">
+                    <button type="button" id="" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
+                </div>
             </div>
-        </div>
         <?php endif; ?>
     </div>
 </div>
@@ -775,7 +775,7 @@ function fRemoveBigAdr($arg)
                     $(this).text(cleanedAddr);
                 }
             });
-            
+
             // 프로필의 주소 정리
             $('.addr-display-profile').each(function() {
                 var originalAddr = $(this).attr('data-addr');
@@ -831,13 +831,13 @@ function fRemoveBigAdr($arg)
 
         // 선택된 첫 번째 체크박스 가져오기
         var $checkedRadio = $checkedBoxes.eq(0);
-        
+
         // 체크박스 요소가 유효한지 확인
         if ($checkedRadio.length == 0) {
             commonAlert("제안하실 공고를 선택해주세요.", function() {});
             return;
         }
-        
+
         var rc_idx = $checkedRadio.val();
         var ru_title = $checkedRadio.data('rc_name');
 
@@ -877,9 +877,9 @@ function fRemoveBigAdr($arg)
                                 // commonAlert("선택한 채용공고로 제안하였습니다.", function() {
                                 //     $("#selectPanel").removeClass("on");
                                 // });
-                                
-                                    $("#selectPanel").removeClass("on");
-                                
+
+                                $("#selectPanel").removeClass("on");
+
                                 // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
                                 // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기
                                 var ru_idx = $("[name='ru_idx']").val();
@@ -925,7 +925,7 @@ function fRemoveBigAdr($arg)
         if ($(e.target).is('label') || $(e.target).is('input') || $(e.target).closest('label').length > 0) {
             return;
         }
-        
+
         // 해당 항목 내의 radio 버튼 찾기
         var $radio = $(this).find('input[type="radio"][name="chk_request[]"]');
         if ($radio.length > 0) {

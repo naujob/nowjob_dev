@@ -11,30 +11,39 @@
             <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=services"></script>
 
             <style>
-                /* 입력 요소 높이 통일 변수 */
+                /* ============================================
+                   이력서 작성 페이지 CSS - 리팩토링 버전
+                   공통 클래스 중심 구조로 개선
+                   ============================================ */
+
+                /* CSS 변수 정의 */
                 :root {
-                    --rw-input-height: 48px;
+                    --rw-input-height: 70px;
+                    --rw-input-font-size: 16px;
+                    --rw-label-width: 255px;
+                    --rw-label-font-size: 20px;
+                    --rw-row-padding: 20px;
+                    --rw-border-color: #D8D8D8;
+                    --rw-basic-group-width: 650px;
                 }
 
-                .addition-info-form .form-row {
-                    padding: 18px 0;
-                    border-bottom: 1px solid #eee;
+                /* 입력 요소 폰트 크기 통일 */
+                input[type="text"],
+                input[type="number"],
+                input[type="email"],
+                input[type="password"],
+                input[type="date"],
+                input[type="tel"],
+                textarea,
+                select {
+                    font-size: var(--rw-input-font-size);
                 }
 
-                .addition-info-form .form-row:last-child {
-                    border-bottom: none;
-                }
+                /* ============================================
+                   공통 레이아웃 클래스 (핵심 리팩토링)
+                   ============================================ */
 
-                .addition-info-form .form-label {
-                    margin-bottom: 10px;
-                    display: block;
-                }
-
-                .addition-info-form .value {
-                    margin-top: 4px;
-                }
-
-                /* 이력서 작성 섹션 그룹 스타일 */
+                /* 섹션 기본 구조 */
                 .rw-section {
                     margin-bottom: 32px;
                 }
@@ -42,179 +51,60 @@
                 .rw-section-title {
                     padding: 16px 20px;
                     background: #f7f7f7;
-                    font-size: 16px;
-                    font-weight: 700;
-                    border-bottom: 1px solid #D8D8D8;
+                    font-size: 20px;
+                    font-weight: 800;
+                    border-bottom: 1px solid var(--rw-border-color);
                     margin: 0;
                 }
 
-                /* form-table 복사본 (.rw-form-table) */
-                .rw-form-table .form-row {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    margin: 0;
-                    padding: 26px 0;
-                    -webkit-box-align: center;
-                    -ms-flex-align: center;
-                    align-items: center;
-                    -ms-flex-wrap: wrap;
-                    flex-wrap: wrap;
-                    border-bottom: 1px solid #D8D8D8;
-                }
-
-                .rw-form-table .form-row:first-child {
-                    padding-top: 0;
-                }
-
-                .rw-form-table .form-label {
-                    width: 257px;
-                    margin: 0;
-                    padding: 8px 0;
-                    font-size: 20px;
-                    line-height: 1;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 255px;
-                    flex: 0 0 255px;
-                    -ms-flex-item-align: start;
-                    align-self: flex-start;
-                }
-
-                .rw-form-table .form-label em {
-                    display: inline-block;
-                    max-width: 10.25em;
-                    margin: 0 0 0 8px;
-                    font-size: 0.8em;
-                    font-style: normal;
-                    font-weight: 400;
-                    color: #999;
-                    line-height: 1.25;
-                    vertical-align: top;
-                }
-
-                .rw-form-table .value {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    -webkit-box-flex: 1;
-                    -ms-flex: 1;
-                    flex: 1;
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    -ms-flex-direction: column;
-                    flex-direction: column;
-                    -webkit-box-pack: center;
-                    -ms-flex-pack: center;
-                    justify-content: center;
-                }
-
-                .rw-form-table .value>label>.form-text {
-                    height: var(--rw-input-height);
-                    font-size: 20px;
-                    font-weight: 700;
-                }
-
-                .rw-form-table .form-selectbox {
-                    width: 180px;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 180px;
-                    flex: 0 0 180px;
-                }
-
-                .rw-form-table .value>.form-selectbox {
-                    min-height: var(--rw-input-height);
-                }
-
-                .rw-form-table .value>.form-selectbox .liner {
-                    font-size: 20px;
-                    font-weight: 700;
-                }
-
-                .rw-form-table .form-textarea {
-                    font-size: 15px;
-                }
-
-                .rw-form-table .week-day .form-toggle-btn2 {
-                    margin-right: 10px;
-                }
-
-                .rw-form-table .week-day .option {
-                    margin-left: 12px;
-                }
-
-                .rw-form-table .help-msg {
-                    margin-left: 255px;
-                    margin-bottom: 0;
-                    font-size: 1em;
-                    line-height: 1.5625;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 calc(100% - 255px);
-                    flex: 0 0 calc(100% - 255px);
-                    background-position: 0 2px;
-                }
-
-                .rw-form-table .current-area-form+.col {
-                    margin-left: 92px;
-                }
-
-                .rw-form-table .js-range-slider {
-                    width: 378px;
-                    margin-top: 15px;
-                    margin-bottom: 20px;
-                }
-
-                .rw-form-table .full-width {
-                    width: 100%;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 100%;
-                    flex: 0 0 100%;
-                }
-
-                /* 기본정보 섹션 고유 클래스 */
-                .rw-basic-info {
+                /* 4개 섹션 공통 래퍼 */
+                .rw-basic-info,
+                .rw-work-condition,
+                .rw-intro-strength,
+                .rw-career {
                     padding: 20px 24px;
                 }
 
-                .rw-basic-info .form-row {
+                /* 공통 form-row - 4개 섹션 모두 동일한 기본 구조 */
+                .rw-form-row {
                     display: -webkit-box;
                     display: -ms-flexbox;
                     display: flex;
                     margin: 0;
-                    padding: 20px 0;
+                    padding: var(--rw-row-padding) 0;
                     -webkit-box-align: center;
                     -ms-flex-align: center;
                     align-items: center;
                     -ms-flex-wrap: wrap;
                     flex-wrap: wrap;
-                    border-bottom: 1px solid #D8D8D8;
+                    border-bottom: 1px solid var(--rw-border-color);
                 }
 
-                .rw-basic-info .form-row:first-child {
+                .rw-form-row:first-child {
                     padding-top: 0;
                 }
 
-                .rw-basic-info .form-row:last-child {
+                .rw-form-row:last-child {
                     border-bottom: none;
                     padding-bottom: 0;
                 }
 
-                .rw-basic-info .form-label {
-                    width: 257px;
+                /* 공통 라벨 */
+                .rw-label {
+                    width: var(--rw-label-width);
                     margin: 0;
                     padding: 0;
-                    font-size: 20px;
+                    font-size: var(--rw-label-font-size);
                     line-height: 1;
-                    height: var(--rw-input-height);
-                    display: flex;
-                    align-items: center;
                     -webkit-box-flex: 0;
-                    -ms-flex: 0 0 255px;
-                    flex: 0 0 255px;
+                    -ms-flex: 0 0 var(--rw-label-width);
+                    flex: 0 0 var(--rw-label-width);
                     -ms-flex-item-align: center;
                     align-self: center;
                 }
 
-                .rw-basic-info .value {
+                /* 공통 value 영역 */
+                .rw-value {
                     display: -webkit-box;
                     display: -ms-flexbox;
                     display: flex;
@@ -228,13 +118,41 @@
                     -webkit-box-pack: center;
                     -ms-flex-pack: center;
                     justify-content: center;
+                }
+
+                /* ============================================
+                   섹션별 오버라이드 (차이점만 정의)
+                   ============================================ */
+
+                /* 기본정보, 근무조건: label 중앙 정렬 + 고정 높이 */
+                .rw-basic-info .rw-label,
+                .rw-work-condition .rw-label {
+                    height: var(--rw-input-height);
+                    display: flex;
+                    align-items: center;
+                }
+
+                .rw-basic-info .rw-value,
+                .rw-work-condition .rw-value {
                     height: var(--rw-input-height);
                 }
 
-                /* 기본정보 - form-group 공통 스타일 변수 설정 */
-                :root {
-                    --rw-basic-group-width: 650px;
+                /* 근무조건: value는 min-height로 유연하게 */
+                .rw-work-condition .rw-value {
+                    height: auto;
+                    min-height: var(--rw-input-height);
                 }
+
+                /* 자기소개/강점, 경력사항: label 상단 정렬 */
+                .rw-intro-strength .rw-label,
+                .rw-career .rw-label {
+                    -ms-flex-item-align: start;
+                    align-self: flex-start;
+                }
+
+                /* ============================================
+                   기본정보 섹션 고유 스타일
+                   ============================================ */
 
                 /* 이력서명 form-group */
                 .rw-basic-info .form-row:first-child .form-group {
@@ -313,71 +231,35 @@
                     border-color: #1abc9c;
                 }
 
-                /* 근무조건 섹션 스타일 (.rw-work-condition) */
-                .rw-work-condition {
-                    padding: 20px 24px;
+                /* ============================================
+                   근무조건 섹션 고유 스타일
+                   ============================================ */
+
+                /* 희망업무 - 체크박스 버튼 5개 한 줄 배치 */
+                .rw-work-condition .form-group.col-5 {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    gap: 0;
                 }
 
-                .rw-work-condition .form-row {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    margin: 0;
-                    padding: 20px 0;
-                    -webkit-box-align: center;
-                    -ms-flex-align: center;
-                    align-items: center;
-                    -ms-flex-wrap: wrap;
-                    flex-wrap: wrap;
-                    border-bottom: 1px solid #D8D8D8;
+                .rw-work-condition .form-group.col-5>.form-toggle-btn2 {
+                    width: calc(20% - 4px) !important;
+                    max-width: calc(20% - 4px) !important;
+                    flex: none !important;
+                    margin-right: 4px !important;
+                    margin-bottom: 6px !important;
                 }
 
-                .rw-work-condition .form-row:first-child {
-                    padding-top: 0;
-                }
-
-                .rw-work-condition .form-row:last-child {
-                    border-bottom: none;
-                    padding-bottom: 0;
-                }
-
-                .rw-work-condition .form-label {
-                    width: 257px;
-                    margin: 0;
-                    padding: 0;
-                    font-size: 20px;
-                    line-height: 1;
+                .rw-work-condition .form-group.col-5>.form-toggle-btn2 .btn {
                     height: var(--rw-input-height);
-                    display: flex;
-                    align-items: center;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 255px;
-                    flex: 0 0 255px;
-                    -ms-flex-item-align: center;
-                    align-self: center;
-                }
-
-                .rw-work-condition .value {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    -webkit-box-flex: 1;
-                    -ms-flex: 1;
-                    flex: 1;
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    -ms-flex-direction: column;
-                    flex-direction: column;
-                    -webkit-box-pack: center;
-                    -ms-flex-pack: center;
-                    justify-content: center;
-                    min-height: var(--rw-input-height);
+                    width: 100%;
+                    font-size: var(--rw-input-font-size);
                 }
 
                 /* 근무조건 내 form-group 공통 규칙 */
                 .rw-work-condition .form-group {
                     display: flex;
-                    gap: 0;
+                    gap: 2px;
                     align-items: center;
                     flex-wrap: wrap;
                 }
@@ -417,109 +299,94 @@
                     border-color: #1abc9c;
                 }
 
-                /* 경력사항 섹션 스타일 (.rw-career) */
-                .rw-career {
-                    padding: 20px 24px;
+                /* 희망지역 검색창 스타일 */
+                .address-search-box {
+                    position: relative;
+                    margin-bottom: 12px;
+                    height: var(--rw-input-height);
+                    cursor: pointer;
                 }
 
-                .rw-career .form-row {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    margin: 0;
-                    padding: 20px 0;
-                    -webkit-box-align: flex-start;
-                    -ms-flex-align: flex-start;
-                    align-items: flex-start;
-                    -ms-flex-wrap: wrap;
-                    flex-wrap: wrap;
-                    border-bottom: 1px solid #D8D8D8;
+                .address-search-box .addr-search-input {
+                    width: 100%;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 12px 16px 12px 16px;
+                    padding-right: 50px;
+                    height: 100%;
+                    font-size: 16px;
+                    background: #fff;
+                    color: #999;
+                    box-sizing: border-box;
                 }
 
-                .rw-career .form-row:first-child {
-                    padding-top: 0;
-                }
-
-                .rw-career .form-row:last-child {
-                    border-bottom: none;
-                    padding-bottom: 0;
-                }
-
-                .rw-career .form-label {
-                    width: 94px;
-                    margin: 0;
+                .address-search-box .btn-search-icon {
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 24px;
+                    height: 24px;
+                    border: none;
+                    background: none;
                     padding: 0;
-                    font-size: 20px;
-                    line-height: 1;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 255px;
-                    flex: 0 0 255px;
-                }
-
-                .rw-career .value {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
                     display: flex;
-                    -webkit-box-flex: 1;
-                    -ms-flex: 1;
-                    flex: 1;
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    -ms-flex-direction: column;
-                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
                 }
 
-                /* 자기소개/강점 섹션 스타일 (.rw-intro-strength) */
-                .rw-intro-strength {
-                    padding: 20px 24px;
+                .address-search-box .btn-search-icon img {
+                    width: 100%;
+                    height: 100%;
                 }
 
-                .rw-intro-strength .form-row {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
+                /* 자식 요소들이 클릭 이벤트를 부모에 전달하도록 설정 */
+                .address-search-box .addr-search-input,
+                .address-search-box .btn-search-icon {
+                    pointer-events: none;
+                }
+
+                /* 희망연봉 영역 - 기존 인라인 스타일 대체 */
+                .rw-salary-row {
+                    padding-left: 100px;
+                    width: 270px;
+                }
+
+                .rw-salary-label {
+                    width: 90px;
+                }
+
+                .rw-salary-label p {
+                    width: 100%;
+                    font-weight: normal;
+                }
+
+                /* ============================================
+                   자기소개/강점 섹션 고유 스타일
+                   ============================================ */
+
+                /* 나의강점 - 체크박스 버튼 5개 한 줄 배치 */
+                .rw-intro-strength .form-group.col-8>* {
+                    width: calc(20% - 4px);
+                }
+
+                .rw-intro-strength .form-group.col-8>.form-toggle-btn2.sm .btn {
+                    height: var(--rw-input-height);
+                    font-size: var(--rw-input-font-size);
                     display: flex;
-                    margin: 0;
-                    padding: 20px 0;
-                    -webkit-box-align: flex-start;
-                    -ms-flex-align: flex-start;
-                    align-items: flex-start;
-                    -ms-flex-wrap: wrap;
-                    flex-wrap: wrap;
-                    border-bottom: 1px solid #D8D8D8;
+                    align-items: center;
+                    justify-content: center;
                 }
 
-                .rw-intro-strength .form-row:first-child {
-                    padding-top: 0;
+                /* 자기소개 textarea */
+                .rw-intro-textarea {
+                    min-height: 324px;
                 }
 
-                .rw-intro-strength .form-row:last-child {
-                    border-bottom: none;
-                    padding-bottom: 0;
-                }
-
-                .rw-intro-strength .form-label {
-                    width: 257px;
-                    margin: 0;
-                    padding: 0;
-                    font-size: 20px;
-                    line-height: 1;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 255px;
-                    flex: 0 0 255px;
-                }
-
-                .rw-intro-strength .value {
-                    display: -webkit-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    -webkit-box-flex: 1;
-                    -ms-flex: 1;
-                    flex: 1;
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    -ms-flex-direction: column;
-                    flex-direction: column;
-                }
+                /* ============================================
+                   경력사항 섹션 고유 스타일
+                   ============================================ */
 
                 /* 텍스트 입력창 높이 통일 */
                 .rw-career .form-text {
@@ -551,6 +418,7 @@
                     border: 1px solid #ccc;
                     border-radius: 4px;
                     overflow: hidden;
+                    height: 50px;
                 }
 
                 .rw-career .form-selectbox select {
@@ -610,16 +478,195 @@
                 }
 
                 .rw-col-half {
-                    -webkit-box-flex: 1;
-                    -ms-flex: 1;
-                    flex: 1;
                     display: -webkit-box;
                     display: -ms-flexbox;
                     display: flex;
+                    -webkit-box-orient: horizontal;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: row;
+                    flex-direction: row;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                }
+
+                /* rw-dual-col 내 rw-col-half의 gap 12px */
+                .rw-dual-col .form-group>.rw-col-half {
+                    gap: 160px;
+                }
+
+                /* 첫 번째 rw-col-half (기업명) 더 넓게 */
+                .rw-dual-col .form-group>.rw-col-half:nth-of-type(1) {
+                    -webkit-box-flex: 2;
+                    -ms-flex: 2;
+                    flex: 2;
+                }
+
+                /* 두 번째 rw-col-half (업종) 더 좁게 */
+                .rw-dual-col .form-group>.rw-col-half:nth-of-type(2) {
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                }
+
+                .rw-col-half .form-label {
+                    margin: 0;
+                    padding: 0;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 auto;
+                    flex: 0 0 auto;
+                    white-space: nowrap;
+                }
+
+                /* 업종과 취득일자 라벨만 넓이 증가 */
+                /* 업종 라벨 (경력 섹션 첫 번째 rw-dual-col) */
+                .rw-career .rw-dual-col:first-of-type .rw-col-half:nth-of-type(2)>p.form-label {
+                    flex: 0 0 137px;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 80px;
+                    min-width: 80px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    position: relative;
+                    left: 116px;
+                }
+
+                /* 취득일자 라벨 (자격증 섹션) */
+                .rw-dual-col .rw-col-half.rw-col-with-calendar>p.form-label {
+                    flex: 0 0 80px;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 80px;
+                    min-width: 80px;
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                }
+
+                .rw-col-half>label,
+                .rw-col-half .form-selectbox {
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    width: 60%;
+                }
+
+                /* 경력 섹션 기업명 input만 width 수정 */
+                .rw-career .rw-dual-col:first-of-type .rw-col-half:nth-of-type(1)>input[name="company[]"] {
+                    width: 60%;
+                }
+
+                /* 자격증 섹션 자격증명 input만 width 수정 */
+                .rw-dual-col .rw-col-half:nth-of-type(1)>input[name="license[]"] {
+                    width: 60%;
+                }
+
+                .rw-col-with-calendar {
+                    position: relative;
+                }
+
+                .rw-block-label {
+                    display: block;
+                }
+
+                .rw-calendar-input-wrapper {
                     -webkit-box-orient: vertical;
                     -webkit-box-direction: normal;
                     -ms-flex-direction: column;
                     flex-direction: column;
+                }
+
+                /* 텍스트 입력창 높이 통일 */
+                .rw-career .form-text {
+                    height: var(--rw-input-height);
+                    box-sizing: border-box;
+                }
+
+                /* 셀렉트박스 높이 통일 */
+                .rw-career .form-selectbox select {
+                    height: var(--rw-input-height);
+                    box-sizing: border-box;
+                }
+
+                /* 액션 버튼 (등록/추가) 높이 통일 */
+                .rw-career .btn-add-item {
+                    height: var(--rw-input-height);
+                    box-sizing: border-box;
+                }
+
+                /* 경력사항 섹션 입력 요소 border 추가 */
+                .rw-career .form-text {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 12px 16px;
+                    box-sizing: border-box;
+                }
+
+                .rw-career .form-selectbox {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    height: 50px;
+                }
+
+                .rw-career .form-selectbox select {
+                    border: none;
+                    border-radius: 0;
+                    padding: 12px 16px;
+                    box-sizing: border-box;
+                    background: #fff;
+                    color: #333;
+                    font-size: 16px;
+                    width: 100%;
+                    height: var(--rw-input-height);
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    appearance: none;
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                    background-repeat: no-repeat;
+                    background-position: right 12px center;
+                    background-size: 20px;
+                    padding-right: 36px;
+                }
+
+                .rw-career .form-selectbox .liner {
+                    display: none;
+                }
+
+                .rw-career .btn-add-item {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 0 24px;
+                    background: #fff;
+                    color: #333;
+                    font-size: 16px;
+                    font-weight: normal;
+                    cursor: pointer;
+                }
+
+                .rw-career .btn-add-item:hover {
+                    background: #f5f5f5;
+                }
+
+                /* 경력/자격증 섹션 좌우 배치 */
+                .rw-dual-col {
+                    width: 100%;
+                    padding: 0;
+                }
+
+                .rw-dual-col .form-group {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+
+                    gap: 24px;
+                    width: 100%;
+                    -webkit-box-align: flex-start;
+                    -ms-flex-align: flex-start;
+                    align-items: flex-start;
                 }
 
                 .rw-col-half {
@@ -633,7 +680,28 @@
                     -webkit-box-align: center;
                     -ms-flex-align: center;
                     align-items: center;
-                    gap: 12px;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                }
+
+                /* rw-dual-col 내 rw-col-half의 gap 12px */
+                .rw-dual-col .form-group>.rw-col-half {
+                    gap: 160px;
+                }
+
+                /* 첫 번째 rw-col-half (기업명) 더 넓게 */
+                .rw-dual-col .form-group>.rw-col-half:nth-of-type(1) {
+                    -webkit-box-flex: 2;
+                    -ms-flex: 2;
+                    flex: 2;
+                }
+
+                /* 두 번째 rw-col-half (업종) 더 좁게 */
+                .rw-dual-col .form-group>.rw-col-half:nth-of-type(2) {
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
                 }
 
                 .rw-col-half .form-label {
@@ -645,14 +713,91 @@
                     white-space: nowrap;
                 }
 
+                /* 업종과 취득일자 라벨만 넓이 증가 */
+                /* 업종 라벨 (경력 섹션 첫 번째 rw-dual-col) */
+                .rw-career .rw-dual-col:first-of-type .rw-col-half:nth-of-type(2)>p.form-label {
+                    flex: 0 0 137px;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 80px;
+                    min-width: 80px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    position: relative;
+                    left: 116px;
+                }
+
+                /* 취득일자 라벨 (자격증 섹션) */
+                .rw-dual-col .rw-col-half.rw-col-with-calendar>p.form-label {
+                    flex: 0 0 80px;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 80px;
+                    min-width: 80px;
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                }
+
                 .rw-col-half>label,
                 .rw-col-half .form-selectbox {
                     -webkit-box-flex: 1;
                     -ms-flex: 1;
                     flex: 1;
+                    width: 60%;
+                }
+
+                /* 경력 섹션 기업명 input만 width 수정 */
+                .rw-career .rw-dual-col:first-of-type .rw-col-half:nth-of-type(1)>input[name="company[]"] {
+                    width: 60%;
+                }
+
+                /* 자격증 섹션 자격증명 input만 width 수정 */
+                .rw-dual-col .rw-col-half:nth-of-type(1)>input[name="license[]"] {
+                    width: 60%;
                 }
 
                 .rw-col-with-calendar {
+                    position: relative;
+                }
+
+                .rw-calendar-input-wrapper {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    flex: 1;
+                }
+
+                .rw-calendar-input-wrapper input {
+                    padding-right: 40px;
+                }
+
+                /* 날짜 input 화살표 제거 */
+                .js-datepicker {
+                    appearance: none !important;
+                    -webkit-appearance: none !important;
+                    -moz-appearance: none !important;
+                }
+
+                .js-datepicker::-webkit-calendar-picker-indicator {
+                    display: none !important;
+                }
+
+                .js-datepicker::-webkit-outer-spin-button,
+                .js-datepicker::-webkit-inner-spin-button {
+                    -webkit-appearance: none !important;
+                    margin: 0 !important;
+                    display: none !important;
+                }
+
+                .js-datepicker::-moz-calendar-picker-indicator {
+                    display: none !important;
+                }
+
+                input[type="text"].js-datepicker {
+                    background-image: none !important;
+                }
+
+                .js-datepicker[type="date"] {
                     position: relative;
                 }
 
@@ -669,6 +814,8 @@
                     padding: 0;
                     width: 20px;
                     height: 20px;
+                    color: #333;
+                    font-size: 16px;
                 }
 
                 .rw-career-period-wrapper {
@@ -679,6 +826,7 @@
                     -webkit-box-align: center;
                     -ms-flex-align: center;
                     align-items: center;
+                    width: 48%;
                 }
 
                 .rw-career-period-wrapper .rw-period-field {
@@ -690,6 +838,61 @@
 
                 .rw-career-period-separator {
                     color: #999;
+                }
+
+                /* 희망지역 팝업 - PC 센터 모달 스타일 */
+                #changeArea .panel-container {
+                    max-width: 720px;
+                    width: 90vw;
+                    max-height: 88vh;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                }
+
+                #changeArea .panel-body {
+                    max-height: calc(86vh - 64px);
+                    overflow: auto;
+                }
+
+                .fixed {
+                    color: #e40d18;
+
+                }
+
+                /* 상세등록 섹션 */
+                .detail-register-section {
+                    margin-bottom: 40px;
+                    text-align: center;
+                }
+
+                .detail-register-link {
+                    display: inline-block;
+                    min-width: 40.5em;
+                    padding: 20px 30px;
+                    text-align: center;
+                    border: 1px solid #d5d8df;
+                    border-radius: 5px;
+                    color: #1B9D7D;
+                    font-size: 20px;
+                    font-weight: 500;
+                    text-decoration: none;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .detail-register-link:hover {
+                    background-color: #F0F5FF;
+                }
+
+                /* 추가정보 섹션 - 초기 숨김 */
+                .extra-section {
+                    display: none;
+                }
+
+                /* 상세등록 클릭 시 표시 */
+                .extra-section.show {
+                    display: block;
                 }
             </style>
             <div class="tab-panel on">
@@ -712,9 +915,9 @@
                             <div class="rw-section">
                                 <h4 class="rw-section-title">기본정보<span class="fixed">*</span></h4>
                                 <div class="rw-basic-info">
-                                    <div class="form-row">
-                                        <p class="form-label">이력서명</p>
-                                        <div class="value">
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">이력서명</p>
+                                        <div class="rw-value">
                                             <div class="form-group">
                                                 <label>
                                                     <span class="sr-text">이력서명 입력</span>
@@ -723,9 +926,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-row">
-                                        <p class="form-label">국적</p>
-                                        <div class="value">
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">국적</p>
+                                        <div class="rw-value">
                                             <div class="form-group">
                                                 <?php
                                                 $ru_nationality = getData($info, "ru_nationality", "");
@@ -749,12 +952,12 @@
                             </div>
                             <!-- 근무조건 섹션 -->
                             <div class="rw-section">
-                                <h4 class="rw-section-title">근무조건</h4>
+                                <h4 class="rw-section-title">근무조건<span class="fixed">*</span></h4>
                                 <div class="rw-work-condition">
-                                    <div class="form-row">
-                                        <p class="form-label">희망업무</p>
-                                        <div class="value">
-                                            <div class="form-group">
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">희망업무</p>
+                                        <div class="rw-value">
+                                            <div class="form-group col-5">
                                                 <?php
                                                 // 표시 허용 희망업무 화이트리스트
                                                 $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
@@ -773,10 +976,16 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-row">
-                                        <p class="form-label">희망지역</p>
-                                        <div class="value">
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">희망지역</p>
+                                        <div class="rw-value">
                                             <div class="form-group">
+                                                <div class="address-search-box js-add-address" role="button" aria-haspopup="dialog" aria-controls="changeArea">
+                                                    <input type="text" id="addr_search" placeholder="희망지역을 입력해주세요" class="addr-search-input" readonly>
+                                                    <button type="button" class="btn-search-icon">
+                                                        <img src="/resource/shop/mobile/img/common/search.png" alt="검색">
+                                                    </button>
+                                                </div>
                                                 <ul class="added-location" id="addr_location">
                                                     <?php foreach ($addr_list as $row) : ?>
                                                         <?php if (!empty($row["ad_addr"])) : ?>
@@ -793,14 +1002,13 @@
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
                                                 </ul>
-                                                <a href="javascript:void(0);" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn-add-more js-add-address"><span class="sr-text">추가작성</span></a>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="form-row">
-                                        <p class="form-label">희망급여</p>
-                                        <div class="value">
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">희망급여</p>
+                                        <div class="rw-value">
                                             <div class="form-group">
                                                 <?php foreach ($ru_price_type_list as $row) : ?>
                                                     <label class="form-toggle-btn2">
@@ -813,9 +1021,9 @@
                                                 <input type="radio" name="opt" id="opt1">
                                                 <input type="radio" name="opt" id="opt3">
 
-                                                <div id="amount3" class="row" style="padding-left:100px;width:270px;">
-                                                    <div class="label" style="width:90px;">
-                                                        <p class="on" style="width:100%;font-weight:normal;">희망연봉</p>
+                                                <div id="amount3" class="row rw-salary-row">
+                                                    <div class="label rw-salary-label">
+                                                        <p class="on">희망연봉</p>
                                                     </div>
                                                     <label class="inline-group">
                                                         <input type="text" name="ru_month_price" value="<?= number_format($info["ru_month_price"]) ?>" class="form-text is-currency comma" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
@@ -827,9 +1035,9 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-row">
-                                        <p class="form-label">근무형태</p>
-                                        <div class="value">
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">근무형태</p>
+                                        <div class="rw-value">
                                             <div class="form-group">
                                                 <?php foreach ($ru_work_type_list as $row) : ?>
                                                     <label class="form-toggle-btn2">
@@ -906,11 +1114,22 @@
 
                             <!-- 자기소개/강점 섹션 -->
                             <div class="rw-section">
-                                <h4 class="rw-section-title">자기소개/강점</h4>
+                                <h4 class="rw-section-title">자기소개/강점<span class="fixed">*</span></h4>
                                 <div class="rw-intro-strength">
-                                    <div class="form-row">
-                                        <p class="form-label">나의강점</p>
-                                        <div class="value">
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">자기소개</p>
+                                        <div class="rw-value">
+                                            <label class="full-width">
+                                                <span class="sr-text">자기소개 입력</span>
+                                                <textarea name="ru_desc" maxlength="500" class="form-textarea rw-intro-textarea"><?= $info["ru_desc"] ?></textarea>
+                                            </label>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">나의강점</p>
+                                        <div class="rw-value">
                                             <div class="form-group col-8 full-width">
                                                 <?php foreach ($ru_my_type_list as $row) : ?>
                                                     <label class="form-toggle-btn2 sm">
@@ -921,12 +1140,12 @@
                                             </div>
 
                                             <div class="advantage-form">
-                                                <div class="inline-group">
+                                                <!-- <div class="inline-group">
                                                     <label class="col">
                                                         <input type="text" name="addAdvantage" placeholder="나의 강점을 입력해주세요" autocomplete="off" class="form-text has-confirm">
                                                     </label>
                                                     <button type="button" class="btn-round btn-tertiary is-abs js-add-advantage">추가</button>
-                                                </div>
+                                                </div> -->
 
                                                 <!-- 추가목록 -->
                                                 <div class="form-group col-8 full-width">
@@ -994,27 +1213,77 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-row">
-                                        <p class="form-label">자기소개</p>
-                                        <div class="value">
-                                            <label class="full-width">
-                                                <span class="sr-text">자기소개 입력</span>
-                                                <textarea name="ru_desc" maxlength="500" class="form-textarea" style="min-height: 324px;"><?= $info["ru_desc"] ?></textarea>
-                                            </label>
-                                        </div>
 
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- 경력사항 섹션 -->
-                            <div class="rw-section">
+                            <div class="rw-section extra-section">
                                 <h4 class="rw-section-title">경력사항</h4>
                                 <div class="rw-career">
-                                    <div class="form-row">
+                                    <!-- 업종 및 기업명 form-row -->
+                                            <div class="rw-form-row">
+                                                <div class="rw-value rw-dual-col">
+                                                    <div class="form-group">
+                                                        <!-- 기업명 섹션 -->
+                                                        <div class="rw-col-half">
+                                                            <p class="rw-label">기업명</p>
+                                                            <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
+                                                        </div>
+                                                        <!-- 업종 섹션 -->
+                                                        <div class="rw-col-half">
+                                                            <p class="rw-label">업종</p>
+                                                            <label class="form-selectbox">
+                                                                <span class="sr-text">업종선택</span>
+                                                                <select name="category[]" class="added-career-form">
+                                                                    <option value="" selected disabled>업종</option>
+                                                                    <?php
+                                                                    // 표시 허용 업종 화이트리스트 (간단경력용)
+                                                                    $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
+                                                                    foreach ($ru_wrok_list as $row) :
+                                                                        // 허용 목록 이외 항목은 출력 제외
+                                                                        if (!in_array($row["cd_val"], $allowed_work_list, true)) {
+                                                                            continue;
+                                                                        }
+                                                                    ?>
+                                                                        <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                                <span class="liner"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
+                                            <!-- 근무기간 form-row -->
+                                            <div class="rw-form-row">
+                                                <p class="rw-label">근무기간</p>
+                                                <div class="rw-value">
+                                                    <div class="form-group rw-career-period-wrapper">
+                                                        <div class="rw-period-field">
+                                                            <label class="rw-block-label">
+                                                                <span class="sr-text">근무기간 시작일</span>
+                                                                <input type="text" name="period_start[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                            </label>
+                                                            <button type="button" class="btn-calendar">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                        <span class="rw-career-period-separator">~</span>
+                                                        <div class="rw-period-field">
+                                                            <label class="rw-block-label">
+                                                                <span class="sr-text">근무기간 종료일</span>
+                                                                <input type="text" name="period_end[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                            </label>
+                                                            <button type="button" class="btn-calendar">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                        <div class="value">
                                             <!-- 목록 -->
                                             <ol class="added-list career_list">
                                                 <?php if (is_array($career_list) && !empty($career_list)) :
@@ -1040,102 +1309,28 @@
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </ol>
-                                            <!-- 업종 및 기업명 form-row -->
-                                            <div class="form-row">
-                                                <div class="value rw-dual-col">
-                                                    <div class="form-group">
-                                                        <!-- 업종 섹션 -->
-                                                        <div class="rw-col-half">
-                                                            <p class="form-label">업종</p>
-                                                            <label class="form-selectbox">
-                                                                <span class="sr-text">업종선택</span>
-                                                                <select name="category[]" class="added-career-form">
-                                                                    <option value="" selected disabled>업종</option>
-                                                                    <?php
-                                                                    // 표시 허용 업종 화이트리스트 (간단경력용)
-                                                                    $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
-                                                                    foreach ($ru_wrok_list as $row) :
-                                                                        // 허용 목록 이외 항목은 출력 제외
-                                                                        if (!in_array($row["cd_val"], $allowed_work_list, true)) {
-                                                                            continue;
-                                                                        }
-                                                                    ?>
-                                                                        <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
-                                                                    <?php endforeach; ?>
-                                                                </select>
-                                                                <span class="liner"></span>
-                                                            </label>
-                                                        </div>
-                                                        <!-- 기업명 섹션 -->
-                                                        <div class="rw-col-half">
-                                                            <p class="form-label">기업명</p>
-                                                            <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text" style="display: block;">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
 
-                                            <!-- 근무기간 form-row -->
-                                            <div class="form-row">
-                                                <p class="form-label">근무기간</p>
-                                                <div class="value">
-                                                    <div class="form-group rw-career-period-wrapper">
-                                                        <div class="rw-period-field">
-                                                            <label style="display: block;">
-                                                                <span class="sr-text">근무기간 시작일</span>
-                                                                <input type="text" name="period_start[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                            </label>
-                                                            <button type="button" class="btn-calendar">
-                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none" />
-                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
-                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                        <span class="rw-career-period-separator">~</span>
-                                                        <div class="rw-period-field">
-                                                            <label style="display: block;">
-                                                                <span class="sr-text">근무기간 종료일</span>
-                                                                <input type="text" name="period_end[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                            </label>
-                                                            <button type="button" class="btn-calendar">
-                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none" />
-                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
-                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 등록 버튼 form-row -->
-                                            <div class="form-row" style="justify-content: flex-end; padding: 12px 0;">
-                                                <button type="button" class="btn-add-item js-add-career">등록</button>
+                                            <!-- 경력사항 추가 버튼 -->
+                                            <div class="rw-form-row">
+                                                <button type="button" class="js-add-career">경력사항 추가</button>
                                             </div>
 
                                             <!-- 자격증명 및 취득일자 form-row -->
-                                            <div class="form-row">
-                                                <div class="value rw-dual-col">
+                                            <div class="rw-form-row">
+                                                <div class="rw-value rw-dual-col">
                                                     <div class="form-group">
                                                         <!-- 자격증명 섹션 -->
                                                         <div class="rw-col-half">
-                                                            <p class="form-label">자격증명</p>
-                                                            <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form" style="display: block;">
+                                                            <p class="rw-label">자격증명</p>
+                                                            <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form">
                                                         </div>
                                                         <!-- 취득일자 섹션 -->
                                                         <div class="rw-col-half rw-col-with-calendar">
-                                                            <p class="form-label">취득일자</p>
-                                                            <div style="flex: 1; position: relative;">
-                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker" style="display: block;">
+                                                            <p class="rw-label">취득일자</p>
+                                                            <div class="rw-calendar-input-wrapper">
+                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
                                                                 <button type="button" class="btn-calendar">
-                                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none" />
-                                                                        <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
-                                                                        <path d="M2 8h16" stroke="#333" stroke-width="1.5" />
-                                                                    </svg>
+                                                                    <i class="fa fa-calendar"></i>
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -1143,10 +1338,15 @@
                                                 </div>
                                             </div>
 
-                                            <!-- 등록 버튼 form-row -->
-                                            <div class="form-row" style="justify-content: flex-end; padding: 12px 0;">
-                                                <button type="button" class="btn-add-item js-add-license">등록</button>
+                                            <!-- 자격증 목록 -->
+                                            <ol class="added-list license_list">
+                                            </ol>
+
+                                            <!-- 자격증 추가 버튼 -->
+                                            <div class="rw-form-row">
+                                                <button type="button" class="js-add-license">자격증 추가</button>
                                             </div>
+
                                         </div>
 
                                         <!-- 입력폼 템플릿 -->
@@ -1161,6 +1361,21 @@
                                                     </div>
                                                     <div class="col">
                                                         <input type="text" name="period[]" value="{$period}" disabled class="form-text num">
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn-clear js-del-item">삭제</button>
+                                            </li>
+                                        </template>
+
+                                        <!-- 자격증 입력폼 템플릿 -->
+                                        <template id="licenseTemp">
+                                            <li>
+                                                <div class="form-group">
+                                                    <div class="col">
+                                                        <input type="text" name="license[]" value="{$license}" disabled class="form-text">
+                                                    </div>
+                                                    <div class="col">
+                                                        <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
                                                     </div>
                                                 </div>
                                                 <button type="button" class="btn-clear js-del-item">삭제</button>
@@ -1237,40 +1452,47 @@
                                                         var btn = this,
                                                             max = 9,
                                                             temp = document.getElementById('careerTemp').content.cloneNode(true),
-                                                            list = btn.parentNode.parentNode.querySelector('.added-list'),
+                                                            formContainer = btn.closest('.form-row').parentNode,
+                                                            list = formContainer.querySelector('.career_list'),
                                                             lastItem = null;
 
-                                                        var category = btn.parentNode.querySelector('[name="category[]"]'),
-                                                            company = btn.parentNode.querySelector('[name="company[]"]'),
-                                                            periodStart = btn.parentNode.querySelector('[name="period_start[]"]'),
-                                                            periodEnd = btn.parentNode.querySelector('[name="period_end[]"]');
+                                                        var category = formContainer.querySelector('[name="category[]"]:not([disabled])'),
+                                                            company = formContainer.querySelector('[name="company[]"]:not([disabled])'),
+                                                            periodStart = formContainer.querySelector('[name="period_start[]"]'),
+                                                            periodEnd = formContainer.querySelector('[name="period_end[]"]');
 
-                                                        if (!category.value) {
-                                                            category.focus();
+                                                        if (!category || !category.value) {
+                                                            if (category) category.focus();
                                                             return;
-                                                        } else {
-                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$category}', category.value);
                                                         }
 
-                                                        if (!company.value) {
-                                                            company.focus();
+                                                        if (!company || !company.value) {
+                                                            if (company) company.focus();
                                                             return;
-                                                        } else {
-                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$company}', company.value);
                                                         }
 
-                                                        if (!periodStart.value || !periodEnd.value) {
-                                                            if (!periodStart.value) periodStart.focus();
-                                                            else periodEnd.focus();
+                                                        if (!periodStart || !periodEnd || !periodStart.value || !periodEnd.value) {
+                                                            if (!periodStart || !periodStart.value) {
+                                                                if (periodStart) periodStart.focus();
+                                                            } else if (periodEnd) {
+                                                                periodEnd.focus();
+                                                            }
                                                             return;
-                                                        } else {
-                                                            var period = periodStart.value + ' ~ ' + periodEnd.value;
-                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$period}', period + totalRange(period));
                                                         }
 
                                                         if (list.children.length < max) {
-                                                            list.appendChild(temp);
-                                                            lastItem = list.children[list.children.length - 1];
+                                                            var categoryText = category.value;
+                                                            var companyText = company.value;
+                                                            var periodText = periodStart.value + ' ~ ' + periodEnd.value;
+
+                                                            var newItem = temp.children[0];
+                                                            var formGroup = newItem.querySelector('.form-group');
+                                                            formGroup.children[0].querySelector('input').value = categoryText;
+                                                            formGroup.children[1].querySelector('input').value = companyText;
+                                                            formGroup.children[2].querySelector('input').value = periodText;
+
+                                                            list.insertBefore(temp, list.firstChild);
+                                                            lastItem = list.children[0];
 
                                                             lastItem.querySelector('.js-del-item').addEventListener('click', function() {
                                                                 if (list.children.length <= 3) {
@@ -1278,8 +1500,10 @@
                                                                 }
                                                             });
 
-                                                            category.children[0].selected = true;
-                                                            category.parentNode.querySelector('.liner').textContent = category.children[0].textContent;
+                                                            // select 초기화
+                                                            var selectElement = category.closest('.form-selectbox').querySelector('select');
+                                                            selectElement.selectedIndex = 0;
+                                                            selectElement.parentNode.querySelector('.liner').textContent = selectElement.children[0].textContent;
                                                             company.value = '';
                                                             periodStart.value = '';
                                                             periodEnd.value = '';
@@ -1292,29 +1516,34 @@
                                                         var btn = this,
                                                             max = 4,
                                                             temp = document.getElementById('licenseTemp').content.cloneNode(true),
-                                                            list = btn.parentNode.parentNode.querySelector('.added-list'),
+                                                            formContainer = btn.closest('.form-row').parentNode,
+                                                            list = formContainer.querySelector('.license_list'),
                                                             lastItem;
 
-                                                        var license = btn.parentNode.querySelector('[name="license[]"]'),
-                                                            regdate = btn.parentNode.querySelector('[name="regdate[]"]');
+                                                        var license = formContainer.querySelector('[name="license[]"]:not([disabled])'),
+                                                            regdate = formContainer.querySelector('[name="regdate[]"]:not([disabled])');
 
-                                                        if (!license.value) {
-                                                            license.focus();
+                                                        if (!license || !license.value) {
+                                                            if (license) license.focus();
                                                             return;
-                                                        } else {
-                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$license}', license.value);
                                                         }
 
-                                                        if (!regdate.value) {
-                                                            regdate.focus();
+                                                        if (!regdate || !regdate.value) {
+                                                            if (regdate) regdate.focus();
                                                             return;
-                                                        } else {
-                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$regdate}', regdate.value);
                                                         }
 
                                                         if (list.children.length < max) {
-                                                            list.appendChild(temp);
-                                                            lastItem = list.children[list.children.length - 1];
+                                                            var licenseText = license.value;
+                                                            var regdateText = regdate.value;
+
+                                                            var newItem = temp.children[0];
+                                                            var formGroup = newItem.querySelector('.form-group');
+                                                            formGroup.children[0].querySelector('input').value = licenseText;
+                                                            formGroup.children[1].querySelector('input').value = regdateText;
+
+                                                            list.insertBefore(temp, list.firstChild);
+                                                            lastItem = list.children[0];
 
                                                             lastItem.querySelector('.js-del-item').addEventListener('click', function() {
                                                                 if (list.children.length <= max) {
@@ -1332,6 +1561,11 @@
                                         </script>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- 상세등록 섹션 -->
+                            <div class="detail-register-section">
+                                <a href="#" id="detailRegisterBtn" class="detail-register-link">상세등록</a>
                             </div>
 
                             <div class="form-action-wrap">
@@ -1415,6 +1649,15 @@
             $panel[0].focus();
         }, 100);
     }
+
+    // 상세등록 버튼 클릭 이벤트
+    $(document).on('click', '#detailRegisterBtn', function(e) {
+        e.preventDefault();
+        // 추가정보 섹션(경력사항) 표시
+        $('.extra-section').addClass('show');
+        // 상세등록 버튼 숨김
+        $(this).closest('.detail-register-section').hide();
+    });
 
     $(document).ready(function() {
         // 자동 이력서 입력 (웹) - join_mem_finish에서 저장한 payload 사용
@@ -2024,4 +2267,4 @@
     }
 </script>
 
-<?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>

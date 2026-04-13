@@ -1380,7 +1380,7 @@ fieldset {
     user-select: none;
     white-space: nowrap;
     border: 1px solid #57CCAF;
-    border-radius: 100px;
+    border-radius: 10px;
     border: 1px solid #ADAEB9;
     background: #fff;
     overflow: hidden;
@@ -1388,7 +1388,7 @@ fieldset {
 
 .form-toggle-btn2.sm .btn {
     min-width: 38px;
-    height: 38px;
+    height: var(--rw-input-height);
     padding: 0 2px;
     line-height: 36px;
 }
@@ -1862,6 +1862,7 @@ fieldset {
 .form-table .week-day .option {
     margin-left: 12px;
 }
+
 
 .form-table .help-msg {
     margin-left: 255px;
@@ -13163,3 +13164,40 @@ body {
   .mv-dot.active {
     background: #3ecf8e;
   }
+}
+
+/* 이력서 작성 - 캘린더 입력 래퍼 */
+.rw-calendar-input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+/* 이력서 작성 - 라벨 높이 통일 */
+.form-group > .rw-col-half .form-label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* 이력서 작성 - 경력/자격증 추가 버튼 */
+.form-row .js-add-career,
+.form-row .js-add-license {
+  display: block;
+  width: 40%;
+  padding: 20px 30px;
+  margin: 16px auto 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  border: none;
+  border-radius: 8px;
+  background: #888;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-row .js-add-career:hover,
+.form-row .js-add-license:hover {
+  background: #777;
+}
