@@ -804,12 +804,116 @@
                                 </div>
                             </div>
 
+
+                            <!-- 자기소개/강점 섹션 -->
+                            <div class="rw-section">
+                                <h4 class="rw-section-title">자기소개/강점</h4>
+                                <div class="rw-intro-strength">
+                                    <div class="form-row">
+                                        <p class="form-label">나의강점</p>
+                                        <div class="value">
+                                            <div class="form-group col-8 full-width">
+                                                <?php foreach ($ru_my_type_list as $row) : ?>
+                                                    <label class="form-toggle-btn2 sm">
+                                                        <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_my_type"]), "check") ?>>
+                                                        <span class="btn"><?= $row["cd_val"] ?></span>
+                                                    </label>
+                                                <?php endforeach; ?>
+                                            </div>
+
+                                            <div class="advantage-form">
+                                                <div class="inline-group">
+                                                    <label class="col">
+                                                        <input type="text" name="addAdvantage" placeholder="나의 강점을 입력해주세요" autocomplete="off" class="form-text has-confirm">
+                                                    </label>
+                                                    <button type="button" class="btn-round btn-tertiary is-abs js-add-advantage">추가</button>
+                                                </div>
+
+                                                <!-- 추가목록 -->
+                                                <div class="form-group col-8 full-width">
+                                                    <!-- 추가 태그 -->
+                                                    <?php if (isset($info["ru_my_type"]) && $info["ru_my_type"] != "") : ?>
+                                                        <?php foreach (explode(",", $info["ru_my_type"]) as $row) : ?>
+                                                            <?php
+                                                            $is_arr = false;
+                                                            foreach ($ru_my_type_list as $temp) {
+                                                                if ($temp["cd_val"] == $row) {
+                                                                    $is_arr = true;
+                                                                }
+                                                            }
+                                                            if ($is_arr == false) :
+                                                            ?>
+                                                                <label class="form-toggle-btn2">
+                                                                    <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row ?>" checked>
+                                                                    <span class="btn"><?= $row ?></span>
+                                                                </label>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                (function() {
+                                                    //목록선택 제한 설정
+                                                    document.querySelectorAll('input[data-select-limit]').forEach(function(item) {
+                                                        item.addEventListener('change', function() {
+                                                            var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
+
+                                                            if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
+                                                                this.checked = false;
+                                                            }
+                                                        });
+                                                    });
+
+                                                    document.querySelector('.js-add-advantage').addEventListener('click', function() {
+                                                        var value = document.querySelector('input[name="addAdvantage"]').value;
+                                                        var label;
+
+                                                        if (!value) return;
+
+                                                        label = document.createElement('LABEL');
+                                                        value = value.trim().replace(/[\{\}\[\]\/?.,;:|\)*~`!^\-+<>@\#$%&\\\=\(\'\"]/g, '');
+
+                                                        label.setAttribute('class', 'form-toggle-btn2');
+                                                        label.innerHTML = '<input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="' + value + '"> <span class="btn">' + value + '</span>';
+
+                                                        document.querySelector('.advantage-form .form-group').appendChild(label);
+
+                                                        label.querySelector('input').addEventListener('change', function() {
+                                                            var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
+
+                                                            if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
+                                                                this.checked = false;
+                                                            }
+                                                        });
+
+                                                        document.querySelector('input[name="addAdvantage"]').value = "";
+                                                    });
+                                                }());
+                                            </script>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <p class="form-label">자기소개</p>
+                                        <div class="value">
+                                            <label class="full-width">
+                                                <span class="sr-text">자기소개 입력</span>
+                                                <textarea name="ru_desc" maxlength="500" class="form-textarea" style="min-height: 324px;"><?= $info["ru_desc"] ?></textarea>
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- 경력사항 섹션 -->
                             <div class="rw-section">
                                 <h4 class="rw-section-title">경력사항</h4>
                                 <div class="rw-career">
                                     <div class="form-row">
-                                        <p class="form-label">경력사항</p>
+
 
                                         <div class="value">
                                             <!-- 목록 -->
@@ -893,6 +997,37 @@
                                             <!-- 등록 버튼 form-row -->
                                             <div class="form-row" style="justify-content: flex-end; padding: 12px 0;">
                                                 <button type="button" class="btn-add-item js-add-career">등록</button>
+                                            </div>
+
+                                            <!-- 자격증명 form-row -->
+                                            <div class="form-row">
+                                                <p class="form-label">자격증명</p>
+                                                <div class="value">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            <span class="sr-text">자격증명 입력</span>
+                                                            <input type="text" name="license[]" placeholder="자격증명" autocomplete="off" class="form-text added-license-form">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 취득일자 form-row -->
+                                            <div class="form-row">
+                                                <p class="form-label">취득일자</p>
+                                                <div class="value">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            <span class="sr-text">취득일자 입력</span>
+                                                            <input type="text" name="regdate[]" placeholder="취득일자" autocomplete="off" class="form-text num js-datepicker">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 등록 버튼 form-row -->
+                                            <div class="form-row" style="justify-content: flex-end; padding: 12px 0;">
+                                                <button type="button" class="btn-add-item js-add-license">등록</button>
                                             </div>
                                         </div>
 
@@ -1029,243 +1164,6 @@
                                                             period.value = '';
                                                         }
                                                     });
-                                                });
-
-                                            }());
-                                        </script>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 자기소개/강점 섹션 -->
-                            <div class="rw-section">
-                                <h4 class="rw-section-title">자기소개/강점</h4>
-                                <div class="rw-intro-strength">
-                                    <div class="form-row">
-                                        <p class="form-label">나의강점</p>
-                                        <div class="value">
-                                            <div class="form-group col-8 full-width">
-                                                <?php foreach ($ru_my_type_list as $row) : ?>
-                                                    <label class="form-toggle-btn2 sm">
-                                                        <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_my_type"]), "check") ?>>
-                                                        <span class="btn"><?= $row["cd_val"] ?></span>
-                                                    </label>
-                                                <?php endforeach; ?>
-                                            </div>
-
-                                            <div class="advantage-form">
-                                                <div class="inline-group">
-                                                    <label class="col">
-                                                        <input type="text" name="addAdvantage" placeholder="나의 강점을 입력해주세요" autocomplete="off" class="form-text has-confirm">
-                                                    </label>
-                                                    <button type="button" class="btn-round btn-tertiary is-abs js-add-advantage">추가</button>
-                                                </div>
-
-                                                <!-- 추가목록 -->
-                                                <div class="form-group col-8 full-width">
-                                                    <!-- 추가 태그 -->
-                                                    <?php if (isset($info["ru_my_type"]) && $info["ru_my_type"] != "") : ?>
-                                                        <?php foreach (explode(",", $info["ru_my_type"]) as $row) : ?>
-                                                            <?php
-                                                            $is_arr = false;
-                                                            foreach ($ru_my_type_list as $temp) {
-                                                                if ($temp["cd_val"] == $row) {
-                                                                    $is_arr = true;
-                                                                }
-                                                            }
-                                                            if ($is_arr == false) :
-                                                            ?>
-                                                                <label class="form-toggle-btn2">
-                                                                    <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row ?>" checked>
-                                                                    <span class="btn"><?= $row ?></span>
-                                                                </label>
-                                                            <?php endif; ?>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-
-                                            <script>
-                                                (function() {
-                                                    //목록선택 제한 설정
-                                                    document.querySelectorAll('input[data-select-limit]').forEach(function(item) {
-                                                        item.addEventListener('change', function() {
-                                                            var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
-
-                                                            if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
-                                                                this.checked = false;
-                                                            }
-                                                        });
-                                                    });
-
-                                                    document.querySelector('.js-add-advantage').addEventListener('click', function() {
-                                                        var value = document.querySelector('input[name="addAdvantage"]').value;
-                                                        var label;
-
-                                                        if (!value) return;
-
-                                                        label = document.createElement('LABEL');
-                                                        value = value.trim().replace(/[\{\}\[\]\/?.,;:|\)*~`!^\-+<>@\#$%&\\\=\(\'\"]/g, '');
-
-                                                        label.setAttribute('class', 'form-toggle-btn2');
-                                                        label.innerHTML = '<input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="' + value + '"> <span class="btn">' + value + '</span>';
-
-                                                        document.querySelector('.advantage-form .form-group').appendChild(label);
-
-                                                        label.querySelector('input').addEventListener('change', function() {
-                                                            var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
-
-                                                            if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
-                                                                this.checked = false;
-                                                            }
-                                                        });
-
-                                                        document.querySelector('input[name="addAdvantage"]').value = "";
-                                                    });
-                                                }());
-                                            </script>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-row">
-                                        <p class="form-label">자기소개</p>
-                                        <div class="value">
-                                            <label class="full-width">
-                                                <span class="sr-text">자기소개 입력</span>
-                                                <textarea name="ru_desc" maxlength="500" class="form-textarea" style="min-height: 324px;"><?= $info["ru_desc"] ?></textarea>
-                                            </label>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 자격증 섹션 -->
-                            <div class="rw-section">
-                                <h4 class="rw-section-title">자격증</h4>
-                                <div class="rw-certificate">
-                                    <div class="form-row">
-                                        <p class="form-label">자격증</p>
-
-                                        <div class="value">
-                                            <!-- 목록 -->
-                                            <ol class="added-list license_list">
-                                                <?php if (is_array($certi_list) && !empty($certi_list)) :
-                                                    foreach ($certi_list as $row):
-                                                        $rc_name = $row['rc_name'];
-                                                        $rc_date = $row['rc_dt'];
-                                                ?>
-                                                        <li>
-                                                            <div class="form-group">
-                                                                <div class="col md">
-                                                                    <input type="text" name="license[]" value="<?= $rc_name; ?>" disabled class="form-text">
-                                                                </div>
-                                                                <div class="col">
-                                                                    <input type="text" name="regdate[]" value="<?= $rc_date; ?>" disabled class="form-text num">
-                                                                </div>
-                                                            </div>
-                                                            <button type="button" class="btn-clear js-del-item">삭제</button>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </ol>
-                                            <!-- 자격증명 form-row -->
-                                            <div class="form-row">
-                                                <p class="form-label">자격증명</p>
-                                                <div class="value">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            <span class="sr-text">자격증명 입력</span>
-                                                            <input type="text" name="license[]" placeholder="자격증명" autocomplete="off" class="form-text added-license-form">
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 취득일자 form-row -->
-                                            <div class="form-row">
-                                                <p class="form-label">취득일자</p>
-                                                <div class="value">
-                                                    <div class="form-group">
-                                                        <label>
-                                                            <span class="sr-text">취득일자 입력</span>
-                                                            <input type="text" name="regdate[]" placeholder="취득일자" autocomplete="off" class="form-text num js-datepicker">
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 등록 버튼 form-row -->
-                                            <div class="form-row" style="justify-content: flex-end; padding: 12px 0;">
-                                                <button type="button" class="btn-add-item js-add-license">등록</button>
-                                            </div>
-                                        </div>
-
-                                        <!-- 입력폼 템플릿 -->
-                                        <template id="licenseTemp">
-                                            <li>
-                                                <div class="form-group">
-                                                    <div class="col md">
-                                                        <input type="text" name="license[]" value="{$license}" disabled class="form-text">
-                                                    </div>
-                                                    <div class="col">
-                                                        <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
-                                                    </div>
-                                                </div>
-                                                <button type="button" class="btn-clear js-del-item">삭제</button>
-                                            </li>
-                                        </template>
-
-                                        <script>
-                                            (function() {
-                                                function chgYear(instance) {
-                                                    var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                                                        year = instance.currentYear;
-                                                    $con.innerHTML = '<span class="month">' + year + '</span>';
-                                                }
-
-                                                function initDatepicker(el) {
-                                                    if (typeof flatpickr == 'undefined') return;
-
-                                                    //달력 생성
-                                                    flatpickr(el, {
-                                                        locale: 'ko',
-                                                        nextArrow: '<span class="sr-text">다음</span>',
-                                                        prevArrow: '<span class="sr-text">이전</span>',
-                                                        disableMobile: true,
-                                                        plugins: [
-                                                            new monthSelectPlugin({
-                                                                shorthand: true,
-                                                                dateFormat: "Y.m",
-                                                                altFormat: "Y.m",
-                                                            })
-                                                        ],
-                                                        onYearChange: function(selectedDates, dateStr, instance) {
-                                                            chgYear(this);
-                                                        },
-                                                        onReady: function() {
-                                                            chgYear(this);
-                                                        },
-                                                        onClose: function(selectedDates, dateStr, instance) {
-                                                            if (selectedDates.length > 1) {
-                                                                instance.calendarContainer.querySelector('.flatpickr-next-month').click();
-                                                            }
-                                                        },
-                                                        onOpen: function(selectedDates, dateStr, instance) {
-                                                            if (selectedDates.length > 1) {
-                                                                instance.calendarContainer.querySelector('.flatpickr-prev-month').click();
-                                                            }
-                                                        },
-                                                        onChange: function(selectedDates, dateStr, instance) {
-                                                            instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
-                                                                month.classList.remove('startRange', 'inRange', 'endRange')
-                                                            });
-                                                        }
-                                                    });
-                                                }
-
-                                                window.addEventListener('DOMContentLoaded', function() {
-                                                    initDatepicker(document.querySelector('.added-license-form .js-datepicker'));
 
                                                     //자격증 목록 추가
                                                     document.querySelector('.js-add-license').addEventListener('click', function(e) {
@@ -1308,8 +1206,57 @@
                                                         }
                                                     });
                                                 });
+
                                             }());
                                         </script>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 자격증 섹션 (목록 표시만) -->
+                            <div class="rw-section">
+                                <h4 class="rw-section-title">자격증</h4>
+                                <div class="rw-certificate">
+                                    <div class="form-row">
+                                        <p class="form-label">자격증</p>
+                                        <div class="value">
+                                            <!-- 목록 -->
+                                            <ol class="added-list license_list">
+                                                <?php if (is_array($certi_list) && !empty($certi_list)) :
+                                                    foreach ($certi_list as $row):
+                                                        $rc_name = $row['rc_name'];
+                                                        $rc_date = $row['rc_dt'];
+                                                ?>
+                                                        <li>
+                                                            <div class="form-group">
+                                                                <div class="col md">
+                                                                    <input type="text" name="license[]" value="<?= $rc_name; ?>" disabled class="form-text">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <input type="text" name="regdate[]" value="<?= $rc_date; ?>" disabled class="form-text num">
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" class="btn-clear js-del-item">삭제</button>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </ol>
+                                        </div>
+
+                                        <!-- 입력폼 템플릿 -->
+                                        <template id="licenseTemp">
+                                            <li>
+                                                <div class="form-group">
+                                                    <div class="col md">
+                                                        <input type="text" name="license[]" value="{$license}" disabled class="form-text">
+                                                    </div>
+                                                    <div class="col">
+                                                        <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn-clear js-del-item">삭제</button>
+                                            </li>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
