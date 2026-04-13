@@ -8,9 +8,14 @@
             // 카카오 키 가져오기 for Geocoding
             $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
             ?>
-            <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
+            <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=services"></script>
 
             <style>
+                /* 입력 요소 높이 통일 변수 */
+                :root {
+                    --rw-input-height: 48px;
+                }
+
                 .addition-info-form .form-row {
                     padding: 18px 0;
                     border-bottom: 1px solid #eee;
@@ -28,6 +33,565 @@
                 .addition-info-form .value {
                     margin-top: 4px;
                 }
+
+                /* 이력서 작성 섹션 그룹 스타일 */
+                .rw-section {
+                    margin-bottom: 32px;
+                }
+
+                .rw-section-title {
+                    padding: 16px 20px;
+                    background: #f7f7f7;
+                    font-size: 16px;
+                    font-weight: 700;
+                    border-bottom: 1px solid #D8D8D8;
+                    margin: 0;
+                }
+
+                /* form-table 복사본 (.rw-form-table) */
+                .rw-form-table .form-row {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    margin: 0;
+                    padding: 26px 0;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    -ms-flex-wrap: wrap;
+                    flex-wrap: wrap;
+                    border-bottom: 1px solid #D8D8D8;
+                }
+
+                .rw-form-table .form-row:first-child {
+                    padding-top: 0;
+                }
+
+                .rw-form-table .form-label {
+                    width: 257px;
+                    margin: 0;
+                    padding: 8px 0;
+                    font-size: 20px;
+                    line-height: 1;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 255px;
+                    flex: 0 0 255px;
+                    -ms-flex-item-align: start;
+                    align-self: flex-start;
+                }
+
+                .rw-form-table .form-label em {
+                    display: inline-block;
+                    max-width: 10.25em;
+                    margin: 0 0 0 8px;
+                    font-size: 0.8em;
+                    font-style: normal;
+                    font-weight: 400;
+                    color: #999;
+                    line-height: 1.25;
+                    vertical-align: top;
+                }
+
+                .rw-form-table .value {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                    -webkit-box-pack: center;
+                    -ms-flex-pack: center;
+                    justify-content: center;
+                }
+
+                .rw-form-table .value>label>.form-text {
+                    height: var(--rw-input-height);
+                    font-size: 20px;
+                    font-weight: 700;
+                }
+
+                .rw-form-table .form-selectbox {
+                    width: 180px;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 180px;
+                    flex: 0 0 180px;
+                }
+
+                .rw-form-table .value>.form-selectbox {
+                    min-height: var(--rw-input-height);
+                }
+
+                .rw-form-table .value>.form-selectbox .liner {
+                    font-size: 20px;
+                    font-weight: 700;
+                }
+
+                .rw-form-table .form-textarea {
+                    font-size: 15px;
+                }
+
+                .rw-form-table .week-day .form-toggle-btn2 {
+                    margin-right: 10px;
+                }
+
+                .rw-form-table .week-day .option {
+                    margin-left: 12px;
+                }
+
+                .rw-form-table .help-msg {
+                    margin-left: 255px;
+                    margin-bottom: 0;
+                    font-size: 1em;
+                    line-height: 1.5625;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 calc(100% - 255px);
+                    flex: 0 0 calc(100% - 255px);
+                    background-position: 0 2px;
+                }
+
+                .rw-form-table .current-area-form+.col {
+                    margin-left: 92px;
+                }
+
+                .rw-form-table .js-range-slider {
+                    width: 378px;
+                    margin-top: 15px;
+                    margin-bottom: 20px;
+                }
+
+                .rw-form-table .full-width {
+                    width: 100%;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 100%;
+                    flex: 0 0 100%;
+                }
+
+                /* 기본정보 섹션 고유 클래스 */
+                .rw-basic-info {
+                    padding: 20px 24px;
+                }
+
+                .rw-basic-info .form-row {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    margin: 0;
+                    padding: 20px 0;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    -ms-flex-wrap: wrap;
+                    flex-wrap: wrap;
+                    border-bottom: 1px solid #D8D8D8;
+                }
+
+                .rw-basic-info .form-row:first-child {
+                    padding-top: 0;
+                }
+
+                .rw-basic-info .form-row:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
+                .rw-basic-info .form-label {
+                    width: 257px;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 20px;
+                    line-height: 1;
+                    height: var(--rw-input-height);
+                    display: flex;
+                    align-items: center;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 255px;
+                    flex: 0 0 255px;
+                    -ms-flex-item-align: center;
+                    align-self: center;
+                }
+
+                .rw-basic-info .value {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                    -webkit-box-pack: center;
+                    -ms-flex-pack: center;
+                    justify-content: center;
+                    height: var(--rw-input-height);
+                }
+
+                /* 기본정보 - form-group 공통 스타일 변수 설정 */
+                :root {
+                    --rw-basic-group-width: 650px;
+                }
+
+                /* 이력서명 form-group */
+                .rw-basic-info .form-row:first-child .form-group {
+                    display: flex;
+                    gap: 0;
+                    align-items: center;
+                    width: calc(100% - var(--rw-basic-group-width) + 200px);
+                    flex: 1;
+                }
+
+                .rw-basic-info .form-row:first-child label {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                }
+
+                /* 이력서명 입력창 */
+                .rw-basic-info .form-text {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 12px 16px;
+                    height: var(--rw-input-height);
+                    font-size: 16px;
+                    font-weight: normal;
+                    box-sizing: border-box;
+                    width: 100%;
+                }
+
+                /* 국적 버튼 그룹 */
+                .rw-basic-info .form-row:last-child .form-group {
+                    display: flex;
+                    gap: 0;
+                    align-items: center;
+                    width: var(--rw-basic-group-width);
+                }
+
+                .rw-basic-info .form-toggle-btn2 {
+                    margin-right: 0;
+                    height: var(--rw-input-height);
+                    display: flex;
+                    align-items: center;
+                    flex: 1;
+                }
+
+                .rw-basic-info .form-toggle-btn2 input {
+                    display: none;
+                }
+
+                .rw-basic-info .form-toggle-btn2 .btn {
+                    padding: 0;
+                    height: var(--rw-input-height);
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid #ccc;
+                    background: #fff;
+                    color: #333;
+                    font-size: 16px;
+                    font-weight: normal;
+                    margin: 0;
+                    cursor: pointer;
+                }
+
+                .rw-basic-info .form-toggle-btn2:first-child .btn {
+                    border-radius: 4px 0 0 4px;
+                }
+
+                .rw-basic-info .form-toggle-btn2:last-child .btn {
+                    border-radius: 0 4px 4px 0;
+                }
+
+                .rw-basic-info .form-toggle-btn2 input:checked+.btn {
+                    background: #1abc9c;
+                    color: #fff;
+                    border-color: #1abc9c;
+                }
+
+                /* 근무조건 섹션 스타일 (.rw-work-condition) */
+                .rw-work-condition {
+                    padding: 20px 24px;
+                }
+
+                .rw-work-condition .form-row {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    margin: 0;
+                    padding: 20px 0;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    -ms-flex-wrap: wrap;
+                    flex-wrap: wrap;
+                    border-bottom: 1px solid #D8D8D8;
+                }
+
+                .rw-work-condition .form-row:first-child {
+                    padding-top: 0;
+                }
+
+                .rw-work-condition .form-row:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
+                .rw-work-condition .form-label {
+                    width: 257px;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 20px;
+                    line-height: 1;
+                    height: var(--rw-input-height);
+                    display: flex;
+                    align-items: center;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 255px;
+                    flex: 0 0 255px;
+                    -ms-flex-item-align: center;
+                    align-self: center;
+                }
+
+                .rw-work-condition .value {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                    -webkit-box-pack: center;
+                    -ms-flex-pack: center;
+                    justify-content: center;
+                    min-height: var(--rw-input-height);
+                }
+
+                /* 근무조건 내 form-group 공통 규칙 */
+                .rw-work-condition .form-group {
+                    display: flex;
+                    gap: 0;
+                    align-items: center;
+                    flex-wrap: wrap;
+                }
+
+                .rw-work-condition .form-toggle-btn2 {
+                    margin-right: 0;
+                    height: var(--rw-input-height);
+                    display: flex;
+                    align-items: center;
+                    flex: 1;
+                    min-width: 100px;
+                }
+
+                .rw-work-condition .form-toggle-btn2 input {
+                    display: none;
+                }
+
+                .rw-work-condition .form-toggle-btn2 .btn {
+                    padding: 0;
+                    height: var(--rw-input-height);
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid #ccc;
+                    background: #fff;
+                    color: #333;
+                    font-size: 16px;
+                    font-weight: normal;
+                    margin: 0;
+                    cursor: pointer;
+                }
+
+                .rw-work-condition .form-toggle-btn2 input:checked+.btn {
+                    background: #1abc9c;
+                    color: #fff;
+                    border-color: #1abc9c;
+                }
+
+                /* 경력사항 섹션 스타일 (.rw-career) */
+                .rw-career {
+                    padding: 20px 24px;
+                }
+
+                .rw-career .form-row {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    margin: 0;
+                    padding: 20px 0;
+                    -webkit-box-align: flex-start;
+                    -ms-flex-align: flex-start;
+                    align-items: flex-start;
+                    -ms-flex-wrap: wrap;
+                    flex-wrap: wrap;
+                    border-bottom: 1px solid #D8D8D8;
+                }
+
+                .rw-career .form-row:first-child {
+                    padding-top: 0;
+                }
+
+                .rw-career .form-row:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
+                .rw-career .form-label {
+                    width: 257px;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 20px;
+                    line-height: 1;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 255px;
+                    flex: 0 0 255px;
+                }
+
+                .rw-career .value {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                }
+
+                /* 자기소개/강점 섹션 스타일 (.rw-intro-strength) */
+                .rw-intro-strength {
+                    padding: 20px 24px;
+                }
+
+                .rw-intro-strength .form-row {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    margin: 0;
+                    padding: 20px 0;
+                    -webkit-box-align: flex-start;
+                    -ms-flex-align: flex-start;
+                    align-items: flex-start;
+                    -ms-flex-wrap: wrap;
+                    flex-wrap: wrap;
+                    border-bottom: 1px solid #D8D8D8;
+                }
+
+                .rw-intro-strength .form-row:first-child {
+                    padding-top: 0;
+                }
+
+                .rw-intro-strength .form-row:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
+                .rw-intro-strength .form-label {
+                    width: 257px;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 20px;
+                    line-height: 1;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 255px;
+                    flex: 0 0 255px;
+                }
+
+                .rw-intro-strength .value {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                }
+
+                /* 자격증 섹션 스타일 (.rw-certificate) */
+                .rw-certificate {
+                    padding: 20px 24px;
+                }
+
+                .rw-certificate .form-row {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    margin: 0;
+                    padding: 20px 0;
+                    -webkit-box-align: flex-start;
+                    -ms-flex-align: flex-start;
+                    align-items: flex-start;
+                    -ms-flex-wrap: wrap;
+                    flex-wrap: wrap;
+                    border-bottom: 1px solid #D8D8D8;
+                }
+
+                .rw-certificate .form-row:first-child {
+                    padding-top: 0;
+                }
+
+                .rw-certificate .form-row:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
+                .rw-certificate .form-label {
+                    width: 257px;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 20px;
+                    line-height: 1;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 255px;
+                    flex: 0 0 255px;
+                }
+
+                .rw-certificate .value {
+                    display: -webkit-box;
+                    display: -ms-flexbox;
+                    display: flex;
+                    -webkit-box-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    -ms-flex-direction: column;
+                    flex-direction: column;
+                }
+
+                /* 텍스트 입력창 높이 통일 */
+                .rw-career .form-text,
+                .rw-certificate .form-text {
+                    height: var(--rw-input-height);
+                    box-sizing: border-box;
+                }
+
+                /* 셀렉트박스 높이 통일 */
+                .rw-career .form-selectbox select {
+                    height: var(--rw-input-height);
+                    box-sizing: border-box;
+                }
+
+                /* 액션 버튼 (등록/추가) 높이 통일 */
+                .rw-career .btn-add-item,
+                .rw-certificate .btn-add-item {
+                    height: var(--rw-input-height);
+                    box-sizing: border-box;
+                }
             </style>
             <div class="tab-panel on">
                 <div class="manage-my-content">
@@ -39,751 +603,719 @@
 
                         <h3 class="sr-text">이력서 작성</h3>
                         <div class="addition-info-form">
-                            <div class="form-table">
-                                <div class="form-row">
-                                    <p class="form-label" style="font-size: 0.9em;"><span class="fixed">*</span>표시는 필수 입력 항목입니다.</p>
-                                    <div class="form-group" style="position:static; right:auto;">
-                                        <span class="sr-text">간편등록 단일 폼</span>
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group" style="position:static; right:auto;">
+                                    <span class="sr-text">간편등록 단일 폼</span>
                                 </div>
-                                <div class="form-row">
-                                    <p class="form-label"><span class="fixed">*</span>이력서명 <em>이력서 제목으로 등록됩니다.</em></p>
-                                    <div class="value">
-                                        <label>
-                                            <span class="sr-text">이력서명 입력</span>
-                                            <input type="text" name="ru_name" placeholder="이력서명을 작성해주세요" value="<?= $info["ru_name"] ?>" autocomplete="off" aria-required="true" required class="form-text">
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <p class="form-label"><span class="fixed">*</span>국적 <em>국적을 선택해 주세요.</em></p>
-                                    <div class="value">
-                                        <div class="form-group">
-                                            <?php
-                                            $ru_nationality = getData($info, "ru_nationality", "");
-                                            // 회원 정보에서 국적 가져오기 (이력서에 없으면)
-                                            if (empty($ru_nationality) && isset($mem_info["mm_nation"])) {
-                                                $ru_nationality = $mem_info["mm_nation"];
-                                            }
-                                            ?>
-                                            <label class="form-toggle-btn2">
-                                                <input type="radio" name="ru_nationality" value="내국인" <?= ($ru_nationality == "내국인" ? "checked" : "") ?> required aria-required="true">
-                                                <span class="btn">내국인</span>
-                                            </label>
-                                            <label class="form-toggle-btn2">
-                                                <input type="radio" name="ru_nationality" value="외국인" <?= ($ru_nationality == "외국인" ? "checked" : "") ?> required aria-required="true">
-                                                <span class="btn">외국인</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <p class="form-label"><span class="fixed">*</span>희망업무 <em>희망업무는 2개까지 선택가능합니다.</em></p>
-                                    <div class="value">
-                                        <div class="form-group">
-                                            <?php
-                                            // 표시 허용 희망업무 화이트리스트
-                                            $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
-                                            foreach ($ru_wrok_list as $row) :
-                                                // 허용 목록 이외 항목은 출력 제외
-                                                if (!in_array($row["cd_val"], $allowed_work_list, true)) {
-                                                    continue;
-                                                }
-                                            ?>
-                                                <label class="form-toggle-btn2">
-                                                    <input type="checkbox" name="ru_work[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" data-img="<?= $row["cd_val2"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_work"]), "check") ?>>
-                                                    <span class="btn"><?= $row["cd_val"] ?></span>
-                                                </label>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                </div>
+                            </div>
 
-                                <div class="form-row">
-                                    <p class="form-label"><span class="fixed">*</span>희망지역 <em>희망지역은 2개까지 가능합니다.</em></p>
-                                    <div class="value">
-                                        <div class="form-group">
-                                            <ul class="added-location" id="addr_location">
-                                                <?php foreach ($addr_list as $row) : ?>
-                                                    <?php if (!empty($row["ad_addr"])) : ?>
-                                                        <li>
-                                                            <input type="hidden" name="ad_zipcode[]" value="<?= $row["ad_zip_code"] ?>" />
-                                                            <input type="hidden" name="ad_jibun[]" value="<?= $row["ad_jibun"] ?>" />
-                                                            <input type="hidden" name="ad_doro[]" value="<?= $row["ad_doro"] ?>" />
-                                                            <input type="hidden" name="ad_addr[]" value="<?= $row["ad_addr"] ?>" />
-                                                            <input type="hidden" name="ad_gps_x[]" value="<?= $row["ad_gps_x"] ?>" />
-                                                            <input type="hidden" name="ad_gps_y[]" value="<?= $row["ad_gps_y"] ?>" />
-                                                            <p class="addr-display"><?= $row["ad_addr"] ?></p>
-                                                            <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
-                                                        </li>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                            <a href="javascript:void(0);" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn-add-more js-add-address"><span class="sr-text">추가작성</span></a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <p class="form-label"><span class="fixed">*</span>급여형태 <em>급여형는 2개까지 가능합니다.</em></p>
-                                    <div class="value">
-                                        <div class="form-group">
-                                            <?php foreach ($ru_price_type_list as $row) : ?>
-                                                <label class="form-toggle-btn2">
-                                                    <input type="checkbox" name="ru_price_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_price_type"]), "check") ?>>
-                                                    <span class="btn"><?= $row["cd_val"] ?></span>
-                                                </label>
-                                            <?php endforeach; ?>
-                                        </div>
-                                        <div class="addition-option cont-price <?= (strpos($info["ru_price_type"], "월급x") !== false ? "" : "hidden") ?>">
-                                            <input type="radio" name="opt" id="opt1">
-                                            <input type="radio" name="opt" id="opt3">
-
-                                            <div id="amount3" class="row" style="padding-left:100px;width:270px;">
-                                                <div class="label" style="width:90px;">
-                                                    <p class="on" style="width:100%;font-weight:normal;">희망연봉</p>
-                                                </div>
-                                                <label class="inline-group">
-                                                    <input type="text" name="ru_month_price" value="<?= number_format($info["ru_month_price"]) ?>" class="form-text is-currency comma" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
-                                                    <span class="is-abs">원</span>
+                            <!-- 기본정보 섹션 -->
+                            <div class="rw-section">
+                                <h4 class="rw-section-title">기본정보<span class="fixed">*</span></h4>
+                                <div class="rw-basic-info">
+                                    <div class="form-row">
+                                        <p class="form-label">이력서명</p>
+                                        <div class="value">
+                                            <div class="form-group">
+                                                <label>
+                                                    <span class="sr-text">이력서명 입력</span>
+                                                    <input type="text" name="ru_name" placeholder="이력서명을 작성해주세요" value="<?= $info["ru_name"] ?>" autocomplete="off" aria-required="true" required class="form-text">
                                                 </label>
                                             </div>
                                         </div>
-                                        <p class="help-msg  <?= count(explode(",", $info["ru_price_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
                                     </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <p class="form-label"><span class="fixed">*</span>근무형태 <em>다중선택가능</em></p>
-                                    <div class="value">
-                                        <div class="form-group">
-                                            <?php foreach ($ru_work_type_list as $row) : ?>
-                                                <label class="form-toggle-btn2">
-                                                    <input type="checkbox" name="ru_work_type[]" class="<?= $row["cd_val"] != "2교대" ? "js-check-time" : "" ?>" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_work_type"]), "check") ?>>
-                                                    <span class="btn"><?= $row["cd_val"] ?></span>
-                                                </label>
-                                            <?php endforeach; ?>
-                                        </div>
-                                        <p class="help-msg <?= count(explode(",", $info["ru_work_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
-                                    </div>
-                                    <script>
-                                        (function() {
-                                            $("[name='ru_work_type[]']").click(function() {
-                                                if ($("[name='ru_work_type[]']:checked").length == 3) {
-                                                    $(this).closest(".value").find(".help-msg").removeClass("hidden");
-                                                } else {
-                                                    $(this).closest(".value").find(".help-msg").addClass("hidden");
-                                                }
-                                            });
-
-                                            $("[name='ru_price_type[]']").click(function() {
-                                                //console.log($("[name='ru_price_type[]']:checked").length);
-                                                if ($("[name='ru_price_type[]']:checked").length == 3) {
-                                                    commonAlert("급여는 2개까지 선택 가능합니다.", function() {});
-                                                    return false;
-                                                }
-                                                if ($("[name='ru_price_type[]']:checked").length == 3) {
-                                                    $(this).closest(".value").find(".help-msg").removeClass("hidden");
-                                                } else {
-                                                    $(this).closest(".value").find(".help-msg").addClass("hidden");
-                                                }
-
-                                                //월급 선택시 희망연봉 표시 on/off
-                                                //if($("[name='ru_price_type[]']").eq(2).is(":checked")){
-                                                //	$(".cont-price").removeClass("hidden");
-                                                //}else{
-                                                //	$(".cont-price").addClass("hidden");
-                                                //}
-                                            });
-
-                                            /* 근무시간 문구 표시 */
-                                            function timeChecked(el) {
-                                                var total = document.querySelectorAll('.js-check-time').length;
-                                                var isChecked = document.querySelectorAll('.js-check-time:checked');
-                                                var row = el.closest('.form-row');
-                                                var msg = row.querySelector('.help-msg');
-
-                                                if (!msg) {
-                                                    //msg = document.createElement('P');
-                                                    //msg.classList.add('help-msg');
-                                                    //msg.innerHTML = '주간 고정, 야간 고정을 선택하셨습니다.';
-                                                }
-
-                                                if (isChecked.length == total) {
-                                                    //    row.appendChild(msg);
-                                                } else {
-                                                    //    msg.remove();
-                                                }
-                                            }
-
-                                            document.querySelectorAll('.js-check-time').forEach(function(item) {
-                                                item.addEventListener('change', function() {
-                                                    timeChecked(item);
-                                                });
-
-                                                timeChecked(item);
-                                            });
-                                        }());
-                                    </script>
-                                </div>
-
-                                <div class="form-row">
-                                    <p class="form-label">근무희망요일 <em>다중선택가능</em></p>
-                                    <div class="value">
-                                        <div class="inline-group week-day">
+                                    <div class="form-row">
+                                        <p class="form-label">국적</p>
+                                        <div class="value">
                                             <div class="form-group">
                                                 <?php
-                                                // 간편등록 모드이고 기존 값이 없을 때 평일(월~금)을 기본값으로 설정
-                                                $default_week = empty($info["ru_week"]) ? "월,화,수,목,금" : $info["ru_week"];
-                                                foreach ($ru_week_list as $row) : ?>
-                                                    <label class="form-toggle-btn2 sm">
-                                                        <input type="checkbox" name="ru_week[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $default_week), "check") ?>>
+                                                $ru_nationality = getData($info, "ru_nationality", "");
+                                                // 회원 정보에서 국적 가져오기 (이력서에 없으면)
+                                                if (empty($ru_nationality) && isset($mem_info["mm_nation"])) {
+                                                    $ru_nationality = $mem_info["mm_nation"];
+                                                }
+                                                ?>
+                                                <label class="form-toggle-btn2">
+                                                    <input type="radio" name="ru_nationality" value="내국인" <?= ($ru_nationality == "내국인" ? "checked" : "") ?> required aria-required="true">
+                                                    <span class="btn">내국인</span>
+                                                </label>
+                                                <label class="form-toggle-btn2">
+                                                    <input type="radio" name="ru_nationality" value="외국인" <?= ($ru_nationality == "외국인" ? "checked" : "") ?> required aria-required="true">
+                                                    <span class="btn">외국인</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 근무조건 섹션 -->
+                            <div class="rw-section">
+                                <h4 class="rw-section-title">근무조건</h4>
+                                <div class="rw-work-condition">
+                                    <div class="form-row">
+                                        <p class="form-label">희망업무</p>
+                                        <div class="value">
+                                            <div class="form-group">
+                                                <?php
+                                                // 표시 허용 희망업무 화이트리스트
+                                                $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
+                                                foreach ($ru_wrok_list as $row) :
+                                                    // 허용 목록 이외 항목은 출력 제외
+                                                    if (!in_array($row["cd_val"], $allowed_work_list, true)) {
+                                                        continue;
+                                                    }
+                                                ?>
+                                                    <label class="form-toggle-btn2">
+                                                        <input type="checkbox" name="ru_work[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" data-img="<?= $row["cd_val2"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_work"]), "check") ?>>
                                                         <span class="btn"><?= $row["cd_val"] ?></span>
                                                     </label>
                                                 <?php endforeach; ?>
                                             </div>
-                                            <div class="option">
-                                                <label class="form-checkbox">
-                                                    <input type="checkbox" name="ru_week_yn" value="Y" class="sr-text" <?= $info["ru_week_yn"] == "Y" ? "checked" : "" ?>>
-                                                    <span class="label">요일무관</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <p class="form-label">근무희망일</p>
-                                    <div class="value">
-                                        <div class="calendar">
-                                            <div class="js-datepicker"></div>
-                                            <input type="hidden" name="ru_work_dt" aria-required="true" required class="js-date-value" value="<?= $info["ru_work_dt"] ?>">
                                         </div>
                                     </div>
 
-                                    <script>
-                                        (function() {
-                                            function chgMonth(instance) {
-                                                var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                                                    month = Number(instance.currentMonth) + 1,
-                                                    year = instance.currentYear;
-                                                $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
-                                            }
-
-                                            window.addEventListener('DOMContentLoaded', function() {
-                                                if (typeof flatpickr == 'undefined') return false;
-
-                                                //달력 생성
-                                                flatpickr('.calendar .js-datepicker', {
-                                                    inline: true,
-                                                    locale: 'ko',
-                                                    dateFormat: 'Y-m-d',
-                                                    ariaDateFormat: 'Y-m-d',
-                                                    defaultDate: '<?= $info["ru_work_dt"] ?>',
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
-                                                    disableMobile: true,
-                                                    onChange: function(selectedDates, dateStr, instance) {
-                                                        instance.calendarContainer.parentNode.querySelector('.js-date-value').value = dateStr;
-                                                    },
-                                                    onMonthChange: function(selectedDates, dateStr, instance) {
-                                                        chgMonth(this);
-                                                    },
-                                                    onDayCreate: function(dObj, dStr, fp, dayElem) {
-                                                        var day = new Date(dayElem.getAttribute('aria-label')).getDay();
-                                                        if (day == 0) {
-                                                            dayElem.classList.add('sun');
-                                                        } else if (day == 6) {
-                                                            dayElem.classList.add('sat');
-                                                        }
-                                                    },
-                                                    onReady: function() {
-                                                        chgMonth(this);
-                                                    }
-                                                });
-                                            });
-                                        }());
-                                    </script>
-                                </div>
-
-                                <div class="form-row">
-                                    <p class="form-label">최종학력</p>
-                                    <div class="value">
-                                        <div class="form-group">
-                                            <?php foreach ($ru_edu_list as $row) : ?>
-                                                <label class="form-toggle-btn2">
-                                                    <input type="radio" name="ru_edu" value="<?= $row["cd_val"] ?>" <?= equal_return($row["cd_val"], $info["ru_edu"], "check") ?>>
-                                                    <span class="btn"><?= $row["cd_val"] ?></span>
-                                                </label>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <p class="form-label">간단경력 <em>간단경력은 최대 10개의 경력사항을 기입가능합니다.<br> 업체명 최대 13자</em></p>
-
-                                    <div class="value">
-                                        <!-- 목록 -->
-                                        <ol class="added-list career_list">
-                                            <?php if (is_array($career_list) && !empty($career_list)) :
-                                                foreach ($career_list as $row):
-                                                    $rc_type = $row['rc_type'];
-                                                    $rc_name = $row['rc_name'];
-                                                    $rc_date = $row['rc_date'];
-                                            ?>
-                                                    <li>
-                                                        <div class="form-group">
-                                                            <div class="col sm">
-                                                                <input type="text" name="category[]" value="<?= $rc_type; ?>" disabled class="form-text txt-color2">
-                                                            </div>
-                                                            <div class="col">
-                                                                <input type="text" name="company[]" maxlength="13" disabled value="<?= $rc_name; ?>" class="form-text">
-                                                            </div>
-                                                            <div class="col">
-                                                                <input type="text" name="period[]" disabled value="<?= $rc_date; ?>" class="form-text num">
-                                                            </div>
-                                                        </div>
-                                                        <button type="button" class="btn-clear js-del-item">삭제</button>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </ol>
-                                        <div class="added-form added-career-form">
+                                    <div class="form-row">
+                                        <p class="form-label">희망지역</p>
+                                        <div class="value">
                                             <div class="form-group">
-                                                <div class="col sm">
-                                                    <label class="form-selectbox">
-                                                        <span class="sr-text">업종선택</span>
-                                                        <select name="category[]">
-                                                            <option value="" selected disabled>업종</option>
-                                                            <?php
-                                                            // 표시 허용 업종 화이트리스트 (간단경력용)
-                                                            $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
-                                                            foreach ($ru_wrok_list as $row) :
-                                                                // 허용 목록 이외 항목은 출력 제외
-                                                                if (!in_array($row["cd_val"], $allowed_work_list, true)) {
-                                                                    continue;
-                                                                }
-                                                            ?>
-                                                                <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
-                                                            <?php endforeach; ?>
-                                                        </select>
-                                                        <span class="liner"></span>
-                                                    </label>
-                                                </div>
-                                                <div class="col">
-                                                    <label>
-                                                        <span class="sr-text">업체명 입력</span>
-                                                        <input type="text" name="company[]" maxlength="13" placeholder="업체명" autocomplete="off" class="form-text">
-                                                    </label>
-                                                </div>
-                                                <div class="col">
-                                                    <label>
-                                                        <span class="sr-text">근무기간 입력</span>
-                                                        <input type="text" name="period[]" placeholder="근무기간" autocomplete="off" class="form-text num js-datepicker">
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <button type="button" class="btn-add-item js-add-career">등록</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- 입력폼 템플릿 -->
-                                    <template id="careerTemp">
-                                        <li>
-                                            <div class="form-group">
-                                                <div class="col sm">
-                                                    <input type="text" name="category[]" value="{$category}" disabled class="form-text txt-color2">
-                                                </div>
-                                                <div class="col">
-                                                    <input type="text" name="company[]" maxlength="13" value="{$company}" disabled class="form-text">
-                                                </div>
-                                                <div class="col">
-                                                    <input type="text" name="period[]" value="{$period}" disabled class="form-text num">
-                                                </div>
-                                            </div>
-                                            <button type="button" class="btn-clear js-del-item">삭제</button>
-                                        </li>
-                                    </template>
-
-                                    <script>
-                                        (function() {
-                                            function chgYear(instance) {
-                                                var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                                                    year = instance.currentYear;
-                                                $con.innerHTML = '<span class="month">' + year + '</span>';
-                                            }
-
-                                            function totalRange(rangeDate) {
-                                                var diffYear, diffMonth;
-
-                                                if (rangeDate.indexOf('~') == -1) return '';
-
-                                                diffYear = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getFullYear() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getFullYear();
-                                                diffMonth = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getMonth() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getMonth();
-                                                diffYear = diffYear > 0 ? diffYear + '년' : '';
-                                                diffMonth = diffMonth > 0 ? diffMonth + '개월' : '';
-                                                return '';
-                                                //return '(' + diffYear + diffMonth + ')';
-                                            }
-
-                                            function initDatepicker(el) {
-                                                if (typeof flatpickr == 'undefined') return;
-
-                                                //달력 생성
-                                                flatpickr(el, {
-                                                    mode: 'range',
-                                                    locale: 'ko',
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
-                                                    disableMobile: true,
-                                                    plugins: [
-                                                        new monthSelectPlugin({
-                                                            shorthand: true,
-                                                            dateFormat: "Y.m",
-                                                            altFormat: "Y.m",
-                                                        })
-                                                    ],
-                                                    onYearChange: function(selectedDates, dateStr, instance) {
-                                                        chgYear(this);
-                                                    },
-                                                    onReady: function() {
-                                                        chgYear(this);
-                                                    },
-                                                    onClose: function(selectedDates, dateStr, instance) {
-                                                        if (selectedDates.length > 1) {
-                                                            instance.calendarContainer.querySelector('.flatpickr-next-month').click();
-                                                        }
-                                                    },
-                                                    onOpen: function(selectedDates, dateStr, instance) {
-                                                        if (selectedDates.length > 1) {
-                                                            instance.calendarContainer.querySelector('.flatpickr-prev-month').click();
-                                                        }
-                                                    },
-                                                    onChange: function(selectedDates, dateStr, instance) {
-                                                        instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
-                                                            month.classList.remove('startRange', 'inRange', 'endRange')
-                                                        });
-                                                    }
-                                                });
-                                            }
-
-                                            window.addEventListener('DOMContentLoaded', function() {
-                                                initDatepicker(document.querySelector('.added-career-form .js-datepicker'));
-
-                                                //경력 목록 추가
-                                                document.querySelector('.js-add-career').addEventListener('click', function(e) {
-                                                    e.preventDefault();
-                                                    var btn = this,
-                                                        max = 9,
-                                                        temp = document.getElementById('careerTemp').content.cloneNode(true),
-                                                        list = btn.parentNode.parentNode.querySelector('.added-list'),
-                                                        lastItem = null;
-
-                                                    var category = btn.parentNode.querySelector('[name="category[]"]'),
-                                                        company = btn.parentNode.querySelector('[name="company[]"]'),
-                                                        period = btn.parentNode.querySelector('[name="period[]"]');
-
-                                                    if (!category.value) {
-                                                        category.focus();
-                                                        return;
-                                                    } else {
-                                                        temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$category}', category.value);
-                                                    }
-
-                                                    if (!company.value) {
-                                                        company.focus();
-                                                        return;
-                                                    } else {
-                                                        temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$company}', company.value);
-                                                    }
-
-                                                    if (!period.value) {
-                                                        period.focus();
-                                                        return;
-                                                    } else {
-                                                        temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$period}', period.value + totalRange(period.value));
-                                                    }
-
-                                                    if (list.children.length < max) {
-                                                        list.appendChild(temp);
-                                                        lastItem = list.children[list.children.length - 1];
-
-                                                        lastItem.querySelector('.js-del-item').addEventListener('click', function() {
-                                                            if (list.children.length <= 3) {
-                                                                btn.style.display = '';
-                                                            }
-                                                        });
-
-                                                        category.children[0].selected = true;
-                                                        category.parentNode.querySelector('.liner').textContent = category.children[0].textContent;
-                                                        company.value = '';
-                                                        period.value = '';
-                                                    }
-                                                });
-                                            });
-
-                                        }());
-                                    </script>
-                                </div>
-
-                                <div class="form-row">
-                                    <p class="form-label">나의강점 <em>나의강점을 선택하세요(최대6개까지)</em></p>
-                                    <div class="value">
-                                        <div class="form-group col-8 full-width">
-                                            <?php foreach ($ru_my_type_list as $row) : ?>
-                                                <label class="form-toggle-btn2 sm">
-                                                    <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_my_type"]), "check") ?>>
-                                                    <span class="btn"><?= $row["cd_val"] ?></span>
-                                                </label>
-                                            <?php endforeach; ?>
-                                        </div>
-
-                                        <div class="advantage-form">
-                                            <div class="inline-group">
-                                                <label class="col">
-                                                    <input type="text" name="addAdvantage" placeholder="나의 강점을 입력해주세요" autocomplete="off" class="form-text has-confirm">
-                                                </label>
-                                                <button type="button" class="btn-round btn-tertiary is-abs js-add-advantage">추가</button>
-                                            </div>
-
-                                            <!-- 추가목록 -->
-                                            <div class="form-group col-8 full-width">
-                                                <!-- 추가 태그 -->
-                                                <?php if (isset($info["ru_my_type"]) && $info["ru_my_type"] != "") : ?>
-                                                    <?php foreach (explode(",", $info["ru_my_type"]) as $row) : ?>
-                                                        <?php
-                                                        $is_arr = false;
-                                                        foreach ($ru_my_type_list as $temp) {
-                                                            if ($temp["cd_val"] == $row) {
-                                                                $is_arr = true;
-                                                            }
-                                                        }
-                                                        if ($is_arr == false) :
-                                                        ?>
-                                                            <label class="form-toggle-btn2">
-                                                                <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row ?>" checked>
-                                                                <span class="btn"><?= $row ?></span>
-                                                            </label>
+                                                <ul class="added-location" id="addr_location">
+                                                    <?php foreach ($addr_list as $row) : ?>
+                                                        <?php if (!empty($row["ad_addr"])) : ?>
+                                                            <li>
+                                                                <input type="hidden" name="ad_zipcode[]" value="<?= $row["ad_zip_code"] ?>" />
+                                                                <input type="hidden" name="ad_jibun[]" value="<?= $row["ad_jibun"] ?>" />
+                                                                <input type="hidden" name="ad_doro[]" value="<?= $row["ad_doro"] ?>" />
+                                                                <input type="hidden" name="ad_addr[]" value="<?= $row["ad_addr"] ?>" />
+                                                                <input type="hidden" name="ad_gps_x[]" value="<?= $row["ad_gps_x"] ?>" />
+                                                                <input type="hidden" name="ad_gps_y[]" value="<?= $row["ad_gps_y"] ?>" />
+                                                                <p class="addr-display"><?= $row["ad_addr"] ?></p>
+                                                                <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                                                            </li>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
-                                                <?php endif; ?>
+                                                </ul>
+                                                <a href="javascript:void(0);" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn-add-more js-add-address"><span class="sr-text">추가작성</span></a>
                                             </div>
                                         </div>
+                                    </div>
 
+                                    <div class="form-row">
+                                        <p class="form-label">희망급여</p>
+                                        <div class="value">
+                                            <div class="form-group">
+                                                <?php foreach ($ru_price_type_list as $row) : ?>
+                                                    <label class="form-toggle-btn2">
+                                                        <input type="checkbox" name="ru_price_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_price_type"]), "check") ?>>
+                                                        <span class="btn"><?= $row["cd_val"] ?></span>
+                                                    </label>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <div class="addition-option cont-price <?= (strpos($info["ru_price_type"], "월급x") !== false ? "" : "hidden") ?>">
+                                                <input type="radio" name="opt" id="opt1">
+                                                <input type="radio" name="opt" id="opt3">
+
+                                                <div id="amount3" class="row" style="padding-left:100px;width:270px;">
+                                                    <div class="label" style="width:90px;">
+                                                        <p class="on" style="width:100%;font-weight:normal;">희망연봉</p>
+                                                    </div>
+                                                    <label class="inline-group">
+                                                        <input type="text" name="ru_month_price" value="<?= number_format($info["ru_month_price"]) ?>" class="form-text is-currency comma" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                                                        <span class="is-abs">원</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <p class="help-msg  <?= count(explode(",", $info["ru_price_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <p class="form-label">근무형태</p>
+                                        <div class="value">
+                                            <div class="form-group">
+                                                <?php foreach ($ru_work_type_list as $row) : ?>
+                                                    <label class="form-toggle-btn2">
+                                                        <input type="checkbox" name="ru_work_type[]" class="<?= $row["cd_val"] != "2교대" ? "js-check-time" : "" ?>" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_work_type"]), "check") ?>>
+                                                        <span class="btn"><?= $row["cd_val"] ?></span>
+                                                    </label>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <p class="help-msg <?= count(explode(",", $info["ru_work_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
+                                        </div>
                                         <script>
                                             (function() {
-                                                //목록선택 제한 설정
-                                                document.querySelectorAll('input[data-select-limit]').forEach(function(item) {
-                                                    item.addEventListener('change', function() {
-                                                        var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
-
-                                                        if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
-                                                            this.checked = false;
-                                                        }
-                                                    });
+                                                $("[name='ru_work_type[]']").click(function() {
+                                                    if ($("[name='ru_work_type[]']:checked").length == 3) {
+                                                        $(this).closest(".value").find(".help-msg").removeClass("hidden");
+                                                    } else {
+                                                        $(this).closest(".value").find(".help-msg").addClass("hidden");
+                                                    }
                                                 });
 
-                                                document.querySelector('.js-add-advantage').addEventListener('click', function() {
-                                                    var value = document.querySelector('input[name="addAdvantage"]').value;
-                                                    var label;
+                                                $("[name='ru_price_type[]']").click(function() {
+                                                    //console.log($("[name='ru_price_type[]']:checked").length);
+                                                    if ($("[name='ru_price_type[]']:checked").length == 3) {
+                                                        commonAlert("급여는 2개까지 선택 가능합니다.", function() {});
+                                                        return false;
+                                                    }
+                                                    if ($("[name='ru_price_type[]']:checked").length == 3) {
+                                                        $(this).closest(".value").find(".help-msg").removeClass("hidden");
+                                                    } else {
+                                                        $(this).closest(".value").find(".help-msg").addClass("hidden");
+                                                    }
 
-                                                    if (!value) return;
+                                                    //월급 선택시 희망연봉 표시 on/off
+                                                    //if($("[name='ru_price_type[]']").eq(2).is(":checked")){
+                                                    //	$(".cont-price").removeClass("hidden");
+                                                    //}else{
+                                                    //	$(".cont-price").addClass("hidden");
+                                                    //}
+                                                });
 
-                                                    label = document.createElement('LABEL');
-                                                    value = value.trim().replace(/[\{\}\[\]\/?.,;:|\)*~`!^\-+<>@\#$%&\\\=\(\'\"]/g, '');
+                                                /* 근무시간 문구 표시 */
+                                                function timeChecked(el) {
+                                                    var total = document.querySelectorAll('.js-check-time').length;
+                                                    var isChecked = document.querySelectorAll('.js-check-time:checked');
+                                                    var row = el.closest('.form-row');
+                                                    var msg = row.querySelector('.help-msg');
 
-                                                    label.setAttribute('class', 'form-toggle-btn2');
-                                                    label.innerHTML = '<input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="' + value + '"> <span class="btn">' + value + '</span>';
+                                                    if (!msg) {
+                                                        //msg = document.createElement('P');
+                                                        //msg.classList.add('help-msg');
+                                                        //msg.innerHTML = '주간 고정, 야간 고정을 선택하셨습니다.';
+                                                    }
 
-                                                    document.querySelector('.advantage-form .form-group').appendChild(label);
+                                                    if (isChecked.length == total) {
+                                                        //    row.appendChild(msg);
+                                                    } else {
+                                                        //    msg.remove();
+                                                    }
+                                                }
 
-                                                    label.querySelector('input').addEventListener('change', function() {
-                                                        var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
-
-                                                        if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
-                                                            this.checked = false;
-                                                        }
+                                                document.querySelectorAll('.js-check-time').forEach(function(item) {
+                                                    item.addEventListener('change', function() {
+                                                        timeChecked(item);
                                                     });
 
-                                                    document.querySelector('input[name="addAdvantage"]').value = "";
+                                                    timeChecked(item);
                                                 });
                                             }());
                                         </script>
-
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="form-row">
-                                    <p class="form-label">자기소개 <em>(최대500자)</em></p>
-                                    <div class="value">
-                                        <label class="full-width">
-                                            <span class="sr-text">자기소개 입력</span>
-                                            <textarea name="ru_desc" maxlength="500" class="form-textarea" style="min-height: 324px;"><?= $info["ru_desc"] ?></textarea>
-                                        </label>
-                                    </div>
-                                    <p class="help-msg text-only">*개인 연락처 및 카카오톡 아이디 첨부 시 게시물 삭제 및 이용제제 처리될 수 있습니다.</p>
-                                </div>
+                            <!-- 경력사항 섹션 -->
+                            <div class="rw-section">
+                                <h4 class="rw-section-title">경력사항</h4>
+                                <div class="rw-career">
+                                    <div class="form-row">
+                                        <p class="form-label">경력사항</p>
 
-                                <div class="form-row">
-                                    <p class="form-label">자격증 <em>허위사실 기재시 합격이 취소될 수 있습니다</em></p>
-
-                                    <div class="value">
-                                        <!-- 목록 -->
-                                        <ol class="added-list license_list">
-                                            <?php if (is_array($certi_list) && !empty($certi_list)) :
-                                                foreach ($certi_list as $row):
-                                                    $rc_name = $row['rc_name'];
-                                                    $rc_date = $row['rc_dt'];
-                                            ?>
-                                                    <li>
-                                                        <div class="form-group">
-                                                            <div class="col md">
-                                                                <input type="text" name="license[]" value="<?= $rc_name; ?>" disabled class="form-text">
+                                        <div class="value">
+                                            <!-- 목록 -->
+                                            <ol class="added-list career_list">
+                                                <?php if (is_array($career_list) && !empty($career_list)) :
+                                                    foreach ($career_list as $row):
+                                                        $rc_type = $row['rc_type'];
+                                                        $rc_name = $row['rc_name'];
+                                                        $rc_date = $row['rc_date'];
+                                                ?>
+                                                        <li>
+                                                            <div class="form-group">
+                                                                <div class="col sm">
+                                                                    <input type="text" name="category[]" value="<?= $rc_type; ?>" disabled class="form-text txt-color2">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <input type="text" name="company[]" maxlength="13" disabled value="<?= $rc_name; ?>" class="form-text">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <input type="text" name="period[]" disabled value="<?= $rc_date; ?>" class="form-text num">
+                                                                </div>
                                                             </div>
-                                                            <div class="col">
-                                                                <input type="text" name="regdate[]" value="<?= $rc_date; ?>" disabled class="form-text num">
-                                                            </div>
-                                                        </div>
-                                                        <button type="button" class="btn-clear js-del-item">삭제</button>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </ol>
-                                        <div class="added-form added-license-form">
-                                            <div class="form-group">
-                                                <div class="col md">
-                                                    <label>
-                                                        <span class="sr-text">자격증명 입력</span>
-                                                        <input type="text" name="license[]" placeholder="자격증명" autocomplete="off" class="form-text">
-                                                    </label>
-                                                </div>
-                                                <div class="col">
-                                                    <label>
-                                                        <span class="sr-text">취득일자 입력</span>
-                                                        <input type="text" name="regdate[]" placeholder="취득일자" autocomplete="off" class="form-text num js-datepicker">
-                                                    </label>
+                                                            <button type="button" class="btn-clear js-del-item">삭제</button>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </ol>
+                                            <!-- 업종 form-row -->
+                                            <div class="form-row">
+                                                <p class="form-label">업종</p>
+                                                <div class="value">
+                                                    <div class="form-group">
+                                                        <label class="form-selectbox">
+                                                            <span class="sr-text">업종선택</span>
+                                                            <select name="category[]" class="added-career-form">
+                                                                <option value="" selected disabled>업종</option>
+                                                                <?php
+                                                                // 표시 허용 업종 화이트리스트 (간단경력용)
+                                                                $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
+                                                                foreach ($ru_wrok_list as $row) :
+                                                                    // 허용 목록 이외 항목은 출력 제외
+                                                                    if (!in_array($row["cd_val"], $allowed_work_list, true)) {
+                                                                        continue;
+                                                                    }
+                                                                ?>
+                                                                    <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <span class="liner"></span>
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn-add-item js-add-license">등록</button>
+
+                                            <!-- 기업명 form-row -->
+                                            <div class="form-row">
+                                                <p class="form-label">기업명</p>
+                                                <div class="value">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            <span class="sr-text">업체명 입력</span>
+                                                            <input type="text" name="company[]" maxlength="13" placeholder="업체명" autocomplete="off" class="form-text">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 근무기간 form-row -->
+                                            <div class="form-row">
+                                                <p class="form-label">근무기간</p>
+                                                <div class="value">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            <span class="sr-text">근무기간 입력</span>
+                                                            <input type="text" name="period[]" placeholder="근무기간" autocomplete="off" class="form-text num js-datepicker">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 등록 버튼 form-row -->
+                                            <div class="form-row" style="justify-content: flex-end; padding: 12px 0;">
+                                                <button type="button" class="btn-add-item js-add-career">등록</button>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <!-- 입력폼 템플릿 -->
-                                    <template id="licenseTemp">
-                                        <li>
-                                            <div class="form-group">
-                                                <div class="col md">
-                                                    <input type="text" name="license[]" value="{$license}" disabled class="form-text">
+                                        <!-- 입력폼 템플릿 -->
+                                        <template id="careerTemp">
+                                            <li>
+                                                <div class="form-group">
+                                                    <div class="col sm">
+                                                        <input type="text" name="category[]" value="{$category}" disabled class="form-text txt-color2">
+                                                    </div>
+                                                    <div class="col">
+                                                        <input type="text" name="company[]" maxlength="13" value="{$company}" disabled class="form-text">
+                                                    </div>
+                                                    <div class="col">
+                                                        <input type="text" name="period[]" value="{$period}" disabled class="form-text num">
+                                                    </div>
                                                 </div>
-                                                <div class="col">
-                                                    <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
+                                                <button type="button" class="btn-clear js-del-item">삭제</button>
+                                            </li>
+                                        </template>
+
+                                        <script>
+                                            (function() {
+                                                function chgYear(instance) {
+                                                    var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
+                                                        year = instance.currentYear;
+                                                    $con.innerHTML = '<span class="month">' + year + '</span>';
+                                                }
+
+                                                function totalRange(rangeDate) {
+                                                    var diffYear, diffMonth;
+
+                                                    if (rangeDate.indexOf('~') == -1) return '';
+
+                                                    diffYear = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getFullYear() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getFullYear();
+                                                    diffMonth = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getMonth() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getMonth();
+                                                    diffYear = diffYear > 0 ? diffYear + '년' : '';
+                                                    diffMonth = diffMonth > 0 ? diffMonth + '개월' : '';
+                                                    return '';
+                                                    //return '(' + diffYear + diffMonth + ')';
+                                                }
+
+                                                function initDatepicker(el) {
+                                                    if (typeof flatpickr == 'undefined') return;
+
+                                                    //달력 생성
+                                                    flatpickr(el, {
+                                                        mode: 'range',
+                                                        locale: 'ko',
+                                                        nextArrow: '<span class="sr-text">다음</span>',
+                                                        prevArrow: '<span class="sr-text">이전</span>',
+                                                        disableMobile: true,
+                                                        plugins: [
+                                                            new monthSelectPlugin({
+                                                                shorthand: true,
+                                                                dateFormat: "Y.m",
+                                                                altFormat: "Y.m",
+                                                            })
+                                                        ],
+                                                        onYearChange: function(selectedDates, dateStr, instance) {
+                                                            chgYear(this);
+                                                        },
+                                                        onReady: function() {
+                                                            chgYear(this);
+                                                        },
+                                                        onClose: function(selectedDates, dateStr, instance) {
+                                                            if (selectedDates.length > 1) {
+                                                                instance.calendarContainer.querySelector('.flatpickr-next-month').click();
+                                                            }
+                                                        },
+                                                        onOpen: function(selectedDates, dateStr, instance) {
+                                                            if (selectedDates.length > 1) {
+                                                                instance.calendarContainer.querySelector('.flatpickr-prev-month').click();
+                                                            }
+                                                        },
+                                                        onChange: function(selectedDates, dateStr, instance) {
+                                                            instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
+                                                                month.classList.remove('startRange', 'inRange', 'endRange')
+                                                            });
+                                                        }
+                                                    });
+                                                }
+
+                                                window.addEventListener('DOMContentLoaded', function() {
+                                                    initDatepicker(document.querySelector('.added-career-form .js-datepicker'));
+
+                                                    //경력 목록 추가
+                                                    document.querySelector('.js-add-career').addEventListener('click', function(e) {
+                                                        e.preventDefault();
+                                                        var btn = this,
+                                                            max = 9,
+                                                            temp = document.getElementById('careerTemp').content.cloneNode(true),
+                                                            list = btn.parentNode.parentNode.querySelector('.added-list'),
+                                                            lastItem = null;
+
+                                                        var category = btn.parentNode.querySelector('[name="category[]"]'),
+                                                            company = btn.parentNode.querySelector('[name="company[]"]'),
+                                                            period = btn.parentNode.querySelector('[name="period[]"]');
+
+                                                        if (!category.value) {
+                                                            category.focus();
+                                                            return;
+                                                        } else {
+                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$category}', category.value);
+                                                        }
+
+                                                        if (!company.value) {
+                                                            company.focus();
+                                                            return;
+                                                        } else {
+                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$company}', company.value);
+                                                        }
+
+                                                        if (!period.value) {
+                                                            period.focus();
+                                                            return;
+                                                        } else {
+                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$period}', period.value + totalRange(period.value));
+                                                        }
+
+                                                        if (list.children.length < max) {
+                                                            list.appendChild(temp);
+                                                            lastItem = list.children[list.children.length - 1];
+
+                                                            lastItem.querySelector('.js-del-item').addEventListener('click', function() {
+                                                                if (list.children.length <= 3) {
+                                                                    btn.style.display = '';
+                                                                }
+                                                            });
+
+                                                            category.children[0].selected = true;
+                                                            category.parentNode.querySelector('.liner').textContent = category.children[0].textContent;
+                                                            company.value = '';
+                                                            period.value = '';
+                                                        }
+                                                    });
+                                                });
+
+                                            }());
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 자기소개/강점 섹션 -->
+                            <div class="rw-section">
+                                <h4 class="rw-section-title">자기소개/강점</h4>
+                                <div class="rw-intro-strength">
+                                    <div class="form-row">
+                                        <p class="form-label">나의강점</p>
+                                        <div class="value">
+                                            <div class="form-group col-8 full-width">
+                                                <?php foreach ($ru_my_type_list as $row) : ?>
+                                                    <label class="form-toggle-btn2 sm">
+                                                        <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_my_type"]), "check") ?>>
+                                                        <span class="btn"><?= $row["cd_val"] ?></span>
+                                                    </label>
+                                                <?php endforeach; ?>
+                                            </div>
+
+                                            <div class="advantage-form">
+                                                <div class="inline-group">
+                                                    <label class="col">
+                                                        <input type="text" name="addAdvantage" placeholder="나의 강점을 입력해주세요" autocomplete="off" class="form-text has-confirm">
+                                                    </label>
+                                                    <button type="button" class="btn-round btn-tertiary is-abs js-add-advantage">추가</button>
+                                                </div>
+
+                                                <!-- 추가목록 -->
+                                                <div class="form-group col-8 full-width">
+                                                    <!-- 추가 태그 -->
+                                                    <?php if (isset($info["ru_my_type"]) && $info["ru_my_type"] != "") : ?>
+                                                        <?php foreach (explode(",", $info["ru_my_type"]) as $row) : ?>
+                                                            <?php
+                                                            $is_arr = false;
+                                                            foreach ($ru_my_type_list as $temp) {
+                                                                if ($temp["cd_val"] == $row) {
+                                                                    $is_arr = true;
+                                                                }
+                                                            }
+                                                            if ($is_arr == false) :
+                                                            ?>
+                                                                <label class="form-toggle-btn2">
+                                                                    <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row ?>" checked>
+                                                                    <span class="btn"><?= $row ?></span>
+                                                                </label>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn-clear js-del-item">삭제</button>
-                                        </li>
-                                    </template>
 
-                                    <script>
-                                        (function() {
-                                            function chgYear(instance) {
-                                                var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                                                    year = instance.currentYear;
-                                                $con.innerHTML = '<span class="month">' + year + '</span>';
-                                            }
+                                            <script>
+                                                (function() {
+                                                    //목록선택 제한 설정
+                                                    document.querySelectorAll('input[data-select-limit]').forEach(function(item) {
+                                                        item.addEventListener('change', function() {
+                                                            var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
 
-                                            function initDatepicker(el) {
-                                                if (typeof flatpickr == 'undefined') return;
-
-                                                //달력 생성
-                                                flatpickr(el, {
-                                                    locale: 'ko',
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
-                                                    disableMobile: true,
-                                                    plugins: [
-                                                        new monthSelectPlugin({
-                                                            shorthand: true,
-                                                            dateFormat: "Y.m",
-                                                            altFormat: "Y.m",
-                                                        })
-                                                    ],
-                                                    onYearChange: function(selectedDates, dateStr, instance) {
-                                                        chgYear(this);
-                                                    },
-                                                    onReady: function() {
-                                                        chgYear(this);
-                                                    },
-                                                    onClose: function(selectedDates, dateStr, instance) {
-                                                        if (selectedDates.length > 1) {
-                                                            instance.calendarContainer.querySelector('.flatpickr-next-month').click();
-                                                        }
-                                                    },
-                                                    onOpen: function(selectedDates, dateStr, instance) {
-                                                        if (selectedDates.length > 1) {
-                                                            instance.calendarContainer.querySelector('.flatpickr-prev-month').click();
-                                                        }
-                                                    },
-                                                    onChange: function(selectedDates, dateStr, instance) {
-                                                        instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
-                                                            month.classList.remove('startRange', 'inRange', 'endRange')
+                                                            if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
+                                                                this.checked = false;
+                                                            }
                                                         });
-                                                    }
-                                                });
-                                            }
+                                                    });
 
-                                            window.addEventListener('DOMContentLoaded', function() {
-                                                initDatepicker(document.querySelector('.added-license-form .js-datepicker'));
+                                                    document.querySelector('.js-add-advantage').addEventListener('click', function() {
+                                                        var value = document.querySelector('input[name="addAdvantage"]').value;
+                                                        var label;
 
-                                                //자격증 목록 추가
-                                                document.querySelector('.js-add-license').addEventListener('click', function(e) {
-                                                    e.preventDefault();
-                                                    var btn = this,
-                                                        max = 4,
-                                                        temp = document.getElementById('licenseTemp').content.cloneNode(true),
-                                                        list = btn.parentNode.parentNode.querySelector('.added-list'),
-                                                        lastItem;
+                                                        if (!value) return;
 
-                                                    var license = btn.parentNode.querySelector('[name="license[]"]'),
-                                                        regdate = btn.parentNode.querySelector('[name="regdate[]"]');
+                                                        label = document.createElement('LABEL');
+                                                        value = value.trim().replace(/[\{\}\[\]\/?.,;:|\)*~`!^\-+<>@\#$%&\\\=\(\'\"]/g, '');
 
-                                                    if (!license.value) {
-                                                        license.focus();
-                                                        return;
-                                                    } else {
-                                                        temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$license}', license.value);
-                                                    }
+                                                        label.setAttribute('class', 'form-toggle-btn2');
+                                                        label.innerHTML = '<input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="' + value + '"> <span class="btn">' + value + '</span>';
 
-                                                    if (!regdate.value) {
-                                                        regdate.focus();
-                                                        return;
-                                                    } else {
-                                                        temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$regdate}', regdate.value);
-                                                    }
+                                                        document.querySelector('.advantage-form .form-group').appendChild(label);
 
-                                                    if (list.children.length < max) {
-                                                        list.appendChild(temp);
-                                                        lastItem = list.children[list.children.length - 1];
+                                                        label.querySelector('input').addEventListener('change', function() {
+                                                            var childItems = document.querySelectorAll('[name="' + this.getAttribute('name') + '"]:checked');
 
-                                                        lastItem.querySelector('.js-del-item').addEventListener('click', function() {
-                                                            if (list.children.length <= max) {
-                                                                btn.style.display = '';
+                                                            if (this.checked == childItems.length > this.getAttribute('data-select-limit')) {
+                                                                this.checked = false;
                                                             }
                                                         });
 
-                                                        license.value = '';
-                                                        regdate.value = '';
-                                                    }
-                                                });
-                                            });
-                                        }());
-                                    </script>
+                                                        document.querySelector('input[name="addAdvantage"]').value = "";
+                                                    });
+                                                }());
+                                            </script>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <p class="form-label">자기소개</p>
+                                        <div class="value">
+                                            <label class="full-width">
+                                                <span class="sr-text">자기소개 입력</span>
+                                                <textarea name="ru_desc" maxlength="500" class="form-textarea" style="min-height: 324px;"><?= $info["ru_desc"] ?></textarea>
+                                            </label>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-action-wrap">
-                            <button type="button" id="btnStep" class="btn-round btn-tertiary"><?= $info != null && $info["ru_idx"] != "0" ? "수정" : "등록" ?>완료</button>
-                        </div>
+
+                            <!-- 자격증 섹션 -->
+                            <div class="rw-section">
+                                <h4 class="rw-section-title">자격증</h4>
+                                <div class="rw-certificate">
+                                    <div class="form-row">
+                                        <p class="form-label">자격증</p>
+
+                                        <div class="value">
+                                            <!-- 목록 -->
+                                            <ol class="added-list license_list">
+                                                <?php if (is_array($certi_list) && !empty($certi_list)) :
+                                                    foreach ($certi_list as $row):
+                                                        $rc_name = $row['rc_name'];
+                                                        $rc_date = $row['rc_dt'];
+                                                ?>
+                                                        <li>
+                                                            <div class="form-group">
+                                                                <div class="col md">
+                                                                    <input type="text" name="license[]" value="<?= $rc_name; ?>" disabled class="form-text">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <input type="text" name="regdate[]" value="<?= $rc_date; ?>" disabled class="form-text num">
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" class="btn-clear js-del-item">삭제</button>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </ol>
+                                            <!-- 자격증명 form-row -->
+                                            <div class="form-row">
+                                                <p class="form-label">자격증명</p>
+                                                <div class="value">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            <span class="sr-text">자격증명 입력</span>
+                                                            <input type="text" name="license[]" placeholder="자격증명" autocomplete="off" class="form-text added-license-form">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 취득일자 form-row -->
+                                            <div class="form-row">
+                                                <p class="form-label">취득일자</p>
+                                                <div class="value">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            <span class="sr-text">취득일자 입력</span>
+                                                            <input type="text" name="regdate[]" placeholder="취득일자" autocomplete="off" class="form-text num js-datepicker">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 등록 버튼 form-row -->
+                                            <div class="form-row" style="justify-content: flex-end; padding: 12px 0;">
+                                                <button type="button" class="btn-add-item js-add-license">등록</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 입력폼 템플릿 -->
+                                        <template id="licenseTemp">
+                                            <li>
+                                                <div class="form-group">
+                                                    <div class="col md">
+                                                        <input type="text" name="license[]" value="{$license}" disabled class="form-text">
+                                                    </div>
+                                                    <div class="col">
+                                                        <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn-clear js-del-item">삭제</button>
+                                            </li>
+                                        </template>
+
+                                        <script>
+                                            (function() {
+                                                function chgYear(instance) {
+                                                    var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
+                                                        year = instance.currentYear;
+                                                    $con.innerHTML = '<span class="month">' + year + '</span>';
+                                                }
+
+                                                function initDatepicker(el) {
+                                                    if (typeof flatpickr == 'undefined') return;
+
+                                                    //달력 생성
+                                                    flatpickr(el, {
+                                                        locale: 'ko',
+                                                        nextArrow: '<span class="sr-text">다음</span>',
+                                                        prevArrow: '<span class="sr-text">이전</span>',
+                                                        disableMobile: true,
+                                                        plugins: [
+                                                            new monthSelectPlugin({
+                                                                shorthand: true,
+                                                                dateFormat: "Y.m",
+                                                                altFormat: "Y.m",
+                                                            })
+                                                        ],
+                                                        onYearChange: function(selectedDates, dateStr, instance) {
+                                                            chgYear(this);
+                                                        },
+                                                        onReady: function() {
+                                                            chgYear(this);
+                                                        },
+                                                        onClose: function(selectedDates, dateStr, instance) {
+                                                            if (selectedDates.length > 1) {
+                                                                instance.calendarContainer.querySelector('.flatpickr-next-month').click();
+                                                            }
+                                                        },
+                                                        onOpen: function(selectedDates, dateStr, instance) {
+                                                            if (selectedDates.length > 1) {
+                                                                instance.calendarContainer.querySelector('.flatpickr-prev-month').click();
+                                                            }
+                                                        },
+                                                        onChange: function(selectedDates, dateStr, instance) {
+                                                            instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
+                                                                month.classList.remove('startRange', 'inRange', 'endRange')
+                                                            });
+                                                        }
+                                                    });
+                                                }
+
+                                                window.addEventListener('DOMContentLoaded', function() {
+                                                    initDatepicker(document.querySelector('.added-license-form .js-datepicker'));
+
+                                                    //자격증 목록 추가
+                                                    document.querySelector('.js-add-license').addEventListener('click', function(e) {
+                                                        e.preventDefault();
+                                                        var btn = this,
+                                                            max = 4,
+                                                            temp = document.getElementById('licenseTemp').content.cloneNode(true),
+                                                            list = btn.parentNode.parentNode.querySelector('.added-list'),
+                                                            lastItem;
+
+                                                        var license = btn.parentNode.querySelector('[name="license[]"]'),
+                                                            regdate = btn.parentNode.querySelector('[name="regdate[]"]');
+
+                                                        if (!license.value) {
+                                                            license.focus();
+                                                            return;
+                                                        } else {
+                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$license}', license.value);
+                                                        }
+
+                                                        if (!regdate.value) {
+                                                            regdate.focus();
+                                                            return;
+                                                        } else {
+                                                            temp.children[0].innerHTML = temp.children[0].innerHTML.replace('{$regdate}', regdate.value);
+                                                        }
+
+                                                        if (list.children.length < max) {
+                                                            list.appendChild(temp);
+                                                            lastItem = list.children[list.children.length - 1];
+
+                                                            lastItem.querySelector('.js-del-item').addEventListener('click', function() {
+                                                                if (list.children.length <= max) {
+                                                                    btn.style.display = '';
+                                                                }
+                                                            });
+
+                                                            license.value = '';
+                                                            regdate.value = '';
+                                                        }
+                                                    });
+                                                });
+                                            }());
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-action-wrap">
+                                <button type="button" id="btnStep" class="btn-round btn-tertiary"><?= $info != null && $info["ru_idx"] != "0" ? "수정" : "등록" ?>완료</button>
+                            </div>
                     </form>
                 </div>
             </div>
@@ -795,14 +1327,14 @@
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
         // 2025.02.10 위치 보안: 상세 주소 대신 동네 중심점 좌표 저장
         var geocoder = new kakao.maps.services.Geocoder();
-        
+
         // 지번 주소에서 번지 및 그 뒤의 건물명 등을 모두 제거하고 동(읍/면)까지만 추출
         // 예: "경기도 시흥시 정왕동 1866-1 정왕3동주민센터" -> "경기도 시흥시 정왕동"
         // 숫자(번지)가 나오기 직전까지만 잘라냄
         var dongAddr = jibun;
         var match = jibun.match(/^(.*?)(\d+[\d\-]*)/); // 숫자(번지) 시작 부분 찾기
         if (match) {
-            dongAddr = match[1].trim(); 
+            dongAddr = match[1].trim();
         }
 
         geocoder.addressSearch(dongAddr, function(result, status) {
@@ -810,10 +1342,10 @@
             var finalY = y; // 기본값: 원래 받아온 y
 
             if (status === kakao.maps.services.Status.OK) {
-                 if(result[0].x && result[0].y) {
-                     finalX = result[0].x;
-                     finalY = result[0].y;
-                 }
+                if (result[0].x && result[0].y) {
+                    finalX = result[0].x;
+                    finalY = result[0].y;
+                }
             }
 
             // ---------- 기존 주소 추가 로직 ----------
@@ -827,11 +1359,11 @@
             html += '<input type="hidden" name="ad_doro[]" value="' + doro + '" />';
             // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
             html += '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />';
-            
+
             // 여기서 변경된 좌표(finalX, finalY)를 사용
             html += '<input type="hidden" name="ad_gps_x[]" value="' + finalX + '" />';
             html += '<input type="hidden" name="ad_gps_y[]" value="' + finalY + '" />';
-            
+
             html += '<p>' + displayAddr + '</p>';
             html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
             html += '</li>';
@@ -988,7 +1520,7 @@
 
         <?php
         // SNS 로그인 여부 확인
-        $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER","GOOGLE","WECHAT"]);
+        $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER", "GOOGLE", "WECHAT"]);
         // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
         $is_authenticated = ($mem_info != null && (strpos($mem_info["mm_di"], "MC0") === 0 || $is_sns_login));
 
@@ -1202,7 +1734,7 @@
         // 자기소개 textarea 높이 자동 조절 (스크롤 위치 보존)
         var $ruDesc = $("textarea[name='ru_desc']");
         var minHeight = 324; // 최소 높이
-        
+
         function adjustHeight() {
             if ($ruDesc.length && $ruDesc[0]) {
                 // 스크롤 위치 저장
@@ -1216,10 +1748,10 @@
                 $ruDesc[0].scrollTop = scrollTop;
             }
         }
-        
+
         // 초기 설정
         setTimeout(adjustHeight, 100);
-        
+
         // 입력 시 높이 재설정 (스크롤 위치 보존)
         $ruDesc.on('input', function() {
             var scrollTop = this.scrollTop;
@@ -1318,10 +1850,10 @@
         if (info.ru_price_type.indexOf("월급") > -1 && info.ru_month_price != "0") {
             str_month_price = '<tr><td class="label">급여</td><td class="value">' + info.ru_month_price.format() + '원</td></tr>';
         }
-        
+
         // 주소 처리: fRemoveBigAdrJS 함수 적용
         var displayAddr = '';
-        
+
         // ru_addr이 배열인 경우 처리
         if (Array.isArray(info.ru_addr)) {
             // 배열을 쉼표로 구분된 문자열로 변환
@@ -1332,7 +1864,7 @@
             // 문자열인 경우 그대로 사용
             displayAddr = info.ru_addr || '';
         }
-        
+
         // 주소가 있고 '무관'이 아니면 fRemoveBigAdrJS 함수 적용
         if (displayAddr && displayAddr !== '' && displayAddr !== '무관' && typeof fRemoveBigAdrJS === 'function') {
             // 쉼표로 구분된 여러 주소 처리
@@ -1354,12 +1886,12 @@
                 displayAddr = fRemoveBigAdrJS(displayAddr);
             }
         }
-        
+
         // 주소가 비어있으면 '무관'으로 설정
         if (!displayAddr || displayAddr === '') {
             displayAddr = '무관';
         }
-        
+
         if (str_ru_week == '') {
             str_ru_week = '무관';
         }
@@ -1469,7 +2001,6 @@
             }
         });
     }
-
 </script>
 
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>
