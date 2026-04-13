@@ -388,6 +388,41 @@
                    경력사항 섹션 고유 스타일
                    ============================================ */
 
+                /* 경력사항 섹션의 근무기간 form-row */
+                .rw-career .rw-form-row:has(.rw-career-period-wrapper) {
+                    align-items: center;
+                }
+
+                .rw-career .rw-form-row:has(.rw-career-period-wrapper) .rw-label {
+                    align-self: center;
+                }
+
+                .rw-career .rw-form-row:has(.rw-career-period-wrapper) .rw-value {
+                    flex-direction: row;
+                    align-items: center;
+                }
+
+                /* 경력사항/자격증 추가 버튼 */
+                .rw-career .js-add-career,
+                .rw-career .js-add-license {
+                    border: none;
+                    border-radius: 4px;
+                    padding: 0 24px;
+                    background: #999;
+                    color: #fff;
+                    font-size: 16px;
+                    font-weight: normal;
+                    cursor: pointer;
+                    height: var(--rw-input-height);
+                    width: 100%;
+                    max-width: 400px;
+                }
+
+                .rw-career .js-add-career:hover,
+                .rw-career .js-add-license:hover {
+                    background: #888;
+                }
+
                 /* 텍스트 입력창 높이 통일 */
                 .rw-career .form-text {
                     height: var(--rw-input-height);
@@ -446,18 +481,21 @@
                 }
 
                 .rw-career .btn-add-item {
-                    border: 1px solid #ccc;
+                    border: none;
                     border-radius: 4px;
                     padding: 0 24px;
-                    background: #fff;
-                    color: #333;
+                    background: #999;
+                    color: #fff;
                     font-size: 16px;
                     font-weight: normal;
                     cursor: pointer;
+                    height: var(--rw-input-height);
+                    width: 100%;
+                    max-width: 400px;
                 }
 
                 .rw-career .btn-add-item:hover {
-                    background: #f5f5f5;
+                    background: #888;
                 }
 
                 /* 경력/자격증 섹션 좌우 배치 */
@@ -569,14 +607,40 @@
                 }
 
                 .rw-block-label {
-                    display: block;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    flex: 1;
+                    width: 100%;
                 }
 
                 .rw-calendar-input-wrapper {
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    -ms-flex-direction: column;
-                    flex-direction: column;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    flex: 1;
+                    width: 100%;
+                }
+
+                .rw-calendar-input-wrapper .btn-calendar {
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 auto;
+                    flex: 0 0 auto;
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #f5f5f5;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .rw-calendar-input-wrapper .btn-calendar:hover {
+                    background: #efefef;
                 }
 
                 /* 텍스트 입력창 높이 통일 */
@@ -637,18 +701,21 @@
                 }
 
                 .rw-career .btn-add-item {
-                    border: 1px solid #ccc;
+                    border: none;
                     border-radius: 4px;
                     padding: 0 24px;
-                    background: #fff;
-                    color: #333;
+                    background: #999;
+                    color: #fff;
                     font-size: 16px;
                     font-weight: normal;
                     cursor: pointer;
+                    height: var(--rw-input-height);
+                    width: 100%;
+                    max-width: 400px;
                 }
 
                 .rw-career .btn-add-item:hover {
-                    background: #f5f5f5;
+                    background: #888;
                 }
 
                 /* 경력/자격증 섹션 좌우 배치 */
@@ -661,12 +728,11 @@
                     display: -webkit-box;
                     display: -ms-flexbox;
                     display: flex;
-
-                    gap: 24px;
+                    gap: 40px;
                     width: 100%;
-                    -webkit-box-align: flex-start;
-                    -ms-flex-align: flex-start;
-                    align-items: flex-start;
+                    -webkit-box-align: center;
+                    -ms-flex-align: center;
+                    align-items: center;
                 }
 
                 .rw-col-half {
@@ -683,11 +749,7 @@
                     -webkit-box-flex: 1;
                     -ms-flex: 1;
                     flex: 1;
-                }
-
-                /* rw-dual-col 내 rw-col-half의 gap 12px */
-                .rw-dual-col .form-group>.rw-col-half {
-                    gap: 160px;
+                    gap: 20px;
                 }
 
                 /* 첫 번째 rw-col-half (기업명) 더 넓게 */
@@ -704,56 +766,25 @@
                     flex: 1;
                 }
 
-                .rw-col-half .form-label {
+                /* 라벨 스타일 */
+                .rw-col-half>.rw-label {
                     margin: 0;
                     padding: 0;
                     -webkit-box-flex: 0;
                     -ms-flex: 0 0 auto;
                     flex: 0 0 auto;
                     white-space: nowrap;
+                    min-width: 100px;
+                    text-align: right;
                 }
 
-                /* 업종과 취득일자 라벨만 넓이 증가 */
-                /* 업종 라벨 (경력 섹션 첫 번째 rw-dual-col) */
-                .rw-career .rw-dual-col:first-of-type .rw-col-half:nth-of-type(2)>p.form-label {
-                    flex: 0 0 137px;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 80px;
-                    min-width: 80px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    position: relative;
-                    left: 116px;
-                }
-
-                /* 취득일자 라벨 (자격증 섹션) */
-                .rw-dual-col .rw-col-half.rw-col-with-calendar>p.form-label {
-                    flex: 0 0 80px;
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 80px;
-                    min-width: 80px;
-                    display: flex;
-                    justify-content: flex-end;
-                    align-items: center;
-                }
-
+                /* 입력 요소 스타일 */
+                .rw-col-half>input,
                 .rw-col-half>label,
                 .rw-col-half .form-selectbox {
                     -webkit-box-flex: 1;
                     -ms-flex: 1;
                     flex: 1;
-                    width: 60%;
-                }
-
-                /* 경력 섹션 기업명 input만 width 수정 */
-                .rw-career .rw-dual-col:first-of-type .rw-col-half:nth-of-type(1)>input[name="company[]"] {
-                    width: 60%;
-                }
-
-                /* 자격증 섹션 자격증명 input만 width 수정 */
-                .rw-dual-col .rw-col-half:nth-of-type(1)>input[name="license[]"] {
-                    width: 60%;
                 }
 
                 .rw-col-with-calendar {
@@ -826,7 +857,8 @@
                     -webkit-box-align: center;
                     -ms-flex-align: center;
                     align-items: center;
-                    width: 48%;
+                    width: 100%;
+                    flex: 1;
                 }
 
                 .rw-career-period-wrapper .rw-period-field {
@@ -834,10 +866,43 @@
                     -ms-flex: 1;
                     flex: 1;
                     position: relative;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .rw-period-field .btn-calendar {
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 auto;
+                    flex: 0 0 auto;
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #f5f5f5;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .rw-period-field .btn-calendar:hover {
+                    background: #efefef;
+                }
+
+                .rw-period-field .rw-block-label {
+                    flex: 1;
+                }
+
+                .rw-period-field .form-text {
+                    width: 100%;
                 }
 
                 .rw-career-period-separator {
                     color: #999;
+                    font-size: 16px;
                 }
 
                 /* 희망지역 팝업 - PC 센터 모달 스타일 */
