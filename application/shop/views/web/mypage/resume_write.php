@@ -1003,27 +1003,32 @@
 
                                             <!-- 자격증명 및 취득일자 form-row -->
                                             <div class="form-row">
-                                                <p class="form-label">자격증·취득일</p>
-                                                <div class="value">
-                                                    <div class="form-group" style="display: flex; gap: 12px; align-items: center;">
-                                                        <div style="flex: 1;">
+                                                <div class="value" style="width: 100%; padding: 0;">
+                                                    <div class="form-group" style="display: flex; gap: 24px; width: 100%; align-items: flex-start;">
+                                                        <!-- 자격증명 섹션 -->
+                                                        <div style="flex: 1; display: flex; flex-direction: column;">
+                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">자격증명</p>
                                                             <label style="display: block;">
                                                                 <span class="sr-text">자격증명 입력</span>
                                                                 <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form">
                                                             </label>
                                                         </div>
-                                                        <div style="flex: 1; position: relative;">
-                                                            <label style="display: block;">
-                                                                <span class="sr-text">취득일자 입력</span>
-                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                            </label>
-                                                            <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
-                                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
-                                                                    <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-                                                                    <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
-                                                                </svg>
-                                                            </button>
+                                                        <!-- 취득일자 섹션 -->
+                                                        <div style="flex: 1; display: flex; flex-direction: column; position: relative;">
+                                                            <p class="form-label" style="margin: 0 0 8px 0; padding: 0;">취득일자</p>
+                                                            <div style="position: relative;">
+                                                                <label style="display: block;">
+                                                                    <span class="sr-text">취득일자 입력</span>
+                                                                    <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                                </label>
+                                                                <button type="button" class="btn-calendar" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; width: 20px; height: 20px;">
+                                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <rect x="2" y="4" width="16" height="14" rx="2" stroke="#333" stroke-width="1.5" fill="none"/>
+                                                                        <path d="M6 2v4M14 2v4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                                                                        <path d="M2 8h16" stroke="#333" stroke-width="1.5"/>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
