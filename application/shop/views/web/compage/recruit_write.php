@@ -21,20 +21,20 @@
            채용공고 작성 페이지 CSS 변수 정의
            ============================================ */
         :root {
-            --rc-input-height: 44px;
-            --rc-title-font-size: 20px;
-            --rc-input-font-size: 16px;
-            --rc-label-width: 180px;
-            --rc-label-font-size: 16px;
-            --rc-border-radius: 10px;
-            --rc-border-color: #ADAEB9;
-            --rc-color-primary: #31A182;
-            --rc-color-primary-dark: #1B9D7D;
-            --rc-color-primary-light: #57CCAF;
-            --rc-color-danger: #F86048;
-            --rc-section-padding: 20px;
-            --rc-row-padding: 16px;
-            --rc-tab-gray: #777777;
+          --rc-input-height: 70px;
+          --rc-title-font-size: 25px;
+          --rc-input-font-size: 20px;
+          --rc-label-width: 180px;
+          --rc-label-font-size: 22px;
+          --rc-border-radius: 4px;
+          --rc-border-color: #ADAEB9;
+          --rc-color-primary: #31A182;
+          --rc-color-primary-dark: #1B9D7D;
+          --rc-color-primary-light: #57CCAF;
+          --rc-color-danger: #F86048;
+          --rc-section-padding: 20px;
+          --rc-row-padding: 16px;
+          --rc-tab-gray: #777777;
         }
 
         /* ============================================
@@ -43,15 +43,15 @@
 
         /* 섹션 기본 구조 */
         .rc-section {
-            margin-bottom: 32px;
+          margin-bottom: 32px;
         }
 
         .rc-section-title {
-            padding: 16px 20px;
-            font-size: var(--rc-title-font-size);
-            font-weight: 800;
-            border-bottom: 1px solid var(--rc-border-color);
-            margin: 0;
+          padding: 16px 20px;
+          font-size: var(--rc-title-font-size);
+          font-weight: 800;
+          border-bottom: 1px solid var(--rc-border-color);
+          margin: 0;
         }
 
         /* 섹션 내용 래퍼 */
@@ -59,46 +59,46 @@
         .rc-work-condition,
         .rc-work-info,
         .rc-extra {
-            padding: var(--rc-section-padding) 24px;
-            padding-left: 44px;
+          padding: var(--rc-section-padding) 24px;
+          padding-left: 44px;
         }
 
         /* form-row 공통 구조 */
         .rc-form-row {
-            display: flex;
-            margin: 0;
-            padding: var(--rc-row-padding) 0;
-            align-items: center;
-            flex-wrap: wrap;
-            border-bottom: 1px solid var(--rc-border-color);
+          display: flex;
+          margin: 0;
+          padding: var(--rc-row-padding) 0;
+          align-items: center;
+          flex-wrap: wrap;
+          border-bottom: 1px solid var(--rc-border-color);
         }
 
         .rc-form-row:first-child {
-            padding-top: 0;
+          padding-top: 0;
         }
 
         .rc-form-row:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+          border-bottom: none;
+          padding-bottom: 0;
         }
 
         /* 라벨 */
         .rc-label {
-            width: var(--rc-label-width);
-            margin: 0;
-            padding: 0;
-            font-size: var(--rc-label-font-size);
-            line-height: 1;
-            flex: 0 0 var(--rc-label-width);
-            align-self: center;
+          width: var(--rc-label-width);
+          margin: 0;
+          padding: 0;
+          font-size: var(--rc-label-font-size);
+          line-height: 1;
+          flex: 0 0 var(--rc-label-width);
+          align-self: center;
         }
 
         /* 값 영역 */
         .rc-value {
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-            justify-content: center;
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          justify-content: center;
         }
 
         .form-text {
@@ -666,7 +666,7 @@
           padding: 0 12px;
           font-size: var(--rc-input-font-size);
           border: 1px solid var(--rc-border-color);
-          border-radius: 10px 0 0 10px;
+          border-radius: var(--rc-border-radius);
           box-sizing: border-box;
           width: 337px;
         }
@@ -682,7 +682,7 @@
           background-color: #f5f5f5;
           border: 1px solid var(--rc-border-color);
           border-left: none;
-          border-radius: 0 10px 10px 0;
+          border-radius: 0 var(--rc-border-radius);
           box-sizing: border-box;
           margin: 0;
         }
@@ -804,14 +804,14 @@
         }
 
         .hash-preset-group {
-          display: flex;
-          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
           gap: 8px;
         }
 
         /* 프리셋 태그 버튼 */
         .hash-preset-btn {
-          display: inline-block;
+          display: block;
           cursor: pointer;
         }
 
@@ -820,18 +820,21 @@
         }
 
         .hash-preset-btn .btn {
-          display: inline-block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           height: var(--rc-input-height);
-          line-height: 42px;
-          padding: 0 16px;
+          width: 100%;
           border: 1px solid var(--rc-border-color);
           border-radius: var(--rc-border-radius);
           background-color: #fff;
-          color: #555;
+          color: #000;
           font-size: var(--rc-input-font-size);
           cursor: pointer;
           transition: all 0.2s;
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         /* 선택된 태그 강조 */
@@ -843,7 +846,6 @@
 
         /* + 버튼 */
         .hash-add-btn .btn {
-          padding: 0 18px;
           font-weight: bold;
           font-size: 18px;
         }
@@ -878,7 +880,7 @@
           line-height: var(--rc-input-height);
           padding: 0 24px;
           font-size: var(--rc-input-font-size);
-          background-color: var(--rc-color-primary-light);
+          background-color: #1B9D7D;
           color: #fff;
           border: none;
           border-radius: var(--rc-border-radius);
@@ -1104,10 +1106,10 @@
         }
 
         .form-section-title {
-          font-size: 22px;
+          font-size: var(--rc-title-font-size);
           font-weight: 700;
           color: #222;
-          margin-bottom: 30px;
+
           padding-bottom: 15px;
           border-bottom: 3px solid var(--rc-color-primary);
           letter-spacing: -0.5px;
@@ -1171,10 +1173,12 @@
           min-width: unset;
           width: 100%;
           height: var(--rc-input-height);
-          line-height: 42px;
-          font-size: 17px;
+          line-height: 66px;
+          font-size: var(--rc-input-font-size);
           padding: 0;
           box-sizing: border-box;
+          border-radius: var(--rc-border-radius);
+          color: #000;
         }
 
         /* 근무정보 섹션 - 근무지 검색 아이콘 */
@@ -1205,7 +1209,7 @@
 
         .work-section .form-toggle-btn2 .btn.benefit-label {
           height: 96px;
-          width: 108%;
+          width: 125px;
         }
 
         /* 복리후생 섹션 */
@@ -1255,12 +1259,7 @@
 
         /* 근무조건, 근무정보 버튼 동일 스타일 */
         .work-section .form-toggle-btn2 .btn,
-        .addition-info-form .form-toggle-btn2 .btn {
-          min-width: 90px;
-          height: 35px;
-          font-size: 15px;
-          line-height: 33px;
-        }
+        .addition-info-form .form-toggle-btn2 .btn {}
 
         /* 근무조건 섹션 공통 row 스타일 */
         .work-section-row {
@@ -1302,15 +1301,24 @@
           padding: 0 15px;
           font-size: var(--rc-input-font-size);
           line-height: 43px;
+
+
+
         }
 
         /* 추가정보 섹션 근무요일 토글 버튼 스타일 */
         .extra-section .week-day .form-toggle-btn2.sm .btn {
           min-width: 60px;
-          height: 50px;
+          height: 55px;
           padding: 0 8px;
-          font-size: 15px;
+          font-size: var(--rc-input-font-size);
           line-height: 48px;
+          border-radius: 50%;
+
+        }
+
+        .form-toggle-btn2 .btn {
+          color: #000;
         }
 
         /* 추가정보 섹션 내 체크박스 크기 확대 */
@@ -1319,14 +1327,11 @@
           line-height: 1.5;
         }
 
-        .extra-section .form-group .form-checkbox .label:before {
-          width: 1.5em;
-          height: 1.5em;
-        }
+
 
         /* 근무조건 섹션 - 근무형태 value 너비 제한 */
         .work-section .value>.form-group {
-          width: 80%;
+          width: 100%;
         }
 
         /* 근무조건 섹션 - 근무형태 토글 버튼 크기 */
@@ -1335,7 +1340,8 @@
           height: var(--rc-input-height);
           padding: 0 15px;
           font-size: var(--rc-input-font-size);
-          line-height: 43px;
+          line-height: 66px;
+          color: #000;
         }
 
         /* 근무조건 섹션 - 근무형태 체크박스 */
@@ -1381,6 +1387,10 @@
 
         .extra-section.show {
           display: block;
+        }
+
+        .addition-info-form .services .form-toggle-btn2 {
+          margin: 0 4px 11px 0;
         }
       </style>
       <div class="tab-panel on">
@@ -2160,8 +2170,8 @@
                           <span class="btn">센스있어요</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="손이빠라요">
-                          <span class="btn">손이빠라요</span>
+                          <input type="checkbox" value="손이빨라요">
+                          <span class="btn">손이빨라요</span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="친절해요">
@@ -2402,16 +2412,16 @@
                   <div class="value">
                     <div class="form-pic-group">
                       <?php foreach (range(1, 4) as $n) : ?>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img<?= $n ?>" id="rc_img<?= $n ?>" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(<?= $n ?>);">
-                        <span class="label pic-label"></span>
-                        <span class="preview" id="prev<?= $n ?>">
-                          <?php if (getData($info, "rc_img" . $n) != "") : ?>
-                            <img id="imgbox<?= $n ?>" src="<?= getData($info, "rc_img" . $n) ?>" class="has-image" />
-                            <input type='hidden' name='rc_img<?= $n ?>_ori' id='rc_img<?= $n ?>_ori' value='<?= getData($info, "rc_img" . $n) ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
+                        <label class="form-pic">
+                          <input type="file" name="rc_img<?= $n ?>" id="rc_img<?= $n ?>" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(<?= $n ?>);">
+                          <span class="label pic-label"></span>
+                          <span class="preview" id="prev<?= $n ?>">
+                            <?php if (getData($info, "rc_img" . $n) != "") : ?>
+                              <img id="imgbox<?= $n ?>" src="<?= getData($info, "rc_img" . $n) ?>" class="has-image" />
+                              <input type='hidden' name='rc_img<?= $n ?>_ori' id='rc_img<?= $n ?>_ori' value='<?= getData($info, "rc_img" . $n) ?>' />
+                            <?php endif; ?>
+                          </span>
+                        </label>
                       <?php endforeach; ?>
                     </div>
                   </div>
@@ -2451,23 +2461,7 @@
             }, 300);
           });
 
-          // 희망국적 무관 토글
-          $('#rc_nation_yn').on('change', function() {
-            if ($(this).is(':checked')) {
-              $('input[name="rc_nation[]"]').prop('checked', false).closest('.form-toggle-btn2').css('opacity', '0.4');
-            } else {
-              $('input[name="rc_nation[]"]').closest('.form-toggle-btn2').css('opacity', '1');
-            }
-          });
 
-          // 희망성별 무관 토글
-          $('#rc_sex_yn').on('change', function() {
-            if ($(this).is(':checked')) {
-              $('input[name="rc_sex[]"]').prop('checked', false).closest('.form-toggle-btn2').css('opacity', '0.4');
-            } else {
-              $('input[name="rc_sex[]"]').closest('.form-toggle-btn2').css('opacity', '1');
-            }
-          });
 
           // 희망나이 무관 토글
           $('#rc_age_yn').on('change', function() {
@@ -2896,7 +2890,11 @@
       $("[name='rc_pm_stime']").val($("[name='rc_pm_stime_h']").val() + ":" + $("[name='rc_pm_stime_m']").val());
       $("[name='rc_pm_etime']").val($("[name='rc_pm_etime_h']").val() + ":" + $("[name='rc_pm_etime_m']").val());
 
-      if ($("[name='rc_price_rep_check']").is(":checked") == false) {
+      // 급여유형 검증: rc_price_rep(select) 또는 rc_price_type(hidden)이 선택되어야 함
+      var rc_price_rep = $("[name='rc_price_rep']").val();
+      var rc_price_type = $("[name='rc_price_type']").val();
+
+      if (!rc_price_rep && !rc_price_type) {
         commonAlert("급여유형을 하나이상 선택해주세요.", function() {});
         return;
       }
@@ -3443,6 +3441,16 @@
     window.addEventListener('DOMContentLoaded', function() {
       if (typeof flatpickr == 'undefined') return false;
       //달력 생성
+      <?php
+      // 기본 날짜 설정: 재등록이면 오늘부터 2개월, 수정이면 기존 날짜
+      if (isset($_GET["gbn"]) && $_GET["gbn"] == "re") {
+        $default_dates = '[' . json_encode(date("Y-m-d")) . ', ' . json_encode(date("Y-m-d", strtotime("2 months"))) . ']';
+      } else {
+        $start_date = !empty($info["rc_sdate"]) && get_date($info["rc_sdate"]) < date("Y-m-d") ? date("Y-m-d") : get_date($info["rc_sdate"]);
+        $end_date = get_date($info["rc_edate"]);
+        $default_dates = '[' . json_encode($start_date) . ', ' . json_encode($end_date) . ']';
+      }
+      ?>
       flatpickr('.recruit-range .js-datepicker2', {
         mode: 'range',
         locale: 'ko',
@@ -3450,11 +3458,7 @@
         ariaDateFormat: 'Y-m-d',
         altFormat: 'Y.m.d',
         altInput: true,
-        <?php if ($_GET["gbn"] == "re") { ?>
-          defaultDate: ['<?= Date("Y-m-d") ?>', '<?= Date("Y-m-d", strtotime("2 months")) ?>'],
-        <?php } else { ?>
-          defaultDate: ['<?= $info["rc_sdate"] != "" && get_date($info["rc_sdate"]) < Date("Y-m-d") ? Date("Y-m-d") : get_date($info["rc_sdate"]) ?>', '<?= get_date($info["rc_edate"]) ?>'],
-        <?php } ?>
+        defaultDate: <?= $default_dates ?>,
         nextArrow: '<span class="sr-text">다음</span>',
         prevArrow: '<span class="sr-text">이전</span>',
         disableMobile: true,
@@ -3495,8 +3499,6 @@
           // altInput 스타일 및 초기값 포맷팅
           if (this.altInput) {
             this.altInput.placeholder = '[모집시작일] YYYY.MM.DD ~ [모집종료일] YYYY.MM.DD';
-            this.altInput.style.height = '44px';
-            this.altInput.style.lineHeight = '44px';
             // 초기값이 있으면 커스텀 포맷으로 표시
             if (this.selectedDates && this.selectedDates.length === 2) {
               var startDate = new Date(this.selectedDates[0]);

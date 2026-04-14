@@ -1784,9 +1784,7 @@ fieldset {
     border-bottom: 1px solid #D8D8D8;
 }
 
-.form-table .form-row:first-child {
-    padding-top: 0;
-}
+
 
 .form-table .form-label {
     width: 257px;

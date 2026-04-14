@@ -155,7 +155,7 @@
                     display: flex;
                     -webkit-box-flex: 1;
                     -ms-flex: 1;
-                    flex: 1;
+                    /* flex: 1; */
                     -webkit-box-orient: vertical;
                     -webkit-box-direction: normal;
                     -ms-flex-direction: column;
@@ -163,6 +163,7 @@
                     -webkit-box-pack: center;
                     -ms-flex-pack: center;
                     justify-content: center;
+                    width: 60%;
                 }
 
                 /* ============================================
@@ -371,8 +372,8 @@
                     right: 12px;
                     top: 50%;
                     transform: translateY(-50%);
-                    width: 24px;
-                    height: 24px;
+                    width: 30px;
+                    height: 30px;
                     border: none;
                     background: none;
                     padding: 0;
@@ -1062,6 +1063,11 @@
                 .extra-section.show {
                     display: block;
                 }
+
+                /* 희망지역 목록의 주소 텍스트 숨김 (검색창에만 표시) */
+                #addr_location .addr-display {
+                    display: none;
+                }
             </style>
             <div class="tab-panel on">
                 <div class="manage-my-content">
@@ -1149,7 +1155,7 @@
                                         <div class="rw-value">
                                             <div class="form-group">
                                                 <div class="address-search-box js-add-address" role="button" aria-haspopup="dialog" aria-controls="changeArea">
-                                                    <input type="text" id="addr_search" placeholder="희망지역을 입력해주세요" class="addr-search-input" readonly>
+                                                    <input type="text" id="addr_search" placeholder="희망지역을 입력해주세요" class="addr-search-input">
                                                     <button type="button" class="btn-search-icon">
                                                         <img src="/resource/shop/mobile/img/common/search.png" alt="검색">
                                                     </button>
@@ -1620,7 +1626,7 @@
                                                 var btn = this,
                                                     max = 9,
                                                     temp = document.getElementById('careerTemp').content.cloneNode(true),
-                                                    formContainer = btn.closest('.form-row').parentNode,
+                                                    formContainer = btn.closest('.rw-career'),
                                                     list = formContainer.querySelector('.career_list'),
                                                     lastItem = null;
 
@@ -1684,7 +1690,7 @@
                                                 var btn = this,
                                                     max = 4,
                                                     temp = document.getElementById('licenseTemp').content.cloneNode(true),
-                                                    formContainer = btn.closest('.form-row').parentNode,
+                                                    formContainer = btn.closest('.rw-career'),
                                                     list = formContainer.querySelector('.license_list'),
                                                     lastItem;
 
@@ -1746,6 +1752,20 @@
 </main><!-- //page-content -->
 </div><!-- //page -->
 <script>
+    // 주소 검색창에 선택된 주소 목록 표시
+    function updateAddressDisplay() {
+        var locationList = $("#addr_location li").map(function() {
+            var addrDisplay = $(this).find('p.addr-display').text().trim();
+            return addrDisplay;
+        }).get();
+        // 빈 문자열 제거
+        locationList = locationList.filter(function(item) {
+            return item.length > 0;
+        });
+        $("#addr_search").val(locationList.join(', '));
+        console.log('주소 업데이트:', locationList);
+    }
+
     // 검색 완료 선택 처리
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
         // 2025.02.10 위치 보안: 상세 주소 대신 동네 중심점 좌표 저장
@@ -1787,11 +1807,14 @@
             html += '<input type="hidden" name="ad_gps_x[]" value="' + finalX + '" />';
             html += '<input type="hidden" name="ad_gps_y[]" value="' + finalY + '" />';
 
-            html += '<p>' + displayAddr + '</p>';
+            html += '<p class="addr-display">' + displayAddr + '</p>';
             html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
             html += '</li>';
 
             $("#addr_location").append(html);
+
+            // 주소 검색창에 선택된 지역 표시
+            updateAddressDisplay();
 
             //팝업 종료
             $("#changeArea").removeClass("on");
@@ -1800,6 +1823,46 @@
             document.body.style.overflow = '';
         });
     }
+
+    // 새 팝업(addr_popup2025_new.php)의 "적용하기" 콜백 처리
+    window.onChangeAreaApply = function(data) {
+        if (!data || !data.searchArea || data.searchArea.length === 0) return true;
+
+        var maxlen = 2;
+        if ($("#addr_location li").length >= maxlen) {
+            commonAlert("희망지역은 " + (maxlen - 1) + "개까지 등록 가능합니다.", function() {});
+            return true;
+        }
+
+        $.each(data.searchArea, function(i, area) {
+            if ($("#addr_location li").length >= maxlen) return false;
+
+            var addr = area.addr || '';
+            // 표시용 주소: fRemoveBigAdrJS가 있으면 정리, 없으면 addrNames 값 사용
+            var displayAddr = '';
+            if (typeof fRemoveBigAdrJS === 'function') {
+                displayAddr = fRemoveBigAdrJS(addr);
+            } else {
+                displayAddr = (data.addrNames && data.addrNames[i]) ? data.addrNames[i] : addr;
+            }
+
+            var html = '<li>';
+            html += '<input type="hidden" name="ad_zipcode[]" value="" />';
+            html += '<input type="hidden" name="ad_jibun[]" value="' + addr + '" />';
+            html += '<input type="hidden" name="ad_doro[]" value="" />';
+            html += '<input type="hidden" name="ad_addr[]" value="' + addr + '" />';
+            html += '<input type="hidden" name="ad_gps_x[]" value="" />';
+            html += '<input type="hidden" name="ad_gps_y[]" value="" />';
+            html += '<p class="addr-display">' + displayAddr + '</p>';
+            html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
+            html += '</li>';
+
+            $("#addr_location").append(html);
+        });
+
+        updateAddressDisplay();
+        return true;
+    };
 
     function showAddrInfo(maxlen) {
         if ($("#addr_location").find("li").length >= maxlen) {
@@ -1949,6 +2012,18 @@
                 }
             });
         }
+
+        // 초기 로드 시 주소 표시 (약간의 지연으로 DOM 완전 로드 보장)
+        setTimeout(function() {
+            updateAddressDisplay();
+        }, 100);
+
+        // 주소 삭제 시 검색창 업데이트
+        $(document).on('click', '#addr_location .js-del-item', function(e) {
+            e.preventDefault();
+            $(this).closest('li').remove();
+            updateAddressDisplay();
+        });
 
         <?php
         // SNS 로그인 여부 확인
@@ -2239,7 +2314,14 @@
             for (var icnt = 0; icnt < info.arr_career.split("&&&").length; icnt++) {
                 var temp = info.arr_career.split("&&&")[icnt].split("|||");
                 if (temp.length > 2) {
-                    str_ru_career += "<li><span>" + temp[0] + "</span><span>" + temp[1] + "</span><em>" + temp[2] + "</em></li>";
+                    // 경력사항: 업종 | 기업명 | 기간 순으로 표시
+                    str_ru_career += "<li>" +
+                        "<div class='form-group'>" +
+                        "<div class='col sm'><span class='read-only'>" + temp[0] + "</span></div>" +
+                        "<div class='col'><span class='read-only'>" + temp[1] + "</span></div>" +
+                        "<div class='col'><span class='read-only'>" + temp[2] + "</span></div>" +
+                        "</div>" +
+                        "</li>";
                 }
             }
         }
@@ -2248,7 +2330,13 @@
             for (var icnt = 0; icnt < info.arr_certi.split("&&&").length; icnt++) {
                 var temp = info.arr_certi.split("&&&")[icnt].split("|||");
                 if (temp.length > 1) {
-                    str_ru_certi += "<li><span>자격증</span><span>" + temp[0] + "</span><em>" + temp[1] + "</em></li>";
+                    // 자격증: 자격증명 | 취득일자 순으로 표시
+                    str_ru_certi += "<li>" +
+                        "<div class='form-group'>" +
+                        "<div class='col'><span class='read-only'>" + temp[0] + "</span></div>" +
+                        "<div class='col'><span class='read-only'>" + temp[1] + "</span></div>" +
+                        "</div>" +
+                        "</li>";
                 }
             }
         }
@@ -2368,10 +2456,6 @@
                 '<tr>' +
                 '<td class="label">근무시작일</td>' +
                 '<td class="value">' + info.ru_work_dt + '(' + info.ru_work_dt_yoil + ')' + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">최종학력</td>' +
-                '<td class="value">' + info.ru_edu + '</td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td class="label">경력사항</td>' +

@@ -2599,16 +2599,42 @@ class Compage_proc extends CI_Controller
       $rc_sdate = $step3["rc_sdate"] . " 00:00:00";
       $rc_edate = $step3["rc_edate"] . " 23:59:59";
     } elseif (isset($step1["rc_date"]) && !empty($step1["rc_date"])) {
-      // 웹 버전: 스텝1의 rc_date를 파싱 ("2025-10-22 ~ 2025-12-22" 형식)
-      $date_parts = explode(" ~ ", trim($step1["rc_date"]));
+      // 웹 버전: 스텝1의 rc_date를 파싱
+      // 여러 형식 지원
+      // 형식1: "[모집시작일] 2025-10-22 ~ [모집종료일] 2025-12-22"
+      // 형식2: "2025-10-22 ~ 2025-12-22"
+      // 형식3: "2025.10.22 ~ 2025.12.22" (Flatpickr altInput)
+      $rc_date = $step1["rc_date"];
+
+      // 마침표를 하이픈으로 변환 (altFormat Y.m.d -> Y-m-d)
+      $rc_date = str_replace(".", "-", $rc_date);
+
+      // 레이블 제거
+      $rc_date = str_replace("[모집시작일]", "", $rc_date);
+      $rc_date = str_replace("[모집종료일]", "", $rc_date);
+
+      // " ~ " 로 분리
+      $date_parts = explode(" ~ ", trim($rc_date));
       if (count($date_parts) == 2) {
-        $rc_sdate = trim($date_parts[0]) . " 00:00:00";
-        $rc_edate = trim($date_parts[1]) . " 23:59:59";
+        $start_date = trim($date_parts[0]);
+        $end_date = trim($date_parts[1]);
+
+        // 날짜 형식 검증 (YYYY-MM-DD)
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date)) {
+          $rc_sdate = $start_date . " 00:00:00";
+          $rc_edate = $end_date . " 23:59:59";
+        }
       }
     } elseif (isset($step1["rc_sdate"]) && isset($step1["rc_edate"])) {
       // 기존 형식 지원
       $rc_sdate = $step1["rc_sdate"] . " 00:00:00";
       $rc_edate = $step1["rc_edate"] . " 23:59:59";
+    }
+
+    // 날짜가 없으면 기본값 설정 (오늘 ~ 2개월 후)
+    if (empty($rc_sdate) || empty($rc_edate)) {
+      $rc_sdate = date("Y-m-d 00:00:00");
+      $rc_edate = date("Y-m-d 23:59:59", strtotime("+2 months"));
     }
 
     if ($rc_idx != 0) {
@@ -2735,7 +2761,7 @@ class Compage_proc extends CI_Controller
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
         "rc_sage" => isset($step3["rc_sage"]) ? $step3["rc_sage"] : "",
         "rc_eage" => isset($step3["rc_eage"]) ? $step3["rc_eage"] : "",
-        "rc_desc" => isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : ""),  // 스텝5 우선, 없으면 스텝3
+        "rc_desc" => isset($step5["rc_desc"]) ? strip_tags($step5["rc_desc"]) : (isset($step3["rc_desc"]) ? strip_tags($step3["rc_desc"]) : ""),  // 스텝5 우선, 없으면 스텝3 (HTML 태그 제거)
         "rc_hash" => isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img1" => isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img2" => isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : ""),  // 스텝5 우선, 없으면 스텝3
@@ -2898,6 +2924,7 @@ class Compage_proc extends CI_Controller
 
       $arr_recruit = [
         "mm_idx" => $this->mm_idx,
+        "rc_status" => "Y", // 신규 공고는 활성 상태로 등록
         "rc_show_yn" => ($preview_mode == 1) ? "N" : (isset($step1["rc_show_yn"]) ? $step1["rc_show_yn"] : "Y"), // 미리보기 모드면 임시저장("N"), 아니면 정식등록
         "rc_name" => $step1["rc_name"],
         "rc_sdate" => $rc_sdate,
@@ -2915,7 +2942,7 @@ class Compage_proc extends CI_Controller
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
         "rc_sage" => isset($step3["rc_sage"]) ? $step3["rc_sage"] : "",
         "rc_eage" => isset($step3["rc_eage"]) ? $step3["rc_eage"] : "",
-        "rc_desc" => isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : ""),  // 스텝5 우선, 없으면 스텝3
+        "rc_desc" => isset($step5["rc_desc"]) ? strip_tags($step5["rc_desc"]) : (isset($step3["rc_desc"]) ? strip_tags($step3["rc_desc"]) : ""),  // 스텝5 우선, 없으면 스텝3 (HTML 태그 제거)
         "rc_hash" => isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img1" => isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img2" => isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : ""),  // 스텝5 우선, 없으면 스텝3
