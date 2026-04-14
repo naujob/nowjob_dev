@@ -19,12 +19,22 @@
                 /* ============================================
                    폰트 크기 관리 (CSS 변수)
                    ============================================
-                   --rw-input-font-size: 16px
-                     → input[type], select, textarea 등 모든 입력 요소
+                   크기별 폰트:
+                   - 20px: 제목급 (섹션 제목, 주요 라벨)
+                   - 16px: 본문급 (입력 요소, 버튼, 일반 라벨)
+
+                   변수 정의:
+                   --rw-title-font-size: 20px
+                     → .rw-section-title (섹션 제목)
+                     → 상세등록 링크
 
                    --rw-label-font-size: 20px
                      → .rw-label (메인 라벨)
                      → 기본정보, 근무조건, 자기소개/강점, 경력사항(근무기간)
+
+                   --rw-input-font-size: 16px
+                     → input[type], select, textarea 등 모든 입력 요소
+                     → 버튼 텍스트
 
                    --rw-label-small-font-size: 16px
                      → .rw-col-half>.rw-label (경력사항 2단계 라벨)
@@ -34,6 +44,7 @@
                 /* CSS 변수 정의 */
                 :root {
                     --rw-input-height: 70px;
+                    --rw-title-font-size: 20px;
                     --rw-input-font-size: 16px;
                     --rw-label-width: 255px;
                     --rw-label-font-size: 20px;
@@ -68,7 +79,7 @@
                 .rw-section-title {
                     padding: 16px 20px;
                     background: #f7f7f7;
-                    font-size: 20px;
+                    font-size: var(--rw-title-font-size);
                     font-weight: 800;
                     border-bottom: 1px solid var(--rw-border-color);
                     margin: 0;
@@ -204,7 +215,7 @@
                     border-radius: 4px;
                     padding: 12px 16px;
                     height: var(--rw-input-height);
-                    font-size: 16px;
+                    font-size: var(--rw-input-font-size);
                     font-weight: normal;
                     box-sizing: border-box;
                     width: 100%;
@@ -240,7 +251,7 @@
                     border: 1px solid #ccc;
                     background: #fff;
                     color: #333;
-                    font-size: 16px;
+                    font-size: var(--rw-input-font-size);
                     font-weight: normal;
                     margin: 0;
                     cursor: pointer;
@@ -316,7 +327,7 @@
                     border: 1px solid #ccc;
                     background: #fff;
                     color: #333;
-                    font-size: 16px;
+                    font-size: var(--rw-input-font-size);
                     font-weight: normal;
                     margin: 0;
                     cursor: pointer;
@@ -343,7 +354,7 @@
                     padding: 12px 16px 12px 16px;
                     padding-right: 50px;
                     height: 100%;
-                    font-size: 16px;
+                    font-size: var(--rw-input-font-size);
                     background: #fff;
                     color: #999;
                     box-sizing: border-box;
@@ -454,7 +465,7 @@
                     padding: 0 24px;
                     background: #999;
                     color: #fff;
-                    font-size: 16px;
+                    font-size: var(--rw-input-font-size);
                     font-weight: normal;
                     cursor: pointer;
                     height: var(--rw-input-height);
@@ -506,7 +517,7 @@
                     box-sizing: border-box;
                     background: #fff;
                     color: #333;
-                    font-size: 16px;
+                    font-size: var(--rw-input-font-size);
                     width: 100%;
                     height: var(--rw-input-height);
                     -webkit-appearance: none;
@@ -726,7 +737,7 @@
                     box-sizing: border-box;
                     background: #fff;
                     color: #333;
-                    font-size: 16px;
+                    font-size: var(--rw-input-font-size);
                     width: 100%;
                     height: var(--rw-input-height);
                     -webkit-appearance: none;
@@ -1005,7 +1016,7 @@
                     border: 1px solid #d5d8df;
                     border-radius: 5px;
                     color: #1B9D7D;
-                    font-size: 20px;
+                    font-size: var(--rw-title-font-size);
                     font-weight: 500;
                     text-decoration: none;
                     cursor: pointer;
