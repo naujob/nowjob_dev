@@ -16,18 +16,35 @@
                    공통 클래스 중심 구조로 개선
                    ============================================ */
 
+                /* ============================================
+                   폰트 크기 관리 (CSS 변수)
+                   ============================================
+                   --rw-input-font-size: 16px
+                     → input[type], select, textarea 등 모든 입력 요소
+
+                   --rw-label-font-size: 20px
+                     → .rw-label (메인 라벨)
+                     → 기본정보, 근무조건, 자기소개/강점, 경력사항(근무기간)
+
+                   --rw-label-small-font-size: 16px
+                     → .rw-col-half>.rw-label (경력사항 2단계 라벨)
+                     → 기업명, 업종, 자격증명, 취득일자
+                   ============================================ */
+
                 /* CSS 변수 정의 */
                 :root {
                     --rw-input-height: 70px;
                     --rw-input-font-size: 16px;
                     --rw-label-width: 255px;
                     --rw-label-font-size: 20px;
+                    --rw-label-small-font-size: 16px;
                     --rw-row-padding: 20px;
                     --rw-border-color: #D8D8D8;
                     --rw-basic-group-width: 650px;
                 }
 
                 /* 입력 요소 폰트 크기 통일 */
+                /* 모든 입력 요소(input, select, textarea)는 16px 통일 */
                 input[type="text"],
                 input[type="number"],
                 input[type="email"],
@@ -101,6 +118,7 @@
                 }
 
                 /* 공통 라벨 */
+                /* 메인 라벨: 기본정보, 근무조건, 자기소개/강점, 경력사항(근무기간) 섹션 = 20px */
                 .rw-label {
                     width: var(--rw-label-width);
                     margin: 0;
@@ -793,7 +811,8 @@
                     flex: 1;
                 }
 
-                /* 라벨 스타일 */
+                /* 경력사항 섹션 라벨 (기업명, 업종, 자격증명, 취득일자) */
+                /* 소형 라벨: 경력사항 섹션 내 2단계 라벨 = 16px */
                 .rw-col-half>.rw-label {
                     margin: 0;
                     padding: 0;
@@ -802,7 +821,7 @@
                     flex: 0 0 60px;
                     white-space: nowrap;
                     text-align: left;
-                    font-size: 16px;
+                    font-size: var(--rw-label-small-font-size);
                     font-weight: normal;
                     color: #333;
                 }
@@ -826,6 +845,7 @@
                 .rw-col-half .form-selectbox select {
                     height: 100%;
                     width: 100%;
+                    opacity: 1;
                 }
 
                 /* 기업명 input */
@@ -1333,360 +1353,360 @@
                                 <h4 class="rw-section-title">경력사항</h4>
                                 <div class="rw-career">
                                     <!-- 업종 및 기업명 form-row -->
-                                            <div class="rw-form-row">
-                                                <div class="rw-value rw-dual-col">
-                                                    <div class="form-group">
-                                                        <!-- 기업명 섹션 -->
-                                                        <div class="rw-col-half">
-                                                            <p class="rw-label">기업명</p>
-                                                            <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
-                                                        </div>
-                                                        <!-- 업종 섹션 -->
-                                                        <div class="rw-col-half">
-                                                            <p class="rw-label">업종</p>
-                                                            <label class="form-selectbox">
-                                                                <span class="sr-text">업종선택</span>
-                                                                <select name="category[]" class="added-career-form">
-                                                                    <option value="" selected disabled>업종</option>
-                                                                    <?php
-                                                                    // 표시 허용 업종 화이트리스트 (간단경력용)
-                                                                    $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
-                                                                    foreach ($ru_wrok_list as $row) :
-                                                                        // 허용 목록 이외 항목은 출력 제외
-                                                                        if (!in_array($row["cd_val"], $allowed_work_list, true)) {
-                                                                            continue;
-                                                                        }
-                                                                    ?>
-                                                                        <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
-                                                                    <?php endforeach; ?>
-                                                                </select>
-                                                                <span class="liner"></span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
+                                    <div class="rw-form-row">
+                                        <div class="rw-value rw-dual-col">
+                                            <div class="form-group">
+                                                <!-- 기업명 섹션 -->
+                                                <div class="rw-col-half">
+                                                    <p class="rw-label">기업명</p>
+                                                    <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
+                                                </div>
+                                                <!-- 업종 섹션 -->
+                                                <div class="rw-col-half">
+                                                    <p class="rw-label">업종</p>
+                                                    <label class="form-selectbox">
+                                                        <span class="sr-text">업종선택</span>
+                                                        <select name="category[]" class="added-career-form">
+                                                            <option value="" selected disabled>업종</option>
+                                                            <?php
+                                                            // 표시 허용 업종 화이트리스트 (간단경력용)
+                                                            $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
+                                                            foreach ($ru_wrok_list as $row) :
+                                                                // 허용 목록 이외 항목은 출력 제외
+                                                                if (!in_array($row["cd_val"], $allowed_work_list, true)) {
+                                                                    continue;
+                                                                }
+                                                            ?>
+                                                                <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <span class="liner"></span>
+                                                    </label>
                                                 </div>
                                             </div>
-
-                                            <!-- 근무기간 form-row -->
-                                            <div class="rw-form-row">
-                                                <p class="rw-label">근무기간</p>
-                                                <div class="rw-value">
-                                                    <div class="form-group rw-career-period-wrapper">
-                                                        <div class="rw-period-field">
-                                                            <label class="rw-block-label">
-                                                                <span class="sr-text">근무기간 시작일</span>
-                                                                <input type="text" name="period_start[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                            </label>
-                                                            <button type="button" class="btn-calendar">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
-                                                        <span class="rw-career-period-separator">~</span>
-                                                        <div class="rw-period-field">
-                                                            <label class="rw-block-label">
-                                                                <span class="sr-text">근무기간 종료일</span>
-                                                                <input type="text" name="period_end[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                            </label>
-                                                            <button type="button" class="btn-calendar">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 목록 -->
-                                            <ol class="added-list career_list">
-                                                <?php if (is_array($career_list) && !empty($career_list)) :
-                                                    foreach ($career_list as $row):
-                                                        $rc_type = $row['rc_type'];
-                                                        $rc_name = $row['rc_name'];
-                                                        $rc_date = $row['rc_date'];
-                                                ?>
-                                                        <li>
-                                                            <div class="form-group">
-                                                                <div class="col sm">
-                                                                    <input type="text" name="category[]" value="<?= $rc_type; ?>" disabled class="form-text txt-color2">
-                                                                </div>
-                                                                <div class="col">
-                                                                    <input type="text" name="company[]" maxlength="13" disabled value="<?= $rc_name; ?>" class="form-text">
-                                                                </div>
-                                                                <div class="col">
-                                                                    <input type="text" name="period[]" disabled value="<?= $rc_date; ?>" class="form-text num">
-                                                                </div>
-                                                            </div>
-                                                            <button type="button" class="btn-clear js-del-item">삭제</button>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </ol>
-
-                                            <!-- 경력사항 추가 버튼 -->
-                                            <div class="rw-form-row">
-                                                <button type="button" class="js-add-career">경력사항 추가</button>
-                                            </div>
-
-                                            <!-- 자격증명 및 취득일자 form-row -->
-                                            <div class="rw-form-row">
-                                                <div class="rw-value rw-dual-col">
-                                                    <div class="form-group">
-                                                        <!-- 자격증명 섹션 -->
-                                                        <div class="rw-col-half">
-                                                            <p class="rw-label">자격증명</p>
-                                                            <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form">
-                                                        </div>
-                                                        <!-- 취득일자 섹션 -->
-                                                        <div class="rw-col-half rw-col-with-calendar">
-                                                            <p class="rw-label">취득일자</p>
-                                                            <div class="rw-calendar-input-wrapper">
-                                                                <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
-                                                                <button type="button" class="btn-calendar">
-                                                                    <i class="fa fa-calendar"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 자격증 목록 -->
-                                            <ol class="added-list license_list">
-                                            </ol>
-
-                                            <!-- 자격증 추가 버튼 -->
-                                            <div class="rw-form-row">
-                                                <button type="button" class="js-add-license">자격증 추가</button>
-                                            </div>
-
                                         </div>
-
-                                        <!-- 입력폼 템플릿 -->
-                                        <template id="careerTemp">
-                                            <li>
-                                                <div class="form-group">
-                                                    <div class="col sm">
-                                                        <input type="text" name="category[]" value="{$category}" disabled class="form-text txt-color2">
-                                                    </div>
-                                                    <div class="col">
-                                                        <input type="text" name="company[]" maxlength="13" value="{$company}" disabled class="form-text">
-                                                    </div>
-                                                    <div class="col">
-                                                        <input type="text" name="period[]" value="{$period}" disabled class="form-text num">
-                                                    </div>
-                                                </div>
-                                                <button type="button" class="btn-clear js-del-item">삭제</button>
-                                            </li>
-                                        </template>
-
-                                        <!-- 자격증 입력폼 템플릿 -->
-                                        <template id="licenseTemp">
-                                            <li>
-                                                <div class="form-group">
-                                                    <div class="col">
-                                                        <input type="text" name="license[]" value="{$license}" disabled class="form-text">
-                                                    </div>
-                                                    <div class="col">
-                                                        <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
-                                                    </div>
-                                                </div>
-                                                <button type="button" class="btn-clear js-del-item">삭제</button>
-                                            </li>
-                                        </template>
-
-                                        <script>
-                                            (function() {
-                                                function chgYear(instance) {
-                                                    var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                                                        year = instance.currentYear;
-                                                    $con.innerHTML = '<span class="month">' + year + '</span>';
-                                                }
-
-                                                function totalRange(rangeDate) {
-                                                    var diffYear, diffMonth;
-
-                                                    if (rangeDate.indexOf('~') == -1) return '';
-
-                                                    diffYear = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getFullYear() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getFullYear();
-                                                    diffMonth = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getMonth() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getMonth();
-                                                    diffYear = diffYear > 0 ? diffYear + '년' : '';
-                                                    diffMonth = diffMonth > 0 ? diffMonth + '개월' : '';
-                                                    return '';
-                                                    //return '(' + diffYear + diffMonth + ')';
-                                                }
-
-                                                function initDatepicker(el) {
-                                                    if (typeof flatpickr == 'undefined') return;
-
-                                                    //달력 생성
-                                                    flatpickr(el, {
-                                                        mode: 'single',
-                                                        locale: 'ko',
-                                                        nextArrow: '<span class="sr-text">다음</span>',
-                                                        prevArrow: '<span class="sr-text">이전</span>',
-                                                        disableMobile: true,
-                                                        plugins: [
-                                                            new monthSelectPlugin({
-                                                                shorthand: true,
-                                                                dateFormat: "Y.m",
-                                                                altFormat: "Y.m",
-                                                            })
-                                                        ],
-                                                        onYearChange: function(selectedDates, dateStr, instance) {
-                                                            chgYear(this);
-                                                        },
-                                                        onReady: function() {
-                                                            chgYear(this);
-                                                        }
-                                                    });
-                                                }
-
-                                                window.addEventListener('DOMContentLoaded', function() {
-                                                    // 모든 datepicker 초기화
-                                                    document.querySelectorAll('.js-datepicker').forEach(function(el) {
-                                                        initDatepicker(el);
-                                                    });
-
-                                                    // 달력 버튼 이벤트
-                                                    document.querySelectorAll('.btn-calendar').forEach(function(btn) {
-                                                        btn.addEventListener('click', function(e) {
-                                                            e.preventDefault();
-                                                            var input = this.parentNode.querySelector('.js-datepicker');
-                                                            if (input && input._flatpickr) {
-                                                                input._flatpickr.open();
-                                                            }
-                                                        });
-                                                    });
-
-                                                    //경력 목록 추가
-                                                    document.querySelector('.js-add-career').addEventListener('click', function(e) {
-                                                        e.preventDefault();
-                                                        var btn = this,
-                                                            max = 9,
-                                                            temp = document.getElementById('careerTemp').content.cloneNode(true),
-                                                            formContainer = btn.closest('.form-row').parentNode,
-                                                            list = formContainer.querySelector('.career_list'),
-                                                            lastItem = null;
-
-                                                        var category = formContainer.querySelector('[name="category[]"]:not([disabled])'),
-                                                            company = formContainer.querySelector('[name="company[]"]:not([disabled])'),
-                                                            periodStart = formContainer.querySelector('[name="period_start[]"]'),
-                                                            periodEnd = formContainer.querySelector('[name="period_end[]"]');
-
-                                                        if (!category || !category.value) {
-                                                            if (category) category.focus();
-                                                            return;
-                                                        }
-
-                                                        if (!company || !company.value) {
-                                                            if (company) company.focus();
-                                                            return;
-                                                        }
-
-                                                        if (!periodStart || !periodEnd || !periodStart.value || !periodEnd.value) {
-                                                            if (!periodStart || !periodStart.value) {
-                                                                if (periodStart) periodStart.focus();
-                                                            } else if (periodEnd) {
-                                                                periodEnd.focus();
-                                                            }
-                                                            return;
-                                                        }
-
-                                                        if (list.children.length < max) {
-                                                            var categoryText = category.value;
-                                                            var companyText = company.value;
-                                                            var periodText = periodStart.value + ' ~ ' + periodEnd.value;
-
-                                                            var newItem = temp.children[0];
-                                                            var formGroup = newItem.querySelector('.form-group');
-                                                            formGroup.children[0].querySelector('input').value = categoryText;
-                                                            formGroup.children[1].querySelector('input').value = companyText;
-                                                            formGroup.children[2].querySelector('input').value = periodText;
-
-                                                            list.insertBefore(temp, list.firstChild);
-                                                            lastItem = list.children[0];
-
-                                                            lastItem.querySelector('.js-del-item').addEventListener('click', function() {
-                                                                if (list.children.length <= 3) {
-                                                                    btn.style.display = '';
-                                                                }
-                                                            });
-
-                                                            // select 초기화
-                                                            var selectElement = category.closest('.form-selectbox').querySelector('select');
-                                                            selectElement.selectedIndex = 0;
-                                                            selectElement.parentNode.querySelector('.liner').textContent = selectElement.children[0].textContent;
-                                                            company.value = '';
-                                                            periodStart.value = '';
-                                                            periodEnd.value = '';
-                                                        }
-                                                    });
-
-                                                    //자격증 목록 추가
-                                                    document.querySelector('.js-add-license').addEventListener('click', function(e) {
-                                                        e.preventDefault();
-                                                        var btn = this,
-                                                            max = 4,
-                                                            temp = document.getElementById('licenseTemp').content.cloneNode(true),
-                                                            formContainer = btn.closest('.form-row').parentNode,
-                                                            list = formContainer.querySelector('.license_list'),
-                                                            lastItem;
-
-                                                        var license = formContainer.querySelector('[name="license[]"]:not([disabled])'),
-                                                            regdate = formContainer.querySelector('[name="regdate[]"]:not([disabled])');
-
-                                                        if (!license || !license.value) {
-                                                            if (license) license.focus();
-                                                            return;
-                                                        }
-
-                                                        if (!regdate || !regdate.value) {
-                                                            if (regdate) regdate.focus();
-                                                            return;
-                                                        }
-
-                                                        if (list.children.length < max) {
-                                                            var licenseText = license.value;
-                                                            var regdateText = regdate.value;
-
-                                                            var newItem = temp.children[0];
-                                                            var formGroup = newItem.querySelector('.form-group');
-                                                            formGroup.children[0].querySelector('input').value = licenseText;
-                                                            formGroup.children[1].querySelector('input').value = regdateText;
-
-                                                            list.insertBefore(temp, list.firstChild);
-                                                            lastItem = list.children[0];
-
-                                                            lastItem.querySelector('.js-del-item').addEventListener('click', function() {
-                                                                if (list.children.length <= max) {
-                                                                    btn.style.display = '';
-                                                                }
-                                                            });
-
-                                                            license.value = '';
-                                                            regdate.value = '';
-                                                        }
-                                                    });
-                                                });
-
-                                            }());
-                                        </script>
                                     </div>
+
+                                    <!-- 근무기간 form-row -->
+                                    <div class="rw-form-row">
+                                        <p class="rw-label">근무기간</p>
+                                        <div class="rw-value">
+                                            <div class="form-group rw-career-period-wrapper">
+                                                <div class="rw-period-field">
+                                                    <label class="rw-block-label">
+                                                        <span class="sr-text">근무기간 시작일</span>
+                                                        <input type="text" name="period_start[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                    </label>
+                                                    <button type="button" class="btn-calendar">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </button>
+                                                </div>
+                                                <span class="rw-career-period-separator">~</span>
+                                                <div class="rw-period-field">
+                                                    <label class="rw-block-label">
+                                                        <span class="sr-text">근무기간 종료일</span>
+                                                        <input type="text" name="period_end[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                    </label>
+                                                    <button type="button" class="btn-calendar">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 목록 -->
+                                    <ol class="added-list career_list">
+                                        <?php if (is_array($career_list) && !empty($career_list)) :
+                                            foreach ($career_list as $row):
+                                                $rc_type = $row['rc_type'];
+                                                $rc_name = $row['rc_name'];
+                                                $rc_date = $row['rc_date'];
+                                        ?>
+                                                <li>
+                                                    <div class="form-group">
+                                                        <div class="col sm">
+                                                            <input type="text" name="category[]" value="<?= $rc_type; ?>" disabled class="form-text txt-color2">
+                                                        </div>
+                                                        <div class="col">
+                                                            <input type="text" name="company[]" maxlength="13" disabled value="<?= $rc_name; ?>" class="form-text">
+                                                        </div>
+                                                        <div class="col">
+                                                            <input type="text" name="period[]" disabled value="<?= $rc_date; ?>" class="form-text num">
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="btn-clear js-del-item">삭제</button>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </ol>
+
+                                    <!-- 경력사항 추가 버튼 -->
+                                    <div class="rw-form-row">
+                                        <button type="button" class="js-add-career">경력사항 추가</button>
+                                    </div>
+
+                                    <!-- 자격증명 및 취득일자 form-row -->
+                                    <div class="rw-form-row">
+                                        <div class="rw-value rw-dual-col">
+                                            <div class="form-group">
+                                                <!-- 자격증명 섹션 -->
+                                                <div class="rw-col-half">
+                                                    <p class="rw-label">자격증명</p>
+                                                    <input type="text" name="license[]" placeholder="" autocomplete="off" class="form-text added-license-form">
+                                                </div>
+                                                <!-- 취득일자 섹션 -->
+                                                <div class="rw-col-half rw-col-with-calendar">
+                                                    <p class="rw-label">취득일자</p>
+                                                    <div class="rw-calendar-input-wrapper">
+                                                        <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
+                                                        <button type="button" class="btn-calendar">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 자격증 목록 -->
+                                    <ol class="added-list license_list">
+                                    </ol>
+
+                                    <!-- 자격증 추가 버튼 -->
+                                    <div class="rw-form-row">
+                                        <button type="button" class="js-add-license">자격증 추가</button>
+                                    </div>
+
                                 </div>
-                            </div>
 
-                            <!-- 상세등록 섹션 -->
-                            <div class="detail-register-section">
-                                <a href="#" id="detailRegisterBtn" class="detail-register-link">상세등록</a>
-                            </div>
+                                <!-- 입력폼 템플릿 -->
+                                <template id="careerTemp">
+                                    <li>
+                                        <div class="form-group">
+                                            <div class="col sm">
+                                                <input type="text" name="category[]" value="{$category}" disabled class="form-text txt-color2">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" name="company[]" maxlength="13" value="{$company}" disabled class="form-text">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" name="period[]" value="{$period}" disabled class="form-text num">
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn-clear js-del-item">삭제</button>
+                                    </li>
+                                </template>
 
-                            <div class="form-action-wrap">
-                                <button type="button" id="btnStep" class="btn-round btn-tertiary"><?= $info != null && $info["ru_idx"] != "0" ? "수정" : "등록" ?>완료</button>
+                                <!-- 자격증 입력폼 템플릿 -->
+                                <template id="licenseTemp">
+                                    <li>
+                                        <div class="form-group">
+                                            <div class="col">
+                                                <input type="text" name="license[]" value="{$license}" disabled class="form-text">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" name="regdate[]" value="{$regdate}" disabled class="form-text num">
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn-clear js-del-item">삭제</button>
+                                    </li>
+                                </template>
+
+                                <script>
+                                    (function() {
+                                        function chgYear(instance) {
+                                            var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
+                                                year = instance.currentYear;
+                                            $con.innerHTML = '<span class="month">' + year + '</span>';
+                                        }
+
+                                        function totalRange(rangeDate) {
+                                            var diffYear, diffMonth;
+
+                                            if (rangeDate.indexOf('~') == -1) return '';
+
+                                            diffYear = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getFullYear() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getFullYear();
+                                            diffMonth = flatpickr.parseDate(rangeDate.split(' ~ ')[1], 'Y.m').getMonth() - flatpickr.parseDate(rangeDate.split(' ~ ')[0], 'Y.m').getMonth();
+                                            diffYear = diffYear > 0 ? diffYear + '년' : '';
+                                            diffMonth = diffMonth > 0 ? diffMonth + '개월' : '';
+                                            return '';
+                                            //return '(' + diffYear + diffMonth + ')';
+                                        }
+
+                                        function initDatepicker(el) {
+                                            if (typeof flatpickr == 'undefined') return;
+
+                                            //달력 생성
+                                            flatpickr(el, {
+                                                mode: 'single',
+                                                locale: 'ko',
+                                                nextArrow: '<span class="sr-text">다음</span>',
+                                                prevArrow: '<span class="sr-text">이전</span>',
+                                                disableMobile: true,
+                                                plugins: [
+                                                    new monthSelectPlugin({
+                                                        shorthand: true,
+                                                        dateFormat: "Y.m",
+                                                        altFormat: "Y.m",
+                                                    })
+                                                ],
+                                                onYearChange: function(selectedDates, dateStr, instance) {
+                                                    chgYear(this);
+                                                },
+                                                onReady: function() {
+                                                    chgYear(this);
+                                                }
+                                            });
+                                        }
+
+                                        window.addEventListener('DOMContentLoaded', function() {
+                                            // 모든 datepicker 초기화
+                                            document.querySelectorAll('.js-datepicker').forEach(function(el) {
+                                                initDatepicker(el);
+                                            });
+
+                                            // 달력 버튼 이벤트
+                                            document.querySelectorAll('.btn-calendar').forEach(function(btn) {
+                                                btn.addEventListener('click', function(e) {
+                                                    e.preventDefault();
+                                                    var input = this.parentNode.querySelector('.js-datepicker');
+                                                    if (input && input._flatpickr) {
+                                                        input._flatpickr.open();
+                                                    }
+                                                });
+                                            });
+
+                                            //경력 목록 추가
+                                            document.querySelector('.js-add-career').addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                var btn = this,
+                                                    max = 9,
+                                                    temp = document.getElementById('careerTemp').content.cloneNode(true),
+                                                    formContainer = btn.closest('.form-row').parentNode,
+                                                    list = formContainer.querySelector('.career_list'),
+                                                    lastItem = null;
+
+                                                var category = formContainer.querySelector('[name="category[]"]:not([disabled])'),
+                                                    company = formContainer.querySelector('[name="company[]"]:not([disabled])'),
+                                                    periodStart = formContainer.querySelector('[name="period_start[]"]'),
+                                                    periodEnd = formContainer.querySelector('[name="period_end[]"]');
+
+                                                if (!category || !category.value) {
+                                                    if (category) category.focus();
+                                                    return;
+                                                }
+
+                                                if (!company || !company.value) {
+                                                    if (company) company.focus();
+                                                    return;
+                                                }
+
+                                                if (!periodStart || !periodEnd || !periodStart.value || !periodEnd.value) {
+                                                    if (!periodStart || !periodStart.value) {
+                                                        if (periodStart) periodStart.focus();
+                                                    } else if (periodEnd) {
+                                                        periodEnd.focus();
+                                                    }
+                                                    return;
+                                                }
+
+                                                if (list.children.length < max) {
+                                                    var categoryText = category.value;
+                                                    var companyText = company.value;
+                                                    var periodText = periodStart.value + ' ~ ' + periodEnd.value;
+
+                                                    var newItem = temp.children[0];
+                                                    var formGroup = newItem.querySelector('.form-group');
+                                                    formGroup.children[0].querySelector('input').value = categoryText;
+                                                    formGroup.children[1].querySelector('input').value = companyText;
+                                                    formGroup.children[2].querySelector('input').value = periodText;
+
+                                                    list.insertBefore(temp, list.firstChild);
+                                                    lastItem = list.children[0];
+
+                                                    lastItem.querySelector('.js-del-item').addEventListener('click', function() {
+                                                        if (list.children.length <= 3) {
+                                                            btn.style.display = '';
+                                                        }
+                                                    });
+
+                                                    // select 초기화
+                                                    var selectElement = category.closest('.form-selectbox').querySelector('select');
+                                                    selectElement.selectedIndex = 0;
+                                                    selectElement.parentNode.querySelector('.liner').textContent = selectElement.children[0].textContent;
+                                                    company.value = '';
+                                                    periodStart.value = '';
+                                                    periodEnd.value = '';
+                                                }
+                                            });
+
+                                            //자격증 목록 추가
+                                            document.querySelector('.js-add-license').addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                var btn = this,
+                                                    max = 4,
+                                                    temp = document.getElementById('licenseTemp').content.cloneNode(true),
+                                                    formContainer = btn.closest('.form-row').parentNode,
+                                                    list = formContainer.querySelector('.license_list'),
+                                                    lastItem;
+
+                                                var license = formContainer.querySelector('[name="license[]"]:not([disabled])'),
+                                                    regdate = formContainer.querySelector('[name="regdate[]"]:not([disabled])');
+
+                                                if (!license || !license.value) {
+                                                    if (license) license.focus();
+                                                    return;
+                                                }
+
+                                                if (!regdate || !regdate.value) {
+                                                    if (regdate) regdate.focus();
+                                                    return;
+                                                }
+
+                                                if (list.children.length < max) {
+                                                    var licenseText = license.value;
+                                                    var regdateText = regdate.value;
+
+                                                    var newItem = temp.children[0];
+                                                    var formGroup = newItem.querySelector('.form-group');
+                                                    formGroup.children[0].querySelector('input').value = licenseText;
+                                                    formGroup.children[1].querySelector('input').value = regdateText;
+
+                                                    list.insertBefore(temp, list.firstChild);
+                                                    lastItem = list.children[0];
+
+                                                    lastItem.querySelector('.js-del-item').addEventListener('click', function() {
+                                                        if (list.children.length <= max) {
+                                                            btn.style.display = '';
+                                                        }
+                                                    });
+
+                                                    license.value = '';
+                                                    regdate.value = '';
+                                                }
+                                            });
+                                        });
+
+                                    }());
+                                </script>
                             </div>
-                    </form>
+                        </div>
                 </div>
+
+                <!-- 상세등록 섹션 -->
+                <div class="detail-register-section">
+                    <a href="#" id="detailRegisterBtn" class="detail-register-link">상세등록</a>
+                </div>
+
+                <div class="form-action-wrap">
+                    <button type="button" id="btnStep" class="btn-round btn-tertiary"><?= $info != null && $info["ru_idx"] != "0" ? "수정" : "등록" ?>완료</button>
+                </div>
+                </form>
             </div>
         </div>
-    </main><!-- //page-content -->
+</div>
+</main><!-- //page-content -->
 </div><!-- //page -->
 <script>
     // 검색 완료 선택 처리
