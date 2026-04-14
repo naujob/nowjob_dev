@@ -590,9 +590,15 @@
                     flex: 1;
                 }
 
-                /* rw-dual-col 내 rw-col-half의 gap 12px */
+                /* rw-dual-col 내 rw-col-half의 gap */
                 .rw-dual-col .form-group>.rw-col-half {
-                    gap: 160px;
+                    gap: 190px;
+                }
+
+                /* 기업명과 자격증명(첫번째 rw-col-half)의 gap 조정 */
+                .extra-section .rw-career .rw-form-row:nth-of-type(1) .rw-col-half:nth-of-type(1),
+                .extra-section .rw-career .rw-form-row:nth-of-type(4) .rw-col-half:nth-of-type(1) {
+                    gap: 16px;
                 }
 
                 /* 첫 번째 rw-col-half (기업명) 더 넓게 */
@@ -848,6 +854,7 @@
                 /* 경력사항 네번째 form-row (자격증명/취득일자)의 두번째 rw-col-half 라벨 */
                 .extra-section .rw-career .rw-form-row:nth-of-type(4) .rw-col-half:nth-of-type(2) .rw-label {
                     position: relative;
+                    left: 106px;
                 }
 
                 /* 입력 요소 스타일 */
