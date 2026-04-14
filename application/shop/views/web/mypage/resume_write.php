@@ -89,6 +89,17 @@
                     padding-bottom: 0;
                 }
 
+                /* rw-label이 없는 form-row (기업명/업종, 자격증명/취득일자) */
+                .rw-form-row:has(.rw-dual-col) {
+                    -webkit-box-align: stretch;
+                    -ms-flex-align: stretch;
+                    align-items: stretch;
+                }
+
+                .rw-form-row:has(.rw-dual-col) .rw-value {
+                    width: 100%;
+                }
+
                 /* 공통 라벨 */
                 .rw-label {
                     width: var(--rw-label-width);
@@ -403,6 +414,21 @@
                 }
 
                 /* 경력사항/자격증 추가 버튼 */
+                .rw-career .rw-form-row:has(.js-add-career),
+                .rw-career .rw-form-row:has(.js-add-license) {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px 0;
+                    border-bottom: 1px solid var(--rw-border-color);
+                }
+
+                .rw-career .rw-form-row:has(.js-add-career):last-of-type,
+                .rw-career .rw-form-row:has(.js-add-license) {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
                 .rw-career .js-add-career,
                 .rw-career .js-add-license {
                     border: none;
@@ -414,8 +440,7 @@
                     font-weight: normal;
                     cursor: pointer;
                     height: var(--rw-input-height);
-                    width: 100%;
-                    max-width: 400px;
+                    width: auto;
                 }
 
                 .rw-career .js-add-career:hover,
@@ -453,7 +478,7 @@
                     border: 1px solid #ccc;
                     border-radius: 4px;
                     overflow: hidden;
-                    height: 50px;
+                    height: var(--rw-input-height);
                 }
 
                 .rw-career .form-selectbox select {
@@ -673,7 +698,7 @@
                     border: 1px solid #ccc;
                     border-radius: 4px;
                     overflow: hidden;
-                    height: 50px;
+                    height: var(--rw-input-height);
                 }
 
                 .rw-career .form-selectbox select {
@@ -728,11 +753,12 @@
                     display: -webkit-box;
                     display: -ms-flexbox;
                     display: flex;
-                    gap: 40px;
+                    gap: 60px;
                     width: 100%;
-                    -webkit-box-align: center;
-                    -ms-flex-align: center;
-                    align-items: center;
+                    -webkit-box-align: stretch;
+                    -ms-flex-align: stretch;
+                    align-items: stretch;
+                    padding: 20px 0;
                 }
 
                 .rw-col-half {
@@ -749,7 +775,8 @@
                     -webkit-box-flex: 1;
                     -ms-flex: 1;
                     flex: 1;
-                    gap: 20px;
+                    gap: 16px;
+                    height: var(--rw-input-height);
                 }
 
                 /* 첫 번째 rw-col-half (기업명) 더 넓게 */
@@ -772,10 +799,12 @@
                     padding: 0;
                     -webkit-box-flex: 0;
                     -ms-flex: 0 0 auto;
-                    flex: 0 0 auto;
+                    flex: 0 0 60px;
                     white-space: nowrap;
-                    min-width: 100px;
-                    text-align: right;
+                    text-align: left;
+                    font-size: 16px;
+                    font-weight: normal;
+                    color: #333;
                 }
 
                 /* 입력 요소 스타일 */
@@ -785,6 +814,23 @@
                     -webkit-box-flex: 1;
                     -ms-flex: 1;
                     flex: 1;
+                    height: 100%;
+                }
+
+                /* selectbox와 input의 높이 통일 */
+                .rw-col-half .form-selectbox {
+                    display: flex;
+                    align-items: center;
+                }
+
+                .rw-col-half .form-selectbox select {
+                    height: 100%;
+                    width: 100%;
+                }
+
+                /* 기업명 input */
+                .rw-col-half>input[type="text"] {
+                    height: 100%;
                 }
 
                 .rw-col-with-calendar {
