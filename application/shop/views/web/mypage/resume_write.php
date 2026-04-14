@@ -843,6 +843,13 @@
                     align-self: center;
                 }
 
+                /* 경력사항 첫번째 form-row (기업명/업종)의 두번째 rw-col-half 라벨 */
+                .extra-section .rw-career>.rw-form-row:nth-of-type(1) .rw-col-half:nth-of-type(2)>.rw-label,
+                /* 경력사항 네번째 form-row (자격증명/취득일자)의 두번째 rw-col-half 라벨 */
+                .extra-section .rw-career>.rw-form-row:nth-of-type(3) .rw-col-half:nth-of-type(2)>.rw-label {
+                    position: relative;
+                }
+
                 /* 입력 요소 스타일 */
                 .rw-col-half>input,
                 .rw-col-half>label,
