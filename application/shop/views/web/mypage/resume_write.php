@@ -440,6 +440,10 @@
                 .rw-career .rw-form-row:has(.rw-career-period-wrapper) .rw-value {
                     flex-direction: row;
                     align-items: center;
+                    -webkit-box-flex: 0;
+                    -ms-flex: 0 0 auto;
+                    flex: 0 0 auto;
+                    width: auto;
                 }
 
                 /* 경력사항/자격증 추가 버튼 */
