@@ -834,6 +834,8 @@
                     font-size: var(--rw-label-font-size);
                     font-weight: normal;
                     color: #333;
+                    -ms-flex-item-align: center;
+                    align-self: center;
                 }
 
                 /* 입력 요소 스타일 */
