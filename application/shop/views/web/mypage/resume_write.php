@@ -77,7 +77,7 @@
 
                 .rw-section-title {
                     padding: 16px 20px;
-                    background: #f7f7f7;
+
                     font-size: var(--rw-title-font-size);
                     font-weight: 800;
                     border-bottom: 1px solid var(--rw-border-color);
@@ -107,6 +107,10 @@
                     -ms-flex-wrap: wrap;
                     flex-wrap: wrap;
                     border-bottom: 1px solid var(--rw-border-color);
+                }
+
+                .rw-basic-info .form-label {
+                    width: 100%;
                 }
 
                 .rw-form-row:first-child {
@@ -346,6 +350,7 @@
                     margin-bottom: 12px;
                     height: var(--rw-input-height);
                     cursor: pointer;
+                    width: 100%;
                 }
 
                 .address-search-box .addr-search-input {
@@ -474,7 +479,7 @@
                     font-weight: normal;
                     cursor: pointer;
                     height: var(--rw-input-height);
-                    width: auto;
+                    width: 50%;
                 }
 
                 .rw-career .js-add-career:hover,
@@ -597,9 +602,7 @@
 
                 /* 기업명과 자격증명(첫번째 rw-col-half)의 gap 조정 */
                 .extra-section .rw-career .rw-form-row:nth-of-type(1) .rw-col-half:nth-of-type(1),
-                .extra-section .rw-career .rw-form-row:nth-of-type(4) .rw-col-half:nth-of-type(1) {
-                    gap: 16px;
-                }
+                .extra-section .rw-career .rw-form-row:nth-of-type(4) .rw-col-half:nth-of-type(1) {}
 
                 /* 첫 번째 rw-col-half (기업명) 더 넓게 */
                 .rw-dual-col .form-group>.rw-col-half:nth-of-type(1) {
@@ -1081,7 +1084,7 @@
                                         <p class="rw-label">이력서명</p>
                                         <div class="rw-value">
                                             <div class="form-group">
-                                                <label>
+                                                <label class="form-label">
                                                     <span class="sr-text">이력서명 입력</span>
                                                     <input type="text" name="ru_name" placeholder="이력서명을 작성해주세요" value="<?= $info["ru_name"] ?>" autocomplete="off" aria-required="true" required class="form-text">
                                                 </label>

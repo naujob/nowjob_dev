@@ -1021,11 +1021,11 @@ fieldset {
     border-color: #e8e8e8;
 }
 
-.form-text:focus {
+/* .form-text:focus {
     border-color: #57CCAF;
     -webkit-box-shadow: inset 0 -2px 0 0 #57CCAF;
     box-shadow: inset 0 -2px 0 0 #57CCAF;
-}
+} */
 
 .form-textarea {
     display: block;
