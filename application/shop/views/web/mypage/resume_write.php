@@ -21,7 +21,7 @@
                    ============================================
                    크기별 폰트:
                    - 20px: 제목급 (섹션 제목, 주요 라벨)
-                   - 16px: 본문급 (입력 요소, 버튼, 일반 라벨)
+                   - 16px: 본문급 (입력 요소, 버튼)
 
                    변수 정의:
                    --rw-title-font-size: 20px
@@ -30,15 +30,12 @@
 
                    --rw-label-font-size: 20px
                      → .rw-label (메인 라벨)
-                     → 기본정보, 근무조건, 자기소개/강점, 경력사항(근무기간)
+                     → 기본정보, 근무조건, 자기소개/강점, 경력사항
+                     → 경력사항 섹션 모든 라벨 (기업명, 업종, 자격증명, 취득일자)
 
                    --rw-input-font-size: 16px
                      → input[type], select, textarea 등 모든 입력 요소
                      → 버튼 텍스트
-
-                   --rw-label-small-font-size: 16px
-                     → .rw-col-half>.rw-label (경력사항 2단계 라벨)
-                     → 기업명, 업종, 자격증명, 취득일자
                    ============================================ */
 
                 /* CSS 변수 정의 */
@@ -48,7 +45,6 @@
                     --rw-input-font-size: 16px;
                     --rw-label-width: 255px;
                     --rw-label-font-size: 20px;
-                    --rw-label-small-font-size: 16px;
                     --rw-row-padding: 20px;
                     --rw-border-color: #D8D8D8;
                     --rw-basic-group-width: 650px;
@@ -129,7 +125,7 @@
                 }
 
                 /* 공통 라벨 */
-                /* 메인 라벨: 기본정보, 근무조건, 자기소개/강점, 경력사항(근무기간) 섹션 = 20px */
+                /* 메인 라벨: 모든 섹션의 라벨 (기본정보, 근무조건, 자기소개/강점, 경력사항 포함) = 20px */
                 .rw-label {
                     width: var(--rw-label-width);
                     margin: 0;
@@ -823,7 +819,6 @@
                 }
 
                 /* 경력사항 섹션 라벨 (기업명, 업종, 자격증명, 취득일자) */
-                /* 소형 라벨: 경력사항 섹션 내 2단계 라벨 = 16px */
                 .rw-col-half>.rw-label {
                     margin: 0;
                     padding: 0;
@@ -832,7 +827,7 @@
                     flex: 0 0 60px;
                     white-space: nowrap;
                     text-align: left;
-                    font-size: var(--rw-label-small-font-size);
+                    font-size: var(--rw-label-font-size);
                     font-weight: normal;
                     color: #333;
                 }
