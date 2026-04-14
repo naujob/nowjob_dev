@@ -48,6 +48,7 @@
                     --rw-row-padding: 20px;
                     --rw-section-padding: 20px;
                     --rw-section-padding-left: 44px;
+                    --rw-border-radius: 4px;
                     --rw-border-color: #D8D8D8;
                     --rw-basic-group-width: 650px;
                 }
@@ -212,7 +213,7 @@
                 /* 이력서명 입력창 */
                 .rw-basic-info .form-text {
                     border: 1px solid #ccc;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     padding: 12px 16px;
                     height: var(--rw-input-height);
                     font-size: var(--rw-input-font-size);
@@ -350,7 +351,7 @@
                 .address-search-box .addr-search-input {
                     width: 100%;
                     border: 1px solid #ddd;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     padding: 12px 16px 12px 16px;
                     padding-right: 50px;
                     height: 100%;
@@ -465,7 +466,7 @@
                 .rw-career .js-add-career,
                 .rw-career .js-add-license {
                     border: none;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     padding: 0 24px;
                     background: #999;
                     color: #fff;
@@ -502,14 +503,14 @@
                 /* 경력사항 섹션 입력 요소 border 추가 */
                 .rw-career .form-text {
                     border: 1px solid #ccc;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     padding: 12px 16px;
                     box-sizing: border-box;
                 }
 
                 .rw-career .form-selectbox {
                     border: 1px solid #ccc;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     overflow: hidden;
                     height: var(--rw-input-height);
                 }
@@ -540,7 +541,7 @@
 
                 .rw-career .btn-add-item {
                     border: none;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     padding: 0 24px;
                     background: #999;
                     color: #fff;
@@ -691,7 +692,7 @@
                     justify-content: center;
                     background: #f5f5f5;
                     border: 1px solid #ddd;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     cursor: pointer;
                     padding: 0;
                     margin: 0;
@@ -722,14 +723,14 @@
                 /* 경력사항 섹션 입력 요소 border 추가 */
                 .rw-career .form-text {
                     border: 1px solid #ccc;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     padding: 12px 16px;
                     box-sizing: border-box;
                 }
 
                 .rw-career .form-selectbox {
                     border: 1px solid #ccc;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     overflow: hidden;
                     height: var(--rw-input-height);
                 }
@@ -760,7 +761,7 @@
 
                 .rw-career .btn-add-item {
                     border: none;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     padding: 0 24px;
                     background: #999;
                     color: #fff;
@@ -964,7 +965,7 @@
                     justify-content: center;
                     background: #f5f5f5;
                     border: 1px solid #ddd;
-                    border-radius: 4px;
+                    border-radius: var(--rw-border-radius);
                     cursor: pointer;
                     padding: 0;
                     margin: 0;
