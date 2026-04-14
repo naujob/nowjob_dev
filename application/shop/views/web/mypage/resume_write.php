@@ -41,10 +41,10 @@
                 /* CSS 변수 정의 */
                 :root {
                     --rw-input-height: 70px;
-                    --rw-title-font-size: 20px;
-                    --rw-input-font-size: 16px;
+                    --rw-title-font-size: 25px;
+                    --rw-input-font-size: 20px;
                     --rw-label-width: 255px;
-                    --rw-label-font-size: 20px;
+                    --rw-label-font-size: 22px;
                     --rw-row-padding: 20px;
                     --rw-section-padding: 20px;
                     --rw-section-padding-left: 44px;
@@ -449,7 +449,7 @@
                     -webkit-box-flex: 0;
                     -ms-flex: 0 0 auto;
                     flex: 0 0 auto;
-                    width: auto;
+                    width: 45%;
                 }
 
                 /* 경력사항/자격증 추가 버튼 */
@@ -476,10 +476,11 @@
                     background: #999;
                     color: #fff;
                     font-size: var(--rw-input-font-size);
-                    font-weight: normal;
+                    font-weight: 700;
                     cursor: pointer;
                     height: var(--rw-input-height);
-                    width: 50%;
+                    width: 12.5em;
+
                 }
 
                 .rw-career .js-add-career:hover,
@@ -602,7 +603,9 @@
 
                 /* 기업명과 자격증명(첫번째 rw-col-half)의 gap 조정 */
                 .extra-section .rw-career .rw-form-row:nth-of-type(1) .rw-col-half:nth-of-type(1),
-                .extra-section .rw-career .rw-form-row:nth-of-type(4) .rw-col-half:nth-of-type(1) {}
+                .extra-section .rw-career .rw-form-row:nth-of-type(4) .rw-col-half:nth-of-type(1) {
+                    /* gap: 100px; */
+                }
 
                 /* 첫 번째 rw-col-half (기업명) 더 넓게 */
                 .rw-dual-col .form-group>.rw-col-half:nth-of-type(1) {
@@ -1033,7 +1036,7 @@
 
                 .detail-register-link {
                     display: inline-block;
-                    min-width: 40.5em;
+                    min-width: 12.5em;
                     padding: 20px 30px;
                     text-align: center;
                     border: 1px solid #d5d8df;
