@@ -6,16 +6,110 @@
       <?php $tab_on = "tab2"; ?>
       <?php $tab_on2 = "menu2"; ?>
       <?php include_once(get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
+      <?php
+      // 인증 상태 계산 (파일 전체에서 사용)
+      $mem_info_di = isset($info["mem_info"]["mm_di"]) ? $info["mem_info"]["mm_di"] : null;
+      $mem_info_join_type = isset($info["mem_info"]["mm_join_type"]) ? $info["mem_info"]["mm_join_type"] : null;
+      $is_sns_login = !empty($mem_info_join_type) && in_array(strtoupper($mem_info_join_type), ["KAKAO", "APPLE", "NAVER"]);
+      // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
+      $is_pass_authenticated = ($mem_info_di != null && (strpos($mem_info_di, "MC0") === 0 || $is_sns_login));
+      // 기업정보 인증 여부 확인
+      $is_comp_authenticated = ($info != null && $info["mem_info"] != null && !empty($info["mem_info"]["mm_comp_num"]));
+      ?>
       <style>
+        /* ============================================
+           채용공고 작성 페이지 CSS 변수 정의
+           ============================================ */
+        :root {
+            --rc-input-height: 44px;
+            --rc-title-font-size: 20px;
+            --rc-input-font-size: 16px;
+            --rc-label-width: 180px;
+            --rc-label-font-size: 16px;
+            --rc-border-radius: 10px;
+            --rc-border-color: #ADAEB9;
+            --rc-color-primary: #31A182;
+            --rc-color-primary-dark: #1B9D7D;
+            --rc-color-primary-light: #57CCAF;
+            --rc-color-danger: #F86048;
+            --rc-section-padding: 20px;
+            --rc-row-padding: 16px;
+            --rc-tab-gray: #777777;
+        }
+
+        /* ============================================
+           공통 레이아웃 클래스
+           ============================================ */
+
+        /* 섹션 기본 구조 */
+        .rc-section {
+            margin-bottom: 32px;
+        }
+
+        .rc-section-title {
+            padding: 16px 20px;
+            font-size: var(--rc-title-font-size);
+            font-weight: 800;
+            border-bottom: 1px solid var(--rc-border-color);
+            margin: 0;
+        }
+
+        /* 섹션 내용 래퍼 */
+        .rc-basic-info,
+        .rc-work-condition,
+        .rc-work-info,
+        .rc-extra {
+            padding: var(--rc-section-padding) 24px;
+            padding-left: 44px;
+        }
+
+        /* form-row 공통 구조 */
+        .rc-form-row {
+            display: flex;
+            margin: 0;
+            padding: var(--rc-row-padding) 0;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--rc-border-color);
+        }
+
+        .rc-form-row:first-child {
+            padding-top: 0;
+        }
+
+        .rc-form-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        /* 라벨 */
+        .rc-label {
+            width: var(--rc-label-width);
+            margin: 0;
+            padding: 0;
+            font-size: var(--rc-label-font-size);
+            line-height: 1;
+            flex: 0 0 var(--rc-label-width);
+            align-self: center;
+        }
+
+        /* 값 영역 */
+        .rc-value {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         .form-text {
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
         }
 
         /* 근무정보 섹션 input 높이 통일 및 padding */
         .addition-info-form .form-row .form-text,
         .addition-info-form .form-row .value input[type="text"] {
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
           padding: 0 0 0 12px;
           font-size: 17px;
         }
@@ -23,20 +117,20 @@
         /* input placeholder 스타일 */
         .addition-info-form .form-row .form-text::placeholder,
         .addition-info-form .form-row .value input[type="text"]::placeholder {
-          color: #ADAEB9;
+          color: var(--rc-border-color);
         }
 
         /* input focus 시 색상 변화 제거 */
         .addition-info-form .form-row .form-text:focus,
         .addition-info-form .form-row .value input[type="text"]:focus {
-          border-color: #ADAEB9 !important;
+          border-color: var(--rc-border-color) !important;
           box-shadow: none !important;
           -webkit-box-shadow: none !important;
         }
 
         #first-form input[type="text"] {
-          border: 1px solid #ADAEB9;
-          border-radius: 10px;
+          border: 1px solid var(--rc-border-color);
+          border-radius: var(--rc-border-radius);
         }
 
         .noti_duration .form-text {
@@ -44,7 +138,7 @@
         }
 
         .form-selectbox select {
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
         }
 
         .form-table .form-selectbox {
@@ -75,7 +169,7 @@
         .law_popup {
           width: 1050px;
           height: 550px;
-          border: 1px solid #777777;
+          border: 1px solid var(--rc-tab-gray);
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
           position: fixed;
           top: 50%;
@@ -85,7 +179,7 @@
           display: none;
           z-index: 999;
           flex-direction: column;
-          border-radius: 10px;
+          border-radius: var(--rc-border-radius);
         }
 
         .law_popup.on {
@@ -98,7 +192,7 @@
           align-items: center;
           font-weight: bold;
           font-size: 25px;
-          color: #777777;
+          color: var(--rc-tab-gray);
           flex-shrink: 0;
         }
 
@@ -110,8 +204,8 @@
         }
 
         .tab_menu .on {
-          color: #31A182;
-          border-bottom: 4px solid #31A182;
+          color: var(--rc-color-primary);
+          border-bottom: 4px solid var(--rc-color-primary);
         }
 
         .tab_menu .close {
@@ -169,12 +263,12 @@
         .tab_desc {
           font-weight: normal;
           font-size: 13px;
-          color: #777777;
+          color: var(--rc-tab-gray);
           padding: 25px 10px;
         }
 
         .tab_desc em {
-          color: #F86048;
+          color: var(--rc-color-danger);
         }
 
         .low {
@@ -196,21 +290,21 @@
         .tab_title {
           font-weight: bold;
           font-size: 15px;
-          color: #777777;
+          color: var(--rc-tab-gray);
           margin-bottom: 10px;
         }
 
         .low dt {
           font-weight: 500;
           font-size: 13px;
-          color: #777777;
+          color: var(--rc-tab-gray);
           margin-top: 10px;
         }
 
         .low dd {
           font-weight: normal;
           font-size: 13px;
-          color: #777777;
+          color: var(--rc-tab-gray);
           margin-left: 15px;
         }
 
@@ -225,7 +319,7 @@
         .low_link a {
           font-weight: 500;
           font-size: 13px;
-          color: #31A182;
+          color: var(--rc-color-primary);
           text-decoration: none;
         }
 
@@ -266,7 +360,7 @@
           text-align: right;
           padding-right: 50px;
           font-weight: normal;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
         }
 
         .time-value {
@@ -286,8 +380,8 @@
           height: 30px;
           text-align: center;
           color: #000;
-          border: 1px solid #ADAEB9;
-          border-radius: 10px;
+          border: 1px solid var(--rc-border-color);
+          border-radius: var(--rc-border-radius);
           position: relative;
           opacity: initial;
           appearance: auto;
@@ -306,8 +400,8 @@
           height: 30px;
           text-align: center;
           background-color: #fff;
-          border: 1px solid #ADAEB9;
-          border-radius: 10px;
+          border: 1px solid var(--rc-border-color);
+          border-radius: var(--rc-border-radius);
         }
 
         .time-separator {
@@ -354,10 +448,10 @@
           align-items: center;
           justify-content: center;
           padding: 0 16px;
-          height: 44px;
-          background: #57CCAF;
+          height: var(--rc-input-height);
+          background: var(--rc-color-primary-light);
           color: #fff;
-          border-radius: 10px;
+          border-radius: var(--rc-border-radius);
           font-size: 15px;
           white-space: nowrap;
           font-weight: 500;
@@ -368,9 +462,9 @@
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          height: 44px;
-          border: 1px solid #ADAEB9;
-          border-radius: 10px;
+          height: var(--rc-input-height);
+          border: 1px solid var(--rc-border-color);
+          border-radius: var(--rc-border-radius);
           padding: 0 10px;
           background: #fff;
         }
@@ -422,11 +516,11 @@
 
         /* 근무조건 섹션 UI 개선 */
         .work-section .form-toggle-btn2 .btn {
-          height: 44px;
+          height: var(--rc-input-height);
           line-height: 42px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           box-sizing: border-box;
-          border-radius: 10px;
+          border-radius: var(--rc-border-radius);
         }
 
         .work-section .form-group {
@@ -437,22 +531,22 @@
 
         .work-section .time-select {
           height: 41px !important;
-          line-height: 44px;
-          font-size: 16px;
-          border-radius: 10px;
+          line-height: var(--rc-input-height);
+          font-size: var(--rc-input-font-size);
+          border-radius: var(--rc-border-radius);
         }
 
         .work-section .time-input-m {
           height: 41px !important;
-          line-height: 44px;
-          font-size: 16px;
-          border-radius: 10px;
+          line-height: var(--rc-input-height);
+          font-size: var(--rc-input-font-size);
+          border-radius: var(--rc-border-radius);
           padding: 0 0 0 8px;
         }
 
         .work-section .time-unit {
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
         }
 
         .work-section .time-value {
@@ -460,28 +554,28 @@
         }
 
         .work-section .chip {
-          height: 44px;
-          border-radius: 10px;
+          height: var(--rc-input-height);
+          border-radius: var(--rc-border-radius);
           padding: 0 12px;
-          font-size: 16px;
-          line-height: 44px;
+          font-size: var(--rc-input-font-size);
+          line-height: var(--rc-input-height);
           align-items: center;
         }
 
         .work-section .amountField {
-          height: 44px;
+          height: var(--rc-input-height);
         }
 
         .work-section .amountField .amount {
-          height: 44px;
-          border-radius: 10px;
+          height: var(--rc-input-height);
+          border-radius: var(--rc-border-radius);
         }
 
         .work-section .amountField .amount input[type="text"] {
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
           padding: 0 0 0 12px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
         }
 
         .work-section .secondary-title {
@@ -537,12 +631,12 @@
         }
 
         .salary-select {
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
           padding: 0 12px;
-          font-size: 16px;
-          border-radius: 10px;
-          border: 1px solid #ADAEB9;
+          font-size: var(--rc-input-font-size);
+          border-radius: var(--rc-border-radius);
+          border: 1px solid var(--rc-border-color);
           background-color: #fff;
           cursor: pointer;
           min-width: 191px;
@@ -562,16 +656,16 @@
           display: flex;
           align-items: center;
           gap: 0;
-          height: 44px;
+          height: var(--rc-input-height);
           flex: 0 0 auto;
         }
 
         .salary-amount-input {
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
           padding: 0 12px;
-          font-size: 16px;
-          border: 1px solid #ADAEB9;
+          font-size: var(--rc-input-font-size);
+          border: 1px solid var(--rc-border-color);
           border-radius: 10px 0 0 10px;
           box-sizing: border-box;
           width: 337px;
@@ -580,13 +674,13 @@
         .salary-unit {
           display: flex;
           align-items: center;
-          height: 44px;
+          height: var(--rc-input-height);
           padding: 0 12px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           color: #777;
           white-space: nowrap;
           background-color: #f5f5f5;
-          border: 1px solid #ADAEB9;
+          border: 1px solid var(--rc-border-color);
           border-left: none;
           border-radius: 0 10px 10px 0;
           box-sizing: border-box;
@@ -603,7 +697,7 @@
         }
 
         .salary-extra-wrap .chip2 {
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
         }
 
         /* 근무정보 섹션 */
@@ -667,7 +761,7 @@
           width: 100%;
           float: left;
           margin-top: 15px;
-          border: 1px solid #ADAEB9;
+          border: 1px solid var(--rc-border-color);
           min-height: 100px;
           background-color: #fff;
           padding: 10px;
@@ -727,14 +821,14 @@
 
         .hash-preset-btn .btn {
           display: inline-block;
-          height: 44px;
+          height: var(--rc-input-height);
           line-height: 42px;
           padding: 0 16px;
-          border: 1px solid #ADAEB9;
-          border-radius: 10px;
+          border: 1px solid var(--rc-border-color);
+          border-radius: var(--rc-border-radius);
           background-color: #fff;
           color: #555;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           cursor: pointer;
           transition: all 0.2s;
           white-space: nowrap;
@@ -742,9 +836,9 @@
 
         /* 선택된 태그 강조 */
         .hash-preset-btn input[type="checkbox"]:checked+.btn {
-          background-color: #57CCAF;
+          background-color: var(--rc-color-primary-light);
           color: #fff;
-          border-color: #57CCAF;
+          border-color: var(--rc-color-primary-light);
         }
 
         /* + 버튼 */
@@ -763,31 +857,31 @@
         }
 
         .hash-direct-input {
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
           padding: 0 12px;
-          font-size: 16px;
-          border: 1px solid #ADAEB9;
-          border-radius: 10px;
+          font-size: var(--rc-input-font-size);
+          border: 1px solid var(--rc-border-color);
+          border-radius: var(--rc-border-radius);
           width: 200px;
           box-sizing: border-box;
         }
 
         .hash-direct-input:focus {
-          border-color: #ADAEB9 !important;
+          border-color: var(--rc-border-color) !important;
           box-shadow: none !important;
           outline: none;
         }
 
         .hash-confirm-btn {
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
           padding: 0 24px;
-          font-size: 16px;
-          background-color: #57CCAF;
+          font-size: var(--rc-input-font-size);
+          background-color: var(--rc-color-primary-light);
           color: #fff;
           border: none;
-          border-radius: 10px;
+          border-radius: var(--rc-border-radius);
           cursor: pointer;
         }
 
@@ -810,12 +904,12 @@
         .extra-agree-wrap .form-checkbox input[type="checkbox"] {
           width: 18px;
           height: 18px;
-          accent-color: #57CCAF;
+          accent-color: var(--rc-color-primary-light);
           cursor: pointer;
         }
 
         .extra-agree-wrap .form-checkbox .label {
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           color: #555;
         }
 
@@ -824,7 +918,7 @@
           height: 50px;
           min-width: 80px;
           line-height: 48px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           border-radius: 8px;
           box-sizing: border-box;
           padding: 0 12px;
@@ -865,7 +959,7 @@
           flex: 0 0 auto;
           margin: 0;
           padding: 0 4px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           font-weight: 500;
           height: 50px;
           display: flex;
@@ -893,9 +987,9 @@
         .extra-section .age-select {
           height: 50px;
           line-height: 48px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           border-radius: 8px;
-          border: 1px solid #ADAEB9;
+          border: 1px solid var(--rc-border-color);
           padding: 0 12px;
           opacity: initial;
           box-sizing: border-box;
@@ -916,7 +1010,7 @@
           cursor: pointer;
 
           background-color: #f5f5f5;
-          border-radius: 10px;
+          border-radius: var(--rc-border-radius);
           overflow: hidden;
           aspect-ratio: 1;
           float: none;
@@ -994,7 +1088,7 @@
 
         .pic-help-notice {
           display: block;
-          color: #1B9D7D;
+          color: var(--rc-color-primary-dark);
         }
 
         /* 섹션 레이아웃 */
@@ -1015,7 +1109,7 @@
           color: #222;
           margin-bottom: 30px;
           padding-bottom: 15px;
-          border-bottom: 3px solid #31A182;
+          border-bottom: 3px solid var(--rc-color-primary);
           letter-spacing: -0.5px;
         }
 
@@ -1038,10 +1132,10 @@
 
         .char-count {
           font-size: 15px;
-          color: #ADAEB9;
+          color: var(--rc-border-color);
           white-space: nowrap;
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
           display: flex;
           align-items: center;
         }
@@ -1051,8 +1145,8 @@
         .addition-info-form .recruit-range .flatpickr-input[type=text],
         .addition-info-form .recruit-range input.flatpickr-input {
           width: 580px;
-          height: 44px;
-          line-height: 44px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
         }
 
         .addition-info-form .recruit-range {
@@ -1076,7 +1170,7 @@
         .work-type-grid .form-toggle-btn2 .btn {
           min-width: unset;
           width: 100%;
-          height: 44px;
+          height: var(--rc-input-height);
           line-height: 42px;
           font-size: 17px;
           padding: 0;
@@ -1100,13 +1194,13 @@
           right: 12px;
           top: 50%;
           transform: translateY(-50%);
-          font-size: 16px;
-          color: #ADAEB9;
+          font-size: var(--rc-input-font-size);
+          color: var(--rc-border-color);
           pointer-events: none;
         }
 
         .fixed {
-          color: #F86048;
+          color: var(--rc-color-danger);
         }
 
         .work-section .form-toggle-btn2 .btn.benefit-label {
@@ -1206,7 +1300,7 @@
           min-width: 245px;
           height: 50px;
           padding: 0 15px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           line-height: 43px;
         }
 
@@ -1221,7 +1315,7 @@
 
         /* 추가정보 섹션 내 체크박스 크기 확대 */
         .extra-section .form-group .form-checkbox .label {
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           line-height: 1.5;
         }
 
@@ -1238,15 +1332,15 @@
         /* 근무조건 섹션 - 근무형태 토글 버튼 크기 */
         .work-section .work-type-group .form-toggle-btn2 .btn {
           min-width: 184px;
-          height: 44px;
+          height: var(--rc-input-height);
           padding: 0 15px;
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           line-height: 43px;
         }
 
         /* 근무조건 섹션 - 근무형태 체크박스 */
         .work-section .work-type-group .form-checkbox .label {
-          font-size: 16px;
+          font-size: var(--rc-input-font-size);
           line-height: 1.5;
         }
 
@@ -1268,7 +1362,7 @@
           text-align: center;
           border: 1px solid #d5d8df;
           border-radius: 5px;
-          color: #1B9D7D;
+          color: var(--rc-color-primary-dark);
           font-size: 20px;
           font-weight: 500;
           text-decoration: none;
@@ -1405,90 +1499,6 @@
 
                       </div>
                     </div>
-                    <script>
-                      (function() {
-                        function chgMonth(instance) {
-                          var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                            month = Number(instance.currentMonth) + 1,
-                            year = instance.currentYear;
-                          $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
-                        }
-
-                        window.addEventListener('DOMContentLoaded', function() {
-                          if (typeof flatpickr == 'undefined') return false;
-                          //달력 생성
-                          flatpickr('.recruit-range .js-datepicker2', {
-                            mode: 'range',
-                            locale: 'ko',
-                            dateFormat: 'Y-m-d',
-                            ariaDateFormat: 'Y-m-d',
-                            altFormat: 'Y.m.d',
-                            altInput: true,
-                            <?php if ($_GET["gbn"] == "re") { ?>
-                              defaultDate: ['<?= Date("Y-m-d") ?>', '<?= Date("Y-m-d", strtotime("2 months")) ?>'],
-                            <?php } else { ?>
-                              defaultDate: ['<?= $info["rc_sdate"] != "" && get_date($info["rc_sdate"]) < Date("Y-m-d") ? Date("Y-m-d") : get_date($info["rc_sdate"]) ?>', '<?= get_date($info["rc_edate"]) ?>'],
-                            <?php } ?>
-                            nextArrow: '<span class="sr-text">다음</span>',
-                            prevArrow: '<span class="sr-text">이전</span>',
-                            disableMobile: true,
-                            minDate: 'today',
-                            maxDate: new Date().fp_incr(60), //2개월 60일 제한
-                            onMonthChange: function(selectedDates, dateStr, instance) {
-                              chgMonth(this);
-                            },
-                            onYearChange: function(selectedDates, dateStr, instance) {
-                              chgMonth(this);
-                            },
-                            onDayCreate: function(dObj, dStr, fp, dayElem) {
-                              var day = new Date(dayElem.getAttribute('aria-label')).getDay();
-                              if (day == 0) {
-                                dayElem.classList.add('sun');
-                              } else if (day == 6) {
-                                dayElem.classList.add('sat');
-                              }
-                            },
-                            onChange: function(selectedDates, dateStr, instance) {
-                              // 선택된 날짜를 커스텀 포맷으로 altInput에 표시
-                              if (selectedDates.length === 2) {
-                                var startDate = new Date(selectedDates[0]);
-                                var endDate = new Date(selectedDates[1]);
-                                var startFormatted = startDate.getFullYear() + '.' +
-                                  String(startDate.getMonth() + 1).padStart(2, '0') + '.' +
-                                  String(startDate.getDate()).padStart(2, '0');
-                                var endFormatted = endDate.getFullYear() + '.' +
-                                  String(endDate.getMonth() + 1).padStart(2, '0') + '.' +
-                                  String(endDate.getDate()).padStart(2, '0');
-                                if (this.altInput) {
-                                  this.altInput.value = '[모집시작일] ' + startFormatted + ' ~ [모집종료일] ' + endFormatted;
-                                }
-                              }
-                            },
-                            onReady: function() {
-                              chgMonth(this);
-                              // altInput 스타일 및 초기값 포맷팅
-                              if (this.altInput) {
-                                this.altInput.placeholder = '[모집시작일] YYYY.MM.DD ~ [모집종료일] YYYY.MM.DD';
-                                this.altInput.style.height = '44px';
-                                this.altInput.style.lineHeight = '44px';
-                                // 초기값이 있으면 커스텀 포맷으로 표시
-                                if (this.selectedDates && this.selectedDates.length === 2) {
-                                  var startDate = new Date(this.selectedDates[0]);
-                                  var endDate = new Date(this.selectedDates[1]);
-                                  var startFormatted = startDate.getFullYear() + '.' +
-                                    String(startDate.getMonth() + 1).padStart(2, '0') + '.' +
-                                    String(startDate.getDate()).padStart(2, '0');
-                                  var endFormatted = endDate.getFullYear() + '.' +
-                                    String(endDate.getMonth() + 1).padStart(2, '0') + '.' +
-                                    String(endDate.getDate()).padStart(2, '0');
-                                  this.altInput.value = '[모집시작일] ' + startFormatted + ' ~ [모집종료일] ' + endFormatted;
-                                }
-                              }
-                            }
-                          });
-                        });
-                      }());
-                    </script>
                   </div>
 
                   <div class="form-row">
@@ -1682,106 +1692,6 @@
                     </div>
                   </div>
                 </div>
-                <script>
-                  (function() {
-                    function chgMonth(instance) {
-                      var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
-                        month = Number(instance.currentMonth) + 1,
-                        year = instance.currentYear;
-                      $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
-                    }
-
-                    window.addEventListener('DOMContentLoaded', function() {
-                      if (typeof flatpickr == 'undefined') return false;
-
-                      //달력 생성
-                      <?php
-                      $rc_work_dt_defaultDate = $info["rc_work_dt"];
-                      if ($_GET["gbn"] == "re") {
-                        $rc_work_dt_defaultDate = Date("Y-m-d");
-                      }
-                      ?>
-                      flatpickr('.starting-date .js-datepicker', {
-                        locale: 'ko',
-                        dateFormat: 'Y-m-d',
-                        ariaDateFormat: 'Y-m-d',
-                        altFormat: 'Y.m.d',
-                        defaultDate: '<?= $rc_work_dt_defaultDate ?>',
-                        altInput: true,
-                        nextArrow: '<span class="sr-text">다음</span>',
-                        prevArrow: '<span class="sr-text">이전</span>',
-                        disableMobile: true,
-                        position: 'bottom auto',
-                        monthSelectorType: 'select', // 월 선택 활성화
-                        //static: true, // 드롭다운 대신 정적 셀렉터
-                        yearSelectorType: 'select',
-                        onMonthChange: function(selectedDates, dateStr, instance) {
-                          chgMonth(this);
-                        },
-                        onDayCreate: function(dObj, dStr, fp, dayElem) {
-                          var day = new Date(dayElem.getAttribute('aria-label')).getDay();
-                          if (day == 0) {
-                            dayElem.classList.add('sun');
-                          } else if (day == 6) {
-                            dayElem.classList.add('sat');
-                          }
-                        },
-                        onReady: function(selectedDates, dateStr, instance) {
-                          //오늘버튼 추가
-                          const todayButton = document.createElement("button");
-                          todayButton.type = "button";
-                          todayButton.textContent = "오늘";
-                          todayButton.className = "flatpickr-today-button";
-                          todayButton.style = "position: absolute; top: 29px; right: 83px; font-size: 14px; padding: 2px 5px; background-color: #fff; border: 1px solid #ccc; color: #777;";
-                          todayButton.addEventListener('click', function() {
-                            const today = new Date();
-                            instance.setDate(new Date());
-
-                            // flatpickr 인터페이스 내 연도 및 월을 오늘 날짜로 업데이트
-                            instance.currentYear = today.getFullYear();
-                            instance.currentMonth = today.getMonth();
-                            instance.redraw(); // 달력 갱신
-
-                            $(this).parent().find('.month').html((today.getMonth() + 1) + '<small>월</small>');
-                            $(this).parent().find('.year').html(today.getFullYear());
-                          });
-                          instance.calendarContainer.appendChild(todayButton);
-
-                          /* //년도선택 시 달력은 변하는데, 달력위의 년도값이 변하지 않아서 일단 remark
-                          //년도선택 추가
-                          const yearSelect = document.createElement("select");
-                          yearSelect.className = "flatpickr-year-select";
-
-                          // 현재 연도를 구하고, 전후 10년을 범위로 설정
-                          const currentYear = new Date().getFullYear();
-                          for (let i = currentYear - 10; i <= currentYear + 10; i++) {
-                            const option = document.createElement("option");
-                            option.value = i;
-                            option.text = i;
-                            if (i === currentYear) {
-                              option.selected = true;
-                            }
-                            yearSelect.appendChild(option);
-                          }
-
-                          yearSelect.addEventListener('change', function() {
-                            instance.currentYear = parseInt(this.value, 10);
-                            instance.redraw();
-                          });
-
-                          // 달력 컨테이너에 연도 선택 추가
-                          instance.calendarContainer.appendChild(yearSelect);
-                          */
-
-                          chgMonth(this);
-                        }
-                        //onReady: function () {
-                        //  chgMonth(this);
-                        //}
-                      });
-                    });
-                  }());
-                </script>
 
                 <div class="form-row work-section-row salary-row">
                   <p class="form-label">급여형태</p>
@@ -1824,7 +1734,7 @@
                         gap: 8px;
                         width: 100%;
                         background: #fff;
-                        border: 1px solid #ADAEB9;
+                        border: 1px solid var(--rc-border-color);
                         border-radius: 999px;
                         padding: 10px 12px;
                         cursor: pointer;
@@ -1833,7 +1743,7 @@
                       }
 
                       .chip.on {
-                        background: #57CCAF;
+                        background: var(--rc-color-primary-light);
                         border: 1px solid #57CCAF;
                         color: #fff;
                       }
@@ -1898,7 +1808,9 @@
                         outline: none;
                       }
 
-                      .amountField .amount input[type="text"]:focus {}
+                      .amountField .amount input[type="text"]:focus {
+                        outline: none;
+                      }
 
 
 
@@ -2489,46 +2401,18 @@
                   <p class="form-label">첨부사진</p>
                   <div class="value">
                     <div class="form-pic-group">
+                      <?php foreach (range(1, 4) as $n) : ?>
                       <label class="form-pic">
-                        <input type="file" name="rc_img1" id="rc_img1" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(1);">
+                        <input type="file" name="rc_img<?= $n ?>" id="rc_img<?= $n ?>" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(<?= $n ?>);">
                         <span class="label pic-label"></span>
-                        <span class="preview" id="prev1">
-                          <?php if (getData($info, "rc_img1") != "") : ?>
-                            <img id="imgbox1" src="<?= getData($info, "rc_img1") ?>" class="has-image" />
-                            <input type='hidden' name='rc_img1_ori' id='rc_img1_ori' value='<?= getData($info, "rc_img1") ?>' />
+                        <span class="preview" id="prev<?= $n ?>">
+                          <?php if (getData($info, "rc_img" . $n) != "") : ?>
+                            <img id="imgbox<?= $n ?>" src="<?= getData($info, "rc_img" . $n) ?>" class="has-image" />
+                            <input type='hidden' name='rc_img<?= $n ?>_ori' id='rc_img<?= $n ?>_ori' value='<?= getData($info, "rc_img" . $n) ?>' />
                           <?php endif; ?>
                         </span>
                       </label>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img2" id="rc_img2" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(2);">
-                        <span class="label pic-label"></span>
-                        <span class="preview" id="prev2">
-                          <?php if (getData($info, "rc_img2") != "") : ?>
-                            <img id="imgbox2" src="<?= getData($info, "rc_img2") ?>" class="has-image" />
-                            <input type='hidden' name='rc_img2_ori' id='rc_img2_ori' value='<?= getData($info, "rc_img2") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img3" id="rc_img3" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(3);">
-                        <span class="label pic-label"></span>
-                        <span class="preview" id="prev3">
-                          <?php if (getData($info, "rc_img3") != "") : ?>
-                            <img id="imgbox3" src="<?= getData($info, "rc_img3") ?>" class="has-image" />
-                            <input type='hidden' name='rc_img3_ori' id='rc_img3_ori' value='<?= getData($info, "rc_img3") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
-                      <label class="form-pic">
-                        <input type="file" name="rc_img4" id="rc_img4" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(4);">
-                        <span class="label pic-label"></span>
-                        <span class="preview" id="prev4">
-                          <?php if (getData($info, "rc_img4") != "") : ?>
-                            <img id="imgbox4" src="<?= getData($info, "rc_img4") ?>" class="has-image" />
-                            <input type='hidden' name='rc_img4_ori' id='rc_img4_ori' value='<?= getData($info, "rc_img4") ?>' />
-                          <?php endif; ?>
-                        </span>
-                      </label>
+                      <?php endforeach; ?>
                     </div>
                   </div>
                 </div>
@@ -2709,7 +2593,8 @@
     }
   }
 
-  $(document).ready(function() {
+  // 법률 팝업 초기화
+  function initLawPopup() {
     $('.tab1').click(function() {
       $('.tab_menu > div').removeClass('on');
       $('.tab_content > div').removeClass('on');
@@ -2734,7 +2619,7 @@
         container.removeClass('on');
       }
     });
-  });
+  }
 </script>
 
 <script>
@@ -2781,10 +2666,10 @@
     document.body.style.overflow = '';
   }
 
-  // 기존 selectAddrInfo 함수를 recruit_write용으로 재정의
-  // 이렇게 하면 다른 페이지의 함수와 충돌하지 않음
-  // 페이지 로드 후 실행되도록 $(document).ready() 사용
-  $(document).ready(function() {
+  // 주소 선택 영역 초기화 (MutationObserver 및 주소 변경 처리)
+  function initAddressArea() {
+    // 기존 selectAddrInfo 함수를 recruit_write용으로 재정의
+    // 이렇게 하면 다른 페이지의 함수와 충돌하지 않음
     if (window.location.pathname.indexOf('/compage/recruit_write') !== -1) {
       window.selectAddrInfo = selectAddrInfoRecruit;
 
@@ -2826,20 +2711,11 @@
         });
       }
     }
-  });
+  }
 </script>
 
 <style>
   <?php
-  // SNS 로그인 여부 확인
-  $mem_info_di = isset($info["mem_info"]["mm_di"]) ? $info["mem_info"]["mm_di"] : null;
-  $mem_info_join_type = isset($info["mem_info"]["mm_join_type"]) ? $info["mem_info"]["mm_join_type"] : null;
-  $is_sns_login = !empty($mem_info_join_type) && in_array(strtoupper($mem_info_join_type), ["KAKAO", "APPLE", "NAVER"]);
-  // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
-  $is_pass_authenticated = ($mem_info_di != null && (strpos($mem_info_di, "MC0") === 0 || $is_sns_login));
-  // 기업정보 인증 여부 확인
-  $is_comp_authenticated = ($info != null && $info["mem_info"] != null && !empty($info["mem_info"]["mm_comp_num"]));
-
   if ($info == null || $info["mem_info"] == null || (!$is_pass_authenticated || !$is_comp_authenticated)) {
   ?>#defaultDialog1 .btn-close-popup {
     display: none;
@@ -2865,18 +2741,10 @@
 </style>
 
 <script>
-  $(document).ready(function() {
+  // 폼 검증 및 메인 로직 초기화
+  function initFormValidation() {
 
     <?php
-    // SNS 로그인 여부 확인
-    $mem_info_di = isset($info["mem_info"]["mm_di"]) ? $info["mem_info"]["mm_di"] : null;
-    $mem_info_join_type = isset($info["mem_info"]["mm_join_type"]) ? $info["mem_info"]["mm_join_type"] : null;
-    $is_sns_login = !empty($mem_info_join_type) && in_array(strtoupper($mem_info_join_type), ["KAKAO", "APPLE", "NAVER"]);
-    // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
-    $is_pass_authenticated = ($mem_info_di != null && (strpos($mem_info_di, "MC0") === 0 || $is_sns_login));
-    // 기업정보 인증 여부 확인
-    $is_comp_authenticated = ($info != null && $info["mem_info"] != null && !empty($info["mem_info"]["mm_comp_num"]));
-
     // recruit_list.php에서 인증 후 이동한 경우이므로 자동 팝업 표시하지 않음
     // (recruit_list.php에서 이미 팝업을 표시했으므로)
     ?>
@@ -3298,7 +3166,24 @@
         $(this).val("00");
       }
     });
-  }); //ready
+  }
+
+  // 달력의 월/년 표시를 커스터마이징하는 전역 함수
+  // 모집일 달력과 근무시작일 달력 모두에서 사용됨
+  function chgMonth(instance) {
+    var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
+      month = Number(instance.currentMonth) + 1,
+      year = instance.currentYear;
+    $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+  }
+
+  // 페이지 로드 시 모든 초기화 함수 실행
+  $(document).ready(function() {
+    initLawPopup();
+    initAddressArea();
+    initFormValidation();
+  });
+
   // 이미지 삭제 버튼 추가 함수
   function fDelbtnAdd(arg) {
     var imgHtml = '<a href="javascript:if(confirm(\'이미지를 삭제하시겠습니까?\')){ $(\'#rc_img' + arg + '\').val(\'\'); $(\'#rc_img' + arg + '_ori\').val(\'\'); $(\'#prev' + arg + ' img\').hide(); } " id="delimgbtn' + arg + '" style="display:none; position: absolute; top: 5px; right: 5px; overflow: hidden; border-radius: 11px; width: 23px; height: 24px; z-index: 10;">';
@@ -3550,6 +3435,155 @@
       }
     });
   }
+
+  // 달력 초기화 함수들 (HTML 중간에 분산되어 있던 스크립트를 여기로 통합)
+
+  // 모집일 달력 초기화
+  function initRecruitDatePicker() {
+    window.addEventListener('DOMContentLoaded', function() {
+      if (typeof flatpickr == 'undefined') return false;
+      //달력 생성
+      flatpickr('.recruit-range .js-datepicker2', {
+        mode: 'range',
+        locale: 'ko',
+        dateFormat: 'Y-m-d',
+        ariaDateFormat: 'Y-m-d',
+        altFormat: 'Y.m.d',
+        altInput: true,
+        <?php if ($_GET["gbn"] == "re") { ?>
+          defaultDate: ['<?= Date("Y-m-d") ?>', '<?= Date("Y-m-d", strtotime("2 months")) ?>'],
+        <?php } else { ?>
+          defaultDate: ['<?= $info["rc_sdate"] != "" && get_date($info["rc_sdate"]) < Date("Y-m-d") ? Date("Y-m-d") : get_date($info["rc_sdate"]) ?>', '<?= get_date($info["rc_edate"]) ?>'],
+        <?php } ?>
+        nextArrow: '<span class="sr-text">다음</span>',
+        prevArrow: '<span class="sr-text">이전</span>',
+        disableMobile: true,
+        minDate: 'today',
+        maxDate: new Date().fp_incr(60), //2개월 60일 제한
+        onMonthChange: function(selectedDates, dateStr, instance) {
+          chgMonth(this);
+        },
+        onYearChange: function(selectedDates, dateStr, instance) {
+          chgMonth(this);
+        },
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+          var day = new Date(dayElem.getAttribute('aria-label')).getDay();
+          if (day == 0) {
+            dayElem.classList.add('sun');
+          } else if (day == 6) {
+            dayElem.classList.add('sat');
+          }
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+          // 선택된 날짜를 커스텀 포맷으로 altInput에 표시
+          if (selectedDates.length === 2) {
+            var startDate = new Date(selectedDates[0]);
+            var endDate = new Date(selectedDates[1]);
+            var startFormatted = startDate.getFullYear() + '.' +
+              String(startDate.getMonth() + 1).padStart(2, '0') + '.' +
+              String(startDate.getDate()).padStart(2, '0');
+            var endFormatted = endDate.getFullYear() + '.' +
+              String(endDate.getMonth() + 1).padStart(2, '0') + '.' +
+              String(endDate.getDate()).padStart(2, '0');
+            if (this.altInput) {
+              this.altInput.value = '[모집시작일] ' + startFormatted + ' ~ [모집종료일] ' + endFormatted;
+            }
+          }
+        },
+        onReady: function() {
+          chgMonth(this);
+          // altInput 스타일 및 초기값 포맷팅
+          if (this.altInput) {
+            this.altInput.placeholder = '[모집시작일] YYYY.MM.DD ~ [모집종료일] YYYY.MM.DD';
+            this.altInput.style.height = '44px';
+            this.altInput.style.lineHeight = '44px';
+            // 초기값이 있으면 커스텀 포맷으로 표시
+            if (this.selectedDates && this.selectedDates.length === 2) {
+              var startDate = new Date(this.selectedDates[0]);
+              var endDate = new Date(this.selectedDates[1]);
+              var startFormatted = startDate.getFullYear() + '.' +
+                String(startDate.getMonth() + 1).padStart(2, '0') + '.' +
+                String(startDate.getDate()).padStart(2, '0');
+              var endFormatted = endDate.getFullYear() + '.' +
+                String(endDate.getMonth() + 1).padStart(2, '0') + '.' +
+                String(endDate.getDate()).padStart(2, '0');
+              this.altInput.value = '[모집시작일] ' + startFormatted + ' ~ [모집종료일] ' + endFormatted;
+            }
+          }
+        }
+      });
+    });
+  }
+
+  // 근무시작일 달력 초기화
+  function initStartingDatePicker() {
+    window.addEventListener('DOMContentLoaded', function() {
+      if (typeof flatpickr == 'undefined') return false;
+
+      //달력 생성
+      <?php
+      $rc_work_dt_defaultDate = $info["rc_work_dt"];
+      if ($_GET["gbn"] == "re") {
+        $rc_work_dt_defaultDate = Date("Y-m-d");
+      }
+      ?>
+      flatpickr('.starting-date .js-datepicker', {
+        locale: 'ko',
+        dateFormat: 'Y-m-d',
+        ariaDateFormat: 'Y-m-d',
+        altFormat: 'Y.m.d',
+        defaultDate: '<?= $rc_work_dt_defaultDate ?>',
+        altInput: true,
+        nextArrow: '<span class="sr-text">다음</span>',
+        prevArrow: '<span class="sr-text">이전</span>',
+        disableMobile: true,
+        position: 'bottom auto',
+        monthSelectorType: 'select', // 월 선택 활성화
+        //static: true, // 드롭다운 대신 정적 셀렉터
+        yearSelectorType: 'select',
+        onMonthChange: function(selectedDates, dateStr, instance) {
+          chgMonth(this);
+        },
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+          var day = new Date(dayElem.getAttribute('aria-label')).getDay();
+          if (day == 0) {
+            dayElem.classList.add('sun');
+          } else if (day == 6) {
+            dayElem.classList.add('sat');
+          }
+        },
+        onReady: function(selectedDates, dateStr, instance) {
+          //오늘버튼 추가
+          const todayButton = document.createElement("button");
+          todayButton.type = "button";
+          todayButton.textContent = "오늘";
+          todayButton.className = "flatpickr-today-button";
+          todayButton.style = "position: absolute; top: 29px; right: 83px; font-size: 14px; padding: 2px 5px; background-color: #fff; border: 1px solid #ccc; color: #777;";
+          todayButton.addEventListener('click', function() {
+            const today = new Date();
+            instance.setDate(new Date());
+
+            // flatpickr 인터페이스 내 연도 및 월을 오늘 날짜로 업데이트
+            instance.currentYear = today.getFullYear();
+            instance.currentMonth = today.getMonth();
+            instance.redraw(); // 달력 갱신
+
+            $(this).parent().find('.month').html((today.getMonth() + 1) + '<small>월</small>');
+            $(this).parent().find('.year').html(today.getFullYear());
+          });
+          instance.calendarContainer.appendChild(todayButton);
+
+          chgMonth(this);
+        }
+      });
+    });
+  }
+
+  // 달력 초기화 함수 호출 추가
+  $(document).ready(function() {
+    initRecruitDatePicker();
+    initStartingDatePicker();
+  });
 </script>
 
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>
