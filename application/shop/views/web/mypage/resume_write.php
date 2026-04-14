@@ -46,6 +46,8 @@
                     --rw-label-width: 255px;
                     --rw-label-font-size: 20px;
                     --rw-row-padding: 20px;
+                    --rw-section-padding: 20px;
+                    --rw-section-padding-left: 44px;
                     --rw-border-color: #D8D8D8;
                     --rw-basic-group-width: 650px;
                 }
@@ -82,11 +84,13 @@
                 }
 
                 /* 4개 섹션 공통 래퍼 */
+                /* 섹션 내용: 좌측 들여쓰기 효과 (padding-left: 44px) */
                 .rw-basic-info,
                 .rw-work-condition,
                 .rw-intro-strength,
                 .rw-career {
-                    padding: 20px 24px;
+                    padding: var(--rw-section-padding) 24px;
+                    padding-left: var(--rw-section-padding-left);
                 }
 
                 /* 공통 form-row - 4개 섹션 모두 동일한 기본 구조 */
