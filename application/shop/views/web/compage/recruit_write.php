@@ -356,7 +356,37 @@
           margin-top: 4px;
         }
 
-        /* 근무조건 섹션 */
+        /* ====================
+        근무조건 섹션 
+        ======================
+        */
+        /* 근무조건 섹션 공통 row 스타일 */
+        .work-section-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          padding: 18px 0;
+          border-bottom: 1px solid #eee;
+        }
+
+        .work-section-row .form-label {
+          margin-bottom: 0;
+          /* .form-table .form-label 스타일 상속 */
+          width: 257px;
+          flex: 0 0 255px;
+          font-size: 20px;
+        }
+
+        .work-section-row .form-group,
+        .work-section-row .value {
+          flex: 1;
+          margin-top: 0;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          align-items: flex-start;
+        }
+
         #work_type_memo {
           display: none;
           margin-left: 20px;
@@ -520,7 +550,44 @@
           border-radius: 50%;
         }
 
-        /* 근무조건 섹션 UI 개선 */
+        /* 근무조건 섹션 - 근무형태 value 너비 제한 */
+        .work-section .value>.form-group {
+          width: 100%;
+        }
+
+        /* 근무조건 섹션 - 근무형태 토글 버튼 크기 */
+        .work-section .work-type-group .form-toggle-btn2 .btn {
+          min-width: 184px;
+          height: var(--rc-input-height);
+          padding: 0 15px;
+          font-size: var(--rc-input-font-size);
+          line-height: 66px;
+          color: #000;
+          border-color: var(--rc-border-color);
+        }
+
+        .work-section .work-type-group .form-toggle-btn2 input:checked~.btn {
+          color: #fff;
+          border-color: transparent;
+          background-color: #57CCAF;
+        }
+
+
+        /* 근무조건 섹션 - 근무형태 체크박스 */
+        .work-section .work-type-group .form-checkbox .label {
+          font-size: var(--rc-input-font-size);
+          line-height: 1.5;
+        }
+
+        .work-section .work-type-group .form-checkbox .label:before {
+          width: 1.5em;
+          height: 1.5em;
+        }
+
+        /* ================================================
+         근무조건 섹션 UI 개선 
+         =================================================
+         */
         .work-section .form-toggle-btn2 .btn {
           height: var(--rc-input-height);
           line-height: 42px;
@@ -707,7 +774,10 @@
           font-size: var(--rc-input-font-size);
         }
 
-        /* 근무정보 섹션 */
+        /* =================================
+          근무정보 섹션 
+          ================================
+        */
         .input-wide {
           width: 580px;
         }
@@ -748,7 +818,98 @@
           display: none;
         }
 
-        /* 업무정보 섹션 */
+        /* 근무정보 섹션 - 공고명 글자수 카운터 */
+        .rc-name-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .char-count {
+          font-size: 15px;
+          color: var(--rc-border-color);
+          white-space: nowrap;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
+          display: flex;
+          align-items: center;
+        }
+
+        /* 근무정보 섹션 - 모집일 너비 통일 */
+        .addition-info-form .noti_duration .form-text,
+        .addition-info-form .recruit-range .flatpickr-input[type=text],
+        .addition-info-form .recruit-range input.flatpickr-input {
+          width: 580px;
+          height: var(--rc-input-height);
+          line-height: var(--rc-input-height);
+        }
+
+        .addition-info-form .recruit-range {
+          width: 580px;
+          flex: 0 0 580px;
+        }
+
+        /* 근무정보 섹션 - 업직종 5열 grid */
+        .work-type-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 8px;
+          width: 580px;
+        }
+
+        .work-type-grid .form-toggle-btn2 {
+          margin: 0;
+          width: 100%;
+        }
+
+        .work-type-grid .form-toggle-btn2 .btn {
+          min-width: unset;
+          width: 100%;
+          height: var(--rc-input-height);
+          line-height: 66px;
+          font-size: var(--rc-input-font-size);
+          padding: 0;
+          box-sizing: border-box;
+          border-radius: var(--rc-border-radius);
+          color: #000;
+          border-color: var(--rc-border-color);
+        }
+
+        /* 근무정보 섹션 - 근무지 검색 아이콘 */
+        .addr-search-wrap {
+          position: relative;
+          display: block;
+          width: 580px;
+        }
+
+        .addr-search-wrap input {
+          width: 100%;
+          padding-right: 40px;
+        }
+
+        .addr-search-icon {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: var(--rc-input-font-size);
+          color: #222;
+          pointer-events: none;
+        }
+
+        .fixed {
+          color: var(--rc-color-danger);
+        }
+
+        .work-section .form-toggle-btn2 .btn.benefit-label {
+          height: 96px;
+          width: 125px;
+        }
+
+        /* ===============================================
+          업무정보 섹션 
+        ================================================
+        */
         .desc-value {
           min-height: 398px;
           height: auto;
@@ -1132,93 +1293,6 @@
           padding-left: 0;
         }
 
-        /* 근무정보 섹션 - 공고명 글자수 카운터 */
-        .rc-name-row {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-        }
-
-        .char-count {
-          font-size: 15px;
-          color: var(--rc-border-color);
-          white-space: nowrap;
-          height: var(--rc-input-height);
-          line-height: var(--rc-input-height);
-          display: flex;
-          align-items: center;
-        }
-
-        /* 근무정보 섹션 - 모집일 너비 통일 */
-        .addition-info-form .noti_duration .form-text,
-        .addition-info-form .recruit-range .flatpickr-input[type=text],
-        .addition-info-form .recruit-range input.flatpickr-input {
-          width: 580px;
-          height: var(--rc-input-height);
-          line-height: var(--rc-input-height);
-        }
-
-        .addition-info-form .recruit-range {
-          width: 580px;
-          flex: 0 0 580px;
-        }
-
-        /* 근무정보 섹션 - 업직종 5열 grid */
-        .work-type-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 8px;
-          width: 580px;
-        }
-
-        .work-type-grid .form-toggle-btn2 {
-          margin: 0;
-          width: 100%;
-        }
-
-        .work-type-grid .form-toggle-btn2 .btn {
-          min-width: unset;
-          width: 100%;
-          height: var(--rc-input-height);
-          line-height: 66px;
-          font-size: var(--rc-input-font-size);
-          padding: 0;
-          box-sizing: border-box;
-          border-radius: var(--rc-border-radius);
-          color: #000;
-          border-color: var(--rc-border-color);
-        }
-
-        /* 근무정보 섹션 - 근무지 검색 아이콘 */
-        .addr-search-wrap {
-          position: relative;
-          display: block;
-          width: 580px;
-        }
-
-        .addr-search-wrap input {
-          width: 100%;
-          padding-right: 40px;
-        }
-
-        .addr-search-icon {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: var(--rc-input-font-size);
-          color: #222;
-          pointer-events: none;
-        }
-
-        .fixed {
-          color: var(--rc-color-danger);
-        }
-
-        .work-section .form-toggle-btn2 .btn.benefit-label {
-          height: 96px;
-          width: 125px;
-        }
 
         /* 복리후생 섹션 */
         .services .value {
@@ -1265,36 +1339,8 @@
           margin-right: 0;
         }
 
-        /* 근무조건, 근무정보 버튼 동일 스타일 */
-        .work-section .form-toggle-btn2 .btn,
-        .addition-info-form .form-toggle-btn2 .btn {}
 
-        /* 근무조건 섹션 공통 row 스타일 */
-        .work-section-row {
-          display: flex;
-          align-items: flex-start;
-          gap: 20px;
-          padding: 18px 0;
-          border-bottom: 1px solid #eee;
-        }
 
-        .work-section-row .form-label {
-          margin-bottom: 0;
-          /* .form-table .form-label 스타일 상속 */
-          width: 257px;
-          flex: 0 0 255px;
-          font-size: 20px;
-        }
-
-        .work-section-row .form-group,
-        .work-section-row .value {
-          flex: 1;
-          margin-top: 0;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          align-items: flex-start;
-        }
 
         /* 추가정보 섹션 자식 요소들의 넓이 제한 */
         .extra-section .value>.form-group,
@@ -1344,39 +1390,7 @@
 
 
 
-        /* 근무조건 섹션 - 근무형태 value 너비 제한 */
-        .work-section .value>.form-group {
-          width: 100%;
-        }
 
-        /* 근무조건 섹션 - 근무형태 토글 버튼 크기 */
-        .work-section .work-type-group .form-toggle-btn2 .btn {
-          min-width: 184px;
-          height: var(--rc-input-height);
-          padding: 0 15px;
-          font-size: var(--rc-input-font-size);
-          line-height: 66px;
-          color: #000;
-          border-color: var(--rc-border-color);
-        }
-
-        .work-section .work-type-group .form-toggle-btn2 input:checked~.btn {
-          color: #fff;
-          border-color: transparent;
-          background-color: #57CCAF;
-        }
-
-
-        /* 근무조건 섹션 - 근무형태 체크박스 */
-        .work-section .work-type-group .form-checkbox .label {
-          font-size: var(--rc-input-font-size);
-          line-height: 1.5;
-        }
-
-        .work-section .work-type-group .form-checkbox .label:before {
-          width: 1.5em;
-          height: 1.5em;
-        }
 
         /* 상세등록 섹션 */
         .detail-register-section {
@@ -1423,6 +1437,10 @@
         .fa-calendar-check:before {
           font-size: 22px;
         }
+
+        /*============================================
+                    스타일 추가
+        ============================================*/
       </style>
       <div class="tab-panel on">
         <div class="manage-my-content">
@@ -1852,12 +1870,6 @@
                       .amountField .amount input[type="text"]:focus {
                         outline: none;
                       }
-
-
-
-
-
-
 
                       .unit {
                         white-space: nowrap;

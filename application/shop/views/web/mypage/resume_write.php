@@ -74,6 +74,11 @@
                     font-size: var(--rw-input-font-size);
                 }
 
+                /* 버튼 클릭 효과 */
+                .tab-panel.on .btn {
+                    transition: all 0.2s;
+                }
+
                 /* ============================================
                    공통 레이아웃 클래스 (핵심 리팩토링)
                    ============================================ */
@@ -176,9 +181,7 @@
                     width: 50%;
                 }
 
-                .tab-panel.on .btn {
-                    transition: all 0.2s;
-                }
+
 
                 /* ============================================
                    섹션별 오버라이드 (차이점만 정의)
@@ -425,6 +428,26 @@
                 .rw-salary-label p {
                     width: 100%;
                     font-weight: normal;
+                }
+
+                /* 희망지역 팝업 - PC 센터 모달 스타일 */
+                #changeArea .panel-container {
+                    max-width: 720px;
+                    width: 90vw;
+                    max-height: 88vh;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                }
+
+                #changeArea .panel-body {
+                    max-height: calc(86vh - 64px);
+                    overflow: auto;
+                }
+
+                .fixed {
+                    color: #e40d18;
+
                 }
 
                 /* ============================================
@@ -1006,25 +1029,7 @@
                     font-size: 16px;
                 }
 
-                /* 희망지역 팝업 - PC 센터 모달 스타일 */
-                #changeArea .panel-container {
-                    max-width: 720px;
-                    width: 90vw;
-                    max-height: 88vh;
-                    top: 50% !important;
-                    left: 50% !important;
-                    transform: translate(-50%, -50%) !important;
-                }
 
-                #changeArea .panel-body {
-                    max-height: calc(86vh - 64px);
-                    overflow: auto;
-                }
-
-                .fixed {
-                    color: #e40d18;
-
-                }
 
                 /* 상세등록 섹션 */
                 .detail-register-section {
@@ -1082,6 +1087,10 @@
                 .form-action-wrap .btn-round {
                     border-radius: var(--rw-border-radius);
                 }
+
+                /*============================================
+                   공통 스타일 추가
+                   ============================================*/
 
                 .form-text.js-datepicker,
                 .form-text.js-time,
