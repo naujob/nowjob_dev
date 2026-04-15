@@ -495,7 +495,7 @@ function formatPhoneNumber($number)
 
                         map = new kakao.maps.Map(mapContainer, {
                             center: coords,
-                            level: 3,
+                            level: 2,
                         });
 
                         marker = new kakao.maps.Marker({

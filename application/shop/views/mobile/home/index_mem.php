@@ -37,7 +37,7 @@ if ($g_ios_publish == true) {
         </div>
       </div>
       <div class="panel-footer">
-      <div class="sticky-bottom view-footer">
+        <div class="sticky-bottom view-footer">
           <button type="button" aria-controls="notice1Panel" onclick="setCookie('notice1Panel', 'hide', 1);return false;" class="btn btn-secondary js-toggle-panel">오늘 하루 열지 않기</button>
           <button type="button" aria-controls="notice1Panel" class="btn btn-primary js-toggle-panel">확인</button>
         </div>
@@ -101,7 +101,7 @@ if ($g_ios_publish == true) {
           },
         }, [
           addActiveClass,
-         // sliderDots,
+          // sliderDots,
           function autoplay(slider) {
             sliderAutoplay(slider, 4000, false);
           }
@@ -122,12 +122,14 @@ if ($g_ios_publish == true) {
       // 이미 초기화되었으면 스킵
       if (!hotSlider.__keenslider__) {
         var slider = new KeenSlider(hotSlider, {
-          loop: true,  // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
-          slides: { perView: 1 },
+          loop: true, // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
+          slides: {
+            perView: 1
+          },
           drag: true,
           dragMinDist: 0,
-          rubberband: true,  // 끝에서 탄력적인 바운스
-          renderMode: 'performance'  // 성능 최적화
+          rubberband: true, // 끝에서 탄력적인 바운스
+          renderMode: 'performance' // 성능 최적화
         });
 
         // 이전 버튼 클릭
@@ -147,7 +149,7 @@ if ($g_ios_publish == true) {
     }
   });
 </script>
-  <!-- 홈 페이지 특화 스타일 -->
+<!-- 홈 페이지 특화 스타일 -->
 <style>
   .result-list-card .content-li {
     border: 1px solid #EB5349;
@@ -174,12 +176,6 @@ if ($g_ios_publish == true) {
 
   .result-list-card .content-info .summary2 .period em.on {
     color: #1b9d7d;
-  }
-
-
-
-  .section .container {
-    padding-top: 0;
   }
 
   .item-info .thumb {
@@ -220,7 +216,7 @@ if ($g_ios_publish == true) {
     letter-spacing: -2px;
   }
 
- 
+
 
   .section+.section {
     margin-top: 0;
@@ -293,7 +289,7 @@ if ($g_ios_publish == true) {
   #app-intercept-layer .app-intercept-actions button {
     flex: 1 1 45%;
     min-width: 105px;
-     height: 60px; 
+    height: 60px;
     padding: 0.75rem 1rem;
     border-radius: 8px;
     border: none;
@@ -361,7 +357,6 @@ if ($g_ios_publish == true) {
       transform: rotate(360deg);
     }
   }
-
 </style>
 
 <div id="app-intercept-layer" aria-hidden="true">
@@ -384,19 +379,19 @@ if ($g_ios_publish == true) {
   </div>
 </div>
 <div class="page page-home">
- 
-    
-  
-<!-- 알림 패널 - 주석처리됨 -->
-<!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
+
+
+
+  <!-- 알림 패널 - 주석처리됨 -->
+  <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
       <span class="sr-text">미확인 알림메세지</span>
       <span class="cnt"><?= $g_alarm_cnt ?></span>
     </a> -->
 
   <div class="page-content">
-  <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
-    
-    
+    <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
+
+
     <!--지금뜨는업체-->
     <div class="section">
       <div class="container">
@@ -408,20 +403,20 @@ if ($g_ios_publish == true) {
           </button>
           <div class="slider-wrap keen-slider">
             <?php
-              // 최대 8개 업체 (2슬라이드 × 4개)
-              $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
-              // 4개씩 청크로 분할 (한 슬라이드 = 2x2 그리드)
-              $chunked_up_list = array_chunk($limited_up_list, 4);
+            // 최대 8개 업체 (2슬라이드 × 4개)
+            $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
+            // 4개씩 청크로 분할 (한 슬라이드 = 2x2 그리드)
+            $chunked_up_list = array_chunk($limited_up_list, 4);
 
-              // 마지막 청크 null 패딩
-              if (!empty($chunked_up_list)) {
-                $last_idx = count($chunked_up_list) - 1;
-                while (count($chunked_up_list[$last_idx]) < 4) {
-                  $chunked_up_list[$last_idx][] = null;
-                }
+            // 마지막 청크 null 패딩
+            if (!empty($chunked_up_list)) {
+              $last_idx = count($chunked_up_list) - 1;
+              while (count($chunked_up_list[$last_idx]) < 4) {
+                $chunked_up_list[$last_idx][] = null;
               }
+            }
 
-              foreach ($chunked_up_list as $chunk) :
+            foreach ($chunked_up_list as $chunk) :
             ?>
               <div class="keen-slider__slide">
                 <div class="hot-grid">
@@ -641,8 +636,6 @@ if ($g_ios_publish == true) {
       window.location.href = url;
     }
   });
-
-
 </script>
 <script>
   (function() {

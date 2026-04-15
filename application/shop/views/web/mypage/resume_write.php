@@ -42,15 +42,22 @@
                 :root {
                     --rw-input-height: 70px;
                     --rw-title-font-size: 25px;
+                    --rw-title-font-weight: 800;
+                    --rw-title-font-color: #000;
                     --rw-input-font-size: 20px;
+                    --rw-input-font-weight: normal;
+                    --rw-input-font-color: #000;
                     --rw-label-width: 255px;
                     --rw-label-font-size: 22px;
+                    --rw-label-font-color: #000;
+                    --rw-label-font-weight: 700;
                     --rw-row-padding: 20px;
                     --rw-section-padding: 20px;
                     --rw-section-padding-left: 44px;
-                    --rw-border-radius: 4px;
+                    --rw-border-radius: 10px;
                     --rw-border-color: #D8D8D8;
                     --rw-basic-group-width: 650px;
+                    --rw-border-color: #ccc;
                 }
 
                 /* 입력 요소 폰트 크기 통일 */
@@ -80,7 +87,7 @@
 
                     font-size: var(--rw-title-font-size);
                     font-weight: 800;
-                    border-bottom: 1px solid var(--rw-border-color);
+                    border-bottom: 3px solid #84908d;
                     margin: 0;
                 }
 
@@ -130,7 +137,7 @@
                 }
 
                 .rw-form-row:has(.rw-dual-col) .rw-value {
-                    width: 100%;
+                    width: 50%;
                 }
 
                 /* 공통 라벨 */
@@ -146,6 +153,8 @@
                     flex: 0 0 var(--rw-label-width);
                     -ms-flex-item-align: center;
                     align-self: center;
+                    font-weight: var(--rw-label-font-weight);
+                    color: var(--rw-label-font-color);
                 }
 
                 /* 공통 value 영역 */
@@ -163,7 +172,7 @@
                     -webkit-box-pack: center;
                     -ms-flex-pack: center;
                     justify-content: center;
-                    width: 60%;
+                    width: 50%;
                 }
 
                 /* ============================================
@@ -256,7 +265,7 @@
                     justify-content: center;
                     border: 1px solid #ccc;
                     background: #fff;
-                    color: #333;
+                    color: var(--rw-input-font-color);
                     font-size: var(--rw-input-font-size);
                     font-weight: normal;
                     margin: 0;
@@ -264,11 +273,11 @@
                 }
 
                 .rw-basic-info .form-toggle-btn2:first-child .btn {
-                    border-radius: 4px 0 0 4px;
+                    border-radius: 10px 0 0 10px;
                 }
 
                 .rw-basic-info .form-toggle-btn2:last-child .btn {
-                    border-radius: 0 4px 4px 0;
+                    border-radius: 0 10px 10px 0;
                 }
 
                 .rw-basic-info .form-toggle-btn2 input:checked+.btn {
@@ -292,14 +301,16 @@
                     width: calc(20% - 4px) !important;
                     max-width: calc(20% - 4px) !important;
                     flex: none !important;
-                    margin-right: 4px !important;
-                    margin-bottom: 6px !important;
+                    margin-right: -2px !important;
+                    margin-bottom: 10px !important;
                 }
 
                 .rw-work-condition .form-group.col-5>.form-toggle-btn2 .btn {
                     height: var(--rw-input-height);
-                    width: 100%;
+                    width: 88%;
                     font-size: var(--rw-input-font-size);
+                    color: var(--rw-input-font-color);
+                    border-radius: var(--rw-border-radius);
                 }
 
                 /* 근무조건 내 form-group 공통 규칙 */
@@ -326,17 +337,18 @@
                 .rw-work-condition .form-toggle-btn2 .btn {
                     padding: 0;
                     height: var(--rw-input-height);
-                    width: 100%;
+                    width: 93%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     border: 1px solid #ccc;
                     background: #fff;
-                    color: #333;
+                    color: var(--rw-input-font-color);
                     font-size: var(--rw-input-font-size);
                     font-weight: normal;
                     margin: 0;
                     cursor: pointer;
+                    border-radius: var(--rw-border-radius);
                 }
 
                 .rw-work-condition .form-toggle-btn2 input:checked+.btn {
@@ -424,11 +436,16 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    color: var(--rw-input-font-color);
+                    border-radius: var(--rw-border-radius);
+                    border-color: var(--rw-border-color);
+
                 }
 
                 /* 자기소개 textarea */
                 .rw-intro-textarea {
                     min-height: 324px;
+                    border-color: var(--rw-border-color);
                 }
 
                 /* ============================================
@@ -570,16 +587,16 @@
                     padding: 0;
                 }
 
-                .rw-dual-col .form-group {
+                /* .rw-dual-col .form-group {
                     display: -webkit-box;
                     display: -ms-flexbox;
                     display: flex;
                     gap: 24px;
-                    width: 100%;
+                    width: 201%;
                     -webkit-box-align: flex-start;
                     -ms-flex-align: flex-start;
                     align-items: flex-start;
-                }
+                } */
 
                 .rw-col-half {
                     display: -webkit-box;
@@ -801,7 +818,7 @@
                     display: -ms-flexbox;
                     display: flex;
                     gap: 60px;
-                    width: 100%;
+                    width: 201%;
                     -webkit-box-align: stretch;
                     -ms-flex-align: stretch;
                     align-items: stretch;
@@ -851,7 +868,7 @@
                     text-align: left;
                     font-size: var(--rw-label-font-size);
                     font-weight: normal;
-                    color: #333;
+                    color: var(--rw-label-font-color);
                     -ms-flex-item-align: center;
                     align-self: center;
                 }
@@ -1041,13 +1058,14 @@
                     padding: 20px 30px;
                     text-align: center;
                     border: 1px solid #d5d8df;
-                    border-radius: 5px;
+                    border-radius: var(--rw-border-radius);
                     color: #1B9D7D;
                     font-size: var(--rw-title-font-size);
                     font-weight: 500;
                     text-decoration: none;
                     cursor: pointer;
                     transition: all 0.3s ease;
+
                 }
 
                 .detail-register-link:hover {
@@ -1067,6 +1085,22 @@
                 /* 희망지역 목록의 주소 텍스트 숨김 (검색창에만 표시) */
                 #addr_location .addr-display {
                     display: none;
+                }
+
+                .rw-intro-strength .form-group[class*=col-] .btn {
+                    width: 95%;
+                }
+
+                .rw-intro-strength .rw-value {
+                    width: 80%;
+                }
+
+                .rw-intro-strength .form-toggle-btn2 {
+                    margin: 0 4px 9px 0;
+                }
+
+                .form-action-wrap .btn-round {
+                    border-radius: var(--rw-border-radius);
                 }
             </style>
             <div class="tab-panel on">
@@ -1157,7 +1191,7 @@
                                                 <div class="address-search-box js-add-address" role="button" aria-haspopup="dialog" aria-controls="changeArea">
                                                     <input type="text" id="addr_search" placeholder="희망지역을 입력해주세요" class="addr-search-input">
                                                     <button type="button" class="btn-search-icon">
-                                                        <img src="/resource/shop/mobile/img/common/search.png" alt="검색">
+                                                        <i class="fas fa-search addr-search-icon"></i>
                                                     </button>
                                                 </div>
                                                 <ul class="added-location" id="addr_location">
@@ -1292,7 +1326,7 @@
                                 <div class="rw-intro-strength">
                                     <div class="rw-form-row">
                                         <p class="rw-label">자기소개</p>
-                                        <div class="rw-value">
+                                        <div class="rw-value" style="width: 80%;">
                                             <label class="full-width">
                                                 <span class="sr-text">자기소개 입력</span>
                                                 <textarea name="ru_desc" maxlength="500" class="form-textarea rw-intro-textarea"><?= $info["ru_desc"] ?></textarea>
@@ -1884,11 +1918,20 @@
     // 상세등록 버튼 클릭 이벤트
     $(document).on('click', '#detailRegisterBtn', function(e) {
         e.preventDefault();
-        // 추가정보 섹션(경력사항) 표시
-        $('.extra-section').addClass('show');
-        // 상세등록 버튼 숨김
-        $(this).closest('.detail-register-section').hide();
+        var $extraSection = $('.extra-section');
+        var isVisible = $extraSection.hasClass('show');
+
+        if (!isVisible) {
+            // 추가정보 섹션(경력사항) 표시
+            $extraSection.addClass('show');
+        } else {
+            // 추가정보 섹션(경력사항) 숨기기
+            $extraSection.removeClass('show');
+        }
     });
+
+    // 초기 상태: 추가정보 섹션 숨기기
+    $('.extra-section').removeClass('show');
 
     $(document).ready(function() {
         // 자동 이력서 입력 (웹) - join_mem_finish에서 저장한 payload 사용

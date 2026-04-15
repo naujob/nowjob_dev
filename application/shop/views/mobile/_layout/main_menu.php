@@ -711,8 +711,8 @@ renderSelectBottomSheet(
       // 로그인 여부 확인
       var is_login = "<?= $this->user->isLogin() ? 'Y' : 'N'; ?>";
       if (is_login != "Y") {
-        // 바텀 시트 형태의 로그인 안내 팝업 표시
-        openPanel(document.getElementById('loginGuidePanel'));
+        // 로그인 페이지로 바로 이동
+        location.href = '/member/login';
         return;
       }
 

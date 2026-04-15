@@ -46,7 +46,9 @@ Apache 기반으로 실행되며 별도 빌드 과정 없음. 파일 수정 즉�
 cd /website/dev_nowapk/chatting/chat
 
 # 개발 실행
-node chat_server.js
+pm2 restart chat_server_prod (운영)
+pm2 restart chat_server_dev (개발)
+
 
 # PM2로 프로덕션 실행
 pm2 start ecosystem.config.js --name "chat_server_prod"
@@ -72,7 +74,7 @@ pm2 logs        # 로그 확인
 ### CodeIgniter MVC
 
 - **모델**: `application/common/models/` — 공유 데이터 모델 (MemberModel, RecruitModel, GoodsModel 등)
-- **컨트롤러**: `application/shop/controllers/` (shop), `application/api/controllers/` (API)
+- **컨트롤러**: `application/shop/controllers/` (shop)
 - **뷰**: `application/shop/views/mobile/` (모바일), `application/shop/views/web/` (웹)
 - **공유 라이브러리**: `application/common/libraries/` — Common.php, User.php, Layout.php, KakaoLogin.php 등
 

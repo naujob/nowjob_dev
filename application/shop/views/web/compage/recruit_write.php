@@ -26,8 +26,8 @@
           --rc-input-font-size: 20px;
           --rc-label-width: 180px;
           --rc-label-font-size: 22px;
-          --rc-border-radius: 4px;
-          --rc-border-color: #ADAEB9;
+          --rc-border-radius: 10px;
+          --rc-border-color: #ccc;
           --rc-color-primary: #31A182;
           --rc-color-primary-dark: #1B9D7D;
           --rc-color-primary-light: #57CCAF;
@@ -342,8 +342,9 @@
         }
 
         .addition-info-form .form-label {
-          margin-bottom: 10px;
+          margin: 0px;
           display: block;
+          align-self: center;
         }
 
         .addition-info-form .value {
@@ -521,6 +522,7 @@
           font-size: var(--rc-input-font-size);
           box-sizing: border-box;
           border-radius: var(--rc-border-radius);
+          border-color: var(--rc-border-color);
         }
 
         .work-section .form-group {
@@ -666,7 +668,7 @@
           padding: 0 12px;
           font-size: var(--rc-input-font-size);
           border: 1px solid var(--rc-border-color);
-          border-radius: var(--rc-border-radius);
+          border-radius: 10px 0 0 10px;
           box-sizing: border-box;
           width: 337px;
         }
@@ -682,7 +684,7 @@
           background-color: #f5f5f5;
           border: 1px solid var(--rc-border-color);
           border-left: none;
-          border-radius: 0 var(--rc-border-radius);
+          border-radius: 0 10px 10px 0;
           box-sizing: border-box;
           margin: 0;
         }
@@ -953,7 +955,7 @@
         }
 
         .extra-section .age-group .form-selectbox {
-          height: 50px;
+          height: var(--rc-input-height);
         }
 
         /* 희망나이 구분자(~) */
@@ -987,7 +989,7 @@
 
         /* 희망나이 select - 토글 버튼과 높이 통일 */
         .extra-section .age-select {
-          height: 50px;
+          height: var(--rc-input-height);
           line-height: 48px;
           font-size: var(--rc-input-font-size);
           border-radius: 8px;
@@ -1111,7 +1113,7 @@
           color: #222;
 
           padding-bottom: 15px;
-          border-bottom: 3px solid var(--rc-color-primary);
+          border-bottom: 3px solid #84908d;
           letter-spacing: -0.5px;
         }
 
@@ -1179,6 +1181,7 @@
           box-sizing: border-box;
           border-radius: var(--rc-border-radius);
           color: #000;
+          border-color: var(--rc-border-color);
         }
 
         /* 근무정보 섹션 - 근무지 검색 아이콘 */
@@ -1199,7 +1202,7 @@
           top: 50%;
           transform: translateY(-50%);
           font-size: var(--rc-input-font-size);
-          color: var(--rc-border-color);
+          color: #222;
           pointer-events: none;
         }
 
@@ -1297,10 +1300,11 @@
         /* 추가정보 섹션 내 토글 버튼 크기 확대 */
         .extra-section .form-group .form-toggle-btn2 .btn {
           min-width: 245px;
-          height: 50px;
+          height: var(--rc-input-height);
           padding: 0 15px;
           font-size: var(--rc-input-font-size);
-          line-height: 43px;
+          line-height: 60px;
+          border: 1px solid var(--rc-border-color);
 
 
 
@@ -1315,6 +1319,12 @@
           line-height: 48px;
           border-radius: 50%;
 
+        }
+
+        .extra-section .form-toggle-btn2 input:checked~.btn {
+          color: #fff;
+          border-color: transparent;
+          background-color: #57CCAF;
         }
 
         .form-toggle-btn2 .btn {
@@ -1342,6 +1352,7 @@
           font-size: var(--rc-input-font-size);
           line-height: 66px;
           color: #000;
+          border-color: var(--rc-border-color);
         }
 
         /* 근무조건 섹션 - 근무형태 체크박스 */
@@ -1363,11 +1374,11 @@
 
         .detail-register-link {
           display: inline-block;
-          min-width: 40.5em;
+          min-width: 12.5em;
           padding: 20px 30px;
           text-align: center;
           border: 1px solid #d5d8df;
-          border-radius: 5px;
+          border-radius: var(--rc-border-radius);
           color: var(--rc-color-primary-dark);
           font-size: 20px;
           font-weight: 500;
@@ -1391,6 +1402,10 @@
 
         .addition-info-form .services .form-toggle-btn2 {
           margin: 0 4px 11px 0;
+        }
+
+        .form-action-wrap .btn-round {
+          border-radius: var(--rc-border-radius);
         }
       </style>
       <div class="tab-panel on">
@@ -2447,21 +2462,30 @@
           // 상세등록 버튼 클릭 - 추가정보 섹션 표시
           $('#detailRegisterBtn').on('click', function(e) {
             e.preventDefault();
-            $('.extra-section').addClass('show');
-            $(this).closest('.detail-register-section').hide();
+            var $extraSection = $('.extra-section');
+            var isVisible = $extraSection.hasClass('show');
 
-            // 기본값 설정: 희망국적, 희망성별, 희망나이 무관으로 체크
-            $('#rc_nation_yn').prop('checked', true).trigger('change');
-            $('#rc_sex_yn').prop('checked', true).trigger('change');
-            $('#rc_age_yn').prop('checked', true).trigger('change');
+            if (!isVisible) {
+              // 섹션 보이기
+              $extraSection.addClass('show');
 
-            // 추가정보 섹션으로 스크롤
-            $('html, body').animate({
-              scrollTop: $('.extra-section').offset().top - 100
-            }, 300);
+              // 기본값 설정: 희망국적, 희망성별, 희망나이 무관으로 체크
+              $('#rc_nation_yn').prop('checked', true).trigger('change');
+              $('#rc_sex_yn').prop('checked', true).trigger('change');
+              $('#rc_age_yn').prop('checked', true).trigger('change');
+
+              // 추가정보 섹션으로 스크롤
+              $('html, body').animate({
+                scrollTop: $extraSection.offset().top - 100
+              }, 300);
+            } else {
+              // 섹션 숨기기
+              $extraSection.removeClass('show');
+            }
           });
 
-
+          // 초기 상태: 추가정보 섹션 숨기기
+          $('.extra-section').removeClass('show');
 
           // 희망나이 무관 토글
           $('#rc_age_yn').on('change', function() {
