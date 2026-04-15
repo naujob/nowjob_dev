@@ -1356,6 +1356,13 @@
           border-color: var(--rc-border-color);
         }
 
+        .work-section .work-type-group .form-toggle-btn2 input:checked~.btn {
+          color: #fff;
+          border-color: transparent;
+          background-color: #57CCAF;
+        }
+
+
         /* 근무조건 섹션 - 근무형태 체크박스 */
         .work-section .work-type-group .form-checkbox .label {
           font-size: var(--rc-input-font-size);
@@ -1407,6 +1414,10 @@
 
         .form-action-wrap .btn-round {
           border-radius: var(--rc-border-radius);
+        }
+
+        .fa-calendar-check:before {
+          font-size: 22px;
         }
       </style>
       <div class="tab-panel on">

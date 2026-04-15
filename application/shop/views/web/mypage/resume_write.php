@@ -352,7 +352,8 @@
                     border-radius: var(--rw-border-radius);
                 }
 
-                .rw-work-condition .form-toggle-btn2 input:checked+.btn {
+
+                .addition-info-form .form-toggle-btn2 input:checked~.btn {
                     background: #1abc9c;
                     color: #fff;
                     border-color: #1abc9c;
@@ -431,7 +432,7 @@
                     width: calc(20% - 4px);
                 }
 
-                .rw-intro-strength .form-group.col-8>.form-toggle-btn2.sm .btn {
+                .rw-intro-strength .form-toggle-btn2.sm .btn {
                     height: var(--rw-input-height);
                     font-size: var(--rw-input-font-size);
                     display: flex;
@@ -1076,6 +1077,12 @@
 
                 .form-action-wrap .btn-round {
                     border-radius: var(--rw-border-radius);
+                }
+
+                .form-text.js-datepicker,
+                .form-text.js-time,
+                .form-text.js-find-loc {
+                    text-align: left;
                 }
             </style>
             <div class="tab-panel on">
