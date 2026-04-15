@@ -712,22 +712,7 @@
                     width: 100%;
                 }
 
-                .rw-calendar-input-wrapper .btn-calendar {
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 auto;
-                    flex: 0 0 auto;
-                    width: 40px;
-                    height: 40px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: #f5f5f5;
-                    border: 1px solid #ddd;
-                    border-radius: var(--rw-border-radius);
-                    cursor: pointer;
-                    padding: 0;
-                    margin: 0;
-                }
+
 
                 .rw-calendar-input-wrapper .btn-calendar:hover {
                     background: #efefef;
@@ -993,21 +978,10 @@
                     gap: 8px;
                 }
 
-                .rw-period-field .btn-calendar {
-                    -webkit-box-flex: 0;
-                    -ms-flex: 0 0 auto;
-                    flex: 0 0 auto;
-                    width: 40px;
-                    height: 40px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: #f5f5f5;
-                    border: 1px solid #ddd;
-                    border-radius: var(--rw-border-radius);
-                    cursor: pointer;
-                    padding: 0;
-                    margin: 0;
+
+
+                .fa-calendar-check:before {
+                    font-size: 22px;
                 }
 
                 .rw-period-field .btn-calendar:hover {
@@ -1476,7 +1450,8 @@
                                                         <input type="text" name="period_start[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
                                                     </label>
                                                     <button type="button" class="btn-calendar">
-                                                        <i class="fa fa-calendar"></i>
+                                                        <!-- <i class="fa fa-calendar"></i> -->
+                                                        <i class="fa-regular fa-calendar-check recruit-date-icon"></i>
                                                     </button>
                                                 </div>
                                                 <span class="rw-career-period-separator">~</span>
@@ -1486,7 +1461,8 @@
                                                         <input type="text" name="period_end[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
                                                     </label>
                                                     <button type="button" class="btn-calendar">
-                                                        <i class="fa fa-calendar"></i>
+                                                        <!-- <i class="fa fa-calendar"></i> -->
+                                                        <i class="fa-regular fa-calendar-check recruit-date-icon"></i>
                                                     </button>
                                                 </div>
                                             </div>
@@ -1539,7 +1515,8 @@
                                                     <div class="rw-calendar-input-wrapper">
                                                         <input type="text" name="regdate[]" placeholder="" autocomplete="off" class="form-text num js-datepicker">
                                                         <button type="button" class="btn-calendar">
-                                                            <i class="fa fa-calendar"></i>
+                                                            <!-- <i class="fa fa-calendar"></i> -->
+                                                            <i class="fa-regular fa-calendar-check recruit-date-icon"></i>
                                                         </button>
                                                     </div>
                                                 </div>
