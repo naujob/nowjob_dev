@@ -1796,7 +1796,7 @@ fieldset {
     -ms-flex: 0 0 255px;
     flex: 0 0 255px;
     -ms-flex-item-align: start;
-    align-self: flex-start;
+    align-self: center;
 }
 
 .form-table .form-label em {

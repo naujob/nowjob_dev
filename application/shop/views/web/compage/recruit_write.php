@@ -35,6 +35,7 @@
           --rc-section-padding: 20px;
           --rc-row-padding: 16px;
           --rc-tab-gray: #777777;
+          --rc-label-align-self: center;
         }
 
         /* ============================================

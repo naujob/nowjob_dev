@@ -58,6 +58,7 @@
                     --rw-border-color: #D8D8D8;
                     --rw-basic-group-width: 650px;
                     --rw-border-color: #ccc;
+                    --rw-label-align-self: center;
                 }
 
                 /* 입력 요소 폰트 크기 통일 */
@@ -202,7 +203,7 @@
                 .rw-intro-strength .rw-label,
                 .rw-career .rw-label {
                     -ms-flex-item-align: start;
-                    align-self: flex-start;
+                    align-self: var(--rw-label-align-self);
                 }
 
                 /* ============================================
@@ -867,7 +868,7 @@
                     white-space: nowrap;
                     text-align: left;
                     font-size: var(--rw-label-font-size);
-                    font-weight: normal;
+                    font-weight: var(--rw-label-font-weight);
                     color: var(--rw-label-font-color);
                     -ms-flex-item-align: center;
                     align-self: center;
