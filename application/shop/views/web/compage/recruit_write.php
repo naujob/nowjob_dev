@@ -106,6 +106,10 @@
           font-size: var(--rc-input-font-size);
         }
 
+        .tab-panel.on .btn {
+          transition: all 0.2s;
+        }
+
         /* 근무정보 섹션 input 높이 통일 및 padding */
         .addition-info-form .form-row .form-text,
         .addition-info-form .form-row .value input[type="text"] {

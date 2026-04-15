@@ -176,6 +176,10 @@
                     width: 50%;
                 }
 
+                .tab-panel.on .btn {
+                    transition: all 0.2s;
+                }
+
                 /* ============================================
                    섹션별 오버라이드 (차이점만 정의)
                    ============================================ */
@@ -306,7 +310,7 @@
                     margin-bottom: 10px !important;
                 }
 
-                .rw-work-condition .form-group.col-5>.form-toggle-btn2 .btn {
+                .rw-work-condition .form-toggle-btn2 .btn {
                     height: var(--rw-input-height);
                     width: 88%;
                     font-size: var(--rw-input-font-size);
