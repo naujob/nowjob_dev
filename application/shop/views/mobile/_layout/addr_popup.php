@@ -348,12 +348,10 @@
                    </div>
                    <div class="addr_dept2">
                      <ul>
-                       <li>전체</li>
                      </ul>
                    </div>
                    <div class="addr_dept3">
                      <ul>
-                       <li>전체</li>
                      </ul>
                    </div>
                    <div class="addr_list_sel_box">
@@ -609,10 +607,10 @@
          var html = "";
 
          if (depth == 1) {
-           $('.addr_dept2').html('<ul><li data-addr="" onclick="addr_dept2_li_click(this);">전체</li></ul>');
+           $('.addr_dept2').html('<ul></ul>');
            var item = "";
          } else {
-           $('.addr_dept3').html('<ul><li data-addr="" data-addr2="" onclick="addr_dept3_li_click(this);">전체</li></ul>');
+           $('.addr_dept3').html('<ul></ul>');
          }
 
          for (var icnt = 0; icnt < ret.data.list.length; icnt++) {

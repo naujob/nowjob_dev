@@ -3367,6 +3367,7 @@ body {
     display: flex;
     min-width: 1632px;
     min-height: 100%;
+    padding-top: 130px;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
@@ -3413,7 +3414,7 @@ body {
 
 /* Header */
 #header {
-    position: fixed;
+    position: static;
     top: 0;
     left: 0;
     right: 0;
@@ -3652,10 +3653,17 @@ body {
 /* ===== 2줄 헤더 구조 (신규) ===== */
 
 .header-top-row {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 110px;
     padding: 0;
     background: #ffffff;
-   
     color: #000;
+    z-index: 10;
+    box-sizing: border-box;
 }
 
 .header-top-row .container {
@@ -3668,10 +3676,11 @@ body {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    padding: 47px 334px 0px 0px;
+    padding: 30px 334px 0px 0px;
     gap: 20px;
     margin: 0 auto;
     max-width: 1377px;
+    height: 100%;
 }
 
 .header-top-row .top-logo {
@@ -3784,7 +3793,7 @@ body {
     justify-content: space-between;
     width: 100%;
     box-sizing: border-box;
-    padding-top: 40px;
+   
     padding-bottom: 10px;
 }
 

@@ -1826,6 +1826,8 @@
             // ---------- 기존 주소 추가 로직 ----------
             // 주소 정리 함수로 지번 주소를 정리하여 표시
             var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
+            // 지역+"전체" 제거 (예: "서울 강남구 전체" -> "서울 강남구")
+            displayAddr = displayAddr.replace(/\s+전체\s*$/, '');
 
             var html = "";
             html += '<li>';
@@ -1877,6 +1879,8 @@
             } else {
                 displayAddr = (data.addrNames && data.addrNames[i]) ? data.addrNames[i] : addr;
             }
+            // 지역+"전체" 제거 (예: "서울 강남구 전체" -> "서울 강남구")
+            displayAddr = displayAddr.replace(/\s+전체\s*$/, '');
 
             var html = '<li>';
             html += '<input type="hidden" name="ad_zipcode[]" value="" />';
@@ -1901,6 +1905,9 @@
             commonAlert("희망지역은 " + (maxlen - 1) + "개까지 등록 가능합니다.", function() {});
             return;
         }
+        // resume_write 페이지에서 "전체" 항목 제거
+        window.__hideAllRegionsInAddrPopup = true;
+
         var $panel = $("#changeArea");
         // 패널을 열 때 hidden 속성 제거 및 on 클래스 추가
         $panel[0].hidden = false;

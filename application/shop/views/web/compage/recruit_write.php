@@ -2515,6 +2515,44 @@
           // 초기 상태: 추가정보 섹션 숨기기
           $('.extra-section').removeClass('show');
 
+          // 희망국적 무관 토글
+          $('#rc_nation_yn').on('change', function() {
+            if ($(this).is(':checked')) {
+              // 무관 체크 → 버튼들 비활성화
+              $('input[name="rc_nation[]"]').prop('checked', false);
+              $('input[name="rc_nation[]"]').closest('.form-toggle-btn2').css('opacity', '0.4');
+            } else {
+              // 무관 언체크 → 버튼들 활성화
+              $('input[name="rc_nation[]"]').closest('.form-toggle-btn2').css('opacity', '1');
+            }
+          });
+
+          // 희망국적 input 태그 클릭 시 무관 해제
+          $(document).on('click', 'input[name="rc_nation[]"]', function() {
+            if ($('#rc_nation_yn').is(':checked')) {
+              $('#rc_nation_yn').prop('checked', false).trigger('change');
+            }
+          });
+
+          // 희망성별 무관 토글
+          $('#rc_sex_yn').on('change', function() {
+            if ($(this).is(':checked')) {
+              // 무관 체크 → 버튼들 비활성화
+              $('input[name="rc_sex[]"]').prop('checked', false);
+              $('input[name="rc_sex[]"]').closest('.form-toggle-btn2').css('opacity', '0.4');
+            } else {
+              // 무관 언체크 → 버튼들 활성화
+              $('input[name="rc_sex[]"]').closest('.form-toggle-btn2').css('opacity', '1');
+            }
+          });
+
+          // 희망성별 input 태그 클릭 시 무관 해제
+          $(document).on('click', 'input[name="rc_sex[]"]', function() {
+            if ($('#rc_sex_yn').is(':checked')) {
+              $('#rc_sex_yn').prop('checked', false).trigger('change');
+            }
+          });
+
           // 희망나이 무관 토글
           $('#rc_age_yn').on('change', function() {
             if ($(this).is(':checked')) {
