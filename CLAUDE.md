@@ -99,6 +99,12 @@ pm2 logs        # 로그 확인
 - `resource/shop/web/` — PC CSS/JS/이미지
 - `resource/uploads/` — 사용자 업로드 파일
 
+### 아이콘 라이브러리
+
+- **FontAwesome** — 모든 UI 아이콘은 FontAwesome 사용
+- 로드 위치: `application/shop/views/web/_layout/basic.php`,`application/shop/views/mobile/_layout/basic.php`
+- 사용 형식: `<i class="fa fa-icon-name"></i>`
+
 ### 환경 감지
 
 코드 내에서 `APP_ENV` 환경 변수 또는 경로명(`/dev_nowapk` vs `/nowapk`)으로 dev/prod 자동 판별.

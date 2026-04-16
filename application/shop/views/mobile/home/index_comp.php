@@ -129,6 +129,16 @@ if ($g_ios_publish == true) {
   //getLocation();
 </script>
 <style>
+  /* 추천인재 슬라이더 양쪽 peek — container overflow 재정의 */
+  .section.index_comp:has(.recomm-slider) .container {
+    overflow: visible;
+  }
+
+  .section.index_comp:has(.recomm-slider) {
+    overflow: hidden;
+    /* 섹션 밖으로는 클리핑 */
+  }
+
   .sr-text {
     display: block;
     position: absolute;
@@ -303,6 +313,13 @@ if ($g_ios_publish == true) {
   }
 
 
+  /* KeenSlider 컨테이너 — 양쪽 peek: padding으로 이전/다음 슬라이드 노출 */
+  .recomm-slider.person .slider-wrap {
+    overflow: visible;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
   /* 슬라이더 슬라이드: 전체 너비 */
   .recomm-slider.person .keen-slider__slide {
     flex: 0 0 100% !important;
@@ -311,24 +328,21 @@ if ($g_ios_publish == true) {
     padding-bottom: 10px !important;
   }
 
-  /* 슬라이드 내 2x2 그리드 */
+  /* 슬라이드 내 2x2 — flexbox wrap 방식 */
   .recomm-slider.person .person-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     padding: 0;
     width: 100%;
-    max-width: 100%;
   }
 
-  /* 그리드 아이템 - width 조절 가능 */
+  /* 그리드 아이템 — 2열 배치 (gap 10px 고려) */
   .recomm-slider.person .person-grid-item {
-    min-width: 0;
     display: flex;
     flex-direction: column;
-    width: 100%;
-
-
+    width: calc(50% - 5px);
+    min-width: 0;
   }
 
   /* 카드 높이 최소화 */
@@ -690,14 +704,8 @@ if ($g_ios_publish == true) {
       <div class="container">
         <h2 class="secondary-title index">추천인재</h2>
         <div class="recomm-slider person">
-          <button class="slider-nav slider-nav-prev" aria-label="이전 슬라이드">
-            <i class="fas fa-chevron-left"></i>
-          </button>
           <div class="slider-wrap keen-slider" id="recomm-list">
           </div>
-          <button class="slider-nav slider-nav-next" aria-label="다음 슬라이드">
-            <i class="fas fa-chevron-right"></i>
-          </button>
         </div>
       </div>
     </div>
@@ -955,15 +963,57 @@ if ($g_ios_publish == true) {
     if (recommSlider && typeof KeenSlider !== 'undefined') {
       // 이미 초기화되었으면 스킵
       if (!recommSlider.__keenslider__) {
+        // loop peek을 위해 슬라이드가 3개 미만이면 복제
+        var slides = recommSlider.querySelectorAll('.keen-slider__slide');
+        if (slides.length > 0 && slides.length < 4) {
+          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+          var added = slides.length;
+
+          // 이미지 src 매핑 (복제 후 src 손실 방지)
+          var imageSrcMap = {};
+          slides.forEach(function(slide, idx) {
+            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
+              imageSrcMap[idx + '-' + imgIdx] = img.src;
+            });
+          });
+
+          while (added < cloneCount) {
+            slides.forEach(function(slide, slideIdx) {
+              if (added < cloneCount) {
+                var cloned = slide.cloneNode(true);
+                // 복제 후 이미지 처리: data-src → src로 변환 및 data-loaded 설정
+                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
+                  var srcKey = slideIdx + '-' + imgIdx;
+                  if (imageSrcMap[srcKey]) {
+                    img.src = imageSrcMap[srcKey];
+                  }
+                  // Lozad가 적용된 이미지 처리
+                  if (img.classList.contains('lozad')) {
+                    // data-src가 있으면 src로 변환
+                    if (img.getAttribute('data-src') && !img.src) {
+                      img.src = img.getAttribute('data-src');
+                    }
+                    img.setAttribute('data-loaded', 'true');
+                  }
+                });
+                recommSlider.appendChild(cloned);
+                added++;
+              }
+            });
+          }
+        }
+
         var slider = new KeenSlider(recommSlider, {
-          loop: true, // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
+          loop: true,
+          initial: 0,
           slides: {
-            perView: 1
+            perView: 1.1, // 슬라이드 크기 확대
+            spacing: 12,
           },
           drag: true,
           dragMinDist: 0,
-          rubberband: true, // 끝에서 탄력적인 바운스
-          renderMode: 'performance' // 성능 최적화
+          rubberband: true,
+          renderMode: 'precision'
         });
 
         // 이전 버튼 클릭

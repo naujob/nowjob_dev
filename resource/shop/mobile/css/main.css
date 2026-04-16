@@ -2963,6 +2963,7 @@ fieldset {
     -webkit-box-flex: 0;
     -ms-flex: 0 0 100%;
     flex: 0 0 100%;
+       
 }
 
 .dots {
@@ -7749,39 +7750,40 @@ form#frm {
 }
 
 .hot-list {
-    overflow: visible;
+    overflow: hidden; /* padding 바깥 영역 클리핑 */
 }
 
-/* KeenSlider 컨테이너 */
+/* KeenSlider 컨테이너 — 양쪽 peek: padding으로 이전/다음 슬라이드 노출 */
 .hot-list .slider-wrap {
-    overflow: hidden;
+    overflow: visible;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
-/* 슬라이드 내부 2x2 그리드 */
+/* 슬라이드 내부 2x2 — flexbox wrap 방식 */
 .hot-list .hot-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
-    width: 101%;
 }
 
 .hot-list .keen-slider__slide {
-    padding: 4px;
-    min-width: 100%;
-    width: 100%;
+    padding: 0;
 }
 
-/* 그리드 아이템 — a/div 태그 무관하게 클래스로 통일 */
+/* 그리드 아이템 — 2열 배치 (gap 10px 고려) */
 .hot-list .hot-grid > .hot-item {
     display: flex;
     flex-direction: column;
     text-decoration: none;
+    width: calc(50% - 5px);
 }
 
-/* 빈 패딩 셀 — 그리드 공간 차지, 클릭 불가 */
+/* 빈 패딩 셀 — 공간 차지, 클릭 불가 */
 .hot-list .hot-grid > .hot-item--empty {
     visibility: hidden;
     pointer-events: none;
+    width: calc(50% - 5px);
 }
 
 .hot-list .thumb {
@@ -13123,7 +13125,7 @@ form#frm {
     position: relative;
     display: flex;
     align-items: center;
-   
+    overflow: hidden; /* 섹션 밖으로 넘치지 않게 클리핑 */
 }
 
 .slider-nav {

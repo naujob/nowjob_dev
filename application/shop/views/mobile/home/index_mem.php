@@ -121,15 +121,56 @@ if ($g_ios_publish == true) {
     if (hotSlider && typeof KeenSlider !== 'undefined') {
       // 이미 초기화되었으면 스킵
       if (!hotSlider.__keenslider__) {
+        // loop peek을 위해 슬라이드가 3개 미만이면 복제
+        var slides = hotSlider.querySelectorAll('.keen-slider__slide');
+        if (slides.length > 0 && slides.length < 4) {
+          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+          var added = slides.length;
+
+          // 이미지 src 매핑 (복제 후 src 손실 방지)
+          var imageSrcMap = {};
+          slides.forEach(function(slide, idx) {
+            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
+              imageSrcMap[idx + '-' + imgIdx] = img.src;
+            });
+          });
+
+          while (added < cloneCount) {
+            slides.forEach(function(slide, slideIdx) {
+              if (added < cloneCount) {
+                var cloned = slide.cloneNode(true);
+                // 복제 후 이미지 처리: data-src → src로 변환 및 data-loaded 설정
+                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
+                  var srcKey = slideIdx + '-' + imgIdx;
+                  if (imageSrcMap[srcKey]) {
+                    img.src = imageSrcMap[srcKey];
+                  }
+                  // Lozad가 적용된 이미지 처리
+                  if (img.classList.contains('lozad')) {
+                    // data-src가 있으면 src로 변환
+                    if (img.getAttribute('data-src') && !img.src) {
+                      img.src = img.getAttribute('data-src');
+                    }
+                    img.setAttribute('data-loaded', 'true');
+                  }
+                });
+                hotSlider.appendChild(cloned);
+                added++;
+              }
+            });
+          }
+        }
+
         var slider = new KeenSlider(hotSlider, {
-          loop: true, // 루프 활성화 - 슬라이드 1개일 때도 드래그 가능
+          loop: true,
           slides: {
-            perView: 1
+            perView: 1.1,
+            spacing: 12,
           },
           drag: true,
           dragMinDist: 0,
-          rubberband: true, // 끝에서 탄력적인 바운스
-          renderMode: 'performance' // 성능 최적화
+          rubberband: true,
+          renderMode: 'precision'
         });
 
         // 이전 버튼 클릭
@@ -151,6 +192,16 @@ if ($g_ios_publish == true) {
 </script>
 <!-- 홈 페이지 특화 스타일 -->
 <style>
+  /* 지금 뜨는 업체 슬라이더 양쪽 peek — container overflow 재정의 */
+  .section:has(.hot-list) .container {
+    overflow: visible;
+  }
+
+  .section:has(.hot-list) {
+    overflow: hidden;
+    /* 섹션 밖으로는 클리핑 */
+  }
+
   .result-list-card .content-li {
     border: 1px solid #EB5349;
   }
@@ -398,9 +449,6 @@ if ($g_ios_publish == true) {
         <h2 class="secondary-title index">지금 뜨는 업체</h2>
         <!-- <a href="/recruit/clist" class="btn-view-all">더보기</a> -->
         <div class="hot-list">
-          <button class="slider-nav slider-nav-prev" aria-label="이전 슬라이드">
-            <i class="fas fa-chevron-left"></i>
-          </button>
           <div class="slider-wrap keen-slider">
             <?php
             // 최대 8개 업체 (2슬라이드 × 4개)
@@ -440,9 +488,6 @@ if ($g_ios_publish == true) {
               </div>
             <?php endforeach; ?>
           </div>
-          <button class="slider-nav slider-nav-next" aria-label="다음 슬라이드">
-            <i class="fas fa-chevron-right"></i>
-          </button>
         </div>
       </div>
     </div>
