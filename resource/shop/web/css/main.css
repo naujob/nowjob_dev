@@ -3745,22 +3745,22 @@ body {
     font-weight: 700;
 }
 .header-search-form .btn-search {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    margin-left: 8px;
+    position: relative;
+    right: -10px;
+    top: 0;
+    /* transform: translateY(-50%); */
+    width: 30px;
+    height: 30px;
     border: none;
-    border-radius: 50%;
-    background: #57CCAF url("../img/ic_search.svg") no-repeat 50% 50%;
-    background-size: 18px auto;
+    background: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    color: transparent;
 }
 
-.header-search-form .btn-search:hover,
-.header-search-form .btn-search:active {
-    background-color: #4bb5a0;
-}
+
 
 /* 헤더 계정메뉴 */
 .header-top-row .rt {
