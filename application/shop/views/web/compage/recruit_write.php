@@ -491,6 +491,7 @@
           font-size: 15px;
           white-space: nowrap;
           font-weight: 500;
+          min-width: 80px;
         }
 
         /* 시간 입력 래퍼 (select + : + input) */
@@ -503,25 +504,28 @@
           border-radius: var(--rc-border-radius);
           padding: 0 10px;
           background: #fff;
+          min-width: 198px;
         }
 
         .work-time-input-wrap .time-select {
           border: none;
           border-radius: 0;
           height: 40px;
-          width: 50px;
+          width: 80px;
           float: none;
-          padding: 0;
+          padding: 0 8px;
           appearance: auto;
+          flex: 1;
         }
 
         .work-time-input-wrap .time-input-m {
           border: none;
           border-radius: 0;
           height: 40px;
-          width: 45px;
+          width: 70px;
           float: none;
-          padding: 0 4px;
+          padding: 0 8px;
+          flex: 1;
         }
 
         .work-time-input-wrap>span {
@@ -536,9 +540,10 @@
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-size: 15px;
+          font-size: var(--rc-input-font-size);
           color: #4a90e2;
           font-weight: 500;
+          margin-left: 22px;
         }
 
         .work-time-tag::before {
