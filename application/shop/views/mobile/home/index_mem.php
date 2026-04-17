@@ -500,8 +500,8 @@ if ($g_ios_publish == true) {
         <!-- <a href="/recruit/job_list" class="btn-view-all">더보기</a> -->
       </div>
     </div>
-    <!-- 네이티브 광고 영역 -->
-    <div id="native-ad-container" style="height: 250px; width: 100%; display: block; background: #f0f0f0; margin: 20px 0; border: 2px solid #1b9d7d; position: relative; z-index: 100;"></div>
+    <!-- 네이티브 광고 영역 (Android에서 오버레이로 표시) -->
+    <!-- 제거됨 - Android NativeAdView가 자동으로 처리 -->
     <div class="footer">
       <p class="name">
         <span class="company-text"><strong>NOW D&I Co., Ltd (주)나우디앤아이</strong></span>
@@ -881,72 +881,4 @@ if ($g_ios_publish == true) {
   })();
 </script>
 
-<!-- 네이티브 광고 렌더링 -->
-<script>
-  // Android에서 호출: renderNativeAd({headline, body, icon, rating, cta})
-  // ⚠️ 이 함수는 즉시 정의되어야 합니다 (Android가 광고 로드 후 바로 호출)
-  window.renderNativeAd = function(adData) {
-    console.log('📱 renderNativeAd 호출됨:', adData);
-
-    var container = document.getElementById('native-ad-container');
-    if (!container) {
-      console.error('❌ native-ad-container를 찾을 수 없습니다!');
-      return;
-    }
-
-    // 네이티브 광고 HTML 렌더링
-    var html = '<div style="background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #e8e8e8; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
-
-    if (adData.icon) {
-      html += '<div style="text-align: center; margin-bottom: 8px;"><img src="' + adData.icon + '" style="width: 50px; height: 50px; border-radius: 4px;" onerror="this.style.display=\'none\';" /></div>';
-    }
-
-    if (adData.headline) {
-      html += '<div style="font-weight: 600; font-size: 14px; color: #1b1b1b; margin-bottom: 4px; text-align: center;">' + adData.headline + '</div>';
-    }
-
-    if (adData.body) {
-      html += '<div style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center; max-height: 40px; overflow: hidden;">' + adData.body + '</div>';
-    }
-
-    if (adData.rating && adData.rating > 0) {
-      html += '<div style="font-size: 12px; color: #ff9800; margin-bottom: 8px;">⭐ ' + adData.rating.toFixed(1) + '</div>';
-    }
-
-    if (adData.cta) {
-      html += '<button id="native-ad-button" type="button" onclick="window.handleNativeAdClick();" style="background: #1b9d7d; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-size: 12px; font-weight: 600; width: 100%; max-width: 200px; cursor: pointer; margin-top: 8px;">' + adData.cta + '</button>';
-    }
-
-    html += '</div>';
-
-    container.innerHTML = html;
-    container.style.backgroundColor = 'transparent';
-    container.style.display = 'block';
-
-    console.log('✅ 네이티브 광고 렌더링 완료');
-  };
-
-  // 네이티브 광고 클릭 핸들러
-  window.handleNativeAdClick = function() {
-    console.log('✅ 네이티브 광고 버튼 클릭됨');
-    if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.onNativeAdClick === 'function') {
-      console.log('📢 APP_NOWAPK.onNativeAdClick() 호출 중...');
-      APP_NOWAPK.onNativeAdClick();
-    } else {
-      console.error('❌ APP_NOWAPK 또는 onNativeAdClick 함수를 찾을 수 없습니다');
-    }
-  };
-
-  // 초기 플레이스홀더 표시
-  document.addEventListener('DOMContentLoaded', function() {
-    var nativeAdContainer = document.getElementById('native-ad-container');
-    if (nativeAdContainer && nativeAdContainer.innerHTML === '') {
-      console.log('✅ native-ad-container 로드됨, 플레이스홀더 표시');
-      nativeAdContainer.style.backgroundColor = '#f9f9f9';
-      nativeAdContainer.style.display = 'flex';
-      nativeAdContainer.style.alignItems = 'center';
-      nativeAdContainer.style.justifyContent = 'center';
-      nativeAdContainer.innerHTML = '<p style="color: #999; font-size: 12px; margin: 0;">📡 앱에서 광고를 로드 중입니다...</p>';
-    }
-  });
-</script>
+<!-- 네이티브 광고: Android NativeAdView가 자동으로 처리 (제거됨) -->
