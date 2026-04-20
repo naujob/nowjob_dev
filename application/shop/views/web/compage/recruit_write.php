@@ -2214,40 +2214,44 @@
                     <div class="hash-preset-wrap">
                       <div class="hash-preset-group">
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="센스있어요">
-                          <span class="btn">센스있어요</span>
+                          <input type="checkbox" value="당일지급">
+                          <span class="btn">당일지급</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="손이빨라요">
-                          <span class="btn">손이빨라요</span>
+                          <input type="checkbox" value="가불가능">
+                          <span class="btn">가불가능</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="친절해요">
-                          <span class="btn">친절해요</span>
+                          <input type="checkbox" value="초보가능">
+                          <span class="btn">초보가능</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="활발해요">
-                          <span class="btn">활발해요</span>
+                          <input type="checkbox" value="즉시출근">
+                          <span class="btn">즉시출근</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="성실해요">
-                          <span class="btn">성실해요</span>
+                          <input type="checkbox" value="식사제공">
+                          <span class="btn">식사제공</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="지각안해요">
-                          <span class="btn">지각안해요</span>
+                          <input type="checkbox" value="외국인가능">
+                          <span class="btn">외국인가능</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="재미있어요">
-                          <span class="btn">재미있어요</span>
+                          <input type="checkbox" value="주부환영">
+                          <span class="btn">주부환영</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="재미없어요">
-                          <span class="btn">재미없어요</span>
+                          <input type="checkbox" value="동반가능">
+                          <span class="btn">동반가능</span>
                         </label>
                         <label class="hash-preset-btn">
-                          <input type="checkbox" value="유머러스해요">
-                          <span class="btn">유머러스해요</span>
+                          <input type="checkbox" value="상여금">
+                          <span class="btn">상여금</span>
+                        </label>
+                        <label class="hash-preset-btn">
+                          <input type="checkbox" value="경력우대">
+                          <span class="btn">경력우대</span>
                         </label>
                         <label class="hash-preset-btn hash-add-btn">
                           <span class="btn">+</span>

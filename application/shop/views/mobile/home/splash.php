@@ -79,7 +79,7 @@
         pointer-events: none;
     }
 
-    .splash > :not(.splash-bg-img) {
+    .splash> :not(.splash-bg-img) {
         position: relative;
         z-index: 1;
     }
@@ -174,9 +174,9 @@
     var grantPopupTimeout = null; // 권한 팝업 완료 후 페이지 이동을 위한 타임아웃
 
 
-// ✅ 푸시 알림 URL 확인 (URL 파라미터 또는 네이티브에서 전달받은 값)
+    // ✅ 푸시 알림 URL 확인 (URL 파라미터 또는 네이티브에서 전달받은 값)
     var pushURL = null;
-    
+
     // 1. URL 파라미터에서 확인
     var urlParams = new URLSearchParams(window.location.search);
     var urlParam = urlParams.get('push_url');
@@ -184,24 +184,24 @@
         pushURL = decodeURIComponent(urlParam);
         console.log('📱 URL 파라미터에서 푸시 URL 발견:', pushURL);
     }
-    
+
     // 2. 전역 변수로 저장된 푸시 URL 확인 (네이티브 앱에서 설정한 경우)
     if (window.pendingPushURL) {
         pushURL = window.pendingPushURL;
         window.pendingPushURL = null; // 사용 후 초기화
         console.log('📱 전역 변수에서 푸시 URL 발견:', pushURL);
     }
-    
+
     // ✅ 푸시 URL이 있으면 splash를 건너뛰고 해당 URL로 이동
     if (pushURL) {
         console.log('📱 푸시 알림 URL로 이동:', pushURL);
-        
+
         // URL 정규화
         var normalizedURL = pushURL;
         if (pushURL.startsWith('/')) {
             normalizedURL = window.location.origin + pushURL;
         }
-        
+
         // splash 화면을 건너뛰고 바로 이동
         window.location.replace(normalizedURL);
         // 이후 로직 실행 중단 (return 없이 스크립트 종료)
@@ -234,7 +234,7 @@
         } else {
             setTimeout(function() {
                 if (checkMobile() == "android") {
-                    //APP_NOWAPK.goHomeReal();
+                    // APP_NOWAPK.goHomeReal();
                     location.replace("/home/index");
                 } else {
                     location.replace("/home/index");
@@ -467,7 +467,7 @@
     }
 
     // getLocation() 호출 후 위치 권한 처리 콜백 함수
-   
+
     function returnLocation(lat, lng) {
         // 위치 팝업이 완료되었고, 권한 팝업도 이미 표시되었다면 바로 페이지 이동
         // (권한 팝업이 먼저 뜨고 위치 팝업이 나중에 뜨는 경우)
@@ -508,15 +508,15 @@
             if (window.pendingPushURL) {
                 var delayedPushURL = window.pendingPushURL;
                 window.pendingPushURL = null;
-                
+
                 console.log('📱 페이지 로드 완료 후 푸시 URL 발견:', delayedPushURL);
-                
+
                 // URL 정규화
                 var normalizedURL = delayedPushURL;
                 if (delayedPushURL.startsWith('/')) {
                     normalizedURL = window.location.origin + delayedPushURL;
                 }
-                
+
                 // 푸시 URL로 이동
                 window.location.replace(normalizedURL);
             }
@@ -527,7 +527,7 @@
     window.setPendingPushURL = function(url) {
         if (url && url.trim() !== '') {
             console.log('📱 네이티브 앱에서 푸시 URL 전달받음:', url);
-            
+
             // 현재 splash 페이지인 경우 즉시 이동
             if (window.location.pathname === '/home/splash') {
                 var normalizedURL = url;

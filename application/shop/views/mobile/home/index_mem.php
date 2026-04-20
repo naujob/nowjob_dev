@@ -500,8 +500,7 @@ if ($g_ios_publish == true) {
         <!-- <a href="/recruit/job_list" class="btn-view-all">더보기</a> -->
       </div>
     </div>
-    <!-- 네이티브 광고 영역 (Android에서 오버레이로 표시) -->
-    <!-- 제거됨 - Android NativeAdView가 자동으로 처리 -->
+
     <div class="footer">
       <p class="name">
         <span class="company-text"><strong>NOW D&I Co., Ltd (주)나우디앤아이</strong></span>
@@ -531,6 +530,7 @@ if ($g_ios_publish == true) {
         <p>Copyright NOW D&I Co., Ltd all right reserved.</p>
       </div>
     </div>
+
     <a href="#app" class="btn-top js-goto-top"><span class="sr-text">Top</span></a>
   </div><!-- //page-content -->
 
@@ -880,5 +880,3 @@ if ($g_ios_publish == true) {
     }
   })();
 </script>
-
-<!-- 네이티브 광고: Android NativeAdView가 자동으로 처리 (제거됨) -->
