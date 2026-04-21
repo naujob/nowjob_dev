@@ -571,9 +571,14 @@ function fBizNoMasking($bizNo)
         }, 700);
       }
     }
-  });
 
-  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-  window.DISABLE_SWIPE_BACK = true;
+    // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
+    window.DISABLE_SWIPE_BACK = true;
+
+    // 네이티브 광고 제어 (메뉴 opacity 감지만, Android가 로드 시 표시)
+    if (typeof initMenuOpacityControl === 'function') {
+      initMenuOpacityControl();
+    }
+  });
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>

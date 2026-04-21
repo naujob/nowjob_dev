@@ -13,6 +13,7 @@ if (count($banner_list) > 0) {
   .current-area .btn {
     max-width: 90%;
   }
+
   .search-option .categories .cate {
     display: none;
   }
@@ -40,108 +41,105 @@ if (count($banner_list) > 0) {
   }
 </style>
 <div class="page-recruit">
- 
-    <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
-      <span class="sr-text">미확인 알림메세지</span> -->
-      <!-- 미확인 알림개수 -->
-      <!-- <span class="cnt"><?= $g_alarm_cnt ?></span> -->
-   
-  </div><!-- //header -->
 
-  <div class="page-content">
+  <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
+      <span class="sr-text">미확인 알림메세지</span> -->
+  <!-- 미확인 알림개수 -->
+  <!-- <span class="cnt"><?= $g_alarm_cnt ?></span> -->
+
+</div><!-- //header -->
+
+<div class="page-content">
   <?php include(APPPATH . 'views/mobile/_partial/top_visual.php'); ?>
 
-    <!-- 상세 검색 옵션 선택시: has-option 클래스 추가 -->
-    <div class="search-option has-option">
-      <style>
-        
-
-        .search-option.has-option .btn-option {
-          top: 0.975rem;
-        }
-      </style>
-      <!-- 현재 위치 -->
-      <div class="current-area">
-        <div class="container">
-          <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
-          <!-- <?= $search_txt["searchAreaStr"]; ?> -->
-        </div>
-      </div>
-      <!-- 선택된 카테고리 -->
-      <div class="categories">
-        <div class="container" id="tab_list">
-
-        </div>
-      </div>
-      <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
-    </div>
-
-    <div class="section is-last">
-      <style>
-       
-
-        .item-info .thumb {
-          width: 5rem;
-        }
-
-        .item-info {
-          padding: 0.4rem 0;
-        }
-
-        .item-info .comp_name {
-          margin-top: 2px;
-        }
-
-        .item-info .title {
-          margin: 2px 0 2px;
-        }
-
-        .item-info .meta {
-          margin: 2px -2px 0 0;
-        }
-
-        .item-info .period {
-          /* font-size: 0.7rem; */
-        }
-
-        .item-info .working-time {
-          /* font-size: 0.7rem; */
-          line-height: 1rem;
-        }
-
-        .item-info .area {
-          max-height: 1.3rem;
-          margin-top: 4px;
-        }
-
-        .item-info {
-          margin: 5px 0;
-        }
-
-        .item-info .amount {
-          letter-spacing: -2px;
-        }
-      </style>
+  <!-- 상세 검색 옵션 선택시: has-option 클래스 추가 -->
+  <div class="search-option has-option">
+    <style>
+      .search-option.has-option .btn-option {
+        top: 0.975rem;
+      }
+    </style>
+    <!-- 현재 위치 -->
+    <div class="current-area">
       <div class="container">
-        <h2 class="sr-text">채용공고</h2>
-        <ol class="result-list result-list-card" id="ajaxList" data-page="1" data-more="Y">
-        </ol>
-        <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
-          <p>등록된 정보가 없습니다.</p>
-        </div>
+        <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
+        <!-- <?= $search_txt["searchAreaStr"]; ?> -->
       </div>
     </div>
-    <div class="list-action">
-      <a href="/recruit/job_map" class="btn-map"><span class="sr-text">지도보기</span></a>
-    </div>
+    <!-- 선택된 카테고리 -->
+    <div class="categories">
+      <div class="container" id="tab_list">
 
-  </div><!-- //page-content -->
-  <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
+      </div>
+    </div>
+    <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
+  </div>
+
+  <div class="section is-last">
+    <style>
+      .item-info .thumb {
+        width: 5rem;
+      }
+
+      .item-info {
+        padding: 0.4rem 0;
+      }
+
+      .item-info .comp_name {
+        margin-top: 2px;
+      }
+
+      .item-info .title {
+        margin: 2px 0 2px;
+      }
+
+      .item-info .meta {
+        margin: 2px -2px 0 0;
+      }
+
+      .item-info .period {
+        /* font-size: 0.7rem; */
+      }
+
+      .item-info .working-time {
+        /* font-size: 0.7rem; */
+        line-height: 1rem;
+      }
+
+      .item-info .area {
+        max-height: 1.3rem;
+        margin-top: 4px;
+      }
+
+      .item-info {
+        margin: 5px 0;
+      }
+
+      .item-info .amount {
+        letter-spacing: -2px;
+      }
+    </style>
+    <div class="container">
+      <h2 class="sr-text">채용공고</h2>
+      <ol class="result-list result-list-card" id="ajaxList" data-page="1" data-more="Y">
+      </ol>
+      <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
+        <p>등록된 정보가 없습니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="list-action">
+    <a href="/recruit/job_map" class="btn-map"><span class="sr-text">지도보기</span></a>
+  </div>
+
+</div><!-- //page-content -->
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
 </div>
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
-<?php $tpl_id = 'tpl_list'; $tpl_recomm_class = true; ?>
+<?php $tpl_id = 'tpl_list';
+$tpl_recomm_class = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 
 <template id="tpl_category">
@@ -199,6 +197,9 @@ if (count($banner_list) > 0) {
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
+  var adShown = false;
+  var adHidden = false;
+  var menuOpen = false;
   var search_array = {
     category: "",
     work_type: "",
@@ -387,7 +388,7 @@ if (count($banner_list) > 0) {
     }
   }
 
-  // 주요 스크롤 컨테이너 모두에 스크롤 감지 (window, document, body, page 영역)
+  // 주요 스크롤 컨테이너 모두에 스크롤 감지 (더보기 로직용)
   $(window).add($(document)).add($('body')).add($('.page-recruit')).add($('.page-content')).add($('#app')).on('scroll', function() {
     var $target = $(this);
     var isWindow = this === window;
@@ -399,6 +400,7 @@ if (count($banner_list) > 0) {
       (this && this.scrollHeight ? this.scrollHeight : $(list_id).height());
     var scrollPos = scrollTopVal + heightVal;
     var documentHeight = containerScrollHeight || $(list_id).height();
+
     if (list_loading == false) {
       if (scrollPos + 400 >= documentHeight) {
         if ($(list_id).attr('data-more') == "Y") {
@@ -550,6 +552,11 @@ if (count($banner_list) > 0) {
     // iOS 타이밍 이슈 대비 재시도
     setTimeout(attemptRestoreScroll, 50);
     setTimeout(attemptRestoreScroll, 200);
+
+    // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
+    if (typeof initNativeAdControl === 'function') {
+      initNativeAdControl();
+    }
   });
   // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
   window.onChangeAreaApply = function() {
@@ -558,15 +565,34 @@ if (count($banner_list) > 0) {
       saveSearchStateToStorage();
     }
   };
-  
+
+  // 헬퍼: 광고 제어
+  var hideAd = function() {
+    if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+      window.nowjob.hideNativeAd();
+    }
+  };
+
+  // 공고 제목 클릭 시 광고 숨기기
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.content-li').data('rc_idx');
     if (rcIdx) {
-      var url = '/recruit/job_post/' + rcIdx;
-      window.location.href = url;
+      hideAd();
+      window.location.href = '/recruit/job_post/' + rcIdx;
     }
   });
 
-  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
+  // 내부 링크 클릭 시 광고 숨기기 (job_list 제외)
+  $(document).on('click', 'a[href^="/"]', function() {
+    var href = $(this).attr('href');
+    if (href && !href.includes('job_list')) {
+      hideAd();
+    }
+  });
+
+  // 페이지 이동/이탈 시 광고 숨기기
+  window.addEventListener('beforeunload', hideAd);
+
+  // 스와이프 뒤로가기 비활성화
   window.DISABLE_SWIPE_BACK = true;
 </script>

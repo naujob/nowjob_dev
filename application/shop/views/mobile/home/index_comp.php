@@ -1072,6 +1072,11 @@ if ($g_ios_publish == true) {
       window.location.href = url;
     }
   });
+
+  // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
+  if (typeof initNativeAdControl === 'function') {
+    initNativeAdControl();
+  }
 </script>
 
 <?= showPopupMobile() ?>

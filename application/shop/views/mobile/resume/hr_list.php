@@ -654,6 +654,11 @@ if (count($banner_list) > 0) {
     // iOS 타이밍 이슈 대비 재시도
     setTimeout(attemptRestoreScroll, 50);
     setTimeout(attemptRestoreScroll, 200);
+
+    // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
+    if (typeof initNativeAdControl === 'function') {
+      initNativeAdControl();
+    }
   });
 
   // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)

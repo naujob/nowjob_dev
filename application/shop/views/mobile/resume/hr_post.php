@@ -1,21 +1,21 @@
-SSH<?php
-    function fHashSet($txt)
-    {
-        $tags = explode(",", $txt);
+<?php
+function fHashSet($txt)
+{
+    $tags = explode(",", $txt);
 
-        // 각 요소를 # 태그로 변환하여 출력
-        $result = "";
-        foreach ($tags as $tag) {
-            $tag = trim($tag); // 공백 제거
-            if (!empty($tag)) { // 빈 값 방지
-                $result .= '<p class="tag" style="width:auto;text-align:left;">#' . htmlspecialchars($tag) . '</p>' . "\n";
-            }
+    // 각 요소를 # 태그로 변환하여 출력
+    $result = "";
+    foreach ($tags as $tag) {
+        $tag = trim($tag); // 공백 제거
+        if (!empty($tag)) { // 빈 값 방지
+            $result .= '<p class="tag" style="width:auto;text-align:left;">#' . htmlspecialchars($tag) . '</p>' . "\n";
         }
-
-        return $result;
     }
-    // 주소 정리 함수 - JavaScript 함수(fRemoveBigAdrJS) 사용으로 주석처리
-    /*
+
+    return $result;
+}
+// 주소 정리 함수 - JavaScript 함수(fRemoveBigAdrJS) 사용으로 주석처리
+/*
 function fRemoveBigAdr($arg)
 {
 
@@ -63,7 +63,7 @@ function fRemoveBigAdr($arg)
     }
 }
 */
-    ?>
+?>
 <style>
     .info-table .working-day>li {
         width: 1.8rem;
@@ -784,6 +784,11 @@ function fRemoveBigAdr($arg)
                     $(this).text(cleanedAddr);
                 }
             });
+        }
+
+        // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
+        if (typeof initNativeAdControl === 'function') {
+            initNativeAdControl();
         }
     });
 

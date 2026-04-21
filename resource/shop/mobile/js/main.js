@@ -1178,4 +1178,119 @@
         };
     }
 
+    // 공통: 메뉴 opacity 기반 네이티브 광고 제어
+    if (!window.initMenuAd) {
+        window.initMenuAd = function() {
+            var menuElement = document.getElementById('menu');
+            if (!menuElement) return;
+
+            var lastMenuOpacity = parseFloat(window.getComputedStyle(menuElement).opacity);
+
+            var checkMenuOpacity = function() {
+                var opacity = parseFloat(window.getComputedStyle(menuElement).opacity);
+                var menuOpen = opacity >= 0.9;
+
+                if (menuOpen) {
+                    // 메뉴가 열림 (opacity = 1) → 광고 숨기기
+                    if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+                        window.nowjob.hideNativeAd();
+                    }
+                } else if (!menuOpen && lastMenuOpacity >= 0.9 && opacity < 0.9) {
+                    // 메뉴가 닫힘 (opacity 감소) → 광고 다시 보이기
+                    if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
+                        window.nowjob.showNativeAd();
+                    }
+                }
+                lastMenuOpacity = opacity;
+            };
+
+            // 초기 상태 확인
+            checkMenuOpacity();
+
+            // 메뉴 class 변경 감지
+            var observer = new MutationObserver(checkMenuOpacity);
+            observer.observe(menuElement, { attributes: true });
+
+            // 애니메이션 중간에도 감지하기 위해 주기적 확인
+            setInterval(checkMenuOpacity, 100);
+        };
+    }
+
+    // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
+    if (!window.initNativeAdControl) {
+        window.initNativeAdControl = function() {
+            var adShown = false;
+            var adHidden = false;
+            var lastMenuOpacity = 0;
+
+            // 스크롤 감지
+            $(window).add($(document)).add($('body')).add($('.page-view')).add($('.page-recruit')).add($('.page-content')).add($('#app')).on('scroll', function() {
+                var $target = $(this);
+                var isWindow = this === window;
+                var isDocument = this === document;
+                var scrollTopVal = isWindow ? $(window).scrollTop() : (isDocument ? $(document).scrollTop() : $target.scrollTop());
+                var heightVal = isWindow ? $(window).height() : (isDocument ? $(document).height() : $target.innerHeight());
+                var containerScrollHeight = (isWindow || isDocument) ?
+                    (document.documentElement && document.documentElement.scrollHeight ? document.documentElement.scrollHeight : document.body.scrollHeight) :
+                    (this && this.scrollHeight ? this.scrollHeight : ($('.page-view').height() || $('.page-recruit').height()));
+                var scrollPos = scrollTopVal + heightVal;
+                var documentHeight = containerScrollHeight || ($('.page-view').height() || $('.page-recruit').height());
+
+                // 광고 오버레이 감지: 하단 200px 이내 도달 시 표시
+                if (!adShown && scrollPos + 200 >= documentHeight) {
+                    adShown = true;
+                    adHidden = false;
+                    if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
+                        window.nowjob.showNativeAd();
+                    }
+                }
+                // 하단 300px 이상 멀어지면 숨기기
+                if (adShown && !adHidden && scrollPos + 100 < documentHeight) {
+                    adHidden = true;
+                    adShown = false;
+                    if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+                        window.nowjob.hideNativeAd();
+                    }
+                }
+            });
+
+            // 메뉴 opacity 감지 (별도 함수로 분리)
+            initMenuOpacityControl();
+        };
+    }
+
 }());
+
+// 전역: 메뉴 opacity 상태 추적
+var lastMenuOpacity = 0;
+
+// 메뉴 opacity 변화 감지 및 네이티브 광고 제어 함수
+function initMenuOpacityControl() {
+  var menuElement = document.getElementById('menu');
+  if (!menuElement) return;
+
+  var checkMenuOpacity = function() {
+    var opacity = parseFloat(window.getComputedStyle(menuElement).opacity);
+    var menuOpen = opacity >= 0.9;
+
+    if (menuOpen && lastMenuOpacity < 0.9) {
+      // 메뉴가 열림 → 광고 숨기기
+      if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+        window.nowjob.hideNativeAd();
+      }
+    } else if (!menuOpen && lastMenuOpacity >= 0.9) {
+      // 메뉴가 닫힘 → 광고 표시
+      if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
+        window.nowjob.showNativeAd();
+      }
+    }
+    lastMenuOpacity = opacity;
+  };
+
+  // 메뉴 attributes 변경 감지
+  var observer = new MutationObserver(checkMenuOpacity);
+  observer.observe(menuElement, { attributes: true });
+
+  // 주기적 확인 (fallback)
+  setInterval(checkMenuOpacity, 100);
+}

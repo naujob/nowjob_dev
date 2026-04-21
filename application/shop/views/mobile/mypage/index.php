@@ -2,7 +2,6 @@
   .page.page-mypage .profile .container .thumb-wrap form#frm {
     top: 0vh;
   }
-  
 </style>
 <div class="page page-mypage">
   <div class="page-content">
@@ -29,7 +28,7 @@
           <div class="meta index">
             <?php $is_google_login = !empty($mem_info["mm_join_type"]) && strtoupper($mem_info["mm_join_type"]) === "GOOGLE"; ?>
             <?php if (!$is_google_login) : ?>
-              
+
               <!-- 메일주소 -->
               <p class="email"><?= $mem_info["mm_email"] ?></p>
 
@@ -104,9 +103,9 @@
   <div class="panel-container">
     <?php
     $top_bar = array(
-        'title'      => '설정',
-        'back_type'  => 'none',
-        'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>'
+      'title'      => '설정',
+      'back_type'  => 'none',
+      'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>'
     );
     include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     ?>
@@ -118,7 +117,7 @@
             <h3 class="secondary-title">가입자정보
               <?php
               // SNS 로그인 여부 확인
-              $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER","GOOGLE","WECHAT"]);
+              $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER", "GOOGLE", "WECHAT"]);
               // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
               $is_authenticated = ($mem_info != null && $mem_info["mm_di"] != null && (strpos($mem_info["mm_di"], "MC0") === 0 || $is_sns_login));
 
@@ -166,7 +165,7 @@
             <ul class="settings-list">
               <?php
               // SNS 로그인 여부 확인 (카카오, 네이버, 애플)
-              $is_sns_login_pwd = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER","GOOGLE","WECHAT"]);
+              $is_sns_login_pwd = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER", "GOOGLE", "WECHAT"]);
               // SNS 로그인이 아닌 경우에만 비밀번호 변경 링크 표시
               if (!$is_sns_login_pwd) {
               ?>
@@ -233,7 +232,7 @@
               <li><a href="/setting/site_terms2" class="menu">개인정보 수집 및 이용동의</a></li>
               <li><a href="/setting/site_terms3" class="menu">위치기반서비스 이용약관</a></li>
               <li><a href="/setting/site_terms5" class="menu">광고성 정보 수신 동의</a></li>
-              
+
             </ul>
           </div>
         </div>
@@ -531,6 +530,12 @@
         }, 700);
       }
     }
+
+    // 네이티브 광고 제어 (메뉴 opacity 감지만, Android가 로드 시 표시)
+    if (typeof initMenuOpacityControl === 'function') {
+      initMenuOpacityControl();
+    }
+
   });
 
   // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
