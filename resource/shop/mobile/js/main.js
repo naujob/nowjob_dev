@@ -1266,39 +1266,16 @@ function initMenuOpacityControl() {
   var menuElement = document.getElementById('menu');
   if (!menuElement) return;
 
-  // 방법 1: 토글 버튼 클릭 즉시 감지 (애니메이션 시작 전 반응)
-  document.addEventListener('click', function(e) {
-    // closest() 지원 확인
-    var btn = e.target.closest ? e.target.closest('[aria-controls="menu"]') : null;
-    if (!btn) return;
-
-    // 클릭 직후 현재 open 상태 확인
-    // addClass("open")는 클릭 후 즉시 실행되므로, 클릭 후 상태 확인
-    var isOpening = !menuElement.classList.contains('open');
-
-    if (isOpening) {
-      // 메뉴 열기 → 광고 숨기기
-      if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
-        window.nowjob.hideNativeAd();
-      }
-    } else {
-      // 메뉴 닫기 → 광고 표시
-      if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
-        window.nowjob.showNativeAd();
-      }
-    }
-  });
-
-  // 방법 2: classList 변화 감지 (폴백 - dimmed 클릭 등 다른 닫기 방법 대응)
+  // classList 변화 감지 (.on 클래스 추가/제거로 메뉴 열림/닫힘 제어)
   var observer = new MutationObserver(function() {
-    var isOpen = menuElement.classList.contains('open');
+    var isOpen = menuElement.classList.contains('on');
     if (isOpen) {
-      // 메뉴가 열림
+      // 메뉴가 열림 (.on 클래스 있음) → 광고 숨기기
       if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
         window.nowjob.hideNativeAd();
       }
     } else {
-      // 메뉴가 닫힘
+      // 메뉴가 닫힘 (.on 클래스 없음) → 광고 표시
       if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
         window.nowjob.showNativeAd();
       }
