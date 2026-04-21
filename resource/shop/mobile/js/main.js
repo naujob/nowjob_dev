@@ -1271,15 +1271,16 @@ function initMenuOpacityControl() {
 
   var checkMenuOpacity = function() {
     var opacity = parseFloat(window.getComputedStyle(menuElement).opacity);
-    var menuOpen = opacity >= 0.9;
+    var menuOpenThreshold = 0.3; // 메뉴가 열리기 시작하는 임계값
+    var menuOpen = opacity >= menuOpenThreshold;
 
-    if (menuOpen && lastMenuOpacity < 0.9) {
-      // 메뉴가 열림 → 광고 숨기기
+    if (menuOpen && lastMenuOpacity < menuOpenThreshold) {
+      // 메뉴가 열리기 시작 → 광고 미리 숨기기
       if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
         window.nowjob.hideNativeAd();
       }
-    } else if (!menuOpen && lastMenuOpacity >= 0.9) {
-      // 메뉴가 닫힘 → 광고 표시
+    } else if (!menuOpen && lastMenuOpacity >= menuOpenThreshold) {
+      // 메뉴가 완전히 닫힘 → 광고 표시
       if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
         window.nowjob.showNativeAd();
       }
@@ -1287,10 +1288,10 @@ function initMenuOpacityControl() {
     lastMenuOpacity = opacity;
   };
 
-  // 메뉴 attributes 변경 감지
+  // 메뉴 attributes 변경 감지 (더 민감하게)
   var observer = new MutationObserver(checkMenuOpacity);
   observer.observe(menuElement, { attributes: true });
 
-  // 주기적 확인 (fallback)
-  setInterval(checkMenuOpacity, 100);
+  // 주기적 확인 (50ms로 더 자주 확인 → 빠른 반응성)
+  setInterval(checkMenuOpacity, 50);
 }
