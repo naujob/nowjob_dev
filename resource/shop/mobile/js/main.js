@@ -1261,25 +1261,52 @@
 
 }());
 
-// 메뉴 열림/닫힘 감지 및 네이티브 광고 제어 함수
+// 전역: 메뉴 opacity 상태 추적
+var lastMenuOpacity = 0;
+
+// 메뉴 opacity 변화 감지 및 네이티브 광고 제어 함수
 function initMenuOpacityControl() {
   var menuElement = document.getElementById('menu');
   if (!menuElement) return;
 
-  // classList 변화 감지 (.on 클래스 추가/제거로 메뉴 열림/닫힘 제어)
-  var observer = new MutationObserver(function() {
-    var isOpen = menuElement.classList.contains('on');
-    if (isOpen) {
-      // 메뉴가 열림 (.on 클래스 있음) → 광고 숨기기
+  var checkMenuOpacity = function() {
+    var opacity = parseFloat(window.getComputedStyle(menuElement).opacity);
+    var menuOpen = opacity >= 0.9;
+
+    if (menuOpen && lastMenuOpacity < 0.9) {
+      // 메뉴가 열림 → 광고 숨기기
       if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
         window.nowjob.hideNativeAd();
       }
-    } else {
-      // 메뉴가 닫힘 (.on 클래스 없음) → 광고 표시
+    } else if (!menuOpen && lastMenuOpacity >= 0.9) {
+      // 메뉴가 닫힘 → 광고 표시
       if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
         window.nowjob.showNativeAd();
       }
     }
+    lastMenuOpacity = opacity;
+  };
+
+  // transitionstart로 애니메이션 시작 시 즉시 반응
+  menuElement.addEventListener('transitionstart', function(e) {
+    if (e.propertyName === 'opacity') {
+      checkMenuOpacity();
+    }
+  });
+
+  // transitionend로 애니메이션 종료 시 즉시 반응
+  menuElement.addEventListener('transitionend', function(e) {
+    if (e.propertyName === 'opacity') {
+      checkMenuOpacity();
+    }
+  });
+
+  // 메뉴 class 변경 감지 (transition이 없는 즉시 변경의 경우)
+  var observer = new MutationObserver(function() {
+    checkMenuOpacity();
   });
   observer.observe(menuElement, { attributes: true, attributeFilter: ['class'] });
+
+  // 초기 상태 확인
+  checkMenuOpacity();
 }
