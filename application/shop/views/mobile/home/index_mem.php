@@ -674,6 +674,11 @@ if ($g_ios_publish == true) {
         $iconDown.show();
       }
     });
+
+    // 메뉴 opacity 감지 기반 광고 제어
+    if (typeof initMenuOpacityControl === 'function') {
+      initMenuOpacityControl();
+    }
   });
 
   $(document).on('click', '.desc', function() {
@@ -881,9 +886,3 @@ if ($g_ios_publish == true) {
   })();
 </script>
 
-<script>
-  // 스크롤 감지 및 메뉴 opacity 기반 광고 제어
-  if (typeof initNativeAdControl === 'function') {
-    initNativeAdControl();
-  }
-</script>

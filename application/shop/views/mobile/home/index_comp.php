@@ -1053,6 +1053,11 @@ if ($g_ios_publish == true) {
         $iconDown.show();
       }
     });
+
+    // 메뉴 opacity 감지 기반 광고 제어
+    if (typeof initMenuOpacityControl === 'function') {
+      initMenuOpacityControl();
+    }
   });
 
   // 추천공고 클릭 이벤트
@@ -1073,10 +1078,6 @@ if ($g_ios_publish == true) {
     }
   });
 
-  // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
-  if (typeof initNativeAdControl === 'function') {
-    initNativeAdControl();
-  }
 </script>
 
 <?= showPopupMobile() ?>
