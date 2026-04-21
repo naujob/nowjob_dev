@@ -1290,7 +1290,12 @@ function initMenuOpacityControl() {
   // 초기 상태 확인
   checkMenuOpacity();
 
-  // transitionend 이벤트: 애니메이션 완료 시 즉시 반응
+  // transitionstart 이벤트: 애니메이션 시작 시 즉시 반응 (메뉴가 열리기 전에 광고 제어)
+  ['transitionstart', 'webkitTransitionStart'].forEach(function(event) {
+    menuElement.addEventListener(event, checkMenuOpacity);
+  });
+
+  // transitionend 이벤트: 애니메이션 완료 시 최종 상태 확인
   ['transitionend', 'webkitTransitionEnd'].forEach(function(event) {
     menuElement.addEventListener(event, checkMenuOpacity);
   });
