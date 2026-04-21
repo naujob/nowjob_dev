@@ -1261,46 +1261,48 @@
 
 }());
 
-// 전역: 메뉴 opacity 상태 추적
-var lastMenuOpacity = 0;
-
-// 메뉴 opacity 변화 감지 및 네이티브 광고 제어 함수
+// 메뉴 열림/닫힘 감지 및 네이티브 광고 제어 함수
 function initMenuOpacityControl() {
   var menuElement = document.getElementById('menu');
   if (!menuElement) return;
 
-  var checkMenuOpacity = function() {
-    var opacity = parseFloat(window.getComputedStyle(menuElement).opacity);
-    var menuOpen = opacity >= 0.9;
+  // 방법 1: 토글 버튼 클릭 즉시 감지 (애니메이션 시작 전 반응)
+  document.addEventListener('click', function(e) {
+    // closest() 지원 확인
+    var btn = e.target.closest ? e.target.closest('[aria-controls="menu"]') : null;
+    if (!btn) return;
 
-    if (menuOpen && lastMenuOpacity < 0.9) {
-      // 메뉴가 열림 → 광고 숨기기
+    // 클릭 직후 현재 open 상태 확인
+    // addClass("open")는 클릭 후 즉시 실행되므로, 클릭 후 상태 확인
+    var isOpening = !menuElement.classList.contains('open');
+
+    if (isOpening) {
+      // 메뉴 열기 → 광고 숨기기
       if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
         window.nowjob.hideNativeAd();
       }
-    } else if (!menuOpen && lastMenuOpacity >= 0.9) {
-      // 메뉴가 닫힘 → 광고 표시
+    } else {
+      // 메뉴 닫기 → 광고 표시
       if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
         window.nowjob.showNativeAd();
       }
     }
-    lastMenuOpacity = opacity;
-  };
-
-  // 초기 상태 확인
-  checkMenuOpacity();
-
-  // transitionstart 이벤트: 애니메이션 시작 시 즉시 반응 (메뉴가 열리기 전에 광고 제어)
-  ['transitionstart', 'webkitTransitionStart'].forEach(function(event) {
-    menuElement.addEventListener(event, checkMenuOpacity);
   });
 
-  // transitionend 이벤트: 애니메이션 완료 시 최종 상태 확인
-  ['transitionend', 'webkitTransitionEnd'].forEach(function(event) {
-    menuElement.addEventListener(event, checkMenuOpacity);
+  // 방법 2: classList 변화 감지 (폴백 - dimmed 클릭 등 다른 닫기 방법 대응)
+  var observer = new MutationObserver(function() {
+    var isOpen = menuElement.classList.contains('open');
+    if (isOpen) {
+      // 메뉴가 열림
+      if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+        window.nowjob.hideNativeAd();
+      }
+    } else {
+      // 메뉴가 닫힘
+      if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
+        window.nowjob.showNativeAd();
+      }
+    }
   });
-
-  // MutationObserver: class 변경 감지
-  var observer = new MutationObserver(checkMenuOpacity);
-  observer.observe(menuElement, { attributes: true });
+  observer.observe(menuElement, { attributes: true, attributeFilter: ['class'] });
 }
