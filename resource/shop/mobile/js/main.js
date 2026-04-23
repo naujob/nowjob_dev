@@ -1178,135 +1178,172 @@
         };
     }
 
-    // 공통: 메뉴 opacity 기반 네이티브 광고 제어
-    if (!window.initMenuAd) {
-        window.initMenuAd = function() {
-            var menuElement = document.getElementById('menu');
-            if (!menuElement) return;
-
-            var lastMenuOpacity = parseFloat(window.getComputedStyle(menuElement).opacity);
-
-            var checkMenuOpacity = function() {
-                var opacity = parseFloat(window.getComputedStyle(menuElement).opacity);
-                var menuOpen = opacity >= 0.9;
-
-                if (menuOpen) {
-                    // 메뉴가 열림 (opacity = 1) → 광고 숨기기
-                    if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
-                        window.nowjob.hideNativeAd();
-                    }
-                } else if (!menuOpen && lastMenuOpacity >= 0.9 && opacity < 0.9) {
-                    // 메뉴가 닫힘 (opacity 감소) → 광고 다시 보이기
-                    if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
-                        window.nowjob.showNativeAd();
-                    }
-                }
-                lastMenuOpacity = opacity;
-            };
-
-            // 초기 상태 확인
-            checkMenuOpacity();
-
-            // 메뉴 class 변경 감지
-            var observer = new MutationObserver(checkMenuOpacity);
-            observer.observe(menuElement, { attributes: true });
-
-            // 애니메이션 중간에도 감지하기 위해 주기적 확인
-            setInterval(checkMenuOpacity, 100);
-        };
-    }
-
-    // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
+// 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
     if (!window.initNativeAdControl) {
         window.initNativeAdControl = function() {
-            var adShown = false;
-            var adHidden = false;
-            var lastMenuOpacity = 0;
+   
+            var adShown = false; // 광고가 현재 표시되고 있는지 여부
+            var adHidden = false; // 광고가 현재 숨겨져 있는지 여부
+            var lastMenuOpacity = 0; // 마지막으로 감지된 메뉴 opacity 값
+            var isProcessingScroll = false; // 스크롤 이벤트 중복 호출 방지 플래그
 
-            // 스크롤 감지
+            // 스크롤 감지 (50ms 디바운스로 중복 호출 방지)
+        
             $(window).add($(document)).add($('body')).add($('.page-view')).add($('.page-recruit')).add($('.page-content')).add($('#app')).on('scroll', function() {
+                if (isProcessingScroll) return;
+                isProcessingScroll = true;
+                setTimeout(function() { isProcessingScroll = false; }, 50);
                 var $target = $(this);
                 var isWindow = this === window;
                 var isDocument = this === document;
-                var scrollTopVal = isWindow ? $(window).scrollTop() : (isDocument ? $(document).scrollTop() : $target.scrollTop());
-                var heightVal = isWindow ? $(window).height() : (isDocument ? $(document).height() : $target.innerHeight());
+                var scrollTopVal = isWindow ? $(window).scrollTop() : (isDocument ? $(document).scrollTop() : $target.scrollTop()); // 현재 스크롤 위치
+                var heightVal = isWindow ? $(window).height() : (isDocument ? $(document).height() : $target.innerHeight());// 현재 화면의 높이
                 var containerScrollHeight = (isWindow || isDocument) ?
                     (document.documentElement && document.documentElement.scrollHeight ? document.documentElement.scrollHeight : document.body.scrollHeight) :
-                    (this && this.scrollHeight ? this.scrollHeight : ($('.page-view').height() || $('.page-recruit').height()));
-                var scrollPos = scrollTopVal + heightVal;
-                var documentHeight = containerScrollHeight || ($('.page-view').height() || $('.page-recruit').height());
+                    (this && this.scrollHeight ? this.scrollHeight : ($('.page-view').height() || $('.page-recruit').height())); // 스크롤 가능한 전체 높이
+                var scrollPos = scrollTopVal + heightVal; // 현재 화면의 맨 아래 위치
+                var documentHeight = containerScrollHeight || ($('.page-view').height() || $('.page-recruit').height());//  전체 페이지 높이
 
                 // 광고 오버레이 감지: 하단 200px 이내 도달 시 표시
-                if (!adShown && scrollPos + 200 >= documentHeight) {
+                if (!adShown && scrollPos + 200 >= documentHeight) { 
+              
                     adShown = true;
                     adHidden = false;
                     if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
+                     
                         window.nowjob.showNativeAd();
+                    } else {
+                        
                     }
                 }
                 // 하단 300px 이상 멀어지면 숨기기
-                if (adShown && !adHidden && scrollPos + 100 < documentHeight) {
+                if (adShown && !adHidden && scrollPos + 50 < documentHeight) {
+                  
                     adHidden = true;
                     adShown = false;
                     if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+                       
                         window.nowjob.hideNativeAd();
+                    } else {
+                      
                     }
                 }
             });
 
-            // 메뉴 opacity 감지 (별도 함수로 분리)
-            initMenuOpacityControl();
+            // 메뉴 클릭 이벤트 기반 광고 제어
+            initMenuAdControl();
         };
+    }
+
+    // 모든 페이지에서 메뉴 광고 제어 자동 초기화
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMenuAdControl);
+    } else {
+      initMenuAdControl();
+    }
+
+    // ✅ iOS/Android WebView를 위한 window.nowjob 객체 초기화
+   
+    if (!window.nowjob) {
+      window.nowjob = {};
+     
+    }
+
+    if (!window.nowjob.hideNativeAd) {
+      window.nowjob.hideNativeAd = function() {
+
+        // iOS 처리
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.hideNativeAd) {
+
+          window.webkit.messageHandlers.hideNativeAd.postMessage(null);
+        }
+        // Android 처리 (NowjobJsBridge)
+        else if (typeof nowjob !== 'undefined' && typeof nowjob.hideNativeAd === 'function') {
+          nowjob.hideNativeAd();
+        }
+        // 레거시 Android 처리 (APP_NOWAPK)
+        else if (window.APP_NOWAPK && typeof window.APP_NOWAPK.hideNativeAd === 'function') {
+
+          window.APP_NOWAPK.hideNativeAd();
+        }
+        else {
+
+        }
+      };
+
+    }
+
+    if (!window.nowjob.showNativeAd) {
+      window.nowjob.showNativeAd = function() {
+
+        // iOS 처리
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.showNativeAd) {
+
+          window.webkit.messageHandlers.showNativeAd.postMessage(null);
+        }
+        // Android 처리 (NowjobJsBridge)
+        else if (typeof nowjob !== 'undefined' && typeof nowjob.showNativeAd === 'function') {
+          nowjob.showNativeAd();
+        }
+        // 레거시 Android 처리 (APP_NOWAPK)
+        else if (window.APP_NOWAPK && typeof window.APP_NOWAPK.showNativeAd === 'function') {
+   
+          window.APP_NOWAPK.showNativeAd();
+        }
+        else {
+    
+        }
+      };
+     
     }
 
 }());
 
-// 전역: 메뉴 opacity 상태 추적
-var lastMenuOpacity = 0;
+// 메뉴 클릭에 따른 네이티브 광고 제어 함수
+function initMenuAdControl() {
 
-// 메뉴 opacity 변화 감지 및 네이티브 광고 제어 함수
-function initMenuOpacityControl() {
-  var menuElement = document.getElementById('menu');
-  if (!menuElement) return;
 
-  var checkMenuOpacity = function() {
-    var opacity = parseFloat(window.getComputedStyle(menuElement).opacity);
-    var menuOpen = opacity >= 0.9;
+  var menu = document.getElementById('menu');
+  var toggleBtn = document.querySelector('.js-toggle-menu');
 
-    if (menuOpen && lastMenuOpacity < 0.9) {
-      // 메뉴가 열림 → 광고 숨기기
-      if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
-        window.nowjob.hideNativeAd();
+  if (!menu || !toggleBtn) {
+   
+    return;
+  }
+
+
+
+// 변화가 생기면 실행 될 콜백함수 new MutationObserver(콜백함수)
+// mutations 변화내용
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.attributeName === 'class') {
+        var isMenuOpen = menu.classList.contains('open');
+      
+
+        if (isMenuOpen) {
+          // 메뉴가 열림 → 광고 숨기기
+         
+          if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+         
+            window.nowjob.hideNativeAd();
+          } else {
+         
+          }
+        } else {
+          // 메뉴가 닫힘 → 광고 표시
+     
+          if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
+          
+            window.nowjob.showNativeAd();
+          } else {
+          
+          }
+        }
       }
-    } else if (!menuOpen && lastMenuOpacity >= 0.9) {
-      // 메뉴가 닫힘 → 광고 표시
-      if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
-        window.nowjob.showNativeAd();
-      }
-    }
-    lastMenuOpacity = opacity;
-  };
-
-  // transitionstart로 애니메이션 시작 시 즉시 반응
-  menuElement.addEventListener('transitionstart', function(e) {
-    if (e.propertyName === 'opacity') {
-      checkMenuOpacity();
-    }
+    });
   });
+  //  observer.observe(대상, 옵션)
+  observer.observe(menu, { attributes: true, attributeFilter: ['class'] });
 
-  // transitionend로 애니메이션 종료 시 즉시 반응
-  menuElement.addEventListener('transitionend', function(e) {
-    if (e.propertyName === 'opacity') {
-      checkMenuOpacity();
-    }
-  });
-
-  // 메뉴 class 변경 감지 (transition이 없는 즉시 변경의 경우)
-  var observer = new MutationObserver(function() {
-    checkMenuOpacity();
-  });
-  observer.observe(menuElement, { attributes: true, attributeFilter: ['class'] });
-
-  // 초기 상태 확인
-  checkMenuOpacity();
 }

@@ -112,7 +112,7 @@
     .quick-compage-link {
         position: fixed;
         right: 18px;
-        bottom: 97px;
+        bottom: 195px;
         --quick-compage-size: 45px;
         /* 버튼 크기 변수 */
         width: var(--quick-compage-size);
@@ -250,6 +250,7 @@
                 }
             });
         });
+
     });
 
     // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)

@@ -412,7 +412,8 @@ class Recruit_proc extends CI_Controller
 		$addr_info = $this->user->getAddrInfo();
 		$mm_idx = $this->user->getUserIdx();
 		$page = input_post("page", 1);
-		$pagesize = input_post("pagesize", 20);
+		$limit = input_post("limit", 20);
+		$pagesize = input_post("pagesize", $limit); // limit과 pagesize 통일
 		$text = input_post("text", "");
 		$category = input_post("category", "");
 		$work_type = input_post("work_type", "");
@@ -456,12 +457,12 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
-			//$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
-			//$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt"] = getTimeText($row["up_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 		}
 		$result["list"] = $temp_list;
+		// JavaScript 페이지네이션용 total 필드 추가
+		$result["total"] = isset($result["count"]) ? $result["count"] : 0;
 
 		json_return("00", "조회성공", $result);
 	}
@@ -874,7 +875,7 @@ class Recruit_proc extends CI_Controller
 			json_return("01", "5분 후 다시 지원이 가능합니다.", $result);
 			return;
 		}
-		
+
 		// 기업이 이미 제안한 공고-이력서 조합인지 확인
 		$sql_proposal = "
 			SELECT COUNT(*) as cnt
@@ -885,13 +886,13 @@ class Recruit_proc extends CI_Controller
 		";
 		$query_proposal = $this->db->query($sql_proposal);
 		$proposal_result = $query_proposal->row_array();
-		
+
 		if ($proposal_result && $proposal_result["cnt"] > 0) {
 			// 제안이 이미 있는 경우 알림창 표시
 			json_return("90", "이미 기업에서 제안한 공고입니다.<br/>같은 공고와 같은 이력서로 지원할 수 없습니다.");
 			return;
 		}
-		
+
 		json_return("00", "조회성공", $result);
 	}
 }

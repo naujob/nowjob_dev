@@ -137,3 +137,140 @@ $value = in_array_return($array['key'], $checked, 'check') ? 'checked' : '';
 ### Refactoring 전략
 
 - 함수가 있는지 확인하고 만들기 (function_exists)
+
+## JavaScript 상태관리 (Data 속성 패턴)
+
+### 원칙: 역할 분명히 하기
+
+**상태**: HTML의 `data-*` 속성으로 관리
+**로직**: JavaScript로 상태 변경 담당
+**표현**: CSS에서 `[data-*]` 선택자로 스타일 적용
+
+```html
+<!-- 상태를 data 속성으로 정의 -->
+<div id="menu" data-state="closed" data-loading="false">
+  <button id="menu-toggle">메뉴</button>
+</div>
+```
+
+```javascript
+// JavaScript: 상태 변경 담당
+const menu = document.getElementById('menu');
+document.getElementById('menu-toggle').addEventListener('click', () => {
+  const currentState = menu.getAttribute('data-state');
+  const newState = currentState === 'closed' ? 'open' : 'closed';
+  menu.setAttribute('data-state', newState);
+});
+
+// 로딩 상태 업데이트
+function setLoading(isLoading) {
+  menu.setAttribute('data-loading', isLoading ? 'true' : 'false');
+}
+```
+
+```css
+/* CSS: data 속성으로 스타일 적용 (역할 분명) */
+
+/* 닫힌 상태 */
+#menu[data-state="closed"] {
+  display: none;
+}
+
+/* 열린 상태 */
+#menu[data-state="open"] {
+  display: block;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* 로딩 상태 */
+#menu[data-loading="true"] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+#menu[data-loading="true"] button {
+  cursor: wait;
+}
+```
+
+### 주요 data 속성 목록
+
+| 속성 | 값 | 용도 |
+|------|-----|------|
+| `data-state` | open, closed, loading, error | UI 상태 |
+| `data-loading` | true, false | 로딩 중 여부 |
+| `data-active` | true, false | 활성/비활성 |
+| `data-mode` | edit, view, preview | 모드 전환 |
+| `data-selected` | true, false | 선택 상태 |
+| `data-dirty` | true, false | 폼 수정 여부 |
+| `data-visible` | true, false | 표시/숨김 |
+
+### 예시: 폼 상태관리
+
+```html
+<form id="recruit-form" data-dirty="false" data-mode="edit">
+  <input type="text" id="title" placeholder="공고 제목">
+  <button type="submit">저장</button>
+  <span class="unsaved-warning">저장되지 않은 변경사항이 있습니다</span>
+</form>
+```
+
+```javascript
+const form = document.getElementById('recruit-form');
+const titleInput = document.getElementById('title');
+
+// 입력 변경 시 상태 업데이트
+titleInput.addEventListener('change', () => {
+  form.setAttribute('data-dirty', 'true');
+});
+
+// 저장 후 상태 초기화
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  form.setAttribute('data-mode', 'loading');
+  
+  fetch('/api/recruit/save', {
+    method: 'POST',
+    body: JSON.stringify({ title: titleInput.value })
+  })
+  .then(() => {
+    form.setAttribute('data-dirty', 'false');
+    form.setAttribute('data-mode', 'view');
+  })
+  .catch(() => {
+    form.setAttribute('data-mode', 'edit');
+  });
+});
+```
+
+```css
+/* 저장되지 않은 경고 */
+#recruit-form[data-dirty="false"] .unsaved-warning {
+  display: none;
+}
+
+#recruit-form[data-dirty="true"] .unsaved-warning {
+  display: block;
+  color: #f44336;
+}
+
+/* 로딩 중 비활성화 */
+#recruit-form[data-mode="loading"] button {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 보기 모드 */
+#recruit-form[data-mode="view"] input {
+  pointer-events: none;
+  background-color: #f5f5f5;
+}
+```
+
+### 장점
+
+- **명확한 역할 분리**: HTML(상태) ↔ JS(로직) ↔ CSS(표현)
+- **추적 가능**: 상태가 명시적으로 태그에 저장되어 DevTools로 쉽게 확인
+- **재사용성**: 같은 data 속성 패턴이 여러 요소에 적용 가능
+- **유지보수성**: CSS와 JS 간의 의존성이 명확함
+- **성능**: CSS 클래스 토글보다 더 명확하고 상태 추적이 쉬움

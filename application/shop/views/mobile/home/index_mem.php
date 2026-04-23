@@ -659,6 +659,11 @@ if ($g_ios_publish == true) {
   }
 
   window.addEventListener('DOMContentLoaded', function() {
+    // Android 앱에 회원 유형 전달 (개인회원)
+    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.setMemberType === 'function') {
+      APP_NOWAPK.setMemberType('mem');
+    }
+
     getRecoList();
     $('.footer .toggle-btn').on('click', function() {
       var $serviceProvider = $('.footer .service-provider');
@@ -675,10 +680,6 @@ if ($g_ios_publish == true) {
       }
     });
 
-    // 메뉴 opacity 감지 기반 광고 제어
-    if (typeof initMenuOpacityControl === 'function') {
-      initMenuOpacityControl();
-    }
   });
 
   $(document).on('click', '.desc', function() {
@@ -885,4 +886,3 @@ if ($g_ios_publish == true) {
     }
   })();
 </script>
-

@@ -1169,6 +1169,7 @@
           opacity: initial;
           box-sizing: border-box;
           vertical-align: middle;
+          text-align: center;
         }
 
         /* 첨부사진 - 모바일 스타일 적용 */
@@ -1369,10 +1370,10 @@
         /* 추가정보 섹션 근무요일 토글 버튼 스타일 */
         .extra-section .week-day .form-toggle-btn2.sm .btn {
           min-width: 60px;
-          height: 55px;
+          height: 60px;
           padding: 0 8px;
           font-size: var(--rc-input-font-size);
-          line-height: 48px;
+          line-height: 58px;
           border-radius: 50%;
 
         }
@@ -1474,7 +1475,7 @@
                       <div class="rc-name-row">
                         <label>
                           <span class="sr-text">공고명 입력</span>
-                          <input type="text" name="rc_name" maxlength="30" placeholder="공고명을 작성해주세요" value="<?= $info["rc_name"] ?>" autocomplete="off" aria-required="true" required class="form-text input-wide">
+                          <input type="text" name="rc_name" maxlength="50" placeholder="공고명을 작성해주세요(50글자까지)" value="<?= $info["rc_name"] ?>" autocomplete="off" aria-required="true" required class="form-text input-wide">
                           <!-- <div onclick="$('#recruiteListBox').toggle();" class="recruit-list-arrow"><img src="/resource/shop/web/img/ic_arrow_down.svg"></div> -->
                           <div id="recruiteListBox">
                             <script>
@@ -1543,7 +1544,7 @@
                             <?php endforeach; ?>
                           </div>
                         </label>
-                        <span class="char-count" id="rc_name_count">0/30</span>
+                        <span class="char-count" id="rc_name_count">0/50</span>
                       </div>
                     </div>
                   </div>
@@ -2428,7 +2429,7 @@
                     <div class="form-group age-group">
                       <label class="form-selectbox col">
                         <span class="sr-text">최소나이 선택</span>
-                        <select name="rc_sage" class="age-select">
+                        <select name="rc_sage" class="age-select" data-disabled="false">
                           <option value="">선택</option>
                           <?php for ($icnt = 20; $icnt <= 80; $icnt++) : ?>
                             <option value="<?= $icnt ?>" <?= $info["rc_sage"] == $icnt ? "selected" : "" ?>><?= $icnt ?>세</option>
@@ -2439,7 +2440,7 @@
                       <span class="entity">~</span>
                       <label class="form-selectbox col">
                         <span class="sr-text">최대나이 선택</span>
-                        <select name="rc_eage" class="age-select">
+                        <select name="rc_eage" class="age-select" data-disabled="false">
                           <option value="">선택</option>
                           <?php for ($icnt = 20; $icnt <= 80; $icnt++) : ?>
                             <option value="<?= $icnt ?>" <?= $info["rc_eage"] == $icnt ? "selected" : "" ?>><?= $icnt ?>세</option>
@@ -2524,8 +2525,8 @@
           // 초기 상태: 추가정보 섹션 숨기기
           $('.extra-section').removeClass('show');
 
-          // 희망국적 무관 토글
-          $('#rc_nation_yn').on('change', function() {
+          // 희망국적 무관 클릭 시 토글 (직접 클릭할 때만 처리)
+          $('#rc_nation_yn').on('click', function() {
             if ($(this).is(':checked')) {
               // 무관 체크 → 버튼들 비활성화
               $('input[name="rc_nation[]"]').prop('checked', false);
@@ -2536,15 +2537,17 @@
             }
           });
 
-          // 희망국적 input 태그 클릭 시 무관 해제
-          $(document).on('click', 'input[name="rc_nation[]"]', function() {
-            if ($('#rc_nation_yn').is(':checked')) {
-              $('#rc_nation_yn').prop('checked', false).trigger('change');
+          // 희망국적 버튼 클릭 시 무관 자동 체크/언체크
+          $('[name="rc_nation[]"]').on('click', function() {
+            if ($('[name="rc_nation[]"]:checked').length == 2) {
+              $('#rc_nation_yn').prop('checked', true);
+            } else {
+              $('#rc_nation_yn').prop('checked', false);
             }
           });
 
-          // 희망성별 무관 토글
-          $('#rc_sex_yn').on('change', function() {
+          // 희망성별 무관 클릭 시 토글 (직접 클릭할 때만 처리)
+          $('#rc_sex_yn').on('click', function() {
             if ($(this).is(':checked')) {
               // 무관 체크 → 버튼들 비활성화
               $('input[name="rc_sex[]"]').prop('checked', false);
@@ -2555,19 +2558,32 @@
             }
           });
 
-          // 희망성별 input 태그 클릭 시 무관 해제
-          $(document).on('click', 'input[name="rc_sex[]"]', function() {
-            if ($('#rc_sex_yn').is(':checked')) {
-              $('#rc_sex_yn').prop('checked', false).trigger('change');
+          // 희망성별 버튼 클릭 시 무관 자동 체크/언체크
+          $('[name="rc_sex[]"]').on('click', function() {
+            if ($('[name="rc_sex[]"]:checked').length == 2) {
+              $('#rc_sex_yn').prop('checked', true);
+            } else {
+              $('#rc_sex_yn').prop('checked', false);
             }
           });
 
           // 희망나이 무관 토글
           $('#rc_age_yn').on('change', function() {
             if ($(this).is(':checked')) {
-              $('select[name="rc_sage"], select[name="rc_eage"]').val('').prop('disabled', true);
+              // 무관 체크 → select 상태만 추적
+              $('select[name="rc_sage"], select[name="rc_eage"]').val('').attr('data-disabled', 'true');
             } else {
-              $('select[name="rc_sage"], select[name="rc_eage"]').prop('disabled', false);
+              // 무관 언체크 → select 선택 가능
+              $('select[name="rc_sage"], select[name="rc_eage"]').attr('data-disabled', 'false');
+            }
+          });
+
+          // 나이 선택시 이벤트 - disabled 상태에서 선택 시도 시 무관 자동 해제
+          $(document).on('change', 'select[name="rc_sage"], select[name="rc_eage"]', function() {
+            var $select = $(this);
+            if ($select.attr('data-disabled') === 'true' && $select.val() !== '') {
+              // 선택값이 있으면 무관 체크 자동 해제
+              $('#rc_age_yn').prop('checked', false).trigger('change');
             }
           });
 
@@ -2579,7 +2595,7 @@
             $('input[name="rc_sex[]"]').closest('.form-toggle-btn2').css('opacity', '0.4');
           }
           if ($('#rc_age_yn').is(':checked')) {
-            $('select[name="rc_sage"], select[name="rc_eage"]').prop('disabled', true);
+            $('select[name="rc_sage"], select[name="rc_eage"]').attr('data-disabled', 'true');
           }
         });
       </script>
@@ -2923,10 +2939,10 @@
       var $input = $('[name="rc_name"]');
       var $count = $('#rc_name_count');
       $input.on('input', function() {
-        $count.text($(this).val().length + '/30');
+        $count.text($(this).val().length + '/50');
       });
       // 수정 페이지 진입 시 초기값 반영
-      $count.text($input.val().length + '/30');
+      $count.text($input.val().length + '/50');
     }());
 
     $("#btnStep").click(function() {

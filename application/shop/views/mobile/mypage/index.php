@@ -531,10 +531,6 @@
       }
     }
 
-    // 네이티브 광고 제어 (메뉴 opacity 감지만, Android가 로드 시 표시)
-    if (typeof initMenuOpacityControl === 'function') {
-      initMenuOpacityControl();
-    }
 
   });
 

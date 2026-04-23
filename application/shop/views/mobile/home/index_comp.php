@@ -1034,6 +1034,11 @@ if ($g_ios_publish == true) {
   }
 
   window.addEventListener('DOMContentLoaded', function() {
+    // Android 앱에 회원 유형 전달 (기업회원)
+    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.setMemberType === 'function') {
+      APP_NOWAPK.setMemberType('comp');
+    }
+
     // 추천인재 데이터 로딩
     getRecoList();
     // 추천공고 데이터 로딩
@@ -1054,10 +1059,6 @@ if ($g_ios_publish == true) {
       }
     });
 
-    // 메뉴 opacity 감지 기반 광고 제어
-    if (typeof initMenuOpacityControl === 'function') {
-      initMenuOpacityControl();
-    }
   });
 
   // 추천공고 클릭 이벤트

@@ -5310,7 +5310,7 @@ body {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    padding: 0 0 5rem;
+    padding: 0 0 9.4375rem;  /* 광고가 페이지네이션을 덮지 않도록 하단 여백 증가 */
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;

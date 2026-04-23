@@ -55,7 +55,7 @@
     .quick-mypage-link {
         position: fixed;
         right: 18px;
-        bottom: 90px;
+        bottom: 190px;
         width: 56px;
         height: 56px;
         background: url("/resource/shop/mobile/img/ic_url_arrow.svg") no-repeat center center;
@@ -135,6 +135,7 @@
                 }
             });
         });
+
     });
 
     // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)

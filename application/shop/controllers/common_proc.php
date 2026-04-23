@@ -814,6 +814,37 @@ class Common_proc extends CI_Controller
 		}
 	}
 
+	// splash 화면에서 로그인 상태 및 회원 유형 확인
+	function get_login_status()
+	{
+		$is_login = $this->user->isLogin();
+
+		if (!$is_login) {
+			// 로그인 안됨
+			json_return("00", "미로그인", array(
+				"is_login" => false,
+				"member_type" => null
+			));
+		} else {
+			// 로그인됨 - 회원 유형 확인
+			$mm_idx = $this->user->getUserIdx();
+			$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+			if ($mem_info == null) {
+				json_return("00", "미로그인", array(
+					"is_login" => false,
+					"member_type" => null
+				));
+			} else {
+				$member_type = isset($mem_info["mm_type"]) && $mem_info["mm_type"] == "COMP" ? "COMP" : "MEM";
+				json_return("00", "로그인됨", array(
+					"is_login" => true,
+					"member_type" => $member_type
+				));
+			}
+		}
+	}
+
 	# 즐겨찾기,지원하기등
 	function member_request()
 	{

@@ -223,23 +223,12 @@
             }, 1000);
         } else if (step == "login") {
             setTimeout(function() {
-                //alert(checkMobile());
-                if (checkMobile() == "android") {
-                    APP_NOWAPK.goHomeLogin();
-                    //location.replace("/member/login");
-                } else {
-                    location.replace("/member/login");
-                }
-            }, 1500); // 3200ms -> 1500ms로 단축하여 더 빠르게 이동
+                navigateToHome();
+            }, 1500);
         } else {
             setTimeout(function() {
-                if (checkMobile() == "android") {
-                    // APP_NOWAPK.goHomeReal();
-                    location.replace("/home/index");
-                } else {
-                    location.replace("/home/index");
-                }
-            }, 1500); // 3200ms -> 1500ms로 단축하여 더 빠르게 이동
+                navigateToHome();
+            }, 1500);
         }
     }
 
@@ -350,30 +339,30 @@
 
                             // finishGrant 콜백이 호출되지 않는 경우를 대비한 백업 타임아웃 (10초 후)
                             grantPopupTimeout = setTimeout(function() {
-                                location.replace("/member/login");
+                                navigateToHome();
                             }, 10000);
                         } catch (error) {
-                            // 에러 발생 시에도 로그인 페이지로 이동
-                            location.replace("/member/login");
+                            // 에러 발생 시에도 홈으로 이동
+                            navigateToHome();
                         }
                     } else {
-                        // APP_NOWAPK가 없으면 바로 로그인 페이지로 이동
-                        location.replace("/member/login");
+                        // APP_NOWAPK가 없으면 바로 홈으로 이동
+                        navigateToHome();
                     }
                 } else if (mobileType == "ios") {
                     // iOS: 위치 권한만 요청
                     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
                         window.webkit.messageHandlers.requestLocationPermission.postMessage({});
                     } else {
-                        location.replace("/member/login");
+                        navigateToHome();
                         return;
                     }
 
                     grantPopupTimeout = setTimeout(function() {
-                        location.replace("/member/login");
+                        navigateToHome();
                     }, 10000);
                 } else {
-                    location.replace("/member/login");
+                    navigateToHome();
                 }
             } else {
                 commonAlert(ret.msg, function() {});
@@ -413,24 +402,24 @@
                                         location.replace("/member/login");
                                     }, 10000);
                                 } catch (error) {
-                                    location.replace("/member/login");
+                                    navigateToHome();
                                 }
                             } else {
-                                location.replace("/member/login");
+                                navigateToHome();
                             }
                         } else if (mobileType == "ios") {
                             if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
                                 window.webkit.messageHandlers.requestLocationPermission.postMessage({});
                             } else {
-                                location.replace("/member/login");
+                                navigateToHome();
                                 return;
                             }
 
                             grantPopupTimeout = setTimeout(function() {
-                                location.replace("/member/login");
+                                navigateToHome();
                             }, 10000);
                         } else {
-                            location.replace("/member/login");
+                            navigateToHome();
                         }
                     }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
                 } else {
@@ -468,6 +457,31 @@
 
     // getLocation() 호출 후 위치 권한 처리 콜백 함수
 
+    // 로그인 상태에 따라 홈 페이지 결정
+    function navigateToHome() {
+        var params = {};
+        comAjax("/common_proc/get_login_status", params, function(ret) {
+            if (ret.code == "00") {
+                if (ret.data.is_login) {
+                    // 로그인됨 - 회원 유형에 따라 분기
+                    if (ret.data.member_type == "COMP") {
+                        // 기업회원
+                        location.replace("/home/index_comp");
+                    } else {
+                        // 개인회원
+                        location.replace("/home/index_mem");
+                    }
+                } else {
+                    // 미로그인
+                    location.replace("/home/index_mem");
+                }
+            } else {
+                // API 호출 실패 시 개인회원 홈으로 이동
+                location.replace("/home/index_mem");
+            }
+        });
+    }
+
     function returnLocation(lat, lng) {
         // 위치 팝업이 완료되었고, 권한 팝업도 이미 표시되었다면 바로 페이지 이동
         // (권한 팝업이 먼저 뜨고 위치 팝업이 나중에 뜨는 경우)
@@ -476,17 +490,17 @@
             clearTimeout(grantPopupTimeout);
             grantPopupTimeout = null;
             // 페이지 이동
-            location.replace("/member/login");
+            navigateToHome();
         }
     }
 
-    // iOS에서 위치 권한 결과를 받으면 로그인 페이지로 이동
+    // iOS에서 위치 권한 결과를 받으면 적절한 홈으로 이동
     function onLocationPermissionResult(status) {
         if (grantPopupTimeout) {
             clearTimeout(grantPopupTimeout);
             grantPopupTimeout = null;
         }
-        location.replace("/member/login");
+        navigateToHome();
     }
 
     function finishGrant(args) {
@@ -496,8 +510,8 @@
             grantPopupTimeout = null;
         }
 
-        // 권한 팝업 완료 후 로그인 페이지로 이동
-        location.replace("/member/login");
+        // 권한 팝업 완료 후 로그인 상태에 따라 홈으로 이동
+        navigateToHome();
     }
 
     // ✅ 웹뷰 로드 완료 후 푸시 URL 확인 (네이티브 앱에서 지연 전달된 경우 대비)

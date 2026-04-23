@@ -997,10 +997,9 @@ if (!$socket_io_script_url) {
       '/recruit/job_post',
       '/resume/hr_post/',
       '/chat',
-      '/' // 루트 경로 (홈 페이지) 추가
+      '/'
     ];
 
-    // 현재 경로가 광고 숨김 대상인지 확인
     const shouldHideAd = hideAdPages.some(page => currentPath.includes(page));
 
     if (shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.hideNativeAd === 'function') {

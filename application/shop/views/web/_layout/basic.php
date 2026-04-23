@@ -773,6 +773,18 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
             hasCompCert: <?= ($this->user->isLogin() && $this->user->getUserType() == 'COMP' && !empty($current_user_info["mm_comp_num"])) ? 'true' : 'false' ?>
         };
     </script>
+    <!-- Google AdSense 광고 (footer 직전) -->
+    <div style="width: 100%; text-align: center; padding: 20px 0; background-color: #fff;">
+        <ins class="adsbygoogle"
+             style="display:block; width: 100%; min-height: 90px;"
+             data-ad-client="ca-pub-7573726661605583"
+             data-ad-slot="3768872159"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <footer id="footer">
         <div class="container">
             <div class="footer-top">
