@@ -994,6 +994,8 @@ if (!$socket_io_script_url) {
       '/member/nowjob_login',
       '/home/index_comp',
       '/home/index_mem',
+      '/recruit/job_post',
+      '/resume/hr_post/',
       '/chat',
       '/' // 루트 경로 (홈 페이지) 추가
     ];
