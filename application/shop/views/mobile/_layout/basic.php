@@ -992,8 +992,8 @@ if (!$socket_io_script_url) {
     const hideAdPages = [
       '/member/login',
       '/member/nowjob_login',
-      '/home/index_comp.php',
-      '/home/index_mem.php',
+      '/home/index_comp',
+      '/home/index_mem',
       '/chat'
     ];
 
