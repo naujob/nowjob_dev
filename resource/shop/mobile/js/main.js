@@ -1205,27 +1205,29 @@
                 var documentHeight = containerScrollHeight || ($('.page-view').height() || $('.page-recruit').height());//  전체 페이지 높이
 
                 // 광고 오버레이 감지: 하단 200px 이내 도달 시 표시
-                if (!adShown && scrollPos + 200 >= documentHeight) { 
-              
+                // (페이지에서 기본적으로 광고를 숨기도록 설정한 경우는 무시)
+                if (!window._pageAdsHiddenByDefault && !adShown && scrollPos + 200 >= documentHeight) {
+
                     adShown = true;
                     adHidden = false;
                     if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
-                     
+
                         window.nowjob.showNativeAd();
                     } else {
-                        
+
                     }
                 }
                 // 하단 300px 이상 멀어지면 숨기기
-                if (adShown && !adHidden && scrollPos + 50 < documentHeight) {
-                  
+                // (페이지에서 기본적으로 광고를 숨기도록 설정한 경우는 무시)
+                if (!window._pageAdsHiddenByDefault && adShown && !adHidden && scrollPos + 50 < documentHeight) {
+
                     adHidden = true;
                     adShown = false;
                     if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
-                       
+
                         window.nowjob.hideNativeAd();
                     } else {
-                      
+
                     }
                 }
             });
