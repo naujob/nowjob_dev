@@ -989,18 +989,29 @@ if (!$socket_io_script_url) {
   // 광고 제어: 특정 페이지에서 광고 숨김
   function controlPageAds() {
     const currentPath = window.location.pathname;
-    const hideAdPages = [
-      '/member/login',
-      '/member/nowjob_login',
-      '/home/index_comp',
-      '/home/index_mem',
-      '/recruit/job_post',
-      '/resume/hr_post/',
-      '/chat',
-      '/'
-    ];
 
-    const shouldHideAd = hideAdPages.some(page => currentPath.includes(page));
+    // 정확한 경로 매칭 함수
+    const isHideAdPage = function(path) {
+      // 루트 경로는 정확히 / 또는 /index 형태만 매칭
+      if (path === '/' || path === '/index' || path === '') return true;
+
+      // 로그인 페이지
+      if (path.includes('/member/login') || path.includes('/member/nowjob_login')) return true;
+
+      // 홈 페이지 (파라미터 제거 후 확인)
+      const pathWithoutQuery = path.split('?')[0];
+      if (pathWithoutQuery === '/home/index_comp' || pathWithoutQuery === '/home/index_mem') return true;
+
+      // 공고/이력서 작성 페이지
+      if (pathWithoutQuery.startsWith('/recruit/job_post') || pathWithoutQuery.startsWith('/resume/hr_post')) return true;
+
+      // 채팅 페이지
+      if (pathWithoutQuery.startsWith('/chat/')) return true;
+
+      return false;
+    };
+
+    const shouldHideAd = isHideAdPage(currentPath);
 
     if (shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.hideNativeAd === 'function') {
       nowjob.hideNativeAd();
