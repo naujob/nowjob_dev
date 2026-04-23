@@ -985,4 +985,25 @@ if (!$socket_io_script_url) {
       //}, 2000); // 2초 후 새로고침
     });
   }
+
+  // 광고 제어: 특정 페이지에서 광고 숨김
+  (function() {
+    const currentPath = window.location.pathname;
+    const hideAdPages = [
+      '/member/login',
+      '/member/nowjob_login',
+      '/home/index_comp.php',
+      '/home/index_mem.php',
+      '/chat'
+    ];
+
+    // 현재 경로가 광고 숨김 대상인지 확인
+    const shouldHideAd = hideAdPages.some(page => currentPath.includes(page));
+
+    if (shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.hideNativeAd === 'function') {
+      nowjob.hideNativeAd();
+    } else if (!shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.showNativeAd === 'function') {
+      nowjob.showNativeAd();
+    }
+  })();
 </script>
