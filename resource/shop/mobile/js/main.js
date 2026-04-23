@@ -1205,8 +1205,7 @@
                 var documentHeight = containerScrollHeight || ($('.page-view').height() || $('.page-recruit').height());//  전체 페이지 높이
 
                 // 광고 오버레이 감지: 하단 200px 이내 도달 시 표시
-                // (페이지에서 기본적으로 광고를 숨기도록 설정한 경우는 무시)
-                if (!window._pageAdsHiddenByDefault && !adShown && scrollPos + 200 >= documentHeight) {
+                if (!adShown && scrollPos + 200 >= documentHeight) {
 
                     adShown = true;
                     adHidden = false;
@@ -1218,8 +1217,7 @@
                     }
                 }
                 // 하단 300px 이상 멀어지면 숨기기
-                // (페이지에서 기본적으로 광고를 숨기도록 설정한 경우는 무시)
-                if (!window._pageAdsHiddenByDefault && adShown && !adHidden && scrollPos + 50 < documentHeight) {
+                if (adShown && !adHidden && scrollPos + 50 < documentHeight) {
 
                     adHidden = true;
                     adShown = false;
@@ -1321,11 +1319,6 @@ function initMenuAdControl() {
     mutations.forEach(function(mutation) {
       if (mutation.attributeName === 'class') {
         var isMenuOpen = menu.classList.contains('open');
-
-        // 페이지에서 기본적으로 광고를 숨기도록 설정한 경우, 메뉴 로직은 무시
-        if (window._pageAdsHiddenByDefault) {
-          return;
-        }
 
         if (isMenuOpen) {
           // 메뉴가 열림 → 광고 숨기기

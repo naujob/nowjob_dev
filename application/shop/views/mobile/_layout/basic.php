@@ -987,7 +987,7 @@ if (!$socket_io_script_url) {
   }
 
   // 광고 제어: 특정 페이지에서 광고 숨김
-  (function() {
+  function controlPageAds() {
     const currentPath = window.location.pathname;
     const hideAdPages = [
       '/member/login',
@@ -1002,13 +1002,23 @@ if (!$socket_io_script_url) {
 
     const shouldHideAd = hideAdPages.some(page => currentPath.includes(page));
 
-    // 페이지별 광고 제어 상태 플래그 (메뉴 로직에서 반복 제어 방지)
-    window._pageAdsHiddenByDefault = shouldHideAd;
-
     if (shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.hideNativeAd === 'function') {
       nowjob.hideNativeAd();
     } else if (!shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.showNativeAd === 'function') {
       nowjob.showNativeAd();
     }
-  })();
+  }
+
+  // 페이지 로드/전환 시 광고 제어 실행
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', controlPageAds);
+  } else {
+    controlPageAds();
+  }
+
+  // MutationObserver로 페이지 전환 감지 (WebView 페이지 이동)
+  var observer = new MutationObserver(function(mutations) {
+    controlPageAds();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 </script>
