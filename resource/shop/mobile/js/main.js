@@ -1193,6 +1193,24 @@
                 if (isProcessingScroll) return;
                 isProcessingScroll = true;
                 setTimeout(function() { isProcessingScroll = false; }, 50);
+
+                // 광고가 숨겨져야 하는 페이지인지 확인
+                var currentPath = window.location.pathname;
+                var hideAdPages = [
+                  '/member/login',
+                  '/member/nowjob_login',
+                  '/home/index_comp',
+                  '/home/index_mem',
+                  '/recruit/job_post',
+                  '/resume/hr_post/',
+                  '/chat',
+                  '/'
+                ];
+                var shouldHideAd = hideAdPages.some(function(page) { return currentPath.includes(page); });
+
+                // 광고를 숨겨야 하는 페이지에서는 스크롤 감지 무시
+                if (shouldHideAd) return;
+
                 var $target = $(this);
                 var isWindow = this === window;
                 var isDocument = this === document;
