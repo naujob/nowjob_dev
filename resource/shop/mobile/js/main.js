@@ -1350,6 +1350,35 @@ function initMenuAdControl() {
       if (mutation.attributeName === 'class') {
         var isMenuOpen = menu.classList.contains('open');
 
+        // 광고가 숨겨져야 하는 페이지인지 확인
+        var currentPath = window.location.pathname;
+
+        // 정확한 경로 매칭 함수
+        var isHideAdPage = function(path) {
+          // 루트 경로는 정확히 / 또는 /index 형태만 매칭
+          if (path === '/' || path === '/index' || path === '') return true;
+
+          // 로그인 페이지
+          if (path.includes('/member/login') || path.includes('/member/nowjob_login')) return true;
+
+          // 홈 페이지 (파라미터 제거 후 확인)
+          var pathWithoutQuery = path.split('?')[0];
+          if (pathWithoutQuery === '/home/index_comp' || pathWithoutQuery === '/home/index_mem') return true;
+
+          // 공고/이력서 작성 페이지
+          if (pathWithoutQuery.startsWith('/recruit/job_post') || pathWithoutQuery.startsWith('/resume/hr_post')) return true;
+
+          // 채팅 페이지
+          if (pathWithoutQuery.startsWith('/chat/')) return true;
+
+          return false;
+        };
+
+        var shouldHideAd = isHideAdPage(currentPath);
+
+        // 광고를 숨겨야 하는 페이지에서는 메뉴 제어 무시
+        if (shouldHideAd) return;
+
         if (isMenuOpen) {
           // 메뉴가 열림 → 광고 숨기기
 
