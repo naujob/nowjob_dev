@@ -1307,7 +1307,7 @@ function initMenuAdControl() {
   var toggleBtn = document.querySelector('.js-toggle-menu');
 
   if (!menu || !toggleBtn) {
-   
+
     return;
   }
 
@@ -1319,25 +1319,29 @@ function initMenuAdControl() {
     mutations.forEach(function(mutation) {
       if (mutation.attributeName === 'class') {
         var isMenuOpen = menu.classList.contains('open');
-      
+
+        // 페이지에서 기본적으로 광고를 숨기도록 설정한 경우, 메뉴 로직은 무시
+        if (window._pageAdsHiddenByDefault) {
+          return;
+        }
 
         if (isMenuOpen) {
           // 메뉴가 열림 → 광고 숨기기
-         
+
           if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
-         
+
             window.nowjob.hideNativeAd();
           } else {
-         
+
           }
         } else {
           // 메뉴가 닫힘 → 광고 표시
-     
+
           if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
-          
+
             window.nowjob.showNativeAd();
           } else {
-          
+
           }
         }
       }

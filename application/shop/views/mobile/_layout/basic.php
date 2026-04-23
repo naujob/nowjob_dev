@@ -1002,6 +1002,9 @@ if (!$socket_io_script_url) {
 
     const shouldHideAd = hideAdPages.some(page => currentPath.includes(page));
 
+    // 페이지별 광고 제어 상태 플래그 (메뉴 로직에서 반복 제어 방지)
+    window._pageAdsHiddenByDefault = shouldHideAd;
+
     if (shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.hideNativeAd === 'function') {
       nowjob.hideNativeAd();
     } else if (!shouldHideAd && typeof nowjob !== 'undefined' && typeof nowjob.showNativeAd === 'function') {
