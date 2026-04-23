@@ -994,7 +994,8 @@ if (!$socket_io_script_url) {
       '/member/nowjob_login',
       '/home/index_comp',
       '/home/index_mem',
-      '/chat'
+      '/chat',
+      '/' // 루트 경로 (홈 페이지) 추가
     ];
 
     // 현재 경로가 광고 숨김 대상인지 확인
