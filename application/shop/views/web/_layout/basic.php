@@ -774,17 +774,39 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
         };
     </script>
     <!-- Google AdSense 광고 (footer 직전) -->
-    <div style="width: 100%; text-align: center; padding: 20px 0; background-color: #fff;">
-        <ins class="adsbygoogle"
-             style="display:block; width: 100%; min-height: 90px;"
-             data-ad-client="ca-pub-7573726661605583"
-             data-ad-slot="3768872159"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
+    <?php
+    // URL에 따라 광고를 표시하지 않을 페이지 목록
+    $hide_ad_urls = array(
+        '/chat/', // 채팅 관련 페이지
+        '/member/', // 로그인 페이지
+        '/compage/recruit_write', // 마이페이지
+        '/mypage/resume_write', // 기업 페이지
+    );
+
+    $current_uri = $_SERVER['REQUEST_URI'];
+    $should_show_ad = true; // 기본값은 광고 표시
+
+    foreach ($hide_ad_urls as $hide_url) {
+        if (strpos($current_uri, $hide_url) !== false) {
+            $should_show_ad = false; // 광고 표시하지 않음
+            break;
+        }
+    }
+    ?>
+
+    <?php if ($should_show_ad) : ?>
+        <div style="width: 100%; text-align: center; padding: 20px 0; background-color: #fff;">
+            <ins class="adsbygoogle"
+                style="display:block; width: 100%; min-height: 90px;"
+                data-ad-client="ca-pub-7573726661605583"
+                data-ad-slot="3768872159"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    <?php endif; ?>
     <footer id="footer">
         <div class="container">
             <div class="footer-top">

@@ -15,7 +15,7 @@ if (count($banner_list) > 0) {
 
   .search-result .sidebar {
     width: 200px;
-    height: 400px;
+    height: 870px;
     -webkit-box-flex: 0;
     -ms-flex: 0 0 200px;
     flex: 0 0 200px;

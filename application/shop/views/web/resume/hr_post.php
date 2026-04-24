@@ -391,7 +391,7 @@ function fRemoveBigAdrPHP($arg)
   .history-body .content-info .summary .working-day li[aria-hidden=false] {
     color: #fff;
     border-color: transparent;
-    background-color:#1B9D7D;
+    background-color: #1B9D7D;
   }
 
 
@@ -508,6 +508,7 @@ function fRemoveBigAdrPHP($arg)
     display: none;
     content: none;
   }
+
   /* 개인회원이 자신의 이력서를 볼 때 광고신청 버튼만 배경색 변경 */
   .item-view.person .view-aside .sticky-group.own-resume #btnPromotionResume {
     background-color: #1B9D7D;
@@ -590,8 +591,8 @@ function fRemoveBigAdrPHP($arg)
                 <span class="sr-text">5</span>
               </p>
               <!-- <div class="profile-detail"> -->
-                <!-- 이름 -->
-                <!-- <p class="name"><em class="view-title"><?= getAstrik($mem_info["mm_name"]) ?></em>님</p>
+              <!-- 이름 -->
+              <!-- <p class="name"><em class="view-title"><?= getAstrik($mem_info["mm_name"]) ?></em>님</p>
               </div> -->
               <?php
               // 기업회원 정보 캐싱 (카카오/네이버 간편가입자는 PASS 미인증으로 간주)
@@ -767,7 +768,7 @@ function fRemoveBigAdrPHP($arg)
                           $isWeekUnlimited = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
                           // 원본 요일 값 (빈값 체크용)
                           $originalWeek = isset($info["ru_week"]) ? trim((string) $info["ru_week"]) : "";
-                          
+
                           // 비어있거나 모든 요일(월,화,수,목,금,토,일)인지 체크
                           $isAllWeek = ($originalWeek === "" || $originalWeek === "월,화,수,목,금,토,일");
                           ?>
@@ -888,7 +889,7 @@ function fRemoveBigAdrPHP($arg)
         <!-- aside -->
         <div class="view-aside">
 
-          <?php 
+          <?php
           // 개인회원이 자신의 이력서를 볼 경우를 판단 (변수 재사용)
           $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
           ?>
@@ -913,12 +914,12 @@ function fRemoveBigAdrPHP($arg)
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
                   <div class="dropdown">
                     <!-- 카카오톡 공유 기능 주석처리 -->
-                    
+
                     <a href="#" onclick="shareMessage();return false;" class="share-link1">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_vendor1.svg" alt=""></span>
                       <span>카카오톡</span>
                     </a>
-                   
+
                     <a href="#" onclick="CopyUrl();return false;" class="share-link2">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_copy_url.svg" alt=""></span>
                       <span>URL복사</span>
@@ -929,7 +930,7 @@ function fRemoveBigAdrPHP($arg)
                   <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
                   <script>
                     /* 카카오톡 공유 기능 주석처리 */
-                 
+
                     function shareMessage() {
                       if (!Kakao.isInitialized()) {
                         Kakao.init("<?= $kakao_key["인증키"] ?>");
@@ -957,16 +958,16 @@ function fRemoveBigAdrPHP($arg)
                             },
                           },
                           buttons: [{
-                              title: '바로가기',
-                              link: {
-                                mobileWebUrl: url,
-                                webUrl: url
-                              },
-                            }],
+                            title: '바로가기',
+                            link: {
+                              mobileWebUrl: url,
+                              webUrl: url
+                            },
+                          }],
                         });
                       }, 100);
                     }
-                    
+
 
                     /* URL 복사 */
                     function CopyUrl() {
@@ -1002,32 +1003,32 @@ function fRemoveBigAdrPHP($arg)
                 <?php $mem_info["ad_addr"] = isset($addr[0]['ad_addr']) ? $addr[0]['ad_addr'] : ''; ?>
 
                 <p class="type">
-                <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                  $gapbar1 = "display:none;";
-                  $gapbar2 = "display:none;";
-                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                  $gapbar1 = "display:none;";
-                  $gapbar2 = "display:none;";
-                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                  $gapbar1 = "display:none;";
-                  $gapbar2 = "display:none;";
-                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                  $gapbar1 = "display:none;";
-                  $gapbar2 = "";
-                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                  $gapbar1 = "display:none;";
-                  $gapbar2 = "display:none;";
-                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                  $gapbar1 = "";
-                  $gapbar2 = "display:none;";
-                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                  $gapbar1 = "";
-                  $gapbar2 = "display:none;";
-                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                  $gapbar1 = "";
-                  $gapbar2 = "";
-                }
-                ?>
+                  <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
+                    $gapbar1 = "display:none;";
+                    $gapbar2 = "display:none;";
+                  } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
+                    $gapbar1 = "display:none;";
+                    $gapbar2 = "display:none;";
+                  } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
+                    $gapbar1 = "display:none;";
+                    $gapbar2 = "display:none;";
+                  } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
+                    $gapbar1 = "display:none;";
+                    $gapbar2 = "";
+                  } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
+                    $gapbar1 = "display:none;";
+                    $gapbar2 = "display:none;";
+                  } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
+                    $gapbar1 = "";
+                    $gapbar2 = "display:none;";
+                  } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
+                    $gapbar1 = "";
+                    $gapbar2 = "display:none;";
+                  } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
+                    $gapbar1 = "";
+                    $gapbar2 = "";
+                  }
+                  ?>
                   <span><?= $mem_info["mm_nation"] ?></span>
                   <span class="gapbar1" style="<?= $gapbar1 ?>">/</span>
                   <span><?= getKoreanAge($mem_info["mm_birth"]) ?>대</span>
@@ -1052,63 +1053,63 @@ function fRemoveBigAdrPHP($arg)
 
             <!-- 히스토리 목록 -->
             <?php if (!$isOwnResume) : ?>
-            <div class="recent-history">
-              <div class="history-header">
-                <p class="title">내가 본 인재</p>
-              </div>
-              <div class="history-body">
-                <div class="recently-slider keen-slider">
-                  <!-- 목록 -->
-                  <?php foreach ($view_list as $row) : ?>
-                    <div class="keen-slider__slide">
-                      <div class="content-li" data-ru_idx="<?= $row["ru_idx"] ?>">
-                        <div class="content-info">
-                          <div class="content-body">
-                            <div class="img">
-                              <img src="<?= $row["ru_resume_img"] ?>">
-                            </div>
-                            <div class="desc">
-                              <div class="wicon"><?= $row["ru_work_img"] ?></div>
-                              <div class="title ellipsis"><?= $row["ru_name"] ?></div>
-                              <div class="summary">
-                                <ul class="working-day"><?= $row["ru_week"] ?></ul>
+              <div class="recent-history">
+                <div class="history-header">
+                  <p class="title">내가 본 인재</p>
+                </div>
+                <div class="history-body">
+                  <div class="recently-slider keen-slider">
+                    <!-- 목록 -->
+                    <?php foreach ($view_list as $row) : ?>
+                      <div class="keen-slider__slide">
+                        <div class="content-li" data-ru_idx="<?= $row["ru_idx"] ?>">
+                          <div class="content-info">
+                            <div class="content-body">
+                              <div class="img">
+                                <img src="<?= $row["ru_resume_img"] ?>">
                               </div>
-                              <div class="summary">
-                                <p><?= $row["mm_nation"] ?></p>
-                                <p><?= $row["mm_age"] ?>세</p>
-                                <p class="area-addr" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
-                              </div>
-                              <div class="summary2">
-                                <p class="period"><?= getConvertResumePriceType($row["ru_price_type"]) ?></p>
-                              </div>
-                              <div class="summary3">
-                                <p class="wtype"><?= getWorkType2025($row["ru_work_type"]) ?></p>
+                              <div class="desc">
+                                <div class="wicon"><?= $row["ru_work_img"] ?></div>
+                                <div class="title ellipsis"><?= $row["ru_name"] ?></div>
+                                <div class="summary">
+                                  <ul class="working-day"><?= $row["ru_week"] ?></ul>
+                                </div>
+                                <div class="summary">
+                                  <p><?= $row["mm_nation"] ?></p>
+                                  <p><?= $row["mm_age"] ?>세</p>
+                                  <p class="area-addr" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
+                                </div>
+                                <div class="summary2">
+                                  <p class="period"><?= getConvertResumePriceType($row["ru_price_type"]) ?></p>
+                                </div>
+                                <div class="summary3">
+                                  <p class="wtype"><?= getWorkType2025($row["ru_work_type"]) ?></p>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  <?php endforeach; ?>
-                  <!-- 목록 -->
+                    <?php endforeach; ?>
+                    <!-- 목록 -->
+                  </div>
                 </div>
-              </div>
-              <script>
-                window.addEventListener('DOMContentLoaded', function() {
-                  if (typeof KeenSlider === 'undefined') return;
-                  var thumbnails = new KeenSlider(".recently-slider", {
-                      initial: 0,
-                      slides: {
-                        perView: 6,
+                <script>
+                  window.addEventListener('DOMContentLoaded', function() {
+                    if (typeof KeenSlider === 'undefined') return;
+                    var thumbnails = new KeenSlider(".recently-slider", {
+                        initial: 0,
+                        slides: {
+                          perView: 6,
+                        },
+                        vertical: true,
+                        drag: true,
                       },
-                      vertical: true,
-                      drag: true,
-                    },
-                    [addActiveClass, sliderArrows]
-                  );
-                });
-              </script>
-            </div>
+                      [addActiveClass, sliderArrows]
+                    );
+                  });
+                </script>
+              </div>
             <?php endif; ?>
             <!-- //히스토리 목록 -->
 
@@ -1121,19 +1122,19 @@ function fRemoveBigAdrPHP($arg)
     </div>
 
     <?php if (!$isOwnResume) : ?>
-    <div class="view-footer">
-      <div class="container">
+      <div class="view-footer">
+        <div class="container">
 
-        <!-- 하단 관련 인재 -->
-        <div class="recomm-slider person">
-          <h2 class="sr-text">추천인재</h2>
-          <div class="slider-wrap keen-slider" id="my-keen-slider">
+          <!-- 하단 관련 인재 -->
+          <div class="recomm-slider person">
+            <h2 class="sr-text">추천인재</h2>
+            <div class="slider-wrap keen-slider" id="my-keen-slider">
+            </div>
           </div>
-        </div>
-        <!-- //하단 관련 인재 -->
+          <!-- //하단 관련 인재 -->
 
+        </div>
       </div>
-    </div>
     <?php endif; ?>
 
   </main><!-- //page-content -->
@@ -1147,7 +1148,7 @@ function fRemoveBigAdrPHP($arg)
 
         <div class="img">
           <img src="{{ru_resume_img}}">
-          <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+          <!-- <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button> -->
         </div>
       </div>
       <div class="desc">
@@ -1186,18 +1187,18 @@ function fRemoveBigAdrPHP($arg)
         <div class="terms-wrap">
           <div class="post-list">
             <ul class="list">
-              <?php 
+              <?php
               // 변수가 존재하고 배열인지 확인
               $hasRecruits = isset($recruit_list) && is_array($recruit_list) && count($recruit_list) > 0;
               $validRecruitCount = 0; // 실제로 출력된 유효한 채용공고 개수
-              
+
               if ($hasRecruits) {
-                  // 유효한 채용공고 개수 먼저 계산
-                  foreach ($recruit_list as $row) {
-                      if (!empty($row["rc_idx"]) && $row["rc_idx"] != "0" && $row["rc_idx"] != 0) {
-                          $validRecruitCount++;
-                      }
+                // 유효한 채용공고 개수 먼저 계산
+                foreach ($recruit_list as $row) {
+                  if (!empty($row["rc_idx"]) && $row["rc_idx"] != "0" && $row["rc_idx"] != 0) {
+                    $validRecruitCount++;
                   }
+                }
               }
               ?>
               <?php if ($hasRecruits && $validRecruitCount > 0) : ?>
@@ -1205,7 +1206,7 @@ function fRemoveBigAdrPHP($arg)
                   <?php
                   // rc_idx가 유효한지 확인 (null, 빈 값, 0 체크)
                   if (empty($row["rc_idx"]) || $row["rc_idx"] == "0" || $row["rc_idx"] == 0) {
-                      continue; // 유효하지 않은 항목은 건너뛰기
+                    continue; // 유효하지 않은 항목은 건너뛰기
                   }
                   ?>
                   <li>
@@ -1235,11 +1236,11 @@ function fRemoveBigAdrPHP($arg)
       </div>
     </div>
     <?php if ($validRecruitCount > 0) : ?>
-    <div class="panel-footer">
-      <div class="sticky-bottom" style="width:100%;">
-        <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
+      <div class="panel-footer">
+        <div class="sticky-bottom" style="width:100%;">
+          <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
+        </div>
       </div>
-    </div>
     <?php endif; ?>
   </div>
 </div>
@@ -1247,12 +1248,12 @@ function fRemoveBigAdrPHP($arg)
 
 <script>
   var check_user_type = "<?= $this->user->getUserType(); ?>";
-  
+
   // 이벤트 위임 방식으로 변경하여 팝업 닫은 후에도 버튼 클릭이 정상 동작하도록 수정
   // 네임스페이스를 사용하여 중복 등록 방지
   $(document).off('click', '.btnRequest').on('click', '.btnRequest', function(e) {
     var $btn = $(this);
-    
+
     // 버튼이 disabled 상태인지 확인
     if ($btn.prop('disabled') || $btn.hasClass('disabled')) {
       e.preventDefault();
@@ -1262,7 +1263,7 @@ function fRemoveBigAdrPHP($arg)
 
     // 이벤트 전파 중단 (다른 핸들러와의 충돌 방지)
     e.stopImmediatePropagation();
-    
+
     //로그인 여부 확인
     if ($("#is_login").val() != "Y") {
       //commonLogin();
@@ -1311,7 +1312,7 @@ function fRemoveBigAdrPHP($arg)
   $(document).on('click', '.btn-close-panel[aria-controls="selectPanel"]', function(e) {
     e.preventDefault();
     e.stopImmediatePropagation();
-    
+
     // 패널 닫기
     var selectPanel = document.getElementById('selectPanel');
     if (selectPanel) {
@@ -1325,7 +1326,7 @@ function fRemoveBigAdrPHP($arg)
         document.body.style.overflow = '';
       }
     }
-    
+
     return false;
   });
 
@@ -1363,601 +1364,598 @@ function fRemoveBigAdrPHP($arg)
                   if (ret.code == "00") {
                     // 알림창 주석처리 - 바로 채팅방으로 이동
                     // commonAlert("선택한 채용공고로 제안하였습니다.", function() {
-                      
-                      // '제안보내기' 패널을 닫는다.
-                      $("#selectPanel").removeClass("on");
 
-                      //채팅창 오픈
-                      $("body").addClass('has-popup');
-                      $(".js-open-chat").addClass("is-trigger");
-                      $("#chatPopup").addClass("in");
-                      $(".btn-close-chat").addClass("btn-close-chat");
-                      $(".js-close-chat").addClass("show");
+                    // '제안보내기' 패널을 닫는다.
+                    $("#selectPanel").removeClass("on");
 
-                      // 사용자 타입과 제안/지원 여부에 따라 올바른 탭 활성화
-                      // hr_post.php는 기업회원이 인재에게 제안하는 페이지이므로 탭2 (제안한 인재)
-                      var userType = "<?= $this->user->getUserType() ?>";
-                      var targetTab = "2"; // 제안을 보낸 경우: 탭2 (제안한 인재/제안받은 공고)
-                      setShow(targetTab);
+                    //채팅창 오픈
+                    $("body").addClass('has-popup');
+                    $(".js-open-chat").addClass("is-trigger");
+                    $("#chatPopup").addClass("in");
+                    $(".btn-close-chat").addClass("btn-close-chat");
+                    $(".js-close-chat").addClass("show");
 
-                      //해당공고 클릭 처리 - 채팅방 목록 로드
+                    // 사용자 타입과 제안/지원 여부에 따라 올바른 탭 활성화
+                    // hr_post.php는 기업회원이 인재에게 제안하는 페이지이므로 탭2 (제안한 인재)
+                    var userType = "<?= $this->user->getUserType() ?>";
+                    var targetTab = "2"; // 제안을 보낸 경우: 탭2 (제안한 인재/제안받은 공고)
+                    setShow(targetTab);
 
-                      // 채팅방 목록을 직접 로드
-                      var chatParams = {};
-                      chatParams["ru_idx"] = rc_idx;
-                      chatParams["chatgbn"] = 'chatPanel2'; // 제안한 인재 탭
+                    //해당공고 클릭 처리 - 채팅방 목록 로드
 
-                      // chatting_cont.php의 getChatTargetList 함수를 사용하여 채팅방 목록 로드
-                      // 기업회원 제안보낸 인재 탭: get_chat_target_list_recruit2
-                      if (typeof getChatTargetList === 'function') {
-                        // getChatTargetList 함수 호출 (탭2: 제안한 인재)
-                        getChatTargetList("2");
-                        
-                        // 채팅방 목록 로드 후 채팅방 찾아서 자동으로 열기
-                        // 채팅방 목록이 DOM에 추가될 때까지 반복 확인
-                        var checkCount = 0;
-                        var maxCheckCount = 30; // 최대 15초 대기 (0.5초 * 30)
-                        var recruitClicked = false; // 공고 클릭 플래그
-                        // 현재 인재의 ru_idx 가져오기 (정확한 채팅방 찾기 위해 필요)
-                        var currentRuIdx = $("[name=ru_idx]").val();
-                        var checkInterval = setInterval(function() {
-                          try {
-                            checkCount++;
-                            
-                            // 제안한 인재 탭에서 해당 rc_idx와 ru_idx 모두 일치하는 채팅방 찾기
-                            var targetRmIdx = null;
-                            
-                            // 이미 펼쳐진 인재 목록에서 채팅방 찾기 (우선 확인)
+                    // 채팅방 목록을 직접 로드
+                    var chatParams = {};
+                    chatParams["ru_idx"] = rc_idx;
+                    chatParams["chatgbn"] = 'chatPanel2'; // 제안한 인재 탭
+
+                    // chatting_cont.php의 getChatTargetList 함수를 사용하여 채팅방 목록 로드
+                    // 기업회원 제안보낸 인재 탭: get_chat_target_list_recruit2
+                    if (typeof getChatTargetList === 'function') {
+                      // getChatTargetList 함수 호출 (탭2: 제안한 인재)
+                      getChatTargetList("2");
+
+                      // 채팅방 목록 로드 후 채팅방 찾아서 자동으로 열기
+                      // 채팅방 목록이 DOM에 추가될 때까지 반복 확인
+                      var checkCount = 0;
+                      var maxCheckCount = 30; // 최대 15초 대기 (0.5초 * 30)
+                      var recruitClicked = false; // 공고 클릭 플래그
+                      // 현재 인재의 ru_idx 가져오기 (정확한 채팅방 찾기 위해 필요)
+                      var currentRuIdx = $("[name=ru_idx]").val();
+                      var checkInterval = setInterval(function() {
+                        try {
+                          checkCount++;
+
+                          // 제안한 인재 탭에서 해당 rc_idx와 ru_idx 모두 일치하는 채팅방 찾기
+                          var targetRmIdx = null;
+
+                          // 이미 펼쳐진 인재 목록에서 채팅방 찾기 (우선 확인)
+                          $("#chat_list2 .room-item").each(function() {
+                            var $item = $(this);
+                            var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') ||
+                              $item.find('a[data-rc_idx]').data('rc_idx') ||
+                              $item.data('rc_idx');
+                            var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') ||
+                              $item.find('a[data-ru_idx]').data('ru_idx') ||
+                              $item.data('ru_idx');
+                            // rc_idx와 ru_idx 모두 일치해야 정확한 채팅방을 찾을 수 있음
+                            if (itemRcIdx == rc_idx && itemRuIdx == currentRuIdx) {
+                              // targetRmIdx는 해당 채팅방(room-item)의 고유 식별자(target_id)를 의미함. 
+                              // 즉, 열어야 할 채팅방의 rm_idx(채팅방 인덱스) 값이며
+                              // 이후 openChatRoom(targetRmIdx) 호출 시 바로 이 값을 사용.
+                              targetRmIdx = $item.data('target_id');
+                              return false; // break
+                            }
+                          });
+
+                          // 채팅방을 찾았으면 즉시 열기
+                          if (targetRmIdx) {
+                            clearInterval(checkInterval);
+                            openChatRoom(targetRmIdx);
+                            return;
+                          }
+
+                          // 채팅방을 찾지 못했고, 공고를 아직 클릭하지 않은 경우
+                          if (!recruitClicked) {
+                            // 기업회원의 경우: 공고 목록에서 해당 rc_idx 찾기
+                            var $targetRecruitItem = null;
+                            $("#chat_list2 .list-item").each(function() {
+                              var $item = $(this);
+                              var $link = $item.find('a[onclick*="fShowChatListByRecruite"]');
+                              if ($link.length > 0) {
+                                var onclickAttr = $link.attr('onclick') || '';
+                                var match = onclickAttr.match(/fShowChatListByRecruite\('(\d+)'/);
+                                if (match && match[1] == rc_idx) {
+                                  $targetRecruitItem = $link;
+                                  return false; // break
+                                }
+                              }
+                            });
+
+                            // 공고를 찾았으면 한 번만 클릭하여 인재 목록 펼치기
+                            if ($targetRecruitItem && $targetRecruitItem.length > 0) {
+                              recruitClicked = true; // 플래그 설정
+                              $targetRecruitItem.trigger('click');
+                              // 공고 클릭 후 다음 체크에서 인재 목록 확인
+                              return;
+                            }
+                          }
+
+                          // 최대 시도 횟수에 도달한 경우
+                          if (checkCount >= maxCheckCount) {
+                            clearInterval(checkInterval);
+                            //console.error("채팅방을 찾을 수 없음 - rc_idx:", rc_idx, "ru_idx:", currentRuIdx);
+                            // ru_idx와 rc_idx 모두 일치하는 채팅방 찾기 (마지막 시도)
+                            var $matchedChatItem = null;
                             $("#chat_list2 .room-item").each(function() {
                               var $item = $(this);
-                              var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
-                                            $item.find('a[data-rc_idx]').data('rc_idx') ||
-                                            $item.data('rc_idx');
-                              var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
-                                            $item.find('a[data-ru_idx]').data('ru_idx') ||
-                                            $item.data('ru_idx');
-                              // rc_idx와 ru_idx 모두 일치해야 정확한 채팅방을 찾을 수 있음
+                              var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') ||
+                                $item.find('a[data-rc_idx]').data('rc_idx') ||
+                                $item.data('rc_idx');
+                              var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') ||
+                                $item.find('a[data-ru_idx]').data('ru_idx') ||
+                                $item.data('ru_idx');
                               if (itemRcIdx == rc_idx && itemRuIdx == currentRuIdx) {
-                                // targetRmIdx는 해당 채팅방(room-item)의 고유 식별자(target_id)를 의미함. 
-                                // 즉, 열어야 할 채팅방의 rm_idx(채팅방 인덱스) 값이며
-                                // 이후 openChatRoom(targetRmIdx) 호출 시 바로 이 값을 사용.
-                                targetRmIdx = $item.data('target_id');
+                                $matchedChatItem = $item;
                                 return false; // break
                               }
                             });
-                            
-                            // 채팅방을 찾았으면 즉시 열기
-                            if (targetRmIdx) {
-                              clearInterval(checkInterval);
-                              openChatRoom(targetRmIdx);
+
+                            if ($matchedChatItem && $matchedChatItem.length > 0) {
+                              var matchedRmIdx = $matchedChatItem.data('target_id');
+                              if (matchedRmIdx) {
+                                openChatRoom(matchedRmIdx);
+                              }
+                            }
+                            // 매칭되는 채팅방을 찾지 못한 경우: 아무 동작도 하지 않음
+                            // 사용자가 채팅 목록에서 수동으로 선택할 수 있도록 함
+                          }
+                        } catch (error) {
+                          //console.error("채팅방 찾기 오류:", error);
+                          clearInterval(checkInterval);
+                        }
+                      }, 500); // 0.5초마다 확인
+
+                      // 채팅방 열기 함수
+                      function openChatRoom(targetRmIdx) {
+                        if (!targetRmIdx || typeof socket === 'undefined' || !socket) {
+                          //console.error("채팅방 열기 실패 - targetRmIdx:", targetRmIdx, "socket:", typeof socket);
+                          return;
+                        }
+
+                        // 첫 메시지 전송 함수를 먼저 정의 (이벤트 리스너에서 사용하기 위해)
+                        if (!window.sendFirstMessageAfterProposal) {
+                          window.sendFirstMessageAfterProposal = function(targetUserId, targetRmIdx) {
+                            if (!targetUserId || !targetRmIdx || typeof socket === 'undefined' || !socket) {
+                              //console.error("첫 메시지 전송 실패 - targetUserId:", targetUserId, "targetRmIdx:", targetRmIdx, "socket:", typeof socket);
                               return;
                             }
-                            
-                            // 채팅방을 찾지 못했고, 공고를 아직 클릭하지 않은 경우
-                            if (!recruitClicked) {
-                              // 기업회원의 경우: 공고 목록에서 해당 rc_idx 찾기
-                              var $targetRecruitItem = null;
-                              $("#chat_list2 .list-item").each(function() {
-                                var $item = $(this);
-                                var $link = $item.find('a[onclick*="fShowChatListByRecruite"]');
-                                if ($link.length > 0) {
-                                  var onclickAttr = $link.attr('onclick') || '';
-                                  var match = onclickAttr.match(/fShowChatListByRecruite\('(\d+)'/);
-                                  if (match && match[1] == rc_idx) {
-                                    $targetRecruitItem = $link;
-                                    return false; // break
-                                  }
-                                }
-                              });
-                              
-                              // 공고를 찾았으면 한 번만 클릭하여 인재 목록 펼치기
-                              if ($targetRecruitItem && $targetRecruitItem.length > 0) {
-                                recruitClicked = true; // 플래그 설정
-                                $targetRecruitItem.trigger('click');
-                                // 공고 클릭 후 다음 체크에서 인재 목록 확인
-                                return;
-                              }
+
+                            // g_user_id 가져오기
+                            var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
+
+                            // getCurrentDate 함수 확인
+                            var currentDate = typeof getCurrentDate === 'function' ? getCurrentDate() : new Date().toISOString();
+
+                            // 사용자 타입에 따른 메시지 내용 결정
+                            var current_user_type = typeof check_user_type !== 'undefined' ? check_user_type : "";
+                            var messageText = "";
+                            if (current_user_type === "COMP") {
+                              // 기업이 개인에게 제안보낼 경우
+                              messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+                            } else {
+                              // 개인이 기업에게 지원할 경우
+                              messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
                             }
-                            
-                            // 최대 시도 횟수에 도달한 경우
-                            if (checkCount >= maxCheckCount) {
-                              clearInterval(checkInterval);
-                              //console.error("채팅방을 찾을 수 없음 - rc_idx:", rc_idx, "ru_idx:", currentRuIdx);
-                              // ru_idx와 rc_idx 모두 일치하는 채팅방 찾기 (마지막 시도)
-                              var $matchedChatItem = null;
-                              $("#chat_list2 .room-item").each(function() {
-                                var $item = $(this);
-                                var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
-                                              $item.find('a[data-rc_idx]').data('rc_idx') ||
-                                              $item.data('rc_idx');
-                                var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
-                                              $item.find('a[data-ru_idx]').data('ru_idx') ||
-                                              $item.data('ru_idx');
-                                if (itemRcIdx == rc_idx && itemRuIdx == currentRuIdx) {
-                                  $matchedChatItem = $item;
-                                  return false; // break
-                                }
-                              });
-                              
-                              if ($matchedChatItem && $matchedChatItem.length > 0) {
-                                var matchedRmIdx = $matchedChatItem.data('target_id');
-                                if (matchedRmIdx) {
-                                  openChatRoom(matchedRmIdx);
-                                }
-                              }
-                              // 매칭되는 채팅방을 찾지 못한 경우: 아무 동작도 하지 않음
-                              // 사용자가 채팅 목록에서 수동으로 선택할 수 있도록 함
-                            }
-                          } catch (error) {
-                            //console.error("채팅방 찾기 오류:", error);
-                            clearInterval(checkInterval);
-                          }
-                        }, 500); // 0.5초마다 확인
-                        
-                        // 채팅방 열기 함수
-                        function openChatRoom(targetRmIdx) {
-                          if (!targetRmIdx || typeof socket === 'undefined' || !socket) {
-                            //console.error("채팅방 열기 실패 - targetRmIdx:", targetRmIdx, "socket:", typeof socket);
+
+                            var firstMessage = {
+                              rm_idx: Number(targetRmIdx),
+                              user_id: g_user_id,
+                              chat_type: "recruit",
+                              mg_type: "text",
+                              mg_text: messageText,
+                              mg_req_dt: "",
+                              mg_img: "",
+                              mg_file: "",
+                              mg_imoti: "",
+                              mg_dt: currentDate,
+                              mg_reads: new Array(),
+                            };
+
+                            // 읽음 상태 설정
+                            firstMessage.mg_reads.push({
+                              read_yn: "Y",
+                              user_id: g_user_id
+                            });
+                            firstMessage.mg_reads.push({
+                              read_yn: "N",
+                              user_id: targetUserId
+                            });
+
+                            // 사용자 목록
+                            var firstUsers = [];
+                            firstUsers.push({
+                              user_id: g_user_id,
+                              user_nick: ""
+                            });
+                            firstUsers.push({
+                              user_id: targetUserId,
+                              user_nick: ""
+                            });
+
+                            // 메시지 전송
+                            socket.emit("message_insert", firstMessage, firstUsers);
+                          };
+                        }
+
+                        // chatting_cont.php의 .room-item 클릭 핸들러와 동일한 로직 실행
+                        // 대화내용 중복 차단 내역 초기화
+                        if (typeof resetProcessedIdx === 'function') {
+                          resetProcessedIdx();
+                        }
+
+                        // 초기화
+                        if (typeof click_type !== 'undefined') {
+                          click_type = "list";
+                        }
+                        if (typeof rm_start !== 'undefined') {
+                          rm_start = 0;
+                        }
+                        $("#chat_view").html("");
+                        if (typeof rm_idx !== 'undefined') {
+                          rm_idx = targetRmIdx;
+                        }
+
+                        // get_chat_info 중복 호출 방지 플래그 초기화
+                        if (typeof window.chat_info_called !== 'undefined') {
+                          window.chat_info_called = false;
+                        }
+
+                        // 채팅방 정보 준비 상태 초기화
+                        if (typeof rm_info_ready !== 'undefined') {
+                          rm_info_ready = false;
+                        }
+                        if (typeof rm_info !== 'undefined') {
+                          rm_info = {};
+                        }
+
+                        $("#btnSend").prop("disabled", true); // 버튼 비활성화
+
+                        // g_user_id 가져오기
+                        var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
+
+                        // 제안 완료 후 자동 메시지 전송 플래그 설정
+                        window.autoSendFirstMessage = {
+                          enabled: true,
+                          rm_idx: targetRmIdx,
+                          rc_idx: rc_idx,
+                          messageListChecked: false, // message_list_return에서 메시지가 없다고 확인했는지 여부
+                          targetUserId: null // room_info_return에서 찾은 상대방 ID
+                        };
+
+                        // 리스너를 emit보다 먼저 등록해 응답 레이스로 이벤트를 놓치지 않도록 보강
+                        var earlyBindSocketOnce = function(eventName, handler) {
+                          if (!socket || typeof handler !== 'function') return;
+                          if (typeof socket.once === 'function') {
+                            socket.once(eventName, handler);
                             return;
                           }
-                          
-                          // 첫 메시지 전송 함수를 먼저 정의 (이벤트 리스너에서 사용하기 위해)
-                          if (!window.sendFirstMessageAfterProposal) {
-                            window.sendFirstMessageAfterProposal = function(targetUserId, targetRmIdx) {
-                              if (!targetUserId || !targetRmIdx || typeof socket === 'undefined' || !socket) {
-                                //console.error("첫 메시지 전송 실패 - targetUserId:", targetUserId, "targetRmIdx:", targetRmIdx, "socket:", typeof socket);
-                                return;
+                          if (typeof socket.on === 'function') {
+                            var wrapped = function(ret) {
+                              if (typeof socket.off === 'function') {
+                                socket.off(eventName, wrapped);
                               }
-                              
-                              // g_user_id 가져오기
-                              var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                              
-                              // getCurrentDate 함수 확인
-                              var currentDate = typeof getCurrentDate === 'function' ? getCurrentDate() : new Date().toISOString();
-                              
-                              // 사용자 타입에 따른 메시지 내용 결정
-                              var current_user_type = typeof check_user_type !== 'undefined' ? check_user_type : "";
-                              var messageText = "";
-                              if (current_user_type === "COMP") {
-                                // 기업이 개인에게 제안보낼 경우
-                                messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
-                              } else {
-                                // 개인이 기업에게 지원할 경우
-                                messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
-                              }
-                              
-                              var firstMessage = {
-                                rm_idx: Number(targetRmIdx),
-                                user_id: g_user_id,
-                                chat_type: "recruit",
-                                mg_type: "text",
-                                mg_text: messageText,
-                                mg_req_dt: "",
-                                mg_img: "",
-                                mg_file: "",
-                                mg_imoti: "",
-                                mg_dt: currentDate,
-                                mg_reads: new Array(),
-                              };
-                              
-                              // 읽음 상태 설정
-                              firstMessage.mg_reads.push({
-                                read_yn: "Y",
-                                user_id: g_user_id
-                              });
-                              firstMessage.mg_reads.push({
-                                read_yn: "N",
-                                user_id: targetUserId
-                              });
-                              
-                              // 사용자 목록
-                              var firstUsers = [];
-                              firstUsers.push({
-                                user_id: g_user_id,
-                                user_nick: ""
-                              });
-                              firstUsers.push({
-                                user_id: targetUserId,
-                                user_nick: ""
-                              });
-                              
-                              // 메시지 전송
-                              socket.emit("message_insert", firstMessage, firstUsers);
+                              handler(ret);
                             };
+                            socket.on(eventName, wrapped);
                           }
-                          
-                          // chatting_cont.php의 .room-item 클릭 핸들러와 동일한 로직 실행
-                          // 대화내용 중복 차단 내역 초기화
-                          if (typeof resetProcessedIdx === 'function') {
-                            resetProcessedIdx();
-                          }
-                          
-                          // 초기화
-                          if (typeof click_type !== 'undefined') {
-                            click_type = "list";
-                          }
-                          if (typeof rm_start !== 'undefined') {
-                            rm_start = 0;
-                          }
-                          $("#chat_view").html("");
-                          if (typeof rm_idx !== 'undefined') {
-                            rm_idx = targetRmIdx;
-                          }
-                          
-                          // get_chat_info 중복 호출 방지 플래그 초기화
-                          if (typeof window.chat_info_called !== 'undefined') {
-                            window.chat_info_called = false;
-                          }
-                          
-                          // 채팅방 정보 준비 상태 초기화
-                          if (typeof rm_info_ready !== 'undefined') {
-                            rm_info_ready = false;
-                          }
+                        };
+
+                        earlyBindSocketOnce("room_info_return", function(ret) {
+                          if (!ret || ret.code !== "00" || !window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) return;
+                          if (!ret.data || Number(ret.data.rm_idx) !== Number(window.autoSendFirstMessage.rm_idx)) return;
+
+                          // chatting_cont.php의 전송 조건(rm_info_ready/rm_info)을 만족시키도록 동기화
                           if (typeof rm_info !== 'undefined') {
-                            rm_info = {};
+                            rm_info = ret.data;
                           }
-                          
-                          $("#btnSend").prop("disabled", true); // 버튼 비활성화
-                          
-                          // g_user_id 가져오기
-                          var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                          
-                          // 제안 완료 후 자동 메시지 전송 플래그 설정
-                          window.autoSendFirstMessage = {
-                            enabled: true,
+                          if (typeof rm_info_ready !== 'undefined') {
+                            rm_info_ready = true;
+                          }
+
+                          var targetUserId = null;
+                          if (ret.data.rm_users && Array.isArray(ret.data.rm_users)) {
+                            for (var i = 0; i < ret.data.rm_users.length; i++) {
+                              if (ret.data.rm_users[i].user_id && ret.data.rm_users[i].user_id != g_user_id) {
+                                targetUserId = ret.data.rm_users[i].user_id;
+                                break;
+                              }
+                            }
+                          }
+
+                          if (targetUserId) {
+                            window.autoSendFirstMessage.targetUserId = targetUserId;
+                            if (typeof g_chat_other_id !== 'undefined' && !g_chat_other_id) {
+                              g_chat_other_id = targetUserId;
+                            }
+                            if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
+                              window.sendFirstMessageAfterProposal(targetUserId, window.autoSendFirstMessage.rm_idx);
+                              window.autoSendFirstMessage = null;
+                            }
+                          }
+                        });
+
+                        earlyBindSocketOnce("message_list_return", function(ret) {
+                          if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) return;
+                          var messageList = ret && ret.data ? ret.data : [];
+                          var hasMessages = false;
+                          if (Array.isArray(messageList) && messageList.length > 0) {
+                            for (var i = 0; i < messageList.length; i++) {
+                              if (messageList[i].rm_messages && Array.isArray(messageList[i].rm_messages) && messageList[i].rm_messages.length > 0) {
+                                hasMessages = true;
+                                break;
+                              }
+                            }
+                          }
+                          if (!hasMessages) {
+                            window.autoSendFirstMessage.messageListChecked = true;
+                            if (window.autoSendFirstMessage.targetUserId && window.sendFirstMessageAfterProposal) {
+                              window.sendFirstMessageAfterProposal(window.autoSendFirstMessage.targetUserId, window.autoSendFirstMessage.rm_idx);
+                              window.autoSendFirstMessage = null;
+                            }
+                          }
+                        });
+
+                        // 룸 호출
+                        socket.emit("room_join", {
+                          rm_idx: Number(targetRmIdx),
+                          con_user_id: g_user_id
+                        });
+
+                        // 채팅방 정보 조회
+                        socket.emit("room_info", {
+                          rm_idx: Number(targetRmIdx),
+                          con_user_id: g_user_id
+                        });
+
+                        // 메시지 리스트 조회
+                        var params = {
+                          rm_idx: Number(targetRmIdx),
+                          skip: 0,
+                          limit: 1000
+                        };
+                        socket.emit("message_list", params);
+
+                        // 채팅 뷰 표시
+                        $('.chat-view').css('display', 'flex');
+                        $('.chat-view').removeAttr('hidden');
+
+
+                        // get_chat_info를 직접 호출하여 상대방 ID 가져오기
+                        if (typeof comAjaxV2 === 'function') {
+                          // ajax_first_num 초기화하여 중복 호출 알림 방지
+                          if (typeof ajax_first_num !== 'undefined') {
+                            ajax_first_num = 0;
+                          }
+
+                          comAjaxV2("/chat_proc/get_chat_info", {
                             rm_idx: targetRmIdx,
-                            rc_idx: rc_idx,
-                            messageListChecked: false, // message_list_return에서 메시지가 없다고 확인했는지 여부
-                            targetUserId: null // room_info_return에서 찾은 상대방 ID
-                          };
+                            mm_type: userType,
+                            chat_tab_id: "2"
+                          }, function(ret) {
+                            if (ret.code == "00" && ret.data && ret.data.mm_id) {
+                              var targetUserId = ret.data.mm_id;
 
-                          // 리스너를 emit보다 먼저 등록해 응답 레이스로 이벤트를 놓치지 않도록 보강
-                          var earlyBindSocketOnce = function(eventName, handler) {
-                            if (!socket || typeof handler !== 'function') return;
-                            if (typeof socket.once === 'function') {
-                              socket.once(eventName, handler);
-                              return;
-                            }
-                            if (typeof socket.on === 'function') {
-                              var wrapped = function(ret) {
-                                if (typeof socket.off === 'function') {
-                                  socket.off(eventName, wrapped);
-                                }
-                                handler(ret);
-                              };
-                              socket.on(eventName, wrapped);
-                            }
-                          };
+                              // 플래그에 상대방 ID 저장
+                              if (window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
+                                window.autoSendFirstMessage.targetUserId = targetUserId;
+                                // get_chat_info에서 가져온 상대방 ID를 data 속성에도 저장
+                                $("#top_name").data('chatotherid', targetUserId);
 
-                          earlyBindSocketOnce("room_info_return", function(ret) {
-                            if (!ret || ret.code !== "00" || !window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) return;
-                            if (!ret.data || Number(ret.data.rm_idx) !== Number(window.autoSendFirstMessage.rm_idx)) return;
-
-                            // chatting_cont.php의 전송 조건(rm_info_ready/rm_info)을 만족시키도록 동기화
-                            if (typeof rm_info !== 'undefined') {
-                              rm_info = ret.data;
-                            }
-                            if (typeof rm_info_ready !== 'undefined') {
-                              rm_info_ready = true;
-                            }
-
-                            var targetUserId = null;
-                            if (ret.data.rm_users && Array.isArray(ret.data.rm_users)) {
-                              for (var i = 0; i < ret.data.rm_users.length; i++) {
-                                if (ret.data.rm_users[i].user_id && ret.data.rm_users[i].user_id != g_user_id) {
-                                  targetUserId = ret.data.rm_users[i].user_id;
-                                  break;
+                                // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
+                                if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
+                                  window.sendFirstMessageAfterProposal(targetUserId, targetRmIdx);
+                                  // 플래그 즉시 해제하여 중복 전송 방지
+                                  window.autoSendFirstMessage = null;
+                                  return; // 전송 완료 후 즉시 리턴
                                 }
                               }
-                            }
+                            } else {}
+                          });
+                        }
 
-                            if (targetUserId) {
-                              window.autoSendFirstMessage.targetUserId = targetUserId;
-                              if (typeof g_chat_other_id !== 'undefined' && !g_chat_other_id) {
-                                g_chat_other_id = targetUserId;
-                              }
-                              if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
-                                window.sendFirstMessageAfterProposal(targetUserId, window.autoSendFirstMessage.rm_idx);
-                                window.autoSendFirstMessage = null;
-                              }
-                            }
-                          });
-
-                          earlyBindSocketOnce("message_list_return", function(ret) {
-                            if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) return;
-                            var messageList = ret && ret.data ? ret.data : [];
-                            var hasMessages = false;
-                            if (Array.isArray(messageList) && messageList.length > 0) {
-                              for (var i = 0; i < messageList.length; i++) {
-                                if (messageList[i].rm_messages && Array.isArray(messageList[i].rm_messages) && messageList[i].rm_messages.length > 0) {
-                                  hasMessages = true;
-                                  break;
-                                }
-                              }
-                            }
-                            if (!hasMessages) {
-                              window.autoSendFirstMessage.messageListChecked = true;
-                              if (window.autoSendFirstMessage.targetUserId && window.sendFirstMessageAfterProposal) {
-                                window.sendFirstMessageAfterProposal(window.autoSendFirstMessage.targetUserId, window.autoSendFirstMessage.rm_idx);
-                                window.autoSendFirstMessage = null;
-                              }
-                            }
-                          });
-
-                          // 룸 호출
-                          socket.emit("room_join", {
-                            rm_idx: Number(targetRmIdx),
-                            con_user_id: g_user_id
-                          });
-                          
-                          // 채팅방 정보 조회
-                          socket.emit("room_info", {
-                            rm_idx: Number(targetRmIdx),
-                            con_user_id: g_user_id
-                          });
-                          
-                          // 메시지 리스트 조회
-                          var params = {
-                            rm_idx: Number(targetRmIdx),
-                            skip: 0,
-                            limit: 1000
-                          };
-                          socket.emit("message_list", params);
-                          
-                          // 채팅 뷰 표시
-                          $('.chat-view').css('display', 'flex');
-                          $('.chat-view').removeAttr('hidden');
-                          
-                          
-                          // get_chat_info를 직접 호출하여 상대방 ID 가져오기
-                          if (typeof comAjaxV2 === 'function') {
-                            // ajax_first_num 초기화하여 중복 호출 알림 방지
-                            if (typeof ajax_first_num !== 'undefined') {
-                              ajax_first_num = 0;
-                            }
-                            
-                            comAjaxV2("/chat_proc/get_chat_info", {
-                              rm_idx: targetRmIdx,
-                              mm_type: userType,
-                              chat_tab_id: "2"
-                            }, function(ret) {
-                              if (ret.code == "00" && ret.data && ret.data.mm_id) {
-                                var targetUserId = ret.data.mm_id;
-                                
-                                // 플래그에 상대방 ID 저장
-                                if (window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
-                                  window.autoSendFirstMessage.targetUserId = targetUserId;
-                                  // get_chat_info에서 가져온 상대방 ID를 data 속성에도 저장
-                                  $("#top_name").data('chatotherid', targetUserId);
-                                  
-                                  // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
-                                  if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
-                                    window.sendFirstMessageAfterProposal(targetUserId, targetRmIdx);
-                                    // 플래그 즉시 해제하여 중복 전송 방지
-                                    window.autoSendFirstMessage = null;
-                                    return; // 전송 완료 후 즉시 리턴
-                                  }
-                                }
-                              } else {
-                              }
-                            });
+                        function bindSocketOnce(eventName, handler) {
+                          if (!socket || typeof handler !== 'function') return;
+                          if (typeof socket.once === 'function') {
+                            socket.once(eventName, handler);
+                            return;
                           }
-                          
-                          function bindSocketOnce(eventName, handler) {
-                            if (!socket || typeof handler !== 'function') return;
-                            if (typeof socket.once === 'function') {
-                              socket.once(eventName, handler);
-                              return;
-                            }
-                            if (typeof socket.on === 'function') {
-                              var wrapped = function(ret) {
-                                if (typeof socket.off === 'function') {
-                                  socket.off(eventName, wrapped);
-                                }
-                                handler(ret);
-                              };
-                              socket.on(eventName, wrapped);
-                            }
-                          }
-
-                          // room_info_return 이벤트를 한 번만 리스닝하여 상대방 ID 저장 및 메시지 전송 시도
-                          bindSocketOnce("room_info_return", function(ret) {
-                            if (ret.code == "00" && window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
-                              var autoSendInfo = window.autoSendFirstMessage;
-                              
-                              // 현재 채팅방인지 확인
-                              if (autoSendInfo.rm_idx == ret.data.rm_idx || autoSendInfo.rm_idx == rm_idx) {
-                                
-                                // 상대방 ID 찾기
-                                var targetUserId = null;
-                                var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                                
-                                if (ret.data && ret.data.rm_users && Array.isArray(ret.data.rm_users)) {
-                                  for (var i = 0; i < ret.data.rm_users.length; i++) {
-                                    if (ret.data.rm_users[i].user_id && ret.data.rm_users[i].user_id != g_user_id) {
-                                      targetUserId = ret.data.rm_users[i].user_id;
-                                      break;
-                                    }
-                                  }
-                                } else {
-                                }
-                                
-                                // 상대방 ID를 찾지 못한 경우 get_chat_info에서 가져오기
-                                if (!targetUserId) {
-                                  // get_chat_info가 호출될 때까지 대기
-                                  setTimeout(function() {
-                                    // 플래그가 이미 해제되었는지 확인 (get_chat_info에서 이미 전송했을 수 있음)
-                                    if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
-                                      return;
-                                    }
-                                    
-                                    var chatOtherId = $("#top_name").data('chatotherid');
-                                    if (chatOtherId) {
-                                      targetUserId = chatOtherId;
-                                      
-                                      // 플래그가 여전히 존재하는지 확인
-                                      if (window.autoSendFirstMessage) {
-                                        window.autoSendFirstMessage.targetUserId = targetUserId;
-                                        
-                                        // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
-                                        if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
-                                          window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
-                                          // 플래그 즉시 해제하여 중복 전송 방지
-                                          window.autoSendFirstMessage = null;
-                                        }
-                                      }
-                                    } else {
-                                    }
-                                  }, 1500);
-                                } else {
-                                  // 상대방 ID를 플래그에 저장
-                                  window.autoSendFirstMessage.targetUserId = targetUserId;
-                                  
-                                  // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
-                                  // (message_list_return이 먼저 발생했을 수 있음)
-                                  if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
-                                    window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
-                                    // 플래그 해제하여 중복 전송 방지
-                                    window.autoSendFirstMessage = null;
-                                  }
-                                }
+                          if (typeof socket.on === 'function') {
+                            var wrapped = function(ret) {
+                              if (typeof socket.off === 'function') {
+                                socket.off(eventName, wrapped);
                               }
-                            }
-                          });
-                          
-                          // message_list_return 이벤트를 한 번만 리스닝하여 메시지 개수 확인
-                          bindSocketOnce("message_list_return", function(ret) {
-                            // 이미 전송되었으면 스킵 (room_info_return에서 전송했을 수 있음)
-                            if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
-                              return;
-                            }
-                            
+                              handler(ret);
+                            };
+                            socket.on(eventName, wrapped);
+                          }
+                        }
+
+                        // room_info_return 이벤트를 한 번만 리스닝하여 상대방 ID 저장 및 메시지 전송 시도
+                        bindSocketOnce("room_info_return", function(ret) {
+                          if (ret.code == "00" && window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
                             var autoSendInfo = window.autoSendFirstMessage;
-                            
-                            // 메시지 리스트 확인
-                            var messageList = ret.data || [];
-                            var hasMessages = false;
-                            
-                            if (Array.isArray(messageList) && messageList.length > 0) {
-                              for (var i = 0; i < messageList.length; i++) {
-                                if (messageList[i].rm_messages && Array.isArray(messageList[i].rm_messages) && messageList[i].rm_messages.length > 0) {
-                                  hasMessages = true;
-                                  break;
-                                }
-                              }
-                            }
-                            
-                            
-                            // 메시지가 없으면 자동으로 첫 메시지 전송
-                            if (!hasMessages) {
-                              
-                              // message_list_return에서 메시지가 없다고 확인했음을 플래그에 저장
-                              window.autoSendFirstMessage.messageListChecked = true;
-                              
-                              // 상대방 ID 가져오기 (여러 소스에서 시도)
+
+                            // 현재 채팅방인지 확인
+                            if (autoSendInfo.rm_idx == ret.data.rm_idx || autoSendInfo.rm_idx == rm_idx) {
+
+                              // 상대방 ID 찾기
                               var targetUserId = null;
                               var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                              
-                              // 1. 플래그에 저장된 상대방 ID 사용 (get_chat_info 또는 room_info_return에서 저장됨)
-                              if (autoSendInfo.targetUserId) {
-                                targetUserId = autoSendInfo.targetUserId;
-                              }
-                              
-                              // 2. rm_info에서 상대방 ID 찾기
-                              if (!targetUserId && typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users && Array.isArray(rm_info.rm_users)) {
-                                for (var i = 0; i < rm_info.rm_users.length; i++) {
-                                  if (rm_info.rm_users[i].user_id != g_user_id) {
-                                    targetUserId = rm_info.rm_users[i].user_id;
+
+                              if (ret.data && ret.data.rm_users && Array.isArray(ret.data.rm_users)) {
+                                for (var i = 0; i < ret.data.rm_users.length; i++) {
+                                  if (ret.data.rm_users[i].user_id && ret.data.rm_users[i].user_id != g_user_id) {
+                                    targetUserId = ret.data.rm_users[i].user_id;
                                     break;
                                   }
                                 }
-                              }
-                              
-                              // 3. get_chat_info에서 가져온 값 사용 (더 긴 대기 시간)
+                              } else {}
+
+                              // 상대방 ID를 찾지 못한 경우 get_chat_info에서 가져오기
                               if (!targetUserId) {
+                                // get_chat_info가 호출될 때까지 대기
                                 setTimeout(function() {
-                                  // 플래그가 이미 해제되었는지 확인 (다른 곳에서 이미 전송했을 수 있음)
+                                  // 플래그가 이미 해제되었는지 확인 (get_chat_info에서 이미 전송했을 수 있음)
                                   if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
                                     return;
                                   }
-                                  
+
                                   var chatOtherId = $("#top_name").data('chatotherid');
-                                  if (chatOtherId && window.sendFirstMessageAfterProposal) {
-                                    window.sendFirstMessageAfterProposal(chatOtherId, window.autoSendFirstMessage.rm_idx);
-                                    // 플래그 즉시 해제하여 중복 전송 방지
-                                    window.autoSendFirstMessage = null;
-                                    } else {
-                                      // 4. g_chat_other_id 사용
-                                      var gChatOtherId = (typeof g_chat_other_id !== 'undefined' && g_chat_other_id) ? g_chat_other_id : null;
-                                      if (gChatOtherId && window.sendFirstMessageAfterProposal) {
-                                        window.sendFirstMessageAfterProposal(gChatOtherId, window.autoSendFirstMessage.rm_idx);
+                                  if (chatOtherId) {
+                                    targetUserId = chatOtherId;
+
+                                    // 플래그가 여전히 존재하는지 확인
+                                    if (window.autoSendFirstMessage) {
+                                      window.autoSendFirstMessage.targetUserId = targetUserId;
+
+                                      // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
+                                      if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
+                                        window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
                                         // 플래그 즉시 해제하여 중복 전송 방지
-                                        window.autoSendFirstMessage = null;
-                                      } else {
-                                        //console.error("get_chat_info에서도 상대방 ID를 찾을 수 없음");
-                                        // 플래그 해제
                                         window.autoSendFirstMessage = null;
                                       }
                                     }
-                                }, 2000); // get_chat_info 완료 대기
-                                return; // setTimeout에서 처리하므로 여기서는 리턴
+                                  } else {}
+                                }, 1500);
+                              } else {
+                                // 상대방 ID를 플래그에 저장
+                                window.autoSendFirstMessage.targetUserId = targetUserId;
+
+                                // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
+                                // (message_list_return이 먼저 발생했을 수 있음)
+                                if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
+                                  window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
+                                  // 플래그 해제하여 중복 전송 방지
+                                  window.autoSendFirstMessage = null;
+                                }
                               }
-                              
-                              // 4. g_chat_other_id 사용
-                              if (!targetUserId && typeof g_chat_other_id !== 'undefined' && g_chat_other_id) {
-                                targetUserId = g_chat_other_id;
+                            }
+                          }
+                        });
+
+                        // message_list_return 이벤트를 한 번만 리스닝하여 메시지 개수 확인
+                        bindSocketOnce("message_list_return", function(ret) {
+                          // 이미 전송되었으면 스킵 (room_info_return에서 전송했을 수 있음)
+                          if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
+                            return;
+                          }
+
+                          var autoSendInfo = window.autoSendFirstMessage;
+
+                          // 메시지 리스트 확인
+                          var messageList = ret.data || [];
+                          var hasMessages = false;
+
+                          if (Array.isArray(messageList) && messageList.length > 0) {
+                            for (var i = 0; i < messageList.length; i++) {
+                              if (messageList[i].rm_messages && Array.isArray(messageList[i].rm_messages) && messageList[i].rm_messages.length > 0) {
+                                hasMessages = true;
+                                break;
                               }
-                              
-                              // 상대방 ID를 찾았으면 메시지 전송
-                              // 플래그가 여전히 존재하는지 확인 (다른 곳에서 이미 전송했을 수 있음)
-                              if (targetUserId && window.sendFirstMessageAfterProposal && window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
-                                window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
-                                // 플래그 즉시 해제하여 중복 전송 방지
-                                window.autoSendFirstMessage = null;
-                              } else if (!targetUserId) {
-                                // 상대방 ID를 찾지 못한 경우 재시도
-                                setTimeout(function() {
-                                  // 플래그가 이미 해제되었는지 확인 (다른 곳에서 이미 전송했을 수 있음)
-                                  if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
-                                    return;
-                                  }
-                                  
-                                  // 재시도 시 여러 소스에서 다시 찾기
-                                  var retryTargetUserId = window.autoSendFirstMessage.targetUserId || 
-                                                        $("#top_name").data('chatotherid') || 
-                                                        (typeof g_chat_other_id !== 'undefined' ? g_chat_other_id : null) ||
-                                                        (typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users ? 
-                                                          (function() {
-                                                            var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                                                            for (var i = 0; i < rm_info.rm_users.length; i++) {
-                                                              if (rm_info.rm_users[i].user_id != g_user_id) {
-                                                                return rm_info.rm_users[i].user_id;
-                                                              }
-                                                            }
-                                                            return null;
-                                                          })() : null);
-                                  
-                                  if (retryTargetUserId && window.sendFirstMessageAfterProposal) {
-                                    window.sendFirstMessageAfterProposal(retryTargetUserId, window.autoSendFirstMessage.rm_idx);
+                            }
+                          }
+
+
+                          // 메시지가 없으면 자동으로 첫 메시지 전송
+                          if (!hasMessages) {
+
+                            // message_list_return에서 메시지가 없다고 확인했음을 플래그에 저장
+                            window.autoSendFirstMessage.messageListChecked = true;
+
+                            // 상대방 ID 가져오기 (여러 소스에서 시도)
+                            var targetUserId = null;
+                            var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
+
+                            // 1. 플래그에 저장된 상대방 ID 사용 (get_chat_info 또는 room_info_return에서 저장됨)
+                            if (autoSendInfo.targetUserId) {
+                              targetUserId = autoSendInfo.targetUserId;
+                            }
+
+                            // 2. rm_info에서 상대방 ID 찾기
+                            if (!targetUserId && typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users && Array.isArray(rm_info.rm_users)) {
+                              for (var i = 0; i < rm_info.rm_users.length; i++) {
+                                if (rm_info.rm_users[i].user_id != g_user_id) {
+                                  targetUserId = rm_info.rm_users[i].user_id;
+                                  break;
+                                }
+                              }
+                            }
+
+                            // 3. get_chat_info에서 가져온 값 사용 (더 긴 대기 시간)
+                            if (!targetUserId) {
+                              setTimeout(function() {
+                                // 플래그가 이미 해제되었는지 확인 (다른 곳에서 이미 전송했을 수 있음)
+                                if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
+                                  return;
+                                }
+
+                                var chatOtherId = $("#top_name").data('chatotherid');
+                                if (chatOtherId && window.sendFirstMessageAfterProposal) {
+                                  window.sendFirstMessageAfterProposal(chatOtherId, window.autoSendFirstMessage.rm_idx);
+                                  // 플래그 즉시 해제하여 중복 전송 방지
+                                  window.autoSendFirstMessage = null;
+                                } else {
+                                  // 4. g_chat_other_id 사용
+                                  var gChatOtherId = (typeof g_chat_other_id !== 'undefined' && g_chat_other_id) ? g_chat_other_id : null;
+                                  if (gChatOtherId && window.sendFirstMessageAfterProposal) {
+                                    window.sendFirstMessageAfterProposal(gChatOtherId, window.autoSendFirstMessage.rm_idx);
                                     // 플래그 즉시 해제하여 중복 전송 방지
                                     window.autoSendFirstMessage = null;
                                   } else {
-                                    //console.error("상대방 ID를 찾을 수 없음 - 재시도 실패");
+                                    //console.error("get_chat_info에서도 상대방 ID를 찾을 수 없음");
                                     // 플래그 해제
                                     window.autoSendFirstMessage = null;
                                   }
-                                }, 3000);
-                              }
-                            } else {
-                              window.autoSendFirstMessage = null;
+                                }
+                              }, 2000); // get_chat_info 완료 대기
+                              return; // setTimeout에서 처리하므로 여기서는 리턴
                             }
-                          });
-                        }
-                      } else {
-                        //console.error("getChatTargetList 함수를 찾을 수 없음");
-                      }
 
- // 3초에서 1초로 단축
+                            // 4. g_chat_other_id 사용
+                            if (!targetUserId && typeof g_chat_other_id !== 'undefined' && g_chat_other_id) {
+                              targetUserId = g_chat_other_id;
+                            }
+
+                            // 상대방 ID를 찾았으면 메시지 전송
+                            // 플래그가 여전히 존재하는지 확인 (다른 곳에서 이미 전송했을 수 있음)
+                            if (targetUserId && window.sendFirstMessageAfterProposal && window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
+                              window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
+                              // 플래그 즉시 해제하여 중복 전송 방지
+                              window.autoSendFirstMessage = null;
+                            } else if (!targetUserId) {
+                              // 상대방 ID를 찾지 못한 경우 재시도
+                              setTimeout(function() {
+                                // 플래그가 이미 해제되었는지 확인 (다른 곳에서 이미 전송했을 수 있음)
+                                if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
+                                  return;
+                                }
+
+                                // 재시도 시 여러 소스에서 다시 찾기
+                                var retryTargetUserId = window.autoSendFirstMessage.targetUserId ||
+                                  $("#top_name").data('chatotherid') ||
+                                  (typeof g_chat_other_id !== 'undefined' ? g_chat_other_id : null) ||
+                                  (typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users ?
+                                    (function() {
+                                      var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
+                                      for (var i = 0; i < rm_info.rm_users.length; i++) {
+                                        if (rm_info.rm_users[i].user_id != g_user_id) {
+                                          return rm_info.rm_users[i].user_id;
+                                        }
+                                      }
+                                      return null;
+                                    })() : null);
+
+                                if (retryTargetUserId && window.sendFirstMessageAfterProposal) {
+                                  window.sendFirstMessageAfterProposal(retryTargetUserId, window.autoSendFirstMessage.rm_idx);
+                                  // 플래그 즉시 해제하여 중복 전송 방지
+                                  window.autoSendFirstMessage = null;
+                                } else {
+                                  //console.error("상대방 ID를 찾을 수 없음 - 재시도 실패");
+                                  // 플래그 해제
+                                  window.autoSendFirstMessage = null;
+                                }
+                              }, 3000);
+                            }
+                          } else {
+                            window.autoSendFirstMessage = null;
+                          }
+                        });
+                      }
+                    } else {
+                      //console.error("getChatTargetList 함수를 찾을 수 없음");
+                    }
+
+                    // 3초에서 1초로 단축
 
                     // }); // 알림창 콜백 주석처리
                   } else {
@@ -2018,19 +2016,19 @@ function fRemoveBigAdrPHP($arg)
   // selectable-item 클릭 시 해당 항목의 radio 버튼 선택
   $(document).on('click', '.selectable-item', function(e) {
     // label, input, 또는 그 자식 요소를 클릭한 경우는 기본 동작 유지
-    if ($(e.target).is('label') || 
-        $(e.target).is('input[type="radio"]') || 
-        $(e.target).is('span') ||
-        $(e.target).closest('label').length > 0 ||
-        $(e.target).closest('input[type="radio"]').length > 0) {
+    if ($(e.target).is('label') ||
+      $(e.target).is('input[type="radio"]') ||
+      $(e.target).is('span') ||
+      $(e.target).closest('label').length > 0 ||
+      $(e.target).closest('input[type="radio"]').length > 0) {
       // 라디오 버튼이나 label을 클릭한 경우는 기본 동작만 수행
       return;
     }
-    
+
     // selectable-item의 다른 부분을 클릭한 경우에만 radio 버튼 선택
     e.preventDefault();
     e.stopPropagation();
-    
+
     // 해당 항목 내의 radio 버튼 찾기
     var $radio = $(this).find('input[type="radio"][name="chk_request[]"]');
     if ($radio.length > 0) {

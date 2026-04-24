@@ -142,29 +142,29 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 ?>
 <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
   <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "JobPosting",
-  "title": <?= json_encode($job_posting_title, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-  "url": <?= json_encode($job_posting_url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-  "description": <?= json_encode($job_posting_desc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-  "datePosted": "<?= $job_posting_date ?>",
-  "hiringOrganization": {
-    "@type": "Organization",
-    "name": <?= json_encode($job_posting_company, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-    "sameAs": "<?= $app_base_url ?>",
-    "logo": "<?= $app_base_url ?>/resource/shop/web/img/nowjob_info_logo.png"
-  },
-  "jobLocation": {
-    "@type": "Place",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "전국",
-      "addressRegion": "스마트 매칭"
+    {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      "title": <?= json_encode($job_posting_title, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+      "url": <?= json_encode($job_posting_url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+      "description": <?= json_encode($job_posting_desc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+      "datePosted": "<?= $job_posting_date ?>",
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": <?= json_encode($job_posting_company, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        "sameAs": "<?= $app_base_url ?>",
+        "logo": "<?= $app_base_url ?>/resource/shop/web/img/nowjob_info_logo.png"
+      },
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "전국",
+          "addressRegion": "스마트 매칭"
+        }
+      }
     }
-  }
-}
-</script>
+  </script>
 <?php endif; ?>
 <style>
   .adBanner {
@@ -547,6 +547,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   .item-view.recruit .view-aside .sticky-group.own-recruit .summary-card .amount {
     margin-bottom: 20px;
   }
+
   .item-view.recruit .view-aside .sticky-group.own-recruit .summary-card .title {
     margin-top: 20px;
   }
@@ -569,13 +570,14 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     background-size: 35px 35px;
     padding-left: 45px;
   }
+
   /* 근무요일 스타일 */
- .item-view.recruit .view-content .working-day.week-display-36>li {
+  .item-view.recruit .view-content .working-day.week-display-36>li {
     width: 36px;
     height: 36px;
     line-height: 36px;
     font-size: 18px;
-}
+  }
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -1047,7 +1049,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
         <!-- aside -->
         <div class="view-aside">
 
-          <?php 
+          <?php
           // 기업회원이 자신의 채용공고를 볼 경우를 판단 (변수 재사용)
           $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
           ?>
@@ -1055,10 +1057,10 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
             <div class="summary-card">
               <div class="top">
                 <?php if (!$isOwnRecruit) : ?>
-                <div class="inline-group">
-                  <!-- 카테고리 라벨 -->
-                  <?= getWorkingImg($info["rc_work"], 2) ?>
-                </div>
+                  <div class="inline-group">
+                    <!-- 카테고리 라벨 -->
+                    <?= getWorkingImg($info["rc_work"], 2) ?>
+                  </div>
                 <?php endif; ?>
 
                 <!-- 공유하기 -->
@@ -1066,12 +1068,12 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
                   <div class="dropdown">
                     <!-- 카카오톡 공유 기능 주석처리 -->
-                    
+
                     <a href="javascript:void(0);" onclick="shareMessage();return false;" class="share-link1">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_vendor1.svg" alt=""></span>
                       <span>카카오톡</span>
                     </a>
-                    
+
                     <a href="javascript:void(0);" onclick="CopyUrl();return false;" class="share-link2">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_copy_url.svg" alt=""></span>
                       <span>URL복사</span>
@@ -1079,10 +1081,10 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                   </div>
 
                   <!-- 카카오 SDK 스크립트 주석처리 -->
-                 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+                  <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
                   <script>
                     /* 카카오톡 공유 기능 주석처리 */
-                  
+
                     function shareMessage() {
                       if (!Kakao.isInitialized()) {
                         //Kakao.init("a0a27ea14e36a89cbe2de50dc61323b8");
@@ -1107,16 +1109,16 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                             },
                           },
                           buttons: [{
-                              title: '바로가기',
-                              link: {
-                                mobileWebUrl: url,
-                                webUrl: url
-                              },
-                            }],
+                            title: '바로가기',
+                            link: {
+                              mobileWebUrl: url,
+                              webUrl: url
+                            },
+                          }],
                         });
                       }, 100);
                     }
-                    
+
 
                     /* URL 복사 */
                     function CopyUrl() {
@@ -1296,7 +1298,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
         <div class="thumb">
           <a href="/recruit/job_post/{{rc_idx}}" target="_blank"><img src="{{rt_recruit_img}}" alt="" class=""></a>
         </div>
-        <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+        <!-- <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button> -->
       </div>
       <div class="content-wrap">
         <div class="inline-group">
@@ -1325,8 +1327,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
 <input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <?php
-  // 모집 마감 여부: 종료일이 현재 시각보다 과거면 마감 처리
-  $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
+// 모집 마감 여부: 종료일이 현재 시각보다 과거면 마감 처리
+$is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
 ?>
 <input type="hidden" id="is_closed" value="<?= $is_closed ? "Y" : "N" ?>" />
 <script>
@@ -1449,7 +1451,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                   if (typeof getChatTargetList === 'function') {
                     // getChatTargetList 함수 호출 (탭1: 지원한 공고)
                     getChatTargetList("1");
-                    
+
                     // 채팅방 목록 로드 후 채팅방 찾아서 자동으로 열기
                     // 채팅방 목록이 DOM에 추가될 때까지 반복 확인
                     var checkCount = 0;
@@ -1457,10 +1459,10 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                     var checkInterval = setInterval(function() {
                       try {
                         checkCount++;
-                        
+
                         // 지원한 공고 탭에서 해당 rc_idx와 일치하는 채팅방 찾기
                         var targetRmIdx = null;
-                        
+
                         // 개인회원의 경우: 지원한 공고 탭은 직접 room-item으로 표시됨
                         $("#chat_list1 .room-item").each(function() {
                           var $item = $(this);
@@ -1472,14 +1474,14 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                             return false; // break
                           }
                         });
-                        
+
                         // 채팅방을 찾았으면 즉시 열기
                         if (targetRmIdx) {
                           clearInterval(checkInterval);
                           openChatRoom(targetRmIdx, rc_idx, userType);
                           return;
                         }
-                        
+
                         // 최대 시도 횟수에 도달한 경우
                         if (checkCount >= maxCheckCount) {
                           clearInterval(checkInterval);
@@ -1498,21 +1500,21 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                         clearInterval(checkInterval);
                       }
                     }, 500); // 0.5초마다 확인
-                    
+
                     // 채팅방 열기 함수
                     function openChatRoom(targetRmIdx, rc_idx, userType) {
                       if (!targetRmIdx || typeof socket === 'undefined' || !socket) {
                         //console.error("채팅방 열기 실패 - targetRmIdx:", targetRmIdx, "socket:", typeof socket);
                         return;
                       }
-                      
-                      
+
+
                       // chatting_cont.php의 .room-item 클릭 핸들러와 동일한 로직 실행
                       // 대화내용 중복 차단 내역 초기화
                       if (typeof resetProcessedIdx === 'function') {
                         resetProcessedIdx();
                       }
-                      
+
                       // 초기화
                       if (typeof click_type !== 'undefined') {
                         click_type = "list";
@@ -1524,12 +1526,12 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                       if (typeof rm_idx !== 'undefined') {
                         rm_idx = targetRmIdx;
                       }
-                      
+
                       // get_chat_info 중복 호출 방지 플래그 초기화
                       if (typeof window.chat_info_called !== 'undefined') {
                         window.chat_info_called = false;
                       }
-                      
+
                       // 채팅방 정보 준비 상태 초기화
                       if (typeof rm_info_ready !== 'undefined') {
                         rm_info_ready = false;
@@ -1537,12 +1539,12 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                       if (typeof rm_info !== 'undefined') {
                         rm_info = {};
                       }
-                      
+
                       $("#btnSend").prop("disabled", true); // 버튼 비활성화
-                      
+
                       // g_user_id 가져오기
                       var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                      
+
                       // 지원 완료 후 자동 메시지 전송 플래그 설정
                       window.autoSendFirstMessage = {
                         enabled: true,
@@ -1630,13 +1632,13 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                         rm_idx: Number(targetRmIdx),
                         con_user_id: g_user_id
                       });
-                      
+
                       // 채팅방 정보 조회
                       socket.emit("room_info", {
                         rm_idx: Number(targetRmIdx),
                         con_user_id: g_user_id
                       });
-                      
+
                       // 메시지 리스트 조회
                       var params = {
                         rm_idx: Number(targetRmIdx),
@@ -1644,19 +1646,19 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                         limit: 1000
                       };
                       socket.emit("message_list", params);
-                      
+
                       // 채팅 뷰 표시
                       $('.chat-view').css('display', 'flex');
                       $('.chat-view').removeAttr('hidden');
-                      
-                      
+
+
                       // get_chat_info를 직접 호출하여 상대방 ID 가져오기
                       if (typeof comAjaxV2 === 'function') {
                         // ajax_first_num 초기화하여 중복 호출 알림 방지
                         if (typeof ajax_first_num !== 'undefined') {
                           ajax_first_num = 0;
                         }
-                        
+
                         comAjaxV2("/chat_proc/get_chat_info", {
                           rm_idx: targetRmIdx,
                           mm_type: userType,
@@ -1664,13 +1666,13 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                         }, function(ret) {
                           if (ret.code == "00" && ret.data && ret.data.mm_id) {
                             var targetUserId = ret.data.mm_id;
-                            
+
                             // 플래그에 상대방 ID 저장
                             if (window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
                               window.autoSendFirstMessage.targetUserId = targetUserId;
                               // get_chat_info에서 가져온 상대방 ID를 data 속성에도 저장
                               $("#top_name").data('chatotherid', targetUserId);
-                              
+
                               // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
                               if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
                                 window.sendFirstMessageAfterProposal(targetUserId, targetRmIdx);
@@ -1679,11 +1681,10 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                                 return; // 전송 완료 후 즉시 리턴
                               }
                             }
-                          } else {
-                          }
+                          } else {}
                         });
                       }
-                      
+
                       function bindSocketOnce(eventName, handler) {
                         if (!socket || typeof handler !== 'function') return;
                         if (typeof socket.once === 'function') {
@@ -1705,14 +1706,14 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                       bindSocketOnce("room_info_return", function(ret) {
                         if (ret.code == "00" && window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
                           var autoSendInfo = window.autoSendFirstMessage;
-                          
+
                           // 현재 채팅방인지 확인
                           if (autoSendInfo.rm_idx == ret.data.rm_idx || autoSendInfo.rm_idx == rm_idx) {
-                            
+
                             // 상대방 ID 찾기
                             var targetUserId = null;
                             var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                            
+
                             if (ret.data && ret.data.rm_users && Array.isArray(ret.data.rm_users)) {
                               for (var i = 0; i < ret.data.rm_users.length; i++) {
                                 if (ret.data.rm_users[i].user_id && ret.data.rm_users[i].user_id != g_user_id) {
@@ -1720,9 +1721,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                                   break;
                                 }
                               }
-                            } else {
-                            }
-                            
+                            } else {}
+
                             // 상대방 ID를 찾지 못한 경우 get_chat_info에서 가져오기
                             if (!targetUserId) {
                               // get_chat_info가 호출될 때까지 대기
@@ -1731,15 +1731,15 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                                 if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
                                   return;
                                 }
-                                
+
                                 var chatOtherId = $("#top_name").data('chatotherid');
                                 if (chatOtherId) {
                                   targetUserId = chatOtherId;
-                                  
+
                                   // 플래그가 여전히 존재하는지 확인
                                   if (window.autoSendFirstMessage) {
                                     window.autoSendFirstMessage.targetUserId = targetUserId;
-                                    
+
                                     // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
                                     if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
                                       window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
@@ -1747,13 +1747,12 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                                       window.autoSendFirstMessage = null;
                                     }
                                   }
-                                } else {
-                                }
+                                } else {}
                               }, 1500);
                             } else {
                               // 상대방 ID를 플래그에 저장
                               window.autoSendFirstMessage.targetUserId = targetUserId;
-                              
+
                               // message_list_return에서 메시지가 없다고 확인했으면 바로 전송
                               // (message_list_return이 먼저 발생했을 수 있음)
                               if (window.autoSendFirstMessage.messageListChecked && window.sendFirstMessageAfterProposal) {
@@ -1765,20 +1764,20 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                           }
                         }
                       });
-                      
+
                       // message_list_return 이벤트를 한 번만 리스닝하여 메시지 개수 확인
                       bindSocketOnce("message_list_return", function(ret) {
                         // 이미 전송되었으면 스킵 (room_info_return에서 전송했을 수 있음)
                         if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
                           return;
                         }
-                        
+
                         var autoSendInfo = window.autoSendFirstMessage;
-                        
+
                         // 메시지 리스트 확인
                         var messageList = ret.data || [];
                         var hasMessages = false;
-                        
+
                         if (Array.isArray(messageList) && messageList.length > 0) {
                           for (var i = 0; i < messageList.length; i++) {
                             if (messageList[i].rm_messages && Array.isArray(messageList[i].rm_messages) && messageList[i].rm_messages.length > 0) {
@@ -1787,23 +1786,23 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                             }
                           }
                         }
-                        
-                        
+
+
                         // 메시지가 없으면 자동으로 첫 메시지 전송
                         if (!hasMessages) {
-                          
+
                           // message_list_return에서 메시지가 없다고 확인했음을 플래그에 저장
                           window.autoSendFirstMessage.messageListChecked = true;
-                          
+
                           // 상대방 ID 가져오기 (여러 소스에서 시도)
                           var targetUserId = null;
                           var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                          
+
                           // 1. 플래그에 저장된 상대방 ID 사용 (get_chat_info 또는 room_info_return에서 저장됨)
                           if (autoSendInfo.targetUserId) {
                             targetUserId = autoSendInfo.targetUserId;
                           }
-                          
+
                           // 2. rm_info에서 상대방 ID 찾기
                           if (!targetUserId && typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users && Array.isArray(rm_info.rm_users)) {
                             for (var i = 0; i < rm_info.rm_users.length; i++) {
@@ -1813,7 +1812,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                               }
                             }
                           }
-                          
+
                           // 3. get_chat_info에서 가져온 값 사용 (더 긴 대기 시간)
                           if (!targetUserId) {
                             setTimeout(function() {
@@ -1821,34 +1820,34 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                               if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
                                 return;
                               }
-                              
+
                               var chatOtherId = $("#top_name").data('chatotherid');
                               if (chatOtherId && window.sendFirstMessageAfterProposal) {
                                 window.sendFirstMessageAfterProposal(chatOtherId, window.autoSendFirstMessage.rm_idx);
                                 // 플래그 즉시 해제하여 중복 전송 방지
                                 window.autoSendFirstMessage = null;
-                                  } else {
-                                    // 4. g_chat_other_id 사용
-                                    var gChatOtherId = (typeof g_chat_other_id !== 'undefined' && g_chat_other_id) ? g_chat_other_id : null;
-                                    if (gChatOtherId && window.sendFirstMessageAfterProposal) {
-                                      window.sendFirstMessageAfterProposal(gChatOtherId, window.autoSendFirstMessage.rm_idx);
-                                      // 플래그 즉시 해제하여 중복 전송 방지
-                                      window.autoSendFirstMessage = null;
-                                    } else {
-                                      //console.error("get_chat_info에서도 상대방 ID를 찾을 수 없음");
-                                      // 플래그 해제
-                                      window.autoSendFirstMessage = null;
-                                    }
-                                  }
+                              } else {
+                                // 4. g_chat_other_id 사용
+                                var gChatOtherId = (typeof g_chat_other_id !== 'undefined' && g_chat_other_id) ? g_chat_other_id : null;
+                                if (gChatOtherId && window.sendFirstMessageAfterProposal) {
+                                  window.sendFirstMessageAfterProposal(gChatOtherId, window.autoSendFirstMessage.rm_idx);
+                                  // 플래그 즉시 해제하여 중복 전송 방지
+                                  window.autoSendFirstMessage = null;
+                                } else {
+                                  //console.error("get_chat_info에서도 상대방 ID를 찾을 수 없음");
+                                  // 플래그 해제
+                                  window.autoSendFirstMessage = null;
+                                }
+                              }
                             }, 2000); // get_chat_info 완료 대기
                             return; // setTimeout에서 처리하므로 여기서는 리턴
                           }
-                          
+
                           // 4. g_chat_other_id 사용
                           if (!targetUserId && typeof g_chat_other_id !== 'undefined' && g_chat_other_id) {
                             targetUserId = g_chat_other_id;
                           }
-                          
+
                           // 상대방 ID를 찾았으면 메시지 전송
                           // 플래그가 여전히 존재하는지 확인 (다른 곳에서 이미 전송했을 수 있음)
                           if (targetUserId && window.sendFirstMessageAfterProposal && window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
@@ -1862,22 +1861,22 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                               if (!window.autoSendFirstMessage || !window.autoSendFirstMessage.enabled) {
                                 return;
                               }
-                              
+
                               // 재시도 시 여러 소스에서 다시 찾기
-                              var retryTargetUserId = window.autoSendFirstMessage.targetUserId || 
-                                                    $("#top_name").data('chatotherid') || 
-                                                    (typeof g_chat_other_id !== 'undefined' ? g_chat_other_id : null) ||
-                                                    (typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users ? 
-                                                      (function() {
-                                                        var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                                                        for (var i = 0; i < rm_info.rm_users.length; i++) {
-                                                          if (rm_info.rm_users[i].user_id != g_user_id) {
-                                                            return rm_info.rm_users[i].user_id;
-                                                          }
-                                                        }
-                                                        return null;
-                                                      })() : null);
-                              
+                              var retryTargetUserId = window.autoSendFirstMessage.targetUserId ||
+                                $("#top_name").data('chatotherid') ||
+                                (typeof g_chat_other_id !== 'undefined' ? g_chat_other_id : null) ||
+                                (typeof rm_info !== 'undefined' && rm_info && rm_info.rm_users ?
+                                  (function() {
+                                    var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
+                                    for (var i = 0; i < rm_info.rm_users.length; i++) {
+                                      if (rm_info.rm_users[i].user_id != g_user_id) {
+                                        return rm_info.rm_users[i].user_id;
+                                      }
+                                    }
+                                    return null;
+                                  })() : null);
+
                               if (retryTargetUserId && window.sendFirstMessageAfterProposal) {
                                 window.sendFirstMessageAfterProposal(retryTargetUserId, window.autoSendFirstMessage.rm_idx);
                                 // 플래그 즉시 해제하여 중복 전송 방지
@@ -1893,32 +1892,32 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                           window.autoSendFirstMessage = null;
                         }
                       });
-                      
+
                       // 첫 메시지 전송 함수 (전역 함수로 정의)
                       window.sendFirstMessageAfterProposal = function(targetUserId, targetRmIdx) {
                         if (!targetUserId || !targetRmIdx || typeof socket === 'undefined' || !socket) {
                           //console.error("첫 메시지 전송 실패 - targetUserId:", targetUserId, "targetRmIdx:", targetRmIdx, "socket:", typeof socket);
                           return;
                         }
-                        
-                        
+
+
                         // g_user_id 가져오기
                         var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-                        
+
                         // getCurrentDate 함수 확인
                         var currentDate = typeof getCurrentDate === 'function' ? getCurrentDate() : new Date().toISOString();
-                        
+
                         // 사용자 타입에 따른 메시지 내용 결정
                         var current_user_type = typeof check_user_type !== 'undefined' ? check_user_type : "";
                         var messageText = "";
                         if (current_user_type === "COMP") {
-                            // 기업이 개인에게 제안보낼 경우
-                            messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+                          // 기업이 개인에게 제안보낼 경우
+                          messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
                         } else {
-                            // 개인이 기업에게 지원할 경우
-                            messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
+                          // 개인이 기업에게 지원할 경우
+                          messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
                         }
-                        
+
                         var firstMessage = {
                           rm_idx: Number(targetRmIdx),
                           user_id: g_user_id,
@@ -1932,7 +1931,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                           mg_dt: currentDate,
                           mg_reads: new Array(),
                         };
-                        
+
                         // 읽음 상태 설정
                         firstMessage.mg_reads.push({
                           read_yn: "Y",
@@ -1942,7 +1941,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                           read_yn: "N",
                           user_id: targetUserId
                         });
-                        
+
                         // 사용자 목록
                         var firstUsers = [];
                         firstUsers.push({
@@ -1953,8 +1952,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                           user_id: targetUserId,
                           user_nick: ""
                         });
-                        
-                        
+
+
                         // 메시지 전송
                         socket.emit("message_insert", firstMessage, firstUsers);
                       };

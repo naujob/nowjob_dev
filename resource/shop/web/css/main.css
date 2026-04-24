@@ -1749,7 +1749,7 @@ fieldset {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    margin: 35px -4px 0;
+    margin: 35px -4px 20px;
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
@@ -9072,8 +9072,8 @@ body {
 }
 
 .page-view .view-footer {
-    padding: 78px 0 65px;
-    background: #F6F8FA;
+    padding: 100px 0 80px;
+    background: #Ffffff;
 }
 
 .page-view .view-footer .btn-wrap {

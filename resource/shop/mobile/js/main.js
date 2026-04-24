@@ -1189,7 +1189,7 @@
 
             // 홈 페이지 (쿼리 파라미터 제거)
             var pathWithoutQuery = path.split('?')[0];
-            if (pathWithoutQuery === '/home/index_comp' || pathWithoutQuery === '/home/index_mem') return true;
+            if (pathWithoutQuery === '/home/index_comp' || pathWithoutQuery === '/home/index_mem' || pathWithoutQuery === '/home/splash') return true;
 
             // 공고/이력서 작성 페이지
             if (pathWithoutQuery.startsWith('/recruit/job_post') || pathWithoutQuery.startsWith('/resume/hr_post')) return true;
@@ -1204,14 +1204,12 @@
 // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
     if (!window.initNativeAdControl) {
         window.initNativeAdControl = function() {
-   
-            var adShown = false; // 광고가 현재 표시되고 있는지 여부
-            var adHidden = false; // 광고가 현재 숨겨져 있는지 여부
-            var lastMenuOpacity = 0; // 마지막으로 감지된 메뉴 opacity 값
+
+            var lastAdState = null; // 마지막 광고 상태 저장 (true: 표시, false: 숨김)
             var isProcessingScroll = false; // 스크롤 이벤트 중복 호출 방지 플래그
 
             // 스크롤 감지 (50ms 디바운스로 중복 호출 방지)
-        
+
             $(window).add($(document)).add($('body')).add($('.page-view')).add($('.page-recruit')).add($('.page-content')).add($('#app')).on('scroll', function() {
                 if (isProcessingScroll) return;
                 isProcessingScroll = true;
@@ -1231,29 +1229,21 @@
                 var scrollPos = scrollTopVal + heightVal; // 현재 화면의 맨 아래 위치
                 var documentHeight = containerScrollHeight || ($('.page-view').height() || $('.page-recruit').height());//  전체 페이지 높이
 
-                // 광고 오버레이 감지: 하단 200px 이내 도달 시 표시
-                if (!adShown && scrollPos + 200 >= documentHeight) {
+                // 현재 광고 표시 여부 판단: 하단 200px 이내 도달 시 true
+                var shouldShowAd = (scrollPos + 200 >= documentHeight);
 
-                    adShown = true;
-                    adHidden = false;
-                    if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
-
-                        window.nowjob.showNativeAd();
+                // 상태가 변했을 때만 광고 제어 (깜빡임 방지)
+                if (lastAdState !== shouldShowAd) { 
+                    if (shouldShowAd) {
+                        if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
+                            window.nowjob.showNativeAd();
+                        }
                     } else {
-
+                        if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
+                            window.nowjob.hideNativeAd();
+                        }
                     }
-                }
-                // 하단 300px 이상 멀어지면 숨기기
-                if (adShown && !adHidden && scrollPos + 50 < documentHeight) {
-
-                    adHidden = true;
-                    adShown = false;
-                    if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
-
-                        window.nowjob.hideNativeAd();
-                    } else {
-
-                    }
+                    lastAdState = shouldShowAd;
                 }
             });
 
