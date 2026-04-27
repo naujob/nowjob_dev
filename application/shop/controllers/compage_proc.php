@@ -2761,7 +2761,7 @@ class Compage_proc extends CI_Controller
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
         "rc_sage" => isset($step3["rc_sage"]) ? $step3["rc_sage"] : "",
         "rc_eage" => isset($step3["rc_eage"]) ? $step3["rc_eage"] : "",
-        "rc_desc" => isset($step5["rc_desc"]) ? strip_tags($step5["rc_desc"]) : (isset($step3["rc_desc"]) ? strip_tags($step3["rc_desc"]) : ""),  // 스텝5 우선, 없으면 스텝3 (HTML 태그 제거)
+        "rc_desc" => isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : ""),  // 스텝5 우선, 없으면 스텝3 (Smart Editor HTML 유지)
         "rc_hash" => isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img1" => isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img2" => isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : ""),  // 스텝5 우선, 없으면 스텝3
@@ -2942,7 +2942,7 @@ class Compage_proc extends CI_Controller
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
         "rc_sage" => isset($step3["rc_sage"]) ? $step3["rc_sage"] : "",
         "rc_eage" => isset($step3["rc_eage"]) ? $step3["rc_eage"] : "",
-        "rc_desc" => isset($step5["rc_desc"]) ? strip_tags($step5["rc_desc"]) : (isset($step3["rc_desc"]) ? strip_tags($step3["rc_desc"]) : ""),  // 스텝5 우선, 없으면 스텝3 (HTML 태그 제거)
+        "rc_desc" => isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : ""),  // 스텝5 우선, 없으면 스텝3 (Smart Editor HTML 유지)
         "rc_hash" => isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img1" => isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : ""),  // 스텝5 우선, 없으면 스텝3
         "rc_img2" => isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : ""),  // 스텝5 우선, 없으면 스텝3

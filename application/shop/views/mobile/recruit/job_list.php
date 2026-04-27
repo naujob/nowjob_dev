@@ -59,7 +59,7 @@ if (count($banner_list) > 0) {
         top: 0.975rem;
       }
     </style>
-    <!-- 현재 위치 -->
+    <!-- 지역검색 -->
     <div class="current-area">
       <div class="container">
         <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
@@ -371,7 +371,7 @@ $tpl_recomm_class = true; ?>
     getBoardList("");
     window.scrollTo(0, 0); // 페이지 상단으로 스크롤
   }
-
+  // 공고 목록 가져오기
   function getBoardList(save_yn) {
     var params = {
       page: current_page,

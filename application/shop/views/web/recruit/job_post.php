@@ -982,7 +982,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
             <h3 class="secondary-title">상세업무정보</h3>
             <!-- 작성내용 -->
             <div class="desc" style="clear:both;">
-              <?= str_replace("src=\"h-ttps", "src=\"https", str_replace("\n", "<br/>", str_replace("src=\"https", "src=\"h-ttps", $info["rc_desc"]))) ?>
+              <?= $info["rc_desc"] ?>
               <div class="hashtag">
                 <?= getHashTag(convertHashtagString($info["rc_hash"])) ?>
               </div>
