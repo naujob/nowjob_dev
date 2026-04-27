@@ -29,6 +29,15 @@ if (count($banner_list) > 0) {
     max-width: 100%;
     font-size: 1.8rem;
   }
+
+  /* 지금 뜨는 업체 슬라이더 양쪽 peek */
+  .section:has(.hot-list) .container {
+    overflow: visible;
+  }
+
+  .section:has(.hot-list) {
+    overflow: hidden;
+  }
 </style>
 <div class="page-recruit">
 
@@ -41,6 +50,47 @@ if (count($banner_list) > 0) {
 
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
+
+    <!-- 지금 뜨는 업체 -->
+    <div class="section">
+      <div class="container">
+        <h2 class="secondary-title index">지금 뜨는 업체</h2>
+        <div class="hot-list">
+          <div class="slider-wrap keen-slider">
+            <?php
+            $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
+            $chunked_up_list = array_chunk($limited_up_list, 4);
+            if (!empty($chunked_up_list)) {
+              $last_idx = count($chunked_up_list) - 1;
+              while (count($chunked_up_list[$last_idx]) < 4) {
+                $chunked_up_list[$last_idx][] = null;
+              }
+            }
+            foreach ($chunked_up_list as $chunk) :
+            ?>
+              <div class="keen-slider__slide">
+                <div class="hot-grid">
+                  <?php foreach ($chunk as $row) : ?>
+                    <?php if ($row !== null) : ?>
+                      <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
+                        <div class="thumb">
+                          <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
+                          <p class="name"><?= $row["mm_comp_name"] ?></p>
+                        </div>
+                      </a>
+                    <?php else : ?>
+                      <div class="hot-item hot-item--empty">
+                        <div class="thumb"></div>
+                      </div>
+                    <?php endif; ?>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="section is-last">
       <style>
@@ -737,4 +787,51 @@ if (count($banner_list) > 0) {
 
   // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
   window.DISABLE_SWIPE_BACK = true;
+</script>
+
+<!-- 지금 뜨는 업체 슬라이더 초기화 -->
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    var hotSlider = document.querySelector('.hot-list .slider-wrap');
+    if (hotSlider && typeof KeenSlider !== 'undefined') {
+      if (!hotSlider.__keenslider__) {
+        var slides = hotSlider.querySelectorAll('.keen-slider__slide');
+        if (slides.length > 0 && slides.length < 4) {
+          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+          var added = slides.length;
+          var imageSrcMap = {};
+          slides.forEach(function(slide, idx) {
+            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
+              imageSrcMap[idx + '-' + imgIdx] = img.src;
+            });
+          });
+          while (added < cloneCount) {
+            slides.forEach(function(slide, slideIdx) {
+              if (added < cloneCount) {
+                var cloned = slide.cloneNode(true);
+                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
+                  var srcKey = slideIdx + '-' + imgIdx;
+                  if (imageSrcMap[srcKey]) img.src = imageSrcMap[srcKey];
+                  if (img.classList.contains('lozad')) {
+                    if (img.getAttribute('data-src') && !img.src) img.src = img.getAttribute('data-src');
+                    img.setAttribute('data-loaded', 'true');
+                  }
+                });
+                hotSlider.appendChild(cloned);
+                added++;
+              }
+            });
+          }
+        }
+        new KeenSlider(hotSlider, {
+          loop: true,
+          slides: { perView: 1.1, spacing: 12 },
+          drag: true,
+          dragMinDist: 0,
+          rubberband: true,
+          renderMode: 'precision'
+        });
+      }
+    }
+  });
 </script>

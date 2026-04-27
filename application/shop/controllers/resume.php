@@ -108,6 +108,7 @@ class Resume extends CI_Controller
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
     $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["search_txt"]  = $search_txt;
+    $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 8);
 
     $this->layout->shop('/resume/hr_list', $data);
   }
