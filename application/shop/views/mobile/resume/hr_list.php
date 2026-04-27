@@ -1,5 +1,9 @@
 <?php
-// 배너는 main_visual.php에서 페이지 기반으로 로드됨
+$banner_list = getBannerList("BN00302031");
+$banner = null;
+if (count($banner_list) > 0) {
+  $banner = $banner_list[0];
+}
 ?>
 <style>
   /* 카드 스타일은 main.css의 .result-list-card 섹션에서 관리 */
@@ -25,156 +29,6 @@
     max-width: 100%;
     font-size: 1.8rem;
   }
-
-  /* 추천 슬라이더 스타일 */
-  .section.index_comp:has(.recomm-slider) .container {
-    padding-right: 0;
-    padding-left: 0;
-  }
-
-  .section.index_comp:has(.recomm-slider) {
-    padding: 2rem 0;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .recomm-slider.person {
-    position: relative;
-    margin: 0 -1.25rem;
-  }
-
-  .recomm-slider.person .slider-wrap {
-    padding: 0 1.25rem;
-  }
-
-  .recomm-slider.person .keen-slider__slide {
-    position: relative;
-    min-height: 0;
-  }
-
-  .person-card {
-    position: relative;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    padding: 1rem;
-    text-align: center;
-    margin: 0.5rem;
-  }
-
-  .person-card .thumb {
-    width: 5rem;
-    height: 5rem;
-    margin: 0 auto 0.5rem;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #f0f0f0;
-  }
-
-  .person-card .thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .person-card .name {
-    font-weight: 600;
-    margin: 0.5rem 0;
-    font-size: 0.95rem;
-  }
-
-  .person-card .meta {
-    font-size: 0.8rem;
-    color: #666;
-    margin: 0.25rem 0;
-  }
-
-  .person-card .badge {
-    display: inline-block;
-    background: #1B9D7D;
-    color: #fff;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    margin-top: 0.5rem;
-  }
-
-  /* 지금 뜨는 업체 슬라이더 스타일 */
-  .section:has(.hot-list) .container {
-    overflow: visible;
-  }
-
-  .section:has(.hot-list) {
-    overflow: hidden;
-  }
-
-  .hot-list {
-    position: relative;
-    margin: 0 -1.25rem;
-  }
-
-  .hot-list .slider-wrap {
-    padding: 0 1.25rem;
-  }
-
-  .hot-list .keen-slider__slide {
-    position: relative;
-    min-height: 0;
-  }
-
-  .hot-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .hot-item {
-    display: block;
-    text-decoration: none;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    transition: transform 0.3s ease;
-  }
-
-  .hot-item:active {
-    transform: scale(0.98);
-  }
-
-  .hot-item .thumb {
-    width: 100%;
-    aspect-ratio: 1;
-    background: #f0f0f0;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .hot-item .thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .hot-item .name {
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #333;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .hot-item--empty {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .hot-item--empty .thumb {
-    background: transparent;
-  }
 </style>
 <div class="page-recruit">
 
@@ -187,17 +41,6 @@
 
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
-
-    <!-- 지금 뜨는 업체 슬라이더 -->
-    <div class="section">
-      <div class="container">
-        <h2 class="secondary-title index">지금 뜨는 업체</h2>
-        <div class="hot-list">
-          <div class="slider-wrap keen-slider" id="hot-slider">
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="section is-last">
       <style>
@@ -440,7 +283,6 @@
 
   function initLoadData() {
     getBoardList("");
-    getHotList();
   }
 
   function getBoardList(save_yn) {
@@ -712,166 +554,6 @@
       goToPage(current_page + 1);
     }
   });
-
-  // 추천공고 데이터 로딩
-  function getRecruitRecoList() {
-    var params = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "24"
-    };
-
-    comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
-      if (ret.code == "00") {
-        var list = ret.data.list;
-        $("#recomm-list").html("");
-
-        if (list && list.length > 0) {
-          list.forEach(function(row) {
-            var slideHtml = '<div class="keen-slider__slide">' +
-              '<div class="person-card">' +
-              '<div class="thumb">' +
-              '<img src="' + (row.rt_recruit_img || '/resource/shop/mobile/img/default/no-image.png') + '" alt="' + (row.rc_name || '') + '">' +
-              '</div>' +
-              '<div class="name">' + (row.rc_name || '') + '</div>' +
-              '<div class="meta">' + (row.rc_age_nm || '') + '</div>';
-
-            if (row.rc_nation_nm && row.rc_nation_nm !== "무관" && row.rc_nation_nm !== "내국인,외국인") {
-              slideHtml += '<div class="meta">' + row.rc_nation_nm.replace("만", "") + '</div>';
-            }
-
-            slideHtml += '<div class="badge">채용공고</div>' +
-              '</div>' +
-              '</div>';
-
-            $("#recomm-list").append(slideHtml);
-          });
-
-          // KeenSlider 초기화
-          initRecommSlider();
-        }
-      }
-    });
-  }
-
-  // 지금 뜨는 업체 데이터 로딩
-  function getHotList() {
-    var params = {
-      "limit": "8"
-    };
-
-    comAjax("/recruit_proc/getHotCompanyList", params, function(ret) {
-      if (ret.code == "00") {
-        var list = ret.data.list || [];
-        $("#hot-slider").html("");
-
-        if (list && list.length > 0) {
-          // 4개씩 청크로 분할 (한 슬라이드 = 2x2 그리드)
-          var chunkedList = [];
-          for (var i = 0; i < list.length; i += 4) {
-            chunkedList.push(list.slice(i, i + 4));
-          }
-
-          // 마지막 청크 null 패딩
-          if (chunkedList.length > 0) {
-            var lastChunk = chunkedList[chunkedList.length - 1];
-            while (lastChunk.length < 4) {
-              lastChunk.push(null);
-            }
-          }
-
-          chunkedList.forEach(function(chunk) {
-            var slideHtml = '<div class="keen-slider__slide">' +
-              '<div class="hot-grid">';
-
-            chunk.forEach(function(row) {
-              if (row !== null) {
-                slideHtml += '<a href="/recruit/company/' + row.mm_idx + '" class="hot-item">' +
-                  '<div class="thumb">' +
-                  '<img data-src="' + (row.mm_logo_img || row.mm_profile_img || '/resource/shop/mobile/img/default/no-image.png') + '" alt="' + (row.mm_comp_name || '') + '" class="lozad">' +
-                  '<p class="name">' + (row.mm_comp_name || '') + '</p>' +
-                  '</div>' +
-                  '</a>';
-              } else {
-                slideHtml += '<div class="hot-item hot-item--empty">' +
-                  '<div class="thumb"></div>' +
-                  '</div>';
-              }
-            });
-
-            slideHtml += '</div>' +
-              '</div>';
-
-            $("#hot-slider").append(slideHtml);
-          });
-
-          // KeenSlider 초기화
-          initHotSlider();
-        }
-      }
-    });
-  }
-
-  // 지금 뜨는 업체 슬라이더 초기화
-  function initHotSlider() {
-    var hotSlider = document.querySelector('#hot-slider');
-
-    if (!hotSlider || typeof KeenSlider === 'undefined') return;
-
-    // 이미 초기화되었으면 스킵
-    if (hotSlider.__keenslider__) {
-      return;
-    }
-
-    // loop peek을 위해 슬라이드가 3개 미만이면 복제
-    var slides = hotSlider.querySelectorAll('.keen-slider__slide');
-    if (slides.length > 0 && slides.length < 4) {
-      var cloneCount = Math.ceil(4 / slides.length) * slides.length;
-      var added = slides.length;
-
-      // 이미지 src 매핑 (복제 후 src 손실 방지)
-      var imageSrcMap = {};
-      slides.forEach(function(slide, idx) {
-        var img = slide.querySelector('img');
-        if (img) {
-          imageSrcMap[idx] = {
-            src: img.getAttribute('data-src'),
-            alt: img.getAttribute('alt')
-          };
-        }
-      });
-
-      // 슬라이드 복제
-      for (var i = added; i < cloneCount; i++) {
-        var $clone = $(slides[i % added]).clone();
-
-        // 복제된 이미지의 src 복원
-        var cloneImg = $clone.find('img');
-        if (cloneImg.length > 0 && imageSrcMap[i % added]) {
-          cloneImg.attr('data-src', imageSrcMap[i % added].src);
-        }
-
-        hotSlider.appendChild($clone[0]);
-      }
-    }
-
-    // Lozad 초기화
-    if (typeof lozad !== 'undefined') {
-      var observer = lozad();
-      observer.observe();
-    }
-
-    // KeenSlider 초기화
-    window.hotSliderInstance = new KeenSlider("#hot-slider", {
-      loop: true,
-      slides: {
-        perView: 1,
-        spacing: 0,
-      },
-      drag: true
-    });
-  }
 
   // 채용공고 작성 버튼 클릭 이벤트 20250923
   // 이벤트 위임 사용 (main_menu.php include 이후에도 동작 보장)
