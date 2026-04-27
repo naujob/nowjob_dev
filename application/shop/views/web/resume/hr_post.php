@@ -454,9 +454,11 @@ function fRemoveBigAdrPHP($arg)
     top: 0px;
     right: 2px;
     color: #000;
-    width: 56px;
+    width: auto;
     height: 16px;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
   }
 
   .history-body .content-info .summary3 .wtype {
@@ -468,18 +470,18 @@ function fRemoveBigAdrPHP($arg)
     font-weight: 600;
   }
 
-  .history-body .content-info .summary3 .wtype em {
+  .history-body .content-info .summary3 .worktype em {
     position: relative;
     display: inline-block;
     font-style: normal;
     color: #333;
   }
 
-  .history-body .content-info .summary3 .wtype em:not(:last-child) {
+  .history-body .content-info .summary3 .worktype em:not(:last-child) {
     padding-right: 5px;
   }
 
-  .history-body .content-info .summary3 .wtype em:not(:last-child)::after {
+  .history-body .content-info .summary3 .worktype em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
@@ -491,16 +493,18 @@ function fRemoveBigAdrPHP($arg)
     border-right: 1px solid #777777;
   }
 
-  .history-body .content-info .summary3 .wtype em.wtype1 {
+  .history-body .content-info .summary3 .worktype em.wtype1 {
     color: #3a70db;
   }
 
-  .history-body .content-info .summary3 .wtype em.wtype2 {
+  .history-body .content-info .summary3 .worktype em.wtype2 {
     color: #F86048;
+    padding-left: 4px;
   }
 
-  .history-body .content-info .summary3 .wtype em.wtype3 {
+  .history-body .content-info .summary3 .worktype em.wtype3 {
     color: #1B9D7D;
+    padding-left: 4px;
   }
 
   /* 개인회원이 자신의 이력서를 볼 때 btn-request:before 비활성화 */
@@ -1030,9 +1034,9 @@ function fRemoveBigAdrPHP($arg)
                   }
                   ?>
                   <span><?= $mem_info["mm_nation"] ?></span>
-                  <span class="gapbar1" style="<?= $gapbar1 ?>">/</span>
+                  <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
                   <span><?= getKoreanAge($mem_info["mm_birth"]) ?>대</span>
-                  <span class="gapbar2" style="<?= $gapbar2 ?>">/</span>
+                  <span class="gapbar2" style="<?= $gapbar2 ?>">|</span>
                   <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span>
                 </p>
               <?php } ?>
@@ -1080,10 +1084,10 @@ function fRemoveBigAdrPHP($arg)
                                   <p class="area-addr" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
                                 </div>
                                 <div class="summary2">
-                                  <p class="period"><?= getConvertResumePriceType($row["ru_price_type"]) ?></p>
+                                  <p class="period"><?= getPriceType($row["ru_price_type"]) ?></p>
                                 </div>
                                 <div class="summary3">
-                                  <p class="wtype"><?= getWorkType2025($row["ru_work_type"]) ?></p>
+                                  <p class="wtype"><?= getWorkTypeWithColor($row["ru_work_type"]) ?></p>
                                 </div>
                               </div>
                             </div>

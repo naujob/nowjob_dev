@@ -486,6 +486,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     width: auto;
     height: 16px;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
   }
 
   .history-body .content-info .summary3 .wtype {
@@ -508,17 +510,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     padding-right: 5px;
   }
 
-  .history-body .content-info .summary3 .wtype em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777;
-  }
+
 
   .history-body .content-info .summary3 .wtype em.wtype1 {
     color: #3a70db;
@@ -577,6 +569,34 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     height: 36px;
     line-height: 36px;
     font-size: 18px;
+  }
+
+  .content-info .worktype em.wtype1 {
+    color: #3a70db;
+    padding-right: 4px;
+  }
+
+  .content-info .worktype em.wtype2 {
+    color: #F86048;
+    padding-left: 4px;
+  }
+
+  .content-info .worktype em {
+    position: relative;
+    display: inline-block;
+    font-style: normal;
+  }
+
+  .content-info .worktype em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777;
   }
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
@@ -1226,7 +1246,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                                 <?php } ?>
                               </div>
                               <div class="summary3">
-                                <p class="wtype"><?= getWorkType2025($row["rc_work_type"]) ?></p>
+                                <p class="wtype"><?= getWorkTypeWithColor($row["rc_work_type"]) ?></p>
                               </div>
                             </div>
                           </div>

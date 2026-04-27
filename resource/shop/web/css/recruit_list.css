@@ -269,7 +269,7 @@
 }
 
 .result-list .content-info .desc .desc2 .wtype em:not(:last-child) {
-  padding-right: 5px;
+  padding-right: 7px;
 }
 
 .result-list .content-info .desc .desc2 .wtype em:not(:last-child)::after {
@@ -290,6 +290,7 @@
 
 .result-list .content-info .desc .desc2 .wtype em.wtype2 {
   color: #F86048;
+  padding:4px
 }
 
 .result-list .content-info .desc .desc2 .wtype em.wtype3 {

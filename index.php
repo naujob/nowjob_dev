@@ -15,12 +15,17 @@
 // dirname(__FILE__): 현재 index.php 파일이 위치한 디렉터리 절대경로
 // DIRECTORY_SEPARATOR: OS별 경로 구분자(Linux/macOS '/', Windows '\')
 // /website/nowapk/index.php -> /website/nowapk/
+// $base_path: /home/nowapk/dev_nowapk/index.php -> /home/nowapk/dev_nowapk/
 $base_path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 
 /**
  * ------------------------------------------------------------
  * 1. 서버 이름 안전하게 판별 (프록시 대응)
  * ------------------------------------------------------------
+ * 프록시 서버 뒤에 있을 때 HTTP_X_FORWARDED_HOST 헤더를 우선적으로 사용하여 원래의 호스트 이름을 판별합니다.
+ * HTTP_X_FORWARDED_HOST가 없으면 HTTP_HOST, 그 다음 SERVER_NAME을 사용합니다. 이렇게 하면 프록시 서버 뒤에서도 올바른 호스트 이름을 얻을 수
+ * HTTP_X_FORWARDED_HOST: 원래 사용자가 어떤 주소(test.com)로 접속하려고 했는지 프록시 서버가 전달하는 헤더
+ * HTTP_HOST: 현재 요청의 호스트 이름(프록시 서버의 주소일 수 있음) 예: www.mysite.com:8080
  */
 $server_name = '';
 if (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && $_SERVER['HTTP_X_FORWARDED_HOST'] !== '') {
@@ -47,7 +52,7 @@ $base_domain = preg_replace('/^(dev|admin|api)\./', '', $normalized_host);
 if ($base_domain === '') {
     $base_domain = $normalized_host;
 }
-
+// APP_MAIN_DOMAIN:
 $main_domain = getenv('APP_MAIN_DOMAIN');
 if ($main_domain === false || $main_domain === '') {
     $main_domain = $base_domain;
@@ -158,10 +163,10 @@ if ($is_https) {
     $expires = gmdate('D, d-M-Y H:i:s T', time() + (3600 * 24 * 365));
     header(
         'Set-Cookie: ' . session_name() . '=' . session_id()
-        . '; expires=' . $expires
-        . '; path=/'
-        . '; domain=' . $cookie_domain
-        . '; Secure; HttpOnly; SameSite=None',
+            . '; expires=' . $expires
+            . '; path=/'
+            . '; domain=' . $cookie_domain
+            . '; Secure; HttpOnly; SameSite=None',
         false
     );
 }

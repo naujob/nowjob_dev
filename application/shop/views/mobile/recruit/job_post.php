@@ -96,7 +96,7 @@ function formatPhoneNumber($number)
     }
 
     .working-time em:not(:last-child) {
-        padding-right: 5px;
+        padding-right: 8px;
     }
 
     .working-time em:not(:last-child)::after {
@@ -121,6 +121,7 @@ function formatPhoneNumber($number)
 
     .working-time em.wtype2 {
         color: #F86048;
+        padding-left: 2px;
     }
 
     .working-time em.wtype3 {
@@ -336,7 +337,7 @@ function formatPhoneNumber($number)
                                 <tr>
                                     <td class="label">근무형태</td>
                                     <td class="value">
-                                        <span class="working-time"><?= getWorkType2025($info["rc_work_type"]) ?></span>
+                                        <span class="working-time"><?= getWorkTypeWithColor($info["rc_work_type"]) ?></span>
                                     </td>
                                 </tr>
                                 <?php /* 근무시간 표시 주석처리
@@ -1252,7 +1253,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
         // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
         if (typeof initNativeAdControl === 'function') {
-          initNativeAdControl();
+            initNativeAdControl();
         }
     });
 </script>

@@ -13,16 +13,16 @@ const is_dev_runtime =
 
 let server;
 if (is_dev_runtime) {
-	// 개발: Apache(HTTPS) -> Node(HTTP) 내부 프록시 구조
-	server = require("http").createServer(app);
-} else {
+	// 개발: Apache(HTTPS) -> Node(HTTP) 내부 프록시 구조  보안 없는 일반 웹서버(HTTP)로 실행
+	server = require("http").createServer(app); // Node.js 웹서버를 생성
+} else { // HTTPS 보안 자물쇠 파일 경로: 환경변수로 지정하거나 기본 경로 사용
 	const ssl_key_path = process.env.CHAT_SSL_KEY_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.key.pem';
 	const ssl_cert_path = process.env.CHAT_SSL_CERT_PATH || '/etc/pki/ssl/nowjob.co.kr_2025043053993.crt.pem';
 	var options = { //  HTTPS(SSL) 설정
 		key: fs.readFileSync(ssl_key_path),
 		cert: fs.readFileSync(ssl_cert_path)
 	};
-	server = require("https").createServer(options, app);
+	server = require("https").createServer(options, app); // HTTPS 서버 생성
 }
 const io = require('socket.io')(server, {
 	cors: {

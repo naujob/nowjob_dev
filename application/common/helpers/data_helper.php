@@ -159,9 +159,9 @@ function getRecruitImg($info, $img_type = "thumb")
 		return $default;
 	}
 
-	$work_type = explode(",", $info["rc_work"]);
+	$work_type = explode(",", $info["rc_work"]); //explode(",", "주간,야간,2교대") => ["주간", "야간", "2교대"]
 	$type = $work_type[0];
-	$random = mt_rand(1, 3);
+	$random = mt_rand(1, 3); // 1~3 사이의 랜덤 숫자 생성
 	/** 사용되고 있지 않는 데이터 */
 	if ($img_type == "thumb") {
 		$default = "/resource/shop/" . $loc . "/img/empty/" . $type . "/" . $alias . "_섬네일" . $random . ".png";
@@ -464,11 +464,11 @@ function getPriceType($price_type, $max = 3)
 	$return = "";
 
 	if (count(explode(",", $price_type)) > 2) {
-		return ($return != "" ? "," : "") . "<em>급여협의</em>";
+		return $return . "<em>급여협의</em>";
 	}
 
 	if (strpos($price_type, "일급") !== false) {
-		$return .= ($return != "" ? "," : "") . "<em>일급</em>";
+		$return .= "<em>일급</em>";
 		$num++;
 	}
 
@@ -477,7 +477,7 @@ function getPriceType($price_type, $max = 3)
 	}
 
 	if (strpos($price_type, "주급") !== false) {
-		$return .= ($return != "" ? "," : "") . "<em>주급</em>";
+		$return .= "<em>주급</em>";
 		$num++;
 	}
 
@@ -486,7 +486,7 @@ function getPriceType($price_type, $max = 3)
 	}
 
 	if (strpos($price_type, "월급") !== false) {
-		$return .= ($return != "" ? "," : "") . "<em>월급</em>";
+		$return .= "<em>월급</em>";
 		$num++;
 	}
 	return $return;
@@ -1096,8 +1096,13 @@ function getWorkType2025($work_type)
 	}
 
 	$result = '';
+	$count = 0;
 	foreach ($item_set as $text) {
 		if ($text === '') continue;
+
+		if ($count > 0) {
+			$result .= ' <span class="work-divider">|</span> ';
+		}
 
 		$cls = '';
 		if ($text === '주간') {
@@ -1109,6 +1114,7 @@ function getWorkType2025($work_type)
 		}
 
 		$result .= '<em class="' . $cls . '">' . $text . '</em>';
+		$count++;
 	}
 
 	return $result;
@@ -1189,9 +1195,9 @@ function getConvertResumePriceType($price_type)
 	if ($containsAll) {
 		return '<em>급여협의</em>';
 	}
-
+	// 쉼표로 분리 후 공백 제거
 	$types = preg_split('/\s*,\s*/', $price_type);
-
+	// types = ["일급", "주급"] 또는 ["일급", "주급", "월급"] 등
 	$result = '';
 	$count = 0;
 	foreach ($types as $type) {
