@@ -1310,6 +1310,11 @@
 
             // 메뉴 클릭 이벤트 기반 광고 제어
             initMenuAdControl();
+
+            // 외부에서 광고 상태를 재확인할 수 있도록 함수 노출
+            window._recheckNativeAd = function() {
+                checkAndControlAd();
+            };
         };
     }
 

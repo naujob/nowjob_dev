@@ -395,6 +395,10 @@ $tpl_show_mm_idx = true; ?>
           setTimeout(function() {
             showBoardList(ret.data.list);
             renderPagination();
+            // 콘텐츠 로드 후 광고 상태 재확인
+            if (typeof window._recheckNativeAd === 'function') {
+              window._recheckNativeAd();
+            }
           }, 100);
         } else {
           console.error('API 응답 에러:', ret);
