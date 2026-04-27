@@ -25,6 +25,78 @@
     max-width: 100%;
     font-size: 1.8rem;
   }
+
+  /* 추천 슬라이더 스타일 */
+  .section.index_comp:has(.recomm-slider) .container {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .section.index_comp:has(.recomm-slider) {
+    padding: 2rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .recomm-slider.person {
+    position: relative;
+    margin: 0 -1.25rem;
+  }
+
+  .recomm-slider.person .slider-wrap {
+    padding: 0 1.25rem;
+  }
+
+  .recomm-slider.person .keen-slider__slide {
+    position: relative;
+    min-height: 0;
+  }
+
+  .person-card {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 1rem;
+    text-align: center;
+    margin: 0.5rem;
+  }
+
+  .person-card .thumb {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto 0.5rem;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f0f0f0;
+  }
+
+  .person-card .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .person-card .name {
+    font-weight: 600;
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+  }
+
+  .person-card .meta {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0.25rem 0;
+  }
+
+  .person-card .badge {
+    display: inline-block;
+    background: #1B9D7D;
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+  }
 </style>
 <div class="page-recruit">
 
@@ -37,6 +109,16 @@
 
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
+
+    <div class="section index_comp">
+      <div class="container">
+        <h2 class="secondary-title index">추천공고</h2>
+        <div class="recomm-slider person">
+          <div class="slider-wrap keen-slider" id="recomm-list">
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="section is-last">
       <style>
@@ -279,6 +361,7 @@
 
   function initLoadData() {
     getBoardList("");
+    getRecruitRecoList();
   }
 
   function getBoardList(save_yn) {
@@ -550,6 +633,88 @@
       goToPage(current_page + 1);
     }
   });
+
+  // 추천공고 데이터 로딩
+  function getRecruitRecoList() {
+    var params = {
+      "addr1": "",
+      "addr2": "",
+      "addr3": "",
+      "limit": "24"
+    };
+
+    comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
+      if (ret.code == "00") {
+        var list = ret.data.list;
+        $("#recomm-list").html("");
+
+        if (list && list.length > 0) {
+          list.forEach(function(row) {
+            var slideHtml = '<div class="keen-slider__slide">' +
+              '<div class="person-card">' +
+              '<div class="thumb">' +
+              '<img src="' + (row.rt_recruit_img || '/resource/shop/mobile/img/default/no-image.png') + '" alt="' + (row.rc_name || '') + '">' +
+              '</div>' +
+              '<div class="name">' + (row.rc_name || '') + '</div>' +
+              '<div class="meta">' + (row.rc_age_nm || '') + '</div>';
+
+            if (row.rc_nation_nm && row.rc_nation_nm !== "무관" && row.rc_nation_nm !== "내국인,외국인") {
+              slideHtml += '<div class="meta">' + row.rc_nation_nm.replace("만", "") + '</div>';
+            }
+
+            slideHtml += '<div class="badge">채용공고</div>' +
+              '</div>' +
+              '</div>';
+
+            $("#recomm-list").append(slideHtml);
+          });
+
+          // KeenSlider 초기화
+          initRecommSlider();
+        }
+      }
+    });
+  }
+
+  // 추천 슬라이더 초기화
+  function initRecommSlider() {
+    var slides = document.querySelectorAll('#recomm-list .keen-slider__slide');
+
+    if (slides.length === 0) return;
+
+    // 슬라이드 개수가 4개 미만이면 슬라이드 복제
+    if (slides.length < 4) {
+      var slideCount = slides.length;
+      for (var i = 0; i < 4 - slideCount; i++) {
+        var $clone = $(slides[i % slideCount]).clone();
+        $("#recomm-list").append($clone);
+      }
+    }
+
+    // Lozad 초기화
+    if (typeof lozad !== 'undefined') {
+      var observer = lozad();
+      observer.observe();
+    }
+
+    // 기존 슬라이더 인스턴스 제거 (중복 초기화 방지)
+    if (window.recommSliderInstance) {
+      window.recommSliderInstance.destroy();
+    }
+
+    // KeenSlider 초기화
+    window.recommSliderInstance = new KeenSlider("#recomm-list", {
+      loop: true,
+      slides: {
+        perView: 2,
+        spacing: 8,
+      },
+      drag: true,
+      created: function(slider) {
+        // 슬라이더 생성 완료
+      }
+    });
+  }
 
   // 채용공고 작성 버튼 클릭 이벤트 20250923
   // 이벤트 위임 사용 (main_menu.php include 이후에도 동작 보장)
