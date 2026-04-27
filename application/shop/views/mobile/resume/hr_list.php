@@ -1,19 +1,5 @@
 <?php
-// 로그인 상태에 따라 배너 ID 결정
-$user_type = $this->user->getUserType();
-if ($user_type === "COMP") {
-  // 기업 로그인: BN00302031 (기업홈 배너)
-  $banner_id = "BN00302031";
-} else {
-  // 개인 로그인 또는 비로그인: BN00302041 (기본 배너)
-  $banner_id = "BN00302041";
-}
-
-$banner_list = getBannerList($banner_id);
-$banner = null;
-if (count($banner_list) > 0) {
-  $banner = $banner_list[0];
-}
+// 배너는 main_visual.php에서 페이지 기반으로 로드됨
 ?>
 <style>
   /* 카드 스타일은 main.css의 .result-list-card 섹션에서 관리 */

@@ -1,5 +1,5 @@
 <?php
-$banner_list = getBannerList("BN00302031");
+// 배너는 main_visual.php에서 페이지 기반으로 로드됨
 ?>
 <style>
   .page-content {
