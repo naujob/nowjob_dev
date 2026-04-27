@@ -1197,6 +1197,29 @@
             // 채팅 페이지
             if (pathWithoutQuery.startsWith('/chat/')) return true;
 
+            // 마이페이지 - 포인트/이력서/북마크 관련
+            var myPageHideAdPaths = [
+                '/mypage/point_charge_list',
+                '/mypage/point_use_list',
+                '/mypage/point_promotion_buy',
+                '/mypage/point_promotion_list',
+                '/mypage/resume_list',
+                '/mypage/bookmark_recruit1',
+                '/mypage/bookmark_recruit2'
+            ];
+            if (myPageHideAdPaths.includes(pathWithoutQuery)) return true;
+
+            // 기업페이지 - 포인트/채용공고/북마크 관련
+            var compPageHideAdPaths = [
+                '/compage/point_charge_list',
+                '/compage/point_use_list',
+                '/compage/point_promotion_list',
+                '/compage/recruit_list',
+                '/compage/bookmark_person1',
+                '/compage/bookmark_person2'
+            ];
+            if (compPageHideAdPaths.includes(pathWithoutQuery)) return true;
+
             return false;
         };
     }
@@ -1208,32 +1231,38 @@
             var lastAdState = null; // 마지막 광고 상태 저장 (true: 표시, false: 숨김)
             var isProcessingScroll = false; // 스크롤 이벤트 중복 호출 방지 플래그
 
-            // 스크롤 감지 (50ms 디바운스로 중복 호출 방지)
+            // 광고 표시 여부 판단 함수
+            function checkAndControlAd() {
+                // 광고를 숨겨야 하는 페이지에서는 광고 제어 무시
+                if (window.isHideAdPage && window.isHideAdPage(window.location.pathname)) {
+                    return;
+                }
 
-            $(window).add($(document)).add($('body')).add($('.page-view')).add($('.page-recruit')).add($('.page-content')).add($('#app')).on('scroll', function() {
-                if (isProcessingScroll) return;
-                isProcessingScroll = true;
-                setTimeout(function() { isProcessingScroll = false; }, 50);
+                // 모바일 웹뷰 대응: window 기준으로만 계산 (가장 안정적)
+                var scrollTopVal = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+                var heightVal = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                var documentHeight = Math.max(
+                    document.documentElement.scrollHeight,
+                    document.body.scrollHeight,
+                    document.documentElement.clientHeight,
+                    document.body.clientHeight
+                );
 
-                // 광고를 숨겨야 하는 페이지에서는 스크롤 감지 무시
-                if (window.isHideAdPage && window.isHideAdPage(window.location.pathname)) return;
+                var scrollPos = scrollTopVal + heightVal;
+                var scrollableHeight = documentHeight - heightVal;
 
-                var $target = $(this);
-                var isWindow = this === window;
-                var isDocument = this === document;
-                var scrollTopVal = isWindow ? $(window).scrollTop() : (isDocument ? $(document).scrollTop() : $target.scrollTop()); // 현재 스크롤 위치
-                var heightVal = isWindow ? $(window).height() : (isDocument ? $(document).height() : $target.innerHeight());// 현재 화면의 높이
-                var containerScrollHeight = (isWindow || isDocument) ?
-                    (document.documentElement && document.documentElement.scrollHeight ? document.documentElement.scrollHeight : document.body.scrollHeight) :
-                    (this && this.scrollHeight ? this.scrollHeight : ($('.page-view').height() || $('.page-recruit').height())); // 스크롤 가능한 전체 높이
-                var scrollPos = scrollTopVal + heightVal; // 현재 화면의 맨 아래 위치
-                var documentHeight = containerScrollHeight || ($('.page-view').height() || $('.page-recruit').height());//  전체 페이지 높이
-
-                // 현재 광고 표시 여부 판단: 하단 200px 이내 도달 시 true
-                var shouldShowAd = (scrollPos + 200 >= documentHeight);
+                // 광고 표시 여부 판단
+                var shouldShowAd;
+                if (scrollableHeight <= 100) {
+                    // 스크롤 불필요한 짧은 페이지: 즉시 광고 표시
+                    shouldShowAd = true;
+                } else {
+                    // 스크롤 필요한 페이지: 하단 200px 이내 도달 시 광고 표시
+                    shouldShowAd = (scrollPos + 200 >= documentHeight);
+                }
 
                 // 상태가 변했을 때만 광고 제어 (깜빡임 방지)
-                if (lastAdState !== shouldShowAd) { 
+                if (lastAdState !== shouldShowAd) {
                     if (shouldShowAd) {
                         if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
                             window.nowjob.showNativeAd();
@@ -1245,6 +1274,38 @@
                     }
                     lastAdState = shouldShowAd;
                 }
+            }
+
+            // 페이지 진입 시 초기 상태 설정 (200ms 대기 후)
+            setTimeout(function() {
+                checkAndControlAd();
+            }, 200);
+
+            // 스크롤 감지 (50ms 디바운스로 중복 호출 방지)
+            // window 및 실제 스크롤 컨테이너에 이벤트 등록
+            var scrollElements = [window, document, document.body, document.documentElement];
+            var scrollSelectors = ['.page-view', '.page-recruit', '.page-content', '#app'];
+
+            // window와 document 객체에 스크롤 이벤트 등록
+            scrollElements.forEach(function(el) {
+                if (el) {
+                    el.addEventListener('scroll', function() {
+                        if (isProcessingScroll) return;
+                        isProcessingScroll = true;
+                        setTimeout(function() { isProcessingScroll = false; }, 50);
+                        checkAndControlAd();
+                    }, { passive: true });
+                }
+            });
+
+            // jQuery 선택자로 등록
+            scrollSelectors.forEach(function(selector) {
+                $(selector).on('scroll', function() {
+                    if (isProcessingScroll) return;
+                    isProcessingScroll = true;
+                    setTimeout(function() { isProcessingScroll = false; }, 50);
+                    checkAndControlAd();
+                });
             });
 
             // 메뉴 클릭 이벤트 기반 광고 제어
@@ -1252,11 +1313,19 @@
         };
     }
 
-    // 모든 페이지에서 메뉴 광고 제어 자동 초기화
+    // 모든 페이지에서 메뉴 광고 제어 및 스크롤 기반 광고 제어 자동 초기화
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initMenuAdControl);
+      document.addEventListener('DOMContentLoaded', function() {
+        initMenuAdControl();
+        if (typeof window.initNativeAdControl === 'function') {
+          window.initNativeAdControl();
+        }
+      });
     } else {
       initMenuAdControl();
+      if (typeof window.initNativeAdControl === 'function') {
+        window.initNativeAdControl();
+      }
     }
 
     // ✅ iOS/Android WebView를 위한 window.nowjob 객체 초기화

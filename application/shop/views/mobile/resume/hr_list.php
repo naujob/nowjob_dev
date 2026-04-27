@@ -41,10 +41,10 @@ if (count($banner_list) > 0) {
 </style>
 <div class="page-recruit">
 
-<!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
+  <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
       <span class="sr-text">미확인 알림메세지</span> -->
-      <!-- 미확인 알림개수 -->
-      <!-- <span class="cnt"><?= $g_alarm_cnt ?></span>
+  <!-- 미확인 알림개수 -->
+  <!-- <span class="cnt"><?= $g_alarm_cnt ?></span>
     </a> -->
 
 
@@ -196,9 +196,9 @@ if (count($banner_list) > 0) {
         </div>
       </div>
     </div>
-    <div class="list-action">
+    <!-- <div class="list-action">
       <a href="/resume/hr_map" class="btn-map"><span class="sr-text">지도보기</span></a>
-    </div>
+    </div> -->
 
   </div><!-- //page-content -->
   <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
@@ -206,7 +206,9 @@ if (count($banner_list) > 0) {
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
-<?php $tpl_id = 'tpl_list'; $tpl_recomm_class = true; $tpl_show_mm_idx = true; ?>
+<?php $tpl_id = 'tpl_list';
+$tpl_recomm_class = true;
+$tpl_show_mm_idx = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
 
 <template id="tpl_category">
@@ -223,9 +225,9 @@ if (count($banner_list) > 0) {
 <script>
   // 현재 로그인한 사용자 정보
   var currentUserMmIdx = <?php
-    $mm_idx = $this->user->isLogin() ? $this->user->getUserIdx() : null;
-    echo json_encode($mm_idx ? (int)$mm_idx : null);
-  ?>;
+                          $mm_idx = $this->user->isLogin() ? $this->user->getUserIdx() : null;
+                          echo json_encode($mm_idx ? (int)$mm_idx : null);
+                          ?>;
   var currentUserType = <?php echo json_encode(isset($mm_type) ? $mm_type : ""); ?>;
 </script>
 
@@ -273,9 +275,9 @@ if (count($banner_list) > 0) {
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
-  var ITEMS_PER_PAGE = 5;  // 한 페이지당 아이템 수
-  var total_pages = 1;  // 전체 페이지 수
-  var current_page = 1;  // 현재 페이지
+  var ITEMS_PER_PAGE = 5; // 한 페이지당 아이템 수
+  var total_pages = 1; // 전체 페이지 수
+  var current_page = 1; // 현재 페이지
   var search_array = {
     category: "",
     work_type: "",
@@ -512,7 +514,7 @@ if (count($banner_list) > 0) {
     var $target = $(this).closest('.content-li');
     var ruIdx = $target.data('ru_idx');
     var resumeMmIdx = $target.data('mm_idx'); // 이력서 소유자 인덱스
-    
+
     // 개인회원이고 자신의 이력서인 경우 클릭 가능
     if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
       if (ruIdx) {
@@ -521,7 +523,7 @@ if (count($banner_list) > 0) {
       }
       return;
     }
-    
+
     // 기업회원인 경우 클릭 가능
     <?php if ($mm_type === "COMP") { ?>
       if (ruIdx) {
@@ -550,7 +552,7 @@ if (count($banner_list) > 0) {
     pageNumbersDiv.innerHTML = '';
 
     // 페이지 번호 버튼 생성
-    var maxVisiblePages = 5;  // 한 번에 표시할 최대 페이지 수
+    var maxVisiblePages = 5; // 한 번에 표시할 최대 페이지 수
     var startPage = Math.max(1, current_page - Math.floor(maxVisiblePages / 2));
     var endPage = Math.min(total_pages, startPage + maxVisiblePages - 1);
 
@@ -589,7 +591,7 @@ if (count($banner_list) > 0) {
     current_page = pageNum;
     list_page = pageNum;
     getBoardList("");
-    window.scrollTo(0, 0);  // 페이지 상단으로 스크롤
+    window.scrollTo(0, 0); // 페이지 상단으로 스크롤
   }
 
   // 페이지네이션 버튼 이벤트 바인딩
@@ -779,19 +781,7 @@ if (count($banner_list) > 0) {
     setTimeout(attemptRestoreScroll, 50);
     setTimeout(attemptRestoreScroll, 200);
 
-    // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
-    if (typeof initNativeAdControl === 'function') {
-      initNativeAdControl();
-    }
-  });
-
-  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-  window.DISABLE_SWIPE_BACK = true;
-</script>
-
-<!-- 지금 뜨는 업체 슬라이더 초기화 -->
-<script>
-  window.addEventListener('DOMContentLoaded', function() {
+    // 지금 뜨는 업체 슬라이더 초기화
     var hotSlider = document.querySelector('.hot-list .slider-wrap');
     if (hotSlider && typeof KeenSlider !== 'undefined') {
       if (!hotSlider.__keenslider__) {
@@ -825,7 +815,10 @@ if (count($banner_list) > 0) {
         }
         new KeenSlider(hotSlider, {
           loop: true,
-          slides: { perView: 1.1, spacing: 12 },
+          slides: {
+            perView: 1.1,
+            spacing: 12
+          },
           drag: true,
           dragMinDist: 0,
           rubberband: true,
@@ -833,5 +826,10 @@ if (count($banner_list) > 0) {
         });
       }
     }
+
+    // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
   });
+
+  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
+  window.DISABLE_SWIPE_BACK = true;
 </script>

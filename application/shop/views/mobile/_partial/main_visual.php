@@ -1,22 +1,7 @@
 <?php
-// 현재 페이지 경로 확인
-$current_page = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-
-// 페이지별 배너 ID 결정
-if (strpos($current_page, '/recruit/job_list') !== false) {
-  // 기업용 페이지: 기업용 배너
-  $banner_id = "BN00302031";
-} else if (strpos($current_page, '/resume/hr_list') !== false) {
-  // 개인용 페이지: 개인용 배너
-  $banner_id = "BN00302041";
-} else {
-  // 기본 배너
-  $banner_id = "BN00010001";
-}
-
 // 배너 목록 조회
 if (!isset($banner_list)) {
-  $banner_list = getBannerList($banner_id);
+  $banner_list = getBannerList("BN00010001");
 }
 $banner = null;
 if (count($banner_list) > 0) {

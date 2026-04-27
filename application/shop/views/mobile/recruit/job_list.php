@@ -1,5 +1,5 @@
 <?php
-// 배너는 main_visual.php에서 페이지 기반으로 로드됨
+$banner_list = getBannerList("BN00302031");
 ?>
 <style>
   .page-content {
@@ -490,9 +490,9 @@
       </div>
     </div>
   </div>
-  <div class="list-action">
+  <!-- <div class="list-action">
     <a href="/recruit/job_map" class="btn-map"><span class="sr-text">지도보기</span></a>
-  </div>
+  </div> -->
 
 </div><!-- //page-content -->
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
@@ -971,7 +971,10 @@ $tpl_recomm_class = true; ?>
       var slider = new KeenSlider(recommSlider, {
         loop: true,
         initial: 0,
-        slides: { perView: 1.1, spacing: 12 },
+        slides: {
+          perView: 1.1,
+          spacing: 12
+        },
         drag: true,
         dragMinDist: 0,
         rubberband: true,
@@ -1165,10 +1168,7 @@ $tpl_recomm_class = true; ?>
     setTimeout(attemptRestoreScroll, 50);
     setTimeout(attemptRestoreScroll, 200);
 
-    // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
-    if (typeof initNativeAdControl === 'function') {
-      initNativeAdControl();
-    }
+    // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
   });
   // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
   window.onChangeAreaApply = function() {
