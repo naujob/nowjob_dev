@@ -97,6 +97,84 @@
     font-size: 0.75rem;
     margin-top: 0.5rem;
   }
+
+  /* 지금 뜨는 업체 슬라이더 스타일 */
+  .section:has(.hot-list) .container {
+    overflow: visible;
+  }
+
+  .section:has(.hot-list) {
+    overflow: hidden;
+  }
+
+  .hot-list {
+    position: relative;
+    margin: 0 -1.25rem;
+  }
+
+  .hot-list .slider-wrap {
+    padding: 0 1.25rem;
+  }
+
+  .hot-list .keen-slider__slide {
+    position: relative;
+    min-height: 0;
+  }
+
+  .hot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .hot-item {
+    display: block;
+    text-decoration: none;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.3s ease;
+  }
+
+  .hot-item:active {
+    transform: scale(0.98);
+  }
+
+  .hot-item .thumb {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hot-item .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hot-item .name {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .hot-item--empty {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hot-item--empty .thumb {
+    background: transparent;
+  }
 </style>
 <div class="page-recruit">
 
@@ -110,11 +188,12 @@
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
-    <div class="section index_comp">
+    <!-- 지금 뜨는 업체 슬라이더 -->
+    <div class="section">
       <div class="container">
-        <h2 class="secondary-title index">추천공고</h2>
-        <div class="recomm-slider person">
-          <div class="slider-wrap keen-slider" id="recomm-list">
+        <h2 class="secondary-title index">지금 뜨는 업체</h2>
+        <div class="hot-list">
+          <div class="slider-wrap keen-slider" id="hot-slider">
           </div>
         </div>
       </div>
@@ -361,7 +440,7 @@
 
   function initLoadData() {
     getBoardList("");
-    getRecruitRecoList();
+    getHotList();
   }
 
   function getBoardList(save_yn) {
@@ -676,18 +755,104 @@
     });
   }
 
-  // 추천 슬라이더 초기화
-  function initRecommSlider() {
-    var slides = document.querySelectorAll('#recomm-list .keen-slider__slide');
+  // 지금 뜨는 업체 데이터 로딩
+  function getHotList() {
+    var params = {
+      "limit": "8"
+    };
 
-    if (slides.length === 0) return;
+    comAjax("/recruit_proc/getHotCompanyList", params, function(ret) {
+      if (ret.code == "00") {
+        var list = ret.data.list || [];
+        $("#hot-slider").html("");
 
-    // 슬라이드 개수가 4개 미만이면 슬라이드 복제
-    if (slides.length < 4) {
-      var slideCount = slides.length;
-      for (var i = 0; i < 4 - slideCount; i++) {
-        var $clone = $(slides[i % slideCount]).clone();
-        $("#recomm-list").append($clone);
+        if (list && list.length > 0) {
+          // 4개씩 청크로 분할 (한 슬라이드 = 2x2 그리드)
+          var chunkedList = [];
+          for (var i = 0; i < list.length; i += 4) {
+            chunkedList.push(list.slice(i, i + 4));
+          }
+
+          // 마지막 청크 null 패딩
+          if (chunkedList.length > 0) {
+            var lastChunk = chunkedList[chunkedList.length - 1];
+            while (lastChunk.length < 4) {
+              lastChunk.push(null);
+            }
+          }
+
+          chunkedList.forEach(function(chunk) {
+            var slideHtml = '<div class="keen-slider__slide">' +
+              '<div class="hot-grid">';
+
+            chunk.forEach(function(row) {
+              if (row !== null) {
+                slideHtml += '<a href="/recruit/company/' + row.mm_idx + '" class="hot-item">' +
+                  '<div class="thumb">' +
+                  '<img data-src="' + (row.mm_logo_img || row.mm_profile_img || '/resource/shop/mobile/img/default/no-image.png') + '" alt="' + (row.mm_comp_name || '') + '" class="lozad">' +
+                  '<p class="name">' + (row.mm_comp_name || '') + '</p>' +
+                  '</div>' +
+                  '</a>';
+              } else {
+                slideHtml += '<div class="hot-item hot-item--empty">' +
+                  '<div class="thumb"></div>' +
+                  '</div>';
+              }
+            });
+
+            slideHtml += '</div>' +
+              '</div>';
+
+            $("#hot-slider").append(slideHtml);
+          });
+
+          // KeenSlider 초기화
+          initHotSlider();
+        }
+      }
+    });
+  }
+
+  // 지금 뜨는 업체 슬라이더 초기화
+  function initHotSlider() {
+    var hotSlider = document.querySelector('#hot-slider');
+
+    if (!hotSlider || typeof KeenSlider === 'undefined') return;
+
+    // 이미 초기화되었으면 스킵
+    if (hotSlider.__keenslider__) {
+      return;
+    }
+
+    // loop peek을 위해 슬라이드가 3개 미만이면 복제
+    var slides = hotSlider.querySelectorAll('.keen-slider__slide');
+    if (slides.length > 0 && slides.length < 4) {
+      var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+      var added = slides.length;
+
+      // 이미지 src 매핑 (복제 후 src 손실 방지)
+      var imageSrcMap = {};
+      slides.forEach(function(slide, idx) {
+        var img = slide.querySelector('img');
+        if (img) {
+          imageSrcMap[idx] = {
+            src: img.getAttribute('data-src'),
+            alt: img.getAttribute('alt')
+          };
+        }
+      });
+
+      // 슬라이드 복제
+      for (var i = added; i < cloneCount; i++) {
+        var $clone = $(slides[i % added]).clone();
+
+        // 복제된 이미지의 src 복원
+        var cloneImg = $clone.find('img');
+        if (cloneImg.length > 0 && imageSrcMap[i % added]) {
+          cloneImg.attr('data-src', imageSrcMap[i % added].src);
+        }
+
+        hotSlider.appendChild($clone[0]);
       }
     }
 
@@ -697,22 +862,14 @@
       observer.observe();
     }
 
-    // 기존 슬라이더 인스턴스 제거 (중복 초기화 방지)
-    if (window.recommSliderInstance) {
-      window.recommSliderInstance.destroy();
-    }
-
     // KeenSlider 초기화
-    window.recommSliderInstance = new KeenSlider("#recomm-list", {
+    window.hotSliderInstance = new KeenSlider("#hot-slider", {
       loop: true,
       slides: {
-        perView: 2,
-        spacing: 8,
+        perView: 1,
+        spacing: 0,
       },
-      drag: true,
-      created: function(slider) {
-        // 슬라이더 생성 완료
-      }
+      drag: true
     });
   }
 
