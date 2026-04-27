@@ -72,6 +72,7 @@ if (count($banner_list) > 0) {
 
       </div>
     </div>
+    <!-- 상세 검색 옵션 버튼 -->
     <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
   </div>
 

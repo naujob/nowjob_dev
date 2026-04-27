@@ -1,100 +1,127 @@
 <div class="bottom-nav">
-  <!-- 활성화된 메뉴 : active 클래스 -->
-  <a href="/" class="btn menu-home <?= $select_menu == "home" ? "active" : "" ?>"></a>
-  <button type="button" aria-controls="menu" aria-expanded="false" class="btn-toggle-menu js-toggle-menu"><span class="sr-text">메뉴열기</span></button>
-  <nav id="menu" class="menu">
-    <!-- 개인 사용자 -->
-    <ul>
-      <?php if ($this->user->getUserType() == "COMP") { ?>
-        <style>
-          .bottom-nav .sub-menu1:before {
-            background-image: url('/resource/shop/mobile/img/rating_stars_on_2.svg');
-            background-size: 80%;
-            position: relative;
-           
-            right: -9px;
-          }
+  <!-- 비로그인 사용자 -->
+  <?php if (!$this->user->isLogin()) { ?>
+    <a href="/recruit/job_list" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
+      <span>채용정보</span>
+    </a>
+    <a href="/resume/hr_list" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/resume.svg" alt="인재정보">
+      <span>인재정보</span>
+    </a>
+    <a href="/recruit/job_map" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/map.svg" alt="채용지도">
+      <span>채용지도</span>
+    </a>
+    <a href="/member/login" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/ic_menu2_mypage_2.svg" alt="로그인">
+      <span>로그인</span>
+    </a>
+    <a href="#" id="btnChat" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/chat.svg" alt="채팅">
+      <span>채팅</span>
+    </a>
 
-          /* .bottom-nav .menu a:before { background-size: cover; } */
-        </style>
-        <li><a href="/compage/bookmark_person1" class="sub-menu1"><span>관심인재</span></a></li>
-        <li><a href="/recruit/job_list" class="sub-menu2"><span>채용정보</span></a></li>
-        <li><a href="javascript:void(0);" class="sub-menu3" id="btnRecruitWrite"><span>채용공고</span></a></li>
-        <li><a href="/resume/hr_list" class="sub-menu4"><span>인재정보</span></a></li>
-        <?php if ($this->user->isLogin()) : ?>
-          <li><a href="/<?= ($this->user->getUserType() == "COMP") ? "compage" : "mypage" ?>/index" class="sub-menu5"><span>마이페이지</span></a></li>
-        <?php else : ?>
-          <li><a href="/member/login" class="sub-menu5"><span>로그인</span></a></li>
-        <?php endif; ?>
+  <!-- 기업 로그인 사용자 -->
+  <?php } else if ($this->user->getUserType() == "COMP") { ?>
+    <a href="/recruit/job_list" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
+      <span>채용정보</span>
+    </a>
+    <a href="/resume/hr_list" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/resume.svg" alt="인재정보">
+      <span>인재정보</span>
+    </a>
+    <a href="/recruit/job_map" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/map.svg" alt="채용지도">
+      <span>채용지도</span>
+    </a>
+    <button type="button" id="btnRecruitWrite" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs.svg" alt="채용공고등록">
+      <span>채용공고등록</span>
+    </button>
+    <a href="#" id="btnChat" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/chat.svg" alt="채팅">
+      <span>채팅</span>
+    </a>
 
-      <?php } else if ($this->user->getUserType() == "MEM") { ?>
-        <style>
-          .bottom-nav .sub-menu1:before {
-            background-image: url('/resource/shop/mobile/img/ic_top_search_2.svg');
-            position: relative;
-           
-            right: -12px;
-          }
-        </style>
-        <li><a href="/recruit/job_view_list" class="sub-menu1"><span>최근본공고</span></a></li>
-        <li><a href="/resume/hr_list" class="sub-menu2"><span>인재정보</span></a></li>
-        <li><a href="javascript:void(0);" class="sub-menu3" id="btnResumeWrite"><span>이력서</span></a></li>
-        <li><a href="/recruit/job_list" class="sub-menu4"><span>채용정보</span></a></li>
-        <?php if ($this->user->isLogin()) : ?>
-          <li><a href="/<?= ($this->user->getUserType() == "COMP") ? "compage" : "mypage" ?>/index" class="sub-menu5"><span>마이페이지</span></a></li>
-        <?php else : ?>
-          <li><a href="/member/login" class="sub-menu5"><span>로그인</span></a></li>
-        <?php endif; ?>
+  <!-- 개인 로그인 사용자 -->
+  <?php } else if ($this->user->getUserType() == "MEM") { ?>
+    <a href="/recruit/job_list" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
+      <span>채용정보</span>
+    </a>
+    <a href="/resume/hr_list" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/resume.svg" alt="인재정보">
+      <span>인재정보</span>
+    </a>
+    <a href="/resume/hr_map" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/map.svg" alt="인재지도">
+      <span>인재지도</span>
+    </a>
+    <button type="button" id="btnResumeWrite" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs.svg" alt="이력서등록">
+      <span>이력서등록</span>
+    </button>
+    <a href="#" id="btnChat" class="btn-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/chat.svg" alt="채팅">
+      <span>채팅</span>
+    </a>
+  <?php } ?>
 
-      <?php } else { ?>
-
-        <li><a href="/member/login" class="sub-menu1"><span>로그인</span></a></li>
-        <li><a href="/resume/hr_list" class="sub-menu2"><span>인재정보</span></a></li>
-        <li><a href="/compage/recruit_list" class="sub-menu3" id="btnRecruitMenu"><span>공고등록</span></a></li>
-        <li><a href="/recruit/job_list" class="sub-menu4"><span>채용정보</span></a></li>
-        <li><a href="/recruit/job_view_list" class="sub-menu5" id="btnJobViewList"><span>최근본공고</span></a></li>
-
-      <?php } ?>
-      <?php /* //org ?>
-            <li><a href="/" class="sub-menu1">HOME</a></li>
-            <?php if($this->user->getUserType()=="COMP") : ?>
-            	<li><a href="/resume/hr_list" class="sub-menu2">인재정보</a></li>
-            <?php else : ?>
-            	<li><a href="/recruit/job_list" class="sub-menu2">채용정보</a></li>
-            <?php endif; ?>
-            <li><a href="/compage/recruit_list" class="sub-menu3">공고등록</a></li>
-            <li><a href="/chat" class="sub-menu4">채팅</a></li>
-            <?php if($this->user->isLogin()) : ?>
-            	<li><a href="/<?=($this->user->getUserType()=="COMP") ? "compage":"mypage" ?>/index" class="sub-menu5">마이페이지</a></li>
-            <?php else : ?>
-            	<li><a href="/member/login" class="sub-menu5">로그인</a></li>
-            <?php endif; ?>
-          <?php */ ?>
-    </ul>
-    <div class="dimmed"></div>
-  </nav>
-  <div id="messageOverlay" style="display:none; position: fixed; bottom: 90px; right: 0; width: 180px; height: 70px; background-color: transparent; z-index: 9999;">
-    <div id="messageBox" style="position: absolute; top: 0%; left: 0%; background-color: #ccc; padding: 20px; border-radius: 10px; font-size: 13px; color: #000; border: 1px solid #ccc;">준비중 입니다</div>
-  </div>
-
-  <a href="#" class="btn menu-chat <?= $select_menu == "chat" ? "active" : "" ?>" id="btnChat" style="position: relative;"><span id="msgNoReadCountMainBottom"></span></a>
-  <style>
-    #msgNoReadCountMainBottom {
-      position: absolute;
-      top: -3px;
-      right: 12%;
-      background-color: #F86048;
-      width: 24px;
-      height: 24px;
-      text-align: center;
-      line-height: 24px;
-      color: #fff;
-      font-size: 0.8rem;
-      border-radius: 100%;
-      display: none;
-    }
-  </style>
+  <!-- 채팅 배지 -->
+  <span id="msgNoReadCountMainBottom"></span>
 </div>
+
+<!-- 바텀시트 스타일 -->
+<style>
+  .bottom-nav {
+    padding: 0;
+    height: 56px;
+  }
+
+  .btn-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 20%;
+    padding: 8px 0 6px;
+    font-size: 0.7rem;
+    color: #777;
+    text-decoration: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    line-height: 1.2;
+    gap: 4px;
+    transition: color 0.2s;
+  }
+
+  .btn-nav-item img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .btn-nav-item:active {
+    color: #222;
+  }
+
+  #msgNoReadCountMainBottom {
+    position: absolute;
+    top: 8px;
+    right: 12%;
+    background-color: #F86048;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    line-height: 24px;
+    color: #fff;
+    font-size: 0.8rem;
+    border-radius: 100%;
+    display: none;
+  }
+</style>
 
 <?php
 // 공통 바텀시트 템플릿 로드
@@ -164,7 +191,7 @@ renderSelectBottomSheet(
     localStorage.removeItem("resume_draft_0_step3");
     localStorage.removeItem("resume_draft_0_step4");
     localStorage.removeItem("resume_draft_0_step5");
-    
+
     location.href = "/mypage/resume_write1";
   });
 
@@ -181,7 +208,7 @@ renderSelectBottomSheet(
     localStorage.removeItem("recruit_draft_0_page3");
     localStorage.removeItem("recruit_draft_0_page4");
     localStorage.removeItem("recruit_draft_0_page5");
-    
+
     location.href = "/compage/recruit_write1_1";
   });
 
@@ -350,29 +377,11 @@ renderSelectBottomSheet(
   /**
    * openPanel/closePanel 함수는 main.js에 통합되어 있습니다.
    * 모든 로직이 main.js에 있어 유지보수가 용이합니다.
-   * 
+   *
    * 배경 클릭 시 패널 닫기 로직도 main.js의 setTogglePanel() 내부에 이미 구현되어 있습니다.
    */
 </script>
 
-<script>
-  navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
-
-  $(".js-toggle-menu").click(function() {
-    var os_type = "<?= $os_type ?>";
-
-    $("#menu").addClass("open");
-    if (os_type == "android") {
-      APP_NOWAPK.callVibrate();
-    } else if (os_type == "ios") {
-      window.webkit.messageHandlers.callVibrate.postMessage({});
-    } else {
-      if (navigator.vibrate) {
-        navigator.vibrate(20); // 진동을 울리게 한다. 1000ms = 1초
-      }
-    }
-  });
-</script>
 <script>
   // 디바운싱을 위한 타이머 변수
   var fSearchNoReadCountMainBottomTimer = null;
@@ -380,7 +389,7 @@ renderSelectBottomSheet(
 
   $(document).ready(function() {
     fSearchNoReadCountMainBottom();
-    
+
     // 실시간 업데이트 초기화
     initRealTimeNoReadCountUpdate();
   });
@@ -493,12 +502,12 @@ renderSelectBottomSheet(
     if (noreadCountPollingTimer) {
       clearInterval(noreadCountPollingTimer);
     }
-    
+
     // 로그인 상태일 때만 폴링 시작
     if ($("#user_id").val() == '') {
       return;
     }
-    
+
     // 10초마다 실행
     noreadCountPollingTimer = setInterval(function() {
       fSearchNoReadCountMainBottomDebounced();
@@ -704,22 +713,6 @@ renderSelectBottomSheet(
       location.href = '/chat';
     });
 
-    // 공고등록 버튼 클릭 이벤트 (비회원일 경우)
-    $("#btnRecruitMenu").click(function(e) {
-      e.preventDefault();
-
-      // 로그인 여부 확인
-      var is_login = "<?= $this->user->isLogin() ? 'Y' : 'N'; ?>";
-      if (is_login != "Y") {
-        // 로그인 페이지로 바로 이동
-        location.href = '/member/login';
-        return;
-      }
-
-      // 로그인 상태면 바로 공고등록 페이지로 이동
-      location.href = '/compage/recruit_list';
-    });
-
     // 공고등록 버튼 클릭 이벤트 (기업회원일 경우)
     $("#btnRecruitWrite").click(function(e) {
       e.preventDefault();
@@ -730,22 +723,6 @@ renderSelectBottomSheet(
     $("#btnResumeWrite").click(function(e) {
       e.preventDefault();
       openResumeNavigationPopup();
-    });
-
-    // 최근본공고 버튼 클릭 이벤트 (비로그인일 경우)
-    $("#btnJobViewList").click(function(e) {
-      e.preventDefault();
-
-      // 로그인 여부 확인
-      var is_login = "<?= $this->user->isLogin() ? 'Y' : 'N'; ?>";
-      if (is_login != "Y") {
-        // 바텀 시트 형태의 로그인 안내 팝업 표시
-        openPanel(document.getElementById('loginGuidePanel'));
-        return;
-      }
-
-      // 로그인 상태면 바로 최근본공고 페이지로 이동
-      location.href = '/recruit/job_view_list';
     });
   });
 </script>
