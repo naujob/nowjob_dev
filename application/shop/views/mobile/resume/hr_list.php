@@ -1,5 +1,15 @@
 <?php
-$banner_list = getBannerList("BN00302041");
+// 로그인 상태에 따라 배너 ID 결정
+$user_type = $this->user->getUserType();
+if ($user_type === "COMP") {
+  // 기업 로그인: BN00302031 (기업홈 배너)
+  $banner_id = "BN00302031";
+} else {
+  // 개인 로그인 또는 비로그인: BN00302041 (기본 배너)
+  $banner_id = "BN00302041";
+}
+
+$banner_list = getBannerList($banner_id);
 $banner = null;
 if (count($banner_list) > 0) {
   $banner = $banner_list[0];
@@ -40,30 +50,7 @@ if (count($banner_list) > 0) {
 
 
   <div class="page-content">
-    <?php include(APPPATH . 'views/mobile/_partial/top_visual.php'); ?>
-
-    <div class="search-option has-option">
-      <style>
-       
-
-        .search-option.has-option .btn-option {
-          top: 0.975rem;
-        }
-      </style>
-      <!-- 현재 위치 -->
-      <div class="current-area">
-        <div class="container">
-          <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
-        </div>
-      </div>
-      <!-- 선택된 카테고리 -->
-      <div class="categories">
-        <div class="container" id="tab_list">
-
-        </div>
-      </div>
-      <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
-    </div>
+    <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
     <div class="section is-last">
       <style>

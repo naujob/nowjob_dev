@@ -1,9 +1,5 @@
 <?php
-$banner_list = getBannerList("BN00010001");
-$banner = null;
-if (count($banner_list) > 0) {
-  $banner = $banner_list[0];
-}
+$banner_list = getBannerList("BN00302031");
 ?>
 <style>
   .page-content {
@@ -39,6 +35,326 @@ if (count($banner_list) > 0) {
     max-width: 100%;
     font-size: 1.8rem;
   }
+
+  /* 추천인재 슬라이더 양쪽 peek — container overflow 재정의 */
+  .section.index_comp:has(.recomm-slider) .container {
+    overflow: visible;
+  }
+
+  .section.index_comp:has(.recomm-slider) {
+    overflow: hidden;
+  }
+
+  /* KeenSlider 컨테이너 — 양쪽 peek: padding으로 이전/다음 슬라이드 노출 */
+  .recomm-slider.person .slider-wrap {
+    overflow: visible;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  /* 슬라이더 슬라이드: 전체 너비 */
+  .recomm-slider.person .keen-slider__slide {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 0;
+    padding-bottom: 10px !important;
+  }
+
+  /* 슬라이드 내 2x2 — flexbox wrap 방식 */
+  .recomm-slider.person .person-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* 그리드 아이템 — 2열 배치 (gap 10px 고려) */
+  .recomm-slider.person .person-grid-item {
+    display: flex;
+    flex-direction: column;
+    width: calc(50% - 5px);
+    min-width: 0;
+  }
+
+  /* 카드 높이 최소화 */
+  .recomm-slider.person .person-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .recomm-slider.person .person-card .title-wrap {
+    margin: 0 0 2px;
+  }
+
+  .recomm-slider.person .person-card .title-wrap .title {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    color: #333;
+  }
+
+  .recomm-slider.person .person-card .meta {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #000;
+    margin: 2px 0 0;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .recomm-slider.person .person-card .meta p {
+    flex: 0 1 auto;
+    padding: 0;
+    margin: 0;
+    color: #000;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  .recomm-slider.person .person-card .meta p:after {
+    content: "";
+    display: none;
+  }
+
+  .recomm-slider.person .person-card .meta-divider {
+    padding: 0 11px;
+    color: #ccc;
+    font-size: 9px;
+    flex: 0 0 auto;
+  }
+
+  .recomm-slider.person .person-card .addr {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 2px 0 0;
+    padding: 0;
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .recomm-slider.person .person-card .hashtag {
+    font-size: 0;
+    height: 50px;
+    max-height: 22px;
+    border-top: none;
+    background-color: #3A70DB;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    line-height: 1.3;
+  }
+
+  .recomm-slider.person .person-card .tag {
+    font-size: 16px;
+    color: #fff;
+    text-align: center !important;
+  }
+
+  /* 카드 스타일 */
+  .recomm-slider.person .person-card {
+    padding: 10px 0 10px;
+    border: 1px solid #d2cece;
+    border-radius: 25px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .recomm-slider.person .person-card .desc {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .person-card {
+    padding: 0 5px 0 0;
+  }
+
+  .person-card .thumb-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .person-card .recomm-badge {
+    top: 10px;
+    left: 10px;
+    background-color: #57CCAF;
+  }
+
+  .person-card .thumb {
+    position: relative;
+    left: 31%;
+    border-radius: 50px;
+    overflow: hidden;
+    background: #f0f0f0;
+    width: 80px;
+    height: 75px;
+  }
+
+  /* 뱃지 래퍼: 이미지 아래 배치 */
+  .person-card .person-badge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+  }
+
+  /* 뱃지 아이콘 */
+  .person-card .person-badge-icon {
+    font-size: 0;
+  }
+
+  .person-card .person-badge-icon img {
+    width: 47px;
+    height: 20px;
+    display: inline-block;
+  }
+
+  /* 뱃지 텍스트 */
+  .person-card .person-badge {
+    position: static;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    background-color: #1b9d7d;
+    border-radius: 100px;
+    line-height: 1.2;
+    white-space: nowrap;
+    max-width: 90%;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+  }
+
+  .person-card .thumb img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+
+  .person-card .desc {
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 400;
+  }
+
+  /* 주소 */
+  .person-card .addr {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+  }
+
+  .person-card .category {
+    margin: 0 0 5px;
+    font-size: 0;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .person-card .title-wrap {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin: 0 0 3px;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .person-card .title {
+    width: 85%;
+    margin: 0 5px 0 0;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .person-card .area {
+    margin: 0;
+    color: #000;
+    height: auto;
+    width: 70%;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  .person-card .meta {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    text-align: center;
+  }
+
+  .person-card .meta p {
+    position: relative;
+    flex: 1;
+    word-break: keep-all;
+    padding: 0px 3px;
+    text-align: center;
+  }
+
+  .person-card .meta p:first-child {
+    text-align: left;
+    padding-left: 0;
+  }
+
+  .person-card .meta p:last-child {
+    padding-right: 0;
+  }
+
+  .person-card .meta p:after {
+    content: "";
+    display: none;
+  }
+
+  .person-card .meta p:last-child:after {
+    content: none;
+  }
+
+  /* 메타 구분자 */
+  .person-card .meta-divider {
+    flex: 0 0 auto;
+    padding: 0 2px;
+    font-size: 10px;
+    color: #ccc;
+    line-height: 1;
+  }
+
+  .person-card .meta p em {
+    font-style: normal;
+  }
+
+  .person-card .hashtag {
+    height: auto;
+    max-height: 24px;
+    display: block;
+  }
 </style>
 <div class="page-recruit">
 
@@ -50,30 +366,24 @@ if (count($banner_list) > 0) {
 </div><!-- //header -->
 
 <div class="page-content">
-  <?php include(APPPATH . 'views/mobile/_partial/top_visual.php'); ?>
+  <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
-  <!-- 상세 검색 옵션 선택시: has-option 클래스 추가 -->
-  <div class="search-option has-option">
-    <style>
-      .search-option.has-option .btn-option {
-        top: 0.975rem;
-      }
-    </style>
-    <!-- 지역검색 -->
-    <div class="current-area">
-      <div class="container">
-        <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
-        <!-- <?= $search_txt["searchAreaStr"]; ?> -->
+  <div class="section index_comp">
+    <div class="container">
+      <h2 class="secondary-title index">추천인재</h2>
+      <div class="recomm-slider person">
+        <div class="slider-wrap keen-slider" id="recomm-list">
+        </div>
       </div>
     </div>
-    <!-- 선택된 카테고리 -->
-    <div class="categories">
-      <div class="container" id="tab_list">
+  </div>
 
-      </div>
+  <div class="section index_comp">
+    <div class="container">
+      <h2 class="secondary-title">추천공고</h2>
+      <ol class="result-list result-list-card">
+      </ol>
     </div>
-    <!-- 상세 검색 옵션 버튼 -->
-    <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
   </div>
 
   <div class="section is-last">
@@ -199,6 +509,33 @@ $tpl_recomm_class = true; ?>
     <input type="checkbox" name="filter" value="{{category_name}}">
     <span class="cate">{{category_name}}</span>
   </label>
+</template>
+
+<template id="tpl_reco_item">
+  <div class="person-grid-item">
+    <div class="person-card" data-ru_idx="{{ru_idx}}">
+      <div class="thumb-wrap">
+        <div class="thumb">
+          <img src="{{ru_resume_img}}" alt="프로필">
+        </div>
+        <div class="person-badge-wrap">
+          <div class="person-badge-icon">{{ru_work_img}}</div>
+        </div>
+      </div>
+      <div class="desc">
+        <div class="content-wrap">
+          <div class="meta">
+            <p class="work_type">{{ru_work_type}}</p>
+            <span class="meta-divider">|</span>
+            <p class="age">{{mm_age}}</p>
+            <span class="meta-divider">|</span>
+            <p class="price_type">{{ru_price_type}}</p>
+          </div>
+          <p class="addr">{{ad_addr}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 
@@ -519,6 +856,173 @@ $tpl_recomm_class = true; ?>
     }
   });
 
+  // 추천인재 데이터 로딩
+  function getRecoList() {
+    var params = {
+      "addr1": "",
+      "addr2": "",
+      "addr3": "",
+      "limit": "8"
+    };
+
+    $.ajax({
+      url: "/resume_proc/search_reco_list2025",
+      type: "post",
+      data: params,
+      traditional: false,
+      dataType: "json",
+      crossDomain: true,
+      success: function(ret) {
+        if (ret.code == "00") {
+          var list = ret.data.list;
+          $("#recomm-list").html("");
+
+          if (list && list.length > 0) {
+            var chunked = [];
+            for (var i = 0; i < list.length; i += 4) {
+              chunked.push(list.slice(i, i + 4));
+            }
+
+            chunked.forEach(function(chunk) {
+              var $slide = $("<div class='keen-slider__slide'><div class='person-grid'></div></div>");
+              var $grid = $slide.find(".person-grid");
+
+              chunk.forEach(function(row) {
+                var $clone = $("#tpl_reco_item").clone();
+                var $content = $clone.html();
+
+                var workTypeRaw = row.ru_work_type || "";
+                var myTypeRaw = row.ru_my_type || "";
+                if (!myTypeRaw || myTypeRaw.trim() === "") {
+                  myTypeRaw = "<p class='tag'>#성실합니다</p>";
+                }
+
+                $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
+                $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
+                $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
+                $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "대");
+                $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
+                $content = $content.replaceAll("{{ru_work_type}}", workTypeRaw);
+                $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
+                $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
+                $content = $content.replaceAll("{{ru_my_type}}", myTypeRaw);
+                $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr || ""));
+
+                $clone.html($content);
+                $grid.append($clone.html());
+              });
+
+              $("#recomm-list").append($slide);
+            });
+
+            initRecommSlider();
+          } else {
+            $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>추천인재가 없습니다.</p>");
+          }
+        } else {
+          $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
+        }
+      },
+      error: function() {
+        $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
+      }
+    });
+  }
+
+  // 추천인재 슬라이더 초기화
+  function initRecommSlider() {
+    var recommSlider = document.querySelector('.recomm-slider.person .slider-wrap');
+    if (recommSlider && typeof KeenSlider !== 'undefined' && !recommSlider.__keenslider__) {
+      var slides = recommSlider.querySelectorAll('.keen-slider__slide');
+      if (slides.length > 0 && slides.length < 4) {
+        var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+        var added = slides.length;
+
+        var imageSrcMap = {};
+        slides.forEach(function(slide, idx) {
+          slide.querySelectorAll('img').forEach(function(img, imgIdx) {
+            imageSrcMap[idx + '-' + imgIdx] = img.src;
+          });
+        });
+
+        while (added < cloneCount) {
+          slides.forEach(function(slide, slideIdx) {
+            if (added < cloneCount) {
+              var cloned = slide.cloneNode(true);
+              cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
+                var srcKey = slideIdx + '-' + imgIdx;
+                if (imageSrcMap[srcKey]) {
+                  img.src = imageSrcMap[srcKey];
+                }
+                if (img.classList.contains('lozad')) {
+                  if (img.getAttribute('data-src') && !img.src) {
+                    img.src = img.getAttribute('data-src');
+                  }
+                  img.setAttribute('data-loaded', 'true');
+                }
+              });
+              recommSlider.appendChild(cloned);
+              added++;
+            }
+          });
+        }
+      }
+
+      var slider = new KeenSlider(recommSlider, {
+        loop: true,
+        initial: 0,
+        slides: { perView: 1.1, spacing: 12 },
+        drag: true,
+        dragMinDist: 0,
+        rubberband: true,
+        renderMode: 'precision'
+      });
+    }
+  }
+
+  // 추천공고 데이터 로딩
+  function getRecruitRecoList() {
+    var params = {
+      "addr1": "",
+      "addr2": "",
+      "addr3": "",
+      "limit": "24"
+    };
+
+    comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
+      if (ret.code == "00") {
+        var list = ret.data.list;
+        $(".section.index_comp .result-list").html("");
+
+        list.forEach(function(row) {
+          var $clone = $("#tpl_list").clone();
+          var $content = $clone.html();
+          $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
+          $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
+          $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+          var rc_name = row.rc_name;
+          if (rc_name && rc_name.length > 18) {
+            rc_name = rc_name.substring(0, 18) + '...';
+          }
+          $content = $content.replaceAll("{{rc_name}}", rc_name);
+          $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
+          $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
+          $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
+          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+          if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
+            $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
+          } else {
+            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
+          }
+          $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
+          $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
+          $clone.html($content);
+          $(".section.index_comp .result-list").append($clone.html());
+        });
+      }
+    });
+  }
+
   // 이력서 작성 버튼 클릭 이벤트 (공통 팝업 호출)
   $("#btnResumeList").click(function(e) {
     e.preventDefault();
@@ -583,6 +1087,9 @@ $tpl_recomm_class = true; ?>
 
     initCategory();
     initTabUi();
+
+    getRecoList();
+    getRecruitRecoList();
 
     var params = {
       cashing_id: "recruit_cashing",
