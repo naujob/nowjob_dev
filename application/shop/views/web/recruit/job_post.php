@@ -1030,8 +1030,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                   <div class="map-nav-wrap">
                     <button type="button" class="js-toggle-dropdown" aria-expanded="false" style="background:#1B9D7D;color:#fff;border-radius:5px;border:solid 1px #1B9D7D;font-size:13px;padding:4px 10px;cursor:pointer;">길찾기</button>
                     <div class="dropdown" hidden>
-                      <a href="javascript:naverMap('<?= $mem_info["mm_comp_name"] ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">네이버지도</a>
-                      <a href="javascript:kakaoMap('<?= $mem_info["mm_comp_name"] ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">카카오맵</a>
+                      <a href="javascript:naverMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">네이버지도</a>
+                      <a href="javascript:kakaoMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">카카오맵</a>
                     </div>
                   </div>
                 </h3>
@@ -1404,7 +1404,9 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
   //네이버맵 길안내
   function naverMap(name, lat, lng) {
-    window.open("https://map.naver.com/index.nhn?menu=route&appMode=service&pathType=1&gx=" + lng + "&gy=" + lat + "&destName=" + encodeURIComponent(name));
+    var url = "https://map.naver.com/index.nhn?menu=route&appMode=service&pathType=1&gx=" + lng + "&gy=" + lat + "&destName=" + encodeURIComponent(name);
+    console.log("네이버맵 URL:", url);
+    window.open(url);
   }
 </script>
 
