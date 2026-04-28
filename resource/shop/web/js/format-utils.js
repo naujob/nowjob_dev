@@ -61,31 +61,44 @@ function getPriceType(price_type) {
 }
 
 /**
- * 근무 형태 추출 및 스타일 적용
- * @param {string} work_type - 근무 형태 HTML (예: <span>주간</span>)
- * @returns {string} 스타일이 적용된 근무 형태 (<em class="wtype1">주간</em>)
+ * 근무 형태 추출 및 스타일 적용 (모든 값 처리)
+ * @param {string} work_type - 근무 형태 문자열 (예: "주간,야간,2교대" 또는 HTML <span>주간</span><span>야간</span>)
+ * @returns {string} 스타일이 적용된 근무 형태 (<em class="wtype1">주간</em><em class="wtype2">야간</em>)
  */
 function getWorkType(work_type) {
   if (!work_type) {
     return "";
   }
-  const matches = work_type.match(/<span>(.*?)<\/span>/g);
 
-  if (!matches || matches.length === 0) {
+  let items = [];
+
+  // HTML span 형식 처리
+  if (work_type.includes('<span>')) {
+    const matches = work_type.match(/<span>(.*?)<\/span>/g);
+    if (matches && matches.length > 0) {
+      items = matches.map(m => m.replace(/<\/?span>/g, '').trim());
+    }
+  } else {
+    // 쉼표로 구분된 일반 문자열 처리
+    items = work_type.split(',').map(item => item.trim()).filter(item => item);
+  }
+
+  if (items.length === 0) {
     return "";
   }
-  // 첫 번째 값만 반환
-  const firstMatch = matches[0];
-  const text = firstMatch.replace(/<\/?span>/g, '').trim();
-  let cls = '';
-  if (text === '주간') {
-    cls = 'wtype1';
-  } else if (text === '야간') {
-    cls = 'wtype2';
-  } else if (text === '2교대') {
-    cls = 'wtype3';
-  }
-  return `<em class="${cls}">${text}</em>`;
+
+  // 모든 값을 처리하여 HTML 생성
+  return items.map(text => {
+    let cls = '';
+    if (text === '주간') {
+      cls = 'wtype1';
+    } else if (text === '야간') {
+      cls = 'wtype2';
+    } else if (text === '2교대') {
+      cls = 'wtype3';
+    }
+    return `<em class="${cls}">${text}</em>`;
+  }).join('');
 }
 
 /**
