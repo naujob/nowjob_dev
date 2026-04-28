@@ -119,7 +119,7 @@ $banner_list = getBannerList("BN00010005");
     font-size: 1.2rem;
     color: #000;
     font-weight: 500;
-    width: 65%;
+    width: 100%;
   }
 
   .person-card .meta p {
@@ -668,11 +668,11 @@ $banner_list = getBannerList("BN00010005");
               '<div class="thumb"><img src="' + row.ru_resume_img + '" alt="프로필"></div>' +
               '<div class="badge-wrap">' + row.ru_work_img + '</div>' +
               '<div class="meta">' +
-              '<p class="work_type">' + getWorkType(row.ru_work_type) + '</p>' +
+              '<p class="work_type">' + row.ru_work_type + '</p>' +
               '<span class="meta-divider">|</span>' +
               '<p class="age">' + row.mm_age + '대</p>' +
               '<span class="meta-divider">|</span>' +
-              '<p class="price_type">' + getPriceType(row.ru_price_type) + '</p>' +
+              '<p class="price_type">' + row.ru_price_type + '</p>' +
               '</div>' +
               '<p class="addr">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
               '</div>';
