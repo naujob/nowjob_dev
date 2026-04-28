@@ -47,126 +47,126 @@
   <div class="login-form-wrap">
     <div class="login-form">
       <div class="form-container">
-      <form id="frm" onsubmit="return false">
+        <form id="frm" onsubmit="return false">
 
 
 
 
-        <div class="vendor-login">
+          <div class="vendor-login">
 
-          <?php
-          $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+            <?php
+            $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 
-          // OAuth redirect_uri는 항상 HTTPS여야 함
-          if (strpos($app_base_url, 'http://') === 0) {
-            $app_base_url = 'https://' . substr($app_base_url, 7);
-          }
+            // OAuth redirect_uri는 항상 HTTPS여야 함
+            if (strpos($app_base_url, 'http://') === 0) {
+              $app_base_url = 'https://' . substr($app_base_url, 7);
+            }
 
-          // redirect_uri 경로 생성 (URL 인코딩 하지 않음 - OAuth URL 생성 시 자동 인코딩됨)
-          // 모든 redirect_uri를 app_base_url 기반으로 통일
-          $apple_redirect = $app_base_url . "/member/apple_login_callback";
-          $kakao_redirect = $app_base_url . "/member/kakao_login_callback";
-          $naver_redirect = $app_base_url . "/member/naver_login_callback";
-          $google_redirect = $app_base_url . "/member/google_login_callback";
-          $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
+            // redirect_uri 경로 생성 (URL 인코딩 하지 않음 - OAuth URL 생성 시 자동 인코딩됨)
+            // 모든 redirect_uri를 app_base_url 기반으로 통일
+            $apple_redirect = $app_base_url . "/member/apple_login_callback";
+            $kakao_redirect = $app_base_url . "/member/kakao_login_callback";
+            $naver_redirect = $app_base_url . "/member/naver_login_callback";
+            $google_redirect = $app_base_url . "/member/google_login_callback";
+            $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
 
-          // 위챗 state 세션에 저장 (csrf 토큰 사용)
-          $this->common->setSession("wechat-oauth-state", $csrf);
+            // 위챗 state 세션에 저장 (csrf 토큰 사용)
+            $this->common->setSession("wechat-oauth-state", $csrf);
 
-          // 파일 로깅: SNS OAuth redirect_uri 생성 정보
-          $this->logger->debug('SNS OAuth redirect_uri 생성', array(
-            'app_base_url'      => $app_base_url,
-            'naver_redirect'    => $naver_redirect,
-            'google_redirect'   => $google_redirect,
-            'wechat_redirect'   => $wechat_redirect,
-            'x_forwarded_proto' => isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : 'not set',
-            'https_var'         => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set',
-            'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
-          ));
+            // 파일 로깅: SNS OAuth redirect_uri 생성 정보
+            $this->logger->debug('SNS OAuth redirect_uri 생성', array(
+              'app_base_url'      => $app_base_url,
+              'naver_redirect'    => $naver_redirect,
+              'google_redirect'   => $google_redirect,
+              'wechat_redirect'   => $wechat_redirect,
+              'x_forwarded_proto' => isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : 'not set',
+              'https_var'         => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set',
+              'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
+            ));
 
-          $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
+            $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
 
-          // 카카오 설정
-          $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
-          $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
-          $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
+            // 카카오 설정
+            $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
+            $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+            $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
 
-          // 네이버 설정 (웹 버전과 동일한 로직)
-          $naver_setting = getSettingInfo(["st_group" => "네이버"]);
-          $naver_client_id = isset($naver_setting["Client ID"]) ? $naver_setting["Client ID"] : "";
-          if (!empty($naver_client_id)) {
-            // 웹 버전과 동일: urlencode된 redirect_uri 사용
-            $naver_redirect_encoded = urlencode($naver_redirect);
-            $unique_state = $csrf . "_" . time() . "_" . mt_rand(1000, 9999);
-            // 네이버 state 세션에 저장 (콜백에서 검증 시 사용)
-            $this->common->setSession("naver-oauth-state", $unique_state);
-            $naver_login = "https://nid.naver.com/oauth2.0/authorize?client_id=" . $naver_client_id . "&redirect_uri=" . $naver_redirect_encoded . "&response_type=code&state=" . urlencode($unique_state) . "&prompt=login&auth_type=reauthenticate";
-          } else {
-            $naver_login = "";
-          }
+            // 네이버 설정 (웹 버전과 동일한 로직)
+            $naver_setting = getSettingInfo(["st_group" => "네이버"]);
+            $naver_client_id = isset($naver_setting["Client ID"]) ? $naver_setting["Client ID"] : "";
+            if (!empty($naver_client_id)) {
+              // 웹 버전과 동일: urlencode된 redirect_uri 사용
+              $naver_redirect_encoded = urlencode($naver_redirect);
+              $unique_state = $csrf . "_" . time() . "_" . mt_rand(1000, 9999);
+              // 네이버 state 세션에 저장 (콜백에서 검증 시 사용)
+              $this->common->setSession("naver-oauth-state", $unique_state);
+              $naver_login = "https://nid.naver.com/oauth2.0/authorize?client_id=" . $naver_client_id . "&redirect_uri=" . $naver_redirect_encoded . "&response_type=code&state=" . urlencode($unique_state) . "&prompt=login&auth_type=reauthenticate";
+            } else {
+              $naver_login = "";
+            }
 
-          // 구글 설정 (웹 버전과 동일한 로직)
-          $google_setting = getSettingInfo(["st_group" => "구글"]);
-          $google_client_id = isset($google_setting["WEB_CLIENT_ID"]) ? $google_setting["WEB_CLIENT_ID"] : "";
-          $google_login = !empty($google_client_id) ? ($app_base_url . "/member/google_login") : "";
+            // 구글 설정 (웹 버전과 동일한 로직)
+            $google_setting = getSettingInfo(["st_group" => "구글"]);
+            $google_client_id = isset($google_setting["WEB_CLIENT_ID"]) ? $google_setting["WEB_CLIENT_ID"] : "";
+            $google_login = !empty($google_client_id) ? ($app_base_url . "/member/google_login") : "";
 
-          // 위챗 설정
-          $wechat_setting = getSettingInfo(["st_group" => "위챗"]);
-          $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
-          ?>
-          <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
-          <?php //echo "[".$os_type."]";
-          ?>
-          <?php if ($os_type == "android") : ?>
-            <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-type1"></a>
-          <?php else : ?>
-            <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
-          <?php endif; ?>
+            // 위챗 설정
+            $wechat_setting = getSettingInfo(["st_group" => "위챗"]);
+            $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
+            ?>
+            <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
+            <?php //echo "[".$os_type."]";
+            ?>
+            <?php if ($os_type == "android") : ?>
+              <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-type1"></a>
+            <?php else : ?>
+              <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
+            <?php endif; ?>
 
-          <a href="javascript:void(0);" id="btnWeChat" class="vendor-type6"></a>
+            <a href="javascript:void(0);" id="btnWeChat" class="vendor-type6"></a>
 
-          <?php if ($iosapp) { ?>
-            <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
-          <?php } else if ($os_type == "android") { ?>
-            <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="APP_NOWAPK.naverLoginAnd(); return false;"></a>
-          <?php } else { ?>
-            <?php if (!empty($naver_login)) { ?>
+            <?php if ($iosapp) { ?>
               <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
+            <?php } else if ($os_type == "android") { ?>
+              <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="APP_NOWAPK.naverLoginAnd(); return false;"></a>
             <?php } else { ?>
-              <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;"></a>
+              <?php if (!empty($naver_login)) { ?>
+                <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
+              <?php } else { ?>
+                <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;"></a>
+              <?php } ?>
             <?php } ?>
-          <?php } ?>
 
-          
 
-          <a href="javascript:void(0);" id="btnGoogle" class="vendor-type5">Google로 로그인</a>
 
-          
+            <a href="javascript:void(0);" id="btnGoogle" class="vendor-type5">Google로 로그인</a>
 
-          <!-- 전화번호로 시작하기 버튼 (가장 아래) -->
-          <a href="#" id="btnPhone" class="vendor-type3" onclick="goPhoneLogin(); return false;">
-          </a>
 
-          <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
+
+            <!-- 전화번호로 시작하기 버튼 (가장 아래) -->
+            <a href="#" id="btnPhone" class="vendor-type3" onclick="goPhoneLogin(); return false;">
+            </a>
+
+            <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
                     <a href="#" id="btnKakaoAndApp2" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.callVibrate(); alert(2); return false;">진동</a> -->
-          
-          <!-- Apple 로그인 버튼 주석 처리 -->
-          <?php if ($os_type == "ios" || $isIosBrowser) : ?>
-            <!-- <a href="<?= $apple_login ?>" id="btnApple" class="btn-primary vendor-type2">Apple로 로그인</a> -->
-          <?php endif; ?>
 
-          <? //=$os_type
-          ?>
-        </div>
-        <ul class="account-menu">
-          <!--<li><input type="checkbox" id="idsave" name="idsave"> 아이디저장</li>  -->
-          <!-- <li><a href="/member/find_id">아이디찾기</a></li> -->
-          <li><a href="/member/find_pwd">비밀번호 찾기</a></li>
-        </ul>
+            <!-- Apple 로그인 버튼 주석 처리 -->
+            <?php if ($os_type == "ios" || $isIosBrowser) : ?>
+              <!-- <a href="<?= $apple_login ?>" id="btnApple" class="btn-primary vendor-type2">Apple로 로그인</a> -->
+            <?php endif; ?>
 
-      </form>
+            <? //=$os_type
+            ?>
+          </div>
+          <ul class="account-menu">
+            <!--<li><input type="checkbox" id="idsave" name="idsave"> 아이디저장</li>  -->
+            <!-- <li><a href="/member/find_id">아이디찾기</a></li> -->
+            <li><a href="/member/find_pwd">비밀번호 찾기</a></li>
+          </ul>
 
-      <!--
+        </form>
+
+        <!--
             <button onclick="window.APP_NOWAPK.kakaoLoginAnd()">카카오 로그인</button>
             <button onclick="window.APP_NOWAPK.kakaoLoginAnd()">카카오 로그인</button>
             <button onclick="APP_NOWAPK.kakaoLoginAnd()">카카오 로그인</button>
@@ -176,8 +176,8 @@
       </div>
     </div>
     <div class="try-trial-container">
-        <p class="try-trial"><a href="/">비회원 둘러보기</a></p>
-        <a href="/member/join_start" class="btn-primary btn-signup"></a>
+      <p class="try-trial"><a href="/recruit/job_list">비회원 둘러보기</a></p>
+      <a href="/member/join_start" class="btn-primary btn-signup"></a>
     </div>
   </div>
 </div>
@@ -187,8 +187,7 @@
 <script src="/resource/shop/mobile/js/logger.js"></script>
 <script>
   // 페이지 로드
-  window.addEventListener('load', function() {
-  });
+  window.addEventListener('load', function() {});
 
   /*
 window.onload = function() {
@@ -269,8 +268,8 @@ window.onload = function() {
       <?php } else if ($os_type == "ios") { ?>
         // iOS 네이티브 앱
         if (typeof window.webkit !== 'undefined' &&
-            typeof window.webkit.messageHandlers !== 'undefined' &&
-            typeof window.webkit.messageHandlers.googleLogin !== 'undefined') {
+          typeof window.webkit.messageHandlers !== 'undefined' &&
+          typeof window.webkit.messageHandlers.googleLogin !== 'undefined') {
           window.webkit.messageHandlers.googleLogin.postMessage('');
         } else {
           alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
@@ -301,8 +300,8 @@ window.onload = function() {
       <?php } else if ($os_type == "ios") { ?>
         // iOS 네이티브 앱
         if (typeof window.webkit !== 'undefined' &&
-            typeof window.webkit.messageHandlers !== 'undefined' &&
-            typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
+          typeof window.webkit.messageHandlers !== 'undefined' &&
+          typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
           window.webkit.messageHandlers.wechatLoginIos.postMessage('');
         } else {
           alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
@@ -529,7 +528,7 @@ window.onload = function() {
       params["idsave"] = 'Y';
     }
     //alert('go3');
-    
+
     comAjax("/member_proc/login", params, function(ret) {
       //alert(ret.code);
       if (ret.code == "00") {
@@ -1044,8 +1043,7 @@ window.onload = function() {
     }
 
     $.post(
-      "/member_proc/google_login",
-      {
+      "/member_proc/google_login", {
         id_token: idToken,
         email: email || "",
         name: name || ""
@@ -1055,7 +1053,10 @@ window.onload = function() {
           try {
             ret = JSON.parse(ret);
           } catch (e) {
-            ret = { code: "99", msg: "응답 파싱 실패" };
+            ret = {
+              code: "99",
+              msg: "응답 파싱 실패"
+            };
           }
         }
 
@@ -1099,11 +1100,19 @@ window.onload = function() {
     }
 
     $.post(
-      "/member_proc/wechat_login",
-      { code: code },
+      "/member_proc/wechat_login", {
+        code: code
+      },
       function(ret) {
         if (typeof ret === "string") {
-          try { ret = JSON.parse(ret); } catch (e) { ret = { code: "99", msg: "응답 파싱 실패" }; }
+          try {
+            ret = JSON.parse(ret);
+          } catch (e) {
+            ret = {
+              code: "99",
+              msg: "응답 파싱 실패"
+            };
+          }
         }
 
         if (ret.code == "00") {
@@ -1111,7 +1120,9 @@ window.onload = function() {
 
           // 로그인 성공 후 FCM 토큰 연결
           if (typeof window.connectFCMTokenToUser === 'function') {
-            window.connectFCMTokenToUser().then(function() { _replace("/"); });
+            window.connectFCMTokenToUser().then(function() {
+              _replace("/");
+            });
           } else {
             _replace("/");
           }
@@ -1157,13 +1168,13 @@ window.onload = function() {
    * - 전화번호가 DB에 존재하면 "이미 가입된 회원" 알림
    * - 전화번호가 없으면 뿌리오 SMS 인증 후 회원가입 진행
    * ========================================================= */
-  var gPhoneJoinKey  = "";
+  var gPhoneJoinKey = "";
   var gPhoneJoinType = ""; // 소셜 로그인 타입 (GOOGLE, WECHAT 등) - 팝업 열 때 설정
-  var gPhoneEmail    = "";
-  var gPhoneName     = "";
+  var gPhoneEmail = "";
+  var gPhoneName = "";
   var gPhoneTimer;
   var gPhoneRemainTime = 180;
-  var gPhoneIsAuth     = false;
+  var gPhoneIsAuth = false;
 
   /**
    * Android SMS Retriever에서 인증번호 수신 시 자동 호출되는 브릿지 함수
@@ -1186,15 +1197,15 @@ window.onload = function() {
    * 구글 회원가입 전화번호 인증 팝업 열기 — bottom sheet 애니메이션
    */
   function openGoogleJoinPhonePopup(joinKey, email, name, joinType) {
-    gPhoneJoinKey  = joinKey;
+    gPhoneJoinKey = joinKey;
     gPhoneJoinType = joinType || "GOOGLE";
-    gPhoneEmail    = email || "";
-    gPhoneName     = name  || "";
+    gPhoneEmail = email || "";
+    gPhoneName = name || "";
 
     // 로그인 유형에 따라 안내 문구 변경
     var typeLabel = gPhoneJoinType === "WECHAT" ? "위챗" : "구글";
     $("#google-phone-popup p").first().text(typeLabel + " 회원가입을 위해 전화번호 인증이 필요합니다.");
-    gPhoneIsAuth  = false;
+    gPhoneIsAuth = false;
 
     // 팝업 초기화
     $("#gphone-input").val("");
@@ -1206,7 +1217,10 @@ window.onload = function() {
     $("#gphone-btn-join").prop("disabled", true);
 
     // bottom에서 부드럽게 올라오는 애니메이션
-    $("#google-phone-popup").css({ display: "block", background: "rgba(0,0,0,0)" });
+    $("#google-phone-popup").css({
+      display: "block",
+      background: "rgba(0,0,0,0)"
+    });
     setTimeout(function() {
       $("#google-phone-popup").css("background", "rgba(0,0,0,0.5)");
       $("#google-phone-sheet").css("transform", "translateY(0)");
@@ -1231,10 +1245,14 @@ window.onload = function() {
     duration = duration || 2000;
     var $t = $('<div class="gphone-toast-msg">' + msg + '</div>');
     $("body").append($t);
-    setTimeout(function() { $t.addClass("gphone-toast-show"); }, 10);
+    setTimeout(function() {
+      $t.addClass("gphone-toast-show");
+    }, 10);
     setTimeout(function() {
       $t.removeClass("gphone-toast-show");
-      setTimeout(function() { $t.remove(); }, 350);
+      setTimeout(function() {
+        $t.remove();
+      }, 350);
     }, duration);
   }
 
@@ -1256,7 +1274,9 @@ window.onload = function() {
   function gPhoneUpdateTime() {
     var minutes = Math.floor(gPhoneRemainTime / 60);
     var seconds = gPhoneRemainTime % 60;
-    if (seconds < 10) { seconds = "0" + seconds; }
+    if (seconds < 10) {
+      seconds = "0" + seconds;
+    }
     $("#gphone-remain-time").html(minutes + " : " + seconds);
 
     if (gPhoneRemainTime > 0) {
@@ -1293,12 +1313,14 @@ window.onload = function() {
         return;
       }
 
-      var params = { mm_phone: phone };
+      var params = {
+        mm_phone: phone
+      };
       comAjax("/member_proc/check_google_phone", params, function(ret) {
         if (ret.code == "00") {
           // 미가입 — 인증번호 발송 완료, 인증번호 입력 영역 표시
           $(".gphone-auth-row").removeClass("hidden");
-          gPhoneIsAuth     = false;
+          gPhoneIsAuth = false;
           gPhoneRemainTime = 180;
           clearInterval(gPhoneTimer);
           gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
@@ -1323,8 +1345,11 @@ window.onload = function() {
         return;
       }
 
-      var phone  = $("#gphone-input").val();
-      var params = { mm_phone: phone, auth: $("#gphone-auth-input").val() };
+      var phone = $("#gphone-input").val();
+      var params = {
+        mm_phone: phone,
+        auth: $("#gphone-auth-input").val()
+      };
       comAjax("/member_proc/check_google_phone_auth", params, function(ret) {
         if (ret.code == "00") {
           // 인증 성공 — 회원가입 버튼 활성화 + 자동으로 사라지는 토스트
@@ -1359,11 +1384,19 @@ window.onload = function() {
 
       var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
       var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=" + gPhoneJoinType;
-      if (gPhoneEmail) { joinUrl += "&email="    + encodeURIComponent(gPhoneEmail); }
-      if (gPhoneName)  { joinUrl += "&username=" + encodeURIComponent(gPhoneName);  }
-      if (phoneVal)    { joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);     } // mm_phone에 전화번호가 올바르게 저장되도록 전달
+      if (gPhoneEmail) {
+        joinUrl += "&email=" + encodeURIComponent(gPhoneEmail);
+      }
+      if (gPhoneName) {
+        joinUrl += "&username=" + encodeURIComponent(gPhoneName);
+      }
+      if (phoneVal) {
+        joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);
+      } // mm_phone에 전화번호가 올바르게 저장되도록 전달
       // 팝업 닫기 애니메이션(350ms) 이후 페이지 이동
-      setTimeout(function() { location.href = joinUrl; }, 360);
+      setTimeout(function() {
+        location.href = joinUrl;
+      }, 360);
     });
 
   });
@@ -1377,7 +1410,7 @@ window.onload = function() {
     bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.75);
+    background: rgba(0, 0, 0, 0.75);
     color: #fff;
     padding: 16px 28px;
     border-radius: 16px;
@@ -1392,7 +1425,10 @@ window.onload = function() {
     transition: opacity 0.3s ease;
     pointer-events: none;
   }
-  .gphone-toast-msg.gphone-toast-show { opacity: 1; }
+
+  .gphone-toast-msg.gphone-toast-show {
+    opacity: 1;
+  }
 
   /* google-phone 시트/오버레이 스타일은 main.css .bs-overlay, .bs-sheet 공통 클래스로 관리 */
 </style>
@@ -1431,7 +1467,7 @@ window.onload = function() {
 
     <div class="bs-actions">
       <button id="gphone-btn-cancel" type="button" class="btn btn-secondary" style="flex:1;">취소</button>
-      <button id="gphone-btn-join"   type="button" class="btn btn-primary"   style="flex:1;" disabled>회원가입</button>
+      <button id="gphone-btn-join" type="button" class="btn btn-primary" style="flex:1;" disabled>회원가입</button>
     </div>
   </div>
 </div>
@@ -1465,7 +1501,10 @@ window.onload = function() {
 
     // 팝업 표시
     $('#wechat-qr-container').empty();
-    $('#wechat-qr-popup').css({ display: "block", background: "rgba(0,0,0,0)" });
+    $('#wechat-qr-popup').css({
+      display: "block",
+      background: "rgba(0,0,0,0)"
+    });
     setTimeout(function() {
       $('#wechat-qr-popup').css("background", "rgba(0,0,0,0.5)");
       $('#wechat-qr-sheet').css("transform", "translateY(0)");

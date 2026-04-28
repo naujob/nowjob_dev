@@ -85,7 +85,90 @@ function fRemoveBigAdr($arg)
         position: relative;
         top: -1.75rem;
     }
+
+    .worktype em.wtype1 {
+        color: #3a70db;
+    }
+
+    .worktype em:not(:last-child) {
+        padding-right: 8px;
+    }
+
+
+    .worktype em.wtype2 {
+        color: #F86048;
+        padding-left: 2px;
+    }
+
+    .worktype em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+    }
+
+    .worktype em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 2px;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
+    }
+
+    .worktype em.wtype3 {
+        color: #1b9d7d;
+        padding-left: 2px;
+    }
+
+    .info-table .pricetype-row .pricetype {
+
+        right: 0;
+        bottom: 0;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #1b9d7d;
+
+        flex-direction: column;
+        align-items: flex-end;
+
+    }
+
+    .info-table .pricetype-row .pricetype em {
+        font-style: normal;
+
+    }
+
+    .info-table .pricetype-row .pricetype em:not(:last-child) {
+        padding-right: 3px;
+        color: #cd6666;
+
+    }
+
+    .info-table .pricetype-row .pricetype em:last-child {
+        padding-left: 3px;
+        color: #1b9d7d;
+    }
+
+
+    .info-table .pricetype-row .pricetype em:not(:last-child)::after {
+        content: "";
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777777;
+        display: inline-block;
+        padding-left: 5px;
+    }
 </style>
+
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <div class="page page-view">
     <div class="top-bar">
@@ -239,9 +322,9 @@ function fRemoveBigAdr($arg)
                                     <?php endforeach; ?>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="pricetype-row">
                                 <td class="label">급여형태</td>
-                                <td class="value"><?= $info["ru_price_type"] ?></td>
+                                <td class="value pricetype"><?= getPriceType($info["ru_price_type"]) ?></td>
                             </tr>
                             <?php if (strpos($info["ru_price_type"], "월급") !== false && $info["ru_month_price"] != "0") : ?>
                                 <tr>
@@ -252,7 +335,7 @@ function fRemoveBigAdr($arg)
                             <tr>
                                 <td class="label">근무형태</td>
 
-                                <td class="value"><?= $info["ru_work_type"] ?></td>
+                                <td class="value"><?= getWorkTypeWithColor($info["ru_work_type"]) ?></td>
                             </tr>
                             <tr>
                                 <td class="label">근무요일</td>

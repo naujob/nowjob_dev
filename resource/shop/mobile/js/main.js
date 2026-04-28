@@ -1196,6 +1196,9 @@
 
             // 채팅 페이지
             if (pathWithoutQuery.startsWith('/chat/')) return true;
+            
+            // 지도 페이지
+            if (pathWithoutQuery.startsWith('/recruit/job_map') || pathWithoutQuery === '/resume/hr_map ') return true;
 
             // 마이페이지 - 포인트/이력서/북마크 관련
             var myPageHideAdPaths = [
@@ -1239,6 +1242,7 @@
                 }
 
                 // 모바일 웹뷰 대응: window 기준으로만 계산 (가장 안정적)
+                // scrollTopVal: 현재 스크롤 위치, heightVal: 뷰포트 높이(지금 내 눈에 보이는 화면의 높이), documentHeight: 전체 문서 높이(웹페이지 전체의 실제 길이)
                 var scrollTopVal = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
                 var heightVal = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
                 var documentHeight = Math.max(
@@ -1308,8 +1312,6 @@
                 });
             });
 
-            // 메뉴 클릭 이벤트 기반 광고 제어
-            initMenuAdControl();
 
             // 외부에서 광고 상태를 재확인할 수 있도록 함수 노출
             window._recheckNativeAd = function() {
@@ -1318,16 +1320,14 @@
         };
     }
 
-    // 모든 페이지에서 메뉴 광고 제어 및 스크롤 기반 광고 제어 자동 초기화
+    // 모든 페이지에서 스크롤 기반 광고 제어 자동 초기화
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function() {
-        initMenuAdControl();
         if (typeof window.initNativeAdControl === 'function') {
           window.initNativeAdControl();
         }
       });
     } else {
-      initMenuAdControl();
       if (typeof window.initNativeAdControl === 'function') {
         window.initNativeAdControl();
       }
@@ -1389,54 +1389,3 @@
     }
 
 }());
-
-// 메뉴 클릭에 따른 네이티브 광고 제어 함수
-function initMenuAdControl() {
-
-
-  var menu = document.getElementById('menu');
-  var toggleBtn = document.querySelector('.js-toggle-menu');
-
-  if (!menu || !toggleBtn) {
-
-    return;
-  }
-
-
-
-// 변화가 생기면 실행 될 콜백함수 new MutationObserver(콜백함수)
-// mutations 변화내용
-  var observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.attributeName === 'class') {
-        var isMenuOpen = menu.classList.contains('open');
-
-        // 광고를 숨겨야 하는 페이지에서는 메뉴 제어 무시
-        if (window.isHideAdPage && window.isHideAdPage(window.location.pathname)) return;
-
-        if (isMenuOpen) {
-          // 메뉴가 열림 → 광고 숨기기
-
-          if (window.nowjob && typeof window.nowjob.hideNativeAd === 'function') {
-
-            window.nowjob.hideNativeAd();
-          } else {
-
-          }
-        } else {
-          // 메뉴가 닫힘 → 광고 표시
-
-          if (window.nowjob && typeof window.nowjob.showNativeAd === 'function') {
-
-            window.nowjob.showNativeAd();
-          } else {
-
-          }
-        }
-      }
-    });
-  });
-  //  observer.observe(대상, 옵션)
-  observer.observe(menu, { attributes: true, attributeFilter: ['class'] });
-
-}

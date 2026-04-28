@@ -35,7 +35,7 @@ renderSelectBottomSheet(
 );
 ?>
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=services"></script>
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 
@@ -48,36 +48,35 @@ renderSelectBottomSheet(
 </div>
 
 <div class="page page-join member-type1">
-     <div class="top-bar">
-         <!--a href="#" class="btn-back"><span class="sr-text">이전으로</span></a-->
-         <h1 class="title">개인회원 회원가입</h1>
-     </div><!-- //top-bar -->
-     <div class="page-content">
+  <div class="top-bar">
+    <!--a href="#" class="btn-back"><span class="sr-text">이전으로</span></a-->
+    <h1 class="title">개인회원 회원가입</h1>
+  </div><!-- //top-bar -->
+  <div class="page-content">
 
-         <div class="join-welcome">
-             <div class="container">
-                 <h2 class="primary-title">가입을 축하드립니다</h2>
-                 <p>나우잡이 제공하는 채용정보 및 다양한 혜택을<br> 이용하실 수 있습니다.</p>
-             </div>
-         </div>
-         <div class="form-action-wrap" id="non_mem_last_cont" style="text-align: center;display:none;">
-             <!-- <a href="/mypage/resume_list" class="btn-round btn-tertiary" style="">이력서 등록하러 가기</a> -->
-         </div>
-         <div class="sticky-bottom view-footer">
-             <a href="/" class="btn btn-primary">메인으로 바로가기</a>
-         </div>
-     </div><!-- //page-content -->
+    <div class="join-welcome">
+      <div class="container">
+        <h2 class="primary-title">가입을 축하드립니다</h2>
+        <p>나우잡이 제공하는 채용정보 및 다양한 혜택을<br> 이용하실 수 있습니다.</p>
+      </div>
+    </div>
+    <div class="form-action-wrap" id="non_mem_last_cont" style="text-align: center;display:none;">
+      <!-- <a href="/mypage/resume_list" class="btn-round btn-tertiary" style="">이력서 등록하러 가기</a> -->
+    </div>
+    <div class="sticky-bottom view-footer">
+      <a href="/recruit/job_list" class="btn btn-primary">메인으로 바로가기</a>
+    </div>
+  </div><!-- //page-content -->
 </div>
- <script>
-     if (getCookie("non_mem_last_cont") != '') {
-         var msg = '';
-         //	msg = '<a href="'+getCookie("non_mem_last_cont")+'" class="btn-round btn-tertiary" style="margin-bottom: 20px; padding: 0.625rem 1.125rem;">채용공고 계속보기</a><br />';
-         $('#non_mem_last_cont').prepend(msg);
-         $('#non_mem_last_cont').show();
-         setCookie('non_mem_last_cont', '', 1);
-     }
-
- </script>
+<script>
+  if (getCookie("non_mem_last_cont") != '') {
+    var msg = '';
+    //	msg = '<a href="'+getCookie("non_mem_last_cont")+'" class="btn-round btn-tertiary" style="margin-bottom: 20px; padding: 0.625rem 1.125rem;">채용공고 계속보기</a><br />';
+    $('#non_mem_last_cont').prepend(msg);
+    $('#non_mem_last_cont').show();
+    setCookie('non_mem_last_cont', '', 1);
+  }
+</script>
 
 <script>
   (function() {
@@ -202,7 +201,7 @@ renderSelectBottomSheet(
     }
 
     // 주소 payload + QuickInfo 선택값을 합쳐 서버 자동완성 호출
-  function submitQuickInfoWithAddress(addrPayload, selections) {
+    function submitQuickInfoWithAddress(addrPayload, selections) {
       // 주소/좌표 payload에 QuickInfo(국적/성별/나이) 합치기
       var payload = applyQuickInfoToPayload(Object.assign({}, addrPayload), selections);
       submitQuickInfoToServer(payload);
@@ -258,7 +257,7 @@ renderSelectBottomSheet(
       });
     }
 
-    
+
     // - getQuickInfoSelections: DOM에서 국적/성별/나이 선택값을 읽음
     // - applyQuickInfoToPayload: 선택값을 주소 payload에 합침
     // - submitQuickInfoWithAddress: payload 저장 후 자동이력서 화면으로 이동
@@ -432,8 +431,14 @@ renderSelectBottomSheet(
       var retryOnGesture = function() {
         tryTrigger();
       };
-      document.addEventListener('touchstart', retryOnGesture, { once: true, passive: true });
-      document.addEventListener('mousedown', retryOnGesture, { once: true, passive: true });
+      document.addEventListener('touchstart', retryOnGesture, {
+        once: true,
+        passive: true
+      });
+      document.addEventListener('mousedown', retryOnGesture, {
+        once: true,
+        passive: true
+      });
     }
 
     function setQuickInfoRegionText(text) {
@@ -484,9 +489,9 @@ renderSelectBottomSheet(
     }
 
     function openGuidePanelByPermission() {
-      var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
-        ? window.getLocationPermissionStatus()
-        : null;
+      var storedPermission = (typeof window.getLocationPermissionStatus === 'function') ?
+        window.getLocationPermissionStatus() :
+        null;
       var hasLocationConsent = storedPermission === 'granted';
 
       if (IS_GOOGLE_JOIN) {
@@ -609,7 +614,7 @@ renderSelectBottomSheet(
       if (window.__quickInfoManualAddrMode) {
         // 1회성 모드 해제
         window.__quickInfoManualAddrMode = false;
-        
+
         // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
         window.__quickInfoManualAddr = autoPayload;
         var regionEl = document.querySelector('.quickinfo-region-text');
@@ -670,9 +675,9 @@ renderSelectBottomSheet(
     // 위치 콜백 대기 안 함 / returnLocation 콜백을 상황별로 다르게 처리하기 위한 
     window.__quickInfoExpectLocation = false;
 
-    var storedPermission = (typeof window.getLocationPermissionStatus === 'function')
-      ? window.getLocationPermissionStatus()
-      : null;
+    var storedPermission = (typeof window.getLocationPermissionStatus === 'function') ?
+      window.getLocationPermissionStatus() :
+      null;
     var hasLocationConsent = storedPermission === 'granted';
 
     if (!hasLocationConsent) {
@@ -716,38 +721,38 @@ renderSelectBottomSheet(
 </script>
 
 <script>
-// join_mem_finish: quickInfoPanel·changeArea 강제 닫기 차단
-(function() {
+  // join_mem_finish: quickInfoPanel·changeArea 강제 닫기 차단
+  (function() {
     function preventPanelClose() {
-        // 배경 클릭 및 ESC 닫기 차단 (data 속성)
-        var ids = ['quickInfoPanel', 'changeArea'];
-        for (var i = 0; i < ids.length; i++) {
-            var panel = document.getElementById(ids[i]);
-            if (panel) {
-                panel.setAttribute('data-disable-bg-close', 'true');
-                panel.setAttribute('data-disable-esc-close', 'true');
-            }
+      // 배경 클릭 및 ESC 닫기 차단 (data 속성)
+      var ids = ['quickInfoPanel', 'changeArea'];
+      for (var i = 0; i < ids.length; i++) {
+        var panel = document.getElementById(ids[i]);
+        if (panel) {
+          panel.setAttribute('data-disable-bg-close', 'true');
+          panel.setAttribute('data-disable-esc-close', 'true');
         }
+      }
 
-        // closePanel 오버라이드: 두 패널 모두 외부 닫기 차단
-        if (typeof window.closePanel === 'function' && !window.__closePanel_joinFinish_patched) {
-            window.__closePanel_joinFinish_patched = true;
-            var _origClosePanel = window.closePanel;
-            window.closePanel = function(el) {
-                if (el && (el.id === 'quickInfoPanel' || el.id === 'changeArea')) {
-                    return;
-                }
-                _origClosePanel(el);
-            };
-        }
+      // closePanel 오버라이드: 두 패널 모두 외부 닫기 차단
+      if (typeof window.closePanel === 'function' && !window.__closePanel_joinFinish_patched) {
+        window.__closePanel_joinFinish_patched = true;
+        var _origClosePanel = window.closePanel;
+        window.closePanel = function(el) {
+          if (el && (el.id === 'quickInfoPanel' || el.id === 'changeArea')) {
+            return;
+          }
+          _origClosePanel(el);
+        };
+      }
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', preventPanelClose);
+      document.addEventListener('DOMContentLoaded', preventPanelClose);
     } else {
-        preventPanelClose();
+      preventPanelClose();
     }
-})();
+  })();
 </script>
 
 <?= getCashJs(RES_PATH . "/js/member/join_quickinfo_bottom_sheet.js") ?>

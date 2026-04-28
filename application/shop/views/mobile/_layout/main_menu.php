@@ -22,7 +22,7 @@
       <span>채팅</span>
     </a>
 
-  <!-- 기업 로그인 사용자 -->
+    <!-- 기업 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "COMP") { ?>
     <a href="/recruit/job_list" class="btn-nav-item">
       <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
@@ -45,7 +45,7 @@
       <span>채팅</span>
     </a>
 
-  <!-- 개인 로그인 사용자 -->
+    <!-- 개인 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "MEM") { ?>
     <a href="/recruit/job_list" class="btn-nav-item">
       <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
@@ -99,8 +99,8 @@
   }
 
   .btn-nav-item img {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
   }
 
   .btn-nav-item:active {

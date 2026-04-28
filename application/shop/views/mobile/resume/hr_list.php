@@ -60,6 +60,7 @@ if (count($banner_list) > 0) {
             <?php
             $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
             $chunked_up_list = array_chunk($limited_up_list, 4);
+            // 마지막 슬라이드가 4개 미만인 경우 빈 슬롯 추가
             if (!empty($chunked_up_list)) {
               $last_idx = count($chunked_up_list) - 1;
               while (count($chunked_up_list[$last_idx]) < 4) {
@@ -74,7 +75,9 @@ if (count($banner_list) > 0) {
                     <?php if ($row !== null) : ?>
                       <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
                         <div class="thumb">
+
                           <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
+
                           <p class="name"><?= $row["mm_comp_name"] ?></p>
                         </div>
                       </a>
@@ -182,7 +185,7 @@ if (count($banner_list) > 0) {
         }
       </style>
       <div class="container">
-        <h2 class="sr-text">채용공고</h2>
+        <h2 class="secondary-title">인재공고</h2>
         <ol class="result-list result-list-card" id="ajaxList" data-page="1">
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">

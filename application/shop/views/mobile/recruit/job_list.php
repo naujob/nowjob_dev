@@ -378,14 +378,6 @@ $banner_list = getBannerList("BN00302031");
     </div>
   </div>
 
-  <div class="section index_comp">
-    <div class="container">
-      <h2 class="secondary-title">추천공고</h2>
-      <ol class="result-list result-list-card">
-      </ol>
-    </div>
-  </div>
-
   <div class="section is-last">
     <style>
       .item-info .thumb {
@@ -476,7 +468,7 @@ $banner_list = getBannerList("BN00302031");
       }
     </style>
     <div class="container">
-      <h2 class="sr-text">채용공고</h2>
+      <h2 class="secondary-title">채용공고</h2>
       <ol class="result-list result-list-card" id="ajaxList" data-page="1">
       </ol>
       <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">

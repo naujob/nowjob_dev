@@ -113,35 +113,28 @@ if (count($banner_list) > 0) {
       </a> -->
 </div>
 
-<!-- 상세 검색 옵션 - hr_list 페이지에서만 표시 -->
-<?php
-// 현재 페이지 경로 확인
-$current_page = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-$is_hr_list = strpos($current_page, '/resume/hr_list') !== false;
-if ($is_hr_list) {
-?>
-  <div class="search-option has-option">
-    <style>
-      .search-option.has-option .btn-option {
-        top: 0.975rem;
-      }
-    </style>
-    <!-- 지역검색 -->
-    <div class="current-area">
-      <div class="container">
-        <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
-      </div>
+<!-- 상세 검색 옵션 -->
+<div class="search-option has-option">
+  <style>
+    .search-option.has-option .btn-option {
+      top: 0.975rem;
+    }
+  </style>
+  <!-- 지역검색 -->
+  <div class="current-area">
+    <div class="container">
+      <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
     </div>
-    <!-- 선택된 카테고리 -->
-    <div class="categories">
-      <div class="container" id="tab_list">
-
-      </div>
-    </div>
-    <!-- 상세 검색 옵션 버튼 -->
-    <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
   </div>
-<?php } ?>
+  <!-- 선택된 카테고리 -->
+  <div class="categories">
+    <div class="container" id="tab_list">
+
+    </div>
+  </div>
+  <!-- 상세 검색 옵션 버튼 -->
+  <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
+</div>
 
 <div class="main-visual">
   <div class="visual-slider">

@@ -17,7 +17,7 @@
              <!-- <a href="/compage/recruit_write" class="btn-round btn-tertiary" style="">채용공고 등록하러 가기</a> -->
          </div>
          <div class="sticky-bottom view-footer">
-             <a href="/" class="btn btn-primary">메인으로 바로가기</a>
+             <a href="/recruit/job_list" class="btn btn-primary">메인으로 바로가기</a>
          </div>
 
      </div><!-- //page-content -->

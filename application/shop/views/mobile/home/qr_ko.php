@@ -48,7 +48,7 @@
     .qr-page .qr-content {
         margin-top: 2.75rem;
         background: #ffffff;
-       
+
         display: flex;
         flex-direction: column;
         align-items: stretch;
@@ -67,7 +67,7 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        
+
     }
 
     .qr-page .qr-video-label {
@@ -109,14 +109,14 @@
     </div>
     <div class="qr-content">
         <div class="qr-video">
-        <video autoplay muted playsinline loop controls>
-            <source src="<?= RES_PATH ?>/img/qr/qr_video.mp4" type="video/mp4">
-        </video>
+            <video autoplay muted playsinline loop controls>
+                <source src="<?= RES_PATH ?>/img/qr/qr_video.mp4" type="video/mp4">
+            </video>
         </div>
-       
+
     </div>
     <div class="qr-bottom-logo">
-        <a href="/" target="_blank" rel="noopener noreferrer">
+        <a href="/recruit/job_list" target="_blank" rel="noopener noreferrer">
             <img src="<?= RES_PATH ?>/img/qr/ko_qr_bottomlogo.svg" alt="NOW JOB">
         </a>
     </div>

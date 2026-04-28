@@ -1,7 +1,7 @@
 <style>
     /* QR 다운로드 페이지 스타일 */
     .qr-page {
-      background:#FF0000;
+        background: #FF0000;
     }
 
     .qr-page .header {
@@ -9,9 +9,7 @@
         background: transparent;
     }
 
-    .qr-page .qr-hero {
-        
-    }
+    .qr-page .qr-hero {}
 
     .qr-page .qr-top-logo {
         display: block;
@@ -60,7 +58,7 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        
+
     }
 
     .qr-page .qr-video-label {
@@ -69,7 +67,7 @@
     }
 
     .qr-page .qr-bottom-logo {
-        margin:  auto ;
+        margin: auto;
         width: 35%;
         min-height: 3.5rem;
         display: flex;
@@ -94,11 +92,11 @@
     </div>
     <div class="qr-content">
         <div class="qr-video">
-        <video autoplay muted playsinline loop controls>
-            <source src="<?= RES_PATH ?>/img/qr/qr_video_ch1.mp4" type="video/mp4">
-        </video>
+            <video autoplay muted playsinline loop controls>
+                <source src="<?= RES_PATH ?>/img/qr/qr_video_ch1.mp4" type="video/mp4">
+            </video>
         </div>
-       
+
     </div>
     <div class="qr-store">
         <a href="https://play.google.com/store/apps/details?id=app.nowapk.com&pcampaignid=web_share">
@@ -109,7 +107,7 @@
         </a>
     </div>
     <div class="qr-bottom-logo">
-        <a href="/" target="_blank" rel="noopener noreferrer">
+        <a href="/recruit/job_list" target="_blank" rel="noopener noreferrer">
             <img src="<?= RES_PATH ?>/img/qr/ch_qr_bottomlogo.svg" alt="NOW JOB">
         </a>
     </div>
