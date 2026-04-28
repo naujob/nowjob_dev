@@ -22,17 +22,13 @@ function getConvertAgeLabel(age) {
 }
 
 /**
- * 급여 유형 변환 (복수 타입 강조 with 쉼표 구분)
+ * 급여 유형 변환 (복수 타입 강조)
  * @param {string} rc_price_type - 급여 타입 (예: "일급,주급,월급")
  * @param {string} rc_price_rep - 강조할 대표 타입
- * @returns {string} HTML 형식의 급여 타입 (<em class="on">대표</em>,<em>기타</em>)
+ * @returns {string} HTML 형식의 급여 타입 (<em class="on">대표</em><em>기타</em>)
  */
 function getConvertPriceType(rc_price_type, rc_price_rep) {
-  const types = rc_price_type.split(',').map(t => t.trim()).filter(t => t);
-
-  if (types.length === 0) {
-    return "";
-  }
+  const types = rc_price_type.split(',');
 
   if (types.length === 1) {
     return `<em class="on">${types[0]}</em>`;
@@ -54,9 +50,9 @@ function getConvertPriceType(rc_price_type, rc_price_rep) {
 }
 
 /**
- * 급여 타입 추출 (모든 값 처리 with 쉼표 구분)
+ * 이력서 급여 타입 추출 (첫 번째 값만)
  * @param {string} price_type - 급여 타입 (예: "일급,주급,월급")
- * @returns {string} 모든 타입 또는 "급여협의" (쉼표로 구분)
+ * @returns {string} 첫 번째 타입 또는 "급여협의"
  */
 function getPriceType(price_type) {
   if (!price_type) {
@@ -65,21 +61,9 @@ function getPriceType(price_type) {
   if (price_type === "일급,주급,월급") {
     return "급여협의";
   }
-  // 모든 값을 처리하여 쉼표로 구분
-  const types = price_type.split(',').map(t => t.trim()).filter(t => t);
-
-  if (types.length === 0) {
-    return "";
-  }
-
-  // 마지막 항목 제외 쉼표 추가
-  return types.map((type, index) => {
-    let result = type;
-    if (index < types.length - 1) {
-      result += ',';
-    }
-    return result;
-  }).join('');
+  // 첫 번째 값만 반환
+  const firstType = price_type.split(',')[0].trim();
+  return firstType;
 }
 
 /**
