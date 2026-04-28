@@ -22,24 +22,34 @@ function getConvertAgeLabel(age) {
 }
 
 /**
- * 급여 유형 변환 (복수 타입 강조)
+ * 급여 유형 변환 (복수 타입 강조 with 쉼표 구분)
  * @param {string} rc_price_type - 급여 타입 (예: "일급,주급,월급")
  * @param {string} rc_price_rep - 강조할 대표 타입
- * @returns {string} HTML 형식의 급여 타입 (<em class="on">대표</em><em>기타</em>)
+ * @returns {string} HTML 형식의 급여 타입 (<em class="on">대표</em>,<em>기타</em>)
  */
 function getConvertPriceType(rc_price_type, rc_price_rep) {
-  const types = rc_price_type.split(',');
+  const types = rc_price_type.split(',').map(t => t.trim()).filter(t => t);
+
+  if (types.length === 0) {
+    return "";
+  }
 
   if (types.length === 1) {
     return `<em class="on">${types[0]}</em>`;
   }
 
-  return types.map(type => {
+  return types.map((type, index) => {
+    let result = '';
     if (type === rc_price_rep) {
-      return `<em class="on">${type}</em>`;
+      result = `<em class="on">${type}</em>`;
     } else {
-      return `<em>${type}</em>`;
+      result = `<em>${type}</em>`;
     }
+    // 마지막 항목이 아니면 쉼표 추가
+    if (index < types.length - 1) {
+      result += ',';
+    }
+    return result;
   }).join('');
 }
 
