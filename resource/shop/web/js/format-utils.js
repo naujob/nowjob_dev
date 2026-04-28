@@ -34,36 +34,43 @@ function getConvertPriceType(rc_price_type, rc_price_rep) {
     return `<em class="on">${types[0]}</em>`;
   }
 
-  return types.map((type, index) => {
-    let result = '';
+  return types.map(type => {
     if (type === rc_price_rep) {
-      result = `<em class="on">${type}</em>`;
+      return `<em class="on">${type}</em>`;
     } else {
-      result = `<em>${type}</em>`;
+      return `<em>${type}</em>`;
     }
-    // 마지막 항목이 아니면 쉼표 추가
-    if (index < types.length - 1) {
-      result += ',';
-    }
-    return result;
   }).join('');
 }
 
 /**
- * 이력서 급여 타입 추출 (첫 번째 값만)
+ * 이력서 급여 타입 추출 (모든 값 처리)
  * @param {string} price_type - 급여 타입 (예: "일급,주급,월급")
- * @returns {string} 첫 번째 타입 또는 "급여협의"
+ * @returns {string} 모든 급여 타입을 em 태그로 감싼 HTML
  */
 function getPriceType(price_type) {
   if (!price_type) {
     return "";
   }
+
   if (price_type === "일급,주급,월급") {
-    return "급여협의";
+    return "<em>급여협의</em>";
   }
-  // 첫 번째 값만 반환
-  const firstType = price_type.split(',')[0].trim();
-  return firstType;
+
+  const types = price_type.split(',').map(item => item.trim()).filter(item => item);
+
+  if (types.length === 0) {
+    return "";
+  }
+
+  // 모든 값을 em 태그로 감싸고 마지막 제외 쉼표 추가
+  return types.map((type, index) => {
+    let result = `<em>${type}</em>`;
+    if (index < types.length - 1) {
+      result += ',';
+    }
+    return result;
+  }).join('');
 }
 
 /**
