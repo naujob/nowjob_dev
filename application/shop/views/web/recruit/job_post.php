@@ -1404,7 +1404,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
   //네이버맵 길안내
   function naverMap(name, lat, lng) {
-    window.open("https://map.naver.com/index.nhn?menu=route&pathType=1&lat=" + lat + "&lng=" + lng + "&appMode=service");
+    window.open("https://map.naver.com/index.nhn?menu=route&pathType=1&lat=" + lat + "&lng=" + lng + "&appMode=service&dlat=" + lat + "&dlng=" + lng + "&dname=" + encodeURIComponent(name));
   }
 </script>
 
