@@ -598,6 +598,40 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     margin: auto;
     border-right: 1px solid #777;
   }
+
+  /* 길찾기 드롭다운 */
+  .map-nav-wrap {
+    display: inline-block;
+    position: absolute;
+    top: 122px;
+    right: 7px;
+  }
+
+  .map-nav-wrap .dropdown {
+    right: 0;
+    left: auto;
+    min-width: 110px;
+    margin-top: 4px;
+    padding: 4px 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+  }
+
+  .map-nav-wrap .dropdown a {
+    display: block;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #333;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .map-nav-wrap .dropdown a:hover {
+    background: #f5f5f5;
+    color: #1B9D7D;
+  }
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -993,7 +1027,13 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
             <div class="inline-group">
               <div class="col">
                 <h3 class="secondary-title" style="position:relative;">기본정보
-                  <a target="_blank" href="https://map.kakao.com/link/to/<?= $mem_info["mm_comp_name"] ?>,<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>" style="position:absolute;background:#1B9D7D;color:#fff;border-radius:5px;border:solid 1px #1B9D7D;font-size:13px;padding:4px 10px;top:122px;right:7px;">길찾기</a>
+                  <div class="map-nav-wrap">
+                    <button type="button" class="js-toggle-dropdown" aria-expanded="false" style="background:#1B9D7D;color:#fff;border-radius:5px;border:solid 1px #1B9D7D;font-size:13px;padding:4px 10px;cursor:pointer;">길찾기</button>
+                    <div class="dropdown" hidden>
+                      <a href="javascript:naverMap('<?= $mem_info["mm_comp_name"] ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">네이버지도</a>
+                      <a href="javascript:kakaoMap('<?= $mem_info["mm_comp_name"] ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">카카오맵</a>
+                    </div>
+                  </div>
                 </h3>
                 <table class="info-table">
                   <caption><span class="sr-text">상호</span></caption>
