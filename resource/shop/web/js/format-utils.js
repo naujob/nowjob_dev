@@ -44,9 +44,9 @@ function getConvertPriceType(rc_price_type, rc_price_rep) {
 }
 
 /**
- * 이력서 급여 타입 추출 (첫 번째 값만)
+ * 급여 타입 추출 (모든 값 처리 with 쉼표 구분)
  * @param {string} price_type - 급여 타입 (예: "일급,주급,월급")
- * @returns {string} 첫 번째 타입 또는 "급여협의"
+ * @returns {string} 모든 타입 또는 "급여협의" (쉼표로 구분)
  */
 function getPriceType(price_type) {
   if (!price_type) {
@@ -55,9 +55,21 @@ function getPriceType(price_type) {
   if (price_type === "일급,주급,월급") {
     return "급여협의";
   }
-  // 첫 번째 값만 반환
-  const firstType = price_type.split(',')[0].trim();
-  return firstType;
+  // 모든 값을 처리하여 쉼표로 구분
+  const types = price_type.split(',').map(t => t.trim()).filter(t => t);
+
+  if (types.length === 0) {
+    return "";
+  }
+
+  // 마지막 항목 제외 쉼표 추가
+  return types.map((type, index) => {
+    let result = type;
+    if (index < types.length - 1) {
+      result += ',';
+    }
+    return result;
+  }).join('');
 }
 
 /**
