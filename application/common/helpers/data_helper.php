@@ -462,38 +462,32 @@ function getPriceType($price_type, $max = 3)
 {
 	$num = 0;
 	$return = "";
-	$items = array();
 
 	if (count(explode(",", $price_type)) > 2) {
 		return $return . "<em>급여협의</em>";
 	}
 
 	if (strpos($price_type, "일급") !== false) {
-		$items[] = "일급";
+		$return .= "<em>일급</em>";
 		$num++;
 	}
 
 	if ($num >= $max) {
-		return implode(',', array_map(function($item) { return "<em>" . $item . "</em>"; }, $items));
+		return $return;
 	}
 
 	if (strpos($price_type, "주급") !== false) {
-		$items[] = "주급";
+		$return .= "<em>주급</em>";
 		$num++;
 	}
 
 	if ($num >= $max) {
-		return implode(',', array_map(function($item) { return "<em>" . $item . "</em>"; }, $items));
+		return $return;
 	}
 
 	if (strpos($price_type, "월급") !== false) {
-		$items[] = "월급";
+		$return .= "<em>월급</em>";
 		$num++;
-	}
-
-	// 모든 항목을 <em> 태그로 감싸고 쉼표로 구분
-	if (count($items) > 0) {
-		$return = implode(',', array_map(function($item) { return "<em>" . $item . "</em>"; }, $items));
 	}
 	return $return;
 }
@@ -587,7 +581,7 @@ function getWorkType($work_type, $tag = "span", $max = 10)
 
 	foreach ($arr_type as $key => $txt) {
 		if ($key < $max) {
-			$return .= ($return != "" ? "," : "") . "<$tag>" . $txt . "</$tag>";
+			$return .= "<$tag>" . $txt . "</$tag>";
 		}
 	}
 
