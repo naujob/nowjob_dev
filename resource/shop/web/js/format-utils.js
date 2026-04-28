@@ -88,7 +88,7 @@ function getWorkType(work_type) {
   }
 
   // 모든 값을 처리하여 HTML 생성
-  return items.map(text => {
+  return items.map((text, index) => {
     let cls = '';
     if (text === '주간') {
       cls = 'wtype1';
@@ -97,7 +97,12 @@ function getWorkType(work_type) {
     } else if (text === '2교대') {
       cls = 'wtype3';
     }
-    return `<em class="${cls}">${text}</em>`;
+    let result = `<em class="${cls}">${text}</em>`;
+    // 마지막 항목이 아니면 쉼표 추가
+    if (index < items.length - 1) {
+      result += ',';
+    }
+    return result;
   }).join('');
 }
 
