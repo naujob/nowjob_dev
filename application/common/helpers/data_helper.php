@@ -462,32 +462,38 @@ function getPriceType($price_type, $max = 3)
 {
 	$num = 0;
 	$return = "";
+	$items = array();
 
 	if (count(explode(",", $price_type)) > 2) {
 		return $return . "<em>급여협의</em>";
 	}
 
 	if (strpos($price_type, "일급") !== false) {
-		$return .= "<em>일급</em>";
+		$items[] = "일급";
 		$num++;
 	}
 
 	if ($num >= $max) {
-		return $return;
+		return implode(',', array_map(function($item) { return "<em>" . $item . "</em>"; }, $items));
 	}
 
 	if (strpos($price_type, "주급") !== false) {
-		$return .= "<em>주급</em>";
+		$items[] = "주급";
 		$num++;
 	}
 
 	if ($num >= $max) {
-		return $return;
+		return implode(',', array_map(function($item) { return "<em>" . $item . "</em>"; }, $items));
 	}
 
 	if (strpos($price_type, "월급") !== false) {
-		$return .= "<em>월급</em>";
+		$items[] = "월급";
 		$num++;
+	}
+
+	// 모든 항목을 <em> 태그로 감싸고 쉼표로 구분
+	if (count($items) > 0) {
+		$return = implode(',', array_map(function($item) { return "<em>" . $item . "</em>"; }, $items));
 	}
 	return $return;
 }
