@@ -337,6 +337,7 @@ $tpl_show_mm_idx = true; ?>
   }
 
   function initLoadData() {
+    updateTopSectionsVisibility(current_page);
     getBoardList("");
   }
 
@@ -517,8 +518,13 @@ $tpl_show_mm_idx = true; ?>
     }).join('');
   }
 
-  $(document).on('click', '.desc', function() {
-    var $target = $(this).closest('.content-li');
+  $(document).on('click', '.content-li', function(e) {
+    // 버튼이나 링크 클릭은 무시
+    if ($(e.target).closest('button, a, input').length) {
+      return;
+    }
+
+    var $target = $(this);
     var ruIdx = $target.data('ru_idx');
     var resumeMmIdx = $target.data('mm_idx'); // 이력서 소유자 인덱스
 
@@ -592,11 +598,25 @@ $tpl_show_mm_idx = true; ?>
     document.getElementById('nextBtn').disabled = current_page === total_pages;
   }
 
+  // 2페이지 이상에서 상단 섹션 숨김/표시
+  function updateTopSectionsVisibility(pageNum) {
+    var $hotSection = $('.hot-list').closest('.section');
+    var $mainVisual = $('.main-visual');
+    if (pageNum >= 2) {
+      $hotSection.hide();
+      $mainVisual.hide();
+    } else {
+      $hotSection.show();
+      $mainVisual.show();
+    }
+  }
+
   // 특정 페이지로 이동
   function goToPage(pageNum) {
     if (pageNum < 1 || pageNum > total_pages) return;
     current_page = pageNum;
     list_page = pageNum;
+    updateTopSectionsVisibility(pageNum);
     getBoardList("");
     window.scrollTo(0, 0); // 페이지 상단으로 스크롤
   }

@@ -212,19 +212,19 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
             loadScript(
                 'https://cdn.socket.io/4.5.4/socket.io.min.js',
                 function() {
-                    console.log('Socket.IO 라이브러리 로드 성공 (CDN)');
+
                     createSocket();
                 },
                 function() {
-                    console.error('Socket.IO CDN 로드 실패, 내부 경로로 재시도합니다.');
+
                     loadScript(
                         '<?= $socket_io_script_url ?>',
                         function() {
-                            console.log('Socket.IO 라이브러리 로드 성공 (LOCAL)');
+
                             createSocket();
                         },
                         function() {
-                            console.error('Socket.IO 라이브러리를 로드할 수 없습니다.');
+
                         }
                     );
                 }
@@ -236,9 +236,9 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
             // base_url 변수는 최상위 도메인 정보를 담고 있음. ex) https://nowjob.co.kr
             const base_url = "<?= $socket_base_url ?>";
             const realSocket = io(base_url, {
-                secure: true,
-                rejectUnauthorized: false, // SSL 인증서 검증 비활성화
-                transports: ['websocket', 'polling']
+                secure: true, // HTTPS 환경에서 secure 옵션 활성화
+                rejectUnauthorized: false, // 자체 서명된 인증서 허용 (개발 환경에서 필요)
+                transports: ['websocket', 'polling'], // WebSocket 우선, 폴링은 대체 수단
             });
 
             // 전역 proxy에 실제 소켓 바인딩
@@ -437,7 +437,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                         }
                                     },
                                     error: function(xhr, status, error) {
-                                        console.error("채용공고 개수 확인 오류:", error);
+
                                         commonAlert("채용공고 개수를 확인할 수 없습니다.", function() {});
                                     }
                                 });
@@ -528,7 +528,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                         }
                                     },
                                     error: function(xhr, status, error) {
-                                        console.error("이력서 개수 확인 오류:", error);
+
                                         commonAlert("이력서 개수를 확인할 수 없습니다.", function() {});
                                     }
                                 });
@@ -609,7 +609,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                         }
                                     },
                                     error: function(xhr, status, error) {
-                                        console.error('미확인 메시지 카운트 조회 오류:', error);
+
                                     }
                                 });
                             }

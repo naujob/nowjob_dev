@@ -13,7 +13,7 @@ if (!$socket_io_script_url) {
 
 <head>
   <meta charset="UTF-8">
-  <!-- meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" -->
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"> -->
   <meta name="viewport" content="width=460, user-scalable=no">
   <title>나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼</title>
   <?php if ($is_nowjob_domain) : ?>
@@ -995,9 +995,9 @@ if (!$socket_io_script_url) {
     }
 
     // main.js의 전역 isHideAdPage 함수 사용
-    const shouldHideAd = window.isHideAdPage
-      ? window.isHideAdPage(window.location.pathname)
-      : false;
+    const shouldHideAd = window.isHideAdPage ?
+      window.isHideAdPage(window.location.pathname) :
+      false;
 
     if (shouldHideAd) {
       nowjob.hideNativeAd();

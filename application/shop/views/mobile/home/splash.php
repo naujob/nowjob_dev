@@ -399,7 +399,7 @@
                                     }
 
                                     grantPopupTimeout = setTimeout(function() {
-                                        location.replace("/member/login");
+                                        location.replace("/recruit/job_list");
                                     }, 10000);
                                 } catch (error) {
                                     navigateToHome();
@@ -463,21 +463,15 @@
         comAjax("/common_proc/get_login_status", params, function(ret) {
             if (ret.code == "00") {
                 if (ret.data.is_login) {
-                    // 로그인됨 - 회원 유형에 따라 분기
-                    if (ret.data.member_type == "COMP") {
-                        // 기업회원
-                        location.replace("/home/index_comp");
-                    } else {
-                        // 개인회원
-                        location.replace("/home/index_mem");
-                    }
+                    // 로그인됨 - 공고 목록으로 이동
+                    location.replace("/recruit/job_list");
                 } else {
-                    // 미로그인
-                    location.replace("/home/index_mem");
+                    // 미로그인 - 공고 목록으로 이동
+                    location.replace("/recruit/job_list");
                 }
             } else {
-                // API 호출 실패 시 개인회원 홈으로 이동
-                location.replace("/home/index_mem");
+                // API 호출 실패 시 공고 목록으로 이동
+                location.replace("/recruit/job_list");
             }
         });
     }

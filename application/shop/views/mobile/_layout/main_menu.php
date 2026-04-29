@@ -76,8 +76,14 @@
 <!-- 바텀시트 스타일 -->
 <style>
   .bottom-nav {
-    padding: 0;
-    height: 56px;
+    padding: 10px;
+    height: 80px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+
   }
 
   .btn-nav-item {
@@ -86,7 +92,7 @@
     align-items: center;
     justify-content: center;
     width: 20%;
-    padding: 8px 0 6px;
+    padding: 7px 0 6px;
     font-size: 0.7rem;
     color: #777;
     text-decoration: none;
@@ -119,6 +125,11 @@
     color: #fff;
     font-size: 0.8rem;
     border-radius: 100%;
+    display: none;
+  }
+
+  /* 팝업 열림 상태일 때 bottom-nav 숨김 */
+  body.panel-open .bottom-nav {
     display: none;
   }
 </style>

@@ -649,6 +649,7 @@ $tpl_recomm_class = true; ?>
   function initLoadData() {
     current_page = 1;
     list_page = 1;
+    updateTopSectionsVisibility(current_page);
     setTimeout(function() {
       getBoardList("");
     }, 100);
@@ -693,11 +694,25 @@ $tpl_recomm_class = true; ?>
     document.getElementById('nextBtn').disabled = current_page === total_pages;
   }
 
+  // 2페이지 이상에서 상단 섹션 숨김/표시
+  function updateTopSectionsVisibility(pageNum) {
+    var $indexComp = $('.section.index_comp');
+    var $mainVisual = $('.main-visual');
+    if (pageNum >= 2) {
+      $indexComp.hide();
+      $mainVisual.hide();
+    } else {
+      $indexComp.show();
+      $mainVisual.show();
+    }
+  }
+
   // 특정 페이지로 이동
   function goToPage(pageNum) {
     if (pageNum < 1 || pageNum > total_pages) return;
     current_page = pageNum;
     list_page = pageNum;
+    updateTopSectionsVisibility(pageNum);
     getBoardList("");
     window.scrollTo(0, 0); // 페이지 상단으로 스크롤
   }
@@ -1177,9 +1192,13 @@ $tpl_recomm_class = true; ?>
     }
   };
 
-  // 공고 제목 클릭 시 광고 숨기기
-  $(document).on('click', '.desc', function() {
-    var rcIdx = $(this).closest('.content-li').data('rc_idx');
+  // 공고 카드 클릭 시 광고 숨기기 (전체 카드 영역 클릭 가능)
+  $(document).on('click', '.content-li', function(e) {
+    // 버튼이나 링크 클릭은 무시
+    if ($(e.target).closest('button, a, input').length) {
+      return;
+    }
+    var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
       hideAd();
       window.location.href = '/recruit/job_post/' + rcIdx;
