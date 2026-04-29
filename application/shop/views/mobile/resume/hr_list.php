@@ -38,7 +38,41 @@ if (count($banner_list) > 0) {
   .section:has(.hot-list) {
     overflow: hidden;
   }
+
+  /* Google AdSense 인피드 광고 스타일 */
+  .ad-item-adsense {
+    list-style: none;
+    margin: 15px 0;
+    padding: 0;
+    position: relative;
+  }
+
+  .ad-item-adsense::before {
+    content: "AD";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #999;
+    z-index: 1;
+  }
+
+  .ad-item-adsense .adsense-wrapper {
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 0;
+    background-color: #fafafa;
+  }
+
+  .ad-item-adsense ins.adsbygoogle {
+    display: block;
+    background-color: transparent;
+  }
 </style>
+<!-- Google AdSense 인피드 광고 스크립트 -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7573726661605583"
+  crossorigin="anonymous"></script>
 <div class="page-recruit">
 
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
@@ -179,10 +213,6 @@ if (count($banner_list) > 0) {
           opacity: 0.5;
           cursor: not-allowed;
         }
-
-        .pagination-wrapper button:disabled:hover {
-          background: #fff;
-        }
       </style>
       <div class="container">
         <h2 class="secondary-title">인재공고</h2>
@@ -191,11 +221,9 @@ if (count($banner_list) > 0) {
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p>등록된 정보가 없습니다.</p>
         </div>
-        <!-- 페이지네이션 -->
-        <div class="pagination-wrapper" id="paginationWrapper" style="display:none;">
-          <button id="prevBtn" class="prev-btn">이전</button>
-          <div id="pageNumbers"></div>
-          <button id="nextBtn" class="next-btn">다음</button>
+        <!-- 무한 스크롤 로딩 표시 -->
+        <div id="scrollLoader" style="display:none; text-align:center; padding:20px;">
+          <span style="color:#999; font-size:14px;">불러오는 중...</span>
         </div>
       </div>
     </div>
@@ -275,12 +303,12 @@ $tpl_show_mm_idx = true; ?>
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
   var list_loading = false;
+  var scroll_loading = false; // 스크롤 로딩 중 여부
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
-  var ITEMS_PER_PAGE = 5; // 한 페이지당 아이템 수
-  var total_pages = 1; // 전체 페이지 수
-  var current_page = 1; // 현재 페이지
+  var has_more = true; // 더 불러올 데이터가 있는지 여부
+  var ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 수
   var search_array = {
     category: "",
     work_type: "",
@@ -332,18 +360,21 @@ $tpl_show_mm_idx = true; ?>
   });
 
   function initCashingData() {
-    list_page = $(list_id).attr("data-page");
     showEmpty();
   }
 
   function initLoadData() {
-    updateTopSectionsVisibility(current_page);
+    list_page = 1;
+    has_more = true;
     getBoardList("");
   }
 
   function getBoardList(save_yn) {
+    // 이미 로딩 중이거나 더 이상 데이터가 없으면 리턴
+    if (scroll_loading || !has_more) return;
+
     var params = {
-      page: current_page,
+      page: list_page,
       limit: ITEMS_PER_PAGE,
       "search_addr[]": search_addr,
       addrName: addrName,
@@ -376,7 +407,7 @@ $tpl_show_mm_idx = true; ?>
       });
     }
 
-    list_loading = true;
+    scroll_loading = true;
     $.ajax({
       url: "/resume_proc/search_list2025",
       type: "post",
@@ -385,32 +416,33 @@ $tpl_show_mm_idx = true; ?>
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
-        list_loading = false;
-        console.log('API 응답:', ret);
+        scroll_loading = false;
+
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
-          // 전체 페이지 수 계산
-          var total_count = ret.data.total || ret.data.count || ret.data.list.length;
-          total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
+          // 첫 로드 시에만 목록 초기화
+          if (list_page === 1) {
+            $(list_id).empty();
+          }
 
-          console.log('전체 아이템 수:', total_count, '전체 페이지:', total_pages, 'ITEMS_PER_PAGE:', ITEMS_PER_PAGE);
+          var list = ret.data.list;
+          // 받은 데이터가 ITEMS_PER_PAGE보다 적으면 마지막 페이지
+          if (list.length < ITEMS_PER_PAGE) {
+            has_more = false;
+          }
 
-          // 목록 초기화 및 새 데이터 표시
-          $(list_id).empty();
-          setTimeout(function() {
-            showBoardList(ret.data.list);
-            renderPagination();
-            // 콘텐츠 로드 후 광고 상태 재확인
-            if (typeof window._recheckNativeAd === 'function') {
-              window._recheckNativeAd();
-            }
-          }, 100);
+          // 목록에 새 데이터 append
+          showBoardList(list);
+          list_page++;
+          showLoader(false);
         } else {
           console.error('API 응답 에러:', ret);
+          showLoader(false);
         }
       },
       error: function(xhr, status, error) {
-        list_loading = false;
+        scroll_loading = false;
         console.error("데이터 가져오기 오류:", error);
+        showLoader(false);
       }
     });
   }
@@ -418,13 +450,13 @@ $tpl_show_mm_idx = true; ?>
   //데이터 보여주기
   function showBoardList(list) {
 
-    list.forEach(function(row) {
+    list.forEach(function(row, index) {
       var $clone = $("#tpl_list").clone();
       var $content = $clone.html();
 
       // $content가 null이거나 undefined인 경우 처리
       if (!$content || typeof $content !== 'string') {
-        console.error('템플릿을 불러올 수 없습니다. #tpl_list 요소를 확인해주세요.');
+
         return;
       }
 
@@ -468,9 +500,37 @@ $tpl_show_mm_idx = true; ?>
       $clone.html($content);
 
       $(list_id).append($clone.html());
+
+      // 3번째 아이템(index=2) 이후 광고 삽입
+      if (index === 2) {
+        insertAdsenseAd();
+      }
     });
 
     showEmpty();
+  }
+
+  // Google AdSense 인피드 광고 삽입 함수
+  function insertAdsenseAd() {
+    var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
+      '<div class="adsense-wrapper" style="position: relative;">' +
+      '<ins class="adsbygoogle" style="display:block"' +
+      ' data-ad-format="fluid"' +
+      ' data-ad-layout-key="-h2+u-2a-lm+1en"' +
+      ' data-ad-client="ca-pub-7573726661605583"' +
+      ' data-ad-slot="9872127954"></ins>' +
+      '</div>' +
+      '</li>';
+    $(list_id).append(adHtml);
+
+    // AdSense 광고 로드 (공식 코드)
+    setTimeout(function() {
+      try {
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      } catch(e) {
+        console.error('AdSense 광고 로드 실패:', e);
+      }
+    }, 100);
   }
 
 
@@ -523,6 +583,10 @@ $tpl_show_mm_idx = true; ?>
     if ($(e.target).closest('button, a, input').length) {
       return;
     }
+    // Google AdSense 광고 클릭이면 무시 (WebView의 shouldOverrideUrlLoading이 처리)
+    if ($(e.target).closest('.ad-item-adsense').length) {
+      return;
+    }
 
     var $target = $(this);
     var ruIdx = $target.data('ru_idx');
@@ -559,79 +623,25 @@ $tpl_show_mm_idx = true; ?>
     }
   }
 
-  // 페이지네이션 렌더링 함수
-  function renderPagination() {
-    var pageNumbersDiv = document.getElementById('pageNumbers');
-    pageNumbersDiv.innerHTML = '';
-
-    // 페이지 번호 버튼 생성
-    var maxVisiblePages = 5; // 한 번에 표시할 최대 페이지 수
-    var startPage = Math.max(1, current_page - Math.floor(maxVisiblePages / 2));
-    var endPage = Math.min(total_pages, startPage + maxVisiblePages - 1);
-
-    // 시작 페이지 조정
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (var i = startPage; i <= endPage; i++) {
-      var btn = document.createElement('button');
-      btn.textContent = i;
-      btn.className = i === current_page ? 'page-btn active' : 'page-btn';
-      btn.setAttribute('data-page', i);
-      btn.addEventListener('click', function() {
-        var pageNum = parseInt(this.getAttribute('data-page'));
-        goToPage(pageNum);
-      });
-      pageNumbersDiv.appendChild(btn);
-    }
-
-    // 페이지네이션 표시/숨김
-    if (total_pages >= 1) {
-      document.getElementById('paginationWrapper').style.display = 'flex';
-    } else {
-      document.getElementById('paginationWrapper').style.display = 'none';
-    }
-
-    // 이전/다음 버튼 활성화 제어
-    document.getElementById('prevBtn').disabled = current_page === 1;
-    document.getElementById('nextBtn').disabled = current_page === total_pages;
+  // 스크롤 로더 표시/숨김
+  function showLoader(show) {
+    document.getElementById('scrollLoader').style.display = show ? 'block' : 'none';
   }
 
-  // 2페이지 이상에서 상단 섹션 숨김/표시
-  function updateTopSectionsVisibility(pageNum) {
-    var $hotSection = $('.hot-list').closest('.section');
-    var $mainVisual = $('.main-visual');
-    if (pageNum >= 2) {
-      $hotSection.hide();
-      $mainVisual.hide();
-    } else {
-      $hotSection.show();
-      $mainVisual.show();
-    }
-  }
+  // 무한 스크롤 이벤트
+  window.addEventListener('scroll', function() {
+    if (scroll_loading || !has_more) return;
 
-  // 특정 페이지로 이동
-  function goToPage(pageNum) {
-    if (pageNum < 1 || pageNum > total_pages) return;
-    current_page = pageNum;
-    list_page = pageNum;
-    updateTopSectionsVisibility(pageNum);
-    getBoardList("");
-    window.scrollTo(0, 0); // 페이지 상단으로 스크롤
-  }
+    var scrollBottom = window.scrollY + window.innerHeight;
+    var docHeight = document.documentElement.scrollHeight;
 
-  // 페이지네이션 버튼 이벤트 바인딩
-  $(document).on('click', '#prevBtn', function() {
-    if (current_page > 1) {
-      goToPage(current_page - 1);
+    // 하단 200px 이내에 도달하면 다음 배치 로드
+    if (scrollBottom + 200 >= docHeight) {
+      showLoader(true);
+      getBoardList("");
     }
-  });
-
-  $(document).on('click', '#nextBtn', function() {
-    if (current_page < total_pages) {
-      goToPage(current_page + 1);
-    }
+  }, {
+    passive: true
   });
 
   // 채용공고 작성 버튼 클릭 이벤트 20250923
