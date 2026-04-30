@@ -92,6 +92,7 @@
       }
       
       $result["list"] = $temp_list;
+      $result["total"] = isset($result["count"]) ? $result["count"] : 0;
       json_return("00","조회성공",$result);
 		}
     # 핀리스트
