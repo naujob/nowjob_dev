@@ -2507,10 +2507,19 @@
               // 섹션 보이기
               $extraSection.addClass('show');
 
-              // 기본값 설정: 희망국적, 희망성별, 희망나이 무관으로 체크
-              $('#rc_nation_yn').prop('checked', true).trigger('change');
-              $('#rc_sex_yn').prop('checked', true).trigger('change');
-              $('#rc_age_yn').prop('checked', true).trigger('change');
+              // 첫 오픈 시에만 기본값 설정 (이미 선택된 값이 없을 때)
+              // 희망국적이 선택되지 않았다면 무관으로 설정
+              if (!$('input[name="rc_nation[]"]:checked').length && !$('#rc_nation_yn').is(':checked')) {
+                $('#rc_nation_yn').prop('checked', true).trigger('change');
+              }
+              // 희망성별이 선택되지 않았다면 무관으로 설정
+              if (!$('input[name="rc_sex[]"]:checked').length && !$('#rc_sex_yn').is(':checked')) {
+                $('#rc_sex_yn').prop('checked', true).trigger('change');
+              }
+              // 희망나이가 선택되지 않았다면 무관으로 설정
+              if (!$('select[name="rc_sage"]').val() && !$('select[name="rc_eage"]').val() && !$('#rc_age_yn').is(':checked')) {
+                $('#rc_age_yn').prop('checked', true).trigger('change');
+              }
 
               // 추가정보 섹션으로 스크롤
               $('html, body').animate({
@@ -2522,8 +2531,18 @@
             }
           });
 
-          // 초기 상태: 추가정보 섹션 숨기기
-          $('.extra-section').removeClass('show');
+          // 초기 상태: 추가정보 섹션 숨기기 (단, DB에서 로드된 데이터가 있다면 유지)
+          var hasExtraData = $('input[name="rc_nation[]"]:checked').length > 0 ||
+                             $('input[name="rc_sex[]"]:checked').length > 0 ||
+                             $('select[name="rc_sage"]').val() ||
+                             $('select[name="rc_eage"]').val() ||
+                             $('#rc_nation_yn').is(':checked') ||
+                             $('#rc_sex_yn').is(':checked') ||
+                             $('#rc_age_yn').is(':checked');
+
+          if (!hasExtraData) {
+            $('.extra-section').removeClass('show');
+          }
 
           // 희망국적 무관 클릭 시 토글 (직접 클릭할 때만 처리)
           $('#rc_nation_yn').on('click', function() {

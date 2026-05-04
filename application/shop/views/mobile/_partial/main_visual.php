@@ -93,7 +93,8 @@ if (count($banner_list) > 0) {
     color: #aaa;
     font-size: 1rem;
     font-weight: 400;
-    background-image: none; /* 위치 아이콘, 캐럿 제거 */
+    background-image: none;
+    /* 위치 아이콘, 캐럿 제거 */
     display: inline-block;
   }
 
@@ -150,7 +151,7 @@ if (count($banner_list) > 0) {
   <div class="selected-regions">
     <style>
       .search-option .selected-regions {
-        padding: 0.5rem 1.25rem;
+        padding: 0.5rem 0rem;
         background: #fff;
       }
 
@@ -195,8 +196,16 @@ if (count($banner_list) > 0) {
       .search-option .categories .container {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
-        padding: 0 1.25rem;
+
+        /* padding: 0 1.25rem; */
+      }
+
+      .search-option .categories {
+        height: auto;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #999;
+        border-top: 1px solid #999;
+        padding: 0.4rem 0rem;
       }
 
       /* 검색 조건 탭 기본 스타일 */
@@ -232,10 +241,19 @@ if (count($banner_list) > 0) {
       /* 탭 닫기 아이콘 */
       .search-option .categories .filter-tag-item.on::after {
         content: '×';
-        font-size: 14px;
-        color: #999;
+        font-size: 10px;
+        color: #e8dfdf;
         margin-left: 2px;
-        line-height: 1;
+        line-height: 1.3;
+        border-radius: 50%;
+        border: 1px solid #999;
+        width: 15px;
+        height: 15px;
+        text-align: center;
+        background: #999;
+        position: relative;
+        top: 1.5px;
+        cursor: pointer;
       }
 
       /* #tab_list 내 요소들 클릭 이벤트 무시 */
@@ -380,7 +398,7 @@ if (count($banner_list) > 0) {
     // 팝업 닫힐 때도 상태 확인 (다른 스크립트가 text를 변경했을 수 있음)
     document.addEventListener('click', function(e) {
       if (e.target.classList && e.target.classList.contains('js-toggle-panel') &&
-          e.target.getAttribute('aria-controls') === 'changeArea') {
+        e.target.getAttribute('aria-controls') === 'changeArea') {
         // 팝업 닫힐 때 (약 400ms 후) 상태 업데이트
         setTimeout(function() {
           initAddrNameButton();

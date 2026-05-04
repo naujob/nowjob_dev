@@ -83,7 +83,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
             ]
         </script>
         <!-- Google AdSense - 광고 수익화를 위한 AdSense 스크립트 -->
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7573726661605583"
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
             crossorigin="anonymous"></script>
 
         <!-- Google tag (gtag.js) -->
@@ -798,8 +798,8 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
         <div style="width: 100%; text-align: center; padding: 20px 0; background-color: #fff;">
             <ins class="adsbygoogle"
                 style="display:block; width: 100%; min-height: 90px;"
-                data-ad-client="ca-pub-7573726661605583"
-                data-ad-slot="3768872159"
+                data-ad-client="ca-pub-3622369584322145"
+                data-ad-slot="1234567890"
                 data-ad-format="auto"
                 data-full-width-responsive="true"></ins>
             <script>

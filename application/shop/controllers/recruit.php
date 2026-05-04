@@ -402,6 +402,8 @@ class Recruit extends CI_Controller
       }
     }
 
+    $addr_info = $this->user->getAddrInfo();
+
     $data["mm_type"] = $this->mm_type;
     $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
@@ -410,6 +412,7 @@ class Recruit extends CI_Controller
     $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["search_txt"]  = $search_txt;
     $data["skip_search_state_load"] = $skip_search_state_load;
+    $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 6);
 
     $this->layout->shop('/recruit/job_list', $data);
   }

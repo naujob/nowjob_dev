@@ -155,9 +155,9 @@
 </style>
 
 <div class="splash">
-    <img src="/resource/shop/mobile/img/splash.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/splash.jpg') ?>" alt="" class="splash-bg-img" decoding="async" fetchpriority="high">
+    <img src="/resource/shop/mobile/img/splash_test.png?vs=<?= getFileVersion('/resource/shop/mobile/img/splash.jpg') ?>" alt="" class="splash-bg-img" decoding="async" fetchpriority="high">
     <!-- 기존 로고 이미지 주석처리 -->
-    <h1 class="logo"><img src="/resource/shop/mobile/img/title_logo.png" width="273" height="96" alt=""></h1>
+    <!-- <h1 class="logo"><img src="/resource/shop/mobile/img/title_logo.png" width="273" height="96" alt=""></h1> -->
     <!-- 기존 portrait 이미지 주석처리 -->
     <!-- <div class="visual">
         <img src="/resource/shop/mobile/img/splash_portrait.png" alt="" class="portrait">

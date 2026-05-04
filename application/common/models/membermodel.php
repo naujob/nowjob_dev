@@ -3427,7 +3427,7 @@ class memberModel extends MY_Model
 
 		//바디
 		$body = "
-			( 
+			(
 				select bb.*
 					,cc.ad_addr
           ,CONCAT(cc.ad_doro, ' ', cc.ad_jibun) AS s_addr
@@ -3443,7 +3443,7 @@ class memberModel extends MY_Model
           ,aa.mm_thumb
 				 	,(select count(*) as cnt FROM st_bookmark where bk_type = 'RESUME' and bk_key = bb.ru_idx) as book_cnt
 				FROM st_member aa
-				inner join st_member_info mi
+				left join st_member_info mi
 	                on aa.mm_idx = mi.mm_idx
 				inner join st_resume bb
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'

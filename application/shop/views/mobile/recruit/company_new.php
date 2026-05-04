@@ -261,11 +261,11 @@
 .result-list .list-item + .list-item {
     border-top: 0;
 }
-.search-option .categories .form-toggle-btn2 {
+.search-option .categories .filter-tag-item {
   display:none;
 }
 .search-option .categories .filter-tag-item.on {
-  display: inline-flex;
+  display:inline-flex;
   align-items: center;
   gap: 4px;
   background-color: #fff;
@@ -455,7 +455,7 @@
 </template>
 
 <template id="tpl_category">
-    <label class="form-toggle-btn2 sm {{active}} btn-category">
+    <label class="filter-tag-item sm {{active}} btn-category">
         <input type="checkbox" name="filter" value="{{category_name}}">
         <span class="cate">{{category_name}}</span>
     </label>

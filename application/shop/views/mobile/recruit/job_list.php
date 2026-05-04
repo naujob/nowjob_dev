@@ -583,7 +583,7 @@ $tpl_recomm_class = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 
 <template id="tpl_category">
-  <label class="form-toggle-btn2 sm {{active}} btn-category">
+  <label class="filter-tag-item sm {{active}} btn-category">
     <input type="checkbox" name="filter" value="{{category_name}}">
     <span class="cate">{{category_name}}</span>
   </label>

@@ -46,10 +46,7 @@ if (count($banner_list) > 0) {
     line-height: 1;
   }
 
-  .search-option .categories {
-    height: auto;
-    margin-bottom: 10px;
-  }
+
 
   .current-area .btn {
     max-width: 100%;
@@ -546,7 +543,7 @@ $tpl_show_mm_idx = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
 
 <template id="tpl_category">
-  <label class="form-toggle-btn2 sm {{active}} btn-category">
+  <label class="filter-tag-item sm {{active}} btn-category">
     <input type="checkbox" name="filter" value="{{category_name}}">
     <span class="cate">{{category_name}}</span>
   </label>

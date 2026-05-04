@@ -2,69 +2,69 @@
   <!-- 비로그인 사용자 -->
   <?php if (!$this->user->isLogin()) { ?>
     <a href="/recruit/job_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
+      <img src="/resource/shop/mobile/img/main_menu/recruit_v2.png" alt="채용정보">
       <span>채용정보</span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/resume.svg" alt="인재정보">
+      <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
       <span>인재정보</span>
     </a>
     <a href="/recruit/job_map" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map.svg" alt="채용지도">
+      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="채용지도">
       <span>채용지도</span>
     </a>
     <a href="/member/login" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/ic_menu2_mypage_2.svg" alt="로그인">
+      <img src="/resource/shop/mobile/img/main_menu/login_v2.png" alt="로그인" class="nav-icon-login">
       <span>로그인</span>
     </a>
     <a href="#" id="btnChat" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/chat.svg" alt="채팅">
+      <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
       <span>채팅</span>
     </a>
 
     <!-- 기업 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "COMP") { ?>
     <a href="/recruit/job_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
+      <img src="/resource/shop/mobile/img/main_menu/recruit_v2.png" alt="채용정보">
       <span>채용정보</span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/resume.svg" alt="인재정보">
+      <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
       <span>인재정보</span>
     </a>
     <a href="/recruit/job_map" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map.svg" alt="채용지도">
+      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="채용지도">
       <span>채용지도</span>
     </a>
     <button type="button" id="btnRecruitWrite" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs.svg" alt="채용공고등록">
+      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs_v2.png" alt="채용공고등록">
       <span>채용공고등록</span>
     </button>
     <a href="#" id="btnChat" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/chat.svg" alt="채팅">
+      <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
       <span>채팅</span>
     </a>
 
     <!-- 개인 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "MEM") { ?>
     <a href="/recruit/job_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/recruit.svg" alt="채용정보">
+      <img src="/resource/shop/mobile/img/main_menu/recruit_v2.png" alt="채용정보">
       <span>채용정보</span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/resume.svg" alt="인재정보">
+      <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
       <span>인재정보</span>
     </a>
     <a href="/resume/hr_map" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map.svg" alt="인재지도">
+      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="인재지도">
       <span>인재지도</span>
     </a>
     <button type="button" id="btnResumeWrite" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs.svg" alt="이력서등록">
+      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs_v2.png" alt="이력서등록">
       <span>이력서등록</span>
     </button>
     <a href="#" id="btnChat" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/chat.svg" alt="채팅">
+      <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
       <span>채팅</span>
     </a>
   <?php } ?>
@@ -184,6 +184,42 @@ renderSelectBottomSheet(
 ?>
 
 <script>
+  // 메인 메뉴 아이콘 클릭 이벤트
+  $(document).on('click', '.btn-nav-item', function(e) {
+    var $this = $(this);
+    var $img = $this.find('img');
+    var currentSrc = $img.attr('src');
+
+    // 이미 활성화된 아이콘이면 처리하지 않음
+    if ($img.data('active') === 'true') {
+      return;
+    }
+
+    // 다른 아이콘들의 활성화 상태 초기화
+    $('.btn-nav-item img').each(function() {
+      var $icon = $(this);
+      if ($icon.data('active') === 'true') {
+        var originalSrc = $icon.data('original-src');
+        $icon.attr('src', originalSrc);
+        $icon.data('active', 'false');
+      }
+    });
+
+    // 원본 src 저장 (첫 클릭일 때만)
+    if (!$img.data('original-src')) {
+      $img.data('original-src', currentSrc);
+    }
+
+    // 아이콘 변환: _v2.png → _click_v2.png
+    var clickSrc = currentSrc.replace(/_v2\.png$/, '_click_v2.png');
+
+    $img.attr('src', clickSrc);
+    $img.data('active', 'true');
+
+    // 활성화된 아이콘 정보를 sessionStorage에 저장 (페이지 이동 후에도 유지)
+    sessionStorage.setItem('activeMenuIcon', $img.attr('alt'));
+  });
+
   // 로그인 안내 팝업 버튼 클릭 이벤트
   $(document).on('click', '#btnLoginGuide', function() {
     location.href = '/member/login';
@@ -383,6 +419,25 @@ renderSelectBottomSheet(
     initPanelSwipe('loginGuidePanel');
     initPanelSwipe('resumeSelectPanel');
     initPanelSwipe('recruitSelectPanel');
+
+    // 메뉴 아이콘의 원본 src 초기화 및 이전 활성화 상태 복원
+    var activeMenuIcon = sessionStorage.getItem('activeMenuIcon');
+    $('.btn-nav-item img').each(function() {
+      var $img = $(this);
+      if (!$img.data('original-src')) {
+        $img.data('original-src', $img.attr('src'));
+      }
+
+      // 이전 활성 아이콘이 있으면 클릭 상태로 복원
+      if (activeMenuIcon && $img.attr('alt') === activeMenuIcon) {
+        var originalSrc = $img.data('original-src');
+        var clickSrc = originalSrc.replace(/_v2\.png$/, '_click_v2.png');
+        $img.attr('src', clickSrc);
+        $img.data('active', 'true');
+      } else {
+        $img.data('active', 'false');
+      }
+    });
   });
 
   /**
@@ -712,16 +767,60 @@ renderSelectBottomSheet(
     $("#btnChat").click(function(e) {
       e.preventDefault();
 
+      var $this = $(this);
+      var $img = $this.find('img');
+      var currentSrc = $img.attr('src');
+
       // 로그인 여부 확인
       var is_login = "<?= $this->user->isLogin() ? 'Y' : 'N'; ?>";
       if (is_login != "Y") {
+        // 원본 src 저장 (첫 클릭일 때만)
+        if (!$img.data('original-src')) {
+          $img.data('original-src', currentSrc);
+        }
+
+        // 클릭 이미지로 변경 (_v2.png → _click_v2.png)
+        var clickSrc = currentSrc.replace(/_v2\.png$/, '_click_v2.png');
+        $img.attr('src', clickSrc);
+        $img.data('active', 'true');
+
         // 바텀 시트 형태의 로그인 안내 팝업 표시
         openPanel(document.getElementById('loginGuidePanel'));
+
+        // 바텀시트가 닫히면 이미지 복원
+        var observer = new MutationObserver(function(mutations) {
+          var loginPanel = document.getElementById('loginGuidePanel');
+          if (loginPanel && !loginPanel.classList.contains('on')) {
+            var originalSrc = $img.data('original-src');
+            if (originalSrc) {
+              $img.attr('src', originalSrc);
+              $img.data('active', 'false');
+            }
+            observer.disconnect();
+          }
+        });
+
+        observer.observe(document.getElementById('loginGuidePanel'), {
+          attributes: true,
+          attributeFilter: ['class']
+        });
         return;
       }
 
+      // 원본 src 저장 (첫 클릭일 때만)
+      if (!$img.data('original-src')) {
+        $img.data('original-src', currentSrc);
+      }
+
+      // 클릭 이미지로 변경 (_v2.png → _click_v2.png)
+      var clickSrc = currentSrc.replace(/_v2\.png$/, '_click_v2.png');
+      $img.attr('src', clickSrc);
+      $img.data('active', 'true');
+
       // 로그인 상태면 바로 채팅방 페이지로 이동
-      location.href = '/chat';
+      setTimeout(function() {
+        location.href = '/chat';
+      }, 200);
     });
 
     // 공고등록 버튼 클릭 이벤트 (기업회원일 경우)

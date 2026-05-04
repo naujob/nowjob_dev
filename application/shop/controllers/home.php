@@ -192,6 +192,22 @@ class Home extends CI_Controller
 		$data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 8);  // 최대 8개 (2슬라이드 × 4개)
 		$data["mm_type"] = $this->mm_type;
 
+		# 채용공고 목록과 검색 필터에 필요한 변수
+		$data["addr_info"] = $addr_info;
+		$data["wrok_list"] = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+		$data["work_type_list"] = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+		$data["week_list"] = $this->site_model->getCodeList(array("cd_grp" => "근무요일"));
+		$data["search_txt"] = array(
+			"text" => "", "addr" => "", "category" => "",
+			"work_type" => "", "week" => "", "price_type" => "",
+			"sex" => "", "sage" => "", "eage" => "",
+			"addrName" => "", "searchAreaStr" => ""
+		);
+		$data["skip_search_state_load"] = false;
+		$data["resume"] = $this->member_model->getResume(
+			array("mm_idx" => $this->mm_idx, "ru_show_yn" => "Y", "ru_status" => "Y")
+		);
+
 		$this->layout->shop('/home/index_mem', $data);
 	}
 
@@ -205,6 +221,21 @@ class Home extends CI_Controller
 
 		$popup_list = $this->common_model->getEventPopupList($this->user->getUserType());
 		$data["popup_list"] = $popup_list;
+
+		# 채용공고 목록과 검색 필터에 필요한 변수
+		$data["addr_info"] = $addr_info;
+		$data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 6);
+		$data["wrok_list"] = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+		$data["work_type_list"] = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+		$data["week_list"] = $this->site_model->getCodeList(array("cd_grp" => "근무요일"));
+		$data["search_txt"] = array(
+			"text" => "", "addr" => "", "category" => "",
+			"work_type" => "", "week" => "", "price_type" => "",
+			"sex" => "", "sage" => "", "eage" => "",
+			"addrName" => "", "searchAreaStr" => ""
+		);
+		$data["skip_search_state_load"] = false;
+		$data["resume"] = null;
 
 		$this->layout->shop('/home/index_comp', $data);
 	}

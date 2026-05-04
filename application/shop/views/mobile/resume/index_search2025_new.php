@@ -973,6 +973,7 @@
         }
       });
       b.classList.remove('no-scroll');
+      b.classList.remove('panel-open');
     }
 
     if (h) {
