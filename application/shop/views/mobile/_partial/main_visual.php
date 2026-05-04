@@ -234,6 +234,36 @@ if (count($banner_list) > 0) {
     </div>
   </div>
   <script>
+    // 지역 선택 버튼 초기화: 초기값이 "전체"이면 placeholder 스타일로 변경
+    function initAddrNameButton() {
+      var addrBtn = document.querySelector('.addrName');
+      if (addrBtn) {
+        var text = addrBtn.textContent.trim();
+        if (text === '전체' || text === '') {
+          addrBtn.textContent = '지역을 선택해 주세요';
+          addrBtn.setAttribute('data-selected', 'false');
+        } else {
+          addrBtn.setAttribute('data-selected', 'true');
+        }
+      }
+    }
+
+    // 페이지 로드 시 및 팝업 닫힐 때 초기화
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAddrNameButton);
+    } else {
+      initAddrNameButton();
+    }
+
+    // 팝업 닫힐 때도 상태 확인 (다른 스크립트가 text를 변경했을 수 있음)
+    document.addEventListener('click', function(e) {
+      if (e.target.classList && e.target.classList.contains('js-toggle-panel') &&
+          e.target.getAttribute('aria-controls') === 'changeArea') {
+        // 팝업 닫힐 때 (약 400ms 후) 상태 업데이트
+        setTimeout(initAddrNameButton, 400);
+      }
+    });
+
     window.addEventListener('DOMContentLoaded', function() {
       new KeenSlider(".visual-slider .slider-wrap", {
         loop: true,
