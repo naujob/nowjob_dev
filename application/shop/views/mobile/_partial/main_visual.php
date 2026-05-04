@@ -210,7 +210,6 @@ if (count($banner_list) > 0) {
         align-items: center;
         gap: 4px;
         background-color: #fff;
-        border: 1px solid #ccc;
         border-radius: 20px;
         padding: 5px 10px;
         font-size: 13px;
