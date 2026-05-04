@@ -346,7 +346,7 @@
             <!-- 현재 위치 -->
             <div class="current-area">
                 <div class="container">
-                    <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
+                    <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
                     <!-- <?=$search_txt["searchAreaStr"];?> -->
                 </div>
             </div>
@@ -767,10 +767,10 @@
         addrNames.push(text);
       });
       addrName = addrNames.join(', ');
-      $('.addrName').text(addrName);
+      $('.addrName').text(addrName).attr('data-selected', 'true');
     } else {
-      addrName = '전체';
-      $('.addrName').text(addrName);
+      addrName = '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', 'false');
     }
     
     const searchArea = [];

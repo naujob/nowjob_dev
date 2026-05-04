@@ -39,10 +39,330 @@ if (count($banner_list) > 0) {
     overflow: hidden;
   }
 
+  /* 추천인재 슬라이더 양쪽 peek — container overflow 재정의 */
+  .section.index_comp:has(.recomm-slider) .container {
+    overflow: visible;
+  }
+
+  .section.index_comp:has(.recomm-slider) {
+    overflow: hidden;
+  }
+
+  /* KeenSlider 컨테이너 — 양쪽 peek: padding으로 이전/다음 슬라이드 노출 */
+  .recomm-slider.person .slider-wrap {
+    overflow: visible;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  /* 슬라이더 슬라이드: 전체 너비 */
+  .recomm-slider.person .keen-slider__slide {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 0;
+    padding-bottom: 10px !important;
+  }
+
+  /* 슬라이드 내 2x2 — flexbox wrap 방식 */
+  .recomm-slider.person .person-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* 그리드 아이템 — 2열 배치 (gap 10px 고려) */
+  .recomm-slider.person .person-grid-item {
+    display: flex;
+    flex-direction: column;
+    width: calc(50% - 5px);
+    min-width: 0;
+  }
+
+  /* 카드 높이 최소화 */
+  .recomm-slider.person .person-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .recomm-slider.person .person-card .title-wrap {
+    margin: 0 0 2px;
+  }
+
+  .recomm-slider.person .person-card .title-wrap .title {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    color: #333;
+  }
+
+  .recomm-slider.person .person-card .meta {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #000;
+    margin: 2px 0 0;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .recomm-slider.person .person-card .meta p {
+    flex: 0 1 auto;
+    padding: 0;
+    margin: 0;
+    color: #000;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  .recomm-slider.person .person-card .meta p:after {
+    content: "";
+    display: none;
+  }
+
+  .recomm-slider.person .person-card .meta-divider {
+    padding: 0 11px;
+    color: #ccc;
+    font-size: 9px;
+    flex: 0 0 auto;
+  }
+
+  .recomm-slider.person .person-card .addr {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 2px 0 0;
+    padding: 0;
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .recomm-slider.person .person-card .hashtag {
+    font-size: 0;
+    height: 50px;
+    max-height: 22px;
+    border-top: none;
+    background-color: #3A70DB;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    line-height: 1.3;
+  }
+
+  .recomm-slider.person .person-card .tag {
+    font-size: 16px;
+    color: #fff;
+    text-align: center !important;
+  }
+
+  /* 카드 스타일 */
+  .recomm-slider.person .person-card {
+    padding: 10px 0 10px;
+    border: 1px solid #d2cece;
+    border-radius: 25px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .recomm-slider.person .person-card .desc {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .person-card {
+    padding: 0 5px 0 0;
+  }
+
+  .person-card .thumb-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .person-card .recomm-badge {
+    top: 10px;
+    left: 10px;
+    background-color: #57CCAF;
+  }
+
+  .person-card .thumb {
+    position: relative;
+    left: 31%;
+    border-radius: 50px;
+    overflow: hidden;
+    background: #f0f0f0;
+    width: 80px;
+    height: 75px;
+  }
+
+  /* 뱃지 래퍼: 이미지 아래 배치 */
+  .person-card .person-badge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+  }
+
+  /* 뱃지 아이콘 */
+  .person-card .person-badge-icon {
+    font-size: 0;
+  }
+
+  .person-card .person-badge-icon img {
+    width: 47px;
+    height: 20px;
+    display: inline-block;
+  }
+
+  /* 뱃지 텍스트 */
+  .person-card .person-badge {
+    position: static;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    background-color: #1b9d7d;
+    border-radius: 100px;
+    line-height: 1.2;
+    white-space: nowrap;
+    max-width: 90%;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+  }
+
+  .person-card .thumb img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+
+  .person-card .desc {
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 400;
+  }
+
+  /* 주소 */
+  .person-card .addr {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+  }
+
+  .person-card .category {
+    margin: 0 0 5px;
+    font-size: 0;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .person-card .title-wrap {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin: 0 0 3px;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .person-card .title {
+    width: 85%;
+    margin: 0 5px 0 0;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .person-card .area {
+    margin: 0;
+    color: #000;
+    height: auto;
+    width: 70%;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  .person-card .meta {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    text-align: center;
+  }
+
+  .person-card .meta p {
+    position: relative;
+    flex: 1;
+    word-break: keep-all;
+    padding: 0px 3px;
+    text-align: center;
+  }
+
+  .person-card .meta p:first-child {
+    text-align: left;
+    padding-left: 0;
+  }
+
+  .person-card .meta p:last-child {
+    padding-right: 0;
+  }
+
+  .person-card .meta p:after {
+    content: "";
+    display: none;
+  }
+
+  .person-card .meta p:last-child:after {
+    content: none;
+  }
+
+  /* 메타 구분자 */
+  .person-card .meta-divider {
+    flex: 0 0 auto;
+    padding: 0 2px;
+    font-size: 10px;
+    color: #ccc;
+    line-height: 1;
+  }
+
+  .person-card .meta p em {
+    font-style: normal;
+  }
+
+  .person-card .hashtag {
+    height: auto;
+    max-height: 24px;
+    display: block;
+  }
+
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
     list-style: none;
-    margin: 15px 0;
+    margin: 0;
     padding: 0;
     position: relative;
   }
@@ -61,8 +381,9 @@ if (count($banner_list) > 0) {
   .ad-item-adsense .adsense-wrapper {
     border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
-    padding: 10px 0;
+    padding: 0;
     background-color: #fafafa;
+
   }
 
   .ad-item-adsense ins.adsbygoogle {
@@ -71,7 +392,7 @@ if (count($banner_list) > 0) {
   }
 </style>
 <!-- Google AdSense 인피드 광고 스크립트 -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7573726661605583"
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
   crossorigin="anonymous"></script>
 <div class="page-recruit">
 
@@ -85,45 +406,12 @@ if (count($banner_list) > 0) {
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
-    <!-- 지금 뜨는 업체 -->
-    <div class="section">
+    <!-- 추천인재 -->
+    <div class="section index_comp" id="recommSection">
       <div class="container">
-        <h2 class="secondary-title index">지금 뜨는 업체</h2>
-        <div class="hot-list">
-          <div class="slider-wrap keen-slider">
-            <?php
-            $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
-            $chunked_up_list = array_chunk($limited_up_list, 4);
-            // 마지막 슬라이드가 4개 미만인 경우 빈 슬롯 추가
-            if (!empty($chunked_up_list)) {
-              $last_idx = count($chunked_up_list) - 1;
-              while (count($chunked_up_list[$last_idx]) < 4) {
-                $chunked_up_list[$last_idx][] = null;
-              }
-            }
-            foreach ($chunked_up_list as $chunk) :
-            ?>
-              <div class="keen-slider__slide">
-                <div class="hot-grid">
-                  <?php foreach ($chunk as $row) : ?>
-                    <?php if ($row !== null) : ?>
-                      <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
-                        <div class="thumb">
-
-                          <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
-
-                          <p class="name"><?= $row["mm_comp_name"] ?></p>
-                        </div>
-                      </a>
-                    <?php else : ?>
-                      <div class="hot-item hot-item--empty">
-                        <div class="thumb"></div>
-                      </div>
-                    <?php endif; ?>
-                  <?php endforeach; ?>
-                </div>
-              </div>
-            <?php endforeach; ?>
+        <h2 class="secondary-title index">추천인재</h2>
+        <div class="recomm-slider person">
+          <div class="slider-wrap keen-slider" id="recomm-list">
           </div>
         </div>
       </div>
@@ -238,6 +526,33 @@ $tpl_show_mm_idx = true; ?>
   </label>
 </template>
 
+<template id="tpl_reco_item">
+  <div class="person-grid-item">
+    <div class="person-card" data-ru_idx="{{ru_idx}}">
+      <div class="thumb-wrap">
+        <div class="thumb">
+          <img src="{{ru_resume_img}}" alt="프로필">
+        </div>
+        <div class="person-badge-wrap">
+          <div class="person-badge-icon">{{ru_work_img}}</div>
+        </div>
+      </div>
+      <div class="desc">
+        <div class="content-wrap">
+          <div class="meta">
+            <p class="work_type">{{ru_work_type}}</p>
+            <span class="meta-divider">|</span>
+            <p class="age">{{mm_age}}</p>
+            <span class="meta-divider">|</span>
+            <p class="price_type">{{ru_price_type}}</p>
+          </div>
+          <p class="addr">{{ad_addr}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 
 <input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
@@ -290,14 +605,14 @@ $tpl_show_mm_idx = true; ?>
   var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
-  var list_page = 1;
-  var list_loading = false;
+  var list_page = 1; // 현재 페이지 번호
+  var list_loading = false; // 데이터 로딩 중 여부 (중복 요청 방지)
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
   var ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 수
-  var total_count = 0;   // 전체 아이템 수
-  var total_pages = 1;   // 전체 페이지 수
+  var total_count = 0; // 전체 아이템 수
+  var total_pages = 1; // 전체 페이지 수
   var search_array = {
     category: "",
     work_type: "",
@@ -310,7 +625,7 @@ $tpl_show_mm_idx = true; ?>
 
   var tab_list = [];
   tab_list.push({
-    df: "카테고리",
+    df: "업직종",
     text: "",
     active: ""
   });
@@ -325,7 +640,7 @@ $tpl_show_mm_idx = true; ?>
     active: ""
   });
   tab_list.push({
-    df: "급여",
+    df: "급여형태",
     text: "",
     active: ""
   });
@@ -341,7 +656,26 @@ $tpl_show_mm_idx = true; ?>
   });
 
   $(document).on("click", ".btn-category", function() {
-    $("#advancedSearch").addClass("on");
+    // 클릭한 카테고리 값 가져오기
+    var categoryValue = $(this).find("input[name='filter']").val();
+
+    // 현재 카테고리 검색 조건에서 클릭한 카테고리만 제거
+    if (search_array.category) {
+      var categories = search_array.category.split("^");
+      categories = categories.filter(function(cat) {
+        return cat !== categoryValue;
+      });
+      search_array.category = categories.join("^");
+    }
+
+    // 탭 업데이트
+    tab_list[0].text = search_array.category ? search_array.category.replaceAll("^", ",") : "";
+    tab_list[0].active = search_array.category ? "on" : "";
+
+    initTabUi();
+    list_page = 1;
+    $(list_id).html("");
+    getBoardList("Y");
   });
 
   $(document).on("click", ".form-checkbox", function(e) {
@@ -358,13 +692,15 @@ $tpl_show_mm_idx = true; ?>
   function pushPageToUrl(page) {
     var params = new URLSearchParams(window.location.search);
     params.set("page", page);
-    history.pushState({ page: page }, "", "?" + params.toString());
+    history.pushState({ //브라우저를 새로고침하지 않고 URL 변경  example.com?page=3
+      page: page // 첫 번째 인자는 상태 객체(브라우저 히스토리에 저장하여 나중에 뒤로가기 할 때 이 값을 꺼낼 수 있음), 두 번째 인자는 제목(대부분의 브라우저에서 무시), 세 번째 인자는 변경할 URL
+    }, "", "?" + params.toString());
   }
 
   // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
   function initCashingData() {
-    list_page = getPageFromUrl();
-    getBoardList("");
+    list_page = getPageFromUrl(); // URL에서 현재 페이지 번호 읽어서 list_page에 저장 example.com?page=3 -> list_page = 3
+    getBoardList(""); // 현재 페이지 번호에 해당하는 글 목록 불러오기
   }
 
   function initLoadData() {
@@ -413,7 +749,7 @@ $tpl_show_mm_idx = true; ?>
           }
         },
         error: function(xhr, status, error) {
-          console.error("데이터 저장 오류:", error);
+
         }
       });
     }
@@ -434,18 +770,17 @@ $tpl_show_mm_idx = true; ?>
           total_count = ret.data.total || 0;
           total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
 
-          console.log('API 응답:', ret);
-          console.log('total_count:', total_count, 'total_pages:', total_pages);
+
 
           showBoardList(ret.data.list);
           renderPagination();
         } else {
-          console.error('API 응답 에러:', ret);
+
         }
       },
       error: function(xhr, status, error) {
         list_loading = false;
-        console.error("데이터 가져오기 오류:", error);
+
       }
     });
   }
@@ -503,14 +838,15 @@ $tpl_show_mm_idx = true; ?>
       $clone.html($content);
 
       $(list_id).append($clone.html());
-
-      // 3번째 아이템(index=2) 이후 광고 삽입
-      if (index === 2) {
-        insertAdsenseAd();
-      }
     });
 
+    // 페이지의 마지막에 광고 삽입
+    if (list.length > 0) {
+      insertAdsenseAd();
+    }
+
     showEmpty();
+    updateTopSectionsVisibility();
   }
 
   // Google AdSense 인피드 광고 삽입 함수
@@ -519,9 +855,9 @@ $tpl_show_mm_idx = true; ?>
       '<div class="adsense-wrapper" style="position: relative;">' +
       '<ins class="adsbygoogle" style="display:block"' +
       ' data-ad-format="fluid"' +
-      ' data-ad-layout-key="-h2+u-2a-lm+1en"' +
-      ' data-ad-client="ca-pub-7573726661605583"' +
-      ' data-ad-slot="9872127954"></ins>' +
+      ' data-ad-layout-key="-hd+j-2v-68+mb"' +
+      ' data-ad-client="ca-pub-3622369584322145"' +
+      ' data-ad-slot="5890695133"></ins>' +
       '</div>' +
       '</li>';
     $(list_id).append(adHtml);
@@ -530,8 +866,8 @@ $tpl_show_mm_idx = true; ?>
     setTimeout(function() {
       try {
         (adsbygoogle = window.adsbygoogle || []).push({});
-      } catch(e) {
-        console.error('AdSense 광고 로드 실패:', e);
+      } catch (e) {
+
       }
     }, 100);
   }
@@ -630,14 +966,15 @@ $tpl_show_mm_idx = true; ?>
   function renderPagination() {
     var $wrapper = $("#paginationWrapper");
     if (total_count === 0) {
-      $wrapper.hide();
+      $wrapper.hide(); // 글이 없으면 페이지네이션 숨김
       return;
     }
 
-    var html = '';
+    var html = ''; //  버튼들을 문자열로 만들어서 한 번에 렌더링하기 위해 초기화
     // 이전 버튼
-    html += '<button onclick="goPage(' + (list_page - 1) + ')"'
-         +  (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
+    html += '<button onclick="goPage(' + (list_page - 1) + ')"' +
+      (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
+    // list_page가 1보다 작거나 같으면 이전 버튼 비활성화 list_page:현재 페이지 번호
 
     // 페이지 번호 (최대 5개 표시, 현재 페이지 중심)
     var startPage = Math.max(1, list_page - 2);
@@ -645,25 +982,29 @@ $tpl_show_mm_idx = true; ?>
     startPage = Math.max(1, endPage - 4);
 
     for (var i = startPage; i <= endPage; i++) {
-      html += '<button onclick="goPage(' + i + ')"'
-           +  (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
+      html += '<button onclick="goPage(' + i + ')"' +
+        (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
     }
 
     // 다음 버튼
-    html += '<button onclick="goPage(' + (list_page + 1) + ')"'
-         +  (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
+    html += '<button onclick="goPage(' + (list_page + 1) + ')"' +
+      (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
 
     $wrapper.html(html).show();
   }
 
   // 페이지 이동 함수
+  // page: 이동할 페이지 번호
   function goPage(page) {
-    if (page < 1 || page > total_pages) return;
-    list_page = page;
-    pushPageToUrl(page);
-    $(list_id).empty();
-    $("html, body").animate({ scrollTop: 0 }, 200);
-    getBoardList("");
+    if (page < 1 || page > total_pages) return; // 유효성 검사 이동가능한 페이지인지 확인
+    list_page = page; // 전역 변수 업데이트 현재 페이지를 3으로 바꿈
+    pushPageToUrl(page); //URL도 3페이지로 바꿈
+    $(list_id).empty(); //기존 목록 지움
+    $("html, body").animate({
+      scrollTop: 0 //scrollTop: 0으로 하면 화면 맨 위로 이동
+    }, 200); //화면 맨 위로 올림
+    getBoardList(""); // 이동할 페이지 글 목록 다시 불러옴
+    updateTopSectionsVisibility();
   }
 
   // 채용공고 작성 버튼 클릭 이벤트 20250923
@@ -676,7 +1017,7 @@ $tpl_show_mm_idx = true; ?>
       window.handleRecruitPageNavigation();
     } else {
       // 함수가 아직 로드되지 않은 경우 (안전장치)
-      console.error('handleRecruitPageNavigation 함수를 찾을 수 없습니다.');
+
       // 로그인 여부 확인
       var user_type = $("[name='mm_type']").val();
       if (user_type != "COMP") {
@@ -706,7 +1047,7 @@ $tpl_show_mm_idx = true; ?>
           }
         },
         error: function(xhr, status, error) {
-          console.error("채용공고 개수 확인 오류:", error);
+
           commonAlert("채용공고 개수를 확인할 수 없습니다.", function() {});
         }
       });
@@ -741,10 +1082,10 @@ $tpl_show_mm_idx = true; ?>
         addrNames.push(text);
       });
       addrName = addrNames.join(', ');
-      $('.addrName').text(addrName);
+      $('.addrName').text(addrName).attr('data-selected', 'true');
     } else {
-      addrName = '전체';
-      $('.addrName').text(addrName);
+      addrName = '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', 'false');
     }
 
     const searchArea = [];
@@ -887,7 +1228,144 @@ $tpl_show_mm_idx = true; ?>
     }
 
     // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
+
+    // 추천인재 슬라이더 로드
+    getRecoList();
   });
+
+  // 추천인재 데이터 로딩
+  function getRecoList() {
+    var params = {
+      "addr1": "",
+      "addr2": "",
+      "addr3": "",
+      "limit": "8"
+    };
+
+    $.ajax({
+      url: "/resume_proc/search_reco_list2025",
+      type: "post",
+      data: params,
+      traditional: false,
+      dataType: "json",
+      crossDomain: true,
+      success: function(ret) {
+        if (ret.code == "00") {
+          var list = ret.data.list;
+          $("#recomm-list").html("");
+
+          if (list && list.length > 0) {
+            var chunked = [];
+            for (var i = 0; i < list.length; i += 4) {
+              chunked.push(list.slice(i, i + 4));
+            }
+
+            chunked.forEach(function(chunk) {
+              var $slide = $("<div class='keen-slider__slide'><div class='person-grid'></div></div>");
+              var $grid = $slide.find(".person-grid");
+
+              chunk.forEach(function(row) {
+                var $clone = $("#tpl_reco_item").clone();
+                var $content = $clone.html();
+
+                var workTypeRaw = row.ru_work_type || "";
+                var myTypeRaw = row.ru_my_type || "";
+                if (!myTypeRaw || myTypeRaw.trim() === "") {
+                  myTypeRaw = "<p class='tag'>#성실합니다</p>";
+                }
+
+                $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
+                $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
+                $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
+                $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "대");
+                $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
+                $content = $content.replaceAll("{{ru_work_type}}", workTypeRaw);
+                $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
+                $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
+                $content = $content.replaceAll("{{ru_my_type}}", myTypeRaw);
+                $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr || ""));
+
+                $clone.html($content);
+                $grid.append($clone.html());
+              });
+
+              $("#recomm-list").append($slide);
+            });
+
+            initRecommSlider();
+          } else {
+            $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>추천인재가 없습니다.</p>");
+          }
+        } else {
+          $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
+        }
+      },
+      error: function() {
+        $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
+      }
+    });
+  }
+
+  // 추천인재 슬라이더 초기화
+  function initRecommSlider() {
+    var recommSlider = document.querySelector('.recomm-slider.person .slider-wrap');
+    if (recommSlider && typeof KeenSlider !== 'undefined' && !recommSlider.__keenslider__) {
+      var slides = recommSlider.querySelectorAll('.keen-slider__slide');
+      if (slides.length > 0 && slides.length < 4) {
+        var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+        var added = slides.length;
+
+        var imageSrcMap = {};
+        slides.forEach(function(slide, idx) {
+          slide.querySelectorAll('img').forEach(function(img, imgIdx) {
+            imageSrcMap[idx + '-' + imgIdx] = img.src;
+          });
+        });
+
+        while (added < cloneCount) {
+          slides.forEach(function(slide, slideIdx) {
+            if (added < cloneCount) {
+              var cloned = slide.cloneNode(true);
+              cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
+                var srcKey = slideIdx + '-' + imgIdx;
+                if (imageSrcMap[srcKey]) {
+                  img.src = imageSrcMap[srcKey];
+                }
+                if (img.classList.contains('lozad')) {
+                  if (img.getAttribute('data-src') && !img.src) {
+                    img.src = img.getAttribute('data-src');
+                  }
+                  img.setAttribute('data-loaded', 'true');
+                }
+              });
+              recommSlider.appendChild(cloned);
+              added++;
+            }
+          });
+        }
+      }
+
+      var slider = new KeenSlider(recommSlider, {
+        loop: true,
+        initial: 0,
+        slides: {
+          perView: 1.1,
+          spacing: 12
+        },
+        drag: true,
+        dragMinDist: 0,
+        rubberband: true,
+        renderMode: 'precision'
+      });
+    }
+  }
+
+  // 1페이지 여부에 따라 배너/슬라이더 섹션 표시/숨김
+  function updateTopSectionsVisibility() {
+    var isFirstPage = (list_page <= 1);
+    $('.main-visual').toggle(isFirstPage);
+    $('#recommSection').toggle(isFirstPage);
+  }
 
   // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
   window.DISABLE_SWIPE_BACK = true;

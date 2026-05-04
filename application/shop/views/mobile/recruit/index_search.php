@@ -196,22 +196,24 @@
      transition: background-color 0.2s ease;
    }
 
-  .selected-region-remove:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-  /* 상세 검색 패널 내용 아래에 고정 바 공간 확보 */
-  #advancedSearch .panel-content {
-    padding-bottom: calc(72px + constant(safe-area-inset-bottom));
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
-  }
+   .selected-region-remove:hover {
+     background-color: rgba(255, 255, 255, 0.2);
+   }
 
-  .advanced-search-form .container {
-    padding-top: 2.125rem;
-    padding-bottom: calc(2.625rem + 72px + constant(safe-area-inset-bottom));
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
-}
-  /* 반응형 대응 */
-  @media (max-width: 480px) {
+   /* 상세 검색 패널 내용 아래에 고정 바 공간 확보 */
+   #advancedSearch .panel-content {
+     padding-bottom: calc(72px + constant(safe-area-inset-bottom));
+     padding-bottom: calc(72px + env(safe-area-inset-bottom));
+   }
+
+   .advanced-search-form .container {
+     padding-top: 2.125rem;
+     padding-bottom: calc(2.625rem + 72px + constant(safe-area-inset-bottom));
+     padding-bottom: calc(50px + env(safe-area-inset-bottom));
+   }
+
+   /* 반응형 대응 */
+   @media (max-width: 480px) {
 
      .work-type-group {
        gap: 6px;
@@ -471,29 +473,42 @@
          <button id="btnSearch" type="button" class="btn btn-primary btn-search">검색</button>
        </div>
      </div>
-  </div>
-</div>
+   </div>
+ </div>
 
-<script>
-  // 현재 사용자 ID 가져오기 (로그인하지 않은 경우 빈 문자열)
-  var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
-  var skipSearchStateLoad = <?= (isset($skip_search_state_load) && $skip_search_state_load) ? "true" : "false" ?>;
+ <template id="tpl_category">
+   <label class="form-toggle-btn2 sm {{active}} btn-category">
+     <input type="checkbox" name="filter" value="{{category_name}}">
+     <span class="cate">{{category_name}}</span>
+   </label>
+ </template>
+
+ <script>
+   // 현재 사용자 ID 가져오기 (로그인하지 않은 경우 빈 문자열)
+   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
+   var skipSearchStateLoad = <?= (isset($skip_search_state_load) && $skip_search_state_load) ? "true" : "false" ?>;
+
    function initCategory() {
+
      var arr_category = "";
      var arr_work_type = "";
      var arr_price_type = "";
      var arr_week = "";
      var arr_sex = "";
 
+
      for (var icnt = 0; icnt < $("[name='category[]']:checked").length; icnt++) {
-       if ($("[name='category[]']:checked").eq(icnt).val() != "") {
+       var catVal = $("[name='category[]']:checked").eq(icnt).val();
+
+       if (catVal != "") {
          if (arr_category == "") {
-           arr_category = $("[name='category[]']:checked").eq(icnt).val();
+           arr_category = catVal;
          } else {
-           arr_category += "^" + $("[name='category[]']:checked").eq(icnt).val();
+           arr_category += "^" + catVal;
          }
        }
      }
+
 
      for (var icnt = 0; icnt < $("[name='work_type[]']:checked").length; icnt++) {
        if ($("[name='work_type[]']:checked").eq(icnt).val() != "") {
@@ -552,177 +567,184 @@
      search_array.sage = $("[name='sage']").val();
      search_array.eage = $("[name='eage']").val();
 
-    for (var icnt = 0; icnt < tab_list.length; icnt++) {
-      tab_list[icnt].text = "";
-      tab_list[icnt].active = "";
-    }
 
-    // 지역 정보 처리 (tab_list[0])
-    var regions = window.selectedRegions || (typeof selectedRegions !== 'undefined' ? selectedRegions : []);
-    if (regions.length > 0) {
-      tab_list[0].text = regions.join(", ");
-      tab_list[0].active = "on";
-    }
 
-    if (search_array.category != "") {
-      tab_list[1].text = search_array.category.replaceAll("^", ",");
-      tab_list[1].active = "on";
-    }
+     for (var icnt = 0; icnt < tab_list.length; icnt++) {
+       tab_list[icnt].text = "";
+       tab_list[icnt].active = "";
+     }
 
-    if (search_array.work_type != "") {
-      tab_list[2].text = search_array.work_type.replaceAll("^", ",");
-      tab_list[2].active = "on";
-    }
+     // 지역 정보 처리 (tab_list[0])
+     var regions = window.selectedRegions || (typeof selectedRegions !== 'undefined' ? selectedRegions : []);
 
-    if (search_array.week != "") {
-      if (search_array.week == "일^월^화^수^목^금^토") {
-        tab_list[3].text = "일~토";
-      } else {
-        tab_list[3].text = search_array.week.replaceAll("^", ",");
-      }
-      tab_list[3].active = "on";
-    }
+     if (regions.length > 0) {
+       tab_list[0].text = regions.join(", ");
+       tab_list[0].active = "on";
+     }
 
-    if (search_array.price_type != "") {
-      tab_list[4].text = search_array.price_type.replaceAll("^", ",");
-      tab_list[4].active = "on";
-    }
+     if (search_array.category != "") {
 
-    if (search_array.sex != "") {
-      tab_list[5].text = search_array.sex.replaceAll("^", ",");
-      tab_list[5].active = "on";
-    }
+       tab_list[1].text = search_array.category.replaceAll("^", ",");
+       tab_list[1].active = "on";
+     }
 
-    if (search_array.sage != "" || search_array.eage != "") {
-      if (search_array.sage != "" && search_array.eage == "") {
-        tab_list[6].text = search_array.sage + "세 ~";
-        tab_list[6].active = "on";
-      } else if (search_array.sage == "" && search_array.eage != "") {
-        tab_list[6].text = " ~" + search_array.eage + "대";
-        tab_list[6].active = "on";
-      } else if (search_array.sage != "" && search_array.eage != "") {
-        tab_list[6].text = search_array.sage + "대" + " ~ " + search_array.eage + "대";
-        tab_list[6].active = "on";
-      }
-    }
+     if (search_array.work_type != "") {
+       tab_list[2].text = search_array.work_type.replaceAll("^", ",");
+       tab_list[2].active = "on";
+     }
+
+     if (search_array.week != "") {
+       if (search_array.week == "일^월^화^수^목^금^토") {
+         tab_list[3].text = "일~토";
+       } else {
+         tab_list[3].text = search_array.week.replaceAll("^", ",");
+       }
+       tab_list[3].active = "on";
+     }
+
+     if (search_array.price_type != "") {
+       tab_list[4].text = search_array.price_type.replaceAll("^", ",");
+       tab_list[4].active = "on";
+     }
+
+     if (search_array.sex != "") {
+       tab_list[5].text = search_array.sex.replaceAll("^", ",");
+       tab_list[5].active = "on";
+     }
+
+     if (search_array.sage != "" || search_array.eage != "") {
+       if (search_array.sage != "" && search_array.eage == "") {
+         tab_list[6].text = search_array.sage + "세 ~";
+         tab_list[6].active = "on";
+       } else if (search_array.sage == "" && search_array.eage != "") {
+         tab_list[6].text = " ~" + search_array.eage + "대";
+         tab_list[6].active = "on";
+       } else if (search_array.sage != "" && search_array.eage != "") {
+         tab_list[6].text = search_array.sage + "대" + " ~ " + search_array.eage + "대";
+         tab_list[6].active = "on";
+       }
+     }
    }
 
-  // 상세검색 조건을 세션 스토리지에 저장
-  function saveSearchStateToStorage() {
-    try {
-      var state = {
-        userId: currentUserId, // 현재 사용자 ID 저장
-        addrName: addrName,
-        searchAreaStr: searchAreaStr,
-        search_addr: Array.isArray(search_addr) ? search_addr : [],
-        selectedRegions: Array.isArray(window.selectedRegions) ? window.selectedRegions : [],
-        category: search_array.category ? search_array.category.split("^") : [],
-        work_type: search_array.work_type ? search_array.work_type.split("^") : [],
-        week: search_array.week ? search_array.week.split("^") : [],
-        price_type: search_array.price_type ? search_array.price_type.split("^") : [],
-        sex: search_array.sex ? search_array.sex.split("^") : [],
-        sage: search_array.sage || "",
-        eage: search_array.eage || "",
-        priceNegotiable: $("[name='priceNegotiable']").is(":checked"),
-        workingDay: $("[name='workingDay']").is(":checked"),
-      };
-      // 사용자 ID를 키에 포함하여 저장
-      var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
-      sessionStorage.setItem(storageKey, JSON.stringify(state));
-    } catch (e) {
-      console.error("검색 조건 저장 실패:", e);
-    }
-  }
+   // 상세검색 조건을 세션 스토리지에 저장
+   function saveSearchStateToStorage() {
+     try {
+       var state = {
+         userId: currentUserId, // 현재 사용자 ID 저장
+         addrName: addrName,
+         searchAreaStr: searchAreaStr,
+         search_addr: Array.isArray(search_addr) ? search_addr : [],
+         selectedRegions: Array.isArray(window.selectedRegions) ? window.selectedRegions : [],
+         category: search_array.category ? search_array.category.split("^") : [],
+         work_type: search_array.work_type ? search_array.work_type.split("^") : [],
+         week: search_array.week ? search_array.week.split("^") : [],
+         price_type: search_array.price_type ? search_array.price_type.split("^") : [],
+         sex: search_array.sex ? search_array.sex.split("^") : [],
+         sage: search_array.sage || "",
+         eage: search_array.eage || "",
+         priceNegotiable: $("[name='priceNegotiable']").is(":checked"),
+         workingDay: $("[name='workingDay']").is(":checked"),
+       };
+       // 사용자 ID를 키에 포함하여 저장
+       var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+       sessionStorage.setItem(storageKey, JSON.stringify(state));
+     } catch (e) {
 
-  // 저장된 상세검색 조건을 로드해 UI에 반영
-  function loadSearchStateFromStorage() {
-    // 현재 사용자 ID에 해당하는 키로 불러오기
-    var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
-    var raw = sessionStorage.getItem(storageKey);
-    if (!raw) return;
+     }
+   }
 
-    try {
-      var state = JSON.parse(raw);
-      
-      // 저장된 사용자 ID와 현재 사용자 ID가 다르면 무시 (보안)
-      if (state.userId !== currentUserId) {
-        return;
-      }
+   // 저장된 상세검색 조건을 로드해 UI에 반영
+   function loadSearchStateFromStorage() {
+     // 현재 사용자 ID에 해당하는 키로 불러오기
+     var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+     var raw = sessionStorage.getItem(storageKey);
+     if (!raw) return;
 
-      if (state.addrName) {
-        addrName = state.addrName;
-        $(".addrName").text(state.addrName);
-      }
-      if (Array.isArray(state.search_addr)) {
-        search_addr = state.search_addr.slice();
-      }
-      if (state.searchAreaStr) {
-        searchAreaStr = state.searchAreaStr;
-      }
+     try {
+       var state = JSON.parse(raw);
 
-      var areaList = [];
-      try {
-        areaList = state.searchAreaStr ? JSON.parse(state.searchAreaStr) : [];
-      } catch (e) {
-        areaList = [];
-      }
-      var names = Array.isArray(state.selectedRegions) ? state.selectedRegions : [];
-      var $selBox = $(".addr_list_sel_box .div2");
-      if ($selBox.length) {
-        $selBox.empty();
-        areaList.forEach(function(area, idx) {
-          var label = names[idx] || area.addr;
-          var $btn = $("<div>")
-            .addClass("selbtn")
-            .attr("data-step", area.step)
-            .attr("data-addr", area.addr)
-            .text(label)
-            .append($("<div>").addClass("selbtnclose").text("x"));
-          $selBox.append($btn);
-        });
-        $(".addr_sel_cnt").text(areaList.length);
-      }
+       // 저장된 사용자 ID와 현재 사용자 ID가 다르면 무시 (보안)
+       if (state.userId !== currentUserId) {
+         return;
+       }
 
-      window.selectedRegions = names.slice(0, 3);
-      selectedRegions = window.selectedRegions;
-      updateSelectedRegionsDisplay();
+       if (state.addrName) {
+         addrName = state.addrName;
+         $(".addrName").text(state.addrName);
+       }
+       if (Array.isArray(state.search_addr)) {
+         search_addr = state.search_addr.slice();
+       }
+       if (state.searchAreaStr) {
+         searchAreaStr = state.searchAreaStr;
+       }
 
-      function applyCheckedValues(selector, values) {
-        $(selector).each(function() {
-          $(this).prop("checked", values.indexOf($(this).val()) !== -1);
-        });
-      }
+       var areaList = [];
+       try {
+         areaList = state.searchAreaStr ? JSON.parse(state.searchAreaStr) : [];
+       } catch (e) {
+         areaList = [];
+       }
+       var names = Array.isArray(state.selectedRegions) ? state.selectedRegions : [];
+       var $selBox = $(".addr_list_sel_box .div2");
+       if ($selBox.length) {
+         $selBox.empty();
+         areaList.forEach(function(area, idx) {
+           var label = names[idx] || area.addr;
+           var $btn = $("<div>")
+             .addClass("selbtn")
+             .attr("data-step", area.step)
+             .attr("data-addr", area.addr)
+             .text(label)
+             .append($("<div>").addClass("selbtnclose").text("x"));
+           $selBox.append($btn);
+         });
+         $(".addr_sel_cnt").text(areaList.length);
+       }
 
-      applyCheckedValues("input[name='category[]']", state.category || []);
-      applyCheckedValues("input[name='work_type[]']", state.work_type || []);
-      applyCheckedValues("input[name='week[]']", state.week || []);
-      applyCheckedValues("input[name='price_type[]']", state.price_type || []);
-      applyCheckedValues("input[name='sex[]']", state.sex || []);
+       window.selectedRegions = names.slice(0, 3);
+       selectedRegions = window.selectedRegions;
+       updateSelectedRegionsDisplay();
 
-      $("[name='priceNegotiable']").prop("checked", !!state.priceNegotiable);
-      $("[name='workingDay']").prop("checked", !!state.workingDay);
+       function applyCheckedValues(selector, values) {
+         $(selector).each(function() {
+           $(this).prop("checked", values.indexOf($(this).val()) !== -1);
+         });
+       }
 
-      $("#sageInput").val(state.sage || "");
-      $("#eageInput").val(state.eage || "");
+       applyCheckedValues("input[name='category[]']", state.category || []);
+       applyCheckedValues("input[name='work_type[]']", state.work_type || []);
+       applyCheckedValues("input[name='week[]']", state.week || []);
+       applyCheckedValues("input[name='price_type[]']", state.price_type || []);
+       applyCheckedValues("input[name='sex[]']", state.sex || []);
 
-      updateCategoryCounter();
-      updateWorkTypeSelectionState();
-      updateWeekSelectionState();
-      updatePriceTypeSelectionState();
-      updateSexSelectionState();
-      updateAgeSelectionState();
-      updateRegionCounter();
+       $("[name='priceNegotiable']").prop("checked", !!state.priceNegotiable);
+       $("[name='workingDay']").prop("checked", !!state.workingDay);
 
-      initCategory();
-      initTabUi();
-    } catch (e) {
-      console.error("검색 조건 불러오기 실패:", e);
-    }
-  }
+       $("#sageInput").val(state.sage || "");
+       $("#eageInput").val(state.eage || "");
+
+       updateCategoryCounter();
+       updateWorkTypeSelectionState();
+       updateWeekSelectionState();
+       updatePriceTypeSelectionState();
+       updateSexSelectionState();
+       updateAgeSelectionState();
+       updateRegionCounter();
+
+       initCategory();
+       initTabUi();
+     } catch (e) {
+
+     }
+   }
 
    function initTabUi() {
+
+
      $("#tab_list").html("");
      for (var icnt = 0; icnt < tab_list.length; icnt++) {
+
        var $clone = $("#tpl_category").clone();
        var $content = $clone.html();
        $content = $content.replaceAll("{{active}}", tab_list[icnt].active);
@@ -731,8 +753,10 @@
        } else {
          $content = $content.replaceAll("{{category_name}}", tab_list[icnt].df);
        }
+
        $("#tab_list").append($content);
      }
+
    }
 
    $("[name='workingDay']").click(function() {
@@ -795,12 +819,12 @@
      }, 500);
    });
 
-  // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
-  if (typeof selectedRegions === 'undefined') {
-    window.selectedRegions = [];
-  }
-  var selectedRegions = window.selectedRegions;
-  var maxRegions = 3;
+   // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
+   if (typeof selectedRegions === 'undefined') {
+     window.selectedRegions = [];
+   }
+   var selectedRegions = window.selectedRegions;
+   var maxRegions = 3;
 
    // 지역 선택 버튼 클릭 시 changeArea 팝업 열기
    $("#regionSelectBtn").click(function() {
@@ -809,51 +833,51 @@
      $("body").css("overflow", "hidden");
    });
 
-  // 지역 선택 개수 업데이트 함수
-  function updateRegionCounter() {
-    var regions = window.selectedRegions || selectedRegions || [];
-    var count = regions.length;
-    $("#regionCounter").html('<span style="color: #57CCAF;">' + count + '</span><span class="separator">/</span><span class="max-count">' + maxRegions + '</span>');
-  }
+   // 지역 선택 개수 업데이트 함수
+   function updateRegionCounter() {
+     var regions = window.selectedRegions || selectedRegions || [];
+     var count = regions.length;
+     $("#regionCounter").html('<span style="color: #57CCAF;">' + count + '</span><span class="separator">/</span><span class="max-count">' + maxRegions + '</span>');
+   }
 
-  // 선택된 지역 표시 업데이트 함수
-  function updateSelectedRegionsDisplay() {
-    var container = $("#selectedRegionsContainer");
-    container.empty();
+   // 선택된 지역 표시 업데이트 함수
+   function updateSelectedRegionsDisplay() {
+     var container = $("#selectedRegionsContainer");
+     container.empty();
 
-    // 전역 변수에서 지역 정보 가져오기
-    var regions = window.selectedRegions || selectedRegions || [];
-    regions.forEach(function(region, index) {
-      var regionItem = $('<div class="selected-region-item">' +
-        '<span>' + region + '</span>' +
-        //  '<button type="button" class="selected-region-remove" data-index="' + index + '">×</button>' +
-        '</div>');
-      container.append(regionItem);
-    });
+     // 전역 변수에서 지역 정보 가져오기
+     var regions = window.selectedRegions || selectedRegions || [];
+     regions.forEach(function(region, index) {
+       var regionItem = $('<div class="selected-region-item">' +
+         '<span>' + region + '</span>' +
+         //  '<button type="button" class="selected-region-remove" data-index="' + index + '">×</button>' +
+         '</div>');
+       container.append(regionItem);
+     });
 
-    updateRegionCounter();
-  }
+     updateRegionCounter();
+   }
 
-  // 지역 삭제 버튼 클릭 이벤트 (이벤트 위임 사용)
-  $(document).on('click', '.selected-region-remove', function() {
-    var index = parseInt($(this).data('index'));
-    window.selectedRegions.splice(index, 1);
-    selectedRegions = window.selectedRegions;
-    updateSelectedRegionsDisplay();
-    // 지역 삭제 후 tab_list 업데이트
-    initCategory();
-    initTabUi();
-  });
+   // 지역 삭제 버튼 클릭 이벤트 (이벤트 위임 사용)
+   $(document).on('click', '.selected-region-remove', function() {
+     var index = parseInt($(this).data('index'));
+     window.selectedRegions.splice(index, 1);
+     selectedRegions = window.selectedRegions;
+     updateSelectedRegionsDisplay();
+     // 지역 삭제 후 tab_list 업데이트
+     initCategory();
+     initTabUi();
+   });
 
-  // 팝업에서 지역 선택 완료 시 호출될 전역 함수
-  window.onRegionSelectionComplete = function(regions) {
-    window.selectedRegions = regions.slice(0, maxRegions); // 최대 3개까지만
-    selectedRegions = window.selectedRegions;
-    updateSelectedRegionsDisplay();
-    // 지역 선택 후 tab_list 업데이트
-    initCategory();
-    initTabUi();
-  };
+   // 팝업에서 지역 선택 완료 시 호출될 전역 함수
+   window.onRegionSelectionComplete = function(regions) {
+     window.selectedRegions = regions.slice(0, maxRegions); //배열에서 앞에서부터 maxRegions 개수만큼 잘라서 새 배열을 만든다
+     selectedRegions = window.selectedRegions;
+     updateSelectedRegionsDisplay();
+
+     initCategory();
+     initTabUi();
+   };
 
    // 근무형태 전체/개별 선택 동기화 로직
    var $workTypeAnyCheckbox = $('input[name="work_type_any"]');
@@ -1044,127 +1068,131 @@
      }
    });
 
-  // body 스타일 초기화 함수 (재사용) - iOS 웹뷰 대응 (개선 버전)
-  function restoreBodyScroll() {
-    forceRestoreBodyScroll();
-  }
+   // body 스타일 초기화 함수 (재사용) - iOS 웹뷰 대응 (개선 버전)
+   function restoreBodyScroll() {
+     forceRestoreBodyScroll();
+   }
 
-  // iOS 웹뷰 대응: 강제 스크롤 복원 함수 (개선 버전)
-  // - removeProperty() 사용으로 더 확실한 스타일 제거
-  // - 조건부 overflow 복원 (잠금 흔적이 있을 때만)
-  // - 실제 스크롤 컨테이너에도 -webkit-overflow-scrolling 적용
-  function forceRestoreBodyScroll() {
-    const b = document.body;
-    const h = document.documentElement;
-    
-    // 잠금 흔적이 없으면 조기 리턴 (선택적 - 주석 처리하면 항상 복원)
-    // const hasLock = b && (b.classList.contains('no-scroll') || b.style.position === 'fixed');
-    // if (!hasLock && (!b || b.style.overflow !== 'hidden')) return;
+   // iOS 웹뷰 대응: 강제 스크롤 복원 함수 (개선 버전)
+   // - removeProperty() 사용으로 더 확실한 스타일 제거
+   // - 조건부 overflow 복원 (잠금 흔적이 있을 때만)
+   // - 실제 스크롤 컨테이너에도 -webkit-overflow-scrolling 적용
+   function forceRestoreBodyScroll() {
+     const b = document.body;
+     const h = document.documentElement;
 
-    // 인라인 스타일 제거 (removeProperty로 더 확실하게)
-    const propsToRemove = ['position', 'top', 'left', 'right', 'overflow', 'width', 'height'];
-    
-    if (b) {
-      propsToRemove.forEach(p => {
-        if (b.style.getPropertyValue(p)) {
-          b.style.removeProperty(p);
-        }
-      });
-      b.classList.remove('no-scroll');
-    }
-    
-    if (h) {
-      propsToRemove.forEach(p => {
-        if (h.style.getPropertyValue(p)) {
-          h.style.removeProperty(p);
-        }
-      });
-    }
+     // 잠금 흔적이 없으면 조기 리턴 (선택적 - 주석 처리하면 항상 복원)
+     // const hasLock = b && (b.classList.contains('no-scroll') || b.style.position === 'fixed');
+     // if (!hasLock && (!b || b.style.overflow !== 'hidden')) return;
 
-    // 조건부 overflow 복원 (잠금 흔적이 있거나 기본이 hidden인 경우만)
-    const shouldForceOverflow = (b && (b.classList.contains('no-scroll') || 
-                                       b.style.position === 'fixed' || 
-                                       getComputedStyle(b).overflow === 'hidden')) ||
-                                (h && getComputedStyle(h).overflow === 'hidden');
+     // 인라인 스타일 제거 (removeProperty로 더 확실하게)
+     const propsToRemove = ['position', 'top', 'left', 'right', 'overflow', 'width', 'height'];
 
-    if (shouldForceOverflow) {
-      $("body").css({
-        "overflow": "auto",
-        "overflow-y": "auto",
-        "-webkit-overflow-scrolling": "touch"
-      }).removeClass('no-scroll');
+     if (b) {
+       propsToRemove.forEach(p => {
+         if (b.style.getPropertyValue(p)) {
+           b.style.removeProperty(p);
+         }
+       });
+       b.classList.remove('no-scroll');
+       b.classList.remove('panel-open');
+     }
 
-      $("html").css({
-        "overflow": "auto",
-        "overflow-y": "auto"
-      });
-    }
+     if (h) {
+       propsToRemove.forEach(p => {
+         if (h.style.getPropertyValue(p)) {
+           h.style.removeProperty(p);
+         }
+       });
+     }
 
-    // 실제 스크롤 컨테이너에도 iOS 관성 스크롤 적용
-    const scrollContainers = ['.page-recruit', '.page-content', '#app'];
-    scrollContainers.forEach(selector => {
-      const $container = $(selector);
-      if ($container.length && $container.css('overflow') !== 'hidden') {
-        $container.css('-webkit-overflow-scrolling', 'touch');
-      }
-    });
-  }
+     // 조건부 overflow 복원 (잠금 흔적이 있거나 기본이 hidden인 경우만)
+     const shouldForceOverflow = (b && (b.classList.contains('no-scroll') ||
+         b.style.position === 'fixed' ||
+         getComputedStyle(b).overflow === 'hidden')) ||
+       (h && getComputedStyle(h).overflow === 'hidden');
 
-  // 페이지 진입 시 저장된 상세검색 조건 복원
-  $(document).ready(function() {
-    if (!skipSearchStateLoad) {
-      loadSearchStateFromStorage();
-    }
-  });
+     if (shouldForceOverflow) {
+       $("body").css({
+         "overflow": "auto",
+         "overflow-y": "auto",
+         "-webkit-overflow-scrolling": "touch"
+       }).removeClass('no-scroll');
 
-  $("#btnSearch").click(function() {
-    list_page = 1;
+       $("html").css({
+         "overflow": "auto",
+         "overflow-y": "auto"
+       });
+     }
 
-    // 팝업을 닫기 전에 먼저 검색 조건을 읽어야 함 (closePanel이 체크박스를 초기화함)
-    // initCategory()는 체크박스 상태를 읽어서 search_array를 설정하므로 팝업 닫기 전에 호출
-    initCategory();
-    initTabUi();
+     // 실제 스크롤 컨테이너에도 iOS 관성 스크롤 적용
+     const scrollContainers = ['.page-recruit', '.page-content', '#app'];
+     scrollContainers.forEach(selector => {
+       const $container = $(selector);
+       if ($container.length && $container.css('overflow') !== 'hidden') {
+         $container.css('-webkit-overflow-scrolling', 'touch');
+       }
+     });
+   }
 
-    // 검색 조건 저장
-    saveSearchStateToStorage();
+   // 페이지 진입 시 저장된 상세검색 조건 복원
+   $(document).ready(function() {
+     if (!skipSearchStateLoad) {
+       loadSearchStateFromStorage();
+     }
+   });
 
-    // 검색 실행 (팝업 닫기 전에 먼저 실행 - closePanel이 체크박스를 초기화함)
-    $(list_id).html("");
-    getBoardList("Y");
+   $("#btnSearch").click(function() {
 
-    // 팝업 닫기 (검색 실행 후에 닫기)
-    // closePanel을 호출하지 않고 수동으로 처리 (closePanel이 체크박스를 초기화함)
-    var $panel = $("#advancedSearch")[0];
-    if ($panel) {
-      $panel.classList.remove('on');
-      document.body.style.overflow = '';
-      $panel.scrollTo(0, 0);
-    }
+     list_page = 1;
 
-    // body 스타일 즉시 초기화
-    restoreBodyScroll();
+     // 팝업을 닫기 전에 먼저 검색 조건을 읽어야 함 (closePanel이 체크박스를 초기화함)
+     // initCategory()는 체크박스 상태를 읽어서 search_array를 설정하므로 팝업 닫기 전에 호출
 
-    // 여러 시점에서 body 스타일 확인 및 복구
-    setTimeout(restoreBodyScroll, 50);
-    setTimeout(restoreBodyScroll, 100);
-    setTimeout(restoreBodyScroll, 200);
-    setTimeout(restoreBodyScroll, 500);
+     initCategory();
 
-    // 검색 완료 후에도 확인
-    setTimeout(restoreBodyScroll, 1000);
-  });
+     initTabUi();
+
+     // 검색 조건 저장
+     saveSearchStateToStorage();
+
+     // 검색 실행 (팝업 닫기 전에 먼저 실행 - closePanel이 체크박스를 초기화함)
+     $(list_id).html("");
+     getBoardList("Y");
+
+     // 팝업 닫기 (검색 실행 후에 닫기)
+     // closePanel을 호출하지 않고 수동으로 처리 (closePanel이 체크박스를 초기화함)
+     var $panel = $("#advancedSearch")[0];
+     if ($panel) {
+       $panel.classList.remove('on');
+       document.body.style.overflow = '';
+       $panel.scrollTo(0, 0);
+     }
+
+     // body 스타일 즉시 초기화
+     restoreBodyScroll();
+
+     // 여러 시점에서 body 스타일 확인 및 복구
+     setTimeout(restoreBodyScroll, 50);
+     setTimeout(restoreBodyScroll, 100);
+     setTimeout(restoreBodyScroll, 200);
+     setTimeout(restoreBodyScroll, 500);
+
+     // 검색 완료 후에도 확인
+     setTimeout(restoreBodyScroll, 1000);
+   });
 
    $("#btnReset").click(function() {
      // 지역
-     
+
      window.selectedRegions = [];
      selectedRegions = [];
      updateSelectedRegionsDisplay();
 
      // job_list.php의 지역 관련 변수 및 UI 초기화
      if (typeof addrName !== 'undefined') {
-       addrName = '전체';
-       $('.addrName').text('전체');
+       addrName = '지역을 선택해 주세요';
+       $('.addrName').text('지역을 선택해 주세요').attr('data-selected', 'false');
      }
      if (typeof search_addr !== 'undefined') {
        search_addr = [];
@@ -1233,9 +1261,9 @@
      updateSexSelectionState();
      updateAgeSelectionState();
 
-    // 현재 사용자 ID에 해당하는 키 삭제
-    var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
-    sessionStorage.removeItem(storageKey);
+     // 현재 사용자 ID에 해당하는 키 삭제
+     var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+     sessionStorage.removeItem(storageKey);
 
      initCategory();
      initTabUi();

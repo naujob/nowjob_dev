@@ -683,7 +683,144 @@ if ($g_ios_publish == true) {
     object-fit: cover;
     display: block;
   }
+
+  /* job_list.php에서 필요한 추가 스타일 */
+  .page-content {
+    background: #fff;
+  }
+
+  .current-area .btn {
+    max-width: 90%;
+  }
+
+  .search-option .categories .cate {
+    display: none;
+  }
+
+  .search-option .categories .form-toggle-btn2 {
+    display: none;
+  }
+
+  .search-option .categories .form-toggle-btn2.on {
+    display: inline-block;
+  }
+
+  .search-option .categories {
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .current-area .btn {
+    max-width: 100%;
+    font-size: 1.8rem;
+  }
+
+  .section:has(.hot-list) .container {
+    overflow: visible;
+  }
+
+  .section:has(.hot-list) {
+    overflow: hidden;
+  }
+
+  /* Google AdSense 인피드 광고 스타일 */
+  .ad-item-adsense {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  .ad-item-adsense::before {
+    content: "AD";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #999;
+    z-index: 1;
+  }
+
+  .ad-item-adsense .adsense-wrapper {
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0;
+    background-color: #fafafa;
+  }
+
+  .ad-item-adsense ins.adsbygoogle {
+    display: block;
+    background-color: transparent;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 20px 0;
+    padding: 10px 0;
+  }
+
+  .pagination-wrapper button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .pagination-wrapper button.active {
+    background: #1B9D7D;
+    color: #fff;
+    border-color: #1B9D7D;
+  }
+
+  .pagination-wrapper button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .item-info .thumb {
+    width: 5rem;
+  }
+
+  .item-info {
+    padding: 0.4rem 0;
+    margin: 5px 0;
+  }
+
+  .item-info .comp_name {
+    margin-top: 2px;
+  }
+
+  .item-info .title {
+    margin: 2px 0 2px;
+  }
+
+  .item-info .meta {
+    margin: 2px -2px 0 0;
+  }
+
+  .item-info .working-time {
+    line-height: 1rem;
+  }
+
+  .item-info .area {
+    max-height: 1.3rem;
+    margin-top: 4px;
+  }
+
+  .item-info .amount {
+    letter-spacing: -2px;
+  }
 </style>
+<!-- Google AdSense 인피드 광고 스크립트 -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
+  crossorigin="anonymous"></script>
 <div class="page page-home">
 
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
@@ -700,6 +837,47 @@ if ($g_ios_publish == true) {
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
+    <!-- 지금 뜨는 업체 -->
+    <div class="section" id="hotListSection">
+      <div class="container">
+        <h2 class="secondary-title index">지금 뜨는 업체</h2>
+        <div class="hot-list">
+          <div class="slider-wrap keen-slider">
+            <?php
+            $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
+            $chunked_up_list = array_chunk($limited_up_list, 4);
+            if (!empty($chunked_up_list)) {
+              $last_idx = count($chunked_up_list) - 1;
+              while (count($chunked_up_list[$last_idx]) < 4) {
+                $chunked_up_list[$last_idx][] = null;
+              }
+            }
+            foreach ($chunked_up_list as $chunk) :
+            ?>
+              <div class="keen-slider__slide">
+                <div class="hot-grid">
+                  <?php foreach ($chunk as $row) : ?>
+                    <?php if ($row !== null) : ?>
+                      <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
+                        <div class="thumb">
+                          <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
+                          <p class="name"><?= $row["mm_comp_name"] ?></p>
+                        </div>
+                      </a>
+                    <?php else : ?>
+                      <div class="hot-item hot-item--empty">
+                        <div class="thumb"></div>
+                      </div>
+                    <?php endif; ?>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="section index_comp">
       <div class="container">
         <h2 class="secondary-title index">추천인재</h2>
@@ -710,14 +888,18 @@ if ($g_ios_publish == true) {
       </div>
     </div>
 
-    <div class="section index_comp">
+    <!-- 채용공고 목록 섹션 -->
+    <div class="section is-last">
       <div class="container">
-        <h2 class="secondary-title">추천공고</h2>
-        <!-- 목록 -->
-        <ol class="result-list result-list-card">
+        <h2 class="secondary-title">채용공고</h2>
+        <ol class="result-list result-list-card" id="ajaxList" data-page="1">
         </ol>
-        <!-- //목록 -->
-        <!-- <a href="/recruit/job_list" class="btn-view-all">더보기</a> -->
+        <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
+          <p>등록된 정보가 없습니다.</p>
+        </div>
+        <!-- 페이지네이션 버튼 -->
+        <div id="paginationWrapper" class="pagination-wrapper" style="display:none;">
+        </div>
       </div>
     </div>
 
@@ -762,6 +944,9 @@ if ($g_ios_publish == true) {
 <!-- 알림목록 -->
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
+<?php include_once(get_base_url() . '/application/shop/views/mobile/recruit/index_search.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
+
 <?php $tpl_id = 'tpl_list'; ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 <template id="tpl_reco_item">
@@ -796,6 +981,9 @@ if ($g_ios_publish == true) {
     </div>
   </div>
 </template>
+
+<input type="hidden" name="resume_yn" value="<?= isset($resume) && $resume != null ? 'Y' : 'N' ?>" />
+<input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <script>
   function iosTest(args) {
@@ -904,56 +1092,6 @@ if ($g_ios_publish == true) {
   }
 
   // 추천공고 데이터를 가져오는 함수 (함수명 변경)
-  function getRecruitRecoList() {
-    var params = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "24"
-    };
-
-    comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
-      if (ret.code == "00") {
-        var list = ret.data.list;
-        $(".result-list").html("");
-
-        list.forEach(function(row) {
-          var $clone = $("#tpl_list").clone();
-          var $content = $clone.html();
-          $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-          $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-          // 제목이 18자 이상이면 ...으로 자르기
-          var rc_name = row.rc_name;
-          if (rc_name && rc_name.length > 18) {
-            rc_name = rc_name.substring(0, 18) + '...';
-          }
-          $content = $content.replaceAll("{{rc_name}}", rc_name);
-          $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-          $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-          $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-          if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-            $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
-          } else {
-            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
-          }
-          $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
-          $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
-          $clone.html($content);
-
-          $(".result-list").append($clone.html());
-        });
-
-      } else {
-        console.error("추천공고 데이터 로딩 실패:", ret.message);
-      }
-    });
-  }
-
-
-
-
   // 추천인재 슬라이더 초기화 함수
   function initRecommSlider() {
     var recommSlider = document.querySelector('.recomm-slider.person .slider-wrap');
@@ -1033,16 +1171,524 @@ if ($g_ios_publish == true) {
     }
   }
 
+  // 채용공고 목록 관련 전역 변수
+  var ad_addr = "<?= isset($addr_info) && isset($addr_info['ad_addr']) ? $addr_info['ad_addr'] : '' ?>";
+  var list_id = "#ajaxList";
+  var list_empty_id = "#ajaxEmpty";
+  var list_page = 1;
+  var list_loading = false;
+  var search_addr = [];
+  var searchAreaStr = "";
+  var addrName = "";
+  var ITEMS_PER_PAGE = 20;
+  var total_count = 0;
+  var total_pages = 1;
+  var search_array = {
+    category: "",
+    work_type: "",
+    week: "",
+    price_type: "",
+    sex: "",
+    sage: "",
+    eage: "",
+  };
+  var tab_list = [];
+  tab_list.push({
+    df: "근무지역",
+    text: "",
+    active: ""
+  });
+  tab_list.push({
+    df: "업직종",
+    text: "",
+    active: ""
+  });
+  tab_list.push({
+    df: "근무형태",
+    text: "",
+    active: ""
+  });
+  tab_list.push({
+    df: "근무요일",
+    text: "",
+    active: ""
+  });
+  tab_list.push({
+    df: "급여형태",
+    text: "",
+    active: ""
+  });
+  tab_list.push({
+    df: "성별",
+    text: "",
+    active: ""
+  });
+  tab_list.push({
+    df: "나이",
+    text: "",
+    active: ""
+  });
+
+  // URL에서 page 파라미터 읽기
+  function getPageFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+    return parseInt(params.get("page")) || 1;
+  }
+
+  // URL에 page 파라미터 반영
+  function pushPageToUrl(page) {
+    var params = new URLSearchParams(window.location.search);
+    params.set("page", page);
+    history.pushState({
+      page: page
+    }, "", "?" + params.toString());
+  }
+
+  // 캐싱된 페이지 데이터 초기화
+  function initCashingData() {
+    list_page = getPageFromUrl();
+    getBoardList("");
+  }
+
+  // 초기 데이터 로드
+  function initLoadData() {
+    list_page = getPageFromUrl();
+    total_count = 0;
+    total_pages = 1;
+    setTimeout(function() {
+      getBoardList("");
+    }, 100);
+  }
+
+  // 브라우저 뒤로가기 감지
+  window.addEventListener('popstate', function(e) {
+    list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
+    $(list_id).empty();
+    getBoardList("");
+  });
+
+  // 공고 목록 가져오기
+  function getBoardList(save_yn) {
+    if (list_loading) return;
+
+    var params = {
+      page: list_page,
+      limit: ITEMS_PER_PAGE,
+      "search_addr[]": search_addr,
+      addrName: addrName,
+      searchAreaStr: searchAreaStr,
+      category: search_array.category,
+      work_type: search_array.work_type,
+      week: search_array.week,
+      price_type: search_array.price_type,
+      sex: search_array.sex,
+      sage: search_array.sage,
+      eage: search_array.eage,
+    };
+
+    if (save_yn === "Y") {
+      $.ajax({
+        url: "/recruit_proc/search_save_params2025",
+        type: "post",
+        data: params,
+        traditional: false,
+        dataType: "json",
+        crossDomain: true,
+        success: function(ret) {
+          if (ret.code === "00") {}
+        },
+        error: function(xhr, status, error) {}
+      });
+    }
+
+    list_loading = true;
+    $.ajax({
+      url: "/recruit_proc/getRecruitList",
+      type: "post",
+      data: params,
+      traditional: false,
+      dataType: "json",
+      crossDomain: true,
+      success: function(ret) {
+        list_loading = false;
+        if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
+          $(list_id).empty();
+          total_count = ret.data.total || 0;
+          total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
+          showBoardList(ret.data.list);
+          renderPagination();
+        }
+      },
+      error: function(xhr, status, error) {}
+    });
+  }
+
+  // 데이터 보여주기
+  function showBoardList(list) {
+    list.forEach(function(row, index) {
+      var $clone = $("#tpl_list").clone();
+      var $content = $clone.html();
+
+      if (row.pm_idx == null) {
+        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
+        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
+      }
+
+      if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
+        $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
+      } else {
+        $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
+      }
+
+      if (row.rc_age_nm == "무관") {
+        $content = $content.replaceAll("{{rc_age_nm}}", "나이무관");
+      } else {
+        $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
+      }
+
+      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
+      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
+      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+      var rc_name = row.rc_name;
+      if (rc_name && rc_name.length > 18) {
+        rc_name = rc_name.substring(0, 18) + '...';
+      }
+      $content = $content.replaceAll("{{rc_name}}", rc_name);
+      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
+      $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
+      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
+      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
+      $clone.html($content);
+      $(list_id).append($clone.html());
+    });
+
+    if (list.length > 0) {
+      insertAdsenseAd();
+    }
+    showEmpty();
+    updateTopSectionsVisibility();
+  }
+
+  // Google AdSense 광고 삽입
+  function insertAdsenseAd() {
+    var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
+      '<div class="adsense-wrapper" style="position: relative;">' +
+      '<ins class="adsbygoogle" style="display:block"' +
+      ' data-ad-format="fluid"' +
+      ' data-ad-layout-key="-hd+j-2v-68+mb"' +
+      ' data-ad-client="ca-pub-3622369584322145"' +
+      ' data-ad-slot="5890695133"></ins>' +
+      '</div>' +
+      '</li>';
+    $(list_id).append(adHtml);
+
+    setTimeout(function() {
+      try {
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {}
+    }, 100);
+  }
+
+  function showEmpty() {
+    if ($(list_id).find("li").length == 0) {
+      $(list_empty_id).show();
+      $(list_id).hide();
+    } else {
+      $(list_id).show();
+      $(list_empty_id).hide();
+    }
+  }
+
+  // 페이지네이션 렌더링
+  function renderPagination() {
+    var $wrapper = $("#paginationWrapper");
+    if (total_count === 0) {
+      $wrapper.hide();
+      return;
+    }
+
+    var html = '';
+    html += '<button onclick="goPage(' + (list_page - 1) + ')"' +
+      (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
+
+    var startPage = Math.max(1, list_page - 2);
+    var endPage = Math.min(total_pages, startPage + 4);
+    startPage = Math.max(1, endPage - 4);
+
+    for (var i = startPage; i <= endPage; i++) {
+      html += '<button onclick="goPage(' + i + ')"' +
+        (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
+    }
+
+    html += '<button onclick="goPage(' + (list_page + 1) + ')"' +
+      (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
+
+    $wrapper.html(html).show();
+  }
+
+  // 페이지 이동
+  function goPage(page) {
+    if (page < 1 || page > total_pages) return;
+    list_page = page;
+    pushPageToUrl(page);
+    $(list_id).empty();
+    $("html, body").animate({
+      scrollTop: 0
+    }, 200);
+    getBoardList("");
+    updateTopSectionsVisibility();
+  }
+
+  // 1페이지 여부에 따라 배너/슬라이더 섹션 표시/숨김
+  function updateTopSectionsVisibility() {
+    var isFirstPage = (list_page <= 1);
+    $('.main-visual').toggle(isFirstPage);
+    $('#hotListSection').toggle(isFirstPage);
+  }
+
+  // fRemoveBigAdrJS 함수 (index_mem.php에서 복사)
+  // function fRemoveBigAdrJS(arg) {
+  //   if (!arg || typeof arg !== 'string') {
+  //     return '';
+  //   }
+  //   const parts1 = arg.split(",");
+  //   arg = parts1[0];
+  //   arg = arg.replace("서울특별시 ", "서울시 ");
+  //   arg = arg.replace("경기 ", "").replace("강원 ", "").replace("충남 ", "").replace("충북 ", "");
+  //   arg = arg.replace("경남 ", "").replace("경북 ", "").replace("전남 ", "").replace("전북 ", "");
+  //   arg = arg.replace("제주 ", "").replace("경기도 ", "").replace("강원특별자치도 ", "");
+  //   arg = arg.replace("충청남도 ", "").replace("충청북도 ", "").replace("경상남도 ", "");
+  //   arg = arg.replace("경상북도 ", "").replace("전라남도 ", "").replace("전북특별자치도 ", "");
+  //   arg = arg.replace("제주특별자치도 ", "").replace("세종특별자치시 ", "세종시 ");
+  //   arg = arg.replace("광주광역시 ", "광주시 ").replace("인천광역시 ", "인천시 ");
+  //   arg = arg.replace("울산광역시 ", "울산시 ").replace("부산광역시 ", "부산시 ");
+  //   arg = arg.replace("대구광역시 ", "대구시 ").replace("대전광역시 ", "대전시 ");
+  //   const parts = arg.split(" ");
+  //   if (parts.length >= 3) {
+  //     if (/\d/.test(parts[2])) {
+  //       return parts[0] + " " + parts[1];
+  //     } else {
+  //       return parts[0] + " " + parts[2];
+  //     }
+  //   } else {
+  //     return arg;
+  //   }
+  // }
+
+  // 지금 뜨는 업체 슬라이더 초기화
+  function initHotSlider() {
+    var hotSlider = document.querySelector('.hot-list .slider-wrap');
+    if (hotSlider && typeof KeenSlider !== 'undefined') {
+      if (!hotSlider.__keenslider__) {
+        var slides = hotSlider.querySelectorAll('.keen-slider__slide');
+        if (slides.length > 0 && slides.length < 4) {
+          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+          var added = slides.length;
+          var imageSrcMap = {};
+          slides.forEach(function(slide, idx) {
+            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
+              imageSrcMap[idx + '-' + imgIdx] = img.src;
+            });
+          });
+          while (added < cloneCount) {
+            slides.forEach(function(slide, slideIdx) {
+              if (added < cloneCount) {
+                var cloned = slide.cloneNode(true);
+                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
+                  var srcKey = slideIdx + '-' + imgIdx;
+                  if (imageSrcMap[srcKey]) img.src = imageSrcMap[srcKey];
+                  if (img.classList.contains('lozad')) {
+                    if (img.getAttribute('data-src') && !img.src) img.src = img.getAttribute('data-src');
+                    img.setAttribute('data-loaded', 'true');
+                  }
+                });
+                hotSlider.appendChild(cloned);
+                added++;
+              }
+            });
+          }
+        }
+        new KeenSlider(hotSlider, {
+          loop: true,
+          slides: {
+            perView: 1.1,
+            spacing: 12
+          },
+          drag: true,
+          dragMinDist: 0,
+          rubberband: true,
+          renderMode: 'precision'
+        });
+      }
+    }
+  }
+
+  // .btn-category 클릭 이벤트
+  $(document).on("click", ".btn-category", function() {
+    var categoryValue = $(this).find("input[name='filter']").val();
+    if (search_array.category) {
+      var categories = search_array.category.split("^");
+      categories = categories.filter(function(cat) {
+        return cat !== categoryValue;
+      });
+      search_array.category = categories.join("^");
+    }
+    tab_list[0].text = search_array.category ? search_array.category.replaceAll("^", ",") : "";
+    tab_list[0].active = search_array.category ? "on" : "";
+    initTabUi();
+    list_page = 1;
+    $(list_id).html("");
+    getBoardList("Y");
+  });
+
+  // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
+  window.onChangeAreaApply = function() {
+    $(".search-option").addClass("hide-cate");
+    if (typeof saveSearchStateToStorage === "function") {
+      saveSearchStateToStorage();
+    }
+  };
+
+  // 공고 카드 클릭
+  $(document).on('click', '.content-li', function(e) {
+    if ($(e.target).closest('button, a, input').length) return;
+    if ($(e.target).closest('.ad-item-adsense').length) return;
+    var rcIdx = $(this).data('rc_idx');
+    if (rcIdx) {
+      window.location.href = '/recruit/job_post/' + rcIdx;
+    }
+  });
+
+  window.DISABLE_SWIPE_BACK = true;
+
   window.addEventListener('DOMContentLoaded', function() {
     // Android 앱에 회원 유형 전달 (기업회원)
     if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.setMemberType === 'function') {
       APP_NOWAPK.setMemberType('comp');
     }
 
+    // 스크롤 강제 활성화
+    $('html, body').css({
+      overflow: 'auto',
+      'overflow-y': 'auto',
+      height: 'auto'
+    });
+
+    // 지역 정보 초기화
+    var addrNames = [];
+    if ($('.selbtn').length > 0) {
+      $('.selbtn').each(function() {
+        var text = $(this).clone().children().remove().end().text().trim();
+        addrNames.push(text);
+      });
+      addrName = addrNames.join(', ');
+      $('.addrName').text(addrName).attr('data-selected', 'true');
+    } else {
+      addrName = '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', 'false');
+    }
+    var searchArea = [];
+    search_addr = [];
+    $('.selbtn').each(function() {
+      var addr = $(this).data('addr');
+      var step = $(this).data('step');
+      if (addr) {
+        searchArea.push({
+          addr: addr,
+          step: step
+        });
+        search_addr.push(addr);
+      }
+    });
+    searchAreaStr = JSON.stringify(searchArea);
+
+    if (typeof selectedRegions === 'undefined') {
+      window.selectedRegions = [];
+    }
+    if (addrNames.length > 0) {
+      window.selectedRegions = addrNames.slice(0, 3);
+    } else {
+      window.selectedRegions = [];
+    }
+
+    initCategory();
+    initTabUi();
+
     // 추천인재 데이터 로딩
     getRecoList();
-    // 추천공고 데이터 로딩
-    getRecruitRecoList();
+
+    // $.CashingAjax로 채용공고 목록 로딩
+    var params = {
+      cashing_id: "home_recruit_cashing_comp",
+      list_id: list_id,
+      category_list_id: "#tab_list",
+      scroll_obj: $(".page-home"),
+      fn_cashing: initCashingData,
+      fn_load: initLoadData,
+    };
+    $.CashingAjax(params);
+
+    // iOS 스크롤 복원
+    function attemptRestoreScroll() {
+      if (typeof forceRestoreBodyScroll === 'function') {
+        forceRestoreBodyScroll();
+      } else if (typeof restoreBodyScroll === 'function') {
+        restoreBodyScroll();
+      } else {
+        const b = document.body;
+        const h = document.documentElement;
+        const propsToRemove = ['position', 'top', 'left', 'right', 'overflow', 'width', 'height'];
+
+        if (b) {
+          propsToRemove.forEach(p => {
+            if (b.style.getPropertyValue(p)) {
+              b.style.removeProperty(p);
+            }
+          });
+          b.classList.remove('no-scroll');
+        }
+
+        if (h) {
+          propsToRemove.forEach(p => {
+            if (h.style.getPropertyValue(p)) {
+              h.style.removeProperty(p);
+            }
+          });
+        }
+
+        const shouldForceOverflow = (b && (b.classList.contains('no-scroll') ||
+            b.style.position === 'fixed' ||
+            getComputedStyle(b).overflow === 'hidden')) ||
+          (h && getComputedStyle(h).overflow === 'hidden');
+
+        if (shouldForceOverflow) {
+          $("body").css({
+            "overflow": "auto",
+            "overflow-y": "auto",
+            "-webkit-overflow-scrolling": "touch"
+          }).removeClass('no-scroll');
+          $("html").css({
+            "overflow": "auto",
+            "overflow-y": "auto"
+          });
+        }
+
+        ['.page-home', '.page-content', '#app'].forEach(selector => {
+          const $container = $(selector);
+          if ($container.length && $container.css('overflow') !== 'hidden') {
+            $container.css('-webkit-overflow-scrolling', 'touch');
+          }
+        });
+      }
+    }
+
+    attemptRestoreScroll();
+    setTimeout(attemptRestoreScroll, 50);
+    setTimeout(attemptRestoreScroll, 200);
+
+    // 지금 뜨는 업체 슬라이더 초기화
+    initHotSlider();
 
     $('.footer .toggle-btn').on('click', function() {
       var $serviceProvider = $('.footer .service-provider');
@@ -1061,15 +1707,6 @@ if ($g_ios_publish == true) {
 
   });
 
-  // 추천공고 클릭 이벤트
-  $(document).on('click', '.desc', function() {
-    var rcIdx = $(this).closest('.content-li').data('rc_idx');
-    if (rcIdx) {
-      var url = '/recruit/job_post/' + rcIdx;
-      window.location.href = url;
-    }
-  });
-
   // 추천인재 클릭 이벤트
   $(document).on('click', '.person-card', function() {
     var ruIdx = $(this).data('ru_idx');
@@ -1078,7 +1715,6 @@ if ($g_ios_publish == true) {
       window.location.href = url;
     }
   });
-
 </script>
 
 <?= showPopupMobile() ?>

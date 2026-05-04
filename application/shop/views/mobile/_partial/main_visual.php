@@ -239,10 +239,14 @@ if (count($banner_list) > 0) {
       var addrBtn = document.querySelector('.addrName');
       if (addrBtn) {
         var text = addrBtn.textContent.trim();
+        // "전체" 또는 빈 값이면 placeholder로 변경
         if (text === '전체' || text === '') {
           addrBtn.textContent = '지역을 선택해 주세요';
           addrBtn.setAttribute('data-selected', 'false');
+          addrBtn.removeAttribute('data-selected');
+          addrBtn.setAttribute('data-selected', 'false');
         } else {
+          // 지역이 선택되어 있으면 기본 스타일 적용
           addrBtn.setAttribute('data-selected', 'true');
         }
       }
