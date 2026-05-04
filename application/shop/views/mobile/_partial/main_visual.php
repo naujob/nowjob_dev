@@ -203,9 +203,13 @@ if (count($banner_list) > 0) {
       .search-option .categories {
         height: auto;
         margin-bottom: 10px;
+        padding: 0.4rem 0rem;
+      }
+
+      /* 내부에 활성화된 탭이 있을 때만 border 표시 */
+      .search-option .categories:has(.filter-tag-item.on) {
         border-bottom: 1px solid #999;
         border-top: 1px solid #999;
-        padding: 0.4rem 0rem;
       }
 
       /* 검색 조건 탭 기본 스타일 */
