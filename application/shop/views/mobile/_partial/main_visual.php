@@ -200,12 +200,12 @@ if (count($banner_list) > 0) {
       }
 
       /* 검색 조건 탭 기본 스타일 */
-      .search-option .categories .form-toggle-btn2 {
+      .search-option .categories .filter-tag-item {
         display: none;
       }
 
       /* active 클래스가 있을 때만 표시 */
-      .search-option .categories .form-toggle-btn2.on {
+      .search-option .categories .filter-tag-item.on {
         display: inline-flex;
         align-items: center;
         gap: 4px;
@@ -220,18 +220,18 @@ if (count($banner_list) > 0) {
       }
 
       /* 탭 내부 체크박스 숨김 */
-      .search-option .categories .form-toggle-btn2 input[type="checkbox"] {
+      .search-option .categories .filter-tag-item input[type="checkbox"] {
         display: none;
       }
 
       /* 탭 내부 텍스트 표시 */
-      .search-option .categories .form-toggle-btn2 .cate {
+      .search-option .categories .filter-tag-item .cate {
         display: inline;
         color: #333;
       }
 
       /* 탭 닫기 아이콘 */
-      .search-option .categories .form-toggle-btn2.on::after {
+      .search-option .categories .filter-tag-item.on::after {
         content: '×';
         font-size: 14px;
         color: #999;

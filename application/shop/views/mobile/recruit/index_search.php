@@ -754,6 +754,8 @@
        } else {
          $content = $content.replaceAll("{{category_name}}", tab_list[icnt].df);
        }
+       // form-toggle-btn2 → filter-tag-item 클래스 변경
+       $content = $content.replaceAll("form-toggle-btn2", "filter-tag-item");
 
        $("#tab_list").append($content);
      }
