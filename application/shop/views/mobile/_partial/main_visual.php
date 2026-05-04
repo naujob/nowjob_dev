@@ -153,14 +153,12 @@ if (count($banner_list) > 0) {
       .search-option .selected-regions {
         padding: 0.5rem 0rem;
         background: #fff;
-        pointer-events: auto;
       }
 
       .search-option .selected-regions .container {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        pointer-events: auto;
       }
 
       .search-option .selected-regions .region-tag {
@@ -186,11 +184,6 @@ if (count($banner_list) > 0) {
       .search-option .selected-regions .region-tag .close-btn:hover {
         color: #666;
       }
-
-      /* 지역 태그 컨테이너는 클릭 이벤트 활성화 */
-      #selected-regions-list {
-        pointer-events: auto;
-      }
     </style>
     <div class="container" id="selected-regions-list"></div>
   </div>
@@ -210,13 +203,9 @@ if (count($banner_list) > 0) {
       .search-option .categories {
         height: auto;
         margin-bottom: 10px;
-        padding: 0.4rem 0rem;
-      }
-
-      /* 내부에 활성화된 탭이 있을 때만 border 표시 */
-      .search-option .categories:has(.filter-tag-item.on) {
         border-bottom: 1px solid #999;
         border-top: 1px solid #999;
+        padding: 0.4rem 0rem;
       }
 
       /* 검색 조건 탭 기본 스타일 */
@@ -267,14 +256,19 @@ if (count($banner_list) > 0) {
         cursor: pointer;
       }
 
-      /* #tab_list 내 요소들 클릭 이벤트 무시 */
+      /* #tab_list 내 요소들 */
       #tab_list {
-        pointer-events: none;
+        pointer-events: auto;
       }
 
-      #tab_list .form-toggle-btn2 {
-        pointer-events: none;
-        cursor: default;
+      #tab_list .filter-tag-item {
+        pointer-events: auto;
+      }
+
+      /* × 버튼 클릭 활성화 */
+      #tab_list .filter-tag-item::after {
+        pointer-events: auto;
+        cursor: pointer;
       }
     </style>
     <div class="container" id="tab_list">
@@ -430,6 +424,41 @@ if (count($banner_list) > 0) {
         subtree: true
       });
     }
+
+    // 카테고리 필터 × 버튼 클릭 핸들러
+    document.addEventListener('click', function(e) {
+      // ::after 의사 요소는 직접 클릭할 수 없으므로 label을 클릭한 후 처리
+      if (e.target.tagName === 'LABEL' &&
+          e.target.classList.contains('filter-tag-item') &&
+          e.target.classList.contains('on')) {
+
+        // × 버튼 영역 클릭 감지 (오른쪽 끝 부분)
+        var rect = e.target.getBoundingClientRect();
+        var clickX = e.clientX - rect.left;
+        var isCloseButton = clickX > rect.width - 20;
+
+        if (isCloseButton) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          var checkbox = e.target.querySelector('input[type="checkbox"]');
+          var categoryName = checkbox ? checkbox.value : '';
+
+          // 체크박스 해제
+          if (checkbox) {
+            checkbox.checked = false;
+          }
+
+          // 필터 제거 처리 (다른 스크립트의 함수 호출)
+          if (typeof window.getBoardList === 'function') {
+            window.getBoardList('Y');
+          }
+
+          // 상태 업데이트
+          e.target.classList.remove('on');
+        }
+      }
+    }, true); // 캡처 단계에서 처리
 
     window.addEventListener('DOMContentLoaded', function() {
       new KeenSlider(".visual-slider .slider-wrap", {
