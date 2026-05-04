@@ -743,7 +743,8 @@
 
 
      $("#tab_list").html("");
-     for (var icnt = 0; icnt < tab_list.length; icnt++) {
+     // icnt = 1부터 시작하여 지역(tab_list[0])은 제외 (별도의 태그 섹션에 표시됨)
+     for (var icnt = 1; icnt < tab_list.length; icnt++) {
 
        var $clone = $("#tpl_category").clone();
        var $content = $clone.html();
