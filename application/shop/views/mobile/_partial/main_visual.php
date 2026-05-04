@@ -149,6 +149,46 @@ if (count($banner_list) > 0) {
       <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
     </div>
   </div>
+  <!-- 선택된 지역 태그 -->
+  <div class="selected-regions">
+    <style>
+      .search-option .selected-regions {
+        padding: 0.5rem 1.25rem;
+        background: #fff;
+      }
+
+      .search-option .selected-regions .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .search-option .selected-regions .region-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #333;
+        white-space: nowrap;
+      }
+
+      .search-option .selected-regions .region-tag .close-btn {
+        cursor: pointer;
+        font-weight: bold;
+        color: #aaa;
+        margin-left: 4px;
+      }
+
+      .search-option .selected-regions .region-tag .close-btn:hover {
+        color: #666;
+      }
+    </style>
+    <div class="container" id="selected-regions-list"></div>
+  </div>
   <!-- 선택된 카테고리 -->
   <div class="categories">
     <style>
@@ -252,11 +292,40 @@ if (count($banner_list) > 0) {
       }
     }
 
+    // 선택된 지역 태그 표시 함수
+    function updateSelectedRegionsTags() {
+      var addrBtn = document.querySelector('.addrName');
+      var regionsList = document.getElementById('selected-regions-list');
+
+      if (!regionsList) return;
+
+      regionsList.innerHTML = '';
+
+      if (addrBtn && addrBtn.getAttribute('data-selected') === 'true') {
+        var regions = addrBtn.textContent.trim().split(',').map(function(r) {
+          return r.trim();
+        });
+
+        regions.forEach(function(region) {
+          if (region) {
+            var tag = document.createElement('div');
+            tag.className = 'region-tag';
+            tag.innerHTML = region + ' <span class="close-btn">×</span>';
+            regionsList.appendChild(tag);
+          }
+        });
+      }
+    }
+
     // 페이지 로드 시 및 팝업 닫힐 때 초기화
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initAddrNameButton);
+      document.addEventListener('DOMContentLoaded', function() {
+        initAddrNameButton();
+        updateSelectedRegionsTags();
+      });
     } else {
       initAddrNameButton();
+      updateSelectedRegionsTags();
     }
 
     // 팝업 닫힐 때도 상태 확인 (다른 스크립트가 text를 변경했을 수 있음)
@@ -264,9 +333,25 @@ if (count($banner_list) > 0) {
       if (e.target.classList && e.target.classList.contains('js-toggle-panel') &&
           e.target.getAttribute('aria-controls') === 'changeArea') {
         // 팝업 닫힐 때 (약 400ms 후) 상태 업데이트
-        setTimeout(initAddrNameButton, 400);
+        setTimeout(function() {
+          initAddrNameButton();
+          updateSelectedRegionsTags();
+        }, 400);
       }
     });
+
+    // MutationObserver로 .addrName 텍스트 변경 감지
+    var addrBtn = document.querySelector('.addrName');
+    if (addrBtn) {
+      var observer = new MutationObserver(function(mutations) {
+        updateSelectedRegionsTags();
+      });
+      observer.observe(addrBtn, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    }
 
     window.addEventListener('DOMContentLoaded', function() {
       new KeenSlider(".visual-slider .slider-wrap", {
