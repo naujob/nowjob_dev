@@ -51,6 +51,12 @@ if (count($banner_list) > 0) {
     color: #666;
   }
 
+  .main-visual-header .profile-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
   /* 메인 비주얼 슬라이더: 활성 슬라이드만 클릭 가능하도록 처리 */
   /* 겹쳐진 슬라이드가 클릭을 가로채는 문제 예방 */
   .main-visual .visual-slider .slider-wrap .keen-slider__slide {
@@ -81,6 +87,23 @@ if (count($banner_list) > 0) {
     width: 100%;
     height: 100%;
   }
+
+  /* 지역 선택 버튼: 초기(선택안함) 상태일 때 placeholder 스타일 */
+  .search-option .current-area .btn.addrName[data-selected="false"] {
+    color: #aaa;
+    font-size: 1rem;
+    font-weight: 400;
+    background-image: none; /* 위치 아이콘, 캐럿 제거 */
+  }
+
+  /* 지역 선택 버튼: 선택된 상태일 때 기본 스타일 */
+  .search-option .current-area .btn.addrName[data-selected="true"] {
+    color: #333;
+    font-size: 1.5625rem;
+    font-weight: 700;
+    background: url("../img/ic_current_loc.svg") no-repeat 0 70%, url("../img/ic_caret.svg") no-repeat 100% 60%;
+    background-size: 0.9375rem auto, auto 7px;
+  }
 </style>
 
 <!-- 메인 비주얼 헤더 -->
@@ -92,17 +115,17 @@ if (count($banner_list) > 0) {
   <?php if ($this->user->getUserType() == "COMP") { ?>
     <!-- 기업 로그인 상태 -->
     <a href="/compage/index" class="profile-icon" aria-label="프로필">
-      <i class="fa-solid fa-user"></i>
+      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
     </a>
   <?php } else if ($this->user->getUserType() == "MEM") { ?>
     <!-- 개인 로그인 상태 -->
     <a href="/mypage/index" class="profile-icon" aria-label="프로필">
-      <i class="fa-solid fa-user"></i>
+      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
     </a>
   <?php } else { ?>
     <!-- 비로그인 상태 -->
     <a href="/member/login" class="profile-icon" aria-label="프로필">
-      <i class="fa-solid fa-user"></i>
+      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
     </a>
   <?php } ?>
 
@@ -123,11 +146,61 @@ if (count($banner_list) > 0) {
   <!-- 지역검색 -->
   <div class="current-area">
     <div class="container">
-      <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName">전체</a>
+      <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
     </div>
   </div>
   <!-- 선택된 카테고리 -->
   <div class="categories">
+    <style>
+      /* #tab_list 내 검색 조건 태그 스타일 */
+
+
+      .search-option .categories .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 0 1.25rem;
+      }
+
+      /* 검색 조건 탭 기본 스타일 */
+      .search-option .categories .form-toggle-btn2 {
+        display: none;
+      }
+
+      /* active 클래스가 있을 때만 표시 */
+      .search-option .categories .form-toggle-btn2.on {
+        display: inline-block;
+        background-color: #57CCAF;
+        border: none;
+        border-radius: 16px;
+        padding: 6px 12px;
+        font-size: 12px;
+        color: white;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      /* 탭 내부 체크박스 숨김 */
+      .search-option .categories .form-toggle-btn2 input[type="checkbox"] {
+        display: none;
+      }
+
+      /* 탭 내부 텍스트 표시 */
+      .search-option .categories .form-toggle-btn2 .cate {
+        display: inline;
+        color: white;
+      }
+
+      /* #tab_list 내 요소들 클릭 이벤트 무시 */
+      #tab_list {
+        pointer-events: none;
+      }
+
+      #tab_list .form-toggle-btn2 {
+        pointer-events: none;
+        cursor: default;
+      }
+    </style>
     <div class="container" id="tab_list">
 
     </div>

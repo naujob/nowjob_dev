@@ -820,7 +820,7 @@
               sido_name: sido_name,
               gugun_name: gugun_name
             };
-            //console.log("Requesting location data with params:", params);
+
             $.ajax({
               url: "/common_proc/get_location_data",
               type: "post",
@@ -916,7 +916,7 @@
                 }
               },
               error: function(xhr, status, error) {
-                console.error("데이터 가져오기 오류:", error);
+
               }
             });
           }
@@ -944,10 +944,10 @@
                 addrNames.push(text);
               });
               addrName = addrNames.join(', ');
-              $('.addrName').text(addrName);
+              $('.addrName').text(addrName).attr('data-selected', 'true');
             } else {
-              addrName = '전체';
-              $('.addrName').text(addrName);
+              addrName = '지역을 선택해 주세요';
+              $('.addrName').text(addrName).attr('data-selected', 'false');
             }
 
             const searchArea = [];
@@ -982,7 +982,7 @@
                   searchAreaStr: searchAreaStr // [{\"addr\":\"서울특별시 강동구 고덕동\",\"step\":3}]
                 }) === true;
               } catch (e) {
-                console.error("onChangeAreaApply error:", e);
+
               }
             }
 
@@ -1026,6 +1026,7 @@
                     }
                   });
                   b.classList.remove('no-scroll');
+                  b.classList.remove('panel-open');
                 }
 
                 if (h) {
@@ -1129,7 +1130,7 @@
                 }
               },
               error: function(xhr, status, error) {
-                console.error("데이터 가져오기 오류:", error);
+
               }
             });
           }

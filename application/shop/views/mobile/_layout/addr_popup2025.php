@@ -838,10 +838,10 @@
         addrNames.push(text);
       });
       addrName = addrNames.join(', ');
-      $('.addrName').text(addrName);
+      $('.addrName').text(addrName).attr('data-selected', 'true');
     } else {
-      addrName = '전체';
-      $('.addrName').text(addrName);
+      addrName = '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', 'false');
     }
     
     const searchArea = [];
@@ -984,10 +984,10 @@
         addrNames.push(text);
       });
       addrName = addrNames.join(', ');
-      $('.addrName').text(addrName);
+      $('.addrName').text(addrName).attr('data-selected', 'true');
     } else {
-      addrName = '전체';
-      $('.addrName').text(addrName);
+      addrName = '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', 'false');
     }
     
     const searchArea = [];
