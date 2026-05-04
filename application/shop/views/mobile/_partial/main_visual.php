@@ -313,16 +313,41 @@ if (count($banner_list) > 0) {
             var closeBtn = tag.querySelector('.close-btn');
             closeBtn.addEventListener('click', function(e) {
               e.stopPropagation();
+
               // 지역 선택 해제 (전체로 리셋)
               addrBtn.textContent = '지역을 선택해 주세요';
               addrBtn.setAttribute('data-selected', 'false');
-              updateSelectedRegionsTags();
 
-              // 팝업 내의 선택된 지역도 초기화
+              // 팝업 내의 선택된 지역 초기화
               var selbtnElements = document.querySelectorAll('.selbtn');
               selbtnElements.forEach(function(el) {
                 el.remove();
               });
+
+              // 전역 변수 초기화 (다른 스크립트와 동기화)
+              if (typeof window.addrName !== 'undefined') {
+                window.addrName = '';
+              }
+              if (typeof window.search_addr !== 'undefined') {
+                window.search_addr = [];
+              }
+              if (typeof window.searchAreaStr !== 'undefined') {
+                window.searchAreaStr = JSON.stringify([]);
+              }
+
+              // 팝업 내 addr_on 클래스 제거
+              var addrOnElements = document.querySelectorAll('li.addr_on');
+              addrOnElements.forEach(function(el) {
+                el.classList.remove('addr_on');
+              });
+
+              // 태그 업데이트
+              updateSelectedRegionsTags();
+
+              // 페이지 검색 재실행 (필요시)
+              if (typeof window.getBoardList === 'function') {
+                window.getBoardList('Y');
+              }
             });
 
             regionsList.appendChild(tag);
