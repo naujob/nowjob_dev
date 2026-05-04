@@ -18,12 +18,38 @@ $banner_list = getBannerList("BN00302031");
 
 
 
-  .search-option .categories .form-toggle-btn2 {
+  .search-option .categories .filter-tag-item {
     display: none;
   }
 
-  .search-option .categories .form-toggle-btn2.on {
-    display: inline-block;
+  .search-option .categories .filter-tag-item.on {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 13px;
+    color: #333;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .search-option .categories .filter-tag-item input[type="checkbox"] {
+    display: none;
+  }
+
+  .search-option .categories .filter-tag-item .cate {
+    display: inline;
+    color: #333;
+  }
+
+  .search-option .categories .filter-tag-item.on::after {
+    content: '×';
+    font-size: 14px;
+    color: #999;
+    margin-left: 2px;
+    line-height: 1;
   }
 
   .search-option .categories {
