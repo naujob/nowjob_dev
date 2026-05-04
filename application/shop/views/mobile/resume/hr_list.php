@@ -38,13 +38,7 @@ if (count($banner_list) > 0) {
     color: #333;
   }
 
-  .search-option .categories .filter-tag-item.on::after {
-    content: '×';
-    font-size: 14px;
-    color: #999;
-    margin-left: 2px;
-    line-height: 1;
-  }
+
 
 
 
@@ -625,6 +619,7 @@ $tpl_show_mm_idx = true; ?>
 
 
 <script>
+  var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
   var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
@@ -1127,8 +1122,90 @@ $tpl_show_mm_idx = true; ?>
     });
     searchAreaStr = JSON.stringify(searchArea);
 
-    initCategory();
-    initTabUi();
+    if (typeof window.initCategory === 'function' && typeof window.initTabUi === 'function') {
+      window.initCategory();
+      window.initTabUi();
+    }
+
+    // sessionStorage에서 검색 조건 복원
+    try {
+      var storageKey = "jobListAdvancedSearch_" + (window.currentUserId || "guest");
+      var raw = sessionStorage.getItem(storageKey);
+      if (raw) {
+        var state = JSON.parse(raw);
+
+        // addr 정보 복원 (recruit의 loadSearchStateFromStorage()와 동일 패턴)
+        if (state.addrName) {
+          addrName = state.addrName;
+          $('.addrName').text(state.addrName).attr(
+            'data-selected',
+            state.addrName !== '지역을 선택해 주세요' ? 'true' : 'false'
+          );
+        }
+        if (Array.isArray(state.search_addr)) {
+          search_addr = state.search_addr.slice();
+        }
+        if (state.searchAreaStr) {
+          searchAreaStr = state.searchAreaStr;
+        }
+        var areaList = [];
+        try {
+          areaList = state.searchAreaStr ? JSON.parse(state.searchAreaStr) : [];
+        } catch (e2) {
+          areaList = [];
+        }
+        var names = Array.isArray(state.selectedRegions) ? state.selectedRegions : [];
+        window.selectedRegions = names.slice(0, 3);
+        if (typeof window.updateSelectedRegionsTags === 'function') {
+          window.updateSelectedRegionsTags();
+        }
+        if (typeof window.updateSelectedRegionsDisplay === 'function') {
+          window.updateSelectedRegionsDisplay();
+        }
+
+        // 체크박스 해제
+        $('input[name="category[]"], input[name="work_type[]"], input[name="week[]"], input[name="price_type[]"], input[name="sex[]"]').prop('checked', false);
+
+        // sessionStorage의 상태에 따라 체크박스 다시 체크
+        if (Array.isArray(state.category) && state.category.length > 0) {
+          state.category.forEach(function(cat) {
+            $('input[name="category[]"][value="' + cat + '"]').prop('checked', true);
+          });
+        }
+        if (Array.isArray(state.work_type) && state.work_type.length > 0) {
+          state.work_type.forEach(function(wt) {
+            $('input[name="work_type[]"][value="' + wt + '"]').prop('checked', true);
+          });
+        }
+        if (Array.isArray(state.week) && state.week.length > 0) {
+          state.week.forEach(function(w) {
+            $('input[name="week[]"][value="' + w + '"]').prop('checked', true);
+          });
+        }
+        if (Array.isArray(state.price_type) && state.price_type.length > 0) {
+          state.price_type.forEach(function(pt) {
+            $('input[name="price_type[]"][value="' + pt + '"]').prop('checked', true);
+          });
+        }
+        if (Array.isArray(state.sex) && state.sex.length > 0) {
+          state.sex.forEach(function(s) {
+            $('input[name="sex[]"][value="' + s + '"]').prop('checked', true);
+          });
+        }
+
+        // 나이 범위 복원 (먼저 초기화, 그 다음 sessionStorage 값으로 설정)
+        $('#sageInput').val(state.sage || '');
+        $('#eageInput').val(state.eage || '');
+
+        // search_array 다시 업데이트
+        if (typeof window.initCategory === 'function' && typeof window.initTabUi === 'function') {
+          window.initCategory();
+          window.initTabUi();
+        }
+      }
+    } catch (e) {
+      // sessionStorage 처리 실패해도 진행
+    }
 
     var params = {
       cashing_id: "resume_cashing",
@@ -1382,6 +1459,14 @@ $tpl_show_mm_idx = true; ?>
       });
     }
   }
+
+  // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
+  window.onChangeAreaApply = function() {
+    $(".search-option").addClass("hide-cate");
+    if (typeof saveSearchStateToStorage === "function") {
+      saveSearchStateToStorage();
+    }
+  };
 
   // 1페이지 여부에 따라 배너/슬라이더 섹션 표시/숨김
   function updateTopSectionsVisibility() {
