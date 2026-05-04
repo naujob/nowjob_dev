@@ -94,15 +94,12 @@ if (count($banner_list) > 0) {
     font-size: 1rem;
     font-weight: 400;
     background-image: none; /* 위치 아이콘, 캐럿 제거 */
+    display: inline-block;
   }
 
-  /* 지역 선택 버튼: 선택된 상태일 때 기본 스타일 */
+  /* 지역 선택 버튼: 선택된 상태일 때 숨김 (태그로 표시됨) */
   .search-option .current-area .btn.addrName[data-selected="true"] {
-    color: #333;
-    font-size: 1.5625rem;
-    font-weight: 700;
-    background: url("../img/ic_current_loc.svg") no-repeat 0 70%, url("../img/ic_caret.svg") no-repeat 100% 60%;
-    background-size: 0.9375rem auto, auto 7px;
+    display: none;
   }
 </style>
 
@@ -306,11 +303,28 @@ if (count($banner_list) > 0) {
           return r.trim();
         });
 
-        regions.forEach(function(region) {
+        regions.forEach(function(region, index) {
           if (region) {
             var tag = document.createElement('div');
             tag.className = 'region-tag';
             tag.innerHTML = region + ' <span class="close-btn">×</span>';
+
+            // 닫기 버튼 클릭 핸들러
+            var closeBtn = tag.querySelector('.close-btn');
+            closeBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              // 지역 선택 해제 (전체로 리셋)
+              addrBtn.textContent = '지역을 선택해 주세요';
+              addrBtn.setAttribute('data-selected', 'false');
+              updateSelectedRegionsTags();
+
+              // 팝업 내의 선택된 지역도 초기화
+              var selbtnElements = document.querySelectorAll('.selbtn');
+              selbtnElements.forEach(function(el) {
+                el.remove();
+              });
+            });
+
             regionsList.appendChild(tag);
           }
         });
