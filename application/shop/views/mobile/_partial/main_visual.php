@@ -192,37 +192,27 @@ if (count($banner_list) > 0) {
       /* #tab_list 내 검색 조건 태그 스타일 */
 
 
-      .search-option .categories {
-        padding: 1rem 1.25rem;
-        background: #fff;
-      }
-
       .search-option .categories .container {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
+        padding: 0 1.25rem;
       }
 
-      /* 검색 조건 탭 기본 스타일 (비활성화) */
+      /* 검색 조건 탭 기본 스타일 */
       .search-option .categories .form-toggle-btn2 {
-        display: inline-block;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        padding: 6px 12px;
-        font-size: 13px;
-        color: #999;
-        font-weight: 400;
-        white-space: nowrap;
+        display: none;
       }
 
-      /* active 클래스가 있을 때 (활성화) */
+      /* active 클래스가 있을 때만 표시 */
       .search-option .categories .form-toggle-btn2.on {
-        display: inline-block;
-        background-color: #f0f0f0;
-        border: 1px solid #ddd;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background-color: #fff;
+        border: 1px solid #ccc;
         border-radius: 20px;
-        padding: 6px 12px;
+        padding: 5px 10px;
         font-size: 13px;
         color: #333;
         font-weight: 400;
@@ -237,16 +227,16 @@ if (count($banner_list) > 0) {
       /* 탭 내부 텍스트 표시 */
       .search-option .categories .form-toggle-btn2 .cate {
         display: inline;
-      }
-
-      /* 활성화 상태 텍스트 색상 */
-      .search-option .categories .form-toggle-btn2.on .cate {
         color: #333;
       }
 
-      /* 비활성화 상태 텍스트 색상 */
-      .search-option .categories .form-toggle-btn2:not(.on) .cate {
+      /* 탭 닫기 아이콘 */
+      .search-option .categories .form-toggle-btn2.on::after {
+        content: '×';
+        font-size: 14px;
         color: #999;
+        margin-left: 2px;
+        line-height: 1;
       }
 
       /* #tab_list 내 요소들 클릭 이벤트 무시 */
