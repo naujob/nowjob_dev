@@ -153,12 +153,14 @@ if (count($banner_list) > 0) {
       .search-option .selected-regions {
         padding: 0.5rem 0rem;
         background: #fff;
+        pointer-events: auto;
       }
 
       .search-option .selected-regions .container {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
+        pointer-events: auto;
       }
 
       .search-option .selected-regions .region-tag {
@@ -183,6 +185,11 @@ if (count($banner_list) > 0) {
 
       .search-option .selected-regions .region-tag .close-btn:hover {
         color: #666;
+      }
+
+      /* 지역 태그 컨테이너는 클릭 이벤트 활성화 */
+      #selected-regions-list {
+        pointer-events: auto;
       }
     </style>
     <div class="container" id="selected-regions-list"></div>
