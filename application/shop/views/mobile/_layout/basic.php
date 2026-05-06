@@ -89,188 +89,17 @@ if (!$socket_io_script_url) {
       // 연결 상태 모니터링
       socket.on('connect', function() {
         console.log('Socket.IO 연결 성공:', socket.id);
-        // 토큰 전송을 위한 플래그 설정
-        window._socketReady = true;
-        // 토큰 전송 시도
-        if (typeof trySendTokenToServer === 'function') {
-          trySendTokenToServer();
-        }
       });
 
       socket.on('disconnect', function() {
         console.log('Socket.IO 연결 끊김');
-        window._socketReady = false;
       });
 
       socket.on('connect_error', function(error) {
         console.error('Socket.IO 연결 오류:', error);
-        window._socketReady = false;
       });
-
-      // 연결 성공 후 사용자 상태 업데이트는 common.js의 updateSocket()에서 처리
-      // (안드로이드 앱 처리를 포함한 완전한 로직이 있음)
     }
 
-    // ============================================
-    // 🔥 Release 앱 푸시/토큰 문제 완전 해결 코드
-    // ============================================
-
-    // 전역 상태 플래그 (페이지 리로드 후에도 유지되도록 window에 저장)
-    window._tokenReady = false;
-    window._socketReady = false;
-    window._updateSent = false;
-    window.fcmToken = window.fcmToken || null; // 기존 토큰 보존
-
-    // ============================================
-    // ① Native(iOS/Android)에서 토큰을 받을 때 실행 (현재 실행x)
-    // ============================================
-    window.setToken = function(token) {
-      console.log("🔥 [setToken] 토큰 수신:", token ? token.substring(0, 20) + '...' : 'null');
-
-      if (!token || token === '' || token === 'null') {
-        console.warn("🔥 [setToken] 유효하지 않은 토큰 무시");
-        return;
-      }
-
-      // 토큰 저장
-      window.fcmToken = token;
-      window._tokenReady = true;
-
-      console.log("🔥 [setToken] 토큰 준비 완료, 서버 전송 시도");
-
-      // 조건 충족 시 즉시 전송 시도
-      if (typeof trySendTokenToServer === 'function') {
-        trySendTokenToServer();
-      }
-    };
-
-    // ============================================
-    // ③ 조건 충족 시 서버로 토큰 전송 (중복 방지)(현재 실행x)
-    // ============================================
-    function trySendTokenToServer() {
-      // 이미 전송했으면 종료 (중복 방지)
-      if (window._updateSent === true) {
-        console.log("🔥 [trySendToken] 이미 전송 완료, 중복 방지");
-        return;
-      }
-
-      // 토큰이 준비되지 않았으면 대기
-      if (!window._tokenReady || !window.fcmToken) {
-        console.log("🔥 [trySendToken] 토큰 미준비, 대기 중...");
-        return;
-      }
-
-      // Socket이 준비되지 않았으면 대기
-      if (!window._socketReady) {
-        console.log("🔥 [trySendToken] Socket 미준비, 대기 중...");
-        return;
-      }
-
-      // Socket 객체 확인
-      if (typeof socket === 'undefined' || !socket || !socket.connected) {
-        console.log("🔥 [trySendToken] Socket 객체 없음, 대기 중...");
-        return;
-      }
-
-      // 사용자 ID 확인
-      var user_id = getUserId();
-      if (!user_id || user_id === '') {
-        console.log("🔥 [trySendToken] 사용자 ID 없음, 대기 중...");
-        return;
-      }
-
-      // 모든 조건 충족 → 1번만 실행
-      console.log("🔥 [trySendToken] 모든 조건 충족! update_token 전송");
-      console.log("🔥 [trySendToken] user_id:", user_id);
-      console.log("🔥 [trySendToken] token:", window.fcmToken.substring(0, 20) + '...');
-
-      try {
-        socket.emit("update_token", {
-          user_id: user_id,
-          token: window.fcmToken
-        });
-
-        window._updateSent = true;
-        console.log("🔥 [trySendToken] ✅ 전송 완료!");
-
-        // 서버 로그 기록 (PHP debug_log 함수 호출)
-        if (typeof $ !== 'undefined') {
-          $.ajax({
-            url: '/common_proc/log_token_send',
-            type: 'POST',
-            data: {
-              user_id: user_id,
-              token_preview: window.fcmToken.substring(0, 20) + '...',
-              status: 'success'
-            },
-            timeout: 2000,
-            error: function() {
-              // 로그 실패해도 무시
-            }
-          });
-        }
-
-      } catch (error) {
-        console.error("🔥 [trySendToken] ❌ 전송 실패:", error);
-        window._updateSent = false; // 실패 시 재시도 가능하도록
-      }
-    }
-
-    // ============================================
-    // ④ 페이지 로드 시 기존 토큰 복구 및 재시도
-    // ============================================
-    (function() {
-      // 페이지 로드 완료 후 실행
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initTokenSystem);
-      } else {
-        initTokenSystem();
-      }
-
-      function initTokenSystem() {
-        console.log("🔥 [initTokenSystem] 토큰 시스템 초기화");
-
-        // 기존 토큰이 있으면 복구
-        if (window.fcmToken) {
-          console.log("🔥 [initTokenSystem] 기존 토큰 발견, 복구");
-          window._tokenReady = true;
-        }
-
-        // Socket 연결 확인 및 재시도
-        if (typeof socket !== 'undefined' && socket && socket.connected) {
-          console.log("🔥 [initTokenSystem] Socket 이미 연결됨");
-          window._socketReady = true;
-        }
-
-        // 조건 충족 시 즉시 전송 시도
-        setTimeout(function() {
-          if (typeof trySendTokenToServer === 'function') {
-            trySendTokenToServer();
-          }
-        }, 500); // Socket 연결 대기 시간
-
-        // Socket 연결 대기 (최대 2초) - 토큰 준비 타임아웃 시간 단축
-        var checkCount = 0;
-        var checkInterval = setInterval(function() {
-          checkCount++;
-
-          if (typeof socket !== 'undefined' && socket && socket.connected) {
-            window._socketReady = true;
-            if (typeof trySendTokenToServer === 'function') {
-              trySendTokenToServer();
-            }
-            clearInterval(checkInterval);
-          }
-
-          if (checkCount >= 20) { // 2초 후 포기 (100ms * 20 = 2000ms)
-            clearInterval(checkInterval);
-            console.warn("🔥 [initTokenSystem] 토큰 준비 타임아웃 - 토큰 없이 계속 진행");
-            // 토큰이 준비되지 않았어도 페이지 진행이 멈추지 않도록 처리
-            window._updateSent = true; // 강제로 전송 완료 표시
-          }
-        }, 100);
-      }
-    })();
 
     // 전역 함수들
     function getUserId() {
@@ -503,12 +332,8 @@ if (!$socket_io_script_url) {
       document.cookie = name + "=" + (value || "") + expires + "; path=/";
     }
 
-    // ❌ 사용되지 않는 함수: onFcmTokenUpdate
-    // 상태: Android에서 정의되어 있지만 네이티브 앱에서 호출되지 않음
-    // 로그 분석 결과: Android 로그에서 이 함수 호출 기록 없음
-    // 용도: Android 네이티브 앱에서 FCM 토큰을 받아서 서버로 전송하는 함수
-    // 문제: Android 네이티브 앱에서 window.onFcmTokenUpdate(token) 호출이 없음
-    // 해결: Android 네이티브 앱에서 FCM 토큰을 받으면 이 함수를 호출해야 함
+    // ✅ 안드로이드 앱에서 FCM 토큰을 받을 때 호출되는 콜백
+    // 앱이 시작되면 자동으로 토큰을 이 함수로 Push함
     window.onFcmTokenUpdate = function(token) {
       console.log('📱 Android FCM 토큰 업데이트 - 토큰: ' + (token ? token.substring(0, 20) + '...' : '없음'));
 
