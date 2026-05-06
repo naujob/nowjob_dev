@@ -477,55 +477,6 @@ if (!$socket_io_script_url) {
     };
 
     console.log('📱 onPushOpen 함수가 전역에 등록되었습니다.');
-    // ❌ 사용되지 않는 함수: registerFcmTokenOnAppStart
-    // 상태: Android에서 호출되지만 APP_NOWAPK.getFcmToken() 함수가 없어서 실패
-    // 로그 분석 결과: "Android 앱 FCM 토큰 함수가 없음" 경고만 발생
-    // 앱 시작 시 FCM 토큰 등록 시도(현재 앱측에서 미구현)
-    function registerFcmTokenOnAppStart() {
-      console.log('📱 앱 시작 시 FCM 토큰 등록 시도');
-
-      // Android 앱에서 FCM 토큰 요청
-      if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.getFcmToken === 'function') {
-        console.log('📱 Android 앱에서 FCM 토큰 요청');
-        APP_NOWAPK.getFcmToken(); // 현재는 사용하지 않음
-      } else {
-        console.log('📱 Android 앱 FCM 토큰 함수가 없음');
-      }
-    }
-
-    // 페이지 로드 시 FCM 토큰 등록 시도 (현재 앱측에서 미구현)
-    $(document).ready(function() {
-      console.log('📱 페이지 로드 완료 - FCM 토큰 등록 시도');
-      setTimeout(registerFcmTokenOnAppStart, 1000); // 1초 후 실행 // ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
-
-      // 주기적으로 FCM 토큰 갱신 (5분마다)
-      // ⚠️ 주의: refreshFcmToken() 함수가 APP_NOWAPK.getFcmToken() 함수가 없어서 실패함
-      setInterval(function() {
-        console.log('📱 주기적 FCM 토큰 갱신 시도');
-        refreshFcmToken(); // ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
-      }, 5 * 60 * 1000); // 5분마다 실행
-    });
-
-    // 앱이 포그라운드로 돌아올 때 FCM 토큰 갱신 (현재 앱측에서 미구현)
-    document.addEventListener('visibilitychange', function() {
-      if (!document.hidden) {
-        console.log('📱 앱이 포그라운드로 돌아옴 - FCM 토큰 갱신 시도');
-        setTimeout(refreshFcmToken, 500); // 0.5초 후 실행 // ❌ 사용되지 않음: APP_NOWAPK.getFcmToken() 함수가 없음
-      }
-    });
-
-    // FCM 토큰 갱신 함수 (기존 토큰과 비교하여 변경시에만 갱신) (현재 앱측에서 미구현)
-    function refreshFcmToken() {
-      console.log('📱 FCM 토큰 갱신 시도');
-
-      // Android 앱에서 FCM 토큰 요청
-      if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.getFcmToken === 'function') {
-        console.log('📱 Android 앱에서 FCM 토큰 갱신 요청');
-        APP_NOWAPK.getFcmToken();
-      } else {
-        console.log('📱 Android 앱 FCM 토큰 함수가 없음');
-      }
-    }
 
 
 
