@@ -332,51 +332,6 @@ if (!$socket_io_script_url) {
       document.cookie = name + "=" + (value || "") + expires + "; path=/";
     }
 
-    // ✅ 안드로이드 앱에서 FCM 토큰을 받을 때 호출되는 콜백
-    // 앱이 시작되면 자동으로 토큰을 이 함수로 Push함
-    window.onFcmTokenUpdate = function(token) {
-      console.log('📱 Android FCM 토큰 업데이트 - 토큰: ' + (token ? token.substring(0, 20) + '...' : '없음'));
-
-
-      if (token) {
-
-        var existingToken = getCookie('fcm_token') || '';
-        var isTokenChanged = (existingToken !== token);
-
-        console.log('📱 토큰 변경 여부: ' + (isTokenChanged ? '변경됨' : '동일함'));
-
-
-        if (isTokenChanged || existingToken === '') {
-
-
-          $.ajax({
-            url: '/common_proc/refresh_token',
-            type: 'POST',
-            data: {
-              token: token,
-              uuid: getCookie('uuid') || ''
-            },
-            success: function(response) {
-              console.log('📱 FCM 토큰 갱신 성공 - 응답: ' + JSON.stringify(response));
-              if (response.code === "00") {
-                console.log('✅ FCM 토큰이 성공적으로 갱신되었습니다.');
-              } else {
-                console.error('❌ FCM 토큰 갱신 실패: ' + response.msg);
-              }
-            },
-            error: function(xhr, status, error) {
-              console.error('📱 FCM 토큰 갱신 실패:', error);
-              console.error('상태 코드:', xhr.status);
-              console.error('응답 텍스트:', xhr.responseText);
-            }
-          });
-        } else {
-          console.log('📱 토큰이 동일하므로 갱신 건너뜀');
-        }
-      } else {
-        console.warn('⚠️ FCM 토큰이 비어있습니다.');
-      }
-    };
 
     // 로그인 성공 후 FCM 토큰을 로그인한 사용자와 연결하는 함수 (Promise 반환)
     window.connectFCMTokenToUser = function() {
