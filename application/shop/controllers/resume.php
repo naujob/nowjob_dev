@@ -70,7 +70,7 @@ class Resume extends CI_Controller
     $data["tag_search"] = $tag_search["search"] != "" ? explode(",", $tag_search["search"]) : [];
     $data["addr_info"] = $addr_info;
     $data["mm_type"] = $this->mm_type;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -263,7 +263,7 @@ class Resume extends CI_Controller
     $data["tag_search"] = $tag_search["search"] != "" ? explode(",", $tag_search["search"]) : [];
     $data["addr_info"] = $addr_info;
     $data["mm_type"] = $this->mm_type;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);

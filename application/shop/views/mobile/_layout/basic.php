@@ -62,11 +62,11 @@ if (!$socket_io_script_url) {
         var script = document.createElement('script');
         script.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
         script.onload = function() {
-          console.log('Socket.IO 라이브러리 로드 성공 (CDN)');
+
           createSocket();
         };
         script.onerror = function() {
-          console.error('Socket.IO 라이브러리 로드 실패');
+
         };
         document.head.appendChild(script);
       } else {
@@ -622,10 +622,10 @@ if (!$socket_io_script_url) {
 
     if (isHomePage) {
       window.DISABLE_SWIPE_BACK = true;
-      console.log('🏠 홈페이지에서 스와이프 뒤로가기 비활성화');
+
     } else if (isDisableSwipePage) {
       window.DISABLE_SWIPE_BACK = true;
-      console.log('🚫 ' + currentPath + ' 페이지에서 스와이프 뒤로가기 비활성화');
+
     }
   })();
 
@@ -718,5 +718,4 @@ if (!$socket_io_script_url) {
       //}, 2000); // 2초 후 새로고침
     });
   }
-
 </script>

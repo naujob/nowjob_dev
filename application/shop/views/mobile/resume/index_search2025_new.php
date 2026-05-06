@@ -154,10 +154,18 @@
               <div class="category-grid">
                 <div class="category-grid__body">
                   <?php
+                  // 변수 안전성 확인
+                  if (!isset($work_list)) {
+                    $work_list = [];
+                  }
+                  if (!isset($search_txt)) {
+                    $search_txt = [];
+                  }
+
                   $desired_categories = ['생산', '물류', '건설', '운전배달', '식당', '서비스', '사무직', '상담', '기타'];
                   foreach ($desired_categories as $category_name) {
                     $found_category = null;
-                    foreach ($wrok_list as $row) {
+                    foreach ($work_list as $row) {
                       // $row 예: ['cd_idx' => '2', 'cd_val' => '생산', 'cd_key' => '생산', 'cd_sort' => '1', ...]
                       if ($row["cd_val"] == $category_name) {
                         $found_category = $row;
@@ -203,7 +211,12 @@
                 </button>
               </div>
               <div class="work-type-grid">
-                <?php foreach ($work_type_list as $key => $row) : ?>
+                <?php
+                if (!isset($work_type_list)) {
+                  $work_type_list = [];
+                }
+                foreach ($work_type_list as $key => $row) : ?>
+
                   <?php
                   /**
                    * 
@@ -278,7 +291,12 @@
                 </button>
               </div>
               <div class="week-grid">
-                <?php foreach ($week_list as $row) : ?>
+                <?php
+                if (!isset($week_list)) {
+                  $week_list = [];
+                }
+                foreach ($week_list as $row) : ?>
+
                   <?php
                   $checkedWeek = in_array_return($row["cd_val"], $search_txt["week"], "check");
                   $isWeekChecked = !empty($checkedWeek);
@@ -983,6 +1001,8 @@
       initCategory();
       initTabUi();
 
+      // 초기화 후 저장
+      saveSearchStateToStorage();
     });
   });
 
@@ -1046,6 +1066,17 @@
   window.initCategory = initCategory;
   window.initTabUi = initTabUi;
   window.saveSearchStateToStorage = saveSearchStateToStorage;
+
+  // 페이지 로드 완료 후 초기 상태 저장 (sessionStorage 초기화)
+  $(document).ready(function() {
+    try {
+      initCategory();
+      saveSearchStateToStorage();
+      console.log('[index_search2025_new.php] 초기 검색 조건 저장 완료');
+    } catch (e) {
+      console.error('[index_search2025_new.php] 초기 저장 중 오류:', e);
+    }
+  });
 
   $("[name='workingDay']").click(function() {
     $("[name='week[]']").prop("checked", $(this).is(":checked"));

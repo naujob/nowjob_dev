@@ -47,7 +47,7 @@
                                 </span>
                             </p>
                             <div class="form-toggle-group col-4">
-                                <?php foreach($wrok_list as $row) : ?>
+                                <?php foreach($work_list as $row) : ?>
                                 <label class="form-toggle-btn2 sm">
                                     <input type="checkbox" name="category[]" data-select-limit="2" value="<?=$row["cd_val"]?>" data-img="<?=$row["cd_val2"]?>" <?=in_array_return($row["cd_val"],$search_txt["category"],"check")?>>
                                     <span class="btn"><?=$row["cd_val"]?></span>

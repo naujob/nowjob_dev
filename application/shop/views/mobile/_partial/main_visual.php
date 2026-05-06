@@ -216,7 +216,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     /* #tab_list에 내용이 있을 때만 border 표시 */
     .search-option .categories.has-items {
       border-bottom: 1px solid #999;
-      border-top: 1px solid #999;
+
     }
 
     /* 검색 조건 탭 기본 스타일 */

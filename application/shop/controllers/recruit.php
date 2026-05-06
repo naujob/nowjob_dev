@@ -71,7 +71,7 @@ class Recruit extends CI_Controller
     }
 
     $data["mm_type"] = $this->mm_type;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -216,7 +216,7 @@ class Recruit extends CI_Controller
     $data["ad_gps_x"] = $addr_info["ad_gps_x"];
     $data["ad_gps_y"] = $addr_info["ad_gps_y"];
     $data["kakao_key"] = $kakao_key;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -250,7 +250,7 @@ class Recruit extends CI_Controller
     $data["resume"] = $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y"]);
     $data["addr_info"] = $addr_info;
     $data["kakao_key"] = $kakao_key;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -290,7 +290,7 @@ class Recruit extends CI_Controller
     $data["resume"] = $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y"]);
     $data["addr_info"] = $addr_info;
     $data["kakao_key"] = $kakao_key;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -405,7 +405,7 @@ class Recruit extends CI_Controller
     $addr_info = $this->user->getAddrInfo();
 
     $data["mm_type"] = $this->mm_type;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -488,7 +488,7 @@ class Recruit extends CI_Controller
     $data["ad_gps_x"] = $addr_info["ad_gps_x"];
     $data["ad_gps_y"] = $addr_info["ad_gps_y"];
     $data["kakao_key"] = $kakao_key;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -573,7 +573,7 @@ class Recruit extends CI_Controller
     $data["ad_gps_x"] = $addr_info["ad_gps_x"];
     $data["ad_gps_y"] = $addr_info["ad_gps_y"];
     $data["kakao_key"] = $kakao_key;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -676,7 +676,7 @@ class Recruit extends CI_Controller
     $data["resume"] = $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y"]);
     $data["addr_info"] = $addr_info;
     $data["kakao_key"] = $kakao_key;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -716,7 +716,7 @@ class Recruit extends CI_Controller
     $data["resume"] = $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y"]);
     $data["addr_info"] = $addr_info;
     $data["kakao_key"] = $kakao_key;
-    $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
@@ -835,7 +835,7 @@ class Recruit extends CI_Controller
       $data["resume"] = $this->member_model->getResume(["mm_idx"=>$this->mm_idx,"ru_show_yn"=>"Y"]);
       $data["addr_info"] = $addr_info;
       $data["kakao_key"] = $kakao_key;
-			$data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
+			$data["work_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
 			$data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망급여"]);
 			$data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무형태"]);
 			$data["week_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무요일"]);
@@ -897,7 +897,7 @@ class Recruit extends CI_Controller
       $data["resume"] = $this->member_model->getResume(["mm_idx"=>$this->mm_idx,"ru_show_yn"=>"Y"]);
       $data["addr_info"] = $addr_info;
       $data["kakao_key"] = $kakao_key;
-			$data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
+			$data["work_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
 			$data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망급여"]);
 			$data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무형태"]);
 			$data["week_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무요일"]);
@@ -986,7 +986,7 @@ class Recruit extends CI_Controller
         $data["ad_gps_y"] = $addr_info["ad_gps_y"];
         $data["kakao_key"] = $kakao_key;
         $data["data"] = $result;
-        $data["wrok_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
+        $data["work_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
         $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망급여"]);
         $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무형태"]);
         $data["week_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무요일"]);

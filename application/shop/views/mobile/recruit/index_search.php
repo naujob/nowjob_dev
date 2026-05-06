@@ -270,13 +270,21 @@
                </div>
                <div class="form-toggle-group category-toggle-group option-table-group option-table-cols-3">
                  <?php
+                  // 변수 안전성 확인
+                  if (!isset($work_list)) {
+                    $work_list = [];
+                  }
+                  if (!isset($search_txt)) {
+                    $search_txt = [];
+                  }
+
                   // 표시할 항목만 정의 (지정된 순서대로)
                   $display_items = ['생산', '물류', '건설', '운전배달', '식당', '서비스', '사무직', '상담', '기타'];
 
                   // 표시할 항목만 필터링하고 순서대로 정렬
                   $filtered_list = [];
                   foreach ($display_items as $item) {
-                    foreach ($wrok_list as $row) {
+                    foreach ($work_list as $row) {
                       if ($row['cd_val'] === $item) {
                         $filtered_list[] = $row;
                         break;
@@ -341,7 +349,12 @@
                  </label>
                </div>
                <div class="form-toggle-group option-table-group option-table-cols-3 work-type-select">
-                 <?php foreach ($work_type_list as $key => $row) : ?>
+                 <?php
+                 if (!isset($work_type_list)) {
+                   $work_type_list = [];
+                 }
+                 foreach ($work_type_list as $key => $row) : ?>
+
                    <label class="form-toggle-btn2 work-type-option">
                      <input type="checkbox" name="work_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $search_txt["work_type"], "check") ?>>
                      <span class="btn"><?= $row["cd_val"] ?></span>
@@ -390,7 +403,12 @@
                  </label>
                </div>
                <div class="form-toggle-group option-table-group option-table-cols-week week-select">
-                 <?php foreach ($week_list as $row) : ?>
+                 <?php
+                 if (!isset($week_list)) {
+                   $week_list = [];
+                 }
+                 foreach ($week_list as $row) : ?>
+
                    <label class="form-toggle-btn2 week-option">
                      <input type="checkbox" name="week[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $search_txt["week"], "check") ?>>
                      <span class="btn"><?= $row["cd_val"] ?></span>
