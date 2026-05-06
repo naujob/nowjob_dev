@@ -537,7 +537,7 @@ $tpl_show_mm_idx = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
 
 <template id="tpl_category">
-  <label class="filter-tag-item sm {{active}} btn-category">
+  <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">
     <input type="checkbox" name="filter" value="{{category_name}}">
     <span class="cate">{{category_name}}</span>
   </label>
@@ -643,57 +643,40 @@ $tpl_show_mm_idx = true; ?>
 
   var tab_list = [];
   tab_list.push({
+    key: "category",
     df: "업직종",
     text: "",
     active: ""
   });
   tab_list.push({
+    key: "work_type",
     df: "근무형태",
     text: "",
     active: ""
   });
   tab_list.push({
+    key: "week",
     df: "근무요일",
     text: "",
     active: ""
   });
   tab_list.push({
+    key: "price_type",
     df: "급여형태",
     text: "",
     active: ""
   });
   tab_list.push({
+    key: "sex",
     df: "성별",
     text: "",
     active: ""
   });
   tab_list.push({
+    key: "age",
     df: "나이",
     text: "",
     active: ""
-  });
-
-  $(document).on("click", ".btn-category", function() {
-    // 클릭한 카테고리 값 가져오기
-    var categoryValue = $(this).find("input[name='filter']").val();
-
-    // 현재 카테고리 검색 조건에서 클릭한 카테고리만 제거
-    if (search_array.category) {
-      var categories = search_array.category.split("^");
-      categories = categories.filter(function(cat) {
-        return cat !== categoryValue;
-      });
-      search_array.category = categories.join("^");
-    }
-
-    // 탭 업데이트
-    tab_list[0].text = search_array.category ? search_array.category.replaceAll("^", ",") : "";
-    tab_list[0].active = search_array.category ? "on" : "";
-
-    initTabUi();
-    list_page = 1;
-    $(list_id).html("");
-    getBoardList("Y");
   });
 
   $(document).on("click", ".form-checkbox", function(e) {
@@ -1129,10 +1112,13 @@ $tpl_show_mm_idx = true; ?>
 
     // sessionStorage에서 검색 조건 복원
     try {
-      var storageKey = "jobListAdvancedSearch_" + (window.currentUserId || "guest");
+      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (window.currentUserId || "guest");
       var raw = sessionStorage.getItem(storageKey);
+      console.log('[hr_list.php] sessionStorage 로드 시작 - storageKey:', storageKey, ', raw:', raw);
+
       if (raw) {
         var state = JSON.parse(raw);
+        console.log('[hr_list.php] sessionStorage 파싱 완료:', state);
 
         // addr 정보 복원 (recruit의 loadSearchStateFromStorage()와 동일 패턴)
         if (state.addrName) {
@@ -1167,8 +1153,10 @@ $tpl_show_mm_idx = true; ?>
         $('input[name="category[]"], input[name="work_type[]"], input[name="week[]"], input[name="price_type[]"], input[name="sex[]"]').prop('checked', false);
 
         // sessionStorage의 상태에 따라 체크박스 다시 체크
+        console.log('[hr_list.php] 복원할 category 배열:', state.category);
         if (Array.isArray(state.category) && state.category.length > 0) {
           state.category.forEach(function(cat) {
+            console.log('[hr_list.php] category 체크 - ' + cat);
             $('input[name="category[]"][value="' + cat + '"]').prop('checked', true);
           });
         }
@@ -1204,7 +1192,7 @@ $tpl_show_mm_idx = true; ?>
         }
       }
     } catch (e) {
-      // sessionStorage 처리 실패해도 진행
+      console.error('[hr_list.php] sessionStorage 처리 실패:', e);
     }
 
     var params = {

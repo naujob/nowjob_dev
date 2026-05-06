@@ -249,7 +249,7 @@ if (!$socket_io_script_url) {
           }
         }, 500); // Socket 연결 대기 시간
 
-        // Socket 연결 대기 (최대 3초)
+        // Socket 연결 대기 (최대 2초) - 토큰 준비 타임아웃 시간 단축
         var checkCount = 0;
         var checkInterval = setInterval(function() {
           checkCount++;
@@ -262,9 +262,11 @@ if (!$socket_io_script_url) {
             clearInterval(checkInterval);
           }
 
-          if (checkCount >= 30) { // 3초 후 포기
+          if (checkCount >= 20) { // 2초 후 포기 (100ms * 20 = 2000ms)
             clearInterval(checkInterval);
-            console.warn("🔥 [initTokenSystem] Socket 연결 타임아웃");
+            console.warn("🔥 [initTokenSystem] 토큰 준비 타임아웃 - 토큰 없이 계속 진행");
+            // 토큰이 준비되지 않았어도 페이지 진행이 멈추지 않도록 처리
+            window._updateSent = true; // 강제로 전송 완료 표시
           }
         }, 100);
       }

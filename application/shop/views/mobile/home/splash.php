@@ -337,10 +337,10 @@
                                 APP_NOWAPK.grantPopup();
                             }
 
-                            // finishGrant 콜백이 호출되지 않는 경우를 대비한 백업 타임아웃 (10초 후)
+                            // finishGrant 콜백이 호출되지 않는 경우를 대비한 백업 타임아웃 (3초 후)
                             grantPopupTimeout = setTimeout(function() {
                                 navigateToHome();
-                            }, 10000);
+                            }, 3000);
                         } catch (error) {
                             // 에러 발생 시에도 홈으로 이동
                             navigateToHome();
@@ -360,7 +360,7 @@
 
                     grantPopupTimeout = setTimeout(function() {
                         navigateToHome();
-                    }, 10000);
+                    }, 3000);
                 } else {
                     navigateToHome();
                 }
@@ -400,7 +400,7 @@
 
                                     grantPopupTimeout = setTimeout(function() {
                                         location.replace("/recruit/job_list");
-                                    }, 10000);
+                                    }, 3000);
                                 } catch (error) {
                                     navigateToHome();
                                 }
@@ -417,7 +417,7 @@
 
                             grantPopupTimeout = setTimeout(function() {
                                 navigateToHome();
-                            }, 10000);
+                            }, 3000);
                         } else {
                             navigateToHome();
                         }

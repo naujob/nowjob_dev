@@ -583,7 +583,7 @@ $tpl_recomm_class = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 
 <template id="tpl_category">
-  <label class="filter-tag-item sm {{active}} btn-category">
+  <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">
     <input type="checkbox" name="filter" value="{{category_name}}">
     <span class="cate">{{category_name}}</span>
   </label>
@@ -653,63 +653,47 @@ $tpl_recomm_class = true; ?>
 
   var tab_list = [];
   tab_list.push({
+    key: "area",
     df: "근무지역",
     text: "",
     active: ""
   }); //0 - 지역 정보
   tab_list.push({
+    key: "category",
     df: "업직종",
     text: "",
     active: ""
   }); //1
   tab_list.push({
+    key: "work_type",
     df: "근무형태",
     text: "",
     active: ""
   }); //2
   tab_list.push({
+    key: "week",
     df: "근무요일",
     text: "",
     active: ""
   }); //3
   tab_list.push({
+    key: "price_type",
     df: "급여형태",
     text: "",
     active: ""
   }); //4
   tab_list.push({
+    key: "sex",
     df: "성별",
     text: "",
     active: ""
   }); //5
   tab_list.push({
+    key: "age",
     df: "나이",
     text: "",
     active: ""
   }); //6
-
-  $(document).on("click", ".btn-category", function() {
-    // 클릭한 카테고리 값 가져오기
-    var categoryValue = $(this).find("input[name='filter']").val();
-
-    // 현재 카테고리 검색 조건에서 클릭한 카테고리만 제거
-    if (search_array.category) {
-      var categories = search_array.category.split("^");
-      categories = categories.filter(function(cat) {
-        return cat !== categoryValue;
-      });
-      search_array.category = categories.join("^");
-    }
-
-    // 탭 업데이트
-    tab_list[0].text = search_array.category ? search_array.category.replaceAll("^", ",") : "";
-    tab_list[0].active = search_array.category ? "on" : "";
-
-    initTabUi();
-    list_page = 1;
-    $(list_id).html("");
-    getBoardList("Y");
-  });
 
   $(document).on("click", ".form-checkbox", function(e) {
     e.stopPropagation();

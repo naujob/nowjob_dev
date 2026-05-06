@@ -94,6 +94,15 @@
      font-size: 1rem;
    }
 
+   /* "전체" 선택 시 개별 항목들의 시각적 강조 */
+   .form-toggle-btn2.work-type-all-selected .btn,
+   .form-toggle-btn2.week-all-selected .btn,
+   .form-toggle-btn2.price-type-all-selected .btn,
+   .form-toggle-btn2.sex-all-selected .btn {
+     background-color: #57CCAF;
+     color: white;
+   }
+
    /* 지역 선택 UI 스타일 */
    .region-section {
      margin-bottom: 30px;
@@ -477,7 +486,7 @@
  </div>
 
  <template id="tpl_category">
-   <label class="form-toggle-btn2 sm {{active}} btn-category">
+   <label class="form-toggle-btn2 sm {{active}} btn-category" data-filter-key="{{filter_key}}">
      <input type="checkbox" name="filter" value="{{category_name}}">
      <span class="cate">{{category_name}}</span>
    </label>
@@ -646,7 +655,7 @@
          workingDay: $("[name='workingDay']").is(":checked"),
        };
        // 사용자 ID를 키에 포함하여 저장
-       var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
        sessionStorage.setItem(storageKey, JSON.stringify(state));
      } catch (e) {
 
@@ -656,7 +665,7 @@
    // 저장된 상세검색 조건을 로드해 UI에 반영
    function loadSearchStateFromStorage() {
      // 현재 사용자 ID에 해당하는 키로 불러오기
-     var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
      var raw = sessionStorage.getItem(storageKey);
      if (!raw) return;
 
@@ -746,10 +755,11 @@
      // icnt = 1부터 시작하여 지역(tab_list[0])은 제외 (별도의 태그 섹션에 표시됨)
      for (var icnt = 1; icnt < tab_list.length; icnt++) {
 
-       var $clone = $("#tpl_category").clone();
-       var $content = $clone.html();
-       $content = $content.replaceAll("{{active}}", tab_list[icnt].active);
-       if (tab_list[icnt].active == "on") {
+	     var $clone = $("#tpl_category").clone();
+	     var $content = $clone.html();
+	     $content = $content.replaceAll("{{active}}", tab_list[icnt].active);
+	     $content = $content.replaceAll("{{filter_key}}", tab_list[icnt].key || "");
+	     if (tab_list[icnt].active == "on") {
          $content = $content.replaceAll("{{category_name}}", tab_list[icnt].text);
        } else {
          $content = $content.replaceAll("{{category_name}}", tab_list[icnt].df);
@@ -843,7 +853,7 @@
      $("#regionCounter").html('<span style="color: #57CCAF;">' + count + '</span><span class="separator">/</span><span class="max-count">' + maxRegions + '</span>');
    }
 
-   // 선택된 지역 표시 업데이트 함수
+   // 선택된 지역 표시 업데이트 함수 (전역 함수로 등록하여 main_visual.php에서 접근 가능)
    function updateSelectedRegionsDisplay() {
      var container = $("#selectedRegionsContainer");
      container.empty();
@@ -853,7 +863,7 @@
      regions.forEach(function(region, index) {
        var regionItem = $('<div class="selected-region-item">' +
          '<span>' + region + '</span>' +
-         //  '<button type="button" class="selected-region-remove" data-index="' + index + '">×</button>' +
+         '<button type="button" class="selected-region-remove" data-index="' + index + '">×</button>' +
          '</div>');
        container.append(regionItem);
      });
@@ -861,12 +871,32 @@
      updateRegionCounter();
    }
 
+   // 전역으로 등록하여 다른 파일에서도 접근 가능
+   window.updateSelectedRegionsDisplay = updateSelectedRegionsDisplay;
+
    // 지역 삭제 버튼 클릭 이벤트 (이벤트 위임 사용)
    $(document).on('click', '.selected-region-remove', function() {
      var index = parseInt($(this).data('index'));
      window.selectedRegions.splice(index, 1);
      selectedRegions = window.selectedRegions;
      updateSelectedRegionsDisplay();
+
+     // main_visual.php와 동기화 (상단 지역 태그도 업데이트)
+     if (typeof window.updateSelectedRegionsTags === 'function') {
+       window.updateSelectedRegionsTags();
+     }
+
+     // sessionStorage 업데이트
+     try {
+       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (window.currentUserId || "guest");
+       var raw = sessionStorage.getItem(storageKey);
+       if (raw) {
+         var state = JSON.parse(raw);
+         state.selectedRegions = window.selectedRegions.slice();
+         sessionStorage.setItem(storageKey, JSON.stringify(state));
+       }
+     } catch (e) {}
+
      // 지역 삭제 후 tab_list 업데이트
      initCategory();
      initTabUi();
@@ -907,28 +937,38 @@
 
    updateWorkTypeSelectionState();
 
-   $workTypeAnyCheckbox.on('change', function() {
-     if ($(this).is(':checked')) {
-       $workTypeItemCheckboxes.prop('checked', false);
-     } else if ($workTypeItemCheckboxes.filter(':checked').length === 0) {
-       $(this).prop('checked', true);
+   function updateWorkTypeVisuals() {
+     if ($workTypeAnyCheckbox.is(':checked')) {
+       $workTypeItemCheckboxes.closest('label').addClass('work-type-all-selected');
+     } else {
+       $workTypeItemCheckboxes.closest('label').removeClass('work-type-all-selected');
      }
+   }
+
+   $workTypeAnyCheckbox.on('change', function() {
+     var totalCount = $workTypeItemCheckboxes.length;
+     if ($(this).is(':checked')) {
+       $workTypeItemCheckboxes.prop('checked', true);
+     } else if ($workTypeItemCheckboxes.filter(':checked').length === totalCount) {
+       $workTypeItemCheckboxes.prop('checked', false);
+     }
+     updateWorkTypeVisuals();
    });
 
    $workTypeItemCheckboxes.on('change', function() {
      var totalCount = $workTypeItemCheckboxes.length;
      var checkedCount = $workTypeItemCheckboxes.filter(':checked').length;
 
-     // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
+     // 모든 항목이 선택되면 "전체" 체크 유지, 해제되면 "전체" 체크 해제
      if (checkedCount === totalCount) {
        $workTypeAnyCheckbox.prop('checked', true);
-       $workTypeItemCheckboxes.prop('checked', false);
-     } else if (checkedCount > 0) {
-       $workTypeAnyCheckbox.prop('checked', false);
      } else {
-       $workTypeAnyCheckbox.prop('checked', true);
+       $workTypeAnyCheckbox.prop('checked', false);
      }
+     updateWorkTypeVisuals();
    });
+
+   updateWorkTypeVisuals();
 
    function updateWeekSelectionState() {
      if (!$weekAnyCheckbox.length) return;
@@ -941,28 +981,38 @@
 
    updateWeekSelectionState();
 
-   $weekAnyCheckbox.on('change', function() {
-     if ($(this).is(':checked')) {
-       $weekItemCheckboxes.prop('checked', false);
-     } else if ($weekItemCheckboxes.filter(':checked').length === 0) {
-       $(this).prop('checked', true);
+   function updateWeekVisuals() {
+     if ($weekAnyCheckbox.is(':checked')) {
+       $weekItemCheckboxes.closest('label').addClass('week-all-selected');
+     } else {
+       $weekItemCheckboxes.closest('label').removeClass('week-all-selected');
      }
+   }
+
+   $weekAnyCheckbox.on('change', function() {
+     var totalCount = $weekItemCheckboxes.length;
+     if ($(this).is(':checked')) {
+       $weekItemCheckboxes.prop('checked', true);
+     } else if ($weekItemCheckboxes.filter(':checked').length === totalCount) {
+       $weekItemCheckboxes.prop('checked', false);
+     }
+     updateWeekVisuals();
    });
 
    $weekItemCheckboxes.on('change', function() {
      var totalCount = $weekItemCheckboxes.length;
      var checkedCount = $weekItemCheckboxes.filter(':checked').length;
 
-     // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
+     // 모든 항목이 선택되면 "전체" 체크 유지, 해제되면 "전체" 체크 해제
      if (checkedCount === totalCount) {
        $weekAnyCheckbox.prop('checked', true);
-       $weekItemCheckboxes.prop('checked', false);
-     } else if (checkedCount > 0) {
-       $weekAnyCheckbox.prop('checked', false);
      } else {
-       $weekAnyCheckbox.prop('checked', true);
+       $weekAnyCheckbox.prop('checked', false);
      }
+     updateWeekVisuals();
    });
+
+   updateWeekVisuals();
 
    function updatePriceTypeSelectionState() {
      if (!$priceTypeAnyCheckbox.length) return;
@@ -975,28 +1025,38 @@
 
    updatePriceTypeSelectionState();
 
-   $priceTypeAnyCheckbox.on('change', function() {
-     if ($(this).is(':checked')) {
-       $priceTypeItemCheckboxes.prop('checked', false);
-     } else if ($priceTypeItemCheckboxes.filter(':checked').length === 0) {
-       $(this).prop('checked', true);
+   function updatePriceTypeVisuals() {
+     if ($priceTypeAnyCheckbox.is(':checked')) {
+       $priceTypeItemCheckboxes.closest('label').addClass('price-type-all-selected');
+     } else {
+       $priceTypeItemCheckboxes.closest('label').removeClass('price-type-all-selected');
      }
+   }
+
+   $priceTypeAnyCheckbox.on('change', function() {
+     var totalCount = $priceTypeItemCheckboxes.length;
+     if ($(this).is(':checked')) {
+       $priceTypeItemCheckboxes.prop('checked', true);
+     } else if ($priceTypeItemCheckboxes.filter(':checked').length === totalCount) {
+       $priceTypeItemCheckboxes.prop('checked', false);
+     }
+     updatePriceTypeVisuals();
    });
 
    $priceTypeItemCheckboxes.on('change', function() {
      var totalCount = $priceTypeItemCheckboxes.length;
      var checkedCount = $priceTypeItemCheckboxes.filter(':checked').length;
 
-     // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
+     // 모든 항목이 선택되면 "전체" 체크 유지, 해제되면 "전체" 체크 해제
      if (checkedCount === totalCount) {
        $priceTypeAnyCheckbox.prop('checked', true);
-       $priceTypeItemCheckboxes.prop('checked', false);
-     } else if (checkedCount > 0) {
-       $priceTypeAnyCheckbox.prop('checked', false);
      } else {
-       $priceTypeAnyCheckbox.prop('checked', true);
+       $priceTypeAnyCheckbox.prop('checked', false);
      }
+     updatePriceTypeVisuals();
    });
+
+   updatePriceTypeVisuals();
 
    function updateSexSelectionState() {
      if (!$sexAnyCheckbox.length) return;
@@ -1009,28 +1069,38 @@
 
    updateSexSelectionState();
 
-   $sexAnyCheckbox.on('change', function() {
-     if ($(this).is(':checked')) {
-       $sexItemCheckboxes.prop('checked', false);
-     } else if ($sexItemCheckboxes.filter(':checked').length === 0) {
-       $(this).prop('checked', true);
+   function updateSexVisuals() {
+     if ($sexAnyCheckbox.is(':checked')) {
+       $sexItemCheckboxes.closest('label').addClass('sex-all-selected');
+     } else {
+       $sexItemCheckboxes.closest('label').removeClass('sex-all-selected');
      }
+   }
+
+   $sexAnyCheckbox.on('change', function() {
+     var totalCount = $sexItemCheckboxes.length;
+     if ($(this).is(':checked')) {
+       $sexItemCheckboxes.prop('checked', true);
+     } else if ($sexItemCheckboxes.filter(':checked').length === totalCount) {
+       $sexItemCheckboxes.prop('checked', false);
+     }
+     updateSexVisuals();
    });
 
    $sexItemCheckboxes.on('change', function() {
      var totalCount = $sexItemCheckboxes.length;
      var checkedCount = $sexItemCheckboxes.filter(':checked').length;
 
-     // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
+     // 모든 항목이 선택되면 "전체" 체크 유지, 해제되면 "전체" 체크 해제
      if (checkedCount === totalCount) {
        $sexAnyCheckbox.prop('checked', true);
-       $sexItemCheckboxes.prop('checked', false);
-     } else if (checkedCount > 0) {
-       $sexAnyCheckbox.prop('checked', false);
      } else {
-       $sexAnyCheckbox.prop('checked', true);
+       $sexAnyCheckbox.prop('checked', false);
      }
+     updateSexVisuals();
    });
+
+   updateSexVisuals();
 
    function updateAgeSelectionState() {
      if (!$ageAnyCheckbox.length) return;
@@ -1265,7 +1335,7 @@
      updateAgeSelectionState();
 
      // 현재 사용자 ID에 해당하는 키 삭제
-     var storageKey = "jobListAdvancedSearch_" + (currentUserId || "guest");
+     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
      sessionStorage.removeItem(storageKey);
 
      initCategory();

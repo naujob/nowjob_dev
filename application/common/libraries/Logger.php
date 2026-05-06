@@ -1,22 +1,26 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
  * Logger 라이브러리 - PHP 5.4 호환
  * 일관된 JSON 형식으로 로그를 파일에 저장
  */
-class Logger {
+class Logger
+{
 
     private $log_dir;
     private $current_date;
     private $context = array();
     private $request_id;
 
-    public function __construct() {
+    public function __construct()
+    {
         // 로그 디렉토리 설정 (CodeIgniter 경로 기준)
-        // APPPATH = /path/to/application
-        // 로그 디렉토리 = /path/to/logs
-        $this->log_dir = dirname(APPPATH) . '/logs';
+        //CodeIgniter의 /index.php가 서브도메인에 따라 라우팅함
+        // APPPATH = /website/dev_nowapk/application/shop/
+        // APPPATH . 'logs' = /website/dev_nowapk/application/shop/logs 
+
+        $this->log_dir = APPPATH . 'logs';
         $this->current_date = date('Y-m-d');
         $this->request_id = $this->generate_request_id();
 
@@ -27,7 +31,8 @@ class Logger {
     /**
      * 요청 ID 생성
      */
-    private function generate_request_id() {
+    private function generate_request_id()
+    {
         // substr($string, $start, $length);
         // microtime(true) : 현재 Unix 타임스탬프를 마이크로초 단위로 반환
         // mt_rand() : 더 나은 난수 생성기 사용
@@ -38,7 +43,8 @@ class Logger {
     /**
      * 로그 디렉토리 생성/확인
      */
-    private function ensure_log_directory() {
+    private function ensure_log_directory()
+    {
         $date_dir = $this->log_dir . '/' . $this->current_date;
         if (!is_dir($date_dir)) {
             @mkdir($date_dir, 0755, true);
@@ -48,21 +54,24 @@ class Logger {
     /**
      * Context 설정
      */
-    public function setContext($key, $value) {
+    public function setContext($key, $value)
+    {
         $this->context[$key] = $value;
     }
 
     /**
      * Request ID 설정
      */
-    public function setRequestId($request_id) {
+    public function setRequestId($request_id)
+    {
         $this->request_id = $request_id;
     }
 
     /**
      * 로그 작성 (공통 메서드)
      */
-    private function write_log($level, $message, $data = array()) {
+    private function write_log($level, $message, $data = array())
+    {
         // 날짜 변경 확인
         $today = date('Y-m-d');
         if ($today !== $this->current_date) {
@@ -106,35 +115,40 @@ class Logger {
     /**
      * DEBUG 로그
      */
-    public function debug($message, $data = array()) {
+    public function debug($message, $data = array())
+    {
         $this->write_log('DEBUG', $message, $data);
     }
 
     /**
      * INFO 로그
      */
-    public function info($message, $data = array()) {
+    public function info($message, $data = array())
+    {
         $this->write_log('INFO', $message, $data);
     }
 
     /**
      * WARN 로그
      */
-    public function warn($message, $data = array()) {
+    public function warn($message, $data = array())
+    {
         $this->write_log('WARN', $message, $data);
     }
 
     /**
      * ERROR 로그
      */
-    public function error($message, $data = array()) {
+    public function error($message, $data = array())
+    {
         $this->write_log('ERROR', $message, $data);
     }
 
     /**
      * FATAL 로그
      */
-    public function fatal($message, $data = array()) {
+    public function fatal($message, $data = array())
+    {
         $this->write_log('FATAL', $message, $data);
     }
 }

@@ -45,7 +45,7 @@ class Resume extends CI_Controller
     $addr_info = $this->user->getAddrInfo();
     $mm_idx = $this->user->getUserIdx();
 
-    //검색어 가져오기
+    //검색어 가져오기 - 기본값으로 초기화 (클라이언트에서 sessionStorage로 복원)
     $search_txt = [
       "text" => "",
       "addr" => "",
@@ -59,38 +59,6 @@ class Resume extends CI_Controller
       "addrName" => "",
       "searchAreaStr" => "",
     ];
-
-    $site_log = $this->site_model->getSiteLog([
-      "session_id" => session_id(),
-      "sl_type" => "SEARCH_RESUME",
-      "sl_step" => "검색"
-    ]);
-
-    if ($site_log == null) {
-      if ($this->user->isLogin()) {
-        $site_log = $this->site_model->getSiteLog([
-          "mm_idx" => $this->mm_idx,
-          "sl_type" => "SEARCH_RESUME",
-          "sl_step" => "검색"
-        ]);
-      }
-    }
-
-    if ($site_log != null) {
-      $json_info = json_decode($site_log["sl_txt"], true);
-      $search_txt["text"] = $json_info["text"];
-      $search_txt["addr"] = $json_info["addr"];
-      $search_txt["category"] = explode("^", $json_info["category"]);
-      $search_txt["work_type"] = explode("^", $json_info["work_type"]);
-      $search_txt["week"] = explode("^", $json_info["week"]);
-      $search_txt["price_type"] = explode("^", $json_info["price_type"]);
-      $search_txt["sex"] = explode("^", $json_info["sex"]);
-      $search_txt["sage"] = $json_info["sage"];
-      $search_txt["eage"] = $json_info["eage"];
-      $search_txt["addr"] = $json_info["addr"];
-      $search_txt["addrName"] = $json_info["addrName"];
-      $search_txt["searchAreaStr"] = $json_info["searchAreaStr"];
-    }
 
     $params["mm_idx"] = $this->mm_idx;
     $params["page"] = 1;
@@ -118,7 +86,7 @@ class Resume extends CI_Controller
     $data = [];
     $addr_info = $this->user->getAddrInfo();
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
-    //검색어 가져오기
+    //검색어 가져오기 - 기본값으로 초기화 (클라이언트에서 sessionStorage로 복원)
     $search_txt = [
       "text" => "",
       "addrName" => "",
@@ -134,37 +102,6 @@ class Resume extends CI_Controller
       "addrName" => "",
       "searchAreaStr" => "",
     ];
-
-    $site_log = $this->site_model->getSiteLog([
-      "session_id" => session_id(),
-      "sl_type" => "SEARCH_RESUME",
-      "sl_step" => "검색"
-    ]);
-
-    if ($site_log == null) {
-      if ($this->user->isLogin()) {
-        $site_log = $this->site_model->getSiteLog([
-          "mm_idx" => $this->mm_idx,
-          "sl_type" => "SEARCH_RESUME",
-          "sl_step" => "검색"
-        ]);
-      }
-    }
-
-    if ($site_log != null) {
-      $json_info = json_decode($site_log["sl_txt"], true);
-      $search_txt["text"] = $json_info["text"];
-      $search_txt["addrName"] = $json_info["addrName"];
-      $search_txt["searchAreaStr"] = $json_info["searchAreaStr"];
-      $search_txt["mapLevel"] = $json_info["mapLevel"];
-      $search_txt["category"] = explode("^", $json_info["category"]);
-      $search_txt["work_type"] = explode("^", $json_info["work_type"]);
-      $search_txt["week"] = explode("^", $json_info["week"]);
-      $search_txt["price_type"] = explode("^", $json_info["price_type"]);
-      $search_txt["sex"] = explode("^", $json_info["sex"]);
-      $search_txt["sage"] = $json_info["sage"];
-      $search_txt["eage"] = $json_info["eage"];
-    }
     $data["mm_type"] = $this->mm_type;
     $data["ad_addr"] = $addr_info["ad_addr"];
     $data["ad_gps_x"] = $addr_info["ad_gps_x"];

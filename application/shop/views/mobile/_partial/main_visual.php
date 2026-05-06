@@ -7,6 +7,11 @@ $banner = null;
 if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
+
+// 현재 페이지 감지 (recruit vs resume)
+$current_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+$is_recruit_page = (strpos($current_uri, '/recruit/') !== false);
+$is_resume_page = (strpos($current_uri, '/resume/') !== false);
 ?>
 <style>
   /* 메인 비주얼 헤더 스타일 */
@@ -19,7 +24,7 @@ if (count($banner_list) > 0) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.25rem;
+    padding: 1rem 1.25rem 0rem 1.25rem;
     background-color: #fff;
     position: relative;
     z-index: 10;
@@ -138,7 +143,7 @@ if (count($banner_list) > 0) {
 <div class="search-option has-option">
   <style>
     .search-option.has-option .btn-option {
-      top: 0.975rem;
+      top: 1.3rem;
     }
   </style>
   <!-- 지역검색 -->
@@ -150,9 +155,12 @@ if (count($banner_list) > 0) {
   <!-- 선택된 지역 태그 -->
   <div class="selected-regions">
     <style>
-      .search-option .selected-regions {
+      /* selected-regions 컨테이너에 내용이 있을 때만 스타일 적용 */
+      .search-option .selected-regions:has(> .container > .region-tag) {
         padding: 0.5rem 0rem;
         background: #fff;
+        border-top: 1px solid #999;
+        border-bottom: 1px solid #999;
       }
 
       .search-option .selected-regions .container {
@@ -165,7 +173,7 @@ if (count($banner_list) > 0) {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background-color: #f5f5f5;
+
         border: 1px solid #ddd;
         border-radius: 20px;
         padding: 6px 12px;
@@ -174,107 +182,129 @@ if (count($banner_list) > 0) {
         white-space: nowrap;
       }
 
-      .search-option .selected-regions .region-tag .close-btn {
+      .search-option .selected-regions .close-btn {
         cursor: pointer;
         font-weight: bold;
         color: #aaa;
         margin-left: 4px;
       }
 
-      .search-option .selected-regions .region-tag .close-btn:hover {
+      .search-option .selected-regions .close-btn:hover {
         color: #666;
       }
     </style>
     <div class="container" id="selected-regions-list"></div>
   </div>
-  <!-- 선택된 카테고리 -->
-  <div class="categories">
-    <style>
-      /* #tab_list 내 검색 조건 태그 스타일 */
+  <!-- 선택된 카테고리 스타일 (공통) -->
+  <style>
+    /* #tab_list 내 검색 조건 태그 스타일 */
 
 
-      .search-option .categories .container {
-        display: flex;
-        flex-wrap: wrap;
+    .search-option .categories .container {
+      display: flex;
+      flex-wrap: wrap;
 
-        /* padding: 0 1.25rem; */
-      }
+      /* padding: 0 1.25rem; */
+    }
 
-      .search-option .categories {
-        height: auto;
-        margin-bottom: 10px;
-        border-bottom: 1px solid #999;
-        border-top: 1px solid #999;
-        padding: 0.4rem 0rem;
-      }
+    .search-option .categories {
+      height: auto;
+      margin-bottom: 10px;
+      padding: 0.4rem 0rem;
+    }
 
-      /* 검색 조건 탭 기본 스타일 */
-      .search-option .categories .filter-tag-item {
-        display: none;
-      }
+    /* #tab_list에 내용이 있을 때만 border 표시 */
+    .search-option .categories.has-items {
+      border-bottom: 1px solid #999;
+      border-top: 1px solid #999;
+    }
 
-      /* active 클래스가 있을 때만 표시 */
-      .search-option .categories .filter-tag-item.on {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background-color: #fff;
-        border-radius: 20px;
-        padding: 5px 10px;
-        font-size: 13px;
-        color: #333;
-        font-weight: 400;
-        white-space: nowrap;
-      }
+    /* 검색 조건 탭 기본 스타일 */
+    .search-option .categories .filter-tag-item {
+      display: none;
+    }
 
-      /* 탭 내부 체크박스 숨김 */
-      .search-option .categories .filter-tag-item input[type="checkbox"] {
-        display: none;
-      }
+    /* active 클래스가 있을 때만 표시 */
+    .search-option .categories .filter-tag-item.on {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 5px 10px;
+      font-size: 13px;
+      color: #333;
+      font-weight: 400;
+      white-space: nowrap;
+    }
 
-      /* 탭 내부 텍스트 표시 */
-      .search-option .categories .filter-tag-item .cate {
-        display: inline;
-        color: #333;
-      }
+    /* 탭 내부 체크박스 숨김 */
+    .search-option .categories .filter-tag-item input[type="checkbox"] {
+      display: none;
+    }
 
-      /* 탭 닫기 아이콘 */
-      .search-option .categories .filter-tag-item.on::after {
-        content: '×';
-        font-size: 10px;
-        color: #e8dfdf;
-        margin-left: 2px;
-        line-height: 1.3;
-        border-radius: 50%;
-        border: 1px solid #999;
-        width: 15px;
-        height: 15px;
-        text-align: center;
-        background: #999;
-        position: relative;
-        top: 1.5px;
-        cursor: pointer;
-      }
+    /* 탭 내부 텍스트 표시 */
+    .search-option .categories .filter-tag-item .cate {
+      display: inline;
+      color: #333;
+    }
 
-      /* #tab_list 내 요소들 */
-      #tab_list {
-        pointer-events: auto;
-      }
+    /* has-items 클래스가 없을 때 .cate 텍스트 숨김 */
+    .search-option .categories.hide-cate .filter-tag-item .cate {
+      display: none;
+    }
 
-      #tab_list .filter-tag-item {
-        pointer-events: auto;
-      }
+    /* 탭 닫기 아이콘 */
+    .search-option .categories .filter-tag-item.on::after {
+      content: '×';
+      font-size: 10px;
+      color: #e8dfdf;
+      margin-left: 2px;
+      line-height: 1.3;
+      border-radius: 50%;
+      border: 1px solid #999;
+      width: 15px;
+      height: 15px;
+      text-align: center;
+      background: #999;
+      position: relative;
+      top: 1.5px;
+      cursor: pointer;
+    }
 
-      /* × 버튼 클릭 활성화 */
-      #tab_list .filter-tag-item::after {
-        pointer-events: auto;
-        cursor: pointer;
-      }
-    </style>
-    <div class="container" id="tab_list">
+    /* #tab_list 내 요소들 */
+    #tab_list {
+      pointer-events: auto;
+    }
 
+    #tab_list .filter-tag-item {
+      pointer-events: auto;
+    }
+
+    /* × 버튼 클릭 활성화 */
+    #tab_list .filter-tag-item::after {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+  </style>
+
+  <!-- 선택된 카테고리 (recruit 페이지) -->
+  <?php if ($is_recruit_page) : ?>
+    <div class="categories recruit-filter-tags">
+      <div class="container" id="tab_list">
+
+      </div>
     </div>
-  </div>
+  <?php endif; ?>
+
+  <!-- 선택된 카테고리 (resume 페이지) -->
+  <?php if ($is_resume_page) : ?>
+    <div class="categories resume-filter-tags">
+      <div class="container" id="tab_list">
+
+      </div>
+    </div>
+  <?php endif; ?>
   <!-- 상세 검색 옵션 버튼 -->
   <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
 </div>
@@ -304,6 +334,13 @@ if (count($banner_list) > 0) {
     </div>
   </div>
   <script>
+    function getAdvancedSearchStorageKey() {
+      var userId = window.currentUserId || "guest";
+      var scope = window.location.pathname.indexOf('/resume/') !== -1 ? 'resume' : 'recruit';
+      return "jobListAdvancedSearch_" + scope + "_" + userId;
+    }
+    window.getAdvancedSearchStorageKey = getAdvancedSearchStorageKey;
+
     // 지역 선택 버튼 초기화: 초기값이 "전체"이면 placeholder 스타일로 변경
     function initAddrNameButton() {
       var addrBtn = document.querySelector('.addrName');
@@ -358,6 +395,7 @@ if (count($banner_list) > 0) {
               });
 
               // 전역 변수 초기화 (다른 스크립트와 동기화)
+              window.selectedRegions = [];
               if (typeof window.addrName !== 'undefined') {
                 window.addrName = '';
               }
@@ -374,8 +412,29 @@ if (count($banner_list) > 0) {
                 el.classList.remove('addr_on');
               });
 
+              // sessionStorage에서 지역 정보 제거
+              try {
+                var storageKey = window.getAdvancedSearchStorageKey();
+                var raw = sessionStorage.getItem(storageKey);
+                if (raw) {
+                  var state = JSON.parse(raw);
+                  state.addrName = '';
+                  state.searchAreaStr = JSON.stringify([]);
+                  state.search_addr = [];
+                  state.selectedRegions = [];
+                  sessionStorage.setItem(storageKey, JSON.stringify(state));
+                }
+              } catch (e) {
+                // sessionStorage 처리 실패해도 진행
+              }
+
               // 태그 업데이트
               updateSelectedRegionsTags();
+
+              // index_search.php의 selectedRegionsContainer도 동기화
+              if (typeof window.updateSelectedRegionsDisplay === 'function') {
+                window.updateSelectedRegionsDisplay();
+              }
 
               // 페이지 검색 재실행 (필요시)
               if (typeof window.getBoardList === 'function') {
@@ -425,39 +484,196 @@ if (count($banner_list) > 0) {
       });
     }
 
-    // 카테고리 필터 × 버튼 클릭 핸들러
-    document.addEventListener('click', function(e) {
-      // ::after 의사 요소는 직접 클릭할 수 없으므로 label을 클릭한 후 처리
-      if (e.target.tagName === 'LABEL' &&
-          e.target.classList.contains('filter-tag-item') &&
-          e.target.classList.contains('on')) {
+    // #tab_list 내용 변경 감지하여 border 표시/숨김
+    function updateCategoriesBorder() {
+      var tabList = document.getElementById('tab_list');
+      var categoriesSection = document.querySelector('.search-option .categories');
+      if (!tabList || !categoriesSection) return;
 
-        // × 버튼 영역 클릭 감지 (오른쪽 끝 부분)
-        var rect = e.target.getBoundingClientRect();
-        var clickX = e.clientX - rect.left;
-        var isCloseButton = clickX > rect.width - 20;
-
-        if (isCloseButton) {
-          e.preventDefault();
-          e.stopPropagation();
-
-          var checkbox = e.target.querySelector('input[type="checkbox"]');
-          var categoryName = checkbox ? checkbox.value : '';
-
-          // 체크박스 해제
-          if (checkbox) {
-            checkbox.checked = false;
-          }
-
-          // 필터 제거 처리 (다른 스크립트의 함수 호출)
-          if (typeof window.getBoardList === 'function') {
-            window.getBoardList('Y');
-          }
-
-          // 상태 업데이트
-          e.target.classList.remove('on');
-        }
+      // tab_list에 filter-tag-item.on이 하나라도 있으면 has-items 클래스 추가, hide-cate 제거
+      if (tabList.querySelector('.filter-tag-item.on')) {
+        categoriesSection.classList.add('has-items');
+        categoriesSection.classList.remove('hide-cate');
+      } else {
+        categoriesSection.classList.remove('has-items');
+        categoriesSection.classList.add('hide-cate');
       }
+    }
+
+    // 초기 상태 확인
+    updateCategoriesBorder();
+
+    // #tab_list 변경 감지
+    var tabList = document.getElementById('tab_list');
+    if (tabList) {
+      var tabObserver = new MutationObserver(function(mutations) {
+        updateCategoriesBorder();
+      });
+      tabObserver.observe(tabList, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    function clearAreaFilterState() {
+      var addrBtn = document.querySelector('.addrName');
+      if (addrBtn) {
+        addrBtn.textContent = '지역을 선택해 주세요';
+        addrBtn.setAttribute('data-selected', 'false');
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll('.selbtn'), function(el) {
+        el.remove();
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('li.addr_on'), function(el) {
+        el.classList.remove('addr_on');
+      });
+
+      window.selectedRegions = [];
+      if (typeof window.addrName !== 'undefined') window.addrName = '';
+      if (typeof window.search_addr !== 'undefined') window.search_addr = [];
+      if (typeof window.searchAreaStr !== 'undefined') window.searchAreaStr = JSON.stringify([]);
+    }
+
+    function clearFormControlsByFilterKey(filterKey) {
+      var inputNameMap = {
+        category: 'category[]',
+        work_type: 'work_type[]',
+        week: 'week[]',
+        price_type: 'price_type[]',
+        sex: 'sex[]'
+      };
+
+      if (inputNameMap[filterKey]) {
+        Array.prototype.forEach.call(document.querySelectorAll('input[name="' + inputNameMap[filterKey] + '"]'), function(input) {
+          input.checked = false;
+          input.dispatchEvent(new Event('change', {
+            bubbles: true
+          }));
+        });
+      }
+
+      if (filterKey === 'week') {
+        var workingDay = document.querySelector('input[name="workingDay"]');
+        if (workingDay) workingDay.checked = false;
+      }
+
+      if (filterKey === 'price_type') {
+        var priceNegotiable = document.querySelector('input[name="priceNegotiable"]');
+        if (priceNegotiable) priceNegotiable.checked = false;
+      }
+
+      if (filterKey === 'age') {
+        var ageRangeSelect = document.getElementById('ageRangeSelect');
+        var sageInput = document.getElementById('sageInput') || document.querySelector('input[name="sage"]');
+        var eageInput = document.getElementById('eageInput') || document.querySelector('input[name="eage"]');
+        var ageAnyCheckbox = document.querySelector('input[name="age_any"]');
+
+        if (ageRangeSelect) ageRangeSelect.value = '';
+        if (sageInput) sageInput.value = '';
+        if (eageInput) eageInput.value = '';
+        if (ageAnyCheckbox) ageAnyCheckbox.checked = true;
+      }
+
+      if (filterKey === 'area') {
+        clearAreaFilterState();
+      }
+    }
+
+    function clearSearchArrayByFilterKey(filterKey) {
+      if (typeof window.search_array === 'undefined') return;
+
+      if (filterKey === 'age') {
+        window.search_array.sage = '';
+        window.search_array.eage = '';
+      } else if (filterKey === 'area') {
+        clearAreaFilterState();
+      } else if (typeof window.search_array[filterKey] !== 'undefined') {
+        window.search_array[filterKey] = '';
+      }
+    }
+    // 지금 클릭한 태그가 어떤 필터인지 알아내는  key 값을 리턴
+    function inferFilterKeyFromTag(filterTag) {
+      var filterKey = filterTag.getAttribute('data-filter-key');
+      if (filterKey) return filterKey;
+
+      var tagItems = filterTag.parentNode ? filterTag.parentNode.querySelectorAll('label.btn-category') : [];
+      var tagIndex = Array.prototype.indexOf.call(tagItems, filterTag);
+      var tabInfo = (typeof window.tab_list !== 'undefined' && window.tab_list[tagIndex]) ? window.tab_list[tagIndex] : null;
+      var tabLabel = tabInfo && tabInfo.df ? tabInfo.df : '';
+
+      if (tabInfo && tabInfo.key) return tabInfo.key;
+      if (tabLabel.indexOf('지역') !== -1) return 'area';
+      if (tabLabel.indexOf('업직종') !== -1 || tabLabel.indexOf('카테고리') !== -1) return 'category';
+      if (tabLabel.indexOf('근무형태') !== -1) return 'work_type';
+      if (tabLabel.indexOf('근무요일') !== -1) return 'week';
+      if (tabLabel.indexOf('급여') !== -1) return 'price_type';
+      if (tabLabel.indexOf('성별') !== -1) return 'sex';
+      if (tabLabel.indexOf('나이') !== -1) return 'age';
+
+      return '';
+    }
+
+    function persistFilterState() {
+      if (typeof window.saveSearchStateToStorage === 'function') {
+        window.saveSearchStateToStorage();
+      } else if (typeof saveSearchStateToStorage === 'function') {
+        saveSearchStateToStorage();
+      }
+    }
+    // 필터 태그 제거 함수
+    function removeFilterTag(filterKey) {
+      if (!filterKey) return;
+
+      clearFormControlsByFilterKey(filterKey);
+      clearSearchArrayByFilterKey(filterKey);
+
+      if (typeof window.initCategory === 'function') {
+        window.initCategory();
+      } else if (typeof initCategory === 'function') {
+        initCategory();
+      }
+
+      persistFilterState();
+
+      if (typeof window.initTabUi === 'function') {
+        window.initTabUi();
+      } else if (typeof initTabUi === 'function') {
+        initTabUi();
+      }
+
+      if (typeof window.updateSelectedRegionsTags === 'function') {
+        window.updateSelectedRegionsTags();
+      }
+      if (typeof window.updateSelectedRegionsDisplay === 'function') {
+        window.updateSelectedRegionsDisplay();
+      }
+
+      if (typeof window.list_page !== 'undefined') {
+        window.list_page = 1;
+      }
+      if (typeof window.list_id !== 'undefined' && window.jQuery) {
+        window.jQuery(window.list_id).html('');
+      }
+      if (typeof window.getBoardList === 'function') {
+        window.getBoardList('Y');
+      } else if (typeof getBoardList === 'function') {
+        getBoardList('Y');
+      }
+
+      updateCategoriesBorder();
+    }
+    window.removeFilterTag = removeFilterTag;
+
+    // 카테고리 필터 태그 클릭 핸들러
+    document.addEventListener('click', function(e) {
+      var filterTag = e.target.closest ? e.target.closest('label.filter-tag-item.on.btn-category') : null;
+      if (!filterTag) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      removeFilterTag(inferFilterKeyFromTag(filterTag));
     }, true); // 캡처 단계에서 처리
 
     window.addEventListener('DOMContentLoaded', function() {
