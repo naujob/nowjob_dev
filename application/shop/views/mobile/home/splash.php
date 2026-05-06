@@ -220,15 +220,15 @@
             marketing_yn = "N";
             setTimeout(function() {
                 setUUid();
-            }, 1000);
+            }, 300);
         } else if (step == "login") {
             setTimeout(function() {
                 navigateToHome();
-            }, 1500);
+            }, 300);
         } else {
             setTimeout(function() {
                 navigateToHome();
-            }, 1500);
+            }, 300);
         }
     }
 
@@ -421,7 +421,7 @@
                         } else {
                             navigateToHome();
                         }
-                    }, 1000); // 2700ms -> 1000ms로 단축하여 더 빠르게 이동
+                    }, 300); // 빠르게 이동
                 } else {
                     // 동의 정보가 없는 경우 팝업 없이 기본값으로 설정하고 바로 진행
                     push_yn = "N";
