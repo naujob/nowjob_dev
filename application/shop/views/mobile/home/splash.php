@@ -337,10 +337,10 @@
                                 APP_NOWAPK.grantPopup();
                             }
 
-                            // finishGrant 콜백이 호출되지 않는 경우를 대비한 백업 타임아웃 (3초 후)
+                            // finishGrant 콜백이 호출되지 않는 경우를 대비한 백업 타임아웃 (0.5초 후)
                             grantPopupTimeout = setTimeout(function() {
                                 navigateToHome();
-                            }, 3000);
+                            }, 500);
                         } catch (error) {
                             // 에러 발생 시에도 홈으로 이동
                             navigateToHome();
