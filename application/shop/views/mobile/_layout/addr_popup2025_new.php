@@ -1070,11 +1070,15 @@
             // iOS 웹뷰 대응: body 스타일 복원 (개선 버전)
             // 개선된 함수 우선 사용, 없으면 기존 함수, 둘 다 없으면 fallback
             function attemptRestoreScroll() {
+              console.log('[addr_popup] attemptRestoreScroll 호출');
               if (typeof forceRestoreBodyScroll === 'function') {
+                console.log('[addr_popup] forceRestoreBodyScroll 사용');
                 forceRestoreBodyScroll();
               } else if (typeof restoreBodyScroll === 'function') {
+                console.log('[addr_popup] restoreBodyScroll 사용');
                 restoreBodyScroll();
               } else {
+                console.log('[addr_popup] fallback 직접 복원 사용');
                 // fallback: 직접 복원
                 const b = document.body;
                 const h = document.documentElement;
@@ -1087,7 +1091,14 @@
                     }
                   });
                   b.classList.remove('no-scroll');
-                  b.classList.remove('panel-open');
+                  // [수정] 다른 패널이 열려있으면 panel-open 유지
+                  var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
+                  if (!hasOtherOpenPanel) {
+                    console.log('[addr_popup] 다른 열려있는 패널 없음 → panel-open 제거');
+                    b.classList.remove('panel-open');
+                  } else {
+                    console.log('[addr_popup] 다른 열려있는 패널 있음 → panel-open 유지');
+                  }
                 }
 
                 if (h) {
