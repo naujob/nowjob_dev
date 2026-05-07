@@ -178,7 +178,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       border: 1px solid #ddd;
       border-radius: 20px;
       padding: 6px 12px;
-      font-size: 13px;
+      font-size: 1.2rem;
       color: #333;
       white-space: nowrap;
       cursor: pointer;

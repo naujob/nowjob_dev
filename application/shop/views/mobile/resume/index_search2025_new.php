@@ -1006,6 +1006,90 @@
     });
   });
 
+  // 저장된 상세검색 조건을 로드해 UI에 반영
+  function loadSearchStateFromStorage() {
+    var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
+    var raw = sessionStorage.getItem(storageKey);
+    if (!raw) return;
+
+    try {
+      var state = JSON.parse(raw);
+
+      // 저장된 사용자 ID와 현재 사용자 ID가 다르면 무시 (보안)
+      if (state.userId !== currentUserId) {
+        return;
+      }
+
+      // 주소 정보 복원
+      if (state.addrName) {
+        addrName = state.addrName;
+        $(".addrName").text(state.addrName).attr('data-selected', state.addrName !== '지역을 선택해 주세요' ? 'true' : 'false');
+      }
+      if (Array.isArray(state.search_addr)) {
+        search_addr = state.search_addr.slice();
+      }
+      if (state.searchAreaStr) {
+        searchAreaStr = state.searchAreaStr;
+      }
+
+      // selectedRegions 복원
+      var names = Array.isArray(state.selectedRegions) ? state.selectedRegions : [];
+      window.selectedRegions = names.slice(0, 3);
+      if (typeof window.updateSelectedRegionsTags === 'function') {
+        window.updateSelectedRegionsTags();
+      }
+      if (typeof window.updateSelectedRegionsDisplay === 'function') {
+        window.updateSelectedRegionsDisplay();
+      }
+
+      // 체크박스 상태 복원
+      function applyCheckedValues(selector, values) {
+        $(selector).each(function() {
+          var isChecked = values.indexOf($(this).val()) !== -1;
+          $(this).prop('checked', isChecked);
+          var cell = $(this).closest('[class*="-cell"]');
+          if (cell) {
+            if (isChecked) {
+              cell.addClass('selected');
+            } else {
+              cell.removeClass('selected');
+            }
+          }
+        });
+      }
+
+      applyCheckedValues("[data-category-checkbox]", state.category || []);
+      applyCheckedValues("[data-work-checkbox]", state.work_type || []);
+      applyCheckedValues("[data-week-checkbox]", state.week || []);
+      applyCheckedValues("[data-price-checkbox]", state.price_type || []);
+      applyCheckedValues("[data-gender-checkbox]", state.sex || []);
+
+      // 나이 복원
+      $("#sageInput").val(state.sage || "");
+      $("#eageInput").val(state.eage || "");
+      if ((state.sage && state.sage.trim() !== '') || (state.eage && state.eage.trim() !== '')) {
+        $('input[name="age_any"]').prop('checked', false);
+        $('#ageRangeSelect').val(state.sage + '-' + state.eage);
+      } else {
+        $('input[name="age_any"]').prop('checked', true);
+        $('#ageRangeSelect').val('');
+      }
+
+      // UI 상태 업데이트 함수들 호출 (있으면)
+      if (document.querySelector('[data-category-checkbox]')) {
+        var selectedCount = document.querySelectorAll('[data-category-checkbox]:checked').length;
+        var counterEl = document.getElementById('category-selected-count');
+        if (counterEl) counterEl.textContent = selectedCount;
+      }
+
+      // 초기 상태 설정
+      initCategory();
+      initTabUi();
+    } catch (e) {
+      console.error('[index_search2025_new.php] sessionStorage 복원 실패:', e);
+    }
+  }
+
   function saveSearchStateToStorage() {
     try {
       var categoryArray = search_array.category ? search_array.category.split("^").filter(function(cat) {
@@ -1065,16 +1149,18 @@
   // 전역 함수로 등록 (main_visual.php에서 접근 가능하도록)
   window.initCategory = initCategory;
   window.initTabUi = initTabUi;
+  window.loadSearchStateFromStorage = loadSearchStateFromStorage;
   window.saveSearchStateToStorage = saveSearchStateToStorage;
 
-  // 페이지 로드 완료 후 초기 상태 저장 (sessionStorage 초기화)
+  // 페이지 로드 완료 후 저장된 검색 조건 복원
   $(document).ready(function() {
     try {
-      initCategory();
-      saveSearchStateToStorage();
-      console.log('[index_search2025_new.php] 초기 검색 조건 저장 완료');
+      if (typeof loadSearchStateFromStorage === 'function') {
+        loadSearchStateFromStorage();
+      }
+      console.log('[index_search2025_new.php] 검색 조건 복원 완료');
     } catch (e) {
-      console.error('[index_search2025_new.php] 초기 저장 중 오류:', e);
+      console.error('[index_search2025_new.php] 복원 중 오류:', e);
     }
   });
 
