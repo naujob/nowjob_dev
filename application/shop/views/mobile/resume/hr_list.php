@@ -1074,36 +1074,43 @@ $tpl_show_mm_idx = true; ?>
       height: 'auto'
     });
 
-    const count = $('.selbtn').length;
-    var addrNames = [];
+    // 지역 정보는 index_search2025_new.php의 loadSearchStateFromStorage()에서 이미 복원됨
+    // 따라서 여기서는 .selbtn과 addrName 초기화를 스킵
+    // (.selbtn은 서버 렌더링 초기값이므로 새로고침 시 이미 리셋되어 있음)
 
-    if ($('.selbtn').length > 0) {
-      $('.selbtn').each(function() {
-        const text = $(this).clone().children().remove().end().text().trim();
-        addrNames.push(text);
-      });
-      addrName = addrNames.join(', ');
-      $('.addrName').text(addrName).attr('data-selected', 'true');
-    } else {
-      addrName = '지역을 선택해 주세요';
-      $('.addrName').text(addrName).attr('data-selected', 'false');
-    }
+    // 만약 sessionStorage에서 복원되지 않았을 경우에만 .selbtn으로 초기화
+    if (!addrName || addrName === '') {
+      const count = $('.selbtn').length;
+      var addrNames = [];
 
-    const searchArea = [];
-    search_addr = [];
-
-    $('.selbtn').each(function() {
-      const addr = $(this).data('addr');
-      const step = $(this).data('step');
-      if (addr) {
-        searchArea.push({
-          addr: addr,
-          step: step
+      if ($('.selbtn').length > 0) {
+        $('.selbtn').each(function() {
+          const text = $(this).clone().children().remove().end().text().trim();
+          addrNames.push(text);
         });
-        search_addr.push(addr);
+        addrName = addrNames.join(', ');
+        $('.addrName').text(addrName).attr('data-selected', 'true');
+      } else {
+        addrName = '지역을 선택해 주세요';
+        $('.addrName').text(addrName).attr('data-selected', 'false');
       }
-    });
-    searchAreaStr = JSON.stringify(searchArea);
+
+      const searchArea = [];
+      search_addr = [];
+
+      $('.selbtn').each(function() {
+        const addr = $(this).data('addr');
+        const step = $(this).data('step');
+        if (addr) {
+          searchArea.push({
+            addr: addr,
+            step: step
+          });
+          search_addr.push(addr);
+        }
+      });
+      searchAreaStr = JSON.stringify(searchArea);
+    }
 
     // 검색 조건 초기화 (index_search2025_new.php의 $(document).ready()에서 이미 복원됨)
     if (typeof window.initCategory === 'function' && typeof window.initTabUi === 'function') {
