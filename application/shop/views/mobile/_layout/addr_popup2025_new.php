@@ -842,6 +842,22 @@
             $(`li[data-step="${step}"][data-addr="${addr}"]`).removeClass('addr_on');
             $btn.remove();
             updateSelectedCount();
+
+            // index_search.php의 window.selectedRegions와 #selectedRegionsContainer 동기화
+            if (window.selectedRegions && window.updateSelectedRegionsDisplay) {
+              // 남은 .selbtn 기준으로 이름 배열 재구성
+              var newNames = [];
+              $('.div2 .selbtn').each(function() {
+                var text = $(this).clone().children().remove().end().text().trim();
+                newNames.push(text);
+              });
+              window.selectedRegions = newNames;
+              window.updateSelectedRegionsDisplay();
+
+              // tab_list 갱신
+              if (typeof initCategory === 'function') initCategory();
+              if (typeof initTabUi === 'function') initTabUi();
+            }
           });
 
           $('input[type="checkbox"]').on('click', function(e) {

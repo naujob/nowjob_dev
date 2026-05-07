@@ -906,13 +906,43 @@
        window.updateSelectedRegionsTags();
      }
 
-     // sessionStorage 업데이트
+     // addr_popup2025_new.php의 .div2 .selbtn도 동기화
+     var $selbtnAll = $('.div2 .selbtn');
+     var $targetSelbtn = $selbtnAll.eq(index);
+     if ($targetSelbtn.length) {
+       var step = $targetSelbtn.data('step');
+       var addr = $targetSelbtn.data('addr');
+       // 리스트에서 addr_on 해제
+       $('li[data-step="' + step + '"][data-addr="' + addr + '"]').removeClass('addr_on');
+       $targetSelbtn.remove();
+       // updateSelectedCount 호출
+       if (typeof updateSelectedCount === 'function') {
+         updateSelectedCount();
+       }
+     }
+
+     // sessionStorage 업데이트 (selectedRegions, searchAreaStr, search_addr 모두 갱신)
      try {
        var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (window.currentUserId || "guest");
        var raw = sessionStorage.getItem(storageKey);
        if (raw) {
          var state = JSON.parse(raw);
          state.selectedRegions = window.selectedRegions.slice();
+
+         // .div2 .selbtn 기준으로 searchAreaStr와 search_addr 재계산
+         var newSearchArea = [];
+         var newSearchAddr = [];
+         $('.div2 .selbtn').each(function() {
+           var a = $(this).data('addr');
+           var s = $(this).data('step');
+           if (a) {
+             newSearchArea.push({ addr: a, step: s });
+             newSearchAddr.push(a);
+           }
+         });
+         state.searchAreaStr = JSON.stringify(newSearchArea);
+         state.search_addr = newSearchAddr;
+
          sessionStorage.setItem(storageKey, JSON.stringify(state));
        }
      } catch (e) {}
