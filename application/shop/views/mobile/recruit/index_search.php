@@ -350,10 +350,10 @@
                </div>
                <div class="form-toggle-group option-table-group option-table-cols-3 work-type-select">
                  <?php
-                 if (!isset($work_type_list)) {
-                   $work_type_list = [];
-                 }
-                 foreach ($work_type_list as $key => $row) : ?>
+                  if (!isset($work_type_list)) {
+                    $work_type_list = [];
+                  }
+                  foreach ($work_type_list as $key => $row) : ?>
 
                    <label class="form-toggle-btn2 work-type-option">
                      <input type="checkbox" name="work_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $search_txt["work_type"], "check") ?>>
@@ -404,10 +404,10 @@
                </div>
                <div class="form-toggle-group option-table-group option-table-cols-week week-select">
                  <?php
-                 if (!isset($week_list)) {
-                   $week_list = [];
-                 }
-                 foreach ($week_list as $row) : ?>
+                  if (!isset($week_list)) {
+                    $week_list = [];
+                  }
+                  foreach ($week_list as $row) : ?>
 
                    <label class="form-toggle-btn2 week-option">
                      <input type="checkbox" name="week[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $search_txt["week"], "check") ?>>
@@ -773,11 +773,11 @@
      // icnt = 1부터 시작하여 지역(tab_list[0])은 제외 (별도의 태그 섹션에 표시됨)
      for (var icnt = 1; icnt < tab_list.length; icnt++) {
 
-	     var $clone = $("#tpl_category").clone();
-	     var $content = $clone.html();
-	     $content = $content.replaceAll("{{active}}", tab_list[icnt].active);
-	     $content = $content.replaceAll("{{filter_key}}", tab_list[icnt].key || "");
-	     if (tab_list[icnt].active == "on") {
+       var $clone = $("#tpl_category").clone();
+       var $content = $clone.html();
+       $content = $content.replaceAll("{{active}}", tab_list[icnt].active);
+       $content = $content.replaceAll("{{filter_key}}", tab_list[icnt].key || "");
+       if (tab_list[icnt].active == "on") {
          $content = $content.replaceAll("{{category_name}}", tab_list[icnt].text);
        } else {
          $content = $content.replaceAll("{{category_name}}", tab_list[icnt].df);
@@ -859,9 +859,11 @@
 
    // 지역 선택 버튼 클릭 시 changeArea 팝업 열기
    $("#regionSelectBtn").click(function() {
-     // changeArea 팝업 열기 (기존 addrName 버튼과 동일한 방식)
-     $("#changeArea").addClass("on");
-     $("body").css("overflow", "hidden");
+     // openPanel() 사용: body.panel-open 클래스가 추가되어 bottom-nav 정상 숨김 처리
+     var changeAreaEl = document.getElementById('changeArea');
+     if (changeAreaEl) {
+       openPanel(changeAreaEl);
+     }
    });
 
    // 지역 선택 개수 업데이트 함수

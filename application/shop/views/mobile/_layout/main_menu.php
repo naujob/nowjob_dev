@@ -184,41 +184,104 @@ renderSelectBottomSheet(
 ?>
 
 <script>
-  // 메인 메뉴 아이콘 클릭 이벤트
-  $(document).on('click', '.btn-nav-item', function(e) {
-    var $this = $(this);
-    var $img = $this.find('img');
-    var currentSrc = $img.attr('src');
+  // 현재 페이지 URL을 기준으로 메인 메뉴 아이콘 자동 활성화
+  function initNavIconByCurrentPage() {
+    var currentPath = window.location.pathname;
+    var $navItems = $('.btn-nav-item');
+    var activeNavName = '';
 
-    // 이미 활성화된 아이콘이면 처리하지 않음
-    if ($img.data('active') === 'true') {
-      return;
-    }
+    // 각 네비게이션 항목의 href와 현재 경로를 비교
+    $navItems.each(function() {
+      var $item = $(this);
+      var href = $item.attr('href');
+      var isButton = $item.prop('tagName').toLowerCase() === 'button';
 
-    // 다른 아이콘들의 활성화 상태 초기화
-    $('.btn-nav-item img').each(function() {
-      var $icon = $(this);
-      if ($icon.data('active') === 'true') {
-        var originalSrc = $icon.data('original-src');
-        $icon.attr('src', originalSrc);
-        $icon.data('active', 'false');
+      // 경로 매칭 로직
+      var isActive = false;
+
+      if (currentPath.indexOf('/recruit/job_list') !== -1) {
+        // 채용정보 페이지
+        if (href === '/recruit/job_list') {
+          isActive = true;
+          activeNavName = '채용정보';
+        }
+      } else if (currentPath.indexOf('/resume/hr_list') !== -1) {
+        // 인재정보 페이지
+        if (href === '/resume/hr_list') {
+          isActive = true;
+          activeNavName = '인재정보';
+        }
+      } else if (currentPath.indexOf('/resume/hr_map') !== -1) {
+        // 인재지도 페이지
+        if (href === '/resume/hr_map') {
+          isActive = true;
+          activeNavName = '인재지도';
+        }
+      } else if (currentPath.indexOf('/recruit/job_map') !== -1) {
+        // 채용지도 페이지
+        if (href === '/recruit/job_map') {
+          isActive = true;
+          activeNavName = '채용지도';
+        }
+      } else if (currentPath.indexOf('/chat/chat_list') !== -1 ||
+                 currentPath.indexOf('/chat/chat_list2') !== -1 ||
+                 currentPath.indexOf('/chat/index_comp') !== -1 ||
+                 currentPath.indexOf('/chat/chat_list3') !== -1 ||
+                 currentPath.indexOf('/chat/index') !== -1) {
+        // 채팅 페이지
+        if ($item.attr('id') === 'btnChat') {
+          isActive = true;
+          activeNavName = '채팅';
+        }
+      } else if (currentPath.indexOf('/mypage') !== -1) {
+        // 이력서 또는 마이페이지
+        if (isButton && $item.attr('id') === 'btnResumeWrite') {
+          isActive = true;
+          activeNavName = '이력서등록';
+        }
+      } else if (currentPath.indexOf('/compage') !== -1) {
+        // 채용공고 또는 기업페이지
+        if (isButton && $item.attr('id') === 'btnRecruitWrite') {
+          isActive = true;
+          activeNavName = '채용공고등록';
+        }
+      }
+
+      // 활성 상태 적용
+      if (isActive) {
+        var $img = $item.find('img');
+        var originalSrc = $img.attr('src');
+
+        // 원본 src 저장
+        if (!$img.data('original-src')) {
+          $img.data('original-src', originalSrc);
+        }
+
+        // 클릭 상태 아이콘으로 변경
+        var clickSrc = originalSrc.replace(/_v2\.png$/, '_click_v2.png');
+        $img.attr('src', clickSrc);
+        $img.data('active', 'true');
+      } else {
+        var $img = $item.find('img');
+        var originalSrc = $img.data('original-src');
+
+        // 원본 src 저장 (처음이면)
+        if (!originalSrc) {
+          originalSrc = $img.attr('src');
+          $img.data('original-src', originalSrc);
+        }
+
+        // 비활성 상태로 복원
+        $img.attr('src', originalSrc);
+        $img.data('active', 'false');
       }
     });
 
-    // 원본 src 저장 (첫 클릭일 때만)
-    if (!$img.data('original-src')) {
-      $img.data('original-src', currentSrc);
+    // sessionStorage에 활성화된 아이콘 저장
+    if (activeNavName) {
+      sessionStorage.setItem('activeMenuIcon', activeNavName);
     }
-
-    // 아이콘 변환: _v2.png → _click_v2.png
-    var clickSrc = currentSrc.replace(/_v2\.png$/, '_click_v2.png');
-
-    $img.attr('src', clickSrc);
-    $img.data('active', 'true');
-
-    // 활성화된 아이콘 정보를 sessionStorage에 저장 (페이지 이동 후에도 유지)
-    sessionStorage.setItem('activeMenuIcon', $img.attr('alt'));
-  });
+  }
 
   // 로그인 안내 팝업 버튼 클릭 이벤트
   $(document).on('click', '#btnLoginGuide', function() {
@@ -420,24 +483,8 @@ renderSelectBottomSheet(
     initPanelSwipe('resumeSelectPanel');
     initPanelSwipe('recruitSelectPanel');
 
-    // 메뉴 아이콘의 원본 src 초기화 및 이전 활성화 상태 복원
-    var activeMenuIcon = sessionStorage.getItem('activeMenuIcon');
-    $('.btn-nav-item img').each(function() {
-      var $img = $(this);
-      if (!$img.data('original-src')) {
-        $img.data('original-src', $img.attr('src'));
-      }
-
-      // 이전 활성 아이콘이 있으면 클릭 상태로 복원
-      if (activeMenuIcon && $img.attr('alt') === activeMenuIcon) {
-        var originalSrc = $img.data('original-src');
-        var clickSrc = originalSrc.replace(/_v2\.png$/, '_click_v2.png');
-        $img.attr('src', clickSrc);
-        $img.data('active', 'true');
-      } else {
-        $img.data('active', 'false');
-      }
-    });
+    // 현재 페이지 URL을 기준으로 메뉴 아이콘 활성화
+    initNavIconByCurrentPage();
   });
 
   /**

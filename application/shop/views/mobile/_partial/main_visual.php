@@ -181,17 +181,16 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       font-size: 13px;
       color: #333;
       white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .current-area .region-tag:hover {
+      background-color: #f5f5f5;
+      border-color: #999;
     }
 
     .current-area .close-btn {
-      cursor: pointer;
-      font-weight: bold;
-      color: #aaa;
-      margin-left: 4px;
-    }
-
-    .current-area .close-btn:hover {
-      color: #666;
+      display: none;
     }
 
     .search-option.has-option .btn-option {
@@ -386,68 +385,14 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
           if (region && region !== '지역을 선택해 주세요') {
             var tag = document.createElement('div');
             tag.className = 'region-tag';
-            tag.innerHTML = region + ' <span class="close-btn">×</span>';
+            tag.innerHTML = region;
 
-            // 닫기 버튼 클릭 핸들러
-            var closeBtn = tag.querySelector('.close-btn');
-            closeBtn.addEventListener('click', function(e) {
+            // 지역 태그 클릭 시 팝업 열기
+            tag.addEventListener('click', function(e) {
               e.stopPropagation();
-
-              // 지역 선택 해제 (전체로 리셋)
-              addrBtn.textContent = '지역을 선택해 주세요';
-              addrBtn.setAttribute('data-selected', 'false');
-
-              // 팝업 내의 선택된 지역 초기화
-              var selbtnElements = document.querySelectorAll('.selbtn');
-              selbtnElements.forEach(function(el) {
-                el.remove();
-              });
-
-              // 전역 변수 초기화 (다른 스크립트와 동기화)
-              window.selectedRegions = [];
-              if (typeof window.addrName !== 'undefined') {
-                window.addrName = '';
-              }
-              if (typeof window.search_addr !== 'undefined') {
-                window.search_addr = [];
-              }
-              if (typeof window.searchAreaStr !== 'undefined') {
-                window.searchAreaStr = JSON.stringify([]);
-              }
-
-              // 팝업 내 addr_on 클래스 제거
-              var addrOnElements = document.querySelectorAll('li.addr_on');
-              addrOnElements.forEach(function(el) {
-                el.classList.remove('addr_on');
-              });
-
-              // sessionStorage에서 지역 정보 제거
-              try {
-                var storageKey = window.getAdvancedSearchStorageKey();
-                var raw = sessionStorage.getItem(storageKey);
-                if (raw) {
-                  var state = JSON.parse(raw);
-                  state.addrName = '';
-                  state.searchAreaStr = JSON.stringify([]);
-                  state.search_addr = [];
-                  state.selectedRegions = [];
-                  sessionStorage.setItem(storageKey, JSON.stringify(state));
-                }
-              } catch (e) {
-                // sessionStorage 처리 실패해도 진행
-              }
-
-              // 태그 업데이트
-              updateSelectedRegionsTags();
-
-              // index_search.php의 selectedRegionsContainer도 동기화
-              if (typeof window.updateSelectedRegionsDisplay === 'function') {
-                window.updateSelectedRegionsDisplay();
-              }
-
-              // 페이지 검색 재실행 (필요시)
-              if (typeof window.getBoardList === 'function') {
-                window.getBoardList('Y');
+              var changeAreaBtn = document.querySelector('a.js-toggle-panel[aria-controls="changeArea"]');
+              if (changeAreaBtn) {
+                changeAreaBtn.click();
               }
             });
 

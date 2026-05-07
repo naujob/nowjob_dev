@@ -418,21 +418,24 @@
             // 패널 닫기 (transform 애니메이션 시작)
             $el.classList.remove('on');
 
-            // body에서 no-scroll 클래스 제거 (position, overflow, width 등 모든 스타일 해제)
-            // body 위치 변경 없이 스크롤만 복구
-            document.body.classList.remove('no-scroll');
+            // 다른 열린 패널이 없을 때만 body 클래스 제거 (중첩 패널 대응)
+            var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
+            if (!hasOtherOpenPanel) {
+                // body에서 no-scroll 클래스 제거 (position, overflow, width 등 모든 스타일 해제)
+                document.body.classList.remove('no-scroll');
 
-            // panel-open 클래스 제거 (bottom-nav 다시 표시)
-            document.body.classList.remove('panel-open');
+                // panel-open 클래스 제거 (bottom-nav 다시 표시)
+                document.body.classList.remove('panel-open');
+            }
 
-            // 저장된 스크롤 위치로 복구 (body 위치 변경 없이 스크롤만 이동)
-            if (savedScrollPosition > 0) {
+            // 다른 열린 패널이 없을 때만 스크롤 위치 복구
+            if (!hasOtherOpenPanel && savedScrollPosition > 0) {
                 window.scrollTo(0, savedScrollPosition);
                 savedScrollPosition = 0;
             }
 
-            // Swift에 패널 닫힘 알림 (iOS WebView 스크롤 활성화)
-            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.panelState) {
+            // 다른 열린 패널이 없을 때만 Swift에 패널 닫힘 알림
+            if (!hasOtherOpenPanel && window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.panelState) {
                 try {
                     window.webkit.messageHandlers.panelState.postMessage('close');
                 } catch (e) {
