@@ -1192,52 +1192,6 @@ $tpl_show_mm_idx = true; ?>
     setTimeout(attemptRestoreScroll, 50);
     setTimeout(attemptRestoreScroll, 200);
 
-    // 지금 뜨는 업체 슬라이더 초기화
-    var hotSlider = document.querySelector('.hot-list .slider-wrap');
-    if (hotSlider && typeof KeenSlider !== 'undefined') {
-      if (!hotSlider.__keenslider__) {
-        var slides = hotSlider.querySelectorAll('.keen-slider__slide');
-        if (slides.length > 0 && slides.length < 4) {
-          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
-          var added = slides.length;
-          var imageSrcMap = {};
-          slides.forEach(function(slide, idx) {
-            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
-              imageSrcMap[idx + '-' + imgIdx] = img.src;
-            });
-          });
-          while (added < cloneCount) {
-            slides.forEach(function(slide, slideIdx) {
-              if (added < cloneCount) {
-                var cloned = slide.cloneNode(true);
-                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
-                  var srcKey = slideIdx + '-' + imgIdx;
-                  if (imageSrcMap[srcKey]) img.src = imageSrcMap[srcKey];
-                  if (img.classList.contains('lozad')) {
-                    if (img.getAttribute('data-src') && !img.src) img.src = img.getAttribute('data-src');
-                    img.setAttribute('data-loaded', 'true');
-                  }
-                });
-                hotSlider.appendChild(cloned);
-                added++;
-              }
-            });
-          }
-        }
-        new KeenSlider(hotSlider, {
-          loop: true,
-          slides: {
-            perView: 1.1,
-            spacing: 12
-          },
-          drag: true,
-          dragMinDist: 0,
-          rubberband: true,
-          renderMode: 'precision'
-        });
-      }
-    }
-
     // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
 
     // 추천인재 슬라이더 로드
