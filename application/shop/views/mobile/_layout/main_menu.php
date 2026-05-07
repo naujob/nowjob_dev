@@ -113,6 +113,11 @@
     color: #222;
   }
 
+  /* 활성 상태일 때 font 색상 진하게 */
+  .btn-nav-item[data-active="true"] {
+    color: #161616;
+  }
+
   #msgNoReadCountMainBottom {
     position: absolute;
     top: 8px;
@@ -224,10 +229,10 @@ renderSelectBottomSheet(
           activeNavName = '채용지도';
         }
       } else if (currentPath.indexOf('/chat/chat_list') !== -1 ||
-                 currentPath.indexOf('/chat/chat_list2') !== -1 ||
-                 currentPath.indexOf('/chat/index_comp') !== -1 ||
-                 currentPath.indexOf('/chat/chat_list3') !== -1 ||
-                 currentPath.indexOf('/chat/index') !== -1) {
+        currentPath.indexOf('/chat/chat_list2') !== -1 ||
+        currentPath.indexOf('/chat/index_comp') !== -1 ||
+        currentPath.indexOf('/chat/chat_list3') !== -1 ||
+        currentPath.indexOf('/chat/index') !== -1) {
         // 채팅 페이지
         if ($item.attr('id') === 'btnChat') {
           isActive = true;
@@ -261,6 +266,7 @@ renderSelectBottomSheet(
         var clickSrc = originalSrc.replace(/_v2\.png$/, '_click_v2.png');
         $img.attr('src', clickSrc);
         $img.data('active', 'true');
+        $item.attr('data-active', 'true');
       } else {
         var $img = $item.find('img');
         var originalSrc = $img.data('original-src');
@@ -274,6 +280,7 @@ renderSelectBottomSheet(
         // 비활성 상태로 복원
         $img.attr('src', originalSrc);
         $img.data('active', 'false');
+        $item.attr('data-active', 'false');
       }
     });
 

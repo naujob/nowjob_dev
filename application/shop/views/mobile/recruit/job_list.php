@@ -52,10 +52,7 @@ $banner_list = getBannerList("BN00302031");
     line-height: 1;
   }
 
-  .search-option .categories {
-    height: auto;
-    margin-bottom: 10px;
-  }
+
 
   .current-area .btn {
     max-width: 100%;

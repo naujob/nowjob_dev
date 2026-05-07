@@ -536,7 +536,7 @@ if (count($banner_list) > 0) {
 <?php $tpl_id = 'tpl_list';
 $tpl_recomm_class = true;
 $tpl_show_mm_idx = true; ?>
-<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?> // 리스트 아이템 템플릿
+<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
 
 <template id="tpl_category">
   <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">

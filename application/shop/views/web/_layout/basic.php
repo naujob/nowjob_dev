@@ -798,8 +798,8 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
         <div style="width: 100%; text-align: center; padding: 20px 0; background-color: #fff;">
             <ins class="adsbygoogle"
                 style="display:block; width: 100%; min-height: 90px;"
-                data-ad-client="ca-pub-3622369584322145"
-                data-ad-slot="1234567890"
+                data-ad-client="<?= $is_nowjob_domain ? 'ca-pub-7573726661605583' : 'ca-pub-3622369584322145' ?>"
+                data-ad-slot="<?= $is_nowjob_domain ? '3768872159' : '1234567890' ?>"
                 data-ad-format="auto"
                 data-full-width-responsive="true"></ins>
             <script>
