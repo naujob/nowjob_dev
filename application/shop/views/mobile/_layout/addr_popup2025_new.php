@@ -1025,6 +1025,7 @@
 
             // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
             var handled = false;
+            console.log('[addr_popup] onChangeAreaApply 호출 전 - body.panel-open:', document.body.classList.contains('panel-open'));
             if (typeof window.onChangeAreaApply === 'function') {
               try {
                 handled = window.onChangeAreaApply({
@@ -1037,13 +1038,16 @@
 
               }
             }
+            console.log('[addr_popup] onChangeAreaApply 호출 후 - body.panel-open:', document.body.classList.contains('panel-open'));
 
             // [로그] changeArea 패널 닫기 전
             console.log('[addr_popup] changeArea.on before remove:', document.getElementById('changeArea').classList.contains('on'));
+            console.log('[addr_popup] body.panel-open before removeClass:', document.body.classList.contains('panel-open'));
 
             $("#changeArea").removeClass("on");
 
             console.log('[addr_popup] changeArea.on after remove:', document.getElementById('changeArea').classList.contains('on'));
+            console.log('[addr_popup] body.panel-open after removeClass:', document.body.classList.contains('panel-open'));
             resetAllRegionFlag();
             // QuickInfo 플로우에서 열린 경우 다시 기본 닫기 동작 허용
             if (window.__disableChangeAreaClose) {
