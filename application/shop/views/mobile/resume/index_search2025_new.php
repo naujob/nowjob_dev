@@ -1226,8 +1226,8 @@
       });
       b.classList.remove('no-scroll');
       // 다른 패널이 열려있으면 panel-open 유지
-      var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
-      if (!hasOtherOpenPanel) {
+      var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null; // 다른 패널이 열려있는지 체크
+      if (!hasOtherOpenPanel) { // 다른 패널이 없으면 panel-open 제거
         b.classList.remove('panel-open');
       }
     }
