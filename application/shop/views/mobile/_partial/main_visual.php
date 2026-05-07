@@ -157,9 +157,11 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
   <style>
     /* 지역 검색 영역 */
     .current-area {
-      border-top: 1px solid #999;
+      border-top: 1px solid #c2c0c0;
       border-bottom: 1px solid #999;
       padding: 10px 0px;
+      position: relative;
+      z-index: -1;
     }
 
     .current-area .container {
@@ -219,8 +221,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 
     .search-option .categories {
       height: auto;
-      margin-bottom: 10px;
-      padding: 0.4rem 0rem;
+
     }
 
     /* #tab_list에 내용이 있을 때만 border 표시 */
@@ -241,8 +242,8 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       gap: 4px;
       background-color: #fff;
       border-radius: 20px;
-      padding: 5px 10px;
-      font-size: 13px;
+      padding: 15px 10px;
+      font-size: 1.2rem;
       color: #333;
       font-weight: 400;
       white-space: nowrap;
@@ -366,7 +367,6 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 
     // 선택된 지역 태그 표시 함수
     function updateSelectedRegionsTags() {
-      var addrBtn = document.querySelector('.addrName');
       var regionsList = document.getElementById('selected-regions-list');
 
       if (!regionsList) return;
@@ -374,13 +374,9 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       // 먼저 기존 태그 모두 제거
       regionsList.innerHTML = '';
 
-      // data-selected가 'true'이고 "지역을 선택해 주세요" 텍스트가 아닐 때만 태그 생성
-      if (addrBtn && addrBtn.getAttribute('data-selected') === 'true' &&
-        addrBtn.textContent.trim() !== '지역을 선택해 주세요') {
-        var regions = addrBtn.textContent.trim().split(',').map(function(r) {
-          return r.trim();
-        });
-
+      // window.selectedRegions 배열을 기반으로 태그 생성 (단일 소스)
+      var regions = window.selectedRegions || [];
+      if (Array.isArray(regions) && regions.length > 0) {
         regions.forEach(function(region, index) {
           if (region && region !== '지역을 선택해 주세요') {
             var tag = document.createElement('div');

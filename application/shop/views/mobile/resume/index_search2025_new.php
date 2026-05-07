@@ -406,6 +406,84 @@
 <script>
   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
 
+  // 상세검색 UI 초기화 함수 (저장된 상태가 없을 때 모든 항목 초기화)
+  function resetAdvancedSearchUI() {
+    // 업직종 초기화
+    document.querySelectorAll('[data-category-checkbox]').forEach(function(input) {
+      input.checked = false;
+      var cell = input.closest('.category-cell');
+      if (cell) {
+        cell.classList.remove('selected');
+      }
+    });
+    var categoryCounter = document.getElementById('category-selected-count');
+    if (categoryCounter) {
+      categoryCounter.textContent = '0';
+    }
+
+    // 근무형태 초기화
+    document.querySelectorAll('[data-work-checkbox]').forEach(function(input) {
+      input.checked = false;
+      var cell = input.closest('.work-type-cell');
+      if (cell) {
+        cell.classList.remove('selected');
+      }
+    });
+    var workAnyBtn = document.querySelector('[data-work-any]');
+    if (workAnyBtn) {
+      workAnyBtn.classList.add('selected');
+    }
+
+    // 근무요일 초기화
+    document.querySelectorAll('[data-week-checkbox]').forEach(function(input) {
+      input.checked = false;
+      var cell = input.closest('.week-cell');
+      if (cell) {
+        cell.classList.remove('selected');
+      }
+    });
+    var weekAnyBtn = document.querySelector('[data-week-any]');
+    if (weekAnyBtn) {
+      weekAnyBtn.classList.add('selected');
+    }
+
+    // 급여형태 초기화
+    document.querySelectorAll('[data-price-checkbox]').forEach(function(input) {
+      input.checked = false;
+      var cell = input.closest('.price-cell');
+      if (cell) {
+        cell.classList.remove('selected');
+      }
+    });
+    var priceAnyBtn = document.querySelector('[data-price-any]');
+    if (priceAnyBtn) {
+      priceAnyBtn.classList.add('selected');
+    }
+
+    // 성별 초기화
+    document.querySelectorAll('[data-gender-checkbox]').forEach(function(input) {
+      input.checked = false;
+      var cell = input.closest('.gender-cell');
+      if (cell) {
+        cell.classList.remove('selected');
+      }
+    });
+    var genderAnyBtn = document.querySelector('[data-gender-any]');
+    if (genderAnyBtn) {
+      genderAnyBtn.classList.add('selected');
+    }
+
+    // 나이 초기화
+    $('#ageRangeSelect').val('');
+    $('input[name="sage"]').val('');
+    $('input[name="eage"]').val('');
+    $('input[name="age_any"]').prop('checked', true);
+
+    // tab_list 초기화
+    initCategory();
+    initTabUi();
+  }
+
   function initCategory() {
     var arr_category = "";
     var arr_work_type = "";
@@ -1001,8 +1079,7 @@
       initCategory();
       initTabUi();
 
-      // 초기화 후 저장
-      saveSearchStateToStorage();
+      // 주의: sessionStorage는 검색 버튼 클릭 시에만 업데이트 (패널 닫고 다시 열었을 때 임시 선택사항 복원 안 하려고)
     });
   });
 
@@ -1359,6 +1436,18 @@
   }
 
   $(".btn-close-panel").click(function() {
+    // 패널 닫기 전에 저장된 상태로 복원 (검색 버튼을 누르지 않은 임시 변경사항 취소)
+    var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
+    var hasSavedState = sessionStorage.getItem(storageKey);
+
+    if (hasSavedState) {
+      // 저장된 검색 상태가 있으면 복원
+      loadSearchStateFromStorage();
+    } else {
+      // 저장된 상태가 없으면 UI 초기화 (임시 선택사항 제거)
+      resetAdvancedSearchUI();
+    }
+
     var $panel = $("#advancedSearch")[0];
     $("#advancedSearch").removeClass("on");
 
