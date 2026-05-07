@@ -79,7 +79,7 @@
     padding: 10px;
     height: 80px;
     position: fixed;
-    bottom: 0;
+    bottom: -2px;
     left: 0;
     right: 0;
     z-index: 1000;
