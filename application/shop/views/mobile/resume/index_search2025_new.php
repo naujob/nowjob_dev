@@ -1165,11 +1165,53 @@
         });
       }
 
+      // 1. 개별 항목 체크박스 복원
       applyCheckedValues("[data-category-checkbox]", state.category || []);
       applyCheckedValues("[data-work-checkbox]", state.work_type || []);
       applyCheckedValues("[data-week-checkbox]", state.week || []);
       applyCheckedValues("[data-price-checkbox]", state.price_type || []);
       applyCheckedValues("[data-gender-checkbox]", state.sex || []);
+
+      // 2. "전체" 버튼 상태 복원 및 개별 항목 체크
+      // work_type "전체" 상태 복원
+      if (state.work_type_all === true) {
+        document.querySelector('[data-work-any]').classList.add('selected');
+        $('[data-work-checkbox]').each(function() {
+          $(this).closest('.work-type-cell').addClass('selected');
+        });
+      } else {
+        document.querySelector('[data-work-any]').classList.remove('selected');
+      }
+
+      // week "전체" 상태 복원
+      if (state.week_all === true) {
+        document.querySelector('[data-week-any]').classList.add('selected');
+        $('[data-week-checkbox]').each(function() {
+          $(this).closest('.week-cell').addClass('selected');
+        });
+      } else {
+        document.querySelector('[data-week-any]').classList.remove('selected');
+      }
+
+      // price "전체" 상태 복원
+      if (state.price_all === true) {
+        document.querySelector('[data-price-any]').classList.add('selected');
+        $('[data-price-checkbox]').each(function() {
+          $(this).closest('.price-cell').addClass('selected');
+        });
+      } else {
+        document.querySelector('[data-price-any]').classList.remove('selected');
+      }
+
+      // sex "전체" 상태 복원
+      if (state.sex_all === true) {
+        document.querySelector('[data-gender-any]').classList.add('selected');
+        $('[data-gender-checkbox]').each(function() {
+          $(this).closest('.gender-cell').addClass('selected');
+        });
+      } else {
+        document.querySelector('[data-gender-any]').classList.remove('selected');
+      }
 
       // 나이 복원
       $("#sageInput").val(state.sage || "");
@@ -1215,6 +1257,12 @@
         return s.trim() !== '';
       }) : [];
 
+      // "전체" 버튼 상태 저장 (선택되지 않은 상태 = 개별 항목 선택)
+      var hasWorkType = workTypeArray.length > 0;
+      var hasWeek = weekArray.length > 0;
+      var hasPrice = priceTypeArray.length > 0;
+      var hasSex = sexArray.length > 0;
+
       var state = {
         userId: currentUserId,
         addrName: (typeof addrName !== 'undefined') ? addrName : '',
@@ -1227,7 +1275,12 @@
         price_type: priceTypeArray,
         sex: sexArray,
         sage: search_array.sage || "",
-        eage: search_array.eage || ""
+        eage: search_array.eage || "",
+        // "전체" 버튼 상태: 개별 항목이 선택되었으면 false, 아니면 true
+        work_type_all: !hasWorkType,
+        week_all: !hasWeek,
+        price_all: !hasPrice,
+        sex_all: !hasSex
       };
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
       sessionStorage.setItem(storageKey, JSON.stringify(state));
