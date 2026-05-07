@@ -24,7 +24,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.25rem 0rem 1.25rem;
+    padding: 1rem 1.25rem 1rem 1.25rem;
     background-color: #fff;
     position: relative;
     z-index: 10;
@@ -96,7 +96,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
   /* 지역 선택 버튼: 초기(선택안함) 상태일 때 placeholder 스타일 */
   .search-option .current-area .btn.addrName[data-selected="false"] {
     color: #aaa;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 400;
     background-image: none;
     /* 위치 아이콘, 캐럿 제거 */
@@ -150,51 +150,61 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
   <div class="current-area">
     <div class="container">
       <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
+      <div id="selected-regions-list"></div>
+      <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
     </div>
   </div>
-  <!-- 선택된 지역 태그 -->
-  <div class="selected-regions">
-    <style>
-      /* selected-regions 컨테이너에 내용이 있을 때만 스타일 적용 */
-      .search-option .selected-regions:has(> .container > .region-tag) {
-        padding: 0.5rem 0rem;
-        background: #fff;
-        border-top: 1px solid #999;
-        border-bottom: 1px solid #999;
-      }
+  <style>
+    /* 지역 검색 영역 */
+    .current-area {
+      border-top: 1px solid #999;
+      border-bottom: 1px solid #999;
+      padding: 10px 0px;
+    }
 
-      .search-option .selected-regions .container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
+    .current-area .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
 
-      .search-option .selected-regions .region-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+    /* 지역 태그 스타일 */
+    .current-area .region-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: #333;
+      white-space: nowrap;
+    }
 
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        padding: 6px 12px;
-        font-size: 13px;
-        color: #333;
-        white-space: nowrap;
-      }
+    .current-area .close-btn {
+      cursor: pointer;
+      font-weight: bold;
+      color: #aaa;
+      margin-left: 4px;
+    }
 
-      .search-option .selected-regions .close-btn {
-        cursor: pointer;
-        font-weight: bold;
-        color: #aaa;
-        margin-left: 4px;
-      }
+    .current-area .close-btn:hover {
+      color: #666;
+    }
 
-      .search-option .selected-regions .close-btn:hover {
-        color: #666;
-      }
-    </style>
-    <div class="container" id="selected-regions-list"></div>
-  </div>
+    .search-option.has-option .btn-option {
+      top: auto;
+      position: static;
+      margin-left: auto;
+    }
+
+    #selected-regions-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
   <!-- 선택된 카테고리 스타일 (공통) -->
   <style>
     /* #tab_list 내 검색 조건 태그 스타일 */
@@ -305,8 +315,6 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       </div>
     </div>
   <?php endif; ?>
-  <!-- 상세 검색 옵션 버튼 -->
-  <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
 </div>
 
 <div class="main-visual">
