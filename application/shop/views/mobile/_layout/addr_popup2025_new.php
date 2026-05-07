@@ -540,6 +540,47 @@
           const $targetContainers = $('.search_addr, .addr_dept1, .addr_dept2, .addr_dept3');
           let debounceTimer = null;
 
+          // 페이지 로드 시 sessionStorage에서 선택된 지역 복원
+          function restoreSelectedRegionsToDiv2() {
+            // currentUserId가 글로벌에 정의되어 있는지 확인
+            const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
+            const searchAreaStr = sessionStorage.getItem('jobListAdvancedSearch_resume_' + userId);
+            if (!searchAreaStr) return;
+
+            try {
+              const state = JSON.parse(searchAreaStr);
+              if (!state.searchAreaStr || !state.addrName) return;
+
+              const searchArea = JSON.parse(state.searchAreaStr);
+              const addrNames = state.addrName.split(', ');
+              const $div2 = $('.div2');
+
+              // .div2가 비어있으면 복원
+              if ($div2.find('.selbtn').length === 0 && searchArea.length > 0) {
+                searchArea.forEach((area, index) => {
+                  const $selbtn = $('<div>')
+                    .addClass('selbtn')
+                    .attr('data-step', area.step)
+                    .attr('data-addr', area.addr)
+                    .text(addrNames[index])
+                    .append(
+                      $('<div>').addClass('selbtnclose').text('x')
+                    );
+                  $div2.append($selbtn);
+                });
+
+                updateSelectedCount();
+              }
+            } catch (e) {
+              // 복원 실패 무시
+            }
+          }
+
+          // 초기화 후 복원 시도
+          $(document).ready(function() {
+            setTimeout(restoreSelectedRegionsToDiv2, 100);
+          });
+
           if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') {
             window.__hideAllRegionsInAddrPopup = false;
           }
@@ -932,7 +973,18 @@
           });
 
           // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
-          $(document).on('click', '.addr_sel_apply', function() {
+          $(document).on('click', '.addr_sel_apply', function(e) {
+            // [로그] 적용하기 클릭 시작
+            console.log('[addr_popup] === 적용하기 클릭 시작 ===');
+            console.log('[addr_popup] event.target:', e.target);
+            console.log('[addr_popup] body.panel-open before:', document.body.classList.contains('panel-open'));
+            console.log('[addr_popup] body.no-scroll before:', document.body.classList.contains('no-scroll'));
+            console.log('[addr_popup] .layer-panel.on:', document.querySelector('.layer-panel.on'));
+            var changeAreaEl = document.getElementById('changeArea');
+            console.log('[addr_popup] #changeArea.classList:', changeAreaEl ? changeAreaEl.className : 'null');
+
+            // 이벤트 버블링 차단 (main.js의 배경클릭 핸들러가 closePanel 호출하는 것 방지)
+            e.stopPropagation();
 
             const count = $('.selbtn').length;
             //if (count<1) return;
@@ -986,7 +1038,12 @@
               }
             }
 
+            // [로그] changeArea 패널 닫기 전
+            console.log('[addr_popup] changeArea.on before remove:', document.getElementById('changeArea').classList.contains('on'));
+
             $("#changeArea").removeClass("on");
+
+            console.log('[addr_popup] changeArea.on after remove:', document.getElementById('changeArea').classList.contains('on'));
             resetAllRegionFlag();
             // QuickInfo 플로우에서 열린 경우 다시 기본 닫기 동작 허용
             if (window.__disableChangeAreaClose) {
@@ -1070,9 +1127,19 @@
             setTimeout(attemptRestoreScroll, 100);
             setTimeout(attemptRestoreScroll, 200);
             setTimeout(attemptRestoreScroll, 500);
+
+            // [로그] 적용하기 완료
+            console.log('[addr_popup] === 적용하기 완료 ===');
+            console.log('[addr_popup] body.panel-open after:', document.body.classList.contains('panel-open'));
+            console.log('[addr_popup] body.no-scroll after:', document.body.classList.contains('no-scroll'));
+            console.log('[addr_popup] .layer-panel.on after:', document.querySelector('.layer-panel.on'));
           });
 
-          $(document).on('click', '.js-close-popup', function() {
+          $(document).on('click', '.js-close-popup', function(e) {
+            // [로그] 닫기 버튼 클릭
+            console.log('[addr_popup] === 닫기 버튼 클릭 ===');
+            console.log('[addr_popup] body.panel-open:', document.body.classList.contains('panel-open'));
+            console.log('[addr_popup] body.no-scroll:', document.body.classList.contains('no-scroll'));
             resetAllRegionFlag();
           });
 
