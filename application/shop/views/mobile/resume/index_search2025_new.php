@@ -1225,7 +1225,7 @@
         }
       });
       b.classList.remove('no-scroll');
-      // [수정] 다른 패널이 열려있으면 panel-open 유지
+      // 다른 패널이 열려있으면 panel-open 유지
       var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
       if (!hasOtherOpenPanel) {
         b.classList.remove('panel-open');

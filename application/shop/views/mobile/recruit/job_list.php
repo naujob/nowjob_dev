@@ -393,6 +393,7 @@ $banner_list = getBannerList("BN00302031");
 
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
+    display: none;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -411,6 +412,7 @@ $banner_list = getBannerList("BN00302031");
   }
 
   .ad-item-adsense .adsense-wrapper {
+    display: none;
     border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
     padding: 0;
@@ -419,7 +421,7 @@ $banner_list = getBannerList("BN00302031");
   }
 
   .ad-item-adsense ins.adsbygoogle {
-    display: block;
+    display: none;
     background-color: transparent;
   }
 

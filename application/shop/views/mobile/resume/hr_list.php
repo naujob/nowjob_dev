@@ -378,6 +378,7 @@ if (count($banner_list) > 0) {
 
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
+    display: none;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -396,6 +397,7 @@ if (count($banner_list) > 0) {
   }
 
   .ad-item-adsense .adsense-wrapper {
+    display: none;
     border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
     padding: 0;
@@ -404,7 +406,7 @@ if (count($banner_list) > 0) {
   }
 
   .ad-item-adsense ins.adsbygoogle {
-    display: block;
+    display: none;
     background-color: transparent;
   }
 </style>
@@ -534,7 +536,7 @@ if (count($banner_list) > 0) {
 <?php $tpl_id = 'tpl_list';
 $tpl_recomm_class = true;
 $tpl_show_mm_idx = true; ?>
-<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
+<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?> // 리스트 아이템 템플릿
 
 <template id="tpl_category">
   <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">
@@ -625,13 +627,13 @@ $tpl_show_mm_idx = true; ?>
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1; // 현재 페이지 번호
   var list_loading = false; // 데이터 로딩 중 여부 (중복 요청 방지)
-  var search_addr = [];
+  var search_addr = []; // 선택된 지역 코드 배열 (예: ["11010", "11020"])
   var searchAreaStr = "";
-  var addrName = "";
+  var addrName = ""; // 현재 선택된 지역 이름 (예: "서울 강남구 역삼동")
   var ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 수
   var total_count = 0; // 전체 아이템 수
   var total_pages = 1; // 전체 페이지 수
-  var search_array = {
+  var search_array = { // 검색 조건 객체
     category: "",
     work_type: "",
     week: "",
@@ -718,7 +720,7 @@ $tpl_show_mm_idx = true; ?>
     getBoardList("");
   });
 
-  function getBoardList(save_yn) {
+  function getBoardList(save_yn) { // 글 목록을 가져오는 함수 (save_yn: 검색 조건 저장 여부)
     if (list_loading) return;
 
     var params = {
@@ -738,7 +740,7 @@ $tpl_show_mm_idx = true; ?>
 
     if (save_yn === "Y") {
       $.ajax({
-        url: "/resume_proc/search_save_params2025",
+        url: "/resume_proc/search_save_params2025", // 검색 조건을 저장하는 API 엔드포인트
         type: "post",
         data: params,
         traditional: false,
@@ -757,7 +759,7 @@ $tpl_show_mm_idx = true; ?>
 
     list_loading = true;
     $.ajax({
-      url: "/resume_proc/search_list2025",
+      url: "/resume_proc/search_list2025", // 검색 조건에 맞는 글 목록을 가져오는 API 엔드포인트
       type: "post",
       data: params,
       traditional: false,
@@ -1208,7 +1210,7 @@ $tpl_show_mm_idx = true; ?>
     };
 
     $.ajax({
-      url: "/resume_proc/search_reco_list2025",
+      url: "/resume_proc/search_reco_list2025", // 추천인재 리스트를 가져오는 API 엔드포인트
       type: "post",
       data: params,
       traditional: false,

@@ -974,15 +974,6 @@
 
           // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
           $(document).on('click', '.addr_sel_apply', function(e) {
-            // [로그] 적용하기 클릭 시작
-            console.log('[addr_popup] === 적용하기 클릭 시작 ===');
-            console.log('[addr_popup] event.target:', e.target);
-            console.log('[addr_popup] body.panel-open before:', document.body.classList.contains('panel-open'));
-            console.log('[addr_popup] body.no-scroll before:', document.body.classList.contains('no-scroll'));
-            console.log('[addr_popup] .layer-panel.on:', document.querySelector('.layer-panel.on'));
-            var changeAreaEl = document.getElementById('changeArea');
-            console.log('[addr_popup] #changeArea.classList:', changeAreaEl ? changeAreaEl.className : 'null');
-
             // 이벤트 버블링 차단 (main.js의 배경클릭 핸들러가 closePanel 호출하는 것 방지)
             e.stopPropagation();
 
@@ -1025,7 +1016,6 @@
 
             // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
             var handled = false;
-            console.log('[addr_popup] onChangeAreaApply 호출 전 - body.panel-open:', document.body.classList.contains('panel-open'));
             if (typeof window.onChangeAreaApply === 'function') {
               try {
                 handled = window.onChangeAreaApply({
@@ -1038,16 +1028,8 @@
 
               }
             }
-            console.log('[addr_popup] onChangeAreaApply 호출 후 - body.panel-open:', document.body.classList.contains('panel-open'));
-
-            // [로그] changeArea 패널 닫기 전
-            console.log('[addr_popup] changeArea.on before remove:', document.getElementById('changeArea').classList.contains('on'));
-            console.log('[addr_popup] body.panel-open before removeClass:', document.body.classList.contains('panel-open'));
 
             $("#changeArea").removeClass("on");
-
-            console.log('[addr_popup] changeArea.on after remove:', document.getElementById('changeArea').classList.contains('on'));
-            console.log('[addr_popup] body.panel-open after removeClass:', document.body.classList.contains('panel-open'));
             resetAllRegionFlag();
             // QuickInfo 플로우에서 열린 경우 다시 기본 닫기 동작 허용
             if (window.__disableChangeAreaClose) {
@@ -1070,15 +1052,11 @@
             // iOS 웹뷰 대응: body 스타일 복원 (개선 버전)
             // 개선된 함수 우선 사용, 없으면 기존 함수, 둘 다 없으면 fallback
             function attemptRestoreScroll() {
-              console.log('[addr_popup] attemptRestoreScroll 호출');
               if (typeof forceRestoreBodyScroll === 'function') {
-                console.log('[addr_popup] forceRestoreBodyScroll 사용');
                 forceRestoreBodyScroll();
               } else if (typeof restoreBodyScroll === 'function') {
-                console.log('[addr_popup] restoreBodyScroll 사용');
                 restoreBodyScroll();
               } else {
-                console.log('[addr_popup] fallback 직접 복원 사용');
                 // fallback: 직접 복원
                 const b = document.body;
                 const h = document.documentElement;
@@ -1091,13 +1069,10 @@
                     }
                   });
                   b.classList.remove('no-scroll');
-                  // [수정] 다른 패널이 열려있으면 panel-open 유지
+                  // 다른 패널이 열려있으면 panel-open 유지
                   var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
                   if (!hasOtherOpenPanel) {
-                    console.log('[addr_popup] 다른 열려있는 패널 없음 → panel-open 제거');
                     b.classList.remove('panel-open');
-                  } else {
-                    console.log('[addr_popup] 다른 열려있는 패널 있음 → panel-open 유지');
                   }
                 }
 
@@ -1142,19 +1117,9 @@
             setTimeout(attemptRestoreScroll, 100);
             setTimeout(attemptRestoreScroll, 200);
             setTimeout(attemptRestoreScroll, 500);
-
-            // [로그] 적용하기 완료
-            console.log('[addr_popup] === 적용하기 완료 ===');
-            console.log('[addr_popup] body.panel-open after:', document.body.classList.contains('panel-open'));
-            console.log('[addr_popup] body.no-scroll after:', document.body.classList.contains('no-scroll'));
-            console.log('[addr_popup] .layer-panel.on after:', document.querySelector('.layer-panel.on'));
           });
 
-          $(document).on('click', '.js-close-popup', function(e) {
-            // [로그] 닫기 버튼 클릭
-            console.log('[addr_popup] === 닫기 버튼 클릭 ===');
-            console.log('[addr_popup] body.panel-open:', document.body.classList.contains('panel-open'));
-            console.log('[addr_popup] body.no-scroll:', document.body.classList.contains('no-scroll'));
+          $(document).on('click', '.js-close-popup', function() {
             resetAllRegionFlag();
           });
 

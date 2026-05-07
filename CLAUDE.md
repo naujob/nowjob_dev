@@ -138,6 +138,12 @@ $value = in_array_return($array['key'], $checked, 'check') ? 'checked' : '';
 
 - 함수가 있는지 확인하고 만들기 (function_exists)
 
+## Git 커밋 규칙
+
+- **커밋은 항상 사용자에게 물어보고 진행**
+- 수정 작업 완료 후 변경사항을 정리해서 보여주고 "커밋하시겠습니까?"라고 묻기
+- 사용자 승인 없이 자동으로 커밋하지 않기
+
 ## JavaScript 상태관리 (Data 속성 패턴)
 
 ### 원칙: 역할 분명히 하기

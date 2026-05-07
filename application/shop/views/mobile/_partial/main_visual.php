@@ -567,7 +567,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 
       return '';
     }
-
+    // 현재 검색 조건을 세션 스토리지에 저장하는 함수
     function persistFilterState() {
       if (typeof window.saveSearchStateToStorage === 'function') {
         window.saveSearchStateToStorage();
