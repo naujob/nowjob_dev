@@ -93,17 +93,17 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     height: 100%;
   }
 
-  /* 지역 선택 버튼: 초기(선택안함) 상태일 때 placeholder 스타일 */
+  /* 지역 선택 버튼: 선택 안 됨 상태일 때만 표시 */
   .search-option .current-area .btn.addrName[data-selected="false"] {
     color: #aaa;
     font-size: 1.2rem;
     font-weight: 400;
     background-image: none;
-    /* 위치 아이콘, 캐럿 제거 */
     display: inline-block;
+    padding-left: 10px;
   }
 
-  /* 지역 선택 버튼: 선택된 상태일 때 숨김 (태그로 표시됨) */
+  /* 지역 선택 버튼: 선택된 상태일 때 숨김 */
   .search-option .current-area .btn.addrName[data-selected="true"] {
     display: none;
   }
@@ -167,6 +167,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
+      justify-content: space-between;
     }
 
     /* 지역 태그 스타일 */
@@ -196,7 +197,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     .search-option.has-option .btn-option {
       top: auto;
       position: static;
-      margin-left: auto;
+      margin-right: 10px;
     }
 
     #selected-regions-list {
@@ -349,19 +350,16 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     }
     window.getAdvancedSearchStorageKey = getAdvancedSearchStorageKey;
 
-    // 지역 선택 버튼 초기화: 초기값이 "전체"이면 placeholder 스타일로 변경
+    // 지역 선택 버튼 초기화: 선택 상태 확인
     function initAddrNameButton() {
       var addrBtn = document.querySelector('.addrName');
       if (addrBtn) {
         var text = addrBtn.textContent.trim();
-        // "전체" 또는 빈 값이면 placeholder로 변경
-        if (text === '전체' || text === '') {
-          addrBtn.textContent = '지역을 선택해 주세요';
-          addrBtn.setAttribute('data-selected', 'false');
-          addrBtn.removeAttribute('data-selected');
+        // "전체" 또는 빈 값이면 미선택 상태
+        if (text === '전체' || text === '' || text === '지역을 선택해 주세요') {
           addrBtn.setAttribute('data-selected', 'false');
         } else {
-          // 지역이 선택되어 있으면 기본 스타일 적용
+          // 지역이 선택되어 있으면 선택 상태
           addrBtn.setAttribute('data-selected', 'true');
         }
       }
@@ -374,15 +372,18 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 
       if (!regionsList) return;
 
+      // 먼저 기존 태그 모두 제거
       regionsList.innerHTML = '';
 
-      if (addrBtn && addrBtn.getAttribute('data-selected') === 'true') {
+      // data-selected가 'true'이고 "지역을 선택해 주세요" 텍스트가 아닐 때만 태그 생성
+      if (addrBtn && addrBtn.getAttribute('data-selected') === 'true' &&
+        addrBtn.textContent.trim() !== '지역을 선택해 주세요') {
         var regions = addrBtn.textContent.trim().split(',').map(function(r) {
           return r.trim();
         });
 
         regions.forEach(function(region, index) {
-          if (region) {
+          if (region && region !== '지역을 선택해 주세요') {
             var tag = document.createElement('div');
             tag.className = 'region-tag';
             tag.innerHTML = region + ' <span class="close-btn">×</span>';
