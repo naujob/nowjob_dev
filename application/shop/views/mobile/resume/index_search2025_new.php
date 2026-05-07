@@ -1116,10 +1116,10 @@
       initCategory();
       initTabUi();
     } catch (e) {
-      console.error('[index_search2025_new.php] sessionStorage 복원 실패:', e);
+
     }
   }
-
+  // 현재 검색 조건을 세션 스토리지에 저장 (main_visual.php에서 검색 버튼 클릭 시 호출)
   function saveSearchStateToStorage() {
     try {
       var categoryArray = search_array.category ? search_array.category.split("^").filter(function(cat) {
@@ -1225,7 +1225,11 @@
         }
       });
       b.classList.remove('no-scroll');
-      b.classList.remove('panel-open');
+      // [수정] 다른 패널이 열려있으면 panel-open 유지
+      var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
+      if (!hasOtherOpenPanel) {
+        b.classList.remove('panel-open');
+      }
     }
 
     if (h) {
