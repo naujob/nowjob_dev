@@ -1405,6 +1405,55 @@
     // panel이 열리기 전에 체크박스 상태 초기화
     setTimeout(function() {
       restoreCheckboxStateFromSearch();
+
+      // 저장된 "전체" 버튼 상태 복원 (restoreCheckboxStateFromSearch 이후에 호출하여 덮어씀)
+      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
+      var hasSavedState = sessionStorage.getItem(storageKey);
+
+      if (hasSavedState) {
+        try {
+          var state = JSON.parse(hasSavedState);
+
+          // "전체" 버튼 상태 복원
+          if (state.work_type_all === true) {
+            document.querySelector('[data-work-any]').classList.add('selected');
+            $('[data-work-checkbox]').each(function() {
+              $(this).closest('.work-type-cell').addClass('selected');
+            });
+          } else {
+            document.querySelector('[data-work-any]').classList.remove('selected');
+          }
+
+          if (state.week_all === true) {
+            document.querySelector('[data-week-any]').classList.add('selected');
+            $('[data-week-checkbox]').each(function() {
+              $(this).closest('.week-cell').addClass('selected');
+            });
+          } else {
+            document.querySelector('[data-week-any]').classList.remove('selected');
+          }
+
+          if (state.price_all === true) {
+            document.querySelector('[data-price-any]').classList.add('selected');
+            $('[data-price-checkbox]').each(function() {
+              $(this).closest('.price-cell').addClass('selected');
+            });
+          } else {
+            document.querySelector('[data-price-any]').classList.remove('selected');
+          }
+
+          if (state.sex_all === true) {
+            document.querySelector('[data-gender-any]').classList.add('selected');
+            $('[data-gender-checkbox]').each(function() {
+              $(this).closest('.gender-cell').addClass('selected');
+            });
+          } else {
+            document.querySelector('[data-gender-any]').classList.remove('selected');
+          }
+        } catch (e) {
+          // 파싱 실패 시 무시
+        }
+      }
     }, 100);
   });
 
