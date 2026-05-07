@@ -542,21 +542,26 @@
 
           // 페이지 로드 시 sessionStorage에서 선택된 지역 복원
           function restoreSelectedRegionsToDiv2() {
-            // currentUserId가 글로벌에 정의되어 있는지 확인
             const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
             const searchAreaStr = sessionStorage.getItem('jobListAdvancedSearch_resume_' + userId);
-            if (!searchAreaStr) return;
 
-            try {
-              const state = JSON.parse(searchAreaStr);
-              if (!state.searchAreaStr || !state.addrName) return;
+            const $div2 = $('.div2');
 
-              const searchArea = JSON.parse(state.searchAreaStr);
-              const addrNames = state.addrName.split(', ');
-              const $div2 = $('.div2');
+            // 항상 .div2를 초기화 (PHP 렌더링된 항목 제거)
+            $div2.find('.selbtn').remove();
 
-              // .div2가 비어있으면 복원
-              if ($div2.find('.selbtn').length === 0 && searchArea.length > 0) {
+            // sessionStorage가 있으면 복원
+            if (searchAreaStr) {
+              try {
+                const state = JSON.parse(searchAreaStr);
+                if (!state.searchAreaStr || !state.addrName) {
+                  updateSelectedCount();
+                  return;
+                }
+
+                const searchArea = JSON.parse(state.searchAreaStr);
+                const addrNames = state.addrName.split(', ');
+
                 searchArea.forEach((area, index) => {
                   const $selbtn = $('<div>')
                     .addClass('selbtn')
@@ -570,15 +575,22 @@
                 });
 
                 updateSelectedCount();
+              } catch (e) {
+                // 복원 실패 무시
               }
-            } catch (e) {
-              // 복원 실패 무시
+            } else {
+              updateSelectedCount();
             }
           }
 
           // 초기화 후 복원 시도
           $(document).ready(function() {
             setTimeout(restoreSelectedRegionsToDiv2, 100);
+          });
+
+          // 패널이 열릴 때마다 복원 시도
+          $(document).on('click', '.js-toggle-panel[aria-controls="changeArea"]', function() {
+            setTimeout(restoreSelectedRegionsToDiv2, 50);
           });
 
           if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') {
@@ -979,6 +991,7 @@
           }
 
           $(document).on('click', '.addr_sel_init', function() {
+            // 현재 선택 상태 초기화
             $('.addr_dept2 ul, .addr_dept3 ul').empty();
             $txtInput.val('');
             $('li.addr_on').removeClass('addr_on');
@@ -986,7 +999,38 @@
             updateSelectedCount();
             updateSearchView();
             resetAllRegionFlag();
+            // 저장된 지역도 삭제 (초기화 버튼이므로)
+            const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
+            sessionStorage.removeItem('jobListAdvancedSearch_resume_' + userId);
           });
+
+          // sessionStorage에 선택된 지역 상태 저장
+          function saveSelectedRegionsToSessionStorage() {
+            const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
+            const addrNames = [];
+            const searchArea = [];
+
+            $('.selbtn').each(function() {
+              const text = $(this).clone().children().remove().end().text().trim();
+              const addr = $(this).data('addr');
+              const step = $(this).data('step');
+
+              addrNames.push(text);
+              if (addr) {
+                searchArea.push({
+                  addr: addr,
+                  step: step
+                });
+              }
+            });
+
+            const state = {
+              searchAreaStr: JSON.stringify(searchArea),
+              addrName: addrNames.join(', ')
+            };
+
+            sessionStorage.setItem('jobListAdvancedSearch_resume_' + userId, JSON.stringify(state));
+          }
 
           // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
           $(document).on('click', '.addr_sel_apply', function(e) {
@@ -1024,6 +1068,9 @@
               }
             });
             searchAreaStr = JSON.stringify(searchArea);
+
+            // 적용 시에만 sessionStorage에 저장
+            saveSelectedRegionsToSessionStorage();
 
             // index_search.php의 전역 함수 호출하여 선택된 지역 정보 전달
             if (typeof window.onRegionSelectionComplete === 'function') {
@@ -1135,9 +1182,24 @@
             setTimeout(attemptRestoreScroll, 500);
           });
 
-          $(document).on('click', '.js-close-popup', function() {
-            resetAllRegionFlag();
-          });
+          // X버튼 클릭 시 현재 선택 상태 초기화 (sessionStorage는 유지)
+          const changeAreaPanel = document.getElementById('changeArea');
+          if (changeAreaPanel) {
+            const closeBtn = changeAreaPanel.querySelector('.js-close-popup');
+            if (closeBtn) {
+              closeBtn.addEventListener('click', function(e) {
+                setTimeout(function() {
+                  // .div2의 선택 버튼들만 제거
+                  $('.div2 .selbtn').remove();
+                  updateSelectedCount();
+                  // 리스트 초기화
+                  $('.addr_dept2 ul, .addr_dept3 ul').empty();
+                  $txtInput.val('');
+                  $('li.addr_on').removeClass('addr_on');
+                }, 50);
+              });
+            }
+          }
 
           function updateSelectedCount() {
             const count = $('.selbtn').length;
