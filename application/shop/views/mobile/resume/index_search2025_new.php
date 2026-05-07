@@ -1035,11 +1035,41 @@
       // selectedRegions 복원
       var names = Array.isArray(state.selectedRegions) ? state.selectedRegions : [];
       window.selectedRegions = names.slice(0, 3);
-      if (typeof window.updateSelectedRegionsTags === 'function') {
-        window.updateSelectedRegionsTags();
-      }
-      if (typeof window.updateSelectedRegionsDisplay === 'function') {
-        window.updateSelectedRegionsDisplay();
+      selectedRegions = window.selectedRegions;
+
+      // 선택된 지역 태그 표시 (main_visual.php의 updateSelectedRegionsTags와 동일 로직)
+      var addrBtn = document.querySelector('.addrName');
+      var regionsList = document.getElementById('selected-regions-list');
+
+      if (regionsList) {
+        regionsList.innerHTML = '';
+
+        // data-selected가 'true'이고 텍스트가 '지역을 선택해 주세요'가 아닐 때만 태그 생성
+        if (addrBtn && addrBtn.getAttribute('data-selected') === 'true' &&
+          addrBtn.textContent.trim() !== '지역을 선택해 주세요') {
+          var regions = addrBtn.textContent.trim().split(',').map(function(r) {
+            return r.trim();
+          });
+
+          regions.forEach(function(region, index) {
+            if (region && region !== '지역을 선택해 주세요') {
+              var tag = document.createElement('div');
+              tag.className = 'region-tag';
+              tag.innerHTML = region;
+
+              // 지역 태그 클릭 시 팝업 열기
+              tag.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var changeAreaBtn = document.querySelector('a.js-toggle-panel[aria-controls="changeArea"]');
+                if (changeAreaBtn) {
+                  changeAreaBtn.click();
+                }
+              });
+
+              regionsList.appendChild(tag);
+            }
+          });
+        }
       }
 
       // 체크박스 상태 복원
