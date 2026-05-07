@@ -134,7 +134,7 @@
     }
   }
 </style>
-<div id="advancedSearch" class="layer-panel" tabindex="-1">
+<div id="advancedSearch" class="layer-panel" tabindex="-1" data-disable-form-reset="true">
   <div class="panel-container">
     <div class="panel-header top-bar">
       <h2 class="panel-title">인재정보 상세검색</h2>
@@ -412,66 +412,23 @@
     document.querySelectorAll('[data-category-checkbox]').forEach(function(input) {
       input.checked = false;
       var cell = input.closest('.category-cell');
-      if (cell) {
-        cell.classList.remove('selected');
-      }
+      if (cell) cell.classList.remove('selected');
     });
     var categoryCounter = document.getElementById('category-selected-count');
-    if (categoryCounter) {
-      categoryCounter.textContent = '0';
-    }
+    if (categoryCounter) categoryCounter.textContent = '0';
 
-    // 근무형태 초기화
-    document.querySelectorAll('[data-work-checkbox]').forEach(function(input) {
-      input.checked = false;
-      var cell = input.closest('.work-type-cell');
-      if (cell) {
-        cell.classList.remove('selected');
-      }
-    });
-    var workAnyBtn = document.querySelector('[data-work-any]');
-    if (workAnyBtn) {
-      workAnyBtn.classList.add('selected');
-    }
+    // 근무형태/근무요일/급여형태/성별 초기화 (전역 함수 호출 - 체크박스 해제 후 "전체" 버튼 상태 자동 갱신)
+    document.querySelectorAll('[data-work-checkbox]').forEach(function(inp) { inp.checked = false; });
+    updateWorkTypeState();
 
-    // 근무요일 초기화
-    document.querySelectorAll('[data-week-checkbox]').forEach(function(input) {
-      input.checked = false;
-      var cell = input.closest('.week-cell');
-      if (cell) {
-        cell.classList.remove('selected');
-      }
-    });
-    var weekAnyBtn = document.querySelector('[data-week-any]');
-    if (weekAnyBtn) {
-      weekAnyBtn.classList.add('selected');
-    }
+    document.querySelectorAll('[data-week-checkbox]').forEach(function(inp) { inp.checked = false; });
+    updateWeekState();
 
-    // 급여형태 초기화
-    document.querySelectorAll('[data-price-checkbox]').forEach(function(input) {
-      input.checked = false;
-      var cell = input.closest('.price-cell');
-      if (cell) {
-        cell.classList.remove('selected');
-      }
-    });
-    var priceAnyBtn = document.querySelector('[data-price-any]');
-    if (priceAnyBtn) {
-      priceAnyBtn.classList.add('selected');
-    }
+    document.querySelectorAll('[data-price-checkbox]').forEach(function(inp) { inp.checked = false; });
+    updatePriceState();
 
-    // 성별 초기화
-    document.querySelectorAll('[data-gender-checkbox]').forEach(function(input) {
-      input.checked = false;
-      var cell = input.closest('.gender-cell');
-      if (cell) {
-        cell.classList.remove('selected');
-      }
-    });
-    var genderAnyBtn = document.querySelector('[data-gender-any]');
-    if (genderAnyBtn) {
-      genderAnyBtn.classList.add('selected');
-    }
+    document.querySelectorAll('[data-gender-checkbox]').forEach(function(inp) { inp.checked = false; });
+    updateGenderState();
 
     // 나이 초기화
     $('#ageRangeSelect').val('');
@@ -645,308 +602,196 @@
     updateCategoryState();
   });
 
+  // 그룹별 상태 업데이트 함수 (전역) - loadSearchStateFromStorage 등 어디서도 호출 가능
+  function updateWorkTypeState() {
+    var workAnyBtn = document.querySelector('[data-work-any]');
+    var workInputs = document.querySelectorAll('[data-work-checkbox]');
+    if (!workAnyBtn || !workInputs.length) return;
+
+    var hasSelection = false;
+    workInputs.forEach(function(input) {
+      var cell = input.closest('.work-type-cell');
+      if (cell) cell.classList.remove('selected');
+    });
+    workInputs.forEach(function(input) {
+      if (input.checked) {
+        hasSelection = true;
+        var cell = input.closest('.work-type-cell');
+        if (cell) cell.classList.add('selected');
+      }
+    });
+    if (hasSelection) {
+      workAnyBtn.classList.remove('selected');
+    } else {
+      workAnyBtn.classList.add('selected');
+      workInputs.forEach(function(inp) {
+        var c = inp.closest('.work-type-cell');
+        if (c) c.classList.add('selected');
+      });
+    }
+  }
+
+  function updateWeekState() {
+    var weekAnyBtn = document.querySelector('[data-week-any]');
+    var weekInputs = document.querySelectorAll('[data-week-checkbox]');
+    if (!weekAnyBtn || !weekInputs.length) return;
+
+    var hasSelection = false;
+    weekInputs.forEach(function(input) {
+      var cell = input.closest('.week-cell');
+      if (cell) cell.classList.remove('selected');
+    });
+    weekInputs.forEach(function(input) {
+      if (input.checked) {
+        hasSelection = true;
+        var cell = input.closest('.week-cell');
+        if (cell) cell.classList.add('selected');
+      }
+    });
+    if (hasSelection) {
+      weekAnyBtn.classList.remove('selected');
+    } else {
+      weekAnyBtn.classList.add('selected');
+      weekInputs.forEach(function(inp) {
+        var c = inp.closest('.week-cell');
+        if (c) c.classList.add('selected');
+      });
+    }
+  }
+
+  function updatePriceState() {
+    var priceAnyBtn = document.querySelector('[data-price-any]');
+    var priceInputs = document.querySelectorAll('[data-price-checkbox]');
+    if (!priceAnyBtn || !priceInputs.length) return;
+
+    var hasSelection = false;
+    priceInputs.forEach(function(input) {
+      var cell = input.closest('.price-cell');
+      if (cell) cell.classList.remove('selected');
+    });
+    priceInputs.forEach(function(input) {
+      if (input.checked) {
+        hasSelection = true;
+        var cell = input.closest('.price-cell');
+        if (cell) cell.classList.add('selected');
+      }
+    });
+    if (hasSelection) {
+      priceAnyBtn.classList.remove('selected');
+    } else {
+      priceAnyBtn.classList.add('selected');
+      priceInputs.forEach(function(inp) {
+        var c = inp.closest('.price-cell');
+        if (c) c.classList.add('selected');
+      });
+    }
+  }
+
+  function updateGenderState() {
+    var genderAnyBtn = document.querySelector('[data-gender-any]');
+    var genderInputs = document.querySelectorAll('[data-gender-checkbox]');
+    if (!genderAnyBtn || !genderInputs.length) return;
+
+    var hasSelection = false;
+    genderInputs.forEach(function(input) {
+      var cell = input.closest('.gender-cell');
+      if (cell) cell.classList.remove('selected');
+    });
+    genderInputs.forEach(function(input) {
+      if (input.checked) {
+        hasSelection = true;
+        var cell = input.closest('.gender-cell');
+        if (cell) cell.classList.add('selected');
+      }
+    });
+    if (hasSelection) {
+      genderAnyBtn.classList.remove('selected');
+    } else {
+      genderAnyBtn.classList.add('selected');
+      genderInputs.forEach(function(inp) {
+        var c = inp.closest('.gender-cell');
+        if (c) c.classList.add('selected');
+      });
+    }
+  }
+
+  // 각 그룹 이벤트 바인딩 + 초기 상태 적용
   document.addEventListener('DOMContentLoaded', function() {
     var workAnyBtn = document.querySelector('[data-work-any]');
     var workInputs = document.querySelectorAll('[data-work-checkbox]');
-
-    if (!workAnyBtn || !workInputs.length) {
-      return;
-    }
-
-    var updateWorkTypeState = function() {
-      var hasSelection = false;
-
-      // 먼저 모든 셀의 selected 클래스 제거
+    if (workAnyBtn && workInputs.length) {
       workInputs.forEach(function(input) {
-        var cell = input.closest('.work-type-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 체크된 항목 확인 및 selected 클래스 추가
-      workInputs.forEach(function(input) {
-        if (input.checked) {
-          hasSelection = true;
-          var cell = input.closest('.work-type-cell');
-          if (cell) {
-            cell.classList.add('selected');
+        input.addEventListener('change', function() {
+          if (Array.from(workInputs).filter(function(inp) { return inp.checked; }).length === workInputs.length) {
+            workInputs.forEach(function(inp) { inp.checked = false; });
           }
-        }
-      });
-
-      if (hasSelection) {
-        workAnyBtn.classList.remove('selected');
-      } else {
-        workAnyBtn.classList.add('selected');
-        // 전체 선택 시 모든 개별 항목도 selected 클래스 추가
-        workInputs.forEach(function(inp) {
-          var c = inp.closest('.work-type-cell');
-          if (c) c.classList.add('selected');
+          updateWorkTypeState();
         });
-      }
-    };
-
-    workInputs.forEach(function(input) {
-      input.addEventListener('change', function() {
-        var totalCount = workInputs.length;
-        var checkedCount = Array.from(workInputs).filter(function(inp) {
-          return inp.checked;
-        }).length;
-
-        // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
-        if (checkedCount === totalCount) {
-          workAnyBtn.classList.add('selected');
-          workInputs.forEach(function(inp) {
-            inp.checked = false;
-          });
-          // updateWorkTypeState()를 호출하여 selected 클래스를 자동으로 적용하게 함
-          updateWorkTypeState();
-        } else {
-          updateWorkTypeState();
-        }
       });
-    });
-
-    workAnyBtn.addEventListener('click', function() {
-      if (workAnyBtn.classList.contains('selected')) {
-        return;
-      }
-      workInputs.forEach(function(input) {
-        input.checked = false;
+      workAnyBtn.addEventListener('click', function() {
+        if (workAnyBtn.classList.contains('selected')) return;
+        workInputs.forEach(function(input) { input.checked = false; });
+        updateWorkTypeState();
       });
       updateWorkTypeState();
-    });
+    }
 
-    updateWorkTypeState();
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
     var weekAnyBtn = document.querySelector('[data-week-any]');
     var weekInputs = document.querySelectorAll('[data-week-checkbox]');
-
-    if (!weekAnyBtn || !weekInputs.length) {
-      return;
-    }
-
-    var updateWeekState = function() {
-      var hasSelection = false;
-
-      // 먼저 모든 셀의 selected 클래스 제거
+    if (weekAnyBtn && weekInputs.length) {
       weekInputs.forEach(function(input) {
-        var cell = input.closest('.week-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 체크된 항목 확인 및 selected 클래스 추가
-      weekInputs.forEach(function(input) {
-        if (input.checked) {
-          hasSelection = true;
-          var cell = input.closest('.week-cell');
-          if (cell) {
-            cell.classList.add('selected');
+        input.addEventListener('change', function() {
+          if (Array.from(weekInputs).filter(function(inp) { return inp.checked; }).length === weekInputs.length) {
+            weekInputs.forEach(function(inp) { inp.checked = false; });
           }
-        }
-      });
-
-      if (hasSelection) {
-        weekAnyBtn.classList.remove('selected');
-      } else {
-        weekAnyBtn.classList.add('selected');
-        // 전체 선택 시 모든 개별 항목도 selected 클래스 추가
-        weekInputs.forEach(function(inp) {
-          var c = inp.closest('.week-cell');
-          if (c) c.classList.add('selected');
+          updateWeekState();
         });
-      }
-    };
-
-    weekInputs.forEach(function(input) {
-      input.addEventListener('change', function() {
-        var totalCount = weekInputs.length;
-        var checkedCount = Array.from(weekInputs).filter(function(inp) {
-          return inp.checked;
-        }).length;
-
-        // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
-        if (checkedCount === totalCount) {
-          weekAnyBtn.classList.add('selected');
-          weekInputs.forEach(function(inp) {
-            inp.checked = false;
-          });
-          // updateWeekState()를 호출하여 selected 클래스를 자동으로 적용하게 함
-          updateWeekState();
-        } else {
-          updateWeekState();
-        }
       });
-    });
-
-    weekAnyBtn.addEventListener('click', function() {
-      if (weekAnyBtn.classList.contains('selected')) {
-        return;
-      }
-      weekInputs.forEach(function(input) {
-        input.checked = false;
+      weekAnyBtn.addEventListener('click', function() {
+        if (weekAnyBtn.classList.contains('selected')) return;
+        weekInputs.forEach(function(input) { input.checked = false; });
+        updateWeekState();
       });
       updateWeekState();
-    });
+    }
 
-    updateWeekState();
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
     var priceAnyBtn = document.querySelector('[data-price-any]');
     var priceInputs = document.querySelectorAll('[data-price-checkbox]');
-
-    if (!priceAnyBtn || !priceInputs.length) {
-      return;
-    }
-
-    var updatePriceState = function() {
-      var hasSelection = false;
-
-      // 먼저 모든 셀의 selected 클래스 제거
+    if (priceAnyBtn && priceInputs.length) {
       priceInputs.forEach(function(input) {
-        var cell = input.closest('.price-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 체크된 항목 확인 및 selected 클래스 추가
-      priceInputs.forEach(function(input) {
-        if (input.checked) {
-          hasSelection = true;
-          var cell = input.closest('.price-cell');
-          if (cell) {
-            cell.classList.add('selected');
+        input.addEventListener('change', function() {
+          if (Array.from(priceInputs).filter(function(inp) { return inp.checked; }).length === priceInputs.length) {
+            priceInputs.forEach(function(inp) { inp.checked = false; });
           }
-        }
-      });
-
-      if (hasSelection) {
-        priceAnyBtn.classList.remove('selected');
-      } else {
-        priceAnyBtn.classList.add('selected');
-        // 전체 선택 시 모든 개별 항목도 selected 클래스 추가
-        priceInputs.forEach(function(inp) {
-          var c = inp.closest('.price-cell');
-          if (c) c.classList.add('selected');
+          updatePriceState();
         });
-      }
-    };
-
-    priceInputs.forEach(function(input) {
-      input.addEventListener('change', function() {
-        var totalCount = priceInputs.length;
-        var checkedCount = Array.from(priceInputs).filter(function(inp) {
-          return inp.checked;
-        }).length;
-
-        // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
-        if (checkedCount === totalCount) {
-          priceAnyBtn.classList.add('selected');
-          priceInputs.forEach(function(inp) {
-            inp.checked = false;
-          });
-          // updatePriceState()를 호출하여 selected 클래스를 자동으로 적용하게 함
-          updatePriceState();
-        } else {
-          updatePriceState();
-        }
       });
-    });
-
-    priceAnyBtn.addEventListener('click', function() {
-      if (priceAnyBtn.classList.contains('selected')) {
-        return;
-      }
-      priceInputs.forEach(function(input) {
-        input.checked = false;
+      priceAnyBtn.addEventListener('click', function() {
+        if (priceAnyBtn.classList.contains('selected')) return;
+        priceInputs.forEach(function(input) { input.checked = false; });
+        updatePriceState();
       });
       updatePriceState();
-    });
-
-    updatePriceState();
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var genderAnyBtn = document.querySelector('[data-gender-any]');
-    var genderInputs = document.querySelectorAll('[data-gender-checkbox]');
-
-    if (!genderAnyBtn || !genderInputs.length) {
-      return;
     }
 
-    var updateGenderState = function() {
-      var hasSelection = false;
-
-      // 먼저 모든 셀의 selected 클래스 제거
+    var genderAnyBtn = document.querySelector('[data-gender-any]');
+    var genderInputs = document.querySelectorAll('[data-gender-checkbox]');
+    if (genderAnyBtn && genderInputs.length) {
       genderInputs.forEach(function(input) {
-        var cell = input.closest('.gender-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 체크된 항목 확인 및 selected 클래스 추가
-      genderInputs.forEach(function(input) {
-        if (input.checked) {
-          hasSelection = true;
-          var cell = input.closest('.gender-cell');
-          if (cell) {
-            cell.classList.add('selected');
+        input.addEventListener('change', function() {
+          if (Array.from(genderInputs).filter(function(inp) { return inp.checked; }).length === genderInputs.length) {
+            genderInputs.forEach(function(inp) { inp.checked = false; });
           }
-        }
-      });
-
-      if (hasSelection) {
-        genderAnyBtn.classList.remove('selected');
-      } else {
-        genderAnyBtn.classList.add('selected');
-        // 전체 선택 시 모든 개별 항목도 selected 클래스 추가
-        genderInputs.forEach(function(inp) {
-          var c = inp.closest('.gender-cell');
-          if (c) c.classList.add('selected');
+          updateGenderState();
         });
-      }
-    };
-
-    genderInputs.forEach(function(input) {
-      input.addEventListener('change', function() {
-        var totalCount = genderInputs.length;
-        var checkedCount = Array.from(genderInputs).filter(function(inp) {
-          return inp.checked;
-        }).length;
-
-        // 모든 항목이 선택되면 "전체" 체크하고 모든 개별 항목 해제
-        if (checkedCount === totalCount) {
-          genderAnyBtn.classList.add('selected');
-          genderInputs.forEach(function(inp) {
-            inp.checked = false;
-          });
-          // updateGenderState()를 호출하여 selected 클래스를 자동으로 적용하게 함
-          updateGenderState();
-        } else {
-          updateGenderState();
-        }
       });
-    });
-
-    genderAnyBtn.addEventListener('click', function() {
-      if (genderAnyBtn.classList.contains('selected')) {
-        return;
-      }
-      genderInputs.forEach(function(input) {
-        input.checked = false;
+      genderAnyBtn.addEventListener('click', function() {
+        if (genderAnyBtn.classList.contains('selected')) return;
+        genderInputs.forEach(function(input) { input.checked = false; });
+        updateGenderState();
       });
       updateGenderState();
-    });
-
-    updateGenderState();
+    }
   });
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -1003,8 +848,7 @@
     if (!resetBtn) return;
 
     resetBtn.addEventListener('click', function() {
-
-
+      // 업직종 초기화
       document.querySelectorAll('[data-category-checkbox]').forEach(function(input) {
         input.checked = false;
         var cell = input.closest('.category-cell');
@@ -1017,7 +861,7 @@
         categoryCounter.textContent = '0';
       }
 
-
+      // 근무형태 초기화
       document.querySelectorAll('[data-work-checkbox]').forEach(function(input) {
         input.checked = false;
         var cell = input.closest('.work-type-cell');
@@ -1030,7 +874,7 @@
         workAnyBtn.classList.add('selected');
       }
 
-
+      // 근무요일 초기화
       document.querySelectorAll('[data-week-checkbox]').forEach(function(input) {
         input.checked = false;
         var cell = input.closest('.week-cell');
@@ -1043,7 +887,7 @@
         weekAnyBtn.classList.add('selected');
       }
 
-
+      // 급여형태 초기화
       document.querySelectorAll('[data-price-checkbox]').forEach(function(input) {
         input.checked = false;
         var cell = input.closest('.price-cell');
@@ -1056,7 +900,7 @@
         priceAnyBtn.classList.add('selected');
       }
 
-
+      // 성별 초기화
       document.querySelectorAll('[data-gender-checkbox]').forEach(function(input) {
         input.checked = false;
         var cell = input.closest('.gender-cell');
@@ -1069,17 +913,39 @@
         genderAnyBtn.classList.add('selected');
       }
 
-
-      $('#ageRangeSelect').val('').trigger('change');
+      // 나이 초기화
+      $('#ageRangeSelect').val('');
       $('input[name="sage"]').val('');
       $('input[name="eage"]').val('');
       $('input[name="age_any"]').prop('checked', true);
 
+      // 각 그룹 "전체" 버튼 상태 갱신
+      updateWorkTypeState();
+      updateWeekState();
+      updatePriceState();
+      updateGenderState();
 
+      // search_array 초기화하여 tab_list 업데이트
       initCategory();
       initTabUi();
 
-      // 주의: sessionStorage는 검색 버튼 클릭 시에만 업데이트 (패널 닫고 다시 열었을 때 임시 선택사항 복원 안 하려고)
+      // sessionStorage 삭제
+      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
+      sessionStorage.removeItem(storageKey);
+
+      // 검색 실행 후 패널 닫기
+      list_page = 1;
+      $(list_id).html("");
+      getBoardList("Y");
+
+      var $panel = $("#advancedSearch")[0];
+      if ($panel) {
+        $panel.classList.remove('on');
+        document.body.style.overflow = '';
+        $panel.scrollTo(0, 0);
+      }
+      setTimeout(function() { restoreBodyScroll(); }, 50);
+      setTimeout(function() { restoreBodyScroll(); }, 200);
     });
   });
 
@@ -1165,53 +1031,17 @@
         });
       }
 
-      // 1. 개별 항목 체크박스 복원
       applyCheckedValues("[data-category-checkbox]", state.category || []);
       applyCheckedValues("[data-work-checkbox]", state.work_type || []);
       applyCheckedValues("[data-week-checkbox]", state.week || []);
       applyCheckedValues("[data-price-checkbox]", state.price_type || []);
       applyCheckedValues("[data-gender-checkbox]", state.sex || []);
 
-      // 2. "전체" 버튼 상태 복원 및 개별 항목 체크
-      // work_type "전체" 상태 복원
-      if (state.work_type_all === true) {
-        document.querySelector('[data-work-any]').classList.add('selected');
-        $('[data-work-checkbox]').each(function() {
-          $(this).closest('.work-type-cell').addClass('selected');
-        });
-      } else {
-        document.querySelector('[data-work-any]').classList.remove('selected');
-      }
-
-      // week "전체" 상태 복원
-      if (state.week_all === true) {
-        document.querySelector('[data-week-any]').classList.add('selected');
-        $('[data-week-checkbox]').each(function() {
-          $(this).closest('.week-cell').addClass('selected');
-        });
-      } else {
-        document.querySelector('[data-week-any]').classList.remove('selected');
-      }
-
-      // price "전체" 상태 복원
-      if (state.price_all === true) {
-        document.querySelector('[data-price-any]').classList.add('selected');
-        $('[data-price-checkbox]').each(function() {
-          $(this).closest('.price-cell').addClass('selected');
-        });
-      } else {
-        document.querySelector('[data-price-any]').classList.remove('selected');
-      }
-
-      // sex "전체" 상태 복원
-      if (state.sex_all === true) {
-        document.querySelector('[data-gender-any]').classList.add('selected');
-        $('[data-gender-checkbox]').each(function() {
-          $(this).closest('.gender-cell').addClass('selected');
-        });
-      } else {
-        document.querySelector('[data-gender-any]').classList.remove('selected');
-      }
+      // "전체" 버튼 상태 동기화 (전역 함수 호출)
+      updateWorkTypeState();
+      updateWeekState();
+      updatePriceState();
+      updateGenderState();
 
       // 나이 복원
       $("#sageInput").val(state.sage || "");
@@ -1257,12 +1087,6 @@
         return s.trim() !== '';
       }) : [];
 
-      // "전체" 버튼 상태 저장 (선택되지 않은 상태 = 개별 항목 선택)
-      var hasWorkType = workTypeArray.length > 0;
-      var hasWeek = weekArray.length > 0;
-      var hasPrice = priceTypeArray.length > 0;
-      var hasSex = sexArray.length > 0;
-
       var state = {
         userId: currentUserId,
         addrName: (typeof addrName !== 'undefined') ? addrName : '',
@@ -1275,12 +1099,7 @@
         price_type: priceTypeArray,
         sex: sexArray,
         sage: search_array.sage || "",
-        eage: search_array.eage || "",
-        // "전체" 버튼 상태: 개별 항목이 선택되었으면 false, 아니면 true
-        work_type_all: !hasWorkType,
-        week_all: !hasWeek,
-        price_all: !hasPrice,
-        sex_all: !hasSex
+        eage: search_array.eage || ""
       };
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
       sessionStorage.setItem(storageKey, JSON.stringify(state));
@@ -1401,131 +1220,74 @@
 
   // panel 열릴 때 검색 상태 복원
   $(document).on('click', '.btn-option', function(e) {
-
-    // panel이 열리기 전에 체크박스 상태 초기화
     setTimeout(function() {
-      restoreCheckboxStateFromSearch();
-
-      // 저장된 "전체" 버튼 상태 복원 (restoreCheckboxStateFromSearch 이후에 호출하여 덮어씀)
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
       var hasSavedState = sessionStorage.getItem(storageKey);
-
       if (hasSavedState) {
-        try {
-          var state = JSON.parse(hasSavedState);
-
-          // "전체" 버튼 상태 복원
-          if (state.work_type_all === true) {
-            document.querySelector('[data-work-any]').classList.add('selected');
-            $('[data-work-checkbox]').each(function() {
-              $(this).closest('.work-type-cell').addClass('selected');
-            });
-          } else {
-            document.querySelector('[data-work-any]').classList.remove('selected');
-          }
-
-          if (state.week_all === true) {
-            document.querySelector('[data-week-any]').classList.add('selected');
-            $('[data-week-checkbox]').each(function() {
-              $(this).closest('.week-cell').addClass('selected');
-            });
-          } else {
-            document.querySelector('[data-week-any]').classList.remove('selected');
-          }
-
-          if (state.price_all === true) {
-            document.querySelector('[data-price-any]').classList.add('selected');
-            $('[data-price-checkbox]').each(function() {
-              $(this).closest('.price-cell').addClass('selected');
-            });
-          } else {
-            document.querySelector('[data-price-any]').classList.remove('selected');
-          }
-
-          if (state.sex_all === true) {
-            document.querySelector('[data-gender-any]').classList.add('selected');
-            $('[data-gender-checkbox]').each(function() {
-              $(this).closest('.gender-cell').addClass('selected');
-            });
-          } else {
-            document.querySelector('[data-gender-any]').classList.remove('selected');
-          }
-        } catch (e) {
-          // 파싱 실패 시 무시
-        }
+        // 저장된 검색 상태가 있으면 sessionStorage 기준으로 복원
+        loadSearchStateFromStorage();
+      } else {
+        // 저장된 상태 없으면 search_array 기준으로 복원
+        restoreCheckboxStateFromSearch();
       }
     }, 100);
   });
 
   function restoreCheckboxStateFromSearch() {
+    // search_array 기반으로 체크박스 복원
 
-
-    // 서버 렌더링된 체크박스 상태 먼저 확인
-    var checkedCategoryCount = $('input[data-category-checkbox]:checked').length;
-
-    $('input[data-category-checkbox]:checked').each(function() {
-
-    });
-
-    // 모든 체크박스 해제 (selected 클래스는 각 그룹의 updateState 함수가 관리하므로 제거하지 않음)
-    $('[data-category-checkbox], [data-work-checkbox], [data-week-checkbox], [data-price-checkbox], [data-gender-checkbox]').prop('checked', false);
-
-
-
-    // search_array 기반으로 체크박스 다시 체크
+    // 업직종 복원
     if (search_array.category && search_array.category.trim() !== '') {
       var categories = search_array.category.split('^').filter(function(cat) {
         return cat.trim() !== '';
       });
 
-      categories.forEach(function(cat) {
-        var $checkbox = $('input[data-category-checkbox][value="' + cat + '"]');
-        if ($checkbox.length > 0) {
-          $checkbox.prop('checked', true).closest('label').addClass('selected');
-
+      $('[data-category-checkbox]').each(function() {
+        var $checkbox = $(this);
+        var isChecked = categories.indexOf($checkbox.val()) !== -1;
+        $checkbox.prop('checked', isChecked);
+        var $label = $checkbox.closest('label');
+        if (isChecked) {
+          $label.addClass('selected');
         } else {
-
+          $label.removeClass('selected');
         }
       });
-    } else {
 
+      // 카운터 업데이트
+      var counterEl = document.getElementById('category-selected-count');
+      if (counterEl) {
+        counterEl.textContent = categories.length;
+      }
     }
 
-    if (search_array.work_type && search_array.work_type.trim() !== '') {
-      var workTypes = search_array.work_type.split('^').filter(function(wt) {
-        return wt.trim() !== '';
-      });
-      workTypes.forEach(function(wt) {
-        $('input[data-work-checkbox][value="' + wt + '"]').prop('checked', true).closest('label').addClass('selected');
-      });
-    }
+    // 근무형태 체크박스 복원
+    var workTypes = search_array.work_type ? search_array.work_type.split('^').filter(function(v) { return v.trim() !== ''; }) : [];
+    $('[data-work-checkbox]').each(function() {
+      $(this).prop('checked', workTypes.indexOf($(this).val()) !== -1);
+    });
+    updateWorkTypeState();
 
-    if (search_array.week && search_array.week.trim() !== '') {
-      var weeks = search_array.week.split('^').filter(function(w) {
-        return w.trim() !== '';
-      });
-      weeks.forEach(function(w) {
-        $('input[data-week-checkbox][value="' + w + '"]').prop('checked', true).closest('label').addClass('selected');
-      });
-    }
+    // 근무요일 체크박스 복원
+    var weeks = search_array.week ? search_array.week.split('^').filter(function(v) { return v.trim() !== ''; }) : [];
+    $('[data-week-checkbox]').each(function() {
+      $(this).prop('checked', weeks.indexOf($(this).val()) !== -1);
+    });
+    updateWeekState();
 
-    if (search_array.price_type && search_array.price_type.trim() !== '') {
-      var prices = search_array.price_type.split('^').filter(function(pt) {
-        return pt.trim() !== '';
-      });
-      prices.forEach(function(pt) {
-        $('input[data-price-checkbox][value="' + pt + '"]').prop('checked', true).closest('label').addClass('selected');
-      });
-    }
+    // 급여형태 체크박스 복원
+    var prices = search_array.price_type ? search_array.price_type.split('^').filter(function(v) { return v.trim() !== ''; }) : [];
+    $('[data-price-checkbox]').each(function() {
+      $(this).prop('checked', prices.indexOf($(this).val()) !== -1);
+    });
+    updatePriceState();
 
-    if (search_array.sex && search_array.sex.trim() !== '') {
-      var sexes = search_array.sex.split('^').filter(function(s) {
-        return s.trim() !== '';
-      });
-      sexes.forEach(function(s) {
-        $('input[data-gender-checkbox][value="' + s + '"]').prop('checked', true).closest('label').addClass('selected');
-      });
-    }
+    // 성별 체크박스 복원
+    var sexes = search_array.sex ? search_array.sex.split('^').filter(function(v) { return v.trim() !== ''; }) : [];
+    $('[data-gender-checkbox]').each(function() {
+      $(this).prop('checked', sexes.indexOf($(this).val()) !== -1);
+    });
+    updateGenderState();
 
     // 나이 복원
     $('#sageInput').val(search_array.sage || '');
@@ -1533,20 +1295,23 @@
     if ((search_array.sage && search_array.sage.trim() !== '') || (search_array.eage && search_array.eage.trim() !== '')) {
       $('input[name="age_any"]').prop('checked', false);
       $('#ageRangeSelect').val(search_array.sage + '-' + search_array.eage);
+    } else {
+      $('input[name="age_any"]').prop('checked', true);
+      $('#ageRangeSelect').val('');
     }
 
   }
 
   $(".btn-close-panel").click(function() {
-    // 패널 닫기 전에 저장된 상태로 복원 (검색 버튼을 누르지 않은 임시 변경사항 취소)
+    // X 버튼으로 닫을 때: 임시 선택사항 취소 (검색 버튼을 누르지 않았으므로 저장된 상태로 복원)
     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
     var hasSavedState = sessionStorage.getItem(storageKey);
 
     if (hasSavedState) {
-      // 저장된 검색 상태가 있으면 복원
+      // 저장된 검색 상태가 있으면 UI를 저장된 상태로 복원
       loadSearchStateFromStorage();
     } else {
-      // 저장된 상태가 없으면 UI 초기화 (임시 선택사항 제거)
+      // 저장된 상태가 없으면 UI 초기화 (모든 임시 선택사항 제거)
       resetAdvancedSearchUI();
     }
 

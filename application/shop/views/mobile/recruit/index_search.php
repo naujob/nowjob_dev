@@ -235,7 +235,7 @@
 
    }
  </style>
- <div id="advancedSearch" class="layer-panel" tabindex="-1">
+ <div id="advancedSearch" class="layer-panel" tabindex="-1" data-disable-form-reset="true">
    <div class="panel-container">
      <div class="panel-header top-bar">
        <h2 class="panel-title">채용정보 상세검색</h2>
@@ -800,7 +800,28 @@
    });
 
    $(".btn-close-panel").click(function() {
-     // 팝업 닫기
+     // X 버튼으로 닫을 때: 저장된 상태로 UI 복원 (검색 버튼을 누르지 않았으므로)
+     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
+     var hasSavedState = sessionStorage.getItem(storageKey);
+
+     if (hasSavedState) {
+       loadSearchStateFromStorage();
+     } else {
+       // 저장된 상태가 없으면 체크박스 초기화
+       $('input[name="category[]"], input[name="work_type[]"], input[name="week[]"], input[name="price_type[]"], input[name="sex[]"]').prop('checked', false);
+       $("[name='priceNegotiable'], [name='workingDay']").prop('checked', false);
+       $ageRangeSelect.val('');
+       $sageInput.val('');
+       $eageInput.val('');
+       $ageAnyCheckbox.prop('checked', true);
+       updateWorkTypeSelectionState();
+       updateWeekSelectionState();
+       updatePriceTypeSelectionState();
+       updateSexSelectionState();
+       updateAgeSelectionState();
+     }
+
+     // 패널 닫기 (closePanel 미호출 - form reset 방지)
      var $panel = $("#advancedSearch")[0];
      if ($panel) {
        $panel.classList.remove('on');
@@ -808,46 +829,10 @@
        $panel.scrollTo(0, 0);
      }
 
-     // body 스타일 즉시 초기화 (스크롤 복원)
-     if (typeof restoreBodyScroll === 'function') {
-       restoreBodyScroll();
-     } else if (typeof forceRestoreBodyScroll === 'function') {
-       forceRestoreBodyScroll();
-     } else {
-       // fallback: 기본 스크롤 복원
-       $("body").css({
-         "overflow": "auto",
-         "overflow-y": "auto",
-         "-webkit-overflow-scrolling": "touch"
-       }).removeClass('no-scroll');
-       $("html").css({
-         "overflow": "auto",
-         "overflow-y": "auto"
-       });
-     }
-
-     // 여러 시점에서 body 스타일 확인 및 복구 (iOS 웹뷰 대응)
-     setTimeout(function() {
-       if (typeof restoreBodyScroll === 'function') {
-         restoreBodyScroll();
-       } else if (typeof forceRestoreBodyScroll === 'function') {
-         forceRestoreBodyScroll();
-       }
-     }, 50);
-     setTimeout(function() {
-       if (typeof restoreBodyScroll === 'function') {
-         restoreBodyScroll();
-       } else if (typeof forceRestoreBodyScroll === 'function') {
-         forceRestoreBodyScroll();
-       }
-     }, 200);
-     setTimeout(function() {
-       if (typeof restoreBodyScroll === 'function') {
-         restoreBodyScroll();
-       } else if (typeof forceRestoreBodyScroll === 'function') {
-         forceRestoreBodyScroll();
-       }
-     }, 500);
+     // body 스타일 복구
+     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 50);
+     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 200);
+     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 500);
    });
 
    // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
@@ -1269,6 +1254,16 @@
      }
    });
 
+   // 패널 재오픈 시 저장된 검색 상태 복원
+   $(document).on('click', '.btn-option', function() {
+     setTimeout(function() {
+       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
+       if (sessionStorage.getItem(storageKey)) {
+         loadSearchStateFromStorage();
+       }
+     }, 100);
+   });
+
    $("#btnSearch").click(function() {
 
      list_page = 1;
@@ -1381,18 +1376,35 @@
        $ageAnyCheckbox.prop('checked', true);
      }
 
-     // 근무협의 등 기타
+     // 시각적 상태 갱신 (체크 상태 + 하이라이트 모두 업데이트)
      updateWorkTypeSelectionState();
+     updateWorkTypeVisuals();
      updateWeekSelectionState();
+     updateWeekVisuals();
      updatePriceTypeSelectionState();
+     updatePriceTypeVisuals();
      updateSexSelectionState();
+     updateSexVisuals();
      updateAgeSelectionState();
 
-     // 현재 사용자 ID에 해당하는 키 삭제
+     // sessionStorage 삭제
      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
      sessionStorage.removeItem(storageKey);
 
      initCategory();
      initTabUi();
+
+     // 검색 실행 후 패널 닫기
+     $(list_id).html("");
+     getBoardList("Y");
+
+     var $panel = $("#advancedSearch")[0];
+     if ($panel) {
+       $panel.classList.remove('on');
+       document.body.style.overflow = '';
+       $panel.scrollTo(0, 0);
+     }
+     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 50);
+     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 200);
    });
  </script>

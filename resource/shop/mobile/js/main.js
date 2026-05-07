@@ -463,14 +463,16 @@
                 }, 400);
             }
 
-            // 폼 초기화
-            $el.querySelectorAll('input, textarea, select').forEach(function (item) {
-                item.value = '';
-            });
+            // 폼 초기화 (data-disable-form-reset="true" 패널은 건너뜀)
+            if ($el.getAttribute('data-disable-form-reset') !== 'true') {
+                $el.querySelectorAll('input, textarea, select').forEach(function (item) {
+                    item.value = '';
+                });
 
-            $el.querySelectorAll('form').forEach(function (form) {
-                form.reset();
-            });
+                $el.querySelectorAll('form').forEach(function (form) {
+                    form.reset();
+                });
+            }
 
             $el.scrollTo(0, 0);
         };
