@@ -1075,10 +1075,9 @@
               window.onRegionSelectionComplete(addrNames);
             }
 
-            // main_visual의 #selected-regions-list 갱신 (확정)
-            if (typeof window.updateSelectedRegionsTags === 'function') {
-              window.updateSelectedRegionsTags();
-            }
+            // 주의: main_visual의 #selected-regions-list 갱신은 여기서 하지 않음
+            // 이 함수는 index_search 패널 내에서 임시 작업이므로,
+            // 최종 확정은 index_search의 검색/초기화 버튼에서만 처리
 
             // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
             var handled = false;
