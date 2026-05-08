@@ -1060,6 +1060,9 @@ $tpl_show_mm_idx = true; ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/resume/index_search2025_new.php'); ?>
 <script>
+  // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
+  window.__addrPopupPageType = 'resume';
+
   // DOMContentLoaded는 한 번만 실행되도록 플래그 설정
   var domContentLoadedExecuted = false;
   window.addEventListener('DOMContentLoaded', function() {

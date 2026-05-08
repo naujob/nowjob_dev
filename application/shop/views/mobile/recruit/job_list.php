@@ -995,6 +995,9 @@ $tpl_recomm_class = true; ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/recruit/index_search.php'); ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 <script>
+  // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
+  window.__addrPopupPageType = 'recruit';
+
   window.addEventListener('DOMContentLoaded', function() {
     // 스크롤 강제 활성화 (모바일 웹뷰에서 overflow:hidden 잔존 대응)
     $('html, body').css({

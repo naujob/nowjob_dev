@@ -830,9 +830,15 @@
      }
 
      // body 스타일 복구
-     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 50);
-     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 200);
-     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 500);
+     setTimeout(function() {
+       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
+     }, 50);
+     setTimeout(function() {
+       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
+     }, 200);
+     setTimeout(function() {
+       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
+     }, 500);
    });
 
    // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
@@ -921,7 +927,10 @@
            var a = $(this).data('addr');
            var s = $(this).data('step');
            if (a) {
-             newSearchArea.push({ addr: a, step: s });
+             newSearchArea.push({
+               addr: a,
+               step: s
+             });
              newSearchAddr.push(a);
            }
          });
@@ -1404,7 +1413,11 @@
        document.body.style.overflow = '';
        $panel.scrollTo(0, 0);
      }
-     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 50);
-     setTimeout(function() { if (typeof restoreBodyScroll === 'function') restoreBodyScroll(); }, 200);
+     setTimeout(function() {
+       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
+     }, 50);
+     setTimeout(function() {
+       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
+     }, 200);
    });
  </script>

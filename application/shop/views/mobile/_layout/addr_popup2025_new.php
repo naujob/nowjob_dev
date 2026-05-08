@@ -440,7 +440,7 @@
   <div class="panel-container">
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
-      <button type="button" aria-controls="changeArea" class="btn-close-popup  js-close-popup js-toggle-panel"><span class="sr-text">닫기</span></button>
+
     </div>
     <div class="panel-body">
       <div class="panel-content">
@@ -543,7 +543,9 @@
           // 페이지 로드 시 sessionStorage에서 선택된 지역 복원
           function restoreSelectedRegionsToDiv2() {
             const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
-            const searchAreaStr = sessionStorage.getItem('jobListAdvancedSearch_resume_' + userId);
+            const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
+            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
+            const searchAreaStr = sessionStorage.getItem(storageKey);
 
             const $div2 = $('.div2');
 
@@ -1005,12 +1007,16 @@
             resetAllRegionFlag();
             // 저장된 지역도 삭제 (초기화 버튼이므로)
             const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
-            sessionStorage.removeItem('jobListAdvancedSearch_resume_' + userId);
+            const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
+            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
+            sessionStorage.removeItem(storageKey);
           });
 
           // sessionStorage에 선택된 지역 상태 저장
           function saveSelectedRegionsToSessionStorage() {
             const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
+            const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
+            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
             const addrNames = [];
             const searchArea = [];
 
@@ -1033,7 +1039,7 @@
               addrName: addrNames.join(', ')
             };
 
-            sessionStorage.setItem('jobListAdvancedSearch_resume_' + userId, JSON.stringify(state));
+            sessionStorage.setItem(storageKey, JSON.stringify(state));
           }
 
           // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
