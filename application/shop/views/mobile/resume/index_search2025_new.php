@@ -959,9 +959,25 @@
       initCategory();
       initTabUi();
 
-      // sessionStorage 삭제
+      // sessionStorage 부분 삭제 (지역 정보는 유지하도록)
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      sessionStorage.removeItem(storageKey);
+      var raw = sessionStorage.getItem(storageKey);
+      if (raw) {
+        try {
+          var state = JSON.parse(raw);
+          // 지역 정보만 보존하고 나머지 검색 조건은 초기화
+          var preservedState = {
+            userId: state.userId,
+            addrName: state.addrName,
+            searchAreaStr: state.searchAreaStr,
+            search_addr: state.search_addr,
+            selectedRegions: state.selectedRegions
+          };
+          sessionStorage.setItem(storageKey, JSON.stringify(preservedState));
+        } catch (e) {
+          sessionStorage.removeItem(storageKey);
+        }
+      }
 
       // 검색 실행 후 패널 닫기
       list_page = 1;
