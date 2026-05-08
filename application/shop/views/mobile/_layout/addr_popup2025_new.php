@@ -440,12 +440,10 @@
   <div class="panel-container">
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
-
     </div>
     <div class="panel-body">
       <div class="panel-content">
         <div class="result-wrap">
-
           <div class="search-cont">
             <div class="search-input">
               <input type="text" id="txt_addr" name="txt_addr" placeholder="예시 : 신림동, 관악구" autocomplete="off" required class="form-text">
@@ -595,14 +593,14 @@
             setTimeout(restoreSelectedRegionsToDiv2, 50);
           });
 
-          if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') {
+          if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') { // 페이지 전역에서 전체 지역 숨김 여부를 추적하는 플래그 초기화
             window.__hideAllRegionsInAddrPopup = false;
           }
-
+          // 전체 지역 숨김 여부를 반환하는 함수. true인 경우 전체 지역이 숨겨져야 함
           function shouldHideAllRegions() {
             return window.__hideAllRegionsInAddrPopup === true;
           }
-
+          // 전체 지역 숨김 플래그를 설정하는 함수. true로 설정하면 전체 지역이 숨겨지고, false로 설정하면 전체 지역이 다시 보이도록 함
           window.applyAddrPopupAllRegionFilter = function() {
             if (!shouldHideAllRegions()) return;
 
@@ -1016,18 +1014,18 @@
           function saveSelectedRegionsToSessionStorage() {
             const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
             const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
-            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
-            const addrNames = [];
-            const searchArea = [];
-
+            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId; // 예: jobListAdvancedSearch_recruit_12345
+            const addrNames = []; // addrNames 배열은 selbtn의 텍스트에서 추출하여 저장 // 선택된 지역의 "짧은 이름" 배열
+            const searchArea = []; // searchArea 배열은 selbtn의 data-addr과 data-step에서 추출하여 저장   // 선택된 지역의 "전체 정보" 배열 
+            // .selbtn 모두 순회하며 데이터 수집
             $('.selbtn').each(function() {
               const text = $(this).clone().children().remove().end().text().trim();
               const addr = $(this).data('addr');
               const step = $(this).data('step');
 
-              addrNames.push(text);
+              addrNames.push(text); // "서울", "강남구" 등
               if (addr) {
-                searchArea.push({
+                searchArea.push({ // {addr: "서울특별시 강남구 강남동", step: 3
                   addr: addr,
                   step: step
                 });
@@ -1035,8 +1033,8 @@
             });
 
             const state = {
-              searchAreaStr: JSON.stringify(searchArea),
-              addrName: addrNames.join(', ')
+              searchAreaStr: JSON.stringify(searchArea), // ← searchArea를 JSON 문자열로
+              addrName: addrNames.join(', ') // ← addrNames를 쉼표로 연결
             };
 
             sessionStorage.setItem(storageKey, JSON.stringify(state));
@@ -1056,11 +1054,11 @@
                 const text = $(this).clone().children().remove().end().text().trim();
                 addrNames.push(text);
               });
-              addrName = addrNames.join(', ');
-              $('.addrName').text(addrName).attr('data-selected', 'true');
+              addrName = addrNames.join(', '); // "서울, 강남구" 등으로 문자열 생성 
+              $('.addrName').text(addrName).attr('data-selected', 'true'); // 선택된 지역이 있으면 data-selected를 true로 설정하여 선택된 것을 쉽게 구분할 수 있도록 함
 
               // window.selectedRegions에 지역 이름 배열 할당
-              window.selectedRegions = addrNames.slice(0, 3);
+              window.selectedRegions = addrNames.slice(0, 3); // 최대 3개만 저장
             } else {
               addrName = '지역을 선택해 주세요';
               $('.addrName').text(addrName).attr('data-selected', 'false');
@@ -1216,13 +1214,13 @@
               });
             }
           }
-
+          // 선택된 지역 개수 업데이트 함수
           function updateSelectedCount() {
             const count = $('.selbtn').length;
 
             $('.addr_sel_cnt').text(count);
           }
-
+          // 검색어 입력 시 AJAX 요청을 보내어 검색 결과를 가져오는 함수입니다. 디바운스 적용으로 불필요한 요청 방지
           function fSearchKeyUp() {
             const search_keyword = $('#txt_addr').val().trim();
             if (search_keyword.length < 2) return;
@@ -1245,8 +1243,8 @@
 
                 if (ret.data) {
                   $.each(ret.data, function(i, item) {
-                    const addr = item.search_b_dong;
-                    const step = item.step;
+                    const addr = item.search_b_dong; // 검색 결과에서 주소를 가져옵니다. 예: "서울특별시 강남구 강남동"
+                    const step = item.step; // 주소 단계 (1, 2, 3 등)도 함께 가져옵니다. 예: 3
                     if (shouldHideAllRegions() && step < 3) return;
                     const isSelected = $(`.selbtn[data-step="${step}"][data-addr="${addr}"]`).length > 0;
 
@@ -1275,7 +1273,7 @@
               }
             });
           }
-
+          // "서울특별시" → "서울" 등으로 변환하는 함수입니다. "전체" 항목에서 시도 시, "서울 전체" → "서울 전체"로 유지되도록 합니다.
           function replaceRegionNames(text) {
             const regionMap = {
               "서울특별시": "서울",
@@ -1301,7 +1299,7 @@
               match => regionMap[match]
             );
           }
-
+          // "서울 전체" → "서울 전체" 유지, "서울특별시 강남구" → "강남구" 등으로 변환하는 함수입니다. "전체" 항목에서 시도 시, "서울 전체" → "서울 전체"로
           function removeRegionNames(text) {
             const regionMap = {
               "서울특별시 ": "",
