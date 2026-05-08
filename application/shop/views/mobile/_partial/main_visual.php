@@ -93,8 +93,8 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     height: 100%;
   }
 
-  /* 지역 선택 버튼: 선택 안 됨 상태일 때만 표시 */
-  .search-option .current-area .btn.addrName[data-selected="false"] {
+  /* 지역 선택 버튼: 지역 태그가 없을 때만 표시 */
+  .search-option .current-area .btn.addrName {
     color: #aaa;
     font-size: 1.2rem;
     font-weight: 400;
@@ -103,8 +103,8 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     padding-left: 10px;
   }
 
-  /* 지역 선택 버튼: 선택된 상태일 때 숨김 */
-  .search-option .current-area .btn.addrName[data-selected="true"] {
+  /* 지역 태그가 있으면 버튼과 리스트 컨테이너 전체 숨김 */
+  .current-area:has(#selected-regions-list[data-has-regions="true"]) .btn.addrName {
     display: none;
   }
 </style>
@@ -150,7 +150,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
   <div class="current-area">
     <div class="container">
       <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
-      <div id="selected-regions-list"></div>
+      <div id="selected-regions-list" data-has-regions="false"></div>
       <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
     </div>
   </div>
@@ -368,8 +368,12 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     // 선택된 지역 태그 표시 함수
     function updateSelectedRegionsTags() {
       var regionsList = document.getElementById('selected-regions-list');
+      var addrBtn = document.querySelector('.addrName');
 
       if (!regionsList) return;
+
+      // MutationObserver 일시 중지 (무한 루프 방지)
+      window.skipAddrNameUpdate = true;
 
       // 먼저 기존 태그 모두 제거
       regionsList.innerHTML = '';
@@ -395,7 +399,26 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
             regionsList.appendChild(tag);
           }
         });
+        // 지역 태그가 있으면 data-has-regions을 true로 설정
+        regionsList.setAttribute('data-has-regions', 'true');
+        // 버튼 숨김
+        if (addrBtn) {
+          addrBtn.style.display = 'none';
+        }
+      } else {
+        // 지역 태그가 없으면 data-has-regions을 false로 설정
+        regionsList.setAttribute('data-has-regions', 'false');
+        // 버튼 표시
+        if (addrBtn) {
+          addrBtn.textContent = '지역을 선택해 주세요';
+          addrBtn.style.display = 'inline-block';
+        }
       }
+
+      // MutationObserver 재개
+      setTimeout(function() {
+        window.skipAddrNameUpdate = false;
+      }, 100);
     }
 
     // 페이지 로드 시 및 팝업 닫힐 때 초기화
@@ -421,11 +444,14 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       }
     });
 
-    // MutationObserver로 .addrName 텍스트 변경 감지
+    // MutationObserver로 .addrName 텍스트 변경 감지 (skipAddrNameUpdate 플래그로 제어)
     var addrBtn = document.querySelector('.addrName');
     if (addrBtn) {
       var observer = new MutationObserver(function(mutations) {
-        updateSelectedRegionsTags();
+        // skipAddrNameUpdate 플래그가 true이면 무시 (팝업 닫기 시 불필요한 동기화 방지)
+        if (!window.skipAddrNameUpdate) {
+          updateSelectedRegionsTags();
+        }
       });
       observer.observe(addrBtn, {
         childList: true,

@@ -1054,14 +1054,22 @@
                 const text = $(this).clone().children().remove().end().text().trim();
                 addrNames.push(text);
               });
-              addrName = addrNames.join(', '); // "서울, 강남구" 등으로 문자열 생성 
-              $('.addrName').text(addrName).attr('data-selected', 'true'); // 선택된 지역이 있으면 data-selected를 true로 설정하여 선택된 것을 쉽게 구분할 수 있도록 함
+              addrName = addrNames.join(', '); // "서울, 강남구" 등으로 문자열 생성
+              // 상세검색 패널에서 열린 경우 .addrName 업데이트 안함 (닫기 버튼의 동기화 방지)
+              if (!window.skipAddrNameUpdate) {
+                $('.addrName').text(addrName).attr('data-selected', 'true');
+              }
+              window.skipAddrNameUpdate = false; // 플래그 초기화
 
               // window.selectedRegions에 지역 이름 배열 할당
               window.selectedRegions = addrNames.slice(0, 3); // 최대 3개만 저장
             } else {
               addrName = '지역을 선택해 주세요';
-              $('.addrName').text(addrName).attr('data-selected', 'false');
+              // 상세검색 패널에서 열린 경우 .addrName 업데이트 안함
+              if (!window.skipAddrNameUpdate) {
+                $('.addrName').text(addrName).attr('data-selected', 'false');
+              }
+              window.skipAddrNameUpdate = false; // 플래그 초기화
 
               // 선택된 지역이 없으면 selectedRegions도 초기화
               window.selectedRegions = [];

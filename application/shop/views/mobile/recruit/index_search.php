@@ -695,44 +695,6 @@
          return;
        }
 
-       if (state.addrName) {
-         addrName = state.addrName;
-         $(".addrName").text(state.addrName);
-       }
-       if (Array.isArray(state.search_addr)) {
-         search_addr = state.search_addr.slice();
-       }
-       if (state.searchAreaStr) {
-         searchAreaStr = state.searchAreaStr;
-       }
-
-       var areaList = [];
-       try {
-         areaList = state.searchAreaStr ? JSON.parse(state.searchAreaStr) : [];
-       } catch (e) {
-         areaList = [];
-       }
-       var names = Array.isArray(state.selectedRegions) ? state.selectedRegions : [];
-       var $selBox = $(".addr_list_sel_box .div2");
-       if ($selBox.length) {
-         $selBox.empty();
-         areaList.forEach(function(area, idx) {
-           var label = names[idx] || area.addr;
-           var $btn = $("<div>")
-             .addClass("selbtn")
-             .attr("data-step", area.step)
-             .attr("data-addr", area.addr)
-             .text(label)
-             .append($("<div>").addClass("selbtnclose").text("x"));
-           $selBox.append($btn);
-         });
-         $(".addr_sel_cnt").text(areaList.length);
-       }
-
-       window.selectedRegions = names.slice(0, 3);
-       selectedRegions = window.selectedRegions;
-       updateSelectedRegionsDisplay();
-
        function applyCheckedValues(selector, values) {
          $(selector).each(function() {
            $(this).prop("checked", values.indexOf($(this).val()) !== -1);
@@ -750,6 +712,13 @@
 
        $("#sageInput").val(state.sage || "");
        $("#eageInput").val(state.eage || "");
+
+       // 지역 복원
+       if (state.selectedRegions && Array.isArray(state.selectedRegions)) {
+         window.selectedRegions = state.selectedRegions.slice();
+         selectedRegions = window.selectedRegions;
+         updateSelectedRegionsDisplay();
+       }
 
        updateCategoryCounter();
        updateWorkTypeSelectionState();
@@ -800,28 +769,7 @@
    });
 
    $(".btn-close-panel").click(function() {
-     // X 버튼으로 닫을 때: 저장된 상태로 UI 복원 (검색 버튼을 누르지 않았으므로)
-     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-     var hasSavedState = sessionStorage.getItem(storageKey);
-
-     if (hasSavedState) {
-       loadSearchStateFromStorage();
-     } else {
-       // 저장된 상태가 없으면 체크박스 초기화
-       $('input[name="category[]"], input[name="work_type[]"], input[name="week[]"], input[name="price_type[]"], input[name="sex[]"]').prop('checked', false);
-       $("[name='priceNegotiable'], [name='workingDay']").prop('checked', false);
-       $ageRangeSelect.val('');
-       $sageInput.val('');
-       $eageInput.val('');
-       $ageAnyCheckbox.prop('checked', true);
-       updateWorkTypeSelectionState();
-       updateWeekSelectionState();
-       updatePriceTypeSelectionState();
-       updateSexSelectionState();
-       updateAgeSelectionState();
-     }
-
-     // 패널 닫기 (closePanel 미호출 - form reset 방지)
+     // 패널 닫기 (동기화 로직 없음 - 사용자 선택 취소의 의도)
      var $panel = $("#advancedSearch")[0];
      if ($panel) {
        $panel.classList.remove('on');
@@ -850,6 +798,9 @@
 
    // 지역 선택 버튼 클릭 시 changeArea 팝업 열기
    $("#regionSelectBtn").click(function() {
+     // 플래그 설정: 팝업에서 돌아올 때 .addrName 업데이트 무시
+     window.skipAddrNameUpdate = true;
+
      // openPanel() 사용: body.panel-open 클래스가 추가되어 bottom-nav 정상 숨김 처리
      var changeAreaEl = document.getElementById('changeArea');
      if (changeAreaEl) {
@@ -892,11 +843,6 @@
      selectedRegions = window.selectedRegions;
      updateSelectedRegionsDisplay();
 
-     // main_visual.php와 동기화 (상단 지역 태그도 업데이트)
-     if (typeof window.updateSelectedRegionsTags === 'function') {
-       window.updateSelectedRegionsTags();
-     }
-
      // addr_popup2025_new.php의 .div2 .selbtn도 동기화
      var $selbtnAll = $('.div2 .selbtn');
      var $targetSelbtn = $selbtnAll.eq(index);
@@ -911,35 +857,6 @@
          updateSelectedCount();
        }
      }
-
-     // sessionStorage 업데이트 (selectedRegions, searchAreaStr, search_addr 모두 갱신)
-     try {
-       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (window.currentUserId || "guest");
-       var raw = sessionStorage.getItem(storageKey);
-       if (raw) {
-         var state = JSON.parse(raw);
-         state.selectedRegions = window.selectedRegions.slice();
-
-         // .div2 .selbtn 기준으로 searchAreaStr와 search_addr 재계산
-         var newSearchArea = [];
-         var newSearchAddr = [];
-         $('.div2 .selbtn').each(function() {
-           var a = $(this).data('addr');
-           var s = $(this).data('step');
-           if (a) {
-             newSearchArea.push({
-               addr: a,
-               step: s
-             });
-             newSearchAddr.push(a);
-           }
-         });
-         state.searchAreaStr = JSON.stringify(newSearchArea);
-         state.search_addr = newSearchAddr;
-
-         sessionStorage.setItem(storageKey, JSON.stringify(state));
-       }
-     } catch (e) {}
 
      // 지역 삭제 후 tab_list 업데이트
      initCategory();
@@ -1274,6 +1191,8 @@
    });
 
    $("#btnSearch").click(function() {
+     // 플래그 초기화: 검색 버튼 클릭 시 .addrName 동기화 허용
+     window.skipAddrNameUpdate = false;
 
      list_page = 1;
 
@@ -1283,6 +1202,11 @@
      initCategory();
 
      initTabUi();
+
+     // 지역 UI 업데이트
+     if (typeof window.updateSelectedRegionsTags === 'function') {
+       window.updateSelectedRegionsTags();
+     }
 
      // 검색 조건 저장
      saveSearchStateToStorage();
@@ -1314,6 +1238,9 @@
    });
 
    $("#btnReset").click(function() {
+     // 플래그 초기화: 초기화 버튼 클릭 시 .addrName 동기화 허용
+     window.skipAddrNameUpdate = false;
+
      // 지역
 
      window.selectedRegions = [];
@@ -1402,6 +1329,11 @@
 
      initCategory();
      initTabUi();
+
+     // 지역 UI 업데이트
+     if (typeof window.updateSelectedRegionsTags === 'function') {
+       window.updateSelectedRegionsTags();
+     }
 
      // 검색 실행 후 패널 닫기
      $(list_id).html("");
