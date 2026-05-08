@@ -680,6 +680,9 @@
      }
    }
 
+   // 전역 등록 (addr_popup에서 호출 가능하도록)
+   window.saveSearchStateToStorage = saveSearchStateToStorage;
+
    // 저장된 상세검색 조건을 로드해 UI에 반영
    function loadSearchStateFromStorage() {
      // 현재 사용자 ID에 해당하는 키로 불러오기
@@ -769,6 +772,9 @@
    });
 
    $(".btn-close-panel").click(function() {
+     // 플래그 초기화: 패널 닫기 시 main_visual 동기화 방지
+     window.skipAddrNameUpdate = true;
+
      // 패널 닫기 (동기화 로직 없음 - 사용자 선택 취소의 의도)
      var $panel = $("#advancedSearch")[0];
      if ($panel) {
@@ -777,16 +783,11 @@
        $panel.scrollTo(0, 0);
      }
 
-     // body 스타일 복구
+     // 플래그 해제
      setTimeout(function() {
+       window.skipAddrNameUpdate = false;
        if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
-     }, 50);
-     setTimeout(function() {
-       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
-     }, 200);
-     setTimeout(function() {
-       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
-     }, 500);
+     }, 300);
    });
 
    // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
@@ -858,9 +859,6 @@
        }
      }
 
-     // 지역 삭제 후 tab_list 업데이트
-     initCategory();
-     initTabUi();
    });
 
    // 팝업에서 지역 선택 완료 시 호출될 전역 함수
@@ -1224,17 +1222,9 @@
        $panel.scrollTo(0, 0);
      }
 
-     // body 스타일 즉시 초기화
+     // body 스타일 즉시 초기화 및 지연 후 1회
      restoreBodyScroll();
-
-     // 여러 시점에서 body 스타일 확인 및 복구
-     setTimeout(restoreBodyScroll, 50);
-     setTimeout(restoreBodyScroll, 100);
-     setTimeout(restoreBodyScroll, 200);
-     setTimeout(restoreBodyScroll, 500);
-
-     // 검색 완료 후에도 확인
-     setTimeout(restoreBodyScroll, 1000);
+     setTimeout(restoreBodyScroll, 300);
    });
 
    $("#btnReset").click(function() {
@@ -1347,9 +1337,6 @@
      }
      setTimeout(function() {
        if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
-     }, 50);
-     setTimeout(function() {
-       if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
-     }, 200);
+     }, 300);
    });
  </script>

@@ -439,7 +439,10 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         // 팝업 닫힐 때 (약 400ms 후) 상태 업데이트
         setTimeout(function() {
           initAddrNameButton();
-          updateSelectedRegionsTags();
+          // skipAddrNameUpdate가 false인 경우만 갱신 (main_visual 컨텍스트)
+          if (!window.skipAddrNameUpdate) {
+            updateSelectedRegionsTags();
+          }
         }, 400);
       }
     });

@@ -867,10 +867,6 @@
             if (window.updateSelectedRegionsDisplay) {
               window.updateSelectedRegionsDisplay();
             }
-
-            // tab_list 갱신
-            if (typeof initCategory === 'function') initCategory();
-            if (typeof initTabUi === 'function') initTabUi();
           });
 
           $('input[type="checkbox"]').on('click', function(e) {
@@ -1008,38 +1004,14 @@
             const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
             const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
             sessionStorage.removeItem(storageKey);
+
+            // index_search의 #selectedRegionsContainer 갱신
+            if (typeof window.updateSelectedRegionsDisplay === 'function') {
+              window.updateSelectedRegionsDisplay();
+            }
           });
 
           // sessionStorage에 선택된 지역 상태 저장
-          function saveSelectedRegionsToSessionStorage() {
-            const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
-            const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
-            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId; // 예: jobListAdvancedSearch_recruit_12345
-            const addrNames = []; // addrNames 배열은 selbtn의 텍스트에서 추출하여 저장 // 선택된 지역의 "짧은 이름" 배열
-            const searchArea = []; // searchArea 배열은 selbtn의 data-addr과 data-step에서 추출하여 저장   // 선택된 지역의 "전체 정보" 배열 
-            // .selbtn 모두 순회하며 데이터 수집
-            $('.selbtn').each(function() {
-              const text = $(this).clone().children().remove().end().text().trim();
-              const addr = $(this).data('addr');
-              const step = $(this).data('step');
-
-              addrNames.push(text); // "서울", "강남구" 등
-              if (addr) {
-                searchArea.push({ // {addr: "서울특별시 강남구 강남동", step: 3
-                  addr: addr,
-                  step: step
-                });
-              }
-            });
-
-            const state = {
-              searchAreaStr: JSON.stringify(searchArea), // ← searchArea를 JSON 문자열로
-              addrName: addrNames.join(', ') // ← addrNames를 쉼표로 연결
-            };
-
-            sessionStorage.setItem(storageKey, JSON.stringify(state));
-          }
-
           // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
           $(document).on('click', '.addr_sel_apply', function(e) {
             // 이벤트 버블링 차단 (main.js의 배경클릭 핸들러가 closePanel 호출하는 것 방지)
@@ -1091,12 +1063,21 @@
             });
             searchAreaStr = JSON.stringify(searchArea);
 
-            // 적용 시에만 sessionStorage에 저장
-            saveSelectedRegionsToSessionStorage();
+            // 적용 시에만 sessionStorage에 저장 (단일 스키마로 통일)
+            if (typeof window.saveSearchStateToStorage === 'function') {
+              window.saveSearchStateToStorage();
+            } else if (typeof saveSearchStateToStorage === 'function') {
+              saveSearchStateToStorage();
+            }
 
             // index_search.php의 전역 함수 호출하여 선택된 지역 정보 전달
             if (typeof window.onRegionSelectionComplete === 'function') {
               window.onRegionSelectionComplete(addrNames);
+            }
+
+            // main_visual의 #selected-regions-list 갱신 (확정)
+            if (typeof window.updateSelectedRegionsTags === 'function') {
+              window.updateSelectedRegionsTags();
             }
 
             // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
@@ -1196,12 +1177,9 @@
               }
             }
 
-            // 즉시 시도 및 여러 시점에서 재시도
+            // 즉시 시도 및 지연 후 1회
             attemptRestoreScroll();
-            setTimeout(attemptRestoreScroll, 50);
-            setTimeout(attemptRestoreScroll, 100);
-            setTimeout(attemptRestoreScroll, 200);
-            setTimeout(attemptRestoreScroll, 500);
+            setTimeout(attemptRestoreScroll, 300);
           });
 
           // X버튼 클릭 시 현재 선택 상태 초기화 (sessionStorage는 유지)
