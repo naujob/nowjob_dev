@@ -386,7 +386,7 @@
     font-weight: 900;
     text-align: center;
     padding: 1rem 0;
-    border-radius: 6px;
+    border-radius: 80px;
     cursor: pointer;
 
   }

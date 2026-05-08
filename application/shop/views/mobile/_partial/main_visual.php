@@ -495,12 +495,13 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     }
 
     function clearAreaFilterState() {
-      var addrBtn = document.querySelector('.addrName');
-      if (addrBtn) {
-        addrBtn.textContent = '지역을 선택해 주세요';
-        addrBtn.setAttribute('data-selected', 'false');
-      }
+      // 전역 상태 초기화
+      window.selectedRegions = [];
+      if (typeof window.addrName !== 'undefined') window.addrName = '';
+      if (typeof window.search_addr !== 'undefined') window.search_addr = [];
+      if (typeof window.searchAreaStr !== 'undefined') window.searchAreaStr = JSON.stringify([]);
 
+      // 팝업 UI 정리
       Array.prototype.forEach.call(document.querySelectorAll('.selbtn'), function(el) {
         el.remove();
       });
@@ -508,10 +509,15 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         el.classList.remove('addr_on');
       });
 
-      window.selectedRegions = [];
-      if (typeof window.addrName !== 'undefined') window.addrName = '';
-      if (typeof window.search_addr !== 'undefined') window.search_addr = [];
-      if (typeof window.searchAreaStr !== 'undefined') window.searchAreaStr = JSON.stringify([]);
+      // 버튼 상태 초기화 (initAddrNameButton 함수와 동일한 로직)
+      var addrBtn = document.querySelector('.addrName');
+      if (addrBtn) {
+        addrBtn.textContent = '지역을 선택해 주세요';
+        initAddrNameButton(); // data-selected 속성 설정
+      }
+
+      // selected-regions-list 초기화
+      updateSelectedRegionsTags();
     }
 
     function clearFormControlsByFilterKey(filterKey) {
