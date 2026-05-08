@@ -855,21 +855,22 @@
             $btn.remove();
             updateSelectedCount();
 
-            // index_search.php의 window.selectedRegions와 #selectedRegionsContainer 동기화
-            if (window.selectedRegions && window.updateSelectedRegionsDisplay) {
-              // 남은 .selbtn 기준으로 이름 배열 재구성
-              var newNames = [];
-              $('.div2 .selbtn').each(function() {
-                var text = $(this).clone().children().remove().end().text().trim();
-                newNames.push(text);
-              });
-              window.selectedRegions = newNames;
-              window.updateSelectedRegionsDisplay();
+            // 남은 .selbtn 기준으로 이름 배열 재구성
+            var newNames = [];
+            $('.div2 .selbtn').each(function() {
+              var text = $(this).clone().children().remove().end().text().trim();
+              newNames.push(text);
+            });
+            window.selectedRegions = newNames;
 
-              // tab_list 갱신
-              if (typeof initCategory === 'function') initCategory();
-              if (typeof initTabUi === 'function') initTabUi();
+            // index_search.php의 window.updateSelectedRegionsDisplay 함수 호출
+            if (window.updateSelectedRegionsDisplay) {
+              window.updateSelectedRegionsDisplay();
             }
+
+            // tab_list 갱신
+            if (typeof initCategory === 'function') initCategory();
+            if (typeof initTabUi === 'function') initTabUi();
           });
 
           $('input[type="checkbox"]').on('click', function(e) {
@@ -997,6 +998,9 @@
             $('li.addr_on').removeClass('addr_on');
             $('.div2 .selbtn').remove();
             updateSelectedCount();
+
+            // window.selectedRegions 초기화
+            window.selectedRegions = [];
             updateSearchView();
             resetAllRegionFlag();
             // 저장된 지역도 삭제 (초기화 버튼이므로)
@@ -1048,9 +1052,15 @@
               });
               addrName = addrNames.join(', ');
               $('.addrName').text(addrName).attr('data-selected', 'true');
+
+              // window.selectedRegions에 지역 이름 배열 할당
+              window.selectedRegions = addrNames.slice(0, 3);
             } else {
               addrName = '지역을 선택해 주세요';
               $('.addrName').text(addrName).attr('data-selected', 'false');
+
+              // 선택된 지역이 없으면 selectedRegions도 초기화
+              window.selectedRegions = [];
             }
 
             const searchArea = [];

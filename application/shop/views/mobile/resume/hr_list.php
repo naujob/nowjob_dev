@@ -1333,6 +1333,11 @@ $tpl_show_mm_idx = true; ?>
     if (typeof saveSearchStateToStorage === "function") {
       saveSearchStateToStorage();
     }
+
+    // updateSelectedRegionsTags 함수 호출
+    if (typeof window.updateSelectedRegionsTags === "function") {
+      window.updateSelectedRegionsTags();
+    }
   };
 
   // 1페이지 여부에 따라 배너/슬라이더 섹션 표시/숨김
