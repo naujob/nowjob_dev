@@ -254,7 +254,7 @@ if (!$socket_io_script_url) {
   <?= getCashJs(RES_PATH . "/js/lib/flatpickr.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/l10n/ko.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/plugins/monthSelect/index.js") ?>
-  <?= getCashJs(RES_PATH . "/js/format-utils.js") ?>
+
   <?= getCashJs(RES_PATH . "/js/main.js") ?>
 
   <input type="hidden" id="is_login" name="is_login" value="<?= $this->user->isLogin() == true ? "Y" : "N" ?>" />

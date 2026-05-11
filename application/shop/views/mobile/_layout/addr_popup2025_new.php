@@ -538,12 +538,12 @@
           const $targetContainers = $('.search_addr, .addr_dept1, .addr_dept2, .addr_dept3');
           let debounceTimer = null;
 
-          // 페이지 로드 시 sessionStorage에서 선택된 지역 복원
+          // 페이지 로드 시 localStorage에서 선택된 지역 복원
           function restoreSelectedRegionsToDiv2() {
             const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
             const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
             const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
-            const searchAreaStr = sessionStorage.getItem(storageKey);
+            const searchAreaStr = localStorage.getItem(storageKey);
 
             const $div2 = $('.div2');
 
@@ -1003,7 +1003,7 @@
             const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
             const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
             const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
-            sessionStorage.removeItem(storageKey);
+            localStorage.removeItem(storageKey);
 
             // index_search의 #selectedRegionsContainer 갱신
             if (typeof window.updateSelectedRegionsDisplay === 'function') {

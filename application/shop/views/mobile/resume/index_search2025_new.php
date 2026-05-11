@@ -959,9 +959,9 @@
       initCategory();
       initTabUi();
 
-      // sessionStorage 부분 삭제 (지역 정보는 유지하도록)
+      // localStorage 부분 삭제 (지역 정보는 유지하도록)
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      var raw = sessionStorage.getItem(storageKey);
+      var raw = localStorage.getItem(storageKey);
       if (raw) {
         try {
           var state = JSON.parse(raw);
@@ -973,9 +973,9 @@
             search_addr: state.search_addr,
             selectedRegions: state.selectedRegions
           };
-          sessionStorage.setItem(storageKey, JSON.stringify(preservedState));
+          localStorage.setItem(storageKey, JSON.stringify(preservedState));
         } catch (e) {
-          sessionStorage.removeItem(storageKey);
+          localStorage.removeItem(storageKey);
         }
       }
 
@@ -1002,7 +1002,7 @@
   // 저장된 상세검색 조건을 로드해 UI에 반영
   function loadSearchStateFromStorage() {
     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-    var raw = sessionStorage.getItem(storageKey);
+    var raw = localStorage.getItem(storageKey);
     if (!raw) return;
 
     try {
@@ -1160,7 +1160,7 @@
       };
 
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      sessionStorage.setItem(storageKey, JSON.stringify(state));
+      localStorage.setItem(storageKey, JSON.stringify(state));
 
     } catch (e) {
 
@@ -1280,9 +1280,9 @@
   $(document).on('click', '.btn-option', function(e) {
     setTimeout(function() {
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      var hasSavedState = sessionStorage.getItem(storageKey);
+      var hasSavedState = localStorage.getItem(storageKey);
       if (hasSavedState) {
-        // 저장된 검색 상태가 있으면 sessionStorage 기준으로 복원
+        // 저장된 검색 상태가 있으면 localStorage 기준으로 복원
         loadSearchStateFromStorage();
       } else {
         // 저장된 상태 없으면 search_array 기준으로 복원
@@ -1371,7 +1371,7 @@
   $(".btn-close-panel").click(function() {
     // X 버튼으로 닫을 때: 임시 선택사항 취소 (검색 버튼을 누르지 않았으므로 저장된 상태로 복원)
     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-    var hasSavedState = sessionStorage.getItem(storageKey);
+    var hasSavedState = localStorage.getItem(storageKey);
 
     if (hasSavedState) {
       // 저장된 검색 상태가 있으면 UI를 저장된 상태로 복원

@@ -920,6 +920,27 @@ $tpl_show_mm_idx = true; ?>
     }).join('');
   }
 
+  // 이력서 상세 페이지 접근 권한 확인 및 이동
+  function handleResumeCardClick(ruIdx, resumeMmIdx) {
+    // 개인회원이고 자신의 이력서인 경우 클릭 가능
+    if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
+      if (ruIdx) {
+        window.location.href = '/resume/hr_post/' + ruIdx;
+      }
+      return;
+    }
+
+    // 기업회원인 경우 클릭 가능
+    <?php if ($mm_type === "COMP") { ?>
+      if (ruIdx) {
+        window.location.href = '/resume/hr_post/' + ruIdx;
+      }
+    <?php } else { ?>
+      // 개인회원이지만 자신의 이력서가 아닌 경우
+      commonAlert("기업회원 전용 서비스입니다.", function() {});
+    <?php } ?>
+  }
+
   $(document).on('click', '.content-li', function(e) {
     // 버튼이나 링크 클릭은 무시
     if ($(e.target).closest('button, a, input').length) {
@@ -932,27 +953,21 @@ $tpl_show_mm_idx = true; ?>
 
     var $target = $(this);
     var ruIdx = $target.data('ru_idx');
-    var resumeMmIdx = $target.data('mm_idx'); // 이력서 소유자 인덱스
+    var resumeMmIdx = $target.data('mm_idx');
 
-    // 개인회원이고 자신의 이력서인 경우 클릭 가능
-    if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.location.href = url;
-      }
+    handleResumeCardClick(ruIdx, resumeMmIdx);
+  });
+
+  $(document).on('click', '.person-grid-item', function(e) {
+    if ($(e.target).closest('button, a, input').length) {
       return;
     }
 
-    // 기업회원인 경우 클릭 가능
-    <?php if ($mm_type === "COMP") { ?>
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.location.href = url;
-      }
-    <?php } else { ?>
-      // 개인회원이지만 자신의 이력서가 아닌 경우
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-    <?php } ?>
+    var $target = $(this);
+    var ruIdx = $target.find('.person-card').data('ru_idx');
+    var resumeMmIdx = $target.find('.person-card').data('mm_idx');
+
+    handleResumeCardClick(ruIdx, resumeMmIdx);
   });
 
   function showEmpty() {
@@ -1115,6 +1130,24 @@ $tpl_show_mm_idx = true; ?>
         }
       });
       searchAreaStr = JSON.stringify(searchArea);
+    }
+
+    // 지역 선택 상태를 selectedRegions에 반영
+    if (!window.selectedRegions || window.selectedRegions.length === 0) {
+      var addrNames = [];
+      if ($('.selbtn').length > 0) {
+        $('.selbtn').each(function() {
+          const text = $(this).clone().children().remove().end().text().trim();
+          addrNames.push(text);
+        });
+        window.selectedRegions = addrNames.slice(0, 3);
+      } else {
+        window.selectedRegions = [];
+      }
+      // UI 동기화
+      if (typeof window.updateSelectedRegionsTags === 'function') {
+        window.updateSelectedRegionsTags();
+      }
     }
 
     // 검색 조건 초기화 (index_search2025_new.php의 $(document).ready()에서 이미 복원됨)

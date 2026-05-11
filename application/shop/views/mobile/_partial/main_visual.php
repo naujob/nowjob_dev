@@ -343,6 +343,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     </div>
   </div>
   <script>
+    // 고급 검색 상태 저장을 위한 고유 키 생성 함수
     function getAdvancedSearchStorageKey() {
       var userId = window.currentUserId || "guest";
       var scope = window.location.pathname.indexOf('/resume/') !== -1 ? 'resume' : 'recruit';
@@ -493,7 +494,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         subtree: true
       });
     }
-
+    // 지역 필터 상태 초기화 함수: 지역 관련 전역 상태와 UI를 모두 초기화
     function clearAreaFilterState() {
       // 전역 상태 초기화
       window.selectedRegions = [];
@@ -519,7 +520,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       // selected-regions-list 초기화
       updateSelectedRegionsTags();
     }
-
+    // 검색 조건 초기화 함수: filterKey에 따라 관련된 폼 컨트롤과 전역 상태를 초기화
     function clearFormControlsByFilterKey(filterKey) {
       var inputNameMap = {
         category: 'category[]',
@@ -564,7 +565,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         clearAreaFilterState();
       }
     }
-
+    // 검색 조건 초기화 함수: filterKey에 따라 관련된 폼 컨트롤과 전역 상태를 초기화
     function clearSearchArrayByFilterKey(filterKey) {
       if (typeof window.search_array === 'undefined') return;
 
@@ -628,17 +629,17 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       }
 
       if (typeof window.updateSelectedRegionsTags === 'function') {
-        window.updateSelectedRegionsTags();
+        window.updateSelectedRegionsTags(); //선택된 지역 태그 ui 업데이트
       }
       if (typeof window.updateSelectedRegionsDisplay === 'function') {
-        window.updateSelectedRegionsDisplay();
+        window.updateSelectedRegionsDisplay(); //선택된 지역 텍스트 업데이트 (addrName 버튼)
       }
 
       if (typeof window.list_page !== 'undefined') {
         window.list_page = 1;
       }
       if (typeof window.list_id !== 'undefined' && window.jQuery) {
-        window.jQuery(window.list_id).html('');
+        window.jQuery(window.list_id).html(''); //데이터를 새로 불러오기 전, 기존에 화면에 떠 있던 목록을 초기화
       }
       if (typeof window.getBoardList === 'function') {
         window.getBoardList('Y');
@@ -658,7 +659,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       e.preventDefault();
       e.stopPropagation();
 
-      removeFilterTag(inferFilterKeyFromTag(filterTag));
+      removeFilterTag(inferFilterKeyFromTag(filterTag)); //removeFilterTag:태그를 화면에서 지우는 것 뿐만 아니라, 관련된 검색 조건도 초기화하고, 검색 결과도 새로 불러오는 등, 태그 제거에 따른 전체적인 상태 관리를 담당하는 함수
     }, true); // 캡처 단계에서 처리
 
     window.addEventListener('DOMContentLoaded', function() {

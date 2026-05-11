@@ -474,8 +474,11 @@ $banner_list = getBannerList("BN00302031");
       <div class="hot-list">
         <div class="slider-wrap keen-slider">
           <?php
-          $limited_up_list = isset($up_list) && is_array($up_list) ? array_slice($up_list, 0, 8) : array();
+          $limited_up_list = isset($up_list) && is_array($up_list) ? $up_list : array();
           $chunked_up_list = array_chunk($limited_up_list, 4);
+          $up_total_count = isset($up_list) && is_array($up_list) ? count($up_list) : 0;
+          $up_limited_count = count($limited_up_list);
+          $up_chunk_count = count($chunked_up_list);
           // 마지막 슬라이드가 4개 미만인 경우 빈 슬롯 추가
           if (!empty($chunked_up_list)) {
             $last_idx = count($chunked_up_list) - 1;
@@ -629,7 +632,7 @@ $tpl_recomm_class = true; ?>
 
 
 <script>
-  var ad_addr = "<?= $addr_info["ad_addr"] ?>";
+  var ad_addr = <?= json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "", JSON_UNESCAPED_UNICODE) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
@@ -787,8 +790,20 @@ $tpl_recomm_class = true; ?>
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
           $(list_id).empty(); // 매번 초기화
-          total_count = ret.data.total || 0;
-          total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
+          var serverTotal = parseInt(ret.data.total, 10);
+          if (isNaN(serverTotal) || serverTotal < 0) {
+            serverTotal = 0;
+          }
+          // total이 누락된 응답 대응:
+          // 현재 페이지가 limit 만큼 꽉 찼다면 다음 페이지가 있을 가능성이 높으므로
+          // 최소 +1건을 가정해 다음 페이지 버튼이 노출되게 처리
+          if (serverTotal > 0) {
+            total_count = serverTotal;
+          } else {
+            var listLen = ret.data.list.length;
+            total_count = (listLen === ITEMS_PER_PAGE) ? (list_page * ITEMS_PER_PAGE + 1) : ((list_page - 1) * ITEMS_PER_PAGE + listLen);
+          }
+          total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
 
 
 
@@ -799,6 +814,7 @@ $tpl_recomm_class = true; ?>
         }
       },
       error: function(xhr, status, error) {
+        list_loading = false;
 
       }
     });
@@ -899,7 +915,7 @@ $tpl_recomm_class = true; ?>
   // 페이지네이션 버튼 렌더링
   function renderPagination() {
     var $wrapper = $("#paginationWrapper");
-    if (total_count === 0) {
+    if (total_count === 0 && $(list_id).find("li").length === 0) {
       $wrapper.hide();
       return;
     }
@@ -1045,6 +1061,11 @@ $tpl_recomm_class = true; ?>
       window.selectedRegions = addrNames.slice(0, 3); // 최대 3개까지만
     } else {
       window.selectedRegions = [];
+    }
+
+    // window.selectedRegions 설정 후 UI 동기화
+    if (typeof window.updateSelectedRegionsTags === 'function') {
+      window.updateSelectedRegionsTags();
     }
 
     initCategory();

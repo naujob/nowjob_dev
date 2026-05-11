@@ -73,17 +73,6 @@
             // 위챗 state 세션에 저장 (csrf 토큰 사용)
             $this->common->setSession("wechat-oauth-state", $csrf);
 
-            // 파일 로깅: SNS OAuth redirect_uri 생성 정보
-            $this->logger->debug('SNS OAuth redirect_uri 생성', array(
-              'app_base_url'      => $app_base_url,
-              'naver_redirect'    => $naver_redirect,
-              'google_redirect'   => $google_redirect,
-              'wechat_redirect'   => $wechat_redirect,
-              'x_forwarded_proto' => isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : 'not set',
-              'https_var'         => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set',
-              'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
-            ));
-
             $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
 
             // 카카오 설정

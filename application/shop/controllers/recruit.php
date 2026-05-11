@@ -412,7 +412,8 @@ class Recruit extends CI_Controller
     $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["search_txt"]  = $search_txt;
     $data["skip_search_state_load"] = $skip_search_state_load;
-    $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 6);
+    // length를 0으로 전달하면 LIMIT 없이 전체 조회
+    $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 0);
 
     $this->layout->shop('/recruit/job_list', $data);
   }

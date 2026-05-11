@@ -1,4 +1,7 @@
 <?php
+header('Location: /recruit/job_list');
+exit;
+
 $banner_list = getBannerList("BN00302031");
 # IOS 검수 대비
 if ($g_ios_publish == true) {

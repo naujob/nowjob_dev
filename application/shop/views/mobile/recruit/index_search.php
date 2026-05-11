@@ -674,7 +674,7 @@
        };
        // 사용자 ID를 키에 포함하여 저장
        var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-       sessionStorage.setItem(storageKey, JSON.stringify(state));
+       localStorage.setItem(storageKey, JSON.stringify(state));
      } catch (e) {
 
      }
@@ -687,7 +687,7 @@
    function loadSearchStateFromStorage() {
      // 현재 사용자 ID에 해당하는 키로 불러오기
      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-     var raw = sessionStorage.getItem(storageKey);
+     var raw = localStorage.getItem(storageKey);
      if (!raw) return;
 
      try {
@@ -1182,7 +1182,7 @@
    $(document).on('click', '.btn-option', function() {
      setTimeout(function() {
        var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-       if (sessionStorage.getItem(storageKey)) {
+       if (localStorage.getItem(storageKey)) {
          loadSearchStateFromStorage();
        }
      }, 100);
@@ -1313,9 +1313,9 @@
      updateSexVisuals();
      updateAgeSelectionState();
 
-     // sessionStorage 삭제
+     // localStorage 삭제
      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-     sessionStorage.removeItem(storageKey);
+     localStorage.removeItem(storageKey);
 
      initCategory();
      initTabUi();
