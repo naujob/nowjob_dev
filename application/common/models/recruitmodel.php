@@ -6,6 +6,19 @@ class recruitModel extends MY_Model
 		parent::__construct();
 	}
 
+	// 나이를 20, 30, 40, 50, 60, 70으로 정규화
+	private function normalizeAge($age) {
+		if (empty($age) || $age == 0) return '';
+		$age = (int)$age;
+		// 1의 자리를 반올림하여 10의 배수로 변환
+		// 예: 23 -> 20, 45 -> 50, 40 -> 40
+		$normalized = round($age / 10) * 10;
+		// 범위 제한: 20~70
+		if ($normalized < 20) $normalized = 20;
+		if ($normalized > 70) $normalized = 70;
+		return (string)$normalized;
+	}
+
 	function getRecruit($where)
 	{
 		return $this->db_row("st_recruit", $where, "*", ["rc_idx" => "desc"]);
@@ -46,9 +59,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
-        when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
+        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
+        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -138,9 +151,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
-        when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
+        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
+        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
         else '나이무관' end) as rc_age_nm",
 			/*
       "aa.mm_comp_name",
@@ -436,9 +449,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
-        when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
+        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
+        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -561,9 +574,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
-        when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
+        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
+        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
         else '나이무관' end) as rc_age_nm",
 			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt"
 		];
@@ -631,9 +644,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
-        when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
+        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
+        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -702,9 +715,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
-        when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
+        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
+        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
@@ -760,9 +773,9 @@ class recruitModel extends MY_Model
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
 			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(rc_sage, ' ~ ',rc_eage,'대')
-        when rc_sage <> '' then CONCAT(rc_sage, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', rc_eage, '대')
+        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
+        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
+        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
         else '나이무관' end) as rc_age_nm",
 			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];

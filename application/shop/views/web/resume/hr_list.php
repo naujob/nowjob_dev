@@ -925,7 +925,7 @@ if (count($banner_list) > 0) {
   }
 
   .item-info .price_type em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: 6px;
   }
 
   .item-info .price_type em:not(:last-child)::after {
@@ -985,7 +985,7 @@ if (count($banner_list) > 0) {
   }
 
   .item-info .price_type_wrap .ru_price_type em:not(:first-child) {
-    padding-left: 5px;
+    padding-left: 4px;
   }
 
   .item-info .price_type_wrap .ru_price_type em:not(:last-child) {
@@ -1722,7 +1722,7 @@ if (count($banner_list) > 0) {
 
         $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
         $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-        $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
+        $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeNoComma(row.ru_work_type));
         $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
         $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
 

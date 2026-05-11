@@ -213,12 +213,37 @@
     });
 
     $(".btn-close-panel").click(function() {
-        $("body").css("overflow", "auto");
-        setTimeout(function() {
-            $("body").css("overflow", "auto");
-        }, 500);
+        // 패널 닫기 + body 스타일 완전 복원
         $("#advancedSearch").removeClass("on");
+        restorePanelClosedState();
     });
+
+    // 패널 닫힐 때 body 스타일 복원 함수 (main.js의 closePanel 호출을 대신함)
+    function restorePanelClosedState() {
+        $("body, html").css({
+            "overflow": "auto",
+            "overflow-y": "auto",
+            "position": "relative",
+            "top": "auto",
+            "left": "auto",
+            "right": "auto",
+            "width": "auto",
+            "height": "auto"
+        }).removeClass("no-scroll panel-open");
+
+        // 다른 열린 패널 확인 (지역선택 패널 등)
+        var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
+        if (!hasOtherOpenPanel) {
+            $("body").removeClass("panel-open");
+        }
+
+        // iOS 웹뷰 대응: body 스타일 완전 복원
+        if (typeof forceRestoreBodyScroll === 'function') {
+            forceRestoreBodyScroll();
+        } else if (typeof restoreBodyScroll === 'function') {
+            restoreBodyScroll();
+        }
+    }
 
     $("[name='sage']").change(function() {
         if ($("[name='sage']").val() != "" && $("[name='eage']").val() != "") {
@@ -240,11 +265,11 @@
 
         initCategory();
 
-        //닫기
+        // 패널 닫기 + body 스타일 완전 복원
         $("#advancedSearch").removeClass("on");
-        $("body").css("overflow", "auto");
+        restorePanelClosedState();
 
-        //검색
+        // 검색
         $(list_id).html("");
         getBoardList("Y");
     });

@@ -360,16 +360,16 @@
                         <div class="age-range-group">
                             <select name="rc_sage">
                                 <option value="">선택</option>
-                                <?php for ($icnt = 20; $icnt <= 80; $icnt++) : ?>
-                                    <option value="<?= $icnt ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $icnt ? "selected" : "" ?>><?= $icnt ?>세</option>
-                                <?php endfor; ?>
+                                <?php $ages = [20, 30, 40, 50, 60, 70]; foreach ($ages as $age) : ?>
+                                    <option value="<?= $age ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
+                                <?php endforeach; ?>
                             </select>
                             <span class="age-separator">~</span>
                             <select name="rc_eage">
                                 <option value="">선택</option>
-                                <?php for ($icnt = 20; $icnt <= 80; $icnt++) : ?>
-                                    <option value="<?= $icnt ?>" <?= isset($info["rc_eage"]) && $info["rc_eage"] == $icnt ? "selected" : "" ?>><?= $icnt ?>세</option>
-                                <?php endfor; ?>
+                                <?php foreach ($ages as $age) : ?>
+                                    <option value="<?= $age ?>" <?= isset($info["rc_eage"]) && $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>

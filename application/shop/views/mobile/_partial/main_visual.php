@@ -26,7 +26,8 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     align-items: center;
     padding: 1rem 1.25rem 1rem 1.25rem;
     background-color: #fff;
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 10;
   }
 
@@ -142,6 +143,13 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 <!-- 상세 검색 옵션 -->
 <div class="search-option has-option">
   <style>
+    .search-option {
+      position: sticky;
+      top: 3.5rem;
+      z-index: 9;
+      background-color: #fff;
+    }
+
     .search-option.has-option .btn-option {
       top: 1.3rem;
     }
@@ -157,7 +165,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
   <style>
     /* 지역 검색 영역 */
     .current-area {
-      border-top: 1px solid #c2c0c0;
+
       border-bottom: 1px solid #999;
       padding: 10px 0px;
       position: relative;

@@ -1335,200 +1335,83 @@ $tpl_recomm_class = true; ?>
 
   // 스와이프 뒤로가기 비활성화
   window.DISABLE_SWIPE_BACK = true;
-</script>
 
-<!-- app 인터셉트 레이어 스크립트 -->
-<script>
-  (function() {
-    const layer = document.getElementById("app-intercept-layer");
-    if (!layer) {
+  // Android 뒤로가기 패널 상태 관리
+  window.isAdvancedSearchOpen = function() {
+    return $('#advancedSearch').hasClass('on');
+  };
+
+  window.isChangeAreaOpen = function() {
+    return $('#changeArea').hasClass('on');
+  };
+
+  // 패널 닫힐 때 공통 body 스타일 복원 함수 (main.js의 closePanel 호출을 대신함)
+  window.restorePanelClosedState = function() {
+    $('body, html').css({
+      'overflow': 'auto',
+      'overflow-y': 'auto',
+      'position': 'relative',
+      'top': 'auto',
+      'left': 'auto',
+      'right': 'auto',
+      'width': 'auto',
+      'height': 'auto'
+    }).removeClass('no-scroll panel-open');
+
+    // 다른 열린 패널 확인
+    var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
+    if (!hasOtherOpenPanel) {
+      $('body').removeClass('panel-open');
+    }
+
+    // iOS 웹뷰 대응: body 스타일 완전 복원
+    if (typeof forceRestoreBodyScroll === 'function') {
+      forceRestoreBodyScroll();
+    } else if (typeof restoreBodyScroll === 'function') {
+      restoreBodyScroll();
+    }
+  };
+
+  // Android에서 호출할 함수: 패널 닫기
+  window.handleAndroidBack = function() {
+    // 1) 지역선택 패널이 열려있으면 닫기 (advancedSearch보다 먼저 체크)
+    // 이렇게 하면 advancedSearch 안에서 changeArea가 열렸을 때 changeArea만 닫고 advancedSearch는 유지됨
+    if (window.isChangeAreaOpen()) {
+      $('#changeArea').removeClass('on');
+
+      // changeArea를 닫되, advancedSearch가 열려있으면 body.panel-open 유지
+      if (window.isAdvancedSearchOpen()) {
+        // advancedSearch가 여전히 열려있으므로 no-scroll만 제거하고 panel-open은 유지
+        $('body, html').css({
+          'overflow': 'auto',
+          'overflow-y': 'auto',
+          'position': 'relative',
+          'top': 'auto',
+          'left': 'auto',
+          'right': 'auto',
+          'width': 'auto',
+          'height': 'auto'
+        }).removeClass('no-scroll');
+      } else {
+        // advancedSearch도 닫혀있으면 완전 복원
+        window.restorePanelClosedState();
+      }
       return;
     }
 
-    const COOL_DOWN_KEY = "nowjobAppLayerCooldownAt";
-    // const COOL_DOWN_MS = 2 * 60 * 60 * 1000;
-    const COOL_DOWN_MS = 0;
-    const OPEN_SCHEME = "nowjob://home";
-    const ANDROID_PKG = "app.nowapk.com";
-    const ANDROID_STORE_INTENT = "intent://details?id=" + ANDROID_PKG + "#Intent;scheme=market;package=com.android.vending;end";
-    const ANDROID_STORE_MARKET = "market://details?id=" + ANDROID_PKG;
-    const ANDROID_STORE_WEB = "https://play.google.com/store/apps/details?id=" + ANDROID_PKG;
-    const IOS_STORE = "https://apps.apple.com/kr/app/id6446226901";
-    const OPEN_DELAY = 200;
-
-    const openButton = layer.querySelector(".app-intercept-open");
-    const closeButton = layer.querySelector(".app-intercept-close");
-
-    let fallbackTimer = null;
-    let hiddenTimer = null;
-
-    function isMobileBrowser() {
-      const ua = navigator.userAgent || "";
-      return /Android|iPhone|iPad|iPod/i.test(ua);
+    // 2) 고급검색 패널이 열려있으면 닫기
+    if (window.isAdvancedSearchOpen()) {
+      $('#advancedSearch').removeClass('on');
+      window.restorePanelClosedState();
+      return;
     }
 
-    function isIOSWebView() {
-      const ua = navigator.userAgent || "";
-      const isIOS = /iPhone|iPad|iPod/i.test(ua);
-      const isSafari = /Safari/i.test(ua);
-      return isIOS && !isSafari;
+    // 3) 패널이 없으면 WebView의 기본 뒤로가기 수행
+    if (window.history && window.history.length > 1) {
+      window.history.back();
     }
-
-    function isAppViaUrl() {
-      try {
-        const query = new URLSearchParams(window.location.search);
-        return query.get('is_app') === 'true';
-      } catch (ignore) {
-        return false;
-      }
-    }
-
-    function ensureAppFlagForIOSWebView() {
-      if (!isIOSWebView() || isAppViaUrl()) {
-        return;
-      }
-      try {
-        const url = new URL(window.location.href);
-        url.searchParams.set("is_app", "true");
-        window.history.replaceState(null, "", url.toString());
-      } catch (ignore) {}
-    }
-
-    function writeCooldown() {
-      try {
-        localStorage.setItem(COOL_DOWN_KEY, Date.now().toString());
-      } catch (ignore) {}
-    }
-
-    function readCooldown() {
-      try {
-        const stored = localStorage.getItem(COOL_DOWN_KEY);
-        const timestamp = Number(stored);
-        return Number.isNaN(timestamp) ? null : timestamp;
-      } catch (ignore) {
-        return null;
-      }
-    }
-
-    function shouldShowLayer() {
-      const timestamp = readCooldown();
-      if (!timestamp) {
-        return true;
-      }
-      return Date.now() - timestamp >= COOL_DOWN_MS;
-    }
-
-    function showLayer() {
-      layer.classList.add("visible");
-      layer.setAttribute("aria-hidden", "false");
-    }
-
-    function hideLayer() {
-      layer.classList.remove("visible");
-      layer.setAttribute("aria-hidden", "true");
-    }
-
-    function attachFallbackCancels() {
-      function cleanup() {
-        window.removeEventListener("pagehide", pagehideHandler);
-        document.removeEventListener("visibilitychange", visibilityHandler);
-        if (hiddenTimer) {
-          clearTimeout(hiddenTimer);
-          hiddenTimer = null;
-        }
-      }
-
-      function pagehideHandler() {
-        cancelFallback();
-        cleanup();
-      }
-
-      function visibilityHandler() {
-        if (document.visibilityState === "hidden") {
-          hiddenTimer = setTimeout(function() {
-            cancelFallback();
-            cleanup();
-          }, 200);
-        } else if (hiddenTimer) {
-          clearTimeout(hiddenTimer);
-          hiddenTimer = null;
-        }
-      }
-
-      window.addEventListener("pagehide", pagehideHandler);
-      document.addEventListener("visibilitychange", visibilityHandler);
-
-      return cleanup;
-    }
-
-    function cancelFallback() {
-      if (fallbackTimer) {
-        clearTimeout(fallbackTimer);
-        fallbackTimer = null;
-      }
-    }
-
-    function openApp() {
-      writeCooldown();
-      hideLayer();
-
-      const ua = navigator.userAgent || "";
-      const isIOS = /iPhone|iPad|iPod/i.test(ua);
-      const storeUrl = isIOS ? IOS_STORE : ANDROID_STORE_INTENT;
-
-      const removeCancelHandlers = attachFallbackCancels();
-      fallbackTimer = setTimeout(function() {
-        removeCancelHandlers();
-        if (document.visibilityState === "hidden") {
-          return;
-        }
-        if (isIOS) {
-          location.href = storeUrl;
-          return;
-        }
-        location.href = ANDROID_STORE_INTENT;
-        setTimeout(function() {
-          if (document.visibilityState === "hidden") {
-            return;
-          }
-          location.href = ANDROID_STORE_MARKET;
-        }, 300);
-        setTimeout(function() {
-          if (document.visibilityState === "hidden") {
-            return;
-          }
-          location.href = ANDROID_STORE_WEB;
-        }, 900);
-      }, OPEN_DELAY);
-    }
-
-    function dismissLayer() {
-      writeCooldown();
-      hideLayer();
-    }
-
-    function initializePrompt() {
-      ensureAppFlagForIOSWebView();
-      if (!isMobileBrowser() || isAppViaUrl()) {
-        return;
-      }
-      if (shouldShowLayer()) {
-        showLayer();
-      }
-    }
-
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-      initializePrompt();
-    } else {
-      window.addEventListener("DOMContentLoaded", initializePrompt);
-    }
-
-    if (openButton) {
-      openButton.addEventListener("click", openApp);
-    }
-
-    if (closeButton) {
-      closeButton.addEventListener("click", dismissLayer);
-    }
-  })();
+  };
 </script>
+
+<!-- app 인터셉트 레이어 스크립트 -->
+<?= getCashJs(RES_PATH . "/js/recruit/job_list.js") ?>

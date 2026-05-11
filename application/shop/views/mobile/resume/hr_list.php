@@ -1385,4 +1385,62 @@ $tpl_show_mm_idx = true; ?>
 
   // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
   window.DISABLE_SWIPE_BACK = true;
+
+  // Android 뒤로가기 패널 상태 관리
+  window.isAdvancedSearchOpen = function() {
+    return $('#advancedSearch').hasClass('on');
+  };
+
+  window.isChangeAreaOpen = function() {
+    return $('#changeArea').hasClass('on');
+  };
+
+  // 패널 닫힐 때 공통 body 스타일 복원 함수 (main.js의 closePanel 호출을 대신함)
+  window.restorePanelClosedState = function() {
+    $('body, html').css({
+      'overflow': 'auto',
+      'overflow-y': 'auto',
+      'position': 'relative',
+      'top': 'auto',
+      'left': 'auto',
+      'right': 'auto',
+      'width': 'auto',
+      'height': 'auto'
+    }).removeClass('no-scroll panel-open');
+
+    // 다른 열린 패널 확인
+    var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
+    if (!hasOtherOpenPanel) {
+      $('body').removeClass('panel-open');
+    }
+
+    // iOS 웹뷰 대응: body 스타일 완전 복원
+    if (typeof forceRestoreBodyScroll === 'function') {
+      forceRestoreBodyScroll();
+    } else if (typeof restoreBodyScroll === 'function') {
+      restoreBodyScroll();
+    }
+  };
+
+  // Android에서 호출할 함수: 패널 닫기
+  window.handleAndroidBack = function() {
+    // 1) 고급검색 패널이 열려있으면 닫기
+    if (window.isAdvancedSearchOpen()) {
+      $('#advancedSearch').removeClass('on');
+      window.restorePanelClosedState();
+      return;
+    }
+
+    // 2) 지역선택 패널이 열려있으면 닫기
+    if (window.isChangeAreaOpen()) {
+      $('#changeArea').removeClass('on');
+      window.restorePanelClosedState();
+      return;
+    }
+
+    // 3) 패널이 없으면 WebView의 기본 뒤로가기 수행
+    if (window.history && window.history.length > 1) {
+      window.history.back();
+    }
+  };
 </script>

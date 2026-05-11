@@ -48,7 +48,7 @@ function getConvertPriceType(rc_price_type, rc_price_rep) {
  * @param {string} price_type - 급여 타입 (예: "일급,주급,월급")
  * @returns {string} 모든 급여 타입을 em 태그로 감싼 HTML
  */
-function getPriceType(price_type) {
+function getPriceTypeJS(price_type) {
   if (!price_type) {
     return "";
   }
@@ -63,14 +63,8 @@ function getPriceType(price_type) {
     return "";
   }
 
-  // 모든 값을 em 태그로 감싸고 마지막 제외 쉼표 추가
-  return types.map((type, index) => {
-    let result = `<em>${type}</em>`;
-    if (index < types.length - 1) {
-      result += ',';
-    }
-    return result;
-  }).join('');
+  // 모든 값을 em 태그로 감싸고 쉼표로 분리
+  return types.map(type => `<em>${type}</em>`).join(', ');
 }
 
 /**

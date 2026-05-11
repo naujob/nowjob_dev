@@ -587,7 +587,24 @@ function getWorkType($work_type, $tag = "span", $max = 10)
 
 	return $return;
 }
+// getWorkType() 동일하지만 쉼표 제외
+function getWorkTypeWithoutComma($work_type, $tag = "span", $max = 10)
+{
+	$return = "";
+	$arr_type = explode(",", $work_type);
 
+	if (count(explode(",", $work_type)) > 2) {
+		return "<$tag>" . "근무협의" . "</$tag>";
+	}
+
+	foreach ($arr_type as $key => $txt) {
+		if ($key < $max) {
+			$return .= "<$tag>" . $txt . "</$tag>";
+		}
+	}
+
+	return $return;
+}
 function getWorkTypeV2($work_type)
 {
 	$arr_type = explode(",", $work_type);
@@ -1066,6 +1083,8 @@ function fRemoveBigAdr($arg)
 		return $arg;
 	}
 }
+
+
 
 /**
  * 근무형태를 <em class="wtypeN"> HTML로 변환
