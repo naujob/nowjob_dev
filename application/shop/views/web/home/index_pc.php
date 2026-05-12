@@ -119,7 +119,7 @@ $banner_list = getBannerList("BN00010005");
     font-size: 1.2rem;
     color: #000;
     font-weight: 500;
-    width: 76%;
+    width: 77%;
   }
 
   .person-card .meta p {

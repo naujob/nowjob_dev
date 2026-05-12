@@ -1020,7 +1020,7 @@ if (count($banner_list) > 0) {
 
   .person-card .meta p {
     position: relative;
-    flex: 1;
+
     word-break: keep-all;
     text-align: center;
     width: unset;

@@ -1,5 +1,6 @@
 <style>
   .layer-panel.card-type .panel-header {
+    position: relative;
     padding-top: 1.25rem;
     padding-bottom: 1.25rem;
     background: inherit;
@@ -440,6 +441,7 @@
   <div class="panel-container">
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
+      <button class="btn-close-panel" type="button" aria-label="닫기"></button>
     </div>
     <div class="panel-body">
       <div class="panel-content">
@@ -1184,9 +1186,11 @@
           // X버튼 클릭 시 현재 선택 상태 초기화 (sessionStorage는 유지)
           const changeAreaPanel = document.getElementById('changeArea');
           if (changeAreaPanel) {
-            const closeBtn = changeAreaPanel.querySelector('.js-close-popup');
+            const closeBtn = changeAreaPanel.querySelector('.btn-close-panel');
             if (closeBtn) {
               closeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 setTimeout(function() {
                   // .div2의 선택 버튼들만 제거
                   $('.div2 .selbtn').remove();
@@ -1195,6 +1199,9 @@
                   $('.addr_dept2 ul, .addr_dept3 ul').empty();
                   $txtInput.val('');
                   $('li.addr_on').removeClass('addr_on');
+                  updateSearchView();
+                  // 패널 닫기
+                  changeAreaPanel.classList.remove('on');
                 }, 50);
               });
             }
