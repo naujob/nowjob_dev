@@ -179,3 +179,42 @@ function getHashTagJS(hash, max = 10) {
 
   return result;
 }
+
+/**
+ * 근무 형태 변환 (쉼표 구분, JavaScript 버전)
+ * @param {string} work_type - 근무 형태 문자열 (예: "주간", "주간,야간")
+ * @returns {string} 스타일이 적용된 근무 형태 (쉼표로 구분)
+ */
+function getWorkTypeWithColorJS(work_type) {
+  if (!work_type) {
+    return "";
+  }
+
+  const arr_type = work_type.split(",").map(item => item.trim()); //.map(함수):열의 각 요소를 하나씩 꺼내서 변환 후 새 배열을 반환, .trim():문자열 양쪽 공백 제거
+
+  // 3개 이상이면 "근무협의"만 표시
+  if (arr_type.length > 2) {
+    return '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+  }
+
+  const worktype_map = {// 근무 형태에 따른 클래스 매핑
+    "주간": "wtype1",
+    "야간": "wtype2",
+    "2교대": "wtype3",
+    "근무협의": "wtype0"
+  };
+
+  let result = '<div class="worktype">';
+  arr_type.forEach((txt, key) => {
+    txt = txt.trim();
+    const cls = worktype_map[txt] || "wtype0";
+    result += `<em class="${cls}">${txt}</em>`;
+    // 2개 이상일 때 마지막이 아니면 쉼표 추가
+    if (arr_type.length > 1 && key < arr_type.length - 1) {
+      result += ',';
+    }
+  });
+  result += '</div>';
+
+  return result;
+}

@@ -144,8 +144,11 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 <div class="search-option has-option">
   <style>
     .search-option {
-      position: sticky;
+      position: fixed;
       top: 3.5rem;
+      left: 0;
+      right: 0;
+      width: 100%;
       z-index: 9;
       background-color: #fff;
     }

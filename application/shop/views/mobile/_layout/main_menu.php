@@ -9,9 +9,9 @@
       <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
       <span>인재정보</span>
     </a>
-    <a href="/recruit/job_map" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="채용지도">
-      <span>채용지도</span>
+    <a href="#" class="btn-nav-item map-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="">
+      <span></span>
     </a>
     <a href="/member/login" class="btn-nav-item">
       <img src="/resource/shop/mobile/img/main_menu/login_v2.png" alt="로그인" class="nav-icon-login">
@@ -32,9 +32,9 @@
       <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
       <span>인재정보</span>
     </a>
-    <a href="/recruit/job_map" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="채용지도">
-      <span>채용지도</span>
+    <a href="#" class="btn-nav-item map-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="">
+      <span></span>
     </a>
     <button type="button" id="btnRecruitWrite" class="btn-nav-item">
       <img src="/resource/shop/mobile/img/main_menu/write_rc_rs_v2.png" alt="채용공고등록">
@@ -55,9 +55,9 @@
       <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
       <span>인재정보</span>
     </a>
-    <a href="/resume/hr_map" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="인재지도">
-      <span>인재지도</span>
+    <a href="#" class="btn-nav-item map-nav-item">
+      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="">
+      <span></span>
     </a>
     <button type="button" id="btnResumeWrite" class="btn-nav-item">
       <img src="/resource/shop/mobile/img/main_menu/write_rc_rs_v2.png" alt="이력서등록">
@@ -82,7 +82,7 @@
     bottom: -2px;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: 100;
 
   }
 
@@ -130,11 +130,6 @@
     color: #fff;
     font-size: 0.8rem;
     border-radius: 100%;
-    display: none;
-  }
-
-  /* 팝업 열림 상태일 때 bottom-nav 숨김 */
-  body.panel-open .bottom-nav {
     display: none;
   }
 </style>
@@ -189,17 +184,39 @@ renderSelectBottomSheet(
 ?>
 
 <script>
+  // 현재 페이지에 따라 지도 메뉴 설정
+  function initMapNavItem() {
+    var currentPath = window.location.pathname;
+    var $mapItem = $('.map-nav-item');
+    var mapHref = '/recruit/job_map';
+    var mapLabel = '채용지도';
+
+    // 인재정보 페이지에서는 인재지도로 변경
+    if (currentPath.indexOf('/resume/hr_list') !== -1) {
+      mapHref = '/resume/hr_map';
+      mapLabel = '인재지도';
+    }
+
+    $mapItem.attr('href', mapHref);
+    $mapItem.find('img').attr('alt', mapLabel);
+    $mapItem.find('span').text(mapLabel);
+  }
+
   // 현재 페이지 URL을 기준으로 메인 메뉴 아이콘 자동 활성화
   function initNavIconByCurrentPage() {
     var currentPath = window.location.pathname;
     var $navItems = $('.btn-nav-item');
     var activeNavName = '';
 
+    // 지도 메뉴 초기화
+    initMapNavItem();
+
     // 각 네비게이션 항목의 href와 현재 경로를 비교
     $navItems.each(function() {
       var $item = $(this);
       var href = $item.attr('href');
       var isButton = $item.prop('tagName').toLowerCase() === 'button';
+      var isMapItem = $item.hasClass('map-nav-item');
 
       // 경로 매칭 로직
       var isActive = false;
@@ -216,17 +233,17 @@ renderSelectBottomSheet(
           isActive = true;
           activeNavName = '인재정보';
         }
-      } else if (currentPath.indexOf('/resume/hr_map') !== -1) {
-        // 인재지도 페이지
-        if (href === '/resume/hr_map') {
-          isActive = true;
-          activeNavName = '인재지도';
-        }
       } else if (currentPath.indexOf('/recruit/job_map') !== -1) {
         // 채용지도 페이지
-        if (href === '/recruit/job_map') {
+        if (isMapItem) {
           isActive = true;
           activeNavName = '채용지도';
+        }
+      } else if (currentPath.indexOf('/resume/hr_map') !== -1) {
+        // 인재지도 페이지
+        if (isMapItem) {
+          isActive = true;
+          activeNavName = '인재지도';
         }
       } else if (currentPath.indexOf('/chat/chat_list') !== -1 ||
         currentPath.indexOf('/chat/chat_list2') !== -1 ||

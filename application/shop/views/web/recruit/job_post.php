@@ -599,6 +599,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     border-right: 1px solid #777;
   }
 
+
+
   /* 길찾기 드롭다운 */
   .map-nav-wrap {
     display: inline-block;
@@ -616,7 +618,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 6px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
   }
 
   .map-nav-wrap .dropdown a {
@@ -631,6 +633,18 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   .map-nav-wrap .dropdown a:hover {
     background: #f5f5f5;
     color: #1B9D7D;
+  }
+
+  .recruit-card .content-wrap .meta p:not(:first-child):after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 1px;
+    height: 10px;
+    margin: -4px 0 0;
+    background: #000000;
   }
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
@@ -1348,6 +1362,18 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     font-weight: 500;
     color: #1B9D7D;
   }
+
+  .summary-card .meta::after {
+    display: none !important;
+  }
+
+  .meta .worktype em {
+    font-style: normal;
+  }
+
+  .recruit-card .meta em:after {
+    display: none;
+  }
 </style>
 <!-- 추천 리스트 템플릿 -->
 <template id="tpl_reco_list">
@@ -1366,8 +1392,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
           <p class="area">{{ad_addr}}</p>
         </div>
         <p class="title"><strong><a href="/recruit/job_post/{{rc_idx}}" target="_blank">{{rc_name}}</a></strong></p>
-        <div class="meta">
-          <p class="type">{{rt_work_type}}</p>
+        <div class="meta">{{rt_work_type}}</p>
           <p>{{rc_nation_nm}}</p>
           <p>{{rc_age_nm}}</p>
         </div>
@@ -2079,7 +2104,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             $images.slice(2).remove();
             var $categoryHtml = $images.parent().html();
             $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-            $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
+            $content = $content.replaceAll("{{rt_work_type}}", getWorkTypeWithColorJS(row.rt_work_type));
             if (row.rc_price_type.indexOf('협의') > -1) {
               $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
             } else {
@@ -2139,21 +2164,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
     // fRemoveBigAdrJS 함수는 resource/shop/web/js/add.js에 정의되어 있으므로 중복 정의 제거
 
-    function getConvertPriceType(rc_price_type, rc_price_rep) {
-      const types = rc_price_type.split(',');
 
-      if (types.length === 1) {
-        return `<em class="on">${types[0]}</em>`;
-      }
-
-      return types.map(type => {
-        if (type === rc_price_rep) {
-          return `<em class="on">${type}</em>`;
-        } else {
-          return `<em>${type}</em>`;
-        }
-      }).join('');
-    }
 
     function getHashTagJS(hash, max = 10, rc_work) {
       let result = "";

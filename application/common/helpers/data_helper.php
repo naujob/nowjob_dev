@@ -642,7 +642,7 @@ function getWorkTypePoint($work_type)
 # 근무타입 색상 포함 버전 (색상 클래스 + em 태그 래핑)
 function getWorkTypeWithColor($work_type)
 {
-	$arr_type = explode(",", $work_type);
+	$arr_type = explode(",", $work_type); // 쉼표로 구분된 근무 타입 문자열을 배열로 변환 ex: "주간,야간,2교대" => ["주간", "야간", "2교대"]
 
 	// 3개 이상이면 "근무협의"만 표시
 	if (count($arr_type) > 2) {

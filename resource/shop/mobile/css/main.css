@@ -3117,7 +3117,7 @@ fieldset {
     perspective: 500px;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    z-index: 99;
+    z-index: 250;
 }
 
 .layer-popup:before {
@@ -3320,7 +3320,7 @@ fieldset {
     -webkit-transition: opacity 0.2s 0.2s, visibility 0.2s 0.2s;
     -o-transition: opacity 0.2s 0.2s, visibility 0.2s 0.2s;
     transition: opacity 0.2s 0.2s, visibility 0.2s 0.2s;
-    z-index: 20;
+    z-index: 150;
 }
 
 .layer-panel.on {
@@ -3332,7 +3332,7 @@ fieldset {
 }
 
 .layer-panel.card-type {
-    z-index: 30;
+    z-index: 200;
 }
 
 .layer-panel ::-webkit-scrollbar {

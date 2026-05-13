@@ -217,6 +217,52 @@ $banner_list = getBannerList("BN00010005");
   .arrow {
     display: none;
   }
+
+  .content-wrap .worktype em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.7em;
+    /* margin: auto; */
+    border-right: 1px solid #E9E9E9;
+    margin: 6px 36px 0;
+  }
+
+  .content-wrap .worktype .wtype1 {
+    padding-right: 5px;
+  }
+
+  .content-wrap .worktype .wtype2 {
+    padding-right: 5px;
+  }
+
+  .content-wrap .worktype .wtype3 {
+    padding-left: 5px;
+  }
+
+  .content-wrap .price-wrap .wrtpye em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 17px;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 0.7em;
+
+    border-right: 1px solid #E9E9E9;
+    margin: 6px 28px 0;
+  }
+
+  .recruit-recomm .recruit-card .type em:nth-child(1) {
+    padding-right: 5px;
+  }
+
+  .recruit-recomm .recruit-card .type em:nth-child(2) {
+    padding-left: 5px;
+  }
 </style>
 
 <!-- 공지팝업 -->
@@ -602,7 +648,7 @@ $banner_list = getBannerList("BN00010005");
           '</div>' +
           '<div class="price-wrap" style="position: relative;">' +
           '<p class="type" style="position: absolute; left:0px; top: 27px; ">' + row.rt_work_type + '</p>' +
-          '<p class="type">' + priceType + '</p>' +
+          '<p class="type wrtpye">' + priceType + '</p>' +
           '<p class="amount">' + pricePay + '</p>' +
           '</div>' +
           '</div>' +

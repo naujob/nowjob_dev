@@ -1202,6 +1202,12 @@
                   updateSearchView();
                   // 패널 닫기
                   changeAreaPanel.classList.remove('on');
+                  // body 스타일 복원
+                  if (typeof window.restorePanelClosedState === 'function') {
+                    window.restorePanelClosedState();
+                  } else if (typeof restorePanelClosedState === 'function') {
+                    restorePanelClosedState();
+                  }
                 }, 50);
               });
             }

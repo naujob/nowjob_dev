@@ -108,7 +108,9 @@ object {
 [hidden] {
     display: none !important;
 }
-
+em{
+    font-style: normal;
+}
 /* Fonts */
 /* Copyright (c) 2021 Kil Hyung-jin, with Reserved Font Name Pretendard. https://github.com/orioncactus/pretendard This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is copied below, and is also available with a FAQ at: http://scripts.sil.org/OFL */
 @font-face {
@@ -2114,91 +2116,89 @@ fieldset {
 }
 
 .benefit-label.benefit1-1-v2:before {
-    background-image: url("../img/ic_benefit1_1.png?v=20260309");
+    background-image: url("../img/ic_benefit1_1_pc.png?v=20260309");
 }
 
 .benefit-label.benefit1-2-v2:before {
-    background-image: url("../img/ic_benefit1_2.png?v=20260309");
+    background-image: url("../img/ic_benefit1_2_pc.png?v=20260309");
 }
 
 .benefit-label.benefit1-3-v2:before {
-    background-image: url("../img/ic_benefit1_3.png?v=20260309");
+    background-image: url("../img/ic_benefit1_3_pc.png?v=20260309");
 }
 
 .benefit-label.benefit1-4-v2:before {
-    background-image: url("../img/ic_benefit1_4.png?v=20260309");
+    background-image: url("../img/ic_benefit1_4_pc.png?v=20260309");
 }
 
 .benefit-label.benefit2-1-v2:before {
-    background-image: url("../img/ic_benefit2_1.png?v=20260309");
+    background-image: url("../img/ic_benefit2_1_pc.png?v=20260309");
 }
 
 .benefit-label.benefit2-2-v2:before {
-    background-image: url("../img/ic_benefit2_2.png?v=20260309");
+    background-image: url("../img/ic_benefit2_2_pc.png?v=20260309");
 }
 
 .benefit-label.benefit2-3-v2:before {
-    background-image: url("../img/ic_benefit2_3.png?v=20260309");
+    background-image: url("../img/ic_benefit2_3_pc.png?v=20260309");
 }
 
 .benefit-label.benefit3-1-v2:before {
-    background-image: url("../img/ic_benefit3_1.png?v=20260309");
+    background-image: url("../img/ic_benefit3_1_pc.png?v=20260309");
 }
 
 .benefit-label.benefit3-2-v2:before {
-    background-image: url("../img/ic_benefit3_2.png?v=20260309");
+    background-image: url("../img/ic_benefit3_2_pc.png?v=20260309");
 }
 
 .benefit-label.benefit3-3-v2:before {
-    background-image: url("../img/ic_benefit3_3.png?v=20260309");
+    background-image: url("../img/ic_benefit3_3_pc.png?v=20260309");
 }
 
 .benefit-label.benefit3-4-v2:before {
-    background-image: url("../img/ic_benefit3_4.png?v=20260309");
+    background-image: url("../img/ic_benefit3_4_pc.png?v=20260309");
 }
 
 .benefit-label.benefit3-5-v2:before {
-    background-image: url("../img/ic_benefit3_5.png?v=20260309");
+    background-image: url("../img/ic_benefit3_5_pc.png?v=20260309");
 }
 
 .benefit-label.benefit3-6-v2:before {
-    background-image: url("../img/ic_benefit3_6.png?v=20260309");
+    background-image: url("../img/ic_benefit3_6_pc.png?v=20260309");
 }
 
 .benefit-label.benefit3-7-v2:before {
-    background-image: url("../img/ic_benefit3_7.png?v=20260309");
+    background-image: url("../img/ic_benefit3_7_pc.png?v=20260309");
 }
 
 .benefit-label.benefit4-1-v2:before {
-    background-image: url("../img/ic_benefit4_1.png?v=20260309");
+    background-image: url("../img/ic_benefit4_1_pc.png?v=20260309");
 }
 
-.benefit-label.benefit4-1-v2:before {
-    background-image: url("../img/ic_benefit4_1.png?v=20260309");
-}
+
 
 .benefit-label.benefit4-2-v2:before {
-    background-image: url("../img/ic_benefit4_2.png?v=20260309");
+    background-image: url("../img/ic_benefit4_2_pc.png?v=20260309");
 }
 
 .benefit-label.benefit4-3-v2:before {
-    background-image: url("../img/ic_benefit4_3.png?v=20260309");
+    background-image: url("../img/ic_benefit4_3_pc.png?v=20260309");
 }
 
 .benefit-label.benefit4-4-v2:before {
-    background-image: url("../img/ic_benefit4_4.png?v=20260309");
+    background-image: url("../img/ic_benefit4_4_pc.png?v=20260309");
 }
 
 .benefit-label.benefit4-5-v2:before {
-    background-image: url("../img/ic_benefit4_5.png?v=20260309");
+    background-image: url("../img/ic_benefit4_5_pc.png?v=20260309");
 }
 
 .benefit-label.benefit4-6-v2:before {
-    background-image: url("../img/ic_benefit4_6.png?v=20260309");
+    background-image: url("../img/ic_benefit4_6_pc.png?v=20260309");
 }
 
 .benefit-label.benefit4-7-v2:before {
-    background-image: url("../img/ic_benefit4_7.png?v=20260309");
+    background-image: url("../img/ic_benefit4_7_pc.png?v=20260309");
 }
 
 .benefit-label.btn {
@@ -3424,6 +3424,7 @@ body {
     -o-transition: background 0.3s linear;
     transition: background 0.3s linear;
     z-index: 10;
+    margin-bottom: 30px;
 }
 
 
@@ -5022,6 +5023,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    height: 604px;
 }
 
 .login-form .title-logo img {
@@ -6673,9 +6675,19 @@ body {
     width: 1px;
     height: 10px;
     margin: -4px 0 0;
-    background: #E1E1E1;
+    background: #000000;
 }
-
+.recruit-card .meta em:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 1px;
+    height: 10px;
+    margin: -4px -4px 0;
+    background: #000000;
+}
 .recruit-card .meta p:last-child:after {
     content: none;
 }

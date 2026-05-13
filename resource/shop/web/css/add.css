@@ -249,16 +249,10 @@
     vertical-align: middle;
 }
 
-.page-search .search-top-cont .search-round .search-input {
-    width: 530px;
-    background: #fff;
-    border: solid 1px #57CCAF;
-    padding: 4px 34px;
-    border-radius: 30px;
-    display: inline-block;
-}
 
-.page-search .search-top-cont .search-round .search-input input {
+
+
+.header-search-wrap .header-search-form input {
     height: 40px;
     font-size: 16px;
     font-weight: bold;

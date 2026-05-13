@@ -575,6 +575,10 @@ function fRemoveBigAdrPHP($arg)
   .ru_price_type em:not(:last-child) {
     padding-right: 5px;
   }
+
+  .person-card .meta p {
+    width: unset;
+  }
 </style>
 <div id="content" class="page page-view">
   <main class="page-content">
@@ -1080,7 +1084,7 @@ function fRemoveBigAdrPHP($arg)
                                 </div>
                                 <div class="summary">
                                   <p><?= $row["mm_nation"] ?></p>
-                                  <p><?= $row["mm_age"] ?>세</p>
+                                  <p><?= $row["mm_age"] > 0 ? $row["mm_age"] . '대' : '무관' ?></p>
                                   <p class="area-addr" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
                                 </div>
                                 <div class="summary2">
@@ -1156,7 +1160,7 @@ function fRemoveBigAdrPHP($arg)
         </div>
       </div>
       <div class="desc">
-        <div class="content-wrap" style="padding: 46px 5px 24px;">
+        <div class="content-wrap">
           <p class="category">
             {{ru_work_img}}
           </p>

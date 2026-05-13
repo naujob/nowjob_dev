@@ -3,7 +3,7 @@
 	<form class="header-search-form" onsubmit="goSearch(); return false;">
 		<label>
 			<span class="sr-text">검색어 입력</span>
-			<input type="search" name="g_keyword" autocomplete="off" value="" placeholder="내 주변 지금, 좋은 일자리" aria-required="true">
+			<input type="search" name="g_keyword" autocomplete="off" value="<?php echo isset($text) ? htmlspecialchars($text, ENT_QUOTES, 'UTF-8') : ''; ?>" placeholder="내 주변 지금, 좋은 일자리" aria-required="true">
 		</label>
 		<button type="submit" class="btn-search"><i class="fas fa-search addr-search-icon"></i></button>
 	</form>

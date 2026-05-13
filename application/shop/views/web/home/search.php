@@ -236,7 +236,7 @@
     color: #333;
   }
 
-  .result-list .content-info .summary p:not(:last-child)::after {
+  .result-list .content-info .summary em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
@@ -289,7 +289,7 @@
     font-weight: 600;
   }
 
-  .result-list .content-info .desc .desc2 .wtype {
+  .result-list .content-info .desc .desc2 .worktype {
     display: flex;
     gap: 5px;
     justify-content: flex-end;
@@ -297,18 +297,22 @@
     font-weight: 600;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em {
+  .result-list .content-info .desc .desc2 .worktype em.wtype1 {
+    color: #3a70db;
+  }
+
+  .result-list .content-info .desc .desc2 .worktype em:not(:last-child) {
+    padding-right: 7px;
+  }
+
+  .result-list .content-info .desc .desc2 .worktype em {
     position: relative;
     display: inline-block;
     font-style: normal;
     color: #333;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .result-list .content-info .desc .desc2 .wtype em:not(:last-child)::after {
+  .result-list .content-info .desc .desc2 .worktype em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
@@ -320,16 +324,9 @@
     border-right: 1px solid #777;
   }
 
-  .result-list .content-info .desc .desc2 .wtype em.wtype1 {
-    color: #3a70db;
-  }
-
-  .result-list .content-info .desc .desc2 .wtype em.wtype2 {
+  .result-list .content-info .desc .desc2 .worktype em.wtype2 {
     color: #F86048;
-  }
-
-  .result-list .content-info .desc .desc2 .wtype em.wtype3 {
-    color: #1B9D7D;
+    padding: 4px;
   }
 
   .result-list .content-info .desc .desc3 {
@@ -727,6 +724,7 @@
 <div id="content" class="page page-event page-search">
   <main class="page-content">
     <div class="container">
+      <!-- 중복된 검색폼 - search_cont.php에서 처리됨
       <div class="search-top-cont">
         <div class="search-round">
           <div class="search-input">
@@ -741,6 +739,7 @@
           <?php endforeach; ?>
         </div>
       </div>
+      -->
 
       <!-- div class="tabs-wrap tabs">
         <ul class="tabs">
@@ -767,9 +766,9 @@
         </div> -->
         <div class="content-area">
 
-          <div class="search_title">
+          <!-- <div class="search_title">
             <span class="tt">"<?= $text ?>"</span>검색결과 총<span class="cnt" id="total_count"></span>입니다.
-          </div>
+          </div> -->
 
           <h5 class="search_header">채용정보</h5>
           <div class="result-wrap">
@@ -883,6 +882,8 @@
 </template>
 
 <script>
+  // 검색폼 처리는 search_cont.php에서 담당 (중복 제거)
+  /*
   $("#btnTotalSearch").click(function() {
     goSearchTotal();
   });
@@ -904,6 +905,7 @@
 
     location.href = "/home/search?text=" + encodeURIComponent($("#search_total_text").val());
   }
+  */
 
   var text = "<?= $text ?>";
   var total_cnt = 0;
@@ -994,7 +996,7 @@
       var $categoryHtml = $images.parent().html();
       $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
 
-      $content = $content.replaceAll("{{rt_work_type}}", getConvertWorkType(row.rt_work_type));
+      $content = $content.replaceAll("{{rt_work_type}}", (row.rt_work_type));
 
       if (row.rc_price_type.indexOf('협의') > -1) {
         $content = $content.replaceAll("{{rc_price_type}}", "");
@@ -1099,7 +1101,7 @@
 
       $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
       $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-      $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
+      $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeNoComma(row.ru_work_type));
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
       $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
 
@@ -1240,7 +1242,7 @@
     }
 
     let items = [];
-    
+
     // <span> 태그가 있으면 파싱
     const spanMatches = work_type.match(/<span>(.*?)<\/span>/g);
     if (spanMatches && spanMatches.length > 0) {

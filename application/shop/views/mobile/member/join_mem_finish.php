@@ -250,6 +250,7 @@ renderSelectBottomSheet(
           window.hideAutoResumeLoading();
         }
         if (ret && ret.code === "00") {
+          window.__fallbackResumeTriggered = true;
           location.href = "/recruit/job_list";
         } else {
           commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});
@@ -753,6 +754,95 @@ renderSelectBottomSheet(
       preventPanelClose();
     }
   })();
+</script>
+
+<script>
+// join_mem_finish: 페이지 이탈 시 폴백 자동이력서 생성 (모바일)
+(function() {
+    var isLogin = <?php echo $this->user->isLogin() ? 'true' : 'false'; ?>;
+    var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
+    if (!isLogin || !isMem) return;
+
+    var DEFAULT_ADDR = "서울특별시 강남구 개포동";
+    var DEFAULT_GPS_X = "127.0748";
+    var DEFAULT_GPS_Y = "37.4855";
+    var DEFAULT_ZIPCODE = "06336";
+
+    // BFCache 대응: 명시적 false 초기화 필수
+    window.__fallbackResumeTriggered = false;
+
+    // 페이지 로드 시 이력서 수 사전 조회 ($.ajax 직접 사용: comAjax의 ajax_first_num 카운터 충돌 방지)
+    var __cachedResumeCount = null;
+    $.ajax({
+        type: "POST",
+        url: "/mypage_proc/getResumeCount",
+        success: function(ret) {
+            if (typeof ret === 'string') { try { ret = JSON.parse(ret); } catch(e) {} }
+            if (ret && ret.code === "00") {
+                __cachedResumeCount = parseInt(ret.data.count, 10) || 0;
+            }
+        },
+        error: function() {}
+    });
+
+    function canTriggerFallback() {
+        if (window.__fallbackResumeTriggered) return false;
+        if (window.__quickInfoSubmitting) return false;
+        if (__cachedResumeCount !== null && __cachedResumeCount > 0) return false;
+        return true;
+    }
+
+    function buildFallbackFormData() {
+        var fd = new FormData();
+        fd.append("ru_name", "");
+        fd.append("ru_addr", DEFAULT_ADDR);
+        fd.append("ru_nationality", "내국인");
+        fd.append("quickinfo_gender", "남");
+        fd.append("quickinfo_age", "20s");
+        fd.append("ad_addr[]", DEFAULT_ADDR);
+        fd.append("ad_jibun[]", DEFAULT_ADDR);
+        fd.append("ad_doro[]", "");
+        fd.append("ad_zipcode[]", DEFAULT_ZIPCODE);
+        fd.append("ad_detail[]", "");
+        fd.append("ad_gps_x[]", DEFAULT_GPS_X);
+        fd.append("ad_gps_y[]", DEFAULT_GPS_Y);
+        return fd;
+    }
+
+    // sendBeacon으로 언로드 중에도 전송 보장 (comAjax는 취소됨)
+    function triggerFallbackResume() {
+        if (!canTriggerFallback()) return;
+        window.__fallbackResumeTriggered = true;
+        var url = "/mypage_proc/resume_autofill_quick";
+        var fd = buildFallbackFormData();
+        if (typeof navigator.sendBeacon === 'function') {
+            navigator.sendBeacon(url, fd);
+            return;
+        }
+        if (typeof fetch === 'function') {
+            try { fetch(url, { method: 'POST', body: fd, keepalive: true }); } catch(e) {}
+            return;
+        }
+        try {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, false);
+            xhr.send(fd);
+        } catch(e) {}
+    }
+
+    // 네이티브 앱 백그라운드 진입 콜백 (Android onPause / iOS sceneDidEnterBackground에서 호출)
+    window.onAppBackground = function() {
+        triggerFallbackResume();
+    };
+
+    // Android WebView 홈 버튼 백그라운드 전환 감지 (브라우저 환경 보조)
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') { triggerFallbackResume(); }
+    });
+    // 링크 이동/뒤로가기 감지
+    window.addEventListener('pagehide', function() { triggerFallbackResume(); });
+
+})();
 </script>
 
 <?= getCashJs(RES_PATH . "/js/member/join_quickinfo_bottom_sheet.js") ?>
