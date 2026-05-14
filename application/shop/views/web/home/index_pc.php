@@ -74,40 +74,54 @@ $banner_list = getBannerList("BN00010005");
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    padding: 8px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
-    border: 1px solid #fcf8f8;
+    padding: 12px;
+    /* 아래쪽으로 은은하게 퍼지는 그림자 */
+    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
     border-radius: 25px;
-    background: #fff;
-    margin-bottom: 3px;
+    background: #ffffff;
+    margin-bottom: 40px;
+    height: 300px;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px;
+
   }
 
-  .person-card .thumb {
-    width: 140px;
-    height: 140px;
+  .person-card-grid .person-card .thumb {
     overflow: hidden;
     flex-shrink: 0;
     background-color: unset;
     padding: 0px 0 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    width: 112px;
+    height: 112px;
+    display: block;
+    position: relative;
   }
 
-  .person-card .thumb img {
-    width: 80%;
-    height: 80%;
+  .person-card-grid .person-card .thumb img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    display: block;
     min-width: 0%;
     min-height: 0%;
     border-radius: 50%;
+    position: static;
+    transform: none;
+    display: block;
   }
 
   /* 뱃지 영역 */
   .person-card .badge-wrap {
     display: flex;
     gap: 4px;
-    margin-top: 8px;
+
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   /* 메타 정보 (주간 | 40대 | 월급) */
@@ -115,11 +129,13 @@ $banner_list = getBannerList("BN00010005");
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 6px;
+
     font-size: 1.2rem;
     color: #000;
     font-weight: 500;
-    width: 77%;
+    width: 101%;
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   .person-card .meta p {
@@ -144,13 +160,26 @@ $banner_list = getBannerList("BN00010005");
     display: none;
   }
 
-  /* 주소 */
-  .person-card .addr {
-    margin: 4px 0 0;
+  /* 이력서명 */
+  .person-card .name {
+
     font-size: 1.2rem;
     font-weight: 700;
     color: #000;
     text-align: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+
+  /* 주소 */
+  .person-card .addr {
+
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #000;
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   .bottom-recomm {
@@ -177,14 +206,15 @@ $banner_list = getBannerList("BN00010005");
     padding: 25px;
     overflow: hidden;
     top: 0;
-    background-color: #fff;
+    background: #ffffff;
     border-radius: 25px;
     box-sizing: border-box;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    border: 1px solid #e0e0e0;
   }
 
   .bottom-recomm .comp-info .comp-img img {
@@ -208,7 +238,7 @@ $banner_list = getBannerList("BN00010005");
   /* 인재 카드 2줄 그리드 레이아웃 (4개씩 2줄) */
   .person-card-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     width: 99%;
     gap: 16px 8px;
   }
@@ -715,6 +745,7 @@ $banner_list = getBannerList("BN00010005");
               '<div class="person-card" data-ru_idx="' + row.ru_idx + '" data-mm_idx="' + (row.mm_idx || "") + '">' +
               '<div class="thumb"><img src="' + row.ru_resume_img + '" alt="프로필"></div>' +
               '<div class="badge-wrap">' + row.ru_work_img + '</div>' +
+              '<p class="name">' + row.ru_name + '</p>' +
               '<div class="meta">' +
               '<p class="work_type">' + getWorkType(row.ru_work_type) + '</p>' +
               '<span class="meta-divider">|</span>' +
