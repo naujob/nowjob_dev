@@ -433,7 +433,13 @@
 </div>
 
 <script>
-    var serverData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0) ? json_encode($info, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
+    <?php
+    $info_for_js = $info;
+    if (isset($info_for_js["rc_desc"])) {
+        $info_for_js["rc_desc"] = strip_tags($info_for_js["rc_desc"]);
+    }
+    ?>
+    var serverData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0) ? json_encode($info_for_js, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
     var serverAddrData = serverData && serverData.addr ? serverData.addr : null;
 
     function migrateRecruitDraftKeys(oldIdx, newIdx, pages) {

@@ -363,7 +363,7 @@ function formatPhoneNumber($number) {
                 <h3 class="secondary-title" onclick="alert('<?=$user_agent?>');">상세업무정보</h3>
                 <!-- 작성내용 -->
                 <div class="desc" style="width: 100%; overflow-x: auto;">
-                   <p><?=str_replace("\n","<br/>",$info["rc_desc"])?></p><br>
+                   <p><?= $info["rc_desc"] ?></p><br>
                 </div>
 				<div class="hashtag">
 					<?=getHashTag($info["rc_hash"])?>

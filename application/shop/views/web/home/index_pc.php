@@ -2,6 +2,16 @@
 $banner_list = getBannerList("BN00010005");
 ?>
 <style>
+  /* .recruit-card .meta p:first-child {
+
+    width: auto;
+  }
+
+  .recruit-card .meta p {
+
+    width: auto;
+  } */
+
   .recruit-recomm .recruit-card {
     width: calc(25% - 18px);
   }
@@ -75,8 +85,6 @@ $banner_list = getBannerList("BN00010005");
     align-items: center;
     cursor: pointer;
     padding: 12px;
-    /* 아래쪽으로 은은하게 퍼지는 그림자 */
-    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.05);
     border: 1px solid #e0e0e0;
     border-radius: 25px;
     background: #ffffff;
@@ -203,14 +211,14 @@ $banner_list = getBannerList("BN00010005");
     background: rgb(255, 255, 255);
     border-radius: 25px;
     border: 1.5px solid rgb(224, 224, 224);
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 2px 0px;
+
     padding: 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     text-align: center;
-    gap: 20px;
+
     min-height: 280px;
     position: relative;
     width: 100%;
@@ -246,8 +254,8 @@ $banner_list = getBannerList("BN00010005");
     border-radius: 0px;
     height: 100% !important;
     display: block;
-    max-height: 40px;
-    margin: 20px 0px;
+    max-height: none;
+
   }
 
   .bottom-recomm .comp-info .comp-name {
@@ -266,7 +274,7 @@ $banner_list = getBannerList("BN00010005");
   .bottom-recomm .comp-info .comp-desc {
     position: relative;
     width: 100%;
-    height: auto;
+    height: 90px;
     font-size: 1.2rem;
     font-weight: 600;
     color: #666;
@@ -290,18 +298,7 @@ $banner_list = getBannerList("BN00010005");
     display: none;
   }
 
-  .content-wrap .worktype em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: -2px;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.7em;
-    /* margin: auto; */
-    border-right: 1px solid #E9E9E9;
-    margin: 6px 36px 0;
-  }
+
 
   .content-wrap .worktype .wtype1 {
     padding-right: 5px;
@@ -311,22 +308,9 @@ $banner_list = getBannerList("BN00010005");
     padding-right: 5px;
   }
 
-  .content-wrap .worktype .wtype3 {
-    padding-left: 5px;
-  }
 
-  .content-wrap .price-wrap .wrtpye em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 17px;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.7em;
 
-    border-right: 1px solid #E9E9E9;
-    margin: 6px 28px 0;
-  }
+
 
   .recruit-recomm .recruit-card .type em:nth-child(1) {
     padding-right: 5px;
@@ -334,6 +318,68 @@ $banner_list = getBannerList("BN00010005");
 
   .recruit-recomm .recruit-card .type em:nth-child(2) {
     padding-left: 5px;
+  }
+
+  /* 카드 하단: meta+근무형태(좌) / 급여(우) 수평 정렬 */
+  .recruit-recomm .recruit-card .card-bottom-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 8px;
+  }
+
+  /* 좌측: meta + 근무형태 세로 배치 */
+  .recruit-recomm .recruit-card .card-meta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  /* 근무형태 */
+  .recruit-recomm .recruit-card .card-meta-group .worktype {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1em;
+    text-align: left;
+  }
+
+  /* 근무형태 em 태그 */
+  .recruit-recomm .recruit-card .card-meta-group .worktype em {
+    display: inline;
+    position: relative;
+    padding-right: 0;
+  }
+
+  /* 근무형태 em 태그 구분선 */
+  .recruit-recomm .recruit-card .card-meta-group .worktype em:not(:last-child)::after {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 10px;
+    background: #E9E9E9;
+    margin-left: 4px;
+    position: static;
+  }
+
+  /* price-wrap: 우측 정렬 */
+  .recruit-recomm .recruit-card .price-wrap {
+    text-align: right;
+    margin-top: 0;
+    position: relative;
+  }
+
+  /* 급여유형 em 태그 구분선 */
+  .recruit-recomm .recruit-card .price-wrap .wrtpye em:not(:last-child)::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 7px;
+    right: 29px;
+    width: 1px;
+    height: 11px;
+    margin: -4px 0 0;
+    background: #E9E9E9;
   }
 </style>
 
@@ -714,14 +760,18 @@ $banner_list = getBannerList("BN00010005");
           '<p class="area">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
           '</div>' +
           '<p class="title"><strong>' + row.rc_name + '</strong></p>' +
+          '<div class="card-bottom-wrap">' +
+          '<div class="card-meta-group">' +
           '<div class="meta">' +
           '<p>' + row.rc_nation_nm + '</p>' +
           '<p>' + row.rc_age_nm + '</p>' +
           '</div>' +
-          '<div class="price-wrap" style="position: relative;">' +
-          '<p class="type" style="position: absolute; left:0px; top: 27px; ">' + row.rt_work_type + '</p>' +
+          row.rt_work_type +
+          '</div>' +
+          '<div class="price-wrap">' +
           '<p class="type wrtpye">' + priceType + '</p>' +
           '<p class="amount">' + pricePay + '</p>' +
+          '</div>' +
           '</div>' +
           '</div>' +
           '</div>';
@@ -790,6 +840,8 @@ $banner_list = getBannerList("BN00010005");
               '<p class="name">' + row.ru_name + '</p>' +
               '<div class="meta">' +
               '<p class="work_type">' + getWorkType(row.ru_work_type) + '</p>' +
+              '<span class="meta-divider">|</span>' +
+              '<p class="nation">' + row.mm_nation + '</p>' +
               '<span class="meta-divider">|</span>' +
               '<p class="age">' + row.mm_age + '대</p>' +
               '<span class="meta-divider">|</span>' +

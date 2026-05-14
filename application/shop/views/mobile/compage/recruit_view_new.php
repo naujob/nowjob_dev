@@ -283,7 +283,7 @@
                 <h3 class="secondary-title">상세업무정보</h3>
                 <!-- 작성내용 -->
                 <div class="desc">
-                    <p><?=str_replace("\n","<br/>",$row["rc_desc"])?></p><br>
+                    <p><?= $row["rc_desc"] ?></p><br>
                 </div>
             </div>
         </div>

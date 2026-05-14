@@ -2431,7 +2431,8 @@
                         <span class="sr-text">최소나이 선택</span>
                         <select name="rc_sage" class="age-select" data-disabled="false">
                           <option value="">선택</option>
-                          <?php $ages = [20, 30, 40, 50, 60, 70]; foreach ($ages as $age) : ?>
+                          <?php $ages = [20, 30, 40, 50, 60, 70];
+                          foreach ($ages as $age) : ?>
                             <option value="<?= $age ?>" <?= $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
                           <?php endforeach; ?>
                         </select>
@@ -2533,12 +2534,12 @@
 
           // 초기 상태: 추가정보 섹션 숨기기 (단, DB에서 로드된 데이터가 있다면 유지)
           var hasExtraData = $('input[name="rc_nation[]"]:checked').length > 0 ||
-                             $('input[name="rc_sex[]"]:checked').length > 0 ||
-                             $('select[name="rc_sage"]').val() ||
-                             $('select[name="rc_eage"]').val() ||
-                             $('#rc_nation_yn').is(':checked') ||
-                             $('#rc_sex_yn').is(':checked') ||
-                             $('#rc_age_yn').is(':checked');
+            $('input[name="rc_sex[]"]:checked').length > 0 ||
+            $('select[name="rc_sage"]').val() ||
+            $('select[name="rc_eage"]').val() ||
+            $('#rc_nation_yn').is(':checked') ||
+            $('#rc_sex_yn').is(':checked') ||
+            $('#rc_age_yn').is(':checked');
 
           if (!hasExtraData) {
             $('.extra-section').removeClass('show');
@@ -3054,7 +3055,7 @@
       var concatenatedValues = inputValues.join(', ');
       $("[name='rc_hash']").html(hashString + ', ' + concatenatedValues);
 
-      oEditors.getById["rc_desc"].exec("UPDATE_CONTENTS_FIELD", []);
+      oEditors.getById["rc_desc"].exec("UPDATE_CONTENTS_FIELD", []); // 에디터의 내용이 textarea에 반영되도록 업데이트 명령 실행
 
       var form = $('#frm_recruit');
       var params = new FormData(form[0]);
@@ -3234,11 +3235,11 @@
     // SmartEditor2 에디터 생성 및 폰트 크기 기본값을 14pt로 설정
     var oEditors = [];
     nhn.husky.EZCreator.createInIFrame({
-      oAppRef: oEditors,
+      oAppRef: oEditors, // SmartEditor2 에디터를 조작하기 위해 저장해두는 변수
       elPlaceHolder: "rc_desc",
-      sSkinURI: "/resource/shop/web/smarteditor2/SmartEditor2Skin_ko_KR.html",
-      fCreator: "createSEditor2",
-      fOnAppLoad: function() {
+      sSkinURI: "/resource/shop/web/smarteditor2/SmartEditor2Skin_ko_KR.html", //에디터 디자인 파일 위치
+      fCreator: "createSEditor2", // 에디터 생성 함수
+      fOnAppLoad: function() { // 에디터가 로드된 후 실행되는 콜백 함수(smarteditor2가 로드된 후 실행 가능 상태에서 폰트 크기 기본값 설정)
         setTimeout(function() {
           try {
             var oEditor = oEditors.getById["rc_desc"];

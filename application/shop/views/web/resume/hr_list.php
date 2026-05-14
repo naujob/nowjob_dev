@@ -1720,7 +1720,7 @@ if (count($banner_list) > 0) {
           $content = $content.replaceAll("{{ma_age}}", row.mm_age + "대");
         }
 
-        $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
+        $content = $content.replaceAll("{{ru_price_type}}", (row.ru_price_type));
         $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
         $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeNoComma(row.ru_work_type));
         $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
@@ -1827,44 +1827,7 @@ if (count($banner_list) > 0) {
     });
   }
 
-  function getPriceType(price_type) {
-    if (!price_type) {
-      return "";
-    }
-    if (price_type === "일급,주급,월급") {
-      return "급여협의";
-    }
 
-    // <em> 태그 제거하고 실제 텍스트만 추출
-    const cleanPriceType = price_type.replace(/<\/?em>/g, '');
-
-    // 첫 번째 값만 반환
-    const firstType = cleanPriceType.split(',')[0].trim();
-    return `<em>${firstType}</em>`;
-  }
-
-  function getWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    const matches = work_type.match(/<span>(.*?)<\/span>/g);
-
-    if (!matches || matches.length === 0) {
-      return "";
-    }
-    // 첫 번째 값만 반환
-    const firstMatch = matches[0];
-    const text = firstMatch.replace(/<\/?span>/g, '').trim();
-    let cls = '';
-    if (text === '주간') {
-      cls = 'wtype1';
-    } else if (text === '야간') {
-      cls = 'wtype2';
-    } else if (text === '2교대') {
-      cls = 'wtype3';
-    }
-    return `<em class="${cls}">${text}</em>`;
-  }
 
   function getHashTagJS(hash, max = 10) {
     if (!hash) {

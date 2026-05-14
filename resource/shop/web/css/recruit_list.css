@@ -340,7 +340,8 @@
   padding-right: 5px;
 }
 
-.result-list .content-info .desc .desc3 .period em.on {
+.result-list .content-info .desc .desc3 .period em.on,
+.result-list .content-info .desc .desc3 .period em:only-child {
   color: #1b9d7d;
 }
 

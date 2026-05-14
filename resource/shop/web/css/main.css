@@ -6705,7 +6705,7 @@ body {
 }
 
 .recruit-card .amount {
-    margin: 4px 0 0;
+   
     font-size: 1.4285714286em;
     font-weight: 700;
     color: #1B9D7D;
@@ -6913,7 +6913,7 @@ body {
 }
 
 .recruit-recomm .recruit-card .amount {
-    font-size: 1.7142857143em;
+    font-size: 1.6em;
     color: #FFF700;
 }
 

@@ -436,8 +436,7 @@ function formatPhoneNumber($number) {
                         <h3 class="secondary-title">상세업무정보</h3>
                         <!-- 작성내용 -->
                         <div class="desc" style="clear:both;">
-                            <?php //=str_replace("src=\"h-ttps","src=\"https",fAddLink(str_replace("\n","<br/>",str_replace("src=\"https","src=\"h-ttps",$info["rc_desc"]))))?>
-                            <?=str_replace("src=\"h-ttps","src=\"https",str_replace("\n","<br/>",str_replace("src=\"https","src=\"h-ttps",$info["rc_desc"])))?>
+                            <?= $info["rc_desc"] ?>
 							<div class="hashtag">
 								<?=getHashTag(convertHashtagString($info["rc_hash"]))?>
 							</div>

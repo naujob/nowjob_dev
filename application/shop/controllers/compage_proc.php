@@ -26,6 +26,17 @@ class Compage_proc extends CI_Controller
     $this->mm_idx = $this->user->getUserIdx();
   }
 
+  // SmartEditor2 HTML은 그대로 저장 (서식 보존)
+  private function cleanSmartEditorDesc($html_content)
+  {
+    // </p> 다음의 <p> 또는 </p>를 <br>로 변환 (줄바꿈 보존)
+    $html_content = preg_replace('/<\/p>\s*(?=<p>|<\/)/i', '<br>', $html_content);
+    // 위험한 스크립트 태그 및 이벤트 핸들러 제거 (XSS 방지)
+    $html_content = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/i', '', $html_content);
+    $html_content = preg_replace('/\s*on\w+\s*=\s*["\']?[^"\']*["\']?/i', '', $html_content);
+    return $html_content;
+  }
+
   function point_charge_step1()
   {
     # 데이터 추가.
@@ -501,7 +512,7 @@ class Compage_proc extends CI_Controller
     }
     $rc_life_type = input_post("rc_life_type", "");
     $rc_hash = input_post("rc_hash", "");
-    $rc_desc = input_post("rc_desc", "");
+    $rc_desc = $this->cleanSmartEditorDesc(input_post("rc_desc", ""));
 
     $rc_img1_ori = input_post("rc_img1_ori", "");
     $rc_img2_ori = input_post("rc_img2_ori", "");
@@ -1014,7 +1025,7 @@ class Compage_proc extends CI_Controller
   {
     # 데이터 추가.
     $rc_hash = input_post("rc_hash", "");
-    $rc_desc = input_post("rc_desc", "");
+    $rc_desc = $this->cleanSmartEditorDesc(input_post("rc_desc", ""));
 
     $rc_img1_ori = input_post("rc_img1_ori", "");
     $rc_img2_ori = input_post("rc_img2_ori", "");
@@ -1633,7 +1644,7 @@ class Compage_proc extends CI_Controller
     }
     $rc_life_type = input_post("rc_life_type", "");
     $rc_hash = input_post("rc_hash", "");
-    $rc_desc = input_post("rc_desc", "");
+    $rc_desc = $this->cleanSmartEditorDesc(input_post("rc_desc", ""));
 
     $rc_img1_ori = input_post("rc_img1_ori", "");
     $rc_img2_ori = input_post("rc_img2_ori", "");
@@ -2167,7 +2178,7 @@ class Compage_proc extends CI_Controller
   {
     # 데이터 추가.
     $rc_hash = input_post("rc_hash", "");
-    $rc_desc = input_post("rc_desc", "");
+    $rc_desc = $this->cleanSmartEditorDesc(input_post("rc_desc", ""));
 
     $rc_img1_ori = input_post("rc_img1_ori", "");
     $rc_img2_ori = input_post("rc_img2_ori", "");
@@ -2440,7 +2451,7 @@ class Compage_proc extends CI_Controller
   function recruit_write3_1()
   {
     # 데이터 추가.
-    $rc_desc = input_post("rc_desc", "");
+    $rc_desc = $this->cleanSmartEditorDesc(input_post("rc_desc", ""));
     $rc_hash_string = input_post("rc_hash_string", "");
     $rc_sdate = input_post("rc_sdate", "");
     $rc_edate = input_post("rc_edate", "");
