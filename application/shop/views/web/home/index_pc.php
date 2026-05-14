@@ -185,54 +185,96 @@ $banner_list = getBannerList("BN00010005");
   .bottom-recomm {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     width: 100%;
-    gap: 34px 12px;
+    gap: 16px 8px;
     margin-top: 20px;
     max-width: none !important;
+    flex-wrap: unset;
+    padding: 10px 0px;
+    overflow: visible;
+  }
+
+  .comp-info>* {
+    margin: 0 !important;
   }
 
   .bottom-recomm .comp-info {
-    position: relative;
-    width: 100%;
-    height: 235px;
-    cursor: pointer;
-  }
-
-  .bottom-recomm .comp-info .comp-img {
-    position: absolute;
-    width: 100%;
-    height: 250px;
-    padding: 25px;
-    overflow: hidden;
-    top: 0;
-    background: #ffffff;
+    background: rgb(255, 255, 255);
     border-radius: 25px;
-    box-sizing: border-box;
-    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.05);
+    border: 1.5px solid rgb(224, 224, 224);
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 2px 0px;
+    padding: 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    gap: 20px;
+    min-height: 280px;
+    position: relative;
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+    min-width: 250px;
+    flex: 1 1 0%;
+    margin-bottom: 30px;
+  }
+
+  .bottom-recomm .comp-info .comp-img {
+    width: 100%;
+    height: auto;
+    border-radius: 0px;
+    overflow: visible;
+    margin-bottom: 0px;
+    display: block;
+    align-items: center;
     justify-content: center;
-    border: 1px solid #e0e0e0;
+    background: none;
+
+    padding: 0px;
+    margin-top: 0px;
+    box-sizing: border-box;
+    flex-direction: column;
+    position: relative;
+
   }
 
   .bottom-recomm .comp-info .comp-img img {
     width: 100%;
-    height: 100% !important;
     object-fit: contain;
+    border-radius: 0px;
+    height: 100% !important;
     display: block;
+    max-height: 40px;
+    margin: 20px 0px;
   }
 
   .bottom-recomm .comp-info .comp-name {
     position: relative;
-    bottom: auto;
     width: 100%;
     height: auto;
     font-size: 1.2rem;
     font-weight: 700;
-    margin-top: 10px;
+    margin-top: 8px;
+    margin-bottom: 4px;
     text-align: center;
+    padding: 0;
+    z-index: 2;
+  }
+
+  .bottom-recomm .comp-info .comp-desc {
+    position: relative;
+    width: 100%;
+    height: auto;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #666;
+    text-align: left;
+    padding: 0 8px;
+    box-sizing: border-box;
+    line-height: 1.3;
+    z-index: 2;
   }
 
   /* 인재 카드 2줄 그리드 레이아웃 (4개씩 2줄) */
@@ -494,11 +536,11 @@ $banner_list = getBannerList("BN00010005");
             if ($count >= 8) break;
           ?>
             <div class="comp-info" data-comm_idx="<?= $row["mm_idx"] ?>">
+              <p class="comp-name"><?= $row["mm_comp_name"] ?></p>
               <div class="comp-img">
                 <img src="<?= getCompImg($row) ?>">
-                <p class="comp-name"><?= $row["mm_comp_name"] ?></p>
               </div>
-
+              <p class="comp-desc"><?= getRandomCompDesc($row["mm_comp_name"]) ?></p>
             </div>
           <?php
             $count++;

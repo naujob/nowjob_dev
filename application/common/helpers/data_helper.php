@@ -1232,3 +1232,25 @@ function getConvertResumePriceType($price_type)
 
 	return $result;
 }
+
+/**
+ * 회사명과 랜덤 설명을 조합한 회사 설명 생성
+ * @param string $comp_name 회사명
+ * @return string 회사명이 포함된 랜덤 설명
+ */
+function getRandomCompDesc($comp_name)
+{
+	$descriptions = [
+		"에서 내일을 만들어 나갈 인재를 모집합니다.",
+		"에서 함께 할 인재를 모집합니다.",
+		"에서 직원을 모집합니다.",
+		"에서 함께 성장할 인재를 모집합니다.",
+		"에서 함께 할 인재를 찾습니다."
+	];
+
+	// 랜덤 인덱스 선택 (0 ~ count-1)
+	$randomIndex = mt_rand(0, count($descriptions) - 1);
+
+	// 회사명 + 랜덤 설명 조합
+	return $comp_name . $descriptions[$randomIndex];
+}
