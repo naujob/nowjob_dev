@@ -828,114 +828,117 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 </script>
 
 <script>
-// 페이지 이탈 시 폴백 자동이력서 생성
-(function() {
-    // 비로그인 또는 비회원이면 실행 안 함
-    var isLogin = <?= $this->user->isLogin() ? 'true' : 'false' ?>;
-    var isMem = <?= ($this->user->isLogin() && $this->user->getUserType() === 'MEM') ? 'true' : 'false' ?>;
-    if (!isLogin || !isMem) return;
+    // 페이지 이탈 시 폴백 자동이력서 생성
+    (function() {
+        // 비로그인 또는 비회원이면 실행 안 함
+        var isLogin = <?= $this->user->isLogin() ? 'true' : 'false' ?>;
+        var isMem = <?= ($this->user->isLogin() && $this->user->getUserType() === 'MEM') ? 'true' : 'false' ?>;
+        if (!isLogin || !isMem) return;
 
-    // 개포동 기본값
-    var DEFAULT_ADDR = "서울특별시 강남구 개포동";
-    var DEFAULT_GPS_X = "127.0748";
-    var DEFAULT_GPS_Y = "37.4855";
-    var DEFAULT_ZIPCODE = "06336";
+        // 개포동 기본값
+        var DEFAULT_ADDR = "서울특별시 강남구 개포동";
+        var DEFAULT_GPS_X = "127.0748";
+        var DEFAULT_GPS_Y = "37.4855";
+        var DEFAULT_ZIPCODE = "06336";
 
-    // 이미 폴백이 실행됐는지 추적 (중복 방지)
-    window.__fallbackResumeTriggered = false;
+        // 이미 폴백이 실행됐는지 추적 (중복 방지)
+        window.__fallbackResumeTriggered = false;
 
-    // 페이지 로드 시 이력서 수 사전 조회 (캐시)
-    var __cachedResumeCount = null;
-    $.ajax({
-        type: "POST",
-        url: "/mypage_proc/getResumeCount",
-        success: function(ret) {
-            if (typeof ret === 'string') {
-                try { ret = JSON.parse(ret); } catch(e) {}
+        // 페이지 로드 시 이력서 수 사전 조회 (캐시)
+        var __cachedResumeCount = null;
+        $.ajax({
+            type: "POST",
+            url: "/mypage_proc/getResumeCount",
+            success: function(ret) {
+                if (typeof ret === 'string') {
+                    try {
+                        ret = JSON.parse(ret);
+                    } catch (e) {}
+                }
+                if (ret && ret.code === "00") {
+                    __cachedResumeCount = parseInt(ret.data.count, 10) || 0;
+                }
+            },
+            error: function() {
+                // 조회 실패 시 null 유지 → 이탈 시 폴백 허용 (서버가 중복 방지)
             }
-            if (ret && ret.code === "00") {
-                __cachedResumeCount = parseInt(ret.data.count, 10) || 0;
-            }
-        },
-        error: function() {
-            // 조회 실패 시 null 유지 → 이탈 시 폴백 허용 (서버가 중복 방지)
-        }
-    });
+        });
 
-    // 폴백 실행 가능 여부 판단
-    function canTriggerFallback() {
-        if (window.__fallbackResumeTriggered) return false;
-        if (window.__quickInfoSubmitting) return false;   // QuickInfo 제출 진행 중
-        if (window.__autoResumeFlowActive) return false;  // autoSaveResume 진행 중
-        if (__cachedResumeCount !== null && __cachedResumeCount > 0) return false; // 이미 이력서 있음
-        return true;
-    }
-
-    // sendBeacon용 FormData 구성
-    function buildFallbackFormData() {
-        var fd = new FormData();
-        fd.append("ru_name", "");
-        fd.append("ru_addr", DEFAULT_ADDR);
-        fd.append("ru_nationality", "내국인");
-        fd.append("quickinfo_gender", "남");
-        fd.append("quickinfo_age", "20s");
-        fd.append("ad_addr[]", DEFAULT_ADDR);
-        fd.append("ad_jibun[]", DEFAULT_ADDR);
-        fd.append("ad_doro[]", "");
-        fd.append("ad_zipcode[]", DEFAULT_ZIPCODE);
-        fd.append("ad_detail[]", "");
-        fd.append("ad_gps_x[]", DEFAULT_GPS_X);
-        fd.append("ad_gps_y[]", DEFAULT_GPS_Y);
-        return fd;
-    }
-
-    // 폴백 실행 (sendBeacon → fetch keepalive → 동기 XHR 순으로 시도)
-    function triggerFallbackResume() {
-        if (!canTriggerFallback()) return;
-        window.__fallbackResumeTriggered = true;
-
-        var url = "/mypage_proc/resume_autofill_quick";
-        var fd = buildFallbackFormData();
-
-        // sendBeacon 시도
-        if (typeof navigator.sendBeacon === 'function') {
-            navigator.sendBeacon(url, fd);
-            return;
+        // 폴백 실행 가능 여부 판단
+        function canTriggerFallback() {
+            if (window.__fallbackResumeTriggered) return false;
+            if (window.__quickInfoSubmitting) return false; // QuickInfo 제출 진행 중 
+            if (window.__autoResumeFlowActive) return false; // autoSaveResume 진행 중 
+            if (__cachedResumeCount !== null && __cachedResumeCount > 0) return false; // 이미 이력서 있음
+            return true;
         }
 
-        // fetch keepalive 폴백
-        if (typeof fetch === 'function') {
+        // sendBeacon용 FormData 구성
+        function buildFallbackFormData() {
+            var fd = new FormData();
+            fd.append("ru_name", "");
+            fd.append("ru_addr", DEFAULT_ADDR);
+            fd.append("ru_nationality", "내국인");
+            fd.append("quickinfo_gender", "남");
+            fd.append("quickinfo_age", "20s");
+            fd.append("ad_addr[]", DEFAULT_ADDR);
+            fd.append("ad_jibun[]", DEFAULT_ADDR);
+            fd.append("ad_doro[]", "");
+            fd.append("ad_zipcode[]", DEFAULT_ZIPCODE);
+            fd.append("ad_detail[]", "");
+            fd.append("ad_gps_x[]", DEFAULT_GPS_X);
+            fd.append("ad_gps_y[]", DEFAULT_GPS_Y);
+            return fd;
+        }
+
+        // 폴백 실행 (sendBeacon → fetch keepalive → 동기 XHR 순으로 시도)
+        // 자동 생성을 해도 되는 상황인지 최종 한 번 더 체크
+        function triggerFallbackResume() {
+            if (!canTriggerFallback()) return; //그냥 종료 (아무것도 안 함)
+            window.__fallbackResumeTriggered = true; //이제 실행했다고 표시
+
+            var url = "/mypage_proc/resume_autofill_quick";
+            var fd = buildFallbackFormData();
+
+            // sendBeacon 시도
+            if (typeof navigator.sendBeacon === 'function') {
+                navigator.sendBeacon(url, fd);
+                return;
+            }
+
+            // fetch keepalive 폴백
+            if (typeof fetch === 'function') {
+                try {
+                    fetch(url, {
+                        method: 'POST',
+                        body: fd,
+                        keepalive: true
+                    });
+                } catch (e) {}
+                return;
+            }
+
+            // 최후 수단: 동기 XHR
             try {
-                fetch(url, {
-                    method: 'POST',
-                    body: fd,
-                    keepalive: true
-                });
-            } catch(e) {}
-            return;
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url, false); // false = 동기
+                xhr.send(fd);
+            } catch (e) {}
         }
 
-        // 최후 수단: 동기 XHR
-        try {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', url, false); // false = 동기
-            xhr.send(fd);
-        } catch(e) {}
-    }
+        // visibilitychange: 탭 전환/숨김 시 감지
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                triggerFallbackResume();
+            }
+        });
 
-    // visibilitychange: 탭 전환/숨김 시 감지
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden') {
+        // pagehide: 페이지 언로드 직전 감지 (링크 이동, 브라우저 닫기 등)
+        window.addEventListener('pagehide', function() {
             triggerFallbackResume();
-        }
-    });
+        });
 
-    // pagehide: 페이지 언로드 직전 감지 (링크 이동, 브라우저 닫기 등)
-    window.addEventListener('pagehide', function() {
-        triggerFallbackResume();
-    });
-
-})();
+    })();
 </script>
 
 <?= getCashJs("/resource/shop/mobile/js/member/join_quickinfo_bottom_sheet.js") ?>

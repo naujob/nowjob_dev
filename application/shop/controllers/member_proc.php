@@ -3074,6 +3074,10 @@ class Member_proc extends CI_Controller
                     $mm_di_init = isset($step_auth["mm_di"]) ? $step_auth["mm_di"] : "";
                 }
 
+                // agree4/agree5: step2_info 우선, 없으면 step3_info에서 가져옴
+                $agree4 = !empty($step2_info["agree4"]) ? $step2_info["agree4"] : (!empty($step3_info["agree4"]) ? $step3_info["agree4"] : "");
+                $agree5 = !empty($step2_info["agree5"]) ? $step2_info["agree5"] : (!empty($step3_info["agree5"]) ? $step3_info["agree5"] : "");
+
                 $arr_mem = [
                     "mm_type" => "MEM",
                     "mm_id" => isset($step1_info["mm_id"]) ? $step1_info["mm_id"] : "",
@@ -3101,6 +3105,8 @@ class Member_proc extends CI_Controller
                     "alarm_deny_yoil" => "",
                     "alarm_deny_stime" => "",
                     "alarm_deny_etime" => "",
+                    "mm_agree_privget" => $agree4,
+                    "mm_agree_ad" => $agree5,
                 ];
 
                 if (!empty($step_sns)) {

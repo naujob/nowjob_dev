@@ -71,6 +71,7 @@
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
+                <col width="100" />
                 <col width="150" />
             </colgroup>
             <thead>
@@ -95,6 +96,7 @@
                 <th scope="col">카테고리</th>
                 <th scope="col">보유포인트</th>
                 <th scope="col">가입일</th>
+                <th scope="col">광고수신<br>동의</th>
                 <th scope="col">관리</th>
 			</tr>
             </thead>
@@ -126,6 +128,7 @@
                     <td><?=($row["ma_work"])?></td>
 	                <td><?=number_format($row["mm_point"])?></td>
 	                <td><?=$row["reg_dt"]?></td>
+	                <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "-"); ?></td>
 	                <td>
 	                	<a href="javascript:void(0);" class="btn-xs btn-type3 btnEdit" data-idx="<?=$row["mm_idx"]?>" style="width:auto;">상세정보</a>
 	                	<a href="javascript:void(0);" class="btn-xs btn-type1 btnGoLogin" data-mm_id="<?=$row["mm_id"]?>" data-mm_pwd="<?=sys_encrypt($row["mm_pwd"],'njob','20231007')?>" data-mm_status="<?=$row["mm_status"]?>" style="width:auto;">로그인</a>

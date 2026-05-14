@@ -279,13 +279,11 @@ $(document).ready(function(){
 		}
     agree3 = 'Y';
 
-    if($("#agree4").is(":checked")==false){
+    if($("#agree4").is(":checked")){
             agree4 = 'Y';
-            console.log('rd_agree4 is checked');
     }
-    if($("#agree5").is(":checked")==false){
+    if($("#agree5").is(":checked")){
             agree5 = 'Y';
-            console.log('rd_agree5 is checked');
     }
 
 		var params = $("#frm").serialize();

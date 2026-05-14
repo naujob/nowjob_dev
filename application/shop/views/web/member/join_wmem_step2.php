@@ -14,18 +14,18 @@
                     </div>
                     <div class="find-loc-form">
                         <form id="frm" onsubmit="return false">
-		                    <input type="hidden" id="ad_zipcode" name="ad_zipcode" value="" />
-							<input type="hidden" id="ad_jibun" name="ad_jibun" value="" />
-							<input type="hidden" id="ad_doro" name="ad_doro" value="" />
-							<input type="hidden" id="ad_detail" name="ad_detail" value="" />
-							<input type="hidden" id="ad_addr" name="ad_addr" value="" />
-							<input type="hidden" id="ad_gps_x" name="ad_gps_x" value="" />
-							<input type="hidden" id="ad_gps_y" name="ad_gps_y" value="" />
+                            <input type="hidden" id="ad_zipcode" name="ad_zipcode" value="" />
+                            <input type="hidden" id="ad_jibun" name="ad_jibun" value="" />
+                            <input type="hidden" id="ad_doro" name="ad_doro" value="" />
+                            <input type="hidden" id="ad_detail" name="ad_detail" value="" />
+                            <input type="hidden" id="ad_addr" name="ad_addr" value="" />
+                            <input type="hidden" id="ad_gps_x" name="ad_gps_x" value="" />
+                            <input type="hidden" id="ad_gps_y" name="ad_gps_y" value="" />
 
                             <div class="form-row">
                                 <label>
                                     <span class="form-label">도로명주소</span>
-                                    <input type="text" id="txt_addr" name="txt_addr"  placeholder="예시 : 주흥1길 12, 부산 센텀중앙로 97" autocomplete="off" aria-required="true" required class="form-text">
+                                    <input type="text" id="txt_addr" name="txt_addr" placeholder="예시 : 주흥1길 12, 부산 센텀중앙로 97" autocomplete="off" aria-required="true" required class="form-text">
                                 </label>
                             </div>
 
@@ -37,7 +37,7 @@
                                 <ol class="post-list">
                                     <li class="post-item">
                                         <dl class="post-info">
-                                       		현재 위치로 주소찾기및 주소를 검색해주세요.
+                                            현재 위치로 주소찾기및 주소를 검색해주세요.
                                         </dl>
                                     </li>
                                 </ol>
@@ -64,7 +64,7 @@
                                 <template id="terms1Temp">
                                     <div class="terms-wrap">
                                         <p class="terms-title">서비스 이용약관(필수)</p>
-                                        <?=$policy1["policy_pc"]?>
+                                        <?= $policy1["policy_pc"] ?>
                                     </div>
                                 </template>
                             </li>
@@ -79,7 +79,7 @@
                                 <template id="terms2Temp">
                                     <div class="terms-wrap">
                                         <p class="terms-title">개인정보 처리방침(필수)</p>
-                                        <?=$policy2["privacy_pc"]?>
+                                        <?= $policy2["privacy_pc"] ?>
                                     </div>
                                 </template>
                             </li>
@@ -94,7 +94,7 @@
                                 <template id="terms3Temp">
                                     <div class="terms-wrap">
                                         <p class="terms-title">위치 서비스 이용약관<em>(필수)</em></p>
-                                        <?=$policy3["location_pc"]?>
+                                        <?= $policy3["location_pc"] ?>
                                     </div>
                                 </template>
                             </li>
@@ -109,7 +109,7 @@
                                 <template id="terms4Temp">
                                     <div class="terms-wrap">
                                         <p class="terms-title">개인정보 수집 및 이용 동의(선택)</p>
-                                        <?=$policy4["privacy3_pc"]?>
+                                        <?= $policy4["privacy3_pc"] ?>
                                     </div>
                                 </template>
                             </li>
@@ -127,46 +127,46 @@
                                 <template id="terms5Temp">
                                     <div class="terms-wrap">
                                         <p class="terms-title">광고성 정보 이메일/SMS수신 동의(선택)</p>
-                                        <?=$policy5["adv_pc"]?>
+                                        <?= $policy5["adv_pc"] ?>
                                     </div>
                                 </template>
                             </li>
                             <li>
-                              <label class="form-checkbox "><!-- class lg -->
-                                  <input type="checkbox" name="AgreementAll" value="all" class="js-check-all">
-                                  <span class="label-red" style="font-size: 16px; font-weight: 600; color: #000;">모두 동의하고 시작</span>
-                              </label>
+                                <label class="form-checkbox "><!-- class lg -->
+                                    <input type="checkbox" name="AgreementAll" value="all" class="js-check-all">
+                                    <span class="label-red" style="font-size: 16px; font-weight: 600; color: #000;">모두 동의하고 시작</span>
+                                </label>
                             </li>
                         </ul>
                     </div>
 
                     <script>
-                        (function () {
+                        (function() {
                             var agreements = document.querySelectorAll('input[name="agreement"]');
                             var allCheck = document.querySelector('.js-check-all');
                             var total = 0;
 
-                            allCheck.addEventListener('change', function () {
+                            allCheck.addEventListener('change', function() {
                                 if (!agreements.length) return;
 
-                                agreements.forEach(function (input) {
+                                agreements.forEach(function(input) {
                                     input.checked = allCheck.checked;
                                     total = allCheck.checked ? agreements.length : 0;
 
-                                    if(allCheck.checked){
-                                      $('#btnNextMem').css('background-color', '#57CCAF'); // 버튼 활성화 색상 변경
+                                    if (allCheck.checked) {
+                                        $('#btnNextMem').css('background-color', '#57CCAF'); // 버튼 활성화 색상 변경
                                     } else {
-                                      $('#btnNextMem').css('background-color', '#ccc'); // 버튼 비활성화 색상 변경
+                                        $('#btnNextMem').css('background-color', '#ccc'); // 버튼 비활성화 색상 변경
                                     }
 
                                 });
                             });
 
-                            agreements.forEach(function (input) {
-                                if(input.checked) total += 1;
+                            agreements.forEach(function(input) {
+                                if (input.checked) total += 1;
 
-                                input.addEventListener('change', function () {
-                                    if(this.checked) {
+                                input.addEventListener('change', function() {
+                                    if (this.checked) {
                                         total += 1;
                                     } else {
                                         total -= 1;
@@ -181,20 +181,20 @@
                                     }
 
                                     //check
-                                    if($('#agree1').prop('checked') &&
-                                       $('#agree2').prop('checked') &&
-                                       $('#agree3').prop('checked')){
-                                         $('#btnNextMem').css('background-color', '#57CCAF'); // 버튼 활성화 색상 변경
-                                    }else{
-                                         $('#btnNextMem').css('background-color', '#ccc'); // 버튼 비활성화 색상 변경
+                                    if ($('#agree1').prop('checked') &&
+                                        $('#agree2').prop('checked') &&
+                                        $('#agree3').prop('checked')) {
+                                        $('#btnNextMem').css('background-color', '#57CCAF'); // 버튼 활성화 색상 변경
+                                    } else {
+                                        $('#btnNextMem').css('background-color', '#ccc'); // 버튼 비활성화 색상 변경
                                     }
 
                                 });
                             });
 
-                            window.addEventListener('DOMContentLoaded', function () {
-                                document.querySelectorAll('.js-open-Popup').forEach(function (btn) {
-                                    btn.addEventListener('click', function (e) {
+                            window.addEventListener('DOMContentLoaded', function() {
+                                document.querySelectorAll('.js-open-Popup').forEach(function(btn) {
+                                    btn.addEventListener('click', function(e) {
                                         e.preventDefault();
                                         var id = this.getAttribute('aria-controls');
                                         var title = this.textContent;
@@ -205,7 +205,7 @@
                                             title: title,
                                             content: content,
                                             firstButton: '확인',
-                                            firstCallback: function () {
+                                            firstCallback: function() {
                                                 checkContent(agreeidx);
                                                 closePopup(document.getElementById(id));
                                             }
@@ -229,236 +229,236 @@
 </div><!-- //page -->
 
 <script>
-$(document).ready(function(){
-    // 위치 권한 팝업: 위치 서비스 이용약관/모두 동의 체크 시 요청
-    var LOCATION_PERMISSION_KEY = "nowjob_location_permission_status";
+    $(document).ready(function() {
+        // 위치 권한 팝업: 위치 서비스 이용약관/모두 동의 체크 시 요청
+        var LOCATION_PERMISSION_KEY = "nowjob_location_permission_status";
 
-    function getStoredPermissionStatus() {
-        try {
-            return localStorage.getItem(LOCATION_PERMISSION_KEY);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function setStoredPermissionStatus(status) {
-        try {
-            if (status) {
-                localStorage.setItem(LOCATION_PERMISSION_KEY, status);
+        function getStoredPermissionStatus() {
+            try {
+                return localStorage.getItem(LOCATION_PERMISSION_KEY);
+            } catch (e) {
+                return null;
             }
-        } catch (e) {}
-    }
-
-    function requestLocationPermissionByCheckbox() {
-        var stored = getStoredPermissionStatus();
-        if (stored === "granted" || stored === "denied") {
-            return;
         }
-        if (!navigator.geolocation) {
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            function() {
-                setStoredPermissionStatus("granted");
-            },
-            function(err) {
-                // 사용자 선택 없이 타임아웃된 경우도 거부로 처리
-                setStoredPermissionStatus("denied");
-            },
-            {
-                enableHighAccuracy: false,
-                maximumAge: 0
-            }
-        );
-    }
 
-    function isTrustedEvent(e) {
-        if (!e) return false;
-        if (e.isTrusted === true) return true;
-        if (e.originalEvent && e.originalEvent.isTrusted === true) return true;
-        return false;
-    }
-
-    function maybeRequestLocationFromClick(e) {
-        if (!isTrustedEvent(e)) {
-            return;
-        }
-        // 클릭 후 체크 상태 확인
-        setTimeout(function() {
-            if ($("#agree3").is(":checked") || $(".js-check-all").is(":checked")) {
-                requestLocationPermissionByCheckbox();
-            }
-        }, 0);
-    }
-
-    $(document).on("click", "#agree3, .js-check-all", function(e) {
-        maybeRequestLocationFromClick(e);
-    });
-
-    $(document).on("click", "a.js-open-Popup[data-idx=\"3\"]", function(e) {
-        maybeRequestLocationFromClick(e);
-    });
-
-    $(document).on("click", ".js-check-all + .label-red, .js-check-all ~ .label-red", function(e) {
-        maybeRequestLocationFromClick(e);
-    });
-
-	$("#btnSearchAddr").click(function(){
-		searchText();
-	});
-
-	$("#txt_addr").keyup(function(e){
-		if(e.keyCode == 13){
-		   	searchText();
-		}
-	})
-
-	//위치 정보 검색
-	$("#btnGps").click(function(){
-        window.__nowjobGpsRequested = true;
-		getJoinMemLocation(true);
-	});
-
-	$("#btnNextMem").click(function(){
-		//if($("#ad_zipcode").val()==""){
-		//	commonAlert('주소 검색후 주소를 선택해주세요.',function(){
-		//		$("#txt_addr").focus();
-		//	});
-		//	return;
-		//}
-
-    var agree1 = 'N';
-    var agree2 = 'N';
-    var agree3 = 'N';
-    var agree4 = 'N';
-    var agree5 = 'N';
-
-		if($("#agree1").is(":checked")==false){
-			commonAlert('서비스 이용약관(필수)에 동의해주세요.',function(){
-				$("#agree1").focus();
-			});
-			return;
-		}
-    agree1 = 'Y';
-
-		if($("#agree2").is(":checked")==false){
-			commonAlert('개인정보 처리방침(필수)에 동의해주세요.',function(){
-				$("#agree2").focus();
-			});
-			return;
-		}
-    agree2 = 'Y';
-
-		if($("#agree3").is(":checked")==false){
-			commonAlert('위치 서비스 이용약관(필수)에 동의해주세요.',function(){
-				$("#agree3").focus();
-			});
-			return;
-		}
-    agree3 = 'Y';
-
-    if($("#agree4").is(":checked")==false){
-            agree4 = 'Y';
-            console.log('rd_agree4 is checked');
-    }
-    if($("#agree5").is(":checked")==false){
-            agree5 = 'Y';
-            console.log('rd_agree5 is checked');
-    }
-
-
-		var params = $("#frm").serialize();
-    params += '&agree1='+agree1;
-    params += '&agree2='+agree2;
-    params += '&agree3='+agree3;
-    params += '&agree4='+agree4;
-    params += '&agree5='+agree5;
-
-	    comAjax("/member_proc/join_mem_step2",params,function(ret2){
-	        if(ret2.code=="00"){
-	            location.href="/member/join_wmem_step3";
-	        }else{
-	            commonAlert(ret2.msg,function(){});
-	        }
-	    });
-	});
-});
-
-function searchText(){
-	if($("#txt_addr").val()==""){
-		commonAlert('검색하실 주소를 입력해주세요.',function(){
-			$("#txt_addr").focus();
-		});
-		return;
-	}
-
-	$("#ad_zipcode").val("");
-	$("#ad_jibun").val("");
-	$("#ad_doro").val("");
-	$("#ad_addr").val("");
-	$("#ad_gps_x").val("");
-	$("#ad_gps_y").val("");
-
-	searchApi($("#txt_addr").val());
-}
-
-function searchApi(keyword){
-	getSearchApi($("#txt_addr").val(),"search",function(html){
-		$(".post-list").removeClass("hidden");
-		$(".post-list").html("");
-		$(".post-list").append(html);
-	})
-}
-
-// 검색 완료 선택 처리
-function selectAddrInfo(zipcode,doro,jibun,addr,x,y){
-	$("#ad_zipcode").val(zipcode);
-	$("#ad_jibun").val(doro);
-	$("#ad_doro").val(jibun);
-	$("#ad_addr").val(addr);
-	$("#ad_gps_x").val(x);
-	$("#ad_gps_y").val(y);
-}
-
-function getJoinMemLocation(fromUser) {
-	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(function(position) {
-            //alert(position.coords.longitude + "::" + position.coords.latitude);
-			comAjax("/common_proc/get_gps_address",{x:position.coords.longitude,y : position.coords.latitude},function(ret){
-				if(ret.code=="00"){
-
-					getSearchApi(ret.data,"gps",function(html){
-						$(".post-list").removeClass("hidden");
-						$(".post-list").html("");
-						$(".post-list").append(html);
-					})
-				}else{
-					commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.',function(){});
-				}
-			});
-		}, function(error) {
-		  	if(error.message=="User denied Geolocation"){
-                if (fromUser === true || window.__nowjobGpsRequested === true) {
-				    commonAlert('위치사용을 허용 또는  주소를 입력하여 조회 해주세요.',function(){});
+        function setStoredPermissionStatus(status) {
+            try {
+                if (status) {
+                    localStorage.setItem(LOCATION_PERMISSION_KEY, status);
                 }
-      		}
-    	}, {
-	      enableHighAccuracy: false,
-	      maximumAge: 0,
-	      timeout: Infinity});
-  	} else {
-        showDaum("");
-		//alert('GPS를 지원하지 않습니다');
-        if (fromUser === true || window.__nowjobGpsRequested === true) {
-            commonAlert('GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.',function(){});
+            } catch (e) {}
         }
-  	}
-}
 
-function checkContent(arg) {
-    $('#agree'+arg+'').prop('checked', true); // rd_agree1 체크
-    //fClickChk(); // 상태 변경 후 fClickChk 호출
-}
+        function requestLocationPermissionByCheckbox() {
+            var stored = getStoredPermissionStatus();
+            if (stored === "granted" || stored === "denied") {
+                return;
+            }
+            if (!navigator.geolocation) {
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function() {
+                    setStoredPermissionStatus("granted");
+                },
+                function(err) {
+                    // 사용자 선택 없이 타임아웃된 경우도 거부로 처리
+                    setStoredPermissionStatus("denied");
+                }, {
+                    enableHighAccuracy: false,
+                    maximumAge: 0
+                }
+            );
+        }
 
+        function isTrustedEvent(e) {
+            if (!e) return false;
+            if (e.isTrusted === true) return true;
+            if (e.originalEvent && e.originalEvent.isTrusted === true) return true;
+            return false;
+        }
+
+        function maybeRequestLocationFromClick(e) {
+            if (!isTrustedEvent(e)) {
+                return;
+            }
+            // 클릭 후 체크 상태 확인
+            setTimeout(function() {
+                if ($("#agree3").is(":checked") || $(".js-check-all").is(":checked")) {
+                    requestLocationPermissionByCheckbox();
+                }
+            }, 0);
+        }
+
+        $(document).on("click", "#agree3, .js-check-all", function(e) {
+            maybeRequestLocationFromClick(e);
+        });
+
+        $(document).on("click", "a.js-open-Popup[data-idx=\"3\"]", function(e) {
+            maybeRequestLocationFromClick(e);
+        });
+
+        $(document).on("click", ".js-check-all + .label-red, .js-check-all ~ .label-red", function(e) {
+            maybeRequestLocationFromClick(e);
+        });
+
+        $("#btnSearchAddr").click(function() {
+            searchText();
+        });
+
+        $("#txt_addr").keyup(function(e) {
+            if (e.keyCode == 13) {
+                searchText();
+            }
+        })
+
+        //위치 정보 검색
+        $("#btnGps").click(function() {
+            window.__nowjobGpsRequested = true;
+            getJoinMemLocation(true);
+        });
+
+        $("#btnNextMem").click(function() {
+            //if($("#ad_zipcode").val()==""){
+            //	commonAlert('주소 검색후 주소를 선택해주세요.',function(){
+            //		$("#txt_addr").focus();
+            //	});
+            //	return;
+            //}
+
+            var agree1 = 'N';
+            var agree2 = 'N';
+            var agree3 = 'N';
+            var agree4 = 'N';
+            var agree5 = 'N';
+
+            if ($("#agree1").is(":checked") == false) {
+                commonAlert('서비스 이용약관(필수)에 동의해주세요.', function() {
+                    $("#agree1").focus();
+                });
+                return;
+            }
+            agree1 = 'Y';
+
+            if ($("#agree2").is(":checked") == false) {
+                commonAlert('개인정보 처리방침(필수)에 동의해주세요.', function() {
+                    $("#agree2").focus();
+                });
+                return;
+            }
+            agree2 = 'Y';
+
+            if ($("#agree3").is(":checked") == false) {
+                commonAlert('위치 서비스 이용약관(필수)에 동의해주세요.', function() {
+                    $("#agree3").focus();
+                });
+                return;
+            }
+            agree3 = 'Y';
+
+            if ($("#agree4").is(":checked")) {
+                agree4 = 'Y';
+            }
+            if ($("#agree5").is(":checked")) {
+                agree5 = 'Y';
+            }
+
+
+            var params = $("#frm").serialize();
+            params += '&agree1=' + agree1;
+            params += '&agree2=' + agree2;
+            params += '&agree3=' + agree3;
+            params += '&agree4=' + agree4;
+            params += '&agree5=' + agree5;
+
+            comAjax("/member_proc/join_mem_step2", params, function(ret2) {
+                if (ret2.code == "00") {
+                    location.href = "/member/join_wmem_step3";
+                } else {
+                    commonAlert(ret2.msg, function() {});
+                }
+            });
+        });
+    });
+
+    function searchText() {
+        if ($("#txt_addr").val() == "") {
+            commonAlert('검색하실 주소를 입력해주세요.', function() {
+                $("#txt_addr").focus();
+            });
+            return;
+        }
+
+        $("#ad_zipcode").val("");
+        $("#ad_jibun").val("");
+        $("#ad_doro").val("");
+        $("#ad_addr").val("");
+        $("#ad_gps_x").val("");
+        $("#ad_gps_y").val("");
+
+        searchApi($("#txt_addr").val());
+    }
+
+    function searchApi(keyword) {
+        getSearchApi($("#txt_addr").val(), "search", function(html) {
+            $(".post-list").removeClass("hidden");
+            $(".post-list").html("");
+            $(".post-list").append(html);
+        })
+    }
+
+    // 검색 완료 선택 처리
+    function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
+        $("#ad_zipcode").val(zipcode);
+        $("#ad_jibun").val(doro);
+        $("#ad_doro").val(jibun);
+        $("#ad_addr").val(addr);
+        $("#ad_gps_x").val(x);
+        $("#ad_gps_y").val(y);
+    }
+
+    function getJoinMemLocation(fromUser) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                //alert(position.coords.longitude + "::" + position.coords.latitude);
+                comAjax("/common_proc/get_gps_address", {
+                    x: position.coords.longitude,
+                    y: position.coords.latitude
+                }, function(ret) {
+                    if (ret.code == "00") {
+
+                        getSearchApi(ret.data, "gps", function(html) {
+                            $(".post-list").removeClass("hidden");
+                            $(".post-list").html("");
+                            $(".post-list").append(html);
+                        })
+                    } else {
+                        commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.', function() {});
+                    }
+                });
+            }, function(error) {
+                if (error.message == "User denied Geolocation") {
+                    if (fromUser === true || window.__nowjobGpsRequested === true) {
+                        commonAlert('위치사용을 허용 또는  주소를 입력하여 조회 해주세요.', function() {});
+                    }
+                }
+            }, {
+                enableHighAccuracy: false,
+                maximumAge: 0,
+                timeout: Infinity
+            });
+        } else {
+            showDaum("");
+            //alert('GPS를 지원하지 않습니다');
+            if (fromUser === true || window.__nowjobGpsRequested === true) {
+                commonAlert('GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.', function() {});
+            }
+        }
+    }
+
+    function checkContent(arg) {
+        $('#agree' + arg + '').prop('checked', true); // rd_agree1 체크
+        //fClickChk(); // 상태 변경 후 fClickChk 호출
+    }
 </script>
-<?php include_once (get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>
