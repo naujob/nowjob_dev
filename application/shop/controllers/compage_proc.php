@@ -2753,6 +2753,12 @@ class Compage_proc extends CI_Controller
         $rc_week_value = "월,화,수,목,금";
       }
 
+      // 근무시간 처리: 모바일(스텝1) 또는 웹(스텝3)
+      $rc_am_stime_value = isset($step1["rc_am_stime"]) ? $step1["rc_am_stime"] : (isset($step3["rc_am_stime"]) ? $step3["rc_am_stime"] : "");
+      $rc_am_etime_value = isset($step1["rc_am_etime"]) ? $step1["rc_am_etime"] : (isset($step3["rc_am_etime"]) ? $step3["rc_am_etime"] : "");
+      $rc_pm_stime_value = isset($step1["rc_pm_stime"]) ? $step1["rc_pm_stime"] : (isset($step3["rc_pm_stime"]) ? $step3["rc_pm_stime"] : "");
+      $rc_pm_etime_value = isset($step1["rc_pm_etime"]) ? $step1["rc_pm_etime"] : (isset($step3["rc_pm_etime"]) ? $step3["rc_pm_etime"] : "");
+
       $arr_recruit = [
         "rc_show_yn" => ($preview_mode == 1) ? "N" : (isset($step1["rc_show_yn"]) ? $step1["rc_show_yn"] : "Y"), // 미리보기 모드면 임시저장("N"), 아니면 정식등록
         "rc_name" => $step1["rc_name"],
@@ -2767,6 +2773,10 @@ class Compage_proc extends CI_Controller
         "rc_week_price" => $rc_week_price_value,
         "rc_month_price" => $rc_month_price_value,
         "rc_week" => $rc_week_value,  // 모바일(스텝3의 rc_day) 또는 웹(스텝3의 rc_week)
+        "rc_am_stime" => $rc_am_stime_value,  // 주간 출근 시간
+        "rc_am_etime" => $rc_am_etime_value,  // 주간 퇴근 시간
+        "rc_pm_stime" => $rc_pm_stime_value,  // 야간 출근 시간
+        "rc_pm_etime" => $rc_pm_etime_value,  // 야간 퇴근 시간
         "rc_life_type" => isset($step2["rc_life_type"]) && is_array($step2["rc_life_type"]) ? arr_implode(",", $step2["rc_life_type"]) : "",
         "rc_nation" => isset($step3["rc_nation"]) && is_array($step3["rc_nation"]) ? arr_implode(",", $step3["rc_nation"]) : "",
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
@@ -2933,6 +2943,12 @@ class Compage_proc extends CI_Controller
         $rc_month_price_value_new = isset($step3["rc_month_price"]) ? intval($step3["rc_month_price"]) : 0;
       }
 
+      // 근무시간 처리: 모바일(스텝1) 또는 웹(스텝3)
+      $rc_am_stime_value_new = isset($step1["rc_am_stime"]) ? $step1["rc_am_stime"] : (isset($step3["rc_am_stime"]) ? $step3["rc_am_stime"] : "");
+      $rc_am_etime_value_new = isset($step1["rc_am_etime"]) ? $step1["rc_am_etime"] : (isset($step3["rc_am_etime"]) ? $step3["rc_am_etime"] : "");
+      $rc_pm_stime_value_new = isset($step1["rc_pm_stime"]) ? $step1["rc_pm_stime"] : (isset($step3["rc_pm_stime"]) ? $step3["rc_pm_stime"] : "");
+      $rc_pm_etime_value_new = isset($step1["rc_pm_etime"]) ? $step1["rc_pm_etime"] : (isset($step3["rc_pm_etime"]) ? $step3["rc_pm_etime"] : "");
+
       $arr_recruit = [
         "mm_idx" => $this->mm_idx,
         "rc_status" => "Y", // 신규 공고는 활성 상태로 등록
@@ -2948,6 +2964,10 @@ class Compage_proc extends CI_Controller
         "rc_day_price" => $rc_day_price_value_new,
         "rc_week_price" => $rc_week_price_value_new,
         "rc_month_price" => $rc_month_price_value_new,
+        "rc_am_stime" => $rc_am_stime_value_new,  // 주간 출근 시간
+        "rc_am_etime" => $rc_am_etime_value_new,  // 주간 퇴근 시간
+        "rc_pm_stime" => $rc_pm_stime_value_new,  // 야간 출근 시간
+        "rc_pm_etime" => $rc_pm_etime_value_new,  // 야간 퇴근 시간
         "rc_life_type" => isset($step2["rc_life_type"]) && is_array($step2["rc_life_type"]) ? arr_implode(",", $step2["rc_life_type"]) : "",
         "rc_nation" => isset($step3["rc_nation"]) && is_array($step3["rc_nation"]) ? arr_implode(",", $step3["rc_nation"]) : "",
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
