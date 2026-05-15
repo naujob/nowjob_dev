@@ -713,26 +713,18 @@ function formatPhoneNumber($number)
             <div class="panel-content">
 
                 <div class="vendor-links">
-                    <?php //todo //print_r($info);
-                    //echo "[".$os_type."]";
-                    if ($os_type != "android") { ?>
-                        <a href="javascript:naverMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" id="findNaverMap" class="vendor-link1">
-                            <!-- <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/map_naver.png" alt=""></span> -->
-                            <!-- <span>네이버</span> -->
-                        </a>
-                    <?php } ?>
-                    <?php if (true) { ?>
-                        <a href="javascript:kakaoMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" class="vendor-link2">
-                            <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/map_kakao.png" alt=""></span>
-                            <span>카카오</span>
-                        </a>
-                    <?php } ?>
-                    <?php if (true) {  ?>
-                        <a href="javascript:tMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" class="vendor-link3">
-                            <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/mpa_tmap.png" alt=""></span>
-                            <span>티맵</span>
-                        </a>
-                    <?php } ?>
+                    <a href="javascript:naverMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" id="findNaverMap" class="vendor-link1">
+                        <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/map_naver.png" alt=""></span>
+                        <span>네이버</span>
+                    </a>
+                    <a href="javascript:kakaoMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" class="vendor-link2">
+                        <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/map_kakao.png" alt=""></span>
+                        <span>카카오</span>
+                    </a>
+                    <a href="javascript:tMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" class="vendor-link3">
+                        <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/mpa_tmap.png" alt=""></span>
+                        <span>티맵</span>
+                    </a>
                 </div>
 
             </div>
@@ -849,35 +841,39 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         //location.href="kakaomap://route?sp=",127.005515&ep=37.4979502,127.0276368&by=" + name;
     }
 
-    //네이버맵 길안내
+    // 네이버맵 길안내
     function naverMap(name, lat, lng) {
+        // 팝업 닫기
+        var findLocationPanel = document.getElementById('findLocation');
+        if (findLocationPanel && typeof closePanel === 'function') {
+            closePanel(findLocationPanel);
+        }
 
-        //네이버앱이 있으면 바로 실행
-        // var url = 'nmap://route/walk?'+
-        //          'dlat=' + lat +
-        //         '&dlng=' + lng +
-        //         '&dname=' + encodeURIComponent(name);
-        //net::ERR_UNKOWN_URL_SCHEME
+        // 현재 페이지 URL 저장 (iOS 네이티브 뒤로가기 버튼에서 사용)
+        sessionStorage.setItem('beforeMapAppUrl', window.location.href);
 
-        // var url = 'nmap://route/walk?slat=' + startLat +
-        //         '&slng=' + startLng +
-        //         '&dlat=' + endLat +
-        //         '&dlng=' + endLng +
-        //         '&dname=' + encodeURIComponent(endName);
+        var os_type = "<?= $os_type ?>";
+        var userAgent = navigator.userAgent.toLowerCase();
 
-        // 네이버맵 앱 실행 시도
-        //window.location.href = url;
+        // os_type이 없거나 빈 값이면 User Agent로 판단
+        if (!os_type || os_type === "") {
+            if (/iphone|ipad|ipod/i.test(userAgent)) {
+                os_type = "ios";
+            } else if (/android/i.test(userAgent)) {
+                os_type = "android";
+            }
+        }
 
-        // 앱이 설치되어 있지 않은 경우를 대비해 타임아웃 설정
-        // setTimeout(function() {
-        //   // 웹 브라우저에서 네이버 길찾기 페이지 열기
-        //   //window.location.href = 'https://map.naver.com/v5/directions/' + startLat + ',' + startLng + ',' + endLat + ',' + endLng + ',' + encodeURIComponent(endName);
-        //
-        //   location.href = ("https://app.map.naver.com/launchApp/?version=11&menu=navigation&elat="+lat+"&elng="+lng+"&etitle="+name);
-        //
-        // }, 2000);
-
-        location.href = ("https://app.map.naver.com/launchApp/?version=11&menu=navigation&elat=" + lat + "&elng=" + lng + "&etitle=" + name);
+        if (os_type == "android") {
+            // Android: nmap 스킴 사용
+            location.href = "nmap://route?dlat=" + lat + "&dlng=" + lng + "&dname=" + encodeURIComponent(name);
+        } else if (os_type == "ios") {
+            // iOS: nmap 스킴 사용
+            location.href = "nmap://route?dlat=" + lat + "&dlng=" + lng + "&dname=" + encodeURIComponent(name);
+        } else {
+            // 웹 브라우저에서는 웹 URL 호출
+            location.href = "https://app.map.naver.com/launchApp/?version=11&menu=navigation&elat=" + lat + "&elng=" + lng + "&etitle=" + encodeURIComponent(name);
+        }
     }
 </script>
 

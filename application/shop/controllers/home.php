@@ -120,7 +120,7 @@ class Home extends CI_Controller
 		$addr_info = $this->user->getAddrInfo();
 
 		# 뜨는 업체
-		$up_list = $this->common_model->getHomeUpCompList($addr_info, 8);
+		$up_list = $this->common_model->getHomeUpCompList($addr_info, 10);
 
 		# 팝업리스트
 		$popup_list = $this->common_model->getEventPopupList($this->user->getUserType());
@@ -141,7 +141,7 @@ class Home extends CI_Controller
 		# 팝업리스트
 		$popup_list = $this->common_model->getEventPopupList($this->user->getUserType());
 		$data["popup_list"] = $popup_list;
-		$data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 8);  // 최대 8개 (2슬라이드 × 4개)
+		$data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 10);  // 최대 8개 (2슬라이드 × 4개)
 		$data["mm_type"] = $this->mm_type;
 
 		$this->layout->shop('/home/index_mem_new', $data);
@@ -168,7 +168,7 @@ class Home extends CI_Controller
 		$addr_info = $this->user->getAddrInfo();
 
 		# 뜨는 업체
-		$up_list = $this->common_model->getHomeUpCompList($addr_info, 8);
+		$up_list = $this->common_model->getHomeUpCompList($addr_info, 10);
 
 		# 팝업리스트
 		$popup_list = $this->common_model->getEventPopupList($this->user->getUserType());
@@ -189,7 +189,7 @@ class Home extends CI_Controller
 		# 팝업리스트
 		$popup_list = $this->common_model->getEventPopupList($this->user->getUserType());
 		$data["popup_list"] = $popup_list;
-		$data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 8);  // 최대 8개 (2슬라이드 × 4개)
+		$data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 10);  // 최대 8개 (2슬라이드 × 4개)
 		$data["mm_type"] = $this->mm_type;
 
 		# 채용공고 목록과 검색 필터에 필요한 변수

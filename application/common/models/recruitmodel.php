@@ -251,7 +251,9 @@ class recruitModel extends MY_Model
 					aa.rc_work_type like '%" . $this->inject($params["text"]) . "%' or
 					aa.rc_price_type like '%" . $this->inject($params["text"]) . "%' or
 					aa.rc_hash like '%" . $this->inject($params["text"]) . "%' or
-					aa.mm_comp_name like '%" . $this->inject($params["text"]) . "%'
+					aa.mm_comp_name like '%" . $this->inject($params["text"]) . "%' or
+					aa.s_addr like '%" . $this->inject($params["text"]) . "%' or
+					aa.ad_addr like '%" . $this->inject($params["text"]) . "%'
 				)";
 		}
 

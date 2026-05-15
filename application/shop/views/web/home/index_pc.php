@@ -89,10 +89,10 @@ $banner_list = getBannerList("BN00010005");
     border-radius: 25px;
     background: #ffffff;
     margin-bottom: 40px;
-    height: 300px;
+    height: 363px;
     justify-content: space-between;
     gap: 8px;
-    padding: 12px;
+    padding: 25px 8px 25px;
 
   }
 
@@ -231,7 +231,7 @@ $banner_list = getBannerList("BN00010005");
 
   .bottom-recomm .comp-info .comp-img {
     width: 100%;
-    height: auto;
+    height: 220px;
     border-radius: 0px;
     overflow: visible;
     margin-bottom: 0px;
@@ -277,7 +277,7 @@ $banner_list = getBannerList("BN00010005");
     height: 90px;
     font-size: 1.2rem;
     font-weight: 600;
-    color: #666;
+
     text-align: left;
     padding: 0 8px;
     box-sizing: border-box;
@@ -579,10 +579,10 @@ $banner_list = getBannerList("BN00010005");
           <?php
           $count = 0;
           foreach ($up_list as $row) :
-            if ($count >= 8) break;
+            if ($count >= 10) break;
           ?>
             <div class="comp-info" data-comm_idx="<?= $row["mm_idx"] ?>">
-              <p class="comp-name"><?= $row["mm_comp_name"] ?></p>
+              <!-- <p class="comp-name"><?= $row["mm_comp_name"] ?></p> -->
               <div class="comp-img">
                 <img src="<?= getCompImg($row) ?>">
               </div>
@@ -822,16 +822,17 @@ $banner_list = getBannerList("BN00010005");
       "limit": "10"
     };
     comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
+
       if (ret.code == "00") {
         var list = ret.data.list;
         $("#my-keen-slider2").html("");
 
-        // 8개씩 묶어서 슬라이드 생성 (4개씩 2줄)
-        for (var i = 0; i < list.length; i += 8) {
+        // 10개씩 묶어서 슬라이드 생성 (5개씩 2줄)
+        for (var i = 0; i < list.length; i += 10) {
           var slideHtml = '<div class="keen-slider__slide"><div class="person-card-grid">';
 
-          // 슬라이드당 최대 8개 카드 생성
-          for (var j = 0; j < 8 && i + j < list.length; j++) {
+          // 슬라이드당 최대 10개 카드 생성
+          for (var j = 0; j < 10 && i + j < list.length; j++) {
             var row = list[i + j];
             slideHtml +=
               '<div class="person-card" data-ru_idx="' + row.ru_idx + '" data-mm_idx="' + (row.mm_idx || "") + '">' +
@@ -839,13 +840,13 @@ $banner_list = getBannerList("BN00010005");
               '<div class="badge-wrap">' + row.ru_work_img + '</div>' +
               '<p class="name">' + row.ru_name + '</p>' +
               '<div class="meta">' +
-              '<p class="work_type">' + getWorkType(row.ru_work_type) + '</p>' +
+              '<p class="work_type">' + getWorkTypeFirst(row.ru_work_type) + '</p>' +
               '<span class="meta-divider">|</span>' +
               '<p class="nation">' + row.mm_nation + '</p>' +
               '<span class="meta-divider">|</span>' +
               '<p class="age">' + row.mm_age + '대</p>' +
               '<span class="meta-divider">|</span>' +
-              '<p class="price_type">' + getPriceTypeJS(row.ru_price_type) + '</p>' +
+              '<p class="price_type">' + getPriceTypeJSFirst(row.ru_price_type) + '</p>' +
               '</div>' +
               '<p class="addr">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
               '</div>';

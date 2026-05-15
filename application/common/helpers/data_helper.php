@@ -1251,6 +1251,6 @@ function getRandomCompDesc($comp_name)
 	// 랜덤 인덱스 선택 (0 ~ count-1)
 	$randomIndex = mt_rand(0, count($descriptions) - 1);
 
-	// 회사명 + 랜덤 설명 조합
-	return $comp_name . $descriptions[$randomIndex];
+	// 회사명에만 색상 적용 + 랜덤 설명 조합
+	return '<span style="color: #222;">' . $comp_name . '</span>' . '<span style="color: #666;">' . $descriptions[$randomIndex] . '</span>';
 }

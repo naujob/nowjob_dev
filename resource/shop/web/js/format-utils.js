@@ -68,6 +68,30 @@ function getPriceTypeJS(price_type) {
 }
 
 /**
+ * 이력서 급여 타입 추출 (첫 번째 값만)
+ * @param {string} price_type - 급여 타입 (예: "일급,주급,월급")
+ * @returns {string} 첫 번째 급여 타입을 em 태그로 감싼 HTML
+ */
+function getPriceTypeJSFirst(price_type) {
+  if (!price_type) {
+    return "";
+  }
+
+  if (price_type === "일급,주급,월급") {
+    return "<em>급여협의</em>";
+  }
+
+  const types = price_type.split(',').map(item => item.trim()).filter(item => item);
+
+  if (types.length === 0) {
+    return "";
+  }
+
+  // 첫 번째 값만 em 태그로 반환
+  return `<em>${types[0]}</em>`;
+}
+
+/**
  * 근무 형태 추출 및 스타일 적용 (모든 값 처리)
  * @param {string} work_type - 근무 형태 문자열 (예: "주간,야간,2교대" 또는 HTML <span>주간</span><span>야간</span>)
  * @returns {string} 스타일이 적용된 근무 형태 (<em class="wtype1">주간</em><em class="wtype2">야간</em>)
@@ -111,6 +135,46 @@ function getWorkType(work_type) {
     }
     return result;
   }).join('');
+}
+
+/**
+ * 근무 형태 추출 및 스타일 적용 (첫 번째 값만)
+ * @param {string} work_type - 근무 형태 문자열 (예: "주간,야간,2교대" 또는 HTML <span>주간</span><span>야간</span>)
+ * @returns {string} 스타일이 적용된 근무 형태 (첫 번째 값만, <em class="wtype1">주간</em>)
+ */
+function getWorkTypeFirst(work_type) {
+  if (!work_type) {
+    return "";
+  }
+
+  let items = [];
+
+  // HTML span 형식 처리
+  if (work_type.includes('<span>')) {
+    const matches = work_type.match(/<span>(.*?)<\/span>/g);
+    if (matches && matches.length > 0) {
+      items = matches.map(m => m.replace(/<\/?span>/g, '').trim());
+    }
+  } else {
+    // 쉼표로 구분된 일반 문자열 처리
+    items = work_type.split(',').map(item => item.trim()).filter(item => item);
+  }
+
+  if (items.length === 0) {
+    return "";
+  }
+
+  // 첫 번째 값만 처리하여 HTML 생성
+  const text = items[0];
+  let cls = '';
+  if (text === '주간') {
+    cls = 'wtype1';
+  } else if (text === '야간') {
+    cls = 'wtype2';
+  } else if (text === '2교대') {
+    cls = 'wtype3';
+  }
+  return `<em class="${cls}">${text}</em>`;
 }
 
 /**
