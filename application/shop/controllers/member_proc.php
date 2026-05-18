@@ -753,29 +753,55 @@ class Member_proc extends CI_Controller
             $gender = "";
         }
 
-        // 3) 위챗 가입 회원인지 조회 (정상 회원만)
+        // 3) 위챗 가입 회원인지 조회 (정상 회원만) - unionid 우선, openid 폴백
+        // 우선순위: unionid 먼저 시도 → 없으면 openid로 시도 (기존 회원 호환성)
+        $mm_join_key_for_query = ($unionid != "") ? $unionid : $openid;
+
         $mem_info = $this->member_model->getMember([
             "mm_join_type" => "WECHAT",
-            "mm_join_key"  => $openid,
+            "mm_join_key"  => $mm_join_key_for_query,
             "mm_status"    => "Y"
         ]);
 
+        // unionid로 못 찾고 openid가 다르다면, openid로 재시도 (기존 openid 회원 호환)
+        if ($mem_info == null && $unionid != "" && $unionid != $openid) {
+            $mem_info = $this->member_model->getMember([
+                "mm_join_type" => "WECHAT",
+                "mm_join_key"  => $openid,
+                "mm_status"    => "Y"
+            ]);
+        }
+
         if ($mem_info == null) {
             // 4) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
+            $mm_join_key_for_inactive = ($unionid != "") ? $unionid : $openid;
+
             $query  = "select * from st_member ";
             $query .= "where mm_join_type = 'WECHAT' ";
-            $query .= "and   mm_join_key = '" . $openid . "'  ";
+            $query .= "and   mm_join_key = '" . $mm_join_key_for_inactive . "'  ";
             $query .= "and   mm_status = 'N'  ";
             $query .= "order by mm_idx desc limit 1 ";
 
             $result   = $this->db->query($query);
             $mem_info = $result->row_array();
 
+            // 탈퇴/비활성도 못 찾으면 openid로 재시도
+            if ($mem_info == null && $unionid != "" && $unionid != $openid) {
+                $query  = "select * from st_member ";
+                $query .= "where mm_join_type = 'WECHAT' ";
+                $query .= "and   mm_join_key = '" . $openid . "'  ";
+                $query .= "and   mm_status = 'N'  ";
+                $query .= "order by mm_idx desc limit 1 ";
+
+                $result   = $this->db->query($query);
+                $mem_info = $result->row_array();
+            }
+
             if ($mem_info == null) {
                 // 5) 회원이 없으면 SNS 정보 임시 저장 (회원가입으로 이어질 수 있도록)
                 $sns_info = [
                     "join_type" => "WECHAT",
-                    "join_key"  => $openid,
+                    "join_key"  => $unionid,
                     "gender"    => $gender,
                     "unionid"   => $unionid,
                 ];
@@ -797,7 +823,7 @@ class Member_proc extends CI_Controller
                 );
                 // 신규 회원 응답: 전화번호 인증 후 회원가입 진행
                 json_return("90", "회원정보를 찾을수 없습니다.", [
-                    "join_key"  => $openid,
+                    "join_key"  => $unionid,
                     "join_type" => "WECHAT",
                 ]);
                 exit;
@@ -816,6 +842,17 @@ class Member_proc extends CI_Controller
                 }
                 exit;
             }
+        }
+
+        // 6-1) openid로 조회된 기존 회원이면, unionid로 자동 마이그레이션
+        // (PC에서 openid로 저장된 회원이 앱에서 접속할 때 자동 통합)
+        if ($unionid != "" && $mem_info["mm_join_key"] != $unionid) {
+            $this->member_model->updatemember(
+                ["mm_join_key" => $unionid],
+                ["mm_idx" => $mem_info["mm_idx"]]
+            );
+            // 조회 결과 객체도 업데이트
+            $mem_info["mm_join_key"] = $unionid;
         }
 
         // 7) 로그인 성공: 세션에 사용자 정보 저장

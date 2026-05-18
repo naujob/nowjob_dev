@@ -19,7 +19,8 @@ class Member extends CI_Controller
 	 * @param string $url
 	 * @return string
 	 */
-	private function ensure_https($url) {
+	private function ensure_https($url)
+	{
 		if (strpos($url, 'http://') === 0) {
 			return 'https://' . substr($url, 7);
 		}
@@ -30,7 +31,8 @@ class Member extends CI_Controller
 	 * OAuth redirect_uri 프로토콜 검증 (디버깅용)
 	 * GET /member/oauth_debug
 	 */
-	public function oauth_debug() {
+	public function oauth_debug()
+	{
 		header('Content-Type: application/json');
 		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 		$user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
@@ -185,7 +187,7 @@ class Member extends CI_Controller
 
 				// 기존 SNS 데이터 확인 (앱에서 저장한 생년월일 정보 유지)
 				$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
-				
+
 				// SNS 정보를 세션에 저장
 				$sns_info = [
 					"join_type" => "KAKAO",
@@ -197,7 +199,7 @@ class Member extends CI_Controller
 					"birthyear" => isset($kakao_account["birthyear"]) ? $kakao_account["birthyear"] : (!empty($existing_sns["birthyear"]) ? $existing_sns["birthyear"] : ""),
 					"birthday" => isset($kakao_account["birthday"]) ? $kakao_account["birthday"] : (!empty($existing_sns["birthday"]) ? $existing_sns["birthday"] : ""),
 				];
-				
+
 				// 성별도 기존 데이터가 있으면 우선 사용 (앱에서 변환된 값 유지)
 				if (!empty($existing_sns["gender"]) && ($existing_sns["gender"] == "남" || $existing_sns["gender"] == "여")) {
 					$sns_info["gender"] = $existing_sns["gender"];
@@ -221,7 +223,7 @@ class Member extends CI_Controller
 						"sl_status" => "Y"
 					]
 				);
-				
+
 				// PASS 인증 페이지로 이동 (회원가입 안내와 함께)
 				$data["code"] = $return["code"];
 				$data["msg"] = $return["msg"];
@@ -246,12 +248,7 @@ class Member extends CI_Controller
 		$code  = isset($_GET["code"])  ? $_GET["code"]  : "";
 		$state = isset($_GET["state"]) ? $_GET["state"] : "";
 
-		// 위챗 OAuth 콜백 진입 로깅
-		$this->logger->info('위챗 OAuth 콜백 진입', array(
-			'has_code'   => !empty($code),
-			'has_state'  => !empty($state),
-			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
-		));
+
 
 		if (empty($code)) {
 			$this->common->scriptReplace("/member/login", "위챗 로그인에 실패하였습니다.(1)");
@@ -261,12 +258,6 @@ class Member extends CI_Controller
 		// 위챗 OAuth state 검증
 		$saved_wechat_state = $this->common->getSession("wechat-oauth-state");
 		if (empty($saved_wechat_state) || $saved_wechat_state !== $state) {
-			$this->logger->warn('위챗 OAuth state 검증 실패', array(
-				'saved_state_empty' => empty($saved_wechat_state),
-				'state_match'       => ($saved_wechat_state === $state),
-				'session_id'        => session_id(),
-				'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
-			));
 			$this->common->scriptReplace("/member/login", "위챗 로그인 상태값 검증에 실패했습니다.");
 			exit;
 		}
@@ -281,10 +272,9 @@ class Member extends CI_Controller
 		$app_base_url = $this->ensure_https($app_base_url);
 		$callback_url = $app_base_url . "/member/wechat_login_callback";
 
-	
 
 		if (empty($app_id) || empty($app_secret)) {
-		
+
 			$this->common->scriptReplace("/member/login", "위챗 로그인 설정이 없습니다.");
 			exit;
 		}
@@ -315,16 +305,9 @@ class Member extends CI_Controller
 
 		$token_data = json_decode($token_response, true);
 
-	
+
 
 		if (!is_array($token_data) || isset($token_data["errcode"])) {
-			// 토큰 요청 실패 로깅
-			$this->logger->error('위챗 토큰 요청 실패', array(
-				'curl_error'    => $curl_error,
-				'token_data'    => is_array($token_data) ? $token_data : $token_response,
-				'callback_url'  => $callback_url,
-			));
-
 			$this->common->scriptReplace("/member/login", "위챗 인증에 실패하였습니다.(3)");
 			exit;
 		}
@@ -357,8 +340,8 @@ class Member extends CI_Controller
 		// sex 변환: 1=남, 2=여, 0=미지정
 		$gender = ($sex_code == 1) ? "남" : (($sex_code == 2) ? "여" : "");
 
-		// 로그인 처리
-		$return = $this->login_process("WECHAT", $openid);
+		// 로그인 처리 (WeChat unionid 폴백 지원)
+		$return = $this->wechat_login_process($openid, $unionid);
 
 		if ($return["code"] == "00") {
 			$this->common->scriptReplace("/");
@@ -372,9 +355,11 @@ class Member extends CI_Controller
 		}
 
 		// 신규 회원 (code == "90"): 회원가입 유도
+		// 통합 WeChat 계정 지원: unionid를 기본 키로 사용 (모든 플랫폼에서 동일)
+		$join_key_to_use = !empty($unionid) ? $unionid : $openid;
 		$sns_info = array(
 			"join_type" => "WECHAT",
-			"join_key"  => $openid,
+			"join_key"  => $join_key_to_use,
 			"username"  => !empty($nickname) ? $nickname : "wechat_" . $openid,
 			"email"     => "",
 			"gender"    => $gender,
@@ -384,6 +369,9 @@ class Member extends CI_Controller
 		);
 		if (!empty($unionid)) {
 			$sns_info["unionid"] = $unionid;
+		}
+		if (!empty($openid) && $openid != $join_key_to_use) {
+			$sns_info["openid"] = $openid;
 		}
 
 		// DB 로그 저장
@@ -431,14 +419,6 @@ class Member extends CI_Controller
 		$state = isset($_REQUEST["state"]) ? $_REQUEST["state"] : "";
 		$error = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
 		$error_description = isset($_REQUEST["error_description"]) ? $_REQUEST["error_description"] : "";
-
-		// 네이버 OAuth 콜백 진입 로깅
-		$this->logger->info('네이버 OAuth 콜백 진입', array(
-			'has_code'   => !empty($code),
-			'has_state'  => !empty($state),
-			'has_error'  => !empty($error),
-			'error'      => $error,
-		));
 
 		if ($error) {
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(1)";
@@ -505,12 +485,6 @@ class Member extends CI_Controller
 
 		// 토큰 요청 오류 처리
 		if (empty($token_response["access_token"])) {
-			// 토큰 요청 실패 로깅
-			$this->logger->error('네이버 토큰 요청 실패', array(
-				'response'     => $token_response,
-				'redirect_uri' => $callback_url,
-			));
-
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(2)";
 			if (isset($token_response["error"])) {
 				$error_msg .= " - 오류: " . $token_response["error"];
@@ -532,7 +506,7 @@ class Member extends CI_Controller
 
 		$user_info_result = $this->call_naver_api($user_info_headers, $user_info_url);
 		$user_info_response = json_decode($user_info_result[0], true);
-		
+
 		if (!empty($user_info_response["response"]["id"])) {
 			$naver_id = $user_info_response["response"]["id"];
 			$return = $this->login_process("NAVER", $naver_id);
@@ -543,7 +517,7 @@ class Member extends CI_Controller
 			} else {
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
 				$naver_response = $user_info_response["response"];
-				
+
 				$phonenum = isset($naver_response["mobile"]) ? $naver_response["mobile"] : "";
 
 				// 회원이 없을 때 전화번호 중복 체크
@@ -558,7 +532,7 @@ class Member extends CI_Controller
 
 				// 기존 SNS 데이터 확인 (앱에서 저장한 생년월일 정보 유지)
 				$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
-				
+
 				// SNS 정보를 세션에 저장
 				$sns_info = [
 					"join_type" => "NAVER",
@@ -570,7 +544,7 @@ class Member extends CI_Controller
 					"birthyear" => isset($naver_response["birthyear"]) ? $naver_response["birthyear"] : (!empty($existing_sns["birthyear"]) ? $existing_sns["birthyear"] : ""),
 					"birthday" => isset($naver_response["birthday"]) ? $naver_response["birthday"] : (!empty($existing_sns["birthday"]) ? $existing_sns["birthday"] : ""),
 				];
-				
+
 				// 성별도 기존 데이터가 있으면 우선 사용 (앱에서 변환된 값 유지)
 				if (!empty($existing_sns["gender"]) && ($existing_sns["gender"] == "남" || $existing_sns["gender"] == "여")) {
 					$sns_info["gender"] = $existing_sns["gender"];
@@ -594,7 +568,7 @@ class Member extends CI_Controller
 						"sl_status" => "Y"
 					]
 				);
-				
+
 				// PASS 인증 페이지로 이동 (회원가입 안내와 함께)
 				$data["code"] = $return["code"];
 				$data["msg"] = $return["msg"];
@@ -613,7 +587,7 @@ class Member extends CI_Controller
 			if (isset($user_info_response["errorMessage"])) {
 				$error_msg .= " - " . $user_info_response["errorMessage"];
 			}
-			
+
 			$this->common->scriptReplace("/member/login", $error_msg);
 			exit();
 		}
@@ -659,16 +633,6 @@ class Member extends CI_Controller
 		$error = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
 		$error_description = isset($_REQUEST["error_description"]) ? $_REQUEST["error_description"] : "";
 
-		// 구글 OAuth 콜백 진입 로깅
-		$saved_state_temp = $this->common->getSession("google-oauth-state");
-		$this->logger->info('구글 OAuth 콜백 진입', array(
-			'has_code'         => !empty($code),
-			'has_state'        => !empty($state),
-			'has_error'        => !empty($error),
-			'error'            => $error,
-			'saved_state_set'  => !empty($saved_state_temp),
-		));
-
 		if ($error) {
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(1)";
 			if (!empty($error_description)) {
@@ -685,15 +649,6 @@ class Member extends CI_Controller
 
 		$saved_state = $this->common->getSession("google-oauth-state");
 		if (empty($saved_state) || $saved_state !== $state) {
-			// state 검증 실패 로깅 (세션 소실 여부 진단 핵심)
-			$this->logger->warn('구글 OAuth state 검증 실패 (세션 소실 의심)', array(
-				'saved_state_empty' => empty($saved_state),
-				'state_match'       => ($saved_state === $state),
-				'session_id'        => session_id(),
-				'cookie_header'     => isset($_SERVER['HTTP_COOKIE']) ? substr($_SERVER['HTTP_COOKIE'], 0, 200) : 'none',
-				'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
-			));
-
 			$this->common->scriptReplace("/member/login", "구글 로그인 상태값 검증에 실패했습니다.");
 			exit();
 		}
@@ -728,12 +683,6 @@ class Member extends CI_Controller
 		$token_response = json_decode($token_result[0], true);
 
 		if (empty($token_response["id_token"])) {
-			// 토큰 요청 실패 로깅
-			$this->logger->error('구글 토큰 요청 실패', array(
-				'token_response' => isset($token_response['error']) ? $token_response['error'] : 'unknown',
-				'redirect_uri'   => $redirect_uri,
-			));
-
 			$error_msg = "문제가 발생해서 정상적으로 로그인이 되지 않았습니다.(2)";
 			if (isset($token_response["error"])) {
 				$error_msg .= " - 오류: " . $token_response["error"];
@@ -1004,6 +953,111 @@ class Member extends CI_Controller
 		}
 	}
 
+	// WeChat 로그인 처리: unionid/openid 폴백 지원
+	// 모든 플랫폼(웹/앱)에서 동일한 WeChat 계정으로 로그인할 수 있도록 함
+	function wechat_login_process($openid, $unionid = "")
+	{
+		// 우선순위: unionid 먼저 시도 → 없으면 openid로 시도
+		$mm_join_key_for_query = (!empty($unionid)) ? $unionid : $openid;
+
+		$mem_info = $this->member_model->getMember(["mm_join_type" => "WECHAT", "mm_join_key" => $mm_join_key_for_query, "mm_status" => "Y"]);
+
+		// unionid로 못 찾고 openid가 다르다면, openid로 재시도 (기존 openid 레코드 호환성)
+		if ($mem_info == null && !empty($unionid) && $unionid != $openid) {
+			$mem_info = $this->member_model->getMember(["mm_join_type" => "WECHAT", "mm_join_key" => $openid, "mm_status" => "Y"]);
+		}
+
+		if ($mem_info != null && $mem_info["mm_status"] == "Y") {
+			// 기존 회원 로그인 성공
+			$addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+			$this->user->setUser([
+				"mm_idx" => $mem_info["mm_idx"],
+				"mm_id" => $mem_info["mm_id"],
+				"mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+				"mm_type" => $mem_info["mm_type"],
+				"ad_addr" => $addr_info["ad_addr"],
+				"ad_gps_x" => $addr_info["ad_gps_x"],
+				"ad_gps_y" => $addr_info["ad_gps_y"],
+				"mm_sex" => $mem_info["mm_sex"],
+			]);
+
+			// 접속 처리
+			$this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+			// openid로 조회된 기존 회원이면 unionid로 자동 마이그레이션
+			if (!empty($unionid) && $mem_info["mm_join_key"] != $unionid) {
+				$this->member_model->updatemember(
+					["mm_join_key" => $unionid],
+					["mm_idx" => $mem_info["mm_idx"]]
+				);
+			}
+
+			// 헤더 정보 업데이트 (UUID 디바이스 연결)
+			$headers = apache_request_headers();
+			if (isset($headers["uuid"])) {
+				$mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"]]);
+				if ($mem_device != null) {
+					$this->member_model->setMemberDevice(["mm_idx" => $mem_info["mm_idx"]], ["uuid" => $headers["uuid"]]);
+				}
+			}
+
+			// 로그인 성공 시 디바이스 push_yn 활성화
+			$sql = "UPDATE st_member_device
+					SET push_yn = 'Y', up_dt = NOW()
+					WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
+			$this->db->query($sql, [$mem_info["mm_idx"]]);
+
+			// 몽고 회원정보 DB업데이트
+			$mem_device = $this->member_model->getMemberDevice(["mm_idx" => $mem_info["mm_idx"]]);
+			$this->mongo_model->insertUserInfo($mem_info, $mem_device != null ? $mem_device["token"] : "");
+
+			return ["code" => "00", "msg" => "로그인 성공"];
+		}
+
+		// 탈퇴/비활성 회원 확인
+		$mm_join_key_for_inactive = (!empty($unionid)) ? $unionid : $openid;
+
+		$query  = "select * from st_member ";
+		$query .= "where mm_join_type = 'WECHAT' ";
+		$query .= "and   mm_join_key = '" . $mm_join_key_for_inactive . "'  ";
+		$query .= "and   mm_status = 'N'  ";
+		$query .= "order by mm_idx desc limit 1 ";
+
+		$result = $this->db->query($query);
+		$mem_info = $result->row_array();
+
+		// 탈퇴/비활성도 못 찾으면 openid로 재시도
+		if ($mem_info == null && !empty($unionid) && $unionid != $openid) {
+			$query  = "select * from st_member ";
+			$query .= "where mm_join_type = 'WECHAT' ";
+			$query .= "and   mm_join_key = '" . $openid . "'  ";
+			$query .= "and   mm_status = 'N'  ";
+			$query .= "order by mm_idx desc limit 1 ";
+
+			$result = $this->db->query($query);
+			$mem_info = $result->row_array();
+		}
+
+		if ($mem_info == null) {
+			return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
+		}
+
+		// 탈퇴 회원 처리
+		if ($mem_info["mm_status"] == "N") {
+			$fireDate = new DateTime($mem_info["fire_dt"]);
+			$currentDate = new DateTime();
+			$interval = $fireDate->diff($currentDate)->days;
+
+			if ($interval < 15) {
+				return ["code" => "91", "msg" => "탈퇴한 회원입니다."];
+			} else {
+				return ["code" => "90", "msg" => "회원정보를 찾을 수 없습니다."];
+			}
+		}
+
+		return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
+	}
+
 	# 전화번호로 로그인 페이지 2025.08.28 추가
 	function nowjob_login()
 	{
@@ -1033,17 +1087,17 @@ class Member extends CI_Controller
 	{
 		// 세션에서 사용자 정보 조회
 		$user_info = $this->common->getSession("USER_INFO");
-		
+
 		if ($user_info && isset($user_info["mm_idx"]) && $user_info["mm_idx"] > 0) {
 			$mm_idx = $user_info["mm_idx"];
 			$mm_id = isset($user_info["mm_id"]) ? $user_info["mm_id"] : "";
-			
+
 			// 해당 사용자의 모든 디바이스의 push_yn을 'N'으로 업데이트 (푸시 알림 비활성화)
 			$this->member_model->updateMemberDevice(
 				["push_yn" => "N"],
 				["mm_idx" => $mm_idx]
 			);
-			
+
 			// MongoDB의 사용자 상태도 'N'으로 업데이트 (채팅 서버와의 일관성 유지)
 			if (!empty($mm_id)) {
 				try {
@@ -1056,19 +1110,19 @@ class Member extends CI_Controller
 					}
 				} catch (Exception $e) {
 					// MongoDB 업데이트 실패 시에도 계속 진행
-					
+
 				}
 			}
 		}
-		
+
 		// USER_INFO만 삭제 (다른 세션 데이터는 유지)
 		$this->common->removeSession("USER_INFO");
-		
+
 		// iOS 감지
 		$headers = apache_request_headers();
 		$user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		$is_ios = preg_match('/nowjobswift|CFNetwork|Darwin/i', $user_agent) || preg_match('/\b(iPhone|iPad|iPod)\b/i', $user_agent);
-		
+
 		// iOS인 경우 세션 쿠키를 명시적으로 삭제하고 세션 ID 재생성
 		if ($is_ios) {
 			// 도메인 설정 (index.php와 동일한 로직)
@@ -1077,7 +1131,7 @@ class Member extends CI_Controller
 			$domain_name = str_replace("home.", "", $domain_name);
 			$domain_name = str_replace("app.", "", $domain_name);
 			$domain_name = str_replace("admin.", "", $domain_name);
-			
+
 			// 세션 쿠키 삭제 (도메인과 경로를 정확히 맞춰야 함)
 			$session_name = session_name();
 			if (isset($_COOKIE[$session_name])) {
@@ -1088,7 +1142,7 @@ class Member extends CI_Controller
 				// 경로만 지정한 쿠키 삭제
 				setcookie($session_name, '', time() - 3600, '/', '', true, true);
 			}
-			
+
 			// 세션 ID 재생성 (이전 세션 파일 삭제, 현재 세션 데이터는 새 세션으로 이동)
 			if (session_status() === PHP_SESSION_ACTIVE) {
 				session_regenerate_id(true);
@@ -1099,7 +1153,7 @@ class Member extends CI_Controller
 				session_regenerate_id(true);
 			}
 		}
-		
+
 		go_location("/member/login");
 	}
 
@@ -1178,7 +1232,7 @@ class Member extends CI_Controller
 			"birthyear" => !empty($birthyear) ? $birthyear : (!empty($existing_sns["birthyear"]) ? $existing_sns["birthyear"] : ""),
 			"birthday" => !empty($birthday) ? $birthday : (!empty($existing_sns["birthday"]) ? $existing_sns["birthday"] : ""),
 		];
-		
+
 		// 성별도 기존 데이터가 있으면 우선 사용 (앱에서 변환된 값 유지)
 		if (!empty($existing_sns["gender"]) && ($existing_sns["gender"] == "남" || $existing_sns["gender"] == "여")) {
 			$info["gender"] = $existing_sns["gender"];
@@ -1202,7 +1256,7 @@ class Member extends CI_Controller
 				"sl_status" => "Y"
 			]
 		);
-		
+
 		go_location("/member/join_start?join_type=sns");
 	}
 
