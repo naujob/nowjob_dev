@@ -84,6 +84,17 @@ class Member extends CI_Controller
 		$msg_code = input_get("msg_code", "");
 		$data["msg_code"] = $msg_code;
 
+		// WeChat: SNS 콜백에서 session에 저장된 unionid를 가져옴 (크로스 플랫폼 지원)
+		$join_type = input_get("join_type", "");
+		$join_sns = input_get("join_sns", "");
+		$data["sPhoneUnionId"] = "";
+		if ($join_type == "WECHAT" && $join_sns == "1") {
+			$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
+			if (!empty($existing_sns["unionid"])) {
+				$data["sPhoneUnionId"] = $existing_sns["unionid"];
+			}
+		}
+
 		$this->layout->shop('/member/login', $data);
 	}
 
@@ -258,22 +269,6 @@ class Member extends CI_Controller
 		// 위챗 OAuth state 검증
 		$saved_wechat_state = $this->common->getSession("wechat-oauth-state");
 
-		// 디버깅: state 검증 로깅
-		$state_debug = [
-			"timestamp" => date("Y-m-d H:i:s"),
-			"saved_state" => $saved_wechat_state,
-			"callback_state" => $state,
-			"state_empty" => empty($saved_wechat_state),
-			"state_match" => ($saved_wechat_state === $state),
-			"session_id" => session_id(),
-			"user_agent" => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : ""
-		];
-		$log_dir = dirname(dirname(dirname(__DIR__))) . "/logs";
-		@mkdir($log_dir, 0777, true);
-		@file_put_contents($log_dir . "/wechat_state_debug_" . date('Y-m-d') . ".log",
-			"[" . date("H:i:s") . "] State Validation:\n" . json_encode($state_debug, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n\n",
-			FILE_APPEND | LOCK_EX);
-
 		if (empty($saved_wechat_state) || $saved_wechat_state !== $state) {
 			$this->common->scriptReplace("/member/login", "위챗 로그인 상태값 검증에 실패했습니다.");
 			exit;
@@ -354,22 +349,6 @@ class Member extends CI_Controller
 		$unionid   = ($user_info && isset($user_info["unionid"])) ? $user_info["unionid"]        : "";
 		$nickname  = ($user_info && isset($user_info["nickname"])) ? $user_info["nickname"]       : "";
 
-		// 디버깅: PC 웹에서 받은 WeChat 정보 로깅
-		$wechat_debug = [
-			"method" => "wechat_login_callback (PC Web)",
-			"timestamp" => date("Y-m-d H:i:s"),
-			"app_id" => $app_id,
-			"openid" => $openid,
-			"unionid" => $unionid,
-			"user_info_exists" => !empty($user_info),
-			"full_user_info" => $user_info
-		];
-		$log_dir = dirname(dirname(dirname(__DIR__))) . "/logs";
-		@mkdir($log_dir, 0777, true);
-		@file_put_contents($log_dir . "/wechat_debug_" . date('Y-m-d') . ".log",
-			"[" . date("H:i:s") . "] PC Web WeChat Login:\n" . json_encode($wechat_debug, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n\n",
-			FILE_APPEND | LOCK_EX);
-
 		// sex 변환: 1=남, 2=여, 0=미지정
 		$gender = ($sex_code == 1) ? "남" : (($sex_code == 2) ? "여" : "");
 
@@ -431,7 +410,8 @@ class Member extends CI_Controller
 				. "&join_key=" . urlencode($openid)
 				. "&join_type=WECHAT"
 				. (!empty($nickname) ? "&username=" . urlencode($nickname) : "")
-				. (!empty($gender) ? "&gender=" . urlencode($gender) : "");
+				. (!empty($gender) ? "&gender=" . urlencode($gender) : "")
+				. (!empty($unionid) ? "&unionid=" . urlencode($unionid) : "");
 			go_location($login_url);
 			exit;
 		}
@@ -627,6 +607,7 @@ class Member extends CI_Controller
 	} //naver_login_callback
 
 	// WeChat 로그인 시작 (PC 웹용 - state 저장 필수)
+	// WeChat은 모바일 앱과 PC 웹에서 동일한 OAuth URL을 사용하지만, PC 웹에서는 state 값을 세션에 저장하고 콜백에서 검증하는 방식이 필요
 	function wechat_login()
 	{
 		// WeChat 설정 조회
@@ -1288,6 +1269,11 @@ class Member extends CI_Controller
 			}
 		}
 
+		// WeChat: site_log에서 unionid 가져오기 (PC 웹 OAuth에서 저장됨)
+		if ($join_type == "WECHAT" && !empty($existing_sns["unionid"])) {
+			$join_key = $existing_sns["unionid"];
+		}
+
 		$info = [
 			"join_key" => $join_key,
 			"join_type" => $join_type,
@@ -1299,6 +1285,11 @@ class Member extends CI_Controller
 			"birthyear" => !empty($birthyear) ? $birthyear : (!empty($existing_sns["birthyear"]) ? $existing_sns["birthyear"] : ""),
 			"birthday" => !empty($birthday) ? $birthday : (!empty($existing_sns["birthday"]) ? $existing_sns["birthday"] : ""),
 		];
+
+		// unionid 있으면 저장 (WeChat 크로스 플랫폼 지원)
+		if (!empty($existing_sns["unionid"])) {
+			$info["unionid"] = $existing_sns["unionid"];
+		}
 
 		// 성별도 기존 데이터가 있으면 우선 사용 (앱에서 변환된 값 유지)
 		if (!empty($existing_sns["gender"]) && ($existing_sns["gender"] == "남" || $existing_sns["gender"] == "여")) {

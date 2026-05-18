@@ -33,11 +33,10 @@
                     $google_client_id = isset($google_setting["WEB_CLIENT_ID"]) ? $google_setting["WEB_CLIENT_ID"] : "";
                     $google_login = !empty($google_client_id) ? ($app_base_url . "/member/google_login") : "";
 
-                    // 위챗 로그인 설정
+                    // 위챗 로그인 설정 (서버 주도 OAuth 시작)
                     $wechat_setting = getSettingInfo(["st_group" => "위챗"]);
                     $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
-                    // 위챗 로그인 Callback URL
-                    $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
+                    $wechat_login = !empty($wechat_app_id) ? ($app_base_url . "/member/wechat_login") : "";
                     ?>
                     <form action="/">
 
@@ -80,7 +79,11 @@
                             <div class="social-login-buttons">
                                 <!-- 1행: 카카오 + 위챗 -->
                                 <a href="<?= $kakao_login ?>" id="btnKakao"><img src="/resource/shop/web/img/ic-kakao-login.png" alt="카카오 로그인"></a>
-                                <a href="javascript:void(0);" id="btnWechat"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                <?php if (!empty($wechat_login)) : ?>
+                                    <a href="<?= $wechat_login ?>" id="btnWechat"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                <?php else : ?>
+                                    <a href="javascript:void(0);" id="btnWechat"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                <?php endif; ?>
                                 <!-- 2행: 네이버 + 구글 -->
                                 <?php if (!empty($naver_login)) : ?>
                                     <a href="<?= $naver_login ?>" id="btnNaver"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
@@ -98,16 +101,6 @@
 
     </main><!-- //page-content -->
 </div><!-- //page -->
-
-<!-- 위챗 QR 로그인 팝업 -->
-<div id="wechat-qr-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:9999; align-items:center; justify-content:center;">
-    <div id="wechat-qr-sheet" style="background:#fff; border-radius:12px; padding:30px; width:400px; max-width:90%; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
-        <h3 style="margin-bottom:16px; font-size:18px;">WeChat 로그인</h3>
-        <p style="margin-bottom:20px; color:#666; font-size:14px;">위챗 앱으로 QR 코드를 스캔하여 로그인해주세요.</p>
-        <div id="wechat-qr-container" style="text-align:center; margin-bottom:20px;"></div>
-        <button type="button" id="wechat-qr-close" style="width:100%; padding:10px; background:#f5f5f5; color:#666; border:none; border-radius:4px; cursor:pointer;">닫기</button>
-    </div>
-</div>
 
 <!-- SNS 회원가입 전화번호 인증 팝업 (구글, 위챗, 애플 등 공용) -->
 <div id="sns-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:2000; align-items:center; justify-content:center;">
@@ -141,42 +134,9 @@
     var snsEmail = urlParams.get('email');
     var snsGender = urlParams.get('gender');
 
-    // 위챗 AppID 전역 선언
-    var wechat_app_id = '<?= $wechat_app_id ?>';
+    // WeChat: PHP 서버에서 session으로부터 unionid를 JavaScript로 전달받음 (크로스 플랫폼 지원)
+    var sPhoneUnionId = '<?= isset($sPhoneUnionId) ? $sPhoneUnionId : "" ?>';
 
-    // 위챗 QR 팝업 오픈
-    function openWechatQrPopup() {
-        // 팝업 표시
-        $('#wechat-qr-container').empty();
-        $('#wechat-qr-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
-        setTimeout(function() {
-            $('#wechat-qr-popup').css('background', 'rgba(0,0,0,0.5)');
-        }, 10);
-
-        // WeChat WxLogin SDK로 QR 코드 생성
-        if (typeof WxLogin !== 'undefined') {
-            var obj = new WxLogin({
-                self_redirect: false,   // 현재 창에서 redirect_uri로 이동
-                id: "wechat-qr-container",
-                appid: wechat_app_id,
-                scope: "snsapi_login",
-                redirect_uri: '<?= $wechat_redirect ?>',
-                state: '<?= $csrf ?>',
-                style: "black",
-                href: ""
-            });
-        } else {
-            alert("WeChat SDK를 로드할 수 없습니다.");
-        }
-    }
-
-    // 위챗 QR 팝업 닫기
-    function closeWechatQrPopup() {
-        $('#wechat-qr-popup').css('background', 'rgba(0,0,0,0)');
-        setTimeout(function() {
-            $('#wechat-qr-popup').hide();
-        }, 200);
-    }
 
     // 구글 클라이언트 ID 전역 선언 (onGoogleLibraryLoad 시점에 접근 가능해야 함)
     var google_client_id = '<?= isset($google_client_id) ? $google_client_id : "" ?>';
@@ -220,18 +180,13 @@
                 alert("네이버 로그인이 설정되지 않았습니다.");
             <?php endif; ?>
         });
-        // 위챗 로그인 - QR 모달 팝업
+        // 위챗 로그인 - 서버사이드 OAuth로 직접 이동 (href로 직접 이동하므로 클릭 이벤트는 필요 없지만, 설정되지 않은 경우만 처리)
         $("#btnWechat").click(function(e) {
-            e.preventDefault();
-            if (!wechat_app_id) {
+            <?php if (empty($wechat_login)) : ?>
+                // 위챗 AppID가 설정되지 않은 경우
+                e.preventDefault();
                 alert("위챗 로그인이 설정되지 않았습니다.");
-                return;
-            }
-            openWechatQrPopup();
-        });
-        // 위챗 QR 팝업 닫기
-        $('#wechat-qr-close').click(function() {
-            closeWechatQrPopup();
+            <?php endif; ?>
         });
         // 구글 로그인 - GIS SDK 팝업
         $("#btnGoogle").click(function(e) {
@@ -622,8 +577,10 @@
     $('#sns-phone-btn-proceed').click(function() {
         if (!sPhoneIsAuth) { return; }
         var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
+        // WeChat: unionid가 있으면 우선 사용 (크로스 플랫폼 지원)
+        var joinKey = (sPhoneJoinType === 'WECHAT' && sPhoneUnionId) ? sPhoneUnionId : sPhoneJoinKey;
         var joinUrl = '/member/join_sns_start'
-            + '?join_key=' + encodeURIComponent(sPhoneJoinKey)
+            + '?join_key=' + encodeURIComponent(joinKey)
             + '&join_type=' + sPhoneJoinType
             + (sPhoneEmail ? '&email=' + encodeURIComponent(sPhoneEmail) : '')
             + (sPhoneName  ? '&username=' + encodeURIComponent(sPhoneName) : '')

@@ -68,10 +68,6 @@
             $kakao_redirect = $app_base_url . "/member/kakao_login_callback";
             $naver_redirect = $app_base_url . "/member/naver_login_callback";
             $google_redirect = $app_base_url . "/member/google_login_callback";
-            $wechat_redirect = $app_base_url . "/member/wechat_login_callback";
-
-            // 위챗 state 세션에 저장 (csrf 토큰 사용)
-            $this->common->setSession("wechat-oauth-state", $csrf);
 
             $apple_login = "https://appleid.apple.com/auth/authorize?client_id=com.nowapk.app.nowjob2.login&redirect_uri=" . $apple_redirect . "&response_type=code id_token&state=app_ecm_apple_sign_in&scope=name email&response_mode=form_post";
 
@@ -99,9 +95,10 @@
             $google_client_id = isset($google_setting["WEB_CLIENT_ID"]) ? $google_setting["WEB_CLIENT_ID"] : "";
             $google_login = !empty($google_client_id) ? ($app_base_url . "/member/google_login") : "";
 
-            // 위챗 설정
+            // 위챗 설정 (서버 주도 OAuth 시작)
             $wechat_setting = getSettingInfo(["st_group" => "위챗"]);
             $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
+            $wechat_login = !empty($wechat_app_id) ? ($app_base_url . "/member/wechat_login") : "";
             ?>
             <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
             <?php //echo "[".$os_type."]";
@@ -112,7 +109,11 @@
               <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
             <?php endif; ?>
 
-            <a href="javascript:void(0);" id="btnWeChat" class="vendor-type6"></a>
+            <?php if (!empty($wechat_login)) : ?>
+              <a href="<?= $wechat_login ?>" id="btnWeChat" class="vendor-type6"></a>
+            <?php else : ?>
+              <a href="javascript:void(0);" id="btnWeChat" class="vendor-type6"></a>
+            <?php endif; ?>
 
             <?php if ($iosapp) { ?>
               <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
@@ -274,37 +275,32 @@ window.onload = function() {
       return false;
     });
 
-    // 위챗 로그인
-    $("#btnWeChat").click(function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    // 위챗 로그인 (네이티브 앱만)
+    <?php if ($os_type == "android" || $os_type == "ios") : ?>
+      $("#btnWeChat").click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-      <?php if ($os_type == "android") { ?>
-        // Android 앱
-        if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.wechatLoginAnd === 'function') {
-          APP_NOWAPK.wechatLoginAnd();
-        } else {
-          alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
-        }
-      <?php } else if ($os_type == "ios") { ?>
-        // iOS 네이티브 앱
-        if (typeof window.webkit !== 'undefined' &&
-          typeof window.webkit.messageHandlers !== 'undefined' &&
-          typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
-          window.webkit.messageHandlers.wechatLoginIos.postMessage('');
-        } else {
-          alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
-        }
-      <?php } else { ?>
-        // 웹브라우저: 위챗 QR 팝업 오픈
-        <?php if (!empty($wechat_app_id)) { ?>
-          openWechatQrPopup();
-        <?php } else { ?>
-          alert("위챗 로그인이 설정되지 않았습니다.");
+        <?php if ($os_type == "android") { ?>
+          // Android 앱
+          if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.wechatLoginAnd === 'function') {
+            APP_NOWAPK.wechatLoginAnd();
+          } else {
+            alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+          }
+        <?php } else if ($os_type == "ios") { ?>
+          // iOS 네이티브 앱
+          if (typeof window.webkit !== 'undefined' &&
+            typeof window.webkit.messageHandlers !== 'undefined' &&
+            typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
+            window.webkit.messageHandlers.wechatLoginIos.postMessage('');
+          } else {
+            alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+          }
         <?php } ?>
-      <?php } ?>
-      return false;
-    });
+        return false;
+      });
+    <?php endif; ?>
 
     //카카오 로그인
     $("#btnKakao").click(function() {
@@ -1460,82 +1456,5 @@ window.onload = function() {
     </div>
   </div>
 </div>
-
-<!-- 위챗 QR 로그인 팝업 -->
-<div id="wechat-qr-popup" class="bs-overlay" style="display:none;">
-  <div id="wechat-qr-sheet" class="bs-sheet">
-    <h3 style="margin-bottom:16px; font-size:18px;">WeChat 로그인</h3>
-    <p style="margin-bottom:20px; color:#666; font-size:14px;">위챗 앱으로 QR 코드를 스캔하여 로그인해주세요.</p>
-    <div id="wechat-qr-container" style="text-align:center; margin-bottom:20px;"></div>
-    <button type="button" id="wechat-qr-close" class="btn btn-secondary" style="width:100%;">닫기</button>
-  </div>
-</div>
-
-<script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
 <script>
-  // 위챗 관련 전역 변수
-  var wechat_app_id = '<?= $wechat_app_id ?>';
-  var wechat_redirect = '<?= $wechat_redirect ?>';
-  var csrf_token = '<?= $csrf ?>';
-
-  // 위챗 state 세션에 저장 (PHP 코드로 서버에 저장)
-  // 자바스크립트에서는 직접 저장 불가하므로 form submit으로 전달
-
-  // 위챗 QR 팝업 오픈
-  function openWechatQrPopup() {
-    if (!wechat_app_id) {
-      commonAlert("위챗 로그인이 설정되지 않았습니다.");
-      return;
-    }
-
-    // 팝업 표시
-    $('#wechat-qr-container').empty();
-    $('#wechat-qr-popup').css({
-      display: "block",
-      background: "rgba(0,0,0,0)"
-    });
-    setTimeout(function() {
-      $('#wechat-qr-popup').css("background", "rgba(0,0,0,0.5)");
-      $('#wechat-qr-sheet').css("transform", "translateY(0)");
-    }, 10);
-
-    // WeChat WxLogin SDK로 QR 코드 생성
-    if (typeof WxLogin !== 'undefined') {
-      var obj = new WxLogin({
-        self_redirect: false,
-        id: "wechat-qr-container",
-        appid: wechat_app_id,
-        scope: "snsapi_login",
-        redirect_uri: wechat_redirect,
-        state: csrf_token,
-        style: "black",
-        href: ""
-      });
-    } else {
-      commonAlert("WeChat SDK를 로드할 수 없습니다.");
-    }
-  }
-
-  // 위챗 QR 팝업 닫기
-  function closeWechatQrPopup() {
-    $('#wechat-qr-popup').css("background", "rgba(0,0,0,0)");
-    $('#wechat-qr-sheet').css("transform", "translateY(100%)");
-    setTimeout(function() {
-      $('#wechat-qr-popup').css("display", "none");
-    }, 200);
-  }
-
-  $(document).ready(function() {
-    // 위챗 QR 팝업 닫기 버튼
-    $('#wechat-qr-close').click(function() {
-      closeWechatQrPopup();
-    });
-
-    // 위챗 QR 오버레이 클릭 시 닫기
-    $('#wechat-qr-popup').click(function(e) {
-      if ($(e.target).is('#wechat-qr-popup')) {
-        closeWechatQrPopup();
-      }
-    });
-  });
 </script>
