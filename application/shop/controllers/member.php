@@ -626,6 +626,40 @@ class Member extends CI_Controller
 		}
 	} //naver_login_callback
 
+	// WeChat 로그인 시작 (PC 웹용 - state 저장 필수)
+	function wechat_login()
+	{
+		// WeChat 설정 조회
+		$wechat_setting = $this->setting_model->getSettingInfo(["st_group" => "위챗"]);
+		$app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : (isset($wechat_setting["APP_ID"]) ? $wechat_setting["APP_ID"] : "");
+
+		if (empty($app_id)) {
+			$this->common->scriptReplace("/member/login", "위챗 로그인 설정이 없습니다.");
+			exit();
+		}
+
+		// iOS Safari HTTPS 강제 처리
+		$app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+		$app_base_url = $this->ensure_https($app_base_url);
+		$redirect_uri = $app_base_url . "/member/wechat_login_callback";
+
+		// state 생성 및 세션에 저장 (CSRF 방지)
+		$state = make_token() . "_" . time() . "_" . mt_rand(1000, 9999);
+		$this->common->setSession("wechat-oauth-state", $state);
+
+		// WeChat OAuth 페이지로 리다이렉트
+		$scope = "snsapi_login";
+		$auth_url = "https://open.weixin.qq.com/connect/qrconnect"
+			. "?appid=" . urlencode($app_id)
+			. "&redirect_uri=" . urlencode($redirect_uri)
+			. "&response_type=code"
+			. "&scope=" . urlencode($scope)
+			. "&state=" . urlencode($state)
+			. "#wechat_redirect";
+
+		go_location($auth_url);
+	}
+
 	// 구글 로그인 시작 (서버 주도 OAuth)
 	function google_login()
 	{
