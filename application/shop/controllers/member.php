@@ -337,6 +337,22 @@ class Member extends CI_Controller
 		$unionid   = ($user_info && isset($user_info["unionid"])) ? $user_info["unionid"]        : "";
 		$nickname  = ($user_info && isset($user_info["nickname"])) ? $user_info["nickname"]       : "";
 
+		// 디버깅: PC 웹에서 받은 WeChat 정보 로깅
+		$wechat_debug = [
+			"method" => "wechat_login_callback (PC Web)",
+			"timestamp" => date("Y-m-d H:i:s"),
+			"app_id" => $app_id,
+			"openid" => $openid,
+			"unionid" => $unionid,
+			"user_info_exists" => !empty($user_info),
+			"full_user_info" => $user_info
+		];
+		$log_dir = dirname(dirname(dirname(__DIR__))) . "/logs";
+		@mkdir($log_dir, 0777, true);
+		@file_put_contents($log_dir . "/wechat_debug_" . date('Y-m-d') . ".log",
+			"[" . date("H:i:s") . "] PC Web WeChat Login:\n" . json_encode($wechat_debug, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n\n",
+			FILE_APPEND | LOCK_EX);
+
 		// sex 변환: 1=남, 2=여, 0=미지정
 		$gender = ($sex_code == 1) ? "남" : (($sex_code == 2) ? "여" : "");
 

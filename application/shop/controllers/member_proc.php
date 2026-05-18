@@ -744,6 +744,23 @@ class Member_proc extends CI_Controller
         $user_info = $this->get_wechat_user_info($access_token, $openid);
         $sex_code  = ($user_info && isset($user_info["sex"])) ? intval($user_info["sex"]) : 0;
         $unionid   = ($user_info && isset($user_info["unionid"])) ? $user_info["unionid"] : "";
+
+        // 디버깅: 모바일 앱에서 받은 WeChat 정보 로깅
+        $wechat_debug = [
+            "method" => "wechat_login (Mobile App)",
+            "timestamp" => date("Y-m-d H:i:s"),
+            "access_token_first_20" => substr($access_token, 0, 20) . "...",
+            "openid" => $openid,
+            "unionid" => $unionid,
+            "user_info_exists" => !empty($user_info),
+            "full_user_info" => $user_info
+        ];
+        $log_dir = dirname(dirname(dirname(__DIR__))) . "/logs";
+        @mkdir($log_dir, 0777, true);
+        @file_put_contents($log_dir . "/wechat_debug_" . date('Y-m-d') . ".log",
+            "[" . date("H:i:s") . "] Mobile App WeChat Login:\n" . json_encode($wechat_debug, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n\n",
+            FILE_APPEND | LOCK_EX);
+
         // 위챗 sex: 1=남, 2=여, 0=미지정 → 내부 표준: MALE/FEMALE/""
         if ($sex_code == 1) {
             $gender = "MALE";
