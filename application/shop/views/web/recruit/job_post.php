@@ -166,6 +166,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     }
   </script>
 <?php endif; ?>
+<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <style>
   .adBanner {
     position: relative;
@@ -1356,13 +1357,6 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   </main><!-- //page-content -->
 </div><!-- //page -->
 <style>
-  .recruit-card .type em {
-    display: inline-block;
-    font-style: normal;
-    font-weight: 500;
-    color: #1B9D7D;
-  }
-
   .summary-card .meta::after {
     display: none !important;
   }
@@ -1375,38 +1369,11 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     display: none;
   }
 </style>
-<!-- 추천 리스트 템플릿 -->
-<template id="tpl_reco_list">
-  <div class="keen-slider__slide">
-    <div class="recruit-card">
-      <div class="thumb-wrap">
-        <!-- p class="recomm-badge">추천</p -->
-        <div class="thumb">
-          <a href="/recruit/job_post/{{rc_idx}}" target="_blank"><img src="{{rt_recruit_img}}" alt="" class=""></a>
-        </div>
-        <!-- <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button> -->
-      </div>
-      <div class="content-wrap">
-        <div class="inline-group">
-          {{rt_work_img}}
-          <p class="area">{{ad_addr}}</p>
-        </div>
-        <p class="title"><strong><a href="/recruit/job_post/{{rc_idx}}" target="_blank">{{rc_name}}</a></strong></p>
-        <div class="meta">{{rt_work_type}}</p>
-          <p>{{rc_nation_nm}}</p>
-          <p>{{rc_age_nm}}</p>
-        </div>
-        <div class="price-wrap" style="position:relative;">
-          <p class="type">{{rc_price_type}}</p>
-          <p class="amount">{{rc_price_pay}}</p>
-        </div>
-        <div class="hashtag">
-          {{rt_hash}}
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+<?php
+$tpl_show_bookmark = false;
+$tpl_show_hashtag  = true;
+include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_template.php');
+?>
 
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />

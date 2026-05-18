@@ -1,0 +1,90 @@
+/* 카드 하단: meta+근무형태(좌) / 급여(우) 수평 정렬 */
+.recruit-card .card-bottom-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+/* 좌측: meta + 근무형태 세로 배치 */
+.recruit-card .card-meta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* 근무형태 */
+.recruit-card .card-meta-group .worktype {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1em;
+  text-align: left;
+}
+
+/* 근무형태 em 태그 */
+.recruit-card .card-meta-group .worktype em {
+  display: inline;
+  position: relative;
+  padding-right: 0;
+}
+
+/* 근무형태 em 구분선 */
+.recruit-card .card-meta-group .worktype em:not(:last-child)::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 10px;
+  background: #E9E9E9;
+  margin-left: 4px;
+  position: static;
+}
+
+/* price-wrap: 우측 정렬 */
+.recruit-card .price-wrap {
+  text-align: right;
+  margin-top: 0;
+  position: relative;
+}
+
+/* 급여유형 em 구분선 */
+.recruit-card .price-wrap .wrtpye em:not(:last-child)::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 7px;
+  right: 29px;
+  width: 1px;
+  height: 11px;
+  margin: -4px 0 0;
+  background: #E9E9E9;
+}
+
+/* 근무유형 em 컬러 */
+.recruit-card .type em {
+  display: inline-block;
+  font-style: normal;
+  font-weight: 500;
+  color: #1B9D7D;
+  position: relative;
+}
+
+.recruit-card .type em.wtype1 { color: #3a70db; }
+.recruit-card .type em.wtype2 { color: #F86048; }
+.recruit-card .type em.wtype3 { color: #1B9D7D; }
+
+.recruit-card .type em:not(:last-child) {
+  padding-right: 5px;
+}
+
+.recruit-card .type em:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 2px;
+  bottom: 0;
+  width: 1px;
+  height: 0.5em;
+  margin: auto;
+  border-right: 1px solid #777;
+}

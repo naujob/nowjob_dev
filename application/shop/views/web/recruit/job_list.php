@@ -6,44 +6,8 @@ if (count($banner_list) > 0) {
 }
 ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
+<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <style>
-  /* job_list.php 고유 스타일 - 추천 슬라이더 */
-  .recruit-card .type em {
-    display: inline-block;
-    font-style: normal;
-    font-weight: 500;
-    color: #1B9D7D;
-    position: relative;
-  }
-
-  .recruit-card .type em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .recruit-card .type em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 2px;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777;
-  }
-
-  .recruit-card .type em.wtype1 {
-    color: #3a70db;
-  }
-
-  .recruit-card .type em.wtype2 {
-    color: #F86048;
-  }
-
-  .recruit-card .type em.wtype3 {
-    color: #1B9D7D;
-  }
-
   .recomm-slider.recruit {
     background-color: #fff;
   }
@@ -156,38 +120,11 @@ if (count($banner_list) > 0) {
 
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_template.php'); ?>
 
-<!-- 추천 리스트 템플릿 -->
-<template id="tpl_reco_list">
-  <div class="keen-slider__slide">
-    <div class="recruit-card">
-      <div class="thumb-wrap">
-        <div class="thumb">
-          <a href="/recruit/job_post/{{rc_idx}}" target="_blank"><img src="{{rt_recruit_img}}" alt="" class=""></a>
-        </div>
-        <?php if ($mm_type === "MEM") { ?><button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
-      </div>
-      <div class="content-wrap">
-        <div class="inline-group">
-          {{rt_work_img}}
-          <p class="area">{{ad_addr}}</p>
-        </div>
-        <p class="title"><strong><a href="/recruit/job_post/{{rc_idx}}" target="_blank">{{rc_name}}</a></strong></p>
-        <div class="meta">
-          <div class="type">{{rt_work_type}}</div>
-          <p>{{rc_nation_nm}}</p>
-          <p>{{rc_age_nm}}</p>
-        </div>
-        <div class="price-wrap" style="position:relative;">
-          <p class="type">{{rc_price_type}}</p>
-          <p class="amount">{{rc_price_pay}}</p>
-        </div>
-        <div class="hashtag">
-          {{rt_hash}}
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+<?php
+$tpl_show_bookmark = true;
+$tpl_show_hashtag  = false;
+include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_template.php');
+?>
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 <script>
   var list_id = "#ajaxList";
@@ -460,7 +397,6 @@ if (count($banner_list) > 0) {
       }
     });
   }
-
 </script>
 
 <script>
