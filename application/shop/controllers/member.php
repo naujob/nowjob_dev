@@ -257,6 +257,23 @@ class Member extends CI_Controller
 
 		// 위챗 OAuth state 검증
 		$saved_wechat_state = $this->common->getSession("wechat-oauth-state");
+
+		// 디버깅: state 검증 로깅
+		$state_debug = [
+			"timestamp" => date("Y-m-d H:i:s"),
+			"saved_state" => $saved_wechat_state,
+			"callback_state" => $state,
+			"state_empty" => empty($saved_wechat_state),
+			"state_match" => ($saved_wechat_state === $state),
+			"session_id" => session_id(),
+			"user_agent" => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : ""
+		];
+		$log_dir = dirname(dirname(dirname(__DIR__))) . "/logs";
+		@mkdir($log_dir, 0777, true);
+		@file_put_contents($log_dir . "/wechat_state_debug_" . date('Y-m-d') . ".log",
+			"[" . date("H:i:s") . "] State Validation:\n" . json_encode($state_debug, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n\n",
+			FILE_APPEND | LOCK_EX);
+
 		if (empty($saved_wechat_state) || $saved_wechat_state !== $state) {
 			$this->common->scriptReplace("/member/login", "위챗 로그인 상태값 검증에 실패했습니다.");
 			exit;
