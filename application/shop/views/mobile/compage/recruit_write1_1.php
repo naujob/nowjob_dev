@@ -99,8 +99,9 @@
                         <div id="time_cont1" style="display:none;" class="work-time-section">
                             <p class="work-time-section-label">근무시간 <span class="work-time-tag day">주간</span></p>
                             <div class="work-time-group">
+                                <!-- 출근 -->
+                                <span class="work-time-label">출근</span>
                                 <div class="work-time-input-wrap">
-                                    <span class="work-time-label">출근</span>
                                     <select name="rc_am_stime_h" class="time-select">
                                         <?php for ($t = 0; $t <= 23; $t++) { ?>
                                             <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_am_stime"]) && substr($info["rc_am_stime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 9 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
@@ -109,8 +110,9 @@
                                     <span>:</span>
                                     <input type="text" name="rc_am_stime_m" value="<?= isset($info["rc_am_stime"]) ? substr($info["rc_am_stime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
                                 </div>
+                                <!-- 퇴근 -->
+                                <span class="work-time-label">퇴근</span>
                                 <div class="work-time-input-wrap">
-                                    <span class="work-time-label">퇴근</span>
                                     <select name="rc_am_etime_h" class="time-select">
                                         <?php for ($t = 0; $t <= 23; $t++) { ?>
                                             <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_am_etime"]) && substr($info["rc_am_etime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 18 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
@@ -128,8 +130,8 @@
                         <div id="time_cont2" style="display:none;" class="work-time-section">
                             <p class="work-time-section-label">근무시간 <span class="work-time-tag night">야간</span></p>
                             <div class="work-time-group">
+                                <span class="work-time-label">출근</span>
                                 <div class="work-time-input-wrap">
-                                    <span class="work-time-label">출근</span>
                                     <select name="rc_pm_stime_h" class="time-select">
                                         <?php for ($t = 0; $t <= 23; $t++) { ?>
                                             <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_pm_stime"]) && substr($info["rc_pm_stime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 21 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
@@ -138,8 +140,8 @@
                                     <span>:</span>
                                     <input type="text" name="rc_pm_stime_m" value="<?= isset($info["rc_pm_stime"]) ? substr($info["rc_pm_stime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
                                 </div>
+                                <span class="work-time-label">퇴근</span>
                                 <div class="work-time-input-wrap">
-                                    <span class="work-time-label">퇴근</span>
                                     <select name="rc_pm_etime_h" class="time-select">
                                         <?php for ($t = 0; $t <= 23; $t++) { ?>
                                             <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_pm_etime"]) && substr($info["rc_pm_etime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 6 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
