@@ -167,7 +167,6 @@
                                     <span class="working-time"><?= $info["rc_work_type"] ?></span>
                                 </td>
                             </tr>
-                            <?php /* 근무시간 표시 주석처리
                             <tr>
                                 <td class="label">근무시간</td>
                                 <td class="value">
@@ -205,7 +204,6 @@
                                     <?php endif; ?>
                                 </td>
                             </tr>
-                            */ ?>
                             <tr>
                                 <td class="label">희망국적</td>
                                 <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></td>
