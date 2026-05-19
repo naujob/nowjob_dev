@@ -611,6 +611,25 @@
         });
     }
 
+    // hidden 필드 동기화 함수 (시간 필드를 HH:MM 포맷으로 합성)
+    function syncTimeHiddenFields() {
+        var am_h = $("[name='rc_am_stime_h']").val() || "09";
+        var am_m = String($("[name='rc_am_stime_m']").val() || "00").padStart(2, "0");
+        $("[name='rc_am_stime']").val(am_h + ":" + am_m);
+
+        var am_e_h = $("[name='rc_am_etime_h']").val() || "18";
+        var am_e_m = String($("[name='rc_am_etime_m']").val() || "00").padStart(2, "0");
+        $("[name='rc_am_etime']").val(am_e_h + ":" + am_e_m);
+
+        var pm_s_h = $("[name='rc_pm_stime_h']").val() || "21";
+        var pm_s_m = String($("[name='rc_pm_stime_m']").val() || "00").padStart(2, "0");
+        $("[name='rc_pm_stime']").val(pm_s_h + ":" + pm_s_m);
+
+        var pm_e_h = $("[name='rc_pm_etime_h']").val() || "06";
+        var pm_e_m = String($("[name='rc_pm_etime_m']").val() || "00").padStart(2, "0");
+        $("[name='rc_pm_etime']").val(pm_e_h + ":" + pm_e_m);
+    }
+
     function savePage1Data() {
         syncTimeHiddenFields();
         var rcIdx = $("[name='rc_idx']").val() || "0";
@@ -1504,25 +1523,6 @@
         // 근무시간 입력 변경 시 저장
         $("[name='rc_am_stime_h'], [name='rc_am_stime_m'], [name='rc_am_etime_h'], [name='rc_am_etime_m']").on("change", savePage1Data);
         $("[name='rc_pm_stime_h'], [name='rc_pm_stime_m'], [name='rc_pm_etime_h'], [name='rc_pm_etime_m']").on("change", savePage1Data);
-
-        // hidden 필드 동기화 함수
-        function syncTimeHiddenFields() {
-            var am_h = $("[name='rc_am_stime_h']").val() || "09";
-            var am_m = String($("[name='rc_am_stime_m']").val() || "00").padStart(2, "0");
-            $("[name='rc_am_stime']").val(am_h + ":" + am_m);
-
-            var am_e_h = $("[name='rc_am_etime_h']").val() || "18";
-            var am_e_m = String($("[name='rc_am_etime_m']").val() || "00").padStart(2, "0");
-            $("[name='rc_am_etime']").val(am_e_h + ":" + am_e_m);
-
-            var pm_s_h = $("[name='rc_pm_stime_h']").val() || "21";
-            var pm_s_m = String($("[name='rc_pm_stime_m']").val() || "00").padStart(2, "0");
-            $("[name='rc_pm_stime']").val(pm_s_h + ":" + pm_s_m);
-
-            var pm_e_h = $("[name='rc_pm_etime_h']").val() || "06";
-            var pm_e_m = String($("[name='rc_pm_etime_m']").val() || "00").padStart(2, "0");
-            $("[name='rc_pm_etime']").val(pm_e_h + ":" + pm_e_m);
-        }
 
         $("[name='rc_work_negotiation']").on("change", function() {
             var isNegotiationChecked = $(this).is(":checked");
