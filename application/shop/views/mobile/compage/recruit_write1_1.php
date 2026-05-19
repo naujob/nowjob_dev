@@ -199,9 +199,9 @@
 
                     <!-- 복리후생 섹션 -->
                     <div class="form-row addition-info-form">
-                    <p class="form-label"><span class="required-asterisk">*</span>복리후생</p>
+                        <p class="form-label"><span class="required-asterisk">*</span>복리후생</p>
 
-                    <?php
+                        <?php
                         // 복리후생 데이터 준비
                         $benefit_sections = [
                             [
@@ -251,7 +251,7 @@
                                 'benefit_section' => array_merge($section, ['checked' => isset($info['rc_life_type']) ? $info['rc_life_type'] : []])
                             ]);
                         }
-                    ?>
+                        ?>
                     </div>
 
                     <!-- 상세업무정보 섹션 -->
@@ -418,7 +418,8 @@
                         <div class="age-range-group">
                             <select name="rc_sage">
                                 <option value="">선택</option>
-                                <?php $ages = [20, 30, 40, 50, 60, 70]; foreach ($ages as $age) : ?>
+                                <?php $ages = [20, 30, 40, 50, 60, 70];
+                                foreach ($ages as $age) : ?>
                                     <option value="<?= $age ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
                                 <?php endforeach; ?>
                             </select>
@@ -535,7 +536,7 @@
         height: 36px;
         border: 1px solid #ccc;
         border-radius: 8px;
-        padding: 0 8px;
+
         background: #fff;
     }
 
@@ -1435,6 +1436,10 @@
             loadPage3Data();
         }, 1000);
 
+        // 페이지 로드 시 근무시간 섹션 및 근무협의 초기화
+        updateTimeSection();
+        updateNegotiationCheckbox();
+
         updateSalaryOptions();
 
         $("[name='rc_name']").on("input", savePage1Data);
@@ -1447,7 +1452,7 @@
 
         $("[name='rc_work[]']").on("change", savePage1Data);
 
-        // 근무시간 섹션 표시/숨김 로직
+        // 근무시간 섹션 표시/숨김 로직 및 근무협의 연동
         function updateTimeSection() {
             var isAM = $("[name='rc_work_type[]'][value='주간']").is(":checked");
             var isPM = $("[name='rc_work_type[]'][value='야간']").is(":checked");
@@ -1474,6 +1479,21 @@
                 $("[name='rc_pm_etime_h']").val("06");
                 $("[name='rc_pm_etime_m']").val("00");
             }
+
+            // 근무협의 자동 체크: 주간, 야간, 2교대 모두 선택되면 근무협의도 자동 체크
+            updateNegotiationCheckbox();
+        }
+
+        // 근무협의 체크박스 자동 업데이트 함수
+        function updateNegotiationCheckbox() {
+            var isAM = $("[name='rc_work_type[]'][value='주간']").is(":checked");
+            var isPM = $("[name='rc_work_type[]'][value='야간']").is(":checked");
+            var is2 = $("[name='rc_work_type[]'][value='2교대']").is(":checked");
+
+            // 주간, 야간, 2교대가 모두 선택되면 근무협의 자동 체크
+            // (3개 모두 선택되거나, 2교대 하나만 선택되면 모든 근무형태를 포함)
+            var allSelected = (isAM && isPM && is2) || is2;
+            $("[name='rc_work_negotiation']").prop("checked", allSelected);
         }
 
         $("[name='rc_work_type[]']").on("change", function() {
@@ -1505,6 +1525,19 @@
         }
 
         $("[name='rc_work_negotiation']").on("change", function() {
+            var isNegotiationChecked = $(this).is(":checked");
+
+            if (isNegotiationChecked) {
+                // 근무협의 체크 → 주간, 야간, 2교대 모두 체크
+                $("[name='rc_work_type[]'][value='주간']").prop("checked", true);
+                $("[name='rc_work_type[]'][value='야간']").prop("checked", true);
+                $("[name='rc_work_type[]'][value='2교대']").prop("checked", true);
+            } else {
+                // 근무협의 언체크 → 근무형태 모두 언체크
+                $("[name='rc_work_type[]']").prop("checked", false);
+            }
+
+            updateTimeSection();
             savePage1Data();
         });
 
