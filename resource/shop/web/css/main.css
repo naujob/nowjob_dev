@@ -6610,9 +6610,9 @@ body {
     left: 12px;
 }
 
-.recruit-card .thumb-wrap .thumb {
+/* .recruit-card .thumb-wrap .thumb {
     padding-top: 69.696969697%;
-}
+} */
 
 .recruit-card .content-wrap {
     position: relative;
@@ -6913,7 +6913,7 @@ body {
 }
 
 .recruit-recomm .recruit-card .amount {
-    font-size: 1.6em;
+    font-size: 1.3em;
     color: #FFF700;
 }
 

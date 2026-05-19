@@ -450,12 +450,6 @@ class Member extends CI_Controller
 		// 네이버 OAuth state 검증
 		$saved_naver_state = $this->common->getSession("naver-oauth-state");
 		if (empty($saved_naver_state) || $saved_naver_state !== $state) {
-			$this->logger->warn('네이버 OAuth state 검증 실패', array(
-				'saved_state_empty' => empty($saved_naver_state),
-				'state_match'       => ($saved_naver_state === $state),
-				'session_id'        => session_id(),
-				'user_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? substr($_SERVER['HTTP_USER_AGENT'], 0, 200) : '',
-			));
 			$this->common->scriptReplace("/member/login", "네이버 로그인 상태값 검증에 실패했습니다.");
 			exit();
 		}

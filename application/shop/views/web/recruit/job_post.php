@@ -635,18 +635,6 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     background: #f5f5f5;
     color: #1B9D7D;
   }
-
-  .recruit-card .content-wrap .meta p:not(:first-child):after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    width: 1px;
-    height: 10px;
-    margin: -4px 0 0;
-    background: #000000;
-  }
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -890,12 +878,32 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 
                   <tr>
                     <td class="label">근무형태</td>
-                    <td class="value txt-color2"><?= getWorkType2025($info["rc_work_type"]) ?></td>
-
-
+                    <td class="value txt-color2">
+                      <?= getWorkType2025($info["rc_work_type"]) ?>
+                      <?php if ($info["rc_am_stime"] != "" || $info["rc_pm_stime"] != "") : ?>
+                        <em>(<?php
+                          $times = [];
+                          if (strpos($info["rc_work_type"], "2교대") !== false) {
+                            if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                              $times[] = $info["rc_am_stime"] . "~" . $info["rc_am_etime"];
+                            }
+                            if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                              $times[] = $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"];
+                            }
+                          } else {
+                            if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                              $times[] = $info["rc_am_stime"] . "~" . $info["rc_am_etime"];
+                            }
+                            if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                              $times[] = $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"];
+                            }
+                          }
+                          echo implode(", ", $times);
+                        ?>)</em>
+                      <?php endif; ?>
+                    </td>
                     <td class="label">희망성별</td>
                     <td class="value"><?= $info["rc_sex_nm"] ?></td>
-                  </tr>
                   <tr>
                     <td class="label">급&nbsp;&nbsp;&nbsp;&nbsp;여</td>
                     <td class="value txt-color2">
@@ -922,80 +930,11 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                       <?php endif; ?>
                     </td>
                   </tr>
-                  <?php /* 근무시간 표시 주석처리
                   <tr>
-                    <td class="label" rowspan="2">근무시간</td>
-                    <td class="value">
-                      <?php if ($info["rc_am_stime"] == "" && $info["rc_pm_stime"] == "") : ?>
-                        -
-                      <?php else : ?>
-                        <?php if (strpos($info["rc_work_type"], "2교대") !== false) : ?>
-                          <?php if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) : ?>
-                            <span class="time"><?= $info["rc_am_stime"] ?>~<?= $info["rc_am_etime"] ?>(주간)</span>
-                          <?php else : ?>
-                            -
-                          <?php endif; ?>
-                        <?php endif; ?>
-
-                        <?php if (strpos($info["rc_work_type"], "주간") !== false && strpos($info["rc_work_type"], "2교대") === false) :  ?>
-                          <?php if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) : ?>
-                            <span class="time"><?= $info["rc_am_stime"] ?>~<?= $info["rc_am_etime"] ?>(주간)</span>
-                          <?php else : ?>
-                            -
-                          <?php endif; ?>
-                        <?php endif; ?>
-                      <?php endif; ?>
-                    </td>
                     <td class="label">근무날짜</td>
                     <td class="value">
                       <?= ($info["rc_work_dt"] == "0000-00-00 00:00:00" ? "근무시작일 무관" : date('Y년 n월 j일', strtotime($info["rc_work_dt"]))) ?>
                     </td>
-                  </tr>
-                  <tr>
-                    <td class="value">
-                      <?php if ($info["rc_am_stime"] == "" && $info["rc_pm_stime"] == "") : ?>
-                      <?php else : ?>
-                        <?php if (strpos($info["rc_work_type"], "2교대") !== false) : ?>
-                          <?php if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) : ?>
-                            <span class="time"><?= $info["rc_pm_stime"] ?>~<?= $info["rc_pm_etime"] ?>(야간)</span>
-                          <?php else : ?>
-                            -
-                          <?php endif; ?>
-                        <?php endif; ?>
-
-                        <?php if (strpos($info["rc_work_type"], "야간") !== false && strpos($info["rc_work_type"], "2교대") === false) :  ?>
-                          <?php if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) : ?>
-                            <span class="time"><?= $info["rc_pm_stime"] ?>~<?= $info["rc_pm_etime"] ?>(야간)</span>
-                          <?php else : ?>
-                            -
-                          <?php endif; ?>
-                        <?php endif; ?>
-                      <?php endif; ?>
-                    </td>
-                    <td class="label">근무요일</td>
-                    <td class="value">
-                      <?php
-                      $isWeekUnlimited = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
-                      $hasSavedWeek = trim((string) $info["rc_week"]) !== "";
-                      $weekDisplaySource = $hasSavedWeek ? $info["rc_week"] : "월,화,수,목,금"; // 간편등록 기본값을 그대로 노출
-                      ?>
-                      <?php if ($isWeekUnlimited) { ?>
-                        무관
-                      <?php } else { ?>
-                        <ul class="working-day week-display-36">
-                          <?= getWeekYoil($weekDisplaySource) ?>
-                        </ul>
-                      <?php } ?>
-                    </td>
-                  </tr>
-                  */ ?>
-                  <tr>
-                    <?php /* 근무날짜 기능 주석처리
-                    <td class="label">근무날짜</td>
-                    <td class="value">
-                      <?= ($info["rc_work_dt"] == "0000-00-00 00:00:00" ? "근무시작일 무관" : date('Y년 n월 j일', strtotime($info["rc_work_dt"]))) ?>
-                    </td>
-                    */ ?>
                     <td class="label">근무요일</td>
                     <td class="value">
                       <?php
@@ -2071,7 +2010,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             $images.slice(2).remove();
             var $categoryHtml = $images.parent().html();
             $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-            $content = $content.replaceAll("{{rt_work_type}}", getWorkTypeWithColorJS(row.rt_work_type));
+            $content = $content.replaceAll("{{rt_work_type}}", (row.rt_work_type));
             if (row.rc_price_type.indexOf('협의') > -1) {
               $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
             } else {

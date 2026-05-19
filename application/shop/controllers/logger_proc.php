@@ -15,8 +15,6 @@ class Logger_proc extends CI_Controller {
    * POST /logger_proc/log_browser
    */
   public function log_browser() {
-    $this->load->library('logger');
-
     // JSON 입력 받기
     $input = json_decode(file_get_contents('php://input'), true);
 
@@ -25,6 +23,14 @@ class Logger_proc extends CI_Controller {
       header('Content-Type: application/json');
       echo json_encode(array('code' => '01', 'msg' => 'Invalid input'));
       exit;
+    }
+
+    // 로그 디렉토리 설정 (check_logs 함수와 동일)
+    $log_dir = dirname(APPPATH) . '/logs/' . date('Y-m-d');
+
+    // 로그 디렉토리 생성
+    if (!is_dir($log_dir)) {
+      @mkdir($log_dir, 0755, true);
     }
 
     // 로그 데이터 정리
@@ -37,12 +43,12 @@ class Logger_proc extends CI_Controller {
       'data' => isset($input['data']) ? $input['data'] : array()
     );
 
-    // Logger 라이브러리 사용
-    $level = strtolower($input['level']);
-    if (method_exists($this->logger, $level)) {
-      $this->logger->$level($input['message'], $log_data);
-    } else {
-      $this->logger->info($input['message'], $log_data);
+    // 로그 파일에 작성
+    $log_file = $log_dir . '/browser.log';
+    $log_line = json_encode($log_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
+
+    if (!@file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX)) {
+      error_log('logger_proc: 브라우저 로그 저장 실패 - ' . $log_file);
     }
 
     // 응답 (성공)

@@ -1,4 +1,5 @@
 <script type="text/javascript" src="/resource/shop/web/smarteditor2/js/service/HuskyEZCreator.js" charset="utf-8"></script>
+<script type="text/javascript" src="/resource/shop/mobile/js/logger.js"></script>
 
 <div id="content" class="page page-mypage">
   <main class="page-content">
@@ -1669,6 +1670,28 @@
                       // 체크박스 변경 시
                       $workTypeCheckboxes.on('change', function() {
                         updateWorkTypeState();
+
+                        // 선택된 근무형태 확인
+                        var isAMSelected = $workTypeCheckboxes.filter('[value="주간"]').is(':checked');
+                        var isPMSelected = $workTypeCheckboxes.filter('[value="야간"]').is(':checked');
+
+                        // 선택되지 않은 근무형태의 시간값 초기화
+                        if (!isAMSelected) {
+                          $('input[name="rc_am_stime_h"]').val('09');
+                          $('input[name="rc_am_stime_m"]').val('00');
+                          $('input[name="rc_am_etime_h"]').val('18');
+                          $('input[name="rc_am_etime_m"]').val('00');
+                          $('input[name="rc_am_stime"]').val('');
+                          $('input[name="rc_am_etime"]').val('');
+                        }
+                        if (!isPMSelected) {
+                          $('input[name="rc_pm_stime_h"]').val('21');
+                          $('input[name="rc_pm_stime_m"]').val('00');
+                          $('input[name="rc_pm_etime_h"]').val('06');
+                          $('input[name="rc_pm_etime_m"]').val('00');
+                          $('input[name="rc_pm_stime"]').val('');
+                          $('input[name="rc_pm_etime"]').val('');
+                        }
                       });
 
                       // 무관 체크박스 변경 시 (toggle)
@@ -3058,6 +3081,41 @@
       oEditors.getById["rc_desc"].exec("UPDATE_CONTENTS_FIELD", []); // 에디터의 내용이 textarea에 반영되도록 업데이트 명령 실행
 
       var form = $('#frm_recruit');
+
+      // 선택된 근무형태 확인
+      var isAMSelected = $('input[name="rc_work_type[]"][value="주간"]').is(':checked');
+      var isPMSelected = $('input[name="rc_work_type[]"][value="야간"]').is(':checked');
+      var is2ShiftSelected = $('input[name="rc_work_type[]"][value="2교대"]').is(':checked');
+
+      // 근무형태별 시간값 처리
+      // 주간 또는 2교대가 선택된 경우 AM 시간 저장
+      if (isAMSelected || is2ShiftSelected) {
+        var amStartH = $('input[name="rc_am_stime_h"]').val() || '09';
+        var amStartM = $('input[name="rc_am_stime_m"]').val() || '00';
+        var amEndH = $('input[name="rc_am_etime_h"]').val() || '18';
+        var amEndM = $('input[name="rc_am_etime_m"]').val() || '00';
+        $('input[name="rc_am_stime"]').val(amStartH + ':' + amStartM);
+        $('input[name="rc_am_etime"]').val(amEndH + ':' + amEndM);
+      } else {
+        // 주간/2교대가 선택되지 않으면 AM 시간 비움
+        $('input[name="rc_am_stime"]').val('');
+        $('input[name="rc_am_etime"]').val('');
+      }
+
+      // 야간 또는 2교대가 선택된 경우 PM 시간 저장
+      if (isPMSelected || is2ShiftSelected) {
+        var pmStartH = $('input[name="rc_pm_stime_h"]').val() || '21';
+        var pmStartM = $('input[name="rc_pm_stime_m"]').val() || '00';
+        var pmEndH = $('input[name="rc_pm_etime_h"]').val() || '06';
+        var pmEndM = $('input[name="rc_pm_etime_m"]').val() || '00';
+        $('input[name="rc_pm_stime"]').val(pmStartH + ':' + pmStartM);
+        $('input[name="rc_pm_etime"]').val(pmEndH + ':' + pmEndM);
+      } else {
+        // 야간/2교대가 선택되지 않으면 PM 시간 비움
+        $('input[name="rc_pm_stime"]').val('');
+        $('input[name="rc_pm_etime"]').val('');
+      }
+
       var params = new FormData(form[0]);
       fileAjaxLoading("/compage_proc/recruit_write", params, function(ret) {
         if (ret.code == "00") {

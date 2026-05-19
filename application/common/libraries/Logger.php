@@ -18,7 +18,7 @@ class Logger
         // 로그 디렉토리 설정 (CodeIgniter 경로 기준)
         //CodeIgniter의 /index.php가 서브도메인에 따라 라우팅함
         // APPPATH = /website/dev_nowapk/application/shop/
-        // APPPATH . 'logs' = /website/dev_nowapk/application/shop/logs 
+        // APPPATH . 'logs' = /website/dev_nowapk/application/shop/logs
 
         $this->log_dir = APPPATH . 'logs';
         $this->current_date = date('Y-m-d');
