@@ -429,12 +429,12 @@ function get_pagenation_ajax($configure = false)
 		}
 
 		if (($configure['last_page'] > 10) && ($page + 10 < $configure['last_page'])) {
-			$html_return_string .= '<a class="page-next" href="javascript:goPage(' . (($page + 11)) . ');"><span class="sr-text">다음</span></a>';
+			$html_return_string .= '<a class="btn page-next" href="javascript:goPage(' . (($page + 11)) . ');"><span class="sr-text">다음</span></a>';
 			if (($configure['last_page'] - $page) > 20) {
 				if (is_int($configure['last_page'] / 10)) {
-					$html_return_string .= '<li><a class="btn page-last" href="javascript:goPage(' . (((int)($configure['last_page'] / 10)) * 10) . ');"><span class="sr-text">다음페이지</span></a>';
+					$html_return_string .= '<a class="btn page-last" href="javascript:goPage(' . (((int)($configure['last_page'] / 10)) * 10) . ');"><span class="sr-text">다음페이지</span></a>';
 				} else {
-					$html_return_string .= '<li><a class="btn page-last" href="javascript:goPage(' . (((int)($configure['last_page'] / 10)) * 10 + 1) . ');"><span class="sr-text">맨뒤로</span></a>';
+					$html_return_string .= '<a class="btn page-last" href="javascript:goPage(' . (((int)($configure['last_page'] / 10)) * 10 + 1) . ');"><span class="sr-text">맨뒤로</span></a>';
 				}
 			}
 		} else {

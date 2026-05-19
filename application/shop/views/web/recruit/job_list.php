@@ -38,6 +38,10 @@ if (count($banner_list) > 0) {
   .result-list .content-info .desc .desc3 {
     width: 20%;
   }
+
+  .recruit-card .thumb {
+    padding: 98.291139% 0 0;
+  }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
