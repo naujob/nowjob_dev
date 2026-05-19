@@ -94,6 +94,64 @@
                                 <span class="btn">2교대</span>
                             </label>
                         </div>
+
+                        <!-- 근무시간 섹션 (주간) -->
+                        <div id="time_cont1" style="display:none;" class="work-time-section">
+                            <p class="work-time-section-label">근무시간 <span class="work-time-tag day">주간</span></p>
+                            <div class="work-time-group">
+                                <div class="work-time-input-wrap">
+                                    <span class="work-time-label">출근</span>
+                                    <select name="rc_am_stime_h" class="time-select">
+                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_am_stime"]) && substr($info["rc_am_stime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 9 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <span>:</span>
+                                    <input type="text" name="rc_am_stime_m" value="<?= isset($info["rc_am_stime"]) ? substr($info["rc_am_stime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                </div>
+                                <div class="work-time-input-wrap">
+                                    <span class="work-time-label">퇴근</span>
+                                    <select name="rc_am_etime_h" class="time-select">
+                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_am_etime"]) && substr($info["rc_am_etime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 18 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <span>:</span>
+                                    <input type="text" name="rc_am_etime_m" value="<?= isset($info["rc_am_etime"]) ? substr($info["rc_am_etime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                </div>
+                            </div>
+                            <input type="hidden" name="rc_am_stime" value="<?= isset($info["rc_am_stime"]) ? $info["rc_am_stime"] : "" ?>">
+                            <input type="hidden" name="rc_am_etime" value="<?= isset($info["rc_am_etime"]) ? $info["rc_am_etime"] : "" ?>">
+                        </div>
+
+                        <!-- 근무시간 섹션 (야간) -->
+                        <div id="time_cont2" style="display:none;" class="work-time-section">
+                            <p class="work-time-section-label">근무시간 <span class="work-time-tag night">야간</span></p>
+                            <div class="work-time-group">
+                                <div class="work-time-input-wrap">
+                                    <span class="work-time-label">출근</span>
+                                    <select name="rc_pm_stime_h" class="time-select">
+                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_pm_stime"]) && substr($info["rc_pm_stime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 21 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <span>:</span>
+                                    <input type="text" name="rc_pm_stime_m" value="<?= isset($info["rc_pm_stime"]) ? substr($info["rc_pm_stime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                </div>
+                                <div class="work-time-input-wrap">
+                                    <span class="work-time-label">퇴근</span>
+                                    <select name="rc_pm_etime_h" class="time-select">
+                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_pm_etime"]) && substr($info["rc_pm_etime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 6 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <span>:</span>
+                                    <input type="text" name="rc_pm_etime_m" value="<?= isset($info["rc_pm_etime"]) ? substr($info["rc_pm_etime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                </div>
+                            </div>
+                            <input type="hidden" name="rc_pm_stime" value="<?= isset($info["rc_pm_stime"]) ? $info["rc_pm_stime"] : "" ?>">
+                            <input type="hidden" name="rc_pm_etime" value="<?= isset($info["rc_pm_etime"]) ? $info["rc_pm_etime"] : "" ?>">
+                        </div>
                     </div>
 
                     <!-- 급여형태 섹션 -->
@@ -432,6 +490,103 @@
     </div><!-- //page-content -->
 </div>
 
+<style>
+    /* 근무시간 섹션 스타일 */
+    .work-time-section {
+        margin-top: 12px;
+        padding: 8px 0;
+    }
+
+    .work-time-section-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .work-time-group {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .work-time-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 10px;
+        height: 36px;
+        background: #57CCAF;
+        color: #fff;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .work-time-input-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        height: 36px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 0 8px;
+        background: #fff;
+    }
+
+    .work-time-input-wrap span {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .work-time-input-wrap .time-select,
+    .work-time-input-wrap .time-input-m {
+        height: 32px;
+        border: none;
+        background: none;
+        font-size: 13px;
+        padding: 0 4px;
+    }
+
+    .work-time-input-wrap .time-select {
+        width: 50px;
+        text-align: center;
+    }
+
+    .work-time-input-wrap .time-input-m {
+        width: 40px;
+        text-align: center;
+    }
+
+    .work-time-input-wrap .time-select:focus,
+    .work-time-input-wrap .time-input-m:focus {
+        outline: none;
+    }
+
+    .work-time-tag {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .work-time-tag.day {
+        color: #4a90e2;
+        background: #e3f2fd;
+    }
+
+    .work-time-tag.night {
+        color: #7b5ea7;
+        background: #f3e5f5;
+    }
+</style>
+
 <script>
     <?php
     $info_for_js = $info;
@@ -456,6 +611,7 @@
     }
 
     function savePage1Data() {
+        syncTimeHiddenFields();
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var storageKey = "recruit_draft_" + rcIdx + "_page1";
         var formData = {
@@ -472,7 +628,15 @@
             rc_work_type: [],
             rc_price_type_main: $("#rc_price_type_main").val(),
             rc_price_amount: $("#rc_price_amount").val(),
-            rc_price_possible: $("[name='rc_price_possible']:checked").val() || ""
+            rc_price_possible: $("[name='rc_price_possible']:checked").val() || "",
+            rc_am_stime_h: $("[name='rc_am_stime_h']").val(),
+            rc_am_stime_m: $("[name='rc_am_stime_m']").val(),
+            rc_am_etime_h: $("[name='rc_am_etime_h']").val(),
+            rc_am_etime_m: $("[name='rc_am_etime_m']").val(),
+            rc_pm_stime_h: $("[name='rc_pm_stime_h']").val(),
+            rc_pm_stime_m: $("[name='rc_pm_stime_m']").val(),
+            rc_pm_etime_h: $("[name='rc_pm_etime_h']").val(),
+            rc_pm_etime_m: $("[name='rc_pm_etime_m']").val()
         };
 
         $("[name='rc_work[]']:checked").each(function() {
@@ -659,6 +823,55 @@
             formData.rc_work_type.forEach(function(val) {
                 $("[name='rc_work_type[]'][value='" + val + "']").prop("checked", true);
             });
+        }
+
+        // 근무시간 필드 복원
+        if (formData.rc_am_stime_h) {
+            $("[name='rc_am_stime_h']").val(formData.rc_am_stime_h);
+        } else if (formData.rc_am_stime && formData.rc_am_stime.indexOf(":") > -1) {
+            var amSTime = formData.rc_am_stime.split(":");
+            $("[name='rc_am_stime_h']").val(amSTime[0]);
+            $("[name='rc_am_stime_m']").val(amSTime[1]);
+        }
+
+        if (formData.rc_am_stime_m) {
+            $("[name='rc_am_stime_m']").val(formData.rc_am_stime_m);
+        }
+
+        if (formData.rc_am_etime_h) {
+            $("[name='rc_am_etime_h']").val(formData.rc_am_etime_h);
+        } else if (formData.rc_am_etime && formData.rc_am_etime.indexOf(":") > -1) {
+            var amETime = formData.rc_am_etime.split(":");
+            $("[name='rc_am_etime_h']").val(amETime[0]);
+            $("[name='rc_am_etime_m']").val(amETime[1]);
+        }
+
+        if (formData.rc_am_etime_m) {
+            $("[name='rc_am_etime_m']").val(formData.rc_am_etime_m);
+        }
+
+        if (formData.rc_pm_stime_h) {
+            $("[name='rc_pm_stime_h']").val(formData.rc_pm_stime_h);
+        } else if (formData.rc_pm_stime && formData.rc_pm_stime.indexOf(":") > -1) {
+            var pmSTime = formData.rc_pm_stime.split(":");
+            $("[name='rc_pm_stime_h']").val(pmSTime[0]);
+            $("[name='rc_pm_stime_m']").val(pmSTime[1]);
+        }
+
+        if (formData.rc_pm_stime_m) {
+            $("[name='rc_pm_stime_m']").val(formData.rc_pm_stime_m);
+        }
+
+        if (formData.rc_pm_etime_h) {
+            $("[name='rc_pm_etime_h']").val(formData.rc_pm_etime_h);
+        } else if (formData.rc_pm_etime && formData.rc_pm_etime.indexOf(":") > -1) {
+            var pmETime = formData.rc_pm_etime.split(":");
+            $("[name='rc_pm_etime_h']").val(pmETime[0]);
+            $("[name='rc_pm_etime_m']").val(pmETime[1]);
+        }
+
+        if (formData.rc_pm_etime_m) {
+            $("[name='rc_pm_etime_m']").val(formData.rc_pm_etime_m);
         }
     }
 
@@ -1105,6 +1318,9 @@
         loadPage1Data();
         loadPage2Data();
 
+        // 근무시간 섹션 초기화
+        updateTimeSection();
+
         (function() {
             function chgMonth(instance) {
                 var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
@@ -1230,7 +1446,64 @@
         $("[name='rc_price_possible']").on("change", savePage1Data);
 
         $("[name='rc_work[]']").on("change", savePage1Data);
-        $("[name='rc_work_type[]']").on("change", savePage1Data);
+
+        // 근무시간 섹션 표시/숨김 로직
+        function updateTimeSection() {
+            var isAM = $("[name='rc_work_type[]'][value='주간']").is(":checked");
+            var isPM = $("[name='rc_work_type[]'][value='야간']").is(":checked");
+            var is2 = $("[name='rc_work_type[]'][value='2교대']").is(":checked");
+
+            if (isAM || is2) {
+                $("#time_cont1").show();
+            } else {
+                $("#time_cont1").hide();
+                // 주간 해제 시 기본값 리셋
+                $("[name='rc_am_stime_h']").val("09");
+                $("[name='rc_am_stime_m']").val("00");
+                $("[name='rc_am_etime_h']").val("18");
+                $("[name='rc_am_etime_m']").val("00");
+            }
+
+            if (isPM || is2) {
+                $("#time_cont2").show();
+            } else {
+                $("#time_cont2").hide();
+                // 야간 해제 시 기본값 리셋
+                $("[name='rc_pm_stime_h']").val("21");
+                $("[name='rc_pm_stime_m']").val("00");
+                $("[name='rc_pm_etime_h']").val("06");
+                $("[name='rc_pm_etime_m']").val("00");
+            }
+        }
+
+        $("[name='rc_work_type[]']").on("change", function() {
+            updateTimeSection();
+            savePage1Data();
+        });
+
+        // 근무시간 입력 변경 시 저장
+        $("[name='rc_am_stime_h'], [name='rc_am_stime_m'], [name='rc_am_etime_h'], [name='rc_am_etime_m']").on("change", savePage1Data);
+        $("[name='rc_pm_stime_h'], [name='rc_pm_stime_m'], [name='rc_pm_etime_h'], [name='rc_pm_etime_m']").on("change", savePage1Data);
+
+        // hidden 필드 동기화 함수
+        function syncTimeHiddenFields() {
+            var am_h = $("[name='rc_am_stime_h']").val() || "09";
+            var am_m = String($("[name='rc_am_stime_m']").val() || "00").padStart(2, "0");
+            $("[name='rc_am_stime']").val(am_h + ":" + am_m);
+
+            var am_e_h = $("[name='rc_am_etime_h']").val() || "18";
+            var am_e_m = String($("[name='rc_am_etime_m']").val() || "00").padStart(2, "0");
+            $("[name='rc_am_etime']").val(am_e_h + ":" + am_e_m);
+
+            var pm_s_h = $("[name='rc_pm_stime_h']").val() || "21";
+            var pm_s_m = String($("[name='rc_pm_stime_m']").val() || "00").padStart(2, "0");
+            $("[name='rc_pm_stime']").val(pm_s_h + ":" + pm_s_m);
+
+            var pm_e_h = $("[name='rc_pm_etime_h']").val() || "06";
+            var pm_e_m = String($("[name='rc_pm_etime_m']").val() || "00").padStart(2, "0");
+            $("[name='rc_pm_etime']").val(pm_e_h + ":" + pm_e_m);
+        }
+
         $("[name='rc_work_negotiation']").on("change", function() {
             savePage1Data();
         });

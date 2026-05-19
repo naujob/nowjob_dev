@@ -408,10 +408,19 @@ if (!$socket_io_script_url) {
     };
   })();
 
+  // 경로 정규화 함수 (trailing slash, 동적 ID 등 일관성 유지)
+  function normalizePath(path) {
+    if (!path) return '';
+    // 쿼리 파라미터 제거
+    return path.split('?')[0].replace(/\/$/, ''); // trailing slash 제거
+  }
+
   // 방문 기록 관리
   (function manageHistory() {
-    const currentPath = window.location.pathname; // 현재 페이지 경로 (쿼리 파라미터 제외)
-    const currentPage = window.location.pathname + window.location.search; // 현재 페이지 전체 URL (쿼리 파라미터 포함)
+    const rawCurrentPath = window.location.pathname;
+    const currentPath = normalizePath(rawCurrentPath); // 정규화된 경로
+    const currentPageFull = window.location.pathname + window.location.search;
+    const currentPage = normalizePath(currentPageFull); // 정규화된 full URL
     const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || []; // 방문 기록 스택
 
     // splash 페이지는 히스토리 스택에 추가하지 않음 (뒤로가기 시 splash로 이동하는 문제 방지)
@@ -444,150 +453,167 @@ if (!$socket_io_script_url) {
       "/mypage/bookmark_recruit1",
       "/mypage/bookmark_recruit2"
     ];
+    const mypagePaths3 = [
+      "/mypage/resume_list",
+      "/mypage/resume_view"
+    ];
 
-    // 마지막 페이지 확인 (경로만 추출)
-    const lastPage = historyStack[historyStack.length - 1];
-    const lastPath = lastPage ? lastPage.split('?')[0] : '';
-
-    // 히스토리 대체 로직 (같은 그룹 내 이동 시 대체)
-    const isInCompagePaths1 = compagePaths1.includes(currentPath) && compagePaths1.includes(lastPath);
-    const isInCompagePaths2 = compagePaths2.includes(currentPath) && compagePaths2.includes(lastPath);
-    const isInCompagePaths3 = compagePaths3.includes(currentPath) && compagePaths3.includes(lastPath);
-    const isInMypagePaths1 = mypagePaths1.includes(currentPath) && mypagePaths1.includes(lastPath);
-    const isInMypagePaths2 = mypagePaths2.includes(currentPath) && mypagePaths2.includes(lastPath);
-
-    if (isInCompagePaths1 || isInCompagePaths2 || isInCompagePaths3 || isInMypagePaths1 || isInMypagePaths2) {
-      // 조건에 맞는 경우 마지막 기록을 대체 (전체 URL 포함)
-      historyStack[historyStack.length - 1] = currentPage;
-      // 업데이트된 기록을 세션 저장소에 저장
-      sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
-
-    } else {
-      // 중복 기록 방지 (전체 URL 비교)
-      if (historyStack[historyStack.length - 1] !== currentPage) {
-        historyStack.push(currentPage); // 현재 페이지 추가 (전체 URL 포함)
-        sessionStorage.setItem('historyStack', JSON.stringify(historyStack)); // 업데이트된 기록 저장
+    // ⭐ 연속된 중복 제거
+    while (historyStack.length > 1) {
+      const last = normalizePath(historyStack[historyStack.length - 1]);
+      const prev = normalizePath(historyStack[historyStack.length - 2]);
+      if (last === prev) {
+        historyStack.pop();
+      } else {
+        break;
       }
     }
 
-    //console.log("History Stack:", historyStack); // 디버깅용 출력
+    // 마지막 페이지 확인
+    const lastPageRaw = historyStack[historyStack.length - 1];
+    const lastPath = normalizePath(lastPageRaw);
+
+    // ⭐ 같은 페이지면 무시
+    if (lastPath === currentPath) {
+      return;
+    }
+
+    // ⭐ 새로운 항목 추가 (모든 다른 페이지)
+    historyStack.push(currentPage);
+
+    sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
 
   })();
 
-  // 뒤로 가기 제어
+  // ⭐ customBack() - 히스토리 스택 처리 후 네이티브 뒤로가기
   function customBack() {
+    try {
 
-    //const pageTransition = document.getElementById('pageTransition');
-    //pageTransition.classList.add('active'); // 애니메이션 시작
+      //const pageTransition = document.getElementById('pageTransition');
+      //pageTransition.classList.add('active'); // 애니메이션 시작
 
-    // 페이지 이동 실행
-    //setTimeout(() => {
+      // 페이지 이동 실행
+      //setTimeout(() => {
 
-    // chat_view 페이지는 자체 뒤로가기 로직 사용 (from 파라미터 기반)
-    const currentPath = window.location.pathname;
-    if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
-      // URL 파라미터에서 from 값 읽기
-      const params = new URLSearchParams(window.location.search);
-      const from = params.get('from') || '';
+      // chat_view 페이지는 자체 뒤로가기 로직 사용 (from 파라미터 기반)
+      const currentPath = window.location.pathname;
+      if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
+        // URL 파라미터에서 from 값 읽기
+        const params = new URLSearchParams(window.location.search);
+        const from = params.get('from') || '';
 
-      // from 파라미터에 따른 뒤로가기 URL 매핑
-      const backMap = {
-        applied: '/chat/chat_list', // 지원한 공고
-        proposed_job: '/chat/chat_list2', // 제안받은 공고
-        talent_received: '/chat/index_comp', // 제안받은 인재
-        talent_sent: '/chat/chat_list3' // 제안보낸 인재
-      };
+        // from 파라미터에 따른 뒤로가기 URL 매핑
+        const backMap = {
+          applied: '/chat/chat_list', // 지원한 공고
+          proposed_job: '/chat/chat_list2', // 제안받은 공고
+          talent_received: '/chat/index_comp', // 제안받은 인재
+          talent_sent: '/chat/chat_list3' // 제안보낸 인재
+        };
 
-      const backUrl = backMap[from] || '/chat/chat_list';
+        const backUrl = backMap[from] || '/chat/chat_list';
 
-      // historyStack에서 현재 페이지 제거
-      const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
-      if (historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
-        historyStack.pop();
-        sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
-      }
-
-      // 해당 페이지로 이동
-      window.location.href = backUrl;
-      return;
-    }
-
-    // 채용공고 작성 페이지들은 compage/recruit_list로 이동
-    if (currentPath.indexOf('/compage/recruit_write1_1') > -1 ||
-      currentPath.indexOf('/compage/recruit_write2_1') > -1 ||
-      currentPath.indexOf('/compage/recruit_write3_1') > -1) {
-
-      // historyStack은 사용자가 방문(이동)한 페이지들의 경로(주소)를 순서대로 담고 있는 배열입니다.
-      // 이 배열은 sessionStorage에 저장되며, SPA식 동작이나 뒤로가기/앞으로가기 처리를 위해 사용됩니다.
-      // 가장 최근에 방문한 페이지가 배열의 마지막에 위치합니다.
-      const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
-      if (historyStack.length > 0) {
-        // historyStack의 마지막(가장 최근) 방문 페이지를 가져옵니다.
-        const lastPage = historyStack[historyStack.length - 1]; // historyStack.length - 1은 배열의 마지막 인덱스를 의미
-        if (lastPage.indexOf('/compage/recruit_write1_1') > -1 ||
-          lastPage.indexOf('/compage/recruit_write2_1') > -1 ||
-          lastPage.indexOf('/compage/recruit_write3_1') > -1) {
-          // 배열 historyStack에서 현재 페이지(마지막 요소)를 제거
+        // historyStack에서 현재 페이지 제거
+        const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+        if (historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
           historyStack.pop();
           sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
         }
+
+        // 해당 페이지로 이동
+        resetBackFlag(); // ⭐ return 전 플래그 초기화
+        window.location.href = backUrl;
+        return;
       }
 
-      // compage/recruit_list로 이동
-      window.location.href = '/compage/recruit_list';
-      return;
-    }
+      // 채용공고 작성 페이지들은 compage/recruit_list로 이동
+      if (currentPath.indexOf('/compage/recruit_write1_1') > -1 ||
+        currentPath.indexOf('/compage/recruit_write2_1') > -1 ||
+        currentPath.indexOf('/compage/recruit_write3_1') > -1) {
 
-    // 이력서 작성 페이지들은 mypage/resume_list로 이동
-    if (currentPath.indexOf('/mypage/resume_write1') > -1) {
-      // historyStack에서 현재 페이지 제거
-      const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
-      if (historyStack.length > 0) {
-        const lastPage = historyStack[historyStack.length - 1];
-        if (lastPage.indexOf('/mypage/resume_write1') > -1) {
-          historyStack.pop();
-          sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
-        }
-      }
-
-      // mypage/resume_list로 이동
-      window.location.href = '/mypage/resume_list';
-      return;
-    }
-
-    const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
-
-    // 방문 기록이 2개 이상일 때만 동작
-    if (historyStack.length > 1) {
-      historyStack.pop(); // 현재 페이지 제거
-      let previousPage = historyStack[historyStack.length - 1]; // 이전 페이지 가져오기
-
-      // 이전 페이지가 splash이면 splash를 제거하고 그 다음 페이지 확인
-      if (previousPage && previousPage.indexOf('/home/splash') > -1) {
-        historyStack.pop(); // splash 제거
+        // historyStack은 사용자가 방문(이동)한 페이지들의 경로(주소)를 순서대로 담고 있는 배열입니다.
+        // 이 배열은 sessionStorage에 저장되며, SPA식 동작이나 뒤로가기/앞으로가기 처리를 위해 사용됩니다.
+        // 가장 최근에 방문한 페이지가 배열의 마지막에 위치합니다.
+        const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
         if (historyStack.length > 0) {
-          previousPage = historyStack[historyStack.length - 1]; // 그 다음 페이지 가져오기
+          // historyStack의 마지막(가장 최근) 방문 페이지를 가져옵니다.
+          const lastPage = historyStack[historyStack.length - 1]; // historyStack.length - 1은 배열의 마지막 인덱스를 의미
+          if (lastPage.indexOf('/compage/recruit_write1_1') > -1 ||
+            lastPage.indexOf('/compage/recruit_write2_1') > -1 ||
+            lastPage.indexOf('/compage/recruit_write3_1') > -1) {
+            // 배열 historyStack에서 현재 페이지(마지막 요소)를 제거
+            historyStack.pop();
+            sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+          }
+        }
+
+        // compage/recruit_list로 이동
+        resetBackFlag(); // ⭐ return 전 플래그 초기화
+        window.location.href = '/compage/recruit_list';
+        return;
+      }
+
+      // 이력서 작성 페이지들은 mypage/resume_list로 이동
+      if (currentPath.indexOf('/mypage/resume_write1') > -1) {
+        // historyStack에서 현재 페이지 제거
+        const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+        if (historyStack.length > 0) {
+          const lastPage = historyStack[historyStack.length - 1];
+          if (lastPage.indexOf('/mypage/resume_write1') > -1) {
+            historyStack.pop();
+            sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+          }
+        }
+
+        // mypage/resume_list로 이동
+        resetBackFlag(); // ⭐ return 전 플래그 초기화
+        window.location.href = '/mypage/resume_list';
+        return;
+      }
+
+      const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+      const normalizedCurrentPath = normalizePath(currentPath);
+
+      // 현재 페이지가 스택에 있으면 제거 (중복 방지)
+      while (historyStack.length > 0) {
+        const lastPagePath = normalizePath(historyStack[historyStack.length - 1]);
+        if (lastPagePath === normalizedCurrentPath) {
+          historyStack.pop();
         } else {
-          // 히스토리가 없으면 홈으로 이동
+          break;
+        }
+      }
+
+      // 방문 기록이 1개 이상일 때만 동작
+      if (historyStack.length > 0) {
+        let previousPage = historyStack[historyStack.length - 1]; // 이전 페이지 가져오기
+        let normalizedPreviousPath = normalizePath(previousPage); // 이전 페이지도 정규화
+
+        // splash 페이지는 제거 (여러 개일 경우 모두 제거)
+        while (historyStack.length > 0 && normalizedPreviousPath === '/home/splash') {
+          historyStack.pop();
+          if (historyStack.length > 0) {
+            previousPage = historyStack[historyStack.length - 1];
+            normalizedPreviousPath = normalizePath(previousPage);
+          }
+        }
+
+        // splash 제거 후에도 스택이 있으면 그 페이지로, 없으면 홈으로
+        if (historyStack.length === 0) {
           previousPage = '/home/index';
         }
+
+        sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+        window.location.href = previousPage;
+      } else {
+        // 히스토리가 없으면 홈으로 이동
+        window.location.href = '/home/index';
       }
 
-      // 이전 페이지가 여전히 splash이면 홈으로 이동
-      if (previousPage && previousPage.indexOf('/home/splash') > -1) {
-        previousPage = '/home/index';
-      }
+      //}, 600); // 애니메이션 지속 시간과 일치
 
-      sessionStorage.setItem('historyStack', JSON.stringify(historyStack)); // 기록 업데이트
-      window.location.href = previousPage; // 이전 페이지로 이동
-    } else {
-      // 히스토리가 없거나 1개만 있으면 홈으로 이동
-      window.location.href = '/home/index';
+    } catch (e) {
+      console.error('[customBack] 오류:', e);
     }
-
-    //}, 600); // 애니메이션 지속 시간과 일치
-
-
   }
   //manageHistory();
 
@@ -597,8 +623,19 @@ if (!$socket_io_script_url) {
   // 이 플래그가 true면 iOS 등에서 스와이프 제스처로 뒤로가기가 동작하지 않도록 막습니다.
   window.DISABLE_SWIPE_BACK = window.DISABLE_SWIPE_BACK || false;
 
-  // 특정 페이지에서 스와이프 뒤로가기 비활성화
+  // 특정 페이지에서 스와이프 뒤로가기 비활성화 (Android만 적용)
+  // iOS는 네이티브 앱의 allowsBackForwardNavigationGestures로 제어
   (function() {
+    // Android 감지
+    function isAndroid() {
+      return /Android/i.test(navigator.userAgent);
+    }
+
+    // Android에서만 JavaScript 스와이프 제어 적용
+    if (!isAndroid()) {
+      return;
+    }
+
     const currentPath = window.location.pathname;
 
     // 홈페이지 경로 확인: "/", "/home", "/home/index"
@@ -607,10 +644,8 @@ if (!$socket_io_script_url) {
       currentPath === '/home/index' ||
       currentPath.startsWith('/home/index');
 
-    // 스와이프 뒤로가기 비활성화 페이지 목록
+    // Android에서 스와이프 뒤로가기 비활성화 페이지 목록
     const disableSwipePages = [
-      '/mypage/resume_list',
-      '/compage/recruit_list',
       '/resume/hr_list',
       '/resume/hr_map', // 인재 지도 페이지 추가 (핀치 제스처 충돌 방지)
       '/recruit/job_list',
@@ -620,36 +655,38 @@ if (!$socket_io_script_url) {
     ];
     const isDisableSwipePage = disableSwipePages.includes(currentPath);
 
-    if (isHomePage) {
+    if (isHomePage || isDisableSwipePage) {
       window.DISABLE_SWIPE_BACK = true;
-
-    } else if (isDisableSwipePage) {
-      window.DISABLE_SWIPE_BACK = true;
-
     }
   })();
 
   let startX = 0;
   let endX = 0;
   const screenWidth = window.innerWidth; // 화면 너비
+  let isSwipeProcessing = false; // ⭐ 스와이프 처리 중 플래그 (중복 방지)
 
-  // iOS 감지 함수
-  function isIOS() {
-    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // Android만 JavaScript 스와이프 리스너 등록
+  // iOS는 네이티브 앱의 allowsBackForwardNavigationGestures 설정으로 제어
+  function isAndroid() {
+    return /Android/i.test(navigator.userAgent);
   }
-  // JavaScript로 구현한 iOS 스와이프 뒤로가기 방지 로직
-  if (isIOS()) {
+
+  if (isAndroid()) {
     let isSwipeBackGesture = false; // 스와이프 뒤로가기 제스처 여부
 
     // 사용자가 화면을 터치(손가락을 대기 시작)할 때 발생하는 이벤트입니다.
     document.addEventListener('touchstart', (event) => {
+
       // 스와이프 비활성화 플래그가 true이면 동작 중지
-      if (window.DISABLE_SWIPE_BACK) return;
+      if (window.DISABLE_SWIPE_BACK) {
+        return;
+      }
 
       // 핀치 제스처(2손가락 이상)는 스와이프로 인식하지 않음
-      if (event.touches.length >= 2) return;
+      if (event.touches.length >= 2) {
+        return;
+      }
 
-      //console.log('touchstart');
       startX = event.touches[0].clientX;
       isSwipeBackGesture = false; // 초기화
     }, {
@@ -657,22 +694,25 @@ if (!$socket_io_script_url) {
     });
 
     document.addEventListener('touchmove', (event) => {
+
       // 스와이프 비활성화 플래그가 true이면 동작 중지
       if (window.DISABLE_SWIPE_BACK) return;
 
-      // 핀치 제스처(2손가락 이상)는 스와이프로 인식하지 않음
+      // 핀치 제스처(2손가형 이상)는 스와이프로 인식하지 않음
       if (event.touches.length >= 2) {
-        isSwipeBackGesture = false; // 핀치 제스처 중에는 스와이프 플래그 해제
+        isSwipeBackGesture = false;
         return;
       }
 
       endX = event.touches[0].clientX;
+      var deltaX = endX - startX;
 
       // 왼쪽 가장자리에서 시작하고 오른쪽으로 스와이프하는 경우
-      if (startX < screenWidth * 0.1 && endX - startX > 30) {
+      if (startX < screenWidth * 0.1 && deltaX > 30) {
         isSwipeBackGesture = true;
-        // iOS 네이티브 스와이프 뒤로가기 방지
         event.preventDefault();
+      } else {
+        isSwipeBackGesture = false;
       }
     }, {
       passive: false
@@ -680,7 +720,17 @@ if (!$socket_io_script_url) {
 
     document.addEventListener('touchend', (event) => {
       // 스와이프 비활성화 플래그가 true이면 동작 중지
-      if (window.DISABLE_SWIPE_BACK) return;
+      if (window.DISABLE_SWIPE_BACK) {
+        return;
+      }
+
+      // ⭐ 스와이프 중복 처리 방지
+      if (isSwipeProcessing) {
+        isSwipeBackGesture = false;
+        startX = 0;
+        endX = 0;
+        return;
+      }
 
       // 핀치 제스처 중에는 뒤로가기 실행하지 않음
       if (event.touches.length >= 2) {
@@ -688,12 +738,20 @@ if (!$socket_io_script_url) {
         return;
       }
 
-      if (isSwipeBackGesture && startX < screenWidth * 0.1 && endX - startX > 50) {
-        // iOS 네이티브 스와이프 뒤로가기 방지
+      var deltaX = endX - startX;
+
+      if (isSwipeBackGesture && startX < screenWidth * 0.1 && deltaX > 50) {
+        // ⭐ 스와이프 처리 시작: 플래그 설정
+        isSwipeProcessing = true;
+
+        // Android에서 왼쪽으로 스와이프 시 뒤로 가기
         event.preventDefault();
-        // 아이폰에서만 왼쪽으로 스와이프 시 뒤로 가기
-        //history.back(); // 이전 페이지로 이동
         customBack();
+
+        // 500ms 동안 추가 스와이프 무시
+        setTimeout(() => {
+          isSwipeProcessing = false;
+        }, 500);
       }
 
       // 초기화

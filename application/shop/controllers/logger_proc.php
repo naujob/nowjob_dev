@@ -1,12 +1,15 @@
 <?php
+
 /**
  * 브라우저 로거 컨트롤러
  * 브라우저에서 AJAX로 전송된 로그를 파일로 저장
  */
 
-class Logger_proc extends CI_Controller {
+class Logger_proc extends CI_Controller
+{
 
-  function __construct() {
+  function __construct()
+  {
     parent::__construct();
   }
 
@@ -14,7 +17,8 @@ class Logger_proc extends CI_Controller {
    * 브라우저에서 전송한 로그를 파일로 저장
    * POST /logger_proc/log_browser
    */
-  public function log_browser() {
+  public function log_browser()
+  {
     // JSON 입력 받기
     $input = json_decode(file_get_contents('php://input'), true);
 
@@ -61,7 +65,8 @@ class Logger_proc extends CI_Controller {
    * SNS 로그인 디버깅용 - redirect_uri 정보 로깅
    * GET /logger_proc/log_redirect?service=naver&url=...&error=...
    */
-  public function log_redirect() {
+  public function log_redirect()
+  {
     $this->load->library('logger');
 
     $service = input_get('service', '');
@@ -93,7 +98,8 @@ class Logger_proc extends CI_Controller {
    * 로그 파일 확인 (웹 테스트용)
    * GET /logger_proc/check_logs
    */
-  public function check_logs() {
+  public function check_logs()
+  {
     header('Content-Type: application/json');
 
     $log_dir = dirname(APPPATH) . '/logs/' . date('Y-m-d');
@@ -163,4 +169,3 @@ class Logger_proc extends CI_Controller {
     exit;
   }
 }
-?>

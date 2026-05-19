@@ -2339,6 +2339,35 @@ class Compage_proc extends CI_Controller
     $rc_work = input_post("rc_work", []);
     $rc_work_type = input_post("rc_work_type", []);
     // $rc_work_negotiation = input_post("rc_work_negotiation", ""); // DB 컬럼 없음
+
+    // 근무시간 필드 수신
+    $rc_am_stime_h = input_post("rc_am_stime_h", "09");
+    $rc_am_stime_m = input_post("rc_am_stime_m", "00");
+    $rc_am_etime_h = input_post("rc_am_etime_h", "18");
+    $rc_am_etime_m = input_post("rc_am_etime_m", "00");
+    $rc_pm_stime_h = input_post("rc_pm_stime_h", "21");
+    $rc_pm_stime_m = input_post("rc_pm_stime_m", "00");
+    $rc_pm_etime_h = input_post("rc_pm_etime_h", "06");
+    $rc_pm_etime_m = input_post("rc_pm_etime_m", "00");
+    $rc_am_stime = input_post("rc_am_stime", "");
+    $rc_am_etime = input_post("rc_am_etime", "");
+    $rc_pm_stime = input_post("rc_pm_stime", "");
+    $rc_pm_etime = input_post("rc_pm_etime", "");
+
+    // HH:MM 포맷 합성 (hidden에서 오지 않을 경우 대비)
+    if (empty($rc_am_stime)) {
+        $rc_am_stime = $rc_am_stime_h . ":" . str_pad($rc_am_stime_m, 2, "0", STR_PAD_LEFT);
+    }
+    if (empty($rc_am_etime)) {
+        $rc_am_etime = $rc_am_etime_h . ":" . str_pad($rc_am_etime_m, 2, "0", STR_PAD_LEFT);
+    }
+    if (empty($rc_pm_stime)) {
+        $rc_pm_stime = $rc_pm_stime_h . ":" . str_pad($rc_pm_stime_m, 2, "0", STR_PAD_LEFT);
+    }
+    if (empty($rc_pm_etime)) {
+        $rc_pm_etime = $rc_pm_etime_h . ":" . str_pad($rc_pm_etime_m, 2, "0", STR_PAD_LEFT);
+    }
+
     $rc_price_type_main = input_post("rc_price_type_main", "");
     $rc_price_possible = input_post("rc_price_possible", ""); // 서브 급여형태 (시급가능, 일급가능, 주급가능, 월급가능)
     $rc_price_amount = input_post("rc_price_amount", "");
@@ -2389,6 +2418,10 @@ class Compage_proc extends CI_Controller
       "rc_work" => is_array($rc_work) ? $rc_work : [],
       "rc_work_type" => is_array($rc_work_type) ? $rc_work_type : [],
       // "rc_work_negotiation" => $rc_work_negotiation, // DB 컬럼 없음
+      "rc_am_stime" => $rc_am_stime,
+      "rc_am_etime" => $rc_am_etime,
+      "rc_pm_stime" => $rc_pm_stime,
+      "rc_pm_etime" => $rc_pm_etime,
       "rc_price_type_main" => $rc_price_type_main,
       "rc_price_possible" => $rc_price_possible, // 서브 급여형태 저장
       "rc_price_amount" => $rc_price_amount,
