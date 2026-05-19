@@ -1490,9 +1490,9 @@
             var isPM = $("[name='rc_work_type[]'][value='야간']").is(":checked");
             var is2 = $("[name='rc_work_type[]'][value='2교대']").is(":checked");
 
-            // 주간, 야간, 2교대가 모두 선택되면 근무협의 자동 체크
-            // (3개 모두 선택되거나, 2교대 하나만 선택되면 모든 근무형태를 포함)
-            var allSelected = (isAM && isPM && is2) || is2;
+            // 주간, 야간, 2교대 3개가 모두 선택되면 근무협의 자동 체크
+            // 하나라도 선택되지 않으면 근무협의 자동 언체크
+            var allSelected = isAM && isPM && is2;
             $("[name='rc_work_negotiation']").prop("checked", allSelected);
         }
 
