@@ -880,7 +880,19 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                     <td class="label">근무형태</td>
                     <td class="value txt-color2">
                       <?= getWorkType2025($info["rc_work_type"]) ?>
-                      <?php if ($info["rc_am_stime"] != "" || $info["rc_pm_stime"] != "") : ?>
+                      <?php if ($info["rc_am_stime"] != "" || $info["rc_pm_stime"] != "") :
+                        // getWorkType2025() 함수와 동일한 로직으로 근무협의 판단
+                        $work_items = [];
+                        if (preg_match_all('/<span>(.*?)<\/span>/', $info["rc_work_type"], $matches)) {
+                          $work_items = $matches[1];
+                        } else {
+                          $work_items = preg_split('/\s*,\s*/', $info["rc_work_type"]);
+                        }
+                        $item_set = array_unique(array_map('trim', $work_items));
+                        $is_consultation = in_array('근무협의', $item_set) ||
+                          (in_array('주간', $item_set) && in_array('야간', $item_set) && in_array('2교대', $item_set));
+
+                        if (!$is_consultation) : ?>
                         <em>(<?php
                           $times = [];
                           if (strpos($info["rc_work_type"], "2교대") !== false) {
@@ -900,6 +912,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                           }
                           echo implode(", ", $times);
                         ?>)</em>
+                      <?php endif; ?>
                       <?php endif; ?>
                     </td>
                     <td class="label">희망성별</td>

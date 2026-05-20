@@ -602,44 +602,6 @@
     font-weight: 600;
   }
 
-  /* ru_price_type 클래스에 대한 스타일 추가 */
-  .ru_price_type {
-    color: #1B9D7D;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  /* ru_price_type 내의 em 태그 기울임 제거 */
-  .ru_price_type em {
-    font-style: normal;
-    position: relative;
-  }
-
-  /* ru_price_type 내의 구분자 스타일 */
-  .ru_price_type span {
-    color: rgb(35, 33, 33);
-  }
-
-  /* 구분자 전용 스타일 */
-  .item-info .price_type_wrap .ru_price_type em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-
-  .item-info .price_type_wrap .ru_price_type em:not(:first-child) {
-    padding-left: 5px;
-  }
-
-  .item-info .price_type_wrap .ru_price_type em:not(:last-child) {
-    padding-right: 5px;
-  }
 
   .person-card .meta p {
     position: relative;
@@ -846,40 +808,14 @@
   </li>
 </template>
 
-<template id="tpl_list_2">
-  <li class="list-item item-hover" data-ru_idx="{{ru_idx}}">
-    <div class="item-info">
-      <div class="img">
-        <img src="{{ru_resume_img}}">
-        <?php if ($mm_type === "COMP") { ?><button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
-      </div>
-      <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>
-      <div class="desc">
-        <div class="content-wrap">
-          <div class="inline-group">
-            <p class="category">{{ru_work_img}}</p>
-          </div>
-          <div class="title-wrap" style="display: block;">
-            <p class="title">{{mm_name}}</p>
-          </div>
-          <div class="meta">
-            <p class="national">{{mm_nation}}</p>
-            <p class="age">{{ma_age}}</p>
-          </div>
-        </div>
-
-        <div style="align-content: center;width:20%;text-align: center;" class="price_type_wrap">
-          <span class="type price_type">{{ru_work_type}}</span>
-          <span class="area">{{ad_addr}}</span>
-          <span class="ru_price_type">{{ru_price_type}}</span>
-        </div>
-        <ul class="working-day">
-          {{ru_week}}
-        </ul>
-      </div>
-    </div>
-  </li>
-</template>
+<!-- 인재 목록 템플릿 (공유) -->
+<?php
+$tpl_id               = 'tpl_resume_card';
+$tpl_show_timestamp   = false;
+$tpl_show_mm_idx      = false;
+$tpl_price_wrap_width = '20%';
+include APPPATH . 'views/web/_layout/resume_list_template.php';
+?>
 
 <script>
   // 검색폼 처리는 search_cont.php에서 담당 (중복 제거)
@@ -1075,17 +1011,18 @@
     $(list_id_2).html("");
 
     list.forEach(function(row) {
-      var $clone = $("#tpl_list_2").clone();
+      var $clone = $("#tpl_resume_card").clone();
       var $content = $clone.html();
 
       $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
       $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{mm_name}}", row.ru_name);
+      $content = $content.replaceAll("{{ru_name}}", row.ru_name);
       $content = $content.replaceAll("{{ru_week}}", row.ru_week);
       $content = $content.replaceAll("{{distance}}", row.distance + "km");
       $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
 
-      if (row.mm_nation.trim() == '') {
+      // mm_nation null 체크 안전화
+      if ((row.mm_nation || '').trim() === '') {
         $content = $content.replaceAll("{{mm_nation}}", "");
         $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
       } else {
@@ -1099,11 +1036,13 @@
         $content = $content.replaceAll("{{ma_age}}", row.mm_age + "대");
       }
 
-      $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
+      $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
       $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
       $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeNoComma(row.ru_work_type));
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
       $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+      // search.php template에서는 timestamp 미표시이므로 {{timestamp}} 제거
+      $content = $content.replaceAll("{{timestamp}}", "");
 
       $clone.html($content);
       $(list_id_2).append($clone.html());
@@ -1219,22 +1158,6 @@
     }).join('');
   }
 
-  // hr_list.php와 동일한 데이터 정리 함수들
-  function getPriceType(price_type) {
-    if (!price_type) {
-      return "";
-    }
-    if (price_type === "일급,주급,월급") {
-      return "급여협의";
-    }
-
-    // <em> 태그 제거하고 실제 텍스트만 추출
-    const cleanPriceType = price_type.replace(/<\/?em>/g, '');
-
-    // 첫 번째 값만 반환
-    const firstType = cleanPriceType.split(',')[0].trim();
-    return `<em>${firstType}</em>`;
-  }
 
   function getWorkType(work_type) {
     if (!work_type) {
@@ -1269,25 +1192,6 @@
     return `<em class="${cls}">${text}</em>`;
   }
 
-  function getHashTagJS(hash, max = 10) {
-    let result = "";
-    let tmp = hash;
-    tmp = tmp.replaceAll("<p class=\'tag\' style=\'width:100%;text-align:right;\'>", "");
-    tmp = tmp.replaceAll("</p>", "");
-    let arr_hash = tmp.trim().split(" ");
-    arr_hash.forEach(function(txt, key) {
-      if (key < max) {
-        if (!txt.includes("#") && txt.trim() !== "") {
-          txt = "#" + txt.trim();
-        }
-        if (txt.trim() !== "") {
-          result += ` <p class='tag'>${txt}</p>`;
-        }
-      }
-    });
-
-    return result;
-  }
 
   $(document).on('click', '.content-li', function() {
     var rcIdx = $(this).closest('.list-item').data('rc_idx');

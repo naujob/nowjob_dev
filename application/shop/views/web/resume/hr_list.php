@@ -952,45 +952,6 @@ if (count($banner_list) > 0) {
     color: #1B9D7D;
   }
 
-  /* ru_price_type 클래스에 대한 스타일 추가 */
-  .ru_price_type {
-    color: #1B9D7D;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  /* ru_price_type 내의 em 태그 기울임 제거 */
-  .ru_price_type em {
-    font-style: normal;
-    position: relative;
-  }
-
-  /* ru_price_type 내의 구분자 스타일 */
-  .ru_price_type span {
-    color: rgb(35, 33, 33);
-  }
-
-  /* 구분자 전용 스타일 */
-  .item-info .price_type_wrap .ru_price_type em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-
-  }
-
-  .item-info .price_type_wrap .ru_price_type em:not(:first-child) {
-    padding-left: 4px;
-  }
-
-  .item-info .price_type_wrap .ru_price_type em:not(:last-child) {
-    padding-right: 5px;
-  }
 
   .item-info .working-day {
     margin-right: 10px;
@@ -1457,45 +1418,14 @@ if (count($banner_list) > 0) {
   </main><!-- //page-content -->
 </div><!-- //page -->
 
-<!-- 리스트 템플릿 -->
-<template id="tpl_list">
-  <li class="list-item item-hover" data-ru_idx="{{ru_idx}}" data-mm_idx="{{mm_idx}}">
-    <div class="item-info">
-
-      <div class="img">
-        <img src="{{ru_resume_img}}">
-        <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
-        <p class="recomm-badge"><span>추천</span></p>
-      </div>
-      <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>
-
-      <div class="desc">
-        <div class="content-wrap">
-          <div class="timestamp">등록일 : {{timestamp}}</div>
-          <div class="inline-group">
-            <p class="category">{{ru_work_img}}</p>
-          </div>
-          <div class="title-wrap" style="display: block;">
-            <p class="title">{{ru_name}}</p>
-          </div>
-          <div class="meta">
-            <p class="national">{{mm_nation}}</p>
-            <p class="age">{{ma_age}}</p>
-          </div>
-        </div>
-
-        <div style="align-content: center;width: 290px;text-align: center;" class="price_type_wrap">
-          <span class="type price_type">{{ru_work_type}}</span>
-          <span class="area">{{ad_addr}}</span>
-          <span class="ru_price_type">{{ru_price_type}}</span>
-        </div>
-        <ul class="working-day">
-          {{ru_week}}
-        </ul>
-      </div>
-    </div>
-  </li>
-</template>
+<!-- 인재 목록 템플릿 (공유) -->
+<?php
+$tpl_id               = 'tpl_resume_card';
+$tpl_show_timestamp   = true;
+$tpl_show_mm_idx      = true;
+$tpl_price_wrap_width = '290px';
+include APPPATH . 'views/web/_layout/resume_list_template.php';
+?>
 
 <!-- 추천 리스트 템플릿 -->
 <template id="tpl_reco_list">
@@ -1678,7 +1608,7 @@ if (count($banner_list) > 0) {
 
     list.forEach(function(row, index) {
       try {
-        var $clone = $("#tpl_list").clone();
+        var $clone = $("#tpl_resume_card").clone();
         var $content = $clone.html();
         var cate_type = "cate1";
         if (row.bd_cate == "업무") {
@@ -1778,7 +1708,7 @@ if (count($banner_list) > 0) {
 
           $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
 
-          $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
+          $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
           $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
           $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
           $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
@@ -1827,30 +1757,6 @@ if (count($banner_list) > 0) {
     });
   }
 
-
-
-  function getHashTagJS(hash, max = 10) {
-    if (!hash) {
-      return "";
-    }
-    let result = "";
-    let tmp = hash;
-    tmp = tmp.replaceAll("<p class=\'tag\' style=\'width:100%;text-align:right;\'>", "");
-    tmp = tmp.replaceAll("</p>", "");
-    let arr_hash = tmp.trim().split(" ");
-    arr_hash.forEach(function(txt, key) {
-      if (key < max) {
-        if (!txt.includes("#") && txt.trim() !== "") {
-          txt = "#" + txt.trim();
-        }
-        if (txt.trim() !== "") {
-          result += ` <p class='tag'>${txt}</p>`;
-        }
-      }
-    });
-
-    return result;
-  }
 
   function getKoreanAge(birth) {
     if (!birth || birth.length !== 8) {
