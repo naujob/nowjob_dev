@@ -356,3 +356,40 @@
   margin: auto;
   border-right: 1px solid #777;
 }
+
+/* =============================================
+   공통 레이아웃 치수 (두 페이지 동일하게 적용)
+   ============================================= */
+.result-list .content-li {
+  height: 137px;
+  padding: 10px 0;
+}
+
+.result-list .content-info .content-body {
+  height: 107%;
+}
+
+.result-list .content-info .img {
+  width: 130px;
+  height: 120px;
+}
+
+.result-list .content-info .desc .desc1 {
+  width: 70%;
+}
+
+.result-list .content-info .desc .desc2 {
+  width: 20%;
+}
+
+.result-list .content-info .desc .desc3 {
+  width: 20%;
+}
+
+.recomm-slider.recruit {
+  background-color: #fff;
+}
+
+.recruit-card .thumb {
+  padding: 98.291139% 0 0;
+}

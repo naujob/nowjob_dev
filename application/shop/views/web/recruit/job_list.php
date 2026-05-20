@@ -7,42 +7,6 @@ if (count($banner_list) > 0) {
 ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
-<style>
-  .recomm-slider.recruit {
-    background-color: #fff;
-  }
-
-  /* job_list.php 레이아웃 오버라이드 */
-  .result-list .content-li {
-    height: 137px;
-    padding: 10px 0;
-  }
-
-  .result-list .content-info .content-body {
-    height: 107%;
-  }
-
-  .result-list .content-info .img {
-    width: 130px;
-    height: 120px;
-  }
-
-  .result-list .content-info .desc .desc1 {
-    width: 70%;
-  }
-
-  .result-list .content-info .desc .desc2 {
-    width: 20%;
-  }
-
-  .result-list .content-info .desc .desc3 {
-    width: 20%;
-  }
-
-  .recruit-card .thumb {
-    padding: 98.291139% 0 0;
-  }
-</style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <div id="content" class="page page-recruit">
