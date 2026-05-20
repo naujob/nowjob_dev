@@ -133,6 +133,8 @@
   color: #888;
   overflow: hidden;
   flex-shrink: 0;
+  height: 137px;
+  
 }
 
 .result-list .content-info .img img {

@@ -1,29 +1,5 @@
 <?php
-function replaceRegionNames($text)
-{
-  $regionMap = [
-    "서울특별시" => "서울",
-    "부산광역시" => "부산",
-    "대구광역시" => "대구",
-    "인천광역시" => "인천",
-    "광주광역시" => "광주",
-    "대전광역시" => "대전",
-    "울산광역시" => "울산",
-    "세종특별자치시" => "세종",
-    "경기도" => "경기",
-    "강원특별자치도" => "강원",
-    "충청북도" => "충북",
-    "충청남도" => "충남",
-    "전북특별자치도" => "전북",
-    "전라남도" => "전남",
-    "경상북도" => "경북",
-    "경상남도" => "경남",
-    "제주특별자치도" => "제주"
-  ];
-
-  return str_replace(array_keys($regionMap), array_values($regionMap), $text);
-}
-$addr_info = replaceRegionNames(trim($addr_info));
+// 주소 포맷팅은 JavaScript의 fRemoveBigAdrJS 함수에서 처리
 ?>
 <style>
   .page-map .result-wrap .slider-wrap {
@@ -538,7 +514,7 @@ $addr_info = replaceRegionNames(trim($addr_info));
                   break;
                 }
               }
-              $('#myLocation').html(replaceRegionNames(currentDong));
+              $('#myLocation').html(fRemoveBigAdrJS(currentDong));
               var jibun = !!result[0].address ? result[0].address.address_name : '';
               var doro = !!result[0].road_address ? result[0].road_address.address_name : '';
               // updateAddrInfo('', doro, jibun, currentDong, currentLongitude, currentLatitude);
@@ -770,6 +746,14 @@ $addr_info = replaceRegionNames(trim($addr_info));
 <input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <script>
   window.addEventListener('DOMContentLoaded', function() {
+    // 초기 주소를 단축 형식으로 포맷팅
+    setTimeout(function() {
+      var initialAddr = $('#myLocation').text();
+      if (initialAddr && initialAddr !== "서울 중구 태평로1가") {
+        $('#myLocation').text(fRemoveBigAdrJS(initialAddr));
+      }
+    }, 100);
+
     fetchRecruitPin();
   });
 
@@ -855,32 +839,6 @@ $addr_info = replaceRegionNames(trim($addr_info));
     return cleaned;
   }
 
-  function replaceRegionNames(text) {
-    const regionMap = {
-      "서울특별시": "서울",
-      "부산광역시": "부산",
-      "대구광역시": "대구",
-      "인천광역시": "인천",
-      "광주광역시": "광주",
-      "대전광역시": "대전",
-      "울산광역시": "울산",
-      "세종특별자치시": "세종",
-      "경기도": "경기",
-      "강원특별자치도": "강원",
-      "충청북도": "충북",
-      "충청남도": "충남",
-      "전북특별자치도": "전북",
-      "전라남도": "전남",
-      "경상북도": "경북",
-      "경상남도": "경남",
-      "제주특별자치도": "제주"
-    };
-    return text.replace(
-      new RegExp(Object.keys(regionMap).join("|"), "g"),
-      match => regionMap[match]
-    );
-  }
-
   function updateAddrInfo(zipcode, doro, jibun, addr, x, y) {
     var params = {};
     params["ad_zipcode"] = zipcode;
@@ -898,7 +856,7 @@ $addr_info = replaceRegionNames(trim($addr_info));
       success: function(json) {
         searchDong = [];
         if (json.code === "00") {
-          $('#myLocation').html(replaceRegionNames(addr));
+          $('#myLocation').html(fRemoveBigAdrJS(addr));
         }
       },
       error: function(xhr, status, error) {

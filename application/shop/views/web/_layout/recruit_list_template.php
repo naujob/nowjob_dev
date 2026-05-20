@@ -4,11 +4,13 @@
  * $tpl_item_hover        : li에 item-hover 클래스 추가 여부 (기본: false)
  * $tpl_show_timestamp    : timestamp 영역 표시 여부 (기본: true)
  * $tpl_show_recomm_badge : 추천 배지 표시 여부 (기본: true)
+ * $tpl_show_reco_title   : '지금뜨는 추천공고' 텍스트 표시 여부 (기본: false)
  */
 $tpl_id                = isset($tpl_id)                ? $tpl_id                : 'tpl_list';
 $tpl_item_hover        = isset($tpl_item_hover)        ? $tpl_item_hover        : false;
 $tpl_show_timestamp    = isset($tpl_show_timestamp)    ? $tpl_show_timestamp    : true;
 $tpl_show_recomm_badge = isset($tpl_show_recomm_badge) ? $tpl_show_recomm_badge : true;
+$tpl_show_reco_title   = isset($tpl_show_reco_title)   ? $tpl_show_reco_title   : false;
 ?>
 <!-- 채용공고 리스트 템플릿 (job_list.php, company.php, search.php에서 공유) -->
 <template id="<?= $tpl_id ?>">
@@ -23,7 +25,7 @@ $tpl_show_recomm_badge = isset($tpl_show_recomm_badge) ? $tpl_show_recomm_badge 
           </div>
           <div class="desc">
             <div class="desc1">
-              <?php if ($tpl_show_timestamp) { ?><div class="timestamp">{{timestamp}}</div><?php } ?>
+              <?php if ($tpl_show_timestamp || $tpl_show_reco_title) { ?><div class="timestamp"><?php if ($tpl_show_reco_title) { ?><p class="reco-title">지금뜨는 추천공고</p><?php } ?><?php if ($tpl_show_timestamp) { ?>{{timestamp}}<?php } ?></div><?php } ?>
               <div class="wicon">{{rt_work_img}}</div>
               <div class="title ellipsis">{{rc_name}}</div>
               <div class="summary">
@@ -51,5 +53,5 @@ $tpl_show_recomm_badge = isset($tpl_show_recomm_badge) ? $tpl_show_recomm_badge 
 </template>
 <?php
 /* 사용한 파라미터 변수 정리 (후속 include 오염 방지) */
-unset($tpl_id, $tpl_item_hover, $tpl_show_timestamp, $tpl_show_recomm_badge);
+unset($tpl_id, $tpl_item_hover, $tpl_show_timestamp, $tpl_show_recomm_badge, $tpl_show_reco_title);
 ?>

@@ -5,12 +5,14 @@
 // $tpl_id = 'tpl_resume_card';
 // $tpl_show_timestamp = true;
 // $tpl_show_mm_idx = true;
+// $tpl_show_reco_title = true;
 // $tpl_price_wrap_width = '290px';
 // include APPPATH . 'views/web/_layout/resume_list_template.php';
 
 $tpl_id             = isset($tpl_id)             ? $tpl_id             : 'tpl_resume_card';
 $tpl_show_timestamp = isset($tpl_show_timestamp) ? $tpl_show_timestamp : false;
 $tpl_show_mm_idx    = isset($tpl_show_mm_idx)    ? $tpl_show_mm_idx    : false;
+$tpl_show_reco_title = isset($tpl_show_reco_title) ? $tpl_show_reco_title : false;
 $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '20%';
 ?>
 <template id="<?= $tpl_id ?>">
@@ -28,9 +30,7 @@ $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '
 
       <div class="desc">
         <div class="content-wrap">
-          <?php if ($tpl_show_timestamp): ?>
-          <div class="timestamp">{{timestamp}}</div>
-          <?php endif; ?>
+          <?php if ($tpl_show_timestamp || $tpl_show_reco_title): ?><div class="timestamp"><?php if ($tpl_show_reco_title): ?><p class="reco-title">지금뜨는 추천인재</p><?php endif; ?><?php if ($tpl_show_timestamp): ?>{{timestamp}}<?php endif; ?></div><?php endif; ?>
           <div class="inline-group">
             <p class="category">{{ru_work_img}}</p>
           </div>

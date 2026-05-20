@@ -1,29 +1,6 @@
 <?php
-function replaceRegionNames($text)
-{
-  $regionMap = [
-    "서울특별시" => "서울",
-    "부산광역시" => "부산",
-    "대구광역시" => "대구",
-    "인천광역시" => "인천",
-    "광주광역시" => "광주",
-    "대전광역시" => "대전",
-    "울산광역시" => "울산",
-    "세종특별자치시" => "세종",
-    "경기도" => "경기",
-    "강원특별자치도" => "강원",
-    "충청북도" => "충북",
-    "충청남도" => "충남",
-    "전북특별자치도" => "전북",
-    "전라남도" => "전남",
-    "경상북도" => "경북",
-    "경상남도" => "경남",
-    "제주특별자치도" => "제주"
-  ];
 
-  return str_replace(array_keys($regionMap), array_values($regionMap), $text);
-}
-$ad_addr = replaceRegionNames(trim($ad_addr));
+$ad_addr = trim($ad_addr);
 ?>
 <style>
   .page-map .js-map-wrap {
@@ -445,7 +422,7 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
         <div class="js-map-wrap">
           <div id="jsMap" class="js-map"></div>
         </div>
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=clusterer,services"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=clusterer,services"></script>
         <script>
           var data = [];
           var recruitlist = [];
@@ -821,71 +798,9 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
     }
   };
 
-  function replaceRegionNames(text) {
-    const regionMap = {
-      "서울특별시": "서울",
-      "부산광역시": "부산",
-      "대구광역시": "대구",
-      "인천광역시": "인천",
-      "광주광역시": "광주",
-      "대전광역시": "대전",
-      "울산광역시": "울산",
-      "세종특별자치시": "세종",
-      "경기도": "경기",
-      "강원특별자치도": "강원",
-      "충청북도": "충북",
-      "충청남도": "충남",
-      "전북특별자치도": "전북",
-      "전라남도": "전남",
-      "경상북도": "경북",
-      "경상남도": "경남",
-      "제주특별자치도": "제주"
-    };
-    return text.replace(
-      new RegExp(Object.keys(regionMap).join("|"), "g"),
-      match => regionMap[match]
-    );
-  }
 
-  function fRemoveBigAdrJS(arg) {
 
-    const parts1 = arg.split(",");
-    arg = parts1[0];
 
-    arg = arg.replace("서울특별시 ", "서울시 ");
-    arg = arg.replace("경기 ", "");
-    arg = arg.replace("강원 ", "");
-    arg = arg.replace("충남 ", "");
-    arg = arg.replace("충북 ", "");
-    arg = arg.replace("경남 ", "");
-    arg = arg.replace("경북 ", "");
-    arg = arg.replace("전남 ", "");
-    arg = arg.replace("전북 ", "");
-    arg = arg.replace("제주 ", "");
-    arg = arg.replace("경기도 ", "");
-    arg = arg.replace("강원특별자치도 ", "");
-    arg = arg.replace("충청남도 ", "");
-    arg = arg.replace("충청북도 ", "");
-    arg = arg.replace("경상남도 ", "");
-    arg = arg.replace("경상북도 ", "");
-    arg = arg.replace("전라남도 ", "");
-    arg = arg.replace("전북특별자치도 ", "");
-    arg = arg.replace("제주특별자치도 ", "");
-    arg = arg.replace("세종특별자치시 ", "세종시 ");
-    arg = arg.replace("광주광역시 ", "광주시 ");
-    arg = arg.replace("인천광역시 ", "인천시 ");
-    arg = arg.replace("울산광역시 ", "울산시 ");
-    arg = arg.replace("부산광역시 ", "부산시 ");
-    arg = arg.replace("대구광역시 ", "대구시 ");
-    arg = arg.replace("대전광역시 ", "대전시 ");
-
-    const parts = arg.split(" ");
-    if (parts.length >= 3) {
-      return parts[0] + " " + parts[2];
-    } else {
-      return arg;
-    }
-  }
 
   function getConvertAgeLabel(age) {
     let cleaned = age.replaceAll(" 이상", "").replaceAll(" 이하", "");
@@ -917,7 +832,7 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
       success: function(json) {
         searchDong = [];
         if (json.code === "00") {
-          $('#myLocation').html(replaceRegionNames(addr));
+          $('#myLocation').html(fRemoveBigAdrJS(addr));
         }
       },
       error: function(xhr, status, error) {
@@ -996,6 +911,14 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
   });
 
   $(document).ready(function() {
+    // 초기 주소를 단축 형식으로 포맷팅
+    setTimeout(function() {
+      var initialAddr = $('#myLocation').text();
+      if (initialAddr && initialAddr !== "서울 중구 태평로1가") {
+        $('#myLocation').text(fRemoveBigAdrJS(initialAddr));
+      }
+    }, 100);
+
     getRecoList();
     fetchResumePin();
   });
