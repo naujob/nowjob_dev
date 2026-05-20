@@ -422,7 +422,7 @@ $ad_addr = trim($ad_addr);
         <div class="js-map-wrap">
           <div id="jsMap" class="js-map"></div>
         </div>
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=clusterer,services"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= isset($kakao_key["인증키"]) ? $kakao_key["인증키"] : "" ?>&libraries=clusterer,services"></script>
         <script>
           var data = [];
           var recruitlist = [];
