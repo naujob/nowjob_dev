@@ -1385,6 +1385,10 @@ class Compage extends CI_Controller
 			"rc_work" => "",
 			"rc_work_type" => "",
 			"rc_work_negotiation" => "Y",
+			"rc_am_stime" => "",
+			"rc_am_etime" => "",
+			"rc_pm_stime" => "",
+			"rc_pm_etime" => "",
 			"rc_price_type_main" => "",
 			"rc_price_amount" => "",
 			"rc_price_possible" => "",
@@ -1425,6 +1429,10 @@ class Compage extends CI_Controller
 			$info["rc_work"] = explode(",", $recruit_info["rc_work"]);
 			$info["rc_work_type"] = explode(",", $recruit_info["rc_work_type"]);
 			$info["rc_work_negotiation"] = isset($recruit_info["rc_work_negotiation"]) ? $recruit_info["rc_work_negotiation"] : "";
+			$info["rc_am_stime"] = isset($recruit_info["rc_am_stime"]) ? $recruit_info["rc_am_stime"] : "";
+			$info["rc_am_etime"] = isset($recruit_info["rc_am_etime"]) ? $recruit_info["rc_am_etime"] : "";
+			$info["rc_pm_stime"] = isset($recruit_info["rc_pm_stime"]) ? $recruit_info["rc_pm_stime"] : "";
+			$info["rc_pm_etime"] = isset($recruit_info["rc_pm_etime"]) ? $recruit_info["rc_pm_etime"] : "";
 
 			// 급여형태 정보 변환: DB 필드(rc_price_rep, rc_price_pay, rc_price_type)를 폼 필드(rc_price_type_main, rc_price_amount, rc_price_possible)로 변환
 			// 급여협의 처리: rc_price_type이 "급여협의"이거나 rc_price_rep이 "협의"/"급여협의"인 경우

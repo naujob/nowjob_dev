@@ -103,23 +103,29 @@
                                 <span class="work-time-label">출근</span>
                                 <div class="work-time-input-wrap">
                                     <select name="rc_am_stime_h" class="time-select">
-                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_am_stime"]) && substr($info["rc_am_stime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 9 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php
+                                        $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09";
+                                        $amStartM = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 3, 2) : "00";
+                                        for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
                                         <?php } ?>
                                     </select>
                                     <span>:</span>
-                                    <input type="text" name="rc_am_stime_m" value="<?= isset($info["rc_am_stime"]) ? substr($info["rc_am_stime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    <input type="text" name="rc_am_stime_m" value="<?= $amStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
                                 </div>
                                 <!-- 퇴근 -->
                                 <span class="work-time-label">퇴근</span>
                                 <div class="work-time-input-wrap">
                                     <select name="rc_am_etime_h" class="time-select">
-                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_am_etime"]) && substr($info["rc_am_etime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 18 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php
+                                        $amEndH = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 0, 2) : "18";
+                                        $amEndM = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 3, 2) : "00";
+                                        for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
                                         <?php } ?>
                                     </select>
                                     <span>:</span>
-                                    <input type="text" name="rc_am_etime_m" value="<?= isset($info["rc_am_etime"]) ? substr($info["rc_am_etime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    <input type="text" name="rc_am_etime_m" value="<?= $amEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
                                 </div>
                             </div>
                             <input type="hidden" name="rc_am_stime" value="<?= isset($info["rc_am_stime"]) ? $info["rc_am_stime"] : "" ?>">
@@ -133,22 +139,28 @@
                                 <span class="work-time-label">출근</span>
                                 <div class="work-time-input-wrap">
                                     <select name="rc_pm_stime_h" class="time-select">
-                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_pm_stime"]) && substr($info["rc_pm_stime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 21 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php
+                                        $pmStartH = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 0, 2) : "21";
+                                        $pmStartM = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 3, 2) : "00";
+                                        for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
                                         <?php } ?>
                                     </select>
                                     <span>:</span>
-                                    <input type="text" name="rc_pm_stime_m" value="<?= isset($info["rc_pm_stime"]) ? substr($info["rc_pm_stime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    <input type="text" name="rc_pm_stime_m" value="<?= $pmStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
                                 </div>
                                 <span class="work-time-label">퇴근</span>
                                 <div class="work-time-input-wrap">
                                     <select name="rc_pm_etime_h" class="time-select">
-                                        <?php for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= (isset($info["rc_pm_etime"]) && substr($info["rc_pm_etime"], 0, 2) == str_pad($t, 2, "0", STR_PAD_LEFT)) ? "selected" : ($t == 6 ? "selected" : "") ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                        <?php
+                                        $pmEndH = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 0, 2) : "06";
+                                        $pmEndM = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 3, 2) : "00";
+                                        for ($t = 0; $t <= 23; $t++) { ?>
+                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
                                         <?php } ?>
                                     </select>
                                     <span>:</span>
-                                    <input type="text" name="rc_pm_etime_m" value="<?= isset($info["rc_pm_etime"]) ? substr($info["rc_pm_etime"], 3, 2) : "00" ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    <input type="text" name="rc_pm_etime_m" value="<?= $pmEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
                                 </div>
                             </div>
                             <input type="hidden" name="rc_pm_stime" value="<?= isset($info["rc_pm_stime"]) ? $info["rc_pm_stime"] : "" ?>">
@@ -596,10 +608,22 @@
     if (isset($info_for_js["rc_desc"])) {
         $info_for_js["rc_desc"] = strip_tags($info_for_js["rc_desc"]);
     }
+    // rc_hash를 배열로 변환 (JavaScript에서 Array.isArray() 판단용)
+    if (isset($info_for_js["rc_hash"]) && $info_for_js["rc_hash"] != "") {
+        $info_for_js["rc_hash"] = explode(",", $info_for_js["rc_hash"]);
+    } else {
+        $info_for_js["rc_hash"] = [];
+    }
     ?>
     var serverData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0) ? json_encode($info_for_js, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
     var serverAddrData = serverData && serverData.addr ? serverData.addr : null;
-
+    // localStorage의 key 이름을 rc_idx 기준으로 변경하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
+    /**
+     * var data = localStorage.getItem(oldKey);
+        localStorage.setItem(newKey, data);
+        localStorage.removeItem(oldKey);
+    
+     */
     function migrateRecruitDraftKeys(oldIdx, newIdx, pages) {
         if (!oldIdx || !newIdx || oldIdx === newIdx) return;
         (pages || []).forEach(function(page) {
@@ -631,7 +655,8 @@
         var pm_e_m = String($("[name='rc_pm_etime_m']").val() || "00").padStart(2, "0");
         $("[name='rc_pm_etime']").val(pm_e_h + ":" + pm_e_m);
     }
-
+    // 페이지별로 데이터를 localStorage에 저장하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
+    // 채용공고 작성 1페이지 내용을 localStorage에 임시저장하기 위해 데이터 묶음을 만드는 함수
     function savePage1Data() {
         syncTimeHiddenFields();
         var rcIdx = $("[name='rc_idx']").val() || "0";
@@ -687,6 +712,7 @@
         localStorage.setItem(storageKey, JSON.stringify(formData));
     }
 
+    // hidden 필드 동기화 함수 (해시태그를 쉼표로 구분된 문자열로 합성)
     function savePage3Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var storageKey = "recruit_draft_" + rcIdx + "_page3";
@@ -760,7 +786,7 @@
         }
         return false;
     }
-
+    // 페이지 새로고침 후 localStorage에 저장된 데이터를 다시 폼에 채워 넣는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
     function loadPage1Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
@@ -1047,7 +1073,7 @@
         localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
         localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
     }
-
+    // 급여 유형에 따라 급여 옵션 표시/숨김 처리하는 함수
     function updateSalaryOptions() {
         var selectedType = $("#rc_price_type_main").val();
         var $optionsGroup = $("#salary-options-group");
@@ -1083,7 +1109,7 @@
             $optionsGroup.find("input[value='주급가능']").closest("label").show();
         }
     }
-
+    // 주소 검색 결과를 폼에 반영하는 함수
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y, detail) {
         detail = detail || "";
 
@@ -1106,15 +1132,15 @@
         $("#changeArea").removeClass("on");
         savePage1Data();
     }
-
+    // 해시태그 체크박스에서 선택된 값들을 쉼표로 구분된 문자열로 만들어 반환하는 함수
     function buildHashString() {
         var hashArray = [];
         $("[name='rc_hash[]']:checked").each(function() {
             hashArray.push($(this).val());
         });
-        return hashArray.join(",");
+        return hashArray.join(","); // 쉼표로 구분된 문자열 반환
     }
-
+    // 업무구분 체크박스에서 선택된 값들의 이미지를 콤마로 구분된 문자열로 만들어 hidden 필드에 저장하는 함수
     function collectRcWorkImg() {
         var rc_work_img = "";
         $("[name='rc_work[]']:checked").each(function() {
@@ -1455,6 +1481,7 @@
 
         setTimeout(function() {
             loadPage3Data();
+            syncTimeHiddenFields();
         }, 1000);
 
         // 페이지 로드 시 근무시간 섹션 및 근무협의 초기화

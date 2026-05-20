@@ -1718,12 +1718,15 @@
                       <span class="work-time-label">출근</span>
                       <div class="work-time-input-wrap">
                         <select id="rc_am_stime_h" name="rc_am_stime_h" class="time-select">
-                          <?php for ($t1 = 0; $t1 <= 23; $t1++) { ?>
-                            <option value="<?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_am_stime"], 0, 2) == str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected" : ($t1 == 9 ? "selected" : "") ?>><?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?></option>
+                          <?php
+                          $amStartH = !empty($info["rc_am_stime"]) ? substr($info["rc_am_stime"], 0, 2) : "09";
+                          $amStartM = !empty($info["rc_am_stime"]) ? substr($info["rc_am_stime"], 3, 2) : "00";
+                          for ($t1 = 0; $t1 <= 23; $t1++) { ?>
+                            <option value="<?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?>" <?= $amStartH == str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?></option>
                           <?php } ?>
                         </select>
                         <span>:</span>
-                        <input type="text" name="rc_am_stime_m" value="<?= substr($info["rc_am_stime"], 3, 2) ?>" placeholder="00" class="time-input-m">
+                        <input type="text" name="rc_am_stime_m" value="<?= $amStartM ?>" placeholder="00" class="time-input-m">
                       </div>
                       <input type="hidden" name="rc_am_stime" value="<?= $info["rc_am_stime"] ?>">
 
@@ -1731,12 +1734,15 @@
                       <span class="work-time-label">퇴근</span>
                       <div class="work-time-input-wrap">
                         <select id="rc_am_etime_h" name="rc_am_etime_h" class="time-select">
-                          <?php for ($t2 = 0; $t2 <= 23; $t2++) { ?>
-                            <option value="<?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_am_etime"], 0, 2) == str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected" : ($t2 == 18 ? "selected" : "") ?>><?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?></option>
+                          <?php
+                          $amEndH = !empty($info["rc_am_etime"]) ? substr($info["rc_am_etime"], 0, 2) : "18";
+                          $amEndM = !empty($info["rc_am_etime"]) ? substr($info["rc_am_etime"], 3, 2) : "00";
+                          for ($t2 = 0; $t2 <= 23; $t2++) { ?>
+                            <option value="<?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?>" <?= $amEndH == str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?></option>
                           <?php } ?>
                         </select>
                         <span>:</span>
-                        <input type="text" name="rc_am_etime_m" value="<?= substr($info["rc_am_etime"], 3, 2) ?>" placeholder="00" class="time-input-m">
+                        <input type="text" name="rc_am_etime_m" value="<?= $amEndM ?>" placeholder="00" class="time-input-m">
                       </div>
                       <input type="hidden" name="rc_am_etime" value="<?= $info["rc_am_etime"] ?>">
 
@@ -1753,12 +1759,15 @@
                       <span class="work-time-label">출근</span>
                       <div class="work-time-input-wrap">
                         <select id="rc_pm_stime_h" name="rc_pm_stime_h" class="time-select">
-                          <?php for ($t1 = 0; $t1 <= 23; $t1++) { ?>
-                            <option value="<?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_pm_stime"], 0, 2) == str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected" : ($t1 == 21 ? "selected" : "") ?>><?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?></option>
+                          <?php
+                          $pmStartH = !empty($info["rc_pm_stime"]) ? substr($info["rc_pm_stime"], 0, 2) : "21";
+                          $pmStartM = !empty($info["rc_pm_stime"]) ? substr($info["rc_pm_stime"], 3, 2) : "00";
+                          for ($t1 = 0; $t1 <= 23; $t1++) { ?>
+                            <option value="<?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?>" <?= $pmStartH == str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t1, 2, "0", STR_PAD_LEFT) ?></option>
                           <?php } ?>
                         </select>
                         <span>:</span>
-                        <input type="text" name="rc_pm_stime_m" value="<?= substr($info["rc_pm_stime"], 3, 2) ?>" placeholder="00" class="time-input-m">
+                        <input type="text" name="rc_pm_stime_m" value="<?= $pmStartM ?>" placeholder="00" class="time-input-m">
                       </div>
                       <input type="hidden" name="rc_pm_stime" value="<?= $info["rc_pm_stime"] ?>">
 
@@ -1766,12 +1775,15 @@
                       <span class="work-time-label">퇴근</span>
                       <div class="work-time-input-wrap">
                         <select id="rc_pm_etime_h" name="rc_pm_etime_h" class="time-select">
-                          <?php for ($t2 = 0; $t2 <= 23; $t2++) { ?>
-                            <option value="<?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?>" <?= substr($info["rc_pm_etime"], 0, 2) == str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected" : ($t2 == 6 ? "selected" : "") ?>><?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?></option>
+                          <?php
+                          $pmEndH = !empty($info["rc_pm_etime"]) ? substr($info["rc_pm_etime"], 0, 2) : "06";
+                          $pmEndM = !empty($info["rc_pm_etime"]) ? substr($info["rc_pm_etime"], 3, 2) : "00";
+                          for ($t2 = 0; $t2 <= 23; $t2++) { ?>
+                            <option value="<?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?>" <?= $pmEndH == str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t2, 2, "0", STR_PAD_LEFT) ?></option>
                           <?php } ?>
                         </select>
                         <span>:</span>
-                        <input type="text" name="rc_pm_etime_m" value="<?= substr($info["rc_pm_etime"], 3, 2) ?>" placeholder="00" class="time-input-m">
+                        <input type="text" name="rc_pm_etime_m" value="<?= $pmEndM ?>" placeholder="00" class="time-input-m">
                       </div>
                       <input type="hidden" name="rc_pm_etime" value="<?= $info["rc_pm_etime"] ?>">
 
@@ -2316,14 +2328,17 @@
                 function syncHashToTextarea() {
                   var selected = [];
                   $('.hash-preset-btn input[type="checkbox"]:checked').each(function() {
-                    selected.push('#' + $(this).val());
+                    selected.push($(this).val());
                   });
-                  $('textarea[name="rc_hash"]').val(selected.join(', '));
+                  $('textarea[name="rc_hash"]').val(selected.join(','));
                 }
 
                 $('.hash-preset-btn input[type="checkbox"]').on('change', function() {
                   syncHashToTextarea();
                 });
+
+                // 페이지 로드 시 초기 동기화
+                syncHashToTextarea();
 
                 // 태그 추가 함수
                 function addHashTag() {
@@ -3090,12 +3105,12 @@
       // 근무형태별 시간값 처리
       // 주간 또는 2교대가 선택된 경우 AM 시간 저장
       if (isAMSelected || is2ShiftSelected) {
-        var amStartH = $('input[name="rc_am_stime_h"]').val() || '09';
+        var amStartH = $('select[name="rc_am_stime_h"]').val() || '09';
         var amStartM = $('input[name="rc_am_stime_m"]').val() || '00';
-        var amEndH = $('input[name="rc_am_etime_h"]').val() || '18';
+        var amEndH = $('select[name="rc_am_etime_h"]').val() || '18';
         var amEndM = $('input[name="rc_am_etime_m"]').val() || '00';
-        $('input[name="rc_am_stime"]').val(amStartH + ':' + amStartM);
-        $('input[name="rc_am_etime"]').val(amEndH + ':' + amEndM);
+        $('input[name="rc_am_stime"]').val(amStartH + ':' + amStartM.padStart(2, '0'));
+        $('input[name="rc_am_etime"]').val(amEndH + ':' + amEndM.padStart(2, '0'));
       } else {
         // 주간/2교대가 선택되지 않으면 AM 시간 비움
         $('input[name="rc_am_stime"]').val('');
@@ -3104,12 +3119,12 @@
 
       // 야간 또는 2교대가 선택된 경우 PM 시간 저장
       if (isPMSelected || is2ShiftSelected) {
-        var pmStartH = $('input[name="rc_pm_stime_h"]').val() || '21';
+        var pmStartH = $('select[name="rc_pm_stime_h"]').val() || '21';
         var pmStartM = $('input[name="rc_pm_stime_m"]').val() || '00';
-        var pmEndH = $('input[name="rc_pm_etime_h"]').val() || '06';
+        var pmEndH = $('select[name="rc_pm_etime_h"]').val() || '06';
         var pmEndM = $('input[name="rc_pm_etime_m"]').val() || '00';
-        $('input[name="rc_pm_stime"]').val(pmStartH + ':' + pmStartM);
-        $('input[name="rc_pm_etime"]').val(pmEndH + ':' + pmEndM);
+        $('input[name="rc_pm_stime"]').val(pmStartH + ':' + pmStartM.padStart(2, '0'));
+        $('input[name="rc_pm_etime"]').val(pmEndH + ':' + pmEndM.padStart(2, '0'));
       } else {
         // 야간/2교대가 선택되지 않으면 PM 시간 비움
         $('input[name="rc_pm_stime"]').val('');
@@ -3261,6 +3276,28 @@
     fDelbtnAdd(4);
     fDelbtnAdd(5);
 
+    // 페이지 로드 시 초기값 동기화
+    syncTimeHiddenFields();
+
+    // 숨겨진 필드 동기화 함수
+    function syncTimeHiddenFields() {
+      var amStartH = $('select[name="rc_am_stime_h"]').val() || '09';
+      var amStartM = $('input[name="rc_am_stime_m"]').val() || '00';
+      $('input[name="rc_am_stime"]').val(amStartH + ':' + amStartM.padStart(2, '0'));
+
+      var amEndH = $('select[name="rc_am_etime_h"]').val() || '18';
+      var amEndM = $('input[name="rc_am_etime_m"]').val() || '00';
+      $('input[name="rc_am_etime"]').val(amEndH + ':' + amEndM.padStart(2, '0'));
+
+      var pmStartH = $('select[name="rc_pm_stime_h"]').val() || '21';
+      var pmStartM = $('input[name="rc_pm_stime_m"]').val() || '00';
+      $('input[name="rc_pm_stime"]').val(pmStartH + ':' + pmStartM.padStart(2, '0'));
+
+      var pmEndH = $('select[name="rc_pm_etime_h"]').val() || '06';
+      var pmEndM = $('input[name="rc_pm_etime_m"]').val() || '00';
+      $('input[name="rc_pm_etime"]').val(pmEndH + ':' + pmEndM.padStart(2, '0'));
+    }
+
     // 특정 필드에 대한 선택자를 사용하여 모든 필드에 대해 이벤트를 바인딩
     $('[name^="rc_am_stime_m"], [name^="rc_am_etime_m"], [name^="rc_pm_stime_m"], [name^="rc_pm_etime_m"]').on('input', function() {
       // 숫자만 입력되도록 처리
@@ -3275,6 +3312,9 @@
           $(this).val(59);
         }
       }
+
+      // 분 입력 후 숨겨진 필드 동기화
+      syncTimeHiddenFields();
     });
 
     //앞에 시간 선택시 8시간 뒤로 뒷시간 설정
@@ -3282,11 +3322,25 @@
       var startTime = parseInt($(this).val(), 10);
       var endTime = (startTime + 8) % 24; // 24시간 이후는 다음날로 넘어가므로 나머지 연산자 사용
       $('#rc_am_etime_h').val(endTime.toString().padStart(2, '0')); // 값 설정, 1자리 숫자 앞에 0 추가
+
+      // 시간 선택 후 숨겨진 필드 동기화
+      syncTimeHiddenFields();
     });
     $('#rc_pm_stime_h').change(function() {
       var startTime = parseInt($(this).val(), 10);
       var endTime = (startTime + 8) % 24; // 24시간 이후는 다음날로 넘어가므로 나머지 연산자 사용
       $('#rc_pm_etime_h').val(endTime.toString().padStart(2, '0')); // 값 설정, 1자리 숫자 앞에 0 추가
+
+      // 시간 선택 후 숨겨진 필드 동기화
+      syncTimeHiddenFields();
+    });
+
+    // 퇴근 시간 선택 시에도 동기화
+    $('select[name="rc_am_etime_h"]').change(function() {
+      syncTimeHiddenFields();
+    });
+    $('select[name="rc_pm_etime_h"]').change(function() {
+      syncTimeHiddenFields();
     });
 
 
