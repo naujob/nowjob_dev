@@ -68,6 +68,31 @@ $banner_list = getBannerList("BN00302031");
     overflow: hidden;
   }
 
+  /* 슬라이더 dot 인디케이터 */
+  .hot-list .slider-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 0;
+  }
+
+  .hot-list .slider-dots .dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #d0d0d0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .hot-list .slider-dots .dot.active {
+    background-color: #57CCAF;
+    width: 26px;
+    border-radius: 50px;
+  }
+
   /* 추천인재 슬라이더 양쪽 peek — container overflow 재정의 */
   .section.index_comp:has(.recomm-slider) .container {
     overflow: visible;
@@ -573,7 +598,7 @@ $banner_list = getBannerList("BN00302031");
   <div class="section" id="hotListSection">
     <div class="container">
       <h2 class="secondary-title index">지금 뜨는 업체</h2>
-      <div class="hot-list">
+      <div class="hot-list" style="display: flex; flex-direction: column;">
         <div class="slider-wrap keen-slider">
           <?php
           $limited_up_list = isset($up_list) && is_array($up_list) ? $up_list : array();
@@ -599,7 +624,7 @@ $banner_list = getBannerList("BN00302031");
 
                         <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
 
-                        <p class="name"><?= $row["mm_comp_name"] ?></p>
+                        <p class="name"><?= getRandomCompDesc($row["mm_comp_name"]) ?></p>
                       </div>
                     </a>
                   <?php else : ?>
@@ -612,6 +637,8 @@ $banner_list = getBannerList("BN00302031");
             </div>
           <?php endforeach; ?>
         </div>
+        <!-- 슬라이더 dot 인디케이터 -->
+        <div class="slider-dots" id="hotSliderDots"></div>
       </div>
     </div>
   </div>
@@ -1260,6 +1287,7 @@ $tpl_recomm_class = true; ?>
     if (hotSlider && typeof KeenSlider !== 'undefined') {
       if (!hotSlider.__keenslider__) {
         var slides = hotSlider.querySelectorAll('.keen-slider__slide');
+        var actualSlideCount = slides.length;
         if (slides.length > 0 && slides.length < 4) {
           var cloneCount = Math.ceil(4 / slides.length) * slides.length;
           var added = slides.length;
@@ -1287,7 +1315,8 @@ $tpl_recomm_class = true; ?>
             });
           }
         }
-        new KeenSlider(hotSlider, {
+
+        var keenSlider = new KeenSlider(hotSlider, {
           loop: true,
           slides: {
             perView: 1.1,
@@ -1298,6 +1327,36 @@ $tpl_recomm_class = true; ?>
           rubberband: true,
           renderMode: 'precision'
         });
+
+        // dot 인디케이터 생성 및 업데이트
+        var dotsContainer = document.getElementById('hotSliderDots');
+        if (dotsContainer && actualSlideCount > 1) {
+          // 원본 슬라이드 개수만큼 dot 생성
+          for (var i = 0; i < actualSlideCount; i++) {
+            var dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('data-index', i);
+            (function(index) {
+              dot.addEventListener('click', function(e) {
+                e.stopPropagation();
+                keenSlider.moveToSlide(index);
+              });
+            })(i);
+            dotsContainer.appendChild(dot);
+          }
+
+          // 슬라이더 이동 시 dot 업데이트
+          keenSlider.on('slideChanged', function() {
+            var currentIdx = keenSlider.track.details.abs % actualSlideCount;
+            var dots = dotsContainer.querySelectorAll('.dot');
+            dots.forEach(function(d) {
+              d.classList.remove('active');
+            });
+            if (dots[currentIdx]) {
+              dots[currentIdx].classList.add('active');
+            }
+          });
+        }
       }
     }
   }

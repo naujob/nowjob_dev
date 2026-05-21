@@ -48,6 +48,7 @@ if (!$socket_io_script_url) {
   <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/add.js") ?>
+  <?= getCashJs(RES_PATH . "/js/format-utils.js") ?>
   <script>
     window.__CHAT_BASE_URL = "<?= $socket_base_url ?>";
   </script>

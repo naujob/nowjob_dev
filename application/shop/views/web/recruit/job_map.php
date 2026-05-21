@@ -3,6 +3,10 @@
 $ad_addr = trim($ad_addr);
 ?>
 <style>
+  #header {
+    margin-bottom: 0;
+  }
+
   .page-map .js-map-wrap {
     opacity: 1;
   }

@@ -2,6 +2,10 @@
 // 주소 포맷팅은 JavaScript의 fRemoveBigAdrJS 함수에서 처리
 ?>
 <style>
+  #header {
+    margin-bottom: 0;
+  }
+
   .page-map .js-map-wrap {
     opacity: 1;
   }

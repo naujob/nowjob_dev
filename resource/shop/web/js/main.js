@@ -525,34 +525,17 @@
                 }
                 container = slider.container;
                 arrowLeft = createButton("arrow arrow--left");
-                arrowLeft.innerHTML = '<span>Previous</span>';
+                arrowLeft.innerHTML = '<img src="/resource/shop/web/img/ic_circle_prev_v2..png" alt="Previous">';
                 arrowLeft.addEventListener("click", function () { slider.prev(); });
                 arrowRight = createButton("arrow arrow--right");
-                arrowRight.innerHTML = '<span>Next</span>';
+                arrowRight.innerHTML = '<img src="/resource/shop/web/img/ic_circle_next_v2.png" alt="Next">';
                 arrowRight.addEventListener("click", function () { slider.next(); });
                 container.parentNode.insertBefore(arrowLeft, container);
                 container.parentNode.insertBefore(arrowRight, container.nextSibling);
             }
 
             function updateClasses() {
-                if (!slider.track || !slider.track.details || !arrowLeft || !arrowRight) return;
-                var slide = slider.track.details.rel;
-                var perView = 1;
-                if (slider.options && slider.options.slides && slider.options.slides.perView) {
-                    perView = slider.options.slides.perView === "auto" ? 1 : slider.options.slides.perView;
-                }
-
-                if (slide === 0) {
-                    arrowLeft.classList.add("arrow--disabled");
-                } else {
-                    arrowLeft.classList.remove("arrow--disabled");
-                }
-
-                if (slide === slider.track.details.slides.length - perView) {
-                    arrowRight.classList.add("arrow--disabled");
-                } else {
-                    arrowRight.classList.remove("arrow--disabled");
-                }
+                // 항상 화살표 표시 (disabled 클래스 미적용)
             }
 
             slider.on("created", function () {

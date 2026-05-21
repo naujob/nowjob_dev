@@ -774,7 +774,6 @@ if (count($banner_list) > 0) {
   .arrow--disabled {
     display: none;
   }
-
 </style>
 <div id="content" class="page page-person page-hr-list">
   <main class="page-content">
@@ -1099,6 +1098,8 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <script>
+  var appBaseUrl = "<?php echo rtrim($this->config->item('app_base_url') ? $this->config->item('app_base_url') : base_url(), '/'); ?>";
+
   // 현재 로그인한 사용자 정보
   var currentUserMmIdx = <?php echo $this->user->isLogin() ? $this->user->getUserIdx() : 'null'; ?>;
   var currentUserType = '<?php echo isset($mm_type) ? $mm_type : ""; ?>';
@@ -1285,9 +1286,9 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
           $content = $content.replaceAll("{{ma_age}}", row.mm_age + "대");
         }
 
-        $content = $content.replaceAll("{{ru_price_type}}", (row.ru_price_type));
+        $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
         $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-        $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeNoComma(row.ru_work_type));
+        $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
         $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
         $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
 
@@ -1319,8 +1320,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       if (ret.code == "00") {
         var list = ret.data.list;
         $("#my-keen-slider").html("");
-        $(".arrow--left").remove();
-        $(".arrow--right").remove();
+
         list.forEach(function(row) {
           var $clone = $("#tpl_reco_list").clone();
           var $content = $clone.html();
@@ -1344,7 +1344,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
           $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
 
           $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
-          $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
+          $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
           $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
           $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
           $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
@@ -1424,9 +1424,9 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
           // 채용공고가 1개 이상이면 관리 페이지로, 0개이면 등록 페이지로 이동
           if (recruitCount >= 1) {
-            location.href = "https://nowjob.co.kr/compage/recruit_list";
+            location.href = appBaseUrl + "/compage/recruit_list";
           } else {
-            location.href = "https://nowjob.co.kr/compage/recruit_write";
+            location.href = appBaseUrl + "/compage/recruit_write";
           }
         } else {
           commonAlert(ret.msg || "채용공고 개수를 확인할 수 없습니다.", function() {});

@@ -7,6 +7,10 @@ if (count($banner_list) > 0) {
 ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
 <style>
+  .result-list .content-li {
+    padding: 0;
+  }
+
   /* company.php 고유 스타일 - 기업 헤더 */
   .comp-info {
     display: -webkit-box;
@@ -345,7 +349,6 @@ if (count($banner_list) > 0) {
       }, 400);
     }
   }
-
 </script>
 
 <script>

@@ -90,7 +90,7 @@ if (count($banner_list) > 0) {
 
 <?php
 $tpl_show_bookmark = true;
-$tpl_show_hashtag  = false;
+$tpl_show_hashtag  = true;
 include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_template.php');
 ?>
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
@@ -285,8 +285,6 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
       if (ret.code == "00") {
         var list = ret.data.list;
         $("#my-keen-slider").html("");
-        $(".arrow--left").remove();
-        $(".arrow--right").remove();
         list.forEach(function(row) {
           var $clone = $("#tpl_reco_list").clone();
           var $content = $clone.html();
@@ -368,6 +366,8 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 </script>
 
 <script>
+  var appBaseUrl = "<?php echo rtrim($this->config->item('app_base_url') ? $this->config->item('app_base_url') : base_url(), '/'); ?>";
+
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
     getRecoList();
@@ -399,9 +399,9 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 
           // 이력서가 1개 이상이면 관리 페이지로, 0개이면 등록 페이지로 이동
           if (resumeCount >= 1) {
-            location.href = "https://nowjob.co.kr/mypage/resume_list";
+            location.href = appBaseUrl + "/mypage/resume_list";
           } else {
-            location.href = "https://nowjob.co.kr/mypage/resume_write";
+            location.href = appBaseUrl + "/mypage/resume_write";
           }
         } else {
           commonAlert(ret.msg || "이력서 개수를 확인할 수 없습니다.", function() {});

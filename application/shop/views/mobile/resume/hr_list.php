@@ -8,6 +8,7 @@ if (count($banner_list) > 0) {
 <style>
   /* 카드 스타일은 main.css의 .result-list-card 섹션에서 관리 */
 
+
   .page-content {
     background: #fff;
   }
@@ -63,6 +64,31 @@ if (count($banner_list) > 0) {
 
   .section.index_comp:has(.recomm-slider) {
     overflow: hidden;
+  }
+
+  /* 추천인재 슬라이더 dot 인디케이터 */
+  .recomm-slider.person .slider-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 0;
+  }
+
+  .recomm-slider.person .slider-dots .dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #d0d0d0;
+    cursor: pointer;
+    transition: background-color 0.3s ease, width 0.3s ease;
+  }
+
+  .recomm-slider.person .slider-dots .dot.active {
+    background-color: #57CCAF;
+    width: 26px;
+    border-radius: 50px;
   }
 
   /* KeenSlider 컨테이너 — 양쪽 peek: padding으로 이전/다음 슬라이드 노출 */
@@ -135,6 +161,7 @@ if (count($banner_list) > 0) {
     color: #000;
     white-space: nowrap;
     line-height: 1.3;
+    text-align: center;
   }
 
   .recomm-slider.person .person-card .meta p:after {
@@ -240,19 +267,14 @@ if (count($banner_list) > 0) {
 
   /* 뱃지 텍스트 */
   .person-card .person-badge {
-    position: static;
-    padding: 2px 10px;
-    font-size: 10px;
+    font-size: 1rem;
     font-weight: 700;
-    color: #fff;
-    background-color: #1b9d7d;
-    border-radius: 100px;
-    line-height: 1.2;
+    color: #000000;
     white-space: nowrap;
-    max-width: 90%;
     overflow: hidden;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
+
   }
 
   .person-card .thumb img {
@@ -429,9 +451,11 @@ if (count($banner_list) > 0) {
     <div class="section index_comp" id="recommSection">
       <div class="container">
         <h2 class="secondary-title index">추천인재</h2>
-        <div class="recomm-slider person">
+        <div class="recomm-slider person" style="display: flex; flex-direction: column;">
           <div class="slider-wrap keen-slider" id="recomm-list">
           </div>
+          <!-- 슬라이더 dot 인디케이터 -->
+          <div class="slider-dots" id="recommSliderDots"></div>
         </div>
       </div>
     </div>
@@ -554,12 +578,15 @@ $tpl_show_mm_idx = true; ?>
         </div>
         <div class="person-badge-wrap">
           <div class="person-badge-icon">{{ru_work_img}}</div>
+          <p class="person-badge">{{ru_name}}</p>
         </div>
       </div>
       <div class="desc">
         <div class="content-wrap">
           <div class="meta">
             <p class="work_type">{{ru_work_type}}</p>
+            <span class="meta-divider">|</span>
+            <p class="national">{{mm_nation}}</p>
             <span class="meta-divider">|</span>
             <p class="age">{{mm_age}}</p>
             <span class="meta-divider">|</span>
@@ -1271,18 +1298,24 @@ $tpl_show_mm_idx = true; ?>
                 var $clone = $("#tpl_reco_item").clone();
                 var $content = $clone.html();
 
-                var workTypeRaw = row.ru_work_type || "";
                 var myTypeRaw = row.ru_my_type || "";
                 if (!myTypeRaw || myTypeRaw.trim() === "") {
                   myTypeRaw = "<p class='tag'>#성실합니다</p>";
                 }
-
+                // 국적 처리
+                var nationStr = "";
+                if (!row.mm_nation || (typeof row.mm_nation === 'string' && row.mm_nation.trim() == '')) {
+                  nationStr = "";
+                } else {
+                  nationStr = row.mm_nation;
+                }
                 $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
                 $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
                 $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
                 $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "대");
-                $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
-                $content = $content.replaceAll("{{ru_work_type}}", workTypeRaw);
+                $content = $content.replaceAll("{{mm_nation}}", nationStr);
+                $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
+                $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
                 $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
                 $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
                 $content = $content.replaceAll("{{ru_my_type}}", myTypeRaw);
@@ -1314,6 +1347,7 @@ $tpl_show_mm_idx = true; ?>
     var recommSlider = document.querySelector('.recomm-slider.person .slider-wrap');
     if (recommSlider && typeof KeenSlider !== 'undefined' && !recommSlider.__keenslider__) {
       var slides = recommSlider.querySelectorAll('.keen-slider__slide');
+      var actualSlideCount = slides.length;
       if (slides.length > 0 && slides.length < 4) {
         var cloneCount = Math.ceil(4 / slides.length) * slides.length;
         var added = slides.length;
@@ -1360,6 +1394,36 @@ $tpl_show_mm_idx = true; ?>
         rubberband: true,
         renderMode: 'precision'
       });
+
+      // dot 인디케이터 생성 및 업데이트
+      var dotsContainer = document.getElementById('recommSliderDots');
+      if (dotsContainer && actualSlideCount > 1) {
+        // 원본 슬라이드 개수만큼 dot 생성
+        for (var i = 0; i < actualSlideCount; i++) {
+          var dot = document.createElement('div');
+          dot.className = 'dot' + (i === 0 ? ' active' : '');
+          dot.setAttribute('data-index', i);
+          (function(index) {
+            dot.addEventListener('click', function(e) {
+              e.stopPropagation();
+              slider.moveToSlide(index);
+            });
+          })(i);
+          dotsContainer.appendChild(dot);
+        }
+
+        // 슬라이더 이동 시 dot 업데이트
+        slider.on('slideChanged', function() {
+          var currentIdx = slider.track.details.abs % actualSlideCount;
+          var dots = dotsContainer.querySelectorAll('.dot');
+          dots.forEach(function(d) {
+            d.classList.remove('active');
+          });
+          if (dots[currentIdx]) {
+            dots[currentIdx].classList.add('active');
+          }
+        });
+      }
     }
   }
 

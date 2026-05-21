@@ -49,10 +49,10 @@ $tpl_card_extra_class = isset($tpl_card_extra_class) ? $tpl_card_extra_class : '
               <p>{{rc_nation_nm}}</p>
               <p>{{rc_age_nm}}</p>
             </div>
-            {{rt_work_type}}
+            <div class="summary wtype">{{rt_work_type}}</div>
           </div>
           <div class="price-wrap">
-            <p class="type wrtpye">{{rc_price_type}}</p>
+            <p class="period">{{rc_price_type}}</p>
             <p class="amount">{{rc_price_pay}}</p>
           </div>
         </div>

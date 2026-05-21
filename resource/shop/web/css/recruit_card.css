@@ -73,6 +73,46 @@
 .recruit-card .type em.wtype2 { color: #F86048; }
 .recruit-card .type em.wtype3 { color: #1B9D7D; }
 
+/* 카드 근무형태 wtype 색상 */
+.recruit-card .card-meta-group .worktype em.wtype1 { color: #3a70db; }
+.recruit-card .card-meta-group .worktype em.wtype2 { color: #F86048; }
+.recruit-card .card-meta-group .worktype em.wtype3 { color: #1B9D7D; }
+.recruit-card .wtype em.wtype1 { color: #3a70db; }
+.recruit-card .wtype em.wtype2 { color: #F86048; }
+.recruit-card .wtype em.wtype3 { color: #1B9D7D; }
+
+/* 카드 급여형태 period (recruit_list.css .period와 동일) */
+.recruit-card .price-wrap .period {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+  font-size: 14px;
+  font-weight: 600;
+}
+.recruit-card .price-wrap .period em {
+  position: relative;
+  display: inline-block;
+  font-style: normal;
+}
+.recruit-card .price-wrap .period em.on,
+.recruit-card .price-wrap .period em:only-child {
+  color: #1b9d7d;
+}
+.recruit-card .price-wrap .period em:not(:last-child) {
+  padding-right: 5px;
+}
+.recruit-card .price-wrap .period em:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 0.5em;
+  margin: auto;
+  border-right: 1px solid #777;
+}
+
 .recruit-card .type em:not(:last-child) {
   padding-right: 5px;
 }

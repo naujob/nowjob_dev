@@ -3,6 +3,10 @@ $banner_list = getBannerList("BN00010005");
 ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <style>
+  #header {
+    margin-bottom: 0;
+  }
+
   /* .recruit-card .meta p:first-child {
 
     width: auto;
