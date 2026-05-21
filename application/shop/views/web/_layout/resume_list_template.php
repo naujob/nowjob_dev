@@ -44,7 +44,7 @@ $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '
           </div>
         </div>
 
-        <div style="align-content: center;width: <?= $tpl_price_wrap_width ?>;text-align: center;" class="price_type_wrap">
+        <div style="width: <?= $tpl_price_wrap_width ?>;" class="price_type_wrap">
           <span class="type price_type">{{ru_work_type}}</span>
           <span class="area">{{ad_addr}}</span>
           <span class="ru_price_type">{{ru_price_type}}</span>

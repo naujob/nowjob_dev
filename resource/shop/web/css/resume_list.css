@@ -41,8 +41,12 @@
    ============================================ */
 
 .item-info .content-wrap {
-
   justify-content: center;
+}
+
+.item-info .price_type_wrap {
+  align-content: center;
+  text-align: center;
 }
 
 .item-info .category-label {
@@ -219,7 +223,7 @@
 }
 
 .item-info .working-day {
-  width: 25%;
+  width: 27%;
   margin-right: 10px;
   align-content: center;
 }
