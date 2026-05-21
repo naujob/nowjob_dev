@@ -10,55 +10,7 @@
           <h3 class="sr-text">제안보낸 인재</h3>
           <div class="result-wrap">
             <!-- 목록 -->
-            <ol class="result-list">
-              <?php foreach ($list as $row) : ?>
-                <li class="list-item" data-ru_idx="<?= $row["ru_idx"] ?>">
-                  <div class="item-info">
-                    <div class="img">
-                      <img src="<?= getResumeImg($row) ?>">
-                      <button type="button" data-bk_type="RESUME" data-bk_key="<?= $row["ru_idx"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $row["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
-                      <p class="star-rating">
-                        <span class="star" style="width:100%;"></span>
-                        <span class="sr-text">평점</span>
-                        <span class="sr-text">5</span>
-                      </p>
-                    </div>
-                    <div class="desc">
-                      <div class="content-wrap">
-                        <div class="inline-group"><p class="category"><?= getWorkingImg($row["ru_work"]) ?></p></div>
-                        <div class="title-wrap"><p class="title"><?= $row["ru_name"] ?></p></div>
-                        <div class="meta">
-                          <p class="national"><?= $row["mm_nation"] ?></p>
-                          <p class="age"><?= getKoreanAge($row["mm_birth"]) ?>대</p>
-                        </div>
-                      </div>
-                      <div class="price_type_wrap" style="width:290px;">
-                        <span class="type price_type" data-work-type="<?= htmlspecialchars($row["ru_work_type"], ENT_QUOTES, 'UTF-8') ?>"></span>
-                        <span class="area" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"></span>
-                        <span class="ru_price_type" data-price-type="<?= htmlspecialchars($row["ru_price_type"], ENT_QUOTES, 'UTF-8') ?>"></span>
-                      </div>
-                      <ul class="working-day">
-                        <?= getWeekYoil($row["ru_week"]) ?>
-                      </ul>
-                    </div>
-                    <div class="action-wrap">
-                      <div class="form-action-wrap align-right">
-                        <button type="button" aria-haspopup="dialog" class="btn-round btn-tertiary btnCancle"
-                          data-ru_idx="<?= $row["ru_idx"] ?>"
-                          data-rc_idx="<?= $row["rc_idx"] ?>"
-                          data-target_id="<?= $row["target_id"] ?>"
-                          data-user_id="<?= $row["user_id"] ?>"
-                          data-target_img="<?= $row["target_img"] ?>"
-                          data-user_img="<?= $row["user_img"] ?>"
-                          data-target_name="<?= $row["target_name"] ?>"
-                          data-user_name="<?= $row["user_name"] ?>"
-                          data-subject="<?= $row["rc_name"] ?>">제안 취소</button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              <?php endforeach; ?>
-            </ol>
+            <ol class="result-list" id="ajaxList"></ol>
             <!-- //목록 -->
           </div>
         </div>
@@ -67,17 +19,79 @@
   </main><!-- //page-content -->
 </div><!-- //page -->
 
+<?php
+// JavaScript 렌더링용 데이터 가공
+$js_list = [];
+foreach ($list as $row) {
+  $row["ru_work_img"]   = getWorkingImg($row["ru_work"]);
+  $row["ru_week_html"]  = getWeekYoil($row["ru_week"]);
+  $row["mm_age"]        = getKoreanAge($row["mm_birth"]);
+  $row["ru_resume_img"] = getResumeImg($row);
+  $js_list[] = $row;
+}
+$tpl_id               = 'tpl_person_card';
+$tpl_show_timestamp   = false;
+$tpl_show_mm_idx      = false;
+$tpl_show_action_slot = true;
+$tpl_price_wrap_width = '290px';
+include APPPATH . 'views/web/_layout/resume_list_template.php';
+?>
+
 <script>
+  var personList = <?= json_encode($js_list, JSON_UNESCAPED_UNICODE) ?>;
+
+  $(document).ready(function() {
+    showPersonList(personList);
+  });
+
+  function showPersonList(list) {
+    var $ul = $("#ajaxList");
+    $ul.html("");
+    list.forEach(function(row) {
+      var $clone = $("#tpl_person_card").clone();
+      var html = $clone.html();
+      html = html.replaceAll("{{ru_idx}}", row.ru_idx || "");
+      html = html.replaceAll("{{mm_idx}}", row.mm_idx || "");
+      html = html.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
+      html = html.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
+      html = html.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
+      html = html.replaceAll("{{ru_name}}", row.ru_name || "");
+      html = html.replaceAll("{{mm_nation}}", row.mm_nation || "");
+      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + "대" : "");
+      html = html.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type) || "");
+      html = html.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr) || "");
+      html = html.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type) || "");
+      html = html.replaceAll("{{ru_week}}", row.ru_week_html || "");
+      html = html.replaceAll("{{timestamp}}", "");
+      var actionHtml = '<div class="action-wrap"><div class="form-action-wrap align-right">' +
+        '<button type="button" aria-haspopup="dialog" class="btn-round btn-tertiary btnCancle" ' +
+        'data-ru_idx="' + (row.ru_idx || "") + '" ' +
+        'data-rc_idx="' + (row.rc_idx || "") + '" ' +
+        'data-target_id="' + (row.target_id || "") + '" ' +
+        'data-user_id="' + (row.user_id || "") + '" ' +
+        'data-target_img="' + (row.target_img || "") + '" ' +
+        'data-user_img="' + (row.user_img || "") + '" ' +
+        'data-target_name="' + (row.target_name || "") + '" ' +
+        'data-user_name="' + (row.user_name || "") + '" ' +
+        'data-subject="' + (row.rc_name || "") + '">제안 취소</button>' +
+        '</div></div>';
+      html = html.replaceAll("{{action_slot}}", actionHtml);
+      $clone.html(html);
+      $ul.append($clone.html());
+    });
+  }
+
   $(document).on("click", ".btnCancle", function(e) {
     e.stopPropagation();
     var ru_idx = $(this).data('ru_idx');
+    var $btn = $(this);
 
     openPopup('confirm', {
       content: '<em>제안</em>을 취소하시겠습니까?',
       secondCallback: function() {
         var params = {};
         params["ru_idx"] = ru_idx;
-        params["rc_idx"] = $(this).data('rc_idx');
+        params["rc_idx"] = $btn.data('rc_idx');
 
         comAjax("/compage_proc/resume_propose_cancle", params, function(ret) {
           if (ret.code == "00") {
@@ -99,41 +113,5 @@
       var url = '/resume/hr_post/' + ruIdx;
       window.open(url, '_blank');
     }
-  });
-
-  $(document).ready(function() {
-    // 주소 정리
-    $('.area[data-addr]').each(function() {
-      var $this = $(this);
-      var originalAddr = $this.data('addr');
-      if (originalAddr && typeof fRemoveBigAdrJS === 'function') {
-        var formattedAddr = fRemoveBigAdrJS(originalAddr);
-        $this.text(formattedAddr);
-      }
-    });
-
-    // 근무형태 정리
-    $('.price_type[data-work-type]').each(function() {
-      var $this = $(this);
-      var workType = $this.data('work-type');
-      if (workType && typeof getWorkTypeFirst === 'function') {
-        var formattedWorkType = getWorkTypeFirst(workType);
-        if (formattedWorkType) {
-          $this.html(formattedWorkType);
-        }
-      }
-    });
-
-    // 급여형태 정리
-    $('.ru_price_type[data-price-type]').each(function() {
-      var $this = $(this);
-      var priceType = $this.data('price-type');
-      if (priceType && typeof getPriceTypeJSFirst === 'function') {
-        var formattedPriceType = getPriceTypeJSFirst(priceType);
-        if (formattedPriceType) {
-          $this.html(formattedPriceType);
-        }
-      }
-    });
   });
 </script>

@@ -13,6 +13,7 @@ $tpl_id             = isset($tpl_id)             ? $tpl_id             : 'tpl_re
 $tpl_show_timestamp = isset($tpl_show_timestamp) ? $tpl_show_timestamp : false;
 $tpl_show_mm_idx    = isset($tpl_show_mm_idx)    ? $tpl_show_mm_idx    : false;
 $tpl_show_reco_title = isset($tpl_show_reco_title) ? $tpl_show_reco_title : false;
+$tpl_show_action_slot = isset($tpl_show_action_slot) ? $tpl_show_action_slot : false;
 $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '20%';
 ?>
 <template id="<?= $tpl_id ?>">
@@ -51,7 +52,8 @@ $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '
         <ul class="working-day">
           {{ru_week}}
         </ul>
-      </div>
+      </div><?php if ($tpl_show_action_slot): ?>
+      {{action_slot}}<?php endif; ?>
     </div>
   </li>
 </template>
