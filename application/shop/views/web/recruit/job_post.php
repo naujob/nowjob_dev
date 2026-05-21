@@ -1120,7 +1120,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 
                       var title = document.querySelector('.view-title').textContent.replace(/\s/g, ''),
                         desc = ''; //document.querySelector('.view-desc .desc').textContent.replace(/\s/g,''),
-                      imgUrl = 'https://nowjob.co.kr/resource/shop/web/img/nowjob_info.png'; //document.querySelector('.view-visual .visual-slider img').getAttribute('src');
+                      imgUrl = '/resource/shop/web/img/nowjob_info.png'; //document.querySelector('.view-visual .visual-slider img').getAttribute('src');
                       url = location.href,
                         appUrl = 'scheme://host_path';
 

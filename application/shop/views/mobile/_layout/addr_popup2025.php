@@ -183,14 +183,14 @@
     left: 5px;
     width: 1.25rem;
     height: 1.25rem;
-    background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox2025_off.svg) no-repeat 0 0;
+    background: url(/resource/shop/mobile/img/ic_chkbox2025_off.svg) no-repeat 0 0;
     background-size: contain;
     border-radius: 100%;
     z-index: 1;
   }
 
   .search_addr ul li.addr_on label::before {
-    background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat 0 0;
+    background: url(/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat 0 0;
     background-size: contain;
   }
 
@@ -288,7 +288,7 @@
     transform: translateY(-50%);
     width: 1.25rem;
     height: 1.25rem;
-    background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox2025_off.svg) no-repeat center center;
+    background: url(/resource/shop/mobile/img/ic_chkbox2025_off.svg) no-repeat center center;
     background-size: contain;
     border-radius: 100%;
     z-index: 1;
@@ -297,7 +297,7 @@
   .addr_dept1 ul li.addr_on label::after,
   .addr_dept2 ul li.addr_on label::after,
   .addr_dept3 ul li.addr_on label::after {
-    background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat center center;
+    background: url(/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat center center;
     background-size: contain;
   }
 
@@ -405,7 +405,7 @@
     <div class="search-input">
       <input type="text" id="txt_addr" name="txt_addr" placeholder="예시 : 신림동, 관악구" autocomplete="off" required class="form-text">
       <button id="iconBtn" type="button" class="icon-btn">
-        <img id="iconImg" src="https://nowjob.co.kr/resource/shop/mobile/img/ic_search2025.svg" alt="search icon">
+        <img id="iconImg" src="/resource/shop/mobile/img/ic_search2025.svg" alt="search icon">
       </button>
     </div>
   </div>
@@ -497,11 +497,11 @@
   
   function updateSearchView() {
     if ($.trim($txtInput.val()) !== '') {
-      $iconImg.attr('src', 'https://nowjob.co.kr/resource/shop/mobile/img/ic_close2025.svg').attr('alt', 'clear');
+      $iconImg.attr('src', '/resource/shop/mobile/img/ic_close2025.svg').attr('alt', 'clear');
       $searchAddr.removeClass('hidden').addClass('visible');
       $dept.removeClass('visible').addClass('hidden');
     } else {
-      $iconImg.attr('src', 'https://nowjob.co.kr/resource/shop/mobile/img/ic_search2025.svg').attr('alt', 'search icon');
+      $iconImg.attr('src', '/resource/shop/mobile/img/ic_search2025.svg').attr('alt', 'search icon');
       $searchAddr.removeClass('visible').addClass('hidden');
       $dept.removeClass('hidden').addClass('visible');
       $('.search_addr ul').empty();

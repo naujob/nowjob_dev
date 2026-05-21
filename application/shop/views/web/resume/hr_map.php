@@ -55,7 +55,7 @@
     width: 40px;
     height: 40px;
     border: 0;
-    background: url("<?= RES_PATH ?>/img/ic_bookmark_on.svg") no-repeat 0 0;
+    background: url("<?= RES_PATH ?>/web/img/ic_bookmark_on.svg") no-repeat 0 0;
     background-size: 0px;
     pointer-events: none;
     z-index: 1;
@@ -80,7 +80,7 @@
     right: 3px;
     width: 16px;
     height: 16px;
-    background: url("<?= RES_PATH ?>/img/ic_bookmark_off.svg") no-repeat 0 0;
+    background: url("<?= RES_PATH ?>/web/img/ic_bookmark_off.svg") no-repeat 0 0;
     background-size: contain;
     pointer-events: all;
     z-index: 1;
@@ -402,7 +402,7 @@
       <div class="result-wrap-container">
         <div class="result-wrap">
           <p class="current-area" style="">
-            <span id="myLocation" class="myLocationBtn"><?= $ad_addr != "" ? $ad_addr : "서울 중구 태평로1가" ?></span>
+            <span id="myLocation" class="myLocationBtn"><?= isset($ad_addr) && $ad_addr != "" ? $ad_addr : "서울 중구 태평로1가" ?></span>
           </p>
           <div class="list" style="margin-top: 20px;">
             <div class="reco-content">
@@ -415,7 +415,7 @@
         <div class="js-map-wrap">
           <div id="jsMap" class="js-map"></div>
         </div>
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= isset($kakao_key["인증키"]) ? $kakao_key["인증키"] : "" ?>&libraries=clusterer,services"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=clusterer,services"></script>
         <script>
           var data = [];
           var resumelist = [];

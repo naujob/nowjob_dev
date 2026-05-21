@@ -396,8 +396,8 @@ function fRemoveBigAdr($arg) {
 
                             title = '나우잡 인재 - '+title;
                             desc = '';//'나우잡에서 인재 정보를 확인 하세요';
-                            //imgUrl = 'https://nowjob.co.kr/resource/shop/web/img/top_logo.svg';
-                            imgUrl = 'https://nowjob.co.kr/resource/shop/web/img/nowjob_info.png';
+                            //imgUrl = '/resource/shop/web/img/top_logo.svg';
+                            imgUrl = '/resource/shop/web/img/nowjob_info.png';
 
 	                        setTimeout(function () {
 	                            Kakao.Share.sendDefault({

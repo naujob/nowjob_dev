@@ -201,7 +201,7 @@
 		                    <input type="search" name="g_keyword" id="searchMiddlebox" class="searchMiddlebox" autocomplete="off" value="" placeholder="검색어를 입력해 주세요" aria-required="true" style="padding: 16px; width: 530px; height: 50px; font-size: 16px; font-weight: 600; color: #222;" onflcus="blur();" onkeyup="if(event.keyCode==13) location.href='/home/search?text='+$(this).val();">
 		                </label>
 		                <button type="button" id="btnTopSearch" class="btn-search" onclick="location.href='/home/search?text='+$('#searchMiddlebox').val();"
-											style="position: absolute; top: 50px; right: 324px; width: 100px; height: 50px; border: 0; border-radius: 25px; background: #57CCAF url(https://nowjob.co.kr/resource/shop/web/img/ic_search.svg) no-repeat 30% 50%; background-size: 19px auto;">
+											style="position: absolute; top: 50px; right: 324px; width: 100px; height: 50px; border: 0; border-radius: 25px; background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat 30% 50%; background-size: 19px auto;">
 											<span class="sr-text" style="width:57px;height:20px;color:#fff;font-size:16px;font-weight:600;top:15px; left: 30px;">검색</span>
 										</button>
 										<div class="suggestBox">

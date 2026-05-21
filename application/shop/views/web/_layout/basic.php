@@ -62,21 +62,21 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             "position": 1,
                             "url": "https://nowjob.co.kr/recruit/job_list",
                             "name": "추천공고",
-                            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_recruit.png"
+                            "image": "/resource/uploads/meta/meta_recruit.png"
                         },
                         {
                             "@type": "ListItem",
                             "position": 2,
                             "url": "https://nowjob.co.kr/resume/hr_list",
                             "name": "추천인재",
-                            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_resume.png"
+                            "image": "/resource/uploads/meta/meta_resume.png"
                         },
                         {
                             "@type": "ListItem",
                             "position": 3,
                             "url": "https://nowjob.co.kr/member/login",
                             "name": "간편가입",
-                            "image": "https://nowjob.co.kr/resource/uploads/meta/meta_join.png"
+                            "image": "/resource/uploads/meta/meta_join.png"
                         }
                     ]
                 }

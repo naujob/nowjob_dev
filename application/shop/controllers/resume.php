@@ -86,13 +86,6 @@ class Resume extends CI_Controller
     $data = [];
     $addr_info = $this->user->getAddrInfo();
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
-    // DB에서 키를 찾지 못한 경우 환경 변수 시도
-    if (empty($kakao_key["인증키"])) {
-      $kakao_api_key = config_env_value('KAKAO_API_KEY', '');
-      if (!empty($kakao_api_key)) {
-        $kakao_key["인증키"] = $kakao_api_key;
-      }
-    }
     //검색어 가져오기 - 기본값으로 초기화 (클라이언트에서 sessionStorage로 복원)
     $search_txt = [
       "text" => "",

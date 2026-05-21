@@ -1875,14 +1875,14 @@
                         left: 5px;
                         width: 1.25rem;
                         height: 1.25rem;
-                        background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox_off.svg) no-repeat 0 0;
+                        background: url(/resource/shop/mobile/img/ic_chkbox_off.svg) no-repeat 0 0;
                         background-size: contain;
                         border-radius: 100%;
                         z-index: 1;
                       }
 
                       .chip2.on::before {
-                        background: url(https://nowjob.co.kr/resource/shop/mobile/img/ic_chkbox_on.svg) no-repeat 0 0;
+                        background: url(/resource/shop/mobile/img/ic_chkbox_on.svg) no-repeat 0 0;
                         background-size: contain;
                       }
 

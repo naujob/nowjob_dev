@@ -412,7 +412,7 @@ function formatPhoneNumber($number) {
 
                         var title = document.querySelector('.view-title').textContent.replace(/\s/g,''),
                             desc = ''; //document.querySelector('.view-desc .desc').textContent.replace(/\s/g,''),
-                            imgUrl = 'https://nowjob.co.kr/resource/shop/web/img/nowjob_info.png'; //document.querySelector('.view-visual-slider img').getAttribute('src');
+                            imgUrl = '/resource/shop/web/img/nowjob_info.png'; //document.querySelector('.view-visual-slider img').getAttribute('src');
                             url = location.href,
                             appUrl = 'nowjob://recruit/recruit_detail/<?=$info["rc_idx"]?>'; //'scheme://host_path';
 

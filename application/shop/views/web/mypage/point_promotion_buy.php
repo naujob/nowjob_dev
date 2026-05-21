@@ -277,7 +277,7 @@
                   <span style="color: #57ccaf;">광고지역</span>
                   <input id="ad_addr1" name="ad_addr1" style="display:block; width: 300px; height: 36px; margin-top: 10px; border:1px solid #57ccaf;" onclick="$('#changeArea').addClass('on');">
                   <button type="button" id="btnTopSearch1" class="btn-search" onclick="$('#changeArea').addClass('on');"
-                    style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(https://nowjob.co.kr/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
+                    style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
                   </button>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
@@ -405,7 +405,7 @@
                   <span style="color: #57ccaf;">광고지역</span>
                   <input id="ad_addr2" name="ad_addr2" style="display:block; width: 300px; height: 36px; margin-top: 10px; border:1px solid #57ccaf;" onclick="$('#changeArea').addClass('on');">
                   <button type="button" id="btnTopSearch2" class="btn-search" onclick="$('#changeArea').addClass('on');"
-                    style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(https://nowjob.co.kr/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
+                    style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
                   </button>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
@@ -533,7 +533,7 @@
                   <span style="color: #57ccaf;">광고지역</span>
                   <input id="ad_addr3" name="ad_addr3" style="display:block; width: 300px; height: 36px; margin-top: 10px; border:1px solid #57ccaf;" onclick="$('#changeArea').addClass('on');">
                   <button type="button" id="btnTopSearch3" class="btn-search" onclick="$('#changeArea').addClass('on');"
-                    style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(https://nowjob.co.kr/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
+                    style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
                   </button>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">

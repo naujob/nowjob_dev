@@ -952,7 +952,7 @@ function fRemoveBigAdrPHP($arg)
 
                       title = title;
                       desc = ''; //'나우잡에서 인재 정보를 확인 하세요';
-                      imgUrl = 'https://nowjob.co.kr/resource/shop/web/img/nowjob_info.png'; //'https://nowjob.co.kr/resource/shop/web/img/top_logo.svg';
+                      imgUrl = '/resource/shop/web/img/nowjob_info.png'; //'/resource/shop/web/img/top_logo.svg';
 
                       setTimeout(function() {
                         Kakao.Share.sendDefault({

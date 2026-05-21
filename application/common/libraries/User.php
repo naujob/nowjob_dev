@@ -177,45 +177,45 @@ class user
 
 	function getAddrInfo()
 	{
-		$arr_text = "";
-
 		$this->CI = &get_instance();
 
 		$user_info =  $this->CI->common->getSession("USER_INFO");
 
 		if ($user_info == null) {
 			$guest_info = $this->getGuest();
-
-			try {
-				$arr_temp = explode(" ", $guest_info["ad_addr"]);
-				$arr_text = $arr_temp[count($arr_temp) - 3];
-				$arr_text .= " " . $arr_temp[count($arr_temp) - 2];
-				$arr_text .= " " . $arr_temp[count($arr_temp) - 1];
-			} catch (Exception $ex) {
-				$arr_text = $user_info["ad_addr"];
-			}
-
+			$addr = isset($guest_info["ad_addr"]) ? trim($guest_info["ad_addr"]) : "";
+			$addr = $this->parseAddr($addr);
 
 			return [
-				"ad_addr" => $arr_text,
-				"ad_gps_x" => $guest_info["ad_gps_x"],
-				"ad_gps_y" => $guest_info["ad_gps_y"],
+				"ad_addr" => $addr,
+				"ad_gps_x" => isset($guest_info["ad_gps_x"]) ? $guest_info["ad_gps_x"] : "",
+				"ad_gps_y" => isset($guest_info["ad_gps_y"]) ? $guest_info["ad_gps_y"] : "",
 			];
 		} else {
-			try {
-				$arr_temp = explode(" ", $user_info["ad_addr"]);
-				$arr_text = $arr_temp[count($arr_temp) - 3];
-				$arr_text .= " " . $arr_temp[count($arr_temp) - 2];
-				$arr_text .= " " . $arr_temp[count($arr_temp) - 1];
-			} catch (Exception $ex) {
-				$arr_text = $user_info["ad_addr"];
-			}
+			$addr = isset($user_info["ad_addr"]) ? trim($user_info["ad_addr"]) : "";
+			$addr = $this->parseAddr($addr);
 
 			return [
-				"ad_addr" => $arr_text,
-				"ad_gps_x" => $user_info["ad_gps_x"],
-				"ad_gps_y" => $user_info["ad_gps_y"],
+				"ad_addr" => $addr,
+				"ad_gps_x" => isset($user_info["ad_gps_x"]) ? $user_info["ad_gps_x"] : "",
+				"ad_gps_y" => isset($user_info["ad_gps_y"]) ? $user_info["ad_gps_y"] : "",
 			];
 		}
+	}
+
+	private function parseAddr($addr)
+	{
+		if (empty($addr)) {
+			return "";
+		}
+
+		$arr_temp = explode(" ", $addr);
+		$count = count($arr_temp);
+
+		if ($count >= 3) {
+			return $arr_temp[$count - 3] . " " . $arr_temp[$count - 2] . " " . $arr_temp[$count - 1];
+		}
+
+		return $addr;
 	}
 }

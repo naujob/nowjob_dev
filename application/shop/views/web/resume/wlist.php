@@ -206,7 +206,7 @@
 											</div>
 									</label>
 									<button type="button" id="btnTopSearch" class="btn-search" onclick="fSearchChk();"
-										style="position: absolute; top: 50px; right: 324px; width: 100px; height: 50px; border: 0; border-radius: 25px; background: #57CCAF url(https://nowjob.co.kr/resource/shop/web/img/ic_search.svg) no-repeat 30% 50%; background-size: 19px auto;">
+										style="position: absolute; top: 50px; right: 324px; width: 100px; height: 50px; border: 0; border-radius: 25px; background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat 30% 50%; background-size: 19px auto;">
 										<span class="sr-text" style="width:57px;height:20px;color:#fff;font-size:16px;font-weight:600;top:15px; left: 30px;">검색</span>
 									</button>
 									<div class="suggestBox">

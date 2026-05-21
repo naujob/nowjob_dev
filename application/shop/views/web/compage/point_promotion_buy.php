@@ -575,7 +575,7 @@
     height: 32px;
     border: 0;
     border-radius: 4px;
-    background: #1B9D7D url(https://nowjob.co.kr/resource/shop/web/img/ic_search.svg) no-repeat;
+    background: #1B9D7D url(/resource/shop/web/img/ic_search.svg) no-repeat;
     background-size: 15px auto;
     background-position: center;
     cursor: pointer;

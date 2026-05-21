@@ -72,7 +72,7 @@
     width: 40px;
     height: 40px;
     border: 0;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
+    background: url("/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
     background-size: 0px;
     pointer-events: none;
     z-index: 1;
@@ -95,7 +95,7 @@
     right: 3px;
     width: 16px;
     height: 16px;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
+    background: url("/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
     background-size: contain;
     pointer-events: all;
     z-index: 1;
@@ -331,7 +331,7 @@
     bottom: 0px;
     width: 22px;
     height: 12px;
-    background-image: url("https://nowjob.co.kr/resource/shop/web/img/vertex_white.png");
+    background-image: url("/resource/shop/web/img/vertex_white.png");
   }
   .overlayWrap .content-info .desc {
     position: relative;
@@ -356,7 +356,7 @@
     width: 22px;
     height: 22px;
     border: 0;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
+    background: url("/resource/shop/web/img/ic_bookmark_on.svg") no-repeat 0 0;
     background-size: 0px;
     pointer-events: none;
     z-index: 1;
@@ -373,7 +373,7 @@
     left: 3px;
     width: 16px;
     height: 16px;
-    background: url("https://nowjob.co.kr/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
+    background: url("/resource/shop/web/img/ic_bookmark_off.svg") no-repeat 0 0;
     background-size: contain;
     pointer-events: all;
     z-index: 1;
