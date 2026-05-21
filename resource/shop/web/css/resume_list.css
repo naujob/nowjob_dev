@@ -422,3 +422,22 @@
 .page-hr-list .item-info .working-day {
   width: 27%;
 }
+
+/* ============================================
+   bookmark_person 액션 버튼 영역 (action-wrap)
+   ============================================ */
+
+.item-info .action-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 160px;
+  min-width: 130px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-info .action-wrap .form-action-wrap {
+  margin-top: 0;
+}
