@@ -9,6 +9,11 @@ if (count($banner_list) > 0) {
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<style>
+  .search-result .content-area:first-child {
+    margin-left: -63px;
+}
+</style>
 <div id="content" class="page page-recruit">
   <main class="page-content">
     <!-- <div class="visual-banner recruit">

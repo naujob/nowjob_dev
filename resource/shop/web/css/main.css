@@ -6746,47 +6746,15 @@ body {
     margin-right: 0;
 }
 
-.recruit-card.category1 .content-wrap {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(58, 112, 219, 0)), color-stop(70%, rgb(58, 112, 219)), to(rgb(58, 112, 219)));
-    background: -o-linear-gradient(top, rgba(58, 112, 219, 0) 40%, rgb(58, 112, 219) 70%, rgb(58, 112, 219) 100%);
-    background: linear-gradient(to bottom, rgba(58, 112, 219, 0) 40%, rgb(58, 112, 219) 70%, rgb(58, 112, 219) 100%);
-}
+
 
 .recruit-card.category2 .content-wrap {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(49, 161, 130, 0)), color-stop(70%, rgb(49, 161, 130)), to(rgb(49, 161, 130)));
     background: -o-linear-gradient(top, rgba(49, 161, 130, 0) 40%, rgb(49, 161, 130) 70%, rgb(49, 161, 130) 100%);
-    background: linear-gradient(to bottom, rgba(49, 161, 130, 0) 40%, rgb(49, 161, 130) 70%, rgb(49, 161, 130) 100%);
+    background: linear-gradient(to bottom, rgba(49, 161, 130, 0) 40%, rgb(49, 161, 130) 70%,rgb(204 213 210) 100%);
 }
 
-.recruit-card.category3 .content-wrap {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(220, 123, 25, 0)), color-stop(70%, rgb(220, 123, 25)), to(rgb(220, 123, 25)));
-    background: -o-linear-gradient(top, rgba(220, 123, 25, 0) 40%, rgb(220, 123, 25) 70%, rgb(220, 123, 25) 100%);
-    background: linear-gradient(to bottom, rgba(220, 123, 25, 0) 40%, rgb(220, 123, 25) 70%, rgb(220, 123, 25) 100%);
-}
 
-.recruit-card.category4 .content-wrap {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(154, 102, 225, 0)), color-stop(70%, rgb(154, 102, 225)), to(rgb(154, 102, 225)));
-    background: -o-linear-gradient(top, rgba(154, 102, 225, 0) 40%, rgb(154, 102, 225) 70%, rgb(154, 102, 225) 100%);
-    background: linear-gradient(to bottom, rgba(154, 102, 225, 0) 40%, rgb(154, 102, 225) 70%, rgb(154, 102, 225) 100%);
-}
-
-.recruit-card.category5 .content-wrap {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(75, 200, 191, 0)), color-stop(70%, rgb(75, 200, 191)), to(rgb(75, 200, 191)));
-    background: -o-linear-gradient(top, rgba(75, 200, 191, 0) 40%, rgb(75, 200, 191) 70%, rgb(75, 200, 191) 100%);
-    background: linear-gradient(to bottom, rgba(75, 200, 191, 0) 40%, rgb(75, 200, 191) 70%, rgb(75, 200, 191) 100%);
-}
-
-.recruit-card.category6 .content-wrap {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(223, 134, 147, 0)), color-stop(70%, rgb(223, 134, 147)), to(rgb(223, 134, 147)));
-    background: -o-linear-gradient(top, rgba(223, 134, 147, 0) 40%, rgb(223, 134, 147) 70%, rgb(223, 134, 147) 100%);
-    background: linear-gradient(to bottom, rgba(223, 134, 147, 0) 40%, rgb(223, 134, 147) 70%, rgb(223, 134, 147) 100%);
-}
-
-.recruit-card.category7 .content-wrap {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(97, 196, 123, 0)), color-stop(70%, rgb(97, 196, 123)), to(rgb(97, 196, 123)));
-    background: -o-linear-gradient(top, rgba(97, 196, 123, 0) 40%, rgb(97, 196, 123) 70%, rgb(97, 196, 123) 100%);
-    background: linear-gradient(to bottom, rgba(97, 196, 123, 0) 40%, rgb(97, 196, 123) 70%, rgb(97, 196, 123) 100%);
-}
 
 .main-recruit {
     overflow: hidden;
@@ -13220,4 +13188,16 @@ body {
 .form-row .js-add-career:hover,
 .form-row .js-add-license:hover {
   background: #777;
+}
+/* 페이지네이션 중앙 정렬 */
+#page_cont {
+  display: flex;
+  justify-content: center;
+  margin: 20px 180px;
+  width: 100%;
+}
+
+#page_cont ul {
+  display: flex;
+  gap: 5px;
 }

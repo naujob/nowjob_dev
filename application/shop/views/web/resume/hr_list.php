@@ -6,8 +6,14 @@ if (count($banner_list) > 0) {
 }
 ?>
 <style>
+.search-result{
+  width: 103%;
+}
+  .search-result .content-area:first-child {
+    margin-left: -63px;
+  }
   .search-result .content-area {
-    margin: 0 10px;
+    margin: 0 77px;
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;
@@ -21,6 +27,7 @@ if (count($banner_list) > 0) {
     flex: 0 0 200px;
     position: sticky;
     top: 90px;
+    
   }
 
   /*--상세검색--*/

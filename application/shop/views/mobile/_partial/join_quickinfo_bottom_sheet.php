@@ -17,11 +17,11 @@ $quickInfoContent = <<<HTML
     <div class="quickinfo-label">국적</div>
     <div class="form-toggle-group col-2">
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_nation" value="domestic">
+        <input type="radio" name="quickinfo_nation" value="domestic" checked>
         <span class="btn">내국인</span>
       </label>
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_nation" value="foreign" checked>
+        <input type="radio" name="quickinfo_nation" value="foreign">
         <span class="btn">외국인</span>
       </label>
     </div>
