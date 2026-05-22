@@ -1,70 +1,102 @@
+<?php
+// 현재 URL 기반으로 nav 상태 사전 계산 (PHP 5.4 호환: isset 사용)
+$_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+
+// 지도 메뉴 label/href
+$_map_label = (strpos($_uri, '/resume/hr_list') !== false) ? '인재지도' : '채용지도';
+$_map_href  = (strpos($_uri, '/resume/hr_list') !== false) ? '/resume/hr_map' : '/recruit/job_map';
+
+// 활성 메뉴 key 결정
+if      (strpos($_uri, '/recruit/job_list') !== false) { $_active = 'recruit'; }
+elseif  (strpos($_uri, '/resume/hr_list')   !== false) { $_active = 'resume';  }
+elseif  (strpos($_uri, '/recruit/job_map')  !== false) { $_active = 'map';     }
+elseif  (strpos($_uri, '/resume/hr_map')    !== false) { $_active = 'map';     }
+elseif  (strpos($_uri, '/chat/')            !== false) { $_active = 'chat';    }
+elseif  (strpos($_uri, '/mypage')           !== false) { $_active = 'write';   }
+elseif  (strpos($_uri, '/compage')          !== false) { $_active = 'write';   }
+else                                                   { $_active = '';        }
+
+// 아이콘 src 생성 헬퍼 (function_exists로 중복 방지)
+if (!function_exists('_nav_icon_src')) {
+    function _nav_icon_src($name, $active) {
+        $suffix = ($name === $active) ? '_click_v2.png' : '_v2.png';
+        return '/resource/shop/mobile/img/main_menu/' . $name . $suffix;
+    }
+}
+if (!function_exists('_nav_active')) {
+    function _nav_active($name, $active) {
+        return ($name === $active) ? 'data-active="true"' : 'data-active="false"';
+    }
+}
+?>
+
 <div class="bottom-nav">
   <!-- 비로그인 사용자 -->
   <?php if (!$this->user->isLogin()) { ?>
-    <a href="/recruit/job_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/recruit_v2.png" alt="채용정보">
+    <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
+      <img src="<?= _nav_icon_src('recruit', $_active) ?>" alt="채용정보">
       <span>채용정보</span>
     </a>
-    <a href="/resume/hr_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
+    <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
+      <img src="<?= _nav_icon_src('resume', $_active) ?>" alt="인재정보">
       <span>인재정보</span>
     </a>
-    <a href="#" class="btn-nav-item map-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="">
-      <span></span>
+    <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
+      <img src="<?= _nav_icon_src('map', $_active) ?>" alt="<?= $_map_label ?>">
+      <span><?= $_map_label ?></span>
     </a>
-    <a href="/member/login" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/login_v2.png" alt="로그인" class="nav-icon-login">
+    <a href="/member/login" class="btn-nav-item" <?= _nav_active('login', $_active) ?>>
+      <img src="<?= _nav_icon_src('login', $_active) ?>" alt="로그인" class="nav-icon-login">
       <span>로그인</span>
     </a>
-    <a href="#" id="btnChat" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+    <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
+      <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
       <span>채팅</span>
     </a>
 
     <!-- 기업 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "COMP") { ?>
-    <a href="/recruit/job_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/recruit_v2.png" alt="채용정보">
+    <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
+      <img src="<?= _nav_icon_src('recruit', $_active) ?>" alt="채용정보">
       <span>채용정보</span>
     </a>
-    <a href="/resume/hr_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
+    <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
+      <img src="<?= _nav_icon_src('resume', $_active) ?>" alt="인재정보">
       <span>인재정보</span>
     </a>
-    <a href="#" class="btn-nav-item map-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="">
-      <span></span>
+    <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
+      <img src="<?= _nav_icon_src('map', $_active) ?>" alt="<?= $_map_label ?>">
+      <span><?= $_map_label ?></span>
     </a>
-    <button type="button" id="btnRecruitWrite" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs_v2.png" alt="채용공고등록">
+    <button type="button" id="btnRecruitWrite" class="btn-nav-item" <?= _nav_active('write', $_active) ?>>
+      <img src="<?= _nav_icon_src('write_rc_rs', $_active) ?>" alt="채용공고등록">
       <span>채용공고등록</span>
     </button>
-    <a href="#" id="btnChat" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+    <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
+      <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
       <span>채팅</span>
     </a>
 
     <!-- 개인 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "MEM") { ?>
-    <a href="/recruit/job_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/recruit_v2.png" alt="채용정보">
+    <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
+      <img src="<?= _nav_icon_src('recruit', $_active) ?>" alt="채용정보">
       <span>채용정보</span>
     </a>
-    <a href="/resume/hr_list" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/resume_v2.png" alt="인재정보">
+    <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
+      <img src="<?= _nav_icon_src('resume', $_active) ?>" alt="인재정보">
       <span>인재정보</span>
     </a>
-    <a href="#" class="btn-nav-item map-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/map_v2.png" alt="">
-      <span></span>
+    <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
+      <img src="<?= _nav_icon_src('map', $_active) ?>" alt="<?= $_map_label ?>">
+      <span><?= $_map_label ?></span>
     </a>
-    <button type="button" id="btnResumeWrite" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/write_rc_rs_v2.png" alt="이력서등록">
+    <button type="button" id="btnResumeWrite" class="btn-nav-item" <?= _nav_active('write', $_active) ?>>
+      <img src="<?= _nav_icon_src('write_rc_rs', $_active) ?>" alt="이력서등록">
       <span>이력서등록</span>
     </button>
-    <a href="#" id="btnChat" class="btn-nav-item">
-      <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+    <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
+      <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
       <span>채팅</span>
     </a>
   <?php } ?>
@@ -184,129 +216,6 @@ renderSelectBottomSheet(
 ?>
 
 <script>
-  // 현재 페이지에 따라 지도 메뉴 설정
-  function initMapNavItem() {
-    var currentPath = window.location.pathname;
-    var $mapItem = $('.map-nav-item');
-    var mapHref = '/recruit/job_map';
-    var mapLabel = '채용지도';
-
-    // 인재정보 페이지에서는 인재지도로 변경
-    if (currentPath.indexOf('/resume/hr_list') !== -1) {
-      mapHref = '/resume/hr_map';
-      mapLabel = '인재지도';
-    }
-
-    $mapItem.attr('href', mapHref);
-    $mapItem.find('img').attr('alt', mapLabel);
-    $mapItem.find('span').text(mapLabel);
-  }
-
-  // 현재 페이지 URL을 기준으로 메인 메뉴 아이콘 자동 활성화
-  function initNavIconByCurrentPage() {
-    var currentPath = window.location.pathname;
-    var $navItems = $('.btn-nav-item');
-    var activeNavName = '';
-
-    // 지도 메뉴 초기화
-    initMapNavItem();
-
-    // 각 네비게이션 항목의 href와 현재 경로를 비교
-    $navItems.each(function() {
-      var $item = $(this);
-      var href = $item.attr('href');
-      var isButton = $item.prop('tagName').toLowerCase() === 'button';
-      var isMapItem = $item.hasClass('map-nav-item');
-
-      // 경로 매칭 로직
-      var isActive = false;
-
-      if (currentPath.indexOf('/recruit/job_list') !== -1) {
-        // 채용정보 페이지
-        if (href === '/recruit/job_list') {
-          isActive = true;
-          activeNavName = '채용정보';
-        }
-      } else if (currentPath.indexOf('/resume/hr_list') !== -1) {
-        // 인재정보 페이지
-        if (href === '/resume/hr_list') {
-          isActive = true;
-          activeNavName = '인재정보';
-        }
-      } else if (currentPath.indexOf('/recruit/job_map') !== -1) {
-        // 채용지도 페이지
-        if (isMapItem) {
-          isActive = true;
-          activeNavName = '채용지도';
-        }
-      } else if (currentPath.indexOf('/resume/hr_map') !== -1) {
-        // 인재지도 페이지
-        if (isMapItem) {
-          isActive = true;
-          activeNavName = '인재지도';
-        }
-      } else if (currentPath.indexOf('/chat/chat_list') !== -1 ||
-        currentPath.indexOf('/chat/chat_list2') !== -1 ||
-        currentPath.indexOf('/chat/index_comp') !== -1 ||
-        currentPath.indexOf('/chat/chat_list3') !== -1 ||
-        currentPath.indexOf('/chat/index') !== -1) {
-        // 채팅 페이지
-        if ($item.attr('id') === 'btnChat') {
-          isActive = true;
-          activeNavName = '채팅';
-        }
-      } else if (currentPath.indexOf('/mypage') !== -1) {
-        // 이력서 또는 마이페이지
-        if (isButton && $item.attr('id') === 'btnResumeWrite') {
-          isActive = true;
-          activeNavName = '이력서등록';
-        }
-      } else if (currentPath.indexOf('/compage') !== -1) {
-        // 채용공고 또는 기업페이지
-        if (isButton && $item.attr('id') === 'btnRecruitWrite') {
-          isActive = true;
-          activeNavName = '채용공고등록';
-        }
-      }
-
-      // 활성 상태 적용
-      if (isActive) {
-        var $img = $item.find('img');
-        var originalSrc = $img.attr('src');
-
-        // 원본 src 저장
-        if (!$img.data('original-src')) {
-          $img.data('original-src', originalSrc);
-        }
-
-        // 클릭 상태 아이콘으로 변경
-        var clickSrc = originalSrc.replace(/_v2\.png$/, '_click_v2.png');
-        $img.attr('src', clickSrc);
-        $img.data('active', 'true');
-        $item.attr('data-active', 'true');
-      } else {
-        var $img = $item.find('img');
-        var originalSrc = $img.data('original-src');
-
-        // 원본 src 저장 (처음이면)
-        if (!originalSrc) {
-          originalSrc = $img.attr('src');
-          $img.data('original-src', originalSrc);
-        }
-
-        // 비활성 상태로 복원
-        $img.attr('src', originalSrc);
-        $img.data('active', 'false');
-        $item.attr('data-active', 'false');
-      }
-    });
-
-    // sessionStorage에 활성화된 아이콘 저장
-    if (activeNavName) {
-      sessionStorage.setItem('activeMenuIcon', activeNavName);
-    }
-  }
-
   // 로그인 안내 팝업 버튼 클릭 이벤트
   $(document).on('click', '#btnLoginGuide', function() {
     location.href = '/member/login';
@@ -506,9 +415,6 @@ renderSelectBottomSheet(
     initPanelSwipe('loginGuidePanel');
     initPanelSwipe('resumeSelectPanel');
     initPanelSwipe('recruitSelectPanel');
-
-    // 현재 페이지 URL을 기준으로 메뉴 아이콘 활성화
-    initNavIconByCurrentPage();
   });
 
   /**
