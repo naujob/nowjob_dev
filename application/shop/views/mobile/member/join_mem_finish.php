@@ -700,14 +700,14 @@ renderSelectBottomSheet(
     }
   });
 
-  // QuickInfo 초기화 버튼: 기본값(외국인/남성)으로 복원, 나이/주소는 초기화
+  // QuickInfo 초기화 버튼: 기본값(외국인/남성/30대)으로 복원, 주소는 초기화
   $(document).on('click', '#btnQuickInfoReset', function(e) {
     e.preventDefault();
 
     // 기본 선택값 복원
     $('input[name="quickinfo_nation"][value="foreign"]').prop('checked', true).trigger('change');
     $('input[name="quickinfo_gender"][value="male"]').prop('checked', true).trigger('change');
-    $('input[name="quickinfo_age"]').prop('checked', false);
+    $('input[name="quickinfo_age"][value="30s"]').prop('checked', true).trigger('change');
 
     // 지역 텍스트 초기화
     var regionEl = document.querySelector('.quickinfo-region-text');
@@ -798,7 +798,7 @@ renderSelectBottomSheet(
         fd.append("ru_addr", DEFAULT_ADDR);
         fd.append("ru_nationality", "내국인");
         fd.append("quickinfo_gender", "남");
-        fd.append("quickinfo_age", "20s");
+        fd.append("quickinfo_age", "30s");
         fd.append("ad_addr[]", DEFAULT_ADDR);
         fd.append("ad_jibun[]", DEFAULT_ADDR);
         fd.append("ad_doro[]", "");

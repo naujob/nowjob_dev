@@ -49,7 +49,7 @@ $quickInfoContent = <<<HTML
         <span class="btn">20대</span>
       </label>
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_age" value="30s">
+        <input type="radio" name="quickinfo_age" value="30s" checked>
         <span class="btn">30대</span>
       </label>
       <label class="form-toggle-btn2">

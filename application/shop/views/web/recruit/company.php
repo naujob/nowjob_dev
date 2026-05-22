@@ -7,10 +7,7 @@ if (count($banner_list) > 0) {
 ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
 <style>
-  .result-list .content-li {
-    padding: 0;
-  }
-
+ 
   /* company.php 고유 스타일 - 기업 헤더 */
   .comp-info {
     display: -webkit-box;
@@ -79,22 +76,13 @@ if (count($banner_list) > 0) {
   }
 
   /* company.php 레이아웃 오버라이드 */
-  .result-list .content-li {
-    height: 120px;
-  }
+ 
 
-  .result-list .content-li .content-info {
-    padding: 5px;
-  }
+  
 
-  .result-list .content-info .content-body {
-    height: 100%;
-  }
 
-  .result-list .content-info .img {
-    width: 110px;
-    height: 110px;
-  }
+
+  
 
   .result-list .content-info .desc .desc1 {
     width: 60%;

@@ -348,6 +348,36 @@
         margin: 0 auto;
         width: 100%;
     }
+
+    /* 소프트키보드 올라왔을 때 page-content 전체 스크롤 활성화 */
+    .page-chat-view {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .page-chat-view .page-content {
+        overflow: visible;
+    }
+
+    .page.page-chat-view {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chat-view-body {
+        overflow: visible;
+    }
+
+    .chat-view-body .content {
+        overflow: visible;
+    }
+    .result-list-card .content-info {
+        padding:0;
+    }
+    .result-list-card .content-li  {
+        overflow:unset;
+        margin-bottom: 0;
+    }
 </style>
 
 <script>

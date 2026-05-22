@@ -124,6 +124,8 @@
   overflow: hidden;
   display: flex;
   gap: 10px;
+  padding: 10px 0;
+  height: 130px;
 }
 
 .result-list .content-info .img {
@@ -133,7 +135,8 @@
   color: #888;
   overflow: hidden;
   flex-shrink: 0;
-  height: 137px;
+  width: 110px;
+  height: 110px;
   
 }
 
@@ -150,6 +153,7 @@
   height: 100%;
   width: 100%;
   gap: 10px;
+  padding: 0 0 0 20px;
 }
 
 .result-list .content-info .desc .desc1 {
@@ -162,13 +166,14 @@
 
 .result-list .content-info .desc .desc1 .timestamp {
   padding-bottom: 5px;
-  font-size: 14px;
+  font-size: 1rem;
   color: #777;
 }
 
 .result-list .content-info .desc .desc1 .reco-title {
   color: #1b9d7d;
   font-weight: 600;
+  
 }
 
 .result-list .content-info .desc .desc1 .wicon img {
@@ -190,9 +195,11 @@
 
 .result-list .content-info .summary {
   display: flex;
-  font-size: 15px;
+  font-size: 16px;
   gap: 5px;
   position: relative;
+  font-weight: 600;
+
 }
 
 .result-list .content-info .summary p {
@@ -318,7 +325,7 @@
   gap: 5px;
   justify-content: flex-end;
   position: relative;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -363,18 +370,15 @@
    공통 레이아웃 치수 (두 페이지 동일하게 적용)
    ============================================= */
 .result-list .content-li {
-  height: 137px;
-  padding: 10px 0;
+  /* height: 137px;
+  padding: 10px 0; */
 }
 
 .result-list .content-info .content-body {
-  height: 107%;
+  /* height: 107%; */
 }
 
-.result-list .content-info .img {
-  width: 130px;
-  height: 120px;
-}
+
 
 .result-list .content-info .desc .desc1 {
   width: 70%;
@@ -394,4 +398,35 @@
 
 .recruit-card .thumb {
   padding: 98.291139% 0 0;
+}
+
+
+
+.page-mypage .result-list .content-body {
+  /* height: 100%;
+  padding: 0; */
+}
+
+.page-mypage .result-list .content-info {
+  /* padding: 5px; */
+}
+
+.page-mypage .result-list .selection {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100px;
+  align-items: center;
+  justify-content: center;
+  padding: 0px;
+}
+
+.page-mypage .result-list .selection .label-red:before {
+  width: 35px;
+  height: 35px;
+}
+
+.page-mypage .result-list .selection .label-red:after {
+  width: 35px;
+  height: 35px;
 }

@@ -11,6 +11,7 @@ $tpl_item_hover        = isset($tpl_item_hover)        ? $tpl_item_hover        
 $tpl_show_timestamp    = isset($tpl_show_timestamp)    ? $tpl_show_timestamp    : true;
 $tpl_show_recomm_badge = isset($tpl_show_recomm_badge) ? $tpl_show_recomm_badge : true;
 $tpl_show_reco_title   = isset($tpl_show_reco_title)   ? $tpl_show_reco_title   : false;
+$tpl_show_selection    = isset($tpl_show_selection)    ? $tpl_show_selection    : false;
 ?>
 <!-- 채용공고 리스트 템플릿 (job_list.php, company.php, search.php에서 공유) -->
 <template id="<?= $tpl_id ?>">
@@ -46,6 +47,15 @@ $tpl_show_reco_title   = isset($tpl_show_reco_title)   ? $tpl_show_reco_title   
               <p class="amount">{{rc_price_display}}</p>
             </div>
           </div>
+          <?php if ($tpl_show_selection) { ?>
+          <div class="selection">
+            <label class="form-checkbox">
+              <input type="checkbox" name="chk[]" value="{{chk_value}}" class="sr-text">
+              <span class="label-red"></span>
+              <span class="sr-text">선택</span>
+            </label>
+          </div>
+          <?php } ?>
         </div>
       </div>
     </div>
@@ -53,5 +63,5 @@ $tpl_show_reco_title   = isset($tpl_show_reco_title)   ? $tpl_show_reco_title   
 </template>
 <?php
 /* 사용한 파라미터 변수 정리 (후속 include 오염 방지) */
-unset($tpl_id, $tpl_item_hover, $tpl_show_timestamp, $tpl_show_recomm_badge, $tpl_show_reco_title);
+unset($tpl_id, $tpl_item_hover, $tpl_show_timestamp, $tpl_show_recomm_badge, $tpl_show_reco_title, $tpl_show_selection);
 ?>
