@@ -68,8 +68,14 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_
       content = content.split("{{rc_age_nm}}").join(row.rc_age_nm);
       content = content.split("{{rt_work_type}}").join(row.rt_work_type);
       content = content.split("{{ad_addr}}").join(typeof fRemoveBigAdrJS === 'function' ? fRemoveBigAdrJS(row.ad_addr) : row.ad_addr);
-      content = content.split("{{rc_price_type}}").join(row.rc_price_type);
-      content = content.split("{{rc_price_display}}").join(row.rc_price_display);
+      // 협의인 경우 금액 표시 안함
+      if (row.rc_price_type.indexOf('협의') > -1) {
+        content = content.split("{{rc_price_type}}").join(row.rc_price_type);
+        content = content.split("{{rc_price_display}}").join("");
+      } else {
+        content = content.split("{{rc_price_type}}").join(row.rc_price_type);
+        content = content.split("{{rc_price_display}}").join(row.rc_price_display);
+      }
       content = content.split("{{chk_value}}").join(row.chk_value);
       content = content.split("{{timestamp}}").join('');
       $clone.html(content);

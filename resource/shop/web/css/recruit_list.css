@@ -430,3 +430,6 @@
   width: 35px;
   height: 35px;
 }
+.recruit-bookmark .result-list .content-info .desc .desc1 {
+      justify-content: space-between;
+}
