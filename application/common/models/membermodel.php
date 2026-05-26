@@ -799,7 +799,13 @@ class memberModel extends MY_Model
          IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT rm_idx ORDER BY rm_idx ASC SEPARATOR ', '), ')')
           FROM st_room
           WHERE rc_idx = aa.rc_idx
-          AND (ru_idx IN (SELECT ru_idx FROM st_member_request WHERE mq_type = 'RECRUIT' AND rc_idx = aa.rc_idx))
+          AND (ru_idx IN (
+              SELECT mq.ru_idx FROM st_member_request mq
+              INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
+              INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
+              WHERE mq.mq_type = 'RECRUIT' AND mq.rc_idx = aa.rc_idx
+              AND mem.mm_status = 'Y'
+          ))
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa
@@ -807,8 +813,11 @@ class memberModel extends MY_Model
 			and aa.rc_status = 'Y'
       AND EXISTS (
           SELECT 1 FROM st_member_request mq
+          INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
+          INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.rc_idx = aa.rc_idx
           AND mq.mq_type = 'RECRUIT'
+          AND mem.mm_status = 'Y'
       )
       GROUP BY aa.rc_idx
 			order by max_up_dt desc, aa.rc_idx desc
@@ -879,7 +888,13 @@ class memberModel extends MY_Model
          IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT rm_idx ORDER BY rm_idx ASC SEPARATOR ', '), ')')
           FROM st_room
           WHERE rc_idx = aa.rc_idx
-          AND ru_idx IN (SELECT ru_idx FROM st_member_request WHERE mq_type = 'RESUME' AND rc_idx = aa.rc_idx AND mm_idx = '$mm_idx')
+          AND ru_idx IN (
+              SELECT mq.ru_idx FROM st_member_request mq
+              INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
+              INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
+              WHERE mq.mq_type = 'RESUME' AND mq.rc_idx = aa.rc_idx AND mq.mm_idx = '$mm_idx'
+              AND mem.mm_status = 'Y'
+          )
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa
@@ -887,9 +902,12 @@ class memberModel extends MY_Model
 			and aa.rc_status = 'Y'
 			AND EXISTS (
 			    SELECT 1 FROM st_member_request mq
+			    INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
+			    INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
 			    WHERE mq.rc_idx = aa.rc_idx
 			    AND mq.mm_idx = '$mm_idx'
 			    AND mq.mq_type = 'RESUME'
+			    AND mem.mm_status = 'Y'
 			)
 			order by max_up_dt desc, aa.rc_idx desc
 		";
@@ -940,9 +958,12 @@ class memberModel extends MY_Model
          ) pm_edate,
          (SELECT min(rm_idx) rm_idx FROM st_room room WHERE req.rc_idx = room.rc_idx AND room.ru_idx = req.ru_idx) rm_idx,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
-			FROM st_recruit aa,st_member_request req /* membermodel.getRecruitActaiveListMem queryXlog */
-			where req.mq_type = 'RECRUIT' AND req.rc_idx = aa.rc_idx AND req.mm_idx = '$mm_idx'
+			FROM st_recruit aa
+			INNER JOIN st_member_request req ON req.rc_idx = aa.rc_idx
+			INNER JOIN st_member comp ON aa.mm_idx = comp.mm_idx /* membermodel.getRecruitActaiveListMem queryXlog */
+			where req.mq_type = 'RECRUIT' AND req.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
+			and comp.mm_status = 'Y'
 			order by max_up_dt desc, aa.rc_idx desc
 		";
 

@@ -508,9 +508,9 @@ container.insertMessage = async function (data, callback) {
 //방리스트 조회
 container.getRoomList = async function (params) {
 
-	fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList ${params}\n`, (err) => { });
-	fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList ${params.rm_type}\n`, (err) => { });
-	fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList ${params.user_id}\n`, (err) => { });
+	// fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList ${params}\n`, (err) => { });
+	// fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList ${params.rm_type}\n`, (err) => { });
+	// fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList ${params.user_id}\n`, (err) => { });
 
 
 	var match = {};
@@ -570,7 +570,7 @@ container.getRoomList = async function (params) {
 		}
 	}
 
-	fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList end\n`, (err) => { });
+	// fs.appendFile('chat_log.txt', `${new Date().toISOString()}: model.chat getRoomList end\n`, (err) => { });
 
 	return ret;
 }

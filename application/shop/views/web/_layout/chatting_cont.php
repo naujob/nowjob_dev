@@ -2628,58 +2628,57 @@
 
 									//기본 문구 전송
 									first_yn = ret2.data.first_yn;
-									//console.log("=== first_message 및 first_users 정의 (recruit - rc_idx 포함) ===");
-									//console.log("first_yn:", first_yn);
-									//console.log("user_id:", user_id);
-									//console.log("target_id:", target_id);
-									//console.log("user_name:", user_name);
-									//console.log("target_name:", target_name);
-									
-									// 사용자 타입에 따른 메시지 내용 결정
-									var current_user_type = "<?= $user_type ?>";
-									var messageText = "";
-									if (current_user_type === "COMP") {
-										// 기업이 개인에게 제안보낼 경우
-										messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
-									} else {
-										// 개인이 기업에게 지원할 경우
-										messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
-									}
-									
-									first_message = {
-										rm_idx: Number(ret2.data.rm_idx),
-										user_id: user_id,
-										chat_type: "recruit",
-										mg_type: "text",
-										mg_text: messageText,
-										mg_req_dt: "",
-										mg_img: "",
-										mg_file: "",
-										mg_imoti: "",
-										mg_dt: getCurrentDate(),
-										mg_reads: new Array(),
-									};
-									first_message.mg_reads.push({
-										read_yn: "Y",
-										user_id: user_id
-									});
-									first_message.mg_reads.push({
-										read_yn: "N",
-										user_id: target_id
-									});
-									//console.log("first_message:", JSON.stringify(first_message));
 
-									//회원정보
-									first_users = []; // 초기화
-									first_users.push({
-										user_id: user_id,
-										user_nick: user_name
-									});
-									first_users.push({
-										user_id: target_id,
-										user_nick: target_name
-									});
-									//console.log("first_users:", JSON.stringify(first_users));
+									// first_yn이 "Y"일 때만 첫 메시지 전송 (기존 채팅방이 아닐 때)
+									if (first_yn === "Y") {
+										// 사용자 타입에 따른 메시지 내용 결정
+										var current_user_type = "<?= $user_type ?>";
+										var messageText = "";
+										if (current_user_type === "COMP") {
+											// 기업이 개인에게 제안보낼 경우
+											messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
+										} else {
+											// 개인이 기업에게 지원할 경우
+											messageText = "안녕하세요.\n채용공고에 이력서를 지원합니다.";
+										}
+
+										first_message = {
+											rm_idx: Number(ret2.data.rm_idx),
+											user_id: user_id,
+											chat_type: "recruit",
+											mg_type: "text",
+											mg_text: messageText,
+											mg_req_dt: "",
+											mg_img: "",
+											mg_file: "",
+											mg_imoti: "",
+											mg_dt: getCurrentDate(),
+											mg_reads: new Array(),
+										};
+										first_message.mg_reads.push({
+											read_yn: "Y",
+											user_id: user_id
+										});
+										first_message.mg_reads.push({
+											read_yn: "N",
+											user_id: target_id
+										});
+
+										//회원정보
+										first_users = []; // 초기화
+										first_users.push({
+											user_id: user_id,
+											user_nick: user_name
+										});
+										first_users.push({
+											user_id: target_id,
+											user_nick: target_name
+										});
+									} else {
+										// 기존 채팅방이면 첫 메시지 없음
+										first_message = {};
+										first_users = [];
+									}
 
  									//발생성
  									click_type = "chat";
