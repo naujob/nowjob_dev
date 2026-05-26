@@ -11293,6 +11293,9 @@ form#frm {
     display: flex;
     padding: 0.875rem 0.875rem 0.875rem;
     background: #F4F4F4;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .chat-view-body .write-form form {

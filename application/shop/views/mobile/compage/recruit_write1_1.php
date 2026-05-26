@@ -100,32 +100,36 @@
                             <p class="work-time-section-label">근무시간 <span class="work-time-tag day">주간</span></p>
                             <div class="work-time-group">
                                 <!-- 출근 -->
-                                <span class="work-time-label">출근</span>
-                                <div class="work-time-input-wrap">
-                                    <select name="rc_am_stime_h" class="time-select">
-                                        <?php
-                                        $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09";
-                                        $amStartM = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 3, 2) : "00";
-                                        for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <span>:</span>
-                                    <input type="text" name="rc_am_stime_m" value="<?= $amStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                <div class="work-time-row">
+                                    <span class="work-time-label">출근</span>
+                                    <div class="work-time-input-wrap">
+                                        <select name="rc_am_stime_h" class="time-select">
+                                            <?php
+                                            $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09";
+                                            $amStartM = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 3, 2) : "00";
+                                            for ($t = 0; $t <= 23; $t++) { ?>
+                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                            <?php } ?>
+                                        </select>
+                                        <span>:</span>
+                                        <input type="text" name="rc_am_stime_m" value="<?= $amStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    </div>
                                 </div>
                                 <!-- 퇴근 -->
-                                <span class="work-time-label">퇴근</span>
-                                <div class="work-time-input-wrap">
-                                    <select name="rc_am_etime_h" class="time-select">
-                                        <?php
-                                        $amEndH = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 0, 2) : "18";
-                                        $amEndM = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 3, 2) : "00";
-                                        for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <span>:</span>
-                                    <input type="text" name="rc_am_etime_m" value="<?= $amEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                <div class="work-time-row">
+                                    <span class="work-time-label">퇴근</span>
+                                    <div class="work-time-input-wrap">
+                                        <select name="rc_am_etime_h" class="time-select">
+                                            <?php
+                                            $amEndH = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 0, 2) : "18";
+                                            $amEndM = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 3, 2) : "00";
+                                            for ($t = 0; $t <= 23; $t++) { ?>
+                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                            <?php } ?>
+                                        </select>
+                                        <span>:</span>
+                                        <input type="text" name="rc_am_etime_m" value="<?= $amEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    </div>
                                 </div>
                             </div>
                             <input type="hidden" name="rc_am_stime" value="<?= isset($info["rc_am_stime"]) ? $info["rc_am_stime"] : "" ?>">
@@ -136,31 +140,35 @@
                         <div id="time_cont2" style="display:none;" class="work-time-section">
                             <p class="work-time-section-label">근무시간 <span class="work-time-tag night">야간</span></p>
                             <div class="work-time-group">
-                                <span class="work-time-label">출근</span>
-                                <div class="work-time-input-wrap">
-                                    <select name="rc_pm_stime_h" class="time-select">
-                                        <?php
-                                        $pmStartH = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 0, 2) : "21";
-                                        $pmStartM = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 3, 2) : "00";
-                                        for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <span>:</span>
-                                    <input type="text" name="rc_pm_stime_m" value="<?= $pmStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                <div class="work-time-row">
+                                    <span class="work-time-label">출근</span>
+                                    <div class="work-time-input-wrap">
+                                        <select name="rc_pm_stime_h" class="time-select">
+                                            <?php
+                                            $pmStartH = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 0, 2) : "21";
+                                            $pmStartM = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 3, 2) : "00";
+                                            for ($t = 0; $t <= 23; $t++) { ?>
+                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                            <?php } ?>
+                                        </select>
+                                        <span>:</span>
+                                        <input type="text" name="rc_pm_stime_m" value="<?= $pmStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    </div>
                                 </div>
-                                <span class="work-time-label">퇴근</span>
-                                <div class="work-time-input-wrap">
-                                    <select name="rc_pm_etime_h" class="time-select">
-                                        <?php
-                                        $pmEndH = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 0, 2) : "06";
-                                        $pmEndM = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 3, 2) : "00";
-                                        for ($t = 0; $t <= 23; $t++) { ?>
-                                            <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <span>:</span>
-                                    <input type="text" name="rc_pm_etime_m" value="<?= $pmEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                <div class="work-time-row">
+                                    <span class="work-time-label">퇴근</span>
+                                    <div class="work-time-input-wrap">
+                                        <select name="rc_pm_etime_h" class="time-select">
+                                            <?php
+                                            $pmEndH = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 0, 2) : "06";
+                                            $pmEndM = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 3, 2) : "00";
+                                            for ($t = 0; $t <= 23; $t++) { ?>
+                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
+                                            <?php } ?>
+                                        </select>
+                                        <span>:</span>
+                                        <input type="text" name="rc_pm_etime_m" value="<?= $pmEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                    </div>
                                 </div>
                             </div>
                             <input type="hidden" name="rc_pm_stime" value="<?= isset($info["rc_pm_stime"]) ? $info["rc_pm_stime"] : "" ?>">
@@ -524,8 +532,14 @@
 
     .work-time-group {
         display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .work-time-row {
+        display: flex;
         align-items: center;
-        flex-wrap: wrap;
         gap: 8px;
     }
 
@@ -541,6 +555,8 @@
         font-size: 13px;
         font-weight: 500;
         white-space: nowrap;
+        flex-shrink: 0;
+        flex: 0.4;
     }
 
     .work-time-input-wrap {
@@ -552,6 +568,7 @@
         border-radius: 8px;
 
         background: #fff;
+        flex: 1;
     }
 
     .work-time-input-wrap span {
