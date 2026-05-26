@@ -149,6 +149,13 @@ class Member extends CI_Controller
 			exit();
 		}
 
+		// 카카오 OAuth state 검증
+		$saved_kakao_state = $this->common->getSession("kakao-oauth-state");
+		if (empty($saved_kakao_state) || $saved_kakao_state !== $state) {
+			$this->common->scriptReplace("/member/login", "카카오 로그인 상태값 검증에 실패했습니다.");
+			exit();
+		}
+
 		// 카카오로그인 객체 생성
 		//$kakao = new KakaoLogin($kakao_key["인증키"],$this->common->getSession("csrf-token"));
 		$kakao = new KakaoLogin($kakao_key, $this->common->getSession("csrf-token"));

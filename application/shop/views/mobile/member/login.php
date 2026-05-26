@@ -74,6 +74,8 @@
             // 카카오 설정
             $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
             $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+            // Kakao state 세션에 저장 (콜백에서 검증 시 사용)
+            $this->common->setSession("kakao-oauth-state", $csrf);
             $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf;
 
             // 네이버 설정 (웹 버전과 동일한 로직)

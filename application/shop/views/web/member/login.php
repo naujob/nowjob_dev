@@ -11,6 +11,8 @@
                     $kakao_redirect = urlencode($app_base_url . "/member/kakao_login_callback");
                     $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
                     $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+                    // Kakao state 세션에 저장 (콜백에서 검증 시 사용)
+                    $this->common->setSession("kakao-oauth-state", $csrf);
                     // prompt=login 파라미터 추가: 항상 로그인 화면을 표시하도록 함
                     $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf . "&prompt=login";
                     
@@ -22,6 +24,8 @@
                         // prompt=login과 auth_type=reauthenticate 파라미터 추가: 항상 로그인 화면을 표시하도록 함
                         // 매번 고유한 state 값 사용 (타임스탬프 추가)하여 세션 우회 시도
                         $unique_state = $csrf . "_" . time() . "_" . mt_rand(1000, 9999);
+                        // 네이버 state 세션에 저장 (콜백에서 검증 시 사용)
+                        $this->common->setSession("naver-oauth-state", $unique_state);
                         $naver_login = "https://nid.naver.com/oauth2.0/authorize?client_id=" . $naver_client_id . "&redirect_uri=" . $naver_redirect . "&response_type=code&state=" . urlencode($unique_state) . "&prompt=login&auth_type=reauthenticate";
                     } else {
                         // 클라이언트 ID가 없으면 빈 문자열
