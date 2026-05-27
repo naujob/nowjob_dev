@@ -1175,24 +1175,22 @@ function getConvertWorkType($work_type)
  */
 function getConvertPriceType($rc_price_type, $rc_price_rep)
 {
-	// rc_price_type: "일급,주급", rc_price_rep: "주급" → "일급, <em class="off">주급</em>"
+	// rc_price_type: "일급,주급", rc_price_rep: "주급"
+	// 1개: 기본색 #1b9d7d
+	// 2개 이상: rc_price_rep과 일치하는 것은 기본색, 다른 것은 회색
 	if (!$rc_price_type) {
 		return '';
 	}
-	// 쉼표로 분리 후 공백 제거
-	// types = ["일급", "주급"] 또는 ["일급", "주급", "월급"] 등
 	$types = array_map('trim', explode(',', $rc_price_type));
 
-	// 1개일 때
 	if (count($types) === 1) {
 		return '<em>' . $types[0] . '</em>';
 	}
 
-	// 2개 이상일 때: rc_price_rep과 일치하는 것은 기본색, 다른 것은 회색
 	$result = '';
 	foreach ($types as $type) {
 		if ($type === $rc_price_rep) {
-			$result .= '<em>' . $type . '</em>';
+			$result .= '<em class="on">' . $type . '</em>';
 		} else {
 			$result .= '<em class="off">' . $type . '</em>';
 		}

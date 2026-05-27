@@ -89,43 +89,45 @@ function formatPhoneNumber($number)
     }
 
     /* 근무형태 스타일 */
-    .working-time em {
-        position: relative;
-        display: inline-block;
+    .worktype {
+        display: flex;
+        gap: 5px;
+        align-items: normal;
+        flex-wrap: wrap;
+        flex-direction: column;
+    }
+
+    .worktype > div {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .worktype em {
         font-style: normal;
-    }
-
-    .working-time em:not(:last-child) {
-        padding-right: 8px;
-    }
-
-    .working-time em:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 2px;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #777;
-    }
-
-    .working-time em.wtype0 {
         color: #333;
+        font-weight: 600;
     }
 
-    .working-time em.wtype1 {
+    .worktype em.wtype0 {
+        color: #999;
+    }
+
+    .worktype em.wtype1 {
         color: #3a70db;
     }
 
-    .working-time em.wtype2 {
+    .worktype em.wtype2 {
         color: #F86048;
-        padding-left: 2px;
     }
 
-    .working-time em.wtype3 {
+    .worktype em.wtype3 {
         color: #1B9D7D;
+    }
+
+    .worktype .work-divider {
+        color: #ccc;
+        font-weight: 300;
     }
 
     /* 상세업무정보(.desc) 핀치 줌 스타일 */
@@ -337,7 +339,41 @@ function formatPhoneNumber($number)
                                 <tr>
                                     <td class="label">근무형태</td>
                                     <td class="value">
-                                        <span class="working-time"><?= getWorkTypeWithColor($info["rc_work_type"]) ?></span>
+                                        <?php
+                                          $work_items = [];
+                                          if (preg_match_all('/<span>(.*?)<\/span>/', $info["rc_work_type"], $matches)) {
+                                            $work_items = $matches[1];
+                                          } else {
+                                            $work_items = preg_split('/\s*,\s*/', $info["rc_work_type"]);
+                                          }
+                                          $item_set = array_unique(array_map('trim', $work_items));
+                                          $is_consultation = in_array('근무협의', $item_set) ||
+                                            (in_array('주간', $item_set) && in_array('야간', $item_set) && in_array('2교대', $item_set));
+
+                                          if ($is_consultation) {
+                                            echo '<span class="working-time"><em class="wtype0">근무협의</em></span>';
+                                          } else {
+                                        ?>
+                                        <div class="worktype">
+                                          <?php
+                                            if (strpos($info["rc_work_type"], "2교대") !== false) {
+                                              if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                              }
+                                              if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                              }
+                                            } else {
+                                              if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                              }
+                                              if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                              }
+                                            }
+                                          ?>
+                                        </div>
+                                        <?php } ?>
                                     </td>
                                 </tr>
                                 <?php /* 근무시간 표시 주석처리

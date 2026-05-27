@@ -6,6 +6,14 @@ if (count($banner_list) > 0) {
 }
 ?>
 <style>
+  .pricetype  em {
+    font-style: normal;
+    position: relative;
+    color: #1b9d7d;
+  }
+  .pricetype  em.off {
+    color: #777;
+  }
   /* 카드 스타일은 main.css의 .result-list-card 섹션에서 관리 */
 
 
@@ -864,7 +872,7 @@ $tpl_show_mm_idx = true; ?>
         $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "대");
       }
 
-      $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
+      $content = $content.replaceAll("{{ru_price_type}}", (row.ru_price_type));
       $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
       $content = $content.replaceAll("{{ad_addr}}", row.ad_addr ? fRemoveBigAdrJS(row.ad_addr) : '');

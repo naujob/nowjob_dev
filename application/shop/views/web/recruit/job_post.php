@@ -635,6 +635,12 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     background: #f5f5f5;
     color: #1B9D7D;
   }
+  .value.txt-color2 .worktype {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    align-items: normal;
+  }
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -879,9 +885,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                   <tr>
                     <td class="label">근무형태</td>
                     <td class="value txt-color2">
-                      <?= getWorkType2025($info["rc_work_type"]) ?>
-                      <?php if ($info["rc_am_stime"] != "" || $info["rc_pm_stime"] != "") :
-                        // getWorkType2025() 함수와 동일한 로직으로 근무협의 판단
+                      <?php
                         $work_items = [];
                         if (preg_match_all('/<span>(.*?)<\/span>/', $info["rc_work_type"], $matches)) {
                           $work_items = $matches[1];
@@ -892,28 +896,30 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                         $is_consultation = in_array('근무협의', $item_set) ||
                           (in_array('주간', $item_set) && in_array('야간', $item_set) && in_array('2교대', $item_set));
 
-                        if (!$is_consultation) : ?>
-                        <em>(<?php
-                          $times = [];
-                          if (strpos($info["rc_work_type"], "2교대") !== false) {
-                            if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                              $times[] = $info["rc_am_stime"] . "~" . $info["rc_am_etime"];
+                        if ($is_consultation) {
+                          echo '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+                        } else {
+                      ?>
+                        <div class="worktype">
+                          <?php
+                            if (strpos($info["rc_work_type"], "2교대") !== false) {
+                              if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                              }
+                              if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                              }
+                            } else {
+                              if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                              }
+                              if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                              }
                             }
-                            if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                              $times[] = $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"];
-                            }
-                          } else {
-                            if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                              $times[] = $info["rc_am_stime"] . "~" . $info["rc_am_etime"];
-                            }
-                            if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                              $times[] = $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"];
-                            }
-                          }
-                          echo implode(", ", $times);
-                        ?>)</em>
-                      <?php endif; ?>
-                      <?php endif; ?>
+                          ?>
+                        </div>
+                      <?php } ?>
                     </td>
                     <td class="label">희망성별</td>
                     <td class="value"><?= $info["rc_sex_nm"] ?></td>

@@ -7034,6 +7034,10 @@ form#frm {
     color: #1B9D7D;
 }
 
+.result-list-card .content-info .summary2 .period em.off {
+    color: #777;
+}
+
 .result-list-card .content-info .summary2 .period em:not(:last-child) {
     padding-right: 5px;
 }
@@ -7096,6 +7100,7 @@ form#frm {
 
 .result-list-card .content-info .summary3 em.wtype2 {
     color: #F86048;
+ 
     
 }
 
@@ -7112,7 +7117,7 @@ form#frm {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+     right: 0px;
     bottom: 0;
     width: 1px;
     height: 0.5em;
@@ -12925,5 +12930,4 @@ form#frm {
 .recomm-slider .slider-wrap {
     flex: 1;
 }
-
 
