@@ -10,6 +10,11 @@
 .ru_price_type em {
   font-style: normal;
   position: relative;
+  color: #1b9d7d;
+}
+
+.ru_price_type em.off {
+  color: #777;
 }
 
 .ru_price_type span {
@@ -97,6 +102,10 @@ display: flex;
   position: relative;
   display: inline-block;
   font-style: normal;
+  color: #1b9d7d;
+}
+
+.item-info .period em.off {
   color: #777;
 }
 
@@ -148,7 +157,7 @@ display: flex;
   left: 0;
   top: 0;
   position: relative;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   width: 200px;
 }
@@ -181,7 +190,7 @@ display: flex;
   position: relative;
   font-size: 16px;
   font-weight: 600;
-  flex: 1;
+
   line-height: 2;
 }
 
@@ -194,6 +203,11 @@ display: flex;
   position: relative;
   display: inline-block;
   font-style: normal;
+  color: #1b9d7d;
+}
+
+.item-info .price_type em.off {
+  color: #777;
 }
 
 .item-info .price_type em:not(:first-child) {
@@ -254,7 +268,7 @@ display: flex;
   color:#1B9D7D;
   font-size: 18px;
   font-weight: 600;
-  flex: 1;
+  max-height: 32px;
 }
 
 /* ============================================
@@ -338,6 +352,17 @@ display: flex;
 
 .person-card .tag:last-child {
   margin-right: 0;
+}
+
+/* ============================================
+   추천 인재 카드 (person-card.reco-card)
+   hr_list.php, hr_post.php 공용 슬라이더 템플릿
+   ============================================ */
+
+/* hr_post 하단 슬라이더 전용: 이미지 크기 216px */
+.person .recently-slider .person-card.reco-card .img {
+  width: 216px;
+  height: 216px;
 }
 
 /* ============================================

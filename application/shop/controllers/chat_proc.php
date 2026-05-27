@@ -1669,7 +1669,7 @@ class Chat_proc extends CI_Controller
 
 		// MongoDB 연결 정보
 		$uri = $this->mongo_uri;
-		$dbName = "chat"; // 사용할 데이터베이스 이름
+		
 
 		try {
 			// MongoDB 클라이언트 생성 및 연결
@@ -1710,47 +1710,45 @@ class Chat_proc extends CI_Controller
 			//exit;
 		}
 
-		// MongoDB 조회 결과에서 탈퇴 회원 채팅방 제외
-		$my_mm_idx = $this->user->getUserIdx();
-		$all_rm_idx = [];
+		// MongoDB 조회 결과에서 탈퇴 회원 메시지 제외
+		// mg_reads에 저장된 mm_status를 확인하여 필터링
+		$my_user_id = $this->user->getUserId();
+		$filtered_results = [];
+
 		foreach ($results as $room) {
-			if (isset($room["rm_idx"])) {
-				$all_rm_idx[] = (int)$room["rm_idx"];
+			if (!isset($room["rm_messages"])) {
+				$filtered_results[] = $room;
+				continue;
 			}
-		}
 
-		// 탈퇴 회원이 상대방인 채팅방 rm_idx 목록 조회
-		$fired_rm_idx_list = [];
-		if (!empty($all_rm_idx)) {
-			$rm_idx_in = implode(",", $all_rm_idx);
-			// st_room의 mm_idx(기업회원idx)가 탈퇴했거나,
-			// 또는 ru_idx에 연결된 이력서 주인(개인회원)이 탈퇴한 경우
-			$sql = "SELECT DISTINCT sr.rm_idx
-					FROM st_room sr
-					LEFT JOIN st_member comp ON sr.mm_idx = comp.mm_idx
-					LEFT JOIN st_resume ru ON sr.ru_idx = ru.ru_idx
-					LEFT JOIN st_member mem ON ru.mm_idx = mem.mm_idx
-					WHERE sr.rm_idx IN ($rm_idx_in)
-					AND sr.mm_idx != '$my_mm_idx'
-					AND (comp.mm_status = 'N' OR mem.mm_status = 'N')";
-			$fired_query = $this->db->query($sql);
-			$fired_rows = $fired_query->result_array();
-			foreach ($fired_rows as $fr) {
-				$fired_rm_idx_list[] = (int)$fr["rm_idx"];
-			}
-		}
-
-		// $results에서 탈퇴 회원 채팅방 제외
-		if (!empty($fired_rm_idx_list)) {
-			$filtered_results = [];
-			foreach ($results as $room) {
-				$rm_idx = isset($room["rm_idx"]) ? (int)$room["rm_idx"] : 0;
-				if (!in_array($rm_idx, $fired_rm_idx_list)) {
-					$filtered_results[] = $room;
+			// 각 room의 메시지를 순회하면서 탈퇴 회원 읽음 상태 제외
+			$filtered_messages = [];
+			foreach ($room["rm_messages"] as $message) {
+				if (!isset($message["mg_reads"])) {
+					$filtered_messages[] = $message;
+					continue;
 				}
+
+				// mg_reads에서 탈퇴 회원(mm_status != 'Y') 제외
+				$filtered_reads = [];
+				foreach ($message["mg_reads"] as $read) {
+					// mm_status가 'Y'인 경우만 유지
+					// (mm_status가 없거나 'N'인 경우는 탈퇴 회원으로 간주하여 제외)
+					if (isset($read["mm_status"]) && $read["mm_status"] === 'Y') {
+						$filtered_reads[] = $read;
+					} elseif (!isset($read["mm_status"])) {
+						// 레거시 데이터(mm_status 없음)는 유지
+						$filtered_reads[] = $read;
+					}
+				}
+				$message["mg_reads"] = $filtered_reads;
+				$filtered_messages[] = $message;
 			}
-			$results = $filtered_results;
+			$room["rm_messages"] = $filtered_messages;
+			$filtered_results[] = $room;
 		}
+
+		$results = $filtered_results;
 
 		$data = [];
 		$data["reg_dt"] = date("Y-m-d H:i:s");

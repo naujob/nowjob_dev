@@ -273,8 +273,10 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                         user_id: user_id,
                         last_location: location
                     });
+                    console.log('update_status emitted with user_id:', user_id, 'location:', location);
                     // Socket 연결 확인 후 미확인 메시지 카운트 조회
                     fSearchNoReadCountMainBottom();
+                    console.log('미확인 메시지 카운트 조회 요청 emitted');
                 } else {
                     socket.emit("buyguest_status", {});
                 }

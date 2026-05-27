@@ -10101,7 +10101,7 @@ body {
 }
 
 .view-footer .recomm-slider.person .arrow--right {
-    right: -18px;
+    right: -54px;
 }
 
 .item-view .profile {
@@ -13200,4 +13200,72 @@ body {
 #page_cont ul {
   display: flex;
   gap: 5px;
+}
+.adBanner {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.adBanner:after {
+  content: "AD";
+  display: block;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  padding: 0 6px;
+  font-size: 10px;
+  color: #fff;
+  line-height: 14px;
+  background: #ddd;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.adBanner1 {
+  width: 200px;
+  height: 600px;
+}
+.sidebar .adBanner1 img {
+  height: 90%;
+}
+.adBanner.adBanner2 {
+  width: 200px;
+  height: 200px;
+}
+
+/* ============================================
+   근무형태 스타일 (.worktype)
+   ============================================ */
+
+.worktype {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.worktype em {
+  font-style: normal;
+  color: #333;
+  font-weight: 600;
+}
+
+.worktype em.wtype0 {
+  color: #999;
+}
+
+.worktype em.wtype1 {
+  color: #3a70db;
+}
+
+.worktype em.wtype2 {
+  color: #F86048;
+}
+
+.worktype em.wtype3 {
+  color: #1B9D7D;
+}
+
+.worktype .work-divider {
+  color: #ccc;
+  font-weight: 300;
 }

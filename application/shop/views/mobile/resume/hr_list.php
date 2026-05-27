@@ -152,6 +152,7 @@ if (count($banner_list) > 0) {
     align-items: center;
     justify-content: center;
     gap: 0;
+    margin-bottom: 10px;
   }
 
   .recomm-slider.person .person-card .meta p {
@@ -179,7 +180,7 @@ if (count($banner_list) > 0) {
   .recomm-slider.person .person-card .addr {
     font-size: 1rem;
     font-weight: 700;
-    margin: 2px 0 0;
+    margin: 2px 0 10px;
     padding: 0;
     color: #000;
     line-height: 1.2;
@@ -226,6 +227,7 @@ if (count($banner_list) > 0) {
     position: relative;
     display: flex;
     flex-direction: column;
+    margin-bottom: 10px;
   }
 
   .person-card .recomm-badge {
@@ -242,6 +244,7 @@ if (count($banner_list) > 0) {
     background: #f0f0f0;
     width: 80px;
     height: 75px;
+    margin-bottom: 10px;
   }
 
   /* 뱃지 래퍼: 이미지 아래 배치 */
@@ -257,6 +260,7 @@ if (count($banner_list) > 0) {
   /* 뱃지 아이콘 */
   .person-card .person-badge-icon {
     font-size: 0;
+    margin-bottom: 10px;
   }
 
   .person-card .person-badge-icon img {

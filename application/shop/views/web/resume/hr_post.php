@@ -1,3 +1,4 @@
+<?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <?php
 function fWorkColor($arg)
@@ -140,81 +141,6 @@ function fRemoveBigAdrPHP($arg)
 
   .arrow--disabled {
     display: none;
-  }
-
-  .person-card .img {
-    position: relative;
-    width: 216px;
-    height: 216px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .person-card .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .person-card .desc {
-    cursor: pointer;
-  }
-
-  .person-card .title {
-    width: 90%;
-  }
-
-  .person-card .area {
-    margin: 0;
-    color: #000;
-    height: auto;
-    width: 50%;
-    text-align: right;
-    font-size: 18px;
-    font-weight: 600;
-  }
-
-  .person-card .hashtag {
-    display: block;
-    margin: 14px 0 0;
-    padding: 5px 0 0;
-    font-size: 0;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    border-top: 1px solid #000;
-    overflow: hidden;
-  }
-
-  .person-card .tag {
-    display: inline-block;
-    margin: 0 8px 0 0;
-    padding: 0 12px;
-    font-size: 16px;
-    color: #3A70DB;
-    line-height: 2;
-    text-align: center;
-    vertical-align: top;
-    border-radius: 100px;
-
-  }
-
-  .person-card .tag:last-child {
-    margin-right: 0;
-  }
-
-  .person-card .meta p em {
-    font-style: normal;
-  }
-
-  .person-card .meta p {
-    position: relative;
-    width: 35%;
-    word-break: keep-all;
-    text-align: center;
   }
 
   .item-view .profile-record>li:last-child {
@@ -553,6 +479,11 @@ function fRemoveBigAdrPHP($arg)
     font-style: normal;
     position: relative;
     display: inline-block;
+    color: #1b9d7d;
+  }
+
+  .ru_price_type em.off {
+    color: #777;
   }
 
   /* ru_price_type 내의 구분자 스타일 (직선 구분자) */
@@ -578,6 +509,16 @@ function fRemoveBigAdrPHP($arg)
 
   .person-card .meta p {
     width: unset;
+  }
+
+  /* info-table 내 em 태그 스타일 (급여형태 표시용) - .worktype 제외 */
+  .info-table .value > em {
+    font-style: normal;
+    color: #1b9d7d;
+  }
+
+  .info-table .value > em.off {
+    color: #777;
   }
 </style>
 <div id="content" class="page page-view">
@@ -1113,7 +1054,7 @@ function fRemoveBigAdrPHP($arg)
                         vertical: true,
                         drag: true,
                       },
-                      [addActiveClass, sliderArrows]
+                      [addActiveClass]
                     );
                   });
                 </script>
@@ -1149,38 +1090,11 @@ function fRemoveBigAdrPHP($arg)
 </div><!-- //page -->
 
 <!-- 추천 리스트 템플릿 -->
-<template id="tpl_reco_list">
-  <div class="keen-slider__slide ">
-    <div class="person-card" data-ru_idx="{{ru_idx}}">
-      <div class="thumb-wrap">
-
-        <div class="img">
-          <img src="{{ru_resume_img}}">
-          <!-- <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button> -->
-        </div>
-      </div>
-      <div class="desc">
-        <div class="content-wrap">
-          <p class="category">
-            {{ru_work_img}}
-          </p>
-          <div class="title-wrap">
-            <p class="title"><strong>{{ru_name}}</strong></p>
-          </div>
-          <div class="meta">
-            <p class="national">{{mm_nation}}</p>
-            <p class="age">{{mm_age}}</p>
-            <p class="work_type">{{ru_work_type}}</p>
-            <p class="price_type">{{ru_price_type}}</p>
-          </div>
-          <div class="hashtag">
-            {{ru_my_type}}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+<?php
+$reco_show_bookmark = false;
+$reco_show_mm_idx   = false;
+include APPPATH . 'views/web/_layout/reco_list_template.php';
+?>
 
 <!-- 제안 리스트 -->
 <div id="selectPanel" class="layer-panel card-type" tabindex="-1">
@@ -2048,201 +1962,15 @@ function fRemoveBigAdrPHP($arg)
   });
 
   function getRecoList() {
-    var params = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "5",
-      "idx": "<?= $info["ru_idx"] ?>"
-    };
-    comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
-      if (ret.code == "00") {
-        var list = ret.data.list;
-        $("#my-keen-slider").html("");
-        $(".arrow--left").remove();
-        $(".arrow--right").remove();
-        list.forEach(function(row) {
-          var $clone = $("#tpl_reco_list").clone();
-          var $content = $clone.html();
-
-          $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
-          $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ru_name}}", row.ru_name);
-          $content = $content.replaceAll("{{ru_week}}", row.ru_week);
-          $content = $content.replaceAll("{{distance}}", row.distance + "km");
-          $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
-
-          if (row.mm_nation.trim() == '') {
-            $content = $content.replaceAll("{{mm_nation}}", "");
-            $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
-          } else {
-            $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-          }
-
-          $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
-
-          $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
-          $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
-          $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
-          $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-          $content = $content.replaceAll("{{timestamp}}", row.timestamp);
-
-          $clone.html($content);
-
-          $("#my-keen-slider").append($clone.html());
-        });
-
-        var slideCount = document.querySelectorAll('.recomm-slider .slider-wrap .keen-slider__slide').length;
-        // var perView = slideCount < 5 ? slideCount : 5;
-        var perView = 5;
-        var slider = new KeenSlider(".recomm-slider .slider-wrap", {
-          loop: slideCount > perView,
-          slides: {
-            perView: perView
-          },
-        }, [
-          addActiveClass,
-          sliderArrows
-        ]);
-
-        var interval = 0;
-        var sliderElement = document.getElementById("my-keen-slider");
-
-        function autoplay(run) {
-          clearInterval(interval);
-          interval = setInterval(() => {
-            if (run && slider) {
-              slider.next();
-            }
-          }, 3400);
-        }
-
-        sliderElement.addEventListener("mouseover", () => {
-          //autoplay(false);
-        });
-        sliderElement.addEventListener("mouseout", () => {
-          //autoplay(true);
-        });
-        //autoplay(true);
-      } else {
-
-      }
+    getRecoListCommon({
+      containerId: 'my-keen-slider',
+      limit: 5,
+      excludeRuIdx: '<?= $info["ru_idx"] ?>',
+      showMmIdx: false,
+      perView: 5
     });
   }
 
-  // add.js와 동일한 주소 축약 로직 사용
-  function fRemoveBigAdrJS(arg) {
-    if (typeof arg !== "string") {
-      return "";
-    }
-
-    var raw = arg.trim();
-    if (raw === "") {
-      return "";
-    }
-
-    // 쉼표 포함 시 첫 토큰만 사용
-    var firstPart = raw.split(",")[0];
-
-    var replacements = [
-      ["서울특별시 ", "서울시 "],
-      ["경기도 ", ""],
-      ["강원특별자치도 ", ""],
-      ["충청남도 ", ""],
-      ["충청북도 ", ""],
-      ["경상남도 ", ""],
-      ["경상북도 ", ""],
-      ["전라남도 ", ""],
-      ["전북특별자치도 ", ""],
-      ["제주특별자치도 ", ""],
-      ["세종특별자치시 ", "세종시 "],
-      ["광주광역시 ", "광주시 "],
-      ["인천광역시 ", "인천시 "],
-      ["울산광역시 ", "울산시 "],
-      ["부산광역시 ", "부산시 "],
-      ["대구광역시 ", "대구시 "],
-      ["대전광역시 ", "대전시 "],
-      ["경기 ", ""],
-      ["강원 ", ""],
-      ["충남 ", ""],
-      ["충북 ", ""],
-      ["경남 ", ""],
-      ["경북 ", ""],
-      ["전남 ", ""],
-      ["전북 ", ""],
-      ["제주 ", ""]
-    ];
-
-    replacements.forEach(function(pair) {
-      firstPart = firstPart.replace(pair[0], pair[1]);
-    });
-
-    var parts = firstPart.split(" ");
-    if (parts.length >= 3) {
-      // 세 번째 토큰이 숫자를 포함하면 첫 두 토큰만 사용
-      if (/\d/.test(parts[2])) {
-        return parts[0] + " " + parts[1];
-      }
-      return parts[0] + " " + parts[2];
-    }
-
-    return firstPart;
-  }
-
-  function getPriceType(price_type) {
-    if (!price_type) {
-      return "";
-    }
-    if (price_type === "일급,주급,월급") {
-      return "급여협의";
-    }
-    // 첫 번째 값만 반환
-    const firstType = price_type.split(',')[0].trim();
-    return firstType;
-  }
-
-  function getWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    const matches = work_type.match(/<span>(.*?)<\/span>/g);
-
-    if (!matches || matches.length === 0) {
-      return "";
-    }
-    // 첫 번째 값만 반환
-    const firstMatch = matches[0];
-    const text = firstMatch.replace(/<\/?span>/g, '').trim();
-    let cls = '';
-    if (text === '주간') {
-      cls = 'wtype1';
-    } else if (text === '야간') {
-      cls = 'wtype2';
-    } else if (text === '2교대') {
-      cls = 'wtype3';
-    }
-    return `<em class="${cls}">${text}</em>`;
-  }
-
-  function getHashTagJS(hash, max = 10) {
-    let result = "";
-    let tmp = hash;
-    tmp = tmp.replaceAll("<p class=\'tag\' style=\'width:100%;text-align:right;\'>", "");
-    tmp = tmp.replaceAll("</p>", "");
-    let arr_hash = tmp.trim().split(" ");
-    arr_hash.forEach(function(txt, key) {
-      if (key < max) {
-        if (!txt.includes("#") && txt.trim() !== "") {
-          txt = "#" + txt.trim();
-        }
-        if (txt.trim() !== "") {
-          result += ` <p class='tag'>${txt}</p>`;
-        }
-      }
-    });
-
-    return result;
-  }
   $(document).ready(function() {
     getRecoList();
   });

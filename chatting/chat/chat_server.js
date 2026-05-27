@@ -859,15 +859,30 @@ io.on('connection', function (socket) {
 					if (!user_id || user_id === null || user_id === "" || user_id === "null") {
 						continue;
 					}
+
+					// 회원 상태 조회 (탈퇴 여부 확인)
+					let mm_status = 'Y';
+					try {
+						const member_info = await new Promise((resolve) => {
+							$exe.member.getMember({ user_id: user_id }, resolve);
+						});
+						if (!member_info || member_info.mm_status !== 'Y') {
+							mm_status = 'N';
+						}
+					} catch (err) {
+						// 회원 정보 조회 실패 시 'Y'로 설정
+						mm_status = 'Y';
+					}
+
 					if (user_id === g_user_id) {
 						// 보낸 사람은 항상 읽음
-						data.mg_reads.push({ user_id: user_id, read_yn: 'Y' });
+						data.mg_reads.push({ user_id: user_id, read_yn: 'Y', mm_status: mm_status });
 					} else if (connectedUserIds.has(user_id)) {
 						// 실제 접속한 사용자는 읽음
-						data.mg_reads.push({ user_id: user_id, read_yn: 'Y' });
+						data.mg_reads.push({ user_id: user_id, read_yn: 'Y', mm_status: mm_status });
 					} else {
 						// 접속하지 않은 사용자는 읽지 않음
-						data.mg_reads.push({ user_id: user_id, read_yn: 'N' });
+						data.mg_reads.push({ user_id: user_id, read_yn: 'N', mm_status: mm_status });
 					}
 				}
 
@@ -1005,6 +1020,20 @@ io.on('connection', function (socket) {
 			for (const room_user of all_users) {
 				const room_user_id = room_user.user_id;
 				if (room_user_id && room_user_id !== g_user_id) {
+					// 탈퇴 회원 여부 확인 (MySQL에서 조회)
+					try {
+						const member_info = await new Promise((resolve) => {
+							$exe.member.getMember({ user_id: room_user_id }, resolve);
+						});
+						// 탈퇴 회원(mm_status !== 'Y')이면 알림 전송 스킵
+						if (!member_info || member_info.mm_status !== 'Y') {
+							continue;
+						}
+					} catch (err) {
+						// 회원 정보 조회 실패 시 안전하게 스킵
+						continue;
+					}
+
 					// rm_users에서 먼저 찾기
 					let found_user = rm_users.find(u => u.user_id === room_user_id);
 					let socket_id = found_user && found_user.socket_id ? found_user.socket_id : null;
@@ -1034,7 +1063,9 @@ io.on('connection', function (socket) {
 					}
 
 					// 접속 중인 사용자에게 실시간 알림 표시
-					if (socket_id && online_user_ids.includes(room_user_id)) {
+					// socket_id가 있으면 채팅방 join 여부와 관계없이 발송
+					// (기존: online_user_ids.includes(room_user_id) 조건으로 채팅방에 없는 사용자는 알림 미발송 문제 수정)
+					if (socket_id) {
 						io.to(socket_id).emit('chat_notification', {
 							rm_idx: target_rm_idx,
 							mg_idx: ret.data && ret.data[0] ? ret.data[0].mg_idx : ret.mg_idx,

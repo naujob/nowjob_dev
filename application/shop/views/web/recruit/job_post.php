@@ -216,15 +216,15 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     position: relative;
     display: inline-block;
     font-style: normal;
-    color: #777;
+    color: #1b9d7d;
   }
 
   .info-table .pay span em:not(:last-child) {
     padding-right: 5px;
   }
 
-  .info-table .pay span em.on {
-    color: #1b9d7d;
+  .info-table .pay span em.off {
+    color: #777;
   }
 
   .info-table .pay span em:not(:last-child)::after {
@@ -258,15 +258,15 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     position: relative;
     display: inline-block;
     font-style: normal;
-    color: #777;
+    color: #1b9d7d;
   }
 
   .summary-card .meta em:not(:last-child) {
     padding-right: 5px;
   }
 
-  .summary-card .meta em.on {
-    color: #1b9d7d;
+  .summary-card .meta em.off {
+    color: #777;
   }
 
   .summary-card .meta em:not(:last-child)::after {

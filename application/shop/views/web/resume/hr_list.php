@@ -1069,38 +1069,11 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 ?>
 
 <!-- 추천 리스트 템플릿 -->
-<template id="tpl_reco_list">
-  <div class="keen-slider__slide ">
-    <div class="person-card" data-ru_idx="{{ru_idx}}" data-mm_idx="{{mm_idx}}">
-      <div class="thumb-wrap">
-        <div class="img">
-          <img src="{{ru_resume_img}}">
-          <?php if ($mm_type === "COMP") { ?><button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
-        </div>
-      </div>
-      <div class="desc">
-        <div class="content-wrap">
-          <p class="category">
-            {{ru_work_img}}
-          </p>
-          <div class="title-wrap">
-            <p class="title"><strong>{{ru_name}}</strong></p>
-
-          </div>
-          <div class="meta">
-            <p class="national">{{mm_nation}}</p>
-            <p class="age">{{mm_age}}</p>
-            <p class="work_type">{{ru_work_type}}</p>
-            <p class="price_type">{{ru_price_type}}</p>
-          </div>
-          <div class="hashtag">
-            {{ru_my_type}}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+<?php
+$reco_show_bookmark = true;
+$reco_show_mm_idx   = true;
+include APPPATH . 'views/web/_layout/reco_list_template.php';
+?>
 
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
@@ -1317,85 +1290,11 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
   }
 
   function getRecoList() {
-    var params = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "10"
-    };
-    comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
-      if (ret.code == "00") {
-        var list = ret.data.list;
-        $("#my-keen-slider").html("");
-
-        list.forEach(function(row) {
-          var $clone = $("#tpl_reco_list").clone();
-          var $content = $clone.html();
-
-          $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
-          $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
-          $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
-          $content = $content.replaceAll("{{ru_week}}", row.ru_week);
-          $content = $content.replaceAll("{{distance}}", row.distance + "km");
-          $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
-
-          var nationText = safeTrim(row.mm_nation);
-          if (nationText === '') {
-            $content = $content.replaceAll("{{mm_nation}}", "");
-            $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
-          } else {
-            $content = $content.replaceAll("{{mm_nation}}", nationText);
-          }
-
-          $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
-
-          $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
-          $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
-          $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
-          $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-          $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-          $content = $content.replaceAll("{{timestamp}}", row.timestamp);
-
-          $clone.html($content);
-
-          $("#my-keen-slider").append($clone.html());
-        });
-
-        var slideCount = document.querySelectorAll('.recomm-slider .slider-wrap .keen-slider__slide').length;
-        var perView = 5;
-        var slider = new KeenSlider(".recomm-slider .slider-wrap", {
-          loop: slideCount > perView,
-          slides: {
-            perView: perView
-          },
-        }, [
-          addActiveClass,
-          sliderArrows
-        ]);
-
-        var interval = 0;
-        var sliderElement = document.getElementById("my-keen-slider");
-
-        function autoplay(run) {
-          clearInterval(interval);
-          interval = setInterval(() => {
-            if (run && slider) {
-              slider.next();
-            }
-          }, 3400);
-        }
-
-        sliderElement.addEventListener("mouseover", () => {
-          //autoplay(false);
-        });
-        sliderElement.addEventListener("mouseout", () => {
-          //autoplay(true);
-        });
-        //autoplay(true);
-      } else {
-
-      }
+    getRecoListCommon({
+      containerId: 'my-keen-slider',
+      limit: 10,
+      showMmIdx: true,
+      perView: 5
     });
   }
 

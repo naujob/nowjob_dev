@@ -25,20 +25,20 @@ function getConvertAgeLabel(age) {
  * 급여 유형 변환 (복수 타입 강조)
  * @param {string} rc_price_type - 급여 타입 (예: "일급,주급,월급")
  * @param {string} rc_price_rep - 강조할 대표 타입
- * @returns {string} HTML 형식의 급여 타입 (<em class="on">대표</em><em>기타</em>)
+ * @returns {string} HTML 형식의 급여 타입 (<em>대표</em><em class="off">기타</em>)
  */
 function getConvertPriceType(rc_price_type, rc_price_rep) {
   const types = rc_price_type.split(',');
 
   if (types.length === 1) {
-    return `<em class="on">${types[0]}</em>`;
+    return `<em>${types[0]}</em>`;
   }
 
   return types.map(type => {
     if (type === rc_price_rep) {
-      return `<em class="on">${type}</em>`;
-    } else {
       return `<em>${type}</em>`;
+    } else {
+      return `<em class="off">${type}</em>`;
     }
   }).join('');
 }
@@ -68,9 +68,9 @@ function getPriceTypeJS(price_type) {
 }
 
 /**
- * 이력서 급여 타입 추출 (첫 번째 값만)
+ * 이력서 급여 타입 추출 (첫 번째 값만 처리)
  * @param {string} price_type - 급여 타입 (예: "일급,주급,월급")
- * @returns {string} 첫 번째 급여 타입을 em 태그로 감싼 HTML
+ * @returns {string} 첫 번째 급여 타입만 em 태그로 감싼 HTML
  */
 function getPriceTypeJSFirst(price_type) {
   if (!price_type) {
@@ -87,7 +87,7 @@ function getPriceTypeJSFirst(price_type) {
     return "";
   }
 
-  // 첫 번째 값만 em 태그로 반환
+  // 첫 번째 값만 em 태그로 반환 (기본색 #1b9d7d)
   return `<em>${types[0]}</em>`;
 }
 
@@ -281,4 +281,129 @@ function getWorkTypeWithColorJS(work_type) {
   result += '</div>';
 
   return result;
+}
+
+/**
+ * 안전한 trim (null/undefined 방어)
+ * @param {string} value - 원본 값
+ * @returns {string} trim된 문자열 또는 빈 문자열
+ */
+function safeTrim(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  return String(value).trim();
+}
+
+/**
+ * 추천 인재 목록 로드 공통 함수
+ * @param {Object} options - 옵션 객체
+ * @param {string} options.containerId - 슬라이더 컨테이너 ID (기본: 'my-keen-slider')
+ * @param {string} options.tplId - 템플릿 ID (기본: 'tpl_reco_list')
+ * @param {string} options.excludeRuIdx - 제외할 이력서 idx (hr_post에서 사용)
+ * @param {number} options.limit - 로드 개수 (기본: 10)
+ * @param {number} options.perView - 슬라이더 perView (기본: 5)
+ * @param {boolean} options.showMmIdx - mm_idx 처리 여부 (기본: false)
+ */
+function getRecoListCommon(options) {
+  const opts = {
+    containerId: 'my-keen-slider',
+    tplId: 'tpl_reco_list',
+    excludeRuIdx: null,
+    limit: 10,
+    perView: 5,
+    showMmIdx: false,
+    ...options
+  };
+
+  const params = {
+    "addr1": "",
+    "addr2": "",
+    "addr3": "",
+    "limit": opts.limit.toString()
+  };
+
+  if (opts.excludeRuIdx) {
+    params["exclude_ru_idx"] = opts.excludeRuIdx;
+  }
+
+  comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
+    if (ret.code !== "00") {
+      return;
+    }
+
+    const list = ret.data.list || [];
+    const $container = $("#" + opts.containerId);
+    $container.html("");
+
+    list.forEach(function(row) {
+      const $clone = $("#" + opts.tplId).clone();
+      let $content = $clone.html();
+
+      $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
+
+      if (opts.showMmIdx) {
+        $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
+      }
+
+      $content = $content.replaceAll("{{book_yn}}", row.book_yn === "Y" ? "on" : "");
+      $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
+      $content = $content.replaceAll("{{ru_week}}", row.ru_week);
+      $content = $content.replaceAll("{{distance}}", (row.distance || "") + (row.distance ? "km" : ""));
+      $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
+
+      const nationText = safeTrim(row.mm_nation);
+      if (nationText === '') {
+        $content = $content.replaceAll("{{mm_nation}}", "");
+        $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
+      } else {
+        $content = $content.replaceAll("{{mm_nation}}", nationText);
+      }
+
+      $content = $content.replaceAll("{{mm_age}}", row.mm_age + "대");
+      $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
+      $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
+      $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
+      $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
+      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+
+      $clone.html($content);
+      $container.append($clone.html());
+    });
+
+    const slideCount = document.querySelectorAll('.recomm-slider.person .slider-wrap .keen-slider__slide').length;
+
+    if (slideCount > 0) {
+      const slider = new KeenSlider(".recomm-slider.person .slider-wrap", {
+        loop: slideCount > opts.perView,
+        slides: {
+          perView: opts.perView
+        },
+      }, [
+        addActiveClass,
+        sliderArrows
+      ]);
+
+      let interval = 0;
+      const sliderElement = document.getElementById(opts.containerId);
+
+      function autoplay(run) {
+        clearInterval(interval);
+        interval = setInterval(() => {
+          if (run && slider) {
+            slider.next();
+          }
+        }, 3400);
+      }
+
+      if (sliderElement) {
+        sliderElement.addEventListener("mouseover", () => {
+          // autoplay(false);
+        });
+        sliderElement.addEventListener("mouseout", () => {
+          // autoplay(true);
+        });
+      }
+    }
+  });
 }

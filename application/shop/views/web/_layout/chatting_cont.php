@@ -680,7 +680,7 @@
  						<div class="chat-list-body">
 
  							<div role="tabpanel" id="chatPanel1" aria-labelledby="chatTab1" tabindex="0" class="tab-panel" hidden>
- 								<!-- 기업회원 제안받은 인재 -->
+ 								<!-- 왼쪽 -->
  								<ol class="list" id="chat_list1" style="width:100%;float:left;">
 
  								</ol>
@@ -690,7 +690,7 @@
  							</div>
  							
  							<div role="tabpanel" id="chatPanel2" aria-labelledby="chatTab2" tabindex="0" class="tab-panel" hidden>
- 								<!-- 기업회원 제안보낸 인재 -->
+ 								<!-- 오른쪽 -->
  								<ol class="list" id="chat_list2" style="width:100%;float:left;">
 
  								</ol>
@@ -710,7 +710,7 @@
  						</div>
  					</div>
 
- 					<!-- 채팅상세 -->
+ 					<!-- 채팅상세 view -->
  					<div class="chat-view" tabindex="0" hidden>
  						<div class="chat-view-header">
  							<!-- 회사명 -->
@@ -1171,6 +1171,7 @@
  기업회원 제안받은 인재 / 제안보낸 인재 탭의 항목 표시
 -->
  <template id="tpl_chat">
+	<!-- 기업회원의 제안받은 인재 / 제안보낸 인재 목록 항목 -->
  	<li class="list-item">
  		<a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
  			<div class="item-info person" style="width:100%;">
@@ -1195,6 +1196,7 @@
 개인회원 지원한공고탬플릿
 -->
  <template id="tpl_chat_mem">
+	<!-- 개인의 지원한 공고 목록 항목 -->
  	<li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}" data-regdt="{{reg_dt}}">
  		<a href="#" class="angle-link js-open-view" style="padding:0;" data-regdt="{{reg_dt}}">
  			<div class="item-info person" style="width:100%;">
@@ -1261,9 +1263,11 @@
 </template>
 
  <!-- 
-용도: 기업회원용 - 특정 채용공고에 지원한 인재 목록 항목 탬플릿
+용도: 기업회원용 - 기업회원공고클릭시 아래 인재목록 템플릿
+사용중
 -->
  <template id="tpl_chat_by_recruite">
+	
  	<li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}">
  		<a href="#" class="angle-link js-open-view angle-link-resume"
  			aria-haspopup="dialog"
@@ -1302,6 +1306,7 @@
   - 1:1 채팅하기 버튼
   - 인재 상세 정보 표시
 참고: 레거시 템플릿 또는 향후 사용 예정
+지금안씀
 -->
  <template id="tpl_chat_org">
  	<li class="list-item">
@@ -1820,7 +1825,10 @@
 						rm_messages.forEach(message => {
 							if (message.mg_reads) {
 								message.mg_reads.forEach(read => {
-									if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
+									// mm_status가 'Y'인 경우만 카운트 (탈퇴 회원 제외)
+									// mm_status가 없으면 레거시 데이터로 간주하여 카운트
+									const isActiveUser = !read.mm_status || read.mm_status === 'Y';
+									if (isActiveUser && read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
 										countAll++;
 									}
 								});

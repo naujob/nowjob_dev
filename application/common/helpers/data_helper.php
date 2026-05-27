@@ -462,13 +462,19 @@ function getPriceType($price_type, $max = 3)
 {
 	$num = 0;
 	$return = "";
+	$count = 0;
 
 	if (count(explode(",", $price_type)) > 2) {
 		return $return . "<em>급여협의</em>";
 	}
 
 	if (strpos($price_type, "일급") !== false) {
-		$return .= "<em>일급</em>";
+		if ($count > 0) {
+			$return .= "<em class='off'>일급</em>";
+		} else {
+			$return .= "<em>일급</em>";
+		}
+		$count++;
 		$num++;
 	}
 
@@ -477,7 +483,12 @@ function getPriceType($price_type, $max = 3)
 	}
 
 	if (strpos($price_type, "주급") !== false) {
-		$return .= "<em>주급</em>";
+		if ($count > 0) {
+			$return .= "<em class='off'>주급</em>";
+		} else {
+			$return .= "<em>주급</em>";
+		}
+		$count++;
 		$num++;
 	}
 
@@ -486,7 +497,12 @@ function getPriceType($price_type, $max = 3)
 	}
 
 	if (strpos($price_type, "월급") !== false) {
-		$return .= "<em>월급</em>";
+		if ($count > 0) {
+			$return .= "<em class='off'>월급</em>";
+		} else {
+			$return .= "<em>월급</em>";
+		}
+		$count++;
 		$num++;
 	}
 	return $return;
@@ -1111,16 +1127,16 @@ function getWorkType2025($work_type)
 	$has_2shift = in_array('2교대', $item_set);
 
 	if ($has_jugan && $has_yagan && $has_2shift) {
-		return '<em class="wtype0">근무협의</em>';
+		return '<div class="worktype"><em class="wtype0">근무협의</em></div>';
 	}
 
-	$result = '';
+	$result = '<div class="worktype">';
 	$count = 0;
 	foreach ($item_set as $text) {
 		if ($text === '') continue;
 
 		if ($count > 0) {
-			$result .= ' <span class="work-divider">|</span> ';
+			$result .= '<span class="work-divider">|</span>';
 		}
 
 		$cls = '';
@@ -1135,6 +1151,7 @@ function getWorkType2025($work_type)
 		$result .= '<em class="' . $cls . '">' . $text . '</em>';
 		$count++;
 	}
+	$result .= '</div>';
 
 	return $result;
 }
@@ -1154,11 +1171,11 @@ function getConvertWorkType($work_type)
 
 /**
  * 채용공고 급여유형을 <em> HTML로 변환
- * 2개 이상일 때: rc_price_rep과 일치하는 것만 class="on" 적용
+ * 2개 이상일 때: rc_price_rep과 일치하는 것은 #1b9d7d, 다른 것은 #777 색상 적용
  */
 function getConvertPriceType($rc_price_type, $rc_price_rep)
 {
-	// rc_price_type: "일급,주급", rc_price_rep: "주급" → "일급, <em class="on">주급</em>"
+	// rc_price_type: "일급,주급", rc_price_rep: "주급" → "일급, <em class="off">주급</em>"
 	if (!$rc_price_type) {
 		return '';
 	}
@@ -1171,13 +1188,13 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 		return '<em>' . $types[0] . '</em>';
 	}
 
-	// 2개 이상일 때: rc_price_rep과 일치하는 것만 강조
+	// 2개 이상일 때: rc_price_rep과 일치하는 것은 기본색, 다른 것은 회색
 	$result = '';
 	foreach ($types as $type) {
 		if ($type === $rc_price_rep) {
-			$result .= '<em class="on">' . $type . '</em>';
-		} else {
 			$result .= '<em>' . $type . '</em>';
+		} else {
+			$result .= '<em class="off">' . $type . '</em>';
 		}
 	}
 
@@ -1198,6 +1215,7 @@ function getConvertPrice($rc_price_pay, $rc_price_type = '')
 /**
  * 급여유형을 <em> HTML로 변환
  * 일급+주급+월급 모두 포함 시 "급여협의"로 통합
+ * 2개 이상일 때: 첫 번째 항목은 기본색(#1b9d7d), 나머지는 회색(#777, off 클래스)
  */
 function getConvertResumePriceType($price_type)
 {
@@ -1219,14 +1237,23 @@ function getConvertResumePriceType($price_type)
 	// types = ["일급", "주급"] 또는 ["일급", "주급", "월급"] 등
 	$result = '';
 	$count = 0;
+	$validTypes = array();
 	foreach ($types as $type) {
 		$type = trim($type);
 		if ($type !== '') {
-			if ($count > 0) {
-				$result .= ' <span class="price-divider">|</span> ';
-			}
+			$validTypes[] = $type;
+		}
+	}
+
+	// 2개 이상일 때는 첫 번째만 기본색, 나머지는 off 클래스
+	foreach ($validTypes as $index => $type) {
+		if ($index > 0) {
+			$result .= ' <span class="price-divider">|</span> ';
+		}
+		if (count($validTypes) > 1 && $index > 0) {
+			$result .= '<em class="off">' . $type . '</em>';
+		} else {
 			$result .= '<em>' . $type . '</em>';
-			$count++;
 		}
 	}
 

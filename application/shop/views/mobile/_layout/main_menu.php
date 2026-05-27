@@ -467,7 +467,7 @@ renderSelectBottomSheet(
           }
         }
 
-        // 모든 방의 읽지 않은 메시지 카운트 (exists 체크 제거)
+        // 모든 방의 읽지 않은 메시지 카운트 (탈퇴 회원 제외)
         $.each(result, function(key, room) {
           if (!room || !room.rm_messages) return;
 
@@ -475,7 +475,10 @@ renderSelectBottomSheet(
             if (!message || !message.mg_reads) return;
 
             $.each(message.mg_reads, function(i, readEntry) {
-              if (readEntry.user_id === myId && readEntry.read_yn === 'N') {
+              // mm_status가 'Y'인 경우만 카운트 (탈퇴 회원 제외)
+              // mm_status가 없으면 레거시 데이터로 간주하여 카운트
+              const isActiveUser = !readEntry.mm_status || readEntry.mm_status === 'Y';
+              if (isActiveUser && readEntry.user_id === myId && readEntry.read_yn === 'N') {
                 countAll++;
               }
             });

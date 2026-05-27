@@ -93,7 +93,7 @@ if ($user_id != "") {
                 }
             });
 
-            console.log('알림 Socket.IO 리스너 등록 완료');
+            console.log('알림 Socket.IO 리스너 등록 완료!!');
             return true;
         }
         return false;
@@ -122,7 +122,7 @@ if ($user_id != "") {
         // Socket.IO connect 이벤트에서도 등록 (연결이 늦게 완료될 경우 대비)
         if (typeof window.socket !== 'undefined') {
             window.socket.on('connect', function() {
-                console.log('Socket 연결 완료, 알림 리스너 등록');
+                console.log('Socket 연결 완료, 알림 리스너 등록12');
                 setupAlarmSocketListeners();
                 if ($("#is_login").val() == "Y") {
                     setTimeout(function() {
@@ -135,7 +135,7 @@ if ($user_id != "") {
         // connection_return 이벤트에서도 등록
         if (typeof window.socket !== 'undefined') {
             window.socket.on('connection_return', function() {
-                console.log('Socket connection_return, 알림 리스너 등록');
+                console.log('Socket connection_return, 알림 리스너 등록33');
                 setupAlarmSocketListeners();
                 if ($("#is_login").val() == "Y") {
                     setTimeout(function() {
