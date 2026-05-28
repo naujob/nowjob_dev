@@ -1209,6 +1209,18 @@
 
             var perView = slideCount < 4 ? slideCount : 4;
 
+            // 슬라이드 아이템에 고정 너비 적용 (25%)
+            var slides = container.querySelectorAll('.keen-slider__slide');
+            slides.forEach(function(slide) {
+                slide.style.flex = '0 0 25%';
+            });
+
+            // 슬라이드 개수에 따라 슬라이더 너비 동적 설정
+            var totalWidth = slideCount * 320; // 각 슬라이드 320px (최대너비) + 여백
+            var wrapperWidth = Math.min(totalWidth, 4 * 320); // 최대 4개 크기
+            sliderWrap.style.width = wrapperWidth + 'px';
+            sliderWrap.style.maxWidth = '100%';
+
             // 기존 슬라이더 인스턴스 정리
             if (sliderWrap.__KeenSliderInstance) {
                 sliderWrap.__KeenSliderInstance.destroy();
@@ -1276,15 +1288,15 @@
             var mslider = new KeenSlider(mainSliderSelector, {
                 loop: true,
                 defaultAnimation: {
-                    duration: 100
+                    duration: 100    // 애니메이션 지속 시간 (ms)
                 },
-                drag: false,
+                drag: false,  //드래그 비활성화
                 detailsChanged: function(s) {
                     s.slides.forEach(function(element, idx) {
                         element.style.opacity = s.track.details.slides[idx].portion;
                     });
                 },
-                renderMode: 'custom'
+                renderMode: 'custom' // 커스텀 렌더 모드로 설정하여 detailsChanged에서 직접 스타일 조정
             }, [addActiveClass]);
 
             var thumbnails = new KeenSlider(thumbnailSliderSelector, {
@@ -1292,10 +1304,10 @@
                 slides: {
                     perView: 4
                 },
-                vertical: true,
-                drag: false
+                vertical: true, // 세로 방향으로 설정
+                drag: false // 드래그 비활성화
             }, [
-                ThumbnailPlugin(mslider),
+                ThumbnailPlugin(mslider), // 메인 슬라이더와 연동하는 플러그인
                 sliderArrows
             ]);
 
@@ -1326,9 +1338,10 @@
             }
 
             var slider = new KeenSlider(selector, {
-                initial: 0,
+                initial: 0, // 초기 슬라이드 인덱스
+                // 슬라이드 레이아웃 설정
                 slides: {
-                    perView: 6
+                    perView: 6 // 한 번에 6개씩 보이도록 설정
                 },
                 vertical: true,
                 drag: true

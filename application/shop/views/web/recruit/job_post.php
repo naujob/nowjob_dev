@@ -168,6 +168,9 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 <?php endif; ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <style>
+  #header { 
+    margin-bottom: 0;
+  }
   .adBanner {
     position: relative;
     margin-bottom: 15px;

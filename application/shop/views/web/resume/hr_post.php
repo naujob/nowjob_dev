@@ -132,6 +132,9 @@ function fRemoveBigAdrPHP($arg)
 
 ?>
 <style>
+  #header { 
+    margin-bottom: 0;
+  }
   .item-view .info-table .working-day>li {
     width: 36px;
     height: 36px;
