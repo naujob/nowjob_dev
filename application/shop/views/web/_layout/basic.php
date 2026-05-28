@@ -537,6 +537,59 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             }
 
 
+                            // 안읽은 메시지 카운트 배지 업데이트 공통 함수
+                            function updateNoreadcountallBadge(results, roomIdxList1, roomIdxList2) {
+                                var countAll = 0;
+                                for (const key in results) {
+                                    if (results.hasOwnProperty(key)) {
+                                        const result = results[key];
+                                        const { rm_idx, rm_messages } = result;
+
+                                        // 탭1 또는 탭2 목록에 속한 방만 카운트
+                                        var inList = false;
+                                        if (roomIdxList1 && roomIdxList1.indexOf(rm_idx) !== -1) {
+                                            inList = true;
+                                        } else if (roomIdxList2 && roomIdxList2.indexOf(rm_idx) !== -1) {
+                                            inList = true;
+                                        } else if (document.querySelector('#chat_list1 .room_idx_' + rm_idx) !== null) {
+                                            inList = true;
+                                        } else if (document.querySelector('#chat_list2 .room_idx_' + rm_idx) !== null) {
+                                            inList = true;
+                                        }
+
+                                        if (!inList) continue;
+
+                                        if (rm_messages) {
+                                            rm_messages.forEach(message => {
+                                                if (message.mg_reads) {
+                                                    message.mg_reads.forEach(read => {
+                                                        const isActiveUser = !read.mm_status || read.mm_status === 'Y';
+                                                        if (isActiveUser && read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
+                                                            countAll++;
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+
+                                // 배지 표시/숨김
+                                var $noreadcountall = $('#noreadcountall');
+                                if ($noreadcountall.length > 0) {
+                                    if (countAll > 0) {
+                                        if (countAll > 99) {
+                                            $noreadcountall.html('99+').css('width', '40px');
+                                        } else {
+                                            $noreadcountall.html(countAll).css('width', '30px');
+                                        }
+                                        $noreadcountall.show();
+                                    } else {
+                                        $noreadcountall.hide();
+                                    }
+                                }
+                            }
+
                             $(document).ready(function() {
                                 //console.log('ready');
                                 //미확인 메시지 카운트
@@ -556,8 +609,6 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                     return;
                                 }
 
-                                // chatting_cont.php의 fSearchNoReadCount()와 동일한 로직 사용
-                                // 방 목록 필터링 없이 모든 안읽은 메시지 카운트
                                 $.ajax({
                                     url: '/chat_proc/fSearchNoReadCount',
                                     type: 'GET',
@@ -567,48 +618,8 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                             return;
                                         }
 
-                                        // Extract the result object
-                                        const results = ret.data.result;
-
-                                        // 전체 안읽은 메시지 카운트 계산
-                                        var countAll = 0;
-                                        for (const key in results) {
-                                            if (results.hasOwnProperty(key)) {
-                                                const result = results[key];
-                                                const {
-                                                    rm_messages
-                                                } = result;
-
-                                                if (rm_messages) {
-                                                    rm_messages.forEach(message => {
-                                                        if (message.mg_reads) {
-                                                            message.mg_reads.forEach(read => {
-                                                                if (read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
-                                                                    countAll++;
-                                                                }
-                                                            });
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        }
-
-                                        // noreadcountall 업데이트
-                                        var $noreadcountall = $('#noreadcountall');
-                                        if ($noreadcountall.length > 0) {
-                                            if (countAll > 0) {
-                                                if (countAll > 99) {
-                                                    $noreadcountall.html('99+');
-                                                    $noreadcountall.css('width', '40px');
-                                                } else {
-                                                    $noreadcountall.html(countAll);
-                                                    $noreadcountall.css('width', '30px');
-                                                }
-                                                $noreadcountall.show();
-                                            } else {
-                                                $noreadcountall.hide();
-                                            }
-                                        }
+                                        // 공통 함수로 배지 업데이트 (탭 목록 정보 없음 → null 전달)
+                                        updateNoreadcountallBadge(ret.data.result, null, null);
                                     },
                                     error: function(xhr, status, error) {
 

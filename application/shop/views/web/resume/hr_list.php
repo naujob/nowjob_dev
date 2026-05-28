@@ -1268,7 +1268,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
         $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
         $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-        $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
+        $content = $content.replaceAll("{{ru_work_type}}", (row.ru_work_type));
         $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
         $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
 

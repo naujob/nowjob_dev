@@ -59,25 +59,7 @@ $banner_list = getBannerList("BN00010005");
     /* 화살표 숨김 */
   }
 
-  .recomm-slider.person .arrow {
-    position: absolute;
-    top: 50%;
-    left: 26px;
-    width: 90px;
-    height: 80px;
-    margin: 40px 0 0;
-    border: 0;
-    background: url("/resource/shop/web/img/main/main_slider2_prev.svg") no-repeat 0 50%;
-    background-size: 46px auto;
-    z-index: 1;
-  }
-
-  .recomm-slider.person .arrow--right {
-    left: auto;
-    right: 26px;
-    background-image: url("/resource/shop/web/img/main/main_slider2_next.svg");
-    background-position: 100% 50%;
-  }
+ 
 
   .person-card .meta p em {
     font-style: normal;
@@ -459,34 +441,26 @@ $banner_list = getBannerList("BN00010005");
         <div class="recruit-recomm">
           <!-- 첫 번째 슬라이더 (위쪽) -->
           <div class="slider-row">
-            <button class="arrow arrow--left arrow--top"><span>Previous</span></button>
             <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-top">
             </div>
-            <!-- <button class="arrow arrow--right arrow--top"><span>Next</span></button> -->
           </div>
 
           <!-- 두 번째 슬라이더 -->
           <div class="slider-row">
-            <button class="arrow arrow--left arrow--second"><span>Previous</span></button>
             <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-second">
             </div>
-            <!-- <button class="arrow arrow--right arrow--second"><span>Next</span></button> -->
           </div>
 
           <!-- 세 번째 슬라이더 -->
           <div class="slider-row">
-            <button class="arrow arrow--left arrow--third"><span>Previous</span></button>
             <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-third">
             </div>
-            <button class="arrow arrow--right arrow--third"><span>Next</span></button>
           </div>
 
           <!-- 네 번째 슬라이더 (아래쪽) -->
           <div class="slider-row">
-            <button class="arrow arrow--left arrow--bottom"><span>Previous</span></button>
             <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-bottom">
             </div>
-            <button class="arrow arrow--right arrow--bottom"><span>Next</span></button>
           </div>
         </div>
         <a href="/recruit/job_list" target="_blank" class="btn-view-all">더보기</a>
@@ -752,7 +726,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
           slides: {
             perView: perView
           },
-        }, [sliderArrows]);
+        });
       } else {
 
       }

@@ -1693,8 +1693,16 @@ class Chat_proc extends CI_Controller
 				//'rm_messages.user_id' => $this->user->getUserId(),
 				'rm_messages.mg_reads.user_id' => $this->user->getUserId()
 			);
+
+			// 필요한 필드만 조회하여 응답 최적화
+			// 레거시 MongoDB 드라이버에서는 두 번째 파라미터로 fields 배열 전달
+			$fields = array(
+				'rm_idx' => 1,
+				'rm_messages' => 1
+			);
+
 			//$document = $collection->findOne($query);//한건조회
-			$cursor = $collection->find($query);
+			$cursor = $collection->find($query, $fields);
 
 			// 조회 결과를 배열로 변환
 			$results = iterator_to_array($cursor);
@@ -1750,10 +1758,40 @@ class Chat_proc extends CI_Controller
 
 		$results = $filtered_results;
 
+		// 응답 최적화: 필요한 필드만 추출
+		// 필수 필드: rm_idx, mg_reads[read_yn, user_id, mm_status]
+		$optimized_results = [];
+		foreach ($results as $room) {
+			$optimized_room = array(
+				'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : null
+			);
+
+			if (isset($room['rm_messages']) && is_array($room['rm_messages'])) {
+				$optimized_messages = [];
+				foreach ($room['rm_messages'] as $message) {
+					if (isset($message['mg_reads']) && is_array($message['mg_reads']) && count($message['mg_reads']) > 0) {
+						// mg_reads에서 필요한 필드만 추출
+						$optimized_reads = [];
+						foreach ($message['mg_reads'] as $read) {
+							$optimized_reads[] = array(
+								'read_yn' => isset($read['read_yn']) ? $read['read_yn'] : 'Y',
+								'user_id' => isset($read['user_id']) ? $read['user_id'] : null,
+								'mm_status' => isset($read['mm_status']) ? $read['mm_status'] : null
+							);
+						}
+						$optimized_messages[] = array('mg_reads' => $optimized_reads);
+					}
+				}
+				$optimized_room['rm_messages'] = $optimized_messages;
+			}
+
+			$optimized_results[] = $optimized_room;
+		}
+
 		$data = [];
 		$data["reg_dt"] = date("Y-m-d H:i:s");
 		//$data["result"] = $document;
-		$data["result"] = $results;
+		$data["result"] = $optimized_results;
 		json_return("00", "조회완료", $data);
 
 		/*

@@ -286,6 +286,7 @@ if (count($banner_list) > 0) {
     overflow: hidden;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
+    max-width: 100%;
 
   }
 

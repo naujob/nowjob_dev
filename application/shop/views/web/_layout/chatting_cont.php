@@ -1815,41 +1815,8 @@
 					});
 				<?php } ?>
 
-				// 전체 안읽은 메시지 카운트 계산하여 noreadcountall 업데이트
-				var countAll = 0;
-				for (const key in results) {
-					if (results.hasOwnProperty(key)) {
-						const result = results[key];
-						const { rm_messages } = result;
-						
-						rm_messages.forEach(message => {
-							if (message.mg_reads) {
-								message.mg_reads.forEach(read => {
-									// mm_status가 'Y'인 경우만 카운트 (탈퇴 회원 제외)
-									// mm_status가 없으면 레거시 데이터로 간주하여 카운트
-									const isActiveUser = !read.mm_status || read.mm_status === 'Y';
-									if (isActiveUser && read.read_yn === 'N' && read.user_id === $("#user_id").val()) {
-										countAll++;
-									}
-								});
-							}
-						});
-					}
-				}
-
-				// noreadcountall 업데이트
-				if (countAll > 0) {
-					if (countAll > 99) {
-						$('#noreadcountall').html('99+');
-						$('#noreadcountall').css('width', '40px');
-					} else {
-						$('#noreadcountall').html(countAll);
-						$('#noreadcountall').css('width', '30px');
-					}
-					$('#noreadcountall').show();
-				} else {
-					$('#noreadcountall').hide();
-				}
+				// 공통 함수로 배지 업데이트 (탭별 목록 정보 전달)
+				updateNoreadcountallBadge(results, tab1RoomIdxList, tab2RoomIdxList);
 
 				// 탭에 읽지 않은 메시지 알림 표시
 				// 🔥 서버 응답에서 직접 탭별 읽지 않은 메시지 개수 계산 (DOM 요소에 의존하지 않음)
