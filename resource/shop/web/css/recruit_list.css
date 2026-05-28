@@ -271,7 +271,7 @@
 
 .result-list .content-info .desc .desc2 .wtype em.wtype2 {
   color: #F86048;
-  padding:4px
+  padding:5px
 }
 
 .result-list .content-info .desc .desc2 .wtype em.wtype3 {
@@ -323,7 +323,7 @@
 }
 
 .result-list .content-info .desc .desc3 .period em.off {
-  color: #777;
+  color: #222;
 }
 
 .result-list .content-info .desc .desc3 .period em:not(:last-child)::after {

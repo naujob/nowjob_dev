@@ -8499,7 +8499,18 @@ body {
     margin: 42px 0 -18px;
     border-radius: 100%;
     border-style: none;
-   
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0;
+}
+
+.recomm-slider .arrow img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .recomm-slider .arrow--right {
@@ -13236,10 +13247,12 @@ body {
 /* ============================================
    근무형태 스타일 (.worktype)
    ============================================ */
-
+.value .worktype {
+    gap: 5px;
+}
 .worktype {
   display: flex;
-  gap: 5px;
+ 
   align-items: center;
 }
 

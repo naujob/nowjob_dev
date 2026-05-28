@@ -12,7 +12,7 @@ if (count($banner_list) > 0) {
     color: #1b9d7d;
   }
   .pricetype  em.off {
-    color: #777;
+    color: #222;
   }
   /* 카드 스타일은 main.css의 .result-list-card 섹션에서 관리 */
 

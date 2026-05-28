@@ -14,7 +14,7 @@
 }
 
 .ru_price_type em.off {
-  color: #777;
+  color: #222;
 }
 
 .ru_price_type span {
@@ -38,7 +38,7 @@
 }
 
 .item-info .price_type_wrap .ru_price_type em:not(:last-child) {
-  padding-right: 5px;
+  padding-right: 6px;
 }
 
 /* ============================================
@@ -476,4 +476,7 @@ display: flex;
 
 .item-info .action-wrap .form-action-wrap {
   margin-top: 0;
+}
+.person-card .meta p.work_type {
+  flex: 1.2;
 }

@@ -12694,7 +12694,7 @@ form#frm {
 
 .content-info .desc .summary3 .worktype {
     display: flex;
-    gap: 5px;
+ 
     justify-content: flex-end;
     position: relative;
 }

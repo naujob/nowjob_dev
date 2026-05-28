@@ -339,28 +339,9 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
           $("#my-keen-slider").append($clone.html());
         });
 
-        var slideCount = document.querySelectorAll('.recomm-slider .slider-wrap .keen-slider__slide').length;
-        var perView = slideCount < 4 ? slideCount : 4;
-        var slider = new KeenSlider(".recomm-slider .slider-wrap", {
-          loop: slideCount > perView,
-          slides: {
-            perView: 4
-          },
-        }, [
-          addActiveClass,
-          sliderArrows
-        ]);
-
-        var interval = 0;
-        var sliderElement = document.getElementById("my-keen-slider");
-
-        function autoplay(run) {
-          clearInterval(interval);
-          interval = setInterval(() => {
-            if (run && slider) {
-              slider.next();
-            }
-          }, 3400);
+        // main.js의 통합 슬라이더 초기화 함수 사용
+        if (typeof initRecommendationSlider === 'function') {
+          initRecommendationSlider('.recomm-slider.recruit');
         }
 
       } else {

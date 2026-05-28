@@ -494,7 +494,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
-			$temp_list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
+			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row);
 			$temp_list[$key]["rt_price"] = getRecuitPrice($row);
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);

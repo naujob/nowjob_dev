@@ -328,7 +328,7 @@ function fRemoveBigAdr($arg) {
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 0;
-    color: #777;
+    color: #222;
     display: flex;
     flex-direction: column;
     align-items: flex-end;

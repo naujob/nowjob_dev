@@ -224,7 +224,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   }
 
   .info-table .pay span em.off {
-    color: #777;
+    color: #222;
   }
 
   .info-table .pay span em:not(:last-child)::after {
@@ -266,7 +266,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   }
 
   .summary-card .meta em.off {
-    color: #777;
+    color: #222;
   }
 
   .summary-card .meta em:not(:last-child)::after {
@@ -425,7 +425,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 0;
-    color: #777;
+    color: #222;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -575,13 +575,17 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   .content-info .worktype em.wtype1 {
     color: #3a70db;
     padding-right: 4px;
+    padding-right: 4px;
   }
 
   .content-info .worktype em.wtype2 {
     color: #F86048;
     padding-left: 4px;
+    padding-right: 4px;
   }
-
+ .content-info .worktype em.wtype3 {
+    padding-left: 4px;
+  }
   .content-info .worktype em {
     position: relative;
     display: inline-block;
@@ -721,66 +725,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
             </div>
             <a href="javascript:void(0);" class="bigsize"><img src="/resource/shop/web/img/bigsize.png" /></a>
             <script>
-              function ThumbnailPlugin(main) {
-                return function(slider) {
-                  function removeActive() {
-                    slider.slides.forEach(function(slide) {
-                      slide.classList.remove('active')
-                    });
-                  }
-
-                  function addActive(idx) {
-                    slider.slides[idx].classList.add('active');
-                  }
-
-                  function addClickEvents() {
-                    slider.slides.forEach(function(slide, idx) {
-                      slide.addEventListener('click', function() {
-                        main.moveToIdx(idx);
-                      });
-                    })
-                  }
-
-                  slider.on('created', function() {
-                    addActive(slider.track.details.rel);
-                    addClickEvents();
-                    main.on('animationStarted', function(main) {
-                      removeActive();
-                      var next = main.animator.targetIdx || 0;
-                      addActive(main.track.absToRel(next));
-                      slider.moveToIdx(Math.min(slider.track.details.maxIdx, next));
-                    });
-                  });
-                };
-              }
-
-              window.addEventListener('DOMContentLoaded', function() {
-                if (typeof KeenSlider === 'undefined') return;
-
-                var mslider = new KeenSlider('.visual-slider', {
-                  loop: true,
-                  defaultAnimation: {
-                    duration: 100,
-                  },
-                  drag: false,
-                  detailsChanged: function(s) {
-                    s.slides.forEach(function(element, idx) {
-                      element.style.opacity = s.track.details.slides[idx].portion;
-                    });
-                  },
-                  renderMode: 'custom',
-                }, [addActiveClass]);
-                var thumbnails = new KeenSlider(".thumb-slider .slider-wrap", {
-                    initial: 0,
-                    slides: {
-                      perView: 4,
-                    },
-                    vertical: true,
-                    drag: false,
-                  },
-                  [ThumbnailPlugin(mslider), sliderArrows]
-                );
-              });
+              // 이미지 갤러리 슬라이더는 main.js의 initThumbnailSlider에서 자동 초기화됨
             </script>
           </div>
 
@@ -1273,19 +1218,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
               </div>
 
               <script>
-                window.addEventListener('DOMContentLoaded', function() {
-                  if (typeof KeenSlider === 'undefined') return;
-                  var thumbnails = new KeenSlider(".recently-slider", {
-                      initial: 0,
-                      slides: {
-                        perView: 6,
-                      },
-                      vertical: true,
-                      drag: true,
-                    },
-                    [addActiveClass, sliderArrows]
-                  );
-                });
+                // 세로 슬라이더는 main.js의 initVerticalSlider에서 자동 초기화됨
               </script>
             </div>
             <!-- //히스토리 목록 -->
@@ -2051,36 +1984,11 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             $("#my-keen-slider").append($clone.html());
           });
 
-          var slideCount = document.querySelectorAll('.recomm-slider .slider-wrap .keen-slider__slide').length;
-          var perView = slideCount < 4 ? slideCount : 4;
-          var slider = new KeenSlider(".recomm-slider .slider-wrap", {
-            loop: false,
-            slides: {
-              perView: 4
-            },
-          }, [
-            addActiveClass
-          ]);
-
-          var interval = 0;
-          var sliderElement = document.getElementById("my-keen-slider");
-
-          function autoplay(run) {
-            clearInterval(interval);
-            interval = setInterval(() => {
-              if (run && slider) {
-                slider.next();
-              }
-            }, 3400);
+          // main.js의 통합 슬라이더 초기화 함수 사용
+          if (typeof initRecommendationSlider === 'function') {
+            initRecommendationSlider('.recomm-slider.recruit');
           }
 
-          sliderElement.addEventListener("mouseover", () => {
-            //autoplay(false);
-          });
-          sliderElement.addEventListener("mouseout", () => {
-            //autoplay(true);
-          });
-          //autoplay(true);
         } else {
 
         }

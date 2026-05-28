@@ -28,19 +28,29 @@ function getConvertAgeLabel(age) {
  * @returns {string} HTML 형식의 급여 타입 (<em>대표</em><em class="off">기타</em>)
  */
 function getConvertPriceType(rc_price_type, rc_price_rep) {
-  const types = rc_price_type.split(',');
+  // rc_price_type: "일급,주급", rc_price_rep: "주급"
+  // 1개: 기본색 #1b9d7d
+  // 2개 이상: rc_price_rep과 일치하는 것은 기본색(on), 다른 것은 회색(off)
+  if (!rc_price_type) {
+    return '';
+  }
+
+  const types = rc_price_type.split(',').map(type => type.trim());
 
   if (types.length === 1) {
     return `<em>${types[0]}</em>`;
   }
 
-  return types.map(type => {
+  let result = '';
+  types.forEach(type => {
     if (type === rc_price_rep) {
-      return `<em>${type}</em>`;
+      result += `<em class="on">${type}</em>`;
     } else {
-      return `<em class="off">${type}</em>`;
+      result += `<em class="off">${type}</em>`;
     }
-  }).join('');
+  });
+
+  return result;
 }
 
 /**
@@ -371,38 +381,16 @@ function getRecoListCommon(options) {
       $container.append($clone.html());
     });
 
+    // main.js의 통합 슬라이더 초기화 함수 사용
     const slideCount = document.querySelectorAll('.recomm-slider.person .slider-wrap .keen-slider__slide').length;
-
     if (slideCount > 0) {
-      const slider = new KeenSlider(".recomm-slider.person .slider-wrap", {
-        loop: slideCount > opts.perView,
-        slides: {
-          perView: opts.perView
-        },
-      }, [
-        addActiveClass,
-        sliderArrows
-      ]);
+      // containerId 기반으로 슬라이더 선택자 결정
+      const sliderSelector = opts.containerId === 'my-keen-slider'
+        ? '.recomm-slider.person'
+        : '.recomm-slider.recruit';
 
-      let interval = 0;
-      const sliderElement = document.getElementById(opts.containerId);
-
-      function autoplay(run) {
-        clearInterval(interval);
-        interval = setInterval(() => {
-          if (run && slider) {
-            slider.next();
-          }
-        }, 3400);
-      }
-
-      if (sliderElement) {
-        sliderElement.addEventListener("mouseover", () => {
-          // autoplay(false);
-        });
-        sliderElement.addEventListener("mouseout", () => {
-          // autoplay(true);
-        });
+      if (typeof initRecommendationSlider === 'function') {
+        initRecommendationSlider(sliderSelector);
       }
     }
   });

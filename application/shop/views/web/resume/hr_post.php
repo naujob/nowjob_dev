@@ -518,7 +518,10 @@ function fRemoveBigAdrPHP($arg)
   }
 
   .info-table .value > em.off {
-    color: #777;
+    color: #222;
+  }
+  .history-body .content-info .summary2 .period em.off {
+    color: #222;
   }
 </style>
 <div id="content" class="page page-view">
@@ -954,25 +957,25 @@ function fRemoveBigAdrPHP($arg)
                 <p class="type">
                   <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
                     $gapbar1 = "display:none;";
-                    $gapbar2 = "display:none;";
+                    $gapbar2 = "";
                   } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
                     $gapbar1 = "display:none;";
-                    $gapbar2 = "display:none;";
+                    $gapbar2 = "";
                   } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
                     $gapbar1 = "display:none;";
-                    $gapbar2 = "display:none;";
+                    $gapbar2 = "";
                   } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
                     $gapbar1 = "display:none;";
                     $gapbar2 = "";
                   } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
                     $gapbar1 = "display:none;";
-                    $gapbar2 = "display:none;";
+                    $gapbar2 = "";
                   } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
                     $gapbar1 = "";
-                    $gapbar2 = "display:none;";
+                    $gapbar2 = "";
                   } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
                     $gapbar1 = "";
-                    $gapbar2 = "display:none;";
+                    $gapbar2 ="";
                   } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
                     $gapbar1 = "";
                     $gapbar2 = "";
@@ -1045,17 +1048,9 @@ function fRemoveBigAdrPHP($arg)
                 </div>
                 <script>
                   window.addEventListener('DOMContentLoaded', function() {
-                    if (typeof KeenSlider === 'undefined') return;
-                    var thumbnails = new KeenSlider(".recently-slider", {
-                        initial: 0,
-                        slides: {
-                          perView: 6,
-                        },
-                        vertical: true,
-                        drag: true,
-                      },
-                      [addActiveClass]
-                    );
+                    if (typeof initVerticalSlider === 'function') {
+                      initVerticalSlider('.recently-slider', false);  // false: 화살표 없음
+                    }
                   });
                 </script>
               </div>
