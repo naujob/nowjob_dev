@@ -895,4 +895,31 @@ class Recruit_proc extends CI_Controller
 
 		json_return("00", "조회성공", $result);
 	}
+
+	# 전화하기 클릭 로그 기록
+	function call_log()
+	{
+		$rc_idx = input_post("rc_idx", "");
+		if ($rc_idx == "") {
+			json_return("99", "잘못된 요청입니다.");
+			return;
+		}
+
+		$mm_idx  = $this->user->isLogin() ? $this->user->getUserIdx() : null;
+		$mm_type = $this->user->isLogin() ? $this->user->getUserType() : "비회원";
+		$ip      = $this->common->getIpAddr();
+		$session = session_id();
+
+		$data = array(
+			"rc_idx"        => $rc_idx,
+			"mm_idx"        => $mm_idx,
+			"mm_type"       => $mm_type,
+			"cl_ip"         => $ip,
+			"cl_session_id" => $session,
+			"reg_dt"        => date("Y-m-d H:i:s"),
+		);
+
+		$result = $this->recruit_model->insertCallLog($data);
+		json_return("00", "success");
+	}
 }

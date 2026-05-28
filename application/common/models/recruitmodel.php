@@ -997,4 +997,9 @@ class recruitModel extends MY_Model
 		$query = $this->db->query($sql);
 		return $query->result_array();
 	}
+
+	function insertCallLog($data)
+	{
+		return $this->db_insert("st_call_log", $data);
+	}
 }
