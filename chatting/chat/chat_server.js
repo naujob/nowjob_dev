@@ -504,12 +504,14 @@ io.on('connection', function (socket) {
 
 						// 🔥 mg_idx가 null이면 emit하지 않음
 						if (mg_idx && mg_idx !== null && mg_idx !== undefined) {
+							$common.writeLog('[message_read_count_return] emit 시작 (room_join) - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', count: ' + count);
 							io.sockets.in(data.rm_idx).emit('message_read_count_return', {
 								data: {
 									count: count,  // 실제 읽음 카운트
 									mg_idx: mg_idx
 								}
 							});
+							$common.writeLog('[message_read_count_return] emit 완료');
 						}
 
 						// 다음 메시지 처리
@@ -589,12 +591,14 @@ io.on('connection', function (socket) {
 
 							// 🔥 mg_idx가 null이면 emit하지 않음
 							if (mg_idx && mg_idx !== null && mg_idx !== undefined) {
+								$common.writeLog('[message_read_count_return] emit 시작 (room_info) - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', count: ' + count);
 								io.sockets.in(data.rm_idx).emit('message_read_count_return', {
 									data: {
 										count: count,
 										mg_idx: mg_idx
 									}
 								});
+								$common.writeLog('[message_read_count_return] emit 완료');
 							}
 
 							// 다음 메시지 처리
@@ -755,6 +759,8 @@ io.on('connection', function (socket) {
 
 	//메시지 전송 : 등록
 	socket.on('message_insert', async function (data, rm_users) {
+		$common.writeLog('[message_insert] 이벤트 수신 - user_id: ' + (data && data.user_id ? data.user_id : 'unknown') + ', socket_id: ' + socket.id + ', rm_idx: ' + (data && data.rm_idx ? data.rm_idx : 'unknown'));
+
 		try {
 			// MongoDB 연결 상태 확인
 			if (!$db.isConnected()) {
@@ -864,7 +870,7 @@ io.on('connection', function (socket) {
 					let mm_status = 'Y';
 					try {
 						const member_info = await new Promise((resolve) => {
-							$exe.member.getMember({ user_id: user_id }, resolve);
+							$exe.member.getMember({ mm_id: user_id }, resolve);
 						});
 						if (!member_info || member_info.mm_status !== 'Y') {
 							mm_status = 'N';
@@ -922,7 +928,9 @@ io.on('connection', function (socket) {
 			});
 
 			// 모든 클라이언트에게 메시지 전송
+			$common.writeLog('[message_insert_return] emit 시작 - rm_idx: ' + target_rm_idx + ', code: ' + (ret && ret.code ? ret.code : 'unknown'));
 			io.sockets.in(target_rm_idx).emit('message_insert_return', ret);
+			$common.writeLog('[message_insert_return] emit 완료');
 
 			// ------------------------------  
 			// ✅ 방 입장 여부 관계없이 푸시 발송되도록 개선
@@ -1017,38 +1025,60 @@ io.on('connection', function (socket) {
 				.map(u => u.user_id);
 
 			// 접속 중인 사용자들에게 실시간 알림 표시 및 알림 등록
+			$common.writeLog('[message_insert] all_users 반복 시작 - 사용자 수: ' + all_users.length);
 			for (const room_user of all_users) {
 				const room_user_id = room_user.user_id;
+				$common.writeLog('[message_insert] all_users 루프 - room_user_id: ' + room_user_id + ', g_user_id: ' + g_user_id);
 				if (room_user_id && room_user_id !== g_user_id) {
+					$common.writeLog('[message_insert] 회원 상태 조회 시작 - room_user_id: ' + room_user_id);
 					// 탈퇴 회원 여부 확인 (MySQL에서 조회)
 					try {
 						const member_info = await new Promise((resolve) => {
-							$exe.member.getMember({ user_id: room_user_id }, resolve);
+							$common.writeLog('[message_insert] MySQL st_member 조회 시작 - mm_id: ' + room_user_id);
+							// MySQL st_member에서 mm_id로 회원 정보 조회
+							$mysql.db_conn.query('SELECT mm_idx, mm_id, mm_status FROM st_member WHERE mm_id = ? LIMIT 1', [room_user_id], function(err, results) {
+								if (err) {
+									$common.writeLog('[message_insert] MySQL 조회 오류 - room_user_id: ' + room_user_id + ', error: ' + err.message);
+									resolve(null);
+								} else {
+									const result = (results && results.length > 0) ? results[0] : null;
+									$common.writeLog('[message_insert] MySQL 조회 완료 - result: ' + JSON.stringify(result));
+									resolve(result);
+								}
+							});
 						});
+						$common.writeLog('[message_insert] 회원 정보 조회 완료 - member_info: ' + JSON.stringify(member_info));
 						// 탈퇴 회원(mm_status !== 'Y')이면 알림 전송 스킵
 						if (!member_info || member_info.mm_status !== 'Y') {
+							$common.writeLog('[message_insert] 탈퇴 회원이므로 스킵 - room_user_id: ' + room_user_id);
 							continue;
 						}
 					} catch (err) {
 						// 회원 정보 조회 실패 시 안전하게 스킵
+						$common.writeLog('[message_insert] 회원 정보 조회 예외 - room_user_id: ' + room_user_id + ', error: ' + err.message);
 						continue;
 					}
 
 					// rm_users에서 먼저 찾기
+					$common.writeLog('[message_insert] rm_users에서 socket_id 찾기 시작 - room_user_id: ' + room_user_id);
 					let found_user = rm_users.find(u => u.user_id === room_user_id);
 					let socket_id = found_user && found_user.socket_id ? found_user.socket_id : null;
+					$common.writeLog('[message_insert] rm_users에서 socket_id 찾기 결과 - socket_id: ' + (socket_id ? socket_id : 'null'));
 					let user_status = found_user && found_user.user_status ? found_user.user_status : "N";
 					let last_location = found_user && found_user.last_location ? found_user.last_location : "";
 
 					// socket_id가 없으면 MongoDB에서 조회
 					if (!socket_id || socket_id === "") {
+						$common.writeLog('[message_insert] MongoDB에서 socket_id 찾기 시작 - room_user_id: ' + room_user_id);
 						try {
 							const mongo_user = await new Promise((resolve) => {
 								$exe.user.getUser({ user_id: room_user_id }, resolve);
 							});
+							$common.writeLog('[message_insert] MongoDB 사용자 조회 완료 - mongo_user: ' + (mongo_user ? 'found' : 'not found'));
 							if (mongo_user) {
 								if (!socket_id && mongo_user.socket_id) {
 									socket_id = mongo_user.socket_id;
+									$common.writeLog('[message_insert] MongoDB에서 socket_id 획득 - socket_id: ' + socket_id);
 								}
 								if (!last_location && mongo_user.last_location) {
 									last_location = mongo_user.last_location;
@@ -1059,13 +1089,16 @@ io.on('connection', function (socket) {
 							}
 						} catch (err) {
 							// MongoDB 사용자 조회 실패 시 기본값 사용
+							$common.writeLog('[message_insert] MongoDB 사용자 조회 오류 - room_user_id: ' + room_user_id + ', error: ' + err.message);
 						}
 					}
 
 					// 접속 중인 사용자에게 실시간 알림 표시
 					// socket_id가 있으면 채팅방 join 여부와 관계없이 발송
 					// (기존: online_user_ids.includes(room_user_id) 조건으로 채팅방에 없는 사용자는 알림 미발송 문제 수정)
+					$common.writeLog('[message_insert] socket_id 최종 확인 - room_user_id: ' + room_user_id + ', socket_id: ' + (socket_id ? socket_id : 'null'));
 					if (socket_id) {
+						$common.writeLog('[chat_notification] emit 시작 - socket_id: ' + socket_id + ', room_user_id: ' + room_user_id + ', rm_idx: ' + target_rm_idx);
 						io.to(socket_id).emit('chat_notification', {
 							rm_idx: target_rm_idx,
 							mg_idx: ret.data && ret.data[0] ? ret.data[0].mg_idx : ret.mg_idx,
@@ -1073,6 +1106,9 @@ io.on('connection', function (socket) {
 							message: target_mg_text,
 							chat_type: target_chat_type
 						});
+						$common.writeLog('[chat_notification] emit 완료');
+					} else {
+						$common.writeLog('[message_insert] socket_id가 null이어서 chat_notification 발송 스킵 - room_user_id: ' + room_user_id);
 					}
 
 					// 채팅방에 있지 않은 경우 알림 등록 (last_location이 빈 문자열이거나 chat_room이 아닌 경우)
@@ -1097,13 +1133,15 @@ io.on('connection', function (socket) {
 								if (socket_id) {
 									// message_list_refresh 이벤트 발송 (채팅리스트 페이지에 있는 경우)
 									if (last_location === "chat_list") {
-
-
+										$common.writeLog('[message_list_refresh] emit 시작 - socket_id: ' + socket_id + ', room_user_id: ' + room_user_id);
 										io.to(socket_id).emit('message_list_refresh', "refresh");
+										$common.writeLog('[message_list_refresh] emit 완료');
 									}
 
 									// alarm_refresh 이벤트로 알림 카운트 전송
+									$common.writeLog('[alarm_refresh] emit 시작 - socket_id: ' + socket_id + ', room_user_id: ' + room_user_id + ', count: ' + count);
 									io.to(socket_id).emit('alarm_refresh', { count: count });
+									$common.writeLog('[alarm_refresh] emit 완료');
 								}
 							});
 						});
@@ -1285,12 +1323,14 @@ io.on('connection', function (socket) {
 
 			// 🔥 mg_idx가 null이면 emit하지 않음
 			if (mg_idx && mg_idx !== null && mg_idx !== undefined) {
+				$common.writeLog('[message_read_count_return] emit 시작 (message_read) - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', count: ' + count);
 				io.sockets.in(data.rm_idx).emit('message_read_count_return', {
 					data: {
 						count: count,
 						mg_idx: mg_idx
 					}
 				});
+				$common.writeLog('[message_read_count_return] emit 완료');
 			}
 		});
 	});
@@ -1318,6 +1358,8 @@ io.on('connection', function (socket) {
 
 	//미수신 메시지 조회
 	socket.on('message_user_read_count', function (data) {
+		$common.writeLog('[message_user_read_count] 이벤트 수신 - user_id: ' + data.user_id + ', socket_id: ' + socket.id);
+
 		var socket_id = socket.id;
 		$exe.chat.getUsewrNotReadCount({ user_id: data.user_id }, function (count_ret) {
 			//모두 리턴한다.
@@ -1326,7 +1368,9 @@ io.on('connection', function (socket) {
 				not_read: count_ret.data.count
 			};
 
+			$common.writeLog('[realtime_message] emit 시작 - user_id: ' + data.user_id + ', socket_id: ' + socket_id + ', count: ' + count_ret.data.count);
 			io.sockets.in(socket_id).emit('realtime_message', info);
+			$common.writeLog('[realtime_message] emit 완료');
 		});
 	});
 

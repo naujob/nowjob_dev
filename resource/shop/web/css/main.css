@@ -13218,7 +13218,7 @@ body {
   margin-bottom: 10px;
 }
 
-.adBanner:after {
+/* .adBanner:after {
   content: "AD";
   display: block;
   position: absolute;
@@ -13231,7 +13231,7 @@ body {
   background: #ddd;
   border-radius: 2px;
   z-index: 1;
-}
+} */
 
 .adBanner1 {
   width: 200px;

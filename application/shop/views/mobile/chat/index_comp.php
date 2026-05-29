@@ -242,6 +242,7 @@ $top_bar = array(
   <script>
     // 디바운싱을 위한 타이머 변수
     var fSearchNoReadCountTimer = null;
+    var noreadCountPollingTimer = null;
 
     // 디바운싱된 fSearchNoReadCount 함수
     function fSearchNoReadCountDebounced() {
@@ -251,6 +252,26 @@ $top_bar = array(
       fSearchNoReadCountTimer = setTimeout(function() {
         fSearchNoReadCount();
       }, 300); // 300ms 디바운싱
+    }
+
+    // 주기적 폴링 시작 함수
+    function startNoreadCountPolling() {
+      if (noreadCountPollingTimer) {
+        clearInterval(noreadCountPollingTimer);
+      }
+
+      // 10초마다 실행
+      noreadCountPollingTimer = setInterval(function() {
+        fSearchNoReadCountDebounced();
+      }, 10000); // 10초마다
+    }
+
+    // 주기적 폴링 중지 함수
+    function stopNoreadCountPolling() {
+      if (noreadCountPollingTimer) {
+        clearInterval(noreadCountPollingTimer);
+        noreadCountPollingTimer = null;
+      }
     }
 
     // 실시간 소켓 이벤트 리스너 초기화
@@ -290,6 +311,20 @@ $top_bar = array(
         // 읽음 카운트 변경 시 탭 배지 업데이트
         fSearchNoReadCountDebounced();
       });
+
+      // 페이지가 보이지 않을 때는 폴링 중지 (성능 최적화)
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          stopNoreadCountPolling();
+        } else {
+          // 페이지가 다시 보이면 즉시 업데이트 후 폴링 재시작
+          fSearchNoReadCountDebounced();
+          startNoreadCountPolling();
+        }
+      });
+
+      // 주기적 폴링 시작
+      startNoreadCountPolling();
     }
 
     // 안드로이드에서도 채팅방 목록을 가져오도록 추가
@@ -837,6 +872,7 @@ $top_bar = array(
   <script>
     // 디바운싱을 위한 타이머 변수
     var fSearchNoReadCountTimer = null;
+    var noreadCountPollingTimer = null;
 
     // 디바운싱된 fSearchNoReadCount 함수
     function fSearchNoReadCountDebounced() {
@@ -846,6 +882,26 @@ $top_bar = array(
       fSearchNoReadCountTimer = setTimeout(function() {
         fSearchNoReadCount();
       }, 300); // 300ms 디바운싱
+    }
+
+    // 주기적 폴링 시작 함수
+    function startNoreadCountPolling() {
+      if (noreadCountPollingTimer) {
+        clearInterval(noreadCountPollingTimer);
+      }
+
+      // 10초마다 실행
+      noreadCountPollingTimer = setInterval(function() {
+        fSearchNoReadCountDebounced();
+      }, 10000); // 10초마다
+    }
+
+    // 주기적 폴링 중지 함수
+    function stopNoreadCountPolling() {
+      if (noreadCountPollingTimer) {
+        clearInterval(noreadCountPollingTimer);
+        noreadCountPollingTimer = null;
+      }
     }
 
     // 실시간 소켓 이벤트 리스너 초기화
@@ -885,6 +941,20 @@ $top_bar = array(
         // 읽음 카운트 변경 시 탭 배지 업데이트
         fSearchNoReadCountDebounced();
       });
+
+      // 페이지가 보이지 않을 때는 폴링 중지 (성능 최적화)
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          stopNoreadCountPolling();
+        } else {
+          // 페이지가 다시 보이면 즉시 업데이트 후 폴링 재시작
+          fSearchNoReadCountDebounced();
+          startNoreadCountPolling();
+        }
+      });
+
+      // 주기적 폴링 시작
+      startNoreadCountPolling();
     }
 
     // 페이지 로드 시 제안받은 인재 목록 조회 및 실시간 업데이트 초기화

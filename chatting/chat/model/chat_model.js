@@ -181,7 +181,7 @@ getLastMessage = async function (rm_idx) {
 		return null;
 	}
 }
-
+// 특정 채팅방의 특정 메시지를 특정 유저가 읽었다고 표시하는 함수
 container.updateMessageReturnCount = async function (data, callback) {
 	$common.writeLog("MongoDB(cs_room) updateMessageReturnCount 시작 rm_idx=" + data.rm_idx + " mg_idx=" + data.mg_idx + " user_id=" + data.user_id);
 	var ret1 = await $db.cs_room.updateOne(

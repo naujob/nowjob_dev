@@ -13,9 +13,9 @@ const path = require('path');
 
 //로그 쓰기
 container.writeLog = function (msg) {
-    // 로그 파일 기록 비활성화
+   // chat_trace 로그 파일 기록 비활성화
     return;
-
+    
     var date = new Date();
     var logMsg = date.toISOString() + ": [서버로그]::" + msg + "\n";
     console.log("[서버로그]::" + msg);

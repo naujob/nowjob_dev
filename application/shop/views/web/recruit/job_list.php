@@ -80,8 +80,8 @@ if (count($banner_list) > 0) {
             <img src="/outer/ad/ad1.jpg" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
           </div>
           <div class="adBanner adBanner1">
-            <a href="/community/event_view/8403" target="_blank">
-              <img src="/outer/ad/nowjob-banner-vertical_v2.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
+            <a id="adBannerLink" href="https://naver.me/FDn3Ggxk" target="_blank">
+              <img id="adBannerImg" src="/outer/ad/nowjob-banner-vertical_v5-2.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
             </a>
           </div>
         </div>
@@ -354,8 +354,29 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 <script>
   var appBaseUrl = "<?php echo rtrim($this->config->item('app_base_url') ? $this->config->item('app_base_url') : base_url(), '/'); ?>";
 
+  // 랜덤 광고 배너 로드
+  function loadRandomAdBanner() {
+    var banners = [
+      {
+        img: '/outer/ad/nowjob-banner-vertical_v5-1.png',
+        link: 'https://naver.me/FOZat0A2'
+      },
+      {
+        img: '/outer/ad/nowjob-banner-vertical_v5-2.png',
+        link: 'https://naver.me/FDn3Ggxk'
+      }
+    ];
+
+    var randomIndex = Math.floor(Math.random() * banners.length);
+    var selectedBanner = banners[randomIndex];
+
+    $('#adBannerImg').attr('src', selectedBanner.img);
+    $('#adBannerLink').attr('href', selectedBanner.link);
+  }
+
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
+    loadRandomAdBanner();
     getRecoList();
     initPage(false);
 

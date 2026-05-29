@@ -541,7 +541,7 @@ class Chat_proc extends CI_Controller
 			}
 		}
 
-		$list = $temp_list;
+		$list = $temp_list; 
 
 		json_return("00", "조회성공" . $rtn, ["list" => $list]);
 	}
@@ -1666,56 +1666,127 @@ class Chat_proc extends CI_Controller
 	//채팅 미확인 조회
 	function fSearchNoReadCount()
 	{
+		// 현재 로그인한 사용자 정보
+		$mm_idx = $this->user->getUserIdx();
+		$user_id = $this->user->getUserId();
+		$user_phone = $this->user->getUserPhone();
+		$user_type = $this->user->getUserType(); // 'MEM' (개인) or 'COMP' (기업)
+
+		// 현재 사용자가 접근 가능한 room_idx들을 수집
+		$accessible_room_idxes = [];
+
+		// 개인회원(MEM): 지원한공고 + 제안받은공고
+		if ($user_type == "MEM") {
+			// 1. 지원한 공고 (get_chat_target_list_recruit_mem과 동일한 로직)
+			$recruit_list = $this->member_model->getRecruitActaiveListMem($mm_idx);
+			foreach ($recruit_list as $row) {
+				if (!empty($row["rm_idx"])) {
+					$accessible_room_idxes[] = (int)$row["rm_idx"];
+				}
+			}
+
+			// 2. 제안받은 공고 (get_chat_target_list2_mem과 동일한 로직)
+			$params = [
+				"pagesize" => 200,
+				"page" => 1,
+				"mm_idx" => $mm_idx,
+				"ru_idx" => "",
+			];
+			$proposed_list = $this->member_model->getRequestRecruitList2Mem($params);
+			if (isset($proposed_list["list"])) {
+				foreach ($proposed_list["list"] as $row) {
+					if (!empty($row["rm_idx"])) {
+						$accessible_room_idxes[] = (int)$row["rm_idx"];
+					}
+				}
+			}
+		}
+		// 기업회원(COMP): 지원한인재 + 제안한인재
+		else if ($user_type == "COMP") {
+			// 1. 지원한 인재 (get_chat_target_list_recruit과 동일한 로직)
+			$recruit_list = $this->member_model->getRecruitActaiveList($mm_idx);
+			foreach ($recruit_list as $row) {
+				if (!empty($row["rm_idx_list"])) {
+					$rm_idx_str = preg_replace('/[()]/', '', $row["rm_idx_list"]);
+					$rm_idxes = array_filter(array_map('trim', explode(',', $rm_idx_str)));
+					foreach ($rm_idxes as $rm_idx) {
+						$accessible_room_idxes[] = (int)$rm_idx;
+					}
+				}
+			}
+
+			// 2. 제안한 인재 (get_chat_target_list_recruit2와 동일한 로직)
+			$proposed_list = $this->member_model->getRecruitActaiveList2($mm_idx);
+			foreach ($proposed_list as $row) {
+				if (!empty($row["rm_idx_list"])) {
+					$rm_idx_str = preg_replace('/[()]/', '', $row["rm_idx_list"]);
+					$rm_idxes = array_filter(array_map('trim', explode(',', $rm_idx_str)));
+					foreach ($rm_idxes as $rm_idx) {
+						$accessible_room_idxes[] = (int)$rm_idx;
+					}
+				}
+			}
+		}
+
+		// 중복 제거 및 정렬
+		$accessible_room_idxes = array_unique($accessible_room_idxes);
 
 		// MongoDB 연결 정보
 		$uri = $this->mongo_uri;
-		
+		$results = [];
 
 		try {
 			// MongoDB 클라이언트 생성 및 연결
-			//$client = new MongoDB\Client($uri);
-			//MongoClient 를 쓰라는 오류 메시지 안나오도록 "@" 추가
 			@$mongo = new Mongo($uri);
-
-			// 데이터베이스 선택
-			$database = $mongo->{$this->mongo_db}; //$client->$dbName;
-
-			// 컬렉션 선택 (room 컬렉션)
+			$database = $mongo->{$this->mongo_db};
 			$collection = $database->room;
 
-			// 한 건만 조회 (findOne)
-			//$document = $collection->findOne(); // 조건 없이 첫 번째 문서 조회
-
-			//$query = array('rm_last_msg' => "22"); //마지막 메시지가 "22"인 채팅 조회
-			//$query = array('rm_messages.mg_reads.read_yn' => 'N'); //메시지 read_yn 이 N인 채팅 조회
+			// 현재 사용자의 user_id가 mg_reads에 있는 room들 조회
 			$query = array(
-				//'rm_messages.mg_reads.read_yn' => 'N',
-				//'rm_messages.user_id' => $this->user->getUserId(),
-				'rm_messages.mg_reads.user_id' => $this->user->getUserId()
+				'rm_messages.mg_reads.user_id' => $user_id
 			);
 
-			// 필요한 필드만 조회하여 응답 최적화
-			// 레거시 MongoDB 드라이버에서는 두 번째 파라미터로 fields 배열 전달
 			$fields = array(
 				'rm_idx' => 1,
+				'rm_users' => 1,
 				'rm_messages' => 1
 			);
 
-			//$document = $collection->findOne($query);//한건조회
 			$cursor = $collection->find($query, $fields);
+			$all_results = iterator_to_array($cursor);
 
-			// 조회 결과를 배열로 변환
-			$results = iterator_to_array($cursor);
+			// 접근 가능한 room_idx에만 해당하는 결과만 필터링
+			foreach ($all_results as $room) {
+				$rm_idx = isset($room['rm_idx']) ? (int)$room['rm_idx'] : 0;
 
-			// if ($document) {
-			//      $result = json_encode($document) . "\n";
-			// } else {
-			//      $result = "조회된 문서가 없습니다.\n";
-			// }
+				// 접근 가능한 room만 포함
+				if (!in_array($rm_idx, $accessible_room_idxes)) {
+					continue;
+				}
 
-		} catch (MongoDB\Driver\Exception\Exception $e) {
-			$result = "MongoDB 연결 오류: {$e->getMessage()}\n";
-			//exit;
+				// 사용자가 나간 채팅방은 제외
+				if (isset($room['rm_users']) && is_array($room['rm_users'])) {
+					$user_exited = false;
+					foreach ($room['rm_users'] as $room_user) {
+						$room_user_id = isset($room_user['user_id']) ? $room_user['user_id'] : '';
+						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
+							if (isset($room_user['exit_yn']) && $room_user['exit_yn'] == 'Y') {
+								$user_exited = true;
+							}
+							break;
+						}
+					}
+					if ($user_exited) {
+						continue;
+					}
+				}
+
+				$results[] = $room;
+			}
+
+		} catch (Exception $e) {
+			// MongoDB 연결 오류
+			$results = [];
 		}
 
 		// MongoDB 조회 결과에서 탈퇴 회원 메시지 제외
