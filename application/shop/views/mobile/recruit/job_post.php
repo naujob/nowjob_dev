@@ -563,7 +563,7 @@ function formatPhoneNumber($number)
                 <!-- 개인회원이 볼 때: 지원하기 버튼 -->
                 <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn btn-secondary">지원하기</button>
                 <!-- <button type="button" aria-haspopup="dialog" class="btn btn-primary" onclick="location.href='tel:<?= $info["mm_phone"] ?>';">전화하기</button> -->
-                <a href="tel:<?= $info["mm_phone"] ?>" class="btn btn-primary">전화하기</a>
+                <a href="tel:<?= $info["mm_phone"] ?>" class="btn btn-primary js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>">전화하기</a>
             <?php } ?>
         </div>
 
@@ -1281,6 +1281,15 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         // 기업회원이 자신의 채용공고를 볼 때: 광고신청 버튼 클릭 이벤트
         $(document).on('click', '#btnPromotionRecruit', function() {
             location.href = "/compage/point_promotion_buy";
+        });
+
+        // 전화하기 클릭 로그 기록
+        $(document).on('click', '.js-call-log', function() {
+            var rc_idx = $(this).data('rc_idx');
+            comAjax("/recruit_proc/call_log", { rc_idx: rc_idx }, function(ret) {
+                // 로그 실패해도 전화 연결에는 영향 없음 (비동기)
+            });
+            // tel: href가 그대로 실행되어 전화 연결
         });
 
         // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)

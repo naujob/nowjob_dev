@@ -7035,7 +7035,7 @@ form#frm {
 }
 
 .result-list-card .content-info .summary2 .period em.off {
-    color: #777;
+    color: #222;
 }
 
 .result-list-card .content-info .summary2 .period em:not(:last-child) {
