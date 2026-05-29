@@ -540,20 +540,22 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             // 안읽은 메시지 카운트 배지 업데이트 공통 함수
                             function updateNoreadcountallBadge(results, roomIdxList1, roomIdxList2) {
                                 var countAll = 0;
+                                // roomIdxList1, roomIdxList2가 모두 null이면 탭 필터 없이 전체 카운트 (헤더 배지용)
+                                var skipListCheck = (roomIdxList1 === null && roomIdxList2 === null);
                                 for (const key in results) {
                                     if (results.hasOwnProperty(key)) {
                                         const result = results[key];
                                         const { rm_idx, rm_messages } = result;
 
-                                        // 탭1 또는 탭2 목록에 속한 방만 카운트
-                                        var inList = false;
-                                        if (roomIdxList1 && roomIdxList1.indexOf(rm_idx) !== -1) {
+                                        // 탭1 또는 탭2 목록에 속한 방만 카운트 (탭 목록 정보가 없으면 전체 허용)
+                                        var inList = skipListCheck;
+                                        if (!inList && roomIdxList1 && roomIdxList1.indexOf(rm_idx) !== -1) {
                                             inList = true;
-                                        } else if (roomIdxList2 && roomIdxList2.indexOf(rm_idx) !== -1) {
+                                        } else if (!inList && roomIdxList2 && roomIdxList2.indexOf(rm_idx) !== -1) {
                                             inList = true;
-                                        } else if (document.querySelector('#chat_list1 .room_idx_' + rm_idx) !== null) {
+                                        } else if (!inList && document.querySelector('#chat_list1 .room_idx_' + rm_idx) !== null) {
                                             inList = true;
-                                        } else if (document.querySelector('#chat_list2 .room_idx_' + rm_idx) !== null) {
+                                        } else if (!inList && document.querySelector('#chat_list2 .room_idx_' + rm_idx) !== null) {
                                             inList = true;
                                         }
 

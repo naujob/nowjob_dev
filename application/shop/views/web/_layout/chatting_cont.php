@@ -1815,8 +1815,10 @@
 					});
 				<?php } ?>
 
-				// 공통 함수로 배지 업데이트 (탭별 목록 정보 전달)
-				updateNoreadcountallBadge(results, tab1RoomIdxList, tab2RoomIdxList);
+				// 공통 함수로 배지 업데이트 (탭 목록이 비어있으면 null 전달 → 전체 허용)
+				var list1 = tab1RoomIdxList.length > 0 ? tab1RoomIdxList : null;
+				var list2 = tab2RoomIdxList.length > 0 ? tab2RoomIdxList : null;
+				updateNoreadcountallBadge(results, list1, list2);
 
 				// 탭에 읽지 않은 메시지 알림 표시
 				// 🔥 서버 응답에서 직접 탭별 읽지 않은 메시지 개수 계산 (DOM 요소에 의존하지 않음)

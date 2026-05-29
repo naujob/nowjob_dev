@@ -1,10 +1,10 @@
 <?php
 class Chat_proc extends CI_Controller
 {
-	// MongoDB 연결 설정 (중앙화)
+	// MongoDB 연결 설정 (중앙화) - 기본값: 운영 환경
 	private $mongo_uri = "mongodb://localhost:27017";
-	private $mongo_db = "dev_chat";
-	private $environment = "unknown";
+	private $mongo_db = "chat";
+	private $environment = "production";
 
 	function __construct()
 	{
@@ -15,7 +15,7 @@ class Chat_proc extends CI_Controller
 		$this->load->model('commonmodel', 'common_model');
 		$this->load->model('settingmodel', 'setting_model');
 
-		// 환경에 따라 MongoDB 설정 결정 (도메인 기반)
+		// 환경에 따라 MongoDB 설정 결정 (도메인 기반) - 개발 도메인일 때만 dev_chat으로 전환
 		$http_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
 		$is_dev_domain = strpos($http_host, 'dev.') !== false || strpos($http_host, 'dev_') !== false;
 
@@ -24,11 +24,6 @@ class Chat_proc extends CI_Controller
 			$this->environment = 'development';
 			$this->mongo_uri = "mongodb://localhost:27017";
 			$this->mongo_db = "dev_chat";
-		} else {
-			// 운영 환경 (nowjob.co.kr 등)
-			$this->environment = 'production';
-			$this->mongo_uri = "mongodb://localhost:27017";  // 운영 서버 주소로 변경 필요
-			$this->mongo_db = "chat";
 		}
 
 	}
