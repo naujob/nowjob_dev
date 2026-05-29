@@ -167,6 +167,8 @@ class admin {
 			  SELECT 466 FROM st_admin_user WHERE au_id = '$admin_id' AND role_site = 'Y' -- 운영 관리
 			  UNION ALL
 			  SELECT 480 FROM st_admin_user WHERE au_id = '$admin_id' AND role_site = 'Y' -- 커뮤니티 관리 관리
+			  UNION ALL
+			  SELECT 503 FROM st_admin_user WHERE au_id = '$admin_id' AND role_site = 'Y' -- 전화걸기 관리
 			";
 			if($admin_id == 'testtest' || $admin_id == 'nowjob'){
 				$role_sql .= " UNION ALL SELECT 44 UNION ALL SELECT 52 ";
@@ -199,7 +201,9 @@ class admin {
 			  UNION ALL
 			  SELECT 466 FROM st_admin_user WHERE au_id = '$admin_id' AND role_site = 'Y' -- 운영 관리
 			  UNION ALL
-			  SELECT 480 FROM st_admin_user WHERE au_id = '$admin_id' AND role_site = 'Y' -- 커뮤니티 관리 관리 ";
+			  SELECT 480 FROM st_admin_user WHERE au_id = '$admin_id' AND role_site = 'Y' -- 커뮤니티 관리 관리
+			  UNION ALL
+			  SELECT 503 FROM st_admin_user WHERE au_id = '$admin_id' AND role_site = 'Y' -- 전화걸기 관리 ";
 				if($admin_id == 'testtest' || $admin_id == 'nowjob'){ //nowjob
 					$role_sql .= " UNION ALL SELECT 44 UNION ALL SELECT 52 ";
 				}

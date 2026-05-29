@@ -1002,4 +1002,63 @@ class recruitModel extends MY_Model
 	{
 		return $this->db_insert("st_call_log", $data);
 	}
+
+	// 특정 공고의 전화걸기 로그 전체 삭제
+	function deleteCallLog($rc_idx)
+	{
+		return $this->db_delete("st_call_log", array("rc_idx" => $rc_idx));
+	}
+
+	// 전화걸기 로그 기업별 집계 목록 (관리자용)
+	function getCallLogSummaryList($params)
+	{
+		$search_where = "";
+		if (isset($params["search_value"]) && $params["search_value"] != "") {
+			$search_where = " AND mm.mm_comp_name LIKE '%" . $this->inject($params["search_value"]) . "%' ";
+		}
+
+		// 전체 건수 조회
+		$count_sql = "
+			SELECT COUNT(*) AS cnt FROM (
+				SELECT cl.rc_idx, mm.mm_comp_name, rc.rc_name
+				FROM st_call_log cl
+				JOIN st_recruit rc ON cl.rc_idx = rc.rc_idx
+				JOIN st_member mm ON rc.mm_idx = mm.mm_idx
+				WHERE 1=1 $search_where
+				GROUP BY cl.rc_idx, mm.mm_comp_name, rc.rc_name
+			) t
+		";
+
+		$count_result = $this->db->query($count_sql)->row_array();
+		$total = isset($count_result["cnt"]) ? (int)$count_result["cnt"] : 0;
+
+		// 목록 조회
+		$offset = ($params["page"] - 1) * $params["pagesize"];
+		$list_sql = "
+			SELECT
+				cl.rc_idx,
+				mm.mm_comp_name,
+				rc.rc_name,
+				SUM(CASE WHEN cl.mm_type = 'MEM' THEN 1 ELSE 0 END) AS mem_cnt,
+				SUM(CASE WHEN cl.mm_type = '비회원' THEN 1 ELSE 0 END) AS nonmem_cnt,
+				COUNT(cl.cl_idx) AS total_cnt,
+				MAX(cl.reg_dt) AS last_dt
+			FROM st_call_log cl
+			JOIN st_recruit rc ON cl.rc_idx = rc.rc_idx
+			JOIN st_member mm ON rc.mm_idx = mm.mm_idx
+			WHERE 1=1 $search_where
+			GROUP BY cl.rc_idx, mm.mm_comp_name, rc.rc_name
+			ORDER BY total_cnt DESC
+			LIMIT " . (int)$offset . ", " . (int)$params["pagesize"] . "
+		";
+		$list = $this->db->query($list_sql)->result_array();
+
+		$pagenation = get_page_ajax($params["page"], $total, $params["pagesize"]);
+
+		return array(
+			"count"      => $total,
+			"list"       => $list,
+			"pagenation" => $pagenation,
+		);
+	}
 }
