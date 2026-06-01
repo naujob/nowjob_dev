@@ -43,5 +43,11 @@ class adModel extends MY_Model
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by);
 	}
+
+	# PC배너광고 클릭로그 삭제
+	function deleteAdClickLog($where)
+	{
+		return $this->db_delete("st_ad_click_log", $where);
+	}
 }
 ?>

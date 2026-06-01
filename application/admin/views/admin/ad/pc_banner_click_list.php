@@ -59,6 +59,7 @@
     <div class="search-result">
         <!-- page_type 필터 탭 -->
         <div class="log-type-tabs" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+            <span style="margin-right: 10px; font-weight: bold;">페이지 유형:</span>
             <button type="button" class="tab-btn" data-type="ALL" style="padding: 8px 16px; margin-right: 10px; border: none; background-color: #f5f5f5; cursor: pointer; border-radius: 3px;">전체</button>
             <button type="button" class="tab-btn" data-type="recruit" style="padding: 8px 16px; margin-right: 10px; border: none; background-color: #f5f5f5; cursor: pointer; border-radius: 3px;">구인 페이지</button>
             <button type="button" class="tab-btn" data-type="hr" style="padding: 8px 16px; border: none; background-color: #f5f5f5; cursor: pointer; border-radius: 3px;">인재 페이지</button>
@@ -76,6 +77,15 @@
         <div class="btn-table inline-wrap">
             <div class="left">
                 <span class="total-count">전체 <strong><?=$result_count?></strong>건</span>
+                <select id="sortOrder">
+                    <option value="default">-- 정렬 선택 --</option>
+                    <option value="number_asc">번호 (오름차순)</option>
+                    <option value="number_desc">번호 (내림차순)</option>
+                    <option value="click_cnt_desc">클릭수 (높음순)</option>
+                    <option value="click_cnt_asc">클릭수 (낮음순)</option>
+                    <option value="date_desc">날짜 (최신순)</option>
+                    <option value="date_asc">날짜 (오래된순)</option>
+                </select>
             </div>
         </div>
 
@@ -87,6 +97,7 @@
                 <col width="100" />
                 <col width="80" />
                 <col width="150" />
+                <col width="80" />
             </colgroup>
             <thead>
             <tr>
@@ -96,6 +107,7 @@
                 <th scope="col">회원 유형</th>
                 <th scope="col">클릭수</th>
                 <th scope="col">최근 클릭일시</th>
+                <th scope="col">관리</th>
             </tr>
             </thead>
             <tbody>
@@ -118,11 +130,18 @@
                     </td>
                     <td class="tc"><strong><?php echo $row["cnt"]; ?></strong></td>
                     <td class="tc"><?php echo substr($row["last_dt"], 0, 16); ?></td>
+                    <td class="tc">
+                        <a href="javascript:void(0);" class="btnDeleteLog"
+                           data-click_date="<?php echo $row["click_date"]; ?>"
+                           data-page_type="<?php echo $row["page_type"]; ?>"
+                           data-mm_type="<?php echo $row["mm_type"]; ?>"
+                           title="삭제">삭제</a>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             <?php else : ?>
                 <tr>
-                    <td colspan="6" class="tc">데이터가 없습니다.</td>
+                    <td colspan="7" class="tc">데이터가 없습니다.</td>
                 </tr>
             <?php endif; ?>
             </tbody>
@@ -169,6 +188,37 @@ $(document).ready(function(){
         "background-color": "#3498db",
         "color": "#fff"
     });
+
+    // 정렬 변경
+    $("#sortOrder").on("change", function(){
+        var sortValue = $(this).val();
+        sortData(sortValue);
+    });
+
+    // 삭제 버튼 클릭
+    $(".btnDeleteLog").on("click", function(){
+        var clickDate = $(this).data("click_date");
+        var pageType = $(this).data("page_type");
+        var mmType = $(this).data("mm_type");
+        var pageTypeText = pageType == "recruit" ? "구인" : "인재";
+        var mmTypeText = mmType == "MEM" ? "일반회원" : (mmType == "COMP" ? "기업회원" : "비회원");
+
+        if(confirm(clickDate + " " + pageTypeText + " " + mmTypeText + " 클릭 로그를 삭제하시겠습니까?")){
+            var params = {
+                "click_date": clickDate,
+                "page_type": pageType,
+                "mm_type": mmType
+            };
+            comAjax("/admin/ad/ad_click_log_delete_proc", params, function(result){
+                if(result.code == "00"){
+                    COMMON.alert("삭제되었습니다.");
+                    location.reload();
+                } else {
+                    COMMON.alert(result.msg);
+                }
+            });
+        }
+    });
 });
 
 // 페이지 이동 함수
@@ -192,5 +242,73 @@ function goPage(page) {
         url += "&edate=" + edate;
     }
     location.href = url;
+}
+
+// 테이블 정렬 함수
+function sortData(sortType) {
+    var tableBody = document.querySelector("table.table-type2 tbody");
+    var rows = Array.from(tableBody.querySelectorAll("tr:not(:last-child)"));
+
+    if(sortType === "default") {
+        return;
+    }
+
+    rows.sort(function(rowA, rowB) {
+        var cellsA = rowA.querySelectorAll("td");
+        var cellsB = rowB.querySelectorAll("td");
+
+        var valueA, valueB;
+
+        switch(sortType) {
+            case "number_asc":
+                valueA = parseInt(cellsA[0].textContent) || 0;
+                valueB = parseInt(cellsB[0].textContent) || 0;
+                return valueA - valueB;
+            case "number_desc":
+                valueA = parseInt(cellsA[0].textContent) || 0;
+                valueB = parseInt(cellsB[0].textContent) || 0;
+                return valueB - valueA;
+            case "click_cnt_desc":
+                valueA = parseInt(cellsA[4].textContent) || 0;
+                valueB = parseInt(cellsB[4].textContent) || 0;
+                return valueB - valueA;
+            case "click_cnt_asc":
+                valueA = parseInt(cellsA[4].textContent) || 0;
+                valueB = parseInt(cellsB[4].textContent) || 0;
+                return valueA - valueB;
+            case "date_desc":
+                valueA = new Date(cellsA[1].textContent);
+                valueB = new Date(cellsB[1].textContent);
+                return valueB - valueA;
+            case "date_asc":
+                valueA = new Date(cellsA[1].textContent);
+                valueB = new Date(cellsB[1].textContent);
+                return valueA - valueB;
+            default:
+                return 0;
+        }
+    });
+
+    // 정렬 후 번호 업데이트
+    var baseNum = parseInt(document.querySelector(".total-count strong").textContent) || 0;
+    var pagesize = 20;
+    var currentPage = new URLSearchParams(window.location.search).get('page') || 1;
+    var startNum = baseNum - ((currentPage - 1) * pagesize);
+
+    if(sortType === "number_asc" || sortType === "number_desc") {
+        rows.forEach(function(row) {
+            // 번호는 이미 정렬되어 있음
+        });
+    } else {
+        rows.forEach(function(row, index) {
+            var cells = row.querySelectorAll("td");
+            cells[0].textContent = startNum - index;
+        });
+    }
+
+    // 정렬된 행을 테이블에 다시 삽입
+    rows.forEach(function(row) {
+        tableBody.insertBefore(row, tableBody.lastChild);
+    });
 }
 </script>

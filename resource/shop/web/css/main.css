@@ -13215,7 +13215,7 @@ body {
 }
 .adBanner {
   position: relative;
-  margin-bottom: 10px;
+  margin-bottom: 40px;
 }
 
 /* .adBanner:after {
@@ -13234,14 +13234,14 @@ body {
 } */
 
 .adBanner1 {
-  width: 200px;
+  width: 220px;
   height: 600px;
 }
 .sidebar .adBanner1 img {
   height: 90%;
 }
 .adBanner.adBanner2 {
-  width: 200px;
+  width: 220px;
   height: 200px;
 }
 
