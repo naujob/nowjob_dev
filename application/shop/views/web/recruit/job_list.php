@@ -5,6 +5,7 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 ?>
+<script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -354,29 +355,9 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 <script>
   var appBaseUrl = "<?php echo rtrim($this->config->item('app_base_url') ? $this->config->item('app_base_url') : base_url(), '/'); ?>";
 
-  // 랜덤 광고 배너 로드
-  function loadRandomAdBanner() {
-    var banners = [
-      {
-        img: '/outer/ad/nowjob-banner-vertical_v5-1.png',
-        link: 'https://naver.me/FOZat0A2'
-      },
-      {
-        img: '/outer/ad/nowjob-banner-vertical_v5-2.png',
-        link: 'https://naver.me/FDn3Ggxk'
-      }
-    ];
-
-    var randomIndex = Math.floor(Math.random() * banners.length);
-    var selectedBanner = banners[randomIndex];
-
-    $('#adBannerImg').attr('src', selectedBanner.img);
-    $('#adBannerLink').attr('href', selectedBanner.link);
-  }
-
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
-    loadRandomAdBanner();
+    loadRandomAdBanner('recruit');
     getRecoList();
     initPage(false);
 

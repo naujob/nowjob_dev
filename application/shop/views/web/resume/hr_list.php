@@ -5,6 +5,7 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 ?>
+<script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
 <style>
 .search-result{
   width: 103%;
@@ -1048,8 +1049,8 @@ if (count($banner_list) > 0) {
               <img src="/outer/ad/ad1.jpg" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
             </div>
             <div class="adBanner adBanner1">
-              <a href="/community/event_view/8403" target="_blank">
-                <img src="/outer/ad/nowjob-banner-vertical_v2.png" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
+              <a id="adBannerLink" href="" target="_blank">
+                <img id="adBannerImg" src="" alt="" width="100%" height="100%" border="0" style="padding:0px; margin:0px;">
               </a>
             </div>
           </div>
@@ -1104,6 +1105,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
+    loadRandomAdBanner('hr');
     getRecoList();
     initPage(false);
   });
