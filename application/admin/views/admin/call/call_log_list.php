@@ -32,7 +32,7 @@
 <div class="contents-search">
     <form id="frm-search" class="controls" method="get" action="/admin/call/call_log_list">
         <div class="search-box">
-            <h3 class="sub-title mb-10">전화걸기 로그 관리</h3>
+            <h3 class="sub-title mb-10">전화/지원하기 로그 관리</h3>
             <table>
                 <colgroup>
                     <col width="150px"/>
@@ -51,9 +51,17 @@
                 <button type="button" class="btn-m btn-type10 w100 btnSearch">검색</button>
             </div>
         </div>
+        <input type="hidden" id="cl_type" name="cl_type" value="<?=$search['cl_type']?>">
     </form>
 
     <div class="search-result">
+        <!-- cl_type 필터 탭 -->
+        <div class="log-type-tabs" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+            <button type="button" class="tab-btn" data-type="ALL" style="padding: 8px 16px; margin-right: 10px; border: none; background-color: #f5f5f5; cursor: pointer; border-radius: 3px;">전체</button>
+            <button type="button" class="tab-btn" data-type="CALL" style="padding: 8px 16px; margin-right: 10px; border: none; background-color: #f5f5f5; cursor: pointer; border-radius: 3px;">전화하기</button>
+            <button type="button" class="tab-btn" data-type="APPLY" style="padding: 8px 16px; border: none; background-color: #f5f5f5; cursor: pointer; border-radius: 3px;">지원하기</button>
+        </div>
+
         <div class="btn-table inline-wrap">
             <div class="left">
                 <span class="total-count">전체 <strong><?=$result_count?></strong>건</span>
@@ -63,8 +71,9 @@
                     <option value="number_desc">번호 (내림차순)</option>
                     <option value="total_cnt_desc">전체 클릭수 (높음순)</option>
                     <option value="total_cnt_asc">전체 클릭수 (낮음순)</option>
-                    <option value="mem_cnt_desc">회원 클릭수 (높음순)</option>
-                    <option value="nonmem_cnt_desc">비회원 클릭수 (높음순)</option>
+                    <option value="call_mem_cnt_desc">전화-회원 클릭수 (높음순)</option>
+                    <option value="call_nonmem_cnt_desc">전화-비회원 클릭수 (높음순)</option>
+                    <option value="apply_cnt_desc">지원 클릭수 (높음순)</option>
                     <option value="last_dt_desc">최근 클릭일 (최신순)</option>
                     <option value="last_dt_asc">최근 클릭일 (오래된순)</option>
                     <option value="comp_name_asc">회사명 (가나다순)</option>
@@ -76,8 +85,9 @@
                 <col width="60" />
                 <col width="150" />
                 <col width="*" />
-                <col width="120" />
-                <col width="120" />
+                <col width="100" />
+                <col width="100" />
+                <col width="80" />
                 <col width="120" />
                 <col width="160" />
             </colgroup>
@@ -86,8 +96,9 @@
                 <th scope="col">번호</th>
                 <th scope="col">회사명</th>
                 <th scope="col">채용공고 제목</th>
-                <th scope="col">회원 클릭수</th>
-                <th scope="col">비회원 클릭수</th>
+                <th scope="col">전화-회원</th>
+                <th scope="col">전화-비회원</th>
+                <th scope="col">지원</th>
                 <th scope="col">전체 클릭수</th>
                 <th scope="col">최근 클릭일시</th>
                 <th scope="col">관리</th>
@@ -100,8 +111,9 @@
                     <td><?php echo $start - $key; ?></td>
                     <td><?php echo $row["mm_comp_name"]; ?></td>
                     <td><?php echo $row["rc_name"]; ?></td>
-                    <td class="tc"><strong><?php echo $row["mem_cnt"]; ?></strong></td>
-                    <td class="tc"><?php echo $row["nonmem_cnt"]; ?></td>
+                    <td class="tc"><?php echo $row["call_mem_cnt"]; ?></td>
+                    <td class="tc"><?php echo $row["call_nonmem_cnt"]; ?></td>
+                    <td class="tc"><?php echo $row["apply_cnt"]; ?></td>
                     <td class="tc"><strong><?php echo $row["total_cnt"]; ?></strong></td>
                     <td class="tc"><?php echo $row["last_dt"]; ?></td>
                     <td class="tc">
@@ -111,7 +123,7 @@
                 <?php endforeach; ?>
             <?php else : ?>
                 <tr>
-                    <td colspan="7" class="tc">데이터가 없습니다.</td>
+                    <td colspan="9" class="tc">데이터가 없습니다.</td>
                 </tr>
             <?php endif; ?>
             </tbody>
@@ -126,6 +138,23 @@ $(document).ready(function(){
         $("#frm-search").submit();
     });
 
+    // cl_type 탭 필터링
+    $(".tab-btn").on("click", function(){
+        var type = $(this).data("type");
+        $("#cl_type").val(type);
+        $("#frm-search").submit();
+    });
+
+    // 현재 활성 탭 표시
+    var currentType = "<?=$search['cl_type']?>";
+    if (!currentType || currentType === "") {
+        currentType = "ALL";
+    }
+    $(".tab-btn[data-type='" + currentType + "']").css({
+        "background-color": "#3498db",
+        "color": "#fff"
+    });
+
     $("#sortOrder").on("change", function(){
         var sortValue = $(this).val();
         sortData(sortValue);
@@ -135,7 +164,7 @@ $(document).ready(function(){
         var rc_idx = $(this).data("rc_idx");
         var comp_name = $(this).data("comp_name");
 
-        if(confirm("'" + comp_name + "' 공고의 전화걸기 로그를 모두 삭제하시겠습니까?")){
+        if(confirm("'" + comp_name + "' 공고의 로그를 모두 삭제하시겠습니까?")){
             var params = {
                 "rc_idx": rc_idx
             };
@@ -150,6 +179,21 @@ $(document).ready(function(){
         }
     });
 });
+
+// 페이지 이동 함수
+function goPage(page) {
+    var currentType = $("#cl_type").val() || "ALL";
+    var searchValue = $("#search_value").val();
+    var url = "/admin/call/call_log_list?page=" + page;
+    if (searchValue) {
+        url += "&search_value=" + encodeURIComponent(searchValue);
+    }
+    if (currentType !== "ALL") {
+        url += "&cl_type=" + currentType;
+    }
+    location.href = url;
+}
+
 // 테이블 정렬 함수
 function sortData(sortType) {
     var tableBody = document.querySelector("table.table-type2 tbody");
@@ -175,28 +219,32 @@ function sortData(sortType) {
                 valueB = parseInt(cellsB[0].textContent) || 0;
                 return valueB - valueA;
             case "total_cnt_desc":
-                valueA = parseInt(cellsA[5].textContent) || 0;
-                valueB = parseInt(cellsB[5].textContent) || 0;
+                valueA = parseInt(cellsA[6].textContent) || 0;
+                valueB = parseInt(cellsB[6].textContent) || 0;
                 return valueB - valueA;
             case "total_cnt_asc":
-                valueA = parseInt(cellsA[5].textContent) || 0;
-                valueB = parseInt(cellsB[5].textContent) || 0;
+                valueA = parseInt(cellsA[6].textContent) || 0;
+                valueB = parseInt(cellsB[6].textContent) || 0;
                 return valueA - valueB;
-            case "mem_cnt_desc":
+            case "call_mem_cnt_desc":
                 valueA = parseInt(cellsA[3].textContent) || 0;
                 valueB = parseInt(cellsB[3].textContent) || 0;
                 return valueB - valueA;
-            case "nonmem_cnt_desc":
+            case "call_nonmem_cnt_desc":
                 valueA = parseInt(cellsA[4].textContent) || 0;
                 valueB = parseInt(cellsB[4].textContent) || 0;
                 return valueB - valueA;
+            case "apply_cnt_desc":
+                valueA = parseInt(cellsA[5].textContent) || 0;
+                valueB = parseInt(cellsB[5].textContent) || 0;
+                return valueB - valueA;
             case "last_dt_desc":
-                valueA = new Date(cellsA[6].textContent);
-                valueB = new Date(cellsB[6].textContent);
+                valueA = new Date(cellsA[7].textContent);
+                valueB = new Date(cellsB[7].textContent);
                 return valueB - valueA;
             case "last_dt_asc":
-                valueA = new Date(cellsA[6].textContent);
-                valueB = new Date(cellsB[6].textContent);
+                valueA = new Date(cellsA[7].textContent);
+                valueB = new Date(cellsB[7].textContent);
                 return valueA - valueB;
             case "comp_name_asc":
                 valueA = cellsA[1].textContent.trim();

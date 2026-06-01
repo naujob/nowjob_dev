@@ -1211,6 +1211,11 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                                 $('.btn-close-popup').show();
 
                                 if (ret.code == "00") {
+                                    // 지원하기 클릭 로그 기록
+                                    comAjax("/recruit_proc/call_log", { rc_idx: rc_idx, cl_type: "APPLY" }, function(ret) {
+                                        // 로그 실패해도 지원 흐름에 영향 없음 (비동기)
+                                    });
+
                                     // 알림창 주석처리 - 바로 채팅 목록으로 이동
                                     // commonAlert("지원 신청 되었습니다.", function() {
                                     //     location.reload();

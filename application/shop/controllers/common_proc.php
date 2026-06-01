@@ -10,6 +10,7 @@ class Common_proc extends CI_Controller
 		$this->load->model('settingmodel', 'setting_model');
 		$this->load->model('mongomodel', 'mongo_model');
 		$this->load->model('commonmodel', 'common_model');
+		$this->load->model('admodel', 'ad_model');
 
 		$this->load->library('user');
 		$this->load->library('common');
@@ -2238,5 +2239,30 @@ ORDER BY distance_km ASC;
 		} catch (Exception $e) {
 			json_return("99", "서버 오류: " . $e->getMessage());
 		}
+	}
+
+	/**
+	 * 광고 배너 클릭 로그 저장
+	 *
+	 * @param page_type (recruit/hr)
+	 * @return json
+	 */
+	function log_ad_click()
+	{
+		$page_type = input_post("page_type", "");
+		$mm_idx    = $this->user->isLogin() ? $this->user->getUserIdx() : null;
+		$mm_type   = $this->user->isLogin() ? $this->user->getUserType() : "비회원";
+
+		$data = array(
+			"page_type"   => $page_type,
+			"mm_idx"      => $mm_idx,
+			"mm_type"     => $mm_type,
+			"acl_ip"      => $this->common->getIpAddr(),
+			"acl_session" => session_id(),
+			"reg_dt"      => date("Y-m-d H:i:s"),
+		);
+
+		$this->ad_model->insertAdClickLog($data);
+		json_return("00", "success");
 	}
 }

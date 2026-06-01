@@ -1000,4 +1000,10 @@ class commonModel extends MY_Model
 	######################################
 	# END 공통 처리
 	######################################
+
+	# 광고 배너 클릭 로그 저장
+	function insertAdClickLog($data)
+	{
+		return $this->db_insert("st_ad_click_log", $data);
+	}
 }

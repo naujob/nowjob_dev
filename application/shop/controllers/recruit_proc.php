@@ -896,7 +896,7 @@ class Recruit_proc extends CI_Controller
 		json_return("00", "조회성공", $result);
 	}
 
-	# 전화하기 클릭 로그 기록
+	# 전화하기/지원하기 클릭 로그 기록
 	function call_log()
 	{
 		$rc_idx = input_post("rc_idx", "");
@@ -905,6 +905,7 @@ class Recruit_proc extends CI_Controller
 			return;
 		}
 
+		$cl_type = input_post("cl_type", "CALL");
 		$mm_idx  = $this->user->isLogin() ? $this->user->getUserIdx() : null;
 		$mm_type = $this->user->isLogin() ? $this->user->getUserType() : "비회원";
 		$ip      = $this->common->getIpAddr();
@@ -912,6 +913,7 @@ class Recruit_proc extends CI_Controller
 
 		$data = array(
 			"rc_idx"        => $rc_idx,
+			"cl_type"       => $cl_type,
 			"mm_idx"        => $mm_idx,
 			"mm_type"       => $mm_type,
 			"cl_ip"         => $ip,

@@ -8,17 +8,19 @@
 			$this->load->library('logger');
 	    }
 
-		// 전화걸기 로그 - 기업별 집계 목록
+		// 전화걸기/지원하기 로그 - 기업별 집계 목록
         function call_log_list(){
 			// 파라미터 설정
 			$page         = input_get("page", 1);
 			$search_value = input_get("search_value", "");
+			$cl_type      = input_get("cl_type", "ALL");
 
 			// 데이터 조회
 			$params = array(
 				"pagesize"     => 20,
 				"page"         => $page,
 				"search_value" => $search_value,
+				"cl_type"      => $cl_type,
 			);
 
 			$result = $this->recruit_model->getCallLogSummaryList($params);
@@ -27,6 +29,7 @@
 			$data = array(
 				"search"       => array(
 					"search_value" => $search_value,
+					"cl_type"      => $cl_type,
 				),
 				"start"        => ($result["count"] - (($page - 1) * $params["pagesize"])),
 				"result_list"  => $result["list"],

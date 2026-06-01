@@ -1017,6 +1017,11 @@ class recruitModel extends MY_Model
 			$search_where = " AND mm.mm_comp_name LIKE '%" . $this->inject($params["search_value"]) . "%' ";
 		}
 
+		// cl_type 필터 추가 (ALL=전체, CALL=전화하기, APPLY=지원하기)
+		if (isset($params["cl_type"]) && $params["cl_type"] != "" && $params["cl_type"] != "ALL") {
+			$search_where .= " AND cl.cl_type = '" . $this->inject($params["cl_type"]) . "' ";
+		}
+
 		// 전체 건수 조회
 		$count_sql = "
 			SELECT COUNT(*) AS cnt FROM (
@@ -1039,8 +1044,9 @@ class recruitModel extends MY_Model
 				cl.rc_idx,
 				mm.mm_comp_name,
 				rc.rc_name,
-				SUM(CASE WHEN cl.mm_type = 'MEM' THEN 1 ELSE 0 END) AS mem_cnt,
-				SUM(CASE WHEN cl.mm_type = '비회원' THEN 1 ELSE 0 END) AS nonmem_cnt,
+				SUM(CASE WHEN cl.cl_type = 'CALL' AND cl.mm_type = 'MEM' THEN 1 ELSE 0 END) AS call_mem_cnt,
+				SUM(CASE WHEN cl.cl_type = 'CALL' AND cl.mm_type = '비회원' THEN 1 ELSE 0 END) AS call_nonmem_cnt,
+				SUM(CASE WHEN cl.cl_type = 'APPLY' THEN 1 ELSE 0 END) AS apply_cnt,
 				COUNT(cl.cl_idx) AS total_cnt,
 				MAX(cl.reg_dt) AS last_dt
 			FROM st_call_log cl

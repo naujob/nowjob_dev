@@ -56,4 +56,15 @@ function loadRandomAdBanner(pageType) {
   if ($bannerLink.length > 0) {
     $bannerLink.attr('href', selectedBanner.link);
   }
+
+  // 클릭 로그 전송
+  if ($bannerLink.length > 0) {
+    $bannerLink.off('click.adBannerLog').on('click.adBannerLog', function() {
+      comAjax("/common_proc/log_ad_click", {
+        page_type: pageType
+      }, function() {
+        // 로그 전송 완료 (배너 링크 동작에 영향 없음)
+      });
+    });
+  }
 }
