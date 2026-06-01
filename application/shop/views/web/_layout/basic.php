@@ -810,16 +810,29 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     ?>
 
     <?php if ($should_show_ad) : ?>
+        <?php
+        // 개발 환경 감지 (도메인 기반)
+        $is_development = (strpos($_SERVER['HTTP_HOST'], 'dev.') === 0)
+                          || (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false);
+        ?>
         <div style="width: 100%; text-align: center; padding: 20px 0; background-color: #fff;">
-            <ins class="adsbygoogle"
-                style="display:block; width: 100%; min-height: 90px;"
-                data-ad-client="<?= $is_nowjob_domain ? 'ca-pub-7573726661605583' : 'ca-pub-3622369584322145' ?>"
-                data-ad-slot="<?= $is_nowjob_domain ? '3768872159' : '1234567890' ?>"
-                data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+            <?php if ($is_development) : ?>
+                <!-- 개발 중: CSS 플레이스홀더 -->
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #eee; width: 100%; min-height: 90px; color: #999; font-size: 14px;">
+                    광고 영역 (개발 테스트 중)
+                </div>
+            <?php else : ?>
+                <!-- 운영: 실제 AdSense 광고 -->
+                <ins class="adsbygoogle"
+                    style="display:block; width: 100%; min-height: 90px;"
+                    data-ad-client="ca-pub-7573726661605583"
+                    data-ad-slot="3768872159"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
     <footer id="footer">
