@@ -46,39 +46,10 @@
         </form>
 
         <!-- 마이페이지 바로가기 버튼 -->
-        <a href="/mypage" class="quick-mypage-link" aria-label="마이페이지로 이동"></a>
+        <!-- <a href="/mypage" class="quick-mypage-link" aria-label="마이페이지로 이동"></a> -->
     </div><!-- //page-content -->
 </div>
 
-<style>
-    /* 마이페이지 바로가기 버튼 스타일 */
-    .quick-mypage-link {
-        position: fixed;
-        right: 18px;
-        bottom: 190px;
-        width: 56px;
-        height: 56px;
-        background: url("/resource/shop/mobile/img/ic_url_arrow.svg") no-repeat center center;
-        background-size: 40px auto;
-    }
-
-    /* 대표이력서 레이블을 오른쪽 끝에 배치 */
-    .angle-link {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-
-    .angle-link .important-label {
-        margin-left: auto;
-        flex-shrink: 0;
-    }
-
-    .angle-link strong {
-        font-size: 18px;
-    }
-</style>
 
 <script>
     window.addEventListener('DOMContentLoaded', function() {

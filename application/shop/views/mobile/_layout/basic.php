@@ -416,7 +416,7 @@ if (!$socket_io_script_url) {
     return path.split('?')[0].replace(/\/$/, ''); // trailing slash 제거
   }
 
-  // 방문 기록 관리
+  // 커스텀 방문 기록 관리
   (function manageHistory() {
     const rawCurrentPath = window.location.pathname;
     const currentPath = normalizePath(rawCurrentPath); // 정규화된 경로
@@ -428,36 +428,6 @@ if (!$socket_io_script_url) {
     if (currentPath === '/home/splash') {
       return;
     }
-
-    const compagePaths1 = [
-      "/compage/point_promotion_buy",
-      "/compage/point_charge_step1",
-      "/compage/point_charge_list",
-      "/compage/point_use_list",
-      "/compage/point_promotion_list"
-    ];
-    const compagePaths2 = [
-      "/compage/bookmark_person1",
-      "/compage/bookmark_person2"
-    ];
-    const compagePaths3 = [
-      "/compage/coupon_list"
-    ];
-    const mypagePaths1 = [
-      "/mypage/point_charge_step1",
-      "/mypage/point_charge_list",
-      "/mypage/point_use_list",
-      "/mypage/point_promotion_buy",
-      "/mypage/point_promotion_list"
-    ];
-    const mypagePaths2 = [
-      "/mypage/bookmark_recruit1",
-      "/mypage/bookmark_recruit2"
-    ];
-    const mypagePaths3 = [
-      "/mypage/resume_list",
-      "/mypage/resume_view"
-    ];
 
     // ⭐ 연속된 중복 제거
     while (historyStack.length > 1) {
@@ -487,6 +457,8 @@ if (!$socket_io_script_url) {
   })();
 
   // ⭐ customBack() - 히스토리 스택 처리 후 네이티브 뒤로가기
+  // ios네이티브에서 호출중이며, 페이지 이동 전에 historyStack에서 현재 페이지 제거 및 splash 페이지 처리 포함
+  // 안드로이드는 자체 컨트롤중이므로 별도 처리 없이 네이티브 뒤로가기만 호출
   function customBack() {
     try {
 
@@ -624,145 +596,8 @@ if (!$socket_io_script_url) {
   // 이 플래그가 true면 iOS 등에서 스와이프 제스처로 뒤로가기가 동작하지 않도록 막습니다.
   window.DISABLE_SWIPE_BACK = window.DISABLE_SWIPE_BACK || false;
 
-  // 특정 페이지에서 스와이프 뒤로가기 비활성화 (Android만 적용)
-  // iOS는 네이티브 앱의 allowsBackForwardNavigationGestures로 제어
-  (function() {
-    // Android 감지
-    function isAndroid() {
-      return /Android/i.test(navigator.userAgent);
-    }
-
-    // Android에서만 JavaScript 스와이프 제어 적용
-    if (!isAndroid()) {
-      return;
-    }
-
-    const currentPath = window.location.pathname;
-
-    // 홈페이지 경로 확인: "/", "/home", "/home/index"
-    const isHomePage = currentPath === '/' ||
-      currentPath === '/home' ||
-      currentPath === '/home/index' ||
-      currentPath.startsWith('/home/index');
-
-    // Android에서 스와이프 뒤로가기 비활성화 페이지 목록
-    const disableSwipePages = [
-      '/resume/hr_list',
-      '/resume/hr_map', // 인재 지도 페이지 추가 (핀치 제스처 충돌 방지)
-      '/recruit/job_list',
-      '/recruit/job_map', // 지도 페이지 추가 (핀치 제스처 충돌 방지)
-      '/chat/chat_list',
-      '/chat/chat_list2'
-    ];
-    const isDisableSwipePage = disableSwipePages.includes(currentPath);
-
-    if (isHomePage || isDisableSwipePage) {
-      window.DISABLE_SWIPE_BACK = true;
-    }
-  })();
-
-  let startX = 0;
-  let endX = 0;
-  const screenWidth = window.innerWidth; // 화면 너비
-  let isSwipeProcessing = false; // ⭐ 스와이프 처리 중 플래그 (중복 방지)
-
-  // Android만 JavaScript 스와이프 리스너 등록
+  // Android는 네이티브 앱에서 customBack() 함수를 직접 호출하여 뒤로가기 처리
   // iOS는 네이티브 앱의 allowsBackForwardNavigationGestures 설정으로 제어
-  function isAndroid() {
-    return /Android/i.test(navigator.userAgent);
-  }
-
-  if (isAndroid()) {
-    let isSwipeBackGesture = false; // 스와이프 뒤로가기 제스처 여부
-
-    // 사용자가 화면을 터치(손가락을 대기 시작)할 때 발생하는 이벤트입니다.
-    document.addEventListener('touchstart', (event) => {
-
-      // 스와이프 비활성화 플래그가 true이면 동작 중지
-      if (window.DISABLE_SWIPE_BACK) {
-        return;
-      }
-
-      // 핀치 제스처(2손가락 이상)는 스와이프로 인식하지 않음
-      if (event.touches.length >= 2) {
-        return;
-      }
-
-      startX = event.touches[0].clientX;
-      isSwipeBackGesture = false; // 초기화
-    }, {
-      passive: true
-    });
-
-    document.addEventListener('touchmove', (event) => {
-
-      // 스와이프 비활성화 플래그가 true이면 동작 중지
-      if (window.DISABLE_SWIPE_BACK) return;
-
-      // 핀치 제스처(2손가형 이상)는 스와이프로 인식하지 않음
-      if (event.touches.length >= 2) {
-        isSwipeBackGesture = false;
-        return;
-      }
-
-      endX = event.touches[0].clientX;
-      var deltaX = endX - startX;
-
-      // 왼쪽 가장자리에서 시작하고 오른쪽으로 스와이프하는 경우
-      if (startX < screenWidth * 0.1 && deltaX > 30) {
-        isSwipeBackGesture = true;
-        event.preventDefault();
-      } else {
-        isSwipeBackGesture = false;
-      }
-    }, {
-      passive: false
-    });
-
-    document.addEventListener('touchend', (event) => {
-      // 스와이프 비활성화 플래그가 true이면 동작 중지
-      if (window.DISABLE_SWIPE_BACK) {
-        return;
-      }
-
-      // ⭐ 스와이프 중복 처리 방지
-      if (isSwipeProcessing) {
-        isSwipeBackGesture = false;
-        startX = 0;
-        endX = 0;
-        return;
-      }
-
-      // 핀치 제스처 중에는 뒤로가기 실행하지 않음
-      if (event.touches.length >= 2) {
-        isSwipeBackGesture = false;
-        return;
-      }
-
-      var deltaX = endX - startX;
-
-      if (isSwipeBackGesture && startX < screenWidth * 0.1 && deltaX > 50) {
-        // ⭐ 스와이프 처리 시작: 플래그 설정
-        isSwipeProcessing = true;
-
-        // Android에서 왼쪽으로 스와이프 시 뒤로 가기
-        event.preventDefault();
-        customBack();
-
-        // 500ms 동안 추가 스와이프 무시
-        setTimeout(() => {
-          isSwipeProcessing = false;
-        }, 500);
-      }
-
-      // 초기화
-      isSwipeBackGesture = false;
-      startX = 0;
-      endX = 0;
-    }, {
-      passive: false
-    });
-  }
 
   if (typeof socket !== 'undefined' && socket && typeof socket.on === 'function') {
     socket.on('connect_error', function(error) {

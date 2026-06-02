@@ -20,7 +20,7 @@ $_tb_right_html= isset($top_bar['right_html'])? $top_bar['right_html']: '';
 ?>
 <div class="top-bar">
     <?php if ($_tb_back_type === 'back'): ?>
-        <a href="<?php echo $_tb_back_href; ?>" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="/recruit/job_list" class="btn-back"><span class="sr-text">이전으로</span></a>
     <?php elseif ($_tb_back_type === 'replace'): ?>
         <a href="<?php echo $_tb_back_href; ?>" class="btn-replace"><span class="sr-text">이전으로</span></a>
     <?php endif; ?>

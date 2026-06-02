@@ -1383,18 +1383,6 @@ $top_bar = array(
         });
     }
 
-    // 뒤로가기 막기 - 히스토리에 현재 페이지 추가
-    window.addEventListener('load', function() {
-        window.history.pushState(null, null, location.href);
-
-        // 뒤로가기 시 현재 페이지로 다시 이동
-        window.addEventListener('popstate', function() {
-            window.history.pushState(null, null, location.href);
-        });
-    });
-
-    // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-    window.DISABLE_SWIPE_BACK = true;
 </script>
 <!-- 제안한 인재탭의 공고 템플릿 -->
 <template id="tpl_chat">

@@ -386,19 +386,6 @@ $top_bar = array(
     // 지원한공고 탭에서 채팅방으로 이동 (from=applied 파라미터 사용)
     location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=applied";
   });
-
-  // 뒤로가기 막기 - 히스토리에 현재 페이지 추가
-  window.addEventListener('load', function() {
-    window.history.pushState(null, null, location.href);
-
-    // 뒤로가기 시 현재 페이지로 다시 이동
-    window.addEventListener('popstate', function() {
-      window.history.pushState(null, null, location.href);
-    });
-  });
-
-  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-  window.DISABLE_SWIPE_BACK = true;
 </script>
 
 <!-- 지원한공고 탭 전용 템플릿 (개인회원용) -->

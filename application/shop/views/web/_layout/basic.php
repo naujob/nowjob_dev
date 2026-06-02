@@ -889,7 +889,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
             <div class="footer-info hidden">
                 <p>
                     Representative name : HAN OG CHOI │ Business registration number : 634-88-03093 │ Mail order business : 2025-인천연수구-1886 <br />
-                    Address : 14, Songdogukje-daero 286beon-gil, Yeonsu-gu, Incheon</br>
+                    Address : 39, Jeyakdanji-ro, Hyangnam-eup, Manse-gu, Hwaseong-si, Gyeonggi-do</br>
                     Business of dissemination job information : J15000202540002
                 </p>
                 <p class="copyright">Copyright NOW D&I Co.,Ltd all right reserved.</p>

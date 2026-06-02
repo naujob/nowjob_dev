@@ -49,7 +49,7 @@
         </form>
 
         <!-- 컴페이지 바로가기 버튼 -->
-        <a href="/compage/index" class="quick-compage-link" aria-label="컴페이지로 이동"></a>
+        <!-- <a href="/compage/index" class="quick-compage-link" aria-label="컴페이지로 이동"></a> -->
     </div><!-- //page-content -->
 </div>
 
@@ -108,18 +108,7 @@
         width: 16px;
     }
 
-    /* 컴페이지 바로가기 버튼: 우측 하단 고정 */
-    .quick-compage-link {
-        position: fixed;
-        right: 18px;
-        bottom: 195px;
-        --quick-compage-size: 45px;
-        /* 버튼 크기 변수 */
-        width: var(--quick-compage-size);
-        height: var(--quick-compage-size);
-        background: url("/resource/shop/mobile/img/ic_url_arrow.svg") no-repeat center center;
-        background-size: var(--quick-compage-size) auto;
-    }
+    
 
     /* is-empty 스타일: main.css와 충돌 방지를 위한 구체적인 선택자 사용 */
     .page.page-mypage .page-content .post-list .list .is-empty {
