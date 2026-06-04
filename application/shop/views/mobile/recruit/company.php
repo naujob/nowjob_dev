@@ -229,7 +229,7 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
 
 
 <script>
-  var ad_addr = "<?= $addr_info["ad_addr"] ?>";
+  var ad_addr = <?= json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "", JSON_UNESCAPED_UNICODE) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
@@ -401,42 +401,7 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
   }
 
 
-  function fRemoveBigAdrJS(arg) {
-    const parts1 = arg.split(",");
-    arg = parts1[0];
-    arg = arg.replace("서울특별시 ", "서울시 ");
-    arg = arg.replace("경기 ", "");
-    arg = arg.replace("강원 ", "");
-    arg = arg.replace("충남 ", "");
-    arg = arg.replace("충북 ", "");
-    arg = arg.replace("경남 ", "");
-    arg = arg.replace("경북 ", "");
-    arg = arg.replace("전남 ", "");
-    arg = arg.replace("전북 ", "");
-    arg = arg.replace("제주 ", "");
-    arg = arg.replace("경기도 ", "");
-    arg = arg.replace("강원특별자치도 ", "");
-    arg = arg.replace("충청남도 ", "");
-    arg = arg.replace("충청북도 ", "");
-    arg = arg.replace("경상남도 ", "");
-    arg = arg.replace("경상북도 ", "");
-    arg = arg.replace("전라남도 ", "");
-    arg = arg.replace("전북특별자치도 ", "");
-    arg = arg.replace("제주특별자치도 ", "");
-    arg = arg.replace("세종특별자치시 ", "세종시 ");
-    arg = arg.replace("광주광역시 ", "광주시 ");
-    arg = arg.replace("인천광역시 ", "인천시 ");
-    arg = arg.replace("울산광역시 ", "울산시 ");
-    arg = arg.replace("부산광역시 ", "부산시 ");
-    arg = arg.replace("대구광역시 ", "대구시 ");
-    arg = arg.replace("대전광역시 ", "대전시 ");
-    const parts = arg.split(" ");
-    if (parts.length >= 3) {
-      return parts[0] + " " + parts[2];
-    } else {
-      return arg;
-    }
-  }
+ 
 
   function showEmpty() {
     if ($(list_id).find("li").length == 0) {

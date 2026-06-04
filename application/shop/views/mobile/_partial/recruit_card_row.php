@@ -32,7 +32,7 @@ $_recomm_badge  = isset($card_options['recomm_badge'])  ? (bool)$card_options['r
           <?php endif; ?>
         </div>
         <div class="desc">
-          <div class="wicon"><?= getWorkingImg($row['rc_work']) ?></div>
+          <div class="wicon"><?= isset($row['rt_work_img']) ? $row['rt_work_img'] : getWorkingImg($row['rc_work']) ?></div>
           <div class="title ellipsis"><?= $row['rc_name'] ?></div>
           <div class="summary">
             <p><?= $row['rc_nation_nm'] ?></p>
@@ -47,10 +47,10 @@ $_recomm_badge  = isset($card_options['recomm_badge'])  ? (bool)$card_options['r
           </div>
         </div>
         <div class="summary-container">
-          <div class="summary3"><?= getConvertWorkType($row['rc_work_type']) ?></div>
+          <div class="summary3"><?= isset($row['rt_work_type']) ? $row['rt_work_type'] : getConvertWorkType($row['rc_work_type']) ?></div>
           <div class="summary2">
-            <p class="period"><?= getConvertPriceType($row['rc_price_type'], $row['rc_price_rep']) ?></p>
-            <p class="amount"><?= getConvertPrice($row['rc_price_pay']) ?></p>
+            <p class="period"><?= isset($row['rt_price_type']) ? $row['rt_price_type'] : getConvertPriceType($row['rc_price_type'], $row['rc_price_rep']) ?></p>
+            <p class="amount"><?= isset($row['rt_price_pay']) ? $row['rt_price_pay'] : getConvertPrice($row['rc_price_pay']) ?></p>
           </div>
         </div>
       </div>

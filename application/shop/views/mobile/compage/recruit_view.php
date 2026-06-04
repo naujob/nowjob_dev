@@ -259,7 +259,7 @@
                 <h3 class="secondary-title">상세업무정보</h3>
                 <!-- 작성내용 -->
                 <div class="desc">
-                    <p><?= $info["rc_desc"] ?></p><br>
+                    <p><?= nl2br(htmlspecialchars($info["rc_desc"])) ?></p><br>
                 </div>
                 <div class="hashtag">
                     <?= getHashTag($info["rc_hash"]) ?>

@@ -415,7 +415,6 @@ $banner_list = getBannerList("BN00302031");
 
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
-    display: none;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -434,16 +433,13 @@ $banner_list = getBannerList("BN00302031");
   }
 
   .ad-item-adsense .adsense-wrapper {
-    display: none;
     border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
     padding: 0;
     background-color: #fafafa;
-
   }
 
   .ad-item-adsense ins.adsbygoogle {
-    display: none;
     background-color: transparent;
   }
 
@@ -1008,25 +1004,48 @@ $tpl_recomm_class = true; ?>
 
   // Google AdSense 인피드 광고 삽입 함수
   function insertAdsenseAd() {
-    var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
-      '<div class="adsense-wrapper" style="position: relative;">' +
-      '<ins class="adsbygoogle" style="display:block"' +
-      ' data-ad-format="fluid"' +
-      ' data-ad-layout-key="-hd+j-2v-68+mb"' +
-      ' data-ad-client="ca-pub-3622369584322145"' +
-      ' data-ad-slot="5890695133"></ins>' +
-      '</div>' +
-      '</li>';
-    $(list_id).append(adHtml);
+    console.log('[AdSense] insertAdsenseAd() 함수 실행');
 
-    // AdSense 광고 로드 (공식 코드)
-    setTimeout(function() {
-      try {
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
+    // 도메인 환경 판별
+    var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+    console.log('[AdSense] hostname:', window.location.hostname);
+    console.log('[AdSense] pathname:', window.location.pathname);
+    console.log('[AdSense] isDevEnv:', isDevEnv);
 
-      }
-    }, 100);
+    if (isDevEnv) {
+      console.log('[AdSense] 개발 환경 - 플레이스홀더 표시');
+      // 개발 환경에서는 CSS로만 자리 표시
+      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
+        '광고 자리 (개발 환경)' +
+        '</li>';
+      $(list_id).append(adHtml);
+    } else {
+      console.log('[AdSense] 운영 환경 - 실제 광고 로드');
+      // 운영 환경에서 실제 광고 로드
+      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
+        '<div class="adsense-wrapper" style="position: relative;">' +
+        '<ins class="adsbygoogle" style="display:block"' +
+        ' data-ad-format="fluid"' +
+        ' data-ad-layout-key="-hd+j-2v-68+mb"' +
+        ' data-ad-client="ca-pub-7573726661605583"' +
+        ' data-ad-slot="9872127954"></ins>' +
+        '</div>' +
+        '</li>';
+      $(list_id).append(adHtml);
+      console.log('[AdSense] 광고 HTML 삽입 완료');
+
+      // AdSense 광고 로드 (공식 코드)
+      setTimeout(function() {
+        try {
+          console.log('[AdSense] adsbygoogle.push() 호출');
+          console.log('[AdSense] window.adsbygoogle:', window.adsbygoogle);
+          (adsbygoogle = window.adsbygoogle || []).push({});
+          console.log('[AdSense] push 성공');
+        } catch (e) {
+          console.error('[AdSense] push 실패:', e);
+        }
+      }, 100);
+    }
   }
 
 

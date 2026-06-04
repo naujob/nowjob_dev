@@ -65,295 +65,16 @@
     border: 0;
     outline: 0;
   }
-
-  .reco-content .content-li2 {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 10px;
-    border: 1px solid #1b9d7d;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-  }
-
-  .slider-wrap .content-li {
-    position: relative;
-    width: 100%;
-    height: 115px;
-    overflow: hidden;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    overflow: hidden;
-    background: #fff;
-    margin-bottom: 10px;
-    transition: background 0.2s ease;
-  }
-
-  .slider-wrap .content-li:hover {
-    background: #f8f8f8;
-  }
-
-  .content-li *,
-  .content-li2 * {
-    padding: 0;
-    margin: 0;
-  }
-
-  .content-li .content-info,
-  .content-li2 .content-info {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-  }
-
-  .content-info .wicon img {
-    height: 18px;
-  }
-
-  .content-info .title {
-    font-size: 1rem;
-    font-weight: bold;
-    margin-bottom: 3px;
-  }
-
-  .content-info .content-body {
-    position: relative;
-    overflow: hidden;
-    height: 100%;
-  }
-
-  .content-info .desc {
-    position: relative;
-    margin: 0 0 0 110px;
-    cursor: pointer;
-  }
-
-  .content-info .desc .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .content-info .img {
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    border: 0;
-    border-radius: 5px;
-    color: #888;
-    overflow: hidden;
-  }
-
-  .content-info .img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 이미지 비율 유지하며 박스를 꽉 채움 */
-    display: block;
-  }
-
-  .content-info .link {
-    color: #5085BB;
-  }
-
-  .content-info .summary {
-    display: flex;
-    gap: 5px;
-    position: relative;
-  }
-
-  .content-info .summary p {
-    position: relative;
-    padding-right: 5px;
-    margin: 0;
-    color: #000;
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 2px;
-  }
-
-  .content-info .summary p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #ACACAC;
-  }
-
-  .content-info .summary>* {
-    min-width: 0;
-    max-width: 100%;
-    margin-right: 4px;
-    margin-bottom: -3px;
-  }
-
-  .content-info .summary.area p {
-    color: #000;
-    font-weight: 600;
-  }
-
-  .content-info .summary.reco p {
-    color: #1b9d7d;
-    font-weight: 600;
-  }
-
-  .content-info .summary2 {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0;
-    color: #1b9d7d;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .content-info .summary2 p {
-    margin: 0;
-    text-align: right;
-  }
-
-  .content-info .summary2 .pricetype {
-    display: flex;
-    gap: 5px;
-    justify-content: flex-end;
-    position: relative;
-  }
-
-  .content-info .summary2 .pricetype em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
-  }
-
-  .content-info .summary2 .pricetype em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .content-info .summary2 .pricetype em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-
-  .content-info .summary3 {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .content-info .summary3 p {
-    margin: 0;
-    text-align: right;
-  }
-
-  .content-info .summary3 .worktype {
-    display: flex;
-    gap: 5px;
-    justify-content: flex-end;
-    position: relative;
-
-  }
-
-  .content-info .summary3 .worktype em {
-    position: relative;
-    display: inline-block;
-    font-style: normal;
-  }
-
-  .content-info .summary3 .worktype em.wtype1 {
-    color: #3a70db;
-  }
-
-  .content-info .summary3 .worktype em.wtype2 {
-    color: #F86048;
-  }
-
-  .content-info .summary3 .worktype em.wtype3 {
-    color: #1B9D7D;
-  }
-
-  .content-info .summary3 .worktype em:not(:last-child) {
-    padding-right: 5px;
-  }
-
-  .content-info .summary3 .worktype em:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    height: 0.5em;
-    margin: auto;
-    border-right: 1px solid #777777;
-  }
-
-  .content-info .star-rating {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    width: 85px;
-    height: 15px;
-    margin: 5px auto 0;
-  }
-
-  .page-map .working-day {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    margin: 0 0 -4px;
-    list-style: none;
-  }
-
-  .page-map .working-day>li {
-    width: 1.8em;
-    height: 1.8em;
-    margin: 0 0.5em 4px 0;
-    font-size: 12px;
-    color: #BEBFC9;
-    line-height: 1.8;
-    text-align: center;
-    text-indent: -1px;
-    border-radius: 100%;
-    border: 1px solid #57CCAF;
-    background: #fff;
-    float: left;
-  }
-
   .page-map .working-day>li:last-child {
     margin-right: 0;
   }
 
-  .page-map .working-day li[aria-hidden=false] {
-    color: #fff;
-    border-color: transparent;
-    background-color: #57CCAF;
+  
+  .result-list-card .content-info .summary p:last-child {
+        padding-right: 0;
+  }
+  .result-list-card .content-info .summary{
+    font-size: 15px;
   }
 </style>
 <div class="backdrop-loader" hidden>
@@ -371,7 +92,7 @@
   <div class="page-content">
 
     <div class="card-slider">
-      <div class="slider-wrap keen-slider">
+      <div class="slider-wrap keen-slider result-list-card">
       </div>
     </div>
 
@@ -684,46 +405,49 @@
           });
 
           window.insertList = function() {
-            var tmpContent = '';
             var listNo = 0;
             document.querySelector('.slider-wrap').innerHTML = '';
-            resumelist.forEach(function(d) {
-              tmpContent +=
-                '<div class="keen-slider__slide">' +
-                '<div class="content-li" data-ru_idx="' + d.ru_idx + '" id="content-li-' + listNo + '">' +
-                '	<div class="content-info">' +
-                '	  <div class="content-body">' +
-                '		<div class="img">' +
-                '		  <img src="' + d.ru_resume_img + '">' +
-                <?php if ($mm_type === "COMP") { ?> '		  <button type="button" data-bk_type="RESUME" data-bk_key="' + d.ru_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
-                <?php } ?> '		</div>' +
 
-                '		<div class="desc">' +
-                '		  <div class="wicon">' + d.ru_work_img + '</div>' +
-                '		  <div class="title ellipsis">' + d.ru_name + '</div>' +
-                '		  <div class="summary">' +
-                '			<ul class="working-day">' + d.ru_week + '</ul>' +
-                '		  </div>' +
-                '		  <div class="summary">' +
-                '			<p>' + (d.mm_nation == '' ? '-' : d.mm_nation) + '</p>' +
-                '			<p>' + d.mm_age + '세</p>' +
-                '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' +
-                '		  </div>' +
-                '		  <div class="summary2">' +
-                '			<p class="pricetype">' + getPriceType(d.ru_price_type) + '</p>' +
-                '		  </div>' +
-                '		  <div class="summary3">' +
-                '			<p class="worktype">' + getWorkType(d.ru_work_type) + '</p>' +
-                '		  </div>' +
-                '		</div>' +
-                '	  </div>' +
-                '	</div>' +
-                '</div>' +
-                '</div>';
+            resumelist.forEach(function(d) {
+              var $slide = $('<div class="keen-slider__slide"></div>');
+              var $templateContent = $('#tpl_map_card').html();
+
+              // 추천 뱃지: pm_idx 없으면 recomm 클래스 및 뱃지 제거
+              if (d.pm_idx == null) {
+                $templateContent = $templateContent.replaceAll('<div class="content-li recomm"', '<div class="content-li"');
+                $templateContent = $templateContent.replaceAll('<p class="recomm-badge"><span>추천</span></p>', '');
+              }
+
+              // 나이 단위 "대"로 통일
+              var ageStr = (d.mm_age || '') + '대';
+
+              // 국적 빈값 처리
+              if (!d.mm_nation || d.mm_nation.trim() === '') {
+                $templateContent = $templateContent.replaceAll('{{mm_nation}}', '');
+              } else {
+                $templateContent = $templateContent.replaceAll('{{mm_nation}}', d.mm_nation);
+              }
+
+              $templateContent = $templateContent.replaceAll('{{ru_idx}}',        d.ru_idx || '');
+              $templateContent = $templateContent.replaceAll('{{book_yn}}',       d.book_yn == 'Y' ? 'on' : '');
+              $templateContent = $templateContent.replaceAll('{{mm_name}}',       d.ru_name || '');
+              $templateContent = $templateContent.replaceAll('{{ru_week}}',       d.ru_week || '');
+              $templateContent = $templateContent.replaceAll('{{ru_work_img}}',   d.ru_work_img || '');
+              $templateContent = $templateContent.replaceAll('{{ma_age}}',        ageStr);
+              $templateContent = $templateContent.replaceAll('{{ad_addr}}',       fRemoveBigAdrJS(d.ad_addr || ''));
+              $templateContent = $templateContent.replaceAll('{{ru_price_type}}', getPriceType(d.ru_price_type));
+              $templateContent = $templateContent.replaceAll('{{ru_work_type}}',  getWorkType(d.ru_work_type));
+              $templateContent = $templateContent.replaceAll('{{ru_resume_img}}', d.ru_resume_img || '');
+
+              // <li> 래퍼 제거하고 .content-li만 슬라이드에 삽입
+              var $liItem = $('<div>' + $templateContent + '</div>');
+              var $contentLi = $liItem.find('.content-li');
+
+              $slide.append($contentLi);
+              $(document.querySelector('.slider-wrap')).append($slide);
               listNo++;
             });
 
-            document.querySelector('.slider-wrap').insertAdjacentHTML('beforeend', tmpContent);
             if (typeof KeenSlider !== 'undefined') {
               cardSlider = new KeenSlider('.card-slider .slider-wrap', {
                 loop: (resumelist.length == 1 ? false : true),
@@ -735,7 +459,7 @@
                 created: function(slider) {
                   slider.container.parentNode.classList.add('initialized');
                 },
-              }, [addActiveClass, ]);
+              }, [addActiveClass]);
             }
           };
 
@@ -900,16 +624,27 @@
     }).join('');
   }
 
-  $(document).on('click', '.desc', function() {
+  $(document).on('click', '.content-li', function(e) {
+    // 버튼이나 링크 클릭은 무시
+    if ($(e.target).closest('button, a, input').length) {
+      return;
+    }
+
+    var ruIdx = $(this).data('ru_idx');
+
     <?php if ($mm_type !== "COMP") { ?>
       commonAlert("기업회원 전용 서비스입니다.", function() {});
-      return;
     <?php } else { ?>
-      var ruIdx = $(this).closest('.content-li, .content-li2').data('ru_idx');
       if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.location.href = url;
+        window.location.href = '/resume/hr_post/' + ruIdx;
       }
     <?php } ?>
   });
 </script>
+
+<?php
+$tpl_id           = 'tpl_map_card';
+$tpl_recomm_class = true;
+$tpl_show_mm_idx  = false;
+?>
+<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>

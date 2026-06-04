@@ -7,379 +7,6 @@
 <!-- 상대방 ID (MongoDB에 입장 전 정보가 없을 때 사용) -->
 <input type="hidden" id="opponent_user_id" name="opponent_user_id" value="<?= isset($opponent_user_id) ? $opponent_user_id : "" ?>" />
 
-<!-- 채팅 뷰에서만 angle-link 화살표 제거 및 썸네일 라운드 처리 -->
-<style>
-    /* angle-link 기본 화살표 제거 (채팅 뷰 전용 강제 덮어쓰기) */
-    .page-chat-view .angle-link {
-        background: none !important;
-        /* 기본 배경 화살표 제거 */
-    }
-
-    /* thumb 이미지 라운드 */
-    .page-chat-view .thumb img {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    /* 채팅 뷰 전용: recruit 카드 패딩 축소 (오른쪽/아래) */
-    .page-chat-view .item-info.recruit.angle-link {
-        padding-right: 1.5rem !important;
-        padding-bottom: 0.75rem !important;
-    }
-
-    /* 메인 CSS 기본 마진 무효화 */
-    .page-chat-view .item-info.recruit .content-wrap>* {
-        margin: 0 !important;
-    }
-
-    /* 썸네일 래퍼 크기 조정 - 110x110px (6.875rem) 정사각형 */
-    .page-chat-view .thumb-wrap {
-        width: 6.875rem !important;
-        height: 7.875rem !important;
-        flex-shrink: 0 !important;
-    }
-
-    /* thumb 컨테이너 크기 조정 - main.css의 padding 방식 유지 */
-    .page-chat-view .thumb {
-        width: 6.875rem !important;
-        height: 0 !important;
-        padding: 112% 0 0 !important;
-        position: relative !important;
-    }
-
-    /* 이미지 꽉 채우기 - object-fit: cover, main.css의 중앙 정렬 방식 유지 */
-    .page-chat-view .thumb img {
-        border-radius: 8px !important;
-        display: block !important;
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 100% !important;
-        object-fit: cover !important;
-        object-position: center !important;
-        -webkit-transform: translate(-50%, -50%) !important;
-        -ms-transform: translate(-50%, -50%) !important;
-        transform: translate(-50%, -50%) !important;
-    }
-
-
-
-
-    /* 채팅 상세 패널 내 em 기울임 제거 */
-    #chatSummary em,
-    #chatSummary .pay .amount {
-        font-style: normal !important;
-    }
-
-    /* info-table 값 폰트 굵기 제거 */
-    .page-chat-view .info-table .value,
-    #chatSummary .info-table .value {
-        font-weight: normal !important;
-    }
-
-    /* 채용정보 라벨/링크 1줄 배치 */
-    #chatSummary .title-wrap .label-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        padding-bottom: 0.7rem;
-
-    }
-
-    #chatSummary .title-wrap .label-row .line-label {
-        margin: 0;
-    }
-
-    #chatSummary .title-wrap .label-row .view-all {
-        margin: 0;
-    }
-
-    /* 배경형 썸네일 (이미지를 background로 표시) */
-    .page-chat-view .thumb.thumb-bg {
-        background-size: cover !important;
-        background-position: center !important;
-        background-repeat: no-repeat !important;
-        border-radius: 8px !important;
-        overflow: hidden !important;
-    }
-
-    .page-chat-view .thumb.thumb-bg a {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
-
-
-    /* recruit 카드 레이아웃 균형 개선 - 세로축 중앙 정렬 및 간격 */
-    .page-chat-view .item-info.recruit {
-        display: flex !important;
-        align-items: center !important;
-        width: 100% !important;
-        gap: 1rem !important;
-    }
-
-    /* recruit content-wrap 균형적 가로 배치 */
-    .page-chat-view .item-info.recruit .content-wrap {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        justify-content: space-between !important;
-        gap: 0.5rem !important;
-        flex: 1 !important;
-    }
-
-    /* meta top 영역 균형 배치 */
-    .page-chat-view .item-info.recruit .meta.top {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        width: 100% !important;
-    }
-
-    /* category와 working-time 균형 배치 */
-    .page-chat-view .item-info.recruit .meta.top .category {
-        margin: 0 !important;
-        flex-shrink: 0 !important;
-    }
-
-    .page-chat-view .item-info.recruit .meta.top .working-time {
-        margin: 0 0 0 auto !important;
-        flex: 0 0 auto !important;
-    }
-
-    /* title 영역 균형 */
-    .page-chat-view .item-info.recruit .title {
-        margin: 0 !important;
-        font-size: 1.3rem !important;
-        line-height: 1.4 !important;
-    }
-
-    /* meta 영역 완전 정렬 - 수직 중앙 정렬 */
-    .page-chat-view .item-info.recruit .meta {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.375rem !important;
-        width: 100% !important;
-        justify-content: flex-start !important;
-    }
-
-    .page-chat-view .item-info.recruit .meta>p {
-        margin: 0 !important;
-        font-size: 1rem !important;
-        line-height: 1.4 !important;
-    }
-
-    .page-chat-view .item-info.recruit .meta>span {
-        margin: 0 !important;
-        font-size: 0.875rem !important;
-    }
-
-    /* 급여 유형(period)을 메타 라인의 오른쪽 끝으로 이동 - 수평 정렬 */
-    .page-chat-view .item-info.recruit .meta .period {
-        margin-left: auto !important;
-        text-align: right !important;
-        font-size: 0.875rem !important;
-    }
-
-    /* area-pay 영역 균형 배치 */
-    .page-chat-view .item-info.recruit .area-pay {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        gap: 0.5rem !important;
-        width: 100% !important;
-    }
-
-    .page-chat-view .item-info.recruit .area-pay .area {
-        flex: 1 !important;
-        margin: 0 !important;
-        font-size: 1rem !important;
-        text-align: left !important;
-    }
-
-    .page-chat-view .item-info.recruit .area-pay .amount {
-        flex-shrink: 0 !important;
-        margin: 0 !important;
-        font-size: 1rem !important;
-        text-align: right !important;
-        font-weight: 500 !important;
-    }
-
-    /* person 카드 레이아웃 균형 개선 - 세로축 중앙 정렬 및 간격 */
-    .page-chat-view .item-info.person {
-        display: flex !important;
-        align-items: center !important;
-        width: 100% !important;
-        gap: 1rem !important;
-    }
-
-    /* person 카드 패딩 축소 (오른쪽/아래) */
-    .page-chat-view .item-info.person.angle-link {
-        padding-right: 1.5rem !important;
-        padding-bottom: 0.75rem !important;
-    }
-
-    /* person content-wrap 균형적 가로 배치 */
-    .page-chat-view .item-info.person .content-wrap {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        justify-content: space-between !important;
-        gap: 0.5rem !important;
-        flex: 1 !important;
-    }
-
-    /* person 메인 CSS 기본 마진 무효화 */
-    .page-chat-view .item-info.person .content-wrap>* {
-        margin: 0 !important;
-    }
-
-    /* person meta top 영역 균형 배치 */
-    .page-chat-view .item-info.person .meta.top {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        width: 100% !important;
-    }
-
-    /* person category와 condition 균형 배치 */
-    .page-chat-view .item-info.person .meta.top .category {
-        margin: 0 !important;
-        flex-shrink: 0 !important;
-    }
-
-    .page-chat-view .item-info.person .meta.top .condition {
-        margin: 0 0 0 auto !important;
-        flex: 0 0 auto !important;
-    }
-
-    .page-chat-view .item-info.person .meta.top .condition .working-time {
-        margin: 0 !important;
-    }
-
-    /* person title 영역 균형 */
-    .page-chat-view .item-info.person .title-wrap {
-        margin: 0 !important;
-    }
-
-    .page-chat-view .item-info.person .title {
-        margin: 0 !important;
-        font-size: 1.3rem !important;
-        line-height: 1.4 !important;
-    }
-
-    /* person working-day 요일 아이콘 크기 작고 균형 */
-    .page-chat-view .item-info.person .working-day {
-        margin: 0 !important;
-        display: flex !important;
-        gap: 0.25rem !important;
-    }
-
-    .page-chat-view .item-info.person .working-day>li {
-        width: 24px !important;
-        height: 24px !important;
-        line-height: 24px !important;
-        font-size: 0.75rem !important;
-        margin: 0 !important;
-    }
-
-    /* person meta 영역 완전 정렬 - 수직 중앙 정렬 */
-    .page-chat-view .item-info.person .meta {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.375rem !important;
-        width: 100% !important;
-        justify-content: flex-start !important;
-    }
-
-    .page-chat-view .item-info.person .meta>p {
-        margin: 0 !important;
-        font-size: 1rem !important;
-        line-height: 1.4 !important;
-    }
-
-    .page-chat-view .item-info.person .meta>span {
-        margin: 0 !important;
-        font-size: 0.875rem !important;
-    }
-
-    /* person period 오른쪽 정렬 - 수평 정렬 */
-    .page-chat-view .item-info.person .meta .period {
-        margin-left: auto !important;
-        text-align: right !important;
-        font-size: 1rem !important;
-    }
-
-    /* 채팅 상단 나가기 버튼 - [임시 주석처리: 나중에 다시 사용 예정] */
-    /*
-    .top-bar--chat {
-        display: flex;
-        align-items: center;
-    }
-
-    .top-bar--chat .title {
-        flex: 1;
-        max-width: none;
-        text-align: left;
-        white-space: normal;
-        word-break: keep-all;
-    }
-
-    .top-bar--chat .btn-exit {
-        margin-left: auto;
-
-        display: flex;
-        align-items: center;
-    }
-
-    .top-bar--chat .btn-exit img {
-        width: 1.5rem;
-        height: 1.5rem;
-        display: block;
-    }
-    */
-
-    /* page-chat-view 넓이를 web 버전과 동일하게 설정 */
-    .page-chat-view {
-        max-width: 500px;
-        margin: 0 auto;
-        width: 100%;
-    }
-
-    /* 소프트키보드 올라왔을 때 page-content 전체 스크롤 활성화 */
-    .page-chat-view {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .page-chat-view .page-content {
-        overflow: visible;
-    }
-
-    .page.page-chat-view {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .chat-view-body {
-        overflow: visible;
-    }
-
-    .chat-view-body .content {
-        overflow: visible;
-    }
-    .result-list-card .content-info {
-        padding:0;
-    }
-    .result-list-card .content-li  {
-        overflow:unset;
-        margin-bottom: 0;
-    }
-</style>
-
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
     (function() {
@@ -565,6 +192,85 @@
     })();
 </script>
 
+<script>
+  // 채팅 뷰의 인재 카드 렌더링 함수
+  (function() {
+    function renderChatResumeCard() {
+      var tpl = document.getElementById('tpl_chat_resume');
+      var listContainer = document.getElementById('chatResumeList');
+
+      if (!tpl || !listContainer || typeof chatResumeData === 'undefined') {
+        return;
+      }
+
+      var row = chatResumeData;
+      var $c = tpl.innerHTML;
+
+      $c = $c.replaceAll('{{ru_idx}}',        row.ru_idx        || '');
+      $c = $c.replaceAll('{{ru_resume_img}}', row.ru_resume_img || '');
+      $c = $c.replaceAll('{{book_yn}}',       row.book_yn       || '');
+      $c = $c.replaceAll('{{ru_work_img}}',   row.ru_work_img   || '');
+      $c = $c.replaceAll('{{mm_name}}',       row.mm_name       || '');
+      $c = $c.replaceAll('{{ru_week}}',       row.ru_week       || '');
+      $c = $c.replaceAll('{{mm_nation}}',     row.mm_nation     || '');
+      $c = $c.replaceAll('{{ma_age}}',        row.ma_age        || '');
+      $c = $c.replaceAll('{{ru_price_type}}', row.ru_price_type || '');
+      $c = $c.replaceAll('{{ru_work_type}}',  row.ru_work_type  || '');
+      $c = $c.replaceAll('{{ad_addr}}',       row.ad_addr       || '');
+
+      listContainer.innerHTML = $c;
+    }
+
+    // DOM이 준비되면 렌더링
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderChatResumeCard);
+    } else {
+      renderChatResumeCard();
+    }
+  })();
+
+  // MEM(개인) 사용자 - recruit_card_template.php 렌더링
+  (function() {
+    var recruitData = <?= isset($recruit) && !empty($recruit) ? json_encode($recruit, JSON_UNESCAPED_UNICODE) : 'null' ?>;
+
+    if (!recruitData) {
+      return; // recruit 데이터가 없으면 렌더링하지 않음
+    }
+
+    function renderRecruitCard() {
+      var template = document.querySelector('template[id^="tpl_"]');
+      if (!template) {
+        return;
+      }
+
+      var html = template.innerHTML
+        .replaceAll('{{rc_idx}}', recruitData.rc_idx || '')
+        .replaceAll('{{rt_recruit_img}}', recruitData.rt_recruit_img || '')
+        .replaceAll('{{rt_work_img}}', recruitData.rt_work_img || '')
+        .replaceAll('{{rt_work_type}}', recruitData.rt_work_type || '')
+        .replaceAll('{{rc_name}}', recruitData.rc_name || '')
+        .replaceAll('{{rc_nation_nm}}', recruitData.rc_nation_nm || '')
+        .replaceAll('{{rc_age_nm}}', recruitData.rc_age_nm || '')
+        .replaceAll('{{ad_addr}}', fRemoveBigAdrJS(recruitData.ad_addr || ''))
+        .replaceAll('{{book_yn}}', (recruitData.book_yn === 'Y') ? 'on' : '')
+        .replaceAll('{{rc_price_type}}', recruitData.rt_price_type || '')
+        .replaceAll('{{rc_price_pay}}', recruitData.rt_price_pay || '');
+
+      var listContainer = document.getElementById('chatRecruitCardList');
+      if (listContainer) {
+        listContainer.innerHTML = html;
+      }
+    }
+
+    // DOM이 준비되면 렌더링
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderRecruitCard);
+    } else {
+      renderRecruitCard();
+    }
+  })();
+</script>
+
 <div class="page page-chat-view">
     <div class="top-bar top-bar--chat">
         <!--<a href="javascript:_replace('/chat/chat_list');" class="btn-replace"><span class="sr-text">이전으로</span></a>-->
@@ -587,16 +293,53 @@
                 <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
                 <?php
                 // 이름 정규화: ru_name이 없으면 mm_name 사용
-                $row = $resume;
-                if (empty($row['ru_name'])) {
-                    $row['ru_name'] = isset($row['mm_name']) ? $row['mm_name'] : '';
+                $chatRow = $resume;
+                if (empty($chatRow['ru_name'])) {
+                    $chatRow['ru_name'] = isset($chatRow['mm_name']) ? $chatRow['mm_name'] : '';
                 }
-                $mm_type           = 'COMP';
-                $show_recomm_badge = true;
+
+                // 나이 계산 (resume_card.php와 동일한 로직)
+                $_chat_age = '';
+                if (!empty($chatRow['mm_birth'])) {
+                    $_chat_age = getKoreanAge($chatRow['mm_birth']);
+                } else {
+                    $_chat_age = isset($chatRow['ma_age']) ? $chatRow['ma_age'] : '';
+                }
                 ?>
-                <ul class="result-list result-list-card">
-                    <?php include(APPPATH . 'views/mobile/_partial/resume_card.php'); ?>
-                </ul>
+                <!-- 채팅 인재 카드 데이터를 JS에 전달 -->
+                <script>
+                  var chatResumeData = <?php
+                      // resume_proc.php와 동일한 변환 적용
+                      $ru_work_type_html = getWorkTypeWithColor(isset($chatRow['ru_work_type']) ? $chatRow['ru_work_type'] : '');
+                      $ru_price_type_html = getPriceType(isset($chatRow['ru_price_type']) ? $chatRow['ru_price_type'] : '');
+
+                      echo json_encode([
+                          'ru_idx'        => isset($chatRow['ru_idx']) ? $chatRow['ru_idx'] : '',
+                          'mm_idx'        => isset($chatRow['mm_idx']) ? $chatRow['mm_idx'] : '',
+                          'ru_resume_img' => getResumeImg($chatRow),
+                          'ru_work_img'   => getWorkingImg(isset($chatRow['ru_work']) ? $chatRow['ru_work'] : ''),
+                          'mm_name'       => isset($chatRow['ru_name']) ? $chatRow['ru_name'] : '',
+                          'ru_week'       => getWeekYoil(isset($chatRow['ru_week']) ? $chatRow['ru_week'] : ''),
+                          'mm_nation'     => isset($chatRow['mm_nation']) && !empty($chatRow['mm_nation']) ? $chatRow['mm_nation'] : '',
+                          'ma_age'        => ($_chat_age !== '' && $_chat_age != 0) ? $_chat_age . '대' : '',
+                          'ru_price_type' => $ru_price_type_html,
+                          'ru_work_type'  => $ru_work_type_html,
+                          'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
+                          'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
+                      ]);
+                  ?>;
+                </script>
+
+                <!-- 인재 카드 템플릿 포함 -->
+                <?php
+                  $tpl_id           = 'tpl_chat_resume';
+                  $tpl_recomm_class = true;
+                  $tpl_show_mm_idx  = false;
+                  include(APPPATH . 'views/mobile/_partial/resume_card_template.php');
+                ?>
+
+                <!-- 채팅 인재 카드 렌더링 컨테이너 -->
+                <ul class="result-list result-list-card" id="chatResumeList"></ul>
                 <!-- //인재정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
@@ -744,21 +487,9 @@
                 <!-- //일정 -->
             <?php else : ?>
                 <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
-                <?php
-                // 국적 표시 정규화 후 공통 카드 파셜에 전달
-                $row = $recruit;
-                if ($row['rc_nation_nm'] == "무관" || $row['rc_nation_nm'] == "내국인,외국인") {
-                    $row['rc_nation_nm'] = "국적무관";
-                }
-                $card_options = [
-                    'show_bookmark' => true,
-                    'use_js_addr'   => true,
-                    'recomm_badge'  => true,
-                ];
-                ?>
-                <ul class="result-list-card">
-                    <?php include(APPPATH . 'views/mobile/_partial/recruit_card_row.php'); ?>
-                </ul>
+                <!-- 채용정보 템플릿 -->
+                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
+                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
                 <!-- //채용정보 -->
                 <div id="mem_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -799,93 +530,6 @@
     </div><!-- //page-content -->
 </div>
 
-<style>
-    /* 채팅 상세 패널 헤더 패딩 제거 */
-    #chatSummary .panel-header {
-        padding: 1rem 0 0;
-    }
-
-    /* secondary-title 왼쪽에 프로필 이미지 표시 (인재정보 패널) */
-    #chatSummary .item-info-summary .title-wrap .secondary-title {
-        display: flex;
-        align-items: center;
-        min-height: 2.5rem;
-    }
-
-    /* person-meta 패딩 제거 및 수평 정렬 */
-    #chatSummary .person-meta {
-        padding: 0;
-        margin: 0;
-        margin-bottom: -1.5rem;
-        align-items: center;
-    }
-
-    /* person-meta 내부 요소 수평 정렬 */
-    #chatSummary .person-meta p {
-        display: inline-flex;
-        align-items: center;
-        margin: 0;
-        vertical-align: middle;
-    }
-
-    /* ru_work 아이콘과 다음 요소 사이 간격 (이미지를 포함하는 p 태그에만) */
-    #chatSummary .person-meta p:has(img),
-    #chatSummary .person-meta p:has(svg) {
-        margin-right: 0.5rem;
-    }
-
-    #chatSummary .person-meta span {
-        display: inline-flex;
-        align-items: center;
-        margin: 0;
-        vertical-align: middle;
-    }
-
-    /* 인재정보 패널 폰트 크기 증가 */
-    #chatSummary .item-info-summary .secondary-title {
-        font-size: 1.5rem;
-    }
-
-    #chatSummary .item-info-summary .person-meta {
-        font-size: 1rem;
-    }
-
-    #chatSummary .item-info-summary .info-table .label {
-        font-size: 1rem;
-    }
-
-    #chatSummary .item-info-summary .info-table .value {
-        font-size: 1.125rem;
-    }
-
-    #chatSummary .item-info-summary .info-table .summary {
-        font-size: 1.125rem;
-    }
-
-    /* 자격증이 1개일 때 | 구분자 숨기기 */
-    #chatSummary .period-list.single-item span:first-child:after {
-        content: none;
-    }
-
-    /* 즐겨찾기 버튼 z-index 조정 */
-    .chat-view-header .result-list-card .img .btn-bookmark {
-        position: absolute;
-        z-index: 3;
-    }
-
-    /* 채팅 메시지 버블 내용 폰트 크기 설정 및 유동적 너비 */
-    .page-chat-view .chat-view-body .msg-item.chat-bubble .bubble-content {
-        font-size: 15px;
-        /* 고정 너비 제거하고 내용에 따라 유동적으로 변경 */
-        width: auto !important;
-        min-width: 60px; /* 최소 너비 설정 (너무 작아지지 않도록) */
-        max-width: 70%; /* 최대 너비 설정 (화면의 70%를 넘지 않도록) */
-        /* 긴 텍스트 줄바꿈 처리: word-break: keep-all과 함께 사용하여 한글은 단어 단위로, 영문/숫자는 강제 줄바꿈 */
-        overflow-wrap: break-word;
-        word-wrap: break-word; /* 구형 브라우저 호환성 */
-    }
-
-</style>
 
 <?php if ($user_type == "COMP") : ?>
     <div id="chatSummary" class="layer-panel card-type" tabindex="-1">

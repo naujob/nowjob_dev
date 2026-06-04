@@ -1279,3 +1279,38 @@ function getRandomCompDesc($comp_name)
 	// 회사명에만 색상 적용 + 랜덤 설명 조합
 	return '<span style="color: #222;">' . $comp_name . '</span>' . '<span style="color: #666;">' . $descriptions[$randomIndex] . '</span>';
 }
+
+/**
+ * 나이 범위를 포맷팅된 문자열로 변환
+ * @param string $rc_sage 시작 나이 (예: "20", "0", "")
+ * @param string $rc_eage 종료 나이 (예: "50", "0", "")
+ * @return string 포맷팅된 나이 문자열
+ * 예: ("20", "50") → "20 ~ 50대"
+ *     ("20", "") → "20세 ~"
+ *     ("", "50") → "~ 50대"
+ *     ("", "") → "나이무관"
+ *     ("0", "0") → "나이무관"
+ */
+function formatAgeRange($rc_sage, $rc_eage)
+{
+	$sage = trim((string)$rc_sage);
+	$eage = trim((string)$rc_eage);
+
+	if (($sage === '' || $sage === '0') && ($eage === '' || $eage === '0')) {
+		return '나이무관';
+	}
+
+	if ($sage !== '' && $sage !== '0' && $eage !== '' && $eage !== '0') {
+		return $sage . ' ~ ' . $eage . '대';
+	}
+
+	if ($sage !== '' && $sage !== '0') {
+		return $sage . '세 ~';
+	}
+
+	if ($eage !== '' && $eage !== '0') {
+		return '~ ' . $eage . '대';
+	}
+
+	return '나이무관';
+}

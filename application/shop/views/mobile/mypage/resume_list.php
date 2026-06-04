@@ -17,7 +17,7 @@
                                     <span class="sr-text">선택</span>
                                 </label>
                                 <a href="/mypage/resume_view/<?= $row["ru_idx"] ?>" class="angle-link">
-                                    <strong><?= $row["ru_name"] ?></strong>
+                                    <strong class="resume-name"><?= $row["ru_name"] ?></strong>
                                     <?php if ($row["ru_show_yn"] == "Y") : ?>
                                         <em class="important-label">대표</em>
                                     <?php endif; ?>

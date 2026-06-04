@@ -236,6 +236,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
+			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 		}
 		$result["list"] = $temp_list;
 
@@ -400,6 +401,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
+			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 		}
 		$result["list"] = $temp_list;
 
@@ -459,6 +461,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
 			$temp_list[$key]["up_dt"] = getTimeText($row["up_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
+			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 		}
 		$result["list"] = $temp_list;
 		// JavaScript 페이지네이션용 total 필드 추가
@@ -498,6 +501,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_price"] = getRecuitPrice($row);
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
+			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 		}
 		$result["list"] = $temp_list;
 
@@ -586,11 +590,12 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
-			//$temp_list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"],$row);
-			//$temp_list[$key]["rt_price"] = getRecuitPrice($row);
+			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
+			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
+			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 		}
 		$result["list"] = $temp_list;
 
@@ -651,6 +656,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
+			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 		}
 		$result["list"] = $temp_list;
 
@@ -709,6 +715,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
+			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 		}
 		$result["list"] = $temp_list;
 

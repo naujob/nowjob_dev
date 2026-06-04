@@ -305,6 +305,8 @@ function safeTrim(value) {
   return String(value).trim();
 }
 
+
+
 /**
  * 추천 인재 목록 로드 공통 함수
  * @param {Object} options - 옵션 객체

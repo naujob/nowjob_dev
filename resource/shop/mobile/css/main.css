@@ -31,7 +31,18 @@ div[data-rc_idx],
 *:active {
     -webkit-tap-highlight-color: transparent !important;
 }
-
+em {
+    font-style: normal;
+    
+}
+em.on {
+    color: #1B9D7D;
+    
+}
+em.off {
+    color: #222;
+    
+}
 .category-label-row {
     display: flex;
     justify-content: space-between;
@@ -1286,7 +1297,7 @@ object {
     width: 100%;
     min-height: 18.25rem;
     padding: 8px 10px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #000;
     border-radius: 3px;
@@ -5310,7 +5321,7 @@ body {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    padding: 0 0 12rem;  /* 광고가 페이지네이션을 덮지 않도록 하단 여백 증가 */
+    padding: 0 0 6rem;  /* 광고가 페이지네이션을 덮지 않도록 하단 여백 증가 */
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;
@@ -7100,7 +7111,7 @@ form#frm {
 
 .result-list-card .content-info .summary3 em.wtype2 {
     color: #F86048;
- 
+    padding-left: 5px;
     
 }
 
@@ -7158,6 +7169,11 @@ form#frm {
     color: #fff;
     border-color: transparent;
     background-color: #1B9D7D;
+}
+
+/* 채팅화면 채용카드 - summary 폰트 축소 (좁은 컨테이너 대응) */
+.page-chat-view .result-list-card .content-info .summary {
+    font-size: 15px;
 }
 
 .item-info {
@@ -8241,7 +8257,7 @@ form#frm {
 
 .view-title {
 
-    font-size: 1.4375rem;
+    font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.3333333333;
 }
@@ -9384,11 +9400,7 @@ form#frm {
     margin-right: 49.2753623188vw;
 }
 
-.page-map .working-day>li {
-    width: 1.4375rem;
-    height: 1.4375rem;
-    line-height: 2.1;
-}
+
 
 .page-map .item-info .btn {
     margin-top: -1rem;
@@ -12672,7 +12684,14 @@ form#frm {
     margin: auto;
     border-right: 1px solid #777777;
 }
-
+.pricetype em {
+    font-style: normal;
+    position: relative;
+    color: #1b9d7d;
+}
+.pricetype  em.off {
+    color: #222;
+  }
 /* .desc 내 근무형태 - 우상단 절대위치 */
 .content-info .desc .summary3 {
     position: absolute;
@@ -12707,7 +12726,8 @@ form#frm {
 
 .content-info .desc .summary3 .worktype em.wtype0 { color: #000; }
 .content-info .desc .summary3 .worktype em.wtype1 { color: #3a70db; }
-.content-info .desc .summary3 .worktype em.wtype2 { color: #F86048; }
+.content-info .desc .summary3 .worktype em.wtype2 { 
+    color: #F86048; padding-left: 5px;}
 .content-info .desc .summary3 .worktype em.wtype3 { color: #1B9D7D; }
 
 .content-info .desc .summary3 .worktype em:not(:last-child) {
@@ -12929,5 +12949,445 @@ form#frm {
 .hot-list .slider-wrap,
 .recomm-slider .slider-wrap {
     flex: 1;
+}
+
+/* ===== 채팅 뷰 전용 스타일 ===== */
+
+/* angle-link 기본 화살표 제거 (채팅 뷰 전용 강제 덮어쓰기) */
+.page-chat-view .angle-link {
+    background: none !important;
+}
+
+/* thumb 이미지 라운드 */
+.page-chat-view .thumb img {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* 채팅 뷰 전용: recruit 카드 패딩 축소 (오른쪽/아래) */
+.page-chat-view .item-info.recruit.angle-link {
+    padding-right: 1.5rem !important;
+    padding-bottom: 0.75rem !important;
+}
+
+/* 메인 CSS 기본 마진 무효화 */
+.page-chat-view .item-info.recruit .content-wrap>* {
+    margin: 0 !important;
+}
+
+/* 썸네일 래퍼 크기 조정 - 110x110px (6.875rem) 정사각형 */
+.page-chat-view .thumb-wrap {
+    width: 6.875rem !important;
+    height: 7.875rem !important;
+    flex-shrink: 0 !important;
+}
+
+/* thumb 컨테이너 크기 조정 - main.css의 padding 방식 유지 */
+.page-chat-view .thumb {
+    width: 6.875rem !important;
+    height: 0 !important;
+    padding: 112% 0 0 !important;
+    position: relative !important;
+}
+
+/* 이미지 꽉 채우기 - object-fit: cover, main.css의 중앙 정렬 방식 유지 */
+.page-chat-view .thumb img {
+    border-radius: 8px !important;
+    display: block !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    -webkit-transform: translate(-50%, -50%) !important;
+    -ms-transform: translate(-50%, -50%) !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* 배경형 썸네일 (이미지를 background로 표시) */
+.page-chat-view .thumb.thumb-bg {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+.page-chat-view .thumb.thumb-bg a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* recruit 카드 레이아웃 균형 개선 - 세로축 중앙 정렬 및 간격 */
+.page-chat-view .item-info.recruit {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 1rem !important;
+}
+
+/* recruit content-wrap 균형적 가로 배치 */
+.page-chat-view .item-info.recruit .content-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    flex: 1 !important;
+}
+
+/* meta top 영역 균형 배치 */
+.page-chat-view .item-info.recruit .meta.top {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+}
+
+/* category와 working-time 균형 배치 */
+.page-chat-view .item-info.recruit .meta.top .category {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.page-chat-view .item-info.recruit .meta.top .working-time {
+    margin: 0 0 0 auto !important;
+    flex: 0 0 auto !important;
+}
+
+/* title 영역 균형 */
+.page-chat-view .item-info.recruit .title {
+    margin: 0 !important;
+    font-size: 1.3rem !important;
+    line-height: 1.4 !important;
+}
+
+/* meta 영역 완전 정렬 - 수직 중앙 정렬 */
+.page-chat-view .item-info.recruit .meta {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+}
+
+.page-chat-view .item-info.recruit .meta>p {
+    margin: 0 !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+}
+
+.page-chat-view .item-info.recruit .meta>span {
+    margin: 0 !important;
+    font-size: 0.875rem !important;
+}
+
+/* 급여 유형(period)을 메타 라인의 오른쪽 끝으로 이동 - 수평 정렬 */
+.page-chat-view .item-info.recruit .meta .period {
+    margin-left: auto !important;
+    text-align: right !important;
+    font-size: 0.875rem !important;
+}
+
+/* area-pay 영역 균형 배치 */
+.page-chat-view .item-info.recruit .area-pay {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+}
+
+.page-chat-view .item-info.recruit .area-pay .area {
+    flex: 1 !important;
+    margin: 0 !important;
+    font-size: 1rem !important;
+    text-align: left !important;
+}
+
+.page-chat-view .item-info.recruit .area-pay .amount {
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    font-size: 1rem !important;
+    text-align: right !important;
+    font-weight: 500 !important;
+}
+
+/* person 카드 레이아웃 균형 개선 - 세로축 중앙 정렬 및 간격 */
+.page-chat-view .item-info.person {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 1rem !important;
+}
+
+/* person 카드 패딩 축소 (오른쪽/아래) */
+.page-chat-view .item-info.person.angle-link {
+    padding-right: 1.5rem !important;
+    padding-bottom: 0.75rem !important;
+}
+
+/* person content-wrap 균형적 가로 배치 */
+.page-chat-view .item-info.person .content-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    flex: 1 !important;
+}
+
+/* person 메인 CSS 기본 마진 무효화 */
+.page-chat-view .item-info.person .content-wrap>* {
+    margin: 0 !important;
+}
+
+/* person meta top 영역 균형 배치 */
+.page-chat-view .item-info.person .meta.top {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+}
+
+/* person category와 condition 균형 배치 */
+.page-chat-view .item-info.person .meta.top .category {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.page-chat-view .item-info.person .meta.top .condition {
+    margin: 0 0 0 auto !important;
+    flex: 0 0 auto !important;
+}
+
+.page-chat-view .item-info.person .meta.top .condition .working-time {
+    margin: 0 !important;
+}
+
+/* person title 영역 균형 */
+.page-chat-view .item-info.person .title-wrap {
+    margin: 0 !important;
+}
+
+.page-chat-view .item-info.person .title {
+    margin: 0 !important;
+    font-size: 1.3rem !important;
+    line-height: 1.4 !important;
+}
+
+/* person working-day 요일 아이콘 크기 작고 균형 */
+.page-chat-view .item-info.person .working-day {
+    margin: 0 !important;
+    display: flex !important;
+    gap: 0.25rem !important;
+}
+
+.page-chat-view .item-info.person .working-day>li {
+    width: 24px !important;
+    height: 24px !important;
+    line-height: 24px !important;
+    font-size: 0.75rem !important;
+    margin: 0 !important;
+}
+
+/* person meta 영역 완전 정렬 - 수직 중앙 정렬 */
+.page-chat-view .item-info.person .meta {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+}
+
+.page-chat-view .item-info.person .meta>p {
+    margin: 0 !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+}
+
+.page-chat-view .item-info.person .meta>span {
+    margin: 0 !important;
+    font-size: 0.875rem !important;
+}
+
+/* person period 오른쪽 정렬 - 수평 정렬 */
+.page-chat-view .item-info.person .meta .period {
+    margin-left: auto !important;
+    text-align: right !important;
+    font-size: 1rem !important;
+}
+
+/* page-chat-view 넓이를 web 버전과 동일하게 설정 */
+.page-chat-view {
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* 소프트키보드 올라왔을 때 page-content 전체 스크롤 활성화 */
+.page-chat-view {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.page-chat-view .page-content {
+    overflow: visible;
+}
+
+.page.page-chat-view {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.chat-view-body {
+    overflow: visible;
+}
+
+.chat-view-body .content {
+    overflow: visible;
+}
+
+/* 채팅 뷰의 카드 컨테이너 패딩 및 overflow 오버라이드 */
+.page-chat-view .result-list-card .content-info {
+    padding: 0;
+}
+
+.page-chat-view .result-list-card .content-li {
+    overflow: unset;
+    margin-bottom: 0;
+}
+
+/* 채팅 상세 패널 헤더 패딩 제거 */
+#chatSummary .panel-header {
+    padding: 1rem 0 0;
+}
+
+/* secondary-title 왼쪽에 프로필 이미지 표시 (인재정보 패널) */
+#chatSummary .item-info-summary .title-wrap .secondary-title {
+    display: flex;
+    align-items: center;
+    min-height: 2.5rem;
+}
+
+/* person-meta 패딩 제거 및 수평 정렬 */
+#chatSummary .person-meta {
+    padding: 0;
+    margin: 0;
+    margin-bottom: -1.5rem;
+    align-items: center;
+}
+
+/* person-meta 내부 요소 수평 정렬 */
+#chatSummary .person-meta p {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* ru_work 아이콘과 다음 요소 사이 간격 (이미지를 포함하는 p 태그에만) */
+#chatSummary .person-meta p:has(img),
+#chatSummary .person-meta p:has(svg) {
+    margin-right: 0.5rem;
+}
+
+#chatSummary .person-meta span {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* 인재정보 패널 폰트 크기 증가 */
+#chatSummary .item-info-summary .secondary-title {
+    font-size: 1.5rem;
+}
+
+#chatSummary .item-info-summary .person-meta {
+    font-size: 1rem;
+}
+
+#chatSummary .item-info-summary .info-table .label {
+    font-size: 1rem;
+}
+
+#chatSummary .item-info-summary .info-table .value {
+    font-size: 1.125rem;
+}
+
+#chatSummary .item-info-summary .info-table .summary {
+    font-size: 1.125rem;
+}
+
+/* 자격증이 1개일 때 | 구분자 숨기기 */
+#chatSummary .period-list.single-item span:first-child:after {
+    content: none;
+}
+
+/* 채팅 상세 패널 내 em 기울임 제거 */
+#chatSummary em,
+#chatSummary .pay .amount {
+    font-style: normal !important;
+}
+
+/* info-table 값 폰트 굵기 제거 */
+.page-chat-view .info-table .value,
+#chatSummary .info-table .value {
+    font-weight: normal !important;
+}
+
+/* 채용정보 라벨/링크 1줄 배치 */
+#chatSummary .title-wrap .label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.7rem;
+}
+
+#chatSummary .title-wrap .label-row .line-label {
+    margin: 0;
+}
+
+#chatSummary .title-wrap .label-row .view-all {
+    margin: 0;
+}
+
+/* 즐겨찾기 버튼 z-index 조정 */
+.chat-view-header .result-list-card .img .btn-bookmark {
+    position: absolute;
+    z-index: 3;
+}
+
+/* 채팅 메시지 버블 내용 폰트 크기 설정 및 유동적 너비 */
+.page-chat-view .chat-view-body .msg-item.chat-bubble .bubble-content {
+    font-size: 15px;
+    width: auto !important;
+    min-width: 60px;
+    max-width: 70%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* 채용공고명, 이력서명 말줄임표 처리 */
+.recruit-name,
+.resume-name {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recruit-name {
+    max-width: calc(100% - 40px);
+}
+
+.resume-name {
+    max-width: calc(100% - 60px);
 }
 

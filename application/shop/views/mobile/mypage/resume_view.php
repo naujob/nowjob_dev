@@ -168,7 +168,8 @@
             <div class="container">
                 <h3 class="secondary-title">자기소개</h3>
                 <div class="introduce-wrap">
-                    <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
+                 
+                     <p><?= nl2br(htmlspecialchars($info["ru_desc"])) ?></p>
                 </div>
                 <div class="hashtag">
                     <?= getMyType($info["ru_my_type"]) ?>

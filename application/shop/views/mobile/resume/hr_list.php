@@ -6,14 +6,14 @@ if (count($banner_list) > 0) {
 }
 ?>
 <style>
-  .pricetype  em {
+  /* .pricetype  em {
     font-style: normal;
     position: relative;
     color: #1b9d7d;
   }
   .pricetype  em.off {
     color: #222;
-  }
+  } */
   /* 카드 스타일은 main.css의 .result-list-card 섹션에서 관리 */
 
 
@@ -413,7 +413,6 @@ if (count($banner_list) > 0) {
 
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
-    display: none;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -432,16 +431,13 @@ if (count($banner_list) > 0) {
   }
 
   .ad-item-adsense .adsense-wrapper {
-    display: none;
     border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
     padding: 0;
     background-color: #fafafa;
-
   }
 
   .ad-item-adsense ins.adsbygoogle {
-    display: none;
     background-color: transparent;
   }
 </style>
@@ -549,7 +545,7 @@ if (count($banner_list) > 0) {
         }
       </style>
       <div class="container">
-        <h2 class="secondary-title">인재공고</h2>
+        <h2 class="secondary-title">인재정보</h2>
         <ol class="result-list result-list-card" id="ajaxList" data-page="1">
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
@@ -832,8 +828,9 @@ $tpl_show_mm_idx = true; ?>
   function showBoardList(list) {
 
     list.forEach(function(row, index) {
-      var $clone = $("#tpl_list").clone();
-      var $content = $clone.html();
+      // template 태그에서 내용 추출
+      var templateEl = document.getElementById("tpl_list");
+      var $content = templateEl ? templateEl.innerHTML : "";
 
       // $content가 null이거나 undefined인 경우 처리
       if (!$content || typeof $content !== 'string') {
@@ -873,14 +870,12 @@ $tpl_show_mm_idx = true; ?>
         $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "대");
       }
 
-      $content = $content.replaceAll("{{ru_price_type}}", (row.ru_price_type));
-      $content = $content.replaceAll("{{ru_work_type}}", getWorkType(row.ru_work_type));
+      $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
+      $content = $content.replaceAll("{{ru_work_type}}", (row.ru_work_type));
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
       $content = $content.replaceAll("{{ad_addr}}", row.ad_addr ? fRemoveBigAdrJS(row.ad_addr) : '');
 
-      $clone.html($content);
-
-      $(list_id).append($clone.html());
+      $(list_id).append($content);
     });
 
     // 페이지의 마지막에 광고 삽입
@@ -894,25 +889,48 @@ $tpl_show_mm_idx = true; ?>
 
   // Google AdSense 인피드 광고 삽입 함수
   function insertAdsenseAd() {
-    var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
-      '<div class="adsense-wrapper" style="position: relative;">' +
-      '<ins class="adsbygoogle" style="display:block"' +
-      ' data-ad-format="fluid"' +
-      ' data-ad-layout-key="-hd+j-2v-68+mb"' +
-      ' data-ad-client="ca-pub-3622369584322145"' +
-      ' data-ad-slot="5890695133"></ins>' +
-      '</div>' +
-      '</li>';
-    $(list_id).append(adHtml);
+    console.log('[AdSense] insertAdsenseAd() 함수 실행');
 
-    // AdSense 광고 로드 (공식 코드)
-    setTimeout(function() {
-      try {
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
+    // 도메인 환경 판별
+    var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+    console.log('[AdSense] hostname:', window.location.hostname);
+    console.log('[AdSense] pathname:', window.location.pathname);
+    console.log('[AdSense] isDevEnv:', isDevEnv);
 
-      }
-    }, 100);
+    if (isDevEnv) {
+      console.log('[AdSense] 개발 환경 - 플레이스홀더 표시');
+      // 개발 환경에서는 CSS로만 자리 표시
+      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
+        '광고 자리 (개발 환경)' +
+        '</li>';
+      $(list_id).append(adHtml);
+    } else {
+      console.log('[AdSense] 운영 환경 - 실제 광고 로드');
+      // 운영 환경에서 실제 광고 로드
+      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
+        '<div class="adsense-wrapper" style="position: relative;">' +
+        '<ins class="adsbygoogle" style="display:block"' +
+        ' data-ad-format="fluid"' +
+        ' data-ad-layout-key="-hd+j-2v-68+mb"' +
+        ' data-ad-client="ca-pub-7573726661605583"' +
+        ' data-ad-slot="9872127954"></ins>' +
+        '</div>' +
+        '</li>';
+      $(list_id).append(adHtml);
+      console.log('[AdSense] 광고 HTML 삽입 완료');
+
+      // AdSense 광고 로드 (공식 코드)
+      setTimeout(function() {
+        try {
+          console.log('[AdSense] adsbygoogle.push() 호출');
+          console.log('[AdSense] window.adsbygoogle:', window.adsbygoogle);
+          (adsbygoogle = window.adsbygoogle || []).push({});
+          console.log('[AdSense] push 성공');
+        } catch (e) {
+          console.error('[AdSense] push 실패:', e);
+        }
+      }, 100);
+    }
   }
 
 
@@ -934,13 +952,26 @@ $tpl_show_mm_idx = true; ?>
     if (!work_type) {
       return "";
     }
-    const matches = work_type.match(/<span>(.*?)<\/span>/g);
 
-    if (!matches) {
+    let items = [];
+
+    // HTML span 형식 처리
+    if (work_type.includes('<span>')) {
+      const matches = work_type.match(/<span>(.*?)<\/span>/g);
+      if (matches && matches.length > 0) {
+        items = matches.map(m => m.replace(/<\/?span>/g, '').trim());
+      }
+    } else {
+      // 쉼표로 구분된 일반 문자열 처리
+      items = work_type.split(',').map(item => item.trim()).filter(item => item);
+    }
+
+    if (items.length === 0) {
       return "";
     }
-    return matches.map(item => {
-      const text = item.replace(/<\/?span>/g, '').trim();
+
+    // 모든 값을 처리하여 HTML 생성
+    return items.map((text, index) => {
       let cls = '';
       if (text === '주간') {
         cls = 'wtype1';
@@ -948,15 +979,13 @@ $tpl_show_mm_idx = true; ?>
         cls = 'wtype2';
       } else if (text === '2교대') {
         cls = 'wtype3';
-      } else if (text === '근무협의' || text === '시간협의') {
-        // 근무협의는 근무형태가 3개 이상 선택된 경우 (시간협의도 호환성을 위해 처리)
-        cls = 'wtype0';
-        // 시간협의가 오면 근무협의로 변환
-        if (text === '시간협의') {
-          text = '근무협의';
-        }
       }
-      return `<em class="${cls}">${text}</em>`;
+      let result = `<em class="${cls}">${text}</em>`;
+      // 마지막 항목이 아니면 쉼표 추가
+      if (index < items.length - 1) {
+        result += ',';
+      }
+      return result;
     }).join('');
   }
 

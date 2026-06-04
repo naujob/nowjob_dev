@@ -261,6 +261,19 @@ class Chat extends CI_Controller
     if (($room && isset($room["rm_type"]) && $room["rm_type"] == "recruit") || ($final_rc_idx && $final_ru_idx)) {
       if ($final_rc_idx) {
         $data["recruit"] = $this->member_model->getRecruitDetail($final_rc_idx, $this->mm_idx);
+        // recruit_card_template.php 사용을 위한 변환된 필드 추가
+        if (isset($data["recruit"])) {
+          $row = $data["recruit"];
+          // 국적 표시 정규화
+          if ($row['rc_nation_nm'] == "무관" || $row['rc_nation_nm'] == "내국인,외국인") {
+            $data["recruit"]["rc_nation_nm"] = "국적무관";
+          }
+          $data["recruit"]["rt_recruit_img"] = getRecruitImg($row);
+          $data["recruit"]["rt_work_img"] = getWorkingImg($row["rc_work"]);
+          $data["recruit"]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
+          $data["recruit"]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
+          $data["recruit"]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"]);
+        }
       }
       if ($final_ru_idx) {
         $data["resume"] = $this->member_model->getResumeDetail($final_ru_idx, $this->mm_idx);

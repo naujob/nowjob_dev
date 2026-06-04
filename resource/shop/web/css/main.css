@@ -43,7 +43,15 @@ a {
     text-decoration: none;
     outline: 0;
 }
-
+em {
+    font-style: normal;
+}
+em.off {
+    color: #222;
+}
+em.on {
+    color: #1B9D7D;
+}
 img {
     max-width: 100%;
     height: auto;
@@ -13264,7 +13272,7 @@ body {
 }
 
 .worktype em.wtype0 {
-  color: #999;
+ 
 }
 
 .worktype em.wtype1 {

@@ -114,8 +114,9 @@ class Recruit extends CI_Controller
         $view_list[$key]["rt_recruit_img"] = getRecruitImg($row);
         $view_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
         $view_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
-        $view_list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
-        $view_list[$key]["rt_price"] = getRecuitPrice($row);
+        $rc_price_rep = isset($row["rc_price_rep"]) ? $row["rc_price_rep"] : "";
+        $view_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $rc_price_rep);
+        $view_list[$key]["rt_price"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
       }
     }
 
@@ -127,6 +128,14 @@ class Recruit extends CI_Controller
     }
 
     $info["rc_hit"] = $info["rc_hit"] + 1;
+
+    # 현재 공고 급여정보 처리 (뷰에서 직접 헬퍼함수 호출 대신 컨트롤러에서 처리)
+    if (strpos($info["rc_price_type"], "협의") === false) {
+      $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
+      $info["rt_price_type_html"] = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+      $info["rt_price_html"] = getConvertPrice($info["rc_price_pay"], $info["rc_price_type"]);
+    }
+
     $data["top_button"] = (strpos($_SERVER['HTTP_REFERER'], 'nowjob.co.kr') !== false ? "btn-back" : "btn-home");
     $data["os_type"] = $os_type;
     $data["view_list"] = $view_list;
@@ -627,8 +636,9 @@ class Recruit extends CI_Controller
         $view_list[$key]["rt_recruit_img"] = getRecruitImg($row);
         $view_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
         $view_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
-        $view_list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
-        $view_list[$key]["rt_price"] = getRecuitPrice($row);
+        $rc_price_rep = isset($row["rc_price_rep"]) ? $row["rc_price_rep"] : "";
+        $view_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $rc_price_rep);
+        $view_list[$key]["rt_price"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
       }
     }
 
@@ -640,6 +650,14 @@ class Recruit extends CI_Controller
     }
 
     $info["rc_hit"] = $info["rc_hit"] + 1;
+
+    # 현재 공고 급여정보 처리 (뷰에서 직접 헬퍼함수 호출 대신 컨트롤러에서 처리)
+    if (strpos($info["rc_price_type"], "협의") === false) {
+      $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
+      $info["rt_price_type_html"] = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+      $info["rt_price_html"] = getConvertPrice($info["rc_price_pay"], $info["rc_price_type"]);
+    }
+
     $data["top_button"] = (strpos($_SERVER['HTTP_REFERER'], 'nowjob.co.kr') !== false ? "btn-back" : "btn-home");
     $data["os_type"] = $os_type;
     $data["view_list"] = $view_list;

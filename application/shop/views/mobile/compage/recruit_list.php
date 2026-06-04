@@ -88,11 +88,6 @@
         margin-left: -35px;
     }
 
-    /* 채용공고명 스타일 */
-    .recruit-name {
-        width: calc(100% - 40px);
-        display: inline-block;
-    }
 
     /* 지원자 링크 스타일 */
     .applicant-link {

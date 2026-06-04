@@ -394,11 +394,6 @@
     margin-right: 0;
   }
 
-  .working-day li[aria-hidden=false] {
-    color: #fff;
-    border-color: transparent;
-    background-color: #57CCAF;
-  }
 </style>
 <div id="content" class="page page-map">
   <main class="page-content">
@@ -685,10 +680,10 @@
               '			<p>지금뜨는 추천인재</p>' +
               '		  </div>' +
               '		  <div class="summary2">' +
-              '			<p class="pricetype">' + getPriceType(d.ru_price_type) + '</p>' +
+              '			<p class="pricetype">' + (d.ru_price_type) + '</p>' +
               '		  </div>' +
               '		  <div class="summary3">' +
-              '			<p class="worktype">' + getWorkType(d.ru_work_type) + '</p>' +
+              '			<p class="worktype">' + getWorkTypeNoComma(d.ru_work_type) + '</p>' +
               '		  </div>' +
               '		</div>' +
               '	  </div>' +
@@ -826,10 +821,10 @@
         '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' +
         '		  </div>' +
         '		  <div class="summary2">' +
-        '			<p class="pricetype">' + getPriceType(d.ru_price_type) + '</p>' +
+        '			<p class="pricetype">' + (d.ru_price_type) + '</p>' +
         '		  </div>' +
         '		  <div class="summary3">' +
-        '			<p class="worktype">' + getWorkType(d.ru_work_type) + '</p>' +
+        '			<p class="worktype">' + (d.ru_work_type) + '</p>' +
         '		  </div>' +
         '		</div>' +
         '	  </div>' +
@@ -847,45 +842,6 @@
     }
   };
 
-  function fRemoveBigAdrJS(arg) {
-
-    const parts1 = arg.split(",");
-    arg = parts1[0];
-
-    arg = arg.replace("서울특별시 ", "서울시 ");
-    arg = arg.replace("경기 ", "");
-    arg = arg.replace("강원 ", "");
-    arg = arg.replace("충남 ", "");
-    arg = arg.replace("충북 ", "");
-    arg = arg.replace("경남 ", "");
-    arg = arg.replace("경북 ", "");
-    arg = arg.replace("전남 ", "");
-    arg = arg.replace("전북 ", "");
-    arg = arg.replace("제주 ", "");
-    arg = arg.replace("경기도 ", "");
-    arg = arg.replace("강원특별자치도 ", "");
-    arg = arg.replace("충청남도 ", "");
-    arg = arg.replace("충청북도 ", "");
-    arg = arg.replace("경상남도 ", "");
-    arg = arg.replace("경상북도 ", "");
-    arg = arg.replace("전라남도 ", "");
-    arg = arg.replace("전북특별자치도 ", "");
-    arg = arg.replace("제주특별자치도 ", "");
-    arg = arg.replace("세종특별자치시 ", "세종시 ");
-    arg = arg.replace("광주광역시 ", "광주시 ");
-    arg = arg.replace("인천광역시 ", "인천시 ");
-    arg = arg.replace("울산광역시 ", "울산시 ");
-    arg = arg.replace("부산광역시 ", "부산시 ");
-    arg = arg.replace("대구광역시 ", "대구시 ");
-    arg = arg.replace("대전광역시 ", "대전시 ");
-
-    const parts = arg.split(" ");
-    if (parts.length >= 3) {
-      return parts[0] + " " + parts[2];
-    } else {
-      return arg;
-    }
-  }
 
   function updateAddrInfo(zipcode, doro, jibun, addr, x, y) {
     var params = {};
@@ -915,41 +871,6 @@
   }
 
 
-  function getPriceType(price_type) {
-    if (!price_type) {
-      return "";
-    }
-    if (price_type === "일급,주급,월급") {
-      return "급여협의";
-    }
-    return price_type
-      .split(',')
-      .map(type => `${type}`)
-      .join('');
-  }
-
-  function getWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    const matches = work_type.match(/<span>(.*?)<\/span>/g);
-
-    if (!matches) {
-      return "";
-    }
-    return matches.map(item => {
-      const text = item.replace(/<\/?span>/g, '').trim();
-      let cls = '';
-      if (text === '주간') {
-        cls = 'wtype1';
-      } else if (text === '야간') {
-        cls = 'wtype2';
-      } else if (text === '2교대') {
-        cls = 'wtype3';
-      }
-      return `<em class="${cls}">${text}</em>`;
-    }).join('');
-  }
 
   $(document).on('click', '.desc', function() {
     <?php if ($mm_type !== "COMP") { ?>

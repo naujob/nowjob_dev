@@ -440,16 +440,16 @@
                         <div class="age-range-group">
                             <select name="rc_sage">
                                 <option value="">선택</option>
-                                <?php $ages = [20, 30, 40, 50, 60, 70];
+                                <?php $ages = [20, 30, 40, 50];
                                 foreach ($ages as $age) : ?>
-                                    <option value="<?= $age ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
+                                    <option value="<?= $age ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="age-separator">~</span>
                             <select name="rc_eage">
                                 <option value="">선택</option>
                                 <?php foreach ($ages as $age) : ?>
-                                    <option value="<?= $age ?>" <?= isset($info["rc_eage"]) && $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
+                                    <option value="<?= $age ?>" <?= isset($info["rc_eage"]) && $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

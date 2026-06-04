@@ -1450,34 +1450,6 @@ if ($g_ios_publish == true) {
     $('#hotListSection').toggle(isFirstPage);
   }
 
-  // fRemoveBigAdrJS 함수 (index_mem.php에서 복사)
-  // function fRemoveBigAdrJS(arg) {
-  //   if (!arg || typeof arg !== 'string') {
-  //     return '';
-  //   }
-  //   const parts1 = arg.split(",");
-  //   arg = parts1[0];
-  //   arg = arg.replace("서울특별시 ", "서울시 ");
-  //   arg = arg.replace("경기 ", "").replace("강원 ", "").replace("충남 ", "").replace("충북 ", "");
-  //   arg = arg.replace("경남 ", "").replace("경북 ", "").replace("전남 ", "").replace("전북 ", "");
-  //   arg = arg.replace("제주 ", "").replace("경기도 ", "").replace("강원특별자치도 ", "");
-  //   arg = arg.replace("충청남도 ", "").replace("충청북도 ", "").replace("경상남도 ", "");
-  //   arg = arg.replace("경상북도 ", "").replace("전라남도 ", "").replace("전북특별자치도 ", "");
-  //   arg = arg.replace("제주특별자치도 ", "").replace("세종특별자치시 ", "세종시 ");
-  //   arg = arg.replace("광주광역시 ", "광주시 ").replace("인천광역시 ", "인천시 ");
-  //   arg = arg.replace("울산광역시 ", "울산시 ").replace("부산광역시 ", "부산시 ");
-  //   arg = arg.replace("대구광역시 ", "대구시 ").replace("대전광역시 ", "대전시 ");
-  //   const parts = arg.split(" ");
-  //   if (parts.length >= 3) {
-  //     if (/\d/.test(parts[2])) {
-  //       return parts[0] + " " + parts[1];
-  //     } else {
-  //       return parts[0] + " " + parts[2];
-  //     }
-  //   } else {
-  //     return arg;
-  //   }
-  // }
 
   // 지금 뜨는 업체 슬라이더 초기화
   function initHotSlider() {

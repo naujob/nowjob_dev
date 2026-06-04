@@ -2469,9 +2469,9 @@
                         <span class="sr-text">최소나이 선택</span>
                         <select name="rc_sage" class="age-select" data-disabled="false">
                           <option value="">선택</option>
-                          <?php $ages = [20, 30, 40, 50, 60, 70];
+                          <?php $ages = [20, 30, 40, 50];
                           foreach ($ages as $age) : ?>
-                            <option value="<?= $age ?>" <?= $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
+                            <option value="<?= $age ?>" <?= $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
                           <?php endforeach; ?>
                         </select>
                         <span class="liner"></span>
@@ -2482,7 +2482,7 @@
                         <select name="rc_eage" class="age-select" data-disabled="false">
                           <option value="">선택</option>
                           <?php foreach ($ages as $age) : ?>
-                            <option value="<?= $age ?>" <?= $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>세</option>
+                            <option value="<?= $age ?>" <?= $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
                           <?php endforeach; ?>
                         </select>
                         <span class="liner"></span>

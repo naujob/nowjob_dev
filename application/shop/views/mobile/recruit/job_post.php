@@ -55,18 +55,9 @@ function formatPhoneNumber($number)
         align-items: center;
     }
 
-    .info-table .pay span {
-        display: flex;
-        gap: 5px;
-        align-items: center;
-    }
+   
 
-    .info-table .pay span em {
-        position: relative;
-        display: inline-block;
-        font-style: normal;
-        color: #777;
-    }
+    
 
     .info-table .pay span em:not(:last-child) {
         padding-right: 5px;
@@ -79,11 +70,11 @@ function formatPhoneNumber($number)
     .info-table .pay span em:not(:last-child)::after {
         content: "";
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
+        top: -112px;
+        right: 240px;
+        bottom: 30px;
         width: 1px;
-        height: 0.5em;
+        height: 0.8em;
         margin: auto;
         border-right: 1px solid #777;
     }
@@ -325,13 +316,9 @@ function formatPhoneNumber($number)
                                         <span class="pay">
                                             <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
                                                 <em class="amount">급여협의</em>
-                                            <?php } else {
-                                                // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
-                                                $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                                                $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
-                                            ?>
-                                                <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
-                                                <span>(<?= $price_type_html ?>)</span>
+                                            <?php } else { ?>
+                                                <em class="amount"><?= $info["rt_price_html"] ?></em>
+                                                <span>(<?= $info["rt_price_type_html"] ?>)</span>
                                             <?php } ?>
                                         </span>
                                     </td>
@@ -425,13 +412,7 @@ function formatPhoneNumber($number)
                                 </tr>
                                 <tr>
                                     <td class="label">희망나이</td>
-                                    <td class="value"><?php
-                                                        if ($info["rc_sage"] == "0" && $info["rc_eage"] == "0") {
-                                                            echo "나이무관";
-                                                        } else {
-                                                            echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
-                                                        }
-                                                        ?></td>
+                                    <td class="value"><?= formatAgeRange($info["rc_sage"], $info["rc_eage"]) ?></td>
                                 </tr>
                                 <tr>
                                     <td class="label">근무요일</td>

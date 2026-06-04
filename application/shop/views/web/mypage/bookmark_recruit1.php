@@ -64,7 +64,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_
       content = content.split("{{book_yn}}").join(row.book_yn);
       content = content.split("{{rt_work_img}}").join(row.rt_work_img);
       content = content.split("{{rc_name}}").join(row.rc_name);
-      content = content.split("{{rc_nation_nm}}").join(row.rc_nation_nm);
+      content = content.split("{{rc_nation_nm}}").join(row.rc_nation_nm == '무관' ? '국적무관' : row.rc_nation_nm);
       content = content.split("{{rc_age_nm}}").join(row.rc_age_nm);
       content = content.split("{{rt_work_type}}").join(row.rt_work_type);
       content = content.split("{{ad_addr}}").join(typeof fRemoveBigAdrJS === 'function' ? fRemoveBigAdrJS(row.ad_addr) : row.ad_addr);

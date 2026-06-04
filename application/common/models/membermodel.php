@@ -3285,9 +3285,9 @@ class memberModel extends MY_Model
 
 		//바디
 		$body = "
-			( 
+			(
 				select bb.*
-					,cc.ad_addr
+					,COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr
 					,cc.ad_gps_x
 					,cc.ad_gps_y
 					,aa.mm_name
@@ -3306,7 +3306,6 @@ class memberModel extends MY_Model
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
 				left join st_address cc
 					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
-          and cc.ad_addr <> ''
 			) aa
 			left join st_bookmark dd
 				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
@@ -3450,7 +3449,7 @@ class memberModel extends MY_Model
 		$body = "
 			(
 				select bb.*
-					,cc.ad_addr
+					,COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr
           ,CONCAT(cc.ad_doro, ' ', cc.ad_jibun) AS s_addr
 					,cc.ad_gps_x
 					,cc.ad_gps_y
@@ -3470,7 +3469,6 @@ class memberModel extends MY_Model
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
 				left join st_address cc
 					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
-          and cc.ad_addr <> ''
 			) aa
 			left join st_bookmark dd
 				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
@@ -3611,9 +3609,9 @@ class memberModel extends MY_Model
 
 		//바디
 		$body = "
-			( 
+			(
 				select bb.*
-					,cc.ad_addr
+					,COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr
 					,cc.ad_gps_x
 					,cc.ad_gps_y
 					,aa.mm_name
@@ -3633,7 +3631,6 @@ class memberModel extends MY_Model
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
 				left join st_address cc
 					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
-          and cc.ad_addr <> ''
 			) aa
 			left join st_bookmark dd
 				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
@@ -3774,9 +3771,9 @@ class memberModel extends MY_Model
 
 		//바디
 		$body = "
-			( 
+			(
 				select bb.*
-					,cc.ad_addr
+					,COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr
 					,cc.ad_gps_x
 					,cc.ad_gps_y
 					,aa.mm_name
@@ -3795,7 +3792,6 @@ class memberModel extends MY_Model
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
 				left join st_address cc
 					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
-          and cc.ad_addr <> ''
 			) aa
 			left join st_bookmark dd
 				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";

@@ -312,9 +312,7 @@ $ad_addr = trim($ad_addr);
 
   .content-info .summary2 .period em {
     position: relative;
-    display: inline-block;
-    font-style: normal;
-    color: #777;
+   
   }
 
   .content-info .summary2 .period em:not(:last-child) {
@@ -666,7 +664,7 @@ $ad_addr = trim($ad_addr);
               '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
               '		  <div class="summary">' +
               '			<p>' + (d.rc_nation_nm == '무관' ? '국적무관' : d.rc_nation_nm) + '</p>' +
-              '			<p>' + (d.rc_age_nm == '무관' ? '나이무관' : d.rc_age_nm) + '</p>' +
+              '			<p>' + d.rc_age_nm + '</p>' +
               '		  </div>' +
               '		  <div class="summary reco">' +
               '			<p>지금뜨는 공고</p>' +
@@ -675,7 +673,7 @@ $ad_addr = trim($ad_addr);
               '			<p class="period">' + getConvertPriceType(d.rc_price_type, d.rc_price_rep) + '</p>' +
               '			<p class="amount">' + getConvertPrice(d.rc_price_pay) + '</p>' +
               '		  </div>' +
-              '  	  <div class="summary3">' + getWorkType(d.rt_work_type) + '</div>' +
+              '  	  <div class="summary3">' + (d.rt_work_type) + '</div>' +
               '		</div>' +
               '	  </div>' +
               '	</div>' +
@@ -776,7 +774,7 @@ $ad_addr = trim($ad_addr);
         '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
         '		  <div class="summary">' +
         '			<p>' + (d.rc_nation_nm == '무관' ? '국적무관' : d.rc_nation_nm) + '</p>' +
-        '			<p>' + (d.rc_age_nm == '무관' ? '나이무관' : d.rc_age_nm) + '</p>' +
+        '			<p>' + d.rc_age_nm + '</p>' +
         '		  </div>' +
         '		  <div class="summary area">' +
         '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' +
@@ -786,7 +784,7 @@ $ad_addr = trim($ad_addr);
         '			<p class="period">' + getConvertPriceType(d.rc_price_type, d.rc_price_rep) + '</p>' +
         '			<p class="period">' + getConvertPrice(d.rc_price_pay) + '</p>' +
         '		  </div>' +
-        '  	<div class="summary3">' + getWorkType(d.rt_work_type) + '</div>' +
+        '  	<div class="summary3">' + (d.rt_work_type) + '</div>' +
         '		</div>' +
         '	  </div>' +
         '	</div>' +
@@ -845,58 +843,9 @@ $ad_addr = trim($ad_addr);
     });
   }
 
-  function getConvertPriceType(rc_price_type, rc_price_rep) {
 
-    if (rc_price_type == "협의") {
-      return '';
-    }
 
-    const types = rc_price_type.split(',');
 
-    if (types.length === 1) {
-      return `<em class="on">${types[0]}</em>`;
-    }
-
-    return types.map(type => {
-      if (type === rc_price_rep) {
-        return `<em class="on">${type}</em>`;
-      } else {
-        return `<em>${type}</em>`;
-      }
-    }).join('');
-  }
-
-  function getConvertPrice(rc_price_pay) {
-
-    if (!rc_price_pay) {
-      return '급여협의';
-    }
-
-    return Number(rc_price_pay).toLocaleString() + "원";
-  }
-
-  function getWorkType(work_type) {
-    if (!work_type) {
-      return "";
-    }
-    const matches = work_type.match(/<span>(.*?)<\/span>/g);
-
-    if (!matches) {
-      return "";
-    }
-    return matches.map(item => {
-      const text = item.replace(/<\/?span>/g, '').trim();
-      let cls = '';
-      if (text === '주간') {
-        cls = 'wtype1';
-      } else if (text === '야간') {
-        cls = 'wtype2';
-      } else if (text === '2교대') {
-        cls = 'wtype3';
-      }
-      return `<em class="${cls}">${text}</em>`;
-    }).join('');
-  }
 
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.content-li, .content-li2').data('rc_idx');

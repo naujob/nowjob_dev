@@ -747,13 +747,19 @@
         "page" => 1,
         "mm_idx"=>$this->mm_idx,
 		  ];
-      
+
 			$result = $this->recruit_model->getBookMarkRecruitList($params);
+
+			$temp_list = $result["list"];
+			foreach ($temp_list as $key => $row) {
+				$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			}
+			$result["list"] = $temp_list;
 
 			$data["resume"] = $this->member_model->getResume(["mm_idx"=>$this->mm_idx,"ru_show_yn"=>"Y"]);
       $data["list"] = $result["list"];
 			$data["count"] = $result["count"];
-      
+
 			$this->layout->shop('/mypage/bookmark_recruit1',$data);
 		}
     
@@ -766,13 +772,19 @@
         "page" => 1,
         "mm_idx"=>$this->mm_idx,
 		  ];
-      
+
 			$result = $this->recruit_model->getBookMarkRequestRecruitList($params);
+
+			$temp_list = $result["list"];
+			foreach ($temp_list as $key => $row) {
+				$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			}
+			$result["list"] = $temp_list;
 
 			$data["resume"] = $this->member_model->getResume(["mm_idx"=>$this->mm_idx,"ru_show_yn"=>"Y"]);
       $data["list"] = $result["list"];
 			$data["count"] = $result["count"];
-      
+
 			$this->layout->shop('/mypage/bookmark_recruit2',$data);
 		}
 
@@ -786,6 +798,12 @@
         "mm_idx"=>$this->mm_idx,
       ];
 			$result = $this->recruit_model->getMemRequestRecruitList($params);
+
+			$temp_list = $result["list"];
+			foreach ($temp_list as $key => $row) {
+				$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			}
+			$result["list"] = $temp_list;
 
 			$data["resume"] = $this->member_model->getResume(["mm_idx"=>$this->mm_idx,"ru_show_yn"=>"Y"]);
       $data["list"] = $result["list"];

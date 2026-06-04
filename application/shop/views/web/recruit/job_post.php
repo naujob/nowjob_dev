@@ -889,12 +889,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                     </td>
 
                     <td class="label">희망나이</td>
-                    <td class="value">
-                      <?php if ($info["rc_sage"] > 0 || $info["rc_eage"] > 0) : ?>
-                        <?= $info["rc_sage"] ?>세 ~ <?= $info["rc_eage"] ?>세
-                      <?php else : ?>
-                        나이무관
-                      <?php endif; ?>
+                    <td class="value"><?= formatAgeRange($info["rc_sage"], $info["rc_eage"]) ?></td>
                     </td>
                   </tr>
                   <tr>

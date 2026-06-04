@@ -58,11 +58,8 @@ class recruitModel extends MY_Model
         when rc_nation = '내국인' then '내국인'
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
-			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
-        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
-        else '나이무관' end) as rc_age_nm",
+			"rc_sage",
+			"rc_eage",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 
@@ -150,11 +147,8 @@ class recruitModel extends MY_Model
         when rc_nation = '내국인' then '내국인'
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
-			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
-        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
-        else '나이무관' end) as rc_age_nm",
+			"rc_sage",
+			"rc_eage",
 			/*
       "aa.mm_comp_name",
       "aa.rc_thumb",
@@ -450,11 +444,8 @@ class recruitModel extends MY_Model
         when rc_nation = '내국인' then '내국인'
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
-			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
-        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
-        else '나이무관' end) as rc_age_nm",
+			"rc_sage",
+			"rc_eage",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 
@@ -575,11 +566,8 @@ class recruitModel extends MY_Model
         when rc_nation = '내국인' then '내국인'
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
-			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
-        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
-        else '나이무관' end) as rc_age_nm",
+			"rc_sage",
+			"rc_eage",
 			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt"
 		];
 
@@ -645,11 +633,8 @@ class recruitModel extends MY_Model
         when rc_nation = '내국인' then '내국인'
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
-			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
-        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
-        else '나이무관' end) as rc_age_nm",
+			"rc_sage",
+			"rc_eage",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 
@@ -716,11 +701,8 @@ class recruitModel extends MY_Model
         when rc_nation = '내국인' then '내국인'
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
-			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
-        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
-        else '나이무관' end) as rc_age_nm",
+			"rc_sage",
+			"rc_eage",
 			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 
@@ -774,11 +756,8 @@ class recruitModel extends MY_Model
         when rc_nation = '내국인' then '내국인'
         when rc_nation = '외국인' then '외국인'
         else '국적무관' end) as rc_nation_nm",
-			"(case
-        when rc_sage <> '' AND rc_eage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, ' ~ ',ROUND(CAST(rc_eage AS UNSIGNED)/10)*10,'대')
-        when rc_sage <> '' then CONCAT(ROUND(CAST(rc_sage AS UNSIGNED)/10)*10, '세 ~')
-        when rc_eage <> '' then CONCAT(' ~ ', ROUND(CAST(rc_eage AS UNSIGNED)/10)*10, '대')
-        else '나이무관' end) as rc_age_nm",
+			"rc_sage",
+			"rc_eage",
 			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 

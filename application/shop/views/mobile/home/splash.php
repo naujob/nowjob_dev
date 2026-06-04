@@ -155,7 +155,7 @@
 </style>
 
 <div class="splash">
-    <img src="/resource/shop/mobile/img/splash_test3.jpg" alt="" class="splash-bg-img" decoding="async" fetchpriority="high">
+    <img src="/resource/shop/mobile/img/splash_test4.jpg" alt="" class="splash-bg-img" decoding="async" fetchpriority="high">
     <!-- 기존 로고 이미지 주석처리 -->
     <!-- <h1 class="logo"><img src="/resource/shop/mobile/img/title_logo.png" width="273" height="96" alt=""></h1> -->
     <!-- 기존 portrait 이미지 주석처리 -->
