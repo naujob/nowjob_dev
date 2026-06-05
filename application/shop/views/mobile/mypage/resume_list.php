@@ -1,3 +1,10 @@
+<style>
+.angle-link {
+    padding: 0;
+    background: none;
+}
+
+</style>
 <div class="page page-mypage">
     <div class="top-bar">
         <a href="javascript:_replace('/mypage');" class="btn-replace"><span class="sr-text">이전으로</span></a>

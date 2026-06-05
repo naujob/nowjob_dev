@@ -1366,7 +1366,7 @@ $tpl_recomm_class = true; ?>
 
           // 슬라이더 이동 시 dot 업데이트
           keenSlider.on('slideChanged', function() {
-            var currentIdx = keenSlider.track.details.abs % actualSlideCount;
+            var currentIdx = ((keenSlider.track.details.abs % actualSlideCount) + actualSlideCount) % actualSlideCount;
             var dots = dotsContainer.querySelectorAll('.dot');
             dots.forEach(function(d) {
               d.classList.remove('active');

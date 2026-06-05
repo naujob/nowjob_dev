@@ -403,44 +403,86 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                         <?php $current_user_info = $this->user->isLogin() ? $this->user->getCurrentUserInfo() : []; ?>
                         <script>
                             function fGoRecruit() {
+                                console.log('=== 채용공고 등록 버튼 클릭됨 (웹) ===');
+
                                 //로그인 여부 확인
                                 if ($("#is_login").val() != "Y") {
+                                    console.log('로그인 필요');
                                     commonLogin();
                                     return;
                                 }
 
 
                                 <?php if ($this->user->getUserType() != 'COMP') { ?>
+                                    console.log('기업회원 아님');
                                     commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
                                     return;
                                 <?php } ?>
 
+                                console.log('기업 인증 확인 중...');
                                 if (!requireCompCertWithGuide()) {
+                                    console.log('기업 인증 실패');
                                     return;
                                 }
 
-                                // 기업회원일 때 채용공고 개수 확인 후 이동
+                                // PASS 인증 상태 확인
+                                console.log('recruit_start API 호출');
                                 $.ajax({
-                                    url: "/compage_proc/getRecruitCount",
+                                    url: "/compage_proc/recruit_start",
                                     type: "post",
                                     dataType: "json",
                                     success: function(ret) {
-                                        if (ret.code == "00") {
-                                            var recruitCount = ret.data.count || 0;
+                                        console.log('recruit_start 응답:', ret);
+                                        console.log('응답 코드:', ret.code);
+                                        console.log('응답 data:', ret.data);
 
-                                            // 채용공고가 0개이면 등록 페이지로, 1개 이상이면 목록 페이지로 이동
-                                            if (recruitCount == 0) {
+                                        // PASS 인증 미완료 확인
+                                        if ((ret.code == "00" || ret.code == "01") && ret.data && (ret.data.comAuthStat == "N" || ret.data.passAuthStat == "N")) {
+                                            console.log('→ 인증 미완료 케이스');
+                                            if (ret.data.comAuthStat == "N") {
+                                                console.log('→ 기업정보 미인증');
+                                                if (typeof openCompInfoPopup === 'function') {
+                                                    openCompInfoPopup();
+                                                }
+                                                return;
+                                            } else if (ret.data.comAuthStat == "Y" && ret.data.passAuthStat == "N") {
+                                                console.log('→ PASS 인증 미완료, 공고 작성 페이지로 이동');
                                                 location.href = "/compage/recruit_write";
-                                            } else {
-                                                location.href = "/compage/recruit_list";
+                                                return;
                                             }
+                                        } else if (ret.code == "00") {
+                                            console.log('→ 공고 작성 페이지로 이동');
+                                            location.href = "/compage/recruit_write";
+                                        } else if (ret.code == "01") {
+                                            console.log('→ 유료 등록 필요');
+                                            openPopup('confirm', {
+                                                content: '<p>채용공고등록은 <em>1일 2건 무료</em>입니다<br> 추가로 공고를 등록하시려면<br> 포인트에서 차감됩니다.</p><p class="required-point">채용공고등록: <span>' + ret.data.use_point + 'P</span>차감</p>',
+                                                secondButton: '유료등록',
+                                                secondCallback: function() {
+                                                    $.ajax({
+                                                        url: "/compage_proc/recruit_start_point",
+                                                        type: "post",
+                                                        dataType: "json",
+                                                        success: function(ret2) {
+                                                            if (ret2.code == "00") {
+                                                                location.href = "/compage/recruit_write";
+                                                            } else if (ret2.code == "01") {
+                                                                commonAlert("보유하신 포인트가 부족합니다.", function() {});
+                                                            } else {
+                                                                commonAlert(ret2.msg, function() {});
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            });
                                         } else {
-                                            commonAlert(ret.msg || "채용공고 개수를 확인할 수 없습니다.", function() {});
+                                            console.log('→ 기타 오류');
+                                            commonAlert(ret.msg || "요청 처리 중 오류가 발생했습니다.", function() {});
                                         }
                                     },
                                     error: function(xhr, status, error) {
-
-                                        commonAlert("채용공고 개수를 확인할 수 없습니다.", function() {});
+                                        console.log('AJAX 오류:', error);
+                                        commonAlert("요청 처리 중 오류가 발생했습니다.", function() {});
                                     }
                                 });
                             }

@@ -451,7 +451,7 @@
                         <div class="age-range-group">
                             <select name="rc_sage">
                                 <option value="">선택</option>
-                                <?php $ages = [20, 30, 40, 50];
+                                <?php $ages = [20, 30, 40, 50, 60,70];
                                 foreach ($ages as $age) : ?>
                                     <option value="<?= $age ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
                                 <?php endforeach; ?>
@@ -650,6 +650,7 @@
     ?>
     var serverData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0) ? json_encode($info_for_js, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
     var serverAddrData = serverData && serverData.addr ? serverData.addr : null;
+    var detailSectionScrollPosition = 0;
     // localStorage의 key 이름을 rc_idx 기준으로 변경하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
     /**
      * var data = localStorage.getItem(oldKey);
@@ -1849,20 +1850,23 @@
         $(".js-detail-register").on("click", function(e) {
             e.preventDefault();
             var $sections = $(".js-detail-section");
-            var $button = $(this);
+            var $page = $(".page");
 
             var isVisible = $sections.hasClass("show");
 
             if (isVisible) {
-                $sections.removeClass("show").slideUp(300);
+                $sections.removeClass("show").slideUp(300, function() {
+                    if (detailSectionScrollPosition > 0) {
+                        $page.scrollTop(detailSectionScrollPosition);
+                    }
+                    detailSectionScrollPosition = 0;
+                });
             } else {
+                detailSectionScrollPosition = $page.scrollTop();
                 $sections.addClass("show").slideDown(300, function() {
-                    var buttonTop = $button.offset().top;
-                    var windowHeight = $(window).height();
-                    var scrollTarget = buttonTop - (windowHeight / 2);
-                    $('html, body').animate({
-                        scrollTop: scrollTarget
-                    }, 400);
+                    setTimeout(function() {
+                        $page.scrollTop($page[0].scrollHeight);
+                    }, 100);
                 });
             }
             setTimeout(savePage3Data, 350);

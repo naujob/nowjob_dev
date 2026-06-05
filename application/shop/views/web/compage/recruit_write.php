@@ -2469,7 +2469,7 @@
                         <span class="sr-text">최소나이 선택</span>
                         <select name="rc_sage" class="age-select" data-disabled="false">
                           <option value="">선택</option>
-                          <?php $ages = [20, 30, 40, 50];
+                          <?php $ages = [20, 30, 40, 50,60,70];
                           foreach ($ages as $age) : ?>
                             <option value="<?= $age ?>" <?= $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
                           <?php endforeach; ?>

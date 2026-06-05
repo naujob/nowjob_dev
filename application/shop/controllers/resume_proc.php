@@ -227,6 +227,7 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
       $temp_list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"]);
       $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
+      $temp_list[$key]["ru_price_type_raw"] = $row["ru_price_type"];
       $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
 
       // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용

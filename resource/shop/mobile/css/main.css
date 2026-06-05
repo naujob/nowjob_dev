@@ -1164,7 +1164,7 @@ object {
 .form-textarea {
     display: block;
     width: 100%;
-    min-height: 18.25rem;
+    min-height: 23.25rem;
     padding: 8px 10px;
     font-size: 1.1rem;
     
@@ -8274,7 +8274,10 @@ form#frm {
 }
 
 .page-recruit-write .address-add-btn.has-address .address-text {
-    display: inline;
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .page-recruit-write .form-row>.form-label.salary-label {
@@ -13262,6 +13265,6 @@ form#frm {
 }
 
 .resume-name {
-    max-width: calc(100% - 60px);
+    max-width: calc(100% - 40px);
 }
 

@@ -708,7 +708,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
               '<span class="meta-divider">|</span>' +
               '<p class="age">' + row.mm_age + '대</p>' +
               '<span class="meta-divider">|</span>' +
-              '<p class="price_type">' + getPriceTypeJSFirst(row.ru_price_type) + '</p>' +
+              '<p class="price_type">' + getPriceTypeJSFirst(row.ru_price_type_raw) + '</p>' +
               '</div>' +
               '<p class="addr">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
               '</div>';

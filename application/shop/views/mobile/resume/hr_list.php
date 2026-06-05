@@ -1456,7 +1456,7 @@ $tpl_show_mm_idx = true; ?>
 
         // 슬라이더 이동 시 dot 업데이트
         slider.on('slideChanged', function() {
-          var currentIdx = slider.track.details.abs % actualSlideCount;
+          var currentIdx = ((slider.track.details.abs % actualSlideCount) + actualSlideCount) % actualSlideCount;
           var dots = dotsContainer.querySelectorAll('.dot');
           dots.forEach(function(d) {
             d.classList.remove('active');

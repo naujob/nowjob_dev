@@ -1,3 +1,10 @@
+<style>
+.angle-link {
+    padding: 0;
+    background: none;
+}
+
+</style>
 <div class="page page-mypage">
     <div class="top-bar">
         <a href="/compage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
@@ -112,7 +119,15 @@
 </style>
 
 <script>
+    console.log('=== recruit_list.php 스크립트 로드됨 ===');
+    console.log('jQuery 존재?', typeof jQuery !== 'undefined');
+    console.log('btnRecruit 버튼 존재?', document.getElementById('btnRecruit') !== null);
+
     window.addEventListener('DOMContentLoaded', function() {
+        console.log('=== DOMContentLoaded 실행됨 ===');
+        console.log('btnRecruit 버튼 존재?', document.getElementById('btnRecruit') !== null);
+        console.log('jQuery 존재?', typeof jQuery !== 'undefined');
+
         // 뒤로가기 버튼 클릭 시 /compage/index로 이동
         $(".btn-back").off('click').on('click', function(e) {
             e.preventDefault();
@@ -155,17 +170,26 @@
             });
         });
 
-        //처리
+        //처리 (jQuery 방식)
+        console.log('btnRecruit jQuery 클릭 이벤트 등록 중...');
         $("#btnRecruit").click(function() {
+            console.log('=== 채용공고등록 버튼 클릭됨 (jQuery) ===');
+
             // 기업 인증 확인 (main_menu.php의 전역 함수 사용)
             // 기업 미인증 시 사업자정보 인증 바텀시트가 자동으로 열림
+            console.log('requireCompCertWithGuide 함수 존재?', typeof window.requireCompCertWithGuide === 'function');
+
             if (typeof window.requireCompCertWithGuide === 'function') {
+                console.log('requireCompCertWithGuide 함수 실행');
                 if (!window.requireCompCertWithGuide()) {
+                    console.log('기업 인증 실패');
                     return;
                 }
             } else {
+                console.log('requireCompCertWithGuide 함수 없음 - 안전장치 실행');
                 // 전역 함수가 없는 경우 (안전장치)
                 if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
+                    console.log('로그인 정보 없음');
                     openPopup('alert2', {
                         content: "로그인 후 이용해주세요.",
                         firstButton: '확인',
@@ -177,6 +201,7 @@
                     return;
                 }
                 if (NOWJOB_COMP_INFO.userType !== 'COMP') {
+                    console.log('기업회원 아님:', NOWJOB_COMP_INFO.userType);
                     openPopup('alert2', {
                         content: "기업회원만 채용공고 작성이 가능합니다.",
                         firstButton: '확인',
@@ -185,6 +210,7 @@
                     return;
                 }
                 if (!NOWJOB_COMP_INFO.hasCompCert) {
+                    console.log('기업 인증 미완료');
                     if (typeof window.openCompInfoPopup === 'function') {
                         window.openCompInfoPopup();
                     }
@@ -192,24 +218,41 @@
                 }
             }
 
+            console.log('recruit_start API 호출');
             comAjax("/compage_proc/recruit_start", {}, function(ret) {
-                console.log(ret);
+                console.log('recruit_start 응답:', ret);
+                console.log('응답 코드:', ret.code);
+                console.log('응답 data:', ret.data);
+
+                // 조건문 상세 로깅
+                var cond1 = (ret.code == "00" || ret.code == "01");
+                var cond2 = ret.data && (ret.data.comAuthStat == "N" || ret.data.passAuthStat == "N");
+                console.log('조건1 (코드 00 또는 01):', cond1);
+                console.log('조건2 (인증 미완료):', cond2);
+                console.log('조건1 AND 조건2:', cond1 && cond2);
+
                 if ((ret.code == "00" || ret.code == "01") && (ret.data.comAuthStat == "N" || ret.data.passAuthStat == "N")) {
+                    console.log('→ 인증 미완료 케이스');
                     // 기업 미인증 시 사업자정보 인증 바텀시트 열기
                     if (ret.data.comAuthStat == "N") {
+                        console.log('→ 기업정보 미인증');
                         if (typeof window.openCompInfoPopup === 'function') {
                             window.openCompInfoPopup();
                         }
                         return;
                     } else if (ret.data.comAuthStat == "Y" && ret.data.passAuthStat == "N") {
-                        // 기업정보 인증 완료, PASS 인증만 필요한 경우는 팝업 표시하지 않음
-                        // (PASS 인증 버튼 삭제로 인해 이 케이스는 처리하지 않음)
+                        console.log('→ PASS 인증 미완료, 공고 작성 페이지로 이동');
+                        // PASS 인증 버튼이 삭제되어 이 경우 공고 작성 페이지로 바로 이동
+                        location.href = "/compage/recruit_write1_1";
+                        return;
                     }
 
                 } else if (ret.code == "00") {
+                    console.log('→ 공고 작성 페이지로 이동');
                     //_replace("/compage/recruit_write1_1");
                     location.href = "/compage/recruit_write1_1";
                 } else if (ret.code == "01") {
+                    console.log('→ 유료 등록 케이스');
                     openPopup('confirm', {
                         //20220929 수정
                         content: '<p>채용공고등록은 <em>1일 2건 무료</em>입니다<br> 추가로 공고를 등록하시려면<br> 포인트에서 차감됩니다.</p><p class="required-point">채용공고등록: <span>' + ret.data.use_point + 'P</span>차감</p>',
@@ -235,6 +278,23 @@
             });
         });
 
+        // 바닐라 JS 방식으로도 이벤트 등록
+        console.log('바닐라 JS 클릭 이벤트 등록 중...');
+        var btnRecruit = document.getElementById('btnRecruit');
+        if (btnRecruit) {
+            console.log('btnRecruit 요소 발견, 클릭 리스너 추가');
+            btnRecruit.addEventListener('click', function(e) {
+                console.log('=== 채용공고등록 버튼 클릭됨 (Vanilla JS) ===');
+                e.preventDefault();
+                // jQuery 클릭 이벤트 수동 트리거
+                if (typeof jQuery !== 'undefined') {
+                    console.log('jQuery 존재, 클릭 이벤트 트리거');
+                    jQuery('#btnRecruit').click();
+                }
+            });
+        } else {
+            console.error('btnRecruit 요소를 찾을 수 없음!');
+        }
     });
 
     // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
