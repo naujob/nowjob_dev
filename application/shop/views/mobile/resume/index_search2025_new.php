@@ -121,7 +121,8 @@
   .work-type-cell,
   .price-cell,
   .week-cell,
-  .gender-cell {
+  .gender-cell,
+  .nationality-cell {
     height: 56px;
     min-height: 56px;
     max-height: 56px;
@@ -343,6 +344,42 @@
               </div>
             </div>
 
+            <div class="form-row">
+              <?php
+              $has_nationality_selected = false;
+              if (!empty($search_txt["nationality"])) {
+                if (is_array($search_txt["nationality"])) {
+                  foreach ($search_txt["nationality"] as $nat) {
+                    if (trim($nat) !== "") {
+                      $has_nationality_selected = true;
+                      break;
+                    }
+                  }
+                } else if (trim($search_txt["nationality"]) !== "") {
+                  $has_nationality_selected = true;
+                }
+              }
+              ?>
+              <div class="nationality-header">
+                <p class="form-label">국적</p>
+                <button type="button" class="nationality-any <?= $has_nationality_selected ? '' : 'selected' ?>" data-nationality-any>
+                  <span>전체</span>
+                </button>
+              </div>
+              <div class="nationality-grid">
+                <?php $nationality_options = ['내국인', '외국인']; ?>
+                <?php foreach ($nationality_options as $nationality_label) : ?>
+                  <?php
+                  $nationalityChecked = in_array_return($nationality_label, $search_txt["nationality"], "check");
+                  ?>
+                  <label class="nationality-cell<?= !empty($nationalityChecked) ? ' selected' : '' ?>">
+                    <input type="checkbox" name="nationality[]" value="<?= $nationality_label ?>" <?= $nationalityChecked ?> data-nationality-checkbox>
+                    <span><?= $nationality_label ?></span>
+                  </label>
+                <?php endforeach; ?>
+              </div>
+            </div>
+
             <div class="form-row age-row">
               <div class="form-row-header">
                 <span class="form-row-title">나이</span>
@@ -436,6 +473,11 @@
     });
     updateGenderState();
 
+    document.querySelectorAll('[data-nationality-checkbox]').forEach(function(inp) {
+      inp.checked = false;
+    });
+    updateNationalityState();
+
     // 나이 초기화
     $('#ageRangeSelect').val('');
     $('input[name="sage"]').val('');
@@ -453,6 +495,7 @@
     var arr_price_type = "";
     var arr_week = "";
     var arr_sex = "";
+    var arr_nationality = "";
 
     for (var icnt = 0; icnt < $("[name='category[]']:checked").length; icnt++) {
       if ($("[name='category[]']:checked").eq(icnt).val() != "") {
@@ -504,11 +547,22 @@
       }
     }
 
+    for (var icnt = 0; icnt < $("[name='nationality[]']:checked").length; icnt++) {
+      if ($("[name='nationality[]']:checked").eq(icnt).val() != "") {
+        if (arr_nationality == "") {
+          arr_nationality = $("[name='nationality[]']:checked").eq(icnt).val();
+        } else {
+          arr_nationality += "^" + $("[name='nationality[]']:checked").eq(icnt).val();
+        }
+      }
+    }
+
     search_array.category = arr_category;
     search_array.work_type = arr_work_type;
     search_array.week = arr_week;
     search_array.price_type = arr_price_type;
     search_array.sex = arr_sex;
+    search_array.nationality = arr_nationality;
     search_array.sage = $("[name='sage']").val();
     search_array.eage = $("[name='eage']").val();
 
@@ -721,6 +775,34 @@
     }
   }
 
+  function updateNationalityState() {
+    var nationalityAnyBtn = document.querySelector('[data-nationality-any]');
+    var nationalityInputs = document.querySelectorAll('[data-nationality-checkbox]');
+    if (!nationalityAnyBtn || !nationalityInputs.length) return;
+
+    var hasSelection = false;
+    nationalityInputs.forEach(function(input) {
+      var cell = input.closest('.nationality-cell');
+      if (cell) cell.classList.remove('selected');
+    });
+    nationalityInputs.forEach(function(input) {
+      if (input.checked) {
+        hasSelection = true;
+        var cell = input.closest('.nationality-cell');
+        if (cell) cell.classList.add('selected');
+      }
+    });
+    if (hasSelection) {
+      nationalityAnyBtn.classList.remove('selected');
+    } else {
+      nationalityAnyBtn.classList.add('selected');
+      nationalityInputs.forEach(function(inp) {
+        var c = inp.closest('.nationality-cell');
+        if (c) c.classList.add('selected');
+      });
+    }
+  }
+
   // 각 그룹 이벤트 바인딩 + 초기 상태 적용
   document.addEventListener('DOMContentLoaded', function() {
     var workAnyBtn = document.querySelector('[data-work-any]');
@@ -821,6 +903,31 @@
         updateGenderState();
       });
       updateGenderState();
+    }
+
+    var nationalityAnyBtn = document.querySelector('[data-nationality-any]');
+    var nationalityInputs = document.querySelectorAll('[data-nationality-checkbox]');
+    if (nationalityAnyBtn && nationalityInputs.length) {
+      nationalityInputs.forEach(function(input) {
+        input.addEventListener('change', function() {
+          if (Array.from(nationalityInputs).filter(function(inp) {
+              return inp.checked;
+            }).length === nationalityInputs.length) {
+            nationalityInputs.forEach(function(inp) {
+              inp.checked = false;
+            });
+          }
+          updateNationalityState();
+        });
+      });
+      nationalityAnyBtn.addEventListener('click', function() {
+        if (nationalityAnyBtn.classList.contains('selected')) return;
+        nationalityInputs.forEach(function(input) {
+          input.checked = false;
+        });
+        updateNationalityState();
+      });
+      updateNationalityState();
     }
   });
 
@@ -941,6 +1048,19 @@
       var genderAnyBtn = document.querySelector('[data-gender-any]');
       if (genderAnyBtn) {
         genderAnyBtn.classList.add('selected');
+      }
+
+      // 국적 초기화
+      document.querySelectorAll('[data-nationality-checkbox]').forEach(function(input) {
+        input.checked = false;
+        var cell = input.closest('.nationality-cell');
+        if (cell) {
+          cell.classList.remove('selected');
+        }
+      });
+      var nationalityAnyBtn = document.querySelector('[data-nationality-any]');
+      if (nationalityAnyBtn) {
+        nationalityAnyBtn.classList.add('selected');
       }
 
       // 나이 초기화
@@ -1093,12 +1213,14 @@
       applyCheckedValues("[data-week-checkbox]", state.week || []);
       applyCheckedValues("[data-price-checkbox]", state.price_type || []);
       applyCheckedValues("[data-gender-checkbox]", state.sex || []);
+      applyCheckedValues("[data-nationality-checkbox]", state.nationality || []);
 
       // "전체" 버튼 상태 동기화 (전역 함수 호출)
       updateWorkTypeState();
       updateWeekState();
       updatePriceState();
       updateGenderState();
+      updateNationalityState();
 
       // 나이 복원
       $("#sageInput").val(state.sage || "");
@@ -1143,6 +1265,9 @@
       var sexArray = search_array.sex ? search_array.sex.split("^").filter(function(s) {
         return s.trim() !== '';
       }) : [];
+      var nationalityArray = search_array.nationality ? search_array.nationality.split("^").filter(function(n) {
+        return n.trim() !== '';
+      }) : [];
 
       var state = {
         userId: currentUserId,
@@ -1155,6 +1280,7 @@
         week: weekArray,
         price_type: priceTypeArray,
         sex: sexArray,
+        nationality: nationalityArray,
         sage: search_array.sage || "",
         eage: search_array.eage || ""
       };
@@ -1354,6 +1480,15 @@
       $(this).prop('checked', sexes.indexOf($(this).val()) !== -1);
     });
     updateGenderState();
+
+    // 국적 체크박스 복원
+    var nationalities = search_array.nationality ? search_array.nationality.split('^').filter(function(v) {
+      return v.trim() !== '';
+    }) : [];
+    $('[data-nationality-checkbox]').each(function() {
+      $(this).prop('checked', nationalities.indexOf($(this).val()) !== -1);
+    });
+    updateNationalityState();
 
     // 나이 복원
     $('#sageInput').val(search_array.sage || '');

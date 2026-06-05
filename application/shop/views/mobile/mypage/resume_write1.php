@@ -22,7 +22,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
 <div class="page page-write page-resume-write">
     <div class="top-bar">
-        <a href="javascript:void(0);" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="javascript:void(0);" class="btn-back" data-disabled="true"><span class="sr-text">이전으로</span></a>
         <h1 class="title">이력서</h1>
     </div><!-- //top-bar -->
     <div class="page-content">
@@ -1918,7 +1918,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         openPopup('modal', {
             removeClose: false,
             content: '<div class="regist-info">' +
-                '<h5 class="name">' + info.mm_name + '</h5>' +
+                '<h5 class="name">' + ($("[name='ru_name']").val() || "이력서") + '</h5>' +
                 '<table>' +
                 '<caption><span class="sr-text">회원가입정보</span></caption>' +
                 '<colgroup><col><col></colgroup>' +

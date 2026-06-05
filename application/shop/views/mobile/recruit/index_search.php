@@ -98,7 +98,8 @@
    .form-toggle-btn2.work-type-all-selected .btn,
    .form-toggle-btn2.week-all-selected .btn,
    .form-toggle-btn2.price-type-all-selected .btn,
-   .form-toggle-btn2.sex-all-selected .btn {
+   .form-toggle-btn2.sex-all-selected .btn,
+   .form-toggle-btn2.nationality-all-selected .btn {
      background-color: #57CCAF;
      color: white;
    }
@@ -442,6 +443,31 @@
                </div>
              </div>
 
+             <div class="form-row nationality-row">
+               <div class="form-row-header">
+                 <span class="form-row-title">국적</span>
+                 <?php
+                  $nationality_selected = array_filter((array)$search_txt["nationality"]);
+                  $has_nationality = !empty($nationality_selected);
+                  ?>
+                 <label class="work-type-any-toggle">
+                   <input type="checkbox" name="nationality_any" class="nationality-any" <?= $has_nationality ? "" : "checked" ?>>
+                   <span class="toggle-indicator"></span>
+                   <span class="toggle-text">전체</span>
+                 </label>
+               </div>
+               <div class="form-toggle-group option-table-group option-table-cols-2 nationality-select">
+                 <?php
+                  $nationality_values = ['내국인', '외국인'];
+                  foreach ($nationality_values as $nationality_value) : ?>
+                   <label class="form-toggle-btn2 nationality-option">
+                     <input type="checkbox" name="nationality[]" value="<?= $nationality_value ?>" <?= in_array_return($nationality_value, $search_txt["nationality"], "check") ?>>
+                     <span class="btn"><?= $nationality_value ?></span>
+                   </label>
+                 <?php endforeach; ?>
+               </div>
+             </div>
+
              <div class="form-row age-row">
                <div class="form-row-header">
                  <span class="form-row-title">나이</span>
@@ -522,6 +548,7 @@
      var arr_price_type = "";
      var arr_week = "";
      var arr_sex = "";
+     var arr_nationality = "";
 
 
      for (var icnt = 0; icnt < $("[name='category[]']:checked").length; icnt++) {
@@ -586,11 +613,22 @@
        }
      }
 
+     for (var icnt = 0; icnt < $("[name='nationality[]']:checked").length; icnt++) {
+       if ($("[name='nationality[]']:checked").eq(icnt).val() != "") {
+         if (arr_nationality == "") {
+           arr_nationality = $("[name='nationality[]']:checked").eq(icnt).val();
+         } else {
+           arr_nationality += "^" + $("[name='nationality[]']:checked").eq(icnt).val();
+         }
+       }
+     }
+
      search_array.category = arr_category;
      search_array.work_type = arr_work_type;
      search_array.week = arr_week;
      search_array.price_type = arr_price_type;
      search_array.sex = arr_sex;
+     search_array.nationality = arr_nationality;
      search_array.sage = $("[name='sage']").val();
      search_array.eage = $("[name='eage']").val();
 
@@ -667,6 +705,7 @@
          week: search_array.week ? search_array.week.split("^") : [],
          price_type: search_array.price_type ? search_array.price_type.split("^") : [],
          sex: search_array.sex ? search_array.sex.split("^") : [],
+         nationality: search_array.nationality ? search_array.nationality.split("^") : [],
          sage: search_array.sage || "",
          eage: search_array.eage || "",
          priceNegotiable: $("[name='priceNegotiable']").is(":checked"),
@@ -709,6 +748,7 @@
        applyCheckedValues("input[name='week[]']", state.week || []);
        applyCheckedValues("input[name='price_type[]']", state.price_type || []);
        applyCheckedValues("input[name='sex[]']", state.sex || []);
+       applyCheckedValues("input[name='nationality[]']", state.nationality || []);
 
        $("[name='priceNegotiable']").prop("checked", !!state.priceNegotiable);
        $("[name='workingDay']").prop("checked", !!state.workingDay);
@@ -880,6 +920,8 @@
    var $priceTypeItemCheckboxes = $('input[name="price_type[]"]');
    var $sexAnyCheckbox = $('input[name="sex_any"]');
    var $sexItemCheckboxes = $('input[name="sex[]"]');
+   var $nationalityAnyCheckbox = $('input[name="nationality_any"]');
+   var $nationalityItemCheckboxes = $('input[name="nationality[]"]');
    var $ageAnyCheckbox = $('input[name="age_any"]');
    var $ageRangeSelect = $('#ageRangeSelect');
    var $sageInput = $('#sageInput');
@@ -1060,6 +1102,50 @@
    });
 
    updateSexVisuals();
+
+   function updateNationalitySelectionState() {
+     if (!$nationalityAnyCheckbox.length) return;
+     if ($nationalityItemCheckboxes.filter(':checked').length === 0) {
+       $nationalityAnyCheckbox.prop('checked', true);
+     } else {
+       $nationalityAnyCheckbox.prop('checked', false);
+     }
+   }
+
+   updateNationalitySelectionState();
+
+   function updateNationalityVisuals() {
+     if ($nationalityAnyCheckbox.is(':checked')) {
+       $nationalityItemCheckboxes.closest('label').addClass('nationality-all-selected');
+     } else {
+       $nationalityItemCheckboxes.closest('label').removeClass('nationality-all-selected');
+     }
+   }
+
+   $nationalityAnyCheckbox.on('change', function() {
+     var totalCount = $nationalityItemCheckboxes.length;
+     if ($(this).is(':checked')) {
+       $nationalityItemCheckboxes.prop('checked', true);
+     } else if ($nationalityItemCheckboxes.filter(':checked').length === totalCount) {
+       $nationalityItemCheckboxes.prop('checked', false);
+     }
+     updateNationalityVisuals();
+   });
+
+   $nationalityItemCheckboxes.on('change', function() {
+     var totalCount = $nationalityItemCheckboxes.length;
+     var checkedCount = $nationalityItemCheckboxes.filter(':checked').length;
+
+     // 모든 항목이 선택되면 "전체" 체크 유지, 해제되면 "전체" 체크 해제
+     if (checkedCount === totalCount) {
+       $nationalityAnyCheckbox.prop('checked', true);
+     } else {
+       $nationalityAnyCheckbox.prop('checked', false);
+     }
+     updateNationalityVisuals();
+   });
+
+   updateNationalityVisuals();
 
    function updateAgeSelectionState() {
      if (!$ageAnyCheckbox.length) return;
@@ -1294,6 +1380,12 @@
        $sexAnyCheckbox.prop('checked', true);
      }
 
+     // 국적
+     $nationalityItemCheckboxes.prop('checked', false);
+     if ($nationalityAnyCheckbox.length) {
+       $nationalityAnyCheckbox.prop('checked', true);
+     }
+
      // 나이
      $ageRangeSelect.val('');
      $sageInput.val('');
@@ -1311,6 +1403,8 @@
      updatePriceTypeVisuals();
      updateSexSelectionState();
      updateSexVisuals();
+     updateNationalitySelectionState();
+     updateNationalityVisuals();
      updateAgeSelectionState();
 
      // localStorage 삭제

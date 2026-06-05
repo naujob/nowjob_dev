@@ -454,6 +454,7 @@ function formatPhoneNumber($number)
                 <div class="desc-clip">
                     <div class="desc" style="width: 100%;">
                         <p class="desc-content" style="font-size: 1.1rem;"><?= $info["rc_desc"] ?></p><br>
+                        
                     </div>
                 </div>
                 <div class="hashtag">

@@ -340,3 +340,9 @@ body {
 .item-info .pay {
     margin: -1rem 0 0;
 }
+
+.btn-back[data-disabled="true"] {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}

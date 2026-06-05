@@ -1,6 +1,6 @@
 <div class="page page-write page-recruit-write">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="btn-back" data-disabled="true"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
     </div><!-- //top-bar -->
     <div class="page-content">
@@ -195,7 +195,7 @@
                                 <span class="liner"></span>
                             </label>
                             <div class="salary-amount-wrapper">
-                                <input type="text" name="rc_price_amount" id="rc_price_amount" placeholder="0" value="<?= isset($info["rc_price_amount"]) ? $info["rc_price_amount"] : "" ?>" autocomplete="off" class="form-text" onkeyup="this.value=this.value.replace(/[^0-9]/g,'');" <?= (!isset($info["rc_price_type_main"]) || $info["rc_price_type_main"] == "급여협의") ? "disabled" : "" ?>>
+                                <input type="text" name="rc_price_amount" id="rc_price_amount" placeholder="0" value="<?= isset($info["rc_price_amount"]) && $info["rc_price_amount"] ? number_format((int)$info["rc_price_amount"]) : "" ?>" autocomplete="off" class="form-text" <?= (!isset($info["rc_price_type_main"]) || $info["rc_price_type_main"] == "급여협의") ? "disabled" : "" ?>>
                                 <span class="unit">원</span>
                             </div>
                         </div>
@@ -548,7 +548,7 @@
         align-items: center;
         justify-content: center;
         padding: 0 10px;
-        height: 36px;
+        height: 3rem;
         background: #57CCAF;
         color: #fff;
         border-radius: 8px;
@@ -563,7 +563,7 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        height: 36px;
+        height: 3rem;
         border: 1px solid #ccc;
         border-radius: 8px;
 
@@ -672,6 +672,18 @@
         var pm_e_m = String($("[name='rc_pm_etime_m']").val() || "00").padStart(2, "0");
         $("[name='rc_pm_etime']").val(pm_e_h + ":" + pm_e_m);
     }
+    // 천 단위 쉼표를 추가하는 포맷팅 함수
+    function formatNumberWithComma(num) {
+        if (!num) return '';
+        var numStr = String(num).replace(/[^0-9]/g, '');
+        return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // 쉼표를 제거하는 함수
+    function removeComma(str) {
+        return String(str).replace(/,/g, '');
+    }
+
     // 페이지별로 데이터를 localStorage에 저장하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
     // 채용공고 작성 1페이지 내용을 localStorage에 임시저장하기 위해 데이터 묶음을 만드는 함수
     function savePage1Data() {
@@ -691,7 +703,7 @@
             rc_work_negotiation: $("[name='rc_work_negotiation']").is(":checked") ? "Y" : "",
             rc_work_type: [],
             rc_price_type_main: $("#rc_price_type_main").val(),
-            rc_price_amount: $("#rc_price_amount").val(),
+            rc_price_amount: removeComma($("#rc_price_amount").val()),
             rc_price_possible: $("[name='rc_price_possible']:checked").val() || "",
             rc_am_stime_h: $("[name='rc_am_stime_h']").val(),
             rc_am_stime_m: $("[name='rc_am_stime_m']").val(),
@@ -1245,7 +1257,12 @@
 
     function saveStep1And2(onSuccess) {
         collectRcWorkImg();
+        // 급여 금액에서 쉼표 제거 후 serialize
+        var currentAmount = removeComma($("#rc_price_amount").val());
+        $("#rc_price_amount").val(currentAmount);
         var params = $("#frm").serialize();
+        // serialize 후 쉼표 추가하여 화면에 표시
+        $("#rc_price_amount").val(formatNumberWithComma(currentAmount));
         var prevIdx = $("[name='rc_idx']").val() || "0";
 
         comAjax("/compage_proc/recruit_write1_1", params, function(ret) {
@@ -1301,34 +1318,29 @@
                     $("[name='rc_idx']").val(savedRcIdx);
                 }
 
-                var completeParams = "rc_idx=" + savedRcIdx;
                 if (mode === "preview") {
-                    completeParams = "rc_idx=" + savedRcIdx + "&mm_comp_num=0&mm_comp_num_org=0&preview_mode=1";
-                }
+                    // 미리보기: 팝업으로 표시 (페이지 이동 없음)
+                    showRecruitPreviewInfo();
+                } else {
+                    // 최종 등록: recruit_complete 호출
+                    var completeParams = "rc_idx=" + savedRcIdx;
 
-                comAjax("/compage_proc/recruit_complete", completeParams, function(ret2) {
-                    if (ret2.code == "00") {
-                        var finalRcIdx = (ret2.data && ret2.data.rc_idx) ? ret2.data.rc_idx : savedRcIdx;
+                    comAjax("/compage_proc/recruit_complete", completeParams, function(ret2) {
+                        if (ret2.code == "00") {
+                            var finalRcIdx = (ret2.data && ret2.data.rc_idx) ? ret2.data.rc_idx : savedRcIdx;
 
-                        if (finalRcIdx && finalRcIdx != "0") {
-                            clearRecruitDraftData(finalRcIdx);
-                        }
-                        clearRecruitDraftData("0");
-
-                        if (mode === "preview") {
-                            if (finalRcIdx != "0" && finalRcIdx != "") {
-                                location.href = "/compage/recruit_view/" + finalRcIdx + "?preview_mode=1";
-                            } else {
-                                location.href = "/compage/recruit_list";
+                            if (finalRcIdx && finalRcIdx != "0") {
+                                clearRecruitDraftData(finalRcIdx);
                             }
-                        } else {
+                            clearRecruitDraftData("0");
+
                             location.href = "/compage/recruit_list";
+                        } else {
+                            commonAlert(ret2.msg, function() {});
+                            return;
                         }
-                    } else {
-                        commonAlert(ret2.msg, function() {});
-                        return;
-                    }
-                });
+                    });
+                }
             } else {
                 commonAlert(ret.msg, function() {});
                 return;
@@ -1364,6 +1376,135 @@
         }
     }
 
+    // 미리보기 정보 팝업 표시 (resume_write1.php의 showPreviewInfo와 동일 방식)
+    function showRecruitPreviewInfo() {
+        var str_rc_work_img = "";
+        var str_rc_week = "";
+        var str_rc_life_type = "";
+
+        // 업무 이미지
+        $("[name='rc_work[]']:checked").each(function() {
+            var imgSrc = $(this).data("img");
+            if (imgSrc) {
+                str_rc_work_img += "<img src='" + imgSrc + "' alt='업무' class='category-label'>";
+            }
+        });
+
+        // 근무요일
+        var rc_week_yn = $("[name='rc_week_yn']").is(":checked") ? "Y" : "N";
+        if (rc_week_yn === "Y") {
+            str_rc_week = "<li>무관</li>";
+        } else {
+            $("[name='rc_week[]']:checked").each(function() {
+                str_rc_week += "<li>" + $(this).val() + "</li>";
+            });
+        }
+
+        // 복리후생
+        var lifeTypes = [];
+        $("[name='rc_life_type[]']:checked").each(function() {
+            lifeTypes.push($(this).val());
+        });
+        lifeTypes.forEach(function(type) {
+            str_rc_life_type += "<p class='tag'>" + type + "</p>";
+        });
+
+        // 주소
+        var displayAddr = "";
+        $("#addr_location .location-field-item:not(.location-field-add)").each(function() {
+            var addr = $(this).find('input[name="ad_addr[]"]').val();
+            if (addr) {
+                displayAddr += (displayAddr ? ", " : "") + addr;
+            }
+        });
+
+        // 급여
+        var salary = $("[name='rc_price_type_main']").val() || "급여협의";
+        var salaryAmount = $("[name='rc_price_amount']").val();
+        if (salaryAmount && salary !== "급여협의") {
+            salary += " " + salaryAmount + "원";
+        }
+
+        openPopup('modal', {
+            removeClose: false,
+            content: '<div class="regist-info">' +
+                '<h5 class="name">' + $("[name='rc_name']").val() + '</h5>' +
+                '<table>' +
+                '<caption><span class="sr-text">채용공고정보</span></caption>' +
+                '<colgroup><col><col></colgroup>' +
+                '<tbody>' +
+                '<tr>' +
+                '<td class="label">업무구분</td>' +
+                '<td class="value">' + str_rc_work_img + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">근무지역</td>' +
+                '<td class="value">' + (displayAddr || "미등록") + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">급여</td>' +
+                '<td class="value">' + salary + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">근무형태</td>' +
+                '<td class="value">' + (function() {
+                    var types = [];
+                    $("[name='rc_work_type[]']:checked").each(function() {
+                        types.push($(this).val());
+                    });
+                    return types.join(", ") || "미등록";
+                })() + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">근무요일</td>' +
+                '<td class="value">' +
+                '<ul class="working-day">' + str_rc_week + '</ul>' +
+                '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="label">복리후생</td>' +
+                '<td class="value">' +
+                '<div class="hashtag">' + str_rc_life_type + '</div>' +
+                '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="label">상세업무정보</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="value introduce">' + $("[name='rc_desc']").val() + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="label">해시태그</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td colspan="2" class="value">' +
+                '<div class="hashtag">' + (function() {
+                    var tags = "";
+                    $("[name='rc_hash[]']:checked").each(function() {
+                        tags += "<p class='tag'>" + $(this).val() + "</p>";
+                    });
+                    return tags;
+                })() + '</div>' +
+                '</td>' +
+                '</tr>' +
+                '</tbody>' +
+                '</table>' +
+                '</div>',
+            firstButton: '수정',
+            secondButton: '등록하기',
+            firstCallback: function() {
+                var $popup = document.querySelector('.layer-popup.in');
+                if ($popup && typeof closePopup === 'function') {
+                    closePopup($popup);
+                }
+            },
+            secondCallback: function() {
+                // 최종 등록 처리
+                handleSubmit("final");
+            }
+        });
+    }
+
     function handleSubmit(mode) {
         if (!validateRequiredForSubmit()) {
             return;
@@ -1385,6 +1526,20 @@
 
         // 근무시간 섹션 초기화
         updateTimeSection();
+
+        // 급여 금액 입력 필드 이벤트 리스너 (천 단위 쉼표 포맷팅)
+        $("#rc_price_amount").on("input", function() {
+            var value = $(this).val();
+            var numericValue = removeComma(value);
+
+            // 숫자만 입력되도록
+            if (numericValue !== String(parseInt(numericValue) || 0)) {
+                numericValue = String(parseInt(numericValue) || 0);
+            }
+
+            // 포맷팅된 값으로 업데이트
+            $(this).val(formatNumberWithComma(numericValue));
+        });
 
         (function() {
             function chgMonth(instance) {

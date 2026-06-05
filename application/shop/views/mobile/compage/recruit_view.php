@@ -259,7 +259,7 @@
                 <h3 class="secondary-title">상세업무정보</h3>
                 <!-- 작성내용 -->
                 <div class="desc">
-                    <p><?= nl2br(htmlspecialchars($info["rc_desc"])) ?></p><br>
+                    <?= $info["rc_desc"] ?>
                 </div>
                 <div class="hashtag">
                     <?= getHashTag($info["rc_hash"]) ?>
@@ -390,11 +390,7 @@
         </div>
 
         <div class="view-footer">
-            <?php
-            // 미리보기 모드가 아니고, 등록된 공고(rc_show_yn == "Y")일 때만 마감 버튼 표시
-            $preview_mode = isset($_GET["preview_mode"]) && $_GET["preview_mode"] == "1";
-            if (!$preview_mode && $info["rc_show_yn"] == "Y") :
-            ?>
+            <?php if ($info["rc_show_yn"] == "Y") : ?>
                 <button id="btnDelete" type="button" aria-haspopup="dialog" class="btn btn-secondary js-remove">마감</button>
             <?php endif; ?>
             <button id="btnEdit" type="button" class="btn btn-tertiary">수정</button>

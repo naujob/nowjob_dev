@@ -26,14 +26,22 @@ class Compage_proc extends CI_Controller
     $this->mm_idx = $this->user->getUserIdx();
   }
 
-  // SmartEditor2 HTML은 그대로 저장 (서식 보존)
+  // SmartEditor2 HTML과 순수 텍스트 통합 처리
   private function cleanSmartEditorDesc($html_content)
   {
-    // </p> 다음의 <p> 또는 </p>를 <br>로 변환 (줄바꿈 보존)
-    $html_content = preg_replace('/<\/p>\s*(?=<p>|<\/)/i', '<br>', $html_content);
     // 위험한 스크립트 태그 및 이벤트 핸들러 제거 (XSS 방지)
     $html_content = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/i', '', $html_content);
     $html_content = preg_replace('/\s*on\w+\s*=\s*["\']?[^"\']*["\']?/i', '', $html_content);
+
+    // HTML이 없는 순수 텍스트인 경우
+    if (strpos($html_content, '<') === false) {
+      // 줄바꿈을 <br>로 변환하고 특수문자 이스케이프
+      $html_content = nl2br(htmlspecialchars(trim($html_content)));
+    } else {
+      // WYSIWYG 에디터 HTML: </p> 다음의 <p> 또는 </p>를 <br>로 변환
+      $html_content = preg_replace('/<\/p>\s*(?=<p>|<\/)/i', '<br>', $html_content);
+    }
+
     return $html_content;
   }
 

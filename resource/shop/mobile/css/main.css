@@ -428,7 +428,12 @@ em.off {
     align-items: center;
     margin-bottom: 8px;
 }
-
+.nationality-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
 .gender-any {
     display: inline-flex;
     align-items: center;
@@ -522,6 +527,103 @@ em.off {
 }
 
 .gender-cell.selected span {
+    background-color: #35c8a3;
+    color: #fff;
+}
+
+.nationality-any {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 17px;
+    color: #8c8c8c;
+    cursor: pointer;
+    background: none;
+    padding: 4px 0;
+    position: relative;
+    border: 0;
+}
+
+.nationality-any::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border: 1px solid #D5D5D5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.nationality-any::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+
+.nationality-any.selected::before {
+    border-color: #57CCAF;
+    background-color: #57CCAF;
+}
+
+.nationality-any.selected::after {
+    background-color: #fff;
+}
+
+.nationality-grid {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow: hidden;
+}
+
+.nationality-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border-right: 1px solid #e0e0e0;
+    cursor: pointer;
+}
+
+.nationality-cell:nth-child(2n) {
+    border-right: 0;
+}
+
+.nationality-cell {
+    border-bottom: 0;
+}
+
+.nationality-cell input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.nationality-cell span {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    color: #333;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nationality-cell.selected span {
     background-color: #35c8a3;
     color: #fff;
 }
@@ -1297,8 +1399,8 @@ object {
     width: 100%;
     min-height: 18.25rem;
     padding: 8px 10px;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    
     color: #000;
     border-radius: 3px;
     border: 1px solid #BEBFC9;
@@ -8516,6 +8618,7 @@ form#frm {
     border-radius: 8px;
     background: #fff;
     box-sizing: border-box;
+    text-align: right;
 }
 
 .page-recruit-write .salary-type-row .form-text:focus {

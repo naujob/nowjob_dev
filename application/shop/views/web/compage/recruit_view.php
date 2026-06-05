@@ -294,7 +294,7 @@
                         <h3 class="secondary-title">상세업무정보</h3>
                         <!-- 작성내용 -->
                         <div class="desc">
-                            <?= $info["rc_desc"] ?>
+                            <p><?= nl2br(htmlspecialchars($info["rc_desc"])) ?></p><br>
                         </div>
                     </div>
 
