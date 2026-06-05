@@ -43,7 +43,7 @@ $quickInfoContent = <<<HTML
 
   <div class="quickinfo-group">
     <div class="quickinfo-label">나이</div>
-    <div class="form-toggle-group col-5">
+    <div class="form-toggle-group col-6">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_age" value="20s">
         <span class="btn">20대</span>
@@ -62,7 +62,11 @@ $quickInfoContent = <<<HTML
       </label>
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_age" value="60s_plus">
-        <span class="btn">60대~</span>
+        <span class="btn">60대</span>
+      </label>
+      <label class="form-toggle-btn2">
+        <input type="radio" name="quickinfo_age" value="70s_plus">
+        <span class="btn">70대</span>
       </label>
     </div>
   </div>

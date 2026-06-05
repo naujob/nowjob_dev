@@ -284,7 +284,18 @@
                         </div>
                         <label>
                             <span class="sr-text">상세업무정보 입력</span>
-                            <textarea name="rc_desc" maxlength="500" class="form-textarea js-autoheight"><?= isset($info["rc_desc"]) ? strip_tags($info["rc_desc"]) : "" ?></textarea>
+                            <?php
+                            $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
+                            if (!empty($desc)) {
+                                // <br> 계열을 줄바꿈으로 변환
+                                $desc = preg_replace('/<br\s*\/?>/i', "\n", $desc);
+                                // HTML 태그 제거
+                                $desc = strip_tags($desc);
+                                // HTML 엔티티 변환 (&nbsp; → 공백, &#10; → 줄바꿈 등)
+                                $desc = html_entity_decode($desc, ENT_QUOTES, 'UTF-8');
+                            }
+                            ?>
+                            <textarea name="rc_desc" maxlength="500" class="form-textarea js-autoheight"><?= $desc ?></textarea>
                         </label>
                     </div>
 
@@ -552,7 +563,7 @@
         background: #57CCAF;
         color: #fff;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 18px;
         font-weight: 500;
         white-space: nowrap;
         flex-shrink: 0;
@@ -581,7 +592,7 @@
         height: 32px;
         border: none;
         background: none;
-        font-size: 13px;
+        font-size: 18px;
         padding: 0 4px;
     }
 
@@ -622,8 +633,13 @@
 <script>
     <?php
     $info_for_js = $info;
-    if (isset($info_for_js["rc_desc"])) {
-        $info_for_js["rc_desc"] = strip_tags($info_for_js["rc_desc"]);
+    // rc_desc 정처리 (HTML 태그/엔티티 제거)
+    if (isset($info_for_js["rc_desc"]) && !empty($info_for_js["rc_desc"])) {
+        $desc = $info_for_js["rc_desc"];
+        $desc = preg_replace('/<br\s*\/?>/i', "\n", $desc);
+        $desc = strip_tags($desc);
+        $desc = html_entity_decode($desc, ENT_QUOTES, 'UTF-8');
+        $info_for_js["rc_desc"] = $desc;
     }
     // rc_hash를 배열로 변환 (JavaScript에서 Array.isArray() 판단용)
     if (isset($info_for_js["rc_hash"]) && $info_for_js["rc_hash"] != "") {

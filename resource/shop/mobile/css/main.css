@@ -116,53 +116,6 @@ em.off {
     margin-bottom: 8px;
 }
 
-.work-type-any {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 17px;
-    color: #8c8c8c;
-    border: 0;
-    background: none;
-    padding: 4px 0;
-    position: relative;
-}
-
-.work-type-any::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 1px solid #D5D5D5;
-    border-radius: 50%;
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.work-type-any::after {
-    content: "";
-    position: absolute;
-    left: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-.work-type-any.selected::before {
-    border-color: #57CCAF;
-    background-color: #57CCAF;
-}
-
-.work-type-any.selected::after {
-    background-color: #fff;
-}
-
 .work-type-grid {
     border: 1px solid #e0e0e0;
     border-radius: 12px;
@@ -218,53 +171,6 @@ em.off {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
-}
-
-.week-any {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 17px;
-    color: #8c8c8c;
-    border: 0;
-    background: none;
-    padding: 4px 0;
-    position: relative;
-}
-
-.week-any::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 1px solid #D5D5D5;
-    border-radius: 50%;
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.week-any::after {
-    content: "";
-    position: absolute;
-    left: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-.week-any.selected::before {
-    border-color: #57CCAF;
-    background-color: #57CCAF;
-}
-
-.week-any.selected::after {
-    background-color: #fff;
 }
 
 .week-grid {
@@ -323,53 +229,6 @@ em.off {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
-}
-
-.price-any {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 17px;
-    color: #8c8c8c;
-    border: 0;
-    background: none;
-    padding: 4px 0;
-    position: relative;
-}
-
-.price-any::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 1px solid #D5D5D5;
-    border-radius: 50%;
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.price-any::after {
-    content: "";
-    position: absolute;
-    left: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-.price-any.selected::before {
-    border-color: #57CCAF;
-    background-color: #57CCAF;
-}
-
-.price-any.selected::after {
-    background-color: #fff;
 }
 
 .price-grid {
@@ -434,52 +293,6 @@ em.off {
     align-items: center;
     margin-bottom: 8px;
 }
-.gender-any {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 17px;
-    color: #8c8c8c;
-    border: 0;
-    background: none;
-    padding: 4px 0;
-    position: relative;
-}
-
-.gender-any::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 1px solid #D5D5D5;
-    border-radius: 50%;
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.gender-any::after {
-    content: "";
-    position: absolute;
-    left: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-.gender-any.selected::before {
-    border-color: #57CCAF;
-    background-color: #57CCAF;
-}
-
-.gender-any.selected::after {
-    background-color: #fff;
-}
 
 .gender-grid {
     border: 1px solid #e0e0e0;
@@ -531,52 +344,6 @@ em.off {
     color: #fff;
 }
 
-.nationality-any {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 17px;
-    color: #8c8c8c;
-    cursor: pointer;
-    background: none;
-    padding: 4px 0;
-    position: relative;
-    border: 0;
-}
-
-.nationality-any::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 1px solid #D5D5D5;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.nationality-any::after {
-    content: "";
-    position: absolute;
-    left: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-.nationality-any.selected::before {
-    border-color: #57CCAF;
-    background-color: #57CCAF;
-}
-
-.nationality-any.selected::after {
-    background-color: #fff;
-}
 
 .nationality-grid {
     border: 1px solid #e0e0e0;
@@ -1793,6 +1560,10 @@ object {
     width: calc(20% - 0.5rem);
 }
 
+.form-toggle-group.col-6 [class^=form-toggle-btn] {
+    width: calc(16.666% - 0.5rem);
+}
+
 .form-row-header {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -1812,7 +1583,7 @@ object {
     color: #222;
 }
 
-.work-type-any-toggle {
+.filter-any-toggle {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -1826,7 +1597,7 @@ object {
     position: relative;
 }
 
-.work-type-any-toggle input {
+.filter-any-toggle input {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1834,7 +1605,7 @@ object {
     pointer-events: none;
 }
 
-.work-type-any-toggle .toggle-indicator {
+.filter-any-toggle .toggle-indicator {
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -1852,7 +1623,7 @@ object {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.work-type-any-toggle .toggle-indicator::after {
+.filter-any-toggle .toggle-indicator::after {
     content: "";
     width: 10px;
     height: 10px;
@@ -1861,16 +1632,16 @@ object {
     transition: background-color 0.2s ease;
 }
 
-.work-type-any-toggle input:checked+.toggle-indicator {
+.filter-any-toggle input:checked+.toggle-indicator {
     border-color: #57CCAF;
     background-color: #57CCAF;
 }
 
-.work-type-any-toggle input:checked+.toggle-indicator::after {
+.filter-any-toggle input:checked+.toggle-indicator::after {
     background-color: #fff;
 }
 
-.work-type-any-toggle .toggle-text {
+.filter-any-toggle .toggle-text {
     font-size: 16px;
     color: #666;
 }

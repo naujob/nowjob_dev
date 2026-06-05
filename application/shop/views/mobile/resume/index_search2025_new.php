@@ -207,9 +207,11 @@
               ?>
               <div class="work-type-header">
                 <p class="form-label">근무형태</p>
-                <button type="button" class="work-type-any <?= $has_work_selected ? '' : 'selected' ?>" data-work-any>
-                  <span>전체</span>
-                </button>
+                <label class="filter-any-toggle">
+                  <input type="checkbox" class="work-any" <?= $has_work_selected ? '' : 'checked' ?> data-work-any>
+                  <span class="toggle-indicator"></span>
+                  <span class="toggle-text">전체</span>
+                </label>
               </div>
               <div class="work-type-grid">
                 <?php
@@ -250,9 +252,11 @@
               ?>
               <div class="price-header">
                 <p class="form-label">급여형태</p>
-                <button type="button" class="price-any <?= $has_price_selected ? '' : 'selected' ?>" data-price-any>
-                  <span>전체</span>
-                </button>
+                <label class="filter-any-toggle">
+                  <input type="checkbox" class="price-any" <?= $has_price_selected ? '' : 'checked' ?> data-price-any>
+                  <span class="toggle-indicator"></span>
+                  <span class="toggle-text">전체</span>
+                </label>
               </div>
               <div class="price-grid">
                 <?php foreach ($available_price as $price_label) : ?>
@@ -285,9 +289,11 @@
               ?>
               <div class="week-header">
                 <p class="form-label">근무요일</p>
-                <button type="button" class="week-any <?= $has_week_selected ? '' : 'selected' ?>" data-week-any>
-                  <span>전체</span>
-                </button>
+                <label class="filter-any-toggle">
+                  <input type="checkbox" class="week-any" <?= $has_week_selected ? '' : 'checked' ?> data-week-any>
+                  <span class="toggle-indicator"></span>
+                  <span class="toggle-text">전체</span>
+                </label>
               </div>
               <div class="week-grid">
                 <?php
@@ -326,9 +332,11 @@
               ?>
               <div class="gender-header">
                 <p class="form-label">성별</p>
-                <button type="button" class="gender-any <?= $has_sex_selected ? '' : 'selected' ?>" data-gender-any>
-                  <span>전체</span>
-                </button>
+                <label class="filter-any-toggle">
+                  <input type="checkbox" class="gender-any" <?= $has_sex_selected ? '' : 'checked' ?> data-gender-any>
+                  <span class="toggle-indicator"></span>
+                  <span class="toggle-text">전체</span>
+                </label>
               </div>
               <div class="gender-grid">
                 <?php $gender_options = ['남자', '여자']; ?>
@@ -362,9 +370,11 @@
               ?>
               <div class="nationality-header">
                 <p class="form-label">국적</p>
-                <button type="button" class="nationality-any <?= $has_nationality_selected ? '' : 'selected' ?>" data-nationality-any>
-                  <span>전체</span>
-                </button>
+                <label class="filter-any-toggle">
+                  <input type="checkbox" class="nationality-any" <?= $has_nationality_selected ? '' : 'checked' ?> data-nationality-any>
+                  <span class="toggle-indicator"></span>
+                  <span class="toggle-text">전체</span>
+                </label>
               </div>
               <div class="nationality-grid">
                 <?php $nationality_options = ['내국인', '외국인']; ?>
@@ -386,7 +396,7 @@
                 <?php
                 $has_age = !empty($search_txt["sage"]) || !empty($search_txt["eage"]);
                 ?>
-                <label class="work-type-any-toggle">
+                <label class="filter-any-toggle">
                   <input type="checkbox" name="age_any" class="age-any" <?= $has_age ? "" : "checked" ?>>
                   <span class="toggle-indicator"></span>
                   <span class="toggle-text">전체</span>
@@ -664,7 +674,7 @@
 
   // 그룹별 상태 업데이트 함수 (전역) - loadSearchStateFromStorage 등 어디서도 호출 가능
   function updateWorkTypeState() {
-    var workAnyBtn = document.querySelector('[data-work-any]'); // "전체" 버튼 요소
+    var workAnyBtn = document.querySelector('[data-work-any]'); // "전체" 토글 input 요소
     var workInputs = document.querySelectorAll('[data-work-checkbox]'); // 근무형태 체크박스 요소들
     if (!workAnyBtn || !workInputs.length) return;
 
@@ -680,10 +690,11 @@
         if (cell) cell.classList.add('selected');
       }
     });
+    // "전체" 토글 상태 업데이트
     if (hasSelection) { //체크된 것이 하나라도 있으면
-      workAnyBtn.classList.remove('selected'); // "전체" 버튼에서 selected 클래스 제거
+      workAnyBtn.checked = false; // "전체" 토글 해제
     } else {
-      workAnyBtn.classList.add('selected'); // 체크된 게 없다면 "전체" 버튼에 selected 클래스 추가
+      workAnyBtn.checked = true; // 체크된 게 없다면 "전체" 토글 활성화
       workInputs.forEach(function(inp) {
         var c = inp.closest('.work-type-cell');
         if (c) c.classList.add('selected'); // 모든 체크박스가 선택된 것처럼 보이도록 각 셀에 selected 클래스 추가
@@ -709,9 +720,9 @@
       }
     });
     if (hasSelection) {
-      weekAnyBtn.classList.remove('selected');
+      weekAnyBtn.checked = false;
     } else {
-      weekAnyBtn.classList.add('selected');
+      weekAnyBtn.checked = true;
       weekInputs.forEach(function(inp) {
         var c = inp.closest('.week-cell');
         if (c) c.classList.add('selected');
@@ -737,9 +748,9 @@
       }
     });
     if (hasSelection) {
-      priceAnyBtn.classList.remove('selected');
+      priceAnyBtn.checked = false;
     } else {
-      priceAnyBtn.classList.add('selected');
+      priceAnyBtn.checked = true;
       priceInputs.forEach(function(inp) {
         var c = inp.closest('.price-cell');
         if (c) c.classList.add('selected');
@@ -765,9 +776,9 @@
       }
     });
     if (hasSelection) {
-      genderAnyBtn.classList.remove('selected');
+      genderAnyBtn.checked = false;
     } else {
-      genderAnyBtn.classList.add('selected');
+      genderAnyBtn.checked = true;
       genderInputs.forEach(function(inp) {
         var c = inp.closest('.gender-cell');
         if (c) c.classList.add('selected');
@@ -793,9 +804,9 @@
       }
     });
     if (hasSelection) {
-      nationalityAnyBtn.classList.remove('selected');
+      nationalityAnyBtn.checked = false;
     } else {
-      nationalityAnyBtn.classList.add('selected');
+      nationalityAnyBtn.checked = true;
       nationalityInputs.forEach(function(inp) {
         var c = inp.closest('.nationality-cell');
         if (c) c.classList.add('selected');
@@ -820,12 +831,15 @@
           updateWorkTypeState();
         });
       });
-      workAnyBtn.addEventListener('click', function() {
-        if (workAnyBtn.classList.contains('selected')) return;
-        workInputs.forEach(function(input) {
-          input.checked = false;
-        });
-        updateWorkTypeState();
+      workAnyBtn.addEventListener('change', function() {
+        if (this.checked) {
+          workInputs.forEach(function(input) {
+            input.checked = false;
+          });
+          updateWorkTypeState();
+        } else {
+          this.checked = true;
+        }
       });
       updateWorkTypeState();
     }
@@ -845,12 +859,15 @@
           updateWeekState();
         });
       });
-      weekAnyBtn.addEventListener('click', function() {
-        if (weekAnyBtn.classList.contains('selected')) return;
-        weekInputs.forEach(function(input) {
-          input.checked = false;
-        });
-        updateWeekState();
+      weekAnyBtn.addEventListener('change', function() {
+        if (this.checked) {
+          weekInputs.forEach(function(input) {
+            input.checked = false;
+          });
+          updateWeekState();
+        } else {
+          this.checked = true;
+        }
       });
       updateWeekState();
     }
@@ -870,12 +887,15 @@
           updatePriceState();
         });
       });
-      priceAnyBtn.addEventListener('click', function() {
-        if (priceAnyBtn.classList.contains('selected')) return;
-        priceInputs.forEach(function(input) {
-          input.checked = false;
-        });
-        updatePriceState();
+      priceAnyBtn.addEventListener('change', function() {
+        if (this.checked) {
+          priceInputs.forEach(function(input) {
+            input.checked = false;
+          });
+          updatePriceState();
+        } else {
+          this.checked = true;
+        }
       });
       updatePriceState();
     }
@@ -895,12 +915,15 @@
           updateGenderState();
         });
       });
-      genderAnyBtn.addEventListener('click', function() {
-        if (genderAnyBtn.classList.contains('selected')) return;
-        genderInputs.forEach(function(input) {
-          input.checked = false;
-        });
-        updateGenderState();
+      genderAnyBtn.addEventListener('change', function() {
+        if (this.checked) {
+          genderInputs.forEach(function(input) {
+            input.checked = false;
+          });
+          updateGenderState();
+        } else {
+          this.checked = true;
+        }
       });
       updateGenderState();
     }
@@ -920,12 +943,15 @@
           updateNationalityState();
         });
       });
-      nationalityAnyBtn.addEventListener('click', function() {
-        if (nationalityAnyBtn.classList.contains('selected')) return;
-        nationalityInputs.forEach(function(input) {
-          input.checked = false;
-        });
-        updateNationalityState();
+      nationalityAnyBtn.addEventListener('change', function() {
+        if (this.checked) {
+          nationalityInputs.forEach(function(input) {
+            input.checked = false;
+          });
+          updateNationalityState();
+        } else {
+          this.checked = true;
+        }
       });
       updateNationalityState();
     }
@@ -1006,10 +1032,6 @@
           cell.classList.remove('selected');
         }
       });
-      var workAnyBtn = document.querySelector('[data-work-any]');
-      if (workAnyBtn) {
-        workAnyBtn.classList.add('selected');
-      }
 
       // 근무요일 초기화
       document.querySelectorAll('[data-week-checkbox]').forEach(function(input) {
@@ -1019,10 +1041,6 @@
           cell.classList.remove('selected');
         }
       });
-      var weekAnyBtn = document.querySelector('[data-week-any]');
-      if (weekAnyBtn) {
-        weekAnyBtn.classList.add('selected');
-      }
 
       // 급여형태 초기화
       document.querySelectorAll('[data-price-checkbox]').forEach(function(input) {
@@ -1032,10 +1050,6 @@
           cell.classList.remove('selected');
         }
       });
-      var priceAnyBtn = document.querySelector('[data-price-any]');
-      if (priceAnyBtn) {
-        priceAnyBtn.classList.add('selected');
-      }
 
       // 성별 초기화
       document.querySelectorAll('[data-gender-checkbox]').forEach(function(input) {
@@ -1045,10 +1059,6 @@
           cell.classList.remove('selected');
         }
       });
-      var genderAnyBtn = document.querySelector('[data-gender-any]');
-      if (genderAnyBtn) {
-        genderAnyBtn.classList.add('selected');
-      }
 
       // 국적 초기화
       document.querySelectorAll('[data-nationality-checkbox]').forEach(function(input) {
@@ -1058,10 +1068,6 @@
           cell.classList.remove('selected');
         }
       });
-      var nationalityAnyBtn = document.querySelector('[data-nationality-any]');
-      if (nationalityAnyBtn) {
-        nationalityAnyBtn.classList.add('selected');
-      }
 
       // 나이 초기화
       $('#ageRangeSelect').val('');
