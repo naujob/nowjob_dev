@@ -1390,29 +1390,30 @@
                     $("[name='rc_idx']").val(savedRcIdx);
                 }
 
-                if (mode === "preview") {
-                    // 미리보기: iframe으로 표시 (페이지 이동 없음)
-                    showIframePreview(savedRcIdx);
-                } else {
-                    // 최종 등록: recruit_complete 호출
-                    var completeParams = "rc_idx=" + savedRcIdx;
+                // 미리보기/최종 등록 모두 recruit_complete 호출
+                var completeParams = "rc_idx=" + savedRcIdx;
 
-                    comAjax("/compage_proc/recruit_complete", completeParams, function(ret2) {
-                        if (ret2.code == "00") {
-                            var finalRcIdx = (ret2.data && ret2.data.rc_idx) ? ret2.data.rc_idx : savedRcIdx;
+                comAjax("/compage_proc/recruit_complete", completeParams, function(ret2) {
+                    if (ret2.code == "00") {
+                        var finalRcIdx = (ret2.data && ret2.data.rc_idx) ? ret2.data.rc_idx : savedRcIdx;
 
+                        if (mode === "preview") {
+                            // 미리보기: iframe으로 표시 (페이지 이동 없음)
+                            showIframePreview(finalRcIdx);
+                        } else {
+                            // 최종 등록: recruit_list로 이동
                             if (finalRcIdx && finalRcIdx != "0") {
                                 clearRecruitDraftData(finalRcIdx);
                             }
                             clearRecruitDraftData("0");
 
                             location.href = "/compage/recruit_list";
-                        } else {
-                            commonAlert(ret2.msg, function() {});
-                            return;
                         }
-                    });
-                }
+                    } else {
+                        commonAlert(ret2.msg, function() {});
+                        return;
+                    }
+                });
             } else {
                 commonAlert(ret.msg, function() {});
                 return;
