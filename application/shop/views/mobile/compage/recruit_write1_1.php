@@ -2158,14 +2158,18 @@
             location.href = "/compage/recruit_list";
         });
 
-        // history.pushState(null, null, location.href);
+        // 히스토리 상태 저장 (무한루프 방지를 위해 page 상태 추가)
+        history.pushState({page: 'recruit_write1_1'}, null, location.href);
 
         window.addEventListener('popstate', function(e) {
-            savePage1Data();
-            savePage2Data();
-            savePage3Data();
-            clearRecruitDraftData($("[name='rc_idx']").val() || "0");
-            location.href = "/compage/recruit_list";
+            // recruit_write 페이지에서만 처리
+            if (!e.state || e.state.page === 'recruit_write1_1') {
+                savePage1Data();
+                savePage2Data();
+                savePage3Data();
+                clearRecruitDraftData($("[name='rc_idx']").val() || "0");
+                location.href = "/compage/recruit_list";
+            }
         });
     });
 
