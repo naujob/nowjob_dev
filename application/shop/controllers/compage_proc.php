@@ -2453,7 +2453,8 @@ class Compage_proc extends CI_Controller
       ]
     );
 
-    json_return("00", "처리완료");
+    $rc_idx = input_post("rc_idx", "0");
+    json_return("00", "처리완료", ["rc_idx" => $rc_idx]);
   }
 
   # 스텝2_1
@@ -2485,7 +2486,8 @@ class Compage_proc extends CI_Controller
         "sl_step" => "스텝2"
       ]
     );
-    json_return("00", "처리완료");
+    $rc_idx = input_post("rc_idx", "0");
+    json_return("00", "처리완료", ["rc_idx" => $rc_idx]);
   }
 
   # 스텝3_1
@@ -2603,7 +2605,8 @@ class Compage_proc extends CI_Controller
       json_return("99", "데이터 저장 중 오류가 발생하였습니다: " . $e->getMessage());
     }
 
-    json_return("00", "처리완료");
+    $rc_idx = input_post("rc_idx", "0");
+    json_return("00", "처리완료", ["rc_idx" => $rc_idx]);
   }
 
   # 채용공고 등록 완료

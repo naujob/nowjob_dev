@@ -597,27 +597,74 @@ class Recruit extends CI_Controller
   # 채용공고
   function job_post($rc_idx = null)
   {
-    // FCM 푸시 알림 디버깅 로그 추가
-    //error_log("job_post 함수 호출 - rc_idx: " . ($rc_idx ? $rc_idx : 'null') . ", User-Agent: " . $_SERVER['HTTP_USER_AGENT']);
+    $preview = input_get('preview', 0); // 미리보기 모드 (draft 데이터 사용)
 
     if ($rc_idx == null) {
-      //error_log("job_post 리다이렉트 - rc_idx가 null");
       redirect('https://nowjob.co.kr/recruit/job_list');
     }
     $data = [];
 
     $os_type = isset($data["os_type"]) ? $data["os_type"] : "";
-    $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
 
-    // 채용공고 정보 디버깅 로그
-    //error_log("job_post 채용공고 조회 결과 - rc_idx: " . $rc_idx . ", info: " . ($info ? "존재" : "없음") . ", rc_show_yn: " . ($info ? $info["rc_show_yn"] : "N/A"));
+    // preview=1이면 draft 데이터, 아니면 recruit 테이블 데이터 조회
+    if ($preview == 1) {
+      // draft 데이터 불러오기 (site_log에서)
+      $list = $this->site_model->getSiteLogList(
+        ["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]
+      );
+      $step1 = $this->site_model->getStepData($list, "스텝1");
+      $step2 = $this->site_model->getStepData($list, "스텝2");
+      $step3 = $this->site_model->getStepData($list, "스텝3");
+      $step5 = $this->site_model->getStepData($list, "스텝5");
+
+      // draft 데이터가 없으면 기존 데이터 사용
+      if (empty($step1) || empty($step3)) {
+        $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
+      } else {
+        // draft에서 $info 구성
+        $info = [];
+        $info["rc_idx"] = $rc_idx;
+        $info["mm_idx"] = isset($step1["mm_idx"]) ? $step1["mm_idx"] : 0;
+        $info["rc_name"] = isset($step1["rc_name"]) ? $step1["rc_name"] : "";
+        $info["rc_work"] = isset($step1["rc_work"]) ? (is_array($step1["rc_work"]) ? arr_implode(",", $step1["rc_work"]) : $step1["rc_work"]) : "";
+        $info["rc_work_type"] = isset($step1["rc_work_type"]) ? (is_array($step1["rc_work_type"]) ? arr_implode(",", $step1["rc_work_type"]) : $step1["rc_work_type"]) : "";
+        $info["rc_price_type"] = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
+        $info["rc_price_pay"] = isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;
+        $info["rc_price_rep"] = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
+        $info["rc_week"] = isset($step3["rc_day"]) ? (is_array($step3["rc_day"]) ? arr_implode(",", $step3["rc_day"]) : $step3["rc_day"]) : "";
+        $info["rc_day_all"] = isset($step3["rc_day_all"]) ? $step3["rc_day_all"] : "";
+        $info["rc_am_stime"] = isset($step1["rc_am_stime"]) ? $step1["rc_am_stime"] : "";
+        $info["rc_am_etime"] = isset($step1["rc_am_etime"]) ? $step1["rc_am_etime"] : "";
+        $info["rc_pm_stime"] = isset($step1["rc_pm_stime"]) ? $step1["rc_pm_stime"] : "";
+        $info["rc_pm_etime"] = isset($step1["rc_pm_etime"]) ? $step1["rc_pm_etime"] : "";
+        $info["rc_life_type"] = isset($step2["rc_life_type"]) ? (is_array($step2["rc_life_type"]) ? arr_implode(",", $step2["rc_life_type"]) : $step2["rc_life_type"]) : "";
+        $info["rc_nation"] = isset($step3["rc_nation"]) ? (is_array($step3["rc_nation"]) ? arr_implode(",", $step3["rc_nation"]) : $step3["rc_nation"]) : "";
+        $info["rc_sex"] = isset($step3["rc_sex"]) ? (is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : $step3["rc_sex"]) : "";
+        $info["rc_sage"] = isset($step3["rc_sage"]) ? $step3["rc_sage"] : "";
+        $info["rc_eage"] = isset($step3["rc_eage"]) ? $step3["rc_eage"] : "";
+        $info["rc_desc"] = isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : "");
+        $info["rc_hash"] = isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : "");
+        $info["rc_sdate"] = isset($step3["rc_sdate"]) ? $step3["rc_sdate"] . " 00:00:00" : "";
+        $info["rc_edate"] = isset($step3["rc_edate"]) ? $step3["rc_edate"] . " 23:59:59" : "";
+        $info["rc_img1"] = isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : "");
+        $info["rc_img2"] = isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : "");
+        $info["rc_img3"] = isset($step5["rc_img3"]) ? $step5["rc_img3"] : (isset($step3["rc_img3"]) ? $step3["rc_img3"] : "");
+        $info["rc_img4"] = isset($step5["rc_img4"]) ? $step5["rc_img4"] : (isset($step3["rc_img4"]) ? $step3["rc_img4"] : "");
+        $info["rc_img5"] = isset($step5["rc_img5"]) ? $step5["rc_img5"] : "";
+        $info["rc_show_yn"] = "Y";
+        $info["fav_cnt"] = 0;
+        $info["rc_hit"] = 0;
+      }
+    } else {
+      // 기존 방식: recruit 테이블에서 조회
+      $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
+    }
 
     $addr_info = $this->member_model->getAddress(["ad_type" => "RECRUIT", "mm_idx" => $info["mm_idx"], "ad_key" => $rc_idx]);
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $bookmark = $this->site_model->getBookmark(["bk_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "bk_key" => $rc_idx]);
 
-    if ($info == null || $info["rc_show_yn"] != "Y") {
-      //error_log("job_post 리다이렉트 - 채용공고 없음 또는 비활성화, rc_idx: " . $rc_idx);
+    if ($info == null || ($preview != 1 && $info["rc_show_yn"] != "Y")) {
       go_location("/recruit/job_list", "채용공고를 조회 하지 못하였습니다.");
     }
 
