@@ -2665,6 +2665,30 @@
             $('input[name="rc_week[]"]').prop('checked', true);
           }
 
+          // 데이터 복원 후 각 그룹의 "무관" 상태 동기화 (이벤트 트리거 없이 복원되었으므로 수동 재계산)
+          setTimeout(function() {
+            // 근무요일 동기화
+            var weekCheckedCount = $('input[name="rc_week[]"]:checked').length;
+            var weekTotalCount = $('input[name="rc_week[]"]').length;
+            if (weekCheckedCount === weekTotalCount && weekCheckedCount > 0) {
+              $('input[name="rc_week_yn"]').prop('checked', true);
+            }
+
+            // 희망성별 동기화
+            var sexCheckedCount = $('input[name="rc_sex[]"]:checked').length;
+            var sexTotalCount = $('input[name="rc_sex[]"]').length;
+            if (sexCheckedCount === sexTotalCount && sexCheckedCount > 0) {
+              $('#rc_sex_yn').prop('checked', true);
+            }
+
+            // 희망국적 동기화
+            var nationCheckedCount = $('input[name="rc_nation[]"]:checked').length;
+            var nationTotalCount = $('input[name="rc_nation[]"]').length;
+            if (nationCheckedCount === nationTotalCount && nationCheckedCount > 0) {
+              $('#rc_nation_yn').prop('checked', true);
+            }
+          }, 100);
+
           // 페이지 로드 시 기본값 설정
           (function() {
             var hasExtraSection = $('.extra-section').length > 0;
