@@ -535,9 +535,15 @@ function formatPhoneNumber($number)
         <?php
         // 기업회원이 자신의 채용공고를 볼 경우를 판단
         $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+        // iframe 미리보기 모드 판단
+        $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         ?>
         <div class="view-footer">
-            <?php if ($isOwnRecruit) { ?>
+            <?php if ($isPreview) { ?>
+                <!-- preview 모드: 수정하기, 등록하기 -->
+                <button type="button" class="btn btn-secondary preview-cancel-btn">수정하기</button>
+                <button type="button" class="btn btn-primary preview-submit-btn">등록하기</button>
+            <?php } else if ($isOwnRecruit) { ?>
                 <!-- 기업회원이 자신의 채용공고를 볼 때: 수정 및 광고신청 버튼 -->
                 <button type="button" id="btnEditRecruit" class="btn btn-edit">수정</button>
                 <button type="button" id="btnPromotionRecruit" class="btn btn-promotion">광고신청</button>
@@ -1284,11 +1290,36 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             initNativeAdControl();
         }
 
-        // iframe 내부에서는 view-footer 숨김 (미리보기 용도)
+        // iframe 내부에서는 view-footer 처리 (preview 모드일 때는 버튼 이벤트 연결, 아니면 숨김)
         if (window.self !== window.top) {
             var viewFooter = document.querySelector('.view-footer');
-            if (viewFooter) {
-                viewFooter.style.display = 'none';
+            var isPreview = '<?= $isPreview ? "true" : "false" ?>' === "true";
+
+            if (isPreview) {
+                // preview 모드: 버튼 이벤트 처리
+                var cancelBtn = viewFooter.querySelector('.preview-cancel-btn');
+                var submitBtn = viewFooter.querySelector('.preview-submit-btn');
+
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        if (window.parent && typeof window.parent.closePreviewOverlay === 'function') {
+                            window.parent.closePreviewOverlay();
+                        }
+                    });
+                }
+
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', function() {
+                        if (window.parent && typeof window.parent.submitPreview === 'function') {
+                            window.parent.submitPreview();
+                        }
+                    });
+                }
+            } else {
+                // preview 모드 아님: footer 숨김
+                if (viewFooter) {
+                    viewFooter.style.display = 'none';
+                }
             }
         }
     });

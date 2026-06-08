@@ -1,6 +1,6 @@
 <div class="page page-write page-recruit-write">
     <div class="top-bar">
-        <a href="#" class="btn-back" data-disabled="true"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
     </div><!-- //top-bar -->
     <div class="page-content">
@@ -1326,7 +1326,7 @@
         }
         return false;
     }
-
+    // 1, 2 페이지 저장 후 rc_idx가 새로 발급되거나 변경된 경우 localStorage의 임시저장 데이터 키를 새로운 rc_idx로 옮기는 함수 호출
     function saveStep1And2(onSuccess) {
         collectRcWorkImg();
         // 급여 금액에서 쉼표 제거 후 serialize
@@ -1375,7 +1375,7 @@
         });
         });
     }
-
+    // 3 페이지 저장과 최종 등록을 처리하는 함수 (mode에 따라 preview 또는 final 처리)
     function saveStep3AndComplete(mode) {
         var hashString = buildHashString();
         var hasFiles = hasFileUploads();
@@ -1463,25 +1463,29 @@
             '  <span class="preview-title">미리보기</span>' +
             '  <button type="button" class="preview-close-btn">✕</button>' +
             '</div>' +
-            '<iframe src="/recruit/job_post/' + rc_idx + '?preview=1" class="preview-iframe" frameborder="0"></iframe>' +
-            '<div class="preview-iframe-footer">' +
-            '  <button type="button" class="btn btn-secondary preview-cancel-btn">수정</button>' +
-            '  <button type="button" class="btn btn-primary preview-submit-btn">등록하기</button>' +
-            '</div>';
+            '<iframe src="/recruit/job_post/' + rc_idx + '?preview=1" class="preview-iframe" frameborder="0"></iframe>';
         document.body.appendChild(overlay);
 
-        // 닫기/수정 버튼
+        // 닫기 버튼
         overlay.querySelector('.preview-close-btn').addEventListener('click', function() {
             document.body.removeChild(overlay);
         });
-        overlay.querySelector('.preview-cancel-btn').addEventListener('click', function() {
-            document.body.removeChild(overlay);
-        });
-        // 등록하기 버튼
-        overlay.querySelector('.preview-submit-btn').addEventListener('click', function() {
-            document.body.removeChild(overlay);
-            handleSubmit("final");
-        });
+    }
+
+    // iframe 미리보기에서 호출되는 함수들 (window.parent에서 접근 가능)
+    function closePreviewOverlay() {
+        var overlay = document.getElementById('recruitPreviewOverlay');
+        if (overlay && overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+    }
+
+    function submitPreview() {
+        var overlay = document.getElementById('recruitPreviewOverlay');
+        if (overlay && overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+        handleSubmit("final");
     }
 
     function handleSubmit(mode) {
