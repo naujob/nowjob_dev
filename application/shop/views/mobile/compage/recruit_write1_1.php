@@ -13,6 +13,9 @@
             <input type="hidden" id="ad_addr" name="ad_addr" value="<?= isset($info["addr"]["ad_addr"]) ? $info["addr"]["ad_addr"] : "" ?>" />
             <input type="hidden" id="ad_gps_x" name="ad_gps_x" value="<?= isset($info["addr"]["ad_gps_x"]) ? $info["addr"]["ad_gps_x"] : "" ?>" />
             <input type="hidden" id="ad_gps_y" name="ad_gps_y" value="<?= isset($info["addr"]["ad_gps_y"]) ? $info["addr"]["ad_gps_y"] : "" ?>" />
+            <!-- 회사정보 (preview에서 표시용) -->
+            <input type="hidden" id="mm_comp_name" name="mm_comp_name" value="<?= isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "" ?>" />
+            <input type="hidden" id="mm_phone" name="mm_phone" value="<?= isset($mem_info["mm_phone"]) ? $mem_info["mm_phone"] : "" ?>" />
             <input type="hidden" name="rc_work_img" value="" />
 
             <div class="section addition-info-form">
@@ -702,6 +705,9 @@
     } else {
         $info_for_js["rc_hash"] = [];
     }
+    // 회사정보 추가 (preview에서 표시용)
+    $info_for_js["mm_comp_name"] = isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "";
+    $info_for_js["mm_phone"] = isset($mem_info["mm_phone"]) ? $mem_info["mm_phone"] : "";
     ?>
     var serverData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0) ? json_encode($info_for_js, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
     var serverAddrData = serverData && serverData.addr ? serverData.addr : null;
@@ -857,7 +863,7 @@
 
         localStorage.setItem(storageKey, JSON.stringify(formData));
     }
-
+    // 서버에서 주소 데이터를 불러와 폼에 채워 넣는 함수 (페이지 새로고침 시 호출)
     function loadServerAddressData() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var rcName = $("[name='rc_name']").val() || "";
@@ -892,39 +898,66 @@
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
 
-        // 먼저 서버 데이터 확인
-        if (typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
-            formData = serverData;
-        } else {
-            // 서버 데이터가 없으면 localStorage에서 로드
-            var storageKey = "recruit_draft_" + rcIdx + "_page1";
-            var saved = localStorage.getItem(storageKey);
-            if (!saved) return;
+        // draft 우선 확인 (임시저장된 데이터가 있으면 우선 사용)
+        var storageKey = "recruit_draft_" + rcIdx + "_page1";
+        var draftSaved = localStorage.getItem(storageKey);
+
+        if (draftSaved) {
+            // draft가 있으면 draft 사용
             try {
-                formData = JSON.parse(saved);
-                if (!formData) return;
+                formData = JSON.parse(draftSaved);
+                if (!formData) {
+                    // draft 파싱 실패 시 서버 데이터 사용
+                    formData = null;
+                }
             } catch (e) {
-                console.error("페이지1 데이터 복원 오류:", e);
-                return;
+                console.error("페이지1 draft 복원 오류:", e);
+                formData = null;
             }
+        }
+
+        // draft가 없거나 파싱 실패하면 서버 데이터 사용
+        if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
+            formData = serverData;
+        } else if (!formData) {
+            // draft도 없고 serverData도 없으면 종료
+            return;
         }
 
         if (typeof formData.rc_name !== "undefined") {
             $("[name='rc_name']").val(formData.rc_name);
         }
-        if (formData.addr && formData.addr.ad_zipcode) {
+        // 주소 데이터 복원 (addr 객체 또는 직접 속성 지원)
+        if (formData.ad_zipcode) {
+            $("#ad_zipcode").val(formData.ad_zipcode);
+        } else if (formData.addr && formData.addr.ad_zipcode) {
             $("#ad_zipcode").val(formData.addr.ad_zipcode);
         }
-        if (formData.addr && formData.addr.ad_jibun) {
+        if (formData.ad_jibun) {
+            $("#ad_jibun").val(formData.ad_jibun);
+        } else if (formData.addr && formData.addr.ad_jibun) {
             $("#ad_jibun").val(formData.addr.ad_jibun);
         }
-        if (formData.addr && formData.addr.ad_doro) {
+        if (formData.ad_doro) {
+            $("#ad_doro").val(formData.ad_doro);
+        } else if (formData.addr && formData.addr.ad_doro) {
             $("#ad_doro").val(formData.addr.ad_doro);
         }
-        if (formData.addr && formData.addr.ad_detail) {
+        if (formData.ad_detail) {
+            $("#ad_detail").val(formData.ad_detail);
+        } else if (formData.addr && formData.addr.ad_detail) {
             $("#ad_detail").val(formData.addr.ad_detail);
         }
-        if (formData.addr && formData.addr.ad_addr) {
+        if (formData.ad_addr) {
+            $("#ad_addr").val(formData.ad_addr);
+            var displayAddr = formData.ad_addr;
+            var detailAddr = formData.ad_detail || (formData.addr && formData.addr.ad_detail);
+            if (detailAddr) {
+                displayAddr += " " + detailAddr;
+            }
+            $("#btnAddrAdd").find(".address-text").text(displayAddr);
+            $("#btnAddrAdd").addClass("has-address");
+        } else if (formData.addr && formData.addr.ad_addr) {
             $("#ad_addr").val(formData.addr.ad_addr);
             var displayAddr = formData.addr.ad_addr;
             if (formData.addr.ad_detail) {
@@ -933,10 +966,14 @@
             $("#btnAddrAdd").find(".address-text").text(displayAddr);
             $("#btnAddrAdd").addClass("has-address");
         }
-        if (formData.addr && formData.addr.ad_gps_x) {
+        if (formData.ad_gps_x) {
+            $("#ad_gps_x").val(formData.ad_gps_x);
+        } else if (formData.addr && formData.addr.ad_gps_x) {
             $("#ad_gps_x").val(formData.addr.ad_gps_x);
         }
-        if (formData.addr && formData.addr.ad_gps_y) {
+        if (formData.ad_gps_y) {
+            $("#ad_gps_y").val(formData.ad_gps_y);
+        } else if (formData.addr && formData.addr.ad_gps_y) {
             $("#ad_gps_y").val(formData.addr.ad_gps_y);
         }
 
@@ -1023,26 +1060,35 @@
             $("[name='rc_pm_etime_m']").val(formData.rc_pm_etime_m);
         }
     }
-
+   // 페이지2 데이터 복원 함수 (생활편의 항목 체크박스 복원)
     function loadPage2Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
 
-        // 먼저 서버 데이터 확인
-        if (typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
-            formData = serverData;
-        } else {
-            // 서버 데이터가 없으면 localStorage에서 로드
-            var storageKey = "recruit_draft_" + rcIdx + "_page2";
-            var saved = localStorage.getItem(storageKey);
-            if (!saved) return;
+        // draft 우선 확인 (임시저장된 데이터가 있으면 우선 사용)
+        var storageKey = "recruit_draft_" + rcIdx + "_page2";
+        var draftSaved = localStorage.getItem(storageKey);
+
+        if (draftSaved) {
+            // draft가 있으면 draft 사용
             try {
-                formData = JSON.parse(saved);
-                if (!formData) return;
+                formData = JSON.parse(draftSaved);
+                if (!formData) {
+                    // draft 파싱 실패 시 서버 데이터 사용
+                    formData = null;
+                }
             } catch (e) {
-                console.error("페이지2 데이터 복원 오류:", e);
-                return;
+                console.error("페이지2 draft 복원 오류:", e);
+                formData = null;
             }
+        }
+
+        // draft가 없거나 파싱 실패하면 서버 데이터 사용
+        if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
+            formData = serverData;
+        } else if (!formData) {
+            // draft도 없고 serverData도 없으면 종료
+            return;
         }
 
         if (formData.rc_life_type && formData.rc_life_type.length > 0) {
@@ -1057,21 +1103,30 @@
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
 
-        // 먼저 서버 데이터 확인
-        if (typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
-            formData = serverData;
-        } else {
-            // 서버 데이터가 없으면 localStorage에서 로드
-            var storageKey = "recruit_draft_" + rcIdx + "_page3";
-            var saved = localStorage.getItem(storageKey);
-            if (!saved) return;
+        // draft 우선 확인 (임시저장된 데이터가 있으면 우선 사용)
+        var storageKey = "recruit_draft_" + rcIdx + "_page3";
+        var draftSaved = localStorage.getItem(storageKey);
+
+        if (draftSaved) {
+            // draft가 있으면 draft 사용
             try {
-                formData = JSON.parse(saved);
-                if (!formData) return;
+                formData = JSON.parse(draftSaved);
+                if (!formData) {
+                    // draft 파싱 실패 시 서버 데이터 사용
+                    formData = null;
+                }
             } catch (e) {
-                console.error("페이지3 데이터 복원 오류:", e);
-                return;
+                console.error("페이지3 draft 복원 오류:", e);
+                formData = null;
             }
+        }
+
+        // draft가 없거나 파싱 실패하면 서버 데이터 사용
+        if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
+            formData = serverData;
+        } else if (!formData) {
+            // draft도 없고 serverData도 없으면 종료
+            return;
         }
 
         try {
@@ -1163,6 +1218,30 @@
                 if (formData.rc_sage) $("[name='rc_sage']").val(formData.rc_sage);
                 if (formData.rc_eage) $("[name='rc_eage']").val(formData.rc_eage);
             }
+
+            // 데이터 복원 후 각 그룹의 "모두" 상태 동기화 (이벤트 트리거 없이 복원되었으므로 수동 재계산)
+            setTimeout(function() {
+                // 희망요일 동기화
+                var dayCheckedCount = $("[name='rc_day[]']:checked").length;
+                var dayTotalCount = $("[name='rc_day[]']").length;
+                if (dayCheckedCount === dayTotalCount && dayCheckedCount > 0) {
+                    $("[name='rc_day_all']").prop("checked", true);
+                }
+
+                // 희망성별 동기화
+                var sexCheckedCount = $("[name='rc_sex[]']:checked").length;
+                var sexTotalCount = $("[name='rc_sex[]']").length;
+                if (sexCheckedCount === sexTotalCount && sexCheckedCount > 0) {
+                    $("[name='rc_sex_all']").prop("checked", true);
+                }
+
+                // 희망국적 동기화
+                var nationCheckedCount = $("[name='rc_nation[]']:checked").length;
+                var nationTotalCount = $("[name='rc_nation[]']").length;
+                if (nationCheckedCount === nationTotalCount && nationCheckedCount > 0) {
+                    $("[name='rc_nation_all']").prop("checked", true);
+                }
+            }, 100);
         } catch (e) {
             console.error("페이지3 데이터 복원 오류:", e);
         }
@@ -1391,8 +1470,8 @@
                 }
 
                 if (mode === "preview") {
-                    // 미리보기: draft에만 저장, iframe으로 표시 (DB에 등록하지 않음)
-                    showIframePreview(savedRcIdx);
+                    // 미리보기: draft에만 저장, 미리보기 페이지로 이동 (DB에 등록하지 않음)
+                    showPreviewPage(savedRcIdx);
                 } else {
                     // 최종 등록: recruit_complete 호출하여 DB에 정식등록
                     var completeParams = "rc_idx=" + savedRcIdx;
@@ -1448,43 +1527,19 @@
         }
     }
 
-    // iframe 방식의 미리보기 표시
-    function showIframePreview(rc_idx) {
-        // 기존 오버레이 있으면 제거
-        var existing = document.getElementById('recruitPreviewOverlay');
-        if (existing) {
-            existing.parentNode.removeChild(existing);
-        }
-
-        var overlay = document.createElement('div');
-        overlay.id = 'recruitPreviewOverlay';
-        overlay.innerHTML =
-            '<div class="preview-iframe-header">' +
-            '  <span class="preview-title">미리보기</span>' +
-            '  <button type="button" class="preview-close-btn">✕</button>' +
-            '</div>' +
-            '<iframe src="/recruit/job_post/' + rc_idx + '?preview=1" class="preview-iframe" frameborder="0"></iframe>';
-        document.body.appendChild(overlay);
-
-        // 닫기 버튼
-        overlay.querySelector('.preview-close-btn').addEventListener('click', function() {
-            document.body.removeChild(overlay);
-        });
+    // 미리보기 페이지로 이동
+    function showPreviewPage(rc_idx) {
+        // 회사정보만 sessionStorage에 저장 (나머지 데이터는 localStorage draft에서 읽음)
+        var memInfo = {
+            mm_comp_name: '<?= isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "" ?>',
+            mm_phone: '<?= isset($mem_info["mm_phone"]) ? $mem_info["mm_phone"] : "" ?>'
+        };
+        sessionStorage.setItem('previewMemInfo', JSON.stringify(memInfo));
+        window.location.href = '/recruit/job_post/' + rc_idx + '?preview=1';
     }
 
-    // iframe 미리보기에서 호출되는 함수들 (window.parent에서 접근 가능)
-    function closePreviewOverlay() {
-        var overlay = document.getElementById('recruitPreviewOverlay');
-        if (overlay && overlay.parentNode) {
-            overlay.parentNode.removeChild(overlay);
-        }
-    }
-
+    // 미리보기에서 최종 저장 처리 (window.parent에서 접근 가능)
     function submitPreview() {
-        var overlay = document.getElementById('recruitPreviewOverlay');
-        if (overlay && overlay.parentNode) {
-            overlay.parentNode.removeChild(overlay);
-        }
         handleSubmit("final");
     }
 
@@ -1502,10 +1557,35 @@
         });
     }
 
-    window.addEventListener('DOMContentLoaded', function() {
-        // 수정 모드일 때는 serverData에서, 신규 작성이나 임시저장에서는 localStorage에서 로드
+    // 페이지 로드 시 데이터 복원 (물리적 뒤로가기 포함)
+    var updateTimeSection_fn;
+    function restorePageData() {
+        // draft 우선 확인: 입력 중이던 임시 데이터가 있으면 우선 사용
+        // draft 없으면 serverData (마지막 저장값) 사용
         loadPage1Data();
         loadPage2Data();
+
+        // 근무시간 및 급여 옵션 업데이트
+        if (typeof updateTimeSection_fn === 'function') {
+            updateTimeSection_fn();
+        }
+        if (typeof updateSalaryOptions === 'function') {
+            updateSalaryOptions();
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        // URL 파라미터에서 rc_idx 확인 (preview 모드에서 돌아온 경우)
+        var urlParams = new URLSearchParams(window.location.search);
+        var queryRcIdx = urlParams.get('rc_idx');
+        if (queryRcIdx) {
+            $("[name='rc_idx']").val(queryRcIdx);
+            // URL에서 파라미터 제거하여 깔끔하게 정리
+            window.history.replaceState({}, document.title, '/compage/recruit_write1_1');
+        }
+
+        // 페이지 로드 시 데이터 복원
+        restorePageData();
 
         // 근무시간 섹션 초기화
         updateTimeSection();
@@ -1686,6 +1766,9 @@
             // 근무협의 자동 체크: 주간, 야간, 2교대 모두 선택되면 근무협의도 자동 체크
             updateNegotiationCheckbox();
         }
+
+        // 전역 함수로 할당 (물리적 뒤로가기 시 사용)
+        updateTimeSection_fn = updateTimeSection;
 
         // 근무협의 체크박스 자동 업데이트 함수
         function updateNegotiationCheckbox() {
@@ -1922,6 +2005,36 @@
             }
         }());
 
+        (function() {
+            var $sexCheckboxes = $("[name='rc_sex[]']");
+            var hasExistingSexSelection = $sexCheckboxes.is(":checked");
+            var isSexAllSelected = $("[name='rc_sex_all']").is(":checked");
+
+            if (!hasExistingSexSelection && !isSexAllSelected) {
+                $("[name='rc_sex_all']").prop("checked", true).trigger("change");
+            }
+        }());
+
+        (function() {
+            var $nationCheckboxes = $("[name='rc_nation[]']");
+            var hasExistingNationSelection = $nationCheckboxes.is(":checked");
+            var isNationAllSelected = $("[name='rc_nation_all']").is(":checked");
+
+            if (!hasExistingNationSelection && !isNationAllSelected) {
+                $("[name='rc_nation_all']").prop("checked", true).trigger("change");
+            }
+        }());
+
+        (function() {
+            var hasSageSelected = $("[name='rc_sage']").val() !== "";
+            var hasEageSelected = $("[name='rc_eage']").val() !== "";
+            var isAgeAllSelected = $("[name='rc_age_all']").is(":checked");
+
+            if (!hasSageSelected && !hasEageSelected && !isAgeAllSelected) {
+                $("[name='rc_age_all']").prop("checked", true).trigger("change");
+            }
+        }());
+
         $("[name='rc_day_all']").on("change", function() {
             if ($(this).is(":checked")) {
                 $("[name='rc_day[]']").prop("checked", true);
@@ -1930,12 +2043,20 @@
             }
         });
 
+        // 희망요일 이벤트
         $("[name='rc_day[]']").on("change", function() {
-            if ($("[name='rc_day_all']").is(":checked")) {
+            var checkedCount = $("[name='rc_day[]']:checked").length;
+            var totalCount = $("[name='rc_day[]']").length;
+            if (checkedCount === totalCount) {
+                // 모든 요일이 선택되면 요일무관 체크
+                $("[name='rc_day_all']").prop("checked", true);
+            } else if ($("[name='rc_day_all']").is(":checked")) {
+                // 하나라도 언체크되면 요일무관 언체크
                 $("[name='rc_day_all']").prop("checked", false);
             }
         });
 
+        // 희망성별 무관 이벤트
         $("[name='rc_sex_all']").on("change", function() {
             if ($(this).is(":checked")) {
                 $("[name='rc_sex[]']").prop("checked", true);
@@ -1944,16 +2065,20 @@
             }
         });
 
+        // 희망성별 버튼 이벤트
         $("[name='rc_sex[]']").on("change", function() {
-            var $clicked = $(this);
-            var isChecked = $clicked.is(":checked");
-
-            if (isChecked) {
-                $("[name='rc_sex[]']").not($clicked).prop("checked", false);
+            var checkedCount = $("[name='rc_sex[]']:checked").length;
+            var totalCount = $("[name='rc_sex[]']").length;
+            if (checkedCount === totalCount) {
+                // 모든 성별이 선택되면 성별무관 체크
+                $("[name='rc_sex_all']").prop("checked", true);
+            } else {
+                // 하나라도 언체크되면 성별무관 언체크
                 $("[name='rc_sex_all']").prop("checked", false);
             }
         });
 
+        // 희망국적 무관 이벤트
         $("[name='rc_nation_all']").on("change", function() {
             if ($(this).is(":checked")) {
                 $("[name='rc_nation[]']").prop("checked", true);
@@ -1962,16 +2087,20 @@
             }
         });
 
+        // 희망국적 버튼 이벤트
         $("[name='rc_nation[]']").on("change", function() {
-            var $clicked = $(this);
-            var isChecked = $clicked.is(":checked");
-
-            if (isChecked) {
-                $("[name='rc_nation[]']").not($clicked).prop("checked", false);
+            var checkedCount = $("[name='rc_nation[]']:checked").length;
+            var totalCount = $("[name='rc_nation[]']").length;
+            if (checkedCount === totalCount) {
+                // 모든 국적이 선택되면 국적무관 체크
+                $("[name='rc_nation_all']").prop("checked", true);
+            } else {
+                // 하나라도 언체크되면 국적무관 언체크
                 $("[name='rc_nation_all']").prop("checked", false);
             }
         });
 
+        // 희망나이 무관 이벤트
         $("[name='rc_age_all']").on("change", function() {
             if ($(this).is(":checked")) {
                 $("[name='rc_sage']").val("");
@@ -1979,8 +2108,16 @@
             }
         });
 
+        // 희망나이 선택 이벤트
         $("[name='rc_sage'], [name='rc_eage']").on("change", function() {
-            if ($(this).val() != "") {
+            var sageVal = $("[name='rc_sage']").val();
+            var eageVal = $("[name='rc_eage']").val();
+
+            // 둘 다 선택되면 나이무관 체크
+            if (sageVal !== "" && eageVal !== "") {
+                $("[name='rc_age_all']").prop("checked", true);
+            } else {
+                // 하나라도 선택되지 않으면 나이무관 언체크
                 $("[name='rc_age_all']").prop("checked", false);
             }
         });
@@ -2021,16 +2158,23 @@
             location.href = "/compage/recruit_list";
         });
 
-        history.pushState(null, null, location.href);
+        // history.pushState(null, null, location.href);
 
         window.addEventListener('popstate', function(e) {
-            history.pushState(null, null, location.href);
             savePage1Data();
             savePage2Data();
             savePage3Data();
             clearRecruitDraftData($("[name='rc_idx']").val() || "0");
             location.href = "/compage/recruit_list";
         });
+    });
+
+    // 물리적 뒤로가기 시에도 데이터 복원
+    window.addEventListener('pageshow', function(event) {
+        // 브라우저 캐시에서 복구된 경우 (물리적 뒤로가기/앞으로가기)
+        if (event.persisted) {
+            restorePageData();
+        }
     });
 </script>
 

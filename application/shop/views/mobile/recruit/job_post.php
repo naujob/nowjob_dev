@@ -149,15 +149,101 @@ function formatPhoneNumber($number)
 
     }
 </style>
+<?php
+// 기업회원이 자신의 채용공고를 볼 경우를 판단
+$isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+// 미리보기 모드 판단
+$isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
+?>
 <div class="page page-view">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="btn-back" onclick="goBackToEdit(event)"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
         <span class="rt-group">
             <!-- <a href="#" class="btn-action" id="btnResume">이력서 작성</a> -->
             <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
         </span>
     </div><!-- //top-bar -->
+
+    <script>
+        var rcIdx = '<?= $info['rc_idx'] ?>';
+        var isPreview = '<?= $isPreview ? "true" : "false" ?>' === "true";
+
+        // preview 모드에서 draft 데이터 로드
+        var draftData = {};
+        var previewMemInfo = {};
+        if (isPreview) {
+            // localStorage에서 draft 읽기
+            var draftKey = "recruit_draft_" + rcIdx + "_page1";
+            var stored = localStorage.getItem(draftKey);
+            if (stored) {
+                draftData = JSON.parse(stored);
+            }
+
+            // sessionStorage에서 회사정보 읽기
+            var memStored = sessionStorage.getItem('previewMemInfo');
+            if (memStored) {
+                previewMemInfo = JSON.parse(memStored);
+            }
+        }
+
+        function goBackToEdit(e) {
+            e.preventDefault();
+
+            // preview 모드일 때 rc_idx를 포함하여 작성 페이지로 이동
+            if (isPreview) {
+                window.location.href = '/compage/recruit_write1_1?rc_idx=' + rcIdx;
+            } else {
+                history.back();
+            }
+        }
+
+        // preview 모드에서 최종 등록 처리
+        function submitPreview() {
+            if (!isPreview) {
+                alert("오류: preview 모드가 아닙니다.");
+                return;
+            }
+
+            // rc_idx로 최종 등록 API 호출
+            var params = "rc_idx=" + rcIdx;
+
+            // AJAX로 recruit_complete 호출 (모바일 recruit_write1_1.php의 saveStep3AndComplete 참조)
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/compage_proc/recruit_complete', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.code === "00") {
+                            // draft 데이터 삭제
+                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
+                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
+                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
+                            localStorage.removeItem("recruit_draft_0_page1");
+                            localStorage.removeItem("recruit_draft_0_page2");
+                            localStorage.removeItem("recruit_draft_0_page3");
+
+                            // 채용공고 목록으로 이동
+                            window.location.href = "/compage/recruit_list";
+                        } else {
+                            alert(response.msg || "등록 처리 중 오류가 발생했습니다.");
+                        }
+                    } catch (e) {
+                        alert("응답 처리 중 오류가 발생했습니다.");
+                        console.error(e);
+                    }
+                } else {
+                    alert("서버 오류가 발생했습니다.");
+                }
+            };
+            xhr.onerror = function() {
+                alert("네트워크 오류가 발생했습니다.");
+            };
+            xhr.send(params);
+        }
+    </script>
 
     <div class="page-content">
 
@@ -471,19 +557,27 @@ function formatPhoneNumber($number)
                         <tr>
                             <td class="label">상호명</td>
                             <td class="value">
-                                <span><?= $mem_info["mm_comp_name"] ?></span>
+                                <span><?= (isset($mem_info["mm_comp_name"]) && $mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : (isset($info["mm_comp_name"]) && $info["mm_comp_name"] ? $info["mm_comp_name"] : "-") ?></span>
                             </td>
                         </tr>
                         <tr>
                             <td class="label">연락처</td>
                             <td class="value">
-                                <span><?= formatPhoneNumber($mem_info["mm_phone"]) ?></span>
+                                <span><?= (isset($mem_info["mm_phone"]) && $mem_info["mm_phone"]) ? formatPhoneNumber($mem_info["mm_phone"]) : (isset($info["mm_phone"]) && $info["mm_phone"] ? formatPhoneNumber($info["mm_phone"]) : "-") ?></span>
                             </td>
                         </tr>
                         <tr>
                             <td class="label">상세주소</td>
                             <td class="value">
-                                <span><?= $addr["ad_doro"] ?> <?= $addr["ad_detail"] ?></span>
+                                <span><?php
+                                    $displayAddr = "";
+                                    if (isset($addr["ad_doro"]) && $addr["ad_doro"]) {
+                                        $displayAddr = $addr["ad_doro"] . (isset($addr["ad_detail"]) && $addr["ad_detail"] ? " " . $addr["ad_detail"] : "");
+                                    } elseif (isset($info["ad_doro"]) && $info["ad_doro"]) {
+                                        $displayAddr = $info["ad_doro"] . (isset($info["ad_detail"]) && $info["ad_detail"] ? " " . $info["ad_detail"] : "");
+                                    }
+                                    echo $displayAddr ?: "-";
+                                ?></span>
                             </td>
                         </tr>
                     </table>
@@ -501,6 +595,8 @@ function formatPhoneNumber($number)
                 <script>
                     window.addEventListener('load', function() {
                         var mapContainer = document.getElementById('jsMap');
+                        if (!mapContainer) return;
+
                         var geocoder = document.getElementById('geocoder').value;
                         var coords, map, marker;
 
@@ -532,17 +628,11 @@ function formatPhoneNumber($number)
                 </script>
             </div>
         </div>
-        <?php
-        // 기업회원이 자신의 채용공고를 볼 경우를 판단
-        $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
-        // iframe 미리보기 모드 판단
-        $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
-        ?>
         <div class="view-footer">
             <?php if ($isPreview) { ?>
                 <!-- preview 모드: 수정하기, 등록하기 -->
-                <button type="button" class="btn btn-secondary preview-cancel-btn">수정하기</button>
-                <button type="button" class="btn btn-primary preview-submit-btn">등록하기</button>
+                <button type="button" class="btn btn-secondary" onclick="goBackToEdit(event)">수정하기</button>
+                <button type="button" class="btn btn-primary" onclick="submitPreview()">등록하기</button>
             <?php } else if ($isOwnRecruit) { ?>
                 <!-- 기업회원이 자신의 채용공고를 볼 때: 수정 및 광고신청 버튼 -->
                 <button type="button" id="btnEditRecruit" class="btn btn-edit">수정</button>
@@ -944,6 +1034,54 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 <script>
     // $(document).ready(function(){
     window.addEventListener('DOMContentLoaded', function() {
+        // preview 모드에서 draft 및 sessionStorage 데이터를 DOM에 적용
+        if (isPreview) {
+            // 제목 (rc_name)
+            if (draftData.rc_name) {
+                var titleEl = document.querySelector('.view-title');
+                if (titleEl) {
+                    titleEl.textContent = draftData.rc_name;
+                }
+            }
+
+            // 기본정보 테이블 업데이트
+            var rows = document.querySelectorAll('.view-location .info-table tr');
+
+            // 상호명
+            if (previewMemInfo.mm_comp_name) {
+                for (var i = 0; i < rows.length; i++) {
+                    var label = rows[i].querySelector('.label');
+                    if (label && label.textContent.includes('상호명')) {
+                        rows[i].querySelector('.value span').textContent = previewMemInfo.mm_comp_name;
+                        break;
+                    }
+                }
+            }
+
+            // 연락처
+            if (previewMemInfo.mm_phone) {
+                for (var i = 0; i < rows.length; i++) {
+                    var label = rows[i].querySelector('.label');
+                    if (label && label.textContent.includes('연락처')) {
+                        rows[i].querySelector('.value span').textContent = previewMemInfo.mm_phone;
+                        break;
+                    }
+                }
+            }
+
+            // 상세주소
+            if (draftData.ad_doro) {
+                for (var i = 0; i < rows.length; i++) {
+                    var label = rows[i].querySelector('.label');
+                    if (label && label.textContent.includes('상세주소')) {
+                        var addrText = draftData.ad_doro + (draftData.ad_detail ? ' ' + draftData.ad_detail : '');
+                        rows[i].querySelector('.value span').textContent = addrText;
+                        break;
+                    }
+                }
+            }
+        }
+
         $('.bigsize').magnificPopup({
             items: [
                 <?php if ($info["rc_img1"] != "") : ?> {
@@ -1288,39 +1426,6 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
         if (typeof initNativeAdControl === 'function') {
             initNativeAdControl();
-        }
-
-        // iframe 내부에서는 view-footer 처리 (preview 모드일 때는 버튼 이벤트 연결, 아니면 숨김)
-        if (window.self !== window.top) {
-            var viewFooter = document.querySelector('.view-footer');
-            var isPreview = '<?= $isPreview ? "true" : "false" ?>' === "true";
-
-            if (isPreview) {
-                // preview 모드: 버튼 이벤트 처리
-                var cancelBtn = viewFooter.querySelector('.preview-cancel-btn');
-                var submitBtn = viewFooter.querySelector('.preview-submit-btn');
-
-                if (cancelBtn) {
-                    cancelBtn.addEventListener('click', function() {
-                        if (window.parent && typeof window.parent.closePreviewOverlay === 'function') {
-                            window.parent.closePreviewOverlay();
-                        }
-                    });
-                }
-
-                if (submitBtn) {
-                    submitBtn.addEventListener('click', function() {
-                        if (window.parent && typeof window.parent.submitPreview === 'function') {
-                            window.parent.submitPreview();
-                        }
-                    });
-                }
-            } else {
-                // preview 모드 아님: footer 숨김
-                if (viewFooter) {
-                    viewFooter.style.display = 'none';
-                }
-            }
         }
     });
 </script>

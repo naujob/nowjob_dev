@@ -1559,6 +1559,7 @@ class Compage extends CI_Controller
 		# 데이터 리스트
 		$data["rc_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
 		$data["info"] = $info;
+		$data["mem_info"] = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
 		$this->layout->shop('/compage/recruit_write1_1', $data);
 	}
 

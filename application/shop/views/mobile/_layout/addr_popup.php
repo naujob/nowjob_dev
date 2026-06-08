@@ -144,19 +144,6 @@
                <!-- <span id="mygps" style="margin-top: 10px; display: inline-block; color: #777;"></span> -->
                <!-- <a href="javascript:initAddrInfo();" class="btn-loc-init">초기화</a> -->
 
-               <!-- 상세주소 입력 영역 -->
-               <div class="address-detail-section" id="addressDetailSection">
-                 <div class="selected-address">
-                   <div class="selected-address-label">선택한 주소</div>
-                   <div class="selected-address-text" id="selectedAddressText"></div>
-                 </div>
-                 <div class="detail-input-wrapper">
-                   <label for="addr_detail_input">상세주소 <span style="color: #999; font-size: 0.875rem;">(선택사항)</span></label>
-                   <input type="text" id="addr_detail_input" name="addr_detail_input" placeholder="예: 101동 201호 (선택사항)" maxlength="100" autocomplete="off">
-                 </div>
-                 <button type="button" class="btn-confirm" id="btnConfirmAddress">확인</button>
-                 <button type="button" class="btn-cancel" id="btnCancelAddress">취소</button>
-               </div>
                <!-- 검색결과 -->
                <div class="result-wrap" style="margin:0;">
                  <!-- 조회목록 -->
@@ -383,15 +370,12 @@
  <!-- //현재위치 변경 레이어팝업 -->
  <script>
    $(document).ready(function() {
-     // 팝업이 열릴 때 상세주소 입력 영역 초기화
+     // 팝업이 열릴 때 초기화
      $(document).on('click', '.js-toggle-panel[aria-controls="changeArea"], a[href="#changeArea"]', function() {
        // 팝업이 열리는 경우 초기화
        setTimeout(function() {
          if ($("#changeArea").hasClass("on")) {
-           $("#addressDetailSection").removeClass("show");
            selectedAddrData = null;
-           $("#addr_detail_input").val("");
-           $("#selectedAddressText").text("");
          }
        }, 100);
      });
@@ -503,40 +487,6 @@
      //   }
      // });
 
-     // 상세주소 확인 버튼 클릭 이벤트
-     $("#btnConfirmAddress").click(function() {
-       if (selectedAddrData == null) {
-         commonAlert('주소를 선택해주세요.', function() {});
-         return;
-       }
-
-       // 상세주소 값 가져오기
-       var detail = $("#addr_detail_input").val().trim();
-
-       // selectAddrInfo 함수 호출 (상세주소 포함)
-       // 기존 함수 시그니처 유지하면서 상세주소는 별도로 처리
-       if (typeof selectAddrInfo === 'function') {
-         selectAddrInfo(selectedAddrData.zipcode, selectedAddrData.doro, selectedAddrData.jibun, selectedAddrData.addr, selectedAddrData.x, selectedAddrData.y, detail);
-       } else {
-         // selectAddrInfo 함수가 없는 경우 기본 동작
-         $("#changeArea").removeClass("on");
-       }
-     });
-
-     // 상세주소 취소 버튼 클릭 이벤트
-     $("#btnCancelAddress").click(function() {
-       // 상세주소 입력 영역 숨기기
-       $("#addressDetailSection").removeClass("show");
-       selectedAddrData = null;
-       $("#addr_detail_input").val("");
-     });
-
-     // 상세주소 입력 필드에서 Enter 키 처리
-     $("#addr_detail_input").keyup(function(e) {
-       if (e.keyCode == 13) {
-         $("#btnConfirmAddress").click();
-       }
-     });
 
      get_addrlist(1, '서울', '');
 

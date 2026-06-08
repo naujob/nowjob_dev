@@ -130,7 +130,9 @@ body {
     position: relative;
     vertical-align: middle;
 }
-
+.page-join .search-input {
+        margin-bottom: 30px;
+}
 .search-cont .icon {
     position: absolute;
     right: 10px;

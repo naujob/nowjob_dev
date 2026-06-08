@@ -223,51 +223,12 @@
 		$("#gpsApiFrm").find("[name=buldMnnm]").val(buldMnnm);
 		$("#gpsApiFrm").find("[name=buldSlno]").val(buldSlno);
 
-		// 주소 선택 시 상세주소 입력 UI 표시를 위한 함수
-		function showAddressDetailInput(addr, zipcode, doro, jibun, x, y, selectedAddr) {
-			// 선택된 주소 정보 저장
-			// selectedAddr: 사용자가 클릭한 도로명 또는 지번 주소
-			var displayAddr = selectedAddr || addr; // 표시할 주소 (선택된 주소 우선)
-			selectedAddrData = {
-				zipcode: zipcode,
-				doro: doro,
-				jibun: jibun,
-				addr: displayAddr, // 선택된 주소를 저장 (도로명 또는 지번)
-				x: x,
-				y: y
-			};
-
-			// 선택한 주소 표시 (사용자가 클릭한 도로명 또는 지번 주소)
-			$("#selectedAddressText").text(displayAddr);
-
-			// 상세주소 입력 영역 표시
-			$("#addressDetailSection").addClass("show");
-
-			// 상세주소 입력 필드 초기화 및 포커스
-			$("#addr_detail_input").val("").focus();
-
-			// 결과 영역 스크롤
-			$("#addressDetailSection")[0].scrollIntoView({
-				behavior: 'smooth',
-				block: 'nearest'
-			});
-		}
-
-		// selectAddrInfo 함수가 있어도 상세주소 입력 UI를 먼저 표시하도록 수정
-		// 사용자가 주소를 선택하면 상세주소 입력 UI가 표시되고, 확인 버튼을 클릭하면 selectAddrInfo 함수가 호출됨
+		// 주소 선택 시 바로 저장
 		if ($(this).attr("data-xpos") != undefined && $(this).attr("data-xpos") != '') {
-			comAjax("/common_proc/get_addr_name", {
-				query: selectedAddr
-			}, function(ret) {
-				if (ret.code == "00") {
-					// 상세주소 입력 UI 표시 (selectAddrInfo 함수가 있어도 먼저 UI 표시)
-					// selectedAddr: 사용자가 클릭한 도로명 또는 지번 주소
-					showAddressDetailInput(ret.data.addr, post, doro, jibun, xpos, ypos, selectedAddr);
-				} else {
-					commonAlert('GPS - 주소정보가 정확하지 않습니다. 위치를 검색하여 선택해주세요..', function() {});
-				}
-				return;
-			});
+			if (typeof selectAddrInfo === 'function') {
+				selectAddrInfo(post, doro, jibun, selectedAddr, xpos, ypos, "");
+				$("#changeArea").removeClass("on");
+			}
 			return;
 		}
 
@@ -303,18 +264,11 @@
 						let p = proj4.toPoint(point);
 						p = proj4.transform(grs80, wgs84, p);
 
-						//쇼트 주소 검색 (선택된 주소 사용)
-						comAjax("/common_proc/get_addr_name", {
-							query: selectedAddr
-						}, function(ret) {
-							if (ret.code == "00") {
-								// 상세주소 입력 UI 표시 (selectAddrInfo 함수가 있어도 먼저 UI 표시)
-								// selectedAddr: 사용자가 클릭한 도로명 또는 지번 주소
-								showAddressDetailInput(ret.data.addr, post, doro, jibun, p.x, p.y, selectedAddr);
-							} else {
-								commonAlert('현재 선택하신 주소는 GPS정보를 제공하지 않습니다. 다른주소를 선택해주세요..', function() {});
-							}
-						});
+						// 바로 저장
+						if (typeof selectAddrInfo === 'function') {
+							selectAddrInfo(post, doro, jibun, selectedAddr, p.x, p.y, "");
+							$("#changeArea").removeClass("on");
+						}
 					}
 				}
 			},

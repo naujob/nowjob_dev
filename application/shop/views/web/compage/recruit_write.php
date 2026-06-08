@@ -2583,44 +2583,50 @@
             $('.extra-section').removeClass('show');
           }
 
-          // 희망국적 무관 클릭 시 토글 (직접 클릭할 때만 처리)
-          $('#rc_nation_yn').on('click', function() {
+          // 희망국적 무관 토글
+          $('#rc_nation_yn').on('change', function() {
             if ($(this).is(':checked')) {
-              // 무관 체크 → 버튼들 비활성화
-              $('input[name="rc_nation[]"]').prop('checked', false);
-              $('input[name="rc_nation[]"]').closest('.form-toggle-btn2').css('opacity', '0.4');
+              // 무관 체크 → 버튼들도 체크 (색깔로 표시)
+              $('input[name="rc_nation[]"]').prop('checked', true);
             } else {
-              // 무관 언체크 → 버튼들 활성화
-              $('input[name="rc_nation[]"]').closest('.form-toggle-btn2').css('opacity', '1');
+              // 무관 언체크 → 버튼들 언체크
+              $('input[name="rc_nation[]"]').prop('checked', false);
             }
           });
 
-          // 희망국적 버튼 클릭 시 무관 자동 체크/언체크
-          $('[name="rc_nation[]"]').on('click', function() {
-            if ($('[name="rc_nation[]"]:checked').length == 2) {
+          // 희망국적 버튼 change 이벤트
+          $('[name="rc_nation[]"]').on('change', function() {
+            var checkedCount = $('[name="rc_nation[]"]:checked').length;
+            var totalCount = $('[name="rc_nation[]"]').length;
+            if (checkedCount === totalCount) {
+              // 모든 국적이 선택되면 국적무관 체크
               $('#rc_nation_yn').prop('checked', true);
             } else {
+              // 하나라도 언체크되면 국적무관 언체크
               $('#rc_nation_yn').prop('checked', false);
             }
           });
 
-          // 희망성별 무관 클릭 시 토글 (직접 클릭할 때만 처리)
-          $('#rc_sex_yn').on('click', function() {
+          // 희망성별 무관 토글
+          $('#rc_sex_yn').on('change', function() {
             if ($(this).is(':checked')) {
-              // 무관 체크 → 버튼들 비활성화
-              $('input[name="rc_sex[]"]').prop('checked', false);
-              $('input[name="rc_sex[]"]').closest('.form-toggle-btn2').css('opacity', '0.4');
+              // 무관 체크 → 버튼들도 체크 (색깔로 표시)
+              $('input[name="rc_sex[]"]').prop('checked', true);
             } else {
-              // 무관 언체크 → 버튼들 활성화
-              $('input[name="rc_sex[]"]').closest('.form-toggle-btn2').css('opacity', '1');
+              // 무관 언체크 → 버튼들 언체크
+              $('input[name="rc_sex[]"]').prop('checked', false);
             }
           });
 
-          // 희망성별 버튼 클릭 시 무관 자동 체크/언체크
-          $('[name="rc_sex[]"]').on('click', function() {
-            if ($('[name="rc_sex[]"]:checked').length == 2) {
+          // 희망성별 버튼 change 이벤트
+          $('[name="rc_sex[]"]').on('change', function() {
+            var checkedCount = $('[name="rc_sex[]"]:checked').length;
+            var totalCount = $('[name="rc_sex[]"]').length;
+            if (checkedCount === totalCount) {
+              // 모든 성별이 선택되면 성별무관 체크
               $('#rc_sex_yn').prop('checked', true);
             } else {
+              // 하나라도 언체크되면 성별무관 언체크
               $('#rc_sex_yn').prop('checked', false);
             }
           });
@@ -2647,14 +2653,126 @@
 
           // 초기 상태 복원
           if ($('#rc_nation_yn').is(':checked')) {
-            $('input[name="rc_nation[]"]').closest('.form-toggle-btn2').css('opacity', '0.4');
+            $('input[name="rc_nation[]"]').prop('checked', true);
           }
           if ($('#rc_sex_yn').is(':checked')) {
-            $('input[name="rc_sex[]"]').closest('.form-toggle-btn2').css('opacity', '0.4');
+            $('input[name="rc_sex[]"]').prop('checked', true);
           }
           if ($('#rc_age_yn').is(':checked')) {
             $('select[name="rc_sage"], select[name="rc_eage"]').attr('data-disabled', 'true');
           }
+          if ($('input[name="rc_week_yn"]').is(':checked')) {
+            $('input[name="rc_week[]"]').prop('checked', true);
+          }
+
+          // 페이지 로드 시 기본값 설정
+          (function() {
+            var hasExtraSection = $('.extra-section').length > 0;
+            if (!hasExtraSection) return;
+
+            // 근무요일 기본값 설정 (월~금)
+            var defaultWeekdays = ['월', '화', '수', '목', '금'];
+            var hasExistingWeek = $('input[name="rc_week[]"]:checked').length > 0;
+            var isWeekAllSelected = $('input[name="rc_week_yn"]').is(':checked');
+
+            if (!hasExistingWeek && !isWeekAllSelected) {
+              $('input[name="rc_week[]"]').each(function() {
+                var $checkbox = $(this);
+                if (defaultWeekdays.indexOf($checkbox.val()) !== -1) {
+                  $checkbox.prop('checked', true);
+                }
+              });
+            }
+
+            // 희망성별 기본값 설정 (성별무관)
+            var hasExistingSex = $('input[name="rc_sex[]"]:checked').length > 0;
+            var isSexAllSelected = $('#rc_sex_yn').is(':checked');
+
+            if (!hasExistingSex && !isSexAllSelected) {
+              $('#rc_sex_yn').prop('checked', true).trigger('change');
+            }
+
+            // 희망국적 기본값 설정 (국적무관)
+            var hasExistingNation = $('input[name="rc_nation[]"]:checked').length > 0;
+            var isNationAllSelected = $('#rc_nation_yn').is(':checked');
+
+            if (!hasExistingNation && !isNationAllSelected) {
+              $('#rc_nation_yn').prop('checked', true).trigger('change');
+            }
+
+            // 희망나이 기본값 설정 (나이무관)
+            var hasSageSelected = $('select[name="rc_sage"]').val() !== '';
+            var hasEageSelected = $('select[name="rc_eage"]').val() !== '';
+            var isAgeAllSelected = $('#rc_age_yn').is(':checked');
+
+            if (!hasSageSelected && !hasEageSelected && !isAgeAllSelected) {
+              $('#rc_age_yn').prop('checked', true).trigger('change');
+            }
+          }());
+
+          // 근무요일 무관 토글
+          $('input[name="rc_week_yn"]').on('change', function() {
+            if ($(this).is(':checked')) {
+              // 무관 체크 → 버튼들도 체크 (색깔로 표시)
+              $('input[name="rc_week[]"]').prop('checked', true);
+            } else {
+              // 무관 언체크 → 버튼들 언체크
+              $('input[name="rc_week[]"]').prop('checked', false);
+            }
+          });
+
+          // 근무요일 버튼 이벤트
+          $('[name="rc_week[]"]').on('change', function() {
+            var checkedCount = $('[name="rc_week[]"]:checked').length;
+            var totalCount = $('[name="rc_week[]"]').length;
+            if (checkedCount === totalCount) {
+              // 모든 요일이 선택되면 무관 체크
+              $('input[name="rc_week_yn"]').prop('checked', true);
+            } else if ($('input[name="rc_week_yn"]').is(':checked')) {
+              // 하나라도 언체크되면 무관 언체크
+              $('input[name="rc_week_yn"]').prop('checked', false);
+            }
+          });
+
+          // 희망성별 버튼 이벤트
+          $('[name="rc_sex[]"]').on('change', function() {
+            var checkedCount = $('[name="rc_sex[]"]:checked').length;
+            var totalCount = $('[name="rc_sex[]"]').length;
+            if (checkedCount === totalCount) {
+              // 모든 성별이 선택되면 성별무관 체크
+              $('#rc_sex_yn').prop('checked', true);
+            } else {
+              // 하나라도 언체크되면 성별무관 언체크
+              $('#rc_sex_yn').prop('checked', false);
+            }
+          });
+
+          // 희망국적 버튼 이벤트
+          $('[name="rc_nation[]"]').on('change', function() {
+            var checkedCount = $('[name="rc_nation[]"]:checked').length;
+            var totalCount = $('[name="rc_nation[]"]').length;
+            if (checkedCount === totalCount) {
+              // 모든 국적이 선택되면 국적무관 체크
+              $('#rc_nation_yn').prop('checked', true);
+            } else {
+              // 하나라도 언체크되면 국적무관 언체크
+              $('#rc_nation_yn').prop('checked', false);
+            }
+          });
+
+          // 희망나이 선택 이벤트
+          $('[name="rc_sage"], [name="rc_eage"]').on('change', function() {
+            var sageVal = $('[name="rc_sage"]').val();
+            var eageVal = $('[name="rc_eage"]').val();
+
+            // 둘 다 선택되면 나이무관 체크
+            if (sageVal !== '' && eageVal !== '') {
+              $('#rc_age_yn').prop('checked', true);
+            } else {
+              // 하나라도 선택되지 않으면 나이무관 언체크
+              $('#rc_age_yn').prop('checked', false);
+            }
+          });
         });
       </script>
     </div>
@@ -3142,11 +3260,12 @@
       });
     });
 
-    $("[name=rc_week_yn]").click(function() {
+    // 근무요일 무관 토글
+    $("[name=rc_week_yn]").on('change', function() {
       if ($(this).is(":checked")) {
-        $("[name='rc_week[]']").prop("checked", true);
+        $("[name='rc_week[]']").prop("checked", true).trigger("change");
       } else {
-        $("[name='rc_week[]']").prop("checked", false);
+        $("[name='rc_week[]']").prop("checked", false).trigger("change");
       }
     });
 
@@ -3167,13 +3286,6 @@
       }
     }());
 
-    $("[name='rc_week[]']").click(function() {
-      if ($("[name='rc_week[]']:checked").length == 7) {
-        $("[name=rc_week_yn]").prop("checked", true);
-      } else {
-        $("[name=rc_week_yn]").prop("checked", false);
-      }
-    });
 
     $(".comma").on("keyup", function() {
       $(this).val($(this).val().replace(/\,/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'));
