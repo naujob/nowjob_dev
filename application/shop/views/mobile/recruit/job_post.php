@@ -1283,5 +1283,13 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         if (typeof initNativeAdControl === 'function') {
             initNativeAdControl();
         }
+
+        // iframe 내부에서는 view-footer 숨김 (미리보기 용도)
+        if (window.self !== window.top) {
+            var viewFooter = document.querySelector('.view-footer');
+            if (viewFooter) {
+                viewFooter.style.display = 'none';
+            }
+        }
     });
 </script>
