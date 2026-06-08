@@ -628,6 +628,61 @@
         color: #7b5ea7;
         background: #f3e5f5;
     }
+
+    /* iframe 미리보기 스타일 */
+    #recruitPreviewOverlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+
+    .preview-iframe-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        height: 48px;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        flex-shrink: 0;
+    }
+
+    .preview-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .preview-close-btn {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #666;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .preview-iframe {
+        flex: 1;
+        width: 100%;
+        border: none;
+    }
+
+    .preview-iframe-footer {
+        display: flex;
+        gap: 8px;
+        padding: 12px 16px;
+        border-top: 1px solid #eee;
+        background: #fff;
+        flex-shrink: 0;
+    }
+
+    .preview-iframe-footer .btn {
+        flex: 1;
+    }
 </style>
 
 <script>
@@ -1336,8 +1391,8 @@
                 }
 
                 if (mode === "preview") {
-                    // 미리보기: 팝업으로 표시 (페이지 이동 없음)
-                    showRecruitPreviewInfo();
+                    // 미리보기: iframe으로 표시 (페이지 이동 없음)
+                    showIframePreview(savedRcIdx);
                 } else {
                     // 최종 등록: recruit_complete 호출
                     var completeParams = "rc_idx=" + savedRcIdx;
@@ -1393,132 +1448,39 @@
         }
     }
 
-    // 미리보기 정보 팝업 표시 (resume_write1.php의 showPreviewInfo와 동일 방식)
-    function showRecruitPreviewInfo() {
-        var str_rc_work_img = "";
-        var str_rc_week = "";
-        var str_rc_life_type = "";
-
-        // 업무 이미지
-        $("[name='rc_work[]']:checked").each(function() {
-            var imgSrc = $(this).data("img");
-            if (imgSrc) {
-                str_rc_work_img += "<img src='" + imgSrc + "' alt='업무' class='category-label'>";
-            }
-        });
-
-        // 근무요일
-        var rc_week_yn = $("[name='rc_week_yn']").is(":checked") ? "Y" : "N";
-        if (rc_week_yn === "Y") {
-            str_rc_week = "<li>무관</li>";
-        } else {
-            $("[name='rc_week[]']:checked").each(function() {
-                str_rc_week += "<li>" + $(this).val() + "</li>";
-            });
+    // iframe 방식의 미리보기 표시
+    function showIframePreview(rc_idx) {
+        // 기존 오버레이 있으면 제거
+        var existing = document.getElementById('recruitPreviewOverlay');
+        if (existing) {
+            existing.parentNode.removeChild(existing);
         }
 
-        // 복리후생
-        var lifeTypes = [];
-        $("[name='rc_life_type[]']:checked").each(function() {
-            lifeTypes.push($(this).val());
-        });
-        lifeTypes.forEach(function(type) {
-            str_rc_life_type += "<p class='tag'>" + type + "</p>";
-        });
+        var overlay = document.createElement('div');
+        overlay.id = 'recruitPreviewOverlay';
+        overlay.innerHTML =
+            '<div class="preview-iframe-header">' +
+            '  <span class="preview-title">미리보기</span>' +
+            '  <button type="button" class="preview-close-btn">✕</button>' +
+            '</div>' +
+            '<iframe src="/recruit/job_post/' + rc_idx + '" class="preview-iframe" frameborder="0"></iframe>' +
+            '<div class="preview-iframe-footer">' +
+            '  <button type="button" class="btn btn-secondary preview-cancel-btn">수정</button>' +
+            '  <button type="button" class="btn btn-primary preview-submit-btn">등록하기</button>' +
+            '</div>';
+        document.body.appendChild(overlay);
 
-        // 주소
-        var displayAddr = "";
-        $("#addr_location .location-field-item:not(.location-field-add)").each(function() {
-            var addr = $(this).find('input[name="ad_addr[]"]').val();
-            if (addr) {
-                displayAddr += (displayAddr ? ", " : "") + addr;
-            }
+        // 닫기/수정 버튼
+        overlay.querySelector('.preview-close-btn').addEventListener('click', function() {
+            document.body.removeChild(overlay);
         });
-
-        // 급여
-        var salary = $("[name='rc_price_type_main']").val() || "급여협의";
-        var salaryAmount = $("[name='rc_price_amount']").val();
-        if (salaryAmount && salary !== "급여협의") {
-            salary += " " + salaryAmount + "원";
-        }
-
-        openPopup('modal', {
-            removeClose: false,
-            content: '<div class="regist-info">' +
-                '<h5 class="name">' + $("[name='rc_name']").val() + '</h5>' +
-                '<table>' +
-                '<caption><span class="sr-text">채용공고정보</span></caption>' +
-                '<colgroup><col><col></colgroup>' +
-                '<tbody>' +
-                '<tr>' +
-                '<td class="label">업무구분</td>' +
-                '<td class="value">' + str_rc_work_img + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">근무지역</td>' +
-                '<td class="value">' + (displayAddr || "미등록") + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">급여</td>' +
-                '<td class="value">' + salary + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">근무형태</td>' +
-                '<td class="value">' + (function() {
-                    var types = [];
-                    $("[name='rc_work_type[]']:checked").each(function() {
-                        types.push($(this).val());
-                    });
-                    return types.join(", ") || "미등록";
-                })() + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">근무요일</td>' +
-                '<td class="value">' +
-                '<ul class="working-day">' + str_rc_week + '</ul>' +
-                '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">복리후생</td>' +
-                '<td class="value">' +
-                '<div class="hashtag">' + str_rc_life_type + '</div>' +
-                '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="label">상세업무정보</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="value introduce">' + $("[name='rc_desc']").val() + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="label">해시태그</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="value">' +
-                '<div class="hashtag">' + (function() {
-                    var tags = "";
-                    $("[name='rc_hash[]']:checked").each(function() {
-                        tags += "<p class='tag'>" + $(this).val() + "</p>";
-                    });
-                    return tags;
-                })() + '</div>' +
-                '</td>' +
-                '</tr>' +
-                '</tbody>' +
-                '</table>' +
-                '</div>',
-            firstButton: '수정',
-            secondButton: '등록하기',
-            firstCallback: function() {
-                var $popup = document.querySelector('.layer-popup.in');
-                if ($popup && typeof closePopup === 'function') {
-                    closePopup($popup);
-                }
-            },
-            secondCallback: function() {
-                // 최종 등록 처리
-                handleSubmit("final");
-            }
+        overlay.querySelector('.preview-cancel-btn').addEventListener('click', function() {
+            document.body.removeChild(overlay);
+        });
+        // 등록하기 버튼
+        overlay.querySelector('.preview-submit-btn').addEventListener('click', function() {
+            document.body.removeChild(overlay);
+            handleSubmit("final");
         });
     }
 
