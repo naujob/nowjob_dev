@@ -416,12 +416,13 @@ if (!$socket_io_script_url) {
     return path.split('?')[0].replace(/\/$/, ''); // trailing slash 제거
   }
 
-  // 커스텀 방문 기록 관리
+  // 커스텀 방문 기록 관리 같은 페이지 중복 방지(히스토리에 push 하지 않음), splash 페이지 예외 처리 포함
   (function manageHistory() {
     const rawCurrentPath = window.location.pathname;
     const currentPath = normalizePath(rawCurrentPath); // 정규화된 경로
     const currentPageFull = window.location.pathname + window.location.search;
-    const currentPage = normalizePath(currentPageFull); // 정규화된 full URL
+    const currentPage = normalizePath(currentPageFull); // 정규화된 full URL ex) /chat/chat_view/123?from=applied 
+    // 문자열 -> 객체로 변환 historyStack = ['/home/main', '/product/list', '/product/list/']
     const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || []; // 방문 기록 스택
 
     // splash 페이지는 히스토리 스택에 추가하지 않음 (뒤로가기 시 splash로 이동하는 문제 방지)
@@ -429,7 +430,7 @@ if (!$socket_io_script_url) {
       return;
     }
 
-    // ⭐ 연속된 중복 제거
+    // ⭐ 연속된 중복 제거 ['/home/main', '/product/list', '/product/list/'] => ['/home/main', '/product/list']
     while (historyStack.length > 1) {
       const last = normalizePath(historyStack[historyStack.length - 1]);
       const prev = normalizePath(historyStack[historyStack.length - 2]);
@@ -441,7 +442,7 @@ if (!$socket_io_script_url) {
     }
 
     // 마지막 페이지 확인
-    const lastPageRaw = historyStack[historyStack.length - 1];
+    const lastPageRaw = historyStack[historyStack.length - 1]; // 마지막 페이지를 의미
     const lastPath = normalizePath(lastPageRaw);
 
     // ⭐ 같은 페이지면 무시

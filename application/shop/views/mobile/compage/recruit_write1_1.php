@@ -1564,6 +1564,7 @@
         // draft 없으면 serverData (마지막 저장값) 사용
         loadPage1Data();
         loadPage2Data();
+        loadPage3Data();
 
         // 근무시간 및 급여 옵션 업데이트
         if (typeof updateTimeSection_fn === 'function') {

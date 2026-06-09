@@ -266,7 +266,7 @@
     (function() {
         if (window.history && window.history.pushState) {
             // 이전 히스토리를 메인 페이지로 교체
-            window.history.replaceState(null, '', 'https://nowjob.co.kr/');
+            window.history.replaceState(null, '', 'https://nowjob.co.kr/'); //지금 있는 칸을 새 URL/state로 교체
             // 현재 페이지를 히스토리에 추가
             window.history.pushState(null, '', window.location.href);
             // 뒤로가기 이벤트 감지

@@ -1080,6 +1080,14 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                     }
                 }
             }
+
+            // 지도 좌표 업데이트 (미리보기 모드에서 지도 표시용)
+            if (draftData.ad_gps_y && draftData.ad_gps_x) {
+                var geocoderEl = document.getElementById('geocoder');
+                if (geocoderEl) {
+                    geocoderEl.value = draftData.ad_gps_y + ',' + draftData.ad_gps_x;
+                }
+            }
         }
 
         $('.bigsize').magnificPopup({
@@ -1423,9 +1431,5 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             // tel: href가 그대로 실행되어 전화 연결
         });
 
-        // 네이티브 광고 제어 (스크롤 감지 + 메뉴 opacity 감지)
-        if (typeof initNativeAdControl === 'function') {
-            initNativeAdControl();
-        }
     });
 </script>

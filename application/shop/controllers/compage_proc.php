@@ -36,7 +36,7 @@ class Compage_proc extends CI_Controller
     // HTML이 없는 순수 텍스트인 경우
     if (strpos($html_content, '<') === false) {
       // 줄바꿈을 <br>로 변환하고 특수문자 이스케이프
-      $html_content = nl2br(htmlspecialchars(trim($html_content)));
+      $html_content = str_replace("\n", '<br>', htmlspecialchars(trim($html_content)));
     } else {
       // WYSIWYG 에디터 HTML: </p> 다음의 <p> 또는 </p>를 <br>로 변환
       $html_content = preg_replace('/<\/p>\s*(?=<p>|<\/)/i', '<br>', $html_content);
