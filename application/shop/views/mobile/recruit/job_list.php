@@ -3,40 +3,13 @@ $banner_list = getBannerList("BN00302031");
 
 // 사용자 주소 정보 로드
 $addr_info = $this->user->getAddrInfo();
-
-// 초기 채용공고 데이터 로드 (캐시 테이블에서 서버사이드 렌더링)
-$mm_idx = $this->user->getUserIdx();
 $mm_type = $this->user->getUserType();
-$initial_params = [
-  'page' => 1,
-  'pagesize' => 20,
-  'mm_idx' => $mm_idx,
-  'text' => '',
-  'category' => '',
-  'work_type' => '',
-  'week' => '',
-  'price_type' => '',
-  'sex' => '',
-  'sage' => '',
-  'eage' => '',
-  'order_by' => 'recent',
-  'search_addr' => [],
-  'compidx' => ''
-];
-$this->load->model('recruitmodel', 'recruit_model');
-$initial_recruits = $this->recruit_model->getRecruitList($initial_params);
-// 캐시 테이블이 비어있으면 AJAX로 로드 (Cron이 아직 실행 안 됨)
-$use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 
-// 전체 채용공고 개수 조회 (COUNT 쿼리)
-$sql_count = "
-  SELECT COUNT(*) as total
-  FROM vw_recruit_list_cache
-  WHERE rc_show_yn = 'Y' AND rc_status = 'Y' AND rc_sdate <= NOW() AND rc_edate >= NOW()
-";
-$query_count = $this->db->query($sql_count);
-$count_result = $query_count->row_array();
-$initial_total_count = isset($count_result['total']) ? (int)$count_result['total'] : 0;
+// Controller에서 전달받은 포맷팅된 데이터 사용
+// (이미 Controller의 job_list()에서 초기 데이터 로드 및 포맷팅됨)
+$use_server_render = isset($use_server_render) ? $use_server_render : false;
+$initial_recruits = isset($initial_recruits) ? $initial_recruits : ['list' => []];
+$initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
 ?>
 <style>
   .page-content {
@@ -724,28 +697,17 @@ $initial_total_count = isset($count_result['total']) ? (int)$count_result['total
       <h2 class="secondary-title">채용공고</h2>
       <ol class="result-list result-list-card" id="ajaxList" data-page="1">
       <?php
-        // 초기 공고 데이터 렌더링 (캐시 테이블에서 - 서버사이드)
+        // 초기 공고 데이터 렌더링 (Controller에서 이미 포맷팅됨)
         if ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) {
           foreach ($initial_recruits['list'] as $row) {
-            // 이미지와 포맷팅 처리
-            $rt_recruit_img = getRecruitImg($row);
-            $rt_work_img = getWorkingImg($row["rc_work"]);
-            $rt_work_type = getWorkTypeWithColor($row["rc_work_type"]);
-            $rt_price_type = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
-            $rt_price_pay = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
-            $up_dt_text = getTimeText($row["up_dt"]);
-            $rc_age_nm = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
-            $book_yn_class = ($row["book_yn"] == "Y") ? "on" : "";
-            $rc_nation_nm = (in_array($row["rc_nation_nm"], ["무관", "내국인,외국인"])) ? "국적무관" : $row["rc_nation_nm"];
-            // 주소 변환 (서버사이드)
-            $converted_addr = removeBigAddr($row["ad_addr"]);
+            $book_yn_class = ($row['book_yn'] == "Y") ? "on" : "";
       ?>
         <li class="list-item">
           <div class="content-li<?php echo ($row['pm_idx'] != null) ? ' recomm' : ''; ?>" data-rc_idx="<?= $row['rc_idx'] ?>">
             <div class="content-info">
               <div class="content-body">
                 <div class="img">
-                  <img src="<?= $rt_recruit_img ?>">
+                  <img src="<?= $row['rt_recruit_img'] ?>">
                   <?php if ($mm_type === 'MEM' || $mm_type === 'COMP'): ?>
                     <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
                       class="btnBookMark btn-bookmark js-toggle-bookmark <?= $book_yn_class ?>">
@@ -757,21 +719,21 @@ $initial_total_count = isset($count_result['total']) ? (int)$count_result['total
                   <?php endif; ?>
                 </div>
                 <div class="desc">
-                  <div class="wicon"><?= $rt_work_img ?></div>
-                  <div class="title ellipsis"><?= mb_strlen($row['rc_name']) > 18 ? mb_substr($row['rc_name'], 0, 18) . '...' : $row['rc_name'] ?></div>
+                  <div class="wicon"><?= $row['rt_work_img'] ?></div>
+                  <div class="title ellipsis"><?= $row['rc_name'] ?></div>
                   <div class="summary">
-                    <p><?= $rc_nation_nm ?></p>
-                    <p><?= $rc_age_nm ?></p>
+                    <p><?= $row['rc_nation_nm'] ?></p>
+                    <p><?= $row['rc_age_nm'] ?></p>
                   </div>
                   <div class="summary area">
-                    <p><?= strlen($converted_addr) > 20 ? substr($converted_addr, 0, 20) . '...' : $converted_addr ?></p>
+                    <p><?= strlen($row['ad_addr']) > 20 ? substr($row['ad_addr'], 0, 20) . '...' : $row['ad_addr'] ?></p>
                   </div>
                 </div>
                 <div class="summary-container">
-                  <div class="summary3"><?= $rt_work_type ?></div>
+                  <div class="summary3"><?= $row['rt_work_type'] ?></div>
                   <div class="summary2">
-                    <p class="period"><?= $rt_price_type ?></p>
-                    <p class="amount"><?= $rt_price_pay ?></p>
+                    <p class="period"><?= $row['rt_price_type'] ?></p>
+                    <p class="amount"><?= $row['rt_price_pay'] ?></p>
                   </div>
                 </div>
               </div>
@@ -1076,42 +1038,23 @@ $tpl_recomm_class = true; ?>
 
   //데이터 보여주기
   function showBoardList(list) {
-   
-
     list.forEach(function(row, index) {
-    
-
       var $clone = $("#tpl_list").clone();
       var $content = $clone.html();
 
+      // 추천 공고 처리
       if (row.pm_idx == null) {
         $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
         $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
       }
 
-      if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
-      } else {
-        $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      }
-
-      if (row.rc_age_nm == "무관") {
-        $content = $content.replaceAll("{{rc_age_nm}}", "나이무관");
-      } else {
-        $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      }
-
+      // 포맷팅된 데이터 직접 사용 (Controller에서 이미 처리됨)
       $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
       $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr); // 서버에서 이미 변환됨
-      // 제목이 18자 이상이면 ...으로 자르기
-      var rc_name = row.rc_name;
-      if (rc_name && rc_name.length > 18) {
-        rc_name = rc_name.substring(0, 18) + '...';
-      }
-      $content = $content.replaceAll("{{rc_name}}", rc_name);
-
-
+      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
+      $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
+      $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
+      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
       $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
       $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
       $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
@@ -1120,7 +1063,6 @@ $tpl_recomm_class = true; ?>
 
       $clone.html($content);
       $(list_id).append($clone.html());
-
     });
 
     // 페이지의 마지막에 광고 삽입
@@ -1130,7 +1072,6 @@ $tpl_recomm_class = true; ?>
 
     showEmpty();
     updateTopSectionsVisibility();
-
   }
 
   // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)

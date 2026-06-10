@@ -458,28 +458,46 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getRecruitList($params);
 
-		$temp_list = $result["list"];
-		foreach ($temp_list as $key => $row) {
-			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
-			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
-			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
-			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
-			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
-			$temp_list[$key]["up_dt"] = getTimeText($row["up_dt"]);
-			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
-			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
-			// 서버사이드 주소 변환 (큰 시/도 제거)
-			$temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
-			// 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
-			if (mb_strlen($row["rc_name"]) > 18) {
-				$temp_list[$key]["rc_name"] = mb_substr($row["rc_name"], 0, 18) . '...';
-			}
-		}
-		$result["list"] = $temp_list;
+		// 공통 포맷팅 함수 적용
+		$result["list"] = $this->_formatRecruitList($result["list"]);
 		// JavaScript 페이지네이션용 total 필드 추가
 		$result["total"] = isset($result["count"]) ? $result["count"] : 0;
 
 		json_return("00", "조회성공", $result);
+	}
+
+	// 채용공고 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
+	private function _formatRecruitList($list)
+	{
+		$formatted_list = [];
+		foreach ($list as $row) {
+			$rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
+			$rc_work_type = isset($row['rc_work_type']) ? $row['rc_work_type'] : '';
+			$rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
+			$rc_price_rep = isset($row['rc_price_rep']) ? $row['rc_price_rep'] : '';
+			$rc_price_pay = isset($row['rc_price_pay']) ? $row['rc_price_pay'] : '';
+			$rc_sage = isset($row['rc_sage']) ? $row['rc_sage'] : '';
+			$rc_eage = isset($row['rc_eage']) ? $row['rc_eage'] : '';
+			$rc_nation_nm = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
+			$ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+
+			$formatted_list[] = [
+				'rc_idx' => isset($row['rc_idx']) ? $row['rc_idx'] : '',
+				'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+				'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+				'rc_name' => (mb_strlen($row['rc_name']) > 18) ? mb_substr($row['rc_name'], 0, 18) . '...' : $row['rc_name'],
+				'rt_recruit_img' => getRecruitImg($row),
+				'rt_work_img' => getWorkingImg($rc_work),
+				'rt_work_type' => getWorkTypeWithColor($rc_work_type),
+				'rt_price_type' => getConvertPriceType($rc_price_type, $rc_price_rep),
+				'rt_price_pay' => getConvertPrice($rc_price_pay, $rc_price_type),
+				'rc_nation_nm' => (in_array($rc_nation_nm, ["무관", "내국인,외국인"])) ? "국적무관" : $rc_nation_nm,
+				'rc_age_nm' => formatAgeRange($rc_sage, $rc_eage),
+				'ad_addr' => removeBigAddr($ad_addr)
+			];
+		}
+		return $formatted_list;
 	}
 
 	# 기업별공고목록(시급적용)

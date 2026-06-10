@@ -413,6 +413,41 @@ class Recruit extends CI_Controller
 
     $addr_info = $this->user->getAddrInfo();
 
+    // 초기 채용공고 데이터 로드 및 포맷팅
+    $initial_params = [
+      'page' => 1,
+      'pagesize' => 20,
+      'mm_idx' => $this->mm_idx,
+      'text' => '',
+      'category' => '',
+      'work_type' => '',
+      'week' => '',
+      'price_type' => '',
+      'sex' => '',
+      'sage' => '',
+      'eage' => '',
+      'order_by' => 'recent',
+      'search_addr' => [],
+      'compidx' => ''
+    ];
+    $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+    $use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
+
+    // 초기 데이터 포맷팅
+    if ($use_server_render) {
+      $initial_recruits['list'] = $this->_formatRecruitList($initial_recruits['list']);
+    }
+
+    // 전체 채용공고 개수 조회 (COUNT 쿼리)
+    $sql_count = "
+      SELECT COUNT(*) as total
+      FROM vw_recruit_list_cache
+      WHERE rc_show_yn = 'Y' AND rc_status = 'Y' AND rc_sdate <= NOW() AND rc_edate >= NOW()
+    ";
+    $query_count = $this->db->query($sql_count);
+    $count_result = $query_count->row_array();
+    $initial_total_count = isset($count_result['total']) ? (int)$count_result['total'] : 0;
+
     $data["mm_type"] = $this->mm_type;
     $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
@@ -423,8 +458,45 @@ class Recruit extends CI_Controller
     $data["skip_search_state_load"] = $skip_search_state_load;
     // length를 0으로 전달하면 LIMIT 없이 전체 조회
     $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 0);
+    $data["initial_recruits"] = $initial_recruits;
+    $data["initial_total_count"] = $initial_total_count;
+    $data["use_server_render"] = $use_server_render;
 
     $this->layout->shop('/recruit/job_list', $data);
+  }
+
+  // 채용공고 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
+  private function _formatRecruitList($list)
+  {
+    $formatted_list = [];
+    foreach ($list as $row) {
+      $rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
+      $rc_work_type = isset($row['rc_work_type']) ? $row['rc_work_type'] : '';
+      $rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
+      $rc_price_rep = isset($row['rc_price_rep']) ? $row['rc_price_rep'] : '';
+      $rc_price_pay = isset($row['rc_price_pay']) ? $row['rc_price_pay'] : '';
+      $rc_sage = isset($row['rc_sage']) ? $row['rc_sage'] : '';
+      $rc_eage = isset($row['rc_eage']) ? $row['rc_eage'] : '';
+      $rc_nation_nm = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
+      $ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+
+      $formatted_list[] = [
+        'rc_idx' => isset($row['rc_idx']) ? $row['rc_idx'] : '',
+        'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+        'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+        'rc_name' => (mb_strlen($row['rc_name']) > 18) ? mb_substr($row['rc_name'], 0, 18) . '...' : $row['rc_name'],
+        'rt_recruit_img' => getRecruitImg($row),
+        'rt_work_img' => getWorkingImg($rc_work),
+        'rt_work_type' => getWorkTypeWithColor($rc_work_type),
+        'rt_price_type' => getConvertPriceType($rc_price_type, $rc_price_rep),
+        'rt_price_pay' => getConvertPrice($rc_price_pay, $rc_price_type),
+        'rc_nation_nm' => (in_array($rc_nation_nm, ["무관", "내국인,외국인"])) ? "국적무관" : $rc_nation_nm,
+        'rc_age_nm' => formatAgeRange($rc_sage, $rc_eage),
+        'ad_addr' => removeBigAddr($ad_addr)
+      ];
+    }
+    return $formatted_list;
   }
 
   # 채용지도(동검색)
