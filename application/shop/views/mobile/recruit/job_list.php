@@ -27,6 +27,16 @@ $this->load->model('recruitmodel', 'recruit_model');
 $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
 // 캐시 테이블이 비어있으면 AJAX로 로드 (Cron이 아직 실행 안 됨)
 $use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
+
+// 전체 채용공고 개수 조회 (COUNT 쿼리)
+$sql_count = "
+  SELECT COUNT(*) as total
+  FROM vw_recruit_list_cache
+  WHERE rc_show_yn = 'Y' AND rc_status = 'Y' AND rc_sdate <= NOW() AND rc_edate >= NOW()
+";
+$query_count = $this->db->query($sql_count);
+$count_result = $query_count->row_array();
+$initial_total_count = isset($count_result['total']) ? (int)$count_result['total'] : 0;
 ?>
 <style>
   .page-content {
@@ -944,11 +954,17 @@ $tpl_recomm_class = true; ?>
     var hasInitialData = initialListCount > 0;
 
     if (list_page === 1 && hasInitialData) {
-      // 페이지 1: 기존 렌더링된 데이터 사용, 페이지네이션만 업데이트
+      // 페이지 1: 기존 렌더링된 데이터 사용, 페이지네이션 업데이트
       var adCount = $(list_id).find(".ad-item-adsense").length;
       var actualItemCount = initialListCount - adCount;
 
-      total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
+      // 서버에서 전달받은 전체 데이터 개수 사용 (PHP: initial_total_count)
+      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
+      if (serverTotal && serverTotal > 0) {
+        total_count = serverTotal;
+      } else {
+        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
+      }
       total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
 
       // 광고 삽입

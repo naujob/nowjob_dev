@@ -41,6 +41,16 @@ $query_initial = $this->db->query($sql_initial);
 $initial_resumes = $query_initial->result_array();
 $use_server_render = isset($initial_resumes) && count($initial_resumes) > 0;
 
+// 전체 이력서 개수 조회
+$sql_count = "
+  SELECT COUNT(*) as total
+  FROM vw_resume_list_cache c
+  WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
+";
+$query_count = $this->db->query($sql_count);
+$count_result = $query_count->row_array();
+$initial_total_count = isset($count_result['total']) ? $count_result['total'] : 0;
+
 // 데이터 포맷팅 (JavaScript 함수와 동기화)
 if ($use_server_render) {
   foreach ($initial_resumes as $key => $row) {
@@ -856,7 +866,10 @@ $tpl_show_mm_idx = true; ?>
 
     if (list_page === 1 && hasInitialData) {
       // 초기 데이터 있음: 렌더링 완료, 페이지네이션과 광고 추가
-      total_count = initialListCount;
+      // 서버에서 전달받은 전체 데이터 개수 사용 (PHP: initial_total_count)
+      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
+      total_count = (serverTotal && serverTotal > 0) ? serverTotal : initialListCount;
+      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
       renderPagination();
 
       // 광고 삽입
