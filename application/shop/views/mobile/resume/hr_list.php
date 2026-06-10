@@ -763,10 +763,10 @@ $tpl_show_mm_idx = true; ?>
 <script>
   // mm_birth 디버깅 - 초기 렌더링 데이터 확인
   var debugInitialResumes = <?php echo json_encode(isset($initial_resumes) && is_array($initial_resumes) ? $initial_resumes : array()); ?>;
-  console.log('[mm_age 디버깅] 초기 데이터 전체:', debugInitialResumes);
+  //console.log('[mm_age 디버깅] 초기 데이터 전체:', debugInitialResumes);
   if (debugInitialResumes.length > 0) {
     debugInitialResumes.forEach(function(row, idx) {
-      console.log('[mm_age] 항목[' + idx + ']: mm_birth=' + row.mm_birth + ', mm_age=' + row.mm_age);
+    //  console.log('[mm_age] 항목[' + idx + ']: mm_birth=' + row.mm_birth + ', mm_age=' + row.mm_age);
     });
   }
 
@@ -1026,16 +1026,14 @@ $tpl_show_mm_idx = true; ?>
   // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
   function insertAdsenseAd() {
     var adStartTime = performance.now();
-    console.log('[AdSense] insertAdsenseAd() 함수 실행');
+   
 
     // 도메인 환경 판별
     var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-    console.log('[AdSense] hostname:', window.location.hostname);
-    console.log('[AdSense] pathname:', window.location.pathname);
-    console.log('[AdSense] isDevEnv:', isDevEnv);
+   
 
     if (isDevEnv) {
-      console.log('[AdSense] 개발 환경 - 플레이스홀더 표시');
+      
       // 개발 환경에서는 CSS로만 자리 표시
       var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
         '광고 자리 (개발 환경)' +
@@ -1044,7 +1042,7 @@ $tpl_show_mm_idx = true; ?>
       var adTime = performance.now() - adStartTime;
       console.log('[성능] 광고 로드 시간:', adTime.toFixed(2) + 'ms');
     } else {
-      console.log('[AdSense] 운영 환경 - 실제 광고 로드');
+     
       // 운영 환경에서 실제 광고 로드
       var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
         '<div class="adsense-wrapper" style="position: relative;">' +
@@ -1056,19 +1054,18 @@ $tpl_show_mm_idx = true; ?>
         '</div>' +
         '</li>';
       $(list_id).append(adHtml);
-      console.log('[AdSense] 광고 HTML 삽입 완료');
+  
 
       // 비동기로 광고 로드 (setTimeout 사용)
       setTimeout(function() {
         var pushStartTime = performance.now();
         try {
-          console.log('[AdSense] 비동기 로드 시작');
+        
           (adsbygoogle = window.adsbygoogle || []).push({});
           var pushTime = performance.now() - pushStartTime;
-          console.log('[성능] adsbygoogle.push() 시간:', pushTime.toFixed(2) + 'ms');
-          console.log('[AdSense] push 성공');
+         
         } catch (e) {
-          console.error('[AdSense] push 실패:', e);
+        
         }
       }, 0); // 비동기 로드 (즉시)
     }

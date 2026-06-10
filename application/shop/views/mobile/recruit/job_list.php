@@ -855,7 +855,7 @@ $tpl_recomm_class = true; ?>
 <script>
   // PHP에서 미리 변환된 주소 데이터 (서버사이드 렌더링)
   var ad_addr = <?= json_encode(removeBigAddr(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""), JSON_UNESCAPED_UNICODE) ?>;
-  console.log('[주소 변환] 초기 ad_addr:', ad_addr);
+  //console.log('[주소 변환] 초기 ad_addr:', ad_addr);
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
@@ -1017,7 +1017,7 @@ $tpl_recomm_class = true; ?>
         crossDomain: true,
         success: function(ret) {
           if (ret.code === "00") {
-            //console.log('설정저장');
+           
           }
         },
         error: function(xhr, status, error) {
@@ -1038,7 +1038,7 @@ $tpl_recomm_class = true; ?>
       success: function(ret) {
         list_loading = false;
         var ajaxTime = performance.now() - ajaxStartTime;
-        console.log('[성능] AJAX 요청 시간:', ajaxTime.toFixed(2) + 'ms');
+      
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
           $(list_id).empty(); // 매번 초기화
@@ -1060,7 +1060,7 @@ $tpl_recomm_class = true; ?>
           var renderStartTime = performance.now();
           showBoardList(ret.data.list);
           var renderTime = performance.now() - renderStartTime;
-          console.log('[성능] DOM 렌더링 시간:', renderTime.toFixed(2) + 'ms', '아이템:', ret.data.list.length);
+        
 
           renderPagination();
         } else {
@@ -1076,10 +1076,10 @@ $tpl_recomm_class = true; ?>
 
   //데이터 보여주기
   function showBoardList(list) {
-    console.log('[주소 변환] AJAX 응답 데이터 수:', list.length);
+   
 
     list.forEach(function(row, index) {
-      console.log('[주소 변환] row[' + index + '].ad_addr:', row.ad_addr);
+    
 
       var $clone = $("#tpl_list").clone();
       var $content = $clone.html();
@@ -1136,25 +1136,24 @@ $tpl_recomm_class = true; ?>
   // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
   function insertAdsenseAd() {
     var adStartTime = performance.now();
-    console.log('[AdSense] insertAdsenseAd() 함수 실행');
+  
 
     // 도메인 환경 판별
     var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-    console.log('[AdSense] hostname:', window.location.hostname);
-    console.log('[AdSense] pathname:', window.location.pathname);
-    console.log('[AdSense] isDevEnv:', isDevEnv);
+  //  console.log('[AdSense] hostname:', window.location.hostname);
+    //console.log('[AdSense] pathname:', window.location.pathname);
+   // console.log('[AdSense] isDevEnv:', isDevEnv);
 
     if (isDevEnv) {
-      console.log('[AdSense] 개발 환경 - 플레이스홀더 표시');
+    
       // 개발 환경에서는 CSS로만 자리 표시
       var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
         '광고 자리 (개발 환경)' +
         '</li>';
       $(list_id).append(adHtml);
-      var adTime = performance.now() - adStartTime;
-      console.log('[성능] 광고 로드 시간:', adTime.toFixed(2) + 'ms');
+     
     } else {
-      console.log('[AdSense] 운영 환경 - 실제 광고 로드');
+    
       // 운영 환경에서 실제 광고 로드
       var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
         '<div class="adsense-wrapper" style="position: relative;">' +
@@ -1166,19 +1165,18 @@ $tpl_recomm_class = true; ?>
         '</div>' +
         '</li>';
       $(list_id).append(adHtml);
-      console.log('[AdSense] 광고 HTML 삽입 완료');
+     
 
       // 비동기로 광고 로드 (setTimeout 사용)
       setTimeout(function() {
         var pushStartTime = performance.now();
         try {
-          console.log('[AdSense] 비동기 로드 시작');
+       
           (adsbygoogle = window.adsbygoogle || []).push({});
           var pushTime = performance.now() - pushStartTime;
-          console.log('[성능] adsbygoogle.push() 시간:', pushTime.toFixed(2) + 'ms');
-          console.log('[AdSense] push 성공');
+        
         } catch (e) {
-          console.error('[AdSense] push 실패:', e);
+        
         }
       }, 0); // 비동기 로드 (즉시)
     }
@@ -1250,10 +1248,10 @@ $tpl_recomm_class = true; ?>
       if (ret.code == "00") {
         var list = ret.data.list;
         $(".section.index_comp .result-list").html("");
-        console.log('[주소 변환] 추천공고 데이터 수:', list.length);
+      
 
         list.forEach(function(row) {
-          console.log('[주소 변환] 추천공고 ad_addr:', row.ad_addr);
+          //[주소 변환] 추천공고 ad_addr: 음성군 소석리
           var $clone = $("#tpl_list").clone();
           var $content = $clone.html();
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);

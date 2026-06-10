@@ -1327,7 +1327,7 @@
       if (typeof loadSearchStateFromStorage === 'function') {
         loadSearchStateFromStorage();
       }
-      console.log('[index_search2025_new.php] 검색 조건 복원 완료');
+     
     } catch (e) {
       console.error('[index_search2025_new.php] 복원 중 오류:', e);
     }
