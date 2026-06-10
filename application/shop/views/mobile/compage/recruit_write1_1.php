@@ -2155,7 +2155,7 @@
             savePage1Data();
             savePage2Data();
             savePage3Data();
-            clearRecruitDraftData($("[name='rc_idx']").val() || "0");
+            clearRecruitDraftData($("[name='rc_idx']").val() || "0"); //임시저장 삭제처리
             location.href = "/compage/recruit_list";
         });
 

@@ -402,6 +402,12 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			// 서버사이드 주소 변환 (큰 시/도 제거)
+			$temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
+			// 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
+			if (mb_strlen($row["rc_name"]) > 18) {
+				$temp_list[$key]["rc_name"] = mb_substr($row["rc_name"], 0, 18) . '...';
+			}
 		}
 		$result["list"] = $temp_list;
 
@@ -462,6 +468,12 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["up_dt"] = getTimeText($row["up_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			// 서버사이드 주소 변환 (큰 시/도 제거)
+			$temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
+			// 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
+			if (mb_strlen($row["rc_name"]) > 18) {
+				$temp_list[$key]["rc_name"] = mb_substr($row["rc_name"], 0, 18) . '...';
+			}
 		}
 		$result["list"] = $temp_list;
 		// JavaScript 페이지네이션용 total 필드 추가
@@ -930,5 +942,148 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->insertCallLog($data);
 		json_return("00", "success");
+	}
+
+	# 캐시 테이블 갱신 (Cron 용)
+	function refreshRecruitCache()
+	{
+		// 환경 감지
+		$is_dev = strpos($_SERVER['REQUEST_URI'], '/dev_nowapk') !== false ||
+		          strpos($_SERVER['HTTP_HOST'], 'dev.') === 0;
+		$environment = $is_dev ? 'development' : 'production';
+
+		// 환경별 보안 키
+		$secret_keys = [
+			'development' => 'kD9mP2x5nQ5wR8vL3bT',
+			'production'  => 'ProdSeC7kEy9mL2wR'
+		];
+
+		$secret_key = $secret_keys[$environment];
+		$provided_key = isset($_GET['key']) ? $_GET['key'] : '';
+
+		// 보안: API 키 확인
+		if (empty($provided_key) || $provided_key !== $secret_key) {
+			http_response_code(403);
+			json_return("403", "Forbidden");
+			return;
+		}
+
+		$start_time = microtime(true);
+
+		try {
+			// 캐시 테이블 갱신
+			$this->db->query("TRUNCATE TABLE vw_recruit_list_cache");
+
+			$sql = "INSERT INTO vw_recruit_list_cache (
+				rc_idx, mm_id, mm_idx, mm_status, mm_comp_name, rc_name, rc_work, rc_work_type,
+				rc_price_type, rc_price_rep, rc_price_pay, rc_img1, rc_show_yn, rc_status,
+				rc_sdate, rc_edate, rc_sage, rc_eage, rc_nation, rc_sex, rc_week, rc_hash,
+				ad_addr, s_addr, ad_gps_x, ad_gps_y, book_cnt, pm_idx, pm_code, up_dt, reg_dt
+			)
+			SELECT
+			  aa.rc_idx,
+			  aa.mm_id,
+			  aa.mm_idx,
+			  aa.mm_status,
+			  aa.mm_comp_name,
+			  aa.rc_name,
+			  aa.rc_work,
+			  aa.rc_work_type,
+			  aa.rc_price_type,
+			  aa.rc_price_rep,
+			  aa.rc_price_pay,
+			  aa.rc_img1,
+			  aa.rc_show_yn,
+			  aa.rc_status,
+			  aa.rc_sdate,
+			  aa.rc_edate,
+			  aa.rc_sage,
+			  aa.rc_eage,
+			  CASE
+			    WHEN aa.rc_nation = '내국인,외국인' THEN '국적무관'
+			    WHEN aa.rc_nation = '내국인' THEN '내국인'
+			    WHEN aa.rc_nation = '외국인' THEN '외국인'
+			    ELSE '국적무관'
+			  END AS rc_nation,
+			  CASE
+			    WHEN aa.rc_sex = '남자,여자' THEN '성별무관'
+			    WHEN aa.rc_sex = '남자' THEN '남자'
+			    WHEN aa.rc_sex = '여자' THEN '여자'
+			    ELSE '성별무관'
+			  END AS rc_sex,
+			  aa.rc_week,
+			  aa.rc_hash,
+			  aa.ad_addr,
+			  CONCAT(aa.ad_doro, ' ', aa.ad_jibun) AS s_addr,
+			  aa.ad_gps_x,
+			  aa.ad_gps_y,
+			  (SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = aa.rc_idx) AS book_cnt,
+			  (SELECT pm_idx FROM st_promotion WHERE rc_idx = aa.rc_idx AND pm_code = 'C001' LIMIT 1) AS pm_idx,
+			  (SELECT pm_code FROM st_promotion WHERE rc_idx = aa.rc_idx AND pm_code IN ('C001', 'C002', 'C003') LIMIT 1) AS pm_code,
+			  GREATEST(CASE WHEN aa.up_dt = '0000-00-00 00:00:00' THEN aa.reg_dt ELSE aa.up_dt END,
+			           IFNULL((SELECT MAX(up_dt) FROM st_promotion WHERE rc_idx = aa.rc_idx AND pm_code IN ('C002','C003')), '2000-01-01 00:00:00')) AS up_dt,
+			  aa.reg_dt
+			FROM (
+			  SELECT
+			    a.mm_id,
+			    a.mm_status,
+			    a.mm_idx,
+			    a.mm_comp_num,
+			    a.mm_comp_name,
+			    b.rc_idx,
+			    b.rc_name,
+			    b.rc_work,
+			    b.rc_work_type,
+			    b.rc_price_type,
+			    b.rc_price_rep,
+			    b.rc_price_pay,
+			    b.rc_img1,
+			    b.rc_show_yn,
+			    b.rc_status,
+			    b.rc_sdate,
+			    b.rc_edate,
+			    b.rc_sage,
+			    b.rc_eage,
+			    b.rc_nation,
+			    b.rc_sex,
+			    b.rc_week,
+			    b.rc_hash,
+			    b.rc_work_dt,
+			    b.reg_dt,
+			    b.up_dt,
+			    c.ad_addr,
+			    c.ad_doro,
+			    c.ad_jibun,
+			    c.ad_gps_x,
+			    c.ad_gps_y
+			  FROM st_member a
+			  INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
+			  INNER JOIN st_address c ON a.mm_idx = c.mm_idx
+			    AND c.ad_type = 'RECRUIT'
+			    AND c.ad_key = b.rc_idx
+			  WHERE a.mm_status = 'Y'
+			    AND b.rc_show_yn = 'Y'
+			    AND b.rc_status = 'Y'
+			    AND b.rc_sdate <= NOW()
+			    AND b.rc_edate >= NOW()
+			) aa
+			GROUP BY aa.rc_idx
+			ORDER BY aa.up_dt DESC
+			LIMIT 10000";
+
+			$this->db->query($sql);
+
+			$elapsed = microtime(true) - $start_time;
+
+			json_return("00", "캐시 갱신 완료", [
+				'environment' => $environment,
+				'elapsed_time' => round($elapsed * 1000, 2) . 'ms',
+				'timestamp' => date('Y-m-d H:i:s')
+			]);
+
+		} catch (Exception $e) {
+			http_response_code(500);
+			json_return("500", $e->getMessage());
+		}
 	}
 }

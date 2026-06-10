@@ -4,6 +4,61 @@ $banner = null;
 if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
+
+// 초기 인재정보 데이터 로드 (서버사이드 렌더링)
+$mm_idx = $this->user->getUserIdx();
+$initial_params = [
+  'page' => 1,
+  'pagesize' => 20,
+  'mm_idx' => $mm_idx,
+  'category' => '',
+  'work_type' => '',
+  'week' => '',
+  'price_type' => '',
+  'sex' => '',
+  'sage' => '',
+  'eage' => '',
+  'order_by' => 'recent',
+  'search_addr' => [],
+  'text' => ''
+];
+
+// 캐시 테이블에서 초기 데이터 로드 (st_member에서 mm_birth를 JOIN으로 가져오기)
+$this->load->model('membermodel', 'member_model');
+$sql_initial = "
+  SELECT
+    c.ru_idx, c.mm_idx, c.ru_name, c.ru_work, c.ru_price_type, c.ru_work_type, c.ru_week,
+    c.ru_work_img, c.ru_resume_img, c.ad_addr, c.mm_nation, c.mm_sex, c.book_cnt,
+    c.pm_idx, c.up_dt, c.reg_dt, c.ru_show_yn, c.ru_status,
+    m.mm_birth
+  FROM vw_resume_list_cache c
+  LEFT JOIN st_member m ON c.mm_idx = m.mm_idx
+  WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
+  ORDER BY c.pm_idx DESC, c.up_dt DESC
+  LIMIT 20
+";
+$query_initial = $this->db->query($sql_initial);
+$initial_resumes = $query_initial->result_array();
+$use_server_render = isset($initial_resumes) && count($initial_resumes) > 0;
+
+// 데이터 포맷팅 (JavaScript 함수와 동기화)
+if ($use_server_render) {
+  foreach ($initial_resumes as $key => $row) {
+    // getResumeImg()가 ru_thumb 키를 사용하므로 매핑
+    $row['ru_thumb'] = $row['ru_resume_img'];
+    // getResumeImg(): 이미지 없을 때 mm_sex 기반 대체이미지 적용
+    $initial_resumes[$key]['ru_resume_img'] = getResumeImg($row);
+    $initial_resumes[$key]['ru_work_img'] = getWorkingImg($row["ru_work"]);
+    $initial_resumes[$key]['ru_work_type'] = getWorkTypeWithColor($row["ru_work_type"]);
+    $initial_resumes[$key]['ru_price_type'] = getPriceType($row["ru_price_type"]);
+    $initial_resumes[$key]['ru_week'] = getWeekYoil($row["ru_week"]);
+    // mm_birth에서 나이 계산 (AJAX 응답과 동일한 방식)
+    $initial_resumes[$key]['mm_age'] = getKoreanAge($row["mm_birth"]);
+    $initial_resumes[$key]['up_dt_timestamp'] = getTimeText($row["up_dt"]);
+    // 서버사이드 주소 변환 (큰 시/도 제거)
+    $initial_resumes[$key]['ad_addr'] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
+  }
+}
 ?>
 <style>
   /* .pricetype  em {
@@ -547,6 +602,45 @@ if (count($banner_list) > 0) {
       <div class="container">
         <h2 class="secondary-title">인재정보</h2>
         <ol class="result-list result-list-card" id="ajaxList" data-page="1">
+          <?php if ($use_server_render && isset($initial_resumes)) {
+            foreach ($initial_resumes as $row) {
+              $mm_name = isset($row['ru_name']) ? $row['ru_name'] : '';
+              if (mb_strlen($mm_name) > 18) {
+                $mm_name = mb_substr($mm_name, 0, 18) . '...';
+              }
+              $is_recomm = !empty($row['pm_idx']);
+          ?>
+            <li class="list-item">
+              <div class="content-li <?= $is_recomm ? 'recomm' : '' ?>"
+                   data-ru_idx="<?= $row['ru_idx'] ?>"
+                   data-mm_idx="<?= $row['mm_idx'] ?>">
+                <div class="content-info">
+                  <div class="content-body">
+                    <div class="img">
+                      <img src="<?= $row['ru_resume_img'] ?>" alt="프로필">
+                    </div>
+                    <div class="desc">
+                      <div class="wicon"><?= $row['ru_work_img'] ?></div>
+                      <div class="title ellipsis"><?= $mm_name ?></div>
+                      <div class="summary">
+                        <ul class="working-day"><?= $row['ru_week'] ?></ul>
+                      </div>
+                      <div class="summary">
+                        <p><?= $row['mm_nation'] ?></p>
+                        <p><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
+                        <p><?= $row['ad_addr'] ?></p>
+                      </div>
+                      <div class="summary3"><p class="worktype"><?= $row['ru_work_type'] ?></p></div>
+                      <div class="summary2"><p class="pricetype"><?= $row['ru_price_type'] ?></p></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          <?php
+            }
+          }
+          ?>
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p>등록된 정보가 없습니다.</p>
@@ -657,6 +751,15 @@ $tpl_show_mm_idx = true; ?>
 
 
 <script>
+  // mm_birth 디버깅 - 초기 렌더링 데이터 확인
+  var debugInitialResumes = <?php echo json_encode(isset($initial_resumes) && is_array($initial_resumes) ? $initial_resumes : array()); ?>;
+  console.log('[mm_age 디버깅] 초기 데이터 전체:', debugInitialResumes);
+  if (debugInitialResumes.length > 0) {
+    debugInitialResumes.forEach(function(row, idx) {
+      console.log('[mm_age] 항목[' + idx + ']: mm_birth=' + row.mm_birth + ', mm_age=' + row.mm_age);
+    });
+  }
+
   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
   var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
   var list_id = "#ajaxList";
@@ -746,7 +849,27 @@ $tpl_show_mm_idx = true; ?>
     list_page = getPageFromUrl();
     total_count = 0;
     total_pages = 1;
-    getBoardList("");
+
+    // 페이지 1이고 초기 데이터가 있으면 AJAX 스킵 (서버사이드 렌더링)
+    var initialListCount = $(list_id).find("li").length;
+    var hasInitialData = initialListCount > 0;
+
+    if (list_page === 1 && hasInitialData) {
+      // 초기 데이터 있음: 렌더링 완료, 페이지네이션과 광고 추가
+      total_count = initialListCount;
+      renderPagination();
+
+      // 광고 삽입
+      if (initialListCount > 0) {
+        insertAdsenseAd();
+      }
+
+      showEmpty();
+      updateTopSectionsVisibility();
+    } else {
+      // 초기 데이터 없음 또는 페이지 2+: AJAX로 로드
+      getBoardList("");
+    }
   }
 
   // 브라우저 뒤로가기/앞으로가기 감지
@@ -873,7 +996,7 @@ $tpl_show_mm_idx = true; ?>
       $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
       $content = $content.replaceAll("{{ru_work_type}}", (row.ru_work_type));
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr ? fRemoveBigAdrJS(row.ad_addr) : '');
+      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || ''); // 서버에서 이미 변환됨
 
       $(list_id).append($content);
     });
@@ -887,8 +1010,9 @@ $tpl_show_mm_idx = true; ?>
     updateTopSectionsVisibility();
   }
 
-  // Google AdSense 인피드 광고 삽입 함수
+  // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
   function insertAdsenseAd() {
+    var adStartTime = performance.now();
     console.log('[AdSense] insertAdsenseAd() 함수 실행');
 
     // 도메인 환경 판별
@@ -904,6 +1028,8 @@ $tpl_show_mm_idx = true; ?>
         '광고 자리 (개발 환경)' +
         '</li>';
       $(list_id).append(adHtml);
+      var adTime = performance.now() - adStartTime;
+      console.log('[성능] 광고 로드 시간:', adTime.toFixed(2) + 'ms');
     } else {
       console.log('[AdSense] 운영 환경 - 실제 광고 로드');
       // 운영 환경에서 실제 광고 로드
@@ -919,17 +1045,19 @@ $tpl_show_mm_idx = true; ?>
       $(list_id).append(adHtml);
       console.log('[AdSense] 광고 HTML 삽입 완료');
 
-      // AdSense 광고 로드 (공식 코드)
+      // 비동기로 광고 로드 (setTimeout 사용)
       setTimeout(function() {
+        var pushStartTime = performance.now();
         try {
-          console.log('[AdSense] adsbygoogle.push() 호출');
-          console.log('[AdSense] window.adsbygoogle:', window.adsbygoogle);
+          console.log('[AdSense] 비동기 로드 시작');
           (adsbygoogle = window.adsbygoogle || []).push({});
+          var pushTime = performance.now() - pushStartTime;
+          console.log('[성능] adsbygoogle.push() 시간:', pushTime.toFixed(2) + 'ms');
           console.log('[AdSense] push 성공');
         } catch (e) {
           console.error('[AdSense] push 실패:', e);
         }
-      }, 100);
+      }, 0); // 비동기 로드 (즉시)
     }
   }
 
@@ -1361,7 +1489,7 @@ $tpl_show_mm_idx = true; ?>
                 $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
                 $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
                 $content = $content.replaceAll("{{ru_my_type}}", myTypeRaw);
-                $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr || ""));
+                $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || ""); // 서버에서 이미 변환됨
 
                 $clone.html($content);
                 $grid.append($clone.html());

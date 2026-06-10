@@ -343,7 +343,7 @@
                   $work_type_selected = array_filter((array)$search_txt["work_type"]);
                   $has_work_type = !empty($work_type_selected);
                   ?>
-                 <label class="work-type-any-toggle">
+                 <label class="filter-any-toggle">
                    <input type="checkbox" name="work_type_any" class="work-type-any" <?= $has_work_type ? "" : "checked" ?>>
                    <span class="toggle-indicator"></span>
                    <span class="toggle-text">전체</span>
@@ -371,7 +371,7 @@
                   $price_type_selected = array_filter((array)$search_txt["price_type"]);
                   $has_price_type = !empty($price_type_selected);
                   ?>
-                 <label class="work-type-any-toggle">
+                 <label class="filter-any-toggle">
                    <input type="checkbox" name="price_type_any" class="price-type-any" <?= $has_price_type ? "" : "checked" ?>>
                    <span class="toggle-indicator"></span>
                    <span class="toggle-text">전체</span>
@@ -397,7 +397,7 @@
                   $week_selected = array_filter((array)$search_txt["week"]);
                   $has_week = !empty($week_selected);
                   ?>
-                 <label class="work-type-any-toggle">
+                 <label class="filter-any-toggle">
                    <input type="checkbox" name="week_any" class="week-any" <?= $has_week ? "" : "checked" ?>>
                    <span class="toggle-indicator"></span>
                    <span class="toggle-text">전체</span>
@@ -425,7 +425,7 @@
                   $sex_selected = array_filter((array)$search_txt["sex"]);
                   $has_sex = !empty($sex_selected);
                   ?>
-                 <label class="work-type-any-toggle">
+                 <label class="filter-any-toggle">
                    <input type="checkbox" name="sex_any" class="sex-any" <?= $has_sex ? "" : "checked" ?>>
                    <span class="toggle-indicator"></span>
                    <span class="toggle-text">전체</span>
@@ -450,7 +450,7 @@
                   $nationality_selected = array_filter((array)$search_txt["nationality"]);
                   $has_nationality = !empty($nationality_selected);
                   ?>
-                 <label class="work-type-any-toggle">
+                 <label class="filter-any-toggle">
                    <input type="checkbox" name="nationality_any" class="nationality-any" <?= $has_nationality ? "" : "checked" ?>>
                    <span class="toggle-indicator"></span>
                    <span class="toggle-text">전체</span>
@@ -474,7 +474,7 @@
                  <?php
                   $has_age = !empty($search_txt["sage"]) || !empty($search_txt["eage"]);
                   ?>
-                 <label class="work-type-any-toggle">
+                 <label class="filter-any-toggle">
                    <input type="checkbox" name="age_any" class="age-any" <?= $has_age ? "" : "checked" ?>>
                    <span class="toggle-indicator"></span>
                    <span class="toggle-text">전체</span>

@@ -40,6 +40,7 @@ if (count($banner_list) > 0) {
     <div class="container">
       <div class="search-result">
         <div class="content-area">
+          <!-- get_base_url(): /website/dev_nowapk-->
           <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php'); ?>
           <div class="result-wrap">
             <div class="result-header">
@@ -292,8 +293,8 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
         var list = ret.data.list;
         $("#my-keen-slider").html("");
         list.forEach(function(row) {
-          var $clone = $("#tpl_reco_list").clone();
-          var $content = $clone.html();
+          var $clone = $("#tpl_reco_list").clone(); //템플릿 복제
+          var $content = $clone.html(); //복제한 템플릿에서 HTML 가져오기
 
           if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
             $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");

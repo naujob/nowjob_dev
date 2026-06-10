@@ -94,6 +94,12 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
       $temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
       $temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
+      // 서버사이드 주소 변환 (큰 시/도 제거)
+      $temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
+      // 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
+      if (mb_strlen($row["ru_name"]) > 18) {
+        $temp_list[$key]["ru_name"] = mb_substr($row["ru_name"], 0, 18) . '...';
+      }
     }
 
     $result["list"] = $temp_list;
@@ -226,7 +232,7 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
       $temp_list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"]);
-      $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
+      $temp_list[$key]["ru_price_type"] = ($row["ru_price_type"]);
       $temp_list[$key]["ru_price_type_raw"] = $row["ru_price_type"];
       $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
 
@@ -246,6 +252,12 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
       $temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
       $temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
+      // 서버사이드 주소 변환 (큰 시/도 제거)
+      $temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
+      // 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
+      if (mb_strlen($row["ru_name"]) > 18) {
+        $temp_list[$key]["ru_name"] = mb_substr($row["ru_name"], 0, 18) . '...';
+      }
     }
 
     $result["list"] = $temp_list;
@@ -618,5 +630,89 @@ class Resume_proc extends CI_Controller
     }
 
     json_return("00", "조회성공", $result);
+  }
+
+  // 인재정보 캐시 갱신 (Cron 또는 HTTP 요청)
+  function refreshResumeCache() {
+    // 환경 판별 (dev vs prod)
+    $is_dev = (strpos($_SERVER['REQUEST_URI'], '/dev_nowapk') !== false ||
+               strpos($_SERVER['HTTP_HOST'], 'dev.') === 0);
+
+    $dev_key = 'kD9mP2x5nQ5wR8vL3bT';
+    $prod_key = 'ProdSeC7kEy9mL2wR';
+    $expected_key = $is_dev ? $dev_key : $prod_key;
+
+    // 보안 체크
+    $provided_key = isset($_GET['key']) ? $_GET['key'] : '';
+    if ($provided_key !== $expected_key) {
+      http_response_code(403);
+      echo json_encode(["code" => "90", "msg" => "접근 거부"]);
+      return;
+    }
+
+    $start_time = microtime(true);
+
+    try {
+      // 1. 캐시 테이블 비우기
+      $this->db->query("TRUNCATE TABLE vw_resume_list_cache");
+
+      // 2. 신규 데이터 삽입 (조건 없이 최신순, 상위만)
+      $sql = "
+        INSERT INTO vw_resume_list_cache (
+          ru_idx, mm_idx, mm_id, mm_status, ru_name, ru_work, ru_work_type,
+          ru_price_type, ru_work_img, ru_resume_img, ru_show_yn, ru_status,
+          ru_week, ru_my_type, ad_addr, mm_age, mm_nation, mm_sex, book_cnt, pm_idx,
+          pm_code, up_dt, reg_dt, cached_at
+        )
+        SELECT
+          bb.ru_idx, aa.mm_idx, aa.mm_id, aa.mm_status, bb.ru_name,
+          bb.ru_work, bb.ru_work_type, bb.ru_price_type, bb.ru_work_img,
+          COALESCE(NULLIF(aa.mm_thumb, ''), aa.mm_img1, aa.mm_img2, aa.mm_img3, '/resource/uploads/member/noimage4.png') as ru_resume_img, bb.ru_show_yn, bb.ru_status,
+          bb.ru_week, bb.ru_my_type,
+          COALESCE(cc.ad_addr, bb.ru_addr) as ad_addr,
+          YEAR(CURDATE()) - YEAR(aa.mm_birth) as mm_age,
+          aa.mm_nation,
+          aa.mm_sex,
+          (SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RESUME' AND bk_key = bb.ru_idx) as book_cnt,
+          p0.pm_idx,
+          p0.pm_code,
+          GREATEST(CASE WHEN bb.up_dt = '0000-00-00 00:00:00' THEN bb.reg_dt ELSE bb.up_dt END, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt,
+          bb.reg_dt,
+          NOW() as cached_at
+        FROM st_member aa
+        INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx AND bb.ru_status = 'Y' AND bb.ru_show_yn = 'Y'
+        LEFT JOIN st_address cc ON aa.mm_idx = cc.mm_idx AND cc.ad_type = 'RESUME' AND cc.ad_key = bb.ru_idx
+        LEFT JOIN st_promotion p0 ON p0.rc_idx = bb.ru_idx AND p0.pm_code = 'M001' AND p0.pm_sdate < NOW() AND p0.pm_edate > NOW() AND p0.pm_status = 'Y'
+        LEFT JOIN st_promotion p ON p.rc_idx = bb.ru_idx AND p.pm_code IN ('M002','M003') AND NOW() BETWEEN p.pm_sdate AND p.pm_edate
+        WHERE aa.mm_status = 'Y'
+        GROUP BY bb.ru_idx
+        ORDER BY p0.pm_idx DESC, up_dt DESC
+        LIMIT 500
+      ";
+
+      $this->db->query($sql);
+
+      $elapsed_time = microtime(true) - $start_time;
+
+      $response = [
+        "code" => "00",
+        "msg" => "캐시 갱신 완료",
+        "data" => [
+          "environment" => $is_dev ? "development" : "production",
+          "elapsed_time" => round($elapsed_time * 1000, 2) . "ms",
+          "timestamp" => date("Y-m-d H:i:s")
+        ]
+      ];
+
+      echo json_encode($response);
+
+    } catch (Exception $e) {
+      http_response_code(500);
+      echo json_encode([
+        "code" => "99",
+        "msg" => "캐시 갱신 실패",
+        "error" => $e->getMessage()
+      ]);
+    }
   }
 } //class

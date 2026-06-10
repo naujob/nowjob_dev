@@ -124,13 +124,11 @@ class recruitModel extends MY_Model
 		return $this->db_paging_list($cols, $body, $where, $order_by, 1, $limit, $group_by);
 	}
 
-	# 채용공고 목록
+	# 채용공고 목록 (MATERIALIZED VIEW 버전)
 	function getRecruitList($params)
 	{
-
-		$currentLongitude = isset($params["currentLongitude"]) ? $this->inject($params["currentLongitude"]) : "126.9780";
-		$currentLatitude  = isset($params["currentLatitude"])  ? $this->inject($params["currentLatitude"])  : "37.5665";
 		$search_addr = isset($params["search_addr"]) && is_array($params["search_addr"]) ? array_map([$this, 'inject'], $params["search_addr"]) : [];
+		$mm_idx = isset($params["mm_idx"]) ? $this->inject($params["mm_idx"]) : 0;
 
 		$cols = [
 			"aa.rc_idx",
@@ -142,113 +140,35 @@ class recruitModel extends MY_Model
 			"aa.rc_price_pay",
 			"aa.ad_addr",
 			"aa.rc_img1",
-			"(case
-        when rc_nation = '내국인,외국인' then '국적무관'
-        when rc_nation = '내국인' then '내국인'
-        when rc_nation = '외국인' then '외국인'
-        else '국적무관' end) as rc_nation_nm",
-			"rc_sage",
-			"rc_eage",
-			/*
-      "aa.mm_comp_name",
-      "aa.rc_thumb",
-      "aa.rc_img2",
-      "aa.rc_img3",
-      "aa.rc_img4",
-      "aa.rc_img5",
-      "aa.rc_work_dt",
-      "aa.rc_am_stime",
-      "aa.rc_am_etime",
-      "aa.rc_pm_stime",
-      "aa.rc_pm_etime",
-      "aa.rc_week",
-      "aa.rc_desc",
-      "aa.rc_life_type",
-      "aa.rc_hash",
-      "aa.ad_gps_x",
-      "aa.ad_gps_y",
-      "aa.rc_hit",
-      "aa.book_cnt", 
-      "(case
-        when rc_sex = '남자,여자' then '성별무관'
-        when rc_sex = '남자' then '남자'
-        when rc_sex = '여자' then '여자'
-        else '성별무관' end) as rc_sex_nm",
-			"p0.reg_dt as pm_reg_dt",
-      */
-			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn",
-			"p0.pm_idx",
-			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt"
+			"aa.rc_nation as rc_nation_nm",
+			"aa.rc_sage",
+			"aa.rc_eage",
+			"(CASE WHEN dd.bk_idx IS NOT NULL THEN 'Y' ELSE 'N' END) as book_yn",
+			"aa.up_dt"
 		];
 
-		# 검색 지역 처리
-		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr);
-		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr);
-		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr);
-		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr);
+		$body = "vw_recruit_list_cache aa
+			LEFT JOIN st_bookmark dd ON aa.rc_idx = dd.bk_key AND dd.bk_type = 'RECRUIT' AND dd.mm_idx = '{$mm_idx}'";
 
-		$body = "
-      (
-        SELECT aa.mm_id
-          ,aa.mm_status
-          ,bb.*
-          ,(SELECT count(*) as cnt FROM st_bookmark where bk_type = 'RECRUIT' AND bk_key = bb.rc_idx) as book_cnt
-          ,ifnull(min(po.pm_sdate),'2050-01-01 00:00:00') as max_date
-          ,cc.ad_addr
-          ,CONCAT(cc.ad_doro, ' ', cc.ad_jibun) AS s_addr
-          ,cc.ad_gps_x
-          ,cc.ad_gps_y
-          ,aa.mm_comp_num
-          ,aa.mm_comp_name
-          ,ROUND(
-            6371 * acos(
-            cos(radians(126.9780)) * cos(radians(cc.ad_gps_x)) * cos(radians(cc.ad_gps_y) - radians(37.5665)) +
-            sin(radians(126.9780)) * sin(radians(cc.ad_gps_x))
-            ), 1
-          ) AS distance                  
-        FROM st_member aa
-        INNER JOIN st_recruit bb
-          ON aa.mm_idx = bb.mm_idx
-        INNER JOIN st_address cc
-          ON aa.mm_idx = cc.mm_idx AND cc.ad_type = 'RECRUIT' AND cc.ad_key = bb.rc_idx
-        LEFT JOIN st_promotion po
-          ON bb.rc_idx = po.rc_idx AND (po.pm_sdate <= now() AND po.pm_edate >= now())
-        GROUP BY bb.rc_idx
-      ) aa
-			LEFT JOIN st_bookmark dd ON aa.rc_idx = dd.bk_key AND dd.bk_type = 'RECRUIT' AND dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
-		  LEFT JOIN st_promotion p0 ON p0.rc_idx = aa.rc_idx AND p0.pm_code = 'C001' AND p0.pm_sdate < NOW() AND p0.pm_edate > NOW() AND p0.pm_status = 'Y' ";
-
-		if ($addr_condition_p0)
-			$body .= " AND $addr_condition_p0 ";
-
-		$body .= " LEFT JOIN st_promotion p1 ON p1.rc_idx = aa.rc_idx AND p1.pm_code = 'C002' AND p1.pm_sdate < NOW() AND p1.pm_edate > NOW() AND p1.pm_status = 'Y' ";
-		if ($addr_condition_p1)
-			$body .= " AND $addr_condition_p1 ";
-
-		$body .= " LEFT JOIN st_promotion p2 ON p2.rc_idx = aa.rc_idx AND p2.pm_code = 'C003' AND p2.pm_sdate < NOW() AND p2.pm_edate > NOW() AND p2.pm_status = 'Y' ";
-		if ($addr_condition_p2)
-			$body .= " AND $addr_condition_p2 ";
-
-		$body .= " LEFT JOIN st_promotion p ON aa.rc_idx = p.rc_idx AND p.pm_code in('C002','C003') AND NOW() BETWEEN p.pm_sdate AND p.pm_edate ";
-
-		# 조건
+		# WHERE 조건
 		$where = [];
-		$where[] = 	" AND aa.mm_status = 'Y' AND aa.rc_show_yn = 'Y' AND aa.rc_status = 'Y' AND aa.rc_sdate <= now() AND aa.rc_edate >= now() ";
+		$where[] = " AND aa.rc_show_yn = 'Y' AND aa.rc_status = 'Y' AND aa.rc_sdate <= NOW() AND aa.rc_edate >= NOW() ";
 
 		# 검색어
 		if ($params["text"] != "") {
-			$where[] = 	" AND (
-					aa.rc_name like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_nation like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_sex like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_work like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_work_type like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_price_type like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_hash like '%" . $this->inject($params["text"]) . "%' or
-					aa.mm_comp_name like '%" . $this->inject($params["text"]) . "%' or
-					aa.s_addr like '%" . $this->inject($params["text"]) . "%' or
-					aa.ad_addr like '%" . $this->inject($params["text"]) . "%'
-				)";
+			$text = $this->inject($params["text"]);
+			$where[] = " AND (
+				aa.rc_name LIKE '%{$text}%' OR
+				aa.rc_nation LIKE '%{$text}%' OR
+				aa.rc_sex LIKE '%{$text}%' OR
+				aa.rc_work LIKE '%{$text}%' OR
+				aa.rc_work_type LIKE '%{$text}%' OR
+				aa.rc_price_type LIKE '%{$text}%' OR
+				aa.rc_hash LIKE '%{$text}%' OR
+				aa.mm_comp_name LIKE '%{$text}%' OR
+				aa.s_addr LIKE '%{$text}%' OR
+				aa.ad_addr LIKE '%{$text}%'
+			)";
 		}
 
 		# 나이 교집합
@@ -256,15 +176,18 @@ class recruitModel extends MY_Model
 			$sage = $this->inject($params["sage"]);
 			$eage = $this->inject($params["eage"]);
 			$where[] = " AND (
-					(aa.rc_sage = 0 AND aa.rc_eage = 0)
-					or
-					(aa.rc_sage <= '{$eage}' AND aa.rc_eage >= '{$sage}')
-				)";
+				(aa.rc_sage = 0 AND aa.rc_eage = 0) OR
+				(aa.rc_sage <= '{$eage}' AND aa.rc_eage >= '{$sage}')
+			)";
 		}
 
-		$all_addr_conditions = array_filter([$addr_condition_aa, $addr_condition_p0, $addr_condition_p1, $addr_condition_p2]);
-		if (!empty($all_addr_conditions)) {
-			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";
+		# 지역 검색
+		$addr_condition = $this->make_addr_like_condition("aa.s_addr", $search_addr);
+		if (!$addr_condition) {
+			$addr_condition = $this->make_addr_like_condition("aa.ad_addr", $search_addr);
+		}
+		if ($addr_condition) {
+			$where[] = " AND ({$addr_condition})";
 		}
 
 		# 카테고리
@@ -285,7 +208,7 @@ class recruitModel extends MY_Model
 			$where[] = $week_where;
 		}
 
-		# 금여유형
+		# 급여유형
 		if ($params["price_type"] != "") {
 			$price_type_where = $this->getMultiAndAll($params["price_type"], "aa.rc_price_type");
 			$where[] = $price_type_where;
@@ -297,22 +220,19 @@ class recruitModel extends MY_Model
 			$where[] = $sex_where;
 		}
 
-		# company 지정
+		# 회사 지정
 		if ($params["compidx"] != "") {
-			$where[] = 	" AND aa.mm_idx = '" . $params["compidx"] . "' ";
+			$compidx = $this->inject($params["compidx"]);
+			$where[] = " AND aa.mm_idx = '{$compidx}' ";
 		}
 
-		//정렬
+		# 정렬
 		if ($params["order_by"] == "recent") {
-			$order_by  = " case when (case when ifnull(p0.pm_idx,0) > 0 then 1 else 0 end) = 1 then rand() else 0 end DESC, ";
-			$order_by .= " GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC ";
+			$order_by = "aa.pm_idx DESC, aa.up_dt DESC";
 		} else {
-			$order_by  = " case when (case when ifnull(p0.pm_idx,0) > 0 then 1 else 0 end) = 1 then rand() else 0 end DESC, ";
-			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p1.pm_edate, NOW()), 4) DESC, ";
-			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
-			$order_by .= " book_cnt DESC ";
+			$order_by = "aa.book_cnt DESC, aa.up_dt DESC";
 		}
-		$tmp = json_encode($search_addr);
+
 		$group_by = "GROUP BY aa.rc_idx";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);

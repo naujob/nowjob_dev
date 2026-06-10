@@ -1,5 +1,32 @@
 <?php
 $banner_list = getBannerList("BN00302031");
+
+// 사용자 주소 정보 로드
+$addr_info = $this->user->getAddrInfo();
+
+// 초기 채용공고 데이터 로드 (캐시 테이블에서 서버사이드 렌더링)
+$mm_idx = $this->user->getUserIdx();
+$mm_type = $this->user->getUserType();
+$initial_params = [
+  'page' => 1,
+  'pagesize' => 20,
+  'mm_idx' => $mm_idx,
+  'text' => '',
+  'category' => '',
+  'work_type' => '',
+  'week' => '',
+  'price_type' => '',
+  'sex' => '',
+  'sage' => '',
+  'eage' => '',
+  'order_by' => 'recent',
+  'search_addr' => [],
+  'compidx' => ''
+];
+$this->load->model('recruitmodel', 'recruit_model');
+$initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+// 캐시 테이블이 비어있으면 AJAX로 로드 (Cron이 아직 실행 안 됨)
+$use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 ?>
 <style>
   .page-content {
@@ -686,6 +713,65 @@ $banner_list = getBannerList("BN00302031");
     <div class="container">
       <h2 class="secondary-title">채용공고</h2>
       <ol class="result-list result-list-card" id="ajaxList" data-page="1">
+      <?php
+        // 초기 공고 데이터 렌더링 (캐시 테이블에서 - 서버사이드)
+        if ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) {
+          foreach ($initial_recruits['list'] as $row) {
+            // 이미지와 포맷팅 처리
+            $rt_recruit_img = getRecruitImg($row);
+            $rt_work_img = getWorkingImg($row["rc_work"]);
+            $rt_work_type = getWorkTypeWithColor($row["rc_work_type"]);
+            $rt_price_type = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
+            $rt_price_pay = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
+            $up_dt_text = getTimeText($row["up_dt"]);
+            $rc_age_nm = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+            $book_yn_class = ($row["book_yn"] == "Y") ? "on" : "";
+            $rc_nation_nm = (in_array($row["rc_nation_nm"], ["무관", "내국인,외국인"])) ? "국적무관" : $row["rc_nation_nm"];
+            // 주소 변환 (서버사이드)
+            $converted_addr = removeBigAddr($row["ad_addr"]);
+      ?>
+        <li class="list-item">
+          <div class="content-li<?php echo ($row['pm_idx'] != null) ? ' recomm' : ''; ?>" data-rc_idx="<?= $row['rc_idx'] ?>">
+            <div class="content-info">
+              <div class="content-body">
+                <div class="img">
+                  <img src="<?= $rt_recruit_img ?>">
+                  <?php if ($mm_type === 'MEM' || $mm_type === 'COMP'): ?>
+                    <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
+                      class="btnBookMark btn-bookmark js-toggle-bookmark <?= $book_yn_class ?>">
+                      <span class="sr-text">즐겨찾기 추가</span>
+                    </button>
+                  <?php endif; ?>
+                  <?php if ($row['pm_idx'] != null): ?>
+                    <p class="recomm-badge"><span>추천</span></p>
+                  <?php endif; ?>
+                </div>
+                <div class="desc">
+                  <div class="wicon"><?= $rt_work_img ?></div>
+                  <div class="title ellipsis"><?= mb_strlen($row['rc_name']) > 18 ? mb_substr($row['rc_name'], 0, 18) . '...' : $row['rc_name'] ?></div>
+                  <div class="summary">
+                    <p><?= $rc_nation_nm ?></p>
+                    <p><?= $rc_age_nm ?></p>
+                  </div>
+                  <div class="summary area">
+                    <p><?= strlen($converted_addr) > 20 ? substr($converted_addr, 0, 20) . '...' : $converted_addr ?></p>
+                  </div>
+                </div>
+                <div class="summary-container">
+                  <div class="summary3"><?= $rt_work_type ?></div>
+                  <div class="summary2">
+                    <p class="period"><?= $rt_price_type ?></p>
+                    <p class="amount"><?= $rt_price_pay ?></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+      <?php
+          }
+        }
+      ?>
       </ol>
       <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
         <p>등록된 정보가 없습니다.</p>
@@ -757,7 +843,9 @@ $tpl_recomm_class = true; ?>
 
 
 <script>
-  var ad_addr = <?= json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "", JSON_UNESCAPED_UNICODE) ?>;
+  // PHP에서 미리 변환된 주소 데이터 (서버사이드 렌더링)
+  var ad_addr = <?= json_encode(removeBigAddr(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""), JSON_UNESCAPED_UNICODE) ?>;
+  console.log('[주소 변환] 초기 ad_addr:', ad_addr);
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
@@ -847,14 +935,34 @@ $tpl_recomm_class = true; ?>
     getBoardList("");
   }
 
-  // 초기 데이터 로드
+  // 초기 데이터 로드 (캐시 테이블에서 서버사이드 렌더링됨)
   function initLoadData() {
     list_page = getPageFromUrl();
-    total_count = 0;
-    total_pages = 1;
-    setTimeout(function() {
+
+    // 초기 데이터가 HTML에 렌더링되어 있는지 확인
+    var initialListCount = $(list_id).find("li").length;
+    var hasInitialData = initialListCount > 0;
+
+    if (list_page === 1 && hasInitialData) {
+      // 페이지 1: 기존 렌더링된 데이터 사용, 페이지네이션만 업데이트
+      var adCount = $(list_id).find(".ad-item-adsense").length;
+      var actualItemCount = initialListCount - adCount;
+
+      total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
+      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
+
+      // 광고 삽입
+      if (actualItemCount > 0) {
+        insertAdsenseAd();
+      }
+
+      renderPagination();
+      showEmpty();
+      updateTopSectionsVisibility();
+    } else {
+      // 페이지 2 이상 또는 초기 데이터 없음: AJAX로 로드
       getBoardList("");
-    }, 100);
+    }
   }
 
   // 브라우저 뒤로가기/앞으로가기 감지
@@ -903,6 +1011,7 @@ $tpl_recomm_class = true; ?>
     }
 
     list_loading = true;
+    var ajaxStartTime = performance.now();
     $.ajax({
       url: "/recruit_proc/getRecruitList",
       type: "post",
@@ -912,6 +1021,8 @@ $tpl_recomm_class = true; ?>
       crossDomain: true,
       success: function(ret) {
         list_loading = false;
+        var ajaxTime = performance.now() - ajaxStartTime;
+        console.log('[성능] AJAX 요청 시간:', ajaxTime.toFixed(2) + 'ms');
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
           $(list_id).empty(); // 매번 초기화
@@ -930,9 +1041,11 @@ $tpl_recomm_class = true; ?>
           }
           total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
 
-
-
+          var renderStartTime = performance.now();
           showBoardList(ret.data.list);
+          var renderTime = performance.now() - renderStartTime;
+          console.log('[성능] DOM 렌더링 시간:', renderTime.toFixed(2) + 'ms', '아이템:', ret.data.list.length);
+
           renderPagination();
         } else {
 
@@ -947,8 +1060,10 @@ $tpl_recomm_class = true; ?>
 
   //데이터 보여주기
   function showBoardList(list) {
+    console.log('[주소 변환] AJAX 응답 데이터 수:', list.length);
 
     list.forEach(function(row, index) {
+      console.log('[주소 변환] row[' + index + '].ad_addr:', row.ad_addr);
 
       var $clone = $("#tpl_list").clone();
       var $content = $clone.html();
@@ -972,7 +1087,7 @@ $tpl_recomm_class = true; ?>
 
       $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
       $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr); // 서버에서 이미 변환됨
       // 제목이 18자 이상이면 ...으로 자르기
       var rc_name = row.rc_name;
       if (rc_name && rc_name.length > 18) {
@@ -1002,8 +1117,9 @@ $tpl_recomm_class = true; ?>
 
   }
 
-  // Google AdSense 인피드 광고 삽입 함수
+  // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
   function insertAdsenseAd() {
+    var adStartTime = performance.now();
     console.log('[AdSense] insertAdsenseAd() 함수 실행');
 
     // 도메인 환경 판별
@@ -1019,6 +1135,8 @@ $tpl_recomm_class = true; ?>
         '광고 자리 (개발 환경)' +
         '</li>';
       $(list_id).append(adHtml);
+      var adTime = performance.now() - adStartTime;
+      console.log('[성능] 광고 로드 시간:', adTime.toFixed(2) + 'ms');
     } else {
       console.log('[AdSense] 운영 환경 - 실제 광고 로드');
       // 운영 환경에서 실제 광고 로드
@@ -1034,21 +1152,21 @@ $tpl_recomm_class = true; ?>
       $(list_id).append(adHtml);
       console.log('[AdSense] 광고 HTML 삽입 완료');
 
-      // AdSense 광고 로드 (공식 코드)
+      // 비동기로 광고 로드 (setTimeout 사용)
       setTimeout(function() {
+        var pushStartTime = performance.now();
         try {
-          console.log('[AdSense] adsbygoogle.push() 호출');
-          console.log('[AdSense] window.adsbygoogle:', window.adsbygoogle);
+          console.log('[AdSense] 비동기 로드 시작');
           (adsbygoogle = window.adsbygoogle || []).push({});
+          var pushTime = performance.now() - pushStartTime;
+          console.log('[성능] adsbygoogle.push() 시간:', pushTime.toFixed(2) + 'ms');
           console.log('[AdSense] push 성공');
         } catch (e) {
           console.error('[AdSense] push 실패:', e);
         }
-      }, 100);
+      }, 0); // 비동기 로드 (즉시)
     }
   }
-
-
 
   function showEmpty() {
     if ($(list_id).find("li").length == 0) {
@@ -1116,13 +1234,15 @@ $tpl_recomm_class = true; ?>
       if (ret.code == "00") {
         var list = ret.data.list;
         $(".section.index_comp .result-list").html("");
+        console.log('[주소 변환] 추천공고 데이터 수:', list.length);
 
         list.forEach(function(row) {
+          console.log('[주소 변환] 추천공고 ad_addr:', row.ad_addr);
           var $clone = $("#tpl_list").clone();
           var $content = $clone.html();
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+          $content = $content.replaceAll("{{ad_addr}}", row.ad_addr); // 서버에서 이미 변환됨
           var rc_name = row.rc_name;
           if (rc_name && rc_name.length > 18) {
             rc_name = rc_name.substring(0, 18) + '...';

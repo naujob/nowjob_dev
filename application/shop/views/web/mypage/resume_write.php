@@ -1864,7 +1864,7 @@
 
         var maxlen = 2;
         if ($("#addr_location li").length >= maxlen) {
-            commonAlert("희망지역은 " + (maxlen - 1) + "개까지 등록 가능합니다.", function() {});
+            commonAlert("희망지역은 " + maxlen + "개까지 등록 가능합니다.", function() {});
             return true;
         }
 
@@ -1902,7 +1902,7 @@
 
     function showAddrInfo(maxlen) {
         if ($("#addr_location").find("li").length >= maxlen) {
-            commonAlert("희망지역은 " + (maxlen - 1) + "개까지 등록 가능합니다.", function() {});
+            commonAlert("희망지역은 " + maxlen + "개까지 등록 가능합니다.", function() {});
             return;
         }
         // resume_write 페이지에서 "전체" 항목 제거

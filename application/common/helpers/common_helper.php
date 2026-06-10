@@ -247,7 +247,8 @@ function current_url()
 	return parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 }
 
-//웹 root
+//웹 root 경로
+// 예시: /var/www/html/
 function get_base_url()
 {
 	return $_SERVER['DOCUMENT_ROOT'];
@@ -1416,4 +1417,73 @@ function checkDuplicatePhoneForSns($phone)
 	}
 
 	return $result;
+}
+
+/**
+ * 주소에서 시/도 부분을 제거 또는 축약하는 함수
+ * JavaScript의 fRemoveBigAdrJS와 동일한 로직 (PHP 버전)
+ */
+function removeBigAddr($addr) {
+	if (empty($addr) || !is_string($addr)) {
+		return '';
+	}
+
+	$raw = trim($addr);
+	if (empty($raw)) {
+		return '';
+	}
+
+	// 쉼표 포함 시 첫 토큰만 사용
+	$parts = explode(',', $raw);
+	$firstPart = trim($parts[0]);
+
+	// 시/도 부분 제거 또는 축약
+	$replacements = array(
+		'서울특별시 ' => '서울시 ',
+		'경기도 ' => '',
+		'강원특별자치도 ' => '',
+		'충청남도 ' => '',
+		'충청북도 ' => '',
+		'경상남도 ' => '',
+		'경상북도 ' => '',
+		'전라남도 ' => '',
+		'전북특별자치도 ' => '',
+		'제주특별자치도 ' => '',
+		'세종특별자치시 ' => '세종시 ',
+		'광주광역시 ' => '광주시 ',
+		'인천광역시 ' => '인천시 ',
+		'울산광역시 ' => '울산시 ',
+		'부산광역시 ' => '부산시 ',
+		'대구광역시 ' => '대구시 ',
+		'대전광역시 ' => '대전시 ',
+		'경기 ' => '',
+		'강원 ' => '',
+		'충남 ' => '',
+		'충북 ' => '',
+		'경남 ' => '',
+		'경북 ' => '',
+		'전남 ' => '',
+		'전북 ' => '',
+		'제주 ' => ''
+	);
+
+	foreach ($replacements as $from => $to) {
+		$firstPart = str_replace($from, $to, $firstPart);
+	}
+
+	// 공백으로 분리하여 토큰 수 확인
+	$tokens = explode(' ', $firstPart);
+	$tokenCount = count($tokens);
+
+	if ($tokenCount >= 3) {
+		// 세 번째 토큰이 숫자를 포함하면 첫 두 토큰만 사용
+		if (preg_match('/\d/', $tokens[2])) {
+			return trim($tokens[0] . ' ' . $tokens[1]);
+		}
+		// 세 번째 토큰이 숫자를 포함하지 않으면 첫 번째 + 세 번째 토큰 사용
+		return trim($tokens[0] . ' ' . $tokens[2]);
+	}
+
+	// 3개 미만의 토큰이면 그대로 반환
+	return trim($firstPart);
 }
