@@ -6818,11 +6818,13 @@ form#frm {
 }
 
 .result-list-card .content-info .img .recomm-badge {
-    top: 0;
-    left: 0;
+    
     margin: var(--result-card-badge-margin);
     padding: var(--result-card-badge-padding);
     border-radius: var(--result-card-badge-radius);
+    position: absolute;
+    top: 0px;
+    left: -3px;
 }
 
 .result-list-card .content-info .link {

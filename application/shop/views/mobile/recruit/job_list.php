@@ -10,6 +10,7 @@ $mm_type = $this->user->getUserType();
 $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_recruits = isset($initial_recruits) ? $initial_recruits : ['list' => []];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 ?>
 <style>
   .page-content {
@@ -606,31 +607,17 @@ $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
       <h2 class="secondary-title index">지금 뜨는 업체</h2>
       <div class="hot-list" style="display: flex; flex-direction: column;">
         <div class="slider-wrap keen-slider">
-          <?php
-          $limited_up_list = isset($up_list) && is_array($up_list) ? $up_list : array();
-          $chunked_up_list = array_chunk($limited_up_list, 4);
-          $up_total_count = isset($up_list) && is_array($up_list) ? count($up_list) : 0;
-          $up_limited_count = count($limited_up_list);
-          $up_chunk_count = count($chunked_up_list);
-          // 마지막 슬라이드가 4개 미만인 경우 빈 슬롯 추가
-          if (!empty($chunked_up_list)) {
-            $last_idx = count($chunked_up_list) - 1;
-            while (count($chunked_up_list[$last_idx]) < 4) {
-              $chunked_up_list[$last_idx][] = null;
-            }
-          }
-          foreach ($chunked_up_list as $chunk) :
-          ?>
+          <?php foreach ($hot_companies['chunks'] as $slideIndex => $chunk) : ?>
             <div class="keen-slider__slide">
               <div class="hot-grid">
                 <?php foreach ($chunk as $row) : ?>
                   <?php if ($row !== null) : ?>
+                    <?php $imgAttr = ($slideIndex === 0) ? 'src' : 'data-src'; ?>
+                    <?php $lazyClass = ($slideIndex === 0) ? '' : 'lozad'; ?>
                     <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
                       <div class="thumb">
-
-                        <img data-src="<?= getCompImg($row) ?>" alt="" class="lozad">
-
-                        <p class="name"><?= getRandomCompDesc($row["mm_comp_name"]) ?></p>
+                        <img <?= $imgAttr ?>="<?= $row['comp_img'] ?>" alt="" class="<?= $lazyClass ?>">
+                        <p class="name"><?= $row['comp_desc'] ?></p>
                       </div>
                     </a>
                   <?php else : ?>

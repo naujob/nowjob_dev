@@ -1183,7 +1183,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     setBoardParams();
     var params = {
       page: list_page,
-      pagesize: 10, // 페이지당 표시할 아이템 수 명시적으로 설정
+      pagesize: 20,
       "search_addr[]": search_addr,
       addrName: addrName,
       searchAreaStr: searchAreaStr,

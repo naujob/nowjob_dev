@@ -249,11 +249,11 @@ display: flex;
 }
 
 .item-info .title-wrap {
-  width: 400px;
+  width: 580px;
 }
 
 .item-info .title-wrap .title {
-  max-width: 340px;
+  max-width: 100%;
   margin: 0;
   font-size: 20px;
   font-weight: 600;

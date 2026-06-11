@@ -208,7 +208,7 @@
     width: 400px;
   }
   .item-info .title-wrap .title {
-    max-width: 400px;
+    max-width: 100%;
     margin: 0;
     font-size: 20px;
     font-weight: 600;    

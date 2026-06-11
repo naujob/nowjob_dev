@@ -60,6 +60,54 @@ class Resume extends CI_Controller
       "searchAreaStr" => "",
     ];
 
+    // 초기 인재정보 데이터 로드 (캐시 테이블에서)
+    $sql_initial = "
+      SELECT
+        c.ru_idx, c.mm_idx, c.ru_name, c.ru_work, c.ru_price_type, c.ru_work_type, c.ru_week,
+        c.ru_work_img, c.ru_resume_img, c.ad_addr, c.mm_nation, c.mm_sex, c.book_cnt,
+        c.pm_idx, c.up_dt, c.reg_dt, c.ru_show_yn, c.ru_status,
+        m.mm_birth
+      FROM vw_resume_list_cache c
+      LEFT JOIN st_member m ON c.mm_idx = m.mm_idx
+      WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
+      ORDER BY c.pm_idx DESC, c.up_dt DESC
+      LIMIT 20
+    ";
+    $query_initial = $this->db->query($sql_initial);
+    $initial_resumes = $query_initial->result_array();
+    $use_server_render = isset($initial_resumes) && count($initial_resumes) > 0;
+
+    // 초기 데이터 포맷팅
+    if ($use_server_render) {
+      $initial_resumes = $this->_formatResumeList($initial_resumes);
+    }
+
+    // 전체 이력서 개수 조회
+    $sql_count = "
+      SELECT COUNT(*) as total
+      FROM vw_resume_list_cache c
+      WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
+    ";
+    $query_count = $this->db->query($sql_count);
+    $count_result = $query_count->row_array();
+    $initial_total_count = isset($count_result['total']) ? $count_result['total'] : 0;
+
+    // 추천인재 데이터 로드 (서버사이드 렌더링)
+    $reco_params = [
+      "addr1" => isset($addr_info['ad_addr1']) ? $addr_info['ad_addr1'] : '',
+      "addr2" => isset($addr_info['ad_addr2']) ? $addr_info['ad_addr2'] : '',
+      "addr3" => isset($addr_info['ad_addr3']) ? $addr_info['ad_addr3'] : '',
+      "mm_idx" => $this->mm_idx,
+      "limit" => 8
+    ];
+    $initial_reco = $this->common_model->getFavResumeList2025($reco_params);
+    $has_initial_reco = isset($initial_reco['list']) && count($initial_reco['list']) > 0;
+
+    // 추천인재 데이터 포맷팅 (search_reco_list2025()와 동일한 포맷)
+    if ($has_initial_reco) {
+      $initial_reco['list'] = $this->_formatRecoList($initial_reco['list']);
+    }
+
     $params["mm_idx"] = $this->mm_idx;
     $params["page"] = 1;
     $params["pagesize"] = 100;
@@ -77,8 +125,88 @@ class Resume extends CI_Controller
     $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["search_txt"]  = $search_txt;
     $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 8);
+    $data["initial_resumes"] = $initial_resumes;
+    $data["initial_total_count"] = $initial_total_count;
+    $data["use_server_render"] = $use_server_render;
+    $data["initial_reco"] = $initial_reco['list'];
+    $data["has_initial_reco"] = $has_initial_reco;
 
     $this->layout->shop('/resume/hr_list', $data);
+  }
+
+  // 인재 정보 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
+  private function _formatResumeList($list)
+  {
+    $formatted_list = [];
+    foreach ($list as $row) {
+      $ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
+      $ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
+      $ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
+      $ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
+      $mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
+      $mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
+      $ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+
+      // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
+      if (($ru_week === "" || $ru_week === null)) {
+        $ru_week = "월,화,수,목,금";
+      }
+
+      $formatted_list[] = [
+        'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
+        'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+        'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+        'ru_name' => (mb_strlen($row['ru_name']) > 18) ? mb_substr($row['ru_name'], 0, 18) . '...' : $row['ru_name'],
+        'ru_resume_img' => getResumeImg($row),
+        'ru_work_img' => getWorkingImg($ru_work),
+        'ru_work_type' => getWorkTypeWithColor($ru_work_type),
+        'ru_price_type' => getPriceType($ru_price_type),
+        'ru_week' => getWeekYoil($ru_week),
+        'mm_nation' => $mm_nation,
+        'mm_age' => getKoreanAge($mm_birth),
+        'ad_addr' => removeBigAddr($ad_addr)
+      ];
+    }
+    return $formatted_list;
+  }
+
+  // 추천인재 데이터 포맷팅 (search_reco_list2025()와 동일)
+  private function _formatRecoList($list)
+  {
+    $formatted_list = [];
+    foreach ($list as $row) {
+      $ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
+      $ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
+      $ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
+      $ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
+      $ru_week_yn = isset($row['ru_week_yn']) ? $row['ru_week_yn'] : 'N';
+      $mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
+      $mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
+      $ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+
+      // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
+      if ($ru_week_yn !== "Y" && ($ru_week === "" || $ru_week === null)) {
+        $ru_week = "월,화,수,목,금";
+      }
+
+      $formatted_list[] = [
+        'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
+        'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+        'ru_name' => isset($row['ru_name']) ? $row['ru_name'] : '',
+        'ru_resume_img' => getResumeImg($row),
+        'ru_work_img' => getWorkingImg($ru_work),
+        'ru_work_type' => getWorkTypeFirst($ru_work_type),
+        'ru_price_type' => getPriceTypeFirst($ru_price_type),
+        'ru_week' => getWeekYoil($ru_week),
+        'mm_nation' => $mm_nation,
+        'mm_age' => getKoreanAge($mm_birth),
+        'ad_addr' => removeBigAddr($ad_addr),
+        'ru_my_type' => isset($row['ru_my_type']) ? getMyType($row['ru_my_type']) : ''
+      ];
+    }
+    return $formatted_list;
   }
 
   function hr_map()

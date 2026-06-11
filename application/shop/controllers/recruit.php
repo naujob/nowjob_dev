@@ -456,8 +456,12 @@ class Recruit extends CI_Controller
     $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["search_txt"]  = $search_txt;
     $data["skip_search_state_load"] = $skip_search_state_load;
-    // length를 0으로 전달하면 LIMIT 없이 전체 조회
-    $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 0);
+
+    // 지금 뜨는 업체 데이터 로드 및 포맷팅
+    $up_list = $this->common_model->getHomeUpCompList($addr_info, 0);
+    $data["up_list"] = $up_list; // PC 웹 호환성 유지
+    $data["hot_companies"] = $this->_formatHotCompanies($up_list);
+
     $data["initial_recruits"] = $initial_recruits;
     $data["initial_total_count"] = $initial_total_count;
     $data["use_server_render"] = $use_server_render;
@@ -497,6 +501,46 @@ class Recruit extends CI_Controller
       ];
     }
     return $formatted_list;
+  }
+
+  // 지금 뜨는 업체 데이터 포맷팅 (chunking + 포맷팅)
+  private function _formatHotCompanies($up_list)
+  {
+    if (empty($up_list) || !is_array($up_list)) {
+      return ['chunks' => []];
+    }
+
+    // 4개씩 chunking
+    $chunked_list = array_chunk($up_list, 4);
+
+    // 마지막 슬라이드가 4개 미만인 경우 빈 슬롯 추가
+    if (!empty($chunked_list)) {
+      $last_idx = count($chunked_list) - 1;
+      while (count($chunked_list[$last_idx]) < 4) {
+        $chunked_list[$last_idx][] = null;
+      }
+    }
+
+    // 각 항목 포맷팅
+    $formatted_chunks = [];
+    foreach ($chunked_list as $chunk) {
+      $formatted_chunk = [];
+      foreach ($chunk as $row) {
+        if ($row !== null) {
+          $formatted_chunk[] = [
+            'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+            'mm_comp_name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',
+            'comp_img' => getCompImg($row),
+            'comp_desc' => getRandomCompDesc(isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '')
+          ];
+        } else {
+          $formatted_chunk[] = null;
+        }
+      }
+      $formatted_chunks[] = $formatted_chunk;
+    }
+
+    return ['chunks' => $formatted_chunks];
   }
 
   # 채용지도(동검색)

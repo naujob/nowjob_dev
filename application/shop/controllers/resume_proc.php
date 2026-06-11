@@ -70,41 +70,52 @@ class Resume_proc extends CI_Controller
 
     $result = $this->member_model->getResumeSearchList2025($params);
 
-    $temp_list = $result["list"];
-    foreach ($temp_list as $key => $row) {
-      $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
-      $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
-      $temp_list[$key]["ru_work_type"] = getWorkTypeWithColor($row["ru_work_type"]);
-      $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
-      $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
+    // PC/모바일 구분하여 제목 길이 설정
+    $isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
+    $truncate_length = $isMobile ? 18 : 50;
+    $result["list"] = $this->_formatResumeList($result["list"], $truncate_length);
+    $result["total"] = isset($result["count"]) ? $result["count"] : 0;
+    json_return("00", "조회성공", $result);
+  }
+
+  // 인재 정보 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
+  private function _formatResumeList($list, $truncate_length = 18)
+  {
+    $formatted_list = [];
+    foreach ($list as $row) {
+      $ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
+      $ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
+      $ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
+      $ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
+      $mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
+      $mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
+      $ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
 
       // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
-      $ru_week = isset($row["ru_week"]) ? trim($row["ru_week"]) : "";
-      $ru_week_yn = isset($row["ru_week_yn"]) ? $row["ru_week_yn"] : "N";
-
-      // 요일무관이 아니고 ru_week가 비어있으면 간편등록 기본값 사용
-      if ($ru_week_yn !== "Y" && ($ru_week === "" || $ru_week === null)) {
+      if (($ru_week === "" || $ru_week === null)) {
         $ru_week = "월,화,수,목,금";
       }
 
-      $temp_list[$key]["ru_week"] = getWeekYoil($ru_week);
-      $temp_list[$key]["mm_name"] = getAstrik($row["mm_name"]);
-      $temp_list[$key]["mm_age"] = getKoreanAge($row["mm_birth"]);
-      $temp_list[$key]["mm_birth"] = "";
-      $temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
-      $temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
-      $temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
-      // 서버사이드 주소 변환 (큰 시/도 제거)
-      $temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
-      // 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
-      if (mb_strlen($row["ru_name"]) > 18) {
-        $temp_list[$key]["ru_name"] = mb_substr($row["ru_name"], 0, 18) . '...';
-      }
+      $formatted_list[] = [
+        'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
+        'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+        'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+        'ru_name' => (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'],
+        'ru_resume_img' => getResumeImg($row),
+        'ru_work_img' => getWorkingImg($ru_work),
+        'ru_work_type' => getWorkTypeWithColor($ru_work_type),
+        'ru_price_type' => getPriceType($ru_price_type),
+        'ru_week' => getWeekYoil($ru_week),
+        'mm_nation' => $mm_nation,
+        'mm_age' => getKoreanAge($mm_birth),
+        'ad_addr' => removeBigAddr($ad_addr),
+        'ru_my_type' => isset($row['ru_my_type']) ? $row['ru_my_type'] : '',
+        'up_dt_timestamp' => isset($row['up_dt_timestamp']) ? $row['up_dt_timestamp'] : '',
+        'distance' => isset($row['distance']) ? $row['distance'] : ''
+      ];
     }
-
-    $result["list"] = $temp_list;
-    $result["total"] = isset($result["count"]) ? $result["count"] : 0;
-    json_return("00", "조회성공", $result);
+    return $formatted_list;
   }
   # 핀리스트
 

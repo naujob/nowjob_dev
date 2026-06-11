@@ -1314,3 +1314,73 @@ function formatAgeRange($rc_sage, $rc_eage)
 
 	return '나이무관';
 }
+
+/**
+ * 급여 타입 포맷팅 (첫 번째 값만)
+ * 추천인재 슬라이더에서 사용
+ * @param string $price_type 급여 타입 (예: "일급,주급,월급")
+ * @return string 첫 번째 급여 타입 HTML (예: "<em>일급</em>")
+ */
+function getPriceTypeFirst($price_type)
+{
+	if (!$price_type) {
+		return "";
+	}
+
+	if ($price_type === "일급,주급,월급") {
+		return "<em>급여협의</em>";
+	}
+
+	$types = array_map('trim', explode(',', $price_type));
+	$types = array_filter($types);
+
+	if (empty($types)) {
+		return "";
+	}
+
+	return "<em>" . reset($types) . "</em>";
+}
+
+/**
+ * 근무 형태 포맷팅 (첫 번째 값만)
+ * 추천인재 슬라이더에서 사용
+ * @param string $work_type 근무 형태 (예: "주간,야간,2교대" 또는 HTML <span>주간</span><span>야간</span>)
+ * @return string 첫 번째 근무 형태 HTML (예: "<em class='wtype1'>주간</em>")
+ */
+function getWorkTypeFirst($work_type)
+{
+	if (!$work_type) {
+		return "";
+	}
+
+	$items = [];
+
+	// HTML span 형식 처리
+	if (strpos($work_type, '<span>') !== false) {
+		if (preg_match_all('/<span>(.*?)<\/span>/', $work_type, $matches)) {
+			$items = $matches[1];
+		}
+	} else {
+		// 쉼표로 구분된 일반 문자열 처리
+		$items = preg_split('/\s*,\s*/', $work_type);
+	}
+
+	$items = array_filter(array_map('trim', $items));
+
+	if (empty($items)) {
+		return "";
+	}
+
+	// 첫 번째 값만 처리
+	$text = reset($items);
+	$cls = '';
+	if ($text === '주간') {
+		$cls = 'wtype1';
+	} else if ($text === '야간') {
+		$cls = 'wtype2';
+	} else if ($text === '2교대') {
+		$cls = 'wtype3';
+	}
+
+	return '<em class="' . $cls . '">' . $text . '</em>';
+}

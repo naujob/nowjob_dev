@@ -231,7 +231,8 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
       $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
       if (row.pm_idx == null) {
         $content = $content.replaceAll("<span>추천</span>", "");
-        $content = $content.replaceAll("{{timestamp}}", "등록일 : " + row.up_dt);
+        var dateOnly = row.up_dt.split(' ')[0];
+        $content = $content.replaceAll("{{timestamp}}", "등록일 : " + dateOnly);
       } else {
         $content = $content.replaceAll("{{timestamp}}", "<p class=\"reco-title\">지금뜨는 추천공고</p>");
       }

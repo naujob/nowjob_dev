@@ -5,70 +5,13 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 
-// 초기 인재정보 데이터 로드 (서버사이드 렌더링)
-$mm_idx = $this->user->getUserIdx();
-$initial_params = [
-  'page' => 1,
-  'pagesize' => 20,
-  'mm_idx' => $mm_idx,
-  'category' => '',
-  'work_type' => '',
-  'week' => '',
-  'price_type' => '',
-  'sex' => '',
-  'sage' => '',
-  'eage' => '',
-  'order_by' => 'recent',
-  'search_addr' => [],
-  'text' => ''
-];
-
-// 캐시 테이블에서 초기 데이터 로드 (st_member에서 mm_birth를 JOIN으로 가져오기)
-$this->load->model('membermodel', 'member_model');
-$sql_initial = "
-  SELECT
-    c.ru_idx, c.mm_idx, c.ru_name, c.ru_work, c.ru_price_type, c.ru_work_type, c.ru_week,
-    c.ru_work_img, c.ru_resume_img, c.ad_addr, c.mm_nation, c.mm_sex, c.book_cnt,
-    c.pm_idx, c.up_dt, c.reg_dt, c.ru_show_yn, c.ru_status,
-    m.mm_birth
-  FROM vw_resume_list_cache c
-  LEFT JOIN st_member m ON c.mm_idx = m.mm_idx
-  WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
-  ORDER BY c.pm_idx DESC, c.up_dt DESC
-  LIMIT 20
-";
-$query_initial = $this->db->query($sql_initial);
-$initial_resumes = $query_initial->result_array();
-$use_server_render = isset($initial_resumes) && count($initial_resumes) > 0;
-
-// 전체 이력서 개수 조회
-$sql_count = "
-  SELECT COUNT(*) as total
-  FROM vw_resume_list_cache c
-  WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
-";
-$query_count = $this->db->query($sql_count);
-$count_result = $query_count->row_array();
-$initial_total_count = isset($count_result['total']) ? $count_result['total'] : 0;
-
-// 데이터 포맷팅 (JavaScript 함수와 동기화)
-if ($use_server_render) {
-  foreach ($initial_resumes as $key => $row) {
-    // getResumeImg()가 ru_thumb 키를 사용하므로 매핑
-    $row['ru_thumb'] = $row['ru_resume_img'];
-    // getResumeImg(): 이미지 없을 때 mm_sex 기반 대체이미지 적용
-    $initial_resumes[$key]['ru_resume_img'] = getResumeImg($row);
-    $initial_resumes[$key]['ru_work_img'] = getWorkingImg($row["ru_work"]);
-    $initial_resumes[$key]['ru_work_type'] = getWorkTypeWithColor($row["ru_work_type"]);
-    $initial_resumes[$key]['ru_price_type'] = getPriceType($row["ru_price_type"]);
-    $initial_resumes[$key]['ru_week'] = getWeekYoil($row["ru_week"]);
-    // mm_birth에서 나이 계산 (AJAX 응답과 동일한 방식)
-    $initial_resumes[$key]['mm_age'] = getKoreanAge($row["mm_birth"]);
-    $initial_resumes[$key]['up_dt_timestamp'] = getTimeText($row["up_dt"]);
-    // 서버사이드 주소 변환 (큰 시/도 제거)
-    $initial_resumes[$key]['ad_addr'] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
-  }
-}
+// Controller에서 전달받은 포맷팅된 데이터 사용
+// (이미 resume.php의 hr_list()에서 초기 데이터 로드 및 포맷팅됨)
+$use_server_render = isset($use_server_render) ? $use_server_render : false;
+$initial_resumes = isset($initial_resumes) ? $initial_resumes : [];
+$initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
+$initial_reco = isset($initial_reco) ? $initial_reco : [];
 ?>
 <style>
   /* .pricetype  em {
@@ -527,6 +470,50 @@ if ($use_server_render) {
         <h2 class="secondary-title index">추천인재</h2>
         <div class="recomm-slider person" style="display: flex; flex-direction: column;">
           <div class="slider-wrap keen-slider" id="recomm-list">
+            <?php
+            if ($has_initial_reco && isset($initial_reco) && is_array($initial_reco)) {
+              $chunked = array_chunk($initial_reco, 4);
+              foreach ($chunked as $slideIndex => $chunk) {
+                ?>
+                <div class="keen-slider__slide">
+                  <div class="person-grid">
+                    <?php foreach ($chunk as $row) { ?>
+                      <div class="person-grid-item">
+                        <div class="person-card" data-ru_idx="<?= $row['ru_idx'] ?>" data-mm_idx="<?= $row['mm_idx'] ?>">
+                          <div class="thumb-wrap">
+                            <div class="thumb">
+                              <?php $imgAttr = ($slideIndex === 0) ? 'src' : 'data-src'; ?>
+                              <?php $lazyClass = ($slideIndex === 0) ? '' : 'lozad'; ?>
+                              <img <?= $imgAttr ?>="<?= $row['ru_resume_img'] ?>" alt="프로필" class="<?= $lazyClass ?>">
+                            </div>
+                            <div class="person-badge-wrap">
+                              <div class="person-badge-icon"><?= $row['ru_work_img'] ?></div>
+                              <p class="person-badge"><?= $row['ru_name'] ?></p>
+                            </div>
+                          </div>
+                          <div class="desc">
+                            <div class="content-wrap">
+                              <div class="meta">
+                                <p class="work_type"><?= $row['ru_work_type'] ?></p>
+                                <span class="meta-divider">|</span>
+                                <p class="national"><?= $row['mm_nation'] ?></p>
+                                <span class="meta-divider">|</span>
+                                <p class="age"><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
+                                <span class="meta-divider">|</span>
+                                <p class="price_type"><?= $row['ru_price_type'] ?></p>
+                              </div>
+                              <p class="addr"><?= $row['ad_addr'] ?></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <?php } ?>
+                  </div>
+                </div>
+                <?php
+              }
+            }
+            ?>
           </div>
           <!-- 슬라이더 dot 인디케이터 -->
           <div class="slider-dots" id="recommSliderDots"></div>
@@ -962,7 +949,6 @@ $tpl_show_mm_idx = true; ?>
 
   //데이터 보여주기
   function showBoardList(list) {
-
     list.forEach(function(row, index) {
       // template 태그에서 내용 추출
       var templateEl = document.getElementById("tpl_list");
@@ -970,46 +956,29 @@ $tpl_show_mm_idx = true; ?>
 
       // $content가 null이거나 undefined인 경우 처리
       if (!$content || typeof $content !== 'string') {
-
         return;
       }
 
+      // 추천 여부 처리
       if (row.pm_idx == null) {
         $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
         $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
       }
 
+      // 포맷팅된 데이터 직접 사용 (Controller에서 이미 처리됨)
       $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || '');
       $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
       $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      // 이름이 18자 이상이면 ...으로 자르기
-      var mm_name = row.ru_name || '';
-      if (mm_name && mm_name.length > 18) {
-        mm_name = mm_name.substring(0, 18) + '...';
-      }
-      $content = $content.replaceAll("{{mm_name}}", mm_name);
+      $content = $content.replaceAll("{{mm_name}}", row.ru_name || '');
       $content = $content.replaceAll("{{ru_week}}", row.ru_week || '');
       $content = $content.replaceAll("{{distance}}", (row.distance || 0) + "km");
       $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || '');
-
-      if (!row.mm_nation || (typeof row.mm_nation === 'string' && row.mm_nation.trim() == '')) {
-        $content = $content.replaceAll("{{mm_nation}}", "");
-        $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
-      } else {
-        $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-      }
-
-      if (row.mm_age == '' || row.mm_age == '0') {
-        $content = $content.replaceAll("{{ma_age}}", "");
-        $content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"", "class=\"age\" style=\"display: none;\"");
-      } else {
-        $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "대");
-      }
-
-      $content = $content.replaceAll("{{ru_price_type}}", getPriceType(row.ru_price_type));
-      $content = $content.replaceAll("{{ru_work_type}}", (row.ru_work_type));
+      $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || '');
+      $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "대");
+      $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || '');
+      $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || '');
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || ''); // 서버에서 이미 변환됨
+      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || '');
 
       $(list_id).append($content);
     });
@@ -1373,6 +1342,19 @@ $tpl_show_mm_idx = true; ?>
     };
     $.CashingAjax(params);
 
+    // 추천인재 슬라이더 초기화 (서버사이드 렌더링된 데이터 기반)
+    // 초기 데이터가 있으면 바로 슬라이더 초기화, 없으면 AJAX로 로드
+    var hasInitialReco = <?php echo json_encode($has_initial_reco); ?>;
+    if (hasInitialReco) {
+      // 서버사이드 렌더링된 데이터 있음: 슬라이더 초기화만 수행
+      setTimeout(function() {
+        initRecommSlider();
+      }, 100);
+    } else {
+      // 초기 데이터 없음: AJAX로 로드
+      getRecoList();
+    }
+
     // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
     // 로드 순서 대비 재시도 로직 포함
     function attemptRestoreScroll() {
@@ -1438,17 +1420,17 @@ $tpl_show_mm_idx = true; ?>
     setTimeout(attemptRestoreScroll, 200);
 
     // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
-
-    // 추천인재 슬라이더 로드
-    getRecoList();
   });
 
   // 추천인재 데이터 로딩
   function getRecoList() {
+    // 사용자 주소 정보 가져오기
+    var addrInfo = <?php echo json_encode(isset($addr_info) ? $addr_info : []); ?>;
+
     var params = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
+      "addr1": addrInfo.ad_addr1 || "",
+      "addr2": addrInfo.ad_addr2 || "",
+      "addr3": addrInfo.ad_addr3 || "",
       "limit": "8"
     };
 
