@@ -440,9 +440,15 @@ class Recruit extends CI_Controller
 
     // 전체 채용공고 개수 조회 (COUNT 쿼리)
     $sql_count = "
-      SELECT COUNT(*) as total
-      FROM vw_recruit_list_cache
-      WHERE rc_show_yn = 'Y' AND rc_status = 'Y' AND rc_sdate <= NOW() AND rc_edate >= NOW()
+      SELECT COUNT(DISTINCT b.rc_idx) as total
+      FROM st_member a
+      INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
+      INNER JOIN st_address c ON a.mm_idx = c.mm_idx AND c.ad_type = 'RECRUIT' AND c.ad_key = b.rc_idx
+      WHERE a.mm_status = 'Y'
+        AND b.rc_show_yn = 'Y'
+        AND b.rc_status = 'Y'
+        AND b.rc_sdate <= NOW()
+        AND b.rc_edate >= NOW()
     ";
     $query_count = $this->db->query($sql_count);
     $count_result = $query_count->row_array();

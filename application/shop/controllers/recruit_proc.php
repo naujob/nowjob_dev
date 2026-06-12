@@ -500,7 +500,7 @@ class Recruit_proc extends CI_Controller
 				'rc_age_nm' => formatAgeRange($rc_sage, $rc_eage),
 				'ad_addr' => removeBigAddr($ad_addr),
 				'mm_id' => isset($row['mm_id']) ? $row['mm_id'] : '',
-				'up_dt' => isset($row['up_dt']) ? $row['up_dt'] : ''
+				'up_dt' => (isset($row['up_dt']) && $row['up_dt'] != '') ? getTimeText($row['up_dt']) : ''
 			];
 		}
 		return $formatted_list;

@@ -124,7 +124,7 @@ class recruitModel extends MY_Model
 		return $this->db_paging_list($cols, $body, $where, $order_by, 1, $limit, $group_by);
 	}
 
-	# 채용공고 목록 (MATERIALIZED VIEW 버전)
+	# 채용공고 목록 (실시간 쿼리 버전)
 	function getRecruitList($params)
 	{
 		$search_addr = isset($params["search_addr"]) && is_array($params["search_addr"]) ? array_map([$this, 'inject'], $params["search_addr"]) : [];
@@ -148,8 +148,52 @@ class recruitModel extends MY_Model
 			"aa.up_dt"
 		];
 
-		$body = "vw_recruit_list_cache aa
-			LEFT JOIN st_bookmark dd ON aa.rc_idx = dd.bk_key AND dd.bk_type = 'RECRUIT' AND dd.mm_idx = '{$mm_idx}'";
+		$body = "(
+			SELECT
+				a.mm_id,
+				a.mm_status,
+				a.mm_idx,
+				a.mm_comp_name,
+				b.rc_idx,
+				b.rc_name,
+				b.rc_work,
+				b.rc_work_type,
+				b.rc_price_type,
+				b.rc_price_rep,
+				b.rc_price_pay,
+				b.rc_img1,
+				b.rc_show_yn,
+				b.rc_status,
+				b.rc_sdate,
+				b.rc_edate,
+				b.rc_sage,
+				b.rc_eage,
+				CASE
+					WHEN b.rc_nation = '내국인,외국인' THEN '국적무관'
+					WHEN b.rc_nation = '내국인' THEN '내국인'
+					WHEN b.rc_nation = '외국인' THEN '외국인'
+					ELSE '국적무관'
+				END AS rc_nation,
+				b.rc_week,
+				b.rc_hash,
+				c.ad_addr,
+				CONCAT(c.ad_doro, ' ', c.ad_jibun) AS s_addr,
+				c.ad_gps_x,
+				c.ad_gps_y,
+				(SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = b.rc_idx) AS book_cnt,
+				(SELECT pm_idx FROM st_promotion WHERE rc_idx = b.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx,
+				GREATEST(
+					CASE WHEN b.up_dt = '0000-00-00 00:00:00' THEN b.reg_dt ELSE b.up_dt END,
+					IFNULL((SELECT MAX(up_dt) FROM st_promotion WHERE rc_idx = b.rc_idx AND pm_code IN ('C002','C003') AND pm_sdate <= NOW() AND pm_edate >= NOW()), '2000-01-01 00:00:00')
+				) AS up_dt,
+				b.reg_dt
+			FROM st_member a
+			INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
+			INNER JOIN st_address c ON a.mm_idx = c.mm_idx AND c.ad_type = 'RECRUIT' AND c.ad_key = b.rc_idx
+			WHERE a.mm_status = 'Y'
+			GROUP BY b.rc_idx
+		) aa
+		LEFT JOIN st_bookmark dd ON aa.rc_idx = dd.bk_key AND dd.bk_type = 'RECRUIT' AND dd.mm_idx = '{$mm_idx}'";
 
 		# WHERE 조건
 		$where = [];
@@ -227,7 +271,7 @@ class recruitModel extends MY_Model
 			$where[] = " AND aa.mm_idx = '{$compidx}' ";
 		}
 
-		# 정렬
+		# 정렬 (유료공고 → 최신순)
 		if ($params["order_by"] == "recent") {
 			$order_by = "aa.pm_idx DESC, aa.up_dt DESC";
 		} else {

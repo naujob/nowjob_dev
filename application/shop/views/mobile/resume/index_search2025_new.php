@@ -1011,117 +1011,30 @@
     if (!resetBtn) return;
 
     resetBtn.addEventListener('click', function() {
-      // 업직종 초기화
-      document.querySelectorAll('[data-category-checkbox]').forEach(function(input) {
-        input.checked = false;
-        var cell = input.closest('.category-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-      var categoryCounter = document.getElementById('category-selected-count');
-      if (categoryCounter) {
-        categoryCounter.textContent = '0';
+      // 백업 저장 (초기화 취소를 위해)
+      window.backupSearchState = {
+        selectedRegions: window.selectedRegions ? window.selectedRegions.slice() : [],
+        category: Array.from(document.querySelectorAll('[data-category-checkbox]:checked')).map(function(el) { return el.value; }),
+        work_type: Array.from(document.querySelectorAll('[data-work-checkbox]:checked')).map(function(el) { return el.value; }),
+        week: Array.from(document.querySelectorAll('[data-week-checkbox]:checked')).map(function(el) { return el.value; }),
+        price_type: Array.from(document.querySelectorAll('[data-price-checkbox]:checked')).map(function(el) { return el.value; }),
+        sex: Array.from(document.querySelectorAll('[data-gender-checkbox]:checked')).map(function(el) { return el.value; }),
+        nationality: Array.from(document.querySelectorAll('[data-nationality-checkbox]:checked')).map(function(el) { return el.value; }),
+        sage: document.getElementById('sageInput') ? document.getElementById('sageInput').value : '',
+        eage: document.getElementById('eageInput') ? document.getElementById('eageInput').value : ''
+      };
+
+      // UI만 초기화 (localStorage 유지, 검색 실행 안 함, 패널 닫기 안 함)
+      resetAdvancedSearchUI();
+
+      // 지역 초기화
+      window.selectedRegions = [];
+      if (typeof window.updateSelectedRegionsDisplay === 'function') {
+        window.updateSelectedRegionsDisplay();
       }
-
-      // 근무형태 초기화
-      document.querySelectorAll('[data-work-checkbox]').forEach(function(input) {
-        input.checked = false;
-        var cell = input.closest('.work-type-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 근무요일 초기화
-      document.querySelectorAll('[data-week-checkbox]').forEach(function(input) {
-        input.checked = false;
-        var cell = input.closest('.week-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 급여형태 초기화
-      document.querySelectorAll('[data-price-checkbox]').forEach(function(input) {
-        input.checked = false;
-        var cell = input.closest('.price-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 성별 초기화
-      document.querySelectorAll('[data-gender-checkbox]').forEach(function(input) {
-        input.checked = false;
-        var cell = input.closest('.gender-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 국적 초기화
-      document.querySelectorAll('[data-nationality-checkbox]').forEach(function(input) {
-        input.checked = false;
-        var cell = input.closest('.nationality-cell');
-        if (cell) {
-          cell.classList.remove('selected');
-        }
-      });
-
-      // 나이 초기화
-      $('#ageRangeSelect').val('');
-      $('input[name="sage"]').val('');
-      $('input[name="eage"]').val('');
-      $('input[name="age_any"]').prop('checked', true);
-
-      // 각 그룹 "전체" 버튼 상태 갱신
-      updateWorkTypeState();
-      updateWeekState();
-      updatePriceState();
-      updateGenderState();
-
-      // search_array 초기화하여 tab_list 업데이트
-      initCategory();
-      initTabUi();
-
-      // localStorage 부분 삭제 (지역 정보는 유지하도록)
-      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      var raw = localStorage.getItem(storageKey);
-      if (raw) {
-        try {
-          var state = JSON.parse(raw);
-          // 지역 정보만 보존하고 나머지 검색 조건은 초기화
-          var preservedState = {
-            userId: state.userId,
-            addrName: state.addrName,
-            searchAreaStr: state.searchAreaStr,
-            search_addr: state.search_addr,
-            selectedRegions: state.selectedRegions
-          };
-          localStorage.setItem(storageKey, JSON.stringify(preservedState));
-        } catch (e) {
-          localStorage.removeItem(storageKey);
-        }
+      if (typeof window.updateSelectedRegionsTags === 'function') {
+        window.updateSelectedRegionsTags();
       }
-
-      // 검색 실행 후 패널 닫기
-      list_page = 1;
-      $(list_id).html("");
-      getBoardList("Y");
-
-      var $panel = $("#advancedSearch")[0];
-      if ($panel) {
-        $panel.classList.remove('on');
-        document.body.style.overflow = '';
-        $panel.scrollTo(0, 0);
-      }
-      setTimeout(function() {
-        restoreBodyScroll();
-      }, 50);
-      setTimeout(function() {
-        restoreBodyScroll();
-      }, 200);
     });
   });
 
@@ -1510,16 +1423,66 @@
   }
 
   $(".btn-close-panel").click(function() {
-    // X 버튼으로 닫을 때: 임시 선택사항 취소 (검색 버튼을 누르지 않았으므로 저장된 상태로 복원)
-    var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-    var hasSavedState = localStorage.getItem(storageKey);
+    if (window.backupSearchState) {
+      // 백업 복원 (초기화 취소)
+      window.selectedRegions = window.backupSearchState.selectedRegions.slice();
 
-    if (hasSavedState) {
-      // 저장된 검색 상태가 있으면 UI를 저장된 상태로 복원
-      loadSearchStateFromStorage();
+      // 체크박스 복원 헬퍼
+      var restoreCheckboxes = function(selector, values) {
+        document.querySelectorAll(selector).forEach(function(input) {
+          input.checked = values.indexOf(input.value) !== -1;
+        });
+      };
+      restoreCheckboxes('[data-category-checkbox]', window.backupSearchState.category || []);
+      restoreCheckboxes('[data-work-checkbox]', window.backupSearchState.work_type || []);
+      restoreCheckboxes('[data-week-checkbox]', window.backupSearchState.week || []);
+      restoreCheckboxes('[data-price-checkbox]', window.backupSearchState.price_type || []);
+      restoreCheckboxes('[data-gender-checkbox]', window.backupSearchState.sex || []);
+      restoreCheckboxes('[data-nationality-checkbox]', window.backupSearchState.nationality || []);
+
+      // 나이 복원
+      document.getElementById('sageInput').value = window.backupSearchState.sage || '';
+      document.getElementById('eageInput').value = window.backupSearchState.eage || '';
+
+      // UI 상태 갱신 (resume 버전 함수명 사용)
+      updateWorkTypeState();
+      updateWeekState();
+      updatePriceState();
+      updateGenderState();
+      updateNationalityState();
+
+      // 카테고리 카운터 갱신
+      var counterEl = document.getElementById('category-selected-count');
+      if (counterEl) {
+        counterEl.textContent = document.querySelectorAll('[data-category-checkbox]:checked').length;
+      }
+
+      // tab_list 갱신
+      initCategory();
+      initTabUi();
+
+      // 지역 UI 갱신
+      if (typeof window.updateSelectedRegionsDisplay === 'function') {
+        window.updateSelectedRegionsDisplay();
+      }
+      if (typeof window.updateSelectedRegionsTags === 'function') {
+        window.updateSelectedRegionsTags();
+      }
+
+      // 백업 초기화
+      window.backupSearchState = null;
     } else {
-      // 저장된 상태가 없으면 UI 초기화 (모든 임시 선택사항 제거)
-      resetAdvancedSearchUI();
+      // 기존 로직: localStorage에서 복원 (백업이 없을 때만)
+      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
+      var hasSavedState = localStorage.getItem(storageKey);
+
+      if (hasSavedState) {
+        // 저장된 검색 상태가 있으면 UI를 저장된 상태로 복원
+        loadSearchStateFromStorage();
+      } else {
+        // 저장된 상태가 없으면 UI 초기화 (모든 임시 선택사항 제거)
+        resetAdvancedSearchUI();
+      }
     }
 
     var $panel = $("#advancedSearch")[0];
@@ -1556,6 +1519,9 @@
   });
 
   $("#btnSearch").click(function() {
+    // 백업 삭제 (초기화 확정)
+    window.backupSearchState = null;
+
     list_page = 1;
 
     // 팝업을 닫기 전에 먼저 검색 조건을 읽어야 함 (closePanel이 체크박스를 초기화함)

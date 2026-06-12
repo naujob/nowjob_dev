@@ -60,17 +60,29 @@ class Resume extends CI_Controller
       "searchAreaStr" => "",
     ];
 
-    // 초기 인재정보 데이터 로드 (캐시 테이블에서)
+    // 초기 인재정보 데이터 로드 (실시간 쿼리)
     $sql_initial = "
       SELECT
-        c.ru_idx, c.mm_idx, c.ru_name, c.ru_work, c.ru_price_type, c.ru_work_type, c.ru_week,
-        c.ru_work_img, c.ru_resume_img, c.ad_addr, c.mm_nation, c.mm_sex, c.book_cnt,
-        c.pm_idx, c.up_dt, c.reg_dt, c.ru_show_yn, c.ru_status,
-        m.mm_birth
-      FROM vw_resume_list_cache c
-      LEFT JOIN st_member m ON c.mm_idx = m.mm_idx
-      WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
-      ORDER BY c.pm_idx DESC, c.up_dt DESC
+        bb.ru_idx, aa.mm_idx, bb.ru_name, bb.ru_work, bb.ru_price_type, bb.ru_work_type, bb.ru_week,
+        bb.ru_work_img,
+        COALESCE(NULLIF(aa.mm_thumb, ''), aa.mm_img1, aa.mm_img2, aa.mm_img3, '/resource/uploads/member/noimage4.png') AS ru_resume_img,
+        COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr,
+        aa.mm_nation, aa.mm_sex, aa.mm_birth,
+        (SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RESUME' AND bk_key = bb.ru_idx) AS book_cnt,
+        p0.pm_idx,
+        GREATEST(
+          CASE WHEN bb.up_dt = '0000-00-00 00:00:00' THEN bb.reg_dt ELSE bb.up_dt END,
+          IFNULL(p.up_dt, '2000-01-01 00:00:00')
+        ) AS up_dt,
+        bb.reg_dt, bb.ru_show_yn, bb.ru_status
+      FROM st_member aa
+      INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx AND bb.ru_status = 'Y' AND bb.ru_show_yn = 'Y'
+      LEFT JOIN st_address cc ON aa.mm_idx = cc.mm_idx AND cc.ad_type = 'RESUME' AND cc.ad_key = bb.ru_idx
+      LEFT JOIN st_promotion p0 ON p0.rc_idx = bb.ru_idx AND p0.pm_code = 'M001' AND p0.pm_sdate < NOW() AND p0.pm_edate > NOW() AND p0.pm_status = 'Y'
+      LEFT JOIN st_promotion p ON p.rc_idx = bb.ru_idx AND p.pm_code IN ('M002','M003') AND NOW() BETWEEN p.pm_sdate AND p.pm_edate
+      WHERE aa.mm_status = 'Y'
+      GROUP BY bb.ru_idx
+      ORDER BY p0.pm_idx DESC, GREATEST(CASE WHEN bb.up_dt = '0000-00-00 00:00:00' THEN bb.reg_dt ELSE bb.up_dt END, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC
       LIMIT 20
     ";
     $query_initial = $this->db->query($sql_initial);
@@ -82,11 +94,12 @@ class Resume extends CI_Controller
       $initial_resumes = $this->_formatResumeList($initial_resumes);
     }
 
-    // 전체 이력서 개수 조회
+    // 전체 이력서 개수 조회 (실시간 쿼리)
     $sql_count = "
-      SELECT COUNT(*) as total
-      FROM vw_resume_list_cache c
-      WHERE c.ru_show_yn = 'Y' AND c.ru_status = 'Y'
+      SELECT COUNT(DISTINCT bb.ru_idx) as total
+      FROM st_member aa
+      INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx AND bb.ru_status = 'Y' AND bb.ru_show_yn = 'Y'
+      WHERE aa.mm_status = 'Y'
     ";
     $query_count = $this->db->query($sql_count);
     $count_result = $query_count->row_array();

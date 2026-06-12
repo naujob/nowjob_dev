@@ -1023,6 +1023,51 @@ function getKoreanAge($birth)
 	}
 }
 
+// function getTimeText($time)
+// {
+// 	// 빈값 또는 유효하지 않은 값 처리
+// 	if (empty($time) || $time == '0000-00-00 00:00:00') {
+// 		return '';
+// 	}
+
+// 	// 타임스탐프로 변환
+// 	$time_unix = strtotime($time);
+// 	if ($time_unix === false) {
+// 		return '';
+// 	}
+
+// 	$now_unix = time();
+// 	$diff_seconds = $now_unix - $time_unix;
+
+// 	// 24시간 이내 (86400초 = 24시간)
+// 	if ($diff_seconds < 86400) {
+// 		$diff_minutes = floor($diff_seconds / 60);
+
+// 		// 1시간 미만 (60분 미만)
+// 		if ($diff_minutes < 60) {
+// 			// 1분 미만일 경우 "방금 전"으로 표시
+// 			if ($diff_minutes < 1) {
+// 				return "방금 전";
+// 			}
+// 			return $diff_minutes . "분 전";
+// 		}
+// 		// 1시간 이상
+// 		else {
+// 			$diff_hours = floor($diff_minutes / 60);
+// 			return $diff_hours . "시간 전";
+// 		}
+// 	}
+// 	// 24시간 이후
+// 	else {
+// 		$diff_days = floor($diff_seconds / 86400);
+// 		if ($diff_days < 30) {
+// 			return $diff_days . "일 전";
+// 		} else {
+// 			$diff_months = floor($diff_days / 30);
+// 			return $diff_months . "달 전";
+// 		}
+// 	}
+// }
 function getTimeText($time)
 {
 	$time = strtotime($time);
@@ -1033,7 +1078,6 @@ function getTimeText($time)
 	else if ($timeLater < 60 * 60 * 24 * 30) return floor($timeLater / (60 * 60 * 24)) . "일 전";
 	else return floor($timeLater / (60 * 60 * 24 * 30)) . "달 전";
 }
-
 function getAddrSimple($addr)
 {
 	$arr = explode(" ", $addr);

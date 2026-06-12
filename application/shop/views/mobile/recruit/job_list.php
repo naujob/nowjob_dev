@@ -694,7 +694,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
             <div class="content-info">
               <div class="content-body">
                 <div class="img">
-                  <img src="<?= $row['rt_recruit_img'] ?>">
+                  <img src="<?= $row['rt_recruit_img'] ?>" loading="lazy" alt="채용공고 이미지">
                   <?php if ($mm_type === 'MEM' || $mm_type === 'COMP'): ?>
                     <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
                       class="btnBookMark btn-bookmark js-toggle-bookmark <?= $book_yn_class ?>">
@@ -713,7 +713,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
                     <p><?= $row['rc_age_nm'] ?></p>
                   </div>
                   <div class="summary area">
-                    <p><?= strlen($row['ad_addr']) > 20 ? substr($row['ad_addr'], 0, 20) . '...' : $row['ad_addr'] ?></p>
+                    <p><?= mb_strlen($row['ad_addr']) > 20 ? mb_substr($row['ad_addr'], 0, 20) . '...' : $row['ad_addr'] ?></p>
                   </div>
                 </div>
                 <div class="summary-container">

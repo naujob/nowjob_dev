@@ -990,7 +990,17 @@
           }
 
           $(document).on('click', '.addr_sel_init', function() {
-            // 현재 선택 상태 초기화
+            // 초기화 전 현재 선택 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
+            window.backupSelectedRegions = window.selectedRegions ? window.selectedRegions.slice() : [];
+            window.backupSearchArea = [];
+            $('.selbtn').each(function() {
+              window.backupSearchArea.push({
+                addr: $(this).data('addr'),
+                step: $(this).data('step')
+              });
+            });
+
+            // UI에서만 초기화 (sessionStorage는 유지)
             $('.addr_dept2 ul, .addr_dept3 ul').empty();
             $txtInput.val('');
             $('li.addr_on').removeClass('addr_on');
@@ -1001,15 +1011,10 @@
             window.selectedRegions = [];
             updateSearchView();
             resetAllRegionFlag();
-            // 저장된 지역도 삭제 (초기화 버튼이므로)
-            const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
-            const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
-            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
-            localStorage.removeItem(storageKey);
 
-            // index_search의 #selectedRegionsContainer 갱신
-            if (typeof window.updateSelectedRegionsDisplay === 'function') {
-              window.updateSelectedRegionsDisplay();
+            // main_visual.php의 지역 태그 UI 업데이트
+            if (typeof window.updateSelectedRegionsTags === 'function') {
+              window.updateSelectedRegionsTags();
             }
           });
 
@@ -1021,7 +1026,7 @@
 
             const count = $('.selbtn').length;
             //if (count<1) return;
-            var addrNames = [];
+            var addrNames = []; // 선택된 지역 이름을 담을 배열
 
             if ($('.selbtn').length > 0) {
               $('.selbtn').each(function() {
@@ -1065,21 +1070,28 @@
             });
             searchAreaStr = JSON.stringify(searchArea);
 
-            // 적용 시에만 sessionStorage에 저장 (단일 스키마로 통일)
+            // 적용 시에만 sessionStorage에 저장
             if (typeof window.saveSearchStateToStorage === 'function') {
               window.saveSearchStateToStorage();
             } else if (typeof saveSearchStateToStorage === 'function') {
               saveSearchStateToStorage();
             }
 
+            // 백업 삭제 (변경 확정, 다음 초기화를 위해 준비)
+            window.backupSelectedRegions = [];
+            window.backupSearchArea = [];
+
+            // main_visual.php에서 열린 경우만 지역 태그 UI 업데이트
+            // (index_search.php에서 열린 경우는 검색 버튼 클릭 시 처리)
+            var openedFromMainVisual = !document.querySelector('#advancedSearch');
+            if (openedFromMainVisual && typeof window.updateSelectedRegionsTags === 'function') {
+              window.updateSelectedRegionsTags();
+            }
+
             // index_search.php의 전역 함수 호출하여 선택된 지역 정보 전달
             if (typeof window.onRegionSelectionComplete === 'function') {
               window.onRegionSelectionComplete(addrNames);
             }
-
-            // 주의: main_visual의 #selected-regions-list 갱신은 여기서 하지 않음
-            // 이 함수는 index_search 패널 내에서 임시 작업이므로,
-            // 최종 확정은 index_search의 검색/초기화 버튼에서만 처리
 
             // 페이지별 커스텀 적용 처리 (true 반환 시 기본 목록 갱신 생략)
             var handled = false;
@@ -1183,7 +1195,7 @@
             setTimeout(attemptRestoreScroll, 300);
           });
 
-          // X버튼 클릭 시 현재 선택 상태 초기화 (sessionStorage는 유지)
+          // X버튼 클릭: 백업이 있으면 복원 (초기화 취소), 없으면 UI만 초기화
           const changeAreaPanel = document.getElementById('changeArea');
           if (changeAreaPanel) {
             const closeBtn = changeAreaPanel.querySelector('.btn-close-panel');
@@ -1192,19 +1204,85 @@
                 e.preventDefault();
                 e.stopPropagation();
                 setTimeout(function() {
-                  // .div2의 선택 버튼들만 제거
-                  $('.div2 .selbtn').remove();
-                  updateSelectedCount();
-                  // 리스트 초기화
-                  $('.addr_dept2 ul, .addr_dept3 ul').empty();
-                  $txtInput.val('');
-                  $('li.addr_on').removeClass('addr_on');
-                  updateSearchView();
+                  // index_search.php에서 열렸으면 (advancedSearch 패널이 있으면)
+                  var openedFromIndexSearch = !!document.querySelector('#advancedSearch');
+
+                  if (openedFromIndexSearch) {
+                    // index_search에서 열린 경우: 선택한 지역을 버려야 함 (백업 복원)
+                    // X 버튼은 "선택 취소" 의미이므로, 이전 상태로 복구
+                    if (window.backupSelectedRegions && window.backupSelectedRegions.length > 0) {
+                      window.selectedRegions = window.backupSelectedRegions.slice();
+                    } else {
+                      window.selectedRegions = [];
+                    }
+
+                    // index_search의 지역 UI 업데이트 (선택한 지역 제거)
+                    if (typeof window.updateSelectedRegionsDisplay === 'function') {
+                      window.updateSelectedRegionsDisplay();
+                    }
+
+                    // index_search의 탭 UI도 함께 갱신 (지역 탭 업데이트)
+                    if (typeof window.initCategory === 'function') {
+                      window.initCategory();
+                    }
+                    if (typeof window.initTabUi === 'function') {
+                      window.initTabUi();
+                    }
+
+                    // addr_popup의 UI 초기화
+                    $('.addr_dept2 ul, .addr_dept3 ul').empty();
+                    $txtInput.val('');
+                    $('li.addr_on').removeClass('addr_on');
+                    updateSearchView();
+                  } else {
+                    // main_visual에서 열린 경우: 초기화 취소 (백업 복원)
+                    if (window.backupSelectedRegions && window.backupSelectedRegions.length > 0) {
+                      // 백업된 선택 상태 복원
+                      window.selectedRegions = window.backupSelectedRegions.slice();
+
+                      // UI 복원: 백업된 검색 영역 기반으로 버튼 재생성
+                      $('.div2 .selbtn').remove();
+                      if (window.backupSearchArea && window.backupSearchArea.length > 0) {
+                        window.backupSearchArea.forEach(function(area, index) {
+                          const displayText = window.selectedRegions[index] || '';
+                          const $selbtn = $('<div>')
+                            .addClass('selbtn')
+                            .attr('data-step', area.step)
+                            .attr('data-addr', area.addr)
+                            .text(displayText)
+                            .append($('<div>').addClass('selbtnclose').text('x'));
+                          $('.div2').append($selbtn);
+                        });
+                      }
+                      updateSelectedCount();
+
+                      // main_visual.php의 지역 태그 UI 업데이트
+                      if (typeof window.updateSelectedRegionsTags === 'function') {
+                        window.updateSelectedRegionsTags();
+                      }
+                    } else {
+                      // 백업이 없으면 UI만 초기화
+                      $('.div2 .selbtn').remove();
+                      updateSelectedCount();
+
+                      // main_visual.php의 지역 태그 UI 업데이트
+                      if (typeof window.updateSelectedRegionsTags === 'function') {
+                        window.updateSelectedRegionsTags();
+                      }
+                    }
+
+                    // 리스트 초기화
+                    $('.addr_dept2 ul, .addr_dept3 ul').empty();
+                    $txtInput.val('');
+                    $('li.addr_on').removeClass('addr_on');
+                    updateSearchView();
+                  }
+
                   // 패널 닫기
                   changeAreaPanel.classList.remove('on');
-                  changeAreaPanel.hidden = true;
-                  // body 스크롤 잠금 해제
+                  changeAreaPanel.removeAttribute('hidden');
                   document.body.style.overflow = '';
+
                   // body 스타일 복원
                   if (typeof window.restorePanelClosedState === 'function') {
                     window.restorePanelClosedState();

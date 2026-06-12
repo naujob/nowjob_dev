@@ -540,8 +540,8 @@
    // 현재 사용자 ID 가져오기 (로그인하지 않은 경우 빈 문자열)
    var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
    var skipSearchStateLoad = <?= (isset($skip_search_state_load) && $skip_search_state_load) ? "true" : "false" ?>;
-
-   function initCategory() {
+  
+   function initCategory() { // 검색 조건을 배열 형태로 정리
 
      var arr_category = "";
      var arr_work_type = "";
@@ -782,7 +782,7 @@
 
 
      $("#tab_list").html("");
-     // icnt = 1부터 시작하여 지역(tab_list[0])은 제외 (별도의 태그 섹션에 표시됨)
+    
      for (var icnt = 1; icnt < tab_list.length; icnt++) {
 
        var $clone = $("#tpl_category").clone();
@@ -794,7 +794,7 @@
        } else {
          $content = $content.replaceAll("{{category_name}}", tab_list[icnt].df);
        }
-       // form-toggle-btn2 → filter-tag-item 클래스 변경
+      
        $content = $content.replaceAll("form-toggle-btn2", "filter-tag-item");
 
        $("#tab_list").append($content);
@@ -812,10 +812,59 @@
    });
 
    $(".btn-close-panel").click(function() {
+     // 백업이 있으면 복원 (초기화 취소)
+     if (window.backupSearchState) {
+       // 지역 복원
+       window.selectedRegions = window.backupSearchState.selectedRegions.slice();
+       selectedRegions = window.selectedRegions;
+       updateSelectedRegionsDisplay();
+
+       // 체크박스 복원
+       var restoreCheckboxes = function(name, values) {
+         $('input[name="' + name + '"]').each(function() {
+           $(this).prop('checked', values.indexOf($(this).val()) !== -1);
+         });
+       };
+
+       restoreCheckboxes('category[]', window.backupSearchState.category || []);
+       restoreCheckboxes('work_type[]', window.backupSearchState.work_type || []);
+       restoreCheckboxes('week[]', window.backupSearchState.week || []);
+       restoreCheckboxes('price_type[]', window.backupSearchState.price_type || []);
+       restoreCheckboxes('sex[]', window.backupSearchState.sex || []);
+       restoreCheckboxes('nationality[]', window.backupSearchState.nationality || []);
+
+       // 나이 입력값 복원
+       $('#sageInput').val(window.backupSearchState.sage || '');
+       $('#eageInput').val(window.backupSearchState.eage || '');
+
+       // 추가 체크박스 복원
+       $('[name="priceNegotiable"]').prop('checked', window.backupSearchState.priceNegotiable || false);
+       $('[name="workingDay"]').prop('checked', window.backupSearchState.workingDay || false);
+
+       // UI 상태 갱신
+       updateCategoryCounter();
+       updateWorkTypeSelectionState();
+       updateWorkTypeVisuals();
+       updateWeekSelectionState();
+       updateWeekVisuals();
+       updatePriceTypeSelectionState();
+       updatePriceTypeVisuals();
+       updateSexSelectionState();
+       updateSexVisuals();
+       updateNationalitySelectionState();
+       updateNationalityVisuals();
+       updateAgeSelectionState();
+       updateRegionCounter();
+
+       // 탭 UI 갱신
+       initCategory();
+       initTabUi();
+     }
+
      // 플래그 초기화: 패널 닫기 시 main_visual 동기화 방지
      window.skipAddrNameUpdate = true;
 
-     // 패널 닫기 (동기화 로직 없음 - 사용자 선택 취소의 의도)
+     // 패널 닫기
      var $panel = $("#advancedSearch")[0];
      if ($panel) {
        $panel.classList.remove('on');
@@ -1275,6 +1324,9 @@
    });
 
    $("#btnSearch").click(function() {
+     // 백업 삭제 (초기화 확정, 다음 초기화를 위해 준비)
+     window.backupSearchState = null;
+
      // 플래그 초기화: 검색 버튼 클릭 시 .addrName 동기화 허용
      window.skipAddrNameUpdate = false;
 
@@ -1314,11 +1366,25 @@
    });
 
    $("#btnReset").click(function() {
+     // 초기화 전 현재 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
+     window.backupSearchState = {
+       selectedRegions: window.selectedRegions ? window.selectedRegions.slice() : [],
+       category: $('input[name="category[]"]:checked').map(function() { return $(this).val(); }).get(),
+       work_type: $('input[name="work_type[]"]:checked').map(function() { return $(this).val(); }).get(),
+       week: $('input[name="week[]"]:checked').map(function() { return $(this).val(); }).get(),
+       price_type: $('input[name="price_type[]"]:checked').map(function() { return $(this).val(); }).get(),
+       sex: $('input[name="sex[]"]:checked').map(function() { return $(this).val(); }).get(),
+       nationality: $('input[name="nationality[]"]:checked').map(function() { return $(this).val(); }).get(),
+       sage: $('#sageInput').val(),
+       eage: $('#eageInput').val(),
+       priceNegotiable: $('[name="priceNegotiable"]').is(':checked'),
+       workingDay: $('[name="workingDay"]').is(':checked')
+     };
+
      // 플래그 초기화: 초기화 버튼 클릭 시 .addrName 동기화 허용
      window.skipAddrNameUpdate = false;
 
      // 지역
-
      window.selectedRegions = [];
      selectedRegions = [];
      updateSelectedRegionsDisplay();
