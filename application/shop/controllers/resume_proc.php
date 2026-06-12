@@ -111,7 +111,7 @@ class Resume_proc extends CI_Controller
         'mm_age' => getKoreanAge($mm_birth),
         'ad_addr' => removeBigAddr($ad_addr),
         'ru_my_type' => isset($row['ru_my_type']) ? $row['ru_my_type'] : '',
-        'up_dt_timestamp' => isset($row['up_dt_timestamp']) ? $row['up_dt_timestamp'] : '',
+        'up_dt_timestamp' => isset($row['up_dt']) ? getTimeText($row['up_dt']) : '',
         'distance' => isset($row['distance']) ? $row['distance'] : ''
       ];
     }

@@ -472,9 +472,12 @@ function removeElement(ele) {
 }
 
 
-//ajax 캐싱
+//사용자가 목록 페이지에서 상세 페이지로 갔다가 뒤로가기로 돌아왔을 때, 보던 목록 화면을 그대로 복원해주는 AJAX 캐싱 유틸리티
 $.CashingAjax = function (pm) {
+   
+
     $(document).click(function () {
+     
         sessionStorage.setItem(pm.cashing_id + "_list_data", $(pm.list_id).html());
         sessionStorage.setItem(pm.cashing_id + "_category_list", $(pm.category_list_id).html());
         sessionStorage.setItem(pm.cashing_id + "_scroll_top", $(window).scrollTop());
@@ -498,13 +501,16 @@ $.CashingAjax = function (pm) {
 
     //뒤로왔을때 상품 유지
     window.addEventListener('pageshow', function (event) {
+       
         if (event.persisted || window.performance && window.performance.navigation.type == 2) {
+         
             //데이터 가져오기
             var list_data = sessionStorage.getItem(pm.cashing_id + "_list_data");
             var scroll_top = sessionStorage.getItem(pm.cashing_id + "_scroll_top");
             var category_list = sessionStorage.getItem(pm.cashing_id + "_category_list");
             var page = sessionStorage.getItem(pm.cashing_id + "_page");
 
+         
             //데이터 설정
             $(pm.list_id).html(list_data);
             $(pm.list_id).attr("data-page", page);
@@ -561,6 +567,7 @@ $.CashingAjax = function (pm) {
             }
             pm.fn_cashing();
         } else {
+          
             pm.fn_load();
         }
     }, false);

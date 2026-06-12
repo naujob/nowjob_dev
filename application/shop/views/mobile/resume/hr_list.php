@@ -422,7 +422,7 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
     list-style: none;
-    margin: 0;
+     margin-top: 25px;
     padding: 0;
     position: relative;
   }
@@ -843,7 +843,15 @@ $tpl_show_mm_idx = true; ?>
   }
 
   function initLoadData() {
-    list_page = getPageFromUrl();
+    // URL 파라미터 > sessionStorage > 기본값(1)
+    var urlPage = getPageFromUrl();
+    if (urlPage > 1) {
+      list_page = urlPage;
+    } else {
+      var savedPage = sessionStorage.getItem('resume_list_page');
+      list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
+    }
+
     total_count = 0;
     total_pages = 1;
 
@@ -870,6 +878,15 @@ $tpl_show_mm_idx = true; ?>
       // 초기 데이터 없음 또는 페이지 2+: AJAX로 로드
       getBoardList("");
     }
+
+    // 현재 페이지를 sessionStorage에 저장
+    saveCurrentPage();
+  }
+
+  // 현재 페이지를 sessionStorage에 저장 (상세페이지 돌아올 때 복원용)
+  function saveCurrentPage() {
+    sessionStorage.setItem('resume_list_page', list_page);
+    pushPageToUrl(list_page);
   }
 
   // 브라우저 뒤로가기/앞으로가기 감지
@@ -1192,7 +1209,7 @@ $tpl_show_mm_idx = true; ?>
   function goPage(page) {
     if (page < 1 || page > total_pages) return; // 유효성 검사 이동가능한 페이지인지 확인
     list_page = page; // 전역 변수 업데이트 현재 페이지를 3으로 바꿈
-    pushPageToUrl(page); //URL도 3페이지로 바꿈
+    saveCurrentPage(); // 현재 페이지를 저장 (pushPageToUrl 포함)
     $(list_id).empty(); //기존 목록 지움
     $("html, body").animate({
       scrollTop: 0 //scrollTop: 0으로 하면 화면 맨 위로 이동
@@ -1340,7 +1357,12 @@ $tpl_show_mm_idx = true; ?>
       fn_cashing: initCashingData,
       fn_load: initLoadData,
     };
-    $.CashingAjax(params);
+    $.CashingAjax(params); // 캐싱된 페이지 데이터 초기화 및 글 목록 로드
+
+    // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
+    $(document).on('click', '.content-li, .person-grid-item', function(e) {
+      saveCurrentPage();
+    });
 
     // 추천인재 슬라이더 초기화 (서버사이드 렌더링된 데이터 기반)
     // 초기 데이터가 있으면 바로 슬라이더 초기화, 없으면 AJAX로 로드

@@ -282,7 +282,7 @@
                     <!-- 상세업무정보 섹션 -->
                     <div class="form-row">
                         <div class="resume-title-header">
-                            <p class="form-label"><span class="required-asterisk">*</span>상세업무정보 <em>최대500자</em></p>
+                            <p class="form-label"><span class="required-asterisk">*</span>상세업무정보</p>
                             <span class="required-label"><span class="required-asterisk">*</span>필수입력</span>
                         </div>
                         <label>
@@ -298,7 +298,7 @@
                                 $desc = html_entity_decode($desc, ENT_QUOTES, 'UTF-8');
                             }
                             ?>
-                            <textarea name="rc_desc" maxlength="500" class="form-textarea js-autoheight"><?= $desc ?></textarea>
+                            <textarea name="rc_desc" class="form-textarea js-autoheight"><?= $desc ?></textarea>
                         </label>
                     </div>
 
@@ -1296,7 +1296,7 @@
         $("#ad_zipcode").val(zipcode);
         $("#ad_jibun").val(jibun);
         $("#ad_doro").val(doro);
-        $("#ad_addr").val(jibun);
+        $("#ad_addr").val(addr);
         $("#ad_detail").val(detail);
         $("#ad_gps_x").val(x);
         $("#ad_gps_y").val(y);

@@ -497,12 +497,12 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     // #tab_list 변경 감지
     var tabList = document.getElementById('tab_list');
     if (tabList) {
-      var tabObserver = new MutationObserver(function(mutations) {
+      var tabObserver = new MutationObserver(function(mutations) { // #tab_list 내 변경이 감지될 때마다 border 업데이트
         updateCategoriesBorder();
       });
       tabObserver.observe(tabList, {
-        childList: true,
-        subtree: true
+        childList: true, // 자식 노드 추가/제거 감지
+        subtree: true // 모든 하위 노드 변경 감지
       });
     }
     // 지역 필터 상태 초기화 함수: 지역 관련 전역 상태와 UI를 모두 초기화
@@ -544,8 +544,8 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       if (inputNameMap[filterKey]) {
         Array.prototype.forEach.call(document.querySelectorAll('input[name="' + inputNameMap[filterKey] + '"]'), function(input) {
           input.checked = false;
-          input.dispatchEvent(new Event('change', {
-            bubbles: true
+          input.dispatchEvent(new Event('change', { //실제로 사용자가 입력하거나 클릭하지 않아도, 코드로 이벤트를 강제로 실행하여, 다른 스크립트에서 이 이벤트를 감지하고 해당 검색 조건에 맞는 결과를 새로 불러올 수 있도록 함. 예를 들어, 근무형태 필터의 체크박스를 모두 해제하면, change 이벤트가 발생하여, 근무형태 조건이 없는 검색 결과가 새로 로드되는 방식.
+            bubbles: true //이벤트가 상위 요소로 전파되어, 부모 요소에서도 이벤트를 감지
           }));
         });
       }
@@ -592,7 +592,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     // 지금 클릭한 태그가 어떤 필터인지 알아내는  key 값을 리턴
     function inferFilterKeyFromTag(filterTag) {
       var filterKey = filterTag.getAttribute('data-filter-key');
-      if (filterKey) return filterKey;
+      if (filterKey) return filterKey;   // ex data-filter-key="work_type"
 
       var tagItems = filterTag.parentNode ? filterTag.parentNode.querySelectorAll('label.btn-category') : [];
       var tagIndex = Array.prototype.indexOf.call(tagItems, filterTag);
@@ -619,6 +619,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       }
     }
     // 필터 태그 제거 함수
+    //필터를 완전히 제거하고 화면을 새로 갱신하는 역할을 담당하는 함수로, 단순히 태그를 지우는 것뿐만 아니라, 관련된 검색 조건도 초기화하고, 검색 결과도 새로 불러오는 등, 태그 제거에 따른 전체적인 상태 관리를 담당하는 함수입니다.
     function removeFilterTag(filterKey) {
       if (!filterKey) return;
 
@@ -655,7 +656,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       if (typeof window.getBoardList === 'function') {
         window.getBoardList('Y');
       } else if (typeof getBoardList === 'function') {
-        getBoardList('Y');
+        getBoardList('Y'); //태그 제거 후 검색 결과를 새로 불러오는 함수 호출 (getBoardList는 recruit/resume 페이지에서 검색 조건에 맞는 게시글 목록을 서버에서 가져와 화면에 렌더링하는 함수)
       }
 
       updateCategoriesBorder();
@@ -665,6 +666,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     // 카테고리 필터 태그 클릭 핸들러
     document.addEventListener('click', function(e) {
       var filterTag = e.target.closest ? e.target.closest('label.filter-tag-item.on.btn-category') : null;
+      // 클릭한 요소 또는 상위 요소 중에 .filter-tag-item.on.btn-category가 있는지 확인
       if (!filterTag) return;
 
       e.preventDefault();

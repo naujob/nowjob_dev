@@ -13,6 +13,7 @@ $tpl_id             = isset($tpl_id)             ? $tpl_id             : 'tpl_re
 $tpl_show_timestamp = isset($tpl_show_timestamp) ? $tpl_show_timestamp : false;
 $tpl_show_mm_idx    = isset($tpl_show_mm_idx)    ? $tpl_show_mm_idx    : false;
 $tpl_show_reco_title = isset($tpl_show_reco_title) ? $tpl_show_reco_title : false;
+$tpl_show_recomm_badge = isset($tpl_show_recomm_badge) ? $tpl_show_recomm_badge : false;
 $tpl_show_action_slot = isset($tpl_show_action_slot) ? $tpl_show_action_slot : false;
 $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '20%';
 ?>
@@ -25,7 +26,9 @@ $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '
         <?php if ($mm_type === "COMP"): ?>
         <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
         <?php endif; ?>
+        <?php if ($tpl_show_recomm_badge): ?>
         <p class="recomm-badge"><span>추천</span></p>
+        <?php endif; ?>
       </div>
       <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>
 

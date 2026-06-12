@@ -1,3 +1,4 @@
+
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <style>
@@ -137,6 +138,7 @@ $tpl_id               = 'tpl_resume_card';
 $tpl_show_timestamp   = false;
 $tpl_show_mm_idx      = false;
 $tpl_show_reco_title  = true;
+$tpl_show_recomm_badge = false;
 $tpl_price_wrap_width = '20%';
 include APPPATH . 'views/web/_layout/resume_list_template.php';
 ?>

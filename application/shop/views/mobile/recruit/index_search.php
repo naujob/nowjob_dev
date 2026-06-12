@@ -622,7 +622,8 @@
          }
        }
      }
-
+     //search_array는 전역 변수로, 검색 조건을 담는 객체입니다. (예: search_array.category, search_array.work_type 등)
+     // job_list.php에서 정의되어 있으며, 검색 조건을 서버로 전달할 때 사용됩니다. /recruit_proc/search_save_params2025
      search_array.category = arr_category;
      search_array.work_type = arr_work_type;
      search_array.week = arr_week;
@@ -777,7 +778,7 @@
 
      }
    }
-
+  
    function initTabUi() {
 
 

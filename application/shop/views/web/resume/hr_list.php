@@ -1066,6 +1066,7 @@ $tpl_id               = 'tpl_resume_card';
 $tpl_show_timestamp   = true;
 $tpl_show_mm_idx      = true;
 $tpl_price_wrap_width = '290px';
+$tpl_show_recomm_badge = true;
 include APPPATH . 'views/web/_layout/resume_list_template.php';
 ?>
 

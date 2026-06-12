@@ -427,7 +427,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
     list-style: none;
-    margin: 0;
+     margin-top: 25px;
     padding: 0;
     position: relative;
   }
@@ -875,11 +875,14 @@ $tpl_recomm_class = true; ?>
 
   // URL에서 page 파라미터 읽기
   function getPageFromUrl() {
+    // /job_list?page=6 -> params.get("page") → "6"
+    // parseInt("6") → 6
     var params = new URLSearchParams(window.location.search);
     return parseInt(params.get("page")) || 1;
   }
 
   // URL에 page 파라미터 반영 (히스토리 push)
+  // 새로고침 없이 URL만 변경
   function pushPageToUrl(page) {
     var params = new URLSearchParams(window.location.search);
     params.set("page", page);
@@ -890,13 +893,22 @@ $tpl_recomm_class = true; ?>
 
   // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
   function initCashingData() {
+    console.log("[캐싱 데이터 초기화] URL page:", getPageFromUrl());
     list_page = getPageFromUrl();
     getBoardList("");
   }
 
   // 초기 데이터 로드 (캐시 테이블에서 서버사이드 렌더링됨)
   function initLoadData() {
-    list_page = getPageFromUrl();
+    console.log("[초기 데이터 로드] URL page:", getPageFromUrl(), "sessionStorage page:", sessionStorage.getItem('recruit_list_page'));
+    // URL 파라미터 > sessionStorage > 기본값(1)
+    var urlPage = getPageFromUrl();
+    if (urlPage > 1) {
+      list_page = urlPage;
+    } else {
+      var savedPage = sessionStorage.getItem('recruit_list_page');
+      list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
+    }
 
     // 초기 데이터가 HTML에 렌더링되어 있는지 확인
     var initialListCount = $(list_id).find("li").length;
@@ -928,6 +940,15 @@ $tpl_recomm_class = true; ?>
       // 페이지 2 이상 또는 초기 데이터 없음: AJAX로 로드
       getBoardList("");
     }
+
+    // 현재 페이지를 sessionStorage에 저장
+    saveCurrentPage();
+  }
+
+  // 현재 페이지를 sessionStorage에 저장 (상세페이지에서 돌아올 때 복원용)
+  function saveCurrentPage() {
+    sessionStorage.setItem('recruit_list_page', list_page);
+    pushPageToUrl(list_page);
   }
 
   // 브라우저 뒤로가기/앞으로가기 감지
@@ -1154,7 +1175,7 @@ $tpl_recomm_class = true; ?>
   function goPage(page) {
     if (page < 1 || page > total_pages) return;
     list_page = page;
-    pushPageToUrl(page);
+    saveCurrentPage(); // 현재 페이지를 저장 (pushPageToUrl 포함)
     $(list_id).empty();
     $("html, body").animate({
       scrollTop: 0
@@ -1292,6 +1313,11 @@ $tpl_recomm_class = true; ?>
       fn_load: initLoadData,
     };
     $.CashingAjax(params);
+
+    // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
+    $(document).on('click', '.content-li', function(e) {
+      saveCurrentPage();
+    });
 
     // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
     // 로드 순서 대비 재시도 로직 포함
