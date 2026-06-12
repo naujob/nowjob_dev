@@ -72,6 +72,66 @@
 					          </td>
                 </tr>
                 <tr>
+                    <th scope="col">업체이 이미지5</th>
+                    <td>
+					              <div class="input-file js-input-file">
+                        	<?=inputImage("cd_val7","cd_val7",getData($info,"cd_val7"),"<tip class='fc3'>이미지를 선택해주세요!</tip>")?>
+                        </div>
+                        <p class="exc1">권장 포멧 : png, 허용 포멧 : jpg,jpeg,png,gif</p>
+                    	  <p class="exc1">권장 사이즈 : 800 x 800 px </p>
+					          </td>
+                </tr>
+                <tr>
+                    <th scope="col">업체이 이미지6</th>
+                    <td>
+					              <div class="input-file js-input-file">
+                        	<?=inputImage("cd_val8","cd_val8",getData($info,"cd_val8"),"<tip class='fc3'>이미지를 선택해주세요!</tip>")?>
+                        </div>
+                        <p class="exc1">권장 포멧 : png, 허용 포멧 : jpg,jpeg,png,gif</p>
+                    	  <p class="exc1">권장 사이즈 : 800 x 800 px </p>
+					          </td>
+                </tr>
+                <tr>
+                    <th scope="col">업체이 이미지7</th>
+                    <td>
+					              <div class="input-file js-input-file">
+                        	<?=inputImage("cd_val9","cd_val9",getData($info,"cd_val9"),"<tip class='fc3'>이미지를 선택해주세요!</tip>")?>
+                        </div>
+                        <p class="exc1">권장 포멧 : png, 허용 포멧 : jpg,jpeg,png,gif</p>
+                    	  <p class="exc1">권장 사이즈 : 800 x 800 px </p>
+					          </td>
+                </tr>
+                <tr>
+                    <th scope="col">업체이 이미지8</th>
+                    <td>
+					              <div class="input-file js-input-file">
+                        	<?=inputImage("cd_val10","cd_val10",getData($info,"cd_val10"),"<tip class='fc3'>이미지를 선택해주세요!</tip>")?>
+                        </div>
+                        <p class="exc1">권장 포멧 : png, 허용 포멧 : jpg,jpeg,png,gif</p>
+                    	  <p class="exc1">권장 사이즈 : 800 x 800 px </p>
+					          </td>
+                </tr>
+                <tr>
+                    <th scope="col">업체이 이미지9</th>
+                    <td>
+					              <div class="input-file js-input-file">
+                        	<?=inputImage("cd_val11","cd_val11",getData($info,"cd_val11"),"<tip class='fc3'>이미지를 선택해주세요!</tip>")?>
+                        </div>
+                        <p class="exc1">권장 포멧 : png, 허용 포멧 : jpg,jpeg,png,gif</p>
+                    	  <p class="exc1">권장 사이즈 : 800 x 800 px </p>
+					          </td>
+                </tr>
+                <tr>
+                    <th scope="col">업체이 이미지10</th>
+                    <td>
+					              <div class="input-file js-input-file">
+                        	<?=inputImage("cd_val12","cd_val12",getData($info,"cd_val12"),"<tip class='fc3'>이미지를 선택해주세요!</tip>")?>
+                        </div>
+                        <p class="exc1">권장 포멧 : png, 허용 포멧 : jpg,jpeg,png,gif</p>
+                    	  <p class="exc1">권장 사이즈 : 800 x 800 px </p>
+					          </td>
+                </tr>
+                <tr>
 	                <th>정렬<em class="ess"></em></td>
 	                <td class="inline-wrap">
 	                	<div class="input-text w120">

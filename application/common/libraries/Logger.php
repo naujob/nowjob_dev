@@ -102,7 +102,7 @@ class Logger
         $log_file = $date_dir . '/php-app.log';
         if (!@file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX)) {
             // 파일 쓰기 실패 시에도 조용히 처리 (시스템 에러 방지)
-            error_log('Logger: 파일 쓰기 실패 - ' . $log_file);
+           error_log('Logger: 파일 쓰기 실패 - ' . $log_file);
         }
 
         // ERROR 이상만 별도 저장

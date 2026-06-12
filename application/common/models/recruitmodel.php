@@ -127,8 +127,12 @@ class recruitModel extends MY_Model
 	# 채용공고 목록 (실시간 쿼리 버전)
 	function getRecruitList($params)
 	{
+		
+
 		$search_addr = isset($params["search_addr"]) && is_array($params["search_addr"]) ? array_map([$this, 'inject'], $params["search_addr"]) : [];
 		$mm_idx = isset($params["mm_idx"]) ? $this->inject($params["mm_idx"]) : 0;
+
+	
 
 		$cols = [
 			"aa.rc_idx",
@@ -180,6 +184,10 @@ class recruitModel extends MY_Model
 				CONCAT(c.ad_doro, ' ', c.ad_jibun) AS s_addr,
 				c.ad_gps_x,
 				c.ad_gps_y,
+				IFNULL(e1.ad_addr, '') as expose_addr1,
+				IFNULL(CONCAT(e1.ad_doro, ' ', e1.ad_jibun), '') as expose_s_addr1,
+				IFNULL(e2.ad_addr, '') as expose_addr2,
+				IFNULL(CONCAT(e2.ad_doro, ' ', e2.ad_jibun), '') as expose_s_addr2,
 				(SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = b.rc_idx) AS book_cnt,
 				(SELECT pm_idx FROM st_promotion WHERE rc_idx = b.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx,
 				GREATEST(
@@ -190,6 +198,8 @@ class recruitModel extends MY_Model
 			FROM st_member a
 			INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
 			INNER JOIN st_address c ON a.mm_idx = c.mm_idx AND c.ad_type = 'RECRUIT' AND c.ad_key = b.rc_idx
+			LEFT JOIN st_address e1 ON a.mm_idx = e1.mm_idx AND b.rc_idx = e1.ad_key AND e1.ad_type = 'RECRUIT_EXPOSE_1'
+			LEFT JOIN st_address e2 ON a.mm_idx = e2.mm_idx AND b.rc_idx = e2.ad_key AND e2.ad_type = 'RECRUIT_EXPOSE_2'
 			WHERE a.mm_status = 'Y'
 			GROUP BY b.rc_idx
 		) aa
@@ -212,7 +222,11 @@ class recruitModel extends MY_Model
 				aa.rc_hash LIKE '%{$text}%' OR
 				aa.mm_comp_name LIKE '%{$text}%' OR
 				aa.s_addr LIKE '%{$text}%' OR
-				aa.ad_addr LIKE '%{$text}%'
+				aa.ad_addr LIKE '%{$text}%' OR
+				aa.expose_addr1 LIKE '%{$text}%' OR
+				aa.expose_s_addr1 LIKE '%{$text}%' OR
+				aa.expose_addr2 LIKE '%{$text}%' OR
+				aa.expose_s_addr2 LIKE '%{$text}%'
 			)";
 		}
 
@@ -226,13 +240,36 @@ class recruitModel extends MY_Model
 			)";
 		}
 
-		# 지역 검색
+
 		$addr_condition = $this->make_addr_like_condition("aa.s_addr", $search_addr);
+		
+
 		if (!$addr_condition) {
 			$addr_condition = $this->make_addr_like_condition("aa.ad_addr", $search_addr);
+			
 		}
+		if (!$addr_condition) {
+			$addr_condition = $this->make_addr_like_condition("aa.expose_addr1", $search_addr);
+			
+		}
+		if (!$addr_condition) {
+			$addr_condition = $this->make_addr_like_condition("aa.expose_s_addr1", $search_addr);
+			
+		}
+		if (!$addr_condition) {
+			$addr_condition = $this->make_addr_like_condition("aa.expose_addr2", $search_addr);
+			
+		}
+		if (!$addr_condition) {
+			$addr_condition = $this->make_addr_like_condition("aa.expose_s_addr2", $search_addr);
+			
+		}
+
 		if ($addr_condition) {
+			
 			$where[] = " AND ({$addr_condition})";
+		} else {
+			
 		}
 
 		# 카테고리
@@ -278,20 +315,38 @@ class recruitModel extends MY_Model
 			$order_by = "aa.book_cnt DESC, aa.up_dt DESC";
 		}
 
-		$group_by = "GROUP BY aa.rc_idx";
+		$group_by = ""; // 서브쿼리에서 이미 GROUP BY b.rc_idx 처리됨
 
-		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
+	
+		foreach ($where as $idx => $w) {
+			
+		}
+		
+
+		try {
+			$result = $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
+		
+			return $result;
+		} catch (Exception $e) {
+		
+			throw $e;
+		}
 	}
 
 	function make_addr_like_condition($column, $addr_array)
 	{
-		if (empty($addr_array) || !is_array($addr_array)) return "";
+		if (empty($addr_array) || !is_array($addr_array)) {
+			return "";
+		}
 
 		$conditions = array_map(function ($addr) use ($column) {
-			return "$column LIKE '%" . addslashes($addr) . "%'";
+			$escaped_addr = addslashes($addr);
+			$cond = "$column LIKE '%" . $escaped_addr . "%'";
+			return $cond;
 		}, $addr_array);
 
-		return " (" . implode(" OR ", $conditions) . ") ";
+		$result = " (" . implode(" OR ", $conditions) . ") ";
+		return $result;
 	}
 
 	function getMultiAndAll($arry, $col_name)

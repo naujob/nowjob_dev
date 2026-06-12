@@ -14,6 +14,12 @@
 		                <col width="150" />
                     <col width="150" />
                     <col width="150" />
+                    <col width="150" />
+                    <col width="150" />
+                    <col width="150" />
+                    <col width="150" />
+                    <col width="150" />
+                    <col width="150" />
 		                <col width="100" />
 		                <col width="100" />
 		                <col width="100" />
@@ -25,8 +31,14 @@
 		                <th scope="col">아이콘</th>
 		                <th scope="col">업체 이미지1</th>
 		                <th scope="col">업체 이미지2</th>
-                    <th scope="col">업체 이미지3</th>
-                    <th scope="col">업체 이미지4</th>
+						<th scope="col">업체 이미지3</th>
+						<th scope="col">업체 이미지4</th>
+						<th scope="col">업체 이미지5</th>
+						<th scope="col">업체 이미지6</th>
+						<th scope="col">업체 이미지7</th>
+						<th scope="col">업체 이미지8</th>
+						<th scope="col">업체 이미지9</th>
+						<th scope="col">업체 이미지10</th>
 		                <th scope="col">사용여부</th>
 		                <th scope="col">등록/수정일시</th>
 		                <th scope="col">관리</th>
@@ -42,6 +54,12 @@
 			                <td><img style="width:100px;" src="<?=($row["cd_val4"])?>" /></td>
                       <td><img style="width:100px;" src="<?=($row["cd_val5"])?>" /></td>
                       <td><img style="width:100px;" src="<?=($row["cd_val6"])?>" /></td>
+                      <td><img style="width:100px;" src="<?=($row["cd_val7"])?>" /></td>
+                      <td><img style="width:100px;" src="<?=($row["cd_val8"])?>" /></td>
+                      <td><img style="width:100px;" src="<?=($row["cd_val9"])?>" /></td>
+                      <td><img style="width:100px;" src="<?=($row["cd_val10"])?>" /></td>
+                      <td><img style="width:100px;" src="<?=($row["cd_val11"])?>" /></td>
+                      <td><img style="width:100px;" src="<?=($row["cd_val12"])?>" /></td>
 			                <td><?=($row["use_yn"]=="Y" ? "사용":"미사용")?></td>
 			                <td><?=substr($row["reg_dt"],0, 10)?></td>
 			                <td>

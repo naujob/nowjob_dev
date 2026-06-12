@@ -1,6 +1,21 @@
 <div class="page page-login">
-  <img src="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg') ?>" alt="" class="login-bg-img" decoding="async" fetchpriority="high">
+  <div class="login-bg-img"></div>
   <style>
+    /* 배경 이미지 CSS (img 태그 대신 배경으로 처리 - preload와 함께 사용) */
+    .login-bg-img {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url(/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg') ?>);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      z-index: 0;
+      pointer-events: none;
+    }
+
     /* 자동완성 배경색 없애기 */
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
@@ -10,6 +25,12 @@
       /* 배경색이 변경되지 않도록 설정 */
       -webkit-text-fill-color: #000 !important;
       /* 텍스트 색상을 유지 */
+    }
+
+    /* 로그인 폼을 배경 위에 표시 */
+    .page-login .login-form-wrap {
+      position: relative;
+      z-index: 1;
     }
 
     /* .vendor-login .vendor-type3:before {

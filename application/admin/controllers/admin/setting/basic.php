@@ -359,6 +359,12 @@
 			$cd_val4 = $this->common->img_upload_url("admin","cd_val4");
       $cd_val5 = $this->common->img_upload_url("admin","cd_val5");
       $cd_val6 = $this->common->img_upload_url("admin","cd_val6");
+      $cd_val7 = $this->common->img_upload_url("admin","cd_val7");
+      $cd_val8 = $this->common->img_upload_url("admin","cd_val8");
+      $cd_val9 = $this->common->img_upload_url("admin","cd_val9");
+      $cd_val10 = $this->common->img_upload_url("admin","cd_val10");
+      $cd_val11 = $this->common->img_upload_url("admin","cd_val11");
+      $cd_val12 = $this->common->img_upload_url("admin","cd_val12");
 
 		    //처리
 		    $result = [];
@@ -372,6 +378,12 @@
 		            "cd_val4" => $cd_val4,
                 "cd_val5" => $cd_val5,
                 "cd_val6" => $cd_val6,
+                "cd_val7" => $cd_val7,
+                "cd_val8" => $cd_val8,
+                "cd_val9" => $cd_val9,
+                "cd_val10" => $cd_val10,
+                "cd_val11" => $cd_val11,
+                "cd_val12" => $cd_val12,
 		            "cd_sort" => $params["cd_sort"],
 		            "use_yn" => $params["use_yn"],
 		            "reg_id" => getAdminInfo("admin_id"),
@@ -389,6 +401,12 @@
 		            "cd_val4" => $cd_val4,
                 "cd_val5" => $cd_val5,
                 "cd_val6" => $cd_val6,
+                "cd_val7" => $cd_val7,
+                "cd_val8" => $cd_val8,
+                "cd_val9" => $cd_val9,
+                "cd_val10" => $cd_val10,
+                "cd_val11" => $cd_val11,
+                "cd_val12" => $cd_val12,
 		            "use_yn" => $params["use_yn"],
 		            "cd_sort" => $params["cd_sort"],
 		            "reg_dt"=> get_today(),

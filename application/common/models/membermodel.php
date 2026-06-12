@@ -2226,8 +2226,13 @@ class memberModel extends MY_Model
 			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt"
 		];
 
-		# 검색 지역 처리
+		# 검색 지역 처리 (RECRUIT + EXPOSE_1 + EXPOSE_2 모두 포함)
 		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr);
+		$addr_condition_aa_raw = $this->make_addr_like_condition("aa.ad_addr", $search_addr);
+		$addr_condition_expose1 = $this->make_addr_like_condition("aa.expose_addr1", $search_addr);
+		$addr_condition_expose1s = $this->make_addr_like_condition("aa.expose_s_addr1", $search_addr);
+		$addr_condition_expose2 = $this->make_addr_like_condition("aa.expose_addr2", $search_addr);
+		$addr_condition_expose2s = $this->make_addr_like_condition("aa.expose_s_addr2", $search_addr);
 		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr);
 		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr);
 		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr);
@@ -2251,11 +2256,19 @@ class memberModel extends MY_Model
                       sin(radians($currentLongitude)) * sin(radians(cc.ad_gps_x))
                       ), 1
                     ) AS distance
+                    ,IFNULL(e1.ad_addr, '') AS expose_addr1
+                    ,IFNULL(CONCAT(IFNULL(e1.ad_doro,''), ' ', IFNULL(e1.ad_jibun,'')), '') AS expose_s_addr1
+                    ,IFNULL(e2.ad_addr, '') AS expose_addr2
+                    ,IFNULL(CONCAT(IFNULL(e2.ad_doro,''), ' ', IFNULL(e2.ad_jibun,'')), '') AS expose_s_addr2
                 FROM st_member aa
                 inner join st_recruit bb
                     on aa.mm_idx = bb.mm_idx
-                inner join st_address cc
+                left join st_address cc
                     on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RECRUIT' and cc.ad_key = bb.rc_idx
+                left join st_address e1
+                    on aa.mm_idx = e1.mm_idx and e1.ad_type = 'RECRUIT_EXPOSE_1' and e1.ad_key = bb.rc_idx
+                left join st_address e2
+                    on aa.mm_idx = e2.mm_idx and e2.ad_type = 'RECRUIT_EXPOSE_2' and e2.ad_key = bb.rc_idx
                 left join st_promotion po
                     on bb.rc_idx = po.rc_idx and (po.pm_sdate <= now() and po.pm_edate >= now())
                 group by bb.rc_idx
@@ -2284,16 +2297,23 @@ class memberModel extends MY_Model
 		$where[] = 	" and aa.mm_status = 'Y' and aa.rc_show_yn = 'Y' and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now() ";
 
 
-		# 검색어
+		# 검색어 (주소 포함 - RECRUIT + EXPOSE_1 + EXPOSE_2)
 		if ($params["text"] != "") {
+			$text = $this->inject($params["text"]);
 			$where[] = 	" and (
-					aa.rc_name like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_nation like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_sex like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_work like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_work_type like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_price_type like '%" . $this->inject($params["text"]) . "%' or
-					aa.rc_hash like '%" . $this->inject($params["text"]) . "%'
+					aa.rc_name like '%{$text}%' or
+					aa.rc_nation like '%{$text}%' or
+					aa.rc_sex like '%{$text}%' or
+					aa.rc_work like '%{$text}%' or
+					aa.rc_work_type like '%{$text}%' or
+					aa.rc_price_type like '%{$text}%' or
+					aa.rc_hash like '%{$text}%' or
+					aa.s_addr like '%{$text}%' or
+					aa.ad_addr like '%{$text}%' or
+					aa.expose_addr1 like '%{$text}%' or
+					aa.expose_s_addr1 like '%{$text}%' or
+					aa.expose_addr2 like '%{$text}%' or
+					aa.expose_s_addr2 like '%{$text}%'
 				)";
 		}
 
@@ -2308,7 +2328,17 @@ class memberModel extends MY_Model
 				)";
 		}
 
-		$all_addr_conditions = array_filter([$addr_condition_aa, $addr_condition_p0, $addr_condition_p1, $addr_condition_p2]);
+		$all_addr_conditions = array_filter([
+			$addr_condition_aa,
+			$addr_condition_aa_raw,
+			$addr_condition_expose1,
+			$addr_condition_expose1s,
+			$addr_condition_expose2,
+			$addr_condition_expose2s,
+			$addr_condition_p0,
+			$addr_condition_p1,
+			$addr_condition_p2
+		]);
 		if (!empty($all_addr_conditions)) {
 			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";
 		}

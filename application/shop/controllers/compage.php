@@ -366,6 +366,8 @@ class Compage extends CI_Controller
 			"rc_sdate" => "",
 			"rc_edate" => "",
 			"addr" => "",
+			"expose_addr1" => null,
+			"expose_addr2" => null,
 			"rc_work" => "",
 			"rc_sex" => "",
 			"rc_nation" => "",
@@ -405,6 +407,8 @@ class Compage extends CI_Controller
 			$info["rc_sdate"] = get_date($recruit_info["rc_sdate"]);
 			$info["rc_edate"] = get_date($recruit_info["rc_edate"]);
 			$info["addr"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT"]);
+			$info["expose_addr1"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_1"]);
+			$info["expose_addr2"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_2"]);
 
 			$info["rc_work"] = explode(",", $recruit_info["rc_work"]);
 			$info["rc_sex"] = explode(",", $recruit_info["rc_sex"]);

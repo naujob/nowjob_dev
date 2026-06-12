@@ -456,16 +456,33 @@ class Recruit_proc extends CI_Controller
 			"compidx"    => $compidx,
 		];
 
-		$result = $this->recruit_model->getRecruitList($params);
+		try {
+			$result = $this->recruit_model->getRecruitList($params);
 
-		// PC/모바일 구분하여 제목 길이 설정
-		$isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
-		$truncate_length = $isMobile ? 18 : 50;
-		$result["list"] = $this->_formatRecruitList($result["list"], $truncate_length);
-		// JavaScript 페이지네이션용 total 필드 추가
-		$result["total"] = isset($result["count"]) ? $result["count"] : 0;
+			if (!is_array($result)) {
+			
+				json_return("99", "데이터 조회 실패(반환값 오류)");
+				return;
+			}
 
-		json_return("00", "조회성공", $result);
+			// PC/모바일 구분하여 제목 길이 설정
+			$isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
+			$truncate_length = $isMobile ? 18 : 50;
+
+			if (!is_array($result["list"])) {
+				
+				$result["list"] = [];
+			}
+
+			$result["list"] = $this->_formatRecruitList($result["list"], $truncate_length);
+			// JavaScript 페이지네이션용 total 필드 추가
+			$result["total"] = isset($result["count"]) ? $result["count"] : 0;
+
+			json_return("00", "조회성공", $result);
+		} catch (Exception $e) {
+			
+			json_return("99", "데이터 조회 중 오류 발생: " . $e->getMessage());
+		}
 	}
 
 	// 채용공고 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)

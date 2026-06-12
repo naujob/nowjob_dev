@@ -1477,6 +1477,73 @@ class Compage_proc extends CI_Controller
         json_return("92", "[02]채용공고 등록시 오류가 발생하였습니다.");
       }
 
+      // 공고노출지역 저장
+      error_log("[DEBUG] expose_addr1_addr: " . (isset($step1["expose_addr1_addr"]) ? $step1["expose_addr1_addr"] : "NULL"));
+      error_log("[DEBUG] expose_addr2_addr: " . (isset($step1["expose_addr2_addr"]) ? $step1["expose_addr2_addr"] : "NULL"));
+      error_log("[DEBUG] step1 keys: " . implode(", ", array_keys($step1)));
+
+      $expose_list = [
+        "1" => [
+          "ad_type" => "RECRUIT_EXPOSE_1",
+          "addr"    => isset($step1["expose_addr1_addr"])     ? $step1["expose_addr1_addr"]     : "",
+          "zipcode" => isset($step1["expose_addr1_zipcode"])  ? $step1["expose_addr1_zipcode"]  : "",
+          "jibun"   => isset($step1["expose_addr1_jibun"])    ? $step1["expose_addr1_jibun"]    : "",
+          "doro"    => isset($step1["expose_addr1_doro_val"]) ? $step1["expose_addr1_doro_val"] : "",
+          "gps_x"   => isset($step1["expose_addr1_gps_x"])    ? $step1["expose_addr1_gps_x"]    : "",
+          "gps_y"   => isset($step1["expose_addr1_gps_y"])    ? $step1["expose_addr1_gps_y"]    : "",
+        ],
+        "2" => [
+          "ad_type" => "RECRUIT_EXPOSE_2",
+          "addr"    => isset($step1["expose_addr2_addr"])     ? $step1["expose_addr2_addr"]     : "",
+          "zipcode" => isset($step1["expose_addr2_zipcode"])  ? $step1["expose_addr2_zipcode"]  : "",
+          "jibun"   => isset($step1["expose_addr2_jibun"])    ? $step1["expose_addr2_jibun"]    : "",
+          "doro"    => isset($step1["expose_addr2_doro_val"]) ? $step1["expose_addr2_doro_val"] : "",
+          "gps_x"   => isset($step1["expose_addr2_gps_x"])    ? $step1["expose_addr2_gps_x"]    : "",
+          "gps_y"   => isset($step1["expose_addr2_gps_y"])    ? $step1["expose_addr2_gps_y"]    : "",
+        ],
+      ];
+
+      foreach ($expose_list as $seq => $expose) {
+        error_log("[DEBUG] Processing expose_addr" . $seq . ": " . $expose["addr"]);
+        $rc_idx_val = $rc_idx != 0 ? $rc_idx : $result_recruit["key"];
+        error_log("[DEBUG] rc_idx_val: " . $rc_idx_val . ", ad_type: " . $expose["ad_type"]);
+
+        $where_expose = ["ad_type" => $expose["ad_type"], "mm_idx" => $this->mm_idx, "ad_key" => $rc_idx_val];
+        error_log("[DEBUG] where_expose: " . json_encode($where_expose));
+
+        if (!empty($expose["addr"])) {
+          $arr_expose = [
+            "mm_idx"     => $this->mm_idx,
+            "ad_type"    => $expose["ad_type"],
+            "ad_key"     => $rc_idx_val,
+            "ad_zipcode" => $expose["zipcode"],
+            "ad_jibun"   => $expose["jibun"],
+            "ad_doro"    => $expose["doro"],
+            "ad_addr"    => $expose["addr"],
+            "ad_gps_x"   => $expose["gps_x"],
+            "ad_gps_y"   => $expose["gps_y"],
+          ];
+          error_log("[DEBUG] arr_expose: " . json_encode($arr_expose));
+
+          $existing_expose = $this->member_model->getAddress($where_expose);
+          error_log("[DEBUG] existing_expose: " . json_encode($existing_expose));
+
+          if ($existing_expose != null) {
+            error_log("[DEBUG] Updating address for " . $expose["ad_type"]);
+            $result = $this->member_model->updateAddress($arr_expose, $where_expose);
+            error_log("[DEBUG] updateAddress result: " . json_encode($result));
+          } else {
+            error_log("[DEBUG] Inserting new address for " . $expose["ad_type"]);
+            $result = $this->member_model->insertAddress($arr_expose);
+            error_log("[DEBUG] insertAddress result: " . json_encode($result));
+          }
+        } else {
+          error_log("[DEBUG] Address is empty, deleting for " . $expose["ad_type"]);
+          $result = $this->member_model->deleteAddress($where_expose);
+          error_log("[DEBUG] deleteAddress result: " . json_encode($result));
+        }
+      }
+
       # 포인트 차감
       if ($count >= 5) {
         # 포인트 취소
@@ -1661,6 +1728,19 @@ class Compage_proc extends CI_Controller
     $rc_img5_ori = input_post("rc_img5_ori", "");
     $mm_img1_ori = input_post("mm_img1_ori", "");
 
+    // 공고노출지역 파라미터
+    $expose_addr1_zipcode  = input_post("expose_addr1_zipcode", "");
+    $expose_addr1_jibun    = input_post("expose_addr1_jibun", "");
+    $expose_addr1_doro_val = input_post("expose_addr1_doro_val", "");
+    $expose_addr1_addr     = input_post("expose_addr1_addr", "");
+    $expose_addr1_gps_x    = input_post("expose_addr1_gps_x", "");
+    $expose_addr1_gps_y    = input_post("expose_addr1_gps_y", "");
+    $expose_addr2_zipcode  = input_post("expose_addr2_zipcode", "");
+    $expose_addr2_jibun    = input_post("expose_addr2_jibun", "");
+    $expose_addr2_doro_val = input_post("expose_addr2_doro_val", "");
+    $expose_addr2_addr     = input_post("expose_addr2_addr", "");
+    $expose_addr2_gps_x    = input_post("expose_addr2_gps_x", "");
+    $expose_addr2_gps_y    = input_post("expose_addr2_gps_y", "");
 
     if ($rc_name == "") {
       json_return("99", "공고제목이 확인되지 않습니다.");
@@ -1703,7 +1783,19 @@ class Compage_proc extends CI_Controller
       "ad_addr" => $ad_addr,
       "ad_detail" => $ad_detail,
       "ad_gps_x" => $ad_gps_x,
-      "ad_gps_y" => $ad_gps_y
+      "ad_gps_y" => $ad_gps_y,
+      "expose_addr1_zipcode" => $expose_addr1_zipcode,
+      "expose_addr1_jibun" => $expose_addr1_jibun,
+      "expose_addr1_doro_val" => $expose_addr1_doro_val,
+      "expose_addr1_addr" => $expose_addr1_addr,
+      "expose_addr1_gps_x" => $expose_addr1_gps_x,
+      "expose_addr1_gps_y" => $expose_addr1_gps_y,
+      "expose_addr2_zipcode" => $expose_addr2_zipcode,
+      "expose_addr2_jibun" => $expose_addr2_jibun,
+      "expose_addr2_doro_val" => $expose_addr2_doro_val,
+      "expose_addr2_addr" => $expose_addr2_addr,
+      "expose_addr2_gps_x" => $expose_addr2_gps_x,
+      "expose_addr2_gps_y" => $expose_addr2_gps_y
     ];
 
     $this->site_model->setSiteLog(
@@ -2606,16 +2698,21 @@ class Compage_proc extends CI_Controller
     }
 
     $rc_idx = input_post("rc_idx", "0");
+   
     json_return("00", "처리완료", ["rc_idx" => $rc_idx]);
   }
 
   # 채용공고 등록 완료
   function recruit_complete()
   {
+   
+
     $rc_idx = input_post("rc_idx", 0);
     $mm_comp_num = input_post("mm_comp_num", 0);
     $mm_comp_num_org = input_post("mm_comp_num_org", 0);
     $preview_mode = input_post("preview_mode", 0); // 미리보기 모드 (1: 임시저장, 0: 정식등록)
+
+   
 
     $recruit_info = $this->recruit_model->getRecruit(["rc_idx" => $rc_idx]);
     if ($rc_idx != 0 && $recruit_info == null) {
@@ -2870,6 +2967,63 @@ class Compage_proc extends CI_Controller
         json_return("92", "[02]채용공고 수정시 오류가 발생하였습니다.");
       }
 
+      // 노출지역 처리 (RECRUIT_EXPOSE_1, RECRUIT_EXPOSE_2)
+      $expose_list = [
+        "1" => [
+          "ad_type" => "RECRUIT_EXPOSE_1",
+          "addr"    => isset($step1["expose_addr1_addr"])     ? $step1["expose_addr1_addr"]     : "",
+          "zipcode" => isset($step1["expose_addr1_zipcode"])  ? $step1["expose_addr1_zipcode"]  : "",
+          "jibun"   => isset($step1["expose_addr1_jibun"])    ? $step1["expose_addr1_jibun"]    : "",
+          "doro"    => isset($step1["expose_addr1_doro_val"]) ? $step1["expose_addr1_doro_val"] : "",
+          "gps_x"   => isset($step1["expose_addr1_gps_x"])    ? $step1["expose_addr1_gps_x"]    : "",
+          "gps_y"   => isset($step1["expose_addr1_gps_y"])    ? $step1["expose_addr1_gps_y"]    : "",
+        ],
+        "2" => [
+          "ad_type" => "RECRUIT_EXPOSE_2",
+          "addr"    => isset($step1["expose_addr2_addr"])     ? $step1["expose_addr2_addr"]     : "",
+          "zipcode" => isset($step1["expose_addr2_zipcode"])  ? $step1["expose_addr2_zipcode"]  : "",
+          "jibun"   => isset($step1["expose_addr2_jibun"])    ? $step1["expose_addr2_jibun"]    : "",
+          "doro"    => isset($step1["expose_addr2_doro_val"]) ? $step1["expose_addr2_doro_val"] : "",
+          "gps_x"   => isset($step1["expose_addr2_gps_x"])    ? $step1["expose_addr2_gps_x"]    : "",
+          "gps_y"   => isset($step1["expose_addr2_gps_y"])    ? $step1["expose_addr2_gps_y"]    : "",
+        ],
+      ];
+
+      foreach ($expose_list as $seq => $expose) {
+        $where_expose = ["ad_type" => $expose["ad_type"], "mm_idx" => $this->mm_idx, "ad_key" => $rc_idx];
+
+        if (!empty($expose["addr"])) {
+          // 노출지역 데이터가 있으면 저장
+          $arr_expose = [
+            "mm_idx"     => $this->mm_idx,
+            "ad_type"    => $expose["ad_type"],
+            "ad_key"     => $rc_idx,
+            "ad_zipcode" => $expose["zipcode"],
+            "ad_jibun"   => $expose["jibun"],
+            "ad_doro"    => $expose["doro"],
+            "ad_addr"    => $expose["addr"],
+            "ad_gps_x"   => $expose["gps_x"],
+            "ad_gps_y"   => $expose["gps_y"],
+          ];
+
+          $existing_expose = $this->member_model->getAddress($where_expose);
+          if ($existing_expose != null) {
+            // 기존 노출지역이 있으면 UPDATE
+            $result_expose = $this->member_model->updateAddress($arr_expose, $where_expose);
+          } else {
+            // 기존 노출지역이 없으면 INSERT
+            $result_expose = $this->member_model->insertAddress($arr_expose);
+          }
+
+          if ($result_expose["code"] != "00") {
+            $this->db->trans_rollback();
+            json_return("93", "[03]채용공고 노출지역 저장시 오류가 발생하였습니다.");
+          }
+        } else {
+          // 노출지역 데이터가 없으면 기존 데이터 삭제
+          $this->member_model->deleteAddress($where_expose);
+        }
+      }
 
       # 로그 삭제
       $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
@@ -3106,6 +3260,71 @@ class Compage_proc extends CI_Controller
       if ($result_addr["code"] != "00") {
         $this->db->trans_rollback();
         json_return("92", "[02]채용공고 등록시 오류가 발생하였습니다.");
+      }
+
+      // 공고노출지역 저장
+    
+
+      $expose_list = [
+        "1" => [
+          "ad_type" => "RECRUIT_EXPOSE_1",
+          "addr"    => isset($step1["expose_addr1_addr"])     ? $step1["expose_addr1_addr"]     : "",
+          "zipcode" => isset($step1["expose_addr1_zipcode"])  ? $step1["expose_addr1_zipcode"]  : "",
+          "jibun"   => isset($step1["expose_addr1_jibun"])    ? $step1["expose_addr1_jibun"]    : "",
+          "doro"    => isset($step1["expose_addr1_doro_val"]) ? $step1["expose_addr1_doro_val"] : "",
+          "gps_x"   => isset($step1["expose_addr1_gps_x"])    ? $step1["expose_addr1_gps_x"]    : "",
+          "gps_y"   => isset($step1["expose_addr1_gps_y"])    ? $step1["expose_addr1_gps_y"]    : "",
+        ],
+        "2" => [
+          "ad_type" => "RECRUIT_EXPOSE_2",
+          "addr"    => isset($step1["expose_addr2_addr"])     ? $step1["expose_addr2_addr"]     : "",
+          "zipcode" => isset($step1["expose_addr2_zipcode"])  ? $step1["expose_addr2_zipcode"]  : "",
+          "jibun"   => isset($step1["expose_addr2_jibun"])    ? $step1["expose_addr2_jibun"]    : "",
+          "doro"    => isset($step1["expose_addr2_doro_val"]) ? $step1["expose_addr2_doro_val"] : "",
+          "gps_x"   => isset($step1["expose_addr2_gps_x"])    ? $step1["expose_addr2_gps_x"]    : "",
+          "gps_y"   => isset($step1["expose_addr2_gps_y"])    ? $step1["expose_addr2_gps_y"]    : "",
+        ],
+      ];
+
+      foreach ($expose_list as $seq => $expose) {
+       
+        $rc_idx_val = $rc_idx != 0 ? $rc_idx : $result_recruit["key"];
+       
+
+        $where_expose = ["ad_type" => $expose["ad_type"], "mm_idx" => $this->mm_idx, "ad_key" => $rc_idx_val];
+  
+
+        if (!empty($expose["addr"])) {
+          $arr_expose = [
+            "mm_idx"     => $this->mm_idx,
+            "ad_type"    => $expose["ad_type"],
+            "ad_key"     => $rc_idx_val,
+            "ad_zipcode" => $expose["zipcode"],
+            "ad_jibun"   => $expose["jibun"],
+            "ad_doro"    => $expose["doro"],
+            "ad_addr"    => $expose["addr"],
+            "ad_gps_x"   => $expose["gps_x"],
+            "ad_gps_y"   => $expose["gps_y"],
+          ];
+         
+
+          $existing_expose = $this->member_model->getAddress($where_expose);
+        
+
+          if ($existing_expose != null) {
+       
+            $result = $this->member_model->updateAddress($arr_expose, $where_expose);
+
+          } else {
+         
+            $result = $this->member_model->insertAddress($arr_expose);
+            
+          }
+        } else {
+        
+          $result = $this->member_model->deleteAddress($where_expose);
+       
+        }
       }
 
       # 포인트 차감

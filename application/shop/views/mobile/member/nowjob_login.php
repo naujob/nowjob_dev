@@ -1,5 +1,5 @@
 <div class="page page-login">
-    <img src="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg') ?>" alt="" class="login-bg-img" decoding="async" fetchpriority="high">
+    <div class="login-bg-img"></div>
     <img src="/resource/shop/mobile/img/member/ic-nowjob-logo.svg" alt="NowJob Logo" class="login-logo login-logo-centered">
     <div class="login-form">
         <div class="form-container">
@@ -37,6 +37,27 @@
 </div>
 
 <style>
+    /* 배경 이미지 CSS (img 태그 대신 배경으로 처리 - preload와 함께 사용) */
+    .login-bg-img {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url(/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg') ?>);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* 로그인 폼을 배경 위에 표시 */
+    .page-login .login-form {
+      position: relative;
+      z-index: 1;
+    }
+
     /* 로그인 페이지 입력 필드 스타일 2025-07-31 */
     .page-login .nowjob-input::placeholder {
         font-family: inherit;

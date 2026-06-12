@@ -1604,10 +1604,43 @@
                         <input type="text" name="rc_addr_doro" value="<?= $info["addr"]["ad_doro"] ?>" placeholder="근무지를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text input-wide">
                         <i class="fas fa-search addr-search-icon"></i>
                       </div>
-                      <label class="row">
-                        <span class="sr-text">상세주소2</span>
-                        <input type="text" name="rc_addr_detail" value="<?= $info["addr"]["ad_detail"] ?>" placeholder="상세주소 입력" autocomplete="off" aria-required="true" required class="form-text input-wide">
-                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 공고노출지역 -->
+                  <div class="form-row">
+                    <p class="form-label">공고노출지역</p>
+                    <div class="value">
+                      <!-- 노출지역 1 -->
+                      <div class="addr-search-wrap row" style="margin-bottom:8px;">
+                        <input type="text" id="expose_addr1_doro"
+                               value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_doro'] : '' ?>"
+                               placeholder="채용공고 추가 노출지역을 선택해주세요"
+                               autocomplete="off" class="form-text input-wide" readonly>
+                        <i class="fas fa-search addr-search-icon"></i>
+                      </div>
+                      <!-- 노출지역 2 -->
+                      <div class="addr-search-wrap row">
+                        <input type="text" id="expose_addr2_doro"
+                               value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_doro'] : '' ?>"
+                               placeholder="채용공고 추가 노출지역을 선택해주세요"
+                               autocomplete="off" class="form-text input-wide" readonly>
+                        <i class="fas fa-search addr-search-icon"></i>
+                      </div>
+                      <!-- hidden 필드 (노출지역 1) -->
+                      <input type="hidden" name="expose_addr1_zipcode"  value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_zipcode'] : '' ?>">
+                      <input type="hidden" name="expose_addr1_jibun"    value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_jibun'] : '' ?>">
+                      <input type="hidden" name="expose_addr1_doro_val" value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_doro'] : '' ?>">
+                      <input type="hidden" id="expose_addr1_addr"       name="expose_addr1_addr"    value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_addr'] : '' ?>">
+                      <input type="hidden" id="expose_addr1_gps_x"      name="expose_addr1_gps_x"   value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_gps_x'] : '' ?>">
+                      <input type="hidden" id="expose_addr1_gps_y"      name="expose_addr1_gps_y"   value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_gps_y'] : '' ?>">
+                      <!-- hidden 필드 (노출지역 2) -->
+                      <input type="hidden" name="expose_addr2_zipcode"  value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_zipcode'] : '' ?>">
+                      <input type="hidden" name="expose_addr2_jibun"    value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_jibun'] : '' ?>">
+                      <input type="hidden" name="expose_addr2_doro_val" value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_doro'] : '' ?>">
+                      <input type="hidden" id="expose_addr2_addr"       name="expose_addr2_addr"    value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_addr'] : '' ?>">
+                      <input type="hidden" id="expose_addr2_gps_x"      name="expose_addr2_gps_x"   value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_gps_x'] : '' ?>">
+                      <input type="hidden" id="expose_addr2_gps_y"      name="expose_addr2_gps_y"   value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_gps_y'] : '' ?>">
                     </div>
                   </div>
                 </div><!-- //form-table 근무정보 -->
@@ -2235,7 +2268,7 @@
                   <div class="value desc-value">
                     <label>
                       <span class="sr-text">상세업무정보 입력</span>
-                      <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
+                      <textarea id="rc_desc" name="rc_desc" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
                     </label>
                   </div>
                 </div>
@@ -2975,6 +3008,66 @@
     document.body.style.overflow = '';
   }
 
+  // 노출지역 1 팝업 열기
+  $("#expose_addr1_doro").click(function() {
+    window.selectAddrInfo = selectAddrInfoExpose1;
+    var $panel = $("#changeArea");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    $(this).blur();
+    var $popupAddrInput = $("#changeArea").find("#txt_addr_popup");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
+  });
+
+  // 노출지역 1 선택 처리
+  function selectAddrInfoExpose1(zipcode, doro, jibun, addr, x, y) {
+    $("[name='expose_addr1_zipcode']").val(zipcode);
+    $("[name='expose_addr1_jibun']").val(jibun);
+    $("[name='expose_addr1_doro_val']").val(doro);
+    $("#expose_addr1_addr").val(jibun);
+    $("#expose_addr1_gps_x").val(x);
+    $("#expose_addr1_gps_y").val(y);
+    $("#expose_addr1_doro").val(addr);
+    $("#changeArea").removeClass("on");
+    document.body.style.overflow = '';
+  }
+
+  // 노출지역 2 팝업 열기
+  $("#expose_addr2_doro").click(function() {
+    window.selectAddrInfo = selectAddrInfoExpose2;
+    var $panel = $("#changeArea");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    $(this).blur();
+    var $popupAddrInput = $("#changeArea").find("#txt_addr_popup");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
+  });
+
+  // 노출지역 2 선택 처리
+  function selectAddrInfoExpose2(zipcode, doro, jibun, addr, x, y) {
+    $("[name='expose_addr2_zipcode']").val(zipcode);
+    $("[name='expose_addr2_jibun']").val(jibun);
+    $("[name='expose_addr2_doro_val']").val(doro);
+    $("#expose_addr2_addr").val(jibun);
+    $("#expose_addr2_gps_x").val(x);
+    $("#expose_addr2_gps_y").val(y);
+    $("#expose_addr2_doro").val(addr);
+    $("#changeArea").removeClass("on");
+    document.body.style.overflow = '';
+  }
+
   // 주소 선택 영역 초기화 (MutationObserver 및 주소 변경 처리)
   function initAddressArea() {
     // 기존 selectAddrInfo 함수를 recruit_write용으로 재정의
@@ -3274,10 +3367,20 @@
       }
 
       var params = new FormData(form[0]);
+
+      console.log("[RECRUIT_WRITE CALL] FormData 데이터:");
+      for (var pair of params.entries()) {
+        console.log("[FORM_DATA] " + pair[0] + ": " + (pair[1].toString ? pair[1].toString().substring(0, 50) : pair[1]));
+      }
+
+      console.log("[RECRUIT_WRITE CALL] AJAX 요청 시작...");
       fileAjaxLoading("/compage_proc/recruit_write", params, function(ret) {
+        console.log("[RECRUIT_WRITE CALL] 응답 받음: ", ret);
         if (ret.code == "00") {
+          console.log("[RECRUIT_WRITE CALL] 성공, showPreviewInfo 호출");
           showPreviewInfo(ret.data);
         } else {
+          console.log("[RECRUIT_WRITE CALL] 실패: " + ret.msg);
           commonAlert(ret.msg, function() {});
           return;
         }
@@ -3799,15 +3902,35 @@
       secondButton: ($("[name=rc_idx]").val() != "0" ? '수정완료' : '등록완료'),
       firstCallback: function() {},
       secondCallback: function() {
+        console.log("[RECRUIT_COMPLETE CALL] 함수 시작");
         var params = {};
         params["rc_idx"] = $("[name=rc_idx]").val();
         params["mm_comp_num"] = $("[name=mm_comp_num]").val();
         params["mm_comp_num_org"] = $("[name=mm_comp_num_org]").val();
+        params["expose_addr1_zipcode"] = $("[name=expose_addr1_zipcode]").val();
+        params["expose_addr1_jibun"] = $("[name=expose_addr1_jibun]").val();
+        params["expose_addr1_doro_val"] = $("[name=expose_addr1_doro_val]").val();
+        params["expose_addr1_addr"] = $("[name=expose_addr1_addr]").val();
+        params["expose_addr1_gps_x"] = $("[name=expose_addr1_gps_x]").val();
+        params["expose_addr1_gps_y"] = $("[name=expose_addr1_gps_y]").val();
+        params["expose_addr2_zipcode"] = $("[name=expose_addr2_zipcode]").val();
+        params["expose_addr2_jibun"] = $("[name=expose_addr2_jibun]").val();
+        params["expose_addr2_doro_val"] = $("[name=expose_addr2_doro_val]").val();
+        params["expose_addr2_addr"] = $("[name=expose_addr2_addr]").val();
+        params["expose_addr2_gps_x"] = $("[name=expose_addr2_gps_x]").val();
+        params["expose_addr2_gps_y"] = $("[name=expose_addr2_gps_y]").val();
+
+        console.log("[RECRUIT_COMPLETE CALL] expose_addr1_addr: " + params["expose_addr1_addr"]);
+        console.log("[RECRUIT_COMPLETE CALL] expose_addr2_addr: " + params["expose_addr2_addr"]);
+        console.log("[RECRUIT_COMPLETE CALL] AJAX 요청 시작...");
 
         comAjax("/compage_proc/recruit_complete", params, function(ret) {
+          console.log("[RECRUIT_COMPLETE CALL] 응답 받음: ", ret);
           if (ret.code == "00") {
+            console.log("[RECRUIT_COMPLETE CALL] 성공, 목록페이지로 이동");
             location.href = "/compage/recruit_list";
           } else {
+            console.log("[RECRUIT_COMPLETE CALL] 실패: " + ret.msg);
             commonAlert(ret.msg, function() {});
             return;
           }

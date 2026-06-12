@@ -30,7 +30,7 @@ if (!$socket_io_script_url) {
   $is_splash_page = (strpos($request_uri, '/home/splash') !== false);
   ?>
   <?php if ($is_login_page) : ?>
-    <link rel="preload" as="image" href="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg">
+    <link rel="preload" as="image" href="/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/nowjob-back-logo.v3.jpg') ?>" fetchpriority="high">
     <link rel="preload" as="image" href="/resource/shop/mobile/img/member/ic-naver-login.svg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/ic-naver-login.svg') ?>">
     <link rel="preload" as="image" href="/resource/shop/mobile/img/member/ic-kakao-login.svg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/ic-kakao-login.svg') ?>">
     <link rel="preload" as="image" href="/resource/shop/mobile/img/member/ic-google-login.svg?vs=<?= getFileVersion('/resource/shop/mobile/img/member/ic-google-login.svg') ?>">

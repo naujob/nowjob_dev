@@ -381,7 +381,7 @@ class MY_Model extends CI_Model
 				mkdir($logDir, 0755, true);
 			}
 
-			error_log("\nquery($now):\n" . $sql_list . "\n", "3", $logFile);
+			//error_log("\nquery($now):\n" . $sql_list . "\n", "3", $logFile);
 		}
 
 		//쿼리 로그

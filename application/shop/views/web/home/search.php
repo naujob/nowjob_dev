@@ -197,7 +197,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       order_by: "",
     };
     $.ajax({
-      url: "/recruit_proc/getRecruitList",
+      url: "/recruit_proc/search_recruit_list2025",
       type: "post",
       data: params,
       traditional: false,

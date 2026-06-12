@@ -190,7 +190,7 @@ function getRecruitImg($info, $img_type = "thumb")
 	/**실제 이미지가 없으면 st_code 테이블에서 admin 경로 가져오기*/
 	$db = DB('default', true);
 	//$sql = " SELECT CASE WHEN FLOOR(RAND() * 2) = 0 THEN cd_val3 WHEN FLOOR(RAND() * 2) = 0 THEN cd_val3 WHEN FLOOR(RAND() * 2) = 0 THEN cd_val3 ELSE cd_val4 END AS random_value FROM st_code WHERE cd_grp = '희망업무' AND cd_key = '".$type."' order by rand() limit 1 ";
-	$sql = " SELECT CASE WHEN IFNULL(cd_val6,'') <> '' THEN CASE FLOOR(RAND() * 4) WHEN 0 THEN cd_val3 WHEN 1 THEN cd_val4 WHEN 2 THEN cd_val5 ELSE cd_val6 END ELSE CASE FLOOR(RAND() * 2) WHEN 0 THEN cd_val3 ELSE cd_val4 END END AS random_value  FROM st_code WHERE cd_grp = '희망업무' AND cd_key = '" . $type . "' order by rand() limit 1 ";
+	$sql = " SELECT CASE WHEN IFNULL(cd_val12,'') <> '' THEN CASE FLOOR(RAND() * 10) WHEN 0 THEN cd_val3 WHEN 1 THEN cd_val4 WHEN 2 THEN cd_val5 WHEN 3 THEN cd_val6 WHEN 4 THEN cd_val7 WHEN 5 THEN cd_val8 WHEN 6 THEN cd_val9 WHEN 7 THEN cd_val10 WHEN 8 THEN cd_val11 ELSE cd_val12 END ELSE CASE WHEN IFNULL(cd_val6,'') <> '' THEN CASE FLOOR(RAND() * 4) WHEN 0 THEN cd_val3 WHEN 1 THEN cd_val4 WHEN 2 THEN cd_val5 ELSE cd_val6 END ELSE CASE FLOOR(RAND() * 2) WHEN 0 THEN cd_val3 ELSE cd_val4 END END END AS random_value FROM st_code WHERE cd_grp = '희망업무' AND cd_key = '" . $type . "' order by rand() limit 1 ";
 	$qry = $db->query($sql);
 	$result = $qry->result_array();
 	return $result[0]["random_value"];
