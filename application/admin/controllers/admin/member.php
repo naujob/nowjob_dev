@@ -31,6 +31,7 @@
           "mm_nation" => $mm_nation,
           "mm_type"=>"MEM",
       ];
+	  
       $result = $this->member_model->getMemberList($params);
 
 			//리턴 설정
@@ -58,9 +59,9 @@
 
 			//파라미터 설정
 			$page = input_get("page",1);
-      $mm_status = input_get("mm_status","");
-      $mm_sex = input_get("mm_sex","");
-      $mm_nation = input_get("mm_nation","");
+			$mm_status = input_get("mm_status","");
+			$mm_sex = input_get("mm_sex","");
+			$mm_nation = input_get("mm_nation","");
 			$search_type = input_get("search_type","");
 			$search_value = input_get("search_value","");
 
@@ -77,21 +78,28 @@
       ];
       $result = $this->member_model->getMemberList($params);
 
-			# get data
+		# get data
       $file_name = $this->excel->getFilename("개인회원_리스트");
 
       $num = 1;
 
-      $columns = ['A', 'B', 'C'];
+      $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
       $last_column = end($columns);
 
       # 셀크기 조절
-      $excel_cols = [];
-      $tableDimension = array_fill_keys(array_values($columns), 10);
-			foreach($tableDimension as $key => $val){
-				$excel_cols[$key] = 20;
-				$this->excel->getActiveSheet()->getColumnDimension($key)->setWidth(20);
-			}
+      $column_widths = [
+          'A' => 50,  // 이름
+          'B' => 30,  // 연락처
+          'C' => 70,  // 이메일
+          'D' => 10,  // 나이
+          'E' => 10,  // 성별
+          'F' => 10,  // 국적
+          'G' => 15,  // 지역
+      ];
+
+      foreach ($column_widths as $column => $width) {
+          $this->excel->getActiveSheet()->getColumnDimension($column)->setWidth($width);
+      }
 
 			//폰트 설정
 			$block_bold_big = array(
@@ -101,10 +109,14 @@
               'size'  => 16
           )
       );
-
+            // 헤더 설정
 			$this->excel->getActiveSheet()->setCellValue('A' . $num, "이름");
 			$this->excel->getActiveSheet()->setCellValue("B" . $num, "연락처");
 			$this->excel->getActiveSheet()->setCellValue("C" . $num, "이메일");
+			$this->excel->getActiveSheet()->setCellValue('D' . $num, "나이");
+			$this->excel->getActiveSheet()->setCellValue("E" . $num, "성별");
+			$this->excel->getActiveSheet()->setCellValue("F" . $num, "국적");
+			$this->excel->getActiveSheet()->setCellValue("G" . $num, "지역");
 
 
       $this->excel->getActiveSheet()->getStyle($columns[0] . ($num) . ':' . $columns[count($columns)-1] . ($num))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setARGB('FFEEEEEE');
@@ -117,16 +129,28 @@
 	        if (count($result["list"]) > 0) {
 	            $no = 0;
 	            foreach ($result["list"] as $row) {
+	                // 나이 계산 (mm_birth: YYYYMMDD 형식)
+	                $age = "";
+	                if (!empty($row['mm_birth']) && strlen($row['mm_birth']) == 8) {
+	                    $birth = $row['mm_birth'];
+	                    $birth_dt = substr($birth,0,4).'-'.substr($birth,4,2).'-'.substr($birth,6,2);
+	                    $age = floor((strtotime(date('Y-m-d')) - strtotime($birth_dt)) / (365.25 * 24 * 60 * 60));
+	                }
+
 	                $tableData = array_combine(
-	                    array_values($columns),
+	                    array_values($columns), //0부터 새 번호 붙임
 	                    [
 	                        $row['mm_name'],
 	                        $row['mm_phone'],
 	                        $row['mm_id'],
+	                        $age,
+	                        $row['mm_sex'],
+	                        $row['mm_nation'],
+	                        $row['ad_addr'],
 	                    ]
 	                );
 	                foreach ($tableData as $k => $v) {
-                    $this->excel->getActiveSheet()->setCellValue($k . ($num), $v);
+                    $this->excel->getActiveSheet()->setCellValue($k . ($num), $v); //엑셀 데이터 입력
 		                $this->excel->getActiveSheet()->getStyle('A'.$num.':' . $columns[count($columns)-1] .$num)->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
 		                $this->excel->getActiveSheet()->getStyle('A'.$num.':' . $columns[count($columns)-1] .$num)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 						        $this->excel->getActiveSheet()->getStyle('A'.$num.':' . $columns[count($columns)-1] .$num)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER);
