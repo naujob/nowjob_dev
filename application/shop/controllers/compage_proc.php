@@ -2436,6 +2436,20 @@ class Compage_proc extends CI_Controller
     $ad_gps_x = input_post("ad_gps_x", "");
     $ad_gps_y = input_post("ad_gps_y", "");
 
+    // 공고노출지역 데이터 수신
+    $expose_addr1_zipcode = input_post("expose_addr1_zipcode", "");
+    $expose_addr1_jibun = input_post("expose_addr1_jibun", "");
+    $expose_addr1_doro_val = input_post("expose_addr1_doro_val", "");
+    $expose_addr1_addr = input_post("expose_addr1_addr", "");
+    $expose_addr1_gps_x = input_post("expose_addr1_gps_x", "");
+    $expose_addr1_gps_y = input_post("expose_addr1_gps_y", "");
+    $expose_addr2_zipcode = input_post("expose_addr2_zipcode", "");
+    $expose_addr2_jibun = input_post("expose_addr2_jibun", "");
+    $expose_addr2_doro_val = input_post("expose_addr2_doro_val", "");
+    $expose_addr2_addr = input_post("expose_addr2_addr", "");
+    $expose_addr2_gps_x = input_post("expose_addr2_gps_x", "");
+    $expose_addr2_gps_y = input_post("expose_addr2_gps_y", "");
+
     $rc_work = input_post("rc_work", []);
     $rc_work_type = input_post("rc_work_type", []);
     // $rc_work_negotiation = input_post("rc_work_negotiation", ""); // DB 컬럼 없음
@@ -2515,6 +2529,19 @@ class Compage_proc extends CI_Controller
       "ad_detail" => $ad_detail,
       "ad_gps_x" => $ad_gps_x,
       "ad_gps_y" => $ad_gps_y,
+      // 공고노출지역 저장
+      "expose_addr1_zipcode" => $expose_addr1_zipcode,
+      "expose_addr1_jibun" => $expose_addr1_jibun,
+      "expose_addr1_doro_val" => $expose_addr1_doro_val,
+      "expose_addr1_addr" => $expose_addr1_addr,
+      "expose_addr1_gps_x" => $expose_addr1_gps_x,
+      "expose_addr1_gps_y" => $expose_addr1_gps_y,
+      "expose_addr2_zipcode" => $expose_addr2_zipcode,
+      "expose_addr2_jibun" => $expose_addr2_jibun,
+      "expose_addr2_doro_val" => $expose_addr2_doro_val,
+      "expose_addr2_addr" => $expose_addr2_addr,
+      "expose_addr2_gps_x" => $expose_addr2_gps_x,
+      "expose_addr2_gps_y" => $expose_addr2_gps_y,
       "rc_work" => is_array($rc_work) ? $rc_work : [],
       "rc_work_type" => is_array($rc_work_type) ? $rc_work_type : [],
       // "rc_work_negotiation" => $rc_work_negotiation, // DB 컬럼 없음

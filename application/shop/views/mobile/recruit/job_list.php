@@ -893,14 +893,14 @@ $tpl_recomm_class = true; ?>
 
   // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
   function initCashingData() {
-    console.log("[캐싱 데이터 초기화] URL page:", getPageFromUrl());
+  
     list_page = getPageFromUrl();
     getBoardList("");
   }
 
   // 초기 데이터 로드 (캐시 테이블에서 서버사이드 렌더링됨)
   function initLoadData() {
-    console.log("[초기 데이터 로드] URL page:", getPageFromUrl(), "sessionStorage page:", sessionStorage.getItem('recruit_list_page'));
+   
     // URL 파라미터 > sessionStorage > 기본값(1)
     var urlPage = getPageFromUrl();
     if (urlPage > 1) {
@@ -1089,9 +1089,6 @@ $tpl_recomm_class = true; ?>
 
     // 도메인 환경 판별
     var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-  //  console.log('[AdSense] hostname:', window.location.hostname);
-    //console.log('[AdSense] pathname:', window.location.pathname);
-   // console.log('[AdSense] isDevEnv:', isDevEnv);
 
     if (isDevEnv) {
     

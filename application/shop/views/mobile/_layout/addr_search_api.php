@@ -110,6 +110,7 @@
 
 
 	function makeListJson(type, jsonStr, callback) {
+	
 		var htmlStr = "";
 		//alert(JSON.stringify(jsonStr));
 		$(jsonStr.results.juso).each(function() {

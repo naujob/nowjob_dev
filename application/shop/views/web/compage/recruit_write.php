@@ -903,6 +903,26 @@
           pointer-events: none;
         }
 
+        /* 웹 버전 주소 삭제 버튼 */
+        .addr-clear-btn-web {
+          position: absolute;
+          right: 50px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: #999;
+          font-size: 20px;
+          cursor: pointer;
+          padding: 8px;
+          transition: color 0.2s ease;
+          z-index: 2;
+        }
+
+        .addr-clear-btn-web:hover {
+          color: #d32f2f;
+        }
+
         .fixed {
           color: var(--rc-color-danger);
         }
@@ -1612,20 +1632,26 @@
                     <p class="form-label">공고노출지역</p>
                     <div class="value">
                       <!-- 노출지역 1 -->
-                      <div class="addr-search-wrap row" style="margin-bottom:8px;">
+                      <div class="addr-search-wrap row" style="margin-bottom:8px; position: relative;">
                         <input type="text" id="expose_addr1_doro"
                                value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_doro'] : '' ?>"
                                placeholder="채용공고 추가 노출지역을 선택해주세요"
                                autocomplete="off" class="form-text input-wide" readonly>
                         <i class="fas fa-search addr-search-icon"></i>
+                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="1" aria-label="노출지역 1 삭제" style="display: <?= (isset($info['expose_addr1']) && $info['expose_addr1'] != null && !empty($info['expose_addr1']['ad_doro'])) ? 'inline-block' : 'none' ?>;">
+                          <i class="fas fa-times"></i>
+                        </button>
                       </div>
                       <!-- 노출지역 2 -->
-                      <div class="addr-search-wrap row">
+                      <div class="addr-search-wrap row" style="position: relative;">
                         <input type="text" id="expose_addr2_doro"
                                value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_doro'] : '' ?>"
                                placeholder="채용공고 추가 노출지역을 선택해주세요"
                                autocomplete="off" class="form-text input-wide" readonly>
                         <i class="fas fa-search addr-search-icon"></i>
+                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="2" aria-label="노출지역 2 삭제" style="display: <?= (isset($info['expose_addr2']) && $info['expose_addr2'] != null && !empty($info['expose_addr2']['ad_doro'])) ? 'inline-block' : 'none' ?>;">
+                          <i class="fas fa-times"></i>
+                        </button>
                       </div>
                       <!-- hidden 필드 (노출지역 1) -->
                       <input type="hidden" name="expose_addr1_zipcode"  value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_zipcode'] : '' ?>">
@@ -4086,6 +4112,41 @@
       });
     });
   }
+
+  // 웹 버전 공고노출지역 삭제 버튼
+  $(document).on("click", ".js-clear-expose-addr-web", function(e) {
+    e.preventDefault();
+    var index = $(this).data("index");
+    var inputId = "#expose_addr" + index + "_doro";
+    var $input = $(inputId);
+    var $btn = $(this);
+
+    // 숨겨진 필드 초기화
+    $("input[name='expose_addr" + index + "_zipcode']").val("");
+    $("input[name='expose_addr" + index + "_jibun']").val("");
+    $("input[name='expose_addr" + index + "_doro_val']").val("");
+    $("input[name='expose_addr" + index + "_addr']").val("");
+    $("input[name='expose_addr" + index + "_gps_x']").val("");
+    $("input[name='expose_addr" + index + "_gps_y']").val("");
+
+    // input 필드 초기화
+    $input.val("");
+
+    // 버튼 숨기기
+    $btn.hide();
+  });
+
+  // 공고노출지역 input에 값이 입력되었을 때 삭제 버튼 표시
+  $(document).on("change", "#expose_addr1_doro, #expose_addr2_doro", function() {
+    var index = $(this).attr("id").match(/\d+/)[0]; // id에서 숫자 추출 id="expose_addr1_doro" -> index = 1
+    var $btn = $("button[data-index='" + index + "']");
+
+    if ($(this).val().trim() !== "") {
+      $btn.show();
+    } else {
+      $btn.hide();
+    }
+  });
 
   // 달력 초기화 함수 호출 추가
   $(document).ready(function() {

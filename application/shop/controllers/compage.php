@@ -515,6 +515,8 @@ class Compage extends CI_Controller
 			"rc_sdate" => "",
 			"rc_edate" => "",
 			"addr" => "",
+			"expose_addr1" => null,
+			"expose_addr2" => null,
 			"rc_work" => "",
 			"rc_sex" => "",
 			"rc_nation" => "",
@@ -554,6 +556,8 @@ class Compage extends CI_Controller
 			$info["rc_sdate"] = get_date($recruit_info["rc_sdate"]);
 			$info["rc_edate"] = get_date($recruit_info["rc_edate"]);
 			$info["addr"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT"]);
+			$info["expose_addr1"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_1"]);
+			$info["expose_addr2"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_2"]);
 
 			$info["rc_work"] = explode(",", $recruit_info["rc_work"]);
 			$info["rc_sex"] = explode(",", $recruit_info["rc_sex"]);
@@ -1386,6 +1390,8 @@ class Compage extends CI_Controller
 			"rc_sdate" => "",
 			"rc_edate" => "",
 			"addr" => "",
+			"expose_addr1" => null,
+			"expose_addr2" => null,
 			"rc_work" => "",
 			"rc_work_type" => "",
 			"rc_work_negotiation" => "Y",
@@ -1430,6 +1436,8 @@ class Compage extends CI_Controller
 			$info["rc_sdate"] = get_date($recruit_info["rc_sdate"]);
 			$info["rc_edate"] = get_date($recruit_info["rc_edate"]);
 			$info["addr"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT"]);
+			$info["expose_addr1"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_1"]);
+			$info["expose_addr2"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_2"]);
 			$info["rc_work"] = explode(",", $recruit_info["rc_work"]);
 			$info["rc_work_type"] = explode(",", $recruit_info["rc_work_type"]);
 			$info["rc_work_negotiation"] = isset($recruit_info["rc_work_negotiation"]) ? $recruit_info["rc_work_negotiation"] : "";
@@ -1527,6 +1535,30 @@ class Compage extends CI_Controller
 					"ad_gps_x" => isset($temp_info["ad_gps_x"]) ? $temp_info["ad_gps_x"] : "",
 					"ad_gps_y" => isset($temp_info["ad_gps_y"]) ? $temp_info["ad_gps_y"] : "",
 				];
+				// 공고노출지역 1 복원
+				$info["expose_addr1"] = null;
+				if (isset($temp_info["expose_addr1_addr"]) && $temp_info["expose_addr1_addr"] !== "") {
+					$info["expose_addr1"] = [
+						"ad_zipcode" => isset($temp_info["expose_addr1_zipcode"]) ? $temp_info["expose_addr1_zipcode"] : "",
+						"ad_jibun" => isset($temp_info["expose_addr1_jibun"]) ? $temp_info["expose_addr1_jibun"] : "",
+						"ad_doro" => isset($temp_info["expose_addr1_doro_val"]) ? $temp_info["expose_addr1_doro_val"] : "",
+						"ad_addr" => isset($temp_info["expose_addr1_addr"]) ? $temp_info["expose_addr1_addr"] : "",
+						"ad_gps_x" => isset($temp_info["expose_addr1_gps_x"]) ? $temp_info["expose_addr1_gps_x"] : "",
+						"ad_gps_y" => isset($temp_info["expose_addr1_gps_y"]) ? $temp_info["expose_addr1_gps_y"] : "",
+					];
+				}
+				// 공고노출지역 2 복원
+				$info["expose_addr2"] = null;
+				if (isset($temp_info["expose_addr2_addr"]) && $temp_info["expose_addr2_addr"] !== "") {
+					$info["expose_addr2"] = [
+						"ad_zipcode" => isset($temp_info["expose_addr2_zipcode"]) ? $temp_info["expose_addr2_zipcode"] : "",
+						"ad_jibun" => isset($temp_info["expose_addr2_jibun"]) ? $temp_info["expose_addr2_jibun"] : "",
+						"ad_doro" => isset($temp_info["expose_addr2_doro_val"]) ? $temp_info["expose_addr2_doro_val"] : "",
+						"ad_addr" => isset($temp_info["expose_addr2_addr"]) ? $temp_info["expose_addr2_addr"] : "",
+						"ad_gps_x" => isset($temp_info["expose_addr2_gps_x"]) ? $temp_info["expose_addr2_gps_x"] : "",
+						"ad_gps_y" => isset($temp_info["expose_addr2_gps_y"]) ? $temp_info["expose_addr2_gps_y"] : "",
+					];
+				}
 				$info["rc_work"] = isset($temp_info["rc_work"]) && is_array($temp_info["rc_work"]) ? $temp_info["rc_work"] : (isset($temp_info["rc_work"]) ? explode(",", $temp_info["rc_work"]) : []);
 				$info["rc_work_type"] = isset($temp_info["rc_work_type"]) && is_array($temp_info["rc_work_type"]) ? $temp_info["rc_work_type"] : (isset($temp_info["rc_work_type"]) ? explode(",", $temp_info["rc_work_type"]) : []);
 				$info["rc_work_negotiation"] = isset($temp_info["rc_work_negotiation"]) ? $temp_info["rc_work_negotiation"] : "";

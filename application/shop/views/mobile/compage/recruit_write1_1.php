@@ -13,6 +13,20 @@
             <input type="hidden" id="ad_addr" name="ad_addr" value="<?= isset($info["addr"]["ad_addr"]) ? $info["addr"]["ad_addr"] : "" ?>" />
             <input type="hidden" id="ad_gps_x" name="ad_gps_x" value="<?= isset($info["addr"]["ad_gps_x"]) ? $info["addr"]["ad_gps_x"] : "" ?>" />
             <input type="hidden" id="ad_gps_y" name="ad_gps_y" value="<?= isset($info["addr"]["ad_gps_y"]) ? $info["addr"]["ad_gps_y"] : "" ?>" />
+            <!-- 공고노출지역 1 hidden 필드 -->
+            <input type="hidden" id="expose_addr1_zipcode" name="expose_addr1_zipcode" value="<?= isset($info['expose_addr1']['ad_zipcode']) ? $info['expose_addr1']['ad_zipcode'] : '' ?>" />
+            <input type="hidden" id="expose_addr1_jibun" name="expose_addr1_jibun" value="<?= isset($info['expose_addr1']['ad_jibun']) ? $info['expose_addr1']['ad_jibun'] : '' ?>" />
+            <input type="hidden" id="expose_addr1_doro_val" name="expose_addr1_doro_val" value="<?= isset($info['expose_addr1']['ad_doro']) ? $info['expose_addr1']['ad_doro'] : '' ?>" />
+            <input type="hidden" id="expose_addr1_addr" name="expose_addr1_addr" value="<?= isset($info['expose_addr1']['ad_addr']) ? $info['expose_addr1']['ad_addr'] : '' ?>" />
+            <input type="hidden" id="expose_addr1_gps_x" name="expose_addr1_gps_x" value="<?= isset($info['expose_addr1']['ad_gps_x']) ? $info['expose_addr1']['ad_gps_x'] : '' ?>" />
+            <input type="hidden" id="expose_addr1_gps_y" name="expose_addr1_gps_y" value="<?= isset($info['expose_addr1']['ad_gps_y']) ? $info['expose_addr1']['ad_gps_y'] : '' ?>" />
+            <!-- 공고노출지역 2 hidden 필드 -->
+            <input type="hidden" id="expose_addr2_zipcode" name="expose_addr2_zipcode" value="<?= isset($info['expose_addr2']['ad_zipcode']) ? $info['expose_addr2']['ad_zipcode'] : '' ?>" />
+            <input type="hidden" id="expose_addr2_jibun" name="expose_addr2_jibun" value="<?= isset($info['expose_addr2']['ad_jibun']) ? $info['expose_addr2']['ad_jibun'] : '' ?>" />
+            <input type="hidden" id="expose_addr2_doro_val" name="expose_addr2_doro_val" value="<?= isset($info['expose_addr2']['ad_doro']) ? $info['expose_addr2']['ad_doro'] : '' ?>" />
+            <input type="hidden" id="expose_addr2_addr" name="expose_addr2_addr" value="<?= isset($info['expose_addr2']['ad_addr']) ? $info['expose_addr2']['ad_addr'] : '' ?>" />
+            <input type="hidden" id="expose_addr2_gps_x" name="expose_addr2_gps_x" value="<?= isset($info['expose_addr2']['ad_gps_x']) ? $info['expose_addr2']['ad_gps_x'] : '' ?>" />
+            <input type="hidden" id="expose_addr2_gps_y" name="expose_addr2_gps_y" value="<?= isset($info['expose_addr2']['ad_gps_y']) ? $info['expose_addr2']['ad_gps_y'] : '' ?>" />
             <!-- 회사정보 (preview에서 표시용) -->
             <input type="hidden" id="mm_comp_name" name="mm_comp_name" value="<?= isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "" ?>" />
             <input type="hidden" id="mm_phone" name="mm_phone" value="<?= isset($mem_info["mm_phone"]) ? $mem_info["mm_phone"] : "" ?>" />
@@ -40,6 +54,33 @@
                             <span class="add-icon">+</span>
                             <span class="address-text"></span>
                         </a>
+                    </div>
+
+                    <!-- 공고노출지역 섹션 -->
+                    <div class="form-row">
+                        <p class="form-label">공고노출지역<em>추가 노출지역을 선택해주세요</em></p>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- 노출지역 1 -->
+                            <div class="address-btn-wrapper">
+                                <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="address-add-btn js-toggle-panel" id="btnExposeAddr1" data-index="1">
+                                    <span class="add-icon">+</span>
+                                    <span class="address-text"></span>
+                                </a>
+                                <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="1" aria-label="노출지역 1 삭제">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                            <!-- 노출지역 2 -->
+                            <div class="address-btn-wrapper">
+                                <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="address-add-btn js-toggle-panel" id="btnExposeAddr2" data-index="2">
+                                    <span class="add-icon">+</span>
+                                    <span class="address-text"></span>
+                                </a>
+                                <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="2" aria-label="노출지역 2 삭제">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 업무구분 섹션 -->
@@ -528,6 +569,51 @@
 </div>
 
 <style>
+    /* 주소 버튼 래퍼 */
+    .address-btn-wrapper {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .address-btn-wrapper .address-add-btn {
+        flex: 1;
+    }
+
+    /* 주소 삭제 버튼 */
+    .address-clear-btn {
+        display: none;
+        width: 3rem;
+        min-width: 3rem;
+        padding: 0;
+        background: #f5f5f5;
+        border: 1px solid #BEBFC9;
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        cursor: pointer;
+        color: #999;
+        font-size: 1.2rem;
+        transition: all 0.2s ease;
+        margin-left: -1px;
+    }
+
+    .address-clear-btn:hover {
+        background: #ffe6e6;
+        color: #d32f2f;
+    }
+
+    /* 주소가 있을 때만 삭제 버튼 표시 */
+    .address-btn-wrapper .address-add-btn.has-address ~ .address-clear-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .address-btn-wrapper .address-add-btn.has-address {
+        border-radius: 8px 0 0 8px;
+    }
+
     /* 근무시간 섹션 스타일 */
     .work-time-section {
         margin-top: 12px;
@@ -711,6 +797,8 @@
     ?>
     var serverData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0) ? json_encode($info_for_js, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
     var serverAddrData = serverData && serverData.addr ? serverData.addr : null;
+    var serverAddrData1 = serverData && serverData.expose_addr1 ? serverData.expose_addr1 : null;
+    var serverAddrData2 = serverData && serverData.expose_addr2 ? serverData.expose_addr2 : null;
     var detailSectionScrollPosition = 0;
     // localStorage의 key 이름을 rc_idx 기준으로 변경하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
     /**
@@ -777,6 +865,20 @@
             ad_addr: $("#ad_addr").val(),
             ad_gps_x: $("#ad_gps_x").val(),
             ad_gps_y: $("#ad_gps_y").val(),
+            // 공고노출지역 1
+            expose_addr1_zipcode: $("#expose_addr1_zipcode").val(),
+            expose_addr1_jibun: $("#expose_addr1_jibun").val(),
+            expose_addr1_doro_val: $("#expose_addr1_doro_val").val(),
+            expose_addr1_addr: $("#expose_addr1_addr").val(),
+            expose_addr1_gps_x: $("#expose_addr1_gps_x").val(),
+            expose_addr1_gps_y: $("#expose_addr1_gps_y").val(),
+            // 공고노출지역 2
+            expose_addr2_zipcode: $("#expose_addr2_zipcode").val(),
+            expose_addr2_jibun: $("#expose_addr2_jibun").val(),
+            expose_addr2_doro_val: $("#expose_addr2_doro_val").val(),
+            expose_addr2_addr: $("#expose_addr2_addr").val(),
+            expose_addr2_gps_x: $("#expose_addr2_gps_x").val(),
+            expose_addr2_gps_y: $("#expose_addr2_gps_y").val(),
             rc_work: [],
             rc_work_negotiation: $("[name='rc_work_negotiation']").is(":checked") ? "Y" : "",
             rc_work_type: [],
@@ -863,37 +965,7 @@
 
         localStorage.setItem(storageKey, JSON.stringify(formData));
     }
-    // 서버에서 주소 데이터를 불러와 폼에 채워 넣는 함수 (페이지 새로고침 시 호출)
-    function loadServerAddressData() {
-        var rcIdx = $("[name='rc_idx']").val() || "0";
-        var rcName = $("[name='rc_name']").val() || "";
-
-        if (rcIdx == "0" || rcName == "") {
-            return false;
-        }
-
-        if (typeof serverAddrData !== 'undefined' && serverAddrData !== null && serverAddrData.ad_addr) {
-            $("#ad_zipcode").val(serverAddrData.ad_zipcode || "");
-            $("#ad_jibun").val(serverAddrData.ad_jibun || "");
-            $("#ad_doro").val(serverAddrData.ad_doro || "");
-            $("#ad_addr").val(serverAddrData.ad_addr || "");
-            $("#ad_detail").val(serverAddrData.ad_detail || "");
-            $("#ad_gps_x").val(serverAddrData.ad_gps_x || "");
-            $("#ad_gps_y").val(serverAddrData.ad_gps_y || "");
-
-            var $btnAddr = $("#btnAddrAdd");
-            var displayAddr = serverAddrData.ad_addr || "";
-            if (serverAddrData.ad_detail && serverAddrData.ad_detail.trim() !== "") {
-                displayAddr = displayAddr + " " + serverAddrData.ad_detail.trim();
-            }
-            $btnAddr.find(".address-text").text(displayAddr);
-            $btnAddr.addClass("has-address");
-
-            return true;
-        }
-        return false;
-    }
-    // 페이지 새로고침 후 localStorage에 저장된 데이터를 다시 폼에 채워 넣는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
+// 페이지 새로고침 후 localStorage에 저장된 데이터를 다시 폼에 채워 넣는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
     function loadPage1Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
@@ -977,6 +1049,50 @@
             $("#ad_gps_y").val(formData.addr.ad_gps_y);
         }
 
+        // 공고노출지역 1 복원
+        if (formData.expose_addr1_zipcode) {
+            $("#expose_addr1_zipcode").val(formData.expose_addr1_zipcode);
+        }
+        if (formData.expose_addr1_jibun) {
+            $("#expose_addr1_jibun").val(formData.expose_addr1_jibun);
+        }
+        if (formData.expose_addr1_doro_val) {
+            $("#expose_addr1_doro_val").val(formData.expose_addr1_doro_val);
+        }
+        if (formData.expose_addr1_addr) {
+            $("#expose_addr1_addr").val(formData.expose_addr1_addr);
+            $("#btnExposeAddr1").find(".address-text").text(formData.expose_addr1_addr);
+            $("#btnExposeAddr1").addClass("has-address");
+        }
+        if (formData.expose_addr1_gps_x) {
+            $("#expose_addr1_gps_x").val(formData.expose_addr1_gps_x);
+        }
+        if (formData.expose_addr1_gps_y) {
+            $("#expose_addr1_gps_y").val(formData.expose_addr1_gps_y);
+        }
+
+        // 공고노출지역 2 복원
+        if (formData.expose_addr2_zipcode) {
+            $("#expose_addr2_zipcode").val(formData.expose_addr2_zipcode);
+        }
+        if (formData.expose_addr2_jibun) {
+            $("#expose_addr2_jibun").val(formData.expose_addr2_jibun);
+        }
+        if (formData.expose_addr2_doro_val) {
+            $("#expose_addr2_doro_val").val(formData.expose_addr2_doro_val);
+        }
+        if (formData.expose_addr2_addr) {
+            $("#expose_addr2_addr").val(formData.expose_addr2_addr);
+            $("#btnExposeAddr2").find(".address-text").text(formData.expose_addr2_addr);
+            $("#btnExposeAddr2").addClass("has-address");
+        }
+        if (formData.expose_addr2_gps_x) {
+            $("#expose_addr2_gps_x").val(formData.expose_addr2_gps_x);
+        }
+        if (formData.expose_addr2_gps_y) {
+            $("#expose_addr2_gps_y").val(formData.expose_addr2_gps_y);
+        }
+
         if (formData.rc_price_type_main) {
             $("#rc_price_type_main").val(formData.rc_price_type_main);
             updateSalaryOptions();
@@ -1058,6 +1174,39 @@
 
         if (formData.rc_pm_etime_m) {
             $("[name='rc_pm_etime_m']").val(formData.rc_pm_etime_m);
+        }
+
+        // 서버에서 로드된 공고노출지역 데이터 처리 (draft가 없을 때)
+        if (typeof serverAddrData1 !== 'undefined' && serverAddrData1 !== null && serverAddrData1.ad_addr) {
+            if (!formData.expose_addr1_addr) {
+                $("#expose_addr1_zipcode").val(serverAddrData1.ad_zipcode || "");
+                $("#expose_addr1_jibun").val(serverAddrData1.ad_jibun || "");
+                $("#expose_addr1_doro_val").val(serverAddrData1.ad_doro || "");
+                $("#expose_addr1_addr").val(serverAddrData1.ad_addr || "");
+                $("#expose_addr1_gps_x").val(serverAddrData1.ad_gps_x || "");
+                $("#expose_addr1_gps_y").val(serverAddrData1.ad_gps_y || "");
+
+                var $btnExposeAddr1 = $("#btnExposeAddr1");
+                var displayAddr1 = serverAddrData1.ad_addr || "";
+                $btnExposeAddr1.find(".address-text").text(displayAddr1);
+                $btnExposeAddr1.addClass("has-address");
+            }
+        }
+
+        if (typeof serverAddrData2 !== 'undefined' && serverAddrData2 !== null && serverAddrData2.ad_addr) {
+            if (!formData.expose_addr2_addr) {
+                $("#expose_addr2_zipcode").val(serverAddrData2.ad_zipcode || "");
+                $("#expose_addr2_jibun").val(serverAddrData2.ad_jibun || "");
+                $("#expose_addr2_doro_val").val(serverAddrData2.ad_doro || "");
+                $("#expose_addr2_addr").val(serverAddrData2.ad_addr || "");
+                $("#expose_addr2_gps_x").val(serverAddrData2.ad_gps_x || "");
+                $("#expose_addr2_gps_y").val(serverAddrData2.ad_gps_y || "");
+
+                var $btnExposeAddr2 = $("#btnExposeAddr2");
+                var displayAddr2 = serverAddrData2.ad_addr || "";
+                $btnExposeAddr2.find(".address-text").text(displayAddr2);
+                $btnExposeAddr2.addClass("has-address");
+            }
         }
     }
    // 페이지2 데이터 복원 함수 (생활편의 항목 체크박스 복원)
@@ -1302,6 +1451,52 @@
         $("#ad_gps_y").val(y);
 
         var $btnAddr = $("#btnAddrAdd");
+        var displayAddr = addr;
+        if (detail && detail.trim() !== "") {
+            displayAddr = addr + " " + detail.trim();
+        }
+        $btnAddr.find(".address-text").text(displayAddr);
+        $btnAddr.addClass("has-address");
+
+        $("#changeArea").removeClass("on");
+        savePage1Data();
+    }
+
+    // 공고노출지역 1 콜백 함수
+    function selectAddrInfoExpose1(zipcode, doro, jibun, addr, x, y, detail) {
+        detail = detail || "";
+
+        $("#expose_addr1_zipcode").val(zipcode);
+        $("#expose_addr1_jibun").val(jibun);
+        $("#expose_addr1_doro_val").val(doro);
+        $("#expose_addr1_addr").val(addr);
+        $("#expose_addr1_gps_x").val(x);
+        $("#expose_addr1_gps_y").val(y);
+
+        var $btnAddr = $("#btnExposeAddr1");
+        var displayAddr = addr;
+        if (detail && detail.trim() !== "") {
+            displayAddr = addr + " " + detail.trim();
+        }
+        $btnAddr.find(".address-text").text(displayAddr);
+        $btnAddr.addClass("has-address");
+
+        $("#changeArea").removeClass("on");
+        savePage1Data();
+    }
+
+    // 공고노출지역 2 콜백 함수
+    function selectAddrInfoExpose2(zipcode, doro, jibun, addr, x, y, detail) {
+        detail = detail || "";
+
+        $("#expose_addr2_zipcode").val(zipcode);
+        $("#expose_addr2_jibun").val(jibun);
+        $("#expose_addr2_doro_val").val(doro);
+        $("#expose_addr2_addr").val(addr);
+        $("#expose_addr2_gps_x").val(x);
+        $("#expose_addr2_gps_y").val(y);
+
+        var $btnAddr = $("#btnExposeAddr2");
         var displayAddr = addr;
         if (detail && detail.trim() !== "") {
             displayAddr = addr + " " + detail.trim();
@@ -2121,6 +2316,50 @@
                 // 하나라도 선택되지 않으면 나이무관 언체크
                 $("[name='rc_age_all']").prop("checked", false);
             }
+        });
+
+        // 공고노출지역 1 버튼 클릭
+        $("#btnExposeAddr1").click(function(e) {
+            e.preventDefault();
+            window.selectAddrInfo = selectAddrInfoExpose1;
+        });
+
+        // 공고노출지역 2 버튼 클릭
+        $("#btnExposeAddr2").click(function(e) {
+            e.preventDefault();
+            window.selectAddrInfo = selectAddrInfoExpose2;
+        });
+
+        // 공고노출지역 1, 2 삭제 버튼 클릭
+        $(document).on("click", ".js-clear-expose-addr", function(e) {
+            e.preventDefault();
+            var index = $(this).data("index");
+            var btnId = "#btnExposeAddr" + index;
+            var $btn = $(btnId);
+
+            // 숨겨진 필드 초기화
+            if (index === 1) {
+                $("#expose_addr1_zipcode").val("");
+                $("#expose_addr1_jibun").val("");
+                $("#expose_addr1_doro_val").val("");
+                $("#expose_addr1_addr").val("");
+                $("#expose_addr1_gps_x").val("");
+                $("#expose_addr1_gps_y").val("");
+            } else if (index === 2) {
+                $("#expose_addr2_zipcode").val("");
+                $("#expose_addr2_jibun").val("");
+                $("#expose_addr2_doro_val").val("");
+                $("#expose_addr2_addr").val("");
+                $("#expose_addr2_gps_x").val("");
+                $("#expose_addr2_gps_y").val("");
+            }
+
+            // 버튼 상태 초기화
+            $btn.find(".address-text").text("");
+            $btn.removeClass("has-address");
+
+            // 폼 데이터 저장
+            savePage1Data();
         });
 
         $(document).on("change", ".js-file-preview", function() {
