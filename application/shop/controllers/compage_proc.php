@@ -26,23 +26,19 @@ class Compage_proc extends CI_Controller
     $this->mm_idx = $this->user->getUserIdx();
   }
 
-  // SmartEditor2 HTML과 순수 텍스트 통합 처리
+  // SmartEditor2 HTML 정제
   private function cleanSmartEditorDesc($html_content)
   {
-    // 위험한 스크립트 태그 및 이벤트 핸들러 제거 (XSS 방지)
-    $html_content = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/i', '', $html_content);
-    $html_content = preg_replace('/\s*on\w+\s*=\s*["\']?[^"\']*["\']?/i', '', $html_content);
+    $html_content = trim($html_content);
 
-    // HTML이 없는 순수 텍스트인 경우
-    if (strpos($html_content, '<') === false) {
-      // 줄바꿈을 <br>로 변환하고 특수문자 이스케이프
-      $html_content = str_replace("\n", '<br>', htmlspecialchars(trim($html_content)));
-    } else {
-      // WYSIWYG 에디터 HTML: </p> 다음의 <p> 또는 </p>를 <br>로 변환
-      $html_content = preg_replace('/<\/p>\s*(?=<p>|<\/)/i', '<br>', $html_content);
+    if (empty($html_content)) {
+      return '';
     }
 
-    return $html_content;
+    $allowed_tags = '<p><br><b><i><u><strong><em><a><img><ul><ol><li><blockquote><h1><h2><h3><h4><h5><h6>';
+    $clean_html = strip_tags($html_content, $allowed_tags);
+
+    return $clean_html;
   }
 
   function point_charge_step1()
@@ -4142,6 +4138,40 @@ class Compage_proc extends CI_Controller
       $errquery = $this->db->query($errsql);
 
       json_return("01", "삭제오류. 관리자에게 문의하세요.");
+    }
+  }
+
+  // SmartEditor2 이미지 업로드 핸들러
+  function se2_image_upload()
+  {
+    // 이미지 파일만 허용
+    if (!isset($_FILES['Filedata'])) {
+      header('Content-Type: application/json');
+      echo json_encode([
+        'success' => 0,
+        'message' => '파일이 없습니다.'
+      ]);
+      return;
+    }
+
+    // 이미지 업로드 처리
+    $img = $this->common->img_upload("editor", "Filedata");
+
+    header('Content-Type: application/json');
+
+    if ($img["SUCCESS"] == true) {
+      echo json_encode([
+        'success' => 1,
+        'url' => $img["URL"],
+        'name' => $_FILES['Filedata']['name'],
+        'width' => $img["WIDTH"],
+        'height' => $img["HEIGHT"]
+      ]);
+    } else {
+      echo json_encode([
+        'success' => 0,
+        'message' => '이미지 업로드에 실패했습니다.'
+      ]);
     }
   }
 }

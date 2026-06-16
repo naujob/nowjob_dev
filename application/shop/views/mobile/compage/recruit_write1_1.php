@@ -312,7 +312,7 @@
                             ],
                         ];
 
-                        foreach ($benefit_sections as $section) {
+                        foreach ($benefit_sections as $section) { // 준비한 데이터와 db에서 가져온 rc_life_type 데이터를 병합하여 뷰에 전달하여  준비한 데이터에서 데이터를 꺼내어 db에서 가져온 rc_life_type과 비교하여 체크 여부를 결정 ( 화면에는 **"체크 안 된 항목"**도 다 보여줘야하므로, 병합 과정에서 체크 여부를 결정)
                             $this->load->view('mobile/_partial/benefit_section', [
                                 'benefit_section' => array_merge($section, ['checked' => isset($info['rc_life_type']) ? $info['rc_life_type'] : []])
                             ]);
@@ -325,21 +325,21 @@
                         <div class="resume-title-header">
                             <p class="form-label"><span class="required-asterisk">*</span>상세업무정보</p>
                             <span class="required-label"><span class="required-asterisk">*</span>필수입력</span>
+                            <button type="button" id="uploadPhotoBtn_mobile" style="padding: 8px 14px; background-color: #31A182; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: auto; display: flex; align-items: center; gap: 6px; white-space: nowrap;"><i class="fa-regular fa-image" style="font-size: 16px;"></i> 사진</button>
+                            <input type="file" id="photoFileInput_mobile" accept="image/*" style="display:none;">
                         </div>
                         <label>
                             <span class="sr-text">상세업무정보 입력</span>
                             <?php
+                            // contenteditable div에 표시할 내용 (이미 HTML 형태)
                             $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
-                            if (!empty($desc)) {
-                                // <br> 계열을 줄바꿈으로 변환
-                                $desc = preg_replace('/<br\s*\/?>/i', "\n", $desc);
-                                // HTML 태그 제거
-                                $desc = strip_tags($desc);
-                                // HTML 엔티티 변환 (&nbsp; → 공백, &#10; → 줄바꿈 등)
-                                $desc = html_entity_decode($desc, ENT_QUOTES, 'UTF-8');
-                            }
                             ?>
-                            <textarea name="rc_desc" class="form-textarea js-autoheight"><?= $desc ?></textarea>
+                            <div id="rc_desc_editor"
+                                 contenteditable="true"
+                                 class="form-textarea"
+                                 style="min-height: 120px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word; white-space: pre-wrap;"><?= $desc ?></div>
+                            <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
+                            <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
                         </label>
                     </div>
 
@@ -791,6 +791,24 @@
     } else {
         $info_for_js["rc_hash"] = [];
     }
+    // rc_day를 배열로 변환 (JavaScript에서 Array.isArray() 판단용)
+    if (isset($info_for_js["rc_day"]) && $info_for_js["rc_day"] != "") {
+        $info_for_js["rc_day"] = is_array($info_for_js["rc_day"]) ? $info_for_js["rc_day"] : array_map('trim', explode(",", $info_for_js["rc_day"]));
+    } else {
+        $info_for_js["rc_day"] = [];
+    }
+    // rc_sex를 배열로 변환 (JavaScript에서 Array.isArray() 판단용)
+    if (isset($info_for_js["rc_sex"]) && $info_for_js["rc_sex"] != "") {
+        $info_for_js["rc_sex"] = is_array($info_for_js["rc_sex"]) ? $info_for_js["rc_sex"] : array_map('trim', explode(",", $info_for_js["rc_sex"]));
+    } else {
+        $info_for_js["rc_sex"] = [];
+    }
+    // rc_nation을 배열로 변환 (JavaScript에서 Array.isArray() 판단용)
+    if (isset($info_for_js["rc_nation"]) && $info_for_js["rc_nation"] != "") {
+        $info_for_js["rc_nation"] = is_array($info_for_js["rc_nation"]) ? $info_for_js["rc_nation"] : array_map('trim', explode(",", $info_for_js["rc_nation"]));
+    } else {
+        $info_for_js["rc_nation"] = [];
+    }
     // 회사정보 추가 (preview에서 표시용)
     $info_for_js["mm_comp_name"] = isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "";
     $info_for_js["mm_phone"] = isset($mem_info["mm_phone"]) ? $mem_info["mm_phone"] : "";
@@ -983,7 +1001,7 @@
                     formData = null;
                 }
             } catch (e) {
-                console.error("페이지1 draft 복원 오류:", e);
+               
                 formData = null;
             }
         }
@@ -1227,7 +1245,7 @@
                     formData = null;
                 }
             } catch (e) {
-                console.error("페이지2 draft 복원 오류:", e);
+             
                 formData = null;
             }
         }
@@ -1251,6 +1269,7 @@
     function loadPage3Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
+        var isServerData = false;  // serverData 로드 여부 확인
 
         // draft 우선 확인 (임시저장된 데이터가 있으면 우선 사용)
         var storageKey = "recruit_draft_" + rcIdx + "_page3";
@@ -1265,7 +1284,7 @@
                     formData = null;
                 }
             } catch (e) {
-                console.error("페이지3 draft 복원 오류:", e);
+
                 formData = null;
             }
         }
@@ -1273,6 +1292,7 @@
         // draft가 없거나 파싱 실패하면 서버 데이터 사용
         if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
             formData = serverData;
+            isServerData = true;  // serverData를 사용했음을 기록
         } else if (!formData) {
             // draft도 없고 serverData도 없으면 종료
             return;
@@ -1324,25 +1344,36 @@
                 $(".js-detail-section").addClass("show").show();
             }
 
+           
             if (formData.rc_day_all === "Y") {
+            
                 $("[name='rc_day_all']").prop("checked", true).trigger("change");
             } else {
+              
                 $("[name='rc_day_all']").prop("checked", false);
                 $("[name='rc_day[]']").prop("checked", false);
                 if (Array.isArray(formData.rc_day) && formData.rc_day.length > 0) {
                     formData.rc_day.forEach(function(val) {
+                     
                         $("[name='rc_day[]'][value='" + val + "']").prop("checked", true);
                     });
+                } else {
+               
                 }
             }
 
+         
+
             if (formData.rc_sex_all === "Y") {
+           
                 $("[name='rc_sex_all']").prop("checked", true).trigger("change");
             } else {
+               
                 $("[name='rc_sex_all']").prop("checked", false);
                 $("[name='rc_sex[]']").prop("checked", false);
                 if (Array.isArray(formData.rc_sex) && formData.rc_sex.length > 0) {
                     formData.rc_sex.forEach(function(val) {
+                  
                         $("[name='rc_sex[]'][value='" + val + "']").prop("checked", true);
                     });
                 }
@@ -1391,8 +1422,15 @@
                     $("[name='rc_nation_all']").prop("checked", true);
                 }
             }, 100);
+
+            // serverData가 로드된 경우, 자동으로 draft에 저장
+            if (isServerData) {
+                setTimeout(function() {
+                    savePage3Data();
+                }, 200);
+            }
         } catch (e) {
-            console.error("페이지3 데이터 복원 오류:", e);
+
         }
     }
 
@@ -1708,7 +1746,7 @@
                     handleSave(ret);
                 },
                 error: function(xhr, status, error) {
-                    console.error("파일 업로드 오류:", error);
+              
                     commonAlert("파일 업로드 중 오류가 발생했습니다.", function() {});
                 }
             });
@@ -1831,7 +1869,10 @@
             var maxEndDate = new Date(startDateObj);
             maxEndDate.setDate(maxEndDate.getDate() + 60);
 
-            flatpickr('.js-datepicker-start', {
+            // flatpickr 인스턴스를 변수에 저장 (재초기화 방지)
+            var endPicker = null;
+
+            var startPicker = flatpickr('.js-datepicker-start', {
                 locale: 'ko',
                 dateFormat: 'Y-m-d',
                 ariaDateFormat: 'Y-m-d',
@@ -1858,27 +1899,24 @@
                     chgMonth(this);
                 },
                 onChange: function(selectedDates, dateStr, instance) {
-                    if (selectedDates.length > 0) {
-                        var endPicker = flatpickr('.js-datepicker-end');
-                        if (endPicker) {
-                            var selectedStartDate = selectedDates[0];
-                            endPicker.set('minDate', selectedStartDate);
+                    if (selectedDates.length > 0 && endPicker) {
+                        var selectedStartDate = selectedDates[0];
+                        endPicker.set('minDate', selectedStartDate);
 
-                            var maxDate = new Date(selectedStartDate);
-                            maxDate.setDate(maxDate.getDate() + 60);
-                            endPicker.set('maxDate', maxDate);
+                        var maxDate = new Date(selectedStartDate);
+                        maxDate.setDate(maxDate.getDate() + 60);
+                        endPicker.set('maxDate', maxDate);
 
-                            var currentEndDate = endPicker.selectedDates[0];
-                            if (currentEndDate && currentEndDate > maxDate) {
-                                endPicker.setDate(maxDate);
-                            }
+                        var currentEndDate = endPicker.selectedDates[0];
+                        if (currentEndDate && currentEndDate > maxDate) {
+                            endPicker.setDate(maxDate);
                         }
                     }
                     savePage3Data();
                 }
             });
 
-            flatpickr('.js-datepicker-end', {
+            endPicker = flatpickr('.js-datepicker-end', {
                 locale: 'ko',
                 dateFormat: 'Y-m-d',
                 ariaDateFormat: 'Y-m-d',
@@ -2420,6 +2458,84 @@
             restorePageData();
         }
     });
-</script>
 
+    // 폼 제출 시 contenteditable div의 내용을 숨겨진 input에 저장
+    $('form').on('submit', function(e) {
+        var editorContent = document.getElementById('rc_desc_editor').innerHTML;
+        document.getElementById('rc_desc_input').value = editorContent;
+     
+    });
+
+    // 모바일 버전 사진 업로드 기능
+    $('#uploadPhotoBtn_mobile').on('click', function(e) {
+        e.preventDefault();
+
+        $('#photoFileInput_mobile').click();
+    });
+
+    $('#photoFileInput_mobile').on('change', function() {
+        if (this.files && this.files.length > 0) {
+            showLoadingOverlay();
+
+            var files = Array.from(this.files);
+            var uploadCount = 0;
+
+            // 여러 파일을 순회하면서 각각 업로드
+            files.forEach(function(file) {
+                var formData = new FormData();
+                formData.append('Filedata', file);
+
+                $.ajax({
+                    url: '/compage_proc/se2_image_upload',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        uploadCount++;
+
+                        if (response.success === 1) {
+                            // contenteditable div에 이미지 추가
+                            var editor = document.getElementById('rc_desc_editor');
+                            var imageWrapper = document.createElement('div');
+                            imageWrapper.className = 'image-wrapper';
+                            imageWrapper.style.cssText = 'position: relative; display: inline-block; margin: 10px 0;';
+
+                            var img = document.createElement('img');
+                            img.src = response.url;
+                            img.alt = response.name;
+                            img.style.cssText = 'max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd; display: block;';
+                            img.setAttribute('contenteditable', 'false');
+
+                            imageWrapper.appendChild(img);
+                            editor.appendChild(document.createElement('br'));
+                            editor.appendChild(imageWrapper);
+                        } else {
+                            alert(file.name + ' 업로드에 실패했습니다.');
+                        }
+
+                        // 모든 파일 업로드 완료 시 로딩 숨기기
+                        if (uploadCount === files.length) {
+                            hideLoadingOverlay();
+                            // 파일 input 초기화 (같은 파일 재선택 가능)
+                            $('#photoFileInput_mobile').val('');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        uploadCount++;
+
+                        alert(file.name + ' 업로드 중 오류가 발생했습니다.');
+
+                        if (uploadCount === files.length) {
+                            hideLoadingOverlay();
+                            $('#photoFileInput_mobile').val('');
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+</script>
+<script src="/resource/shop/mobile/js/common-utils.js"></script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>

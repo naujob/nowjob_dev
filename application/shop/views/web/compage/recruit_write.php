@@ -2292,10 +2292,17 @@
                 <div class="form-row">
                   <p class="form-label">상세업무</p>
                   <div class="value desc-value">
+                    <!-- 사진 업로드 버튼 -->
+                    <div style="margin-bottom: 10px;">
+                      <button type="button" id="uploadPhotoBtn" style="padding: 8px 16px; background-color: #31A182; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-regular fa-image" style="font-size: 16px;"></i> 사진 추가</button>
+                      <input type="file" id="photoFileInput" accept="image/*" style="display:none;">
+                    </div>
+
                     <label>
                       <span class="sr-text">상세업무정보 입력</span>
                       <textarea id="rc_desc" name="rc_desc" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
                     </label>
+                    
                   </div>
                 </div>
 
@@ -2303,7 +2310,7 @@
                   <p class="form-label">해시태그</p>
                   <div class="value">
                     <!-- 숨겨진 textarea (서버 전송용) -->
-                    <textarea name="rc_hash" class="hash-hidden"><?= $info["rc_hash"] ?></textarea>
+                    <textarea name="rc_hash" class="hash-hidden"><?= htmlspecialchars($info["rc_hash"], ENT_QUOTES, 'UTF-8') ?></textarea>
 
                     <!-- 미리 정의된 태그 버튼들 -->
                     <div class="hash-preset-wrap">
@@ -3616,6 +3623,12 @@
       elPlaceHolder: "rc_desc",
       sSkinURI: "/resource/shop/web/smarteditor2/SmartEditor2Skin_ko_KR.html", //에디터 디자인 파일 위치
       fCreator: "createSEditor2", // 에디터 생성 함수
+      bRichMode: true, // 리치텍스트 모드 활성화
+      bAutoLoad: true, // 자동 로드
+      htParams: {
+        bUseUniversalFont: true,
+        fOnBeforeUnload: function() {}
+      },
       fOnAppLoad: function() { // 에디터가 로드된 후 실행되는 콜백 함수(smarteditor2가 로드된 후 실행 가능 상태에서 폰트 크기 기본값 설정)
         setTimeout(function() {
           try {
@@ -3668,6 +3681,64 @@
       $('iframe').css('background-color', '#fff');
       $('iframe').css('border-right', '1px solid #ccc');
     }, 500);
+
+    // 사진 업로드 기능
+    $('#uploadPhotoBtn').on('click', function(e) {
+      e.preventDefault();
+      
+      $('#photoFileInput').click();
+    });
+
+    $('#photoFileInput').on('change', function() {
+      if (this.files && this.files.length > 0) {
+        var files = Array.from(this.files);
+        var uploadCount = 0;
+
+        // 여러 파일을 순회하면서 각각 업로드
+        files.forEach(function(file) {
+          var formData = new FormData();
+          formData.append('Filedata', file);
+
+          $.ajax({
+            url: '/compage_proc/se2_image_upload',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+              uploadCount++;
+              if (response.success === 1) {
+                var oEditor = oEditors.getById["rc_desc"];
+                if (oEditor) {
+                  var html = '<img src="' + response.url + '" alt="' + response.name + '" style="max-width:100%; height:auto; margin: 10px 0;" />';
+                  oEditor.exec("PASTE_HTML", [html]);
+                } else {
+                  // smarteditor2가 없으면 textarea에 URL 표시
+                  var currentText = $('#rc_desc').val();
+                  $('#rc_desc').val(currentText + '\n[이미지]: ' + response.url);
+                }
+              } else {
+                alert(file.name + ' 업로드에 실패했습니다.');
+              }
+
+              // 모든 파일 업로드 완료 시 input 초기화
+              if (uploadCount === files.length) {
+                $('#photoFileInput').val('');
+              }
+            },
+            error: function(xhr, status, error) {
+              uploadCount++;
+              console.error('업로드 오류:', error);
+              alert(file.name + ' 업로드 중 오류가 발생했습니다.');
+
+              if (uploadCount === files.length) {
+                $('#photoFileInput').val('');
+              }
+            }
+          });
+        });
+      }
+    });
 
     // 네 개의 입력 필드를 선택하여 순회
     $('input[name="rc_am_stime_m"], input[name="rc_am_etime_m"], input[name="rc_pm_stime_m"], input[name="rc_pm_etime_m"]').each(function() {

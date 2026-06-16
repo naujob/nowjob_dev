@@ -1495,12 +1495,13 @@ class Compage extends CI_Controller
 			// 추가 정보 로드
 			$info["rc_desc"] = isset($recruit_info["rc_desc"]) ? $recruit_info["rc_desc"] : "";
 			$info["rc_hash"] = isset($recruit_info["rc_hash"]) ? $recruit_info["rc_hash"] : "";
-			$info["rc_life_type"] = isset($recruit_info["rc_life_type"]) && $recruit_info["rc_life_type"] != "" ? explode(",", $recruit_info["rc_life_type"]) : [];
-			$info["rc_day"] = isset($recruit_info["rc_day"]) && $recruit_info["rc_day"] != "" ? explode(",", $recruit_info["rc_day"]) : [];
+			$info["rc_life_type"] = isset($recruit_info["rc_life_type"]) && $recruit_info["rc_life_type"] != "" ? array_map('trim', explode(",", $recruit_info["rc_life_type"])) : [];
+			// rc_day는 rc_week 필드에 저장되므로 rc_week에서 로드
+			$info["rc_day"] = isset($recruit_info["rc_week"]) && $recruit_info["rc_week"] != "" ? array_map('trim', explode(",", $recruit_info["rc_week"])) : [];
 			$info["rc_day_all"] = isset($recruit_info["rc_day_all"]) ? $recruit_info["rc_day_all"] : "";
-			$info["rc_sex"] = isset($recruit_info["rc_sex"]) && $recruit_info["rc_sex"] != "" ? explode(",", $recruit_info["rc_sex"]) : [];
+			$info["rc_sex"] = isset($recruit_info["rc_sex"]) && $recruit_info["rc_sex"] != "" ? array_map('trim', explode(",", $recruit_info["rc_sex"])) : [];
 			$info["rc_sex_all"] = isset($recruit_info["rc_sex_all"]) ? $recruit_info["rc_sex_all"] : "";
-			$info["rc_nation"] = isset($recruit_info["rc_nation"]) && $recruit_info["rc_nation"] != "" ? explode(",", $recruit_info["rc_nation"]) : [];
+			$info["rc_nation"] = isset($recruit_info["rc_nation"]) && $recruit_info["rc_nation"] != "" ? array_map('trim', explode(",", $recruit_info["rc_nation"])) : [];
 			$info["rc_nation_all"] = isset($recruit_info["rc_nation_all"]) ? $recruit_info["rc_nation_all"] : "";
 			$info["rc_sage"] = isset($recruit_info["rc_sage"]) ? $recruit_info["rc_sage"] : "";
 			$info["rc_eage"] = isset($recruit_info["rc_eage"]) ? $recruit_info["rc_eage"] : "";
@@ -1570,12 +1571,12 @@ class Compage extends CI_Controller
 				$info["rc_price_monthly"] = isset($temp_info["rc_price_monthly"]) ? $temp_info["rc_price_monthly"] : "";
 				$info["rc_desc"] = isset($temp_info["rc_desc"]) ? $temp_info["rc_desc"] : "";
 				$info["rc_hash"] = isset($temp_info["rc_hash"]) ? $temp_info["rc_hash"] : "";
-				$info["rc_life_type"] = isset($temp_info["rc_life_type"]) && is_array($temp_info["rc_life_type"]) ? $temp_info["rc_life_type"] : (isset($temp_info["rc_life_type"]) ? explode(",", $temp_info["rc_life_type"]) : []);
-				$info["rc_day"] = isset($temp_info["rc_day"]) && is_array($temp_info["rc_day"]) ? $temp_info["rc_day"] : (isset($temp_info["rc_day"]) ? explode(",", $temp_info["rc_day"]) : []);
+				$info["rc_life_type"] = isset($temp_info["rc_life_type"]) && is_array($temp_info["rc_life_type"]) ? $temp_info["rc_life_type"] : (isset($temp_info["rc_life_type"]) ? array_map('trim', explode(",", $temp_info["rc_life_type"])) : []);
+				$info["rc_day"] = isset($temp_info["rc_day"]) && is_array($temp_info["rc_day"]) ? $temp_info["rc_day"] : (isset($temp_info["rc_day"]) ? array_map('trim', explode(",", $temp_info["rc_day"])) : []);
 				$info["rc_day_all"] = isset($temp_info["rc_day_all"]) ? $temp_info["rc_day_all"] : "";
-				$info["rc_sex"] = isset($temp_info["rc_sex"]) && is_array($temp_info["rc_sex"]) ? $temp_info["rc_sex"] : (isset($temp_info["rc_sex"]) ? explode(",", $temp_info["rc_sex"]) : []);
+				$info["rc_sex"] = isset($temp_info["rc_sex"]) && is_array($temp_info["rc_sex"]) ? $temp_info["rc_sex"] : (isset($temp_info["rc_sex"]) ? array_map('trim', explode(",", $temp_info["rc_sex"])) : []);
 				$info["rc_sex_all"] = isset($temp_info["rc_sex_all"]) ? $temp_info["rc_sex_all"] : "";
-				$info["rc_nation"] = isset($temp_info["rc_nation"]) && is_array($temp_info["rc_nation"]) ? $temp_info["rc_nation"] : (isset($temp_info["rc_nation"]) ? explode(",", $temp_info["rc_nation"]) : []);
+				$info["rc_nation"] = isset($temp_info["rc_nation"]) && is_array($temp_info["rc_nation"]) ? $temp_info["rc_nation"] : (isset($temp_info["rc_nation"]) ? array_map('trim', explode(",", $temp_info["rc_nation"])) : []);
 				$info["rc_nation_all"] = isset($temp_info["rc_nation_all"]) ? $temp_info["rc_nation_all"] : "";
 				$info["rc_sage"] = isset($temp_info["rc_sage"]) ? $temp_info["rc_sage"] : "";
 				$info["rc_eage"] = isset($temp_info["rc_eage"]) ? $temp_info["rc_eage"] : "";
