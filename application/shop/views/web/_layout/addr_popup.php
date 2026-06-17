@@ -1,5 +1,5 @@
 <!-- 현재위치 변경 레이어팝업 -->
-<div id="changeArea" class="layer-panel card-type" tabindex="-1" style="position:fixed;">
+<div id="changeArea" class="layer-panel card-type" data-target="" tabindex="-1" style="position:fixed;">
     <div class="panel-container" style="max-width:500px;margin:0 auto;top:50%;left:20%;transform:translate(-50%, -50%);bottom:auto;">
         <div class="panel-header">
             <h2 class="sr-text">현재 위치 변경</h2>

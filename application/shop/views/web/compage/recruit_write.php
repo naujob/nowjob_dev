@@ -3030,27 +3030,66 @@
     }
   });
 
-  // 검색 완료 선택 처리 - recruit_write 전용 함수
-  function selectAddrInfoRecruit(zipcode, doro, jibun, addr, x, y) {
-    $("#ad_zipcode").val(zipcode);
-    $("#ad_jibun").val(jibun); // 지번 주소
-    $("#ad_doro").val(doro); // 도로명 주소
-    // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
-    $("#ad_addr").val(jibun);
-    $("#ad_gps_x").val(x);
-    $("#ad_gps_y").val(y);
-    // 선택된 주소(도로명 또는 지번)를 rc_addr_doro 필드에 설정
-    // addr 파라미터는 사용자가 클릭한 버튼에 따라 도로명 또는 지번 전체 주소가 전달됨
-    $("[name=rc_addr_doro]").val(addr);
-    $("[name=changeArea]").val(addr);
+  // 통합 주소 선택 처리 함수 - data-target에 따라 적절한 필드 업데이트
+  function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
+    var target = $("#changeArea").attr("data-target");
+
+    console.log("[주소선택] 통합 함수 호출 - target: " + target);
+
+    if (target === "recruit") {
+      // 근무지 처리
+      $("#ad_zipcode").val(zipcode);
+      $("#ad_jibun").val(jibun);
+      $("#ad_doro").val(doro);
+      $("#ad_addr").val(jibun);
+      $("#ad_gps_x").val(x);
+      $("#ad_gps_y").val(y);
+      $("[name=rc_addr_doro]").val(addr);
+      $("[name=changeArea]").val(addr);
+    } else if (target === "expose1") {
+      // 노출지역 1 처리
+      $("[name='expose_addr1_zipcode']").val(zipcode);
+      $("[name='expose_addr1_jibun']").val(jibun);
+      $("[name='expose_addr1_doro_val']").val(doro);
+      $("#expose_addr1_addr").val(jibun);
+      $("#expose_addr1_gps_x").val(x);
+      $("#expose_addr1_gps_y").val(y);
+      $("#expose_addr1_doro").val(addr);
+    } else if (target === "expose2") {
+      // 노출지역 2 처리
+      $("[name='expose_addr2_zipcode']").val(zipcode);
+      $("[name='expose_addr2_jibun']").val(jibun);
+      $("[name='expose_addr2_doro_val']").val(doro);
+      $("#expose_addr2_addr").val(jibun);
+      $("#expose_addr2_gps_x").val(x);
+      $("#expose_addr2_gps_y").val(y);
+      $("#expose_addr2_doro").val(addr);
+    }
+
+    // 팝업 닫기
     $("#changeArea").removeClass("on");
-    // 패널이 닫힐 때 스크롤 복원
     document.body.style.overflow = '';
   }
 
-  // 노출지역 1 팝업 열기
-  $("#expose_addr1_doro").click(function() {
-    window.selectAddrInfo = selectAddrInfoExpose1;
+  // 근무지 검색 아이콘 및 입력장 클릭 시 팝업 열기
+  $(document).on("click", "input[name='rc_addr_doro'], .form-row.address .addr-search-icon", function() {
+    $("#changeArea").attr("data-target", "recruit");
+    var $panel = $("#changeArea");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    var $popupAddrInput = $("#changeArea").find("#txt_addr_popup");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
+  });
+
+  // 노출지역 1 입력창 클릭 시 팝업 열기
+  $(document).on("click", "#expose_addr1_doro", function() {
+    $("#changeArea").attr("data-target", "expose1");
     var $panel = $("#changeArea");
     $panel[0].hidden = false;
     $panel.addClass("on");
@@ -3065,22 +3104,9 @@
     }
   });
 
-  // 노출지역 1 선택 처리
-  function selectAddrInfoExpose1(zipcode, doro, jibun, addr, x, y) {
-    $("[name='expose_addr1_zipcode']").val(zipcode);
-    $("[name='expose_addr1_jibun']").val(jibun);
-    $("[name='expose_addr1_doro_val']").val(doro);
-    $("#expose_addr1_addr").val(jibun);
-    $("#expose_addr1_gps_x").val(x);
-    $("#expose_addr1_gps_y").val(y);
-    $("#expose_addr1_doro").val(addr);
-    $("#changeArea").removeClass("on");
-    document.body.style.overflow = '';
-  }
-
-  // 노출지역 2 팝업 열기
-  $("#expose_addr2_doro").click(function() {
-    window.selectAddrInfo = selectAddrInfoExpose2;
+  // 노출지역 2 입력창 클릭 시 팝업 열기
+  $(document).on("click", "#expose_addr2_doro", function() {
+    $("#changeArea").attr("data-target", "expose2");
     var $panel = $("#changeArea");
     $panel[0].hidden = false;
     $panel.addClass("on");
@@ -3095,41 +3121,20 @@
     }
   });
 
-  // 노출지역 2 선택 처리
-  function selectAddrInfoExpose2(zipcode, doro, jibun, addr, x, y) {
-    $("[name='expose_addr2_zipcode']").val(zipcode);
-    $("[name='expose_addr2_jibun']").val(jibun);
-    $("[name='expose_addr2_doro_val']").val(doro);
-    $("#expose_addr2_addr").val(jibun);
-    $("#expose_addr2_gps_x").val(x);
-    $("#expose_addr2_gps_y").val(y);
-    $("#expose_addr2_doro").val(addr);
-    $("#changeArea").removeClass("on");
-    document.body.style.overflow = '';
-  }
-
-  // 주소 선택 영역 초기화 (MutationObserver 및 주소 변경 처리)
+  // 주소 선택 영역 초기화 - 패널이 닫힐 때 스크롤 복원
   function initAddressArea() {
-    // 기존 selectAddrInfo 함수를 recruit_write용으로 재정의
-    // 이렇게 하면 다른 페이지의 함수와 충돌하지 않음
     if (window.location.pathname.indexOf('/compage/recruit_write') !== -1) {
-      window.selectAddrInfo = selectAddrInfoRecruit;
-
-      // 패널이 닫힐 때 스크롤 복원을 위한 감시자 추가
-      // changeArea 패널의 on 클래스가 제거될 때 스크롤 복원
       var $panel = $("#changeArea");
       if ($panel.length > 0) {
-        // MutationObserver를 사용하여 패널의 클래스 변경 감지
+        // MutationObserver를 사용하여 패널의 클래스/속성 변경 감지
         var observer = new MutationObserver(function(mutations) {
           mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
               var $target = $(mutation.target);
-              // on 클래스가 제거되었고 패널이 숨겨진 경우 스크롤 복원
               if (!$target.hasClass('on') && ($target[0].hidden === true || $target.css('display') === 'none')) {
                 document.body.style.overflow = '';
               }
             }
-            // hidden 속성이 변경된 경우도 처리
             if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
               var $target = $(mutation.target);
               if ($target[0].hidden === true) {
@@ -3139,13 +3144,12 @@
           });
         });
 
-        // 패널 요소의 속성 변경 감시 시작
         observer.observe($panel[0], {
           attributes: true,
           attributeFilter: ['class', 'hidden', 'style']
         });
 
-        // 패널 닫기 버튼 클릭 시에도 스크롤 복원 (추가 안전장치)
+        // 패널 닫기 버튼 클릭 시에도 스크롤 복원
         $(document).on('click', '#changeArea .btn-close-popup, #changeArea .btnCloseArea', function() {
           setTimeout(function() {
             document.body.style.overflow = '';
