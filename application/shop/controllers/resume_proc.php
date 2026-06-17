@@ -46,6 +46,9 @@ class Resume_proc extends CI_Controller
     $eage = input_post("eage", "");
     $order_by = input_post("order_by", "recent");
     $search_addr = input_post('search_addr');
+    $addrName = input_post("addrName", "");
+    $searchAreaStr = input_post("searchAreaStr", "");
+
     if (empty($search_addr)) {
       $search_addr = [];
     } elseif (!is_array($search_addr)) {

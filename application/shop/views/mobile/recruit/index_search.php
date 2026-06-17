@@ -764,6 +764,11 @@
          updateSelectedRegionsDisplay();
        }
 
+       // API 파라미터 전역변수 동기화 (getBoardList에서 사용)
+       if (state.search_addr) search_addr = state.search_addr;
+       if (state.searchAreaStr) searchAreaStr = state.searchAreaStr;
+       if (state.addrName) addrName = state.addrName;
+
        updateCategoryCounter();
        updateWorkTypeSelectionState();
        updateWeekSelectionState();
@@ -774,6 +779,23 @@
 
        initCategory();
        initTabUi();
+
+       // 검색 조건이 있으면 AJAX로 새로 로드 (초기 렌더링 데이터 사용 안 함)
+       var hasSearchCondition = (state.search_addr && state.search_addr.length > 0) ||
+                                 state.category ||
+                                 state.work_type ||
+                                 state.week ||
+                                 state.price_type ||
+                                 state.sex ||
+                                 state.nationality ||
+                                 state.sage ||
+                                 state.eage;
+
+       if (hasSearchCondition && typeof window.getBoardList === 'function') {
+         setTimeout(function() {
+           window.getBoardList('');
+         }, 100);
+       }
      } catch (e) {
 
      }

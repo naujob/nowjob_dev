@@ -1,0 +1,149 @@
+1️⃣ 지역 선택 → 저장 (검색 조건 선택할 때)
+파일: addr_popup2025_new.php (지역 팝업)
+
+
+사용자가 "제주도" 선택
+    ↓
+.addr_sel_apply 버튼 클릭
+    ↓
+window.onRegionSelectionComplete(regions)
+    ↓
+addrName = "제주도" (전역변수에 저장)
+search_addr = ["제주도"] (전역변수에 저장)
+searchAreaStr = '[{"addr":"제주도","step":1}]' (JSON 문자열로 저장)
+    ↓
+window.selectedRegions = ["제주도"] (전역변수에 저장)
+    ↓
+saveSearchStateToStorage()  ← localStorage에 저장!
+    ↓
+localStorage["jobListAdvancedSearch_recruit_사용자ID"] = 
+{
+  search_addr: ["제주도"],
+  addrName: "제주도",
+  searchAreaStr: '[{"addr":"제주도","step":1}]',
+  selectedRegions: ["제주도"]
+  ... (다른 검색 조건들)
+}
+2️⃣ 상세 페이지 이동
+
+공고 상세 클릭 → /recruit/job_post/123 으로 이동
+3️⃣ 뒤로가기 → 검색 조건 복원 (복귀할 때)
+파일: main_visual.php (페이지 로드)
+
+
+DOMContentLoaded 발생
+    ↓
+$.CashingAjax() 호출
+    ↓
+initLoadData() 함수 호출 (job_list.php)
+    ↓
+list_page = 1 && hasInitialData = true
+    → ❌ getBoardList() 호출 안됨! (초기 렌더링 데이터 사용)
+파일: index_search.php (검색 조건 복원)
+
+동시에 실행:
+
+
+$(document).ready()
+    ↓
+loadSearchStateFromStorage() 호출
+    ↓
+localStorage에서 데이터 읽음:
+{
+  search_addr: ["제주도"],
+  addrName: "제주도",
+  searchAreaStr: '[{"addr":"제주도","step":1}]',
+  ...
+}
+    ↓
+🔴 **이전 코드 (문제)**:
+   - UI만 복원
+   - updateSelectedRegionsDisplay() 호출
+   - window.selectedRegions = ["제주도"] 설정
+   - initCategory() 호출
+   - initTabUi() 호출
+   ❌ getBoardList() 호출 안됨!
+파일: main_visual.php (UI 표시)
+
+
+updateSelectedRegionsTags() 호출
+    ↓
+#selected-regions-list 태그에 HTML 삽입:
+<div class="region-tag">제주도 ×</div>
+    ↓
+화면에 "제주도" 태그가 보임! ✅
+4️⃣ 문제: 데이터는 안 옴
+
+✅ UI는 "제주도" 보임 (updateSelectedRegionsTags로)
+❌ 하지만 getBoardList()가 호출 안됨
+❌ API 파라미터로 보낼 변수들도 설정 안됨:
+   - search_addr = [] (빈 배열)
+   - addrName = "" (빈 문자열)
+   - searchAreaStr = "" (빈 문자열)
+
+결과: API 요청
+POST /recruit_proc/getRecruitList
+{
+  page: 1,
+  search_addr: [],        ← 빈 배열! (제주도 정보 없음)
+  addrName: "",           ← 빈 문자열!
+  searchAreaStr: "",      ← 빈 문자열!
+  category: "",
+  ...
+}
+
+응답: 전체 공고 (지역 필터링 없음)
+5️⃣ 해결: 변수도 동기화 + API 호출 추가
+파일: index_search.php (수정된 코드)
+
+
+loadSearchStateFromStorage()
+    ↓
+localStorage에서 state 읽음
+    ↓
+UI 복원:
+- updateSelectedRegionsDisplay()
+- initCategory()
+- initTabUi()
+    ↓
+🟢 **새로 추가된 코드**:
+   - search_addr = state.search_addr  ← 변수 동기화!
+   - addrName = state.addrName        ← 변수 동기화!
+   - searchAreaStr = state.searchAreaStr ← 변수 동기화!
+    ↓
+hasSearchCondition 확인 (검색 조건이 있는가?)
+    ↓
+setTimeout(function() {
+  getBoardList('')  ← 🟢 API 호출 추가!
+}, 100)
+결과: API 요청
+
+
+POST /recruit_proc/getRecruitList
+{
+  page: 1,
+  search_addr: ["제주도"],        ← ✅ 이제 설정됨!
+  addrName: "제주도",             ← ✅ 이제 설정됨!
+  searchAreaStr: '[{...}]',       ← ✅ 이제 설정됨!
+  category: "",
+  ...
+}
+
+응답: 제주도만 필터링된 공고 ✅
+전체 요약 흐름
+
+선택: 지역 선택 → "제주도" 클릭
+  ↓ 저장
+localStorage["jobListAdvancedSearch_recruit_..."] = {search_addr, addrName, searchAreaStr}
+  ↓ 페이지 이동
+상세 페이지 진입
+  ↓ 뒤로가기
+loadSearchStateFromStorage() 실행
+  ├─ UI 복원: updateSelectedRegionsTags() → 화면에 "제주도" 태그 표시 ✅
+  ├─ 변수 동기화: search_addr = ["제주도"] ← 🟢 새로 추가
+  └─ API 호출: getBoardList('') ← 🟢 새로 추가
+       ↓
+API 요청에 search_addr=["제주도"] 포함
+       ↓
+제주도만 필터링된 데이터 로드 ✅
+핵심: updateSelectedRegionsTags() 이후에 getBoardList() 호출이 필요했음!

@@ -507,7 +507,7 @@
             $area_count = is_array($area_list) ? count($area_list) : 0;
             ?>
             <div class="div1">
-              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt"><?= $area_count; ?></span><span class="div1desc">(최대 2개)</span>
+              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt"><?= $area_count; ?></span><span class="div1desc">(최대 3개)</span>
             </div>
             <div class="div2">
               <?php if (is_array($area_list)): ?>
@@ -764,7 +764,7 @@
 
               const projectedCount = currentCount + (alreadyExists ? 0 : 1) - removeCount;
 
-              if (projectedCount > 2) {
+              if (projectedCount > 3) {
                 $clickedLi.removeClass('addr_on');
                 return;
               }
@@ -1041,7 +1041,7 @@
               window.skipAddrNameUpdate = false; // 플래그 초기화
 
               // window.selectedRegions에 지역 이름 배열 할당
-              window.selectedRegions = addrNames.slice(0, 2); // 최대 2개만 저장
+              window.selectedRegions = addrNames.slice(0, 3); // 최대 3개만 저장
             } else {
               addrName = '지역을 선택해 주세요';
               // 상세검색 패널에서 열린 경우 .addrName 업데이트 안함

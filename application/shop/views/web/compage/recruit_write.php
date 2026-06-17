@@ -7,6 +7,13 @@
       <?php $tab_on = "tab2"; ?>
       <?php $tab_on2 = "menu2"; ?>
       <?php include_once(get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
+      <!--get_base_url():website/dev_nowapk-->
+      
+      <!-- <script>
+        var baseUrl = <?= json_encode(get_base_url()) ?>;
+        console.log("get_base_url()======>",baseUrl);
+    
+      </script> -->
       <?php
       // 인증 상태 계산 (파일 전체에서 사용)
       $mem_info_di = isset($info["mem_info"]["mm_di"]) ? $info["mem_info"]["mm_di"] : null;
@@ -3401,19 +3408,19 @@
 
       var params = new FormData(form[0]);
 
-      console.log("[RECRUIT_WRITE CALL] FormData 데이터:");
+   
       for (var pair of params.entries()) {
-        console.log("[FORM_DATA] " + pair[0] + ": " + (pair[1].toString ? pair[1].toString().substring(0, 50) : pair[1]));
+        
       }
 
-      console.log("[RECRUIT_WRITE CALL] AJAX 요청 시작...");
+   
       fileAjaxLoading("/compage_proc/recruit_write", params, function(ret) {
-        console.log("[RECRUIT_WRITE CALL] 응답 받음: ", ret);
+     
         if (ret.code == "00") {
-          console.log("[RECRUIT_WRITE CALL] 성공, showPreviewInfo 호출");
+         
           showPreviewInfo(ret.data);
         } else {
-          console.log("[RECRUIT_WRITE CALL] 실패: " + ret.msg);
+        
           commonAlert(ret.msg, function() {});
           return;
         }
@@ -3625,11 +3632,12 @@
       fCreator: "createSEditor2", // 에디터 생성 함수
       bRichMode: true, // 리치텍스트 모드 활성화
       bAutoLoad: true, // 자동 로드
+      nHeight: 600, // 초기 높이 600px
       htParams: {
         bUseUniversalFont: true,
         fOnBeforeUnload: function() {}
       },
-      fOnAppLoad: function() { // 에디터가 로드된 후 실행되는 콜백 함수(smarteditor2가 로드된 후 실행 가능 상태에서 폰트 크기 기본값 설정)
+      fOnAppLoad: function() { // 에디터가 로드된 후 실행되는 콜백 함수
         setTimeout(function() {
           try {
             var oEditor = oEditors.getById["rc_desc"];
@@ -3669,8 +3677,8 @@
                   break;
                 }
               }
-            }
-          } catch (e) {
+                }
+              } catch (e) {
             console.error("폰트 크기 기본값 설정 중 오류:", e);
           }
         }, 200);
@@ -3819,7 +3827,8 @@
       str_price = "급여협의";
     }
 
-    if (info.rc_work_type.indexOf('2교대') > -1 || (info.rc_work_type.indexOf('주간') > -1 && info.rc_work_type.indexOf('야간') > -1)) {
+    // rc_work_type null 체크 추가
+    if (info.rc_work_type && info.rc_work_type.indexOf('2교대') > -1 || (info.rc_work_type && info.rc_work_type.indexOf('주간') > -1 && info.rc_work_type.indexOf('야간') > -1)) {
       if (info.rc_am_stime != '' || info.rc_am_etime != '') {
         str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(주간)';
       } else {
@@ -3830,13 +3839,13 @@
       } else {
         str_time += ',' + ' 야간';
       }
-    } else if (info.rc_work_type.indexOf('주간') > -1 && info.rc_work_type.indexOf('2교대') == -1) {
+    } else if (info.rc_work_type && info.rc_work_type.indexOf('주간') > -1 && info.rc_work_type.indexOf('2교대') == -1) {
       if (info.rc_am_stime != '' || info.rc_am_etime != '') {
         str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(주간)';
       } else {
         str_time += '주간';
       }
-    } else if (info.rc_work_type.indexOf('야간') > -1 && info.rc_work_type.indexOf('2교대') == -1) {
+    } else if (info.rc_work_type && info.rc_work_type.indexOf('야간') > -1 && info.rc_work_type.indexOf('2교대') == -1) {
       if (info.rc_pm_stime != '' || info.rc_pm_etime != '') {
         str_time += info.rc_pm_stime + '~' + info.rc_pm_etime + '(야간)';
       } else {
@@ -3844,9 +3853,12 @@
       }
     }
 
-    for (var icnt = 0; icnt < info.rc_hash.split(",").length; icnt++) {
-      if (info.rc_hash.split(",")[icnt].trim() != "") {
-        str_hash += '<p class="tag">' + info.rc_hash.split(",")[icnt].trim() + '</p>';
+    // rc_hash null 체크 추가
+    if (info.rc_hash) {
+      for (var icnt = 0; icnt < info.rc_hash.split(",").length; icnt++) {
+        if (info.rc_hash.split(",")[icnt].trim() != "") {
+          str_hash += '<p class="tag">' + info.rc_hash.split(",")[icnt].trim() + '</p>';
+        }
       }
     }
 
@@ -3999,7 +4011,8 @@
       secondButton: ($("[name=rc_idx]").val() != "0" ? '수정완료' : '등록완료'),
       firstCallback: function() {},
       secondCallback: function() {
-        console.log("[RECRUIT_COMPLETE CALL] 함수 시작");
+        console.log("%c=== 등록완료/수정완료 버튼 클릭 ===", "color: #31A182; font-weight: bold;");
+
         var params = {};
         params["rc_idx"] = $("[name=rc_idx]").val();
         params["mm_comp_num"] = $("[name=mm_comp_num]").val();
@@ -4017,17 +4030,17 @@
         params["expose_addr2_gps_x"] = $("[name=expose_addr2_gps_x]").val();
         params["expose_addr2_gps_y"] = $("[name=expose_addr2_gps_y]").val();
 
-        console.log("[RECRUIT_COMPLETE CALL] expose_addr1_addr: " + params["expose_addr1_addr"]);
-        console.log("[RECRUIT_COMPLETE CALL] expose_addr2_addr: " + params["expose_addr2_addr"]);
-        console.log("[RECRUIT_COMPLETE CALL] AJAX 요청 시작...");
+        console.log("전송 파라미터:", params);
+        console.log("요청 URL: /compage_proc/recruit_complete");
 
         comAjax("/compage_proc/recruit_complete", params, function(ret) {
-          console.log("[RECRUIT_COMPLETE CALL] 응답 받음: ", ret);
+          console.log("서버 응답:", ret);
+
           if (ret.code == "00") {
-            console.log("[RECRUIT_COMPLETE CALL] 성공, 목록페이지로 이동");
+            console.log("✅ 저장 성공!");
             location.href = "/compage/recruit_list";
           } else {
-            console.log("[RECRUIT_COMPLETE CALL] 실패: " + ret.msg);
+            console.warn("❌ 저장 실패:", ret.msg);
             commonAlert(ret.msg, function() {});
             return;
           }

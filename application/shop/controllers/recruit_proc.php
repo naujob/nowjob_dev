@@ -433,6 +433,9 @@ class Recruit_proc extends CI_Controller
 		$order_by = input_post("order_by", "recent");
 		$compidx = input_post("comp_idx", "");
 		$search_addr = input_post('search_addr');
+		$addrName = input_post("addrName", "");
+		$searchAreaStr = input_post("searchAreaStr", "");
+
 		if (empty($search_addr)) {
 			$search_addr = [];
 		} elseif (!is_array($search_addr)) {

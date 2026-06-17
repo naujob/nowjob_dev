@@ -241,35 +241,16 @@ class recruitModel extends MY_Model
 		}
 
 
-		$addr_condition = $this->make_addr_like_condition("aa.s_addr", $search_addr);
-		
-
-		if (!$addr_condition) {
-			$addr_condition = $this->make_addr_like_condition("aa.ad_addr", $search_addr);
-			
-		}
-		if (!$addr_condition) {
-			$addr_condition = $this->make_addr_like_condition("aa.expose_addr1", $search_addr);
-			
-		}
-		if (!$addr_condition) {
-			$addr_condition = $this->make_addr_like_condition("aa.expose_s_addr1", $search_addr);
-			
-		}
-		if (!$addr_condition) {
-			$addr_condition = $this->make_addr_like_condition("aa.expose_addr2", $search_addr);
-			
-		}
-		if (!$addr_condition) {
-			$addr_condition = $this->make_addr_like_condition("aa.expose_s_addr2", $search_addr);
-			
-		}
-
-		if ($addr_condition) {
-			
-			$where[] = " AND ({$addr_condition})";
-		} else {
-			
+		$all_addr_conditions = array_filter(array(
+			$this->make_addr_like_condition("aa.s_addr", $search_addr),
+			$this->make_addr_like_condition("aa.ad_addr", $search_addr),
+			$this->make_addr_like_condition("aa.expose_addr1", $search_addr),
+			$this->make_addr_like_condition("aa.expose_s_addr1", $search_addr),
+			$this->make_addr_like_condition("aa.expose_addr2", $search_addr),
+			$this->make_addr_like_condition("aa.expose_s_addr2", $search_addr),
+		));
+		if (!empty($all_addr_conditions)) {
+			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";
 		}
 
 		# 카테고리
@@ -321,14 +302,13 @@ class recruitModel extends MY_Model
 		foreach ($where as $idx => $w) {
 			
 		}
-		
 
 		try {
 			$result = $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
-		
+
 			return $result;
 		} catch (Exception $e) {
-		
+
 			throw $e;
 		}
 	}

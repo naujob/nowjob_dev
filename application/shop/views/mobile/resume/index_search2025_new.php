@@ -1162,6 +1162,23 @@
       // 초기 상태 설정
       initCategory();
       initTabUi();
+
+      // 검색 조건이 있으면 AJAX로 새로 로드 (초기 렌더링 데이터 사용 안 함)
+      var hasSearchCondition = (state.search_addr && state.search_addr.length > 0) ||
+                                 state.category.length > 0 ||
+                                 state.work_type.length > 0 ||
+                                 state.week.length > 0 ||
+                                 state.price_type.length > 0 ||
+                                 state.sex.length > 0 ||
+                                 state.nationality.length > 0 ||
+                                 state.sage ||
+                                 state.eage;
+
+      if (hasSearchCondition && typeof window.getBoardList === 'function') {
+        setTimeout(function() {
+          window.getBoardList('');
+        }, 100);
+      }
     } catch (e) {
 
     }

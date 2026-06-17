@@ -976,11 +976,12 @@
   let debounceTimer = null;
 
   $(function() {
-
     $(document).on('click', '.searchAddrBtn', function() {
       const $btn = $(this);
       const step = $btn.data('step');
       const addr = $btn.data('addr');
+
+      
 
       $(`li[data-step="${step}"][data-addr="${addr}"]`).removeClass('addr_on');
       $btn.remove();
@@ -1006,7 +1007,7 @@
         $txtInput.focus();
       }
     });
-
+    // 주소 선택 시 다른 컨테이너의 동일한 주소도 스타일 업데이트
     $targetContainers.on('click', 'li[data-step][data-addr]', function(e) {
       const $li = $(this);
       const step = $li.data('step');
@@ -1017,13 +1018,13 @@
       $li.data('processing', true);
       setTimeout(() => $li.removeData('processing'), 200);
 
-      if (hasCheckbox) {
+      if (hasCheckbox) { // 체크박스가 있는 경우에는 검색 조건 선택으로 처리
         searchSelect(step, addr, $li);
       } else {
         searchLocation(step, addr, $li);
       }
 
-      $targetContainers.each(function() {
+      $targetContainers.each(function() { // 클릭한 요소가 속한 컨테이너를 제외한 나머지 컨테이너에서 동일한 주소를 찾아 스타일 업데이트
         const $targetContainer = $(this);
         const $targetLi = $targetContainer.find(`li[data-step="${step}"][data-addr="${addr}"]`).not($li);
         if (!$targetLi.length) return;
@@ -1250,6 +1251,8 @@
     } else {
       combinedText = textParts[textParts.length - 1];
     }
+    //console.log("Combined Text:", combinedText);
+    // combinedText: addr_dept3의 <span class="text">죽왕면</span>
 
     const existingBtnSelector = `.searchAddrBtn[data-step="${step}"][data-addr="${addr}"]`;
     if (isSelected) {

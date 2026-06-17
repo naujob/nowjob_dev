@@ -893,14 +893,14 @@ $tpl_recomm_class = true; ?>
 
   // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
   function initCashingData() {
-  
+    console.log('[initCashingData] 호출됨');
     list_page = getPageFromUrl();
     getBoardList("");
   }
 
   // 초기 데이터 로드 (캐시 테이블에서 서버사이드 렌더링됨)
   function initLoadData() {
-   
+    console.log('[initLoadData] 호출됨');
     // URL 파라미터 > sessionStorage > 기본값(1)
     var urlPage = getPageFromUrl();
     if (urlPage > 1) {
