@@ -777,14 +777,7 @@
 <script>
     <?php
     $info_for_js = $info;
-    // rc_desc 정처리 (HTML 태그/엔티티 제거)
-    if (isset($info_for_js["rc_desc"]) && !empty($info_for_js["rc_desc"])) {
-        $desc = $info_for_js["rc_desc"];
-        $desc = preg_replace('/<br\s*\/?>/i', "\n", $desc);
-        $desc = strip_tags($desc);
-        $desc = html_entity_decode($desc, ENT_QUOTES, 'UTF-8');
-        $info_for_js["rc_desc"] = $desc;
-    }
+    // rc_desc는 HTML 형태로 보존 (이미지 태그 포함)
     // rc_hash를 배열로 변환 (JavaScript에서 Array.isArray() 판단용)
     if (isset($info_for_js["rc_hash"]) && $info_for_js["rc_hash"] != "") {
         $info_for_js["rc_hash"] = explode(",", $info_for_js["rc_hash"]);
