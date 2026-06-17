@@ -792,6 +792,7 @@
                                  state.eage;
 
        if (hasSearchCondition && typeof window.getBoardList === 'function') {
+         window.searchStateLoaded = true; // 플래그 설정 (initLoadData에서 중복 호출 방지)
          setTimeout(function() {
            window.getBoardList('');
          }, 100);

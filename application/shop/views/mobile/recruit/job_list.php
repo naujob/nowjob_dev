@@ -812,6 +812,7 @@ $tpl_recomm_class = true; ?>
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
+  var searchStateLoaded = false; // loadSearchStateFromStorage()에서 설정되는 플래그 (중복 호출 방지)
   var ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 수
   var total_count = 0; // 전체 아이템 수
   var total_pages = 1; // 전체 페이지 수
@@ -938,7 +939,10 @@ $tpl_recomm_class = true; ?>
       updateTopSectionsVisibility();
     } else {
       // 페이지 2 이상 또는 초기 데이터 없음: AJAX로 로드
-      getBoardList("");
+      // searchStateLoaded가 true면 이미 loadSearchStateFromStorage()에서 호출했으므로 스킵
+      if (!searchStateLoaded) {
+        getBoardList("");
+      }
     }
 
     // 현재 페이지를 sessionStorage에 저장

@@ -1088,7 +1088,7 @@
               window.updateSelectedRegionsTags();
             }
 
-            // index_search.php의 전역 함수 호출하여 선택된 지역 정보 전달
+            // index_search.php의 전역 함수 호출하여 addr_sel_apply(적용하기)클릭시 선택된 지역 정보 전달
             if (typeof window.onRegionSelectionComplete === 'function') {
               window.onRegionSelectionComplete(addrNames);
             }
