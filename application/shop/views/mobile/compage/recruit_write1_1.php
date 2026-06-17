@@ -324,7 +324,7 @@
                     <div class="form-row">
                         <div class="resume-title-header">
                             <p class="form-label"><span class="required-asterisk">*</span>상세업무정보</p>
-                            <span class="required-label"><span class="required-asterisk">*</span>필수입력</span>
+                           
                             <button type="button" id="uploadPhotoBtn_mobile" style="padding: 8px 14px; background-color: #31A182; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: auto; display: flex; align-items: center; gap: 6px; white-space: nowrap;"><i class="fa-regular fa-image" style="font-size: 16px;"></i> 사진</button>
                             <input type="file" id="photoFileInput_mobile" accept="image/*" style="display:none;">
                         </div>
@@ -337,7 +337,7 @@
                             <div id="rc_desc_editor"
                                  contenteditable="true"
                                  class="form-textarea"
-                                 style="min-height: 120px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word; white-space: pre-wrap;"><?= $desc ?></div>
+                                 style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word; white-space: pre-wrap;"><?= $desc ?></div>
                             <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                             <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
                         </label>
@@ -964,8 +964,11 @@
             rc_nation.push($(this).val());
         });
 
+        // contenteditable div에서 내용 가져오기
+        var rcDescContent = document.getElementById('rc_desc_editor') ? document.getElementById('rc_desc_editor').innerHTML : "";
+
         var formData = {
-            rc_desc: $("[name='rc_desc']").val(),
+            rc_desc: rcDescContent,
             rc_hash: rc_hash,
             rc_sdate: $("[name='rc_sdate']").val(),
             rc_edate: $("[name='rc_edate']").val(),
@@ -988,25 +991,25 @@
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
 
-        // draft 우선 확인 (임시저장된 데이터가 있으면 우선 사용)
-        var storageKey = "recruit_draft_" + rcIdx + "_page1";
-        var draftSaved = localStorage.getItem(storageKey);
+        // draft 로드: shouldLoadDraft가 true일 때만 draft를 먼저 확인
+        if (window.shouldLoadDraft) {
+            var storageKey = "recruit_draft_" + rcIdx + "_page1";
+            var draftSaved = localStorage.getItem(storageKey);
 
-        if (draftSaved) {
-            // draft가 있으면 draft 사용
-            try {
-                formData = JSON.parse(draftSaved);
-                if (!formData) {
-                    // draft 파싱 실패 시 서버 데이터 사용
+            if (draftSaved) {
+                // draft가 있으면 draft 사용 (preview에서 돌아온 경우의 임시 수정사항)
+                try {
+                    formData = JSON.parse(draftSaved);
+                    if (!formData) {
+                        formData = null;
+                    }
+                } catch (e) {
                     formData = null;
                 }
-            } catch (e) {
-               
-                formData = null;
             }
         }
 
-        // draft가 없거나 파싱 실패하면 서버 데이터 사용
+        // draft가 없거나 shouldLoadDraft가 false인 경우: 서버 데이터 사용 (DB 데이터)
         if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
             formData = serverData;
         } else if (!formData) {
@@ -1232,25 +1235,25 @@
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
 
-        // draft 우선 확인 (임시저장된 데이터가 있으면 우선 사용)
-        var storageKey = "recruit_draft_" + rcIdx + "_page2";
-        var draftSaved = localStorage.getItem(storageKey);
+        // draft 로드: shouldLoadDraft가 true일 때만 draft를 먼저 확인
+        if (window.shouldLoadDraft) {
+            var storageKey = "recruit_draft_" + rcIdx + "_page2";
+            var draftSaved = localStorage.getItem(storageKey);
 
-        if (draftSaved) {
-            // draft가 있으면 draft 사용
-            try {
-                formData = JSON.parse(draftSaved);
-                if (!formData) {
-                    // draft 파싱 실패 시 서버 데이터 사용
+            if (draftSaved) {
+                // draft가 있으면 draft 사용 (preview에서 돌아온 경우의 임시 수정사항)
+                try {
+                    formData = JSON.parse(draftSaved);
+                    if (!formData) {
+                        formData = null;
+                    }
+                } catch (e) {
                     formData = null;
                 }
-            } catch (e) {
-             
-                formData = null;
             }
         }
 
-        // draft가 없거나 파싱 실패하면 서버 데이터 사용
+        // draft가 없거나 shouldLoadDraft가 false인 경우: 서버 데이터 사용 (DB 데이터)
         if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
             formData = serverData;
         } else if (!formData) {
@@ -1271,25 +1274,25 @@
         var formData = null;
         var isServerData = false;  // serverData 로드 여부 확인
 
-        // draft 우선 확인 (임시저장된 데이터가 있으면 우선 사용)
-        var storageKey = "recruit_draft_" + rcIdx + "_page3";
-        var draftSaved = localStorage.getItem(storageKey);
+        // draft 로드: shouldLoadDraft가 true일 때만 draft를 먼저 확인
+        if (window.shouldLoadDraft) {
+            var storageKey = "recruit_draft_" + rcIdx + "_page3";
+            var draftSaved = localStorage.getItem(storageKey);
 
-        if (draftSaved) {
-            // draft가 있으면 draft 사용
-            try {
-                formData = JSON.parse(draftSaved);
-                if (!formData) {
-                    // draft 파싱 실패 시 서버 데이터 사용
+            if (draftSaved) {
+                // draft가 있으면 draft 사용 (preview에서 돌아온 경우의 임시 수정사항)
+                try {
+                    formData = JSON.parse(draftSaved);
+                    if (!formData) {
+                        formData = null;
+                    }
+                } catch (e) {
                     formData = null;
                 }
-            } catch (e) {
-
-                formData = null;
             }
         }
 
-        // draft가 없거나 파싱 실패하면 서버 데이터 사용
+        // draft가 없거나 shouldLoadDraft가 false인 경우: 서버 데이터 사용 (DB 데이터)
         if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
             formData = serverData;
             isServerData = true;  // serverData를 사용했음을 기록
@@ -1301,6 +1304,13 @@
         try {
 
             if (typeof formData.rc_desc !== "undefined") {
+                // contenteditable div에 복구
+                var rcDescEditor = document.getElementById('rc_desc_editor');
+                if (rcDescEditor) {
+                    rcDescEditor.innerHTML = formData.rc_desc;
+                }
+
+                // hidden input도 복구 (호환성)
                 $("[name='rc_desc']").val(formData.rc_desc);
                 if (typeof autoHeight === 'function') {
                     setTimeout(function() {
@@ -1762,12 +1772,17 @@
 
     // 미리보기 페이지로 이동
     function showPreviewPage(rc_idx) {
-        // 회사정보만 sessionStorage에 저장 (나머지 데이터는 localStorage draft에서 읽음)
+        // 회사정보 저장
         var memInfo = {
             mm_comp_name: '<?= isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "" ?>',
             mm_phone: '<?= isset($mem_info["mm_phone"]) ? $mem_info["mm_phone"] : "" ?>'
         };
         sessionStorage.setItem('previewMemInfo', JSON.stringify(memInfo));
+
+        // 물리적 뒤로가기 대응: sessionStorage에 플래그 설정
+        // 이를 통해 recruit_write1_1.php로 돌아올 때 draft 로드 여부 판단
+        sessionStorage.setItem('from_preview', 'true');
+
         window.location.href = '/recruit/job_post/' + rc_idx + '?preview=1';
     }
 
@@ -1812,13 +1827,25 @@
         // URL 파라미터에서 rc_idx 확인 (preview 모드에서 돌아온 경우)
         var urlParams = new URLSearchParams(window.location.search);
         var queryRcIdx = urlParams.get('rc_idx');
+
+        // Draft 로드 여부 판단: preview에서 돌아온 경우만 draft 로드
+        // 1. URL에 rc_idx가 있거나 (goBackToEdit 버튼에서 온 경우)
+        // 2. sessionStorage에 from_preview 플래그가 있는 경우 (물리적 뒤로가기인 경우)
+        var fromPreviewFlag = sessionStorage.getItem('from_preview') === 'true';
+        window.shouldLoadDraft = (queryRcIdx !== null) || fromPreviewFlag;
+
         if (queryRcIdx) {
             $("[name='rc_idx']").val(queryRcIdx);
             // URL에서 파라미터 제거하여 깔끔하게 정리
             window.history.replaceState({}, document.title, '/compage/recruit_write1_1');
         }
 
-        // 페이지 로드 시 데이터 복원
+        // 플래그 사용 후 제거 (다음 페이지 로드에서 실수로 사용되지 않도록)
+        if (fromPreviewFlag) {
+            sessionStorage.removeItem('from_preview');
+        }
+
+        // 페이지 로드 시 데이터 복원 (draft 로드 여부는 shouldLoadDraft로 제어)
         restorePageData();
 
         // 근무시간 섹션 초기화
@@ -1949,7 +1976,7 @@
         }());
 
         setTimeout(function() {
-            loadPage3Data();
+            // loadPage3Data()는 DOMContentLoaded의 restorePageData()에서 이미 호출됨 (중복 제거)
             syncTimeHiddenFields();
         }, 1000);
 

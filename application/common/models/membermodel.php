@@ -3459,6 +3459,9 @@ class memberModel extends MY_Model
 	function getResumeSearchList2025($params)
 	{
 		$search_addr = isset($params["search_addr"]) && is_array($params["search_addr"]) ? array_map([$this, 'inject'], $params["search_addr"]) : [];
+		//log_message('info', '[getResumeSearchList2025] params: ' . json_encode($params));
+		//log_message('info', '[getResumeSearchList2025] search_addr: ' . json_encode($search_addr));
+		// params: {"pagesize":"5","page":"1","text":"\uacbd\uae30","mm_idx":"4","category":"","work_type":"","week":"","price_type":"","sex":"","sage":"","eage":"","order_by":"recent","search_addr":[],"addrName":"","searchAreaStr":"","ru_work":""}
 
 		//컬럼
 		$cols = [
@@ -3482,7 +3485,7 @@ class memberModel extends MY_Model
 			(
 				select bb.*
 					,COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr
-          ,CONCAT(cc.ad_doro, ' ', cc.ad_jibun) AS s_addr
+          ,CONCAT(cc.ad_doro, ' ', cc.ad_jibun) AS s_addr 
 					,cc.ad_gps_x
 					,cc.ad_gps_y
 					,aa.mm_name
@@ -3541,10 +3544,11 @@ class memberModel extends MY_Model
         (aa.mm_birth <= '{$max_birth}' and aa.mm_birth >= '{$min_birth}')
       )";
 		}
-
+        // array_filter:배열의 각 요소를 하나씩 검사해서, 조건에 맞는(True인) 요소만 남기고 나머지는 제거
 		$all_addr_conditions = array_filter([$addr_condition_aa, $addr_condition_p0, $addr_condition_p1, $addr_condition_p2]);
 		if (!empty($all_addr_conditions)) {
 			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";
+			// where []: 배열에 요소 추가, implode:배열의 요소들을 합쳐서 문자열로 만듦
 		}
 
 		# 검색어

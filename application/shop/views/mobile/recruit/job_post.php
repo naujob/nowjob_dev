@@ -173,11 +173,18 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         var draftData = {};
         var previewMemInfo = {};
         if (isPreview) {
-            // localStorage에서 draft 읽기
-            var draftKey = "recruit_draft_" + rcIdx + "_page1";
-            var stored = localStorage.getItem(draftKey);
-            if (stored) {
-                draftData = JSON.parse(stored);
+            // localStorage에서 draft 읽기 (page1, page2, page3 모두 merge)
+            var page1Key = "recruit_draft_" + rcIdx + "_page1";
+            var page1Stored = localStorage.getItem(page1Key);
+            if (page1Stored) {
+                draftData = JSON.parse(page1Stored);
+            }
+
+            var page3Key = "recruit_draft_" + rcIdx + "_page3";
+            var page3Stored = localStorage.getItem(page3Key);
+            if (page3Stored) {
+                var page3Data = JSON.parse(page3Stored);
+                draftData = Object.assign(draftData, page3Data);
             }
 
             // sessionStorage에서 회사정보 읽기
@@ -205,30 +212,84 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 return;
             }
 
-            // rc_idx로 최종 등록 API 호출
-            var params = "rc_idx=" + rcIdx;
+            // 1단계: draft 데이터를 recruit_write3_1로 먼저 저장 (site_log에 step3 저장)
+            var step3Params = new URLSearchParams();
+            step3Params.append("rc_idx", rcIdx);
+            step3Params.append("rc_desc", draftData.rc_desc || "");
+            step3Params.append("rc_sdate", draftData.rc_sdate || "");
+            step3Params.append("rc_edate", draftData.rc_edate || "");
+            step3Params.append("rc_hash_string", (draftData.rc_hash || []).join(","));
+            step3Params.append("rc_sex_all", draftData.rc_sex_all || "");
+            step3Params.append("rc_nation_all", draftData.rc_nation_all || "");
+            step3Params.append("rc_age_all", draftData.rc_age_all || "");
+            step3Params.append("rc_day_all", draftData.rc_day_all || "");
 
-            // AJAX로 recruit_complete 호출 (모바일 recruit_write1_1.php의 saveStep3AndComplete 참조)
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/compage_proc/recruit_complete', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
+            // 배열 데이터 추가
+            if (Array.isArray(draftData.rc_sex)) {
+                draftData.rc_sex.forEach(function(val) {
+                    step3Params.append("rc_sex[]", val);
+                });
+            }
+            if (Array.isArray(draftData.rc_nation)) {
+                draftData.rc_nation.forEach(function(val) {
+                    step3Params.append("rc_nation[]", val);
+                });
+            }
+            if (Array.isArray(draftData.rc_day)) {
+                draftData.rc_day.forEach(function(val) {
+                    step3Params.append("rc_day[]", val);
+                });
+            }
+
+            step3Params.append("rc_sage", draftData.rc_sage || "");
+            step3Params.append("rc_eage", draftData.rc_eage || "");
+
+            var xhr3 = new XMLHttpRequest();
+            xhr3.open('POST', '/compage_proc/recruit_write3_1', true);
+            xhr3.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr3.onload = function() {
+                if (xhr3.status === 200) {
                     try {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.code === "00") {
-                            // draft 데이터 삭제
-                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
-                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
-                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
-                            localStorage.removeItem("recruit_draft_0_page1");
-                            localStorage.removeItem("recruit_draft_0_page2");
-                            localStorage.removeItem("recruit_draft_0_page3");
+                        var response3 = JSON.parse(xhr3.responseText);
+                        if (response3.code === "00") {
+                            // 2단계: step3 저장 완료 후 recruit_complete 호출
+                            var completeParams = "rc_idx=" + rcIdx;
 
-                            // 채용공고 목록으로 이동
-                            window.location.href = "/compage/recruit_list";
+                            var xhrComplete = new XMLHttpRequest();
+                            xhrComplete.open('POST', '/compage_proc/recruit_complete', true);
+                            xhrComplete.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                            xhrComplete.onload = function() {
+                                if (xhrComplete.status === 200) {
+                                    try {
+                                        var responseComplete = JSON.parse(xhrComplete.responseText);
+                                        if (responseComplete.code === "00") {
+                                            // draft 데이터 삭제
+                                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
+                                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
+                                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
+                                            localStorage.removeItem("recruit_draft_0_page1");
+                                            localStorage.removeItem("recruit_draft_0_page2");
+                                            localStorage.removeItem("recruit_draft_0_page3");
+
+                                            // 채용공고 목록으로 이동
+                                            window.location.href = "/compage/recruit_list";
+                                        } else {
+                                            alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
+                                        }
+                                    } catch (e) {
+                                        alert("응답 처리 중 오류가 발생했습니다.");
+                                        console.error(e);
+                                    }
+                                } else {
+                                    alert("서버 오류가 발생했습니다.");
+                                }
+                            };
+                            xhrComplete.onerror = function() {
+                                alert("네트워크 오류가 발생했습니다.");
+                            };
+                            xhrComplete.send(completeParams);
                         } else {
-                            alert(response.msg || "등록 처리 중 오류가 발생했습니다.");
+                            alert(response3.msg || "단계3 저장 중 오류가 발생했습니다.");
                         }
                     } catch (e) {
                         alert("응답 처리 중 오류가 발생했습니다.");
@@ -238,10 +299,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     alert("서버 오류가 발생했습니다.");
                 }
             };
-            xhr.onerror = function() {
+            xhr3.onerror = function() {
                 alert("네트워크 오류가 발생했습니다.");
             };
-            xhr.send(params);
+            xhr3.send(step3Params.toString());
         }
     </script>
 
@@ -539,7 +600,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <p class="desc-guide">상세요강을 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
                 <div class="desc-clip">
                     <div class="desc" style="width: 100%;">
-                        <p class="desc-content" style="font-size: 1.1rem;"><?= $info["rc_desc"] ?></p><br>
+                        <p class="desc-content" style="font-size: 1.1rem;"><?= nl2br($info["rc_desc"]) ?></p><br>
                         
                     </div>
                 </div>
@@ -1078,6 +1139,16 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                         rows[i].querySelector('.value span').textContent = addrText;
                         break;
                     }
+                }
+            }
+
+            // 상세업무정보 (rc_desc) 업데이트
+            if (draftData.rc_desc) {
+                var descEl = document.querySelector('.view-desc .desc');
+                if (descEl) {
+                    // contenteditable div의 HTML을 그대로 사용 (\n을 <br>로 변환)
+                    var descHtml = draftData.rc_desc.replace(/\n/g, '<br>');
+                    descEl.innerHTML = '<p class="desc-content" style="font-size: 1.1rem;">' + descHtml + '</p><br>';
                 }
             }
 
