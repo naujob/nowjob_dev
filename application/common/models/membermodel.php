@@ -3466,7 +3466,9 @@ class memberModel extends MY_Model
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn",
 			"p0.pm_idx",
 			"p0.reg_dt as pm_reg_dt",
-			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt"
+			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt",
+			"'" . $this->inject($params["addrName"]) . "' as addrName",
+			"'" . $this->inject($params["searchAreaStr"]) . "' as searchAreaStr"
 		];
 
 		# 검색 지역 처리
@@ -3521,19 +3523,7 @@ class memberModel extends MY_Model
 		$where = [];
 		$where[] = 	" and aa.mm_status = 'Y' ";
 
-		# 검색어
-		if ($params["text"] != "") {
-			$where[] = 	" and (
-				aa.mm_name like '%" . $this->inject($params["text"]) . "%' or
-				aa.mm_nation like '%" . $this->inject($params["text"]) . "%' or
-				ru_work like '%" . $this->inject($params["text"]) . "%' or
-				ru_name like '%" . $this->inject($params["text"]) . "%' or
-				ru_addr like '%" . $this->inject($params["text"]) . "%'  or
-				ru_price_type like '%" . $this->inject($params["text"]) . "%' or
-				ru_work_type like '%" . $this->inject($params["text"]) . "%' or
-				ru_my_type like '%" . $this->inject($params["text"]) . "%'
-			)";
-		}
+		# 나이
 
 		# 나이
 		$today = date("Ymd");
@@ -3557,10 +3547,41 @@ class memberModel extends MY_Model
 			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";
 		}
 
+		# 검색어
+		if ($params["text"] != "") {
+			$search_text = $this->inject($params["text"]);
+			$sex_condition = "";
+
+			// 성별 키워드 포함 확인
+			if (strpos($search_text, "여자") !== false || strpos($search_text, "여성") !== false || strpos($search_text, "여") !== false) {
+				$sex_condition = " or aa.mm_sex = '여' ";
+			} elseif (strpos($search_text, "남자") !== false || strpos($search_text, "남성") !== false || strpos($search_text, "남") !== false) {
+				$sex_condition = " or aa.mm_sex = '남' ";
+			}
+
+			$where[] = 	" and (
+				aa.mm_name like '%" . $search_text . "%' or
+				aa.mm_nation like '%" . $search_text . "%' or
+				ru_work like '%" . $search_text . "%' or
+				ru_name like '%" . $search_text . "%' or
+				ru_addr like '%" . $search_text . "%'  or
+				ru_price_type like '%" . $search_text . "%' or
+				ru_work_type like '%" . $search_text . "%' or
+				ru_my_type like '%" . $search_text . "%'
+				" . $sex_condition . "
+			)";
+		}
+
 		# 카테고리
 		if ($params["category"] != "") {
 			$cate_where = $this->getMultiAndAll2025($params["category"], "aa.ru_work");
 			$where[] = $cate_where;
+		}
+
+		# 근무 직종
+		if ($params["ru_work"] != "") {
+			$ru_work_where = $this->getMultiAndAll2025($params["ru_work"], "bb.ru_work");
+			$where[] = $ru_work_where;
 		}
 
 		# 근무유형

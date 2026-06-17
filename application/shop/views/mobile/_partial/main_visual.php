@@ -354,6 +354,10 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     </div>
   </div>
   <script>
+    // ========================================
+    // 1️⃣  유틸리티/헬퍼 함수들
+    // ========================================
+
     // 고급 검색 상태 저장을 위한 고유 키 생성 함수
     function getAdvancedSearchStorageKey() {
       var userId = window.currentUserId || "guest";
@@ -362,149 +366,6 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     }
     window.getAdvancedSearchStorageKey = getAdvancedSearchStorageKey;
 
-    // 지역 선택 버튼 초기화: 선택 상태 확인
-    function initAddrNameButton() {
-      var addrBtn = document.querySelector('.addrName');
-      if (addrBtn) {
-        var text = addrBtn.textContent.trim();
-        // "전체" 또는 빈 값이면 미선택 상태
-        if (text === '전체' || text === '' || text === '지역을 선택해 주세요') {
-          addrBtn.setAttribute('data-selected', 'false');
-        } else {
-          // 지역이 선택되어 있으면 선택 상태
-          addrBtn.setAttribute('data-selected', 'true');
-        }
-      }
-    }
-
-    // 선택된 지역 태그 표시 함수
-    function updateSelectedRegionsTags() {
-      var regionsList = document.getElementById('selected-regions-list');
-      var addrBtn = document.querySelector('.addrName');
-
-      if (!regionsList) return;
-
-      // MutationObserver 일시 중지 (무한 루프 방지)
-      window.skipAddrNameUpdate = true;
-
-      // 먼저 기존 태그 모두 제거
-      regionsList.innerHTML = '';
-
-      // window.selectedRegions 배열을 기반으로 태그 생성 (단일 소스)
-      var regions = window.selectedRegions || [];
-      if (Array.isArray(regions) && regions.length > 0) {
-        regions.forEach(function(region, index) {
-          if (region && region !== '지역을 선택해 주세요') {
-            var tag = document.createElement('div');
-            tag.className = 'region-tag';
-            tag.innerHTML = region;
-
-            // 지역 태그 클릭 시 팝업 열기
-            tag.addEventListener('click', function(e) {
-              e.stopPropagation();
-              var changeAreaBtn = document.querySelector('a.js-toggle-panel[aria-controls="changeArea"]');
-              if (changeAreaBtn) {
-                changeAreaBtn.click();
-              }
-            });
-
-            regionsList.appendChild(tag);
-          }
-        });
-        // 지역 태그가 있으면 data-has-regions을 true로 설정
-        regionsList.setAttribute('data-has-regions', 'true');
-        // 버튼 숨김
-        if (addrBtn) {
-          addrBtn.style.display = 'none';
-        }
-      } else {
-        // 지역 태그가 없으면 data-has-regions을 false로 설정
-        regionsList.setAttribute('data-has-regions', 'false');
-        // 버튼 표시
-        if (addrBtn) {
-          addrBtn.textContent = '지역을 선택해 주세요';
-          addrBtn.style.display = 'inline-block';
-        }
-      }
-
-      // MutationObserver 재개
-      setTimeout(function() {
-        window.skipAddrNameUpdate = false;
-      }, 100);
-    }
-
-    // 페이지 로드 시 및 팝업 닫힐 때 초기화
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        initAddrNameButton();
-        updateSelectedRegionsTags();
-      });
-    } else {
-      initAddrNameButton();
-      updateSelectedRegionsTags();
-    }
-
-    // 팝업 닫힐 때도 상태 확인 (다른 스크립트가 text를 변경했을 수 있음)
-    document.addEventListener('click', function(e) {
-      if (e.target.classList && e.target.classList.contains('js-toggle-panel') &&
-        e.target.getAttribute('aria-controls') === 'changeArea') {
-        // 팝업 닫힐 때 (약 400ms 후) 상태 업데이트
-        setTimeout(function() {
-          initAddrNameButton();
-          // skipAddrNameUpdate가 false인 경우만 갱신 (main_visual 컨텍스트)
-          if (!window.skipAddrNameUpdate) {
-            updateSelectedRegionsTags();
-          }
-        }, 400);
-      }
-    });
-
-    // MutationObserver로 .addrName 텍스트 변경 감지 (skipAddrNameUpdate 플래그로 제어)
-    var addrBtn = document.querySelector('.addrName');
-    if (addrBtn) {
-      var observer = new MutationObserver(function(mutations) {
-        // skipAddrNameUpdate 플래그가 true이면 무시 (팝업 닫기 시 불필요한 동기화 방지)
-        if (!window.skipAddrNameUpdate) {
-          updateSelectedRegionsTags();
-        }
-      });
-      observer.observe(addrBtn, {
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-    }
-
-    // #tab_list 내용 변경 감지하여 border 표시/숨김
-    function updateCategoriesBorder() {
-      var tabList = document.getElementById('tab_list');
-      var categoriesSection = document.querySelector('.search-option .categories');
-      if (!tabList || !categoriesSection) return;
-
-      // tab_list에 filter-tag-item.on이 하나라도 있으면 has-items 클래스 추가, hide-cate 제거
-      if (tabList.querySelector('.filter-tag-item.on')) {
-        categoriesSection.classList.add('has-items');
-        categoriesSection.classList.remove('hide-cate');
-      } else {
-        categoriesSection.classList.remove('has-items');
-        categoriesSection.classList.add('hide-cate');
-      }
-    }
-
-    // 초기 상태 확인
-    updateCategoriesBorder();
-
-    // #tab_list 변경 감지
-    var tabList = document.getElementById('tab_list');
-    if (tabList) {
-      var tabObserver = new MutationObserver(function(mutations) { // #tab_list 내 변경이 감지될 때마다 border 업데이트
-        updateCategoriesBorder();
-      });
-      tabObserver.observe(tabList, {
-        childList: true, // 자식 노드 추가/제거 감지
-        subtree: true // 모든 하위 노드 변경 감지
-      });
-    }
     // 지역 필터 상태 초기화 함수: 지역 관련 전역 상태와 UI를 모두 초기화
     function clearAreaFilterState() {
       // 전역 상태 초기화
@@ -531,6 +392,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       // selected-regions-list 초기화
       updateSelectedRegionsTags();
     }
+
     // 검색 조건 초기화 함수: filterKey에 따라 관련된 폼 컨트롤과 전역 상태를 초기화
     function clearFormControlsByFilterKey(filterKey) {
       var inputNameMap = {
@@ -544,8 +406,8 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       if (inputNameMap[filterKey]) {
         Array.prototype.forEach.call(document.querySelectorAll('input[name="' + inputNameMap[filterKey] + '"]'), function(input) {
           input.checked = false;
-          input.dispatchEvent(new Event('change', { //실제로 사용자가 입력하거나 클릭하지 않아도, 코드로 이벤트를 강제로 실행하여, 다른 스크립트에서 이 이벤트를 감지하고 해당 검색 조건에 맞는 결과를 새로 불러올 수 있도록 함. 예를 들어, 근무형태 필터의 체크박스를 모두 해제하면, change 이벤트가 발생하여, 근무형태 조건이 없는 검색 결과가 새로 로드되는 방식.
-            bubbles: true //이벤트가 상위 요소로 전파되어, 부모 요소에서도 이벤트를 감지
+          input.dispatchEvent(new Event('change', {
+            bubbles: true
           }));
         });
       }
@@ -576,6 +438,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         clearAreaFilterState();
       }
     }
+
     // 검색 조건 초기화 함수: filterKey에 따라 관련된 폼 컨트롤과 전역 상태를 초기화
     function clearSearchArrayByFilterKey(filterKey) {
       if (typeof window.search_array === 'undefined') return;
@@ -589,10 +452,11 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         window.search_array[filterKey] = '';
       }
     }
-    // 지금 클릭한 태그가 어떤 필터인지 알아내는  key 값을 리턴
+
+    // 지금 클릭한 태그가 어떤 필터인지 알아내는 key 값을 리턴
     function inferFilterKeyFromTag(filterTag) {
       var filterKey = filterTag.getAttribute('data-filter-key');
-      if (filterKey) return filterKey;   // ex data-filter-key="work_type"
+      if (filterKey) return filterKey;
 
       var tagItems = filterTag.parentNode ? filterTag.parentNode.querySelectorAll('label.btn-category') : [];
       var tagIndex = Array.prototype.indexOf.call(tagItems, filterTag);
@@ -610,6 +474,7 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 
       return '';
     }
+
     // 현재 검색 조건을 세션 스토리지에 저장하는 함수
     function persistFilterState() {
       if (typeof window.saveSearchStateToStorage === 'function') {
@@ -618,8 +483,103 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         saveSearchStateToStorage();
       }
     }
+
+    // ========================================
+    // 2️⃣  UI 초기화 함수들
+    // ========================================
+
+    // "지역을 선택해주세요" 버튼 초기화
+    function initAddrNameButton() {
+      var addrBtn = document.querySelector('.addrName');
+      if (addrBtn) {
+        var text = addrBtn.textContent.trim();
+        // "전체" 또는 빈 값이면 미선택 상태
+        if (text === '전체' || text === '' || text === '지역을 선택해 주세요') {
+          addrBtn.setAttribute('data-selected', 'false');
+        } else {
+          // 지역이 선택되어 있으면 선택 상태
+          addrBtn.setAttribute('data-selected', 'true');
+        }
+      }
+    }
+
+    // 선택된 지역 태그 표시 함수
+    function updateSelectedRegionsTags() {
+      var regionsList = document.getElementById('selected-regions-list');
+      var addrBtn = document.querySelector('.addrName');
+
+      if (!regionsList) return;
+
+      // MutationObserver 일시 중지 (무한 루프 방지)
+      window.skipAddrNameUpdate = true;
+
+      // 먼저 기존 태그 모두 제거
+      regionsList.innerHTML = '';
+
+      // window.selectedRegions 배열을 기반으로 태그 생성 (단일 소스)
+      var regions = window.selectedRegions || [];
+
+      if (Array.isArray(regions) && regions.length > 0) {
+        regions.forEach(function(region, index) {
+          if (region && region !== '지역을 선택해 주세요') {
+            var tag = document.createElement('div');
+            tag.className = 'region-tag';
+            tag.innerHTML = region;
+
+            // 지역 태그 클릭 시 팝업 열기
+            tag.addEventListener('click', function(e) {
+              e.stopPropagation();
+              var changeAreaBtn = document.querySelector('a.js-toggle-panel[aria-controls="changeArea"]');
+              if (changeAreaBtn) {
+                changeAreaBtn.click();
+              }
+            });
+            regionsList.appendChild(tag);
+          }
+        });
+        // 지역 태그가 있으면 data-has-regions을 true로 설정
+        regionsList.setAttribute('data-has-regions', 'true');
+        // 버튼 숨김
+        if (addrBtn) {
+          addrBtn.style.display = 'none';
+        }
+      } else {
+        // 지역 태그가 없으면 data-has-regions을 false로 설정
+        regionsList.setAttribute('data-has-regions', 'false');
+        // 버튼 표시
+        if (addrBtn) {
+          addrBtn.textContent = '지역을 선택해 주세요';
+          addrBtn.style.display = 'inline-block';
+        }
+      }
+
+      // MutationObserver 재개
+      setTimeout(function() {
+        window.skipAddrNameUpdate = false;
+      }, 100);
+    }
+
+    // #tab_list 내용 변경 감지하여 border 표시/숨김
+    function updateCategoriesBorder() {
+      var tabList = document.getElementById('tab_list');
+      var categoriesSection = document.querySelector('.search-option .categories');
+      if (!tabList || !categoriesSection) return;
+
+      // tab_list에 filter-tag-item.on이 하나라도 있으면 has-items 클래스 추가, hide-cate 제거
+      if (tabList.querySelector('.filter-tag-item.on')) {
+        categoriesSection.classList.add('has-items');
+        categoriesSection.classList.remove('hide-cate');
+      } else {
+        categoriesSection.classList.remove('has-items');
+        categoriesSection.classList.add('hide-cate');
+      }
+    }
+
+    // ========================================
+    // 3️⃣  필터 제거 함수 (초기화 함수 사용)
+    // ========================================
+
     // 필터 태그 제거 함수
-    //필터를 완전히 제거하고 화면을 새로 갱신하는 역할을 담당하는 함수로, 단순히 태그를 지우는 것뿐만 아니라, 관련된 검색 조건도 초기화하고, 검색 결과도 새로 불러오는 등, 태그 제거에 따른 전체적인 상태 관리를 담당하는 함수입니다.
     function removeFilterTag(filterKey) {
       if (!filterKey) return;
 
@@ -641,47 +601,105 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
       }
 
       if (typeof window.updateSelectedRegionsTags === 'function') {
-        window.updateSelectedRegionsTags(); //선택된 지역 태그 ui 업데이트
+        window.updateSelectedRegionsTags();
       }
       if (typeof window.updateSelectedRegionsDisplay === 'function') {
-        window.updateSelectedRegionsDisplay(); //선택된 지역 텍스트 업데이트 (addrName 버튼)
+        window.updateSelectedRegionsDisplay();
       }
 
       if (typeof window.list_page !== 'undefined') {
         window.list_page = 1;
       }
       if (typeof window.list_id !== 'undefined' && window.jQuery) {
-        window.jQuery(window.list_id).html(''); //데이터를 새로 불러오기 전, 기존에 화면에 떠 있던 목록을 초기화
+        window.jQuery(window.list_id).html('');
       }
       if (typeof window.getBoardList === 'function') {
         window.getBoardList('Y');
       } else if (typeof getBoardList === 'function') {
-        getBoardList('Y'); //태그 제거 후 검색 결과를 새로 불러오는 함수 호출 (getBoardList는 recruit/resume 페이지에서 검색 조건에 맞는 게시글 목록을 서버에서 가져와 화면에 렌더링하는 함수)
+        getBoardList('Y');
       }
 
       updateCategoriesBorder();
     }
     window.removeFilterTag = removeFilterTag;
 
+    // ========================================
+    // 4️⃣  초기 상태 설정 (DOMContentLoaded 전)
+     //  페이지가 열리면 현재 데이터에 맞게 화면 설정
+    // ========================================
+
+    // 페이지 로드 시 초기화
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initAddrNameButton();
+        updateSelectedRegionsTags(); // 선택된 지역 태그 초기 표시
+        updateCategoriesBorder();
+      }, { once: true });
+    } else {
+      initAddrNameButton();
+      updateSelectedRegionsTags();
+      updateCategoriesBorder();
+    }
+
+    // ========================================
+    // 5️⃣  이벤트 리스너 등록
+    // ========================================
+
+    // 팝업 닫힐 때 상태 확인
+    document.addEventListener('click', function(e) {
+      if (e.target.classList && e.target.classList.contains('js-toggle-panel') &&
+        e.target.getAttribute('aria-controls') === 'changeArea') {
+        setTimeout(function() {
+          initAddrNameButton();
+          if (!window.skipAddrNameUpdate) {
+            updateSelectedRegionsTags();
+          }
+        }, 400);
+      }
+    });
+
+    // MutationObserver: .addrName 텍스트 변경 감지
+    var addrBtn = document.querySelector('.addrName');
+    if (addrBtn) {
+      var observer = new MutationObserver(function(mutations) {
+        if (!window.skipAddrNameUpdate) {
+          updateSelectedRegionsTags();
+        }
+      });
+      observer.observe(addrBtn, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    }
+
+    // MutationObserver: #tab_list 변경 감지
+    var tabList = document.getElementById('tab_list');
+    if (tabList) {
+      var tabObserver = new MutationObserver(function(mutations) {
+        updateCategoriesBorder();
+      });
+      tabObserver.observe(tabList, {
+        childList: true,
+        subtree: true
+      });
+    }
+
     // 카테고리 필터 태그 클릭 핸들러
     document.addEventListener('click', function(e) {
       var filterTag = e.target.closest ? e.target.closest('label.filter-tag-item.on.btn-category') : null;
-      // 클릭한 요소 또는 상위 요소 중에 .filter-tag-item.on.btn-category가 있는지 확인
       if (!filterTag) return;
 
       e.preventDefault();
       e.stopPropagation();
 
-      removeFilterTag(inferFilterKeyFromTag(filterTag)); //removeFilterTag:태그를 화면에서 지우는 것 뿐만 아니라, 관련된 검색 조건도 초기화하고, 검색 결과도 새로 불러오는 등, 태그 제거에 따른 전체적인 상태 관리를 담당하는 함수
-    }, true); // 캡처 단계에서 처리
+      removeFilterTag(inferFilterKeyFromTag(filterTag));
+    }, true);
 
+    // KeenSlider 초기화
     window.addEventListener('DOMContentLoaded', function() {
       new KeenSlider(".visual-slider .slider-wrap", {
         loop: true,
-        // slides: {
-        //   perView: 1,
-        //   spacing: 12,
-        // },
         defaultAnimation: {
           duration: 2000,
         },
@@ -692,7 +710,6 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
         },
         renderMode: 'custom',
       }, [
-        //  sliderDots,
         addActiveClass,
         function autoplay(slider) {
           sliderAutoplay(slider, 4000, false);

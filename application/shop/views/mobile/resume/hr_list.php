@@ -643,7 +643,7 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
           <p>등록된 정보가 없습니다.</p>
         </div>
         <!-- 페이지네이션 버튼 -->
-        <div id="paginationWrapper" class="pagination-wrapper" style="display:none;">
+        <div id="paginationWrapper" class="pagination-wrapper">
         </div>
       </div>
     </div>
@@ -862,9 +862,17 @@ $tpl_show_mm_idx = true; ?>
 
     if (list_page === 1 && hasInitialData) {
       // 초기 데이터 있음: 렌더링 완료, 페이지네이션과 광고 추가
+      // 광고 제외하고 실제 아이템 개수 계산
+      var adCount = $(list_id).find(".ad-item-adsense").length;
+      var actualItemCount = initialListCount - adCount;
+
       // 서버에서 전달받은 전체 데이터 개수 사용 (PHP: initial_total_count)
       var serverTotal = <?php echo json_encode($initial_total_count); ?>;
-      total_count = (serverTotal && serverTotal > 0) ? serverTotal : initialListCount;
+      if (serverTotal && serverTotal > 0) {
+        total_count = serverTotal;
+      } else {
+        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
+      }
       total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
       renderPagination();
 
@@ -1180,8 +1188,9 @@ $tpl_show_mm_idx = true; ?>
   // 페이지네이션 버튼 렌더링
   function renderPagination() {
     var $wrapper = $("#paginationWrapper");
-    if (total_count === 0) {
-      $wrapper.hide(); // 글이 없으면 페이지네이션 숨김
+    // 데이터가 아예 없을 때만 숨김 (초기 렌더링된 데이터는 존재 가능)
+    if (total_count === 0 && $(list_id).find("li").length === 0) {
+      $wrapper.hide();
       return;
     }
 
@@ -1275,14 +1284,13 @@ $tpl_show_mm_idx = true; ?>
   // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
   window.__addrPopupPageType = 'resume';
 
-  // DOMContentLoaded는 한 번만 실행되도록 플래그 설정
-  var domContentLoadedExecuted = false;
+  // [중복 방지] resume 페이지에서만 한 번만 실행
   window.addEventListener('DOMContentLoaded', function() {
-    // 이미 실행되었다면 중복 실행 방지
-    if (domContentLoadedExecuted) {
+    if (window.__hrListDOMContentLoaded) {
+      console.log('[hr_list.php] 이미 초기화됨 - 중복 실행 방지');
       return;
     }
-    domContentLoadedExecuted = true;
+    window.__hrListDOMContentLoaded = true;
 
     // 스크롤 차단 방지: 초기 진입 시 html/body overflow 해제
     $('html, body').css({
@@ -1329,20 +1337,41 @@ $tpl_show_mm_idx = true; ?>
       searchAreaStr = JSON.stringify(searchArea);
     }
 
-    // 지역 선택 상태를 selectedRegions에 반영
+    // [변경] sessionStorage에서 지역 복원 (resume 페이지별)
     if (!window.selectedRegions || window.selectedRegions.length === 0) {
+      var pageType = 'resume';
+      var storageKey_regions = 'selectedRegions_' + pageType;
+
       var addrNames = [];
-      if ($('.selbtn').length > 0) {
-        $('.selbtn').each(function() {
-          const text = $(this).clone().children().remove().end().text().trim();
-          addrNames.push(text);
-        });
-        window.selectedRegions = addrNames.slice(0, 3);
+      var savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
+
+      console.log('[hr_list.php] sessionStorage에서 지역 복원 시작', {
+        pageType: pageType,
+        storageKey: storageKey_regions,
+        hasSavedRegions: !!savedSelectedRegions,
+        timestamp: new Date().toISOString()
+      });
+
+      if (savedSelectedRegions) {
+        try {
+          window.selectedRegions = JSON.parse(savedSelectedRegions);
+          addrNames = window.selectedRegions.slice(0, 3);
+          console.log('[hr_list.php] sessionStorage에서 복원됨:', {
+            pageType: pageType,
+            selectedRegions: window.selectedRegions
+          });
+        } catch (e) {
+          console.warn('[hr_list.php] sessionStorage 파싱 실패:', e);
+          window.selectedRegions = [];
+        }
       } else {
+        console.log('[hr_list.php] sessionStorage에 저장된 지역 없음 - 신규 세션', { pageType: pageType });
         window.selectedRegions = [];
       }
+
       // UI 동기화
       if (typeof window.updateSelectedRegionsTags === 'function') {
+        console.log('[hr_list.php] updateSelectedRegionsTags() 호출');
         window.updateSelectedRegionsTags();
       }
     }
@@ -1353,15 +1382,14 @@ $tpl_show_mm_idx = true; ?>
       window.initTabUi();
     }
 
-    var params = {
-      cashing_id: "resume_cashing",
-      list_id: list_id,
-      category_list_id: "#tab_list",
-      scroll_obj: $(".page-recruit"),
-      fn_cashing: initCashingData,
-      fn_load: initLoadData,
-    };
-    $.CashingAjax(params); // 캐싱된 페이지 데이터 초기화 및 글 목록 로드
+    // 앱 최초 진입 시에만 초기 데이터 로드 (같은 세션에서는 한 번만)
+    // loadSearchStateFromStorage()가 먼저 실행되도록 약간 지연 (10ms)
+    if (!sessionStorage.getItem('resume_page_initialized')) {
+      sessionStorage.setItem('resume_page_initialized', 'true');
+      setTimeout(function() {
+        initLoadData();
+      }, 10);
+    }
 
     // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
     $(document).on('click', '.content-li, .person-grid-item', function(e) {

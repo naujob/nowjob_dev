@@ -436,6 +436,9 @@ class Recruit_proc extends CI_Controller
 		$addrName = input_post("addrName", "");
 		$searchAreaStr = input_post("searchAreaStr", "");
 
+		// 디버그 로깅
+	
+
 		if (empty($search_addr)) {
 			$search_addr = [];
 		} elseif (!is_array($search_addr)) {

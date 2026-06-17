@@ -181,6 +181,13 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 
   function getBoardListDelay(is_top) {
     setBoardParams();
+
+    console.log('🔎 [PC job_list] getBoardList 호출:', {
+      search_addr: search_addr,
+      addrName: addrName,
+      searchAreaStr: searchAreaStr
+    });
+
     var params = {
       page: list_page,
       "search_addr[]": search_addr,
@@ -204,6 +211,12 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
       crossDomain: true,
       success: function(ret) {
         if (ret.code == "00") {
+          console.log('✅ [PC job_list] API 응답 성공:', {
+            total: ret.data.count,
+            listCount: ret.data.list ? ret.data.list.length : 0,
+            returnedData: ret.data
+          });
+
           $(list_id).attr("data-page", list_page);
           $("#total_count").html(ret.data.count);
           if (ret.data.pagenation && ret.data.pagenation.trim() !== '') {
@@ -212,10 +225,16 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
             $("#page_cont").html('');
           }
           showBoardList(ret.data.list, is_top);
+        } else {
+          console.error('❌ [PC job_list] API 응답 실패:', ret);
         }
       },
       error: function(xhr, status, error) {
-        console.error("데이터 가져오기 오류:", error);
+        console.error('❌ [PC job_list] API 요청 오류:', {
+          status: status,
+          error: error,
+          xhr: xhr
+        });
       }
     });
   }

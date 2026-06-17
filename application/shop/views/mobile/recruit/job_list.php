@@ -802,9 +802,12 @@ $tpl_recomm_class = true; ?>
 
 
 <script>
+  // ========================================
+  // 1️⃣  전역 변수 선언
+  // ========================================
+
   // PHP에서 미리 변환된 주소 데이터 (서버사이드 렌더링)
   var ad_addr = <?= json_encode(removeBigAddr(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""), JSON_UNESCAPED_UNICODE) ?>;
-  //console.log('[주소 변환] 초기 ad_addr:', ad_addr);
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
@@ -812,10 +815,11 @@ $tpl_recomm_class = true; ?>
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
-  var searchStateLoaded = false; // loadSearchStateFromStorage()에서 설정되는 플래그 (중복 호출 방지)
-  var ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 수
-  var total_count = 0; // 전체 아이템 수
-  var total_pages = 1; // 전체 페이지 수
+  var searchStateLoaded = false;
+  var loadDataInitialized = false;
+  var ITEMS_PER_PAGE = 20;
+  var total_count = 0;
+  var total_pages = 1;
   var search_array = {
     category: "",
     work_type: "",
@@ -827,145 +831,50 @@ $tpl_recomm_class = true; ?>
   };
 
   var tab_list = [];
-  tab_list.push({
-    key: "area",
-    df: "근무지역",
-    text: "",
-    active: ""
-  }); //0 - 지역 정보
-  tab_list.push({
-    key: "category",
-    df: "업직종",
-    text: "",
-    active: ""
-  }); //1
-  tab_list.push({
-    key: "work_type",
-    df: "근무형태",
-    text: "",
-    active: ""
-  }); //2
-  tab_list.push({
-    key: "week",
-    df: "근무요일",
-    text: "",
-    active: ""
-  }); //3
-  tab_list.push({
-    key: "price_type",
-    df: "급여형태",
-    text: "",
-    active: ""
-  }); //4
-  tab_list.push({
-    key: "sex",
-    df: "성별",
-    text: "",
-    active: ""
-  }); //5
-  tab_list.push({
-    key: "age",
-    df: "나이",
-    text: "",
-    active: ""
-  }); //6
+  tab_list.push({ key: "area", df: "근무지역", text: "", active: "" }); //0
+  tab_list.push({ key: "category", df: "업직종", text: "", active: "" }); //1
+  tab_list.push({ key: "work_type", df: "근무형태", text: "", active: "" }); //2
+  tab_list.push({ key: "week", df: "근무요일", text: "", active: "" }); //3
+  tab_list.push({ key: "price_type", df: "급여형태", text: "", active: "" }); //4
+  tab_list.push({ key: "sex", df: "성별", text: "", active: "" }); //5
+  tab_list.push({ key: "age", df: "나이", text: "", active: "" }); //6
 
-  $(document).on("click", ".form-checkbox", function(e) {
-    e.stopPropagation();
-  });
+  // ========================================
+  // 2️⃣  URL/페이지 유틸리티 함수들
+  // ========================================
 
-  // URL에서 page 파라미터 읽기
   function getPageFromUrl() {
-    // /job_list?page=6 -> params.get("page") → "6"
-    // parseInt("6") → 6
     var params = new URLSearchParams(window.location.search);
     return parseInt(params.get("page")) || 1;
   }
 
-  // URL에 page 파라미터 반영 (히스토리 push)
-  // 새로고침 없이 URL만 변경
   function pushPageToUrl(page) {
     var params = new URLSearchParams(window.location.search);
     params.set("page", page);
-    history.pushState({
-      page: page
-    }, "", "?" + params.toString());
+    history.pushState({ page: page }, "", "?" + params.toString());
   }
 
-  // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
-  function initCashingData() {
-    console.log('[initCashingData] 호출됨');
-    list_page = getPageFromUrl();
-    getBoardList("");
-  }
-
-  // 초기 데이터 로드 (캐시 테이블에서 서버사이드 렌더링됨)
-  function initLoadData() {
-    console.log('[initLoadData] 호출됨');
-    // URL 파라미터 > sessionStorage > 기본값(1)
-    var urlPage = getPageFromUrl();
-    if (urlPage > 1) {
-      list_page = urlPage;
-    } else {
-      var savedPage = sessionStorage.getItem('recruit_list_page');
-      list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
-    }
-
-    // 초기 데이터가 HTML에 렌더링되어 있는지 확인
-    var initialListCount = $(list_id).find("li").length;
-    var hasInitialData = initialListCount > 0;
-
-    if (list_page === 1 && hasInitialData) {
-      // 페이지 1: 기존 렌더링된 데이터 사용, 페이지네이션 업데이트
-      var adCount = $(list_id).find(".ad-item-adsense").length;
-      var actualItemCount = initialListCount - adCount;
-
-      // 서버에서 전달받은 전체 데이터 개수 사용 (PHP: initial_total_count)
-      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
-      if (serverTotal && serverTotal > 0) {
-        total_count = serverTotal;
-      } else {
-        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
-      }
-      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
-
-      // 광고 삽입
-      if (actualItemCount > 0) {
-        insertAdsenseAd();
-      }
-
-      renderPagination();
-      showEmpty();
-      updateTopSectionsVisibility();
-    } else {
-      // 페이지 2 이상 또는 초기 데이터 없음: AJAX로 로드
-      // searchStateLoaded가 true면 이미 loadSearchStateFromStorage()에서 호출했으므로 스킵
-      if (!searchStateLoaded) {
-        getBoardList("");
-      }
-    }
-
-    // 현재 페이지를 sessionStorage에 저장
-    saveCurrentPage();
-  }
-
-  // 현재 페이지를 sessionStorage에 저장 (상세페이지에서 돌아올 때 복원용)
   function saveCurrentPage() {
     sessionStorage.setItem('recruit_list_page', list_page);
     pushPageToUrl(list_page);
   }
 
-  // 브라우저 뒤로가기/앞으로가기 감지
-  window.addEventListener('popstate', function(e) {
-    // state:{page: 3} 형태로 저장된 페이지 번호를 읽어서 list_page에 반영
-    list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
-    $(list_id).empty(); //list_id:"#ajaxList" 초기화
+  function initCashingData() {
+    // console.log('[initCashingData] 호출됨');
+    list_page = getPageFromUrl();
     getBoardList("");
-  });
-  // 공고 목록 가져오기
+  }
+
+  // ========================================
+  // 3️⃣  데이터 조회 함수들 (AJAX)
+  // ========================================
+
   function getBoardList(save_yn) {
     if (list_loading) return;
-
+     // search_addr: search_addr, ['인천광역시 강화군 강화읍', '인천광역시 동구 송림동']
+    //  addrName: addrName,  "강화읍, 송림동"
+    //  searchAreaStr: searchAreaStr, "[{\"addr\":\"인천광역시 강화군 강화읍\",\"step\":3},{\"addr\":\"인천광역시 동구 송림동\",\"step\":3}]"
+  
     var params = {
       page: list_page,
       limit: ITEMS_PER_PAGE,
@@ -991,7 +900,7 @@ $tpl_recomm_class = true; ?>
         crossDomain: true,
         success: function(ret) {
           if (ret.code === "00") {
-           
+
           }
         },
         error: function(xhr, status, error) {
@@ -1012,17 +921,15 @@ $tpl_recomm_class = true; ?>
       success: function(ret) {
         list_loading = false;
         var ajaxTime = performance.now() - ajaxStartTime;
-      
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
-          $(list_id).empty(); // 매번 초기화
+       
+
+          $(list_id).empty();
           var serverTotal = parseInt(ret.data.total, 10);
           if (isNaN(serverTotal) || serverTotal < 0) {
             serverTotal = 0;
           }
-          // total이 누락된 응답 대응:
-          // 현재 페이지가 limit 만큼 꽉 찼다면 다음 페이지가 있을 가능성이 높으므로
-          // 최소 +1건을 가정해 다음 페이지 버튼이 노출되게 처리
           if (serverTotal > 0) {
             total_count = serverTotal;
           } else {
@@ -1034,158 +941,23 @@ $tpl_recomm_class = true; ?>
           var renderStartTime = performance.now();
           showBoardList(ret.data.list);
           var renderTime = performance.now() - renderStartTime;
-        
 
           renderPagination();
         } else {
-
+          console.error('❌ [job_list] API 응답 실패:', ret);
         }
       },
       error: function(xhr, status, error) {
         list_loading = false;
-
+        console.error('❌ [job_list] API 요청 오류:', {
+          status: status,
+          error: error,
+          xhr: xhr
+        });
       }
     });
   }
 
-  //데이터 보여주기
-  function showBoardList(list) {
-    list.forEach(function(row, index) {
-      var $clone = $("#tpl_list").clone();
-      var $content = $clone.html();
-
-      // 추천 공고 처리
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
-        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
-      }
-
-      // 포맷팅된 데이터 직접 사용 (Controller에서 이미 처리됨)
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-      $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-      $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
-      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
-
-      $clone.html($content);
-      $(list_id).append($clone.html());
-    });
-
-    // 페이지의 마지막에 광고 삽입
-    if (list.length > 0) {
-      insertAdsenseAd();
-    }
-
-    showEmpty();
-    updateTopSectionsVisibility();
-  }
-
-  // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
-  function insertAdsenseAd() {
-    var adStartTime = performance.now();
-  
-
-    // 도메인 환경 판별
-    var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-
-    if (isDevEnv) {
-    
-      // 개발 환경에서는 CSS로만 자리 표시
-      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
-        '광고 자리 (개발 환경)' +
-        '</li>';
-      $(list_id).append(adHtml);
-     
-    } else {
-    
-      // 운영 환경에서 실제 광고 로드
-      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
-        '<div class="adsense-wrapper" style="position: relative;">' +
-        '<ins class="adsbygoogle" style="display:block"' +
-        ' data-ad-format="fluid"' +
-        ' data-ad-layout-key="-hd+j-2v-68+mb"' +
-        ' data-ad-client="ca-pub-7573726661605583"' +
-        ' data-ad-slot="9872127954"></ins>' +
-        '</div>' +
-        '</li>';
-      $(list_id).append(adHtml);
-     
-
-      // 비동기로 광고 로드 (setTimeout 사용)
-      setTimeout(function() {
-        var pushStartTime = performance.now();
-        try {
-       
-          (adsbygoogle = window.adsbygoogle || []).push({});
-          var pushTime = performance.now() - pushStartTime;
-        
-        } catch (e) {
-        
-        }
-      }, 0); // 비동기 로드 (즉시)
-    }
-  }
-
-  function showEmpty() {
-    if ($(list_id).find("li").length == 0) {
-      $(list_empty_id).show();
-      $(list_id).hide();
-    } else {
-      $(list_id).show();
-      $(list_empty_id).hide();
-    }
-  }
-
-  // 페이지네이션 버튼 렌더링
-  function renderPagination() {
-    var $wrapper = $("#paginationWrapper");
-    if (total_count === 0 && $(list_id).find("li").length === 0) {
-      $wrapper.hide();
-      return;
-    }
-
-    var html = '';
-    // 이전 버튼
-    html += '<button onclick="goPage(' + (list_page - 1) + ')"' +
-      (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
-
-    // 페이지 번호 (최대 5개 표시, 현재 페이지 중심)
-    var startPage = Math.max(1, list_page - 2);
-    var endPage = Math.min(total_pages, startPage + 4);
-    startPage = Math.max(1, endPage - 4);
-
-    for (var i = startPage; i <= endPage; i++) {
-      html += '<button onclick="goPage(' + i + ')"' +
-        (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
-    }
-
-    // 다음 버튼
-    html += '<button onclick="goPage(' + (list_page + 1) + ')"' +
-      (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
-
-    $wrapper.html(html).show();
-  }
-
-  // 페이지 이동 함수
-  function goPage(page) {
-    if (page < 1 || page > total_pages) return;
-    list_page = page;
-    saveCurrentPage(); // 현재 페이지를 저장 (pushPageToUrl 포함)
-    $(list_id).empty();
-    $("html, body").animate({
-      scrollTop: 0
-    }, 200);
-    getBoardList("");
-    updateTopSectionsVisibility();
-  }
-
-  // 추천공고 데이터 로딩
   function getRecruitRecoList() {
     var params = {
       "addr1": "",
@@ -1198,15 +970,13 @@ $tpl_recomm_class = true; ?>
       if (ret.code == "00") {
         var list = ret.data.list;
         $(".section.index_comp .result-list").html("");
-      
 
         list.forEach(function(row) {
-          //[주소 변환] 추천공고 ad_addr: 음성군 소석리
           var $clone = $("#tpl_list").clone();
           var $content = $clone.html();
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ad_addr}}", row.ad_addr); // 서버에서 이미 변환됨
+          $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
           var rc_name = row.rc_name;
           if (rc_name && rc_name.length > 18) {
             rc_name = rc_name.substring(0, 18) + '...';
@@ -1230,7 +1000,339 @@ $tpl_recomm_class = true; ?>
     });
   }
 
-  // 이력서 작성 버튼 클릭 이벤트 (공통 팝업 호출)
+  // ========================================
+  // 4️⃣  UI 렌더링 함수들
+  // ========================================
+
+  function showBoardList(list) {
+    list.forEach(function(row, index) {
+      var $clone = $("#tpl_list").clone();
+      var $content = $clone.html();
+
+      if (row.pm_idx == null) {
+        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
+        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
+      }
+
+      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
+      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
+      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
+      $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
+      $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
+      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
+      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
+      $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
+      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
+      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
+
+      $clone.html($content);
+      $(list_id).append($clone.html());
+    });
+
+    if (list.length > 0) {
+      insertAdsenseAd();
+    }
+
+    showEmpty();
+    updateTopSectionsVisibility();
+  }
+
+  function insertAdsenseAd() {
+    var adStartTime = performance.now();
+
+    var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+
+    if (isDevEnv) {
+      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">광고 자리 (개발 환경)</li>';
+      $(list_id).append(adHtml);
+    } else {
+      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
+        '<div class="adsense-wrapper" style="position: relative;">' +
+        '<ins class="adsbygoogle" style="display:block"' +
+        ' data-ad-format="fluid"' +
+        ' data-ad-layout-key="-hd+j-2v-68+mb"' +
+        ' data-ad-client="ca-pub-7573726661605583"' +
+        ' data-ad-slot="9872127954"></ins>' +
+        '</div>' +
+        '</li>';
+      $(list_id).append(adHtml);
+
+      setTimeout(function() {
+        var pushStartTime = performance.now();
+        try {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+          var pushTime = performance.now() - pushStartTime;
+        } catch (e) {
+        }
+      }, 0);
+    }
+  }
+
+  function showEmpty() {
+    if ($(list_id).find("li").length == 0) {
+      $(list_empty_id).show();
+      $(list_id).hide();
+    } else {
+      $(list_id).show();
+      $(list_empty_id).hide();
+    }
+  }
+
+  function renderPagination() {
+    var $wrapper = $("#paginationWrapper");
+    if (total_count === 0 && $(list_id).find("li").length === 0) {
+      $wrapper.hide();
+      return;
+    }
+
+    var html = '';
+    html += '<button onclick="goPage(' + (list_page - 1) + ')"' +
+      (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
+
+    var startPage = Math.max(1, list_page - 2);
+    var endPage = Math.min(total_pages, startPage + 4);
+    startPage = Math.max(1, endPage - 4);
+
+    for (var i = startPage; i <= endPage; i++) {
+      html += '<button onclick="goPage(' + i + ')"' +
+        (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
+    }
+
+    html += '<button onclick="goPage(' + (list_page + 1) + ')"' +
+      (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
+
+    $wrapper.html(html).show();
+  }
+
+  function goPage(page) {
+    if (page < 1 || page > total_pages) return;
+    list_page = page;
+    saveCurrentPage();
+    $(list_id).empty();
+    $("html, body").animate({
+      scrollTop: 0
+    }, 200);
+    getBoardList("");
+    updateTopSectionsVisibility();
+  }
+
+  function updateTopSectionsVisibility() {
+    var isFirstPage = (list_page <= 1);
+    $('.main-visual').toggle(isFirstPage);
+    $('#hotListSection').toggle(isFirstPage);
+  }
+
+  // ========================================
+  // 5️⃣  초기화 함수들
+  // ========================================
+
+  function initLoadData() {
+    if (loadDataInitialized) {
+      return;
+    }
+    loadDataInitialized = true;
+
+   
+    var urlPage = getPageFromUrl();
+    if (urlPage > 1) {
+      list_page = urlPage;
+    } else {
+      var savedPage = sessionStorage.getItem('recruit_list_page');
+      list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
+    }
+
+    var initialListCount = $(list_id).find("li").length;
+    var hasInitialData = initialListCount > 0;
+
+    if (list_page === 1 && hasInitialData) {
+      var adCount = $(list_id).find(".ad-item-adsense").length;
+      var actualItemCount = initialListCount - adCount;
+
+      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
+      if (serverTotal && serverTotal > 0) {
+        total_count = serverTotal;
+      } else {
+        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
+      }
+      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
+
+      if (actualItemCount > 0) {
+        insertAdsenseAd();
+      }
+
+      renderPagination();
+      showEmpty();
+      updateTopSectionsVisibility();
+    } else {
+      if (!searchStateLoaded) {
+        getBoardList("");
+      }
+    }
+
+    saveCurrentPage();
+  }
+
+  function initHotSlider() {
+    var hotSlider = document.querySelector('.hot-list .slider-wrap');
+    if (hotSlider && typeof KeenSlider !== 'undefined') {
+      if (!hotSlider.__keenslider__) {
+        var slides = hotSlider.querySelectorAll('.keen-slider__slide');
+        var actualSlideCount = slides.length;
+        if (slides.length > 0 && slides.length < 4) {
+          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
+          var added = slides.length;
+          var imageSrcMap = {};
+          slides.forEach(function(slide, idx) {
+            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
+              imageSrcMap[idx + '-' + imgIdx] = img.src;
+            });
+          });
+          while (added < cloneCount) {
+            slides.forEach(function(slide, slideIdx) {
+              if (added < cloneCount) {
+                var cloned = slide.cloneNode(true);
+                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
+                  var srcKey = slideIdx + '-' + imgIdx;
+                  if (imageSrcMap[srcKey]) img.src = imageSrcMap[srcKey];
+                  if (img.classList.contains('lozad')) {
+                    if (img.getAttribute('data-src') && !img.src) img.src = img.getAttribute('data-src');
+                    img.setAttribute('data-loaded', 'true');
+                  }
+                });
+                hotSlider.appendChild(cloned);
+                added++;
+              }
+            });
+          }
+        }
+
+        var keenSlider = new KeenSlider(hotSlider, {
+          loop: true,
+          slides: {
+            perView: 1.1,
+            spacing: 12
+          },
+          drag: true,
+          dragMinDist: 0,
+          rubberband: true,
+          renderMode: 'precision'
+        });
+
+        var dotsContainer = document.getElementById('hotSliderDots');
+        if (dotsContainer && actualSlideCount > 1) {
+          for (var i = 0; i < actualSlideCount; i++) {
+            var dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('data-index', i);
+            (function(index) {
+              dot.addEventListener('click', function(e) {
+                e.stopPropagation();
+                keenSlider.moveToSlide(index);
+              });
+            })(i);
+            dotsContainer.appendChild(dot);
+          }
+
+          keenSlider.on('slideChanged', function() {
+            var currentIdx = ((keenSlider.track.details.abs % actualSlideCount) + actualSlideCount) % actualSlideCount;
+            var dots = dotsContainer.querySelectorAll('.dot');
+            dots.forEach(function(d) {
+              d.classList.remove('active');
+            });
+            if (dots[currentIdx]) {
+              dots[currentIdx].classList.add('active');
+            }
+          });
+        }
+      }
+    }
+  }
+
+  function attemptRestoreScroll() {
+    if (typeof forceRestoreBodyScroll === 'function') {
+      forceRestoreBodyScroll();
+    } else if (typeof restoreBodyScroll === 'function') {
+      restoreBodyScroll();
+    } else {
+      const b = document.body;
+      const h = document.documentElement;
+      const propsToRemove = ['position', 'top', 'left', 'right', 'overflow', 'width', 'height'];
+
+      if (b) {
+        propsToRemove.forEach(p => {
+          if (b.style.getPropertyValue(p)) {
+            b.style.removeProperty(p);
+          }
+        });
+        b.classList.remove('no-scroll');
+      }
+
+      if (h) {
+        propsToRemove.forEach(p => {
+          if (h.style.getPropertyValue(p)) {
+            h.style.removeProperty(p);
+          }
+        });
+      }
+
+      const shouldForceOverflow = (b && (b.classList.contains('no-scroll') ||
+          b.style.position === 'fixed' ||
+          getComputedStyle(b).overflow === 'hidden')) ||
+        (h && getComputedStyle(h).overflow === 'hidden');
+
+      if (shouldForceOverflow) {
+        $("body").css({
+          "overflow": "auto",
+          "overflow-y": "auto",
+          "-webkit-overflow-scrolling": "touch"
+        }).removeClass('no-scroll');
+        $("html").css({
+          "overflow": "auto",
+          "overflow-y": "auto"
+        });
+      }
+
+      ['.page-recruit', '.page-content', '#app'].forEach(selector => {
+        const $container = $(selector);
+        if ($container.length && $container.css('overflow') !== 'hidden') {
+          $container.css('-webkit-overflow-scrolling', 'touch');
+        }
+      });
+    }
+  }
+
+  // ========================================
+  // 6️⃣  이벤트 리스너 등록
+  // ========================================
+
+  // 브라우저 뒤로가기/앞으로가기 감지
+  window.addEventListener('popstate', function(e) {
+    list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
+    $(list_id).empty();
+    getBoardList("");
+  });
+
+  // 폼 체크박스 클릭 이벤트
+  $(document).on("click", ".form-checkbox", function(e) {
+    e.stopPropagation();
+  });
+
+  // 공고 카드 클릭 이벤트
+  $(document).on('click', '.content-li', function(e) {
+    if ($(e.target).closest('button, a, input').length) {
+      return;
+    }
+    if ($(e.target).closest('.ad-item-adsense').length) {
+      return;
+    }
+    var rcIdx = $(this).data('rc_idx');
+    if (rcIdx) {
+      window.location.href = '/recruit/job_post/' + rcIdx;
+    }
+  });
+
+  // 이력서 작성 버튼 클릭 이벤트
   $("#btnResumeList").click(function(e) {
     e.preventDefault();
     if (typeof window.openResumeNavigationPopup === 'function') {
@@ -1239,6 +1341,192 @@ $tpl_recomm_class = true; ?>
       commonAlert("이력서 이동 팝업을 불러올 수 없습니다. 잠시 후 다시 시도해주세요.", function() {});
     }
   });
+
+  // ========================================
+  // 7️⃣  페이지 로드 시 초기화 (DOMContentLoaded)
+  // ========================================
+
+  window.addEventListener('DOMContentLoaded', function() {
+    if (window.__jobListDOMContentLoaded) {
+    //  console.log('[job_list.php] 이미 초기화됨 - 중복 실행 방지');
+      return;
+    }
+    window.__jobListDOMContentLoaded = true;
+
+    $('html, body').css({ // 스크롤 강제 활성화 (모바일 웹뷰에서 overflow:hidden 잔존 대응)
+      overflow: 'auto',
+      'overflow-y': 'auto',
+      height: 'auto'
+    });
+
+    var pageType = 'recruit';
+    var storageKey_regions = 'selectedRegions_' + pageType;
+    var storageKey_area = 'searchAreaStr_' + pageType;
+
+ //   console.log('[job_list.php] sessionStorage에서 지역 복원 시작:')
+
+    var addrNames = [];
+    var searchArea = [];
+    var savedSelectedRegions = sessionStorage.getItem(storageKey_regions); // 다른 페이지에서 선택한 지역 정보가 저장되어 있는지 확인
+    var savedSearchAreaStr = sessionStorage.getItem(storageKey_area); // 다른 페이지에서 선택한 지역 이름 정보가 저장되어 있는지 확인
+
+    // savedSelectedRegions:"[{\"addr\":\"인천광역시 강화군 강화읍\",\"step\":3},{\"addr\":\"인천광역시 동구 송림동\",\"step\":3}]"
+   // savedSearchAreaStr: "[\"강화읍\",\"송림동\"]"
+  
+
+    if (savedSelectedRegions) {
+      try {
+        window.selectedRegions = JSON.parse(savedSelectedRegions);
+        addrNames = window.selectedRegions.slice(0, 3);
+        //addrNames:['강화읍', '송림동']
+      } catch (e) {
+ 
+        window.selectedRegions = [];
+      }
+    } else {
+    
+      window.selectedRegions = [];
+    }
+
+    if (savedSearchAreaStr) {
+      try {
+        searchArea = JSON.parse(savedSearchAreaStr);
+      } catch (e) {
+    
+        searchArea = [];
+      }
+    }
+
+    if (addrNames.length > 0) {
+      addrName = addrNames.join(', ');
+      $('.addrName').text(addrName).attr('data-selected', 'true');
+     // console.log('[job_list.php] addrName 설정:', addrName);
+    } else {
+      addrName = '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', 'false');
+    }
+
+    search_addr = [];
+    searchArea.forEach(function(area) {
+      if (area && area.addr) {
+        search_addr.push(area.addr);
+      }
+    });
+    searchAreaStr = JSON.stringify(searchArea);
+
+    if (typeof selectedRegions === 'undefined') {
+      window.selectedRegions = addrNames.slice(0, 3);
+    }
+
+  
+    if (typeof window.updateSelectedRegionsTags === 'function') {
+  
+      window.updateSelectedRegionsTags();
+    }
+
+    initCategory();
+    initTabUi();
+    getRecruitRecoList();
+
+    if (!sessionStorage.getItem('recruit_page_initialized')) {
+      sessionStorage.setItem('recruit_page_initialized', 'true');
+      setTimeout(function() {
+        initLoadData();
+      }, 10);
+    }
+
+    $(document).on('click', '.content-li', function(e) {
+      saveCurrentPage();
+    });
+
+    attemptRestoreScroll();
+    setTimeout(attemptRestoreScroll, 50);
+    setTimeout(attemptRestoreScroll, 200);
+
+    initHotSlider();
+  });
+
+  // ========================================
+  // 8️⃣  기타 헬퍼 함수들
+  // ========================================
+
+  // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
+  window.onChangeAreaApply = function() {
+    $(".search-option").addClass("hide-cate");
+    if (typeof saveSearchStateToStorage === "function") {
+      saveSearchStateToStorage();
+    }
+  };
+
+  // 스와이프 뒤로가기 비활성화
+  window.DISABLE_SWIPE_BACK = true;
+
+  // Android 뒤로가기 패널 상태 관리
+  window.isAdvancedSearchOpen = function() {
+    return $('#advancedSearch').hasClass('on');
+  };
+
+  window.isChangeAreaOpen = function() {
+    return $('#changeArea').hasClass('on');
+  };
+
+  // 패널 닫힐 때 공통 body 스타일 복원 함수
+  window.restorePanelClosedState = function() {
+    $('body, html').css({
+      'overflow': 'auto',
+      'overflow-y': 'auto',
+      'position': 'relative',
+      'top': 'auto',
+      'left': 'auto',
+      'right': 'auto',
+      'width': 'auto',
+      'height': 'auto'
+    }).removeClass('no-scroll panel-open');
+
+    var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
+    if (!hasOtherOpenPanel) {
+      $('body').removeClass('panel-open');
+    }
+
+    if (typeof forceRestoreBodyScroll === 'function') {
+      forceRestoreBodyScroll();
+    } else if (typeof restoreBodyScroll === 'function') {
+      restoreBodyScroll();
+    }
+  };
+
+  // Android에서 호출할 함수: 패널 닫기
+  window.handleAndroidBack = function() {
+    if (window.isChangeAreaOpen()) {
+      $('#changeArea').removeClass('on');
+
+      if (window.isAdvancedSearchOpen()) {
+        $('body, html').css({
+          'overflow': 'auto',
+          'overflow-y': 'auto',
+          'position': 'relative',
+          'top': 'auto',
+          'left': 'auto',
+          'right': 'auto',
+          'width': 'auto',
+          'height': 'auto'
+        }).removeClass('no-scroll');
+      } else {
+        window.restorePanelClosedState();
+      }
+      return;
+    }
+
+    if (window.isAdvancedSearchOpen()) {
+      $('#advancedSearch').removeClass('on');
+      window.restorePanelClosedState();
+      return;
+    }
+
+    if (window.history && window.history.length > 1) {
+      window.history.back();
+    }
+  };
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/recruit/index_search.php'); ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
@@ -1247,6 +1535,13 @@ $tpl_recomm_class = true; ?>
   window.__addrPopupPageType = 'recruit';
 
   window.addEventListener('DOMContentLoaded', function() {
+    // [중복 방지] recruit 페이지에서만 한 번만 실행
+    if (window.__jobListDOMContentLoaded) {
+    
+      return;
+    }
+    window.__jobListDOMContentLoaded = true;
+
     // 스크롤 강제 활성화 (모바일 웹뷰에서 overflow:hidden 잔존 대응)
     $('html, body').css({
       overflow: 'auto',
@@ -1254,49 +1549,69 @@ $tpl_recomm_class = true; ?>
       height: 'auto'
     });
 
-    const count = $('.selbtn').length;
-    var addrNames = [];
+    // [변경] sessionStorage에서 선택된 지역 복원 (recruit 페이지별)
+    var pageType = 'recruit';
+    var storageKey_regions = 'selectedRegions_' + pageType;
+    var storageKey_area = 'searchAreaStr_' + pageType;
 
-    if ($('.selbtn').length > 0) {
-      $('.selbtn').each(function() {
-        const text = $(this).clone().children().remove().end().text().trim();
-        addrNames.push(text);
-      });
+   
+
+    var addrNames = [];
+    var searchArea = [];
+    var savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
+    var savedSearchAreaStr = sessionStorage.getItem(storageKey_area);
+
+    if (savedSelectedRegions) {
+      try {
+        window.selectedRegions = JSON.parse(savedSelectedRegions);
+        addrNames = window.selectedRegions.slice(0, 3);
+   
+      } catch (e) {
+        console.warn('[job_list.php] sessionStorage 파싱 실패:', e);
+        window.selectedRegions = [];
+      }
+    } else {
+     
+      window.selectedRegions = [];
+    }
+
+    if (savedSearchAreaStr) {
+      try {
+        searchArea = JSON.parse(savedSearchAreaStr);
+      } catch (e) {
+      
+        searchArea = [];
+      }
+    }
+
+    // addrName 설정
+    if (addrNames.length > 0) {
       addrName = addrNames.join(', ');
       $('.addrName').text(addrName).attr('data-selected', 'true');
+    
     } else {
       addrName = '지역을 선택해 주세요';
       $('.addrName').text(addrName).attr('data-selected', 'false');
     }
 
-    const searchArea = [];
     search_addr = [];
-
-    $('.selbtn').each(function() {
-      const addr = $(this).data('addr');
-      const step = $(this).data('step');
-      if (addr) {
-        searchArea.push({
-          addr: addr,
-          step: step
-        });
-        search_addr.push(addr);
+    searchArea.forEach(function(area) {
+      if (area && area.addr) {
+        search_addr.push(area.addr);
       }
     });
     searchAreaStr = JSON.stringify(searchArea);
 
-    // 페이지 로드 시 선택된 지역 정보를 selectedRegions에 반영
+    // window.selectedRegions 동기화
     if (typeof selectedRegions === 'undefined') {
-      window.selectedRegions = [];
-    }
-    if (addrNames.length > 0) {
-      window.selectedRegions = addrNames.slice(0, 3); // 최대 3개까지만
-    } else {
-      window.selectedRegions = [];
+      window.selectedRegions = addrNames.slice(0, 3);
     }
 
-    // window.selectedRegions 설정 후 UI 동기화
+
+
+    // UI 동기화
     if (typeof window.updateSelectedRegionsTags === 'function') {
+  
       window.updateSelectedRegionsTags();
     }
 
@@ -1305,15 +1620,14 @@ $tpl_recomm_class = true; ?>
 
     getRecruitRecoList();
 
-    var params = {
-      cashing_id: "recruit_cashing",
-      list_id: list_id,
-      category_list_id: "#tab_list",
-      scroll_obj: $(".page-recruit"),
-      fn_cashing: initCashingData,
-      fn_load: initLoadData,
-    };
-    $.CashingAjax(params);
+    // 앱 최초 진입 시에만 초기 데이터 로드 (같은 세션에서는 한 번만)
+    // loadSearchStateFromStorage()가 먼저 실행되도록 약간 지연 (10ms)
+    if (!sessionStorage.getItem('recruit_page_initialized')) {
+      sessionStorage.setItem('recruit_page_initialized', 'true');
+      setTimeout(function() {
+        initLoadData();
+      }, 10);
+    }
 
     // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
     $(document).on('click', '.content-li', function(e) {

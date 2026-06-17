@@ -2299,17 +2299,17 @@
                 <div class="form-row">
                   <p class="form-label">상세업무</p>
                   <div class="value desc-value">
-                    <!-- 사진 업로드 버튼 -->
-                    <div style="margin-bottom: 10px;">
-                      <button type="button" id="uploadPhotoBtn" style="padding: 8px 16px; background-color: #31A182; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-regular fa-image" style="font-size: 16px;"></i> 사진 추가</button>
-                      <input type="file" id="photoFileInput" accept="image/*" style="display:none;">
-                    </div>
+                   
 
                     <label>
                       <span class="sr-text">상세업무정보 입력</span>
                       <textarea id="rc_desc" name="rc_desc" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
                     </label>
-                    
+                     <!-- 사진 업로드 버튼 -->
+                    <div>
+                      <button type="button" id="uploadPhotoBtn" style="padding: 8px 16px; background-color: #31A182; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-regular fa-image" style="font-size: 16px;"></i> 사진 추가</button>
+                      <input type="file" id="photoFileInput" accept="image/*" style="display:none;">
+                    </div>
                   </div>
                 </div>
 

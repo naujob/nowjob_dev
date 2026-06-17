@@ -481,7 +481,7 @@
                   <li data-step="1" data-addr="광주광역시" class="selectable"><span class="text">광주</span></li>
                   <li data-step="1" data-addr="전라남도" class="selectable"><span class="text">전남</span></li>
                   <li data-step="1" data-addr="전북특별자치도" class="selectable"><span class="text">전북</span></li>
-                  <li data-step="1" data-addr="제주도" class="selectable"><span class="text">제주</span></li>
+                  <li data-step="1" data-addr="제주특별자치도" class="selectable"><span class="text">제주</span></li>
                 </ul>
               </div>
               <div class="addr_dept2">
@@ -498,31 +498,12 @@
           </div>
 
           <div class="addr_list_sel_box">
-            <?php
-            $area_list_json = isset($search_txt["searchAreaStr"]) ? $search_txt["searchAreaStr"] : '[]';
-            $addr_name_list_str = isset($search_txt["addrName"]) ? $search_txt["addrName"] : '';
-
-            $area_list = json_decode($area_list_json, true);
-            $addr_names = array_map('trim', explode(',', $addr_name_list_str));
-            $area_count = is_array($area_list) ? count($area_list) : 0;
-            ?>
+            <!-- [변경] PHP 렌더링 제거 - JavaScript에서 sessionStorage로 복원 -->
             <div class="div1">
-              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt"><?= $area_count; ?></span><span class="div1desc">(최대 3개)</span>
+              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt">0</span><span class="div1desc">(최대 2개)</span>
             </div>
             <div class="div2">
-              <?php if (is_array($area_list)): ?>
-                <?php foreach ($area_list as $i => $area): ?>
-                  <?php
-                  $addr_full = $area['addr'];
-                  $step = $area['step'];
-                  $addr_short = isset($addr_names[$i]) ? $addr_names[$i] : '';
-                  ?>
-                  <div class="selbtn" data-step="<?= htmlspecialchars($step) ?>" data-addr="<?= htmlspecialchars($addr_full) ?>">
-                    <?= htmlspecialchars($addr_short) ?>
-                    <div class="selbtnclose">x</div>
-                  </div>
-                <?php endforeach; ?>
-              <?php endif; ?>
+              <!-- JavaScript에서 sessionStorage의 데이터로 .selbtn 요소를 동적으로 생성 -->
             </div>
             <div class="div3">
               <div class="addr_sel_init">초기화</div>
@@ -540,36 +521,50 @@
           const $targetContainers = $('.search_addr, .addr_dept1, .addr_dept2, .addr_dept3');
           let debounceTimer = null;
 
-          // 페이지 로드 시 localStorage에서 선택된 지역 복원
+          // [변경] sessionStorage에서 선택된 지역 복원 (페이지별 구분)
           function restoreSelectedRegionsToDiv2() {
-            const userId = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
-            const pageType = (typeof window.__addrPopupPageType !== 'undefined') ? window.__addrPopupPageType : 'recruit';
-            const storageKey = 'jobListAdvancedSearch_' + pageType + '_' + userId;
-            const searchAreaStr = localStorage.getItem(storageKey);
+            var pageType = window.__addrPopupPageType || 'default';
+            var storageKey_regions = 'selectedRegions_' + pageType;
+            var storageKey_area = 'searchAreaStr_' + pageType;
+            var storageKey_name = 'addrName_' + pageType;
+
+            console.log('🔍 [addr_popup] sessionStorage에서 복원 시작:', {
+              pageType: pageType,
+              storageKeys: {
+                selectedRegions: storageKey_regions,
+                searchAreaStr: storageKey_area,
+                addrName: storageKey_name
+              }
+            });
 
             const $div2 = $('.div2');
 
-            // 항상 .div2를 초기화 (PHP 렌더링된 항목 제거)
+            // 항상 .div2를 초기화
             $div2.find('.selbtn').remove();
 
-            // sessionStorage가 있으면 복원
-            if (searchAreaStr) {
-              try {
-                const state = JSON.parse(searchAreaStr);
-                if (!state.searchAreaStr || !state.addrName) {
-                  updateSelectedCount();
-                  return;
-                }
+            // sessionStorage에서 복원 (페이지별 키 사용)
+            const savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
+            const savedSearchAreaStr = sessionStorage.getItem(storageKey_area);
+            const savedAddrName = sessionStorage.getItem(storageKey_name);
 
-                const searchArea = JSON.parse(state.searchAreaStr);
-                const addrNames = state.addrName.split(', ');
+            if (savedSelectedRegions && savedSearchAreaStr) {
+              try {
+                const selectedRegions = JSON.parse(savedSelectedRegions);
+                const searchArea = JSON.parse(savedSearchAreaStr);
+
+                console.log('✅ [addr_popup] sessionStorage에서 복원 성공:', {
+                  pageType: pageType,
+                  selectedRegions: selectedRegions,
+                  searchArea: searchArea,
+                  addrName: savedAddrName
+                });
 
                 searchArea.forEach((area, index) => {
                   const $selbtn = $('<div>')
                     .addClass('selbtn')
                     .attr('data-step', area.step)
                     .attr('data-addr', area.addr)
-                    .text(addrNames[index])
+                    .text(selectedRegions[index] || '')
                     .append(
                       $('<div>').addClass('selbtnclose').text('x')
                     );
@@ -578,9 +573,11 @@
 
                 updateSelectedCount();
               } catch (e) {
-                // 복원 실패 무시
+                console.warn('⚠️ [addr_popup] sessionStorage 파싱 실패:', e);
+                updateSelectedCount();
               }
             } else {
+              console.log('📌 [addr_popup] sessionStorage에 저장된 데이터 없음');
               updateSelectedCount();
             }
           }
@@ -764,7 +761,7 @@
 
               const projectedCount = currentCount + (alreadyExists ? 0 : 1) - removeCount;
 
-              if (projectedCount > 3) {
+              if (projectedCount > 2) {
                 $clickedLi.removeClass('addr_on');
                 return;
               }
@@ -989,18 +986,25 @@
             });
           }
 
-          $(document).on('click', '.addr_sel_init', function() {
-            // 초기화 전 현재 선택 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
-            window.backupSelectedRegions = window.selectedRegions ? window.selectedRegions.slice() : [];
-            window.backupSearchArea = [];
-            $('.selbtn').each(function() {
-              window.backupSearchArea.push({
-                addr: $(this).data('addr'),
-                step: $(this).data('step')
-              });
-            });
+          // [중복 방지] addr_popup의 모든 이벤트 핸들러는 한 번만 등록
+          if (!window.__addrPopupEventsRegistered) {
+            window.__addrPopupEventsRegistered = true;
 
-            // UI에서만 초기화 (sessionStorage는 유지)
+            $(document).on('click', '.addr_sel_init', function() {
+              var pageType = window.__addrPopupPageType || 'default';
+              console.log('📌 [addr_popup] 초기화 버튼 클릭 - 페이지:', pageType);
+
+              // 초기화 전 현재 선택 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
+              window.backupSelectedRegions = window.selectedRegions ? window.selectedRegions.slice() : [];
+              window.backupSearchArea = [];
+              $('.selbtn').each(function() {
+                window.backupSearchArea.push({
+                  addr: $(this).data('addr'),
+                  step: $(this).data('step')
+                });
+              });
+
+            // UI 초기화
             $('.addr_dept2 ul, .addr_dept3 ul').empty();
             $txtInput.val('');
             $('li.addr_on').removeClass('addr_on');
@@ -1012,11 +1016,26 @@
             updateSearchView();
             resetAllRegionFlag();
 
+            // [변경] sessionStorage도 함께 초기화 (페이지별로 구분)
+            var pageType = window.__addrPopupPageType || 'default';
+            var storageKey_regions = 'selectedRegions_' + pageType;
+            var storageKey_area = 'searchAreaStr_' + pageType;
+            var storageKey_name = 'addrName_' + pageType;
+
+            console.log('📌 [addr_popup] 초기화 버튼 클릭 - sessionStorage 제거:', {
+              pageType: pageType,
+              removedKeys: [storageKey_regions, storageKey_area, storageKey_name]
+            });
+
+            sessionStorage.removeItem(storageKey_regions);
+            sessionStorage.removeItem(storageKey_area);
+            sessionStorage.removeItem(storageKey_name);
+
             // main_visual.php의 지역 태그 UI 업데이트
             if (typeof window.updateSelectedRegionsTags === 'function') {
               window.updateSelectedRegionsTags();
             }
-          });
+            }); // 초기화 버튼 클릭 핸들러 종료
 
           // sessionStorage에 선택된 지역 상태 저장
           // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
@@ -1041,7 +1060,7 @@
               window.skipAddrNameUpdate = false; // 플래그 초기화
 
               // window.selectedRegions에 지역 이름 배열 할당
-              window.selectedRegions = addrNames.slice(0, 3); // 최대 3개만 저장
+              window.selectedRegions = addrNames.slice(0, 2); // 최대 2개만 저장
             } else {
               addrName = '지역을 선택해 주세요';
               // 상세검색 패널에서 열린 경우 .addrName 업데이트 안함
@@ -1070,7 +1089,28 @@
             });
             searchAreaStr = JSON.stringify(searchArea);
 
-            // 적용 시에만 sessionStorage에 저장
+            // [변경] 선택된 지역을 sessionStorage에 저장 (페이지별로 구분)
+            var pageType = window.__addrPopupPageType || 'default';
+            var storageKey_regions = 'selectedRegions_' + pageType;
+            var storageKey_area = 'searchAreaStr_' + pageType;
+            var storageKey_name = 'addrName_' + pageType;
+
+            console.log('📌 [addr_popup] 적용하기 클릭 - sessionStorage에 저장:', {
+              pageType: pageType,
+              storageKeys: {
+                selectedRegions: storageKey_regions,
+                searchAreaStr: storageKey_area,
+                addrName: storageKey_name
+              },
+              selectedRegions: window.selectedRegions,
+              searchAreaStr: searchAreaStr,
+              addrName: addrName
+            });
+
+            // sessionStorage에 저장 (페이지별 구분, 앱 종료 시 자동 초기화)
+            sessionStorage.setItem(storageKey_regions, JSON.stringify(window.selectedRegions));
+            sessionStorage.setItem(storageKey_area, JSON.stringify(searchArea));
+            sessionStorage.setItem(storageKey_name, addrName);
             if (typeof window.saveSearchStateToStorage === 'function') {
               window.saveSearchStateToStorage();
             } else if (typeof saveSearchStateToStorage === 'function') {
@@ -1293,6 +1333,8 @@
               });
             }
           }
+          } // addr_popup 모든 이벤트 핸들러 if 블록 종료
+
           // 선택된 지역 개수 업데이트 함수
           function updateSelectedCount() {
             const count = $('.selbtn').length;

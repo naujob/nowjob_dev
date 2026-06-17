@@ -1176,6 +1176,10 @@
 
       if (hasSearchCondition && typeof window.getBoardList === 'function') {
         window.searchStateLoaded = true; // 플래그 설정 (initLoadData에서 중복 호출 방지)
+        // 검색 조건이 있으면 기존 초기 렌더링 데이터 제거 (깜빡임 방지)
+        if (typeof jQuery !== 'undefined' && jQuery('#ajaxList').length) {
+          jQuery('#ajaxList').empty();
+        }
         setTimeout(function() {
           window.getBoardList('');
         }, 100);

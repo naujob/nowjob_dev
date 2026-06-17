@@ -48,6 +48,7 @@ class Resume_proc extends CI_Controller
     $search_addr = input_post('search_addr');
     $addrName = input_post("addrName", "");
     $searchAreaStr = input_post("searchAreaStr", "");
+    $ru_work = input_post("ru_work", "");
 
     if (empty($search_addr)) {
       $search_addr = [];
@@ -69,6 +70,9 @@ class Resume_proc extends CI_Controller
       "eage" => $eage,
       "order_by" => $order_by,
       "search_addr" => $search_addr,
+      "addrName" => $addrName,
+      "searchAreaStr" => $searchAreaStr,
+      "ru_work" => $ru_work,
     ];
 
     $result = $this->member_model->getResumeSearchList2025($params);
