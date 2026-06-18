@@ -455,12 +455,16 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   }
 
   .pagination-wrapper {
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     gap: 5px;
     margin: 20px 0;
     padding: 10px 0;
+  }
+
+  .pagination-wrapper.visible {
+    display: flex;
   }
 
   .pagination-wrapper button {
@@ -736,8 +740,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
         <p>등록된 정보가 없습니다.</p>
       </div>
       <!-- 페이지네이션 버튼 -->
-      <div id="paginationWrapper" class="pagination-wrapper" style="display:none;">
-      </div>
+      <div id="paginationWrapper" class="pagination-wrapper" data-pagination="ready"></div>
     </div>
   </div>
   <!-- <div class="list-action">
@@ -860,7 +863,6 @@ $tpl_recomm_class = true; ?>
   }
 
   function initCashingData() {
-    // console.log('[initCashingData] 호출됨');
     list_page = getPageFromUrl();
     getBoardList("");
   }
@@ -870,11 +872,10 @@ $tpl_recomm_class = true; ?>
   // ========================================
 
   function getBoardList(save_yn) {
-    if (list_loading) return;
-     // search_addr: search_addr, ['인천광역시 강화군 강화읍', '인천광역시 동구 송림동']
-    //  addrName: addrName,  "강화읍, 송림동"
-    //  searchAreaStr: searchAreaStr, "[{\"addr\":\"인천광역시 강화군 강화읍\",\"step\":3},{\"addr\":\"인천광역시 동구 송림동\",\"step\":3}]"
-  
+    if (list_loading) {
+      return;
+    }
+
     var params = {
       page: list_page,
       limit: ITEMS_PER_PAGE,
@@ -920,11 +921,8 @@ $tpl_recomm_class = true; ?>
       crossDomain: true,
       success: function(ret) {
         list_loading = false;
-        var ajaxTime = performance.now() - ajaxStartTime;
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
-       
-
           $(list_id).empty();
           var serverTotal = parseInt(ret.data.total, 10);
           if (isNaN(serverTotal) || serverTotal < 0) {
@@ -938,22 +936,15 @@ $tpl_recomm_class = true; ?>
           }
           total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
 
-          var renderStartTime = performance.now();
           showBoardList(ret.data.list);
-          var renderTime = performance.now() - renderStartTime;
 
           renderPagination();
-        } else {
-          console.error('❌ [job_list] API 응답 실패:', ret);
+
+          updateTopSectionsVisibility();
         }
       },
       error: function(xhr, status, error) {
         list_loading = false;
-        console.error('❌ [job_list] API 요청 오류:', {
-          status: status,
-          error: error,
-          xhr: xhr
-        });
       }
     });
   }
@@ -1035,12 +1026,9 @@ $tpl_recomm_class = true; ?>
     }
 
     showEmpty();
-    updateTopSectionsVisibility();
   }
 
   function insertAdsenseAd() {
-    var adStartTime = performance.now();
-
     var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
 
     if (isDevEnv) {
@@ -1081,38 +1069,54 @@ $tpl_recomm_class = true; ?>
 
   function renderPagination() {
     var $wrapper = $("#paginationWrapper");
-    if (total_count === 0 && $(list_id).find("li").length === 0) {
-      $wrapper.hide();
+    var listItemCount = $(list_id).find("li").length;
+
+    // 데이터 없음: 숨김
+    if (total_count === 0 && listItemCount === 0) {
+      $wrapper.removeClass('visible').html('');
       return;
     }
 
-    var html = '';
-    html += '<button onclick="goPage(' + (list_page - 1) + ')"' +
-      (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
+    // 페이지네이션 HTML 생성 (data-page 속성으로 변경)
+    var html = '<button data-page="' + (list_page - 1) + '" ' +
+      (list_page <= 1 ? 'disabled' : '') + '>◀ 이전</button>';
 
     var startPage = Math.max(1, list_page - 2);
     var endPage = Math.min(total_pages, startPage + 4);
     startPage = Math.max(1, endPage - 4);
 
     for (var i = startPage; i <= endPage; i++) {
-      html += '<button onclick="goPage(' + i + ')"' +
-        (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
+      var isActive = (i === list_page) ? ' class="active"' : '';
+      html += '<button data-page="' + i + '"' + isActive + '>' + i + '</button>';
     }
 
-    html += '<button onclick="goPage(' + (list_page + 1) + ')"' +
-      (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
+    html += '<button data-page="' + (list_page + 1) + '" ' +
+      (list_page >= total_pages ? 'disabled' : '') + '>다음 ▶</button>';
 
-    $wrapper.html(html).show();
+    // HTML 설정 및 표시
+    $wrapper.html(html);
+
+    // CSS 클래스로 표시
+    setTimeout(function() {
+      $wrapper.addClass('visible');
+    }, 0);
   }
 
   function goPage(page) {
-    if (page < 1 || page > total_pages) return;
+    if (page < 1 || page > total_pages) {
+      return;
+    }
+
     list_page = page;
+
     saveCurrentPage();
     $(list_id).empty();
-    $("html, body").animate({
-      scrollTop: 0
-    }, 200);
+
+    $("html, body").animate({scrollTop: 0}, 200);
+
+    // 페이지네이션 미리 숨김
+    $("#paginationWrapper").removeClass('visible');
+
     getBoardList("");
     updateTopSectionsVisibility();
   }
@@ -1313,6 +1317,15 @@ $tpl_recomm_class = true; ?>
     getBoardList("");
   });
 
+  // 페이지네이션 버튼 클릭 (이벤트 위임)
+  $(document).on("click", "#paginationWrapper button", function(e) {
+    e.preventDefault();
+    var page = $(this).data('page');
+    if (page) {
+      goPage(page);
+    }
+  });
+
   // 폼 체크박스 클릭 이벤트
   $(document).on("click", ".form-checkbox", function(e) {
     e.stopPropagation();
@@ -1348,7 +1361,6 @@ $tpl_recomm_class = true; ?>
 
   window.addEventListener('DOMContentLoaded', function() {
     if (window.__jobListDOMContentLoaded) {
-    //  console.log('[job_list.php] 이미 초기화됨 - 중복 실행 방지');
       return;
     }
     window.__jobListDOMContentLoaded = true;
@@ -1362,8 +1374,6 @@ $tpl_recomm_class = true; ?>
     var pageType = 'recruit';
     var storageKey_regions = 'selectedRegions_' + pageType;
     var storageKey_area = 'searchAreaStr_' + pageType;
-
- //   console.log('[job_list.php] sessionStorage에서 지역 복원 시작:')
 
     var addrNames = [];
     var searchArea = [];
@@ -1400,7 +1410,6 @@ $tpl_recomm_class = true; ?>
     if (addrNames.length > 0) {
       addrName = addrNames.join(', ');
       $('.addrName').text(addrName).attr('data-selected', 'true');
-     // console.log('[job_list.php] addrName 설정:', addrName);
     } else {
       addrName = '지역을 선택해 주세요';
       $('.addrName').text(addrName).attr('data-selected', 'false');
@@ -1428,12 +1437,12 @@ $tpl_recomm_class = true; ?>
     initTabUi();
     getRecruitRecoList();
 
-    if (!sessionStorage.getItem('recruit_page_initialized')) {
-      sessionStorage.setItem('recruit_page_initialized', 'true');
-      setTimeout(function() {
+    // initLoadData 호출: searchStateLoaded가 true이면 index_search에서 이미 getBoardList를 호출했으므로 건너뜀
+    setTimeout(function() {
+      if (!searchStateLoaded) {
         initLoadData();
-      }, 10);
-    }
+      }
+    }, 10);
 
     $(document).on('click', '.content-li', function(e) {
       saveCurrentPage();
@@ -1565,13 +1574,10 @@ $tpl_recomm_class = true; ?>
       try {
         window.selectedRegions = JSON.parse(savedSelectedRegions);
         addrNames = window.selectedRegions.slice(0, 3);
-   
       } catch (e) {
-        console.warn('[job_list.php] sessionStorage 파싱 실패:', e);
         window.selectedRegions = [];
       }
     } else {
-     
       window.selectedRegions = [];
     }
 
@@ -1588,7 +1594,6 @@ $tpl_recomm_class = true; ?>
     if (addrNames.length > 0) {
       addrName = addrNames.join(', ');
       $('.addrName').text(addrName).attr('data-selected', 'true');
-    
     } else {
       addrName = '지역을 선택해 주세요';
       $('.addrName').text(addrName).attr('data-selected', 'false');
@@ -1607,11 +1612,8 @@ $tpl_recomm_class = true; ?>
       window.selectedRegions = addrNames.slice(0, 3);
     }
 
-
-
     // UI 동기화
     if (typeof window.updateSelectedRegionsTags === 'function') {
-  
       window.updateSelectedRegionsTags();
     }
 
@@ -1620,14 +1622,12 @@ $tpl_recomm_class = true; ?>
 
     getRecruitRecoList();
 
-    // 앱 최초 진입 시에만 초기 데이터 로드 (같은 세션에서는 한 번만)
-    // loadSearchStateFromStorage()가 먼저 실행되도록 약간 지연 (10ms)
-    if (!sessionStorage.getItem('recruit_page_initialized')) {
-      sessionStorage.setItem('recruit_page_initialized', 'true');
-      setTimeout(function() {
+    // initLoadData 호출: searchStateLoaded가 true이면 index_search에서 이미 getBoardList를 호출했으므로 건너뜀
+    setTimeout(function() {
+      if (!searchStateLoaded) {
         initLoadData();
-      }, 10);
-    }
+      }
+    }, 10);
 
     // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
     $(document).on('click', '.content-li', function(e) {

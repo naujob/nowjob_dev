@@ -528,14 +528,7 @@
             var storageKey_area = 'searchAreaStr_' + pageType;
             var storageKey_name = 'addrName_' + pageType;
 
-            console.log('🔍 [addr_popup] sessionStorage에서 복원 시작:', {
-              pageType: pageType,
-              storageKeys: {
-                selectedRegions: storageKey_regions,
-                searchAreaStr: storageKey_area,
-                addrName: storageKey_name
-              }
-            });
+        
 
             const $div2 = $('.div2');
 
@@ -552,12 +545,7 @@
                 const selectedRegions = JSON.parse(savedSelectedRegions);
                 const searchArea = JSON.parse(savedSearchAreaStr);
 
-                console.log('✅ [addr_popup] sessionStorage에서 복원 성공:', {
-                  pageType: pageType,
-                  selectedRegions: selectedRegions,
-                  searchArea: searchArea,
-                  addrName: savedAddrName
-                });
+              
 
                 searchArea.forEach((area, index) => {
                   const $selbtn = $('<div>')
@@ -573,11 +561,11 @@
 
                 updateSelectedCount();
               } catch (e) {
-                console.warn('⚠️ [addr_popup] sessionStorage 파싱 실패:', e);
+               
                 updateSelectedCount();
               }
             } else {
-              console.log('📌 [addr_popup] sessionStorage에 저장된 데이터 없음');
+             
               updateSelectedCount();
             }
           }
@@ -992,7 +980,7 @@
 
             $(document).on('click', '.addr_sel_init', function() {
               var pageType = window.__addrPopupPageType || 'default';
-              console.log('📌 [addr_popup] 초기화 버튼 클릭 - 페이지:', pageType);
+         
 
               // 초기화 전 현재 선택 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
               window.backupSelectedRegions = window.selectedRegions ? window.selectedRegions.slice() : [];
@@ -1022,10 +1010,7 @@
             var storageKey_area = 'searchAreaStr_' + pageType;
             var storageKey_name = 'addrName_' + pageType;
 
-            console.log('📌 [addr_popup] 초기화 버튼 클릭 - sessionStorage 제거:', {
-              pageType: pageType,
-              removedKeys: [storageKey_regions, storageKey_area, storageKey_name]
-            });
+           
 
             sessionStorage.removeItem(storageKey_regions);
             sessionStorage.removeItem(storageKey_area);
@@ -1095,17 +1080,6 @@
             var storageKey_area = 'searchAreaStr_' + pageType;
             var storageKey_name = 'addrName_' + pageType;
 
-            console.log('📌 [addr_popup] 적용하기 클릭 - sessionStorage에 저장:', {
-              pageType: pageType,
-              storageKeys: {
-                selectedRegions: storageKey_regions,
-                searchAreaStr: storageKey_area,
-                addrName: storageKey_name
-              },
-              selectedRegions: window.selectedRegions,
-              searchAreaStr: searchAreaStr,
-              addrName: addrName
-            });
 
             // sessionStorage에 저장 (페이지별 구분, 앱 종료 시 자동 초기화)
             sessionStorage.setItem(storageKey_regions, JSON.stringify(window.selectedRegions));

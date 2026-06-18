@@ -567,12 +567,16 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
 
         /* 페이지네이션 스타일 */
         .pagination-wrapper {
-          display: flex;
+          display: none;
           justify-content: center;
           align-items: center;
           gap: 5px;
           margin: 20px 0;
           padding: 10px 0;
+        }
+
+        .pagination-wrapper.visible {
+          display: flex;
         }
 
         .pagination-wrapper button {
@@ -750,10 +754,8 @@ $tpl_show_mm_idx = true; ?>
 <script>
   // mm_birth 디버깅 - 초기 렌더링 데이터 확인
   var debugInitialResumes = <?php echo json_encode(isset($initial_resumes) && is_array($initial_resumes) ? $initial_resumes : array()); ?>;
-  //console.log('[mm_age 디버깅] 초기 데이터 전체:', debugInitialResumes);
   if (debugInitialResumes.length > 0) {
     debugInitialResumes.forEach(function(row, idx) {
-    //  console.log('[mm_age] 항목[' + idx + ']: mm_birth=' + row.mm_birth + ', mm_age=' + row.mm_age);
     });
   }
 
@@ -816,6 +818,15 @@ $tpl_show_mm_idx = true; ?>
     df: "나이",
     text: "",
     active: ""
+  });
+
+  // 페이지네이션 버튼 클릭 (이벤트 위임)
+  $(document).on("click", "#paginationWrapper button", function(e) {
+    e.preventDefault();
+    var page = $(this).data('page');
+    if (page) {
+      goPage(page);
+    }
   });
 
   $(document).on("click", ".form-checkbox", function(e) {
@@ -936,7 +947,6 @@ $tpl_show_mm_idx = true; ?>
         crossDomain: true,
         success: function(ret) {
           if (ret.code === "00") {
-            // console.log('설정저장');
           }
         },
         error: function(xhr, status, error) {
@@ -961,10 +971,9 @@ $tpl_show_mm_idx = true; ?>
           total_count = ret.data.total || 0;
           total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
 
-
-
           showBoardList(ret.data.list);
           renderPagination();
+          updateTopSectionsVisibility();
         } else {
 
         }
@@ -1012,35 +1021,25 @@ $tpl_show_mm_idx = true; ?>
       $(list_id).append($content);
     });
 
-    // 페이지의 마지막에 광고 삽입
     if (list.length > 0) {
       insertAdsenseAd();
     }
 
     showEmpty();
-    updateTopSectionsVisibility();
   }
 
   // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
   function insertAdsenseAd() {
-    var adStartTime = performance.now();
-   
-
     // 도메인 환경 판별
     var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-   
 
     if (isDevEnv) {
-      
       // 개발 환경에서는 CSS로만 자리 표시
       var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
         '광고 자리 (개발 환경)' +
         '</li>';
       $(list_id).append(adHtml);
-      var adTime = performance.now() - adStartTime;
-      console.log('[성능] 광고 로드 시간:', adTime.toFixed(2) + 'ms');
     } else {
-     
       // 운영 환경에서 실제 광고 로드
       var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
         '<div class="adsense-wrapper" style="position: relative;">' +
@@ -1052,18 +1051,12 @@ $tpl_show_mm_idx = true; ?>
         '</div>' +
         '</li>';
       $(list_id).append(adHtml);
-  
 
       // 비동기로 광고 로드 (setTimeout 사용)
       setTimeout(function() {
-        var pushStartTime = performance.now();
         try {
-        
           (adsbygoogle = window.adsbygoogle || []).push({});
-          var pushTime = performance.now() - pushStartTime;
-         
         } catch (e) {
-        
         }
       }, 0); // 비동기 로드 (즉시)
     }
@@ -1190,15 +1183,14 @@ $tpl_show_mm_idx = true; ?>
     var $wrapper = $("#paginationWrapper");
     // 데이터가 아예 없을 때만 숨김 (초기 렌더링된 데이터는 존재 가능)
     if (total_count === 0 && $(list_id).find("li").length === 0) {
-      $wrapper.hide();
+      $wrapper.removeClass('visible').html('');
       return;
     }
 
     var html = ''; //  버튼들을 문자열로 만들어서 한 번에 렌더링하기 위해 초기화
     // 이전 버튼
-    html += '<button onclick="goPage(' + (list_page - 1) + ')"' +
+    html += '<button data-page="' + (list_page - 1) + '"' +
       (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
-    // list_page가 1보다 작거나 같으면 이전 버튼 비활성화 list_page:현재 페이지 번호
 
     // 페이지 번호 (최대 5개 표시, 현재 페이지 중심)
     var startPage = Math.max(1, list_page - 2);
@@ -1206,15 +1198,15 @@ $tpl_show_mm_idx = true; ?>
     startPage = Math.max(1, endPage - 4);
 
     for (var i = startPage; i <= endPage; i++) {
-      html += '<button onclick="goPage(' + i + ')"' +
+      html += '<button data-page="' + i + '"' +
         (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
     }
 
     // 다음 버튼
-    html += '<button onclick="goPage(' + (list_page + 1) + ')"' +
+    html += '<button data-page="' + (list_page + 1) + '"' +
       (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
 
-    $wrapper.html(html).show();
+    $wrapper.html(html).addClass('visible');
   }
 
   // 페이지 이동 함수
@@ -1287,7 +1279,6 @@ $tpl_show_mm_idx = true; ?>
   // [중복 방지] resume 페이지에서만 한 번만 실행
   window.addEventListener('DOMContentLoaded', function() {
     if (window.__hrListDOMContentLoaded) {
-      console.log('[hr_list.php] 이미 초기화됨 - 중복 실행 방지');
       return;
     }
     window.__hrListDOMContentLoaded = true;
@@ -1345,33 +1336,19 @@ $tpl_show_mm_idx = true; ?>
       var addrNames = [];
       var savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
 
-      console.log('[hr_list.php] sessionStorage에서 지역 복원 시작', {
-        pageType: pageType,
-        storageKey: storageKey_regions,
-        hasSavedRegions: !!savedSelectedRegions,
-        timestamp: new Date().toISOString()
-      });
-
       if (savedSelectedRegions) {
         try {
           window.selectedRegions = JSON.parse(savedSelectedRegions);
           addrNames = window.selectedRegions.slice(0, 3);
-          console.log('[hr_list.php] sessionStorage에서 복원됨:', {
-            pageType: pageType,
-            selectedRegions: window.selectedRegions
-          });
         } catch (e) {
-          console.warn('[hr_list.php] sessionStorage 파싱 실패:', e);
           window.selectedRegions = [];
         }
       } else {
-        console.log('[hr_list.php] sessionStorage에 저장된 지역 없음 - 신규 세션', { pageType: pageType });
         window.selectedRegions = [];
       }
 
       // UI 동기화
       if (typeof window.updateSelectedRegionsTags === 'function') {
-        console.log('[hr_list.php] updateSelectedRegionsTags() 호출');
         window.updateSelectedRegionsTags();
       }
     }
@@ -1382,14 +1359,12 @@ $tpl_show_mm_idx = true; ?>
       window.initTabUi();
     }
 
-    // 앱 최초 진입 시에만 초기 데이터 로드 (같은 세션에서는 한 번만)
-    // loadSearchStateFromStorage()가 먼저 실행되도록 약간 지연 (10ms)
-    if (!sessionStorage.getItem('resume_page_initialized')) {
-      sessionStorage.setItem('resume_page_initialized', 'true');
-      setTimeout(function() {
+    // initLoadData 호출: searchStateLoaded가 true이면 index_search에서 이미 getBoardList를 호출했으므로 건너뜀
+    setTimeout(function() {
+      if (!searchStateLoaded) {
         initLoadData();
-      }, 10);
-    }
+      }
+    }, 10);
 
     // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
     $(document).on('click', '.content-li, .person-grid-item', function(e) {
