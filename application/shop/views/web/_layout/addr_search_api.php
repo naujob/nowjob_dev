@@ -93,7 +93,7 @@
             item_var += " data-addrshort='" + this.siNm + " " + this.sggNm + " " + this.emdNm + "' ";
 
             if (window.location.pathname == '/resume/index_map' || window.location.pathname == '/recruit/index_map') {
-                console.log(this);
+            //    console.log(this);
                 if (!addrDong.has(this.siNm + " " + this.sggNm + " " + this.emdNm)) {
                     addrDong.add(this.siNm + " " + this.sggNm + " " + this.emdNm);
 
@@ -172,9 +172,9 @@
             $clickedBtn.closest("dt").text().trim() === "도로명" ||
             (doro && clickedBtnText === doro);
 
-        console.log("[주소선택] 주소 버튼 클릭됨");
-        console.log("  - 클릭한 버튼 텍스트:", clickedBtnText);
-        console.log("  - 버튼 타입:", isDoro ? "도로명" : "지번");
+      //  console.log("[주소선택] 주소 버튼 클릭됨");
+       // console.log("  - 클릭한 버튼 텍스트:", clickedBtnText);
+       // console.log("  - 버튼 타입:", isDoro ? "도로명" : "지번");
 
         var post = $btnItem.attr("data-zipcode");
         var admCd = $btnItem.attr("data-admCd");
@@ -193,18 +193,34 @@
         
         // 클릭한 버튼에 따라 전체 주소 선택 (resume_write 페이지에서는 항상 지번)
         var selectedAddr = (isResumeWritePage) ? jibun : (isDoro ? doro : jibun);
+     
+/**
+addrshort
+: 
+"서울특별시 강남구 역삼동"
+doro
+: 
+"서울특별시 강남구 강남대로 430 (역삼동)"
+isDoro
+: 
+true
+jibun
+: 
+"서울특별시 강남구 역삼동 815-2 에이비씨마트빌딩"
+selectedAddr
+: 
+"서울특별시 강남구 강남대로 430 (역삼동)"
+xpos
+: 
+undefined
+ypos
+: 
+undefined
+zipcode
+: 
+"06129"
 
-        console.log("[주소선택] 추출된 주소 정보:", {
-            zipcode: post,
-            doro: doro,
-            jibun: jibun,
-            addrshort: addrshort,
-            selectedAddr: selectedAddr,
-            isDoro: isDoro,
-            xpos: xpos,
-            ypos: ypos
-        });
-
+*/
         $("#gpsApiFrm").find("[name=admCd]").val(admCd);
         $("#gpsApiFrm").find("[name=rnMgtSn]").val(rnMgtSn);
         $("#gpsApiFrm").find("[name=udrtYn]").val(udrtYn);
@@ -212,36 +228,26 @@
         $("#gpsApiFrm").find("[name=buldSlno]").val(buldSlno);
 
         if ($btnItem.attr("data-xpos") != undefined && $btnItem.attr("data-xpos") != '') {
-            console.log("[주소선택] GPS 좌표가 있는 경우 - get_addr_name 호출");
+           
             comAjax("/common_proc/get_addr_name", {
                 query: jibun
             }, function(ret) {
-                console.log("[주소선택] get_addr_name 응답:", ret);
+               // console.log("[주소선택] get_addr_name 응답:", ret);
                 if (ret.code == "00") {
 
                     $(".btnItem").css("background-color", "");
                     $btnItem.css("background-color", "#eee");
                     //alert(xpos);
                     //alert(ypos);
-                    console.log("[주소선택] selectAddrInfo 호출 (GPS 좌표 있음):", {
-                        zipcode: post,
-                        doro: doro,
-                        jibun: jibun,
-                        addr: selectedAddr,
-                        x: xpos,
-                        y: ypos
-                    });
-                    console.log("[주소선택] 현재 페이지 경로:", window.location.pathname);
-                    console.log("[주소선택] selectAddrInfo 함수 존재 여부:", typeof selectAddrInfo);
-                    console.log("[주소선택] selectAddrInfoRecruit 함수 존재 여부:", typeof selectAddrInfoRecruit);
+                   
                     if (typeof selectAddrInfo === 'function') {
                         selectAddrInfo(post, doro, jibun, selectedAddr, xpos, ypos);
                     } else {
-                        console.error("[주소선택] selectAddrInfo 함수를 찾을 수 없습니다!");
+                        
                     }
 
                 } else {
-                    console.log("[주소선택] get_addr_name 실패:", ret);
+                  
                     commonAlert('GPS - 주소정보가 정확하지 않습니다. 위치를 검색하여 선택해주세요..', function() {});
                 }
                 return;
@@ -258,7 +264,7 @@
                 ,
             crossDomain: true,
             success: function(jsonStr) { // jsonStr : 주소 검색 결과 JSON 데이터
-                console.log(jsonStr);
+               // console.log(jsonStr);
 
                 var errCode = jsonStr.results.common.errorCode;
                 var errDesc = jsonStr.results.common.errorMessage;
@@ -284,34 +290,35 @@
                         p = proj4.transform(grs80, wgs84, p);
 
                         //쇼트 주소 검색
-                        console.log("[주소선택] GPS 좌표 변환 완료, get_addr_name 호출");
+                        //console.log("[주소선택] GPS 좌표 변환 완료, get_addr_name 호출");
                         comAjax("/common_proc/get_addr_name", {
                             query: jibun
                         }, function(ret) {
-                            console.log("[주소선택] get_addr_name 응답:", ret);
+                          //  console.log("[주소선택] get_addr_name 응답:", ret); ret.data.addr:"서울 강남구 역삼동"
                             if (ret.code == "00") {
                                 $(".btnItem").css("background-color", "");
                                 $btnItem.css("background-color", "#eee");
 
-                                console.log("[주소선택] selectAddrInfo 호출 (좌표 변환 후):", {
-                                    zipcode: post,
-                                    doro: doro,
-                                    jibun: jibun,
-                                    addr: selectedAddr,
-                                    x: p.x,
-                                    y: p.y
-                                });
-                                console.log("[주소선택] 현재 페이지 경로:", window.location.pathname);
-                                console.log("[주소선택] selectAddrInfo 함수 존재 여부:", typeof selectAddrInfo);
-                                console.log("[주소선택] selectAddrInfoRecruit 함수 존재 여부:", typeof selectAddrInfoRecruit);
-                                if (typeof selectAddrInfo === 'function') {
+                             
+                                   // zipcode: post, 06129"
+                                  //  doro: doro,  서울특별시 강남구 강남대로 430 (역삼동)"
+                                  //  jibun: jibun, 서울특별시 강남구 역삼동 815-2 에이비씨마트빌딩
+                                  //  addr: selectedAddr ,: "서울특별시 강남구 강남대로 430 (역삼동)"
+                                 //   x: p.x,     127.02667176519444
+                                 //   y: p.y
+                              
+                                
+                                //console.log("[주소선택] 현재 페이지 경로:", window.location.pathname); 현재 페이지 경로: /compage/recruit_write
+                               // console.log("[주소선택] selectAddrInfo 함수 존재 여부:", typeof selectAddrInfo); selectAddrInfo 함수 존재 여부: function
+                                //console.log("[주소선택] selectAddrInfoRecruit 함수 존재 여부:", typeof selectAddrInfoRecruit);: undefined
+                                if (typeof selectAddrInfo === 'function') { 
                                     //selectAddrInfo(post,doro,jibun,ret.data.addr,p.x,p.y);
                                     selectAddrInfo(post, doro, jibun, selectedAddr, p.x, p.y);
                                 } else {
-                                    console.error("[주소선택] selectAddrInfo 함수를 찾을 수 없습니다!");
+                                    
                                 }
                             } else {
-                                console.log("[주소선택] get_addr_name 실패:", ret);
+                               
                                 commonAlert('현재 선택하신 주소는 GPS정보를 제공하지 않습니다. 다른주소를 선택해주세요..', function() {});
                             }
                         });

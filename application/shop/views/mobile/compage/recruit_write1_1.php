@@ -811,24 +811,24 @@
     var serverAddrData1 = serverData && serverData.expose_addr1 ? serverData.expose_addr1 : null;
     var serverAddrData2 = serverData && serverData.expose_addr2 ? serverData.expose_addr2 : null;
     var detailSectionScrollPosition = 0;
-    // localStorage의 key 이름을 rc_idx 기준으로 변경하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
-    /**
-     * var data = localStorage.getItem(oldKey);
-        localStorage.setItem(newKey, data);
-        localStorage.removeItem(oldKey);
-    
-     */
-    function migrateRecruitDraftKeys(oldIdx, newIdx, pages) {
-        if (!oldIdx || !newIdx || oldIdx === newIdx) return;
-        (pages || []).forEach(function(page) {
-            var oldKey = "recruit_draft_" + oldIdx + "_page" + page;
-            var newKey = "recruit_draft_" + newIdx + "_page" + page;
-            var saved = localStorage.getItem(oldKey);
-            if (saved && !localStorage.getItem(newKey)) {
-                localStorage.setItem(newKey, saved);
-            }
-            localStorage.removeItem(oldKey);
-        });
+
+    // PHP에서 rc_idx를 JavaScript 변수로 전달
+    var rcIdx = '<?= isset($info["rc_idx"]) ? $info["rc_idx"] : "0" ?>';
+
+    // ============================================================================
+    // 1. 유틸리티 함수 (숫자 포맷팅, 문자열 처리)
+    // ============================================================================
+
+    // 천 단위 쉼표를 추가하는 포맷팅 함수
+    function formatNumberWithComma(num) {
+        if (!num) return '';
+        var numStr = String(num).replace(/[^0-9]/g, '');
+        return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // 쉼표를 제거하는 함수
+    function removeComma(str) {
+        return String(str).replace(/,/g, '');
     }
 
     // hidden 필드 동기화 함수 (시간 필드를 HH:MM 포맷으로 합성)
@@ -849,19 +849,37 @@
         var pm_e_m = String($("[name='rc_pm_etime_m']").val() || "00").padStart(2, "0");
         $("[name='rc_pm_etime']").val(pm_e_h + ":" + pm_e_m);
     }
-    // 천 단위 쉼표를 추가하는 포맷팅 함수
-    function formatNumberWithComma(num) {
-        if (!num) return '';
-        var numStr = String(num).replace(/[^0-9]/g, '');
-        return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    // ============================================================================
+    // 2. 데이터 마이그레이션 & 정리
+    // ============================================================================
+
+    // localStorage의 key 이름을 rc_idx 기준으로 변경하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
+    function migrateRecruitDraftKeys(oldIdx, newIdx, pages) {
+        if (!oldIdx || !newIdx || oldIdx === newIdx) return;
+        (pages || []).forEach(function(page) {
+            var oldKey = "recruit_draft_" + oldIdx + "_page" + page;
+            var newKey = "recruit_draft_" + newIdx + "_page" + page;
+            var saved = localStorage.getItem(oldKey);
+            if (saved && !localStorage.getItem(newKey)) {
+                localStorage.setItem(newKey, saved);
+            }
+            localStorage.removeItem(oldKey);
+        });
     }
 
-    // 쉼표를 제거하는 함수
-    function removeComma(str) {
-        return String(str).replace(/,/g, '');
+    // localStorage에 저장된 임시데이터를 삭제하는 함수
+    function clearRecruitDraftData(rcIdx) {
+        if (!rcIdx) rcIdx = "0";
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
+        localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
     }
 
-    // 페이지별로 데이터를 localStorage에 저장하는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
+    // ============================================================================
+    // 3. 페이지별 데이터 저장 (localStorage)
+    // ============================================================================
+
     // 채용공고 작성 1페이지 내용을 localStorage에 임시저장하기 위해 데이터 묶음을 만드는 함수
     function savePage1Data() {
         syncTimeHiddenFields();
@@ -932,7 +950,7 @@
         localStorage.setItem(storageKey, JSON.stringify(formData));
     }
 
-    // hidden 필드 동기화 함수 (해시태그를 쉼표로 구분된 문자열로 합성)
+    // 해시태그를 쉼표로 구분된 문자열로 합성하여 localStorage에 저장
     function savePage3Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var storageKey = "recruit_draft_" + rcIdx + "_page3";
@@ -1436,7 +1454,7 @@
 
         }
     }
-
+    // localStorage에 저장된 임시데이터를 삭제하는 함수 (rc_idx 기준으로 page1, page2, page3 모두 삭제)
     function clearRecruitDraftData(rcIdx) {
         if (!rcIdx) rcIdx = "0";
         localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
@@ -1570,7 +1588,7 @@
         });
         $("[name=rc_work_img]").val(rc_work_img);
     }
-
+    // 제출 전 필수 입력 항목을 검증하는 함수
     function validateRequiredForSubmit() {
         if ($("[name='rc_name']").val() == "") {
             commonAlert("공고제목을 입력해주세요.", function() {
@@ -1609,9 +1627,13 @@
             }
         }
 
-        if ($("[name='rc_desc']").val() == "") {
+        var rcDescEditor = document.getElementById('rc_desc_editor');
+        var rcDescContent = rcDescEditor ? rcDescEditor.innerHTML.trim() : "";
+        if (rcDescContent == "") {
             commonAlert("상세업무정보를 입력해주세요.", function() {
-                $("[name='rc_desc']").focus();
+                if (rcDescEditor) {
+                    rcDescEditor.focus();
+                }
             });
             return false;
         }
@@ -1651,7 +1673,8 @@
         // serialize 후 쉼표 추가하여 화면에 표시
         $("#rc_price_amount").val(formatNumberWithComma(currentAmount));
         var prevIdx = $("[name='rc_idx']").val() || "0";
-
+        
+        //로그테이블에 저장 site_log 테이블에 저장
         comAjax("/compage_proc/recruit_write1_1", params, function(ret) {
             if (ret.code != "00") {
                 commonAlert(ret.msg, function() {});
@@ -1669,6 +1692,7 @@
 
             var params2 = $("#frm").serialize();
             var prevIdx2 = $("[name='rc_idx']").val() || "0";
+            
             comAjax("/compage_proc/recruit_write2_1", params2, function(ret2) {
                 if (ret2.code != "00") {
                     commonAlert(ret2.msg, function() {});
@@ -1692,6 +1716,11 @@
     }
     // 3 페이지 저장과 최종 등록을 처리하는 함수 (mode에 따라 preview 또는 final 처리)
     function saveStep3AndComplete(mode) {
+        // contenteditable div의 내용을 hidden input에 복사 (form serialize 시 포함되도록)
+        var rcDescEditor = document.getElementById('rc_desc_editor');
+        var rcDescContent = rcDescEditor ? rcDescEditor.innerHTML : "";
+        $("[name='rc_desc']").val(rcDescContent);
+
         var hashString = buildHashString();
         var hasFiles = hasFileUploads();
 
@@ -1699,15 +1728,17 @@
             if (ret.code == "00") {
                 var prevIdx = $("[name=rc_idx]").val() || "0";
                 var savedRcIdx = (ret.data && ret.data.rc_idx) ? ret.data.rc_idx : prevIdx;
-
+                
                 if (savedRcIdx && savedRcIdx !== prevIdx && savedRcIdx != "0") {
                     migrateRecruitDraftKeys(prevIdx, savedRcIdx, [1, 2, 3]);
                     $("[name='rc_idx']").val(savedRcIdx);
                 }
 
                 if (mode === "preview") {
+                    console.log("공고 저장 후 미리보기 모드로 이동: rc_idx =", savedRcIdx);
                     // 미리보기: draft에만 저장, 미리보기 페이지로 이동 (DB에 등록하지 않음)
                     showPreviewPage(savedRcIdx);
+
                 } else {
                     // 최종 등록: recruit_complete 호출하여 DB에 정식등록
                     var completeParams = "rc_idx=" + savedRcIdx;
@@ -1815,22 +1846,17 @@
             updateSalaryOptions();
         }
     }
-
+    // 페이지 로드 시 이벤트 리스너 등록 및 초기화
     window.addEventListener('DOMContentLoaded', function() {
+      
         // URL 파라미터에서 rc_idx 확인 (preview 모드에서 돌아온 경우)
-        var urlParams = new URLSearchParams(window.location.search);
-        var queryRcIdx = urlParams.get('rc_idx');
-
-        // Draft 로드 여부 판단: preview에서 돌아온 경우만 draft 로드
-        // 1. URL에 rc_idx가 있거나 (goBackToEdit 버튼에서 온 경우)
-        // 2. sessionStorage에 from_preview 플래그가 있는 경우 (물리적 뒤로가기인 경우)
+        // PHP에서 전달한 rcIdx 변수 사용 (URL 파라미터 대신)
         var fromPreviewFlag = sessionStorage.getItem('from_preview') === 'true';
-        window.shouldLoadDraft = (queryRcIdx !== null) || fromPreviewFlag;
+        window.shouldLoadDraft = (rcIdx !== "0") || fromPreviewFlag;
 
-        if (queryRcIdx) {
-            $("[name='rc_idx']").val(queryRcIdx);
-            // URL에서 파라미터 제거하여 깔끔하게 정리
-            window.history.replaceState({}, document.title, '/compage/recruit_write1_1');
+        // rcIdx가 0이 아니면 form에 설정
+        if (rcIdx && rcIdx !== "0") {
+            $("[name='rc_idx']").val(rcIdx);
         }
 
         // 플래그 사용 후 제거 (다음 페이지 로드에서 실수로 사용되지 않도록)
@@ -2116,34 +2142,21 @@
             }
         });
 
-        $(document).on("mousedown", "#salary-options-group input[type='radio']", function(e) {
-            var $radio = $(this);
-            $radio.data("wasChecked", $radio.is(":checked"));
-        });
-
-        $(document).on("click", "#salary-options-group input[type='radio']", function(e) {
-            var $radio = $(this);
-            var wasChecked = $radio.data("wasChecked");
-
-            if (wasChecked) {
-                e.preventDefault();
-                e.stopPropagation();
-                $("input[name='" + $radio.attr("name") + "']").prop("checked", false);
-                $radio.trigger("change");
-            }
-        });
-
         $(document).on("click", ".form-checkbox .label", function(e) {
             e.preventDefault();
             var $input = $(this).siblings("input[type='checkbox'], input[type='radio']");
             if ($input.length > 0) {
                 if ($input.attr("type") === "radio") {
                     if ($input.is(":checked")) {
+                        
+                       // console.log("이미 선택된 라디오 버튼입니다. 체크 해제합니다.");
                         $("input[name='" + $input.attr("name") + "']").prop("checked", false);
                     } else {
+                        //  console.log("라디오 버튼이 선택되지 않았습니다. 체크합니다.");
                         $input.prop("checked", true);
                     }
                 } else {
+                  //  console.log("체크박스 상태를 토글합니다. 현재 상태: " + ($input.is(":checked") ? "체크됨" : "체크되지 않음"));
                     $input.prop("checked", !$input.prop("checked"));
                 }
                 $input.trigger("change");
@@ -2265,6 +2278,9 @@
             var isSexAllSelected = $("[name='rc_sex_all']").is(":checked");
 
             if (!hasExistingSexSelection && !isSexAllSelected) {
+                // 각 성별 항목 모두 체크
+                $sexCheckboxes.prop("checked", true);
+                // "성별무관" 체크 및 이벤트 발생
                 $("[name='rc_sex_all']").prop("checked", true).trigger("change");
             }
         }());
@@ -2275,6 +2291,9 @@
             var isNationAllSelected = $("[name='rc_nation_all']").is(":checked");
 
             if (!hasExistingNationSelection && !isNationAllSelected) {
+                // 각 국적 항목 모두 체크
+                $nationCheckboxes.prop("checked", true);
+                // "국적무관" 체크 및 이벤트 발생
                 $("[name='rc_nation_all']").prop("checked", true).trigger("change");
             }
         }());
@@ -2457,7 +2476,7 @@
         });
 
         // 히스토리 상태 저장 (무한루프 방지를 위해 page 상태 추가)
-        history.pushState({page: 'recruit_write1_1'}, null, location.href);
+        history.pushState({page: 'recruit_write1_1'}, null, location.href); // 
 
         window.addEventListener('popstate', function(e) {
             // recruit_write 페이지에서만 처리
@@ -2469,14 +2488,6 @@
                 location.href = "/compage/recruit_list";
             }
         });
-    });
-
-    // 물리적 뒤로가기 시에도 데이터 복원
-    window.addEventListener('pageshow', function(event) {
-        // 브라우저 캐시에서 복구된 경우 (물리적 뒤로가기/앞으로가기)
-        if (event.persisted) {
-            restorePageData();
-        }
     });
 
     // 폼 제출 시 contenteditable div의 내용을 숨겨진 input에 저장

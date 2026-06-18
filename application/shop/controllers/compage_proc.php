@@ -2421,8 +2421,6 @@ class Compage_proc extends CI_Controller
     # 데이터 추가.
     $rc_show_yn = input_post("rc_show_yn", "Y");
     $rc_name = input_post("rc_name", "");
-    $rc_sdate = input_post("rc_sdate", "");
-    $rc_edate = input_post("rc_edate", "");
 
     $ad_zipcode = input_post("ad_zipcode", "");
     $ad_jibun = input_post("ad_jibun", "");
@@ -3536,7 +3534,7 @@ class Compage_proc extends CI_Controller
       } catch (Exception $e) {
         //error_log('[ALIMTALK] 발송 실패: ' . $e->getMessage());
         if (function_exists('log_message')) {
-          log_message('error', 'Kakao Alimtalk send (recruit_complete) failed: ' . $e->getMessage());
+          
         }
       }
 
