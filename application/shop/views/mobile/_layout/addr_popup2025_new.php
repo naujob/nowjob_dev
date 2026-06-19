@@ -747,13 +747,9 @@
                 }
               });
 
-              const maxSelection = typeof window.__addrPopupMaxSelection !== 'undefined'
-                ? window.__addrPopupMaxSelection
-                : 2;
-
               const projectedCount = currentCount + (alreadyExists ? 0 : 1) - removeCount;
 
-              if (projectedCount > maxSelection) {
+              if (projectedCount > 2) {
                 $clickedLi.removeClass('addr_on');
                 return;
               }

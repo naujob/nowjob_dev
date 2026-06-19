@@ -1475,47 +1475,6 @@
         /*============================================
                     스타일 추가
         ============================================*/
-
-        /* 신규 주소 팝업 (addr_popup2025_new.php) PC 대응 CSS */
-        #changeArea {
-          position: fixed;
-          top: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          bottom: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          transform: none !important;
-          background: rgba(0, 0, 0, 0.5);
-          z-index: 9999 !important;
-        }
-
-        #changeArea.hidden {
-          display: none !important;
-        }
-
-        #changeArea .panel-container {
-          position: fixed !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          max-width: 720px !important;
-          width: 90vw !important;
-          max-height: 88vh !important;
-          height: auto !important;
-          margin: 0 !important;
-          bottom: auto !important;
-        }
-
-        #changeArea .panel-body {
-          max-height: calc(86vh - 64px) !important;
-          overflow: auto !important;
-        }
-
-        #changeArea .form-text {
-          width: 100% !important;
-          box-sizing: border-box !important;
-        }
       </style>
       <div class="tab-panel on">
         <div class="manage-my-content">
@@ -3046,120 +3005,179 @@
 </script>
 
 <script>
-  // ====== 신규 주소 팝업 (addr_popup2025_new.php) 통합 처리 ======
-  var __addrPopupTarget = "recruit"; // "recruit", "expose1", "expose2"
-  window.__addrPopupPageType = 'recruit_write';
-
-  // 팝업 열기 함수
-  function openAddrPopup2025() {
-    window.__hideAllRegionsInAddrPopup = true; 
-    window.__addrPopupMaxSelection = 1;  // 최대 1개만 선택 가능
-
-    // 이전 선택 초기화
-    $('.div2 .selbtn').remove();
-    $('li.addr_on').removeClass('addr_on');
-    $('.addr_dept2 ul, .addr_dept3 ul').empty();
-    $('#txt_addr').val('');
-    if (typeof updateSelectedCount === 'function') updateSelectedCount();
-
-    // 최대 선택 개수 표시 텍스트 업데이트
-    $('.div1desc').text('(최대 ' + window.__addrPopupMaxSelection + '개)');
-
+  $("[name=rc_addr_doro]").click(function() {
     var $panel = $("#changeArea");
+    // 패널을 열 때 hidden 속성 제거 및 on 클래스 추가
+    // $panel[0].hidden = false; 
+    // 해당 코드는 jQuery 객체 '$panel'의 첫 번째 원소(일반적으로 DOM 요소)를 가져와서,
+    // HTML5의 hidden 속성을 false로 설정함으로써 패널(주소변경 팝업 레이어)이 화면에 표시되도록 한다.
+    // 즉, $('#changeArea')[0].hidden = false; 와 동일하며,
+    // changeArea 레이어의 숨김 상태를 해제(visible)시키는 역할을 한다.
     $panel[0].hidden = false;
     $panel.addClass("on");
+    // body 스크롤 잠금
     document.body.style.overflow = 'hidden';
-
-    setTimeout(function() {
-      $('#txt_addr').focus();
-      $panel[0].focus();
-    }, 100);
-  }
-
-  // 근무지 입력 클릭 시 팝업 열기
-  $(document).on("click", "input[name='rc_addr_doro'], .form-row.address .addr-search-icon", function() {
-    __addrPopupTarget = "recruit";
-    openAddrPopup2025();
+    // 팝업을 열 때 기존 입력창 포커스를 제거하고 팝업 입력창으로 이동해 오타를 방지
+    $(this).blur();
+    var $popupAddrInput = $("#changeArea").find("#txt_addr_popup");
+    if ($popupAddrInput.length) {
+      // DOM 갱신 이후 안전하게 포커스를 옮김
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        // 패널에 포커스 설정
+        $panel[0].focus();
+      }, 100);
+    }
   });
 
-  // 공고노출지역 1 입력 클릭 시 팝업 열기
-  $(document).on("click", "#expose_addr1_doro", function() {
-    __addrPopupTarget = "expose1";
-    openAddrPopup2025();
-  });
+  // 통합 주소 선택 처리 함수 - data-target에 따라 적절한 필드 업데이트
+  function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
+    var target = $("#changeArea").attr("data-target");
 
-  // 공고노출지역 2 입력 클릭 시 팝업 열기
-  $(document).on("click", "#expose_addr2_doro", function() {
-    __addrPopupTarget = "expose2";
-    openAddrPopup2025();
-  });
+    console.log("[주소선택] 통합 함수 호출 - target: " + target);
 
-  // 신규 팝업 콜백: 지역 선택 완료 시 호출
-  window.onChangeAreaApply = function(data) {
-    if (!data || !data.searchArea || data.searchArea.length === 0) return true;
-
-    var area = data.searchArea[0];
-    var addr = area.addr || '';
-
- 
-
-    if (__addrPopupTarget === "recruit") {
-      // 근무지: GPS 좌표 필수
+    if (target === "recruit") {
+      // 근무지 처리
+      $("#ad_zipcode").val(zipcode);
+      $("#ad_jibun").val(jibun);
+      $("#ad_doro").val(doro);
+      $("#ad_addr").val(jibun);
+      $("#ad_gps_x").val(x);
+      $("#ad_gps_y").val(y);
       $("[name=rc_addr_doro]").val(addr);
       $("[name=changeArea]").val(addr);
-      $("#ad_jibun").val(addr);
-      $("#ad_doro").val(addr);
-      $("#ad_addr").val(addr);
-      $("#ad_zipcode").val("");
-
-      // GPS 좌표 조회 (Kakao API)
-      comAjax("/common_proc/get_gps_info", { query: addr }, function(ret) {
-        if (ret.code === "00") {
-          $("#ad_gps_x").val(ret.data.x);
-          $("#ad_gps_y").val(ret.data.y);
-        
-        } else {
-          $("#ad_gps_x").val("");
-          $("#ad_gps_y").val("");
-          commonAlert("GPS 정보를 조회하지 못했습니다. 다른 주소를 선택해주세요.", function() {});
-        }
-      });
-    } else if (__addrPopupTarget === "expose1") {
-      // 공고노출지역 1
-      $("[name='expose_addr1_jibun']").val(addr);
-      $("[name='expose_addr1_doro_val']").val(addr);
-      $("#expose_addr1_addr").val(addr);
-      $("[name='expose_addr1_zipcode']").val("");
-      $("#expose_addr1_gps_x").val("");
-      $("#expose_addr1_gps_y").val("");
-      $("#expose_addr1_doro").val(addr);
-      // 삭제 버튼 표시
-      $("button[data-index='1']").show();
-    } else if (__addrPopupTarget === "expose2") {
-      // 공고노출지역 2
-      $("[name='expose_addr2_jibun']").val(addr);
-      $("[name='expose_addr2_doro_val']").val(addr);
-      $("#expose_addr2_addr").val(addr);
-      $("[name='expose_addr2_zipcode']").val("");
-      $("#expose_addr2_gps_x").val("");
-      $("#expose_addr2_gps_y").val("");
-      $("#expose_addr2_doro").val(addr);
-      // 삭제 버튼 표시
-      $("button[data-index='2']").show();
     }
 
     // 팝업 닫기
     $("#changeArea").removeClass("on");
     document.body.style.overflow = '';
+  }
+
+  // 공고노출지역 팝업 콜백
+  window.onChangeAreaApply = function(data) {
+    // hidden 필드 초기화
+    for (var i = 1; i <= 2; i++) {
+      $("[name='expose_addr" + i + "_zipcode']").val("");
+      $("[name='expose_addr" + i + "_jibun']").val("");
+      $("[name='expose_addr" + i + "_doro_val']").val("");
+      $("[name='expose_addr" + i + "_addr']").val("");
+      $("[name='expose_addr" + i + "_gps_x']").val("");
+      $("[name='expose_addr" + i + "_gps_y']").val("");
+      $("#expose_addr" + i + "_doro").val("");
+      $(".js-clear-expose-addr-web[data-index='" + i + "']").hide();
+    }
+
+    // 새 데이터 매핑
+    if (data.searchArea && data.searchArea.length > 0) {
+      data.searchArea.forEach(function(area, idx) {
+        var n = idx + 1;
+        $("[name='expose_addr" + n + "_addr']").val(area.addr);
+        $("#expose_addr" + n + "_doro").val(data.addrNames[idx] || area.addr);
+        $(".js-clear-expose-addr-web[data-index='" + n + "']").show();
+      });
+    }
     return true;
   };
 
-  // 팝업 닫기 시 body 스크롤 복원
-  $(document).on('click', '#changeArea .btn-close-panel', function() {
-    setTimeout(function() {
-      document.body.style.overflow = '';
-    }, 100);
+  // 근무지 검색 아이콘 및 입력장 클릭 시 팝업 열기
+  $(document).on("click", "input[name='rc_addr_doro'], .form-row.address .addr-search-icon", function() {
+    $("#changeArea").attr("data-target", "recruit");
+    var $panel = $("#changeArea");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    var $popupAddrInput = $("#changeArea").find("#txt_addr_popup");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
   });
+
+  // 노출지역 1 입력창 클릭 시 팝업 열기
+  $(document).on("click", "#expose_addr1_doro, #expose_addr2_doro", function() {
+    var $panel = $("#changeAreaExpose");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    $(this).blur();
+    var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
+  });
+
+  // 주소 선택 영역 초기화 - 패널이 닫힐 때 스크롤 복원
+  function initAddressArea() {
+    if (window.location.pathname.indexOf('/compage/recruit_write') !== -1) {
+      var $panel = $("#changeArea");
+      var $panelExpose = $("#changeAreaExpose");
+
+      // #changeArea (근무지 팝업) 모니터링
+      if ($panel.length > 0) {
+        // MutationObserver를 사용하여 패널의 클래스/속성 변경 감지
+        var observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              var $target = $(mutation.target);
+              if (!$target.hasClass('on') && ($target[0].hidden === true || $target.css('display') === 'none')) {
+                document.body.style.overflow = '';
+              }
+            }
+            if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
+              var $target = $(mutation.target);
+              if ($target[0].hidden === true) {
+                document.body.style.overflow = '';
+              }
+            }
+          });
+        });
+
+        observer.observe($panel[0], {
+          attributes: true,
+          attributeFilter: ['class', 'hidden', 'style']
+        });
+
+        // 패널 닫기 버튼 클릭 시에도 스크롤 복원
+        $(document).on('click', '#changeArea .btn-close-popup, #changeArea .btnCloseArea', function() {
+          setTimeout(function() {
+            document.body.style.overflow = '';
+          }, 100);
+        });
+      }
+
+      // #changeAreaExpose (공고노출지역 팝업) 모니터링
+      if ($panelExpose.length > 0) {
+        var observerExpose = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              var $target = $(mutation.target);
+              if (!$target.hasClass('on')) {
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+              }
+            }
+            if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
+              var $target = $(mutation.target);
+              if ($target[0].hidden === true) {
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+              }
+            }
+          });
+        });
+
+        observerExpose.observe($panelExpose[0], {
+          attributes: true,
+          attributeFilter: ['class', 'hidden', 'style']
+        });
+      }
+    }
+  }
 </script>
 
 <style>
@@ -3685,7 +3703,7 @@
               }
                 }
               } catch (e) {
-        
+            console.error("폰트 크기 기본값 설정 중 오류:", e);
           }
         }, 200);
       }
@@ -3742,7 +3760,7 @@
             },
             error: function(xhr, status, error) {
               uploadCount++;
-            
+              console.error('업로드 오류:', error);
               alert(file.name + ' 업로드 중 오류가 발생했습니다.');
 
               if (uploadCount === files.length) {
@@ -3775,6 +3793,7 @@
   // 페이지 로드 시 모든 초기화 함수 실행
   $(document).ready(function() {
     initLawPopup();
+    initAddressArea();
     initFormValidation();
   });
 
@@ -4016,7 +4035,7 @@
       secondButton: ($("[name=rc_idx]").val() != "0" ? '수정완료' : '등록완료'),
       firstCallback: function() {},
       secondCallback: function() {
-      
+        console.log("%c=== 등록완료/수정완료 버튼 클릭 ===", "color: #31A182; font-weight: bold;");
 
         var params = {};
         params["rc_idx"] = $("[name=rc_idx]").val();
@@ -4035,15 +4054,17 @@
         params["expose_addr2_gps_x"] = $("[name=expose_addr2_gps_x]").val();
         params["expose_addr2_gps_y"] = $("[name=expose_addr2_gps_y]").val();
 
-     
+        console.log("전송 파라미터:", params);
+        console.log("요청 URL: /compage_proc/recruit_complete");
+
         comAjax("/compage_proc/recruit_complete", params, function(ret) {
-        
+          console.log("서버 응답:", ret);
 
           if (ret.code == "00") {
-          
+            console.log("✅ 저장 성공!");
             location.href = "/compage/recruit_list";
           } else {
-         
+            console.warn("❌ 저장 실패:", ret.msg);
             commonAlert(ret.msg, function() {});
             return;
           }
@@ -4239,7 +4260,11 @@
   $(document).ready(function() {
     initRecruitDatePicker();
     initStartingDatePicker();
+
+    // 공고노출지역 팝업 설정
+    window.__addrPopupPageType = 'recruit_write';
   });
 </script>
 
-<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup2025_new_web.php'); ?>

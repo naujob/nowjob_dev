@@ -273,7 +273,7 @@ class CI_PpurioClient
                 }
             }
         }
-
+         //targets은 배열로 구성되어야 하며, 각 target은 to(필수), changeWord(선택), name(선택)을 포함
         // targets 배열 구성 (뿌리오 API 문서 기준: targets 배열 필수)
         // 각 target은 to(필수), changeWord(선택), name(선택) 포함
         $target = array(

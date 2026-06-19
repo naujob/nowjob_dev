@@ -176,11 +176,7 @@
                      height: 385px;
                    }
 
-                   .addr_list ul li {
-                     list-style: none;
-                     padding: 5px;
-                     border-bottom: 1px solid #DCDCDC;
-                   }
+                  
 
                    .addr_dept1 {
                      width: 20%;
@@ -708,7 +704,6 @@
    }
 
    function returnLocation(lat, lng) {
-   
      // 위치 권한이 없거나 거부된 경우 조용히 종료 (팝업 표시 안 함)
      if (lat == "0" && lng == "0") {
        // 위치 권한이 없는 경우 팝업 없이 조용히 종료
