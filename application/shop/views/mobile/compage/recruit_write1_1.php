@@ -1497,75 +1497,95 @@
             $optionsGroup.find("input[value='주급가능']").closest("label").show();
         }
     }
-    // 주소 검색 결과를 폼에 반영하는 함수
-    function selectAddrInfo(zipcode, doro, jibun, addr, x, y, detail) {
-        detail = detail || "";
+    // ====== 신규 주소 팝업 (addr_popup2025_new.php) 통합 처리 ======
+    var __addrPopupTarget = "recruit";
+    window.__addrPopupPageType = 'recruit_write';
 
-        $("#ad_zipcode").val(zipcode);
-        $("#ad_jibun").val(jibun);
-        $("#ad_doro").val(doro);
+    // 팝업 열기 함수
+    function openAddrPopup2025() {
+      window.__hideAllRegionsInAddrPopup = true;
+      window.__addrPopupMaxSelection = 1;
+
+      // 이전 선택 초기화
+      $('.div2 .selbtn').remove();
+      $('li.addr_on').removeClass('addr_on');
+      $('.addr_dept2 ul, .addr_dept3 ul').empty();
+      $('#txt_addr').val('');
+      if (typeof updateSelectedCount === 'function') updateSelectedCount();
+
+      // 최대 선택 개수 표시 텍스트 업데이트
+      $('.div1desc').text('(최대 1개)');
+    }
+
+    // 신규 팝업 콜백: 지역 선택 완료 시 호출
+    window.onChangeAreaApply = function(data) {
+      if (!data || !data.searchArea || data.searchArea.length === 0) return true;
+
+      var area = data.searchArea[0];
+      var addr = area.addr || '';
+
+      console.log("[주소 선택] target: " + __addrPopupTarget + ", addr: " + addr);
+
+      if (__addrPopupTarget === "recruit") {
+        // 근무지: GPS 좌표 필수
+        $("#ad_zipcode").val("");
+        $("#ad_jibun").val(addr);
+        $("#ad_doro").val(addr);
         $("#ad_addr").val(addr);
-        $("#ad_detail").val(detail);
-        $("#ad_gps_x").val(x);
-        $("#ad_gps_y").val(y);
+        $("#ad_detail").val("");
 
         var $btnAddr = $("#btnAddrAdd");
-        var displayAddr = addr;
-        if (detail && detail.trim() !== "") {
-            displayAddr = addr + " " + detail.trim();
-        }
-        $btnAddr.find(".address-text").text(displayAddr);
+        $btnAddr.find(".address-text").text(addr);
         $btnAddr.addClass("has-address");
 
-        $("#changeArea").removeClass("on");
-        savePage1Data();
-    }
-
-    // 공고노출지역 1 콜백 함수
-    function selectAddrInfoExpose1(zipcode, doro, jibun, addr, x, y, detail) {
-        detail = detail || "";
-
-        $("#expose_addr1_zipcode").val(zipcode);
-        $("#expose_addr1_jibun").val(jibun);
-        $("#expose_addr1_doro_val").val(doro);
+        // GPS 좌표 조회 (Kakao API)
+        comAjax("/common_proc/get_gps_info", { query: addr }, function(ret) {
+          if (ret.code === "00") {
+            $("#ad_gps_x").val(ret.data.x);
+            $("#ad_gps_y").val(ret.data.y);
+            console.log("[GPS 조회 성공] x: " + ret.data.x + ", y: " + ret.data.y);
+            savePage1Data();
+          } else {
+            $("#ad_gps_x").val("");
+            $("#ad_gps_y").val("");
+            commonAlert("GPS 정보를 조회하지 못했습니다. 다른 주소를 선택해주세요.", function() {});
+          }
+        });
+      } else if (__addrPopupTarget === "expose1") {
+        // 공고노출지역 1
+        $("#expose_addr1_zipcode").val("");
+        $("#expose_addr1_jibun").val(addr);
+        $("#expose_addr1_doro_val").val(addr);
         $("#expose_addr1_addr").val(addr);
-        $("#expose_addr1_gps_x").val(x);
-        $("#expose_addr1_gps_y").val(y);
+        $("#expose_addr1_gps_x").val("");
+        $("#expose_addr1_gps_y").val("");
 
-        var $btnAddr = $("#btnExposeAddr1");
-        var displayAddr = addr;
-        if (detail && detail.trim() !== "") {
-            displayAddr = addr + " " + detail.trim();
-        }
-        $btnAddr.find(".address-text").text(displayAddr);
-        $btnAddr.addClass("has-address");
+        var $btnAddr1 = $("#btnExposeAddr1");
+        $btnAddr1.find(".address-text").text(addr);
+        $btnAddr1.addClass("has-address");
 
-        $("#changeArea").removeClass("on");
         savePage1Data();
-    }
-
-    // 공고노출지역 2 콜백 함수
-    function selectAddrInfoExpose2(zipcode, doro, jibun, addr, x, y, detail) {
-        detail = detail || "";
-
-        $("#expose_addr2_zipcode").val(zipcode);
-        $("#expose_addr2_jibun").val(jibun);
-        $("#expose_addr2_doro_val").val(doro);
+      } else if (__addrPopupTarget === "expose2") {
+        // 공고노출지역 2
+        $("#expose_addr2_zipcode").val("");
+        $("#expose_addr2_jibun").val(addr);
+        $("#expose_addr2_doro_val").val(addr);
         $("#expose_addr2_addr").val(addr);
-        $("#expose_addr2_gps_x").val(x);
-        $("#expose_addr2_gps_y").val(y);
+        $("#expose_addr2_gps_x").val("");
+        $("#expose_addr2_gps_y").val("");
 
-        var $btnAddr = $("#btnExposeAddr2");
-        var displayAddr = addr;
-        if (detail && detail.trim() !== "") {
-            displayAddr = addr + " " + detail.trim();
-        }
-        $btnAddr.find(".address-text").text(displayAddr);
-        $btnAddr.addClass("has-address");
+        var $btnAddr2 = $("#btnExposeAddr2");
+        $btnAddr2.find(".address-text").text(addr);
+        $btnAddr2.addClass("has-address");
 
-        $("#changeArea").removeClass("on");
         savePage1Data();
-    }
+      }
+
+      // 팝업 닫기
+      $("#changeArea").removeClass("on");
+      return true;
+    };
+
     // 해시태그 체크박스에서 선택된 값들을 쉼표로 구분된 문자열로 만들어 반환하는 함수
     function buildHashString() {
         var hashArray = [];
@@ -2395,16 +2415,25 @@
             }
         });
 
+        // 근무지 버튼 클릭
+        $("#btnAddrAdd").click(function(e) {
+            e.preventDefault();
+            __addrPopupTarget = "recruit";
+            openAddrPopup2025();
+        });
+
         // 공고노출지역 1 버튼 클릭
         $("#btnExposeAddr1").click(function(e) {
             e.preventDefault();
-            window.selectAddrInfo = selectAddrInfoExpose1;
+            __addrPopupTarget = "expose1";
+            openAddrPopup2025();
         });
 
         // 공고노출지역 2 버튼 클릭
         $("#btnExposeAddr2").click(function(e) {
             e.preventDefault();
-            window.selectAddrInfo = selectAddrInfoExpose2;
+            __addrPopupTarget = "expose2";
+            openAddrPopup2025();
         });
 
         // 공고노출지역 1, 2 삭제 버튼 클릭
@@ -2569,4 +2598,4 @@
 
 </script>
 <script src="/resource/shop/mobile/js/common-utils.js"></script>
-<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>

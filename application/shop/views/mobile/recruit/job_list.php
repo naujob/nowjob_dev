@@ -819,7 +819,7 @@ $tpl_recomm_class = true; ?>
   var searchAreaStr = "";
   var addrName = "";
   var searchStateLoaded = false;
-  var loadDataInitialized = false;
+  var loadDataInitialized = false;// 데이터 로드 초기화 여부
   var ITEMS_PER_PAGE = 20;
   var total_count = 0;
   var total_pages = 1;
@@ -870,7 +870,8 @@ $tpl_recomm_class = true; ?>
   // ========================================
   // 3️⃣  데이터 조회 함수들 (AJAX)
   // ========================================
-
+  
+  // 공고 리스트 조회
   function getBoardList(save_yn) {
     if (list_loading) {
       return;
@@ -1057,6 +1058,7 @@ $tpl_recomm_class = true; ?>
     }
   }
 
+  // 빈 상태 표시 토글
   function showEmpty() {
     if ($(list_id).find("li").length == 0) {
       $(list_empty_id).show();
@@ -1067,6 +1069,7 @@ $tpl_recomm_class = true; ?>
     }
   }
 
+  // 페이지네이션 렌더링
   function renderPagination() {
     var $wrapper = $("#paginationWrapper");
     var listItemCount = $(list_id).find("li").length;
@@ -1102,28 +1105,30 @@ $tpl_recomm_class = true; ?>
     }, 0);
   }
 
+  // 페이지네이션 버튼 클릭 이벤트 (이벤트 위임)
   function goPage(page) {
     if (page < 1 || page > total_pages) {
       return;
     }
 
-    list_page = page;
+    list_page = page;// 페이지 번호 업데이트
 
-    saveCurrentPage();
-    $(list_id).empty();
+    saveCurrentPage(); // 세션 스토리지 및 URL 업데이트
+    $(list_id).empty(); // 기존 리스트 초기화
 
-    $("html, body").animate({scrollTop: 0}, 200);
+    $("html, body").animate({scrollTop: 0}, 200); // 스크롤 상단 이동
 
     // 페이지네이션 미리 숨김
     $("#paginationWrapper").removeClass('visible');
 
-    getBoardList("");
-    updateTopSectionsVisibility();
+    getBoardList(""); // 데이터 조회
+    updateTopSectionsVisibility(); // 상단 섹션 표시 업데이트
   }
 
+  // 현재 페이지가 1페이지인지 여부에 따라 상단 영역들을 보이거나 숨기는 역할
   function updateTopSectionsVisibility() {
-    var isFirstPage = (list_page <= 1);
-    $('.main-visual').toggle(isFirstPage);
+    var isFirstPage = (list_page <= 1); //true이면 1페이지, false이면 2페이지 이상
+    $('.main-visual').toggle(isFirstPage);  
     $('#hotListSection').toggle(isFirstPage);
   }
 
@@ -1252,7 +1257,7 @@ $tpl_recomm_class = true; ?>
       }
     }
   }
-
+  // attemptRestoreScroll: 모바일 웹뷰에서 스크롤이 안되는 문제를 해결하기 위해 body와 html의 overflow 속성을 강제로 복원하는 함수
   function attemptRestoreScroll() {
     if (typeof forceRestoreBodyScroll === 'function') {
       forceRestoreBodyScroll();

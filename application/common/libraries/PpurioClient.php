@@ -13,7 +13,7 @@ class CI_PpurioClient
     {
         // CodeIgniter 환경에서 config_item 으로 시도, 없으면 파일에서 직접 로드
         if (function_exists('config_item')) {
-            $cfg = config_item('ppurio');
+            $cfg = config_item('ppurio'); //$config['ppurio'] = '뿌리오 API 설정 ; application\common\config\ppurio.php
             if (is_array($cfg)) {
                 $this->config = $cfg;
                 return;
@@ -164,7 +164,7 @@ class CI_PpurioClient
             'error' => null,
         );
     }
-
+    // 설정값을 안전하게 가져오는 헬퍼 메서드
     private function getConfigValue($key)
     {
         if (is_array($this->config) && isset($this->config[$key])) {
