@@ -428,8 +428,18 @@
     			}else{
     				json_return("90","데이터 처리시 오류가 발생하였습니다.");
     			}
+		}else if($proc_mode=="agree_ad"){
+			$current_agree_ad = input_post("current_agree_ad","N");
+			$new_agree_ad = ($current_agree_ad === "Y") ? "N" : "Y";
+			$result = $this->member_model->updateMember(["mm_agree_ad"=>$new_agree_ad],["mm_idx"=>$idx]);
+
+			if($result["code"]=="00"){
+				json_return("00","광고수신동의 ".($new_agree_ad === "Y" ? "동의" : "미동의")." 처리 완료");
+			}else{
+				json_return("90","데이터 처리시 오류가 발생하였습니다.");
 			}
 		}
+	}
 
     function member_reg_proc(){
 			$mm_id = input_post("mm_id");

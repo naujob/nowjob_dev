@@ -129,6 +129,19 @@
                         </div>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="col">광고수신동의</th>
+                    <td colspan="3">
+                        <div class="input-text ">
+                            <?php echo $info["mm_agree_ad"] === "Y" ? "동의" : ($info["mm_agree_ad"] === "N" ? "미동의" : "-"); ?>
+                            <a href="javascript:void(0);" class="btn-xs btn-type6 btnAgreeAd ml-10"
+                               data-idx="<?=$info["mm_idx"]?>"
+                               data-status="<?=$info["mm_agree_ad"]?>">
+                               <?php echo $info["mm_agree_ad"] === "Y" ? "미동의로 변경" : "동의로 변경"; ?>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
                 <?php if($info["fire_dt"]!="0000-00-00 00:00:00") : ?>
                 <tr>
                     <th scope="col">탈퇴일시</th>
@@ -583,8 +596,30 @@
 
         });
 
+      });
 
-    });
+      $(".btnAgreeAd").click(function(){
+          var idx = $(this).data("idx");
+          var current_status = $(this).data("status");
+          var new_status = (current_status === "Y") ? "미동의" : "동의";
+
+          COMMON.confirm("광고수신동의를 " + new_status + " 처리하시겠습니까?", function(){
+              var params = {};
+              params["idx"] = idx;
+              params["current_agree_ad"] = current_status;
+              params["proc_mode"] = "agree_ad";
+
+              comAjax("/admin/member/member_edit_proc", params, function(result){
+                  if(result.code == "00"){
+                      COMMON.alert(result.msg, function(){
+                          location.reload();
+                      });
+                  }else{
+                      COMMON.alert(result.msg);
+                  }
+              });
+          });
+      });
 
 
    });
