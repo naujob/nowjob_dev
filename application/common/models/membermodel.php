@@ -416,6 +416,9 @@ class memberModel extends MY_Model
 			"(
 				case when mm_join_type = 'KAKAO' then '카카오'
 					 when mm_join_type = 'APPLE' then '애플'
+					 when mm_join_type = 'NAVER' then '네이버'
+					 when mm_join_type = 'GOOGLE' then '구글'
+					 when mm_join_type = 'WECHAT' then '위쳇'
 					 when mm_join_type = 'WEB' then '이메일'
 					 else ''
 			    end) as mm_join_type_nm"

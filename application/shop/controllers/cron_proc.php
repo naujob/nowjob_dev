@@ -41,8 +41,8 @@ class Cron_proc extends CI_Controller
             return;
         }
 
-        // 3. PpurioClient 로드
-        $ppurioPath = APPPATH . 'common/libraries/PpurioClient.php';
+        // 3. PpurioClient 로드 (공유 라이브러리 경로)
+        $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
         if (!file_exists($ppurioPath)) {
             echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
             return;
