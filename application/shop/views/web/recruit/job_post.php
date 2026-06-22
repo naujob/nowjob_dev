@@ -1886,6 +1886,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
                         // 사용자 목록
                         var firstUsers = [];
+                        console.log('[job_post.php] 첫 메시지 전송 준비 - g_user_id:', g_user_id, 'targetUserId:', targetUserId);
                         firstUsers.push({
                           user_id: g_user_id,
                           user_nick: ""
@@ -1895,6 +1896,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                           user_nick: ""
                         });
 
+                        console.log('[job_post.php] 지원 자동메시지 전송 - rm_idx:', targetRmIdx, 'chat_type:', firstMessage.chat_type, 'mg_text:', messageText);
 
                         // 메시지 전송
                         socket.emit("message_insert", firstMessage, firstUsers);

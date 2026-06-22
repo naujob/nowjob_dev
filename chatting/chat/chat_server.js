@@ -784,6 +784,8 @@ io.on('connection', function (socket) {
 			// target_mg_text: 메시지의 실제 텍스트 내용
 			const target_mg_text = data.mg_text;
 
+			$common.writeLog('[message_insert] 소켓에서 메시지 수신 - rm_idx: ' + target_rm_idx + ', user_id: ' + g_user_id + ', chat_type: ' + target_chat_type + ', mg_text: ' + target_mg_text);
+
 			// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
 			const room = await $db.cs_room.findOne({ rm_idx: target_rm_idx });
 			if (room && room.rm_users) {

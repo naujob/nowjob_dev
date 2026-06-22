@@ -426,6 +426,7 @@ container.insertMessage = async function (data, callback) {
 		var message = {
 			user_id: data.user_id,
 			mg_idx: mg_idx,
+			chat_type: data.chat_type || "",
 			mg_type: data.mg_type,
 			mg_text: data.mg_text,
 			mg_req_dt: data.mg_req_dt,
@@ -436,6 +437,8 @@ container.insertMessage = async function (data, callback) {
 			mg_reads: read_users,
 			user_info: user_info
 		};
+
+		$common.writeLog('[insertMessage] MongoDB에 메시지 저장 - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', chat_type: ' + message.chat_type + ', mg_text: ' + message.mg_text);
 
 		//디비 등록
 		var ret = await $db.cs_room.updateOne({ rm_idx: data.rm_idx }, { $push: { rm_messages: message } });
