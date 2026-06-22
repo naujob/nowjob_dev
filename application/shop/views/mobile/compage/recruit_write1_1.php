@@ -2514,35 +2514,37 @@
 </script>
 <script src="/resource/shop/mobile/js/common-utils.js"></script>
 <script>
-  // 공고노출지역 팝업 설정
-  window.__addrPopupPageType = 'recruit_write1_1';
-
-  // 공고노출지역 팝업 콜백
+  // 공고노출지역 팝업 콜백 - 현재 팝업 타입에 따라 해당 필드에만 저장
   window.onChangeAreaApply = function(data) {
-    // hidden 필드 초기화
-    for (var i = 1; i <= 2; i++) {
-      $("#expose_addr" + i + "_zipcode").val("");
-      $("#expose_addr" + i + "_jibun").val("");
-      $("#expose_addr" + i + "_doro_val").val("");
-      $("#expose_addr" + i + "_addr").val("");
-      $("#expose_addr" + i + "_gps_x").val("");
-      $("#expose_addr" + i + "_gps_y").val("");
-      var $btn = $("#btnExposeAddr" + i);
+    var pageType = window.__addrPopupPageType || 'default';
+
+    // expose1 또는 expose2인 경우만 처리
+    if (pageType === 'expose1' || pageType === 'expose2') {
+      // 선택된 필드 인덱스 추출 (expose1 -> 1, expose2 -> 2)
+      var fieldIndex = pageType.replace('expose', '');
+
+      // 해당 필드의 hidden 필드만 초기화
+      $("#expose_addr" + fieldIndex + "_zipcode").val("");
+      $("#expose_addr" + fieldIndex + "_jibun").val("");
+      $("#expose_addr" + fieldIndex + "_doro_val").val("");
+      $("#expose_addr" + fieldIndex + "_addr").val("");
+      $("#expose_addr" + fieldIndex + "_gps_x").val("");
+      $("#expose_addr" + fieldIndex + "_gps_y").val("");
+      var $btn = $("#btnExposeAddr" + fieldIndex);
       $btn.find(".address-text").text("");
       $btn.removeClass("has-address");
       $btn.closest(".address-btn-wrapper").find(".address-clear-btn").hide();
-    }
 
-    // 새 데이터 매핑
-    if (data.searchArea && data.searchArea.length > 0) {
-      data.searchArea.forEach(function(area, idx) {
-        var n = idx + 1;
-        $("#expose_addr" + n + "_addr").val(area.addr);
-        var $btn = $("#btnExposeAddr" + n);
-        $btn.find(".address-text").text(data.addrNames[idx] || "");
+      // 새 데이터를 해당 필드에만 매핑
+      if (data.searchArea && data.searchArea.length > 0) {
+        var area = data.searchArea[0]; // 최대 1개만 선택 가능하므로 첫 번째만 사용
+        $("#expose_addr" + fieldIndex + "_addr").val(area.addr);
+        var $btn = $("#btnExposeAddr" + fieldIndex);
+        // data-addr의 전체 주소를 표시 필드에 표시
+        $btn.find(".address-text").text(area.addr);
         $btn.addClass("has-address");
         $btn.closest(".address-btn-wrapper").find(".address-clear-btn").show();
-      });
+      }
     }
 
     savePage1Data();
@@ -2579,10 +2581,27 @@
     }
   });
 
-  // 공고노출지역 버튼 클릭 시 body overflow 설정
+  // 공고노출지역 버튼 클릭 시 body overflow 설정 및 pageType 동적 설정
   $(document).on('click', '.js-toggle-panel[aria-controls="changeAreaExpose"]', function() {
+    // 클릭된 버튼의 ID에서 인덱스 추출
+    var buttonId = $(this).attr('id');
+    if (buttonId === 'btnExposeAddr1') {
+      window.__addrPopupPageType = 'expose1';
+    } else if (buttonId === 'btnExposeAddr2') {
+      window.__addrPopupPageType = 'expose2';
+    }
     document.body.style.overflow = 'hidden';
+
+    // 팝업 내 선택 기록 복원
+    setTimeout(function() {
+      if (window.restoreExposeAddrPopup) {
+        window.restoreExposeAddrPopup();
+      }
+    }, 50);
   });
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>
-<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new_expose.php'); ?>
+<?php
+$addrPopupId = 'changeAreaExpose';
+include(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new_tpl.php');
+?>

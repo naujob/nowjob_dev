@@ -1,35 +1,41 @@
+<?php
+// 템플릿 파라미터: 패널 ID (필수)
+if (!isset($addrPopupId)) {
+    $addrPopupId = 'changeArea';
+}
+?>
 <style>
-  #changeAreaExpose.layer-panel.card-type .panel-header {
+  #<?= $addrPopupId ?>.layer-panel.card-type .panel-header {
     position: relative;
     padding-top: 1.25rem;
     padding-bottom: 1.25rem;
     background: inherit;
   }
 
-  #changeAreaExpose.layer-panel.card-type .panel-header .panel-title {
+  #<?= $addrPopupId ?>.layer-panel.card-type .panel-header .panel-title {
     background: inherit;
   }
 
-  #changeAreaExpose.layer-panel.card-type .panel-header .panel-title em {
+  #<?= $addrPopupId ?>.layer-panel.card-type .panel-header .panel-title em {
     font-style: normal;
     color: #1B9D7D;
   }
 
-  #changeAreaExpose.layer-panel.card-type .panel-body {
+  #<?= $addrPopupId ?>.layer-panel.card-type .panel-body {
     padding: 0;
   }
 
-  #changeAreaExpose.layer-panel.card-type .panel-container {
+  #<?= $addrPopupId ?>.layer-panel.card-type .panel-container {
     height: 100%;
     max-height: 95%;
   }
 
-  #changeAreaExpose .panel-content {
+  #<?= $addrPopupId ?> .panel-content {
     position: relative;
     height: 100%;
   }
 
-  #changeAreaExpose .result-wrap {
+  #<?= $addrPopupId ?> .result-wrap {
     height: 100%;
     margin: 0;
     display: flex;
@@ -37,19 +43,19 @@
     font-family: sans-serif;
   }
 
-  #changeAreaExpose .search-cont {
+  #<?= $addrPopupId ?> .search-cont {
     padding: 20px;
     background: #f0f0f0;
     flex: 0 0 auto;
   }
 
-  #changeAreaExpose .search-input {
+  #<?= $addrPopupId ?> .search-input {
     display: flex;
     align-items: center;
     height: 100%;
   }
 
-  #changeAreaExpose .search-input input {
+  #<?= $addrPopupId ?> .search-input input {
     flex: 1;
     height: 45px;
     padding: 5px 10px;
@@ -58,60 +64,70 @@
     border-radius: 7px;
   }
 
-  #changeAreaExpose .search-input input::placeholder {
+  #<?= $addrPopupId ?> .search-input input::placeholder {
     color: #999;
     opacity: 1;
     font-weight: 500;
   }
 
-  #changeAreaExpose .search-input .icon {
+  #<?= $addrPopupId ?> .search-input .icon {
     margin-left: 5px;
   }
 
-  #changeAreaExpose .addr_list {
+  #<?= $addrPopupId ?> .addr-popup-list {
     flex: 1 1 auto;
     display: flex;
     flex-direction: row;
     min-height: 100px;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+    position: static;
+    height: auto;
+    margin-top: 0;
+    font-size: inherit;
+    float: none;
   }
 
-  #changeAreaExpose .search_addr,
-  #changeAreaExpose .addr_dept,
-  #changeAreaExpose .addr_dept1,
-  #changeAreaExpose .addr_dept2,
-  #changeAreaExpose .addr_dept3 {
+  #<?= $addrPopupId ?> .addr-popup-search,
+  #<?= $addrPopupId ?> .addr-popup-dept,
+  #<?= $addrPopupId ?> .addr-popup-dept1,
+  #<?= $addrPopupId ?> .addr-popup-dept2,
+  #<?= $addrPopupId ?> .addr-popup-dept3 {
     display: flex;
     flex-direction: column;
     height: 100%;
   }
 
-  #changeAreaExpose .search_addr {
+  #<?= $addrPopupId ?> .addr-popup-search {
     width: 100%;
   }
 
-  #changeAreaExpose .addr_dept {
+  #<?= $addrPopupId ?> .addr-popup-dept {
     width: 100%;
     display: flex;
     flex-direction: row;
   }
 
-  #changeAreaExpose .addr_dept1 {
+  #<?= $addrPopupId ?> .addr-popup-dept1 {
     width: 20%;
     border-right: 1px solid #ccc;
-  }
-
-  #changeAreaExpose .addr_dept2 {
-    width: 40%;
+    border: none;
     border-right: 1px solid #ccc;
   }
 
-  #changeAreaExpose .addr_dept3 {
+  #<?= $addrPopupId ?> .addr-popup-dept2 {
     width: 40%;
+    border-right: 1px solid #ccc;
+    border: none;
+    border-right: 1px solid #ccc;
   }
 
-  #changeAreaExpose .addr_title {
+  #<?= $addrPopupId ?> .addr-popup-dept3 {
+    width: 40%;
+    border: none;
+  }
+
+  #<?= $addrPopupId ?> .addr-popup-title {
     padding: 5px 8px;
     background: #f0f0f0;
     font-weight: bold;
@@ -120,10 +136,10 @@
     text-align: center;
   }
 
-  #changeAreaExpose .search_addr ul,
-  #changeAreaExpose .addr_dept1 ul,
-  #changeAreaExpose .addr_dept2 ul,
-  #changeAreaExpose .addr_dept3 ul {
+  #<?= $addrPopupId ?> .addr-popup-search ul,
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul {
     flex: 1 1 auto;
     margin: 0;
     padding: 0;
@@ -132,21 +148,21 @@
     scrollbar-width: none;
   }
 
-  #changeAreaExpose .addr_dept1 ul::-webkit-scrollbar,
-  #changeAreaExpose .addr_dept2 ul::-webkit-scrollbar,
-  #changeAreaExpose .addr_dept3 ul::-webkit-scrollbar,
-  #changeAreaExpose .search_addr ul::-webkit-scrollbar {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul::-webkit-scrollbar,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul::-webkit-scrollbar,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul::-webkit-scrollbar,
+  #<?= $addrPopupId ?> .addr-popup-search ul::-webkit-scrollbar {
     width: 0;
     height: 0;
   }
 
-  #changeAreaExpose .addr_dept1 ul li.selectable.addr_on,
-  #changeAreaExpose .addr_dept2 ul li.selectable.addr_on {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li.selectable.addr-popup-on,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li.selectable.addr-popup-on {
     background-color: #31A182;
     color: #fff;
   }
 
-  #changeAreaExpose .search_addr ul li {
+  #<?= $addrPopupId ?> .addr-popup-search ul li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -160,7 +176,7 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .search_addr ul li label {
+  #<?= $addrPopupId ?> .addr-popup-search ul li label {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -168,12 +184,12 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .search_addr ul li.addr_on label {
+  #<?= $addrPopupId ?> .addr-popup-search ul li.addr-popup-on label {
     background-color: #fff;
     color: #31A182;
   }
 
-  #changeAreaExpose .search_addr ul li .text {
+  #<?= $addrPopupId ?> .addr-popup-search ul li .text {
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -184,7 +200,7 @@
     padding-left: 2rem;
   }
 
-  #changeAreaExpose .search_addr ul li input[type="checkbox"] {
+  #<?= $addrPopupId ?> .addr-popup-search ul li input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -199,11 +215,10 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .search_addr ul li label::before {
+  #<?= $addrPopupId ?> .addr-popup-search ul li label::before {
     content: "";
     display: block;
     position: absolute;
-    /*top: 50%;*/
     left: 5px;
     width: 1.25rem;
     height: 1.25rem;
@@ -213,12 +228,12 @@
     z-index: 1;
   }
 
-  #changeAreaExpose .search_addr ul li.addr_on label::before {
+  #<?= $addrPopupId ?> .addr-popup-search ul li.addr-popup-on label::before {
     background: url(/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat 0 0;
     background-size: contain;
   }
 
-  #changeAreaExpose .addr_list_sel_box {
+  #<?= $addrPopupId ?> .addr-popup-sel-box {
     flex: 0 0 auto;
     max-height: 225px;
     overflow-y: auto;
@@ -226,14 +241,14 @@
     box-sizing: border-box;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1 {
+  #<?= $addrPopupId ?> .addr-popup-sel-box .addr-popup-div1 {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 5px;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div2 {
+  #<?= $addrPopupId ?> .addr-popup-sel-box .addr-popup-div2 {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
@@ -241,9 +256,9 @@
     margin-left: 10px;
   }
 
-  #changeAreaExpose .addr_dept1 ul li,
-  #changeAreaExpose .addr_dept2 ul li,
-  #changeAreaExpose .addr_dept3 ul li {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -256,9 +271,9 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_dept1 ul li label,
-  #changeAreaExpose .addr_dept2 ul li label,
-  #changeAreaExpose .addr_dept3 ul li label {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li label,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li label,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul li label {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -266,16 +281,16 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_dept1 ul li.addr_on label,
-  #changeAreaExpose .addr_dept2 ul li.addr_on label,
-  #changeAreaExpose .addr_dept3 ul li.addr_on label {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li.addr-popup-on label,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li.addr-popup-on label,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul li.addr-popup-on label {
     background-color: #fff;
     color: #31A182;
   }
 
-  #changeAreaExpose .addr_dept1 ul li .text,
-  #changeAreaExpose .addr_dept2 ul li .text,
-  #changeAreaExpose .addr_dept3 ul li .text {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li .text,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li .text,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul li .text {
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -284,9 +299,9 @@
     padding: 0.5rem 1rem;
   }
 
-  #changeAreaExpose .addr_dept1 ul li input[type="checkbox"],
-  #changeAreaExpose .addr_dept2 ul li input[type="checkbox"],
-  #changeAreaExpose .addr_dept3 ul li input[type="checkbox"] {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li input[type="checkbox"],
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li input[type="checkbox"],
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul li input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -301,9 +316,9 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_dept1 ul li label::after,
-  #changeAreaExpose .addr_dept2 ul li label::after,
-  #changeAreaExpose .addr_dept3 ul li label::after {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li label::after,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li label::after,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul li label::after {
     content: "";
     position: absolute;
     right: 5px;
@@ -317,35 +332,35 @@
     z-index: 1;
   }
 
-  #changeAreaExpose .addr_dept1 ul li.addr_on label::after,
-  #changeAreaExpose .addr_dept2 ul li.addr_on label::after,
-  #changeAreaExpose .addr_dept3 ul li.addr_on label::after {
+  #<?= $addrPopupId ?> .addr-popup-dept1 ul li.addr-popup-on label::after,
+  #<?= $addrPopupId ?> .addr-popup-dept2 ul li.addr-popup-on label::after,
+  #<?= $addrPopupId ?> .addr-popup-dept3 ul li.addr-popup-on label::after {
     background: url(/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat center center;
     background-size: contain;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1 {
+  #<?= $addrPopupId ?> .addr-popup-sel-box .addr-popup-div1 {
     padding: 10px 10px;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1title {
+  #<?= $addrPopupId ?> .addr-popup-sel-box .addr-popup-div1-title {
     font-weight: 600;
     font-size: 1.1rem;
   }
 
-  #changeAreaExpose .addr_list_sel_box .addr_sel_cnt {
+  #<?= $addrPopupId ?> .addr-popup-sel-box .addr-popup-sel-cnt {
     margin-left: 10px;
     color: #31A182;
     font-weight: 600;
     margin-right: 10px;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1desc {
+  #<?= $addrPopupId ?> .addr-popup-sel-box .addr-popup-div1-desc {
     font-size: 0.8rem;
     color: #777;
   }
 
-  #changeAreaExpose .selbtn {
+  #<?= $addrPopupId ?> .addr-popup-selbtn {
     background-color: #eee;
     color: #666666;
     font-size: 1rem;
@@ -358,11 +373,11 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .selbtnclose {
+  #<?= $addrPopupId ?> .addr-popup-selbtn-close {
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div3 {
+  #<?= $addrPopupId ?> .addr-popup-sel-box .addr-popup-div3 {
     margin-top: 5px;
     display: flex;
     gap: 10px;
@@ -371,16 +386,16 @@
     margin-left: 10px;
   }
 
-  #changeAreaExpose .addr_sel_init {
+  #<?= $addrPopupId ?> .addr-popup-sel-init {
     flex: 3;
   }
 
-  #changeAreaExpose .addr_sel_apply {
+  #<?= $addrPopupId ?> .addr-popup-sel-apply {
     flex: 7;
   }
 
-  #changeAreaExpose .addr_sel_init,
-  #changeAreaExpose .addr_sel_apply {
+  #<?= $addrPopupId ?> .addr-popup-sel-init,
+  #<?= $addrPopupId ?> .addr-popup-sel-apply {
     background-color: #31A182;
     font-size: 1.3rem;
     color: white;
@@ -389,21 +404,20 @@
     padding: 1rem 0;
     border-radius: 80px;
     cursor: pointer;
-
   }
 
-  #changeAreaExpose .search-input {
+  #<?= $addrPopupId ?> .search-input {
     position: relative;
   }
 
-  #changeAreaExpose .form-text {
+  #<?= $addrPopupId ?> .form-text {
     width: 100%;
     padding-right: 36px;
     height: 40px;
     box-sizing: border-box;
   }
 
-  #changeAreaExpose .icon-btn {
+  #<?= $addrPopupId ?> .icon-btn {
     position: absolute;
     right: 8px;
     top: 50%;
@@ -414,12 +428,12 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .icon-btn img {
+  #<?= $addrPopupId ?> .icon-btn img {
     width: 20px;
     height: 20px;
   }
 
-  #changeAreaExpose .hidden {
+  #<?= $addrPopupId ?> .addr-popup-hidden {
     height: 0 !important;
     overflow: hidden !important;
     padding: 0 !important;
@@ -430,14 +444,14 @@
     pointer-events: none;
   }
 
-  #changeAreaExpose .visible {
+  #<?= $addrPopupId ?> .addr-popup-visible {
     height: auto;
     opacity: 1;
     flex: 1 1 auto;
     pointer-events: auto;
   }
 </style>
-<div id="changeAreaExpose" class="layer-panel card-type" tabindex="-1">
+<div id="<?= $addrPopupId ?>" class="layer-panel card-type" tabindex="-1">
   <div class="panel-container">
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
@@ -448,22 +462,22 @@
         <div class="result-wrap">
           <div class="search-cont">
             <div class="search-input">
-              <input type="text" id="txt_addr_expose" name="txt_addr_expose" placeholder="예시 : 신림동, 관악구" autocomplete="off" required class="form-text">
-              <button id="iconBtnExpose" type="button" class="icon-btn">
-                <img id="iconImgExpose" src="/resource/shop/mobile/img/ic_search2025.svg" alt="search icon">
+              <input type="text" id="txt_addr_<?= $addrPopupId ?>" name="txt_addr_<?= $addrPopupId ?>" placeholder="예시 : 신림동, 관악구" autocomplete="off" required class="form-text">
+              <button id="iconBtn_<?= $addrPopupId ?>" type="button" class="icon-btn">
+                <img id="iconImg_<?= $addrPopupId ?>" src="/resource/shop/mobile/img/ic_search2025.svg" alt="search icon">
               </button>
             </div>
           </div>
 
-          <div class="addr_list">
-            <div class="search_addr hidden">
-              <div class="addr_title">검색목록</div>
+          <div class="addr-popup-list">
+            <div class="addr-popup-search addr-popup-hidden">
+              <div class="addr-popup-title">검색목록</div>
               <ul>
               </ul>
             </div>
-            <div class="addr_dept visible">
-              <div class="addr_dept1">
-                <div class="addr_title">시·도</div>
+            <div class="addr-popup-dept addr-popup-visible">
+              <div class="addr-popup-dept1">
+                <div class="addr-popup-title">시·도</div>
                 <ul>
                   <li data-step="1" data-addr="서울특별시" class="selectable"><span class="text">서울</span></li>
                   <li data-step="1" data-addr="경기도" class="selectable"><span class="text">경기</span></li>
@@ -484,243 +498,251 @@
                   <li data-step="1" data-addr="제주특별자치도" class="selectable"><span class="text">제주</span></li>
                 </ul>
               </div>
-              <div class="addr_dept2">
-                <div class="addr_title">시·군·구</div>
+              <div class="addr-popup-dept2">
+                <div class="addr-popup-title">시·군·구</div>
                 <ul>
                 </ul>
               </div>
-              <div class="addr_dept3">
-                <div class="addr_title">읍·면·동</div>
+              <div class="addr-popup-dept3">
+                <div class="addr-popup-title">읍·면·동</div>
                 <ul>
                 </ul>
               </div>
             </div>
           </div>
 
-          <div class="addr_list_sel_box">
-            <!-- [변경] PHP 렌더링 제거 - JavaScript에서 sessionStorage로 복원 -->
-            <div class="div1">
-              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt">0</span><span class="div1desc">(최대 2개)</span>
+          <div class="addr-popup-sel-box">
+            <div class="addr-popup-div1">
+              <span class="addr-popup-div1-title">선택한 지역</span><span class="addr-popup-sel-cnt">0</span><span class="addr-popup-div1-desc">(최대 1개)</span>
             </div>
-            <div class="div2">
-              <!-- JavaScript에서 sessionStorage의 데이터로 .selbtn 요소를 동적으로 생성 -->
+            <div class="addr-popup-div2">
             </div>
-            <div class="div3">
-              <div class="addr_sel_init">초기화</div>
-              <div class="addr_sel_apply">적용하기</div>
+            <div class="addr-popup-div3">
+              <div class="addr-popup-sel-init">초기화</div>
+              <div class="addr-popup-sel-apply">적용하기</div>
             </div>
           </div>
 
         </div>
         <script>
-          const $txtInputExpose = $('#txt_addr_expose');
-          const $iconBtnExpose = $('#iconBtnExpose');
-          const $iconImgExpose = $('#iconImgExpose');
-          const $searchAddrExpose = $('#changeAreaExpose .search_addr');
-          const $deptExpose = $('#changeAreaExpose .addr_dept');
-          const $targetContainersExpose = $('#changeAreaExpose .search_addr, #changeAreaExpose .addr_dept1, #changeAreaExpose .addr_dept2, #changeAreaExpose .addr_dept3');
-          let debounceTimerExpose = null;
+        (function() {
+          var PANEL_ID = '<?= $addrPopupId ?>';
+          var $panel = $('#' + PANEL_ID);
+          var $txtInput = $panel.find('[id^="txt_addr_"]');
+          var $iconBtn = $panel.find('[id^="iconBtn_"]');
+          var $iconImg = $panel.find('[id^="iconImg_"]');
+          var $searchAddr = $panel.find('.addr-popup-search');
+          var $dept = $panel.find('.addr-popup-dept');
+          var debounceTimer = null;
 
-          // [변경] sessionStorage에서 선택된 지역 복원 (페이지별 구분)
-          function restoreSelectedRegionsToDiv2Expose() {
+          function restoreSelectedRegionsToDiv2() {
             var pageType = window.__addrPopupPageType || 'default';
             var storageKey_regions = 'selectedRegions_' + pageType;
             var storageKey_area = 'searchAreaStr_' + pageType;
             var storageKey_name = 'addrName_' + pageType;
 
-            const $div2 = $('#changeAreaExpose .div2');
+            var $div2 = $panel.find('.addr-popup-div2');
+            $div2.find('.addr-popup-selbtn').remove();
 
-            // 항상 .div2를 초기화
-            $div2.find('.selbtn').remove();
-
-            // sessionStorage에서 복원 (페이지별 키 사용)
-            const savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
-            const savedSearchAreaStr = sessionStorage.getItem(storageKey_area);
-            const savedAddrName = sessionStorage.getItem(storageKey_name);
+            var savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
+            var savedSearchAreaStr = sessionStorage.getItem(storageKey_area);
+            var savedAddrName = sessionStorage.getItem(storageKey_name);
 
             if (savedSelectedRegions && savedSearchAreaStr) {
               try {
-                const selectedRegions = JSON.parse(savedSelectedRegions);
-                const searchArea = JSON.parse(savedSearchAreaStr);
+                var selectedRegions = JSON.parse(savedSelectedRegions);
+                var searchArea = JSON.parse(savedSearchAreaStr);
 
-                searchArea.forEach((area, index) => {
-                  const $selbtn = $('<div>')
-                    .addClass('selbtn')
+                searchArea.forEach(function(area, index) {
+                  var $selbtn = $('<div>')
+                    .addClass('addr-popup-selbtn')
                     .attr('data-step', area.step)
                     .attr('data-addr', area.addr)
                     .text(selectedRegions[index] || '')
                     .append(
-                      $('<div>').addClass('selbtnclose').text('x')
+                      $('<div>').addClass('addr-popup-selbtn-close').text('x')
                     );
                   $div2.append($selbtn);
                 });
 
-                updateSelectedCountExpose();
+                updateSelectedCount();
               } catch (e) {
-                updateSelectedCountExpose();
+                updateSelectedCount();
               }
             } else {
-              updateSelectedCountExpose();
+              updateSelectedCount();
             }
           }
 
-          // 초기화 후 복원 시도
+          // PANEL_ID가 changeAreaExpose인 경우 전역 복원 함수 노출 (웹/모바일 페이지에서 호출 가능)
+          if (PANEL_ID === 'changeAreaExpose') {
+            window.restoreExposeAddrPopup = function() {
+              restoreSelectedRegionsToDiv2();
+            };
+          }
+
           $(document).ready(function() {
-            setTimeout(restoreSelectedRegionsToDiv2Expose, 100);
+            setTimeout(restoreSelectedRegionsToDiv2, 100);
           });
 
-          // 패널이 열릴 때마다 복원 시도
-          $(document).on('click', '.js-toggle-panel[aria-controls="changeAreaExpose"]', function() {
-            setTimeout(restoreSelectedRegionsToDiv2Expose, 50);
+          $(document).on('click', '.js-toggle-panel[aria-controls="' + PANEL_ID + '"]', function() {
+            var panel = document.getElementById(PANEL_ID);
+            if (panel && panel.hasAttribute('hidden')) {
+              panel.removeAttribute('hidden');
+            }
+            setTimeout(restoreSelectedRegionsToDiv2, 50);
           });
 
-          if (typeof window.__hideAllRegionsInAddrPopupExpose === 'undefined') {
-            window.__hideAllRegionsInAddrPopupExpose = false;
+          if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') {
+            window.__hideAllRegionsInAddrPopup = false;
           }
 
-          function shouldHideAllRegionsExpose() {
-            return window.__hideAllRegionsInAddrPopupExpose === true;
+          function shouldHideAllRegions() {
+            return window.__hideAllRegionsInAddrPopup === true;
           }
 
-          window.applyAddrPopupAllRegionFilterExpose = function() {
-            if (!shouldHideAllRegionsExpose()) return;
+          window.applyAddrPopupAllRegionFilter = function() {
+            if (!shouldHideAllRegions()) return;
 
-            $('#changeAreaExpose .search_addr ul li, #changeAreaExpose .addr_dept2 ul li, #changeAreaExpose .addr_dept3 ul li').each(function() {
-              const text = $(this).find('.text').text().trim();
+            $panel.find('.addr-popup-search ul li, .addr-popup-dept2 ul li, .addr-popup-dept3 ul li').each(function() {
+              var text = $(this).find('.text').text().trim();
               if (text.endsWith('전체')) {
                 $(this).remove();
               }
             });
 
-            $('#changeAreaExpose .div2 .selbtn').each(function() {
-              const text = $(this).clone().children().remove().end().text().trim();
+            $panel.find('.addr-popup-div2 .addr-popup-selbtn').each(function() {
+              var text = $(this).clone().children().remove().end().text().trim();
               if (text.endsWith('전체')) {
                 $(this).remove();
               }
             });
 
-            updateSelectedCountExpose();
+            updateSelectedCount();
           };
 
-          function resetAllRegionFlagExpose() {
-            window.__hideAllRegionsInAddrPopupExpose = false;
+          function resetAllRegionFlag() {
+            window.__hideAllRegionsInAddrPopup = false;
           }
 
-          function updateSearchViewExpose() {
-            if ($.trim($txtInputExpose.val()) !== '') {
-              $iconImgExpose.attr('src', '/resource/shop/mobile/img/ic_close2025.svg').attr('alt', 'clear');
-              $searchAddrExpose.removeClass('hidden').addClass('visible');
-              $deptExpose.removeClass('visible').addClass('hidden');
+          function updateSearchView() {
+            if ($.trim($txtInput.val()) !== '') {
+              $iconImg.attr('src', '/resource/shop/mobile/img/ic_close2025.svg').attr('alt', 'clear');
+              $searchAddr.removeClass('addr-popup-hidden').addClass('addr-popup-visible');
+              $dept.removeClass('addr-popup-visible').addClass('addr-popup-hidden');
             } else {
-              $iconImgExpose.attr('src', '/resource/shop/mobile/img/ic_search2025.svg').attr('alt', 'search icon');
-              $searchAddrExpose.removeClass('visible').addClass('hidden');
-              $deptExpose.removeClass('hidden').addClass('visible');
-              $('#changeAreaExpose .search_addr ul').empty();
+              $iconImg.attr('src', '/resource/shop/mobile/img/ic_search2025.svg').attr('alt', 'search icon');
+              $searchAddr.removeClass('addr-popup-visible').addClass('addr-popup-hidden');
+              $dept.removeClass('addr-popup-hidden').addClass('addr-popup-visible');
+              $panel.find('.addr-popup-search ul').empty();
             }
           }
 
-          $(document).on('input', '#txt_addr_expose', function() {
-            clearTimeout(debounceTimerExpose);
-            debounceTimerExpose = setTimeout(() => {
-              updateSearchViewExpose();
-              fSearchKeyUpExpose();
+          $(document).on('input', '#txt_addr_' + PANEL_ID, function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() {
+              updateSearchView();
+              fSearchKeyUp();
             }, 300);
           });
 
-          $iconBtnExpose.on('click', function() {
-            if ($iconImgExpose.attr('alt') === 'clear') {
-              $txtInputExpose.val('');
-              updateSearchViewExpose();
-              $txtInputExpose.focus();
+          $iconBtn.on('click', function() {
+            if ($iconImg.attr('alt') === 'clear') {
+              $txtInput.val('');
+              updateSearchView();
+              $txtInput.focus();
             }
           });
 
-          $targetContainersExpose.on('click', 'li[data-step][data-addr]', function(e) {
-            const $li = $(this);
-            const step = $li.data('step');
-            const addr = $li.data('addr');
-            const hasCheckbox = $li.find('input[type="checkbox"]').length > 0;
+          $panel.on('click', 'li[data-step][data-addr]', function(e) {
+            var $li = $(this);
+            var step = $li.data('step');
+            var addr = $li.data('addr');
+            var hasCheckbox = $li.find('input[type="checkbox"]').length > 0;
 
             if ($li.data('processing')) return;
             $li.data('processing', true);
-            setTimeout(() => $li.removeData('processing'), 200);
+            setTimeout(function() { $li.removeData('processing'); }, 200);
 
             if (hasCheckbox) {
-              searchSelectExpose(step, addr, $li);
+              searchSelect(step, addr, $li);
             } else {
-              searchLocationExpose(step, addr, $li);
+              searchLocation(step, addr, $li);
             }
 
-            $targetContainersExpose.each(function() {
-              const $targetContainer = $(this);
-              const $targetLi = $targetContainer.find(`li[data-step="${step}"][data-addr="${addr}"]`).not($li);
+            $panel.find('.addr-popup-search, .addr-popup-dept1, .addr-popup-dept2, .addr-popup-dept3').each(function() {
+              var $targetContainer = $(this);
+              var $targetLi = $targetContainer.find('li[data-step="' + step + '"][data-addr="' + addr + '"]').not($li);
               if (!$targetLi.length) return;
 
-              const targetHasCheckbox = $targetLi.find('input[type="checkbox"]').length > 0;
+              var targetHasCheckbox = $targetLi.find('input[type="checkbox"]').length > 0;
 
               if (targetHasCheckbox === hasCheckbox) {
                 if (hasCheckbox) {
-                  $targetLi.toggleClass('addr_on');
+                  $targetLi.toggleClass('addr-popup-on');
                 } else {
-                  $targetContainer.find('li.addr_on').each(function() {
+                  $targetContainer.find('li.addr-popup-on').each(function() {
                     if ($(this).find('input[type="checkbox"]').length === 0) {
-                      $(this).removeClass('addr_on');
+                      $(this).removeClass('addr-popup-on');
                     }
                   });
-                  $targetLi.addClass('addr_on');
+                  $targetLi.addClass('addr-popup-on');
                 }
               }
             });
           });
 
-          function searchLocationExpose(step, addr, $clickedLi) {
-            const hasCheckbox = $clickedLi.find('input[type="checkbox"]').length > 0;
+          function searchLocation(step, addr, $clickedLi) {
+            var hasCheckbox = $clickedLi.find('input[type="checkbox"]').length > 0;
             if (hasCheckbox) return;
 
-            const $parentDiv = $clickedLi.closest('.addr_dept1, .addr_dept2');
+            var $parentDiv = $clickedLi.closest('.addr-popup-dept1, .addr-popup-dept2');
             if (!$parentDiv.length) return;
 
-            $parentDiv.find('li.addr_on').each(function() {
+            $parentDiv.find('li.addr-popup-on').each(function() {
               if ($(this).find('input[type="checkbox"]').length === 0) {
-                $(this).removeClass('addr_on');
+                $(this).removeClass('addr-popup-on');
               }
             });
 
-            $clickedLi.addClass('addr_on');
-            get_location_dataExpose(step, addr);
+            $clickedLi.addClass('addr-popup-on');
+            get_location_data(step, addr);
           }
 
-          function searchSelectExpose(step, addr, $clickedLi) {
-            const isSelected = $clickedLi.toggleClass('addr_on').hasClass('addr_on');
-            const currentStep = parseInt(step, 10);
-            const $div2 = $('#changeAreaExpose .div2');
-            const text = $clickedLi.text().trim();
+          function searchSelect(step, addr, $clickedLi) {
+            var isSelected = $clickedLi.toggleClass('addr-popup-on').hasClass('addr-popup-on');
+            var currentStep = parseInt(step, 10);
+            var $div2 = $panel.find('.addr-popup-div2');
+            var text = $clickedLi.text().trim();
             var combinedText = "";
-            const textParts = text.split(" ");
-            if (shouldHideAllRegionsExpose() && textParts[textParts.length - 1] === "전체") {
-              $clickedLi.removeClass('addr_on');
+            var textParts = text.split(" ");
+
+            if (shouldHideAllRegions() && textParts[textParts.length - 1] === "전체") {
+              $clickedLi.removeClass('addr-popup-on');
               return;
             }
+
             if (textParts[textParts.length - 1] === "전체") {
               if (currentStep === 1) {
-                combinedText = replaceRegionNamesExpose(text)
+                combinedText = replaceRegionNames(text);
               } else {
-                combinedText = removeRegionNamesExpose(text);
+                combinedText = removeRegionNames(text);
               }
             } else {
               combinedText = textParts[textParts.length - 1];
             }
 
-            const existingBtnSelector = `.selbtn[data-step="${step}"][data-addr="${addr}"]`;
+            var existingBtnSelector = '.addr-popup-selbtn[data-step="' + step + '"][data-addr="' + addr + '"]';
             if (isSelected) {
-              const $existing = $div2.find(existingBtnSelector);
-              const alreadyExists = $existing.length > 0;
-              const currentCount = $('#changeAreaExpose .selbtn').length;
-              let removeCount = 0;
-              $('#changeAreaExpose .selbtn[data-step][data-addr]').each(function() {
-                const $btn = $(this);
-                const btnStep = parseInt($btn.data('step'), 10);
-                const btnAddr = $btn.data('addr');
+              var $existing = $div2.find(existingBtnSelector);
+              var alreadyExists = $existing.length > 0;
+              var currentCount = $panel.find('.addr-popup-selbtn').length;
+              var removeCount = 0;
+
+              $panel.find('.addr-popup-selbtn[data-step][data-addr]').each(function() {
+                var $btn = $(this);
+                var btnStep = parseInt($btn.data('step'), 10);
+                var btnAddr = $btn.data('addr');
 
                 if (
                   (currentStep === 1 && btnStep > 1 && btnAddr.startsWith(addr)) ||
@@ -733,45 +755,45 @@
                 }
               });
 
-              const maxSelection = typeof window.__addrPopupMaxSelection !== 'undefined'
+              var maxSelection = typeof window.__addrPopupMaxSelection !== 'undefined'
                 ? window.__addrPopupMaxSelection
-                : 2;
+                : 1;
 
-              const projectedCount = currentCount + (alreadyExists ? 0 : 1) - removeCount;
+              var projectedCount = currentCount + (alreadyExists ? 0 : 1) - removeCount;
 
               if (projectedCount > maxSelection) {
-                $clickedLi.removeClass('addr_on');
+                $clickedLi.removeClass('addr-popup-on');
                 return;
               }
 
               if (!alreadyExists) {
-                const $selbtn = $('<div>')
-                  .addClass('selbtn')
+                var $selbtn = $('<div>')
+                  .addClass('addr-popup-selbtn')
                   .attr('data-step', step)
                   .attr('data-addr', addr)
                   .text(combinedText)
                   .append(
                     $('<div>')
-                    .addClass('selbtnclose')
+                    .addClass('addr-popup-selbtn-close')
                     .text('x')
                   );
                 $div2.append($selbtn);
-                updateSelectedCountExpose();
+                updateSelectedCount();
               }
             } else {
               $div2.find(existingBtnSelector).remove();
-              updateSelectedCountExpose();
+              updateSelectedCount();
             }
 
-            $('#changeAreaExpose li[data-step][data-addr]').each(function() {
-              const $li = $(this);
+            $panel.find('li[data-step][data-addr]').each(function() {
+              var $li = $(this);
               if ($li.is($clickedLi)) return;
 
-              const hasCheckbox = $li.find('input[type="checkbox"]').length > 0;
+              var hasCheckbox = $li.find('input[type="checkbox"]').length > 0;
               if (!hasCheckbox) return;
 
-              const liStep = parseInt($li.data('step'), 10);
-              const liAddr = $li.data('addr');
+              var liStep = parseInt($li.data('step'), 10);
+              var liAddr = $li.data('addr');
 
               if (
                 (currentStep === 1 && liStep > 1 && liAddr.startsWith(addr)) ||
@@ -780,14 +802,14 @@
                 (currentStep === 3 &&
                   ((liStep === 1 && addr.startsWith(liAddr)) || (liStep === 2 && addr.startsWith(liAddr))))
               ) {
-                $li.removeClass('addr_on');
+                $li.removeClass('addr-popup-on');
               }
             });
 
-            $('#changeAreaExpose .selbtn[data-step][data-addr]').each(function() {
-              const $btn = $(this);
-              const btnStep = parseInt($btn.data('step'), 10);
-              const btnAddr = $btn.data('addr');
+            $panel.find('.addr-popup-selbtn[data-step][data-addr]').each(function() {
+              var $btn = $(this);
+              var btnStep = parseInt($btn.data('step'), 10);
+              var btnAddr = $btn.data('addr');
 
               if (
                 (currentStep === 1 && btnStep > 1 && btnAddr.startsWith(addr)) ||
@@ -797,22 +819,22 @@
                   ((btnStep === 1 && addr.startsWith(btnAddr)) || (btnStep === 2 && addr.startsWith(btnAddr))))
               ) {
                 $btn.remove();
-                updateSelectedCountExpose();
+                updateSelectedCount();
               }
             });
           }
 
-          $('#changeAreaExpose').on('click', '.selbtn', function() {
-            const $btn = $(this);
-            const step = $btn.data('step');
-            const addr = $btn.data('addr');
+          $panel.on('click', '.addr-popup-selbtn', function() {
+            var $btn = $(this);
+            var step = $btn.data('step');
+            var addr = $btn.data('addr');
 
-            $(`#changeAreaExpose li[data-step="${step}"][data-addr="${addr}"]`).removeClass('addr_on');
+            $panel.find('li[data-step="' + step + '"][data-addr="' + addr + '"]').removeClass('addr-popup-on');
             $btn.remove();
-            updateSelectedCountExpose();
+            updateSelectedCount();
 
             var newNames = [];
-            $('#changeAreaExpose .div2 .selbtn').each(function() {
+            $panel.find('.addr-popup-div2 .addr-popup-selbtn').each(function() {
               var text = $(this).clone().children().remove().end().text().trim();
               newNames.push(text);
             });
@@ -823,19 +845,19 @@
             }
           });
 
-          $('#changeAreaExpose').find('input[type="checkbox"]').on('click', function(e) {
+          $panel.find('input[type="checkbox"]').on('click', function(e) {
             e.stopPropagation();
           });
 
-          function get_location_dataExpose(step, addr) {
-            const addrParts = addr.trim().split(" ");
-            const sido_name = addrParts[0] || "";
-            const gugun_name = addrParts[1] ? addrParts[1] + (addrParts[2] ? " " + addrParts[2] : "") : "";
+          function get_location_data(step, addr) {
+            var addrParts = addr.trim().split(" ");
+            var sido_name = addrParts[0] || "";
+            var gugun_name = addrParts[1] ? addrParts[1] + (addrParts[2] ? " " + addrParts[2] : "") : "";
 
-            const currentStep = parseInt(step, 10);
-            const searchStep = currentStep + 1;
+            var currentStep = parseInt(step, 10);
+            var searchStep = currentStep + 1;
 
-            const params = {
+            var params = {
               step: searchStep,
               sido_name: sido_name,
               gugun_name: gugun_name
@@ -852,54 +874,54 @@
                 if (ret.code !== "00") return;
 
                 if (currentStep === 1) {
-                  $('#changeAreaExpose .addr_dept2 ul, #changeAreaExpose .addr_dept3 ul').empty();
+                  $panel.find('.addr-popup-dept2 ul, .addr-popup-dept3 ul').empty();
 
-                  const addr1 = addr;
-                  const isSelected = $(`#changeAreaExpose .selbtn[data-step="1"][data-addr="${addr1}"]`).length > 0;
+                  var addr1 = addr;
+                  var isSelected = $panel.find('.addr-popup-selbtn[data-step="1"][data-addr="' + addr1 + '"]').length > 0;
 
-                  if (!shouldHideAllRegionsExpose()) {
-                    const allLi = $('<li>')
+                  if (!shouldHideAllRegions()) {
+                    var allLi = $('<li>')
                       .attr('data-step', '1')
                       .attr('data-addr', addr1)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
-                          $('<span>').addClass('text').text(replaceRegionNamesExpose(sido_name) + ' 전체'),
+                          $('<span>').addClass('text').text(replaceRegionNames(sido_name) + ' 전체'),
                           $('<input>').attr({
                             type: 'checkbox',
                             name: 'chk[]'
                           })
                         )
                       );
-                    $('#changeAreaExpose .addr_dept2 ul').append(allLi);
+                    $panel.find('.addr-popup-dept2 ul').append(allLi);
                   }
 
                   $.each(ret.data, function(i, item) {
-                    const addr2 = addr + ' ' + item.gugun_name;
-                    const isSelected = $(`#changeAreaExpose .selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
+                    var addr2 = addr + ' ' + item.gugun_name;
+                    var isSelected = $panel.find('.addr-popup-selbtn[data-step="2"][data-addr="' + addr2 + '"]').length > 0;
 
-                    const newLi = $('<li>')
+                    var newLi = $('<li>')
                       .attr('data-step', '2')
                       .attr('data-addr', addr2)
                       .addClass('selectable')
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<span>').addClass('text').text(item.gugun_name)
                       );
-                    $('#changeAreaExpose .addr_dept2 ul').append(newLi);
+                    $panel.find('.addr-popup-dept2 ul').append(newLi);
                   });
 
                 } else if (currentStep === 2) {
-                  $('#changeAreaExpose .addr_dept3 ul').empty();
+                  $panel.find('.addr-popup-dept3 ul').empty();
 
-                  const addr2 = addr;
-                  const isSelected = $(`#changeAreaExpose .selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
+                  var addr2 = addr;
+                  var isSelected = $panel.find('.addr-popup-selbtn[data-step="2"][data-addr="' + addr2 + '"]').length > 0;
 
-                  if (!shouldHideAllRegionsExpose()) {
-                    const allLi = $('<li>')
+                  if (!shouldHideAllRegions()) {
+                    var allLi = $('<li>')
                       .attr('data-step', '2')
                       .attr('data-addr', addr2)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
                           $('<span>').addClass('text').text(gugun_name + ' 전체'),
@@ -909,17 +931,17 @@
                           })
                         )
                       );
-                    $('#changeAreaExpose .addr_dept3 ul').append(allLi);
+                    $panel.find('.addr-popup-dept3 ul').append(allLi);
                   }
 
                   $.each(ret.data, function(i, item) {
-                    const addr3 = addr + ' ' + item.b_dong_name;
-                    const isSelected = $(`#changeAreaExpose .selbtn[data-step="3"][data-addr="${addr3}"]`).length > 0;
+                    var addr3 = addr + ' ' + item.b_dong_name;
+                    var isSelected = $panel.find('.addr-popup-selbtn[data-step="3"][data-addr="' + addr3 + '"]').length > 0;
 
-                    const newLi = $('<li>')
+                    var newLi = $('<li>')
                       .attr('data-step', '3')
                       .attr('data-addr', addr3)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
                           $('<span>').addClass('text').text(item.b_dong_name),
@@ -929,37 +951,35 @@
                           })
                         )
                       );
-                    $('#changeAreaExpose .addr_dept3 ul').append(newLi);
+                    $panel.find('.addr-popup-dept3 ul').append(newLi);
                   });
                 }
-              },
-              error: function(xhr, status, error) {
               }
             });
           }
 
-          if (!window.__addrPopupExposeEventsRegistered) {
-            window.__addrPopupExposeEventsRegistered = true;
+          if (!window['__addrPopupEventsRegistered_' + PANEL_ID]) {
+            window['__addrPopupEventsRegistered_' + PANEL_ID] = true;
 
-            $('#changeAreaExpose').on('click', '.addr_sel_init', function() {
+            $panel.on('click', '.addr-popup-sel-init', function() {
               window.backupSelectedRegions = window.selectedRegions ? window.selectedRegions.slice() : [];
               window.backupSearchArea = [];
-              $('#changeAreaExpose .selbtn').each(function() {
+              $panel.find('.addr-popup-selbtn').each(function() {
                 window.backupSearchArea.push({
                   addr: $(this).data('addr'),
                   step: $(this).data('step')
                 });
               });
 
-              $('#changeAreaExpose .addr_dept2 ul, #changeAreaExpose .addr_dept3 ul').empty();
-              $txtInputExpose.val('');
-              $('#changeAreaExpose li.addr_on').removeClass('addr_on');
-              $('#changeAreaExpose .div2 .selbtn').remove();
-              updateSelectedCountExpose();
+              $panel.find('.addr-popup-dept2 ul, .addr-popup-dept3 ul').empty();
+              $txtInput.val('');
+              $panel.find('li.addr-popup-on').removeClass('addr-popup-on');
+              $panel.find('.addr-popup-div2 .addr-popup-selbtn').remove();
+              updateSelectedCount();
 
               window.selectedRegions = [];
-              updateSearchViewExpose();
-              resetAllRegionFlagExpose();
+              updateSearchView();
+              resetAllRegionFlag();
 
               var pageType = window.__addrPopupPageType || 'default';
               var storageKey_regions = 'selectedRegions_' + pageType;
@@ -975,30 +995,30 @@
               }
             });
 
-            $('#changeAreaExpose').on('click', '.addr_sel_apply', function(e) {
+            $panel.on('click', '.addr-popup-sel-apply', function(e) {
               e.stopPropagation();
 
               var addrNames = [];
 
-              if ($('#changeAreaExpose .selbtn').length > 0) {
-                $('#changeAreaExpose .selbtn').each(function() {
-                  const text = $(this).clone().children().remove().end().text().trim();
+              if ($panel.find('.addr-popup-selbtn').length > 0) {
+                $panel.find('.addr-popup-selbtn').each(function() {
+                  var text = $(this).clone().children().remove().end().text().trim();
                   addrNames.push(text);
                 });
-                addrName = addrNames.join(', ');
+                var addrName = addrNames.join(', ');
 
-                window.selectedRegions = addrNames.slice(0, 2);
+                window.selectedRegions = addrNames.slice(0, 1);
               } else {
-                addrName = '지역을 선택해 주세요';
+                var addrName = '지역을 선택해 주세요';
                 window.selectedRegions = [];
               }
 
-              const searchArea = [];
-              search_addr = [];
+              var searchArea = [];
+              var search_addr = [];
 
-              $('#changeAreaExpose .selbtn').each(function() {
-                const addr = $(this).data('addr');
-                const step = $(this).data('step');
+              $panel.find('.addr-popup-selbtn').each(function() {
+                var addr = $(this).data('addr');
+                var step = $(this).data('step');
                 if (addr) {
                   searchArea.push({
                     addr: addr,
@@ -1007,7 +1027,7 @@
                   search_addr.push(addr);
                 }
               });
-              searchAreaStr = JSON.stringify(searchArea);
+              var searchAreaStr = JSON.stringify(searchArea);
 
               var pageType = window.__addrPopupPageType || 'default';
               var storageKey_regions = 'selectedRegions_' + pageType;
@@ -1039,13 +1059,13 @@
                 }
               }
 
-              $("#changeAreaExpose").removeClass("on");
-              resetAllRegionFlagExpose();
+              $panel.removeClass("on");
+              resetAllRegionFlag();
             });
 
-            const changeAreaExposePanel = document.getElementById('changeAreaExpose');
-            if (changeAreaExposePanel) {
-              const closeBtn = changeAreaExposePanel.querySelector('.btn-close-panel');
+            var panel = document.getElementById(PANEL_ID);
+            if (panel) {
+              var closeBtn = panel.querySelector('.btn-close-panel');
               if (closeBtn) {
                 closeBtn.addEventListener('click', function(e) {
                   e.preventDefault();
@@ -1057,28 +1077,27 @@
                       window.selectedRegions = [];
                     }
 
-                    $('#changeAreaExpose .div2 .selbtn').remove();
+                    $panel.find('.addr-popup-div2 .addr-popup-selbtn').remove();
                     if (window.backupSearchArea && window.backupSearchArea.length > 0) {
                       window.backupSearchArea.forEach(function(area, index) {
-                        const displayText = window.selectedRegions[index] || '';
-                        const $selbtn = $('<div>')
-                          .addClass('selbtn')
+                        var displayText = window.selectedRegions[index] || '';
+                        var $selbtn = $('<div>')
+                          .addClass('addr-popup-selbtn')
                           .attr('data-step', area.step)
                           .attr('data-addr', area.addr)
                           .text(displayText)
-                          .append($('<div>').addClass('selbtnclose').text('x'));
-                        $('#changeAreaExpose .div2').append($selbtn);
+                          .append($('<div>').addClass('addr-popup-selbtn-close').text('x'));
+                        $panel.find('.addr-popup-div2').append($selbtn);
                       });
                     }
-                    updateSelectedCountExpose();
+                    updateSelectedCount();
 
-                    $('#changeAreaExpose .addr_dept2 ul, #changeAreaExpose .addr_dept3 ul').empty();
-                    $txtInputExpose.val('');
-                    $('#changeAreaExpose li.addr_on').removeClass('addr_on');
-                    updateSearchViewExpose();
+                    $panel.find('.addr-popup-dept2 ul, .addr-popup-dept3 ul').empty();
+                    $txtInput.val('');
+                    $panel.find('li.addr-popup-on').removeClass('addr-popup-on');
+                    updateSearchView();
 
-                    changeAreaExposePanel.classList.remove('on');
-                    changeAreaExposePanel.setAttribute('hidden', '');
+                    panel.classList.remove('on');
                     document.body.style.overflow = '';
                     document.body.style.paddingRight = '';
                   }, 50);
@@ -1087,16 +1106,16 @@
             }
           }
 
-          function updateSelectedCountExpose() {
-            const count = $('#changeAreaExpose .selbtn').length;
-            $('#changeAreaExpose .addr_sel_cnt').text(count);
+          function updateSelectedCount() {
+            var count = $panel.find('.selbtn').length;
+            $panel.find('.addr_sel_cnt').text(count);
           }
 
-          function fSearchKeyUpExpose() {
-            const search_keyword = $('#txt_addr_expose').val().trim();
+          function fSearchKeyUp() {
+            var search_keyword = $txtInput.val().trim();
             if (search_keyword.length < 2) return;
 
-            const params = {
+            var params = {
               search_keyword: search_keyword
             };
 
@@ -1110,21 +1129,21 @@
               success: function(ret) {
                 if (ret.code !== "00") return;
 
-                $('#changeAreaExpose .search_addr ul').empty();
+                $panel.find('.addr-popup-search ul').empty();
 
                 if (ret.data) {
                   $.each(ret.data, function(i, item) {
-                    const addr = item.search_b_dong;
-                    const step = item.step;
-                    if (shouldHideAllRegionsExpose() && step < 3) return;
-                    const isSelected = $(`#changeAreaExpose .selbtn[data-step="${step}"][data-addr="${addr}"]`).length > 0;
+                    var addr = item.search_b_dong;
+                    var step = item.step;
+                    if (shouldHideAllRegions() && step < 3) return;
+                    var isSelected = $panel.find('.addr-popup-selbtn[data-step="' + step + '"][data-addr="' + addr + '"]').length > 0;
 
-                    const displayText = step < 3 ? addr + ' 전체' : addr;
+                    var displayText = step < 3 ? addr + ' 전체' : addr;
 
-                    const newLi = $('<li>')
+                    var newLi = $('<li>')
                       .attr('data-step', step)
                       .attr('data-addr', addr)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
                           $('<span>').addClass('text').text(displayText),
@@ -1134,17 +1153,15 @@
                           })
                         )
                       );
-                    $('#changeAreaExpose .search_addr ul').append(newLi);
+                    $panel.find('.addr-popup-search ul').append(newLi);
                   });
                 }
-              },
-              error: function(xhr, status, error) {
               }
             });
           }
 
-          function replaceRegionNamesExpose(text) {
-            const regionMap = {
+          function replaceRegionNames(text) {
+            var regionMap = {
               "서울특별시": "서울",
               "부산광역시": "부산",
               "대구광역시": "대구",
@@ -1165,12 +1182,12 @@
             };
             return text.replace(
               new RegExp(Object.keys(regionMap).join("|"), "g"),
-              match => regionMap[match]
+              function(match) { return regionMap[match]; }
             );
           }
 
-          function removeRegionNamesExpose(text) {
-            const regionMap = {
+          function removeRegionNames(text) {
+            var regionMap = {
               "서울특별시 ": "",
               "부산광역시 ": "",
               "대구광역시 ": "",
@@ -1191,9 +1208,10 @@
             };
             return text.replace(
               new RegExp(Object.keys(regionMap).join("|"), "g"),
-              match => regionMap[match]
+              function(match) { return regionMap[match]; }
             );
           }
+        })();
         </script>
 
       </div>

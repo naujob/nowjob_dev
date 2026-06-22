@@ -73,7 +73,7 @@
     margin-left: 5px;
   }
 
-  #changeAreaExpose .addr_list {
+  #changeAreaExpose .addr-popup-list {
     flex: 1 1 auto;
     display: flex;
     flex-direction: row;
@@ -82,41 +82,41 @@
     border-bottom: 1px solid #ccc;
   }
 
-  #changeAreaExpose .search_addr,
-  #changeAreaExpose .addr_dept,
-  #changeAreaExpose .addr_dept1,
-  #changeAreaExpose .addr_dept2,
-  #changeAreaExpose .addr_dept3 {
+  #changeAreaExpose .addr-popup-search,
+  #changeAreaExpose .addr-popup-dept,
+  #changeAreaExpose .addr-popup-dept1,
+  #changeAreaExpose .addr-popup-dept2,
+  #changeAreaExpose .addr-popup-dept3 {
     display: flex;
     flex-direction: column;
     height: 100%;
   }
 
-  #changeAreaExpose .search_addr {
+  #changeAreaExpose .addr-popup-search {
     width: 100%;
   }
 
-  #changeAreaExpose .addr_dept {
+  #changeAreaExpose .addr-popup-dept {
     width: 100%;
     display: flex;
     flex-direction: row;
   }
 
-  #changeAreaExpose .addr_dept1 {
+  #changeAreaExpose .addr-popup-dept1 {
     width: 20%;
     border-right: 1px solid #ccc;
   }
 
-  #changeAreaExpose .addr_dept2 {
+  #changeAreaExpose .addr-popup-dept2 {
     width: 40%;
     border-right: 1px solid #ccc;
   }
 
-  #changeAreaExpose .addr_dept3 {
+  #changeAreaExpose .addr-popup-dept3 {
     width: 40%;
   }
 
-  #changeAreaExpose .addr_title {
+  #changeAreaExpose .addr-popup-title {
     padding: 5px 8px;
     background: #f0f0f0;
     font-weight: bold;
@@ -125,10 +125,10 @@
     text-align: center;
   }
 
-  #changeAreaExpose .search_addr ul,
-  #changeAreaExpose .addr_dept1 ul,
-  #changeAreaExpose .addr_dept2 ul,
-  #changeAreaExpose .addr_dept3 ul {
+  #changeAreaExpose .addr-popup-search ul,
+  #changeAreaExpose .addr-popup-dept1 ul,
+  #changeAreaExpose .addr-popup-dept2 ul,
+  #changeAreaExpose .addr-popup-dept3 ul {
     flex: 1 1 auto;
     margin: 0;
     padding: 0;
@@ -137,21 +137,21 @@
     scrollbar-width: none;
   }
 
-  #changeAreaExpose .addr_dept1 ul::-webkit-scrollbar,
-  #changeAreaExpose .addr_dept2 ul::-webkit-scrollbar,
-  #changeAreaExpose .addr_dept3 ul::-webkit-scrollbar,
-  #changeAreaExpose .search_addr ul::-webkit-scrollbar {
+  #changeAreaExpose .addr-popup-dept1 ul::-webkit-scrollbar,
+  #changeAreaExpose .addr-popup-dept2 ul::-webkit-scrollbar,
+  #changeAreaExpose .addr-popup-dept3 ul::-webkit-scrollbar,
+  #changeAreaExpose .addr-popup-search ul::-webkit-scrollbar {
     width: 0;
     height: 0;
   }
 
-  #changeAreaExpose .addr_dept1 ul li.selectable.addr_on,
-  #changeAreaExpose .addr_dept2 ul li.selectable.addr_on {
+  #changeAreaExpose .addr-popup-dept1 ul li.selectable.addr-popup-on,
+  #changeAreaExpose .addr-popup-dept2 ul li.selectable.addr-popup-on {
     background-color: #31A182;
     color: #fff;
   }
 
-  #changeAreaExpose .search_addr ul li {
+  #changeAreaExpose .addr-popup-search ul li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -165,7 +165,7 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .search_addr ul li label {
+  #changeAreaExpose .addr-popup-search ul li label {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -173,12 +173,12 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .search_addr ul li.addr_on label {
+  #changeAreaExpose .addr-popup-search ul li.addr-popup-on label {
     background-color: #fff;
     color: #31A182;
   }
 
-  #changeAreaExpose .search_addr ul li .text {
+  #changeAreaExpose .addr-popup-search ul li .text {
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -189,7 +189,7 @@
     padding-left: 2rem;
   }
 
-  #changeAreaExpose .search_addr ul li input[type="checkbox"] {
+  #changeAreaExpose .addr-popup-search ul li input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -204,7 +204,7 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .search_addr ul li label::before {
+  #changeAreaExpose .addr-popup-search ul li label::before {
     content: "";
     display: block;
     position: absolute;
@@ -218,12 +218,12 @@
     z-index: 1;
   }
 
-  #changeAreaExpose .search_addr ul li.addr_on label::before {
+  #changeAreaExpose .addr-popup-search ul li.addr-popup-on label::before {
     background: url(/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat 0 0;
     background-size: contain;
   }
 
-  #changeAreaExpose .addr_list_sel_box {
+  #changeAreaExpose .addr-popup-sel-box {
     flex: 0 0 auto;
     max-height: 225px;
     overflow-y: auto;
@@ -231,14 +231,14 @@
     box-sizing: border-box;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1 {
+  #changeAreaExpose .addr-popup-sel-box .addr-popup-div1 {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 5px;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div2 {
+  #changeAreaExpose .addr-popup-sel-box .addr-popup-div2 {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
@@ -246,9 +246,9 @@
     margin-left: 10px;
   }
 
-  #changeAreaExpose .addr_dept1 ul li,
-  #changeAreaExpose .addr_dept2 ul li,
-  #changeAreaExpose .addr_dept3 ul li {
+  #changeAreaExpose .addr-popup-dept1 ul li,
+  #changeAreaExpose .addr-popup-dept2 ul li,
+  #changeAreaExpose .addr-popup-dept3 ul li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -261,9 +261,9 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_dept1 ul li label,
-  #changeAreaExpose .addr_dept2 ul li label,
-  #changeAreaExpose .addr_dept3 ul li label {
+  #changeAreaExpose .addr-popup-dept1 ul li label,
+  #changeAreaExpose .addr-popup-dept2 ul li label,
+  #changeAreaExpose .addr-popup-dept3 ul li label {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -271,16 +271,16 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_dept1 ul li.addr_on label,
-  #changeAreaExpose .addr_dept2 ul li.addr_on label,
-  #changeAreaExpose .addr_dept3 ul li.addr_on label {
+  #changeAreaExpose .addr-popup-dept1 ul li.addr-popup-on label,
+  #changeAreaExpose .addr-popup-dept2 ul li.addr-popup-on label,
+  #changeAreaExpose .addr-popup-dept3 ul li.addr-popup-on label {
     background-color: #fff;
     color: #31A182;
   }
 
-  #changeAreaExpose .addr_dept1 ul li .text,
-  #changeAreaExpose .addr_dept2 ul li .text,
-  #changeAreaExpose .addr_dept3 ul li .text {
+  #changeAreaExpose .addr-popup-dept1 ul li .text,
+  #changeAreaExpose .addr-popup-dept2 ul li .text,
+  #changeAreaExpose .addr-popup-dept3 ul li .text {
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -289,9 +289,9 @@
     padding: 0.5rem 1rem;
   }
 
-  #changeAreaExpose .addr_dept1 ul li input[type="checkbox"],
-  #changeAreaExpose .addr_dept2 ul li input[type="checkbox"],
-  #changeAreaExpose .addr_dept3 ul li input[type="checkbox"] {
+  #changeAreaExpose .addr-popup-dept1 ul li input[type="checkbox"],
+  #changeAreaExpose .addr-popup-dept2 ul li input[type="checkbox"],
+  #changeAreaExpose .addr-popup-dept3 ul li input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -306,9 +306,9 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_dept1 ul li label::after,
-  #changeAreaExpose .addr_dept2 ul li label::after,
-  #changeAreaExpose .addr_dept3 ul li label::after {
+  #changeAreaExpose .addr-popup-dept1 ul li label::after,
+  #changeAreaExpose .addr-popup-dept2 ul li label::after,
+  #changeAreaExpose .addr-popup-dept3 ul li label::after {
     content: "";
     position: absolute;
     right: 5px;
@@ -322,35 +322,35 @@
     z-index: 1;
   }
 
-  #changeAreaExpose .addr_dept1 ul li.addr_on label::after,
-  #changeAreaExpose .addr_dept2 ul li.addr_on label::after,
-  #changeAreaExpose .addr_dept3 ul li.addr_on label::after {
+  #changeAreaExpose .addr-popup-dept1 ul li.addr-popup-on label::after,
+  #changeAreaExpose .addr-popup-dept2 ul li.addr-popup-on label::after,
+  #changeAreaExpose .addr-popup-dept3 ul li.addr-popup-on label::after {
     background: url(/resource/shop/mobile/img/ic_chkbox2025_on.svg) no-repeat center center;
     background-size: contain;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1 {
+  #changeAreaExpose .addr-popup-sel-box .addr-popup-div1 {
     padding: 10px 10px;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1title {
+  #changeAreaExpose .addr-popup-sel-box .addr-popup-div1-title {
     font-weight: 600;
     font-size: 1.1rem;
   }
 
-  #changeAreaExpose .addr_list_sel_box .addr_sel_cnt {
+  #changeAreaExpose .addr-popup-sel-box .addr-popup-sel-cnt {
     margin-left: 10px;
     color: #31A182;
     font-weight: 600;
     margin-right: 10px;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div1desc {
+  #changeAreaExpose .addr-popup-sel-box .addr-popup-div1-desc {
     font-size: 0.8rem;
     color: #777;
   }
 
-  #changeAreaExpose .selbtn {
+  #changeAreaExpose .addr-popup-selbtn {
     background-color: #eee;
     color: #666666;
     font-size: 1rem;
@@ -363,29 +363,30 @@
     cursor: pointer;
   }
 
-  #changeAreaExpose .selbtnclose {
+  #changeAreaExpose .addr-popup-selbtn-close {
     cursor: pointer;
   }
 
-  #changeAreaExpose .addr_list_sel_box .div3 {
+  #changeAreaExpose .addr-popup-sel-box .addr-popup-div3 {
     margin-top: 5px;
     display: flex;
     gap: 10px;
     justify-content: space-between;
     margin-right: 10px;
     margin-left: 10px;
+    margin-bottom: 20px;
   }
 
-  #changeAreaExpose .addr_sel_init {
+  #changeAreaExpose .addr-popup-sel-init {
     flex: 3;
   }
 
-  #changeAreaExpose .addr_sel_apply {
+  #changeAreaExpose .addr-popup-sel-apply {
     flex: 7;
   }
 
-  #changeAreaExpose .addr_sel_init,
-  #changeAreaExpose .addr_sel_apply {
+  #changeAreaExpose .addr-popup-sel-init,
+  #changeAreaExpose .addr-popup-sel-apply {
     background-color: #31A182;
     font-size: 1.3rem;
     color: white;
@@ -424,7 +425,7 @@
     height: 20px;
   }
 
-  #changeAreaExpose .hidden {
+  #changeAreaExpose .addr-popup-hidden {
     height: 0 !important;
     overflow: hidden !important;
     padding: 0 !important;
@@ -435,14 +436,14 @@
     pointer-events: none;
   }
 
-  #changeAreaExpose .visible {
+  #changeAreaExpose .addr-popup-visible {
     height: auto;
     opacity: 1;
     flex: 1 1 auto;
     pointer-events: auto;
   }
 </style>
-<div id="changeAreaExpose" class="layer-panel card-type" tabindex="-1">
+<div id="changeAreaExpose" class="layer-panel card-type" tabindex="-1" style="position:fixed;">
   <div class="panel-container">
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
@@ -460,15 +461,15 @@
             </div>
           </div>
 
-          <div class="addr_list">
-            <div class="search_addr hidden">
-              <div class="addr_title">검색목록</div>
+          <div class="addr-popup-list">
+            <div class="addr-popup-search addr-popup-hidden">
+              <div class="addr-popup-title">검색목록</div>
               <ul>
               </ul>
             </div>
-            <div class="addr_dept visible">
-              <div class="addr_dept1">
-                <div class="addr_title">시·도</div>
+            <div class="addr-popup-dept addr-popup-visible">
+              <div class="addr-popup-dept1">
+                <div class="addr-popup-title">시·도</div>
                 <ul>
                   <li data-step="1" data-addr="서울특별시" class="selectable"><span class="text">서울</span></li>
                   <li data-step="1" data-addr="경기도" class="selectable"><span class="text">경기</span></li>
@@ -489,30 +490,30 @@
                   <li data-step="1" data-addr="제주특별자치도" class="selectable"><span class="text">제주</span></li>
                 </ul>
               </div>
-              <div class="addr_dept2">
-                <div class="addr_title">시·군·구</div>
+              <div class="addr-popup-dept2">
+                <div class="addr-popup-title">시·군·구</div>
                 <ul>
                 </ul>
               </div>
-              <div class="addr_dept3">
-                <div class="addr_title">읍·면·동</div>
+              <div class="addr-popup-dept3">
+                <div class="addr-popup-title">읍·면·동</div>
                 <ul>
                 </ul>
               </div>
             </div>
           </div>
 
-          <div class="addr_list_sel_box">
+          <div class="addr-popup-sel-box">
             <!-- [변경] PHP 렌더링 제거 - JavaScript에서 sessionStorage로 복원 -->
-            <div class="div1">
-              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt">0</span><span class="div1desc">(최대 2개)</span>
+            <div class="addr-popup-div1">
+              <span class="addr-popup-div1-title">선택한 지역</span><span class="addr-popup-sel-cnt">0</span><span class="addr-popup-div1-desc">(최대 1개)</span>
             </div>
-            <div class="div2">
-              <!-- JavaScript에서 sessionStorage의 데이터로 .selbtn 요소를 동적으로 생성 -->
+            <div class="addr-popup-div2">
+              <!-- JavaScript에서 sessionStorage의 데이터로 .addr-popup-selbtn 요소를 동적으로 생성 -->
             </div>
-            <div class="div3">
-              <div class="addr_sel_init">초기화</div>
-              <div class="addr_sel_apply">적용하기</div>
+            <div class="addr-popup-div3">
+              <div class="addr-popup-sel-init">초기화</div>
+              <div class="addr-popup-sel-apply">적용하기</div>
             </div>
           </div>
 
@@ -521,24 +522,24 @@
           const $txtInput = $('#txt_addr_expose');
           const $iconBtn = $('#iconBtn');
           const $iconImg = $('#iconImg');
-          const $searchAddr = $('#changeAreaExpose .search_addr');
-          const $dept = $('#changeAreaExpose .addr_dept');
-          const $targetContainers = $('#changeAreaExpose .search_addr, #changeAreaExpose .addr_dept1, #changeAreaExpose .addr_dept2, #changeAreaExpose .addr_dept3');
+          const $searchAddr = $('#changeAreaExpose .addr-popup-search');
+          const $dept = $('#changeAreaExpose .addr-popup-dept');
+          const $targetContainers = $('#changeAreaExpose .addr-popup-search, #changeAreaExpose .addr-popup-dept1, #changeAreaExpose .addr-popup-dept2, #changeAreaExpose .addr-popup-dept3');
           let debounceTimer = null;
 
           // [변경] sessionStorage에서 선택된 지역 복원 (페이지별 구분)
           function restoreSelectedRegionsToDiv2() {
-            var pageType = window.__addrPopupPageType || 'default';
+            var pageType = window.__addrPopupPageType || 'default'; // expose1,expose2
             var storageKey_regions = 'selectedRegions_' + pageType;
             var storageKey_area = 'searchAreaStr_' + pageType;
             var storageKey_name = 'addrName_' + pageType;
 
         
 
-            const $div2 = $('#changeAreaExpose .div2');
+            const $div2 = $('#changeAreaExpose .addr-popup-div2');
 
-            // 항상 .div2를 초기화
-            $div2.find('.selbtn').remove();
+            // 항상 .addr-popup-div2를 초기화
+            $div2.find('.addr-popup-selbtn').remove();
 
             // sessionStorage에서 복원 (페이지별 키 사용)
             const savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
@@ -550,16 +551,16 @@
                 const selectedRegions = JSON.parse(savedSelectedRegions);
                 const searchArea = JSON.parse(savedSearchAreaStr);
 
-              
+
 
                 searchArea.forEach((area, index) => {
                   const $selbtn = $('<div>')
-                    .addClass('selbtn')
+                    .addClass('addr-popup-selbtn')
                     .attr('data-step', area.step)
                     .attr('data-addr', area.addr)
                     .text(selectedRegions[index] || '')
                     .append(
-                      $('<div>').addClass('selbtnclose').text('x')
+                      $('<div>').addClass('addr-popup-selbtn-close').text('x')
                     );
                   $div2.append($selbtn);
                 });
@@ -574,6 +575,11 @@
               updateSelectedCount();
             }
           }
+
+          // 전역 복원 함수 노출 (페이지에서 호출 가능하도록)
+          window.restoreExposeAddrPopup = function() {
+            restoreSelectedRegionsToDiv2();
+          };
 
           // 초기화 후 복원 시도
           $(document).ready(function() {
@@ -596,14 +602,14 @@
           window.applyAddrPopupAllRegionFilter = function() {
             if (!shouldHideAllRegions()) return;
 
-            $('.search_addr ul li, .addr_dept2 ul li, .addr_dept3 ul li').each(function() {
+            $('.addr-popup-search ul li, .addr-popup-dept2 ul li, .addr-popup-dept3 ul li').each(function() {
               const text = $(this).find('.text').text().trim();
               if (text.endsWith('전체')) {
                 $(this).remove();
               }
             });
 
-            $('.div2 .selbtn').each(function() {
+            $('.addr-popup-div2 .addr-popup-selbtn').each(function() {
               const text = $(this).clone().children().remove().end().text().trim();
               if (text.endsWith('전체')) {
                 $(this).remove();
@@ -620,13 +626,13 @@
           function updateSearchView() {
             if ($.trim($txtInput.val()) !== '') {
               $iconImg.attr('src', '/resource/shop/mobile/img/ic_close2025.svg').attr('alt', 'clear');
-              $searchAddr.removeClass('hidden').addClass('visible');
-              $dept.removeClass('visible').addClass('hidden');
+              $searchAddr.removeClass('addr-popup-hidden').addClass('addr-popup-visible');
+              $dept.removeClass('addr-popup-visible').addClass('addr-popup-hidden');
             } else {
               $iconImg.attr('src', '/resource/shop/mobile/img/ic_search2025.svg').attr('alt', 'search icon');
-              $searchAddr.removeClass('visible').addClass('hidden');
-              $dept.removeClass('hidden').addClass('visible');
-              $('.search_addr ul').empty();
+              $searchAddr.removeClass('addr-popup-visible').addClass('addr-popup-hidden');
+              $dept.removeClass('addr-popup-hidden').addClass('addr-popup-visible');
+              $('.addr-popup-search ul').empty();
             }
           }
 
@@ -671,14 +677,14 @@
 
               if (targetHasCheckbox === hasCheckbox) {
                 if (hasCheckbox) {
-                  $targetLi.toggleClass('addr_on');
+                  $targetLi.toggleClass('addr-popup-on');
                 } else {
-                  $targetContainer.find('li.addr_on').each(function() {
+                  $targetContainer.find('li.addr-popup-on').each(function() {
                     if ($(this).find('input[type="checkbox"]').length === 0) {
-                      $(this).removeClass('addr_on');
+                      $(this).removeClass('addr-popup-on');
                     }
                   });
-                  $targetLi.addClass('addr_on');
+                  $targetLi.addClass('addr-popup-on');
                 }
               }
             });
@@ -688,16 +694,16 @@
             const hasCheckbox = $clickedLi.find('input[type="checkbox"]').length > 0;
             if (hasCheckbox) return;
 
-            const $parentDiv = $clickedLi.closest('.addr_dept1, .addr_dept2');
+            const $parentDiv = $clickedLi.closest('.addr-popup-dept1, .addr-popup-dept2');
             if (!$parentDiv.length) return;
 
-            $parentDiv.find('li.addr_on').each(function() {
+            $parentDiv.find('li.addr-popup-on').each(function() {
               if ($(this).find('input[type="checkbox"]').length === 0) {
-                $(this).removeClass('addr_on');
+                $(this).removeClass('addr-popup-on');
               }
             });
 
-            $clickedLi.addClass('addr_on');
+            $clickedLi.addClass('addr-popup-on');
             get_location_data(step, addr);
           }
 
@@ -710,14 +716,14 @@
            * @param {jQuery} $clickedLi - 클릭된 li 주소 jQuery 객체
            */
           function searchSelect(step, addr, $clickedLi) {
-            const isSelected = $clickedLi.toggleClass('addr_on').hasClass('addr_on');
+            const isSelected = $clickedLi.toggleClass('addr-popup-on').hasClass('addr-popup-on');
             const currentStep = parseInt(step, 10);
-            const $div2 = $('.div2');
+            const $div2 = $('.addr-popup-div2');
             const text = $clickedLi.text().trim();
             var combinedText = "";
             const textParts = text.split(" ");
             if (shouldHideAllRegions() && textParts[textParts.length - 1] === "전체") {
-              $clickedLi.removeClass('addr_on');
+              $clickedLi.removeClass('addr-popup-on');
               return;
             }
             if (textParts[textParts.length - 1] === "전체") {
@@ -730,13 +736,13 @@
               combinedText = textParts[textParts.length - 1];
             }
 
-            const existingBtnSelector = `.selbtn[data-step="${step}"][data-addr="${addr}"]`;
+            const existingBtnSelector = `.addr-popup-selbtn[data-step="${step}"][data-addr="${addr}"]`;
             if (isSelected) {
               const $existing = $div2.find(existingBtnSelector);
               const alreadyExists = $existing.length > 0;
-              const currentCount = $('.selbtn').length;
+              const currentCount = $('.addr-popup-selbtn').length;
               let removeCount = 0;
-              $('.selbtn[data-step][data-addr]').each(function() {
+              $('.addr-popup-selbtn[data-step][data-addr]').each(function() {
                 const $btn = $(this);
                 const btnStep = parseInt($btn.data('step'), 10);
                 const btnAddr = $btn.data('addr');
@@ -754,24 +760,24 @@
 
               const maxSelection = typeof window.__addrPopupMaxSelection !== 'undefined'
                 ? window.__addrPopupMaxSelection
-                : 2;
+                : 1;
 
               const projectedCount = currentCount + (alreadyExists ? 0 : 1) - removeCount;
 
               if (projectedCount > maxSelection) {
-                $clickedLi.removeClass('addr_on');
+                $clickedLi.removeClass('addr-popup-on');
                 return;
               }
 
               if (!alreadyExists) {
                 const $selbtn = $('<div>')
-                  .addClass('selbtn')
+                  .addClass('addr-popup-selbtn')
                   .attr('data-step', step)
                   .attr('data-addr', addr)
                   .text(combinedText)
                   .append(
                     $('<div>')
-                    .addClass('selbtnclose')
+                    .addClass('addr-popup-selbtn-close')
                     .text('x')
                   );
                 $div2.append($selbtn);
@@ -785,13 +791,13 @@
             if (isSelected) {
               if ($div2.find(existingBtnSelector).length === 0) {
                 const $selbtn = $('<div>')
-                  .addClass('selbtn')
+                  .addClass('addr-popup-selbtn')
                   .attr('data-step', step)
                   .attr('data-addr', addr)
                   .text(combinedText)
                   .append(
                     $('<div>')
-                      .addClass('selbtnclose')
+                      .addClass('addr-popup-selbtn-close')
                       .text('x')
                   );
                 $div2.append($selbtn);
@@ -819,11 +825,11 @@
                 (currentStep === 3 &&
                   ((liStep === 1 && addr.startsWith(liAddr)) || (liStep === 2 && addr.startsWith(liAddr))))
               ) {
-                $li.removeClass('addr_on');
+                $li.removeClass('addr-popup-on');
               }
             });
 
-            $('.selbtn[data-step][data-addr]').each(function() {
+            $('.addr-popup-selbtn[data-step][data-addr]').each(function() {
               const $btn = $(this);
               const btnStep = parseInt($btn.data('step'), 10);
               const btnAddr = $btn.data('addr');
@@ -842,18 +848,18 @@
           }
 
 
-          $('#changeAreaExpose').on('click', '.selbtn', function() {
+          $('#changeAreaExpose').on('click', '.addr-popup-selbtn', function() {
             const $btn = $(this);
             const step = $btn.data('step');
             const addr = $btn.data('addr');
 
-            $(`#changeAreaExpose li[data-step="${step}"][data-addr="${addr}"]`).removeClass('addr_on');
+            $(`#changeAreaExpose li[data-step="${step}"][data-addr="${addr}"]`).removeClass('addr-popup-on');
             $btn.remove();
             updateSelectedCount();
 
-            // 남은 .selbtn 기준으로 이름 배열 재구성
+            // 남은 .addr-popup-selbtn 기준으로 이름 배열 재구성
             var newNames = [];
-            $('#changeAreaExpose .div2 .selbtn').each(function() {
+            $('#changeAreaExpose .addr-popup-div2 .addr-popup-selbtn').each(function() {
               var text = $(this).clone().children().remove().end().text().trim();
               newNames.push(text);
             });
@@ -894,17 +900,17 @@
                 if (ret.code !== "00") return;
 
                 if (currentStep === 1) {
-                  $('#changeAreaExpose .addr_dept2 ul, #changeAreaExpose .addr_dept3 ul').empty();
+                  $('#changeAreaExpose .addr-popup-dept2 ul, #changeAreaExpose .addr-popup-dept3 ul').empty();
 
                   const addr1 = addr;
-                  const isSelected = $(`#changeAreaExpose .selbtn[data-step="1"][data-addr="${addr1}"]`).length > 0;
+                  const isSelected = $(`#changeAreaExpose .addr-popup-selbtn[data-step="1"][data-addr="${addr1}"]`).length > 0;
 
                   // resume_write 페이지를 제외한 다른 페이지에서만 "전체" 항목 표시
                   if (!shouldHideAllRegions()) {
                     const allLi = $('<li>')
                       .attr('data-step', '1')
                       .attr('data-addr', addr1)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
                           $('<span>').addClass('text').text(replaceRegionNames(sido_name) + ' 전체'),
@@ -914,36 +920,36 @@
                           })
                         )
                       );
-                    $('#changeAreaExpose .addr_dept2 ul').append(allLi);
+                    $('#changeAreaExpose .addr-popup-dept2 ul').append(allLi);
                   }
 
                   $.each(ret.data, function(i, item) {
                     const addr2 = addr + ' ' + item.gugun_name;
-                    const isSelected = $(`#changeAreaExpose .selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
+                    const isSelected = $(`#changeAreaExpose .addr-popup-selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
 
                     const newLi = $('<li>')
                       .attr('data-step', '2')
                       .attr('data-addr', addr2)
                       .addClass('selectable')
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<span>').addClass('text').text(item.gugun_name)
                       );
-                    $('#changeAreaExpose .addr_dept2 ul').append(newLi);
+                    $('#changeAreaExpose .addr-popup-dept2 ul').append(newLi);
                   });
 
                 } else if (currentStep === 2) {
-                  $('#changeAreaExpose .addr_dept3 ul').empty();
+                  $('#changeAreaExpose .addr-popup-dept3 ul').empty();
 
                   const addr2 = addr;
-                  const isSelected = $(`#changeAreaExpose .selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
+                  const isSelected = $(`#changeAreaExpose .addr-popup-selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
 
                   // resume_write 페이지를 제외한 다른 페이지에서만 "전체" 항목 표시
                   if (!shouldHideAllRegions()) {
                     const allLi = $('<li>')
                       .attr('data-step', '2')
                       .attr('data-addr', addr2)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
                           $('<span>').addClass('text').text(gugun_name + ' 전체'),
@@ -953,17 +959,17 @@
                           })
                         )
                       );
-                    $('#changeAreaExpose .addr_dept3 ul').append(allLi);
+                    $('#changeAreaExpose .addr-popup-dept3 ul').append(allLi);
                   }
 
                   $.each(ret.data, function(i, item) {
                     const addr3 = addr + ' ' + item.b_dong_name;
-                    const isSelected = $(`#changeAreaExpose .selbtn[data-step="3"][data-addr="${addr3}"]`).length > 0;
+                    const isSelected = $(`#changeAreaExpose .addr-popup-selbtn[data-step="3"][data-addr="${addr3}"]`).length > 0;
 
                     const newLi = $('<li>')
                       .attr('data-step', '3')
                       .attr('data-addr', addr3)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
                           $('<span>').addClass('text').text(item.b_dong_name),
@@ -973,7 +979,7 @@
                           })
                         )
                       );
-                    $('#changeAreaExpose .addr_dept3 ul').append(newLi);
+                    $('#changeAreaExpose .addr-popup-dept3 ul').append(newLi);
                   });
                 }
               },
@@ -987,14 +993,14 @@
           if (!window.__addrPopupExposeEventsRegistered) {
             window.__addrPopupExposeEventsRegistered = true;
 
-            $('#changeAreaExpose').on('click', '.addr_sel_init', function() {
+            $('#changeAreaExpose').on('click', '.addr-popup-sel-init', function() {
               var pageType = window.__addrPopupPageType || 'default';
-         
+
 
               // 초기화 전 현재 선택 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
               window.backupSelectedRegions = window.selectedRegions ? window.selectedRegions.slice() : [];
               window.backupSearchArea = [];
-              $('#changeAreaExpose .selbtn').each(function() {
+              $('#changeAreaExpose .addr-popup-selbtn').each(function() {
                 window.backupSearchArea.push({
                   addr: $(this).data('addr'),
                   step: $(this).data('step')
@@ -1002,10 +1008,10 @@
               });
 
             // UI 초기화
-            $('#changeAreaExpose .addr_dept2 ul, #changeAreaExpose .addr_dept3 ul').empty();
+            $('#changeAreaExpose .addr-popup-dept2 ul, #changeAreaExpose .addr-popup-dept3 ul').empty();
             $txtInput.val('');
-            $('#changeAreaExpose li.addr_on').removeClass('addr_on');
-            $('#changeAreaExpose .div2 .selbtn').remove();
+            $('#changeAreaExpose li.addr-popup-on').removeClass('addr-popup-on');
+            $('#changeAreaExpose .addr-popup-div2 .addr-popup-selbtn').remove();
             updateSelectedCount();
 
             // window.selectedRegions 초기화
@@ -1033,16 +1039,16 @@
 
           // sessionStorage에 선택된 지역 상태 저장
           // 적용하기 클릭 시 스크롤 잠김을 방지하기 위해 body 스타일을 복원
-          $('#changeAreaExpose').on('click', '.addr_sel_apply', function(e) {
+          $('#changeAreaExpose').on('click', '.addr-popup-sel-apply', function(e) {
             // 이벤트 버블링 차단 (main.js의 배경클릭 핸들러가 closePanel 호출하는 것 방지)
             e.stopPropagation();
 
-            const count = $('#changeAreaExpose .selbtn').length;
+            const count = $('#changeAreaExpose .addr-popup-selbtn').length;
             //if (count<1) return;
             var addrNames = []; // 선택된 지역 이름을 담을 배열
 
-            if ($('#changeAreaExpose .selbtn').length > 0) {
-              $('#changeAreaExpose .selbtn').each(function() {
+            if ($('#changeAreaExpose .addr-popup-selbtn').length > 0) {
+              $('#changeAreaExpose .addr-popup-selbtn').each(function() {
                 const text = $(this).clone().children().remove().end().text().trim();
                 addrNames.push(text);
               });
@@ -1054,7 +1060,7 @@
               window.skipAddrNameUpdate = false; // 플래그 초기화
 
               // window.selectedRegions에 지역 이름 배열 할당
-              window.selectedRegions = addrNames.slice(0, 2); // 최대 2개만 저장
+              window.selectedRegions = addrNames.slice(0, 1); // 최대 1개만 저장
             } else {
               addrName = '지역을 선택해 주세요';
               // 상세검색 패널에서 열린 경우 .addrName 업데이트 안함
@@ -1070,7 +1076,7 @@
             const searchArea = [];
             search_addr = [];
 
-            $('#changeAreaExpose .selbtn').each(function() {
+            $('#changeAreaExpose .addr-popup-selbtn').each(function() {
               const addr = $(this).data('addr');
               const step = $(this).data('step');
               if (addr) {
@@ -1278,21 +1284,21 @@
               success: function(ret) {
                 if (ret.code !== "00") return;
 
-                $('#changeAreaExpose .search_addr ul').empty();
+                $('#changeAreaExpose .addr-popup-search ul').empty();
 
                 if (ret.data) {
                   $.each(ret.data, function(i, item) {
                     const addr = item.search_b_dong; // 검색 결과에서 주소를 가져옵니다. 예: "서울특별시 강남구 강남동"
                     const step = item.step; // 주소 단계 (1, 2, 3 등)도 함께 가져옵니다. 예: 3
                     if (shouldHideAllRegions() && step < 3) return;
-                    const isSelected = $(`#changeAreaExpose .selbtn[data-step="${step}"][data-addr="${addr}"]`).length > 0;
+                    const isSelected = $(`#changeAreaExpose .addr-popup-selbtn[data-step="${step}"][data-addr="${addr}"]`).length > 0;
 
                     const displayText = step < 3 ? addr + ' 전체' : addr;
 
                     const newLi = $('<li>')
                       .attr('data-step', step)
                       .attr('data-addr', addr)
-                      .toggleClass('addr_on', isSelected)
+                      .toggleClass('addr-popup-on', isSelected)
                       .append(
                         $('<label>').append(
                           $('<span>').addClass('text').text(displayText),
@@ -1302,7 +1308,7 @@
                           })
                         )
                       );
-                    $('#changeAreaExpose .search_addr ul').append(newLi);
+                    $('#changeAreaExpose .addr-popup-search ul').append(newLi);
                   });
 
                 }

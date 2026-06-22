@@ -166,7 +166,7 @@
                  </div>
 
                  <style>
-                   .addr_list {
+                   #changeArea .addr_list {
                      margin-top: 40px;
                      margin-top: 0;
                      display: block;
@@ -176,9 +176,9 @@
                      height: 385px;
                    }
 
-                  
 
-                   .addr_dept1 {
+
+                   #changeArea .addr_dept1 {
                      width: 20%;
                      display: inline-block;
                      border: 1px solid #DCDCDC;
@@ -190,7 +190,7 @@
                      color: #333;
                    }
 
-                   .addr_dept2 {
+                   #changeArea .addr_dept2 {
                      width: 40%;
                      display: inline-block;
                      border: 1px solid #DCDCDC;
@@ -202,7 +202,7 @@
                      height: 100%;
                    }
 
-                   .addr_dept3 {
+                   #changeArea .addr_dept3 {
                      width: 40%;
                      display: inline-block;
                      border: 1px solid #DCDCDC;
@@ -214,11 +214,11 @@
                      height: 100%;
                    }
 
-                   .addr_on {
+                   #changeArea .addr_on {
                      background-color: #57CCAF;
                    }
 
-                   .addr_list_sel_box {
+                   #changeArea .addr_list_sel_box {
                      position: absolute;
                      bottom: -10px;
                      width: 100%;
@@ -229,38 +229,38 @@
                      background-color: #fff;
                    }
 
-                   .addr_list_sel_box .div1 {
+                   #changeArea .addr_list_sel_box .div1 {
                      padding: 10px 10px;
                    }
 
-                   .addr_list_sel_box .div1title {
+                   #changeArea .addr_list_sel_box .div1title {
                      font-weight: 600;
                      font-size: 1.1rem;
                    }
 
-                   .addr_list_sel_box .addr_sel_cnt {
+                   #changeArea .addr_list_sel_box .addr_sel_cnt {
                      margin-left: 10px;
                      color: #57CCAF;
                      font-weight: 600;
                      margin-right: 10px;
                    }
 
-                   .addr_list_sel_box .div1desc {
+                   #changeArea .addr_list_sel_box .div1desc {
                      color: #777;
                    }
 
-                   .addr_list_sel_box .div2 {
+                   #changeArea .addr_list_sel_box .div2 {
                      display: block;
                      width: 100%;
                      height: 66px;
                      overflow: auto;
                    }
 
-                   .addr_list_sel_box .div2b {
+                   #changeArea .addr_list_sel_box .div2b {
                      /* display: block; width: 200%; height: 30px; */
                    }
 
-                   .addr_list_sel_box .div2 .selbtn {
+                   #changeArea .addr_list_sel_box .div2 .selbtn {
                      float: left;
                      margin-left: 10px;
                      background-color: #57CCAF;
@@ -271,18 +271,18 @@
                      margin-bottom: 5px;
                    }
 
-                   .addr_list_sel_box .div2 .selbtn .selbtnclose {
+                   #changeArea .addr_list_sel_box .div2 .selbtn .selbtnclose {
                      display: inline-block;
                      margin-left: 10px;
                    }
 
-                   .addr_list_sel_box .div3 {
+                   #changeArea .addr_list_sel_box .div3 {
                      display: block;
                      padding: 10px;
                      /* margin-top: 10px; */
                    }
 
-                   .addr_list_sel_box .div3 .addr_sel_init {
+                   #changeArea .addr_list_sel_box .div3 .addr_sel_init {
                      background-color: #57CCAF;
                      color: #fff;
                      border-radius: 7px;
@@ -292,7 +292,7 @@
                      text-align: center;
                    }
 
-                   .addr_list_sel_box .div3 .addr_sel_apply {
+                   #changeArea .addr_list_sel_box .div3 .addr_sel_apply {
                      background-color: #57CCAF;
                      color: #fff;
                      border-radius: 7px;
@@ -303,7 +303,7 @@
                      text-align: center;
                    }
 
-                   .addr_list {
+                   #changeArea .addr_list {
                      /* display:none; */
                    }
                  </style>

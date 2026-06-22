@@ -3053,28 +3053,37 @@
     document.body.style.overflow = '';
   }
 
-  // 공고노출지역 팝업 콜백
+  // 공고노출지역 팝업 콜백 - 현재 팝업 타입에 따라 해당 필드에만 저장
   window.onChangeAreaApply = function(data) {
-    // hidden 필드 초기화
-    for (var i = 1; i <= 2; i++) {
-      $("[name='expose_addr" + i + "_zipcode']").val("");
-      $("[name='expose_addr" + i + "_jibun']").val("");
-      $("[name='expose_addr" + i + "_doro_val']").val("");
-      $("[name='expose_addr" + i + "_addr']").val("");
-      $("[name='expose_addr" + i + "_gps_x']").val("");
-      $("[name='expose_addr" + i + "_gps_y']").val("");
-      $("#expose_addr" + i + "_doro").val("");
-      $(".js-clear-expose-addr-web[data-index='" + i + "']").hide();
-    }
+    var pageType = window.__addrPopupPageType || 'default';
 
-    // 새 데이터 매핑
-    if (data.searchArea && data.searchArea.length > 0) {
-      data.searchArea.forEach(function(area, idx) {
-        var n = idx + 1;
-        $("[name='expose_addr" + n + "_addr']").val(area.addr);
-        $("#expose_addr" + n + "_doro").val(data.addrNames[idx] || area.addr);
-        $(".js-clear-expose-addr-web[data-index='" + n + "']").show();
-      });
+    // expose1 또는 expose2인 경우만 처리
+    if (pageType === 'expose1' || pageType === 'expose2') {
+      // 선택된 필드 인덱스 추출 (expose1 -> 1, expose2 -> 2)
+      var fieldIndex = pageType.replace('expose', '');
+
+      // 해당 필드의 hidden 필드만 초기화
+      $("[name='expose_addr" + fieldIndex + "_zipcode']").val("");
+      $("[name='expose_addr" + fieldIndex + "_jibun']").val("");
+      $("[name='expose_addr" + fieldIndex + "_doro_val']").val("");
+      $("[name='expose_addr" + fieldIndex + "_addr']").val("");
+      $("[name='expose_addr" + fieldIndex + "_gps_x']").val("");
+      $("[name='expose_addr" + fieldIndex + "_gps_y']").val("");
+      $("#expose_addr" + fieldIndex + "_doro").val("");
+      $(".js-clear-expose-addr-web[data-index='" + fieldIndex + "']").hide();
+
+      // 새 데이터를 해당 필드에만 매핑
+      if (data.searchArea && data.searchArea.length > 0) {
+        var area = data.searchArea[0]; // 최대 1개만 선택 가능하므로 첫 번째만 사용
+        $("[name='expose_addr" + fieldIndex + "_zipcode']").val(area.addr);
+        $("[name='expose_addr" + fieldIndex + "_jibun']").val(area.addr);
+        $("[name='expose_addr" + fieldIndex + "_doro_val']").val(area.addr);
+        $("[name='expose_addr" + fieldIndex + "_addr']").val(area.addr);
+        // GPS 좌표는 서버에서 받은 데이터가 없으므로 빈값 유지
+        // data-addr의 전체 주소를 입력 필드에 표시
+        $("#expose_addr" + fieldIndex + "_doro").val(area.addr);
+        $(".js-clear-expose-addr-web[data-index='" + fieldIndex + "']").show();
+      }
     }
     return true;
   };
@@ -3095,13 +3104,86 @@
     }
   });
 
-  // 노출지역 1 입력창 클릭 시 팝업 열기
-  $(document).on("click", "#expose_addr1_doro, #expose_addr2_doro", function() {
+  // 공고노출지역 검색 아이콘 클릭 (expose1 구역)
+  $(document).on("click", ".form-row:has(#expose_addr1_doro) .addr-search-icon", function() {
+    window.__addrPopupPageType = 'expose1';
+    var $panel = $("#changeAreaExpose");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    // 팝업 내 선택 기록 복원 (expose1 키로 저장된 데이터)
+    setTimeout(function() {
+      if (window.restoreExposeAddrPopup) {
+        window.restoreExposeAddrPopup();
+      }
+    }, 50);
+    var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
+  });
+
+  // 공고노출지역 검색 아이콘 클릭 (expose2 구역)
+  $(document).on("click", ".form-row:has(#expose_addr2_doro) .addr-search-icon", function() {
+    window.__addrPopupPageType = 'expose2';
+    var $panel = $("#changeAreaExpose");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    // 팝업 내 선택 기록 복원 (expose2 키로 저장된 데이터)
+    setTimeout(function() {
+      if (window.restoreExposeAddrPopup) {
+        window.restoreExposeAddrPopup();
+      }
+    }, 50);
+    var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
+  });
+
+  // 노출지역 1, 2 입력창 클릭 시 팝업 열기 (각각 독립적 처리)
+  $(document).on("click", "#expose_addr1_doro", function() {
+    window.__addrPopupPageType = 'expose1';
     var $panel = $("#changeAreaExpose");
     $panel[0].hidden = false;
     $panel.addClass("on");
     document.body.style.overflow = 'hidden';
     $(this).blur();
+    // 팝업 내 선택 기록 복원 (expose1 키로 저장된 데이터)
+    setTimeout(function() {
+      if (window.restoreExposeAddrPopup) {
+        window.restoreExposeAddrPopup();
+      }
+    }, 50);
+    var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
+    if ($popupAddrInput.length) {
+      setTimeout(function() {
+        $popupAddrInput.focus();
+        $panel[0].focus();
+      }, 100);
+    }
+  });
+
+  $(document).on("click", "#expose_addr2_doro", function() {
+    window.__addrPopupPageType = 'expose2';
+    var $panel = $("#changeAreaExpose");
+    $panel[0].hidden = false;
+    $panel.addClass("on");
+    document.body.style.overflow = 'hidden';
+    $(this).blur();
+    // 팝업 내 선택 기록 복원 (expose2 키로 저장된 데이터)
+    setTimeout(function() {
+      if (window.restoreExposeAddrPopup) {
+        window.restoreExposeAddrPopup();
+      }
+    }, 50);
     var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
     if ($popupAddrInput.length) {
       setTimeout(function() {
