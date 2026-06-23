@@ -476,4 +476,109 @@ class Cron_proc extends CI_Controller
 
         return $sent;
     }
+
+    // 전날 등록된 추천인재에 대해 전체 기업회원에게 알림톡 발송
+    // crontab: 0 16 * * * curl -s http://도메인/cron_proc/send_promotion_alimtalk > /dev/null 2>&1
+    public function send_promotion_alimtalk()
+    {
+        $sent_count = 0;
+
+        // 1. PpurioClient 로드
+        $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
+        if (!file_exists($ppurioPath)) {
+            echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
+            return;
+        }
+        require_once($ppurioPath);
+        $ppurio = new CI_PpurioClient();
+
+        // 2. 전날 등록된 추천인재 프로모션 조회 (M001: 추천인재등록)
+        // 테스트용: 오늘 등록된 프로모션으로 변경
+        $promotions = $this->db->query("
+            SELECT p.pm_idx, p.rc_idx, r.ru_name, r.ru_idx
+            FROM st_promotion p
+            INNER JOIN st_resume r ON p.rc_idx = r.ru_idx
+            WHERE p.pm_code = 'M001'
+              AND DATE(p.reg_dt) = CURDATE()
+              AND p.pm_status != 'C'
+        ")->result_array();
+
+        if (empty($promotions)) {
+            echo "발송 대상 프로모션 없음\n";
+            return;
+        }
+
+        echo "전날 등록 추천인재 건수: " . count($promotions) . "\n";
+
+        // 3. 전체 활성 기업회원 조회 (광고 수신 동의한 회원)
+        $companies = $this->db->query("
+            SELECT mm_idx, mm_id, mm_phone, mm_comp_name
+            FROM st_member
+            WHERE mm_type = 'COMP'
+              AND mm_status = 'Y'
+              AND mm_agree_ad = 'Y'
+              AND mm_phone != ''
+        ")->result_array();
+
+        if (empty($companies)) {
+            echo "발송 대상 기업회원 없음\n";
+            return;
+        }
+
+        echo "기업회원 발송 대상: " . count($companies) . "\n";
+
+        // 4. 각 프로모션별로 모든 기업회원에게 발송
+        foreach ($promotions as $promo) {
+            $resume_name = isset($promo['ru_name']) ? $promo['ru_name'] : '무명';
+            $resume_url = site_url('resume/resume_detail/' . $promo['ru_idx']);
+
+            foreach ($companies as $company) {
+                try {
+                    // 뿌리오 알림톡 발송
+                    if (!empty($company['mm_phone'])) {
+                        $corp_vars = array(
+                            $resume_name,  // var1: 이력서 이름
+                            '',            // var2
+                            '',            // var3
+                            $resume_url    // var4: 인재정보 상세 링크
+                        );
+
+                        $result = $ppurio->sendCorporateAlimtalk(
+                            $company['mm_phone'],
+                            $corp_vars,
+                            array('name' => $company['mm_comp_name'])
+                        );
+
+                        if (isset($result['ok']) && $result['ok'] === true) {
+                            $sent_count++;
+                        }
+                    }
+
+                    // FCM 푸시 발송 (토큰 관리 방식 확인 후 추가 예정)
+                    // if (!empty($company['mm_token'])) {
+                    //     $fcm_info = array(
+                    //         'title' => '추천인재 등록 알림',
+                    //         'body' => $resume_name . ' 추천인재가 등록되었습니다',
+                    //         'url' => $resume_url,
+                    //         'type' => 'promotion'
+                    //     );
+                    //     $token_list = array($company['mm_token']);
+                    //
+                    //     $fcm_result = sendFcm($fcm_info, $token_list);
+                    //     if ($fcm_result['success']) {
+                    //         $fcm_count++;
+                    //     }
+                    // }
+
+                    // API 과부하 방지
+                    usleep(50000); // 0.05초
+                } catch (Exception $e) {
+                    echo "발송 오류 (mm_idx: " . $company['mm_idx'] . ", pm_idx: " . $promo['pm_idx'] . "): " . $e->getMessage() . "\n";
+                    continue;
+                }
+            }
+        }
+
+        echo "완료 - 알림톡 발송 건수: " . $sent_count . "\n";
+    }
 }
