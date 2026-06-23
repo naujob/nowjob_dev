@@ -500,7 +500,7 @@
           <div class="addr_list_sel_box">
             <!-- [변경] PHP 렌더링 제거 - JavaScript에서 sessionStorage로 복원 -->
             <div class="div1">
-              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt">0</span><span class="div1desc">(최대 2개)</span>
+              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt">0</span><span class="div1desc">(최대 <span id="max-count-text">2</span>개)</span>
             </div>
             <div class="div2">
               <!-- JavaScript에서 sessionStorage의 데이터로 .selbtn 요소를 동적으로 생성 -->
@@ -520,6 +520,14 @@
           const $dept = $('.addr_dept');
           const $targetContainers = $('.search_addr, .addr_dept1, .addr_dept2, .addr_dept3');
           let debounceTimer = null;
+
+          // 최대 선택 개수 (기본값 2, window.__addrPopupMaxCount로 오버라이드 가능)
+          const MAX_ADDR_COUNT = window.__addrPopupMaxCount || 2;
+
+          // 최대 개수 텍스트 초기화
+          $(document).ready(function() {
+            $('#max-count-text').text(MAX_ADDR_COUNT);
+          });
 
           // [변경] sessionStorage에서 선택된 지역 복원 (페이지별 구분)
           function restoreSelectedRegionsToDiv2() {
@@ -749,7 +757,7 @@
 
               const projectedCount = currentCount + (alreadyExists ? 0 : 1) - removeCount;
 
-              if (projectedCount > 2) {
+              if (projectedCount > MAX_ADDR_COUNT) {
                 $clickedLi.removeClass('addr_on');
                 return;
               }
@@ -1045,7 +1053,7 @@
               window.skipAddrNameUpdate = false; // 플래그 초기화
 
               // window.selectedRegions에 지역 이름 배열 할당
-              window.selectedRegions = addrNames.slice(0, 2); // 최대 2개만 저장
+              window.selectedRegions = addrNames.slice(0, MAX_ADDR_COUNT); // 최대 개수만 저장
             } else {
               addrName = '지역을 선택해 주세요';
               // 상세검색 패널에서 열린 경우 .addrName 업데이트 안함

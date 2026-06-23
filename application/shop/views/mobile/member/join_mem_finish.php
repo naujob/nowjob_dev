@@ -244,6 +244,7 @@ renderSelectBottomSheet(
         params.ad_gps_y = [params.ad_gps_y];
       }
 
+      params.ad_type = "resume"; // st_address 테이블에 이력서 주소로 저장
       comAjax("/mypage_proc/resume_autofill_quick", params, function(ret) {
         window.__quickInfoSubmitting = false;
         if (typeof window.hideAutoResumeLoading === 'function') {
@@ -601,6 +602,7 @@ renderSelectBottomSheet(
       // 자동이력서 작성 화면으로 넘길 주소/좌표 payload
       var autoPayload = {
         ru_name_seed_addr: addr,
+        ad_type: "resume",
         ad_addr: addr,
         ad_jibun: addr,
         ad_doro: "",
@@ -799,6 +801,7 @@ renderSelectBottomSheet(
         fd.append("ru_nationality", "내국인");
         fd.append("quickinfo_gender", "남");
         fd.append("quickinfo_age", "30s");
+        fd.append("ad_type", "resume");
         fd.append("ad_addr[]", DEFAULT_ADDR);
         fd.append("ad_jibun[]", DEFAULT_ADDR);
         fd.append("ad_doro[]", "");

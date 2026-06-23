@@ -27,7 +27,6 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         </div>
     </main><!-- //page-content -->
 </div><!-- //page -->
-<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 <div id="auto-resume-loading-web" class="auto-resume-loading-web" aria-hidden="true">
     <div class="loading-card" role="status" aria-live="polite">
         <p class="loading-title">맞춤형 공고 나우잡이 찾아드립니다.</p>
@@ -35,6 +34,14 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         <div class="loading-spinner" aria-hidden="true"></div>
     </div>
 </div>
+
+<!-- 주소 팝업 최대 선택 개수 미리 설정 (addr_popup 로드 전) -->
+<script>
+    window.__addrPopupMaxCount = 1;
+</script>
+
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
+
 <style>
     /* join_mem_finish에서만 주소 팝업 크기 축소 */
     #changeArea .panel-container {
@@ -341,6 +348,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             var params = Object.assign({}, payload || {}); // 서버 전송 파라미터 기본값: ru_name/ru_addr, ad_addr/ad_jibun/ad_doro/ad_zipcode/ad_detail, ad_gps_x/ad_gps_y 등 주소 정보
             params.ru_name = params.ru_name || params.ru_name_seed_addr || "";
             params.ru_addr = params.ru_addr || params.ad_addr || params.ru_name_seed_addr || "";
+            params.ad_type = "resume"; // st_address 테이블에 이력서 주소로 저장
 
             if (params.ad_addr && !Array.isArray(params.ad_addr)) params.ad_addr = [params.ad_addr];
             if (params.ad_jibun && !Array.isArray(params.ad_jibun)) params.ad_jibun = [params.ad_jibun];
@@ -350,6 +358,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             if (params.ad_gps_x && !Array.isArray(params.ad_gps_x)) params.ad_gps_x = [params.ad_gps_x];
             if (params.ad_gps_y && !Array.isArray(params.ad_gps_y)) params.ad_gps_y = [params.ad_gps_y];
 
+          
             comAjax("/mypage_proc/resume_autofill_quick", params, function(ret) {
                 window.__quickInfoSubmitting = false;
                 hideAutoResumeLoading();
@@ -447,13 +456,15 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 ru_name: title,
                 ru_work: "생산",
                 ru_price_type: "월급",
-                ru_work_type: "정규직",
+                ru_work_type: "주간",
                 ru_nationality: "내국인",
                 ru_addr: addrPayload.ad_addr || addrPayload.ad_jibun || "",
+                ad_type: "resume",
                 ad_zipcode: addrPayload.ad_zipcode || "",
                 ad_jibun: addrPayload.ad_jibun || "",
                 ad_doro: addrPayload.ad_doro || "",
                 ad_addr: addrPayload.ad_addr || "",
+                ad_detail: addrPayload.ad_detail || "",
                 ad_gps_x: addrPayload.ad_gps_x || "",
                 ad_gps_y: addrPayload.ad_gps_y || "",
                 ru_img1_ori: "/resource/shop/web/img/avatar_resume_w.png"
@@ -462,6 +473,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             // 자동완성용 제목을 payload에 포함 (resume_write에서 재사용)
             addrPayload.ru_name = title;
 
+         
             comAjax("/mypage_proc/resume_write", params, function(ret) {
                 if (typeof ret === "string") {
                     try {
@@ -470,9 +482,10 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 }
                 if (ret && ret.code === "00") {
                     var ruIdx = (ret.data && ret.data.ru_idx) ? ret.data.ru_idx : 0;
-                    comAjax("/mypage_proc/resume_complete", {
-                        ru_idx: ruIdx
-                    }, function(ret2) {
+                    // resume_complete 호출 시 params를 포함하여 ad_type이 전송되도록 함
+                    var completeParams = Object.assign({}, params);
+                    completeParams.ru_idx = ruIdx;
+                    comAjax("/mypage_proc/resume_complete", completeParams, function(ret2) {
                         if (typeof ret2 === "string") {
                             try {
                                 ret2 = JSON.parse(ret2);
@@ -789,7 +802,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             window.__quickInfoExpectLocation = false;
         });
 
-    })();
+    })(); // IIFE 페이지 열리면 즉시 실행됨
 </script>
 
 <script>
@@ -881,6 +894,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             fd.append("ru_nationality", "내국인");
             fd.append("quickinfo_gender", "남");
             fd.append("quickinfo_age", "30s");
+            fd.append("ad_type", "resume");
             fd.append("ad_addr[]", DEFAULT_ADDR);
             fd.append("ad_jibun[]", DEFAULT_ADDR);
             fd.append("ad_doro[]", "");
@@ -899,9 +913,10 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 
             var url = "/mypage_proc/resume_autofill_quick";
             var fd = buildFallbackFormData();
+            
 
             // sendBeacon 시도
-            if (typeof navigator.sendBeacon === 'function') {
+            if (typeof navigator.sendBeacon === 'function') { //페이지를 떠나는 순간에도 데이터를 서버에 안전하게 전송하는 함수
                 navigator.sendBeacon(url, fd);
                 return;
             }

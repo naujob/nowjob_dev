@@ -19,6 +19,7 @@ class Cron_proc extends CI_Controller
             WHERE r.rc_idx > 0
               AND m.mm_type = 'COMP'
               AND m.mm_status = 'Y'
+              AND m.mm_agree_ad = 'Y'
               AND m.mm_phone != ''
               AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL 3 DAY))
         ")->result_array();
@@ -197,6 +198,7 @@ class Cron_proc extends CI_Controller
               AND r.ru_status = 'Y'
               AND m.mm_type = 'MEM'
               AND m.mm_status = 'Y'
+              AND m.mm_agree_ad = 'Y'
               AND m.mm_phone != ''
             ORDER BY r.reg_dt DESC
         ";
@@ -224,6 +226,7 @@ class Cron_proc extends CI_Controller
               AND rc.rc_edate >= NOW()
               AND m.mm_type = 'COMP'
               AND m.mm_status = 'Y'
+              AND m.mm_agree_ad = 'Y'
               AND m.mm_phone != ''
             ORDER BY rc.reg_dt DESC
         ";

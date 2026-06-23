@@ -3630,41 +3630,8 @@ class Member_proc extends CI_Controller
                         $this->db->trans_rollback();
                         json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
                     }
-                } else {
-
-                    // 신규 가입시 주소 없으므로 없도록 처리 25.02.26
-                    // $arr_addr = [
-                    //       		"mm_idx"=>$result_join["key"],
-                    //       		"ad_type"=>"MEMBER",
-                    //       		"ad_key"=>$result_join["key"],
-                    //       		"ad_zipcode"=>"15052",
-                    //       		"ad_jibun"=>"경기도 시흥시 군서마을로 26-2 (정왕동)",
-                    //       		"ad_doro"=>"경기도 시흥시 정왕동 1213-16 은진빌딩",
-                    //       		"ad_detail"=>"",
-                    //       		"ad_addr"=>"경기 시흥시 정왕동",
-                    //       		"ad_gps_x"=>"126.7486744464",
-                    //       		"ad_gps_y"=>"37.3447914686",
-                    //       	];
-                    $arr_addr = [
-                        "mm_idx" => $result_join["key"],
-                        "ad_type" => "MEMBER",
-                        "ad_key" => $result_join["key"],
-                        "ad_zipcode" => "",
-                        "ad_jibun" => "",
-                        "ad_doro" => "",
-                        "ad_detail" => "",
-                        "ad_addr" => "",
-                        "ad_gps_x" => "",
-                        "ad_gps_y" => "",
-                    ];
-
-                    $result_addr = $this->member_model->insertAddress($arr_addr);
-
-                    if ($result_addr["code"] != "00") {
-                        $this->db->trans_rollback();
-                        json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
-                    }
                 }
+                // 신규 가입시 GPS 없으면 주소 저장 안 함 (빈값으로 저장되지 않도록)
 
                 // SNS 가입 시 $arr_mem["mm_birth"] 사용, 일반 가입 시 $step_auth["mm_birth"] 사용
                 $birth_for_age = !empty($step_sns) ? $arr_mem["mm_birth"] : (isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "");
@@ -4251,26 +4218,7 @@ class Member_proc extends CI_Controller
 
                 //return json_return("99","TEST2");
 
-                if ($step4_info["ad_gps_x"] != "") {
-                } else {
-                    $arr_addr = [
-                        "mm_idx" => $result_join["key"],
-                        "ad_type" => "MEMBER",
-                        "ad_key" => $result_join["key"],
-                        "ad_zipcode" => "", //"15052",
-                        "ad_jibun" => "", //"경기도 시흥시 군서마을로 26-2 (정왕동)",
-                        "ad_doro" => "", //"경기도 시흥시 정왕동 1213-16 은진빌딩",
-                        "ad_detail" => "",
-                        "ad_addr" => "", //"경기 시흥시 정왕동",
-                        "ad_gps_x" => "", //"126.7486744464",
-                        "ad_gps_y" => "", //"37.3447914686",
-                    ];
-                }
-                $result_addr = $this->member_model->insertAddress($arr_addr);
-                if ($result_addr["code"] != "00") {
-                    $this->db->trans_rollback();
-                    json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
-                }
+                // GPS 좌표가 있을 때만 주소 저장 (빈값으로 저장 안 함)
 
 
                 # 토큰정보 연동

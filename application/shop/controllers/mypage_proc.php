@@ -346,6 +346,7 @@ class Mypage_proc extends CI_Controller
     $ru_price_type = input_post("ru_price_type", "");
     $ru_work_type = input_post("ru_work_type", "");
     $ru_nationality = input_post("ru_nationality", ""); // 국적 추가
+    $ad_type = input_post("ad_type", "resume"); // st_address 테이블의 ad_type
     $ad_zipcode = input_post("ad_zipcode", "");
     $ad_jibun = input_post("ad_jibun", "");
     $ad_doro = input_post("ad_doro", "");
@@ -375,7 +376,7 @@ class Mypage_proc extends CI_Controller
     }
 
     if ($ru_work == "") {
-      json_return("99", "희망업무 선택이 확인되지 않습니다.");
+        json_return("99", "희망업무 선택이 확인되지 않습니다.");
     }
 
     if ($ru_price_type == "") {
@@ -413,6 +414,7 @@ class Mypage_proc extends CI_Controller
       "ru_month_price" => $ru_month_price,
       "ru_work_type" => $ru_work_type,
       "ru_nationality" => $ru_nationality, // 국적 추가
+      "ad_type" => $ad_type, // st_address 테이블의 ad_type
       "ad_zipcode" => $ad_zipcode,
       "ad_jibun" => $ad_jibun,
       "ad_doro" => $ad_doro,
@@ -420,6 +422,7 @@ class Mypage_proc extends CI_Controller
       "ad_gps_x" => $ad_gps_x,
       "ad_gps_y" => $ad_gps_y
     ];
+
 
     $this->site_model->setSiteLog(
       [
@@ -705,6 +708,7 @@ class Mypage_proc extends CI_Controller
     $ru_work_negotiation = input_post("ru_work_negotiation", "Y");
     $quickinfo_gender = input_post("quickinfo_gender", "");
     $quickinfo_age = input_post("quickinfo_age", "");
+    $ad_type = input_post("ad_type", "resume"); // st_address 테이블의 ad_type (기본값: resume)
 
     // 배열 입력값
     $ru_work = isset($_POST["ru_work"]) ? (array)$_POST["ru_work"] : [];
@@ -811,6 +815,7 @@ class Mypage_proc extends CI_Controller
       "quickinfo_age" => $quickinfo_age,
       "ru_salary_negotiation" => $ru_salary_negotiation,
       "ru_work_negotiation" => $ru_work_negotiation,
+      "ad_type" => $ad_type,
       "ad_zipcode" => $ad_zipcode,
       "ad_jibun" => $ad_jibun,
       "ad_doro" => $ad_doro,
@@ -1316,20 +1321,39 @@ class Mypage_proc extends CI_Controller
 
 
         # 지역등록
-        $ad_zipcode = isset($step1["ad_zipcode"]) && is_array($step1["ad_zipcode"]) ? $step1["ad_zipcode"] : [];
-        $ad_jibun = isset($step1["ad_jibun"]) && is_array($step1["ad_jibun"]) ? $step1["ad_jibun"] : [];
-        $ad_doro = isset($step1["ad_doro"]) && is_array($step1["ad_doro"]) ? $step1["ad_doro"] : [];
-        $ad_addr = isset($step1["ad_addr"]) && is_array($step1["ad_addr"]) ? $step1["ad_addr"] : [];
-        $ad_detail = isset($step1["ad_detail"]) && is_array($step1["ad_detail"]) ? $step1["ad_detail"] : [];
-        $ad_gps_x = isset($step1["ad_gps_x"]) && is_array($step1["ad_gps_x"]) ? $step1["ad_gps_x"] : [];
-        $ad_gps_y = isset($step1["ad_gps_y"]) && is_array($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : [];
+        // POST 파라미터 우선, step1 fallback, 최종 기본값 "RESUME"
+        $ad_type_post = input_post("ad_type", "");
+        $ad_type_step1 = isset($step1["ad_type"]) ? $step1["ad_type"] : "";
+        $ad_type = !empty($ad_type_post) ? strtoupper($ad_type_post) : (!empty($ad_type_step1) ? strtoupper($ad_type_step1) : "RESUME");
 
-        $this->member_model->deleteAddress(["ad_type" => "RESUME", "mm_idx" => $this->mm_idx, "ad_key" => $ru_idx]);
+        // 주소 필드: 문자열이면 배열로 변환, 빈값이면 빈 배열
+        $ad_zipcode_raw = isset($step1["ad_zipcode"]) ? $step1["ad_zipcode"] : "";
+        $ad_zipcode = is_array($ad_zipcode_raw) ? $ad_zipcode_raw : ($ad_zipcode_raw != "" ? [$ad_zipcode_raw] : []);
+
+        $ad_jibun_raw = isset($step1["ad_jibun"]) ? $step1["ad_jibun"] : "";
+        $ad_jibun = is_array($ad_jibun_raw) ? $ad_jibun_raw : ($ad_jibun_raw != "" ? [$ad_jibun_raw] : []);
+
+        $ad_doro_raw = isset($step1["ad_doro"]) ? $step1["ad_doro"] : "";
+        $ad_doro = is_array($ad_doro_raw) ? $ad_doro_raw : ($ad_doro_raw != "" ? [$ad_doro_raw] : []);
+
+        $ad_addr_raw = isset($step1["ad_addr"]) ? $step1["ad_addr"] : "";
+        $ad_addr = is_array($ad_addr_raw) ? $ad_addr_raw : ($ad_addr_raw != "" ? [$ad_addr_raw] : []);
+
+        $ad_detail_raw = isset($step1["ad_detail"]) ? $step1["ad_detail"] : "";
+        $ad_detail = is_array($ad_detail_raw) ? $ad_detail_raw : ($ad_detail_raw != "" ? [$ad_detail_raw] : []);
+
+        $ad_gps_x_raw = isset($step1["ad_gps_x"]) ? $step1["ad_gps_x"] : "";
+        $ad_gps_x = is_array($ad_gps_x_raw) ? $ad_gps_x_raw : ($ad_gps_x_raw != "" ? [$ad_gps_x_raw] : []);
+
+        $ad_gps_y_raw = isset($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : "";
+        $ad_gps_y = is_array($ad_gps_y_raw) ? $ad_gps_y_raw : ($ad_gps_y_raw != "" ? [$ad_gps_y_raw] : []);
+
+        $this->member_model->deleteAddress(["ad_type" => $ad_type, "mm_idx" => $this->mm_idx, "ad_key" => $ru_idx]);
         if (!empty($ad_addr) && isset($ad_addr[0]) && $ad_addr[0] != "") {
           foreach ($ad_addr as $idx => $row) {
             $arr_addr = [
               "mm_idx" => $this->mm_idx,
-              "ad_type" => "RESUME",
+              "ad_type" => $ad_type,
               "ad_key" => $ru_idx,
               "ad_zipcode" => isset($ad_zipcode[$idx]) ? $ad_zipcode[$idx] : "",
               "ad_jibun" => isset($ad_jibun[$idx]) ? $ad_jibun[$idx] : "",
@@ -1499,13 +1523,32 @@ class Mypage_proc extends CI_Controller
         }
 
         # 지역등록
-        $ad_zipcode = isset($step1["ad_zipcode"]) && is_array($step1["ad_zipcode"]) ? $step1["ad_zipcode"] : [];
-        $ad_jibun = isset($step1["ad_jibun"]) && is_array($step1["ad_jibun"]) ? $step1["ad_jibun"] : [];
-        $ad_doro = isset($step1["ad_doro"]) && is_array($step1["ad_doro"]) ? $step1["ad_doro"] : [];
-        $ad_addr = isset($step1["ad_addr"]) && is_array($step1["ad_addr"]) ? $step1["ad_addr"] : [];
-        $ad_detail = isset($step1["ad_detail"]) && is_array($step1["ad_detail"]) ? $step1["ad_detail"] : [];
-        $ad_gps_x = isset($step1["ad_gps_x"]) && is_array($step1["ad_gps_x"]) ? $step1["ad_gps_x"] : [];
-        $ad_gps_y = isset($step1["ad_gps_y"]) && is_array($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : [];
+        // POST 파라미터 우선, step1 fallback, 최종 기본값 "RESUME"
+        $ad_type_post = input_post("ad_type", "");
+        $ad_type_step1 = isset($step1["ad_type"]) ? $step1["ad_type"] : "";
+        $ad_type = !empty($ad_type_post) ? strtoupper($ad_type_post) : (!empty($ad_type_step1) ? strtoupper($ad_type_step1) : "RESUME");
+
+        // 주소 필드: 문자열이면 배열로 변환, 빈값이면 빈 배열
+        $ad_zipcode_raw = isset($step1["ad_zipcode"]) ? $step1["ad_zipcode"] : "";
+        $ad_zipcode = is_array($ad_zipcode_raw) ? $ad_zipcode_raw : ($ad_zipcode_raw != "" ? [$ad_zipcode_raw] : []);
+
+        $ad_jibun_raw = isset($step1["ad_jibun"]) ? $step1["ad_jibun"] : "";
+        $ad_jibun = is_array($ad_jibun_raw) ? $ad_jibun_raw : ($ad_jibun_raw != "" ? [$ad_jibun_raw] : []);
+
+        $ad_doro_raw = isset($step1["ad_doro"]) ? $step1["ad_doro"] : "";
+        $ad_doro = is_array($ad_doro_raw) ? $ad_doro_raw : ($ad_doro_raw != "" ? [$ad_doro_raw] : []);
+
+        $ad_addr_raw = isset($step1["ad_addr"]) ? $step1["ad_addr"] : "";
+        $ad_addr = is_array($ad_addr_raw) ? $ad_addr_raw : ($ad_addr_raw != "" ? [$ad_addr_raw] : []);
+
+        $ad_detail_raw = isset($step1["ad_detail"]) ? $step1["ad_detail"] : "";
+        $ad_detail = is_array($ad_detail_raw) ? $ad_detail_raw : ($ad_detail_raw != "" ? [$ad_detail_raw] : []);
+
+        $ad_gps_x_raw = isset($step1["ad_gps_x"]) ? $step1["ad_gps_x"] : "";
+        $ad_gps_x = is_array($ad_gps_x_raw) ? $ad_gps_x_raw : ($ad_gps_x_raw != "" ? [$ad_gps_x_raw] : []);
+
+        $ad_gps_y_raw = isset($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : "";
+        $ad_gps_y = is_array($ad_gps_y_raw) ? $ad_gps_y_raw : ($ad_gps_y_raw != "" ? [$ad_gps_y_raw] : []);
 
         if (!empty($ad_addr) && isset($ad_addr[0]) && $ad_addr[0] != "") {
 
@@ -1516,7 +1559,7 @@ class Mypage_proc extends CI_Controller
 
             $arr_addr = [
               "mm_idx" => $this->mm_idx,
-              "ad_type" => "RESUME",
+              "ad_type" => $ad_type,
               "ad_key" => $result_resume["key"],
               "ad_zipcode" => isset($ad_zipcode[$idx]) ? $ad_zipcode[$idx] : "",
               "ad_jibun" => isset($ad_jibun[$idx]) ? $ad_jibun[$idx] : "",
