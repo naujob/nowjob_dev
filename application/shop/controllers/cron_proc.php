@@ -5,9 +5,41 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Cron_proc extends CI_Controller
 {
     // 지원 미확인 기업회원에게 3일 주기로 알림톡 발송
+    // 추가: 오후 4시(16시)에는 오늘 오전 10시 이후 새로 생긴 대상에만 발송
     public function check_unread_alimtalk()
     {
-        // 1. rc_idx > 0인 채팅방 + 3일 이내 미발송 건만 조회
+        // 1. rc_idx > 0인 채팅방 중 발송 대상 조회
+        // 시간대별로 다른 조건으로 필터링:
+        // - 오전 10시: 3일 이상 발송하지 않은 대상 (기존 대상 대상)
+        // - 오후 4시: 오늘 오전 10시 이후 새로 생긴 대상 (신규 지원자)
+        $current_hour = (int)date('H');
+        $is_afternoon = ($current_hour >= 16 && $current_hour < 17);
+
+        // 공통 기본 조건
+        $base_where = "
+            WHERE r.rc_idx > 0
+              AND m.mm_type = 'COMP'
+              AND m.mm_status = 'Y'
+              AND m.mm_agree_ad = 'Y'
+              AND m.mm_phone != ''
+        ";
+
+        // 시간대별 추가 조건
+        if ($is_afternoon) {
+            // 오후 4시: 오늘 10시 이후 새로 생긴 채팅방만
+            $time_where = "
+              AND r.reg_dt >= CONCAT(CURDATE(), ' 10:00:00')
+              AND s.as_idx IS NULL
+            ";
+        } else {
+            // 오전 10시: 3일 주기 재발송 대상
+            $time_where = "
+              AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL 3 DAY))
+            ";
+        }
+
+        $where_condition = $base_where . $time_where;
+
         $rooms = $this->db->query("
             SELECT r.rm_idx, r.rc_idx,
                    rc.mm_idx AS comp_mm_idx,
@@ -16,12 +48,7 @@ class Cron_proc extends CI_Controller
             INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
             INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
             LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
-            WHERE r.rc_idx > 0
-              AND m.mm_type = 'COMP'
-              AND m.mm_status = 'Y'
-              AND m.mm_agree_ad = 'Y'
-              AND m.mm_phone != ''
-              AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL 3 DAY))
+            {$where_condition}
         ")->result_array();
 
         if (empty($rooms)) {
