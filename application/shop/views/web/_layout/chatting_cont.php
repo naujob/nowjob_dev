@@ -1885,6 +1885,7 @@
 		//더블클릭 이벤트 처리
 		// 기업회원 제안받은 인재 / 제안보낸 인재 탭의 항목 클릭시 채팅방 진입
 		$(document).on("click", ".room-item", function() {
+			console.log("[DEBUG] room-item 클릭");
 			//대화내용 중복 차단 내역 초기화
 			resetProcessedIdx();
 
@@ -1896,6 +1897,7 @@
 			rm_start = 0;
 			$("#chat_view").html("");
 			rm_idx = $(this).data("target_id");
+			console.log("[DEBUG] room-item 클릭 - rm_idx:", rm_idx, "g_user_id:", g_user_id);
 			// get_chat_info 중복 호출 방지 플래그 초기화
 			window.chat_info_called = false;
 			// 채팅방 정보 준비 상태 초기화 (실무 방법)
@@ -1909,6 +1911,7 @@
 
 
 			//룸 호출
+			console.log("[DEBUG] room_join/room_info/message_list emit - rm_idx:", rm_idx);
 			socket.emit("room_join", {
 				rm_idx: Number(rm_idx),
 				con_user_id: g_user_id
@@ -2227,6 +2230,7 @@
 		});
 
 		function setShow(type) {
+			console.log("[DEBUG] setShow 호출 - type:", type);
 			if (type == "1") {
 				$(".chat_tab1").addClass("on");
 				$(".chat_tab2").removeClass("on");
@@ -2307,7 +2311,7 @@
  		}
 
 		function getChatTargetList(arg) {
-			
+			console.log("[DEBUG] getChatTargetList 호출 - arg:", arg);
 			//alert(arg);
 			var getUrl = "get_chat_target_list_recruit";
 			<?php if ($user_type == "MEM") { ?>
@@ -2319,8 +2323,9 @@
 				if (arg == '2') getUrl = "get_chat_target_list_recruit2"; //기업회원 제안보낸 인재 탭에서  회사공고 목록
 			<?php } ?>
 
+ 			console.log("[DEBUG] getChatTargetList AJAX 호출 - url:", "/chat_proc/" + getUrl);
  			comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
-
+ 				console.log("[DEBUG] getChatTargetList 응답 - code:", ret.code, "list 개수:", ret.data && ret.data.list ? ret.data.list.length : 0);
 
  				//console.log("get_chat_target_list_recruit:"+g_user_id);
  				//socket.emit("room_list2",{user_id : g_user_id,rm_type : "chat"});
@@ -2871,7 +2876,9 @@
 		// 중복 등록 방지: 기존 핸들러 제거 후 등록
 		socket.off("room_info_return");
 		socket.on("room_info_return", function(ret) {
+			console.log("[DEBUG] room_info_return 수신 - code:", ret.code, "data:", ret.data);
 			if (ret.code != "00") {
+				console.error("[DEBUG] room_info_return 실패 - 에러 메시지:", ret.msg);
 				alert("데이터 조회시 문제가 발생하였습니다. 관리자에게 문의 해주세요.");
 				rm_info_ready = false; // 실패 시 플래그 해제
 				$("#btnSend").prop("disabled", true); // 버튼 비활성화
@@ -2962,12 +2969,14 @@
 			if (typeof ajax_first_num !== 'undefined') {
 				ajax_first_num = 0;
 			}
-			
+
+			console.log("[DEBUG] get_chat_info AJAX 호출 - rm_idx:", rm_idx, "mm_type:", mm_type, "chat_tab_id:", chat_tab_id);
 			comAjaxV2("/chat_proc/get_chat_info", {
 				rm_idx: rm_idx,
 				mm_type: mm_type,
 				chat_tab_id: chat_tab_id
 			}, function(ret) {
+				console.log("[DEBUG] get_chat_info 응답 - code:", ret.code, "type:", ret.data ? ret.data.type : "없음", "data:", ret.data);
 				if (ret.code == "00") {
 
 					if (ret.data.type == "recruit") {

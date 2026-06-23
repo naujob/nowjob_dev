@@ -132,7 +132,7 @@ container.getUserTokenFromMySQL = async function(user_id, callback){
 			callback(null);
 		}
 	} catch (error) {
-		$common.writeLog('MySQL FCM 토큰 조회 오류: ' + error.message);
+		//$common.writeLog('MySQL FCM 토큰 조회 오류: ' + error.message);
 		callback(null);
 	}
 }
@@ -144,7 +144,7 @@ container.updatePushYnFromMySQL = async function(socket_id, push_yn, callback){
 		var mongo_user = await $db.cs_user.findOne({socket_id : socket_id});
 		
 		if (!mongo_user || !mongo_user.user_id) {
-			$common.writeLog('updatePushYnFromMySQL: socket_id로 사용자를 찾을 수 없음 - socket_id: ' + socket_id);
+			//$common.writeLog('updatePushYnFromMySQL: socket_id로 사용자를 찾을 수 없음 - socket_id: ' + socket_id); 
 			callback(false);
 			return;
 		}
@@ -168,10 +168,10 @@ container.updatePushYnFromMySQL = async function(socket_id, push_yn, callback){
 		
 		await connection.end();
 		
-		$common.writeLog('updatePushYnFromMySQL: push_yn 업데이트 완료 - user_id: ' + user_id + ', push_yn: ' + push_yn);
+		//$common.writeLog('updatePushYnFromMySQL: push_yn 업데이트 완료 - user_id: ' + user_id + ', push_yn: ' + push_yn);
 		callback(true);
 	} catch (error) {
-		$common.writeLog('MySQL push_yn 업데이트 오류: ' + error.message);
+		//$common.writeLog('MySQL push_yn 업데이트 오류: ' + error.message);
 		callback(false);
 	}
 }

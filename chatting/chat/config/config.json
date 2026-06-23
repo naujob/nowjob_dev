@@ -1,18 +1,72 @@
 {
-	"server" : {
-		"name" : "basic_chat",
-		"port" : "3030"
+	"development": {
+		"server": {
+			"name": "basic_chat",
+			"port": "3031"
+		},
+		"mongodb": {
+			"url": "mongodb://localhost",
+			"port": "27017",
+			"database": "dev_chat"
+		},
+		"mysql": {
+			"host": "localhost",
+			"port": "3306",
+			"user": "nowapk",
+			"password": "nowapk@dkaghek!!",
+			"database": "dev_nowapk"
+		},
+		"push": {
+			"host": "dev.nowjob.co.kr",
+			"port": "443",
+			"path": "/common_proc/send_chat_push"
+		},
+		"firebase": {
+			"project_id": "dev-nowjob"
+		},
+		"ssl": {
+			"key_path": "/etc/letsencrypt/live/dev.nowjob.co.kr/privkey.pem",
+			"cert_path": "/etc/letsencrypt/live/dev.nowjob.co.kr/fullchain.pem"
+		},
+		"domain": {
+			"main": "dev.nowjob.co.kr",
+			"dev": "dev.nowjob.co.kr",
+			"cookie": "dev.nowjob.co.kr"
+		}
 	},
-	"mongodb" : {
-		"url": "mongodb://localhost",
-		"port": "27017",
-		"database": "chat"
-	},
-	"mysql" : {
-		"host" : "localhost",
-	    "port" : "3306",
-	    "user" : "nowapk",
-	    "password" : "nowapk@dkaghek!!",
-	    "database" : "nowapk"
+	"production": {
+		"server": {
+			"name": "basic_chat",
+			"port": "3030"
+		},
+		"mongodb": {
+			"url": "mongodb://localhost",
+			"port": "27017",
+			"database": "chat"
+		},
+		"mysql": {
+			"host": "localhost",
+			"port": "3306",
+			"user": "nowapk",
+			"password": "nowapk@dkaghek!!",
+			"database": "nowapk"
+		},
+		"push": {
+			"host": "nowjob.co.kr",
+			"port": "443",
+			"path": "/common_proc/send_chat_push"
+		},
+		"firebase": {
+			"project_id": "nowjob-cb256"
+		},
+		"ssl": {
+			"key_path": "/etc/pki/ssl/nowjob.co.kr_20260531839F1.key.pem",
+			"cert_path": "/etc/pki/ssl/nowjob.co.kr_20260531839F1.crt.pem"
+		},
+		"domain": {
+			"main": "nowjob.co.kr",
+			"dev": "dev.nowjob.co.kr",
+			"cookie": ".nowjob.co.kr"
+		}
 	}
 }

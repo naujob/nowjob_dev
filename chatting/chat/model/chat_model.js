@@ -24,7 +24,7 @@ const $common = require("../common/common.js");
 
 //방정보 등록
 container.insertRoom = async function (data, callback) {
-	$common.writeLog("MongoDB(cs_room) insertRoom 시작 rm_idx=" + data.rm_idx + " rc_idx=" + (data.rc_idx || 0) + " ru_idx=" + (data.ru_idx || ""));
+	//$common.writeLog("MongoDB(cs_room) insertRoom 시작 rm_idx=" + data.rm_idx + " rc_idx=" + (data.rc_idx || 0) + " ru_idx=" + (data.ru_idx || ""));
 	//기본키 가져오기
 	//var room_idx = await $db.getNextSequence('room');
 	//data.room_idx = room_idx;
@@ -51,7 +51,7 @@ container.insertRoom = async function (data, callback) {
 
 	//디비 등록
 	var ret = await $db.cs_room.insertOne(chat_room);
-	$common.writeLog("MongoDB(cs_room) insertRoom 완료 rm_idx=" + data.rm_idx);
+	//$common.writeLog("MongoDB(cs_room) insertRoom 완료 rm_idx=" + data.rm_idx);
 	callback(data.rm_idx);
 }
 
@@ -183,7 +183,7 @@ getLastMessage = async function (rm_idx) {
 }
 // 특정 채팅방의 특정 메시지를 특정 유저가 읽었다고 표시하는 함수
 container.updateMessageReturnCount = async function (data, callback) {
-	$common.writeLog("MongoDB(cs_room) updateMessageReturnCount 시작 rm_idx=" + data.rm_idx + " mg_idx=" + data.mg_idx + " user_id=" + data.user_id);
+	//$common.writeLog("MongoDB(cs_room) updateMessageReturnCount 시작 rm_idx=" + data.rm_idx + " mg_idx=" + data.mg_idx + " user_id=" + data.user_id);
 	var ret1 = await $db.cs_room.updateOne(
 		{ "rm_idx": data.rm_idx }, { $set: { "rm_messages.$[message].mg_reads.$[read].read_yn": "Y" } },
 		{ arrayFilters: [{ "message.mg_idx": data.mg_idx }, { "read.user_id": data.user_id }] }
@@ -208,7 +208,7 @@ container.updateMessageReturnCount = async function (data, callback) {
 		return_count = 0;
 	}
 
-	$common.writeLog("MongoDB(cs_room) updateMessageReturnCount 완료 rm_idx=" + data.rm_idx + " mg_idx=" + data.mg_idx + " unread_count=" + return_count);
+	//$common.writeLog("MongoDB(cs_room) updateMessageReturnCount 완료 rm_idx=" + data.rm_idx + " mg_idx=" + data.mg_idx + " unread_count=" + return_count);
 	callback({ count: return_count, mg_idx: data.mg_idx });
 }
 
@@ -300,6 +300,7 @@ container.getNotReadCountList = async function (data) {
 }
 
 container.updateEnterRoom = async function (data, callback) {
+	// rm_idx=31 con_user_id=01011111111
 	$common.writeLog("MongoDB(cs_room) updateEnterRoom 시작 rm_idx=" + data.rm_idx + " con_user_id=" + data.con_user_id);
 
 	//완료후 카운터 리턴
@@ -438,7 +439,7 @@ container.insertMessage = async function (data, callback) {
 			user_info: user_info
 		};
 
-		$common.writeLog('[insertMessage] MongoDB에 메시지 저장 - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', chat_type: ' + message.chat_type + ', mg_text: ' + message.mg_text);
+			//$common.writeLog('[insertMessage] MongoDB에 메시지 저장 - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', chat_type: ' + message.chat_type + ', mg_text: ' + message.mg_text);
 
 		//디비 등록
 		var ret = await $db.cs_room.updateOne({ rm_idx: data.rm_idx }, { $push: { rm_messages: message } });

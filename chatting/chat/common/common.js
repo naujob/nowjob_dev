@@ -13,9 +13,8 @@ const path = require('path');
 
 //로그 쓰기
 container.writeLog = function (msg) {
-   // chat_trace 로그 파일 기록 비활성화
-    return;
-    
+   // 로그 파일 기록 활성화
+   return; // 임시로 로그 비활성화
     var date = new Date();
     var logMsg = date.toISOString() + ": [서버로그]::" + msg + "\n";
     console.log("[서버로그]::" + msg);
@@ -23,17 +22,26 @@ container.writeLog = function (msg) {
     // 날짜별 로그 파일명 생성 (YYYY-MM-DD 형식)
     var dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
     var logDir = path.resolve(__dirname, "../../../logs");
+  
     var logFile = path.join(logDir, 'chat_trace_' + dateStr + '.log');
+
+    // logs 디렉토리 없으면 생성
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true }, (err) => {
+            if (err) console.log('로그 디렉토리 생성 오류:', err);
+        });
+    }
 
     // 날짜별 로그 파일에 저장
     fs.appendFile(logFile, logMsg, (err) => {
-        if (err) console.log('로그 파일 쓰기 오류:', err);
+        if (err) console.log('로그 파일 쓰기 오류 (' + logFile + '):', err.message);
     });
 }
 
 //로그 쓰기
 container.chkLog = function (msg) {
-    console.log("[임시로그]::" + msg);
+    return; // 임시로 로그 비활성화
+    //console.log("[임시로그]::" + msg);
 }
 
 //json return
