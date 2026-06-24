@@ -21,6 +21,7 @@ class Cron_proc extends CI_Controller
               AND m.mm_type = 'COMP'
               AND m.mm_status = 'Y'
               AND m.mm_agree_ad = 'Y'
+              AND m.alarm_apply = 'Y'
               AND m.mm_phone != ''
         ";
 
@@ -226,6 +227,7 @@ class Cron_proc extends CI_Controller
               AND m.mm_type = 'MEM'
               AND m.mm_status = 'Y'
               AND m.mm_agree_ad = 'Y'
+              AND m.alarm_resume = 'Y'
               AND m.mm_phone != ''
             ORDER BY r.reg_dt DESC
         ";
@@ -254,6 +256,7 @@ class Cron_proc extends CI_Controller
               AND m.mm_type = 'COMP'
               AND m.mm_status = 'Y'
               AND m.mm_agree_ad = 'Y'
+              AND m.alarm_resume = 'Y'
               AND m.mm_phone != ''
             ORDER BY rc.reg_dt DESC
         ";
@@ -510,13 +513,14 @@ class Cron_proc extends CI_Controller
 
         echo "전날 등록 추천인재 건수: " . count($promotions) . "\n";
 
-        // 3. 전체 활성 기업회원 조회 (광고 수신 동의한 회원)
+        // 3. 전체 활성 기업회원 조회 (광고 수신 동의한 회원 중 추천인재알림 동의한 회원)
         $companies = $this->db->query("
             SELECT mm_idx, mm_id, mm_phone, mm_comp_name
             FROM st_member
             WHERE mm_type = 'COMP'
               AND mm_status = 'Y'
               AND mm_agree_ad = 'Y'
+              AND alarm_adv = 'Y'
               AND mm_phone != ''
         ")->result_array();
 
@@ -580,5 +584,78 @@ class Cron_proc extends CI_Controller
         }
 
         echo "완료 - 알림톡 발송 건수: " . $sent_count . "\n";
+    }
+
+    // 전날 등록된 추천인재 프로모션 발송 로그 수집
+    // crontab: 0 4 * * * curl -s http://도메인/cron_proc/collect_promotion_send_log > /dev/null 2>&1
+    public function collect_promotion_send_log()
+    {
+        // 테스트: 오늘 날짜로 조회 (나중에 -1 day로 변경)
+        $target_date = date('Y-m-d');
+
+        // 1. 전날 등록된 M001(추천인재등록) 프로모션 조회
+        $promotions = $this->db->query("
+            SELECT p.pm_idx, p.rc_idx, r.ru_name, r.ru_idx
+            FROM st_promotion p
+            INNER JOIN st_resume r ON p.rc_idx = r.ru_idx
+            WHERE p.pm_code = 'M001'
+              AND DATE(p.reg_dt) = ?
+              AND p.pm_status != 'C'
+        ", array($target_date))->result_array();
+
+        if (empty($promotions)) {
+            echo "발송 대상 프로모션 없음 (날짜: {$target_date})\n";
+            return;
+        }
+
+        echo "수집 대상 프로모션: " . count($promotions) . "건\n";
+
+        // 2. 발송 대상 기업회원 조회 (기업명 포함)
+        $companies = $this->db->query("
+            SELECT mm_idx, mm_comp_name, mm_phone
+            FROM st_member
+            WHERE mm_type = 'COMP'
+              AND mm_status = 'Y'
+              AND mm_agree_ad = 'Y'
+              AND alarm_adv = 'Y'
+              AND mm_phone != ''
+        ")->result_array();
+
+        if (empty($companies)) {
+            echo "발송 대상 기업회원 없음\n";
+            return;
+        }
+
+        echo "발송 대상 기업회원: " . count($companies) . "개\n";
+
+        // 기업명 배열 생성
+        $comp_names = array_map(function($company) {
+            return $company['mm_comp_name'];
+        }, $companies);
+
+        // 3. 각 프로모션별로 로그 기록
+        $logged_count = 0;
+        foreach ($promotions as $promo) {
+            try {
+                $this->db->query(
+                    "INSERT INTO st_ppurio_send_log (pm_idx, ru_idx, ru_name, send_date, comp_count, comp_names, reg_dt)
+                     VALUES (?, ?, ?, ?, ?, ?, NOW())",
+                    array(
+                        $promo['pm_idx'],
+                        $promo['ru_idx'],
+                        isset($promo['ru_name']) ? $promo['ru_name'] : '',
+                        $target_date,
+                        count($companies),
+                        json_encode($comp_names)
+                    )
+                );
+                $logged_count++;
+            } catch (Exception $e) {
+                echo "로그 기록 오류 (pm_idx: " . $promo['pm_idx'] . "): " . $e->getMessage() . "\n";
+                continue;
+            }
+        }
+
+        echo "완료 - 로그 기록 건수: {$logged_count}\n";
     }
 }

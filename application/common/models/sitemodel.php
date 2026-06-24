@@ -1161,6 +1161,40 @@ class siteModel extends MY_Model
 		return $this->db_row("st_promotion", $where);
 	}
 
+	# 추천인재 프로모션 발송 로그 조회 (페이징)
+	function getPromotionSendLogList($params)
+	{
+		$cols = [
+			"ps_idx",
+			"pm_idx",
+			"ru_idx",
+			"ru_name",
+			"send_date",
+			"comp_count",
+			"comp_names",
+			"reg_dt"
+		];
+
+		$body = "st_ppurio_send_log";
+
+		$where = [];
+
+		if (isset($params["sdate"]) && $params["sdate"] != "") {
+			$where[] = " AND send_date >= '" . $this->inject($params["sdate"]) . "'";
+		}
+		if (isset($params["edate"]) && $params["edate"] != "") {
+			$where[] = " AND send_date <= '" . $this->inject($params["edate"]) . "'";
+		}
+
+		if (isset($params["search_value"]) && $params["search_value"] != "") {
+			$where[] = " AND ru_name LIKE '%" . $this->inject($params["search_value"]) . "%'";
+		}
+
+		$order_by = "send_date DESC, ps_idx DESC";
+
+		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
+	}
+
 	######################################
 	# END 프로모션
 	######################################

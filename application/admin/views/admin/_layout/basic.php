@@ -144,6 +144,7 @@
         if($currentUrl=="/admin/setting/basic/config_usepoint_edit")  $short_menu_title="구매포인트 설정";
         if($currentUrl=="/admin/setting/basic/policy")                $short_menu_title="이용약관 관리";
         if($currentUrl=="/admin/setting/version_policy")              $short_menu_title="앱 업데이트 정책";
+        if($currentUrl=="/admin/ppurio/buy_recom")                    $short_menu_title="추천인재 구매상품 개인";
         ?>
         <?=$short_menu_title?>
 			</h2>

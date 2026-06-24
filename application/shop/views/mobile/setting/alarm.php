@@ -36,7 +36,9 @@
                                     </span>
                                 </li>
                                 <li>
-                                    <span class="label">희망채용정보 매칭 알림</span>
+                                    <span class="label">
+                                        <?= ($mem_info["mm_type"] == "COMP") ? "이력서 매칭 알림" : "채용공고 매칭 알림" ?>
+                                    </span>
                                     <span class="value">
                                         <label class="btn-toggle">
                                             <input type="checkbox" name="alarm_resume" value="Y" <?=$mem_info["alarm_resume"]=="Y" ? "checked":""?>>
@@ -44,6 +46,7 @@
                                         </label>
                                     </span>
                                 </li>
+                                <!-- 관심등록 알림 - 사용 안함 (주석처리)
                                 <li>
                                     <span class="label">관심등록 알림</span>
                                     <span class="value">
@@ -53,8 +56,19 @@
                                         </label>
                                     </span>
                                 </li>
+                                -->
+                                <?php if($mem_info["mm_type"] == "COMP") : ?>
                                 <li>
-                                    <span class="label">광고/이벤트 알림</span>
+                                    <span class="label">개인회원 지원 알림</span>
+                                    <span class="value">
+                                        <label class="btn-toggle">
+                                            <input type="checkbox" name="alarm_apply" value="Y" <?=$mem_info["alarm_apply"]=="Y" ? "checked":""?>>
+                                            <span class="btn"></span>
+                                        </label>
+                                    </span>
+                                </li>
+                                <li>
+                                    <span class="label">추천인재알림</span>
                                     <span class="value">
                                         <label class="btn-toggle">
                                             <input type="checkbox" name="alarm_adv" value="Y" <?=$mem_info["alarm_adv"]=="Y" ? "checked":""?>>
@@ -62,6 +76,7 @@
                                         </label>
                                     </span>
                                 </li>
+                                <?php endif; ?>
                             </ul>
                         </div>
                         <!-- //옵션목록 -->
@@ -174,7 +189,8 @@
     		var check = $(this).is(":checked");
     		$("[name=alarm_chat]").prop("checked",check);
     		$("[name=alarm_resume]").prop("checked",check);
-    		$("[name=alarm_fav]").prop("checked",check);
+    		// $("[name=alarm_fav]").prop("checked",check);  // 관심등록 알림 - 사용 안함 (주석처리)
+    		$("[name=alarm_apply]").prop("checked",check);
     		$("[name=alarm_adv]").prop("checked",check);
     	})
     	
@@ -222,7 +238,8 @@
     		var params = {};
             params["alarm_chat"] = $("[name=alarm_chat]").is(":checked") ? "Y":"N";
             params["alarm_resume"] = $("[name=alarm_resume]").is(":checked") ? "Y":"N";
-            params["alarm_fav"] = $("[name=alarm_fav]").is(":checked") ? "Y":"N";
+            // params["alarm_fav"] = $("[name=alarm_fav]").is(":checked") ? "Y":"N";  // 관심등록 알림 - 사용 안함 (주석처리)
+            params["alarm_apply"] = $("[name=alarm_apply]").is(":checked") ? "Y":"N";
             params["alarm_adv"] = $("[name=alarm_adv]").is(":checked") ? "Y":"N";
             params["alarm_deny_yn"] = $("[name=alarm_deny_yn]").is(":checked") ? "Y":"N";
             params["alarm_deny_yoil"] = alarm_deny_yoil;

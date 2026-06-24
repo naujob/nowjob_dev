@@ -93,6 +93,7 @@
             $alarm_chat = input_post("alarm_chat","");
             $alarm_resume = input_post("alarm_resume","");
             $alarm_fav = input_post("alarm_fav","");
+            $alarm_apply = input_post("alarm_apply","");
             $alarm_adv = input_post("alarm_adv","");
             $alarm_deny_yn = input_post("alarm_deny_yn","");
             $alarm_deny_yoil = input_post("alarm_deny_yoil","");
@@ -112,6 +113,7 @@
                 "alarm_chat"=>$alarm_chat,
                 "alarm_resume"=>$alarm_resume,
                 "alarm_fav"=>$alarm_fav,
+                "alarm_apply"=>$alarm_apply,
                 "alarm_adv"=>$alarm_adv,
                 "alarm_deny_yn"=>$alarm_deny_yn,
                 "alarm_deny_yoil"=>$alarm_deny_yoil,

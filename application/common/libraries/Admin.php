@@ -115,7 +115,7 @@ class admin {
 		$master_yn = $this->getMasterYn();
 		$mg_idx = $this->getMgIdx();
 
-		$master_yn = "Y";
+		$master_yn = "Y"; // 모든 사용자를 마스터로 강제 변환
 		if($master_yn=="Y"){
 			$query = $this->CI->db->get_where("st_admin_grant", ["mg_master_yn"=>"Y"], 0, 1);
 			$data =  $query->row_array();
