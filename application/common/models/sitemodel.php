@@ -1172,6 +1172,7 @@ class siteModel extends MY_Model
 			"send_date",
 			"comp_count",
 			"comp_names",
+			"alarm_adv_count",
 			"reg_dt"
 		];
 

@@ -57,7 +57,6 @@
                     <col width="150px"/>
                     <col width="100px"/>
                     <col width="100px"/>
-                    <col width="250px"/>
                     <col width="150px"/>
                     <col width="100px"/>
                 </colgroup>
@@ -67,41 +66,91 @@
                         <th scope="col">이력서명</th>
                         <th scope="col">발송일</th>
                         <th scope="col">발송대상 기업수</th>
-                        <th scope="col">발송대상 기업명</th>
-                        <th scope="col">로그등록일시</th>
                         <th scope="col">프로모션IDX</th>
+                        <th scope="col">로그등록일시</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php if(count($result_list) > 0) : ?>
                     <?php foreach($result_list as $key => $row) : ?>
-                    <?php
-                        // 기업명 JSON 디코딩
-                        $comp_names_str = '';
-                        if (isset($row['comp_names']) && !empty($row['comp_names'])) {
-                            $comp_names_arr = json_decode($row['comp_names'], true);
-                            if (is_array($comp_names_arr)) {
-                                $comp_names_str = implode(', ', $comp_names_arr);
-                            }
-                        }
-                    ?>
                     <tr>
                         <td class="tc"><?=$start - $key?></td>
                         <td><?=isset($row['ru_name']) ? $row['ru_name'] : ''?></td>
                         <td class="tc"><?=isset($row['send_date']) ? $row['send_date'] : ''?></td>
                         <td class="tc"><?=isset($row['comp_count']) ? $row['comp_count'] : 0?></td>
-                        <td style="font-size:12px; line-height:1.4;"><?=$comp_names_str?></td>
-                        <td class="tc"><?=isset($row['reg_dt']) ? substr($row['reg_dt'], 0, 19) : ''?></td>
                         <td class="tc"><?=isset($row['pm_idx']) ? $row['pm_idx'] : ''?></td>
+                        <td class="tc"><?=isset($row['reg_dt']) ? substr($row['reg_dt'], 0, 19) : ''?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="7" class="tc" style="padding: 20px;">데이터가 없습니다.</td>
+                        <td colspan="6" class="tc" style="padding: 20px;">데이터가 없습니다.</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
             </table>
+
+            <!-- 기업별 알림동의 상태 테이블 -->
+            <div style="margin-top: 40px;">
+                <h3 class="sub-title mb-10">기업별 알림동의 상태</h3>
+                <table class="table-type2">
+                    <colgroup>
+                        <col width="60px"/>
+                        <col width="150px"/>
+                        <col width="100px"/>
+                        <col width="250px"/>
+                        <col width="100px"/>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th scope="col">번호</th>
+                            <th scope="col">이력서명</th>
+                            <th scope="col">발송일</th>
+                            <th scope="col">기업명</th>
+                            <th scope="col">알림동의</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php if(count($result_list) > 0) : ?>
+                        <?php $detail_idx = 1; ?>
+                        <?php foreach($result_list as $key => $row) : ?>
+                        <?php
+                            // 기업명 JSON 디코딩
+                            $comp_names_arr = [];
+                            if (isset($row['comp_names']) && !empty($row['comp_names'])) {
+                                $comp_names_arr = json_decode($row['comp_names'], true);
+                                if (!is_array($comp_names_arr)) {
+                                    $comp_names_arr = [];
+                                }
+                            }
+                            $alarm_adv_count = isset($row['alarm_adv_count']) ? $row['alarm_adv_count'] : 0;
+                            $total_comp_count = isset($row['comp_count']) ? $row['comp_count'] : 0;
+                        ?>
+                            <?php foreach($comp_names_arr as $comp_idx => $comp_name) : ?>
+                            <tr>
+                                <td class="tc"><?=$detail_idx?></td>
+                                <td><?=isset($row['ru_name']) ? $row['ru_name'] : ''?></td>
+                                <td class="tc"><?=isset($row['send_date']) ? $row['send_date'] : ''?></td>
+                                <td><?=$comp_name?></td>
+                                <td class="tc">
+                                    <?php if($comp_idx < $alarm_adv_count) : ?>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ 동의</span>
+                                    <?php else : ?>
+                                        <span style="color: #999;">✗ 미동의</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php $detail_idx++; ?>
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="5" class="tc" style="padding: 20px;">데이터가 없습니다.</td>
+                        </tr>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
             <?=$pagenation?>
         </div>
     </div>

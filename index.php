@@ -5,6 +5,11 @@
  * CodeIgniter Front Controller (dev / prod 공통 최종본)
  * Location: /website/dev_nowapk/index.php
  * ============================================================
+ * ● FCPATH (웹 루트)     : /var/www/html/DEV_NOWAPK/
+ *   APPPATH (현재 앱)    : /var/www/html/DEV_NOWAPK/application/shop/
+ *   SHAREDPATH (공용)    : /var/www/html/DEV_NOWAPK/application/common/
+ *   BASEPATH (CI 본체)   : /var/www/html/DEV_NOWAPK/system/
+ 
  */
 
 /**
@@ -131,18 +136,18 @@ if (
     $is_https = true;
 }
 
-ini_set('session.use_cookies', 1);
-ini_set('session.cookie_domain', $cookie_domain);
-ini_set('session.cookie_path', '/');
-ini_set('session.cookie_lifetime', 3600 * 24 * 365);
-ini_set('session.gc_maxlifetime', 3600 * 24 * 365);
+ini_set('session.use_cookies', 1); // 세션 쿠키 사용
+ini_set('session.cookie_domain', $cookie_domain); // 세션 쿠키 도메인 설정
+ini_set('session.cookie_path', '/'); // 세션 쿠키 경로 설정
+ini_set('session.cookie_lifetime', 3600 * 24 * 365); // 세션 쿠키 만료 시간 1년
+ini_set('session.gc_maxlifetime', 3600 * 24 * 365); // 세션 데이터 유효기간 1년
 
-if ($is_https) {
-    ini_set('session.cookie_secure', 1);
-    ini_set('session.cookie_samesite', 'none');
+if ($is_https) { // HTTPS 환경에서는 Secure, SameSite=None 설정
+    ini_set('session.cookie_secure', 1); // 세션 쿠키를 HTTPS에서만 전송
+    ini_set('session.cookie_samesite', 'none'); // SameSite=None 설정 (HTTPS 환경에서만 가능)
 } else {
-    ini_set('session.cookie_secure', 0);
-    ini_set('session.cookie_samesite', 'Lax');
+    ini_set('session.cookie_secure', 0); // 세션 쿠키를 HTTP에서도 전송
+    ini_set('session.cookie_samesite', 'Lax'); // SameSite=Lax 설정 (HTTP 환경에서는 None 불가)
 }
 
 /**
@@ -150,7 +155,7 @@ if ($is_https) {
  * 6. session_start
  * ------------------------------------------------------------
  */
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status() === PHP_SESSION_NONE) { // PHP에서 세션의 현재 상태를 나타내는 상수 중 하나
     session_start();
 }
 
@@ -223,6 +228,8 @@ $sub = isset($host_parts[0]) ? $host_parts[0] : '';
 
 if ($sub === 'admin') {
     // $application_folder: /website/nowapk/application/admin
+    // APPPATH: /website/nowapk/application/admin/
+   
     $application_folder .= '/admin';
 } elseif ($sub === 'api') {
     // $application_folder: /website/nowapk/application/api
@@ -230,6 +237,7 @@ if ($sub === 'admin') {
 } else {
     // $application_folder: /website/nowapk/application/shop
     $application_folder .= '/shop';
+    // APPPATH: /website/nowapk/application/shop/
 }
 
 // application 경로 정규화
@@ -259,7 +267,7 @@ define('BASEPATH', $system_path);
 define('FCPATH', $base_path);
 // $SYSDIR: nowapk
 define('SYSDIR', basename(BASEPATH));
-// $APPPATH: /website/nowapk/application/shop/
+// $APPPATH: /website/nowapk/application/shop/ 
 define('APPPATH', $application_folder . DIRECTORY_SEPARATOR);
 // $VIEWPATH: /website/nowapk/application/shop/views/
 define('VIEWPATH', APPPATH . 'views' . DIRECTORY_SEPARATOR);

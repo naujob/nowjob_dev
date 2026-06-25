@@ -4,6 +4,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
 // Cron 작업용 컨트롤러 (보안 설정 필요: IP 제한 등)
 class Cron_proc extends CI_Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->library('common');
+    }
+
     // 지원 미확인 기업회원에게 3일 주기로 알림톡 발송
     // 추가: 오후 4시(16시)에는 오늘 오전 10시 이후 새로 생긴 대상에만 발송
     public function check_unread_alimtalk()
@@ -42,7 +48,7 @@ class Cron_proc extends CI_Controller
         $where_condition = $base_where . $time_where;
 
         $rooms = $this->db->query("
-            SELECT r.rm_idx, r.rc_idx,
+            SELECT r.rm_idx, r.rc_idx, r.ru_idx,
                    rc.mm_idx AS comp_mm_idx,
                    m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
             FROM st_room r
@@ -115,6 +121,10 @@ class Cron_proc extends CI_Controller
                     $row['mm_phone'], $corp_vars,
                     array('name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '')
                 );
+
+                // SMS 동시 발송
+                $sms_msg = "[나우잡] 확인하지 않은 지원자가 있습니다. 확인하기: " . site_url('resume/hr_post/' . $row['ru_idx']);
+                $this->common->sendNotificationSms($row['mm_phone'], $sms_msg);
 
                 // 발송 이력 기록 (INSERT 또는 UPDATE)
                 $this->db->query(
@@ -391,6 +401,10 @@ class Cron_proc extends CI_Controller
 
             // 발송 이력 기록
             if (isset($result['ok']) && $result['ok'] === true) {
+                // SMS 동시 발송
+                $sms_msg = "[나우잡] 조건에 맞는 인재가 등록되었습니다. 확인하기: " . site_url('resume/hr_post/' . $resume['ru_idx']);
+                $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
+
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
                      (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
@@ -463,6 +477,10 @@ class Cron_proc extends CI_Controller
 
             // 발송 이력 기록
             if (isset($result['ok']) && $result['ok'] === true) {
+                // SMS 동시 발송
+                $sms_msg = "[나우잡] 조건에 맞는 채용공고가 있습니다. 확인하기: " . site_url('recruit/job_post/' . $recruit['rc_idx']);
+                $this->common->sendNotificationSms($resume['mm_phone'], $sms_msg);
+
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
                      (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
@@ -638,15 +656,16 @@ class Cron_proc extends CI_Controller
         foreach ($promotions as $promo) {
             try {
                 $this->db->query(
-                    "INSERT INTO st_ppurio_send_log (pm_idx, ru_idx, ru_name, send_date, comp_count, comp_names, reg_dt)
-                     VALUES (?, ?, ?, ?, ?, ?, NOW())",
+                    "INSERT INTO st_ppurio_send_log (pm_idx, ru_idx, ru_name, send_date, comp_count, comp_names, alarm_adv_count, reg_dt)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
                     array(
                         $promo['pm_idx'],
                         $promo['ru_idx'],
                         isset($promo['ru_name']) ? $promo['ru_name'] : '',
                         $target_date,
                         count($companies),
-                        json_encode($comp_names)
+                        json_encode($comp_names),
+                        count($companies)
                     )
                 );
                 $logged_count++;

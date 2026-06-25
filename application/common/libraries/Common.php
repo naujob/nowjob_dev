@@ -1237,6 +1237,217 @@ class common
 		return $result;
 	}
 
+	// 뿌리오 설정 로드 (PpurioClient와 동일한 방식)
+	private function getPpurioConfig()
+	{
+		if (!isset($this->_ppurio_config)) {
+			$this->_ppurio_config = array();
+			if (function_exists('config_item')) {
+				$cfg = config_item('ppurio');
+				if (is_array($cfg)) {
+					$this->_ppurio_config = $cfg;
+					return $this->_ppurio_config;
+				}
+			}
+            // SHAREDPATH:/var/www/html/DEV_NOWAPK/application/common/
+            // APPPATH:/var/www/html/DEV_NOWAPK/application/shop/
+
+			$configPath = (defined('SHAREDPATH') ? SHAREDPATH : APPPATH . 'common/') . 'config/ppurio.php';
+			if (file_exists($configPath)) {
+				$config = array();
+				include $configPath;
+				if (isset($config['ppurio']) && is_array($config['ppurio'])) {
+					$this->_ppurio_config = $config['ppurio'];
+				}
+			}
+		}
+		return $this->_ppurio_config;
+	}
+
+	// 뿌리오 토큰 발급 (24시간 유효) - v1 공식 API
+	private function getPpurioAccessToken()
+	{
+		$token_url = 'https://message.ppurio.com/v1/token';
+		$ppurio_config = $this->getPpurioConfig();
+
+		$account = isset($ppurio_config['account']) ? $ppurio_config['account'] : '';
+		$access_key = isset($ppurio_config['access_key']) ? $ppurio_config['access_key'] : '';
+
+		if (empty($account) || empty($access_key)) {
+			return ['ok' => false, 'error' => 'ppurio 설정 누락(account/access_key)'];
+		}
+
+		$authHeader = 'Basic ' . base64_encode($account . ':' . $access_key);
+
+		$ch = curl_init();
+		curl_setopt_array($ch, [
+			CURLOPT_URL => $token_url,
+			CURLOPT_POST => true,
+			CURLOPT_HTTPHEADER => ['Authorization: ' . $authHeader],
+			CURLOPT_POSTFIELDS => '',
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_CONNECTTIMEOUT => 10,
+			CURLOPT_TIMEOUT => 15,
+			CURLOPT_SSL_VERIFYPEER => true,
+			CURLOPT_SSL_VERIFYHOST => 2,
+		]);
+
+		$response = curl_exec($ch);
+		$httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$curl_error = curl_error($ch);
+		curl_close($ch);
+
+		if ($response === false) {
+			return ['ok' => false, 'error' => 'cURL 오류: ' . $curl_error];
+		}
+
+		if ($httpStatus < 200 || $httpStatus >= 300) {
+			return ['ok' => false, 'error' => 'HTTP ' . $httpStatus];
+		}
+
+		$decoded = json_decode($response, true);
+		if (!isset($decoded['access_token']) || empty($decoded['access_token'])) {
+			return ['ok' => false, 'error' => 'access_token 누락'];
+		}
+
+		return ['ok' => true, 'access_token' => $decoded['access_token']];
+	}
+
+	// 알림 발송용 SMS - Ppurio 공식 API v1 기준
+	function sendNotificationSms($phone, $msg, $messageType = 'SMS')
+	{
+		// 파라미터 유효성 검사
+		if (empty($phone) || empty($msg)) {
+			return [
+				"code" => "99",
+				"text" => "phone 또는 msg가 비어있습니다.",
+				"result" => "fail"
+			];
+		}
+
+		$db = DB('default', true);
+
+		// 토큰 발급
+		$tokenResult = $this->getPpurioAccessToken();
+		if (!isset($tokenResult['ok']) || !$tokenResult['ok']) {
+			$error_msg = isset($tokenResult['error']) ? $tokenResult['error'] : '토큰 발급 실패';
+
+			$sms_insert = [
+				"sl_type" => "알림발송",
+				"sl_phone" => $phone,
+				"sl_content" => $msg,
+				"sl_status" => "N",
+				"sl_auth" => "",
+				"sl_result" => "token_error: " . $error_msg,
+				"reg_id" => "system"
+			];
+			$db->insert('st_sms_send_list', $sms_insert);
+
+			return [
+				"code" => "99",
+				"text" => "토큰 발급 실패: " . $error_msg,
+				"result" => "fail"
+			];
+		}
+
+		$accessToken = $tokenResult['access_token'];
+		$api_url = 'https://message.ppurio.com/v1/message';
+
+		$ppurio_config = $this->getPpurioConfig();
+		$account = isset($ppurio_config['account']) ? $ppurio_config['account'] : '';
+		$fromNumber = isset($ppurio_config['from']) ? $ppurio_config['from'] : '0328330018';
+
+		// 수신자 정보 구성
+		$target = [
+			'to' => preg_replace('/[^0-9]/', '', $phone) // 숫자만 추출
+		];
+
+		// 요청 본문 구성 (공식 API v1 기준)
+		$payload = [
+			'account' => $account,
+			'messageType' => $messageType, // SMS/LMS/MMS
+			'from' => $fromNumber,
+			'duplicateFlag' => 'N',
+			'content' => $msg,
+			'targetCount' => 1,
+			'targets' => [$target],
+			'refKey' => 'notify-' . date('YmdHis') . '-' . mt_rand(10000, 99999)
+		];
+
+		// cURL 요청
+		$ch = curl_init();
+		curl_setopt_array($ch, [
+			CURLOPT_URL => $api_url,
+			CURLOPT_POST => true,
+			CURLOPT_HTTPHEADER => [
+				'Authorization: Bearer ' . $accessToken,
+				'Content-Type: application/json'
+			],
+			CURLOPT_POSTFIELDS => json_encode($payload),
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_CONNECTTIMEOUT => 10,
+			CURLOPT_TIMEOUT => 15,
+			CURLOPT_SSL_VERIFYPEER => true,
+			CURLOPT_SSL_VERIFYHOST => 2,
+		]);
+
+		$response = curl_exec($ch);
+		$httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$curl_error = curl_error($ch);
+		curl_close($ch);
+
+		// 응답 처리
+		if ($response === false) {
+			$sms_insert = [
+				"sl_type" => "알림발송",
+				"sl_phone" => $phone,
+				"sl_content" => $msg,
+				"sl_status" => "N",
+				"sl_auth" => "",
+				"sl_result" => "curl_error: " . $curl_error,
+				"reg_id" => "system"
+			];
+			$db->insert('st_sms_send_list', $sms_insert);
+
+			return [
+				"code" => "99",
+				"text" => "API 통신 오류: " . $curl_error,
+				"result" => "fail"
+			];
+		}
+
+		$is_success = ($httpStatus >= 200 && $httpStatus < 300);
+		$arr_info = json_decode($response, true);
+
+		// 발송 결과 로그
+		$sms_insert = [
+			"sl_type" => "알림발송",
+			"sl_phone" => $phone,
+			"sl_content" => $msg,
+			"sl_status" => $is_success ? "Y" : "N",
+			"sl_auth" => "",
+			"sl_result" => "HTTP_" . $httpStatus,
+			"reg_id" => "system"
+		];
+		$db->insert('st_sms_send_list', $sms_insert);
+
+		if (!$is_success) {
+			return [
+				"code" => "99",
+				"text" => "HTTP " . $httpStatus,
+				"result" => "fail",
+				"response" => $arr_info
+			];
+		}
+
+		return [
+			"code" => "00",
+			"text" => "발송 성공",
+			"result" => "ok",
+			"response" => $arr_info
+		];
+	}
+
 	//sms 발송처리
 	function sendTalk($data)
 	{
