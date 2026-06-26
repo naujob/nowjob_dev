@@ -1,0 +1,147 @@
+<?php
+
+// 매칭 로직 공유 모델
+class Matchmodel extends CI_Model {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    /**
+     * 활성 이력서 조회 (주소 포함)
+     */
+    public function getActiveResumes() {
+        $sql = "
+            SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type, r.reg_dt,
+                   m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
+                   a.ad_addr
+            FROM st_resume r
+            INNER JOIN st_member m ON r.mm_idx = m.mm_idx
+            INNER JOIN st_address a ON r.mm_idx = a.mm_idx
+                AND a.ad_type = 'RESUME' AND a.ad_key = r.ru_idx
+            WHERE r.ru_show_yn = 'Y'
+              AND r.ru_status = 'Y'
+              AND m.mm_type = 'MEM'
+              AND m.mm_status = 'Y'
+              AND m.mm_agree_ad = 'Y'
+              AND m.alarm_resume = 'Y'
+              AND m.mm_phone != ''
+            ORDER BY r.reg_dt DESC
+        ";
+        return $this->db->query($sql)->result_array();
+    }
+
+    /**
+     * 게재 중인 채용공고 조회 (주소 포함)
+     */
+    public function getActiveRecruits() {
+        $sql = "
+            SELECT rc.rc_idx, rc.mm_idx, rc.rc_name, rc.rc_work, rc.rc_work_type, rc.rc_price_type,
+                   rc.rc_sex, rc.rc_sage, rc.rc_eage, rc.rc_nation, rc.reg_dt,
+                   m.mm_comp_name, m.mm_phone,
+                   a.ad_addr
+            FROM st_recruit rc
+            INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
+            INNER JOIN st_address a ON rc.mm_idx = a.mm_idx
+                AND a.ad_type IN ('RECRUIT', 'RECRUIT_EXPOSE_1', 'RECRUIT_EXPOSE_2')
+                AND a.ad_key = rc.rc_idx
+            WHERE rc.rc_status = 'Y'
+              AND rc.rc_show_yn = 'Y'
+              AND rc.rc_sdate <= NOW()
+              AND rc.rc_edate >= NOW()
+              AND m.mm_type = 'COMP'
+              AND m.mm_status = 'Y'
+              AND m.mm_agree_ad = 'Y'
+              AND m.alarm_resume = 'Y'
+              AND m.mm_phone != ''
+            ORDER BY rc.reg_dt DESC
+        ";
+        return $this->db->query($sql)->result_array();
+    }
+
+    /**
+     * 주소를 시/구 단위로 그룹핑
+     * "인천광역시 남동구 고잔동" → "인천광역시 남동구"
+     */
+    public function groupByArea($items) {
+        $grouped = array();
+        foreach ($items as $item) {
+            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
+            if ($addr === '') continue;
+
+            $parts = explode(' ', $addr);
+            // 시/도 + 구/군 (처음 2단어)
+            $area = (count($parts) >= 2) ? $parts[0] . ' ' . $parts[1] : $parts[0];
+
+            if (!isset($grouped[$area])) {
+                $grouped[$area] = array();
+            }
+            $grouped[$area][] = $item;
+        }
+        return $grouped;
+    }
+
+    /**
+     * 이력서와 채용공고의 세부 조건 매칭 확인
+     * 모든 조건이 일치해야 매칭됨
+     */
+    public function isMatched($resume, $recruit) {
+        // 1. 직종 매칭 (1개 이상 겹침)
+        $ru_works = array_map('trim', explode(',', $resume['ru_work']));
+        $rc_works = array_map('trim', explode(',', $recruit['rc_work']));
+        $work_intersect = array_intersect($ru_works, $rc_works);
+        if (empty($work_intersect)) {
+            echo "[DEBUG-MATCH] ru_idx=" . $resume['ru_idx'] . ", rc_idx=" . $recruit['rc_idx'] . " - 직종 불일치\n";
+            return false;
+        }
+
+        // 2. 성별 매칭
+        if ($resume['mm_sex'] !== '') {
+            $sex_map = array('남' => '남자', '여' => '여자');
+            $member_sex = isset($sex_map[$resume['mm_sex']]) ? $sex_map[$resume['mm_sex']] : '';
+            if ($member_sex !== '') {
+                $rc_sex_arr = array_map('trim', explode(',', $recruit['rc_sex']));
+                if (!in_array($member_sex, $rc_sex_arr)) return false;
+            }
+        }
+
+        // 3. 나이 매칭 (mm_birth가 0 이상일 때만 검사)
+        if (((int)$resume['mm_birth']) > 0 && ((int)$recruit['rc_sage']) > 0 && ((int)$recruit['rc_eage']) > 0) {
+            $korean_age = (int)date('Y') - (int)$resume['mm_birth'] + 1;
+            $normalized = round($korean_age / 10) * 10;
+            if ($normalized < 20) $normalized = 20;
+            if ($normalized > 70) $normalized = 70;
+            if ($normalized < (int)$recruit['rc_sage'] || $normalized > (int)$recruit['rc_eage']) return false;
+        }
+
+        // 4. 국적 매칭
+        if ($resume['mm_nation'] != '') {
+            $rc_nations = array_map('trim', explode(',', $recruit['rc_nation']));
+            if (in_array($resume['mm_nation'], array('내국인', '외국인'))) {
+                if (!in_array($resume['mm_nation'], $rc_nations)) return false;
+            }
+        }
+
+        // 5. 근무형태 매칭 (1개 이상 겹침)
+        $ru_types = array_map('trim', explode(',', $resume['ru_work_type']));
+        $rc_types = array_map('trim', explode(',', $recruit['rc_work_type']));
+        $type_intersect = array_intersect($ru_types, $rc_types); // 공통 데이터 찾기 (교집합)
+        if (empty($type_intersect)) return false;
+
+        // 6. 급여타입 매칭 (1개 이상 겹침, 또는 "시급" ↔ "월급" 매핑)
+        $ru_prices = array_map('trim', explode(',', $resume['ru_price_type']));
+        $rc_prices = array_map('trim', explode(',', $recruit['rc_price_type']));
+
+        $price_intersect = array_intersect($ru_prices, $rc_prices);
+        if (!empty($price_intersect)) {
+            // 직접 일치
+        } else if (in_array('시급', $rc_prices) && in_array('월급', $ru_prices)) {
+            // 매핑: 채용공고의 "시급"이 이력서의 "월급"과 일치
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+}
+?>

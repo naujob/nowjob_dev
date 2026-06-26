@@ -8,6 +8,7 @@ class Cron_proc extends CI_Controller
     {
         parent::__construct();
         $this->load->library('common');
+        $this->load->model('matchmodel', 'match_model');
     }
 
     // 지원 미확인 기업회원에게 3일 주기로 알림톡 발송
@@ -18,7 +19,7 @@ class Cron_proc extends CI_Controller
         // 시간대별로 다른 조건으로 필터링:
         // - 오전 10시: 3일 이상 발송하지 않은 대상 (기존 대상 대상)
         // - 오후 4시: 오늘 오전 10시 이후 새로 생긴 대상 (신규 지원자)
-        $current_hour = (int)date('H');
+        $current_hour = (int)date('H'); // 현재 시간(24시간 형식)
         $is_afternoon = ($current_hour >= 16 && $current_hour < 17);
 
         // 공통 기본 조건
@@ -34,12 +35,19 @@ class Cron_proc extends CI_Controller
         // 시간대별 추가 조건
         if ($is_afternoon) {
             // 오후 4시: 오늘 10시 이후 새로 생긴 채팅방만
+            // s.as_idx IS NULL 조건은 **"아직 한 번도 알림을 보내지 않은 채팅방"**을 필터링
             $time_where = "
-              AND r.reg_dt >= CONCAT(CURDATE(), ' 10:00:00')
+              AND r.reg_dt >= CONCAT(CURDATE(), ' 10:00:00') 
               AND s.as_idx IS NULL
             ";
         } else {
             // 오전 10시: 3일 주기 재발송 대상
+            /**
+             * (아직 미발송) OR (3일 이상 지난 것)
+             *   ↓
+             *   새로운 채팅방도 보내고, 옛날 채팅도 다시 한 번 보냄
+             * 
+             */
             $time_where = "
               AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL 3 DAY))
             ";
@@ -115,26 +123,30 @@ class Cron_proc extends CI_Controller
 
                 if (!$has_unread_recruit_msg) continue;
 
-                // 미확인 → 알림톡 발송
-                $corp_vars = array('', '', '', site_url('recruit/job_post/' . $row['rc_idx']));
-                $ppurio->sendCorporateAlimtalk(
-                    $row['mm_phone'], $corp_vars,
+                // 미확인 → 알림톡 발송 (템플릿 변수: var1=[*이름*], var2=[*휴대폰*], var3=[*1*])
+                $result = $ppurio->sendUnreadNotificationAlimtalk(
+                    $row['mm_phone'],
+                    array(
+                        isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',  // var1 = [*이름*]
+                        $row['mm_phone'],                                          // var2 = [*휴대폰*]
+                        "이력서 지원 알림"                                          // var3 = [*1*]
+                    ),
                     array('name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '')
                 );
 
-                // SMS 동시 발송
-                $sms_msg = "[나우잡] 확인하지 않은 지원자가 있습니다. 확인하기: " . site_url('resume/hr_post/' . $row['ru_idx']);
-                $this->common->sendNotificationSms($row['mm_phone'], $sms_msg);
-
-                // 발송 이력 기록 (INSERT 또는 UPDATE)
-                $this->db->query(
-                    "INSERT INTO st_alimtalk_sent (rm_idx, comp_mm_idx, sent_dt, sent_count)
-                     VALUES (?, ?, NOW(), 1)
-                     ON DUPLICATE KEY UPDATE sent_dt = NOW(), sent_count = sent_count + 1",
-                    array($row['rm_idx'], $row['comp_mm_idx'])
-                );
-
-                $sent_count++;
+                // 발송 이력 기록 (성공한 경우에만)
+                if (isset($result['ok']) && $result['ok'] === true) {
+                    $this->db->query(
+                        "INSERT INTO st_alimtalk_sent (rm_idx, comp_mm_idx, sent_dt, sent_count)
+                         VALUES (?, ?, NOW(), 1)
+                         ON DUPLICATE KEY UPDATE sent_dt = NOW(), sent_count = sent_count + 1",
+                        array($row['rm_idx'], $row['comp_mm_idx'])
+                    );
+                    $sent_count++;
+                } else {
+                    $error_msg = isset($result['error']) ? $result['error'] : '알림톡 발송 실패';
+                    echo "알림톡 발송 실패 (rm_idx: " . $row['rm_idx'] . "): " . $error_msg . "\n";
+                }
 
             } catch (Exception $e) {
                 echo "채팅방 처리 오류 (rm_idx: " . $row['rm_idx'] . "): " . $e->getMessage() . "\n";
@@ -167,6 +179,7 @@ class Cron_proc extends CI_Controller
             echo "활성 이력서 없음\n";
             return;
         }
+        echo "[DEBUG] 활성 이력서: " . count($resumes) . "건 - ru_idx: " . implode(',', array_map(function($r) { return $r['ru_idx']; }, $resumes)) . "\n";
 
         // 3. 게재 중인 채용공고 조회 (주소 포함)
         $recruits = $this->_getActiveRecruits();
@@ -174,10 +187,13 @@ class Cron_proc extends CI_Controller
             echo "게재 중인 채용공고 없음\n";
             return;
         }
+        echo "[DEBUG] 활성 공고: " . count($recruits) . "건 - rc_idx: " . implode(',', array_map(function($r) { return $r['rc_idx']; }, $recruits)) . "\n";
 
         // 4. 주소를 시/구 단위로 그룹핑
         $resume_by_area = $this->_groupByArea($resumes);
         $recruit_by_area = $this->_groupByArea($recruits);
+        echo "[DEBUG] 이력서 지역 그룹: " . json_encode(array_keys($resume_by_area)) . "\n";
+        echo "[DEBUG] 공고 지역 그룹: " . json_encode(array_keys($recruit_by_area)) . "\n";
 
         // 5. 같은 지역 내에서 세부 조건 매칭
         $matches_for_corp = array();   // 기업에게 보낼 매칭 (이력서 정보)
@@ -224,24 +240,7 @@ class Cron_proc extends CI_Controller
      */
     private function _getActiveResumes()
     {
-        $sql = "
-            SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.reg_dt,
-                   m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
-                   a.ad_addr
-            FROM st_resume r
-            INNER JOIN st_member m ON r.mm_idx = m.mm_idx
-            INNER JOIN st_address a ON r.mm_idx = a.mm_idx
-                AND a.ad_type = 'RESUME' AND a.ad_key = r.ru_idx
-            WHERE r.ru_show_yn = 'Y'
-              AND r.ru_status = 'Y'
-              AND m.mm_type = 'MEM'
-              AND m.mm_status = 'Y'
-              AND m.mm_agree_ad = 'Y'
-              AND m.alarm_resume = 'Y'
-              AND m.mm_phone != ''
-            ORDER BY r.reg_dt DESC
-        ";
-        return $this->db->query($sql)->result_array();
+        return $this->match_model->getActiveResumes();
     }
 
     /**
@@ -249,28 +248,7 @@ class Cron_proc extends CI_Controller
      */
     private function _getActiveRecruits()
     {
-        $sql = "
-            SELECT rc.rc_idx, rc.mm_idx, rc.rc_name, rc.rc_work, rc.rc_work_type,
-                   rc.rc_sex, rc.rc_sage, rc.rc_eage, rc.rc_nation, rc.reg_dt,
-                   m.mm_comp_name, m.mm_phone,
-                   a.ad_addr
-            FROM st_recruit rc
-            INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
-            INNER JOIN st_address a ON rc.mm_idx = a.mm_idx
-                AND a.ad_type IN ('RECRUIT', 'RECRUIT_EXPOSE_1', 'RECRUIT_EXPOSE_2')
-                AND a.ad_key = rc.rc_idx
-            WHERE rc.rc_status = 'Y'
-              AND rc.rc_show_yn = 'Y'
-              AND rc.rc_sdate <= NOW()
-              AND rc.rc_edate >= NOW()
-              AND m.mm_type = 'COMP'
-              AND m.mm_status = 'Y'
-              AND m.mm_agree_ad = 'Y'
-              AND m.alarm_resume = 'Y'
-              AND m.mm_phone != ''
-            ORDER BY rc.reg_dt DESC
-        ";
-        return $this->db->query($sql)->result_array();
+        return $this->match_model->getActiveRecruits();
     }
 
     /**
@@ -279,21 +257,7 @@ class Cron_proc extends CI_Controller
      */
     private function _groupByArea($items)
     {
-        $grouped = array();
-        foreach ($items as $item) {
-            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
-            if ($addr === '') continue;
-
-            $parts = explode(' ', $addr);
-            // 시/도 + 구/군 (처음 2단어)
-            $area = (count($parts) >= 2) ? $parts[0] . ' ' . $parts[1] : $parts[0];
-
-            if (!isset($grouped[$area])) {
-                $grouped[$area] = array();
-            }
-            $grouped[$area][] = $item;
-        }
-        return $grouped;
+        return $this->match_model->groupByArea($items);
     }
 
     /**
@@ -302,46 +266,7 @@ class Cron_proc extends CI_Controller
      */
     private function _isMatched($resume, $recruit)
     {
-        // 1. 직종 매칭 (1개 이상 겹침)
-        $ru_works = array_map('trim', explode(',', $resume['ru_work'])); // explode(',', ...): 문자열을 쉼표로 분리하여 배열로 변환
-        $rc_works = array_map('trim', explode(',', $recruit['rc_work']));
-        $work_intersect = array_intersect($ru_works, $rc_works); //여러 배열에서 공통으로 존재하는 값들만 추출
-        if (empty($work_intersect)) return false;
-
-        // 2. 성별 매칭
-        if ($resume['mm_sex'] !== '') {
-            $sex_map = array('남' => '남자', '여' => '여자');
-            $member_sex = isset($sex_map[$resume['mm_sex']]) ? $sex_map[$resume['mm_sex']] : '';
-            if ($member_sex !== '') {
-                $rc_sex_arr = array_map('trim', explode(',', $recruit['rc_sex']));
-                if (!in_array($member_sex, $rc_sex_arr)) return false;
-            }
-        }
-
-        // 3. 나이 매칭 (mm_birth가 0 이상일 때만 검사)
-        if (((int)$resume['mm_birth']) > 0 && ((int)$recruit['rc_sage']) > 0 && ((int)$recruit['rc_eage']) > 0) {
-            $korean_age = (int)date('Y') - (int)$resume['mm_birth'] + 1;
-            $normalized = round($korean_age / 10) * 10;
-            if ($normalized < 20) $normalized = 20;
-            if ($normalized > 70) $normalized = 70;
-            if ($normalized < (int)$recruit['rc_sage'] || $normalized > (int)$recruit['rc_eage']) return false;
-        }
-
-        // 4. 국적 매칭
-        if ($resume['mm_nation'] != '') {
-            $rc_nations = array_map('trim', explode(',', $recruit['rc_nation']));
-            if (in_array($resume['mm_nation'], array('내국인', '외국인'))) {
-                if (!in_array($resume['mm_nation'], $rc_nations)) return false;
-            }
-        }
-
-        // 5. 근무형태 매칭 (1개 이상 겹침)
-        $ru_types = array_map('trim', explode(',', $resume['ru_work_type']));
-        $rc_types = array_map('trim', explode(',', $recruit['rc_work_type']));
-        $type_intersect = array_intersect($ru_types, $rc_types);
-        if (empty($type_intersect)) return false;
-
-        return true;
+        return $this->match_model->isMatched($resume, $recruit);
     }
 
     /**
@@ -399,12 +324,11 @@ class Cron_proc extends CI_Controller
                 array('name' => isset($recruit['mm_comp_name']) ? $recruit['mm_comp_name'] : '')
             );
 
+            // 디버그: 발송 결과 로깅
+            echo "[CORP] mm_idx=" . $recruit['mm_idx'] . ", ru_idx=" . $resume['ru_idx'] . ", result=" . json_encode($result) . "\n";
+
             // 발송 이력 기록
             if (isset($result['ok']) && $result['ok'] === true) {
-                // SMS 동시 발송
-                $sms_msg = "[나우잡] 조건에 맞는 인재가 등록되었습니다. 확인하기: " . site_url('resume/hr_post/' . $resume['ru_idx']);
-                $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
-
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
                      (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
@@ -477,10 +401,6 @@ class Cron_proc extends CI_Controller
 
             // 발송 이력 기록
             if (isset($result['ok']) && $result['ok'] === true) {
-                // SMS 동시 발송
-                $sms_msg = "[나우잡] 조건에 맞는 채용공고가 있습니다. 확인하기: " . site_url('recruit/job_post/' . $recruit['rc_idx']);
-                $this->common->sendNotificationSms($resume['mm_phone'], $sms_msg);
-
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
                      (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
@@ -498,120 +418,17 @@ class Cron_proc extends CI_Controller
         return $sent;
     }
 
-    // 전날 등록된 추천인재에 대해 전체 기업회원에게 알림톡 발송
-    // crontab: 0 16 * * * curl -s http://도메인/cron_proc/send_promotion_alimtalk > /dev/null 2>&1
-    public function send_promotion_alimtalk()
-    {
-        $sent_count = 0;
-
-        // 1. PpurioClient 로드
-        $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
-        if (!file_exists($ppurioPath)) {
-            echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
-            return;
-        }
-        require_once($ppurioPath);
-        $ppurio = new CI_PpurioClient();
-
-        // 2. 전날 등록된 추천인재 프로모션 조회 (M001: 추천인재등록)
-        // 테스트용: 오늘 등록된 프로모션으로 변경
-        $promotions = $this->db->query("
-            SELECT p.pm_idx, p.rc_idx, r.ru_name, r.ru_idx
-            FROM st_promotion p
-            INNER JOIN st_resume r ON p.rc_idx = r.ru_idx
-            WHERE p.pm_code = 'M001'
-              AND DATE(p.reg_dt) = CURDATE()
-              AND p.pm_status != 'C'
-        ")->result_array();
-
-        if (empty($promotions)) {
-            echo "발송 대상 프로모션 없음\n";
-            return;
-        }
-
-        echo "전날 등록 추천인재 건수: " . count($promotions) . "\n";
-
-        // 3. 전체 활성 기업회원 조회 (광고 수신 동의한 회원 중 추천인재알림 동의한 회원)
-        $companies = $this->db->query("
-            SELECT mm_idx, mm_id, mm_phone, mm_comp_name
-            FROM st_member
-            WHERE mm_type = 'COMP'
-              AND mm_status = 'Y'
-              AND mm_agree_ad = 'Y'
-              AND alarm_adv = 'Y'
-              AND mm_phone != ''
-        ")->result_array();
-
-        if (empty($companies)) {
-            echo "발송 대상 기업회원 없음\n";
-            return;
-        }
-
-        echo "기업회원 발송 대상: " . count($companies) . "\n";
-
-        // 4. 각 프로모션별로 모든 기업회원에게 발송
-        foreach ($promotions as $promo) {
-            $resume_name = isset($promo['ru_name']) ? $promo['ru_name'] : '무명';
-            $resume_url = site_url('resume/resume_detail/' . $promo['ru_idx']);
-
-            foreach ($companies as $company) {
-                try {
-                    // 뿌리오 알림톡 발송
-                    if (!empty($company['mm_phone'])) {
-                        $corp_vars = array(
-                            $resume_name,  // var1: 이력서 이름
-                            '',            // var2
-                            '',            // var3
-                            $resume_url    // var4: 인재정보 상세 링크
-                        );
-
-                        $result = $ppurio->sendCorporateAlimtalk(
-                            $company['mm_phone'],
-                            $corp_vars,
-                            array('name' => $company['mm_comp_name'])
-                        );
-
-                        if (isset($result['ok']) && $result['ok'] === true) {
-                            $sent_count++;
-                        }
-                    }
-
-                    // FCM 푸시 발송 (토큰 관리 방식 확인 후 추가 예정)
-                    // if (!empty($company['mm_token'])) {
-                    //     $fcm_info = array(
-                    //         'title' => '추천인재 등록 알림',
-                    //         'body' => $resume_name . ' 추천인재가 등록되었습니다',
-                    //         'url' => $resume_url,
-                    //         'type' => 'promotion'
-                    //     );
-                    //     $token_list = array($company['mm_token']);
-                    //
-                    //     $fcm_result = sendFcm($fcm_info, $token_list);
-                    //     if ($fcm_result['success']) {
-                    //         $fcm_count++;
-                    //     }
-                    // }
-
-                    // API 과부하 방지
-                    usleep(50000); // 0.05초
-                } catch (Exception $e) {
-                    echo "발송 오류 (mm_idx: " . $company['mm_idx'] . ", pm_idx: " . $promo['pm_idx'] . "): " . $e->getMessage() . "\n";
-                    continue;
-                }
-            }
-        }
-
-        echo "완료 - 알림톡 발송 건수: " . $sent_count . "\n";
-    }
-
     // 전날 등록된 추천인재 프로모션 발송 로그 수집
     // crontab: 0 4 * * * curl -s http://도메인/cron_proc/collect_promotion_send_log > /dev/null 2>&1
     public function collect_promotion_send_log()
     {
-        // 테스트: 오늘 날짜로 조회 (나중에 -1 day로 변경)
-        $target_date = date('Y-m-d');
-
-        // 1. 전날 등록된 M001(추천인재등록) 프로모션 조회
+        // 어제 날짜로 조회
+        $target_date = date('Y-m-d', strtotime('-1 day'));
+       
+        // 테스트: 오늘 날짜로 조회하기
+       // $target_date = date('Y-m-d');
+       
+       // 1. 전날 등록된 M001(추천인재등록) 프로모션 조회
         $promotions = $this->db->query("
             SELECT p.pm_idx, p.rc_idx, r.ru_name, r.ru_idx
             FROM st_promotion p

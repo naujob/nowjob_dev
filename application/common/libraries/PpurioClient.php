@@ -181,6 +181,15 @@ class CI_PpurioClient
         return '';
     }
 
+    // 용도별 템플릿 코드 조회
+    private function getTemplateCode($type)
+    {
+        if (is_array($this->config) && isset($this->config['template_codes']) && isset($this->config['template_codes'][$type])) {
+            return $this->config['template_codes'][$type];
+        }
+        return '';
+    }
+
     /**
      * 카카오(알림톡) 발송 요청
      * @param string $recipientPhone 수신자 휴대폰 번호
@@ -398,7 +407,7 @@ class CI_PpurioClient
      */
     public function sendCorporateAlimtalk($recipientPhone, $templateVariables, $options = array())
     {
-        $templateCode = 'ppur_2025101614065724390131137';
+        $templateCode = $this->getTemplateCode('corporate');
         // 기본 옵션 병합: messageType 강제 ALH, senderProfile 고정
         $baseOptions = array('messageType' => 'ALH', 'senderProfile' => '@나우잡');
         $finalOptions = is_array($options) ? array_merge($baseOptions, $options) : $baseOptions;
@@ -411,9 +420,26 @@ class CI_PpurioClient
      */
     public function sendPersonalAlimtalk($recipientPhone, $templateVariables, $options = array())
     {
-        $templateCode = 'ppur_2025101614035424390276892';
+        $templateCode = $this->getTemplateCode('personal');
         // 기본 옵션 병합: messageType 강제 ALH, senderProfile 고정
         $baseOptions = array('messageType' => 'ALH', 'senderProfile' => '@나우잡');
+        $finalOptions = is_array($options) ? array_merge($baseOptions, $options) : $baseOptions;
+        return $this->sendMessage($recipientPhone, $templateCode, $templateVariables, $finalOptions);
+    }
+
+    /**
+     * 미확인 공고 알림톡 발송 (템플릿 고정)
+     * 템플릿 변수: [*이름*], [*휴대폰*], [*1*] 등
+     * @param string $recipientPhone 수신자 휴대폰 번호
+     * @param array $templateVariables 템플릿 변수 배열 (var1, var2, var3...)
+     * @param array $options 추가 옵션
+     * 요구사항: messageType=ALT로 강제 지정 (기본 알림톡)
+     */
+    public function sendUnreadNotificationAlimtalk($recipientPhone, $templateVariables, $options = array())
+    {
+        $templateCode = $this->getTemplateCode('unread_notification');
+        // 기본 옵션 병합: messageType 강제 ALT (기본형), senderProfile 고정
+        $baseOptions = array('messageType' => 'ALT', 'senderProfile' => '@나우잡');
         $finalOptions = is_array($options) ? array_merge($baseOptions, $options) : $baseOptions;
         return $this->sendMessage($recipientPhone, $templateCode, $templateVariables, $finalOptions);
     }

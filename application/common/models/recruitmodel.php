@@ -127,12 +127,12 @@ class recruitModel extends MY_Model
 	# 채용공고 목록 (실시간 쿼리 버전)
 	function getRecruitList($params)
 	{
-		error_log('[getRecruitList 모델] 시작: ' . json_encode($params, JSON_UNESCAPED_UNICODE));
+	
 
 		$search_addr = isset($params["search_addr"]) && is_array($params["search_addr"]) ? array_map([$this, 'inject'], $params["search_addr"]) : [];
 		$mm_idx = isset($params["mm_idx"]) ? $this->inject($params["mm_idx"]) : 0;
 
-		error_log('[getRecruitList 모델] search_addr 처리 후: ' . json_encode($search_addr));
+	
 
 	
 
@@ -252,10 +252,10 @@ class recruitModel extends MY_Model
 			$this->make_addr_like_condition("aa.expose_s_addr2", $search_addr),
 		));
 		if (!empty($all_addr_conditions)) {
-			error_log('[getRecruitList 모델] 지역 WHERE 조건: ' . implode(" OR ", $all_addr_conditions));
+			
 			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";
 		} else {
-			error_log('[getRecruitList 모델] 지역 검색 조건 없음');
+			
 		}
 
 		# 카테고리
@@ -311,18 +311,15 @@ class recruitModel extends MY_Model
 		try {
 			// 최종 WHERE 조건 로깅
 			$where_str = implode(" ", $where);
-			error_log('[getRecruitList 모델] 최종 WHERE 조건: ' . $where_str);
+			
 
 			$result = $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
 
-			error_log('[getRecruitList 모델] 결과: ' . json_encode([
-				'count' => isset($result['count']) ? $result['count'] : 0,
-				'list_count' => is_array($result['list']) ? count($result['list']) : 0
-			]));
+		
 
 			return $result;
 		} catch (Exception $e) {
-			error_log('[getRecruitList 모델] 에러: ' . $e->getMessage());
+			
 			throw $e;
 		}
 	}

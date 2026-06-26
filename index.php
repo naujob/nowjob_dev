@@ -27,12 +27,22 @@ $base_path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
  * ------------------------------------------------------------
  * 1. 서버 이름 안전하게 판별 (프록시 대응)
  * ------------------------------------------------------------
+ * 현재 접속한 서버의 도메인을 안전하게 판별해서 환경에 맞는 도메인 값을 만드는 코드
+ * HTTP_HOST = 사용자가 서버에 요청할 때 보낸 도메인 이름
+ * 중간에 프록시 서버가 있다면 도메인 이름을 정학히 판별하기 어렵기 때문에, 프록시 서버가 전달하는 HTTP_X_FORWARDED_HOST 헤더를 우선적으로 사용합니다.
  * 프록시 서버 뒤에 있을 때 HTTP_X_FORWARDED_HOST 헤더를 우선적으로 사용하여 원래의 호스트 이름을 판별합니다.
  * HTTP_X_FORWARDED_HOST가 없으면 HTTP_HOST, 그 다음 SERVER_NAME을 사용합니다. 이렇게 하면 프록시 서버 뒤에서도 올바른 호스트 이름을 얻을 수
  * HTTP_X_FORWARDED_HOST: 원래 사용자가 어떤 주소(test.com)로 접속하려고 했는지 프록시 서버가 전달하는 헤더
  * HTTP_HOST: 현재 요청의 호스트 이름(프록시 서버의 주소일 수 있음) 예: www.mysite.com:8080
+ * SERVER_NAME: 웹서버 설정 파일에 적어둔 서버 이름 값 / dev.nowjob.co.kr
+ * // HTTP_X_FORWARDED_HOST :비었음
+ * HTTP_HOST: dev.nowjob.co.kr
+ * <VirtualHost *:80>
+ *    ServerName example.com
+  *   ServerAlias www.example.com
+* </VirtualHost>
  */
-$server_name = '';
+$server_name = ''; // server_name: dev.nowjob.co.kr
 if (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && $_SERVER['HTTP_X_FORWARDED_HOST'] !== '') {
     $tmp = explode(',', $_SERVER['HTTP_X_FORWARDED_HOST']);
     $server_name = trim($tmp[0]);
@@ -44,7 +54,8 @@ if (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && $_SERVER['HTTP_X_FORWARDED_HOST'
 
 $server_name = strtolower($server_name);
 
-// 포트 제거
+// 포트 제거 
+// host_no_port":"dev.nowjob.co.kr
 $host_no_port = $server_name;
 $pos = strpos($host_no_port, ':');
 if ($pos !== false) {
@@ -52,17 +63,21 @@ if ($pos !== false) {
 }
 
 // 도메인 파생값 (하드코딩 최소화)
+// normalized_host":"dev.nowjob.co.kr
+// 
 $normalized_host = preg_replace('/^www\./', '', $host_no_port);
 $base_domain = preg_replace('/^(dev|admin|api)\./', '', $normalized_host);
+// base_domain:nowjob.co.kr
 if ($base_domain === '') {
     $base_domain = $normalized_host;
 }
-// APP_MAIN_DOMAIN:
+// APP_MAIN_DOMAIN: 
+// main_domain:nowjob.co.kr
 $main_domain = getenv('APP_MAIN_DOMAIN');
 if ($main_domain === false || $main_domain === '') {
     $main_domain = $base_domain;
 }
-
+// dev_domain":"dev.nowjob.co.kr"
 $dev_domain = getenv('APP_DEV_DOMAIN');
 if ($dev_domain === false || $dev_domain === '') {
     $dev_domain = 'dev.' . $main_domain;
@@ -73,8 +88,10 @@ if ($dev_domain === false || $dev_domain === '') {
  * 2. 환경 판별 (APP_ENV 우선, 없으면 호스트 기반)
  * ------------------------------------------------------------
  */
+// env_from_app_env":"development
 $env_from_app_env = '';
 $raw_app_env = getenv('APP_ENV');
+// raw_app_env":"developmen
 if ($raw_app_env !== false && $raw_app_env !== '') {
     $raw_app_env = strtolower(trim($raw_app_env));
     if (in_array($raw_app_env, ['dev', 'development', 'local', 'test', 'testing', 'stage', 'staging'], true)) {
@@ -121,13 +138,15 @@ date_default_timezone_set('Asia/Seoul');
  * 5. 세션 / 쿠키 정책 (session_start 이전)
  * ------------------------------------------------------------
  */
+// cookie_domain_env":false
 $cookie_domain_env = getenv('APP_COOKIE_DOMAIN');
 if ($cookie_domain_env !== false && $cookie_domain_env !== '') {
     $cookie_domain = $cookie_domain_env;
+    // cookie_domain":"dev.nowjob.co.kr
 } else {
     $cookie_domain = $is_dev ? $dev_domain : '.' . $main_domain;
 }
-
+//"is_https":"true
 $is_https = false;
 if (
     (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== '' && $_SERVER['HTTPS'] !== 'off')
@@ -225,7 +244,7 @@ if (!is_dir($system_path)) {
 $host_parts = explode('.', $host_no_port);
 // $sub: 'nowjob'
 $sub = isset($host_parts[0]) ? $host_parts[0] : '';
-
+// host_parts":"dev,nowjob,co,kr","sub":"dev"
 if ($sub === 'admin') {
     // $application_folder: /website/nowapk/application/admin
     // APPPATH: /website/nowapk/application/admin/

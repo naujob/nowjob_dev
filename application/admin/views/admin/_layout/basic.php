@@ -145,6 +145,9 @@
         if($currentUrl=="/admin/setting/basic/policy")                $short_menu_title="이용약관 관리";
         if($currentUrl=="/admin/setting/version_policy")              $short_menu_title="앱 업데이트 정책";
         if($currentUrl=="/admin/ppurio/buy_recom")                    $short_menu_title="추천인재 구매상품 개인";
+        if($currentUrl=="/admin/ppurio/sendPpurioSmsUnread")         $short_menu_title="지원자 알림 SMS 발송";
+        if($currentUrl=="/admin/ppurio/sendCorPpurioSms")            $short_menu_title="매칭 이력서 SMS 발송";
+        if($currentUrl=="/admin/ppurio/sendMemPpurioSms")            $short_menu_title="매칭 채용공고 SMS 발송";
         ?>
         <?=$short_menu_title?>
 			</h2>
