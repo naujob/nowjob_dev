@@ -93,11 +93,6 @@ class Logger
 
         $date_dir = $this->log_dir . '/' . $this->current_date;
 
-        // 디렉토리 생성 확인
-        if (!is_dir($date_dir)) {
-            @mkdir($date_dir, 0777, true);
-        }
-
         // 모든 로그 저장
         $log_file = $date_dir . '/php-app.log';
         if (!@file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX)) {

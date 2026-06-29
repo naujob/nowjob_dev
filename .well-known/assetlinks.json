@@ -1,0 +1,11 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.nowapk.com",
+    "sha256_cert_fingerprints": [
+      "11:5D:F8:18:76:CB:D7:83:A1:17:EF:06:7D:5F:5F:2B:F0:C1:2F:0D:85:67:E8:B8:19:A0:A4:F1:02:0A:E5:79"
+    ]
+  }
+}]
+

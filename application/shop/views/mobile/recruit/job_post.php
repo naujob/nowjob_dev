@@ -22,9 +22,6 @@ function formatPhoneNumber($number)
     return $number;
 }
 
-
-
-
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
@@ -56,7 +53,9 @@ function formatPhoneNumber($number)
     }
 
    
-
+.info-table .pay span {
+    position: relative;  /* 추가 */
+}
     
 
     .info-table .pay span em:not(:last-child) {
@@ -66,12 +65,12 @@ function formatPhoneNumber($number)
     .info-table .pay span em.on {
         color: #1b9d7d;
     }
-
+    
     .info-table .pay span em:not(:last-child)::after {
         content: "";
         position: absolute;
-        top: -112px;
-        right: 240px;
+        top: 15px;
+        right: 38px;
         bottom: 30px;
         width: 1px;
         height: 0.8em;
@@ -164,6 +163,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
         </span>
     </div><!-- //top-bar -->
+
+    <!-- 앱 딥링크 -->
+    <script src="/resource/shop/mobile/js/app-deeplink.js"></script>
 
     <script>
         var rcIdx = '<?= $info['rc_idx'] ?>';
@@ -278,7 +280,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                                         }
                                     } catch (e) {
                                         alert("응답 처리 중 오류가 발생했습니다.");
-                                        console.error(e);
+                                        
                                     }
                                 } else {
                                     alert("서버 오류가 발생했습니다.");
@@ -293,7 +295,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                         }
                     } catch (e) {
                         alert("응답 처리 중 오류가 발생했습니다.");
-                        console.error(e);
+                      
                     }
                 } else {
                     alert("서버 오류가 발생했습니다.");
@@ -796,13 +798,16 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
                     /* Web Share API 지원 여부 감지 */
                     window.addEventListener('DOMContentLoaded', function() {
+                    
                         var shareButton = document.querySelector('.btn-share');
                         if (!shareButton) {
+                            
                             return;
                         }
 
                         var osType = "<?= $os_type ?>";
                         var userAgent = navigator.userAgent.toLowerCase();
+                       
 
                         if (!osType || osType === "") {
                             if (/iphone|ipad|ipod/i.test(userAgent)) {
@@ -811,12 +816,16 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                                 osType = "android";
                             }
                         }
+                     
 
                         var hasAndroidBridge = window.APP_NOWAPK && typeof window.APP_NOWAPK.share === 'function';
                         var hasIosBridge = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.share;
                         var hasWebShare = navigator && typeof navigator.share === 'function';
 
+                       
+
                         var nativeShareEnabled = hasAndroidBridge || hasIosBridge || hasWebShare;
+                      
                         shareButton.setAttribute('data-native-share', nativeShareEnabled ? 'true' : 'false');
 
                         if (nativeShareEnabled) {
@@ -826,7 +835,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                         }
 
                         shareButton.addEventListener('click', function(event) {
+                          
                             if (shareButton.getAttribute('data-native-share') !== 'true') {
+                          
                                 return;
                             }
 
@@ -840,34 +851,43 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                             var payload = {
                                 title: title,
                                 url: url
-
                             };
 
+                           
+
                             if (hasAndroidBridge) {
+                              
                                 window.APP_NOWAPK.share(JSON.stringify(payload));
                                 return;
                             }
 
                             if (hasIosBridge) {
+                         
                                 try {
                                     window.webkit.messageHandlers.share.postMessage(payload);
                                 } catch (error) {
+                                  
                                     window.webkit.messageHandlers.share.postMessage(JSON.stringify(payload));
                                 }
                                 return;
                             }
 
                             if (hasWebShare) {
+                            
                                 navigator.share(payload).catch(function(error) {
                                     if (error && error.name === 'AbortError') {
+                                   
                                         return;
                                     }
+                                 
                                     openPopup('alert', {
                                         content: '공유를 실행할 수 없습니다.'
                                     });
                                 });
                                 return;
                             }
+
+                            
                         });
                     });
                 </script>
@@ -1412,7 +1432,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                             var rc_idx = $("[name=rc_idx]").val();
 
                             comAjax("/common_proc/member_request", params, function(ret) {
-                                console.log(ret);
+                            
                                 $('.btn-close-popup').show();
 
                                 if (ret.code == "00") {

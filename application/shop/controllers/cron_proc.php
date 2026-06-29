@@ -131,7 +131,10 @@ class Cron_proc extends CI_Controller
                         $row['mm_phone'],                                          // var2 = [*휴대폰*]
                         "이력서 지원 알림"                                          // var3 = [*1*]
                     ),
-                    array('name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '')
+                    array(
+                        'name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',
+                        'targetPath' => '/recruit/job_post/' . $row['rc_idx']  // ← 버튼 생성
+                    )
                 );
 
                 // 발송 이력 기록 (성공한 경우에만)
@@ -179,21 +182,16 @@ class Cron_proc extends CI_Controller
             echo "활성 이력서 없음\n";
             return;
         }
-        echo "[DEBUG] 활성 이력서: " . count($resumes) . "건 - ru_idx: " . implode(',', array_map(function($r) { return $r['ru_idx']; }, $resumes)) . "\n";
-
         // 3. 게재 중인 채용공고 조회 (주소 포함)
         $recruits = $this->_getActiveRecruits();
         if (empty($recruits)) {
             echo "게재 중인 채용공고 없음\n";
             return;
         }
-        echo "[DEBUG] 활성 공고: " . count($recruits) . "건 - rc_idx: " . implode(',', array_map(function($r) { return $r['rc_idx']; }, $recruits)) . "\n";
 
         // 4. 주소를 시/구 단위로 그룹핑
         $resume_by_area = $this->_groupByArea($resumes);
         $recruit_by_area = $this->_groupByArea($recruits);
-        echo "[DEBUG] 이력서 지역 그룹: " . json_encode(array_keys($resume_by_area)) . "\n";
-        echo "[DEBUG] 공고 지역 그룹: " . json_encode(array_keys($recruit_by_area)) . "\n";
 
         // 5. 같은 지역 내에서 세부 조건 매칭
         $matches_for_corp = array();   // 기업에게 보낼 매칭 (이력서 정보)
@@ -321,11 +319,11 @@ class Cron_proc extends CI_Controller
             $result = $ppurio->sendCorporateAlimtalk(
                 $recruit['mm_phone'],
                 $corp_vars,
-                array('name' => isset($recruit['mm_comp_name']) ? $recruit['mm_comp_name'] : '')
+                array(
+                    'name' => isset($recruit['mm_comp_name']) ? $recruit['mm_comp_name'] : '',
+                    'targetPath' => '/resume/hr_post/' . $resume['ru_idx']  // ← 이력서 조회 페이지
+                )
             );
-
-            // 디버그: 발송 결과 로깅
-            echo "[CORP] mm_idx=" . $recruit['mm_idx'] . ", ru_idx=" . $resume['ru_idx'] . ", result=" . json_encode($result) . "\n";
 
             // 발송 이력 기록
             if (isset($result['ok']) && $result['ok'] === true) {
@@ -396,7 +394,10 @@ class Cron_proc extends CI_Controller
             $result = $ppurio->sendPersonalAlimtalk(
                 $resume['mm_phone'],
                 $personal_vars,
-                array('name' => isset($resume['mm_name']) ? $resume['mm_name'] : '')
+                array(
+                    'name' => isset($resume['mm_name']) ? $resume['mm_name'] : '',
+                    'targetPath' => '/recruit/job_post/' . $recruit['rc_idx']  // ← 채용공고 상세 페이지
+                )
             );
 
             // 발송 이력 기록

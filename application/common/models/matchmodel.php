@@ -90,10 +90,7 @@ class Matchmodel extends CI_Model {
         $ru_works = array_map('trim', explode(',', $resume['ru_work']));
         $rc_works = array_map('trim', explode(',', $recruit['rc_work']));
         $work_intersect = array_intersect($ru_works, $rc_works);
-        if (empty($work_intersect)) {
-            echo "[DEBUG-MATCH] ru_idx=" . $resume['ru_idx'] . ", rc_idx=" . $recruit['rc_idx'] . " - 직종 불일치\n";
-            return false;
-        }
+        if (empty($work_intersect)) return false;
 
         // 2. 성별 매칭
         if ($resume['mm_sex'] !== '') {
@@ -107,7 +104,9 @@ class Matchmodel extends CI_Model {
 
         // 3. 나이 매칭 (mm_birth가 0 이상일 때만 검사)
         if (((int)$resume['mm_birth']) > 0 && ((int)$recruit['rc_sage']) > 0 && ((int)$recruit['rc_eage']) > 0) {
-            $korean_age = (int)date('Y') - (int)$resume['mm_birth'] + 1;
+            // mm_birth는 YYYYMMDD 형식이므로 처음 4자리(연도)만 추출
+            $birth_year = (int)substr((string)$resume['mm_birth'], 0, 4);
+            $korean_age = (int)date('Y') - $birth_year + 1;
             $normalized = round($korean_age / 10) * 10;
             if ($normalized < 20) $normalized = 20;
             if ($normalized > 70) $normalized = 70;
@@ -128,17 +127,25 @@ class Matchmodel extends CI_Model {
         $type_intersect = array_intersect($ru_types, $rc_types); // 공통 데이터 찾기 (교집합)
         if (empty($type_intersect)) return false;
 
-        // 6. 급여타입 매칭 (1개 이상 겹침, 또는 "시급" ↔ "월급" 매핑)
-        $ru_prices = array_map('trim', explode(',', $resume['ru_price_type']));
-        $rc_prices = array_map('trim', explode(',', $recruit['rc_price_type']));
+        // 6. 급여타입 매칭 (1개 이상 겹침, 또는 "시급" ↔ "월급" 매핑, 또는 "급여협의")
+        $ru_price_type = isset($resume['ru_price_type']) ? trim($resume['ru_price_type']) : '';
+        $rc_price_type = isset($recruit['rc_price_type']) ? trim($recruit['rc_price_type']) : '';
 
-        $price_intersect = array_intersect($ru_prices, $rc_prices);
-        if (!empty($price_intersect)) {
-            // 직접 일치
-        } else if (in_array('시급', $rc_prices) && in_array('월급', $ru_prices)) {
-            // 매핑: 채용공고의 "시급"이 이력서의 "월급"과 일치
+        // 급여 타입이 없거나 "급여협의"면 스킵 (매칭 조건으로 제약하지 않음)
+        if ($ru_price_type === '' || $rc_price_type === '' || $rc_price_type === '급여협의') {
+            // 급여 타입 정보 없거나 협의 가능하면 통과
         } else {
-            return false;
+            $ru_prices = array_map('trim', explode(',', $ru_price_type));
+            $rc_prices = array_map('trim', explode(',', $rc_price_type));
+
+            $price_intersect = array_intersect($ru_prices, $rc_prices);
+            if (!empty($price_intersect)) {
+                // 직접 일치
+            } else if (in_array('시급', $rc_prices) && in_array('월급', $ru_prices)) {
+                // 매핑: 채용공고의 "시급"이 이력서의 "월급"과 일치
+            } else {
+                return false;
+            }
         }
 
         return true;
