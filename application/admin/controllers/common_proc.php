@@ -32,58 +32,40 @@ class Common_proc extends CI_Controller
 	}
 
 	function update_token()
-	{
+	{   
+		// 안드로이드 네이티브로부터 값을 전달받음
 		$uuid = input_post("uuid", "");
 		$token = input_post("token", "");
-
-		// 토큰 업데이트 로그 추가
-		$log_message = "[" . date('Y-m-d H:i:s') . "] 토큰 업데이트 시도 - UUID: " . $uuid . ", 토큰: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token) . "\n";
-		file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
-
 		if ($uuid != "" && $token != "") {
 			$info = [
 				"uuid" => $uuid,
 				"token" => $token,
 			];
 			$result = $this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
-			$log_message = "[" . date('Y-m-d H:i:s') . "] 토큰 업데이트 완료 - UUID: " . $uuid . ", 결과: " . ($result ? "성공" : "실패") . "\n";
-			file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
-
+			
 			# 몽고디비 업데이트 - 조건 수정
 			$mem_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
-			$log_message = "[" . date('Y-m-d H:i:s') . "] 디바이스 정보 조회 - UUID: " . $uuid . ", mm_idx: " . ($mem_device ? $mem_device["mm_idx"] : "없음") . "\n";
-			file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
-
+		
 			if ($mem_device != null && $mem_device["mm_idx"] > 0) {
-				$log_message = "[" . date('Y-m-d H:i:s') . "] 조건 통과 - mm_idx: " . $mem_device["mm_idx"] . "\n";
-				file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
-
+				
 				$mem_info = $this->member_model->getMember(["mm_idx" => $mem_device["mm_idx"]]);
-				$log_message = "[" . date('Y-m-d H:i:s') . "] 회원 정보 조회 결과: " . ($mem_info ? "있음" : "없음") . "\n";
-				file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
-
+				
 				if ($mem_info != null) {
-					$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 시도 - 사용자ID: " . $mem_info["mm_id"] . ", 토큰: " . (strlen($token) > 20 ? substr($token, 0, 20) . '...' : $token) . "\n";
-					file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
-
+					
 					$mongo_info = [
 						'mm_id' => $mem_info["mm_id"],
 						'token' => $token  // 방금 업데이트한 토큰 사용
 					];
 					$mongo_result = $this->mongo_model->updateUserInfo($mongo_info);
-					$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 결과: " . ($mongo_result ? "성공" : "실패") . "\n";
-					file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+					
 				} else {
-					$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 실패 - 회원 정보 없음, mm_idx: " . $mem_device["mm_idx"] . "\n";
-					file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+					
 				}
 			} else {
-				$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 토큰 업데이트 실패 - 디바이스 정보 없음 또는 mm_idx가 0 이하, mm_idx: " . ($mem_device ? $mem_device["mm_idx"] : "없음") . "\n";
-				file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+				
 			}
 		} else {
-			$log_message = "[" . date('Y-m-d H:i:s') . "] 토큰 업데이트 실패 - UUID 또는 토큰이 비어있음, UUID: " . $uuid . ", 토큰 길이: " . strlen($token) . "\n";
-			file_put_contents('/website/nowapk/token_update.log', $log_message, FILE_APPEND | LOCK_EX);
+			
 		}
 
 		json_return("00", "성공");

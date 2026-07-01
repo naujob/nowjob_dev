@@ -168,7 +168,7 @@
     //alert('splash');
     var push_yn = "N";
     var marketing_yn = "N";
-    var uuid = <?= json_encode($uuid) ?>;
+    var uuid = <?= json_encode($uuid) ?>; // 네이티브 앱 → HTTP 헤더 → PHP 수신 → $data로 뷰에 전달 → JS 변수로 변환
     var step = <?= json_encode($step) ?>;
     var hasConsent = false; // 기존 동의 정보가 있는지 확인
     var grantPopupTimeout = null; // 권한 팝업 완료 후 페이지 이동을 위한 타임아웃

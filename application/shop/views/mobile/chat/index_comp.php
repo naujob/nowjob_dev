@@ -393,7 +393,7 @@ $top_bar = array(
       var user_name = $(this).data("user_name");
       var subject = $(this).data("subject");
 
-      //키값 설정
+     
       g_rc_idx = $(this).data("rc_idx");
       g_ru_idx = $(this).data("ru_idx");
 
@@ -471,7 +471,7 @@ $top_bar = array(
                     user_id: target_id
                   });
 
-                  //회원정보
+                
                   first_users.push({
                     user_id: user_id,
                     user_nick: user_name
@@ -742,7 +742,7 @@ $top_bar = array(
       });
 
     }
-
+    // 
     function fSearchNoReadCount() {
       // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 초기화
       $('#chat_list .content-wrap').each(function() {
@@ -1538,7 +1538,7 @@ $top_bar = array(
     var target_id = $(this).data("target_id");
     location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_received";
   });
-
+  // 채용공고에 지원 or 제안 인재정보
   function fShowChatListByRecruite(ru_idx, obj) {
     // 주의: ru_idx 파라미터명이지만 실제로는 채용공고 번호(rc_idx)를 받음
     // ru_idx = Resume ID (이력서 번호)
@@ -1589,7 +1589,7 @@ $top_bar = array(
     params["chatgbn"] = $(obj).parent().parent().parent().attr('id');
     params["chatgbn"] = 'chatPanel1';
 
-    comAjax("/chat_proc/get_chat_target_list", params, function(ret) {
+    comAjax("/chat_proc/get_chat_target_list", params, function(ret) { // 인재목록데이터
       $("#chat_list1_1").html("");
 
       if (ret.code == "00") {
@@ -1626,7 +1626,7 @@ $top_bar = array(
             $content = $content.replaceAll("{{user_id}}", row.user_id);
             $content = $content.replaceAll("{{target_img}}", row.target_img);
             $content = $content.replaceAll("{{user_img}}", row.user_img);
-            $content = $content.replaceAll("{{target_name}}", row.target_name);
+            $content = $content.replaceAll("{{target_name}}", row.target_name); //지원자 이름
             $content = $content.replaceAll("{{user_name}}", row.user_name);
 
             $content = $content.replaceAll("{{rc_name}}", row.rc_name);
@@ -1735,6 +1735,9 @@ $top_bar = array(
 
 
 </script>
+
+<!-- 앱 딥링크 -->
+<script src="/resource/shop/mobile/js/app-deeplink.js"></script>
 
 <template id="tpl_chat">
   <li class="list-item room-item" data-target_id="{{rc_idx}}">

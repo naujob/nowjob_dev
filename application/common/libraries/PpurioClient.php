@@ -505,4 +505,24 @@ class CI_PpurioClient
         $finalOptions = is_array($options) ? array_merge($baseOptions, $options) : $baseOptions;
         return $this->sendMessage($recipientPhone, $templateCode, $templateVariables, $finalOptions);
     }
+
+    /**
+     * 미확인 채팅 알림톡 발송 - 개인회원용 (템플릿 고정)
+     * @param string $recipientPhone 수신자 휴대폰 번호
+     * @param array $templateVariables 템플릿 변수 배열
+     * @param array $options 추가 옵션
+     *        - targetPath: 페이지 경로 (예: /chat/view/123) → 버튼 자동 생성
+     *        - name: 수신자 이름 (템플릿에서 [*이름*] 사용 시)
+     *        - sendTime: 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss)
+     *        - resend: 대체문자 발송 정보
+     * 요구사항: messageType=ALT로 강제 지정 (기본 알림톡)
+     */
+    public function sendPersonalUnreadNotificationAlimtalk($recipientPhone, $templateVariables, $options = array())
+    {
+        $templateCode = $this->getTemplateCode('unread_notification_mem');
+        // 기본 옵션 병합: messageType 강제 ALT (기본형), senderProfile 고정
+        $baseOptions = array('messageType' => 'ALT', 'senderProfile' => '@나우잡');
+        $finalOptions = is_array($options) ? array_merge($baseOptions, $options) : $baseOptions;
+        return $this->sendMessage($recipientPhone, $templateCode, $templateVariables, $finalOptions);
+    }
 }

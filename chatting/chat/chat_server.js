@@ -22,8 +22,9 @@ let server;
 // 	};
 // 	server = require("https").createServer(options, app);
 // }
-server = require("http").createServer(app);
-const io = require('socket.io')(server, {
+
+server = require("http").createServer(app); // node.js 서버 생성
+const io = require('socket.io')(server, { // Socket.io 서버 초기화
 	cors: {
 		origin: "*",
 		methods: ["GET", "POST"],

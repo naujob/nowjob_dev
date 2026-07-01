@@ -1169,6 +1169,44 @@ class Common_proc extends CI_Controller
 					}
 				//채팅창 동시 생성.2023.11.20
 
+				// 지원하기 알림톡 발송 (채용공고 소유자/기업회원에게) - unread_notification 템플릿
+				if ($mq_type == "RECRUIT") {
+					try {
+						// 채용공고 소유자 정보 조회
+						$sql = "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_status = 'Y'";
+						$recruit_result = $this->db->query($sql, [$idx]);
+						$recruit_info = $recruit_result->row_array();
+
+						if ($recruit_info) {
+							$recruit_owner = $this->member_model->getMember(["mm_idx" => $recruit_info["mm_idx"]]);
+
+							if ($recruit_owner && !empty($recruit_owner["mm_phone"])) {
+								$ppurioPath = (defined('SHAREDPATH') ? SHAREDPATH : APPPATH . 'common/') . 'libraries/PpurioClient.php';
+								if (file_exists($ppurioPath)) {
+									require_once($ppurioPath);
+								}
+								if (class_exists('CI_PpurioClient')) {
+									$ppurio = new CI_PpurioClient();
+
+									$company_name = !empty($recruit_owner["mm_comp_name"]) ? $recruit_owner["mm_comp_name"] : "";
+
+									$ppurio->sendUnreadNotificationAlimtalk(
+										$recruit_owner["mm_phone"],
+										array(),
+										array(
+											"name" => $company_name,
+											"targetPath" => "/resume/hr_post/" . $data["ru_idx"],
+										)
+									);
+								}
+							}
+						}
+					} catch (Exception $alimtalk_error) {
+						// 알림톡 발송 실패는 지원 처리 자체를 막지 않음
+						log_message('error', '[PPURIO][member_request] 지원 알림톡 발송 오류: ' . $alimtalk_error->getMessage());
+					}
+				}
+
 				// 제안하기/지원하기 후 FCM 푸시알림 발송
 				// 푸시 알림 발송 비활성화 (2025.01.05)
 
@@ -1273,6 +1311,41 @@ class Common_proc extends CI_Controller
 					}
 				}
 				*/
+
+				// 제안하기 알림톡 발송 (이력서 소유자/후보자에게) - unread_notification_mem 템플릿
+				if ($mq_type == "RESUME") {
+					try {
+						// 이력서 소유자 정보 조회
+						$target_resume = $this->member_model->getResume(["ru_idx" => $idx]);
+						if ($target_resume) {
+							$target_member = $this->member_model->getMember(["mm_idx" => $target_resume["mm_idx"]]);
+
+							if ($target_member && !empty($target_member["mm_phone"])) {
+								$ppurioPath = (defined('SHAREDPATH') ? SHAREDPATH : APPPATH . 'common/') . 'libraries/PpurioClient.php';
+								if (file_exists($ppurioPath)) {
+									require_once($ppurioPath);
+								}
+								if (class_exists('CI_PpurioClient')) {
+									$ppurio = new CI_PpurioClient();
+
+									$candidate_name = !empty($target_member["mm_name"]) ? $target_member["mm_name"] : "";
+
+									$ppurio->sendPersonalUnreadNotificationAlimtalk(
+										$target_member["mm_phone"],
+										array(),
+										array(
+											"name" => $candidate_name,
+											"targetPath" => "/recruit/job_post/" . $data["rc_idx"],
+										)
+									);
+								}
+							}
+						}
+					} catch (Exception $alimtalk_error) {
+						// 알림톡 발송 실패는 제안 처리 자체를 막지 않음
+						log_message('error', '[PPURIO][member_request] 알림톡 발송 오류: ' . $alimtalk_error->getMessage());
+					}
+				}
 
 				// 제안하기 푸시알림 (이력서 소유자에게) - 비활성화
 				/*

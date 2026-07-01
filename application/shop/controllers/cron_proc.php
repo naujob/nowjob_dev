@@ -9,19 +9,12 @@ class Cron_proc extends CI_Controller
         parent::__construct();
         $this->load->library('common');
         $this->load->model('matchmodel', 'match_model');
+        $this->load->model('ppuriokatalksettingmodel', 'ppurio_setting_model');
     }
 
-    // 지원 미확인 기업회원에게 3일 주기로 알림톡 발송
-    // 추가: 오후 4시(16시)에는 오늘 오전 10시 이후 새로 생긴 대상에만 발송
+    // 지원 미확인 기업회원에게 알림톡 발송 (설정값 기반)
     public function check_unread_alimtalk()
     {
-        // 1. rc_idx > 0인 채팅방 중 발송 대상 조회
-        // 시간대별로 다른 조건으로 필터링:
-        // - 오전 10시: 3일 이상 발송하지 않은 대상 (기존 대상 대상)
-        // - 오후 4시: 오늘 오전 10시 이후 새로 생긴 대상 (신규 지원자)
-        $current_hour = (int)date('H'); // 현재 시간(24시간 형식)
-        $is_afternoon = ($current_hour >= 16 && $current_hour < 17);
-
         // 공통 기본 조건
         $base_where = "
             WHERE r.rc_idx > 0
@@ -32,46 +25,89 @@ class Cron_proc extends CI_Controller
               AND m.mm_phone != ''
         ";
 
-        // 시간대별 추가 조건
-        if ($is_afternoon) {
-            // 오후 4시: 오늘 10시 이후 새로 생긴 채팅방만
-            // s.as_idx IS NULL 조건은 **"아직 한 번도 알림을 보내지 않은 채팅방"**을 필터링
-            $time_where = "
-              AND r.reg_dt >= CONCAT(CURDATE(), ' 10:00:00') 
-              AND s.as_idx IS NULL
-            ";
-        } else {
-            // 오전 10시: 3일 주기 재발송 대상
-            /**
-             * (아직 미발송) OR (3일 이상 지난 것)
-             *   ↓
-             *   새로운 채팅방도 보내고, 옛날 채팅도 다시 한 번 보냄
-             * 
-             */
-            $time_where = "
-              AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL 3 DAY))
-            ";
+        // 두 설정 타입(usual, subs)에 대해 반복 처리
+        $all_sent = 0;
+        foreach (array('usual', 'subs') as $pks_type) {
+            $setting = $this->ppurio_setting_model->getSetting($pks_type);
+            if (empty($setting)) {
+                continue;
+            }
+
+            // 시간 조건 확인: 1차 또는 2차 알림 시각에 해당하는가
+            $is_alarm1 = $this->_isAlarmTimeNow($setting['comp_apply_alarm1_time']);
+            $is_alarm2 = $this->_isAlarmTimeNow($setting['comp_apply_alarm2_time']);
+
+            // 이 타입에서는 시간 조건이 맞지 않으면 skip
+            if (!$is_alarm1 && !$is_alarm2) {
+                continue;
+            }
+
+            // 설정에서 미열람 알림 재발송 일수 읽기
+            $unread_day = (int)$setting['comp_apply_unread_day'];
+
+            // 2차 알림 시각인 경우 신규 채팅방만, 1차 시각이면 3일 주기
+            if ($is_alarm2 && !$is_alarm1) {
+                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방만
+                $alarm_time_hm = $setting['comp_apply_alarm1_time'];
+                $time_where = "
+                  AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
+                  AND s.as_idx IS NULL
+                ";
+            } else {
+                // 1차: 미발송 또는 N일 이상 지난 대상
+                $time_where = "
+                  AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL ? DAY))
+                ";
+            }
+
+            $where_condition = $base_where . $time_where;
+
+            // 발송 대상 조회
+            if ($is_alarm2 && !$is_alarm1) {
+                // 2차: bind 파라미터 없음
+                $rooms = $this->db->query("
+                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
+                           rc.mm_idx AS comp_mm_idx,
+                           m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
+                    FROM st_room r
+                    INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
+                    INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
+                    LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
+                    {$where_condition}
+                ")->result_array();
+            } else {
+                // 1차: bind 파라미터로 일수 전달
+                $rooms = $this->db->query("
+                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
+                           rc.mm_idx AS comp_mm_idx,
+                           m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
+                    FROM st_room r
+                    INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
+                    INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
+                    LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
+                    {$where_condition}
+                ", array($unread_day))->result_array();
+            }
+
+            if (empty($rooms)) {
+                continue;
+            }
+
+            $sent = $this->_processUnreadAlimtalk($rooms);
+            $all_sent += $sent;
         }
 
-        $where_condition = $base_where . $time_where;
-
-        $rooms = $this->db->query("
-            SELECT r.rm_idx, r.rc_idx, r.ru_idx,
-                   rc.mm_idx AS comp_mm_idx,
-                   m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
-            FROM st_room r
-            INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
-            INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
-            LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
-            {$where_condition}
-        ")->result_array();
-
-        if (empty($rooms)) {
+        if ($all_sent == 0) {
             echo "발송 대상 없음\n";
-            return;
+        } else {
+            echo "완료 - 발송 건수: {$all_sent}\n";
         }
+    }
 
-        // 2. MongoDB 연결
+    // check_unread_alimtalk의 실제 발송 로직 (MongoDB 조회 및 알림톡 발송)
+    private function _processUnreadAlimtalk($rooms)
+    {
+        // MongoDB 연결
         $uri = get_mongo_uri();
         $dbName = get_mongo_db_name();
 
@@ -81,21 +117,21 @@ class Cron_proc extends CI_Controller
             $collection = $db->room;
         } catch (Exception $e) {
             echo "MongoDB 연결 오류: " . $e->getMessage() . "\n";
-            return;
+            return 0;
         }
 
-        // 3. PpurioClient 로드 (공유 라이브러리 경로)
+        // PpurioClient 로드
         $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
         if (!file_exists($ppurioPath)) {
             echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
-            return;
+            return 0;
         }
         require_once($ppurioPath);
         $ppurio = new CI_PpurioClient();
 
         $sent_count = 0;
 
-        // 4. 각 채팅방에서 chat_type="recruit"인 메시지의 미확인 여부 확인
+        // 각 채팅방에서 미확인 메시지 확인 후 발송
         foreach ($rooms as $row) {
             try {
                 $room = $collection->findOne(array('rm_idx' => (int)$row['rm_idx']));
@@ -106,7 +142,6 @@ class Cron_proc extends CI_Controller
                 // chat_type="recruit"인 메시지 중 기업회원이 읽지 않은 것이 있는지 확인
                 $has_unread_recruit_msg = false;
                 foreach ($room['rm_messages'] as $msg) {
-                    // chat_type이 "recruit"인 메시지만 대상
                     if (!isset($msg['chat_type']) || $msg['chat_type'] != 'recruit') {
                         continue;
                     }
@@ -123,22 +158,23 @@ class Cron_proc extends CI_Controller
 
                 if (!$has_unread_recruit_msg) continue;
 
-                // 미확인 → 알림톡 발송 (템플릿 변수: var1=[*이름*], var2=[*휴대폰*], var3=[*1*])
+                // 미확인 → 카카오 알림톡 발송
+                $templateVars = array(
+                    $row['mm_comp_name'] // var1
+                );
+
                 $result = $ppurio->sendUnreadNotificationAlimtalk(
                     $row['mm_phone'],
+                    $templateVars,
                     array(
-                        isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',  // var1 = [*이름*]
-                        $row['mm_phone'],                                          // var2 = [*휴대폰*]
-                        "이력서 지원 알림"                                          // var3 = [*1*]
-                    ),
-                    array(
-                        'name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',
-                        'targetPath' => '/recruit/job_post/' . $row['rc_idx']  // ← 버튼 생성
+                        'name' => $row['mm_comp_name']
                     )
                 );
 
-                // 발송 이력 기록 (성공한 경우에만)
-                if (isset($result['ok']) && $result['ok'] === true) {
+                $is_success = isset($result['ok']) && $result['ok'] === true;
+
+                if ($is_success) {
+                    // 발송 성공 시에만 이력 기록
                     $this->db->query(
                         "INSERT INTO st_alimtalk_sent (rm_idx, comp_mm_idx, sent_dt, sent_count)
                          VALUES (?, ?, NOW(), 1)
@@ -146,22 +182,198 @@ class Cron_proc extends CI_Controller
                         array($row['rm_idx'], $row['comp_mm_idx'])
                     );
                     $sent_count++;
-                } else {
-                    $error_msg = isset($result['error']) ? $result['error'] : '알림톡 발송 실패';
-                    echo "알림톡 발송 실패 (rm_idx: " . $row['rm_idx'] . "): " . $error_msg . "\n";
                 }
 
             } catch (Exception $e) {
-                echo "채팅방 처리 오류 (rm_idx: " . $row['rm_idx'] . "): " . $e->getMessage() . "\n";
                 continue;
             }
         }
 
-        echo "완료 - 발송 건수: " . $sent_count . "\n";
+        return $sent_count;
     }
 
-    // 매주 월요일 오전 10시 - 개인/기업 조건 매칭 알림톡 발송
-    // crontab: 0 10 * * 1 curl -s http://도메인/cron_proc/weekly_match_alimtalk > /dev/null 2>&1
+    // 공고 미확인 개인회원에게 알림톡 발송 (설정값 기반)
+    public function check_unread_alimtalk_mem()
+    {
+        // 공통 기본 조건
+        $base_where = "
+            WHERE r.ru_idx > 0
+              AND m.mm_type = 'MEM'
+              AND m.mm_status = 'Y'
+              AND m.mm_agree_ad = 'Y'
+              AND m.alarm_chat = 'Y'
+              AND m.alarm_apply = 'Y'
+              AND m.mm_phone != ''
+        ";
+
+        // 두 설정 타입(usual, subs)에 대해 반복 처리
+        $all_sent = 0;
+        foreach (array('usual', 'subs') as $pks_type) {
+            $setting = $this->ppurio_setting_model->getSetting($pks_type);
+            if (empty($setting)) {
+                continue;
+            }
+
+            // 시간 조건 확인: 1차 또는 2차 알림 시각에 해당하는가
+            $is_alarm1 = $this->_isAlarmTimeNow($setting['mem_apply_alarm1_time']);
+            $is_alarm2 = $this->_isAlarmTimeNow($setting['mem_apply_alarm2_time']);
+
+            // 이 타입에서는 시간 조건이 맞지 않으면 skip
+            if (!$is_alarm1 && !$is_alarm2) {
+                continue;
+            }
+
+            // 설정에서 미열람 알림 재발송 일수 읽기
+            $unread_day = (int)$setting['mem_apply_unread_day'];
+
+            // 2차 알림 시각인 경우 신규 채팅방만, 1차 시각이면 N일 주기
+            if ($is_alarm2 && !$is_alarm1) {
+                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방만
+                $alarm_time_hm = $setting['mem_apply_alarm1_time'];
+                $time_where = "
+                  AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
+                  AND s.as_idx IS NULL
+                ";
+            } else {
+                // 1차: 미발송 또는 N일 이상 지난 대상
+                $time_where = "
+                  AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL ? DAY))
+                ";
+            }
+
+            $where_condition = $base_where . $time_where;
+
+            // 발송 대상 조회
+            if ($is_alarm2 && !$is_alarm1) {
+                // 2차: bind 파라미터 없음
+                $rooms = $this->db->query("
+                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
+                           ru.mm_idx AS mem_mm_idx,
+                           m.mm_id AS mem_mm_id, m.mm_phone, m.mm_name
+                    FROM st_room r
+                    INNER JOIN st_resume ru ON r.ru_idx = ru.ru_idx
+                    INNER JOIN st_member m ON ru.mm_idx = m.mm_idx
+                    LEFT JOIN st_alimtalk_sent_mem s ON r.rm_idx = s.rm_idx
+                    {$where_condition}
+                ")->result_array();
+            } else {
+                // 1차: bind 파라미터로 일수 전달
+                $rooms = $this->db->query("
+                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
+                           ru.mm_idx AS mem_mm_idx,
+                           m.mm_id AS mem_mm_id, m.mm_phone, m.mm_name
+                    FROM st_room r
+                    INNER JOIN st_resume ru ON r.ru_idx = ru.ru_idx
+                    INNER JOIN st_member m ON ru.mm_idx = m.mm_idx
+                    LEFT JOIN st_alimtalk_sent_mem s ON r.rm_idx = s.rm_idx
+                    {$where_condition}
+                ", array($unread_day))->result_array();
+            }
+
+            if (empty($rooms)) {
+                continue;
+            }
+
+            $sent = $this->_processUnreadAlimtalkMem($rooms);
+            $all_sent += $sent;
+        }
+
+        if ($all_sent == 0) {
+            echo "발송 대상 없음\n";
+        } else {
+            echo "완료 - 발송 건수: {$all_sent}\n";
+        }
+    }
+
+    // check_unread_alimtalk_mem의 실제 발송 로직 (MongoDB 조회 및 알림톡 발송)
+    private function _processUnreadAlimtalkMem($rooms)
+    {
+        // MongoDB 연결
+        $uri = get_mongo_uri();
+        $dbName = get_mongo_db_name();
+
+        try {
+            @$mongo = new Mongo($uri);
+            $db = $mongo->$dbName;
+            $collection = $db->room;
+        } catch (Exception $e) {
+            echo "MongoDB 연결 오류: " . $e->getMessage() . "\n";
+            return 0;
+        }
+
+        // PpurioClient 로드
+        $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
+        if (!file_exists($ppurioPath)) {
+            echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
+            return 0;
+        }
+        require_once($ppurioPath);
+        $ppurio = new CI_PpurioClient();
+
+        $sent_count = 0;
+
+        // 각 채팅방에서 미확인 메시지 확인 후 발송
+        foreach ($rooms as $row) {
+            try {
+                $room = $collection->findOne(array('rm_idx' => (int)$row['rm_idx']));
+                if (!$room || !isset($room['rm_messages']) || empty($room['rm_messages'])) {
+                    continue;
+                }
+
+                // chat_type="recruit"인 메시지 중 개인회원이 읽지 않은 것이 있는지 확인
+                $has_unread_recruit_msg = false;
+                foreach ($room['rm_messages'] as $msg) {
+                    if (!isset($msg['chat_type']) || $msg['chat_type'] != 'recruit') {
+                        continue;
+                    }
+                    if (!isset($msg['mg_reads'])) continue;
+
+                    foreach ($msg['mg_reads'] as $read) {
+                        if (isset($read['user_id']) && $read['user_id'] == $row['mem_mm_id']
+                            && isset($read['read_yn']) && $read['read_yn'] == 'N') {
+                            $has_unread_recruit_msg = true;
+                            break 2;
+                        }
+                    }
+                }
+
+                if (!$has_unread_recruit_msg) continue;
+
+                // 미확인 → 카카오 알림톡 발송
+                $templateVars = array(
+                    $row['mm_name'] // var1
+                );
+
+                $result = $ppurio->sendPersonalUnreadNotificationAlimtalk(
+                    $row['mm_phone'],
+                    $templateVars,
+                    array(
+                        'name' => $row['mm_name']
+                    )
+                );
+
+                $is_success = isset($result['ok']) && $result['ok'] === true;
+
+                if ($is_success) {
+                    // 발송 성공 시에만 이력 기록
+                    $this->db->query(
+                        "INSERT INTO st_alimtalk_sent_mem (rm_idx, mem_mm_idx, sent_dt, sent_count)
+                         VALUES (?, ?, NOW(), 1)
+                         ON DUPLICATE KEY UPDATE sent_dt = NOW(), sent_count = sent_count + 1",
+                        array($row['rm_idx'], $row['mem_mm_idx'])
+                    );
+                    $sent_count++;
+                }
+
+            } catch (Exception $e) {
+                continue;
+            }
+        }
+
+        return $sent_count;
+    }
+
+    // 조건 기반 매칭 알림톡 발송 (설정값 기반)
     public function weekly_match_alimtalk()
     {
         $start_time = microtime(true);
@@ -189,48 +401,139 @@ class Cron_proc extends CI_Controller
             return;
         }
 
-        // 4. 주소를 시/구 단위로 그룹핑
-        $resume_by_area = $this->_groupByArea($resumes);
-        $recruit_by_area = $this->_groupByArea($recruits);
+        // 두 설정 타입(usual, subs)에 대해 반복 처리
+        $total_sent_corp = 0;
+        $total_sent_member = 0;
 
-        // 5. 같은 지역 내에서 세부 조건 매칭
-        $matches_for_corp = array();   // 기업에게 보낼 매칭 (이력서 정보)
-        $matches_for_member = array(); // 개인에게 보낼 매칭 (공고 정보)
+        foreach (array('usual', 'subs') as $pks_type) {
+            $setting = $this->ppurio_setting_model->getSetting($pks_type);
+            if (empty($setting)) {
+                continue;
+            }
 
-        foreach ($resume_by_area as $area => $area_resumes) {
-            if (!isset($recruit_by_area[$area])) continue;
-            $area_recruits = $recruit_by_area[$area];
+            // 기업 매칭 발송 여부 판단
+            $comp_due = $this->_isMatchDayToday($setting['comp_match_days']) &&
+                        ($this->_isAlarmTimeNow($setting['comp_match_alarm1_time']) ||
+                         $this->_isAlarmTimeNow($setting['comp_match_alarm2_time']));
 
-            foreach ($area_resumes as $resume) {
-                foreach ($area_recruits as $recruit) {
-                    if ($this->_isMatched($resume, $recruit)) {
-                        // 기업에게: 이 이력서를 알려줌
-                        $matches_for_corp[] = array(
-                            'recruit' => $recruit,
-                            'resume' => $resume
-                        );
-                        // 개인에게: 이 공고를 알려줌
-                        $matches_for_member[] = array(
-                            'resume' => $resume,
-                            'recruit' => $recruit
-                        );
-                    }
-                }
+            // 개인 매칭 발송 여부 판단
+            $mem_due = $this->_isMatchDayToday($setting['mem_match_days']) &&
+                       ($this->_isAlarmTimeNow($setting['mem_match_alarm1_time']) ||
+                        $this->_isAlarmTimeNow($setting['mem_match_alarm2_time']));
+
+            // 이 타입에서는 둘 다 발송 대상이 아니면 skip
+            if (!$comp_due && !$mem_due) {
+                continue;
+            }
+
+            // 기업 매칭 조건 파싱
+            // area^nation^sex^age^work^price^work_type	
+            $comp_cond_arr = $this->_parseConditions($setting['comp_match_cond']);
+            // 개인 매칭 조건 파싱
+            $mem_cond_arr = $this->_parseConditions($setting['mem_match_cond']);
+
+            // 기업 매칭 처리
+            if ($comp_due) {
+                $matches_for_corp = $this->_calculateCorpMatches($resumes, $recruits, $comp_cond_arr);
+                $sent_corp = $this->_sendCorpAlimtalk($matches_for_corp, $current_week, $ppurio);
+                $total_sent_corp += $sent_corp;
+            }
+
+            // 개인 매칭 처리
+            if ($mem_due) {
+                $matches_for_member = $this->_calculateMemMatches($resumes, $recruits, $mem_cond_arr);
+                $sent_member = $this->_sendMemberAlimtalk($matches_for_member, $current_week, $ppurio);
+                $total_sent_member += $sent_member;
             }
         }
 
-        if (empty($matches_for_corp) && empty($matches_for_member)) {
-            echo "매칭 결과 없음\n";
-            return;
+        // 4. 실행 결과 출력
+        $elapsed = round(microtime(true) - $start_time, 2);
+        if ($total_sent_corp == 0 && $total_sent_member == 0) {
+            echo "발송 대상 시각 아님\n";
+        } else {
+            echo "매칭 알림톡 발송 완료 - 기업: {$total_sent_corp}건, 개인: {$total_sent_member}건, 소요시간: {$elapsed}초\n";
+        }
+    }
+
+    /**
+     * 기업 대상 매칭 계산
+     */
+    private function _calculateCorpMatches($resumes, $recruits, $comp_cond_arr)
+    {
+        $matches_for_corp = array();
+
+        // 지역 조건이 켜져있으면 → groupByArea 후 지역별 매칭
+        if (in_array('area', $comp_cond_arr)) {
+            $resume_by_area = $this->_groupByArea($resumes);
+            $recruit_by_area = $this->_groupByArea($recruits);
+
+            foreach ($resume_by_area as $area => $area_resumes) {
+                 //area:특정지역 인덱스 ex:  $area = '서울시 강남구' area_resumes: 특정지역의 이력서들
+                if (!isset($recruit_by_area[$area])) continue; // 지역이 같은 공고가 없다
+                $area_recruits = $recruit_by_area[$area];
+
+                foreach ($area_resumes as $resume) {
+                    foreach ($area_recruits as $recruit) {
+                        if ($this->_isMatched($resume, $recruit, $comp_cond_arr)) {
+                            $matches_for_corp[] = array(
+                                'recruit' => $recruit,
+                                'resume' => $resume
+                            );
+                        }
+                    }
+                }
+            }
+        } else {
+            // 지역 조건이 꺼져있으면 → 전체 매칭
+            $matches_for_corp = $this->match_model->matchAllPairs($resumes, $recruits, $comp_cond_arr);
+            // 형식 변환: resume/recruit 순서를 기업용으로 맞춤
+            $formatted = array();
+            foreach ($matches_for_corp as $match) {
+                $formatted[] = array(
+                    'recruit' => $match['recruit'],
+                    'resume' => $match['resume']
+                );
+            }
+            $matches_for_corp = $formatted;
         }
 
-        // 6. 중복 발송 체크 후 발송
-        $sent_corp = $this->_sendCorpAlimtalk($matches_for_corp, $current_week, $ppurio);
-        $sent_member = $this->_sendMemberAlimtalk($matches_for_member, $current_week, $ppurio);
+        return $matches_for_corp;
+    }
 
-        // 7. 실행 결과 출력
-        $elapsed = round(microtime(true) - $start_time, 2);
-        echo "매칭 알림톡 발송 완료 - 기업: {$sent_corp}건, 개인: {$sent_member}건, 소요시간: {$elapsed}초\n";
+    /**
+     * 개인 대상 매칭 계산
+     */
+    private function _calculateMemMatches($resumes, $recruits, $mem_cond_arr)
+    {
+        $matches_for_member = array();
+
+        // 지역 조건이 켜져있으면 → groupByArea 후 지역별 매칭
+        if (in_array('area', $mem_cond_arr)) {
+            $resume_by_area = $this->_groupByArea($resumes);
+            $recruit_by_area = $this->_groupByArea($recruits);
+
+            foreach ($resume_by_area as $area => $area_resumes) {
+                if (!isset($recruit_by_area[$area])) continue;
+                $area_recruits = $recruit_by_area[$area];
+
+                foreach ($area_resumes as $resume) {
+                    foreach ($area_recruits as $recruit) {
+                        if ($this->_isMatched($resume, $recruit, $mem_cond_arr)) {
+                            $matches_for_member[] = array(
+                                'resume' => $resume,
+                                'recruit' => $recruit
+                            );
+                        }
+                    }
+                }
+            }
+        } else {
+            // 지역 조건이 꺼져있으면 → 전체 매칭
+            $matches_for_member = $this->match_model->matchAllPairs($resumes, $recruits, $mem_cond_arr);
+        }
+
+        return $matches_for_member;
     }
 
     /**
@@ -262,9 +565,9 @@ class Cron_proc extends CI_Controller
      * 이력서와 채용공고의 세부 조건 매칭 확인
      * 모든 조건이 일치해야 매칭됨
      */
-    private function _isMatched($resume, $recruit)
+    private function _isMatched($resume, $recruit, $conditions = null)
     {
-        return $this->match_model->isMatched($resume, $recruit);
+        return $this->match_model->isMatched($resume, $recruit, $conditions);
     }
 
     /**
@@ -494,5 +797,30 @@ class Cron_proc extends CI_Controller
         }
 
         echo "완료 - 로그 기록 건수: {$logged_count}\n";
+    }
+
+    // 헬퍼: 지금이 설정된 알림 시각과 일치하는가 (분 단위)
+    private function _isAlarmTimeNow($time_str) {
+        if ($time_str === '' || $time_str === null) {
+            return false;
+        }
+        return date('H:i') === $time_str;
+    }
+
+    // 헬퍼: 오늘이 설정된 매칭요일에 포함되는가
+    private function _isMatchDayToday($days_str) {
+        if ($days_str === '' || $days_str === null) {
+            return false;
+        }
+        $today = strtoupper(date('D')); // Mon → MON
+        return in_array($today, explode('^', $days_str));
+    }
+
+    // 헬퍼: 문자열을 배열로 변환 (^ 구분자)
+    private function _parseConditions($cond_str) {
+        if ($cond_str === '' || $cond_str === null) {
+            return array();
+        }
+        return explode('^', $cond_str);
     }
 }

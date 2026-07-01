@@ -7,7 +7,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
     var userAgent = navigator.userAgent.toLowerCase();
     var isAndroid = /android/i.test(userAgent);
-    var isInternalApp = /nowjobapp_android|nowjobapp_ios/i.test(userAgent);
+    var isInternalApp = /nowjobapp_android|nowjobapp_ios/i.test(userAgent); // 이미 앱 안에서 접근 중인가?
 
   //  console.log('[AppDeepLink] User Agent:', userAgent);
    // console.log('[AppDeepLink] Android 감지:', isAndroid);
@@ -21,10 +21,12 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // Android 기기에서 외부 브라우저로 접속한 경우
     if (isAndroid) {
+        // currentUrl 현재 URL: https://nowjob.co.kr/recruit/job_list
         var currentUrl = window.location.href;
         var appSchemeUrl = currentUrl.replace('https://dev.nowjob.co.kr', 'nowjob://')
                                     .replace('https://nowjob.co.kr', 'nowjob://')
                                     .replace('http://localhost', 'nowjob://');
+                                    // 변환됨: nowjob://recruit/job_list
 
        // console.log('[AppDeepLink] 현재 URL:', currentUrl);
        // console.log('[AppDeepLink] 딥링크 변환:', appSchemeUrl);

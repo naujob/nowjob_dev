@@ -699,7 +699,7 @@ class Chat_proc extends CI_Controller
 		json_return("00", "조회성공" . $rtn, ["list" => $list]);
 	}
 
-	function get_chat_target_list()
+	function get_chat_target_list() 
 	{
 		//지원자 리스트 org
 
@@ -1862,7 +1862,7 @@ class Chat_proc extends CI_Controller
 		$data["reg_dt"] = date("Y-m-d H:i:s");
 		//$data["result"] = $document;
 		$data["result"] = $optimized_results;
-		json_return("00", "조회완료", $data);
+		json_return("00", "조회완료~", $data);
 
 		/*
 $data = ['user_id' => $this->user->getUserId()]; // 사용자 ID 설정

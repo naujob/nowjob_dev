@@ -6,6 +6,7 @@ class Ppurio extends MY_Controller{
         $this->load->model('membermodel','member_model');
         $this->load->library('common');
         $this->load->model('matchmodel', 'match_model');
+        $this->load->model('ppuriokatalksettingmodel','ppurio_setting_model');
     }
 
     // 추천인재 구매상품 개인 리스트
@@ -727,6 +728,62 @@ class Ppurio extends MY_Controller{
         }
 
         json_return("00", "발송 완료 - " . $sent_count . "건");
+    }
+
+    // 카카오 채널발송[일반회원] - 설정 화면
+    function ppurio_katalk_usual(){
+        $info = $this->ppurio_setting_model->getSetting('usual');
+        $data = [
+            "title" => "카카오 채널발송[일반회원]",
+            "info" => $info,
+        ];
+        $this->layout->admin('admin/ppurio/ppurio_katalk_usual', $data);
+    }
+
+    // 카카오 채널발송[일반회원] - 설정 저장
+    function ppurio_katalk_usual_proc(){
+        $params = input_post_all();
+
+        // 배열 값들을 ^ 구분자로 변환
+        $data = [];
+        foreach ($params as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = implode('^', $value);
+            } else {
+                $data[$key] = $value;
+            }
+        }
+
+        $result = $this->ppurio_setting_model->updateSetting($data, 'usual');
+        json_return("00", "설정이 저장되었습니다.", "");
+    }
+
+    // 카카오 채널발송[유료회원] - 설정 화면
+    function ppurio_katalk_subs(){
+        $info = $this->ppurio_setting_model->getSetting('subs');
+        $data = [
+            "title" => "카카오 채널발송[유료회원]",
+            "info" => $info,
+        ];
+        $this->layout->admin('admin/ppurio/ppurio_katalk_subs', $data);
+    }
+
+    // 카카오 채널발송[유료회원] - 설정 저장
+    function ppurio_katalk_subs_proc(){
+        $params = input_post_all();
+
+        // 배열 값들을 ^ 구분자로 변환
+        $data = [];
+        foreach ($params as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = implode('^', $value);
+            } else {
+                $data[$key] = $value;
+            }
+        }
+
+        $result = $this->ppurio_setting_model->updateSetting($data, 'subs');
+        json_return("00", "설정이 저장되었습니다.", "");
     }
 }
 ?>

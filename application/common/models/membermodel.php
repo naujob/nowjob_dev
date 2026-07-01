@@ -4548,6 +4548,7 @@ class memberModel extends MY_Model
 
 
 	# 채팅방 : 지원한 공고에서
+	// 연결된 채용공고에 지원한 이력서 목록을 반환
 	function getRequestRecruitList($params)
 	{
 		/*

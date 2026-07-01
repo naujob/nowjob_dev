@@ -76,6 +76,16 @@
                                         </label>
                                     </span>
                                 </li>
+                                <?php else : ?> <!-- 개인회원 -->
+                                <li>
+                                    <span class="label">기업회원 제안 알림</span>
+                                    <span class="value">
+                                        <label class="btn-toggle">
+                                            <input type="checkbox" name="alarm_apply" value="Y" <?=$mem_info["alarm_apply"]=="Y" ? "checked":""?>>
+                                            <span class="btn"></span>
+                                        </label>
+                                    </span>
+                                </li>
                                 <?php endif; ?>
                             </ul>
                         </div>
