@@ -1,0 +1,86 @@
+/* 카카오 채널 발송 가로 테이블 */
+.table-katalk {
+    
+    border: 1px solid #d9dee3;
+    table-layout: fixed;
+}
+
+.table-katalk th {
+    white-space: nowrap;
+    width: auto;
+    height: 36px;
+    padding: 0 8px;
+    background: #f4f5f7;
+    border: 1px solid #d9dee3;
+    vertical-align: middle;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.table-katalk td {
+    white-space: nowrap;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid #d9dee3;
+    vertical-align: middle;
+    font-size: 12px;
+}
+
+.table-katalk .td-label {
+    background: #f4f5f7;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 0 8px;
+}
+
+.table-katalk input[type="time"] {
+    /* width: 100%; */
+    height: 100%;
+    padding: 10px 8px;
+    border: none;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+/* 매칭 조건 행 */
+.table-katalk .cond-row th {
+    background: #f4f5f7;
+}
+
+.table-katalk .cond-row td {
+    padding: 10px;
+}
+
+/* 라디오 / 체크박스 컨테이너 */
+.table-katalk .input-radio,
+.table-katalk .input-checkbox {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.table-katalk .input-radio label,
+.table-katalk .input-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.table-katalk .input-radio span,
+.table-katalk .input-checkbox span {
+    padding: 0 8px 0 20px;
+}
+
+.table-katalk .input-radio input,
+.table-katalk .input-checkbox input {
+    margin: 0;
+    cursor: pointer;
+}
+
+.table-katalk td.narrow-cell {
+    width: 400px;
+}

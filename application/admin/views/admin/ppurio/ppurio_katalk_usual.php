@@ -1,3 +1,5 @@
+<link href="/resource/admin/css/ppurio.css" rel="stylesheet" />
+
 <form id="frm" class="controls" method="post">
     <div class="contents-frm">
         <!-- 기업회원 -->
@@ -6,35 +8,20 @@
 
             <!-- 지원자 알림 -->
             <h4 class="sub-title-sm mb-10">지원자 미열람 알림</h4>
-            <table class="table-form">
-                <colgroup>
-                    <col width="200px"/>
-                    <col width="*"/>
-                </colgroup>
+            <table class="table-form table-katalk">
                 <tbody>
                 <tr>
-                    <th scope="col">1차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">카카오 채널 발송</th>
+                    <th class="td-label">1차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="comp_apply_alarm1_time" name="comp_apply_alarm1_time" value="<?=getData($info,"comp_apply_alarm1_time","")?>" />
-                            </label>
-                        </div>
+                        <input type="time" id="comp_apply_alarm1_time" name="comp_apply_alarm1_time" value="<?=getData($info,"comp_apply_alarm1_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">2차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">2차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="comp_apply_alarm2_time" name="comp_apply_alarm2_time" value="<?=getData($info,"comp_apply_alarm2_time","")?>" />
-                            </label>
-                        </div>
+                        <input type="time" id="comp_apply_alarm2_time" name="comp_apply_alarm2_time" value="<?=getData($info,"comp_apply_alarm2_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">미열람 알림 주기<em class="ess"></em></th>
-                    <td>
+                    <th class="td-label">미열람 알림<em class="ess"></em></th>
+                    <td class="narrow-cell">
                         <div class="input-radio">
                             <?=inputRadio("comp_apply_unread_day","comp_apply_unread_day",["2"=>"2일 후","3"=>"3일 후","7"=>"7일 후"],getData($info,"comp_apply_unread_day"))?>
                         </div>
@@ -45,36 +32,20 @@
 
             <!-- 이력서 매칭 알림 -->
             <h4 class="sub-title-sm mb-10 mt-30">이력서 매칭 알림</h4>
-            <table class="table-form">
-                <colgroup>
-                    <col width="200px"/>
-                    <col width="*"/>
-                </colgroup>
+            <table class="table-form table-katalk">
                 <tbody>
                 <tr>
-                    <th scope="col">1차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">카카오 채널 발송</th>
+                    <th class="td-label">1차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="comp_match_alarm1_time" name="comp_match_alarm1_time" value="<?=getData($info,"comp_match_alarm1_time","")?>" />
-                            </label>
-                        </div>
+                        <input type="time" id="comp_match_alarm1_time" name="comp_match_alarm1_time" value="<?=getData($info,"comp_match_alarm1_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">2차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">2차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="comp_match_alarm2_time" name="comp_match_alarm2_time" value="<?=getData($info,"comp_match_alarm2_time","")?>" />
-                            </label>
-                        </div>
-                        <p class="exc1">빈값 = 비활성</p>
+                        <input type="time" id="comp_match_alarm2_time" name="comp_match_alarm2_time" value="<?=getData($info,"comp_match_alarm2_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">매칭 발송 요일<em class="ess"></em></th>
-                    <td>
+                    <th class="td-label">매칭 발송 요일<em class="ess"></em></th>
+                    <td class="narrow-cell">
                         <div class="input-checkbox">
                             <?php
                             $comp_days_arr = isset($info["comp_match_days"]) ? explode("^", $info["comp_match_days"]) : [];
@@ -87,9 +58,9 @@
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <th scope="col">매칭 조건<em class="ess"></em></th>
-                    <td>
+                <tr class="cond-row">
+                    <th class="td-label">이력서 매칭 조건<em class="ess"></em></th>
+                    <td colspan="6">
                         <div class="input-checkbox">
                             <?php
                             $comp_cond_arr = isset($info["comp_match_cond"]) ? explode("^", $info["comp_match_cond"]) : [];
@@ -112,35 +83,20 @@
 
             <!-- 채팅 알림 -->
             <h4 class="sub-title-sm mb-10">채팅 미열람 알림</h4>
-            <table class="table-form">
-                <colgroup>
-                    <col width="200px"/>
-                    <col width="*"/>
-                </colgroup>
+            <table class="table-form table-katalk">
                 <tbody>
                 <tr>
-                    <th scope="col">1차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">카카오 채널 발송</th>
+                    <th class="td-label">1차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="mem_apply_alarm1_time" name="mem_apply_alarm1_time" value="<?=getData($info,"mem_apply_alarm1_time","")?>" />
-                            </label>
-                        </div>
+                        <input type="time" id="mem_apply_alarm1_time" name="mem_apply_alarm1_time" value="<?=getData($info,"mem_apply_alarm1_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">2차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">2차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="mem_apply_alarm2_time" name="mem_apply_alarm2_time" value="<?=getData($info,"mem_apply_alarm2_time","")?>" />
-                            </label>
-                        </div>
+                        <input type="time" id="mem_apply_alarm2_time" name="mem_apply_alarm2_time" value="<?=getData($info,"mem_apply_alarm2_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">미열람 알림 주기<em class="ess"></em></th>
-                    <td>
+                    <th class="td-label">미열람 알림<em class="ess"></em></th>
+                    <td class="narrow-cell">
                         <div class="input-radio">
                             <?=inputRadio("mem_apply_unread_day","mem_apply_unread_day",["2"=>"2일 후","3"=>"3일 후","7"=>"7일 후"],getData($info,"mem_apply_unread_day"))?>
                         </div>
@@ -151,36 +107,20 @@
 
             <!-- 채용공고 매칭 알림 -->
             <h4 class="sub-title-sm mb-10 mt-30">채용공고 매칭 알림</h4>
-            <table class="table-form">
-                <colgroup>
-                    <col width="200px"/>
-                    <col width="*"/>
-                </colgroup>
+            <table class="table-form table-katalk">
                 <tbody>
                 <tr>
-                    <th scope="col">1차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">카카오 채널 발송</th>
+                    <th class="td-label">1차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="mem_match_alarm1_time" name="mem_match_alarm1_time" value="<?=getData($info,"mem_match_alarm1_time","")?>" />
-                            </label>
-                        </div>
+                        <input type="time" id="mem_match_alarm1_time" name="mem_match_alarm1_time" value="<?=getData($info,"mem_match_alarm1_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">2차 알림 시간<em class="ess"></em></th>
+                    <th class="td-label">2차 알림<em class="ess"></em></th>
                     <td>
-                        <div class="input-text w100">
-                            <label>
-                                <input type="time" id="mem_match_alarm2_time" name="mem_match_alarm2_time" value="<?=getData($info,"mem_match_alarm2_time","")?>" />
-                            </label>
-                        </div>
-                        <p class="exc1">빈값 = 비활성</p>
+                        <input type="time" id="mem_match_alarm2_time" name="mem_match_alarm2_time" value="<?=getData($info,"mem_match_alarm2_time","")?>" />
                     </td>
-                </tr>
-                <tr>
-                    <th scope="col">매칭 발송 요일<em class="ess"></em></th>
-                    <td>
+                    <th class="td-label">매칭 발송 요일<em class="ess"></em></th>
+                    <td class="narrow-cell">
                         <div class="input-checkbox">
                             <?php
                             $mem_days_arr = isset($info["mem_match_days"]) ? explode("^", $info["mem_match_days"]) : [];
@@ -192,9 +132,9 @@
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <th scope="col">매칭 조건<em class="ess"></em></th>
-                    <td>
+                <tr class="cond-row">
+                    <th class="td-label">채용공고 매칭 조건<em class="ess"></em></th>
+                    <td colspan="6">
                         <div class="input-checkbox">
                             <?php
                             $mem_cond_arr = isset($info["mem_match_cond"]) ? explode("^", $info["mem_match_cond"]) : [];
