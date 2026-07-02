@@ -448,7 +448,7 @@ class settingModel extends MY_Model {
 		$result = $qry->result_array();
 		return $result;
 	}
-
+    // db_list("1. 창고이름", 2. 조건, "3. 가져올 항목", 4. 정렬 순서);
 	# 코드 리스트 반환
 	function getCodeList($where){
 		return $this->db_list("st_code",$where,"*",["cd_sort"=>"asc","cd_idx"=>"asc"]);

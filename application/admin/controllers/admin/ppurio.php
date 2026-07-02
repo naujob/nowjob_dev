@@ -389,6 +389,43 @@ class Ppurio extends MY_Controller{
         json_return("00", "발송 완료 - " . $sent_count . "건");
     }
 
+    // 헬퍼: ^ 구분자로 조건 배열 파싱
+    private function _parseMatchConditions($cond_str) {
+        if ($cond_str === '' || $cond_str === null) return array();
+        return explode('^', $cond_str); // 문자열 -> 배열 리턴
+    }
+
+    // 헬퍼: 기업 매칭 계산 (area 조건 유무로 분기)
+    private function _calcCorpMatches($resumes, $recruits, $cond_arr) {
+        if (in_array('area', $cond_arr)) {
+            // 1. 이력서를 지역별로 그룹핑
+            $resume_by_area  = $this->match_model->groupByArea($resumes);
+            // 2. 공고를 지역별로 그룹핑
+            $recruit_by_area = $this->match_model->groupByArea($recruits);
+            $matches = array();
+            foreach ($resume_by_area as $area => $area_resumes) {
+                  // 3. 그 지역에 공고가 없으면 스킵
+                if (!isset($recruit_by_area[$area])) continue;
+                  // 4. 같은 지역의 이력서 × 공고만 매칭
+                foreach ($area_resumes as $resume) {
+                    foreach ($recruit_by_area[$area] as $recruit) {
+                        if ($this->match_model->isMatched($resume, $recruit, $cond_arr)) {
+                            $matches[] = array('recruit' => $recruit, 'resume' => $resume);
+                        }
+                    }
+                }
+            }
+            return $matches;
+        } else {
+            $pairs = $this->match_model->matchAllPairs($resumes, $recruits, $cond_arr);
+            $result = array();
+            foreach ($pairs as $p) {
+                $result[] = array('recruit' => $p['recruit'], 'resume' => $p['resume']);
+            }
+            return $result;
+        }
+    }
+
     // 매칭 이력서 SMS 발송 (기업 대상) - 목록 조회
     function sendCorPpurioSms() {
         $current_week = date('Y-W');
@@ -402,32 +439,20 @@ class Ppurio extends MY_Controller{
             $data = array(
                 'result_list' => array(),
                 'result_count' => 0,
+                'search' => array('search_type' => '', 'search_value' => '', 'category' => array()),
+                'select_category' => array(),
             );
             $this->layout->admin('admin/ppurio/send_sms_corp', $data);
             return;
         }
 
-        // 3. 주소 그룹핑
-        $resume_by_area = $this->match_model->groupByArea($resumes);
-        $recruit_by_area = $this->match_model->groupByArea($recruits);
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['comp_match_cond']) ? $setting['comp_match_cond'] : '';
+        $comp_cond_arr = $this->_parseMatchConditions($cond_str);
 
         // 4. 매칭 결과 수집
-        $matches_for_corp = array();
-        foreach ($resume_by_area as $area => $area_resumes) {
-            if (!isset($recruit_by_area[$area])) continue;
-            $area_recruits = $recruit_by_area[$area];
-
-            foreach ($area_resumes as $resume) {
-                foreach ($area_recruits as $recruit) {
-                    if ($this->match_model->isMatched($resume, $recruit)) {
-                        $matches_for_corp[] = array(
-                            'recruit' => $recruit,
-                            'resume' => $resume
-                        );
-                    }
-                }
-            }
-        }
+        $matches_for_corp = $this->_calcCorpMatches($resumes, $recruits, $comp_cond_arr);
 
         // 5. 기업별 최신 1건만 추출
         $corp_latest = array();
@@ -438,7 +463,7 @@ class Ppurio extends MY_Controller{
                 $corp_latest[$corp_idx] = $match;
             }
         }
-
+         // 주 단위 재발송 허용: 다음 주(새로운 주)가 되면 다시 발송 가능하므로
         // 6. 중복 체크: 이번 주에 이미 발송한 대상 제외
         $send_targets = array();
         foreach ($corp_latest as $match) {
@@ -457,10 +482,74 @@ class Ppurio extends MY_Controller{
             }
         }
 
-        // 7. 뷰에 전달
+        // 7. 검색 파라미터 수신 및 필터링
+        $search_type  = input_get("search_type", "");
+        $search_value = input_get("search_value", "");
+        $category     = $this->input->get("category");
+        if (!is_array($category)) $category = array();
+
+        if ($search_value != "") {
+            $send_targets = array_filter($send_targets, function($match) use ($search_type, $search_value) {
+                $r = $match['recruit'];
+                $matches_any = false;
+                if ($search_type === "" || $search_type === "mm_comp_name") {
+                    if (strpos($r['mm_comp_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "rc_name") {
+                    if (strpos($r['rc_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "ad_addr") {
+                    if (strpos($r['ad_addr'], $search_value) !== false) $matches_any = true;
+                }
+                return $matches_any;
+            });
+        }
+
+        if (!empty($category)) {
+            $send_targets = array_filter($send_targets, function($match) use ($category) {
+                foreach ($category as $cat) {
+                    if ($cat != "" && strpos($match['recruit']['rc_work'], $cat) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        // 지역 필터링
+        $ad_addr = input_get("ad_addr", "");
+        if ($ad_addr != "") {
+            $send_targets = array_filter($send_targets, function($match) use ($ad_addr) {
+                return strpos($match['recruit']['ad_addr'], $ad_addr) !== false;
+            });
+        }
+
+        // 노출여부 필터링
+        $rc_show_yn = input_get("rc_show_yn", "");
+        if ($rc_show_yn != "") {
+            $send_targets = array_filter($send_targets, function($match) use ($rc_show_yn) {
+                return $match['recruit']['rc_show_yn'] === $rc_show_yn;
+            });
+        }
+
+        $send_targets = array_values($send_targets);
+
+        // 8. 카테고리 목록 조회
+        $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+        $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 9. 뷰에 전달
         $data = array(
             'result_list' => $send_targets,
             'result_count' => count($send_targets),
+            'search' => array(
+                'search_type'  => $search_type,
+                'search_value' => $search_value,
+                'category'     => $category,
+                'ad_addr'      => $ad_addr,
+                'rc_show_yn'   => $rc_show_yn,
+            ),
+            'select_category' => $select_category,
         );
 
         $this->layout->admin('admin/ppurio/send_sms_corp', $data);
@@ -481,27 +570,13 @@ class Ppurio extends MY_Controller{
             return;
         }
 
-        // 3. 주소 그룹핑
-        $resume_by_area = $this->match_model->groupByArea($resumes);
-        $recruit_by_area = $this->match_model->groupByArea($recruits);
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['comp_match_cond']) ? $setting['comp_match_cond'] : '';
+        $comp_cond_arr = $this->_parseMatchConditions($cond_str);
 
         // 4. 매칭 결과 수집
-        $matches_for_corp = array();
-        foreach ($resume_by_area as $area => $area_resumes) {
-            if (!isset($recruit_by_area[$area])) continue;
-            $area_recruits = $recruit_by_area[$area];
-
-            foreach ($area_resumes as $resume) {
-                foreach ($area_recruits as $recruit) {
-                    if ($this->match_model->isMatched($resume, $recruit)) {
-                        $matches_for_corp[] = array(
-                            'recruit' => $recruit,
-                            'resume' => $resume
-                        );
-                    }
-                }
-            }
-        }
+        $matches_for_corp = $this->_calcCorpMatches($resumes, $recruits, $comp_cond_arr);
 
         if (empty($matches_for_corp)) {
             json_return("99", "발송 대상이 없습니다.");
@@ -559,6 +634,388 @@ class Ppurio extends MY_Controller{
         json_return("00", "발송 완료 - " . $sent_count . "건");
     }
 
+    // 매칭 이력서 SMS 발송 (기업 대상) - 이력서 목록 조회 (Page 2)
+    function sendCorPpurioSmsResume() {
+        $current_week = date('Y-W');
+
+        // 선택된 기업 mm_idx 받기
+        $selected_mm_idx_str = $this->input->get("mm_idx");
+        $selected_mm_idx = array();
+        if (!empty($selected_mm_idx_str)) {
+            $selected_mm_idx = array_map('trim', explode(',', $selected_mm_idx_str));
+        }
+
+        // 1. 활성 이력서 조회
+        $resumes = $this->match_model->getActiveResumes();
+        // 2. 게재 중인 채용공고 조회
+        $recruits = $this->match_model->getActiveRecruits();
+
+        if (empty($resumes) || empty($recruits)) {
+            $data = array(
+                'result_list' => array(),
+                'result_count' => 0,
+            );
+            $this->layout->admin('admin/ppurio/send_sms_corp_resume', $data);
+            return;
+        }
+
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['comp_match_cond']) ? $setting['comp_match_cond'] : '';
+        $comp_cond_arr = $this->_parseMatchConditions($cond_str);
+
+        // 4. 매칭 결과 수집
+        $matches_for_corp = $this->_calcCorpMatches($resumes, $recruits, $comp_cond_arr);
+
+        // 5. 기업별 최신 1건만 추출 (선택된 기업만 필터링)
+        $corp_latest = array();
+        foreach ($matches_for_corp as $match) {
+            $corp_idx = $match['recruit']['mm_idx'];
+
+            // 선택된 기업이 지정된 경우, 해당 기업만 처리
+            if (!empty($selected_mm_idx) && !in_array($corp_idx, $selected_mm_idx)) {
+                continue;
+            }
+
+            if (!isset($corp_latest[$corp_idx]) ||
+                strtotime($match['resume']['reg_dt']) > strtotime($corp_latest[$corp_idx]['resume']['reg_dt'])) {
+                $corp_latest[$corp_idx] = $match;
+            }
+        }
+
+        // 6. 중복 체크: 이번 주에 이미 발송한 대상 제외
+        $send_targets = array();
+        foreach ($corp_latest as $match) {
+            $result = $this->db->query(
+                "SELECT ms_idx FROM st_match_alimtalk_sent
+                 WHERE sender_type = 'COMP'
+                   AND receiver_mm_idx = ?
+                   AND target_key = ?
+                   AND sent_week = ?",
+                array($match['recruit']['mm_idx'], $match['resume']['ru_idx'], $current_week)
+            );
+            $dup_check = $result->row_array();
+
+            if (empty($dup_check)) {
+                $send_targets[] = $match;
+            }
+        }
+
+        // 7. 뷰에 전달
+        $data = array(
+            'result_list' => $send_targets,
+            'result_count' => count($send_targets),
+        );
+
+        $this->layout->admin('admin/ppurio/send_sms_corp_resume', $data);
+    }
+
+    // 매칭 이력서 SMS 발송 (기업 대상) - 이력서 발송 처리 (Page 2 AJAX)
+    function sendCorPpurioSmsResume_proc() {
+        $sent_count = 0;
+        $current_week = date('Y-W');
+
+        // 선택된 이력서 ru_idx 배열 수신
+        $selected_ru_idx = $this->input->post("selected_ru_idx");
+        if (!is_array($selected_ru_idx)) {
+            $selected_ru_idx = array();
+        }
+
+        if (empty($selected_ru_idx)) {
+            json_return("99", "이력서를 선택해주세요.");
+            return;
+        }
+
+        // 1. 활성 이력서 조회
+        $resumes = $this->match_model->getActiveResumes();
+        // 2. 게재 중인 채용공고 조회
+        $recruits = $this->match_model->getActiveRecruits();
+
+        if (empty($resumes) || empty($recruits)) {
+            json_return("99", "발송 대상이 없습니다.");
+            return;
+        }
+
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['comp_match_cond']) ? $setting['comp_match_cond'] : '';
+        $comp_cond_arr = $this->_parseMatchConditions($cond_str);
+
+        // 4. 매칭 결과 수집
+        $matches_for_corp = $this->_calcCorpMatches($resumes, $recruits, $comp_cond_arr);
+
+        if (empty($matches_for_corp)) {
+            json_return("99", "발송 대상이 없습니다.");
+            return;
+        }
+
+        // 5. 기업별 최신 1건만 추출
+        $corp_latest = array();
+        foreach ($matches_for_corp as $match) {
+            $corp_idx = $match['recruit']['mm_idx'];
+            if (!isset($corp_latest[$corp_idx]) ||
+                strtotime($match['resume']['reg_dt']) > strtotime($corp_latest[$corp_idx]['resume']['reg_dt'])) {
+                $corp_latest[$corp_idx] = $match;
+            }
+        }
+
+        // 6. SMS 발송 (선택된 이력서만)
+        foreach ($corp_latest as $match) {
+            try {
+                $recruit = $match['recruit'];
+                $resume = $match['resume'];
+
+                // 선택된 이력서인지 확인
+                if (!in_array($resume['ru_idx'], $selected_ru_idx)) {
+                    continue;
+                }
+
+                // 중복 체크
+                $result = $this->db->query(
+                    "SELECT ms_idx FROM st_match_alimtalk_sent
+                     WHERE sender_type = 'COMP'
+                       AND receiver_mm_idx = ?
+                       AND target_key = ?
+                       AND sent_week = ?",
+                    array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
+                );
+                $dup_check = $result->row_array();
+
+                if (!empty($dup_check)) continue;
+
+                // SMS 발송
+                $sms_msg = "[나우잡] 조건에 맞는 인재가 등록되었습니다. 확인하기: " . site_url('resume/hr_post/' . $resume['ru_idx']);
+                $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
+
+                // 발송 이력 기록
+                $this->db->query(
+                    "INSERT INTO st_match_alimtalk_sent
+                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
+                     VALUES ('COMP', ?, ?, ?, NOW())
+                     ON DUPLICATE KEY UPDATE sent_dt = NOW()",
+                    array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
+                );
+                $sent_count++;
+
+            } catch (Exception $e) {
+                continue;
+            }
+        }
+
+        json_return("00", "발송 완료 - " . $sent_count . "건");
+    }
+
+    // 매칭 채용공고 SMS 발송 (개인 대상) - 채용공고 목록 조회 (Page 2)
+    function sendMemPpurioSmsRecruit() {
+        $current_week = date('Y-W');
+
+        // 선택된 개인 mm_idx 받기
+        $selected_mm_idx_str = $this->input->get("mm_idx");
+        $selected_mm_idx = array();
+        if (!empty($selected_mm_idx_str)) {
+            $selected_mm_idx = array_map('trim', explode(',', $selected_mm_idx_str));
+        }
+
+        // 1. 활성 이력서 조회
+        $resumes = $this->match_model->getActiveResumes();
+        // 2. 게재 중인 채용공고 조회
+        $recruits = $this->match_model->getActiveRecruits();
+
+        if (empty($resumes) || empty($recruits)) {
+            $data = array(
+                'result_list' => array(),
+                'result_count' => 0,
+            );
+            $this->layout->admin('admin/ppurio/send_sms_member_recruit', $data);
+            return;
+        }
+
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['mem_match_cond']) ? $setting['mem_match_cond'] : '';
+        $mem_cond_arr = $this->_parseMatchConditions($cond_str);
+
+        // 4. 매칭 결과 수집 (개인 대상은 resume/recruit 순서)
+        if (in_array('area', $mem_cond_arr)) {
+            $resume_by_area  = $this->match_model->groupByArea($resumes);
+            $recruit_by_area = $this->match_model->groupByArea($recruits);
+            $matches_for_member = array();
+            foreach ($resume_by_area as $area => $area_resumes) {
+                if (!isset($recruit_by_area[$area])) continue;
+                foreach ($area_resumes as $resume) {
+                    foreach ($recruit_by_area[$area] as $recruit) {
+                        if ($this->match_model->isMatched($resume, $recruit, $mem_cond_arr)) {
+                            $matches_for_member[] = array('resume' => $resume, 'recruit' => $recruit);
+                        }
+                    }
+                }
+            }
+        } else {
+            $pairs = $this->match_model->matchAllPairs($resumes, $recruits, $mem_cond_arr);
+            $matches_for_member = array();
+            foreach ($pairs as $p) {
+                $matches_for_member[] = array('resume' => $p['resume'], 'recruit' => $p['recruit']);
+            }
+        }
+
+        // 5. 개인별 최신 1건만 추출 (선택된 개인만 필터링)
+        $member_latest = array();
+        foreach ($matches_for_member as $match) {
+            $mem_idx = $match['resume']['mm_idx'];
+
+            // 선택된 개인이 지정된 경우, 해당 개인만 처리
+            if (!empty($selected_mm_idx) && !in_array($mem_idx, $selected_mm_idx)) {
+                continue;
+            }
+
+            if (!isset($member_latest[$mem_idx]) ||
+                strtotime($match['recruit']['reg_dt']) > strtotime($member_latest[$mem_idx]['recruit']['reg_dt'])) {
+                $member_latest[$mem_idx] = $match;
+            }
+        }
+
+        // 6. 중복 체크: 이번 주에 이미 발송한 대상 제외
+        $send_targets = array();
+        foreach ($member_latest as $match) {
+            $result = $this->db->query(
+                "SELECT ms_idx FROM st_match_alimtalk_sent
+                 WHERE sender_type = 'MEM'
+                   AND receiver_mm_idx = ?
+                   AND target_key = ?
+                   AND sent_week = ?",
+                array($match['resume']['mm_idx'], $match['recruit']['rc_idx'], $current_week)
+            );
+            $dup_check = $result->row_array();
+
+            if (empty($dup_check)) {
+                $send_targets[] = $match;
+            }
+        }
+
+        // 7. 뷰에 전달
+        $data = array(
+            'result_list' => $send_targets,
+            'result_count' => count($send_targets),
+        );
+
+        $this->layout->admin('admin/ppurio/send_sms_member_recruit', $data);
+    }
+
+    // 매칭 채용공고 SMS 발송 (개인 대상) - 채용공고 발송 처리 (Page 2 AJAX)
+    function sendMemPpurioSmsRecruit_proc() {
+        $sent_count = 0;
+        $current_week = date('Y-W');
+
+        // 선택된 채용공고 rc_idx 배열 수신
+        $selected_rc_idx = $this->input->post("selected_rc_idx");
+        if (!is_array($selected_rc_idx)) {
+            $selected_rc_idx = array();
+        }
+
+        if (empty($selected_rc_idx)) {
+            json_return("99", "채용공고를 선택해주세요.");
+            return;
+        }
+
+        // 1. 활성 이력서 조회
+        $resumes = $this->match_model->getActiveResumes();
+        // 2. 게재 중인 채용공고 조회
+        $recruits = $this->match_model->getActiveRecruits();
+
+        if (empty($resumes) || empty($recruits)) {
+            json_return("99", "발송 대상이 없습니다.");
+            return;
+        }
+
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['mem_match_cond']) ? $setting['mem_match_cond'] : '';
+        $mem_cond_arr = $this->_parseMatchConditions($cond_str);
+
+        // 4. 매칭 결과 수집 (개인 대상은 resume/recruit 순서)
+        if (in_array('area', $mem_cond_arr)) {
+            $resume_by_area  = $this->match_model->groupByArea($resumes);
+            $recruit_by_area = $this->match_model->groupByArea($recruits);
+            $matches_for_member = array();
+            foreach ($resume_by_area as $area => $area_resumes) {
+                if (!isset($recruit_by_area[$area])) continue;
+                foreach ($area_resumes as $resume) {
+                    foreach ($recruit_by_area[$area] as $recruit) {
+                        if ($this->match_model->isMatched($resume, $recruit, $mem_cond_arr)) {
+                            $matches_for_member[] = array('resume' => $resume, 'recruit' => $recruit);
+                        }
+                    }
+                }
+            }
+        } else {
+            $pairs = $this->match_model->matchAllPairs($resumes, $recruits, $mem_cond_arr);
+            $matches_for_member = array();
+            foreach ($pairs as $p) {
+                $matches_for_member[] = array('resume' => $p['resume'], 'recruit' => $p['recruit']);
+            }
+        }
+
+        if (empty($matches_for_member)) {
+            json_return("99", "발송 대상이 없습니다.");
+            return;
+        }
+
+        // 5. 개인별 최신 1건만 추출
+        $member_latest = array();
+        foreach ($matches_for_member as $match) {
+            $mem_idx = $match['resume']['mm_idx'];
+            if (!isset($member_latest[$mem_idx]) ||
+                strtotime($match['recruit']['reg_dt']) > strtotime($member_latest[$mem_idx]['recruit']['reg_dt'])) {
+                $member_latest[$mem_idx] = $match;
+            }
+        }
+
+        // 6. SMS 발송 (선택된 채용공고만)
+        foreach ($member_latest as $match) {
+            try {
+                $resume = $match['resume'];
+                $recruit = $match['recruit'];
+
+                // 선택된 채용공고인지 확인
+                if (!in_array($recruit['rc_idx'], $selected_rc_idx)) {
+                    continue;
+                }
+
+                // 중복 체크
+                $result = $this->db->query(
+                    "SELECT ms_idx FROM st_match_alimtalk_sent
+                     WHERE sender_type = 'MEM'
+                       AND receiver_mm_idx = ?
+                       AND target_key = ?
+                       AND sent_week = ?",
+                    array($resume['mm_idx'], $recruit['rc_idx'], $current_week)
+                );
+                $dup_check = $result->row_array();
+
+                if (!empty($dup_check)) continue;
+
+                // SMS 발송
+                $sms_msg = "[나우잡] 조건에 맞는 채용공고가 있습니다. 확인하기: " . site_url('recruit/job_post/' . $recruit['rc_idx']);
+                $this->common->sendNotificationSms($resume['mm_phone'], $sms_msg);
+
+                // 발송 이력 기록
+                $this->db->query(
+                    "INSERT INTO st_match_alimtalk_sent
+                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
+                     VALUES ('MEM', ?, ?, ?, NOW())
+                     ON DUPLICATE KEY UPDATE sent_dt = NOW()",
+                    array($resume['mm_idx'], $recruit['rc_idx'], $current_week)
+                );
+                $sent_count++;
+
+            } catch (Exception $e) {
+                continue;
+            }
+        }
+
+        json_return("00", "발송 완료 - " . $sent_count . "건");
+    }
+
     // 매칭 채용공고 SMS 발송 (개인 대상) - 목록 조회
     function sendMemPpurioSms() {
         $current_week = date('Y-W');
@@ -572,30 +1029,38 @@ class Ppurio extends MY_Controller{
             $data = array(
                 'result_list' => array(),
                 'result_count' => 0,
+                'search' => array('search_type' => '', 'search_value' => '', 'category' => array()),
+                'select_category' => array(),
             );
             $this->layout->admin('admin/ppurio/send_sms_member', $data);
             return;
         }
 
-        // 3. 주소 그룹핑
-        $resume_by_area = $this->match_model->groupByArea($resumes);
-        $recruit_by_area = $this->match_model->groupByArea($recruits);
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['mem_match_cond']) ? $setting['mem_match_cond'] : '';
+        $mem_cond_arr = $this->_parseMatchConditions($cond_str);
 
-        // 4. 매칭 결과 수집
-        $matches_for_member = array();
-        foreach ($resume_by_area as $area => $area_resumes) {
-            if (!isset($recruit_by_area[$area])) continue;
-            $area_recruits = $recruit_by_area[$area];
-
-            foreach ($area_resumes as $resume) {
-                foreach ($area_recruits as $recruit) {
-                    if ($this->match_model->isMatched($resume, $recruit)) {
-                        $matches_for_member[] = array(
-                            'resume' => $resume,
-                            'recruit' => $recruit
-                        );
+        // 4. 매칭 결과 수집 (개인 대상은 resume/recruit 순서)
+        if (in_array('area', $mem_cond_arr)) {
+            $resume_by_area  = $this->match_model->groupByArea($resumes);
+            $recruit_by_area = $this->match_model->groupByArea($recruits);
+            $matches_for_member = array();
+            foreach ($resume_by_area as $area => $area_resumes) {
+                if (!isset($recruit_by_area[$area])) continue;
+                foreach ($area_resumes as $resume) {
+                    foreach ($recruit_by_area[$area] as $recruit) {
+                        if ($this->match_model->isMatched($resume, $recruit, $mem_cond_arr)) {
+                            $matches_for_member[] = array('resume' => $resume, 'recruit' => $recruit);
+                        }
                     }
                 }
+            }
+        } else {
+            $pairs = $this->match_model->matchAllPairs($resumes, $recruits, $mem_cond_arr);
+            $matches_for_member = array();
+            foreach ($pairs as $p) {
+                $matches_for_member[] = array('resume' => $p['resume'], 'recruit' => $p['recruit']);
             }
         }
 
@@ -627,10 +1092,75 @@ class Ppurio extends MY_Controller{
             }
         }
 
-        // 7. 뷰에 전달
+        // 7. 검색 파라미터 수신 및 필터링
+        $search_type  = input_get("search_type", "");
+        $search_value = input_get("search_value", "");
+        $category     = $this->input->get("category");
+        if (!is_array($category)) $category = array();
+
+        if ($search_value != "") {
+            $send_targets = array_filter($send_targets, function($match) use ($search_type, $search_value) {
+                $r = $match['recruit'];
+                $m = $match['resume'];
+                $matches_any = false;
+                if ($search_type === "" || $search_type === "mm_name") {
+                    if (strpos($m['mm_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "rc_name") {
+                    if (strpos($r['rc_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "ad_addr") {
+                    if (strpos($r['ad_addr'], $search_value) !== false) $matches_any = true;
+                }
+                return $matches_any;
+            });
+        }
+
+        if (!empty($category)) {
+            $send_targets = array_filter($send_targets, function($match) use ($category) {
+                foreach ($category as $cat) {
+                    if ($cat != "" && strpos($match['recruit']['rc_work'], $cat) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        // 지역 필터링
+        $ad_addr = input_get("ad_addr", "");
+        if ($ad_addr != "") {
+            $send_targets = array_filter($send_targets, function($match) use ($ad_addr) {
+                return strpos($match['recruit']['ad_addr'], $ad_addr) !== false;
+            });
+        }
+
+        // 노출여부 필터링
+        $rc_show_yn = input_get("rc_show_yn", "");
+        if ($rc_show_yn != "") {
+            $send_targets = array_filter($send_targets, function($match) use ($rc_show_yn) {
+                return $match['recruit']['rc_show_yn'] === $rc_show_yn;
+            });
+        }
+
+        $send_targets = array_values($send_targets);
+
+        // 8. 카테고리 목록 조회
+        $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+        $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 9. 뷰에 전달
         $data = array(
             'result_list' => $send_targets,
             'result_count' => count($send_targets),
+            'search' => array(
+                'search_type'  => $search_type,
+                'search_value' => $search_value,
+                'category'     => $category,
+                'ad_addr'      => $ad_addr,
+                'rc_show_yn'   => $rc_show_yn,
+            ),
+            'select_category' => $select_category,
         );
 
         $this->layout->admin('admin/ppurio/send_sms_member', $data);
@@ -651,25 +1181,31 @@ class Ppurio extends MY_Controller{
             return;
         }
 
-        // 3. 주소 그룹핑
-        $resume_by_area = $this->match_model->groupByArea($resumes);
-        $recruit_by_area = $this->match_model->groupByArea($recruits);
+        // 3. usual 설정에서 매칭 조건 읽기 및 매칭 실행
+        $setting = $this->ppurio_setting_model->getSetting('usual');
+        $cond_str = isset($setting['mem_match_cond']) ? $setting['mem_match_cond'] : '';
+        $mem_cond_arr = $this->_parseMatchConditions($cond_str);
 
-        // 4. 매칭 결과 수집
-        $matches_for_member = array();
-        foreach ($resume_by_area as $area => $area_resumes) {
-            if (!isset($recruit_by_area[$area])) continue;
-            $area_recruits = $recruit_by_area[$area];
-
-            foreach ($area_resumes as $resume) {
-                foreach ($area_recruits as $recruit) {
-                    if ($this->match_model->isMatched($resume, $recruit)) {
-                        $matches_for_member[] = array(
-                            'resume' => $resume,
-                            'recruit' => $recruit
-                        );
+        // 4. 매칭 결과 수집 (개인 대상은 resume/recruit 순서)
+        if (in_array('area', $mem_cond_arr)) {
+            $resume_by_area  = $this->match_model->groupByArea($resumes);
+            $recruit_by_area = $this->match_model->groupByArea($recruits);
+            $matches_for_member = array();
+            foreach ($resume_by_area as $area => $area_resumes) {
+                if (!isset($recruit_by_area[$area])) continue;
+                foreach ($area_resumes as $resume) {
+                    foreach ($recruit_by_area[$area] as $recruit) {
+                        if ($this->match_model->isMatched($resume, $recruit, $mem_cond_arr)) {
+                            $matches_for_member[] = array('resume' => $resume, 'recruit' => $recruit);
+                        }
                     }
                 }
+            }
+        } else {
+            $pairs = $this->match_model->matchAllPairs($resumes, $recruits, $mem_cond_arr);
+            $matches_for_member = array();
+            foreach ($pairs as $p) {
+                $matches_for_member[] = array('resume' => $p['resume'], 'recruit' => $p['recruit']);
             }
         }
 
@@ -694,8 +1230,7 @@ class Ppurio extends MY_Controller{
                 $resume = $match['resume'];
                 $recruit = $match['recruit'];
 
-                // 중복 체크 
-                
+                // 중복 체크
                 $result = $this->db->query(
                     "SELECT ms_idx FROM st_match_alimtalk_sent
                      WHERE sender_type = 'MEM'

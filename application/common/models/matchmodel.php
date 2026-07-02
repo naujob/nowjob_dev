@@ -13,6 +13,7 @@ class Matchmodel extends CI_Model {
     public function getActiveResumes() {
         $sql = "
             SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type, r.reg_dt,
+                   r.ru_status, r.ru_show_yn, r.ru_work_dt,
                    m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
                    a.ad_addr
             FROM st_resume r
@@ -38,6 +39,7 @@ class Matchmodel extends CI_Model {
         $sql = "
             SELECT rc.rc_idx, rc.mm_idx, rc.rc_name, rc.rc_work, rc.rc_work_type, rc.rc_price_type,
                    rc.rc_sex, rc.rc_sage, rc.rc_eage, rc.rc_nation, rc.reg_dt,
+                   rc.rc_status, rc.rc_show_yn, rc.rc_sdate, rc.rc_edate,
                    m.mm_comp_name, m.mm_phone,
                    a.ad_addr
             FROM st_recruit rc
@@ -60,23 +62,26 @@ class Matchmodel extends CI_Model {
     }
 
     /**
-     * 주소를 시/구 단위로 그룹핑
-     * "인천광역시 남동구 고잔동" → "인천광역시 남동구"
+     * ad_addr 필드만 사용 - 주소를 "시/도 구/군" 단위로 그룹핑합니다.
+
+        *예: "서울특별시 강남구 역삼동" → "서울특별시 강남구"로 압축
+
+     * 
      */
-    public function groupByArea($items) {
+    public function groupByArea($items) { // items: 이력서 또는 채용공고 데이터의 배열
         $grouped = array();
         foreach ($items as $item) {
-            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
+            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : ''; // 'ad_addr' => '서울특별시 강남구 테헤란로'
             if ($addr === '') continue;
-
-            $parts = explode(' ', $addr);
+            // item:인천광역시 남동구 고잔동
+            $parts = explode(' ', $addr); // parts[0]: 시/도, parts[1]: 구/군, parts[2]: 동/읍/면 ["인천광역시", "남동구", "고잔동"]
             // 시/도 + 구/군 (처음 2단어)
             $area = (count($parts) >= 2) ? $parts[0] . ' ' . $parts[1] : $parts[0];
-
-            if (!isset($grouped[$area])) {
+            // area 인천광역시 남동구
+            if (!isset($grouped[$area])) { // 그룹이 없으면 새로 생성
                 $grouped[$area] = array();
             }
-            $grouped[$area][] = $item;
+            $grouped[$area][] = $item; //같은 지역($area)의 항목들을 배열에 추가
         }
         return $grouped;
     }
