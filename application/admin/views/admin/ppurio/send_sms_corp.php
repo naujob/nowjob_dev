@@ -168,8 +168,13 @@ $(document).ready(function(){
             return;
         }
 
+        if (selected_mm_idx.length > 1) {
+            COMMON.alert("기업은 1개만 선택해주세요.");
+            return;
+        }
+
         // 선택된 기업을 쿼리스트링으로 전달
-        var queryString = "?mm_idx=" + selected_mm_idx.join(",");
+        var queryString = "?mm_idx=" + selected_mm_idx[0];
         location.href="/admin/ppurio/sendCorPpurioSmsResume" + queryString;
     });
 });

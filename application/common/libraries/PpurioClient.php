@@ -301,41 +301,6 @@ class CI_PpurioClient
         $targets = array($target);
         $targetCount = count($targets);
 
-        // 버튼 자동 생성 (targetPath 옵션이 있으면)
-        // 카카오 알림톡의 액션 버튼: 웹링크(WL), 앱링크(AL)
-        $buttons = array();
-        if (isset($options['targetPath']) && trim((string)$options['targetPath']) !== '') {
-            $targetPath = (string)$options['targetPath'];
-            $baseUrl = 'https://nowjob.co.kr';
-
-            // 완전한 URL 구성
-            $fullUrl = $baseUrl . $targetPath;
-
-            // 앱 링크 버튼 (AL: App Link)
-            // 도메인을 nowjob:// 스킴으로 변환 (더블 슬래시 표준)
-            $appSchemeUrl = str_replace('https://nowjob.co.kr/', 'nowjob://', $fullUrl);
-            $appSchemeUrl = str_replace('https://dev.nowjob.co.kr/', 'nowjob://', $appSchemeUrl);
-            $appSchemeUrl = str_replace('http://localhost/', 'nowjob://', $appSchemeUrl);
-
-            // 앱 링크 버튼 (AL: App Link)
-            // 뿌리오 API가 요구하는 정확한 키로 구성: scheme_android, scheme_ios, url_mobile
-            $buttons[] = array(
-                'name' => '앱에서 보기',
-                'type' => 'AL',
-                'scheme_android' => $appSchemeUrl,  // 안드로이드 앱 스킴
-                'scheme_ios'     => $appSchemeUrl,  // iOS 앱 스킴
-                'url_mobile'     => $fullUrl        // 앱 미설치 시 웹 폴백 (필수!)
-            );
-
-            // 웹 링크 버튼 (WL: Web Link) - 선택사항
-            $buttons[] = array(
-                'name' => '웹에서 보기',
-                'type' => 'WL',
-                'url' => $fullUrl
-            );
-
-            //error_log('[PPURIO][BUTTON] 버튼 생성 - appScheme=' . $appSchemeUrl . ', webUrl=' . $fullUrl);
-        }
 
         // 요청 본문 구성 (뿌리오 API 문서 기준: targets 배열 구조 사용)
         $payload = array(
@@ -357,16 +322,9 @@ class CI_PpurioClient
         }
 
         // resend: 대체문자 발송 정보 (배열)
-        // 주의: 버튼과 대체문자는 동시에 지원되지 않음
         $hasResend = isset($options['resend']) && is_array($options['resend']) && !empty($options['resend']);
         if ($hasResend) {
             $payload['resend'] = $options['resend'];
-        }
-
-        // 버튼 추가 (있으면, 단 대체문자가 없을 때만)
-        // 뿌리오 정책: 버튼과 대체문자는 동시에 지원되지 않음
-        if (!empty($buttons) && !$hasResend) {
-            $payload['buttons'] = $buttons;
         }
 
         $ch = curl_init();
@@ -450,8 +408,6 @@ class CI_PpurioClient
      * @param string $recipientPhone 수신자 휴대폰 번호
      * @param array $templateVariables 템플릿 변수 (메시지 본문 내용)
      * @param array $options 추가 옵션
-     *        - targetPath: 페이지 경로 (예: /recruit/job_post/46) → 버튼 자동 생성
-     *        - name: 수신자 이름 (템플릿에서 [*이름*] 사용 시)
      *        - sendTime: 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss)
      *        - resend: 대체문자 발송 정보
      * 요구사항: messageType=ALH로 강제 지정
@@ -470,8 +426,6 @@ class CI_PpurioClient
      * @param string $recipientPhone 수신자 휴대폰 번호
      * @param array $templateVariables 템플릿 변수 (메시지 본문 내용)
      * @param array $options 추가 옵션
-     *        - targetPath: 페이지 경로 (예: /recruit/job_post/46) → 버튼 자동 생성
-     *        - name: 수신자 이름 (템플릿에서 [*이름*] 사용 시)
      *        - sendTime: 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss)
      *        - resend: 대체문자 발송 정보
      * 요구사항: messageType=ALH로 강제 지정
@@ -489,10 +443,7 @@ class CI_PpurioClient
      * 미확인 공고 알림톡 발송 (템플릿 고정)
      * @param string $recipientPhone 수신자 휴대폰 번호
      * @param array $templateVariables 템플릿 변수 배열 (메시지 본문 내용)
-     *              예: array('배달원', '시급 11,000원', '서울시 강남구') → [*1*], [*2*], [*3*]
      * @param array $options 추가 옵션
-     *        - targetPath: 페이지 경로 (예: /recruit/job_post/46) → 버튼 자동 생성
-     *        - name: 수신자 이름 (템플릿에서 [*이름*] 사용 시)
      *        - sendTime: 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss)
      *        - resend: 대체문자 발송 정보
      * 요구사항: messageType=ALT로 강제 지정 (기본 알림톡)
@@ -511,8 +462,6 @@ class CI_PpurioClient
      * @param string $recipientPhone 수신자 휴대폰 번호
      * @param array $templateVariables 템플릿 변수 배열
      * @param array $options 추가 옵션
-     *        - targetPath: 페이지 경로 (예: /chat/view/123) → 버튼 자동 생성
-     *        - name: 수신자 이름 (템플릿에서 [*이름*] 사용 시)
      *        - sendTime: 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss)
      *        - resend: 대체문자 발송 정보
      * 요구사항: messageType=ALT로 강제 지정 (기본 알림톡)

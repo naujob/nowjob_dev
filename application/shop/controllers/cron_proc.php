@@ -159,16 +159,10 @@ class Cron_proc extends CI_Controller
                 if (!$has_unread_recruit_msg) continue;
 
                 // 미확인 → 카카오 알림톡 발송
-                $templateVars = array(
-                    $row['mm_comp_name'] // var1
-                );
-
                 $result = $ppurio->sendUnreadNotificationAlimtalk(
                     $row['mm_phone'],
-                    $templateVars,
-                    array(
-                        'name' => $row['mm_comp_name']
-                    )
+                    array(),
+                    array()
                 );
 
                 $is_success = isset($result['ok']) && $result['ok'] === true;
@@ -215,8 +209,8 @@ class Cron_proc extends CI_Controller
             }
 
             // 시간 조건 확인: 1차 또는 2차 알림 시각에 해당하는가
-            $is_alarm1 = $this->_isAlarmTimeNow($setting['mem_apply_alarm1_time']);
-            $is_alarm2 = $this->_isAlarmTimeNow($setting['mem_apply_alarm2_time']);
+            $is_alarm1 = $this->_isAlarmTimeNow($setting['comp_apply_alarm1_time']);
+            $is_alarm2 = $this->_isAlarmTimeNow($setting['comp_apply_alarm2_time']);
 
             // 이 타입에서는 시간 조건이 맞지 않으면 skip
             if (!$is_alarm1 && !$is_alarm2) {
@@ -340,16 +334,10 @@ class Cron_proc extends CI_Controller
                 if (!$has_unread_recruit_msg) continue;
 
                 // 미확인 → 카카오 알림톡 발송
-                $templateVars = array(
-                    $row['mm_name'] // var1
-                );
-
                 $result = $ppurio->sendPersonalUnreadNotificationAlimtalk(
                     $row['mm_phone'],
-                    $templateVars,
-                    array(
-                        'name' => $row['mm_name']
-                    )
+                    array(),
+                    array()
                 );
 
                 $is_success = isset($result['ok']) && $result['ok'] === true;
@@ -611,21 +599,10 @@ class Cron_proc extends CI_Controller
 
             if (!empty($dup_check)) continue;
 
-            // 템플릿 변수 구성 (기업회원 템플릿: var3=이력서제목, var4=URL)
-            $corp_vars = array(
-                '', // var1
-                '', // var2
-                isset($resume['ru_name']) ? $resume['ru_name'] : '', // var3
-                site_url('resume/hr_post/' . $resume['ru_idx']) // var4
-            );
-
             $result = $ppurio->sendCorporateAlimtalk(
                 $recruit['mm_phone'],
-                $corp_vars,
-                array(
-                    'name' => isset($recruit['mm_comp_name']) ? $recruit['mm_comp_name'] : '',
-                    'targetPath' => '/resume/hr_post/' . $resume['ru_idx']  // ← 이력서 조회 페이지
-                )
+                array(),
+                array()
             );
 
             // 발송 이력 기록
@@ -688,19 +665,10 @@ class Cron_proc extends CI_Controller
 
             if (!empty($dup_check)) continue;
 
-            // 템플릿 변수 구성 (개인회원 템플릿: var1=공고명, var2=URL)
-            $personal_vars = array(
-                isset($recruit['rc_name']) ? $recruit['rc_name'] : '', // var1
-                site_url('recruit/job_post/' . $recruit['rc_idx']) // var2
-            );
-
             $result = $ppurio->sendPersonalAlimtalk(
                 $resume['mm_phone'],
-                $personal_vars,
-                array(
-                    'name' => isset($resume['mm_name']) ? $resume['mm_name'] : '',
-                    'targetPath' => '/recruit/job_post/' . $recruit['rc_idx']  // ← 채용공고 상세 페이지
-                )
+                array(),
+                array()
             );
 
             // 발송 이력 기록

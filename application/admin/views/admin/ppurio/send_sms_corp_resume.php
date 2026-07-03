@@ -9,7 +9,7 @@
 
         <div class="search-result">
             <div style="margin-bottom: 10px;">
-                <a href="/admin/ppurio/sendCorPpurioSms" class="btn-l btn-type10 w180">채용공고 목록으로</a>
+                <a href="/admin/ppurio/sendCorPpurioSms?reset=1" class="btn-l btn-type10 w180">채용공고 목록으로</a>
             </div>
 
             <table class="table-type2">
@@ -115,6 +115,7 @@ $(document).ready(function(){
         COMMON.confirm("선택한 이력서로 SMS를 발송하시겠습니까?", function() {
             var params = {};
             params["selected_ru_idx[]"] = selected_ru_idx;
+            params["selected_mm_idx"] = <?php echo json_encode($this->input->get('mm_idx')); ?>;
             comAjaxLoading("/admin/ppurio/sendCorPpurioSmsResume_proc", params, function(result) {
                 if (result.code == "00") {
                     COMMON.alert(result.msg, function() { location.reload(); });

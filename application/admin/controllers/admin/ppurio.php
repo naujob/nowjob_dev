@@ -427,8 +427,21 @@ class Ppurio extends MY_Controller{
     }
 
     // 매칭 이력서 SMS 발송 (기업 대상) - 목록 조회
+    /**
+     * 
+     *  1. 구인공고를 낸 회사
+     *  2. 그 공고와 조건이 맞는 지원자가 있는 회사
+     *  3. 이 주에 아직 SMS를 안 보낸 회사
+     */
     function sendCorPpurioSms() {
         $current_week = date('Y-W');
+
+        // reset 파라미터 확인 - 검색 조건 초기화
+        $reset = input_get("reset", "");
+        if ($reset == "1") {
+            redirect('/admin/ppurio/sendCorPpurioSms');
+            return;
+        }
 
         // 1. 활성 이력서 조회
         $resumes = $this->match_model->getActiveResumes();
@@ -552,6 +565,9 @@ class Ppurio extends MY_Controller{
             'select_category' => $select_category,
         );
 
+        // 디버깅: view로 전달할 데이터 로그 출력
+        log_message('info', '[sendCorPpurioSms] data = ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+
         $this->layout->admin('admin/ppurio/send_sms_corp', $data);
     }
 
@@ -645,6 +661,7 @@ class Ppurio extends MY_Controller{
             $selected_mm_idx = array_map('trim', explode(',', $selected_mm_idx_str));
         }
 
+
         // 1. 활성 이력서 조회
         $resumes = $this->match_model->getActiveResumes();
         // 2. 게재 중인 채용공고 조회
@@ -713,6 +730,7 @@ class Ppurio extends MY_Controller{
     // 매칭 이력서 SMS 발송 (기업 대상) - 이력서 발송 처리 (Page 2 AJAX)
     function sendCorPpurioSmsResume_proc() {
         $sent_count = 0;
+        $fail_count = 0;
         $current_week = date('Y-W');
 
         // 선택된 이력서 ru_idx 배열 수신
@@ -721,8 +739,17 @@ class Ppurio extends MY_Controller{
             $selected_ru_idx = array();
         }
 
+        // 선택된 기업 mm_idx 받기
+        $selected_mm_idx = $this->input->post("selected_mm_idx");
+
+
         if (empty($selected_ru_idx)) {
             json_return("99", "이력서를 선택해주세요.");
+            return;
+        }
+
+        if (empty($selected_mm_idx)) {
+            json_return("99", "기업을 선택해주세요.");
             return;
         }
 
@@ -759,11 +786,16 @@ class Ppurio extends MY_Controller{
             }
         }
 
-        // 6. SMS 발송 (선택된 이력서만)
+        // 6. SMS 발송 (선택된 기업 + 선택된 이력서만)
         foreach ($corp_latest as $match) {
             try {
                 $recruit = $match['recruit'];
                 $resume = $match['resume'];
+
+                // 선택된 기업인지 확인
+                if ($recruit['mm_idx'] != $selected_mm_idx) {
+                    continue;
+                }
 
                 // 선택된 이력서인지 확인
                 if (!in_array($resume['ru_idx'], $selected_ru_idx)) {
@@ -783,26 +815,32 @@ class Ppurio extends MY_Controller{
 
                 if (!empty($dup_check)) continue;
 
-                // SMS 발송
                 $sms_msg = "[나우잡] 조건에 맞는 인재가 등록되었습니다. 확인하기: " . site_url('resume/hr_post/' . $resume['ru_idx']);
-                $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
+                $send_result = $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
 
-                // 발송 이력 기록
-                $this->db->query(
-                    "INSERT INTO st_match_alimtalk_sent
-                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
-                     VALUES ('COMP', ?, ?, ?, NOW())
-                     ON DUPLICATE KEY UPDATE sent_dt = NOW()",
-                    array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
-                );
-                $sent_count++;
+                if ($send_result['code'] === '00') {
+                    $this->db->query(
+                        "INSERT INTO st_match_alimtalk_sent
+                         (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
+                         VALUES ('COMP', ?, ?, ?, NOW())
+                         ON DUPLICATE KEY UPDATE sent_dt = NOW()",
+                        array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
+                    );
+                    $sent_count++;
+                } else {
+                    $fail_count++;
+                }
 
             } catch (Exception $e) {
-                continue;
+                $fail_count++;
             }
         }
 
-        json_return("00", "발송 완료 - " . $sent_count . "건");
+        if ($fail_count > 0) {
+            json_return("00", "발송 완료 - 성공: " . $sent_count . "건, 실패: " . $fail_count . "건");
+        } else {
+            json_return("00", "발송 완료 - " . $sent_count . "건");
+        }
     }
 
     // 매칭 채용공고 SMS 발송 (개인 대상) - 채용공고 목록 조회 (Page 2)
@@ -912,8 +950,16 @@ class Ppurio extends MY_Controller{
             $selected_rc_idx = array();
         }
 
+        // 선택된 회원 mm_idx 받기
+        $selected_mm_idx = $this->input->post("selected_mm_idx");
+
         if (empty($selected_rc_idx)) {
             json_return("99", "채용공고를 선택해주세요.");
+            return;
+        }
+
+        if (empty($selected_mm_idx)) {
+            json_return("99", "회원을 선택해주세요.");
             return;
         }
 
@@ -970,11 +1016,16 @@ class Ppurio extends MY_Controller{
             }
         }
 
-        // 6. SMS 발송 (선택된 채용공고만)
+        // 6. SMS 발송 (선택된 회원 + 선택된 채용공고만)
         foreach ($member_latest as $match) {
             try {
                 $resume = $match['resume'];
                 $recruit = $match['recruit'];
+
+                // 선택된 회원인지 확인
+                if ($resume['mm_idx'] != $selected_mm_idx) {
+                    continue;
+                }
 
                 // 선택된 채용공고인지 확인
                 if (!in_array($recruit['rc_idx'], $selected_rc_idx)) {
@@ -1019,6 +1070,13 @@ class Ppurio extends MY_Controller{
     // 매칭 채용공고 SMS 발송 (개인 대상) - 목록 조회
     function sendMemPpurioSms() {
         $current_week = date('Y-W');
+
+        // reset 파라미터 확인 - 검색 조건 초기화
+        $reset = input_get("reset", "");
+        if ($reset == "1") {
+            redirect('/admin/ppurio/sendMemPpurioSms');
+            return;
+        }
 
         // 1. 활성 이력서 조회
         $resumes = $this->match_model->getActiveResumes();

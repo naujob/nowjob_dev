@@ -68,6 +68,8 @@
 
 	<script>
 		window.addEventListener('DOMContentLoaded', function() {
+			
+
 			// 기기 감지
 			var userAgent = navigator.userAgent.toLowerCase();
 			var isAndroid = /android/i.test(userAgent);
@@ -81,14 +83,16 @@
 				appStoreUrl = 'itms-apps://apps.apple.com/app/id6446226901';
 			} else {
 				// 데스크톱 등 - 웹 페이지로 폴백
-				appStoreUrl = '/recruit/job_list';
+				appStoreUrl = '/chat/chat_list';
 			}
 
 			// 로그인 상태에 따른 딥링크 생성
 			// is_app=true 파라미터로 job_list의 app-intercept-layer 팝업 숨김
 			var isLogin = <?php echo isset($is_login) ? $is_login : 'false'; ?>;
 			var appUrl = isLogin === true || isLogin === 'true'
-				? 'nowjob://recruit/job_list?is_app=true'
+				// ? 'nowjob://recruit/job_list?is_app=true'
+				? 'nowjob://chat/index_comp'
+				// : 'nowjob://chat/index_comp';
 				: 'nowjob://member/login?is_app=true';
 
 			// 딥링크로 앱 실행

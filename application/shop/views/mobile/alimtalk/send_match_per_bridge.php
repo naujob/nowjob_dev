@@ -88,7 +88,9 @@
 			// is_app=true 파라미터로 팝업 숨김
 			var isLogin = <?php echo isset($is_login) ? $is_login : 'false'; ?>;
 			var appUrl = isLogin === true || isLogin === 'true'
-				? 'nowjob://match/person?is_app=true'
+				// ? 'nowjob://recruit/job_list?is_app=true'
+				? 'nowjob://chat/chat_list'
+				// : 'nowjob://chat/index_comp';
 				: 'nowjob://member/login?is_app=true';
 
 			// 딥링크로 앱 실행
