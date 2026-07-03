@@ -9,6 +9,7 @@ class Cron_proc extends CI_Controller
         parent::__construct();
         $this->load->library('common');
         $this->load->model('matchmodel', 'match_model');
+        $this->load->model('membermodel', 'member_model');
         $this->load->model('ppuriokatalksettingmodel', 'ppurio_setting_model');
     }
 
@@ -790,5 +791,156 @@ class Cron_proc extends CI_Controller
             return array();
         }
         return explode('^', $cond_str);
+    }
+
+    // 지원/제안 접수 알림톡 배치 발송 (평일 오전/오후 2회)
+    public function send_request_alimtalk()
+    {
+        // 평일(월~금)만 처리 - 크론은 매일 고정시각 호출, 여기서 요일 필터링
+        if ((int)date('N') >= 6) { //월요일은 1, 화요일은 2, 수요일은 3, 목요일은 4, 금요일은 5, 토요일은 6, 일요일은 7
+            echo "주말 - 발송 대상 아님\n";
+            return;
+        }
+
+        $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
+        if (!file_exists($ppurioPath)) {
+            echo "PpurioClient 파일 없음\n";
+            return;
+        }
+        require_once($ppurioPath);
+        $ppurio = new CI_PpurioClient();
+
+        $total_sent = 0;
+        foreach (array('usual', 'subs') as $pks_type) {
+            $setting = $this->ppurio_setting_model->getSetting($pks_type);
+            if (empty($setting)) continue;
+
+            // RECRUIT(지원) → 채용공고 소유자(기업)에게
+            $total_sent += $this->_sendRequestBatch('RECRUIT', $setting['comp_request_alarm1_time'], $setting['comp_request_alarm2_time'], $ppurio);
+            // RESUME(제안) → 이력서 소유자(개인)에게
+            $total_sent += $this->_sendRequestBatch('RESUME', $setting['mem_request_alarm1_time'], $setting['mem_request_alarm2_time'], $ppurio);
+        }
+
+        if ($total_sent == 0) {
+            echo "발송 대상 없음\n";
+        } else {
+            echo "완료 - 발송 건수: {$total_sent}\n";
+        }
+    }
+
+    // 배치 발송 헬퍼: 시간창 계산 + 대상 조회 + 발송 처리
+    private function _sendRequestBatch($mq_type, $alarm1_time, $alarm2_time, $ppurio)
+    {
+        $is_alarm1 = $this->_isAlarmTimeNow($alarm1_time);
+        $is_alarm2 = $this->_isAlarmTimeNow($alarm2_time);
+        if (!$is_alarm1 && !$is_alarm2) return 0;
+
+        if ($is_alarm1) {
+            // 오전 배치: 직전 영업일 alarm2_time ~ 오늘 alarm1_time
+            $window_start = $this->_getPrevBusinessDay(date('Y-m-d')) . ' ' . $alarm2_time . ':00';
+            $window_end   = date('Y-m-d') . ' ' . $alarm1_time . ':00';
+        } else {
+            // 오후 배치: 오늘 alarm1_time ~ 오늘 alarm2_time
+            $window_start = date('Y-m-d') . ' ' . $alarm1_time . ':00';
+            $window_end   = date('Y-m-d') . ' ' . $alarm2_time . ':00';
+        }
+
+        $rows = $this->db->query(
+            "SELECT r.mq_idx, r.mm_idx, r.rc_idx, r.ru_idx
+             FROM st_member_request r
+             LEFT JOIN st_request_alimtalk_sent s ON s.mq_idx = r.mq_idx
+             WHERE r.mq_type = ?
+               AND r.reg_dt >= ?
+               AND r.reg_dt < ?
+               AND s.ras_idx IS NULL",
+            array($mq_type, $window_start, $window_end)
+        )->result_array();
+
+        if (empty($rows)) return 0;
+
+        return $mq_type == 'RECRUIT'
+            ? $this->_processRecruitRequestAlimtalk($rows, $ppurio)
+            : $this->_processResumeRequestAlimtalk($rows, $ppurio);
+    }
+
+    // 직전 영업일(평일) 계산
+    private function _getPrevBusinessDay($date_str)
+    {
+        $timestamp = strtotime($date_str);
+        do {
+            $timestamp = strtotime('-1 day', $timestamp);
+        } while ((int)date('N', $timestamp) >= 6);
+        return date('Y-m-d', $timestamp);
+    }
+
+    // 지원(RECRUIT) 알림톡 발송 + 이력 기록
+    private function _processRecruitRequestAlimtalk($rows, $ppurio)
+    {
+        $sent = 0;
+        foreach ($rows as $row) {
+            try {
+                $recruit_info = $this->db->query(
+                    "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_status = 'Y'",
+                    array($row['rc_idx'])
+                )->row_array();
+                if (!$recruit_info) continue;
+
+                $recruit_owner = $this->member_model->getMember(array("mm_idx" => $recruit_info["mm_idx"]));
+                if (!$recruit_owner || empty($recruit_owner["mm_phone"])) continue;
+
+                $company_name = !empty($recruit_owner["mm_comp_name"]) ? $recruit_owner["mm_comp_name"] : "";
+                $result = $ppurio->sendUnreadNotificationAlimtalk(
+                    $recruit_owner["mm_phone"],
+                    array(),
+                    array("name" => $company_name)
+                );
+
+                if (isset($result['ok']) && $result['ok'] === true) {
+                    $this->db->query(
+                        "INSERT IGNORE INTO st_request_alimtalk_sent (mq_idx, mq_type, sent_dt) VALUES (?, 'RECRUIT', NOW())",
+                        array($row['mq_idx'])
+                    );
+                    $sent++;
+                }
+            } catch (Exception $e) {
+                log_message('error', '[PPURIO][send_request_alimtalk][RECRUIT] mq_idx=' . $row['mq_idx'] . ' ' . $e->getMessage());
+            }
+            usleep(100000);
+        }
+        return $sent;
+    }
+
+    // 제안(RESUME) 알림톡 발송 + 이력 기록
+    private function _processResumeRequestAlimtalk($rows, $ppurio)
+    {
+        $sent = 0;
+        foreach ($rows as $row) {
+            try {
+                $target_resume = $this->member_model->getResume(array("ru_idx" => $row['ru_idx']));
+                if (!$target_resume) continue;
+
+                $target_member = $this->member_model->getMember(array("mm_idx" => $target_resume["mm_idx"]));
+                if (!$target_member || empty($target_member["mm_phone"])) continue;
+
+                $candidate_name = !empty($target_member["mm_name"]) ? $target_member["mm_name"] : "";
+                $result = $ppurio->sendPersonalUnreadNotificationAlimtalk(
+                    $target_member["mm_phone"],
+                    array(),
+                    array("name" => $candidate_name)
+                );
+
+                if (isset($result['ok']) && $result['ok'] === true) {
+                    $this->db->query(
+                        "INSERT IGNORE INTO st_request_alimtalk_sent (mq_idx, mq_type, sent_dt) VALUES (?, 'RESUME', NOW())",
+                        array($row['mq_idx'])
+                    );
+                    $sent++;
+                }
+            } catch (Exception $e) {
+                log_message('error', '[PPURIO][send_request_alimtalk][RESUME] mq_idx=' . $row['mq_idx'] . ' ' . $e->getMessage());
+            }
+            usleep(100000);
+        }
+        return $sent;
     }
 }

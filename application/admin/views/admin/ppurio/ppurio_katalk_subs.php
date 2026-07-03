@@ -30,6 +30,24 @@
                 </tbody>
             </table>
 
+            <!-- 지원 접수 알림 -->
+            <h4 class="sub-title-sm mb-10 mt-30">지원 접수 알림</h4>
+            <table class="table-form table-katalk">
+                <tbody>
+                <tr>
+                    <th class="td-label">카카오 채널 발송</th>
+                    <th class="td-label">오전 배치<em class="ess"></em></th>
+                    <td>
+                        <input type="time" id="comp_request_alarm1_time" name="comp_request_alarm1_time" value="<?=getData($info,"comp_request_alarm1_time","")?>" />
+                    </td>
+                    <th class="td-label">오후 배치<em class="ess"></em></th>
+                    <td>
+                        <input type="time" id="comp_request_alarm2_time" name="comp_request_alarm2_time" value="<?=getData($info,"comp_request_alarm2_time","")?>" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
             <!-- 이력서 매칭 알림 -->
             <h4 class="sub-title-sm mb-10 mt-30">이력서 매칭 알림</h4>
             <table class="table-form table-katalk">
@@ -100,6 +118,24 @@
                         <div class="input-radio">
                             <?=inputRadio("mem_apply_unread_day","mem_apply_unread_day",["2"=>"2일 후","3"=>"3일 후","7"=>"7일 후"],getData($info,"mem_apply_unread_day"))?>
                         </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- 제안 접수 알림 -->
+            <h4 class="sub-title-sm mb-10 mt-30">제안 접수 알림</h4>
+            <table class="table-form table-katalk">
+                <tbody>
+                <tr>
+                    <th class="td-label">카카오 채널 발송</th>
+                    <th class="td-label">오전 배치<em class="ess"></em></th>
+                    <td>
+                        <input type="time" id="mem_request_alarm1_time" name="mem_request_alarm1_time" value="<?=getData($info,"mem_request_alarm1_time","")?>" />
+                    </td>
+                    <th class="td-label">오후 배치<em class="ess"></em></th>
+                    <td>
+                        <input type="time" id="mem_request_alarm2_time" name="mem_request_alarm2_time" value="<?=getData($info,"mem_request_alarm2_time","")?>" />
                     </td>
                 </tr>
                 </tbody>
