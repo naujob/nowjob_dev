@@ -366,53 +366,84 @@
                     border-color: #1abc9c;
                 }
 
-                /* 희망지역 검색창 스타일 */
-                .address-search-box {
-                    position: relative;
-                    margin-bottom: 12px;
-                    height: var(--rw-input-height);
-                    cursor: pointer;
-                    width: 100%;
+                /* 희망지역 필드 그룹 */
+                .rw-location-field-group {
+                    margin-top: 0;
                 }
 
-                .address-search-box .addr-search-input {
-                    width: 100%;
-                    border: 1px solid #ddd;
-                    border-radius: var(--rw-border-radius);
-                    padding: 12px 16px 12px 16px;
-                    padding-right: 50px;
-                    height: 100%;
-                    font-size: var(--rw-input-font-size);
-                    background: #fff;
-                    color: #999;
-                    box-sizing: border-box;
-                }
-
-                .address-search-box .btn-search-icon {
-                    position: absolute;
-                    right: 12px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    width: 30px;
-                    height: 30px;
-                    border: none;
-                    background: none;
+                .rw-added-location {
+                    list-style: none;
+                    margin: 0;
                     padding: 0;
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
+                    flex-wrap: wrap;
+                    gap: 12px;
                 }
 
-                .address-search-box .btn-search-icon img {
+                .rw-added-location .rw-location-field-item {
+                    position: relative;
+                    flex: 0 1 calc(50% - 6px);
+                    height: var(--rw-input-height);
+                    padding: 0 2.5rem 0 1rem;
+                    display: flex;
+                    align-items: center;
+                    font-size: 16px;
+                    font-weight: 400;
+                    color: #222;
+                    border: 1px solid var(--rw-border-color);
+                    border-radius: var(--rw-border-radius);
+                    background: #fff;
+                }
+
+                .rw-added-location .rw-location-field-item .location-text {
+                    display: block;
+                    width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .rw-added-location .rw-location-field-item .btn-clear {
+                    position: absolute;
+                    top: 50%;
+                    right: 0.75rem;
+                    width: 1.5rem;
+                    height: 1.5rem;
+                    margin: 0;
+                    padding: 0;
+                    transform: translateY(-50%);
+                    border: 0;
+                    background: transparent;
+                    background-image: url("/resource/shop/web/img/ic_clear2.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: contain;
+                    cursor: pointer;
+                    text-indent: -9999px;
+                    overflow: hidden;
+                }
+
+                .rw-added-location .rw-location-field-add {
+                    padding: 0;
+                    border: 1px solid var(--rw-border-color);
+                    background: #fff;
+                }
+
+                .rw-added-location .rw-location-add-btn {
+                    display: flex;
                     width: 100%;
                     height: 100%;
+                    align-items: center;
+                    justify-content: center;
+                    text-decoration: none;
+                    color: #222;
                 }
 
-                /* 자식 요소들이 클릭 이벤트를 부모에 전달하도록 설정 */
-                .address-search-box .addr-search-input,
-                .address-search-box .btn-search-icon {
-                    pointer-events: none;
+                .rw-added-location .rw-location-add-btn .add-icon {
+                    font-size: 2rem;
+                    font-weight: 300;
+                    line-height: 1;
+                    color: var(--rw-border-color);
                 }
 
                 /* 희망연봉 영역 - 기존 인라인 스타일 대체 */
@@ -1067,10 +1098,6 @@
                     display: block;
                 }
 
-                /* 희망지역 목록의 주소 텍스트 숨김 (검색창에만 표시) */
-                #addr_location .addr-display {
-                    display: none;
-                }
 
                 .rw-intro-strength .form-group[class*=col-] .btn {
                     width: 95%;
@@ -1182,28 +1209,13 @@
                                     <div class="rw-form-row">
                                         <p class="rw-label">희망지역</p>
                                         <div class="rw-value">
-                                            <div class="form-group">
-                                                <div class="address-search-box js-add-address" role="button" aria-haspopup="dialog" aria-controls="changeArea">
-                                                    <input type="text" id="addr_search" placeholder="희망지역을 입력해주세요" class="addr-search-input">
-                                                    <button type="button" class="btn-search-icon">
-                                                        <i class="fas fa-search addr-search-icon"></i>
-                                                    </button>
-                                                </div>
-                                                <ul class="added-location" id="addr_location">
-                                                    <?php foreach ($addr_list as $row) : ?>
-                                                        <?php if (!empty($row["ad_addr"])) : ?>
-                                                            <li>
-                                                                <input type="hidden" name="ad_zipcode[]" value="<?= $row["ad_zip_code"] ?>" />
-                                                                <input type="hidden" name="ad_jibun[]" value="<?= $row["ad_jibun"] ?>" />
-                                                                <input type="hidden" name="ad_doro[]" value="<?= $row["ad_doro"] ?>" />
-                                                                <input type="hidden" name="ad_addr[]" value="<?= $row["ad_addr"] ?>" />
-                                                                <input type="hidden" name="ad_gps_x[]" value="<?= $row["ad_gps_x"] ?>" />
-                                                                <input type="hidden" name="ad_gps_y[]" value="<?= $row["ad_gps_y"] ?>" />
-                                                                <p class="addr-display"><?= $row["ad_addr"] ?></p>
-                                                                <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
-                                                            </li>
-                                                        <?php endif; ?>
-                                                    <?php endforeach; ?>
+                                            <div class="rw-location-field-group">
+                                                <ul class="rw-added-location" id="addr_location">
+                                                    <li class="rw-location-field-item rw-location-field-add">
+                                                        <a href="javascript:void(0);" class="rw-location-add-btn js-add-address" role="button" aria-haspopup="dialog" aria-controls="changeArea">
+                                                            <span class="add-icon">+</span>
+                                                        </a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -1784,37 +1796,100 @@
 </main><!-- //page-content -->
 </div><!-- //page -->
 <script>
-    // 주소 검색창에 선택된 주소 목록 표시
-    function updateAddressDisplay() {
-        var locationList = $("#addr_location li").map(function() {
-            var addrDisplay = $(this).find('p.addr-display').text().trim();
-            return addrDisplay;
-        }).get();
-        // 빈 문자열 제거
-        locationList = locationList.filter(function(item) {
-            return item.length > 0;
+    // 서버에서 받은 주소 데이터를 JavaScript 변수로 전달
+    var serverAddrList = <?= (isset($addr_list) && is_array($addr_list)) ? json_encode($addr_list, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : '[]' ?>;
+
+    // 주소 아이템 HTML 생성
+    function createAddressListItem(addrData) {
+        if (!addrData || !addrData.ad_addr) return "";
+        var zipcode = addrData.ad_zip_code ? addrData.ad_zip_code : "";
+        var jibun = addrData.ad_jibun ? addrData.ad_jibun : "";
+        var doro = addrData.ad_doro ? addrData.ad_doro : "";
+        var gpsX = addrData.ad_gps_x ? addrData.ad_gps_x : "";
+        var gpsY = addrData.ad_gps_y ? addrData.ad_gps_y : "";
+
+        // 주소 정리 함수로 지번 주소를 정리하여 표시
+        var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
+
+        return '' +
+            '<li class="rw-location-field-item">' +
+            '<input type="hidden" name="ad_zipcode[]" value="' + zipcode + '" />' +
+            '<input type="hidden" name="ad_jibun[]" value="' + jibun + '" />' +
+            '<input type="hidden" name="ad_doro[]" value="' + doro + '" />' +
+            '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />' +
+            '<input type="hidden" name="ad_gps_x[]" value="' + gpsX + '" />' +
+            '<input type="hidden" name="ad_gps_y[]" value="' + gpsY + '" />' +
+            '<span class="location-text">' + displayAddr + '</span>' +
+            '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>' +
+            '</li>';
+    }
+
+    // 추가 버튼 상태 관리
+    function ensureAddressAddButton(currentCount) {
+        var $list = $("#addr_location");
+        $list.find(".rw-location-field-add").remove();
+        if (currentCount < 2) {
+            var addHtml = '' +
+                '<li class="rw-location-field-item rw-location-field-add">' +
+                '<a href="javascript:void(0);" class="rw-location-add-btn js-add-address" role="button" aria-haspopup="dialog" aria-controls="changeArea">' +
+                '<span class="add-icon">+</span>' +
+                '</a>' +
+                '</li>';
+            $list.append(addHtml);
+        }
+    }
+
+    // 서버에서 받은 주소 데이터 로드
+    function loadServerAddressData() {
+        if (!Array.isArray(serverAddrList) || serverAddrList.length === 0) {
+            ensureAddressAddButton(0);
+            return;
+        }
+        var $list = $("#addr_location");
+        $list.find(".rw-location-field-item:not(.rw-location-field-add)").remove();
+        var count = 0;
+        serverAddrList.forEach(function(item) {
+            if (!item || !item.ad_addr) {
+                return;
+            }
+            var html = createAddressListItem(item);
+            if (html !== "") {
+                $list.append(html);
+                count++;
+            }
         });
-        $("#addr_search").val(locationList.join(', '));
-        console.log('주소 업데이트:', locationList);
+        ensureAddressAddButton(count);
     }
 
     // 검색 완료 선택 처리
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y) {
-        // 2025.02.10 위치 보안: 상세 주소 대신 동네 중심점 좌표 저장
-        var geocoder = new kakao.maps.services.Geocoder();
+        var currentCount = $("#addr_location .rw-location-field-item:not(.rw-location-field-add)").length;
 
+        if (currentCount >= 2) {
+            commonAlert("희망지역은 2개까지 등록 가능합니다.", function() {});
+            $("#changeArea").removeClass("on");
+            return;
+        }
+
+        // 2025.02.10 위치 보안: 상세 주소 대신 동네 중심점 좌표 저장
+        var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
+        if (!geocoderAvailable) {
+            finalizeAddrInfo(x, y);
+            return;
+        }
+
+        var geocoder = new kakao.maps.services.Geocoder();
         // 지번 주소에서 번지 및 그 뒤의 건물명 등을 모두 제거하고 동(읍/면)까지만 추출
         // 예: "경기도 시흥시 정왕동 1866-1 정왕3동주민센터" -> "경기도 시흥시 정왕동"
-        // 숫자(번지)가 나오기 직전까지만 잘라냄
         var dongAddr = jibun;
-        var match = jibun.match(/^(.*?)(\d+[\d\-]*)/); // 숫자(번지) 시작 부분 찾기
+        var match = jibun.match(/^(.*?)(\d+[\d\-]*)/);
         if (match) {
             dongAddr = match[1].trim();
         }
 
         geocoder.addressSearch(dongAddr, function(result, status) {
-            var finalX = x; // 기본값: 원래 받아온 x
-            var finalY = y; // 기본값: 원래 받아온 y
+            var finalX = x;
+            var finalY = y;
 
             if (status === kakao.maps.services.Status.OK) {
                 if (result[0].x && result[0].y) {
@@ -1823,98 +1898,118 @@
                 }
             }
 
-            // ---------- 기존 주소 추가 로직 ----------
-            // 주소 정리 함수로 지번 주소를 정리하여 표시
-            var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
-            // 지역+"전체" 제거 (예: "서울 강남구 전체" -> "서울 강남구")
-            displayAddr = displayAddr.replace(/\s+전체\s*$/, '');
-
-            var html = "";
-            html += '<li>';
-            html += '<input type="hidden" name="ad_zipcode[]" value="' + zipcode + '" />';
-            html += '<input type="hidden" name="ad_jibun[]" value="' + jibun + '" />';
-            html += '<input type="hidden" name="ad_doro[]" value="' + doro + '" />';
-            // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
-            html += '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />';
-
-            // 여기서 변경된 좌표(finalX, finalY)를 사용
-            html += '<input type="hidden" name="ad_gps_x[]" value="' + finalX + '" />';
-            html += '<input type="hidden" name="ad_gps_y[]" value="' + finalY + '" />';
-
-            html += '<p class="addr-display">' + displayAddr + '</p>';
-            html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
-            html += '</li>';
-
-            $("#addr_location").append(html);
-
-            // 주소 검색창에 선택된 지역 표시
-            updateAddressDisplay();
-
-            //팝업 종료
-            $("#changeArea").removeClass("on");
-            $("#changeArea")[0].hidden = true;
-            // body 스크롤 잠금 해제
-            document.body.style.overflow = '';
+            finalizeAddrInfo(finalX, finalY);
         });
+
+        function finalizeAddrInfo(finalX, finalY) {
+            var item = {
+                ad_zip_code: zipcode,
+                ad_jibun: jibun,
+                ad_doro: doro,
+                ad_addr: jibun,
+                ad_gps_x: finalX,
+                ad_gps_y: finalY
+            };
+            var html = createAddressListItem(item);
+            if (html === "") {
+                $("#changeArea").removeClass("on");
+                return;
+            }
+
+            var $addBtn = $("#addr_location .rw-location-field-add");
+            if ($addBtn.length > 0) {
+                $addBtn.before(html);
+            } else {
+                $("#addr_location").append(html);
+            }
+
+            ensureAddressAddButton($("#addr_location .rw-location-field-item:not(.rw-location-field-add)").length);
+            $("#changeArea").removeClass("on");
+        }
     }
 
     // 새 팝업(addr_popup2025_new.php)의 "적용하기" 콜백 처리
     window.onChangeAreaApply = function(data) {
         if (!data || !data.searchArea || data.searchArea.length === 0) return true;
 
-        var maxlen = 2;
-        if ($("#addr_location li").length >= maxlen) {
-            commonAlert("희망지역은 " + maxlen + "개까지 등록 가능합니다.", function() {});
+        var searchArea = data.searchArea || [];
+        var maxCount = 2;
+        var currentCount = $("#addr_location .rw-location-field-item:not(.rw-location-field-add)").length;
+        var remaining = maxCount - currentCount;
+
+        if (searchArea.length === 0) return true;
+
+        // 2개 초과 선택 시 앞에서 remaining개만 처리
+        var toProcess = searchArea.slice(0, remaining);
+        if (toProcess.length === 0) {
+            commonAlert("희망지역은 2개까지 등록 가능합니다.", function() {});
             return true;
         }
+        if (searchArea.length > toProcess.length) {
+            commonAlert("희망지역은 최대 2개까지 등록됩니다. 앞의 " + toProcess.length + "개만 적용됩니다.", function() {});
+        }
 
-        $.each(data.searchArea, function(i, area) {
-            if ($("#addr_location li").length >= maxlen) return false;
+        var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
 
-            var addr = area.addr || '';
-            // 표시용 주소: fRemoveBigAdrJS가 있으면 정리, 없으면 addrNames 값 사용
-            var displayAddr = '';
-            if (typeof fRemoveBigAdrJS === 'function') {
-                displayAddr = fRemoveBigAdrJS(addr);
+        function addAddrFromRegion(addr, x, y) {
+            var item = {
+                ad_zip_code: "",
+                ad_jibun: addr,
+                ad_doro: "",
+                ad_addr: addr,
+                ad_gps_x: x,
+                ad_gps_y: y
+            };
+            var html = createAddressListItem(item);
+            if (html === "") return;
+            var $addBtn = $("#addr_location .rw-location-field-add");
+            if ($addBtn.length > 0) {
+                $addBtn.before(html);
             } else {
-                displayAddr = (data.addrNames && data.addrNames[i]) ? data.addrNames[i] : addr;
+                $("#addr_location").append(html);
             }
-            // 지역+"전체" 제거 (예: "서울 강남구 전체" -> "서울 강남구")
-            displayAddr = displayAddr.replace(/\s+전체\s*$/, '');
+            var newCount = $("#addr_location .rw-location-field-item:not(.rw-location-field-add)").length;
+            ensureAddressAddButton(newCount);
+        }
 
-            var html = '<li>';
-            html += '<input type="hidden" name="ad_zipcode[]" value="" />';
-            html += '<input type="hidden" name="ad_jibun[]" value="' + addr + '" />';
-            html += '<input type="hidden" name="ad_doro[]" value="" />';
-            html += '<input type="hidden" name="ad_addr[]" value="' + addr + '" />';
-            html += '<input type="hidden" name="ad_gps_x[]" value="" />';
-            html += '<input type="hidden" name="ad_gps_y[]" value="" />';
-            html += '<p class="addr-display">' + displayAddr + '</p>';
-            html += '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>';
-            html += '</li>';
+        function processItem(addr) {
+            if (!geocoderAvailable) {
+                addAddrFromRegion(addr, "", "");
+                return;
+            }
+            var geocoder = new kakao.maps.services.Geocoder();
+            geocoder.addressSearch(addr, function(result, status) {
+                var x = "", y = "";
+                if (status === kakao.maps.services.Status.OK && result[0]) {
+                    x = result[0].x;
+                    y = result[0].y;
+                }
+                addAddrFromRegion(addr, x, y);
+            });
+        }
 
-            $("#addr_location").append(html);
+        toProcess.forEach(function(item) {
+            processItem(item.addr);
         });
 
-        updateAddressDisplay();
         return true;
     };
 
     function showAddrInfo(maxlen) {
-        if ($("#addr_location").find("li").length >= maxlen) {
+        var currentCount = $("#addr_location .rw-location-field-item:not(.rw-location-field-add)").length;
+        if (currentCount >= maxlen) {
             commonAlert("희망지역은 " + maxlen + "개까지 등록 가능합니다.", function() {});
             return;
         }
-        // resume_write 페이지에서 "전체" 항목 제거
         window.__hideAllRegionsInAddrPopup = true;
+        if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
+            window.applyAddrPopupAllRegionFilter();
+        }
 
         var $panel = $("#changeArea");
-        // 패널을 열 때 hidden 속성 제거 및 on 클래스 추가
         $panel[0].hidden = false;
         $panel.addClass("on");
-        // body 스크롤 잠금
         document.body.style.overflow = 'hidden';
-        // 포커스 설정
         setTimeout(function() {
             $panel[0].focus();
         }, 100);
@@ -1977,7 +2072,7 @@
                 return;
             }
 
-            if ($("#addr_location").find("li").length > 0) {
+            if ($("#addr_location .rw-location-field-item:not(.rw-location-field-add)").length > 0) {
                 clearAutofillPayload();
                 return;
             }
@@ -2049,28 +2144,18 @@
             showAddrInfo(2);
         });
 
-        // 페이지 로드 시 기존 주소들을 주소 정리 함수로 처리하여 표시
-        if (typeof fRemoveBigAdrJS === 'function') {
-            $("#addr_location .addr-display").each(function() {
-                var $display = $(this);
-                var $li = $display.closest("li");
-                var jibun = $li.find('input[name="ad_jibun[]"]').val();
-                if (jibun) {
-                    $display.text(fRemoveBigAdrJS(jibun));
-                }
-            });
-        }
+        // 페이지 로드 시 서버 주소 데이터 로드
+        $(document).ready(function() {
+            loadServerAddressData();
+        });
 
-        // 초기 로드 시 주소 표시 (약간의 지연으로 DOM 완전 로드 보장)
-        setTimeout(function() {
-            updateAddressDisplay();
-        }, 100);
-
-        // 주소 삭제 시 검색창 업데이트
+        // 주소 삭제 시 버튼 상태 업데이트
         $(document).on('click', '#addr_location .js-del-item', function(e) {
             e.preventDefault();
-            $(this).closest('li').remove();
-            updateAddressDisplay();
+            var $item = $(this).closest(".rw-location-field-item");
+            var currentCount = $("#addr_location .rw-location-field-item:not(.rw-location-field-add)").length;
+            $item.remove();
+            ensureAddressAddButton(currentCount - 1);
         });
 
         <?php
@@ -2105,7 +2190,7 @@
                 return;
             }
 
-            if ($("#addr_location li").filter(function() {
+            if ($("#addr_location .rw-location-field-item:not(.rw-location-field-add)").filter(function() {
                     return $(this).find('input[name="ad_addr[]"]').val().trim() !== "";
                 }).length == 0) {
                 commonAlert("희망지역을 선택해주세요.", function() {});

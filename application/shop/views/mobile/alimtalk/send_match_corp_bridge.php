@@ -81,13 +81,14 @@
 				appStoreUrl = 'itms-apps://apps.apple.com/app/id6446226901';
 			} else {
 				// 데스크톱 등 - 웹 페이지로 폴백
-				appStoreUrl = '/match/corp';
+				appStoreUrl = '/recruit/job_list';
 			}
 
 			// 로그인 상태에 따른 딥링크 생성
 			// is_app=true 파라미터로 팝업 숨김
 			var isLogin = <?php echo isset($is_login) ? $is_login : 'false'; ?>;
-			var appUrl = isLogin === true || isLogin === 'true'
+			var isCorp = <?php echo isset($is_corp) ? $is_corp : 'false'; ?>;
+			var appUrl = (isLogin === true || isLogin === 'true') && (isCorp === true || isCorp === 'true')
 				// ? 'nowjob://recruit/job_list?is_app=true'
 				? 'nowjob://chat/index_comp'
 				// : 'nowjob://chat/index_comp';
