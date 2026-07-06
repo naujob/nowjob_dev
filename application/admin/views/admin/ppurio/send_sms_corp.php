@@ -28,24 +28,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">지역</th>
+                    <th scope="row">국적</th>
                     <td class="inline-wrap">
-                        <input  type="text" name="ad_addr" placeholder="지역을 입력해주세요." value="<?=isset($search["ad_addr"]) ? htmlspecialchars($search["ad_addr"]) : ""?>" />
+                        <?=inputRadio("rc_nation","rc_nation",[""=>"전체","내국인"=>"내국인","외국인"=>"외국인"],$search["rc_nation"])?>
                     </td>
-                    <th scope="row">노출여부</th>
+                    <th scope="row">성별</th>
                     <td class="inline-wrap">
-                        <label class="input-radio">
-                            <input type="radio" name="rc_show_yn" value="" <?=(!isset($search["rc_show_yn"]) || $search["rc_show_yn"] === "") ? "checked" : ""?> />
-                            <span>전체</span>
-                        </label>
-                        <label class="input-radio">
-                            <input type="radio" name="rc_show_yn" value="Y" <?=(isset($search["rc_show_yn"]) && $search["rc_show_yn"] === "Y") ? "checked" : ""?> />
-                            <span>노출</span>
-                        </label>
-                        <label class="input-radio">
-                            <input type="radio" name="rc_show_yn" value="N" <?=(isset($search["rc_show_yn"]) && $search["rc_show_yn"] === "N") ? "checked" : ""?> />
-                            <span>비노출</span>
-                        </label>
+                        <?=inputRadio("rc_sex","rc_sex",[""=>"전체","남자"=>"남자","여자"=>"여자"],$search["rc_sex"])?>
                     </td>
                 </tr>
                 </tbody>

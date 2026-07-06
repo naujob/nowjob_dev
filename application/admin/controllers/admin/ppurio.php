@@ -209,190 +209,7 @@ class Ppurio extends MY_Controller{
         $this->excel->setFooter($file_name);
     }
 
-    // 지원자 알림 SMS 발송 - 목록 조회
-    // MongoDB에서 미확인 채팅 메시지가 있는 채팅방 필터링 및 표시
-    function sendPpurioSmsUnread() {
-        // 1. rc_idx > 0인 채팅방 중 발송 대상 조회 (현재 시간대 무관 - 모든 대상)
-        $base_where = "
-            WHERE r.rc_idx > 0
-              AND m.mm_type = 'COMP'
-              AND m.mm_status = 'Y'
-              AND m.mm_agree_ad = 'Y'
-              AND m.alarm_apply = 'Y'
-              AND m.mm_phone != ''
-        ";
-
-        // 발송되지 않은 대상 또는 3일 이상 지난 대상
-        $time_where = "
-          AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL 3 DAY))
-        ";
-
-        $where_condition = $base_where . $time_where;
-
-        $rooms = $this->db->query("
-            SELECT r.rm_idx, r.rc_idx, r.ru_idx,
-                   rc.mm_idx AS comp_mm_idx,
-                   m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
-            FROM st_room r
-            INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
-            INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
-            LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
-            {$where_condition}
-        ")->result_array();
-
-        // 2. MongoDB 접근하여 미확인 메시지 여부 확인
-        $send_targets = array();
-        if (!empty($rooms)) {
-            $uri = get_mongo_uri();
-            $dbName = get_mongo_db_name();
-
-            try {
-                @$mongo = new Mongo($uri);
-                $db = $mongo->$dbName;
-                $collection = $db->room;
-
-                foreach ($rooms as $row) {
-                    $room = $collection->findOne(array('rm_idx' => (int)$row['rm_idx']));
-                    if (!$room || !isset($room['rm_messages']) || empty($room['rm_messages'])) {
-                        continue;
-                    }
-
-                    // chat_type="recruit"인 메시지 중 기업회원이 읽지 않은 것이 있는지 확인
-                    $has_unread_recruit_msg = false;
-                    foreach ($room['rm_messages'] as $msg) {
-                        if (!isset($msg['chat_type']) || $msg['chat_type'] != 'recruit') {
-                            continue;
-                        }
-                        if (!isset($msg['mg_reads'])) continue;
-
-                        foreach ($msg['mg_reads'] as $read) {
-                            if (isset($read['user_id']) && $read['user_id'] == $row['comp_mm_id']
-                                && isset($read['read_yn']) && $read['read_yn'] == 'N') {
-                                $has_unread_recruit_msg = true;
-                                break 2;
-                            }
-                        }
-                    }
-
-                    if ($has_unread_recruit_msg) {
-                        $send_targets[] = $row;
-                    }
-                }
-            } catch (Exception $e) {
-                echo "MongoDB 연결 오류: " . $e->getMessage() . "\n";
-                return;
-            }
-        }
-
-        // 3. 뷰에 전달
-        $data = array(
-            'result_list' => $send_targets,
-            'result_count' => count($send_targets),
-        );
-
-        $this->layout->admin('admin/ppurio/send_sms_unread', $data);
-    }
-
-    // 지원자 알림 SMS 발송 - 발송 처리 (AJAX)
-    // 미확인 채팅 메시지가 있는 기업에 SMS 발송 및 발송이력 기록
-    function sendPpurioSmsUnread_proc() {
-        $sent_count = 0;
-
-        // 1. rc_idx > 0인 채팅방 중 발송 대상 조회
-        $base_where = "
-            WHERE r.rc_idx > 0
-              AND m.mm_type = 'COMP'
-              AND m.mm_status = 'Y'
-              AND m.mm_agree_ad = 'Y'
-              AND m.alarm_apply = 'Y'
-              AND m.mm_phone != ''
-        ";
-        // 발송되지 않은 대상 또는 3일 이상 지난 대상
-        $time_where = "
-          AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL 3 DAY))
-        ";
-
-        $where_condition = $base_where . $time_where;
-
-        $rooms = $this->db->query("
-            SELECT r.rm_idx, r.rc_idx, r.ru_idx,
-                   rc.mm_idx AS comp_mm_idx,
-                   m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
-            FROM st_room r
-            INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
-            INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
-            LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
-            {$where_condition}
-        ")->result_array();
-
-        if (empty($rooms)) {
-            json_return("99", "발송 대상이 없습니다.");
-            return;
-        }
-
-        // 2. MongoDB 접근
-        $uri = get_mongo_uri();
-        $dbName = get_mongo_db_name();
-
-        try {
-            @$mongo = new Mongo($uri);
-            $db = $mongo->$dbName;
-            $collection = $db->room;
-        } catch (Exception $e) {
-            json_return("99", "MongoDB 연결 오류: " . $e->getMessage());
-            return;
-        }
-
-        // 3. 각 채팅방에서 chat_type="recruit"인 미확인 메시지 확인 후 SMS 발송
-        foreach ($rooms as $row) {
-            try {
-                $room = $collection->findOne(array('rm_idx' => (int)$row['rm_idx']));
-                if (!$room || !isset($room['rm_messages']) || empty($room['rm_messages'])) {
-                    continue;
-                }
-
-                // chat_type="recruit"인 메시지 중 기업회원이 읽지 않은 것이 있는지 확인
-                $has_unread_recruit_msg = false;
-                foreach ($room['rm_messages'] as $msg) {
-                    if (!isset($msg['chat_type']) || $msg['chat_type'] != 'recruit') {
-                        continue;
-                    }
-                    if (!isset($msg['mg_reads'])) continue;
-
-                    foreach ($msg['mg_reads'] as $read) {
-                        if (isset($read['user_id']) && $read['user_id'] == $row['comp_mm_id']
-                            && isset($read['read_yn']) && $read['read_yn'] == 'N') {
-                            $has_unread_recruit_msg = true;
-                            break 2;
-                        }
-                    }
-                }
-
-                if (!$has_unread_recruit_msg) continue;
-
-                // 미확인 → SMS 발송
-                $sms_msg = "[나우잡] 확인하지 않은 지원자가 있습니다. 확인하기: " . site_url('resume/hr_post/' . $row['ru_idx']);
-                $this->common->sendNotificationSms($row['mm_phone'], $sms_msg);
-
-                // 발송 이력 기록
-                $this->db->query(
-                    "INSERT INTO st_alimtalk_sent (rm_idx, comp_mm_idx, sent_dt, sent_count)
-                     VALUES (?, ?, NOW(), 1)
-                     ON DUPLICATE KEY UPDATE sent_dt = NOW(), sent_count = sent_count + 1",
-                    array($row['rm_idx'], $row['comp_mm_idx'])
-                );
-
-                $sent_count++;
-
-            } catch (Exception $e) {
-                continue;
-            }
-        }
-
-        json_return("00", "발송 완료 - " . $sent_count . "건");
-    }
-
-    // 헬퍼: ^ 구분자로 조건 배열 파싱
+// 헬퍼: ^ 구분자로 조건 배열 파싱
     private function _parseMatchConditions($cond_str) {
         if ($cond_str === '' || $cond_str === null) return array();
         return explode('^', $cond_str); // 문자열 -> 배열 리턴
@@ -490,19 +307,19 @@ class Ppurio extends MY_Controller{
             });
         }
 
-        // 지역 필터링
-        $ad_addr = input_get("ad_addr", "");
-        if ($ad_addr != "") {
-            $result_list = array_filter($result_list, function($row) use ($ad_addr) {
-                return strpos($row['ad_addr'], $ad_addr) !== false;
+        // 국적 필터링 (콤마 구분 다중값, 부분 일치)
+        $rc_nation = input_get("rc_nation", "");
+        if ($rc_nation != "") {
+            $result_list = array_filter($result_list, function($row) use ($rc_nation) {
+                return strpos($row['rc_nation'], $rc_nation) !== false;
             });
         }
 
-        // 노출여부 필터링
-        $rc_show_yn = input_get("rc_show_yn", "");
-        if ($rc_show_yn != "") {
-            $result_list = array_filter($result_list, function($row) use ($rc_show_yn) {
-                return $row['rc_show_yn'] === $rc_show_yn;
+        // 성별 필터링 (콤마 구분 다중값, 부분 일치)
+        $rc_sex = input_get("rc_sex", "");
+        if ($rc_sex != "") {
+            $result_list = array_filter($result_list, function($row) use ($rc_sex) {
+                return strpos($row['rc_sex'], $rc_sex) !== false;
             });
         }
 
@@ -520,8 +337,8 @@ class Ppurio extends MY_Controller{
                 'search_type'  => $search_type,
                 'search_value' => $search_value,
                 'category'     => $category,
-                'ad_addr'      => $ad_addr,
-                'rc_show_yn'   => $rc_show_yn,
+                'rc_nation'    => $rc_nation,
+                'rc_sex'       => $rc_sex,
             ),
             'select_category' => $select_category,
         );
@@ -797,17 +614,19 @@ class Ppurio extends MY_Controller{
             });
         }
 
-        $ad_addr = input_get("ad_addr", "");
-        if ($ad_addr != "") {
-            $resumes = array_filter($resumes, function($r) use ($ad_addr) {
-                return strpos($r['ad_addr'], $ad_addr) !== false;
+        // 국적 필터링 (단일값, 완전 일치)
+        $mm_nation = input_get("mm_nation", "");
+        if ($mm_nation != "") {
+            $resumes = array_filter($resumes, function($r) use ($mm_nation) {
+                return $r['mm_nation'] === $mm_nation;
             });
         }
 
-        $ru_show_yn = input_get("ru_show_yn", "");
-        if ($ru_show_yn != "") {
-            $resumes = array_filter($resumes, function($r) use ($ru_show_yn) {
-                return $r['ru_show_yn'] === $ru_show_yn;
+        // 성별 필터링 (단일값, 완전 일치)
+        $mm_sex = input_get("mm_sex", "");
+        if ($mm_sex != "") {
+            $resumes = array_filter($resumes, function($r) use ($mm_sex) {
+                return $r['mm_sex'] === $mm_sex;
             });
         }
 
@@ -823,8 +642,8 @@ class Ppurio extends MY_Controller{
                 'search_type'  => $search_type,
                 'search_value' => $search_value,
                 'category'     => $category,
-                'ad_addr'      => $ad_addr,
-                'ru_show_yn'   => $ru_show_yn,
+                'mm_nation'    => $mm_nation,
+                'mm_sex'       => $mm_sex,
             ),
             'select_category' => $select_category,
         );

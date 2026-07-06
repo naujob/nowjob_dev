@@ -436,7 +436,7 @@ class common
 		}
 	}
 
-	//접속경로 확인
+	//접속경로 확인 (태블릿은 PC로 취급)
 	function getLocation()
 	{
 		$headers = apache_request_headers(); // 헤더에 적힌 정보들을 배열에 담는 함수
@@ -444,9 +444,23 @@ class common
 			return "M";
 		}
 
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+		// 태블릿 감지 (iPad, Android 태블릿 등) → PC로 처리
+		if (preg_match('/(iPad|Android)/i', $user_agent)) {
+			// iPad는 무조건 태블릿
+			if (preg_match('/iPad/i', $user_agent)) {
+				return "W";
+			}
+			// Android의 경우, "Mobile" 키워드가 없으면 태블릿
+			if (preg_match('/Android/i', $user_agent) && !preg_match('/Mobile/i', $user_agent)) {
+				return "W";
+			}
+		}
+
+		// 모바일 기기 감지
 		$mobilechk = '/(iPod|iPhone|Android|BlackBerry|SymbianOS|SCH-M\d+|Opera Mini|Windows CE|Nokia|SonyEricsson|webOS|PalmOS)/i';
-		// 모바일 접속인지 PC로 접속했는지 체크합니다.
-		if (preg_match($mobilechk, $_SERVER['HTTP_USER_AGENT'])) {
+		if (preg_match($mobilechk, $user_agent)) {
 			return "M";
 		} else {
 			return "W";
