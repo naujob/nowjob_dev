@@ -17,16 +17,19 @@
 
   #changeAreaExpose.layer-panel.card-type .panel-body {
     padding: 0;
+    overflow: hidden;
+    overflow-y: hidden;
   }
 
   #changeAreaExpose.layer-panel.card-type .panel-container {
     max-width: 500px;
+    max-height: 680px;
     margin: 0 auto;
     top: 50%;
     left: 20%;
     transform: translate(-50%, -50%);
     bottom: auto;
-    
+
   }
 
   #changeAreaExpose .panel-content {
@@ -78,8 +81,10 @@
     display: flex;
     flex-direction: row;
     min-height: 100px;
+    max-height: 400px;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+    overflow-y: auto;
   }
 
   #changeAreaExpose .addr-popup-search,
@@ -437,7 +442,7 @@
   }
 
   #changeAreaExpose .addr-popup-visible {
-    height: auto;
+    height: 500px;
     opacity: 1;
     flex: 1 1 auto;
     pointer-events: auto;
