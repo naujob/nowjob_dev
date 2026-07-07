@@ -301,7 +301,7 @@ container.getNotReadCountList = async function (data) {
 
 container.updateEnterRoom = async function (data, callback) {
 	// rm_idx=31 con_user_id=01011111111
-	$common.writeLog("MongoDB(cs_room) updateEnterRoom 시작 rm_idx=" + data.rm_idx + " con_user_id=" + data.con_user_id);
+	//$common.writeLog("MongoDB(cs_room) updateEnterRoom 시작 rm_idx=" + data.rm_idx + " con_user_id=" + data.con_user_id);
 
 	//완료후 카운터 리턴
 	// 채팅방에 입장할 때 읽지 않은 메시지(안 읽은 메시지) 개수를 집계하기 위해 aggregate를 사용하여 집계 쿼리를 실행한다.
@@ -331,7 +331,7 @@ container.updateEnterRoom = async function (data, callback) {
 		result.list = [];
 	}
 
-	$common.writeLog("MongoDB(cs_room) updateEnterRoom 완료 rm_idx=" + data.rm_idx + " unread_messages=" + result.list.length);
+	//$common.writeLog("MongoDB(cs_room) updateEnterRoom 완료 rm_idx=" + data.rm_idx + " unread_messages=" + result.list.length);
 	callback(result);
 }
 

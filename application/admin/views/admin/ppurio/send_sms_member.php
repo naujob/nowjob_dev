@@ -37,6 +37,16 @@
                         <?=inputRadio("mm_sex","mm_sex",[""=>"전체","남"=>"남자","여"=>"여자"],$search["mm_sex"])?>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">근무형태</th>
+                    <td class="inline-wrap">
+                        <?=inputCheck("","ru_work_type[]",$select_work,$search["ru_work_type"])?>
+                    </td>
+                    <th scope="row">급여형태</th>
+                    <td class="inline-wrap">
+                        <?=inputCheck("","ru_price_type[]",$select_work_type,$search["ru_price_type"])?>
+                    </td>
+                </tr>
                 </tbody>
             </table>
             <div class="btn-content inline-wrap">
@@ -69,9 +79,9 @@
                     <col width="50px"/>
                     <col width="100px"/>
                     <col width="100px"/>
-                    <col width="100px"/>
                     <col width="150px"/>
-                    <col width="120px"/>
+                    <col width="100px"/>
+                    <col width="100px"/>
                     <col width="100px"/>
                     <col width="100px"/>
                     <col width="150px"/>
@@ -89,12 +99,12 @@
                         </th>
                         <th scope="col">번호</th>
                         <th scope="col">게시글상태</th>
-                        <th scope="col">노출여부</th>
                         <th scope="col">회원명</th>
                         <th scope="col">공고명</th>
-                        <th scope="col">기간</th>
                         <th scope="col">국적</th>
                         <th scope="col">성별</th>
+                        <th scope="col">근무형태</th>
+                        <th scope="col">급여형태</th>
                         <th scope="col">지역</th>
                         <th scope="col">카테고리</th>
                     </tr>
@@ -114,12 +124,12 @@
                         </td>
                         <td class="tc"><?=$num_start + $key?></td>
                         <td class="tc"><?=(isset($row['ru_status']) && $row['ru_status'] === 'Y') ? '정상' : '비공개'?></td>
-                        <td class="tc"><?=(isset($row['ru_show_yn']) && $row['ru_show_yn'] === 'Y') ? '노출' : '비노출'?></td>
                         <td><?=isset($row['mm_name']) ? $row['mm_name'] : ''?></td>
                         <td><?=isset($row['ru_name']) ? $row['ru_name'] : ''?></td>
-                        <td class="tc"><?=isset($row['ru_work_dt']) ? $row['ru_work_dt'] : ''?></td>
                         <td><?=isset($row['mm_nation']) ? $row['mm_nation'] : ''?></td>
                         <td><?=isset($row['mm_sex']) ? $row['mm_sex'] : ''?></td>
+                        <td><?=isset($row['ru_work_type']) ? $row['ru_work_type'] : ''?></td>
+                        <td><?=isset($row['ru_price_type']) ? $row['ru_price_type'] : ''?></td>
                         <td><?=isset($row['ad_addr']) ? $row['ad_addr'] : ''?></td>
                         <td><?=isset($row['ru_work']) ? $row['ru_work'] : ''?></td>
                     </tr>
@@ -202,7 +212,7 @@ $(document).ready(function(){
 
     // 검색 버튼
     $(".btnSearch").click(function(){
-        $("#frm-search").attr("action","/admin/ppurio/sendMemPpurioSms");
+        $("#frm-search").attr("action","/admin/ppurio/send_sms_member");
         $("#frm-search").submit();
     });
 
@@ -220,7 +230,7 @@ $(document).ready(function(){
         }
 
         // 동적으로 hidden form을 만들어 POST로 제출
-        var $form = $('<form>', { method: 'post', action: '/admin/ppurio/sendMemPpurioSmsRecruit' });
+        var $form = $('<form>', { method: 'post', action: '/admin/ppurio/send_sms_member_recruit' });
         $.each(selected_mm_idx, function(i, val){
             $form.append($('<input>', { type: 'hidden', name: 'mm_idx[]', value: val }));
         });

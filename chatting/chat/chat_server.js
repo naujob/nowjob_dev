@@ -802,6 +802,9 @@ io.on('connection', function (socket) {
 
 			// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
 			const room = await $db.cs_room.findOne({ rm_idx: target_rm_idx });
+
+			// 방의 타입으로 알림 문구 결정 (메시지의 chat_type이 아닌 방 자체의 타입 기준)
+			const room_type_for_label = (room && room.rm_type) ? room.rm_type : (target_chat_type || "recruit");
 			if (room && room.rm_users) {
 				var user_exited = false;
 				for (var icnt = 0; icnt < room.rm_users.length; icnt++) {
@@ -1123,7 +1126,7 @@ io.on('connection', function (socket) {
 							mg_idx: ret.data && ret.data[0] ? ret.data[0].mg_idx : ret.mg_idx,
 							sender_name: sender_name,
 							message: target_mg_text,
-							chat_type: target_chat_type
+							chat_type: room_type_for_label
 						});
 						//$common.writeLog('[chat_notification] emit 완료');
 					} else {
@@ -1135,9 +1138,9 @@ io.on('connection', function (socket) {
 						// MongoDB 알림 등록
 						const alarm = {
 							user_id: room_user_id,
-							al_type: target_chat_type,
+							al_type: room_type_for_label,
 							al_key: target_rm_idx,
-							al_text: "[" + sender_name + "]님의 " + (target_chat_type === "recruit" ? "채용공고" : "중고거래") + " 메시지가 도착했습니다.",
+							al_text: "[" + sender_name + "]님의 " + (room_type_for_label === "recruit" ? "채용공고" : "중고거래") + " 메시지가 도착했습니다.",
 							al_etc: "",
 							al_url: "",
 							show_yn: "N",
@@ -1193,8 +1196,8 @@ io.on('connection', function (socket) {
 
 						const push = {
 							user_id: target_user_id,
-							no_subject: (target_chat_type === "recruit" ? "채용공고" : "중고거래") + " 메시지 알림",
-							no_text: "[" + sender_name + "]님의 " + (target_chat_type === "recruit" ? "채용공고" : "중고거래") + " 메시지가 도착했습니다.",
+							no_subject: (room_type_for_label === "recruit" ? "채용공고" : "중고거래") + " 메시지 알림",
+							no_text: "[" + sender_name + "]님의 " + (room_type_for_label === "recruit" ? "채용공고" : "중고거래") + " 메시지가 도착했습니다.",
 							no_url: chat_url,
 							no_token: token,
 							no_result: "",

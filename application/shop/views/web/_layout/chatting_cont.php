@@ -3382,7 +3382,6 @@
 			var message = {
 				rm_idx: Number(rm_idx),
 				user_id: g_user_id,
-				chat_type: "recruit",
 				mg_type: "text",
 				mg_text: txt,
 				mg_req_dt: "",

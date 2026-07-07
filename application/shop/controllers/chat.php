@@ -332,10 +332,52 @@ class Chat extends CI_Controller
       }
     }
 
+    // 이 방에서 개인회원(MEM)의 user_id 결정 (전화하기 버튼용)
+    // 방에는 항상 MEM 1명, COMP 1명만 있으므로 두 경우 모두 $individual_user_id는 MEM을 가리킴
+    $individual_user_id = null;
+    if ($user_type == "MEM") {
+      // 내가 MEM이면 내 user_id
+      $individual_user_id = $user_id;
+    } else if ($user_type == "COMP" && $opponent_user_id) {
+      // 내가 COMP이면 상대방(이력서 소유자=MEM)의 user_id
+      $individual_user_id = $opponent_user_id;
+    }
+
+    // MongoDB에서 개인회원이 보낸 일반 메시지 확인 (chat_type이 recruit이 아닌 text 메시지)
+    $show_call_btn = false;
+    if ($mongo_room && isset($mongo_room["rm_messages"]) && $individual_user_id) {
+      foreach ($mongo_room["rm_messages"] as $msg) {
+        $msg_chat_type = isset($msg["chat_type"]) ? $msg["chat_type"] : "";
+        $msg_type = isset($msg["mg_type"]) ? $msg["mg_type"] : "";
+        $msg_user_id = isset($msg["user_id"]) ? $msg["user_id"] : "";
+        // chat_type이 "recruit"이 아니고 (빈 문자열 포함), text 메시지, 개인회원이 보낸 경우만
+        if (empty($msg_chat_type) && $msg_type === "text" && $msg_user_id === $individual_user_id) {
+          $show_call_btn = true;
+          break;
+        }
+      }
+    }
+
+    // 로그인 사용자 타입에 따라 전화 걸 대상 번호 결정
+    $call_target_phone = null;
+    if ($user_type == "MEM") {
+      // 개인회원이면 기업 전화번호
+      $call_target_phone = isset($data["recruit"]["mm_phone"]) ? $data["recruit"]["mm_phone"] : null;
+    } else if ($user_type == "COMP" && !empty($opponent_user_id)) {
+      // 기업회원이면 개인회원 전화번호 조회
+      $opponent_member = $this->member_model->getMember(["mm_id" => $opponent_user_id]);
+      if ($opponent_member && !empty($opponent_member["mm_phone"])) {
+        $call_target_phone = $opponent_member["mm_phone"];
+      }
+    }
+
     $data["user_type"] = $user_type;
     $data["rm_idx"] = $rm_idx;
     $data["opponent_user_id"] = $opponent_user_id; // 상대방 ID 전달
-    
+    $data["individual_user_id"] = $individual_user_id; // 개인회원 ID 전달 (JS 실시간 반영용)
+    $data["show_call_btn"] = $show_call_btn; // 전화하기 버튼 표시 여부
+    $data["call_target_phone"] = $call_target_phone; // 전화 대상 번호
+
     // room이 없거나 rc_idx/ru_idx가 없을 때를 대비해 기본값 설정
     if (!$room) {
       $data["room"] = [
@@ -354,7 +396,7 @@ class Chat extends CI_Controller
         $data["room"]["ru_idx"] = $final_ru_idx;
       }
     }
-    
+
     $this->layout->shop('/chat/chat_view', $data);
   }
 

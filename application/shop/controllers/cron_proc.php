@@ -46,49 +46,34 @@ class Cron_proc extends CI_Controller
             // 설정에서 미열람 알림 재발송 일수 읽기
             $unread_day = (int)$setting['comp_apply_unread_day'];
 
-            // 2차 알림 시각인 경우 신규 채팅방만, 1차 시각이면 3일 주기
+            // 2차 알림 시각인 경우 신규 채팅방 + N일 주기 재발송
             if ($is_alarm2 && !$is_alarm1) {
-                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방만
+                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방 + N일 주기 재발송 (날짜 기준)
                 $alarm_time_hm = $setting['comp_apply_alarm1_time'];
                 $time_where = "
                   AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
-                  AND s.as_idx IS NULL
+                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
                 ";
             } else {
-                // 1차: 미발송 또는 N일 이상 지난 대상
+                // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준)
                 $time_where = "
-                  AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL ? DAY))
+                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
                 ";
             }
 
             $where_condition = $base_where . $time_where;
 
-            // 발송 대상 조회
-            if ($is_alarm2 && !$is_alarm1) {
-                // 2차: bind 파라미터 없음
-                $rooms = $this->db->query("
-                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
-                           rc.mm_idx AS comp_mm_idx,
-                           m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
-                    FROM st_room r
-                    INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
-                    INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
-                    LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
-                    {$where_condition}
-                ")->result_array();
-            } else {
-                // 1차: bind 파라미터로 일수 전달
-                $rooms = $this->db->query("
-                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
-                           rc.mm_idx AS comp_mm_idx,
-                           m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
-                    FROM st_room r
-                    INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
-                    INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
-                    LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
-                    {$where_condition}
-                ", array($unread_day))->result_array();
-            }
+            // 발송 대상 조회 (2차, 1차 모두 bind 파라미터 필요)
+            $rooms = $this->db->query("
+                SELECT r.rm_idx, r.rc_idx, r.ru_idx,
+                       rc.mm_idx AS comp_mm_idx,
+                       m.mm_id AS comp_mm_id, m.mm_phone, m.mm_comp_name
+                FROM st_room r
+                INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
+                INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
+                LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
+                {$where_condition}
+            ", array($unread_day))->result_array();
 
             if (empty($rooms)) {
                 continue;
@@ -221,49 +206,34 @@ class Cron_proc extends CI_Controller
             // 설정에서 미열람 알림 재발송 일수 읽기
             $unread_day = (int)$setting['mem_apply_unread_day'];
 
-            // 2차 알림 시각인 경우 신규 채팅방만, 1차 시각이면 N일 주기
+            // 2차 알림 시각인 경우 신규 채팅방 + N일 주기 재발송
             if ($is_alarm2 && !$is_alarm1) {
-                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방만
+                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방 + N일 주기 재발송 (날짜 기준)
                 $alarm_time_hm = $setting['mem_apply_alarm1_time'];
                 $time_where = "
                   AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
-                  AND s.as_idx IS NULL
+                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
                 ";
             } else {
-                // 1차: 미발송 또는 N일 이상 지난 대상
+                // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준)
                 $time_where = "
-                  AND (s.as_idx IS NULL OR s.sent_dt <= DATE_SUB(NOW(), INTERVAL ? DAY))
+                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
                 ";
             }
 
             $where_condition = $base_where . $time_where;
 
-            // 발송 대상 조회
-            if ($is_alarm2 && !$is_alarm1) {
-                // 2차: bind 파라미터 없음
-                $rooms = $this->db->query("
-                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
-                           ru.mm_idx AS mem_mm_idx,
-                           m.mm_id AS mem_mm_id, m.mm_phone, m.mm_name
-                    FROM st_room r
-                    INNER JOIN st_resume ru ON r.ru_idx = ru.ru_idx
-                    INNER JOIN st_member m ON ru.mm_idx = m.mm_idx
-                    LEFT JOIN st_alimtalk_sent_mem s ON r.rm_idx = s.rm_idx
-                    {$where_condition}
-                ")->result_array();
-            } else {
-                // 1차: bind 파라미터로 일수 전달
-                $rooms = $this->db->query("
-                    SELECT r.rm_idx, r.rc_idx, r.ru_idx,
-                           ru.mm_idx AS mem_mm_idx,
-                           m.mm_id AS mem_mm_id, m.mm_phone, m.mm_name
-                    FROM st_room r
-                    INNER JOIN st_resume ru ON r.ru_idx = ru.ru_idx
-                    INNER JOIN st_member m ON ru.mm_idx = m.mm_idx
-                    LEFT JOIN st_alimtalk_sent_mem s ON r.rm_idx = s.rm_idx
-                    {$where_condition}
-                ", array($unread_day))->result_array();
-            }
+            // 발송 대상 조회 (2차, 1차 모두 bind 파라미터 필요)
+            $rooms = $this->db->query("
+                SELECT r.rm_idx, r.rc_idx, r.ru_idx,
+                       ru.mm_idx AS mem_mm_idx,
+                       m.mm_id AS mem_mm_id, m.mm_phone, m.mm_name
+                FROM st_room r
+                INNER JOIN st_resume ru ON r.ru_idx = ru.ru_idx
+                INNER JOIN st_member m ON ru.mm_idx = m.mm_idx
+                LEFT JOIN st_alimtalk_sent_mem s ON r.rm_idx = s.rm_idx
+                {$where_condition}
+            ", array($unread_day))->result_array();
 
             if (empty($rooms)) {
                 continue;

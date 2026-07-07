@@ -249,11 +249,11 @@ class Ppurio extends MY_Controller{
     // 매칭 이력서 SMS 발송 (기업회원 대상) - 1단계 채용공고 목록 조회
     // 모든 활성 채용공고를 조회하며, 검색/카테고리/지역/노출여부로 필터링
     // 페이징: 20건 단위, 검색조건은 reset=1로 초기화 가능
-    function sendCorPpurioSms() {
+    function send_sms_corp() {
         // reset 파라미터 확인 - 검색 조건 초기화
         $reset = input_get("reset", "");
         if ($reset == "1") {
-            redirect('/admin/ppurio/sendCorPpurioSms');
+            redirect('/admin/ppurio/send_sms_corp');
             return;
         }
 
@@ -276,6 +276,10 @@ class Ppurio extends MY_Controller{
         $search_value = input_get("search_value", "");
         $category     = $this->input->get("category");
         if (!is_array($category)) $category = array();
+        $rc_work_type = $this->input->get("rc_work_type");
+        if (!is_array($rc_work_type)) $rc_work_type = array();
+        $rc_price_type = $this->input->get("rc_price_type");
+        if (!is_array($rc_price_type)) $rc_price_type = array();
 
         // 필터링 적용
         $result_list = $recruits;
@@ -323,11 +327,48 @@ class Ppurio extends MY_Controller{
             });
         }
 
+        // 근무형태 필터링
+        if (!empty($rc_work_type)) {
+            $result_list = array_filter($result_list, function($row) use ($rc_work_type) {
+                foreach ($rc_work_type as $w) {
+                    if ($w != "" && strpos($row['rc_work_type'], $w) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        // 급여형태 필터링
+        if (!empty($rc_price_type)) {
+            $result_list = array_filter($result_list, function($row) use ($rc_price_type) {
+                foreach ($rc_price_type as $wt) {
+                    if ($wt != "" && strpos($row['rc_price_type'], $wt) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
         $result_list = array_values($result_list);
 
         // 카테고리 목록 조회
         $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
         $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 근무형태 목록 조회
+        $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+        $select_work = getKeyValue($work_list, "cd_val", "cd_val");
+
+        // 급여형태 목록 조회 (recruit_write.php와 동일)
+        $select_work_type = array(
+            "시급" => "시급",
+            "일급" => "일급",
+            "주급" => "주급",
+            "월급" => "월급",
+            "급여협의" => "급여협의"
+        );
 
         // 뷰에 전달
         $data = array(
@@ -339,8 +380,12 @@ class Ppurio extends MY_Controller{
                 'category'     => $category,
                 'rc_nation'    => $rc_nation,
                 'rc_sex'       => $rc_sex,
+                'rc_work_type' => $rc_work_type,
+                'rc_price_type' => $rc_price_type,
             ),
             'select_category' => $select_category,
+            'select_work' => $select_work,
+            'select_work_type' => $select_work_type,
         );
 
         $this->layout->admin('admin/ppurio/send_sms_corp', $data);
@@ -350,23 +395,126 @@ class Ppurio extends MY_Controller{
     // 매칭 이력서 SMS 발송 (기업회원 대상) - 2단계 이력서 목록 조회
     // POST로 넘어온 선택된 기업(mm_idx[]) 배열을 받아 보관
     // 모든 활성 이력서를 조회해 다중 선택 화면 표시
-    function sendCorPpurioSmsResume() {
+    function send_sms_corp_resume() {
         // 선택된 기업 mm_idx 배열 받기
         $selected_mm_idx = $this->input->post("mm_idx");
         if (!is_array($selected_mm_idx)) $selected_mm_idx = array();
 
         if (empty($selected_mm_idx)) {
-            redirect('/admin/ppurio/sendCorPpurioSms');
+            redirect('/admin/ppurio/send_sms_corp');
             return;
         }
+
+        // 검색 조건 받기
+        $search_type = $this->input->post("search_type", "");
+        $search_value = $this->input->post("search_value", "");
+        $category = $this->input->post("category");
+        if (!is_array($category)) $category = array();
+        $mm_nation = $this->input->post("mm_nation", "");
+        $mm_sex = $this->input->post("mm_sex", "");
+        $ru_work_type = $this->input->post("ru_work_type");
+        if (!is_array($ru_work_type)) $ru_work_type = array();
+        $ru_price_type = $this->input->post("ru_price_type");
+        if (!is_array($ru_price_type)) $ru_price_type = array();
 
         // 활성 이력서 조회
         $resumes = $this->match_model->getActiveResumes();
 
+        // 검색 조건에 따른 필터링
+        $filtered_resumes = array();
+        foreach ($resumes as $resume) {
+            $match = true;
+
+            // 검색어 필터 (search_type에 따라 다중 필드 검색)
+            if (!empty($search_value)) {
+                $matches_any = false;
+                if ($search_type === "" || $search_type === "mm_name") {
+                    if (strpos($resume['mm_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "ru_name") {
+                    if (strpos($resume['ru_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "ad_addr") {
+                    if (strpos($resume['ad_addr'], $search_value) !== false) $matches_any = true;
+                }
+                if (!$matches_any) {
+                    $match = false;
+                }
+            }
+
+            // 카테고리 필터
+            if (!empty($category)) {
+                if (!in_array($resume['ru_work'], $category)) {
+                    $match = false;
+                }
+            }
+
+            // 국적 필터 (완전 일치)
+            if ($mm_nation != "") {
+                if ($resume['mm_nation'] !== $mm_nation) {
+                    $match = false;
+                }
+            }
+
+            // 성별 필터 (완전 일치)
+            if ($mm_sex != "") {
+                if ($resume['mm_sex'] !== $mm_sex) {
+                    $match = false;
+                }
+            }
+
+            // 근무형태 필터
+            if (!empty($ru_work_type)) {
+                if (!in_array($resume['ru_work_type'], $ru_work_type)) {
+                    $match = false;
+                }
+            }
+
+            // 급여형태 필터
+            if (!empty($ru_price_type)) {
+                if (!in_array($resume['ru_price_type'], $ru_price_type)) {
+                    $match = false;
+                }
+            }
+
+            if ($match) {
+                $filtered_resumes[] = $resume;
+            }
+        }
+
+        // 카테고리 옵션
+        $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+        $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 근무형태 옵션
+        $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+        $select_work = getKeyValue($work_list, "cd_val", "cd_val");
+
+        // 급여형태 옵션 (하드코딩)
+        $select_work_type = array(
+            "시급" => "시급",
+            "일급" => "일급",
+            "주급" => "주급",
+            "월급" => "월급",
+            "급여협의" => "급여협의"
+        );
+
         $data = array(
-            'result_list' => $resumes,
-            'result_count' => count($resumes),
+            'result_list' => $filtered_resumes,
+            'result_count' => count($filtered_resumes),
             'selected_mm_idx' => $selected_mm_idx,
+            'search' => array(
+                'search_type' => $search_type,
+                'search_value' => $search_value,
+                'category' => $category,
+                'mm_nation' => $mm_nation,
+                'mm_sex' => $mm_sex,
+                'ru_work_type' => $ru_work_type,
+                'ru_price_type' => $ru_price_type,
+            ),
+            'select_category' => $select_category,
+            'select_work' => $select_work,
+            'select_work_type' => $select_work_type,
         );
 
         $this->layout->admin('admin/ppurio/send_sms_corp_resume', $data);
@@ -375,7 +523,7 @@ class Ppurio extends MY_Controller{
     // 매칭 이력서 SMS 발송 (기업회원 대상) - 2단계 SMS 발송 처리 (AJAX)
     // 선택된 기업(mm_idx[]) × 선택된 이력서(ru_idx[])의 모든 조합에 대해 SMS 발송
     // 주 단위 중복 체크로 이미 발송한 조합은 스킵
-    function sendCorPpurioSmsResume_proc() {
+    function send_sms_corp_resume_proc() {
         $sent_count = 0;
         $fail_count = 0;
         $current_week = date('Y-W');
@@ -413,14 +561,18 @@ class Ppurio extends MY_Controller{
 
         // 선택된 기업 × 선택된 이력서 전체 조합에 대해 발송
         foreach ($selected_mm_idx as $mm_idx) {
-            if (!isset($recruit_by_mm[$mm_idx])) continue;
+            if (!isset($recruit_by_mm[$mm_idx])) {
+            
+                $fail_count++;
+                continue;
+            }
             $recruit = $recruit_by_mm[$mm_idx];
 
             foreach ($selected_ru_idx as $ru_idx) {
                 try {
-                    // 중복 체크 (기업-이력서-주 단위)
+                    // 중복 체크 (기업-이력서-주 단위) - SMS 발송 이력 테이블
                     $result = $this->db->query(
-                        "SELECT ms_idx FROM st_match_alimtalk_sent
+                        "SELECT ms_idx FROM st_match_sms_sent
                          WHERE sender_type = 'COMP'
                            AND receiver_mm_idx = ?
                            AND target_key = ?
@@ -430,22 +582,31 @@ class Ppurio extends MY_Controller{
                     $dup_check = $result->row_array();
                     if (!empty($dup_check)) continue;
 
-                    $sms_msg = "[나우잡] 조건에 맞는 인재가 등록되었습니다. 확인하기: " . site_url('resume/hr_post/' . $ru_idx);
+                    if (empty($recruit['mm_phone'])) {
+
+                        $fail_count++;
+                        continue;
+                    }
+
+                    // SMS 메시지 (90바이트 제한)
+                    $sms_msg = "[나우잡] 새 인재: " . site_url('resume/hr_post/' . $ru_idx);
                     $send_result = $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
 
                     if ($send_result['code'] === '00') {
                         $this->db->query(
-                            "INSERT INTO st_match_alimtalk_sent
-                             (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
-                             VALUES ('COMP', ?, ?, ?, NOW())
+                            "INSERT INTO st_match_sms_sent
+                             (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt)
+                             VALUES ('COMP', ?, ?, ?, ?, NOW())
                              ON DUPLICATE KEY UPDATE sent_dt = NOW()",
-                            array($mm_idx, $ru_idx, $current_week)
+                            array($mm_idx, $ru_idx, $recruit['rc_idx'], $current_week)
                         );
                         $sent_count++;
                     } else {
+
                         $fail_count++;
                     }
                 } catch (Exception $e) {
+
                     $fail_count++;
                 }
             }
@@ -461,23 +622,126 @@ class Ppurio extends MY_Controller{
     // 매칭 채용공고 SMS 발송 (개인회원 대상) - 2단계 채용공고 목록 조회
     // POST로 넘어온 선택된 개인/이력서(mm_idx[]) 배열을 받아 보관
     // 모든 활성 채용공고를 조회해 다중 선택 화면 표시
-    function sendMemPpurioSmsRecruit() {
+    function send_sms_member_recruit() {
         // 선택된 개인 mm_idx 배열 받기
         $selected_mm_idx = $this->input->post("mm_idx");
         if (!is_array($selected_mm_idx)) $selected_mm_idx = array();
 
         if (empty($selected_mm_idx)) {
-            redirect('/admin/ppurio/sendMemPpurioSms');
+            redirect('/admin/ppurio/send_sms_member');
             return;
         }
+
+        // 검색 조건 받기
+        $search_type = $this->input->post("search_type", "");
+        $search_value = $this->input->post("search_value", "");
+        $category = $this->input->post("category");
+        if (!is_array($category)) $category = array();
+        $rc_nation = $this->input->post("rc_nation", "");
+        $rc_sex = $this->input->post("rc_sex", "");
+        $rc_work_type = $this->input->post("rc_work_type");
+        if (!is_array($rc_work_type)) $rc_work_type = array();
+        $rc_price_type = $this->input->post("rc_price_type");
+        if (!is_array($rc_price_type)) $rc_price_type = array();
 
         // 활성 채용공고 조회
         $recruits = $this->match_model->getActiveRecruits();
 
+        // 검색 조건에 따른 필터링
+        $filtered_recruits = array();
+        foreach ($recruits as $recruit) {
+            $match = true;
+
+            // 검색어 필터 (search_type에 따라 다중 필드 검색)
+            if (!empty($search_value)) {
+                $matches_any = false;
+                if ($search_type === "" || $search_type === "mm_comp_name") {
+                    if (strpos($recruit['mm_comp_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "rc_name") {
+                    if (strpos($recruit['rc_name'], $search_value) !== false) $matches_any = true;
+                }
+                if ($search_type === "" || $search_type === "ad_addr") {
+                    if (strpos($recruit['ad_addr'], $search_value) !== false) $matches_any = true;
+                }
+                if (!$matches_any) {
+                    $match = false;
+                }
+            }
+
+            // 카테고리 필터
+            if (!empty($category)) {
+                if (!in_array($recruit['rc_work'], $category)) {
+                    $match = false;
+                }
+            }
+
+            // 국적 필터 (부분 일치)
+            if ($rc_nation != "") {
+                if (strpos($recruit['rc_nation'], $rc_nation) === false) {
+                    $match = false;
+                }
+            }
+
+            // 성별 필터 (부분 일치)
+            if ($rc_sex != "") {
+                if (strpos($recruit['rc_sex'], $rc_sex) === false) {
+                    $match = false;
+                }
+            }
+
+            // 근무형태 필터
+            if (!empty($rc_work_type)) {
+                if (!in_array($recruit['rc_work_type'], $rc_work_type)) {
+                    $match = false;
+                }
+            }
+
+            // 급여형태 필터
+            if (!empty($rc_price_type)) {
+                if (!in_array($recruit['rc_price_type'], $rc_price_type)) {
+                    $match = false;
+                }
+            }
+
+            if ($match) {
+                $filtered_recruits[] = $recruit;
+            }
+        }
+
+        // 카테고리 옵션
+        $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+        $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 근무형태 옵션
+        $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+        $select_work = getKeyValue($work_list, "cd_val", "cd_val");
+
+        // 급여형태 옵션 (하드코딩)
+        $select_work_type = array(
+            "시급" => "시급",
+            "일급" => "일급",
+            "주급" => "주급",
+            "월급" => "월급",
+            "급여협의" => "급여협의"
+        );
+
         $data = array(
-            'result_list' => $recruits,
-            'result_count' => count($recruits),
+            'result_list' => $filtered_recruits,
+            'result_count' => count($filtered_recruits),
             'selected_mm_idx' => $selected_mm_idx,
+            'search' => array(
+                'search_type' => $search_type,
+                'search_value' => $search_value,
+                'category' => $category,
+                'rc_nation' => $rc_nation,
+                'rc_sex' => $rc_sex,
+                'rc_work_type' => $rc_work_type,
+                'rc_price_type' => $rc_price_type,
+            ),
+            'select_category' => $select_category,
+            'select_work' => $select_work,
+            'select_work_type' => $select_work_type,
         );
 
         $this->layout->admin('admin/ppurio/send_sms_member_recruit', $data);
@@ -486,7 +750,7 @@ class Ppurio extends MY_Controller{
     // 매칭 채용공고 SMS 발송 (개인회원 대상) - 2단계 SMS 발송 처리 (AJAX)
     // 선택된 개인/이력서(mm_idx[]) × 선택된 채용공고(rc_idx[])의 모든 조합에 대해 SMS 발송
     // 주 단위 중복 체크로 이미 발송한 조합은 스킵
-    function sendMemPpurioSmsRecruit_proc() {
+    function send_sms_member_recruit_proc() {
         $sent_count = 0;
         $fail_count = 0;
         $current_week = date('Y-W');
@@ -524,14 +788,18 @@ class Ppurio extends MY_Controller{
 
         // 선택된 회원 × 선택된 채용공고 전체 조합에 대해 발송
         foreach ($selected_mm_idx as $mm_idx) {
-            if (!isset($resume_by_mm[$mm_idx])) continue;
+            if (!isset($resume_by_mm[$mm_idx])) {
+
+                $fail_count++;
+                continue;
+            }
             $resume = $resume_by_mm[$mm_idx];
 
             foreach ($selected_rc_idx as $rc_idx) {
                 try {
-                    // 중복 체크 (개인-채용공고-주 단위)
+                    // 중복 체크 (개인-채용공고-주 단위) - SMS 발송 이력 테이블
                     $result = $this->db->query(
-                        "SELECT ms_idx FROM st_match_alimtalk_sent
+                        "SELECT ms_idx FROM st_match_sms_sent
                          WHERE sender_type = 'MEM'
                            AND receiver_mm_idx = ?
                            AND target_key = ?
@@ -541,22 +809,31 @@ class Ppurio extends MY_Controller{
                     $dup_check = $result->row_array();
                     if (!empty($dup_check)) continue;
 
-                    $sms_msg = "[나우잡] 조건에 맞는 채용공고가 있습니다. 확인하기: " . site_url('recruit/job_post/' . $rc_idx);
+                    if (empty($resume['mm_phone'])) {
+
+                        $fail_count++;
+                        continue;
+                    }
+
+                    // SMS 메시지 (90바이트 제한)
+                    $sms_msg = "[나우잡] 새 공고: " . site_url('recruit/job_post/' . $rc_idx);
                     $send_result = $this->common->sendNotificationSms($resume['mm_phone'], $sms_msg);
 
                     if ($send_result['code'] === '00') {
                         $this->db->query(
-                            "INSERT INTO st_match_alimtalk_sent
-                             (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
-                             VALUES ('MEM', ?, ?, ?, NOW())
+                            "INSERT INTO st_match_sms_sent
+                             (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt)
+                             VALUES ('MEM', ?, ?, ?, ?, NOW())
                              ON DUPLICATE KEY UPDATE sent_dt = NOW()",
-                            array($mm_idx, $rc_idx, $current_week)
+                            array($mm_idx, $rc_idx, $resume['ru_idx'], $current_week)
                         );
                         $sent_count++;
                     } else {
+
                         $fail_count++;
                     }
                 } catch (Exception $e) {
+
                     $fail_count++;
                 }
             }
@@ -572,11 +849,11 @@ class Ppurio extends MY_Controller{
     // 매칭 채용공고 SMS 발송 (개인회원 대상) - 1단계 이력서/개인 목록 조회
     // 모든 활성 이력서를 조회하며, 검색/카테고리/지역/노출여부로 필터링
     // 페이징: 20건 단위, 검색조건은 reset=1로 초기화 가능
-    function sendMemPpurioSms() {
+    function send_sms_member() {
         // reset 파라미터 확인 - 검색 조건 초기화
         $reset = input_get("reset", "");
         if ($reset == "1") {
-            redirect('/admin/ppurio/sendMemPpurioSms');
+            redirect('/admin/ppurio/send_sms_member');
             return;
         }
 
@@ -588,8 +865,12 @@ class Ppurio extends MY_Controller{
         $search_value = input_get("search_value", "");
         $category     = $this->input->get("category");
         if (!is_array($category)) $category = array();
+        $ru_work_type = $this->input->get("ru_work_type");
+        if (!is_array($ru_work_type)) $ru_work_type = array();
+        $ru_price_type = $this->input->get("ru_price_type");
+        if (!is_array($ru_price_type)) $ru_price_type = array();
 
-        if ($search_value != "") {
+        if ($search_value != "") { // strpos(문자열, 찾을문자열)  array_filter:true를 반환한 요소만 결과 배열에 남깁
             $resumes = array_filter($resumes, function($r) use ($search_type, $search_value) {
                 $matches_any = false;
                 if ($search_type === "" || $search_type === "mm_name") {
@@ -630,10 +911,47 @@ class Ppurio extends MY_Controller{
             });
         }
 
+        // 근무형태 필터링
+        if (!empty($ru_work_type)) {
+            $resumes = array_filter($resumes, function($r) use ($ru_work_type) {
+                foreach ($ru_work_type as $w) {
+                    if ($w != "" && strpos($r['ru_work_type'], $w) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        // 급여형태 필터링
+        if (!empty($ru_price_type)) {
+            $resumes = array_filter($resumes, function($r) use ($ru_price_type) {
+                foreach ($ru_price_type as $wt) {
+                    if ($wt != "" && strpos($r['ru_price_type'], $wt) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
         $resumes = array_values($resumes);
 
         $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
         $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 근무형태 목록 조회
+        $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+        $select_work = getKeyValue($work_list, "cd_val", "cd_val");
+
+        // 급여형태 목록 조회 (recruit_write.php와 동일)
+        $select_work_type = array(
+            "시급" => "시급",
+            "일급" => "일급",
+            "주급" => "주급",
+            "월급" => "월급",
+            "급여협의" => "급여협의"
+        );
 
         $data = array(
             'result_list' => $resumes,
@@ -644,8 +962,12 @@ class Ppurio extends MY_Controller{
                 'category'     => $category,
                 'mm_nation'    => $mm_nation,
                 'mm_sex'       => $mm_sex,
+                'ru_work_type' => $ru_work_type,
+                'ru_price_type' => $ru_price_type,
             ),
             'select_category' => $select_category,
+            'select_work' => $select_work,
+            'select_work_type' => $select_work_type,
         );
 
         $this->layout->admin('admin/ppurio/send_sms_member', $data);
@@ -709,6 +1031,128 @@ class Ppurio extends MY_Controller{
 
         $result = $this->ppurio_setting_model->updateSetting($data, 'subs');
         json_return("00", "설정이 저장되었습니다.", "");
+    }
+
+    // 매칭 이력서 SMS 발송 내역 (기업 수신) - 조회
+    function sms_cor_reslut(){
+        $page = input_get("page", 1);
+        $sdate = input_get("sdate", "");
+        $edate = input_get("edate", "");
+        $search_type = input_get("search_type", "");
+        $search_value = input_get("search_value", "");
+        $category = $this->input->get("category");
+        if (!is_array($category)) $category = array();
+        $age_range = $this->input->get("age_range");
+        if (!is_array($age_range)) $age_range = array();
+        $gender = input_get("gender", "");
+        $nationality = input_get("nationality", "");
+        $work_type = $this->input->get("work_type");
+        if (!is_array($work_type)) $work_type = array();
+
+        $params = [
+            "pagesize" => 20, "page" => $page,
+            "sdate" => $sdate, "edate" => $edate,
+            "search_type" => $search_type, "search_value" => $search_value,
+            "category" => $category, "age_range" => $age_range, "gender" => $gender,
+            "nationality" => $nationality, "work_type" => $work_type,
+        ];
+        $result = $this->site_model->getCorSmsSentList($params);
+
+        // 카테고리 목록 조회
+        $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+        $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 근무형태 목록 조회
+        $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+        $select_work = getKeyValue($work_list, "cd_val", "cd_val");
+
+        // 급여형태 목록 (recruit_write.php와 동일)
+        $select_work_type = array(
+            "시급" => "시급",
+            "일급" => "일급",
+            "주급" => "주급",
+            "월급" => "월급",
+            "급여협의" => "급여협의"
+        );
+
+        $data = [
+            "search" => [
+                "sdate" => $sdate, "edate" => $edate,
+                "search_type" => $search_type, "search_value" => $search_value,
+                "category" => $category, "age_range" => $age_range, "gender" => $gender,
+                "nationality" => $nationality, "work_type" => $work_type,
+            ],
+            "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
+            "result_list" => $result["list"],
+            "result_count" => $result["count"],
+            "pagenation" => $result["pagenation"],
+            "select_category" => $select_category,
+            "select_work" => $select_work,
+            "select_work_type" => $select_work_type,
+        ];
+
+        $this->layout->admin('admin/ppurio/sms_cor_reslut', $data);
+    }
+
+    // 매칭 채용공고 SMS 발송 내역 (개인 수신) - 조회
+    function sms_mem_reslut(){
+        $page = input_get("page", 1);
+        $sdate = input_get("sdate", "");
+        $edate = input_get("edate", "");
+        $search_type = input_get("search_type", "");
+        $search_value = input_get("search_value", "");
+        $category = $this->input->get("category");
+        if (!is_array($category)) $category = array();
+        $age_range = $this->input->get("age_range");
+        if (!is_array($age_range)) $age_range = array();
+        $gender = input_get("gender", "");
+        $nationality = input_get("nationality", "");
+        $work_type = $this->input->get("work_type");
+        if (!is_array($work_type)) $work_type = array();
+
+        $params = [
+            "pagesize" => 20, "page" => $page,
+            "sdate" => $sdate, "edate" => $edate,
+            "search_type" => $search_type, "search_value" => $search_value,
+            "category" => $category, "age_range" => $age_range, "gender" => $gender,
+            "nationality" => $nationality, "work_type" => $work_type,
+        ];
+        $result = $this->site_model->getMemSmsSentList($params);
+
+        // 카테고리 목록 조회
+        $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
+        $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+
+        // 근무형태 목록 조회
+        $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
+        $select_work = getKeyValue($work_list, "cd_val", "cd_val");
+
+        // 급여형태 목록 (recruit_write.php와 동일)
+        $select_work_type = array(
+            "시급" => "시급",
+            "일급" => "일급",
+            "주급" => "주급",
+            "월급" => "월급",
+            "급여협의" => "급여협의"
+        );
+
+        $data = [
+            "search" => [
+                "sdate" => $sdate, "edate" => $edate,
+                "search_type" => $search_type, "search_value" => $search_value,
+                "category" => $category, "age_range" => $age_range, "gender" => $gender,
+                "nationality" => $nationality, "work_type" => $work_type,
+            ],
+            "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
+            "result_list" => $result["list"],
+            "result_count" => $result["count"],
+            "pagenation" => $result["pagenation"],
+            "select_category" => $select_category,
+            "select_work" => $select_work,
+            "select_work_type" => $select_work_type,
+        ];
+
+        $this->layout->admin('admin/ppurio/sms_mem_reslut', $data);
     }
 }
 ?>

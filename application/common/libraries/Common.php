@@ -1320,11 +1320,15 @@ class common
 		}
 
 		$decoded = json_decode($response, true);
-		if (!isset($decoded['access_token']) || empty($decoded['access_token'])) {
-			return ['ok' => false, 'error' => 'access_token 누락'];
+		$token = isset($decoded['token']) ? $decoded['token'] : (isset($decoded['access_token']) ? $decoded['access_token'] : '');
+
+		if (empty($token)) {
+			// API 응답 전체를 로그에 남김 (디버깅용)
+			
+			return ['ok' => false, 'error' => 'token 누락'];
 		}
 
-		return ['ok' => true, 'access_token' => $decoded['access_token']];
+		return ['ok' => true, 'access_token' => $token];
 	}
 
 	// 알림 발송용 SMS - Ppurio 공식 API v1 기준

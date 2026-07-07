@@ -1,11 +1,16 @@
 <input type="hidden" name="user_type" value="<?= $user_type ?>" />
 <!-- iOS 포함 모든 환경에서 사용자 아이디를 일관되게 참조하기 위한 hidden 필드 -->
-<input type="hidden" id="user_id" name="user_id" value="<?= $this->user->getUserId(); ?>" />
+ <!-- user_id:현재 로그인한 사용자의 ID -->
+<input type="hidden" id="user_id" name="user_id" value="<?= $this->user->getUserId(); ?>" /> 
 <input type="hidden" name="rm_status" value="<?= isset($room["rm_status"]) ? $room["rm_status"] : "" ?>" />
 <input type="hidden" name="recruit_phone" value="<?= isset($recruit["mm_phone"]) ? $recruit["mm_phone"] : "" ?>" />
 <input type="hidden" name="recruit_name" value="<?= isset($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "" ?>" />
 <!-- 상대방 ID (MongoDB에 입장 전 정보가 없을 때 사용) -->
 <input type="hidden" id="opponent_user_id" name="opponent_user_id" value="<?= isset($opponent_user_id) ? $opponent_user_id : "" ?>" />
+<!-- 개인회원 ID (전화하기 버튼 JS 실시간 반영용) -->
+<input type="hidden" id="individual_user_id" value="<?= htmlspecialchars(isset($individual_user_id) ? $individual_user_id : '', ENT_QUOTES, 'UTF-8') ?>" />
+<!-- 전화 걸 대상 번호 (JS에서 필요시 사용) -->
+<input type="hidden" id="call_target_phone" value="<?= htmlspecialchars(isset($call_target_phone) ? $call_target_phone : '', ENT_QUOTES, 'UTF-8') ?>" />
 
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
@@ -276,6 +281,12 @@
         <!--<a href="javascript:_replace('/chat/chat_list');" class="btn-replace"><span class="sr-text">이전으로</span></a>-->
         <a href="javascript:void(0);" class="btn-replace js-chat-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title" id="rm_subject"><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></h1>
+        <?php if (!empty($call_target_phone)) : ?>
+            <a href="tel:<?= htmlspecialchars($call_target_phone, ENT_QUOTES, 'UTF-8') ?>" class="btn-call js-call-log" data-show-call="<?= !empty($show_call_btn) ? 'true' : 'false' ?>">
+                <i class="fa-solid fa-phone"></i>
+                <span class="sr-text">전화하기</span>
+            </a>
+        <?php endif; ?>
         <!-- [임시 주석처리: 나중에 다시 사용 예정] 채팅방 나가기 버튼 -->
         <!--
         <a href="javascript:void(0);" class="btn-exit js-chat-back" aria-label="채팅방 나가기">
@@ -1628,9 +1639,15 @@
             for (var i = 0; i < messagesToAdd.length; i++) {
                 var msg = messagesToAdd[i];
                 var is_my_message = (msg.user_id == g_user_id);
-                
+
                 showMessage(msg, false);
-                
+
+                // 전화하기 버튼 실시간 반영 (개인회원이 일반 메시지를 보냈을 때)
+                var individualUserId = $("#individual_user_id").val();
+                if (individualUserId && msg && !msg.chat_type && msg.mg_type === "text" && String(msg.user_id) === String(individualUserId)) {
+                    $(".btn-call").attr("data-show-call", "true");
+                }
+
                 // 상대방이 보낸 메시지는 읽음 처리
                 // 단, 현재 열려있는 채팅방의 메시지이고 채팅 페이지가 보일 때만 읽음 처리
                 // message_insert_return은 해당 채팅방의 모든 클라이언트에게 전송되므로,
@@ -1672,9 +1689,15 @@
 <!-- ===== 앱(WebView) 전용 스크립트 : 안드로이드 WebView에서만 실행 ===== -->
 <?php if ($this->common->getSession("os_type") == "android") : ?>
     <script>
-        var g_user_id = "";
-        var first_yn = "N";
-        var rm_info_ready = false; // 채팅방 정보 준비 상태 플래그
+        /**
+         * 페이지 로드 → g_user_id 조회 → room_info 요청 
+            → room_info_return 수신 (rm_info_ready = true로 변경) 
+            → first_yn 체크하여 초기 메시지 로드 여부 결정
+         */
+
+        var g_user_id = ""; // 현재 로그인한 사용자의 ID를 저장
+        var first_yn = "N"; // 채팅방 첫 진입 여부 플래그
+        var rm_info_ready = false; // false = 아직 준비 중 / true = 채팅방 정보 로드 완료 (전송 버튼 활성화 등)
 
         // 안드로이드 앱에서 실행
         window.addEventListener('DOMContentLoaded', function(e) {
@@ -1971,7 +1994,6 @@
             var message = {
                 rm_idx: Number(rm_idx),
                 user_id: g_user_id,
-                chat_type: "recruit",
                 mg_type: "text",
                 mg_text: txt,
                 mg_req_dt: "",
@@ -2605,7 +2627,6 @@
             var message = {
                 rm_idx: Number(rm_idx),
                 user_id: g_user_id,
-                chat_type: "recruit",
                 mg_type: "text",
                 mg_text: txt,
                 mg_req_dt: "",
@@ -2961,5 +2982,48 @@
             //상태 변경 UI 처리
             $this.closest("div").find("button").prop("disabled", true);
         }
+
+        // 전화하기 버튼 실시간 반영 (개인회원이 일반 메시지를 보냈을 때)
+        var originalShowMessage = showMessage;
+        showMessage = function(data, messageList) {
+            originalShowMessage.call(this, data, messageList);
+
+            var individualUserId = $("#individual_user_id").val();
+            // chat_type이 없거나 빈 문자열(recruit이 아님), text 메시지, 개인회원이 보낸 경우만
+            if (individualUserId && data && !data.chat_type && data.mg_type === "text" && String(data.user_id) === String(individualUserId)) {
+                $(".btn-call").attr("data-show-call", "true");
+            }
+        };
     </script>
 <?php endif; ?>
+
+<style>
+    .btn-call {
+        display: none;
+    }
+
+    .btn-call[data-show-call="true"] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        cursor: pointer;
+        color: #333;
+        text-decoration: none;
+        top: 24px;
+        position: absolute;
+        right: 20px;
+    }
+
+    .btn-call i {
+        font-size: 18px;
+    }
+
+    .btn-call .sr-text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+</style>

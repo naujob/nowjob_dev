@@ -7,6 +7,60 @@
             </div>
         </div>
 
+        <div class="search-box" style="margin-top: 20px;">
+            <h3 class="sub-title mb-10" style="margin-top: 30px;">채용공고 검색</h3>
+            <table>
+                <colgroup>
+                    <col width="150px"/>
+                    <col width="600px"/>
+                    <col width="150px"/>
+                    <col width="600px"/>
+                </colgroup>
+                <tbody>
+                <tr>
+                    <th scope="row">검색어</th>
+                    <td class="inline-wrap">
+                        <div class="sum-select-input">
+                            <?=inputSelect("search_type","search_type",[""=>"전체","mm_comp_name"=>"사업장명","rc_name"=>"공고명","ad_addr"=>"지역"],isset($search["search_type"]) ? $search["search_type"] : "")?>
+                            <div class="input-text">
+                                <label>
+                                    <?=inputText("search_value","search_value",isset($search["search_value"]) ? $search["search_value"] : "","검색어를 입력해주세요.","",200)?>
+                                </label>
+                            </div>
+                        </div>
+                    </td>
+                    <th scope="row">카테고리</th>
+                    <td class="inline-wrap" colspan="1">
+                        <?=inputCheck("","category[]",isset($select_category) ? $select_category : array(),isset($search["category"]) ? $search["category"] : array())?>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">국적</th>
+                    <td class="inline-wrap">
+                        <?=inputRadio("rc_nation","rc_nation",[""=>"전체","내국인"=>"내국인","외국인"=>"외국인"],isset($search["rc_nation"]) ? $search["rc_nation"] : "")?>
+                    </td>
+                    <th scope="row">성별</th>
+                    <td class="inline-wrap">
+                        <?=inputRadio("rc_sex","rc_sex",[""=>"전체","남자"=>"남자","여자"=>"여자"],isset($search["rc_sex"]) ? $search["rc_sex"] : "")?>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">근무형태</th>
+                    <td class="inline-wrap">
+                        <?=inputCheck("","rc_work_type[]",isset($select_work) ? $select_work : array(),isset($search["rc_work_type"]) ? $search["rc_work_type"] : array())?>
+                    </td>
+                    <th scope="row">급여형태</th>
+                    <td class="inline-wrap">
+                        <?=inputCheck("","rc_price_type[]",isset($select_work_type) ? $select_work_type : array(),isset($search["rc_price_type"]) ? $search["rc_price_type"] : array())?>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="btn-content inline-wrap">
+                <button type="button" class="btn-m btn-type10 w100 btnSearchRecruit">검색</button>
+            </div>
+        </div>
+
         <div class="search-result">
             <?php
             // 페이징 처리
@@ -23,7 +77,7 @@
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
                 <div>
-                    <a href="/admin/ppurio/sendMemPpurioSms?reset=1" class="btn-l btn-type10 w180">회원 목록으로</a>
+                    <a href="/admin/ppurio/send_sms_member?reset=1" class="btn-l btn-type10 w180">회원 목록으로</a>
                 </div>
                 <p style="margin: 0;"><strong><?=$total_count?>건 (<?=$page?>/<?=$total_page > 0 ? $total_page : 1?>)</strong></p>
             </div>
@@ -33,10 +87,8 @@
                     <col width="50px"/>
                     <col width="50px"/>
                     <col width="100px"/>
-                    <col width="100px"/>
-                    <col width="100px"/>
                     <col width="150px"/>
-                    <col width="120px"/>
+                    <col width="150px"/>
                     <col width="100px"/>
                     <col width="100px"/>
                     <col width="150px"/>
@@ -54,10 +106,8 @@
                         </th>
                         <th scope="col">번호</th>
                         <th scope="col">게시글상태</th>
-                        <th scope="col">노출여부</th>
                         <th scope="col">회원명</th>
                         <th scope="col">공고명</th>
-                        <th scope="col">기간</th>
                         <th scope="col">국적</th>
                         <th scope="col">성별</th>
                         <th scope="col">지역</th>
@@ -79,14 +129,8 @@
                         </td>
                         <td class="tc"><?=$num_start + $key?></td>
                         <td class="tc"><?=(isset($row['rc_status']) && $row['rc_status'] === 'Y') ? '정상' : '비공개'?></td>
-                        <td class="tc"><?=(isset($row['rc_show_yn']) && $row['rc_show_yn'] === 'Y') ? '노출' : '비노출'?></td>
                         <td><?=isset($row['mm_comp_name']) ? $row['mm_comp_name'] : ''?></td>
                         <td><?=isset($row['rc_name']) ? $row['rc_name'] : ''?></td>
-                        <td class="tc"><?php
-                            if (isset($row['rc_sdate']) && isset($row['rc_edate'])) {
-                                echo substr($row['rc_sdate'], 0, 10) . '<br/>~' . substr($row['rc_edate'], 0, 10);
-                            }
-                        ?></td>
                         <td><?=isset($row['rc_nation']) ? $row['rc_nation'] : ''?></td>
                         <td><?=isset($row['rc_sex']) ? $row['rc_sex'] : ''?></td>
                         <td><?=isset($row['ad_addr']) ? $row['ad_addr'] : ''?></td>
@@ -95,7 +139,7 @@
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="11" class="tc" style="padding: 20px;">발송 대상이 없습니다.</td>
+                        <td colspan="9" class="tc" style="padding: 20px;">발송 대상이 없습니다.</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
@@ -167,6 +211,54 @@
 var selectedMmIdx = <?php echo json_encode($selected_mm_idx); ?>;
 
 $(document).ready(function(){
+    // 검색 버튼
+    $(".btnSearchRecruit").click(function(){
+        var search_type = $('select[name="search_type"]').val();
+        var search_value = $('input[name="search_value"]').val();
+        var category = [];
+        $('input[name="category[]"]:checked').each(function(){
+            category.push($(this).val());
+        });
+        var rc_nation = $('input[name="rc_nation"]:checked').val() || '';
+        var rc_sex = $('input[name="rc_sex"]:checked').val() || '';
+        var rc_work_type = [];
+        $('input[name="rc_work_type[]"]:checked').each(function(){
+            rc_work_type.push($(this).val());
+        });
+        var rc_price_type = [];
+        $('input[name="rc_price_type[]"]:checked').each(function(){
+            rc_price_type.push($(this).val());
+        });
+
+        // 동적으로 hidden form을 만들어 POST로 제출
+        var $form = $('<form>', { method: 'post', action: '/admin/ppurio/send_sms_member_recruit' });
+        if (search_type) {
+            $form.append($('<input>', { type: 'hidden', name: 'search_type', value: search_type }));
+        }
+        if (search_value) {
+            $form.append($('<input>', { type: 'hidden', name: 'search_value', value: search_value }));
+        }
+        $.each(selectedMmIdx, function(i, val){
+            $form.append($('<input>', { type: 'hidden', name: 'mm_idx[]', value: val }));
+        });
+        $.each(category, function(i, val){
+            $form.append($('<input>', { type: 'hidden', name: 'category[]', value: val }));
+        });
+        if (rc_nation) {
+            $form.append($('<input>', { type: 'hidden', name: 'rc_nation', value: rc_nation }));
+        }
+        if (rc_sex) {
+            $form.append($('<input>', { type: 'hidden', name: 'rc_sex', value: rc_sex }));
+        }
+        $.each(rc_work_type, function(i, val){
+            $form.append($('<input>', { type: 'hidden', name: 'rc_work_type[]', value: val }));
+        });
+        $.each(rc_price_type, function(i, val){
+            $form.append($('<input>', { type: 'hidden', name: 'rc_price_type[]', value: val }));
+        });
+        $form.appendTo('body').submit();
+    });
+
     // SMS 발송 버튼
     $(".btnSendSms").click(function(){
         // 선택된 채용공고 rc_idx 수집
@@ -184,10 +276,10 @@ $(document).ready(function(){
             var params = {};
             params["selected_rc_idx[]"] = selected_rc_idx;
             params["selected_mm_idx[]"] = selectedMmIdx;
-            comAjaxLoading("/admin/ppurio/sendMemPpurioSmsRecruit_proc", params, function(result) {
+            comAjaxLoading("/admin/ppurio/send_sms_member_recruit_proc", params, function(result) {
                 if (result.code == "00") {
                     // POST로 렌더링된 페이지이므로 reload 대신 1단계 목록으로 이동
-                    COMMON.alert(result.msg, function() { location.href = "/admin/ppurio/sendMemPpurioSms?reset=1"; });
+                    COMMON.alert(result.msg, function() { location.href = "/admin/ppurio/send_sms_member?reset=1"; });
                 } else {
                     COMMON.alert(result.msg);
                 }

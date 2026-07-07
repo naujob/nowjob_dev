@@ -37,6 +37,16 @@
                         <?=inputRadio("rc_sex","rc_sex",[""=>"전체","남자"=>"남자","여자"=>"여자"],$search["rc_sex"])?>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">근무형태</th>
+                    <td class="inline-wrap">
+                        <?=inputCheck("","rc_work_type[]",$select_work,$search["rc_work_type"])?>
+                    </td>
+                    <th scope="row">급여형태</th>
+                    <td class="inline-wrap">
+                        <?=inputCheck("","rc_price_type[]",$select_work_type,$search["rc_price_type"])?>
+                    </td>
+                </tr>
                 </tbody>
             </table>
             <div class="btn-content inline-wrap">
@@ -68,10 +78,10 @@
                     <col width="50px"/>
                     <col width="50px"/>
                     <col width="100px"/>
+                    <col width="150px"/>
+                    <col width="150px"/>
                     <col width="100px"/>
-                    <col width="150px"/>
-                    <col width="150px"/>
-                    <col width="120px"/>
+                    <col width="100px"/>
                     <col width="100px"/>
                     <col width="100px"/>
                     <col width="150px"/>
@@ -89,12 +99,12 @@
                         </th>
                         <th scope="col">번호</th>
                         <th scope="col">게시글상태</th>
-                        <th scope="col">노출여부</th>
                         <th scope="col">사업장명</th>
                         <th scope="col">공고명</th>
-                        <th scope="col">기간</th>
                         <th scope="col">국적</th>
                         <th scope="col">성별</th>
+                        <th scope="col">근무형태</th>
+                        <th scope="col">급여형태</th>
                         <th scope="col">지역</th>
                         <th scope="col">카테고리</th>
                     </tr>
@@ -114,16 +124,12 @@
                         </td>
                         <td class="tc"><?=$num_start + $key?></td>
                         <td class="tc"><?=(isset($row['rc_status']) && $row['rc_status'] === 'Y') ? '정상' : '비공개'?></td>
-                        <td class="tc"><?=(isset($row['rc_show_yn']) && $row['rc_show_yn'] === 'Y') ? '노출' : '비노출'?></td>
                         <td><?=isset($row['mm_comp_name']) ? $row['mm_comp_name'] : ''?></td>
                         <td><?=isset($row['rc_name']) ? $row['rc_name'] : ''?></td>
-                        <td class="tc"><?php
-                            if (isset($row['rc_sdate']) && isset($row['rc_edate'])) {
-                                echo substr($row['rc_sdate'], 0, 10) . '<br/>~' . substr($row['rc_edate'], 0, 10);
-                            }
-                        ?></td>
                         <td><?=isset($row['rc_nation']) ? $row['rc_nation'] : ''?></td>
                         <td><?=isset($row['rc_sex']) ? $row['rc_sex'] : ''?></td>
+                        <td><?=isset($row['rc_work_type']) ? $row['rc_work_type'] : ''?></td>
+                        <td><?=isset($row['rc_price_type']) ? $row['rc_price_type'] : ''?></td>
                         <td><?=isset($row['ad_addr']) ? $row['ad_addr'] : ''?></td>
                         <td><?=isset($row['rc_work']) ? $row['rc_work'] : ''?></td>
                     </tr>
@@ -206,7 +212,7 @@ $(document).ready(function(){
 
     // 검색 버튼
     $(".btnSearch").click(function(){
-        $("#frm-search").attr("action","/admin/ppurio/sendCorPpurioSms");
+        $("#frm-search").attr("action","/admin/ppurio/send_sms_corp");
         $("#frm-search").submit();
     });
 
@@ -224,7 +230,7 @@ $(document).ready(function(){
         }
 
         // 동적으로 hidden form을 만들어 POST로 제출
-        var $form = $('<form>', { method: 'post', action: '/admin/ppurio/sendCorPpurioSmsResume' });
+        var $form = $('<form>', { method: 'post', action: '/admin/ppurio/send_sms_corp_resume' });
         $.each(selected_mm_idx, function(i, val){
             $form.append($('<input>', { type: 'hidden', name: 'mm_idx[]', value: val }));
         });
