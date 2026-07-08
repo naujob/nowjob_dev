@@ -84,6 +84,11 @@ function fBizNoMasking($bizNo)
             <strong>관심인재</strong>
           </a>
         </li>
+        <li>
+          <a href="/compage/match_list" class="angle-link menu4">
+            <strong>A.I 매칭 리스트</strong>
+          </a>
+        </li>
         <!-- <li>
           <a href="/compage/interv_list" class="angle-link menu6">
             <strong>면접자</strong>

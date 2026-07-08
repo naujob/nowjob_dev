@@ -199,6 +199,14 @@
 
 <script>
 $(document).ready(function(){
+    // Enter 키로 검색
+    $('input[name="search_value"]').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            $(".btnSearch").click();
+        }
+    });
+
     // 전체선택 체크박스 연동
     $('#chk_all_Y').on('change', function(){
         var isChecked = $(this).is(':checked');

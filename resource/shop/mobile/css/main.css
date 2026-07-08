@@ -13269,3 +13269,26 @@ form#frm {
     max-width: calc(100% - 40px);
 }
 
+/* A.I 매칭 리스트 - 날짜 헤더 */
+.match-date-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0 15px;
+    color: #777;
+    font-size: 18px;
+}
+
+.match-date-header::before,
+.match-date-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: #d0d0d0;
+}
+
+.match-date-header span {
+    white-space: nowrap;
+    
+}
+

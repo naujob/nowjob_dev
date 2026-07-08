@@ -2118,4 +2118,20 @@ class Compage extends CI_Controller
 		$data["applicant_failcnt"] = count($result4["list"]);
 		$this->layout->shop('/compage/applicant_list', $data);
 	}
+
+	# A.I 매칭 리스트
+	function match_list()
+	{
+		$data = [];
+
+		$page = (int) $this->input->get('page');
+		if ($page < 1) $page = 1;
+
+		$result = $this->member_model->getMatchResumeListByDate($this->mm_idx, $page, 3, 14);
+
+		$data["groups"] = $result["groups"];
+		$data["page"] = $result["page"];
+		$data["total_pages"] = $result["total_pages"];
+		$this->layout->shop('/compage/match_list', $data);
+	}
 } //class

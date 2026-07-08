@@ -406,7 +406,8 @@ class Ppurio extends MY_Controller{
         }
 
         // 검색 조건 받기
-        $search_type = $this->input->post("search_type", "");
+        $search_type = $this->input->post("search_type");
+        $search_type = isset($search_type) ? $search_type : "";
         $search_value = $this->input->post("search_value", "");
         $category = $this->input->post("category");
         if (!is_array($category)) $category = array();
@@ -589,7 +590,9 @@ class Ppurio extends MY_Controller{
                     }
 
                     // SMS 메시지 (90바이트 제한)
-                    $sms_msg = "[나우잡] 새 인재: " . site_url('resume/hr_post/' . $ru_idx);
+                    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                    $main_domain = str_replace('admin.', '', $_SERVER['HTTP_HOST']);
+                    $sms_msg = "[나우잡]\n등록된 채용공고에 적합한 추천인재가 등록되었습니다.\n\n[이력서 확인하기]\n" . $scheme . '://' . $main_domain . '/alimtalk/send_match_corp_bridge';
                     $send_result = $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
 
                     if ($send_result['code'] === '00') {
@@ -633,7 +636,8 @@ class Ppurio extends MY_Controller{
         }
 
         // 검색 조건 받기
-        $search_type = $this->input->post("search_type", "");
+        $search_type = $this->input->post("search_type");
+        $search_type = isset($search_type) ? $search_type : "";
         $search_value = $this->input->post("search_value", "");
         $category = $this->input->post("category");
         if (!is_array($category)) $category = array();
@@ -816,7 +820,9 @@ class Ppurio extends MY_Controller{
                     }
 
                     // SMS 메시지 (90바이트 제한)
-                    $sms_msg = "[나우잡] 새 공고: " . site_url('recruit/job_post/' . $rc_idx);
+                    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                    $main_domain = str_replace('admin.', '', $_SERVER['HTTP_HOST']);
+                    $sms_msg = "[나우잡]\n등록된 이력서에 적합한 채용공고가 매칭되었습니다\n\n[채용공고 확인하기]\n" . $scheme . '://' . $main_domain . '/alimtalk/send_per_bridge';
                     $send_result = $this->common->sendNotificationSms($resume['mm_phone'], $sms_msg);
 
                     if ($send_result['code'] === '00') {

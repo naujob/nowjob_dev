@@ -5350,4 +5350,210 @@ LIMIT 0 , 200
 		$query = $this->db->query($sql);
 		return $query->result_array();
 	}
+
+	# A.I 매칭 리스트 - 기업회원용 (이력서) - 날짜그룹 기준 페이징 조회
+	function getMatchResumeListByDate($mm_idx, $page = 1, $day_group_size = 3, $cutoff_days = 14)
+	{
+		# 1) 최근 cutoff_days 이내 매칭 발송이 있었던 날짜 목록 (알림톡 + SMS, 중복없이, 최신순)
+		$sql_dates = "
+			SELECT DISTINCT DATE(sent_dt) as sent_date
+			FROM (
+				SELECT sent_dt FROM st_match_alimtalk_sent
+				WHERE sender_type = 'COMP'
+				  AND receiver_mm_idx = ?
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+				UNION ALL
+				SELECT sent_dt FROM st_match_sms_sent
+				WHERE sender_type = 'COMP'
+				  AND receiver_mm_idx = ?
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+			) combined
+			GROUP BY DATE(sent_dt)
+			ORDER BY sent_date DESC
+		";
+
+		$all_dates = $this->db->query($sql_dates, [$mm_idx, $cutoff_days, $mm_idx, $cutoff_days])->result_array();
+		$all_dates = array_map(function ($r) { return $r["sent_date"]; }, $all_dates);
+       /**
+		*		[
+				*	"2026-07-07",
+				*	"2026-07-06",
+				*	"2026-07-04"
+				*]
+
+	    */
+		$total_dates = count($all_dates);
+		$total_pages = $total_dates > 0 ? ceil($total_dates / $day_group_size) : 1;
+		$start = ($page - 1) * $day_group_size;
+		// 1. 전체 날짜에서 이번 페이지에 해당하는 날짜만 3개 자릅니다. (예: 1페이지)
+		$page_dates = array_slice($all_dates, $start, $day_group_size);
+        # page_dates: 현재 페이지에 표시할 날짜 배열  $page_dates = ['2026-06-15', '2026-06-14', '2026-06-13']
+		$result = [
+			"groups" => [],
+			"total_dates" => $total_dates,
+			"total_pages" => $total_pages,
+			"page" => $page,
+		];
+
+		if (empty($page_dates)) {
+			return $result;
+		}
+
+		# 2) 해당 날짜들에 매칭된 이력서 상세 조회 (알림톡 + SMS 합침)
+		$placeholders = implode(",", array_fill(0, count($page_dates), "?"));
+		$sql_list = "
+			SELECT
+				s.sent_dt,
+				r.*,
+				m.mm_nation, m.mm_birth, m.mm_sex, m.mm_thumb,
+				COALESCE(addr.ad_addr, r.ru_addr) as ad_addr,
+				(case when bk.bk_idx is not null then 'Y' else 'N' end) as book_yn
+			FROM (
+				SELECT sent_dt, target_key, sender_type, receiver_mm_idx FROM st_match_alimtalk_sent
+				WHERE sender_type = 'COMP'
+				  AND receiver_mm_idx = ?
+				  AND DATE(sent_dt) IN ($placeholders)
+				UNION ALL
+				SELECT sent_dt, target_key, sender_type, receiver_mm_idx FROM st_match_sms_sent
+				WHERE sender_type = 'COMP'
+				  AND receiver_mm_idx = ?
+				  AND DATE(sent_dt) IN ($placeholders)
+			) s
+			INNER JOIN st_resume r
+				ON r.ru_idx = s.target_key AND r.ru_status = 'Y' AND r.ru_show_yn = 'Y'
+			INNER JOIN st_member m
+				ON m.mm_idx = r.mm_idx AND m.mm_status = 'Y'
+			LEFT JOIN st_address addr
+				ON addr.mm_idx = m.mm_idx AND addr.ad_type = 'RESUME' AND addr.ad_key = r.ru_idx
+			LEFT JOIN st_bookmark bk
+				ON bk.bk_key = r.ru_idx AND bk.bk_type = 'RESUME' AND bk.mm_idx = ?
+			ORDER BY s.sent_dt DESC, r.ru_idx DESC
+		";
+		$params = array_merge([$mm_idx], $page_dates, [$mm_idx], $page_dates, [$mm_idx]);
+		$rows = $this->db->query($sql_list, $params)->result_array();
+
+		# 3) 날짜별로 그룹핑 (page_dates 순서 유지)
+		$grouped = [];
+		foreach ($page_dates as $d) {
+			$grouped[$d] = [];
+		}
+		foreach ($rows as $row) {
+			$d = substr($row["sent_dt"], 0, 10);
+			if (isset($grouped[$d])) {
+				$grouped[$d][] = $row;
+			}
+		}
+
+		foreach ($page_dates as $d) {
+			$result["groups"][] = [
+				"sent_date" => $d,
+				"list" => $grouped[$d],
+			];
+		}
+
+		return $result;
+	}
+
+	# A.I 매칭 리스트 - 개인회원용 (채용공고) - 날짜그룹 기준 페이징 조회
+	function getMatchRecruitListByDate($mm_idx, $page = 1, $day_group_size = 3, $cutoff_days = 14)
+	{
+		# 1) 최근 cutoff_days 이내 매칭 발송이 있었던 날짜 목록 (알림톡 + SMS, 중복없이, 최신순)
+		$sql_dates = "
+			SELECT DISTINCT DATE(sent_dt) as sent_date
+			FROM (
+				SELECT sent_dt FROM st_match_alimtalk_sent
+				WHERE sender_type = 'MEM'
+				  AND receiver_mm_idx = ?
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+				UNION ALL
+				SELECT sent_dt FROM st_match_sms_sent
+				WHERE sender_type = 'MEM'
+				  AND receiver_mm_idx = ?
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+			) combined
+			GROUP BY DATE(sent_dt)
+			ORDER BY sent_date DESC
+		";
+		$all_dates = $this->db->query($sql_dates, [$mm_idx, $cutoff_days, $mm_idx, $cutoff_days])->result_array();
+		$all_dates = array_map(function ($r) { return $r["sent_date"]; }, $all_dates);
+
+		$total_dates = count($all_dates);
+		$total_pages = $total_dates > 0 ? ceil($total_dates / $day_group_size) : 1;
+		$start = ($page - 1) * $day_group_size;
+		$page_dates = array_slice($all_dates, $start, $day_group_size);
+
+		$result = [
+			"groups" => [],
+			"total_dates" => $total_dates,
+			"total_pages" => $total_pages,
+			"page" => $page,
+		];
+
+		if (empty($page_dates)) {
+			return $result;
+		}
+
+		# 2) 해당 날짜들에 매칭된 채용공고 상세 조회 (알림톡 + SMS 합침)
+		$placeholders = implode(",", array_fill(0, count($page_dates), "?"));
+		$sql_list = "
+			SELECT
+				s.sent_dt,
+				c.*,
+				a.ad_addr,
+				(case when b.bk_idx is not null then 'Y' else 'N' end) as book_yn,
+				(case
+					when c.rc_nation = '내국인,외국인' then '국적무관'
+					when c.rc_nation = '내국인' then '내국인'
+					when c.rc_nation = '외국인' then '외국인'
+					else '국적무관' end) as rc_nation_nm,
+				(case
+					when c.rc_sage <> '' and c.rc_eage <> '' then concat(c.rc_sage, '대', ' ~ ', c.rc_eage, '대')
+					when c.rc_sage <> '' then concat(c.rc_sage, '대 ~')
+					when c.rc_eage <> '' then concat('~ ', c.rc_eage, '대')
+					else '나이무관' end) as rc_age_nm
+			FROM (
+				SELECT sent_dt, target_key, sender_type, receiver_mm_idx FROM st_match_alimtalk_sent
+				WHERE sender_type = 'MEM'
+				  AND receiver_mm_idx = ?
+				  AND DATE(sent_dt) IN ($placeholders)
+				UNION ALL
+				SELECT sent_dt, target_key, sender_type, receiver_mm_idx FROM st_match_sms_sent
+				WHERE sender_type = 'MEM'
+				  AND receiver_mm_idx = ?
+				  AND DATE(sent_dt) IN ($placeholders)
+			) s
+			INNER JOIN st_recruit c
+				ON c.rc_idx = s.target_key AND c.rc_status = 'Y' AND c.rc_show_yn = 'Y'
+			INNER JOIN st_member m
+				ON m.mm_idx = c.mm_idx AND m.mm_status = 'Y'
+			LEFT JOIN st_address a
+				ON a.mm_idx = m.mm_idx AND a.ad_type = 'RECRUIT' AND a.ad_key = c.rc_idx
+			LEFT JOIN st_bookmark b
+				ON b.bk_key = c.rc_idx AND b.bk_type = 'RECRUIT' AND b.mm_idx = ?
+			ORDER BY s.sent_dt DESC, c.rc_idx DESC
+		";
+		$params = array_merge([$mm_idx], $page_dates, [$mm_idx], $page_dates, [$mm_idx]);
+		$rows = $this->db->query($sql_list, $params)->result_array();
+
+		# 3) 날짜별로 그룹핑 (page_dates 순서 유지)
+		$grouped = [];
+		foreach ($page_dates as $d) {
+			$grouped[$d] = [];
+		}
+		foreach ($rows as $row) {
+			$d = substr($row["sent_dt"], 0, 10);
+			if (isset($grouped[$d])) {
+				$grouped[$d][] = $row;
+			}
+		}
+
+		foreach ($page_dates as $d) {
+			$result["groups"][] = [
+				"sent_date" => $d,
+				"list" => $grouped[$d],
+			];
+		}
+
+		return $result;
+	}
 }

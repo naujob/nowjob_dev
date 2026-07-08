@@ -13,7 +13,7 @@
                         <div class="options-list">
                             <div class="top">
                                 <span class="label">
-                                    <strong>전체 푸시 알림</strong>
+                                    <strong>전체 알림</strong>
                                     <small>전체푸시 알림을 받습니다.</small>
                                 </span>
                                 <span class="value">

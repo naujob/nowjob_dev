@@ -62,10 +62,10 @@ if (!empty($row['mm_birth'])) {
             <?php endif; ?>
           </div>
           <div class="summary2">
-            <p class="pricetype"><?= getConvertResumePriceType($row['ru_price_type']) ?></p>
+            <p class="pricetype"><?= getPriceType($row['ru_price_type']) ?></p>
           </div>
           <div class="summary3">
-            <p class="worktype"><?= getWorkType2025($row['ru_work_type']) ?></p>
+            <p class="worktype"><?= getWorkTypeWithColor($row['ru_work_type']) ?></p>
           </div>
           <?php if ($_show_job_link && !empty($row['rc_idx'])) : ?>
             <a href="/recruit/job_post/<?= $row['rc_idx'] ?>" class="job-link">지원한 공고</a>

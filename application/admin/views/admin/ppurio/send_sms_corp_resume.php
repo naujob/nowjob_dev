@@ -211,6 +211,14 @@
 var selectedMmIdx = <?php echo json_encode($selected_mm_idx); ?>;
 
 $(document).ready(function(){
+    // Enter 키로 검색
+    $('input[name="search_value"]').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            $(".btnSearchResume").click();
+        }
+    });
+
     // 검색 버튼
     $(".btnSearchResume").click(function(){
         var search_type = $('select[name="search_type"]').val();

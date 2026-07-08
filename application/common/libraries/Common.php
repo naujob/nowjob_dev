@@ -1332,7 +1332,7 @@ class common
 	}
 
 	// 알림 발송용 SMS - Ppurio 공식 API v1 기준
-	function sendNotificationSms($phone, $msg, $messageType = 'SMS')
+	function sendNotificationSms($phone, $msg, $messageType = 'LMS')
 	{
 		// 파라미터 유효성 검사
 		if (empty($phone) || empty($msg)) {

@@ -66,6 +66,11 @@
           </a>
         </li>
         <li>
+          <a href="/mypage/match_list" class="angle-link menu4">
+            <strong>A.I 매칭 리스트</strong>
+          </a>
+        </li>
+        <li>
           <a href="/mypage/recruit_list" class="angle-link menu3">
             <strong>지원공고</strong>
           </a>

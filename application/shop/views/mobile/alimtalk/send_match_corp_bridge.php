@@ -90,7 +90,7 @@
 			var isCorp = <?php echo isset($is_corp) ? $is_corp : 'false'; ?>;
 			var appUrl = (isLogin === true || isLogin === 'true') && (isCorp === true || isCorp === 'true')
 				// ? 'nowjob://recruit/job_list?is_app=true'
-				? 'nowjob://chat/index_comp'
+				? 'nowjob://compage/match_list'
 				// : 'nowjob://chat/index_comp';
 				: 'nowjob://member/login?is_app=true';
 

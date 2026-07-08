@@ -90,7 +90,7 @@
 			var isPerson = <?php echo isset($is_person) ? $is_person : 'false'; ?>;
 			var appUrl = (isLogin === true || isLogin === 'true') && (isPerson === true || isPerson === 'true')
 				// ? 'nowjob://recruit/job_list?is_app=true'
-				? 'nowjob://chat/chat_list'
+				? 'nowjob://mypage/match_list'
 				// : 'nowjob://chat/index_comp';
 				: 'nowjob://member/login?is_app=true';
 
