@@ -343,15 +343,23 @@ class Chat extends CI_Controller
       $individual_user_id = $opponent_user_id;
     }
 
-    // MongoDB에서 개인회원이 보낸 일반 메시지 확인 (chat_type이 recruit이 아닌 text 메시지)
+    // MongoDB에서 개인회원이 보낸 일반 메시지 또는 지원 메시지 확인
     $show_call_btn = false;
     if ($mongo_room && isset($mongo_room["rm_messages"]) && $individual_user_id) {
       foreach ($mongo_room["rm_messages"] as $msg) {
         $msg_chat_type = isset($msg["chat_type"]) ? $msg["chat_type"] : "";
         $msg_type = isset($msg["mg_type"]) ? $msg["mg_type"] : "";
         $msg_user_id = isset($msg["user_id"]) ? $msg["user_id"] : "";
-        // chat_type이 "recruit"이 아니고 (빈 문자열 포함), text 메시지, 개인회원이 보낸 경우만
-        if (empty($msg_chat_type) && $msg_type === "text" && $msg_user_id === $individual_user_id) {
+        $msg_text = isset($msg["mg_text"]) ? $msg["mg_text"] : "";
+
+        // 조건 1: chat_type이 비어있고, text 메시지, 개인회원이 보낸 경우
+        $is_general_message = empty($msg_chat_type) && $msg_type === "text" && $msg_user_id === $individual_user_id;
+
+        // 조건 2: chat_type이 "recruit"이고, 개인회원이 보낸 지원 메시지만 (제안 메시지 제외)
+        $is_apply_message = $msg_chat_type === "recruit" && $msg_type === "text" && $msg_user_id === $individual_user_id &&
+                           strpos($msg_text, "지원합니다") !== false;
+
+        if ($is_general_message || $is_apply_message) {
           $show_call_btn = true;
           break;
         }

@@ -1385,6 +1385,7 @@ class common
 			'account' => $account,
 			'messageType' => $messageType, // SMS/LMS/MMS
 			'from' => $fromNumber,
+			'subject' => '[AI 매칭 알림]',
 			'duplicateFlag' => 'N',
 			'content' => $msg,
 			'targetCount' => 1,

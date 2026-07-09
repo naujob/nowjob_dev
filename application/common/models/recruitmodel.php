@@ -294,11 +294,11 @@ class recruitModel extends MY_Model
 			$where[] = " AND aa.mm_idx = '{$compidx}' ";
 		}
 
-		# 정렬 (유료공고 → 최신순)
+		# 정렬 (유료공고 → 최신순, 유료공고 그룹 내부는 매 요청마다 랜덤)
 		if ($params["order_by"] == "recent") {
-			$order_by = "aa.pm_idx DESC, aa.up_dt DESC";
+			$order_by = "(aa.pm_idx IS NULL) ASC, (CASE WHEN aa.pm_idx IS NOT NULL THEN RAND() ELSE 0 END), aa.up_dt DESC";
 		} else {
-			$order_by = "aa.book_cnt DESC, aa.up_dt DESC";
+			$order_by = "(aa.pm_idx IS NULL) ASC, (CASE WHEN aa.pm_idx IS NOT NULL THEN RAND() ELSE 0 END), aa.book_cnt DESC, aa.up_dt DESC";
 		}
 
 		$group_by = ""; // 서브쿼리에서 이미 GROUP BY b.rc_idx 처리됨

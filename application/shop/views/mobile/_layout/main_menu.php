@@ -152,11 +152,11 @@ if (!function_exists('_nav_active')) {
 
   #msgNoReadCountMainBottom {
     position: absolute;
-    top: 8px;
-    right: 12%;
+    top: 10px;
+    right: 35px;
     background-color: #F86048;
-    width: 24px;
-    height: 24px;
+    width: 15px;
+    height: 15px;
     text-align: center;
     line-height: 24px;
     color: #fff;
@@ -485,9 +485,9 @@ renderSelectBottomSheet(
           });
         });
 
-        // 읽지 않은 메시지 수 표시/숨김 처리
+        // 읽지 않은 메시지 상태 표시/숨김 처리 (숫자 대신 배지로 표시)
         if (countAll > 0) {
-          $('#msgNoReadCountMainBottom').html(countAll);
+          $('#msgNoReadCountMainBottom').html('');
           $('#msgNoReadCountMainBottom').show();
         } else {
           $('#msgNoReadCountMainBottom').hide();

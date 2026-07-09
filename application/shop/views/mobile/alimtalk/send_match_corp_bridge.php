@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>앱으로 이동중</title>
+	<link rel="stylesheet" href="/resource/shop/mobile/css/main.css">
 	<style>
 		* {
 			margin: 0;
@@ -13,7 +14,6 @@
 
 		body {
 			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-			/* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
 			min-height: 100vh;
 			display: flex;
 			align-items: center;
@@ -59,7 +59,7 @@
 		}
 	</style>
 </head>
-<body>
+<body class="bridge-page-body">
 	<div class="container">
 		<div class="spinner"></div>
 		<div class="text">앱으로 이동중</div>
@@ -85,24 +85,29 @@
 			}
 
 			// 로그인 상태에 따른 딥링크 생성
-			// is_app=true 파라미터로 팝업 숨김
 			var isLogin = <?php echo isset($is_login) ? $is_login : 'false'; ?>;
 			var isCorp = <?php echo isset($is_corp) ? $is_corp : 'false'; ?>;
+			var isAppWebview = <?php echo $this->common->getSession("os_type") ? 'true' : 'false'; ?>;
+
 			var appUrl = (isLogin === true || isLogin === 'true') && (isCorp === true || isCorp === 'true')
-				// ? 'nowjob://recruit/job_list?is_app=true'
 				? 'nowjob://compage/match_list'
-				// : 'nowjob://chat/index_comp';
 				: 'nowjob://member/login?is_app=true';
 
-			// 딥링크로 앱 실행
-			window.location.href = appUrl;
-
-			// 1.5초 후에도 여전히 페이지가 visible이면 앱 미설치로 판단 → 앱마켓으로 폴백
-			setTimeout(function() {
-				if (!document.hidden) {
-					window.location.href = appStoreUrl;
-				}
-			}, 1500);
+			// 이미 앱 내부 웹뷰에서 로드되었다면 커스텀 스킴 호출 대신 내부 라우트로 직접 이동
+			if (isAppWebview) {
+				// 로딩 UI가 표시되도록 지연 추가
+				setTimeout(function() {
+					window.location.replace(appUrl.replace('nowjob://', '/'));
+				}, 800);
+			} else {
+				// Safari 등 외부 웹뷰: 커스텀 스킴 딥링크 + 폴백
+				window.location.href = appUrl;
+				setTimeout(function() {
+					if (!document.hidden) {
+						window.location.href = appStoreUrl;
+					}
+				}, 1500);
+			}
 		});
 	</script>
 </body>

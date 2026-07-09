@@ -13289,6 +13289,14 @@ form#frm {
 
 .match-date-header span {
     white-space: nowrap;
-    
+
+}
+
+/* 알림톡 브릿지 페이지 배경 */
+.bridge-page-body {
+    background-image: url('/resource/shop/mobile/img/bridge_background.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
 }
 

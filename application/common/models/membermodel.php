@@ -3439,15 +3439,15 @@ class memberModel extends MY_Model
 			$where[] = $sex_where;
 		}
 
-		//정렬
+		//정렬 (프로모션 우선 → 최신순, 프로모션 그룹 내부는 매 요청마다 랜덤)
 		if ($params["order_by"] == "recent") {
 			//$order_by  = " MOD(TIMESTAMPDIFF(HOUR, p1.pm_edate, NOW()), 4) DESC, ";
 			//$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
 			//$order_by .= " reg_dt desc ";
-			$order_by  = " p0.pm_idx desc,  ";
+			$order_by  = " (p0.pm_idx IS NULL) ASC, (CASE WHEN p0.pm_idx IS NOT NULL THEN RAND() ELSE 0 END),  ";
 			$order_by .= " GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC ";
 		} else {
-			$order_by  = " p0.pm_idx desc,  ";
+			$order_by  = " (p0.pm_idx IS NULL) ASC, (CASE WHEN p0.pm_idx IS NOT NULL THEN RAND() ELSE 0 END),  ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p1.pm_edate, NOW()), 4) DESC, ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
 			$order_by .= " book_cnt desc ";
@@ -3787,15 +3787,15 @@ class memberModel extends MY_Model
 			$where[] = $sex_where;
 		}
 
-		//정렬
+		//정렬 (프로모션 우선 → 최신순, 프로모션 그룹 내부는 매 요청마다 랜덤)
 		if ($params["order_by"] == "recent") {
 			//$order_by  = " MOD(TIMESTAMPDIFF(HOUR, p1.pm_edate, NOW()), 4) DESC, ";
 			//$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
 			//$order_by .= " reg_dt desc ";
-			$order_by  = " p0.pm_idx desc,  ";
+			$order_by  = " (p0.pm_idx IS NULL) ASC, (CASE WHEN p0.pm_idx IS NOT NULL THEN RAND() ELSE 0 END),  ";
 			$order_by .= " GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC ";
 		} else {
-			$order_by  = " p0.pm_idx desc,  ";
+			$order_by  = " (p0.pm_idx IS NULL) ASC, (CASE WHEN p0.pm_idx IS NOT NULL THEN RAND() ELSE 0 END),  ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p1.pm_edate, NOW()), 4) DESC, ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
 			$order_by .= " book_cnt desc ";
