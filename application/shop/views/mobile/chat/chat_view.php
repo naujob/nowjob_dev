@@ -283,7 +283,7 @@
         <h1 class="title" id="rm_subject"><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></h1>
         <?php if (!empty($call_target_phone)) : ?>
             <a href="tel:<?= htmlspecialchars($call_target_phone, ENT_QUOTES, 'UTF-8') ?>" class="btn-call js-call-log" data-show-call="<?= !empty($show_call_btn) ? 'true' : 'false' ?>">
-                <i class="fa-solid fa-phone"></i>
+                <img src="/resource/shop/mobile/img/phone.png" alt="전화하기">
                 <span class="sr-text">전화하기</span>
             </a>
         <?php endif; ?>
@@ -3003,16 +3003,27 @@
     }
 
     .btn-call[data-show-call="true"] {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-left: auto;
-        cursor: pointer;
-        color: #333;
-        text-decoration: none;
-        top: 24px;
-        position: absolute;
-        right: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            cursor: pointer;
+            color: #333;
+            text-decoration: none;
+            top: 50%;
+            position: absolute;
+            right: 5px;
+            width: 50px;
+            height: 50px;
+            transform: translateY(-50%);
+            padding: 8px;
+            border-radius: 50%;
+    }
+
+    .btn-call img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
     }
 
     .btn-call i {
