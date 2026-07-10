@@ -709,6 +709,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         </div>
 
     </div><!-- //page-content -->
+
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
 </div>
 
 <!-- 공유하기 팝업 -->
@@ -781,121 +783,16 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     }
                     */
 
-                    /* URL 복사 */
-                    function CopyUrl() {
-                        var dummy = document.createElement('input'),
-                            url = location.href;
+                    var shareOsType = "<?= $os_type ?>";
 
-                        document.body.appendChild(dummy);
-                        dummy.value = url;
-                        dummy.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(dummy);
-                        openPopup('alert', {
-                            content: 'URL을 복사했습니다.'
-                        });
-                    }
-
-                    /* Web Share API 지원 여부 감지 */
-                    window.addEventListener('DOMContentLoaded', function() {
-                    
-                        var shareButton = document.querySelector('.btn-share');
-                        if (!shareButton) {
-                            
-                            return;
-                        }
-
-                        var osType = "<?= $os_type ?>";
-                        var userAgent = navigator.userAgent.toLowerCase();
-                       
-
-                        if (!osType || osType === "") {
-                            if (/iphone|ipad|ipod/i.test(userAgent)) {
-                                osType = "ios";
-                            } else if (/android/i.test(userAgent)) {
-                                osType = "android";
-                            }
-                        }
-                     
-
-                        var hasAndroidBridge = window.APP_NOWAPK && typeof window.APP_NOWAPK.share === 'function';
-                        var hasIosBridge = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.share;
-                        var hasWebShare = navigator && typeof navigator.share === 'function';
-
-                       
-
-                        var nativeShareEnabled = hasAndroidBridge || hasIosBridge || hasWebShare;
-                      
-                        shareButton.setAttribute('data-native-share', nativeShareEnabled ? 'true' : 'false');
-
-                        if (nativeShareEnabled) {
-                            shareButton.classList.remove('js-toggle-panel');
-                            shareButton.removeAttribute('aria-controls');
-                            shareButton.setAttribute('href', '#');
-                        }
-
-                        shareButton.addEventListener('click', function(event) {
-                          
-                            if (shareButton.getAttribute('data-native-share') !== 'true') {
-                          
-                                return;
-                            }
-
-                            event.preventDefault();
-                            event.stopImmediatePropagation();
-
-                            var titleElement = document.querySelector('.view-title');
-                            var title = titleElement ? titleElement.textContent.trim() : document.title;
-                            var url = window.location.href;
-
-                            var payload = {
-                                title: title,
-                                url: url
-                            };
-
-                           
-
-                            if (hasAndroidBridge) {
-                              
-                                window.APP_NOWAPK.share(JSON.stringify(payload));
-                                return;
-                            }
-
-                            if (hasIosBridge) {
-                         
-                                try {
-                                    window.webkit.messageHandlers.share.postMessage(payload);
-                                } catch (error) {
-                                  
-                                    window.webkit.messageHandlers.share.postMessage(JSON.stringify(payload));
-                                }
-                                return;
-                            }
-
-                            if (hasWebShare) {
-                            
-                                navigator.share(payload).catch(function(error) {
-                                    if (error && error.name === 'AbortError') {
-                                   
-                                        return;
-                                    }
-                                 
-                                    openPopup('alert', {
-                                        content: '공유를 실행할 수 없습니다.'
-                                    });
-                                });
-                                return;
-                            }
-
-                            
-                        });
-                    });
                 </script>
             </div>
         </div>
     </div>
 </div>
 <!-- //공유하기 팝업 -->
+
+<script src="/resource/shop/mobile/js/share-panel.js"></script>
 
 <!-- 길찾기 팝업 -->
 <div id="findLocation" class="layer-panel card-type" tabindex="-1">

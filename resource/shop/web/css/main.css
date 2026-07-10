@@ -13291,3 +13291,6 @@ body {
   color: #ccc;
   font-weight: 300;
 }
+.btn-group .btnGoChat {
+    background: #1B9D7D;
+}

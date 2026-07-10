@@ -13299,4 +13299,7 @@ form#frm {
     background-position: center !important;
     background-attachment: fixed !important;
 }
+.view-footer .btnGoChat {
+    background: #BEBFC9;
+}
 

@@ -339,6 +339,35 @@ class Resume extends CI_Controller
     $data["mem_info"] = $this->member_model->getMemberInfo($info["mm_idx"]);
     $data["career_list"] = $this->member_model->getResumeCareerList(["ru_idx" => $info["ru_idx"]]);
     $data["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx" => $info["ru_idx"]]);
+
+    // 기업회원과 인재 사이의 지원/제안 이력 확인 (양방향)
+    $data["already_requested"] = false;
+    $data["chat_rm_idx"] = "";
+    $data["chat_rc_idx"] = "";
+    $data["chat_tab"] = "2"; // PC에서 기본값: 탭2(제안한 인재)
+    if ($this->user->getUserType() == "COMP") {
+      $latest_request = $this->db->query("
+        SELECT rc_idx, mq_type FROM st_member_request
+        WHERE ru_idx = ?
+        AND (
+          (mq_type = 'RESUME' AND mm_idx = ?)
+          OR (mq_type = 'RECRUIT' AND rc_idx IN (SELECT rc_idx FROM st_recruit WHERE mm_idx = ?))
+        )
+        ORDER BY mq_idx DESC LIMIT 1
+      ", [$ru_idx, $this->mm_idx, $this->mm_idx])->row_array();
+
+      if ($latest_request && !empty($latest_request["rc_idx"])) {
+        $room = $this->common_model->getRoom(["rc_idx" => $latest_request["rc_idx"], "ru_idx" => $ru_idx]);
+        if ($room && !empty($room["rm_idx"])) {
+          $data["already_requested"] = true;
+          $data["chat_rm_idx"] = $room["rm_idx"];
+          $data["chat_rc_idx"] = $latest_request["rc_idx"];
+          // RESUME(기업이 제안): 탭2(제안한 인재) / RECRUIT(인재가 지원): 탭1(지원자 목록)
+          $data["chat_tab"] = ($latest_request["mq_type"] == "RESUME") ? "2" : "1";
+        }
+      }
+    }
+
     $this->layout->shop('/resume/hr_post', $data);
   }
 

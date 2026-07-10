@@ -42,6 +42,9 @@
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
+        <span class="rt-group">
+            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
+        </span>
     </div><!-- //top-bar -->
 
     <div class="page-content">
@@ -457,7 +460,68 @@
 
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
+
+<!-- 공유하기 팝업 -->
+<?php
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://';
+$domain = $_SERVER['HTTP_HOST'];
+$share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
+?>
+<div id="sharePanel" class="layer-panel card-type" tabindex="-1" data-share-url="<?= htmlspecialchars($share_url, ENT_QUOTES, 'UTF-8') ?>">
+    <div class="panel-container">
+        <div class="panel-header">
+            <h2 class="sr-text">공유하기</h2>
+            <button type="button" aria-controls="sharePanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+        </div>
+        <div class="panel-body">
+            <div class="panel-content">
+                <div class="vendor-links">
+                    <a href="#" onclick="shareMessage();return false;" class="share-link1">
+                        <span class="ico"><img src="/resource/shop/mobile/img/share_vendor1.svg" alt=""></span>
+                        <span>카카오톡</span>
+                    </a>
+                    <a href="#" onclick="CopyUrl();return false;" class="share-link2">
+                        <span class="ico"><img src="/resource/shop/mobile/img/share_copy_url.svg" alt=""></span>
+                        <span>URL복사</span>
+                    </a>
+                </div>
+
+                <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+                <script>
+                    function shareMessage() {
+                        if (!Kakao.isInitialized()) {
+                            Kakao.init("<?= $kakao_key["인증키"] ?>");
+                        }
+
+                        var title = document.querySelector('.view-title')?.textContent || document.title;
+                        var rc_idx = document.querySelector('[name=rc_idx]').value;
+                        var mobileUrl = 'nowapk://recruit/job_post/' + rc_idx;
+
+                        Kakao.Share.sendDefault({
+                            objectType: 'feed',
+                            content: {
+                                title: title,
+                                imageUrl: '/resource/shop/web/img/nowjob_info.png',
+                                link: {
+                                    mobileWebUrl: mobileUrl,
+                                    webUrl: location.href
+                                }
+                            }
+                        });
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- //공유하기 팝업 -->
+
+<script src="/resource/shop/mobile/js/share-panel.js"></script>
+
 <script>
+    var shareOsType = "<?= $os_type ?>";
+    var customShareUrl = document.getElementById('sharePanel')?.getAttribute('data-share-url') || '';
+
     window.addEventListener('DOMContentLoaded', function() {
         // 마감 버튼 클릭 이벤트
         $("#btnDelete").click(function() {

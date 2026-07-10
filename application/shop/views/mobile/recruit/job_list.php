@@ -489,109 +489,11 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   }
 </style>
 
-<!-- app 인터셉트 레이어 스타일 -->
-<style>
-  #app-intercept-layer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    padding: 0 1rem 1rem;
-    z-index: 1300;
-    pointer-events: none;
-    transform: translateY(110%);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    opacity: 0;
-  }
-
-  #app-intercept-layer.visible {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  #app-intercept-layer .app-intercept-panel {
-    width: 100%;
-    max-width: 480px;
-    background: #fff;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
-    padding: 1.25rem;
-    border: 1px solid #f0f0f0;
-    text-align: center;
-  }
-
-  #app-intercept-layer .app-intercept-label {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #57CCAF;
-    margin-bottom: 0.35rem;
-  }
-
-  #app-intercept-layer .app-intercept-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0;
-    color: #1b1b1b;
-  }
-
-  #app-intercept-layer .app-intercept-description {
-    margin: 0.35rem 0 1.15rem;
-    font-size: 0.95rem;
-    color: #5b5b5b;
-  }
-
-  #app-intercept-layer .app-intercept-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  #app-intercept-layer .app-intercept-actions button {
-    flex: 1 1 45%;
-    min-width: 105px;
-    height: 60px;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    border: none;
-    font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  #app-intercept-layer .app-intercept-actions .app-intercept-open {
-    background: linear-gradient(135deg, #57CCAF, #57CCAF);
-    color: #fff;
-  }
-
-  #app-intercept-layer .app-intercept-actions .app-intercept-close {
-    background: #f0f0f0;
-    color: #333;
-  }
-</style>
-
 <!-- Google AdSense 인피드 광고 스크립트 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
   crossorigin="anonymous"></script>
 
-<!-- app 인터셉트 레이어 -->
-<div id="app-intercept-layer" aria-hidden="true">
-  <div class="app-intercept-panel">
-    <p class="app-intercept-label">나우잡</p>
-    <p class="app-intercept-title">앱에서 더 빠르게 NOW JOB</p>
-    <p class="app-intercept-description">앱으로 이동하면 알림과 맞춤 추천을 바로 확인할 수 있어요.</p>
-    <div class="app-intercept-actions">
-      <button type="button" class="app-intercept-open">앱으로 볼래요</button>
-      <button type="button" class="app-intercept-close">이대로 볼래요</button>
-    </div>
-  </div>
-</div>
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
 
 <div class="page-recruit">
 

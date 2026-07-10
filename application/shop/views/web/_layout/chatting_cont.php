@@ -1372,15 +1372,15 @@
 	//대화내용 중복 차단 내역 초기화
 	let processedIdx = [];
 	
-	// 🔥 채팅방 입장 시 읽음 카운트 정보 저장 (room_join_return에서 받은 정보)
+	//  채팅방 입장 시 읽음 카운트 정보 저장 (room_join_return에서 받은 정보)
 	let pendingReadCounts = {};
-	// 🔥 room_join_return에서 받은 메시지 리스트 저장 (상대방이 읽은 메시지 추적)
+	//  room_join_return에서 받은 메시지 리스트 저장 (상대방이 읽은 메시지 추적)
 	let roomJoinReadMessages = [];
-	// 🔥 메시지 전송 시간 기록 (메시지 전송 직후 readcount 보호용)
+	//  메시지 전송 시간 기록 (메시지 전송 직후 readcount 보호용)
 	let messageSentTimes = {};
-	// 🔥 timeline 메시지의 mg_idx 추적 (readcount 업데이트 방지용)
+	//  timeline 메시지의 mg_idx 추적 (readcount 업데이트 방지용)
 	let timelineMessageIdx = [];
-	// 🔥 fSearchNoReadCount 디바운싱을 위한 타이머 변수
+	//  fSearchNoReadCount 디바운싱을 위한 타이머 변수
 	let fSearchNoReadCountTimer = null;
 
 	// 채팅방 진입 시 processedIdx 초기화
@@ -1389,7 +1389,7 @@
 		timelineMessageIdx = []; // timeline 메시지 추적도 초기화
 	}
 	
-	// 🔥 읽음 카운트 업데이트 함수 (메시지 요소가 있을 때 사용)
+	//  읽음 카운트 업데이트 함수 (메시지 요소가 있을 때 사용)
 	// ✅ force: true이면 강제 업데이트, false이면 이미 readcount가 있으면 업데이트하지 않음
 	function updateReadCount(mg_idx, count, force) {
 		var $msgElement = $("#mg_idx_" + mg_idx);
@@ -1523,9 +1523,9 @@
 		var g_chat_other_id = ""; // ✅ 채팅방 생성 시점의 상대방 user_id 저장 (최초 메시지 전송 시 사용)
 		var first_message_emit_pending = false;
 		var first_message_emit_room_idx = "";
-		// 🔥 주기적 폴링을 위한 타이머 변수
+		//  주기적 폴링을 위한 타이머 변수
 		var noreadCountPollingTimer = null;
-		// 🔥 탭별 rm_idx 리스트 저장 (tab-badge 실시간 업데이트용)
+		//  탭별 rm_idx 리스트 저장 (tab-badge 실시간 업데이트용)
 			var tab1RoomIdxList = []; // 탭1에 속한 rm_idx 리스트
 			var tab2RoomIdxList = []; // 탭2에 속한 rm_idx 리스트
 
@@ -1560,7 +1560,7 @@
 			//룸정보 가져오기
 			g_user_id = $("#user_id").val();
 			
-			// 🔥 주기적 폴링: 10초마다 읽지 않은 메시지 카운트 업데이트 (채팅방에 입장하지 않은 경우 대비)
+			//  주기적 폴링: 10초마다 읽지 않은 메시지 카운트 업데이트 (채팅방에 입장하지 않은 경우 대비)
 			// 페이지가 포커스를 받을 때도 즉시 업데이트
 			function startNoreadCountPolling() {
 				// 기존 타이머가 있으면 제거
@@ -1647,7 +1647,7 @@
  		}); //ready
 
 		//var noReadCountProc = false;
-		// 🔥 디바운싱을 적용한 fSearchNoReadCount 호출 함수
+		// 디바운싱을 적용한 fSearchNoReadCount 호출 함수
 		function fSearchNoReadCountDebounced() {
 			//console.log("🔥 fSearchNoReadCountDebounced() 호출됨");
 			if (fSearchNoReadCountTimer) {
@@ -1885,7 +1885,7 @@
 		//더블클릭 이벤트 처리
 		// 기업회원 제안받은 인재 / 제안보낸 인재 탭의 항목 클릭시 채팅방 진입
 		$(document).on("click", ".room-item", function() {
-			console.log("[DEBUG] room-item 클릭");
+			//console.log("[DEBUG] room-item 클릭");
 			//대화내용 중복 차단 내역 초기화
 			resetProcessedIdx();
 
@@ -1897,7 +1897,7 @@
 			rm_start = 0;
 			$("#chat_view").html("");
 			rm_idx = $(this).data("target_id");
-			console.log("[DEBUG] room-item 클릭 - rm_idx:", rm_idx, "g_user_id:", g_user_id);
+			//console.log("[DEBUG] room-item 클릭 - rm_idx:", rm_idx, "g_user_id:", g_user_id);
 			// get_chat_info 중복 호출 방지 플래그 초기화
 			window.chat_info_called = false;
 			// 채팅방 정보 준비 상태 초기화 (실무 방법)
@@ -1911,7 +1911,7 @@
 
 
 			//룸 호출
-			console.log("[DEBUG] room_join/room_info/message_list emit - rm_idx:", rm_idx);
+			//console.log("[DEBUG] room_join/room_info/message_list emit - rm_idx:", rm_idx);
 			socket.emit("room_join", {
 				rm_idx: Number(rm_idx),
 				con_user_id: g_user_id
@@ -2089,7 +2089,7 @@
  						//뷰 초기화
  						$("#chat_view").html("");
  						//alert('2');
- 						//뷰 보이게 처리
+ 						//room 클릭하여 채팅 뷰 보이게 처리
  						$(".chat-view").removeAttr("hidden");
  						//alert(22);
 
@@ -2230,7 +2230,7 @@
 		});
 
 		function setShow(type) {
-			console.log("[DEBUG] setShow 호출 - type:", type);
+			//console.log("[DEBUG] setShow 호출 - type:", type);
 			if (type == "1") {
 				$(".chat_tab1").addClass("on");
 				$(".chat_tab2").removeClass("on");
@@ -2311,7 +2311,7 @@
  		}
 
 		function getChatTargetList(arg) {
-			console.log("[DEBUG] getChatTargetList 호출 - arg:", arg);
+			//console.log("[DEBUG] getChatTargetList 호출 - arg:", arg);
 			//alert(arg);
 			var getUrl = "get_chat_target_list_recruit";
 			<?php if ($user_type == "MEM") { ?>
@@ -2323,9 +2323,9 @@
 				if (arg == '2') getUrl = "get_chat_target_list_recruit2"; //기업회원 제안보낸 인재 탭에서  회사공고 목록
 			<?php } ?>
 
- 			console.log("[DEBUG] getChatTargetList AJAX 호출 - url:", "/chat_proc/" + getUrl);
+ 			//console.log("[DEBUG] getChatTargetList AJAX 호출 - url:", "/chat_proc/" + getUrl);
  			comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
- 				console.log("[DEBUG] getChatTargetList 응답 - code:", ret.code, "list 개수:", ret.data && ret.data.list ? ret.data.list.length : 0);
+ 				//console.log("[DEBUG] getChatTargetList 응답 - code:", ret.code, "list 개수:", ret.data && ret.data.list ? ret.data.list.length : 0);
 
  				//console.log("get_chat_target_list_recruit:"+g_user_id);
  				//socket.emit("room_list2",{user_id : g_user_id,rm_type : "chat"});

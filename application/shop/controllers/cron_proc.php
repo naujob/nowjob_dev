@@ -738,7 +738,7 @@ class Cron_proc extends CI_Controller
         echo "완료 - 로그 기록 건수: {$logged_count}\n";
     }
 
-    // 헬퍼: 지금이 설정된 알림 시각과 일치하는가 (분 단위)
+    // 헬퍼: 지금이 설정된 알림 시각과 정확히 일치하는가 (분 단위)
     private function _isAlarmTimeNow($time_str) {
         if ($time_str === '' || $time_str === null) {
             return false;

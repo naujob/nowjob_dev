@@ -167,6 +167,10 @@ function fRemoveBigAdr($arg)
         display: inline-block;
         padding-left: 5px;
     }
+
+    .view-footer[data-request-state="none"] .btnGoChat {
+        display: none;
+    }
 </style>
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
@@ -179,6 +183,9 @@ function fRemoveBigAdr($arg)
             <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
         </span>
     </div><!-- //top-bar -->
+
+    <!-- 앱 딥링크 -->
+    <script src="/resource/shop/mobile/js/app-deeplink.js"></script>
 
     <div class="page-content">
         <div class="section view-header">
@@ -513,7 +520,7 @@ function fRemoveBigAdr($arg)
         // 개인회원이 자신의 이력서를 볼 경우를 판단
         $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
         ?>
-        <div class="view-footer">
+        <div class="view-footer" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
             <?php if ($isOwnResume) { ?>
                 <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 버튼 -->
                 <button type="button" id="btnEditResume" class="btn btn-edit">수정</button>
@@ -521,10 +528,14 @@ function fRemoveBigAdr($arg)
             <?php } else { ?>
                 <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
                 <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn btn-primary">제안보내기</button>
+                <!-- 기업과 인재 사이에 지원/제안 이력이 있을 때: 채팅하기 버튼 -->
+                <button type="button" id="btnGoChat" class="btnGoChat btn btn-primary" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">채팅하기</button>
             <?php } ?>
         </div>
 
     </div><!-- //page-content -->
+
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
 
 </div>
 
@@ -611,13 +622,10 @@ function fRemoveBigAdr($arg)
         <div class="panel-body">
             <div class="panel-content">
                 <div class="vendor-links">
-                    <!-- 카카오톡 공유 기능 주석처리 -->
-                    <!--
                     <a href="#" onclick="shareMessage();return false;" class="share-link1">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_vendor1.svg" alt=""></span>
                         <span>카카오톡</span>
                     </a>
-                    -->
                     <a href="#" onclick="CopyUrl();return false;" class="share-link2">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_copy_url.svg" alt=""></span>
                         <span>URL복사</span>
@@ -673,97 +681,7 @@ function fRemoveBigAdr($arg)
                     }
                     */
 
-                    /* URL 복사 */
-                    function CopyUrl() {
-                        var dummy = document.createElement('input'),
-                            url = location.href;
-
-                        document.body.appendChild(dummy);
-                        dummy.value = url;
-                        dummy.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(dummy);
-                        openPopup('alert', {
-                            content: 'URL을 복사했습니다.'
-                        });
-                    }
-
-                    /* 네이티브 공유 브리지/웹쉐어 처리 */
-                    window.addEventListener('DOMContentLoaded', function() {
-                        var shareButton = document.querySelector('.btn-share');
-                        if (!shareButton) {
-                            return;
-                        }
-
-                        var osType = "<?= $os_type ?>";
-                        var userAgent = navigator.userAgent.toLowerCase();
-
-                        if (!osType || osType === "") {
-                            if (/iphone|ipad|ipod/i.test(userAgent)) {
-                                osType = "ios";
-                            } else if (/android/i.test(userAgent)) {
-                                osType = "android";
-                            }
-                        }
-
-                        var hasAndroidBridge = window.APP_NOWAPK && typeof window.APP_NOWAPK.share === 'function';
-                        var hasIosBridge = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.share;
-                        var hasWebShare = navigator && typeof navigator.share === 'function';
-
-                        var nativeShareEnabled = hasAndroidBridge || hasIosBridge || hasWebShare;
-                        shareButton.setAttribute('data-native-share', nativeShareEnabled ? 'true' : 'false');
-
-                        if (nativeShareEnabled) {
-                            shareButton.classList.remove('js-toggle-panel');
-                            shareButton.removeAttribute('aria-controls');
-                            shareButton.setAttribute('href', '#');
-                        }
-
-                        shareButton.addEventListener('click', function(event) {
-                            if (shareButton.getAttribute('data-native-share') !== 'true') {
-                                return;
-                            }
-
-                            event.preventDefault();
-                            event.stopImmediatePropagation();
-
-                            var ruName = <?= json_encode(isset($info["ru_name"]) ? $info["ru_name"] : "", JSON_UNESCAPED_UNICODE) ?>;
-                            var titleElement = document.querySelector('.view-title');
-                            var title = ruName || (titleElement ? titleElement.textContent.trim() : document.title);
-                            var url = window.location.href;
-
-                            var payload = {
-                                title: title,
-                                url: url
-
-                            };
-
-                            if (hasAndroidBridge) {
-                                window.APP_NOWAPK.share(JSON.stringify(payload));
-                                return;
-                            }
-
-                            if (hasIosBridge) {
-                                try {
-                                    window.webkit.messageHandlers.share.postMessage(payload);
-                                } catch (error) {
-                                    window.webkit.messageHandlers.share.postMessage(JSON.stringify(payload));
-                                }
-                                return;
-                            }
-
-                            if (hasWebShare) {
-                                navigator.share(payload).catch(function(error) {
-                                    if (error && error.name === 'AbortError') {
-                                        return;
-                                    }
-                                    openPopup('alert', {
-                                        content: '공유를 실행할 수 없습니다.'
-                                    });
-                                });
-                            }
-                        });
-                    });
+                    var shareOsType = "<?= $os_type ?>";
                 </script>
             </div>
         </div>
@@ -771,6 +689,7 @@ function fRemoveBigAdr($arg)
 </div>
 <!-- //공유하기 팝업 -->
 
+<script src="/resource/shop/mobile/js/share-panel.js"></script>
 
 <!-- 제안 리스트 -->
 <div id="selectPanel" class="layer-panel card-type" tabindex="-1">
@@ -1035,6 +954,14 @@ function fRemoveBigAdr($arg)
     // 개인회원이 자신의 이력서를 볼 때: 광고신청 버튼 클릭 이벤트
     $(document).on('click', '#btnPromotionResume', function() {
         location.href = "/mypage/point_promotion_buy";
+    });
+
+    // 기업회원이 이미 제안/지원 이력이 있을 때: 채팅하기 버튼 클릭 이벤트
+    $(document).on('click', '#btnGoChat', function() {
+        var rmIdx = $(this).attr('data-rm_idx');
+        if (rmIdx) {
+            location.href = "/chat/chat_view?rm_idx=" + rmIdx;
+        }
     });
 
     // 사업자 인증 버튼 클릭 이벤트 - 기업정보입력 팝업 기능 (사용 안 함 - 주석처리)

@@ -526,6 +526,10 @@ function fRemoveBigAdrPHP($arg)
   .history-body .content-info .summary2 .period em.off {
     color: #222;
   }
+
+  .btn-group[data-request-state="none"] .btnGoChat {
+    display: none;
+  }
 </style>
 <div id="content" class="page page-view">
   <main class="page-content">
@@ -992,18 +996,25 @@ function fRemoveBigAdrPHP($arg)
                 </p>
               <?php } ?>
 
-              <?php if ($isOwnResume) { ?>
-                <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 버튼 -->
-                <button type="button" id="btnEditResume" class="btn-request btn-primary">수정</button>
-                <button type="button" id="btnPromotionResume" class="btn-request btn-primary">광고신청</button>
-              <?php } else { ?>
-                <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
-                <?php if ($this->user->getUserType() == "MEM") { ?>
-                  <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn-request btn-primary" style="background-color:#ccc;" disabled>제안보내기</button>
+              <div class="btn-group" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
+                <?php if ($isOwnResume) { ?>
+                  <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 버튼 -->
+                  <button type="button" id="btnEditResume" class="btn-request btn-primary">수정</button>
+                  <button type="button" id="btnPromotionResume" class="btn-request btn-primary">광고신청</button>
                 <?php } else { ?>
-                  <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn-request btn-primary">제안보내기</button>
+                  <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
+                  <?php if ($this->user->getUserType() == "MEM") { ?>
+                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn-request btn-primary" style="background-color:#ccc;" disabled>제안보내기</button>
+                  <?php } else { ?>
+                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn-request btn-primary">제안보내기</button>
+                    <!-- 기업과 인재 사이에 지원/제안 이력이 있을 때: 채팅하기 버튼 -->
+                    <button type="button" id="btnGoChat" class="btnGoChat btn-request btn-primary"
+                        data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>"
+                        data-rc_idx="<?= isset($chat_rc_idx) ? htmlspecialchars($chat_rc_idx, ENT_QUOTES, 'UTF-8') : '' ?>"
+                        data-tab="<?= isset($chat_tab) ? htmlspecialchars($chat_tab, ENT_QUOTES, 'UTF-8') : '2' ?>">채팅하기</button>
+                  <?php } ?>
                 <?php } ?>
-              <?php } ?>
+              </div>
             </div>
 
             <!-- 히스토리 목록 -->
@@ -1984,6 +1995,115 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   // 개인회원이 자신의 이력서를 볼 때: 광고신청 버튼 클릭 이벤트
   $(document).on('click', '#btnPromotionResume', function() {
     location.href = "/mypage/point_promotion_buy";
+  });
+
+  // 기업회원이 이미 제안/지원 이력이 있을 때: 채팅하기 버튼 클릭 이벤트 (PC: 팝업 내 room 자동 진입)
+  $(document).on('click', '#btnGoChat', function() {
+    var rcIdx = $(this).attr('data-rc_idx');
+    var rmIdx = $(this).attr('data-rm_idx');
+    var targetTab = $(this).attr('data-tab') || '2';
+    var currentRuIdx = $("[name=ru_idx]").val();
+
+    if (!rcIdx || !rmIdx) {
+      return; // 필요한 데이터가 없으면 아무 동작 안 함
+    }
+
+    // 채팅 팝업 열기
+    $("body").addClass('has-popup');
+    $(".js-open-chat").addClass("is-trigger");
+    $("#chatPopup").addClass("in");
+    $(".btn-close-chat").addClass("btn-close-chat");
+    $(".js-close-chat").addClass("show");
+
+    // 올바른 탭 활성화
+    if (typeof setShow === 'function') {
+      setShow(targetTab);
+    }
+
+    // 채팅방 목록 로드
+    if (typeof getChatTargetList === 'function') {
+      getChatTargetList(targetTab);
+
+      // 채팅방 목록 로드 후 해당 room을 찾아 자동으로 클릭
+      var checkCount = 0;
+      var maxCheckCount = 30; // 최대 15초 대기 (0.5초 * 30)
+      var recruitClicked = false; // 공고 클릭 플래그
+
+      var checkInterval = setInterval(function() {
+        try {
+          checkCount++;
+          var targetRmIdx = null;
+
+          // 이미 펼쳐진 인재 목록에서 room 찾기 (rc_idx와 ru_idx 모두 일치)
+          var chatListId = targetTab == "1" ? "#chat_list1" : "#chat_list2";
+          var chatListSelector = chatListId + " .room-item";
+          var foundItems = $(chatListSelector);
+
+          foundItems.each(function() {
+            var $item = $(this);
+            // .room-item 내부의 <a> 태그에서 data 속성 찾기
+            var $link = $item.find('a');
+            var itemRcIdx = $link.data('rc_idx') || $item.data('rc_idx');
+            var itemRuIdx = $link.data('ru_idx') || $item.data('ru_idx');
+
+            if (itemRcIdx && itemRuIdx && itemRcIdx == rcIdx && itemRuIdx == currentRuIdx) {
+              targetRmIdx = $item.data('target_id');
+              return false; // break
+            }
+          });
+
+          // room을 찾았으면 즉시 클릭
+          if (targetRmIdx) {
+            clearInterval(checkInterval);
+            var $roomItem = $("[data-target_id='" + targetRmIdx + "']");
+            if ($roomItem.length > 0) {
+              $roomItem.trigger('click');
+              // 채팅 뷰 표시 (chatting_cont.php의 room-item 클릭 핸들러와 동일하게)
+              $('.chat-view').css('display', 'flex');
+              $('.chat-view').removeAttr('hidden');
+            }
+            return;
+          }
+
+          // room을 찾지 못했고, 공고를 아직 클릭하지 않은 경우
+          if (!recruitClicked) {
+            var $targetRecruitItem = null;
+            var listItemSelector = targetTab == "1" ? "#chat_list1 .list-item" : "#chat_list2 .list-item";
+            $(listItemSelector).each(function() {
+              var $item = $(this);
+              var $link = $item.find('a[onclick*="fShowChatListByRecruite"]');
+              if ($link.length > 0) {
+                var onclickAttr = $link.attr('onclick') || '';
+                var match = onclickAttr.match(/fShowChatListByRecruite\('(\d+)'/);
+                if (match && match[1] == rcIdx) {
+                  $targetRecruitItem = $link;
+                  return false; // break
+                }
+              }
+            });
+
+            // 공고를 찾았으면 한 번만 클릭하여 인재 목록 펼치기
+            if ($targetRecruitItem && $targetRecruitItem.length > 0) {
+              recruitClicked = true; // 플래그 설정
+              $targetRecruitItem.trigger('click');
+              return; // 다음 체크에서 인재 목록 확인
+            }
+          }
+
+          // 최대 시도 횟수에 도달한 경우
+          if (checkCount >= maxCheckCount) {
+            clearInterval(checkInterval);
+            // 마지막 한 번 더 확인
+            var $lastItem = $("[data-target_id='" + rmIdx + "']");
+            if ($lastItem.length > 0) {
+              $lastItem.trigger('click');
+            }
+          }
+        } catch (error) {
+          clearInterval(checkInterval);
+        }
+      }, 500); // 0.5초마다 확인
+    }
   });
 
   $(document).on('click', '.desc', function() {
