@@ -89,18 +89,26 @@
 			var isPerson = <?php echo isset($is_person) ? $is_person : 'false'; ?>;
 			var isAppWebview = <?php echo $this->common->getSession("os_type") ? 'true' : 'false'; ?>;
 
+			var webUrl = (isLogin === true || isLogin === 'true') && (isPerson === true || isPerson === 'true')
+				? '/chat/chat_list'
+				: '/member/login?is_app=true';
+
 			var appUrl = (isLogin === true || isLogin === 'true') && (isPerson === true || isPerson === 'true')
 				? 'nowjob://chat/chat_list'
 				: 'nowjob://member/login?is_app=true';
 
-			// 이미 앱 내부 웹뷰에서 로드되었다면 커스텀 스킴 호출 대신 내부 라우트로 직접 이동
 			if (isAppWebview) {
-				// 로딩 UI가 표시되도록 지연 추가
+				// 이미 앱 내부 웹뷰: 웹 경로로 직접 이동
 				setTimeout(function() {
-					window.location.replace(appUrl.replace('nowjob://', '/'));
+					window.location.replace(webUrl);
+				}, 800);
+			} else if (isIos) {
+				// iOS: 웹 경로 사용
+				setTimeout(function() {
+					window.location.href = webUrl;
 				}, 800);
 			} else {
-				// Safari 등 외부 웹뷰: 커스텀 스킴 딥링크 + 폴백
+				// Android 및 기타: 커스텀 스킴 딥링크 + 폴백
 				window.location.href = appUrl;
 				setTimeout(function() {
 					if (!document.hidden) {
