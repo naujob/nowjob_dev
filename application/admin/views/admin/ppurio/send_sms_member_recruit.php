@@ -19,7 +19,7 @@
                 <tbody>
                 <tr>
                     <th scope="row">검색어</th>
-                    <td class="inline-wrap">
+                    <td class="inline-wrap" colspan="3">
                         <div class="sum-select-input">
                             <?=inputSelect("search_type","search_type",[""=>"전체","mm_comp_name"=>"사업장명","rc_name"=>"공고명","ad_addr"=>"지역"],isset($search["search_type"]) ? $search["search_type"] : "")?>
                             <div class="input-text">
@@ -29,29 +29,101 @@
                             </div>
                         </div>
                     </td>
-                    <th scope="row">카테고리</th>
-                    <td class="inline-wrap" colspan="1">
-                        <?=inputCheck("","category[]",isset($select_category) ? $select_category : array(),isset($search["category"]) ? $search["category"] : array())?>
+                </tr>
+                <tr>
+                    <th scope="row">업종</th>
+                    <td class="inline-wrap">
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="category[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach($select_category as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="category[]" value="<?=$key?>" <?=in_array($key, isset($search["category"]) ? $search["category"] : array()) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </td>
+                    <th scope="row">근무형태</th>
+                    <td class="inline-wrap">
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_work_type[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach($select_work as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_work_type[]" value="<?=$key?>" <?=in_array($key, isset($search["rc_work_type"]) ? $search["rc_work_type"] : array()) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">국적</th>
                     <td class="inline-wrap">
-                        <?=inputRadio("rc_nation","rc_nation",[""=>"전체","내국인"=>"내국인","외국인"=>"외국인"],isset($search["rc_nation"]) ? $search["rc_nation"] : "")?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_nation[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["내국인"=>"내국인","외국인"=>"외국인"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_nation[]" value="<?=$key?>" <?=in_array($key, (array)isset($search["rc_nation"]) ? $search["rc_nation"] : array()) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                     <th scope="row">성별</th>
                     <td class="inline-wrap">
-                        <?=inputRadio("rc_sex","rc_sex",[""=>"전체","남자"=>"남자","여자"=>"여자"],isset($search["rc_sex"]) ? $search["rc_sex"] : "")?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_sex[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["남자"=>"남자","여자"=>"여자"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_sex[]" value="<?=$key?>" <?=in_array($key, (array)isset($search["rc_sex"]) ? $search["rc_sex"] : array()) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">근무형태</th>
+                    <th scope="row">연령</th>
                     <td class="inline-wrap">
-                        <?=inputCheck("","rc_work_type[]",isset($select_work) ? $select_work : array(),isset($search["rc_work_type"]) ? $search["rc_work_type"] : array())?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_age[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["20대"=>"20대","30대"=>"30대","40대"=>"40대","50대"=>"50대","60대"=>"60대","70대"=>"70대"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_age[]" value="<?=$key?>" <?=in_array($key, (array)isset($search["rc_age"]) ? $search["rc_age"] : array()) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                     <th scope="row">급여형태</th>
                     <td class="inline-wrap">
-                        <?=inputCheck("","rc_price_type[]",isset($select_work_type) ? $select_work_type : array(),isset($search["rc_price_type"]) ? $search["rc_price_type"] : array())?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_price_type[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["시급"=>"시급","일급"=>"일급","주급"=>"주급","월급"=>"월급"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_price_type[]" value="<?=$key?>" <?=in_array($key, isset($search["rc_price_type"]) ? $search["rc_price_type"] : array()) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
@@ -86,11 +158,15 @@
                 <colgroup>
                     <col width="50px"/>
                     <col width="50px"/>
-                    <col width="100px"/>
                     <col width="150px"/>
                     <col width="150px"/>
+                    <col width="150px"/>
                     <col width="100px"/>
                     <col width="100px"/>
+                    <col width="100px"/>
+                    <col width="100px"/>
+                    <col width="100px"/>
+                    <col width="150px"/>
                     <col width="150px"/>
                     <col width="150px"/>
                 </colgroup>
@@ -99,19 +175,23 @@
                         <th scope="col">
                             <div class='input-checkbox'>
                                 <label>
-                                    <input type='checkbox' id='chk_all_Y' name='chk_all' value='Y' disabled style='display:none;' />
+                                    <input type='checkbox' id='chk_all_Y' name='chk_all' value='Y' />
                                     <span style='padding-left:5px;'><strong></strong></span>
                                 </label>
                             </div>
                         </th>
                         <th scope="col">번호</th>
-                        <th scope="col">게시글상태</th>
-                        <th scope="col">회원명</th>
+                        <th scope="col">사업자명</th>
                         <th scope="col">공고명</th>
-                        <th scope="col">국적</th>
+                        <th scope="col">근무지역</th>
+                        <th scope="col">추가 노출지역</th>
+                        <th scope="col">연락처</th>
+                        <th scope="col">업종</th>
                         <th scope="col">성별</th>
-                        <th scope="col">지역</th>
-                        <th scope="col">카테고리</th>
+                        <th scope="col">국적</th>
+                        <th scope="col">연령</th>
+                        <th scope="col">급여형태</th>
+                        <th scope="col">근무형태</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -128,18 +208,28 @@
                             </div>
                         </td>
                         <td class="tc"><?=$num_start + $key?></td>
-                        <td class="tc"><?=(isset($row['rc_status']) && $row['rc_status'] === 'Y') ? '정상' : '비공개'?></td>
                         <td><?=isset($row['mm_comp_name']) ? $row['mm_comp_name'] : ''?></td>
                         <td><?=isset($row['rc_name']) ? $row['rc_name'] : ''?></td>
-                        <td><?=isset($row['rc_nation']) ? $row['rc_nation'] : ''?></td>
-                        <td><?=isset($row['rc_sex']) ? $row['rc_sex'] : ''?></td>
                         <td><?=isset($row['ad_addr']) ? $row['ad_addr'] : ''?></td>
+                        <td><?=isset($row['expose_addrs']) && !empty($row['expose_addrs']) ? implode(', ', $row['expose_addrs']) : ''?></td>
+                        <td><?=isset($row['mm_phone']) ? $row['mm_phone'] : ''?></td>
                         <td><?=isset($row['rc_work']) ? $row['rc_work'] : ''?></td>
+                        <td><?=isset($row['rc_sex']) ? $row['rc_sex'] : ''?></td>
+                        <td><?=isset($row['rc_nation']) ? $row['rc_nation'] : ''?></td>
+                        <td><?php
+                            $age_str = '';
+                            if (isset($row['rc_sage']) && isset($row['rc_eage']) && $row['rc_sage'] != 0 && $row['rc_eage'] != 0) {
+                                $age_str = $row['rc_sage'] . '~' . $row['rc_eage'];
+                            }
+                            echo $age_str;
+                        ?></td>
+                        <td><?=isset($row['rc_price_type']) ? $row['rc_price_type'] : ''?></td>
+                        <td><?=isset($row['rc_work_type']) ? $row['rc_work_type'] : ''?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="9" class="tc" style="padding: 20px;">발송 대상이 없습니다.</td>
+                        <td colspan="13" class="tc" style="padding: 20px;">발송 대상이 없습니다.</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
@@ -211,6 +301,17 @@
 var selectedMmIdx = <?php echo json_encode($selected_mm_idx); ?>;
 
 $(document).ready(function(){
+    // 전체선택 체크박스 연동
+    $('#chk_all_Y').on('change', function(){
+        var isChecked = $(this).is(':checked');
+        $('input[name="chk[]"]').prop('checked', isChecked);
+    });
+
+    $('input[name="chk[]"]').on('change', function(){
+        var allChecked = $('input[name="chk[]"]').length === $('input[name="chk[]"]:checked').length;
+        $('#chk_all_Y').prop('checked', allChecked);
+    });
+
     // Enter 키로 검색
     $('input[name="search_value"]').on('keypress', function(e) {
         if (e.which === 13) { // Enter key
@@ -227,8 +328,18 @@ $(document).ready(function(){
         $('input[name="category[]"]:checked').each(function(){
             category.push($(this).val());
         });
-        var rc_nation = $('input[name="rc_nation"]:checked').val() || '';
-        var rc_sex = $('input[name="rc_sex"]:checked').val() || '';
+        var rc_age = [];
+        $('input[name="rc_age[]"]:checked').each(function(){
+            rc_age.push($(this).val());
+        });
+        var rc_nation = [];
+        $('input[name="rc_nation[]"]:checked').each(function(){
+            rc_nation.push($(this).val());
+        });
+        var rc_sex = [];
+        $('input[name="rc_sex[]"]:checked').each(function(){
+            rc_sex.push($(this).val());
+        });
         var rc_work_type = [];
         $('input[name="rc_work_type[]"]:checked').each(function(){
             rc_work_type.push($(this).val());
@@ -252,12 +363,15 @@ $(document).ready(function(){
         $.each(category, function(i, val){
             $form.append($('<input>', { type: 'hidden', name: 'category[]', value: val }));
         });
-        if (rc_nation) {
-            $form.append($('<input>', { type: 'hidden', name: 'rc_nation', value: rc_nation }));
-        }
-        if (rc_sex) {
-            $form.append($('<input>', { type: 'hidden', name: 'rc_sex', value: rc_sex }));
-        }
+        $.each(rc_age, function(i, val){
+            $form.append($('<input>', { type: 'hidden', name: 'rc_age[]', value: val }));
+        });
+        $.each(rc_nation, function(i, val){
+            $form.append($('<input>', { type: 'hidden', name: 'rc_nation[]', value: val }));
+        });
+        $.each(rc_sex, function(i, val){
+            $form.append($('<input>', { type: 'hidden', name: 'rc_sex[]', value: val }));
+        });
         $.each(rc_work_type, function(i, val){
             $form.append($('<input>', { type: 'hidden', name: 'rc_work_type[]', value: val }));
         });
@@ -296,3 +410,48 @@ $(document).ready(function(){
     });
 });
 </script>
+
+<style>
+.filter-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.custom-checkbox {
+    position: relative;
+    padding-left: 25px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.custom-checkbox::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 0;
+    z-index: 2;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.filter-checkbox input[type="checkbox"]:checked + .custom-checkbox::before {
+    border: 4px solid #154993;
+    background: #fff;
+}
+</style>

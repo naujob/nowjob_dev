@@ -12,7 +12,7 @@
                 <tbody>
                 <tr>
                     <th scope="row">검색어</th>
-                    <td class="inline-wrap">
+                    <td class="inline-wrap" colspan="3">
                         <div class="sum-select-input">
                             <?=inputSelect("search_type","search_type",[""=>"전체","mm_comp_name"=>"사업장명","rc_name"=>"공고명","ad_addr"=>"지역"],$search["search_type"])?>
                             <div class="input-text">
@@ -22,29 +22,101 @@
                             </div>
                         </div>
                     </td>
-                    <th scope="row">카테고리</th>
-                    <td class="inline-wrap" colspan="1">
-                        <?=inputCheck("","category[]",$select_category,$search["category"])?>
+                </tr>
+                <tr>
+                    <th scope="row">업종</th>
+                    <td class="inline-wrap">
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="category[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach($select_category as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="category[]" value="<?=$key?>" <?=in_array($key, $search["category"]) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </td>
+                    <th scope="row">연령</th>
+                    <td class="inline-wrap">
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_age[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["20대"=>"20대","30대"=>"30대","40대"=>"40대","50대"=>"50대","60대"=>"60대","70대"=>"70대"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_age[]" value="<?=$key?>" <?=in_array($key, (array)$search["rc_age"]) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">국적</th>
                     <td class="inline-wrap">
-                        <?=inputRadio("rc_nation","rc_nation",[""=>"전체","내국인"=>"내국인","외국인"=>"외국인"],$search["rc_nation"])?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_nation[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["내국인"=>"내국인","외국인"=>"외국인"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_nation[]" value="<?=$key?>" <?=in_array($key, (array)$search["rc_nation"]) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                     <th scope="row">성별</th>
                     <td class="inline-wrap">
-                        <?=inputRadio("rc_sex","rc_sex",[""=>"전체","남자"=>"남자","여자"=>"여자"],$search["rc_sex"])?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_sex[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["남자"=>"남자","여자"=>"여자"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_sex[]" value="<?=$key?>" <?=in_array($key, (array)$search["rc_sex"]) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">근무형태</th>
                     <td class="inline-wrap">
-                        <?=inputCheck("","rc_work_type[]",$select_work,$search["rc_work_type"])?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_work_type[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach($select_work as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_work_type[]" value="<?=$key?>" <?=in_array($key, $search["rc_work_type"]) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                     <th scope="row">급여형태</th>
                     <td class="inline-wrap">
-                        <?=inputCheck("","rc_price_type[]",$select_work_type,$search["rc_price_type"])?>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_price_type[]" value="" />
+                                <span class="custom-checkbox">전체</span>
+                            </label>
+                            <?php foreach(["시급"=>"시급","일급"=>"일급","주급"=>"주급","월급"=>"월급"] as $key => $val) : ?>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="rc_price_type[]" value="<?=$key?>" <?=in_array($key, $search["rc_price_type"]) ? 'checked' : ''?> />
+                                <span class="custom-checkbox"><?=$val?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
@@ -77,15 +149,17 @@
                 <colgroup>
                     <col width="50px"/>
                     <col width="50px"/>
-                    <col width="100px"/>
                     <col width="150px"/>
                     <col width="150px"/>
-                    <col width="100px"/>
-                    <col width="100px"/>
-                    <col width="100px"/>
-                    <col width="100px"/>
                     <col width="150px"/>
-                    <col width="150px"/>
+                    <col width="100px"/>
+                    <col width="100px"/>
+                    <col width="100px"/>
+                    <col width="100px"/>
+                    <col width="50px"/>
+                    <col width="50px"/>
+                    <col width="50px"/>
+                    <col width="50px"/>
                 </colgroup>
                 <thead>
                     <tr>
@@ -98,15 +172,17 @@
                             </div>
                         </th>
                         <th scope="col">번호</th>
-                        <th scope="col">게시글상태</th>
-                        <th scope="col">사업장명</th>
+                        <th scope="col">사업자명</th>
                         <th scope="col">공고명</th>
-                        <th scope="col">국적</th>
+                        <th scope="col">근무지역</th>
+                        <th scope="col">추가 노출지역</th>
+                        <th scope="col">연락처</th>
+                        <th scope="col">업종</th>
                         <th scope="col">성별</th>
-                        <th scope="col">근무형태</th>
+                        <th scope="col">국적</th>
+                        <th scope="col">연령</th>
                         <th scope="col">급여형태</th>
-                        <th scope="col">지역</th>
-                        <th scope="col">카테고리</th>
+                        <th scope="col">근무형태</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -123,20 +199,28 @@
                             </div>
                         </td>
                         <td class="tc"><?=$num_start + $key?></td>
-                        <td class="tc"><?=(isset($row['rc_status']) && $row['rc_status'] === 'Y') ? '정상' : '비공개'?></td>
                         <td><?=isset($row['mm_comp_name']) ? $row['mm_comp_name'] : ''?></td>
                         <td><?=isset($row['rc_name']) ? $row['rc_name'] : ''?></td>
-                        <td><?=isset($row['rc_nation']) ? $row['rc_nation'] : ''?></td>
-                        <td><?=isset($row['rc_sex']) ? $row['rc_sex'] : ''?></td>
-                        <td><?=isset($row['rc_work_type']) ? $row['rc_work_type'] : ''?></td>
-                        <td><?=isset($row['rc_price_type']) ? $row['rc_price_type'] : ''?></td>
                         <td><?=isset($row['ad_addr']) ? $row['ad_addr'] : ''?></td>
+                        <td><?=isset($row['expose_addrs']) && !empty($row['expose_addrs']) ? implode(', ', $row['expose_addrs']) : ''?></td>
+                        <td><?=isset($row['mm_phone']) ? $row['mm_phone'] : ''?></td>
                         <td><?=isset($row['rc_work']) ? $row['rc_work'] : ''?></td>
+                        <td><?=isset($row['rc_sex']) ? $row['rc_sex'] : ''?></td>
+                        <td><?=isset($row['rc_nation']) ? $row['rc_nation'] : ''?></td>
+                        <td><?php
+                            $age_str = '';
+                            if (isset($row['rc_sage']) && isset($row['rc_eage']) && $row['rc_sage'] != 0 && $row['rc_eage'] != 0) {
+                                $age_str = $row['rc_sage'] . '~' . $row['rc_eage'];
+                            }
+                            echo $age_str;
+                        ?></td>
+                        <td><?=isset($row['rc_price_type']) ? $row['rc_price_type'] : ''?></td>
+                        <td><?=isset($row['rc_work_type']) ? $row['rc_work_type'] : ''?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="11" class="tc" style="padding: 20px;">발송 대상이 없습니다.</td>
+                        <td colspan="13" class="tc" style="padding: 20px;">발송 대상이 없습니다.</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
@@ -196,6 +280,51 @@
         </div>
     </div>
 </form>
+
+<style>
+.filter-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.custom-checkbox {
+    position: relative;
+    padding-left: 25px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.custom-checkbox::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 0;
+    z-index: 2;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.filter-checkbox input[type="checkbox"]:checked + .custom-checkbox::before {
+    border: 4px solid #154993;
+    background: #fff;
+}
+</style>
 
 <script>
 $(document).ready(function(){

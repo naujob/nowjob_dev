@@ -777,13 +777,13 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                         ?>
                         <ul class="account-menu">
                             <?php if ($this->user->getUserType() == "MEM") { ?>
-                                <?php if ($this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx())) : ?>
-                                    <li>
+                                <li>
+                                    <?php if ($this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx())) : ?>
                                         <a href="/mypage/match_list" class="ai-match-text">A.I의 맞춤 공고를 확인해보세요!</a>
-                                        <a href="/mypage/match_list" class="ai-match-tag">A.I 매칭</a>
                                         <span class="badge-dot"></span>
-                                    </li>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                    <a href="/mypage/match_list" class="ai-match-tag">A.I 매칭</a>
+                                </li>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
                                         <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
@@ -827,13 +827,13 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                 <li><span style="padding: 3px 5px;cursor: pointer;color: #17B890;" onclick="fGoResume();">이력서 등록</span></li>
                             <?php } ?>
                             <?php if ($this->user->getUserType() == "COMP") { ?>
-                                <?php if ($this->member_model->hasUnreadMatchResume($this->user->getUserIdx())) : ?>
-                                    <li>
+                                <li>
+                                    <?php if ($this->member_model->hasUnreadMatchResume($this->user->getUserIdx())) : ?>
                                         <a href="/compage/match_list" class="ai-match-text">A.I의 맞춤 인재를 확인해보세요!</a>
-                                        <a href="/compage/match_list" class="ai-match-tag">A.I 매칭</a>
                                         <span class="badge-dot"></span>
-                                    </li>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                    <a href="/compage/match_list" class="ai-match-tag">A.I 매칭</a>
+                                </li>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
                                         <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>

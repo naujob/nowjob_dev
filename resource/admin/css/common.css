@@ -413,7 +413,7 @@ body.ie9 select{padding-right:0;}
 .table-type1 tfoot td{background:#fbe5d6;font-weight:bold;color:#fe6b37;}
 
 .table-type2{width:100%;border:1px solid #d9dee3;}
-.table-type2 th{padding:10px 4px;background:#f4f5f7;border:1px solid #d9dee3;vertical-align:middle;font-size:12px;text-align:center ;font-weight:bold;}
+.table-type2 th{color:#000000;padding:10px 4px;background:#f4f5f7;border:1px solid #d9dee3;vertical-align:middle;font-size:12px;text-align:center ;font-weight:bold;}
 .table-type2 td{padding:10px;border:1px solid #d9dee3;text-align:center;vertical-align:middle;font-size:12px;}
 .table-type2 tr:hover td {background:#f6f6f6;}
 
@@ -526,7 +526,7 @@ body.ie9 select{padding-right:0;}
 /* 검색 상단 */
 .search-box{position:relative;}
 .search-box table{width:100%;border:1px solid #ccc;}
-.search-box th{width:100px;padding:6px 10px;background:#f4f5f7;color:#777;font-weight:bold;border:1px solid #ccc;vertical-align:middle;font-size:12px;}
+.search-box th{width:100px;padding:6px 10px;background:#f4f5f7;color:#000000;font-weight:bold;border:1px solid #ccc;vertical-align:middle;font-size:12px;}
 .search-box td{padding:6px 10px;border:1px solid #d9dee3;font-size:0;vertical-align:middle;font-size:12px;}
 .search-box .btn-search{width:100px;}
 .search-box .sub-title{font-size:13px;color:#555;font-weight:bold;}
@@ -967,3 +967,5 @@ body.scrolled #footer .btn-top{right:40px;}
 }
 
 .table-btn {width:100%;display:block;margin-bottom:10px;text-align:right;}
+
+

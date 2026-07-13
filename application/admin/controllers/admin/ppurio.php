@@ -276,6 +276,12 @@ class Ppurio extends MY_Controller{
         $search_value = input_get("search_value", "");
         $category     = $this->input->get("category");
         if (!is_array($category)) $category = array();
+        $rc_age       = $this->input->get("rc_age");
+        if (!is_array($rc_age)) $rc_age = array();
+        $rc_nation    = $this->input->get("rc_nation");
+        if (!is_array($rc_nation)) $rc_nation = array();
+        $rc_sex       = $this->input->get("rc_sex");
+        if (!is_array($rc_sex)) $rc_sex = array();
         $rc_work_type = $this->input->get("rc_work_type");
         if (!is_array($rc_work_type)) $rc_work_type = array();
         $rc_price_type = $this->input->get("rc_price_type");
@@ -311,19 +317,54 @@ class Ppurio extends MY_Controller{
             });
         }
 
-        // 국적 필터링 (콤마 구분 다중값, 부분 일치)
-        $rc_nation = input_get("rc_nation", "");
-        if ($rc_nation != "") {
+        // 국적 필터링 (배열, 부분 일치)
+        if (!empty($rc_nation)) {
             $result_list = array_filter($result_list, function($row) use ($rc_nation) {
-                return strpos($row['rc_nation'], $rc_nation) !== false;
+                foreach ($rc_nation as $nation) {
+                    if ($nation != "" && strpos($row['rc_nation'], $nation) !== false) {
+                        return true;
+                    }
+                }
+                return false;
             });
         }
 
-        // 성별 필터링 (콤마 구분 다중값, 부분 일치)
-        $rc_sex = input_get("rc_sex", "");
-        if ($rc_sex != "") {
+        // 성별 필터링 (배열, 부분 일치)
+        if (!empty($rc_sex)) {
             $result_list = array_filter($result_list, function($row) use ($rc_sex) {
-                return strpos($row['rc_sex'], $rc_sex) !== false;
+                foreach ($rc_sex as $sex) {
+                    if ($sex != "" && strpos($row['rc_sex'], $sex) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        // 연령 필터링 (배열, rc_sage, rc_eage 범위 비교)
+        if (!empty($rc_age)) {
+            $age_map = [
+                "20대" => ["start" => 20, "end" => 29],
+                "30대" => ["start" => 30, "end" => 39],
+                "40대" => ["start" => 40, "end" => 49],
+                "50대" => ["start" => 50, "end" => 59],
+                "60대" => ["start" => 60, "end" => 69],
+                "70대" => ["start" => 70, "end" => 79],
+            ];
+
+            $result_list = array_filter($result_list, function($row) use ($rc_age, $age_map) {
+                $rc_sage = isset($row['rc_sage']) ? (int)$row['rc_sage'] : 0;
+                $rc_eage = isset($row['rc_eage']) ? (int)$row['rc_eage'] : 0;
+
+                foreach ($rc_age as $age) {
+                    if ($age != "" && isset($age_map[$age])) {
+                        $age_range = $age_map[$age];
+                        if ($rc_eage >= $age_range['start'] && $rc_sage <= $age_range['end']) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             });
         }
 
@@ -353,9 +394,30 @@ class Ppurio extends MY_Controller{
 
         $result_list = array_values($result_list);
 
+        // 각 공고에 대해 추가 노출지역 조회 (같은 mm_idx, rc_idx의 RECRUIT_EXPOSE 타입)
+        foreach ($result_list as $key => $row) {
+            $result_list[$key]['expose_addrs'] = array();
+
+            if (isset($row['mm_idx']) && isset($row['rc_idx'])) {
+                $expose_query = $this->db->query(
+                    "SELECT DISTINCT ad_addr FROM st_address WHERE mm_idx = ? AND ad_key = ? AND ad_type IN ('RECRUIT_EXPOSE_1', 'RECRUIT_EXPOSE_2')",
+                    array($row['mm_idx'], $row['rc_idx'])
+                );
+                if ($expose_query) {
+                    $expose_addrs = $expose_query->result_array();
+                    if (!empty($expose_addrs)) {
+                        $result_list[$key]['expose_addrs'] = array_map(function($a) { return $a['ad_addr']; }, $expose_addrs);
+                    }
+                }
+            }
+        }
+
         // 카테고리 목록 조회
         $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
         $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+        // 디자인, 매장관리 제거
+        unset($select_category["디자인"]);
+        unset($select_category["매장관리"]);
 
         // 근무형태 목록 조회
         $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
@@ -378,8 +440,9 @@ class Ppurio extends MY_Controller{
                 'search_type'  => $search_type,
                 'search_value' => $search_value,
                 'category'     => $category,
-                'rc_nation'    => $rc_nation,
-                'rc_sex'       => $rc_sex,
+                'rc_age'       => is_array($rc_age) ? $rc_age : array(),
+                'rc_nation'    => is_array($rc_nation) ? $rc_nation : array(),
+                'rc_sex'       => is_array($rc_sex) ? $rc_sex : array(),
                 'rc_work_type' => $rc_work_type,
                 'rc_price_type' => $rc_price_type,
             ),
@@ -411,8 +474,12 @@ class Ppurio extends MY_Controller{
         $search_value = $this->input->post("search_value", "");
         $category = $this->input->post("category");
         if (!is_array($category)) $category = array();
-        $mm_nation = $this->input->post("mm_nation", "");
-        $mm_sex = $this->input->post("mm_sex", "");
+        $mm_age = $this->input->post("mm_age");
+        if (!is_array($mm_age)) $mm_age = array();
+        $mm_nation = $this->input->post("mm_nation");
+        if (!is_array($mm_nation)) $mm_nation = array();
+        $mm_sex = $this->input->post("mm_sex");
+        if (!is_array($mm_sex)) $mm_sex = array();
         $ru_work_type = $this->input->post("ru_work_type");
         if (!is_array($ru_work_type)) $ru_work_type = array();
         $ru_price_type = $this->input->post("ru_price_type");
@@ -450,16 +517,64 @@ class Ppurio extends MY_Controller{
                 }
             }
 
-            // 국적 필터 (완전 일치)
-            if ($mm_nation != "") {
-                if ($resume['mm_nation'] !== $mm_nation) {
+            // 연령 필터 (배열, mm_birth 기반 나이 계산)
+            if (!empty($mm_age)) {
+                $age_map = [
+                    "20대" => ["start" => 20, "end" => 29],
+                    "30대" => ["start" => 30, "end" => 39],
+                    "40대" => ["start" => 40, "end" => 49],
+                    "50대" => ["start" => 50, "end" => 59],
+                    "60대" => ["start" => 60, "end" => 69],
+                    "70대" => ["start" => 70, "end" => 79],
+                ];
+
+                if (!isset($resume['mm_birth']) || empty($resume['mm_birth'])) {
+                    $match = false;
+                } else {
+                    $birth = strtotime($resume['mm_birth']);
+                    $current_age = date('Y') - date('Y', $birth);
+                    if (date('md') < date('md', $birth)) $current_age--;
+
+                    $matches_any = false;
+                    foreach ($mm_age as $age) {
+                        if ($age != "" && isset($age_map[$age])) {
+                            $age_range = $age_map[$age];
+                            if ($current_age >= $age_range['start'] && $current_age <= $age_range['end']) {
+                                $matches_any = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$matches_any) {
+                        $match = false;
+                    }
+                }
+            }
+
+            // 국적 필터 (배열, 부분 일치)
+            if (!empty($mm_nation)) {
+                $matches_any = false;
+                foreach ($mm_nation as $nation) {
+                    if ($nation != "" && strpos($resume['mm_nation'], $nation) !== false) {
+                        $matches_any = true;
+                        break;
+                    }
+                }
+                if (!$matches_any) {
                     $match = false;
                 }
             }
 
-            // 성별 필터 (완전 일치)
-            if ($mm_sex != "") {
-                if ($resume['mm_sex'] !== $mm_sex) {
+            // 성별 필터 (배열, 부분 일치)
+            if (!empty($mm_sex)) {
+                $matches_any = false;
+                foreach ($mm_sex as $sex) {
+                    if ($sex != "" && strpos($resume['mm_sex'], $sex) !== false) {
+                        $matches_any = true;
+                        break;
+                    }
+                }
+                if (!$matches_any) {
                     $match = false;
                 }
             }
@@ -508,8 +623,9 @@ class Ppurio extends MY_Controller{
                 'search_type' => $search_type,
                 'search_value' => $search_value,
                 'category' => $category,
-                'mm_nation' => $mm_nation,
-                'mm_sex' => $mm_sex,
+                'mm_age' => is_array($mm_age) ? $mm_age : array(),
+                'mm_nation' => is_array($mm_nation) ? $mm_nation : array(),
+                'mm_sex' => is_array($mm_sex) ? $mm_sex : array(),
                 'ru_work_type' => $ru_work_type,
                 'ru_price_type' => $ru_price_type,
             ),
@@ -641,8 +757,12 @@ class Ppurio extends MY_Controller{
         $search_value = $this->input->post("search_value", "");
         $category = $this->input->post("category");
         if (!is_array($category)) $category = array();
-        $rc_nation = $this->input->post("rc_nation", "");
-        $rc_sex = $this->input->post("rc_sex", "");
+        $rc_age = $this->input->post("rc_age");
+        if (!is_array($rc_age)) $rc_age = array();
+        $rc_nation = $this->input->post("rc_nation");
+        if (!is_array($rc_nation)) $rc_nation = array();
+        $rc_sex = $this->input->post("rc_sex");
+        if (!is_array($rc_sex)) $rc_sex = array();
         $rc_work_type = $this->input->post("rc_work_type");
         if (!is_array($rc_work_type)) $rc_work_type = array();
         $rc_price_type = $this->input->post("rc_price_type");
@@ -680,16 +800,59 @@ class Ppurio extends MY_Controller{
                 }
             }
 
-            // 국적 필터 (부분 일치)
-            if ($rc_nation != "") {
-                if (strpos($recruit['rc_nation'], $rc_nation) === false) {
+            // 연령 필터 (배열, rc_sage, rc_eage 범위 비교)
+            if (!empty($rc_age)) {
+                $age_map = [
+                    "20대" => ["start" => 20, "end" => 29],
+                    "30대" => ["start" => 30, "end" => 39],
+                    "40대" => ["start" => 40, "end" => 49],
+                    "50대" => ["start" => 50, "end" => 59],
+                    "60대" => ["start" => 60, "end" => 69],
+                    "70대" => ["start" => 70, "end" => 79],
+                ];
+
+                $rc_sage = isset($recruit['rc_sage']) ? (int)$recruit['rc_sage'] : 0;
+                $rc_eage = isset($recruit['rc_eage']) ? (int)$recruit['rc_eage'] : 0;
+                $matches_any = false;
+
+                foreach ($rc_age as $age) {
+                    if ($age != "" && isset($age_map[$age])) {
+                        $age_range = $age_map[$age];
+                        if ($rc_eage >= $age_range['start'] && $rc_sage <= $age_range['end']) {
+                            $matches_any = true;
+                            break;
+                        }
+                    }
+                }
+                if (!$matches_any) {
                     $match = false;
                 }
             }
 
-            // 성별 필터 (부분 일치)
-            if ($rc_sex != "") {
-                if (strpos($recruit['rc_sex'], $rc_sex) === false) {
+            // 국적 필터 (배열, 부분 일치)
+            if (!empty($rc_nation)) {
+                $matches_any = false;
+                foreach ($rc_nation as $nation) {
+                    if ($nation != "" && strpos($recruit['rc_nation'], $nation) !== false) {
+                        $matches_any = true;
+                        break;
+                    }
+                }
+                if (!$matches_any) {
+                    $match = false;
+                }
+            }
+
+            // 성별 필터 (배열, 부분 일치)
+            if (!empty($rc_sex)) {
+                $matches_any = false;
+                foreach ($rc_sex as $sex) {
+                    if ($sex != "" && strpos($recruit['rc_sex'], $sex) !== false) {
+                        $matches_any = true;
+                        break;
+                    }
+                }
+                if (!$matches_any) {
                     $match = false;
                 }
             }
@@ -713,9 +876,30 @@ class Ppurio extends MY_Controller{
             }
         }
 
+        // 각 공고에 대해 추가 노출지역 조회 (같은 mm_idx, rc_idx의 RECRUIT_EXPOSE 타입)
+        foreach ($filtered_recruits as $key => $row) {
+            $filtered_recruits[$key]['expose_addrs'] = array();
+
+            if (isset($row['mm_idx']) && isset($row['rc_idx'])) {
+                $expose_query = $this->db->query(
+                    "SELECT DISTINCT ad_addr FROM st_address WHERE mm_idx = ? AND ad_key = ? AND ad_type IN ('RECRUIT_EXPOSE_1', 'RECRUIT_EXPOSE_2')",
+                    array($row['mm_idx'], $row['rc_idx'])
+                );
+                if ($expose_query) {
+                    $expose_addrs = $expose_query->result_array();
+                    if (!empty($expose_addrs)) {
+                        $filtered_recruits[$key]['expose_addrs'] = array_map(function($a) { return $a['ad_addr']; }, $expose_addrs);
+                    }
+                }
+            }
+        }
+
         // 카테고리 옵션
         $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
         $select_category = getKeyValue($category_list, "cd_val", "cd_val");
+        // 디자인, 매장관리 제거
+        unset($select_category["디자인"]);
+        unset($select_category["매장관리"]);
 
         // 근무형태 옵션
         $work_list = $this->site_model->getCodeList(array("cd_grp" => "근무형태"));
@@ -738,6 +922,7 @@ class Ppurio extends MY_Controller{
                 'search_type' => $search_type,
                 'search_value' => $search_value,
                 'category' => $category,
+                'rc_age' => is_array($rc_age) ? $rc_age : array(),
                 'rc_nation' => $rc_nation,
                 'rc_sex' => $rc_sex,
                 'rc_work_type' => $rc_work_type,
@@ -871,6 +1056,12 @@ class Ppurio extends MY_Controller{
         $search_value = input_get("search_value", "");
         $category     = $this->input->get("category");
         if (!is_array($category)) $category = array();
+        $mm_age       = $this->input->get("mm_age");
+        if (!is_array($mm_age)) $mm_age = array();
+        $mm_nation    = $this->input->get("mm_nation");
+        if (!is_array($mm_nation)) $mm_nation = array();
+        $mm_sex       = $this->input->get("mm_sex");
+        if (!is_array($mm_sex)) $mm_sex = array();
         $ru_work_type = $this->input->get("ru_work_type");
         if (!is_array($ru_work_type)) $ru_work_type = array();
         $ru_price_type = $this->input->get("ru_price_type");
@@ -901,19 +1092,57 @@ class Ppurio extends MY_Controller{
             });
         }
 
-        // 국적 필터링 (단일값, 완전 일치)
-        $mm_nation = input_get("mm_nation", "");
-        if ($mm_nation != "") {
-            $resumes = array_filter($resumes, function($r) use ($mm_nation) {
-                return $r['mm_nation'] === $mm_nation;
+        // 연령 필터링 (배열, mm_birth 기반 나이 계산)
+        if (!empty($mm_age)) {
+            $age_map = [
+                "20대" => ["start" => 20, "end" => 29],
+                "30대" => ["start" => 30, "end" => 39],
+                "40대" => ["start" => 40, "end" => 49],
+                "50대" => ["start" => 50, "end" => 59],
+                "60대" => ["start" => 60, "end" => 69],
+                "70대" => ["start" => 70, "end" => 79],
+            ];
+
+            $resumes = array_filter($resumes, function($r) use ($mm_age, $age_map) {
+                if (!isset($r['mm_birth']) || empty($r['mm_birth'])) return false;
+
+                $birth = strtotime($r['mm_birth']);
+                $current_age = date('Y') - date('Y', $birth);
+                if (date('md') < date('md', $birth)) $current_age--;
+
+                foreach ($mm_age as $age) {
+                    if ($age != "" && isset($age_map[$age])) {
+                        $age_range = $age_map[$age];
+                        if ($current_age >= $age_range['start'] && $current_age <= $age_range['end']) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             });
         }
 
-        // 성별 필터링 (단일값, 완전 일치)
-        $mm_sex = input_get("mm_sex", "");
-        if ($mm_sex != "") {
+        // 국적 필터링 (배열, 부분 일치)
+        if (!empty($mm_nation)) {
+            $resumes = array_filter($resumes, function($r) use ($mm_nation) {
+                foreach ($mm_nation as $nation) {
+                    if ($nation != "" && strpos($r['mm_nation'], $nation) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        // 성별 필터링 (배열, 부분 일치)
+        if (!empty($mm_sex)) {
             $resumes = array_filter($resumes, function($r) use ($mm_sex) {
-                return $r['mm_sex'] === $mm_sex;
+                foreach ($mm_sex as $sex) {
+                    if ($sex != "" && strpos($r['mm_sex'], $sex) !== false) {
+                        return true;
+                    }
+                }
+                return false;
             });
         }
 
@@ -966,8 +1195,9 @@ class Ppurio extends MY_Controller{
                 'search_type'  => $search_type,
                 'search_value' => $search_value,
                 'category'     => $category,
-                'mm_nation'    => $mm_nation,
-                'mm_sex'       => $mm_sex,
+                'mm_age'       => is_array($mm_age) ? $mm_age : array(),
+                'mm_nation'    => is_array($mm_nation) ? $mm_nation : array(),
+                'mm_sex'       => is_array($mm_sex) ? $mm_sex : array(),
                 'ru_work_type' => $ru_work_type,
                 'ru_price_type' => $ru_price_type,
             ),

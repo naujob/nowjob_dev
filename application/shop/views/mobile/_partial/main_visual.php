@@ -181,7 +181,9 @@ if ($this->user->getUserType() == "MEM") {
     <?php endif; ?>
     <a href="<?= $profile_url ?>" class="profile-icon" aria-label="프로필">
       <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
-      <span class="badge-dot"></span>
+      <?php if ($has_new_match) : ?>
+        <span class="badge-dot"></span>
+      <?php endif; ?>
     </a>
   </div>
 

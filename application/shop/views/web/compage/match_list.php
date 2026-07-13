@@ -18,8 +18,8 @@ foreach ($groups as $group) {
             'mm_nation'     => $row['mm_nation'],
             'mm_age'        => getKoreanAge($row['mm_birth']),
             'ru_work_type'  => getWorkTypeFirst($row['ru_work_type']),
-            'ad_addr'       => $row['ad_addr'],
-            'ru_price_type' => getPriceTypeJSFirst($row['ru_price_type']),
+            'ad_addr'       => fRemoveBigAdr($row['ad_addr']),
+            'ru_price_type' => getPriceTypeFirst($row['ru_price_type']),
             'ru_week_html'  => getWeekYoil($row['ru_week']),
         );
         $group_list[] = $row_data;
