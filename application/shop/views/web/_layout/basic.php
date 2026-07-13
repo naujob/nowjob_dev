@@ -709,6 +709,53 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                     <!-- <li><a href="/community/community_list">커뮤니티</a></li> -->
                     <li><a href="/community/event_list">이벤트</a></li>
                 </ul>
+                <!-- A.I 매칭 배지 스타일 -->
+                <style>
+                    .rt .account-menu a:hover,
+                    .rt .account-menu a:focus {
+                        text-decoration: none;
+                    }
+                  .account-menu .ai-match-text {
+                    display: inline-block;
+                    background-color: #5FD3B5;
+                    color: #fff;
+                    padding: 5px 30px 5px 12px;
+                    border-radius: 999px;
+                    text-decoration: none;
+                    white-space: nowrap;
+                    font-size: 0.85rem;
+                    line-height: 1;
+                    position: relative;
+                    z-index: 1;
+                  }
+                  .account-menu .ai-match-tag {
+                    display: inline-block;
+                    background-color: #17B890;
+                    color: #fff;
+                    font-weight: 700;
+                    padding: 8px 12px;
+                    border-radius: 999px;
+                    text-decoration: none;
+                    white-space: nowrap;
+                    font-size: 0.85rem;
+                    line-height: 1;
+                    position: relative;
+                    z-index: 2;
+                    margin-left: -8px;
+                        left: -15px;
+                  }
+                  .account-menu li .badge-dot {
+                        position: absolute;
+                        top: -6px;
+                        right: 9px;
+                        width: 15px;
+                        height: 15px;
+                        border-radius: 50%;
+                        background-color: #f44336;
+                        border: 2px solid #fff;
+                        z-index: 5;
+                  }
+                </style>
                 <!-- 계정메뉴 (우측 끝) -->
                 <div class="rt">
                     <?php if ($this->user->isLogin() == false) : ?>
@@ -730,6 +777,13 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                         ?>
                         <ul class="account-menu">
                             <?php if ($this->user->getUserType() == "MEM") { ?>
+                                <?php if ($this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx())) : ?>
+                                    <li>
+                                        <a href="/mypage/match_list" class="ai-match-text">A.I의 맞춤 공고를 확인해보세요!</a>
+                                        <a href="/mypage/match_list" class="ai-match-tag">A.I 매칭</a>
+                                        <span class="badge-dot"></span>
+                                    </li>
+                                <?php endif; ?>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
                                         <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
@@ -770,9 +824,16 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                         </div>
                                     </div>
                                 </li>
-                                <li><span style="border: 1px solid ; border-radius: 5px; padding: 3px 5px;cursor: pointer;margin-left: 10px;color: #fff;background-color: #57CCAF;" onclick="fGoResume();">이력서 등록</span></li>
+                                <li><span style="padding: 3px 5px;cursor: pointer;color: #17B890;" onclick="fGoResume();">이력서 등록</span></li>
                             <?php } ?>
                             <?php if ($this->user->getUserType() == "COMP") { ?>
+                                <?php if ($this->member_model->hasUnreadMatchResume($this->user->getUserIdx())) : ?>
+                                    <li>
+                                        <a href="/compage/match_list" class="ai-match-text">A.I의 맞춤 인재를 확인해보세요!</a>
+                                        <a href="/compage/match_list" class="ai-match-tag">A.I 매칭</a>
+                                        <span class="badge-dot"></span>
+                                    </li>
+                                <?php endif; ?>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
                                         <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
@@ -810,7 +871,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                                         </div>
                                     </div>
                                 </li>
-                                <li><span style="border: 1px solid ; border-radius: 5px; padding: 3px 5px;cursor: pointer; color: #fff;background-color: #57CCAF;" onclick="fGoRecruit();">채용공고 등록</span></li>
+                                <li><span style="padding: 3px 5px;cursor: pointer; color: #17B890;" onclick="fGoRecruit();">채용공고 등록</span></li>
                             <?php } ?>
                         </ul>
                     <?php endif; ?>

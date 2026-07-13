@@ -3538,22 +3538,22 @@ body {
   margin: 0 0 0 5px; 
 }
 .rt .account-menu {
+    display: flex;
     font-weight: 700;
     list-style: none;
     letter-spacing: 0;
     line-height: 1.1;
     font-size: 17px;
     color:#646464;
+    gap: 8px;
 }
 
 .rt .account-menu li {
     position: relative;
     float: left;
-}
-
-.rt .account-menu li+li:before {
-    content: "·";
-    margin: 0 4px;
+    display: flex;
+    align-items: center;
+    min-height: 30px;
 }
 
 .rt .account-menu a:hover,
