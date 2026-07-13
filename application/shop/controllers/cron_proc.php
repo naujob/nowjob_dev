@@ -580,9 +580,9 @@ class Cron_proc extends CI_Controller
             if (isset($result['ok']) && $result['ok'] === true) {
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
-                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
-                     VALUES ('COMP', ?, ?, ?, NOW())
-                     ON DUPLICATE KEY UPDATE sent_dt = NOW()",
+                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt, read_yn)
+                     VALUES ('COMP', ?, ?, ?, NOW(), 'N')
+                     ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
                     array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
                 );
                 $sent++;
@@ -646,9 +646,9 @@ class Cron_proc extends CI_Controller
             if (isset($result['ok']) && $result['ok'] === true) {
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
-                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt)
-                     VALUES ('MEM', ?, ?, ?, NOW())
-                     ON DUPLICATE KEY UPDATE sent_dt = NOW()",
+                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt, read_yn)
+                     VALUES ('MEM', ?, ?, ?, NOW(), 'N')
+                     ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
                     array($resume['mm_idx'], $recruit['rc_idx'], $current_week)
                 );
                 $sent++;

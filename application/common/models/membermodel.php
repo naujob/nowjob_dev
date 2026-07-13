@@ -5556,4 +5556,94 @@ LIMIT 0 , 200
 
 		return $result;
 	}
+
+	# A.I 매칭 배지: 개인회원 - 안읽은 채용공고 매칭 존재 여부
+	function hasUnreadMatchRecruit($mm_idx, $cutoff_days = 14)
+	{
+		$sql = "
+			SELECT 1
+			FROM (
+				SELECT sent_dt FROM st_match_alimtalk_sent
+				WHERE sender_type = 'MEM'
+				  AND receiver_mm_idx = ?
+				  AND read_yn = 'N'
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+				UNION ALL
+				SELECT sent_dt FROM st_match_sms_sent
+				WHERE sender_type = 'MEM'
+				  AND receiver_mm_idx = ?
+				  AND read_yn = 'N'
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+			) combined
+			LIMIT 1
+		";
+		$result = $this->db->query($sql, [$mm_idx, $cutoff_days, $mm_idx, $cutoff_days])->row_array();
+		return !empty($result);
+	}
+
+	# A.I 매칭 배지: 기업회원 - 안읽은 이력서 매칭 존재 여부
+	function hasUnreadMatchResume($mm_idx, $cutoff_days = 14)
+	{
+		$sql = "
+			SELECT 1
+			FROM (
+				SELECT sent_dt FROM st_match_alimtalk_sent
+				WHERE sender_type = 'COMP'
+				  AND receiver_mm_idx = ?
+				  AND read_yn = 'N'
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+				UNION ALL
+				SELECT sent_dt FROM st_match_sms_sent
+				WHERE sender_type = 'COMP'
+				  AND receiver_mm_idx = ?
+				  AND read_yn = 'N'
+				  AND sent_dt >= DATE_SUB(NOW(), INTERVAL ? DAY)
+			) combined
+			LIMIT 1
+		";
+		$result = $this->db->query($sql, [$mm_idx, $cutoff_days, $mm_idx, $cutoff_days])->row_array();
+		return !empty($result);
+	}
+
+	# A.I 매칭 읽음 처리: 개인회원 - 모든 안읽은 채용공고 매칭을 읽음으로 표시
+	function markMatchRecruitAsRead($mm_idx)
+	{
+		$this->db->query(
+			"UPDATE st_match_alimtalk_sent
+			 SET read_yn = 'Y'
+			 WHERE sender_type = 'MEM'
+			   AND receiver_mm_idx = ?
+			   AND read_yn = 'N'",
+			[$mm_idx]
+		);
+		$this->db->query(
+			"UPDATE st_match_sms_sent
+			 SET read_yn = 'Y'
+			 WHERE sender_type = 'MEM'
+			   AND receiver_mm_idx = ?
+			   AND read_yn = 'N'",
+			[$mm_idx]
+		);
+	}
+
+	# A.I 매칭 읽음 처리: 기업회원 - 모든 안읽은 이력서 매칭을 읽음으로 표시
+	function markMatchResumeAsRead($mm_idx)
+	{
+		$this->db->query(
+			"UPDATE st_match_alimtalk_sent
+			 SET read_yn = 'Y'
+			 WHERE sender_type = 'COMP'
+			   AND receiver_mm_idx = ?
+			   AND read_yn = 'N'",
+			[$mm_idx]
+		);
+		$this->db->query(
+			"UPDATE st_match_sms_sent
+			 SET read_yn = 'Y'
+			 WHERE sender_type = 'COMP'
+			   AND receiver_mm_idx = ?
+			   AND read_yn = 'N'",
+			[$mm_idx]
+		);
+	}
 }

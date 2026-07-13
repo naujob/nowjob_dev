@@ -2127,6 +2127,9 @@ class Compage extends CI_Controller
 		$page = (int) $this->input->get('page');
 		if ($page < 1) $page = 1;
 
+		// 매칭 리스트 열람 시 안읽음 상태 해제
+		$this->member_model->markMatchResumeAsRead($this->mm_idx);
+
 		$result = $this->member_model->getMatchResumeListByDate($this->mm_idx, $page, 3, 14);
 
 		$data["groups"] = $result["groups"];

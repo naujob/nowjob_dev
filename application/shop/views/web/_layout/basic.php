@@ -729,50 +729,43 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             : '개인회원';
                         ?>
                         <ul class="account-menu">
-                            <li>
-                                <div class="dropdown-wrap">
-                                    <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown"><em class="user-name"><?= $display_comp_name ?></em>님</a>
-                                    <span style="display:none;"><?= $this->user->getUserIdx() ?></span>
-                                    <div role="dialog" id="memberPanel" tabindex="-1" class="dropdown" hidden>
-                                        <div class="member-card">
-                                            <div class="card-body">
-                                                <div class="thumb">
-                                                    <img src="<?= getResumeImg($this->user->getUser()) ?>" alt="">
-                                                </div>
-                                                <div class="profile-meta" style="cursor:pointer;" onclick="location.href='/compage/point_charge_step1';">
-                                                    <p class="name"><em><?= $display_comp_name ?></em>님</p>
-                                                    <p class="email"><?= $this->user->getUserPhone() ?></p>
-                                                    <p class="point txt-color1"><em><?= number_format($this->user->getUserPoint()) ?><?php /* =number_format($this->user->getUserPoint()) */ ?></em>P</p>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer">
-                                                <!-- <a href="/mypage/">포인트 충전관리</a> -->
-                                                <?php if ($this->user->getJoinType() == "WEB") : ?>
-                                                    <a href="/compage/mypage">회원정보 확인·수정</a>
-                                                    <!-- <a href="javascript:void(0);" id="chgPwd">비밀번호 변경</a> -->
-                                                <?php endif; ?>
-                                                <?php if ($this->user->getJoinType() != "WEB") : ?>
-                                                    <a href="/compage/mypage">회원정보 확인·수정</a>
-                                                    <!-- <a href="javascript:void(0);" id="chgPwd">비밀번호 변경</a> -->
-                                                <?php endif; ?>
-                                                <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
                             <?php if ($this->user->getUserType() == "MEM") { ?>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
-                                    <div class="dropdown-wrap" style="margin-top: -18px; margin-left: 23px;">
+                                    <div class="dropdown-wrap">
                                         <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
+                                        <span style="display:none;"><?= $this->user->getUserIdx() ?></span>
                                         <div role="dialog" id="memberPanel" tabindex="-1" class="dropdown" hidden>
-                                            <div class="member-card" style="font-size: 14px; width: max-content;">
-                                                <a href="/mypage/point_charge_step1" style="display:block; padding: 12px;">포인트 충전 · 광고 구매 / 관리</a>
-                                                <a href="/mypage/resume_list" style="display:block; padding: 0 12px 12px 12px;">이력서 등록 및 관리</a>
-                                                <a href="/mypage/bookmark_recruit1" style="display:block; padding: 0 12px 12px 12px;">관심공고 관리</a>
-                                                <a href="/mypage/coupon_list" style="display:block; padding: 0 12px 12px 12px;">쿠폰관리</a>
-                                                <!-- a href="/mypage/trade_list" style="display:block; padding: 0 12px 12px 12px;color:#ccc;" onclick="return false;">중고거래 관리</a -->
-                                                <a href="/mypage/qna_list" style="display:block; padding: 0 12px 12px 12px;">고객센터</a>
+                                            <div class="member-card">
+                                                <!-- 프로필 카드 영역 -->
+                                                <div class="card-body">
+                                                    <div class="thumb">
+                                                        <img src="<?= getResumeImg($this->user->getUser()) ?>" alt="">
+                                                    </div>
+                                                    <div class="profile-meta" style="cursor:pointer;" onclick="location.href='/mypage/point_charge_step1';">
+                                                        <p class="name"><em><?= $display_comp_name ?></em>님</p>
+                                                        <p class="email"><?= $this->user->getUserPhone() ?></p>
+                                                        <p class="point txt-color1"><em><?= number_format($this->user->getUserPoint()) ?><?php /* =number_format($this->user->getUserPoint()) */ ?></em>P</p>
+                                                    </div>
+                                                </div>
+                                                <!-- 회원정보·로그아웃 (2단 footer) -->
+                                                <div class="card-footer">
+                                                    <?php if ($this->user->getJoinType() == "WEB") : ?>
+                                                        <a href="/mypage">회원정보 확인·수정</a>
+                                                    <?php endif; ?>
+                                                    <?php if ($this->user->getJoinType() != "WEB") : ?>
+                                                        <a href="/mypage">회원정보 확인·수정</a>
+                                                    <?php endif; ?>
+                                                    <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
+                                                </div>
+                                                <!-- 마이페이지 바로가기 링크 목록 -->
+                                                <div style="font-size: 14px; width: max-content;">
+                                                    <a href="/mypage/point_charge_step1" style="display:block; padding: 12px;">포인트 충전 · 광고 구매 / 관리</a>
+                                                    <a href="/mypage/resume_list" style="display:block; padding: 0 12px 12px 12px;">이력서 등록 및 관리</a>
+                                                    <a href="/mypage/bookmark_recruit1" style="display:block; padding: 0 12px 12px 12px;">관심공고 관리</a>
+                                                    <a href="/mypage/coupon_list" style="display:block; padding: 0 12px 12px 12px;">쿠폰관리</a>
+                                                    <!-- a href="/mypage/trade_list" style="display:block; padding: 0 12px 12px 12px;color:#ccc;" onclick="return false;">중고거래 관리</a -->
+                                                    <a href="/mypage/qna_list" style="display:block; padding: 0 12px 12px 12px;">고객센터</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -781,14 +774,38 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             <?php } ?>
                             <?php if ($this->user->getUserType() == "COMP") { ?>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
-                                    <div class="dropdown-wrap" style="margin-top: -18px; margin-left: 23px;">
+                                    <div class="dropdown-wrap">
                                         <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
+                                        <span style="display:none;"><?= $this->user->getUserIdx() ?></span>
                                         <div role="dialog" id="memberPanel" tabindex="-1" class="dropdown" hidden>
-                                            <div class="member-card" style="font-size: 14px; width: max-content;">
-                                                <a href="/compage/recruit_list" style="display:block; padding: 12px;">공고 등록 및 관리</a>
-                                                <a href="/compage/mypage" style="display:block; padding: 0 12px 12px 12px;">회원정보 확인·수정</a>
-                                                <a href="/compage/point_charge_step1" style="display:block; padding: 0 12px 12px 12px;">포인트 충전 · 광고 구매 / 관리</a>
-                                                <a href="/compage/qna_list" style="display:block; padding: 0 12px 12px 12px;">고객센터</a>
+                                            <div class="member-card">
+                                                <!-- 프로필 카드 영역 -->
+                                                <div class="card-body">
+                                                    <div class="thumb">
+                                                        <img src="<?= getResumeImg($this->user->getUser()) ?>" alt="">
+                                                    </div>
+                                                    <div class="profile-meta" style="cursor:pointer;" onclick="location.href='/compage/point_charge_step1';">
+                                                        <p class="name"><em><?= $display_comp_name ?></em>님</p>
+                                                        <p class="email"><?= $this->user->getUserPhone() ?></p>
+                                                        <p class="point txt-color1"><em><?= number_format($this->user->getUserPoint()) ?><?php /* =number_format($this->user->getUserPoint()) */ ?></em>P</p>
+                                                    </div>
+                                                </div>
+                                                <!-- 회원정보·로그아웃 (2단 footer) -->
+                                                <div class="card-footer">
+                                                    <?php if ($this->user->getJoinType() == "WEB") : ?>
+                                                        <a href="/compage/mypage">회원정보 확인·수정</a>
+                                                    <?php endif; ?>
+                                                    <?php if ($this->user->getJoinType() != "WEB") : ?>
+                                                        <a href="/compage/mypage">회원정보 확인·수정</a>
+                                                    <?php endif; ?>
+                                                    <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
+                                                </div>
+                                                <!-- 마이페이지 바로가기 링크 목록 (회원정보 확인·수정 제거) -->
+                                                <div style="font-size: 14px; width: max-content;">
+                                                    <a href="/compage/recruit_list" style="display:block; padding: 12px;">공고 등록 및 관리</a>
+                                                    <a href="/compage/point_charge_step1" style="display:block; padding: 0 12px 12px 12px;">포인트 충전 · 광고 구매 / 관리</a>
+                                                    <a href="/compage/qna_list" style="display:block; padding: 0 12px 12px 12px;">고객센터</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

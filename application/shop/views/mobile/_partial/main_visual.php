@@ -12,6 +12,14 @@ if (count($banner_list) > 0) {
 $current_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 $is_recruit_page = (strpos($current_uri, '/recruit/') !== false);
 $is_resume_page = (strpos($current_uri, '/resume/') !== false);
+
+// A.I 매칭 배지 표시 여부 확인
+$has_new_match = false;
+if ($this->user->getUserType() == "MEM") {
+  $has_new_match = $this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx());
+} else if ($this->user->getUserType() == "COMP") {
+  $has_new_match = $this->member_model->hasUnreadMatchResume($this->user->getUserIdx());
+}
 ?>
 <style>
   /* 메인 비주얼 헤더 스타일 */
@@ -108,6 +116,48 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
   .current-area:has(#selected-regions-list[data-has-regions="true"]) .btn.addrName {
     display: none;
   }
+
+  /* A.I 매칭 배지 스타일 */
+  .main-visual-header .profile-menu {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .main-visual-header .ai-match-label {
+    font-size: 1.1rem;
+    color: #fff;
+    background-color: #57CCAF;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-weight: 500;
+        position: relative;
+    left: 30px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 14px;
+    padding-right: 30px;
+  }
+
+  .main-visual-header .profile-icon {
+    position: relative;
+  }
+
+  .main-visual-header .badge-dot {
+    display: none;
+    position: absolute;
+    top: -7px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #f44336;
+    border: 1.5px solid #fff;
+  }
+
+  .main-visual-header .profile-menu[data-badge="true"] .badge-dot {
+    display: block;
+  }
 </style>
 
 <!-- 메인 비주얼 헤더 -->
@@ -116,22 +166,24 @@ $is_resume_page = (strpos($current_uri, '/resume/') !== false);
     <img src="/resource/shop/mobile/img/banner/banner_nowjob_logo.svg" alt="NOW JOB">
   </div>
 
-  <?php if ($this->user->getUserType() == "COMP") { ?>
-    <!-- 기업 로그인 상태 -->
-    <a href="/compage/index" class="profile-icon" aria-label="프로필">
+  <?php
+  $profile_url = '/member/login';
+  if ($this->user->getUserType() == "COMP") {
+    $profile_url = '/compage/index';
+  } else if ($this->user->getUserType() == "MEM") {
+    $profile_url = '/mypage/index';
+  }
+  ?>
+
+  <div class="profile-menu" data-badge="<?= $has_new_match ? 'true' : 'false' ?>">
+    <?php if ($has_new_match) : ?>
+      <span class="ai-match-label">A.I 매칭리스트</span>
+    <?php endif; ?>
+    <a href="<?= $profile_url ?>" class="profile-icon" aria-label="프로필">
       <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
+      <span class="badge-dot"></span>
     </a>
-  <?php } else if ($this->user->getUserType() == "MEM") { ?>
-    <!-- 개인 로그인 상태 -->
-    <a href="/mypage/index" class="profile-icon" aria-label="프로필">
-      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
-    </a>
-  <?php } else { ?>
-    <!-- 비로그인 상태 -->
-    <a href="/member/login" class="profile-icon" aria-label="프로필">
-      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
-    </a>
-  <?php } ?>
+  </div>
 
   <!-- 알림 패널 - 주석처리됨 -->
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">

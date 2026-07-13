@@ -598,9 +598,9 @@ class Ppurio extends MY_Controller{
                     if ($send_result['code'] === '00') {
                         $this->db->query(
                             "INSERT INTO st_match_sms_sent
-                             (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt)
-                             VALUES ('COMP', ?, ?, ?, ?, NOW())
-                             ON DUPLICATE KEY UPDATE sent_dt = NOW()",
+                             (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt, read_yn)
+                             VALUES ('COMP', ?, ?, ?, ?, NOW(), 'N')
+                             ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
                             array($mm_idx, $ru_idx, $recruit['rc_idx'], $current_week)
                         );
                         $sent_count++;
@@ -828,9 +828,9 @@ class Ppurio extends MY_Controller{
                     if ($send_result['code'] === '00') {
                         $this->db->query(
                             "INSERT INTO st_match_sms_sent
-                             (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt)
-                             VALUES ('MEM', ?, ?, ?, ?, NOW())
-                             ON DUPLICATE KEY UPDATE sent_dt = NOW()",
+                             (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt, read_yn)
+                             VALUES ('MEM', ?, ?, ?, ?, NOW(), 'N')
+                             ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
                             array($mm_idx, $rc_idx, $resume['ru_idx'], $current_week)
                         );
                         $sent_count++;
