@@ -282,8 +282,7 @@
         <a href="javascript:void(0);" class="btn-replace js-chat-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title" id="rm_subject"><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></h1>
         <?php if (!empty($call_target_phone)) : ?>
-            <a href="tel:<?= htmlspecialchars($call_target_phone, ENT_QUOTES, 'UTF-8') ?>" class="btn-call js-call-log" data-show-call="<?= !empty($show_call_btn) ? 'true' : 'false' ?>">
-                <img src="/resource/shop/mobile/img/phone.png" alt="전화하기">
+            <a href="tel:<?= htmlspecialchars($call_target_phone, ENT_QUOTES, 'UTF-8') ?>" class="btn-call js-call-log" data-show-call="<?= !empty($show_call_btn) ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/phone.png'); background-size: contain; background-repeat: no-repeat; background-position: center;">
                 <span class="sr-text">전화하기</span>
             </a>
         <?php endif; ?>
@@ -3010,12 +3009,12 @@
             cursor: pointer;
             color: #333;
             text-decoration: none;
-            top: 50%;
+            top: 750px;
             position: absolute;
-            right: 5px;
+            right: 13px;
             width: 50px;
             height: 50px;
-            transform: translateY(-50%);
+            
             padding: 8px;
             border-radius: 50%;
     }
