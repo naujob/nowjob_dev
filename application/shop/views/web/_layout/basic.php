@@ -779,7 +779,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             <?php if ($this->user->getUserType() == "MEM") { ?>
                                 <li>
                                     <?php if ($this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx())) : ?>
-                                        <a href="/mypage/match_list" class="ai-match-text">A.I의 맞춤 공고를 확인해보세요!</a>
+                                        <a href="/mypage/match_list" class="ai-match-text">A.I 매칭 리스트</a>
                                         <span class="badge-dot"></span>
                                     <?php endif; ?>
                                     <a href="/mypage/match_list" class="ai-match-tag">A.I 매칭</a>
@@ -829,7 +829,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             <?php if ($this->user->getUserType() == "COMP") { ?>
                                 <li>
                                     <?php if ($this->member_model->hasUnreadMatchResume($this->user->getUserIdx())) : ?>
-                                        <a href="/compage/match_list" class="ai-match-text">A.I의 맞춤 인재를 확인해보세요!</a>
+                                        <a href="/compage/match_list" class="ai-match-text">A.I 매칭 리스트</a>
                                         <span class="badge-dot"></span>
                                     <?php endif; ?>
                                     <a href="/compage/match_list" class="ai-match-tag">A.I 매칭</a>

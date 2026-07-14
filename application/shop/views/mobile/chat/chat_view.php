@@ -824,6 +824,130 @@
     var rm_length = 20;
     var rm_count = 0;
     var userIdAlertShown = false;
+
+    // 키보드가 올라올 때 입력창 아래 빈 공간 방지 + 스크롤 복원 (mobile webview 호환성)
+    (function() {
+        var viewportSyncTimeout = null;
+        var scrollRestoreTimeout = null;
+        var layoutViewportHeight = null; // 초기값을 null로 설정, DOMContentLoaded 후에 초기화
+
+        // 💪 Body의 overflow를 항상 hidden으로 유지 (네이티브 override 대응)
+        if (document.body) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.overflowY = 'hidden';
+        }
+        if (document.documentElement) {
+            document.documentElement.style.overflow = 'hidden';
+            document.documentElement.style.overflowY = 'hidden';
+        }
+
+        // ✅ DOMContentLoaded 후에 초기 높이 정확히 캡처
+        window.addEventListener('DOMContentLoaded', function() {
+            layoutViewportHeight = window.innerHeight;
+        });
+
+        function syncChatViewportHeight() {
+            if (viewportSyncTimeout) {
+                clearTimeout(viewportSyncTimeout);
+            }
+
+            viewportSyncTimeout = setTimeout(function() {
+                var pageChatView = document.querySelector('.page-chat-view');
+                var chatViewBody = document.querySelector('.chat-view-body');
+                var chatContent = document.querySelector('.chat-view-body .content');
+                var writeForm = document.querySelector('.write-form');
+
+                if (!pageChatView) return;
+
+                var currentVisualHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+                // 첫 호출일 때 layoutViewportHeight가 아직 설정 안 됨 → window.innerHeight로 초기화
+                if (!layoutViewportHeight) {
+                    layoutViewportHeight = window.innerHeight;
+                }
+
+                var isKeyboardVisible = currentVisualHeight < layoutViewportHeight - 50;
+
+                if (isKeyboardVisible) {
+                    // 키보드가 열려 있음: 실제 보이는 영역에 맞춰 높이 강제 설정
+                    pageChatView.style.height = currentVisualHeight + 'px';
+                    pageChatView.style.overflowY = 'hidden';
+
+                    // 스크롤 강제 복원 (여러 번 실행하여 확실히 함)
+                    restoreScrollPosition();
+                } else {
+                    // 키보드가 닫혀 있음: 원래 CSS로 복귀
+                    pageChatView.style.height = '';
+                    pageChatView.style.overflowY = '';
+                }
+            }, 50);
+        }
+
+        function restoreScrollPosition() {
+            // 강력한 스크롤 복원 (multiple fallbacks)
+            scrollBottom();
+
+            // 직접 스크롤 컨테이너 제어
+            var chatBody = document.getElementById('chat_body');
+            if (chatBody) {
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            // 레이아웃 리플로우 후 다시 스크롤 (연속 조정)
+            if (scrollRestoreTimeout) {
+                clearTimeout(scrollRestoreTimeout);
+            }
+
+            scrollRestoreTimeout = setTimeout(function() {
+                scrollBottom();
+
+                if (chatBody) {
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }
+
+                // 한 번 더 (애니메이션 완료 후)
+                setTimeout(function() {
+                    scrollBottom();
+                    if (chatBody) {
+                        chatBody.scrollTop = chatBody.scrollHeight;
+                    }
+                }, 100);
+            }, 50);
+        }
+
+        // visualViewport 지원 환경 (최신 안드로이드 WebView)
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', syncChatViewportHeight);
+        }
+
+        // window.resize 폴백 (구형 웹뷰)
+        window.addEventListener('resize', syncChatViewportHeight);
+
+        // 입력창 포커스 시 즉시 스크롤 복원
+        document.addEventListener('DOMContentLoaded', function() {
+            var chatInput = document.getElementById('chatTxt');
+            if (chatInput) {
+                chatInput.addEventListener('focus', function() {
+                    // 즉시 한 번 실행
+                    syncChatViewportHeight();
+                    restoreScrollPosition();
+
+                    // 키보드 애니메이션 완료 후 추가 조정
+                    setTimeout(function() {
+                        syncChatViewportHeight();
+                        restoreScrollPosition();
+                    }, 100);
+                });
+
+                chatInput.addEventListener('focusout', function() {
+                    setTimeout(function() {
+                        syncChatViewportHeight();
+                    }, 100);
+                });
+            }
+        });
+    })();
+
     // 주소 정리: 채팅 헤더에 표시되는 채용지 주소와 인재정보 주소를 공용 헬퍼로 축약
     document.addEventListener('DOMContentLoaded', function() {
         // 채용지 주소 처리 (recruit_card_row 파셜의 area-addr 클래스)

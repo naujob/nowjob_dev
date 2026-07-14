@@ -617,9 +617,9 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
                    data-mm_idx="<?= $row['mm_idx'] ?>">
                 <div class="content-info">
                   <div class="content-body">
-                    <div class="img">
+                    <!-- <div class="img">
                       <img src="<?= $row['ru_resume_img'] ?>" alt="프로필">
-                    </div>
+                    </div> -->
                     <div class="desc">
                       <div class="wicon"><?= $row['ru_work_img'] ?></div>
                       <div class="title ellipsis"><?= $mm_name ?></div>

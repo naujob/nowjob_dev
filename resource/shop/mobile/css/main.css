@@ -4894,6 +4894,7 @@ body.no-scroll {
 html,
 body {
     height: 100%;
+    
 }
 
 @media screen and (max-width: 414px) {
@@ -11101,6 +11102,7 @@ form#frm {
 
 .page-chat-view {
     overflow-y: hidden;
+    /* JS가 style.height로 키보드 높이 보정할 때 우선되도록 명시적으로 height 허용 */
 }
 
 .page-chat-view .page-content {

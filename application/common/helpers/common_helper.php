@@ -1165,6 +1165,72 @@ function sendFcm($info, $token_list)
 }
 
 /**
+ * AI 매칭 PUSH 알림 발송
+ * @param int $receiver_mm_idx 수신자 회원 idx
+ * @param string $type 수신자 타입 ('COMP' or 'MEM')
+ * @param string $target_name 대상 이름 (이력서명 또는 공고명)
+ * @param int $target_idx 대상 idx (ru_idx 또는 rc_idx)
+ */
+function sendMatchPush($receiver_mm_idx, $type, $target_name, $target_idx)
+{
+	try {
+		// 토큰 조회
+		$CI =& get_instance();
+		$token_result = $CI->db->query(
+			"SELECT ifnull(token,'') as token, push_yn
+			 FROM st_member_device
+			 WHERE mm_idx = ? AND push_yn = 'Y'
+			 ORDER BY up_dt DESC LIMIT 1",
+			array($receiver_mm_idx)
+		);
+		$token_info = $token_result->row_array();
+
+		// 토큰 없으면 조용히 return
+		if (!$token_info || empty($token_info['token'])) {
+			\error_log("[AI 매칭 PUSH] 토큰 없음 - mm_idx: " . $receiver_mm_idx . ", type: " . $type);
+			return false;
+		}
+
+		// 메시지 구성 (타입별 분기)
+		if ($type === 'COMP') {
+			// 기업 수신: 이력서 매칭
+			$info = array(
+				'title' => 'NowJob 인재 매칭',
+				'body' => (empty($target_name) ? '매칭' : $target_name) . '님이 매칭되었습니다',
+				'url' => '/resume/hr_post/' . $target_idx,
+				'type' => 'match_resume'
+			);
+		} else {
+			// 개인 수신: 공고 매칭
+			$info = array(
+				'title' => 'NowJob 공고 매칭',
+				'body' => (empty($target_name) ? '채용공고' : $target_name) . ' 공고가 매칭되었습니다',
+				'url' => '/recruit/job_post/' . $target_idx,
+				'type' => 'match_recruit'
+			);
+		}
+
+		// PUSH 발송
+		$token_list = array($token_info['token']);
+		$result = sendFcm($info, $token_list);
+
+		// 발송 결과 로그
+		if (isset($result['success']) && $result['success']) {
+			\error_log("[AI 매칭 PUSH] 발송 성공 - mm_idx: " . $receiver_mm_idx . ", type: " . $type . ", target: " . $target_name);
+			return true;
+		} else {
+			$error_msg = isset($result['error']) ? $result['error'] : '미상의 오류';
+			\error_log("[AI 매칭 PUSH] 발송 실패 - mm_idx: " . $receiver_mm_idx . ", type: " . $type . ", error: " . $error_msg);
+			return false;
+		}
+	} catch (Exception $e) {
+		// 예외 발생 시에도 호출부로 전파되지 않도록 로그만 남김
+		\error_log("[AI 매칭 PUSH] 예외 발생 - mm_idx: " . $receiver_mm_idx . ", error: " . $e->getMessage());
+		return false;
+	}
+}
+
+/**
  * Firebase Access Token 생성 함수
  * @param string $service_account_file 서비스 계정 JSON 파일 경로
  * @return string|false Access Token 또는 false

@@ -586,6 +586,9 @@ class Cron_proc extends CI_Controller
                     array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
                 );
                 $sent++;
+
+                // AI 매칭 PUSH 알림 발송
+                sendMatchPush($recruit['mm_idx'], 'COMP', $resume['ru_name'], $resume['ru_idx']);
             }
 
             // API 과부하 방지
@@ -652,6 +655,9 @@ class Cron_proc extends CI_Controller
                     array($resume['mm_idx'], $recruit['rc_idx'], $current_week)
                 );
                 $sent++;
+
+                // AI 매칭 PUSH 알림 발송
+                sendMatchPush($resume['mm_idx'], 'MEM', $recruit['rc_name'], $recruit['rc_idx']);
             }
 
             // API 과부하 방지

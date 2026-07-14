@@ -17,9 +17,9 @@ foreach ($groups as $group) {
             'ru_name'       => $row['ru_name'],
             'mm_nation'     => $row['mm_nation'],
             'mm_age'        => getKoreanAge($row['mm_birth']),
-            'ru_work_type'  => getWorkTypeFirst($row['ru_work_type']),
+            'ru_work_type'  => getWorkType2025($row['ru_work_type']),
             'ad_addr'       => fRemoveBigAdr($row['ad_addr']),
-            'ru_price_type' => getPriceTypeFirst($row['ru_price_type']),
+            'ru_price_type' => getPriceType($row['ru_price_type']),
             'ru_week_html'  => getWeekYoil($row['ru_week']),
         );
         $group_list[] = $row_data;

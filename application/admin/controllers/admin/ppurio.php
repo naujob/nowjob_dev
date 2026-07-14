@@ -720,6 +720,13 @@ class Ppurio extends MY_Controller{
                             array($mm_idx, $ru_idx, $recruit['rc_idx'], $current_week)
                         );
                         $sent_count++;
+
+                        // AI 매칭 PUSH 알림 발송 (resume_by_mm에서 이력서명 조회)
+                        $resume_name = '';
+                        if (isset($resume_by_mm[$mm_idx]) && isset($resume_by_mm[$mm_idx]['ru_name'])) {
+                            $resume_name = $resume_by_mm[$mm_idx]['ru_name'];
+                        }
+                        sendMatchPush($mm_idx, 'COMP', $resume_name, $ru_idx);
                     } else {
 
                         $fail_count++;
@@ -1019,6 +1026,13 @@ class Ppurio extends MY_Controller{
                             array($mm_idx, $rc_idx, $resume['ru_idx'], $current_week)
                         );
                         $sent_count++;
+
+                        // AI 매칭 PUSH 알림 발송 (recruit_by_mm에서 공고명 조회)
+                        $recruit_name = '';
+                        if (isset($recruit_by_mm[$mm_idx]) && isset($recruit_by_mm[$mm_idx]['rc_name'])) {
+                            $recruit_name = $recruit_by_mm[$mm_idx]['rc_name'];
+                        }
+                        sendMatchPush($mm_idx, 'MEM', $recruit_name, $rc_idx);
                     } else {
 
                         $fail_count++;

@@ -599,18 +599,18 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
           <div class="content-li<?php echo ($row['pm_idx'] != null) ? ' recomm' : ''; ?>" data-rc_idx="<?= $row['rc_idx'] ?>">
             <div class="content-info">
               <div class="content-body">
-                <div class="img">
-                  <img src="<?= $row['rt_recruit_img'] ?>" loading="lazy" alt="채용공고 이미지">
+                <!-- <div class="img"> -->
+                  <!-- <img src="<?= $row['rt_recruit_img'] ?>" loading="lazy" alt="채용공고 이미지"> -->
                   <?php if ($mm_type === 'MEM' || $mm_type === 'COMP'): ?>
-                    <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
+                    <!-- <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
                       class="btnBookMark btn-bookmark js-toggle-bookmark <?= $book_yn_class ?>">
                       <span class="sr-text">즐겨찾기 추가</span>
-                    </button>
+                    </button> -->
                   <?php endif; ?>
                   <?php if ($row['pm_idx'] != null): ?>
-                    <p class="recomm-badge"><span>추천</span></p>
+                    <!-- <p class="recomm-badge"><span>추천</span></p> -->
                   <?php endif; ?>
-                </div>
+                <!-- </div> -->
                 <div class="desc">
                   <div class="wicon"><?= $row['rt_work_img'] ?></div>
                   <div class="title ellipsis"><?= $row['rc_name'] ?></div>
