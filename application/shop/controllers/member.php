@@ -1131,6 +1131,20 @@ class Member extends CI_Controller
 		$this->layout->shop('/member/nowjob_login', $data);
 	}
 
+	# 휴대폰 OTP 로그인 인증 페이지
+	function phone_login_auth()
+	{
+		$data = [];
+		$data["header_type"] = "";
+
+		# 로그인시 메인화면으로 이동
+		if ($this->user->isLogin()) {
+			go_location("/home/index");
+		}
+
+		$this->layout->shop('/member/phone_login_auth', $data);
+	}
+
 	# 로그아웃
 	function logout()
 	{
@@ -1166,6 +1180,8 @@ class Member extends CI_Controller
 
 		// USER_INFO만 삭제 (다른 세션 데이터는 유지)
 		$this->common->removeSession("USER_INFO");
+
+		// 최근 로그인 타입 쿠키는 유지 (로그인 화면에서 최근 로그인 방식 표시용)
 
 		// iOS 감지
 		$headers = apache_request_headers();
@@ -1382,25 +1398,43 @@ class Member extends CI_Controller
 	# 회원가입 토튜리얼
 	function join_mem_toturial()
 	{
-		$data = null;
+		$data = [];
+		$headers = apache_request_headers();
+		$data["uuid"] = isset($headers["uuid"]) ? $headers["uuid"] : "";
+		$data["ma_type"] = "MEM";
 
-		#로그 생성
-		$this->site_model->setSiteLog(
-			[
-				"session_id" => session_id(),
-				"sl_type" => "JOIN_MEM",
-				"sl_step" => "토튜리얼",
-				"sl_txt" => ""
-			],
-			[
-				"session_id" => session_id(),
-				"sl_type" => "JOIN_MEM",
-				"sl_step" => "토튜리얼",
-				"sl_status" => "Y"
-			]
+		# NICE 본인인증 정보에서 휴대폰 번호 추출
+		$type = $this->common->getSession("AUTH_TYPE");
+		$list = $this->site_model->getSiteLogList(
+			["session_id" => session_id(), "sl_type" => "JOIN_" . $type, "sl_status" => "Y"]
 		);
-		//exit;
-		$this->layout->shop('/member/join_mem_toturial', $data);
+		$step_auth = $this->site_model->getStepData($list, "본인인증");
+
+		# SNS 회원가입 여부 확인
+		$check_sns = $this->site_model->getSiteLog(
+			["session_id" => session_id(), "sl_type" => "JOIN", "sl_step" => "SNS", "sl_status" => "Y"]
+		);
+
+		if (!empty($check_sns)) {
+			# SNS 가입: 기존 로직
+			$sns_info = json_decode($check_sns["sl_txt"], true);
+			$uniqid = ($sns_info["join_type"] == "KAKAO") ? uniqid("kakao_") : uniqid("apple_");
+		} else if (!empty($step_auth["mm_phone"])) {
+			# 일반 가입(NICE): 휴대폰 번호를 mm_id로 사용
+			$uniqid = preg_replace('/[^0-9]/', '', $step_auth["mm_phone"]);
+		} else {
+			# 폴백
+			$uniqid = uniqid("web_");
+		}
+
+		# 스텝1(아이디/비밀번호) 자동 생성
+		$sl_txt = ["mm_id" => $uniqid, "mm_pwd" => $uniqid];
+		$this->site_model->setSiteLog(
+			["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_step" => "스텝1", "sl_txt" => json_encode($sl_txt, JSON_UNESCAPED_UNICODE)],
+			["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_step" => "스텝1", "sl_status" => "Y"]
+		);
+
+		$this->layout->shop('/member/join_auto_complete', $data);
 	}
 
 	# 회원가입 스탭1
@@ -1652,23 +1686,42 @@ class Member extends CI_Controller
 	function join_comp_toturial()
 	{
 		$data = [];
+		$headers = apache_request_headers();
+		$data["uuid"] = isset($headers["uuid"]) ? $headers["uuid"] : "";
+		$data["ma_type"] = "COMP";
 
-		#로그 생성
-		$this->site_model->setSiteLog(
-			[
-				"session_id" => session_id(),
-				"sl_type" => "JOIN_COMP",
-				"sl_step" => "토튜리얼",
-				"sl_txt" => ""
-			],
-			[
-				"session_id" => session_id(),
-				"sl_type" => "JOIN_COMP",
-				"sl_step" => "토튜리얼",
-				"sl_status" => "Y"
-			]
+		# NICE 본인인증 정보에서 휴대폰 번호 추출
+		$type = $this->common->getSession("AUTH_TYPE");
+		$list = $this->site_model->getSiteLogList(
+			["session_id" => session_id(), "sl_type" => "JOIN_" . $type, "sl_status" => "Y"]
 		);
-		$this->layout->shop('/member/join_comp_toturial', $data);
+		$step_auth = $this->site_model->getStepData($list, "본인인증");
+
+		# SNS 회원가입 여부 확인
+		$check_sns = $this->site_model->getSiteLog(
+			["session_id" => session_id(), "sl_type" => "JOIN", "sl_step" => "SNS", "sl_status" => "Y"]
+		);
+
+		if (!empty($check_sns)) {
+			# SNS 가입: 기존 로직
+			$sns_info = json_decode($check_sns["sl_txt"], true);
+			$uniqid = ($sns_info["join_type"] == "KAKAO") ? uniqid("kakao_") : uniqid("apple_");
+		} else if (!empty($step_auth["mm_phone"])) {
+			# 일반 가입(NICE): 휴대폰 번호를 mm_id로 사용
+			$uniqid = preg_replace('/[^0-9]/', '', $step_auth["mm_phone"]);
+		} else {
+			# 폴백
+			$uniqid = uniqid("web_");
+		}
+
+		# 스텝3(기업 위저드의 비밀번호 단계 번호) 자동 생성
+		$sl_txt = ["mm_id" => $uniqid, "mm_pwd" => $uniqid];
+		$this->site_model->setSiteLog(
+			["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_step" => "스텝3", "sl_txt" => json_encode($sl_txt, JSON_UNESCAPED_UNICODE)],
+			["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_step" => "스텝3", "sl_status" => "Y"]
+		);
+
+		$this->layout->shop('/member/join_auto_complete', $data);
 	}
 
 	# 회원가입 스탭1

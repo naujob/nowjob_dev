@@ -890,7 +890,7 @@
             // 직접 스크롤 컨테이너 제어
             var chatBody = document.getElementById('chat_body');
             if (chatBody) {
-                chatBody.scrollTop = chatBody.scrollHeight;
+                chatBody.scrollTop = chatBody.scrollHeight; // 스크롤 위치를 아래로 이동
             }
 
             // 레이아웃 리플로우 후 다시 스크롤 (연속 조정)

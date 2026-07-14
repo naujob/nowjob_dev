@@ -1479,7 +1479,9 @@ function checkDuplicatePhoneForSns($phone)
 		}
 
 		$result["is_duplicate"] = true;
-		$result["message"] = $provider_label . $postposition . " 가입된 회원 정보 입니다.";
+		$result["message"] = $provider_label . $postposition . " 이미 가입된 전화번호 입니다.";
+		$result["join_type"] = $join_type;
+		$result["mm_phone"] = $mem_info["mm_phone"]; // 중복 회원의 전화번호
 	}
 
 	return $result;

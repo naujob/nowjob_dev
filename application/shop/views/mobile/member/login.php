@@ -68,10 +68,34 @@
   <div class="login-form-wrap">
     <div class="login-form">
       <div class="form-container">
+        <!-- 최근 로그인 배지용 세션 검증 (PHP) -->
+        <?php
+        $recent_login_type = "";
+        $allowed_recent_types = array("KAKAO", "NAVER", "GOOGLE", "WECHAT", "WEB");
+        // 세션이 먼저 있으면 세션 사용, 없으면 쿠키 사용
+        $session_value = $this->common->getSession("last_login_type");
+        $login_type_value = $session_value !== null ? $session_value : (isset($_COOKIE["last_login_type"]) ? $_COOKIE["last_login_type"] : null);
+
+        if ($login_type_value !== null && in_array($login_type_value, $allowed_recent_types)) {
+            $recent_login_type = $login_type_value;
+        }
+        ?>
+
         <form id="frm" onsubmit="return false">
+          <!-- 휴대폰번호 OTP 로그인 영역 -->
+          <div class="form-row" id="phone-login-section">
+            <label>
+              <span class="ico-label phone">휴대폰번호</span>
+              <input type="text" id="phone-login-input" placeholder="010-0000-0000" autocomplete="off" class="form-text">
+            </label>
+          </div>
 
+          <button id="btnPhoneLogin" type="button" class="btn-primary nowjob-login" data-state="idle"></button>
 
-
+          <!-- 간편로그인 구분선 -->
+          <div class="login-divider">
+            <span class="login-divider-text">간편로그인</span>
+          </div>
 
           <div class="vendor-login">
 
@@ -123,42 +147,34 @@
             $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
             $wechat_login = !empty($wechat_app_id) ? ($app_base_url . "/member/wechat_login") : "";
             ?>
-            <!--a href="javascript:void(0);" id="btnKakao" class="btn-primary vendor-type1">카카오톡으로 로그인</a-->
-            <?php //echo "[".$os_type."]";
-            ?>
-            <?php if ($os_type == "android") : ?>
-              <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-type1"></a>
-            <?php else : ?>
-              <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-type1"></a>
-            <?php endif; ?>
+            <!-- 간편로그인 아이콘 (원형 배경이미지, 최근 로그인은 CSS에서 관리) -->
+            <div class="vendor-login-icons">
+              <?php if ($os_type == "android") : ?>
+                <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"></a>
+              <?php else : ?>
+                <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"></a>
+              <?php endif; ?>
 
-            <?php if (!empty($wechat_login)) : ?>
-              <a href="<?= $wechat_login ?>" id="btnWeChat" class="vendor-type6"></a>
-            <?php else : ?>
-              <a href="javascript:void(0);" id="btnWeChat" class="vendor-type6"></a>
-            <?php endif; ?>
+              <?php if (!empty($wechat_login)) : ?>
+                <a href="<?= $wechat_login ?>" id="btnWeChat" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"></a>
+              <?php else : ?>
+                <a href="javascript:void(0);" id="btnWeChat" class="vendor-icon-btn" data-recent="false" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"></a>
+              <?php endif; ?>
 
-            <?php if ($iosapp) { ?>
-              <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
-            <?php } else if ($os_type == "android") { ?>
-              <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="APP_NOWAPK.naverLoginAnd(); return false;"></a>
-            <?php } else { ?>
-              <?php if (!empty($naver_login)) { ?>
-                <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-type4"></a>
+              <?php if ($iosapp) { ?>
+                <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
+              <?php } else if ($os_type == "android") { ?>
+                <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" onclick="APP_NOWAPK.naverLoginAnd(); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
               <?php } else { ?>
-                <a href="javascript:void(0);" id="btnNaver" class="vendor-type4" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;"></a>
+                <?php if (!empty($naver_login)) { ?>
+                  <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
+                <?php } else { ?>
+                  <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="false" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
+                <?php } ?>
               <?php } ?>
-            <?php } ?>
 
-
-
-            <a href="javascript:void(0);" id="btnGoogle" class="vendor-type5">Google로 로그인</a>
-
-
-
-            <!-- 전화번호로 시작하기 버튼 (가장 아래) -->
-            <a href="#" id="btnPhone" class="vendor-type3" onclick="goPhoneLogin(); return false;">
-            </a>
+              <a href="javascript:void(0);" id="btnGoogle" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-google.png')"></a>
+            </div>
 
             <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
                     <a href="#" id="btnKakaoAndApp2" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.callVibrate(); alert(2); return false;">진동</a> -->
@@ -171,11 +187,6 @@
             <? //=$os_type
             ?>
           </div>
-          <ul class="account-menu">
-            <!--<li><input type="checkbox" id="idsave" name="idsave"> 아이디저장</li>  -->
-            <!-- <li><a href="/member/find_id">아이디찾기</a></li> -->
-            <li><a href="/member/find_pwd">비밀번호 찾기</a></li>
-          </ul>
 
         </form>
 
@@ -189,8 +200,8 @@
       </div>
     </div>
     <div class="try-trial-container">
-      <p class="try-trial"><a href="/recruit/job_list">비회원 둘러보기</a></p>
-      <a href="/member/join_start" class="btn-primary btn-signup"></a>
+      <p class="try-trial"><a href="/member/join_start">회원가입</a></p>
+      <a href="/recruit/job_list" class="btn-primary btn-signup" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
     </div>
   </div>
 </div>
@@ -237,6 +248,24 @@ window.onload = function() {
   */
   // $(document).ready(function() {
   document.addEventListener('DOMContentLoaded', function() {
+    // 휴대폰 로그인 버튼 클릭
+    $("#btnPhoneLogin").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var state = $(this).data("state");
+      if (state === "idle") {
+        checkPhoneLogin();
+      }
+      return false;
+    });
+
+    // 휴대폰번호 입력시 정규화
+    $("#phone-login-input").on("keyup", function() {
+      var phone = $(this).val().replace(/[^0-9]/g, "");
+      $(this).val(phone);
+    });
+
     //로그인
     $("#btnLogin").click(function() {
       goLogin();
@@ -403,20 +432,28 @@ window.onload = function() {
                 if (ret.code == "00") {
                   sessionStorage.removeItem("chat_user_connect");
 
-                  // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-                  if (typeof window.connectFCMTokenToUser === 'function') {
-                    window.connectFCMTokenToUser().then(function() {
+                  // 최근 로그인 타입을 세션에 저장
+                  comAjax("/member_proc/set_last_login_type", { login_type: "KAKAO" }, function() {
+                    // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
+                    if (typeof window.connectFCMTokenToUser === 'function') {
+                      window.connectFCMTokenToUser().then(function() {
+                        _replace("/");
+                      });
+                    } else {
                       _replace("/");
-                    });
-                  } else {
-                    _replace("/");
-                  }
+                    }
+                  });
+                  return;
                 } else {
                   if (ret.code == "91") {
-                    // 전화번호가 이미 가입되어 있는 경우
-                    commonAlert(ret.msg, function() {
-                      _replace("/member/login");
-                    });
+                    // 중복 계정 - 다른 SNS로 이미 가입됨
+                    if (ret.data && ret.data.join_type) {
+                      showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+                    } else {
+                      commonAlert(ret.msg, function() {
+                        _replace("/member/login");
+                      });
+                    }
                   } else if (ret.code == "90") {
                     openPopup('confirm', {
                       id: 'permission',
@@ -505,6 +542,7 @@ window.onload = function() {
     }
 
   }); //ready
+
   // 전화번호 로그인 페이지로 이동하는 함수
   function goPhoneLogin() {
     // 전화번호 로그인 페이지로 이동
@@ -665,14 +703,17 @@ window.onload = function() {
       if (ret.code == "00") {
         sessionStorage.removeItem("chat_user_connect");
 
-        // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-        if (typeof window.connectFCMTokenToUser === 'function') {
-          window.connectFCMTokenToUser().then(function() {
+        // 최근 로그인 타입을 세션에 저장
+        comAjax("/member_proc/set_last_login_type", { login_type: "KAKAO" }, function() {
+          // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
+          if (typeof window.connectFCMTokenToUser === 'function') {
+            window.connectFCMTokenToUser().then(function() {
+              _replace("/");
+            });
+          } else {
             _replace("/");
-          });
-        } else {
-          _replace("/");
-        }
+          }
+        });
       } else {
         if (ret.code == "90") {
           openPopup('confirm', {
@@ -842,20 +883,28 @@ window.onload = function() {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
 
-          // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-          if (typeof window.connectFCMTokenToUser === 'function') {
-            window.connectFCMTokenToUser().then(function() {
+          // 최근 로그인 타입을 세션에 저장
+          comAjax("/member_proc/set_last_login_type", { login_type: "NAVER" }, function() {
+            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
+            if (typeof window.connectFCMTokenToUser === 'function') {
+              window.connectFCMTokenToUser().then(function() {
+                _replace("/");
+              });
+            } else {
               _replace("/");
-            });
-          } else {
-            _replace("/");
-          }
+            }
+          });
+          return;
         } else {
           if (ret.code == "91") {
-            // 전화번호가 이미 가입되어 있는 경우
-            commonAlert(ret.msg, function() {
-              _replace("/member/login");
-            });
+            // 중복 계정 - 다른 SNS로 이미 가입됨
+            if (ret.data && ret.data.join_type) {
+              showDuplicateProviderPopup(ret.data.join_type);
+            } else {
+              commonAlert(ret.msg, function() {
+                _replace("/member/login");
+              });
+            }
           } else if (ret.code == "90") {
             openPopup('confirm', {
               id: 'permission',
@@ -943,16 +992,27 @@ window.onload = function() {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
 
-          // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-          if (typeof window.connectFCMTokenToUser === 'function') {
-            window.connectFCMTokenToUser().then(function() {
+          // 최근 로그인 타입을 세션에 저장
+          comAjax("/member_proc/set_last_login_type", { login_type: "KAKAO" }, function() {
+            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
+            if (typeof window.connectFCMTokenToUser === 'function') {
+              window.connectFCMTokenToUser().then(function() {
+                _replace("/");
+              });
+            } else {
               _replace("/");
-            });
-          } else {
-            _replace("/");
-          }
+            }
+          });
+          return;
         } else {
-          if (ret.code == "90") {
+          if (ret.code == "91") {
+            // 중복 계정 - 다른 SNS로 이미 가입됨
+            if (ret.data && ret.data.join_type) {
+              showDuplicateProviderPopup(ret.data.join_type);
+            } else {
+              commonAlert(ret.msg, function() {});
+            }
+          } else if (ret.code == "90") {
             openPopup('confirm', {
               id: 'permission',
               content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
@@ -999,20 +1059,28 @@ window.onload = function() {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
 
-          // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-          if (typeof window.connectFCMTokenToUser === 'function') {
-            window.connectFCMTokenToUser().then(function() {
+          // 최근 로그인 타입을 세션에 저장
+          comAjax("/member_proc/set_last_login_type", { login_type: "NAVER" }, function() {
+            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
+            if (typeof window.connectFCMTokenToUser === 'function') {
+              window.connectFCMTokenToUser().then(function() {
+                _replace("/");
+              });
+            } else {
               _replace("/");
-            });
-          } else {
-            _replace("/");
-          }
+            }
+          });
+          return;
         } else {
           if (ret.code == "91") {
-            // 전화번호가 이미 가입되어 있는 경우
-            commonAlert(ret.msg, function() {
-              _replace("/member/login");
-            });
+            // 중복 계정 - 다른 SNS로 이미 가입됨
+            if (ret.data && ret.data.join_type) {
+              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+            } else {
+              commonAlert(ret.msg, function() {
+                _replace("/member/login");
+              });
+            }
           } else if (ret.code == "90") {
             openPopup('confirm', {
               id: 'permission',
@@ -1071,14 +1139,20 @@ window.onload = function() {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
 
-          // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-          if (typeof window.connectFCMTokenToUser === 'function') {
-            window.connectFCMTokenToUser().then(function() {
+          // 최근 로그인 타입을 세션에 저장
+          comAjax("/member_proc/set_last_login_type", { login_type: "GOOGLE" }, function() {
+            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
+            if (typeof window.connectFCMTokenToUser === 'function') {
+              window.connectFCMTokenToUser().then(function() {
+                _replace("/");
+              });
+            } else {
               _replace("/");
-            });
-          } else {
-            _replace("/");
-          }
+            }
+          });
+          return;
+        } else if (ret.code == "91" && ret.data && ret.data.join_type) {
+          showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
         } else if (ret.code == "90" && ret.data && ret.data.join_key) {
           try {
             localStorage.setItem("join_sns_type", "GOOGLE");
@@ -1126,14 +1200,18 @@ window.onload = function() {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
 
-          // 로그인 성공 후 FCM 토큰 연결
-          if (typeof window.connectFCMTokenToUser === 'function') {
-            window.connectFCMTokenToUser().then(function() {
+          // 최근 로그인 타입을 세션에 저장
+          comAjax("/member_proc/set_last_login_type", { login_type: "WECHAT" }, function() {
+            // 로그인 성공 후 FCM 토큰 연결
+            if (typeof window.connectFCMTokenToUser === 'function') {
+              window.connectFCMTokenToUser().then(function() {
+                _replace("/");
+              });
+            } else {
               _replace("/");
-            });
-          } else {
-            _replace("/");
-          }
+            }
+          });
+          return;
         } else if (ret.code == "90" && ret.data && ret.data.join_key) {
           try {
             localStorage.setItem("join_sns_type", "WECHAT");
@@ -1335,8 +1413,17 @@ window.onload = function() {
           gPhoneUpdateTime();
           gPhoneToast("인증번호를 발송하였습니다."); // 자동으로 사라지는 토스트
         } else if (ret.code == "99") {
-          // 이미 가입된 회원 — 시트 위에 토스트로 표시 후 자동 소멸
-          gPhoneToast(ret.msg, 1200);
+          // 이미 가입된 회원 — 중복 계정 팝업 표시
+          if (ret.data && ret.data.join_type) {
+            clearInterval(gPhoneTimer);
+            closeGoogleJoinPhonePopup();
+            // 잠깐의 딜레이 후 중복 계정 팝업 표시 (애니메이션 충돌 방지)
+            setTimeout(function() {
+              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+            }, 400);
+          } else {
+            gPhoneToast(ret.msg, 1200);
+          }
         } else if (ret.code == "98") {
           commonAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
         } else {
@@ -1479,5 +1566,139 @@ window.onload = function() {
     </div>
   </div>
 </div>
+
+<!-- 휴대폰번호 OTP 로그인 함수들 -->
 <script>
+  // 휴대폰번호로 로그인 (SMS 발송 요청)
+  function checkPhoneLogin() {
+    var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
+
+    if (phone.length === 0) {
+      commonAlert("휴대폰번호를 입력해주세요.", function() {
+        $("#phone-login-input").focus();
+      });
+      return;
+    }
+
+    var params = { mm_phone: phone };
+    comAjax("/member_proc/check_phone_login", params, function(ret) {
+      if (ret.code == "00") {
+        // SMS 발송 성공 - 인증 페이지로 리다이렉트
+        commonAlert("인증번호를 발송하였습니다.", function() {
+          location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
+        });
+      } else if (ret.code == "90") {
+        // 미가입 - 바로 회원 생성 및 로그인
+        commonAlert("회원가입을 진행합니다.", function() {
+          createPhoneMember(phone);
+        });
+      } else if (ret.code == "98" || ret.code == "99") {
+        commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
+      } else {
+        commonAlert(ret.msg || "오류가 발생했습니다.", function() {});
+      }
+    });
+  }
+
+  // 휴대폰번호로 회원 생성 및 로그인
+  function createPhoneMember(phone) {
+    var params = { mm_phone: phone };
+    comAjax("/member_proc/create_phone_member", params, function(ret) {
+      if (ret.code == "00") {
+        sessionStorage.removeItem("chat_user_connect");
+
+        // 최근 로그인 타입을 세션에 저장 (휴대폰 직접 가입)
+        comAjax("/member_proc/set_last_login_type", { login_type: "WEB" }, function() {
+          if (typeof window.connectFCMTokenToUser === 'function') {
+            window.connectFCMTokenToUser().then(function() {
+              _replace("/");
+            }).catch(function(error) {
+              _replace("/");
+            });
+          } else {
+            _replace("/");
+          }
+        });
+        return;
+      } else {
+        commonAlert(ret.msg || "회원가입에 실패했습니다.", function() {});
+      }
+    });
+  }
+
+  // 중복 계정 팝업 함수
+  function showDuplicateProviderPopup(joinType, mmPhone) {
+    var label = "";
+    var buttonAction = function() {};
+
+    if (joinType === "KAKAO") {
+      label = "카카오";
+      buttonAction = function() {
+        $("#btnKakao").length ? $("#btnKakao").trigger("click") : $("#btnKakaoAndroid").trigger("click");
+      };
+    } else if (joinType === "NAVER") {
+      label = "네이버";
+      buttonAction = function() {
+        $("#btnNaver").trigger("click");
+      };
+    } else if (joinType === "GOOGLE") {
+      label = "구글";
+      buttonAction = function() {
+        $("#btnGoogle").trigger("click");
+      };
+    } else if (joinType === "WECHAT") {
+      label = "위챗";
+      buttonAction = function() {
+        $("#btnWeChat").trigger("click");
+      };
+    } else if (joinType === "WEB") {
+      label = "휴대폰";
+      buttonAction = function() {
+        // 기존 가입된 휴대폰 번호로 자동 로그인
+        if (!mmPhone) {
+          commonAlert("오류: 전화번호 정보를 찾을 수 없습니다.", function() {});
+          return;
+        }
+        var params = {};
+        params["mm_phone"] = mmPhone;
+        comAjax("/member_proc/phone_auto_login", params, function(ret) {
+          if (ret.code == "00") {
+            sessionStorage.removeItem("chat_user_connect");
+            _replace("/");
+          } else {
+            commonAlert(ret.msg || "로그인에 실패했습니다.", function() {});
+          }
+        });
+      };
+    }
+
+    openPopup('confirm', {
+      id: 'duplicate_provider',
+      content: '<strong>이미 ' + label + '로 회원가입이 되어 있습니다.</strong>',
+      firstButton: '취소',
+      secondButton: label + '로 로그인',
+      firstCallback: function() {
+        return false;
+      },
+      secondCallback: buttonAction
+    });
+  }
+
+  // Google/WeChat 웹 리다이렉트 채널에서 msg_code=93인 경우 처리
+  $(document).ready(function() {
+    <?php if (isset($_GET['msg_code']) && $_GET['msg_code'] == '93'): ?>
+      <?php
+      $dup_join_type = isset($_GET['dup_join_type']) ? $_GET['dup_join_type'] : '';
+      $allowed_types = ['KAKAO', 'NAVER', 'GOOGLE', 'WECHAT', 'WEB'];
+      if (!in_array($dup_join_type, $allowed_types)) {
+        $dup_join_type = '';
+      }
+      ?>
+      <?php if (!empty($dup_join_type)): ?>
+        setTimeout(function() {
+          showDuplicateProviderPopup('<?= $dup_join_type ?>');
+        }, 100);
+      <?php endif; ?>
+    <?php endif; ?>
+  });
 </script>

@@ -180,7 +180,10 @@ class Member_proc extends CI_Controller
                         $duplicate_check = $this->checkDuplicatePhoneForSnsLogin($sns_phone);
                         if ($duplicate_check["is_duplicate"]) {
                             // 전화번호가 이미 가입되어 있으면 특별한 코드로 반환
-                            json_return("91", $duplicate_check["message"]);
+                            json_return("91", $duplicate_check["message"], [
+                                "join_type" => $duplicate_check["join_type"],
+                                "mm_phone" => isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : ""
+                            ]);
                             exit;
                         }
                     }
@@ -413,6 +416,52 @@ class Member_proc extends CI_Controller
         } else {
             setcookie("saved_id", "", time() + (86400 * 365), "/");
         }
+
+        json_return("00", "로그인 완료");
+    }
+
+    // 휴대폰 번호로 자동 로그인 (중복 SNS 계정 발견 시 사용)
+    function phone_auto_login()
+    {
+        $mm_phone = input_post("mm_phone", "");
+
+        if (empty($mm_phone)) {
+            json_return("90", "전화번호 정보가 없습니다.");
+            exit;
+        }
+
+        // 전화번호로 기존 회원 조회 (WEB 타입, 활성 회원만)
+        $normalized_phone = preg_replace('/[^0-9]/', '', $mm_phone);
+        $query = "SELECT * FROM st_member
+                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                  AND mm_join_type = 'WEB'
+                  AND mm_status = 'Y'
+                  LIMIT 1";
+        $result = $this->db->query($query);
+        $mem_info = $result->row_array();
+
+        if ($mem_info == null) {
+            json_return("90", "회원정보를 찾을 수 없습니다.");
+            exit;
+        }
+
+        // 주소정보 조회
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+
+        // 세션 설정 (다른 로그인 경로와 동일한 배열 형태 사용)
+        $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mem_info["mm_thumb"],
+            "ad_addr" => isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "",
+            "ad_gps_x" => isset($addr_info["ad_gps_x"]) ? $addr_info["ad_gps_x"] : "",
+            "ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : "",
+            "mm_sex" => $mem_info["mm_sex"],
+        ]);
 
         json_return("00", "로그인 완료");
     }
@@ -1171,7 +1220,11 @@ class Member_proc extends CI_Controller
                 $provider_label = "휴대폰";
             }
 
-            json_return("99", $provider_label . "으로 가입된 회원입니다.\n로그인 페이지에서 로그인해주세요.");
+            // 중복 계정 팝업용 join_type 정보 함께 반환
+            json_return("99", $provider_label . "으로 가입된 회원입니다.", [
+                "join_type" => $join_type,
+                "mm_phone" => $mem_info["mm_phone"]
+            ]);
         } else {
             // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
             $count_result = $this->site_model->checkSmsSendCount($phone, "구글가입인증");
@@ -1201,6 +1254,189 @@ class Member_proc extends CI_Controller
         $check = $this->site_model->checkSmsAuth($phone, $auth);
 
         json_return($check["code"], $check["msg"]);
+    }
+
+    # 휴대폰 OTP 로그인용 전화번호 확인 및 SMS 인증번호 발송
+    function check_phone_login()
+    {
+        $phone = input_post("mm_phone");
+
+        // 전화번호 정규화 (하이픈, 공백, 점 제거)
+        $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+
+        if ($normalized_phone == '') {
+            json_return("91", "전화번호를 입력해주세요.");
+            return;
+        }
+
+        // 전화번호로 회원 조회
+        $query = "SELECT * FROM st_member
+                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                  AND mm_status = 'Y'
+                  LIMIT 1";
+        $result = $this->db->query($query);
+        $mem_info = $result->row_array();
+
+        if ($mem_info == null) {
+            // 미가입 → 회원가입 필요
+            json_return("90", "회원가입이 필요합니다.");
+            return;
+        }
+
+        // 가입됨 → SMS 발송
+        $count_result = $this->site_model->checkSmsSendCount($phone, "휴대폰로그인인증");
+
+        if ($count_result["code"] != "00") {
+            json_return("98", "하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.");
+            return;
+        }
+
+        $authNum = rand(100000, 999999);
+        $result = $this->common->sendSms($phone, "나우잡 인증 번호 발송 [" . $authNum . "]", $authNum);
+
+        if ($result["code"] == "00") {
+            json_return("00", "인증번호를 발송하였습니다.");
+        } else {
+            json_return("99", "SMS 발송 오류: " . $result["text"]);
+        }
+    }
+
+    # 휴대폰번호로 회원 생성 및 로그인 (비밀번호 없음)
+    function create_phone_member()
+    {
+        $phone = input_post("mm_phone");
+
+        // 전화번호 정규화
+        $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+
+        if (empty($normalized_phone) || strlen($normalized_phone) < 10) {
+            json_return("91", "전화번호를 정확히 입력해주세요.");
+            return;
+        }
+
+        // 이미 존재하는지 확인
+        $query = "SELECT * FROM st_member
+                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                  AND mm_status = 'Y'
+                  LIMIT 1";
+        $result = $this->db->query($query);
+        $mem_info = $result->row_array();
+
+        if ($mem_info != null) {
+            // 이미 가입된 회원
+            json_return("91", "이미 가입된 휴대폰번호입니다.");
+            return;
+        }
+
+        // 새 회원 생성 (휴대폰번호 기반)
+        $mm_id = "phone_" . $normalized_phone . "_" . time(); // 고유 아이디 자동 생성
+        $mm_pwd = password_hash("phone_signup_" . time(), PASSWORD_DEFAULT); // 더미 비밀번호
+
+        $insert_data = [
+            "mm_id" => $mm_id,
+            "mm_pwd" => $mm_pwd,
+            "mm_phone" => $normalized_phone,
+            "mm_join_type" => "WEB",
+            "mm_status" => "Y",
+            "mm_created_dt" => date("Y-m-d H:i:s"),
+            "mm_last_login_dt" => date("Y-m-d H:i:s"),
+        ];
+
+        $this->db->insert("st_member", $insert_data);
+        $mm_idx = $this->db->insert_id();
+
+        if (empty($mm_idx)) {
+            json_return("99", "회원 생성에 실패했습니다.");
+            return;
+        }
+
+        // 생성된 회원 정보 조회
+        $mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+
+        if ($mem_info == null) {
+            json_return("99", "회원 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 주소 정보 조회
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+        if (!is_array($addr_info)) {
+            $addr_info = [];
+        }
+
+        // 로그인 처리
+        $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mem_info["mm_thumb"],
+            "ad_addr" => isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "",
+            "ad_gps_x" => isset($addr_info["ad_gps_x"]) ? $addr_info["ad_gps_x"] : "",
+            "ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : "",
+            "mm_sex" => $mem_info["mm_sex"],
+        ]);
+
+        // 세션 명시적 저장 (이후 요청에서 세션 데이터 보장)
+        if (function_exists('session_write_close')) {
+            session_write_close();
+        }
+
+        json_return("00", "회원가입 완료", ["mm_id" => $mem_info["mm_id"]]);
+    }
+
+    # 휴대폰 OTP 로그인용 인증번호 확인 및 로그인 처리
+    function check_phone_login_auth()
+    {
+        $phone = input_post("mm_phone");
+        $auth  = input_post("auth");
+
+        // 인증번호 확인
+        $check = $this->site_model->checkSmsAuth($phone, $auth);
+
+        if ($check["code"] != "00") {
+            json_return($check["code"], $check["msg"]);
+            return;
+        }
+
+        // 전화번호로 회원 재조회
+        $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+        $query = "SELECT * FROM st_member
+                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                  AND mm_status = 'Y'
+                  LIMIT 1";
+        $result = $this->db->query($query);
+        $mem_info = $result->row_array();
+
+        if ($mem_info == null) {
+            json_return("90", "회원 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 주소 정보 조회
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+
+        // 로그인 처리 (setUser 배열 형식으로 호출)
+        $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mem_info["mm_thumb"],
+            "ad_addr" => $addr_info["ad_addr"],
+            "ad_gps_x" => $addr_info["ad_gps_x"],
+            "ad_gps_y" => $addr_info["ad_gps_y"],
+            "mm_sex" => $mem_info["mm_sex"],
+        ]);
+
+        // 접속 처리 (last_login_dt 갱신)
+        $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+        json_return("00", "로그인 완료");
     }
 
     # SNS 회원가입용 전화번호 확인 및 SMS 인증번호 발송 (위챗/애플 등)
@@ -1586,14 +1822,42 @@ class Member_proc extends CI_Controller
 
         // 회원가입 플로우일 때 기 가입 확인 (전화번호로 확인)
         if ($is_join_flow) {
+            // 본인인증 로그 기록
+            $sl_txt = [
+                "mm_name" => $return["name"],
+                "mm_sex" => ($return["gender"] == "1" ? "남" : "여"),
+                "mm_nation" => ($return["nationalinfo"] == "0" ? "내국인" : "외국인"),
+                "mm_birth" => $return["birthdate"],
+                "mm_phone" => $return["mobileno"],
+                "mm_ci" => "",
+                "mm_di" => $return["dupinfo"],
+            ];
+
+            # 로그 남기기
+            $type = $this->common->getSession("AUTH_TYPE");
+            $this->site_model->setSiteLog(
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_" . $type,
+                    "sl_step" => "본인인증",
+                    "sl_txt" => json_encode($sl_txt, JSON_UNESCAPED_UNICODE)
+                ],
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_" . $type,
+                    "sl_step" => "본인인증",
+                    "sl_status" => "Y"
+                ]
+            );
+
             // 전화번호 형식 정규화 (하이픈 제거)
             $normalized_phone = preg_replace('/[^0-9]/', '', $return["mobileno"]);
 
             // SQL로 전화번호 조회 (하이픈 제거 후 비교)
             // DB에는 '010-9002-5528' 형식으로 저장되어 있으므로 REPLACE로 하이픈 제거 후 비교
-            $query = "SELECT * FROM st_member 
-                      WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "' 
-                      AND mm_status = 'Y' 
+            $query = "SELECT * FROM st_member
+                      WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                      AND mm_status = 'Y'
                       LIMIT 1";
             $result = $this->db->query($query);
             $mem_info = $result->row_array();
@@ -3222,21 +3486,31 @@ class Member_proc extends CI_Controller
                 // DB 저장
                 $result_join = $this->member_model->insertMember($arr_mem);
 
-                // 디버깅 로그: DB 저장 결과 확인
-                if ($result_join["code"] != "00") {
+                // 회원 INSERT 결과 검증
+                if (!is_array($result_join) || $result_join["code"] != "00") {
                     $this->db->trans_rollback();
                     json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
+                    exit;
                 }
+
+                // mm_idx NULL 체크 (INSERT ID 생성 실패 시)
+                if (empty($result_join["key"])) {
+                    $this->db->trans_rollback();
+                    json_return("91", "[01]회원 ID 생성에 실패했습니다. 다시 시도해주세요.");
+                    exit;
+                }
+
+                $mm_idx = $result_join["key"];
 
                 # 토큰정보 연동
                 if ($alarm["uuid"] != "") {
-                    $this->member_model->setMemberDevice(["mm_idx" => $result_join["key"]], ["uuid" => $alarm["uuid"]]);
+                    $this->member_model->setMemberDevice(["mm_idx" => $mm_idx], ["uuid" => $alarm["uuid"]]);
                 }
 
                 $arr_addr = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "ad_type" => "MEMBER",
-                    "ad_key" => $result_join["key"],
+                    "ad_key" => $mm_idx,
                     "ad_zipcode" => isset($step2_info["ad_zipcode"]) ? $step2_info["ad_zipcode"] : "",
                     "ad_jibun" => isset($step2_info["ad_jibun"]) ? $step2_info["ad_jibun"] : "",
                     "ad_doro" => isset($step2_info["ad_doro"]) ? $step2_info["ad_doro"] : "",
@@ -3250,6 +3524,7 @@ class Member_proc extends CI_Controller
                 if ($result_addr["code"] != "00") {
                     $this->db->trans_rollback();
                     json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
+                    exit;
                 }
 
 
@@ -3257,7 +3532,7 @@ class Member_proc extends CI_Controller
                 $birth_for_age = !empty($step_sns) ? $arr_mem["mm_birth"] : (isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "");
                 $ma_age = getKoreanAge($birth_for_age);
                 $arr_mem_info = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "ma_work" => arr_implode(",", isset($step4_1_info["ma_work"]) ? $step4_1_info["ma_work"] : []),
                     "ma_price_type" => arr_implode(",", isset($step4_1_info["ma_price_type"]) ? $step4_1_info["ma_price_type"] : []),
                     "ma_age" => $ma_age,
@@ -3283,7 +3558,7 @@ class Member_proc extends CI_Controller
                         $arr_data = explode("|||", $row);
 
                         $info = [
-                            "mm_idx" => $result_join["key"],
+                            "mm_idx" => $mm_idx,
                             "mc_type" => isset($arr_data[0]) ? $arr_data[0] : "",
                             "mc_name" => isset($arr_data[1]) ? $arr_data[1] : "",
                             "mc_date" => isset($arr_data[2]) ? $arr_data[2] : "",
@@ -3299,7 +3574,7 @@ class Member_proc extends CI_Controller
                         $arr_data = explode("|||", $row);
 
                         $info = [
-                            "mm_idx" => $result_join["key"],
+                            "mm_idx" => $mm_idx,
                             "mc_name" => isset($arr_data[0]) ? $arr_data[0] : "",
                             "mc_dt" => isset($arr_data[1]) ? $arr_data[1] : "",
                         ];
@@ -3311,7 +3586,7 @@ class Member_proc extends CI_Controller
                 # 포인트 추가
                 $pay_point = 5000;
                 $insert = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "o_num" => "",
                     "pm_idx" => 0,
                     "pt_type" => "JOIN",
@@ -3324,7 +3599,7 @@ class Member_proc extends CI_Controller
                 $result_point = $this->site_model->insertPointList($insert);
 
                 #회원 정보 수정
-                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $result_join["key"]]);
+                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
 
                 #  정보조회후 로그인처리
                 $mem_info = $this->member_model->getMember(["mm_id" => $arr_mem["mm_id"]]);
@@ -3374,7 +3649,27 @@ class Member_proc extends CI_Controller
                 $this->setMongoUser($arr_mem, $alarm["token"]);
 
                 $this->db->trans_commit();
-                return json_return("00", "회원가입 완료");
+
+                // 로그인 세션 설정 (join_mem_finish에서 isLogin = true가 되도록)
+                $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mm_idx]);
+                if (!is_array($addr_info)) {
+                    $addr_info = [];
+                }
+                $this->user->setUser([
+                    "mm_idx" => $mm_idx,
+                    "mm_id" => $arr_mem["mm_id"],
+                    "mm_point" => $arr_mem["mm_point"],
+                    "mm_name" => $arr_mem["mm_name"],
+                    "mm_type" => $arr_mem["mm_type"],
+                    "mm_join_type" => $arr_mem["mm_join_type"],
+                    "mm_img" => $arr_mem["mm_thumb"],
+                    "ad_addr" => isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "",
+                    "ad_gps_x" => isset($addr_info["ad_gps_x"]) ? $addr_info["ad_gps_x"] : "",
+                    "ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : "",
+                    "mm_sex" => $arr_mem["mm_sex"],
+                ]);
+
+                return json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             } else {
                 //PART
 
@@ -3637,7 +3932,7 @@ class Member_proc extends CI_Controller
                 $birth_for_age = !empty($step_sns) ? $arr_mem["mm_birth"] : (isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "");
                 $ma_age = getKoreanAge($birth_for_age);
                 $arr_mem_info = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "ma_age" => $ma_age,
                 ];
 
@@ -3650,7 +3945,7 @@ class Member_proc extends CI_Controller
                 # 포인트 추가
                 $pay_point = 5000;
                 $insert = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "o_num" => "",
                     "pm_idx" => 0,
                     "pt_type" => "JOIN",
@@ -3663,7 +3958,7 @@ class Member_proc extends CI_Controller
                 $result_point = $this->site_model->insertPointList($insert);
 
                 #회원 정보 수정
-                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $result_join["key"]]);
+                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
 
                 # 회원정보 조회
                 $mem_info = $this->member_model->getMember(["mm_id" => $arr_mem["mm_id"]]);
@@ -3713,7 +4008,8 @@ class Member_proc extends CI_Controller
                 $this->setMongoUser($arr_mem, $alarm["token"]);
 
                 $this->db->trans_commit();
-                json_return("00", "회원가입 완료");
+                error_log("[join_complete_proc] MEM - PART 응답 - mm_id: " . $arr_mem["mm_id"]);
+                json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             }
         } else if ($ma_type == "COMP") {
 
@@ -3734,6 +4030,15 @@ class Member_proc extends CI_Controller
             $step4_info = $this->site_model->getStepData($list, "스텝4");
             $step5_info = $this->site_model->getStepData($list, "스텝5");
             $step6_info = $this->site_model->getStepData($list, "스텝6");
+
+            // 방어 처리: 누락된 단계 데이터 기본값 세팅 (iOS 500 방지)
+            if (!is_array($step_auth)) $step_auth = [];
+            if (!is_array($step1_info)) $step1_info = [];
+            if (!is_array($step2_info)) $step2_info = [];
+            if (!is_array($step3_info)) $step3_info = [];
+            if (!is_array($step4_info)) $step4_info = [];
+            if (!is_array($step5_info)) $step5_info = [];
+            if (!is_array($step6_info)) $step6_info = [];
 
             if ($proc_type == "ALL") {
                 # 트랜젝션 시작
@@ -3782,19 +4087,19 @@ class Member_proc extends CI_Controller
                 $arr_mem = [
                     "mm_type" => "COMP",
                     "mm_status" => "Y",
-                    "mm_id" => $step3_info["mm_id"],
-                    "mm_img1" => $step6_info["mm_img1"],
-                    "mm_thumb" => $step6_info["mm_thumb"],
-                    "mm_pwd" => $this->common->getSqlPass($step3_info["mm_pwd"]),
+                    "mm_id" => isset($step3_info["mm_id"]) ? $step3_info["mm_id"] : "",
+                    "mm_img1" => isset($step6_info["mm_img1"]) ? $step6_info["mm_img1"] : "",
+                    "mm_thumb" => isset($step6_info["mm_thumb"]) ? $step6_info["mm_thumb"] : "",
+                    "mm_pwd" => $this->common->getSqlPass(isset($step3_info["mm_pwd"]) ? $step3_info["mm_pwd"] : ""),
                     "mm_name" => $mm_name_init,
                     "mm_sex" => $mm_sex_init,
                     "mm_nation" => $mm_nation_init,
                     "mm_birth" => $mm_birth_init,
                     "mm_phone" => $mm_phone_init,
-                    "mm_comp_type" => $step2_info["mm_comp_type"],
-                    "mm_comp_name" => $step2_info["mm_comp_name"],
-                    "mm_comp_num" => $step2_info["mm_comp_num"],
-                    "mm_comp_auth" => $step2_info["mm_comp_auth"],
+                    "mm_comp_type" => isset($step2_info["mm_comp_type"]) ? $step2_info["mm_comp_type"] : "",
+                    "mm_comp_name" => isset($step2_info["mm_comp_name"]) ? $step2_info["mm_comp_name"] : "",
+                    "mm_comp_num" => isset($step2_info["mm_comp_num"]) ? $step2_info["mm_comp_num"] : "",
+                    "mm_comp_auth" => isset($step2_info["mm_comp_auth"]) ? $step2_info["mm_comp_auth"] : "",
                     "mm_ci" => $mm_ci_init,
                     "mm_di" => $mm_di_init,
                     "mm_join_ip" => $this->common->getIpAddr(),
@@ -3877,52 +4182,64 @@ class Member_proc extends CI_Controller
 
                 $result_join = $this->member_model->insertMember($arr_mem);
 
-                if ($result_join["code"] != "00") {
+                // 회원 INSERT 결과 검증
+                if (!is_array($result_join) || $result_join["code"] != "00") {
                     $this->db->trans_rollback();
                     json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
+                    exit;
                 }
+
+                // mm_idx NULL 체크 (INSERT ID 생성 실패 시)
+                if (empty($result_join["key"])) {
+                    $this->db->trans_rollback();
+                    json_return("91", "[01]회원 ID 생성에 실패했습니다. 다시 시도해주세요.");
+                    exit;
+                }
+
+                $mm_idx = $result_join["key"];
 
                 # 토큰정보 연동
                 if ($alarm["uuid"] != "") {
-                    $this->member_model->setMemberDevice(["mm_idx" => $result_join["key"]], ["uuid" => $alarm["uuid"]]);
+                    $this->member_model->setMemberDevice(["mm_idx" => $mm_idx], ["uuid" => $alarm["uuid"]]);
                 }
 
                 $arr_addr = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "ad_type" => "MEMBER",
-                    "ad_key" => $result_join["key"],
-                    "ad_zipcode" => $step4_info["ad_zipcode"],
-                    "ad_jibun" => $step4_info["ad_jibun"],
-                    "ad_doro" => $step4_info["ad_doro"],
-                    "ad_detail" => $step4_info["ad_detail"],
-                    "ad_addr" => $step4_info["ad_addr"],
-                    "ad_gps_x" => $step4_info["ad_gps_x"],
-                    "ad_gps_y" => $step4_info["ad_gps_y"],
+                    "ad_key" => $mm_idx,
+                    "ad_zipcode" => isset($step4_info["ad_zipcode"]) ? $step4_info["ad_zipcode"] : "",
+                    "ad_jibun" => isset($step4_info["ad_jibun"]) ? $step4_info["ad_jibun"] : "",
+                    "ad_doro" => isset($step4_info["ad_doro"]) ? $step4_info["ad_doro"] : "",
+                    "ad_detail" => isset($step4_info["ad_detail"]) ? $step4_info["ad_detail"] : "",
+                    "ad_addr" => isset($step4_info["ad_addr"]) ? $step4_info["ad_addr"] : "",
+                    "ad_gps_x" => isset($step4_info["ad_gps_x"]) ? $step4_info["ad_gps_x"] : "",
+                    "ad_gps_y" => isset($step4_info["ad_gps_y"]) ? $step4_info["ad_gps_y"] : "",
                 ];
 
                 $result_addr = $this->member_model->insertAddress($arr_addr);
                 if ($result_addr["code"] != "00") {
                     $this->db->trans_rollback();
                     json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
+                    exit;
                 }
 
                 // SNS 가입 시 $arr_mem["mm_birth"] 사용, 일반 가입 시 $step_auth["mm_birth"] 사용
                 $birth_for_age = !empty($step_sns) ? $arr_mem["mm_birth"] : (isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "");
                 $ma_age = getKoreanAge($birth_for_age);
                 $arr_mem_info = [
-                    "mm_idx" => $result_join["key"],
-                    "ma_work" => arr_implode(",", $step6_info["ma_work"]),
-                    "ma_price_type" => arr_implode(",", $step6_info["ma_price_type"]),
+                    "mm_idx" => $mm_idx,
+                    "ma_work" => arr_implode(",", isset($step6_info["ma_work"]) ? $step6_info["ma_work"] : []),
+                    "ma_price_type" => arr_implode(",", isset($step6_info["ma_price_type"]) ? $step6_info["ma_price_type"] : []),
                     "ma_age" => $ma_age,
-                    "ma_work_type" => arr_implode(",", $step6_info["ma_work_type"]),
-                    "ma_week_yn" => $step6_info["ma_week_yn"],
-                    "ma_week" => arr_implode(",", $step6_info["ma_week"]),
-                    "ma_sage" => $step6_info["ma_sage"],
-                    "ma_eage" => $step6_info["ma_eage"],
-                    "ma_sex" => arr_implode(",", $step6_info["ma_sex"]),
-                    "ma_nation" => arr_implode(",", $step6_info["ma_nation"]),
-                    "ma_edu" => $step6_info["ma_edu"],
-                    "ma_life_type" => arr_implode(",", $step6_info["ma_life_type"]),
+                    "ma_work_type" => arr_implode(",", isset($step6_info["ma_work_type"]) ? $step6_info["ma_work_type"] : []),
+                    "ma_week_yn" => isset($step6_info["ma_week_yn"]) ? $step6_info["ma_week_yn"] : "",
+                    "ma_week" => arr_implode(",", isset($step6_info["ma_week"]) ? $step6_info["ma_week"] : []),
+                    "ma_sage" => isset($step6_info["ma_sage"]) ? $step6_info["ma_sage"] : "",
+                    "ma_eage" => isset($step6_info["ma_eage"]) ? $step6_info["ma_eage"] : "",
+                    "ma_sex" => arr_implode(",", isset($step6_info["ma_sex"]) ? $step6_info["ma_sex"] : []),
+                    "ma_nation" => arr_implode(",", isset($step6_info["ma_nation"]) ? $step6_info["ma_nation"] : []),
+                    "ma_edu" => isset($step6_info["ma_edu"]) ? $step6_info["ma_edu"] : "",
+                    "ma_life_type" => arr_implode(",", isset($step6_info["ma_life_type"]) ? $step6_info["ma_life_type"] : []),
                     "ma_desc" => "",
                 ];
 
@@ -3936,7 +4253,7 @@ class Member_proc extends CI_Controller
                 # 포인트 추가
                 $pay_point = 10000;
                 $insert = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "o_num" => "",
                     "pm_idx" => 0,
                     "pt_type" => "JOIN",
@@ -3949,7 +4266,7 @@ class Member_proc extends CI_Controller
                 $result_point = $this->site_model->insertPointList($insert);
 
                 #회원 정보 수정
-                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $result_join["key"]]);
+                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
 
 
                 # 정보조회후 로그인처리
@@ -3962,9 +4279,9 @@ class Member_proc extends CI_Controller
                     "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
                     "mm_type" => $mem_info["mm_type"],
                     "mm_join_type" => $mem_info["mm_join_type"],
-                    "ad_addr" => $step4_info["ad_addr"],
-                    "ad_gps_x" => $step4_info["ad_gps_x"],
-                    "ad_gps_y" => $step4_info["ad_gps_y"],
+                    "ad_addr" => isset($step4_info["ad_addr"]) ? $step4_info["ad_addr"] : "",
+                    "ad_gps_x" => isset($step4_info["ad_gps_x"]) ? $step4_info["ad_gps_x"] : "",
+                    "ad_gps_y" => isset($step4_info["ad_gps_y"]) ? $step4_info["ad_gps_y"] : "",
                     "mm_sex" => $mem_info["mm_sex"],
                 ]);
 
@@ -3972,8 +4289,8 @@ class Member_proc extends CI_Controller
                 $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $arr_mem["mm_id"]]);
 
                 # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
-                $sql = "UPDATE st_member_device 
-                        SET push_yn = 'Y', up_dt = NOW() 
+                $sql = "UPDATE st_member_device
+                        SET push_yn = 'Y', up_dt = NOW()
                         WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
                 $this->db->query($sql, [$mem_info["mm_idx"]]);
 
@@ -4000,7 +4317,28 @@ class Member_proc extends CI_Controller
                 $this->setMongoUser($arr_mem, $alarm["token"]);
 
                 $this->db->trans_commit();
-                return json_return("00", "회원가입 완료");
+
+                // 로그인 세션 설정 (join_comp_finish에서 isLogin = true가 되도록)
+                $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $arr_mem["mm_idx"]]);
+                if (!is_array($addr_info)) {
+                    $addr_info = [];
+                }
+                $this->user->setUser([
+                    "mm_idx" => $mm_idx,
+                    "mm_id" => $arr_mem["mm_id"],
+                    "mm_point" => $arr_mem["mm_point"],
+                    "mm_name" => isset($arr_mem["mm_comp_name"]) ? $arr_mem["mm_comp_name"] : $arr_mem["mm_name"],
+                    "mm_type" => $arr_mem["mm_type"],
+                    "mm_join_type" => $arr_mem["mm_join_type"],
+                    "mm_img" => $arr_mem["mm_thumb"],
+                    "ad_addr" => isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "",
+                    "ad_gps_x" => isset($addr_info["ad_gps_x"]) ? $addr_info["ad_gps_x"] : "",
+                    "ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : "",
+                    "mm_sex" => $arr_mem["mm_sex"],
+                ]);
+
+                error_log("[join_complete_proc] COMP - NICE 응답 - mm_id: " . $arr_mem["mm_id"]);
+                return json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             } else {
                 //PART
 
@@ -4230,7 +4568,7 @@ class Member_proc extends CI_Controller
                 $birth_for_age = !empty($step_sns) ? $arr_mem["mm_birth"] : (isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "");
                 $ma_age = getKoreanAge($birth_for_age);
                 $arr_mem_info = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "ma_age" => $ma_age,
                 ];
 
@@ -4243,7 +4581,7 @@ class Member_proc extends CI_Controller
                 # 포인트 추가
                 $pay_point = 10000;
                 $insert = [
-                    "mm_idx" => $result_join["key"],
+                    "mm_idx" => $mm_idx,
                     "o_num" => "",
                     "pm_idx" => 0,
                     "pt_type" => "JOIN",
@@ -4256,7 +4594,7 @@ class Member_proc extends CI_Controller
                 $result_point = $this->site_model->insertPointList($insert);
 
                 #회원 정보 수정
-                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $result_join["key"]]);
+                $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
 
                 # 회원정보 조회
                 $mem_info = $this->member_model->getMember(["mm_id" => $arr_mem["mm_id"]]);
@@ -4306,11 +4644,11 @@ class Member_proc extends CI_Controller
                 $this->setMongoUser($arr_mem, $alarm["token"]);
 
                 $this->db->trans_commit();
-                return json_return("00", "회원가입 완료");
+                error_log("[join_complete_proc] COMP - PART 응답 - mm_id: " . $arr_mem["mm_id"]);
+                return json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             }
         }
     }
-
 
     # 웹 회원가입
     function join_wmem_step3()
@@ -4718,5 +5056,26 @@ class Member_proc extends CI_Controller
         }
 
         return false;
+    }
+
+    /**
+     * 최근 로그인 타입을 세션에 저장
+     */
+    /**
+     * 최근 로그인 타입을 세션에 저장 (쿠키로도 저장해 로그아웃 후에도 유지)
+     */
+    public function set_last_login_type()
+    {
+        $login_type = $this->input->post('login_type');
+        $allowed_types = array('KAKAO', 'NAVER', 'GOOGLE', 'WECHAT', 'WEB', 'APPLE');
+
+        if (!empty($login_type) && in_array($login_type, $allowed_types)) {
+            $this->common->setSession("last_login_type", $login_type);
+            setcookie("last_login_type", $login_type, time() + (86400 * 365), "/");
+            session_write_close();
+            json_return("00", "success");
+        } else {
+            json_return("99", "invalid login type");
+        }
     }
 }
