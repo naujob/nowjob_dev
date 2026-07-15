@@ -202,8 +202,10 @@ class Member extends CI_Controller
 				if (!empty($phonenum)) {
 					$duplicate_check = checkDuplicatePhoneForSns($phonenum);
 					if ($duplicate_check["is_duplicate"]) {
-						// 중복이 있으면 로그인 페이지로 리다이렉트
-						$this->common->scriptReplace("/member/login", $duplicate_check["message"]);
+						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
+						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
+								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
+						redirect($dup_url, 'refresh');
 						exit;
 					}
 				}
@@ -539,12 +541,15 @@ class Member extends CI_Controller
 
 				$phonenum = isset($naver_response["mobile"]) ? $naver_response["mobile"] : "";
 
-				// 회원이 없을 때 전화번호 중복 체크
+				// 회원이 없을 때 전화번호 정규화 및 중복 체크 (모든 비숫자 제거)
 				if (!empty($phonenum)) {
-					$duplicate_check = checkDuplicatePhoneForSns($phonenum);
+					$normalized_phone = preg_replace('/[^0-9]/', '', $phonenum);
+					$duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
 					if ($duplicate_check["is_duplicate"]) {
-						// 중복이 있으면 로그인 페이지로 리다이렉트
-						$this->common->scriptReplace("/member/login", $duplicate_check["message"]);
+						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
+						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
+								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
+						redirect($dup_url, 'refresh');
 						exit;
 					}
 				}
@@ -925,7 +930,7 @@ class Member extends CI_Controller
 
 		return ["ok" => true, "data" => $data];
 	}
-
+    // SNS 로그인 처리 (공통)
 	function login_process($join_type, $join_key)
 	{
 		# 정보조회후 로그인처리
@@ -1281,8 +1286,10 @@ class Member extends CI_Controller
 		// 전화번호로 기존 회원 존재 여부 확인
 		$duplicate_check = checkDuplicatePhoneForSns($phonenum);
 		if ($duplicate_check["is_duplicate"]) {
-			// 중복이 있으면 로그인 페이지로 리다이렉트
-			go_location("/member/login", $duplicate_check["message"]);
+			// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
+			$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
+					. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
+			redirect($dup_url, 'refresh');
 			exit;
 		}
 

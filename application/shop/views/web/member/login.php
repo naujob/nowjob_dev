@@ -12,14 +12,18 @@
                 <div class="form-container">
                     <?php
                     $app_base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
-                    // 카카오 로그인 URL 생성
+                    // 카카오 로그인 설정
                     $kakao_redirect = urlencode($app_base_url . "/member/kakao_login_callback");
                     $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
-                    $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+                    // OAuth 리다이렉트용 REST API Key
+                    $kakao_rest_api_key = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+                    // Kakao SDK 초기화용 자바스크립트 키
+                    $kakao_js_key = isset($kakao_setting["인증키"]) ? $kakao_setting["인증키"] : "";
                     // Kakao state 세션에 저장 (콜백에서 검증 시 사용)
                     $this->common->setSession("kakao-oauth-state", $csrf);
-                    // prompt=login 파라미터 추가: 항상 로그인 화면을 표시하도록 함
-                    $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_client_id . "&redirect_uri=" . $kakao_redirect . "&state=" . $csrf . "&prompt=login";
+                    // OAuth 리다이렉트 URL (사용하지 않음, 대신 AJAX로 변경)
+                    // 카카오 로그인 (OAuth scope 없음 - 기본값으로 phonenum이 포함될 경우 사용)
+                    $kakao_login = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" . $kakao_rest_api_key . "&redirect_uri=" . $kakao_redirect . "&state=" . urlencode($csrf) . "&prompt=login";
                     
                     // 네이버 로그인 URL 생성
                     $naver_redirect = urlencode($app_base_url . "/member/naver_login_callback");
@@ -66,19 +70,39 @@
                             <h2 class="title">간편로그인</h2>
                             <div class="social-login-buttons">
                                 <!-- 1행: 카카오 + 위챗 -->
-                                <a href="<?= $kakao_login ?>" id="btnKakao" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-kakao-login.png" alt="카카오 로그인"></a>
+                                <a href="<?= $kakao_login ?>" id="btnKakao" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>">
+                                    <img src="/resource/shop/web/img/ic-kakao-login.png" alt="카카오 로그인">
+                                    <?php if (isset($recent_login_type) && $recent_login_type === 'KAKAO') : ?>
+                                        <span class="recent-badge">최근</span>
+                                    <?php endif; ?>
+                                </a>
                                 <?php if (!empty($wechat_login)) : ?>
-                                    <a href="<?= $wechat_login ?>" id="btnWechat" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                    <a href="<?= $wechat_login ?>" id="btnWechat" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>">
+                                        <img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인">
+                                        <?php if (isset($recent_login_type) && $recent_login_type === 'WECHAT') : ?>
+                                            <span class="recent-badge">최근</span>
+                                        <?php endif; ?>
+                                    </a>
                                 <?php else : ?>
                                     <a href="javascript:void(0);" id="btnWechat" data-recent="false"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
                                 <?php endif; ?>
                                 <!-- 2행: 네이버 + 구글 -->
                                 <?php if (!empty($naver_login)) : ?>
-                                    <a href="<?= $naver_login ?>" id="btnNaver" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'NAVER' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
+                                    <a href="<?= $naver_login ?>" id="btnNaver" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'NAVER' ? 'true' : 'false' ?>">
+                                        <img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인">
+                                        <?php if (isset($recent_login_type) && $recent_login_type === 'NAVER') : ?>
+                                            <span class="recent-badge">최근</span>
+                                        <?php endif; ?>
+                                    </a>
                                 <?php else : ?>
                                     <a href="javascript:void(0);" id="btnNaver" data-recent="false"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
                                 <?php endif; ?>
-                                <a href="javascript:void(0);" id="btnGoogle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-google-login.png" alt="Google 로그인"></a>
+                                <a href="javascript:void(0);" id="btnGoogle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>">
+                                    <img src="/resource/shop/web/img/ic-google-login.png" alt="Google 로그인">
+                                    <?php if (isset($recent_login_type) && $recent_login_type === 'GOOGLE') : ?>
+                                        <span class="recent-badge">최근</span>
+                                    <?php endif; ?>
+                                </a>
                             </div>
                             <!--a href="#" class="btn vendor-type2">Apple 로그인</a-->
                         </div>
@@ -89,6 +113,9 @@
 
     </main><!-- //page-content -->
 </div><!-- //page -->
+
+<!-- Kakao SDK 제거됨: OAuth 콜백 방식으로 통일 -->
+<!-- <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script> -->
 
 <!-- SNS 회원가입 전화번호 인증 팝업 (구글, 위챗, 애플 등 공용) -->
 <div id="sns-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:2000; align-items:center; justify-content:center;">
@@ -130,6 +157,7 @@
     var google_client_id = '<?= isset($google_client_id) ? $google_client_id : "" ?>';
 
     // GIS 라이브러리 로드 완료 후 자동 호출되는 콜백 (async defer 타이밍 문제 해결)
+    //GIS 라이브러리가 주 방식이고, 로드 실패 시에만 서버사이드 OAuth로 폴백
     window.onGoogleLibraryLoad = function() {
         if (google_client_id) {
             google.accounts.id.initialize({
@@ -139,7 +167,20 @@
         }
     };
 
+    // Kakao SDK 제거됨: OAuth 콜백 방식으로 통일
+
+
     $(document).ready(function() {
+        // 네이버 중복 계정 감지 (dup_join_type 쿼리파라미터)
+        var dupJoinType = urlParams.get('dup_join_type');
+        var dupMmPhone = urlParams.get('dup_mm_phone');
+        if (dupJoinType) {
+            setTimeout(function() {
+                showDuplicateProviderPopup(dupJoinType, dupMmPhone || '');
+                window.history.replaceState({}, document.title, '/member/login');
+            }, 100);
+        }
+
         // WeChat/Apple 콜백으로부터의 phone popup 자동 호출
         if (joinSns && joinKey && joinType) {
             setTimeout(function() {
@@ -176,14 +217,8 @@
             }
         })
 
-        //네이버 로그인 - href로 직접 이동하므로 클릭 이벤트는 필요 없지만, 설정되지 않은 경우만 처리
-        $("#btnNaver").click(function(e) {
-            <?php if (empty($naver_login)) : ?>
-                // 네이버 클라이언트 ID가 설정되지 않은 경우
-                e.preventDefault();
-                alert("네이버 로그인이 설정되지 않았습니다.");
-            <?php endif; ?>
-        });
+        // 카카오 로그인 - OAuth 콜백 방식으로 통일 (직접 href로 이동)
+
         // 위챗 로그인 - 서버사이드 OAuth로 직접 이동 (href로 직접 이동하므로 클릭 이벤트는 필요 없지만, 설정되지 않은 경우만 처리)
         $("#btnWechat").click(function(e) {
             <?php if (empty($wechat_login)) : ?>
@@ -408,6 +443,8 @@
         return JSON.parse(jsonPayload);
     }
 
+    // 카카오 AJAX 함수 제거됨: OAuth 콜백 방식으로 통일
+
     // 중복 계정 안내 팝업 (SNS 로그인 시 다른 SNS로 이미 가입된 경우)
     function showDuplicateProviderPopup(joinType, mmPhone) {
         var providerLabels = {
@@ -573,6 +610,10 @@
                 sPhoneTimer = setInterval(sPhoneUpdateTime, 1000);
                 sPhoneUpdateTime();
                 alert('인증번호를 발송하였습니다.');
+            } else if (ret.code == '91') {
+                // 중복 계정 감지 → phone popup 닫고 중복 계정 모달 표시
+                $('#sns-phone-popup').hide();
+                showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || '');
             } else if (ret.code == '99') {
                 // phone popup 임시 숨기고 alert 띄우기
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');

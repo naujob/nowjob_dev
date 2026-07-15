@@ -97,14 +97,17 @@
   <div class="login-form-wrap">
     <div class="login-form">
       <div class="form-container">
-        <!-- 최근 로그인 배지용 세션 검증 (PHP) -->
+        <!-- 최근 로그인 SNS 판별: 뷰에서 배지 표시용 (data-recent 속성 할당)
+             우선순위: 세션 > 쿠키 (세션이 없으면 쿠키에서 읽음) -->
         <?php
         $recent_login_type = "";
         $allowed_recent_types = array("KAKAO", "NAVER", "GOOGLE", "WECHAT", "WEB");
-        // 세션이 먼저 있으면 세션 사용, 없으면 쿠키 사용
+        // 세션에서 최근 로그인 타입 조회
         $session_value = $this->common->getSession("last_login_type");
+        // 세션이 없으면 쿠키에서 조회
         $login_type_value = $session_value !== null ? $session_value : (isset($_COOKIE["last_login_type"]) ? $_COOKIE["last_login_type"] : null);
 
+        // 허용된 로그인 타입인지 검증 후 저장
         if ($login_type_value !== null && in_array($login_type_value, $allowed_recent_types)) {
             $recent_login_type = $login_type_value;
         }
@@ -176,11 +179,14 @@
             $wechat_app_id = isset($wechat_setting["WEB_APP_ID"]) ? $wechat_setting["WEB_APP_ID"] : "";
             $wechat_login = !empty($wechat_app_id) ? ($app_base_url . "/member/wechat_login") : "";
             ?>
-            <!-- 간편로그인 아이콘 (원형 배경이미지, 최근 로그인은 CSS에서 관리) -->
+            <!-- 간편로그인 아이콘 버튼 (플랫폼별 다르게 렌더링)
+                 data-recent: 최근 로그인한 SNS에 배지 표시 (CSS에서 관리) -->
             <div class="vendor-login-icons">
               <?php if ($os_type == "android") : ?>
+                <!-- 안드로이드 앱: JavaScript 이벤트 핸들러로 native 코드 호출 -->
                 <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"></a>
               <?php else : ?>
+                <!-- iOS 앱 또는 웹: OAuth 서버 URL로 직접 리다이렉트 -->
                 <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"></a>
               <?php endif; ?>
 
@@ -191,13 +197,17 @@
               <?php endif; ?>
 
               <?php if ($iosapp) { ?>
+                <!-- iOS 네이티브 앱: OAuth URL로 직접 리다이렉트 -->
                 <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
               <?php } else if ($os_type == "android") { ?>
+                <!-- 안드로이드 네이티브 앱: JavaScript Bridge(APP_NOWAPK)로 native SDK 호출 -->
                 <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" onclick="APP_NOWAPK.naverLoginAnd(); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
               <?php } else { ?>
+                <!-- 웹브라우저: OAuth URL 설정 여부 확인 후 렌더링 -->
                 <?php if (!empty($naver_login)) { ?>
                   <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
                 <?php } else { ?>
+                  <!-- 네이버 로그인 미설정 → 경고 메시지 표시 -->
                   <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="false" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
                 <?php } ?>
               <?php } ?>
@@ -324,20 +334,20 @@ window.onload = function() {
       return false; // 추가 안전장치
     });
 
-    // 구글 로그인
+    // 구글 로그인: 플랫폼별로 다르게 처리 (안드로이드/iOS 앱은 네이티브 SDK, 웹은 OAuth)
     $("#btnGoogle").click(function(e) {
       e.preventDefault();
       e.stopPropagation();
 
       <?php if ($os_type == "android") { ?>
-        // Android 앱
+        // 안드로이드 네이티브 앱: JavaScript Bridge로 native Google SDK 호출
         if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.googleLoginAnd === 'function') {
           APP_NOWAPK.googleLoginAnd();
         } else {
           alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
         }
       <?php } else if ($os_type == "ios") { ?>
-        // iOS 네이티브 앱
+        // iOS 네이티브 앱: webkit 메시지 핸들러로 native 코드 호출
         if (typeof window.webkit !== 'undefined' &&
           typeof window.webkit.messageHandlers !== 'undefined' &&
           typeof window.webkit.messageHandlers.googleLogin !== 'undefined') {
@@ -346,7 +356,7 @@ window.onload = function() {
           alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
         }
       <?php } else { ?>
-        // 웹브라우저: 구글 로그인 서버 엔드포인트로 리다이렉트 (웹 버전과 동일)
+        // 모바일 웹브라우저: 구글 OAuth 서버로 리다이렉트
         <?php if (!empty($google_login)) { ?>
           window.location.href = "<?= $google_login ?>";
         <?php } else { ?>
@@ -356,21 +366,21 @@ window.onload = function() {
       return false;
     });
 
-    // 위챗 로그인 (네이티브 앱만)
+    // 위챗 로그인: 네이티브 앱(iOS/Android)에서만 지원 (웹 미지원)
     <?php if ($os_type == "android" || $os_type == "ios") : ?>
       $("#btnWeChat").click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
         <?php if ($os_type == "android") { ?>
-          // Android 앱
+          // 안드로이드 네이티브 앱: JavaScript Bridge로 native WeChat SDK 호출
           if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.wechatLoginAnd === 'function') {
             APP_NOWAPK.wechatLoginAnd();
           } else {
             alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
           }
         <?php } else if ($os_type == "ios") { ?>
-          // iOS 네이티브 앱
+          // iOS 네이티브 앱: webkit 메시지 핸들러로 native 코드 호출
           if (typeof window.webkit !== 'undefined' &&
             typeof window.webkit.messageHandlers !== 'undefined' &&
             typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
@@ -383,42 +393,37 @@ window.onload = function() {
       });
     <?php endif; ?>
 
-    //카카오 로그인
+    // 카카오 로그인: 플랫폼별(iOS 앱/안드로이드 앱/웹)로 다르게 처리
     $("#btnKakao").click(function() {
-      //alert('kakao click');
+      // iOS 네이티브 앱 → JavaScript Bridge를 통해 네이티브 코드 호출
       if (isIOSApp()) {
-        //alert('ios');
         window.webkit.messageHandlers.kakaoLogin.postMessage(null);
         return false;
       }
 
+      // 안드로이드 네이티브 앱 → JavaScript Bridge(APP_NOWAPK) 호출
       <?php if ($os_type == "android") { ?>
-        //alert('APP_NOWAPK call');
         APP_NOWAPK.kakaoLoginAnd();
         return false;
       <?php } ?>
-      //alert('web call');
 
+      // 모바일 웹브라우저 환경 → 카카오 공식 SDK 직접 사용
       if (!Kakao.isInitialized()) {
         <?php
         $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
         $kakao_js_key = isset($kakao_setting["인증키"]) ? $kakao_setting["인증키"] : "";
         ?>
         Kakao.init("<?= $kakao_js_key ?>");
-        <?php // =$kakao_key["인증키"]
-        ?>
       }
-      //alert('kakao web login');
+
       Kakao.Auth.login({
-        scope: 'profile_nickname,profile_image,profile_name', // 스코프 추가: 이름, 별명, 프로필 이미지 접근 권한
+        scope: 'profile_nickname,profile_image,profile_name', // 요청 권한: 이름, 별명, 프로필 이미지
         success: function(authObj) {
-          // debug log removed
-          //alert('success');
-          // 로그인 성공시, API를 호출합니다.
+          // 로그인 성공 → 사용자 프로필 정보 API 요청
           Kakao.API.request({
             url: '/v2/user/me',
             success: function(res) {
-              // 카카오 사용자 정보 추출
+              // 카카오 응답에서 사용자 정보 추출 (이름, 이메일, 휴대폰, 성별, 생일)
               var kakaoid = res.id;
               // name 우선, 없으면 nickname 사용 (안드로이드 네이티브와 동일한 로직)
               var kakaoname = "";
@@ -625,6 +630,7 @@ window.onload = function() {
     });
   }
 
+  // iOS 네이티브 앱 여부 판별 (webkit 메시지 핸들러 존재 확인)
   function isIOSApp() {
     return (
       typeof window.webkit !== 'undefined' &&
@@ -633,6 +639,7 @@ window.onload = function() {
     );
   }
 
+  // iOS 네이티브 앱에서 네이버 로그인 지원 여부 확인
   function isIOSAppNaver() {
     return (
       typeof window.webkit !== 'undefined' &&
@@ -649,27 +656,12 @@ window.onload = function() {
     alert('kakao ok:' + arg);
   }
 
-  function onLoginInfo(message //kakaoid, kakaoname //, kakaophone, kakaogender, kakaobirthyear, kakaobirthday, kakaoemail
-  ) {
-    //alert('onLoginInfo');
-    //kakao ok
-    //alert('kakao info');
-    //alert(message);
-    //Optional(1234)^^nil^^^^
-    //alert(kakaoid);
-    //alert(kakaophone);
-    //alert(kakaoemail);
-    //alert('kakao info:' + kakaoid);
-    //alert('kakao info:' + kakaoname);
-    //alert('kakao info:' + kakaophone);
-    //alert('kakao info:' + kakaogender);
-    //alert('kakao info:' + kakaobirthyear);
-    //alert('kakao info:' + kakaobirthday);
-    //alert('kakao info:' + kakaoemail);
-    //Optional("Optional(1234567890)")
-    //Optional("nil")
+  // iOS 네이티브 앱에서 호출: 카카오 로그인 결과 수신 (webView.evaluateJavaScript 사용)
+  // 파라미터: iOS 앱에서 "^" 구분자로 연결된 문자열 (ID^폰^성별^생년^생일^이메일^이름)
+  function onLoginInfo(message) {
+    // iOS 앱에서 받은 형식: "Optional(123456)^+82 10-1234-5678^Male^1990^01-15^email@test.com^사용자이름"
 
-    // ^ 기준으로 나누기
+    // "^" 구분자로 사용자 정보 파싱
     var parts = message.split('^');
     // 누락된 코드 추가 2025-10-15
     var phone = parts[1]; //phone    +82 10-
@@ -880,10 +872,10 @@ window.onload = function() {
     return JSON.parse(jsonPayload);
   }
 
-  // ios all 용
+  // iOS 네이티브 앱에서 호출: 네이버 로그인 결과 수신 (webView.evaluateJavaScript 사용)
+  // 파라미터: iOS 앱에서 "^" 구분자로 연결된 문자열 (ID^이름^이메일^성별^휴대폰^생년^생일)
   function onNaverLoginInfo(msg) {
-    // alert('onNaverLoginInfo');
-    //alert(msg); //test
+    // iOS 앱에서 받은 형식: "123456^사용자이름^email@test.com^M^010-1234-5678^1990^01-15"
 
     var parts = msg.split('^');
     var uniqueval = parts[0];
@@ -891,8 +883,8 @@ window.onload = function() {
     var email = parts[2];
     var gender = parts[3];
     var phonenum = parts[4];
-    var birthyear = parts[5] || ""; // iOS 앱에서 생년 전달 (있는 경우)
-    var birthday = parts[6] || ""; // iOS 앱에서 생일 전달 (있는 경우)
+    var birthyear = parts[5] || ""; // iOS 앱에서 전달한 생년 (선택사항)
+    var birthday = parts[6] || ""; // iOS 앱에서 전달한 생일 (선택사항)
 
     if (gender == 'M') gender = "남";
     if (gender == 'F') gender = "여";
@@ -969,26 +961,18 @@ window.onload = function() {
 
   }
 
-  // Android 앱에서 호출됨
+  // 카카오 로그인 콜백: 안드로이드 네이티브 앱(IntroActivity.kakaoLoginStart)에서 호출됨
+  // 파라미터: 로그인 상태, 카카오 ID, 이름, 휴대폰, 성별, 생년, 생일, 이메일
   function kakaoLoginAndCallback(status, id, name, phone, gender, birthyear, birthday, email) {
     if (status === "success") {
-      //alert(
-      //  "카카오 로그인 성공\n" +
-      //  "ID: " + id + "\n" +
-      //  "이름: " + name + "\n" +
-      //  "전화번호: " + phone + "\n" +
-      //  "성별: " + gender + "\n" +
-      //  "출생연도: " + birthyear + "\n" +
-      //  "생일: " + birthday + "\n" +
-      //  "이메일: " + email
-      //);
+      // 로그인 성공 → 사용자 정보를 서버에 전송하여 로그인/회원가입 처리
 
-      // 전화번호 포맷 변환: +82 10-9002-5528 → 01090025528
+      // 전화번호 포맷 정규화: "+82 10-9002-5528" → "01090025528"
       if (phone) {
         phone = phone.replace(/\+82\s*10-/, '010').replace(/[-\s]/g, '');
       }
 
-      // 성별 변환 (Male/Female -> MALE/FEMALE)
+      // 성별 변환: 안드로이드 앱에서 "Male"/"Female" 형식으로 받음 → "MALE"/"FEMALE"로 변환
       var genderConverted = "";
       if (gender && gender.indexOf('Male') >= 0) {
         genderConverted = "MALE";
@@ -996,7 +980,7 @@ window.onload = function() {
         genderConverted = "FEMALE";
       }
 
-      // 서버로 전송 - PC 웹과 동일하게 7개 파라미터 전달
+      // 서버로 전송 - 사용자 정보 7개 파라미터 포함
       var params = {};
       params["mm_join_type"] = "KAKAO";
       params["mm_join_key"] = id;
@@ -1060,20 +1044,20 @@ window.onload = function() {
     APP_NOWAPK.naverLoginAnd(); // 네이티브 호출
   }
 
+  // 네이버 로그인 콜백: 안드로이드 네이티브 앱(IntroActivity.naverLoginStart)에서 호출됨
+  // 파라미터: 로그인 상태, 네이버 ID, 이름, 이메일, 휴대폰, 성별, 생년, 생일
   function naverLoginAndCallback(status, id, name, email, phone, gender, birthyear, birthday) {
     if (status === 'success') {
-      //alert("네이버 로그인 성공!\nID: " + id + "\n이름: " + name);
-
-      // 서버로 전송
+      // 로그인 성공 → 사용자 정보를 서버에 전송하여 로그인/회원가입 처리
       var params = {};
       params["mm_join_type"] = "NAVER";
       params["mm_join_key"] = id;
       params["naverphone"] = phone;
       params["navername"] = name;
       params["naveremail"] = email;
-      params["navergender"] = gender || ""; // 안드로이드에서 전달받은 성별 (M/F)
-      params["naverbirthyear"] = birthyear || ""; // 안드로이드에서 전달받은 생년
-      params["naverbirthday"] = birthday || ""; // 안드로이드에서 전달받은 생일 (MM-DD 형식)
+      params["navergender"] = gender || ""; // 안드로이드에서 전달받은 성별
+      params["naverbirthyear"] = birthyear || ""; // 생년
+      params["naverbirthday"] = birthday || ""; // 생일
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
@@ -1130,13 +1114,15 @@ window.onload = function() {
     }
   }
 
-  // Android 앱에서 호출됨 (Google)
+  // 구글 로그인 콜백: 안드로이드 네이티브 앱(IntroActivity.googleLoginStart)에서 호출됨
+  // 파라미터: 로그인 상태, Google ID Token, 이메일, 이름
   function googleLoginAndCallback(status, idToken, email, name) {
     if (status !== "success") {
       alert("구글 로그인 실패");
       return;
     }
 
+    // 구글 ID Token을 서버에 전송하여 검증 및 로그인/회원가입 처리
     $.post(
       "/member_proc/google_login", {
         id_token: idToken,
@@ -1193,13 +1179,15 @@ window.onload = function() {
     });
   }
 
-  // Android 앱에서 호출됨 (WeChat) - HomeActivity.onWeChatLoginCallback() → loadUrl("javascript:onWeChatLoginAndCallback(status, code)")
+  // 위챗 로그인 콜백: 안드로이드 네이티브 앱(HomeActivity.onWeChatLoginCallback)에서 호출됨
+  // 파라미터: 로그인 상태, WeChat 임시 코드 (서버에서 access token 교환용)
   function onWeChatLoginAndCallback(status, code) {
     if (status !== 'success' || !code) {
       alert("위챗 로그인에 실패했습니다.");
       return;
     }
 
+    // 위챗 임시 코드를 서버에 전송 → 서버에서 access token 교환 및 사용자 정보 조회
     $.post(
       "/member_proc/wechat_login", {
         code: code
@@ -1252,9 +1240,11 @@ window.onload = function() {
     });
   }
 
-  // iOS 앱에서 호출됨 (WeChat) - ViewController: WXApiDelegate.onResp() → webView.evaluateJavaScript("onWeChatLoginIosCallback(status, code)")
+  // 위챗 로그인 콜백 (iOS): iOS 네이티브 앱(WXApiDelegate.onResp)에서 호출됨
+  // 파라미터: 로그인 상태, WeChat 임시 코드
+  // → 안드로이드와 동일한 로직으로 처리 (코드 통일)
   function onWeChatLoginIosCallback(status, code) {
-    onWeChatLoginAndCallback(status, code); // Android와 동일한 처리 로직 재사용
+    onWeChatLoginAndCallback(status, code);
   }
 
   /*
@@ -1607,7 +1597,7 @@ window.onload = function() {
 
 <!-- 휴대폰번호 OTP 로그인 함수들 -->
 <script>
-  // 휴대폰번호로 로그인 (SMS 발송 요청)
+  // 휴대폰번호 OTP 로그인: SMS 발송 요청 및 로그인 처리
   function checkPhoneLogin() {
     var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
 
@@ -1618,15 +1608,16 @@ window.onload = function() {
       return;
     }
 
+    // 서버에서 전화번호 존재 여부 확인 및 SMS 발송
     var params = { mm_phone: phone };
     comAjax("/member_proc/check_phone_login", params, function(ret) {
       if (ret.code == "00") {
-        // SMS 발송 성공 - 인증 페이지로 리다이렉트
+        // SMS 발송 성공 → 인증 페이지로 이동
         commonAlert("인증번호를 발송하였습니다.", function() {
           location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
         });
       } else if (ret.code == "90") {
-        // 미가입 - 바로 회원 생성 및 로그인
+        // 미가입 회원 → 회원 생성 후 로그인
         commonAlert("회원가입을 진행합니다.", function() {
           createPhoneMember(phone);
         });
@@ -1638,14 +1629,14 @@ window.onload = function() {
     });
   }
 
-  // 휴대폰번호로 회원 생성 및 로그인
+  // 휴대폰번호로 신규 회원 생성 및 즉시 로그인
   function createPhoneMember(phone) {
     var params = { mm_phone: phone };
     comAjax("/member_proc/create_phone_member", params, function(ret) {
       if (ret.code == "00") {
         sessionStorage.removeItem("chat_user_connect");
 
-        // 최근 로그인 타입을 세션에 저장 (휴대폰 직접 가입)
+        // 최근 로그인 타입 저장 (휴대폰 번호 직접 로그인)
         comAjax("/member_proc/set_last_login_type", { login_type: "WEB" }, function() {
           if (typeof window.connectFCMTokenToUser === 'function') {
             window.connectFCMTokenToUser().then(function() {
@@ -1664,12 +1655,14 @@ window.onload = function() {
     });
   }
 
-  // 중복 계정 팝업 함수 (바텀시트로 변경)
+  // 중복 계정 팝업 (바텀시트): 다른 SNS로 이미 가입된 회원 시 표시
+  // 사용자에게 기존 로그인 방식으로 재로그인하도록 유도
   function showDuplicateProviderPopup(joinType, mmPhone) {
     var label = "";
     var iconSrc = "";
     var buttonAction = function() {};
 
+    // SNS 타입별 버튼 동작 및 아이콘 설정
     if (joinType === "KAKAO") {
       label = "카카오";
       iconSrc = "/resource/shop/mobile/img/member/login-sns-kakao.png";
@@ -1698,7 +1691,7 @@ window.onload = function() {
       label = "휴대폰";
       iconSrc = "";
       buttonAction = function() {
-        // 기존 가입된 휴대폰 번호로 자동 로그인
+        // 휴대폰 번호로 기존 계정 자동 로그인
         if (!mmPhone) {
           commonAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
             _replace("/member/login");

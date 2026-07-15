@@ -518,16 +518,9 @@ class Member_proc extends CI_Controller
             "mm_status" => "Y"
         ]);
 
-        // 2) GOOGLE이 없으면 이메일로 기존 회원 조회 (다른 SNS로 이미 가입된 회원)
-        if ($mem_info == null && !empty($email)) {
-            $mem_info = $this->member_model->getMember([
-                "mm_email" => $email,
-                "mm_status" => "Y"
-            ]);
-            // 이메일로 찾은 회원이 있으면, 위챗/카카오 등 다른 SNS로 가입된 회원
-            // 이 경우 구글 정보를 추가할 수 있도록 later 처리
-            // 여기서는 기존 회원으로 로그인 처리
-        }
+        // 2) GOOGLE이 없으면 이메일로 기존 회원 조회는 하지 않음
+        // 이유: 이메일만으로 기존 회원을 판단하면 다른 SNS로 가입된 회원이 로그인되는 문제 발생
+        // 대신 신규 가입 플로우로 보내서 휴대폰 입력 단계에서 중복 감지하도록 통일
 
         if ($mem_info == null) {
             // 3) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
@@ -761,6 +754,185 @@ class Member_proc extends CI_Controller
             return false;
         }
         return $data;
+    }
+
+    /**
+     * 카카오 로그인 처리 (AJAX)
+     * POST 파라미터: access_token (클라이언트에서 Kakao SDK로 취득한 토큰)
+     */
+    function kakao_login()
+    {
+        $access_token = input_post("access_token", "");
+
+        if ($access_token == "") {
+            json_return("99", "정상적인 접근이 아닙니다.");
+            exit;
+        }
+
+        // KakaoLogin 라이브러리로 사용자 정보 조회
+        $this->load->library('KakaoLogin');
+        $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
+        $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+
+        if (empty($kakao_client_id)) {
+            json_return("99", "카카오 로그인 설정이 없습니다.");
+            exit;
+        }
+
+        $kakaoLogin = new KakaoLogin($kakao_client_id);
+        $result = $kakaoLogin->getUserInfo($access_token);
+
+        if ($result["code"] != 200) {
+            json_return("99", "카카오 로그인에 실패했습니다.");
+            exit;
+        }
+
+        $kakao_user = $result["data"];
+        if (empty($kakao_user["id"])) {
+            json_return("99", "카카오 로그인에 실패했습니다.");
+            exit;
+        }
+
+        $kakao_id = $kakao_user["id"];
+        $kakao_account = isset($kakao_user["kakao_account"]) ? $kakao_user["kakao_account"] : [];
+        $email = isset($kakao_account["email"]) ? $kakao_account["email"] : "";
+        $name = isset($kakao_account["name"]) ? $kakao_account["name"] : "";
+        $gender = isset($kakao_account["gender"]) ? ($kakao_account["gender"] == "male" ? "남" : ($kakao_account["gender"] == "female" ? "여" : "")) : "";
+        $phonenum = isset($kakao_account["phone_number"]) ? $kakao_account["phone_number"] : "";
+
+        // 전화번호 정규화: 모든 비숫자 제거 (check_sns_phone과 동일한 방식)
+        if ($phonenum != "") {
+            $phonenum = preg_replace('/[^0-9]/', '', $phonenum);
+        }
+
+        // 1) 카카오 가입 회원인지 조회 (정상 회원만)
+        $mem_info = $this->member_model->getMember([
+            "mm_join_type" => "KAKAO",
+            "mm_join_key" => $kakao_id,
+            "mm_status" => "Y"
+        ]);
+
+        // 2) 카카오 회원이 없으면 이메일로 기존 회원 조회는 하지 않음
+        // 이유: 이메일만으로 기존 회원을 판단하면 다른 SNS로 가입된 회원이 로그인되는 문제 발생
+        // 대신 신규 가입 플로우로 보내서 휴대폰 입력 단계에서 중복 감지하도록 통일
+
+        // 3) 회원이 없으면 탈퇴 회원 확인 또는 휴대폰 중복 체크
+        if ($mem_info == null) {
+            // 탈퇴 회원 확인
+            $query = "select * from st_member ";
+            $query .= "where mm_join_type = 'KAKAO' ";
+            $query .= "and   mm_join_key = '" . $kakao_id . "' ";
+            $query .= "and   mm_status = 'N' ";
+            $query .= "order by mm_idx desc limit 1 ";
+
+            $result = $this->db->query($query);
+            $mem_info = $result->row_array();
+
+            if ($mem_info == null) {
+                // 휴대폰번호 중복 체크
+                if (!empty($phonenum)) {
+                    $duplicate_check = $this->checkDuplicatePhoneForSnsLogin($phonenum);
+                    if ($duplicate_check["is_duplicate"]) {
+                        // 중복 회원이 있으면 code 91로 반환
+                        json_return("91", $duplicate_check["message"], [
+                            "join_type" => $duplicate_check["join_type"],
+                            "mm_phone" => isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : ""
+                        ]);
+                        exit;
+                    }
+                }
+
+                // 회원이 없을 때 SNS 정보 임시 저장 (회원가입으로 진행될 수 있도록)
+                $sns_info = [
+                    "join_type" => "KAKAO",
+                    "join_key" => $kakao_id,
+                    "username" => !empty($name) ? $name : "kakao_" . $kakao_id,
+                    "email" => !empty($email) ? $email : "",
+                    "gender" => $gender,
+                    "phonenum" => $phonenum
+                ];
+
+                $this->site_model->deleteSiteLog(["session_id" => session_id(), "sl_status" => "Y"]);
+                $this->site_model->setSiteLog(
+                    [
+                        "session_id" => session_id(),
+                        "sl_type" => "JOIN",
+                        "sl_step" => "SNS",
+                        "sl_txt" => json_encode($sns_info, JSON_UNESCAPED_UNICODE)
+                    ],
+                    [
+                        "session_id" => session_id(),
+                        "sl_type" => "JOIN",
+                        "sl_step" => "SNS",
+                        "sl_status" => "Y"
+                    ]
+                );
+
+                // 신규 회원 → 회원가입 유도
+                json_return("90", "회원정보를 찾을 수 없습니다.", [
+                    "join_key" => $kakao_id,
+                    "join_type" => "KAKAO",
+                    "name" => !empty($name) ? $name : "",
+                    "email" => !empty($email) ? $email : ""
+                ]);
+                exit;
+            }
+
+            // 탈퇴 회원 처리
+            if ($mem_info["mm_status"] != "Y") {
+                $fireDate = new DateTime($mem_info["fire_dt"]);
+                $currentDate = new DateTime();
+                $interval = $fireDate->diff($currentDate)->days;
+
+                if ($interval < 15) {
+                    json_return("91", "탈퇴한 회원입니다.");
+                } else {
+                    json_return("90", "회원정보를 찾을수 없습니다.");
+                }
+                exit;
+            }
+        }
+
+        // 4) 로그인 성공: 세션에 사용자 정보 저장
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+        $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mem_info["mm_thumb"],
+            "ad_addr" => $addr_info["ad_addr"],
+            "ad_gps_x" => $addr_info["ad_gps_x"],
+            "ad_gps_y" => $addr_info["ad_gps_y"],
+            "mm_sex" => $mem_info["mm_sex"],
+        ]);
+
+        // 5) 최근 로그인 시각 갱신
+        $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+        // 5-1) 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
+        $this->common->setSession("last_login_type", "KAKAO");
+        setcookie("last_login_type", "KAKAO", time() + (86400 * 365), "/");
+
+        // 6) 헤더의 uuid로 디바이스 연결
+        $headers = apache_request_headers();
+        if (isset($headers["uuid"])) {
+            $mem_device = $this->member_model->getMemberDevice(["uuid" => $headers["uuid"]]);
+            if ($mem_device != null) {
+                $this->member_model->setMemberDevice(
+                    ["mm_idx" => $mem_info["mm_idx"]],
+                    ["uuid" => $headers["uuid"]]
+                );
+            }
+        }
+
+        // 7) 몽고 회원정보 DB 업데이트
+        $mem_device = $this->member_model->getMemberDevice(["mm_idx" => $mem_info["mm_idx"]]);
+        $this->mongo_model->insertUserInfo($mem_info, $mem_device != null ? $mem_device["token"] : "");
+
+        json_return("00", "로그인 완료");
     }
 
     /**
@@ -1462,50 +1634,32 @@ class Member_proc extends CI_Controller
             return;
         }
 
-        // 전화번호로 회원 조회 (가입 타입 무관하게 모두 조회)
-        $query = "SELECT * FROM st_member
-                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
-                  AND mm_status = 'Y'
-                  LIMIT 1";
-        $result = $this->db->query($query);
-        $mem_info = $result->row_array();
+        // 공용 헬퍼로 중복 체크
+        $duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
+        if ($duplicate_check["is_duplicate"]) {
+            // 중복 계정 감지 → code 91 + 구조화 데이터 반환
+            json_return("91", $duplicate_check["message"], [
+                "join_type" => $duplicate_check["join_type"],
+                "mm_phone" => isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : ""
+            ]);
+            return;
+        }
 
-        if ($mem_info != null) {
-            // 이미 가입된 회원 — 가입 경로별 메시지 반환
-            $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "WEB";
+        // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
+        $count_result = $this->site_model->checkSmsSendCount($phone, "SNS가입인증");
 
-            if ($join_type === "GOOGLE") {
-                $provider_label = "구글";
-            } elseif ($join_type === "KAKAO") {
-                $provider_label = "카카오";
-            } elseif ($join_type === "NAVER") {
-                $provider_label = "네이버";
-            } elseif ($join_type === "APPLE") {
-                $provider_label = "애플";
-            } elseif ($join_type === "WECHAT") {
-                $provider_label = "위쳇";
-            }else {
-                $provider_label = "휴대폰";
-            }
+        if ($count_result["code"] != "00") {
+            json_return("98", "하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.");
+            return;
+        }
 
-            json_return("99", $provider_label . "으로 가입된 회원입니다.\n로그인 페이지에서 로그인해주세요.");
+        $authNum = rand(100000, 999999);
+        $result = $this->common->sendSms($phone, "나우잡 인증 번호 발송 [" . $authNum . "]", $authNum);
+
+        if ($result["code"] == "00") {
+            json_return("00", "인증번호를 발송하였습니다.");
         } else {
-            // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
-            $count_result = $this->site_model->checkSmsSendCount($phone, "SNS가입인증");
-
-            if ($count_result["code"] != "00") {
-                json_return("98", "하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.");
-                return;
-            }
-
-            $authNum = rand(100000, 999999);
-            $result = $this->common->sendSms($phone, "나우잡 인증 번호 발송 [" . $authNum . "]", $authNum);
-
-            if ($result["code"] == "00") {
-                json_return("00", "인증번호를 발송하였습니다.");
-            } else {
-                json_return("99", "SMS 발송 오류: " . $result["text"]);
-            }
+            json_return("99", "SMS 발송 오류: " . $result["text"]);
         }
     }
 

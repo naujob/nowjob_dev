@@ -97,7 +97,7 @@ class KakaoLogin {
 			"Content-type: application/x-www-form-urlencoded;charset=utf-8",
 		);
 
-		$arrResult = $this->call($headers, $url, $postData);
+		$arrResult = $this->call($headers, $url, null);
 
 		$returnData = json_decode($arrResult[0], true);
 

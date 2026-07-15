@@ -5280,6 +5280,7 @@ body {
 /* 소셜 로그인 버튼 이미지 공통 스타일 */
 .social-login-buttons a {
     display: block;
+    position: relative;
 }
 
 .social-login-buttons a img {
@@ -5304,12 +5305,27 @@ body {
 
 /* 최근 로그인 SNS 강조 */
 .social-login-buttons a[data-recent="true"] img {
-    border: 2px solid #5c47c0;
+   
     box-shadow: 0 4px 12px rgba(92, 71, 192, 0.25);
 }
 
 .social-login-buttons a[data-recent="true"]:hover img {
     box-shadow: 0 6px 18px rgba(92, 71, 192, 0.35);
+}
+
+/* 최근 로그인 배지 */
+.social-login-buttons a .recent-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: red;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(92, 71, 192, 0.3);
 }
 
 /* 위챗 로그인 버튼 */
