@@ -269,9 +269,9 @@ renderSelectBottomSheet(
     var handlebar = panel.querySelector('.bottom-sheet-handlebar');
     if (!container || !handlebar) return;
 
-    var startY = 0;
-    var currentY = 0;
-    var dragging = false;
+    var startY = 0; // 터치 시작 Y 좌표
+    var currentY = 0; // 터치 이동 중 Y 좌표
+    var dragging = false; // 드래그 상태 플래그
     var SWIPE_CLOSE_DISTANCE = 120; // 닫히는 기준 (px)
 
     // touchstart - 터치 시작 (iOS WebView 최적화)

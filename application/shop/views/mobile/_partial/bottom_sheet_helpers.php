@@ -23,7 +23,7 @@
 
     var startY = 0;
     var currentY = 0;
-    var dragging = false;
+    var dragging = false;    
     var SWIPE_CLOSE_DISTANCE = 120; // 닫히는 기준 (px)
 
     // touchstart - 터치 시작 (iOS WebView 최적화)

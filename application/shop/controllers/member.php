@@ -1404,7 +1404,7 @@ class Member extends CI_Controller
 		$data["ma_type"] = "MEM";
 
 		# NICE 본인인증 정보에서 휴대폰 번호 추출
-		$type = $this->common->getSession("AUTH_TYPE");
+		$type = $this->common->getSession("AUTH_TYPE"); // type: MEM or COMP
 		$list = $this->site_model->getSiteLogList(
 			["session_id" => session_id(), "sl_type" => "JOIN_" . $type, "sl_status" => "Y"]
 		);

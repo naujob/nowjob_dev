@@ -3891,6 +3891,15 @@ class Member_proc extends CI_Controller
                     json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
                 }
 
+                // mm_idx NULL 체크 (INSERT ID 생성 실패 시)
+                if (empty($result_join["key"])) {
+                    $this->db->trans_rollback();
+                    json_return("91", "[01]회원 ID 생성에 실패했습니다. 다시 시도해주세요.");
+                    exit;
+                }
+
+                $mm_idx = $result_join["key"];
+
                 //json_return("91",$ma_type."오류가1".$proc_type);
                 //exit;
 
@@ -4540,6 +4549,14 @@ class Member_proc extends CI_Controller
                     $this->db->trans_rollback();
                     return json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
                 }
+
+                // mm_idx NULL 체크 (INSERT ID 생성 실패 시)
+                if (empty($result_join["key"])) {
+                    $this->db->trans_rollback();
+                    return json_return("91", "[01]회원 ID 생성에 실패했습니다. 다시 시도해주세요.");
+                }
+
+                $mm_idx = $result_join["key"];
 
                 $arr_addr = [
                     "mm_idx" => $result_join["key"],

@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../_partial/bottom_sheet_helpers.php'; ?>
 <div class="page page-login">
   <div class="login-bg-img"></div>
   <style>
@@ -31,6 +32,7 @@
     .page-login .login-form-wrap {
       position: relative;
       z-index: 1;
+      margin-top: 10px;
     }
 
     /* .vendor-login .vendor-type3:before {
@@ -40,6 +42,29 @@
     .vendor-login .vendor-type3 {
       background: #02c75a;
     } */
+
+    /* 로그인 태그라인 */
+    .login-tagline {
+      text-align: center;
+      margin: 20px 0 0px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-tagline .tagline-main {
+      font-size: 30px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.4;
+      margin: 0 0 12px 0;
+    }
+
+    .login-tagline .tagline-sub {
+      font-size: 20px;
+      color: #fff;
+      margin: 0;
+      font-weight: 500;
+    }
   </style>
   <?php
   $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -65,6 +90,10 @@
   // echo "end";
   ?>
   <img src="/resource/shop/mobile/img/member/ic-nowjob-logo.svg" alt="NowJob Logo" class="login-logo login-logo-centered">
+  <div class="login-tagline">
+    <p class="tagline-main">지금 나우잡에서<br>일자리를 찾아보세요</p>
+    <p class="tagline-sub">알바부터 정직원까지</p>
+  </div>
   <div class="login-form-wrap">
     <div class="login-form">
       <div class="form-container">
@@ -201,7 +230,7 @@
     </div>
     <div class="try-trial-container">
       <p class="try-trial"><a href="/member/join_start">회원가입</a></p>
-      <a href="/recruit/job_list" class="btn-primary btn-signup" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
+      <a href="/recruit/job_list" class="btn-primary btn-signup" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
     </div>
   </div>
 </div>
@@ -899,7 +928,7 @@ window.onload = function() {
           if (ret.code == "91") {
             // 중복 계정 - 다른 SNS로 이미 가입됨
             if (ret.data && ret.data.join_type) {
-              showDuplicateProviderPopup(ret.data.join_type);
+              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
               commonAlert(ret.msg, function() {
                 _replace("/member/login");
@@ -938,16 +967,6 @@ window.onload = function() {
       alert("네이버 로그인 실패");
     }
 
-  }
-
-  // android app 용
-  function kakaoLoginAndCallback(status, token) {
-    if (status === "success") {
-      //alert("카카오 로그인 성공: " + token);
-      // token 서버로 전송하거나 처리
-    } else {
-      alert("카카오 로그인 실패(2) " + token);
-    }
   }
 
   // Android 앱에서 호출됨
@@ -1008,7 +1027,7 @@ window.onload = function() {
           if (ret.code == "91") {
             // 중복 계정 - 다른 SNS로 이미 가입됨
             if (ret.data && ret.data.join_type) {
-              showDuplicateProviderPopup(ret.data.join_type);
+              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
               commonAlert(ret.msg, function() {});
             }
@@ -1567,6 +1586,25 @@ window.onload = function() {
   </div>
 </div>
 
+<!-- 중복 계정 안내 바텀시트 -->
+<div id="duplicateProviderPanel" class="layer-panel card-type" tabindex="-1">
+  <div class="bottom-sheet-container">
+    <div class="bottom-sheet-handlebar"></div>
+    <div class="bottom-sheet-body">
+      <div class="bottom-sheet-content" style="text-align:center;">
+        <img id="duplicateProviderIcon" src="" alt="" style="width:56px;height:56px;border-radius:50%;margin:8px auto 20px;display:block;">
+        <p style="font-size:17px;font-weight:700;color:#222;margin:0 0 8px;" id="duplicateProviderText1"></p>
+        <p style="font-size:17px;color:#222;font-weight:700;margin:0;" id="duplicateProviderText2"></p>
+      </div>
+    </div>
+    <div class="bottom-sheet-footer">
+      <div class="bottom-sheet-sticky-bottom">
+        <button type="button" id="btnDuplicateProviderLogin" class="btn-bottom-sheet btn-bottom-sheet-primary bottom-sheet-action">로그인 하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 휴대폰번호 OTP 로그인 함수들 -->
 <script>
   // 휴대폰번호로 로그인 (SMS 발송 요청)
@@ -1626,43 +1664,53 @@ window.onload = function() {
     });
   }
 
-  // 중복 계정 팝업 함수
+  // 중복 계정 팝업 함수 (바텀시트로 변경)
   function showDuplicateProviderPopup(joinType, mmPhone) {
     var label = "";
+    var iconSrc = "";
     var buttonAction = function() {};
 
     if (joinType === "KAKAO") {
       label = "카카오";
+      iconSrc = "/resource/shop/mobile/img/member/login-sns-kakao.png";
       buttonAction = function() {
         $("#btnKakao").length ? $("#btnKakao").trigger("click") : $("#btnKakaoAndroid").trigger("click");
       };
     } else if (joinType === "NAVER") {
       label = "네이버";
+      iconSrc = "/resource/shop/mobile/img/member/login-sns-naver.png";
       buttonAction = function() {
         $("#btnNaver").trigger("click");
       };
     } else if (joinType === "GOOGLE") {
       label = "구글";
+      iconSrc = "/resource/shop/mobile/img/member/login-sns-google.png";
       buttonAction = function() {
         $("#btnGoogle").trigger("click");
       };
     } else if (joinType === "WECHAT") {
       label = "위챗";
+      iconSrc = "/resource/shop/mobile/img/member/login-sns-wechat.png";
       buttonAction = function() {
         $("#btnWeChat").trigger("click");
       };
     } else if (joinType === "WEB") {
       label = "휴대폰";
+      iconSrc = "";
       buttonAction = function() {
         // 기존 가입된 휴대폰 번호로 자동 로그인
         if (!mmPhone) {
-          commonAlert("오류: 전화번호 정보를 찾을 수 없습니다.", function() {});
+          commonAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
+            _replace("/member/login");
+          });
           return;
         }
         var params = {};
         params["mm_phone"] = mmPhone;
         comAjax("/member_proc/phone_auto_login", params, function(ret) {
           if (ret.code == "00") {
+            // 로그인 성공 시 기존 채팅 연결 정보 제거
+            // NOTE: 향후 다중 기기 지원 시 sessionStorage에 저장하는 로직 추가 예정
             sessionStorage.removeItem("chat_user_connect");
             _replace("/");
           } else {
@@ -1672,23 +1720,53 @@ window.onload = function() {
       };
     }
 
-    openPopup('confirm', {
-      id: 'duplicate_provider',
-      content: '<strong>이미 ' + label + '로 회원가입이 되어 있습니다.</strong>',
-      firstButton: '취소',
-      secondButton: label + '로 로그인',
-      firstCallback: function() {
-        return false;
-      },
-      secondCallback: buttonAction
-    });
+    gDupButtonAction = buttonAction;
+
+    if (iconSrc) {
+      $("#duplicateProviderIcon").attr("src", iconSrc).show();
+    } else {
+      $("#duplicateProviderIcon").hide();
+    }
+    $("#duplicateProviderText1").text("이미 " + label + "로 회원가입이 되어 있습니다.");
+    $("#duplicateProviderText2").text(label + " 계정으로 로그인 하시겠습니까?");
+
+    openDuplicateProviderPanel();
   }
+
+  // 중복 계정 바텀시트 전역 변수
+  var gDupButtonAction = function() {};
+
+  function openDuplicateProviderPanel() { // 중복 계정 바텀시트 열기
+    var $panel = document.getElementById('duplicateProviderPanel');
+    if ($panel && typeof openPanel === 'function') {
+      openPanel($panel);
+    }
+  }
+
+  function closeDuplicateProviderPanel() { // 중복 계정 바텀시트 닫기
+    var $panel = document.getElementById('duplicateProviderPanel');
+    if ($panel && typeof closePanel === 'function') {
+      closePanel($panel);
+    }
+  }
+
+  $(document).ready(function() { // 중복 계정 바텀시트 초기화
+    if (typeof initPanelSwipe === 'function') {
+      initPanelSwipe('duplicateProviderPanel');
+    }
+
+    $('#btnDuplicateProviderLogin').click(function() {
+      closeDuplicateProviderPanel();
+      gDupButtonAction();
+    });
+  });
 
   // Google/WeChat 웹 리다이렉트 채널에서 msg_code=93인 경우 처리
   $(document).ready(function() {
     <?php if (isset($_GET['msg_code']) && $_GET['msg_code'] == '93'): ?>
       <?php
       $dup_join_type = isset($_GET['dup_join_type']) ? $_GET['dup_join_type'] : '';
+      $dup_phone = isset($_GET['dup_phone']) ? $_GET['dup_phone'] : '';
       $allowed_types = ['KAKAO', 'NAVER', 'GOOGLE', 'WECHAT', 'WEB'];
       if (!in_array($dup_join_type, $allowed_types)) {
         $dup_join_type = '';
@@ -1696,7 +1774,7 @@ window.onload = function() {
       ?>
       <?php if (!empty($dup_join_type)): ?>
         setTimeout(function() {
-          showDuplicateProviderPopup('<?= $dup_join_type ?>');
+          showDuplicateProviderPopup('<?= $dup_join_type ?>', '<?= $dup_phone ?>');
         }, 100);
       <?php endif; ?>
     <?php endif; ?>
