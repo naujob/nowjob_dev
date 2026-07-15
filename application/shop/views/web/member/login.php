@@ -1,3 +1,8 @@
+<style>
+    .page.page-login {
+        margin-top: 110px;
+    }
+</style>
 <div id="content" class="page page-login">
     <main class="page-content">
 
@@ -46,36 +51,15 @@
 
                         <div class="form-row">
                             <label>
-                                <span class="ico-label phone">휴대폰d번호</span>
-                                <input type="email" name="mm_id" placeholder="휴대폰번호를 입력해 주세요" aria-required="true" autocomplete="off" required class="form-text">
+                                <span class="ico-label phone">휴대폰번호</span>
+                                <input type="text" id="phone-login-input" placeholder="휴대폰번호를 입력해 주세요" aria-required="true" autocomplete="off" required class="form-text">
                             </label>
                         </div>
 
-                        <div class="form-row" style="position:relative;">
-                            <label>
-                                <span class="ico-label pwd">비밀번호</span>
-                                <input type="password" name="mm_pwd" id="password" placeholder="비밀번호를 입력해 주세요" aria-required="true" autocomplete="off" required class="form-text">
-                                <span class="toggle-password" id="toggle-password" style="position:absolute;right:0;"><!-- 👁 -->️
-                                    <img id="eye_icon" src="/resource/shop/web/img/eye_close.png" style="margin-top:15px; margin-right: 10px; width: 24px;">
-                                    <!--
-                                  <svg id="eye-icon" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                        <path d="M12 4.5C7.5 4.5 3.8 7.3 2 12c1.8 4.7 5.5 7.5 10 7.5s8.2-2.8 10-7.5C20.2 7.3 16.5 4.5 12 4.5zm0 12.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5zm0-7.5c-1.7 0-3 1.3-3 3s1.3 3 3 3 3-1.3 3-3-1.3-3-3-3z"/>
-                                  </svg>
-                                  -->
-                                </span>
-                            </label>
-                        </div>
+                        <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle">로그인</button>
 
-                        <ul class="account-menu" style="margin-bottom: 20px; text-align: left;">
-                            <li><label><input type="checkbox" id="chk_login_Y" name="chk_login" value="Y"><span style="margin-left: 5px;"><strong>아이디 저장</strong></span></label></li>
-                        </ul>
-
-                        <button type="button" id="btnLogin" class="btn-primary">로그인</button>
-
-                        <ul class="account-menu">
+                        <ul class="account-menu" style="margin-top: 30px;">
                             <li><a href="/member/join_start">회원가입</a></li>
-                            <li><a href="/member/find_id">아이디찾기</a></li>
-                            <li><a href="/member/find_pwd">비밀번호 찾기</a></li>
                         </ul>
 
                         <div class="vendor-login">
@@ -165,14 +149,30 @@
             }, 100);
         }
 
-        //로그인
-        $("#btnLogin").click(function() {
-            goLogin();
+        // 휴대폰 로그인 버튼 클릭
+        $("#btnPhoneLogin").click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var state = $(this).data("state");
+            if (state === "idle") {
+                checkPhoneLogin();
+            }
+            return false;
         });
 
-        $("[name=mm_pwd]").keyup(function(e) {
+        // 휴대폰번호 입력시 정규화
+        $("#phone-login-input").on("keyup", function() {
+            var phone = $(this).val().replace(/[^0-9]/g, "");
+            $(this).val(phone);
+        });
+
+        // 엔터 키 처리
+        $("#phone-login-input").on("keypress", function(e) {
             if (e.keyCode === 13) {
-                goLogin();
+                e.preventDefault();
+                checkPhoneLogin();
+                return false;
             }
         })
 
@@ -231,11 +231,6 @@
             location.href = "/";
         });
 
-        if (getCookie("login_id_save") != '') {
-            $("[name=mm_id]").val(getCookie("login_id_save"));
-            $('input:checkbox').prop('checked', true);
-        }
-
         $('#toggle-password').click(function() {
             // Get the current type of the password input
             const input = $('#password');
@@ -282,50 +277,52 @@
 
     }); //ready
 
-    function goLogin() {
-        if ($("[name=mm_id]").val() == "") {
+    // 휴대폰번호로 로그인 (SMS 발송 요청)
+    function checkPhoneLogin() {
+        var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
+
+        if (phone.length === 0) {
             commonAlert("휴대폰번호를 입력해주세요.", function() {
-                $("[name=mm_id]").focus();
+                $("#phone-login-input").focus();
             });
             return;
         }
 
-        if ($("[name=mm_pwd]").val() == "") {
-            commonAlert("비밀번호를 입력해주세요.", function() {
-                $("[name=mm_pwd]").focus();
-            });
-            return;
-        }
-
-        var params = {};
-        params["mm_id"] = $("[name=mm_id]").val();
-        params["mm_pwd"] = $("[name=mm_pwd]").val();
-        comAjax("/member_proc/login", params, function(ret) {
-            console.log(ret);
+        var params = { mm_phone: phone };
+        comAjax("/member_proc/check_phone_login", params, function(ret) {
             if (ret.code == "00") {
-                if ($('#chk_login_Y').is(':checked')) {
-                    setCookie('login_id_save', $("[name=mm_id]").val(), 365);
-                } else {
-                    setCookie('login_id_save', '', 365);
-                }
-
-                sessionStorage.removeItem("chat_user_connect");
-                location.href = "/";
+                // SMS 발송 성공 - 인증 페이지로 리다이렉트
+                commonAlert("인증번호를 발송하였습니다.", function() {
+                    location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
+                });
+            } else if (ret.code == "90") {
+                // 미가입 - 바로 회원 생성 및 로그인
+                commonAlert("회원가입을 진행합니다.", function() {
+                    createPhoneMember(phone);
+                });
+            } else if (ret.code == "98" || ret.code == "99") {
+                commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
             } else {
-                commonAlert(ret.msg, function() {});
+                commonAlert(ret.msg || "오류가 발생했습니다.", function() {});
             }
         });
     }
 
-    var setCookie = function(name, value, exp) {
-        var date = new Date();
-        date.setTime(date.getTime() + exp * 24 * 60 * 60 * 1000);
-        document.cookie = name + '=' + value + ';expires=' + date.toUTCString() + ';path=/';
-    };
-    var getCookie = function(name) {
-        var value = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-        return value ? value[2] : null;
-    };
+    // 휴대폰번호로 회원 생성 및 로그인
+    function createPhoneMember(phone) {
+        var params = { mm_phone: phone };
+        comAjax("/member_proc/create_phone_member", params, function(ret) {
+            if (ret.code == "00") {
+                sessionStorage.removeItem("chat_user_connect");
+                comAjax("/member_proc/set_last_login_type", { login_type: "WEB" }, function() {
+                    location.href = "/";
+                });
+                return;
+            } else {
+                commonAlert(ret.msg || "회원가입에 실패했습니다.", function() {});
+            }
+        });
+    }
 </script>
 
 

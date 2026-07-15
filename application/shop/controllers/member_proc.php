@@ -2288,9 +2288,9 @@ class Member_proc extends CI_Controller
             }
             exit;
         } else {
-            # 일반 회원가입 화면 이동
+            # 일반 회원가입 화면 이동 - PC/모바일 통일: 비밀번호 자동생성 경로(join_mem_toturial)로
             if (getDeviceType() == "web") {
-                echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_wmem_step1" . "';self.close();</script>";
+                echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_mem_toturial" . "';self.close();</script>";
             } else {
                 if ($os_type == "ios") {
                     echo "<script>location.href='" . "/member/join_mem_toturial" . "';</script>";
