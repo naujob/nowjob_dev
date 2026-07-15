@@ -5302,6 +5302,16 @@ body {
     transform: translateY(0);
 }
 
+/* 최근 로그인 SNS 강조 */
+.social-login-buttons a[data-recent="true"] img {
+    border: 2px solid #5c47c0;
+    box-shadow: 0 4px 12px rgba(92, 71, 192, 0.25);
+}
+
+.social-login-buttons a[data-recent="true"]:hover img {
+    box-shadow: 0 6px 18px rgba(92, 71, 192, 0.35);
+}
+
 /* 위챗 로그인 버튼 */
 
 

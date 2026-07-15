@@ -322,6 +322,12 @@ class Member_proc extends CI_Controller
         # 접속 처리
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mm_id]);
 
+        # SNS 로그인인 경우, 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
+        if ($mm_join_type != "web" && in_array($mm_join_type, ["KAKAO", "APPLE", "NAVER"])) {
+            $this->common->setSession("last_login_type", $mm_join_type);
+            setcookie("last_login_type", $mm_join_type, time() + (86400 * 365), "/");
+        }
+
         # 헤더 정보 업데이트 : UUID로 디바이스를 찾아 현재 로그인한 회원과 연결한다.
         $headers = apache_request_headers();
         if (isset($headers["uuid"])) {
@@ -602,6 +608,10 @@ class Member_proc extends CI_Controller
 
         // 6) 최근 로그인 시각 갱신
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+        // 6-1) 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
+        $this->common->setSession("last_login_type", "GOOGLE");
+        setcookie("last_login_type", "GOOGLE", time() + (86400 * 365), "/");
 
         // 7) 헤더의 uuid로 디바이스 연결(푸시/디바이스 관리용)
         $headers = apache_request_headers();

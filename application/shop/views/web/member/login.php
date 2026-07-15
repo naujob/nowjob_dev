@@ -66,19 +66,19 @@
                             <h2 class="title">간편로그인</h2>
                             <div class="social-login-buttons">
                                 <!-- 1행: 카카오 + 위챗 -->
-                                <a href="<?= $kakao_login ?>" id="btnKakao"><img src="/resource/shop/web/img/ic-kakao-login.png" alt="카카오 로그인"></a>
+                                <a href="<?= $kakao_login ?>" id="btnKakao" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-kakao-login.png" alt="카카오 로그인"></a>
                                 <?php if (!empty($wechat_login)) : ?>
-                                    <a href="<?= $wechat_login ?>" id="btnWechat"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                    <a href="<?= $wechat_login ?>" id="btnWechat" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
                                 <?php else : ?>
-                                    <a href="javascript:void(0);" id="btnWechat"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                    <a href="javascript:void(0);" id="btnWechat" data-recent="false"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
                                 <?php endif; ?>
                                 <!-- 2행: 네이버 + 구글 -->
                                 <?php if (!empty($naver_login)) : ?>
-                                    <a href="<?= $naver_login ?>" id="btnNaver"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
+                                    <a href="<?= $naver_login ?>" id="btnNaver" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'NAVER' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
                                 <?php else : ?>
-                                    <a href="javascript:void(0);" id="btnNaver"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
+                                    <a href="javascript:void(0);" id="btnNaver" data-recent="false"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
                                 <?php endif; ?>
-                                <a href="javascript:void(0);" id="btnGoogle"><img src="/resource/shop/web/img/ic-google-login.png" alt="Google 로그인"></a>
+                                <a href="javascript:void(0);" id="btnGoogle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>"><img src="/resource/shop/web/img/ic-google-login.png" alt="Google 로그인"></a>
                             </div>
                             <!--a href="#" class="btn vendor-type2">Apple 로그인</a-->
                         </div>
@@ -367,24 +367,26 @@
             if (ret.code == "00") {
                 sessionStorage.removeItem("chat_user_connect");
                 location.href = "/";
-            } else {
-                if (ret.code == "90") {
-                    openPopup('confirm', {
-                        id: 'permission',
-                        content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-                        firstButton: '취소',
-                        secondButton: '회원가입',
-                        firstCallback: function() {
+            } else if (ret.code == "90") {
+                // 신규 회원 (다른 SNS로 가입되지 않은 경우)
+                openPopup('confirm', {
+                    id: 'permission',
+                    content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
+                    firstButton: '취소',
+                    secondButton: '회원가입',
+                    firstCallback: function() {
 
-                        },
-                        secondCallback: function() {
-                            // PASS 인증 없이 바로 회원가입 페이지로 이동
-                            location.href = "/member/join_sns_start?join_key=" + sub + "&join_type=" + "APPLE";
-                        },
-                    });
-                } else {
-                    commonAlert(ret.msg, function() {});
-                }
+                    },
+                    secondCallback: function() {
+                        // PASS 인증 없이 바로 회원가입 페이지로 이동
+                        location.href = "/member/join_sns_start?join_key=" + sub + "&join_type=" + "APPLE";
+                    },
+                });
+            } else if (ret.code == "91" && ret.data && ret.data.join_type) {
+                // 중복 계정 (이미 다른 SNS로 가입된 경우)
+                showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+            } else {
+                commonAlert(ret.msg, function() {});
             }
         });
     });
@@ -404,6 +406,51 @@
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
         return JSON.parse(jsonPayload);
+    }
+
+    // 중복 계정 안내 팝업 (SNS 로그인 시 다른 SNS로 이미 가입된 경우)
+    function showDuplicateProviderPopup(joinType, mmPhone) {
+        var providerLabels = {
+            'KAKAO': '카카오',
+            'NAVER': '네이버',
+            'GOOGLE': '구글',
+            'WECHAT': '위챗',
+            'WEB': '휴대폰'
+        };
+        var providerLabel = providerLabels[joinType] || joinType;
+        var content = '이미 ' + providerLabel + '로 가입되어 있습니다.<br>' + providerLabel + ' 계정으로 로그인 하시겠습니까?';
+
+        openPopup('confirm', {
+            id: 'duplicateProvider',
+            content: content,
+            firstButton: '취소',
+            secondButton: '로그인 하기',
+            firstCallback: function() {
+                // 취소: 팝업만 닫기
+            },
+            secondCallback: function() {
+                // 로그인 하기: 해당 SNS 버튼 클릭 트리거
+                if (joinType === 'KAKAO') {
+                    $('#btnKakao').trigger('click');
+                } else if (joinType === 'NAVER') {
+                    $('#btnNaver').trigger('click');
+                } else if (joinType === 'GOOGLE') {
+                    $('#btnGoogle').click();
+                } else if (joinType === 'WECHAT') {
+                    $('#btnWechat').trigger('click');
+                } else if (joinType === 'WEB' && mmPhone) {
+                    // 휴대폰 OTP 로그인
+                    comAjax('/member_proc/phone_auto_login', { mm_phone: mmPhone }, function(ret) {
+                        if (ret.code == '00') {
+                            sessionStorage.removeItem('chat_user_connect');
+                            location.href = '/';
+                        } else {
+                            commonAlert(ret.msg || '로그인 실패', function() {});
+                        }
+                    });
+                }
+            }
+        });
     }
 </script>
 

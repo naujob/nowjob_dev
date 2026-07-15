@@ -95,6 +95,11 @@ class Member extends CI_Controller
 			}
 		}
 
+		// 최근 로그인 SNS 조회 (쿠키/세션에서 읽기)
+		$session_value = $this->common->getSession("last_login_type");
+		$recent_login_type = $session_value !== null ? $session_value : (isset($_COOKIE["last_login_type"]) ? $_COOKIE["last_login_type"] : null);
+		$data["recent_login_type"] = $recent_login_type;
+
 		$this->layout->shop('/member/login', $data);
 	}
 
@@ -945,6 +950,10 @@ class Member extends CI_Controller
 			# 접속 처리
 			$this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
 
+			# 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
+			$this->common->setSession("last_login_type", $join_type);
+			setcookie("last_login_type", $join_type, time() + (86400 * 365), "/");
+
 			# 헤더 정보 업데이트 : UUID로 디바이스를 찾아 현재 로그인한 회원과 연결한다.
 			$headers = apache_request_headers();
 			if (isset($headers["uuid"])) {
@@ -1032,6 +1041,10 @@ class Member extends CI_Controller
 
 			// 접속 처리
 			$this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+			// 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
+			$this->common->setSession("last_login_type", "WECHAT");
+			setcookie("last_login_type", "WECHAT", time() + (86400 * 365), "/");
 
 			// openid로 조회된 기존 회원이면 unionid로 자동 마이그레이션
 			if (!empty($unionid) && $mem_info["mm_join_key"] != $unionid) {
