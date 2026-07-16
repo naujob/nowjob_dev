@@ -34,13 +34,14 @@
                     <th scope="row">카테고리</th>
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
+                            <?php $_category = isset($search["category"]) ? $search["category"] : array(); ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="category[]" value="" />
+                                <input type="checkbox" name="category[]" value="" <?=empty($_category) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(isset($select_category) ? $select_category : array() as $key => $val) : ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="category[]" value="<?=$key?>" <?=in_array($key, isset($search["category"]) ? $search["category"] : array()) ? 'checked' : ''?> />
+                                <input type="checkbox" name="category[]" value="<?=$key?>" <?=in_array($key, $_category) ? 'checked' : ''?> />
                                 <span class="custom-checkbox"><?=$val?></span>
                             </label>
                             <?php endforeach; ?>
@@ -49,13 +50,14 @@
                     <th scope="row">연령</th>
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
+                            <?php $_mm_age = isset($search["mm_age"]) ? (array)$search["mm_age"] : array(); ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="mm_age[]" value="" />
+                                <input type="checkbox" name="mm_age[]" value="" <?=empty($_mm_age) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["20대"=>"20대","30대"=>"30대","40대"=>"40대","50대"=>"50대","60대"=>"60대","70대"=>"70대"] as $key => $val) : ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="mm_age[]" value="<?=$key?>" <?=in_array($key, isset($search["mm_age"]) ? (array)$search["mm_age"] : array()) ? 'checked' : ''?> />
+                                <input type="checkbox" name="mm_age[]" value="<?=$key?>" <?=in_array($key, $_mm_age) ? 'checked' : ''?> />
                                 <span class="custom-checkbox"><?=$val?></span>
                             </label>
                             <?php endforeach; ?>
@@ -66,13 +68,14 @@
                     <th scope="row">국적</th>
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
+                            <?php $_mm_nation = isset($search["mm_nation"]) ? (array)$search["mm_nation"] : array(); ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="mm_nation[]" value="" />
+                                <input type="checkbox" name="mm_nation[]" value="" <?=empty($_mm_nation) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["내국인"=>"내국인","외국인"=>"외국인"] as $key => $val) : ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="mm_nation[]" value="<?=$key?>" <?=in_array($key, isset($search["mm_nation"]) ? (array)$search["mm_nation"] : array()) ? 'checked' : ''?> />
+                                <input type="checkbox" name="mm_nation[]" value="<?=$key?>" <?=in_array($key, $_mm_nation) ? 'checked' : ''?> />
                                 <span class="custom-checkbox"><?=$val?></span>
                             </label>
                             <?php endforeach; ?>
@@ -81,13 +84,14 @@
                     <th scope="row">성별</th>
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
+                            <?php $_mm_sex = isset($search["mm_sex"]) ? (array)$search["mm_sex"] : array(); ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="mm_sex[]" value="" />
+                                <input type="checkbox" name="mm_sex[]" value="" <?=empty($_mm_sex) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["남자"=>"남자","여자"=>"여자"] as $key => $val) : ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="mm_sex[]" value="<?=$key?>" <?=in_array($key, isset($search["mm_sex"]) ? (array)$search["mm_sex"] : array()) ? 'checked' : ''?> />
+                                <input type="checkbox" name="mm_sex[]" value="<?=$key?>" <?=in_array($key, $_mm_sex) ? 'checked' : ''?> />
                                 <span class="custom-checkbox"><?=$val?></span>
                             </label>
                             <?php endforeach; ?>
@@ -98,13 +102,14 @@
                     <th scope="row">근무형태</th>
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
+                            <?php $_ru_work_type = isset($search["ru_work_type"]) ? $search["ru_work_type"] : array(); ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="ru_work_type[]" value="" />
+                                <input type="checkbox" name="ru_work_type[]" value="" <?=empty($_ru_work_type) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(isset($select_work) ? $select_work : array() as $key => $val) : ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="ru_work_type[]" value="<?=$key?>" <?=in_array($key, isset($search["ru_work_type"]) ? $search["ru_work_type"] : array()) ? 'checked' : ''?> />
+                                <input type="checkbox" name="ru_work_type[]" value="<?=$key?>" <?=in_array($key, $_ru_work_type) ? 'checked' : ''?> />
                                 <span class="custom-checkbox"><?=$val?></span>
                             </label>
                             <?php endforeach; ?>
@@ -113,13 +118,14 @@
                     <th scope="row">급여형태</th>
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
+                            <?php $_ru_price_type = isset($search["ru_price_type"]) ? (array)$search["ru_price_type"] : array(); ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="ru_price_type[]" value="" />
+                                <input type="checkbox" name="ru_price_type[]" value="" <?=empty($_ru_price_type) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["시급"=>"시급","일급"=>"일급","주급"=>"주급","월급"=>"월급"] as $key => $val) : ?>
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="ru_price_type[]" value="<?=$key?>" <?=in_array($key, isset($search["ru_price_type"]) ? (array)$search["ru_price_type"] : array()) ? 'checked' : ''?> />
+                                <input type="checkbox" name="ru_price_type[]" value="<?=$key?>" <?=in_array($key, $_ru_price_type) ? 'checked' : ''?> />
                                 <span class="custom-checkbox"><?=$val?></span>
                             </label>
                             <?php endforeach; ?>
@@ -398,6 +404,22 @@ $(document).ready(function(){
             $form.append($('<input>', { type: 'hidden', name: 'ru_price_type[]', value: val }));
         });
         $form.appendTo('body').submit();
+    });
+
+    // 필터 "전체" 옵션 자동 해제
+    var filterNames = ['category[]', 'mm_age[]', 'mm_nation[]', 'mm_sex[]', 'ru_work_type[]', 'ru_price_type[]'];
+    $.each(filterNames, function(i, filterName){
+        // "전체"(value="") 선택 시 다른 옵션 해제
+        $('input[name="' + filterName + '"][value=""]').on('change', function(){
+            if($(this).is(':checked')){
+                $('input[name="' + filterName + '"][value!=""]').prop('checked', false);
+            }
+        });
+
+        // 일반 옵션 선택 시 "전체" 해제
+        $('input[name="' + filterName + '"][value!=""]').on('change', function(){
+            $('input[name="' + filterName + '"][value=""]').prop('checked', false);
+        });
     });
 
     // SMS 발송 버튼

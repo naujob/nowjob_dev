@@ -1451,6 +1451,15 @@ class Member_proc extends CI_Controller
             return;
         }
 
+        // 테스트 번호 목록 (개발용)
+        $test_phones = array(
+            '01090025528', '01039870018', '01040660412', '01088774444', '01022221212',
+            '01022221111', '01011119999', '01011111010', '01099999999', '01088888888',
+            '01077777777', '01066666666', '01055555555', '01044444444', '01011118888',
+            '01011117777', '01011116666', '01011115555', '01011114444', '01011112222',
+            '01033333333', '01022222222', '01045454444'
+        );
+
         // 전화번호로 회원 조회
         $query = "SELECT * FROM st_member
                   WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
@@ -1462,6 +1471,12 @@ class Member_proc extends CI_Controller
         if ($mem_info == null) {
             // 미가입 → 회원가입 필요
             json_return("90", "회원가입이 필요합니다.");
+            return;
+        }
+
+        // 테스트 번호 확인: SMS 스킵하고 바로 인증 페이지로 진행
+        if (in_array($normalized_phone, $test_phones)) {
+            json_return("00", "인증번호를 발송하였습니다.");
             return;
         }
 
@@ -1520,8 +1535,7 @@ class Member_proc extends CI_Controller
             "mm_phone" => $normalized_phone,
             "mm_join_type" => "WEB",
             "mm_status" => "Y",
-            "mm_created_dt" => date("Y-m-d H:i:s"),
-            "mm_last_login_dt" => date("Y-m-d H:i:s"),
+            "last_login_dt" => date("Y-m-d H:i:s"),
         ];
 
         $this->db->insert("st_member", $insert_data);
@@ -1575,16 +1589,30 @@ class Member_proc extends CI_Controller
         $phone = input_post("mm_phone");
         $auth  = input_post("auth");
 
-        // 인증번호 확인
-        $check = $this->site_model->checkSmsAuth($phone, $auth);
+        // 전화번호 정규화
+        $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
 
-        if ($check["code"] != "00") {
-            json_return($check["code"], $check["msg"]);
-            return;
+        // 테스트 번호 목록 (개발용)
+        $test_phones = array(
+            '01090025528', '01039870018', '01040660412', '01088774444', '01022221212',
+            '01022221111', '01011119999', '01011111010', '01099999999', '01088888888',
+            '01077777777', '01066666666', '01055555555', '01044444444', '01011118888',
+            '01011117777', '01011116666', '01011115555', '01011114444', '01011112222',
+            '01033333333', '01022222222', '01045454444'
+        );
+
+        // 테스트 번호 확인: SMS 인증 스킵
+        if (!in_array($normalized_phone, $test_phones)) {
+            // 일반 번호: 인증번호 확인
+            $check = $this->site_model->checkSmsAuth($phone, $auth);
+
+            if ($check["code"] != "00") {
+                json_return($check["code"], $check["msg"]);
+                return;
+            }
         }
 
         // 전화번호로 회원 재조회
-        $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
         $query = "SELECT * FROM st_member
                   WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
                   AND mm_status = 'Y'

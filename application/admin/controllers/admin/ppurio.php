@@ -287,6 +287,14 @@ class Ppurio extends MY_Controller{
         $rc_price_type = $this->input->get("rc_price_type");
         if (!is_array($rc_price_type)) $rc_price_type = array();
 
+        // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
+        if (in_array('', $category)) $category = array();
+        if (in_array('', $rc_age)) $rc_age = array();
+        if (in_array('', $rc_nation)) $rc_nation = array();
+        if (in_array('', $rc_sex)) $rc_sex = array();
+        if (in_array('', $rc_work_type)) $rc_work_type = array();
+        if (in_array('', $rc_price_type)) $rc_price_type = array();
+
         // 필터링 적용
         $result_list = $recruits;
 
@@ -484,6 +492,14 @@ class Ppurio extends MY_Controller{
         if (!is_array($ru_work_type)) $ru_work_type = array();
         $ru_price_type = $this->input->post("ru_price_type");
         if (!is_array($ru_price_type)) $ru_price_type = array();
+
+        // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
+        if (in_array('', $category)) $category = array();
+        if (in_array('', $mm_age)) $mm_age = array();
+        if (in_array('', $mm_nation)) $mm_nation = array();
+        if (in_array('', $mm_sex)) $mm_sex = array();
+        if (in_array('', $ru_work_type)) $ru_work_type = array();
+        if (in_array('', $ru_price_type)) $ru_price_type = array();
 
         // 활성 이력서 조회
         $resumes = $this->match_model->getActiveResumes();
@@ -774,6 +790,14 @@ class Ppurio extends MY_Controller{
         if (!is_array($rc_work_type)) $rc_work_type = array();
         $rc_price_type = $this->input->post("rc_price_type");
         if (!is_array($rc_price_type)) $rc_price_type = array();
+
+        // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
+        if (in_array('', $category)) $category = array();
+        if (in_array('', $rc_age)) $rc_age = array();
+        if (in_array('', $rc_nation)) $rc_nation = array();
+        if (in_array('', $rc_sex)) $rc_sex = array();
+        if (in_array('', $rc_work_type)) $rc_work_type = array();
+        if (in_array('', $rc_price_type)) $rc_price_type = array();
 
         // 활성 채용공고 조회
         $recruits = $this->match_model->getActiveRecruits();
@@ -1081,6 +1105,14 @@ class Ppurio extends MY_Controller{
         $ru_price_type = $this->input->get("ru_price_type");
         if (!is_array($ru_price_type)) $ru_price_type = array();
 
+        // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
+        if (in_array('', $category)) $category = array();
+        if (in_array('', $mm_age)) $mm_age = array();
+        if (in_array('', $mm_nation)) $mm_nation = array();
+        if (in_array('', $mm_sex)) $mm_sex = array();
+        if (in_array('', $ru_work_type)) $ru_work_type = array();
+        if (in_array('', $ru_price_type)) $ru_price_type = array();
+
         if ($search_value != "") { // strpos(문자열, 찾을문자열)  array_filter:true를 반환한 요소만 결과 배열에 남깁
             $resumes = array_filter($resumes, function($r) use ($search_type, $search_value) {
                 $matches_any = false;
@@ -1299,6 +1331,11 @@ class Ppurio extends MY_Controller{
         $work_type = $this->input->get("work_type");
         if (!is_array($work_type)) $work_type = array();
 
+        // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
+        if (in_array('', $category)) $category = array();
+        if (in_array('', $age_range)) $age_range = array();
+        if (in_array('', $work_type)) $work_type = array();
+
         $params = [
             "pagesize" => 20, "page" => $page,
             "sdate" => $sdate, "edate" => $edate,
@@ -1359,6 +1396,11 @@ class Ppurio extends MY_Controller{
         $nationality = input_get("nationality", "");
         $work_type = $this->input->get("work_type");
         if (!is_array($work_type)) $work_type = array();
+
+        // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
+        if (in_array('', $category)) $category = array();
+        if (in_array('', $age_range)) $age_range = array();
+        if (in_array('', $work_type)) $work_type = array();
 
         $params = [
             "pagesize" => 20, "page" => $page,

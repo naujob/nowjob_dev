@@ -28,7 +28,7 @@
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="category[]" value="" />
+                                <input type="checkbox" name="category[]" value="" <?=empty($search["category"]) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach($select_category as $key => $val) : ?>
@@ -43,7 +43,7 @@
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="rc_age[]" value="" />
+                                <input type="checkbox" name="rc_age[]" value="" <?=empty($search["rc_age"]) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["20대"=>"20대","30대"=>"30대","40대"=>"40대","50대"=>"50대","60대"=>"60대","70대"=>"70대"] as $key => $val) : ?>
@@ -60,7 +60,7 @@
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="rc_nation[]" value="" />
+                                <input type="checkbox" name="rc_nation[]" value="" <?=empty($search["rc_nation"]) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["내국인"=>"내국인","외국인"=>"외국인"] as $key => $val) : ?>
@@ -75,7 +75,7 @@
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="rc_sex[]" value="" />
+                                <input type="checkbox" name="rc_sex[]" value="" <?=empty($search["rc_sex"]) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["남자"=>"남자","여자"=>"여자"] as $key => $val) : ?>
@@ -92,7 +92,7 @@
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="rc_work_type[]" value="" />
+                                <input type="checkbox" name="rc_work_type[]" value="" <?=empty($search["rc_work_type"]) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach($select_work as $key => $val) : ?>
@@ -107,7 +107,7 @@
                     <td class="inline-wrap">
                         <div class="filter-checkbox-group">
                             <label class="filter-checkbox">
-                                <input type="checkbox" name="rc_price_type[]" value="" />
+                                <input type="checkbox" name="rc_price_type[]" value="" <?=empty($search["rc_price_type"]) ? 'checked' : ''?> />
                                 <span class="custom-checkbox">전체</span>
                             </label>
                             <?php foreach(["시급"=>"시급","일급"=>"일급","주급"=>"주급","월급"=>"월급"] as $key => $val) : ?>
@@ -351,6 +351,22 @@ $(document).ready(function(){
     $(".btnSearch").click(function(){
         $("#frm-search").attr("action","/admin/ppurio/send_sms_corp");
         $("#frm-search").submit();
+    });
+
+    // 필터 "전체" 옵션 자동 해제
+    var filterNames = ['category[]', 'rc_age[]', 'rc_nation[]', 'rc_sex[]', 'rc_work_type[]', 'rc_price_type[]'];
+    $.each(filterNames, function(i, filterName){
+        // "전체"(value="") 선택 시 다른 옵션 해제
+        $('input[name="' + filterName + '"][value=""]').on('change', function(){
+            if($(this).is(':checked')){
+                $('input[name="' + filterName + '"][value!=""]').prop('checked', false);
+            }
+        });
+
+        // 일반 옵션 선택 시 "전체" 해제
+        $('input[name="' + filterName + '"][value!=""]').on('change', function(){
+            $('input[name="' + filterName + '"][value=""]').prop('checked', false);
+        });
     });
 
     // 이력서 선택 버튼 - 채용공고 목록으로 이동
