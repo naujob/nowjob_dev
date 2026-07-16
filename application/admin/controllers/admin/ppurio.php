@@ -1572,18 +1572,33 @@ class Ppurio extends MY_Controller{
     }
 
     // 차트 시리즈 데이터 구성 (비공개 헬퍼)
+    // 데이터베이스에 어지럽게 흩어져 있던 회원 정보(연령, 성별 등)를 날짜별로 묶어서 예쁜 차트로 시각화하기 위한 작업
     private function _buildChartSeries($rows, $dimension, $type){
+        /**
+         *rows 반환 데이터 예시:
+        *    [
+         *   {sent_dt: "2026-07-01 10:30:00", rc_work: "생산", rc_sage: "25", ...},
+        *    {sent_dt: "2026-07-01 14:20:00", rc_work: "건설", rc_sage: "35", ...},
+        *    {sent_dt: "2026-07-02 09:15:00", rc_work: "생산", rc_sage: "28", ...},
+        *    ...
+        *    ]
+         * 
+         * 
+         * 
+         */
         // 날짜 범위 추출
+        // substr(..., 0, 10) 문자열의 0번째 글자(시작)부터 10글자만 자르라는 뜻 "2026-07-16 14:57:16" 중에서 앞부분의 "2026-07-16"
+        // date("Y-m-d"); 오늘 날짜(Year-Month-Day)를 임시 시작 날짜로
         $start_date = isset($rows[0]) ? substr($rows[0]["sent_dt"], 0, 10) : date("Y-m-d");
         $end_date = isset($rows[count($rows)-1]) ? substr($rows[count($rows)-1]["sent_dt"], 0, 10) : date("Y-m-d");
-
+        // 시작일과 종료일 사이에 있는 모든 날짜를 하나씩 채워 넣기
         // 날짜 배열 생성
         $dates = [];
         $current = strtotime($start_date);
         $end = strtotime($end_date);
         while($current <= $end){
-            $dates[date("Y-m-d", $current)] = date("m-d", $current);
-            $current += 86400;
+            $dates[date("Y-m-d", $current)] = date("m-d", $current); //$dates["2026-07-13"] = "07-13";
+            $current += 86400; //하루(86400초) 더하기
         }
 
         // 차원 컬럼 정의

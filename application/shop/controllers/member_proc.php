@@ -1,6 +1,9 @@
 <?php
 class Member_proc extends CI_Controller
 {
+    // 심사용 테스트 전화번호: SMS 인증 생략, 즉시 회원가입/로그인 처리 (추후 추가 가능)
+    private $test_phone_numbers = ["01011112222", "01011111111","01022222222"];
+
     function __construct()
     {
         parent::__construct();
@@ -33,6 +36,82 @@ class Member_proc extends CI_Controller
         } catch (Exception $e) {
             // 로그 기록 실패 시 무시
         }
+    }
+
+    /**
+     * 휴대폰 회원 로그인 처리 (세션 설정)
+     */
+    private function loginPhoneMember($mem_info)
+    {
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+        $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mem_info["mm_thumb"],
+            "ad_addr" => isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "",
+            "ad_gps_x" => isset($addr_info["ad_gps_x"]) ? $addr_info["ad_gps_x"] : "",
+            "ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : "",
+            "mm_sex" => $mem_info["mm_sex"],
+        ]);
+    }
+
+    /**
+     * 휴대폰 회원 생성 및 로그인 처리
+     */
+    private function createAndLoginPhoneMember($normalized_phone)
+    {
+        $mm_id = "phone_" . $normalized_phone . "_" . time();
+        $mm_pwd = password_hash("phone_signup_" . time(), PASSWORD_DEFAULT);
+
+        $insert_data = [
+            "mm_id" => $mm_id,
+            "mm_pwd" => $mm_pwd,
+            "mm_phone" => $normalized_phone,
+            "mm_join_type" => "WEB",
+            "mm_status" => "Y",
+            "last_login_dt" => date("Y-m-d H:i:s"),
+        ];
+
+        $this->db->insert("st_member", $insert_data);
+        $mm_idx = $this->db->insert_id();
+
+        if (empty($mm_idx)) {
+            return null;
+        }
+
+        $mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+        if ($mem_info == null) {
+            return null;
+        }
+
+        $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
+        if (!is_array($addr_info)) {
+            $addr_info = [];
+        }
+
+        $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mem_info["mm_thumb"],
+            "ad_addr" => isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "",
+            "ad_gps_x" => isset($addr_info["ad_gps_x"]) ? $addr_info["ad_gps_x"] : "",
+            "ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : "",
+            "mm_sex" => $mem_info["mm_sex"],
+        ]);
+
+        if (function_exists('session_write_close')) {
+            session_write_close();
+        }
+
+        return $mem_info;
     }
 
     /**
@@ -1451,36 +1530,34 @@ class Member_proc extends CI_Controller
             return;
         }
 
-        // 테스트 번호 목록 (개발용)
-        $test_phones = array(
-            '01090025528', '01039870018', '01040660412', '01088774444', '01022221212',
-            '01022221111', '01011119999', '01011111010', '01099999999', '01088888888',
-            '01077777777', '01066666666', '01055555555', '01044444444', '01011118888',
-            '01011117777', '01011116666', '01011115555', '01011114444', '01011112222',
-            '01033333333', '01022222222', '01045454444'
-        );
+        // 심사용 테스트 전화번호: 가입 여부와 무관하게 SMS 인증 생략하고 즉시 로그인/가입 처리
+        if (in_array($normalized_phone, $this->test_phone_numbers, true)) {
+            $query = "SELECT * FROM st_member
+                      WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                      AND mm_status = 'Y'
+                      LIMIT 1";
+            $result = $this->db->query($query);
+            $existing_member = $result->row_array();
 
-        // 전화번호로 회원 조회
-        $query = "SELECT * FROM st_member
-                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
-                  AND mm_status = 'Y'
-                  LIMIT 1";
-        $result = $this->db->query($query);
-        $mem_info = $result->row_array();
+            if ($existing_member != null) {
+                // 이미 가입된 테스트 번호 → 인증번호 입력 없이 바로 로그인
+                $this->loginPhoneMember($existing_member);
+                $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $existing_member["mm_id"]]);
+                json_return("00", "테스트 계정으로 즉시 로그인되었습니다.", ["skip_auth" => true]);
+                return;
+            }
 
-        if ($mem_info == null) {
-            // 미가입 → 회원가입 필요
-            json_return("90", "회원가입이 필요합니다.");
+            // 미가입 테스트 번호 → 즉시 회원가입 + 로그인
+            $mem_info = $this->createAndLoginPhoneMember($normalized_phone);
+            if ($mem_info != null) {
+                json_return("00", "테스트 계정으로 즉시 회원가입되었습니다.", ["skip_auth" => true]);
+                return;
+            }
+            json_return("99", "테스트 계정 처리 중 오류가 발생했습니다.");
             return;
         }
 
-        // 테스트 번호 확인: SMS 스킵하고 바로 인증 페이지로 진행
-        if (in_array($normalized_phone, $test_phones)) {
-            json_return("00", "인증번호를 발송하였습니다.");
-            return;
-        }
-
-        // 가입됨 → SMS 발송
+        // SMS 발송 (미가입/가입 상관없이 모든 번호에 발송)
         $count_result = $this->site_model->checkSmsSendCount($phone, "휴대폰로그인인증");
 
         if ($count_result["code"] != "00") {
@@ -1592,24 +1669,17 @@ class Member_proc extends CI_Controller
         // 전화번호 정규화
         $normalized_phone = preg_replace('/[^0-9]/', '', $phone);
 
-        // 테스트 번호 목록 (개발용)
-        $test_phones = array(
-            '01090025528', '01039870018', '01040660412', '01088774444', '01022221212',
-            '01022221111', '01011119999', '01011111010', '01099999999', '01088888888',
-            '01077777777', '01066666666', '01055555555', '01044444444', '01011118888',
-            '01011117777', '01011116666', '01011115555', '01011114444', '01011112222',
-            '01033333333', '01022222222', '01045454444'
-        );
+        // 인증번호 필수 확인
+        if (empty($auth)) {
+            json_return("99", "인증번호를 입력해주세요.");
+            return;
+        }
 
-        // 테스트 번호 확인: SMS 인증 스킵
-        if (!in_array($normalized_phone, $test_phones)) {
-            // 일반 번호: 인증번호 확인
-            $check = $this->site_model->checkSmsAuth($phone, $auth);
+        $check = $this->site_model->checkSmsAuth($phone, $auth);
 
-            if ($check["code"] != "00") {
-                json_return($check["code"], $check["msg"]);
-                return;
-            }
+        if ($check["code"] != "00") {
+            json_return($check["code"], $check["msg"]);
+            return;
         }
 
         // 전화번호로 회원 재조회
@@ -1621,7 +1691,8 @@ class Member_proc extends CI_Controller
         $mem_info = $result->row_array();
 
         if ($mem_info == null) {
-            json_return("90", "회원 정보를 찾을 수 없습니다.");
+            // 미가입 회원 → 회원가입 페이지로 안내
+            json_return("90", "회원가입이 필요합니다.", ["phone" => $normalized_phone]);
             return;
         }
 

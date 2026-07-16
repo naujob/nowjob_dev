@@ -186,7 +186,7 @@ $top_bar = array(
             [class*="resumebox_"] .content-body .desc {
                 position: relative;
                 height: 100%;
-                margin: 0 0 0 110px;
+                /* margin: 0 0 0 110px; */
                 cursor: pointer;
             }
 
@@ -1389,11 +1389,11 @@ $top_bar = array(
     <li class="list-item room-item" data-target_id="{{rc_idx}}">
         <a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
             <div class="item-info person" style="width:100%; position: relative;">
-                <div class="thumb-wrap">
+                <!-- <div class="thumb-wrap">
                     <div class="thumb">
                         <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
                     </div>
-                </div>
+                </div> -->
                 <!-- 
                     data-room_idx_list="{{room_idx_list}}"의 의미:
                     공고(rc_idx)별로 관련된 채팅방(room_idx)들의 리스트(콤마 분리 문자열 등)가 이 속성에 세팅됩니다.
@@ -1428,9 +1428,9 @@ $top_bar = array(
             onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_sent'; return false;">
 
             <div class="content-body" style="position: relative;">
-                <div class="img" style="border-radius: 60px;">
+                <!-- <div class="img" style="border-radius: 60px;">
                     <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
-                </div>
+                </div> -->
                 <div class="desc">
                     <div class="wicon">{{ru_work_img}}</div>
                     <div class="title ellipsis">{{ru_name}}</div>

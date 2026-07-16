@@ -107,6 +107,7 @@ class Resume_proc extends CI_Controller
         'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
         'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
         'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+        'ru_recom_badge' => getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null),
         'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
         'ru_name' => (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'],
         'ru_resume_img' => getResumeImg($row),
@@ -201,6 +202,7 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["ru_work_type"] = getWorkTypeWithColor($row["ru_work_type"]);
       $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
       $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
+      $temp_list[$key]["ru_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 
       // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
       $ru_week = isset($row["ru_week"]) ? trim($row["ru_week"]) : "";
@@ -253,6 +255,7 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["ru_price_type"] = ($row["ru_price_type"]);
       $temp_list[$key]["ru_price_type_raw"] = $row["ru_price_type"];
       $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
+      $temp_list[$key]["ru_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 
       // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
       $ru_week = isset($row["ru_week"]) ? trim($row["ru_week"]) : "";

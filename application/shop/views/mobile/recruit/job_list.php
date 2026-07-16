@@ -612,7 +612,10 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
                   <?php endif; ?>
                 <!-- </div> -->
                 <div class="desc">
-                  <div class="wicon"><?= $row['rt_work_img'] ?></div>
+                  <div class="wicon">
+                    <?= getRecomBadgeHtml($row['pm_idx']) ?>
+                    <?= $row['rt_work_img'] ?>
+                  </div>
                   <div class="title ellipsis"><?= $row['rc_name'] ?></div>
                   <div class="summary">
                     <p><?= $row['rc_nation_nm'] ?></p>
@@ -919,6 +922,7 @@ $tpl_recomm_class = true; ?>
       $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
       $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
       $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
+      $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || '');
 
       $clone.html($content);
       $(list_id).append($clone.html());

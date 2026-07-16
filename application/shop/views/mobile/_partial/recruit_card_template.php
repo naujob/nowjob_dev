@@ -16,7 +16,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
     <div class="content-li<?= $tpl_recomm_class ? ' recomm' : '' ?>" data-rc_idx="{{rc_idx}}">
       <div class="content-info">
         <div class="content-body">
-          <div class="img">
+          <!-- <div class="img">
             <img src="{{rt_recruit_img}}">
             <?php if (isset($mm_type) && ($mm_type === 'MEM' || $mm_type === 'COMP')): ?>
               <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}"
@@ -27,9 +27,11 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
             <?php if ($tpl_recomm_class): ?>
               <p class="recomm-badge"><span>추천</span></p>
             <?php endif; ?>
-          </div>
+          </div> -->
           <div class="desc">
-            <div class="wicon">{{rt_work_img}}</div>
+            <div class="wicon">
+              {{rt_work_img}}{{rt_recom_badge}}
+            </div>
             <div class="title ellipsis">{{rc_name}}</div>
             <div class="summary">
               <p>{{rc_nation_nm}}</p>

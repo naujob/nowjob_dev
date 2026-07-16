@@ -29,7 +29,7 @@ if (!empty($row['mm_birth'])) {
   >
     <div class="content-info">
       <div class="content-body">
-        <div class="img">
+        <!-- <div class="img">
           <img src="<?= getResumeImg($row) ?>">
           <?php if (isset($mm_type) && $mm_type === 'COMP') : ?>
             <button type="button"
@@ -42,7 +42,7 @@ if (!empty($row['mm_birth'])) {
           <?php if ($_show_recomm) : ?>
             <p class="recomm-badge"><span>추천</span></p>
           <?php endif; ?>
-        </div>
+        </div> -->
         <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>
         <div class="desc">
           <div class="wicon"><?= getWorkingImg($row['ru_work']) ?></div>

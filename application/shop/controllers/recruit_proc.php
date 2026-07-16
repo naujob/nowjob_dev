@@ -510,6 +510,7 @@ class Recruit_proc extends CI_Controller
 				'rc_idx' => isset($row['rc_idx']) ? $row['rc_idx'] : '',
 				'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
 				'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+				'rt_recom_badge' => getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null),
 				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
 				'rc_name' => (mb_strlen($row['rc_name']) > $truncate_length) ? mb_substr($row['rc_name'], 0, $truncate_length) . '...' : $row['rc_name'],
 				'rt_recruit_img' => getRecruitImg($row),
@@ -651,6 +652,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
+			$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
@@ -712,6 +714,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getPriceTypePoint($row["rc_price_type"], $row);
 			$temp_list[$key]["rt_price"] = getRecuitPrice($row);
+			$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["pm_timestamp"] = getTimeText($row["pm_reg_dt"]);
 			$temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);

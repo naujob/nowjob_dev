@@ -393,11 +393,11 @@ $top_bar = array(
   <li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}" data-regdt="{{reg_dt}}">
     <a href="#" class="angle-link js-open-view" style="padding:0;" data-regdt="{{reg_dt}}">
       <div class="item-info person" style="width:100%; position: relative;">
-        <div class="thumb-wrap">
+        <!-- <div class="thumb-wrap">
           <div class="thumb" style="border-radius: 50%; overflow: hidden;">
             <img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
           </div>
-        </div>
+        </div> -->
         <div class="content-wrap">
           <div style="font-size: 12px; color: #777; margin-top: 4px;">
             <!-- 회사이름 -->

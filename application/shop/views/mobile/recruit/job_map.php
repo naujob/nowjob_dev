@@ -452,6 +452,7 @@
               $content = $content.replaceAll('{{rt_work_type}}',  d.rt_work_type  || '');
               $content = $content.replaceAll('{{rc_price_type}}', d.rt_price_type || '');
               $content = $content.replaceAll('{{rc_price_pay}}',  d.rt_price_pay  || '');
+              $content = $content.replaceAll('{{rt_recom_badge}}', d.rt_recom_badge || '');
 
               // <li> 태그 제거 후 keen-slider__slide로 감싸기
               var innerHtml = $content.replace(/<li[^>]*>/g, '').replace(/<\/li>/g, '');

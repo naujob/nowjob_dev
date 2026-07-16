@@ -273,6 +273,7 @@ class Chat extends CI_Controller
           $data["recruit"]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
           $data["recruit"]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
           $data["recruit"]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"]);
+          $data["recruit"]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
         }
       }
       if ($final_ru_idx) {

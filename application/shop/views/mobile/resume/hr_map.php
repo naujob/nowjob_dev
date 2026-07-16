@@ -438,6 +438,7 @@
               $templateContent = $templateContent.replaceAll('{{ru_price_type}}', getPriceType(d.ru_price_type));
               $templateContent = $templateContent.replaceAll('{{ru_work_type}}',  getWorkType(d.ru_work_type));
               $templateContent = $templateContent.replaceAll('{{ru_resume_img}}', d.ru_resume_img || '');
+              $templateContent = $templateContent.replaceAll('{{ru_recom_badge}}', d.ru_recom_badge || '');
 
               // <li> 래퍼 제거하고 .content-li만 슬라이드에 삽입
               var $liItem = $('<div>' + $templateContent + '</div>');

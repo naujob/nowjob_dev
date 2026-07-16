@@ -148,7 +148,7 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
     var params = { mm_phone: gPhone, auth: authCode };
     comAjax("/member_proc/check_phone_login_auth", params, function(ret) {
       if (ret.code == "00") {
-        // 로그인 성공
+        // 로그인 성공 (기존 회원)
         sessionStorage.removeItem("chat_user_connect");
 
         // 최근 로그인 타입을 세션에 저장 (휴대폰 OTP 로그인)
@@ -162,6 +162,12 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
           } else {
             _replace("/");
           }
+        });
+        return;
+      } else if (ret.code == "90") {
+        // 미가입 회원 - 회원가입 페이지로 이동
+        commonAlert("회원가입을 진행합니다.", function() {
+          location.href = "/member/join_start?phone=" + encodeURIComponent(gPhone);
         });
         return;
       } else if (ret.code == "92") {

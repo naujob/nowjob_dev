@@ -19,7 +19,7 @@ $_recomm_badge  = isset($card_options['recomm_badge'])  ? (bool)$card_options['r
     <?= $_use_mq_idx && !empty($row['mq_idx']) ? 'data-mq_idx="' . $row['mq_idx'] . '"' : '' ?>>
     <div class="content-info">
       <div class="content-body">
-        <div class="img">
+        <!-- <div class="img">
           <img src="<?= getRecruitImg($row) ?>">
           <?php if ($_show_bookmark): ?>
             <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
@@ -30,7 +30,7 @@ $_recomm_badge  = isset($card_options['recomm_badge'])  ? (bool)$card_options['r
           <?php if ($_recomm_badge): ?>
             <p class="recomm-badge"><span>추천</span></p>
           <?php endif; ?>
-        </div>
+        </div> -->
         <div class="desc">
           <div class="wicon"><?= isset($row['rt_work_img']) ? $row['rt_work_img'] : getWorkingImg($row['rc_work']) ?></div>
           <div class="title ellipsis"><?= $row['rc_name'] ?></div>

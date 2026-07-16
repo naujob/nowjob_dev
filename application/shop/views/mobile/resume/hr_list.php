@@ -621,7 +621,10 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
                       <img src="<?= $row['ru_resume_img'] ?>" alt="프로필">
                     </div> -->
                     <div class="desc">
-                      <div class="wicon"><?= $row['ru_work_img'] ?></div>
+                      <div class="wicon">
+                        <?= getRecomBadgeHtml($row['pm_idx']) ?>
+                        <?= $row['ru_work_img'] ?>
+                      </div>
                       <div class="title ellipsis"><?= $mm_name ?></div>
                       <div class="summary">
                         <ul class="working-day"><?= $row['ru_week'] ?></ul>
@@ -1017,6 +1020,7 @@ $tpl_show_mm_idx = true; ?>
       $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || '');
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
       $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || '');
+      $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || '');
 
       $(list_id).append($content);
     });

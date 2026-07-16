@@ -326,35 +326,20 @@
         var params = { mm_phone: phone };
         comAjax("/member_proc/check_phone_login", params, function(ret) {
             if (ret.code == "00") {
+                // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동
+                if (ret.data && ret.data.skip_auth) {
+                    sessionStorage.removeItem("chat_user_connect");
+                    location.href = "/";
+                    return;
+                }
                 // SMS 발송 성공 - 인증 페이지로 리다이렉트
                 commonAlert("인증번호를 발송하였습니다.", function() {
                     location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
-                });
-            } else if (ret.code == "90") {
-                // 미가입 - 바로 회원 생성 및 로그인
-                commonAlert("회원가입을 진행합니다.", function() {
-                    createPhoneMember(phone);
                 });
             } else if (ret.code == "98" || ret.code == "99") {
                 commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
             } else {
                 commonAlert(ret.msg || "오류가 발생했습니다.", function() {});
-            }
-        });
-    }
-
-    // 휴대폰번호로 회원 생성 및 로그인
-    function createPhoneMember(phone) {
-        var params = { mm_phone: phone };
-        comAjax("/member_proc/create_phone_member", params, function(ret) {
-            if (ret.code == "00") {
-                sessionStorage.removeItem("chat_user_connect");
-                comAjax("/member_proc/set_last_login_type", { login_type: "WEB" }, function() {
-                    location.href = "/";
-                });
-                return;
-            } else {
-                commonAlert(ret.msg || "회원가입에 실패했습니다.", function() {});
             }
         });
     }

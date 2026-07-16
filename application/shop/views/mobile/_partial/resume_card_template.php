@@ -20,7 +20,7 @@ $tpl_show_mm_idx  = isset($tpl_show_mm_idx)  ? (bool)$tpl_show_mm_idx  : false;
       <?= $tpl_show_mm_idx ? 'data-mm_idx="{{mm_idx}}"' : '' ?>>
       <div class="content-info">
         <div class="content-body">
-          <div class="img">
+          <!-- <div class="img">
             <img src="{{ru_resume_img}}">
             <?php if (isset($mm_type) && $mm_type === 'COMP'): ?>
               <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}"
@@ -31,9 +31,9 @@ $tpl_show_mm_idx  = isset($tpl_show_mm_idx)  ? (bool)$tpl_show_mm_idx  : false;
             <?php if ($tpl_recomm_class): ?>
               <p class="recomm-badge"><span>추천</span></p>
             <?php endif; ?>
-          </div>
+          </div> -->
           <div class="desc">
-            <div class="wicon">{{ru_work_img}}</div>
+            <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
             <div class="title ellipsis">{{mm_name}}</div>
             <div class="summary">
               <ul class="working-day">{{ru_week}}</ul>

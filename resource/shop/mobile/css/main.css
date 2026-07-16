@@ -13418,3 +13418,12 @@ form#frm {
     background: #BEBFC9;
 }
 
+/* 추천 뱃지 */
+.item-recom-badge {
+   
+    height: 20px;
+    margin-right: 4px;
+    vertical-align: middle;
+    display: inline-block;
+}
+

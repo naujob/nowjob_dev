@@ -215,6 +215,7 @@
       $c = $c.replaceAll('{{ru_resume_img}}', row.ru_resume_img || '');
       $c = $c.replaceAll('{{book_yn}}',       row.book_yn       || '');
       $c = $c.replaceAll('{{ru_work_img}}',   row.ru_work_img   || '');
+      $c = $c.replaceAll('{{ru_recom_badge}}', row.ru_recom_badge || '');
       $c = $c.replaceAll('{{mm_name}}',       row.mm_name       || '');
       $c = $c.replaceAll('{{ru_week}}',       row.ru_week       || '');
       $c = $c.replaceAll('{{mm_nation}}',     row.mm_nation     || '');
@@ -252,6 +253,7 @@
         .replaceAll('{{rc_idx}}', recruitData.rc_idx || '')
         .replaceAll('{{rt_recruit_img}}', recruitData.rt_recruit_img || '')
         .replaceAll('{{rt_work_img}}', recruitData.rt_work_img || '')
+        .replaceAll('{{rt_recom_badge}}', recruitData.rt_recom_badge || '')
         .replaceAll('{{rt_work_type}}', recruitData.rt_work_type || '')
         .replaceAll('{{rc_name}}', recruitData.rc_name || '')
         .replaceAll('{{rc_nation_nm}}', recruitData.rc_nation_nm || '')
@@ -336,6 +338,7 @@
                           'ru_work_type'  => $ru_work_type_html,
                           'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
                           'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
+                          'ru_recom_badge' => getRecomBadgeHtml(isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null),
                       ]);
                   ?>;
                 </script>

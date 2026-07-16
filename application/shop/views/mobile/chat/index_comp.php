@@ -124,7 +124,7 @@ $top_bar = array(
       [class*="resumebox_"] .content-body .desc {
         position: relative;
         height: 100%;
-        margin: 0 0 0 110px;
+        /* margin: 0 0 0 110px; */
         cursor: pointer;
       }
 
@@ -1743,11 +1743,11 @@ $top_bar = array(
   <li class="list-item room-item" data-target_id="{{rc_idx}}">
     <a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
       <div class="item-info person" style="width:100%;">
-        <div class="thumb-wrap">
+        <!-- <div class="thumb-wrap">
           <div class="thumb">
             <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
           </div>
-        </div>
+        </div> -->
         <div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
           <div class="timestamp" style="font-size: 12px; color: #777;">{{mm_comp_name}}</div>
           <div class="title-wrap">
@@ -1776,9 +1776,9 @@ $top_bar = array(
       onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_received'; return false;">
 
       <div class="content-body">
-        <div class="img" style="border-radius: 60px;">
+        <!-- <div class="img" style="border-radius: 60px;">
           <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
-        </div>
+        </div> -->
         <div class="desc">
           <div class="wicon">{{ru_work_img}}</div>
           <div class="title ellipsis">{{ru_name}}</div>

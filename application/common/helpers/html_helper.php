@@ -1086,3 +1086,11 @@ function showGoodsTypeM($info,$margin_type,$sale_per,$is_login,$guest_yn){
 	";
 	return $html;
 }
+
+// 추천 뱃지 HTML 생성 (프로모션 활성 여부로 판단)
+function getRecomBadgeHtml($pmIdx = null) {
+	if (!empty($pmIdx)) {
+		return '<img src="/resource/shop/mobile/img/recom_badge.png" alt="추천" class="item-recom-badge">';
+	}
+	return '';
+}
