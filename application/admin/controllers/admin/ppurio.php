@@ -1326,22 +1326,29 @@ class Ppurio extends MY_Controller{
         if (!is_array($category)) $category = array();
         $age_range = $this->input->get("age_range");
         if (!is_array($age_range)) $age_range = array();
-        $gender = input_get("gender", "");
-        $nationality = input_get("nationality", "");
+        $nationality = $this->input->get("nationality");
+        if (!is_array($nationality)) $nationality = array();
+        $gender = $this->input->get("gender");
+        if (!is_array($gender)) $gender = array();
         $work_type = $this->input->get("work_type");
         if (!is_array($work_type)) $work_type = array();
+        $price_type = $this->input->get("price_type");
+        if (!is_array($price_type)) $price_type = array();
 
         // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
         if (in_array('', $category)) $category = array();
         if (in_array('', $age_range)) $age_range = array();
+        if (in_array('', $nationality)) $nationality = array();
+        if (in_array('', $gender)) $gender = array();
         if (in_array('', $work_type)) $work_type = array();
+        if (in_array('', $price_type)) $price_type = array();
 
         $params = [
             "pagesize" => 20, "page" => $page,
             "sdate" => $sdate, "edate" => $edate,
             "search_type" => $search_type, "search_value" => $search_value,
-            "category" => $category, "age_range" => $age_range, "gender" => $gender,
-            "nationality" => $nationality, "work_type" => $work_type,
+            "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
+            "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
         ];
         $result = $this->site_model->getCorSmsSentList($params);
 
@@ -1366,8 +1373,8 @@ class Ppurio extends MY_Controller{
             "search" => [
                 "sdate" => $sdate, "edate" => $edate,
                 "search_type" => $search_type, "search_value" => $search_value,
-                "category" => $category, "age_range" => $age_range, "gender" => $gender,
-                "nationality" => $nationality, "work_type" => $work_type,
+                "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
+                "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
             ],
             "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
             "result_list" => $result["list"],
@@ -1392,22 +1399,29 @@ class Ppurio extends MY_Controller{
         if (!is_array($category)) $category = array();
         $age_range = $this->input->get("age_range");
         if (!is_array($age_range)) $age_range = array();
-        $gender = input_get("gender", "");
-        $nationality = input_get("nationality", "");
+        $nationality = $this->input->get("nationality");
+        if (!is_array($nationality)) $nationality = array();
+        $gender = $this->input->get("gender");
+        if (!is_array($gender)) $gender = array();
         $work_type = $this->input->get("work_type");
         if (!is_array($work_type)) $work_type = array();
+        $price_type = $this->input->get("price_type");
+        if (!is_array($price_type)) $price_type = array();
 
         // "전체" 옵션(value="") 처리 - 전체 선택 시 필터 무시
         if (in_array('', $category)) $category = array();
         if (in_array('', $age_range)) $age_range = array();
+        if (in_array('', $nationality)) $nationality = array();
+        if (in_array('', $gender)) $gender = array();
         if (in_array('', $work_type)) $work_type = array();
+        if (in_array('', $price_type)) $price_type = array();
 
         $params = [
             "pagesize" => 20, "page" => $page,
             "sdate" => $sdate, "edate" => $edate,
             "search_type" => $search_type, "search_value" => $search_value,
-            "category" => $category, "age_range" => $age_range, "gender" => $gender,
-            "nationality" => $nationality, "work_type" => $work_type,
+            "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
+            "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
         ];
         $result = $this->site_model->getMemSmsSentList($params);
 
@@ -1432,8 +1446,8 @@ class Ppurio extends MY_Controller{
             "search" => [
                 "sdate" => $sdate, "edate" => $edate,
                 "search_type" => $search_type, "search_value" => $search_value,
-                "category" => $category, "age_range" => $age_range, "gender" => $gender,
-                "nationality" => $nationality, "work_type" => $work_type,
+                "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
+                "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
             ],
             "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
             "result_list" => $result["list"],
@@ -1445,6 +1459,242 @@ class Ppurio extends MY_Controller{
         ];
 
         $this->layout->admin('admin/ppurio/sms_mem_reslut', $data);
+    }
+
+    // 매칭 채용공고 SMS 발송 내역 차트 페이지 (개인 수신)
+    function sms_mem_chart(){
+        $sdate = input_get("sdate", "");
+        $edate = input_get("edate", "");
+
+        // 날짜 범위 기본값
+        if(empty($sdate) || empty($edate)){
+            $sdate = date("Y-m-d", strtotime("-13 days"));
+            $edate = date("Y-m-d");
+        }
+
+        $params = [
+            "sdate" => $sdate,
+            "edate" => $edate,
+        ];
+
+        // 원본 데이터 조회 및 차원별 집계
+        $result = $this->site_model->getMemSmsChartRawList($params);
+        $chart_data = $this->_buildChartSeries($result, "업종", "mem");
+
+        $data = [
+            "search" => [
+                "sdate" => $sdate,
+                "edate" => $edate,
+            ],
+            "chart" => $chart_data,
+        ];
+
+        $this->layout->admin('admin/ppurio/sms_mem_chart', $data);
+    }
+
+    // 매칭 이력서 SMS 발송 내역 차트 페이지 (기업 수신)
+    function sms_cor_chart(){
+        $sdate = input_get("sdate", "");
+        $edate = input_get("edate", "");
+
+        // 날짜 범위 기본값
+        if(empty($sdate) || empty($edate)){
+            $sdate = date("Y-m-d", strtotime("-13 days"));
+            $edate = date("Y-m-d");
+        }
+
+        $params = [
+            "sdate" => $sdate,
+            "edate" => $edate,
+        ];
+
+        // 원본 데이터 조회 및 차원별 집계
+        $result = $this->site_model->getCorSmsChartRawList($params);
+        $chart_data = $this->_buildChartSeries($result, "업종", "cor");
+
+        $data = [
+            "search" => [
+                "sdate" => $sdate,
+                "edate" => $edate,
+            ],
+            "chart" => $chart_data,
+        ];
+
+        $this->layout->admin('admin/ppurio/sms_cor_chart', $data);
+    }
+
+    // AJAX 차트 데이터 조회 (개인 수신)
+    function sms_mem_chart_data(){
+        $sdate = input_get("sdate", "");
+        $edate = input_get("edate", "");
+        $dimension = input_get("dimension", "업종");
+
+        // 날짜 범위 기본값
+        if(empty($sdate) || empty($edate)){
+            $sdate = date("Y-m-d", strtotime("-13 days"));
+            $edate = date("Y-m-d");
+        }
+
+        $params = [
+            "sdate" => $sdate,
+            "edate" => $edate,
+        ];
+
+        // 원본 데이터 조회 및 차원별 집계
+        $result = $this->site_model->getMemSmsChartRawList($params);
+        $chart_data = $this->_buildChartSeries($result, $dimension, "mem");
+
+        json_return("00", "", $chart_data);
+    }
+
+    // AJAX 차트 데이터 조회 (기업 수신)
+    function sms_cor_chart_data(){
+        $sdate = input_get("sdate", "");
+        $edate = input_get("edate", "");
+        $dimension = input_get("dimension", "업종");
+
+        // 날짜 범위 기본값
+        if(empty($sdate) || empty($edate)){
+            $sdate = date("Y-m-d", strtotime("-13 days"));
+            $edate = date("Y-m-d");
+        }
+
+        $params = [
+            "sdate" => $sdate,
+            "edate" => $edate,
+        ];
+
+        // 원본 데이터 조회 및 차원별 집계
+        $result = $this->site_model->getCorSmsChartRawList($params);
+        $chart_data = $this->_buildChartSeries($result, $dimension, "cor");
+
+        json_return("00", "", $chart_data);
+    }
+
+    // 차트 시리즈 데이터 구성 (비공개 헬퍼)
+    private function _buildChartSeries($rows, $dimension, $type){
+        // 날짜 범위 추출
+        $start_date = isset($rows[0]) ? substr($rows[0]["sent_dt"], 0, 10) : date("Y-m-d");
+        $end_date = isset($rows[count($rows)-1]) ? substr($rows[count($rows)-1]["sent_dt"], 0, 10) : date("Y-m-d");
+
+        // 날짜 배열 생성
+        $dates = [];
+        $current = strtotime($start_date);
+        $end = strtotime($end_date);
+        while($current <= $end){
+            $dates[date("Y-m-d", $current)] = date("m-d", $current);
+            $current += 86400;
+        }
+
+        // 차원 컬럼 정의
+        $col_map = [
+            "mem" => [
+                "업종" => "rc_work",
+                "연령" => "rc_sage",
+                "성별" => "rc_sex",
+                "국적" => "rc_nation",
+                "근무형태" => "rc_work_type",
+                "급여형태" => "rc_price_type",
+            ],
+            "cor" => [
+                "업종" => "ru_work",
+                "연령" => "mm_birth",
+                "성별" => "mm_sex",
+                "국적" => "mm_nation",
+                "근무형태" => "ru_work_type",
+                "급여형태" => "ru_price_type",
+            ]
+        ];
+
+        $col = isset($col_map[$type][$dimension]) ? $col_map[$type][$dimension] : "rc_work";
+
+        // 데이터 집계
+        $matrix = [];
+        $totals = [];
+
+        foreach($rows as $row){
+            $date = substr($row["sent_dt"], 0, 10);
+
+            // 차원 값 추출
+            $values = [];
+            if($dimension === "연령"){
+                if($type === "mem"){
+                    // rc_sage: 시작연령
+                    $age_val = isset($row["rc_sage"]) ? $row["rc_sage"] : 0;
+                    $values[] = $age_val > 0 ? (floor($age_val/10)*10) . "대" : "미상";
+                } else {
+                    // mm_birth: 생년월일 문자열
+                    $birth = isset($row["mm_birth"]) ? $row["mm_birth"] : "";
+                    $age_decade = getKoreanAge($birth);
+                    $values[] = ($age_decade && $age_decade !== "0") ? $age_decade . "대" : "미상";
+                }
+            } else {
+                $raw_value = isset($row[$col]) ? $row[$col] : "";
+                if(empty($raw_value)){
+                    $values[] = "미상";
+                } else {
+                    // 쉼표로 분리된 여러 값 처리
+                    $exploded = array_map('trim', explode(',', $raw_value));
+                    $values = array_filter($exploded, function($v) { return !empty($v); });
+                    if(empty($values)){
+                        $values[] = "미상";
+                    }
+                }
+            }
+
+            // 각 값에 대해 누적
+            foreach($values as $value){
+                if(!isset($matrix[$date])){
+                    $matrix[$date] = [];
+                }
+                if(!isset($matrix[$date][$value])){
+                    $matrix[$date][$value] = 0;
+                }
+                $matrix[$date][$value]++;
+
+                if(!isset($totals[$value])){
+                    $totals[$value] = 0;
+                }
+                $totals[$value]++;
+            }
+        }
+
+        // 합계로 값 정렬
+        arsort($totals);
+        $sorted_values = array_keys($totals);
+
+        // 팔레트 색상
+        $colors = [
+            "rgba(255, 99, 132, 1)",    // 빨강
+            "rgba(54, 162, 235, 1)",    // 파랑
+            "rgba(255, 206, 86, 1)",    // 노랑
+            "rgba(75, 192, 192, 1)",    // 초록
+            "rgba(153, 102, 255, 1)",   // 보라
+            "rgba(255, 159, 64, 1)",    // 주황
+            "rgba(199, 199, 199, 1)",   // 회색
+            "rgba(83, 102, 255, 1)",    // 남색
+        ];
+
+        // 시리즈 구성
+        $series = [];
+        foreach($sorted_values as $idx => $val){
+            $data = [];
+            foreach($dates as $date => $label){
+                $data[] = isset($matrix[$date][$val]) ? $matrix[$date][$val] : 0;
+            }
+            $color = $colors[$idx % count($colors)];
+            $series[] = [
+                "name" => $val,
+                "data" => $data,
+                "total" => $totals[$val],
+                "color" => $color,
+            ];
+        }
+
+        return [
+            "dates" => array_values($dates),
+            "series" => $series,
+        ];
     }
 }
 ?>
