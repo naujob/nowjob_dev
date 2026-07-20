@@ -191,7 +191,7 @@ class recruitModel extends MY_Model
 				IFNULL(e2.ad_addr, '') as expose_addr2,
 				IFNULL(CONCAT(e2.ad_doro, ' ', e2.ad_jibun), '') as expose_s_addr2,
 				(SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = b.rc_idx) AS book_cnt,
-				(SELECT pm_idx FROM st_promotion WHERE rc_idx = b.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx,
+				(SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =b.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx,
 				GREATEST(
 					CASE WHEN b.up_dt = '0000-00-00 00:00:00' THEN b.reg_dt ELSE b.up_dt END,
 					IFNULL((SELECT MAX(up_dt) FROM st_promotion WHERE rc_idx = b.rc_idx AND pm_code IN ('C002','C003') AND pm_sdate <= NOW() AND pm_edate >= NOW()), '2000-01-01 00:00:00')
@@ -399,7 +399,8 @@ class recruitModel extends MY_Model
 				aa.mm_phone,
 				aa.mm_comp_name,
         ifnull(bk.cnt,0) as fav_cnt,
-        aa.mm_id
+        aa.mm_id,
+        (SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =bb.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx
 			FROM st_member aa
 			inner join st_recruit bb
 				on aa.mm_idx = bb.mm_idx
@@ -579,7 +580,8 @@ class recruitModel extends MY_Model
         else '국적무관' end) as rc_nation_nm",
 			"rc_sage",
 			"rc_eage",
-			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt"
+			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt",
+			"(SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =aa.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx"
 		];
 
 		$body = "
@@ -646,7 +648,8 @@ class recruitModel extends MY_Model
         else '국적무관' end) as rc_nation_nm",
 			"rc_sage",
 			"rc_eage",
-			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn",
+			"(SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =bb.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx"
 		];
 
 		$body = "
@@ -714,7 +717,8 @@ class recruitModel extends MY_Model
         else '국적무관' end) as rc_nation_nm",
 			"rc_sage",
 			"rc_eage",
-			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn"
+			"(case when ff.bk_idx is not null then 'Y' else 'N' end) as book_yn",
+			"(SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =cc.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx"
 		];
 
 		$body = "

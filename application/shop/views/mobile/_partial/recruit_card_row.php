@@ -32,7 +32,7 @@ $_recomm_badge  = isset($card_options['recomm_badge'])  ? (bool)$card_options['r
           <?php endif; ?>
         </div> -->
         <div class="desc">
-          <div class="wicon"><?= isset($row['rt_work_img']) ? $row['rt_work_img'] : getWorkingImg($row['rc_work']) ?></div>
+          <div class="wicon"><?= getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null) ?><?= isset($row['rt_work_img']) ? $row['rt_work_img'] : getWorkingImg($row['rc_work']) ?></div>
           <div class="title ellipsis"><?= $row['rc_name'] ?></div>
           <div class="summary">
             <p><?= $row['rc_nation_nm'] ?></p>

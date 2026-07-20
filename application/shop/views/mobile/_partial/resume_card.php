@@ -45,7 +45,7 @@ if (!empty($row['mm_birth'])) {
         </div> -->
         <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>
         <div class="desc">
-          <div class="wicon"><?= getWorkingImg($row['ru_work']) ?></div>
+          <div class="wicon"><?= getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null) ?><?= getWorkingImg($row['ru_work']) ?></div>
           <div class="title ellipsis"><?= $row['ru_name'] ?></div>
           <div class="summary">
             <ul class="working-day"><?= getWeekYoil($row['ru_week']) ?></ul>

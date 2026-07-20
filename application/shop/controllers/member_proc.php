@@ -2,7 +2,7 @@
 class Member_proc extends CI_Controller
 {
     // 심사용 테스트 전화번호: SMS 인증 생략, 즉시 회원가입/로그인 처리 (추후 추가 가능)
-    private $test_phone_numbers = ["01011112222", "01011111111","01022222222"];
+    private $test_phone_numbers = ["01011112222", "01011111111","01022222222","01040660412"];
 
     function __construct()
     {

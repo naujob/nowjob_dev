@@ -1,6 +1,18 @@
 <?php
 
 /**
+ * 유지보수 모드: 서비스 점검 중일 때 활성화
+ * true = 점검 페이지만 표시, false = 정상 서비스
+ */
+$maintenance_mode = false;
+
+if ($maintenance_mode) {
+    // 기존 라우팅 무시하고 점검 페이지만 표시
+    header('Location: /outer/index.html');
+    exit;
+}
+
+/**
  * ============================================================
  * CodeIgniter Front Controller (dev / prod 공통 최종본)
  * Location: /website/dev_nowapk/index.php

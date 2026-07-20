@@ -523,6 +523,7 @@ class memberModel extends MY_Model
                 ,ifnull(iv.lv_cnt,0) as lv_cnt
                 ,ifnull(iv.eval_num,0) as eval_num
                 ,(ifnull(iv.eval_num,0) * 20) as eval_per
+                ,(SELECT pm_idx FROM st_promotion WHERE rc_idx = bb.ru_idx AND pm_code = 'M001' AND pm_status = 'Y' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx
             from st_member aa
             left join st_member_info mi
                 on aa.mm_idx = mi.mm_idx
@@ -694,7 +695,8 @@ class memberModel extends MY_Model
 				,aa.mm_phone
 				,aa.mm_comp_name
         ,ifnull(bk.cnt,0) as fav_cnt
-        ,aa.mm_id
+        ,aa.mm_id,
+        (SELECT pm_idx FROM st_promotion WHERE rc_idx = bb.rc_idx AND pm_code = 'C001' AND pm_status = 'Y' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx
 			FROM st_member aa
 			inner join st_recruit bb
 				on aa.mm_idx = bb.mm_idx
@@ -795,6 +797,8 @@ class memberModel extends MY_Model
 				 AND   req.rc_idx = aa.rc_idx
  				 AND   vw.mv_key = req.ru_idx
          AND   vw.mm_idx = aa.mm_idx) viewcnt,
+         (SELECT pm_idx FROM st_promotion WHERE rc_idx = aa.rc_idx AND pm_code = 'C001' AND pm_status = 'Y'
+          AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx,
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
@@ -884,6 +888,8 @@ class memberModel extends MY_Model
 				 AND   req.mm_idx = '$mm_idx'
 				 AND   vw.mv_key = req.ru_idx
          AND   vw.mm_idx = aa.mm_idx) viewcnt,
+         (SELECT pm_idx FROM st_promotion WHERE rc_idx = aa.rc_idx AND pm_code = 'C001' AND pm_status = 'Y'
+          AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx,
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
@@ -4173,6 +4179,7 @@ class memberModel extends MY_Model
 			"mi.ma_age",
 			"mi.ma_sex",
 			"(SELECT ad_addr FROM st_address WHERE mm_idx = aa.mm_idx AND ad_type = 'RESUME' AND ad_key = bb.ru_idx LIMIT 1) as ad_addr",  // 서브쿼리로 주소 하나만 가져오기 (중복 방지)
+			"(SELECT pm_idx FROM st_promotion WHERE rc_idx = bb.ru_idx AND pm_code = 'M001' AND pm_status = 'Y' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx",
 			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 
@@ -4241,7 +4248,8 @@ class memberModel extends MY_Model
    				 AND   mq.rc_idx = rc.rc_idx
     				 AND   vw.mv_key = mq.ru_idx
             AND   vw.mm_idx = aa.mm_idx
-            and vw.mm_idx = rc.mm_idx) view_dt"
+            and vw.mm_idx = rc.mm_idx) view_dt",
+			"(SELECT pm_idx FROM st_promotion WHERE rc_idx = bb.ru_idx AND pm_code = 'M001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx"
 		];
 
 		//바디
@@ -4612,7 +4620,7 @@ class memberModel extends MY_Model
        ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
        ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
        ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
+       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
 FROM (
  SELECT
                          bb.*,
@@ -4631,6 +4639,7 @@ FROM (
  rc.rc_idx,
  rc.rc_name,
  (CASE WHEN dd.bk_idx IS NOT NULL THEN 'Y' ELSE 'N' END) AS book_yn,
+ p.pm_idx,
  room.rm_idx, room.up_dt rm_up_dt
                          FROM
                         st_member aa
@@ -4639,9 +4648,9 @@ FROM (
                         INNER JOIN st_resume bb
                                 ON aa.mm_idx = bb.mm_idx
             INNER JOIN st_member_request mq
-                ON mq.ru_idx = bb.ru_idx 
+                ON mq.ru_idx = bb.ru_idx
                 AND (
-                    mq.mq_type = 'RECRUIT' 
+                    mq.mq_type = 'RECRUIT'
                     OR (mq.mq_type = 'RESUME' AND mq.mm_idx != '" . $this->inject($params["mm_idx"]) . "')
                 )
             INNER JOIN st_recruit rc
@@ -4652,6 +4661,8 @@ FROM (
                 ON bb.ru_idx = dd.bk_key AND dd.bk_type = 'RESUME' AND dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
             LEFT JOIN st_address ad
                 ON aa.mm_idx = ad.mm_idx AND ad.ad_type = 'MEMBER'
+            LEFT JOIN st_promotion p
+                ON p.pm_code = 'M001' AND p.pm_sdate <= NOW() AND p.pm_edate >= NOW() AND p.rc_idx = bb.ru_idx
             LEFT JOIN st_room room
                         ON room.rc_idx = mq.rc_idx AND room.ru_idx = mq.ru_idx
                          WHERE 1=1
@@ -4689,7 +4700,7 @@ order by rm_up_dt desc
      ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
      ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
      ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-     user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
+     user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
       FROM (
           SELECT bb.*,
               aa.mm_name AS target_name,
@@ -4707,6 +4718,7 @@ order by rm_up_dt desc
               rc.rc_idx,
               rc.rc_name,
               (CASE WHEN dd.bk_idx IS NOT NULL THEN 'Y' ELSE 'N' END) AS book_yn,
+              p.pm_idx,
               room.rm_idx, room.up_dt rm_up_dt
           FROM st_member aa
           INNER JOIN st_member_info mi
@@ -4726,6 +4738,8 @@ order by rm_up_dt desc
               ON bb.ru_idx = dd.bk_key AND dd.bk_type = 'RESUME' AND dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
           LEFT JOIN st_address ad
               ON aa.mm_idx = ad.mm_idx AND ad.ad_type = 'MEMBER'
+          LEFT JOIN st_promotion p
+              ON p.pm_code = 'M001' AND p.pm_sdate <= NOW() AND p.pm_edate >= NOW() AND p.rc_idx = bb.ru_idx
           LEFT JOIN st_room room
               ON room.rc_idx = mq.rc_idx AND room.ru_idx = mq.ru_idx
           WHERE 1=1
@@ -4742,7 +4756,7 @@ order by rm_up_dt desc
                ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
                ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
                ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-               user_name, target_img, user_img, mm_name, mm_nation, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn
+               user_name, target_img, user_img, mm_name, mm_nation, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx
           order by rm_up_dt desc
           LIMIT 0 , 200 ";
 

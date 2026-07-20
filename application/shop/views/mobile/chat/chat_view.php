@@ -212,6 +212,7 @@
       var $c = tpl.innerHTML;
 
       $c = $c.replaceAll('{{ru_idx}}',        row.ru_idx        || '');
+      $c = $c.replaceAll('{{mm_idx}}',        row.mm_idx        || '');
       $c = $c.replaceAll('{{ru_resume_img}}', row.ru_resume_img || '');
       $c = $c.replaceAll('{{book_yn}}',       row.book_yn       || '');
       $c = $c.replaceAll('{{ru_work_img}}',   row.ru_work_img   || '');
@@ -339,6 +340,7 @@
                           'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
                           'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
                           'ru_recom_badge' => getRecomBadgeHtml(isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null),
+                          'pm_idx' => isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null,
                       ]);
                   ?>;
                 </script>

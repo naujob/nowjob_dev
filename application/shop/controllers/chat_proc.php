@@ -349,6 +349,8 @@ class Chat_proc extends CI_Controller
 				if (empty($row["rc_thumb"])) {
 					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
 				}
+				// 추천 뱃지 필드 추가
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 
 				// 회사명 조회 및 추가
 				if (!empty($row["mm_idx"])) {
@@ -811,6 +813,8 @@ class Chat_proc extends CI_Controller
 				$temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"], 0);
 				$temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"], 1);
 				$temp_list[$key]["ru_week"] = getWeekYoil($row["ru_week"]);
+				// 추천 뱃지 필드 추가
+				$temp_list[$key]["ru_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 				// 인재정보 필드 명시적으로 전달 (인재정보 표시용)
 				if (isset($row["ru_name"])) {
 					$temp_list[$key]["ru_name"] = $row["ru_name"];

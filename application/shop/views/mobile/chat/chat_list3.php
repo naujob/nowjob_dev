@@ -599,6 +599,7 @@ $top_bar = array(
                     $content = $content.replaceAll("{{ru_week}}", row.ru_week || "");
                     $content = $content.replaceAll("{{distance}}", (row.distance ? row.distance + "km" : ""));
                     $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
+                    $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
                     $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || "");
                     $content = $content.replaceAll("{{ma_age}}", row.ma_age || "");
                     $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
@@ -1218,6 +1219,7 @@ $top_bar = array(
                         $content = $content.replaceAll("{{ru_week}}", row.ru_week);
                         $content = $content.replaceAll("{{distance}}", row.distance + "km");
                         $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
+                        $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || "");
                         $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
                         $content = $content.replaceAll("{{ma_age}}", row.ma_age);
                         $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type);
@@ -1413,7 +1415,7 @@ $top_bar = array(
 </template>
 <!-- 제안한 인재탭의 인재 템플릿 -->
 <template id="tpl_chat_by_recruite">
-    <li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}">
+    <li class="list-item msg-item aa room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}">
         <a href="#" class="angle-link js-open-view angle-link-resume"
             aria-haspopup="dialog"
             data-ru_idx="{{ru_idx}}"
@@ -1432,7 +1434,7 @@ $top_bar = array(
                     <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
                 </div> -->
                 <div class="desc">
-                    <div class="wicon">{{ru_work_img}}</div>
+                    <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
                     <div class="title ellipsis">{{ru_name}}</div>
 
                     <div class="summary">

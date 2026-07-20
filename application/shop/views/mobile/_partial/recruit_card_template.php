@@ -30,7 +30,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
           </div> -->
           <div class="desc">
             <div class="wicon">
-              {{rt_work_img}}{{rt_recom_badge}}
+              {{rt_recom_badge}}{{rt_work_img}}
             </div>
             <div class="title ellipsis">{{rc_name}}</div>
             <div class="summary">
