@@ -4041,12 +4041,13 @@ class memberModel extends MY_Model
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by);
 	}
 
+	// 주소 배열을 받아서 LIKE 조건을 생성하는 함수
 	function make_addr_like_condition($column, $addr_array)
 	{
 		if (empty($addr_array) || !is_array($addr_array)) return "";
 
-		$conditions = array_map(function ($addr) use ($column) {
-			return "$column LIKE '%" . addslashes($addr) . "%'";
+		$conditions = array_map(function ($addr) use ($column) { // ["지정된컬럼 LIKE '%서울%'", "지정된컬럼 LIKE '%부산%'"]
+			return "$column LIKE '%" . addslashes($addr) . "%'"; // implode는 흩어져 있는 목록을 하나의 글자로 합쳐주는 함수  (address_home LIKE '%서울%' OR address_home LIKE '%부산%')
 		}, $addr_array);
 
 		return " (" . implode(" OR ", $conditions) . ") ";

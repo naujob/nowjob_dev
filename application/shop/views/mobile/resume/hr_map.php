@@ -606,13 +606,11 @@
     if (!work_type) {
       return "";
     }
-    const matches = work_type.match(/<span>(.*?)<\/span>/g);
 
-    if (!matches) {
-      return "";
-    }
-    return matches.map(item => {
-      const text = item.replace(/<\/?span>/g, '').trim();
+    // 쉼표로 구분된 문자열 처리
+    const types = work_type.split(',').map(item => item.trim()).filter(item => item);
+
+    return types.map(text => { // map:배열(Array)의 각 요소를 → 다른 값으로 변환하는 함수
       let cls = '';
       if (text === '주간') {
         cls = 'wtype1';
@@ -622,7 +620,7 @@
         cls = 'wtype3';
       }
       return `<em class="${cls}">${text}</em>`;
-    }).join('');
+    }).join(''); // join:배열(Array)을 → 하나의 문자열(String)로 합치는 함수
   }
 
   $(document).on('click', '.content-li', function(e) {

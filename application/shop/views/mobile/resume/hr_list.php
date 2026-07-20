@@ -14,6 +14,12 @@ $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
 $initial_reco = isset($initial_reco) ? $initial_reco : [];
 ?>
 <style>
+    /* iOS WKWebView 바운스(고무줄) 스크롤 방지 */
+    html,
+  body {
+    overscroll-behavior-y: none;
+  }
+
   /* .pricetype  em {
     font-style: normal;
     position: relative;
@@ -634,7 +640,12 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
                         <p><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
                         <p><?= $row['ad_addr'] ?></p>
                       </div>
-                      <div class="summary3"><p class="worktype"><?= $row['ru_work_type'] ?></p></div>
+                      <div class="summary3">
+                        <p class="worktype"><?= $row['ru_work_type'] ?></p>
+                        <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>">
+                          <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
+                        </div>
+                      </div>
                       <div class="summary2"><p class="pricetype"><?= $row['ru_price_type'] ?></p></div>
                     </div>
                   </div>
@@ -1021,6 +1032,7 @@ $tpl_show_mm_idx = true; ?>
       $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
       $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || '');
       $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || '');
+      $content = $content.replaceAll("{{has_chat}}", row.chat_rm_idx ? "true" : "false");
 
       $(list_id).append($content);
     });

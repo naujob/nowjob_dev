@@ -13,6 +13,12 @@ $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
 $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 ?>
 <style>
+  /* iOS WKWebView 바운스(고무줄) 스크롤 방지 */
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+
   .page-content {
     background: #fff;
   }

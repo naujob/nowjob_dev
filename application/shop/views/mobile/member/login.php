@@ -1622,6 +1622,9 @@ window.onload = function() {
         commonAlert("인증번호를 발송하였습니다.", function() {
           location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
         });
+      } else if (ret.code == "90") {
+        // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
+        commonAlert(ret.msg || "회원가입이 필요합니다.", function() {});
       } else if (ret.code == "98" || ret.code == "99") {
         commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
       } else {

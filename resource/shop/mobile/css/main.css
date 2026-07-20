@@ -13,7 +13,7 @@
     --result-card-badge-padding: 3px;
     --result-card-badge-radius: 3px;
 }
-
+    
 /* 공통: 버튼/링크 눌림 표시 제거 */
 a,
 button,
@@ -7123,6 +7123,22 @@ form#frm {
     height: 0.5em;
     margin: auto;
     border-right: 1px solid #777777;
+}
+
+.result-list-card .content-info .summary3 .chat_mark {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.result-list-card .content-info .summary3 .chat_mark img {
+    width: 20px;
+    height: 20px;
+}
+
+.result-list-card .content-info .summary3 .chat_mark[data-visible="false"] {
+    display: none;
 }
 
 .result-list-card .list-item+.list-item {

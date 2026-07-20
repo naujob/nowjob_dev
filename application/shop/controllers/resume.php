@@ -92,6 +92,11 @@ class Resume extends CI_Controller
     // 초기 데이터 포맷팅
     if ($use_server_render) {
       $initial_resumes = $this->_formatResumeList($initial_resumes);
+
+      // 기업회원인 경우 채팅방 정보 추가
+      if ($this->user->getUserType() == "COMP") {
+        $initial_resumes = $this->_addChatRoomInfo($initial_resumes);
+      }
     }
 
     // 전체 이력서 개수 조회 (실시간 쿼리)
@@ -178,7 +183,8 @@ class Resume extends CI_Controller
         'ru_week' => getWeekYoil($ru_week),
         'mm_nation' => $mm_nation,
         'mm_age' => getKoreanAge($mm_birth),
-        'ad_addr' => removeBigAddr($ad_addr)
+        'ad_addr' => removeBigAddr($ad_addr),
+        'chat_rm_idx' => ''
       ];
     }
     return $formatted_list;
@@ -220,6 +226,54 @@ class Resume extends CI_Controller
       ];
     }
     return $formatted_list;
+  }
+
+  // 기업회원 대상 각 인재별 채팅방 정보 추가
+  private function _addChatRoomInfo($list)
+  {
+    if (empty($list)) {
+      return $list;
+    }
+
+    // 인재 idx 배열 생성
+    $ru_idxs = [];
+    foreach ($list as $row) {
+      $ru_idxs[] = $row['ru_idx'];
+    }
+
+    // st_member_request + st_room 배치 조회
+    // 각 인재에 대해 현재 로그인한 기업(mm_idx)과의 최근 지원/제안 이력을 조회해 채팅방 확인
+    $chat_rooms = $this->db->query("
+      SELECT
+        mr.ru_idx,
+        mr.rc_idx,
+        r.rm_idx
+      FROM st_member_request mr
+      LEFT JOIN st_room r ON r.rc_idx = mr.rc_idx AND r.ru_idx = mr.ru_idx
+      WHERE mr.ru_idx IN (" . implode(',', array_fill(0, count($ru_idxs), '?')) . ")
+        AND (
+          (mr.mq_type = 'RESUME' AND mr.mm_idx = ?)
+          OR (mr.mq_type = 'RECRUIT' AND mr.rc_idx IN (
+            SELECT rc_idx FROM st_recruit WHERE mm_idx = ?
+          ))
+        )
+      ORDER BY mr.ru_idx, mr.mq_idx DESC
+    ", array_merge($ru_idxs, [$this->mm_idx, $this->mm_idx]))->result_array();
+
+    // 결과를 ru_idx 기준으로 매핑 (최신 이력만 사용)
+    $room_map = [];
+    foreach ($chat_rooms as $room) {
+      if (!isset($room_map[$room['ru_idx']])) {
+        $room_map[$room['ru_idx']] = isset($room['rm_idx']) ? $room['rm_idx'] : '';
+      }
+    }
+
+    // 목록에 chat_rm_idx 추가
+    foreach ($list as &$row) {
+      $row['chat_rm_idx'] = isset($room_map[$row['ru_idx']]) ? $room_map[$row['ru_idx']] : '';
+    }
+
+    return $list;
   }
 
   function hr_map()

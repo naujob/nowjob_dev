@@ -70,8 +70,8 @@ function formatPhoneNumber($number)
         content: "";
         position: absolute;
         top: 15px;
-        right: 38px;
-        bottom: 30px;
+        right: 48%;
+        bottom: 43%;
         width: 1px;
         height: 0.8em;
         margin: auto;

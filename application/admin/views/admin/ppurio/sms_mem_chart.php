@@ -163,7 +163,7 @@
 <div class="admin_main">
 	<div class="sms-chart-page">
 		<div class="sms-chart-header">
-			<h3>차원별 발송 추이</h3>
+			<h3>카테고리별 발송 추이</h3>
 			<a href="/admin/ppurio/sms_mem_reslut">목록으로</a>
 		</div>
 

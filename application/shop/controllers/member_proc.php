@@ -2,7 +2,7 @@
 class Member_proc extends CI_Controller
 {
     // 심사용 테스트 전화번호: SMS 인증 생략, 즉시 회원가입/로그인 처리 (추후 추가 가능)
-    private $test_phone_numbers = ["01011112222", "01011111111","01022222222","01040660412"];
+    private $test_phone_numbers = ["01011112222", "01011111111","01022222222"];
 
     function __construct()
     {
@@ -1557,7 +1557,20 @@ class Member_proc extends CI_Controller
             return;
         }
 
-        // SMS 발송 (미가입/가입 상관없이 모든 번호에 발송)
+        // 가입 여부 확인 (미가입 회원은 SMS 발송 전에 회원가입 안내)
+        $query = "SELECT mm_idx FROM st_member
+                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
+                  AND mm_status = 'Y'
+                  LIMIT 1";
+        $result = $this->db->query($query);
+        $existing_member = $result->row_array();
+
+        if ($existing_member == null) {
+            json_return("90", "회원가입이 필요합니다.");
+            return;
+        }
+
+        // SMS 발송 (가입된 회원만 발송)
         $count_result = $this->site_model->checkSmsSendCount($phone, "휴대폰로그인인증");
 
         if ($count_result["code"] != "00") {
