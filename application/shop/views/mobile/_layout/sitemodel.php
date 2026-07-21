@@ -326,7 +326,7 @@ class siteModel extends MY_Model {
 			if($sms["sl_auth"]==$auth){
 				return ["code"=>"00","msg"=>"확인완료"];
 			}else{
-				return ["code"=>"90","msg"=>"잘못된 인증번호입니다."];
+				return ["code"=>"92","msg"=>"잘못된 인증번호입니다."];
 			}
 		}
 	}

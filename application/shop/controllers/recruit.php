@@ -369,7 +369,8 @@ class Recruit extends CI_Controller
       "sl_type" => "SEARCH_RECRUIT",
       "sl_step" => "검색"
     ]);
-
+    
+// 여기서 멈춰서 결과만 확인
     if ($site_log == null) {
       if ($this->user->isLogin()) {
         $site_log = $this->site_model->getSiteLog([

@@ -46,7 +46,7 @@ $tpl_show_mm_idx  = isset($tpl_show_mm_idx)  ? (bool)$tpl_show_mm_idx  : false;
             <div class="summary3">
               <p class="worktype">{{ru_work_type}}</p>
               <div class="chat_mark" data-visible="{{has_chat}}">
-                <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
+                <img src="/resource/shop/mobile/img/phone.png" alt="채팅 이력">
               </div>
             </div>
             <div class="summary2">

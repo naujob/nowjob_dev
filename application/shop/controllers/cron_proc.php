@@ -48,16 +48,16 @@ class Cron_proc extends CI_Controller
 
             // 2차 알림 시각인 경우 신규 채팅방 + N일 주기 재발송
             if ($is_alarm2 && !$is_alarm1) {
-                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방 + N일 주기 재발송 (날짜 기준)
+                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방 + N일 후 1회 재발송 (날짜 기준)
                 $alarm_time_hm = $setting['comp_apply_alarm1_time'];
                 $time_where = "
                   AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
-                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
+                  AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
             } else {
-                // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준)
+                // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준) - 1회 재발송만 수행
                 $time_where = "
-                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
+                  AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
             }
 
@@ -208,16 +208,16 @@ class Cron_proc extends CI_Controller
 
             // 2차 알림 시각인 경우 신규 채팅방 + N일 주기 재발송
             if ($is_alarm2 && !$is_alarm1) {
-                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방 + N일 주기 재발송 (날짜 기준)
+                // 2차: 오늘 1차 알림시간 이후 새로 생긴 채팅방 + N일 후 1회 재발송 (날짜 기준)
                 $alarm_time_hm = $setting['mem_apply_alarm1_time'];
                 $time_where = "
                   AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
-                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
+                  AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
             } else {
-                // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준)
+                // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준) - 1회 재발송만 수행
                 $time_where = "
-                  AND (s.as_idx IS NULL OR DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY))
+                  AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
             }
 

@@ -138,7 +138,7 @@
                 params["pm_idx"] = idx;
 
                 comAjax("/admin/member/promotion_close",params,function(ret){
-                    console.log(ret);
+                   
                     if(ret.code=="00"){
                         location.reload();
                     }else{
@@ -232,7 +232,7 @@
        params["ad_addr"] = addr;
        params["ad_gps_x"] = x;
        params["ad_gps_y"] = y;
-       console.log(addr);
+      
        $('#ad_addr1').val(addr);
        //$('#changeArea').removeClass('on');
        $('#changeArea').hide();
@@ -373,10 +373,10 @@
      params["mm_idx"] = $('#mm_idx').val();
      params["ad_point"] = $('#ad_point').val();
 
-     console.log(params);
+     
      //alert('ajax');
      comAjax("/admin/member/point_promotion",params,function(ret){
-         console.log(ret);
+       
          //alert(ret);
          if(ret.code=="00"){
              location.reload();

@@ -26,6 +26,7 @@ if ($this->user->getUserType() == "MEM") {
   .main-visual {
     height: 180px;
     overflow: hidden;
+        margin-top: 40px;
   }
 
   .main-visual-header {

@@ -2225,7 +2225,7 @@ fieldset {
     border-bottom: none;
 }
 .secondary-title {
-    margin: 1.3rem 0px 1.1rem;
+    margin: 3.3rem 0px 1.1rem;
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.1;
@@ -5218,6 +5218,7 @@ body {
 .section:only-child,
 .section.is-last {
     border-bottom: 0;
+        margin-top: 10px;
 }
 .section .container.settings-profile {
     padding-top: 1rem;
@@ -7133,10 +7134,17 @@ form#frm {
 }
 
 .result-list-card .content-info .summary3 .chat_mark img {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
 }
-
+.result-list-card .content-info .summary-with-chat .chat_mark {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    flex: 1;
+}
 .result-list-card .content-info .summary3 .chat_mark[data-visible="false"] {
     display: none;
 }

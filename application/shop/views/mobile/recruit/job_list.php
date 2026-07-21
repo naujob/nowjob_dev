@@ -11,6 +11,7 @@ $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_recruits = isset($initial_recruits) ? $initial_recruits : ['list' => []];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
 $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
+
 ?>
 <style>
   /* iOS WKWebView 바운스(고무줄) 스크롤 방지 */

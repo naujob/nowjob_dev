@@ -448,8 +448,8 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
   }
 
   .result-list-card .content-info .summary-with-chat .chat_mark img {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
   }
 
   .result-list-card .content-info .summary-with-chat .chat_mark[data-visible="false"] {
@@ -673,7 +673,8 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
                           <p><?= $row['ad_addr'] ?></p>
                         </div>
                         <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>">
-                          <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
+                          <!-- <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력"> -->
+                          <img src="/resource/shop/mobile/img/phone.png" alt="채팅 이력">
                         </div>
                       </div>
                       <div class="summary3">
