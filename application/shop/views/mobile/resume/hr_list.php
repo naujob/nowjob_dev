@@ -426,31 +426,16 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
   }
 
   /* summary와 chat_mark를 나란히 배치 */
-  .result-list-card .content-info .summary-with-chat {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-  }
+ 
 
   .result-list-card .content-info .summary-with-chat .summary {
     
     min-width: 0;
   }
 
-  .result-list-card .content-info .summary-with-chat .chat_mark {
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    flex: 1;
-  }
+ 
 
-  .result-list-card .content-info .summary-with-chat .chat_mark img {
-    width: 30px;
-    height: 30px;
-  }
+  
 
   .result-list-card .content-info .summary-with-chat .chat_mark[data-visible="false"] {
     display: none;

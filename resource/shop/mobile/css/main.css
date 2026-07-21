@@ -13454,3 +13454,20 @@ form#frm {
     display: inline-block;
 }
 
+.result-list-card .content-info .summary-with-chat{
+        display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+.result-list-card .content-info .summary-with-chat .chat_mark{
+        display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    flex: 1;
+}
+.result-list-card .content-info .summary-with-chat .chat_mark img {
+    width: 30px;
+    height: 30px;
+}

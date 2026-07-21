@@ -38,16 +38,19 @@ $tpl_show_mm_idx  = isset($tpl_show_mm_idx)  ? (bool)$tpl_show_mm_idx  : false;
             <div class="summary">
               <ul class="working-day">{{ru_week}}</ul>
             </div>
-            <div class="summary">
-              <p>{{mm_nation}}</p>
-              <p>{{ma_age}}</p>
-              <p>{{ad_addr}}</p>
+            <div class="summary-with-chat">
+              <div class="summary">
+                <p>{{mm_nation}}</p>
+                <p>{{ma_age}}</p>
+                <p>{{ad_addr}}</p>
+              </div>
+              <div class="chat_mark" data-visible="{{has_chat}}">
+                  <img src="/resource/shop/mobile/img/phone.png" alt="채팅 이력">
+              </div>
             </div>
             <div class="summary3">
               <p class="worktype">{{ru_work_type}}</p>
-              <div class="chat_mark" data-visible="{{has_chat}}">
-                <img src="/resource/shop/mobile/img/phone.png" alt="채팅 이력">
-              </div>
+              
             </div>
             <div class="summary2">
               <p class="pricetype">{{ru_price_type}}</p>
