@@ -5208,7 +5208,7 @@ body {
 
 .section {
     position: relative;
-    border-bottom: 1px solid #E5E5E5;
+    
     background: #fff;
     
 }
@@ -11963,6 +11963,9 @@ form#frm {
 
 .options-list {
     list-style: none;
+}
+.options-list:nth-child(2) {
+    margin-top: 20px;
 }
 
 .options-list>li {

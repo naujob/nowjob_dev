@@ -131,12 +131,19 @@ if ($this->user->getUserType() == "MEM") {
     border-radius: 999px;
     white-space: nowrap;
     font-weight: 500;
-        position: relative;
+    position: relative;
     left: 30px;
     padding-top: 4px;
     padding-bottom: 4px;
     padding-left: 14px;
     padding-right: 30px;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .main-visual-header .ai-match-label:hover {
+    opacity: 0.9;
   }
 
   .main-visual-header .profile-icon {
@@ -168,16 +175,19 @@ if ($this->user->getUserType() == "MEM") {
 
   <?php
   $profile_url = '/member/login';
+  $match_url = '/member/login';
   if ($this->user->getUserType() == "COMP") {
     $profile_url = '/compage/index';
+    $match_url = '/compage/match_list';
   } else if ($this->user->getUserType() == "MEM") {
     $profile_url = '/mypage/index';
+    $match_url = '/mypage/match_list';
   }
   ?>
 
   <div class="profile-menu" data-badge="<?= $has_new_match ? 'true' : 'false' ?>">
     <?php if ($has_new_match) : ?>
-      <span class="ai-match-label">A.I 매칭리스트</span>
+      <a href="<?= $match_url ?>" class="ai-match-label">A.I 매칭리스트</a>
     <?php endif; ?>
     <a href="<?= $profile_url ?>" class="profile-icon" aria-label="프로필">
       <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">

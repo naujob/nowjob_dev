@@ -425,6 +425,37 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
     display: block;
   }
 
+  /* summary와 chat_mark를 나란히 배치 */
+  .result-list-card .content-info .summary-with-chat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+  }
+
+  .result-list-card .content-info .summary-with-chat .summary {
+    
+    min-width: 0;
+  }
+
+  .result-list-card .content-info .summary-with-chat .chat_mark {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    flex: 1;
+  }
+
+  .result-list-card .content-info .summary-with-chat .chat_mark img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .result-list-card .content-info .summary-with-chat .chat_mark[data-visible="false"] {
+    display: none;
+  }
+
   /* Google AdSense 인피드 광고 스타일 */
   .ad-item-adsense {
     list-style: none;
@@ -635,16 +666,18 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
                       <div class="summary">
                         <ul class="working-day"><?= $row['ru_week'] ?></ul>
                       </div>
-                      <div class="summary">
-                        <p><?= $row['mm_nation'] ?></p>
-                        <p><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
-                        <p><?= $row['ad_addr'] ?></p>
-                      </div>
-                      <div class="summary3">
-                        <p class="worktype"><?= $row['ru_work_type'] ?></p>
+                      <div class="summary-with-chat">
+                        <div class="summary">
+                          <p><?= $row['mm_nation'] ?></p>
+                          <p><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
+                          <p><?= $row['ad_addr'] ?></p>
+                        </div>
                         <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>">
                           <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
                         </div>
+                      </div>
+                      <div class="summary3">
+                        <p class="worktype"><?= $row['ru_work_type'] ?></p>
                       </div>
                       <div class="summary2"><p class="pricetype"><?= $row['ru_price_type'] ?></p></div>
                     </div>

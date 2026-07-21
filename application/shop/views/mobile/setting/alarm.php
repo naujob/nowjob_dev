@@ -13,7 +13,7 @@
                         <div class="options-list">
                             <div class="top">
                                 <span class="label">
-                                    <strong>전체 알림</strong>
+                                    <strong>알림</strong>
                                     <small>전체푸시 알림을 받습니다.</small>
                                 </span>
                                 <span class="value">
@@ -27,21 +27,10 @@
                             <!-- 하위 옵션 목록 -->
                             <ul id="pushOpt" class="options-list" <?=$alarm_all_checked=="checked" ? "":"hidden"?>>
                                 <li>
-                                    <span class="label">채팅메세지 알림</span>
+                                    <span class="label">채팅</span>
                                     <span class="value">
                                         <label class="btn-toggle">
                                             <input type="checkbox" name="alarm_chat" value="Y" <?=$mem_info["alarm_chat"]=="Y" ? "checked":""?>>
-                                            <span class="btn"></span>
-                                        </label>
-                                    </span>
-                                </li>
-                                <li>
-                                    <span class="label">
-                                        <?= ($mem_info["mm_type"] == "COMP") ? "이력서 매칭 알림" : "채용공고 매칭 알림" ?>
-                                    </span>
-                                    <span class="value">
-                                        <label class="btn-toggle">
-                                            <input type="checkbox" name="alarm_resume" value="Y" <?=$mem_info["alarm_resume"]=="Y" ? "checked":""?>>
                                             <span class="btn"></span>
                                         </label>
                                     </span>
@@ -90,6 +79,23 @@
                             </ul>
                         </div>
                         <!-- //옵션목록 -->
+
+                        <!-- AI 매칭 독립 옵션 -->
+                        <div class="options-list">
+                            <div class="top">
+                                <span class="label">
+                                    <strong>AI 매칭</strong>
+                                    <small>AI 추천 매칭 알림을 받습니다.</small>
+                                </span>
+                                <span class="value">
+                                    <label class="btn-toggle">
+                                        <input type="checkbox" name="alarm_resume" value="Y" <?=$mem_info["alarm_resume"]=="Y" ? "checked":""?>>
+                                        <span class="btn"></span>
+                                    </label>
+                                </span>
+                            </div>
+                        </div>
+                        <!-- //AI 매칭 -->
 
                     </div>
                 </div>
@@ -198,7 +204,7 @@
     	$("[name=alarm_all]").click(function(){
     		var check = $(this).is(":checked");
     		$("[name=alarm_chat]").prop("checked",check);
-    		$("[name=alarm_resume]").prop("checked",check);
+    		// AI 매칭은 독립적으로 제어되므로 제외
     		// $("[name=alarm_fav]").prop("checked",check);  // 관심등록 알림 - 사용 안함 (주석처리)
     		$("[name=alarm_apply]").prop("checked",check);
     		$("[name=alarm_adv]").prop("checked",check);

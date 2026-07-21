@@ -1,8 +1,8 @@
 /* 카카오 채널 발송 가로 테이블 */
 .table-katalk {
-    
     border: 1px solid #d9dee3;
-    table-layout: fixed;
+    table-layout: auto;
+    width: fit-content;
 }
 
 .table-katalk th {
@@ -83,4 +83,48 @@
 
 .table-katalk td.narrow-cell {
     width: 400px;
+}
+
+/* 기업/개인회원 탭 버튼 */
+.ppurio-tab {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.ppurio-tab a {
+    display: inline-block;
+    padding: 10px 24px;
+    border: 1px solid #d9dee3;
+    border-radius: 4px;
+    background: #fff;
+    color: #666;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+}
+
+.ppurio-tab a.on {
+    background: #4a7dfc;
+    border-color: #4a7dfc;
+    color: #fff;
+}
+
+
+
+/* 두 번째 th 배경색 흰색 */
+.table-katalk th:nth-of-type(n+2) {
+    background: #fff !important;
+}
+
+/* 홀수 td 배경색 */
+.table-katalk td:nth-child(odd) {
+    background: #f4f5f7;
+}
+.table-katalk input {
+    background:#f4f5f7;
+}
+a:focus {
+    outline: none;
 }
