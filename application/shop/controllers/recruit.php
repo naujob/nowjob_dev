@@ -479,6 +479,7 @@ class Recruit extends CI_Controller
   // 채용공고 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
   private function _formatRecruitList($list)
   {
+    $truncate_length = getTruncateLength();
     $formatted_list = [];
     foreach ($list as $row) {
       $rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
@@ -496,7 +497,7 @@ class Recruit extends CI_Controller
         'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
         'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
         'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
-        'rc_name' => (mb_strlen($row['rc_name']) > 18) ? mb_substr($row['rc_name'], 0, 18) . '...' : $row['rc_name'],
+        'rc_name' => (mb_strlen($row['rc_name']) > $truncate_length) ? mb_substr($row['rc_name'], 0, $truncate_length) . '...' : $row['rc_name'],
         'rt_recruit_img' => getRecruitImg($row),
         'rt_work_img' => getWorkingImg($rc_work),
         'rt_work_type' => getWorkTypeWithColor($rc_work_type),

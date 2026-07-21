@@ -392,6 +392,8 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getRecruitRecoList($params);
 
+		$truncate_length = getTruncateLength();
+
 		$temp_list = $result["list"];
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
@@ -404,9 +406,9 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 			// 서버사이드 주소 변환 (큰 시/도 제거)
 			$temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
-			// 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
-			if (mb_strlen($row["rc_name"]) > 18) {
-				$temp_list[$key]["rc_name"] = mb_substr($row["rc_name"], 0, 18) . '...';
+			// 서버사이드 제목 정규화 (모바일 30글자, PC 50글자 - 멀티바이트 안전)
+			if (mb_strlen($row["rc_name"]) > $truncate_length) {
+				$temp_list[$key]["rc_name"] = mb_substr($row["rc_name"], 0, $truncate_length) . '...';
 			}
 		}
 		$result["list"] = $temp_list;
@@ -466,14 +468,12 @@ class Recruit_proc extends CI_Controller
 			$result = $this->recruit_model->getRecruitList($params);
 
 			if (!is_array($result)) {
-			
+
 				json_return("99", "데이터 조회 실패(반환값 오류)");
 				return;
 			}
 
-			// PC/모바일 구분하여 제목 길이 설정
-			$isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
-			$truncate_length = $isMobile ? 18 : 50;
+			$truncate_length = getTruncateLength();
 
 			if (!is_array($result["list"])) {
 				

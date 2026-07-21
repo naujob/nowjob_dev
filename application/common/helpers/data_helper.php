@@ -1428,3 +1428,13 @@ function getWorkTypeFirst($work_type)
 
 	return '<em class="' . $cls . '">' . $text . '</em>';
 }
+
+/**
+ * 모바일/PC 구분하여 제목 길이 반환
+ * @return int 모바일은 25, PC는 50
+ */
+function getTruncateLength()
+{
+	$isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
+	return $isMobile ? 25 : 50;
+}

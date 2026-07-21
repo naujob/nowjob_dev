@@ -587,40 +587,7 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
           letter-spacing: -2px;
         }
 
-        /* 페이지네이션 스타일 */
-        .pagination-wrapper {
-          display: none;
-          justify-content: center;
-          align-items: center;
-          gap: 5px;
-          margin: 20px 0;
-          padding: 10px 0;
-        }
-
-        .pagination-wrapper.visible {
-          display: flex;
-        }
-
-        .pagination-wrapper button {
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          background: #fff;
-          color: #333;
-          cursor: pointer;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-
-        .pagination-wrapper button.active {
-          background: #1B9D7D;
-          color: #fff;
-          border-color: #1B9D7D;
-        }
-
-        .pagination-wrapper button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
+       
       </style>
       <div class="container">
         <h2 class="secondary-title">인재정보</h2>
@@ -628,9 +595,6 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
           <?php if ($use_server_render && isset($initial_resumes)) {
             foreach ($initial_resumes as $row) {
               $mm_name = isset($row['ru_name']) ? $row['ru_name'] : '';
-              if (mb_strlen($mm_name) > 18) {
-                $mm_name = mb_substr($mm_name, 0, 18) . '...';
-              }
               $is_recomm = !empty($row['pm_idx']);
           ?>
             <li class="list-item">
@@ -659,7 +623,7 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
                         </div>
                         <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>">
                           <!-- <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력"> -->
-                          <img src="/resource/shop/mobile/img/phone.png" alt="채팅 이력">
+                          <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
                         </div>
                       </div>
                       <div class="summary3">
@@ -696,7 +660,8 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
 
 <?php $tpl_id = 'tpl_list';
 $tpl_recomm_class = true;
-$tpl_show_mm_idx = true; ?>
+$tpl_show_mm_idx = true;
+$tpl_show_chat_mark = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
 
 <template id="tpl_category">
@@ -918,7 +883,7 @@ $tpl_show_mm_idx = true; ?>
         total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
       }
       total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
-      renderPagination();
+      renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
       // 광고 삽입
       if (initialListCount > 0) {
@@ -1005,7 +970,7 @@ $tpl_show_mm_idx = true; ?>
           total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
 
           showBoardList(ret.data.list);
-          renderPagination();
+          renderPagination("#paginationWrapper", list_page, total_pages, list_id);
           updateTopSectionsVisibility();
         } else {
 
@@ -1213,36 +1178,6 @@ $tpl_show_mm_idx = true; ?>
     }
   }
 
-  // 페이지네이션 버튼 렌더링
-  function renderPagination() {
-    var $wrapper = $("#paginationWrapper");
-    // 데이터가 아예 없을 때만 숨김 (초기 렌더링된 데이터는 존재 가능)
-    if (total_count === 0 && $(list_id).find("li").length === 0) {
-      $wrapper.removeClass('visible').html('');
-      return;
-    }
-
-    var html = ''; //  버튼들을 문자열로 만들어서 한 번에 렌더링하기 위해 초기화
-    // 이전 버튼
-    html += '<button data-page="' + (list_page - 1) + '"' +
-      (list_page <= 1 ? ' disabled' : '') + '>◀ 이전</button>';
-
-    // 페이지 번호 (최대 5개 표시, 현재 페이지 중심)
-    var startPage = Math.max(1, list_page - 2);
-    var endPage = Math.min(total_pages, startPage + 4);
-    startPage = Math.max(1, endPage - 4);
-
-    for (var i = startPage; i <= endPage; i++) {
-      html += '<button data-page="' + i + '"' +
-        (i === list_page ? ' class="active"' : '') + '>' + i + '</button>';
-    }
-
-    // 다음 버튼
-    html += '<button data-page="' + (list_page + 1) + '"' +
-      (list_page >= total_pages ? ' disabled' : '') + '>다음 ▶</button>';
-
-    $wrapper.html(html).addClass('visible');
-  }
 
   // 페이지 이동 함수
   // page: 이동할 페이지 번호
@@ -1734,3 +1669,6 @@ $tpl_show_mm_idx = true; ?>
     }
   };
 </script>
+
+<!-- 페이지네이션 헬퍼 스크립트 -->
+<?= getCashJs(RES_PATH . "/js/pagination-helper.js") ?>

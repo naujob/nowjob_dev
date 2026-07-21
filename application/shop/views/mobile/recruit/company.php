@@ -390,6 +390,7 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
       $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
       $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || "");
       $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || "");
+      $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
 
       $clone.html($content);
       $(list_id).append($clone.html());

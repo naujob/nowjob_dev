@@ -461,39 +461,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
     background-color: transparent;
   }
 
-  .pagination-wrapper {
-    display: none;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    margin: 20px 0;
-    padding: 10px 0;
-  }
-
-  .pagination-wrapper.visible {
-    display: flex;
-  }
-
-  .pagination-wrapper button {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    background: #fff;
-    color: #333;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-
-  .pagination-wrapper button.active {
-    background: #1B9D7D;
-    color: #fff;
-    border-color: #1B9D7D;
-  }
-
-  .pagination-wrapper button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+ 
 </style>
 
 <!-- Google AdSense 인피드 광고 스크립트 -->
@@ -851,7 +819,7 @@ $tpl_recomm_class = true; ?>
 
           showBoardList(ret.data.list);
 
-          renderPagination();
+          renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
           updateTopSectionsVisibility();
         }
@@ -882,9 +850,6 @@ $tpl_recomm_class = true; ?>
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
           $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
           var rc_name = row.rc_name;
-          if (rc_name && rc_name.length > 18) {
-            rc_name = rc_name.substring(0, 18) + '...';
-          }
           $content = $content.replaceAll("{{rc_name}}", rc_name);
           $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
           $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
@@ -982,41 +947,6 @@ $tpl_recomm_class = true; ?>
     }
   }
 
-  // 페이지네이션 렌더링
-  function renderPagination() {
-    var $wrapper = $("#paginationWrapper");
-    var listItemCount = $(list_id).find("li").length;
-
-    // 데이터 없음: 숨김
-    if (total_count === 0 && listItemCount === 0) {
-      $wrapper.removeClass('visible').html('');
-      return;
-    }
-
-    // 페이지네이션 HTML 생성 (data-page 속성으로 변경)
-    var html = '<button data-page="' + (list_page - 1) + '" ' +
-      (list_page <= 1 ? 'disabled' : '') + '>◀ 이전</button>';
-
-    var startPage = Math.max(1, list_page - 2);
-    var endPage = Math.min(total_pages, startPage + 4);
-    startPage = Math.max(1, endPage - 4);
-
-    for (var i = startPage; i <= endPage; i++) {
-      var isActive = (i === list_page) ? ' class="active"' : '';
-      html += '<button data-page="' + i + '"' + isActive + '>' + i + '</button>';
-    }
-
-    html += '<button data-page="' + (list_page + 1) + '" ' +
-      (list_page >= total_pages ? 'disabled' : '') + '>다음 ▶</button>';
-
-    // HTML 설정 및 표시
-    $wrapper.html(html);
-
-    // CSS 클래스로 표시
-    setTimeout(function() {
-      $wrapper.addClass('visible');
-    }, 0);
-  }
 
   // 페이지네이션 버튼 클릭 이벤트 (이벤트 위임)
   function goPage(page) {
@@ -1083,7 +1013,7 @@ $tpl_recomm_class = true; ?>
         insertAdsenseAd();
       }
 
-      renderPagination();
+      renderPagination("#paginationWrapper", list_page, total_pages, list_id);
       showEmpty();
       updateTopSectionsVisibility();
     } else {
@@ -1811,6 +1741,9 @@ $tpl_recomm_class = true; ?>
     }
   };
 </script>
+
+<!-- 페이지네이션 헬퍼 스크립트 -->
+<?= getCashJs(RES_PATH . "/js/pagination-helper.js") ?>
 
 <!-- app 인터셉트 레이어 스크립트 -->
 <?= getCashJs(RES_PATH . "/js/recruit/job_list.js") ?>

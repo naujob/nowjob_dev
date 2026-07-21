@@ -52,7 +52,7 @@
     }
 
     .login-tagline .tagline-main {
-      font-size: 30px;
+      font-size: 27px;
       font-weight: 600;
       color: #fff;
       line-height: 1.4;
@@ -60,7 +60,7 @@
     }
 
     .login-tagline .tagline-sub {
-      font-size: 20px;
+      font-size: 17px;
       color: #fff;
       margin: 0;
       font-weight: 500;

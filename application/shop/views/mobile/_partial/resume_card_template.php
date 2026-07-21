@@ -9,9 +9,10 @@
  *
  * JS에서 {{플레이스홀더}} 치환 후 #ajaxList에 append
  */
-$tpl_id           = isset($tpl_id)           ? $tpl_id           : 'tpl_resume_card';
-$tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
-$tpl_show_mm_idx  = isset($tpl_show_mm_idx)  ? (bool)$tpl_show_mm_idx  : false;
+$tpl_id            = isset($tpl_id)            ? $tpl_id            : 'tpl_resume_card';
+$tpl_recomm_class  = isset($tpl_recomm_class)  ? (bool)$tpl_recomm_class : false;
+$tpl_show_mm_idx   = isset($tpl_show_mm_idx)   ? (bool)$tpl_show_mm_idx  : false;
+$tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : false;
 ?>
 <template id="<?= $tpl_id ?>">
   <li class="list-item">
@@ -44,9 +45,11 @@ $tpl_show_mm_idx  = isset($tpl_show_mm_idx)  ? (bool)$tpl_show_mm_idx  : false;
                 <p>{{ma_age}}</p>
                 <p>{{ad_addr}}</p>
               </div>
+              <?php if ($tpl_show_chat_mark): ?>
               <div class="chat_mark" data-visible="{{has_chat}}">
-                  <img src="/resource/shop/mobile/img/phone.png" alt="채팅 이력">
+                  <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
               </div>
+              <?php endif; ?>
             </div>
             <div class="summary3">
               <p class="worktype">{{ru_work_type}}</p>

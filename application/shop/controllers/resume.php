@@ -155,6 +155,7 @@ class Resume extends CI_Controller
   // 인재 정보 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
   private function _formatResumeList($list)
   {
+    $truncate_length = getTruncateLength();
     $formatted_list = [];
     foreach ($list as $row) {
       $ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
@@ -175,7 +176,7 @@ class Resume extends CI_Controller
         'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
         'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
         'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
-        'ru_name' => (mb_strlen($row['ru_name']) > 18) ? mb_substr($row['ru_name'], 0, 18) . '...' : $row['ru_name'],
+        'ru_name' => (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'],
         'ru_resume_img' => getResumeImg($row),
         'ru_work_img' => getWorkingImg($ru_work),
         'ru_work_type' => getWorkTypeWithColor($ru_work_type),
@@ -193,6 +194,7 @@ class Resume extends CI_Controller
   // 추천인재 데이터 포맷팅 (search_reco_list2025()와 동일)
   private function _formatRecoList($list)
   {
+    $truncate_length = getTruncateLength();
     $formatted_list = [];
     foreach ($list as $row) {
       $ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
@@ -213,7 +215,7 @@ class Resume extends CI_Controller
         'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
         'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
         'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
-        'ru_name' => isset($row['ru_name']) ? $row['ru_name'] : '',
+        'ru_name' => (isset($row['ru_name']) && mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : (isset($row['ru_name']) ? $row['ru_name'] : ''),
         'ru_resume_img' => getResumeImg($row),
         'ru_work_img' => getWorkingImg($ru_work),
         'ru_work_type' => getWorkTypeFirst($ru_work_type),

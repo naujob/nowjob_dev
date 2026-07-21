@@ -77,9 +77,7 @@ class Resume_proc extends CI_Controller
 
     $result = $this->member_model->getResumeSearchList2025($params);
 
-    // PC/모바일 구분하여 제목 길이 설정
-    $isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
-    $truncate_length = $isMobile ? 18 : 50;
+    $truncate_length = getTruncateLength();
     $result["list"] = $this->_formatResumeList($result["list"], $truncate_length);
 
     // 기업회원인 경우 채팅방 정보 추가
@@ -305,6 +303,8 @@ class Resume_proc extends CI_Controller
 
     $result = $this->common_model->getFavResumeList2025($params);
 
+    $truncate_length = getTruncateLength();
+
     $temp_list = $result["list"];
     foreach ($temp_list as $key => $row) {
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
@@ -314,6 +314,7 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["ru_price_type_raw"] = $row["ru_price_type"];
       $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
       $temp_list[$key]["ru_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+      $temp_list[$key]["ru_name"] = (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'];
 
       // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
       $ru_week = isset($row["ru_week"]) ? trim($row["ru_week"]) : "";
@@ -333,10 +334,6 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["up_dt_timestamp"] = getTimeText($row["up_dt"]);
       // 서버사이드 주소 변환 (큰 시/도 제거)
       $temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
-      // 서버사이드 제목 정규화 (18글자 이상이면 자르기 - 멀티바이트 안전)
-      if (mb_strlen($row["ru_name"]) > 18) {
-        $temp_list[$key]["ru_name"] = mb_substr($row["ru_name"], 0, 18) . '...';
-      }
     }
 
     $result["list"] = $temp_list;
