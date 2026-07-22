@@ -348,7 +348,7 @@ class Recruit extends CI_Controller
   # 채용목록
   function job_list()
   {
-
+   
     $search_txt = [
       "text" => "",
       "addr" => "",

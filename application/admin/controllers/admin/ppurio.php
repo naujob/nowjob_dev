@@ -724,7 +724,9 @@ class Ppurio extends MY_Controller{
                     // SMS 메시지 (90바이트 제한)
                     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
                     $main_domain = str_replace('admin.', '', $_SERVER['HTTP_HOST']);
-                    $sms_msg = "[나우잡]\n등록된 채용공고에 적합한 추천인재가 등록되었습니다.\n\n[이력서 확인하기]\n" . $scheme . '://' . $main_domain . '/alimtalk/send_match_corp_bridge';
+                    $is_production = (strpos(__FILE__, '/nowapk/') !== false && strpos(__FILE__, '/dev_nowapk/') === false);
+                    $bridge_path = $is_production ? '/alimtalk/match_corp' : '/alimtalk/send_match_corp_bridge';
+                    $sms_msg = "[나우잡]\n등록된 채용공고에 적합한 추천인재가 등록되었습니다.\n\n[이력서 확인하기]\n" . $scheme . '://' . $main_domain . $bridge_path;
                     $send_result = $this->common->sendNotificationSms($recruit['mm_phone'], $sms_msg);
 
                     if ($send_result['code'] === '00') {
@@ -1038,7 +1040,9 @@ class Ppurio extends MY_Controller{
                     // SMS 메시지 (90바이트 제한)
                     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
                     $main_domain = str_replace('admin.', '', $_SERVER['HTTP_HOST']);
-                    $sms_msg = "[나우잡]\n등록된 이력서에 적합한 채용공고가 매칭되었습니다\n\n[채용공고 확인하기]\n" . $scheme . '://' . $main_domain . '/alimtalk/send_per_bridge';
+                    $is_production = (strpos(__FILE__, '/nowapk/') !== false && strpos(__FILE__, '/dev_nowapk/') === false);
+                    $bridge_path = $is_production ? '/alimtalk/match_per' : '/alimtalk/send_per_bridge';
+                    $sms_msg = "[나우잡]\n등록된 이력서에 적합한 채용공고가 매칭되었습니다\n\n[채용공고 확인하기]\n" . $scheme . '://' . $main_domain . $bridge_path;
                     $send_result = $this->common->sendNotificationSms($resume['mm_phone'], $sms_msg);
 
                     if ($send_result['code'] === '00') {

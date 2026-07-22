@@ -986,6 +986,7 @@ fieldset {
     font-weight: 300;
     color: #999;
     opacity: 1;
+    
 }
 
 .form-text {
@@ -5119,7 +5120,7 @@ body {
 
 .login-form .form-text {
     height: 36px;
-    padding: 0 15px 16px 60px;
+    padding: 0 15px 16px 46px;
     border-color: #D1D1D1;
 }
 

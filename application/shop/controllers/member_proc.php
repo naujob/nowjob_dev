@@ -506,22 +506,31 @@ class Member_proc extends CI_Controller
     }
 
     // 휴대폰 번호로 자동 로그인 (중복 SNS 계정 발견 시 사용)
+    // mm_join_type POST 파라미터 추가: SNS 타입도 로그인 가능 (KAKAO, NAVER, WECHAT 등)
     function phone_auto_login()
     {
         $mm_phone = input_post("mm_phone", "");
+        $mm_join_type = input_post("mm_join_type", "");
 
         if (empty($mm_phone)) {
             json_return("90", "전화번호 정보가 없습니다.");
             exit;
         }
 
-        // 전화번호로 기존 회원 조회 (WEB 타입, 활성 회원만)
+        // 전화번호로 기존 회원 조회 (활성 회원만)
         $normalized_phone = preg_replace('/[^0-9]/', '', $mm_phone);
         $query = "SELECT * FROM st_member
                   WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
-                  AND mm_join_type = 'WEB'
-                  AND mm_status = 'Y'
-                  LIMIT 1";
+                  AND mm_status = 'Y'";
+
+        // mm_join_type 지정 시에는 해당 타입만, 미지정 시에는 WEB 타입만
+        if (!empty($mm_join_type)) {
+            $query .= " AND mm_join_type = '" . $this->db->escape_str($mm_join_type) . "'";
+        } else {
+            $query .= " AND mm_join_type = 'WEB'";
+        }
+
+        $query .= " LIMIT 1";
         $result = $this->db->query($query);
         $mem_info = $result->row_array();
 

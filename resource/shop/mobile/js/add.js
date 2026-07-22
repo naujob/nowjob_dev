@@ -101,7 +101,150 @@ function callVibrate(time) {
         navigator.vibrate(time); // 진동 수행 1000 = 1초
         // navigator.vibrate(0); // 진동 정지
     }
-};
+}
+
+// iOS 시스템 스와이프 뒤로가기 처리 (네이티브에서 handleSwipeBack 호출함)
+// history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
+function customBack() {
+    try {
+        const currentPath = window.location.pathname;
+       // URL: https://example.com/chat/chat_view?from=applied
+       // currentPath = /chat/chat_view
+        // chat_view 페이지는 자체 뒤로가기 로직 사용 (from 파라미터 기반)
+        if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
+            const params = new URLSearchParams(window.location.search); // params = { from: 'applied' }
+            const from = params.get('from') || '';
+
+            const backMap = {
+                applied: '/chat/chat_list',
+                proposed_job: '/chat/chat_list2',
+                talent_received: '/chat/index_comp',
+                talent_sent: '/chat/chat_list3'
+            };
+
+            const backUrl = backMap[from] || '/chat/chat_list';
+
+            const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || []; 
+            if (historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
+                historyStack.pop(); //  historyStack에서 현재 chat_view 기록 제거 historyStack 기존: ["/home", "/chat/chat_list", "/chat/chat_view"] pop() 후:["/home", "/chat/chat_list"]
+                sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+            }
+
+            window.location.href = backUrl;
+            return;
+        }
+
+        // chat 페이지들은 recruit/job_list로 이동
+        if (currentPath.indexOf('/chat/index_comp') > -1 ||
+            currentPath.indexOf('/chat/chat_list') > -1 ||
+            currentPath.indexOf('/chat/chat_list2') > -1 ||
+            currentPath.indexOf('/chat/chat_list3') > -1) {
+
+            window.location.href = '/recruit/job_list';
+            return;
+        }
+
+        // 채용공고 작성 페이지들은 compage/recruit_list로 이동
+        if (currentPath.indexOf('/compage/recruit_write1_1') > -1 ||
+            currentPath.indexOf('/compage/recruit_write2_1') > -1 ||
+            currentPath.indexOf('/compage/recruit_write3_1') > -1) {
+
+            const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+            if (historyStack.length > 0) {
+                const lastPage = historyStack[historyStack.length - 1];
+                if (lastPage.indexOf('/compage/recruit_write1_1') > -1 ||
+                    lastPage.indexOf('/compage/recruit_write2_1') > -1 ||
+                    lastPage.indexOf('/compage/recruit_write3_1') > -1) {
+                    historyStack.pop();
+                    sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+                }
+            }
+
+            window.location.href = '/compage/recruit_list';
+            return;
+        }
+
+        // 이력서 작성 페이지들은 mypage/resume_list로 이동
+        if (currentPath.indexOf('/mypage/resume_write1') > -1) {
+            const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+            if (historyStack.length > 0) {
+                const lastPage = historyStack[historyStack.length - 1];
+                if (lastPage.indexOf('/mypage/resume_write1') > -1) {
+                    historyStack.pop();
+                    sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+                }
+            }
+
+            window.location.href = '/mypage/resume_list';
+            return;
+        }
+
+        // compage 포인트/북마크/쿠폰 페이지들은 compage/index로 이동
+        if (currentPath.indexOf('/compage/point_promotion_buy') > -1 ||
+            currentPath.indexOf('/compage/point_charge_step1') > -1 ||
+            currentPath.indexOf('/compage/point_charge_list') > -1 ||
+            currentPath.indexOf('/compage/point_use_list') > -1 ||
+            currentPath.indexOf('/compage/point_promotion_list') > -1 ||
+            currentPath.indexOf('/compage/bookmark_person1') > -1 ||
+            currentPath.indexOf('/compage/bookmark_person2') > -1 ||
+            currentPath.indexOf('/compage/coupon_list') > -1) {
+
+            window.location.href = '/compage/index';
+            return;
+        }
+
+        // mypage 포인트/북마크/쿠폰 페이지들은 mypage/index로 이동
+        if (currentPath.indexOf('/mypage/point_charge_step1') > -1 ||
+            currentPath.indexOf('/mypage/point_charge_list') > -1 ||
+            currentPath.indexOf('/mypage/point_use_list') > -1 ||
+            currentPath.indexOf('/mypage/point_promotion_buy') > -1 ||
+            currentPath.indexOf('/mypage/point_promotion_list') > -1 ||
+            currentPath.indexOf('/mypage/bookmark_recruit1') > -1 ||
+            currentPath.indexOf('/mypage/bookmark_recruit2') > -1 ||
+            currentPath.indexOf('/mypage/coupon_list') > -1) {
+
+            window.location.href = '/mypage/index';
+            return;
+        }
+
+        const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
+        const normalizedCurrentPath = normalizePath(currentPath);
+
+        while (historyStack.length > 0) {
+            const lastPagePath = normalizePath(historyStack[historyStack.length - 1]);
+            if (lastPagePath === normalizedCurrentPath) {
+                historyStack.pop();
+            } else {
+                break;
+            }
+        }
+
+        if (historyStack.length > 0) {
+            let previousPage = historyStack[historyStack.length - 1];
+            let normalizedPreviousPath = normalizePath(previousPage);
+
+            while (historyStack.length > 0 && normalizedPreviousPath === '/home/splash') {
+                historyStack.pop();
+                if (historyStack.length > 0) {
+                    previousPage = historyStack[historyStack.length - 1];
+                    normalizedPreviousPath = normalizePath(previousPage);
+                }
+            }
+
+            if (historyStack.length === 0) {
+                previousPage = '/home/index';
+            }
+
+            sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+            window.location.href = previousPage;
+        } else {
+            window.location.href = '/home/index';
+        }
+
+    } catch (e) {
+        console.error('[customBack] 오류:', e);
+    }
+}
 
 //쿠키 설정
 var setCookie = function (name, value, day) {
@@ -644,6 +787,24 @@ function handleAndroidBack() {
         const backCustomMap = {
             // /compage/index → 홈화면
             "/compage/index": "/",
+            // compage 포인트/북마크/쿠폰 → compage 메인
+            "/compage/point_promotion_buy": "/compage/index",
+            "/compage/point_charge_step1": "/compage/index",
+            "/compage/point_charge_list": "/compage/index",
+            "/compage/point_use_list": "/compage/index",
+            "/compage/point_promotion_list": "/compage/index",
+            "/compage/bookmark_person1": "/compage/index",
+            "/compage/bookmark_person2": "/compage/index",
+            "/compage/coupon_list": "/compage/index",
+            // mypage 포인트/북마크/쿠폰 → mypage 메인
+            "/mypage/point_charge_step1": "/mypage/index",
+            "/mypage/point_charge_list": "/mypage/index",
+            "/mypage/point_use_list": "/mypage/index",
+            "/mypage/point_promotion_buy": "/mypage/index",
+            "/mypage/point_promotion_list": "/mypage/index",
+            "/mypage/bookmark_recruit1": "/mypage/index",
+            "/mypage/bookmark_recruit2": "/mypage/index",
+            "/mypage/coupon_list": "/mypage/index",
             // 채팅 페이지 → 구인 목록
             "/chat/index_comp": "/recruit/job_list",
             "/chat/chat_list": "/recruit/job_list",

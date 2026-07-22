@@ -4,8 +4,7 @@ body {
 }
 
 .page {
-    overflow: unset;
-    overflow-x: hidden;
+    
     height: 100%;
     overscroll-behavior-y: none;
 }

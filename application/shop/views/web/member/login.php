@@ -454,18 +454,16 @@
                 // 취소: 팝업만 닫기
             },
             secondCallback: function() {
-                // 로그인 하기: 해당 SNS 버튼 클릭 트리거
-                if (joinType === 'KAKAO') {
-                    $('#btnKakao').trigger('click');
-                } else if (joinType === 'NAVER') {
-                    $('#btnNaver').trigger('click');
-                } else if (joinType === 'GOOGLE') {
+                // 로그인 하기: 이미 가입된 SNS/휴대폰 계정으로 자동 로그인
+                // phone_auto_login 엔드포인트를 통일: mm_join_type 파라미터로 SNS 타입 지정
+                if (joinType === 'GOOGLE') {
                     $('#btnGoogle').click();
-                } else if (joinType === 'WECHAT') {
-                    $('#btnWechat').trigger('click');
-                } else if (joinType === 'WEB' && mmPhone) {
-                    // 휴대폰 OTP 로그인
-                    comAjax('/member_proc/phone_auto_login', { mm_phone: mmPhone }, function(ret) {
+                } else if (mmPhone) {
+                    // 카카오/네이버/위챗/휴대폰 모두 동일한 엔드포인트 사용
+                    comAjax('/member_proc/phone_auto_login', {
+                        mm_phone: mmPhone,
+                        mm_join_type: joinType
+                    }, function(ret) {
                         if (ret.code == '00') {
                             sessionStorage.removeItem('chat_user_connect');
                             location.href = '/';
