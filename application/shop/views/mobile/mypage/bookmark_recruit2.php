@@ -1,6 +1,6 @@
 <div class="page page-mypage-view">
   <div class="top-bar">
-    <a href="javascript:void(0);" class="btn-back"><span class="sr-text">이전으로</span></a>
+    <a href="/mypage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
     <h1 class="title">관심공고 관리</h1>
   </div><!-- //top-bar -->
 

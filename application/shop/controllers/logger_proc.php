@@ -29,10 +29,16 @@ class Logger_proc extends CI_Controller
       exit;
     }
 
-    // 로그 디렉토리 설정 (check_logs 함수와 동일)
-    $log_dir = dirname(APPPATH) . '/logs/' . date('Y-m-d'); ///website/dev_nowapk/application/logs/2026-06-23/browser.log
+    // 로그 디렉토리 설정
+    $logs_base = dirname(APPPATH) . '/logs';
+    $log_dir = $logs_base . '/' . date('Y-m-d');
 
-    // 로그 디렉토리 생성
+    // 부모 디렉토리 먼저 생성
+    if (!is_dir($logs_base)) {
+      @mkdir($logs_base, 0755, true);
+    }
+
+    // 날짜별 디렉토리 생성
     if (!is_dir($log_dir)) {
       @mkdir($log_dir, 0755, true);
     }

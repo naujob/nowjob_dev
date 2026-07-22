@@ -771,7 +771,7 @@ $tpl_recomm_class = true; ?>
       sage: search_array.sage,
       eage: search_array.eage,
     };
-
+    // : 검색 파라미터 저장만 수행
     if (save_yn === "Y") {
       $.ajax({
         url: "/recruit_proc/search_save_params2025",
@@ -790,7 +790,7 @@ $tpl_recomm_class = true; ?>
         }
       });
     }
-
+    // 공고 리스트 데이터 조회 및 렌더링
     list_loading = true;
     var ajaxStartTime = performance.now();
     $.ajax({

@@ -736,7 +736,14 @@ window.onload = function() {
           }
         });
       } else {
-        if (ret.code == "90") {
+        if (ret.code == "91") {
+          // 중복 계정 - 다른 SNS(또는 휴대폰)로 이미 가입됨
+          if (ret.data && ret.data.join_type) {
+            showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+          } else {
+            commonAlert(ret.msg, function() {});
+          }
+        } else if (ret.code == "90") {
           openPopup('confirm', {
             id: 'permission',
             content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',

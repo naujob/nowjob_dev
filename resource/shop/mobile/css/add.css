@@ -52,7 +52,7 @@ body {
     top: 0;
     left: 0;
     height: 100%;
-    width: 3rem;
+    width: 5rem;
     /* 클릭 영역 확장을 위한 충분한 너비 */
     background: url("../img/ic_back.svg") no-repeat 1.4375rem center;
     /* 아이콘을 원래 위치에 유지 */
