@@ -1411,7 +1411,7 @@ function debug_log($message, $type = 'INFO', $data = [])
 
 	$log_message .= PHP_EOL;
 
-	file_put_contents($log_file, $log_message, FILE_APPEND | LOCK_EX);
+	//file_put_contents($log_file, $log_message, FILE_APPEND | LOCK_EX);
 }
 
 /**

@@ -1041,7 +1041,7 @@ class Ppurio extends MY_Controller{
                     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
                     $main_domain = str_replace('admin.', '', $_SERVER['HTTP_HOST']);
                     $is_production = (strpos(__FILE__, '/nowapk/') !== false && strpos(__FILE__, '/dev_nowapk/') === false);
-                    $bridge_path = $is_production ? '/alimtalk/match_per' : '/alimtalk/send_per_bridge';
+                    $bridge_path = $is_production ? '/alimtalk/match_per' : '/alimtalk/send_match_per_bridge';
                     $sms_msg = "[나우잡]\n등록된 이력서에 적합한 채용공고가 매칭되었습니다\n\n[채용공고 확인하기]\n" . $scheme . '://' . $main_domain . $bridge_path;
                     $send_result = $this->common->sendNotificationSms($resume['mm_phone'], $sms_msg);
 

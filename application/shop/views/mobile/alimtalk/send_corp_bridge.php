@@ -105,10 +105,13 @@
 					window.location.replace(webUrl);
 				}, 800);
 			} else if (isIos) {
-				// iOS: 웹 경로 사용
+				// iOS: 딥링크 시도 → 앱스토어 폴백
+				window.location.href = appUrl;
 				setTimeout(function() {
-					window.location.href = webUrl;
-				}, 800);
+					if (!document.hidden) {
+						window.location.href = appStoreUrl;
+					}
+				}, 1500);
 			} else {
 				// Android 및 기타: 커스텀 스킴 딥링크 + 폴백
 				window.location.href = appUrl;

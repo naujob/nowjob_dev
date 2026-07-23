@@ -1594,11 +1594,11 @@ class Chat_proc extends CI_Controller
 		$rm_idx = input_post("rm_idx");
 		$mm_type = input_post("mm_type");
 
-		log_message('debug', '[CHAT_DEBUG] get_chat_info 시작 - rm_idx: '.$rm_idx.', mm_type: '.$mm_type.', mm_idx: '.$mm_idx);
+		//log_message('debug', '[CHAT_DEBUG] get_chat_info 시작 - rm_idx: '.$rm_idx.', mm_type: '.$mm_type.', mm_idx: '.$mm_idx);
 
 		# 룸정보 가져오기
 		$room = $this->common_model->getRoom(["rm_idx" => $rm_idx]);
-		log_message('debug', '[CHAT_DEBUG] room 조회 - rm_idx: '.$rm_idx.', room: '.json_encode($room));
+		//log_message('debug', '[CHAT_DEBUG] room 조회 - rm_idx: '.$rm_idx.', room: '.json_encode($room));
 		if ($room["rm_type"] == "recruit") {
 			if ($mm_type == "MEM") {
 				$info = $this->member_model->getRecruitDetail($room["rc_idx"], $mm_idx);
@@ -1661,7 +1661,7 @@ class Chat_proc extends CI_Controller
 			$info["td_area"] = $area;
 			$info["reg_dt"] = substr($info["reg_dt"], 0, 10);
 		}
-		log_message('debug', '[CHAT_DEBUG] get_chat_info 응답 - type: '.$info['type'].', info keys: '.implode(',', array_keys($info)));
+		//log_message('debug', '[CHAT_DEBUG] get_chat_info 응답 - type: '.$info['type'].', info keys: '.implode(',', array_keys($info)));
 		json_return("00", "조회완료", $info);
 	}
 

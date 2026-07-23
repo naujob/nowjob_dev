@@ -1643,13 +1643,13 @@ class Mypage_proc extends CI_Controller
             } else {
               $this->db->trans_rollback();
               // 포인트 지급 실패는 로그만 남기고 이력서 등록은 성공으로 처리
-              log_message('error', '포인트 지급 실패 - mm_idx: ' . $this->mm_idx);
+              //log_message('error', '포인트 지급 실패 - mm_idx: ' . $this->mm_idx);
             }
           }
           $this->db->trans_complete();
         } catch (Exception $e) {
           // 포인트 지급 실패는 로그만 남기고 이력서 등록은 성공으로 처리
-          log_message('error', '포인트 지급 중 오류: ' . $e->getMessage());
+          //log_message('error', '포인트 지급 중 오류: ' . $e->getMessage());
         }
 
         return json_return("00", "이력서등록완료");
@@ -1748,7 +1748,7 @@ class Mypage_proc extends CI_Controller
         }
       } catch (Exception $e) {
         if (function_exists('log_message')) {
-          log_message('error', 'Kakao Alimtalk send (resume_default) failed: ' . $e->getMessage());
+          //log_message('error', 'Kakao Alimtalk send (resume_default) failed: ' . $e->getMessage());
         }
       }
     }

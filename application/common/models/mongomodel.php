@@ -70,16 +70,16 @@ class mongoModel extends MY_Model
 		$chk_id = $mongo_user->findOne(['user_id' => $mem_info["mm_id"]]);
 
 		// MongoDB 업데이트 로그 추가
-		$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB updateUserInfo - 사용자ID: " . $mem_info["mm_id"] . ", 사용자 존재: " . ($chk_id ? "있음" : "없음") . "\n";
-		file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
+		//$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB updateUserInfo - 사용자ID: " . $mem_info["mm_id"] . ", 사용자 존재: " . ($chk_id ? "있음" : "없음") . "\n";
+		//file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
 
 		if ($chk_id != null) {
 			// mm_id 필드를 제외하고 업데이트
 			$update_data = $mem_info;
 			unset($update_data['mm_id']); // mm_id 필드 제거
 
-			$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 업데이트 실행 - 데이터: " . json_encode($update_data) . "\n";
-			file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
+			//$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 업데이트 실행 - 데이터: " . json_encode($update_data) . "\n";
+			//file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
 
 			$mongo_user->update(
 				['user_id' => $mem_info["mm_id"]],
@@ -89,12 +89,12 @@ class mongoModel extends MY_Model
 				]
 			);
 
-			$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 업데이트 완료\n";
-			file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
+			//$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 업데이트 완료\n";
+			//file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
 			return true;
 		} else {
-			$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 업데이트 실패 - 사용자 없음\n";
-			file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
+			//$log_message = "[" . date('Y-m-d H:i:s') . "] MongoDB 업데이트 실패 - 사용자 없음\n";
+			//file_put_contents('/tmp/mongo_update.log', $log_message, FILE_APPEND | LOCK_EX);
 			return false;
 		}
 	}

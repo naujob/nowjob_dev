@@ -879,7 +879,7 @@ class Cron_proc extends CI_Controller
                     $sent++;
                 }
             } catch (Exception $e) {
-                log_message('error', '[PPURIO][send_request_alimtalk][RECRUIT] mq_idx=' . $row['mq_idx'] . ' ' . $e->getMessage());
+                //log_message('error', '[PPURIO][send_request_alimtalk][RECRUIT] mq_idx=' . $row['mq_idx'] . ' ' . $e->getMessage());
             }
             usleep(100000);
         }
@@ -913,7 +913,7 @@ class Cron_proc extends CI_Controller
                     $sent++;
                 }
             } catch (Exception $e) {
-                log_message('error', '[PPURIO][send_request_alimtalk][RESUME] mq_idx=' . $row['mq_idx'] . ' ' . $e->getMessage());
+                //log_message('error', '[PPURIO][send_request_alimtalk][RESUME] mq_idx=' . $row['mq_idx'] . ' ' . $e->getMessage());
             }
             usleep(100000);
         }
