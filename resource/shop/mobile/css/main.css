@@ -12,10 +12,10 @@
     --result-card-badge-margin: 3px;
     --result-card-badge-padding: 3px;
     --result-card-badge-radius: 3px;
-    --resume-write-input-font-size: 20px;
-    --resume-write-input-height: 3.5rem;
-    --recruit-write-input-height: 3.5rem;
-    --recruit-write-input-font-size: 20px;
+    --resume-write-input-font-size: 17px;
+    --resume-write-input-height: 56px;
+    --recruit-write-input-height: 56px;
+    --recruit-write-input-font-size: 17px;
 }
     
 /* 공통: 버튼/링크 눌림 표시 제거 */
@@ -1274,17 +1274,17 @@ object {
     user-select: none;
 }
 .page-recruit-write .form-checkbox .label:before {
-    top: 7px;
+    top: 3px;
 }
 .page-recruit-write .form-checkbox .label:after {
-    top: 7px;
+    top: 3px;
 }
 
 .form-checkbox .label:before {
     content: "";
     display: block;
     position: absolute;
-     top: 16px;
+     top: 6px;
     left: 0;
     width: 1.375rem;
     height: 1.375rem;
@@ -1481,7 +1481,7 @@ object {
     display: -ms-flexbox;
     display: flex;
     position: absolute;
-    top: -10px;
+    top: 0px;
     right: 0;
 }
 
@@ -1884,6 +1884,8 @@ object {
     vertical-align: top;
 }
 
+
+
 .form-toggle-btn2 .btn {
     /* 20221122 수정 */
     display: block;
@@ -1892,7 +1894,7 @@ object {
     padding: 0 0.25rem;
     font-size: 17px;
     color: #222;
-    line-height: 2.1;
+    line-height: 3;
     text-align: center;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -8704,7 +8706,7 @@ form#frm {
 
 .page-recruit-write .form-row.js-detail-section {
     display: none;
-    margin-top: 0.875rem;
+    margin-top: 1.875rem;
 }
 
 .page-recruit-write .form-row.js-detail-section.show {
@@ -9173,7 +9175,7 @@ form#frm {
 .page-resume-write .form-row.my-strength-section + .form-row.js-detail-section,
 .page-resume-write .form-row.js-detail-section {
     display: none;
-    margin-top: 0.875rem;
+    margin-top: 1.875rem;
 }
 
 .page-resume-write .form-row.js-detail-section.show {
@@ -9321,6 +9323,22 @@ form#frm {
     
     border: 1px solid #57CCAF;
     
+}
+
+.page-recruit-write .sticky-bottom.view-footer {
+   position: relative;
+    bottom: -75px;
+      left: -9px;
+    right: -6px;
+    width: 104%;
+    
+}
+.page-resume-write .sticky-bottom.view-footer {
+   position: relative;
+    bottom: -83px;
+     left: -9px;
+    right: -6px;
+    width: 104%;
 }
 .sticky-bottom.view-footer {
     position: fixed;
@@ -13648,7 +13666,132 @@ form#frm {
     width: 8%;
     font-size: 20px;
 }
-.pagination-wrapper button[data-active="true"] { 
+.pagination-wrapper button[data-active="true"] {
     color: #1B9D7D;
-    
-} 
+
+}
+
+/* ========== 근무시간 선택 휠피커 스타일 ========== */
+
+/* 시간 선택 트리거 버튼 */
+.page-recruit-write .js-time-picker-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: var(--recruit-write-input-height);
+    font-size: var(--recruit-write-input-font-size);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.page-recruit-write .js-time-picker-trigger:active {
+    background-color: #f5f5f5;
+}
+
+.page-recruit-write .js-time-picker-trigger .time-display {
+    display: block;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+/* 휠피커 컨테이너 */
+.time-wheel-picker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    height: 250px;
+    position: relative;
+}
+
+/* 휠 컬럼 */
+.wheel-col {
+    flex: 1;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 100px 0;
+    position: relative;
+}
+
+/* 스크롤바 숨기기 */
+.wheel-col::-webkit-scrollbar {
+    display: none;
+}
+
+.wheel-col {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 휠 컬럼 리스트 */
+.wheel-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 휠 컬럼 항목 */
+.wheel-col li {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #999;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* 활성화된 항목 */
+.wheel-col li.active {
+    color: #000;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* 시/분 구분자 */
+.wheel-col-separator {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #000;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 강조 바 (중앙 표시) */
+.wheel-highlight-bar {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 44px;
+    transform: translateY(-50%);
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    pointer-events: none;
+    background-color: rgba(27, 157, 125, 0.05);
+}
+
+/* 바텀시트 타이틀 추가 스타일 */
+.bottom-sheet-time-picker .bottom-sheet-title {
+    text-align: left;
+    font-size: 1.5rem;
+}
+

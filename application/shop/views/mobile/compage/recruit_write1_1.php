@@ -147,32 +147,30 @@
                                 <div class="work-time-row">
                                     <span class="work-time-label">출근</span>
                                     <div class="work-time-input-wrap">
-                                        <select name="rc_am_stime_h" class="time-select">
-                                            <?php
-                                            $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09";
-                                            $amStartM = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 3, 2) : "00";
-                                            for ($t = 0; $t <= 23; $t++) { ?>
-                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <span>:</span>
-                                        <input type="text" name="rc_am_stime_m" value="<?= $amStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                        <?php
+                                        $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09";
+                                        $amStartM = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 3, 2) : "00";
+                                        ?>
+                                        <button type="button" class="js-time-picker-trigger js-toggle-panel" aria-controls="workTimePickerSheet" data-time-prefix="rc_am_stime">
+                                            <span class="time-display"><?= str_pad($amStartH, 2, "0", STR_PAD_LEFT) ?> : <?= str_pad($amStartM, 2, "0", STR_PAD_LEFT) ?></span>
+                                        </button>
+                                        <input type="hidden" name="rc_am_stime_h" value="<?= str_pad($amStartH, 2, "0", STR_PAD_LEFT) ?>">
+                                        <input type="hidden" name="rc_am_stime_m" value="<?= str_pad($amStartM, 2, "0", STR_PAD_LEFT) ?>">
                                     </div>
                                 </div>
                                 <!-- 퇴근 -->
                                 <div class="work-time-row">
                                     <span class="work-time-label">퇴근</span>
                                     <div class="work-time-input-wrap">
-                                        <select name="rc_am_etime_h" class="time-select">
-                                            <?php
-                                            $amEndH = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 0, 2) : "18";
-                                            $amEndM = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 3, 2) : "00";
-                                            for ($t = 0; $t <= 23; $t++) { ?>
-                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $amEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <span>:</span>
-                                        <input type="text" name="rc_am_etime_m" value="<?= $amEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                        <?php
+                                        $amEndH = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 0, 2) : "18";
+                                        $amEndM = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 3, 2) : "00";
+                                        ?>
+                                        <button type="button" class="js-time-picker-trigger js-toggle-panel" aria-controls="workTimePickerSheet" data-time-prefix="rc_am_etime">
+                                            <span class="time-display"><?= str_pad($amEndH, 2, "0", STR_PAD_LEFT) ?> : <?= str_pad($amEndM, 2, "0", STR_PAD_LEFT) ?></span>
+                                        </button>
+                                        <input type="hidden" name="rc_am_etime_h" value="<?= str_pad($amEndH, 2, "0", STR_PAD_LEFT) ?>">
+                                        <input type="hidden" name="rc_am_etime_m" value="<?= str_pad($amEndM, 2, "0", STR_PAD_LEFT) ?>">
                                     </div>
                                 </div>
                             </div>
@@ -187,31 +185,29 @@
                                 <div class="work-time-row">
                                     <span class="work-time-label">출근</span>
                                     <div class="work-time-input-wrap">
-                                        <select name="rc_pm_stime_h" class="time-select">
-                                            <?php
-                                            $pmStartH = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 0, 2) : "21";
-                                            $pmStartM = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 3, 2) : "00";
-                                            for ($t = 0; $t <= 23; $t++) { ?>
-                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmStartH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <span>:</span>
-                                        <input type="text" name="rc_pm_stime_m" value="<?= $pmStartM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                        <?php
+                                        $pmStartH = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 0, 2) : "21";
+                                        $pmStartM = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 3, 2) : "00";
+                                        ?>
+                                        <button type="button" class="js-time-picker-trigger js-toggle-panel" aria-controls="workTimePickerSheet" data-time-prefix="rc_pm_stime">
+                                            <span class="time-display"><?= str_pad($pmStartH, 2, "0", STR_PAD_LEFT) ?> : <?= str_pad($pmStartM, 2, "0", STR_PAD_LEFT) ?></span>
+                                        </button>
+                                        <input type="hidden" name="rc_pm_stime_h" value="<?= str_pad($pmStartH, 2, "0", STR_PAD_LEFT) ?>">
+                                        <input type="hidden" name="rc_pm_stime_m" value="<?= str_pad($pmStartM, 2, "0", STR_PAD_LEFT) ?>">
                                     </div>
                                 </div>
                                 <div class="work-time-row">
                                     <span class="work-time-label">퇴근</span>
                                     <div class="work-time-input-wrap">
-                                        <select name="rc_pm_etime_h" class="time-select">
-                                            <?php
-                                            $pmEndH = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 0, 2) : "06";
-                                            $pmEndM = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 3, 2) : "00";
-                                            for ($t = 0; $t <= 23; $t++) { ?>
-                                                <option value="<?= str_pad($t, 2, "0", STR_PAD_LEFT) ?>" <?= $pmEndH == str_pad($t, 2, "0", STR_PAD_LEFT) ? "selected" : "" ?>><?= str_pad($t, 2, "0", STR_PAD_LEFT) ?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <span>:</span>
-                                        <input type="text" name="rc_pm_etime_m" value="<?= $pmEndM ?>" placeholder="00" class="time-input-m" maxlength="2">
+                                        <?php
+                                        $pmEndH = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 0, 2) : "06";
+                                        $pmEndM = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 3, 2) : "00";
+                                        ?>
+                                        <button type="button" class="js-time-picker-trigger js-toggle-panel" aria-controls="workTimePickerSheet" data-time-prefix="rc_pm_etime">
+                                            <span class="time-display"><?= str_pad($pmEndH, 2, "0", STR_PAD_LEFT) ?> : <?= str_pad($pmEndM, 2, "0", STR_PAD_LEFT) ?></span>
+                                        </button>
+                                        <input type="hidden" name="rc_pm_etime_h" value="<?= str_pad($pmEndH, 2, "0", STR_PAD_LEFT) ?>">
+                                        <input type="hidden" name="rc_pm_etime_m" value="<?= str_pad($pmEndM, 2, "0", STR_PAD_LEFT) ?>">
                                     </div>
                                 </div>
                             </div>
@@ -716,6 +712,90 @@
     .work-time-tag.night {
         color: white;
         background: red;
+    }
+
+    /* 시간 선택기 (wheel picker) 스타일 */
+    .time-wheel-picker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        height: 200px;
+        position: relative;
+    }
+
+    .wheel-col {
+        flex: 1;
+        height: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        position: relative;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    .wheel-col ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 88px 0;
+    }
+
+    .wheel-col li {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #999;
+        transition: color 0.2s ease;
+    }
+
+    .wheel-col li.active {
+        color: #000;
+        font-weight: 600;
+    }
+
+    .wheel-col-ampm {
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .wheel-col-hour {
+        flex: 1;
+        min-width: 60px;
+    }
+
+    .wheel-col-minute {
+        flex: 1;
+        min-width: 60px;
+    }
+
+    .wheel-col-separator {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        padding: 0 4px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .wheel-highlight-bar {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 44px;
+        border-top: 1px solid #e0e0e0;
+        border-bottom: 1px solid #e0e0e0;
+        background: rgba(57, 204, 159, 0.05);
+        transform: translateY(-50%);
+        pointer-events: none;
+        z-index: 1;
     }
 
     /* iframe 미리보기 스타일 */
@@ -2599,9 +2679,313 @@
       }
     }, 50);
   });
+
+  // ========== 근무시간 선택 바텀시트 JS 로직 ==========
+
+  // 휠 스크롤 위치에서 중앙 항목 결정 (requestAnimationFrame 디바운싱)
+  let wheelScrollTimeout;
+  function updateWheelActiveItem(wheelCol) {
+    var ul = wheelCol.querySelector('ul');
+    if (!ul) return;
+
+    var items = Array.from(ul.querySelectorAll('li')); // Array.from: NodeList를 배열로 변환
+    var colRect = wheelCol.getBoundingClientRect(); // 컬럼의 뷰포트 위치와 크기
+    var colCenterY = colRect.height / 2; // 컬럼의 중앙 Y 좌표 (뷰포트 기준)
+    var minDistance = Infinity;
+    var activeItem = null;
+
+    items.forEach(function(item) {
+      var itemRect = item.getBoundingClientRect();
+      var itemCenterY = itemRect.top + itemRect.height / 2 - colRect.top;
+      var distance = Math.abs(itemCenterY - colCenterY);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        activeItem = item;
+      }
+    });
+
+    // 모든 항목에서 active 클래스 제거
+    items.forEach(function(item) {
+      item.classList.remove('active');
+    });
+
+    // 중앙 항목에 active 클래스 추가
+    if (activeItem) {
+      activeItem.classList.add('active');
+    }
+  }
+
+  // 휠 컬럼 스크롤 이벤트
+  function initWheelScroll(wheelCol) {
+    wheelCol.addEventListener('scroll', function() {
+      clearTimeout(wheelScrollTimeout);
+      wheelScrollTimeout = setTimeout(function() {
+        updateWheelActiveItem(wheelCol);
+
+        // wheelHour 변경 시 wheelAMPM도 함께 동기화
+        if (wheelCol.id === 'wheelHour') {
+          var sheet = document.getElementById('workTimePickerSheet');
+          if (sheet) {
+            var wheelAMPM = sheet.querySelector('#wheelAMPM');
+            if (wheelAMPM) {
+              // 현재 선택된 시간 가져오기 (0-23)
+              var activeHourItem = wheelCol.querySelector('li.active');
+              if (activeHourItem) {
+                var selectedHour = parseInt(activeHourItem.textContent.trim()) || 0;
+                // 시간에 따라 오전(0-11)/오후(12-23) 결정
+                var ampmIndex = selectedHour >= 12 ? 1 : 0;
+                // wheelAMPM 스크롤 동기화
+                var ampmItems = wheelAMPM.querySelectorAll('li');
+                if (ampmItems[ampmIndex]) {
+                  var ul = wheelAMPM.querySelector('ul');
+                  if (ul) {
+                    var targetScrollTop = ampmItems[ampmIndex].offsetTop - (wheelAMPM.clientHeight / 2 - 22);
+                    wheelAMPM.scrollTop = targetScrollTop;
+                  }
+                  updateWheelActiveItem(wheelAMPM);
+                }
+              }
+            }
+          }
+        }
+      }, 50);
+    });
+
+    // 초기 active 항목 설정
+    updateWheelActiveItem(wheelCol);
+  }
+
+  // 바텀시트 열 때 호출 - 현재 값으로 휠 위치 설정
+  window.openTimePicker = function(prefix) {
+    var sheet = document.getElementById('workTimePickerSheet');
+    var hourInput = document.querySelector('input[name="' + prefix + '_h"]');
+    var minuteInput = document.querySelector('input[name="' + prefix + '_m"]');
+
+    if (!sheet || !hourInput || !minuteInput) return;
+
+    // 배경 스크롤 잠금
+    var pageElement = document.querySelector('.page');
+    if (pageElement) {
+      pageElement.style.overflow = 'hidden';
+    }
+
+    var currentHour = parseInt(hourInput.value) || 0;
+    var currentMinute = parseInt(minuteInput.value) || 0;
+
+    // 휠 컬럼 참조 저장
+    var wheelAMPM = sheet.querySelector('#wheelAMPM');
+    var wheelHour = sheet.querySelector('#wheelHour');
+    var wheelMinute = sheet.querySelector('#wheelMinute');
+
+    // 시간 휠을 현재 시간으로 스크롤 (0-23)
+    if (wheelHour) {
+      var hourItems = wheelHour.querySelectorAll('li');
+      if (hourItems[currentHour]) {
+        var targetHourScrollTop = hourItems[currentHour].offsetTop - (wheelHour.clientHeight / 2 - 22);
+        wheelHour.scrollTop = targetHourScrollTop; // 중앙 항목이 화면 중앙에 오도록 스크롤
+        updateWheelActiveItem(wheelHour);
+
+        // AMPM 휠도 현재 시간에 따라 동기화 (0-11: 오전, 12-23: 오후)
+        if (wheelAMPM) {
+          var ampmIndex = currentHour >= 12 ? 1 : 0;
+          var ampmItems = wheelAMPM.querySelectorAll('li');
+          if (ampmItems[ampmIndex]) {
+            var targetAMPMScrollTop = ampmItems[ampmIndex].offsetTop - (wheelAMPM.clientHeight / 2 - 22);
+            wheelAMPM.scrollTop = targetAMPMScrollTop;
+            updateWheelActiveItem(wheelAMPM);
+          }
+        }
+      }
+    }
+
+    // 분 휠을 현재 분(10분 단위)로 스크롤
+    if (wheelMinute) {
+      var minuteIndex = Math.round(currentMinute / 10);
+      var minuteItems = wheelMinute.querySelectorAll('li');
+      if (minuteItems[minuteIndex]) {
+        var targetMinuteScrollTop = minuteItems[minuteIndex].offsetTop - (wheelMinute.clientHeight / 2 - 22);
+        wheelMinute.scrollTop = targetMinuteScrollTop;
+        updateWheelActiveItem(wheelMinute);
+      }
+    }
+
+    // 활성 prefix 저장
+    sheet.setAttribute('data-active-prefix', prefix);
+  };
+
+  // 확인 버튼 클릭 핸들러
+  window.confirmTimePicker = function() {
+    var sheet = document.getElementById('workTimePickerSheet');
+    if (!sheet) return;
+
+    var prefix = sheet.getAttribute('data-active-prefix');
+    if (!prefix) return;
+
+    var wheelHour = sheet.querySelector('#wheelHour');
+    var wheelMinute = sheet.querySelector('#wheelMinute');
+
+    if (!wheelHour || !wheelMinute) return;
+
+    // 중앙(active) 항목의 값 읽기
+    var activeHourItem = wheelHour.querySelector('li.active');
+    var activeMinuteItem = wheelMinute.querySelector('li.active');
+
+    if (!activeHourItem || !activeMinuteItem) return;
+
+    var selectedHour = activeHourItem.textContent.trim();
+    var selectedMinute = activeMinuteItem.textContent.trim();
+
+    // Hidden input 값 업데이트
+    var hourInput = document.querySelector('input[name="' + prefix + '_h"]');
+    var minuteInput = document.querySelector('input[name="' + prefix + '_m"]');
+
+    if (hourInput && minuteInput) {
+      hourInput.value = selectedHour;
+      minuteInput.value = selectedMinute;
+
+      // 트리거 버튼의 표시 텍스트 업데이트
+      var trigger = document.querySelector('.js-time-picker-trigger[data-time-prefix="' + prefix + '"]');
+      if (trigger) {
+        var timeDisplay = trigger.querySelector('.time-display');
+        if (timeDisplay) {
+          timeDisplay.textContent = selectedHour + ' : ' + selectedMinute;
+        }
+      }
+    }
+
+    // 데이터 저장 함수 호출
+    if (typeof syncTimeHiddenFields === 'function') {
+      syncTimeHiddenFields();
+    }
+    if (typeof savePage1Data === 'function') {
+      savePage1Data();
+    }
+
+    // 배경 스크롤 복원
+    var pageElement = document.querySelector('.page');
+    if (pageElement) {
+      pageElement.style.overflow = '';
+    }
+
+    // 바텀시트 닫기
+    if (typeof closePanel === 'function') {
+      closePanel(sheet);
+    }
+  };
+
+  // 문서 로드 완료 후 초기화
+  document.addEventListener('DOMContentLoaded', function() {
+    var sheet = document.getElementById('workTimePickerSheet');
+    if (!sheet) return;
+
+    var wheelAMPM = sheet.querySelector('#wheelAMPM');
+    var wheelHour = sheet.querySelector('#wheelHour');
+    var wheelMinute = sheet.querySelector('#wheelMinute');
+
+    // 휠 스크롤 이벤트 초기화
+    if (wheelAMPM) initWheelScroll(wheelAMPM);
+    if (wheelHour) initWheelScroll(wheelHour);
+    if (wheelMinute) initWheelScroll(wheelMinute);
+
+    // 바텀시트가 닫힐 때 스크롤 복원
+    var timePickerObserver = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          var $target = $(mutation.target);
+          if (!$target.hasClass('on')) {
+            // 바텀시트가 닫혔을 때 스크롤 복원
+            var pageElement = document.querySelector('.page');
+            if (pageElement) {
+              pageElement.style.overflow = '';
+            }
+          }
+        }
+        if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
+          var $target = $(mutation.target);
+          if ($target[0].hidden === true) {
+            // 바텀시트가 숨겨졌을 때 스크롤 복원
+            var pageElement = document.querySelector('.page');
+            if (pageElement) {
+              pageElement.style.overflow = '';
+            }
+          }
+        }
+      });
+    });
+
+    timePickerObserver.observe(sheet, {
+      attributes: true,
+      attributeFilter: ['class', 'hidden', 'style']
+    });
+
+    // 바텀시트 Swipe 초기화
+    if (typeof initPanelSwipe === 'function') {
+      initPanelSwipe('workTimePickerSheet');
+    }
+
+    // 시간 선택 트리거 버튼 클릭 이벤트
+    var timeTriggers = document.querySelectorAll('.js-time-picker-trigger');
+    timeTriggers.forEach(function(trigger) {
+      trigger.addEventListener('click', function(e) {
+        e.preventDefault();
+        var prefix = this.getAttribute('data-time-prefix');
+        if (prefix) {
+          openTimePicker(prefix);
+        }
+      });
+    });
+  });
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>
 <?php
 $addrPopupId = 'changeAreaExpose';
 include(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new_tpl.php');
+?>
+
+<!-- 근무시간 선택 바텀시트 -->
+<?php
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_helpers.php');
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
+
+// 시/분 휠피커 콘텐츠 생성
+// 오전/오후 리스트
+$ampmList = '<li>오전</li><li>오후</li>';
+
+// 시간 리스트 (0-23)
+$hoursList = '';
+for ($h = 0; $h <= 23; $h++) {
+    $hoursList .= '<li>' . str_pad($h, 2, "0", STR_PAD_LEFT) . '</li>';
+}
+
+$minutesList = '';
+for ($m = 0; $m <= 50; $m += 10) {
+    $minutesList .= '<li>' . str_pad($m, 2, "0", STR_PAD_LEFT) . '</li>';
+}
+
+$timePickerContent = '
+<div class="time-wheel-picker">
+    <div class="wheel-col wheel-col-ampm" id="wheelAMPM">
+        <ul>' . $ampmList . '</ul>
+    </div>
+    <div class="wheel-col wheel-col-hour" id="wheelHour">
+        <ul>' . $hoursList . '</ul>
+    </div>
+    <div class="wheel-col-separator">:</div>
+    <div class="wheel-col wheel-col-minute" id="wheelMinute">
+        <ul>' . $minutesList . '</ul>
+    </div>
+    <div class="wheel-highlight-bar"></div>
+</div>';
+
+renderBottomSheet(
+    'workTimePickerSheet',
+    '근무시간을 선택해 주세요',
+    $timePickerContent,
+    '확인',
+    'btnTimePickerConfirm',
+    'confirmTimePicker()',
+    'bottom-sheet-time-picker',
+    'time-wheel-picker-content'
+);
 ?>
