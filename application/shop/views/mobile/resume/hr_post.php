@@ -250,52 +250,11 @@ function fRemoveBigAdr($arg)
                             <span class="sr-text">즐겨찾기 추가</span>
                         </button>
                     </div>
-                    <?php if ($this->user->getUserType() != "COMP") { ?>
-                        <ul class="profile-record">
-                            <li><span class="label">프로필 조회</span><em class="value">0</em></li>
-                            <li><span class="label">받은제안</span><em class="value">0</em></li>
-                            <li><span class="label">관심인재</span><em class="value">0</em></li>
-                        </ul>
-                    <?php } else { //comp 
-                    ?>
-                        <?php
-
-                        // 현재 로그인한 회원의 정보
-                        $current_user_info = $this->user->getCurrentUserInfo();
-                        $is_sns_login = !empty($current_user_info["mm_join_type"]) && in_array(strtoupper($current_user_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
-                        // 인증 완료 조건: mm_di가 "MC0"으로 시작하거나 SNS 로그인인 경우
-                        // PASS로 인증한 회원의 DI 값은 'MC0'로 시작하므로, PASS 본인인증 여부를 확인하기 위해 mm_di가 'MC0'로 시작하는지 확인함.
-                        // 또는 SNS 로그인을 한 경우에도 인증된 것으로 간주함.
-                        // $is_authenticated 변수는 현재 사용자가 PASS 본인인증(PASS 인증시 mm_di가 'MC0'로 시작) 또는 카카오/애플/네이버 SNS 로그인($is_sns_login) 중 하나라도 만족하면 true가 됩니다. 즉, 인증된 회원인지를 나타냄.
-                        $is_authenticated = ($current_user_info["mm_di"] != null && (strpos($current_user_info["mm_di"], "MC0") === 0 || $is_sns_login));
-
-                        if ($current_user_info["mm_comp_num"] == "" || !$is_authenticated) { ?>
-                            <ul class="profile-record">
-                                <li><span class="label">프로필 조회</span><em class="value">0</em></li>
-                                <li><span class="label">받은제안</span><em class="value">0</em></li>
-                                <li><span class="label">관심인재</span><em class="value">0</em></li>
-                            </ul>
-                            <!-- 기업회원 인증 안내 메시지 및 버튼 기능 주석처리 (사용 안 함) -->
-                            <!--
-                            <div style="position: absolute; top: 128px; left: 0px; width: 100%; height: 173px;">
-                                <span style="position: absolute; top: 24px; font-size: 1.8em; font-weight: 600; left: 49px;">기업회원 인증시 <br>확인이 가능합니다.</span>
-                                <?php if ($current_user_info["mm_comp_num"] == "") { ?>
-                                    <a href="javascript:void(0);" id="btnCompCert" style="position: absolute; top: 65px; right: 70px; background-color: #57CCAF; color: #fff; padding: 5px 10px; border-radius: 6px;">사업자 인증</a>
-                                <?php } ?>
-                                <?php if (!$is_authenticated) { ?>
-                                    <a href="/compage/index?gbn=pass" style="position: absolute; top: 120px; right: 180px; background-color: #57CCAF; color: #fff; padding: 5px 10px; border-radius: 6px;">PASS 인증</a>
-                                <?php } ?>
-                            </div>
-                            -->
-                        <?php     } else { ?>
-                            <ul class="profile-record">
-                                <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                                <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                                <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
-                            </ul>
-                        <?php     } ?>
-                    <?php } //comp 
-                    ?>
+                    <ul class="profile-record">
+                        <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                        <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                        <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                    </ul>
                 </div>
             </div>
             <!-- 20220929 수정 -->
