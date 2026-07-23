@@ -12,6 +12,10 @@
     --result-card-badge-margin: 3px;
     --result-card-badge-padding: 3px;
     --result-card-badge-radius: 3px;
+    --resume-write-input-font-size: 20px;
+    --resume-write-input-height: 3.5rem;
+    --recruit-write-input-height: 3.5rem;
+    --recruit-write-input-font-size: 20px;
 }
     
 /* 공통: 버튼/링크 눌림 표시 제거 */
@@ -926,7 +930,7 @@ object {
 .btn-clear {
     position: absolute;
     top: 50%;
-    right: 12px;
+    right: 25px;
     width: 1rem;
     height: 1rem;
     margin: -0.5rem 0 0;
@@ -1269,12 +1273,18 @@ object {
     -ms-user-select: none;
     user-select: none;
 }
+.page-recruit-write .form-checkbox .label:before {
+    top: 7px;
+}
+.page-recruit-write .form-checkbox .label:after {
+    top: 7px;
+}
 
 .form-checkbox .label:before {
     content: "";
     display: block;
     position: absolute;
-    top: 0;
+     top: 16px;
     left: 0;
     width: 1.375rem;
     height: 1.375rem;
@@ -1287,7 +1297,7 @@ object {
     content: "";
     display: block;
     position: absolute;
-    top: 0;
+    top: 16px;
     left: 0;
     width: 1.375rem;
     height: 1.375rem;
@@ -1336,7 +1346,7 @@ object {
     content: "";
     display: block;
     position: absolute;
-    top: 0;
+     top: 16px;
     left: 0;
     width: 1.25rem;
     height: inherit;
@@ -1349,7 +1359,7 @@ object {
     content: "";
     display: block;
     position: absolute;
-    top: 0;
+     top: 16px;
     left: 0;
     width: 1.25rem;
     height: inherit;
@@ -1463,7 +1473,7 @@ object {
     font-style: normal;
     font-weight: 400;
     line-height: 1.1538461538;
-    vertical-align: top;
+    vertical-align: inherit;
 }
 
 .form-label .option {
@@ -1471,7 +1481,7 @@ object {
     display: -ms-flexbox;
     display: flex;
     position: absolute;
-    top: 0;
+    top: -10px;
     right: 0;
 }
 
@@ -1749,7 +1759,7 @@ object {
     font-style: normal;
     font-weight: 400;
     line-height: 1.1538461538;
-    vertical-align: top;
+    vertical-align: inherit;
 }
 
 /* 20221022 수정 */
@@ -1882,7 +1892,7 @@ object {
     padding: 0 0.25rem;
     font-size: 17px;
     color: #222;
-    line-height: 2.7;
+    line-height: 2.1;
     text-align: center;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -2011,7 +2021,9 @@ object {
     color: #777;
     background-image: url("../img/ic_help_rule.svg");
 }
-
+.form-row.js-detail-section.show .form-group {
+        padding: 0 8px 0 0;
+}
 .form-group {
     position: relative;
     display: -webkit-box;
@@ -2041,7 +2053,7 @@ object {
     margin: auto;
     width: 1px;
     height: 0.875rem;
-    border-left: 1px solid #BEBFC9;
+    border-left: 1px solid #000000;
 }
 
 .form-group>.col:first-child:before {
@@ -2080,7 +2092,7 @@ object {
 .form-group .form-selectbox {
     position: relative;
     min-width: 4.375rem;
-    text-align: inherit;
+    
 }
 
 .form-group .form-selectbox .liner {
@@ -8381,9 +8393,9 @@ form#frm {
 .page-recruit-write .address-add-btn {
     display: block;
     width: 100%;
-    min-height: 3.5rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 1rem;
+    min-height: var(--recruit-write-input-height);
+   
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
     line-height: 1.4;
@@ -8465,12 +8477,12 @@ form#frm {
 
 .page-recruit-write .form-row>label>.form-text {
     width: 100%;
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0 1.25rem;
-    font-size: 1rem;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     border: 1px solid #BEBFC9;
     border-radius: 8px;
     background: #fff;
@@ -8481,7 +8493,7 @@ form#frm {
     color: #666;
     text-align: center;
     font-weight: 400;
-    font-size: 1.2rem;
+    font-size: var(--recruit-write-input-font-size);
 }
 
 .page-recruit-write .form-row>label>.form-text:focus {
@@ -8498,19 +8510,19 @@ form#frm {
 
 .page-recruit-write .salary-type-row .form-selectbox {
     flex: 1;
-    min-height: 3.5rem;
+    min-height: var(--recruit-write-input-height);
 }
 
 .page-recruit-write .salary-type-row .form-selectbox .liner {
-    min-height: 3.5rem;
-    height: 3.5rem;
+    min-height: var(--recruit-write-input-height);
+    height: var(--recruit-write-input-height);
     padding: 0 1.25rem;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     border: 1px solid #BEBFC9;
     border-radius: 8px;
     background-color: #fff;
     background-position: calc(100% - 1.25rem) 50%;
-    font-size: 1rem;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
     text-align: left;
@@ -8523,12 +8535,12 @@ form#frm {
 
 .page-recruit-write .salary-type-row .form-text {
     flex: 1;
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0 1.25rem;
-    font-size: 1rem;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     border: 1px solid #BEBFC9;
     border-radius: 8px;
     background: #fff;
@@ -8586,20 +8598,21 @@ form#frm {
 }
 
 .page-recruit-write .form-toggle-group .form-toggle-btn2 .btn {
-    height: 3.5rem;
-    line-height: 3.5rem;
+    height: var(--recruit-write-input-height);
+    line-height: var(--recruit-write-input-height);
+    font-size: var(--recruit-write-input-font-size);
 }
 
 .page-recruit-write .detail-register-btn {
     display: block;
     width: 100%;
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     margin-top: 0.875rem;
     padding: 0 1.25rem;
-    font-size: 17px;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     text-align: center;
     text-decoration: none;
     border: 1px solid #BEBFC9;
@@ -8623,13 +8636,13 @@ form#frm {
 
 .page-recruit-write .datepicker-wrapper .form-text {
     width: 100%;
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0 1.25rem;
     padding-right: 2.5rem;
-    font-size: 17px;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     text-align: center;
     cursor: pointer;
     background-color: #fff;
@@ -8667,9 +8680,9 @@ form#frm {
 }
 
 .page-recruit-write .datepicker-separator {
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     color: #222;
-    font-size: 1rem;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
 }
 
@@ -8707,10 +8720,10 @@ form#frm {
 
 .page-recruit-write .age-range-group select {
     flex: 1;
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0 1.25rem;
     padding-right: 2.5rem;
-    font-size: 17px;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
     text-align: center;
@@ -8734,10 +8747,10 @@ form#frm {
 }
 
 .page-recruit-write .age-range-group .age-separator {
-    font-size: 1rem;
+    font-size: var(--recruit-write-input-font-size);
     color: #222;
     font-weight: 400;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
 }
 
 .page-recruit-write .form-pic-group {
@@ -8824,11 +8837,11 @@ form#frm {
 
 .page-recruit-write .form-toggle-group.col-3 .form-toggle-btn2.tag .btn {
     min-width: calc(33.333% - 0.5rem);
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0 0.75rem;
-    font-size: 17px;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     color: #222;
     border: 1px solid #BEBFC9;
     border-radius: 8px;
@@ -8846,7 +8859,7 @@ form#frm {
 .page-recruit-write .form-toggle-group.col-3 .btn-add-more {
     display: inline-block;
     min-width: calc(33.333% - 0.5rem);
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0;
     margin-top: 0.8rem;
     margin-right: 0.5rem;
@@ -8854,7 +8867,7 @@ form#frm {
     font-size: 1.5rem;
     font-weight: 300;
     color: #999;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     text-align: center;
     border: 1px solid #BEBFC9;
     border-radius: 8px;
@@ -8886,12 +8899,12 @@ form#frm {
 }
 
 .page-recruit-write .hashtag-input-area .form-text {
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0 0.75rem;
-    font-size: 0.9375rem;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #222;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     border: 1px solid #BEBFC9;
     border-radius: 8px;
     background: #fff;
@@ -8904,9 +8917,9 @@ form#frm {
 }
 
 .page-recruit-write .hashtag-input-area .btn-confirm {
-    height: 3.5rem;
+    height: var(--recruit-write-input-height);
     padding: 0 1.5rem;
-    font-size: 0.9375rem;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 500;
     color: #fff;
     background-color: #1B9D7D;
@@ -8949,13 +8962,13 @@ form#frm {
 .page-recruit-write .day-of-week-group .day-btn .btn {
     display: block;
     width: 100%;
-    height: 3.5rem;
-    min-width: 3.5rem;
+    height: var(--recruit-write-input-height);
+    min-width: var(--recruit-write-input-height);
     padding: 0;
-    font-size: 17px;
+    font-size: var(--recruit-write-input-font-size);
     font-weight: 400;
     color: #999;
-    line-height: 3.5rem;
+    line-height: var(--recruit-write-input-height);
     text-align: center;
     border: 1px solid #BEBFC9;
     border-radius: 8px;
@@ -8968,6 +8981,33 @@ form#frm {
     font-weight: 500;
     border-color: #57CCAF;
     background-color: #57CCAF;
+}
+
+/* 채용공고 페이지 체크박스 라벨 폰트 통일 */
+.page-recruit-write .form-checkbox .label {
+    font-size: var(--recruit-write-input-font-size);
+}
+
+/* 공고노출지역 가로 배치 */
+.page-recruit-write .expose-addr-group {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.page-recruit-write .expose-addr-group .address-btn-wrapper {
+    flex: 1;
+}
+
+/* 근무시간 출근/퇴근 가로 배치 */
+.page-recruit-write .work-time-group {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.page-recruit-write .work-time-row {
+    flex: 1;
 }
 
 .page-recruit-write .sticky-bottom {
@@ -9081,7 +9121,7 @@ form#frm {
 
 .page-resume-write .datepicker-icon {
     position: absolute;
-    right: 0.75rem;
+    right: 2.75rem;
     top: 50%;
     transform: translateY(-50%);
     width: 1.25rem;
@@ -9165,6 +9205,84 @@ form#frm {
 .page-resume-write .sticky-bottom {
     z-index: 5;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 이력서 입력/선택 요소 폰트 사이즈 20px 통일 */
+.page-resume-write .form-text,
+.page-resume-write .form-textarea,
+.page-resume-write .form-selectbox option,
+.page-resume-write .form-toggle-btn2 .btn,
+.page-resume-write .form-toggle-btn2.sm .btn,
+.page-resume-write .form-checkbox .label,
+.page-resume-write .btn-add-item,
+.page-resume-write .detail-register-btn,
+.page-resume-write .detail-register-btn .add-icon,
+.page-resume-write .form-group .col .form-text {
+    font-size: var(--resume-write-input-font-size);
+}
+
+/* 경력사항: 3개 필드 균등 배치 및 미니멀 스타일 */
+
+.page-resume-write .form-group .col:nth-child(1) {
+    flex: 1;
+}
+.page-resume-write .form-group .col:nth-child(2) {
+    flex: 2;
+}
+.page-resume-write .form-group .col:first-child {
+    flex: 1;
+}
+.page-resume-write .form-group .col > label {
+    display: block;
+}
+
+.page-resume-write .form-group .col > label .sr-text {
+    display: none;
+}
+
+.page-resume-write .form-group .col .form-text {
+    border: none;
+
+    height: var(--resume-write-input-height);
+    padding: 0.5rem 0;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.page-resume-write .form-group .col .form-text:focus {
+    border-bottom-color: #57CCAF;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+/* 이력서 입력/선택 요소 높이 통일 */
+.page-resume-write .form-textarea {
+    min-height: var(--resume-write-input-height);
+}
+
+.page-resume-write .form-toggle-btn2 .btn,
+.page-resume-write .form-toggle-btn2.sm .btn {
+    height: var(--resume-write-input-height);
+    
+}
+
+.page-resume-write .form-checkbox .label {
+    
+}
+
+.page-resume-write .btn-add-item,
+.page-resume-write .detail-register-btn {
+    height: var(--resume-write-input-height);
+}
+
+/* 희망지역 주소 필드 스타일 통일 */
+.page-resume-write .added-location-new .location-field-item {
+    height: var(--resume-write-input-height);
+    font-size: var(--resume-write-input-font-size);
+}
+
+.page-resume-write .added-location-new .location-add-btn .add-icon {
+    font-size: var(--resume-write-input-font-size);
 }
 
 /* padding 영역에만 배경색 적용 */
@@ -10151,9 +10269,9 @@ form#frm {
 /* 이력서명 입력 필드 pill 형태 스타일 */
 .resume-title-input {
     border-radius: 10px !important;
-    height: 3.5rem !important;
+    height: var(--resume-write-input-height) !important;
     padding: 0 1.25rem !important;
-    font-size: 1rem !important;
+    
     border: 1px solid #BEBFC9 !important;
     border-bottom: 1px solid #BEBFC9 !important;
     background: #fff !important;

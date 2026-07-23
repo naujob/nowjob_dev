@@ -59,7 +59,7 @@
                     <!-- 공고노출지역 섹션 -->
                     <div class="form-row">
                         <p class="form-label">공고노출지역<em>추가 노출지역을 선택해주세요</em></p>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div class="expose-addr-group">
                             <!-- 노출지역 1 -->
                             <div class="address-btn-wrapper">
                                 <a href="#changeAreaExpose" role="button" aria-haspopup="dialog" aria-controls="changeAreaExpose" class="address-add-btn js-toggle-panel" id="btnExposeAddr1" data-index="1">
@@ -709,13 +709,13 @@
     }
 
     .work-time-tag.day {
-        color: #4a90e2;
-        background: #e3f2fd;
+    color: white;
+    background: green;
     }
 
     .work-time-tag.night {
-        color: #7b5ea7;
-        background: #f3e5f5;
+        color: white;
+        background: red;
     }
 
     /* iframe 미리보기 스타일 */

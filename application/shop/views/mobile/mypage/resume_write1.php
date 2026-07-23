@@ -277,7 +277,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 </div>
             </div>
             <div class="form-row js-detail-section" data-section="career">
-                <p class="form-label">경력사항 <em>최대 3개까지만 등록가능</em></p>
+                <p class="form-label">경력사항</p>
                 <ol class="added-list">
                     <?php $arr_career_count = 0; ?>
                     <?php if (isset($info["arr_career"]) && $info["arr_career"] != "") :
@@ -288,7 +288,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     ?>
                             <li>
                                 <div class="form-group">
-                                    <div class="col sm">
+                                    <!-- 업종 선택 미사용 예정
+                                    <div class="col">
                                         <label class="form-selectbox js-career-category">
                                             <span class="sr-text">업종선택</span>
                                             <select name="career_category[]">
@@ -306,18 +307,19 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                             <span class="liner"></span>
                                         </label>
                                     </div>
+                                    -->
                                     <div class="col">
-                                        <div class="meta">
-                                            <label>
-                                                <span class="sr-text">업체명 입력</span>
-                                                <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?= isset($arr_temp[1]) ? $arr_temp[1] : "" ?>" autocomplete="off" class="form-text">
-                                            </label>
-                                            <label class="datepicker-wrapper">
-                                                <span class="sr-text">근무기간 입력</span>
-                                                <input type="text" name="career_period[]" placeholder="근무기간을 선택하세요" value="<?= isset($arr_temp[2]) ? $arr_temp[2] : "" ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
-                                                <span class="datepicker-icon"></span>
-                                            </label>
-                                        </div>
+                                        <label>
+                                            <span class="sr-text">업체명 입력</span>
+                                            <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?= isset($arr_temp[1]) ? $arr_temp[1] : "" ?>" autocomplete="off" class="form-text">
+                                        </label>
+                                    </div>
+                                    <div class="col">
+                                        <label class="datepicker-wrapper">
+                                            <span class="sr-text">근무기간 입력</span>
+                                            <input type="text" name="career_period[]" placeholder="근무기간" value="<?= isset($arr_temp[2]) ? $arr_temp[2] : "" ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
+                                            <span class="datepicker-icon"></span>
+                                        </label>
                                     </div>
                                 </div>
                                 <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
@@ -330,7 +332,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 <template id="careerTemp">
                     <li>
                         <div class="form-group">
-                            <div class="col sm">
+                            <!-- 업종 선택 미사용 예정
+                            <div class="col">
                                 <label class="form-selectbox js-career-category">
                                     <span class="sr-text">업종선택</span>
                                     <select name="career_category[]">
@@ -348,18 +351,19 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                     <span class="liner"></span>
                                 </label>
                             </div>
+                            -->
                             <div class="col">
-                                <div class="meta">
-                                    <label>
-                                        <span class="sr-text">업체명 입력</span>
-                                        <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" autocomplete="off" class="form-text">
-                                    </label>
-                                    <label class="datepicker-wrapper">
-                                        <span class="sr-text">근무기간 입력</span>
-                                        <input type="text" name="career_period[]" placeholder="근무기간을 선택하세요" autocomplete="off" class="form-text num js-career-datepicker" readonly>
-                                        <span class="datepicker-icon"></span>
-                                    </label>
-                                </div>
+                                <label>
+                                    <span class="sr-text">업체명 입력</span>
+                                    <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" autocomplete="off" class="form-text">
+                                </label>
+                            </div>
+                            <div class="col">
+                                <label class="datepicker-wrapper">
+                                    <span class="sr-text">근무기간 입력</span>
+                                    <input type="text" name="career_period[]" placeholder="근무기간" autocomplete="off" class="form-text num js-career-datepicker" readonly>
+                                    <span class="datepicker-icon"></span>
+                                </label>
                             </div>
                         </div>
                         <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
@@ -367,7 +371,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 </template>
             </div>
             <div class="form-row js-detail-section" data-section="license">
-                <p class="form-label">자격증 <em>허위사실 기재시 합격이 취소될 수 있습니다</em></p>
+                <p class="form-label">자격증</p>
                 <ol class="added-list">
                     <?php $arr_count = 0; ?>
                     <?php if ($info["arr_certi"] != "") :
