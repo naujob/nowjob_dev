@@ -876,27 +876,10 @@ if (!isset($addrPopupId)) {
                 if (currentStep === 1) {
                   $panel.find('.addr-popup-dept2 ul, .addr-popup-dept3 ul').empty();
 
-                  var addr1 = addr;
-                  var isSelected = $panel.find('.addr-popup-selbtn[data-step="1"][data-addr="' + addr1 + '"]').length > 0;
-
-                  if (!shouldHideAllRegions()) {
-                    var allLi = $('<li>')
-                      .attr('data-step', '1')
-                      .attr('data-addr', addr1)
-                      .toggleClass('addr-popup-on', isSelected)
-                      .append(
-                        $('<label>').append(
-                          $('<span>').addClass('text').text(replaceRegionNames(sido_name) + ' 전체'),
-                          $('<input>').attr({
-                            type: 'checkbox',
-                            name: 'chk[]'
-                          })
-                        )
-                      );
-                    $panel.find('.addr-popup-dept2 ul').append(allLi);
-                  }
-
                   $.each(ret.data, function(i, item) {
+                    if (item.gugun_name && item.gugun_name.includes('전체')) {
+                      return;
+                    }
                     var addr2 = addr + ' ' + item.gugun_name;
                     var isSelected = $panel.find('.addr-popup-selbtn[data-step="2"][data-addr="' + addr2 + '"]').length > 0;
 
@@ -935,6 +918,9 @@ if (!isset($addrPopupId)) {
                   }
 
                   $.each(ret.data, function(i, item) {
+                    if (item.b_dong_name && item.b_dong_name.includes('전체')) {
+                      return;
+                    }
                     var addr3 = addr + ' ' + item.b_dong_name;
                     var isSelected = $panel.find('.addr-popup-selbtn[data-step="3"][data-addr="' + addr3 + '"]').length > 0;
 
@@ -1136,6 +1122,7 @@ if (!isset($addrPopupId)) {
                     var addr = item.search_b_dong;
                     var step = item.step;
                     if (shouldHideAllRegions() && step < 3) return;
+                    if (addr && addr.includes('전체')) return;
                     var isSelected = $panel.find('.addr-popup-selbtn[data-step="' + step + '"][data-addr="' + addr + '"]').length > 0;
 
                     var displayText = step < 3 ? addr + ' 전체' : addr;

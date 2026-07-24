@@ -6196,7 +6196,7 @@ form#frm {
 }
 
 .find-loc-form .form-text {
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 700;
 }
 
@@ -6293,9 +6293,9 @@ form#frm {
 
 .post-info .address dt {
     display: block;
-    min-width: 2.625rem;
+    width: 3.625rem;
     padding: 0 4px;
-    font-size: 0.75rem;
+    font-size: 1.125rem;
     color: #1B9D7D;
     line-height: 1.6666666667;
     text-align: center;
@@ -6306,10 +6306,10 @@ form#frm {
 }
 
 .post-info .address dd {
-    margin: 0 0 0.8125rem 3.125rem;
-    font-size: 0.875rem;
+    margin: 0 0 0.8125rem 5.125rem;
+    font-size: 1.125rem;
     line-height: 1.4285714286;
-    word-break: keep-all;
+    /* word-break: keep-all; */
 }
 
 .terms-list {
@@ -6877,7 +6877,7 @@ form#frm {
     overflow: hidden;
     font-size: 12px;
     border-radius: 10px;
-    border: 1px solid #e0e0e0;
+    border: 1.5px solid #999;
     background: #fff;
     margin-bottom: 10px;
     transition: background 0.2s ease;
@@ -8819,8 +8819,8 @@ form#frm {
 
 .page-recruit-write .form-pic-group .form-pic .preview img {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 45px;
+    left: 45px;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -13795,3 +13795,10 @@ form#frm {
     font-size: 1.5rem;
 }
 
+/* .layer-panel .btn,
+.layer-panel .address dt {
+    font-size: 1.125rem;
+} */
+.layer-panel .form-text::placeholder {
+ text-align: left;
+}
