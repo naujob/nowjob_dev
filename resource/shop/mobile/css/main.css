@@ -1297,7 +1297,7 @@ object {
     content: "";
     display: block;
     position: absolute;
-    top: 16px;
+    top: 2px;
     left: 0;
     width: 1.375rem;
     height: 1.375rem;
@@ -2049,8 +2049,8 @@ object {
     content: "";
     display: block;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 4px;
+    left: -11px;
     bottom: 0;
     margin: auto;
     width: 1px;
@@ -6899,7 +6899,7 @@ form#frm {
 }
 
 .result-list-card .content-info .wicon img {
-    height: 19px;
+    height: 20px;
 }
 
 .result-list-card .content-info .title {
@@ -8433,6 +8433,8 @@ form#frm {
     display: block;
     max-width: 100%;
     word-break: break-word;
+    padding-left: 12px;
+    line-height: 3;
 }
 
 .page-recruit-write .form-row>.form-label.salary-label {
@@ -8825,6 +8827,37 @@ form#frm {
     height: 100%;
     object-fit: cover;
     z-index: 2;
+}
+
+.page-recruit-write .form-pic-group .form-pic .pic-badge {
+    position: absolute;
+    top: 0.375rem;
+    left: 0.375rem;
+    z-index: 3;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.6875rem;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.page-recruit-write .form-pic-group .form-pic .btn-pic-remove {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    z-index: 3;
+    width: 1.375rem;
+    height: 1.375rem;
+    line-height: 1.375rem;
+    text-align: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 0.875rem;
+    cursor: pointer;
 }
 
 .page-recruit-write .form-toggle-group.col-3 {
@@ -9222,6 +9255,9 @@ form#frm {
 .page-resume-write .form-group .col .form-text {
     font-size: var(--resume-write-input-font-size);
 }
+.page-resume-write .added-list input::placeholder {
+    text-align: left;
+}
 
 /* 경력사항: 3개 필드 균등 배치 및 미니멀 스타일 */
 
@@ -9246,7 +9282,7 @@ form#frm {
     border: none;
 
     height: var(--resume-write-input-height);
-    padding: 0.5rem 0;
+    padding: 4px 1px 0 15px;
     font-weight: 400;
     line-height: 1.5;
 }
@@ -13801,4 +13837,7 @@ form#frm {
 } */
 .layer-panel .form-text::placeholder {
  text-align: left;
+}
+.phone-popup input::placeholder{
+    text-align: left;
 }

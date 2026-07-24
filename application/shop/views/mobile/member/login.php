@@ -1314,7 +1314,7 @@ window.onload = function() {
     $("#gphone-auth-input").val("");
     $("#gphone-remain-time").html("0 : 00");
     $(".gphone-error").addClass("hidden");
-    // $(".gphone-auth-row").addClass("hidden");
+    $(".gphone-auth-row").addClass("hidden");
     $("#gphone-btn-auth").css("background-color", "#ccc");
     $("#gphone-btn-join").prop("disabled", true);
 
@@ -1544,7 +1544,7 @@ window.onload = function() {
   /* google-phone 시트/오버레이 스타일은 main.css .bs-overlay, .bs-sheet 공통 클래스로 관리 */
 </style>
 <!--뿌리오 전화번호 인증 팝업-->
-<div id="google-phone-popup" class="bs-overlay">
+<div id="google-phone-popup" class="bs-overlay phone-popup">
   <div id="google-phone-sheet" class="bs-sheet">
     <!-- 핸들 바 -->
     <div class="bs-handlebar"></div>

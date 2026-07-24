@@ -2603,6 +2603,18 @@ class Compage_proc extends CI_Controller
     json_return("00", "처리완료", ["rc_idx" => $rc_idx]);
   }
 
+  # 채용공고 메인사진 즉시 업로드 (DB 반영은 공고등록 최종확정 단계에서 처리)
+  function recruit_main_img_upload()
+  {
+    $rc_img1 = $this->common->img_upload_resize_url("member", "rc_img1", 600);
+
+    if ($rc_img1 == "") {
+      json_return("90", "이미지가 업로드 되지 않았습니다.");
+    }
+
+    json_return("00", "업로드 되었습니다.", ["url" => $rc_img1]);
+  }
+
   # 스텝3_1
   function recruit_write3_1()
   {
@@ -4152,8 +4164,8 @@ class Compage_proc extends CI_Controller
       return;
     }
 
-    // 이미지 업로드 처리
-    $img = $this->common->img_upload("editor", "Filedata");
+    // 이미지 업로드 처리 (리사이징 적용: 800x800)
+    $img = $this->common->img_upload_resize("editor", "Filedata", 800);
 
     header('Content-Type: application/json');
 

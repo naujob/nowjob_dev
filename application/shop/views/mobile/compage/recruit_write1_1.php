@@ -320,9 +320,6 @@
                     <div class="form-row">
                         <div class="resume-title-header">
                             <p class="form-label"><span class="required-asterisk">*</span>상세업무정보</p>
-                           
-                            <button type="button" id="uploadPhotoBtn_mobile" style="padding: 8px 14px; background-color: #31A182; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: auto; display: flex; align-items: center; gap: 6px; white-space: nowrap;"><i class="fa-regular fa-image" style="font-size: 16px;"></i> 사진</button>
-                            <input type="file" id="photoFileInput_mobile" accept="image/*" style="display:none;">
                         </div>
                         <label>
                             <span class="sr-text">상세업무정보 입력</span>
@@ -337,6 +334,49 @@
                             <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                             <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
                         </label>
+                    </div>
+
+                    <!-- 첨부사진 섹션 -->
+                    <div class="form-row">
+                        <p class="form-label">첨부사진</p>
+                        <div class="form-pic-group">
+                            <!-- 1번: 메인사진 -->
+                            <label class="form-pic <?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "has-image" : "" ?>">
+                                <span class="pic-badge">메인사진</span>
+                                <input type="file" name="rc_img1" id="rc_img1_input" accept="image/*" class="js-file-preview">
+                                <span class="preview">
+                                    <?php if (isset($info["rc_img1"]) && $info["rc_img1"] != "") : ?>
+                                        <img src="<?= $info["rc_img1"] ?>" />
+                                    <?php endif; ?>
+                                </span>
+                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                <input type='hidden' name='rc_img1_ori' value='<?= isset($info["rc_img1"]) ? $info["rc_img1"] : "" ?>' />
+                            </label>
+
+                            <!-- 2번: 상세페이지1 -->
+                            <label class="form-pic">
+                                <span class="pic-badge">상세페이지1</span>
+                                <input type="file" accept="image/*" class="js-detail-photo-select">
+                                <span class="preview"></span>
+                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                            </label>
+
+                            <!-- 3번: 상세페이지2 -->
+                            <label class="form-pic">
+                                <span class="pic-badge">상세페이지2</span>
+                                <input type="file" accept="image/*" class="js-detail-photo-select">
+                                <span class="preview"></span>
+                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                            </label>
+
+                            <!-- 4번: 상세페이지3 -->
+                            <label class="form-pic">
+                                <span class="pic-badge">상세페이지3</span>
+                                <input type="file" accept="image/*" class="js-detail-photo-select">
+                                <span class="preview"></span>
+                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- 해시태그 섹션 -->
@@ -503,48 +543,6 @@
                                     <option value="<?= $age ?>" <?= isset($info["rc_eage"]) && $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row js-detail-section">
-                        <p class="form-label">첨부사진</p>
-                        <div class="form-pic-group">
-                            <label class="form-pic <?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "has-image" : "" ?>">
-                                <input type="file" name="rc_img1" accept="image/*" class="js-file-preview">
-                                <span class="preview">
-                                    <?php if (isset($info["rc_img1"]) && $info["rc_img1"] != "") : ?>
-                                        <img src="<?= $info["rc_img1"] ?>" />
-                                        <input type='hidden' name='rc_img1_ori' value='<?= $info["rc_img1"] ?>' />
-                                    <?php endif; ?>
-                                </span>
-                            </label>
-                            <label class="form-pic <?= isset($info["rc_img2"]) && $info["rc_img2"] != "" ? "has-image" : "" ?>">
-                                <input type="file" name="rc_img2" accept="image/*" class="js-file-preview">
-                                <span class="preview">
-                                    <?php if (isset($info["rc_img2"]) && $info["rc_img2"] != "") : ?>
-                                        <img src="<?= $info["rc_img2"] ?>" />
-                                        <input type='hidden' name='rc_img2_ori' value='<?= $info["rc_img2"] ?>' />
-                                    <?php endif; ?>
-                                </span>
-                            </label>
-                            <label class="form-pic <?= isset($info["rc_img3"]) && $info["rc_img3"] != "" ? "has-image" : "" ?>">
-                                <input type="file" name="rc_img3" accept="image/*" class="js-file-preview">
-                                <span class="preview">
-                                    <?php if (isset($info["rc_img3"]) && $info["rc_img3"] != "") : ?>
-                                        <img src="<?= $info["rc_img3"] ?>" />
-                                        <input type='hidden' name='rc_img3_ori' value='<?= $info["rc_img3"] ?>' />
-                                    <?php endif; ?>
-                                </span>
-                            </label>
-                            <label class="form-pic <?= isset($info["rc_img4"]) && $info["rc_img4"] != "" ? "has-image" : "" ?>">
-                                <input type="file" name="rc_img4" accept="image/*" class="js-file-preview">
-                                <span class="preview">
-                                    <?php if (isset($info["rc_img4"]) && $info["rc_img4"] != "") : ?>
-                                        <img src="<?= $info["rc_img4"] ?>" />
-                                        <input type='hidden' name='rc_img4_ori' value='<?= $info["rc_img4"] ?>' />
-                                    <?php endif; ?>
-                                </span>
-                            </label>
                         </div>
                     </div>
 
@@ -2465,7 +2463,7 @@
 
         $(document).on("change", ".js-file-preview", function() {
             var $label = $(this).closest(".form-pic");
-            var file = this.files[0];
+            var file = this.files[0]; // 목록 중 첫 번째 파일 객체 (File 객체)
 
             if (file) {
                 var reader = new FileReader();
@@ -2481,6 +2479,153 @@
                 $label.removeClass("has-image");
             }
         });
+
+        // 1번(메인사진): 선택 즉시 미리보기 + 즉시 업로드
+        $(document).on("change", "#rc_img1_input", function() {
+            var $label = $(this).closest(".form-pic");
+            var $oriInput = $label.find("[name='rc_img1_ori']");
+            var $input = this;
+
+            // X 취소용 스냅샷 저장
+            $label.data("prevOri", $oriInput.val());
+            $label.data("prevPreviewHtml", $label.find(".preview").html());
+            $label.data("prevHasImage", $label.hasClass("has-image"));
+
+            var file = this.files[0]; //목록 중 첫 번째 파일 객체 (File 객체)
+            if (!file) return;
+
+            $label.find(".btn-pic-remove").show();
+
+            var formData = new FormData();
+            formData.append("rc_img1", file);
+
+            showLoadingOverlay();
+            $.ajax({
+                url: "/compage_proc/recruit_main_img_upload",
+                type: "POST",
+                data: formData,
+                processData: false, // 중요: 데이터를 쿼리 스트링으로 변환하지 않도록 설정/  jQuery는 기본적으로 데이터를 보내기 전에 문자열(key=value)로 변환하려고 시도하지만, FormData 객체는 이미 올바른 형식이므로 변환하지 않아야 함
+                contentType: false,  // 중요: 브라우저가 알아서 boundary를 포함한 Content-Type을 설정하도록 함
+                dataType: "json",
+                success: function(ret) {
+                    hideLoadingOverlay();
+                    if (ret.code == "00") {
+                        // 최종확정 단계에서 이 값이 그대로 저장됨
+                        $oriInput.val(ret.url);
+                        // 로컬 미리보기는 .js-file-preview 핸들러가 이미 처리했음
+                    } else {
+                        commonAlert(ret.msg, function() {
+                            // 실패시 취소 처리
+                            $label.find(".btn-pic-remove").trigger("click");
+                        });
+                    }
+                },
+                error: function() {
+                    hideLoadingOverlay();
+                    commonAlert("사진 업로드 중 오류가 발생했습니다.", function() {
+                        $input.value = "";
+                    });
+                }
+            });
+        });
+
+        // 2~4번(상세페이지): 선택시 즉시 로컬 미리보기 + 업로드 + 에디터 삽입
+        $(document).on("change", ".js-detail-photo-select", function() {
+            var $label = $(this).closest(".form-pic");
+            var file = this.files[0];
+            if (!file) return;
+
+            // 1. 로컬 미리보기
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $label.find(".preview").html('<img src="' + e.target.result + '" />');
+                $label.addClass("has-image");
+                $label.find(".btn-pic-remove").show();
+            };
+            reader.readAsDataURL(file);
+
+            // 2. 즉시 업로드 + 에디터 삽입
+            uploadAndInsertIntoEditor(file, $label);
+        });
+
+        // X버튼(공용): 1번은 업로드 이전 상태로 복원, 2~4번은 초기화 + 에디터에서도 제거
+        $(document).on("click", ".form-pic .btn-pic-remove", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $label = $(this).closest(".form-pic");
+            var $input = $label.find("input[type=file]");
+            $input.val("");
+
+            var $oriInput = $label.find("[name='rc_img1_ori']");
+            if ($oriInput.length) {
+                // 1번 박스: 선택 이전 스냅샷으로 복원
+                var $preview = $label.find(".preview");
+                $preview.html($label.data("prevPreviewHtml") || "");
+                // 혹시 남은 이미지 태그 명시적으로 제거
+                $preview.find("img").remove();
+                $label.toggleClass("has-image", !!$label.data("prevHasImage"));
+                $oriInput.val($label.data("prevOri") || "");
+            } else {
+                // 2~4번 박스: 미리보기 초기화 + 에디터에서 해당 이미지 제거
+                var uploadedUrl = $label.data("uploadedUrl");
+                if (uploadedUrl) {
+                    // 상세업무정보 에디터에서 해당 URL의 이미지 제거
+                    var $editor = $("#rc_desc_editor");
+                    $editor.find("img[data-uploaded-url='" + uploadedUrl.replace(/'/g, "\\'") + "']").closest(".image-wrapper").remove();
+                    $label.data("uploadedUrl", null);
+                }
+                $label.find(".preview").html("");
+                $label.removeClass("has-image");
+            }
+            $(this).hide();
+        });
+
+        // 파일 선택 및 에디터에 이미지 삽입 공용 함수 (2~4번 박스 전용)
+        function uploadAndInsertIntoEditor(file, $label) {
+            var formData = new FormData();
+            formData.append('Filedata', file);
+
+            showLoadingOverlay();
+            $.ajax({
+                url: '/compage_proc/se2_image_upload',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success: function(response) {
+                    hideLoadingOverlay();
+                    if (response.success === 1) {
+                        var editor = document.getElementById('rc_desc_editor');
+                        var imageWrapper = document.createElement('div');
+                        imageWrapper.className = 'image-wrapper';
+                        imageWrapper.style.cssText = 'position: relative; display: inline-block; margin: 10px 0;';
+                        imageWrapper.dataset.uploadedUrl = response.url;
+
+                        var img = document.createElement('img');
+                        img.src = response.url;
+                        img.alt = response.name;
+                        img.style.cssText = 'max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd; display: block;';
+                        img.setAttribute('contenteditable', 'false');
+                        img.dataset.uploadedUrl = response.url;
+
+                        imageWrapper.appendChild(img);
+                        editor.appendChild(document.createElement('br'));
+                        editor.appendChild(imageWrapper);
+                        // 박스에 업로드된 URL 저장 (X 버튼으로 제거할 때 사용)
+                        if ($label && $label.length) {
+                            $label.data("uploadedUrl", response.url);
+                        }
+                    } else {
+                        commonAlert(file.name + ' 업로드에 실패했습니다.');
+                    }
+                },
+                error: function() {
+                    hideLoadingOverlay();
+                    commonAlert(file.name + ' 업로드 중 오류가 발생했습니다.');
+                }
+            });
+        }
 
         $("#btnPreview").click(function() {
             handleSubmit("preview");
@@ -2521,75 +2666,6 @@
      
     });
 
-    // 모바일 버전 사진 업로드 기능
-    $('#uploadPhotoBtn_mobile').on('click', function(e) {
-        e.preventDefault();
-
-        $('#photoFileInput_mobile').click();
-    });
-
-    $('#photoFileInput_mobile').on('change', function() {
-        if (this.files && this.files.length > 0) {
-            showLoadingOverlay();
-
-            var files = Array.from(this.files);
-            var uploadCount = 0;
-
-            // 여러 파일을 순회하면서 각각 업로드
-            files.forEach(function(file) {
-                var formData = new FormData();
-                formData.append('Filedata', file);
-
-                $.ajax({
-                    url: '/compage_proc/se2_image_upload',
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        uploadCount++;
-
-                        if (response.success === 1) {
-                            // contenteditable div에 이미지 추가
-                            var editor = document.getElementById('rc_desc_editor');
-                            var imageWrapper = document.createElement('div');
-                            imageWrapper.className = 'image-wrapper';
-                            imageWrapper.style.cssText = 'position: relative; display: inline-block; margin: 10px 0;';
-
-                            var img = document.createElement('img');
-                            img.src = response.url;
-                            img.alt = response.name;
-                            img.style.cssText = 'max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd; display: block;';
-                            img.setAttribute('contenteditable', 'false');
-
-                            imageWrapper.appendChild(img);
-                            editor.appendChild(document.createElement('br'));
-                            editor.appendChild(imageWrapper);
-                        } else {
-                            alert(file.name + ' 업로드에 실패했습니다.');
-                        }
-
-                        // 모든 파일 업로드 완료 시 로딩 숨기기
-                        if (uploadCount === files.length) {
-                            hideLoadingOverlay();
-                            // 파일 input 초기화 (같은 파일 재선택 가능)
-                            $('#photoFileInput_mobile').val('');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        uploadCount++;
-
-                        alert(file.name + ' 업로드 중 오류가 발생했습니다.');
-
-                        if (uploadCount === files.length) {
-                            hideLoadingOverlay();
-                            $('#photoFileInput_mobile').val('');
-                        }
-                    }
-                });
-            });
-        }
-    });
 
 </script>
 <script src="/resource/shop/mobile/js/common-utils.js"></script>
@@ -2620,8 +2696,9 @@
         var area = data.searchArea[0]; // 최대 1개만 선택 가능하므로 첫 번째만 사용
         $("#expose_addr" + fieldIndex + "_addr").val(area.addr);
         var $btn = $("#btnExposeAddr" + fieldIndex);
-        // data-addr의 전체 주소를 표시 필드에 표시
-        $btn.find(".address-text").text(area.addr);
+        // addrNames의 표시명을 주소 필드에 표시 (displayText 값)
+        var displayText = data.addrNames && data.addrNames.length > 0 ? data.addrNames[0] : area.addr;
+        $btn.find(".address-text").text(displayText);
         $btn.addClass("has-address");
         $btn.closest(".address-btn-wrapper").find(".address-clear-btn").show();
       }

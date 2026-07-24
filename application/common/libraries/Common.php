@@ -961,6 +961,7 @@ class common
 	}
 
 	//업로드후 URL + 원본파일명을 리턴받는다.
+	// ex: img_upload_url("member", "rc_img1");
 	function img_upload_url($path, $ipt_name)
 	{
 		$url = isset($_POST[$ipt_name . "_ori"]) ? ($_POST[$ipt_name . "_ori"]) : "";;
@@ -974,7 +975,26 @@ class common
 
 			if ($img["SUCCESS"] == true) {
 				$url = $img["URL"];
+
+				/**
+				 *    반환되는 정보
+
+				* 	$result = [
+				* 		"SUCCESS" => true/false,           // 성공 여부
+				* 		"URL" => "/resource/uploads/member/abc123.jpg",  // 저장된 경로
+				* 		"FILE_NAME" => "abc123.jpg",       // 저장된 파일명
+				* 		"WIDTH" => 300,                    // 이미지 너비
+				* 		"HEIGHT" => 300,                   // 이미지 높이
+				* 		"SIZE" => 45678,                   // 파일 크기 (바이트)
+				* 		"TYPE" => "image/jpeg",            // MIME 타입
+					* 	"ERROR" => ""                      // 에러 메시지
+				* 	];
+				 * 
+				 * 
+				 */
 			}
+				// $url : /resource/uploads/member/e86a37915a1d561ff9c093fc2e670c1e.jpg
+
 			return $url;
 		}
 	}

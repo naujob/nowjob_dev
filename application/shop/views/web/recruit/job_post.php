@@ -989,27 +989,27 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                       return;
                     }
 
-                    geocoder = geocoder.split(',');
-                    coords = new kakao.maps.LatLng(geocoder[0], geocoder[1]);
+                    geocoder = geocoder.split(','); // 문자열을 쉼표로 분리하여 배열로 변환 geocoder:["37.5665", "126.9780"]
+                    coords = new kakao.maps.LatLng(geocoder[0], geocoder[1]); // 좌표 객체로 생성하여 사용
 
-                    map = new kakao.maps.Map(mapContainer, {
+                    map = new kakao.maps.Map(mapContainer, { // 지도를 만드는 핵심 코드
                       center: coords,
-                      level: 3,
+                      level: 3, // 지도의 확대/축소 정도 -> 숫자가 클수록 지도가 축소됨
                     });
 
-                    map.setZoomable(false);
+                    map.setZoomable(true); //  마우스 휠로 지도 확대, 축소 가능 여부를 설정
 
-                    marker = new kakao.maps.Marker({
-                      position: coords,
+                    marker = new kakao.maps.Marker({ // 마커(핀) 만들기
+                      position: coords, // 마커를 찍을 위치
                       image: new kakao.maps.MarkerImage(
-                        '/resource/shop/web/img/ic_loc_pin2.svg',
+                        '/resource/shop/web/img/ic_loc_pin2.svg', // 기본 마커 대신 커스텀 이미지를 사용
                         new kakao.maps.Size(56, 74), {
                           offset: new kakao.maps.Point(38, 56)
                         }
                       )
                     });
 
-                    marker.setMap(map);
+                    marker.setMap(map); // 마커를 지도에 표시
                   });
                 </script>
 
