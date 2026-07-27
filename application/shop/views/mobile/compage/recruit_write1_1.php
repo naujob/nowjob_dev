@@ -89,11 +89,17 @@
                         <div class="form-toggle-group col-3">
                             <?php
                             $allowed_work_list = ["생산", "물류", "건설", "운전배달", "식당", "서비스", "사무직", "상담", "기타"];
+                            $rendered_works = []; // DB 중복 제거용
                             if (isset($rc_wrok_list)) {
                                 foreach ($rc_wrok_list as $row) :
                                     if (!in_array($row["cd_val"], $allowed_work_list, true)) {
                                         continue;
                                     }
+                                    // 이미 렌더링된 항목은 스킵 (중복 제거)
+                                    if (in_array($row["cd_val"], $rendered_works, true)) {
+                                        continue;
+                                    }
+                                    $rendered_works[] = $row["cd_val"];
                             ?>
                                     <label class="form-toggle-btn2 sm">
                                         <input type="checkbox" name="rc_work[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" data-img="<?= isset($row["cd_val2"]) ? $row["cd_val2"] : "" ?>" <?= isset($info["rc_work"]) && in_array_return($row["cd_val"], $info["rc_work"], "check") ? "checked" : "" ?>>
@@ -1171,7 +1177,7 @@
         }
         if (formData.expose_addr1_addr) {
             $("#expose_addr1_addr").val(formData.expose_addr1_addr);
-            $("#btnExposeAddr1").find(".address-text").text(formData.expose_addr1_addr);
+            $("#btnExposeAddr1").find(".address-text").text(fRemoveBigAdrJS(formData.expose_addr1_addr));
             $("#btnExposeAddr1").addClass("has-address");
         }
         if (formData.expose_addr1_gps_x) {
@@ -1193,7 +1199,7 @@
         }
         if (formData.expose_addr2_addr) {
             $("#expose_addr2_addr").val(formData.expose_addr2_addr);
-            $("#btnExposeAddr2").find(".address-text").text(formData.expose_addr2_addr);
+            $("#btnExposeAddr2").find(".address-text").text(fRemoveBigAdrJS(formData.expose_addr2_addr));
             $("#btnExposeAddr2").addClass("has-address");
         }
         if (formData.expose_addr2_gps_x) {
@@ -1297,8 +1303,7 @@
                 $("#expose_addr1_gps_y").val(serverAddrData1.ad_gps_y || "");
 
                 var $btnExposeAddr1 = $("#btnExposeAddr1");
-                var displayAddr1 = serverAddrData1.ad_addr || "";
-                $btnExposeAddr1.find(".address-text").text(displayAddr1);
+                $btnExposeAddr1.find(".address-text").text(fRemoveBigAdrJS(serverAddrData1.ad_addr || ""));
                 $btnExposeAddr1.addClass("has-address");
             }
         }
@@ -1313,8 +1318,7 @@
                 $("#expose_addr2_gps_y").val(serverAddrData2.ad_gps_y || "");
 
                 var $btnExposeAddr2 = $("#btnExposeAddr2");
-                var displayAddr2 = serverAddrData2.ad_addr || "";
-                $btnExposeAddr2.find(".address-text").text(displayAddr2);
+                $btnExposeAddr2.find(".address-text").text(fRemoveBigAdrJS(serverAddrData2.ad_addr || ""));
                 $btnExposeAddr2.addClass("has-address");
             }
         }
@@ -2674,8 +2678,21 @@
   window.onChangeAreaApply = function(data) {
     var pageType = window.__addrPopupPageType || 'default';
 
+    BrowserLogger.info('recruit_write1_1: onChangeAreaApply 실행', {
+      pageType: pageType,
+      hasSearchArea: !!(data && data.searchArea && data.searchArea.length > 0),
+      dataKeys: data ? Object.keys(data) : []
+    });
+
+    // 주소 등록 부분 (default)
+    if (pageType === 'default') {
+      BrowserLogger.info('주소 등록 처리', {
+        pageType: pageType,
+        selectAddrInfo: typeof selectAddrInfo
+      });
+    }
     // expose1 또는 expose2인 경우만 처리
-    if (pageType === 'expose1' || pageType === 'expose2') {
+    else if (pageType === 'expose1' || pageType === 'expose2') {
       // 선택된 필드 인덱스 추출 (expose1 -> 1, expose2 -> 2)
       var fieldIndex = pageType.replace('expose', '');
 
@@ -2696,9 +2713,8 @@
         var area = data.searchArea[0]; // 최대 1개만 선택 가능하므로 첫 번째만 사용
         $("#expose_addr" + fieldIndex + "_addr").val(area.addr);
         var $btn = $("#btnExposeAddr" + fieldIndex);
-        // addrNames의 표시명을 주소 필드에 표시 (displayText 값)
-        var displayText = data.addrNames && data.addrNames.length > 0 ? data.addrNames[0] : area.addr;
-        $btn.find(".address-text").text(displayText);
+        // 원본 주소에 fRemoveBigAdrJS를 적용하여 표시
+        $btn.find(".address-text").text(fRemoveBigAdrJS(area.addr));
         $btn.addClass("has-address");
         $btn.closest(".address-btn-wrapper").find(".address-clear-btn").show();
       }

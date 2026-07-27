@@ -3,6 +3,19 @@
 $ad_addr = trim($ad_addr);
 ?>
 <style>
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   #header {
     margin-bottom: 0;
   }
@@ -48,9 +61,7 @@ $ad_addr = trim($ad_addr);
     padding: 0;
   }
 
-  .page-map .result-wrap .scroll-content {
-    padding: 0;
-  }
+ 
 
   .btn-bookmark {
     display: block;

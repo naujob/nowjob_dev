@@ -640,8 +640,8 @@ class common
 			'FILE_NAME' => ""
 		);
 
-		if (! $this->CI->upload->do_upload($ipt_name)) {
-			$error = array('error' => $this->CI->upload->display_errors());
+		if (! $this->CI->upload->do_upload($ipt_name)) { // 파일 전송 실행
+			$error = array('error' => $this->CI->upload->display_errors()); // display_errors:업로드 실패 원인을 알고 싶을 때
 			//var_dump($error);
 			$result["IS_FILE"] = FALSE;
 			$result["URL"] = "";
@@ -653,8 +653,8 @@ class common
 			} else {
 				$result["EMPTY"] = "";
 			}
-		} else {
-			$data = array('upload_data' => $this->CI->upload->data());
+		} else {  // 업로드 성공 시 실행 코드
+			$data = array('upload_data' => $this->CI->upload->data()); // 업로드 성공 후에 정보가져오기/업로드된 파일의 모든 정보(파일명, 크기, 확장자 등)를 가져와서 $data 안에 저장
 			$file_name = $data['upload_data']['raw_name'];
 			$url = $real_upload_path . $path . "/" . $file_name . $data['upload_data']['file_ext'];
 			$result["IS_FILE"] = TRUE;
@@ -823,7 +823,7 @@ class common
 						$source = imagerotate($source, $degree, 0);
 						imagegif($source, $img_path);
 					} else if ($exifData['FileType'] == 2) {
-						$source = imagecreatefromjpeg($img_path);
+						$source = imagecreatefromjpeg($img_path); // imagecreatefromjpeg:GD 라이브러리
 						$source = imagerotate($source, $degree, 0);
 						imagejpeg($source, $img_path);
 					} else if ($exifData['FileType'] == 3) {

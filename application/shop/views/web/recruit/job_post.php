@@ -995,6 +995,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                     map = new kakao.maps.Map(mapContainer, { // 지도를 만드는 핵심 코드
                       center: coords,
                       level: 3, // 지도의 확대/축소 정도 -> 숫자가 클수록 지도가 축소됨
+                      maxLevel: 8 // 2km 범위까지만 축소 가능
                     });
 
                     map.setZoomable(true); //  마우스 휠로 지도 확대, 축소 가능 여부를 설정

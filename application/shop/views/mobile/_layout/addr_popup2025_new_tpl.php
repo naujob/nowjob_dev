@@ -534,7 +534,7 @@ if (!isset($addrPopupId)) {
           var $searchAddr = $panel.find('.addr-popup-search');
           var $dept = $panel.find('.addr-popup-dept');
           var debounceTimer = null;
-
+          // 세션 스토리지에서 선택된 지역 정보를 복원하여 div2에 표시하는 함수
           function restoreSelectedRegionsToDiv2() {
             var pageType = window.__addrPopupPageType || 'default';
             var storageKey_regions = 'selectedRegions_' + pageType;
@@ -708,7 +708,7 @@ if (!isset($addrPopupId)) {
             $clickedLi.addClass('addr-popup-on');
             get_location_data(step, addr);
           }
-
+          // 선택된 지역을 div2에 표시하고, 선택된 지역의 개수를 업데이트하는 함수
           function searchSelect(step, addr, $clickedLi) {
             var isSelected = $clickedLi.toggleClass('addr-popup-on').hasClass('addr-popup-on');
             var currentStep = parseInt(step, 10);
@@ -991,7 +991,7 @@ if (!isset($addrPopupId)) {
                   var text = $(this).clone().children().remove().end().text().trim();
                   addrNames.push(text);
                 });
-                var addrName = addrNames.join(', ');
+                var addrName = addrNames.join(', '); // 주소 목록(배열)을 예쁜 하나의 글자(문자열)로
 
                 window.selectedRegions = addrNames.slice(0, 1);
               } else {
@@ -1019,10 +1019,15 @@ if (!isset($addrPopupId)) {
               var storageKey_regions = 'selectedRegions_' + pageType;
               var storageKey_area = 'searchAreaStr_' + pageType;
               var storageKey_name = 'addrName_' + pageType;
+              // BrowserLogger.info('addr-popup-apply', {
+              //   addrName: addrName,
+              //   searchArea: searchArea,
+              //   selectedRegions: selectedRegions
+              // });
 
-              sessionStorage.setItem(storageKey_regions, JSON.stringify(window.selectedRegions));
-              sessionStorage.setItem(storageKey_area, JSON.stringify(searchArea));
-              sessionStorage.setItem(storageKey_name, addrName);
+              sessionStorage.setItem(storageKey_regions, JSON.stringify(window.selectedRegions));// 금남면
+              sessionStorage.setItem(storageKey_area, JSON.stringify(searchArea));// "searchArea":[{"addr":"충청북도 영동군 용화면","step":3}],
+              sessionStorage.setItem(storageKey_name, addrName);// [금남면]
 
               if (typeof window.saveSearchStateToStorage === 'function') {
                 window.saveSearchStateToStorage();
@@ -1035,13 +1040,22 @@ if (!isset($addrPopupId)) {
 
               if (typeof window.onChangeAreaApply === 'function') {
                 try {
-                  window.onChangeAreaApply({
+                  var callbackData = {
                     addrNames: addrNames,
                     addrNameText: addrName,
                     searchArea: searchArea,
                     searchAreaStr: searchAreaStr
+                  };
+                  BrowserLogger.info('onChangeAreaApply 호출됨', {
+                    pageType: window.__addrPopupPageType,
+                    data: callbackData
                   });
+                  window.onChangeAreaApply(callbackData);
                 } catch (e) {
+                  BrowserLogger.error('onChangeAreaApply 실행 오류', {
+                    pageType: window.__addrPopupPageType,
+                    error: e.message
+                  });
                 }
               }
 
@@ -1091,12 +1105,12 @@ if (!isset($addrPopupId)) {
               }
             }
           }
-
+          // 선택된 지역의 개수를 업데이트하는 함수
           function updateSelectedCount() {
-            var count = $panel.find('.selbtn').length;
-            $panel.find('.addr_sel_cnt').text(count);
+            var count = $panel.find('.addr-popup-selbtn').length;
+            $panel.find('.addr-popup-sel-cnt').text(count);
           }
-
+          // 검색어 입력 시 호출되는 함수
           function fSearchKeyUp() {
             var search_keyword = $txtInput.val().trim();
             if (search_keyword.length < 2) return;
@@ -1146,7 +1160,8 @@ if (!isset($addrPopupId)) {
               }
             });
           }
-
+          // 지역 이름을 간단하게 바꾸는 함수
+          // 예시: "서울특별시" -> "서울", "경기도" -> "경기"
           function replaceRegionNames(text) {
             var regionMap = {
               "서울특별시": "서울",

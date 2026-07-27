@@ -33,14 +33,29 @@ class Logger_proc extends CI_Controller
     $logs_base = dirname(APPPATH) . '/logs';
     $log_dir = $logs_base . '/' . date('Y-m-d');
 
+    // 디렉토리 생성 헬퍼 함수
+    $ensure_dir = function($path) {
+      if (!is_dir($path)) {
+        if (!@mkdir($path, 0755, true)) {
+          error_log('로그 디렉토리 생성 실패: ' . $path);
+          return false;
+        }
+      }
+      return true;
+    };
+
     // 부모 디렉토리 먼저 생성
-    if (!is_dir($logs_base)) {
-      @mkdir($logs_base, 0755, true);
+    if (!$ensure_dir($logs_base)) {
+      header('Content-Type: application/json');
+      echo json_encode(array('code' => '02', 'msg' => '로그 저장 디렉토리를 생성할 수 없습니다.'));
+      exit;
     }
 
     // 날짜별 디렉토리 생성
-    if (!is_dir($log_dir)) {
-      @mkdir($log_dir, 0755, true);
+    if (!$ensure_dir($log_dir)) {
+      header('Content-Type: application/json');
+      echo json_encode(array('code' => '02', 'msg' => '로그 저장 디렉토리를 생성할 수 없습니다.'));
+      exit;
     }
 
     // 로그 데이터 정리
@@ -57,8 +72,14 @@ class Logger_proc extends CI_Controller
     $log_file = $log_dir . '/browser.log';
     $log_line = json_encode($log_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
 
-    if (!@file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX)) {
+    // 파일이 없으면 새로 생성, 있으면 추가
+    $result = @file_put_contents($log_file, $log_line, FILE_APPEND | LOCK_EX);
+
+    if ($result === false) {
       error_log('logger_proc: 브라우저 로그 저장 실패 - ' . $log_file);
+      header('Content-Type: application/json');
+      echo json_encode(array('code' => '03', 'msg' => '로그 파일에 쓸 수 없습니다.'));
+      exit;
     }
 
     // 응답 (성공)
@@ -108,15 +129,15 @@ class Logger_proc extends CI_Controller
   {
     header('Content-Type: application/json');
 
-    $log_dir = dirname(APPPATH) . '/logs/' . date('Y-m-d');
+    $logs_base = dirname(APPPATH) . '/logs';
+    $log_dir = $logs_base . '/' . date('Y-m-d');
 
+    // 로그 디렉토리가 없으면 생성
+    if (!is_dir($logs_base)) {
+      @mkdir($logs_base, 0755, true);
+    }
     if (!is_dir($log_dir)) {
-      echo json_encode(array(
-        'code' => '01',
-        'msg' => '로그 디렉토리가 없습니다.',
-        'log_dir' => $log_dir
-      ));
-      exit;
+      @mkdir($log_dir, 0755, true);
     }
 
     $log_files = array();
