@@ -381,15 +381,15 @@ $ad_addr = trim($ad_addr);
   }
 
   .content-info .summary3 em.wtype1 {
-    color: #3a70db;
+    color: #000;
   }
 
   .content-info .summary3 em.wtype2 {
-    color: #F86048;
+    color: #000;
   }
 
   .content-info .summary3 em.wtype3 {
-    color: #1B9D7D;
+    color: #000;
   }
 
   .centerAddr {

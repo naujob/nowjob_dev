@@ -7,6 +7,21 @@ if (count($banner_list) > 0) {
 ?>
 <script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
 <style>
+      :root {
+
+    /* page-resume 폰트 크기 변수 (기본 15px 기준) */
+    --page-resume-font-size: 15px;
+    --page-resume-font-size-xs: 9px;      /* 9px */
+    --page-resume-font-size-10: 10px;     /* 10px */
+    --page-resume-font-size-sm: 12px;      /* 12px */
+    --page-resume-font-size-13: 13px;     /* 13px */
+    --page-resume-font-size-md: 14px;     /* 14px */
+    --page-resume-font-size-base: 15px;      /* 15px */
+    --page-resume-font-size-lg: 16px;     /* 16px */
+    --page-resume-font-size-18: 18px;      /* 18px */
+    --page-resume-font-size-xl: 21px;     /* 21px */
+    --page-resume-font-size-2xl: 27px;     /* 27px */
+}
 .search-result{
   width: 103%;
 }
@@ -46,7 +61,7 @@ if (count($banner_list) > 0) {
   .search-option1 {
     width: 100%;
     height: 450px;
-    margin: 0;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
@@ -84,9 +99,9 @@ if (count($banner_list) > 0) {
 
   .search-input input {
     flex: 1;
-    height: 30px;
+    height: 45px;
     padding: 5px 10px;
-    font-size: 14px;
+    font-size: var( --page-resume-font-size-lg);
     background-color: #fff;
     border: 1px solid #E8E8E8;
     border-radius: 3px;
@@ -452,7 +467,7 @@ if (count($banner_list) > 0) {
     cursor: pointer;
     padding: 5px 16px;
     font-size: 16px;
-    color: #ACAEB9;
+    color: #999;
     line-height: 1.5;
     border: 1px solid #e8e8e8;
     border-radius: 5px;
@@ -541,7 +556,7 @@ if (count($banner_list) > 0) {
     margin-right: 5px;
     margin-bottom: 5px;
     padding: 5px 10px 4px;
-    font-size: 14px;
+    font-size: var( --page-resume-font-size-lg);
     border: 1px solid #eee;
     border-radius: 5px;
     line-height: 1;
@@ -645,7 +660,7 @@ if (count($banner_list) > 0) {
     padding: 5px 10px 4px;
     line-height: 1;
     color: #000 !important;
-    font-size: 12px;
+    font-size: var( --page-resume-font-size-lg);
     transition: all .3s
   }
 
@@ -694,7 +709,7 @@ if (count($banner_list) > 0) {
     color: #333;
     background-color: #fafafa;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: var( --page-resume-font-size-lg);
     transition: all .3s
   }
 
@@ -733,6 +748,7 @@ if (count($banner_list) > 0) {
     flex-wrap: wrap;
     gap: 5px;
     padding: 10px;
+    height: 45px;
   }
 
   .searchOptionBtn {
@@ -741,7 +757,7 @@ if (count($banner_list) > 0) {
     font-size: 16px;
     line-height: 1.5;
     text-align: center;
-    padding: 5px 16px;
+    padding: 7px 16px;
     border: 1px solid #E8E8E8;
     border-radius: 5px;
     position: relative;
@@ -749,7 +765,7 @@ if (count($banner_list) > 0) {
     align-items: center;
     gap: 5px;
     cursor: pointer;
-    width: 140px;
+    width: 110px;
   }
 
   .searchOptionBtn.on {
@@ -809,6 +825,7 @@ if (count($banner_list) > 0) {
         <div class="search-result">
 
           <div class="content-area">
+           
             <div class="search-wrap">
 
               <div class="search-wrap-header">

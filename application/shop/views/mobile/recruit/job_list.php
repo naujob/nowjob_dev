@@ -47,7 +47,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
     background-color: #fff;
     border-radius: 20px;
     padding: 5px 10px;
-    font-size: 13px;
+    font-size: var(--page-recruit-font-size-13);
     color: #333;
     font-weight: 400;
     white-space: nowrap;
@@ -64,7 +64,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 
   .search-option .categories .filter-tag-item.on::after {
     content: '×';
-    font-size: 14px;
+    font-size: var(--page-recruit-font-size-md);
     color: #999;
     margin-left: 2px;
     line-height: 1;
@@ -74,7 +74,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 
   .current-area .btn {
     max-width: 100%;
-    font-size: 1.8rem;
+    font-size: var(--page-recruit-font-size-2xl);
   }
 
   /* 지금 뜨는 업체 슬라이더 양쪽 peek */
@@ -164,7 +164,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   }
 
   .recomm-slider.person .person-card .title-wrap .title {
-    font-size: 12px;
+    font-size: var(--page-recruit-font-size-sm);
     font-weight: 700;
     line-height: 1.3;
     margin: 0;
@@ -172,7 +172,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   }
 
   .recomm-slider.person .person-card .meta {
-    font-size: 0.8rem;
+    font-size: var(--page-recruit-font-size-sm);
     font-weight: 500;
     color: #000;
     margin: 2px 0 0;
@@ -200,12 +200,12 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   .recomm-slider.person .person-card .meta-divider {
     padding: 0 11px;
     color: #ccc;
-    font-size: 9px;
+    font-size: var(--page-recruit-font-size-xs);
     flex: 0 0 auto;
   }
 
   .recomm-slider.person .person-card .addr {
-    font-size: 1rem;
+    font-size: var(--page-recruit-font-size-base);
     font-weight: 700;
     margin: 2px 0 0;
     padding: 0;
@@ -226,7 +226,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   }
 
   .recomm-slider.person .person-card .tag {
-    font-size: 16px;
+    font-size: var(--page-recruit-font-size-lg);
     color: #fff;
     text-align: center !important;
   }
@@ -297,7 +297,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   .person-card .person-badge {
     position: static;
     padding: 2px 10px;
-    font-size: 10px;
+    font-size: var(--page-recruit-font-size-10);
     font-weight: 700;
     color: #fff;
     background-color: #1b9d7d;
@@ -324,7 +324,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   }
 
   .person-card .desc {
-    font-size: 13px;
+    font-size: var(--page-recruit-font-size-13);
     cursor: pointer;
     font-weight: 400;
   }
@@ -332,7 +332,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   /* 주소 */
   .person-card .addr {
     margin: 3px 0 0;
-    font-size: 12px;
+    font-size: var(--page-recruit-font-size-sm);
     color: #666;
     white-space: nowrap;
     overflow: hidden;
@@ -358,7 +358,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    font-size: 14px;
+    font-size: var(--page-recruit-font-size-md);
   }
 
   .person-card .title {
@@ -416,7 +416,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   .person-card .meta-divider {
     flex: 0 0 auto;
     padding: 0 2px;
-    font-size: 10px;
+    font-size: var(--page-recruit-font-size-10);
     color: #ccc;
     line-height: 1;
   }
@@ -444,7 +444,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
     position: absolute;
     top: 8px;
     left: 8px;
-    font-size: 10px;
+    font-size: var(--page-recruit-font-size-10);
     font-weight: 700;
     color: #999;
     z-index: 1;
@@ -661,7 +661,7 @@ $tpl_recomm_class = true; ?>
     color: white;
     padding: 12px 16px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--page-recruit-font-size-md);
     font-weight: 100;
     white-space: nowrap;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);

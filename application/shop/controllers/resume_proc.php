@@ -310,8 +310,8 @@ class Resume_proc extends CI_Controller
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
       $temp_list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"]);
-      $temp_list[$key]["ru_price_type"] = ($row["ru_price_type"]);
-      $temp_list[$key]["ru_price_type_raw"] = $row["ru_price_type"];
+      $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
+      $temp_list[$key]["ru_price_type_raw"] = ($row["ru_price_type"]);
       $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
       $temp_list[$key]["ru_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
       $temp_list[$key]["ru_name"] = (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'];

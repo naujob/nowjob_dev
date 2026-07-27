@@ -132,6 +132,22 @@ function fRemoveBigAdrPHP($arg)
 
 ?>
 <style>
+    :root {
+
+    /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
+    --page-recruit-font-size: 15px;
+    --page-recruit-font-size-xs: 9px;      /* 9px */
+
+    --page-recruit-font-size-10: 10px;     /* 10px */
+    --page-recruit-font-size-sm: 12px;      /* 12px */
+    --page-recruit-font-size-13: 13px;     /* 13px */
+    --page-recruit-font-size-md: 14px;     /* 14px */
+    --page-recruit-font-size-base: 15px;      /* 15px */
+    --page-recruit-font-size-lg: 16px;     /* 16px */
+    --page-recruit-font-size-18: 18px;      /* 18px */
+    --page-recruit-font-size-xl: 21px;     /* 21px */
+    --page-recruit-font-size-2xl: 27px;     /* 27px */
+}
   #header { 
     margin-bottom: 0;
   }
@@ -259,7 +275,7 @@ function fRemoveBigAdrPHP($arg)
 
   .history-body .content-info .summary {
     display: flex;
-    font-size: 14px;
+    font-size: var(--page-recruit-font-size-md);
     gap: 5px;
     position: relative;
   }
@@ -328,7 +344,7 @@ function fRemoveBigAdrPHP($arg)
     position: absolute;
     right: 2px;
     bottom: 0px;
-    font-size: 14px;
+    font-size: var(--page-recruit-font-size-md);
     font-weight: 700;
     letter-spacing: 0;
     color: #777;
@@ -386,7 +402,7 @@ function fRemoveBigAdrPHP($arg)
     width: auto;
     height: 16px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--page-recruit-font-size-md);
     font-weight: 600;
   }
 
@@ -423,16 +439,16 @@ function fRemoveBigAdrPHP($arg)
   }
 
   .history-body .content-info .summary3 .worktype em.wtype1 {
-    color: #3a70db;
+    color: #000;
   }
 
   .history-body .content-info .summary3 .worktype em.wtype2 {
-    color: #F86048;
+    color: #000;
     padding-left: 4px;
   }
 
   .history-body .content-info .summary3 .worktype em.wtype3 {
-    color: #1B9D7D;
+    color: #000;
     padding-left: 4px;
   }
 

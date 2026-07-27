@@ -46,9 +46,7 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
                 <p>{{ad_addr}}</p>
               </div>
               <?php if ($tpl_show_chat_mark): ?>
-              <div class="chat_mark" data-visible="{{has_chat}}">
-                  <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
-              </div>
+              <div class="chat_mark" data-visible="{{has_chat}}" data-rm_idx="{{chat_rm_idx}}" style="background-image: url('/resource/shop/mobile/img/hr_list_chat_mark.png');"></div>
               <?php endif; ?>
             </div>
             <div class="summary3">

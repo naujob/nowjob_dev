@@ -1,11 +1,12 @@
 <style>
+
   dl, dt, dd, ul, ol, menu, li {
     list-style: none;
   } 
   .search-option1 {
     width: 100%;
     height: 450px;
-    margin: 0;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
@@ -38,9 +39,9 @@
   }
   .search-input input {
     flex: 1;
-    height: 30px;
+    height: 45px;
     padding: 5px 10px;
-    font-size: 14px;
+    font-size: var( --page-resume-font-size-lg);
     background-color: #fff;
     border: 1px solid #E8E8E8;
     border-radius: 3px;
@@ -322,7 +323,7 @@
   }
   .search-list-header {
     width: 100px;
-    padding: 10px;
+    padding: 10px 10px 0px 10px;
   }
   .search-list-header .title {
     font-weight: 700;
@@ -330,7 +331,7 @@
   }
   .search-list-body {
     flex: 1;
-    padding: 10px;
+    padding:  10px 10px 0px 10px;
     box-sizing: border-box;
     overflow: auto;
   }
@@ -361,7 +362,7 @@
     cursor: pointer;
     padding: 5px 16px;
     font-size: 16px;
-    color: #ACACAC;
+    color: #999;
     line-height: 1.5;
     border: 1px solid #ACACAC;
     border-radius: 5px;
@@ -420,7 +421,7 @@
     margin-right: 5px;
     margin-bottom: 5px;
     padding: 5px 10px 4px;
-    font-size: 14px;
+    font-size: var( --page-resume-font-size-lg);
     border: 1px solid #eee;
     border-radius: 5px;
     line-height: 1;
@@ -512,7 +513,7 @@
     padding: 5px 10px 4px;
     line-height: 1;
     color: #000 !important;
-    font-size: 12px;
+    font-size: var( --page-resume-font-size-lg);
     transition: all .3s
   }
   .search-wrap-reset a span {
@@ -556,7 +557,7 @@
     color: #333;
     background-color: #fafafa;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: var( --page-resume-font-size-lg);
     transition: all .3s
   }
   .search-wrap-part-reset a span {
@@ -590,6 +591,7 @@
     flex-wrap: wrap;
     gap: 5px;
     padding:10px;
+    height: 45px;
   }
   .searchOptionBtn {
     background-color: #F6F8FA;
@@ -597,7 +599,7 @@
     font-size: 16px;
     line-height: 1.5;
     text-align: center;
-    padding: 5px 16px;
+    padding: 7px 16px;
     border: 1px solid #E8E8E8;
     border-radius: 5px;
     position: relative;
@@ -605,7 +607,9 @@
     align-items: center;
     gap: 5px;
     cursor: pointer;
-    width: 140px;
+    width: 110px;
+    box-sizing: content-box;
+
   }
   .searchOptionBtn.on {
     border: 1px solid #ADAEB9;

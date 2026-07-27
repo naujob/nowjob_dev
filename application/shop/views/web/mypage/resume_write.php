@@ -1454,7 +1454,7 @@
                                                             <option value="" selected disabled>업종</option>
                                                             <?php
                                                             // 표시 허용 업종 화이트리스트 (간단경력용)
-                                                            $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "매장관리", "건설", "상담"];
+                                                            $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "건설", "상담"];
                                                             foreach ($ru_wrok_list as $row) :
                                                                 // 허용 목록 이외 항목은 출력 제외
                                                                 if (!in_array($row["cd_val"], $allowed_work_list, true)) {

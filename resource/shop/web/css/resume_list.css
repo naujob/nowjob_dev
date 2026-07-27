@@ -265,7 +265,7 @@ display: flex;
 .item-info .area {
   display: block;
   margin-top: 5px;
-  color:#1B9D7D;
+  color:#000;
   font-size: 18px;
   font-weight: 600;
   max-height: 32px;

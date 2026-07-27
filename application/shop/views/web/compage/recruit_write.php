@@ -360,9 +360,7 @@
           align-self: center;
         }
 
-        .addition-info-form .value {
-          margin-top: 4px;
-        }
+       
 
         /* ====================
         근무조건 섹션 
@@ -1408,7 +1406,7 @@
 
         .extra-section .form-toggle-btn2 input:checked~.btn {
           color: #fff;
-          border-color: transparent;
+          
           background-color: #57CCAF;
         }
 
@@ -1475,6 +1473,54 @@
         /*============================================
                     스타일 추가
         ============================================*/
+
+        /* 공고노출지역 레이아웃 */
+        .expose-addr-row {
+          display: flex;
+          align-items: flex-start;
+          flex-wrap: nowrap;
+          
+        }
+
+        .expose-addr-row .form-label {
+          width: 257px;
+          
+         
+        }
+
+        .expose-addr-row .value {
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          flex: none;
+          margin-top: 0;
+          width: 580px;
+        }
+
+        /* 공고노출지역 가로 배치 */
+        .expose-addr-container {
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: flex-start;
+          width: 100%;
+        }
+
+        .expose-addr-container .addr-search-wrap {
+          flex: 1;
+          min-width: 0;
+          
+        }
+
+        .expose-addr-container .form-text.input-wide {
+          width: 100%;
+        }
+        #expose_addr2_doro::placeholder{
+          color: #999;
+          font-size: 30px;
+          font-weight: 400;
+          text-align: center;
+        }
       </style>
       <div class="tab-panel on">
         <div class="manage-my-content">
@@ -1635,16 +1681,16 @@
                   </div>
 
                   <!-- 공고노출지역 -->
-                  <div class="form-row">
+                  <div class="form-row expose-addr-row">
                     <p class="form-label">공고노출지역</p>
-                    <div class="value">
+                    <div class="value expose-addr-container">
                       <!-- 노출지역 1 -->
-                      <div class="addr-search-wrap row" style="margin-bottom:8px; position: relative;">
+                      <div class="addr-search-wrap row" style="position: relative;">
                         <input type="text" id="expose_addr1_doro"
                                value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_doro'] : '' ?>"
-                               placeholder="채용공고 추가 노출지역을 선택해주세요"
+                               placeholder="추가 노출지역 선택"
                                autocomplete="off" class="form-text input-wide" readonly>
-                        <i class="fas fa-search addr-search-icon"></i>
+                        
                         <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="1" aria-label="노출지역 1 삭제" style="display: <?= (isset($info['expose_addr1']) && $info['expose_addr1'] != null && !empty($info['expose_addr1']['ad_doro'])) ? 'inline-block' : 'none' ?>;">
                           <i class="fas fa-times"></i>
                         </button>
@@ -1653,9 +1699,9 @@
                       <div class="addr-search-wrap row" style="position: relative;">
                         <input type="text" id="expose_addr2_doro"
                                value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_doro'] : '' ?>"
-                               placeholder="채용공고 추가 노출지역을 선택해주세요"
+                               placeholder="+"
                                autocomplete="off" class="form-text input-wide" readonly>
-                        <i class="fas fa-search addr-search-icon"></i>
+                       
                         <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="2" aria-label="노출지역 2 삭제" style="display: <?= (isset($info['expose_addr2']) && $info['expose_addr2'] != null && !empty($info['expose_addr2']['ad_doro'])) ? 'inline-block' : 'none' ?>;">
                           <i class="fas fa-times"></i>
                         </button>

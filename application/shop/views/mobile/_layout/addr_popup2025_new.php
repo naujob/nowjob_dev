@@ -895,28 +895,11 @@
                 if (currentStep === 1) {
                   $('.addr_dept2 ul, .addr_dept3 ul').empty();
 
-                  const addr1 = addr;
-                  const isSelected = $(`.selbtn[data-step="1"][data-addr="${addr1}"]`).length > 0;
-
-                  // resume_write 페이지를 제외한 다른 페이지에서만 "전체" 항목 표시
-                  if (!shouldHideAllRegions()) {
-                    const allLi = $('<li>')
-                      .attr('data-step', '1')
-                      .attr('data-addr', addr1)
-                      .toggleClass('addr_on', isSelected)
-                      .append(
-                        $('<label>').append(
-                          $('<span>').addClass('text').text(replaceRegionNames(sido_name) + ' 전체'),
-                          $('<input>').attr({
-                            type: 'checkbox',
-                            name: 'chk[]'
-                          })
-                        )
-                      );
-                    $('.addr_dept2 ul').append(allLi);
-                  }
-
                   $.each(ret.data, function(i, item) {
+                    // 모든 섹션에서 "전체" 필터링
+                    if (!item.gugun_name || item.gugun_name.trim() === '' || item.gugun_name.includes('전체')) {
+                      return;
+                    }
                     const addr2 = addr + ' ' + item.gugun_name;
                     const isSelected = $(`.selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
 
@@ -934,28 +917,11 @@
                 } else if (currentStep === 2) {
                   $('.addr_dept3 ul').empty();
 
-                  const addr2 = addr;
-                  const isSelected = $(`.selbtn[data-step="2"][data-addr="${addr2}"]`).length > 0;
-
-                  // resume_write 페이지를 제외한 다른 페이지에서만 "전체" 항목 표시
-                  if (!shouldHideAllRegions()) {
-                    const allLi = $('<li>')
-                      .attr('data-step', '2')
-                      .attr('data-addr', addr2)
-                      .toggleClass('addr_on', isSelected)
-                      .append(
-                        $('<label>').append(
-                          $('<span>').addClass('text').text(gugun_name + ' 전체'),
-                          $('<input>').attr({
-                            type: 'checkbox',
-                            name: 'chk[]'
-                          })
-                        )
-                      );
-                    $('.addr_dept3 ul').append(allLi);
-                  }
-
                   $.each(ret.data, function(i, item) {
+                    // 모든 섹션에서 "전체" 필터링
+                    if (!item.b_dong_name || item.b_dong_name.trim() === '' || item.b_dong_name.includes('전체')) {
+                      return;
+                    }
                     const addr3 = addr + ' ' + item.b_dong_name;
                     const isSelected = $(`.selbtn[data-step="3"][data-addr="${addr3}"]`).length > 0;
 
@@ -1348,7 +1314,9 @@
                   $.each(ret.data, function(i, item) {
                     const addr = item.search_b_dong; // 검색 결과에서 주소를 가져옵니다. 예: "서울특별시 강남구 강남동"
                     const step = item.step; // 주소 단계 (1, 2, 3 등)도 함께 가져옵니다. 예: 3
+                    // 모든 섹션에서 "전체" 필터링
                     if (shouldHideAllRegions() && step < 3) return;
+                    if (!addr || addr.trim() === '' || addr.includes('전체')) return;
                     const isSelected = $(`.selbtn[data-step="${step}"][data-addr="${addr}"]`).length > 0;
 
                     const displayText = step < 3 ? addr + ' 전체' : addr;

@@ -3138,7 +3138,7 @@
             cursor: pointer;
             color: #333;
             text-decoration: none;
-            top: 750px;
+            top: 630px;
             position: absolute;
             right: 13px;
             width: 50px;

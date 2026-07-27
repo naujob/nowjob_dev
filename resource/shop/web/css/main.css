@@ -3,6 +3,23 @@
 /* Reset */
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Sans:wght@500&display=swap");
 
+:root {
+
+    /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
+    --page-recruit-font-size: 15px;
+    --page-recruit-font-size-xs: 9px;      /* 9px */
+
+    --page-recruit-font-size-10: 10px;     /* 10px */
+    --page-recruit-font-size-sm: 12px;      /* 12px */
+    --page-recruit-font-size-13: 13px;     /* 13px */
+    --page-recruit-font-size-md: 14px;     /* 14px */
+    --page-recruit-font-size-base: 15px;      /* 15px */
+    --page-recruit-font-size-lg: 16px;     /* 16px */
+    --page-recruit-font-size-18: 18px;      /* 18px */
+    --page-recruit-font-size-xl: 21px;     /* 21px */
+    --page-recruit-font-size-2xl: 27px;     /* 27px */
+}
+
 /* 공통: 버튼/링크 눌림 표시 제거 */
 a,
 button,
@@ -1725,6 +1742,7 @@ fieldset {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
+    font-size: var( --page-recruit-font-size-lg);
 }
 
 .inline-group .col {
@@ -1952,7 +1970,7 @@ fieldset {
 .category-label {
     display: inline-block;
     height: 26px;
-    font-size: 1rem;
+    font-size: var(--page-recruit-font-size-xl);
     vertical-align: top;
     border-radius: 5px;
     -webkit-transform: translateZ(0);
@@ -6659,14 +6677,14 @@ body {
 }
 
 .recruit-card .area {
-    font-size: 18px;
+    font-size:var(--page-recruit-font-size-xl);
     color: #494A4A;
     word-break: keep-all;
 }
 
 .recruit-card .title {
     margin: 8px 0;
-    font-size: 20px;
+    font-size: var(--page-recruit-font-size-xl);
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -6683,7 +6701,7 @@ body {
     display: -ms-flexbox;
     display: flex;
     max-width: 19.1666666667em;
-    font-size: 15px;
+    font-size: var( --page-recruit-font-size-lg);
     text-align: center;
 }
 
@@ -6741,7 +6759,7 @@ body {
 
 .recruit-card .amount {
    
-    font-size: 1.4285714286em;
+    font-size:var(--page-recruit-font-size-xl);
     font-weight: 700;
     color: #1B9D7D;
     letter-spacing: 0;
@@ -6756,7 +6774,7 @@ body {
     display: block;
     margin: 14px 0 0;
     padding: 5px 0 0;
-    font-size: 0;
+    font-size: var( --page-recruit-font-size-lg);
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -6768,7 +6786,7 @@ body {
     display: inline-block;
     margin: 0 8px 0 0;
     padding: 0 12px;
-    font-size: 16px;
+    font-size: var( --page-recruit-font-size-lg);
     color: #3A70DB;
     line-height: 2;
     text-align: center;
@@ -7012,7 +7030,7 @@ body {
 
 .person-card .category {
     margin: 0 0 14px;
-    font-size: 0;
+    font-size: var( --page-recruit-font-size-lg);
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     word-break: keep-all;
@@ -7033,7 +7051,7 @@ body {
 .person-card .title {
     /* max-width: 4.1666666667em; */
     margin: 0 12px 0 0;
-    font-size: 24px;
+    font-size: var(--page-recruit-font-size-xl);
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -7049,7 +7067,7 @@ body {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    font-size: 18px;
+    font-size: var( --page-recruit-font-size-lg);
     text-align: center;
     justify-content: space-evenly;
 }
@@ -9858,7 +9876,7 @@ body {
 
 .recent-history .amount {
     margin-top: 2px;
-    font-size: 18px;
+    font-size: var(--page-recruit-font-size-md);
 }
 
 .recruit .recent-history .amount {
@@ -13303,15 +13321,15 @@ body {
 }
 
 .worktype em.wtype1 {
-  color: #3a70db;
+  color: #000;
 }
 
 .worktype em.wtype2 {
-  color: #F86048;
+  color: #000;
 }
 
 .worktype em.wtype3 {
-  color: #1B9D7D;
+  color:#000;
 }
 
 .worktype .work-divider {

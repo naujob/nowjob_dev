@@ -1,5 +1,20 @@
 /* 채용공고 리스트 공유 CSS */
+:root {
 
+    /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
+    --page-recruit-font-size: 15px;
+    --page-recruit-font-size-xs: 9px;      /* 9px */
+
+    --page-recruit-font-size-10: 10px;     /* 10px */
+    --page-recruit-font-size-sm: 12px;      /* 12px */
+    --page-recruit-font-size-13: 13px;     /* 13px */
+    --page-recruit-font-size-md: 14px;     /* 14px */
+    --page-recruit-font-size-base: 15px;      /* 15px */
+    --page-recruit-font-size-lg: 16px;     /* 16px */
+    --page-recruit-font-size-18: 18px;      /* 18px */
+    --page-recruit-font-size-xl: 21px;     /* 21px */
+    --page-recruit-font-size-2xl: 27px;     /* 27px */
+}
 .search-result .content-area {
   margin: 0 10px;
   -webkit-box-flex: 1;
@@ -167,7 +182,7 @@
 
 .result-list .content-info .summary {
   display: flex;
-  font-size: 16px;
+  font-size: var(--page-recruit-font-size-18);
   gap: 5px;
   position: relative;
   font-weight: 600;
@@ -297,7 +312,7 @@
   gap: 5px;
   justify-content: flex-end;
   position: relative;
-  font-size: 16px;
+  font-size: var(--page-recruit-font-size-18);
   font-weight: 600;
 }
 

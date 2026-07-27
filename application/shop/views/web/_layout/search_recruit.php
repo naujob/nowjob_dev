@@ -1,4 +1,21 @@
 <style>
+  :root {
+
+    /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
+    --page-recruit-font-size: 15px;
+    --page-recruit-font-size-xs: 9px;      /* 9px */
+
+    --page-recruit-font-size-10: 10px;     /* 10px */
+    --page-recruit-font-size-sm: 12px;      /* 12px */
+    --page-recruit-font-size-13: 13px;     /* 13px */
+    --page-recruit-font-size-md: 14px;     /* 14px */
+    --page-recruit-font-size-base: 15px;      /* 15px */
+    --page-recruit-font-size-lg: 16px;     /* 16px */
+    --page-recruit-font-size-18: 18px;      /* 18px */
+    --page-recruit-font-size-xl: 21px;     /* 21px */
+    --page-recruit-font-size-2xl: 27px;     /* 27px */
+}
+
   dl,
   dt,
   dd,
@@ -12,7 +29,7 @@
   .search-option1 {
     width: 100%;
     height: 450px;
-    margin: 0;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
@@ -50,9 +67,9 @@
 
   .search-input input {
     flex: 1;
-    height: 30px;
+    height: 45px;
     padding: 5px 10px;
-    font-size: 14px;
+    font-size: var( --page-recruit-font-size-lg);
     background-color: #fff;
     border: 1px solid #E8E8E8;
     border-radius: 3px;
@@ -370,7 +387,7 @@
 
   .search-list-header {
     width: 100px;
-    padding: 10px;
+    padding: 10px 10px 0px 10px;
   }
 
   .search-list-header .title {
@@ -380,7 +397,7 @@
 
   .search-list-body {
     flex: 1;
-    padding: 10px;
+    padding: 10px 10px 0px 10px;
     box-sizing: border-box;
     overflow: auto;
   }
@@ -435,7 +452,7 @@
     cursor: pointer;
     padding: 5px 16px;
     font-size: 16px;
-    color: #999999;
+    color: #999;
     line-height: 1.5;
     border: 1px solid #e8e8e8;
     border-radius: 5px;
@@ -505,7 +522,7 @@
     margin-right: 5px;
     margin-bottom: 5px;
     padding: 5px 10px 4px;
-    font-size: 14px;
+    font-size: var( --page-recruit-font-size-lg);
     border: 1px solid #eee;
     border-radius: 5px;
     line-height: 1;
@@ -609,7 +626,7 @@
     padding: 5px 10px 4px;
     line-height: 1;
     color: #000 !important;
-    font-size: 12px;
+    font-size: var( --page-recruit-font-size-lg);
     transition: all .3s
   }
 
@@ -658,7 +675,7 @@
     color: #333;
     background-color: #fafafa;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: var( --page-recruit-font-size-lg);
     transition: all .3s
   }
 
@@ -697,6 +714,7 @@
     flex-wrap: wrap;
     gap: 5px;
     padding: 10px;
+    height: 45px;
   }
 
   .searchOptionBtn {
@@ -705,7 +723,7 @@
     font-size: 16px;
     line-height: 1.5;
     text-align: center;
-    padding: 5px 16px;
+    padding: 7px 16px;
     border: 1px solid #E8E8E8;
     border-radius: 5px;
     position: relative;
@@ -713,7 +731,8 @@
     align-items: center;
     gap: 5px;
     cursor: pointer;
-    width: 140px;
+    width: 110px;
+   
   }
 
   .searchOptionBtn.on {

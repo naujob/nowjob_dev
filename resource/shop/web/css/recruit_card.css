@@ -1,3 +1,20 @@
+:root {
+
+    /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
+    --page-recruit-font-size: 15px;
+    --page-recruit-font-size-xs: 9px;      /* 9px */
+
+    --page-recruit-font-size-10: 10px;     /* 10px */
+    --page-recruit-font-size-sm: 12px;      /* 12px */
+    --page-recruit-font-size-13: 13px;     /* 13px */
+    --page-recruit-font-size-md: 14px;     /* 14px */
+    --page-recruit-font-size-base: 15px;      /* 15px */
+    --page-recruit-font-size-lg: 16px;     /* 16px */
+    --page-recruit-font-size-18: 18px;      /* 18px */
+    --page-recruit-font-size-xl: 21px;     /* 21px */
+    --page-recruit-font-size-2xl: 27px;     /* 27px */
+}
+
 /* 카드 하단: meta+근무형태(좌) / 급여(우) 수평 정렬 */
 .recruit-card .card-bottom-wrap {
   display: flex;
@@ -18,7 +35,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 1em;
+  font-size: var( --page-recruit-font-size-lg);
   text-align: left;
   font-weight: 600;
 }
@@ -84,12 +101,13 @@
 
 /* 카드 급여형태 period (recruit_list.css .period와 동일) */
 .recruit-card .price-wrap .period {
-  display: flex;
-  gap: 5px;
-  justify-content: flex-end;
-  font-size: 14px;
-  font-weight: 600;
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    font-size: var( --page-recruit-font-size-lg);
+    font-weight: 600;
 }
+
 .recruit-card .price-wrap .period em {
   position: relative;
   display: inline-block;

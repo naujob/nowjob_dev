@@ -2892,9 +2892,9 @@
       }
     }
 
-    // 분 휠을 현재 분(10분 단위)로 스크롤
+    // 분 휠을 현재 분(5분 단위)로 스크롤
     if (wheelMinute) {
-      var minuteIndex = Math.round(currentMinute / 10);
+      var minuteIndex = Math.round(currentMinute / 5);
       var minuteItems = wheelMinute.querySelectorAll('li');
       if (minuteItems[minuteIndex]) {
         var targetMinuteScrollTop = minuteItems[minuteIndex].offsetTop - (wheelMinute.clientHeight / 2 - 22);
@@ -3052,7 +3052,7 @@ for ($h = 0; $h <= 23; $h++) {
 }
 
 $minutesList = '';
-for ($m = 0; $m <= 50; $m += 10) {
+for ($m = 0; $m <= 55; $m += 5) {
     $minutesList .= '<li>' . str_pad($m, 2, "0", STR_PAD_LEFT) . '</li>';
 }
 

@@ -621,10 +621,7 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
                           <p><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
                           <p><?= $row['ad_addr'] ?></p>
                         </div>
-                        <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>">
-                          <!-- <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력"> -->
-                          <img src="/resource/shop/mobile/img/hr_list_chat_mark.png" alt="채팅 이력">
-                        </div>
+                        <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>" data-rm_idx="<?= isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '' ?>" style="background-image: url('/resource/shop/mobile/img/hr_list_chat_mark.png');"></div>
                       </div>
                       <div class="summary3">
                         <p class="worktype"><?= $row['ru_work_type'] ?></p>
@@ -1017,6 +1014,7 @@ $tpl_show_chat_mark = true; ?>
       $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || '');
       $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || '');
       $content = $content.replaceAll("{{has_chat}}", row.chat_rm_idx ? "true" : "false");
+      $content = $content.replaceAll("{{chat_rm_idx}}", row.chat_rm_idx || '');
 
       $(list_id).append($content);
     });
@@ -1148,12 +1146,25 @@ $tpl_show_chat_mark = true; ?>
     if ($(e.target).closest('.ad-item-adsense').length) {
       return;
     }
+    // 채팅 마크 클릭은 무시 (별도 핸들러에서 처리)
+    if ($(e.target).closest('.chat_mark').length) {
+      return;
+    }
 
     var $target = $(this);
     var ruIdx = $target.data('ru_idx');
     var resumeMmIdx = $target.data('mm_idx');
 
     handleResumeCardClick(ruIdx, resumeMmIdx);
+  });
+
+  // 채팅 마크 클릭 시 채팅방으로 이동
+  $(document).on('click', '.chat_mark', function(e) {
+    e.stopPropagation();
+    var rmIdx = $(this).data('rm_idx');
+    if (rmIdx) {
+      location.href = '/chat/chat_view?rm_idx=' + rmIdx;
+    }
   });
 
   $(document).on('click', '.person-grid-item', function(e) {

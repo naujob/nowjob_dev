@@ -342,15 +342,15 @@
   }
 
   .content-info .summary3 .worktype em.wtype1 {
-    color: #3a70db;
+    color: #000;
   }
 
   .content-info .summary3 .worktype em.wtype2 {
-    color: #F86048;
+    color: #000;
   }
 
   .content-info .summary3 .worktype em.wtype3 {
-    color: #1B9D7D;
+    color: #000;
   }
 
   .content-info .summary3 .worktype em:not(:last-child) {
@@ -678,9 +678,9 @@
             tmpContent += '<div class="content-li2" data-ru_idx="' + d.ru_idx + '">' +
               '	<div class="content-info">' +
               '	  <div class="content-body">' +
-              // '		<div class="img">' +
-              // '		  <img src="' + d.ru_resume_img + '">' +
-              // '		</div>' +
+               '		<div class="img">' +
+               '		  <img src="' + d.ru_resume_img + '">' +
+               '		</div>' +
               '		<div class="desc">' +
               '		  <div class="wicon">' + d.ru_work_img + '</div>' +
               '		  <div class="title ellipsis">' + d.ru_name + '</div>' +

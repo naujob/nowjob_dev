@@ -318,7 +318,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                         <label class="datepicker-wrapper">
                                             <span class="sr-text">근무기간 입력</span>
                                             <input type="text" name="career_period[]" placeholder="근무기간" value="<?= isset($arr_temp[2]) ? $arr_temp[2] : "" ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
-                                            <span class="datepicker-icon"></span>
+                                            <!-- <span class="datepicker-icon"></span> -->
                                         </label>
                                     </div>
                                 </div>
@@ -362,7 +362,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 <label class="datepicker-wrapper">
                                     <span class="sr-text">근무기간 입력</span>
                                     <input type="text" name="career_period[]" placeholder="근무기간" autocomplete="off" class="form-text num js-career-datepicker" readonly>
-                                    <span class="datepicker-icon"></span>
+                                    <!-- <span class="datepicker-icon"></span> -->
                                 </label>
                             </div>
                         </div>

@@ -168,6 +168,22 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 <?php endif; ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
 <style>
+  :root {
+
+    /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
+    --page-recruit-font-size: 15px;
+    --page-recruit-font-size-xs: 9px;      /* 9px */
+
+    --page-recruit-font-size-10: 10px;     /* 10px */
+    --page-recruit-font-size-sm: 12px;      /* 12px */
+    --page-recruit-font-size-13: 13px;     /* 13px */
+    --page-recruit-font-size-md: 14px;     /* 14px */
+    --page-recruit-font-size-base: 15px;      /* 15px */
+    --page-recruit-font-size-lg: 16px;     /* 16px */
+    --page-recruit-font-size-18: 18px;      /* 18px */
+    --page-recruit-font-size-xl: 21px;     /* 21px */
+    --page-recruit-font-size-2xl: 27px;     /* 27px */
+}
   #header { 
     margin-bottom: 0;
   }
@@ -380,7 +396,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 
   .history-body .content-info .summary {
     display: flex;
-    font-size: 14px;
+    font-size: var(--page-recruit-font-size-md);
     gap: 5px;
     position: relative;
   }
@@ -490,7 +506,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     width: auto;
     height: 16px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--page-recruit-font-size-md);
     font-weight: 600;
   }
 
@@ -507,7 +523,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     position: relative;
     display: inline-block;
     font-style: normal;
-    color: #333;
+    color: #000;
   }
 
   .history-body .content-info .summary3 .wtype em:not(:last-child) {
@@ -517,15 +533,15 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 
 
   .history-body .content-info .summary3 .wtype em.wtype1 {
-    color: #3a70db;
+    color: #000;
   }
 
   .history-body .content-info .summary3 .wtype em.wtype2 {
-    color: #F86048;
+    color: #000;
   }
 
   .history-body .content-info .summary3 .wtype em.wtype3 {
-    color: #1B9D7D;
+    color: #000;
   }
 
   /* 기업회원이 자신의 채용공고를 볼 때 btn-request:before 비활성화 */
@@ -576,13 +592,13 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
   }
 
   .content-info .worktype em.wtype1 {
-    color: #3a70db;
+    color: #000;
     padding-right: 4px;
     padding-right: 4px;
   }
 
   .content-info .worktype em.wtype2 {
-    color: #F86048;
+    color: #000;
     padding-left: 4px;
     padding-right: 4px;
   }
