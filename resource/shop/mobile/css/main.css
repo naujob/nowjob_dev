@@ -10022,7 +10022,7 @@ form#frm {
 .introduce-wrap {
     font-size: 1.1rem;
     color: #222;
-    line-height: 2.7777777778;
+    /* line-height: 1.5625; */
     word-break: keep-all;
 }
 

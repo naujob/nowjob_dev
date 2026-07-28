@@ -18,6 +18,7 @@
     --page-recruit-font-size-18: 18px;      /* 18px */
     --page-recruit-font-size-xl: 21px;     /* 21px */
     --page-recruit-font-size-2xl: 27px;     /* 27px */
+    --font-size-20: 20px;     /* 20px */
 }
 
 /* 공통: 버튼/링크 눌림 표시 제거 */
@@ -5890,7 +5891,7 @@ body {
     min-width: 130px;
     height: 40px;
     padding: 0;
-    font-size: 1em;
+    font-size: var(--font-size-20);
     color: inherit;
     text-align: inherit;
     border: 0;
@@ -5909,8 +5910,8 @@ body {
     position: absolute;
     top: 13px;
     right: 11px;
-    width: 60px;
-    height: 40px;
+    width: 70px;
+    height: var(--rw-input-height);
     margin: 0;
     padding: 10px 0;
     font-size: 15px;
@@ -5919,7 +5920,7 @@ body {
     line-height: 1;
     text-align: center;
     border: 0;
-    border-radius: 5px;
+    border-radius: var(--rw-border-radius);
     background: #BEBFC9;
 }
 

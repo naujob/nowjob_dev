@@ -1436,38 +1436,11 @@
                             <div class="rw-section extra-section">
                                 <h4 class="rw-section-title">경력사항</h4>
                                 <div class="rw-career">
-                                    <!-- 업종 및 기업명 form-row -->
+                                    <!-- 기업명 form-row -->
                                     <div class="rw-form-row">
-                                        <div class="rw-value rw-dual-col">
-                                            <div class="form-group">
-                                                <!-- 기업명 섹션 -->
-                                                <div class="rw-col-half">
-                                                    <p class="rw-label">기업명</p>
-                                                    <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
-                                                </div>
-                                                <!-- 업종 섹션 -->
-                                                <div class="rw-col-half">
-                                                    <p class="rw-label">업종</p>
-                                                    <label class="form-selectbox">
-                                                        <span class="sr-text">업종선택</span>
-                                                        <select name="category[]" class="added-career-form">
-                                                            <option value="" selected disabled>업종</option>
-                                                            <?php
-                                                            // 표시 허용 업종 화이트리스트 (간단경력용)
-                                                            $allowed_work_list = ["생산", "사무직", "운전배달", "물류", "식당", "서비스", "건설", "상담"];
-                                                            foreach ($ru_wrok_list as $row) :
-                                                                // 허용 목록 이외 항목은 출력 제외
-                                                                if (!in_array($row["cd_val"], $allowed_work_list, true)) {
-                                                                    continue;
-                                                                }
-                                                            ?>
-                                                                <option value="<?= $row["cd_val"] ?>"><?= $row["cd_val"] ?></option>
-                                                            <?php endforeach; ?>
-                                                        </select>
-                                                        <span class="liner"></span>
-                                                    </label>
-                                                </div>
-                                            </div>
+                                        <p class="rw-label">기업명</p>
+                                        <div class="rw-value">
+                                            <input type="text" name="company[]" maxlength="13" placeholder="" autocomplete="off" class="form-text">
                                         </div>
                                     </div>
 
@@ -1505,15 +1478,11 @@
                                     <ol class="added-list career_list">
                                         <?php if (is_array($career_list) && !empty($career_list)) :
                                             foreach ($career_list as $row):
-                                                $rc_type = $row['rc_type'];
                                                 $rc_name = $row['rc_name'];
                                                 $rc_date = $row['rc_date'];
                                         ?>
                                                 <li>
                                                     <div class="form-group">
-                                                        <div class="col sm">
-                                                            <input type="text" name="category[]" value="<?= $rc_type; ?>" disabled class="form-text txt-color2">
-                                                        </div>
                                                         <div class="col">
                                                             <input type="text" name="company[]" maxlength="13" disabled value="<?= $rc_name; ?>" class="form-text">
                                                         </div>
@@ -1571,9 +1540,6 @@
                                 <template id="careerTemp">
                                     <li>
                                         <div class="form-group">
-                                            <div class="col sm">
-                                                <input type="text" name="category[]" value="{$category}" disabled class="form-text txt-color2">
-                                            </div>
                                             <div class="col">
                                                 <input type="text" name="company[]" maxlength="13" value="{$company}" disabled class="form-text">
                                             </div>
@@ -1674,15 +1640,9 @@
                                                     list = formContainer.querySelector('.career_list'),
                                                     lastItem = null;
 
-                                                var category = formContainer.querySelector('[name="category[]"]:not([disabled])'),
-                                                    company = formContainer.querySelector('[name="company[]"]:not([disabled])'),
+                                                var company = formContainer.querySelector('[name="company[]"]:not([disabled])'),
                                                     periodStart = formContainer.querySelector('[name="period_start[]"]'),
                                                     periodEnd = formContainer.querySelector('[name="period_end[]"]');
-
-                                                if (!category || !category.value) {
-                                                    if (category) category.focus();
-                                                    return;
-                                                }
 
                                                 if (!company || !company.value) {
                                                     if (company) company.focus();
@@ -1699,15 +1659,13 @@
                                                 }
 
                                                 if (list.children.length < max) {
-                                                    var categoryText = category.value;
                                                     var companyText = company.value;
                                                     var periodText = periodStart.value + ' ~ ' + periodEnd.value;
 
                                                     var newItem = temp.children[0];
                                                     var formGroup = newItem.querySelector('.form-group');
-                                                    formGroup.children[0].querySelector('input').value = categoryText;
-                                                    formGroup.children[1].querySelector('input').value = companyText;
-                                                    formGroup.children[2].querySelector('input').value = periodText;
+                                                    formGroup.children[0].querySelector('input').value = companyText;
+                                                    formGroup.children[1].querySelector('input').value = periodText;
 
                                                     list.insertBefore(temp, list.firstChild);
                                                     lastItem = list.children[0];
@@ -1718,10 +1676,6 @@
                                                         }
                                                     });
 
-                                                    // select 초기화
-                                                    var selectElement = category.closest('.form-selectbox').querySelector('select');
-                                                    selectElement.selectedIndex = 0;
-                                                    selectElement.parentNode.querySelector('.liner').textContent = selectElement.children[0].textContent;
                                                     company.value = '';
                                                     periodStart.value = '';
                                                     periodEnd.value = '';

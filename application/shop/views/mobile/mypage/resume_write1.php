@@ -1973,7 +1973,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 '<td colspan="2" class="label">자기소개</td>' +
                 '</tr>' +
                 '<tr>' +
-                '<td colspan="2" class="value introduce">' + info.ru_desc + '</td>' +
+                '<td colspan="2" class="value introduce">' + (info.ru_desc || '').replace(/\n/g, '<br>') + '</td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td colspan="2" class="label">나의강점</td>' +
