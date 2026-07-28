@@ -12,7 +12,7 @@ $ad_addr = trim($ad_addr);
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
-    min-height: 0;
+    min-height: 100vh;
     overflow: hidden;
   }
 

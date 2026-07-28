@@ -2396,9 +2396,7 @@ fieldset {
     transform: translateZ(0);
 }
 
-.category-label:last-child {
-    margin-right: 0;
-}
+
 
 .benefit-label {
     font-size: 1.1rem;
@@ -7226,10 +7224,6 @@ form#frm {
     background-color: #1B9D7D;
 }
 
-/* 채팅화면 채용카드 - summary 폰트 축소 (좁은 컨테이너 대응) */
-.page-chat-view .result-list-card .content-info .summary {
-    font-size: 15px;
-}
 
 .item-info {
     display: -webkit-box;
@@ -12847,6 +12841,11 @@ form#frm {
     display: none;
 }
 
+.resumebox_ {
+    background: #fdfdfd;
+    border-top: 1px solid #ccc;
+   
+}
 /* ============================================================
    인재 카드 공통 스타일 (bookmark_person, hr_list 공유)
    .desc 내부에 summary2/3를 배치하는 절대위치 방식
@@ -13587,7 +13586,7 @@ form#frm {
 
 /* 채팅 메시지 버블 내용 폰트 크기 설정 및 유동적 너비 */
 .page-chat-view .chat-view-body .msg-item.chat-bubble .bubble-content {
-    font-size: 15px;
+    font-size: 16px;
     width: auto !important;
     min-width: 60px;
     max-width: 70%;

@@ -8,8 +8,8 @@ $top_bar = array(
   <div class="page-content">
     <div class="tab-container">
       <ul class="tab-list">
-        <li class="on"><a href="/chat/index_comp" class="tab">지원한 인재<span class="tab-badge"></span></a></li>
-        <li><a href="/chat/chat_list3" class="tab">제안한 인재<span class="tab-badge"></span></a></li>
+        <li class="on"><a href="/chat/index_comp" class="tab">채팅보낸 인재<span class="tab-badge"></span></a></li>
+        <li><a href="/chat/chat_list3" class="tab">채팅받은 인재<span class="tab-badge"></span></a></li>
         <!--<li><a href="/chat/trade_list" class="tab">중고거래</a></li>-->
       </ul>
     </div>
@@ -128,12 +128,10 @@ $top_bar = array(
         cursor: pointer;
       }
 
-      [class*="resumebox_"] .content-body .desc .wicon img {
-        height: 19px;
-      }
+    
 
       [class*="resumebox_"] .content-body .desc .title {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: bold;
         margin: 1px 0px;
       }
@@ -204,18 +202,13 @@ $top_bar = array(
         /* 부드러운 스크롤 */
       }
 
-      /* content-wrap 클래스에 왼쪽 마진 추가 */
-      .content-wrap {
-        margin-left: 1rem;
-      }
-
     </style>
     <div class="tab-panel">
       <div class="container">
         <!-- 제안받은 인재 탭 전용 페이지 (기업회원용) -->
         <h2 class="sr-text">제안받은 인재</h2>
         <div class="chat-list">
-          <ol class="list" id="chat_list">
+          <ol class="list result-list-card" id="chat_list">
           </ol>
 
           <div class="chat-empty" id="chat_empty1">
@@ -618,66 +611,17 @@ $top_bar = array(
             $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
             $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
             $content = $content.replaceAll("{{rc_work}}", row.rc_work || "");
-            $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
             $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
-            var nationStr = '';
-            nationStr = row.rc_nation;
-            if (row.rc_nation != "" && (row.rc_sage != "0" || row.rc_eage != "0")) {
-              nationStr += " | ";
-            }
-            if (row.rc_sage == "0") {
-              nationStr += row.rc_sage + "대";
-            }
-            if (row.rc_sage == "0" && row.rc_eage == "0") {
-              nationStr += "";
-            } else {
-              nationStr += " ~ ";
-            }
-            if (row.rc_eage == "0") {
-              nationStr += "";
-            } else {
-              nationStr += row.rc_eage + "대";
-            }
-            $content = $content.replaceAll("{{rc_nation}}", nationStr);
-
-            if (row.mm_nation && row.mm_nation.trim() != '') {
-              $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-            } else {
-              $content = $content.replaceAll("<p>{{mm_nation}}</p>", "");
-            }
-
-            var maAge = "";
-            if (row.ma_age && row.ma_age != '' && row.ma_age != '0') {
-              maAge = row.ma_age + "대";
-            }
-            if (maAge != "") {
-              $content = $content.replaceAll("{{ma_age}}", maAge);
-            } else {
-              $content = $content.replaceAll("<p>{{ma_age}}</p>", "");
-            }
-
-            var adAddr = row.ad_addr || "";
-            if (adAddr && adAddr != "") {
-              if (typeof fRemoveBigAdrJS === 'function') {
-                adAddr = fRemoveBigAdrJS(adAddr);
-              }
-              $content = $content.replaceAll("{{ad_addr}}", adAddr);
-            } else {
-              $content = $content.replaceAll("<p>{{ad_addr}}</p>", "");
-            }
-
-            var ruPriceType = row.ru_price_type || "";
-            if (ruPriceType && typeof getPriceType === 'function') {
-              ruPriceType = getPriceType(ruPriceType);
-            }
-            $content = $content.replaceAll("{{ru_price_type}}", ruPriceType);
-
-            var ruWorkType = row.ru_work_type || "";
-            if (ruWorkType && typeof getWorkType === 'function') {
-              ruWorkType = getWorkType(ruWorkType);
-            }
-            $content = $content.replaceAll("{{ru_work_type}}", ruWorkType);
+            // job_list 카드 필드 (백엔드에서 이미 가공됨)
+            $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
+            $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
+            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm || "");
+            $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm || "");
+            $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
+            $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+            $content = $content.replaceAll("{{rt_price_type}}", row.rt_price_type || "");
+            $content = $content.replaceAll("{{rt_price_pay}}", row.rt_price_pay || "");
 
             // getResumeImg() 함수와 동일한 로직 적용 (chat_view.php 참고)
             // 컨트롤러에서 이미 getResumeImg()로 처리된 값이 오므로, 실제 이미지 경로가 있으면 그대로 사용
@@ -745,8 +689,8 @@ $top_bar = array(
     }
     // 
     function fSearchNoReadCount() {
-      // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 초기화
-      $('#chat_list .content-wrap').each(function() {
+      // 현재 페이지의 chat_list 컨테이너 내의 content-li만 초기화
+      $('#chat_list .content-li').each(function() {
         $(this).attr('data-noreadcnt', '0');
       });
 
@@ -761,7 +705,7 @@ $top_bar = array(
 
         // 공고별 room_idx_list 수집 (공고명 클릭 전에도 확인 가능)
         var tab1RoomIdxList = [];
-        $('#chat_list .content-wrap').each(function() {
+        $('#chat_list .content-li').each(function() {
           var roomIdxList = $(this).attr('data-room_idx_list');
           if (roomIdxList) {
             var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',').map(function(idx) {
@@ -817,7 +761,7 @@ $top_bar = array(
         });
 
         // 모든 room 처리 완료 후 상위 공고 목록의 뱃지 업데이트
-        $('#chat_list .content-wrap').each(function() {
+        $('#chat_list .content-li').each(function() {
           let noReadCnt = parseInt($(this).attr('data-noreadcnt')) || 0;
           let parentLi = $(this).closest('li');
           let $badge = parentLi.find('.room_rec_unread_cnt');
@@ -849,8 +793,8 @@ $top_bar = array(
     }
 
     function fSetNoReadCntRecruit(room_idx, cnt) {
-      // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 처리
-      $('#chat_list .content-wrap').each(function() {
+      // 현재 페이지의 chat_list 컨테이너 내의 content-li만 처리
+      $('#chat_list .content-li').each(function() {
         let roomIdxList = $(this).attr('data-room_idx_list');
         if (roomIdxList) {
           // 괄호만 제거하고 콤마로 분리하여 숫자 배열 생성
@@ -1042,66 +986,17 @@ $top_bar = array(
             $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
             $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
             $content = $content.replaceAll("{{rc_work}}", row.rc_work || "");
-            $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
             $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
-            var nationStr = '';
-            nationStr = row.rc_nation;
-            if (row.rc_nation != "" && (row.rc_sage != "0" || row.rc_eage != "0")) {
-              nationStr += " | ";
-            }
-            if (row.rc_sage == "0") {
-              nationStr += row.rc_sage + "대";
-            }
-            if (row.rc_sage == "0" && row.rc_eage == "0") {
-              nationStr += "";
-            } else {
-              nationStr += " ~ ";
-            }
-            if (row.rc_eage == "0") {
-              nationStr += "";
-            } else {
-              nationStr += row.rc_eage + "대";
-            }
-            $content = $content.replaceAll("{{rc_nation}}", nationStr);
-
-            if (row.mm_nation && row.mm_nation.trim() != '') {
-              $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-            } else {
-              $content = $content.replaceAll("<p>{{mm_nation}}</p>", "");
-            }
-
-            var maAge = "";
-            if (row.ma_age && row.ma_age != '' && row.ma_age != '0') {
-              maAge = row.ma_age + "대";
-            }
-            if (maAge != "") {
-              $content = $content.replaceAll("{{ma_age}}", maAge);
-            } else {
-              $content = $content.replaceAll("<p>{{ma_age}}</p>", "");
-            }
-
-            var adAddr = row.ad_addr || "";
-            if (adAddr && adAddr != "") {
-              if (typeof fRemoveBigAdrJS === 'function') {
-                adAddr = fRemoveBigAdrJS(adAddr);
-              }
-              $content = $content.replaceAll("{{ad_addr}}", adAddr);
-            } else {
-              $content = $content.replaceAll("<p>{{ad_addr}}</p>", "");
-            }
-
-            var ruPriceType = row.ru_price_type || "";
-            if (ruPriceType && typeof getPriceType === 'function') {
-              ruPriceType = getPriceType(ruPriceType);
-            }
-            $content = $content.replaceAll("{{ru_price_type}}", ruPriceType);
-
-            var ruWorkType = row.ru_work_type || "";
-            if (ruWorkType && typeof getWorkType === 'function') {
-              ruWorkType = getWorkType(ruWorkType);
-            }
-            $content = $content.replaceAll("{{ru_work_type}}", ruWorkType);
+            // job_list 카드 필드 (백엔드에서 이미 가공됨)
+            $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
+            $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
+            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm || "");
+            $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm || "");
+            $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
+            $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+            $content = $content.replaceAll("{{rt_price_type}}", row.rt_price_type || "");
+            $content = $content.replaceAll("{{rt_price_pay}}", row.rt_price_pay || "");
 
             // getResumeImg() 함수와 동일한 로직 적용 (chat_view.php 참고)
             // 컨트롤러에서 이미 getResumeImg()로 처리된 값이 오므로, 실제 이미지 경로가 있으면 그대로 사용
@@ -1173,8 +1068,8 @@ $top_bar = array(
 
     function fSearchNoReadCount() {
 
-      // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 초기화
-      $('#chat_list .content-wrap').each(function() {
+      // 현재 페이지의 chat_list 컨테이너 내의 content-li만 초기화
+      $('#chat_list .content-li').each(function() {
         $(this).attr('data-noreadcnt', '0');
       });
 
@@ -1191,7 +1086,7 @@ $top_bar = array(
 
         // 공고별 room_idx_list 수집 (공고명 클릭 전에도 확인 가능)
         var tab1RoomIdxList = [];
-        $('#chat_list .content-wrap').each(function() {
+        $('#chat_list .content-li').each(function() {
           var roomIdxList = $(this).attr('data-room_idx_list');
           if (roomIdxList) {
             var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',').map(function(idx) {
@@ -1690,7 +1585,7 @@ $top_bar = array(
 
             $clone.html($content);
 
-            var resumeboxHtml = "<div id='resumebox_" + rc_idx + "' class='resumebox_" + rc_idx + " resumebox_' style='border-top: 1px solid #ccc; background-color: #f9f9f9;'>" + $clone.html() + "</div>";
+            var resumeboxHtml = "<div id='resumebox_" + rc_idx + "' class='resumebox_" + rc_idx + " resumebox_'>" + $clone.html() + "</div>";
 
             var $li = $(obj).closest('li');
             if ($li.length > 0) {
@@ -1744,21 +1639,32 @@ $top_bar = array(
 
 <template id="tpl_chat">
   <li class="list-item room-item" data-target_id="{{rc_idx}}">
-    <a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
-      <div class="item-info person" style="width:100%;">
-        <!-- <div class="thumb-wrap">
-          <div class="thumb">
-            <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
-          </div>
-        </div> -->
-        <div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
-          <div class="timestamp" style="font-size: 12px; color: #777;">{{mm_comp_name}}</div>
-          <div class="title-wrap">
-            <p class="title"><strong>{{rc_name}}</strong></p>
+    <div class="content-li" data-rc_idx="{{rc_idx}}" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
+      <a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
+        <div class="content-info">
+          <div class="content-body">
+            <div class="desc">
+              <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div>
+              <div class="title ellipsis">{{rc_name}}</div>
+              <div class="summary">
+                <p>{{rc_nation_nm}}</p>
+                <p>{{rc_age_nm}}</p>
+              </div>
+              <div class="summary area">
+                <p>{{ad_addr}}</p>
+              </div>
+            </div>
+            <div class="summary-container">
+              <div class="summary3">{{rt_work_type}}</div>
+              <div class="summary2">
+                <p class="period">{{rt_price_type}}</p>
+                <p class="amount">{{rt_price_pay}}</p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </a>
+      </a>
+    </div>
     <span class="room_rec_unread_cnt"></span>
   </li>
 </template>

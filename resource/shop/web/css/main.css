@@ -6678,7 +6678,7 @@ body {
 }
 
 .recruit-card .area {
-    font-size:var(--page-recruit-font-size-xl);
+    font-size:var(--page-recruit-font-size-lg);
     color: #494A4A;
     word-break: keep-all;
 }

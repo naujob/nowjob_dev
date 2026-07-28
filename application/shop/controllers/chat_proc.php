@@ -103,6 +103,17 @@ class Chat_proc extends CI_Controller
 					$temp_list[$key]["mm_comp_name"] = "";
 				}
 
+				// job_list와 동일한 필드 가공 (아이콘/뱃지/급여/근무형태/국적/연령대/주소)
+				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");
+				$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor(isset($row["rc_work_type"]) ? $row["rc_work_type"] : "");
+				$temp_list[$key]["rt_price_type"] = getConvertPriceType(isset($row["rc_price_type"]) ? $row["rc_price_type"] : "", isset($row["rc_price_rep"]) ? $row["rc_price_rep"] : "");
+				$temp_list[$key]["rt_price_pay"] = getConvertPrice(isset($row["rc_price_pay"]) ? $row["rc_price_pay"] : "", isset($row["rc_price_type"]) ? $row["rc_price_type"] : "");
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				$temp_list[$key]["rc_age_nm"] = formatAgeRange(isset($row["rc_sage"]) ? $row["rc_sage"] : "", isset($row["rc_eage"]) ? $row["rc_eage"] : "");
+				$rc_nation_nm = isset($row["rc_nation"]) ? $row["rc_nation"] : "";
+				$temp_list[$key]["rc_nation_nm"] = (in_array($rc_nation_nm, ["무관", "내국인,외국인"])) ? "국적무관" : $rc_nation_nm;
+				$temp_list[$key]["ad_addr"] = isset($row["ad_addr"]) ? removeBigAddr($row["ad_addr"]) : "";
+
 				// 채팅방 인덱스 리스트 파싱
 				$rm_idx_list = [];
 				if (!empty($row["rm_idx_list"])) {
@@ -364,6 +375,17 @@ class Chat_proc extends CI_Controller
 					$temp_list[$key]["mm_comp_name"] = "";
 				}
 
+				// job_list와 동일한 필드 가공 (아이콘/뱃지/급여/근무형태/국적/연령대/주소)
+				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");
+				$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor(isset($row["rc_work_type"]) ? $row["rc_work_type"] : "");
+				$temp_list[$key]["rt_price_type"] = getConvertPriceType(isset($row["rc_price_type"]) ? $row["rc_price_type"] : "", isset($row["rc_price_rep"]) ? $row["rc_price_rep"] : "");
+				$temp_list[$key]["rt_price_pay"] = getConvertPrice(isset($row["rc_price_pay"]) ? $row["rc_price_pay"] : "", isset($row["rc_price_type"]) ? $row["rc_price_type"] : "");
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				$temp_list[$key]["rc_age_nm"] = formatAgeRange(isset($row["rc_sage"]) ? $row["rc_sage"] : "", isset($row["rc_eage"]) ? $row["rc_eage"] : "");
+				$rc_nation_nm = isset($row["rc_nation"]) ? $row["rc_nation"] : "";
+				$temp_list[$key]["rc_nation_nm"] = (in_array($rc_nation_nm, ["무관", "내국인,외국인"])) ? "국적무관" : $rc_nation_nm;
+				$temp_list[$key]["ad_addr"] = isset($row["ad_addr"]) ? removeBigAddr($row["ad_addr"]) : "";
+
 				// 채팅방 인덱스 리스트 파싱
 				$rm_idx_list = [];
 				if (!empty($row["rm_idx_list"])) {
@@ -531,6 +553,16 @@ class Chat_proc extends CI_Controller
 				} else {
 					$temp_list[$key]["mm_comp_name"] = "";
 				}
+				// job_list와 동일한 필드 가공 (아이콘/뱃지/급여/근무형태/국적/연령대/주소)
+				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");
+				$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor(isset($row["rc_work_type"]) ? $row["rc_work_type"] : "");
+				$temp_list[$key]["rt_price_type"] = getConvertPriceType(isset($row["rc_price_type"]) ? $row["rc_price_type"] : "", isset($row["rc_price_rep"]) ? $row["rc_price_rep"] : "");
+				$temp_list[$key]["rt_price_pay"] = getConvertPrice(isset($row["rc_price_pay"]) ? $row["rc_price_pay"] : "", isset($row["rc_price_type"]) ? $row["rc_price_type"] : "");
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				$temp_list[$key]["rc_age_nm"] = formatAgeRange(isset($row["rc_sage"]) ? $row["rc_sage"] : "", isset($row["rc_eage"]) ? $row["rc_eage"] : "");
+				$rc_nation_nm = isset($row["rc_nation"]) ? $row["rc_nation"] : "";
+				$temp_list[$key]["rc_nation_nm"] = (in_array($rc_nation_nm, ["무관", "내국인,외국인"])) ? "국적무관" : $rc_nation_nm;
+				$temp_list[$key]["ad_addr"] = isset($row["ad_addr"]) ? removeBigAddr($row["ad_addr"]) : "";
 				$temp_list[$key]["last_msg_preview"] = "";
 				$temp_list[$key]["last_msg_time"] = "";
 				$temp_list[$key]["unread_count"] = 0;
@@ -591,6 +623,10 @@ class Chat_proc extends CI_Controller
 					$temp_list[$key]["user_name"] = "";
 					$temp_list[$key]["mm_comp_name"] = "";
 				}
+
+				// job_list와 동일한 필드 가공 (뱃지/근무 아이콘)
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");
 
 				// 채팅방 인덱스 조회 (단일 rm_idx 사용)
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
@@ -686,6 +722,11 @@ class Chat_proc extends CI_Controller
 					$temp_list[$key]["user_name"] = "";
 					$temp_list[$key]["mm_comp_name"] = "";
 				}
+
+				// job_list와 동일한 필드 가공 (뱃지/근무 아이콘)
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");
+
 				if (empty($temp_list[$key]["last_msg_preview"])) {
 					$temp_list[$key]["last_msg_preview"] = "";
 				}
@@ -1120,6 +1161,10 @@ class Chat_proc extends CI_Controller
 				// 회사명 설정 (user_name을 mm_comp_name으로도 복사)
 				$temp_list[$key]["mm_comp_name"] = isset($row["user_name"]) ? $row["user_name"] : "";
 
+				// job_list와 동일한 필드 가공 (뱃지/근무 아이콘)
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");
+
 				// 마지막 메시지 조회
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 				if ($rm_idx > 0) {
@@ -1197,7 +1242,11 @@ class Chat_proc extends CI_Controller
 			foreach ($temp_list as $key => $row) {
 				// 회사명 설정 (user_name을 mm_comp_name으로도 복사)
 				$temp_list[$key]["mm_comp_name"] = isset($row["user_name"]) ? $row["user_name"] : "";
-				
+
+				// job_list와 동일한 필드 가공 (뱃지/근무 아이콘)
+				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");
+
 				if (empty($temp_list[$key]["last_msg_preview"])) {
 					$temp_list[$key]["last_msg_preview"] = "";
 				}

@@ -11,8 +11,8 @@ $top_bar = array(
     <div class="tab-container">
       <ul class="tab-list">
         <?php if ($user_type == "MEM") : ?>
-          <li class="on"><a href="/chat/chat_list" class="tab">지원한 공고<span class="tab-badge"></span></a></li>
-          <li><a href="/chat/chat_list2" class="tab">제안받은 공고<span class="tab-badge"></span></a></li>
+          <li class="on"><a href="/chat/chat_list" class="tab">채팅보낸 공고<span class="tab-badge"></span></a></li>
+          <li><a href="/chat/chat_list2" class="tab">채팅받은 공고<span class="tab-badge"></span></a></li>
         <?php endif; ?>
       </ul>
     </div>
@@ -102,7 +102,7 @@ $top_bar = array(
         <h2 class="sr-text">지원한공고</h2>
 
         <div class="chat-list">
-          <ol class="list" id="chat_list">
+          <ol class="list result-list-card" id="chat_list">
 
           </ol>
           <div class="chat-empty" id="chat_empty1">
@@ -235,11 +235,13 @@ $top_bar = array(
           $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
           $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
           $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
-          $content = $content.replaceAll("{{user_name}}", row.user_name || "");
-          
+
           var rcName = truncateRcTitle(row.rc_name || "");
           $content = $content.replaceAll("{{rc_name}}", rcName);
-          
+
+          $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
+          $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
+
           // 마지막 메시지 바인딩
           $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
 
@@ -398,11 +400,8 @@ $top_bar = array(
             <img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
           </div>
         </div> -->
-        <div class="content-wrap">
-          <div style="font-size: 12px; color: #777; margin-top: 4px;">
-            <!-- 회사이름 -->
-            <p>{{user_name}}</p>
-          </div>
+        <div class="content-wrap content-info">
+          <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div>
           <div class="title-wrap">
             <p class="title"><strong>{{rc_name}}</strong></p>
           </div>

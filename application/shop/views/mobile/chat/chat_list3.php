@@ -11,8 +11,8 @@ $top_bar = array(
         <div class="tab-container">
             <ul class="tab-list">
                 <?php if ($user_type == "COMP") : ?>
-                    <li><a href="/chat/index_comp" class="tab">지원한 인재<span class="tab-badge"></span></a></li>
-                    <li class="on"><a href="/chat/chat_list3" class="tab">제안한 인재<span class="tab-badge"></span></a></li>
+                    <li><a href="/chat/index_comp" class="tab">채팅보낸 인재<span class="tab-badge"></span></a></li>
+                    <li class="on"><a href="/chat/chat_list3" class="tab">채팅받은 인재<span class="tab-badge"></span></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -190,12 +190,10 @@ $top_bar = array(
                 cursor: pointer;
             }
 
-            [class*="resumebox_"] .content-body .desc .wicon img {
-                height: 19px;
-            }
+           
 
             [class*="resumebox_"] .content-body .desc .title {
-                font-size: 18px;
+                font-size: 20px;
                 font-weight: bold;
                 margin: 1px 0px;
             }
@@ -268,11 +266,6 @@ $top_bar = array(
                 margin: 0;
                 text-align: right;
             }
-
-            /* content-wrap 클래스에 왼쪽 마진 추가 */
-            .content-wrap {
-                margin-left: 1rem;
-            }
         </style>
         <div class="tab-panel">
             <div class="container">
@@ -280,7 +273,7 @@ $top_bar = array(
                 <h2 class="sr-text">제안보낸 인재</h2>
 
                 <div class="chat-list">
-                    <ol class="list" id="chat_list">
+                    <ol class="list result-list-card" id="chat_list">
 
                     </ol>
                     <div class="chat-empty" id="chat_empty1">
@@ -591,57 +584,20 @@ $top_bar = array(
 
                     var $content = $clone.html();
 
-                    $content = $content.replaceAll("{{room_idx}}", row.rc_idx || row.rm_idx || "");
-                    $content = $content.replaceAll("{{room_idx_list}}", row.rm_idx_list || "()");
-                    $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
                     $content = $content.replaceAll("{{rc_idx}}", row.rc_idx || "");
-                    $content = $content.replaceAll("{{mm_name}}", row.mm_name || "");
-                    $content = $content.replaceAll("{{ru_week}}", row.ru_week || "");
-                    $content = $content.replaceAll("{{distance}}", (row.distance ? row.distance + "km" : ""));
-                    $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-                    $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
-                    $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || "");
-                    $content = $content.replaceAll("{{ma_age}}", row.ma_age || "");
-                    $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
-                    $content = $content.replaceAll("{{ru_my_type}}", row.ru_my_type || "");
-                    $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || "");
-                    $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-                    $content = $content.replaceAll("{{mm_id}}", row.mm_id || "");
-                    $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
-                    $content = $content.replaceAll("{{target_id}}", row.target_id || "");
-                    $content = $content.replaceAll("{{user_id}}", row.user_id || "");
-                    $content = $content.replaceAll("{{target_img}}", row.target_img || "");
-                    $content = $content.replaceAll("{{user_img}}", row.user_img || "");
-                    $content = $content.replaceAll("{{target_name}}", row.target_name || "");
-                    $content = $content.replaceAll("{{user_name}}", row.user_name || "");
+                    $content = $content.replaceAll("{{room_idx_list}}", row.rm_idx_list || "()");
 
                     var rcName = truncateRcTitle(row.rc_name || "");
                     $content = $content.replaceAll("{{rc_name}}", rcName);
-                    $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
-                    $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
-                    $content = $content.replaceAll("{{rc_work}}", row.rc_work || "");
-                    $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
-                    $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
-                    var nationStr = '';
-                    nationStr = row.rc_nation;
-                    if (row.rc_nation != "" && (row.rc_sage != "0" || row.rc_eage != "0")) {
-                        nationStr += " | ";
-                    }
-                    if (row.rc_sage == "0") {
-                        nationStr += row.rc_sage + "대";
-                    }
-                    if (row.rc_sage == "0" && row.rc_eage == "0") {
-                        nationStr += "";
-                    } else {
-                        nationStr += " ~ ";
-                    }
-                    if (row.rc_eage == "0") {
-                        nationStr += "";
-                    } else {
-                        nationStr += row.rc_eage + "대";
-                    }
-                    $content = $content.replaceAll("{{rc_nation}}", nationStr);
+                    $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
+                    $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
+                    $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm || "");
+                    $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm || "");
+                    $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
+                    $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
+                    $content = $content.replaceAll("{{rt_price_type}}", row.rt_price_type || "");
+                    $content = $content.replaceAll("{{rt_price_pay}}", row.rt_price_pay || "");
 
                     //복사한 내용 다시 넣기
                     $clone.html($content);
@@ -811,8 +767,8 @@ $top_bar = array(
 
     // 제안보낸 인재 목록의 미확인 채팅건수 조회
     function fSearchNoReadCount() {
-        // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 초기화
-        $('#chat_list .content-wrap').each(function() {
+        // 현재 페이지의 chat_list 컨테이너 내의 content-li만 초기화
+        $('#chat_list .content-li').each(function() {
             $(this).attr('data-noreadcnt', '0');
         });
 
@@ -830,7 +786,7 @@ $top_bar = array(
             var tab2RoomIdxList = [];
             // 제안한 인재탭의 공고 목록에 대한 room_idx_list 수집
             // 이 채팅방이 제안한 인재 탭에 속하는가?를 빠르게 판별하기 위해 room_idx_list를 수집
-            $('#chat_list .content-wrap').each(function() {
+            $('#chat_list .content-li').each(function() {
                 var roomIdxList = $(this).attr('data-room_idx_list');
                 if (roomIdxList) {
                     // roomIdxArray는 data-room_idx_list 속성에서 ()을 제거하고 콤마(,)로 분리한 후, 각 값을 숫자로 변환한 채팅방(room_idx) ID 배열입니다.
@@ -902,7 +858,7 @@ $top_bar = array(
             });
 
             // 모든 room 처리 후 상위 공고 뱃지를 일괄 반영
-            $('#chat_list .content-wrap').each(function() {
+            $('#chat_list .content-li').each(function() {
                 // 현재 div의 data-noreadcnt 값을 가져오기
                 let noReadCnt = parseInt($(this).attr('data-noreadcnt')) || 0;
 
@@ -939,8 +895,8 @@ $top_bar = array(
     // fSetNoReadCntRecruit: 제안한 인재탭의 공고 목록에 대한 미확인 메시지 카운트 업데이트 함수
     function fSetNoReadCntRecruit(room_idx, cnt) {
 
-        // 현재 페이지의 chat_list 컨테이너 내의 content-wrap만 처리
-        $('#chat_list .content-wrap').each(function() {
+        // 현재 페이지의 chat_list 컨테이너 내의 content-li만 처리
+        $('#chat_list .content-li').each(function() {
             // data-room_idx_list 속성 값 가져오기
             let roomIdxList = $(this).attr('data-room_idx_list');
 
@@ -1333,7 +1289,7 @@ $top_bar = array(
                         // 복사한 내용 다시 넣기
                         $clone.html($content);
 
-                        var resumeboxHtml = "<div id='resumebox_" + rc_idx + "' class='resumebox_" + rc_idx + " resumebox_' style='border-top: 1px solid #ccc; background-color: #f9f9f9;'>" + $clone.html() + "</div>";
+                        var resumeboxHtml = "<div id='resumebox_" + rc_idx + "' class='resumebox_" + rc_idx + " resumebox_'>" + $clone.html() + "</div>";
 
                         // DOM 추가 위치: li 요소 안에 추가 (angle-link 다음에)
                         var $li = $(obj).closest('li');
@@ -1388,30 +1344,35 @@ $top_bar = array(
 </script>
 <!-- 제안한 인재탭의 공고 템플릿 -->
 <template id="tpl_chat">
-    <li class="list-item room-item" data-target_id="{{rc_idx}}">
-        <a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
-            <div class="item-info person" style="width:100%; position: relative;">
-                <!-- <div class="thumb-wrap">
-                    <div class="thumb">
-                        <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
-                    </div>
-                </div> -->
-                <!-- 
-                    data-room_idx_list="{{room_idx_list}}"의 의미:
-                    공고(rc_idx)별로 관련된 채팅방(room_idx)들의 리스트(콤마 분리 문자열 등)가 이 속성에 세팅됩니다.
-                    예: data-room_idx_list="101,102,103"이면, 해당 공고를 통해 오간 채팅방 room_idx가 101, 102, 103 총 3개 있음을 의미함.
-                    여러 명에게 제안했을 때 생기는 채팅방들의 room_idx 식별용 데이터입니다.
-                 -->
-                <div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
-                    <div class="timestamp" style="font-size: 12px; color: #777;">{{mm_comp_name}}</div>
-                    <div class="title-wrap">
-                        <p class="title"><strong>{{rc_name}}</strong></p>
-                    </div>
-                </div>
+  <li class="list-item room-item" data-target_id="{{rc_idx}}">
+    <div class="content-li" data-rc_idx="{{rc_idx}}" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
+      <a href="#" class="angle-link js-open-view" style="padding:0;" onclick="fShowChatListByRecruite('{{rc_idx}}',this); return false;">
+        <div class="content-info">
+          <div class="content-body">
+            <div class="desc">
+              <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div>
+              <div class="title ellipsis">{{rc_name}}</div>
+              <div class="summary">
+                <p>{{rc_nation_nm}}</p>
+                <p>{{rc_age_nm}}</p>
+              </div>
+              <div class="summary area">
+                <p>{{ad_addr}}</p>
+              </div>
             </div>
-        </a>
-        <span class="room_rec_unread_cnt"></span>
-    </li>
+            <div class="summary-container">
+              <div class="summary3">{{rt_work_type}}</div>
+              <div class="summary2">
+                <p class="period">{{rt_price_type}}</p>
+                <p class="amount">{{rt_price_pay}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    <span class="room_rec_unread_cnt"></span>
+  </li>
 </template>
 <!-- 제안한 인재탭의 인재 템플릿 -->
 <template id="tpl_chat_by_recruite">

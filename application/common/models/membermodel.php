@@ -814,7 +814,8 @@ class memberModel extends MY_Model
               AND mem.mm_status = 'Y'
           ))
          ), '()') AS rm_idx_list,
-         (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
+         (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
+         (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
@@ -905,7 +906,8 @@ class memberModel extends MY_Model
               AND mem.mm_status = 'Y'
           )
          ), '()') AS rm_idx_list,
-         (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
+         (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
+         (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
