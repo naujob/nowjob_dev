@@ -1199,18 +1199,17 @@
         }
 
         /* 첨부사진 - 모바일 스타일 적용 */
-        .extra-section .form-pic-group {
+        .form-pic-group {
           display: flex;
           gap: 12px;
           margin: 0;
           width: 100%;
         }
 
-        .extra-section .form-pic-group .form-pic {
+        .form-pic-group .form-pic {
           flex: 1;
           position: relative;
           cursor: pointer;
-
           background-color: #f5f5f5;
           border-radius: var(--rc-border-radius);
           overflow: hidden;
@@ -1220,7 +1219,7 @@
           margin: 0;
         }
 
-        .extra-section .form-pic-group .form-pic:before {
+        .form-pic-group .form-pic:before {
           content: "";
           display: block;
           position: absolute;
@@ -1239,15 +1238,15 @@
           margin: 0;
         }
 
-        .extra-section .form-pic-group .form-pic.has-image:before {
+        .form-pic-group .form-pic.has-image:before {
           display: none;
         }
 
-        .extra-section .form-pic-group .form-pic .label {
+        .form-pic-group .form-pic .label {
           display: none;
         }
 
-        .extra-section .form-pic-group .form-pic .preview {
+        .form-pic-group .form-pic .preview {
           display: block;
           width: 100%;
           padding-top: 100%;
@@ -1256,7 +1255,7 @@
           background-image: none;
         }
 
-        .extra-section .form-pic-group .form-pic .preview img {
+        .form-pic-group .form-pic .preview img {
           position: absolute;
           top: 0;
           left: 0;
@@ -1264,6 +1263,56 @@
           height: 100%;
           object-fit: cover;
           z-index: 2;
+        }
+
+        /* 첨부사진 배지 스타일 */
+        .form-pic-group .form-pic .pic-badge {
+          position: absolute;
+          top: 6px;
+          left: 6px;
+          z-index: 3;
+          padding: 2px 6px;
+          font-size: 20px;
+          color: #fff;
+          background-color: rgba(0, 0, 0, 0.55);
+          border-radius: 4px;
+          pointer-events: none;
+        }
+
+        /* 첨부사진 삭제 버튼 스타일 */
+        .form-pic-group .form-pic .btn-pic-remove {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          z-index: 3;
+          width: 22px;
+          height: 22px;
+          line-height: 22px;
+          text-align: center;
+          padding: 0;
+          border: none;
+          border-radius: 50%;
+          background-color: rgba(0, 0, 0, 0.6);
+          color: #fff;
+          font-size: 14px;
+          cursor: pointer;
+          display: none;
+        }
+
+        .form-pic-group .form-pic.has-image .btn-pic-remove {
+          display: block;
+        }
+
+        .form-pic-group .form-pic .btn-pic-remove:hover {
+          background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* 숨겨진 파일 input */
+        .form-pic-group .form-pic input[type="file"] {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          opacity: 0;
         }
 
         .law-link-wrap {
@@ -1520,6 +1569,9 @@
           font-size: 30px;
           font-weight: 400;
           text-align: center;
+        }
+        .form-section-title + .form-table .form-row:nth-child(1) {
+              border-bottom: none;
         }
       </style>
       <div class="tab-panel on">
@@ -2351,10 +2403,31 @@
                       <span class="sr-text">상세업무정보 입력</span>
                       <textarea id="rc_desc" name="rc_desc" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
                     </label>
-                     <!-- 사진 업로드 버튼 -->
-                    <div>
-                      <button type="button" id="uploadPhotoBtn" style="padding: 8px 16px; background-color: #31A182; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-regular fa-image" style="font-size: 16px;"></i> 사진 추가</button>
-                      <input type="file" id="photoFileInput" accept="image/*" style="display:none;">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <p class="form-label">첨부사진</p>
+                  <div class="value">
+                    <div class="form-pic-group">
+                      <?php foreach (range(1, 4) as $n) : ?>
+                        <label class="form-pic <?= getData($info, "rc_img" . $n) != "" ? "has-image" : "" ?>" data-slot="<?= $n ?>">
+                          <span class="pic-badge"><?= $n == 1 ? "메인사진" : "상세페이지" . ($n - 1) ?></span>
+                          <?php if ($n == 1) : ?>
+                            <input type="file" name="rc_img1" id="rc_img1" accept="image/*" class="js-file-preview">
+                            <span class="preview" id="prev1">
+                              <?php if (getData($info, "rc_img1") != "") : ?>
+                                <img id="imgbox1" src="<?= getData($info, "rc_img1") ?>" />
+                              <?php endif; ?>
+                            </span>
+                            <input type='hidden' name='rc_img1_ori' id='rc_img1_ori' value='<?= getData($info, "rc_img1") ?>' />
+                          <?php else : ?>
+                            <input type="file" accept="image/*" class="js-detail-photo-select">
+                            <span class="preview" id="prev<?= $n ?>"></span>
+                          <?php endif; ?>
+                          <button type="button" class="btn-pic-remove">×</button>
+                        </label>
+                      <?php endforeach; ?>
                     </div>
                   </div>
                 </div>
@@ -2615,25 +2688,6 @@
                       <div class="law-link-wrap indent">
                         <p class="viewLaw" onClick="viewLaw(2);">연령차별금지법 안내</p>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <p class="form-label">첨부사진</p>
-                  <div class="value">
-                    <div class="form-pic-group">
-                      <?php foreach (range(1, 4) as $n) : ?>
-                        <label class="form-pic">
-                          <input type="file" name="rc_img<?= $n ?>" id="rc_img<?= $n ?>" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(<?= $n ?>);">
-                          <span class="label pic-label"></span>
-                          <span class="preview" id="prev<?= $n ?>">
-                            <?php if (getData($info, "rc_img" . $n) != "") : ?>
-                              <img id="imgbox<?= $n ?>" src="<?= getData($info, "rc_img" . $n) ?>" class="has-image" />
-                              <input type='hidden' name='rc_img<?= $n ?>_ori' id='rc_img<?= $n ?>_ori' value='<?= getData($info, "rc_img" . $n) ?>' />
-                            <?php endif; ?>
-                          </span>
-                        </label>
-                      <?php endforeach; ?>
                     </div>
                   </div>
                 </div>
@@ -3006,6 +3060,9 @@
 </div>
 
 <script>
+  // SmartEditor2 인스턴스를 담는 전역 변수 (모든 함수와 이벤트 핸들러에서 접근 가능)
+  var oEditors = [];
+
   function viewLaw(no) {
     $('.law_popup').addClass('on');
 
@@ -3700,12 +3757,6 @@
       $('.js-datepicker').val(formatDate(today));
     }, 500);
 
-    fDelbtnAdd(0);
-    fDelbtnAdd(1);
-    fDelbtnAdd(2);
-    fDelbtnAdd(3);
-    fDelbtnAdd(4);
-    fDelbtnAdd(5);
 
     // 페이지 로드 시 초기값 동기화
     syncTimeHiddenFields();
@@ -3776,7 +3827,7 @@
 
 
     // SmartEditor2 에디터 생성 및 폰트 크기 기본값을 14pt로 설정
-    var oEditors = [];
+    oEditors = [];
     nhn.husky.EZCreator.createInIFrame({
       oAppRef: oEditors, // SmartEditor2 에디터를 조작하기 위해 저장해두는 변수
       elPlaceHolder: "rc_desc",
@@ -3842,64 +3893,6 @@
       $('iframe').css('border-right', '1px solid #ccc');
     }, 500);
 
-    // 사진 업로드 기능
-    $('#uploadPhotoBtn').on('click', function(e) {
-      e.preventDefault();
-      
-      $('#photoFileInput').click();
-    });
-
-    $('#photoFileInput').on('change', function() {
-      if (this.files && this.files.length > 0) {
-        var files = Array.from(this.files);
-        var uploadCount = 0;
-
-        // 여러 파일을 순회하면서 각각 업로드
-        files.forEach(function(file) {
-          var formData = new FormData();
-          formData.append('Filedata', file);
-
-          $.ajax({
-            url: '/compage_proc/se2_image_upload',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-              uploadCount++;
-              if (response.success === 1) {
-                var oEditor = oEditors.getById["rc_desc"];
-                if (oEditor) {
-                  var html = '<img src="' + response.url + '" alt="' + response.name + '" style="max-width:100%; height:auto; margin: 10px 0;" />';
-                  oEditor.exec("PASTE_HTML", [html]);
-                } else {
-                  // smarteditor2가 없으면 textarea에 URL 표시
-                  var currentText = $('#rc_desc').val();
-                  $('#rc_desc').val(currentText + '\n[이미지]: ' + response.url);
-                }
-              } else {
-                alert(file.name + ' 업로드에 실패했습니다.');
-              }
-
-              // 모든 파일 업로드 완료 시 input 초기화
-              if (uploadCount === files.length) {
-                $('#photoFileInput').val('');
-              }
-            },
-            error: function(xhr, status, error) {
-              uploadCount++;
-              console.error('업로드 오류:', error);
-              alert(file.name + ' 업로드 중 오류가 발생했습니다.');
-
-              if (uploadCount === files.length) {
-                $('#photoFileInput').val('');
-              }
-            }
-          });
-        });
-      }
-    });
-
     // 네 개의 입력 필드를 선택하여 순회
     $('input[name="rc_am_stime_m"], input[name="rc_am_etime_m"], input[name="rc_pm_stime_m"], input[name="rc_pm_etime_m"]').each(function() {
       // 값이 빈 문자열이면 "00"을 설정
@@ -3926,16 +3919,126 @@
   });
 
   // 이미지 삭제 버튼 추가 함수
-  function fDelbtnAdd(arg) {
-    var imgHtml = '<a href="javascript:if(confirm(\'이미지를 삭제하시겠습니까?\')){ $(\'#rc_img' + arg + '\').val(\'\'); $(\'#rc_img' + arg + '_ori\').val(\'\'); $(\'#prev' + arg + ' img\').hide(); } " id="delimgbtn' + arg + '" style="display:none; position: absolute; top: 5px; right: 5px; overflow: hidden; border-radius: 11px; width: 23px; height: 24px; z-index: 10;">';
-    imgHtml += '<span style="font-size: 27px; margin-top: -5px; margin-left: -2px; display: block; background-color: #ccc;">ⓧ</span>';
-    imgHtml += '</a>';
-    setTimeout(function() {
-      if ($('#prev' + arg + ' img').length > 0) {
-        $('#prev' + arg).append(imgHtml);
+  // 첨부사진 파일 선택 시 미리보기 및 상태 업데이트 (슬롯 1: 메인사진)
+  $(document).on("change", ".form-pic-group .js-file-preview", function() {
+    var $label = $(this).closest(".form-pic");
+    var file = this.files[0];
+    if (file) {
+      var reader = new FileReader(); // 파일 도우미 객체
+      reader.onload = function(e) { // reader.readAsDataURL 작업이 완료되면 onload 함수가 자동으로 실행
+        var $preview = $label.find(".preview");
+        $preview.html('<img src="' + e.target.result + '" />'); // .target.result	Data URL 문자열
+        
+        $label.addClass("has-image");
+      };
+      reader.readAsDataURL(file); // 파일(이진 데이터)을 읽어서, 화면에 바로 쓸 수 있는 Base64 텍스트 문자열로 변환
+    } else { // 파일 선택 창을 열었다가 '취소'를 누르면
+      var $preview = $label.find(".preview");
+      $preview.html("");
+      $label.removeClass("has-image");
+    }
+  });
+
+  // 상세페이지 사진 선택 (슬롯 2-4) - 에디터에 삽입
+  $(document).on("change", ".form-pic-group .js-detail-photo-select", function() {
+    var $label = $(this).closest(".form-pic");
+    var $preview = $label.find(".preview");
+    var file = this.files[0];
+
+    if (!file) return;
+
+    // 미리보기 표시
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      $preview.html('<img src="' + e.target.result + '" />');
+      $label.addClass("has-image");
+    };
+    reader.readAsDataURL(file); // 파일을 Data URL로 읽기
+
+    // 서버에 업로드 및 에디터에 삽입
+    var formData = new FormData();
+    formData.append('Filedata', file);
+
+    $.ajax({
+      url: '/compage_proc/se2_image_upload',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      dataType: 'json',
+      success: function(response) {
+        if (response.success === 1) {
+          try {
+            var oEditor = oEditors.getById["rc_desc"];
+            if (oEditor) {
+              var imageWrapper = document.createElement('div');
+              imageWrapper.className = 'image-wrapper';
+              imageWrapper.dataset.uploadedUrl = response.url;
+              var img = document.createElement('img');
+              img.src = response.url;
+              img.alt = response.name;
+              img.dataset.uploadedUrl = response.url;
+              imageWrapper.appendChild(img);
+              oEditor.exec("PASTE_HTML", ['<br>' + imageWrapper.outerHTML]);
+              $label.data("uploadedUrl", response.url);
+            }
+          } catch (e) {
+            console.log("SmartEditor2 not available, showing URL in desc");
+          }
+        } else {
+          alert(file.name + ' 업로드에 실패했습니다.');
+        }
+      },
+      error: function() {
+        alert(file.name + ' 업로드 중 오류가 발생했습니다.');
       }
-    }, 500);
-  }
+    });
+  });
+
+  // 첨부사진 삭제 버튼 클릭 시 처리
+  $(document).on("click", ".form-pic-group .btn-pic-remove", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var $label = $(this).closest(".form-pic");
+    var slot = $label.data("slot");
+    var $input = $label.find("input[type=file]");
+    var $oriInput = $label.find("[name*='_ori']");
+    var $preview = $label.find(".preview");
+
+    $input.val("");
+    if ($oriInput.length) {
+      $oriInput.val("");
+    }
+    $preview.html("");
+    $label.removeClass("has-image");
+
+    // 슬롯 2-4 (상세페이지): 에디터에서도 제거
+    if (slot > 1) {
+      var uploadedUrl = $label.data("uploadedUrl");
+      if (uploadedUrl) {
+        try {
+          var oEditor = oEditors.getById["rc_desc"];
+          if (oEditor) {
+            var oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
+            if (oWYSIWYGDocument) {
+              var imgs = oWYSIWYGDocument.querySelectorAll('img[data-uploaded-url="' + uploadedUrl.replace(/"/g, '\\"') + '"]');
+              imgs.forEach(function(img) {
+                var wrapper = img.closest('.image-wrapper');
+                if (wrapper) {
+                  wrapper.remove();
+                } else {
+                  img.remove();
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.log("Could not remove from editor");
+        }
+        $label.data("uploadedUrl", null);
+      }
+    }
+  });
   // 미리보기 정보 표시 함수
   function showPreviewInfo(info) {
 
