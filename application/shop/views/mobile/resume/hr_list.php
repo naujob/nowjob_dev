@@ -1163,7 +1163,7 @@ $tpl_show_chat_mark = true; ?>
     e.stopPropagation();
     var rmIdx = $(this).data('rm_idx');
     if (rmIdx) {
-      location.href = '/chat/chat_view?rm_idx=' + rmIdx;
+      location.href = '/chat/chat_view?rm_idx=' + rmIdx + '&from=hr_list';
     }
   });
 

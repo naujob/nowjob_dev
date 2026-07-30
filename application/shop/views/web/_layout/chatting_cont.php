@@ -656,18 +656,18 @@
  							<ul role="tablist" class="tabs">
 							<?php if ($user_type == "MEM") { ?>
 								<li class="on chat_tab1" style="width:50%;">
-									<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">지원한 공고</span><span class="tab-badge"></span></a>
+									<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">채팅보낸 공고</span><span class="tab-badge"></span></a>
 								</li>
 								<li class="chat_tab2" style="width:50%;">
-									<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안받은 공고</span><span class="tab-badge"></span></a>
+									<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">채팅받은 공고</span><span class="tab-badge"></span></a>
 								</li>
 							<?php } ?>
 							<?php if ($user_type == "COMP") { ?>
 								<li class="on chat_tab1" style="width:50%;">
-									<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">지원한 인재</span><span class="tab-badge"></span></a>
+									<a href="#chatPanel1" role="tab" aria-selected="true" aria-controls="chatPanel1" id="chatTab1" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">채팅받은 인재</span><span class="tab-badge"></span></a>
 								</li>
 								<li class="chat_tab2" style="width:50%;">
-									<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">제안한 인재</span><span class="tab-badge"></span></a>
+									<a href="#chatPanel2" role="tab" aria-selected="true" aria-controls="chatPanel2" id="chatTab2" class="tab" style="width: 100%;"><span style="width: 100%; text-align: center;">채팅보낸 인재</span><span class="tab-badge"></span></a>
 								</li>
 							<?php } ?>
  								<!--

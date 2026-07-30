@@ -39,6 +39,15 @@ class Chat extends CI_Controller
   # 기업 채팅
   function index_comp()
   {
+    # 기업회원만 접근 가능
+    if ($this->user->getUserType() !== "COMP") {
+      echo "<script>
+        alert('기업회원 전용 서비스입니다.');
+        location.href = '/recruit/job_list';
+      </script>";
+      exit;
+    }
+
     $data = [];
 
     //데이터 설정
@@ -61,6 +70,15 @@ class Chat extends CI_Controller
   # 기업 채팅 (새 UI)
   function index_comp_new()
   {
+    # 기업회원만 접근 가능
+    if ($this->user->getUserType() !== "COMP") {
+      echo "<script>
+        alert('기업회원 전용 서비스입니다.');
+        location.href = '/recruit/job_list';
+      </script>";
+      exit;
+    }
+
     $data = [];
 
     //데이터 설정
@@ -97,6 +115,15 @@ class Chat extends CI_Controller
   # 채팅
   function chat_list()
   {
+    # 개인회원만 접근 가능
+    if ($this->user->getUserType() !== "MEM") {
+      echo "<script>
+        alert('개인회원 전용 서비스입니다.');
+        location.href = '/recruit/job_list';
+      </script>";
+      exit;
+    }
+
     $data = [];
 
     $headers = apache_request_headers();
@@ -118,6 +145,15 @@ class Chat extends CI_Controller
 
   function chat_list2()
   {
+    # 개인회원만 접근 가능
+    if ($this->user->getUserType() !== "MEM") {
+      echo "<script>
+        alert('개인회원 전용 서비스입니다.');
+        location.href = '/recruit/job_list';
+      </script>";
+      exit;
+    }
+
     $data = [];
 
     $headers = apache_request_headers();
@@ -139,6 +175,15 @@ class Chat extends CI_Controller
 
   function chat_list3()
   {
+    # 기업회원만 접근 가능
+    if ($this->user->getUserType() !== "COMP") {
+      echo "<script>
+        alert('기업회원 전용 서비스입니다.');
+        location.href = '/recruit/job_list';
+      </script>";
+      exit;
+    }
+
     $data = [];
 
     $headers = apache_request_headers();

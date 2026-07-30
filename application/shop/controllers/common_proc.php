@@ -1169,25 +1169,29 @@ class Common_proc extends CI_Controller
 					}
 				//채팅창 동시 생성.2023.11.20
 
-				// 제안하기/지원하기 후 FCM 푸시알림 발송
-				// 푸시 알림 발송 비활성화 (2025.01.05)
-
-				// 지원하기 푸시알림 (채용공고 소유자에게) - 비활성화
-				/*
+				// 지원하기 푸시알림 (채용공고 소유자에게)
 				if ($mq_type == "RECRUIT") {
 					try {
+						// error_log("[PUSH_APPLICATION] 지원하기 푸시 알림 시작 - rc_idx: " . $idx . ", mm_idx: " . $mm_idx . ", ru_idx: " . $data["ru_idx"]);
+
 						// 채용공고 소유자의 mm_idx 조회
 						$recruit_sql = "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_show_yn = 'Y'";
 						$recruit_result = $this->db->query($recruit_sql, [$idx]);
 						$recruit_info = $recruit_result->row_array();
 
-						if ($recruit_info) {
+						if (!$recruit_info) {
+							// error_log("[PUSH_APPLICATION_ERROR] 채용공고 정보 없음 - rc_idx: " . $idx);
+						} elseif ($recruit_info) {
 							// 회원 정보 조회
 							$member_sql = "SELECT mm_id FROM st_member WHERE mm_idx = ? AND mm_status = 'Y'";
 							$member_result = $this->db->query($member_sql, [$recruit_info['mm_idx']]);
 							$member_info = $member_result->row_array();
 
-							if ($member_info) {
+							if (!$member_info) {
+								// error_log("[PUSH_APPLICATION_ERROR] 회원 정보 없음 - recruit_owner_mm_idx: " . $recruit_info['mm_idx']);
+							} elseif ($member_info) {
+								// error_log("[PUSH_APPLICATION] 회원 정보 조회 성공 - mm_id: " . $member_info['mm_id']);
+
 								// FCM 토큰 조회 (여러 방법으로 시도)
 								// 1. mm_idx로 조회 시도
 								$token_sql = "SELECT ifnull(token,'') as token, push_yn FROM st_member_device WHERE mm_idx = ? AND push_yn = 'Y' ORDER BY up_dt DESC LIMIT 1";
@@ -1212,22 +1216,29 @@ class Common_proc extends CI_Controller
 										}
 									}
 								} catch (Exception $mongo_error) {
-									// MongoDB 오류는 무시하고 계속 진행
+									// error_log("[PUSH_APPLICATION_ERROR] MongoDB 토큰 조회 실패 - mm_id: " . $member_info['mm_id'] . ", error: " . $mongo_error->getMessage());
 								}
 
 								// 토큰 우선순위: MySQL > MongoDB
 								$final_token = null;
 								if ($token_info && !empty($token_info['token'])) {
 									$final_token = $token_info['token'];
+									// error_log("[PUSH_APPLICATION] FCM 토큰 조회 성공 (MySQL) - mm_id: " . $member_info['mm_id']);
 								} else if ($mongo_token && !empty($mongo_token)) {
 									$final_token = $mongo_token;
+									// error_log("[PUSH_APPLICATION] FCM 토큰 조회 성공 (MongoDB) - mm_id: " . $member_info['mm_id']);
+								} else {
+									// error_log("[PUSH_APPLICATION_WARN] FCM 토큰 없음 - mm_id: " . $member_info['mm_id']);
 								}
 
 								// 지원한 구직자 정보 조회
 								$applicant_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
 
-								if ($applicant_info && !empty($applicant_info["mm_name"])) {
+								if (!$applicant_info) {
+									// error_log("[PUSH_APPLICATION_ERROR] 지원자 정보 없음 - applicant_mm_idx: " . $mm_idx);
+								} elseif ($applicant_info && !empty($applicant_info["mm_name"])) {
 									$applicant_name = !empty($applicant_info["mm_name"]) ? $applicant_info["mm_name"] : "구직자";
+									// error_log("[PUSH_APPLICATION] 지원자 정보 - applicant_name: " . $applicant_name);
 
 									// FCM 푸시알림 발송 (토큰이 있는 경우에만)
 									if ($final_token) {
@@ -1240,6 +1251,9 @@ class Common_proc extends CI_Controller
 										];
 
 										$fcm_result = sendFcm($info, $token_list);
+										// error_log("[PUSH_APPLICATION] FCM 푸시 발송 - recipient_mm_id: " . $member_info['mm_id'] . ", applicant: " . $applicant_name);
+									} else {
+										// error_log("[PUSH_APPLICATION_WARN] FCM 토큰 없어 푸시 발송 스킵 - recipient_mm_id: " . $member_info['mm_id']);
 									}
 
 									// MongoDB 알림 등록 (토큰 유무와 관계없이 항상 등록)
@@ -1261,35 +1275,42 @@ class Common_proc extends CI_Controller
 												"reg_dt" => get_today(),
 											];
 											$tbl_alarm->insert($alarm);
+											// error_log("[PUSH_APPLICATION] MongoDB 알림 등록 성공 - recipient_mm_id: " . $member_info['mm_id']);
 										}
 									} catch (Exception $mongo_error) {
-										// 알림 등록 오류는 무시하고 계속 진행
+										// error_log("[PUSH_APPLICATION_ERROR] MongoDB 알림 등록 실패 - recipient_mm_id: " . $member_info['mm_id'] . ", error: " . $mongo_error->getMessage());
 									}
 								}
 							}
 						}
-					} catch (Exception $e) {
-						// 푸시 알림 처리 오류는 무시하고 계속 진행
+					} catch (Exception $push_error) {
+						// error_log("[PUSH_APPLICATION_ERROR] 지원하기 푸시 알림 처리 중 예외 발생 - rc_idx: " . $idx . ", error: " . $push_error->getMessage());
 					}
 				}
-				*/
 
-				// 제안하기 푸시알림 (이력서 소유자에게) - 비활성화
-				/*
+				// 제안하기 푸시알림 (이력서 소유자에게)
 				if ($mq_type == "RESUME") {
 					try {
+						// error_log("[PUSH_OFFER] 제안하기 푸시 알림 시작 - ru_idx: " . $idx . ", mm_idx: " . $mm_idx . ", rc_idx: " . $data["rc_idx"]);
+
 						// 이력서 소유자의 mm_idx 조회
 						$resume_sql = "SELECT mm_idx FROM st_resume WHERE ru_idx = ? AND ru_show_yn = 'Y'";
 						$resume_result = $this->db->query($resume_sql, [$idx]);
 						$resume_info = $resume_result->row_array();
 
-						if ($resume_info) {
+						if (!$resume_info) {
+							// error_log("[PUSH_OFFER_ERROR] 이력서 정보 없음 - ru_idx: " . $idx);
+						} elseif ($resume_info) {
 							// 회원 정보 조회
 							$member_sql = "SELECT mm_id FROM st_member WHERE mm_idx = ? AND mm_status = 'Y'";
 							$member_result = $this->db->query($member_sql, [$resume_info['mm_idx']]);
 							$member_info = $member_result->row_array();
 
-							if ($member_info) {
+							if (!$member_info) {
+								// error_log("[PUSH_OFFER_ERROR] 회원 정보 없음 - resume_owner_mm_idx: " . $resume_info['mm_idx']);
+							} elseif ($member_info) {
+								// error_log("[PUSH_OFFER] 회원 정보 조회 성공 - mm_id: " . $member_info['mm_id']);
+
 								// FCM 토큰 조회 (여러 방법으로 시도)
 								// 1. mm_idx로 조회 시도
 								$token_sql = "SELECT ifnull(token,'') as token, push_yn FROM st_member_device WHERE mm_idx = ? AND push_yn = 'Y' ORDER BY up_dt DESC LIMIT 1";
@@ -1314,22 +1335,29 @@ class Common_proc extends CI_Controller
 										}
 									}
 								} catch (Exception $mongo_error) {
-									// MongoDB 오류는 무시하고 계속 진행
+									// error_log("[PUSH_OFFER_ERROR] MongoDB 토큰 조회 실패 - mm_id: " . $member_info['mm_id'] . ", error: " . $mongo_error->getMessage());
 								}
 
 								// 토큰 우선순위: MySQL > MongoDB
 								$final_token = null;
 								if ($token_info && !empty($token_info['token'])) {
 									$final_token = $token_info['token'];
+									// error_log("[PUSH_OFFER] FCM 토큰 조회 성공 (MySQL) - mm_id: " . $member_info['mm_id']);
 								} else if ($mongo_token && !empty($mongo_token)) {
 									$final_token = $mongo_token;
+									// error_log("[PUSH_OFFER] FCM 토큰 조회 성공 (MongoDB) - mm_id: " . $member_info['mm_id']);
+								} else {
+									// error_log("[PUSH_OFFER_WARN] FCM 토큰 없음 - mm_id: " . $member_info['mm_id']);
 								}
 
 								// 제안한 기업 정보 조회
 								$company_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
 
-								if ($company_info && !empty($company_info["mm_comp_name"])) {
+								if (!$company_info) {
+									// error_log("[PUSH_OFFER_ERROR] 제안 기업 정보 없음 - company_mm_idx: " . $mm_idx);
+								} elseif ($company_info && !empty($company_info["mm_comp_name"])) {
 									$company_name = !empty($company_info["mm_comp_name"]) ? $company_info["mm_comp_name"] : "기업";
+									// error_log("[PUSH_OFFER] 제안 기업 정보 - company_name: " . $company_name);
 
 									// FCM 푸시알림 발송 (토큰이 있는 경우에만)
 									if ($final_token) {
@@ -1342,6 +1370,9 @@ class Common_proc extends CI_Controller
 										];
 
 										$fcm_result = sendFcm($info, $token_list);
+										// error_log("[PUSH_OFFER] FCM 푸시 발송 - recipient_mm_id: " . $member_info['mm_id'] . ", company: " . $company_name);
+									} else {
+										// error_log("[PUSH_OFFER_WARN] FCM 토큰 없어 푸시 발송 스킵 - recipient_mm_id: " . $member_info['mm_id']);
 									}
 
 									// MongoDB 알림 등록 (토큰 유무와 관계없이 항상 등록)
@@ -1363,18 +1394,18 @@ class Common_proc extends CI_Controller
 												"reg_dt" => get_today(),
 											];
 											$tbl_alarm->insert($alarm);
+											// error_log("[PUSH_OFFER] MongoDB 알림 등록 성공 - recipient_mm_id: " . $member_info['mm_id']);
 										}
 									} catch (Exception $mongo_error) {
-										// 알림 등록 오류는 무시하고 계속 진행
+										// error_log("[PUSH_OFFER_ERROR] MongoDB 알림 등록 실패 - recipient_mm_id: " . $member_info['mm_id'] . ", error: " . $mongo_error->getMessage());
 									}
 								}
 							}
 						}
 					} catch (Exception $push_error) {
-						// 푸시/알림 처리 오류는 무시하고 계속 진행
+						// error_log("[PUSH_OFFER_ERROR] 제안하기 푸시 알림 처리 중 예외 발생 - ru_idx: " . $idx . ", error: " . $push_error->getMessage());
 					}
 				}
-				*/
 			}
 
 			// JSON 응답 전에 출력 버퍼 정리

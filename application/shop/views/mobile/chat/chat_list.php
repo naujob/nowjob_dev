@@ -6,7 +6,7 @@ $top_bar = array(
 <div class="page page-chat">
   <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php'); ?>
 
-  <div class="page-content">
+  <div class="page-content resume-chat-list">
 
     <div class="tab-container">
       <ul class="tab-list">

@@ -11,8 +11,8 @@ $top_bar = array(
         <div class="tab-container">
             <ul class="tab-list">
                 <?php if ($user_type == "COMP") : ?>
-                    <li><a href="/chat/index_comp" class="tab">채팅보낸 인재<span class="tab-badge"></span></a></li>
-                    <li class="on"><a href="/chat/chat_list3" class="tab">채팅받은 인재<span class="tab-badge"></span></a></li>
+                    <li><a href="/chat/index_comp" class="tab">채팅받은 인재<span class="tab-badge"></span></a></li>
+                    <li class="on"><a href="/chat/chat_list3" class="tab">채팅보낸 인재<span class="tab-badge"></span></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -149,10 +149,7 @@ $top_bar = array(
 
 
             /* 지원자 목록 들여쓰기 스타일 */
-            [class*="resumebox_"] {
-                margin-left: 1rem;
-                /* 한 칸 정도 들여쓰기 */
-            }
+           
 
             [class*="resumebox_"] .list-item {
                 margin-left: 8px;
@@ -163,7 +160,7 @@ $top_bar = array(
                 position: relative;
                 overflow: hidden;
                 height: 95px;
-                padding: 10px;
+               
             }
 
             [class*="resumebox_"] .content-body .img {
@@ -186,7 +183,7 @@ $top_bar = array(
             [class*="resumebox_"] .content-body .desc {
                 position: relative;
                 height: 100%;
-                /* margin: 0 0 0 110px; */
+                margin: 0 0 0 110px;
                 cursor: pointer;
             }
 
@@ -206,7 +203,7 @@ $top_bar = array(
 
             [class*="resumebox_"] .content-body .desc .summary {
                 display: flex;
-                font-size: 16px;
+                font-size: 15px;
                 gap: 5px;
                 position: relative;
             }
@@ -1391,9 +1388,9 @@ $top_bar = array(
             onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_sent'; return false;">
 
             <div class="content-body" style="position: relative;">
-                <!-- <div class="img" style="border-radius: 60px;">
+                <div class="img" style="border-radius: 60px;">
                     <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
-                </div> -->
+                </div>
                 <div class="desc">
                     <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
                     <div class="title ellipsis">{{ru_name}}</div>

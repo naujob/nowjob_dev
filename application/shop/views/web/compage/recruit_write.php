@@ -1133,6 +1133,9 @@
           flex-wrap: wrap;
           gap: 8px;
         }
+        
+
+
 
         /* 희망나이 form-group flex 레이아웃 */
         .extra-section .age-group {
@@ -1394,11 +1397,13 @@
           margin: 0;
         }
 
-        .extra-section .form-row .form-group,
-        .extra-section .form-row .inline-group .nation-group {
-          gap: 0px;
+        .extra-section .form-row:nth-child(2) .form-group,
+        .extra-section .form-row:nth-child(3) .form-group,
+        .extra-section .form-row:nth-child(2) .inline-group .nation-group,
+        .extra-section .form-row:nth-child(3) .inline-group .nation-group {
+          gap: 24px;
         }
-
+        
         .nation-group .form-toggle-btn2,
         .sex-group .form-toggle-btn2 {
           margin: 0;
@@ -1411,12 +1416,12 @@
         /* 희망국적, 희망성별 버튼 radius */
         .nation-group .form-toggle-btn2:nth-child(1) .btn,
         .sex-group .form-toggle-btn2:nth-child(1) .btn {
-          border-radius: 10px 0 0 10px;
+          border-radius: 10px 10px 10px 10px;
         }
 
         .nation-group .form-toggle-btn2:nth-child(2) .btn,
         .sex-group .form-toggle-btn2:nth-child(2) .btn {
-          border-radius: 0 10px 10px 0;
+          border-radius: 10px 10px 10px 10px;
           margin-right: 0;
         }
 

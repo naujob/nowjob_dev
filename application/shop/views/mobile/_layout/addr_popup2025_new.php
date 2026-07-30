@@ -595,6 +595,15 @@
           function shouldHideAllRegions() {
             return window.__hideAllRegionsInAddrPopup === true;
           }
+          // /resume/hr_list, /recruit/job_list에서는 "전체" 항목을 필터링하지 않도록 설정
+          function shouldExcludeAllRegion() {
+            var pageType = window.__addrPopupPageType || 'default';
+            if (pageType === 'resume' || pageType === 'recruit') {
+              return false; // "전체" 포함 (필터링 안 함)
+            }
+            return true; // 기본: "전체" 필터링
+          }
+
           // 전체 지역 숨김 플래그를 설정하는 함수. true로 설정하면 전체 지역이 숨겨지고, false로 설정하면 전체 지역이 다시 보이도록 함
           window.applyAddrPopupAllRegionFilter = function() {
             if (!shouldHideAllRegions()) return;
@@ -719,18 +728,34 @@
             const text = $clickedLi.text().trim();
             var combinedText = "";
             const textParts = text.split(" ");
+
+            // 디버깅 로그
+            // console.log('=== searchSelect 함수 ===');
+            // console.log('step:', step, 'currentStep:', currentStep);
+            // console.log('addr:', addr);
+            // console.log('text (UI 텍스트):', text);
+            // console.log('addr.includes("전체"):', addr.includes("전체"));
+
+            // "전체" 필터링은 페이지별로 결정
+            if (shouldExcludeAllRegion() && textParts[textParts.length - 1] === "전체") {
+              $clickedLi.removeClass('addr_on');
+              return;
+            }
             if (shouldHideAllRegions() && textParts[textParts.length - 1] === "전체") {
               $clickedLi.removeClass('addr_on');
               return;
             }
-            if (textParts[textParts.length - 1] === "전체") {
+            // addr을 기반으로 표시 텍스트 생성 (data-addr에 전체 정보가 있음)
+            if (addr.includes("전체")) {
               if (currentStep === 1) {
-                combinedText = replaceRegionNames(text)
+                combinedText = replaceRegionNames(addr)  // "서울특별시 전체" → "서울 전체"
               } else {
-                combinedText = removeRegionNames(text);
+                combinedText = removeRegionNames(addr);  // "서울특별시 강남구 전체" → "강남구 전체"
               }
+              // console.log('전체 항목 처리됨, combinedText:', combinedText);
             } else {
               combinedText = textParts[textParts.length - 1];
+              // console.log('일반 항목, combinedText:', combinedText);
             }
 
             const existingBtnSelector = `.selbtn[data-step="${step}"][data-addr="${addr}"]`;
@@ -763,6 +788,11 @@
               }
 
               if (!alreadyExists) {
+                // console.log('버튼 생성 중:');
+                // console.log('  data-step:', step);
+                // console.log('  data-addr:', addr);
+                // console.log('  .text():', combinedText);
+
                 const $selbtn = $('<div>')
                   .addClass('selbtn')
                   .attr('data-step', step)
@@ -774,6 +804,8 @@
                     .text('x')
                   );
                 $div2.append($selbtn);
+
+                // console.log('생성된 버튼:', $selbtn.text(), '| data-addr:', $selbtn.data('addr'));
                 updateSelectedCount();
               }
             } else {
@@ -895,9 +927,28 @@
                 if (currentStep === 1) {
                   $('.addr_dept2 ul, .addr_dept3 ul').empty();
 
+                  // 페이지 타입에 따라 "전체" 항목을 첫 번째로 추가
+                  if (!shouldExcludeAllRegion()) {
+                    // addr이 이미 "전체"를 포함하면 그대로 사용, 아니면 " 전체" 추가
+                    const addr2_all = addr.endsWith('전체') ? addr : (addr + ' 전체');
+                    const isSelected_all = $(`.selbtn[data-step="2"][data-addr="${addr2_all}"]`).length > 0;
+                    const newLi_all = $('<li>')
+                      .attr('data-step', '2')
+                      .attr('data-addr', addr2_all)
+                      .addClass('selectable')
+                      .toggleClass('addr_on', isSelected_all)
+                      .append(
+                        $('<span>').addClass('text').text('전체')
+                      );
+                    $('.addr_dept2 ul').append(newLi_all);
+                  }
+
                   $.each(ret.data, function(i, item) {
-                    // 모든 섹션에서 "전체" 필터링
-                    if (!item.gugun_name || item.gugun_name.trim() === '' || item.gugun_name.includes('전체')) {
+                    // 페이지에 따라 "전체" 필터링 여부 결정
+                    if (!item.gugun_name || item.gugun_name.trim() === '') {
+                      return;
+                    }
+                    if (shouldExcludeAllRegion() && item.gugun_name.includes('전체')) {
                       return;
                     }
                     const addr2 = addr + ' ' + item.gugun_name;
@@ -917,9 +968,33 @@
                 } else if (currentStep === 2) {
                   $('.addr_dept3 ul').empty();
 
+                  // 페이지 타입에 따라 "전체" 항목을 첫 번째로 추가
+                  if (!shouldExcludeAllRegion()) {
+                    // addr이 이미 "전체"를 포함하면 그대로 사용, 아니면 " 전체" 추가
+                    const addr3_all = addr.endsWith('전체') ? addr : (addr + ' 전체');
+                    const isSelected_all = $(`.selbtn[data-step="3"][data-addr="${addr3_all}"]`).length > 0;
+                    const newLi_all = $('<li>')
+                      .attr('data-step', '3')
+                      .attr('data-addr', addr3_all)
+                      .toggleClass('addr_on', isSelected_all)
+                      .append(
+                        $('<label>').append(
+                          $('<span>').addClass('text').text('전체'),
+                          $('<input>').attr({
+                            type: 'checkbox',
+                            name: 'chk[]'
+                          })
+                        )
+                      );
+                    $('.addr_dept3 ul').append(newLi_all);
+                  }
+
                   $.each(ret.data, function(i, item) {
-                    // 모든 섹션에서 "전체" 필터링
-                    if (!item.b_dong_name || item.b_dong_name.trim() === '' || item.b_dong_name.includes('전체')) {
+                    // 페이지에 따라 "전체" 필터링 여부 결정
+                    if (!item.b_dong_name || item.b_dong_name.trim() === '') {
+                      return;
+                    }
+                    if (shouldExcludeAllRegion() && item.b_dong_name.includes('전체')) {
                       return;
                     }
                     const addr3 = addr + ' ' + item.b_dong_name;
@@ -1316,7 +1391,8 @@
                     const step = item.step; // 주소 단계 (1, 2, 3 등)도 함께 가져옵니다. 예: 3
                     // 모든 섹션에서 "전체" 필터링
                     if (shouldHideAllRegions() && step < 3) return;
-                    if (!addr || addr.trim() === '' || addr.includes('전체')) return;
+                    if (!addr || addr.trim() === '') return;
+                    if (shouldExcludeAllRegion() && addr.includes('전체')) return;
                     const isSelected = $(`.selbtn[data-step="${step}"][data-addr="${addr}"]`).length > 0;
 
                     const displayText = step < 3 ? addr + ' 전체' : addr;
@@ -1365,13 +1441,20 @@
               "경상남도": "경남",
               "제주특별자치도": "제주"
             };
-            return text.replace(
+            const result = text.replace(
               new RegExp(Object.keys(regionMap).join("|"), "g"),
               match => regionMap[match]
             );
+            // console.log('replaceRegionNames:', text, '→', result);
+            return result;
           }
           // "서울 전체" → "서울 전체" 유지, "서울특별시 강남구" → "강남구" 등으로 변환하는 함수입니다. "전체" 항목에서 시도 시, "서울 전체" → "서울 전체"로
           function removeRegionNames(text) {
+            // "전체"가 포함된 경우, replaceRegionNames 사용 (지역명만 짧게 변환)
+            if (text.includes('전체')) {
+              return replaceRegionNames(text);
+            }
+
             const regionMap = {
               "서울특별시 ": "",
               "부산광역시 ": "",
@@ -1391,10 +1474,12 @@
               "경상남도 ": "",
               "제주특별자치도 ": ""
             };
-            return text.replace(
+            const result = text.replace(
               new RegExp(Object.keys(regionMap).join("|"), "g"),
               match => regionMap[match]
             );
+            // console.log('removeRegionNames:', text, '→', result);
+            return result;
           }
         </script>
 

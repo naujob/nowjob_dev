@@ -22,9 +22,10 @@
             applied: '/chat/chat_list', // 지원한 공고
             proposed_job: '/chat/chat_list2', // 제안받은 공고
             talent_received: '/chat/index_comp', // 제안받은 인재
-            talent_sent: '/chat/chat_list3' // 제안보낸 인재
+            talent_sent: '/chat/chat_list3', // 제안보낸 인재
+            hr_list: '/chat/index_comp' // 인재 리스트
         };
-     
+
         var backUrl = backMap[from] || '/chat/chat_list';
 
         // iOS WebView에서 더 확실하게 동작하도록 즉시 실행 + DOMContentLoaded 둘 다 처리

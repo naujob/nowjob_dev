@@ -332,7 +332,14 @@ class recruitModel extends MY_Model
 
 		$conditions = array_map(function ($addr) use ($column) {
 			$escaped_addr = addslashes($addr);
-			$cond = "$column LIKE '%" . $escaped_addr . "%'";
+			// "전체"가 포함된 경우, "전체"를 제거하고 와일드카드로 시작
+			if (strpos($addr, '전체') !== false) {
+				// "서울특별시 전체" → "서울특별시"
+				$base_addr = trim(str_replace('전체', '', $addr));
+				$cond = "$column LIKE '" . addslashes($base_addr) . "%'";
+			} else {
+				$cond = "$column LIKE '%" . $escaped_addr . "%'";
+			}
 			return $cond;
 		}, $addr_array);
 

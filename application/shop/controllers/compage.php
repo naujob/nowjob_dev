@@ -29,8 +29,8 @@ class Compage extends CI_Controller
 
 		# 로그인확인후 이동처리
 		if ($this->mm_type != "COMP") {
-			go_location("/mypage/index");
-		}
+		  go_location("/recruit/job_list", "기업회원 전용 서비스입니다.");
+      }
 
 		# 자동 쿠폰 발급 처리
 		if ($this->mm_idx != "") {
@@ -2135,6 +2135,7 @@ class Compage extends CI_Controller
 		$data["groups"] = $result["groups"];
 		$data["page"] = $result["page"];
 		$data["total_pages"] = $result["total_pages"];
+		$data["user_type"] = $this->user->getUserType();
 		$this->layout->shop('/compage/match_list', $data);
 	}
 } //class

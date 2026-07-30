@@ -27,7 +27,7 @@
 
       # 로그인확인후 이동처리
       if($this->mm_type!="MEM"){
-        go_location("/compage/index");
+        go_location("/recruit/job_list", "개인회원 전용 서비스입니다.");
       }
 
       # 자동 쿠폰 발급 처리
@@ -1005,6 +1005,7 @@
 			$data["groups"] = $result["groups"];
 			$data["page"] = $result["page"];
 			$data["total_pages"] = $result["total_pages"];
+			$data["user_type"] = $this->user->getUserType();
 			$this->layout->shop('/mypage/match_list', $data);
 		}
 

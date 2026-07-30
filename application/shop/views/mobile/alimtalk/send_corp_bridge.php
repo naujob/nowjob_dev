@@ -57,64 +57,128 @@
 			margin-top: 10px;
 			line-height: 1.5;
 		}
+
+		/* 자동 모드: 스피너 표시 */
+		.bridge-page[data-mode="auto"] .spinner,
+		.bridge-page[data-mode="auto"] .text,
+		.bridge-page[data-mode="auto"] .description {
+			display: block;
+		}
+
+		.bridge-page[data-mode="auto"] .app-button,
+		.bridge-page[data-mode="auto"] .manual-title,
+		.bridge-page[data-mode="auto"] .manual-subtitle {
+			display: none;
+		}
+
+		/* 수동 모드: 버튼 표시 */
+		.bridge-page[data-mode="manual"] .spinner,
+		.bridge-page[data-mode="manual"] .text,
+		.bridge-page[data-mode="manual"] .description {
+			display: none;
+		}
+
+		.bridge-page[data-mode="manual"] .app-button,
+		.bridge-page[data-mode="manual"] .manual-title,
+		.bridge-page[data-mode="manual"] .manual-subtitle {
+			display: block;
+		}
+
+		.app-button {
+			background: #667eea;
+			color: white;
+			border: none;
+			border-radius: 8px;
+			padding: 14px 32px;
+			font-size: 16px;
+			font-weight: 600;
+			cursor: pointer;
+			margin-top: 20px;
+			transition: background 0.3s ease;
+		}
+
+		.app-button:active {
+			background: #5568d3;
+		}
+
+		.app-button:disabled {
+			background: #ccc;
+			cursor: not-allowed;
+		}
+
+		.manual-title {
+			font-size: 18px;
+			color: #333;
+			font-weight: 600;
+			margin-bottom: 12px;
+		}
+
+		.manual-subtitle {
+			font-size: 13px;
+			color: #666;
+			margin-bottom: 20px;
+			line-height: 1.5;
+		}
 	</style>
 </head>
 <body class="bridge-page-body">
-	<div class="container">
+	<div class="container" id="bridge-page" data-mode="auto">
 		<div class="spinner"></div>
 		<div class="text">앱으로 이동중</div>
 		<div class="description">잠시만 기다려주세요...</div>
+
+		<div class="manual-title">앱에서 더 나은 경험을 하세요!</div>
+		<div class="manual-subtitle">아래 버튼을 눌러 앱으로 이동하세요</div>
+		<button class="app-button" id="open-app-btn">앱으로 열기</button>
 	</div>
 
 	<script>
 		window.addEventListener('DOMContentLoaded', function() {
-
-
-			// 기기 감지
 			var userAgent = navigator.userAgent.toLowerCase();
 			var isAndroid = /android/i.test(userAgent);
 			var isIos = /iphone|ipad|ipod/i.test(userAgent);
 
-			// 앱마켓 URL 결정 (폴백용)
+			// 카카오톡, 라인, 페이스북 메신저, 네이버앱 등 인앱 브라우저 감지
+			var isKakaoTalk = /kakaotalk/i.test(userAgent);
+			var isLine = /line/i.test(userAgent);
+			var isMessenger = /fban|fbav/i.test(userAgent);
+			var isNaverApp = /naver|navercorp/i.test(userAgent);
+			var isRestrictedBrowser = isKakaoTalk || isLine || isMessenger || isNaverApp;
+
+		
+			var universalLinkUrl = '/chat/index_comp';  // iOS Safari
+			var deepLinkUrl = 'nowjob://chat/index_comp';  // iOS 인앱브라우저, Android
+
 			var appStoreUrl;
 			if (isAndroid) {
 				appStoreUrl = 'market://details?id=app.nowapk.com';
 			} else if (isIos) {
 				appStoreUrl = 'itms-apps://apps.apple.com/app/id6446226901';
 			} else {
-				// 데스크톱 등 - 웹 페이지로 폴백
-				appStoreUrl = '/recruit/job_list';
+				appStoreUrl = '/chat/index_comp';
 			}
 
-			// 로그인 상태에 따른 딥링크 생성
-			var isLogin = <?php echo isset($is_login) ? $is_login : 'false'; ?>;
-			var isCorp = <?php echo isset($is_corp) ? $is_corp : 'false'; ?>;
-			var isAppWebview = <?php echo $this->common->getSession("os_type") ? 'true' : 'false'; ?>;
-
-			var webUrl = (isLogin === true || isLogin === 'true') && (isCorp === true || isCorp === 'true')
-				? '/chat/index_comp'
-				: '/member/login?is_app=true';
-
-			var appUrl = (isLogin === true || isLogin === 'true') && (isCorp === true || isCorp === 'true')
-				? 'nowjob://chat/index_comp'
-				: 'nowjob://member/login?is_app=true';
-
-			if (isAppWebview) {
-				// 이미 앱 내부 웹뷰: 웹 경로로 직접 이동
-				setTimeout(function() {
-					window.location.replace(webUrl);
-				}, 800);
-			} else if (isIos) {
-				// iOS: 딥링크 시도 → 앱스토어 폴백
-				window.location.href = appUrl;
+			// iOS 처리 (일반 브라우저 + 인앱 브라우저 모두)
+			
+			if (isIos) {
+				if (isRestrictedBrowser) {
+					// 인앱 브라우저: 커스텀 scheme으로 이동
+					window.location.href = deepLinkUrl;
+				} else {
+					// 일반 웹브라우저: Universal Links로 이동
+					window.location.href = universalLinkUrl;
+				}
 				setTimeout(function() {
 					if (!document.hidden) {
 						window.location.href = appStoreUrl;
 					}
 				}, 1500);
-			} else {
-				// Android 및 기타: 커스텀 스킴 딥링크 + 폴백
-				window.location.href = appUrl;
+				return;
+			}
+
+			// Android: 앱 URL 시도 후 앱이 없으면 Play Store로 이동
+			if (isAndroid) {
+				window.location.href = deepLinkUrl;
 				setTimeout(function() {
 					if (!document.hidden) {
 						window.location.href = appStoreUrl;

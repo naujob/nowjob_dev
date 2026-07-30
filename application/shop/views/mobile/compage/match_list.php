@@ -1,3 +1,7 @@
+<?php
+// 기업회원만 접근 가능 (개인회원 접근 제한)
+$show_corp_only_alert = isset($user_type) && $user_type !== "COMP";
+?>
 <div class="page page-mypage-view">
   <div class="top-bar">
     <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
@@ -52,7 +56,17 @@
 </div>
 
 <script>
+  var showCorpOnlyAlert = <?= json_encode($show_corp_only_alert) ?>;
+
   window.addEventListener('DOMContentLoaded', function() {
+    // 개인회원 접근 제한
+    if (showCorpOnlyAlert) {
+      commonAlert("기업회원 전용 서비스입니다.", function() {
+        location.href = '/recruit/job_list';
+      });
+      return;
+    }
+
     // content-li 영역 클릭 시 인재 상세정보로 이동
     $(document).on('click', '.content-li', function(e) {
       // 즐겨찾기 버튼 클릭은 제외

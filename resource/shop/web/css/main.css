@@ -1970,7 +1970,7 @@ fieldset {
 
 .category-label {
     display: inline-block;
-    height: 26px;
+    height: 23px;
     font-size: var(--page-recruit-font-size-xl);
     vertical-align: top;
     border-radius: 5px;

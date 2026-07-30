@@ -944,13 +944,13 @@ object {
 .btn-clear {
     position: absolute;
     top: 50%;
-    right: 25px;
+    right: 10px;
     width: 1rem;
     height: 1rem;
     margin: -0.5rem 0 0;
     border: 0;
     border-radius: 100%;
-    background: url("../img/ic_clear.svg") no-repeat 0 0;
+    
     background-size: contain;
 }
 
@@ -2386,7 +2386,7 @@ fieldset {
 
 .category-label {
     display: inline-block;
-    height: 1.5rem;
+    height: 20px;
     margin: 0 4px 0 0;
     font-size: 0.6875rem;
     color: #fff;
@@ -6909,6 +6909,12 @@ form#frm {
     height: 100%;
     padding: 5px 8px 5px 8px;
 }
+.resume-chat-list .content-wrap {
+   margin:0
+}
+.resume-chat-list .result-list-card .content-info {
+    padding: 0px 0px 0px 8px;
+}
 
 .result-list-card .content-info .wicon img {
     height: 20px;
@@ -9288,7 +9294,7 @@ form#frm {
     flex: 1;
 }
 .page-resume-write .form-group .col:first-child {
-    flex: 2;
+    flex: 1.5;
 }
 .page-resume-write .form-group .col > label {
     display: block;
@@ -11261,6 +11267,7 @@ form#frm {
 /* 채팅방 */
 .page-chat .tab-panel {
     background: #fff;
+    margin-top: 10px;
 }
 
 .chat-list .list-item {
@@ -11268,8 +11275,13 @@ form#frm {
     -webkit-transition: padding 0.3s;
     -o-transition: padding 0.3s;
     transition: padding 0.3s;
+       
 }
-
+.resume-chat-list .chat-list .list-item {
+    border: 1.5px solid #999;
+        border-radius: 10px;
+        margin-bottom: 10px;
+}
 .chat-list .angle-link {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -11641,7 +11653,7 @@ form#frm {
     position: relative;
     margin: 1.25rem 0;
     font-family: "Poppins", sans-serif;
-    font-size: 0.75rem;
+    font-size: 13px;
     letter-spacing: 0;
     line-height: 1.6666666667;
     text-align: center;
@@ -12843,8 +12855,12 @@ form#frm {
 
 .resumebox_ {
     background: #fdfdfd;
-    border-top: 1px solid #ccc;
-   
+    border: 1.5px solid #999;
+    border-radius: 10px;
+       margin-bottom: 10px;
+}
+.resumebox_:last-child{
+    margin-bottom: 20px;
 }
 /* ============================================================
    인재 카드 공통 스타일 (bookmark_person, hr_list 공유)

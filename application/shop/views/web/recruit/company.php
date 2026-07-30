@@ -5,7 +5,8 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 ?>
-<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
+<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css?v=<?= time() ?>">
+
 <style>
  
   /* company.php 고유 스타일 - 기업 헤더 */

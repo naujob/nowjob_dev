@@ -22,7 +22,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
 <div class="page page-write page-resume-write">
     <div class="top-bar">
-        <a href="javascript:void(0);" class="btn-back" data-disabled="true"><span class="sr-text">이전으로</span></a>
+        <a href="javascript:void(0);" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">이력서</h1>
     </div><!-- //top-bar -->
     <div class="page-content">
@@ -1702,14 +1702,33 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $con.innerHTML = '<span class="month">' + year + '</span>';
         }
 
+        // 2자리 년도를 4자리로 변환하는 함수
+        function expandYear(yearStr) {
+            var year = parseInt(yearStr, 10);
+            if (year < 100) {
+                if (year < 30) {
+                    year += 2000;
+                } else {
+                    year += 1900;
+                }
+            }
+            return year.toString();
+        }
+
         var existingValue = $(el).val();
         var defaultDate = null;
         if (existingValue && existingValue.indexOf('~') > -1) {
             var dates = existingValue.split(' ~ ');
             if (dates.length === 2) {
-                var startDate = dates[0].trim().replace(/\./g, '-') + '-01';
-                var endDate = dates[1].trim().replace(/\./g, '-') + '-01';
-                defaultDate = [startDate, endDate];
+                var startParts = dates[0].trim().split('.');
+                var endParts = dates[1].trim().split('.');
+                if (startParts.length >= 2 && endParts.length >= 2) {
+                    var startYear = expandYear(startParts[0]);
+                    var endYear = expandYear(endParts[0]);
+                    var startDate = startYear + '-' + (startParts[1].padStart ? startParts[1].padStart(2, '0') : ('00' + startParts[1]).slice(-2)) + '-01';
+                    var endDate = endYear + '-' + (endParts[1].padStart ? endParts[1].padStart(2, '0') : ('00' + endParts[1]).slice(-2)) + '-01';
+                    defaultDate = [startDate, endDate];
+                }
             }
         }
 
@@ -1717,7 +1736,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             mode: 'range',
             locale: 'ko',
             altInput: true,
-            altFormat: 'Y.m',
+            altFormat: 'y.m',
             dateFormat: 'Y-m-d',
             defaultDate: defaultDate,
             nextArrow: '<span class="sr-text">다음</span>',
@@ -1727,8 +1746,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             plugins: [
                 new monthSelectPlugin({
                     shorthand: true,
-                    dateFormat: "Y.m",
-                    altFormat: "Y.m",
+                    dateFormat: "y.m",
+                    altFormat: "y.m",
                 })
             ],
             onYearChange: function(selectedDates, dateStr, instance) {
@@ -1761,13 +1780,33 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 if (dateStr && dateStr.indexOf(' to ') > -1) {
                     var dates = dateStr.split(' to ');
                     if (dates.length === 2) {
-                        var startDate = dates[0].substring(0, 7).replace(/-/g, '.');
-                        var endDate = dates[1].substring(0, 7).replace(/-/g, '.');
+                        // 년도를 2자리로 변환하는 함수
+                        function formatYearToTwoDigit(dateStr) {
+                            var parts = dateStr.substring(0, 7).split('-');
+                            if (parts.length >= 2) {
+                                var year = parts[0];
+                                var month = parts[1];
+                                return year.slice(-2) + '.' + month;
+                            }
+                            return dateStr.substring(0, 7).replace(/-/g, '.');
+                        }
+                        var startDate = formatYearToTwoDigit(dates[0]);
+                        var endDate = formatYearToTwoDigit(dates[1]);
                         var formattedDate = startDate + ' ~ ' + endDate;
                         $(el).val(formattedDate);
                     }
                 } else if (dateStr) {
-                    var formattedDate = dateStr.substring(0, 7).replace(/-/g, '.');
+                    // 년도를 2자리로 변환하는 함수
+                    function formatYearToTwoDigit(dateStr) {
+                        var parts = dateStr.substring(0, 7).split('-');
+                        if (parts.length >= 2) {
+                            var year = parts[0];
+                            var month = parts[1];
+                            return year.slice(-2) + '.' + month;
+                        }
+                        return dateStr.substring(0, 7).replace(/-/g, '.');
+                    }
+                    var formattedDate = formatYearToTwoDigit(dateStr);
                     $(el).val(formattedDate);
                 }
                 saveResumeStep4Data();
@@ -1855,7 +1894,25 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             for (var icnt = 0; icnt < info.arr_career.split("&&&").length; icnt++) {
                 var temp = info.arr_career.split("&&&")[icnt].split("|||");
                 if (temp.length > 2) {
-                    str_ru_career += "<li><span>" + temp[0] + "</span><span>" + temp[1] + "</span><em>" + temp[2] + "(1년 2개월)</em></li>";
+                    // 년도를 2자리로 변환하는 함수
+                    var period = temp[2];
+                    if (period && period.indexOf(' ~ ') > -1) {
+                        var periodDates = period.split(' ~ ');
+                        var formattedPeriods = [];
+                        periodDates.forEach(function(date) {
+                            var trimmed = date.trim();
+                            if (trimmed) {
+                                var parts = trimmed.split('.');
+                                if (parts.length >= 2) {
+                                    formattedPeriods.push(parts[0].slice(-2) + '.' + parts[1]);
+                                } else {
+                                    formattedPeriods.push(trimmed);
+                                }
+                            }
+                        });
+                        period = formattedPeriods.join(' ~ ');
+                    }
+                    str_ru_career += "<li><span>" + temp[0] + "</span><span>" + temp[1] + "</span><em>" + period + "(1년 2개월)</em></li>";
                 }
             }
         }

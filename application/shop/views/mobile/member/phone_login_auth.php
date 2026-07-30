@@ -40,18 +40,18 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
                     </div>
 
                     <!-- 타이머 -->
-                    <div style="text-align: center; margin: 15px 0; color: #888; font-size: 14px;">
+                    <div style="text-align: center; margin: 15px 0; color: #fff; font-size: 15px;">
                         남은 시간: <span id="auth-timer">3 : 00</span>
                     </div>
 
                     <!-- 확인 버튼 -->
                     <div class="form-row">
-                        <button id="btnAuthConfirm" type="button" class="btn-primary" style="background-color: #57ccaf; color: white; font-size: 16px; font-weight: 600;">인증 완료</button>
+                        <button id="btnAuthConfirm" type="button" class="btn-primary" style="font: size 1.3rem;">인증 완료</button>
                     </div>
 
                     <!-- 재발송 버튼 -->
                     <div style="text-align: center; margin-top: 15px;">
-                        <button id="btnResendCode" type="button" style="background: none; border: none; color: #57ccaf; font-size: 14px; cursor: pointer; text-decoration: underline;">인증번호 재발송</button>
+                        <button id="btnResendCode" type="button" style="background: none; border: none; color: #57ccaf; font-size: 15px; cursor: pointer; text-decoration: underline;">인증번호 재발송</button>
                     </div>
                 </div>
             </form>
