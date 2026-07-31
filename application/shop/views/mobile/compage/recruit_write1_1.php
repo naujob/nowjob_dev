@@ -336,7 +336,8 @@
                             <div id="rc_desc_editor"
                                  contenteditable="true"
                                  class="form-textarea"
-                                 style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word; white-space: pre-wrap;"><?= $desc ?></div>
+                                 style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word; white-space: pre-wrap;"><?= $desc ?>
+                            </div>
                             <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                             <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
                         </label>
@@ -915,6 +916,59 @@
         return String(str).replace(/,/g, '');
     }
 
+    // contenteditable 에디터 DOM을 정규화: 블록 요소(<div>, <p>)를 <br>로 변환해 줄바꿈 보존
+    // 이미지 래퍼(.image-wrapper)와 인라인 서식(<b>, <span> 등)은 유지
+    function normalizeEditorDom(editor) {
+        if (!editor) return;
+
+        // 재귀 헬퍼: 노드의 자식들을 순회하며 블록 요소 평탄화
+        function flattenBlocks(node) {
+            var children = Array.prototype.slice.call(node.childNodes);
+            var insertBrBefore = false;
+
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+
+                // 텍스트 노드: 그대로 두기
+                if (child.nodeType === 3) { // TEXT_NODE
+                    insertBrBefore = false;
+                    continue;
+                }
+
+                // DIV/P 블록 요소 처리
+                if (child.nodeType === 1 && (child.tagName === 'DIV' || child.tagName === 'P')) {
+                    // 이미지 래퍼는 건드리지 않음
+                    if (child.classList.contains('image-wrapper') || child.querySelector('img')) {
+                        insertBrBefore = false;
+                        continue;
+                    }
+
+                    // 첫 번째 블록이 아니면 <br> 삽입
+                    if (insertBrBefore && i > 0) {
+                        var br = document.createElement('br');
+                        node.insertBefore(br, child);
+                    }
+
+                    // 블록 내부의 자식을 재귀적으로 평탄화
+                    flattenBlocks(child);
+
+                    // 블록 내용을 부모에 펼치기
+                    while (child.firstChild) {
+                        node.insertBefore(child.firstChild, child);
+                    }
+                    node.removeChild(child);
+                    insertBrBefore = true;
+                } else if (child.nodeType === 1) {
+                    // 다른 요소(br, span, img 등): 재귀 처리
+                    flattenBlocks(child);
+                    insertBrBefore = false;
+                }
+            }
+        }
+
+        flattenBlocks(editor);
+    }
+
     // hidden 필드 동기화 함수 (시간 필드를 HH:MM 포맷으로 합성)
     function syncTimeHiddenFields() {
         var am_h = $("[name='rc_am_stime_h']").val() || "09";
@@ -1059,7 +1113,7 @@
             rc_nation.push($(this).val());
         });
 
-        // contenteditable div에서 내용 가져오기
+        // contenteditable div에서 내용 가져오기 (원본 HTML 그대로 저장)
         var rcDescContent = document.getElementById('rc_desc_editor') ? document.getElementById('rc_desc_editor').innerHTML : "";
 
         var formData = {
@@ -1397,7 +1451,7 @@
         try {
 
             if (typeof formData.rc_desc !== "undefined") {
-                // contenteditable div에 복구
+                // 원본 HTML을 contenteditable div에 복구
                 var rcDescEditor = document.getElementById('rc_desc_editor');
                 if (rcDescEditor) {
                     rcDescEditor.innerHTML = formData.rc_desc;
@@ -1754,6 +1808,7 @@
     // 3 페이지 저장과 최종 등록을 처리하는 함수 (mode에 따라 preview 또는 final 처리)
     function saveStep3AndComplete(mode) {
         // contenteditable div의 내용을 hidden input에 복사 (form serialize 시 포함되도록)
+        // 원본 HTML 그대로 저장 (DB 저장용)
         var rcDescEditor = document.getElementById('rc_desc_editor');
         var rcDescContent = rcDescEditor ? rcDescEditor.innerHTML : "";
         $("[name='rc_desc']").val(rcDescContent);
@@ -2127,6 +2182,72 @@
 
         $("[name='rc_life_type[]']").on("change", savePage2Data);
 
+        // contenteditable div의 input 이벤트 감지 및 DOM 정규화
+        var rcDescEditor = document.getElementById('rc_desc_editor');
+        rcDescEditor.addEventListener('input', function() {
+            normalizeEditorDom(rcDescEditor);
+            savePage3Data();
+        });
+
+        // 클립보드 붙여넣기 시 줄바꿈 보존 처리 (Selection/Range API 사용)
+        rcDescEditor.addEventListener('paste', function(e) {
+            // 클립보드에서 순수 텍스트만 추출
+            var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+
+            // 클립보드 데이터가 없으면 네이티브 붙여넣기 허용
+            if (!text) {
+                return;
+            }
+
+            e.preventDefault();
+
+            // 모든 종류의 줄바꿈을 정규화
+            // Windows: \r\n, Mac: \n, 레거시: \r을 모두 처리
+            text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+            // Selection/Range API로 텍스트와 <br> 삽입
+            var selection = window.getSelection();
+            if (selection.rangeCount === 0) {
+                return;
+            }
+
+            var range = selection.getRangeAt(0);
+            range.deleteContents();
+
+            // 줄바꿈 기준으로 텍스트와 <br> 교대로 삽입
+            var lines = text.split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                if (i > 0) {
+                    var br = document.createElement('br');
+                    range.insertNode(br);
+                    range.setStartAfter(br);
+                }
+
+                var textNode = document.createTextNode(lines[i]);
+                range.insertNode(textNode);
+                range.setStartAfter(textNode);
+            }
+
+            // 선택 위치 업데이트
+            selection.removeAllRanges();
+            range.collapse(false);
+            selection.addRange(range);
+
+            // 삽입 후 DOM 정규화 및 저장
+            normalizeEditorDom(rcDescEditor);
+            savePage3Data();
+        });
+
+        // WebView 친화적 설정: Enter 키 시 <div> 대신 <br>을 만들도록 유도 (1회 시도, 실패 무시)
+        rcDescEditor.addEventListener('focus', function() {
+            try {
+                document.execCommand('defaultParagraphSeparator', false, 'br');
+            } catch (e) {
+                // 지원하지 않는 WebView는 무시
+            }
+        });
+
+        // hidden input도 호환성을 위해 유지
         $("[name='rc_desc']").on("input", savePage3Data);
         $("[name='rc_hash[]']").on("change", savePage3Data);
         $("[name='rc_day[]'], [name='rc_day_all']").on("change", savePage3Data);

@@ -372,13 +372,11 @@ class Cron_proc extends CI_Controller
 
             // 기업 매칭 발송 여부 판단
             $comp_due = $this->_isMatchDayToday($setting['comp_match_days']) &&
-                        ($this->_isAlarmTimeNow($setting['comp_match_alarm1_time']) ||
-                         $this->_isAlarmTimeNow($setting['comp_match_alarm2_time']));
+                        $this->_isAlarmTimeNow($setting['comp_match_alarm1_time']);
 
             // 개인 매칭 발송 여부 판단
             $mem_due = $this->_isMatchDayToday($setting['mem_match_days']) &&
-                       ($this->_isAlarmTimeNow($setting['mem_match_alarm1_time']) ||
-                        $this->_isAlarmTimeNow($setting['mem_match_alarm2_time']));
+                       $this->_isAlarmTimeNow($setting['mem_match_alarm1_time']);
 
             // 이 타입에서는 둘 다 발송 대상이 아니면 skip
             if (!$comp_due && !$mem_due) {
@@ -387,7 +385,16 @@ class Cron_proc extends CI_Controller
 
             // 기업 매칭 조건 파싱
             // area^nation^sex^age^work^price^work_type	
-            $comp_cond_arr = $this->_parseConditions($setting['comp_match_cond']);
+            $comp_cond_arr = $this->_parseConditions($setting['comp_match_cond']); // (^ 구분자로 배열로 변환)
+            /**
+             *   $comp_cond_arr = array(
+             *       [0] => 'area',
+             *       [1] => 'nation', 
+              *      [2] => 'age',
+              *      [3] => 'price'
+              *      );
+             * 
+             */
             // 개인 매칭 조건 파싱
             $mem_cond_arr = $this->_parseConditions($setting['mem_match_cond']);
 
@@ -479,6 +486,8 @@ class Cron_proc extends CI_Controller
                 foreach ($area_resumes as $resume) {
                     foreach ($area_recruits as $recruit) {
                         if ($this->_isMatched($resume, $recruit, $mem_cond_arr)) {
+                            // $comp_cond_arr = ['area', 'nation', 'age', 'price']
+                        // 이 4가지 조건 모두 일치하는 경우만 매칭
                             $matches_for_member[] = array(
                                 'resume' => $resume,
                                 'recruit' => $recruit
@@ -580,10 +589,10 @@ class Cron_proc extends CI_Controller
             if (isset($result['ok']) && $result['ok'] === true) {
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
-                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt, read_yn)
-                     VALUES ('COMP', ?, ?, ?, NOW(), 'N')
+                     (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt, read_yn)
+                     VALUES ('COMP', ?, ?, ?, ?, NOW(), 'N')
                      ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
-                    array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
+                    array($recruit['mm_idx'], $resume['ru_idx'], $recruit['rc_idx'], $current_week)
                 );
                 $sent++;
 
@@ -649,10 +658,10 @@ class Cron_proc extends CI_Controller
             if (isset($result['ok']) && $result['ok'] === true) {
                 $this->db->query(
                     "INSERT INTO st_match_alimtalk_sent
-                     (sender_type, receiver_mm_idx, target_key, sent_week, sent_dt, read_yn)
-                     VALUES ('MEM', ?, ?, ?, NOW(), 'N')
+                     (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt, read_yn)
+                     VALUES ('MEM', ?, ?, ?, ?, NOW(), 'N')
                      ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
-                    array($resume['mm_idx'], $recruit['rc_idx'], $current_week)
+                    array($resume['mm_idx'], $recruit['rc_idx'], $resume['ru_idx'], $current_week)
                 );
                 $sent++;
 
@@ -744,11 +753,13 @@ class Cron_proc extends CI_Controller
         echo "완료 - 로그 기록 건수: {$logged_count}\n";
     }
 
-    // 헬퍼: 지금이 설정된 알림 시각과 정확히 일치하는가 (분 단위)
+    // 헬퍼: 지금이 설정된 알림 시간과 정확히 일치하는가
+    // 크론이 매 분마다 실행되므로 시간:분을 정확히 비교
     private function _isAlarmTimeNow($time_str) {
         if ($time_str === '' || $time_str === null) {
             return false;
         }
+
         return date('H:i') === $time_str;
     }
 

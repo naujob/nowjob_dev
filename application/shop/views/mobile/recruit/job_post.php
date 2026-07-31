@@ -602,8 +602,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <p class="desc-guide">상세요강을 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
                 <div class="desc-clip">
                     <div class="desc" style="width: 100%;">
-                        <p class="desc-content" style="font-size: 1.1rem;"><?= nl2br($info["rc_desc"]) ?></p><br>
-                        
+                        <p class="desc-content" style="font-size: 1.1rem;"><?= $info["rc_desc"] ?></p><br>
+
                     </div>
                 </div>
                 <div class="hashtag">

@@ -1516,6 +1516,257 @@ class siteModel extends MY_Model
 		return $this->db_select_list($cols, $body, $where, $order_by);
 	}
 
+	// 매칭 이력서 알림톡 발송 내역 조회 (기업 수신)
+	function getCorAlimtalkSentList($params)
+	{
+		$cols = [
+			"s.ms_idx",
+			"s.sent_dt",
+			"rc.rc_name AS recruit_name",
+			"rm.mm_name AS resume_owner_name",
+			"ru.ru_name AS resume_name",
+			"rm.mm_nation AS resume_nation",
+			"ru.ru_work AS resume_work",
+			"rm.mm_sex AS resume_sex",
+			"ru.ru_work_type AS resume_work_type",
+			"ru.ru_price_type AS resume_price_type",
+			"a.ad_addr AS resume_addr",
+		];
+
+		$body = "st_match_alimtalk_sent s
+			INNER JOIN st_resume ru ON s.target_key = ru.ru_idx
+			INNER JOIN st_member rm ON ru.mm_idx = rm.mm_idx
+			LEFT JOIN st_recruit rc ON s.source_key = rc.rc_idx
+			LEFT JOIN st_address a ON a.mm_idx = ru.mm_idx
+				AND a.ad_type = 'RESUME' AND a.ad_key = ru.ru_idx";
+
+		$where = ["AND s.sender_type = 'COMP'"];
+
+		if (isset($params["sdate"]) && $params["sdate"] != "") {
+			$where[] = " AND s.sent_dt >= '" . $this->inject($params["sdate"]) . " 00:00:00'";
+		}
+		if (isset($params["edate"]) && $params["edate"] != "") {
+			$where[] = " AND s.sent_dt <= '" . $this->inject($params["edate"]) . " 23:59:59'";
+		}
+		if (isset($params["search_value"]) && $params["search_value"] != "") {
+			$sv = $this->inject($params["search_value"]);
+			$search_type = isset($params["search_type"]) ? $params["search_type"] : "";
+
+			if ($search_type == "mm_name") {
+				$where[] = " AND rm.mm_name LIKE '%{$sv}%'";
+			} elseif ($search_type == "ru_name") {
+				$where[] = " AND ru.ru_name LIKE '%{$sv}%'";
+			} elseif ($search_type == "ad_addr") {
+				$where[] = " AND a.ad_addr LIKE '%{$sv}%'";
+			} else {
+				$where[] = " AND (rm.mm_name LIKE '%{$sv}%' OR ru.ru_name LIKE '%{$sv}%' OR a.ad_addr LIKE '%{$sv}%')";
+			}
+		}
+
+		// 카테고리 필터
+		if (isset($params["category"]) && !empty($params["category"])) {
+			$categories = $params["category"];
+			$cat_conditions = [];
+			foreach ($categories as $cat) {
+				$cat_conditions[] = "ru.ru_work LIKE '%" . $this->inject($cat) . "%'";
+			}
+			if (!empty($cat_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $cat_conditions) . ")";
+			}
+		}
+
+		// 국적 필터
+		if (isset($params["nationality"]) && !empty($params["nationality"])) {
+			$nations = $params["nationality"];
+			$nat_conditions = [];
+			foreach ($nations as $nat) {
+				$nat_conditions[] = "rm.mm_nation LIKE '%" . $this->inject($nat) . "%'";
+			}
+			if (!empty($nat_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $nat_conditions) . ")";
+			}
+		}
+
+		// 성별 필터
+		if (isset($params["gender"]) && !empty($params["gender"])) {
+			$genders = $params["gender"];
+			$gender_conditions = [];
+			foreach ($genders as $gen) {
+				$gender_conditions[] = "rm.mm_sex LIKE '%" . $this->inject($gen) . "%'";
+			}
+			if (!empty($gender_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $gender_conditions) . ")";
+			}
+		}
+
+		// 연령 필터
+		if (isset($params["age_range"]) && !empty($params["age_range"])) {
+			$age_ranges = $params["age_range"];
+		}
+
+		// 근무형태 필터
+		if (isset($params["work_type"]) && !empty($params["work_type"])) {
+			$work_types = $params["work_type"];
+			$work_conditions = [];
+			foreach ($work_types as $wt) {
+				$work_conditions[] = "ru.ru_work_type LIKE '%" . $this->inject($wt) . "%'";
+			}
+			if (!empty($work_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $work_conditions) . ")";
+			}
+		}
+
+		// 급여형태 필터
+		if (isset($params["price_type"]) && !empty($params["price_type"])) {
+			$price_types = $params["price_type"];
+			$price_conditions = [];
+			foreach ($price_types as $pt) {
+				$price_conditions[] = "ru.ru_price_type LIKE '%" . $this->inject($pt) . "%'";
+			}
+			if (!empty($price_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $price_conditions) . ")";
+			}
+		}
+
+		$order_by = "s.sent_dt DESC, s.ms_idx DESC";
+
+		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
+	}
+
+	// 매칭 채용공고 알림톡 발송 내역 조회 (개인 수신)
+	function getMemAlimtalkSentList($params)
+	{
+		$cols = [
+			"s.ms_idx",
+			"s.sent_dt",
+			"m.mm_name AS receiver_name",
+			"rc.rc_name AS recruit_name",
+			"rc.rc_nation AS recruit_nation",
+			"rc.rc_work AS recruit_work",
+			"rc.rc_sex AS recruit_sex",
+			"rc.rc_work_type AS recruit_work_type",
+			"rc.rc_price_type AS recruit_price_type",
+			"a.ad_addr AS recruit_addr",
+		];
+
+		$body = "st_match_alimtalk_sent s
+			INNER JOIN st_recruit rc ON s.target_key = rc.rc_idx
+			INNER JOIN st_member m ON s.receiver_mm_idx = m.mm_idx
+			LEFT JOIN st_address a ON a.mm_idx = rc.mm_idx
+				AND a.ad_type IN ('RECRUIT', 'RECRUIT_EXPOSE_1', 'RECRUIT_EXPOSE_2') AND a.ad_key = rc.rc_idx";
+
+		$where = ["AND s.sender_type = 'MEM'"];
+
+		if (isset($params["sdate"]) && $params["sdate"] != "") {
+			$where[] = " AND s.sent_dt >= '" . $this->inject($params["sdate"]) . " 00:00:00'";
+		}
+		if (isset($params["edate"]) && $params["edate"] != "") {
+			$where[] = " AND s.sent_dt <= '" . $this->inject($params["edate"]) . " 23:59:59'";
+		}
+		if (isset($params["search_value"]) && $params["search_value"] != "") {
+			$sv = $this->inject($params["search_value"]);
+			$search_type = isset($params["search_type"]) ? $params["search_type"] : "";
+
+			if ($search_type == "rc_name") {
+				$where[] = " AND rc.rc_name LIKE '%{$sv}%'";
+			} elseif ($search_type == "mm_name") {
+				$where[] = " AND m.mm_name LIKE '%{$sv}%'";
+			} elseif ($search_type == "ad_addr") {
+				$where[] = " AND a.ad_addr LIKE '%{$sv}%'";
+			} else {
+				$where[] = " AND (rc.rc_name LIKE '%{$sv}%' OR m.mm_name LIKE '%{$sv}%' OR a.ad_addr LIKE '%{$sv}%')";
+			}
+		}
+
+		// 카테고리 필터
+		if (isset($params["category"]) && !empty($params["category"])) {
+			$categories = $params["category"];
+			$cat_conditions = [];
+			foreach ($categories as $cat) {
+				$cat_conditions[] = "rc.rc_work LIKE '%" . $this->inject($cat) . "%'";
+			}
+			if (!empty($cat_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $cat_conditions) . ")";
+			}
+		}
+
+		// 국적 필터
+		if (isset($params["nationality"]) && !empty($params["nationality"])) {
+			$nations = $params["nationality"];
+			$nat_conditions = [];
+			foreach ($nations as $nat) {
+				$nat_conditions[] = "rc.rc_nation LIKE '%" . $this->inject($nat) . "%'";
+			}
+			if (!empty($nat_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $nat_conditions) . ")";
+			}
+		}
+
+		// 성별 필터
+		if (isset($params["gender"]) && !empty($params["gender"])) {
+			$genders = $params["gender"];
+			$gender_conditions = [];
+			foreach ($genders as $gen) {
+				$gender_conditions[] = "rc.rc_sex LIKE '%" . $this->inject($gen) . "%'";
+			}
+			if (!empty($gender_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $gender_conditions) . ")";
+			}
+		}
+
+		// 연령 필터
+		if (isset($params["age_range"]) && !empty($params["age_range"])) {
+			$age_ranges = $params["age_range"];
+			$age_map = [
+				"20대" => ["start" => 20, "end" => 29],
+				"30대" => ["start" => 30, "end" => 39],
+				"40대" => ["start" => 40, "end" => 49],
+				"50대" => ["start" => 50, "end" => 59],
+				"60대" => ["start" => 60, "end" => 69],
+				"70대" => ["start" => 70, "end" => 79],
+			];
+			$age_conditions = [];
+			foreach ($age_ranges as $age) {
+				if (isset($age_map[$age])) {
+					$start = $age_map[$age]['start'];
+					$end = $age_map[$age]['end'];
+					$age_conditions[] = "(rc.rc_eage >= {$start} AND rc.rc_sage <= {$end})";
+				}
+			}
+			if (!empty($age_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $age_conditions) . ")";
+			}
+		}
+
+		// 근무형태 필터
+		if (isset($params["work_type"]) && !empty($params["work_type"])) {
+			$work_types = $params["work_type"];
+			$work_conditions = [];
+			foreach ($work_types as $wt) {
+				$work_conditions[] = "rc.rc_work_type LIKE '%" . $this->inject($wt) . "%'";
+			}
+			if (!empty($work_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $work_conditions) . ")";
+			}
+		}
+
+		// 급여형태 필터
+		if (isset($params["price_type"]) && !empty($params["price_type"])) {
+			$price_types = $params["price_type"];
+			$price_conditions = [];
+			foreach ($price_types as $pt) {
+				$price_conditions[] = "rc.rc_price_type LIKE '%" . $this->inject($pt) . "%'";
+			}
+			if (!empty($price_conditions)) {
+				$where[] = " AND (" . implode(" OR ", $price_conditions) . ")";
+			}
+		}
+
+		$order_by = "s.sent_dt DESC, s.ms_idx DESC";
+
+		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
+	}
+
 	######################################
 	# END 프로모션
 	######################################

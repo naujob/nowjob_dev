@@ -1,7 +1,7 @@
 <form id="frm-search" class="controls" method="get" action="/admin/ppurio/sms_mem_reslut">
     <div class="contents-search">
         <div class="search-box">
-            <h3 class="sub-title mb-10">매칭 채용공고 SMS 발송 내역</h3>
+            <!-- <h3 class="sub-title mb-10">매칭 채용공고 SMS 발송 내역</h3> -->
             <table>
                 <colgroup>
                     <col width="150px"/>
@@ -145,6 +145,7 @@
         </div>
 
         <div class="search-result">
+            <h4 class="sub-title mb-10">매칭 채용공고 SMS 발송 내역</h4>
             <table class="table-type2">
                 <colgroup>
                     <col width="60px"/>
@@ -197,53 +198,103 @@
             </table>
             <?=$pagenation?>
         </div>
+
+        <div class="search-result alimtalk-section">
+            <h4 class="sub-title mb-10">매칭 채용공고 알림톡 발송 내역</h4>
+            <table class="table-type2">
+                <colgroup>
+                    <col width="60px"/>
+                    <col width="120px"/>
+                    <col width="120px"/>
+                    <col width="100px"/>
+                    <col width="100px"/>
+                    <col width="80px"/>
+                    <col width="80px"/>
+                    <col width="80px"/>
+                    <col width="150px"/>
+                    <col width="130px"/>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">수신 개인</th>
+                        <th scope="col">발송 채용공고</th>
+                        <th scope="col">국적</th>
+                        <th scope="col">업종</th>
+                        <th scope="col">성별</th>
+                        <th scope="col">근무형태</th>
+                        <th scope="col">급여형태</th>
+                        <th scope="col">지역</th>
+                        <th scope="col">발송일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if(count($alimtalk_result_list) > 0) : ?>
+                    <?php foreach($alimtalk_result_list as $key => $row) : ?>
+                    <tr>
+                        <td class="tc"><?=$alimtalk_start - $key?></td>
+                        <td><?=isset($row['receiver_name']) ? $row['receiver_name'] : ''?></td>
+                        <td><?=isset($row['recruit_name']) ? $row['recruit_name'] : ''?></td>
+                        <td class="tc"><?=isset($row['recruit_nation']) ? $row['recruit_nation'] : ''?></td>
+                        <td class="tc"><?=isset($row['recruit_work']) ? $row['recruit_work'] : ''?></td>
+                        <td class="tc"><?=isset($row['recruit_sex']) ? $row['recruit_sex'] : ''?></td>
+                        <td class="tc"><?=isset($row['recruit_work_type']) ? $row['recruit_work_type'] : ''?></td>
+                        <td class="tc"><?=isset($row['recruit_price_type']) ? $row['recruit_price_type'] : ''?></td>
+                        <td class="tc"><?=isset($row['recruit_addr']) ? $row['recruit_addr'] : ''?></td>
+                        <td class="tc"><?=isset($row['sent_dt']) ? substr($row['sent_dt'], 0, 19) : ''?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <tr>
+                        <td colspan="10" class="tc" style="padding: 20px;">데이터가 없습니다.</td>
+                    </tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+            <div class="pagination" style="text-align: center; margin-top: 20px;">
+                <?php
+                    $alimtalk_last_page = ceil($alimtalk_result_count / $alimtalk_pagesize);
+                    if ($alimtalk_last_page > 1) {
+                        $search_params = '?' . http_build_query([
+                            'page' => isset($search['page']) ? $search['page'] : 1,
+                            'sdate' => isset($search['sdate']) ? $search['sdate'] : '',
+                            'edate' => isset($search['edate']) ? $search['edate'] : '',
+                            'search_type' => isset($search['search_type']) ? $search['search_type'] : '',
+                            'search_value' => isset($search['search_value']) ? $search['search_value'] : '',
+                            'category' => isset($search['category']) ? $search['category'] : [],
+                            'age_range' => isset($search['age_range']) ? $search['age_range'] : [],
+                            'nationality' => isset($search['nationality']) ? $search['nationality'] : [],
+                            'gender' => isset($search['gender']) ? $search['gender'] : [],
+                            'work_type' => isset($search['work_type']) ? $search['work_type'] : [],
+                            'price_type' => isset($search['price_type']) ? $search['price_type'] : [],
+                        ]);
+                        $url_base = '/admin/ppurio/sms_mem_reslut' . $search_params . '&apage=';
+                ?>
+                    <?php if ($alimtalk_page > 1) { ?>
+                        <a href="<?=$url_base?>1" >[처음]</a>
+                        <a href="<?=$url_base?><?=$alimtalk_page-1?>">[이전]</a>
+                    <?php } ?>
+                    <?php for ($i = 1; $i <= $alimtalk_last_page; $i++) { ?>
+                        <?php if ($i == $alimtalk_page) { ?>
+                            <span>
+                                <strong><?=$i?></strong>
+                            </span>
+                        <?php } else { ?>
+                            <a href="<?=$url_base?><?=$i?>" style="margin: 0 5px; padding: 5px 10px; border: 1px solid #ccc; border-radius: 3px; display: inline-block; text-decoration: none; color: #333;">
+                                <?=$i?>
+                            </a>
+                        <?php } ?>
+                    <?php } ?>
+                    <?php if ($alimtalk_page < $alimtalk_last_page) { ?>
+                        <a href="<?=$url_base?><?=$alimtalk_page+1?>" style="margin: 0 5px; padding: 5px 10px; border: 1px solid #ccc; border-radius: 3px; display: inline-block; text-decoration: none; color: #333;">[다음]</a>
+                        <a href="<?=$url_base?><?=$alimtalk_last_page?>" style="margin: 0 5px; padding: 5px 10px; border: 1px solid #ccc; border-radius: 3px; display: inline-block; text-decoration: none; color: #333;">[끝]</a>
+                    <?php } ?>
+                <?php } ?>
+            </div>
+        </div>
     </div>
 </form>
 
-<style>
-.filter-checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.filter-checkbox {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-}
-
-.filter-checkbox input[type="checkbox"] {
-    display: none;
-}
-
-.custom-checkbox {
-    position: relative;
-    padding-left: 25px;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.custom-checkbox::before {
-    content: "";
-    position: absolute;
-    top: 2px;
-    left: 0;
-    z-index: 2;
-    width: 16px;
-    height: 16px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-}
-
-.filter-checkbox input[type="checkbox"]:checked + .custom-checkbox::before {
-    border: 4px solid #154993;
-    background: #fff;
-}
-</style>
 
 <script>
 $(document).ready(function(){

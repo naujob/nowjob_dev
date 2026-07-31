@@ -729,13 +729,6 @@
             var combinedText = "";
             const textParts = text.split(" ");
 
-            // 디버깅 로그
-            // console.log('=== searchSelect 함수 ===');
-            // console.log('step:', step, 'currentStep:', currentStep);
-            // console.log('addr:', addr);
-            // console.log('text (UI 텍스트):', text);
-            // console.log('addr.includes("전체"):', addr.includes("전체"));
-
             // "전체" 필터링은 페이지별로 결정
             if (shouldExcludeAllRegion() && textParts[textParts.length - 1] === "전체") {
               $clickedLi.removeClass('addr_on');
@@ -745,17 +738,11 @@
               $clickedLi.removeClass('addr_on');
               return;
             }
-            // addr을 기반으로 표시 텍스트 생성 (data-addr에 전체 정보가 있음)
-            if (addr.includes("전체")) {
-              if (currentStep === 1) {
-                combinedText = replaceRegionNames(addr)  // "서울특별시 전체" → "서울 전체"
-              } else {
-                combinedText = removeRegionNames(addr);  // "서울특별시 강남구 전체" → "강남구 전체"
-              }
-              // console.log('전체 항목 처리됨, combinedText:', combinedText);
+            // 표시 텍스트를 기반으로 판단 (PC 패턴과 동일)
+            if (textParts[textParts.length - 1] === "전체") {
+              combinedText = text;  // 이미 축약된 형태이므로 그대로 사용
             } else {
               combinedText = textParts[textParts.length - 1];
-              // console.log('일반 항목, combinedText:', combinedText);
             }
 
             const existingBtnSelector = `.selbtn[data-step="${step}"][data-addr="${addr}"]`;
@@ -927,28 +914,27 @@
                 if (currentStep === 1) {
                   $('.addr_dept2 ul, .addr_dept3 ul').empty();
 
-                  // 페이지 타입에 따라 "전체" 항목을 첫 번째로 추가
+                  // 페이지 타입에 따라 "전체" 항목을 첫 번째로 추가 (PC 패턴: 부모 addr 그대로 재사용, label+checkbox)
                   if (!shouldExcludeAllRegion()) {
-                    // addr이 이미 "전체"를 포함하면 그대로 사용, 아니면 " 전체" 추가
-                    const addr2_all = addr.endsWith('전체') ? addr : (addr + ' 전체');
-                    const isSelected_all = $(`.selbtn[data-step="2"][data-addr="${addr2_all}"]`).length > 0;
+                    const isSelected_all = $(`.selbtn[data-step="1"][data-addr="${addr}"]`).length > 0;
                     const newLi_all = $('<li>')
-                      .attr('data-step', '2')
-                      .attr('data-addr', addr2_all)
-                      .addClass('selectable')
+                      .attr('data-step', '1')
+                      .attr('data-addr', addr)
                       .toggleClass('addr_on', isSelected_all)
                       .append(
-                        $('<span>').addClass('text').text('전체')
+                        $('<label>').append(
+                          $('<span>').addClass('text').text(replaceRegionNames(sido_name) + ' 전체'),
+                          $('<input>').attr({
+                            type: 'checkbox',
+                            name: 'chk[]'
+                          })
+                        )
                       );
                     $('.addr_dept2 ul').append(newLi_all);
                   }
 
                   $.each(ret.data, function(i, item) {
-                    // 페이지에 따라 "전체" 필터링 여부 결정
                     if (!item.gugun_name || item.gugun_name.trim() === '') {
-                      return;
-                    }
-                    if (shouldExcludeAllRegion() && item.gugun_name.includes('전체')) {
                       return;
                     }
                     const addr2 = addr + ' ' + item.gugun_name;
@@ -968,18 +954,16 @@
                 } else if (currentStep === 2) {
                   $('.addr_dept3 ul').empty();
 
-                  // 페이지 타입에 따라 "전체" 항목을 첫 번째로 추가
+                  // 페이지 타입에 따라 "전체" 항목을 첫 번째로 추가 (PC 패턴: 부모 addr 그대로 재사용)
                   if (!shouldExcludeAllRegion()) {
-                    // addr이 이미 "전체"를 포함하면 그대로 사용, 아니면 " 전체" 추가
-                    const addr3_all = addr.endsWith('전체') ? addr : (addr + ' 전체');
-                    const isSelected_all = $(`.selbtn[data-step="3"][data-addr="${addr3_all}"]`).length > 0;
+                    const isSelected_all = $(`.selbtn[data-step="2"][data-addr="${addr}"]`).length > 0;
                     const newLi_all = $('<li>')
-                      .attr('data-step', '3')
-                      .attr('data-addr', addr3_all)
+                      .attr('data-step', '2')
+                      .attr('data-addr', addr)
                       .toggleClass('addr_on', isSelected_all)
                       .append(
                         $('<label>').append(
-                          $('<span>').addClass('text').text('전체'),
+                          $('<span>').addClass('text').text(gugun_name + ' 전체'),
                           $('<input>').attr({
                             type: 'checkbox',
                             name: 'chk[]'
@@ -990,11 +974,7 @@
                   }
 
                   $.each(ret.data, function(i, item) {
-                    // 페이지에 따라 "전체" 필터링 여부 결정
                     if (!item.b_dong_name || item.b_dong_name.trim() === '') {
-                      return;
-                    }
-                    if (shouldExcludeAllRegion() && item.b_dong_name.includes('전체')) {
                       return;
                     }
                     const addr3 = addr + ' ' + item.b_dong_name;

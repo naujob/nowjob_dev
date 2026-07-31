@@ -1274,6 +1274,7 @@ class Ppurio extends MY_Controller{
     // POST로 넘어온 설정값들을 ^ 구분자로 변환후 DB에 저장
     function ppurio_katalk_usual_proc(){
         $params = input_post_all();
+      
 
         // 배열 값들을 ^ 구분자로 변환
         $data = [];
@@ -1284,8 +1285,11 @@ class Ppurio extends MY_Controller{
                 $data[$key] = $value;
             }
         }
+       
 
         $result = $this->ppurio_setting_model->updateSetting($data, 'usual');
+       
+
         json_return("00", "설정이 저장되었습니다.", "");
     }
 
@@ -1322,6 +1326,7 @@ class Ppurio extends MY_Controller{
     // 매칭 이력서 SMS 발송 내역 (기업 수신) - 조회
     function sms_cor_reslut(){
         $page = input_get("page", 1);
+        $apage = input_get("apage", 1);
         $sdate = input_get("sdate", "");
         $edate = input_get("edate", "");
         $search_type = input_get("search_type", "");
@@ -1356,6 +1361,16 @@ class Ppurio extends MY_Controller{
         ];
         $result = $this->site_model->getCorSmsSentList($params);
 
+        // 알림톡 발송내역 조회
+        $alimtalk_params = [
+            "pagesize" => 20, "page" => $apage,
+            "sdate" => $sdate, "edate" => $edate,
+            "search_type" => $search_type, "search_value" => $search_value,
+            "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
+            "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+        ];
+        $alimtalk_result = $this->site_model->getCorAlimtalkSentList($alimtalk_params);
+
         // 카테고리 목록 조회
         $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
         $select_category = getKeyValue($category_list, "cd_val", "cd_val");
@@ -1379,11 +1394,17 @@ class Ppurio extends MY_Controller{
                 "search_type" => $search_type, "search_value" => $search_value,
                 "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
                 "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+                "page" => $page,
             ],
             "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
             "result_list" => $result["list"],
             "result_count" => $result["count"],
             "pagenation" => $result["pagenation"],
+            "alimtalk_start" => ($alimtalk_result["count"] - (($apage - 1) * $alimtalk_params["pagesize"])),
+            "alimtalk_result_list" => $alimtalk_result["list"],
+            "alimtalk_result_count" => $alimtalk_result["count"],
+            "alimtalk_page" => $apage,
+            "alimtalk_pagesize" => $alimtalk_params["pagesize"],
             "select_category" => $select_category,
             "select_work" => $select_work,
             "select_work_type" => $select_work_type,
@@ -1395,6 +1416,7 @@ class Ppurio extends MY_Controller{
     // 매칭 채용공고 SMS 발송 내역 (개인 수신) - 조회
     function sms_mem_reslut(){
         $page = input_get("page", 1);
+        $apage = input_get("apage", 1);
         $sdate = input_get("sdate", "");
         $edate = input_get("edate", "");
         $search_type = input_get("search_type", "");
@@ -1429,6 +1451,16 @@ class Ppurio extends MY_Controller{
         ];
         $result = $this->site_model->getMemSmsSentList($params);
 
+        // 알림톡 발송내역 조회
+        $alimtalk_params = [
+            "pagesize" => 20, "page" => $apage,
+            "sdate" => $sdate, "edate" => $edate,
+            "search_type" => $search_type, "search_value" => $search_value,
+            "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
+            "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+        ];
+        $alimtalk_result = $this->site_model->getMemAlimtalkSentList($alimtalk_params);
+
         // 카테고리 목록 조회
         $category_list = $this->site_model->getCodeList(array("cd_grp" => "희망업무"));
         $select_category = getKeyValue($category_list, "cd_val", "cd_val");
@@ -1452,11 +1484,17 @@ class Ppurio extends MY_Controller{
                 "search_type" => $search_type, "search_value" => $search_value,
                 "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
                 "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+                "page" => $page,
             ],
             "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
             "result_list" => $result["list"],
             "result_count" => $result["count"],
             "pagenation" => $result["pagenation"],
+            "alimtalk_start" => ($alimtalk_result["count"] - (($apage - 1) * $alimtalk_params["pagesize"])),
+            "alimtalk_result_list" => $alimtalk_result["list"],
+            "alimtalk_result_count" => $alimtalk_result["count"],
+            "alimtalk_page" => $apage,
+            "alimtalk_pagesize" => $alimtalk_params["pagesize"],
             "select_category" => $select_category,
             "select_work" => $select_work,
             "select_work_type" => $select_work_type,

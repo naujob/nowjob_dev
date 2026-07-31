@@ -1195,16 +1195,16 @@ function sendMatchPush($receiver_mm_idx, $type, $target_name, $target_idx)
 		if ($type === 'COMP') {
 			// 기업 수신: 이력서 매칭
 			$info = array(
-				'title' => 'NowJob 인재 매칭',
-				'body' => (empty($target_name) ? '매칭' : $target_name) . '님이 매칭되었습니다',
+				'title' => 'NowJob AI 매칭',
+				'body' => '추천인재가 매칭되었습니다.',
 				'url' => '/resume/hr_post/' . $target_idx,
 				'type' => 'match_resume'
 			);
 		} else {
 			// 개인 수신: 공고 매칭
 			$info = array(
-				'title' => 'NowJob 공고 매칭',
-				'body' => (empty($target_name) ? '채용공고' : $target_name) . ' 공고가 매칭되었습니다',
+				'title' => 'NowJob AI 매칭',
+				'body' => '추천공고가 매칭되었습니다.',
 				'url' => '/recruit/job_post/' . $target_idx,
 				'type' => 'match_recruit'
 			);

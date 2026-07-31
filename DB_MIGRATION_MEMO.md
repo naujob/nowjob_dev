@@ -311,3 +311,110 @@ curl -s http://dev.도메인/cron_proc/send_request_alimtalk
 - 신규 설정값(`comp_request_alarm1/2_time`, `mem_request_alarm1/2_time`)이 비어있으면 해당 배치는 발송되지 않음
 - 중복 발송 예방: 서버 장애나 크론 재실행으로 같은 건이 여러 번 처리되어도 이력 테이블이 방어함
 - 기존 `check_unread_alimtalk` 계열과 동일한 usual/subs 이중 루프 구조로 설정별 독립 처리
+
+---
+
+## 4. 알림톡 발송내역 조회 페이지의 source_key 컬럼 추가
+
+### 개요
+
+관리자의 SMS 발송내역 페이지(`/admin/ppurio/sms_cor_reslut`, `/admin/ppurio/sms_mem_reslut`)에서
+알림톡(카카오톡) 발송내역도 같은 UI로 조회할 수 있도록 기능을 확장합니다. 이를 위해
+`st_match_alimtalk_sent` 테이블에 `source_key` 컬럼을 추가해야 합니다(현재 이 컬럼이 없어서
+매칭 대상의 정보를 조회할 수 없음).
+
+### 실행할 SQL
+
+운영 DB에서 다음 SQL을 직접 실행해주세요:
+
+```sql
+ALTER TABLE st_match_alimtalk_sent
+  ADD COLUMN source_key INT NULL AFTER target_key;
+```
+
+### 컬럼 설명
+
+| 컬럼 | 설명 |
+|------|------|
+| `source_key` | 매칭 상대방의 ID (sender_type='COMP'일 때 rc_idx, 'MEM'일 때 ru_idx) |
+
+**설명:**
+- `target_key`: 직접 수신 대상 (sender_type='COMP'일 때 ru_idx(이력서), 'MEM'일 때 rc_idx(채용공고))
+- `source_key`: 매칭을 발생시킨 상대방 (sender_type='COMP'일 때 rc_idx(채용공고), 'MEM'일 때 ru_idx(이력서))
+- `st_match_sms_sent` 테이블의 동일 컬럼과 동일한 용도
+
+### 변경 사항
+
+#### 1. `application/shop/controllers/cron_proc.php`
+
+알림톡 발송 메서드의 INSERT 구문에 `source_key` 컬럼 추가:
+
+**`_sendCorpAlimtalk()` 메서드 (기업 수신):**
+- INSERT에 `source_key` 컬럼 추가
+- 값: `$recruit['rc_idx']` (매칭 채용공고 ID)
+
+**`_sendMemberAlimtalk()` 메서드 (개인 수신):**
+- INSERT에 `source_key` 컬럼 추가
+- 값: `$resume['ru_idx']` (매칭 이력서 ID)
+
+#### 2. `application/common/models/sitemodel.php`
+
+신규 메서드 추가 (기존 SMS 조회 메서드를 기반으로 복제):
+
+- `getCorAlimtalkSentList($params)` - 기업 수신 알림톡 발송내역 조회
+- `getMemAlimtalkSentList($params)` - 개인 수신 알림톡 발송내역 조회
+
+동일한 검색/필터/페이징 로직을 적용하되, `st_match_sms_sent` 대신 `st_match_alimtalk_sent` 테이블 조회.
+
+#### 3. `application/admin/controllers/admin/ppurio.php`
+
+SMS 발송내역 조회 메서드 수정:
+
+- `sms_cor_reslut()` - 알림톡 조회 추가
+- `sms_mem_reslut()` - 알림톡 조회 추가
+
+별도의 페이지 파라미터(`apage`)를 사용해 SMS 페이지네이션과 알림톡 페이지네이션을 분리.
+
+#### 4. `application/admin/views/admin/ppurio/sms_cor_reslut.php`, `sms_mem_reslut.php`
+
+SMS 발송내역 표 아래에 알림톡 발송내역 표 추가:
+
+- 동일한 UI 구조 (colgroup/thead/tbody) 재사용
+- 소제목: "매칭 이력서 알림톡 발송내역" / "매칭 채용공고 알림톡 발송내역"
+- 필터(검색어/업종/국적/성별/근무형태/급여형태/기간) 공유
+- 각 표별 독립 페이지네이션
+
+### 동작 방식
+
+1. 기존 SMS 발송내역은 변경 없음
+2. 같은 페이지 내에 알림톡 발송내역 섹션이 추가됨 (아래쪽에 배치)
+3. SMS와 동일한 검색 필터가 알림톡에도 적용됨
+4. 각 표는 독립적인 페이지네이션을 가짐 (`page` vs `apage` 파라미터)
+
+### 테스트 방법
+
+로컬 개발 환경(WSL2, PHP 8.3.6)에서 테스트:
+
+```bash
+# 1. DB 스키마 확인
+mysql -u [user] -p[password] nowapk -e "DESCRIBE st_match_alimtalk_sent;"
+# source_key INT 컬럼이 target_key 바로 다음에 있는지 확인
+
+# 2. 관리자 페이지 접속
+http://localhost:8080/admin/ppurio/sms_cor_reslut
+http://localhost:8080/admin/ppurio/sms_mem_reslut
+
+# 3. 확인 항목
+- 기존 SMS 표: 변화 없음
+- 새 알림톡 표: 정상 렌더링
+- 필터 동작: 업종/국적/성별/근무형태/급여형태/기간/검색어 공유
+- 페이지네이션: SMS(`page`)와 알림톡(`apage`) 파라미터 독립
+- 데이터 없음: "데이터가 없습니다" 메시지 표시
+```
+
+### 안내 사항
+
+- 기존 `st_match_sms_sent` 테이블은 변경하지 않음
+- 새로운 알림톡 조회 메서드는 기존 SMS 조회 메서드의 구조와 동일하게 구현
+- 페이징 파라미터 분리로 사용자가 SMS 표와 알림톡 표를 독립적으로 탐색 가능
+- 알림톡 발송 로직(cron_proc.php)은 DB 스키마 변경 전에 실행되어도 source_key 없이 정상 동작하다가, DB 변경 후부터는 source_key 값이 채워짐

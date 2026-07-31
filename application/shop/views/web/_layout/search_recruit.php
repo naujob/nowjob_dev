@@ -372,9 +372,10 @@
 
   .search-list-wrap {
     border: 1px solid #E8E8E8;
-    border-bottom: 0px;
+    
     border-radius: 5px 5px 0 0;
-    padding-bottom: 1px;
+    padding-top: 5px;
+    padding-bottom: 8px;
   }
 
   .search-list {
@@ -387,7 +388,7 @@
 
   .search-list-header {
     width: 100px;
-    padding: 10px 10px 0px 10px;
+    
   }
 
   .search-list-header .title {
@@ -397,7 +398,7 @@
 
   .search-list-body {
     flex: 1;
-    padding: 10px 10px 0px 10px;
+    
     box-sizing: border-box;
     overflow: auto;
   }
@@ -418,7 +419,7 @@
 
   .search-list-options li {
     position: relative;
-    margin: 10px;
+    margin: 10px 10px 5px 10px;
     margin-left: 0;
     white-space: nowrap;
   }
@@ -707,6 +708,7 @@
 
   .search-option.on {
     display: flex;
+    height: 295px;
   }
 
   .searchOptionBtnWrap {
@@ -772,7 +774,7 @@
   /* 나이 그룹 스타일 20250922*/
   .search-list-options .age-group li {
     width: 59.89px;
-    height: 23.99px;
+    height: 27.99px;
     /* box-sizing: border-box; */
 
     line-height: 1.2;
@@ -799,7 +801,7 @@
 <div class="search-wrap">
 
   <div class="search-wrap-header">
-    <p class="search-wrap-title">채용정보 <em>상세검색</em></p>
+    <p class="search-wrap-title"><?php echo isset($search_wrap_title) ? $search_wrap_title : '채용정보'; ?> <em>상세검색</em></p>
     <div class="search-wrap-reset"><a href="#">전체 초기화<span></span></a></div>
   </div>
 

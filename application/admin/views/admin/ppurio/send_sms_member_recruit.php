@@ -433,47 +433,4 @@ $(document).ready(function(){
 });
 </script>
 
-<style>
-.filter-checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
 
-.filter-checkbox {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-}
-
-.filter-checkbox input[type="checkbox"] {
-    display: none;
-}
-
-.custom-checkbox {
-    position: relative;
-    padding-left: 25px;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.custom-checkbox::before {
-    content: "";
-    position: absolute;
-    top: 2px;
-    left: 0;
-    z-index: 2;
-    width: 16px;
-    height: 16px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-}
-
-.filter-checkbox input[type="checkbox"]:checked + .custom-checkbox::before {
-    border: 4px solid #154993;
-    background: #fff;
-}
-</style>
