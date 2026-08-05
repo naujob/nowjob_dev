@@ -63,26 +63,74 @@ class Matchmodel extends CI_Model {
 
     /**
      * ad_addr 필드만 사용 - 주소를 "시/도 구/군" 단위로 그룹핑합니다.
-
-        *예: "서울특별시 강남구 역삼동" → "서울특별시 강남구"로 압축
-
-     * 
+     * 예: "서울특별시 강남구 역삼동" → "서울특별시 강남구"로 압축
      */
-    public function groupByArea($items) { // items: 이력서 또는 채용공고 데이터의 배열
+    public function groupByArea($items) {
         $grouped = array();
         foreach ($items as $item) {
-            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : ''; // 'ad_addr' => '서울특별시 강남구 테헤란로'
+            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
             if ($addr === '') continue;
-            // item:인천광역시 남동구 고잔동
-            $parts = explode(' ', $addr); // parts[0]: 시/도, parts[1]: 구/군, parts[2]: 동/읍/면 ["인천광역시", "남동구", "고잔동"]
-            // 시/도 + 구/군 (처음 2단어)
+
+            $parts = explode(' ', $addr);
             $area = (count($parts) >= 2) ? $parts[0] . ' ' . $parts[1] : $parts[0];
-            // area 인천광역시 남동구
-            if (!isset($grouped[$area])) { // 그룹이 없으면 새로 생성
+
+            if (!isset($grouped[$area])) {
                 $grouped[$area] = array();
             }
-            $grouped[$area][] = $item; //같은 지역($area)의 항목들을 배열에 추가
+            $grouped[$area][] = $item;
         }
+        return $grouped;
+    }
+
+    /**
+     * 역매핑 기반 지역별 그룹핑 (DB 형식 무관)
+     * "시흥시 정왕동"만 있어도 "경기도" 그룹에 자동으로 포함
+     * location_data를 역으로 조회하여 계층적 그룹화
+     */
+    public function groupByAreaWithHierarchy($items) {
+        $grouped = array();
+
+        foreach ($items as $item) {
+            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
+            if ($addr === '') continue;
+
+            $parts = explode(' ', $addr);
+
+            // 먼저 시도+시군구로 그룹화 (기본)
+            $base_area = (count($parts) >= 2) ? $parts[0] . ' ' . $parts[1] : $parts[0];
+
+            if (!isset($grouped[$base_area])) {
+                $grouped[$base_area] = array();
+            }
+            $grouped[$base_area][] = $item;
+
+            // location_data에서 역매핑으로 상위 시도 그룹도 추가
+            $sido = $parts[0] ?? '';
+            $dong = $parts[2] ?? '';
+
+            if (!empty($sido) && !empty($dong)) {
+                try {
+                    // location_data에서 동(읍면동)이 속한 시도+시군구 찾기
+                    $sql = "SELECT DISTINCT sido_name, gugun_name FROM location_data
+                            WHERE b_dong_name LIKE '%" . addslashes($dong) . "%'
+                            LIMIT 1";
+                    $result = $this->db->query($sql)->row_array();
+
+                    if ($result) {
+                        $hier_area = $result['sido_name'] . ' ' . $result['gugun_name'];
+                        if ($hier_area !== $base_area) {
+                            if (!isset($grouped[$hier_area])) {
+                                $grouped[$hier_area] = array();
+                            }
+                            $grouped[$hier_area][] = $item;
+                        }
+                    }
+                } catch (Exception $_e) {
+                    // 역매핑 실패 시 무시
+                }
+            }
+        }
+
         return $grouped;
     }
 

@@ -1,14 +1,16 @@
 <?php
 
 /**
- * 유지보수 모드: 서비스 점검 중일 때 활성화
- * true = 점검 페이지만 표시, false = 정상 서비스
+ * 유지보수 모드: 2026-08-01 03:00~08:00 (KST) 자동 점검 전환
+ * 이 시간대에는 모든 요청을 외부 점검 페이지로 리다이렉트
  */
-$maintenance_mode = false;
+date_default_timezone_set('Asia/Seoul');
+$maintenance_start = strtotime('2026-08-01 03:00:00');
+$maintenance_end   = strtotime('2026-08-01 08:00:00');
+$now = time();
 
-if ($maintenance_mode) {
-    // 기존 라우팅 무시하고 점검 페이지만 표시
-    header('Location: /outer/index.html');
+if ($now >= $maintenance_start && $now < $maintenance_end) { // 깃허브 점검 안내 페이지로 이동
+    header('Location: https://songsong1122.github.io/nowjob_maintenance/');
     exit;
 }
 

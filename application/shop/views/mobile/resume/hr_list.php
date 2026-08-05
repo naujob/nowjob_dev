@@ -1271,67 +1271,60 @@ $tpl_show_chat_mark = true; ?>
       height: 'auto'
     });
 
-    // 지역 정보는 index_search2025_new.php의 loadSearchStateFromStorage()에서 이미 복원됨
-    // 따라서 여기서는 .selbtn과 addrName 초기화를 스킵
-    // (.selbtn은 서버 렌더링 초기값이므로 새로고침 시 이미 리셋되어 있음)
+    // sessionStorage에서 선택된 지역 복원 (resume 페이지별)
+    var pageType = 'resume';
+    var storageKey_regions = 'selectedRegions_' + pageType;
+    var storageKey_area = 'searchAreaStr_' + pageType;
 
-    // 만약 sessionStorage에서 복원되지 않았을 경우에만 .selbtn으로 초기화
-    if (!addrName || addrName === '') {
-      const count = $('.selbtn').length;
-      var addrNames = [];
+    var addrNames = [];
+    var searchArea = [];
+    var savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
+    var savedSearchAreaStr = sessionStorage.getItem(storageKey_area);
 
-      if ($('.selbtn').length > 0) {
-        $('.selbtn').each(function() {
-          const text = $(this).clone().children().remove().end().text().trim();
-          addrNames.push(text);
-        });
-        addrName = addrNames.join(', ');
-        $('.addrName').text(addrName).attr('data-selected', 'true');
-      } else {
-        addrName = '지역을 선택해 주세요';
-        $('.addrName').text(addrName).attr('data-selected', 'false');
-      }
-
-      const searchArea = [];
-      search_addr = [];
-
-      $('.selbtn').each(function() {
-        const addr = $(this).data('addr');
-        const step = $(this).data('step');
-        if (addr) {
-          searchArea.push({
-            addr: addr,
-            step: step
-          });
-          search_addr.push(addr);
-        }
-      });
-      searchAreaStr = JSON.stringify(searchArea);
-    }
-
-    // [변경] sessionStorage에서 지역 복원 (resume 페이지별)
-    if (!window.selectedRegions || window.selectedRegions.length === 0) {
-      var pageType = 'resume';
-      var storageKey_regions = 'selectedRegions_' + pageType;
-
-      var addrNames = [];
-      var savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
-
-      if (savedSelectedRegions) {
-        try {
-          window.selectedRegions = JSON.parse(savedSelectedRegions);
-          addrNames = window.selectedRegions.slice(0, 3);
-        } catch (e) {
-          window.selectedRegions = [];
-        }
-      } else {
+    if (savedSelectedRegions) {
+      try {
+        window.selectedRegions = JSON.parse(savedSelectedRegions);
+        addrNames = window.selectedRegions.slice(0, 3);
+      } catch (e) {
         window.selectedRegions = [];
       }
+    } else {
+      window.selectedRegions = [];
+    }
 
-      // UI 동기화
-      if (typeof window.updateSelectedRegionsTags === 'function') {
-        window.updateSelectedRegionsTags();
+    if (savedSearchAreaStr) {
+      try {
+        searchArea = JSON.parse(savedSearchAreaStr);
+      } catch (e) {
+        searchArea = [];
       }
+    }
+
+    // addrName 설정
+    if (addrNames.length > 0) {
+      addrName = addrNames.join(', ');
+      $('.addrName').text(addrName).attr('data-selected', 'true');
+    } else {
+      addrName = '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', 'false');
+    }
+
+    search_addr = [];
+    searchArea.forEach(function(area) {
+      if (area && area.addr) {
+        search_addr.push(area.addr);
+      }
+    });
+    searchAreaStr = JSON.stringify(searchArea);
+
+    // window.selectedRegions 동기화
+    if (typeof selectedRegions === 'undefined') {
+      window.selectedRegions = addrNames.slice(0, 3);
+    }
+
+    // UI 동기화
+    if (typeof window.updateSelectedRegionsTags === 'function') {
+      window.updateSelectedRegionsTags();
     }
 
     // 검색 조건 초기화 (index_search2025_new.php의 $(document).ready()에서 이미 복원됨)

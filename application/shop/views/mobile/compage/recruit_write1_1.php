@@ -336,7 +336,7 @@
                             <div id="rc_desc_editor"
                                  contenteditable="true"
                                  class="form-textarea"
-                                 style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word; white-space: pre-wrap;"><?= $desc ?>
+                                 style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
                             </div>
                             <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                             <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
@@ -923,14 +923,19 @@
 
         // 재귀 헬퍼: 노드의 자식들을 순회하며 블록 요소 평탄화
         function flattenBlocks(node) {
-            var children = Array.prototype.slice.call(node.childNodes);
-            var insertBrBefore = false;
+            var children = Array.prototype.slice.call(node.childNodes); // 배열로 변환
+            /**children = [
+                <div>첫째 줄</div>,
+                <div><br></div>,
+                <div>둘째 줄</div>
+                ] */
+            var insertBrBefore = false; // <br>을 앞에 넣을 것인가?
 
             for (var i = 0; i < children.length; i++) {
                 var child = children[i];
 
                 // 텍스트 노드: 그대로 두기
-                if (child.nodeType === 3) { // TEXT_NODE
+                if (child.nodeType === 3) { // TEXT_NODE 텍스트 노드 처리 노드 종류를 숫자로 구분
                     insertBrBefore = false;
                     continue;
                 }
@@ -1483,17 +1488,11 @@
             }
 
             setTimeout(function() {
-                if (formData.rc_sdate) {
-                    var startPicker = flatpickr('.js-datepicker-start');
-                    if (startPicker) {
-                        startPicker.setDate(formData.rc_sdate, false);
-                    }
+                if (formData.rc_sdate && window.pickerInstances && window.pickerInstances.startPicker) {
+                    window.pickerInstances.startPicker.setDate(formData.rc_sdate, false);
                 }
-                if (formData.rc_edate) {
-                    var endPicker = flatpickr('.js-datepicker-end');
-                    if (endPicker) {
-                        endPicker.setDate(formData.rc_edate, false);
-                    }
+                if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) {
+                    window.pickerInstances.endPicker.setDate(formData.rc_edate, false);
                 }
             }, 500);
 
@@ -2007,8 +2006,10 @@
             var maxEndDate = new Date(startDateObj);
             maxEndDate.setDate(maxEndDate.getDate() + 60);
 
-            // flatpickr 인스턴스를 변수에 저장 (재초기화 방지)
-            var endPicker = null;
+            // flatpickr 인스턴스를 전역으로 저장 (loadPage3Data에서 재사용)
+            if (!window.pickerInstances) {
+                window.pickerInstances = {};
+            }
 
             var startPicker = flatpickr('.js-datepicker-start', {
                 locale: 'ko',
@@ -2037,24 +2038,25 @@
                     chgMonth(this);
                 },
                 onChange: function(selectedDates, dateStr, instance) {
-                    if (selectedDates.length > 0 && endPicker) {
+                    if (selectedDates.length > 0 && window.pickerInstances && window.pickerInstances.endPicker) {
                         var selectedStartDate = selectedDates[0];
-                        endPicker.set('minDate', selectedStartDate);
+                        window.pickerInstances.endPicker.set('minDate', selectedStartDate);
 
                         var maxDate = new Date(selectedStartDate);
                         maxDate.setDate(maxDate.getDate() + 60);
-                        endPicker.set('maxDate', maxDate);
+                        window.pickerInstances.endPicker.set('maxDate', maxDate);
 
-                        var currentEndDate = endPicker.selectedDates[0];
+                        var currentEndDate = window.pickerInstances.endPicker.selectedDates[0];
                         if (currentEndDate && currentEndDate > maxDate) {
-                            endPicker.setDate(maxDate);
+                            window.pickerInstances.endPicker.setDate(maxDate);
                         }
                     }
                     savePage3Data();
                 }
             });
+            window.pickerInstances.startPicker = startPicker;
 
-            endPicker = flatpickr('.js-datepicker-end', {
+            var endPicker = flatpickr('.js-datepicker-end', {
                 locale: 'ko',
                 dateFormat: 'Y-m-d',
                 ariaDateFormat: 'Y-m-d',
@@ -2084,6 +2086,7 @@
                     savePage3Data();
                 }
             });
+            window.pickerInstances.endPicker = endPicker;
         }());
 
         setTimeout(function() {
@@ -3149,6 +3152,28 @@
         }
       });
     });
+
+    // rc_desc_editor에서 Enter 키를 <br> 태그로 변환
+    var rcDescEditor = document.getElementById('rc_desc_editor');
+    if (rcDescEditor) {
+      rcDescEditor.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          // 선택 영역이 있으면 제거하고 br 삽입
+          var selection = window.getSelection();
+          if (selection.rangeCount > 0) {
+            var range = selection.getRangeAt(0);
+            range.deleteContents();
+            var br = document.createElement('br');
+            range.insertNode(br);
+            range.setStartAfter(br);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        }
+      });
+    }
   });
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>

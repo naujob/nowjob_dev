@@ -318,21 +318,23 @@ renderSelectBottomSheet(
       }, function(ret) {
         if (ret.code === "00" && ret.data) {
           var parts = String(ret.data).split("^");
-          // 개인정보 보호: 시/구/동까지만 사용 + 주소 정리
+          // 카카오 region_1~3depth_name 조합 (시도 시군구 읍면동, 지번/건물번호 없음 = 개인정보 보호 충족)
           var frontPart = (parts[0] || "").trim();
-          if (typeof fRemoveBigAdrJS === 'function') {
-            frontPart = fRemoveBigAdrJS(frontPart) || frontPart;
-          }
-          // QuickInfo 위치 표시만 기다리는 상태라면 UI 텍스트만 갱신하고 종료
+
+          // QuickInfo 위치 표시만 기다리는 상태라면 UI 텍스트만 갱신하고 종료 (화면 표시용으로만 시/도 축약)
           if (window.__quickInfoExpectLocation && !window.__quickInfoApplyFlow) {
             window.__quickInfoExpectLocation = false;
             var regionEl = document.querySelector('.quickinfo-region-text');
             if (regionEl) {
-              regionEl.textContent = frontPart || "근무 지역 선택";
+              var displayPart = frontPart;
+              if (typeof fRemoveBigAdrJS === 'function') {
+                displayPart = fRemoveBigAdrJS(frontPart) || frontPart;
+              }
+              regionEl.textContent = displayPart || "근무 지역 선택";
             }
             return;
           }
-          // 자동이력서용 주소 필드 구성
+          // 자동이력서용 주소 필드 구성 (시/도+시/군/구+읍/면/동 원본 그대로 저장)
           var ad_jibun = frontPart;
           var ad_doro = "";
           var ad_zipcode = "";

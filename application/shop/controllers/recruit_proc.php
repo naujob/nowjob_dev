@@ -438,13 +438,27 @@ class Recruit_proc extends CI_Controller
 		$addrName = input_post("addrName", "");
 		$searchAreaStr = input_post("searchAreaStr", "");
 
-		// 디버그 로깅
-	
-
 		if (empty($search_addr)) {
 			$search_addr = [];
 		} elseif (!is_array($search_addr)) {
 			$search_addr = [$search_addr];
+		}
+
+		// searchAreaStr에서 step 정보 추출
+		$search_addr_step = [];
+		if (!empty($searchAreaStr)) {
+			try {
+				$search_area = json_decode($searchAreaStr, true);
+				if (is_array($search_area)) {
+					foreach ($search_area as $area) {
+						if (isset($area['step'])) {
+							$search_addr_step[] = intval($area['step']);
+						}
+					}
+				}
+			} catch (Exception $e) {
+				// JSON 파싱 실패 시 무시
+			}
 		}
 
 		$params = [
@@ -461,6 +475,7 @@ class Recruit_proc extends CI_Controller
 			"eage" => $eage,
 			"order_by" => $order_by,
 			"search_addr" => $search_addr,
+			"search_addr_step" => $search_addr_step,
 			"compidx"    => $compidx,
 		];
 

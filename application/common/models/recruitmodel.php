@@ -127,9 +127,10 @@ class recruitModel extends MY_Model
 	# 채용공고 목록 (실시간 쿼리 버전)
 	function getRecruitList($params)
 	{
-	
+
 
 		$search_addr = isset($params["search_addr"]) && is_array($params["search_addr"]) ? array_map([$this, 'inject'], $params["search_addr"]) : [];
+		$search_addr_step = isset($params["search_addr_step"]) && is_array($params["search_addr_step"]) ? $params["search_addr_step"] : [];
 		$mm_idx = isset($params["mm_idx"]) ? $this->inject($params["mm_idx"]) : 0;
 
 	
@@ -244,12 +245,12 @@ class recruitModel extends MY_Model
 
 
 		$all_addr_conditions = array_filter(array(
-			$this->make_addr_like_condition("aa.s_addr", $search_addr),
-			$this->make_addr_like_condition("aa.ad_addr", $search_addr),
-			$this->make_addr_like_condition("aa.expose_addr1", $search_addr),
-			$this->make_addr_like_condition("aa.expose_s_addr1", $search_addr),
-			$this->make_addr_like_condition("aa.expose_addr2", $search_addr),
-			$this->make_addr_like_condition("aa.expose_s_addr2", $search_addr),
+			$this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step),
+			$this->make_addr_like_condition("aa.ad_addr", $search_addr, $search_addr_step),
+			$this->make_addr_like_condition("aa.expose_addr1", $search_addr, $search_addr_step),
+			$this->make_addr_like_condition("aa.expose_s_addr1", $search_addr, $search_addr_step),
+			$this->make_addr_like_condition("aa.expose_addr2", $search_addr, $search_addr_step),
+			$this->make_addr_like_condition("aa.expose_s_addr2", $search_addr, $search_addr_step),
 		));
 		if (!empty($all_addr_conditions)) {
 			
@@ -324,27 +325,63 @@ class recruitModel extends MY_Model
 		}
 	}
 
-	function make_addr_like_condition($column, $addr_array)
+	function make_addr_like_condition($column, $addr_array, $step_array = [])
 	{
 		if (empty($addr_array) || !is_array($addr_array)) {
 			return "";
 		}
 
-		$conditions = array_map(function ($addr) use ($column) {
-			$escaped_addr = addslashes($addr);
-			// "전체"가 포함된 경우, "전체"를 제거하고 와일드카드로 시작
-			if (strpos($addr, '전체') !== false) {
-				// "서울특별시 전체" → "서울특별시"
-				$base_addr = trim(str_replace('전체', '', $addr));
-				$cond = "$column LIKE '" . addslashes($base_addr) . "%'";
-			} else {
-				$cond = "$column LIKE '%" . $escaped_addr . "%'";
-			}
-			return $cond;
-		}, $addr_array);
+		$conditions = [];
 
-		$result = " (" . implode(" OR ", $conditions) . ") ";
-		return $result;
+		foreach ($addr_array as $idx => $addr) {
+			$step = isset($step_array[$idx]) ? intval($step_array[$idx]) : 3;
+			$escaped_addr = addslashes($addr);
+
+			// step=1 (시도): 해당 시도의 모든 읍면동 검색
+			if ($step == 1) {
+				$sql = "SELECT DISTINCT b_dong_name FROM location_data
+						WHERE sido_name = '{$escaped_addr}' AND step = 3";
+				try {
+					$result = $this->db->query($sql)->result_array();
+					if (!empty($result)) {
+						$dong_conditions = array_map(function($row) use ($column) {
+							return "$column LIKE '%" . addslashes($row['b_dong_name']) . "%'";
+						}, $result);
+						$conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
+					}
+				} catch (Exception $e) {
+					$conditions[] = "$column LIKE '%{$escaped_addr}%'";
+				}
+			}
+			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색
+			else if ($step == 2) {
+				$addr_parts = explode(" ", trim($addr));
+				if (count($addr_parts) >= 2) {
+					$sido = addslashes($addr_parts[0]);
+					$gugun = addslashes($addr_parts[1]);
+
+					$sql = "SELECT DISTINCT b_dong_name FROM location_data
+							WHERE sido_name = '{$sido}' AND gugun_name = '{$gugun}' AND step = 3";
+					try {
+						$result = $this->db->query($sql)->result_array();
+						if (!empty($result)) {
+							$dong_conditions = array_map(function($row) use ($column) {
+								return "$column LIKE '%" . addslashes($row['b_dong_name']) . "%'";
+							}, $result);
+							$conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
+						}
+					} catch (Exception $e) {
+						$conditions[] = "$column LIKE '%{$escaped_addr}%'";
+					}
+				}
+			}
+			// step=3 (읍면동): 정확한 읍면동 검색
+			else {
+				$conditions[] = "$column LIKE '%" . $escaped_addr . "%'";
+			}
+		}
+
+		return !empty($conditions) ? " (" . implode(" OR ", $conditions) . ") " : "";
 	}
 
 	function getMultiAndAll($arry, $col_name)

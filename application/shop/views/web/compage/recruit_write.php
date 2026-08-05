@@ -911,7 +911,7 @@
         /* 웹 버전 주소 삭제 버튼 */
         .addr-clear-btn-web {
           position: absolute;
-          right: 50px;
+          right: 17px;
           top: 50%;
           transform: translateY(-50%);
           background: none;
@@ -1744,22 +1744,22 @@
                       <!-- 노출지역 1 -->
                       <div class="addr-search-wrap row" style="position: relative;">
                         <input type="text" id="expose_addr1_doro"
-                               value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_doro'] : '' ?>"
+                               value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_addr'] : '' ?>"
                                placeholder="추가 노출지역 선택"
                                autocomplete="off" class="form-text input-wide" readonly>
-                        
-                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="1" aria-label="노출지역 1 삭제" style="display: <?= (isset($info['expose_addr1']) && $info['expose_addr1'] != null && !empty($info['expose_addr1']['ad_doro'])) ? 'inline-block' : 'none' ?>;">
+
+                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="1" aria-label="노출지역 1 삭제" style="display: <?= (isset($info['expose_addr1']) && $info['expose_addr1'] != null && !empty($info['expose_addr1']['ad_addr'])) ? 'inline-block' : 'none' ?>;">
                           <i class="fas fa-times"></i>
                         </button>
                       </div>
                       <!-- 노출지역 2 -->
                       <div class="addr-search-wrap row" style="position: relative;">
                         <input type="text" id="expose_addr2_doro"
-                               value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_doro'] : '' ?>"
+                               value="<?= isset($info['expose_addr2']) && $info['expose_addr2'] != null ? $info['expose_addr2']['ad_addr'] : '' ?>"
                                placeholder="+"
                                autocomplete="off" class="form-text input-wide" readonly>
-                       
-                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="2" aria-label="노출지역 2 삭제" style="display: <?= (isset($info['expose_addr2']) && $info['expose_addr2'] != null && !empty($info['expose_addr2']['ad_doro'])) ? 'inline-block' : 'none' ?>;">
+
+                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="2" aria-label="노출지역 2 삭제" style="display: <?= (isset($info['expose_addr2']) && $info['expose_addr2'] != null && !empty($info['expose_addr2']['ad_addr'])) ? 'inline-block' : 'none' ?>;">
                           <i class="fas fa-times"></i>
                         </button>
                       </div>
@@ -3188,8 +3188,8 @@
         $("[name='expose_addr" + fieldIndex + "_doro_val']").val(area.addr);
         $("[name='expose_addr" + fieldIndex + "_addr']").val(area.addr);
         // GPS 좌표는 서버에서 받은 데이터가 없으므로 빈값 유지
-        // data-addr의 전체 주소를 입력 필드에 표시
-        $("#expose_addr" + fieldIndex + "_doro").val(area.addr);
+        // 원본 주소에 fRemoveBigAdrJS를 적용하여 표시
+        $("#expose_addr" + fieldIndex + "_doro").val(fRemoveBigAdrJS(area.addr));
         $(".js-clear-expose-addr-web[data-index='" + fieldIndex + "']").show();
       }
     }
@@ -3907,6 +3907,20 @@
     });
   }
 
+  // 공고노출지역 표시 초기화 (변환함수 적용)
+  function initExposeAddrDisplay() {
+    // 노출지역 1
+    var $input1 = $("#expose_addr1_doro");
+    if ($input1.length && $input1.val()) {
+      $input1.val(fRemoveBigAdrJS($input1.val()));
+    }
+    // 노출지역 2
+    var $input2 = $("#expose_addr2_doro");
+    if ($input2.length && $input2.val()) {
+      $input2.val(fRemoveBigAdrJS($input2.val()));
+    }
+  }
+
   // 달력의 월/년 표시를 커스터마이징하는 전역 함수
   // 모집일 달력과 근무시작일 달력 모두에서 사용됨
   function chgMonth(instance) {
@@ -3921,6 +3935,7 @@
     initLawPopup();
     initAddressArea();
     initFormValidation();
+    initExposeAddrDisplay();
   });
 
   // 이미지 삭제 버튼 추가 함수

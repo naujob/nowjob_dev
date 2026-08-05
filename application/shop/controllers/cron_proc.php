@@ -29,22 +29,29 @@ class Cron_proc extends CI_Controller
         // 두 설정 타입(usual, subs)에 대해 반복 처리
         $all_sent = 0;
         foreach (array('usual', 'subs') as $pks_type) {
+            echo "[DEBUG] === {$pks_type} 설정 처리 시작 ===\n";
             $setting = $this->ppurio_setting_model->getSetting($pks_type);
             if (empty($setting)) {
+                echo "⚠️  {$pks_type} 설정 없음\n";
                 continue;
             }
 
             // 시간 조건 확인: 1차 또는 2차 알림 시각에 해당하는가
-            $is_alarm1 = $this->_isAlarmTimeNow($setting['comp_apply_alarm1_time']);
-            $is_alarm2 = $this->_isAlarmTimeNow($setting['comp_apply_alarm2_time']);
+            $alarm1_time = $setting['comp_apply_alarm1_time'];
+            $alarm2_time = $setting['comp_apply_alarm2_time'];
+            $is_alarm1 = $this->_isAlarmTimeNow($alarm1_time);
+            $is_alarm2 = $this->_isAlarmTimeNow($alarm2_time);
+            echo "[DEBUG] {$pks_type} - 1차시간: {$alarm1_time} (일치: " . ($is_alarm1 ? '예' : '아니오') . "), 2차시간: {$alarm2_time} (일치: " . ($is_alarm2 ? '예' : '아니오') . ")\n";
 
             // 이 타입에서는 시간 조건이 맞지 않으면 skip
             if (!$is_alarm1 && !$is_alarm2) {
+                echo "⚠️  {$pks_type} - 시간 조건 미충족, skip\n";
                 continue;
             }
 
             // 설정에서 미열람 알림 재발송 일수 읽기
             $unread_day = (int)$setting['comp_apply_unread_day'];
+            echo "[DEBUG] {$pks_type} - 재발송 일수: {$unread_day}일\n";
 
             // 2차 알림 시각인 경우 신규 채팅방 + N일 주기 재발송
             if ($is_alarm2 && !$is_alarm1) {
@@ -54,11 +61,13 @@ class Cron_proc extends CI_Controller
                   AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
                   AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
+                echo "[DEBUG] {$pks_type} - 2차 알림 모드 (신규 채팅방 + {$unread_day}일 재발송)\n";
             } else {
                 // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준) - 1회 재발송만 수행
                 $time_where = "
                   AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
+                echo "[DEBUG] {$pks_type} - 1차 알림 모드 (미발송 또는 {$unread_day}일 이상 지난 대상)\n";
             }
 
             $where_condition = $base_where . $time_where;
@@ -75,7 +84,10 @@ class Cron_proc extends CI_Controller
                 {$where_condition}
             ", array($unread_day))->result_array();
 
+            echo "[DEBUG] {$pks_type} - 발송 대상 조회 결과: " . count($rooms) . "건\n";
+
             if (empty($rooms)) {
+                echo "⚠️  {$pks_type} - 발송 대상 없음\n";
                 continue;
             }
 
@@ -84,9 +96,9 @@ class Cron_proc extends CI_Controller
         }
 
         if ($all_sent == 0) {
-            echo "발송 대상 없음\n";
+            echo "⚠️  전체 발송 대상 없음\n";
         } else {
-            echo "완료 - 발송 건수: {$all_sent}\n";
+            echo "✅ 완료 - 전체 발송 건수: {$all_sent}\n";
         }
     }
 
@@ -101,27 +113,31 @@ class Cron_proc extends CI_Controller
             @$mongo = new Mongo($uri);
             $db = $mongo->$dbName;
             $collection = $db->room;
+            echo "[DEBUG] MongoDB 연결 성공\n";
         } catch (Exception $e) {
-            echo "MongoDB 연결 오류: " . $e->getMessage() . "\n";
+            echo "❌ MongoDB 연결 오류: " . $e->getMessage() . "\n";
             return 0;
         }
 
         // PpurioClient 로드
         $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
         if (!file_exists($ppurioPath)) {
-            echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
+            echo "❌ PpurioClient 파일 없음: " . $ppurioPath . "\n";
             return 0;
         }
         require_once($ppurioPath);
         $ppurio = new CI_PpurioClient();
+        echo "[DEBUG] PpurioClient 로드 성공\n";
 
         $sent_count = 0;
+        echo "[DEBUG] 처리할 채팅방 개수: " . count($rooms) . "\n";
 
         // 각 채팅방에서 미확인 메시지 확인 후 발송
         foreach ($rooms as $row) {
             try {
                 $room = $collection->findOne(array('rm_idx' => (int)$row['rm_idx']));
                 if (!$room || !isset($room['rm_messages']) || empty($room['rm_messages'])) {
+                    echo "[DEBUG] rm_idx={$row['rm_idx']}: 메시지 없음\n";
                     continue;
                 }
 
@@ -142,7 +158,12 @@ class Cron_proc extends CI_Controller
                     }
                 }
 
-                if (!$has_unread_recruit_msg) continue;
+                if (!$has_unread_recruit_msg) {
+                    echo "[DEBUG] rm_idx={$row['rm_idx']}: 미읽음 메시지 없음\n";
+                    continue;
+                }
+
+                echo "[DEBUG] rm_idx={$row['rm_idx']}, comp_mm_idx={$row['comp_mm_idx']}, 전화={$row['mm_phone']}: 발송 시도\n";
 
                 // 미확인 → 카카오 알림톡 발송
                 $result = $ppurio->sendUnreadNotificationAlimtalk(
@@ -152,23 +173,34 @@ class Cron_proc extends CI_Controller
                 );
 
                 $is_success = isset($result['ok']) && $result['ok'] === true;
+                echo "[DEBUG] API 응답: " . json_encode($result) . "\n";
 
                 if ($is_success) {
                     // 발송 성공 시에만 이력 기록
-                    $this->db->query(
+                    $db_result = $this->db->query(
                         "INSERT INTO st_alimtalk_sent (rm_idx, comp_mm_idx, sent_dt, sent_count)
                          VALUES (?, ?, NOW(), 1)
                          ON DUPLICATE KEY UPDATE sent_dt = NOW(), sent_count = sent_count + 1",
                         array($row['rm_idx'], $row['comp_mm_idx'])
                     );
-                    $sent_count++;
+
+                    if ($db_result) {
+                        echo "✅ rm_idx={$row['rm_idx']}: 발송 및 DB 저장 성공\n";
+                        $sent_count++;
+                    } else {
+                        echo "❌ rm_idx={$row['rm_idx']}: DB 저장 실패 - " . $this->db->last_query() . "\n";
+                    }
+                } else {
+                    echo "❌ rm_idx={$row['rm_idx']}: 뿌리오 API 발송 실패\n";
                 }
 
             } catch (Exception $e) {
+                echo "❌ rm_idx={$row['rm_idx']}: 예외 발생 - " . $e->getMessage() . "\n";
                 continue;
             }
         }
 
+        echo "[DEBUG] 총 발송 건수: {$sent_count}\n";
         return $sent_count;
     }
 
@@ -189,22 +221,29 @@ class Cron_proc extends CI_Controller
         // 두 설정 타입(usual, subs)에 대해 반복 처리
         $all_sent = 0;
         foreach (array('usual', 'subs') as $pks_type) {
+            echo "[DEBUG] === {$pks_type} 설정 처리 시작 ===\n";
             $setting = $this->ppurio_setting_model->getSetting($pks_type);
             if (empty($setting)) {
+                echo "⚠️  {$pks_type} 설정 없음\n";
                 continue;
             }
 
             // 시간 조건 확인: 1차 또는 2차 알림 시각에 해당하는가
-            $is_alarm1 = $this->_isAlarmTimeNow($setting['comp_apply_alarm1_time']);
-            $is_alarm2 = $this->_isAlarmTimeNow($setting['comp_apply_alarm2_time']);
+            $alarm1_time = $setting['comp_apply_alarm1_time'];
+            $alarm2_time = $setting['comp_apply_alarm2_time'];
+            $is_alarm1 = $this->_isAlarmTimeNow($alarm1_time);
+            $is_alarm2 = $this->_isAlarmTimeNow($alarm2_time);
+            echo "[DEBUG] {$pks_type} - 1차시간: {$alarm1_time} (일치: " . ($is_alarm1 ? '예' : '아니오') . "), 2차시간: {$alarm2_time} (일치: " . ($is_alarm2 ? '예' : '아니오') . ")\n";
 
             // 이 타입에서는 시간 조건이 맞지 않으면 skip
             if (!$is_alarm1 && !$is_alarm2) {
+                echo "⚠️  {$pks_type} - 시간 조건 미충족, skip\n";
                 continue;
             }
 
             // 설정에서 미열람 알림 재발송 일수 읽기
             $unread_day = (int)$setting['mem_apply_unread_day'];
+            echo "[DEBUG] {$pks_type} - 재발송 일수: {$unread_day}일\n";
 
             // 2차 알림 시각인 경우 신규 채팅방 + N일 주기 재발송
             if ($is_alarm2 && !$is_alarm1) {
@@ -214,11 +253,13 @@ class Cron_proc extends CI_Controller
                   AND r.reg_dt >= CONCAT(CURDATE(), ' {$alarm_time_hm}:00')
                   AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
+                echo "[DEBUG] {$pks_type} - 2차 알림 모드 (신규 채팅방 + {$unread_day}일 재발송)\n";
             } else {
                 // 1차: 미발송 또는 N일 이상 지난 대상 (날짜 기준) - 1회 재발송만 수행
                 $time_where = "
                   AND (s.as_idx IS NULL OR (s.sent_count = 1 AND DATE(s.sent_dt) <= DATE_SUB(CURDATE(), INTERVAL ? DAY)))
                 ";
+                echo "[DEBUG] {$pks_type} - 1차 알림 모드 (미발송 또는 {$unread_day}일 이상 지난 대상)\n";
             }
 
             $where_condition = $base_where . $time_where;
@@ -235,7 +276,10 @@ class Cron_proc extends CI_Controller
                 {$where_condition}
             ", array($unread_day))->result_array();
 
+            echo "[DEBUG] {$pks_type} - 발송 대상 조회 결과: " . count($rooms) . "건\n";
+
             if (empty($rooms)) {
+                echo "⚠️  {$pks_type} - 발송 대상 없음\n";
                 continue;
             }
 
@@ -244,9 +288,9 @@ class Cron_proc extends CI_Controller
         }
 
         if ($all_sent == 0) {
-            echo "발송 대상 없음\n";
+            echo "⚠️  전체 발송 대상 없음\n";
         } else {
-            echo "완료 - 발송 건수: {$all_sent}\n";
+            echo "✅ 완료 - 전체 발송 건수: {$all_sent}\n";
         }
     }
 
@@ -261,27 +305,31 @@ class Cron_proc extends CI_Controller
             @$mongo = new Mongo($uri);
             $db = $mongo->$dbName;
             $collection = $db->room;
+            echo "[DEBUG] MongoDB 연결 성공\n";
         } catch (Exception $e) {
-            echo "MongoDB 연결 오류: " . $e->getMessage() . "\n";
+            echo "❌ MongoDB 연결 오류: " . $e->getMessage() . "\n";
             return 0;
         }
 
         // PpurioClient 로드
         $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
         if (!file_exists($ppurioPath)) {
-            echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
+            echo "❌ PpurioClient 파일 없음: " . $ppurioPath . "\n";
             return 0;
         }
         require_once($ppurioPath);
         $ppurio = new CI_PpurioClient();
+        echo "[DEBUG] PpurioClient 로드 성공\n";
 
         $sent_count = 0;
+        echo "[DEBUG] 처리할 채팅방 개수: " . count($rooms) . "\n";
 
         // 각 채팅방에서 미확인 메시지 확인 후 발송
         foreach ($rooms as $row) {
             try {
                 $room = $collection->findOne(array('rm_idx' => (int)$row['rm_idx']));
                 if (!$room || !isset($room['rm_messages']) || empty($room['rm_messages'])) {
+                    echo "[DEBUG] rm_idx={$row['rm_idx']}: 메시지 없음\n";
                     continue;
                 }
 
@@ -302,7 +350,12 @@ class Cron_proc extends CI_Controller
                     }
                 }
 
-                if (!$has_unread_recruit_msg) continue;
+                if (!$has_unread_recruit_msg) {
+                    echo "[DEBUG] rm_idx={$row['rm_idx']}: 미읽음 메시지 없음\n";
+                    continue;
+                }
+
+                echo "[DEBUG] rm_idx={$row['rm_idx']}, mem_mm_idx={$row['mem_mm_idx']}, 전화={$row['mm_phone']}: 발송 시도\n";
 
                 // 미확인 → 카카오 알림톡 발송
                 $result = $ppurio->sendPersonalUnreadNotificationAlimtalk(
@@ -312,23 +365,34 @@ class Cron_proc extends CI_Controller
                 );
 
                 $is_success = isset($result['ok']) && $result['ok'] === true;
+                echo "[DEBUG] API 응답: " . json_encode($result) . "\n";
 
                 if ($is_success) {
                     // 발송 성공 시에만 이력 기록
-                    $this->db->query(
+                    $db_result = $this->db->query(
                         "INSERT INTO st_alimtalk_sent_mem (rm_idx, mem_mm_idx, sent_dt, sent_count)
                          VALUES (?, ?, NOW(), 1)
                          ON DUPLICATE KEY UPDATE sent_dt = NOW(), sent_count = sent_count + 1",
                         array($row['rm_idx'], $row['mem_mm_idx'])
                     );
-                    $sent_count++;
+
+                    if ($db_result) {
+                        echo "✅ rm_idx={$row['rm_idx']}: 발송 및 DB 저장 성공\n";
+                        $sent_count++;
+                    } else {
+                        echo "❌ rm_idx={$row['rm_idx']}: DB 저장 실패 - " . $this->db->last_query() . "\n";
+                    }
+                } else {
+                    echo "❌ rm_idx={$row['rm_idx']}: 뿌리오 API 발송 실패\n";
                 }
 
             } catch (Exception $e) {
+                echo "❌ rm_idx={$row['rm_idx']}: 예외 발생 - " . $e->getMessage() . "\n";
                 continue;
             }
         }
 
+        echo "[DEBUG] 총 발송 건수: {$sent_count}\n";
         return $sent_count;
     }
 
@@ -337,78 +401,92 @@ class Cron_proc extends CI_Controller
     {
         $start_time = microtime(true);
         $current_week = date('Y-W'); // 주차 식별자 (YYYY-WW)
+        echo "[DEBUG] 매칭 알림톡 시작 - 주차: {$current_week}, 현재시간: " . date('Y-m-d H:i:s') . "\n";
 
         // 1. PpurioClient 로드
         $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
         if (!file_exists($ppurioPath)) {
-            echo "PpurioClient 파일 없음: " . $ppurioPath . "\n";
+            echo "❌ PpurioClient 파일 없음: " . $ppurioPath . "\n";
             return;
         }
         require_once($ppurioPath);
         $ppurio = new CI_PpurioClient();
+        echo "[DEBUG] PpurioClient 로드 성공\n";
 
         // 2. 활성 이력서 조회 (주소 포함)
         $resumes = $this->_getActiveResumes();
         if (empty($resumes)) {
-            echo "활성 이력서 없음\n";
+            echo "⚠️  활성 이력서 없음\n";
             return;
         }
+        echo "[DEBUG] 활성 이력서: " . count($resumes) . "건\n";
+
         // 3. 게재 중인 채용공고 조회 (주소 포함)
         $recruits = $this->_getActiveRecruits();
         if (empty($recruits)) {
-            echo "게재 중인 채용공고 없음\n";
+            echo "⚠️  게재 중인 채용공고 없음\n";
             return;
         }
+        echo "[DEBUG] 게재 중인 채용공고: " . count($recruits) . "건\n";
 
         // 두 설정 타입(usual, subs)에 대해 반복 처리
         $total_sent_corp = 0;
         $total_sent_member = 0;
 
         foreach (array('usual', 'subs') as $pks_type) {
+            echo "[DEBUG] === {$pks_type} 설정 처리 시작 ===\n";
             $setting = $this->ppurio_setting_model->getSetting($pks_type);
             if (empty($setting)) {
+                echo "⚠️  {$pks_type} 설정 없음\n";
                 continue;
             }
 
             // 기업 매칭 발송 여부 판단
-            $comp_due = $this->_isMatchDayToday($setting['comp_match_days']) &&
-                        $this->_isAlarmTimeNow($setting['comp_match_alarm1_time']);
+            $comp_match_days = $setting['comp_match_days'];
+            $comp_match_alarm1_time = $setting['comp_match_alarm1_time'];
+            $comp_due = $this->_isMatchDayToday($comp_match_days) &&
+                        $this->_isAlarmTimeNow($comp_match_alarm1_time);
+            echo "[DEBUG] 기업 매칭 - 요일: {$comp_match_days}, 시간: {$comp_match_alarm1_time}, 발송 대상: " . ($comp_due ? '예' : '아니오') . "\n";
 
             // 개인 매칭 발송 여부 판단
-            $mem_due = $this->_isMatchDayToday($setting['mem_match_days']) &&
-                       $this->_isAlarmTimeNow($setting['mem_match_alarm1_time']);
+            $mem_match_days = $setting['mem_match_days'];
+            $mem_match_alarm1_time = $setting['mem_match_alarm1_time'];
+            $mem_due = $this->_isMatchDayToday($mem_match_days) &&
+                       $this->_isAlarmTimeNow($mem_match_alarm1_time);
+            echo "[DEBUG] 개인 매칭 - 요일: {$mem_match_days}, 시간: {$mem_match_alarm1_time}, 발송 대상: " . ($mem_due ? '예' : '아니오') . "\n";
 
             // 이 타입에서는 둘 다 발송 대상이 아니면 skip
             if (!$comp_due && !$mem_due) {
+                echo "[DEBUG] 이 설정에서는 발송 대상 아님\n";
                 continue;
             }
 
             // 기업 매칭 조건 파싱
-            // area^nation^sex^age^work^price^work_type	
-            $comp_cond_arr = $this->_parseConditions($setting['comp_match_cond']); // (^ 구분자로 배열로 변환)
-            /**
-             *   $comp_cond_arr = array(
-             *       [0] => 'area',
-             *       [1] => 'nation', 
-              *      [2] => 'age',
-              *      [3] => 'price'
-              *      );
-             * 
-             */
+            // area^nation^sex^age^work^price^work_type
+            $comp_cond_arr = $this->_parseConditions($setting['comp_match_cond']);
+            echo "[DEBUG] 기업 매칭 조건: " . implode(', ', $comp_cond_arr) . "\n";
+
             // 개인 매칭 조건 파싱
             $mem_cond_arr = $this->_parseConditions($setting['mem_match_cond']);
+            echo "[DEBUG] 개인 매칭 조건: " . implode(', ', $mem_cond_arr) . "\n";
 
             // 기업 매칭 처리
             if ($comp_due) {
+                echo "[DEBUG] 기업 매칭 계산 시작...\n";
                 $matches_for_corp = $this->_calculateCorpMatches($resumes, $recruits, $comp_cond_arr);
+                echo "[DEBUG] 기업 매칭 결과: " . count($matches_for_corp) . "건\n";
                 $sent_corp = $this->_sendCorpAlimtalk($matches_for_corp, $current_week, $ppurio);
+                echo "[DEBUG] 기업 발송 완료: {$sent_corp}건\n";
                 $total_sent_corp += $sent_corp;
             }
 
             // 개인 매칭 처리
             if ($mem_due) {
+                echo "[DEBUG] 개인 매칭 계산 시작...\n";
                 $matches_for_member = $this->_calculateMemMatches($resumes, $recruits, $mem_cond_arr);
+                echo "[DEBUG] 개인 매칭 결과: " . count($matches_for_member) . "건\n";
                 $sent_member = $this->_sendMemberAlimtalk($matches_for_member, $current_week, $ppurio);
+                echo "[DEBUG] 개인 발송 완료: {$sent_member}건\n";
                 $total_sent_member += $sent_member;
             }
         }
@@ -416,9 +494,9 @@ class Cron_proc extends CI_Controller
         // 4. 실행 결과 출력
         $elapsed = round(microtime(true) - $start_time, 2);
         if ($total_sent_corp == 0 && $total_sent_member == 0) {
-            echo "발송 대상 시각 아님\n";
+            echo "⚠️  발송 대상 시각 아님\n";
         } else {
-            echo "매칭 알림톡 발송 완료 - 기업: {$total_sent_corp}건, 개인: {$total_sent_member}건, 소요시간: {$elapsed}초\n";
+            echo "✅ 매칭 알림톡 발송 완료 - 기업: {$total_sent_corp}건, 개인: {$total_sent_member}건, 소요시간: {$elapsed}초\n";
         }
     }
 

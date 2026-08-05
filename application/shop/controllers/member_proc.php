@@ -3792,27 +3792,6 @@ class Member_proc extends CI_Controller
                     $this->member_model->setMemberDevice(["mm_idx" => $mm_idx], ["uuid" => $alarm["uuid"]]);
                 }
 
-                $arr_addr = [
-                    "mm_idx" => $mm_idx,
-                    "ad_type" => "MEMBER",
-                    "ad_key" => $mm_idx,
-                    "ad_zipcode" => isset($step2_info["ad_zipcode"]) ? $step2_info["ad_zipcode"] : "",
-                    "ad_jibun" => isset($step2_info["ad_jibun"]) ? $step2_info["ad_jibun"] : "",
-                    "ad_doro" => isset($step2_info["ad_doro"]) ? $step2_info["ad_doro"] : "",
-                    "ad_detail" => isset($step2_info["ad_detail"]) ? $step2_info["ad_detail"] : "",
-                    "ad_addr" => isset($step2_info["ad_addr"]) ? $step2_info["ad_addr"] : "",
-                    "ad_gps_x" => isset($step2_info["ad_gps_x"]) ? $step2_info["ad_gps_x"] : "",
-                    "ad_gps_y" => isset($step2_info["ad_gps_y"]) ? $step2_info["ad_gps_y"] : "",
-                ];
-
-                $result_addr = $this->member_model->insertAddress($arr_addr);
-                if ($result_addr["code"] != "00") {
-                    $this->db->trans_rollback();
-                    json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
-                    exit;
-                }
-
-
                 // SNS 가입 시 $arr_mem["mm_birth"] 사용, 일반 가입 시 $step_auth["mm_birth"] 사용
                 $birth_for_age = !empty($step_sns) ? $arr_mem["mm_birth"] : (isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "");
                 $ma_age = getKoreanAge($birth_for_age);
@@ -4196,32 +4175,6 @@ class Member_proc extends CI_Controller
                 //json_return("91",$ma_type."오류가2".$proc_type);
                 //exit;
 
-                $arr_addr = [
-                    "mm_idx" => $result_join["key"],
-                    "ad_type" => "MEMBER",
-                    "ad_key" => $result_join["key"],
-                    "ad_zipcode" => $step2_info["ad_zipcode"],
-                    "ad_jibun" => $step2_info["ad_jibun"],
-                    "ad_doro" => $step2_info["ad_doro"],
-                    "ad_detail" => $step2_info["ad_detail"],
-                    "ad_addr" => $step2_info["ad_addr"],
-                    "ad_gps_x" => $step2_info["ad_gps_x"],
-                    "ad_gps_y" => $step2_info["ad_gps_y"],
-                ];
-
-                //json_return("91",$ma_type."오류가3".$proc_type);
-                //exit;
-                //return json_return("99","3TEST".$step2_info["ad_gps_x"]);
-                if ($step2_info["ad_gps_x"] != "") {
-
-                    $result_addr = $this->member_model->insertAddress($arr_addr);
-                    if ($result_addr["code"] != "00") {
-                        $this->db->trans_rollback();
-                        json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
-                    }
-                }
-                // 신규 가입시 GPS 없으면 주소 저장 안 함 (빈값으로 저장되지 않도록)
-
                 // SNS 가입 시 $arr_mem["mm_birth"] 사용, 일반 가입 시 $step_auth["mm_birth"] 사용
                 $birth_for_age = !empty($step_sns) ? $arr_mem["mm_birth"] : (isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "");
                 $ma_age = getKoreanAge($birth_for_age);
@@ -4495,26 +4448,6 @@ class Member_proc extends CI_Controller
                 # 토큰정보 연동
                 if ($alarm["uuid"] != "") {
                     $this->member_model->setMemberDevice(["mm_idx" => $mm_idx], ["uuid" => $alarm["uuid"]]);
-                }
-
-                $arr_addr = [
-                    "mm_idx" => $mm_idx,
-                    "ad_type" => "MEMBER",
-                    "ad_key" => $mm_idx,
-                    "ad_zipcode" => isset($step4_info["ad_zipcode"]) ? $step4_info["ad_zipcode"] : "",
-                    "ad_jibun" => isset($step4_info["ad_jibun"]) ? $step4_info["ad_jibun"] : "",
-                    "ad_doro" => isset($step4_info["ad_doro"]) ? $step4_info["ad_doro"] : "",
-                    "ad_detail" => isset($step4_info["ad_detail"]) ? $step4_info["ad_detail"] : "",
-                    "ad_addr" => isset($step4_info["ad_addr"]) ? $step4_info["ad_addr"] : "",
-                    "ad_gps_x" => isset($step4_info["ad_gps_x"]) ? $step4_info["ad_gps_x"] : "",
-                    "ad_gps_y" => isset($step4_info["ad_gps_y"]) ? $step4_info["ad_gps_y"] : "",
-                ];
-
-                $result_addr = $this->member_model->insertAddress($arr_addr);
-                if ($result_addr["code"] != "00") {
-                    $this->db->trans_rollback();
-                    json_return("92", "[02]회원가입시 오류가 발생하였습니다.");
-                    exit;
                 }
 
                 // SNS 가입 시 $arr_mem["mm_birth"] 사용, 일반 가입 시 $step_auth["mm_birth"] 사용
@@ -4842,24 +4775,6 @@ class Member_proc extends CI_Controller
                 }
 
                 $mm_idx = $result_join["key"];
-
-                $arr_addr = [
-                    "mm_idx" => $result_join["key"],
-                    "ad_type" => "MEMBER",
-                    "ad_key" => $result_join["key"],
-                    "ad_zipcode" => $step4_info["ad_zipcode"],
-                    "ad_jibun" => $step4_info["ad_jibun"],
-                    "ad_doro" => $step4_info["ad_doro"],
-                    "ad_detail" => $step4_info["ad_detail"],
-                    "ad_addr" => $step4_info["ad_addr"],
-                    "ad_gps_x" => $step4_info["ad_gps_x"],
-                    "ad_gps_y" => $step4_info["ad_gps_y"],
-                ];
-
-                //return json_return("99","TEST2");
-
-                // GPS 좌표가 있을 때만 주소 저장 (빈값으로 저장 안 함)
-
 
                 # 토큰정보 연동
                 if ($alarm["uuid"] != "") {

@@ -705,7 +705,9 @@
     display: none;
     padding: 10px;
   }
-
+.search-option.search-option1.on {
+  height: 350px;
+}
   .search-option.on {
     display: flex;
     height: 295px;
