@@ -1210,7 +1210,7 @@
         }
 
         .form-pic-group .form-pic {
-          flex: 1;
+          /* flex: 1; */
           position: relative;
           cursor: pointer;
           background-color: #f5f5f5;
@@ -1218,7 +1218,7 @@
           overflow: hidden;
           aspect-ratio: 1;
           float: none;
-          width: auto;
+          width: 215px;
           margin: 0;
         }
 
@@ -2400,18 +2400,6 @@
               <p class="form-section-title">업무정보<span class="fixed">*</span></p>
               <div class="form-table">
                 <div class="form-row">
-                  <p class="form-label">상세업무</p>
-                  <div class="value desc-value">
-                   
-
-                    <label>
-                      <span class="sr-text">상세업무정보 입력</span>
-                      <textarea id="rc_desc" name="rc_desc" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="form-row">
                   <p class="form-label">첨부사진</p>
                   <div class="value">
                     <div class="form-pic-group">
@@ -2434,6 +2422,18 @@
                         </label>
                       <?php endforeach; ?>
                     </div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <p class="form-label">상세업무</p>
+                  <div class="value desc-value">
+
+
+                    <label>
+                      <span class="sr-text">상세업무정보 입력</span>
+                      <textarea id="rc_desc" name="rc_desc" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
+                    </label>
                   </div>
                 </div>
 

@@ -6513,7 +6513,7 @@ form#frm {
 .info-table .label {
     width: 5.5rem;
     padding: 0.3571428571em 0;
-    font-size: 1.1rem;
+    font-size: var(--resume-write-input-font-size);
     color: #222;
     line-height: 1.6428571429;
     vertical-align: top;
@@ -6521,12 +6521,17 @@ form#frm {
 }
 
 .info-table .value {
-    padding: 0.2857142857em 0;
-    font-size: 1.1rem;
+    padding: 0.2857142857em 0;  
     font-weight: 600;
     color: #222;
     line-height: 1.5625;
     vertical-align: top;
+}
+.info-table .value,
+.info-table .pricetype-row .pricetype,
+.view-desc .desc {
+ 
+    font-size: var(--resume-write-input-font-size);
 }
 
 .info-table .category-label {
@@ -10020,7 +10025,7 @@ form#frm {
 }
 
 .introduce-wrap {
-    font-size: 1.1rem;
+    font-size: var(--resume-write-input-font-size);
     color: #222;
     /* line-height: 1.5625; */
     word-break: keep-all;

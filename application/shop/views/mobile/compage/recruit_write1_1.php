@@ -322,69 +322,75 @@
                         ?>
                     </div>
 
-                    <!-- 상세업무정보 섹션 -->
-                    <div class="form-row">
-                        <div class="resume-title-header">
-                            <p class="form-label"><span class="required-asterisk">*</span>상세업무정보</p>
-                        </div>
-                        <label>
-                            <span class="sr-text">상세업무정보 입력</span>
-                            <?php
-                            // contenteditable div에 표시할 내용 (이미 HTML 형태)
-                            $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
-                            ?>
-                            <div id="rc_desc_editor"
-                                 contenteditable="true"
-                                 class="form-textarea"
-                                 style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
+                    <!-- 업무정보 섹션 -->
+                    <div class="form-section">
+                        <p class="form-section-title"><span class="required-asterisk">*</span>업무정보</p>
+                        <div class="form-table">
+                            <!-- 첨부사진 -->
+                            <div class="form-row">
+                                <p class="form-label">첨부사진</p>
+                                <div class="form-pic-group">
+                                    <!-- 1번: 메인사진 -->
+                                    <label class="form-pic <?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "has-image" : "" ?>">
+                                        <span class="pic-badge">메인사진</span>
+                                        <input type="file" name="rc_img1" id="rc_img1_input" accept="image/*" class="js-file-preview">
+                                        <span class="preview">
+                                            <?php if (isset($info["rc_img1"]) && $info["rc_img1"] != "") : ?>
+                                                <img src="<?= $info["rc_img1"] ?>" />
+                                            <?php endif; ?>
+                                        </span>
+                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                        <input type='hidden' name='rc_img1_ori' value='<?= isset($info["rc_img1"]) ? $info["rc_img1"] : "" ?>' />
+                                    </label>
+
+                                    <!-- 2번: 상세페이지1 -->
+                                    <label class="form-pic">
+                                        <span class="pic-badge">상세페이지1</span>
+                                        <input type="file" accept="image/*" class="js-detail-photo-select">
+                                        <span class="preview"></span>
+                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                    </label>
+
+                                    <!-- 3번: 상세페이지2 -->
+                                    <label class="form-pic">
+                                        <span class="pic-badge">상세페이지2</span>
+                                        <input type="file" accept="image/*" class="js-detail-photo-select">
+                                        <span class="preview"></span>
+                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                    </label>
+
+                                    <!-- 4번: 상세페이지3 -->
+                                    <label class="form-pic">
+                                        <span class="pic-badge">상세페이지3</span>
+                                        <input type="file" accept="image/*" class="js-detail-photo-select">
+                                        <span class="preview"></span>
+                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                    </label>
+                                </div>
                             </div>
-                            <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
-                            <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
-                        </label>
-                    </div>
 
-                    <!-- 첨부사진 섹션 -->
-                    <div class="form-row">
-                        <p class="form-label">첨부사진</p>
-                        <div class="form-pic-group">
-                            <!-- 1번: 메인사진 -->
-                            <label class="form-pic <?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "has-image" : "" ?>">
-                                <span class="pic-badge">메인사진</span>
-                                <input type="file" name="rc_img1" id="rc_img1_input" accept="image/*" class="js-file-preview">
-                                <span class="preview">
-                                    <?php if (isset($info["rc_img1"]) && $info["rc_img1"] != "") : ?>
-                                        <img src="<?= $info["rc_img1"] ?>" />
-                                    <?php endif; ?>
-                                </span>
-                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
-                                <input type='hidden' name='rc_img1_ori' value='<?= isset($info["rc_img1"]) ? $info["rc_img1"] : "" ?>' />
-                            </label>
-
-                            <!-- 2번: 상세페이지1 -->
-                            <label class="form-pic">
-                                <span class="pic-badge">상세페이지1</span>
-                                <input type="file" accept="image/*" class="js-detail-photo-select">
-                                <span class="preview"></span>
-                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
-                            </label>
-
-                            <!-- 3번: 상세페이지2 -->
-                            <label class="form-pic">
-                                <span class="pic-badge">상세페이지2</span>
-                                <input type="file" accept="image/*" class="js-detail-photo-select">
-                                <span class="preview"></span>
-                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
-                            </label>
-
-                            <!-- 4번: 상세페이지3 -->
-                            <label class="form-pic">
-                                <span class="pic-badge">상세페이지3</span>
-                                <input type="file" accept="image/*" class="js-detail-photo-select">
-                                <span class="preview"></span>
-                                <button type="button" class="btn-pic-remove" style="display:none;">×</button>
-                            </label>
-                        </div>
-                    </div>
+                            <!-- 상세업무 -->
+                            <div class="form-row">
+                                <div class="resume-title-header">
+                                    <p class="form-label">상세업무</p>
+                                </div>
+                                <label>
+                                    <span class="sr-text">상세업무정보 입력</span>
+                                    <?php
+                                    // contenteditable div에 표시할 내용 (이미 HTML 형태)
+                                    $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
+                                    ?>
+                                    <div id="rc_desc_editor"
+                                         contenteditable="true"
+                                         class="form-textarea"
+                                         style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
+                                    </div>
+                                    <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
+                                    <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
+                                </label>
+                            </div>
+                        </div><!-- //form-table -->
+                    </div><!-- //form-section 업무정보 -->
 
                     <!-- 해시태그 섹션 -->
                     <div class="form-row">
@@ -856,6 +862,30 @@
 
     .preview-iframe-footer .btn {
         flex: 1;
+    }
+
+    /* 섹션 레이아웃 */
+    .form-section {
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .form-section-title {
+        font-size:20.8px;
+        font-weight:700;
+        color: #222;
+        padding-bottom: 12px;
+       
+        margin-top: 16px;
+    }
+
+    .form-section .form-table {
+        padding: 0;
     }
 </style>
 

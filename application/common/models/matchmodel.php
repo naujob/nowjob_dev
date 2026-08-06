@@ -105,8 +105,8 @@ class Matchmodel extends CI_Model {
             $grouped[$base_area][] = $item;
 
             // location_data에서 역매핑으로 상위 시도 그룹도 추가
-            $sido = $parts[0] ?? '';
-            $dong = $parts[2] ?? '';
+            $sido = isset($parts[0]) ? $parts[0] : '';
+            $dong = isset($parts[2]) ? $parts[2] : '';
 
             if (!empty($sido) && !empty($dong)) {
                 try {

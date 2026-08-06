@@ -127,7 +127,7 @@ function fRemoveBigAdr($arg)
 
         right: 0;
         bottom: 0;
-        font-size: 16px;
+        
         font-weight: 600;
         letter-spacing: 0;
         color: #1b9d7d;
@@ -144,7 +144,7 @@ function fRemoveBigAdr($arg)
 
     .info-table .pricetype-row .pricetype em:not(:last-child) {
         padding-right: 3px;
-        color: #cd6666;
+        color: #1b9d7d;
 
     }
 
