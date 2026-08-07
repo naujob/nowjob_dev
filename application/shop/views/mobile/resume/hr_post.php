@@ -86,17 +86,14 @@ function fRemoveBigAdr($arg)
         top: -1.75rem;
     }
 
-    .worktype em.wtype1 {
-        color: #3a70db;
-    }
-
+    
     .worktype em:not(:last-child) {
         padding-right: 8px;
     }
 
 
     .worktype em.wtype2 {
-        color: #F86048;
+        
         padding-left: 2px;
     }
 
@@ -119,7 +116,7 @@ function fRemoveBigAdr($arg)
     }
 
     .worktype em.wtype3 {
-        color: #1b9d7d;
+      
         padding-left: 2px;
     }
 

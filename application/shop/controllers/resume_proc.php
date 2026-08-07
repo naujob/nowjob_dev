@@ -56,6 +56,23 @@ class Resume_proc extends CI_Controller
       $search_addr = [$search_addr];
     }
 
+    // searchAreaStr에서 step 정보 추출
+    $search_addr_step = [];
+    if (!empty($searchAreaStr)) {
+      try {
+        $search_area = json_decode($searchAreaStr, true);
+        if (is_array($search_area)) {
+          foreach ($search_area as $area) {
+            if (isset($area['step'])) {
+              $search_addr_step[] = intval($area['step']);
+            }
+          }
+        }
+      } catch (Exception $e) {
+        // 파싱 실패 시 무시
+      }
+    }
+
     $params = [
       "pagesize" => $pagesize,
       "page" => $page,
@@ -70,6 +87,7 @@ class Resume_proc extends CI_Controller
       "eage" => $eage,
       "order_by" => $order_by,
       "search_addr" => $search_addr,
+      "search_addr_step" => $search_addr_step,
       "addrName" => $addrName,
       "searchAreaStr" => $searchAreaStr,
       "ru_work" => $ru_work,

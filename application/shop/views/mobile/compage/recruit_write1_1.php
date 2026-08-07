@@ -339,32 +339,50 @@
                                                 <img src="<?= $info["rc_img1"] ?>" />
                                             <?php endif; ?>
                                         </span>
-                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                        <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "inline-block" : "none" ?>;">×</button>
                                         <input type='hidden' name='rc_img1_ori' value='<?= isset($info["rc_img1"]) ? $info["rc_img1"] : "" ?>' />
                                     </label>
 
                                     <!-- 2번: 상세페이지1 -->
-                                    <label class="form-pic">
+                                    <label class="form-pic <?= isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "" ? "has-image" : "" ?>" data-detail-slot="1">
                                         <span class="pic-badge">상세페이지1</span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
-                                        <span class="preview"></span>
-                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                        <span class="preview">
+                                            <?php if (isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "") : ?>
+                                                <img src="<?= $info["rc_detail_img1"] ?>" />
+                                            <?php endif; ?>
+                                        </span>
+                                        <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "" ? "inline-block" : "none" ?>;">×</button>
+                                        <input type='hidden' name='rc_detail_img1' value='<?= isset($info["rc_detail_img1"]) ? $info["rc_detail_img1"] : "" ?>' />
+                                        <input type='hidden' name='rc_detail_img1_ori' value='<?= isset($info["rc_detail_img1"]) ? $info["rc_detail_img1"] : "" ?>' />
                                     </label>
 
                                     <!-- 3번: 상세페이지2 -->
-                                    <label class="form-pic">
+                                    <label class="form-pic <?= isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "" ? "has-image" : "" ?>" data-detail-slot="2">
                                         <span class="pic-badge">상세페이지2</span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
-                                        <span class="preview"></span>
-                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                        <span class="preview">
+                                            <?php if (isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "") : ?>
+                                                <img src="<?= $info["rc_detail_img2"] ?>" />
+                                            <?php endif; ?>
+                                        </span>
+                                        <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "" ? "inline-block" : "none" ?>;">×</button>
+                                        <input type='hidden' name='rc_detail_img2' value='<?= isset($info["rc_detail_img2"]) ? $info["rc_detail_img2"] : "" ?>' />
+                                        <input type='hidden' name='rc_detail_img2_ori' value='<?= isset($info["rc_detail_img2"]) ? $info["rc_detail_img2"] : "" ?>' />
                                     </label>
 
                                     <!-- 4번: 상세페이지3 -->
-                                    <label class="form-pic">
+                                    <label class="form-pic <?= isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "" ? "has-image" : "" ?>" data-detail-slot="3">
                                         <span class="pic-badge">상세페이지3</span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
-                                        <span class="preview"></span>
-                                        <button type="button" class="btn-pic-remove" style="display:none;">×</button>
+                                        <span class="preview">
+                                            <?php if (isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "") : ?>
+                                                <img src="<?= $info["rc_detail_img3"] ?>" />
+                                            <?php endif; ?>
+                                        </span>
+                                        <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "" ? "inline-block" : "none" ?>;">×</button>
+                                        <input type='hidden' name='rc_detail_img3' value='<?= isset($info["rc_detail_img3"]) ? $info["rc_detail_img3"] : "" ?>' />
+                                        <input type='hidden' name='rc_detail_img3_ori' value='<?= isset($info["rc_detail_img3"]) ? $info["rc_detail_img3"] : "" ?>' />
                                     </label>
                                 </div>
                             </div>
@@ -1774,13 +1792,24 @@
     }
 
     function hasFileUploads() {
-        var fileInputs = ["rc_img1", "rc_img2", "rc_img3", "rc_img4"];
+        // 메인사진 파일 선택 여부 확인
+        var fileInputs = ["rc_img1"];
         for (var i = 0; i < fileInputs.length; i++) {
             var fileInput = $("[name='" + fileInputs[i] + "']")[0];
             if (fileInput && fileInput.files && fileInput.files.length > 0) {
                 return true;
             }
         }
+
+        // 상세페이지 이미지 hidden input 값 확인 (이미 서버 업로드됨)
+        for (var slot = 1; slot <= 3; slot++) {
+            var inputName = 'rc_detail_img' + slot;
+            var value = $("[name='" + inputName + "']").val();
+            if (value && value !== "") {
+                return true;
+            }
+        }
+
         return false;
     }
     // 1, 2 페이지 저장 후 rc_idx가 새로 발급되거나 변경된 경우 localStorage의 임시저장 데이터 키를 새로운 rc_idx로 옮기는 함수 호출
@@ -1987,6 +2016,17 @@
 
         // 페이지 로드 시 데이터 복원 (draft 로드 여부는 shouldLoadDraft로 제어)
         restorePageData();
+
+        // 상세페이지 이미지 박스 초기화 (저장 후 페이지 로드 시에도 X버튼 작동하도록)
+        for (var slot = 1; slot <= 3; slot++) {
+            var $label = $(".form-pic[data-detail-slot='" + slot + "']");
+            var inputName = 'rc_detail_img' + slot;
+            var uploadedUrl = $("[name='" + inputName + "']").val();
+            if (uploadedUrl) {
+                // 기존 이미지 URL을 메모리에 저장 (X버튼 클릭 시 사용)
+                $label.data("uploadedUrl", uploadedUrl);
+            }
+        }
 
         // 근무시간 섹션 초기화
         updateTimeSection();
@@ -2724,16 +2764,32 @@
                 $label.toggleClass("has-image", !!$label.data("prevHasImage"));
                 $oriInput.val($label.data("prevOri") || "");
             } else {
-                // 2~4번 박스: 미리보기 초기화 + 에디터에서 해당 이미지 제거
-                var uploadedUrl = $label.data("uploadedUrl");
-                if (uploadedUrl) {
-                    // 상세업무정보 에디터에서 해당 URL의 이미지 제거
-                    var $editor = $("#rc_desc_editor");
-                    $editor.find("img[data-uploaded-url='" + uploadedUrl.replace(/'/g, "\\'") + "']").closest(".image-wrapper").remove();
-                    $label.data("uploadedUrl", null);
+                // 2~4번 박스: 미리보기 초기화 + 에디터에서 해당 이미지 제거 + hidden input 초기화
+                var detailSlot = $label.attr('data-detail-slot');
+                if (detailSlot) {
+                    var inputName = 'rc_detail_img' + detailSlot;
+                    // hidden input에서 현재 URL을 가져옴 (페이지 새로고침 후에도 유지됨)
+                    var uploadedUrl = $("[name='" + inputName + "']").val();
+
+                    if (uploadedUrl) {
+                        // 상세업무정보 에디터에서 해당 URL의 이미지 제거
+                        var $editor = $("#rc_desc_editor");
+
+                        // 모든 이미지를 순회하면서 URL 일치하는 이미지 찾아 제거
+                        $editor.find("img").each(function() {
+                            if ($(this).attr("src") === uploadedUrl || $(this).attr("data-uploaded-url") === uploadedUrl) {
+                                $(this).remove();  // image-wrapper 제거 후 img 태그 제거
+                            }
+                        });
+                    }
+
+                    // hidden input 값 초기화 (데이터 레벨에서도 제거)
+                    $("[name='" + inputName + "']").val("");
                 }
+
                 $label.find(".preview").html("");
                 $label.removeClass("has-image");
+                $label.data("uploadedUrl", null);
             }
             $(this).hide();
         });
@@ -2770,9 +2826,19 @@
                         imageWrapper.appendChild(img);
                         editor.appendChild(document.createElement('br'));
                         editor.appendChild(imageWrapper);
+
                         // 박스에 업로드된 URL 저장 (X 버튼으로 제거할 때 사용)
                         if ($label && $label.length) {
                             $label.data("uploadedUrl", response.url);
+                            $label.addClass("has-image");
+                            $label.find(".btn-pic-remove").show();
+
+                            // detail-slot에 맞는 hidden input에 URL 저장 (데이터 레벨에서도 기록)
+                            var detailSlot = $label.attr('data-detail-slot');
+                            if (detailSlot) {
+                                var inputName = 'rc_detail_img' + detailSlot;
+                                $("[name='" + inputName + "']").val(response.url);
+                            }
                         }
                     } else {
                         commonAlert(file.name + ' 업로드에 실패했습니다.');

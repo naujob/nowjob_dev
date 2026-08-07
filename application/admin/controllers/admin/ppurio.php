@@ -218,10 +218,10 @@ class Ppurio extends MY_Controller{
     // 헬퍼: 기업 매칭 계산 (area 조건 유무로 분기)
     private function _calcCorpMatches($resumes, $recruits, $cond_arr) {
         if (in_array('area', $cond_arr)) {
-            // 1. 이력서를 지역별로 그룹핑
-            $resume_by_area  = $this->match_model->groupByArea($resumes);
-            // 2. 공고를 지역별로 그룹핑
-            $recruit_by_area = $this->match_model->groupByArea($recruits);
+            // 1. 이력서를 지역별로 계층적 그룹핑
+            $resume_by_area  = $this->match_model->groupByAreaWithHierarchy($resumes);
+            // 2. 공고를 지역별로 계층적 그룹핑
+            $recruit_by_area = $this->match_model->groupByAreaWithHierarchy($recruits);
             $matches = array();
             foreach ($resume_by_area as $area => $area_resumes) {
                   // 3. 그 지역에 공고가 없으면 스킵

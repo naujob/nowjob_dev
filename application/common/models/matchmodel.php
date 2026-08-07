@@ -8,14 +8,15 @@ class Matchmodel extends CI_Model {
     }
 
     /**
-     * 활성 이력서 조회 (주소 포함)
+     * 활성 이력서 조회 (주소 포함) - 중복 주소 제거
+     * 같은 이력서가 여러 주소를 가진 경우 MIN(ad_addr)로 첫 번째 주소만 반환
      */
     public function getActiveResumes() {
         $sql = "
             SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type, r.reg_dt,
                    r.ru_status, r.ru_show_yn, r.ru_work_dt,
                    m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
-                   a.ad_addr
+                   MIN(a.ad_addr) as ad_addr
             FROM st_resume r
             INNER JOIN st_member m ON r.mm_idx = m.mm_idx
             INNER JOIN st_address a ON r.mm_idx = a.mm_idx
@@ -27,6 +28,9 @@ class Matchmodel extends CI_Model {
               AND m.mm_agree_ad = 'Y'
               AND m.alarm_resume = 'Y'
               AND m.mm_phone != ''
+            GROUP BY r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type,
+                     r.reg_dt, r.ru_status, r.ru_show_yn, r.ru_work_dt,
+                     m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation
             ORDER BY r.reg_dt DESC
         ";
         return $this->db->query($sql)->result_array();
@@ -34,6 +38,7 @@ class Matchmodel extends CI_Model {
 
     /**
      * 게재 중인 채용공고 조회 (주소 포함)
+     * 메인 공고 주소(ad_type='RECRUIT')만 사용
      */
     public function getActiveRecruits() {
         $sql = "
@@ -45,7 +50,7 @@ class Matchmodel extends CI_Model {
             FROM st_recruit rc
             INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
             INNER JOIN st_address a ON rc.mm_idx = a.mm_idx
-                AND a.ad_type IN ('RECRUIT', 'RECRUIT_EXPOSE_1', 'RECRUIT_EXPOSE_2')
+                AND a.ad_type = 'RECRUIT'
                 AND a.ad_key = rc.rc_idx
             WHERE rc.rc_status = 'Y'
               AND rc.rc_show_yn = 'Y'
@@ -83,9 +88,9 @@ class Matchmodel extends CI_Model {
     }
 
     /**
-     * 역매핑 기반 지역별 그룹핑 (DB 형식 무관)
-     * "시흥시 정왕동"만 있어도 "경기도" 그룹에 자동으로 포함
-     * location_data를 역으로 조회하여 계층적 그룹화
+     * 광역시도 단위 지역별 그룹핑
+     * 모든 주소를 광역시도(sido)로 통일하여 그룹화
+     * "시흥시", "경기도 시흥시", "경기도 시흥시 정왕동" → 모두 "경기도"로 그룹화
      */
     public function groupByAreaWithHierarchy($items) {
         $grouped = array();
@@ -94,44 +99,72 @@ class Matchmodel extends CI_Model {
             $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
             if ($addr === '') continue;
 
-            $parts = explode(' ', $addr);
+            // 광역시도(sido) 추출
+            $sido = $this->extractSido($addr);
 
-            // 먼저 시도+시군구로 그룹화 (기본)
-            $base_area = (count($parts) >= 2) ? $parts[0] . ' ' . $parts[1] : $parts[0];
-
-            if (!isset($grouped[$base_area])) {
-                $grouped[$base_area] = array();
-            }
-            $grouped[$base_area][] = $item;
-
-            // location_data에서 역매핑으로 상위 시도 그룹도 추가
-            $sido = isset($parts[0]) ? $parts[0] : '';
-            $dong = isset($parts[2]) ? $parts[2] : '';
-
-            if (!empty($sido) && !empty($dong)) {
-                try {
-                    // location_data에서 동(읍면동)이 속한 시도+시군구 찾기
-                    $sql = "SELECT DISTINCT sido_name, gugun_name FROM location_data
-                            WHERE b_dong_name LIKE '%" . addslashes($dong) . "%'
-                            LIMIT 1";
-                    $result = $this->db->query($sql)->row_array();
-
-                    if ($result) {
-                        $hier_area = $result['sido_name'] . ' ' . $result['gugun_name'];
-                        if ($hier_area !== $base_area) {
-                            if (!isset($grouped[$hier_area])) {
-                                $grouped[$hier_area] = array();
-                            }
-                            $grouped[$hier_area][] = $item;
-                        }
-                    }
-                } catch (Exception $_e) {
-                    // 역매핑 실패 시 무시
+            if ($sido) {
+                if (!isset($grouped[$sido])) {
+                    $grouped[$sido] = array();
                 }
+                $grouped[$sido][] = $item;
+            } else {
+                // sido를 찾지 못한 경우 첫 번째 부분으로 폴백
+                $parts = explode(' ', $addr);
+                $fallback = $parts[0];
+                if (!isset($grouped[$fallback])) {
+                    $grouped[$fallback] = array();
+                }
+                $grouped[$fallback][] = $item;
             }
         }
 
         return $grouped;
+    }
+
+    /**
+     * 주소에서 광역시도(sido) 추출
+     * "시흥시" → "경기도"
+     * "경기도 시흥시" → "경기도"
+     * "경기도 시흥시 정왕동" → "경기도"
+     */
+    private function extractSido($addr) {
+        $parts = explode(' ', $addr);
+
+        foreach ($parts as $part) {
+            if (empty($part)) continue;
+
+            // 1. 시도 레벨 직접 검색 (step=1)
+            $sql = "SELECT DISTINCT sido_name FROM location_data
+                    WHERE sido_name = '" . addslashes($part) . "'
+                    AND step = 1
+                    LIMIT 1";
+            $result = $this->db->query($sql)->row_array();
+            if ($result) {
+                return $result['sido_name'];
+            }
+
+            // 2. 시군구 레벨 역검색 (step=2) - sido_name 추출
+            $sql = "SELECT DISTINCT sido_name FROM location_data
+                    WHERE gugun_name = '" . addslashes($part) . "'
+                    AND step = 2
+                    LIMIT 1";
+            $result = $this->db->query($sql)->row_array();
+            if ($result) {
+                return $result['sido_name'];
+            }
+
+            // 3. 동 레벨 역검색 (step=3) - sido_name 추출
+            $sql = "SELECT DISTINCT sido_name FROM location_data
+                    WHERE b_dong_name = '" . addslashes($part) . "'
+                    AND step = 3
+                    LIMIT 1";
+            $result = $this->db->query($sql)->row_array();
+            if ($result) {
+                return $result['sido_name'];
+            }
+        }
+
+        return null;
     }
 
     /**

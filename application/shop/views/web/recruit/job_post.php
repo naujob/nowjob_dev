@@ -140,6 +140,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
 
 // fRemoveBigAdr PHP 함수 제거 - JavaScript의 fRemoveBigAdrJS 함수 사용 (resource/shop/web/js/add.js)
 ?>
+
 <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
   <script type="application/ld+json">
     {
@@ -664,6 +665,14 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     gap: 0px;
     align-items: normal;
   }
+  /* .item-view .visual-slider {
+    flex:unset;
+
+  }
+  .item-view .visual-slider img{
+    width:auto;
+  } */
+
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -677,33 +686,57 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
               <div class="visual-slider keen-slider">
                 <?php if ($info["rc_img1"] != "") : ?>
                   <div class="keen-slider__slide">
-                    <img data-src="<?= $info["rc_img1"] ?>" alt="" class="lozad">
+                    <img data-src="<?= $info["rc_img1"] ?>"
+                         data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img1"]) ?>"
+                         data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img1"]) ?>"
+                         data-srcset-lg="<?= $info["rc_img1"] ?>"
+                         alt="" class="lozad lozad-responsive">
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img2"] != "") : ?>
                   <div class="keen-slider__slide">
-                    <img data-src="<?= $info["rc_img2"] ?>" alt="" class="lozad">
+                    <img data-src="<?= $info["rc_img2"] ?>"
+                         data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img2"]) ?>"
+                         data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img2"]) ?>"
+                         data-srcset-lg="<?= $info["rc_img2"] ?>"
+                         alt="" class="lozad lozad-responsive">
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img3"] != "") : ?>
                   <div class="keen-slider__slide">
-                    <img data-src="<?= $info["rc_img3"] ?>" alt="" class="lozad">
+                    <img data-src="<?= $info["rc_img3"] ?>"
+                         data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img3"]) ?>"
+                         data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img3"]) ?>"
+                         data-srcset-lg="<?= $info["rc_img3"] ?>"
+                         alt="" class="lozad lozad-responsive">
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img4"] != "") : ?>
                   <div class="keen-slider__slide">
-                    <img data-src="<?= $info["rc_img4"] ?>" alt="" class="lozad">
+                    <img data-src="<?= $info["rc_img4"] ?>"
+                         data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img4"]) ?>"
+                         data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img4"]) ?>"
+                         data-srcset-lg="<?= $info["rc_img4"] ?>"
+                         alt="" class="lozad lozad-responsive">
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img5"] != "") : ?>
                   <div class="keen-slider__slide">
-                    <img data-src="<?= $info["rc_img5"] ?>" alt="" class="lozad">
+                    <img data-src="<?= $info["rc_img5"] ?>"
+                         data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img5"]) ?>"
+                         data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img5"]) ?>"
+                         data-srcset-lg="<?= $info["rc_img5"] ?>"
+                         alt="" class="lozad lozad-responsive">
                   </div>
                 <?php endif; ?>
 
                 <?php if ($info["rc_img99"] != "") : ?>
                   <div class="keen-slider__slide">
-                    <img data-src="<?= $info["rc_img99"] ?>" alt="" class="lozad">
+                    <img data-src="<?= $info["rc_img99"] ?>"
+                         data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img99"]) ?>"
+                         data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img99"]) ?>"
+                         data-srcset-lg="<?= $info["rc_img99"] ?>"
+                         alt="" class="lozad lozad-responsive">
                   </div>
                 <?php endif; ?>
               </div>
@@ -1308,34 +1341,81 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 </script>
 
 <script>
+  // 반응형 이미지 로드 처리
+  function loadResponsiveImages() {
+    const viewport_width = window.innerWidth;
+    document.querySelectorAll('img.lozad-responsive').forEach(function(img) {
+      if (viewport_width <= 640) {
+        // 모바일: sm (400px)
+        if (img.dataset.srcsetSm) {
+          img.dataset.src = img.dataset.srcsetSm;
+        }
+      } else if (viewport_width <= 1024) {
+        // 태블릿: md (800px)
+        if (img.dataset.srcsetMd) {
+          img.dataset.src = img.dataset.srcsetMd;
+        }
+      } else {
+        // 데스크톱: lg (1200px)
+        if (img.dataset.srcsetLg) {
+          img.dataset.src = img.dataset.srcsetLg;
+        }
+      }
+    });
+
+    // lozad 다시 초기화 (이미지 로드)
+    if (typeof lozad !== 'undefined') {
+      lozad().observe();
+    }
+  }
+
+  // 페이지 로드 시 실행
+  window.addEventListener('load', loadResponsiveImages);
+
+  // 화면 크기 변경 시 반응형 이미지 재로드
+  window.addEventListener('resize', function() {
+    loadResponsiveImages();
+  });
+
   $(document).ready(function() {
+    // 초기 반응형 이미지 로드
+    loadResponsiveImages();
+
+    // 이미지 경로 변환 함수 (반응형 이미지 경로)
+    function getFullSizeImagePath(imagePath) {
+      if (!imagePath) return null;
+      return imagePath.replace(/\/resize\/(sm|md)\//, '/resize/lg/');
+    }
+
+    var imageUrls = [
+      <?php if ($info["rc_img1"] != "") : ?>'<?= $info["rc_img1"] ?>'<?php endif; ?>,
+      <?php if ($info["rc_img2"] != "") : ?>'<?= $info["rc_img2"] ?>'<?php endif; ?>,
+      <?php if ($info["rc_img3"] != "") : ?>'<?= $info["rc_img3"] ?>'<?php endif; ?>,
+      <?php if ($info["rc_img4"] != "") : ?>'<?= $info["rc_img4"] ?>'<?php endif; ?>,
+      <?php if ($info["rc_img5"] != "") : ?>'<?= $info["rc_img5"] ?>'<?php endif; ?>
+    ];
+
+    imageUrls = imageUrls.filter(function(url) { return url !== ''; });
+
+    var popupItems = imageUrls.map(function(url) {
+      return { src: getFullSizeImagePath(url), type: 'image' };
+    });
+
+    if (popupItems.length > 0) {
+      $('.bigsize').attr('href', popupItems[0].src);
+    }
+
     $('.bigsize').magnificPopup({
-      items: [
-        <?php if ($info["rc_img1"] != "") : ?> {
-            src: '<?= $info["rc_img1"] ?>'
-          },
-        <?php endif; ?>
-        <?php if ($info["rc_img2"] != "") : ?> {
-            src: '<?= $info["rc_img2"] ?>'
-          },
-        <?php endif; ?>
-        <?php if ($info["rc_img3"] != "") : ?> {
-            src: '<?= $info["rc_img3"] ?>'
-          },
-        <?php endif; ?>
-        <?php if ($info["rc_img4"] != "") : ?> {
-            src: '<?= $info["rc_img4"] ?>'
-          },
-        <?php endif; ?>
-        <?php if ($info["rc_img5"] != "") : ?> {
-            src: '<?= $info["rc_img5"] ?>'
-          },
-        <?php endif; ?>
-      ],
+      mainClass: 'mfp-img-mobile',
+      type: 'image',
       gallery: {
-        enabled: true
+        enabled: true,
+        preload: [0, 1]
       },
-      type: 'image' // this is default type
+      image: {
+        verticalFit: true
+      },
+      items: popupItems
     });
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";

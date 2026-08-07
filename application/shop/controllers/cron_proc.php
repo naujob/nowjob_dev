@@ -604,7 +604,7 @@ class Cron_proc extends CI_Controller
      */
     private function _groupByArea($items)
     {
-        return $this->match_model->groupByArea($items);
+        return $this->match_model->groupByAreaWithHierarchy($items);
     }
 
     /**
@@ -657,11 +657,13 @@ class Cron_proc extends CI_Controller
 
             if (!empty($dup_check)) continue;
 
+            echo "[DEBUG] [기업 매칭] sendCorporateAlimtalk 호출 - phone=" . $recruit['mm_phone'] . ", comp_name=" . $recruit['mm_comp_name'] . ", resume_name=" . $resume['ru_name'] . "\n";
             $result = $ppurio->sendCorporateAlimtalk(
                 $recruit['mm_phone'],
                 array(),
                 array()
             );
+            echo "[DEBUG] [기업 매칭] API 응답 - ok=" . (isset($result['ok']) ? ($result['ok'] ? 'true' : 'false') : 'N/A') . ", error=" . (isset($result['error']) ? $result['error'] : 'N/A') . "\n";
 
             // 발송 이력 기록
             if (isset($result['ok']) && $result['ok'] === true) {
@@ -726,11 +728,13 @@ class Cron_proc extends CI_Controller
 
             if (!empty($dup_check)) continue;
 
+            echo "[DEBUG] [개인 매칭] sendPersonalAlimtalk 호출 - phone=" . $resume['mm_phone'] . ", member_name=" . $resume['mm_name'] . ", recruit_name=" . $recruit['rc_name'] . "\n";
             $result = $ppurio->sendPersonalAlimtalk(
                 $resume['mm_phone'],
                 array(),
                 array()
             );
+            echo "[DEBUG] [개인 매칭] API 응답 - ok=" . (isset($result['ok']) ? ($result['ok'] ? 'true' : 'false') : 'N/A') . ", error=" . (isset($result['error']) ? $result['error'] : 'N/A') . "\n";
 
             // 발송 이력 기록
             if (isset($result['ok']) && $result['ok'] === true) {
@@ -954,11 +958,13 @@ class Cron_proc extends CI_Controller
                 if (!$recruit_owner || empty($recruit_owner["mm_phone"])) continue;
 
                 $company_name = !empty($recruit_owner["mm_comp_name"]) ? $recruit_owner["mm_comp_name"] : "";
+                echo "[DEBUG] [지원 알림] sendUnreadNotificationAlimtalk 호출 - phone=" . $recruit_owner["mm_phone"] . ", company_name=" . $company_name . "\n";
                 $result = $ppurio->sendUnreadNotificationAlimtalk(
                     $recruit_owner["mm_phone"],
                     array(),
                     array("name" => $company_name)
                 );
+                echo "[DEBUG] [지원 알림] API 응답 - ok=" . (isset($result['ok']) ? ($result['ok'] ? 'true' : 'false') : 'N/A') . ", error=" . (isset($result['error']) ? $result['error'] : 'N/A') . "\n";
 
                 if (isset($result['ok']) && $result['ok'] === true) {
                     $this->db->query(
@@ -988,11 +994,13 @@ class Cron_proc extends CI_Controller
                 if (!$target_member || empty($target_member["mm_phone"])) continue;
 
                 $candidate_name = !empty($target_member["mm_name"]) ? $target_member["mm_name"] : "";
+                echo "[DEBUG] [제안 알림] sendPersonalUnreadNotificationAlimtalk 호출 - phone=" . $target_member["mm_phone"] . ", member_name=" . $candidate_name . "\n";
                 $result = $ppurio->sendPersonalUnreadNotificationAlimtalk(
                     $target_member["mm_phone"],
                     array(),
                     array("name" => $candidate_name)
                 );
+                echo "[DEBUG] [제안 알림] API 응답 - ok=" . (isset($result['ok']) ? ($result['ok'] ? 'true' : 'false') : 'N/A') . ", error=" . (isset($result['error']) ? $result['error'] : 'N/A') . "\n";
 
                 if (isset($result['ok']) && $result['ok'] === true) {
                     $this->db->query(

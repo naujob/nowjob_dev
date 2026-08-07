@@ -694,12 +694,22 @@ class Compage_proc extends CI_Controller
     }
 
     # 이미지 처리.
-    $rc_img1 = $this->common->img_upload_url("member", "rc_img1", 1200);
-    $rc_img2 = $this->common->img_upload_url("member", "rc_img2", 1200);
-    $rc_img3 = $this->common->img_upload_url("member", "rc_img3", 1200);
-    $rc_img4 = $this->common->img_upload_url("member", "rc_img4", 1200);
-    $rc_img5 = $this->common->img_upload_url("member", "rc_img5", 1200);
-    $rc_thumb = $this->common->img_upload_url("member", "rc_img1", 600);
+    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+
+    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
+
+    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
+
+    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
+
+    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
+
+    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -1071,12 +1081,22 @@ class Compage_proc extends CI_Controller
     }
 
     # 이미지 처리.
-    $rc_img1 = $this->common->img_upload_url("member", "rc_img1", 1200);
-    $rc_img2 = $this->common->img_upload_url("member", "rc_img2", 1200);
-    $rc_img3 = $this->common->img_upload_url("member", "rc_img3", 1200);
-    $rc_img4 = $this->common->img_upload_url("member", "rc_img4", 1200);
-    $rc_img5 = $this->common->img_upload_url("member", "rc_img5", 1200);
-    $rc_thumb = $this->common->img_upload_url("member", "rc_img1", 600);
+    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+
+    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
+
+    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
+
+    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
+
+    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
+
+    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -1474,9 +1494,6 @@ class Compage_proc extends CI_Controller
       }
 
       // 공고노출지역 저장
-      error_log("[DEBUG] expose_addr1_addr: " . (isset($step1["expose_addr1_addr"]) ? $step1["expose_addr1_addr"] : "NULL"));
-      error_log("[DEBUG] expose_addr2_addr: " . (isset($step1["expose_addr2_addr"]) ? $step1["expose_addr2_addr"] : "NULL"));
-      error_log("[DEBUG] step1 keys: " . implode(", ", array_keys($step1)));
 
       $expose_list = [
         "1" => [
@@ -1500,12 +1517,12 @@ class Compage_proc extends CI_Controller
       ];
 
       foreach ($expose_list as $seq => $expose) {
-        error_log("[DEBUG] Processing expose_addr" . $seq . ": " . $expose["addr"]);
+
         $rc_idx_val = $rc_idx != 0 ? $rc_idx : $result_recruit["key"];
-        error_log("[DEBUG] rc_idx_val: " . $rc_idx_val . ", ad_type: " . $expose["ad_type"]);
+
 
         $where_expose = ["ad_type" => $expose["ad_type"], "mm_idx" => $this->mm_idx, "ad_key" => $rc_idx_val];
-        error_log("[DEBUG] where_expose: " . json_encode($where_expose));
+
 
         if (!empty($expose["addr"])) {
           $arr_expose = [
@@ -1519,24 +1536,24 @@ class Compage_proc extends CI_Controller
             "ad_gps_x"   => $expose["gps_x"],
             "ad_gps_y"   => $expose["gps_y"],
           ];
-          error_log("[DEBUG] arr_expose: " . json_encode($arr_expose));
+
 
           $existing_expose = $this->member_model->getAddress($where_expose);
-          error_log("[DEBUG] existing_expose: " . json_encode($existing_expose));
+
 
           if ($existing_expose != null) {
-            error_log("[DEBUG] Updating address for " . $expose["ad_type"]);
+
             $result = $this->member_model->updateAddress($arr_expose, $where_expose);
-            error_log("[DEBUG] updateAddress result: " . json_encode($result));
+
           } else {
-            error_log("[DEBUG] Inserting new address for " . $expose["ad_type"]);
+
             $result = $this->member_model->insertAddress($arr_expose);
-            error_log("[DEBUG] insertAddress result: " . json_encode($result));
+
           }
         } else {
-          error_log("[DEBUG] Address is empty, deleting for " . $expose["ad_type"]);
+
           $result = $this->member_model->deleteAddress($where_expose);
-          error_log("[DEBUG] deleteAddress result: " . json_encode($result));
+
         }
       }
 
@@ -1938,13 +1955,23 @@ class Compage_proc extends CI_Controller
       }
     }
 
-    # 이미지 처리.
-    $rc_img1 = $this->common->img_upload_url("member", "rc_img1", 1200);
-    $rc_img2 = $this->common->img_upload_url("member", "rc_img2", 1200);
-    $rc_img3 = $this->common->img_upload_url("member", "rc_img3", 1200);
-    $rc_img4 = $this->common->img_upload_url("member", "rc_img4", 1200);
-    $rc_img5 = $this->common->img_upload_url("member", "rc_img5", 1200);
-    $rc_thumb = $this->common->img_upload_url("member", "rc_img1", 600);
+    # 이미지 처리 (반응형 이미지: sm/md/lg)
+    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+
+    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
+
+    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
+
+    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
+
+    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
+
+    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -2316,12 +2343,22 @@ class Compage_proc extends CI_Controller
     }
 
     # 이미지 처리.
-    $rc_img1 = $this->common->img_upload_url("member", "rc_img1", 1200);
-    $rc_img2 = $this->common->img_upload_url("member", "rc_img2", 1200);
-    $rc_img3 = $this->common->img_upload_url("member", "rc_img3", 1200);
-    $rc_img4 = $this->common->img_upload_url("member", "rc_img4", 1200);
-    $rc_img5 = $this->common->img_upload_url("member", "rc_img5", 1200);
-    $rc_thumb = $this->common->img_upload_url("member", "rc_img1", 600);
+    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+
+    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
+
+    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
+
+    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
+
+    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
+
+    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -2603,16 +2640,21 @@ class Compage_proc extends CI_Controller
     json_return("00", "처리완료", ["rc_idx" => $rc_idx]);
   }
 
-  # 채용공고 메인사진 즉시 업로드 (DB 반영은 공고등록 최종확정 단계에서 처리)
+  # 채용공고 메인사진 즉시 업로드 (반응형: sm:400px/md:800px/lg:1200px)
   function recruit_main_img_upload()
   {
-    $rc_img1 = $this->common->img_upload_resize_url("member", "rc_img1", 600);
+    $result = $this->common->img_upload_responsive("member", "rc_img1");
 
-    if ($rc_img1 == "") {
+    if (!$result["SUCCESS"]) {
       json_return("90", "이미지가 업로드 되지 않았습니다.");
     }
 
-    json_return("00", "업로드 되었습니다.", ["url" => $rc_img1]);
+    json_return("00", "업로드 되었습니다.", [
+      "url" => $result["URL_SM"],
+      "url_sm" => $result["URL_SM"],
+      "url_md" => $result["URL_MD"],
+      "url_lg" => $result["URL_LG"]
+    ]);
   }
 
   # 스텝3_1
@@ -2634,9 +2676,12 @@ class Compage_proc extends CI_Controller
     $rc_day_all = input_post("rc_day_all", "");
 
     $rc_img1_ori = input_post("rc_img1_ori", "");
-    $rc_img2_ori = input_post("rc_img2_ori", "");
-    $rc_img3_ori = input_post("rc_img3_ori", "");
-    $rc_img4_ori = input_post("rc_img4_ori", "");
+    $rc_detail_img1 = input_post("rc_detail_img1", "");
+    $rc_detail_img1_ori = input_post("rc_detail_img1_ori", "");
+    $rc_detail_img2 = input_post("rc_detail_img2", "");
+    $rc_detail_img2_ori = input_post("rc_detail_img2_ori", "");
+    $rc_detail_img3 = input_post("rc_detail_img3", "");
+    $rc_detail_img3_ori = input_post("rc_detail_img3_ori", "");
 
     if ($rc_desc == "") {
       json_return("99", "상세업무정보가 확인되지 않습니다.");
@@ -2659,19 +2704,22 @@ class Compage_proc extends CI_Controller
             file_remove($json_info["rc_img1"]);
           }
         }
-        if ($rc_img2_ori != (isset($json_info["rc_img2"]) ? $json_info["rc_img2"] : "")) {
-          if (isset($json_info["rc_img2"]) && $json_info["rc_img2"] != "") {
-            file_remove($json_info["rc_img2"]);
+        // 상세페이지 이미지 1
+        if ($rc_detail_img1_ori != (isset($json_info["rc_detail_img1"]) ? $json_info["rc_detail_img1"] : "")) {
+          if (isset($json_info["rc_detail_img1"]) && $json_info["rc_detail_img1"] != "") {
+            file_remove($json_info["rc_detail_img1"]);
           }
         }
-        if ($rc_img3_ori != (isset($json_info["rc_img3"]) ? $json_info["rc_img3"] : "")) {
-          if (isset($json_info["rc_img3"]) && $json_info["rc_img3"] != "") {
-            file_remove($json_info["rc_img3"]);
+        // 상세페이지 이미지 2
+        if ($rc_detail_img2_ori != (isset($json_info["rc_detail_img2"]) ? $json_info["rc_detail_img2"] : "")) {
+          if (isset($json_info["rc_detail_img2"]) && $json_info["rc_detail_img2"] != "") {
+            file_remove($json_info["rc_detail_img2"]);
           }
         }
-        if ($rc_img4_ori != (isset($json_info["rc_img4"]) ? $json_info["rc_img4"] : "")) {
-          if (isset($json_info["rc_img4"]) && $json_info["rc_img4"] != "") {
-            file_remove($json_info["rc_img4"]);
+        // 상세페이지 이미지 3
+        if ($rc_detail_img3_ori != (isset($json_info["rc_detail_img3"]) ? $json_info["rc_detail_img3"] : "")) {
+          if (isset($json_info["rc_detail_img3"]) && $json_info["rc_detail_img3"] != "") {
+            file_remove($json_info["rc_detail_img3"]);
           }
         }
       } catch (Exception $ex) {
@@ -2681,9 +2729,6 @@ class Compage_proc extends CI_Controller
     # 이미지 처리.
     try {
       $rc_img1 = $this->common->img_upload_url("member", "rc_img1", 1200);
-      $rc_img2 = $this->common->img_upload_url("member", "rc_img2", 1200);
-      $rc_img3 = $this->common->img_upload_url("member", "rc_img3", 1200);
-      $rc_img4 = $this->common->img_upload_url("member", "rc_img4", 1200);
       $rc_thumb = $this->common->img_upload_url("member", "rc_img1", 600);
     } catch (Exception $e) {
       throw $e;
@@ -2705,9 +2750,9 @@ class Compage_proc extends CI_Controller
       "rc_day" => is_array($rc_day) ? $rc_day : [],
       "rc_day_all" => $rc_day_all,
       "rc_img1" => $rc_img1,
-      "rc_img2" => $rc_img2,
-      "rc_img3" => $rc_img3,
-      "rc_img4" => $rc_img4,
+      "rc_detail_img1" => $rc_detail_img1,
+      "rc_detail_img2" => $rc_detail_img2,
+      "rc_detail_img3" => $rc_detail_img3,
       "rc_thumb" => $rc_thumb,
     ];
 
@@ -2956,14 +3001,17 @@ class Compage_proc extends CI_Controller
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
         "rc_sage" => isset($step3["rc_sage"]) ? $step3["rc_sage"] : "",
         "rc_eage" => isset($step3["rc_eage"]) ? $step3["rc_eage"] : "",
-        "rc_desc" => isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : ""),  // 스텝5 우선, 없으면 스텝3 (Smart Editor HTML 유지)
-        "rc_hash" => isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img1" => isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img2" => isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img3" => isset($step5["rc_img3"]) ? $step5["rc_img3"] : (isset($step3["rc_img3"]) ? $step3["rc_img3"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img4" => isset($step5["rc_img4"]) ? $step5["rc_img4"] : (isset($step3["rc_img4"]) ? $step3["rc_img4"] : ""),  // 스텝5 우선, 없으면 스텝3
+        "rc_desc" => isset($step3["rc_desc"]) ? $step3["rc_desc"] : (isset($step5["rc_desc"]) ? $step5["rc_desc"] : ""),  // 스텝3 우선, 없으면 스텝5 (Smart Editor HTML 유지)
+        "rc_hash" => isset($step3["rc_hash"]) ? $step3["rc_hash"] : (isset($step5["rc_hash"]) ? $step5["rc_hash"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img1" => isset($step3["rc_img1"]) ? $step3["rc_img1"] : (isset($step5["rc_img1"]) ? $step5["rc_img1"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img2" => isset($step3["rc_img2"]) ? $step3["rc_img2"] : (isset($step5["rc_img2"]) ? $step5["rc_img2"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img3" => isset($step3["rc_img3"]) ? $step3["rc_img3"] : (isset($step5["rc_img3"]) ? $step5["rc_img3"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img4" => isset($step3["rc_img4"]) ? $step3["rc_img4"] : (isset($step5["rc_img4"]) ? $step5["rc_img4"] : ""),  // 스텝3 우선, 없으면 스텝5
         "rc_img5" => isset($step5["rc_img5"]) ? $step5["rc_img5"] : "",
-        "rc_thumb" => isset($step5["rc_thumb"]) ? $step5["rc_thumb"] : (isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : ""),  // 스텝5 우선, 없으면 스텝3
+        "rc_detail_img1" => isset($step3["rc_detail_img1"]) ? $step3["rc_detail_img1"] : "",
+        "rc_detail_img2" => isset($step3["rc_detail_img2"]) ? $step3["rc_detail_img2"] : "",
+        "rc_detail_img3" => isset($step3["rc_detail_img3"]) ? $step3["rc_detail_img3"] : "",
+        "rc_thumb" => isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : (isset($step5["rc_thumb"]) ? $step5["rc_thumb"] : ""),  // 스텝3 우선, 없으면 스텝5
       ];
 
       $result_recruit = $this->recruit_model->updateRecruit($arr_recruit, ["rc_idx" => $rc_idx]);
@@ -3204,14 +3252,17 @@ class Compage_proc extends CI_Controller
         "rc_sex" => isset($step3["rc_sex"]) && is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : "",
         "rc_sage" => isset($step3["rc_sage"]) ? $step3["rc_sage"] : "",
         "rc_eage" => isset($step3["rc_eage"]) ? $step3["rc_eage"] : "",
-        "rc_desc" => isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : ""),  // 스텝5 우선, 없으면 스텝3 (Smart Editor HTML 유지)
-        "rc_hash" => isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img1" => isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img2" => isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img3" => isset($step5["rc_img3"]) ? $step5["rc_img3"] : (isset($step3["rc_img3"]) ? $step3["rc_img3"] : ""),  // 스텝5 우선, 없으면 스텝3
-        "rc_img4" => isset($step5["rc_img4"]) ? $step5["rc_img4"] : (isset($step3["rc_img4"]) ? $step3["rc_img4"] : ""),  // 스텝5 우선, 없으면 스텝3
+        "rc_desc" => isset($step3["rc_desc"]) ? $step3["rc_desc"] : (isset($step5["rc_desc"]) ? $step5["rc_desc"] : ""),  // 스텝3 우선, 없으면 스텝5 (Smart Editor HTML 유지)
+        "rc_hash" => isset($step3["rc_hash"]) ? $step3["rc_hash"] : (isset($step5["rc_hash"]) ? $step5["rc_hash"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img1" => isset($step3["rc_img1"]) ? $step3["rc_img1"] : (isset($step5["rc_img1"]) ? $step5["rc_img1"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img2" => isset($step3["rc_img2"]) ? $step3["rc_img2"] : (isset($step5["rc_img2"]) ? $step5["rc_img2"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img3" => isset($step3["rc_img3"]) ? $step3["rc_img3"] : (isset($step5["rc_img3"]) ? $step5["rc_img3"] : ""),  // 스텝3 우선, 없으면 스텝5
+        "rc_img4" => isset($step3["rc_img4"]) ? $step3["rc_img4"] : (isset($step5["rc_img4"]) ? $step5["rc_img4"] : ""),  // 스텝3 우선, 없으면 스텝5
         "rc_img5" => isset($step5["rc_img5"]) ? $step5["rc_img5"] : "",
-        "rc_thumb" => isset($step5["rc_thumb"]) ? $step5["rc_thumb"] : (isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : ""),  // 스텝5 우선, 없으면 스텝3
+        "rc_detail_img1" => isset($step3["rc_detail_img1"]) ? $step3["rc_detail_img1"] : "",
+        "rc_detail_img2" => isset($step3["rc_detail_img2"]) ? $step3["rc_detail_img2"] : "",
+        "rc_detail_img3" => isset($step3["rc_detail_img3"]) ? $step3["rc_detail_img3"] : "",
+        "rc_thumb" => isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : (isset($step5["rc_thumb"]) ? $step5["rc_thumb"] : ""),  // 스텝3 우선, 없으면 스텝5
         "up_dt" => date("Y-m-d H:i:s")
       ];
 

@@ -25,6 +25,12 @@ function formatPhoneNumber($number)
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
+    .bigsize-img {
+        position: relative;
+        left: 420px;
+        top: 2px;
+    
+    }
     .info-table .working-day>li {
         width: 1.8rem;
         height: 1.8rem;
@@ -103,17 +109,9 @@ function formatPhoneNumber($number)
         color: #999;
     }
 
-    .worktype em.wtype1 {
-        color: #3a70db;
-    }
+   
 
-    .worktype em.wtype2 {
-        color: #F86048;
-    }
-
-    .worktype em.wtype3 {
-        color: #1B9D7D;
-    }
+   
 
     .worktype .work-divider {
         color: #ccc;
@@ -343,8 +341,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     </div>
                 <?php endif; ?>
             </div>
-            <!-- <a href="javascript:void(0);" class="bigsize"><img src="/resource/shop/web/img/bigsize.png" /></a> -->
         </div>
+        <a href="javascript:void(0);" class="bigsize"><img class="bigsize-img" src="/resource/shop/web/img/bigsize.png" /></a>
 
         <script>
             window.addEventListener('DOMContentLoaded', function() {

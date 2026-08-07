@@ -2444,10 +2444,11 @@ class memberModel extends MY_Model
 		];
 
 		# 검색 지역 처리
-		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr);
-		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr);
-		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr);
-		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr);
+		$search_addr_step = isset($params["search_addr_step"]) ? $params["search_addr_step"] : [];
+		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step);
+		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr, $search_addr_step);
+		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr, $search_addr_step);
+		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr, $search_addr_step);
 
 		//바디
 		$body = "
@@ -2609,10 +2610,11 @@ class memberModel extends MY_Model
 		];
 
 		# 검색 지역 처리
-		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr);
-		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr);
-		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr);
-		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr);
+		$search_addr_step = isset($params["search_addr_step"]) ? $params["search_addr_step"] : [];
+		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step);
+		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr, $search_addr_step);
+		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr, $search_addr_step);
+		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr, $search_addr_step);
 
 		//바디
 		$body = "
@@ -3486,10 +3488,11 @@ class memberModel extends MY_Model
 		];
 
 		# 검색 지역 처리
-		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr);
-		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr);
-		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr);
-		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr);
+		$search_addr_step = isset($params["search_addr_step"]) ? $params["search_addr_step"] : [];
+		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step);
+		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr, $search_addr_step);
+		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr, $search_addr_step);
+		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr, $search_addr_step);
 
 		//바디
 		$body = "
@@ -4043,23 +4046,125 @@ class memberModel extends MY_Model
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by);
 	}
 
-	// 주소 배열을 받아서 LIKE 조건을 생성하는 함수
-	function make_addr_like_condition($column, $addr_array)
+	// 주소 배열과 step 배열을 받아서 계층적 LIKE 조건을 생성 (location_data 역조회 포함)
+	function make_addr_like_condition($column, $addr_array, $step_array = [])
 	{
 		if (empty($addr_array) || !is_array($addr_array)) return "";
 
-		$conditions = array_map(function ($addr) use ($column) {
-			// "전체"가 포함된 경우, "전체"를 제거하고 와일드카드로 시작
-			if (strpos($addr, '전체') !== false) {
-				// "서울특별시 전체" → "서울특별시"
-				$base_addr = trim(str_replace('전체', '', $addr));
-				return "$column LIKE '" . addslashes($base_addr) . "%'";
-			} else {
-				return "$column LIKE '%" . addslashes($addr) . "%'";
-			}
-		}, $addr_array);
+		$conditions = [];
 
-		return " (" . implode(" OR ", $conditions) . ") ";
+		foreach ($addr_array as $idx => $addr) {
+			$step = isset($step_array[$idx]) ? intval($step_array[$idx]) : 3;
+			$escaped_addr = addslashes($addr);
+
+			// step=1 (시도): 해당 시도의 모든 시군구+읍면동 검색
+			if ($step == 1) {
+				$temp_conditions = [];
+
+				// 1. 시도+시군구, 시군구 이름으로 매칭 (계층적 주소 처리)
+				$sql = "SELECT DISTINCT sido_name, gugun_name FROM location_data
+						WHERE sido_name = '{$escaped_addr}' AND step = 2";
+				try {
+					$gugun_result = $this->db->query($sql)->result_array();
+					if (!empty($gugun_result)) {
+						foreach ($gugun_result as $row) {
+							$gugun_name = $row['gugun_name'];
+							$escaped_gugun = addslashes($gugun_name);
+
+							// 시도+시군구로 매칭 (정확도 높음: "경기도 시흥시")
+							$full_gugun = addslashes($row['sido_name'] . ' ' . $gugun_name);
+							$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
+
+							// 부분주소 처리: gugun_name만 저장된 경우도 매칭
+							// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인 (cross-region 방지)
+							$check_sql = "SELECT COUNT(DISTINCT sido_name) as sido_count FROM location_data
+										  WHERE gugun_name = '{$escaped_gugun}' AND step = 2";
+							try {
+								$check_result = $this->db->query($check_sql)->row_array();
+								// gugun_name이 유일하면 (한 시도에만 속함) 부분주소 매칭 추가
+								if (!empty($check_result) && $check_result['sido_count'] == 1) {
+									$temp_conditions[] = "$column LIKE '%{$escaped_gugun}%'";
+								}
+							} catch (Exception $e) {
+								// 오류 무시
+							}
+						}
+					}
+				} catch (Exception $e) {
+					// 오류 무시
+				}
+
+				// 2. 전체 주소로도 매칭 (st_address에 "경기도 시흥시 정왕동" 있는 경우)
+				$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
+						WHERE sido_name = '{$escaped_addr}' AND step = 3";
+				try {
+					$result = $this->db->query($sql)->result_array();
+					if (!empty($result)) {
+						$dong_conditions = array_map(function($row) use ($column) {
+							return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
+						}, $result);
+						$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
+					}
+				} catch (Exception $e) {
+					$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
+				}
+
+				if (!empty($temp_conditions)) {
+					$conditions[] = "(" . implode(" OR ", $temp_conditions) . ")";
+				}
+			}
+			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색 (시도+구군+동명으로 정확히 필터)
+			else if ($step == 2) {
+				$addr_parts = explode(" ", trim($addr));
+				if (count($addr_parts) >= 2) {
+					$sido = addslashes($addr_parts[0]);
+					$gugun = addslashes($addr_parts[1]);
+					$temp_conditions = [];
+
+					// 1. 전체 주소 매칭 (경기도 시흥시 정왕동)
+					$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
+							WHERE sido_name = '{$sido}' AND gugun_name = '{$gugun}' AND step = 3";
+					try {
+						$result = $this->db->query($sql)->result_array();
+						if (!empty($result)) {
+							$dong_conditions = array_map(function($row) use ($column) {
+								return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
+							}, $result);
+							$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
+						}
+					} catch (Exception $e) {
+						// 오류 무시
+					}
+
+					// 2. 시도+시군구 매칭 (경기도 시흥시)
+					$full_gugun = $sido . ' ' . $gugun;
+					$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
+
+					// 3. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
+					// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인
+					$check_sql = "SELECT COUNT(DISTINCT sido_name) as sido_count FROM location_data
+								  WHERE gugun_name = '{$gugun}' AND step = 2";
+					try {
+						$check_result = $this->db->query($check_sql)->row_array();
+						if (!empty($check_result) && $check_result['sido_count'] == 1) {
+							$temp_conditions[] = "$column LIKE '%{$gugun}%'";
+						}
+					} catch (Exception $e) {
+						// 오류 무시
+					}
+
+					if (!empty($temp_conditions)) {
+						$conditions[] = "(" . implode(" OR ", $temp_conditions) . ")";
+					}
+				}
+			}
+			// step=3 (읍면동): 정확한 읍면동 검색
+			else {
+				$conditions[] = "$column LIKE '%{$escaped_addr}%'";
+			}
+		}
+
+		return !empty($conditions) ? " (" . implode(" OR ", $conditions) . ") " : "";
 	}
 
 	# 멀티 조건 만들기

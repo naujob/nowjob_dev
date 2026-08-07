@@ -799,6 +799,121 @@ class common
 		return $result;
 	}
 
+	// 반응형 이미지: 3가지 크기(sm:400px, md:800px, lg:1200px) 자동 생성
+	function img_upload_responsive($path, $ipt_name)
+	{
+		$this->CI = &get_instance();
+		$real_upload_path = "/resource/uploads/";
+
+		if (!file_exists(getcwd() . $real_upload_path . $path)) {
+			mkdir(getcwd() . $real_upload_path . $path, 0755, true);
+		}
+
+		$root = getcwd() . $real_upload_path . $path;
+
+		// resize 폴더 생성 (sm, md, lg)
+		foreach (['sm', 'md', 'lg'] as $size) {
+			if (!file_exists($root . "/resize/{$size}")) {
+				mkdir($root . "/resize/{$size}", 0755, true);
+			}
+		}
+
+		$config['upload_path'] = $root;
+		$config['allowed_types'] = '*';
+		$config['max_size'] = '8192';
+		$config['encrypt_name'] = TRUE;
+		$config['remove_spaces'] = TRUE;
+
+		if (isset($_FILES[$ipt_name]) == false) {
+			return [
+				"SUCCESS" => false,
+				"ERROR" => "파일이 존재하지 않습니다.",
+				"URL_SM" => "", "URL_MD" => "", "URL_LG" => ""
+			];
+		}
+
+		$chk_ext = $this->file_type_chk($_FILES[$ipt_name]["name"], "img");
+		if ($chk_ext == false) {
+			return [
+				"SUCCESS" => false,
+				"ERROR" => "허용되지 않은 파일 확장자입니다.",
+				"URL_SM" => "", "URL_MD" => "", "URL_LG" => ""
+			];
+		}
+
+		$this->CI->load->library('upload', $config);
+		if (!$this->CI->upload->do_upload($ipt_name)) {
+			return [
+				"SUCCESS" => false,
+				"ERROR" => $this->CI->upload->display_errors('', ''),
+				"URL_SM" => "", "URL_MD" => "", "URL_LG" => ""
+			];
+		}
+
+		$data = $this->CI->upload->data();
+		$file_name = $data['raw_name'];
+		$file_ext = $data['file_ext'];
+		$orig_path = $root . "/" . $file_name . $file_ext;
+
+		// 이미지 회전 처리
+		$this->img_rotate($orig_path);
+
+		// 파일 크기에 따른 품질 설정
+		$img_size = filesize($orig_path) / 1024;
+		$quality = 90;
+		if ($img_size > 3000) $quality = 77;
+		else if ($img_size > 2000) $quality = 83;
+		else if ($img_size > 1000) $quality = 85;
+
+		// 3가지 크기로 리사이징
+		$sizes = [
+			'sm' => 400,
+			'md' => 800,
+			'lg' => 1200
+		];
+
+		$urls = [];
+		$this->CI->load->library('image_lib');
+
+		foreach ($sizes as $size_name => $size_px) {
+			$config_resize = [
+				'image_library' => 'gd2',
+				'source_image' => $orig_path,
+				'new_image' => $root . "/resize/{$size_name}/" . $file_name . $file_ext,
+				'maintain_ratio' => TRUE,
+				'quality' => $quality,
+				'width' => $size_px,
+				'height' => $size_px
+			];
+
+			$this->CI->image_lib->clear();
+			$this->CI->image_lib->initialize($config_resize);
+
+			if (!$this->CI->image_lib->resize()) {
+				$this->CI->image_lib->clear();
+				continue;
+			}
+
+			$urls["URL_" . strtoupper($size_name)] = "/resource/uploads/{$path}/resize/{$size_name}/{$file_name}{$file_ext}";
+			$this->CI->image_lib->clear();
+		}
+
+		// 원본 삭제
+		if (file_exists($orig_path)) {
+			unlink($orig_path);
+		}
+
+		return [
+			"SUCCESS" => true,
+			"URL_SM" => isset($urls["URL_SM"]) ? $urls["URL_SM"] : "",
+			"URL_MD" => isset($urls["URL_MD"]) ? $urls["URL_MD"] : "",
+			"URL_LG" => isset($urls["URL_LG"]) ? $urls["URL_LG"] : "",
+			"FILE_NAME" => $file_name . $file_ext,
+			"SIZE" => $data['file_size'],
+			"TYPE" => $data['image_type']
+		];
+	}
+
 	function img_rotate($img_path)
 	{
 		//이미지 정보 가져오기.(정보가 없는 이미지는 패스)
@@ -975,25 +1090,7 @@ class common
 
 			if ($img["SUCCESS"] == true) {
 				$url = $img["URL"];
-
-				/**
-				 *    반환되는 정보
-
-				* 	$result = [
-				* 		"SUCCESS" => true/false,           // 성공 여부
-				* 		"URL" => "/resource/uploads/member/abc123.jpg",  // 저장된 경로
-				* 		"FILE_NAME" => "abc123.jpg",       // 저장된 파일명
-				* 		"WIDTH" => 300,                    // 이미지 너비
-				* 		"HEIGHT" => 300,                   // 이미지 높이
-				* 		"SIZE" => 45678,                   // 파일 크기 (바이트)
-				* 		"TYPE" => "image/jpeg",            // MIME 타입
-					* 	"ERROR" => ""                      // 에러 메시지
-				* 	];
-				 * 
-				 * 
-				 */
 			}
-				// $url : /resource/uploads/member/e86a37915a1d561ff9c093fc2e670c1e.jpg
 
 			return $url;
 		}

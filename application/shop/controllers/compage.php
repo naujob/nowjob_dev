@@ -1426,6 +1426,9 @@ class Compage extends CI_Controller
 			"rc_img2" => "",
 			"rc_img3" => "",
 			"rc_img4" => "",
+			"rc_detail_img1" => "",
+			"rc_detail_img2" => "",
+			"rc_detail_img3" => "",
 		];
 
 		$recruit_info = $this->recruit_model->getRecruit(["rc_idx" => $rc_idx]);
@@ -1515,6 +1518,9 @@ class Compage extends CI_Controller
 			$info["rc_img2"] = isset($recruit_info["rc_img2"]) ? $recruit_info["rc_img2"] : "";
 			$info["rc_img3"] = isset($recruit_info["rc_img3"]) ? $recruit_info["rc_img3"] : "";
 			$info["rc_img4"] = isset($recruit_info["rc_img4"]) ? $recruit_info["rc_img4"] : "";
+			$info["rc_detail_img1"] = isset($recruit_info["rc_detail_img1"]) ? $recruit_info["rc_detail_img1"] : "";
+			$info["rc_detail_img2"] = isset($recruit_info["rc_detail_img2"]) ? $recruit_info["rc_detail_img2"] : "";
+			$info["rc_detail_img3"] = isset($recruit_info["rc_detail_img3"]) ? $recruit_info["rc_detail_img3"] : "";
 		} else {
 			$temp_info  = $this->site_model->getStepTempDataMember($this->mm_idx, "RECRUIT", "스텝1");
 			if ($temp_info != null) {

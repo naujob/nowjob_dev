@@ -337,41 +337,104 @@ class recruitModel extends MY_Model
 			$step = isset($step_array[$idx]) ? intval($step_array[$idx]) : 3;
 			$escaped_addr = addslashes($addr);
 
-			// step=1 (시도): 해당 시도의 모든 읍면동 검색
+			// step=1 (시도): 해당 시도의 모든 시군구+읍면동 검색
 			if ($step == 1) {
-				$sql = "SELECT DISTINCT b_dong_name FROM location_data
+				$temp_conditions = [];
+
+				// 1. 시도+시군구, 시군구 이름으로 매칭 (계층적 주소 처리)
+				$sql = "SELECT DISTINCT sido_name, gugun_name FROM location_data
+						WHERE sido_name = '{$escaped_addr}' AND step = 2";
+				try {
+					$gugun_result = $this->db->query($sql)->result_array();
+					if (!empty($gugun_result)) {
+						foreach ($gugun_result as $row) {
+							$gugun_name = $row['gugun_name'];
+							$escaped_gugun = addslashes($gugun_name);
+
+							// 시도+시군구로 매칭 (정확도 높음: "경기도 시흥시")
+							$full_gugun = addslashes($row['sido_name'] . ' ' . $gugun_name);
+							$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
+
+							// 부분주소 처리: gugun_name만 저장된 경우도 매칭
+							// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인 (cross-region 방지)
+							$check_sql = "SELECT COUNT(DISTINCT sido_name) as sido_count FROM location_data
+										  WHERE gugun_name = '{$escaped_gugun}' AND step = 2";
+							try {
+								$check_result = $this->db->query($check_sql)->row_array();
+								// gugun_name이 유일하면 (한 시도에만 속함) 부분주소 매칭 추가
+								if (!empty($check_result) && $check_result['sido_count'] == 1) {
+									$temp_conditions[] = "$column LIKE '%{$escaped_gugun}%'";
+								}
+							} catch (Exception $e) {
+								// 오류 무시
+							}
+						}
+					}
+				} catch (Exception $e) {
+					// 오류 무시
+				}
+
+				// 2. 전체 주소로도 매칭 (st_address에 "경기도 시흥시 정왕동" 있는 경우)
+				$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
 						WHERE sido_name = '{$escaped_addr}' AND step = 3";
 				try {
 					$result = $this->db->query($sql)->result_array();
 					if (!empty($result)) {
 						$dong_conditions = array_map(function($row) use ($column) {
-							return "$column LIKE '%" . addslashes($row['b_dong_name']) . "%'";
+							return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
 						}, $result);
-						$conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
+						$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
 					}
 				} catch (Exception $e) {
-					$conditions[] = "$column LIKE '%{$escaped_addr}%'";
+					$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
+				}
+
+				if (!empty($temp_conditions)) {
+					$conditions[] = "(" . implode(" OR ", $temp_conditions) . ")";
 				}
 			}
-			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색
+			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색 (시도+구군+동명으로 정확히 필터)
 			else if ($step == 2) {
 				$addr_parts = explode(" ", trim($addr));
 				if (count($addr_parts) >= 2) {
 					$sido = addslashes($addr_parts[0]);
 					$gugun = addslashes($addr_parts[1]);
+					$temp_conditions = [];
 
-					$sql = "SELECT DISTINCT b_dong_name FROM location_data
+					// 1. 전체 주소 매칭 (경기도 시흥시 정왕동)
+					$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
 							WHERE sido_name = '{$sido}' AND gugun_name = '{$gugun}' AND step = 3";
 					try {
 						$result = $this->db->query($sql)->result_array();
 						if (!empty($result)) {
 							$dong_conditions = array_map(function($row) use ($column) {
-								return "$column LIKE '%" . addslashes($row['b_dong_name']) . "%'";
+								return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
 							}, $result);
-							$conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
+							$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
 						}
 					} catch (Exception $e) {
-						$conditions[] = "$column LIKE '%{$escaped_addr}%'";
+						// 오류 무시
+					}
+
+					// 2. 시도+시군구 매칭 (경기도 시흥시)
+					$full_gugun = $sido . ' ' . $gugun;
+					$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
+
+					// 3. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
+					// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인
+					$check_sql = "SELECT COUNT(DISTINCT sido_name) as sido_count FROM location_data
+								  WHERE gugun_name = '{$gugun}' AND step = 2";
+					try {
+						$check_result = $this->db->query($check_sql)->row_array();
+						if (!empty($check_result) && $check_result['sido_count'] == 1) {
+							$temp_conditions[] = "$column LIKE '%{$gugun}%'";
+						}
+					} catch (Exception $e) {
+						// 오류 무시
+					}
+
+					if (!empty($temp_conditions)) {
+						$conditions[] = "(" . implode(" OR ", $temp_conditions) . ")";
 					}
 				}
 			}

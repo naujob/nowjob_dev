@@ -3889,6 +3889,24 @@
               } catch (e) {
             console.error("폰트 크기 기본값 설정 중 오류:", e);
           }
+
+          // 에디터에 paste 이벤트 핸들러 추가 (이미지 복사붙여넣기 차단)
+          if (oWYSIWYGDocument) {
+            oWYSIWYGDocument.addEventListener('paste', function(e) {
+              if (e.clipboardData && e.clipboardData.items) {
+                for (var i = 0; i < e.clipboardData.items.length; i++) {
+                  var item = e.clipboardData.items[i];
+                  // 이미지 타입 확인 후 붙여넣기 방지
+                  if (item.type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    console.warn('이미지 붙여넣기는 허용되지 않습니다.');
+                    alert('이미지 붙여넣기는 허용되지 않습니다.');
+                    break;
+                  }
+                }
+              }
+            });
+          }
         }, 200);
       }
     });
