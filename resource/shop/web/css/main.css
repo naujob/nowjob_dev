@@ -2422,7 +2422,7 @@ input:checked~.benefit-label.btn:after {
     max-width: 100%;
     margin: 0 6px 6px 0;
     padding: 0 14px;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 500;
     color: #3A70DB;
     line-height: 2;
@@ -5037,6 +5037,7 @@ body {
     border-radius: 20px;
     background: #fff;
     overflow: hidden;
+    top: -66px;
 }
 
 .login-form .title-logo {
@@ -5051,7 +5052,8 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    height: 604px;
+    
+   
 }
 
 .login-form .title-logo img {
@@ -10345,9 +10347,7 @@ body {
     line-height: 1.875;
 }
 
-.item-view .view-introduce .tag {
-    font-size: 16px;
-}
+
 
 .pic-group {
     margin: 0 0 -20px -20px;

@@ -128,10 +128,117 @@
     max-height: 56px;
   }
 
+  /* 지역 선택 UI 스타일 (recruit/index_search.php 패턴과 동일하게 이식) */
+  .region-section {
+    margin-bottom: 30px;
+  }
+
+  .region-step-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    width: 100%;
+  }
+
+  .region-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-right: 8px;
+  }
+
+  .region-counter {
+    font-size: 16px;
+    color: #57CCAF;
+    font-weight: 500;
+  }
+
+  .region-counter .separator,
+  .region-counter .max-count {
+    color: #333;
+  }
+
+  .region-select-btn {
+    width: 100%;
+    height: 56px;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 6px;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+
+  .region-select-btn .add-icon {
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  .region-select-btn .add-text {
+    font-size: 16px;
+  }
+
+  .region-select-btn:active {
+    transform: translateY(1px);
+  }
+
+  /* 선택된 지역 표시 영역 */
+  .selected-regions-container {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .selected-region-item {
+    background-color: #57CCAF;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .selected-region-remove {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+  }
+
+  .selected-region-remove:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
   /* 반응형 대응 */
   @media (max-width: 480px) {
     .work-type-group {
       gap: 6px;
+    }
+
+    .region-select-btn {
+      height: 56px;
+      font-size: 15px;
     }
   }
 </style>
@@ -146,6 +253,21 @@
 
         <div class="section advanced-search-form">
           <div class="container">
+
+            <!-- 지역 선택 섹션 -->
+            <div class="region-section">
+              <div class="region-step-container">
+                <span class="region-label">근무지역</span>
+                <span class="region-counter" id="regionCounter"><span style="color: #57CCAF;">0</span><span class="separator">/</span><span class="max-count">3</span></span>
+              </div>
+              <button type="button" class="region-select-btn" id="regionSelectBtn">
+                <span class="add-icon">+</span>
+                <span class="add-text">추가하기</span>
+              </button>
+              <div class="selected-regions-container" id="selectedRegionsContainer">
+                <!-- 선택된 지역들이 여기에 동적으로 추가됩니다 -->
+              </div>
+            </div>
 
             <div class="form-row">
               <div class="category-label-row">
@@ -581,48 +703,174 @@
       tab_list[icnt].active = "";
     }
 
-    if (search_array.category != "") {
-      tab_list[0].text = search_array.category.replaceAll("^", ",");
+    // 지역 정보 처리 (tab_list[0]) — recruit/index_search.php와 동일 패턴
+    var regions = window.selectedRegions || (typeof selectedRegions !== 'undefined' ? selectedRegions : []);
+
+    if (regions.length > 0) {
+      tab_list[0].text = regions.join(", ");
       tab_list[0].active = "on";
     }
 
-    if (search_array.work_type != "") {
-      tab_list[1].text = search_array.work_type.replaceAll("^", ",");
+    if (search_array.category != "") {
+      tab_list[1].text = search_array.category.replaceAll("^", ",");
       tab_list[1].active = "on";
+    }
+
+    if (search_array.work_type != "") {
+      tab_list[2].text = search_array.work_type.replaceAll("^", ",");
+      tab_list[2].active = "on";
     }
 
     if (search_array.week != "") {
       if (search_array.week == "일^월^화^수^목^금^토") {
-        tab_list[2].text = "일~토";
+        tab_list[3].text = "일~토";
       } else {
-        tab_list[2].text = search_array.week.replaceAll("^", ",");
+        tab_list[3].text = search_array.week.replaceAll("^", ",");
       }
-      tab_list[2].active = "on";
-    }
-
-    if (search_array.price_type != "") {
-      tab_list[3].text = search_array.price_type.replaceAll("^", ",");
       tab_list[3].active = "on";
     }
 
-    if (search_array.sex != "") {
-      tab_list[4].text = search_array.sex.replaceAll("^", ",");
+    if (search_array.price_type != "") {
+      tab_list[4].text = search_array.price_type.replaceAll("^", ",");
       tab_list[4].active = "on";
+    }
+
+    if (search_array.sex != "") {
+      tab_list[5].text = search_array.sex.replaceAll("^", ",");
+      tab_list[5].active = "on";
     }
 
     if (search_array.sage != "" || search_array.eage != "") {
       if (search_array.sage != "" && search_array.eage == "") {
-        tab_list[5].text = search_array.sage + "세 ~";
-        tab_list[5].active = "on";
+        tab_list[6].text = search_array.sage + "세 ~";
+        tab_list[6].active = "on";
       } else if (search_array.sage == "" && search_array.eage != "") {
-        tab_list[5].text = " ~" + search_array.eage + "대";
-        tab_list[5].active = "on";
+        tab_list[6].text = " ~" + search_array.eage + "대";
+        tab_list[6].active = "on";
       } else if (search_array.sage != "" && search_array.eage != "") {
-        tab_list[5].text = search_array.sage + "대" + " ~ " + search_array.eage + "대";
-        tab_list[5].active = "on";
+        tab_list[6].text = search_array.sage + "대" + " ~ " + search_array.eage + "대";
+        tab_list[6].active = "on";
       }
     }
   }
+
+  // ========================================
+  // 지역 선택 (근무지역) 관련 로직 — recruit/index_search.php와 동일 패턴 (resume 페이지 전용, pageType='resume'으로 격리됨)
+  // ========================================
+
+  // 전역 변수로 선언하여 hr_list.php에서도 접근 가능하도록 함 (recruit의 job_list.php와 동일한 규약)
+  if (typeof selectedRegions === 'undefined') {
+    window.selectedRegions = window.selectedRegions || [];
+  }
+  var selectedRegions = window.selectedRegions;
+  var maxRegions = 3;
+
+  // 지역 선택 개수 카운터 갱신 함수
+  function updateRegionCounter() {
+    var regions = window.selectedRegions || selectedRegions || [];
+    var count = regions.length;
+    $("#regionCounter").html('<span style="color: #57CCAF;">' + count + '</span><span class="separator">/</span><span class="max-count">' + maxRegions + '</span>');
+  }
+
+  // 선택된 지역 표시(칩) 갱신 함수 — 전역 등록하여 main_visual.php/hr_list.php에서도 호출 가능
+  function updateSelectedRegionsDisplay() {
+    var container = $("#selectedRegionsContainer");
+    container.empty();
+
+    var regions = window.selectedRegions || selectedRegions || [];
+    regions.forEach(function(region, index) {
+      var regionItem = $('<div class="selected-region-item">' +
+        '<span>' + region + '</span>' +
+        '<button type="button" class="selected-region-remove" data-index="' + index + '">×</button>' +
+        '</div>');
+      container.append(regionItem);
+    });
+
+    updateRegionCounter();
+  }
+  window.updateSelectedRegionsDisplay = updateSelectedRegionsDisplay;
+
+  // window.selectedRegions / search_addr를 기준으로 addrName, searchAreaStr,
+  // addr_popup sessionStorage, (가능하면) .div2 .selbtn DOM까지 재동기화하는 함수
+  // - 칩 삭제 직후, 그리고 #btnSearch 클릭 시 안전망으로 호출
+  function syncAddrPopupRegionState() {
+    var regions = window.selectedRegions || [];
+    var addrs = (typeof search_addr !== 'undefined' && Array.isArray(search_addr)) ? search_addr : [];
+
+    // search_addr 배열 길이를 regions 배열 길이에 맞춤 (칩 삭제로 인덱스가 어긋난 경우 대비)
+    if (addrs.length > regions.length) {
+      addrs = addrs.slice(0, regions.length);
+    }
+
+    // addr 문자열의 공백 개수(+1)로 step(1~3) 유추 — addr_popup2025_new.php의 data-step 규칙과 동일
+    var searchArea = addrs.map(function(addr) {
+      return { addr: addr, step: addr.trim().split(' ').length };
+    });
+
+    addrName = regions.length > 0 ? regions.join(', ') : '지역을 선택해 주세요';
+    search_addr = addrs;
+    searchAreaStr = JSON.stringify(searchArea);
+
+    // addr_popup의 sessionStorage 갱신 (팝업이 닫혀 있어도 다음에 열 때 정확한 상태로 복원되도록)
+    var pageType = window.__addrPopupPageType || 'default';
+    sessionStorage.setItem('selectedRegions_' + pageType, JSON.stringify(regions));
+    sessionStorage.setItem('searchAreaStr_' + pageType, searchAreaStr);
+    sessionStorage.setItem('addrName_' + pageType, addrName);
+
+    // .addrName 표시 텍스트도 함께 갱신 (main_visual.php 상단 버튼)
+    $('.addrName').text(addrName).attr('data-selected', regions.length > 0 ? 'true' : 'false');
+
+    // .div2가 존재하면(팝업 DOM은 항상 렌더링되어 있음) 항상 완전히 재구성 — 인덱스 매칭 대신 전체 재생성으로
+    // "팝업이 닫혀 있어 .div2 .selbtn을 못 찾는" 상황과 무관하게 항상 정확한 상태 보장
+    var $div2 = $('.div2');
+    if ($div2.length) {
+      $div2.find('.selbtn').remove();
+      $('li[data-step][data-addr]').removeClass('addr_on');
+
+      searchArea.forEach(function(area, idx) {
+        var $selbtn = $('<div>').addClass('selbtn')
+          .attr('data-step', area.step)
+          .attr('data-addr', area.addr)
+          .text(regions[idx] || '')
+          .append($('<div>').addClass('selbtnclose').text('x'));
+        $div2.append($selbtn);
+        $('li[data-step="' + area.step + '"][data-addr="' + area.addr + '"]').addClass('addr_on');
+      });
+
+      if (typeof updateSelectedCount === 'function') {
+        updateSelectedCount();
+      }
+    }
+  }
+  window.syncAddrPopupRegionState = syncAddrPopupRegionState;
+
+  // 지역 칩 삭제 버튼 클릭 (이벤트 위임) — UI에서만 임시 제거, 확정은 검색 버튼에서
+  $(document).on('click', '.selected-region-remove', function() {
+    var index = parseInt($(this).data('index'));
+    window.selectedRegions.splice(index, 1); // 선택된 지역 배열에서 제거 window.selectedRegions = ["강남", "서초", "종로"] ->window.selectedRegions = ["서초", "종로"]
+    selectedRegions = window.selectedRegions;
+    updateSelectedRegionsDisplay(); // 화면에서만 칩 제거
+  });
+
+  // 지역 선택 버튼 클릭 시 changeArea 팝업 열기
+  $("#regionSelectBtn").click(function() {
+    window.skipAddrNameUpdate = true;
+
+    var changeAreaEl = document.getElementById('changeArea');
+    if (changeAreaEl) {
+      openPanel(changeAreaEl);
+    }
+  });
+
+  // addr_popup2025_new.php에서 지역 선택 완료(적용하기) 시 호출되는 전역 함수
+  window.onRegionSelectionComplete = function(regions) {
+    window.selectedRegions = regions.slice(0, maxRegions);
+    selectedRegions = window.selectedRegions;
+    updateSelectedRegionsDisplay();
+
+    initCategory();
+    initTabUi();
+  };
 
   document.addEventListener('DOMContentLoaded', function() {
     var CATEGORY_LIMIT = 3;
@@ -1029,8 +1277,12 @@
 
       // 지역 초기화
       window.selectedRegions = [];
+      selectedRegions = window.selectedRegions;
       if (typeof window.updateSelectedRegionsDisplay === 'function') {
         window.updateSelectedRegionsDisplay();
+      }
+      if (typeof updateRegionCounter === 'function') {
+        updateRegionCounter();
       }
       if (typeof window.updateSelectedRegionsTags === 'function') {
         window.updateSelectedRegionsTags();
@@ -1064,9 +1316,11 @@
         searchAreaStr = state.searchAreaStr;
       }
 
-      // selectedRegions 복원 - addrName에서 추출
+      // selectedRegions 복원 — 저장된 state.selectedRegions을 우선 사용, 없으면 addrName에서 추출 (하위호환)
       var names = [];
-      if (state.addrName && state.addrName !== '지역을 선택해 주세요') {
+      if (Array.isArray(state.selectedRegions) && state.selectedRegions.length > 0) {
+        names = state.selectedRegions.slice();
+      } else if (state.addrName && state.addrName !== '지역을 선택해 주세요') {
         names = state.addrName.split(',').map(function(name) {
           return name.trim();
         }).filter(function(name) {
@@ -1075,6 +1329,7 @@
       }
       window.selectedRegions = names.slice(0, 3);
       selectedRegions = window.selectedRegions;
+      updateSelectedRegionsDisplay();
 
       // 선택된 지역 태그 표시 (main_visual.php의 updateSelectedRegionsTags와 동일 로직)
       var addrBtn = document.querySelector('.addrName');
@@ -1236,7 +1491,8 @@
 
   function initTabUi() {
     $("#tab_list").html("");
-    for (var icnt = 0; icnt < tab_list.length; icnt++) {
+    // tab_list[0]은 지역(area) 정보이며 main_visual.php의 addrName/selected-regions-list에서 별도 표시되므로 1부터 순회
+    for (var icnt = 1; icnt < tab_list.length; icnt++) {
       var $clone = $("#tpl_category").clone();
       var $content = $clone.html();
       $content = $content.replaceAll("{{active}}", tab_list[icnt].active);
@@ -1442,12 +1698,19 @@
       $('#ageRangeSelect').val('');
     }
 
+    // 지역 UI 복원 (window.selectedRegions는 hr_list.php의 sessionStorage 복원 로직에서 이미 최신 상태)
+    selectedRegions = window.selectedRegions || [];
+    if (typeof updateSelectedRegionsDisplay === 'function') {
+      updateSelectedRegionsDisplay();
+    }
   }
 
   $(".btn-close-panel").click(function() {
     if (window.backupSearchState) {
       // 백업 복원 (초기화 취소)
       window.selectedRegions = window.backupSearchState.selectedRegions.slice();
+      selectedRegions = window.selectedRegions;
+      updateSelectedRegionsDisplay();
 
       // 체크박스 복원 헬퍼
       var restoreCheckboxes = function(selector, values) {
@@ -1550,6 +1813,17 @@
     // initCategory()는 체크박스 상태를 읽어서 search_array를 설정하므로 팝업 닫기 전에 호출
     initCategory();
     initTabUi();
+
+    // 안전망: search_addr/addr_popup sessionStorage가 최신 window.selectedRegions와
+    // 어긋나 있을 수 있으므로(팝업을 안 열고 칩만 삭제한 경우 등) 검색 직전 재동기화
+    if (typeof syncAddrPopupRegionState === 'function') {
+      syncAddrPopupRegionState();
+    }
+
+    // 지역 UI 업데이트 (main_visual.php의 상단 지역 태그와 동기화)
+    if (typeof window.updateSelectedRegionsTags === 'function') {
+      window.updateSelectedRegionsTags();
+    }
 
     // 검색 조건 저장
     saveSearchStateToStorage();

@@ -954,28 +954,66 @@
    // 전역으로 등록하여 다른 파일에서도 접근 가능
    window.updateSelectedRegionsDisplay = updateSelectedRegionsDisplay;
 
-   // 지역 삭제 버튼 클릭 이벤트 (이벤트 위임 사용)
-   $(document).on('click', '.selected-region-remove', function() {
-     var index = parseInt($(this).data('index'));
-     window.selectedRegions.splice(index, 1);
-     selectedRegions = window.selectedRegions;
-     updateSelectedRegionsDisplay();
+   // window.selectedRegions / search_addr를 기준으로 addrName, searchAreaStr,
+   // addr_popup sessionStorage, (가능하면) .div2 .selbtn DOM까지 재동기화하는 함수
+   // - 칩 삭제 직후, 그리고 #btnSearch 클릭 시 안전망으로 호출
+   function syncAddrPopupRegionState() {
+     var regions = window.selectedRegions || [];
+     var addrs = (typeof search_addr !== 'undefined' && Array.isArray(search_addr)) ? search_addr : [];
 
-     // addr_popup2025_new.php의 .div2 .selbtn도 동기화
-     var $selbtnAll = $('.div2 .selbtn');
-     var $targetSelbtn = $selbtnAll.eq(index);
-     if ($targetSelbtn.length) {
-       var step = $targetSelbtn.data('step');
-       var addr = $targetSelbtn.data('addr');
-       // 리스트에서 addr_on 해제
-       $('li[data-step="' + step + '"][data-addr="' + addr + '"]').removeClass('addr_on');
-       $targetSelbtn.remove();
-       // updateSelectedCount 호출
+     // search_addr 배열 길이를 regions 배열 길이에 맞춤 (칩 삭제로 인덱스가 어긋난 경우 대비)
+     if (addrs.length > regions.length) {
+       addrs = addrs.slice(0, regions.length);
+     }
+
+     // addr 문자열의 공백 개수(+1)로 step(1~3) 유추 — addr_popup2025_new.php의 data-step 규칙과 동일
+     var searchArea = addrs.map(function(addr) {
+       return { addr: addr, step: addr.trim().split(' ').length };
+     });
+
+     addrName = regions.length > 0 ? regions.join(', ') : '지역을 선택해 주세요';
+     search_addr = addrs;
+     searchAreaStr = JSON.stringify(searchArea);
+
+     // addr_popup의 sessionStorage 갱신 (팝업이 닫혀 있어도 다음에 열 때 정확한 상태로 복원되도록)
+     var pageType = window.__addrPopupPageType || 'default';
+     sessionStorage.setItem('selectedRegions_' + pageType, JSON.stringify(regions));
+     sessionStorage.setItem('searchAreaStr_' + pageType, searchAreaStr);
+     sessionStorage.setItem('addrName_' + pageType, addrName);
+
+     // .addrName 표시 텍스트도 함께 갱신 (main_visual.php 상단 버튼)
+     $('.addrName').text(addrName).attr('data-selected', regions.length > 0 ? 'true' : 'false');
+
+     // .div2가 존재하면(팝업 DOM은 항상 렌더링되어 있음) 항상 완전히 재구성 — 인덱스 매칭 대신 전체 재생성으로
+     // "팝업이 닫혀 있어 .div2 .selbtn을 못 찾는" 상황과 무관하게 항상 정확한 상태 보장
+     var $div2 = $('.div2');
+     if ($div2.length) {
+       $div2.find('.selbtn').remove();
+       $('li[data-step][data-addr]').removeClass('addr_on');
+
+       searchArea.forEach(function(area, idx) {
+         var $selbtn = $('<div>').addClass('selbtn')
+           .attr('data-step', area.step)
+           .attr('data-addr', area.addr)
+           .text(regions[idx] || '')
+           .append($('<div>').addClass('selbtnclose').text('x'));
+         $div2.append($selbtn);
+         $('li[data-step="' + area.step + '"][data-addr="' + area.addr + '"]').addClass('addr_on');
+       });
+
        if (typeof updateSelectedCount === 'function') {
          updateSelectedCount();
        }
      }
+   }
+   window.syncAddrPopupRegionState = syncAddrPopupRegionState;
 
+   // 지역 삭제 버튼 클릭 이벤트 (이벤트 위임 사용) — UI에서만 임시 제거, 확정은 검색 버튼에서
+   $(document).on('click', '.selected-region-remove', function() {
+     var index = parseInt($(this).data('index'));
+     window.selectedRegions.splice(index, 1);
+     selectedRegions = window.selectedRegions;
+     updateSelectedRegionsDisplay(); // 화면에서만 칩 제거
    });
 
    // 팝업에서 지역 선택 완료 시 호출될 전역 함수
@@ -1366,6 +1404,12 @@
      initCategory();
 
      initTabUi();
+
+     // 안전망: search_addr/addr_popup sessionStorage가 최신 window.selectedRegions와
+     // 어긋나 있을 수 있으므로(팝업을 안 열고 칩만 삭제한 경우 등) 검색 직전 재동기화
+     if (typeof syncAddrPopupRegionState === 'function') {
+       syncAddrPopupRegionState();
+     }
 
      // 지역 UI 업데이트
      if (typeof window.updateSelectedRegionsTags === 'function') {

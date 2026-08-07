@@ -778,6 +778,13 @@ $tpl_show_chat_mark = true; ?>
   };
 
   var tab_list = [];
+  // 근무지역(지역 선택) 탭 항목 — 항상 tab_list[0]으로 유지 (recruit/job_list.php 패턴과 동일)
+  tab_list.push({
+    key: "area",
+    df: "근무지역",
+    text: "",
+    active: ""
+  });
   tab_list.push({
     key: "category",
     df: "업직종",
