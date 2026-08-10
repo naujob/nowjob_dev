@@ -507,23 +507,42 @@ class Cron_proc extends CI_Controller
     {
         $matches_for_corp = array();
 
-        // 지역 조건이 켜져있으면 → groupByArea 후 지역별 매칭
+        // 지역 조건이 켜져있으면 → 우선순위 지역 매칭
         if (in_array('area', $comp_cond_arr)) {
-            $resume_by_area = $this->_groupByArea($resumes);
-            $recruit_by_area = $this->_groupByArea($recruits);
+            // 이력서를 ru_idx별로 주소 배열로 그룹화
+            $resumes_by_ru = $this->_groupResumesByRuIdx($resumes);
+            // 공고를 rc_idx별로 주소 배열로 그룹화
+            $recruits_by_rc = $this->_groupRecruitsByRcIdx($recruits);
 
-            foreach ($resume_by_area as $area => $area_resumes) {
-                 //area:특정지역 인덱스 ex:  $area = '서울시 강남구' area_resumes: 특정지역의 이력서들
-                if (!isset($recruit_by_area[$area])) continue; // 지역이 같은 공고가 없다
-                $area_recruits = $recruit_by_area[$area];
+            // 각 공고별로 반복
+            foreach ($recruits_by_rc as $rc_idx => $recruit_data) {
+                $recruit_main = $recruit_data['recruit'];
+                $recruit_matched_resumes = array(); // 이 공고에 매칭된 이력서 ru_idx들
 
-                foreach ($area_resumes as $resume) {
-                    foreach ($area_recruits as $recruit) {
-                        if ($this->_isMatched($resume, $recruit, $comp_cond_arr)) {
-                            $matches_for_corp[] = array(
-                                'recruit' => $recruit,
-                                'resume' => $resume
-                            );
+                // 공고의 첫번째 주소부터 순서대로 시도 (RECRUIT 우선, 그 다음 expose)
+                foreach ($recruit_data['addresses'] as $recruit_addr) {
+                    $recruit_area = $this->_extractAreaSido($recruit_addr);
+
+                    // 각 이력서별로 반복
+                    foreach ($resumes_by_ru as $ru_idx => $resume_data) {
+                        // 이 공고에 이미 매칭된 이력서면 skip
+                        if (in_array($ru_idx, $recruit_matched_resumes)) continue;
+
+                        $resume_main = $resume_data['resume'];
+                        // 이력서의 주소를 첫번째부터 순서대로 시도
+                        foreach ($resume_data['addresses'] as $resume_addr) {
+                            $resume_area = $this->_extractAreaSido($resume_addr);
+
+                            // 지역 일치 확인
+                            if ($recruit_area === $resume_area && $this->_isMatched($resume_main, $recruit_main, $comp_cond_arr)) {
+                                $matches_for_corp[] = array(
+                                    'recruit' => $recruit_main,
+                                    'resume' => $resume_main
+                                );
+                                // 이 공고에 매칭된 이력서 기록 (같은 공고에는 한 번만)
+                                $recruit_matched_resumes[] = $ru_idx;
+                                break; // 이력서의 주소 루프 탈출 (이 이력서는 이 공고에 한 번만)
+                            }
                         }
                     }
                 }
@@ -552,24 +571,42 @@ class Cron_proc extends CI_Controller
     {
         $matches_for_member = array();
 
-        // 지역 조건이 켜져있으면 → groupByArea 후 지역별 매칭
+        // 지역 조건이 켜져있으면 → 우선순위 지역 매칭
         if (in_array('area', $mem_cond_arr)) {
-            $resume_by_area = $this->_groupByArea($resumes);
-            $recruit_by_area = $this->_groupByArea($recruits);
+            // 이력서를 ru_idx별로 주소 배열로 그룹화
+            $resumes_by_ru = $this->_groupResumesByRuIdx($resumes);
+            // 공고를 rc_idx별로 주소 배열로 그룹화
+            $recruits_by_rc = $this->_groupRecruitsByRcIdx($recruits);
 
-            foreach ($resume_by_area as $area => $area_resumes) {
-                if (!isset($recruit_by_area[$area])) continue;
-                $area_recruits = $recruit_by_area[$area];
+            // 각 이력서별로 반복
+            foreach ($resumes_by_ru as $ru_idx => $resume_data) {
+                $resume_main = $resume_data['resume'];
+                $resume_matched_recruits = array(); // 이 이력서가 매칭된 공고 rc_idx들
 
-                foreach ($area_resumes as $resume) {
-                    foreach ($area_recruits as $recruit) {
-                        if ($this->_isMatched($resume, $recruit, $mem_cond_arr)) {
-                            // $comp_cond_arr = ['area', 'nation', 'age', 'price']
-                        // 이 4가지 조건 모두 일치하는 경우만 매칭
-                            $matches_for_member[] = array(
-                                'resume' => $resume,
-                                'recruit' => $recruit
-                            );
+                // 이력서의 첫번째 주소부터 순서대로 시도
+                foreach ($resume_data['addresses'] as $resume_addr) {
+                    $resume_area = $this->_extractAreaSido($resume_addr);
+
+                    // 각 공고별로 반복
+                    foreach ($recruits_by_rc as $rc_idx => $recruit_data) {
+                        // 이 이력서가 이미 이 공고에 매칭됨?
+                        if (in_array($rc_idx, $resume_matched_recruits)) continue;
+
+                        $recruit_main = $recruit_data['recruit'];
+                        // 공고의 주소를 첫번째부터 순서대로 시도 (RECRUIT 우선, 그 다음 expose)
+                        foreach ($recruit_data['addresses'] as $recruit_addr) {
+                            $recruit_area = $this->_extractAreaSido($recruit_addr);
+
+                            // 지역 일치 확인
+                            if ($recruit_area === $resume_area && $this->_isMatched($resume_main, $recruit_main, $mem_cond_arr)) {
+                                $matches_for_member[] = array(
+                                    'resume' => $resume_main,
+                                    'recruit' => $recruit_main
+                                );
+                                // 이 이력서가 이 공고에 매칭됨 기록 (같은 이력서-공고는 한 번만)
+                                $resume_matched_recruits[] = $rc_idx;
+                                break; // 공고의 주소 루프 탈출 (이 공고는 이 이력서에 한 번만)
+                            }
                         }
                     }
                 }
@@ -1015,5 +1052,87 @@ class Cron_proc extends CI_Controller
             usleep(100000);
         }
         return $sent;
+    }
+
+    /**
+     * 이력서를 ru_idx별로 주소 배열로 그룹화
+     * 각 이력서의 주소들을 ad_idx 순서대로 배열에 저장
+     */
+    private function _groupResumesByRuIdx($resumes)
+    {
+        $grouped = array();
+
+        foreach ($resumes as $resume) {
+            $ru_idx = $resume['ru_idx'];
+            if (!isset($grouped[$ru_idx])) {
+                $grouped[$ru_idx] = array(
+                    'resume' => $resume,
+                    'addresses' => array()
+                );
+            }
+            // 주소 배열에 추가 (중복 방지)
+            $addr = $resume['ad_addr'];
+            if (!in_array($addr, $grouped[$ru_idx]['addresses'])) {
+                $grouped[$ru_idx]['addresses'][] = $addr;
+            }
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * 공고를 rc_idx별로 주소 배열로 그룹화
+     * 각 공고의 주소들을 ad_idx 순서대로 배열에 저장
+     */
+    private function _groupRecruitsByRcIdx($recruits)
+    {
+        $grouped = array();
+
+        foreach ($recruits as $recruit) {
+            $rc_idx = $recruit['rc_idx'];
+            if (!isset($grouped[$rc_idx])) {
+                $grouped[$rc_idx] = array(
+                    'recruit' => $recruit,
+                    'addresses' => array()
+                );
+            }
+            // 주소 배열에 추가 (중복 방지)
+            $addr = $recruit['ad_addr'];
+            if (!in_array($addr, $grouped[$rc_idx]['addresses'])) {
+                $grouped[$rc_idx]['addresses'][] = $addr;
+            }
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * 주소에서 광역시도(sido) 추출
+     * "경기도 시흥시 정왕동" → "경기도"
+     * "서울특별시 강남구" → "서울특별시"
+     */
+    private function _extractAreaSido($addr)
+    {
+        if (empty($addr)) return '';
+
+        $parts = explode(' ', trim($addr));
+
+        foreach ($parts as $part) {
+            if (empty($part)) continue;
+
+            // location_data에서 시도 레벨 검색
+            $this->db->select('sido_name');
+            $this->db->where('sido_name', $part);
+            $this->db->where('step', 1);
+            $this->db->limit(1);
+            $result = $this->db->get('location_data')->row_array();
+
+            if ($result) {
+                return $result['sido_name'];
+            }
+        }
+
+        // sido를 찾지 못한 경우 첫 번째 단어 반환
+        return $parts[0];
     }
 }

@@ -3711,7 +3711,18 @@ class Compage_proc extends CI_Controller
     # 트랙젝션 시작
     $this->db->trans_begin();
     foreach ($arr_idx as $idx) {
-      $sql1 = "insert into st_recruit_del_history select * from st_recruit where rc_idx = '" . $idx . "' ";
+      $sql1 = "insert into st_recruit_del_history
+        (rc_idx, mm_idx, rc_show_yn, rc_name, rc_sdate, rc_edate, rc_nation, rc_sex, rc_sage, rc_eage,
+         rc_work, rc_work_type, rc_day_price, rc_week_yn, rc_week, rc_am_stime, rc_am_etime, rc_pm_stime,
+         rc_pm_etime, rc_work_dt, rc_price_type, rc_month_price, rc_life_type, rc_desc, rc_hash, rc_thumb,
+         rc_img1, rc_img2, rc_img3, rc_img4, rc_img5, rc_status, stop_desc, stop_dt, rc_hit, reg_dt, up_dt,
+         rc_price_rep, rc_week_price, rc_price_pay)
+        select rc_idx, mm_idx, rc_show_yn, rc_name, rc_sdate, rc_edate, rc_nation, rc_sex, rc_sage, rc_eage,
+         rc_work, rc_work_type, rc_day_price, rc_week_yn, rc_week, rc_am_stime, rc_am_etime, rc_pm_stime,
+         rc_pm_etime, rc_work_dt, rc_price_type, rc_month_price, rc_life_type, rc_desc, rc_hash, rc_thumb,
+         rc_img1, rc_img2, rc_img3, rc_img4, rc_img5, rc_status, stop_desc, stop_dt, rc_hit, reg_dt, up_dt,
+         rc_price_rep, rc_week_price, rc_price_pay
+        from st_recruit where rc_idx = '" . $idx . "'";
       $query1 = $this->db->query($sql1);
 
       // 영향 받은 행의 수를 얻기

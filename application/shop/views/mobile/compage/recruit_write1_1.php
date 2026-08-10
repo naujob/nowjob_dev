@@ -2733,6 +2733,26 @@
             var file = this.files[0];
             if (!file) return;
 
+            // 0. 기존 이미지 제거 (같은 슬롯에 새 사진 선택 시)
+            var detailSlot = $label.attr('data-detail-slot');
+            if (detailSlot) {
+                var inputName = 'rc_detail_img' + detailSlot;
+                var uploadedUrl = $("[name='" + inputName + "']").val();
+
+                if (uploadedUrl) {
+                    // 에디터에서 기존 이미지 제거
+                    var $editor = $("#rc_desc_editor");
+                    $editor.find("img").each(function() {
+                        if ($(this).attr("src") === uploadedUrl || $(this).attr("data-uploaded-url") === uploadedUrl) {
+                            $(this).remove();
+                        }
+                    });
+
+                    // hidden input 초기화
+                    $("[name='" + inputName + "']").val("");
+                }
+            }
+
             // 1. 로컬 미리보기
             var reader = new FileReader();
             reader.onload = function(e) {

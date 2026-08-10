@@ -3494,14 +3494,21 @@ class memberModel extends MY_Model
 		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr, $search_addr_step);
 		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr, $search_addr_step);
 
+		// 디버그: 변수 값 확인
+		// error_log("=== 주소 검색 조건 디버그 ===");
+		// error_log("search_addr: " . json_encode($search_addr, JSON_UNESCAPED_UNICODE));
+		// error_log("search_addr_step: " . json_encode($search_addr_step, JSON_UNESCAPED_UNICODE));
+		
+		// error_log("=== 디버그 끝 ===");
+
 		//바디
 		$body = "
 			(
 				select bb.*
 					,COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr
-          ,CONCAT(cc.ad_doro, ' ', cc.ad_jibun) AS s_addr 
-					,cc.ad_gps_x
-					,cc.ad_gps_y
+          ,MIN(CONCAT(cc.ad_doro, ' ', cc.ad_jibun)) AS s_addr
+					,MIN(cc.ad_gps_x) AS ad_gps_x
+					,MIN(cc.ad_gps_y) AS ad_gps_y
 					,aa.mm_name
 					,aa.mm_nation
 					,aa.mm_status
@@ -3518,6 +3525,7 @@ class memberModel extends MY_Model
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
 				left join st_address cc
 					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
+				GROUP BY bb.ru_idx
 			) aa
 			left join st_bookmark dd
 				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";

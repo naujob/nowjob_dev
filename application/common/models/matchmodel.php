@@ -16,7 +16,7 @@ class Matchmodel extends CI_Model {
             SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type, r.reg_dt,
                    r.ru_status, r.ru_show_yn, r.ru_work_dt,
                    m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
-                   MIN(a.ad_addr) as ad_addr
+                   a.ad_addr, a.ad_idx
             FROM st_resume r
             INNER JOIN st_member m ON r.mm_idx = m.mm_idx
             INNER JOIN st_address a ON r.mm_idx = a.mm_idx
@@ -28,10 +28,7 @@ class Matchmodel extends CI_Model {
               AND m.mm_agree_ad = 'Y'
               AND m.alarm_resume = 'Y'
               AND m.mm_phone != ''
-            GROUP BY r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type,
-                     r.reg_dt, r.ru_status, r.ru_show_yn, r.ru_work_dt,
-                     m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation
-            ORDER BY r.reg_dt DESC
+            ORDER BY r.reg_dt DESC, a.ad_idx ASC
         ";
         return $this->db->query($sql)->result_array();
     }
@@ -46,12 +43,12 @@ class Matchmodel extends CI_Model {
                    rc.rc_sex, rc.rc_sage, rc.rc_eage, rc.rc_nation, rc.reg_dt,
                    rc.rc_status, rc.rc_show_yn, rc.rc_sdate, rc.rc_edate,
                    m.mm_comp_name, m.mm_phone,
-                   a.ad_addr
+                   a.ad_addr, a.ad_idx, a.ad_type
             FROM st_recruit rc
             INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
             INNER JOIN st_address a ON rc.mm_idx = a.mm_idx
-                AND a.ad_type = 'RECRUIT'
                 AND a.ad_key = rc.rc_idx
+                AND (a.ad_type = 'RECRUIT' OR a.ad_type LIKE 'recruit_expose%')
             WHERE rc.rc_status = 'Y'
               AND rc.rc_show_yn = 'Y'
               AND rc.rc_sdate <= NOW()
@@ -61,7 +58,11 @@ class Matchmodel extends CI_Model {
               AND m.mm_agree_ad = 'Y'
               AND m.alarm_resume = 'Y'
               AND m.mm_phone != ''
-            ORDER BY rc.reg_dt DESC
+            ORDER BY rc.reg_dt DESC,
+                     CASE WHEN a.ad_type = 'RECRUIT' THEN 0
+                          WHEN a.ad_type LIKE 'recruit_expose%' THEN 1
+                          ELSE 2 END ASC,
+                     a.ad_idx ASC
         ";
         return $this->db->query($sql)->result_array();
     }

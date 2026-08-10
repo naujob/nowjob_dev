@@ -133,6 +133,12 @@ class recruitModel extends MY_Model
 		$search_addr_step = isset($params["search_addr_step"]) && is_array($params["search_addr_step"]) ? $params["search_addr_step"] : [];
 		$mm_idx = isset($params["mm_idx"]) ? $this->inject($params["mm_idx"]) : 0;
 
+		// 디버그: 변수값 확인
+		// error_log("=== 공고 검색 조건 디버그 ===");
+		// error_log("search_addr: " . json_encode($search_addr, JSON_UNESCAPED_UNICODE));
+		// error_log("search_addr_step: " . json_encode($search_addr_step, JSON_UNESCAPED_UNICODE));
+		// error_log("=== 디버그 끝 ===");
+         
 	
 
 	

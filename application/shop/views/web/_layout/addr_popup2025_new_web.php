@@ -1268,6 +1268,9 @@
 
                     const displayText = step < 3 ? addr + ' 전체' : addr;
 
+                    // displayText에 "전체"가 포함되면 렌더링하지 않음
+                    if (displayText.includes('전체')) return;
+
                     const newLi = $('<li>')
                       .attr('data-step', step)
                       .attr('data-addr', addr)
