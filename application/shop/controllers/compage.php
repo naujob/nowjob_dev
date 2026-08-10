@@ -391,6 +391,9 @@ class Compage extends CI_Controller
 			"rc_img3" => "",
 			"rc_img4" => "",
 			"rc_img5" => "",
+			"rc_detail_img1" => "",
+			"rc_detail_img2" => "",
+			"rc_detail_img3" => "",
 		];
 
 		$recruit_info = $this->recruit_model->getRecruit(["rc_idx" => $rc_idx]);
@@ -441,6 +444,9 @@ class Compage extends CI_Controller
 			$info["rc_img3"] = $recruit_info["rc_img3"];
 			$info["rc_img4"] = $recruit_info["rc_img4"];
 			$info["rc_img5"] = $recruit_info["rc_img5"];
+			$info["rc_detail_img1"] = isset($recruit_info["rc_detail_img1"]) ? $recruit_info["rc_detail_img1"] : "";
+			$info["rc_detail_img2"] = isset($recruit_info["rc_detail_img2"]) ? $recruit_info["rc_detail_img2"] : "";
+			$info["rc_detail_img3"] = isset($recruit_info["rc_detail_img3"]) ? $recruit_info["rc_detail_img3"] : "";
 
 			$add_info = $this->member_model->getMemberInfo($this->mm_idx);
 			$info["mem_info"] = $add_info;
@@ -479,6 +485,9 @@ class Compage extends CI_Controller
 				$info["rc_img3"] = "";
 				$info["rc_img4"] = "";
 				$info["rc_img5"] = "";
+				$info["rc_detail_img1"] = "";
+				$info["rc_detail_img2"] = "";
+				$info["rc_detail_img3"] = "";
 				$info["mm_comp_num"] = $add_info["mm_comp_num"];
 			}
 		}
@@ -540,6 +549,9 @@ class Compage extends CI_Controller
 			"rc_img3" => "",
 			"rc_img4" => "",
 			"rc_img5" => "",
+			"rc_detail_img1" => "",
+			"rc_detail_img2" => "",
+			"rc_detail_img3" => "",
 		];
 
 		$recruit_info = $this->recruit_model->getRecruit(["rc_idx" => $rc_idx]);
@@ -590,6 +602,9 @@ class Compage extends CI_Controller
 			$info["rc_img3"] = $recruit_info["rc_img3"];
 			$info["rc_img4"] = $recruit_info["rc_img4"];
 			$info["rc_img5"] = $recruit_info["rc_img5"];
+			$info["rc_detail_img1"] = isset($recruit_info["rc_detail_img1"]) ? $recruit_info["rc_detail_img1"] : "";
+			$info["rc_detail_img2"] = isset($recruit_info["rc_detail_img2"]) ? $recruit_info["rc_detail_img2"] : "";
+			$info["rc_detail_img3"] = isset($recruit_info["rc_detail_img3"]) ? $recruit_info["rc_detail_img3"] : "";
 
 			$add_info = $this->member_model->getMemberInfo($this->mm_idx);
 			$info["mem_info"] = $add_info;
@@ -628,6 +643,9 @@ class Compage extends CI_Controller
 				$info["rc_img3"] = "";
 				$info["rc_img4"] = "";
 				$info["rc_img5"] = "";
+				$info["rc_detail_img1"] = "";
+				$info["rc_detail_img2"] = "";
+				$info["rc_detail_img3"] = "";
 				$info["mm_comp_num"] = $add_info["mm_comp_num"];
 			}
 		}
@@ -1582,6 +1600,9 @@ class Compage extends CI_Controller
 				$info["rc_price_monthly"] = isset($temp_info["rc_price_monthly"]) ? $temp_info["rc_price_monthly"] : "";
 				$info["rc_desc"] = isset($temp_info["rc_desc"]) ? $temp_info["rc_desc"] : "";
 				$info["rc_hash"] = isset($temp_info["rc_hash"]) ? $temp_info["rc_hash"] : "";
+				$info["rc_detail_img1"] = isset($temp_info["rc_detail_img1"]) ? $temp_info["rc_detail_img1"] : "";
+				$info["rc_detail_img2"] = isset($temp_info["rc_detail_img2"]) ? $temp_info["rc_detail_img2"] : "";
+				$info["rc_detail_img3"] = isset($temp_info["rc_detail_img3"]) ? $temp_info["rc_detail_img3"] : "";
 				$info["rc_life_type"] = isset($temp_info["rc_life_type"]) && is_array($temp_info["rc_life_type"]) ? $temp_info["rc_life_type"] : (isset($temp_info["rc_life_type"]) ? array_map('trim', explode(",", $temp_info["rc_life_type"])) : []);
 				$info["rc_day"] = isset($temp_info["rc_day"]) && is_array($temp_info["rc_day"]) ? $temp_info["rc_day"] : (isset($temp_info["rc_day"]) ? array_map('trim', explode(",", $temp_info["rc_day"])) : []);
 				$info["rc_day_all"] = isset($temp_info["rc_day_all"]) ? $temp_info["rc_day_all"] : "";

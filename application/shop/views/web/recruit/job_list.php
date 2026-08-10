@@ -14,6 +14,16 @@ if (count($banner_list) > 0) {
   .search-result .content-area:first-child {
     margin-left: -63px;
 }
+.recomm-slider.recruit .container.swiperX {
+  padding: 0 52px;
+}
+.arrow.arrow--left {
+  left: -25px;
+}
+.recomm-slider .arrow.arrow--right {
+    left: auto;
+    right:  -17px;
+}
 </style>
 <div id="content" class="page page-recruit">
   <main class="page-content">

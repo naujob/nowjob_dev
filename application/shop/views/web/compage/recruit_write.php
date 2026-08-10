@@ -2404,7 +2404,11 @@
                   <div class="value">
                     <div class="form-pic-group">
                       <?php foreach (range(1, 4) as $n) : ?>
-                        <label class="form-pic <?= getData($info, "rc_img" . $n) != "" ? "has-image" : "" ?>" data-slot="<?= $n ?>">
+                        <?php
+                          $imageValue = ($n == 1) ? getData($info, "rc_img" . $n) : getData($info, "rc_detail_img" . ($n - 1));
+                          $hasImage = ($imageValue != "") ? "has-image" : "";
+                        ?>
+                        <label class="form-pic <?= $hasImage ?>" data-slot="<?= $n ?>">
                           <span class="pic-badge"><?= $n == 1 ? "메인사진" : "상세페이지" . ($n - 1) ?></span>
                           <?php if ($n == 1) : ?>
                             <input type="file" name="rc_img1" id="rc_img1" accept="image/*" class="js-file-preview">
@@ -2416,9 +2420,15 @@
                             <input type='hidden' name='rc_img1_ori' id='rc_img1_ori' value='<?= getData($info, "rc_img1") ?>' />
                           <?php else : ?>
                             <input type="file" accept="image/*" class="js-detail-photo-select">
-                            <span class="preview" id="prev<?= $n ?>"></span>
+                            <span class="preview" id="prev<?= $n ?>">
+                              <?php if (getData($info, "rc_detail_img" . ($n - 1)) != "") : ?>
+                                <img src="<?= getData($info, "rc_detail_img" . ($n - 1)) ?>" />
+                              <?php endif; ?>
+                            </span>
+                            <input type='hidden' name='rc_detail_img<?= $n - 1 ?>' id='rc_detail_img<?= $n - 1 ?>' value='<?= getData($info, "rc_detail_img" . ($n - 1)) ?>' />
+                            <input type='hidden' name='rc_detail_img<?= $n - 1 ?>_ori' id='rc_detail_img<?= $n - 1 ?>_ori' value='<?= getData($info, "rc_detail_img" . ($n - 1)) ?>' /><!-- 초기값: DB에 저장된 기존 파일 경로 (파일 정리 로직에서 비교용) -->
                           <?php endif; ?>
-                          <button type="button" class="btn-pic-remove">×</button>
+                          <button type="button" class="btn-pic-remove" style="display:<?= ($n > 1 && getData($info, "rc_detail_img" . ($n - 1)) != "") ? "inline-block" : "none" ?>;">×</button>
                         </label>
                       <?php endforeach; ?>
                     </div>
@@ -3836,7 +3846,7 @@
     nhn.husky.EZCreator.createInIFrame({
       oAppRef: oEditors, // SmartEditor2 에디터를 조작하기 위해 저장해두는 변수
       elPlaceHolder: "rc_desc",
-      sSkinURI: "/resource/shop/web/smarteditor2/SmartEditor2Skin_ko_KR.html", //에디터 디자인 파일 위치
+      sSkinURI: "/resource/shop/web/smarteditor2/SmartEditor2Skin_ko_KR.html?v=<?= time() ?>", //에디터 디자인 파일 위치
       fCreator: "createSEditor2", // 에디터 생성 함수
       bRichMode: true, // 리치텍스트 모드 활성화
       bAutoLoad: true, // 자동 로드
@@ -3851,10 +3861,10 @@
             var oEditor = oEditors.getById["rc_desc"];
             if (!oEditor) return;
 
-            // 에디터 body의 기본 폰트 크기를 14pt로 설정
+            // 에디터 body의 기본 폰트 크기를 17pt로 설정
             var oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
             if (oWYSIWYGDocument && oWYSIWYGDocument.body) {
-              oWYSIWYGDocument.body.style.fontSize = "14pt";
+              oWYSIWYGDocument.body.style.fontSize = "17pt";
             }
 
             // 폰트 크기 플러그인 찾아서 기본값 설정
@@ -3863,8 +3873,8 @@
               for (var i = 0; i < oApp.aPlugins.length; i++) {
                 var oPlugin = oApp.aPlugins[i];
                 if (oPlugin && oPlugin.sDefaultText !== undefined && oPlugin.elFontSizeLabel) {
-                  oPlugin.sDefaultText = "14pt";
-                  oPlugin.elFontSizeLabel.innerHTML = "14pt";
+                  oPlugin.sDefaultText = "17pt";
+                  oPlugin.elFontSizeLabel.innerHTML = "17pt";
 
                   // 14pt 항목 활성화
                   if (oPlugin.aLIFontSizes && oPlugin.aLIFontSizes.length > 0) {
@@ -3873,7 +3883,7 @@
                       if (!elLi) continue;
 
                       var elSpan = elLi.querySelector("span span");
-                      if (elSpan && elSpan.style && elSpan.style.fontSize === "14pt") {
+                      if (elSpan && elSpan.style && elSpan.style.fontSize === "17pt") {
                         if (typeof oPlugin._clearFontSizeSelection === "function") {
                           oPlugin._clearFontSizeSelection();
                         }
@@ -3977,11 +3987,26 @@
     }
   });
 
+  // 페이지 로드 시 슬롯 2-4 초기 상태 복원 (저장된 상세페이지 사진 슬롯 복원)
+  $(function() {
+    for (var slot = 2; slot <= 4; slot++) {
+      var $label = $(".form-pic[data-slot='" + slot + "']");
+      var inputName = 'rc_detail_img' + (slot - 1);
+      var uploadedUrl = $("[name='" + inputName + "']").val();
+      if (uploadedUrl) {
+        // 기존 이미지 URL을 메모리에 저장 (X버튼 클릭 시 사용)
+        $label.data("uploadedUrl", uploadedUrl);
+        $label.find(".btn-pic-remove").show();
+      }
+    }
+  });
+
   // 상세페이지 사진 선택 (슬롯 2-4) - 에디터에 삽입
   $(document).on("change", ".form-pic-group .js-detail-photo-select", function() {
     var $label = $(this).closest(".form-pic");
     var $preview = $label.find(".preview");
     var file = this.files[0];
+    var slot = $label.data("slot");
 
     if (!file) return;
 
@@ -3990,6 +4015,7 @@
     reader.onload = function(e) {
       $preview.html('<img src="' + e.target.result + '" />');
       $label.addClass("has-image");
+      $label.find(".btn-pic-remove").show();
     };
     reader.readAsDataURL(file); // 파일을 Data URL로 읽기
 
@@ -4018,7 +4044,10 @@
               img.dataset.uploadedUrl = response.url;
               imageWrapper.appendChild(img);
               oEditor.exec("PASTE_HTML", ['<br>' + imageWrapper.outerHTML]);
-              $label.data("uploadedUrl", response.url);
+
+              // hidden input에 업로드 URL 저장 (폼 제출 시 백엔드로 전달)
+              var inputName = 'rc_detail_img' + (slot - 1);
+              $("[name='" + inputName + "']").val(response.url);
             }
           } catch (e) {
             console.log("SmartEditor2 not available, showing URL in desc");
@@ -4040,19 +4069,25 @@
     var $label = $(this).closest(".form-pic");
     var slot = $label.data("slot");
     var $input = $label.find("input[type=file]");
-    var $oriInput = $label.find("[name*='_ori']");
     var $preview = $label.find(".preview");
 
     $input.val("");
-    if ($oriInput.length) {
-      $oriInput.val("");
-    }
     $preview.html("");
     $label.removeClass("has-image");
+    $(this).hide();
 
-    // 슬롯 2-4 (상세페이지): 에디터에서도 제거
-    if (slot > 1) {
-      var uploadedUrl = $label.data("uploadedUrl");
+    // 슬롯 1 (메인사진): 원본값만 초기화
+    if (slot === 1) {
+      var $oriInput = $label.find("[name='rc_img1_ori']");
+      if ($oriInput.length) {
+        $oriInput.val("");
+      }
+    }
+    // 슬롯 2-4 (상세페이지): 에디터에서도 제거 + hidden input 초기화
+    else {
+      var inputName = 'rc_detail_img' + (slot - 1);
+      var uploadedUrl = $("[name='" + inputName + "']").val();
+
       if (uploadedUrl) {
         try {
           var oEditor = oEditors.getById["rc_desc"];
@@ -4073,7 +4108,13 @@
         } catch (e) {
           console.log("Could not remove from editor");
         }
-        $label.data("uploadedUrl", null);
+      }
+
+      // hidden input 초기화 (폼 제출 시 백엔드에서 기존 파일 정리)
+      $("[name='" + inputName + "']").val("");
+      var $oriInput = $label.find("[name='" + inputName + "_ori']");
+      if ($oriInput.length) {
+        $oriInput.val("");
       }
     }
   });

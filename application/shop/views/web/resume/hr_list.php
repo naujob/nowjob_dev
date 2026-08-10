@@ -35,6 +35,17 @@ if (count($banner_list) > 0) {
   .arrow--disabled {
     display: none;
   }
+  .recomm-slider.person .container.swiperX {
+  padding: 0 52px;
+}
+.arrow.arrow--left {
+  left: -25px;
+}
+
+.recomm-slider.person .arrow.arrow--right {
+    left: auto;
+    right:  -17px;
+}
 </style>
 <div id="content" class="page page-person page-hr-list">
   <main class="page-content">
@@ -50,7 +61,7 @@ if (count($banner_list) > 0) {
     </div> -->
 
     <div class="recomm-slider person">
-      <div class="container">
+      <div class="container swiperX">
         <h2 class="primary-title">추천인재</h2>
         <div class="slider-wrap keen-slider" id="my-keen-slider">
         </div>

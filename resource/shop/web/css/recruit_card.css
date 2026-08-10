@@ -87,17 +87,17 @@
   position: relative;
 }
 
-.recruit-card .type em.wtype1 { color: #3a70db; }
-.recruit-card .type em.wtype2 { color: #F86048; }
-.recruit-card .type em.wtype3 { color: #1B9D7D; }
+.recruit-card .type em.wtype1 
+.recruit-card .type em.wtype2 
+.recruit-card .type em.wtype3 
 
 /* 카드 근무형태 wtype 색상 */
-.recruit-card .card-meta-group .worktype em.wtype1 { color: #3a70db; }
-.recruit-card .card-meta-group .worktype em.wtype2 { color: #F86048; }
-.recruit-card .card-meta-group .worktype em.wtype3 { color: #1B9D7D; }
-.recruit-card .wtype em.wtype1 { color: #3a70db; }
-.recruit-card .wtype em.wtype2 { color: #F86048; }
-.recruit-card .wtype em.wtype3 { color: #1B9D7D; }
+.recruit-card .card-meta-group .worktype em.wtype1 
+.recruit-card .card-meta-group .worktype em.wtype2 
+.recruit-card .card-meta-group .worktype em.wtype3 
+.recruit-card .wtype em.wtype1 
+.recruit-card .wtype em.wtype2 
+.recruit-card .wtype em.wtype3
 
 /* 카드 급여형태 period (recruit_list.css .period와 동일) */
 .recruit-card .price-wrap .period {

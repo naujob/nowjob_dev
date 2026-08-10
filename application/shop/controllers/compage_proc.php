@@ -35,8 +35,8 @@ class Compage_proc extends CI_Controller
       return '';
     }
 
-    $allowed_tags = '<p><br><b><i><u><strong><em><a><img><ul><ol><li><blockquote><h1><h2><h3><h4><h5><h6>';
-    $clean_html = strip_tags($html_content, $allowed_tags);
+    $allowed_tags = '<p><br><b><i><u><strong><em><a><img><ul><ol><li><blockquote><h1><h2><h3><h4><h5><h6><span>';
+    $clean_html = strip_tags($html_content, $allowed_tags); // 첫 번째 입력값 ($text): 태그를 지우고 싶은 원본 문자열 (필수), 두 번째 입력값 ($allowed_tags): "이 태그는 지우지 말고 남겨줘!" 하고 예외로 둘 태그들 (선택)
 
     return $clean_html;
   }
@@ -1288,6 +1288,9 @@ class Compage_proc extends CI_Controller
         "rc_img3" => isset($step3["rc_img3"]) ? $step3["rc_img3"] : "",
         "rc_img4" => isset($step3["rc_img4"]) ? $step3["rc_img4"] : "",
         "rc_img5" => "",
+        "rc_detail_img1" => isset($step3["rc_detail_img1"]) ? $step3["rc_detail_img1"] : "",
+        "rc_detail_img2" => isset($step3["rc_detail_img2"]) ? $step3["rc_detail_img2"] : "",
+        "rc_detail_img3" => isset($step3["rc_detail_img3"]) ? $step3["rc_detail_img3"] : "",
         "rc_thumb" => isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : "",
       ];
 
@@ -1409,6 +1412,9 @@ class Compage_proc extends CI_Controller
         "rc_img3" => isset($step3["rc_img3"]) ? $step3["rc_img3"] : "",
         "rc_img4" => isset($step3["rc_img4"]) ? $step3["rc_img4"] : "",
         "rc_img5" => "",
+        "rc_detail_img1" => isset($step3["rc_detail_img1"]) ? $step3["rc_detail_img1"] : "",
+        "rc_detail_img2" => isset($step3["rc_detail_img2"]) ? $step3["rc_detail_img2"] : "",
+        "rc_detail_img3" => isset($step3["rc_detail_img3"]) ? $step3["rc_detail_img3"] : "",
         "rc_thumb" => isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : "",
         "up_dt" => date("Y-m-d H:i:s")
       ];
@@ -1741,6 +1747,14 @@ class Compage_proc extends CI_Controller
     $rc_img5_ori = input_post("rc_img5_ori", "");
     $mm_img1_ori = input_post("mm_img1_ori", "");
 
+    // 상세페이지 사진 필드 읽기 (웹 폼에서 업로드된 슬롯 2-4 사진)
+    $rc_detail_img1 = input_post("rc_detail_img1", "");
+    $rc_detail_img2 = input_post("rc_detail_img2", "");
+    $rc_detail_img3 = input_post("rc_detail_img3", "");
+    $rc_detail_img1_ori = input_post("rc_detail_img1_ori", "");
+    $rc_detail_img2_ori = input_post("rc_detail_img2_ori", "");
+    $rc_detail_img3_ori = input_post("rc_detail_img3_ori", "");
+
     // 공고노출지역 파라미터
     $expose_addr1_zipcode  = input_post("expose_addr1_zipcode", "");
     $expose_addr1_jibun    = input_post("expose_addr1_jibun", "");
@@ -1886,7 +1900,10 @@ class Compage_proc extends CI_Controller
       "rc_sage" => $rc_sage ? $rc_sage : "",
       "rc_eage" => $rc_eage ? $rc_eage : "",
       "rc_desc" => $rc_desc ? $rc_desc : "",  // 간편등록 시 빈 문자열로 저장
-      "rc_hash" => $rc_hash ? $rc_hash : ""   // 간편등록 시 빈 문자열로 저장
+      "rc_hash" => $rc_hash ? $rc_hash : "",  // 간편등록 시 빈 문자열로 저장
+      "rc_detail_img1" => $rc_detail_img1,
+      "rc_detail_img2" => $rc_detail_img2,
+      "rc_detail_img3" => $rc_detail_img3
     ];
 
     $this->site_model->setSiteLog(
@@ -1950,6 +1967,33 @@ class Compage_proc extends CI_Controller
 
         if ($mm_img1_ori != $json_info["mm_img1"]) {
           file_remove($json_info["mm_img1"]);
+        }
+      } catch (Exception $ex) {
+      }
+    }
+
+    # 상세페이지 사진(슬롯 2-4) 기존 파일 삭제 처리 (_ori 값이 있을 때만 비교)
+    $log_info_step3 = $this->site_model->getSiteLog(
+      ["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT", "sl_step" => "스텝3"]
+    );
+
+    if ($log_info_step3 != null) {
+      try {
+        $json_info_step3 = json_decode($log_info_step3["sl_txt"], true);
+        if ($rc_detail_img1_ori != "" && $rc_detail_img1_ori != (isset($json_info_step3["rc_detail_img1"]) ? $json_info_step3["rc_detail_img1"] : "")) {
+          if (isset($json_info_step3["rc_detail_img1"]) && $json_info_step3["rc_detail_img1"] != "") {
+            file_remove($json_info_step3["rc_detail_img1"]);
+          }
+        }
+        if ($rc_detail_img2_ori != "" && $rc_detail_img2_ori != (isset($json_info_step3["rc_detail_img2"]) ? $json_info_step3["rc_detail_img2"] : "")) {
+          if (isset($json_info_step3["rc_detail_img2"]) && $json_info_step3["rc_detail_img2"] != "") {
+            file_remove($json_info_step3["rc_detail_img2"]);
+          }
+        }
+        if ($rc_detail_img3_ori != "" && $rc_detail_img3_ori != (isset($json_info_step3["rc_detail_img3"]) ? $json_info_step3["rc_detail_img3"] : "")) {
+          if (isset($json_info_step3["rc_detail_img3"]) && $json_info_step3["rc_detail_img3"] != "") {
+            file_remove($json_info_step3["rc_detail_img3"]);
+          }
         }
       } catch (Exception $ex) {
       }
