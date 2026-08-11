@@ -1764,13 +1764,14 @@
 
         // 주소 정리 함수로 지번 주소를 정리하여 표시
         var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
+        var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(jibun) || jibun) : jibun;
 
         return '' +
             '<li class="rw-location-field-item">' +
             '<input type="hidden" name="ad_zipcode[]" value="' + zipcode + '" />' +
             '<input type="hidden" name="ad_jibun[]" value="' + jibun + '" />' +
             '<input type="hidden" name="ad_doro[]" value="' + doro + '" />' +
-            '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />' +
+            '<input type="hidden" name="ad_addr[]" value="' + addr_short + '" />' +
             '<input type="hidden" name="ad_gps_x[]" value="' + gpsX + '" />' +
             '<input type="hidden" name="ad_gps_y[]" value="' + gpsY + '" />' +
             '<span class="location-text">' + displayAddr + '</span>' +
@@ -1856,11 +1857,12 @@
         });
 
         function finalizeAddrInfo(finalX, finalY) {
+            var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(jibun) || jibun) : jibun;
             var item = {
                 ad_zip_code: zipcode,
                 ad_jibun: jibun,
                 ad_doro: doro,
-                ad_addr: jibun,
+                ad_addr: addr_short,
                 ad_gps_x: finalX,
                 ad_gps_y: finalY
             };
@@ -1906,11 +1908,12 @@
         var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
 
         function addAddrFromRegion(addr, x, y) {
+            var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(addr) || addr) : addr;
             var item = {
                 ad_zip_code: "",
                 ad_jibun: addr,
                 ad_doro: "",
-                ad_addr: addr,
+                ad_addr: addr_short,
                 ad_gps_x: x,
                 ad_gps_y: y
             };

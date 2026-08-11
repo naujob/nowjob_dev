@@ -146,7 +146,7 @@ function fRemoveBigAdr($arg)
     }
 
     .info-table .pricetype-row .pricetype em:last-child {
-        padding-left: 3px;
+        /* padding-left: 3px; */
         color: #1b9d7d;
     }
 
@@ -168,6 +168,12 @@ function fRemoveBigAdr($arg)
     .view-footer[data-request-state="none"] .btnGoChat {
         display: none;
     }
+    .profile-record{
+        margin-top: 33px;
+    }
+    /* .addr-item {
+        padding-left: 1px;
+    } */
 </style>
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />

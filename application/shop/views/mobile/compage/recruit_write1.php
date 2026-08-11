@@ -130,15 +130,16 @@
 <script>
 	// 검색 완료 선택 처리
 	function selectAddrInfo(zipcode,doro,jibun,addr,x,y){
+		var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(addr) || addr) : addr;
 		$("#ad_zipcode").val(zipcode);
 		$("#ad_jibun").val(doro);
 		$("#ad_doro").val(jibun);
-		$("#ad_addr").val(addr);
+		$("#ad_addr").val(addr_short);
 		$("#ad_gps_x").val(x);
 		$("#ad_gps_y").val(y);
 
 		$("[name=rc_addr_doro]").val(doro);
-		$(".rc_addr").text(addr);
+		$(".rc_addr").text(addr_short);
 
 		$("#changeArea").removeClass("on");
 	}

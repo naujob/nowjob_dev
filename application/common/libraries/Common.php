@@ -738,9 +738,12 @@ class common
 			$data = array('upload_data' => $this->CI->upload->data());
 			$file_name = $data['upload_data']['raw_name'];
 			$url = "/resource/uploads/" . $path . "/" . $file_name . $data['upload_data']['file_ext'];
+			$file_ext = strtolower($data['upload_data']['file_ext']);
 
-			#모바일 이미지 돌리기
-			$this->img_rotate($root . "/" . $file_name . $data['upload_data']['file_ext']);
+			#모바일 이미지 돌리기 (GIF 제외)
+			if ($file_ext !== '.gif') {
+				$this->img_rotate($root . "/" . $file_name . $data['upload_data']['file_ext']);
+			}
 
 			#파일 사이즈
 			$img_size = filesize($root . "/" . $file_name . $data['upload_data']['file_ext']);
@@ -758,28 +761,37 @@ class common
 			}
 
 			//1MB가 넘는 이미지는 퀄리티를 낮춘다. 77%
-			$config_resize['image_library'] = 'gd2';
-			$config_resize['source_image'] =  $root . "/" . $file_name . $data['upload_data']['file_ext'];
-			$config_resize['new_image'] =  $root . "/resize/" . $file_name . $data['upload_data']['file_ext'];
-			$config_resize['maintain_ratio']   = TRUE;
-			$config_resize['quality']       = $quilty;
-			$config_resize['width']       = $size;
-			$config_resize['height']       = $size;
+			$file_ext = strtolower($data['upload_data']['file_ext']);
 
-			$this->CI->load->library('image_lib');
-			$this->CI->image_lib->initialize($config_resize);
-			if (! $this->CI->image_lib->resize()) {
-				echo $this->CI->image_lib->display_errors();
-				$this->CI->image_lib->clear();
-				return "";
+			// GIF 파일인 경우 애니메이션 유지를 위해 리사이징 스킵 (GD2는 GIF 애니메이션 미지원)
+			if ($file_ext === '.gif') {
+				$url = '/resource/uploads/' . $path . '/' . $file_name . $data['upload_data']['file_ext'];
+				$result["RESIZE"] = false;
 			} else {
-				$this->CI->image_lib->clear();
-				$url = '/resource/uploads/' . $path . '/resize/'  . $file_name . $data['upload_data']['file_ext'];
+				// GIF가 아닌 경우 리사이징 진행
+				$config_resize['image_library'] = 'gd2';
+				$config_resize['source_image'] =  $root . "/" . $file_name . $data['upload_data']['file_ext'];
+				$config_resize['new_image'] =  $root . "/resize/" . $file_name . $data['upload_data']['file_ext'];
+				$config_resize['maintain_ratio']   = TRUE;
+				$config_resize['quality']       = $quilty;
+				$config_resize['width']       = $size;
+				$config_resize['height']       = $size;
 
-				//리사이즈 성공시 기존파일 삭제
-				if (unlink($root . "/" . $file_name . $data['upload_data']['file_ext'])) {
+				$this->CI->load->library('image_lib');
+				$this->CI->image_lib->initialize($config_resize);
+				if (! $this->CI->image_lib->resize()) {
+					echo $this->CI->image_lib->display_errors();
+					$this->CI->image_lib->clear();
+					return "";
+				} else {
+					$this->CI->image_lib->clear();
+					$url = '/resource/uploads/' . $path . '/resize/'  . $file_name . $data['upload_data']['file_ext'];
+
+					//리사이즈 성공시 기존파일 삭제
+					if (unlink($root . "/" . $file_name . $data['upload_data']['file_ext'])) {
+					}
+					$result["RESIZE"] = true;
 				}
-				$result["RESIZE"] = true;
 			}
 
 			$result["IS_FILE"] = TRUE;
@@ -841,8 +853,8 @@ class common
 			];
 		}
 
-		$this->CI->load->library('upload', $config);
-		if (!$this->CI->upload->do_upload($ipt_name)) {
+		$this->CI->load->library('upload', $config); // 파일 업로드 라이브러리 로드
+		if (!$this->CI->upload->do_upload($ipt_name)) { // 파일 업로드 실행
 			return [
 				"SUCCESS" => false,
 				"ERROR" => $this->CI->upload->display_errors('', ''),
@@ -850,13 +862,15 @@ class common
 			];
 		}
 
-		$data = $this->CI->upload->data();
+		$data = $this->CI->upload->data(); // 업로드된 파일의 정보 가져오기
 		$file_name = $data['raw_name'];
 		$file_ext = $data['file_ext'];
 		$orig_path = $root . "/" . $file_name . $file_ext;
 
-		// 이미지 회전 처리
-		$this->img_rotate($orig_path);
+		// 이미지 회전 처리 (GIF 제외)
+		if (strtolower($file_ext) !== '.gif') {
+			$this->img_rotate($orig_path);
+		}
 
 		// 파일 크기에 따른 품질 설정
 		$img_size = filesize($orig_path) / 1024;
@@ -873,32 +887,47 @@ class common
 		];
 
 		$urls = [];
-		$this->CI->load->library('image_lib');
+		$file_ext_lower = strtolower($file_ext);
 
-		foreach ($sizes as $size_name => $size_px) {
-			$config_resize = [
-				'image_library' => 'gd2',
-				'source_image' => $orig_path,
-				'new_image' => $root . "/resize/{$size_name}/" . $file_name . $file_ext,
-				'maintain_ratio' => TRUE,
-				'quality' => $quality,
-				'width' => $size_px,
-				'height' => $size_px
-			];
+		// GIF 파일인 경우 애니메이션 유지를 위해 리사이징 스킵
+		if ($file_ext_lower === '.gif') {
+			// GIF는 리사이징하지 않고 원본을 lg 폴더에 복사하여 보관
+			copy($orig_path, $root . "/resize/lg/" . $file_name . $file_ext);
 
-			$this->CI->image_lib->clear();
-			$this->CI->image_lib->initialize($config_resize);
-
-			if (!$this->CI->image_lib->resize()) {
-				$this->CI->image_lib->clear();
-				continue;
+			// 3가지 크기 모두 같은 원본 파일 URL 반환
+			$orig_url = "/resource/uploads/{$path}/resize/lg/{$file_name}{$file_ext}";
+			foreach ($sizes as $size_name => $size_px) {
+				$urls["URL_" . strtoupper($size_name)] = $orig_url;
 			}
+		} else {
+			// GIF가 아닌 경우 3가지 크기로 리사이징
+			$this->CI->load->library('image_lib');
 
-			$urls["URL_" . strtoupper($size_name)] = "/resource/uploads/{$path}/resize/{$size_name}/{$file_name}{$file_ext}";
-			$this->CI->image_lib->clear();
+			foreach ($sizes as $size_name => $size_px) {
+				$config_resize = [
+					'image_library' => 'gd2',
+					'source_image' => $orig_path,
+					'new_image' => $root . "/resize/{$size_name}/" . $file_name . $file_ext,
+					'maintain_ratio' => TRUE,
+					'quality' => $quality,
+					'width' => $size_px,
+					'height' => $size_px
+				];
+
+				$this->CI->image_lib->clear();
+				$this->CI->image_lib->initialize($config_resize);
+
+				if (!$this->CI->image_lib->resize()) {
+					$this->CI->image_lib->clear();
+					continue;
+				}
+
+				$urls["URL_" . strtoupper($size_name)] = "/resource/uploads/{$path}/resize/{$size_name}/{$file_name}{$file_ext}";
+				$this->CI->image_lib->clear();
+			}
 		}
 
-		// 원본 삭제
+		// 원본 삭제 (GIF는 lg 폴더에 복사했으므로 안전하게 삭제)
 		if (file_exists($orig_path)) {
 			unlink($orig_path);
 		}

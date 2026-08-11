@@ -1284,21 +1284,21 @@
 
         /* 첨부사진 삭제 버튼 스타일 */
         .form-pic-group .form-pic .btn-pic-remove {
-          position: absolute;
-          top: 4px;
-          right: 4px;
-          z-index: 3;
-          width: 22px;
-          height: 22px;
-          line-height: 22px;
-          text-align: center;
-          padding: 0;
-          border: none;
-          border-radius: 50%;
-          background-color: rgba(0, 0, 0, 0.6);
-          color: #fff;
-          font-size: 14px;
-          cursor: pointer;
+             position: absolute;
+            top: 171px;
+            right: 4px;
+            z-index: 3;
+            width: 35px;
+            height: 35px;
+            line-height: 22px;
+            text-align: center;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-size: 14px;
+    cursor: pointer;
           display: none;
         }
 
@@ -1647,7 +1647,18 @@
                                   }
                                 }
                                 */
-                                $('#rc_desc').text($('#rc_desc_' + idx).text());
+                                // SmartEditor2를 통해 새로운 공고 설명 로드 (기존 이미지 포함 제거)
+                                try {
+                                  var oEditor = oEditors.getById["rc_desc"];
+                                  if (oEditor) {
+                                    var newContent = $('#rc_desc_' + idx).text();
+                                    oEditor.setContents(newContent);
+                                  } else {
+                                    $('#rc_desc').text($('#rc_desc_' + idx).text());
+                                  }
+                                } catch (e) {
+                                  $('#rc_desc').text($('#rc_desc_' + idx).text());
+                                }
                                 $('#recruiteListBox').hide();
 
                               }
@@ -2428,7 +2439,7 @@
                             <input type='hidden' name='rc_detail_img<?= $n - 1 ?>' id='rc_detail_img<?= $n - 1 ?>' value='<?= getData($info, "rc_detail_img" . ($n - 1)) ?>' />
                             <input type='hidden' name='rc_detail_img<?= $n - 1 ?>_ori' id='rc_detail_img<?= $n - 1 ?>_ori' value='<?= getData($info, "rc_detail_img" . ($n - 1)) ?>' /><!-- 초기값: DB에 저장된 기존 파일 경로 (파일 정리 로직에서 비교용) -->
                           <?php endif; ?>
-                          <button type="button" class="btn-pic-remove" style="display:<?= ($n > 1 && getData($info, "rc_detail_img" . ($n - 1)) != "") ? "inline-block" : "none" ?>;">×</button>
+                          <button type="button" class="btn-pic-remove" style="display:<?= ($n == 1 && getData($info, "rc_img1") != "") || ($n > 1 && getData($info, "rc_detail_img" . ($n - 1)) != "") ? "inline-block" : "none" ?>;">×</button>
                         </label>
                       <?php endforeach; ?>
                     </div>
@@ -3156,14 +3167,15 @@
 
     if (target === "recruit") {
       // 근무지 처리
+      var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(doro) || doro) : doro;
       $("#ad_zipcode").val(zipcode);
-      $("#ad_jibun").val(jibun);
+      $("#ad_jibun").val(doro);
       $("#ad_doro").val(doro);
-      $("#ad_addr").val(jibun);
+      $("#ad_addr").val(addr_short);
       $("#ad_gps_x").val(x);
       $("#ad_gps_y").val(y);
-      $("[name=rc_addr_doro]").val(addr);
-      $("[name=changeArea]").val(addr);
+      $("[name=rc_addr_doro]").val(doro);
+      $("[name=changeArea]").val(doro);
     }
 
     // 팝업 닫기
@@ -3193,13 +3205,14 @@
       // 새 데이터를 해당 필드에만 매핑
       if (data.searchArea && data.searchArea.length > 0) {
         var area = data.searchArea[0]; // 최대 1개만 선택 가능하므로 첫 번째만 사용
+        var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(area.addr) || area.addr) : area.addr;
         $("[name='expose_addr" + fieldIndex + "_zipcode']").val(area.addr);
         $("[name='expose_addr" + fieldIndex + "_jibun']").val(area.addr);
         $("[name='expose_addr" + fieldIndex + "_doro_val']").val(area.addr);
-        $("[name='expose_addr" + fieldIndex + "_addr']").val(area.addr);
+        $("[name='expose_addr" + fieldIndex + "_addr']").val(addr_short);
         // GPS 좌표는 서버에서 받은 데이터가 없으므로 빈값 유지
-        // 원본 주소에 fRemoveBigAdrJS를 적용하여 표시
-        $("#expose_addr" + fieldIndex + "_doro").val(fRemoveBigAdrJS(area.addr));
+        // 축약된 주소를 표시
+        $("#expose_addr" + fieldIndex + "_doro").val(addr_short);
         $(".js-clear-expose-addr-web[data-index='" + fieldIndex + "']").show();
       }
     }
@@ -3861,10 +3874,10 @@
             var oEditor = oEditors.getById["rc_desc"];
             if (!oEditor) return;
 
-            // 에디터 body의 기본 폰트 크기를 17pt로 설정
+            // 에디터 body의 기본 폰트 크기를 15pt로 설정
             var oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
             if (oWYSIWYGDocument && oWYSIWYGDocument.body) {
-              oWYSIWYGDocument.body.style.fontSize = "17pt";
+              oWYSIWYGDocument.body.style.fontSize = "15pt";
             }
 
             // 폰트 크기 플러그인 찾아서 기본값 설정
@@ -3873,8 +3886,8 @@
               for (var i = 0; i < oApp.aPlugins.length; i++) {
                 var oPlugin = oApp.aPlugins[i];
                 if (oPlugin && oPlugin.sDefaultText !== undefined && oPlugin.elFontSizeLabel) {
-                  oPlugin.sDefaultText = "17pt";
-                  oPlugin.elFontSizeLabel.innerHTML = "17pt";
+                  oPlugin.sDefaultText = "15pt";
+                  oPlugin.elFontSizeLabel.innerHTML = "15pt";
 
                   // 14pt 항목 활성화
                   if (oPlugin.aLIFontSizes && oPlugin.aLIFontSizes.length > 0) {
@@ -3883,7 +3896,7 @@
                       if (!elLi) continue;
 
                       var elSpan = elLi.querySelector("span span");
-                      if (elSpan && elSpan.style && elSpan.style.fontSize === "17pt") {
+                      if (elSpan && elSpan.style && elSpan.style.fontSize === "15pt") {
                         if (typeof oPlugin._clearFontSizeSelection === "function") {
                           oPlugin._clearFontSizeSelection();
                         }
@@ -4009,6 +4022,37 @@
     var slot = $label.data("slot");
 
     if (!file) return;
+
+    // 기존 이미지 제거 (같은 슬롯에 새 사진 선택 시)
+    if (slot > 1) {
+      var inputName = 'rc_detail_img' + (slot - 1);
+      var uploadedUrl = $("[name='" + inputName + "']").val();
+
+      if (uploadedUrl) {
+        try {
+          var oEditor = oEditors.getById["rc_desc"];
+          if (oEditor) {
+            var oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
+            if (oWYSIWYGDocument) {
+              var imgs = oWYSIWYGDocument.querySelectorAll('img[data-uploaded-url="' + uploadedUrl.replace(/"/g, '\\"') + '"]');
+              imgs.forEach(function(img) {
+                var wrapper = img.closest('.image-wrapper');
+                if (wrapper) {
+                  wrapper.remove();
+                } else {
+                  img.remove();
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.log("Could not remove existing image from editor");
+        }
+
+        // hidden input 초기화
+        $("[name='" + inputName + "']").val("");
+      }
+    }
 
     // 미리보기 표시
     var reader = new FileReader();

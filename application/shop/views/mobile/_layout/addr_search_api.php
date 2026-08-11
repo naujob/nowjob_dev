@@ -50,6 +50,22 @@
 			dataType: "jsonp",
 			crossDomain: true,
 			success: function(jsonStr) {
+				/**
+				 *   {
+					"results": {
+					"juso": [
+					{
+					"zipNo": "12345",                    // 우편번호
+					"roadAddr": "경기 시흥시 정왕로 123",  // 도로명주소 ← 최신 표준
+					"jibunAddr": "경기 시흥시 정왕동 456", // 지번주소 (구식)
+					"admCd": "4192010600",               // 행정구역코드
+					"rnMgtSn": "412821234567"            // 도로명관리번호
+										}
+									]
+								}
+							}
+				* 
+				*/
 				$("#list").html("");
 				var errCode = jsonStr.results.common.errorCode;
 				var errDesc = jsonStr.results.common.errorMessage;

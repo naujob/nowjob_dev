@@ -609,16 +609,14 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                         if (ret.code === "00" && ret.data) {
                             var parts = String(ret.data).split("^");
                             var frontPart = (parts[0] || "").trim();
-                            if (typeof fRemoveBigAdrJS === 'function') {
-                                frontPart = fRemoveBigAdrJS(frontPart) || frontPart;
-                            }
+                            var ad_addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(frontPart) || frontPart) : frontPart;
 
                             var addrPayload = {
                                 ru_name_seed_addr: frontPart,
                                 ad_zipcode: "",
                                 ad_jibun: frontPart,
                                 ad_doro: "",
-                                ad_addr: frontPart,
+                                ad_addr: ad_addr_short,
                                 ad_detail: "",
                                 ad_gps_x: lng,
                                 ad_gps_y: lat

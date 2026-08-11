@@ -65,6 +65,48 @@
       margin: 0;
       font-weight: 500;
     }
+
+    /* 로그인 로딩 오버레이 */
+    #login-loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+      gap: 20px;
+    }
+
+    #login-loading-overlay[data-visible="true"] {
+      display: flex;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
   </style>
   <?php
   $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -94,6 +136,12 @@
     <p class="tagline-main">지금 나우잡에서<br>일자리를 찾아보세요</p>
     <p class="tagline-sub">알바부터 정직원까지</p>
   </div>
+  <!-- 로그인 로딩 오버레이 -->
+  <div id="login-loading-overlay" data-visible="false">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">로그인 중 입니다</p>
+  </div>
+
   <div class="login-form-wrap">
     <div class="login-form">
       <div class="form-container">
@@ -249,6 +297,34 @@
 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script src="/resource/shop/mobile/js/logger.js"></script>
 <script>
+  // 로그인 로딩 오버레이 제어
+  function showLoginLoading() {
+    $("#login-loading-overlay").attr("data-visible", "true");
+  }
+
+  function hideLoginLoading() {
+    $("#login-loading-overlay").attr("data-visible", "false");
+  }
+
+  // 로그인 성공 후 안전하게 홈으로 이동 (토큰 저장 검증)
+  function navigateHomeAfterLogin(loginType) {
+    // 응답 처리 대기 (쿠키/세션 저장)
+    setTimeout(function() {
+      // 최근 로그인 타입을 백그라운드에서 저장 (실패해도 로그만 남김)
+      comAjax("/member_proc/set_last_login_type", { login_type: loginType });
+
+      // FCM 토큰을 백그라운드에서 연결 (에러는 콘솔에 기록)
+      if (typeof window.connectFCMTokenToUser === 'function') {
+        window.connectFCMTokenToUser().catch(function(error) {
+          console.warn('FCM 토큰 연결 실패:', error);
+        });
+      }
+
+      // 홈으로 이동
+      _replace("/");
+    }, 100);
+  }
+
   // 페이지 로드
   window.addEventListener('load', function() {});
 
@@ -465,20 +541,10 @@ window.onload = function() {
               comAjax("/member_proc/login", params, function(ret) {
                 if (ret.code == "00") {
                   sessionStorage.removeItem("chat_user_connect");
-
-                  // 최근 로그인 타입을 세션에 저장
-                  comAjax("/member_proc/set_last_login_type", { login_type: "KAKAO" }, function() {
-                    // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-                    if (typeof window.connectFCMTokenToUser === 'function') {
-                      window.connectFCMTokenToUser().then(function() {
-                        _replace("/");
-                      });
-                    } else {
-                      _replace("/");
-                    }
-                  });
+                  navigateHomeAfterLogin("KAKAO");
                   return;
                 } else {
+                  hideLoginLoading();
                   if (ret.code == "91") {
                     // 중복 계정 - 다른 SNS로 이미 가입됨
                     if (ret.data && ret.data.join_type) {
@@ -659,6 +725,8 @@ window.onload = function() {
   // iOS 네이티브 앱에서 호출: 카카오 로그인 결과 수신 (webView.evaluateJavaScript 사용)
   // 파라미터: iOS 앱에서 "^" 구분자로 연결된 문자열 (ID^폰^성별^생년^생일^이메일^이름)
   function onLoginInfo(message) {
+    showLoginLoading();
+
     // iOS 앱에서 받은 형식: "Optional(123456)^+82 10-1234-5678^Male^1990^01-15^email@test.com^사용자이름"
 
     // "^" 구분자로 사용자 정보 파싱
@@ -723,19 +791,9 @@ window.onload = function() {
     comAjax("/member_proc/login", params, function(ret) {
       if (ret.code == "00") {
         sessionStorage.removeItem("chat_user_connect");
-
-        // 최근 로그인 타입을 세션에 저장
-        comAjax("/member_proc/set_last_login_type", { login_type: "KAKAO" }, function() {
-          // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-          if (typeof window.connectFCMTokenToUser === 'function') {
-            window.connectFCMTokenToUser().then(function() {
-              _replace("/");
-            });
-          } else {
-            _replace("/");
-          }
-        });
+        navigateHomeAfterLogin("KAKAO");
       } else {
+        hideLoginLoading();
         if (ret.code == "91") {
           // 중복 계정 - 다른 SNS(또는 휴대폰)로 이미 가입됨
           if (ret.data && ret.data.join_type) {
@@ -776,6 +834,7 @@ window.onload = function() {
   }
 
   function onLoginFail(arg) {
+    hideLoginLoading();
     //kakao fail
     //alert('kakao fail');
     alert('카카오 로그인에 실패하였습니다.\n다른 방법으로 로그인 해주세요 ' + arg);
@@ -797,6 +856,8 @@ window.onload = function() {
 
   //회원 인증 완료
   document.addEventListener('AppleIDSignInOnSuccess', (data) => {
+    showLoginLoading();
+
     //로그인 성공시 실행
     var app_token = data.detail.authorization["id_token"];
     var decodedToken = parseJWT(app_token);
@@ -816,16 +877,9 @@ window.onload = function() {
     comAjax("/member_proc/login", params, function(ret) {
       if (ret.code == "00") {
         sessionStorage.removeItem("chat_user_connect");
-
-        // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-        if (typeof window.connectFCMTokenToUser === 'function') {
-          window.connectFCMTokenToUser().then(function() {
-            _replace("/");
-          });
-        } else {
-          _replace("/");
-        }
+        navigateHomeAfterLogin("APPLE");
       } else {
+        hideLoginLoading();
         if (ret.code == "90") {
           openPopup('confirm', {
             id: 'permission',
@@ -849,6 +903,7 @@ window.onload = function() {
 
   //로그인 오류처리
   document.addEventListener('AppleIDSignInOnFailure', (error) => {
+    hideLoginLoading();
     //handle error.
     alert("로그인에 실패했습니다. 다시 시도하세요.");
     //alert("내용:" + error.detail.error);
@@ -882,6 +937,8 @@ window.onload = function() {
   // iOS 네이티브 앱에서 호출: 네이버 로그인 결과 수신 (webView.evaluateJavaScript 사용)
   // 파라미터: iOS 앱에서 "^" 구분자로 연결된 문자열 (ID^이름^이메일^성별^휴대폰^생년^생일)
   function onNaverLoginInfo(msg) {
+    showLoginLoading();
+
     // iOS 앱에서 받은 형식: "123456^사용자이름^email@test.com^M^010-1234-5678^1990^01-15"
 
     var parts = msg.split('^');
@@ -910,20 +967,10 @@ window.onload = function() {
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
-
-          // 최근 로그인 타입을 세션에 저장
-          comAjax("/member_proc/set_last_login_type", { login_type: "NAVER" }, function() {
-            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-            if (typeof window.connectFCMTokenToUser === 'function') {
-              window.connectFCMTokenToUser().then(function() {
-                _replace("/");
-              });
-            } else {
-              _replace("/");
-            }
-          });
+          navigateHomeAfterLogin("NAVER");
           return;
         } else {
+          hideLoginLoading();
           if (ret.code == "91") {
             // 중복 계정 - 다른 SNS로 이미 가입됨
             if (ret.data && ret.data.join_type) {
@@ -963,6 +1010,7 @@ window.onload = function() {
       });
 
     } else {
+      hideLoginLoading();
       alert("네이버 로그인 실패");
     }
 
@@ -972,6 +1020,8 @@ window.onload = function() {
   // 파라미터: 로그인 상태, 카카오 ID, 이름, 휴대폰, 성별, 생년, 생일, 이메일
   function kakaoLoginAndCallback(status, id, name, phone, gender, birthyear, birthday, email) {
     if (status === "success") {
+      showLoginLoading();
+
       // 로그인 성공 → 사용자 정보를 서버에 전송하여 로그인/회원가입 처리
 
       // 전화번호 포맷 정규화: "+82 10-9002-5528" → "01090025528"
@@ -1001,18 +1051,7 @@ window.onload = function() {
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
-
-          // 최근 로그인 타입을 세션에 저장
-          comAjax("/member_proc/set_last_login_type", { login_type: "KAKAO" }, function() {
-            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-            if (typeof window.connectFCMTokenToUser === 'function') {
-              window.connectFCMTokenToUser().then(function() {
-                _replace("/");
-              });
-            } else {
-              _replace("/");
-            }
-          });
+          navigateHomeAfterLogin("KAKAO");
           return;
         } else {
           if (ret.code == "91") {
@@ -1023,6 +1062,7 @@ window.onload = function() {
               commonAlert(ret.msg, function() {});
             }
           } else if (ret.code == "90") {
+            hideLoginLoading();
             openPopup('confirm', {
               id: 'permission',
               content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
@@ -1037,12 +1077,14 @@ window.onload = function() {
               },
             });
           } else {
+            hideLoginLoading();
             commonAlert(ret.msg, function() {});
           }
         }
       });
 
     } else {
+      hideLoginLoading();
       alert("카카오 로그인 실패(1)");
     }
   }
@@ -1055,6 +1097,8 @@ window.onload = function() {
   // 파라미터: 로그인 상태, 네이버 ID, 이름, 이메일, 휴대폰, 성별, 생년, 생일
   function naverLoginAndCallback(status, id, name, email, phone, gender, birthyear, birthday) {
     if (status === 'success') {
+      showLoginLoading();
+
       // 로그인 성공 → 사용자 정보를 서버에 전송하여 로그인/회원가입 처리
       var params = {};
       params["mm_join_type"] = "NAVER";
@@ -1068,18 +1112,7 @@ window.onload = function() {
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
-
-          // 최근 로그인 타입을 세션에 저장
-          comAjax("/member_proc/set_last_login_type", { login_type: "NAVER" }, function() {
-            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-            if (typeof window.connectFCMTokenToUser === 'function') {
-              window.connectFCMTokenToUser().then(function() {
-                _replace("/");
-              });
-            } else {
-              _replace("/");
-            }
-          });
+          navigateHomeAfterLogin("NAVER");
           return;
         } else {
           if (ret.code == "91") {
@@ -1092,6 +1125,7 @@ window.onload = function() {
               });
             }
           } else if (ret.code == "90") {
+            hideLoginLoading();
             openPopup('confirm', {
               id: 'permission',
               content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
@@ -1111,12 +1145,14 @@ window.onload = function() {
               },
             });
           } else {
+            hideLoginLoading();
             commonAlert(ret.msg, function() {});
           }
         }
       });
 
     } else {
+      hideLoginLoading();
       alert("네이버 로그인 실패");
     }
   }
@@ -1125,9 +1161,12 @@ window.onload = function() {
   // 파라미터: 로그인 상태, Google ID Token, 이메일, 이름
   function googleLoginAndCallback(status, idToken, email, name) {
     if (status !== "success") {
+      hideLoginLoading();
       alert("구글 로그인 실패");
       return;
     }
+
+    showLoginLoading();
 
     // 구글 ID Token을 서버에 전송하여 검증 및 로그인/회원가입 처리
     $.post(
@@ -1150,18 +1189,7 @@ window.onload = function() {
 
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
-
-          // 최근 로그인 타입을 세션에 저장
-          comAjax("/member_proc/set_last_login_type", { login_type: "GOOGLE" }, function() {
-            // 로그인 성공 후 FCM 토큰을 사용자와 연결 (Promise 완료 후 페이지 이동)
-            if (typeof window.connectFCMTokenToUser === 'function') {
-              window.connectFCMTokenToUser().then(function() {
-                _replace("/");
-              });
-            } else {
-              _replace("/");
-            }
-          });
+          navigateHomeAfterLogin("GOOGLE");
           return;
         } else if (ret.code == "91" && ret.data && ret.data.join_type) {
           showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
@@ -1177,11 +1205,13 @@ window.onload = function() {
           // 전화번호 인증 팝업 표시 (구글 회원가입 전 전화번호 중복 확인 및 인증)
           openGoogleJoinPhonePopup(ret.data.join_key, email, name);
         } else {
+          hideLoginLoading();
           commonAlert(ret.msg || "로그인 실패", function() {});
         }
       },
       "json"
     ).fail(function() {
+      hideLoginLoading();
       commonAlert("로그인 실패", function() {});
     });
   }
@@ -1190,9 +1220,12 @@ window.onload = function() {
   // 파라미터: 로그인 상태, WeChat 임시 코드 (서버에서 access token 교환용)
   function onWeChatLoginAndCallback(status, code) {
     if (status !== 'success' || !code) {
+      hideLoginLoading();
       alert("위챗 로그인에 실패했습니다.");
       return;
     }
+
+    showLoginLoading();
 
     // 위챗 임시 코드를 서버에 전송 → 서버에서 access token 교환 및 사용자 정보 조회
     $.post(
@@ -1213,18 +1246,7 @@ window.onload = function() {
 
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
-
-          // 최근 로그인 타입을 세션에 저장
-          comAjax("/member_proc/set_last_login_type", { login_type: "WECHAT" }, function() {
-            // 로그인 성공 후 FCM 토큰 연결
-            if (typeof window.connectFCMTokenToUser === 'function') {
-              window.connectFCMTokenToUser().then(function() {
-                _replace("/");
-              });
-            } else {
-              _replace("/");
-            }
-          });
+          navigateHomeAfterLogin("WECHAT");
           return;
         } else if (ret.code == "90" && ret.data && ret.data.join_key) {
           try {
@@ -1238,11 +1260,13 @@ window.onload = function() {
           // 구글과 동일한 전화번호 인증 팝업 재사용 (gPhoneJoinType=WECHAT)
           openGoogleJoinPhonePopup(ret.data.join_key, "", ret.data.username || "", "WECHAT");
         } else {
+          hideLoginLoading();
           commonAlert(ret.msg || "로그인 실패", function() {});
         }
       },
       "json"
     ).fail(function() {
+      hideLoginLoading();
       commonAlert("로그인 실패", function() {});
     });
   }
@@ -1618,6 +1642,7 @@ window.onload = function() {
     // 서버에서 전화번호 존재 여부 확인 및 SMS 발송
     var params = { mm_phone: phone };
     comAjax("/member_proc/check_phone_login", params, function(ret) {
+
       if (ret.code == "00") {
         // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동
         if (ret.data && ret.data.skip_auth) {

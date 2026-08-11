@@ -8877,11 +8877,11 @@ form#frm {
 
 .page-recruit-write .form-pic-group .form-pic .btn-pic-remove {
     position: absolute;
-    top: 0.25rem;
+    top: 4.25rem;
     right: 0.25rem;
     z-index: 3;
-    width: 1.375rem;
-    height: 1.375rem;
+    width: 1.9rem;
+    height: 1.9rem;
     line-height: 1.375rem;
     text-align: center;
     padding: 0;

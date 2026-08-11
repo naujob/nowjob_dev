@@ -505,6 +505,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         
         // 주소 정리 함수로 지번 주소를 정리하여 표시
         var displayAddr = (typeof fRemoveBigAdrJS === 'function') ? fRemoveBigAdrJS(jibun) : jibun;
+        var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(jibun) || jibun) : jibun;
         displayAddr = displayAddr + (detail ? " " + detail : "");
 
         return '' +
@@ -512,8 +513,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             '<input type="hidden" name="ad_zipcode[]" value="' + zipcode + '" />' +
             '<input type="hidden" name="ad_jibun[]" value="' + jibun + '" />' +
             '<input type="hidden" name="ad_doro[]" value="' + doro + '" />' +
-            // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
-            '<input type="hidden" name="ad_addr[]" value="' + jibun + '" />' +
+            // ad_addr에는 축약된 주소를 저장
+            '<input type="hidden" name="ad_addr[]" value="' + addr_short + '" />' +
             '<input type="hidden" name="ad_detail[]" value="' + detailValue + '" />' +
             '<input type="hidden" name="ad_gps_x[]" value="' + gpsX + '" />' +
             '<input type="hidden" name="ad_gps_y[]" value="' + gpsY + '" />' +
@@ -1134,12 +1135,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
 
         function finalizeAddrInfo(finalX, finalY) {
+            var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(jibun) || jibun) : jibun;
             var item = {
                 ad_zipcode: zipcode,
                 ad_jibun: jibun,
                 ad_doro: doro,
-                // ad_addr에는 지번을 클릭하든 도로명을 클릭하든 항상 지번을 저장
-                ad_addr: jibun,
+                // ad_addr에는 축약된 주소를 저장
+                ad_addr: addr_short,
                 ad_detail: detail,
                 ad_gps_x: finalX,
                 ad_gps_y: finalY
@@ -1198,11 +1200,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
 
         function addAddrFromRegion(addr, x, y) {
+            var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(addr) || addr) : addr;
             var item = {
                 ad_zipcode: "",
                 ad_jibun: addr,
                 ad_doro: "",
-                ad_addr: addr,
+                ad_addr: addr_short,
                 ad_detail: "",
                 ad_gps_x: x,
                 ad_gps_y: y

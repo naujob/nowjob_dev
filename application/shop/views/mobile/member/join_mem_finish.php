@@ -334,14 +334,15 @@ renderSelectBottomSheet(
             }
             return;
           }
-          // 자동이력서용 주소 필드 구성 (시/도+시/군/구+읍/면/동 원본 그대로 저장)
+          // 자동이력서용 주소 필드 구성 (ad_addr만 축약, ad_jibun/ru_name_seed_addr는 원본 유지)
           var ad_jibun = frontPart;
           var ad_doro = "";
           var ad_zipcode = "";
+          var ad_addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(frontPart) || frontPart) : frontPart;
 
           var payload = {
             ru_name_seed_addr: frontPart,
-            ad_addr: ad_jibun,
+            ad_addr: ad_addr_short,
             ad_jibun: ad_jibun,
             ad_doro: ad_doro,
             ad_zipcode: ad_zipcode,
@@ -353,19 +354,8 @@ renderSelectBottomSheet(
             applyQuickInfoToPayload(payload);
           }
 
-          // 주소 정보를 서버 세션에 저장
-          comAjax("/common_proc/set_addr_info", {
-            ad_zipcode: ad_zipcode,
-            ad_jibun: ad_jibun,
-            ad_doro: ad_doro,
-            ad_addr: payload.ad_addr,
-            ad_detail: "",
-            ad_gps_x: lng,
-            ad_gps_y: lat
-          }, function() {
-            // 자동이력서 서버 처리
-            submitQuickInfoToServer(payload);
-          });
+          // 자동이력서 생성 (RESUME 주소만 저장)
+          submitQuickInfoToServer(payload);
         } else {
           // 주소 변환 실패 시 위치 없이 진행
           proceedResumeAutoFlowWithoutLocation();

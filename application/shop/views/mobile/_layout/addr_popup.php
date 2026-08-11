@@ -663,7 +663,7 @@
    function searchApi(keyword) {
      getSearchApi($("#txt_addr").val(), "search", 0, 0, function(html) {
        $(".post-list").html("");
-       $(".post-list").append(html);
+       $(".post-list").append(html); // 검색결과 추가
 
        if (html == "") {
          $(".post-list").addClass("hidden");

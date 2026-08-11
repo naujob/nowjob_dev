@@ -403,7 +403,7 @@ class memberModel extends MY_Model
 		$cols = [
 			"aa.*,bb.ma_work",
 			"(case when mm_type = 'COMP' then '기업' else '개인' end) as mm_type_nm",
-			"ad.ad_addr",
+			"(SELECT ad_addr FROM st_address WHERE ad_type = 'RESUME' AND mm_idx = aa.mm_idx ORDER BY ad_idx DESC LIMIT 1) as ad_addr",
 			"(
 				case when mm_status = 'Y' then '가입회원'
 					   when mm_status = 'N' then '탈퇴회원'
@@ -429,8 +429,6 @@ class memberModel extends MY_Model
 			st_member aa
                 left join st_member_info bb
                     on aa.mm_idx = bb.mm_idx
-                left join st_address ad
-                    on aa.mm_idx = ad.mm_idx and ad.ad_type = 'MEMBER'
 		";
 
 		//조건
@@ -442,7 +440,7 @@ class memberModel extends MY_Model
 			if ($params["search_type"] == "") {
 				$where[] = 	" and (mm_id like '%" . $this->inject($params["search_value"]) . "%'
 							  or mm_phone like '%" . $this->inject($params["search_value"]) . "%'
-                              or ad.ad_addr like '%" . $this->inject($params["search_value"]) . "%'
+                              or (SELECT ad_addr FROM st_address WHERE ad_type = 'RESUME' AND mm_idx = aa.mm_idx ORDER BY ad_idx DESC LIMIT 1) like '%" . $this->inject($params["search_value"]) . "%'
                               or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%'
 							  or mm_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "mm_id") {
@@ -452,7 +450,7 @@ class memberModel extends MY_Model
 			} else if ($params["search_type"] == "mm_phone") {
 				$where[] = 	" and (mm_phone like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "ad_addr") {
-				$where[] = 	" and (ad.ad_addr like '%" . $this->inject($params["search_value"]) . "%')  ";
+				$where[] = 	" and ((SELECT ad_addr FROM st_address WHERE ad_type = 'RESUME' AND mm_idx = aa.mm_idx ORDER BY ad_idx DESC LIMIT 1) like '%" . $this->inject($params["search_value"]) . "%')  ";
 			}
 		}
 
@@ -3590,7 +3588,9 @@ class memberModel extends MY_Model
 				aa.mm_nation like '%" . $search_text . "%' or
 				ru_work like '%" . $search_text . "%' or
 				ru_name like '%" . $search_text . "%' or
-				ru_addr like '%" . $search_text . "%'  or
+				aa.ru_addr like '%" . $search_text . "%' or
+				aa.s_addr like '%" . $search_text . "%' or
+				aa.ad_addr like '%" . $search_text . "%' or
 				ru_price_type like '%" . $search_text . "%' or
 				ru_work_type like '%" . $search_text . "%' or
 				ru_my_type like '%" . $search_text . "%'
@@ -4059,6 +4059,27 @@ class memberModel extends MY_Model
 	{
 		if (empty($addr_array) || !is_array($addr_array)) return "";
 
+		// 시도 공식명 → Daum 축약명 매핑 (addr_popup2025_new_tpl.php의 JS replaceRegionNames와 동일)
+		$sido_abbr_map = array(
+			"서울특별시" => "서울",
+			"부산광역시" => "부산",
+			"대구광역시" => "대구",
+			"인천광역시" => "인천",
+			"광주광역시" => "광주",
+			"대전광역시" => "대전",
+			"울산광역시" => "울산",
+			"세종특별자치시" => "세종",
+			"경기도" => "경기",
+			"강원특별자치도" => "강원",
+			"충청북도" => "충북",
+			"충청남도" => "충남",
+			"전북특별자치도" => "전북",
+			"전라남도" => "전남",
+			"경상북도" => "경북",
+			"경상남도" => "경남",
+			"제주특별자치도" => "제주"
+		);
+
 		$conditions = [];
 
 		foreach ($addr_array as $idx => $addr) {
@@ -4082,6 +4103,13 @@ class memberModel extends MY_Model
 							// 시도+시군구로 매칭 (정확도 높음: "경기도 시흥시")
 							$full_gugun = addslashes($row['sido_name'] . ' ' . $gugun_name);
 							$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
+
+							// 축약명 버전도 매칭 (대전광역시 → 대전): "대전 서구"
+							if (isset($sido_abbr_map[$row['sido_name']])) {
+								$abbr_sido = $sido_abbr_map[$row['sido_name']];
+								$abbr_full_gugun = addslashes($abbr_sido . ' ' . $gugun_name);
+								$temp_conditions[] = "$column LIKE '%{$abbr_full_gugun}%'";
+							}
 
 							// 부분주소 처리: gugun_name만 저장된 경우도 매칭
 							// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인 (cross-region 방지)
@@ -4108,13 +4136,39 @@ class memberModel extends MY_Model
 				try {
 					$result = $this->db->query($sql)->result_array();
 					if (!empty($result)) {
-						$dong_conditions = array_map(function($row) use ($column) {
+						$dong_conditions = array_map(function($row) use ($column, $sido_abbr_map) {
 							return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
 						}, $result);
 						$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
+
+						// 축약명 버전도 매칭 (대전광역시 → 대전)
+						if (isset($sido_abbr_map[$escaped_addr]) || in_array($escaped_addr, array_values($sido_abbr_map))) {
+							$search_sido = isset($sido_abbr_map[$escaped_addr]) ? $escaped_addr : array_search($escaped_addr, $sido_abbr_map);
+							if ($search_sido && isset($sido_abbr_map[$search_sido])) {
+								$abbr_dong_conditions = array_map(function($row) use ($column, $search_sido, $sido_abbr_map) {
+									$abbr_sido = $sido_abbr_map[$search_sido];
+									$gugun_name = $row['gugun_name'];
+									$b_dong_name = $row['b_dong_name'];
+									$abbr_full_addr = $abbr_sido . ' ' . $gugun_name . ' ' . $b_dong_name;
+									return "$column LIKE '%" . addslashes($abbr_full_addr) . "%'";
+								}, $result);
+								$temp_conditions[] = "(" . implode(" OR ", $abbr_dong_conditions) . ")";
+							}
+						}
 					}
 				} catch (Exception $e) {
 					$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
+				}
+
+				// 3. 폴백: 시도명 단독 매칭 (구군 정보 없이 동명만 저장된 경우: "대전 관저동", "대전 용운동")
+				// 공식명 버전 (예: "대전광역시")
+				$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
+
+				// 축약명 버전 (예: "대전" 으로도 검색)
+				if (isset($sido_abbr_map[$escaped_addr])) {
+					$abbr_sido = $sido_abbr_map[$escaped_addr];
+					$escaped_abbr_sido = addslashes($abbr_sido);
+					$temp_conditions[] = "$column LIKE '%{$escaped_abbr_sido}%'";
 				}
 
 				if (!empty($temp_conditions)) {
@@ -4144,9 +4198,37 @@ class memberModel extends MY_Model
 						// 오류 무시
 					}
 
+					// 축약명 버전도 매칭 (대전광역시 → 대전)
+					if (isset($sido_abbr_map[$sido])) {
+						$abbr_sido = $sido_abbr_map[$sido];
+						try {
+							$abbr_sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
+									WHERE sido_name = '{$sido}' AND gugun_name = '{$gugun}' AND step = 3";
+							$abbr_result = $this->db->query($abbr_sql)->result_array();
+							if (!empty($abbr_result)) {
+								$abbr_dong_conditions = array_map(function($row) use ($column, $abbr_sido) {
+									$gugun_name = $row['gugun_name'];
+									$b_dong_name = $row['b_dong_name'];
+									$abbr_full_addr = $abbr_sido . ' ' . $gugun_name . ' ' . $b_dong_name;
+									return "$column LIKE '%" . addslashes($abbr_full_addr) . "%'";
+								}, $abbr_result);
+								$temp_conditions[] = "(" . implode(" OR ", $abbr_dong_conditions) . ")";
+							}
+						} catch (Exception $e) {
+							// 오류 무시
+						}
+					}
+
 					// 2. 시도+시군구 매칭 (경기도 시흥시)
 					$full_gugun = $sido . ' ' . $gugun;
 					$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
+
+					// 축약명 버전: 시도+시군구 매칭 (대전 서구)
+					if (isset($sido_abbr_map[$sido])) {
+						$abbr_sido = $sido_abbr_map[$sido];
+						$abbr_full_gugun = $abbr_sido . ' ' . $gugun;
+						$temp_conditions[] = "$column LIKE '%{$abbr_full_gugun}%'";
+					}
 
 					// 3. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
 					// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인

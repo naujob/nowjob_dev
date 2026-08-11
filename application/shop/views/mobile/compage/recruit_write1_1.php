@@ -1496,8 +1496,31 @@
         if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
             formData = serverData;
             isServerData = true;  // serverData를 사용했음을 기록
-        } else if (!formData) {
-            // draft도 없고 serverData도 없으면 종료
+        }
+
+        // formData가 없으면 (새 공고) flatpickr만 초기화하고 종료
+        if (!formData) {
+            // flatpickr 초기화 완료 후 setDate 다시 확인
+            setTimeout(function() {
+                if (window.pickerInstances && window.pickerInstances.startPicker && window.pickerInstances.endPicker) {
+                    var today = new Date();
+                    var todayStr = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
+
+                    var endDate = new Date(today);
+                    endDate.setMonth(endDate.getMonth() + 2);
+                    var endDateStr = endDate.getFullYear() + '-' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '-' + endDate.getDate().toString().padStart(2, '0');
+
+                    window.pickerInstances.startPicker.setDate(todayStr, true);
+                    window.pickerInstances.endPicker.setDate(endDateStr, true);
+
+                    // input value도 직접 설정 (타임존 안전)
+                    var startFormatted = today.getFullYear() + '.' + (today.getMonth() + 1).toString().padStart(2, '0') + '.' + today.getDate().toString().padStart(2, '0');
+                    var endFormatted = endDate.getFullYear() + '.' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '.' + endDate.getDate().toString().padStart(2, '0');
+
+                    document.querySelector('#rc_sdate').value = startFormatted;
+                    document.querySelector('#rc_edate').value = endFormatted;
+                }
+            }, 100);
             return;
         }
 
@@ -1538,9 +1561,35 @@
             setTimeout(function() {
                 if (formData.rc_sdate && window.pickerInstances && window.pickerInstances.startPicker) {
                     window.pickerInstances.startPicker.setDate(formData.rc_sdate, false);
+
+                    var sParts = formData.rc_sdate.split('-');
+                    if (sParts.length === 3) {
+                        var sFormatted = sParts[0] + '.' + sParts[1] + '.' + sParts[2];
+                        var sInput = document.querySelector('#rc_sdate');
+                        if (sInput) {
+                            sInput.value = sFormatted;
+                            var sAltInput = sInput.nextElementSibling;
+                            if (sAltInput && sAltInput.tagName === 'INPUT') {
+                                sAltInput.value = sFormatted;
+                            }
+                        }
+                    }
                 }
                 if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) {
                     window.pickerInstances.endPicker.setDate(formData.rc_edate, false);
+
+                    var eParts = formData.rc_edate.split('-');
+                    if (eParts.length === 3) {
+                        var eFormatted = eParts[0] + '.' + eParts[1] + '.' + eParts[2];
+                        var eInput = document.querySelector('#rc_edate');
+                        if (eInput) {
+                            eInput.value = eFormatted;
+                            var eAltInput = eInput.nextElementSibling;
+                            if (eAltInput && eAltInput.tagName === 'INPUT') {
+                                eAltInput.value = eFormatted;
+                            }
+                        }
+                    }
                 }
             }, 500);
 
@@ -1683,19 +1732,20 @@
     // 주소 검색 결과를 폼에 반영하는 함수
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y, detail) {
         detail = detail || "";
+        var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(doro) || doro) : doro;
 
         $("#ad_zipcode").val(zipcode);
-        $("#ad_jibun").val(jibun);
+        $("#ad_jibun").val(doro);
         $("#ad_doro").val(doro);
-        $("#ad_addr").val(addr);
+        $("#ad_addr").val(addr_short);
         $("#ad_detail").val(detail);
         $("#ad_gps_x").val(x);
         $("#ad_gps_y").val(y);
 
         var $btnAddr = $("#btnAddrAdd");
-        var displayAddr = addr;
+        var displayAddr = doro;
         if (detail && detail.trim() !== "") {
-            displayAddr = addr + " " + detail.trim();
+            displayAddr = doro + " " + detail.trim();
         }
         $btnAddr.find(".address-text").text(displayAddr);
         $btnAddr.addClass("has-address");
@@ -2017,6 +2067,52 @@
         // 페이지 로드 시 데이터 복원 (draft 로드 여부는 shouldLoadDraft로 제어)
         restorePageData();
 
+        // 새 공고 작성일 때만 (기존 공고는 loadPage3Data에서 이미 설정됨)
+        if (rcIdx === "0") {
+            setTimeout(function() {
+                var startInputValue = document.querySelector('#rc_sdate')?.value;
+
+                // input이 비어있으면 오늘과 오늘+2개월로 설정
+                if (!startInputValue || startInputValue === '') {
+                var today = new Date();
+                var todayStr = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
+
+                var endDate = new Date(today);
+                endDate.setMonth(endDate.getMonth() + 2);
+                var endDateStr = endDate.getFullYear() + '-' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '-' + endDate.getDate().toString().padStart(2, '0');
+
+                var startFormatted = today.getFullYear() + '.' + (today.getMonth() + 1).toString().padStart(2, '0') + '.' + today.getDate().toString().padStart(2, '0');
+                var endFormatted = endDate.getFullYear() + '.' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '.' + endDate.getDate().toString().padStart(2, '0');
+
+                if (window.pickerInstances && window.pickerInstances.startPicker) {
+                    window.pickerInstances.startPicker.setDate(todayStr, true);
+                    // 원본 + 보조 input 모두 설정
+                    var sInput = document.querySelector('#rc_sdate');
+                    if (sInput) {
+                        sInput.value = startFormatted;
+                        var sAltInput = sInput.nextElementSibling;
+                        if (sAltInput && sAltInput.tagName === 'INPUT') {
+                            sAltInput.value = startFormatted;
+                        }
+                    }
+                }
+
+                if (window.pickerInstances && window.pickerInstances.endPicker) {
+                    window.pickerInstances.endPicker.setDate(endDateStr, true);
+                    // 원본 + 보조 input 모두 설정
+                    var eInput = document.querySelector('#rc_edate');
+                    if (eInput) {
+                        eInput.value = endFormatted;
+                        var eAltInput = eInput.nextElementSibling;
+                        if (eAltInput && eAltInput.tagName === 'INPUT') {
+                            eAltInput.value = endFormatted;
+                        }
+                    }
+                }
+                }
+            }, 250);
+        }
+
         // 상세페이지 이미지 박스 초기화 (저장 후 페이지 로드 시에도 X버튼 작동하도록)
         for (var slot = 1; slot <= 3; slot++) {
             var $label = $(".form-pic[data-detail-slot='" + slot + "']");
@@ -2066,7 +2162,7 @@
             if (!endDate) {
                 var startDateObj = new Date(startDate);
                 var endDateObj = new Date(startDateObj);
-                endDateObj.setDate(endDateObj.getDate() + 60);
+                endDateObj.setMonth(endDateObj.getMonth() + 2);
                 endDate = endDateObj.getFullYear() + '-' +
                     (endDateObj.getMonth() + 1).toString().padStart(2, '0') + '-' +
                     endDateObj.getDate().toString().padStart(2, '0');
@@ -2074,7 +2170,7 @@
 
             var startDateObj = new Date(startDate);
             var maxEndDate = new Date(startDateObj);
-            maxEndDate.setDate(maxEndDate.getDate() + 60);
+            maxEndDate.setMonth(maxEndDate.getMonth() + 2);
 
             // flatpickr 인스턴스를 전역으로 저장 (loadPage3Data에서 재사용)
             if (!window.pickerInstances) {
@@ -2092,7 +2188,11 @@
                 prevArrow: '<span class="sr-text">이전</span>',
                 disableMobile: true,
                 minDate: 'today',
-                maxDate: new Date().fp_incr(60),
+                maxDate: (function() {
+                    var d = new Date();
+                    d.setMonth(d.getMonth() + 2);
+                    return d;
+                })(),
                 onMonthChange: function(selectedDates, dateStr, instance) {
                     chgMonth(this);
                 },
@@ -2113,7 +2213,7 @@
                         window.pickerInstances.endPicker.set('minDate', selectedStartDate);
 
                         var maxDate = new Date(selectedStartDate);
-                        maxDate.setDate(maxDate.getDate() + 60);
+                        maxDate.setMonth(maxDate.getMonth() + 2);
                         window.pickerInstances.endPicker.set('maxDate', maxDate);
 
                         var currentEndDate = window.pickerInstances.endPicker.selectedDates[0];
@@ -2125,6 +2225,22 @@
                 }
             });
             window.pickerInstances.startPicker = startPicker;
+            startPicker.setDate(startDate, true);
+
+            // input의 value 직접 설정 (원본 input + 보조 input)
+            var startParts = startDate.split('-');
+            if (startParts.length === 3) {
+                var formattedStart = startParts[0] + '.' + startParts[1] + '.' + startParts[2];
+                var startInput = document.querySelector('#rc_sdate');
+                if (startInput) {
+                    startInput.value = formattedStart;
+                    // 보조 input도 설정
+                    var startAltInput = startInput.nextElementSibling;
+                    if (startAltInput && startAltInput.tagName === 'INPUT') {
+                        startAltInput.value = formattedStart;
+                    }
+                }
+            }
 
             var endPicker = flatpickr('.js-datepicker-end', {
                 locale: 'ko',
@@ -2157,6 +2273,22 @@
                 }
             });
             window.pickerInstances.endPicker = endPicker;
+            endPicker.setDate(endDate, true);
+
+            // input의 value 직접 설정 (원본 input + 보조 input)
+            var endParts = endDate.split('-');
+            if (endParts.length === 3) {
+                var formattedEnd = endParts[0] + '.' + endParts[1] + '.' + endParts[2];
+                var endInput = document.querySelector('#rc_edate');
+                if (endInput) {
+                    endInput.value = formattedEnd;
+                    // 보조 input도 설정
+                    var endAltInput = endInput.nextElementSibling;
+                    if (endAltInput && endAltInput.tagName === 'INPUT') {
+                        endAltInput.value = formattedEnd;
+                    }
+                }
+            }
         }());
 
         setTimeout(function() {
@@ -2690,6 +2822,8 @@
             $label.data("prevHasImage", $label.hasClass("has-image"));
 
             var file = this.files[0]; //목록 중 첫 번째 파일 객체 (File 객체)
+        
+
             if (!file) return;
 
             $label.find(".btn-pic-remove").show();
@@ -2918,21 +3052,14 @@
   window.onChangeAreaApply = function(data) {
     var pageType = window.__addrPopupPageType || 'default';
 
-    BrowserLogger.info('recruit_write1_1: onChangeAreaApply 실행', {
-      pageType: pageType,
-      hasSearchArea: !!(data && data.searchArea && data.searchArea.length > 0),
-      dataKeys: data ? Object.keys(data) : []
-    });
+    // BrowserLogger.info('recruit_write1_1: onChangeAreaApply 실행', {
+    //   pageType: pageType,
+    //   hasSearchArea: !!(data && data.searchArea && data.searchArea.length > 0),
+    //   dataKeys: data ? Object.keys(data) : []
+    // });
 
-    // 주소 등록 부분 (default)
-    if (pageType === 'default') {
-      BrowserLogger.info('주소 등록 처리', {
-        pageType: pageType,
-        selectAddrInfo: typeof selectAddrInfo
-      });
-    }
     // expose1 또는 expose2인 경우만 처리
-    else if (pageType === 'expose1' || pageType === 'expose2') {
+    if (pageType === 'expose1' || pageType === 'expose2') {
       // 선택된 필드 인덱스 추출 (expose1 -> 1, expose2 -> 2)
       var fieldIndex = pageType.replace('expose', '');
 
@@ -2951,10 +3078,11 @@
       // 새 데이터를 해당 필드에만 매핑
       if (data.searchArea && data.searchArea.length > 0) {
         var area = data.searchArea[0]; // 최대 1개만 선택 가능하므로 첫 번째만 사용
-        $("#expose_addr" + fieldIndex + "_addr").val(area.addr);
+        var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(area.addr) || area.addr) : area.addr;
+        $("#expose_addr" + fieldIndex + "_addr").val(addr_short);
         var $btn = $("#btnExposeAddr" + fieldIndex);
-        // 원본 주소에 fRemoveBigAdrJS를 적용하여 표시
-        $btn.find(".address-text").text(fRemoveBigAdrJS(area.addr));
+        // 원본 주소로 표시
+        $btn.find(".address-text").text(area.addr);
         $btn.addClass("has-address");
         $btn.closest(".address-btn-wrapper").find(".address-clear-btn").show();
       }
