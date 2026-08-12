@@ -3242,10 +3242,10 @@
     $panel[0].hidden = false;
     $panel.addClass("on");
     document.body.style.overflow = 'hidden';
-    // 팝업 내 선택 기록 복원 (expose1 키로 저장된 데이터)
+    // 팝업 UI 초기화 (선택 항목, 검색창, 리스트 비우기)
     setTimeout(function() {
-      if (window.restoreExposeAddrPopup) {
-        window.restoreExposeAddrPopup();
+      if (window.resetExposeAddrPopup) {
+        window.resetExposeAddrPopup(); // expose1 구역  ui 초기화
       }
     }, 50);
     var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
@@ -3264,10 +3264,10 @@
     $panel[0].hidden = false;
     $panel.addClass("on");
     document.body.style.overflow = 'hidden';
-    // 팝업 내 선택 기록 복원 (expose2 키로 저장된 데이터)
+    // 팝업 UI 초기화 (선택 항목, 검색창, 리스트 비우기)
     setTimeout(function() {
-      if (window.restoreExposeAddrPopup) {
-        window.restoreExposeAddrPopup();
+      if (window.resetExposeAddrPopup) {
+        window.resetExposeAddrPopup();
       }
     }, 50);
     var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
@@ -3287,10 +3287,10 @@
     $panel.addClass("on");
     document.body.style.overflow = 'hidden';
     $(this).blur();
-    // 팝업 내 선택 기록 복원 (expose1 키로 저장된 데이터)
+    // 팝업 UI 초기화 (선택 항목, 검색창, 리스트 비우기)
     setTimeout(function() {
-      if (window.restoreExposeAddrPopup) {
-        window.restoreExposeAddrPopup();
+      if (window.resetExposeAddrPopup) {
+        window.resetExposeAddrPopup();
       }
     }, 50);
     var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");
@@ -3309,10 +3309,10 @@
     $panel.addClass("on");
     document.body.style.overflow = 'hidden';
     $(this).blur();
-    // 팝업 내 선택 기록 복원 (expose2 키로 저장된 데이터)
+    // 팝업 UI 초기화 (선택 항목, 검색창, 리스트 비우기)
     setTimeout(function() {
-      if (window.restoreExposeAddrPopup) {
-        window.restoreExposeAddrPopup();
+      if (window.resetExposeAddrPopup) {
+        window.resetExposeAddrPopup();
       }
     }, 50);
     var $popupAddrInput = $("#changeAreaExpose").find("#txt_addr_expose");

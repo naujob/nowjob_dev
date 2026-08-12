@@ -815,10 +815,10 @@
       tmpContent += '<div class="content-li" data-ru_idx="' + d.ru_idx + '" id="content-li-' + listNo + '">' +
         '	<div class="content-info">' +
         '	  <div class="content-body">' +
-        // '		<div class="img">' +
-        // '		  <img src="' + d.ru_resume_img + '">' +
-        // <?php if ($mm_type === "COMP") { ?> '		  <button type="button" data-bk_type="RESUME" data-bk_key="' + d.ru_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
-        // <?php } ?> '		</div>' +
+        '		<div class="img">' +
+        '		  <img src="' + d.ru_resume_img + '">' +
+        '		  <button type="button" data-bk_type="RESUME" data-bk_key="' + d.ru_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
+        '		</div>' +
         '		<p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>' +
         '		<div class="desc">' +
         '		  <div class="wicon">' + d.ru_work_img + '</div>' +

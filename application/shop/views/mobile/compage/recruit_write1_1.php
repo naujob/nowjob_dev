@@ -3107,8 +3107,8 @@
         var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(area.addr) || area.addr) : area.addr;
         $("#expose_addr" + fieldIndex + "_addr").val(addr_short);
         var $btn = $("#btnExposeAddr" + fieldIndex);
-        // 원본 주소로 표시
-        $btn.find(".address-text").text(area.addr);
+        // 변환된 주소로 표시
+        $btn.find(".address-text").text(addr_short);
         $btn.addClass("has-address");
         $btn.closest(".address-btn-wrapper").find(".address-clear-btn").show();
       }

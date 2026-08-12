@@ -574,6 +574,17 @@ if (!isset($addrPopupId)) {
             }
           }
 
+          // 팝업이 열릴 때 UI를 초기화하는 함수
+          function resetAddrPopupOnOpen() {
+            $panel.find('.addr-popup-dept2 ul, .addr-popup-dept3 ul').empty();
+            $txtInput.val('');
+            $panel.find('li.addr-popup-on').removeClass('addr-popup-on');
+            $panel.find('.addr-popup-div2 .addr-popup-selbtn').remove();
+            updateSelectedCount();
+            updateSearchView();
+            resetAllRegionFlag();
+          }
+
           // PANEL_ID가 changeAreaExpose인 경우 전역 복원 함수 노출 (웹/모바일 페이지에서 호출 가능)
           if (PANEL_ID === 'changeAreaExpose') {
             window.restoreExposeAddrPopup = function() {
@@ -590,7 +601,7 @@ if (!isset($addrPopupId)) {
             if (panel && panel.hasAttribute('hidden')) {
               panel.removeAttribute('hidden');
             }
-            setTimeout(restoreSelectedRegionsToDiv2, 50);
+            setTimeout(resetAddrPopupOnOpen, 50);
           });
 
           if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') {

@@ -581,6 +581,22 @@
             }
           }
 
+          // 팝업이 열릴 때 UI를 초기화하는 함수
+          function resetAddrPopupOnOpen() {
+            $('#changeAreaExpose .addr-popup-dept2 ul, #changeAreaExpose .addr-popup-dept3 ul').empty();
+            $txtInput.val('');
+            $('#changeAreaExpose li.addr-popup-on').removeClass('addr-popup-on');
+            $('#changeAreaExpose .addr-popup-div2 .addr-popup-selbtn').remove();
+            updateSelectedCount();
+            updateSearchView();
+            resetAllRegionFlag();
+          }
+
+          // 전역 초기화 함수 노출 (페이지에서 호출 가능하도록)
+          window.resetExposeAddrPopup = function() {
+            resetAddrPopupOnOpen();
+          };
+
           // 전역 복원 함수 노출 (페이지에서 호출 가능하도록)
           window.restoreExposeAddrPopup = function() {
             restoreSelectedRegionsToDiv2();
@@ -591,9 +607,9 @@
             setTimeout(restoreSelectedRegionsToDiv2, 100);
           });
 
-          // 패널이 열릴 때마다 복원 시도
+          // 패널이 열릴 때마다 초기화 시도
           $(document).on('click', '.js-toggle-panel[aria-controls="changeAreaExpose"]', function() {
-            setTimeout(restoreSelectedRegionsToDiv2, 50);
+            setTimeout(resetAddrPopupOnOpen, 50);
           });
 
           if (typeof window.__hideAllRegionsInAddrPopup === 'undefined') { // 페이지 전역에서 전체 지역 숨김 여부를 추적하는 플래그 초기화
@@ -1232,9 +1248,9 @@
 
           // 선택된 지역 개수 업데이트 함수
           function updateSelectedCount() {
-            const count = $('#changeAreaExpose .selbtn').length;
+            const count = $('#changeAreaExpose .addr-popup-selbtn').length;
 
-            $('#changeAreaExpose .addr_sel_cnt').text(count);
+            $('#changeAreaExpose .addr-popup-sel-cnt').text(count);
           }
           // 검색어 입력 시 AJAX 요청을 보내어 검색 결과를 가져오는 함수입니다. 디바운스 적용으로 불필요한 요청 방지
           function fSearchKeyUp() {
