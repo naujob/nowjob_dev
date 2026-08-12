@@ -460,12 +460,12 @@
 
 			if($resume_info!=null){
 				$info["ru_name"] = $resume_info["ru_name"];
-				$info["ru_work"] = explode(",",$resume_info["ru_work"]);
+				$info["ru_work"] = array_map('trim', explode(",",$resume_info["ru_work"]));
 				$info["ru_addr"] = $resume_info["ru_addr"];
-				$info["ru_price_type"] = explode(",",$resume_info["ru_price_type"]);
-				$info["ru_work_type"] = explode(",",$resume_info["ru_work_type"]);
+				$info["ru_price_type"] = array_map('trim', explode(",",$resume_info["ru_price_type"]));
+				$info["ru_work_type"] = array_map('trim', explode(",",$resume_info["ru_work_type"]));
 				$info["ru_desc"] = $resume_info["ru_desc"];
-				$info["ru_my_type"] = isset($resume_info["ru_my_type"]) ? explode(",", $resume_info["ru_my_type"]) : [];
+				$info["ru_my_type"] = isset($resume_info["ru_my_type"]) ? array_map('trim', explode(",", $resume_info["ru_my_type"])) : [];
 				$info["ru_week_yn"] = isset($resume_info["ru_week_yn"]) ? $resume_info["ru_week_yn"] : "N";
 				$info["ru_week"] = isset($resume_info["ru_week"]) ? $resume_info["ru_week"] : "";
 				// 이력서가 있으면 회원의 국적 정보 사용 (이미 위에서 설정됨)

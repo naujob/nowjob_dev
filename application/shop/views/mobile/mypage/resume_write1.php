@@ -204,7 +204,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 <div class="form-toggle-group col-3">
                     <?php
                     $ru_my_type_list = isset($ru_my_type_list) ? $ru_my_type_list : [];
-                    $info_ru_my_type = isset($info["ru_my_type"]) ? (is_array($info["ru_my_type"]) ? $info["ru_my_type"] : explode(",", $info["ru_my_type"])) : [];
+                    $info_ru_my_type = isset($info["ru_my_type"]) ? (is_array($info["ru_my_type"]) ? array_map('trim', $info["ru_my_type"]) : array_map('trim', explode(",", $info["ru_my_type"]))) : [];
                     $ru_my_type_list_limited = array_slice($ru_my_type_list, 0, 12);
                     foreach ($ru_my_type_list_limited as $row) :
                         if (!isset($row["cd_val"]) || trim($row["cd_val"]) === "") {
@@ -224,7 +224,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 continue;
                             }
                             $is_arr = false;
-                            foreach ($ru_my_type_list as $temp) {
+                            foreach ($ru_my_type_list_limited as $temp) {
                                 if (isset($temp["cd_val"]) && $temp["cd_val"] == $row) {
                                     $is_arr = true;
                                 }
@@ -769,10 +769,16 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         var storageKey = getResumeDraftKey(4);
         var saved = localStorage.getItem(storageKey);
 
+        // 수정 모드 판별 (step1과 동일한 기준)
+        var ruIdx = $("[name='ru_idx']").val() || "0";
+        var ruName = $("[name='ru_name']").val() || "";
+        var isEditMode = (ruIdx != "0" && ruName != "");
+
         var defaultWeekDays = ["월", "화", "수", "목", "금"];
         var hasSavedData = false;
 
-        if (saved) {
+        // 신규 모드에서만 localStorage 복원 수행
+        if (!isEditMode && saved) {
             try {
                 var formData = JSON.parse(saved);
                 if (formData) {
@@ -820,7 +826,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             saveResumeStep4Data();
         }
 
-        if (saved && hasSavedData) {
+        // 신규 모드에서만 career, license 데이터 복원
+        if (!isEditMode && saved && hasSavedData) {
             try {
                 var formData = JSON.parse(saved);
                 if (formData) {
@@ -1250,12 +1257,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     document.addEventListener('DOMContentLoaded', function() {
         // 먼저 서버에서 받은 주소 데이터를 로드
         var hasServerData = loadServerAddressData();
-        
+
         // 서버 데이터가 없을 때만 로컬스토리지에서 복원
         if (!hasServerData) {
             loadResumeStep1Data();
         }
-        
+
         ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
         cleanupEmptyListItems();
         loadResumeStep4Data();

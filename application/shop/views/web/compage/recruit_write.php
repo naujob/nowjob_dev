@@ -2439,7 +2439,7 @@
                             <input type='hidden' name='rc_detail_img<?= $n - 1 ?>' id='rc_detail_img<?= $n - 1 ?>' value='<?= getData($info, "rc_detail_img" . ($n - 1)) ?>' />
                             <input type='hidden' name='rc_detail_img<?= $n - 1 ?>_ori' id='rc_detail_img<?= $n - 1 ?>_ori' value='<?= getData($info, "rc_detail_img" . ($n - 1)) ?>' /><!-- 초기값: DB에 저장된 기존 파일 경로 (파일 정리 로직에서 비교용) -->
                           <?php endif; ?>
-                          <button type="button" class="btn-pic-remove" style="display:<?= ($n == 1 && getData($info, "rc_img1") != "") || ($n > 1 && getData($info, "rc_detail_img" . ($n - 1)) != "") ? "inline-block" : "none" ?>;">×</button>
+                          <button type="button" class="btn-pic-remove">×</button>
                         </label>
                       <?php endforeach; ?>
                     </div>
@@ -3870,46 +3870,20 @@
       },
       fOnAppLoad: function() { // 에디터가 로드된 후 실행되는 콜백 함수
         setTimeout(function() {
+          var oWYSIWYGDocument;
           try {
             var oEditor = oEditors.getById["rc_desc"];
             if (!oEditor) return;
 
-            // 에디터 body의 기본 폰트 크기를 15pt로 설정
-            var oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
+            // 시각적 기본값 설정 기본 폰트 크기를 15pt로 설정
+            oWYSIWYGDocument = oEditor.getWYSIWYGDocument();
             if (oWYSIWYGDocument && oWYSIWYGDocument.body) {
               oWYSIWYGDocument.body.style.fontSize = "15pt";
             }
 
-            // 폰트 크기 플러그인 찾아서 기본값 설정
-            var oApp = oEditor.oApp;
-            if (oApp && oApp.aPlugins) {
-              for (var i = 0; i < oApp.aPlugins.length; i++) {
-                var oPlugin = oApp.aPlugins[i];
-                if (oPlugin && oPlugin.sDefaultText !== undefined && oPlugin.elFontSizeLabel) {
-                  oPlugin.sDefaultText = "15pt";
-                  oPlugin.elFontSizeLabel.innerHTML = "15pt";
-
-                  // 14pt 항목 활성화
-                  if (oPlugin.aLIFontSizes && oPlugin.aLIFontSizes.length > 0) {
-                    for (var j = 0; j < oPlugin.aLIFontSizes.length; j++) {
-                      var elLi = oPlugin.aLIFontSizes[j];
-                      if (!elLi) continue;
-
-                      var elSpan = elLi.querySelector("span span");
-                      if (elSpan && elSpan.style && elSpan.style.fontSize === "15pt") {
-                        if (typeof oPlugin._clearFontSizeSelection === "function") {
-                          oPlugin._clearFontSizeSelection();
-                        }
-                        elLi.className = (elLi.className + " active").trim();
-                        break;
-                      }
-                    }
-                  }
-                  break;
-                }
-              }
-                }
-              } catch (e) {
+            // 실제 폰트 크기 적용 커맨드 실행 (커서 위치에 span 생성 → 이후 타이핑이 span 안에 들어감)
+            oEditor.exec("SET_FONTSIZE", ["15pt"]);
+          } catch (e) {
             console.error("폰트 크기 기본값 설정 중 오류:", e);
           }
 
@@ -3930,7 +3904,7 @@
               }
             });
           }
-        }, 200);
+        }, 200); // 스마트에디터는 iframe을 그려내는 데 시간이 조금 걸려. 에디터가 다 켜지기도 전에 명령을 보내면 에러가 나기 때문에 fOnAppLoad 콜백 안에서 약간의 시간 지연(setTimeout 200ms)을 주고 안전하게 명령
       }
     });
 
@@ -4007,9 +3981,7 @@
       var inputName = 'rc_detail_img' + (slot - 1);
       var uploadedUrl = $("[name='" + inputName + "']").val();
       if (uploadedUrl) {
-        // 기존 이미지 URL을 메모리에 저장 (X버튼 클릭 시 사용)
         $label.data("uploadedUrl", uploadedUrl);
-        $label.find(".btn-pic-remove").show();
       }
     }
   });
@@ -4059,7 +4031,6 @@
     reader.onload = function(e) {
       $preview.html('<img src="' + e.target.result + '" />');
       $label.addClass("has-image");
-      $label.find(".btn-pic-remove").show();
     };
     reader.readAsDataURL(file); // 파일을 Data URL로 읽기
 
@@ -4118,7 +4089,6 @@
     $input.val("");
     $preview.html("");
     $label.removeClass("has-image");
-    $(this).hide();
 
     // 슬롯 1 (메인사진): 원본값만 초기화
     if (slot === 1) {

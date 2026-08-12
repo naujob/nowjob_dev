@@ -1559,34 +1559,59 @@
             }
 
             setTimeout(function() {
-                if (formData.rc_sdate && window.pickerInstances && window.pickerInstances.startPicker) {
-                    window.pickerInstances.startPicker.setDate(formData.rc_sdate, false);
+                var rcIdx = $("[name='rc_idx']").val() || "0";
+                var isEditMode = rcIdx !== "0";
 
-                    var sParts = formData.rc_sdate.split('-');
-                    if (sParts.length === 3) {
-                        var sFormatted = sParts[0] + '.' + sParts[1] + '.' + sParts[2];
-                        var sInput = document.querySelector('#rc_sdate');
-                        if (sInput) {
-                            sInput.value = sFormatted;
-                            var sAltInput = sInput.nextElementSibling;
-                            if (sAltInput && sAltInput.tagName === 'INPUT') {
-                                sAltInput.value = sFormatted;
+                if (isEditMode) {
+                    // 수정 모드: 오늘과 오늘+2개월로 초기화
+                    if (window.pickerInstances && window.pickerInstances.startPicker && window.pickerInstances.endPicker) {
+                        var today = new Date();
+                        var todayStr = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
+
+                        var endDate = new Date(today);
+                        endDate.setMonth(endDate.getMonth() + 2);
+                        var endDateStr = endDate.getFullYear() + '-' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '-' + endDate.getDate().toString().padStart(2, '0');
+
+                        window.pickerInstances.startPicker.setDate(todayStr, true);
+                        window.pickerInstances.endPicker.setDate(endDateStr, true);
+
+                        var startFormatted = today.getFullYear() + '.' + (today.getMonth() + 1).toString().padStart(2, '0') + '.' + today.getDate().toString().padStart(2, '0');
+                        var endFormatted = endDate.getFullYear() + '.' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '.' + endDate.getDate().toString().padStart(2, '0');
+
+                        document.querySelector('#rc_sdate').value = startFormatted;
+                        document.querySelector('#rc_edate').value = endFormatted;
+                    }
+                } else {
+                    // 신규 공고: 기존 데이터 복원
+                    if (formData.rc_sdate && window.pickerInstances && window.pickerInstances.startPicker) {
+                        window.pickerInstances.startPicker.setDate(formData.rc_sdate, false);
+
+                        var sParts = formData.rc_sdate.split('-');
+                        if (sParts.length === 3) {
+                            var sFormatted = sParts[0] + '.' + sParts[1] + '.' + sParts[2];
+                            var sInput = document.querySelector('#rc_sdate');
+                            if (sInput) {
+                                sInput.value = sFormatted;
+                                var sAltInput = sInput.nextElementSibling;
+                                if (sAltInput && sAltInput.tagName === 'INPUT') {
+                                    sAltInput.value = sFormatted;
+                                }
                             }
                         }
                     }
-                }
-                if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) {
-                    window.pickerInstances.endPicker.setDate(formData.rc_edate, false);
+                    if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) {
+                        window.pickerInstances.endPicker.setDate(formData.rc_edate, false);
 
-                    var eParts = formData.rc_edate.split('-');
-                    if (eParts.length === 3) {
-                        var eFormatted = eParts[0] + '.' + eParts[1] + '.' + eParts[2];
-                        var eInput = document.querySelector('#rc_edate');
-                        if (eInput) {
-                            eInput.value = eFormatted;
-                            var eAltInput = eInput.nextElementSibling;
-                            if (eAltInput && eAltInput.tagName === 'INPUT') {
-                                eAltInput.value = eFormatted;
+                        var eParts = formData.rc_edate.split('-');
+                        if (eParts.length === 3) {
+                            var eFormatted = eParts[0] + '.' + eParts[1] + '.' + eParts[2];
+                            var eInput = document.querySelector('#rc_edate');
+                            if (eInput) {
+                                eInput.value = eFormatted;
+                                var eAltInput = eInput.nextElementSibling;
+                                if (eAltInput && eAltInput.tagName === 'INPUT') {
+                                    eAltInput.value = eFormatted;
+                                }
                             }
                         }
                     }
@@ -2151,8 +2176,9 @@
 
             if (typeof flatpickr == 'undefined') return false;
 
-            var defaultStartDate = '<?= isset($info["rc_sdate"]) && $info["rc_sdate"] != "" ? get_date($info["rc_sdate"]) : "" ?>';
-            var defaultEndDate = '<?= isset($info["rc_edate"]) && $info["rc_edate"] != "" ? get_date($info["rc_edate"]) : "" ?>';
+            // 신규/기존 공고 모두 매번 열 때마다 오늘과 오늘+2개월로 초기화
+            var defaultStartDate = "";
+            var defaultEndDate = "";
             var today = new Date();
             var todayStr = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
 

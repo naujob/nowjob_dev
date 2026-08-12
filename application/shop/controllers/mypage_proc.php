@@ -1234,8 +1234,8 @@ class Mypage_proc extends CI_Controller
         "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
-        // ru_my_type은 step3에 저장됨
-        "ru_my_type" => isset($step3["ru_my_type"]) && is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : (isset($step3["ru_my_type"]) ? $step3["ru_my_type"] : ""),
+        // ru_my_type은 step3 또는 step4에 저장됨 (모바일은 step4, 웹은 step3)
+        "ru_my_type" => (isset($step3["ru_my_type"]) && trim((string)$step3["ru_my_type"]) != "") ? (is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : $step3["ru_my_type"]) : ((isset($step4["ru_my_type"]) && trim((string)$step4["ru_my_type"]) != "") ? $step4["ru_my_type"] : ""),
         "ru_desc" => isset($step4["ru_desc"]) ? $step4["ru_desc"] : "",
         // 이미지 관련 (NOT NULL)
         "ru_thumb" => isset($step4["ru_thumb"]) ? $step4["ru_thumb"] : "",
@@ -1435,8 +1435,8 @@ class Mypage_proc extends CI_Controller
         "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
-        // ru_my_type은 step3에 저장됨
-        "ru_my_type" => isset($step3["ru_my_type"]) && is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : (isset($step3["ru_my_type"]) ? $step3["ru_my_type"] : ""),
+        // ru_my_type은 step3 또는 step4에 저장됨 (모바일은 step4, 웹은 step3)
+        "ru_my_type" => (isset($step3["ru_my_type"]) && trim((string)$step3["ru_my_type"]) != "") ? (is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : $step3["ru_my_type"]) : ((isset($step4["ru_my_type"]) && trim((string)$step4["ru_my_type"]) != "") ? $step4["ru_my_type"] : ""),
         "ru_desc" => isset($step4["ru_desc"]) ? $step4["ru_desc"] : "",
         // 이미지 관련 (NOT NULL)
         "ru_thumb" => isset($step4["ru_thumb"]) ? $step4["ru_thumb"] : "",
