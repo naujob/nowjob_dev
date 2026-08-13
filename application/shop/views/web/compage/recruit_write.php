@@ -2532,28 +2532,51 @@
                   $.each(savedTags, function(i, tag) {
                     tag = $.trim(tag).replace(/^#/, '');
                     if (tag) {
+                      var found = false;
                       // 프리셋 버튼 중 일치하는 것 체크
                       $('.hash-preset-btn input[type="checkbox"]').each(function() {
                         if ($(this).val() === tag) {
                           $(this).prop('checked', true);
+                          found = true;
                         }
                       });
+
+                      // 프리셋에 없는 커스텀 태그는 동적으로 생성
+                      if (!found) {
+                        var customBtn = '<label class="hash-preset-btn hash-custom-tag">' +
+                          '<input type="checkbox" value="' + tag + '" checked>' +
+                          '<span class="btn">' + tag + '</span>' +
+                          '</label>';
+                        $('.hash-add-btn').before(customBtn);
+                      }
                     }
                   });
                 }
 
-                // 프리셋 버튼 클릭 시 textarea 업데이트
+                // 프리셋 버튼 및 커스텀 태그 클릭 시 textarea 업데이트
                 function syncHashToTextarea() {
                   var selected = [];
+                  // 프리셋 버튼 + 커스텀 태그 모두 포함
                   $('.hash-preset-btn input[type="checkbox"]:checked').each(function() {
                     selected.push($(this).val());
                   });
                   $('textarea[name="rc_hash"]').val(selected.join(','));
                 }
 
+                // 초기 프리셋 버튼 이벤트
                 $('.hash-preset-btn input[type="checkbox"]').on('change', function() {
                   syncHashToTextarea();
                 });
+
+                // 커스텀 태그 이벤트 바인딩 함수
+                function bindCustomTagEvent() {
+                  $('.hash-custom-tag input[type="checkbox"]').on('change', function() {
+                    syncHashToTextarea();
+                  });
+                }
+
+                // 페이지 로드 시 커스텀 태그에 이벤트 바인딩
+                bindCustomTagEvent();
 
                 // 페이지 로드 시 초기 동기화
                 syncHashToTextarea();
@@ -2581,10 +2604,8 @@
                       '</label>';
                     $('.hash-add-btn').before(newBtn);
 
-                    // 이벤트 재바인딩
-                    $('.hash-custom-tag input[type="checkbox"]').on('change', function() {
-                      syncHashToTextarea();
-                    });
+                    // 새로 추가된 커스텀 태그에 이벤트 바인딩
+                    bindCustomTagEvent();
                   }
 
                   $('.hash-direct-input').val('');

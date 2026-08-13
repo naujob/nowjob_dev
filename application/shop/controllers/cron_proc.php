@@ -867,14 +867,14 @@ class Cron_proc extends CI_Controller
         echo "완료 - 로그 기록 건수: {$logged_count}\n";
     }
 
-    // 헬퍼: 지금이 설정된 알림 시간과 정확히 일치하는가
-    // 크론이 매 분마다 실행되므로 시간:분을 정확히 비교
+    // 헬퍼: 지금이 설정된 알림 시간의 시간대에 포함되는가
+    // 크론이 정확한 분에 실행되지 않을 수 있으므로 시간만 비교
     private function _isAlarmTimeNow($time_str) {
         if ($time_str === '' || $time_str === null) {
             return false;
         }
 
-        return date('H:i') === $time_str;
+        return date('H') == substr($time_str, 0, 2);
     }
 
     // 헬퍼: 오늘이 설정된 매칭요일에 포함되는가
