@@ -53,7 +53,7 @@
   display: inline-block;
   width: 1px;
   height: 10px;
-  background: #E9E9E9;
+  background: #000; 
   margin-left: 4px;
   position: static;
 }
@@ -115,7 +115,9 @@
 }
 .recruit-card .price-wrap .period em.on,
 .recruit-card .price-wrap .period em:only-child {
-  color: #1b9d7d;
+  color: #1B9D7D;
+  font-weight: 600;
+    
 }
 .recruit-card .price-wrap .period em:not(:last-child) {
   padding-right: 5px;

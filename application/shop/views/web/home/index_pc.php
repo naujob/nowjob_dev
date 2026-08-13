@@ -1,7 +1,7 @@
 <?php
 $banner_list = getBannerList("BN00010005");
 ?>
-<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
+<?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <style>
   #header {
     margin-bottom: 0;
@@ -283,6 +283,13 @@ $banner_list = getBannerList("BN00010005");
   /* 화살표 숨김 */
   .arrow {
     display: none;
+  }
+
+  /* 추천공고 카드의 급여 기간(period) 스타일 오버라이드 */
+  .recruit-card.category2 .price-wrap .period em.on,
+  .recruit-card.category2 .price-wrap .period em:only-child {
+    color: #FFF700;
+    font-weight: 600;
   }
 </style>
 

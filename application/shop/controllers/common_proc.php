@@ -1645,6 +1645,18 @@ class Common_proc extends CI_Controller
 		json_return("00", "처리완료");
 	}
 
+	// location_data 테이블에서 정확한 시도명 조회
+	private function getFullSidoName($abbr_sido) {
+		try {
+			$escaped = addslashes($abbr_sido);
+			$sql = "SELECT DISTINCT sido_name FROM location_data WHERE sido_name LIKE '{$escaped}%' LIMIT 1";
+			$result = $this->db->query($sql)->row_array();
+			return !empty($result['sido_name']) ? $result['sido_name'] : $abbr_sido;
+		} catch (Exception $e) {
+			return $abbr_sido;
+		}
+	}
+
 	# GPS정보로 주소 검색
 	function get_gps_address()
 	{
@@ -1663,13 +1675,13 @@ class Common_proc extends CI_Controller
 				if (count($result["documents"]) > 0) {
 					$addr_name = "";
 					if ($result["documents"][0]["road_address"] == null) {
-						//$addr_name = $result["documents"][0]["address"]["address_name"];
-						$addr_name  = $result["documents"][0]["address"]["region_1depth_name"] . " ";
+						$region1 = $this->getFullSidoName($result["documents"][0]["address"]["region_1depth_name"]);
+						$addr_name  = $region1 . " ";
 						$addr_name .= $result["documents"][0]["address"]["region_2depth_name"] . " ";
 						$addr_name .= $result["documents"][0]["address"]["region_3depth_name"] . " ";
 					} else {
-						//$addr_name = $result["documents"][0]["road_address"]["address_name"];
-						$addr_name  = $result["documents"][0]["road_address"]["region_1depth_name"] . " ";
+						$region1 = $this->getFullSidoName($result["documents"][0]["road_address"]["region_1depth_name"]);
+						$addr_name  = $region1 . " ";
 						$addr_name .= $result["documents"][0]["road_address"]["region_2depth_name"] . " ";
 						$addr_name .= $result["documents"][0]["road_address"]["region_3depth_name"] . " ";
 					}

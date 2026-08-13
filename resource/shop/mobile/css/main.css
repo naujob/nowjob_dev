@@ -1311,7 +1311,7 @@ object {
     content: "";
     display: block;
     position: absolute;
-    top: 2px;
+    top: 5px;
     left: 0;
     width: 1.375rem;
     height: 1.375rem;
@@ -6528,10 +6528,15 @@ form#frm {
     vertical-align: top;
 }
 .info-table .value,
-.info-table .pricetype-row .pricetype,
+.info-table .pricetype-row .pricetype{
+ 
+    font-size: var(--resume-write-input-font-size);
+}
+
+
 .view-desc .desc {
  
-    /* font-size: var(--resume-write-input-font-size); */
+    
 }
 
 .info-table .category-label {
@@ -8468,6 +8473,7 @@ form#frm {
     word-break: break-word;
     padding-left: 12px;
     line-height: 3;
+     font-size: var(--recruit-write-input-font-size);
 }
 
 .page-recruit-write .form-row>.form-label.salary-label {
@@ -9247,6 +9253,7 @@ form#frm {
 
 .page-resume-write textarea[name="ru_desc"] {
     min-height: 20.25rem;
+    font-size: var(--resume-write-input-font-size);
 }
 
 .page-resume-write .page-content {
@@ -9315,6 +9322,7 @@ form#frm {
     padding: 4px 1px 0 15px;
     font-weight: 400;
     line-height: 1.5;
+    font-size: var(--resume-write-input-font-size);
 }
 
 .page-resume-write .form-group .col .form-text:focus {
@@ -9346,9 +9354,12 @@ form#frm {
 /* 희망지역 주소 필드 스타일 통일 */
 .page-resume-write .added-location-new .location-field-item {
     height: var(--resume-write-input-height);
+   
+}
+.page-resume-write .added-location-new .location-field-item .location-text{
+    
     font-size: var(--resume-write-input-font-size);
 }
-
 .page-resume-write .added-location-new .location-add-btn .add-icon {
     font-size: var(--resume-write-input-font-size);
 }
@@ -9957,6 +9968,7 @@ form#frm {
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
     clear: both;
+    margin-top: 100px;
 }
 
 .profile-record>li {

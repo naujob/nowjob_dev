@@ -6904,9 +6904,7 @@ body {
     margin-right: 7px;
 }
 
-.recruit-recomm .recruit-card .category-label {
-    border: 1px solid #fff;
-}
+
 
 .recruit-recomm .recruit-card .area {
     color: inherit;
@@ -6921,12 +6919,14 @@ body {
 .recruit-recomm .recruit-card .meta {
     max-width: 15.625em;
     font-size: 1em;
+    color: #000;
+    font-weight: 600;
 }
 
 .recruit-recomm .recruit-card .meta p:after {
     height: 11px;
     opacity: 0.3;
-    background: #E9E9E9;
+    background: #000;
 }
 
 .recruit-recomm .recruit-card .type em {

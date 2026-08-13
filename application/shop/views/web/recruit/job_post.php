@@ -167,7 +167,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     }
   </script>
 <?php endif; ?>
-<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
+
+<?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <style>
   :root {
 

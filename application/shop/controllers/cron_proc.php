@@ -533,8 +533,10 @@ class Cron_proc extends CI_Controller
                         foreach ($resume_data['addresses'] as $resume_addr) {
                             $resume_area = $this->_extractAreaSido($resume_addr);
 
-                            // 지역 일치 확인
-                            if ($recruit_area === $resume_area && $this->_isMatched($resume_main, $recruit_main, $comp_cond_arr)) {
+                            // 지역 일치 확인 (둘 다 null이면 매칭 제외)
+                            if ($recruit_area !== null && $resume_area !== null
+                                && $recruit_area === $resume_area
+                                && $this->_isMatched($resume_main, $recruit_main, $comp_cond_arr)) {
                                 $matches_for_corp[] = array(
                                     'recruit' => $recruit_main,
                                     'resume' => $resume_main
@@ -597,8 +599,10 @@ class Cron_proc extends CI_Controller
                         foreach ($recruit_data['addresses'] as $recruit_addr) {
                             $recruit_area = $this->_extractAreaSido($recruit_addr);
 
-                            // 지역 일치 확인
-                            if ($recruit_area === $resume_area && $this->_isMatched($resume_main, $recruit_main, $mem_cond_arr)) {
+                            // 지역 일치 확인 (둘 다 null이면 매칭 제외)
+                            if ($recruit_area !== null && $resume_area !== null
+                                && $recruit_area === $resume_area
+                                && $this->_isMatched($resume_main, $recruit_main, $mem_cond_arr)) {
                                 $matches_for_member[] = array(
                                     'resume' => $resume_main,
                                     'recruit' => $recruit_main
@@ -633,15 +637,6 @@ class Cron_proc extends CI_Controller
     private function _getActiveRecruits()
     {
         return $this->match_model->getActiveRecruits();
-    }
-
-    /**
-     * 주소를 시/구 단위로 그룹핑
-     * "인천광역시 남동구 고잔동" → "인천광역시 남동구"
-     */
-    private function _groupByArea($items)
-    {
-        return $this->match_model->groupByAreaWithHierarchy($items);
     }
 
     /**
@@ -1056,7 +1051,7 @@ class Cron_proc extends CI_Controller
 
     /**
      * 이력서를 ru_idx별로 주소 배열로 그룹화
-     * 각 이력서의 주소들을 ad_idx 순서대로 배열에 저장
+     * 각 이력서의 주소들을 ad_idx 순서대로 배열에 저장 (지번주소 기준)
      */
     private function _groupResumesByRuIdx($resumes)
     {
@@ -1071,7 +1066,7 @@ class Cron_proc extends CI_Controller
                 );
             }
             // 주소 배열에 추가 (중복 방지)
-            $addr = $resume['ad_addr'];
+            $addr = $resume['ad_jibun'];
             if (!in_array($addr, $grouped[$ru_idx]['addresses'])) {
                 $grouped[$ru_idx]['addresses'][] = $addr;
             }
@@ -1082,7 +1077,7 @@ class Cron_proc extends CI_Controller
 
     /**
      * 공고를 rc_idx별로 주소 배열로 그룹화
-     * 각 공고의 주소들을 ad_idx 순서대로 배열에 저장
+     * 각 공고의 주소들을 ad_idx 순서대로 배열에 저장 (지번주소 기준)
      */
     private function _groupRecruitsByRcIdx($recruits)
     {
@@ -1097,7 +1092,7 @@ class Cron_proc extends CI_Controller
                 );
             }
             // 주소 배열에 추가 (중복 방지)
-            $addr = $recruit['ad_addr'];
+            $addr = $recruit['ad_jibun'];
             if (!in_array($addr, $grouped[$rc_idx]['addresses'])) {
                 $grouped[$rc_idx]['addresses'][] = $addr;
             }
@@ -1107,32 +1102,39 @@ class Cron_proc extends CI_Controller
     }
 
     /**
-     * 주소에서 광역시도(sido) 추출
-     * "경기도 시흥시 정왕동" → "경기도"
-     * "서울특별시 강남구" → "서울특별시"
+     * 주소에서 광역시도 + 시군구 추출 (2단어)
+     * "경기도 안산시 단원구 773-7" → "경기도 안산시"
+     * "서울특별시 강남구 역삼동" → "서울특별시 강남구"
+     * 주소가 없으면 null 반환 (빈 값끼리 오매칭되는 것을 방지하기 위해 ''이 아닌 null 사용)
      */
     private function _extractAreaSido($addr)
     {
-        if (empty($addr)) return '';
+        if (empty($addr)) return null;
 
         $parts = explode(' ', trim($addr));
 
-        foreach ($parts as $part) {
-            if (empty($part)) continue;
-
-            // location_data에서 시도 레벨 검색
+        // 첫 번째 단어가 시/도인지 확인
+        if (!empty($parts[0])) {
             $this->db->select('sido_name');
-            $this->db->where('sido_name', $part);
+            $this->db->where('sido_name', $parts[0]);
             $this->db->where('step', 1);
             $this->db->limit(1);
             $result = $this->db->get('location_data')->row_array();
 
             if ($result) {
-                return $result['sido_name'];
+                // 시/도 + 두 번째 단어(시/군/구) 반환
+                if (!empty($parts[1])) {
+                    return $parts[0] . ' ' . $parts[1];
+                } else {
+                    return $parts[0];
+                }
             }
         }
 
-        // sido를 찾지 못한 경우 첫 번째 단어 반환
+        // sido를 찾지 못한 경우 처음 두 단어 반환 또는 첫 단어만 반환
+        if (count($parts) >= 2) {
+            return $parts[0] . ' ' . $parts[1];
+        }
         return $parts[0];
     }
 }

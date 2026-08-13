@@ -401,7 +401,7 @@
                                     <div id="rc_desc_editor"
                                          contenteditable="true"
                                          class="form-textarea"
-                                         style="min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
+                                         style="font-size: 17px; min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
                                     </div>
                                     <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                                     <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
@@ -1941,10 +1941,11 @@
     // 3 페이지 저장과 최종 등록을 처리하는 함수 (mode에 따라 preview 또는 final 처리)
     function saveStep3AndComplete(mode) {
         // contenteditable div의 내용을 hidden input에 복사 (form serialize 시 포함되도록)
-        // 원본 HTML 그대로 저장 (DB 저장용)
+        // SmartEditor2 포맷으로 정규화해서 저장
         var rcDescEditor = document.getElementById('rc_desc_editor');
         var rcDescContent = rcDescEditor ? rcDescEditor.innerHTML : "";
-        $("[name='rc_desc']").val(rcDescContent);
+        var normalizedContent = normalizeContenteditableToSmartEditor(rcDescContent);
+        $("[name='rc_desc']").val(normalizedContent);
 
         var hashString = buildHashString();
         var hasFiles = hasFileUploads();
@@ -3063,11 +3064,48 @@
         });
     });
 
+    // contenteditable HTML을 SmartEditor2 포맷으로 정규화
+    function normalizeContenteditableToSmartEditor(html) {
+        if (!html || !html.trim()) {
+            return '';
+        }
+
+        html = html.trim();
+
+        // body 태그 제거
+        html = html.replace(/<body[^>]*>([\s\S]*?)<\/body>/i, '$1');
+
+        // 줄바꿈 처리 (줄바꿈을 </p><p>로 변환)
+        html = html.replace(/\n\n+/g, '</p><p>');
+        html = html.replace(/\n/g, '<br>');
+
+        // 기본 <p> 감싸기
+        if (html.indexOf('<p>') === -1) {
+            html = '<p>' + html + '</p>';
+        }
+
+        // <p> 내부 텍스트에 기본 폰트 스타일 추가
+        html = html.replace(/<p>([\s\S]*?)<\/p>/g, function(match, content) {
+            // 이미 <span>이 있는 경우 확인
+            if (content.indexOf('<span') !== -1) {
+                // span에 폰트 스타일이 없으면 추가
+                content = content.replace(/<span(?![^>]*style="[^"]*font-size)([^>]*)>/gi,
+                    '<span style="font-size: 15pt;"$1>');
+            } else {
+                // span이 없으면 생성
+                content = '<span style="font-size: 15pt;">' + content + '</span>';
+            }
+            return '<p>' + content + '</p>';
+        });
+
+        return html;
+    }
+
     // 폼 제출 시 contenteditable div의 내용을 숨겨진 input에 저장
     $('form').on('submit', function(e) {
         var editorContent = document.getElementById('rc_desc_editor').innerHTML;
-        document.getElementById('rc_desc_input').value = editorContent;
-     
+        var normalizedContent = normalizeContenteditableToSmartEditor(editorContent);
+        document.getElementById('rc_desc_input').value = normalizedContent;
     });
 
 

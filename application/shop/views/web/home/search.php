@@ -1,6 +1,7 @@
 
-<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
-<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
+
+<?= getCachCss(RES_PATH . "/css/recruit_list.css") ?>
+<?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <style>
   /* search.php 전용 스타일 */
   .page-search .search_title {

@@ -199,7 +199,7 @@
                         <td class="tc"><?=$num_start + $key?></td>
                         <td><?=isset($row['mm_name']) ? $row['mm_name'] : ''?></td>
                         <td><?=isset($row['ru_name']) ? $row['ru_name'] : ''?></td>
-                        <td><?=isset($row['ad_addr']) ? $row['ad_addr'] : ''?></td>
+                        <td><?=isset($row['ad_jibun']) ? $row['ad_jibun'] : ''?></td>
                         <td><?=isset($row['mm_phone']) ? $row['mm_phone'] : ''?></td>
                         <td><?=isset($row['ru_work']) ? $row['ru_work'] : ''?></td>
                         <td><?=isset($row['mm_sex']) ? $row['mm_sex'] : ''?></td>

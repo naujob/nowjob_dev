@@ -5,11 +5,11 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 ?>
-<script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
-<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css">
-<link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_card.css">
+<?= getCachCss(RES_PATH . "/css/recruit_list.css") ?>
+<?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<?= getCashJs(RES_PATH . "/js/ad-banner.js") ?>
 <style>
   .search-result .content-area:first-child {
     margin-left: -63px;

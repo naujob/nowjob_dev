@@ -9,14 +9,14 @@ class Matchmodel extends CI_Model {
 
     /**
      * 활성 이력서 조회 (주소 포함) - 중복 주소 제거
-     * 같은 이력서가 여러 주소를 가진 경우 MIN(ad_addr)로 첫 번째 주소만 반환
+     * 같은 이력서가 여러 주소를 가진 경우 MIN(ad_jibun)로 첫 번째 주소만 반환
      */
     public function getActiveResumes() {
         $sql = "
             SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type, r.reg_dt,
                    r.ru_status, r.ru_show_yn, r.ru_work_dt,
                    m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
-                   a.ad_addr, a.ad_idx
+                   a.ad_jibun, a.ad_idx
             FROM st_resume r
             INNER JOIN st_member m ON r.mm_idx = m.mm_idx
             INNER JOIN st_address a ON r.mm_idx = a.mm_idx
@@ -43,7 +43,7 @@ class Matchmodel extends CI_Model {
                    rc.rc_sex, rc.rc_sage, rc.rc_eage, rc.rc_nation, rc.reg_dt,
                    rc.rc_status, rc.rc_show_yn, rc.rc_sdate, rc.rc_edate,
                    m.mm_comp_name, m.mm_phone,
-                   a.ad_addr, a.ad_idx, a.ad_type
+                   a.ad_jibun, a.ad_idx, a.ad_type
             FROM st_recruit rc
             INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
             INNER JOIN st_address a ON rc.mm_idx = a.mm_idx
@@ -65,107 +65,6 @@ class Matchmodel extends CI_Model {
                      a.ad_idx ASC
         ";
         return $this->db->query($sql)->result_array();
-    }
-
-    /**
-     * ad_addr 필드만 사용 - 주소를 "시/도 구/군" 단위로 그룹핑합니다.
-     * 예: "서울특별시 강남구 역삼동" → "서울특별시 강남구"로 압축
-     */
-    public function groupByArea($items) {
-        $grouped = array();
-        foreach ($items as $item) {
-            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
-            if ($addr === '') continue;
-
-            $parts = explode(' ', $addr);
-            $area = (count($parts) >= 2) ? $parts[0] . ' ' . $parts[1] : $parts[0];
-
-            if (!isset($grouped[$area])) {
-                $grouped[$area] = array();
-            }
-            $grouped[$area][] = $item;
-        }
-        return $grouped;
-    }
-
-    /**
-     * 광역시도 단위 지역별 그룹핑
-     * 모든 주소를 광역시도(sido)로 통일하여 그룹화
-     * "시흥시", "경기도 시흥시", "경기도 시흥시 정왕동" → 모두 "경기도"로 그룹화
-     */
-    public function groupByAreaWithHierarchy($items) {
-        $grouped = array();
-
-        foreach ($items as $item) {
-            $addr = isset($item['ad_addr']) ? trim($item['ad_addr']) : '';
-            if ($addr === '') continue;
-
-            // 광역시도(sido) 추출
-            $sido = $this->extractSido($addr);
-
-            if ($sido) {
-                if (!isset($grouped[$sido])) {
-                    $grouped[$sido] = array();
-                }
-                $grouped[$sido][] = $item;
-            } else {
-                // sido를 찾지 못한 경우 첫 번째 부분으로 폴백
-                $parts = explode(' ', $addr);
-                $fallback = $parts[0];
-                if (!isset($grouped[$fallback])) {
-                    $grouped[$fallback] = array();
-                }
-                $grouped[$fallback][] = $item;
-            }
-        }
-
-        return $grouped;
-    }
-
-    /**
-     * 주소에서 광역시도(sido) 추출
-     * "시흥시" → "경기도"
-     * "경기도 시흥시" → "경기도"
-     * "경기도 시흥시 정왕동" → "경기도"
-     */
-    private function extractSido($addr) {
-        $parts = explode(' ', $addr);
-
-        foreach ($parts as $part) {
-            if (empty($part)) continue;
-
-            // 1. 시도 레벨 직접 검색 (step=1)
-            $sql = "SELECT DISTINCT sido_name FROM location_data
-                    WHERE sido_name = '" . addslashes($part) . "'
-                    AND step = 1
-                    LIMIT 1";
-            $result = $this->db->query($sql)->row_array();
-            if ($result) {
-                return $result['sido_name'];
-            }
-
-            // 2. 시군구 레벨 역검색 (step=2) - sido_name 추출
-            $sql = "SELECT DISTINCT sido_name FROM location_data
-                    WHERE gugun_name = '" . addslashes($part) . "'
-                    AND step = 2
-                    LIMIT 1";
-            $result = $this->db->query($sql)->row_array();
-            if ($result) {
-                return $result['sido_name'];
-            }
-
-            // 3. 동 레벨 역검색 (step=3) - sido_name 추출
-            $sql = "SELECT DISTINCT sido_name FROM location_data
-                    WHERE b_dong_name = '" . addslashes($part) . "'
-                    AND step = 3
-                    LIMIT 1";
-            $result = $this->db->query($sql)->row_array();
-            if ($result) {
-                return $result['sido_name'];
-            }
-        }
-
-        return null;
     }
 
     /**

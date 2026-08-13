@@ -730,20 +730,12 @@ class Mypage_proc extends CI_Controller
       }
     }
 
-    // 기본값 자동 채움 (코드리스트 기반)
+    // 기본값 자동 채움
     if (empty($ru_work)) {
-      $work_list = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-      foreach ($work_list as $row) {
-        if (isset($row["cd_val"])) $ru_work[] = $row["cd_val"];
-        if (count($ru_work) >= 2) break;
-      }
+      $ru_work = ["생산", "물류"];
     }
     if (empty($ru_price_type)) {
-      $price_list = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
-      foreach ($price_list as $row) {
-        if (isset($row["cd_val"])) $ru_price_type[] = $row["cd_val"];
-        if (count($ru_price_type) >= 2) break;
-      }
+      $ru_price_type = ["일급", "월급"];
     }
     if (empty($ru_work_type)) {
       $type_list = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
@@ -1436,7 +1428,7 @@ class Mypage_proc extends CI_Controller
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
         // ru_my_type은 step3 또는 step4에 저장됨 (모바일은 step4, 웹은 step3)
-        "ru_my_type" => (isset($step3["ru_my_type"]) && trim((string)$step3["ru_my_type"]) != "") ? (is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : $step3["ru_my_type"]) : ((isset($step4["ru_my_type"]) && trim((string)$step4["ru_my_type"]) != "") ? $step4["ru_my_type"] : ""),
+        "ru_my_type" => (isset($step3["ru_my_type"]) && trim((string)$step3["ru_my_type"]) != "") ? (is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : $step3["ru_my_type"]) : ((isset($step4["ru_my_type"]) && trim((string)$step4["ru_my_type"]) != "") ? (is_array($step4["ru_my_type"]) ? arr_implode(",", $step4["ru_my_type"]) : $step4["ru_my_type"]) : ""),
         "ru_desc" => isset($step4["ru_desc"]) ? $step4["ru_desc"] : "",
         // 이미지 관련 (NOT NULL)
         "ru_thumb" => isset($step4["ru_thumb"]) ? $step4["ru_thumb"] : "",
@@ -1452,6 +1444,7 @@ class Mypage_proc extends CI_Controller
         "ru_ip" => $this->common->getIpAddr(),
         "ru_status" => "Y", // 기본값 Y
         "stop_desc" => "", // 기본값 빈 문자열
+        "ru_hit" => 0, // 조회수 초기값 (st_resume.ru_hit는 NOT NULL, 기본값 없음)
         // 선택 필드 (데이터베이스 테이블에 컬럼이 존재하는 경우에만 사용)
         // "ru_nationality" => isset($step1["ru_nationality"]) ? $step1["ru_nationality"] : "", // 국적 추가 - 테이블에 컬럼이 없으므로 주석 처리
         // "ru_salary_negotiation" => isset($step1["ru_salary_negotiation"]) ? $step1["ru_salary_negotiation"] : "N",

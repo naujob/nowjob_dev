@@ -209,43 +209,6 @@ class Ppurio extends MY_Controller{
         $this->excel->setFooter($file_name);
     }
 
-// 헬퍼: ^ 구분자로 조건 배열 파싱
-    private function _parseMatchConditions($cond_str) {
-        if ($cond_str === '' || $cond_str === null) return array();
-        return explode('^', $cond_str); // 문자열 -> 배열 리턴
-    }
-
-    // 헬퍼: 기업 매칭 계산 (area 조건 유무로 분기)
-    private function _calcCorpMatches($resumes, $recruits, $cond_arr) {
-        if (in_array('area', $cond_arr)) {
-            // 1. 이력서를 지역별로 계층적 그룹핑
-            $resume_by_area  = $this->match_model->groupByAreaWithHierarchy($resumes);
-            // 2. 공고를 지역별로 계층적 그룹핑
-            $recruit_by_area = $this->match_model->groupByAreaWithHierarchy($recruits);
-            $matches = array();
-            foreach ($resume_by_area as $area => $area_resumes) {
-                  // 3. 그 지역에 공고가 없으면 스킵
-                if (!isset($recruit_by_area[$area])) continue;
-                  // 4. 같은 지역의 이력서 × 공고만 매칭
-                foreach ($area_resumes as $resume) {
-                    foreach ($recruit_by_area[$area] as $recruit) {
-                        if ($this->match_model->isMatched($resume, $recruit, $cond_arr)) {
-                            $matches[] = array('recruit' => $recruit, 'resume' => $resume);
-                        }
-                    }
-                }
-            }
-            return $matches;
-        } else {
-            $pairs = $this->match_model->matchAllPairs($resumes, $recruits, $cond_arr);
-            $result = array();
-            foreach ($pairs as $p) {
-                $result[] = array('recruit' => $p['recruit'], 'resume' => $p['resume']);
-            }
-            return $result;
-        }
-    }
-
     // 매칭 이력서 SMS 발송 (기업회원 대상) - 1단계 채용공고 목록 조회
     // 모든 활성 채용공고를 조회하며, 검색/카테고리/지역/노출여부로 필터링
     // 페이징: 20건 단위, 검색조건은 reset=1로 초기화 가능
@@ -308,7 +271,7 @@ class Ppurio extends MY_Controller{
                     if (strpos($row['rc_name'], $search_value) !== false) $matches_any = true;
                 }
                 if ($search_type === "" || $search_type === "ad_addr") {
-                    if (strpos($row['ad_addr'], $search_value) !== false) $matches_any = true;
+                    if (strpos($row['ad_jibun'], $search_value) !== false) $matches_any = true;
                 }
                 return $matches_any;
             });
@@ -519,7 +482,7 @@ class Ppurio extends MY_Controller{
                     if (strpos($resume['ru_name'], $search_value) !== false) $matches_any = true;
                 }
                 if ($search_type === "" || $search_type === "ad_addr") {
-                    if (strpos($resume['ad_addr'], $search_value) !== false) $matches_any = true;
+                    if (strpos($resume['ad_jibun'], $search_value) !== false) $matches_any = true;
                 }
                 if (!$matches_any) {
                     $match = false;
@@ -819,7 +782,7 @@ class Ppurio extends MY_Controller{
                     if (strpos($recruit['rc_name'], $search_value) !== false) $matches_any = true;
                 }
                 if ($search_type === "" || $search_type === "ad_addr") {
-                    if (strpos($recruit['ad_addr'], $search_value) !== false) $matches_any = true;
+                    if (strpos($recruit['ad_jibun'], $search_value) !== false) $matches_any = true;
                 }
                 if (!$matches_any) {
                     $match = false;
@@ -1127,7 +1090,7 @@ class Ppurio extends MY_Controller{
                     if (strpos($r['ru_name'], $search_value) !== false) $matches_any = true;
                 }
                 if ($search_type === "" || $search_type === "ad_addr") {
-                    if (strpos($r['ad_addr'], $search_value) !== false) $matches_any = true;
+                    if (strpos($r['ad_jibun'], $search_value) !== false) $matches_any = true;
                 }
                 return $matches_any;
             });

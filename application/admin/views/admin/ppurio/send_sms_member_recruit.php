@@ -216,7 +216,7 @@
                         <td class="tc"><?=$num_start + $key?></td>
                         <td><?=isset($row['mm_comp_name']) ? $row['mm_comp_name'] : ''?></td>
                         <td><?=isset($row['rc_name']) ? $row['rc_name'] : ''?></td>
-                        <td><?=isset($row['ad_addr']) ? $row['ad_addr'] : ''?></td>
+                        <td><?=isset($row['ad_jibun']) ? $row['ad_jibun'] : ''?></td>
                         <td><?=isset($row['expose_addrs']) && !empty($row['expose_addrs']) ? implode(', ', $row['expose_addrs']) : ''?></td>
                         <td><?=isset($row['mm_phone']) ? $row['mm_phone'] : ''?></td>
                         <td><?=isset($row['rc_work']) ? $row['rc_work'] : ''?></td>
