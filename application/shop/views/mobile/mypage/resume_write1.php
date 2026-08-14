@@ -288,49 +288,16 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     ?>
                             <li>
                                 <div class="form-group">
-                                    <!-- 업종 선택 미사용 예정
-                                    <div class="col">
-                                        <label class="form-selectbox js-career-category">
-                                            <span class="sr-text">업종선택</span>
-                                            <select name="career_category[]">
-                                                <option value="">업종</option>
-                                                <option value="생산" <?= equal_return("생산", $arr_temp[0], "select") ?>>생산</option>
-                                                <option value="물류" <?= equal_return("물류", $arr_temp[0], "select") ?>>물류</option>
-                                                <option value="건설" <?= equal_return("건설", $arr_temp[0], "select") ?>>건설</option>
-                                                <option value="식당" <?= equal_return("식당", $arr_temp[0], "select") ?>>식당</option>
-                                                <option value="사무직" <?= equal_return("사무직", $arr_temp[0], "select") ?>>사무직</option>
-                                                <option value="서비스" <?= equal_return("서비스", $arr_temp[0], "select") ?>>서비스</option>
-                                                <option value="상담" <?= equal_return("상담", $arr_temp[0], "select") ?>>상담</option>
-                                                <option value="운전배달" <?= equal_return("운전배달", $arr_temp[0], "select") ?>>운전배달</option>
-                                                <option value="기타" <?= equal_return("기타", $arr_temp[0], "select") ?>>기타</option>
-                                            </select>
-                                            <span class="liner"></span>
-                                        </label>
-                                    </div>
-                                    -->
                                     <div class="col">
                                         <label>
                                             <span class="sr-text">업체명 입력</span>
-                                            <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?php
-                                                if(count($arr_temp) >= 3) {
-                                                    echo isset($arr_temp[1]) ? $arr_temp[1] : "";
-                                                } else if(count($arr_temp) >= 2) {
-                                                    echo isset($arr_temp[0]) ? $arr_temp[0] : "";
-                                                }
-                                            ?>" autocomplete="off" class="form-text">
+                                            <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?= isset($arr_temp[0]) ? htmlspecialchars($arr_temp[0], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text">
                                         </label>
                                     </div>
                                     <div class="col">
                                         <label class="datepicker-wrapper">
                                             <span class="sr-text">근무기간 입력</span>
-                                            <input type="text" name="career_period[]" placeholder="근무기간" value="<?php
-                                                if(count($arr_temp) >= 3) {
-                                                    echo isset($arr_temp[2]) ? $arr_temp[2] : "";
-                                                } else if(count($arr_temp) >= 2) {
-                                                    echo isset($arr_temp[1]) ? $arr_temp[1] : "";
-                                                }
-                                            ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
-                                            <!-- <span class="datepicker-icon"></span> -->
+                                            <input type="text" name="career_period[]" placeholder="근무기간" value="<?= isset($arr_temp[1]) ? htmlspecialchars($arr_temp[1], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
                                         </label>
                                     </div>
                                 </div>
@@ -397,13 +364,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                     <div class="col md">
                                         <label>
                                             <span class="sr-text">자격증명 입력</span>
-                                            <input type="text" name="license[]" maxlength="13" placeholder="자격증명" value="<?= $arr_temp[0] ?>" autocomplete="off" class="form-text name">
+                                            <input type="text" name="license[]" maxlength="13" placeholder="자격증명" value="<?= isset($arr_temp[0]) ? htmlspecialchars($arr_temp[0], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text name">
                                         </label>
                                     </div>
                                     <div class="col">
                                         <label>
                                             <span class="sr-text">취득일자 입력</span>
-                                            <input type="text" name="regdate[]" placeholder="취득일자" value="<?= $arr_temp[1] ?>" autocomplete="off" class="form-text num js-datepicker">
+                                            <input type="text" name="regdate[]" placeholder="취득일자" value="<?= isset($arr_temp[1]) ? htmlspecialchars($arr_temp[1], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text num js-datepicker">
                                         </label>
                                     </div>
                                 </div>
@@ -641,7 +608,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $(".form-row[data-section='career'] .added-list").children("li").each(function() {
                 if ($(this).find(".form-group").length === 0) return;
                 data.arr_career.push({
-                    category: $(this).find("[name='career_category[]']").val() || "",
                     company: $(this).find("[name='career_company[]']").val() || "",
                     period: $(this).find("[name='career_period[]']").val() || ""
                 });
@@ -760,12 +726,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             var template = $("#careerTemp").html();
             if (!template) return;
             var $node = $(template);
-            $node.find("[name='career_category[]']").val(item.category || "");
             $node.find("[name='career_company[]']").val(item.company || "");
             $node.find("[name='career_period[]']").val(item.period || "");
             initCareerDatepicker($node.find(".js-career-datepicker")[0]);
             if (typeof initSelectbox === 'function') {
-                initSelectbox($node.find(".js-career-category")[0]);
+                var $selectbox = $node.find(".js-career-category");
+                if ($selectbox.length > 0) {
+                    initSelectbox($selectbox[0]);
+                }
             }
             $list.append($node);
         });
@@ -860,6 +828,17 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     }
 
                     if (Array.isArray(formData.arr_career)) {
+                        // 1단계: 먼저 hidden input에 string 형식으로 설정 (이벤트 발생 전에!)
+                        if (formData.arr_career.length > 0) {
+                            var arr_career_str = formData.arr_career.map(function(item) {
+                                return (item.company || "") + "|||" + (item.period || "");
+                            }).join("&&&");
+                            $("[name=arr_career]").val(arr_career_str);
+                        } else {
+                            $("[name=arr_career]").val("");
+                        }
+
+                        // 2단계: 그 후에 form 시각적 렌더링
                         $(".form-row[data-section='career'] .added-list").empty();
                         if (formData.arr_career.length > 0) {
                             renderCareerItems(formData.arr_career);
@@ -867,6 +846,17 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     }
 
                     if (Array.isArray(formData.arr_certi)) {
+                        // 1단계: 먼저 hidden input에 string 형식으로 설정
+                        if (formData.arr_certi.length > 0) {
+                            var arr_certi_str = formData.arr_certi.map(function(item) {
+                                return (item.license || "") + "|||" + (item.regdate || "");
+                            }).join("&&&");
+                            $("[name=arr_certi]").val(arr_certi_str);
+                        } else {
+                            $("[name=arr_certi]").val("");
+                        }
+
+                        // 2단계: 그 후에 form 시각적 렌더링
                         $(".form-row[data-section='license'] .added-list").empty();
                         if (formData.arr_certi.length > 0) {
                             renderLicenseItems(formData.arr_certi);
@@ -1309,6 +1299,61 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         applyResumeAutoFill();
     });
 
+    // 경력/자격증 문자열 생성 및 저장 (전역 함수로 정의 - saveStep4AndPreview와 showPreviewInfo의 secondCallback에서 공용으로 사용)
+    function buildAndSaveCareerCertiStrings() {
+        var arr_career = "";
+        var $careerList = $(".form-row[data-section='career'] .added-list");
+
+        $careerList.children("li").each(function(idx) {
+            var $li = $(this);
+            var isDeleted = $li.hasClass('is-deleted');
+            var company = $li.find("[name='career_company[]']").val();
+            var period = $li.find("[name='career_period[]']").val();
+
+            if (!isDeleted) {
+                // "undefined" 문자열 필터링
+                if (company === 'undefined' || company === undefined) company = "";
+                if (period === 'undefined' || period === undefined) period = "";
+
+                // 회사명 또는 기간 중 하나라도 있으면 저장
+                if (company != "" || period != "") {
+                    if (arr_career == "") {
+                        arr_career = company + "|||" + period;
+                    } else {
+                        arr_career = arr_career + "&&&" + company + "|||" + period;
+                    }
+                }
+            }
+        });
+        $("[name=arr_career]").val(arr_career);
+
+        var arr_certi = "";
+        var $licenseList = $(".form-row[data-section='license'] .added-list");
+
+        $licenseList.children("li").each(function(idx) {
+            var $li = $(this);
+            var isDeleted = $li.hasClass('is-deleted');
+            var license = $li.find("[name='license[]']").val();
+            var regdate = $li.find("[name='regdate[]']").val();
+
+            if (!isDeleted) {
+                // "undefined" 문자열 필터링
+                if (license === 'undefined' || license === undefined) license = "";
+                if (regdate === 'undefined' || regdate === undefined) regdate = "";
+
+                // 자격증명 또는 취득일 중 하나라도 있으면 저장
+                if (license != "" || regdate != "") {
+                    if (arr_certi == "") {
+                        arr_certi = license + "|||" + regdate;
+                    } else {
+                        arr_certi = arr_certi + "&&&" + license + "|||" + regdate;
+                    }
+                }
+            }
+        });
+        $("[name=arr_certi]").val(arr_certi);
+    }
+
     $(document).ready(function() {
 
         // 희망지역 삭제 버튼 이벤트
@@ -1459,13 +1504,16 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
 
             var $temp = $("#careerTemp").html();
-            var $newItem = $("<li>").html($temp);
+            var $newItem = $($temp);
             $list.append($newItem);
 
             initCareerDatepicker($newItem.find(".js-career-datepicker")[0]);
 
             if (typeof initSelectbox === 'function') {
-                initSelectbox($newItem.find(".js-career-category")[0]);
+                var $selectbox = $newItem.find(".js-career-category");
+                if ($selectbox.length > 0) {
+                    initSelectbox($selectbox[0]);
+                }
             }
 
             $(this).css('display', '').show();
@@ -1499,7 +1547,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
 
             var $temp = $("#licenseTemp").html();
-            var $newItem = $("<li>").html($temp);
+            var $newItem = $($temp);
             $list.append($newItem);
 
             initLicenseDatepicker($newItem.find(".js-datepicker")[0]);
@@ -1524,42 +1572,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             var ru_week_str = ru_week.join(",");
             var ru_week_yn_value = $("[name='ru_week_yn']").is(":checked") ? "Y" : "N";
 
-            var arr_career = "";
-            var $careerList = $(".form-row[data-section='career'] .added-list");
-            $careerList.children("li").each(function() {
-                if (!$(this).hasClass('is-deleted')) {
-                    var category = $(this).find("[name='career_category[]']").val();
-                    var company = $(this).find("[name='career_company[]']").val();
-                    var period = $(this).find("[name='career_period[]']").val();
-
-                    if (category != "" && company != "" && period != "") {
-                        if (arr_career == "") {
-                            arr_career = category + "|||" + company + "|||" + period;
-                        } else {
-                            arr_career = arr_career + "&&&" + category + "|||" + company + "|||" + period;
-                        }
-                    }
-                }
-            });
-            $("[name=arr_career]").val(arr_career);
-
-            var arr_certi = "";
-            var $licenseList = $(".form-row[data-section='license'] .added-list");
-            $licenseList.children("li").each(function() {
-                if (!$(this).hasClass('is-deleted')) {
-                    var license = $(this).find("[name='license[]']").val();
-                    var regdate = $(this).find("[name='regdate[]']").val();
-
-                    if (license != "" && regdate != "") {
-                        if (arr_certi == "") {
-                            arr_certi = license + "|||" + regdate;
-                        } else {
-                            arr_certi = arr_certi + "&&&" + license + "|||" + regdate;
-                        }
-                    }
-                }
-            });
-            $("[name=arr_certi]").val(arr_certi);
+            // 공용 함수로 경력/자격증 조립 및 저장
+            buildAndSaveCareerCertiStrings();
 
             var form = $('#frm');
             var params = new FormData(form[0]);
@@ -1568,6 +1582,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             if (ru_week_str) {
                 params.append("ru_week", ru_week_str);
             }
+
             fileAjaxLoading("/mypage_proc/resume_write4", params, function(ret) {
                 if (ret.code == "00") {
                     var prevIdx = $("[name=ru_idx]").val() || "0";
@@ -1913,26 +1928,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         if (info.arr_career) {
             for (var icnt = 0; icnt < info.arr_career.split("&&&").length; icnt++) {
                 var temp = info.arr_career.split("&&&")[icnt].split("|||");
-                if (temp.length > 2) {
-                    // 년도를 2자리로 변환하는 함수
-                    var period = temp[2];
-                    if (period && period.indexOf(' ~ ') > -1) {
-                        var periodDates = period.split(' ~ ');
-                        var formattedPeriods = [];
-                        periodDates.forEach(function(date) {
-                            var trimmed = date.trim();
-                            if (trimmed) {
-                                var parts = trimmed.split('.');
-                                if (parts.length >= 2) {
-                                    formattedPeriods.push(parts[0].slice(-2) + '.' + parts[1]);
-                                } else {
-                                    formattedPeriods.push(trimmed);
-                                }
-                            }
-                        });
-                        period = formattedPeriods.join(' ~ ');
+                if (temp.length >= 2) {
+                    // 2필드 형식: company|||period
+                    var company = temp[0] || "";
+                    var period = temp[1] || "";
+
+                    if (company || period) {
+                        str_ru_career += "<li><span>" + company + "</span><em>" + period + "</em></li>";
                     }
-                    str_ru_career += "<li><span>" + temp[0] + "</span><span>" + temp[1] + "</span><em>" + period + "(1년 2개월)</em></li>";
                 }
             }
         }
@@ -2081,42 +2084,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 var ru_week_str = ru_week.join(",");
                 var ru_week_yn_value = $("[name='ru_week_yn']").is(":checked") ? "Y" : "N";
 
-                var arr_career = "";
-                var $careerList = $(".form-row[data-section='career'] .added-list");
-                $careerList.children("li").each(function() {
-                    if (!$(this).hasClass('is-deleted')) {
-                        var category = $(this).find("[name='career_category[]']").val();
-                        var company = $(this).find("[name='career_company[]']").val();
-                        var period = $(this).find("[name='career_period[]']").val();
-
-                        if (category != "" && company != "" && period != "") {
-                            if (arr_career == "") {
-                                arr_career = category + "|||" + company + "|||" + period;
-                            } else {
-                                arr_career = arr_career + "&&&" + category + "|||" + company + "|||" + period;
-                            }
-                        }
-                    }
-                });
-                $("[name=arr_career]").val(arr_career);
-
-                var arr_certi = "";
-                var $licenseList = $(".form-row[data-section='license'] .added-list");
-                $licenseList.children("li").each(function() {
-                    if (!$(this).hasClass('is-deleted')) {
-                        var license = $(this).find("[name='license[]']").val();
-                        var regdate = $(this).find("[name='regdate[]']").val();
-
-                        if (license != "" && regdate != "") {
-                            if (arr_certi == "") {
-                                arr_certi = license + "|||" + regdate;
-                            } else {
-                                arr_certi = arr_certi + "&&&" + license + "|||" + regdate;
-                            }
-                        }
-                    }
-                });
-                $("[name=arr_certi]").val(arr_certi);
+                // 공용 함수로 경력/자격증 조립 및 저장
+                buildAndSaveCareerCertiStrings();
 
                 var form = $('#frm');
                 var params = new FormData(form[0]);

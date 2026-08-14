@@ -546,6 +546,16 @@ function fRemoveBigAdrPHP($arg)
   .btn-group[data-request-state="none"] .btnGoChat {
     display: none;
   }
+  .period-list em {
+    display: inline-block;
+  }
+  .section.view-profile .inline-group {
+     flex-direction: column;
+  }
+    .section.view-profile .inline-group .col .label {
+        line-height: 1.8;
+
+    }
 </style>
 <div id="content" class="page page-view">
   <main class="page-content">
@@ -789,17 +799,14 @@ function fRemoveBigAdrPHP($arg)
                       <col>
                     </colgroup>
                     <tbody>
-                      <!-- <tr>
-                        <td class="label">최종학력</td>
-                        <td class="value"><?= $info["ru_edu"] ?></td>
-                      </tr> -->
+                   
                       <tr>
                         <td class="label">경력사항</td>
                         <td class="value">
                           <ul class="period-list">
                             <?php foreach ($career_list as $row) : ?>
                               <li>
-                                <span><?= $row["rc_type"] ?></span>
+                                
                                 <span><?= $row["rc_name"] ?></span>
                                 <?php
                                 $is_date = false;
@@ -830,17 +837,14 @@ function fRemoveBigAdrPHP($arg)
                       <col>
                     </colgroup>
                     <tbody>
+                     
                       <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                      </tr>
-                      <tr>
-                        <td class="label">자&nbsp;&nbsp;격&nbsp;&nbsp;증</td>
+                        <td class="label">자격증</td>
                         <td class="value">
                           <ul class="period-list">
                             <?php foreach ($certi_list as $row) : ?>
                               <li>
-                                <span>자격증</span>
+                                
                                 <span><?= $row["rc_name"] ?></span>
                                 <em><?= $row["rc_dt"] ?></em>
                               </li>

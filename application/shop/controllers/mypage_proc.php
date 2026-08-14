@@ -988,6 +988,7 @@ class Mypage_proc extends CI_Controller
     $arr_career = input_post("arr_career", "");
     $ru_desc = input_post("ru_desc", "");
     $ru_my_type = input_post("ru_my_type", "");
+
     // ru_my_type이 배열인 경우 문자열로 변환
     if (is_array($ru_my_type)) {
       $ru_my_type = arr_implode(",", $ru_my_type);

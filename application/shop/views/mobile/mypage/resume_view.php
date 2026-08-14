@@ -1,3 +1,11 @@
+<style>
+    .period-list em {
+        display:inline-block;
+    }
+
+
+
+</style>
 <div class="page page-view">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
@@ -121,29 +129,31 @@
                     </colgroup>
                     <tbody>
                         <tr>
-                            <td class="label">최종학력</td>
-                            <td class="value"><?= $info["ru_edu"] ?></td>
-                        </tr>
-                        <tr>
                             <td class="label">경력사항</td>
                             <td class="value">
                                 <ul class="period-list">
                                     <?php foreach ($career_list as $row) : ?>
+                                            <!-- <?php
+                                                echo "<pre>";
+                                                print_r($row);
+                                                echo "</pre>";
+                                            ?> -->
+
                                         <li>
-                                            <span><?= $row["rc_type"] ?></span>
-                                            <span><?= $row["rc_name"] ?></span>
+                                            <span><?= isset($row["rc_name"]) ? htmlspecialchars($row["rc_name"], ENT_QUOTES, 'UTF-8') : "(회사명 없음)" ?></span>
                                             <?php
                                             $is_date = false;
                                             $sdate = "";
                                             $edate = "";
-                                            $arr_date = explode("~", $row["rc_date"]);
+                                            $period = isset($row["rc_date"]) ? $row["rc_date"] : ""; //    [rc_date] => 2026.03 ~ 2026.07
+                                            $arr_date = explode("~", $period);
                                             if (count($arr_date) > 1) {
                                                 $is_date = true;
                                                 $sdate = str_replace(".", "-", trim($arr_date[0])) . "-01";
                                                 $edate = str_replace(".", "-", trim($arr_date[1])) . "-01";
                                             }
                                             ?>
-                                            <em><?= $row["rc_date"] ?><?= $is_date ? "(" . get_date_diff_txt($sdate, $edate) . ")" : "" ?></em>
+                                            <em><?= htmlspecialchars($period, ENT_QUOTES, 'UTF-8') ?><?= $is_date ? "(" . get_date_diff_txt($sdate, $edate) . ")" : "" ?></em>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -155,7 +165,6 @@
                                 <ul class="period-list">
                                     <?php foreach ($certi_list as $row) : ?>
                                         <li>
-                                            <span>자격증</span>
                                             <span><?= $row["rc_name"] ?></span>
                                             <em><?= $row["rc_dt"] ?></em>
                                         </li>

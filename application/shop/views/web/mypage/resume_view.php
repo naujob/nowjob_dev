@@ -248,10 +248,6 @@ function fRemoveBigAdrPHP($arg)
                     </colgroup>
                     <tbody>
                       <tr>
-                        <td class="label">최종학력</td>
-                        <td class="value"><?= $info["ru_edu"] ?></td>
-                      </tr>
-                      <tr>
                         <td class="label">경력사항</td>
                         <td class="value">
                           <ul class="period-list">

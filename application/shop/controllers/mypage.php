@@ -476,10 +476,15 @@
 				$career_list = $this->member_model->getResumeCareerList(["ru_idx"=>$ru_idx]);
 				if($career_list!=null){
 					foreach($career_list as $row){
-						if($arr_career==""){
-							$arr_career = $row["rc_name"] . "|||" . $row["rc_date"];
-						}else{
-							$arr_career .= "&&&" . $row["rc_name"] . "|||" . $row["rc_date"];
+						$company = isset($row["rc_name"]) ? trim($row["rc_name"]) : "";
+						$period = isset($row["rc_date"]) ? trim($row["rc_date"]) : "";
+
+						if($company != "" || $period != ""){
+							if($arr_career==""){
+								$arr_career = $company . "|||" . $period;
+							}else{
+								$arr_career .= "&&&" . $company . "|||" . $period;
+							}
 						}
 					}
 					$info["arr_career"] = $arr_career;
@@ -489,10 +494,15 @@
 				$certi_list = $this->member_model->getResumeCertiList(["ru_idx"=>$ru_idx]);
 				if($certi_list!=null){
 					foreach($certi_list as $row){
-						if($arr_certi==""){
-							$arr_certi = $row["rc_name"] . "|||" . $row["rc_dt"];
-						}else{
-							$arr_certi .= "&&&" . $row["rc_name"] . "|||" . $row["rc_dt"];
+						$license = isset($row["rc_name"]) ? trim($row["rc_name"]) : "";
+						$regdate = isset($row["rc_dt"]) ? trim($row["rc_dt"]) : "";
+
+						if($license != "" || $regdate != ""){
+							if($arr_certi==""){
+								$arr_certi = $license . "|||" . $regdate;
+							}else{
+								$arr_certi .= "&&&" . $license . "|||" . $regdate;
+							}
 						}
 					}
 					$info["arr_certi"] = $arr_certi;
