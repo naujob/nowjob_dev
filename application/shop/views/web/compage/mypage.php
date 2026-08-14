@@ -169,7 +169,7 @@ function fEmailMasking($email)
                             <input type="file" id="newLogo" name="mm_thumb" accept="image/*">
                             <input type='hidden' name='mm_thumb_del' value='' />
                             <span class="preview">
-                              <img id="companyLogo" src="<?= getData($info, "mm_thumb") ?>" alt="" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                              <img id="companyLogo" src="<?= getData($info, "mm_thumb") ?>" alt="회사 로고" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
                               <?php if (getData($info, "mm_thumb") != "") : ?>
                                 <button type="button" class="delete-btn" onclick="fThumbDel()">삭제</button>
                               <?php endif; ?>

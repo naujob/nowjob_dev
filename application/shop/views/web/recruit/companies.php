@@ -240,7 +240,7 @@ if (count($banner_list) > 0) {
                   <li class="list-item item-hover" data-comm_idx="<?= $row["mm_idx"] ?>">
                     <div class="item-info">
                       <div class="comp-img">
-                        <img src="<?= getCompImg($row) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                        <img src="<?= getCompImg($row) ?>" alt="<?= $row["mm_comp_name"] ?> 로고" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
                       </div>
                       <div class="content-wrap ">
                         <p class="comp_name"><?= $row["mm_comp_name"] ?></p>

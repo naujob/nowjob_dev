@@ -514,6 +514,9 @@ class Cron_proc extends CI_Controller
             // 공고를 rc_idx별로 주소 배열로 그룹화
             $recruits_by_rc = $this->_groupRecruitsByRcIdx($recruits);
 
+            // 주소 → 지역 매핑 캐시 (DB 쿼리 최소화)
+            $area_cache = array();
+
             // 각 공고별로 반복
             foreach ($recruits_by_rc as $rc_idx => $recruit_data) {
                 $recruit_main = $recruit_data['recruit'];
@@ -521,7 +524,11 @@ class Cron_proc extends CI_Controller
 
                 // 공고의 첫번째 주소부터 순서대로 시도 (RECRUIT 우선, 그 다음 expose)
                 foreach ($recruit_data['addresses'] as $recruit_addr) {
-                    $recruit_area = $this->_extractAreaSido($recruit_addr);
+                    // 캐시 확인
+                    if (!isset($area_cache[$recruit_addr])) {
+                        $area_cache[$recruit_addr] = $this->_extractAreaSido($recruit_addr);
+                    }
+                    $recruit_area = $area_cache[$recruit_addr];
 
                     // 각 이력서별로 반복
                     foreach ($resumes_by_ru as $ru_idx => $resume_data) {
@@ -531,7 +538,11 @@ class Cron_proc extends CI_Controller
                         $resume_main = $resume_data['resume'];
                         // 이력서의 주소를 첫번째부터 순서대로 시도
                         foreach ($resume_data['addresses'] as $resume_addr) {
-                            $resume_area = $this->_extractAreaSido($resume_addr);
+                            // 캐시 확인
+                            if (!isset($area_cache[$resume_addr])) {
+                                $area_cache[$resume_addr] = $this->_extractAreaSido($resume_addr);
+                            }
+                            $resume_area = $area_cache[$resume_addr];
 
                             // 지역 일치 확인 (둘 다 null이면 매칭 제외)
                             if ($recruit_area !== null && $resume_area !== null
@@ -580,6 +591,9 @@ class Cron_proc extends CI_Controller
             // 공고를 rc_idx별로 주소 배열로 그룹화
             $recruits_by_rc = $this->_groupRecruitsByRcIdx($recruits);
 
+            // 주소 → 지역 매핑 캐시 (DB 쿼리 최소화)
+            $area_cache = array();
+
             // 각 이력서별로 반복
             foreach ($resumes_by_ru as $ru_idx => $resume_data) {
                 $resume_main = $resume_data['resume'];
@@ -587,7 +601,11 @@ class Cron_proc extends CI_Controller
 
                 // 이력서의 첫번째 주소부터 순서대로 시도
                 foreach ($resume_data['addresses'] as $resume_addr) {
-                    $resume_area = $this->_extractAreaSido($resume_addr);
+                    // 캐시 확인
+                    if (!isset($area_cache[$resume_addr])) {
+                        $area_cache[$resume_addr] = $this->_extractAreaSido($resume_addr);
+                    }
+                    $resume_area = $area_cache[$resume_addr];
 
                     // 각 공고별로 반복
                     foreach ($recruits_by_rc as $rc_idx => $recruit_data) {
@@ -597,7 +615,11 @@ class Cron_proc extends CI_Controller
                         $recruit_main = $recruit_data['recruit'];
                         // 공고의 주소를 첫번째부터 순서대로 시도 (RECRUIT 우선, 그 다음 expose)
                         foreach ($recruit_data['addresses'] as $recruit_addr) {
-                            $recruit_area = $this->_extractAreaSido($recruit_addr);
+                            // 캐시 확인
+                            if (!isset($area_cache[$recruit_addr])) {
+                                $area_cache[$recruit_addr] = $this->_extractAreaSido($recruit_addr);
+                            }
+                            $recruit_area = $area_cache[$recruit_addr];
 
                             // 지역 일치 확인 (둘 다 null이면 매칭 제외)
                             if ($recruit_area !== null && $resume_area !== null

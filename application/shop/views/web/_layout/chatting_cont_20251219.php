@@ -622,7 +622,7 @@
 										<div class="chat-recruit-content-body">
 											<div class="chat-recruit-img">
 												<a id="top_link" href="" aria-label="채용공고 보기">
-													<img id="top_img" src="" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" />
+													<img id="top_img" src="" alt="채용공고 이미지" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" />
 												</a>
 												<!-- 북마크 버튼 (웹 채팅 팝업에서는 사용 안 함)
 												<button type="button" data-bk_type="RECRUIT" id="top_bookmark" class="btnBookMark btn-bookmark js-toggle-bookmark"><span class="sr-text">즐겨찾기 추가</span></button>
@@ -661,7 +661,7 @@
 										<div class="chat-resume-content-body">
 											<div class="chat-resume-img">
 												<a id="top_link" href="" aria-label="이력서 보기">
-													<img id="top_img" src="" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" />
+													<img id="top_img" src="" alt="채용공고 이미지" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'" />
 												</a>
 												<!-- 북마크 버튼 (웹 채팅 팝업에서는 사용 안 함)
 												<button type="button" data-bk_type="RESUME" id="top_bookmark" class="btnBookMark btn-bookmark js-toggle-bookmark"><span class="sr-text">즐겨찾기 추가</span></button>
@@ -1095,7 +1095,7 @@
  			<div class="item-info person" style="width:100%;">
  				<div class="thumb-wrap">
  					<div class="thumb" style="border-radius: 50%; overflow: hidden;">
- 						<img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+ 						<img src="{{rc_thumb}}" alt="{{rc_name}} 공고 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
  					</div>
  				</div>
 				<div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
@@ -1123,7 +1123,7 @@
  			<div class="item-info person" style="width:100%;">
  				<div class="thumb-wrap">
  					<div class="thumb" style="border-radius: 50%; overflow: hidden;">
- 						<img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+ 						<img src="{{rc_thumb}}" alt="{{rc_name}} 공고 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
  					</div>
  				</div>
  				<div class="content-wrap">
@@ -1163,7 +1163,7 @@
 			<div class="item-info person" style="width:100%;">
 				<div class="thumb-wrap">
 					<div class="thumb" style="border-radius: 50%; overflow: hidden;">
-						<img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+						<img src="{{rc_thumb}}" alt="{{rc_name}} 공고 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
 					</div>
 				</div>
 				<div class="content-wrap">
@@ -1231,7 +1231,7 @@
  		<div class="item-info person">
  			<div class="thumb-wrap">
  				<div class="thumb">
- 					<img src="{{ru_resume_img}}" alt="">
+ 					<img src="{{ru_resume_img}}" alt="{{mm_name}} 프로필 이미지">
  				</div>
  				<p class="star-rating">
  					<span class="star" style="width:100%;"></span>

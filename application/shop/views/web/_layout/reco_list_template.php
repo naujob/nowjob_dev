@@ -12,7 +12,7 @@ $reco_show_mm_idx   = isset($reco_show_mm_idx)   ? $reco_show_mm_idx   : false;
          <?php if ($reco_show_mm_idx): ?>data-mm_idx="{{mm_idx}}"<?php endif; ?>>
       <div class="thumb-wrap">
         <div class="img">
-          <img src="{{ru_resume_img}}">
+          <img src="{{ru_resume_img}}" alt="{{ru_name}} 프로필 이미지">
           <?php if ($reco_show_bookmark && $mm_type === "COMP"): ?>
             <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}"
               class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}">

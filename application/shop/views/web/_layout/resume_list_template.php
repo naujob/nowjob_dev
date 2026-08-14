@@ -22,7 +22,7 @@ $tpl_price_wrap_width = isset($tpl_price_wrap_width) ? $tpl_price_wrap_width : '
     <div class="item-info">
 
       <div class="img">
-        <img src="{{ru_resume_img}}">
+        <img src="{{ru_resume_img}}" alt="{{ru_name}} 프로필 이미지">
         <?php if ($mm_type === "COMP"): ?>
         <button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
         <?php endif; ?>

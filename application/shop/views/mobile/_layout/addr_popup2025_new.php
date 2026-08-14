@@ -1344,6 +1344,41 @@
 
             $('.addr_sel_cnt').text(count);
           }
+
+          // addr_popup UI 초기화 함수 (다른 페이지에서 호출 가능)
+          window.initAddrPopupUI = function() {
+            var pageType = window.__addrPopupPageType || 'default';
+            var storageKey_regions = 'selectedRegions_' + pageType;
+            var storageKey_area = 'searchAreaStr_' + pageType;
+            var storageKey_name = 'addrName_' + pageType;
+
+            // 초기화 전 현재 선택 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
+            window.backupSelectedRegions = window.selectedRegions ? window.selectedRegions.slice() : [];
+            window.backupSearchArea = [];
+            $('.selbtn').each(function() {
+              window.backupSearchArea.push({
+                addr: $(this).data('addr'),
+                step: $(this).data('step')
+              });
+            });
+
+            // UI 초기화
+            $('.addr_dept2 ul, .addr_dept3 ul').empty();
+            $txtInput.val('');
+            $('li.addr_on').removeClass('addr_on');
+            $('.div2 .selbtn').remove();
+            updateSelectedCount();
+
+            // window.selectedRegions 초기화
+            window.selectedRegions = [];
+            updateSearchView();
+            resetAllRegionFlag();
+
+            // sessionStorage도 함께 초기화
+            sessionStorage.removeItem(storageKey_regions);
+            sessionStorage.removeItem(storageKey_area);
+            sessionStorage.removeItem(storageKey_name);
+          };
           // 검색어 입력 시 AJAX 요청을 보내어 검색 결과를 가져오는 함수입니다. 디바운스 적용으로 불필요한 요청 방지
           function fSearchKeyUp() {
             const search_keyword = $('#txt_addr').val().trim();

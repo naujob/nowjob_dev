@@ -1270,16 +1270,16 @@ class Mypage_proc extends CI_Controller
         // 간단경력 데이터는 스텝3에 저장되므로 스텝3에서 먼저 확인, 없으면 스텝4에서 확인
         $arr_career = isset($step3["arr_career"]) && $step3["arr_career"] != "" ? $step3["arr_career"] : (isset($step4["arr_career"]) && $step4["arr_career"] != "" ? $step4["arr_career"] : "");
         if ($arr_career != "") {
-          $arr_temp = explode("&&&", $arr_career);
+          $arr_temp = explode("&&&", $arr_career); // explode("자르는기준", "원래글자") 상자(배열)로 만드는 코드
           foreach ($arr_temp as $row) {
             if (trim($row) == "") continue;
             $arr_data = explode("|||", $row);
-            if (count($arr_data) < 3) continue;
+            if (count($arr_data) < 2) continue;
             $info = [
               "ru_idx" => $ru_idx,
-              "rc_type" => isset($arr_data[0]) ? $arr_data[0] : "",
-              "rc_name" => isset($arr_data[1]) ? $arr_data[1] : "",
-              "rc_date" => isset($arr_data[2]) ? $arr_data[2] : "",
+              "rc_type" => "",
+              "rc_name" => isset($arr_data[0]) ? $arr_data[0] : "",
+              "rc_date" => isset($arr_data[1]) ? $arr_data[1] : "",
             ];
 
             $result_career = $this->member_model->insertResumeCareer($info);
@@ -1478,12 +1478,12 @@ class Mypage_proc extends CI_Controller
           foreach ($arr_temp as $row) {
             if (trim($row) == "") continue;
             $arr_data = explode("|||", $row);
-            if (count($arr_data) < 3) continue;
+            if (count($arr_data) < 2) continue;
             $info = [
               "ru_idx" => $result_resume["key"],
-              "rc_type" => isset($arr_data[0]) ? $arr_data[0] : "",
-              "rc_name" => isset($arr_data[1]) ? $arr_data[1] : "",
-              "rc_date" => isset($arr_data[2]) ? $arr_data[2] : "",
+              "rc_type" => "",
+              "rc_name" => isset($arr_data[0]) ? $arr_data[0] : "",
+              "rc_date" => isset($arr_data[1]) ? $arr_data[1] : "",
             ];
             $result_career = $this->member_model->insertResumeCareer($info);
 

@@ -135,7 +135,7 @@
                                           <div class="search-input">
                                             <input type="text" id="pm_addr" name="pm_addr" placeholder="" autocomplete="off" aria-required="true" required="" class="form-text" onclick="$('#changeArea').addClass('on');" style="width: calc(100% - 26px); border-bottom: 1px solid #333;">
     		                                    <a id="btnSearchAddrX" class="icon" href="javascript:void(0);" onclick="$('#changeArea').addClass('on');" style="position: absolute; right: 0px; top: 6px; width: 24px;">
-    		                            	          <img src="/resource/shop/mobile/img/common/search.png">
+    		                            	          <img src="/resource/shop/mobile/img/common/search.png" alt="광고지역 검색">
     		                                    </a>
                                           </div>
                                           <!--

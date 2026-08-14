@@ -311,13 +311,25 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                     <div class="col">
                                         <label>
                                             <span class="sr-text">업체명 입력</span>
-                                            <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?= isset($arr_temp[1]) ? $arr_temp[1] : "" ?>" autocomplete="off" class="form-text">
+                                            <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?php
+                                                if(count($arr_temp) >= 3) {
+                                                    echo isset($arr_temp[1]) ? $arr_temp[1] : "";
+                                                } else if(count($arr_temp) >= 2) {
+                                                    echo isset($arr_temp[0]) ? $arr_temp[0] : "";
+                                                }
+                                            ?>" autocomplete="off" class="form-text">
                                         </label>
                                     </div>
                                     <div class="col">
                                         <label class="datepicker-wrapper">
                                             <span class="sr-text">근무기간 입력</span>
-                                            <input type="text" name="career_period[]" placeholder="근무기간" value="<?= isset($arr_temp[2]) ? $arr_temp[2] : "" ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
+                                            <input type="text" name="career_period[]" placeholder="근무기간" value="<?php
+                                                if(count($arr_temp) >= 3) {
+                                                    echo isset($arr_temp[2]) ? $arr_temp[2] : "";
+                                                } else if(count($arr_temp) >= 2) {
+                                                    echo isset($arr_temp[1]) ? $arr_temp[1] : "";
+                                                }
+                                            ?>" autocomplete="off" class="form-text num js-career-datepicker" readonly>
                                             <!-- <span class="datepicker-icon"></span> -->
                                         </label>
                                     </div>
@@ -468,11 +480,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }, true); // 캡처 단계에서 실행
     })();
 
+    // 이력서 드래프트 저장소 키 생성
     function getResumeDraftKey(step) {
         var ruIdx = $("[name='ru_idx']").val() || "0";
         return "resume_draft_" + ruIdx + "_step" + step;
     }
 
+    // 드래프트 데이터를 새로운 인덱스로 마이그레이션
     function migrateResumeDraftKeys(oldIdx, newIdx, steps) {
         if (!oldIdx || !newIdx || oldIdx === newIdx) return;
         (steps || []).forEach(function(step) {
@@ -486,6 +500,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     }
 
+    // 이력서 드래프트 데이터 삭제
     function clearResumeDraft(ruIdx) {
         var targetIdx = ruIdx || $("[name='ru_idx']").val() || "0";
         ["resume_draft_" + targetIdx + "_step1", "resume_draft_" + targetIdx + "_step4"].forEach(function(key) {
@@ -493,6 +508,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     }
 
+    // 주소 정보를 HTML 리스트 아이템으로 변환
     function createAddressListItem(addrData) {
         if (!addrData || !addrData.ad_addr) return "";
         var detail = addrData.ad_detail ? addrData.ad_detail : "";
@@ -523,6 +539,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             '</li>';
     }
 
+    // 2개 미만의 주소일 때 추가 버튼 표시
     function ensureAddressAddButton(currentCount) {
         var $list = $("#addr_location");
         $list.find(".location-field-add").remove();
@@ -537,6 +554,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
+    // 주소 목록을 초기화하고 재구성
     function rebuildAddressList(addrList) {
         if (!Array.isArray(addrList)) {
             ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
@@ -555,6 +573,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         ensureAddressAddButton(count);
     }
 
+    // step1 (기본정보, 근무조건) 데이터를 localStorage에 저장
     function saveResumeStep1Data() {
         try {
             var storageKey = getResumeDraftKey(1);
@@ -598,6 +617,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
+    // step4 (자기소개, 경력, 자격증) 데이터를 localStorage에 저장
     function saveResumeStep4Data() {
         try {
             var storageKey = getResumeDraftKey(4);
@@ -641,6 +661,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
+    // 빈 폼 그룹을 가진 리스트 아이템 제거
     function cleanupEmptyListItems() {
         $(".form-row[data-section='career'] .added-list, .form-row[data-section='license'] .added-list").each(function() {
             var $list = $(this);
@@ -729,6 +750,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }, true);
     })();
 
+    // 경력사항 데이터를 목록으로 렌더링
     function renderCareerItems(items) {
         var $list = $(".form-row[data-section='career'] .added-list");
         if ($list.length === 0 || !Array.isArray(items) || items.length === 0) return;
@@ -749,6 +771,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     }
 
+    // 자격증 데이터를 목록으로 렌더링
     function renderLicenseItems(items) {
         var $list = $(".form-row[data-section='license'] .added-list");
         if ($list.length === 0 || !Array.isArray(items) || items.length === 0) return;
@@ -765,6 +788,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     }
 
+    // localStorage에서 step4 데이터 로드하여 폼에 적용
     function loadResumeStep4Data() {
         var storageKey = getResumeDraftKey(4);
         var saved = localStorage.getItem(storageKey);
@@ -857,8 +881,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
-    // 서버에서 받은 주소 데이터를 로드하는 함수
-    // 수정 모드(ru_idx가 0이 아니고 이력서명이 있을 때)일 때만 로드
+    // 서버에서 받은 주소 데이터를 로드 (수정 모드일 때만)
     function loadServerAddressData() {
         var ruIdx = $("[name='ru_idx']").val() || "0";
         var ruName = $("[name='ru_name']").val() || "";
@@ -892,6 +915,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return false; // 서버 데이터가 없음을 반환
     }
 
+    // localStorage에서 step1 데이터 로드하여 폼에 적용
     function loadResumeStep1Data() {
         var storageKey = getResumeDraftKey(1);
         var saved = localStorage.getItem(storageKey);
@@ -960,12 +984,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
+    // 주소 문자열에서 마지막 동 이름 추출
     function getDongFromAddr(addr) {
         if (!addr || typeof addr !== "string") return "";
         var tokens = addr.trim().split(/\s+/);
         return tokens.length ? tokens[tokens.length - 1] : "";
     }
 
+    // 자동완성 파라미터에 따라 폼 자동 입력
     function applyResumeAutoFill() {
         var urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('autofill') !== '1') return;
@@ -1098,7 +1124,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }, 150);
     }
 
-    // 검색 완료 선택 처리 (상세주소 파라미터 추가)
+    // 팝업에서 선택한 주소를 이력서에 추가
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y, detail) {
         var currentCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
 
@@ -1172,11 +1198,17 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
     }
 
+    // 지역 선택 팝업 열기
     function showAddrInfo(maxlen) {
         var currentCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
         if (currentCount >= maxlen) {
             commonAlert("희망지역은 " + maxlen + "개까지 등록 가능합니다.", function() {});
             return;
+        }
+        // 팝업 오픈 시 UI 초기화 (각 버튼마다 실행)
+        window.__addrPopupPageType = 'resume_write';
+        if (typeof window.initAddrPopupUI === 'function') {
+            window.initAddrPopupUI();
         }
         window.__hideAllRegionsInAddrPopup = true;
         if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
@@ -1185,7 +1217,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         $("#changeArea").addClass("on");
     }
 
-    window.onChangeAreaApply = function(payload) {
+    window.onChangeAreaApply = function(payload) { // 
         // 선택된 지역을 searchArea 배열에서 가져오기
         var searchArea = payload.searchArea || [];
         var maxCount = 2;
@@ -1255,6 +1287,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     // DOMContentLoaded 이벤트로 더 빠르게 처리 (깜빡임 방지)
     document.addEventListener('DOMContentLoaded', function() {
+        // addr_popup 페이지 타입 설정 (이력서 작성 페이지)
+        window.__addrPopupPageType = 'resume_write';
+
+        // addr_popup UI 초기화 (다른 페이지에서 돌아온 경우 선택 지역 초기화)
+        if (typeof window.initAddrPopupUI === 'function') {
+            window.initAddrPopupUI();
+        }
+
         // 먼저 서버에서 받은 주소 데이터를 로드
         var hasServerData = loadServerAddressData();
 
@@ -1703,6 +1743,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     });
 
+    // 경력 기간 날짜 선택기 초기화
     function initCareerDatepicker(el) {
         if (typeof flatpickr == 'undefined' || !el) return;
 
@@ -1725,7 +1766,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             return year.toString();
         }
 
-        var existingValue = $(el).val();
+        var existingValue = $(el).val(); // 기존에 입력된 값 가져오기
         var defaultDate = null;
         if (existingValue && existingValue.indexOf('~') > -1) {
             var dates = existingValue.split(' ~ ');
@@ -1745,19 +1786,19 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         flatpickr(el, {
             mode: 'range',
             locale: 'ko',
-            altInput: true,
-            altFormat: 'y.m',
-            dateFormat: 'Y-m-d',
-            defaultDate: defaultDate,
+            altInput: false, // 사용자 입력 필드에 직접 표시
+            altFormat: 'y.m', // 사용자에게 표시되는 형식
+            dateFormat: 'Y-m-d', // 실제 데이터 형식
+            defaultDate: defaultDate, // 기존 값이 있으면 해당 날짜 범위를 기본값으로 설정
             nextArrow: '<span class="sr-text">다음</span>',
             prevArrow: '<span class="sr-text">이전</span>',
             disableMobile: true,
             clickOpens: true,
             plugins: [
                 new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "y.m",
-                    altFormat: "y.m",
+                    shorthand: false,
+                    dateFormat: "Y.m", // 실제 데이터 형식
+                    altFormat: "Y.m", // 사용자에게 표시되는 형식
                 })
             ],
             onYearChange: function(selectedDates, dateStr, instance) {
@@ -1786,44 +1827,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 instance.calendarContainer.querySelectorAll('.flatpickr-monthSelect-month').forEach(function(month) {
                     month.classList.remove('startRange', 'inRange', 'endRange')
                 });
-
-                if (dateStr && dateStr.indexOf(' to ') > -1) {
-                    var dates = dateStr.split(' to ');
-                    if (dates.length === 2) {
-                        // 년도를 2자리로 변환하는 함수
-                        function formatYearToTwoDigit(dateStr) {
-                            var parts = dateStr.substring(0, 7).split('-');
-                            if (parts.length >= 2) {
-                                var year = parts[0];
-                                var month = parts[1];
-                                return year.slice(-2) + '.' + month;
-                            }
-                            return dateStr.substring(0, 7).replace(/-/g, '.');
-                        }
-                        var startDate = formatYearToTwoDigit(dates[0]);
-                        var endDate = formatYearToTwoDigit(dates[1]);
-                        var formattedDate = startDate + ' ~ ' + endDate;
-                        $(el).val(formattedDate);
-                    }
-                } else if (dateStr) {
-                    // 년도를 2자리로 변환하는 함수
-                    function formatYearToTwoDigit(dateStr) {
-                        var parts = dateStr.substring(0, 7).split('-');
-                        if (parts.length >= 2) {
-                            var year = parts[0];
-                            var month = parts[1];
-                            return year.slice(-2) + '.' + month;
-                        }
-                        return dateStr.substring(0, 7).replace(/-/g, '.');
-                    }
-                    var formattedDate = formatYearToTwoDigit(dateStr);
-                    $(el).val(formattedDate);
-                }
                 saveResumeStep4Data();
             }
         });
     }
 
+    // 자격증 취득일자 선택기 초기화
     function initLicenseDatepicker(el) {
         if (typeof flatpickr == 'undefined' || !el) return;
 
@@ -1870,6 +1879,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     }
 
+    // 이력서 미리보기 정보 팝업 표시
     function showPreviewInfo(info, $btnElement) {
         var str_ru_work_img = "";
         var str_ru_week = "";

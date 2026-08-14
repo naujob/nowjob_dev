@@ -132,7 +132,7 @@
                    <div class="search-input">
                      <input type="text" id="txt_addr" name="txt_addr" placeholder="예시 : 주흥1길 12, 부산 센텀중앙로 97" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fSearchKeyUp(this);">
                      <a id="btnSearchAddr" class="icon" href="javascript:void(0);">
-                       <img src="/resource/shop/mobile/img/common/search.png" />
+                       <img src="/resource/shop/mobile/img/common/search.png" alt="주소 검색" />
                      </a>
                      <!-- <div class="short_addr_box"></div> -->
                    </div>

@@ -50,7 +50,7 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
         <label class="form-pic" style="border-radius: 10%;" onclick="return false;">
             <input type="file" name="profile2" accept="image/*" class="js-file-preview">
             <span class="preview">
-                <img src="<?= getResumeImg($mem_info) ?>" alt="" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                <img src="<?= getResumeImg($mem_info) ?>" alt="프로필 이미지" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
             </span>
         </label>
     </div>

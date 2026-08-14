@@ -477,9 +477,9 @@
 				if($career_list!=null){
 					foreach($career_list as $row){
 						if($arr_career==""){
-							$arr_career = $row["rc_type"] . "|||" . $row["rc_name"] . "|||" . $row["rc_date"];
+							$arr_career = $row["rc_name"] . "|||" . $row["rc_date"];
 						}else{
-							$arr_career .= "&&&" . $row["rc_type"] . "|||" . $row["rc_name"] . "|||" . $row["rc_date"];
+							$arr_career .= "&&&" . $row["rc_name"] . "|||" . $row["rc_date"];
 						}
 					}
 					$info["arr_career"] = $arr_career;
@@ -634,9 +634,9 @@
 
 				foreach($career_list as $row){
 					if($arr_career==""){
-						$arr_career = $row["rc_type"] . "|||" . $row["rc_name"] . "|||" . $row["rc_date"];
+						$arr_career = $row["rc_name"] . "|||" . $row["rc_date"];
 					}else{
-						$arr_career .= "&&&" . $row["rc_type"] . "|||" . $row["rc_name"] . "|||" . $row["rc_date"];
+						$arr_career .= "&&&" . $row["rc_name"] . "|||" . $row["rc_date"];
 					}
 				}
 
@@ -657,9 +657,9 @@
 						if($career_list!=null){
 							foreach($career_list as $row){
 								if($arr_career==""){
-									$arr_career = $row["mc_type"] . "|||" . $row["mc_name"] . "|||" . $row["mc_date"];
+									$arr_career = $row["mc_name"] . "|||" . $row["mc_date"];
 								}else{
-									$arr_career .= "&&&" . $row["mc_type"] . "|||" . $row["mc_name"] . "|||" . $row["mc_date"];
+									$arr_career .= "&&&" . $row["mc_name"] . "|||" . $row["mc_date"];
 								}
 							}
 							$info["arr_career"] = $arr_career;

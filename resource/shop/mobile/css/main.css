@@ -9319,7 +9319,7 @@ form#frm {
     border: none;
 
     height: var(--resume-write-input-height);
-    padding: 4px 1px 0 15px;
+    padding: 4px 1px 0 8px;
     font-weight: 400;
     line-height: 1.5;
     font-size: var(--resume-write-input-font-size);

@@ -1527,6 +1527,24 @@
 
                                     <!-- 자격증 목록 -->
                                     <ol class="added-list license_list">
+                                        <?php if (is_array($certi_list) && !empty($certi_list)) :
+                                            foreach ($certi_list as $row):
+                                                $rc_name = $row['rc_name'];
+                                                $rc_dt = $row['rc_dt'];
+                                        ?>
+                                                <li>
+                                                    <div class="form-group">
+                                                        <div class="col">
+                                                            <input type="text" name="license[]" disabled value="<?= $rc_name; ?>" class="form-text">
+                                                        </div>
+                                                        <div class="col">
+                                                            <input type="text" name="regdate[]" disabled value="<?= $rc_dt; ?>" class="form-text num">
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="btn-clear js-del-item">삭제</button>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </ol>
 
                                     <!-- 자격증 추가 버튼 -->
@@ -1709,7 +1727,7 @@
                                                     var licenseText = license.value;
                                                     var regdateText = regdate.value;
 
-                                                    var newItem = temp.children[0];
+                                                    var newItem = temp.children[0]; // 새로 생성된 li 요소
                                                     var formGroup = newItem.querySelector('.form-group');
                                                     formGroup.children[0].querySelector('input').value = licenseText;
                                                     formGroup.children[1].querySelector('input').value = regdateText;
@@ -1958,6 +1976,11 @@
             commonAlert("희망지역은 " + maxlen + "개까지 등록 가능합니다.", function() {});
             return;
         }
+        // 팝업 오픈 시 UI 초기화 (각 버튼마다 실행)
+        window.__addrPopupPageType = 'resume_write';
+        if (typeof window.initAddrPopupUI === 'function') {
+            window.initAddrPopupUI();
+        }
         window.__hideAllRegionsInAddrPopup = true;
         if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
             window.applyAddrPopupAllRegionFilter();
@@ -2198,22 +2221,20 @@
                     return true; // continue
                 }
 
-                // 해당 li 내의 입력 필드 찾기
-                var $category = $li.find("[name='category[]']");
+                // 해당 li 내의 입력 필드 찾기 (company와 period만 필요)
                 var $company = $li.find("[name='company[]']");
                 var $period = $li.find("[name='period[]']");
 
                 // 값 추출 (disabled 필드도 jQuery의 val()로 읽을 수 있음)
-                var category = $category.length > 0 ? $category.val() : "";
                 var company = $company.length > 0 ? $company.val() : "";
                 var period = $period.length > 0 ? $period.val() : "";
 
-                // 모든 값이 있는 경우에만 추가
-                if (category && company && period) {
+                // 기업명과 근무기간이 모두 있는 경우에만 추가
+                if (company && period) {
                     if (arr_career == "") {
-                        arr_career = category + "|||" + company + "|||" + period;
+                        arr_career = company + "|||" + period;
                     } else {
-                        arr_career = arr_career + "&&&" + category + "|||" + company + "|||" + period;
+                        arr_career = arr_career + "&&&" + company + "|||" + period;
                     }
                 }
             });
