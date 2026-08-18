@@ -246,10 +246,28 @@
     }
 
     function renderRecruitCard() {
-      var template = document.querySelector('template[id^="tpl_"]');
+      var template = document.getElementById('tpl_chat_recruit');
       if (!template) {
         return;
       }
+
+      // 공고 상태 계산 함수
+      function getStatusLabel(sdate, edate) {
+        var now = new Date();
+        var startDate = new Date(sdate);
+        var endDate = new Date(edate);
+
+        if (startDate <= now && now <= endDate) {
+          return "모집중";
+        } else if (endDate < now) {
+          return "마감";
+        } else if (startDate > now) {
+          return "대기중";
+        }
+        return "";
+      }
+
+      var statusLabel = getStatusLabel(recruitData.rc_sdate, recruitData.rc_edate);
 
       var html = template.innerHTML
         .replaceAll('{{rc_idx}}', recruitData.rc_idx || '')
@@ -263,7 +281,8 @@
         .replaceAll('{{ad_addr}}', fRemoveBigAdrJS(recruitData.ad_addr || ''))
         .replaceAll('{{book_yn}}', (recruitData.book_yn === 'Y') ? 'on' : '')
         .replaceAll('{{rc_price_type}}', recruitData.rt_price_type || '')
-        .replaceAll('{{rc_price_pay}}', recruitData.rt_price_pay || '');
+        .replaceAll('{{rc_price_pay}}', recruitData.rt_price_pay || '')
+        .replaceAll('{{status_label}}', statusLabel);
 
       var listContainer = document.getElementById('chatRecruitCardList');
       if (listContainer) {
@@ -284,7 +303,27 @@
     <div class="top-bar top-bar--chat">
         <!--<a href="javascript:_replace('/chat/chat_list');" class="btn-replace"><span class="sr-text">이전으로</span></a>-->
         <a href="javascript:void(0);" class="btn-replace js-chat-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title" id="rm_subject"><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></h1>
+        <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;">
+          <?php if ($user_type == "COMP"): ?>
+            <?php
+            $profileImg = getResumeImg($resume);
+            $mmSex = isset($resume["mm_sex"]) ? trim($resume["mm_sex"]) : "";
+            $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png";
+            if ($mmSex === "남") {
+              $defaultAvatar = "/resource/shop/web/img/avatar_icon2_m.png";
+            }
+            ?>
+            <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 60px; overflow: hidden; flex-shrink: 0;">
+              <img src="<?= $profileImg ?>" alt="프로필" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
+            </div>
+            <span><?= !empty($resume["ru_name"]) ? $resume["ru_name"] : $resume["mm_name"] ?></span>
+          <?php else: ?>
+            <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
+              <img src="<?= !empty($recruit["rc_thumb"]) ? $recruit["rc_thumb"] : "" ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+            </div>
+            <span><?= !empty($recruit["rc_name"]) ? $recruit["rc_name"] : "1:1채팅" ?></span>
+          <?php endif; ?>
+        </h1>
         <?php if (!empty($call_target_phone)) : ?>
             <a href="tel:<?= htmlspecialchars($call_target_phone, ENT_QUOTES, 'UTF-8') ?>" class="btn-call js-call-log" data-show-call="<?= !empty($show_call_btn) ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/phone.png'); background-size: contain; background-repeat: no-repeat; background-position: center;">
                 <span class="sr-text">전화하기</span>
@@ -303,60 +342,16 @@
         <div class="chat-view-header">
             <!-- 채용정보 -->
             <?php if ($user_type == "COMP") : ?>
-                <!-- 인재정보 -->
-                <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
+                <!-- 채용정보 -->
+                <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
                 <?php
-                // 이름 정규화: ru_name이 없으면 mm_name 사용
-                $chatRow = $resume;
-                if (empty($chatRow['ru_name'])) {
-                    $chatRow['ru_name'] = isset($chatRow['mm_name']) ? $chatRow['mm_name'] : '';
-                }
-
-                // 나이 계산 (resume_card.php와 동일한 로직)
-                $_chat_age = '';
-                if (!empty($chatRow['mm_birth'])) {
-                    $_chat_age = getKoreanAge($chatRow['mm_birth']);
-                } else {
-                    $_chat_age = isset($chatRow['ma_age']) ? $chatRow['ma_age'] : '';
-                }
+                $roomType = isset($room["rm_type"]) ? trim($room["rm_type"]) : "";
+                $tpl_data_label = ($roomType === "propose") ? "채팅보낸 공고" : "지원받은 공고";
                 ?>
-                <!-- 채팅 인재 카드 데이터를 JS에 전달 -->
-                <script>
-                  var chatResumeData = <?php
-                      // resume_proc.php와 동일한 변환 적용
-                      $ru_work_type_html = getWorkTypeWithColor(isset($chatRow['ru_work_type']) ? $chatRow['ru_work_type'] : '');
-                      $ru_price_type_html = getPriceType(isset($chatRow['ru_price_type']) ? $chatRow['ru_price_type'] : '');
-
-                      echo json_encode([
-                          'ru_idx'        => isset($chatRow['ru_idx']) ? $chatRow['ru_idx'] : '',
-                          'mm_idx'        => isset($chatRow['mm_idx']) ? $chatRow['mm_idx'] : '',
-                          'ru_resume_img' => getResumeImg($chatRow),
-                          'ru_work_img'   => getWorkingImg(isset($chatRow['ru_work']) ? $chatRow['ru_work'] : ''),
-                          'mm_name'       => isset($chatRow['ru_name']) ? $chatRow['ru_name'] : '',
-                          'ru_week'       => getWeekYoil(isset($chatRow['ru_week']) ? $chatRow['ru_week'] : ''),
-                          'mm_nation'     => isset($chatRow['mm_nation']) && !empty($chatRow['mm_nation']) ? $chatRow['mm_nation'] : '',
-                          'ma_age'        => ($_chat_age !== '' && $_chat_age != 0) ? $_chat_age . '대' : '',
-                          'ru_price_type' => $ru_price_type_html,
-                          'ru_work_type'  => $ru_work_type_html,
-                          'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
-                          'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
-                          'ru_recom_badge' => getRecomBadgeHtml(isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null),
-                          'pm_idx' => isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null,
-                      ]);
-                  ?>;
-                </script>
-
-                <!-- 인재 카드 템플릿 포함 -->
-                <?php
-                  $tpl_id           = 'tpl_chat_resume';
-                  $tpl_recomm_class = true;
-                  $tpl_show_mm_idx  = false;
-                  include(APPPATH . 'views/mobile/_partial/resume_card_template.php');
-                ?>
-
-                <!-- 채팅 인재 카드 렌더링 컨테이너 -->
-                <ul class="result-list result-list-card" id="chatResumeList"></ul>
-                <!-- //인재정보 -->
+                <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
+                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
+                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
+                <!-- //채용정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -502,11 +497,65 @@
                 <!-- 사용 안 함 - 주석처리 끝 -->
                 <!-- //일정 -->
             <?php else : ?>
-                <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
-                <!-- 채용정보 템플릿 -->
-                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
-                <!-- //채용정보 -->
+                <!-- 인재정보 -->
+                <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
+                <?php
+                // 이름 정규화: ru_name이 없으면 mm_name 사용
+                $chatRow = $resume;
+                if (empty($chatRow['ru_name'])) {
+                    $chatRow['ru_name'] = isset($chatRow['mm_name']) ? $chatRow['mm_name'] : '';
+                }
+
+                // 나이 계산 (resume_card.php와 동일한 로직)
+                $_chat_age = '';
+                if (!empty($chatRow['mm_birth'])) {
+                    $_chat_age = getKoreanAge($chatRow['mm_birth']);
+                } else {
+                    $_chat_age = isset($chatRow['ma_age']) ? $chatRow['ma_age'] : '';
+                }
+                ?>
+                <!-- 채팅 인재 카드 데이터를 JS에 전달 -->
+                <script>
+                  var chatResumeData = <?php
+                      // resume_proc.php와 동일한 변환 적용
+                      $ru_work_type_html = getWorkTypeWithColor(isset($chatRow['ru_work_type']) ? $chatRow['ru_work_type'] : '');
+                      $ru_price_type_html = getPriceType(isset($chatRow['ru_price_type']) ? $chatRow['ru_price_type'] : '');
+
+                      echo json_encode([
+                          'ru_idx'        => isset($chatRow['ru_idx']) ? $chatRow['ru_idx'] : '',
+                          'mm_idx'        => isset($chatRow['mm_idx']) ? $chatRow['mm_idx'] : '',
+                          'ru_resume_img' => getResumeImg($chatRow),
+                          'ru_work_img'   => getWorkingImg(isset($chatRow['ru_work']) ? $chatRow['ru_work'] : ''),
+                          'mm_name'       => isset($chatRow['ru_name']) ? $chatRow['ru_name'] : '',
+                          'ru_week'       => getWeekYoil(isset($chatRow['ru_week']) ? $chatRow['ru_week'] : ''),
+                          'mm_nation'     => isset($chatRow['mm_nation']) && !empty($chatRow['mm_nation']) ? $chatRow['mm_nation'] : '',
+                          'ma_age'        => ($_chat_age !== '' && $_chat_age != 0) ? $_chat_age . '대' : '',
+                          'ru_price_type' => $ru_price_type_html,
+                          'ru_work_type'  => $ru_work_type_html,
+                          'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
+                          'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
+                          'ru_recom_badge' => getRecomBadgeHtml(isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null),
+                          'pm_idx' => isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null,
+                      ]);
+                  ?>;
+                </script>
+
+                <!-- 인재 카드 템플릿 포함 -->
+                <?php
+                  $roomType = isset($room["rm_type"]) ? trim($room["rm_type"]) : "";
+                  $tpl_data_label = ($roomType === "propose") ? "제안받은 인재" : "지원한 이력서";
+                ?>
+                <?php
+                  $tpl_id           = 'tpl_chat_resume';
+                  $tpl_recomm_class = true;
+                  $tpl_show_mm_idx  = false;
+                  $tpl_simple_mode  = true;
+                  include(APPPATH . 'views/mobile/_partial/resume_card_template.php');
+                ?>
+
+                <!-- 채팅 인재 카드 렌더링 컨테이너 -->
+                <ul class="result-list result-list-card" id="chatResumeList"></ul>
+                <!-- //인재정보 -->
                 <div id="mem_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
                         <div class="inline-group">
@@ -548,6 +597,57 @@
 
 
 <?php if ($user_type == "COMP") : ?>
+    <!-- 채용정보 + 인재정보 -->
+    <div id="chatSummary" class="layer-panel card-type" tabindex="-1">
+        <div class="panel-container">
+            <div class="panel-header">
+                <h2 class="sr-text">채용주요정보</h2>
+            </div>
+            <div class="panel-body">
+                <div class="panel-content">
+                    <!-- 인재 정보 헤더 (가로 레이아웃) -->
+                    <div class="talent-info-header" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background-color: #f5f5f5; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <?php
+                        $resumeImg = getResumeImg($resume);
+                        $mmSex = isset($resume["mm_sex"]) ? trim($resume["mm_sex"]) : "";
+                        $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png";
+                        if ($mmSex === "남") {
+                            $defaultAvatar = "/resource/shop/web/img/avatar_icon2_m.png";
+                        } else if ($mmSex === "여") {
+                            $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png";
+                        }
+                        ?>
+                        <img src="<?= $resumeImg ?>" alt="인재프로필" style="width: 3.5rem; height: 3.5rem; object-fit: cover; border-radius: 50%; flex-shrink: 0;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
+                        <div style="flex: 1; min-width: 0;">
+                            <p style="margin: 0; font-size: 0.875rem; color: #666;">지원자</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <?= !empty($resume["ru_name"]) ? $resume["ru_name"] : $resume["mm_name"] ?>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="item-info-summary">
+                        <div class="title-wrap">
+                            <div class="label-row">
+                                <p class="line-label">채용정보</p>
+                                <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>" class="view-all">상세보기</a>
+                            </div>
+                            <!-- 제목 -->
+                            <h3 class="secondary-title"><?= $recruit["rc_name"] ?></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="sticky-bottom view-footer">
+                    <button type="button" aria-controls="chatSummary" class="btn btn-primary js-toggle-panel">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //채용정보 + 인재정보 -->
+<?php else : ?>
+    <!-- 인재정보 -->
     <div id="chatSummary" class="layer-panel card-type" tabindex="-1">
         <div class="panel-container">
             <div class="panel-header">
@@ -565,12 +665,9 @@
                             <!-- 제목: 이력서 제목 우선, 없으면 이름 표시 -->
                             <h3 class="secondary-title">
                                 <?php
-                                // getResumeImg() 함수가 이미 성별에 따른 기본 아바타를 반환함
                                 $resumeImg = getResumeImg($resume);
-
-                                // onerror 핸들러용 기본 아바타 경로 설정
                                 $mmSex = isset($resume["mm_sex"]) ? trim($resume["mm_sex"]) : "";
-                                $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png"; // 기본값은 여성 아바타
+                                $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png";
                                 if ($mmSex === "남") {
                                     $defaultAvatar = "/resource/shop/web/img/avatar_icon2_m.png";
                                 } else if ($mmSex === "여") {
@@ -580,210 +677,19 @@
                                 <img src="<?= $resumeImg ?>" alt="프로필" style="width: 2.5rem; height: 2.5rem; object-fit: cover; border-radius: 50%; margin-right: 0.7rem; vertical-align: middle;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
                                 <?= !empty($resume["ru_name"]) ? $resume["ru_name"] : $resume["mm_name"] ?>
                             </h3>
-                            <!-- 모집기간 -->
-                            <div class="person-meta">
-                                <?php if (!empty($resume["ru_work"])) : ?>
-                                    <p><?= getWorkingImg($resume["ru_work"]) ?></p>
-                                <?php endif; ?>
-                                <p><?= $resume["mm_nation"] ?></p>&nbsp;
-                                <span>/</span>
-                                &nbsp;<p><?= $resume["ma_age"] ?>세</p>
-                            </div>
-                        </div>
-                        <table class="info-table">
-                            <caption><span class="sr-text">구인정보</span></caption>
-                            <colgroup>
-                                <col>
-                                <col>
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <td class="label">급여형태</td>
-                                    <td class="value" style="color: #1B9D7D"><?= !empty($resume["ru_price_type"]) ? ((strpos($resume["ru_price_type"], ',') !== false) ? str_replace(',', '|', $resume["ru_price_type"]) : $resume["ru_price_type"]) : '-' ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="label">근무형태</td>
-                                    <td class="value" style="color: #1B9D7D"><?= $resume["ru_work_type"] ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="label">근무요일</td>
-                                    <td class="value">
-                                        <?php
-                                        // 요일무관 체크 여부 확인
-                                        $isWeekUnlimited = (isset($resume["ru_week_yn"]) && $resume["ru_week_yn"] === "Y");
-                                        // 저장된 요일 값 확인
-                                        $ru_week = isset($resume["ru_week"]) ? trim($resume["ru_week"]) : "";
-                                        $week_display = ($ru_week !== "") ? $ru_week : "월,화,수,목,금";
-                                        ?>
-                                        <?php if ($isWeekUnlimited) : ?>
-                                            무관
-                                        <?php else : ?>
-                                            <ul class="working-day">
-                                                <?= getWeekYoil($week_display) ?>
-                                            </ul>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">자기소개</td>
-                                    <td class="value">
-                                        <div class="summary"><?= !empty($resume["ru_desc"]) ? str_replace("\n", "<br/>", $resume["ru_desc"]) : '' ?></div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">자격증</td>
-                                    <td class="value">
-                                        <ul class="period-list <?= count($certi_list) == 1 ? 'single-item' : '' ?>">
-                                            <?php foreach ($certi_list as $row) : ?>
-                                                <li>
-                                                    <span><?= $row["rc_name"] ?></span>
-                                                    <em><?= $row["rc_dt"] ?></em>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
-            <div class="panel-footer">
-                <div class="sticky-bottom view-footer">
-                    <button type="button" aria-controls="chatSummary" class="btn btn-primary js-toggle-panel">확인</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- //상세 정보 패널 -->
-<?php else : ?>
-    <!-- 상세정보 패널 -->
-    <div id="chatSummary" class="layer-panel card-type" tabindex="-1">
-        <div class="panel-container">
-            <div class="panel-header">
-                <h2 class="sr-text">채용주요정보</h2>
-            </div>
-            <div class="panel-body">
-                <div class="panel-content">
-
-                    <div class="item-info-summary">
-                        <div class="title-wrap">
-                            <div class="label-row">
-                                <p class="line-label">채용정보</p>
-                                <a href="/recruit/job_post/<?= $recruit["rc_idx"] ?>" class="view-all">상세보기</a>
-                            </div>
-                            <!-- 제목 -->
-                            <h3 class="secondary-title"><?= $recruit["rc_name"] ?></h3>
-                            <!-- 모집기간 -->
-                            <p class="recruit-period">
-                                <span>모집기간</span>
-                                <em>
-                                    <?php
-                                    $rc_sdate_fmt = (!empty($recruit["rc_sdate"])) ? date("Y-m-d", strtotime($recruit["rc_sdate"])) : "";
-                                    $rc_edate_fmt = (!empty($recruit["rc_edate"])) ? date("Y-m-d", strtotime($recruit["rc_edate"])) : "";
-                                    ?>
-                                    <?= $rc_sdate_fmt ?> ~ <?= $rc_edate_fmt ?>
-                                </em>
+                            <!-- 지원한/제안받은 이력서 구분 -->
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #999;">
+                              <?php
+                              $roomType = isset($room["rm_type"]) ? trim($room["rm_type"]) : "";
+                              if ($roomType === "apply") {
+                                echo "지원한 이력서";
+                              } elseif ($roomType === "propose") {
+                                echo "제안받은 이력서";
+                              }
+                              ?>
                             </p>
-                        </div>
-                        <table class="info-table">
-                            <caption><span class="sr-text">구인정보</span></caption>
-                            <colgroup>
-                                <col>
-                                <col>
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <td class="label">업무구분</td>
-                                    <td class="value">
-                                        <!-- 직종라벨 -->
-                                        <?= getWorkingImg($recruit["rc_work"]) ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">급&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;여</td>
-                                    <td class="value">
-                                        <?php
-                                        // 급여 타입: 원본 문자열을 콤마로 나눠 모두 표시 (시급,주급 동시 노출)
-                                        $priceTypeRaw = isset($recruit["rc_price_type"]) ? $recruit["rc_price_type"] : "";
-                                        $priceType = "";
-                                        if (!empty($priceTypeRaw)) {
-                                            $priceTypes = array_filter(array_map('trim', explode(',', $priceTypeRaw)));
-                                            if (!empty($priceTypes)) {
-                                                $priceType = implode(' | ', array_map(function ($t) {
-                                                    return "<em>" . htmlspecialchars($t, ENT_QUOTES) . "</em>";
-                                                }, $priceTypes));
-                                            }
-                                        }
-                                        ?>
-                                        <span class="pay">
-                                            <em class="amount"><?= getRecuitPrice($recruit) ?></em>
-                                            <span><?= $priceType ?></span>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">근무형태</td>
-                                    <td class="value"><span class="working-time" style="color:#1B9D7D;"><?= getWorkType($recruit["rc_work_type"]) ?></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="label">근무시간</td>
-                                    <td class="value">
-                                        <?php if (array_search("주간", explode(",", $recruit["rc_work_type"])) !== false) : ?>
-                                            <span class="time"><?= $recruit["rc_am_stime"] ?>~<?= $recruit["rc_am_etime"] ?></span>
-                                        <?php elseif (array_search("야간", explode(",", $recruit["rc_work_type"])) !== false) : ?>
-                                            <span class="time"><?= $recruit["rc_pm_stime"] ?>~<?= $recruit["rc_pm_etime"] ?></span>
-                                        <?php elseif (array_search("2교대", explode(",", $recruit["rc_work_type"])) !== false) : ?>
-                                            <span class="time"><?= $recruit["rc_am_stime"] ?>~<?= $recruit["rc_am_etime"] ?></span>
-                                            <span class="time"><?= $recruit["rc_pm_stime"] ?>~<?= $recruit["rc_pm_etime"] ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">희망성별</td>
-                                    <td class="value">
-                                        <?php
-                                        // 값이 없으면 기본으로 "무관" 표시
-                                        $rc_sex = isset($recruit["rc_sex"]) ? trim($recruit["rc_sex"]) : "";
-                                        echo $rc_sex !== "" ? $rc_sex : "무관";
-                                        ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">희망국적</td>
-                                    <td class="value"><?= $recruit["rc_nation_nm"] ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="label">희망나이</td>
-                                    <td class="value">
-                                        <?php
-                                        // 나이 범위를 "20~55세" 형태로 표시, 값이 없으면 "무관"
-                                        $startAge = isset($recruit["rc_sage"]) ? (int) $recruit["rc_sage"] : 0;
-                                        $endAge = isset($recruit["rc_eage"]) ? (int) $recruit["rc_eage"] : 0;
-                                        if ($startAge === 0 && $endAge === 0) {
-                                            echo "무관";
-                                        } elseif ($startAge !== 0 && $endAge !== 0) {
-                                            echo $startAge . "~" . $endAge . "대";
-                                        } elseif ($startAge !== 0) {
-                                            echo $startAge . "세 이상";
-                                        } else {
-                                            echo $endAge . "세 이하";
-                                        }
-                                        ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">근무요일</td>
-                                    <td class="value">
-                                        <ul class="working-day">
-                                            <?= getWeekYoil($recruit["rc_week"]) ?>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
+
                 </div>
             </div>
             <div class="panel-footer">
@@ -793,7 +699,7 @@
             </div>
         </div>
     </div>
-    <!-- //상세정보 패널 -->
+    <!-- //인재정보 -->
 <?php endif; ?>
 
 
@@ -3166,4 +3072,30 @@
         overflow: hidden;
         clip: rect(0, 0, 0, 0);
     }
+
+    .chat-view-header {
+        height: 120px;
+        border-bottom: none;
+    }
+    .chat-view-header .result-list-card{
+          
+
+    }
+    .chat-view-header .result-list-card .list-item {
+        height: 50%;
+    }
+    .chat-view-header .result-list-card .list-item .content-li {
+        height: 100%;
+    }
+    .chat-view-header .result-list-card .content-info .content-body{
+        height: 118px;
+    }
+    .result-list-card .content-info .desc{
+        height: 98%;
+    padding-right:0;
+    }
+      .result-list-card .content-info .desc .ellipsis,
+   .result-list-card .data-label{
+    padding-left: 15px;
+  }
 </style>

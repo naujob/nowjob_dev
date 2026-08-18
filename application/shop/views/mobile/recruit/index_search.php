@@ -714,7 +714,7 @@
        };
        // 사용자 ID를 키에 포함하여 저장
        var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-       localStorage.setItem(storageKey, JSON.stringify(state));
+       sessionStorage.setItem(storageKey, JSON.stringify(state));
      } catch (e) {
 
      }
@@ -727,7 +727,7 @@
    function loadSearchStateFromStorage() {
      // 현재 사용자 ID에 해당하는 키로 불러오기
      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-     var raw = localStorage.getItem(storageKey);
+     var raw = sessionStorage.getItem(storageKey);
      if (!raw) return;
 
      try {
@@ -1383,7 +1383,7 @@
    $(document).on('click', '.btn-option', function() {
      setTimeout(function() {
        var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-       if (localStorage.getItem(storageKey)) {
+       if (sessionStorage.getItem(storageKey)) {
          loadSearchStateFromStorage();
        }
      }, 100);
@@ -1547,7 +1547,7 @@
 
      // localStorage 삭제
      var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_recruit_" + (currentUserId || "guest");
-     localStorage.removeItem(storageKey);
+     sessionStorage.removeItem(storageKey);
 
      initCategory();
      initTabUi();

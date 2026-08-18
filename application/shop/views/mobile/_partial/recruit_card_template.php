@@ -11,6 +11,51 @@
 $tpl_id           = isset($tpl_id)           ? $tpl_id           : 'tpl_recruit_card';
 $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
 ?>
+<style>
+
+  .btn-wrap .btn-detail,
+  .btn-wrap .btn-close {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+  
+    background-color: #fff;
+    cursor: pointer;
+    flex: 1;
+    padding: 6px 12px;
+  }
+
+  .btn-detail:hover,
+  .btn-close:hover {
+    background-color: #f5f5f5;
+    border-color: #999;
+  }
+  .btn-wrap {
+    display: flex;
+    
+    margin-top: 8px;
+    justify-content: flex-end;
+  }
+  .chat-view-header .result-list-card{
+    padding: 10px 0;
+  }
+  .status-label {
+    font-size: 0.875rem;
+    color: #ffffff;
+    margin: 0;
+    background: #1B9D7D;
+    border: 1px solid #1B9D7D;
+    width: 55px;
+    border-radius: 15px;
+    text-align: center;
+    padding: 2px;
+  }
+  .data-label {
+    font-size: 0.875rem;
+    color: #999;
+    margin: 0;
+  }
+</style>
 <template id="<?= $tpl_id ?>">
   <li class="list-item">
     <div class="content-li<?= $tpl_recomm_class ? ' recomm' : '' ?>" data-rc_idx="{{rc_idx}}">
@@ -29,10 +74,23 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
             <?php endif; ?>
           </div> -->
           <div class="desc">
+            <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="wicon">
               {{rt_recom_badge}}{{rt_work_img}}
             </div>
+            <?php endif; ?>
             <div class="title ellipsis">{{rc_name}}</div>
+            <?php if (isset($tpl_simple_mode) && $tpl_simple_mode && isset($tpl_data_label)): ?>
+            <div class style="display: flex; gap: 314px; align-items: center; margin-top: 4px;">
+              <p class="data-label"><?= $tpl_data_label ?></p>
+              <p class="status-label">{{status_label}}</p>
+            </div>
+            <div class="btn-wrap">
+              <button class="btn-detail">상세보기</button>
+              <button class="btn-close">닫기</button>
+            </div>
+            <?php endif; ?>
+            <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="summary">
               <p>{{rc_nation_nm}}</p>
               <p>{{rc_age_nm}}</p>
@@ -40,7 +98,9 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
             <div class="summary area">
               <p>{{ad_addr}}</p>
             </div>
+            <?php endif; ?>
           </div>
+          <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
           <div class="summary-container">
             <div class="summary3">{{rt_work_type}}</div>
             <div class="summary2">
@@ -48,8 +108,12 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
               <p class="amount">{{rc_price_pay}}</p>
             </div>
           </div>
+          <?php endif; ?>
         </div>
       </div>
     </div>
   </li>
 </template>
+<style>
+  
+</style>

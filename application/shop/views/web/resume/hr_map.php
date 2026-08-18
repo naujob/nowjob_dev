@@ -405,6 +405,12 @@
     margin-right: 0;
   }
 
+  /* 주소 로딩 상태 */
+  #myLocation[data-loading="true"] {
+    min-height: 0;
+    visibility: hidden;
+  }
+
 </style>
 <div id="content" class="page page-map">
   <main class="page-content">
@@ -412,7 +418,7 @@
       <div class="result-wrap-container">
         <div class="result-wrap">
           <p class="current-area" style="">
-            <span id="myLocation" class="myLocationBtn"><?= isset($ad_addr) && $ad_addr != "" ? $ad_addr : "서울 중구 태평로1가" ?></span>
+            <span id="myLocation" class="myLocationBtn" data-loading="true"></span>
           </p>
           <div class="list" style="margin-top: 20px;">
             <div class="reco-content">
@@ -643,16 +649,35 @@
 
 <script>
   $(function() {
-    // 초기 주소를 단축 형식으로 포맷팅
-    setTimeout(function() {
-      var initialAddr = $('#myLocation').text();
-      if (initialAddr && initialAddr !== "서울 중구 태평로1가") {
-        $('#myLocation').text(fRemoveBigAdrJS(initialAddr));
-      }
-    }, 100);
-
+    loadInitialAddress();
     getRecoList();
   });
+
+  function loadInitialAddress() {
+    $.ajax({
+      url: "/common_proc/get_addr_info",
+      type: "post",
+      dataType: "json",
+      crossDomain: true,
+      success: function(json) {
+        if (json.code === "00" && json.data && json.data.ad_addr) {
+          var addr = json.data.ad_addr;
+          $('#myLocation')
+            .text(fRemoveBigAdrJS(addr))
+            .removeAttr('data-loading');
+        } else {
+          $('#myLocation')
+            .text("")
+            .removeAttr('data-loading');
+        }
+      },
+      error: function(xhr, status, error) {
+        $('#myLocation')
+          .text("")
+          .removeAttr('data-loading');
+      }
+    });
+  }
 
   function getRecoList() {
 
@@ -817,7 +842,7 @@
         '	  <div class="content-body">' +
         '		<div class="img">' +
         '		  <img src="' + d.ru_resume_img + '">' +
-        '		  <button type="button" data-bk_type="RESUME" data-bk_key="' + d.ru_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
+        //'		  <button type="button" data-bk_type="RESUME" data-bk_key="' + d.ru_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
         '		</div>' +
         '		<p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>' +
         '		<div class="desc">' +

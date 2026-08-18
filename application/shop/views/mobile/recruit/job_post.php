@@ -152,7 +152,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
 // 미리보기 모드 판단
 $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 ?>
-<div class="page page-view">
+<div class="post page page-view">
     <div class="top-bar">
         <a href="#" class="btn-back" onclick="goBackToEdit(event)"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
@@ -439,7 +439,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 });
             </script>
 
-            <div class="summary-wrapper">
+            <div class="section summary-wrapper">
                 <div class="summary">
                     <div class="container">
                         <h3 class="secondary-title jobinfo-title">구인정보</h3>
@@ -705,6 +705,50 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <a href="tel:<?= $info["mm_phone"] ?>" class="btn btn-primary js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>">전화하기</a>
             <?php } ?>
         </div>
+
+        <!-- 플로팅 액션 버튼 그룹 -->
+        <?php
+        $userType = $this->user->getUserType();
+        ?>
+        <div id="floating-actions" data-state="open">
+            <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
+                <img src="/resource/shop/mobile/img/angle-down.png" alt="메뉴 열기" class="toggle-icon-down">
+                <img src="/resource/shop/mobile/img/angle-up.png" alt="메뉴 닫기" class="toggle-icon-up">
+            </button>
+
+            <?php if ($userType === "MEM") : ?>
+                <!-- 개인회원: 제안하기 + 전화하기 -->
+                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
+                    <span class="action-label">지원하기</span>
+                </a>
+                <a href="tel:<?= $info["mm_phone"] ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
+                    <span class="action-label">전화하기</span>
+                </a>
+            <?php elseif ($userType === "COMP" && $isOwnRecruit) : ?>
+                <!-- 기업회원 & 내 공고: 광고신청 + 수정하기 -->
+                
+                <a href="/compage/recruit_write1_1/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="수정">
+                    <span class="action-label">수정하기</span>
+                </a>
+                <a href="#" class="floating-action-item" id="btnPromotionRecruit" data-action="promote" title="광고신청">
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
+                    <span class="action-label">광고하기</span>
+                </a>
+            <?php else : ?>
+                <!-- 비회원: 로그인 + 전화하기 -->
+                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
+                    <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
+                    <span class="action-label">로그인</span>
+                </a>
+                <a href="tel:<?= $info["mm_phone"] ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
+                    <span class="action-label">전화하기</span>
+                </a>
+            <?php endif; ?>
+        </div><!-- //#floating-actions -->
 
     </div><!-- //page-content -->
 
@@ -1273,7 +1317,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         });
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
-        $("#btnRecruit").click(function() {
+        $(document).on('click', '#btnRecruit, .btnRequest', function(e) {
+            if ($(this).attr('href') === '#') {
+                e.preventDefault();
+            }
             if (isClosedRecruit) {
                 commonAlert("마감된 공고입니다", function() {});
                 return;
@@ -1416,6 +1463,21 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             });
             // tel: href가 그대로 실행되어 전화 연결
         });
+
+        // 플로팅 액션 버튼 토글 기능
+        (function() {
+            const floatingActions = document.getElementById('floating-actions');
+            const floatingToggle = document.getElementById('floating-toggle');
+
+            if (!floatingToggle || !floatingActions) return;
+
+            floatingToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const currentState = floatingActions.getAttribute('data-state');
+                const newState = currentState === 'closed' ? 'open' : 'closed';
+                floatingActions.setAttribute('data-state', newState);
+            });
+        })();
 
     });
 </script>

@@ -177,7 +177,7 @@ function fRemoveBigAdr($arg)
 </style>
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
-<div class="page page-view">
+<div class="post page page-view">
     <div class="top-bar">
         <a href="#" class="<?= $top_button ?>"><span class="sr-text">이전으로</span></a>
         <h1 class="title">인재상세정보</h1>
@@ -490,10 +490,38 @@ function fRemoveBigAdr($arg)
             <?php } else { ?>
                 <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
                 <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn btn-primary">제안보내기</button>
-                <!-- 기업과 인재 사이에 지원/제안 이력이 있을 때: 채팅하기 버튼 -->
-                <button type="button" id="btnGoChat" class="btnGoChat btn btn-primary" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">채팅하기</button>
             <?php } ?>
         </div>
+
+        <!-- 플로팅 액션 버튼 그룹 -->
+        <div id="floating-actions" data-state="open">
+            <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
+                <img src="/resource/shop/mobile/img/angle-down.png" alt="메뉴 열기" class="toggle-icon-down">
+                <img src="/resource/shop/mobile/img/angle-up.png" alt="메뉴 닫기" class="toggle-icon-up">
+            </button>
+
+            <?php if ($isOwnResume) : ?>
+                <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 -->
+                <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="수정">
+                    <span class="action-label">수정하기</span>
+                </a>
+                <a href="/mypage/point_promotion_buy" class="floating-action-item" data-action="promote" title="광고신청">
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
+                    <span class="action-label">광고신청</span>
+                </a>
+            <?php else : ?>
+                <!-- 기업회원이 볼 때: 제안보내기 + 채팅하기 -->
+                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
+                    <span class="action-label">제안하기</span>
+                </a>
+                <a href="#" class="floating-action-item btnGoChat" data-action="call" title="채팅" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
+                </a>
+            <?php endif; ?>
+        </div><!-- //#floating-actions -->
 
     </div><!-- //page-content -->
 
@@ -715,13 +743,6 @@ function fRemoveBigAdr($arg)
                 </div>
             </div>
         </div>
-        <?php if ($validRecruitCount > 0) : ?>
-            <div class="panel-footer">
-                <div class="sticky-bottom view-footer">
-                    <button type="button" id="" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
 </div>
 <!-- //제안 리스트 -->
@@ -919,7 +940,10 @@ function fRemoveBigAdr($arg)
     });
 
     // 기업회원이 이미 제안/지원 이력이 있을 때: 채팅하기 버튼 클릭 이벤트
-    $(document).on('click', '#btnGoChat', function() {
+    $(document).on('click', '.btnGoChat', function(e) {
+        if ($(this).attr('href') === '#') {
+            e.preventDefault();
+        }
         var rmIdx = $(this).attr('data-rm_idx');
         if (rmIdx) {
             location.href = "/chat/chat_view?rm_idx=" + rmIdx;
@@ -962,4 +986,19 @@ function fRemoveBigAdr($arg)
         }, 100);
     });
     */
+
+    // 플로팅 액션 버튼 토글 기능
+    (function() {
+        const floatingActions = document.getElementById('floating-actions');
+        const floatingToggle = document.getElementById('floating-toggle');
+
+        if (!floatingToggle || !floatingActions) return;
+
+        floatingToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const currentState = floatingActions.getAttribute('data-state');
+            const newState = currentState === 'closed' ? 'open' : 'closed';
+            floatingActions.setAttribute('data-state', newState);
+        });
+    })();
 </script>

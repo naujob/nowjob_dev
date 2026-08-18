@@ -9229,11 +9229,12 @@ body {
 .item-view .thumb-slider {
     position: relative;
     width: 198px;
-    height: inherit;
+    height: 198px;
     margin: 0 0 0 6px;
     -webkit-box-flex: 0;
     -ms-flex: 0 0 198px;
     flex: 0 0 198px;
+    aspect-ratio: 1 / 1;
 }
 
 .item-view .view-visual .arrow {

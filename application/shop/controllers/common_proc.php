@@ -2285,6 +2285,35 @@ ORDER BY distance_km ASC;
 	}
 
 	/**
+	 * 사용자 저장된 주소 정보 조회
+	 * hr_map 등에서 초기 로드 시 사용자의 저장된 주소를 조회
+	 */
+	function get_addr_info()
+	{
+		if ($this->user->isLogin() == false) {
+			json_return("90", "로그인이 필요합니다.");
+			return;
+		}
+
+		$mm_idx = $this->user->getUserIdx();
+		$addr_info = $this->member_model->getAddress(["mm_idx" => $mm_idx, "ad_type" => "MEMBER"]);
+
+		if ($addr_info && !empty($addr_info["ad_addr"])) {
+			json_return("00", "주소 조회 성공", [
+				"ad_addr" => $addr_info["ad_addr"],
+				"ad_gps_x" => isset($addr_info["ad_gps_x"]) ? $addr_info["ad_gps_x"] : "",
+				"ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : ""
+			]);
+		} else {
+			json_return("00", "저장된 주소 없음", [
+				"ad_addr" => "",
+				"ad_gps_x" => "",
+				"ad_gps_y" => ""
+			]);
+		}
+	}
+
+	/**
 	 * 광고 배너 클릭 로그 저장
 	 *
 	 * @param page_type (recruit/hr)

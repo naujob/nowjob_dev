@@ -462,7 +462,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     background-color: transparent;
   }
 
- 
+  /* 뒤로가기 복귀 시 직전에 클릭한 공고 카드 하이라이트 */
+  .result-list-card .content-li.highlight-recent {
+    border: 2px solid #ddd !important;
+     background-color: #ddd !important;
+  }
+
+
 </style>
 
 <!-- Google AdSense 인피드 광고 스크립트 -->
@@ -848,6 +854,8 @@ $tpl_recomm_class = true; ?>
         list.forEach(function(row) {
           var $clone = $("#tpl_list").clone();
           var $content = $clone.html();
+          var statusLabel = getStatusLabel(row.rc_sdate, row.rc_edate);
+
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
           $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
@@ -864,6 +872,7 @@ $tpl_recomm_class = true; ?>
           }
           $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
           $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
+          $content = $content.replaceAll("{{status_label}}", statusLabel);
           $clone.html($content);
           $(".section.index_comp .result-list").append($clone.html());
         });
@@ -875,6 +884,22 @@ $tpl_recomm_class = true; ?>
   // 4️⃣  UI 렌더링 함수들
   // ========================================
 
+  // 공고 상태 계산 함수
+  function getStatusLabel(rc_sdate, rc_edate) {
+    var now = new Date();
+    var startDate = new Date(rc_sdate);
+    var endDate = new Date(rc_edate);
+
+    if (startDate <= now && now <= endDate) {
+      return "모집중";
+    } else if (endDate < now) {
+      return "마감";
+    } else if (startDate > now) {
+      return "대기중";
+    }
+    return "";
+  }
+
   function showBoardList(list) {
     list.forEach(function(row, index) {
       var $clone = $("#tpl_list").clone();
@@ -884,6 +909,8 @@ $tpl_recomm_class = true; ?>
         $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
         $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
       }
+
+      var statusLabel = getStatusLabel(row.rc_sdate, row.rc_edate);
 
       $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
       $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
@@ -897,6 +924,7 @@ $tpl_recomm_class = true; ?>
       $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
       $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
       $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || '');
+      $content = $content.replaceAll("{{status_label}}", statusLabel);
 
       $clone.html($content);
       $(list_id).append($clone.html());
@@ -907,6 +935,7 @@ $tpl_recomm_class = true; ?>
     }
 
     showEmpty();
+    applyLastClickedHighlight();
   }
 
   function insertAdsenseAd() {
@@ -949,6 +978,16 @@ $tpl_recomm_class = true; ?>
     }
   }
 
+  // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
+  function applyLastClickedHighlight() {
+    var highlightRcIdx = sessionStorage.getItem('recruit_highlight_rc_idx');
+    if (!highlightRcIdx) {
+      return;
+    }
+    sessionStorage.removeItem('recruit_highlight_rc_idx');
+    $('.content-li[data-rc_idx="' + highlightRcIdx + '"]').addClass('highlight-recent');
+  }
+
 
   // 페이지네이션 버튼 클릭 이벤트 (이벤트 위임)
   function goPage(page) {
@@ -987,7 +1026,7 @@ $tpl_recomm_class = true; ?>
     }
     loadDataInitialized = true;
 
-   
+
     var urlPage = getPageFromUrl();
     if (urlPage > 1) {
       list_page = urlPage;
@@ -1018,6 +1057,7 @@ $tpl_recomm_class = true; ?>
       renderPagination("#paginationWrapper", list_page, total_pages, list_id);
       showEmpty();
       updateTopSectionsVisibility();
+      applyLastClickedHighlight();
     } else {
       if (!searchStateLoaded) {
         getBoardList("");
@@ -1191,6 +1231,7 @@ $tpl_recomm_class = true; ?>
     }
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
+      sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
       window.location.href = '/recruit/job_post/' + rcIdx;
     }
   });

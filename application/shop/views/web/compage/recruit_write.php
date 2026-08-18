@@ -4380,7 +4380,7 @@
       secondButton: ($("[name=rc_idx]").val() != "0" ? '수정완료' : '등록완료'),
       firstCallback: function() {},
       secondCallback: function() {
-        console.log("%c=== 등록완료/수정완료 버튼 클릭 ===", "color: #31A182; font-weight: bold;");
+      
 
         var params = {};
         params["rc_idx"] = $("[name=rc_idx]").val();

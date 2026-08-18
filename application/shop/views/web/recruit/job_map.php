@@ -415,6 +415,12 @@ $ad_addr = trim($ad_addr);
     overflow: hidden;
     white-space: nowrap;
   }
+
+  /* 주소 로딩 상태 */
+  #myLocation[data-loading="true"] {
+    min-height: 0;
+    visibility: hidden;
+  }
 </style>
 <div id="content" class="page page-map">
   <main class="page-content">
@@ -422,7 +428,7 @@ $ad_addr = trim($ad_addr);
       <div class="result-wrap-container">
         <div class="result-wrap">
           <p class="current-area" style="">
-            <span id="myLocation" class="myLocationBtn"><?= isset($ad_addr) && $ad_addr != "" ? $ad_addr : "서울 중구 태평로1가" ?></span>
+            <span id="myLocation" class="myLocationBtn" data-loading="true"></span>
           </p>
           <div class="list" style="margin-top: 20px;">
             <div class="reco-content">
@@ -874,15 +880,34 @@ $ad_addr = trim($ad_addr);
     });
   });
 
-  $(document).ready(function() {
-    // 초기 주소를 단축 형식으로 포맷팅
-    setTimeout(function() {
-      var initialAddr = $('#myLocation').text();
-      if (initialAddr && initialAddr !== "서울 중구 태평로1가") {
-        $('#myLocation').text(fRemoveBigAdrJS(initialAddr));
+  function loadInitialAddress() {
+    $.ajax({
+      url: "/common_proc/get_addr_info",
+      type: "post",
+      dataType: "json",
+      crossDomain: true,
+      success: function(json) {
+        if (json.code === "00" && json.data && json.data.ad_addr) {
+          var addr = json.data.ad_addr;
+          $('#myLocation')
+            .text(fRemoveBigAdrJS(addr))
+            .removeAttr('data-loading');
+        } else {
+          $('#myLocation')
+            .text("")
+            .removeAttr('data-loading');
+        }
+      },
+      error: function(xhr, status, error) {
+        $('#myLocation')
+          .text("")
+          .removeAttr('data-loading');
       }
-    }, 100);
+    });
+  }
 
+  $(document).ready(function() {
+    loadInitialAddress();
     getRecoList();
     fetchResumePin();
   });

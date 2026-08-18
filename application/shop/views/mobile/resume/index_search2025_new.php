@@ -1293,7 +1293,7 @@
   // 저장된 상세검색 조건을 로드해 UI에 반영
   function loadSearchStateFromStorage() {
     var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-    var raw = localStorage.getItem(storageKey);
+    var raw = sessionStorage.getItem(storageKey);
     if (!raw) return;
 
     try {
@@ -1482,7 +1482,7 @@
       };
 
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      localStorage.setItem(storageKey, JSON.stringify(state));
+      sessionStorage.setItem(storageKey, JSON.stringify(state));
 
     } catch (e) {
 
@@ -1603,7 +1603,7 @@
   $(document).on('click', '.btn-option', function(e) {
     setTimeout(function() {
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      var hasSavedState = localStorage.getItem(storageKey);
+      var hasSavedState = sessionStorage.getItem(storageKey);
       if (hasSavedState) {
         // 저장된 검색 상태가 있으면 localStorage 기준으로 복원
         loadSearchStateFromStorage();
@@ -1759,7 +1759,7 @@
     } else {
       // 기존 로직: localStorage에서 복원 (백업이 없을 때만)
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
-      var hasSavedState = localStorage.getItem(storageKey);
+      var hasSavedState = sessionStorage.getItem(storageKey);
 
       if (hasSavedState) {
         // 저장된 검색 상태가 있으면 UI를 저장된 상태로 복원

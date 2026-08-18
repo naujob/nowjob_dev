@@ -817,6 +817,19 @@ class common
 		$this->CI = &get_instance();
 		$real_upload_path = "/resource/uploads/";
 
+		// 기존 이미지 URL 및 삭제 여부 확인 (img_upload_url와 동일한 폴백 로직)
+		$ori_url = isset($_POST[$ipt_name . "_ori"]) ? ($_POST[$ipt_name . "_ori"]) : "";
+		$del = isset($_POST[$ipt_name . "_del"]) ? ($_POST[$ipt_name . "_del"]) : "N";
+
+		// 명시적 삭제 요청
+		if ($del == "Y") {
+			return [
+				"SUCCESS" => false,
+				"ERROR" => "삭제됨",
+				"URL_SM" => "", "URL_MD" => "", "URL_LG" => ""
+			];
+		}
+
 		if (!file_exists(getcwd() . $real_upload_path . $path)) {
 			mkdir(getcwd() . $real_upload_path . $path, 0755, true);
 		}
@@ -837,28 +850,31 @@ class common
 		$config['remove_spaces'] = TRUE;
 
 		if (isset($_FILES[$ipt_name]) == false) {
+			// 새 파일이 없으면 기존 URL 반환 (수정 시 파일 미변경)
 			return [
 				"SUCCESS" => false,
 				"ERROR" => "파일이 존재하지 않습니다.",
-				"URL_SM" => "", "URL_MD" => "", "URL_LG" => ""
+				"URL_SM" => $ori_url, "URL_MD" => $ori_url, "URL_LG" => $ori_url
 			];
 		}
 
 		$chk_ext = $this->file_type_chk($_FILES[$ipt_name]["name"], "img");
 		if ($chk_ext == false) {
+			// 확장자 검증 실패 시 기존 URL 반환
 			return [
 				"SUCCESS" => false,
 				"ERROR" => "허용되지 않은 파일 확장자입니다.",
-				"URL_SM" => "", "URL_MD" => "", "URL_LG" => ""
+				"URL_SM" => $ori_url, "URL_MD" => $ori_url, "URL_LG" => $ori_url
 			];
 		}
 
 		$this->CI->load->library('upload', $config); // 파일 업로드 라이브러리 로드
 		if (!$this->CI->upload->do_upload($ipt_name)) { // 파일 업로드 실행
+			// 업로드 실패 시 기존 URL 반환
 			return [
 				"SUCCESS" => false,
 				"ERROR" => $this->CI->upload->display_errors('', ''),
-				"URL_SM" => "", "URL_MD" => "", "URL_LG" => ""
+				"URL_SM" => $ori_url, "URL_MD" => $ori_url, "URL_LG" => $ori_url
 			];
 		}
 

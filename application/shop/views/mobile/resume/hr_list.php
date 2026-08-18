@@ -471,6 +471,12 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   .ad-item-adsense ins.adsbygoogle {
     background-color: transparent;
   }
+
+  /* 뒤로가기 복귀 시 직전에 클릭한 인재 카드 하이라이트 */
+  .result-list-card .content-li.highlight-recent {
+    border: 2px solid #ddd !important;
+    background-color: #ddd !important;
+  }
 </style>
 <!-- Google AdSense 인피드 광고 스크립트 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
@@ -898,6 +904,7 @@ $tpl_show_chat_mark = true; ?>
 
       showEmpty();
       updateTopSectionsVisibility();
+      applyLastClickedHighlight();
     } else {
       // 초기 데이터 없음 또는 페이지 2+: AJAX로 로드
       // searchStateLoaded가 true면 이미 loadSearchStateFromStorage()에서 호출했으므로 스킵
@@ -1033,6 +1040,7 @@ $tpl_show_chat_mark = true; ?>
     }
 
     showEmpty();
+    applyLastClickedHighlight();
   }
 
   // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
@@ -1164,6 +1172,7 @@ $tpl_show_chat_mark = true; ?>
     var ruIdx = $target.data('ru_idx');
     var resumeMmIdx = $target.data('mm_idx');
 
+    sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
     handleResumeCardClick(ruIdx, resumeMmIdx);
   });
 
@@ -1196,6 +1205,16 @@ $tpl_show_chat_mark = true; ?>
       $(list_id).show();
       $(list_empty_id).hide();
     }
+  }
+
+  // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
+  function applyLastClickedHighlight() {
+    var highlightRuIdx = sessionStorage.getItem('resume_highlight_ru_idx');
+    if (!highlightRuIdx) {
+      return;
+    }
+    sessionStorage.removeItem('resume_highlight_ru_idx');
+    $('.content-li[data-ru_idx="' + highlightRuIdx + '"]').addClass('highlight-recent');
   }
 
 

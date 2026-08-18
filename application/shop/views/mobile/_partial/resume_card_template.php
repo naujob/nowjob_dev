@@ -34,8 +34,14 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
             <?php endif; ?>
           </div> -->
           <div class="desc">
+            <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
+            <?php endif; ?>
             <div class="title ellipsis">{{mm_name}}</div>
+            <?php if (isset($tpl_simple_mode) && $tpl_simple_mode && isset($tpl_data_label)): ?>
+            <p style=" font-size: 0.875rem; color: #999;"><?= $tpl_data_label ?></p>
+            <?php endif; ?>
+            <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="summary">
               <ul class="working-day">{{ru_week}}</ul>
             </div>
@@ -51,11 +57,12 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
             </div>
             <div class="summary3">
               <p class="worktype">{{ru_work_type}}</p>
-              
+
             </div>
             <div class="summary2">
               <p class="pricetype">{{ru_price_type}}</p>
             </div>
+            <?php endif; ?>
           </div>
         </div>
       </div>

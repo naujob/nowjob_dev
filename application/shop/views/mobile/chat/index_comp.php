@@ -8,8 +8,8 @@ $top_bar = array(
   <div class="page-content">
     <div class="tab-container">
       <ul class="tab-list">
-        <li class="on"><a href="/chat/index_comp" class="tab">채팅받은 인재<span class="tab-badge"></span></a></li>
-        <li><a href="/chat/chat_list3" class="tab">채팅보낸 인재<span class="tab-badge"></span></a></li>
+        <li class="on"><a href="/chat/index_comp" class="tab">제안보낸 인재<span class="tab-badge"></span></a></li>
+        <li><a href="/chat/chat_list3" class="tab">지원받은 인재<span class="tab-badge"></span></a></li>
         <!--<li><a href="/chat/trade_list" class="tab">중고거래</a></li>-->
       </ul>
     </div>
@@ -228,6 +228,162 @@ $top_bar = array(
 
 <script>
   var chat_point = "<?= $point_info["cd_val"] ?>";
+
+  // 중복 호출 방지 플래그
+  var isLoadingChatList = false;
+
+  // 제안받은 인재 목록 조회 함수 (기업회원 전용) - 평탄화 버전
+  function getChatTargetList(arg) {
+    // 이미 로딩 중이면 중복 요청 방지
+    if (isLoadingChatList) {
+      return;
+    }
+
+    isLoadingChatList = true;
+
+    // 공고 목록 먼저 조회
+    var getUrl = "get_chat_target_list_recruit";
+
+    comAjax("/chat_proc/" + getUrl, {}, function(ret) {
+      $("#chat_list").html("");
+
+      if (ret.code == "00") {
+        var recruitList = ret.data.list;
+
+        if (recruitList.length == 0) {
+          $(".chat-empty").show();
+          $("#chat_list").hide();
+          isLoadingChatList = false;
+          return;
+        }
+
+        // 모든 공고의 지원자 조회 AJAX 요청들을 Promise로 묶기
+        var ajaxPromises = [];
+
+        // 각 공고에 대해 지원자 목록 조회 요청 생성 (comAjax 가드를 우회하기 위해 순수 $.ajax 사용)
+        recruitList.forEach(function(recruitRow) {
+          var rc_idx = recruitRow.rc_idx;
+
+          var promise = $.ajax({
+            type: "POST",
+            url: "/chat_proc/get_chat_target_list",
+            data: {
+              ru_idx: rc_idx,
+              chatgbn: 'chatPanel1'
+            }
+          });
+
+          ajaxPromises.push(promise);
+        });
+
+        // 모든 요청이 완료될 때까지 기다린 후 렌더링
+        $.when.apply($, ajaxPromises).done(function() {
+          // arguments는 각 $.ajax의 응답 배열 ([data, statusText, jqXHR], ...)
+          var responses = Array.prototype.slice.call(arguments);
+
+          // 각 응답별로 지원자 렌더링
+          responses.forEach(function(response) {
+            var talentRet = response[0]; // $.when의 결과는 [data, statusText, jqXHR] 형태
+
+            if (talentRet && talentRet.code == "00") {
+              var talentList = talentRet.data.list;
+
+              // 각 지원자를 tpl_chat_by_recruite로 렌더링
+              talentList.forEach(function(row) {
+                var $clone = $("#tpl_chat_by_recruite").clone();
+                if ($clone.length == 0) {
+                  return;
+                }
+
+                var $content = $clone.html();
+
+                $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
+                $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
+                $content = $content.replaceAll("{{mm_name}}", row.mm_name);
+                $content = $content.replaceAll("{{ru_week}}", row.ru_week);
+                $content = $content.replaceAll("{{distance}}", (row.distance ? row.distance + "km" : ""));
+                $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
+                $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || "");
+                $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
+                $content = $content.replaceAll("{{ma_age}}", row.ma_age);
+                $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type);
+                $content = $content.replaceAll("{{ru_my_type}}", row.ru_my_type);
+                $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type);
+                $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
+                $content = $content.replaceAll("{{mm_id}}", row.mm_id);
+                $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
+                $content = $content.replaceAll("{{target_id}}", row.target_id);
+                $content = $content.replaceAll("{{user_id}}", row.user_id);
+                $content = $content.replaceAll("{{target_img}}", row.target_img);
+                $content = $content.replaceAll("{{user_img}}", row.user_img);
+                $content = $content.replaceAll("{{target_name}}", row.target_name);
+                $content = $content.replaceAll("{{user_name}}", row.user_name);
+                $content = $content.replaceAll("{{rc_name}}", row.rc_name);
+                $content = $content.replaceAll("{{room_idx}}", row.rm_idx);
+                $content = $content.replaceAll("{{up_dt}}", row.up_dt);
+                $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
+
+                // 프로필 이미지 처리
+                var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
+                var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
+                var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
+                var profileImg = (typeof row.ru_resume_img === "string") ? row.ru_resume_img.trim() : "";
+                var mmSex = (row.mm_sex || "").trim();
+                var defaultAvatar = noImagePath;
+                if (mmSex === "남") {
+                  defaultAvatar = maleAvatarPath;
+                } else if (mmSex === "여") {
+                  defaultAvatar = femaleAvatarPath;
+                }
+                if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
+                  profileImg = defaultAvatar;
+                }
+                $content = $content.replaceAll("{{profile_img}}", profileImg);
+                $content = $content.replaceAll("{{default_avatar}}", defaultAvatar);
+
+                // 이름 처리
+                var ruName = row.ru_name || "";
+                if (ruName && ruName.length > 18) {
+                  ruName = ruName.substring(0, 18) + '...';
+                }
+                $content = $content.replaceAll("{{ru_name}}", ruName);
+
+                $clone.html($content);
+                var resumeboxHtml = "<div class='resumebox_'>" + $clone.html() + "</div>";
+                $("#chat_list").append(resumeboxHtml);
+              });
+            }
+          });
+
+          // 모든 렌더링 완료 후 빈 목록 표시 여부 판단 및 뱃지 업데이트
+          var itemCount = $("#chat_list").find("li").length;
+          if (itemCount == 0) {
+            $(".chat-empty").show();
+            $("#chat_list").hide();
+          } else {
+            $(".chat-empty").hide();
+            $("#chat_list").show();
+            $("#chat_list").css("display", "block");
+            var chatListParent = $("#chat_list").parent();
+            chatListParent.show();
+            chatListParent.css("display", "block");
+          }
+          fSearchNoReadCount();
+          isLoadingChatList = false; // 로딩 완료
+        }).fail(function() {
+          commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
+          isLoadingChatList = false; // 에러 발생 시에도 플래그 리셋
+        });
+
+      } else {
+        commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
+        isLoadingChatList = false; // 에러 발생 시에도 플래그 리셋
+        return;
+      }
+
+    });
+
+  }
 </script>
 <?php if ($this->common->getSession("os_type") == "android") : ?>
   <script>
@@ -324,20 +480,25 @@ $top_bar = array(
       initRealTimeTabBadgeUpdate();
     });
 
-    // 페이지 포커스 시 카운트 갱신 (chat_view에서 돌아왔을 때)
+    // 페이지 포커스 시 뱃지만 갱신 (목록 갱신은 pageshow에서 처리)
     window.addEventListener('focus', function() {
       fSearchNoReadCount();
-      // 채팅방 목록도 갱신 (나간 채팅방 제외)
-      getChatTargetList(1);
     });
 
-    // pageshow 이벤트 추가 (뒤로가기/앞으로가기 대응)
+    // pageshow 이벤트 추가 (뒤로가기/앞으로가기 대응 - BFCache 복원 시에만)
     window.addEventListener('pageshow', function(event) {
-      // BFCache에서 복원된 경우 또는 일반 페이지 로드
-      if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
-        getChatTargetList(1);
-        fSearchNoReadCount();
+
+      // BFCache에서 복원된 경우에만 목록 갱신
+      if (event.persisted) {
+        // 진행 중이 아니면 로드 시작
+        if (!isLoadingChatList) {
+          getChatTargetList(1);
+        } else {
+        }
       }
+
+      // 뱃지는 항상 갱신
+      fSearchNoReadCount();
     });
     /**
      * [사용 안 됨] 레거시 함수 - APP_NOWAPK 콜백용
@@ -553,139 +714,7 @@ $top_bar = array(
       });
     });
 
-    // 제안받은 인재 목록 조회 함수 (기업회원 전용)
-    function getChatTargetList(arg) {
-      // 제안받은 인재 탭 전용 API 엔드포인트
-      var getUrl = "get_chat_target_list_recruit";
-
-      comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
-
-        $("#chat_list").html("");
-
-        if (ret.code == "00") {
-          var list = ret.data.list;
-
-          if (list.length == 0) {
-            $(".chat-empty").show();
-            $("#chat_list").hide();
-            return;
-          }
-
-          list.forEach(function(row) {
-            // 기업회원 전용 템플릿 사용
-            var $clone = $("#tpl_chat").clone();
-            if ($clone.length == 0) {
-              return;
-            }
-
-            var $content = $clone.html();
-
-            $content = $content.replaceAll("{{room_idx}}", row.rc_idx || row.rm_idx || "");
-            $content = $content.replaceAll("{{room_idx_list}}", row.rm_idx_list || "()");
-            $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
-            $content = $content.replaceAll("{{rc_idx}}", row.rc_idx || "");
-            $content = $content.replaceAll("{{mm_name}}", row.mm_name || "");
-            $content = $content.replaceAll("{{ru_week}}", row.ru_week || "");
-            $content = $content.replaceAll("{{distance}}", (row.distance ? row.distance + "km" : ""));
-            $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-            $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || "");
-            $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || "");
-            $content = $content.replaceAll("{{ma_age}}", row.ma_age || "");
-            $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
-            $content = $content.replaceAll("{{ru_my_type}}", row.ru_my_type || "");
-            $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || "");
-            $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-            $content = $content.replaceAll("{{mm_id}}", row.mm_id || "");
-            $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
-            $content = $content.replaceAll("{{target_id}}", row.target_id || "");
-            $content = $content.replaceAll("{{user_id}}", row.user_id || "");
-            $content = $content.replaceAll("{{target_img}}", row.target_img || "");
-            $content = $content.replaceAll("{{user_img}}", row.user_img || "");
-            $content = $content.replaceAll("{{target_name}}", row.target_name || "");
-            $content = $content.replaceAll("{{user_name}}", row.user_name || "");
-
-            var rcName = (typeof truncateRcTitle === "function") ? truncateRcTitle(row.rc_name || "") : (row.rc_name || "");
-            $content = $content.replaceAll("{{rc_name}}", rcName);
-            $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
-            $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
-            $content = $content.replaceAll("{{rc_work}}", row.rc_work || "");
-            $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
-
-            // job_list 카드 필드 (백엔드에서 이미 가공됨)
-            $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
-            $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
-            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm || "");
-            $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm || "");
-            $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
-            $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-            $content = $content.replaceAll("{{rt_price_type}}", row.rt_price_type || "");
-            $content = $content.replaceAll("{{rt_price_pay}}", row.rt_price_pay || "");
-
-            // getResumeImg() 함수와 동일한 로직 적용 (chat_view.php 참고)
-            // 컨트롤러에서 이미 getResumeImg()로 처리된 값이 오므로, 실제 이미지 경로가 있으면 그대로 사용
-            var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
-            var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
-            var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
-            var profileImg = (typeof row.ru_resume_img === "string") ? row.ru_resume_img.trim() : "";
-            var mmSex = (row.mm_sex || "").trim();
-            var defaultAvatar = noImagePath; // 기본값은 noimage4.png (getResumeImg 함수와 동일)
-            if (mmSex === "남") {
-              defaultAvatar = maleAvatarPath;
-            } else if (mmSex === "여") {
-              defaultAvatar = femaleAvatarPath;
-            }
-            // 이미지가 없거나 noimage4.png인 경우에만 기본 아바타로 교체 (실제 이미지 경로가 있으면 그대로 사용)
-            // profileImg가 빈 문자열이거나, noimage4.png를 포함하는 경우에만 기본 아바타 사용
-            if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
-              profileImg = defaultAvatar;
-            }
-            // profileImg가 실제 이미지 경로인 경우 그대로 사용 (컨트롤러에서 이미 getResumeImg()로 처리됨)
-            $content = $content.replaceAll("{{profile_img}}", profileImg);
-            $content = $content.replaceAll("{{default_avatar}}", defaultAvatar);
-
-            var ruName = (typeof truncateRcTitle === "function") ? truncateRcTitle(row.ru_name || "") : (row.ru_name || "");
-            $content = $content.replaceAll("{{ru_name}}", ruName);
-
-            var meminfo = "";
-            if (row.ru_work != "") meminfo = row.ru_work + "<br>";
-            if (row.mm_nation != "") meminfo += row.mm_nation;
-            if (row.mm_nation != "" && row.ma_age != "" && row.ma_age != "0") meminfo += " | ";
-            if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "대";
-            $content = $content.replaceAll("{{meminfo}}", meminfo);
-
-            $clone.html($content);
-
-            var htmlContent = $clone.html();
-
-            $("#chat_list").append(htmlContent);
-
-          });
-
-          var itemCount = $("#chat_list").find("li").length;
-
-          if (itemCount == 0) {
-            $(".chat-empty").show();
-            $("#chat_list").hide();
-          } else {
-            $(".chat-empty").hide();
-            $("#chat_list").show();
-            $("#chat_list").css("display", "block");
-            var chatListParent = $("#chat_list").parent();
-            chatListParent.show();
-            chatListParent.css("display", "block");
-          }
-
-        } else {
-          commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
-          return;
-        }
-
-        fSearchNoReadCount();
-
-      });
-
-    }
-    // 
+    //
     function fSearchNoReadCount() {
       // 현재 페이지의 chat_list 컨테이너 내의 content-li만 초기화
       $('#chat_list .content-li').each(function() {
@@ -912,157 +941,24 @@ $top_bar = array(
       }); // passive: true로 설정하면 기본 스크롤 허용
     });
 
-    // 페이지 포커스 시 카운트 갱신 (chat_view에서 돌아왔을 때)
+    // 페이지 포커스 시 뱃지만 갱신 (목록 갱신은 pageshow에서 처리)
     window.addEventListener('focus', function() {
       fSearchNoReadCount();
-      // 채팅방 목록도 갱신 (나간 채팅방 제외)
-      getChatTargetList(1);
     });
 
     // pageshow 이벤트 추가 (뒤로가기/앞으로가기 대응)
     window.addEventListener('pageshow', function(event) {
-      // BFCache에서 복원된 경우 또는 일반 페이지 로드
-      if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
-        getChatTargetList(1);
+
+      // BFCache에서 복원된 경우에만 목록 새로고침
+      if (event.persisted) {
+        // 진행 중이 아니면 로드 시작
+        if (!isLoadingChatList) {
+          getChatTargetList(1);
+        }
         fSearchNoReadCount();
       }
     });
 
-    // 제안받은 인재 목록 조회 함수 (기업회원 전용)
-    function getChatTargetList(arg) {
-      // 제안받은 인재 탭 전용 API 엔드포인트
-      var getUrl = "get_chat_target_list_recruit";
-
-      comAjax("/chat_proc/" + getUrl, {}, function(ret) { //_recruit
-
-        $("#chat_list").html("");
-
-        if (ret.code == "00") {
-          var list = ret.data.list;
-
-          if (list.length == 0) {
-            $(".chat-empty").show();
-            $("#chat_list").hide();
-            return;
-          }
-
-          list.forEach(function(row) {
-            // 기업회원 전용 템플릿 사용
-            var $clone = $("#tpl_chat").clone();
-            if ($clone.length == 0) {
-              return;
-            }
-
-            var $content = $clone.html();
-
-            $content = $content.replaceAll("{{room_idx}}", row.rc_idx || row.rm_idx || "");
-            $content = $content.replaceAll("{{room_idx_list}}", row.rm_idx_list || "()");
-            $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
-            $content = $content.replaceAll("{{rc_idx}}", row.rc_idx || "");
-            $content = $content.replaceAll("{{mm_name}}", row.mm_name || "");
-            $content = $content.replaceAll("{{ru_week}}", row.ru_week || "");
-            $content = $content.replaceAll("{{distance}}", (row.distance ? row.distance + "km" : ""));
-            $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-            $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || "");
-            $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || "");
-            $content = $content.replaceAll("{{ma_age}}", row.ma_age || "");
-            $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || "");
-            $content = $content.replaceAll("{{ru_my_type}}", row.ru_my_type || "");
-            $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || "");
-            $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-            $content = $content.replaceAll("{{mm_id}}", row.mm_id || "");
-            $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
-            $content = $content.replaceAll("{{target_id}}", row.target_id || "");
-            $content = $content.replaceAll("{{user_id}}", row.user_id || "");
-            $content = $content.replaceAll("{{target_img}}", row.target_img || "");
-            $content = $content.replaceAll("{{user_img}}", row.user_img || "");
-            $content = $content.replaceAll("{{target_name}}", row.target_name || "");
-            $content = $content.replaceAll("{{user_name}}", row.user_name || "");
-
-            var rcName = (typeof truncateRcTitle === "function") ? truncateRcTitle(row.rc_name || "") : (row.rc_name || "");
-            $content = $content.replaceAll("{{rc_name}}", rcName);
-            $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
-            $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
-            $content = $content.replaceAll("{{rc_work}}", row.rc_work || "");
-            $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
-
-            // job_list 카드 필드 (백엔드에서 이미 가공됨)
-            $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
-            $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
-            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm || "");
-            $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm || "");
-            $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
-            $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-            $content = $content.replaceAll("{{rt_price_type}}", row.rt_price_type || "");
-            $content = $content.replaceAll("{{rt_price_pay}}", row.rt_price_pay || "");
-
-            // getResumeImg() 함수와 동일한 로직 적용 (chat_view.php 참고)
-            // 컨트롤러에서 이미 getResumeImg()로 처리된 값이 오므로, 실제 이미지 경로가 있으면 그대로 사용
-            var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
-            var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
-            var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
-            var profileImg = (typeof row.ru_resume_img === "string") ? row.ru_resume_img.trim() : "";
-            var mmSex = (row.mm_sex || "").trim();
-            var defaultAvatar = noImagePath; // 기본값은 noimage4.png (getResumeImg 함수와 동일)
-            if (mmSex === "남") {
-              defaultAvatar = maleAvatarPath;
-            } else if (mmSex === "여") {
-              defaultAvatar = femaleAvatarPath;
-            }
-            // 이미지가 없거나 noimage4.png인 경우에만 기본 아바타로 교체 (실제 이미지 경로가 있으면 그대로 사용)
-            // profileImg가 빈 문자열이거나, noimage4.png를 포함하는 경우에만 기본 아바타 사용
-            if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
-              profileImg = defaultAvatar;
-            }
-            // profileImg가 실제 이미지 경로인 경우 그대로 사용 (컨트롤러에서 이미 getResumeImg()로 처리됨)
-            $content = $content.replaceAll("{{profile_img}}", profileImg);
-            $content = $content.replaceAll("{{default_avatar}}", defaultAvatar);
-
-            var ruName = row.ru_name || "";
-            if (ruName && ruName.length > 18) {
-              ruName = ruName.substring(0, 18) + '...';
-            }
-            $content = $content.replaceAll("{{ru_name}}", ruName);
-
-            var meminfo = "";
-            if (row.ru_work != "") meminfo = row.ru_work + "<br>";
-            if (row.mm_nation != "") meminfo += row.mm_nation;
-            if (row.mm_nation != "" && row.ma_age != "" && row.ma_age != "0") meminfo += " | ";
-            if (row.ma_age != "" && row.ma_age != "0") meminfo += row.ma_age + "대";
-            $content = $content.replaceAll("{{meminfo}}", meminfo);
-
-            $clone.html($content);
-
-            var htmlContent = $clone.html();
-
-            $("#chat_list").append(htmlContent);
-
-          });
-
-          var itemCount = $("#chat_list").find("li").length;
-
-          if (itemCount == 0) {
-            $(".chat-empty").show();
-            $("#chat_list").hide();
-          } else {
-            $(".chat-empty").hide();
-            $("#chat_list").show();
-            $("#chat_list").css("display", "block");
-            var chatListParent = $("#chat_list").parent();
-            chatListParent.show();
-            chatListParent.css("display", "block");
-          }
-
-        } else {
-          commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
-          return;
-        }
-
-        fSearchNoReadCount();
-
-      });
-
-    } //getChatTargetList
 
     function fSearchNoReadCount() {
 
@@ -1073,7 +969,6 @@ $top_bar = array(
 
       //공고리스트에 미확인 채팅건수 조회 확인
       comAjax("/chat_proc/fSearchNoReadCount", {}, function(ret) {
-        //console.log(ret);
         var myId = $("#user_id").val();
 
         let result = ret.data.result;
@@ -1102,7 +997,6 @@ $top_bar = array(
 
         // 모든 room의 미확인 메시지 개수를 먼저 집계
         $.each(result, function(key, room) {
-          //console.log(room);
           let count = 0;
           $.each(room.rm_messages, function(index, message) {
             $.each(message.mg_reads, function(i, readEntry) {
@@ -1111,7 +1005,6 @@ $top_bar = array(
               }
             });
           });
-          //console.log(`rm_idx ${room.rm_idx}: ${count} unread messages`);
           //alert(room.rm_idx);
 
           // 하위 인재 리스트의 개별 채팅방 뱃지 업데이트 (DOM에 있는 경우)

@@ -11,8 +11,8 @@ $top_bar = array(
         <div class="tab-container">
             <ul class="tab-list">
                 <?php if ($user_type == "COMP") : ?>
-                    <li><a href="/chat/index_comp" class="tab">채팅받은 인재<span class="tab-badge"></span></a></li>
-                    <li class="on"><a href="/chat/chat_list3" class="tab">채팅보낸 인재<span class="tab-badge"></span></a></li>
+                    <li><a href="/chat/index_comp" class="tab">제안보낸 인재<span class="tab-badge"></span></a></li>
+                    <li class="on"><a href="/chat/chat_list3" class="tab">지원받은 인재<span class="tab-badge"></span></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -290,6 +290,9 @@ $top_bar = array(
 </div>
 
 <script>
+    // 중복 호출 방지 플래그
+    var isLoadingChatList = false;
+
     // 디바운싱을 위한 타이머 변수
     var fSearchNoReadCountTimer = null;
     var noreadCountPollingTimer = null;
@@ -556,210 +559,201 @@ $top_bar = array(
         });
     <?php endif; ?>
 
-    // 제안한 인재탭의 전체 공고 목록 조회 함수 (템플릿: #tpl_chat (공고 목록 템플릿))
+    // 지원받은 인재 목록 조회 함수 (기업회원 전용) - 평탄화 버전
     function getChatTargetList(arg) {
-        // 제안한 인재탭의 전체 공고 목록 조회 API 엔드포인트
-        var getUrl = "get_chat_target_list_recruit2";
-        comAjax("/chat_proc/" + getUrl, {}, function(ret) {
-            $("#chat_list").html("");
+      // 이미 로딩 중이면 중복 요청 방지
+      if (isLoadingChatList) {
+        return;
+      }
 
-            if (ret.code == "00") {
-                var list = ret.data.list;
+      isLoadingChatList = true;
 
-                if (list.length == 0) {
-                    $(".chat-empty").show();
-                    $("#chat_list").hide();
+      // 공고 목록 먼저 조회
+      var getUrl = "get_chat_target_list_recruit2";
+
+      comAjax("/chat_proc/" + getUrl, {}, function(ret) {
+        $("#chat_list").html("");
+
+        if (ret.code == "00") {
+          var recruitList = ret.data.list;
+
+          if (recruitList.length == 0) {
+            $(".chat-empty").show();
+            $("#chat_list").hide();
+            isLoadingChatList = false;
+            return;
+          }
+
+          // 모든 공고의 지원자 조회 AJAX 요청들을 Promise로 묶기
+          var ajaxPromises = [];
+
+          // 각 공고에 대해 지원자 목록 조회 요청 생성 (comAjax 가드를 우회하기 위해 순수 $.ajax 사용)
+          recruitList.forEach(function(recruitRow) {
+            var rc_idx = recruitRow.rc_idx;
+
+            var promise = $.ajax({
+              type: "POST",
+              url: "/chat_proc/get_chat_target_list",
+              data: {
+                ru_idx: rc_idx,
+                chatgbn: 'chatPanel2'
+              }
+            });
+
+            ajaxPromises.push(promise);
+          });
+
+          // 모든 요청이 완료될 때까지 기다린 후 렌더링
+          $.when.apply($, ajaxPromises).done(function() {
+            // arguments는 각 $.ajax의 응답 배열 ([data, statusText, jqXHR], ...)
+            var responses = Array.prototype.slice.call(arguments);
+
+            // 각 응답별로 지원자 렌더링
+            responses.forEach(function(response) {
+              var talentRet = response[0]; // $.when의 결과는 [data, statusText, jqXHR] 형태
+
+              if (talentRet && talentRet.code == "00") {
+                var talentList = talentRet.data.list;
+
+                // 각 지원자를 tpl_chat_by_recruite로 렌더링
+                talentList.forEach(function(row) {
+                  var $clone = $("#tpl_chat_by_recruite").clone();
+                  if ($clone.length == 0) {
                     return;
-                }
+                  }
 
-                list.forEach(function(row) {
-                    // 기업회원 전용 템플릿 사용
-                    var $clone = $("#tpl_chat").clone();
-                    if ($clone.length == 0) {
-                        return;
-                    }
+                  var $content = $clone.html();
 
-                    var $content = $clone.html();
+                  $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
+                  $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
+                  $content = $content.replaceAll("{{mm_name}}", row.mm_name);
+                  $content = $content.replaceAll("{{ru_week}}", row.ru_week);
+                  $content = $content.replaceAll("{{distance}}", (row.distance ? row.distance + "km" : ""));
+                  $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
+                  $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || "");
+                  $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
+                  $content = $content.replaceAll("{{ma_age}}", row.ma_age);
+                  $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type);
+                  $content = $content.replaceAll("{{ru_my_type}}", row.ru_my_type);
+                  $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type);
+                  $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
+                  $content = $content.replaceAll("{{mm_id}}", row.mm_id);
+                  $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
+                  $content = $content.replaceAll("{{target_id}}", row.target_id);
+                  $content = $content.replaceAll("{{user_id}}", row.user_id);
+                  $content = $content.replaceAll("{{target_img}}", row.target_img);
+                  $content = $content.replaceAll("{{user_img}}", row.user_img);
+                  $content = $content.replaceAll("{{target_name}}", row.target_name);
+                  $content = $content.replaceAll("{{user_name}}", row.user_name);
+                  $content = $content.replaceAll("{{rc_name}}", row.rc_name);
+                  $content = $content.replaceAll("{{room_idx}}", row.rm_idx);
+                  $content = $content.replaceAll("{{up_dt}}", row.up_dt);
+                  $content = $content.replaceAll("{{last_msg_preview}}", row.last_msg_preview || "");
 
-                    $content = $content.replaceAll("{{rc_idx}}", row.rc_idx || "");
-                    $content = $content.replaceAll("{{room_idx_list}}", row.rm_idx_list || "()");
+                  // 프로필 이미지 처리
+                  var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
+                  var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
+                  var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
+                  var profileImg = (typeof row.ru_resume_img === "string") ? row.ru_resume_img.trim() : "";
+                  var mmSex = (row.mm_sex || "").trim();
+                  var defaultAvatar = noImagePath;
+                  if (mmSex === "남") {
+                    defaultAvatar = maleAvatarPath;
+                  } else if (mmSex === "여") {
+                    defaultAvatar = femaleAvatarPath;
+                  }
+                  if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
+                    profileImg = defaultAvatar;
+                  }
+                  $content = $content.replaceAll("{{profile_img}}", profileImg);
+                  $content = $content.replaceAll("{{default_avatar}}", defaultAvatar);
 
-                    var rcName = truncateRcTitle(row.rc_name || "");
-                    $content = $content.replaceAll("{{rc_name}}", rcName);
+                  // 이름 처리
+                  var ruName = row.ru_name || "";
+                  if (ruName && ruName.length > 18) {
+                    ruName = ruName.substring(0, 18) + '...';
+                  }
+                  $content = $content.replaceAll("{{ru_name}}", ruName);
 
-                    $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
-                    $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
-                    $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm || "");
-                    $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm || "");
-                    $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || "");
-                    $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-                    $content = $content.replaceAll("{{rt_price_type}}", row.rt_price_type || "");
-                    $content = $content.replaceAll("{{rt_price_pay}}", row.rt_price_pay || "");
-
-                    //복사한 내용 다시 넣기
-                    $clone.html($content);
-
-                    var htmlContent = $clone.html();
-
-                    $("#chat_list").append(htmlContent);
+                  $clone.html($content);
+                  var resumeboxHtml = "<div class='resumebox_'>" + $clone.html() + "</div>";
+                  $("#chat_list").append(resumeboxHtml);
                 });
+              }
+            });
 
-                //hide show 처리
-                var itemCount = $("#chat_list").find("li").length;
-
-                if (itemCount == 0) {
-                    $(".chat-empty").show();
-                    $("#chat_list").hide();
-                } else {
-                    $(".chat-empty").hide();
-                    $("#chat_list").show();
-
-                    // 강제로 표시 (CSS 우선순위 문제 해결)
-                    $("#chat_list").css("display", "block");
-                    $(".chat-empty").css("display", "none");
-
-                    // 강제로 부모 요소도 표시
-                    var chatListParent = $("#chat_list").parent();
-                    chatListParent.show();
-                    chatListParent.css("display", "block");
-                }
-
+            // 모든 렌더링 완료 후 빈 목록 표시 여부 판단 및 뱃지 업데이트
+            var itemCount = $("#chat_list").find("li").length;
+            if (itemCount == 0) {
+              $(".chat-empty").show();
+              $("#chat_list").hide();
             } else {
-                commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
-                return;
+              $(".chat-empty").hide();
+              $("#chat_list").show();
+              $("#chat_list").css("display", "block");
+              var chatListParent = $("#chat_list").parent();
+              chatListParent.show();
+              chatListParent.css("display", "block");
             }
 
             fSearchNoReadCount();
 
-            // URL 파라미터에서 auto_open_rc_idx와 auto_open_ru_idx 확인하여 해당 채팅방 자동 진입
+            // 자동 채팅방 진입 처리
             var urlParams = new URLSearchParams(window.location.search);
             var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');
-            var autoOpenRuIdx = urlParams.get('auto_open_ru_idx'); // ru_idx 파라미터 가져오기
-            if (autoOpenRcIdx && ret.code == "00" && ret.data && ret.data.list) {
-                // URL에서 auto_open_rc_idx와 auto_open_ru_idx 파라미터 제거 (뒤로가기 시 재진입 방지)
-                urlParams.delete('auto_open_rc_idx');
-                urlParams.delete('auto_open_ru_idx');
-                var newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
-                window.history.replaceState({}, '', newUrl);
-                
-                // 목록 로드 완료 후 해당 rc_idx와 ru_idx 모두 일치하는 채팅방 찾기
-                setTimeout(function() {
-                    var targetRmIdx = null;
-                    var chatList = ret.data.list;
-                    var recruitClicked = false;
-                    var checkCount = 0;
-                    var maxCheckCount = 30;
-                    
-                    var checkInterval = setInterval(function() {
-                        checkCount++;
-                        
-                        // 이미 펼쳐진 인재 목록에서 채팅방 찾기 (rc_idx와 ru_idx 모두 확인)
-                        $("#chat_list .room-item").each(function() {
-                            var $item = $(this);
-                            var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
-                                          $item.find('a[data-rc_idx]').data('rc_idx') ||
-                                          $item.data('rc_idx');
-                            var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
-                                          $item.find('a[data-ru_idx]').data('ru_idx') ||
-                                          $item.data('ru_idx');
-                            // autoOpenRuIdx가 있으면 rc_idx와 ru_idx 모두 일치해야 함
-                            // autoOpenRuIdx가 없으면 rc_idx만 확인 (기존 로직 유지)
-                            if (itemRcIdx == autoOpenRcIdx) {
-                                if (autoOpenRuIdx) {
-                                    // ru_idx가 전달된 경우: rc_idx와 ru_idx 모두 일치해야 함
-                                    if (itemRuIdx == autoOpenRuIdx) {
-                                        targetRmIdx = $item.data('target_id');
-                                        return false; // break
-                                    }
-                                } else {
-                                    // ru_idx가 전달되지 않은 경우: rc_idx만 확인 (기존 로직)
-                                    targetRmIdx = $item.data('target_id');
-                                    return false; // break
-                                }
-                            }
-                        });
-                        
-                        // 채팅방을 찾았으면 자동으로 진입
-                        if (targetRmIdx) {
-                            clearInterval(checkInterval);
-                            location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=talent_sent";
-                            return;
-                        }
-                        
-                        // 공고를 아직 클릭하지 않은 경우
-                        if (!recruitClicked) {
-                            var $targetRecruitItem = null;
-                            $("#chat_list .list-item").each(function() {
-                                var $item = $(this);
-                                var $link = $item.find('a[onclick*="fShowChatListByRecruite"]');
-                                if ($link.length > 0) {
-                                    var onclickAttr = $link.attr('onclick') || '';
-                                    var match = onclickAttr.match(/fShowChatListByRecruite\('(\d+)'/);
-                                    if (match && match[1] == autoOpenRcIdx) {
-                                        $targetRecruitItem = $link;
-                                        return false; // break
-                                    }
-                                }
-                            });
-                            
-                            // 공고를 찾았으면 한 번만 클릭하여 인재 목록 펼치기
-                            if ($targetRecruitItem && $targetRecruitItem.length > 0) {
-                                recruitClicked = true;
-                                $targetRecruitItem.trigger('click');
-                                return;
-                            }
-                        }
-                        
-                        // 최대 시도 횟수에 도달한 경우
-                        if (checkCount >= maxCheckCount) {
-                            clearInterval(checkInterval);
-                            //console.error("채팅방을 찾을 수 없음 - rc_idx:", autoOpenRcIdx, "ru_idx:", autoOpenRuIdx);
-                            // ru_idx와 rc_idx 모두 일치하는 채팅방 찾기 (마지막 시도)
-                            var $matchedChatItem = null;
-                            // $("#chat_list .room-item")가 가리키는 태그는?
-                            // <li class="list-item ... room-item ..."> 인 li 태그임 (채팅방/공고 항목 리스트의 각 아이템)
-                            $("#chat_list .room-item").each(function() {
-                                var $item = $(this);
-                                // itemRcIdx: 각 채팅방 아이템(li)이 나타내는 공고(rc_idx) 값
-                                var itemRcIdx = $item.find('.angle-link-resume').data('rc_idx') || 
-                                              $item.find('a[data-rc_idx]').data('rc_idx') ||
-                                              $item.data('rc_idx');
-                                // itemRuIdx는 각 채팅방(li)의 data-ru_idx 값 (즉, 인재의 ru_idx), 없으면 undefined
-                                var itemRuIdx = $item.find('.angle-link-resume').data('ru_idx') || 
-                                              $item.find('a[data-ru_idx]').data('ru_idx') ||
-                                              $item.data('ru_idx');
-                               
-                                // itemRcIdx가 autoOpenRcIdx(자동으로 열고자 하는 공고의 rc_idx)와 같은지 확인
-                                if (itemRcIdx == autoOpenRcIdx) {
-                                    // autoOpenRuIdx가 전달된 경우: rc_idx와 ru_idx 모두 일치해야 함
-                                    if (autoOpenRuIdx) {
-                                        // ru_idx가 전달된 경우: rc_idx와 ru_idx 모두 일치해야 함
-                                        if (itemRuIdx == autoOpenRuIdx) {
-                                            $matchedChatItem = $item;
-                                            return false; // break
-                                        }
-                                    } else {
-                                        // ru_idx가 전달되지 않은 경우: rc_idx만 확인 (기존 로직)
-                                        $matchedChatItem = $item;
-                                        return false; // break
-                                    }
-                                }
-                            });
-                            
-                            if ($matchedChatItem && $matchedChatItem.length > 0) {
-                                var matchedRmIdx = $matchedChatItem.data('target_id');
-                                if (matchedRmIdx) {
-                                    location.href = "/chat/chat_view?rm_idx=" + matchedRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=talent_sent";
-                                }
-                            }
-                            // 매칭되는 채팅방을 찾지 못한 경우: 아무 동작도 하지 않음
-                            // 사용자가 채팅 목록에서 수동으로 선택할 수 있도록 함
-                        }
-                    }, 500); // 0.5초마다 확인
-                }, 500); // 목록 렌더링 대기
+            var autoOpenRuIdx = urlParams.get('auto_open_ru_idx');
+            if (autoOpenRcIdx) {
+              // URL에서 파라미터 제거 (뒤로가기 시 재진입 방지)
+              urlParams.delete('auto_open_rc_idx');
+              urlParams.delete('auto_open_ru_idx');
+              var newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+              window.history.replaceState({}, '', newUrl);
+
+              // 렌더링된 DOM에서 직접 탐색
+              var $matchedChatItem = null;
+              $("#chat_list .angle-link-resume").each(function() {
+                var $link = $(this);
+                var itemRcIdx = $link.data('rc_idx');
+                var itemRuIdx = $link.data('ru_idx');
+
+                if (itemRcIdx == autoOpenRcIdx) {
+                  // autoOpenRuIdx가 있으면 ru_idx도 확인
+                  if (autoOpenRuIdx) {
+                    if (itemRuIdx == autoOpenRuIdx) {
+                      $matchedChatItem = $link.closest('li');
+                      return false; // break
+                    }
+                  } else {
+                    // ru_idx 없으면 rc_idx만 확인
+                    $matchedChatItem = $link.closest('li');
+                    return false; // break
+                  }
+                }
+              });
+
+              // 매칭 아이템 찾음
+              if ($matchedChatItem && $matchedChatItem.length > 0) {
+                var matchedRmIdx = $matchedChatItem.data('target_id');
+                if (matchedRmIdx) {
+                  location.href = "/chat/chat_view?rm_idx=" + matchedRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=talent_sent";
+                }
+              }
             }
 
-        });
+            isLoadingChatList = false; // 로딩 완료
+          }).fail(function() {
+            commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
+            isLoadingChatList = false; // 에러 발생 시에도 플래그 리셋
+          });
+
+        } else {
+          commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
+          isLoadingChatList = false; // 에러 발생 시에도 플래그 리셋
+          return;
+        }
+
+      });
+
     }
 
     // 제안보낸 인재 목록의 미확인 채팅건수 조회

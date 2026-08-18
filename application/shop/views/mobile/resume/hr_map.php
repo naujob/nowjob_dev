@@ -76,6 +76,12 @@
   .result-list-card .content-info .summary{
     font-size: 15px;
   }
+
+  /* 주소 로딩 상태 */
+  #myLocation[data-loading="true"] {
+    min-height: 0;
+    visibility: hidden;
+  }
 </style>
 <div class="backdrop-loader" hidden>
   <div class="loader show"></div>
@@ -85,7 +91,7 @@
   <div class="top-bar is-transparency">
     <a href="#" class="btn-back" style="background-image: url('/resource/shop/mobile/img/ic_back_dark.svg');"><span class="sr-text">이전으로</span></a>
     <h2 class="current-area">
-      <span id="myLocation" class="myLocationBtn"><?= $ad_addr != "" ? $ad_addr : "서울 중구 태평로1가" ?></span>
+      <span id="myLocation" class="myLocationBtn" data-loading="true"></span>
     </h2>
   </div>
 
@@ -476,15 +482,34 @@
 
 <input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <script>
-  window.addEventListener('DOMContentLoaded', function() {
-    // 초기 주소를 단축 형식으로 포맷팅
-    setTimeout(function() {
-      var initialAddr = $('#myLocation').text();
-      if (initialAddr && initialAddr !== "서울 중구 태평로1가") {
-        $('#myLocation').text(fRemoveBigAdrJS(initialAddr));
+  function loadInitialAddress() {
+    $.ajax({
+      url: "/common_proc/get_addr_info",
+      type: "post",
+      dataType: "json",
+      crossDomain: true,
+      success: function(json) {
+        if (json.code === "00" && json.data && json.data.ad_addr) {
+          var addr = json.data.ad_addr;
+          $('#myLocation')
+            .text(fRemoveBigAdrJS(addr))
+            .removeAttr('data-loading');
+        } else {
+          $('#myLocation')
+            .text("")
+            .removeAttr('data-loading');
+        }
+      },
+      error: function(xhr, status, error) {
+        $('#myLocation')
+          .text("")
+          .removeAttr('data-loading');
       }
-    }, 100);
+    });
+  }
 
+  window.addEventListener('DOMContentLoaded', function() {
+    loadInitialAddress();
     fetchResumePin();
   });
 
