@@ -864,7 +864,7 @@
       <div class="content-info">
         <div class="content-body">
           <div class="img">
-            <img src="{{rt_recruit_img}}">
+            <img src="{{rt_recruit_img}}" alt="{{rc_name}} 공고 이미지">
           </div>
           <div class="desc">
             <div class="wicon"> 

@@ -829,7 +829,7 @@ function fRemoveBigAdrPHP($arg)
                   </table>
                 </div>
                 <div class="col">
-                  <h3 class="secondary-title">&nbsp;</h3>
+                  <h3 class="secondary-title">자격증</h3>
                   <table class="info-table">
                     <caption><span class="sr-text"></span></caption>
                     <colgroup>

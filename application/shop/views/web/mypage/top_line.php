@@ -69,7 +69,7 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
         <label class="form-pic">
             <input type="file" id="newProfile" name="profile2" accept="image/*" disabled>
             <span class="preview">
-                <img id="profilePhoto" src="<?= getResumeImg($mem_info) ?>" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                <img id="profilePhoto" src="<?= getResumeImg($mem_info) ?>" alt="프로필 이미지" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
             </span>
         </label>
     </div>

@@ -20,7 +20,7 @@ $tpl_show_selection    = isset($tpl_show_selection)    ? $tpl_show_selection    
       <div class="content-info">
         <div class="content-body">
           <div class="img">
-            <img src="{{rt_recruit_img}}">
+            <img src="{{rt_recruit_img}}" alt="{{rc_name}} 공고 이미지">
             <?php if ($mm_type === "MEM") { ?><button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button><?php } ?>
             <?php if ($tpl_show_recomm_badge) { ?><p class="recomm-badge"><span>추천</span></p><?php } ?>
           </div>

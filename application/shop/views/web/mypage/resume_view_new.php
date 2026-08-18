@@ -96,7 +96,7 @@
           <div class="section view-header">
             <div class="profile">
               <div class="thumb">
-                <img src="<?=getMemberImg($mem_info)?>" alt="" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                <img src="<?=getMemberImg($mem_info)?>" alt="프로필 이미지" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
               </div>
               <!-- 평점 -->
               <p class="star-rating">

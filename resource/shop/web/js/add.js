@@ -329,7 +329,7 @@ function fRemoveBigAdrJS(arg) {
 
 
 function showAjaxLoading() {
-	$("body").append("<div id='ajax_loding'><img src='/resource/shop/mobile/img/common/loading.svg' /></div>")
+	$("body").append("<div id='ajax_loding'><img src='/resource/shop/mobile/img/common/loading.svg' alt='로딩 중' /></div>")
 }
 
 function hideAjaxLoading() {
