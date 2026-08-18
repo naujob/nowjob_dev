@@ -11,6 +11,7 @@ $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_recruits = isset($initial_recruits) ? $initial_recruits : ['list' => []];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
 $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
+$initial_page = isset($initial_page) ? $initial_page : 1;
 
 ?>
 <style>
@@ -483,7 +484,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
   <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
   <!-- 지금 뜨는 업체 -->
-  <div class="section" id="hotListSection">
+  <div class="section" id="hotListSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
     <div class="container">
       <h2 class="secondary-title index">지금 뜨는 업체</h2>
       <div class="hot-list" style="display: flex; flex-direction: column;">
@@ -563,7 +564,7 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
     </style>
     <div class="container">
       <h2 class="secondary-title">채용공고</h2>
-      <ol class="result-list result-list-card" id="ajaxList" data-page="1">
+      <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
       <?php
         // 초기 공고 데이터 렌더링 (Controller에서 이미 포맷팅됨)
         if ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) {
@@ -691,6 +692,7 @@ $tpl_recomm_class = true; ?>
 
   // PHP에서 미리 변환된 주소 데이터 (서버사이드 렌더링)
   var ad_addr = <?= json_encode(removeBigAddr(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""), JSON_UNESCAPED_UNICODE) ?>;
+  var INITIAL_PAGE = <?= json_encode($initial_page) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
@@ -997,7 +999,7 @@ $tpl_recomm_class = true; ?>
     var initialListCount = $(list_id).find("li").length;
     var hasInitialData = initialListCount > 0;
 
-    if (list_page === 1 && hasInitialData) {
+    if (list_page === INITIAL_PAGE && hasInitialData) {
       var adCount = $(list_id).find(".ad-item-adsense").length;
       var actualItemCount = initialListCount - adCount;
 

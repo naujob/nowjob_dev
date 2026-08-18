@@ -42,6 +42,12 @@ class Resume extends CI_Controller
 
   function hr_list()
   {
+    // URL의 page 파라미터 읽어서 정수 검증
+    $requested_page = (int) input_get('page', 1);
+    if ($requested_page < 1) {
+      $requested_page = 1;
+    }
+
     $addr_info = $this->user->getAddrInfo();
     $mm_idx = $this->user->getUserIdx();
 
@@ -59,6 +65,9 @@ class Resume extends CI_Controller
       "addrName" => "",
       "searchAreaStr" => "",
     ];
+
+    // 페이지별 OFFSET 계산
+    $offset = ($requested_page - 1) * 20;
 
     // 초기 인재정보 데이터 로드 (실시간 쿼리)
     $sql_initial = "
@@ -83,7 +92,7 @@ class Resume extends CI_Controller
       WHERE aa.mm_status = 'Y'
       GROUP BY bb.ru_idx
       ORDER BY p0.pm_idx DESC, GREATEST(CASE WHEN bb.up_dt = '0000-00-00 00:00:00' THEN bb.reg_dt ELSE bb.up_dt END, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC
-      LIMIT 20
+      LIMIT $offset, 20
     ";
     $query_initial = $this->db->query($sql_initial);
     $initial_resumes = $query_initial->result_array();
@@ -148,6 +157,7 @@ class Resume extends CI_Controller
     $data["use_server_render"] = $use_server_render;
     $data["initial_reco"] = $initial_reco['list'];
     $data["has_initial_reco"] = $has_initial_reco;
+    $data["initial_page"] = $requested_page;
 
     $this->layout->shop('/resume/hr_list', $data);
   }

@@ -12,6 +12,7 @@ $initial_resumes = isset($initial_resumes) ? $initial_resumes : [];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
 $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
 $initial_reco = isset($initial_reco) ? $initial_reco : [];
+$initial_page = isset($initial_page) ? $initial_page : 1;
 ?>
 <style>
     /* iOS WKWebView 바운스(고무줄) 스크롤 방지 */
@@ -487,7 +488,7 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
     <!-- 추천인재 -->
-    <div class="section index_comp" id="recommSection">
+    <div class="section index_comp" id="recommSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
       <div class="container">
         <h2 class="secondary-title index">추천인재</h2>
         <div class="recomm-slider person" style="display: flex; flex-direction: column;">
@@ -591,7 +592,7 @@ $initial_reco = isset($initial_reco) ? $initial_reco : [];
       </style>
       <div class="container">
         <h2 class="secondary-title">인재정보</h2>
-        <ol class="result-list result-list-card" id="ajaxList" data-page="1">
+        <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
           <?php if ($use_server_render && isset($initial_resumes)) {
             foreach ($initial_resumes as $row) {
               $mm_name = isset($row['ru_name']) ? $row['ru_name'] : '';
@@ -756,6 +757,7 @@ $tpl_show_chat_mark = true; ?>
 
   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
   var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
+  var INITIAL_PAGE = <?= json_encode($initial_page) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1; // 현재 페이지 번호
@@ -869,11 +871,11 @@ $tpl_show_chat_mark = true; ?>
     total_count = 0;
     total_pages = 1;
 
-    // 페이지 1이고 초기 데이터가 있으면 AJAX 스킵 (서버사이드 렌더링)
+    // 페이지가 초기 페이지이고 초기 데이터가 있으면 AJAX 스킵 (서버사이드 렌더링)
     var initialListCount = $(list_id).find("li").length;
     var hasInitialData = initialListCount > 0;
 
-    if (list_page === 1 && hasInitialData) {
+    if (list_page === INITIAL_PAGE && hasInitialData) {
       // 초기 데이터 있음: 렌더링 완료, 페이지네이션과 광고 추가
       // 광고 제외하고 실제 아이템 개수 계산
       var adCount = $(list_id).find(".ad-item-adsense").length;

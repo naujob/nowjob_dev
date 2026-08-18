@@ -394,7 +394,7 @@ if ($this->user->getUserType() == "MEM") {
   <?php endif; ?>
 </div>
 
-<div class="main-visual">
+<div class="main-visual"<?= (isset($initial_page) && $initial_page > 1) ? ' style="display:none;"' : '' ?>>
   <div class="visual-slider">
     <div class="slider-wrap keen-slider">
       <?php foreach ($banner_list as $banner) : ?>

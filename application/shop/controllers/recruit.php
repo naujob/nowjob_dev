@@ -412,11 +412,17 @@ class Recruit extends CI_Controller
       }
     }
 
+    // URL의 page 파라미터 읽어서 정수 검증
+    $requested_page = (int) input_get('page', 1);
+    if ($requested_page < 1) {
+      $requested_page = 1;
+    }
+
     $addr_info = $this->user->getAddrInfo();
 
     // 초기 채용공고 데이터 로드 및 포맷팅
     $initial_params = [
-      'page' => 1,
+      'page' => $requested_page,
       'pagesize' => 20,
       'mm_idx' => $this->mm_idx,
       'text' => '',
@@ -472,6 +478,7 @@ class Recruit extends CI_Controller
     $data["initial_recruits"] = $initial_recruits;
     $data["initial_total_count"] = $initial_total_count;
     $data["use_server_render"] = $use_server_render;
+    $data["initial_page"] = $requested_page;
 
     $this->layout->shop('/recruit/job_list', $data);
   }
