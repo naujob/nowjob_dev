@@ -1217,12 +1217,12 @@ $top_bar = array(
                         $content = $content.replaceAll("{{default_avatar}}", defaultAvatar);
 
                         // hr_list.php 형식으로 데이터 처리
-                        // 이력서명이 18자 이상이면 ...으로 자르기
-                        var ru_name = row.ru_name || "";
-                        if (ru_name && ru_name.length > 18) {
-                            ru_name = ru_name.substring(0, 18) + '...';
+                        // 이름이 18자 이상이면 ...으로 자르기
+                        var mm_name = row.mm_name || "";
+                        if (mm_name && mm_name.length > 18) {
+                            mm_name = mm_name.substring(0, 18) + '...';
                         }
-                        $content = $content.replaceAll("{{ru_name}}", ru_name);
+                        $content = $content.replaceAll("{{mm_name}}", mm_name);
 
 
                         // 국적 처리
@@ -1387,7 +1387,7 @@ $top_bar = array(
                 </div>
                 <div class="desc">
                     <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
-                    <div class="title ellipsis">{{ru_name}}</div>
+                    <div class="title ellipsis">{{mm_name}}</div>
 
                     <div class="summary">
                         <p class="last-message">{{last_msg_preview}}</p>

@@ -1581,7 +1581,7 @@ $top_bar = array(
         </div>
         <div class="desc">
           <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
-          <div class="title ellipsis">{{ru_name}}</div>
+          <div class="title ellipsis">{{mm_name}}</div>
 
           <div class="summary">
             <p class="last-message">{{last_msg_preview}}</p>
