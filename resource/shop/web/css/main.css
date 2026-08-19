@@ -6105,11 +6105,6 @@ body {
     float: left;
 }
 
-.period-list span:first-child:after {
-    content: "|";
-    margin: 0 0.5em;
-    font-size: 0.9em;
-}
 
 .period-list em {
     display: block;

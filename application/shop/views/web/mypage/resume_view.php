@@ -90,6 +90,13 @@ function fRemoveBigAdrPHP($arg)
     height: 15px;
     margin: 5px auto 0;
   }
+  .inline-group {
+    flex-direction: column;
+
+  }
+.section.view-profile .inline-group .col:nth-child(2) {
+  width: 150px;
+ }
 </style>
 <div id="content" class="page page-view">
   <main class="page-content">
@@ -289,7 +296,7 @@ function fRemoveBigAdrPHP($arg)
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td class="label">자&nbsp;&nbsp;격&nbsp;&nbsp;증</td>
+                        <td class="label">자격증</td>
                         <td class="value">
                           <ul class="period-list">
                             <?php foreach ($certi_list as $row) : ?>

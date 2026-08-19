@@ -1,8 +1,5 @@
 <style>
-    .period-list em {
-        display:inline-block;
-    }
-
+  
 
 
 </style>

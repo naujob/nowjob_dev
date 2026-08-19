@@ -2424,13 +2424,11 @@
         if (info.arr_career) {
             for (var icnt = 0; icnt < info.arr_career.split("&&&").length; icnt++) {
                 var temp = info.arr_career.split("&&&")[icnt].split("|||");
-                if (temp.length > 2) {
-                    // 경력사항: 업종 | 기업명 | 기간 순으로 표시
+                if (temp.length >= 2) {
                     str_ru_career += "<li>" +
                         "<div class='form-group'>" +
-                        "<div class='col sm'><span class='read-only'>" + temp[0] + "</span></div>" +
+                        "<div class='col'><span class='read-only'>" + temp[0] + "</span></div>" +
                         "<div class='col'><span class='read-only'>" + temp[1] + "</span></div>" +
-                        "<div class='col'><span class='read-only'>" + temp[2] + "</span></div>" +
                         "</div>" +
                         "</li>";
                 }
