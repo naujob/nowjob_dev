@@ -4825,7 +4825,7 @@ class memberModel extends MY_Model
        ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
        ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
        ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt
+       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt, MAX(mq_apply_idx) mq_apply_idx, MAX(mq_apply_dt) mq_apply_dt
 FROM (
  SELECT
                          bb.*,
@@ -4845,6 +4845,7 @@ FROM (
  rc.rc_name,
  (CASE WHEN dd.bk_idx IS NOT NULL THEN 'Y' ELSE 'N' END) AS book_yn,
  p.pm_idx,
+ mq.mq_idx AS mq_apply_idx, mq.reg_dt AS mq_apply_dt,
  room.rm_idx, room.up_dt rm_up_dt
                          FROM
                         st_member aa
@@ -4883,7 +4884,7 @@ GROUP BY
        ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
        ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
        ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
-       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn
+       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, mm_idx
 order by rm_up_dt desc
         LIMIT 0 , 200 ";
 

@@ -1039,16 +1039,10 @@ if (!isset($addrPopupId)) {
                     searchArea: searchArea,
                     searchAreaStr: searchAreaStr
                   };
-                  BrowserLogger.info('onChangeAreaApply 호출됨', {
-                    pageType: window.__addrPopupPageType,
-                    data: callbackData
-                  });
+              
                   window.onChangeAreaApply(callbackData);
                 } catch (e) {
-                  BrowserLogger.error('onChangeAreaApply 실행 오류', {
-                    pageType: window.__addrPopupPageType,
-                    error: e.message
-                  });
+                 
                 }
               }
 

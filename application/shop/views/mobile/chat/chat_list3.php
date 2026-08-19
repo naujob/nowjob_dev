@@ -608,15 +608,36 @@ $top_bar = array(
             // arguments는 각 $.ajax의 응답 배열 ([data, statusText, jqXHR], ...)
             var responses = Array.prototype.slice.call(arguments);
 
-            // 각 응답별로 지원자 렌더링
+            // 모든 응답을 평탄화하여 하나의 배열로 통합
+            var allRows = [];
             responses.forEach(function(response) {
               var talentRet = response[0]; // $.when의 결과는 [data, statusText, jqXHR] 형태
-
               if (talentRet && talentRet.code == "00") {
                 var talentList = talentRet.data.list;
+                if (talentList && Array.isArray(talentList)) {
+                  allRows = allRows.concat(talentList);
+                }
+              }
+            });
 
-                // 각 지원자를 tpl_chat_by_recruite로 렌더링
-                talentList.forEach(function(row) {
+            // 인재(mm_idx)별로 중복 제거하되, 가장 최근 지원(mq_apply_idx 최대)만 남기기
+            var deduped = {};
+            allRows.forEach(function(row) {
+              var mmIdx = row.mm_idx;
+              var applyIdx = parseInt(row.mq_apply_idx) || 0;
+
+              if (!deduped[mmIdx] || applyIdx > parseInt(deduped[mmIdx].mq_apply_idx || 0)) {
+                deduped[mmIdx] = row;
+              }
+            });
+
+            // deduped 객체를 배열로 변환
+            var dedupedList = Object.keys(deduped).map(function(key) {
+              return deduped[key];
+            });
+
+            // 각 지원자를 tpl_chat_by_recruite로 렌더링
+            dedupedList.forEach(function(row) {
                   var $clone = $("#tpl_chat_by_recruite").clone();
                   if ($clone.length == 0) {
                     return;
@@ -679,8 +700,6 @@ $top_bar = array(
                   var resumeboxHtml = "<div class='resumebox_'>" + $clone.html() + "</div>";
                   $("#chat_list").append(resumeboxHtml);
                 });
-              }
-            });
 
             // 모든 렌더링 완료 후 빈 목록 표시 여부 판단 및 뱃지 업데이트
             var itemCount = $("#chat_list").find("li").length;

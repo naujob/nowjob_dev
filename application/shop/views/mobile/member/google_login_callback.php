@@ -10,14 +10,10 @@
     var code = '<?= $code ?>';
     var msg = '<?= isset($msg) ? $msg : '' ?>';
 
-    BrowserLogger.info('Google 로그인 콜백', {
-      code: code,
-      message: msg,
-      url: window.location.href
-    });
+ 
 
     if (code == '90') {
-      BrowserLogger.info('신규 회원 - 가입 페이지로 이동');
+     
       // 신규 회원 → 회원가입으로 이동
       setTimeout(function() {
         if (confirm('회원으로 가입된 정보가 없습니다. 회원 가입을 진행하시겠습니까?')) {
@@ -27,16 +23,13 @@
         }
       }, 500);
     } else if (code == '00') {
-      BrowserLogger.info('로그인 성공 - 홈으로 이동');
+     
       // 로그인 성공 → 홈으로 이동
       setTimeout(function() {
         location.href = "/";
       }, 500);
     } else {
-      BrowserLogger.error('Google 로그인 실패', {
-        code: code,
-        message: msg
-      });
+    
       // 오류
       alert(msg || 'Google 로그인에 실패했습니다.');
       location.href = "/member/login";
