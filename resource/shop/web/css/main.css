@@ -9209,7 +9209,7 @@ body {
 }
 
 .item-view .visual-slider {
-    height: inherit;
+    aspect-ratio: 16 / 9;
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;

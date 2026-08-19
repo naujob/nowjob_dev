@@ -482,16 +482,17 @@ function fRemoveBigAdr($arg)
         // 개인회원이 자신의 이력서를 볼 경우를 판단
         $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
         ?>
-        <div class="view-footer" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
+        <!-- view-footer 플로팅 액션 버튼 그룹으로 대체됨 (라인 497~524) -->
+        <!-- <div class="view-footer" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
             <?php if ($isOwnResume) { ?>
-                <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 버튼 -->
+
                 <button type="button" id="btnEditResume" class="btn btn-edit">수정</button>
                 <button type="button" id="btnPromotionResume" class="btn btn-promotion">광고신청</button>
             <?php } else { ?>
-                <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
+
                 <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn btn-primary">제안보내기</button>
             <?php } ?>
-        </div>
+        </div> -->
 
         <!-- 플로팅 액션 버튼 그룹 -->
         <div id="floating-actions" data-state="open">

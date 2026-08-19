@@ -916,8 +916,9 @@ class common
 				$urls["URL_" . strtoupper($size_name)] = $orig_url;
 			}
 		} else {
-			// GIF가 아닌 경우 3가지 크기로 리사이징
+			// GIF가 아닌 경우 3가지 크기로 리사이징 (원본 비율 유지)
 			$this->CI->load->library('image_lib');
+			$max_sizes = ['sm' => 400, 'md' => 800, 'lg' => 1200];
 
 			foreach ($sizes as $size_name => $size_px) {
 				$config_resize = [
@@ -926,8 +927,8 @@ class common
 					'new_image' => $root . "/resize/{$size_name}/" . $file_name . $file_ext,
 					'maintain_ratio' => TRUE,
 					'quality' => $quality,
-					'width' => $size_px,
-					'height' => $size_px
+					'width' => $max_sizes[$size_name],
+					'height' => $max_sizes[$size_name]
 				];
 
 				$this->CI->image_lib->clear();

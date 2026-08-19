@@ -7919,7 +7919,7 @@ form#frm {
 
 /* 채용공고 */
 .post.page-view .page-content{
-    background: #dddddd;
+  
 }
 .post.page-view .page-content .section {
     margin-bottom: 3px;
@@ -8156,7 +8156,7 @@ form#frm {
 
 .view-visual-slider {
     position: relative;
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 16 / 9;
     width: 100%;
     overflow: hidden;
 }
@@ -13916,7 +13916,7 @@ form#frm {
 #floating-actions {
     position: fixed;
     right: 16px;
-    bottom: 80px;
+    bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -14013,3 +14013,8 @@ form#frm {
 .ad-item-adsense {
     font-size: var(--page-recruit-font-size-sm);
 }
+  /* 뒤로가기 복귀 시 직전에 클릭한 인재 카드 하이라이트 */
+  .result-list-card .content-li.highlight-recent {
+   border: 2px solid #999 !important;
+     background-color: #eee !important;
+  }

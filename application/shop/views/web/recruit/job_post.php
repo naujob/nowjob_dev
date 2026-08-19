@@ -666,13 +666,30 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     gap: 0px;
     align-items: normal;
   }
-  /* .item-view .visual-slider {
-    flex:unset;
 
+  .item-view .view-visual .inline-group {
+    height: auto;
+    aspect-ratio: 970 / 364;
   }
-  .item-view .visual-slider img{
-    width:auto;
-  } */
+
+  .item-view .visual-slider {
+    width: 100%;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    overflow: visible !important;
+  }
+
+  .item-view .visual-slider img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+
+  .item-view .visual-slider .keen-slider__slide {
+    width: 100%;
+    overflow: visible;
+  }
 
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />

@@ -689,22 +689,23 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 </script>
             </div>
         </div>
-        <div class="view-footer">
+        <!-- view-footer 플로팅 액션 버튼 그룹으로 대체됨 (라인 713~751) -->
+        <!-- <div class="view-footer">
             <?php if ($isPreview) { ?>
-                <!-- preview 모드: 수정하기, 등록하기 -->
+
                 <button type="button" class="btn btn-secondary" onclick="goBackToEdit(event)">수정하기</button>
                 <button type="button" class="btn btn-primary" onclick="submitPreview()">등록하기</button>
             <?php } else if ($isOwnRecruit) { ?>
-                <!-- 기업회원이 자신의 채용공고를 볼 때: 수정 및 광고신청 버튼 -->
+
                 <button type="button" id="btnEditRecruit" class="btn btn-edit">수정</button>
                 <button type="button" id="btnPromotionRecruit" class="btn btn-promotion">광고신청</button>
             <?php } else { ?>
-                <!-- 개인회원이 볼 때: 지원하기 버튼 -->
+
                 <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn btn-secondary">지원하기</button>
-                <!-- <button type="button" aria-haspopup="dialog" class="btn btn-primary" onclick="location.href='tel:<?= $info["mm_phone"] ?>';">전화하기</button> -->
+
                 <a href="tel:<?= $info["mm_phone"] ?>" class="btn btn-primary js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>">전화하기</a>
             <?php } ?>
-        </div>
+        </div> -->
 
         <!-- 플로팅 액션 버튼 그룹 -->
         <?php

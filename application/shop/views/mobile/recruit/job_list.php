@@ -462,12 +462,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     background-color: transparent;
   }
 
-  /* 뒤로가기 복귀 시 직전에 클릭한 공고 카드 하이라이트 */
-  .result-list-card .content-li.highlight-recent {
-    border: 2px solid #ddd !important;
-     background-color: #ddd !important;
-  }
-
 
 </style>
 

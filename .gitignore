@@ -6,6 +6,7 @@ application/design/
 application/vendor/
 application/common/config/
 phpmyadmin/
+resource/
 resource/fonts/
 resource/home/
 resource/uploads/
@@ -14,6 +15,9 @@ application/shop/logs/
 application/common/config/database.php
 firebase-service-account.json
 chatting/chat/config
+phpmyadmin/
+system/
+outer/
 # =========================
 # 환경 변수 / 보안 정보
 # =========================
@@ -24,7 +28,9 @@ config/*.env
 *.key
 .my.cnf*
 .mysql*
-
+.cursor
+.omo
+.vscode
 # =========================
 # 의존성 / 빌드 결과물
 # =========================
@@ -71,3 +77,19 @@ pids/
 # ai 설정파일
 # =========================
 .claude/
+
+
+#  이미지 및 미디어 파일 (토큰/스캔 절약)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+
+#  빌드/의존성/로그
+node_modules/
+dist/
+build/
+.gradle/
+*.log
