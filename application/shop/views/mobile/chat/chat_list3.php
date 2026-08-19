@@ -18,37 +18,9 @@ $top_bar = array(
         </div>
 
         <style>
-            .angle-link {
-                background: none;
-            }
+         
 
-            .angle-link::after {
-                content: "";
-                position: absolute;
-                top: 50%;
-                right: 0.2rem;
-                transform: translateY(-50%) rotate(90deg);
-                /* 아이콘을 아래로 회전 */
-                background: url(/resource/shop/mobile/img/ic_angle_link.svg) no-repeat center;
-                width: 1rem;
-                /* 아이콘의 너비 */
-                height: 1rem;
-                /* 아이콘의 높이 */
-                display: block;
-                background-size: contain;
-            }
-
-            .room-item .angle-link::after {
-                transform: translateY(-50%) rotate(0deg);
-                /* 아이콘 기본 상태 (오른쪽) */
-                transition: transform 0.3s ease;
-                /* 부드러운 회전 애니메이션 */
-            }
-
-            .room-item .angle-link.on::after {
-                transform: translateY(-50%) rotate(90deg);
-                /* 아이콘을 아래로 회전 (펼쳐짐 상태) */
-            }
+         
 
             /* 프로필 이미지 border-radius */
             /* 전역 CSS의 .item-info .thumb img { border-radius: inherit; } 스타일을 덮어쓰기 위해 더 구체적인 선택자 사용 */
@@ -151,118 +123,6 @@ $top_bar = array(
             /* 지원자 목록 들여쓰기 스타일 */
            
 
-            [class*="resumebox_"] .list-item {
-                margin-left: 8px;
-            }
-
-            /* hr_list.php 형식 스타일 */
-            [class*="resumebox_"] .content-body {
-                position: relative;
-                overflow: hidden;
-                height: 95px;
-               
-            }
-
-            [class*="resumebox_"] .content-body .img {
-                position: absolute;
-                width: 95px;
-                height: 95px;
-                border: 0;
-                border-radius: 5px;
-                color: #888;
-                overflow: hidden;
-            }
-
-            [class*="resumebox_"] .content-body .img img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-            }
-
-            [class*="resumebox_"] .content-body .desc {
-                position: relative;
-                height: 100%;
-                margin: 0 0 0 110px;
-                cursor: pointer;
-            }
-
-           
-
-            [class*="resumebox_"] .content-body .desc .title {
-                font-size: 20px;
-                font-weight: bold;
-                margin: 1px 0px;
-            }
-
-            [class*="resumebox_"] .content-body .desc .title.ellipsis {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            [class*="resumebox_"] .content-body .desc .summary {
-                display: flex;
-                font-size: 15px;
-                gap: 5px;
-                position: relative;
-            }
-
-            [class*="resumebox_"] .content-body .desc .summary p {
-                position: relative;
-                padding-right: 5px;
-                margin: 0;
-                color: #000;
-                font-weight: 600;
-            }
-
-            [class*="resumebox_"] .content-body .desc .summary p:not(:last-child)::after {
-                content: "";
-                position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                width: 1px;
-                height: 0.5em;
-                margin: auto;
-                border-right: 1px solid #ACACAC;
-            }
-
-            [class*="resumebox_"] .content-body .desc .summary2 {
-                position: absolute;
-                right: 0px;
-                bottom: 0px;
-                font-size: 16px;
-                font-weight: 600;
-                letter-spacing: 0;
-                color: #1b9d7d;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-            }
-
-            [class*="resumebox_"] .content-body .desc .summary2 p {
-                margin: 0;
-                text-align: right;
-            }
-
-            [class*="resumebox_"] .content-body .desc .summary3 {
-                position: absolute;
-                right: 0px;
-                top: 0px;
-                font-size: 16px;
-                font-weight: 600;
-                letter-spacing: 0;
-                color: #333;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-            }
-
-            [class*="resumebox_"] .content-body .desc .summary3 p {
-                margin: 0;
-                text-align: right;
-            }
         </style>
         <div class="tab-panel">
             <div class="container">
@@ -701,6 +561,11 @@ $top_bar = array(
                   $("#chat_list").append(resumeboxHtml);
                 });
 
+            // PHP에서 이미 포맷팅된 시간을 표시
+            $("#chat_list .last-chat-time").each(function() {
+              $(this).text($(this).attr('data-time'));
+            });
+
             // 모든 렌더링 완료 후 빈 목록 표시 여부 판단 및 뱃지 업데이트
             var itemCount = $("#chat_list").find("li").length;
             if (itemCount == 0) {
@@ -792,25 +657,12 @@ $top_bar = array(
             var tab1UnreadCount = 0; // 지원한 인재 탭
             var tab2UnreadCount = 0; // 제안한 인재 탭
 
-            // 공고별 room_idx_list 수집 (공고명 클릭 전에도 확인 가능)
+            // 현재 페이지(#chat_list)에 실제로 렌더링된 채팅방(rm_idx) 목록 수집 (자기 탭 판별용)
             var tab2RoomIdxList = [];
-            // 제안한 인재탭의 공고 목록에 대한 room_idx_list 수집
-            // 이 채팅방이 제안한 인재 탭에 속하는가?를 빠르게 판별하기 위해 room_idx_list를 수집
-            $('#chat_list .content-li').each(function() {
-                var roomIdxList = $(this).attr('data-room_idx_list');
-                if (roomIdxList) {
-                    // roomIdxArray는 data-room_idx_list 속성에서 ()을 제거하고 콤마(,)로 분리한 후, 각 값을 숫자로 변환한 채팅방(room_idx) ID 배열입니다.
-                    var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',').map(function(idx) {
-                        return Number(idx.trim());
-                    }).filter(function(idx) {
-                        return !isNaN(idx) && idx > 0;
-                    });
-                    roomIdxArray.forEach(function(rmIdx) {
-                        // tab2RoomIdxList 배열에 rmIdx가 없으면 추가
-                        if (tab2RoomIdxList.indexOf(rmIdx) === -1) {
-                            tab2RoomIdxList.push(rmIdx);
-                        }
-                    });
+            $('#chat_list li[data-target_id]').each(function() {
+                var rmIdx = Number($(this).attr('data-target_id'));
+                if (!isNaN(rmIdx) && rmIdx > 0 && tab2RoomIdxList.indexOf(rmIdx) === -1) {
+                    tab2RoomIdxList.push(rmIdx);
                 }
             });
 
@@ -1401,15 +1253,21 @@ $top_bar = array(
             onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_sent'; return false;">
 
             <div class="content-body" style="position: relative;">
+                <div class="chat-time-row">
+                    <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
+                    <div class="last-chat-time" data-time="{{up_dt}}"></div>
+                </div>
                 <div class="img" style="border-radius: 60px;">
                     <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
                 </div>
                 <div class="desc">
-                    <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
                     <div class="title ellipsis">{{mm_name}}</div>
 
-                    <div class="summary">
-                        <p class="last-message">{{last_msg_preview}}</p>
+                    <div class="summary-with-badge">
+                        <div class="summary">
+                            <p class="last-message">{{last_msg_preview}}</p>
+                        </div>
+                        <span class="room_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
                     </div>
 
                     <div class="summary3">
@@ -1418,9 +1276,9 @@ $top_bar = array(
                 </div>
             </div>
         </a>
+        <div class="recruit-name-section">{{rc_name}}</div>
         <button type="button" onclick="deleteItem(this.parentNode);" class="btn-primary btn-trash js-del-item">
             <span class="sr-text">삭제</span>
         </button>
-        <span class="room_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
     </li>
 </template>

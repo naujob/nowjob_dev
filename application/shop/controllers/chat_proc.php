@@ -893,8 +893,12 @@ class Chat_proc extends CI_Controller
 				if (isset($row["user_name"])) {
 					$temp_list[$key]["user_name"] = $row["user_name"];
 				}
-				if (isset($row["up_dt"])) {
-					$temp_list[$key]["up_dt"] = $row["up_dt"];
+				// 최근 메시지 시간이 있을 때만 up_dt 설정 (MongoDB last_msg_time 사용)
+				if (!empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["up_dt"] = $temp_list[$key]["last_msg_time"];
+				} else {
+					// 메시지가 없으면 up_dt를 빈 값으로
+					$temp_list[$key]["up_dt"] = "";
 				}
 				// mm_sex 정보 명시적으로 전달 (JavaScript에서 기본 아바타 결정에 사용)
 				if (isset($row["mm_sex"])) {
@@ -963,8 +967,13 @@ class Chat_proc extends CI_Controller
 				if (isset($row["user_name"])) {
 					$temp_list[$key]["user_name"] = $row["user_name"];
 				}
-				if (isset($row["up_dt"])) {
-					$temp_list[$key]["up_dt"] = $row["up_dt"];
+				// 기본값 설정 (Exception 경로이므로 up_dt는 초기화)
+				$temp_list[$key]["up_dt"] = "";
+				if (empty($temp_list[$key]["last_msg_preview"])) {
+					$temp_list[$key]["last_msg_preview"] = "";
+				}
+				if (empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["last_msg_time"] = "";
 				}
 				// mm_sex 정보 명시적으로 전달 (JavaScript에서 기본 아바타 결정에 사용)
 				if (isset($row["mm_sex"])) {
@@ -973,13 +982,6 @@ class Chat_proc extends CI_Controller
 				// rc_thumb가 null/빈 값이면 대체 이미지 적용
 				if (empty($row["rc_thumb"])) {
 					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
-				}
-				// 기본값 설정
-				if (empty($temp_list[$key]["last_msg_preview"])) {
-					$temp_list[$key]["last_msg_preview"] = "";
-				}
-				if (empty($temp_list[$key]["last_msg_time"])) {
-					$temp_list[$key]["last_msg_time"] = "";
 				}
 			}
 			$filtered_list = $temp_list;
@@ -2375,17 +2377,30 @@ json_return("00", "조회완료", $data);
 			$timestamp = (int)$datetime;
 		}
 
-		// 타임스탬프가 없으면 빈 문자열 반환
+		// 타임스탐프가 없으면 빈 문자열 반환
 		if ($timestamp === null || $timestamp <= 0) {
 			return "";
 		}
 
-		// 항상 시간 형식으로 표시 (오전/오후 시:분)
-		$hour = (int)date("H", $timestamp);
-		$minute = date("i", $timestamp);
-		$ampm = $hour >= 12 ? "오후" : "오전";
-		$hour_12 = $hour > 12 ? $hour - 12 : ($hour == 0 ? 12 : $hour);
-		return $ampm . " " . $hour_12 . ":" . $minute;
+		// 오늘, 어제, 그 이전 판별
+		$today = date("Y-m-d");
+		$yesterday = date("Y-m-d", strtotime("-1 day"));
+		$msgDate = date("Y-m-d", $timestamp);
+
+		if ($msgDate === $today) {
+			// 당일: 오전/오후 시:분
+			$hour = (int)date("H", $timestamp);
+			$minute = date("i", $timestamp);
+			$ampm = $hour >= 12 ? "오후" : "오전";
+			$hour_12 = $hour > 12 ? $hour - 12 : ($hour == 0 ? 12 : $hour);
+			return $ampm . " " . $hour_12 . ":" . $minute;
+		} else if ($msgDate === $yesterday) {
+			// 전날: "어제"
+			return "어제";
+		} else {
+			// 그 이전: 날짜만 (YYYY-MM-DD)
+			return $msgDate;
+		}
 	}
 
 	// 기업 채팅방별 인재 목록 조회 (0225-11-10 추가)

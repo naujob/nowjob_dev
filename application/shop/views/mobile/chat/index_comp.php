@@ -90,100 +90,7 @@ $top_bar = array(
     </style>
     <style>
       
-
-      [class*="resumebox_"] .list-item {
-        margin-left: 8px;
-      }
-
-      [class*="resumebox_"] .content-body {
-        position: relative;
-        overflow: hidden;
-        height: 95px;
-       
-      }
-
-      [class*="resumebox_"] .content-body .img {
-        position: absolute;
-        width: 95px;
-        height: 95px;
-        border: 0;
-        border-radius: 5px;
-        color: #888;
-        overflow: hidden;
-      }
-
-      [class*="resumebox_"] .content-body .img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-
-      [class*="resumebox_"] .content-body .desc {
-        position: relative;
-        height: 100%;
-        margin: 0 0 0 110px;
-        cursor: pointer;
-      }
-
-    
-
-      [class*="resumebox_"] .content-body .desc .title {
-        font-size: 20px;
-        font-weight: bold;
-        margin: 1px 0px;
-      }
-
-      [class*="resumebox_"] .content-body .desc .title.ellipsis {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      [class*="resumebox_"] .content-body .desc .summary {
-        display: flex;
-        font-size: 15px;
-        gap: 5px;
-        position: relative;
-      }
-
-      [class*="resumebox_"] .content-body .desc .summary p {
-        position: relative;
-        padding-right: 5px;
-        margin: 0;
-        color: #000;
-
-      }
-
-      [class*="resumebox_"] .content-body .desc .summary p:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #ACACAC;
-      }
-
-      [class*="resumebox_"] .content-body .desc .summary3 {
-        position: absolute;
-        right: 0px;
-        top: 0px;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: 0;
-        color: #333;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-      }
-
-      [class*="resumebox_"] .content-body .desc .summary3 p {
-        margin: 0;
-        text-align: right;
-      }
+      
 
       html,
       body {
@@ -376,6 +283,11 @@ $top_bar = array(
                 var resumeboxHtml = "<div class='resumebox_'>" + $clone.html() + "</div>";
                 $("#chat_list").append(resumeboxHtml);
               });
+
+          // PHP에서 이미 포맷팅된 시간을 표시
+          $("#chat_list .last-chat-time").each(function() {
+            $(this).text($(this).attr('data-time'));
+          });
 
           // 모든 렌더링 완료 후 빈 목록 표시 여부 판단 및 뱃지 업데이트
           var itemCount = $("#chat_list").find("li").length;
@@ -752,21 +664,12 @@ $top_bar = array(
         var tab1UnreadCount = 0; // 지원한 인재 탭
         var tab2UnreadCount = 0; // 제안한 인재 탭
 
-        // 공고별 room_idx_list 수집 (공고명 클릭 전에도 확인 가능)
+        // 현재 페이지(#chat_list)에 실제로 렌더링된 채팅방(rm_idx) 목록 수집 (자기 탭 판별용)
         var tab1RoomIdxList = [];
-        $('#chat_list .content-li').each(function() {
-          var roomIdxList = $(this).attr('data-room_idx_list');
-          if (roomIdxList) {
-            var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',').map(function(idx) {
-              return Number(idx.trim());
-            }).filter(function(idx) {
-              return !isNaN(idx) && idx > 0;
-            });
-            roomIdxArray.forEach(function(rmIdx) {
-              if (tab1RoomIdxList.indexOf(rmIdx) === -1) {
-                tab1RoomIdxList.push(rmIdx);
-              }
-            });
+        $('#chat_list li[data-target_id]').each(function() {
+          var rmIdx = Number($(this).attr('data-target_id'));
+          if (!isNaN(rmIdx) && rmIdx > 0 && tab1RoomIdxList.indexOf(rmIdx) === -1) {
+            tab1RoomIdxList.push(rmIdx);
           }
         });
 
@@ -999,21 +902,12 @@ $top_bar = array(
         var tab1UnreadCount = 0; // 지원한 인재 탭
         var tab2UnreadCount = 0; // 제안한 인재 탭
 
-        // 공고별 room_idx_list 수집 (공고명 클릭 전에도 확인 가능)
+        // 현재 페이지(#chat_list)에 실제로 렌더링된 채팅방(rm_idx) 목록 수집 (자기 탭 판별용)
         var tab1RoomIdxList = [];
-        $('#chat_list .content-li').each(function() {
-          var roomIdxList = $(this).attr('data-room_idx_list');
-          if (roomIdxList) {
-            var roomIdxArray = roomIdxList.replace(/[()]/g, '').split(',').map(function(idx) {
-              return Number(idx.trim());
-            }).filter(function(idx) {
-              return !isNaN(idx) && idx > 0;
-            });
-            roomIdxArray.forEach(function(rmIdx) {
-              if (tab1RoomIdxList.indexOf(rmIdx) === -1) {
-                tab1RoomIdxList.push(rmIdx);
-              }
-            });
+        $('#chat_list li[data-target_id]').each(function() {
+          var rmIdx = Number($(this).attr('data-target_id'));
+          if (!isNaN(rmIdx) && rmIdx > 0 && tab1RoomIdxList.indexOf(rmIdx) === -1) {
+            tab1RoomIdxList.push(rmIdx);
           }
         });
 
@@ -1582,8 +1476,11 @@ $top_bar = array(
   </li>
 </template>
 
+
+
 <template id="tpl_chat_by_recruite">
   <li class="list-item msg-item room-item aa room_idx_{{room_idx}}" data-target_id="{{room_idx}}">
+    
     <a href="#" class="angle-link js-open-view angle-link-resume"
       aria-haspopup="dialog"
       data-ru_idx="{{ru_idx}}"
@@ -1598,26 +1495,32 @@ $top_bar = array(
       onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_received'; return false;">
 
       <div class="content-body">
+        <div class="chat-time-row">
+          <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
+          <div class="last-chat-time" data-time="{{up_dt}}"></div>
+        </div>
         <div class="img" style="border-radius: 60px;">
           <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
         </div>
         <div class="desc">
-          <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
           <div class="title ellipsis">{{mm_name}}</div>
 
-          <div class="summary">
-            <p class="last-message">{{last_msg_preview}}</p>
+          <div class="summary-with-badge">
+            <div class="summary">
+              <p class="last-message">{{last_msg_preview}}</p>
+            </div>
+            <span class="room_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
           </div>
-
-          <div class="summary3">
+          <!-- <div class="summary3">
             <p class="worktype">{{ru_work_type}}</p>
-          </div>
+          </div> -->
         </div>
       </div>
     </a>
+    <div class="recruit-name-section">{{rc_name}}</div>
     <button type="button" onclick="deleteItem(this.parentNode);" class="btn-primary btn-trash js-del-item">
       <span class="sr-text">삭제</span>
     </button>
-    <span class="room_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
+  
   </li>
 </template>

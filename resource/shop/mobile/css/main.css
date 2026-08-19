@@ -914,7 +914,7 @@ object {
 
 .angle-link {
     display: block;
-    padding: 1.375rem 2.5rem 1.375rem 1.4375rem;
+   
 
     background: url("../img/ic_angle_link.svg") no-repeat calc(100% - 1.4375rem) 50%;
     background-size: auto 0.75rem;
@@ -2387,7 +2387,7 @@ fieldset {
 .category-label {
     display: inline-block;
     height: 20px;
-    margin: 0 4px 0 0;
+    margin: 0 0px 0 7px;
     font-size: 0.6875rem;
     color: #fff;
     vertical-align: middle;
@@ -11288,6 +11288,17 @@ form#frm {
 }
 
 /* 채팅방 */
+.recruit-name-section {
+    padding: 8px 12px;
+    border: 1px solid #d7d2d2;
+    background: #a3a3a3;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .page-chat .tab-panel {
     background: #fff;
     margin-top: 10px;
@@ -11453,12 +11464,11 @@ form#frm {
 
 /* 채팅방 목록 - 미확인 메시지 카운트 뱃지 */
 .page-chat .room_unread_cnt {
-    position: absolute;
+    
     width: 26px;
     height: 26px;
     background-color: #F86048;
-    top: 20px;
-    left: 5px;
+    
     border-radius: 100%;
     color: #fff;
     text-align: center;
@@ -12877,7 +12887,7 @@ form#frm {
 }
 
 .resumebox_ {
-    background: #f3f2f2;
+    background: #ffffff;
     /* border: 1.5px solid #999;
     border-radius: 10px; */
        margin-bottom: 10px;
@@ -14015,6 +14025,137 @@ form#frm {
 }
   /* 뒤로가기 복귀 시 직전에 클릭한 인재 카드 하이라이트 */
   .result-list-card .content-li.highlight-recent {
-   border: 2px solid #999 !important;
-     background-color: #eee !important;
+   
+     background-color: #f6f6f6 !important;
   }
+
+/* 채팅 목록 마지막 메시지와 시간 레이아웃 */
+[class*="resumebox_"] .content-body .desc .summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+[class*="resumebox_"] .content-body .desc .summary .last-message {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[class*="resumebox_"] .content-body .desc .summary .last-chat-time {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #999;
+    padding: 2px;
+}
+
+[class*="resumebox_"] .content-body {
+        position: relative;
+        overflow: hidden;
+        height: 132px;
+        width: 100%;
+       
+      }
+      
+      [class*="resumebox_"] .content-body .img {
+        position: absolute;
+        width: 95px;
+        height: 95px;
+        border: 0;
+        border-radius: 5px;
+        color: #888;
+        overflow: hidden;
+      }
+
+      [class*="resumebox_"] .content-body .img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      [class*="resumebox_"] .content-body .desc {
+        position: relative;
+        height: 100%;
+        margin: 0 0 0 110px;
+        cursor: pointer;
+        padding: 15px 15px 15px 0px;
+      }
+
+    
+
+      [class*="resumebox_"] .content-body .desc .title {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 1px 0px;
+      }
+
+      [class*="resumebox_"] .content-body .desc .title.ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      [class*="resumebox_"] .content-body .desc .summary {
+        display: flex;
+        font-size: 15px;
+        gap: 5px;
+        position: relative;
+      }
+
+      [class*="resumebox_"] .content-body .desc .summary p {
+        position: relative;
+       
+        margin: 0;
+        color: #000;
+
+      }
+
+     
+
+      [class*="resumebox_"] .content-body .desc .summary3 {
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      [class*="resumebox_"] .content-body .desc .summary3 p {
+        margin: 0;
+        text-align: right;
+      }
+
+      /* 채팅 목록 - 추천 뱃지와 시간을 가로로 배치 */
+      .chat-time-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+            margin-bottom: 8px;
+      }
+     .chat-time-row .wicon {
+        flex: 1;
+     }
+      /* 채팅 목록 - 메시지 미리보기와 읽지 않은 메시지 개수 뱃지를 가로로 배치 */
+      .summary-with-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .summary-with-badge .summary {
+        flex: 1;
+      }
+
+      .summary-with-badge .room_unread_cnt {
+        flex-shrink: 0;
+      }
