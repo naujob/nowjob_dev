@@ -4,12 +4,39 @@
     background: none;
 }
 
+.resume-list #btnDefault {
+  display: block;
+    width: 100%;
+    padding: 1.3rem 0;
+    background-color: white;
+    color: #57CCAF;
+    border: none;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-bottom: 1px solid #E5E5E5;
+}
+
+#btnResume {
+    display: block;
+    width: 100%;
+    padding: 1.3rem 0;
+    background-color: #57CCAF;
+    color: #fff;
+    border: none;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 </style>
 <div class="page page-mypage">
     <div class="top-bar">
         <a href="javascript:_replace('/mypage');" class="btn-replace"><span class="sr-text">이전으로</span></a>
         <h1 class="title" style="margin-left: 1.5rem;">이력서</h1>
-        <a href="javascript:void(0);" id="btnResume" class="btn-action">이력서등록</a>
     </div><!-- //top-bar -->
     <div class="page-content">
         <form action="/">
@@ -38,6 +65,7 @@
                         </div>
                     <?php endif; ?>
                 </ul>
+                <button id="btnDefault" type="button" class="btn btn-primary">대표 이력서로 설정</button>
             </div>
             <?php if (count($resume_list) > 0) : ?>
                 <div class="logs-footer">
@@ -48,7 +76,7 @@
                 </div>
             <?php endif; ?>
             <div class="sticky-bottom view-footer">
-                <button id="btnDefault" type="button" class="btn btn-primary">대표 이력서로 설정</button>
+                <a href="javascript:void(0);" id="btnResume" class="btn-action">이력서등록</a>
             </div>
         </form>
 
