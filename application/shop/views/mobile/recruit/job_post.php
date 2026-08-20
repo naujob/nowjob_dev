@@ -1,4 +1,6 @@
 <?php
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
+
 function formatPhoneNumber($number)
 {
     $number = preg_replace('/[^0-9]/', '', $number);
@@ -713,8 +715,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         ?>
         <div id="floating-actions" data-state="open">
             <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
-                <img src="/resource/shop/mobile/img/angle-down.png" alt="메뉴 열기" class="toggle-icon-down">
-                <img src="/resource/shop/mobile/img/angle-up.png" alt="메뉴 닫기" class="toggle-icon-up">
+                <img src="/resource/shop/mobile/img/angle-up1.png" alt="메뉴 열기" class="toggle-icon-down">
+                <img src="/resource/shop/mobile/img/angle-down1.png" alt="메뉴 닫기" class="toggle-icon-up">
+                
             </button>
 
             <?php if ($userType === "MEM") : ?>
@@ -728,15 +731,27 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     <span class="action-label">전화하기</span>
                 </a>
             <?php elseif ($userType === "COMP" && $isOwnRecruit) : ?>
-                <!-- 기업회원 & 내 공고: 광고신청 + 수정하기 -->
+                <!-- 기업회원 & 내 공고: 재등록/수정/마감/삭제/광고 -->
 
+                <a href="#" class="floating-action-item" id="btnReregisterRecruit" data-action="reregister" title="재등록">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="재등록">
+                    <span class="action-label">재등록</span>
+                </a>
                 <a href="/compage/recruit_write1_1/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="수정">
-                    <span class="action-label">수정하기</span>
+                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
+                    <span class="action-label">수정</span>
+                </a>
+                <a href="#" class="floating-action-item" id="btnEndRecruit" data-action="end" title="마감">
+                    <img src="/resource/shop/mobile/img/due.png" alt="마감">
+                    <span class="action-label">마감</span>
+                </a>
+                <a href="#" class="floating-action-item" id="btnDeleteRecruit" data-action="delete" title="삭제">
+                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
+                    <span class="action-label">삭제</span>
                 </a>
                 <a href="#" class="floating-action-item" id="btnPromotionRecruit" data-action="promote" title="광고신청">
                     <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고하기</span>
+                    <span class="action-label">광고</span>
                 </a>
             <?php else : ?>
                 <!-- 비회원: 로그인 + 전화하기 -->
@@ -750,6 +765,31 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
+
+        <!-- 기업회원 본인 공고 바텀시트 3개 -->
+        <?php if ($userType === "COMP" && $isOwnRecruit) : ?>
+            <?php renderSelectBottomSheet(
+                'reregisterSheet',
+                '채용공고 재등록',
+                '<p>모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.<br>재등록하시겠습니까?</p>',
+                '취소', 'btnReregisterCancel', "closePanel(document.getElementById('reregisterSheet'));",
+                '재등록', 'btnReregisterConfirm', 'confirmReregisterRecruit();'
+            ); ?>
+            <?php renderSelectBottomSheet(
+                'endRecruitSheet',
+                '채용공고 마감',
+                '<p>해당 공고를 마감 처리하시겠습니까?</p>',
+                '취소', 'btnEndCancel', "closePanel(document.getElementById('endRecruitSheet'));",
+                '마감', 'btnEndConfirm', 'confirmEndRecruit();'
+            ); ?>
+            <?php renderSelectBottomSheet(
+                'deleteRecruitSheet',
+                '채용공고 삭제',
+                '<p>삭제된 공고는 복구할 수 없습니다.<br>완전 삭제하시겠습니까?</p>',
+                '취소', 'btnDeleteCancel', "closePanel(document.getElementById('deleteRecruitSheet'));",
+                '삭제', 'btnDeleteConfirm', 'confirmDeleteRecruit();'
+            ); ?>
+        <?php endif; ?>
 
     </div><!-- //page-content -->
 
@@ -1476,6 +1516,59 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 floatingActions.setAttribute('data-state', newState);
             });
         })();
+
+        // 재등록/마감/삭제 바텀시트 트리거
+        $(document).on('click', '#btnReregisterRecruit', function(e) {
+            e.preventDefault();
+            openPanel(document.getElementById('reregisterSheet'));
+        });
+        $(document).on('click', '#btnEndRecruit', function(e) {
+            e.preventDefault();
+            openPanel(document.getElementById('endRecruitSheet'));
+        });
+        $(document).on('click', '#btnDeleteRecruit', function(e) {
+            e.preventDefault();
+            openPanel(document.getElementById('deleteRecruitSheet'));
+        });
+
+        // 재등록 확인
+        function confirmReregisterRecruit() {
+            var rc_idx = $("[name=rc_idx]").val();
+            comAjax("/compage_proc/recruit_reregister", { rc_idx: rc_idx }, function(ret) {
+                closePanel(document.getElementById('reregisterSheet'));
+                if (ret.code == "00") {
+                    commonAlert("채용공고가 재등록되었습니다.", function() { location.reload(); });
+                } else {
+                    commonAlert(ret.msg, function() {});
+                }
+            });
+        }
+
+        // 마감 확인
+        function confirmEndRecruit() {
+            var rc_idx = $("[name=rc_idx]").val();
+            comAjax("/compage_proc/recruit_end", { rc_idx_list: rc_idx }, function(ret) {
+                closePanel(document.getElementById('endRecruitSheet'));
+                if (ret.code == "00") {
+                    commonAlert("채용공고가 마감 처리되었습니다.", function() { location.reload(); });
+                } else {
+                    commonAlert(ret.msg, function() {});
+                }
+            });
+        }
+
+        // 삭제 확인
+        function confirmDeleteRecruit() {
+            var rc_idx = $("[name=rc_idx]").val();
+            comAjax("/compage_proc/recruit_del", { rc_idx_list: rc_idx }, function(ret) {
+                closePanel(document.getElementById('deleteRecruitSheet'));
+                if (ret.code == "00") {
+                    commonAlert("채용공고가 삭제되었습니다.", function() { location.href = "/compage/recruit_list"; });
+                } else {
+                    commonAlert(ret.msg, function() {});
+                }
+            });
+        }
 
     });
 </script>

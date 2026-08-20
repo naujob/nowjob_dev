@@ -3672,6 +3672,36 @@ class Compage_proc extends CI_Controller
     json_return($result["code"], $result["msg"]);
   }
 
+  # 재등록 처리
+  function recruit_reregister()
+  {
+    $rc_idx = input_post("rc_idx", 0);
+
+    if ($rc_idx == 0) {
+      json_return("99", "채용공고 정보가 없습니다.");
+    }
+
+    $recruit_info = $this->recruit_model->getRecruit(["rc_idx" => $rc_idx]);
+    if ($recruit_info == null) {
+      json_return("91", "채용공고 정보를 찾을 수 없습니다.");
+    }
+
+    if ($this->mm_idx != $recruit_info["mm_idx"]) {
+      json_return("91", "권한이 없습니다.");
+    }
+
+    $rc_sdate = date("Y-m-d H:i:s");
+    $rc_edate = date("Y-m-d H:i:s", strtotime("+60 days"));
+
+    $result = $this->member_model->updateRecruit(["rc_sdate" => $rc_sdate, "rc_edate" => $rc_edate], ["rc_idx" => $rc_idx]);
+
+    if ($result["code"] != "00") {
+      json_return("91", "채용공고 재등록 중 오류가 발생하였습니다.");
+    }
+
+    json_return("00", "채용공고가 재등록되었습니다.");
+  }
+
   # 마감처리
   function recruit_end()
   {

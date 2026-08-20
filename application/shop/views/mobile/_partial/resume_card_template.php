@@ -37,10 +37,17 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
             <?php endif; ?>
-            <div class="title ellipsis">{{mm_name}}</div>
-            <?php if (isset($tpl_simple_mode) && $tpl_simple_mode && isset($tpl_data_label)): ?>
-            <p style=" font-size: 0.875rem; color: #999;"><?= $tpl_data_label ?></p>
-            <?php endif; ?>
+            <div class="title-wrap" style="display: flex; align-items: center; justify-content: space-between;">
+              <div class="title ellipsis">{{mm_name}}</div>
+              <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
+              <button class="toggle-expand" type="button" style="background: none; border: none; padding: 0; cursor: pointer; flex-shrink: 0;">
+                <i class="fa-solid fa-angle-down"></i>
+              </button>
+              <?php endif; ?>
+            </div>
+            <div class="simple-content" data-collapsed="true">
+              <p style=" font-size: 0.875rem; color: #999;"><?= $tpl_data_label ?></p>
+            </div>
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="summary">
               <ul class="working-day">{{ru_week}}</ul>
@@ -69,3 +76,31 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
     </div>
   </li>
 </template>
+
+<style>
+  .toggle-expand i {
+    color: #999;
+    font-size: 1.2rem;
+  }
+
+  .result-list-card .content-info .desc {
+    transition: height 0.3s ease;
+  }
+
+  .simple-content {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+  }
+
+  .simple-content[data-collapsed="true"] {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .simple-content[data-collapsed="false"] {
+    max-height: 500px;
+    opacity: 1;
+  }
+</style>

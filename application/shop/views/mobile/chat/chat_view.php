@@ -225,8 +225,32 @@
       $c = $c.replaceAll('{{ru_price_type}}', row.ru_price_type || '');
       $c = $c.replaceAll('{{ru_work_type}}',  row.ru_work_type  || '');
       $c = $c.replaceAll('{{ad_addr}}',       row.ad_addr       || '');
+      $c = $c.replaceAll('{{has_chat}}',      'false');
+      $c = $c.replaceAll('{{chat_rm_idx}}',   '');
 
       listContainer.innerHTML = $c;
+      // 토글 버튼 이벤트 등록
+      attachToggleListeners(listContainer);
+    }
+
+    // 토글 버튼 이벤트 등록
+    function attachToggleListeners(container) {
+      container.querySelectorAll('.toggle-expand').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var simpleContent = this.closest('.content-li').querySelector('.simple-content');
+          var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
+
+          if (isCollapsed) {
+            simpleContent.setAttribute('data-collapsed', 'false');
+            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+          } else {
+            simpleContent.setAttribute('data-collapsed', 'true');
+            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+          }
+        });
+      });
     }
 
     // DOM이 준비되면 렌더링
@@ -287,7 +311,29 @@
       var listContainer = document.getElementById('chatRecruitCardList');
       if (listContainer) {
         listContainer.innerHTML = html;
+        // 토글 버튼 이벤트 등록
+        attachToggleListeners(listContainer);
       }
+    }
+
+    // 토글 버튼 이벤트 등록
+    function attachToggleListeners(container) {
+      container.querySelectorAll('.toggle-expand').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var simpleContent = this.closest('.content-li').querySelector('.simple-content');
+          var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
+
+          if (isCollapsed) {
+            simpleContent.setAttribute('data-collapsed', 'false');
+            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+          } else {
+            simpleContent.setAttribute('data-collapsed', 'true');
+            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+          }
+        });
+      });
     }
 
     // DOM이 준비되면 렌더링

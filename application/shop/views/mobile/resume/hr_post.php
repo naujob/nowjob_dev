@@ -1,4 +1,6 @@
 <?php
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
+
 function fHashSet($txt)
 {
     $tags = explode(",", $txt);
@@ -497,19 +499,23 @@ function fRemoveBigAdr($arg)
         <!-- 플로팅 액션 버튼 그룹 -->
         <div id="floating-actions" data-state="open">
             <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
-                <img src="/resource/shop/mobile/img/angle-down.png" alt="메뉴 열기" class="toggle-icon-down">
-                <img src="/resource/shop/mobile/img/angle-up.png" alt="메뉴 닫기" class="toggle-icon-up">
+                <img src="/resource/shop/mobile/img/angle-up1.png" alt="메뉴 열기" class="toggle-icon-down">
+                <img src="/resource/shop/mobile/img/angle-down1.png" alt="메뉴 닫기" class="toggle-icon-up">
             </button>
 
             <?php if ($isOwnResume) : ?>
-                <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 -->
+                <!-- 개인회원이 자신의 이력서를 볼 때: 수정/삭제/광고 -->
                 <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="수정">
-                    <span class="action-label">수정하기</span>
+                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
+                    <span class="action-label">수정</span>
+                </a>
+                <a href="#" class="floating-action-item" id="btnDeleteResume" data-action="delete" title="삭제">
+                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
+                    <span class="action-label">삭제</span>
                 </a>
                 <a href="/mypage/point_promotion_buy" class="floating-action-item" data-action="promote" title="광고신청">
                     <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고신청</span>
+                    <span class="action-label">광고</span>
                 </a>
             <?php else : ?>
                 <!-- 기업회원이 볼 때: 제안보내기 + 전화하기 -->
@@ -523,6 +529,17 @@ function fRemoveBigAdr($arg)
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
+
+        <!-- 개인회원 본인 이력서 삭제 바텀시트 -->
+        <?php if ($isOwnResume) : ?>
+            <?php renderSelectBottomSheet(
+                'deleteResumeSheet',
+                '이력서 삭제',
+                '<p>삭제된 이력서는 복구할 수 없습니다.<br>완전 삭제하시겠습니까?</p>',
+                '취소', 'btnDeleteCancel', "closePanel(document.getElementById('deleteResumeSheet'));",
+                '삭제', 'btnDeleteConfirm', 'confirmDeleteResume();'
+            ); ?>
+        <?php endif; ?>
 
     </div><!-- //page-content -->
 
@@ -1009,4 +1026,23 @@ function fRemoveBigAdr($arg)
             floatingActions.setAttribute('data-state', newState);
         });
     })();
+
+    // 이력서 삭제 바텀시트 트리거
+    $(document).on('click', '#btnDeleteResume', function(e) {
+        e.preventDefault();
+        openPanel(document.getElementById('deleteResumeSheet'));
+    });
+
+    // 이력서 삭제 확인
+    function confirmDeleteResume() {
+        var ru_idx = $("[name=ru_idx]").val();
+        comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
+            closePanel(document.getElementById('deleteResumeSheet'));
+            if (ret.code == "00") {
+                commonAlert("이력서가 삭제되었습니다.", function() { location.href = "/mypage/resume_list"; });
+            } else {
+                commonAlert(ret.msg, function() {});
+            }
+        });
+    }
 </script>

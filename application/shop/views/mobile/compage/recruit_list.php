@@ -9,10 +9,20 @@
     <div class="top-bar">
         <a href="/compage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title" style="margin-left: 1.5rem;">채용공고</h1>
-        <a href="javascript:void(0);" id="btnRecruit" class="btn-action js-add-new">채용공고등록</a>
     </div><!-- //top-bar -->
 
     <div class="page-content">
+        <div class="tab-container">
+            <ul class="tab-list">
+                <li <?= (!isset($_GET['gbn']) || $_GET['gbn'] == '' || $_GET['gbn'] == 'all') ? 'class="on"' : '' ?>>
+                    <a href="javascript:_replace('/compage/recruit_list?gbn=all');" class="tab">채용공고 <?= $recruit_count[0]['allcnt'] ?></a>
+                </li>
+                <li <?= (isset($_GET['gbn']) && $_GET['gbn'] == 'close') ? 'class="on"' : '' ?>>
+                    <a href="javascript:_replace('/compage/recruit_list?gbn=close');" class="tab">마감공고 <?= $recruit_count[0]['closecnt'] ?></a>
+                </li>
+            </ul>
+        </div>
+
         <form id="frm" onsubmit="return false" autocomplete="false">
             <div class="post-list">
                 <ul class="list">
@@ -51,7 +61,7 @@
                 </div>
             <?php endif; ?>
             <div class="sticky-bottom view-footer">
-                <!-- <button id="btnDefault" type="button" class="btn btn-primary">공개 채용공고로 설정</button> -->
+                <a href="javascript:void(0);" id="btnRecruit" class="btn-action js-add-new">채용공고등록</a>
             </div>
         </form>
 
@@ -60,7 +70,6 @@
     </div><!-- //page-content -->
 </div>
 
-<?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
 
 <style>
     /* form#frm 스타일: main.css와 충돌 방지를 위한 구체적인 선택자 사용 */
@@ -110,7 +119,25 @@
         width: 16px;
     }
 
-    
+    /* footer 버튼 스타일 */
+    .page.page-mypage .page-content .sticky-bottom.view-footer #btnRecruit {
+        display: block;
+        width: 100%;
+        padding: 1.3rem 0;
+        background-color: #57CCAF;
+        color: #fff;
+        border: none;
+      
+        font-size: 1.3rem;
+        font-weight: 600;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .page.page-mypage .page-content .sticky-bottom.view-footer #btnRecruit:active {
+        background-color: #57CCAF;
+    }
 
     /* is-empty 스타일: main.css와 충돌 방지를 위한 구체적인 선택자 사용 */
     .page.page-mypage .page-content .post-list .list .is-empty {

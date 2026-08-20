@@ -392,15 +392,32 @@
 
         </div>
 
-        <div class="view-footer">
+        <!-- 플로팅 액션 버튼 그룹 -->
+        <div id="floating-actions" data-state="open">
+            <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
+                <img src="/resource/shop/mobile/img/angle-up1.png" alt="메뉴 열기" class="toggle-icon-down">
+                <img src="/resource/shop/mobile/img/angle-down1.png" alt="메뉴 닫기" class="toggle-icon-up">
+            </button>
+            <!-- 수정 -->
+            <a href="/compage/recruit_write1_1/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
+                <img src="/resource/shop/mobile/img/modify.png" alt="수정">
+                <span class="action-label">수정</span>
+            </a>
+            <!-- 마감 (공개 중일 때만) -->
             <?php if ($info["rc_show_yn"] == "Y") : ?>
-                <button id="btnDelete" type="button" aria-haspopup="dialog" class="btn btn-secondary js-remove">마감</button>
+                <a href="#" class="floating-action-item" id="btnDelete" data-action="close" title="마감">
+                    <img src="/resource/shop/mobile/img/del.png" alt="마감">
+                    <span class="action-label">마감</span>
+                </a>
             <?php endif; ?>
-            <button id="btnEdit" type="button" class="btn btn-tertiary">수정</button>
+            <!-- 등록하기 (임시저장 상태일 때만) -->
             <?php if ($info["rc_show_yn"] == "N") : ?>
-                <button id="btnPublish" type="button" class="btn btn-primary">등록하기</button>
+                <a href="#" class="floating-action-item" id="btnPublish" data-action="publish" title="등록하기">
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="등록하기">
+                    <span class="action-label">등록하기</span>
+                </a>
             <?php endif; ?>
-        </div>
+        </div><!-- //#floating-actions -->
 
     </div><!-- //page-content -->
 </div>
@@ -524,7 +541,8 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
 
     window.addEventListener('DOMContentLoaded', function() {
         // 마감 버튼 클릭 이벤트
-        $("#btnDelete").click(function() {
+        $(document).on('click', '#btnDelete', function(e) {
+            e.preventDefault();
             var rc_name = $("[name=rc_name]").val();
             var rc_idx = $("[name=rc_idx]").val();
             openPopup('confirm', {
@@ -548,19 +566,9 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
             });
         });
 
-        $("#btnEdit").click(function() {
-            comAjax("/compage_proc/recruit_start", {}, function(ret) {
-                if (ret.code == "00" || ret.code == "01") {
-                    location.href = "/compage/recruit_write1_1/" + $("[name=rc_idx]").val();
-                } else {
-                    commonAlert(ret.msg, function() {});
-                    return;
-                }
-            });
-        });
-
         // 등록하기 버튼 (임시저장된 공고를 공개하고 목록에 표시)
-        $("#btnPublish").click(function() {
+        $(document).on('click', '#btnPublish', function(e) {
+            e.preventDefault();
             var rc_idx = $("[name=rc_idx]").val();
             var params = {
                 "rc_idx": rc_idx
@@ -577,7 +585,7 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
                     localStorage.removeItem("recruit_draft_0_page1");
                     localStorage.removeItem("recruit_draft_0_page2");
                     localStorage.removeItem("recruit_draft_0_page3");
-                    
+
                     commonAlert("채용공고가 등록되었습니다.", function() {
                         // 등록 후 목록 페이지로 이동
                         location.href = "/compage/recruit_list";
@@ -588,5 +596,20 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
                 }
             });
         });
+
+        // 플로팅 액션 버튼 토글 기능
+        (function() {
+            const floatingActions = document.getElementById('floating-actions');
+            const floatingToggle = document.getElementById('floating-toggle');
+
+            if (!floatingToggle || !floatingActions) return;
+
+            floatingToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const currentState = floatingActions.getAttribute('data-state');
+                const newState = currentState === 'closed' ? 'open' : 'closed';
+                floatingActions.setAttribute('data-state', newState);
+            });
+        })();
     });
 </script>

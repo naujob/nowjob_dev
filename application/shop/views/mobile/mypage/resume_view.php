@@ -207,10 +207,26 @@
                 </div>
             </div>
         </div> -->
-        <div class="view-footer">
-            <button type="button" id="btnDelete" aria-haspopup="dialog" class="btn btn-secondary js-remove">삭제</button>
-            <button type="button" id="btnEdit" class="btn btn-primary">수정</button>
-        </div>
+        <!-- 플로팅 액션 버튼 그룹 -->
+        <div id="floating-actions" data-state="open">
+            <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
+                <img src="/resource/shop/mobile/img/angle-up1.png" alt="메뉴 열기" class="toggle-icon-down">
+                <img src="/resource/shop/mobile/img/angle-down1.png" alt="메뉴 닫기" class="toggle-icon-up">
+            </button>
+            <!-- 개인회원이 자신의 이력서를 볼 때: 수정/삭제/광고 -->
+            <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
+                <img src="/resource/shop/mobile/img/modify.png" alt="수정">
+                <span class="action-label">수정</span>
+            </a>
+            <a href="#" class="floating-action-item" id="btnDeleteResume" data-action="delete" title="삭제">
+                <img src="/resource/shop/mobile/img/del.png" alt="삭제">
+                <span class="action-label">삭제</span>
+            </a>
+            <a href="/mypage/point_promotion_buy" class="floating-action-item" data-action="promote" title="광고신청">
+                <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
+                <span class="action-label">광고</span>
+            </a>
+        </div><!-- //#floating-actions -->
     </div><!-- //page-content -->
 </div>
 
@@ -305,11 +321,13 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
             }
         }
         
-        $("#btnDelete").click(function() {
+        // 이력서 삭제 버튼 클릭 이벤트
+        $(document).on('click', '#btnDeleteResume', function(e) {
+            e.preventDefault();
             var ru_name = $("[name=ru_name]").val();
             var ru_idx = $("[name=ru_idx]").val();
             openPopup('confirm', {
-                content: '<em>“' + ru_name + '”</em><br> 이력서를 삭제하시겠습니까?<br> 등록하신 모든 데이터는<br> 삭제됩니다.',
+                content: '<em>”' + ru_name + '”</em><br> 이력서를 삭제하시겠습니까?<br> 등록하신 모든 데이터는<br> 삭제됩니다.',
                 firstButton: '취소',
                 secondButton: '삭제',
                 secondCallback: function() {
@@ -327,15 +345,28 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
             });
         });
 
-        $("#btnEdit").click(function() {
-            comAjax("/mypage_proc/resume_start", {}, function(ret) {
-                if (ret.code == "00") {
-                    location.href = "/mypage/resume_write1/" + $("[name=ru_idx]").val();
-                } else {
-                    commonAlert(ret.msg, function() {});
-                    return;
-                }
+        // 플로팅 액션 버튼 토글 기능
+        (function() {
+            const floatingActions = document.getElementById('floating-actions');
+            const floatingToggle = document.getElementById('floating-toggle');
+
+            console.log('[Toggle Init] floatingActions:', floatingActions, 'floatingToggle:', floatingToggle);
+
+            if (!floatingToggle || !floatingActions) {
+                console.warn('[Toggle Init] Elements not found!');
+                return;
+            }
+
+            console.log('[Toggle Init] Initial state:', floatingActions.getAttribute('data-state'));
+
+            floatingToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const currentState = floatingActions.getAttribute('data-state');
+                const newState = currentState === 'closed' ? 'open' : 'closed';
+                console.log('[Toggle Click]', { currentState, newState });
+                floatingActions.setAttribute('data-state', newState);
+                console.log('[Toggle Click] Updated state:', floatingActions.getAttribute('data-state'));
             });
-        });
+        })();
     });
 </script>

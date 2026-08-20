@@ -839,7 +839,7 @@ class Resume_proc extends CI_Controller
       return;
     }
 
-    require_once(APPPATH . 'common/libraries/BizCallClient.php');
+    require_once(dirname(APPPATH) . '/common/libraries/BizCallClient.php');
     $bizcall = new CI_BizCallClient();
     $res = $bizcall->setVirtualNumber($vn, $realNumber, $ru_idx);
 

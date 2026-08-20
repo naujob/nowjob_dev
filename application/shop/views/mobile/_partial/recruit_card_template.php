@@ -18,7 +18,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
     font-size: 0.8rem;
     padding: 6px 12px;
     border: 1px solid #ddd;
-  
+
     background-color: #fff;
     cursor: pointer;
     flex: 1;
@@ -32,7 +32,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
   }
   .btn-wrap {
     display: flex;
-    
+
     margin-top: 8px;
     justify-content: flex-end;
   }
@@ -54,6 +54,32 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
     font-size: 0.875rem;
     color: #999;
     margin: 0;
+  }
+
+  .toggle-expand i {
+    color: #999;
+    font-size: 1.2rem;
+  }
+
+  .chat-view-header .result-list-card .content-info .desc {
+    transition: height 0.3s ease;
+  }
+
+  .simple-content {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+  }
+
+  .simple-content[data-collapsed="true"] {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .simple-content[data-collapsed="false"] {
+    max-height: 500px;
+    opacity: 1;
   }
 </style>
 <template id="<?= $tpl_id ?>">
@@ -79,17 +105,24 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
               {{rt_recom_badge}}{{rt_work_img}}
             </div>
             <?php endif; ?>
-            <div class="title ellipsis">{{rc_name}}</div>
-            <?php if (isset($tpl_simple_mode) && $tpl_simple_mode && isset($tpl_data_label)): ?>
-            <div class style="display: flex; gap: 314px; align-items: center; margin-top: 4px;">
-              <p class="data-label"><?= $tpl_data_label ?></p>
-              <p class="status-label">{{status_label}}</p>
+            <div class="title-wrap" style="display: flex; align-items: center; justify-content: space-between;">
+              <div class="title ellipsis">{{rc_name}}</div>
+              <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
+              <button class="toggle-expand" type="button" style="background: none; border: none; padding: 0; cursor: pointer; flex-shrink: 0;">
+                <i class="fa-solid fa-angle-down"></i>
+              </button>
+              <?php endif; ?>
             </div>
-            <div class="btn-wrap">
-              <button class="btn-detail">상세보기</button>
-              <button class="btn-close">닫기</button>
+            <div class="simple-content" data-collapsed="true">
+              <div class style="display: flex; gap: 314px; align-items: center; margin-top: 4px;">
+                <p class="data-label"><?= $tpl_data_label ?></p>
+                <p class="status-label">{{status_label}}</p>
+              </div>
+              <div class="btn-wrap">
+                <button class="btn-detail">상세보기</button>
+                <button class="btn-close">닫기</button>
+              </div>
             </div>
-            <?php endif; ?>
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="summary">
               <p>{{rc_nation_nm}}</p>
