@@ -18,20 +18,14 @@ class Bizcall_webhook extends CI_Controller
 			exit;
 		}
 
-		$callStartAt = null;
-		if (preg_match('/^\d{14}$/', $sdt)) {
-			$callStartAt = substr($sdt, 0, 4) . '-' . substr($sdt, 4, 2) . '-' . substr($sdt, 6, 2)
-				. ' ' . substr($sdt, 8, 2) . ':' . substr($sdt, 10, 2) . ':' . substr($sdt, 12, 2);
-		}
-
-		$this->load->model('recruitmodel', 'recruit_model');
-		$this->recruit_model->insertBizcallLog(array(
+		$this->load->model('membermodel', 'member_model');
+		$this->member_model->insertBizcallLog(array(
 			"v_number"      => $vn,
 			"caller_number" => $fromn,
 			"callee_number" => $ton,
 			"duration"      => $outdur,
 			"job_post_id"   => $memo,
-			"call_start_at" => $callStartAt,
+			"call_start_at" => $sdt,
 		));
 
 		echo json_encode(array("rt" => 0, "rs" => "SUCCESS"));

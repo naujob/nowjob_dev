@@ -723,7 +723,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     <img src="/resource/shop/mobile/img/propose.png" alt="지원">
                     <span class="action-label">지원하기</span>
                 </a>
-                <a href="javascript:void(0);" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
+                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
                     <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
                     <span class="action-label">전화하기</span>
                 </a>
@@ -744,7 +744,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
-                <a href="javascript:void(0);" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
+                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
                     <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
                     <span class="action-label">전화하기</span>
                 </a>
@@ -1456,24 +1456,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             location.href = "/compage/point_promotion_buy";
         });
 
-        // 050 가상번호 발급 후 전화 연결
-        $(document).on('click', '.js-call-log', function(e) {
-            e.preventDefault();
-            var $btn = $(this);
-            // 가상번호 발급 API 응답(1~2초) 대기 중 중복 클릭 방지
-            if ($btn.attr('data-loading') === 'true') return;
-            $btn.attr('data-loading', 'true');
-
-            var rc_idx = $btn.data('rc_idx');
-            comAjax("/recruit_proc/get_call_number", { rc_idx: rc_idx }, function(ret) {
-                $btn.attr('data-loading', 'false');
-                if (ret.code == "00" && ret.data && ret.data.vn) {
-                    comAjax("/recruit_proc/call_log", { rc_idx: rc_idx }, function() {});
-                    location.href = "tel:" + ret.data.vn;
-                } else {
-                    commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
-                }
-            });
+        // 통화 로그 기록
+        $(document).on('click', '.js-call-log', function() {
+            var rc_idx = $(this).data('rc_idx');
+            comAjax("/recruit_proc/call_log", { rc_idx: rc_idx }, function(ret) {});
         });
 
         // 플로팅 액션 버튼 토글 기능

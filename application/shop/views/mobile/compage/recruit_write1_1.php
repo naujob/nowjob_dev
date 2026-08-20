@@ -154,7 +154,7 @@
                                     <span class="work-time-label">출근</span>
                                     <div class="work-time-input-wrap">
                                         <?php
-                                        $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09";
+                                        $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09"; //substr 시간 문자열에서 '시(Hour)'에 해당하는 앞 2글자만 싹둑 잘라
                                         $amStartM = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 3, 2) : "00";
                                         ?>
                                         <button type="button" class="js-time-picker-trigger js-toggle-panel" aria-controls="workTimePickerSheet" data-time-prefix="rc_am_stime">
@@ -1559,59 +1559,35 @@
             }
 
             setTimeout(function() {
-                var rcIdx = $("[name='rc_idx']").val() || "0";
-                var isEditMode = rcIdx !== "0";
+                // 사용자가 선택한 기존 데이터가 있으면 복원
+                if (formData.rc_sdate && window.pickerInstances && window.pickerInstances.startPicker) {
+                    window.pickerInstances.startPicker.setDate(formData.rc_sdate, false);
 
-                if (isEditMode) {
-                    // 수정 모드: 오늘과 오늘+2개월로 초기화
-                    if (window.pickerInstances && window.pickerInstances.startPicker && window.pickerInstances.endPicker) {
-                        var today = new Date();
-                        var todayStr = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
-
-                        var endDate = new Date(today);
-                        endDate.setMonth(endDate.getMonth() + 2);
-                        var endDateStr = endDate.getFullYear() + '-' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '-' + endDate.getDate().toString().padStart(2, '0');
-
-                        window.pickerInstances.startPicker.setDate(todayStr, true);
-                        window.pickerInstances.endPicker.setDate(endDateStr, true);
-
-                        var startFormatted = today.getFullYear() + '.' + (today.getMonth() + 1).toString().padStart(2, '0') + '.' + today.getDate().toString().padStart(2, '0');
-                        var endFormatted = endDate.getFullYear() + '.' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '.' + endDate.getDate().toString().padStart(2, '0');
-
-                        document.querySelector('#rc_sdate').value = startFormatted;
-                        document.querySelector('#rc_edate').value = endFormatted;
-                    }
-                } else {
-                    // 신규 공고: 기존 데이터 복원
-                    if (formData.rc_sdate && window.pickerInstances && window.pickerInstances.startPicker) {
-                        window.pickerInstances.startPicker.setDate(formData.rc_sdate, false);
-
-                        var sParts = formData.rc_sdate.split('-');
-                        if (sParts.length === 3) {
-                            var sFormatted = sParts[0] + '.' + sParts[1] + '.' + sParts[2];
-                            var sInput = document.querySelector('#rc_sdate');
-                            if (sInput) {
-                                sInput.value = sFormatted;
-                                var sAltInput = sInput.nextElementSibling;
-                                if (sAltInput && sAltInput.tagName === 'INPUT') {
-                                    sAltInput.value = sFormatted;
-                                }
+                    var sParts = formData.rc_sdate.split('-');
+                    if (sParts.length === 3) {
+                        var sFormatted = sParts[0] + '.' + sParts[1] + '.' + sParts[2];
+                        var sInput = document.querySelector('#rc_sdate');
+                        if (sInput) {
+                            sInput.value = sFormatted;
+                            var sAltInput = sInput.nextElementSibling;
+                            if (sAltInput && sAltInput.tagName === 'INPUT') {
+                                sAltInput.value = sFormatted;
                             }
                         }
                     }
-                    if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) {
-                        window.pickerInstances.endPicker.setDate(formData.rc_edate, false);
+                }
+                if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) { 
+                    window.pickerInstances.endPicker.setDate(formData.rc_edate, false);
 
-                        var eParts = formData.rc_edate.split('-');
-                        if (eParts.length === 3) {
-                            var eFormatted = eParts[0] + '.' + eParts[1] + '.' + eParts[2];
-                            var eInput = document.querySelector('#rc_edate');
-                            if (eInput) {
-                                eInput.value = eFormatted;
-                                var eAltInput = eInput.nextElementSibling;
-                                if (eAltInput && eAltInput.tagName === 'INPUT') {
-                                    eAltInput.value = eFormatted;
-                                }
+                    var eParts = formData.rc_edate.split('-'); //"2026-08-20"->  eParts = ["2026", "08", "20"]
+                    if (eParts.length === 3) {
+                        var eFormatted = eParts[0] + '.' + eParts[1] + '.' + eParts[2];
+                        var eInput = document.querySelector('#rc_edate');
+                        if (eInput) {
+                            eInput.value = eFormatted;
+                            var eAltInput = eInput.nextElementSibling;
+                            if (eAltInput && eAltInput.tagName === 'INPUT') {
+                                eAltInput.value = eFormatted;
                             }
                         }
                     }

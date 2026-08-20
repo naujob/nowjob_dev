@@ -809,4 +809,47 @@ class Resume_proc extends CI_Controller
       ]);
     }
   }
+
+  # 050 가상번호 발급/재사용 (기업이 구직자에게 전화 클릭 시)
+  function get_call_number()
+  {
+    $ru_idx = input_post("ru_idx", "");
+    if ($ru_idx == "") {
+      json_return("99", "잘못된 요청입니다.");
+      return;
+    }
+
+    $phone = $this->member_model->getPhoneByRuIdx($ru_idx);
+    if (!$phone) {
+      json_return("98", "연락처 정보가 없습니다.");
+      return;
+    }
+
+    $realNumber = preg_replace('/[^0-9]/', '', $phone);
+
+    $vn = $this->member_model->getActiveVirtualNumber($ru_idx);
+    if ($vn) {
+      json_return("00", "success", array("vn" => $vn));
+      return;
+    }
+
+    $vn = $this->member_model->assignIdleVirtualNumber($ru_idx, $realNumber, 0);
+    if (!$vn) {
+      json_return("97", "사용 가능한 050 번호가 부족합니다.");
+      return;
+    }
+
+    require_once(APPPATH . 'common/libraries/BizCallClient.php');
+    $bizcall = new CI_BizCallClient();
+    $res = $bizcall->setVirtualNumber($vn, $realNumber, $ru_idx);
+
+    if (!$res['ok']) {
+      $this->member_model->releaseVirtualNumber($vn);
+      json_return("96", "전화 연결 설정에 실패했습니다.");
+      return;
+    }
+
+    $this->member_model->confirmVirtualNumberAssigned($vn);
+    json_return("00", "success", array("vn" => $vn));
+  }
 } //class

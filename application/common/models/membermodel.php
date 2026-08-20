@@ -5866,4 +5866,102 @@ LIMIT 0 , 200
 			[$mm_idx]
 		);
 	}
+
+	# 050 비즈콜 — 이력서(ru_idx)로 구직자 실제 전화번호 조회
+	function getPhoneByRuIdx($ru_idx)
+	{
+		$sql = "
+			SELECT aa.mm_phone
+			FROM st_member aa
+			INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx
+			WHERE bb.ru_idx = '" . $this->db->escape_str($ru_idx) . "'
+		";
+		$result = $this->db->query($sql)->row_array();
+		return isset($result['mm_phone']) ? $result['mm_phone'] : null;
+	}
+
+	# 이 이력서에 할당된 가상번호가 있으면 그대로 반환, 없으면 null 반환
+	function getActiveVirtualNumber($ru_idx)
+	{
+		$sql = "
+			SELECT v_number
+			FROM virtual_numbers
+			WHERE target_id = " . (int)$ru_idx . "
+			AND status = 'ASSIGNED'
+			LIMIT 1
+		";
+		$result = $this->db->query($sql)->row_array();
+		return isset($result['v_number']) ? $result['v_number'] : null;
+	}
+
+	# 사용 가능한 가상번호를 할당 (동시 접근 안전)
+	function assignIdleVirtualNumber($ru_idx, $realNumber, $expireHours)
+	{
+		$this->db->trans_start();
+
+		$sql = "
+			SELECT v_number
+			FROM virtual_numbers
+			WHERE status = 'IDLE'
+			ORDER BY updated_at ASC
+			LIMIT 1
+			FOR UPDATE
+		";
+		$result = $this->db->query($sql)->row_array();
+
+		if (!$result || !isset($result['v_number'])) {
+			$this->db->trans_complete();
+			return null;
+		}
+
+		$vNumber = $result['v_number'];
+
+		$updateSql = "
+			UPDATE virtual_numbers SET
+				status = 'PENDING',
+				target_id = " . (int)$ru_idx . ",
+				real_number = '" . $this->db->escape_str($realNumber) . "',
+				updated_at = NOW()
+			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+		";
+		$this->db->query($updateSql);
+
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === false) {
+			return null;
+		}
+
+		return $vNumber;
+	}
+
+	# 통신사 연결 성공 후 상태를 ASSIGNED로 확정
+	function confirmVirtualNumberAssigned($vNumber)
+	{
+		$sql = "
+			UPDATE virtual_numbers SET
+				status = 'ASSIGNED'
+			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+		";
+		$this->db->query($sql);
+	}
+
+	# 실패 시 번호 반납 (PENDING -> IDLE)
+	function releaseVirtualNumber($vNumber)
+	{
+		$sql = "
+			UPDATE virtual_numbers SET
+				status = 'IDLE',
+				target_id = NULL,
+				real_number = NULL
+			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+		";
+		$this->db->query($sql);
+	}
+
+	# 통화 로그를 bizcall_logs에 기록
+	function insertBizcallLog($data)
+	{
+		return $this->db_insert("bizcall_logs", $data);
+	}
 }

@@ -512,14 +512,14 @@ function fRemoveBigAdr($arg)
                     <span class="action-label">광고신청</span>
                 </a>
             <?php else : ?>
-                <!-- 기업회원이 볼 때: 제안보내기 + 채팅하기 -->
+                <!-- 기업회원이 볼 때: 제안보내기 + 전화하기 -->
                 <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
                     <img src="/resource/shop/mobile/img/propose.png" alt="제안">
                     <span class="action-label">제안하기</span>
                 </a>
-                <a href="#" class="floating-action-item btnGoChat" data-action="call" title="채팅" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
+                <a href="#" class="floating-action-item btnGoChat" data-action="call" title="전화" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
+                    <span class="action-label">전화하기</span>
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
@@ -940,15 +940,22 @@ function fRemoveBigAdr($arg)
         location.href = "/mypage/point_promotion_buy";
     });
 
-    // 기업회원이 이미 제안/지원 이력이 있을 때: 채팅하기 버튼 클릭 이벤트
+    // 기업이 구직자에게 050 가상번호로 전화 연결
     $(document).on('click', '.btnGoChat', function(e) {
-        if ($(this).attr('href') === '#') {
-            e.preventDefault();
-        }
-        var rmIdx = $(this).attr('data-rm_idx');
-        if (rmIdx) {
-            location.href = "/chat/chat_view?rm_idx=" + rmIdx;
-        }
+        e.preventDefault();
+        var $btn = $(this);
+        if ($btn.attr('data-loading') === 'true') return;
+        $btn.attr('data-loading', 'true');
+
+        var ru_idx = $("[name=ru_idx]").val();
+        comAjax("/resume_proc/get_call_number", { ru_idx: ru_idx }, function(ret) {
+            $btn.attr('data-loading', 'false');
+            if (ret.code == "00" && ret.data && ret.data.vn) {
+                location.href = "tel:" + ret.data.vn;
+            } else {
+                commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
+            }
+        });
     });
 
     // 사업자 인증 버튼 클릭 이벤트 - 기업정보입력 팝업 기능 (사용 안 함 - 주석처리)
