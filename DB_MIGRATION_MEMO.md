@@ -1,5 +1,133 @@
 # DB 마이그레이션
 
+## 5. 050 비즈콜(가상번호 전화연결) 세팅
+
+### 개요
+
+모바일 채용공고 상세 페이지의 "전화하기" 버튼이 실제 휴대폰번호를 그대로 노출하던 것을 개선, 델피콤 050비즈콜 API로 가상번호를 발급받아 매핑하는 기능을 추가합니다. 개인정보 보호 및 통화 이력 추적이 가능합니다.
+
+### 실행할 SQL
+
+운영 DB에서 다음 SQL을 직접 실행해주세요 (이미 생성된 경우 스킵):
+
+```sql
+CREATE TABLE IF NOT EXISTS virtual_numbers (
+  v_number     VARCHAR(20) NOT NULL,
+  status       VARCHAR(20) NOT NULL DEFAULT 'IDLE',
+  target_id    INT NULL,
+  real_number  VARCHAR(20) NULL,
+  expire_at    DATETIME NULL,
+  updated_at   DATETIME NULL,
+  PRIMARY KEY (v_number),
+  KEY idx_status_expire (status, expire_at),
+  KEY idx_target_id (target_id)
+);
+
+CREATE TABLE IF NOT EXISTS bizcall_logs (
+  bl_idx         INT NOT NULL AUTO_INCREMENT,
+  v_number       VARCHAR(20) NOT NULL,
+  caller_number  VARCHAR(20) NULL,
+  callee_number  VARCHAR(20) NULL,
+  duration       INT NOT NULL DEFAULT 0,
+  job_post_id    INT NULL,
+  call_start_at  DATETIME NULL,
+  reg_dt         DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (bl_idx),
+  KEY idx_v_number (v_number),
+  KEY idx_job_post_id (job_post_id),
+  KEY idx_call_start_at (call_start_at)
+);
+```
+
+### 컬럼 설명
+
+**virtual_numbers**
+| 컬럼 | 설명 |
+|------|------|
+| `v_number` | 050 가상번호 (PK) |
+| `status` | 상태 (IDLE: 미배정, PENDING: 배정 중, ASSIGNED: 배정 완료) |
+| `target_id` | 공고 ID (st_recruit.rc_idx) |
+| `real_number` | 실제 연락처 |
+| `expire_at` | 매핑 만료 시간 (기본 3시간) |
+| `updated_at` | 마지막 갱신 시간 |
+
+**bizcall_logs**
+| 컬럼 | 설명 |
+|------|------|
+| `bl_idx` | PK |
+| `v_number` | 050 가상번호 |
+| `caller_number` | 발신자 번호 |
+| `callee_number` | 착신자 번호 |
+| `duration` | 통화시간(초) |
+| `job_post_id` | 공고 ID |
+| `call_start_at` | 통화 시작 시간 |
+| `reg_dt` | 기록 저장 시간 |
+
+### 변경 사항
+
+#### 1. `application/common/config/bizcall.php` (신규)
+- IID, 컬러링ID, 알림멘트ID, API URL 등 델피콤 인증정보 저장
+- `enabled` 플래그로 기능 활성화/비활성화 제어
+
+#### 2. `application/common/libraries/BizCallClient.php` (신규)
+- 델피콤 API 호출 담당 라이브러리 (`PpurioClient.php` 패턴)
+- `setVirtualNumber($vNumber, $realNumber, $memo)` 메소드로 가상번호 매핑
+- curl + 타임아웃 + 로깅 적용
+
+#### 3. `application/common/models/recruitmodel.php` (수정)
+- `getPhoneByRcIdx($rc_idx)` — 공고별 연락처 조회
+- `getActiveVirtualNumber($rc_idx)` — 유효한 매핑 가상번호 조회
+- `assignIdleVirtualNumber($rc_idx, $realNumber, $expireHours)` — 미사용 번호 배정
+- `confirmVirtualNumberAssigned($vNumber)` — API 성공 후 상태 확정
+- `releaseVirtualNumber($vNumber)` — API 실패 시 롤백
+- `insertBizcallLog($data)` — 통화 기록 저장
+
+#### 4. `application/shop/controllers/recruit_proc.php` (수정)
+- `get_call_number()` 액션 추가: 가상번호 발급/재사용 로직
+
+#### 5. `application/shop/controllers/Bizcall_webhook.php` (신규)
+- 델피콤 웹훅 수신 엔드포인트 (`/bizcall_webhook/cdr`)
+- 통화 완료 후 통화 기록 저장
+
+#### 6. `application/shop/views/mobile/recruit/job_post.php` (수정)
+- 전화하기 버튼 href를 `javascript:void(0)`로 변경
+- 클릭 핸들러 개선: 가상번호 API 호출 → `tel:` 이동
+- 중복 클릭 방지 (`data-loading` 플래그)
+
+### 웹훅 URL 등록
+
+델피콤 관리콘솔에서 CDR(통화 기록) 콜백 URL로 아래를 등록해주세요:
+```
+https://<도메인>/bizcall_webhook/cdr
+```
+
+### 동작 흐름
+
+1. 사용자가 모바일 채용공고 상세페이지의 "전화하기" 클릭
+2. JS에서 `/recruit_proc/get_call_number` API 호출
+3. 서버:
+   - 유효한 매핑 가상번호가 있으면 재사용
+   - 없으면 미사용 번호(IDLE) 조회 후 델피콤 API로 매핑
+   - 성공 시 가상번호 반환 (`{"code":"00", "data":{"vn":"050XXXXXXXX"}}`)
+4. JS에서 `tel:050XXXXXXXX` 호출
+5. 통화 종료 후 델피콤이 `/bizcall_webhook/cdr`로 통화 기록 전송
+6. 서버가 `bizcall_logs` 테이블에 기록 저장
+
+### 테스트 방법
+
+```bash
+# 테이블 구조 확인
+mysql -u [user] -p[pass] nowapk -e "DESCRIBE virtual_numbers; DESCRIBE bizcall_logs;"
+
+# 가상번호 발급 API 테스트
+curl -X POST http://localhost:8080/recruit_proc/get_call_number -d "rc_idx=1"
+
+# 응답 예시
+# {"code":"00","msg":"success","data":{"vn":"050XXXXXXXX"}}
+```
+
+---
+
 ## 1. 개인회원 미확인 알림톡 기능
 
 ## 개요

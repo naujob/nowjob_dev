@@ -13926,7 +13926,7 @@ form#frm {
 #floating-actions {
     position: fixed;
     right: 16px;
-    bottom: 20px;
+    bottom: 30px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -13937,8 +13937,8 @@ form#frm {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 30px;
+    height: 30px;
     background: transparent;
     border: none;
     padding: 0;
@@ -13959,15 +13959,15 @@ form#frm {
 
 .toggle-icon-down {
     display: block;
-    width:38px;
-    height: 38px;
+    width:30px;
+    height: 30px;
     object-fit: contain;
 }
 
 .toggle-icon-up {
     display: none;
-    width: 38px;
-    height: 38px;
+    width: 30px;
+    height: 30px;
     object-fit: contain;
 }
 

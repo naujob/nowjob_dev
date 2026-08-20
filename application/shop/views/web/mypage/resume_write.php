@@ -366,6 +366,41 @@
                     border-color: #1abc9c;
                 }
 
+                /* 희망급여 협의 체크박스 */
+                .rw-work-condition .rw-form-row:has(.rw-price-agree) {
+                    justify-content: space-between;
+                }
+
+                .rw-price-agree {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-left: auto;
+                    cursor: pointer;
+                    margin-right: 335px;
+                }
+
+                .rw-price-agree input {
+                    display: none;
+                }
+
+                .rw-price-agree-icon {
+                    width: 22px;
+                    height: 22px;
+                    background-image: url("/resource/shop/web/img/ic_chkbox_off.svg");
+                    background-repeat: no-repeat;
+                    background-size: contain;
+                }
+
+                .rw-price-agree input:checked + .rw-price-agree-icon {
+                    background-image: url("/resource/shop/web/img/ic_chkbox_on.svg");
+                }
+
+                .rw-price-agree-text {
+                    font-size: var(--rw-input-font-size);
+                    color: var(--rw-input-font-color);
+                }
+
                 /* 희망지역 필드 그룹 */
                 .rw-location-field-group {
                     margin-top: 0;
@@ -1226,6 +1261,8 @@
                                         <div class="rw-value">
                                             <div class="form-group">
                                                 <?php foreach ($ru_price_type_list as $row) : ?>
+                                                      
+
                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="ru_price_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], explode(",", $info["ru_price_type"]), "check") ?>>
                                                         <span class="btn"><?= $row["cd_val"] ?></span>
@@ -1248,6 +1285,15 @@
                                             </div>
                                             <p class="help-msg  <?= count(explode(",", $info["ru_price_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
                                         </div>
+                                        <?php
+                                            $ru_price_type_arr = !empty($info["ru_price_type"]) ? explode(",", $info["ru_price_type"]) : [];
+                                            $is_price_agree = (count($ru_price_type_list) > 0 && count($ru_price_type_arr) == count($ru_price_type_list));
+                                        ?>
+                                        <label class="rw-price-agree">
+                                            <input type="checkbox" id="ru_price_agree" <?= $is_price_agree ? "checked" : "" ?>>
+                                            <span class="rw-price-agree-icon"></span>
+                                            <span class="rw-price-agree-text">협의</span>
+                                        </label>
                                     </div>
 
                                     <div class="rw-form-row">
@@ -1263,34 +1309,57 @@
                                             </div>
                                             <p class="help-msg <?= count(explode(",", $info["ru_work_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
                                         </div>
+                                        <?php
+                                            $ru_work_type_arr = !empty($info["ru_work_type"]) ? explode(",", $info["ru_work_type"]) : [];
+                                            $is_work_agree = (count($ru_work_type_list) > 0 && count($ru_work_type_arr) == count($ru_work_type_list));
+                                        ?>
+                                        <label class="rw-price-agree">
+                                            <input type="checkbox" id="ru_work_agree" <?= $is_work_agree ? "checked" : "" ?>>
+                                            <span class="rw-price-agree-icon"></span>
+                                            <span class="rw-price-agree-text">협의</span>
+                                        </label>
                                         <script>
                                             (function() {
-                                                $("[name='ru_work_type[]']").click(function() {
-                                                    if ($("[name='ru_work_type[]']:checked").length == 3) {
-                                                        $(this).closest(".value").find(".help-msg").removeClass("hidden");
-                                                    } else {
-                                                        $(this).closest(".value").find(".help-msg").addClass("hidden");
-                                                    }
+                                                var $workTypes = $("[name='ru_work_type[]']");
+                                                var $workAgree = $("#ru_work_agree");
+
+                                                function syncWorkAgree() { // '전체 선택' 체크박스에 불을 켤지 끌지 결정
+                                                //$workTypes.filter(":checked"):전체 체크박스 중에서 체크 표시가 된 것만 쏙 골라내기
+                                                    var allChecked = $workTypes.length > 0 && $workTypes.filter(":checked").length === $workTypes.length;
+                                                    $workAgree.prop("checked", allChecked);
+                                                   
+                                                }
+
+                                                $workTypes.click(function() {
+                                                    syncWorkAgree();
+                                                });
+                                                    
+                                                $workAgree.on("change", function() {
+                                                    $workTypes.prop("checked", this.checked);
+                                                    syncWorkAgree();
                                                 });
 
-                                                $("[name='ru_price_type[]']").click(function() {
-                                                    //console.log($("[name='ru_price_type[]']:checked").length);
-                                                    if ($("[name='ru_price_type[]']:checked").length == 3) {
-                                                        commonAlert("급여는 2개까지 선택 가능합니다.", function() {});
-                                                        return false;
-                                                    }
-                                                    if ($("[name='ru_price_type[]']:checked").length == 3) {
-                                                        $(this).closest(".value").find(".help-msg").removeClass("hidden");
-                                                    } else {
-                                                        $(this).closest(".value").find(".help-msg").addClass("hidden");
-                                                    }
+                                                var $priceTypes = $("[name='ru_price_type[]']");
+                                                var $priceAgree = $("#ru_price_agree");
 
+                                                function syncPriceAgree() {
+                                                    var allChecked = $priceTypes.length > 0 && $priceTypes.filter(":checked").length === $priceTypes.length;
+                                                    $priceAgree.prop("checked", allChecked);
+                                                }
+
+                                                $priceTypes.click(function() {
+                                                    syncPriceAgree();
                                                     //월급 선택시 희망연봉 표시 on/off
                                                     //if($("[name='ru_price_type[]']").eq(2).is(":checked")){
                                                     //	$(".cont-price").removeClass("hidden");
                                                     //}else{
                                                     //	$(".cont-price").addClass("hidden");
                                                     //}
+                                                });
+
+                                                $priceAgree.on("change", function() {
+                                                    $priceTypes.prop("checked", this.checked);
+                                                    syncPriceAgree();
                                                 });
 
                                                 /* 근무시간 문구 표시 */

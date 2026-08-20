@@ -1174,4 +1174,103 @@ class recruitModel extends MY_Model
 			"pagenation" => $pagenation,
 		);
 	}
+
+	// 050 비즈콜 가상번호 관리
+    // 공고 번호($rc_idx)를 보고, 이 공고를 올린 사장님의 진짜 휴대폰 번호를 찾아 반환하는 함수
+	function getPhoneByRcIdx($rc_idx)
+	{
+		$sql = "
+			SELECT aa.mm_phone
+			FROM st_member aa
+			INNER JOIN st_recruit bb ON aa.mm_idx = bb.mm_idx
+			WHERE bb.rc_idx = '" . $this->db->escape_str($rc_idx) . "'
+		";
+		$result = $this->db->query($sql)->row_array();
+		return isset($result['mm_phone']) ? $result['mm_phone'] : null;
+	}
+    // 아직 3시간 안 지났네? 아까 쓰던 그 050 번호 그대로 쓰면 되겠네? -> 이 공고에 할당된 가상번호가 있으면 그대로 반환, 없으면 null 반환
+	function getActiveVirtualNumber($rc_idx)
+	{
+		$sql = "
+			SELECT v_number
+			FROM virtual_numbers
+			WHERE target_id = " . (int)$rc_idx . "
+			AND status = 'ASSIGNED'
+			AND expire_at > NOW()
+			LIMIT 1
+		";
+		$result = $this->db->query($sql)->row_array();
+		return isset($result['v_number']) ? $result['v_number'] : null;
+	}
+
+    // 사용 가능한 가상번호를 할당하는 함수
+	// 여러 사람이 동시에 전화 버튼을 눌러도 번호가 겹치지 않도록 자물쇠(FOR UPDATE)를 걸고 비어있는 050 번호 1개를 안전하게 임시 확보(PENDING)하는 코드
+	function assignIdleVirtualNumber($rc_idx, $realNumber, $expireHours)
+	{
+		$this->db->trans_start();
+
+		$sql = "
+			SELECT v_number
+			FROM virtual_numbers
+			WHERE status = 'IDLE' OR expire_at <= NOW()
+			ORDER BY updated_at ASC
+			LIMIT 1
+			FOR UPDATE
+		";
+		$result = $this->db->query($sql)->row_array();
+
+		if (!$result || !isset($result['v_number'])) {
+			$this->db->trans_complete();
+			return null;
+		}
+
+		$vNumber = $result['v_number'];
+		$expireAt = date('Y-m-d H:i:s', strtotime('+' . (int)$expireHours . ' hours'));
+
+		$updateSql = "
+			UPDATE virtual_numbers SET
+				status = 'PENDING',
+				target_id = " . (int)$rc_idx . ",
+				real_number = '" . $this->db->escape_str($realNumber) . "',
+				expire_at = '" . $this->db->escape_str($expireAt) . "',
+				updated_at = NOW()
+			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+		";
+		$this->db->query($updateSql);
+
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === false) {
+			return null;
+		}
+
+		return $vNumber;
+	}
+    // 통신사와의 연결이 완전히 성공했음을 확인한 뒤, DB 장부의 번호 상태를 공식적으로 '사용 중(ASSIGNED)'으로 확정하는 코드
+	function confirmVirtualNumberAssigned($vNumber)
+	{
+		$sql = "
+			UPDATE virtual_numbers SET
+				status = 'ASSIGNED'
+			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+		";
+		$this->db->query($sql);
+	}
+    // 실패했을 때 번호를 다시 제자리로 돌려놓는 코드 (PENDING -> IDLE)
+	function releaseVirtualNumber($vNumber)
+	{
+		$sql = "
+			UPDATE virtual_numbers SET
+				status = 'IDLE',
+				target_id = NULL,
+				real_number = NULL
+			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+		";
+		$this->db->query($sql);
+	}
+    // 전화걸기 로그를 bizcall_logs 테이블에 기록하는 함수
+	function insertBizcallLog($data)
+	{
+		return $this->db_insert("bizcall_logs", $data);
+	}
 }

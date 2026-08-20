@@ -1031,6 +1031,52 @@ class Recruit_proc extends CI_Controller
 		json_return("00", "success");
 	}
 
+	# 050 가상번호 발급/재사용 (전화하기 클릭 시 실제번호 대신 가상번호 반환)
+	function get_call_number()
+	{
+		$rc_idx = input_post("rc_idx", "");
+		if ($rc_idx == "") {
+			json_return("99", "잘못된 요청입니다.");
+			return;
+		}
+
+		$phone = $this->recruit_model->getPhoneByRcIdx($rc_idx);
+		if (!$phone) {
+			json_return("98", "연락처 정보가 없습니다.");
+			return;
+		}
+
+		$realNumber = preg_replace('/[^0-9]/', '', $phone);
+
+		$vn = $this->recruit_model->getActiveVirtualNumber($rc_idx);
+		if ($vn) {
+			json_return("00", "success", array("vn" => $vn));
+			return;
+		}
+
+		$bizcallConfig = config_item('bizcall');
+		$expireHours = isset($bizcallConfig['expire_hours']) ? (int)$bizcallConfig['expire_hours'] : 3;
+
+		$vn = $this->recruit_model->assignIdleVirtualNumber($rc_idx, $realNumber, $expireHours);
+		if (!$vn) {
+			json_return("97", "사용 가능한 050 번호가 부족합니다.");
+			return;
+		}
+
+		require_once(APPPATH . 'common/libraries/BizCallClient.php');
+		$bizcall = new CI_BizCallClient();
+		$res = $bizcall->setVirtualNumber($vn, $realNumber, $rc_idx);
+
+		if (!$res['ok']) {
+			$this->recruit_model->releaseVirtualNumber($vn);
+			json_return("96", "전화 연결 설정에 실패했습니다.");
+			return;
+		}
+
+		$this->recruit_model->confirmVirtualNumberAssigned($vn);
+		json_return("00", "success", array("vn" => $vn));
+	}
+
 	# 캐시 테이블 갱신 (Cron 용)
 	function refreshRecruitCache()
 	{
