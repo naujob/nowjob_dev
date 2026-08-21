@@ -17,7 +17,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
   .btn-wrap .btn-close {
     font-size: 0.8rem;
     padding: 6px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid #cdc8c8;
 
     background-color: #fff;
     cursor: pointer;
@@ -84,7 +84,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
 </style>
 <template id="<?= $tpl_id ?>">
   <li class="list-item">
-    <div class="content-li<?= $tpl_recomm_class ? ' recomm' : '' ?>" data-rc_idx="{{rc_idx}}">
+    <div class="content-li<?= $tpl_recomm_class ? ' recomm' : '' ?>" data-rc_idx="{{rc_idx}}" data-collapsed="true">
       <div class="content-info">
         <div class="content-body">
           <!-- <div class="img">
@@ -105,16 +105,16 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
               {{rt_recom_badge}}{{rt_work_img}}
             </div>
             <?php endif; ?>
-            <div class="title-wrap" style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="title-wrap">
               <div class="title ellipsis">{{rc_name}}</div>
               <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
-              <button class="toggle-expand" type="button" style="background: none; border: none; padding: 0; cursor: pointer; flex-shrink: 0;">
-                <i class="fa-solid fa-angle-down"></i>
+              <button class="toggle-expand" type="button">
+                <i class="fa-solid fa-angle-up"></i>
               </button>
               <?php endif; ?>
             </div>
             <div class="simple-content" data-collapsed="true">
-              <div class style="display: flex; gap: 314px; align-items: center; margin-top: 4px;">
+              <div class="data-row">
                 <p class="data-label"><?= $tpl_data_label ?></p>
                 <p class="status-label">{{status_label}}</p>
               </div>

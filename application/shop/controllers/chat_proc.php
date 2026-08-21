@@ -281,6 +281,9 @@ class Chat_proc extends CI_Controller
 				if (empty($temp_list[$key]["last_msg_time"])) {
 					$temp_list[$key]["last_msg_time"] = "";
 				}
+				if (empty($temp_list[$key]["up_dt"])) {
+					$temp_list[$key]["up_dt"] = "";
+				}
 				$temp_list[$key]["unread_count"] = $unread_count;
 
 				$rtn .= "1";
@@ -534,6 +537,9 @@ class Chat_proc extends CI_Controller
 				if (empty($temp_list[$key]["last_msg_time"])) {
 					$temp_list[$key]["last_msg_time"] = "";
 				}
+				if (empty($temp_list[$key]["up_dt"])) {
+					$temp_list[$key]["up_dt"] = "";
+				}
 				$temp_list[$key]["unread_count"] = $unread_count;
 
 				$rtn .= "1";
@@ -678,12 +684,15 @@ class Chat_proc extends CI_Controller
 								// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
 										$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+										$temp_list[$key]["up_dt"] = date("Y-m-d H:i:s", $last_msg_time->sec);
 									} else {
 										$temp_list[$key]["last_msg_time"] = $last_msg_time;
+										$temp_list[$key]["up_dt"] = $last_msg_time;
 									}
 								}
 							}
@@ -697,6 +706,9 @@ class Chat_proc extends CI_Controller
 				}
 				if (empty($temp_list[$key]["last_msg_time"])) {
 					$temp_list[$key]["last_msg_time"] = "";
+				}
+				if (empty($temp_list[$key]["up_dt"])) {
+					$temp_list[$key]["up_dt"] = "";
 				}
 
 				$rtn .= "1";
@@ -831,12 +843,15 @@ class Chat_proc extends CI_Controller
 								// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
 										$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+										$temp_list[$key]["up_dt"] = date("Y-m-d H:i:s", $last_msg_time->sec);
 									} else {
 										$temp_list[$key]["last_msg_time"] = $last_msg_time;
+										$temp_list[$key]["up_dt"] = $last_msg_time;
 									}
 								}
 							}
@@ -915,6 +930,9 @@ class Chat_proc extends CI_Controller
 				}
 				if (empty($temp_list[$key]["last_msg_time"])) {
 					$temp_list[$key]["last_msg_time"] = "";
+				}
+				if (empty($temp_list[$key]["up_dt"])) {
+					$temp_list[$key]["up_dt"] = "";
 				}
 
 				$filtered_list[] = $temp_list[$key];
@@ -1082,12 +1100,15 @@ class Chat_proc extends CI_Controller
 								// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
 										$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+										$temp_list[$key]["up_dt"] = date("Y-m-d H:i:s", $last_msg_time->sec);
 									} else {
 										$temp_list[$key]["last_msg_time"] = $last_msg_time;
+										$temp_list[$key]["up_dt"] = $last_msg_time;
 									}
 								}
 							}
@@ -1101,6 +1122,9 @@ class Chat_proc extends CI_Controller
 				}
 				if (empty($temp_list[$key]["last_msg_time"])) {
 					$temp_list[$key]["last_msg_time"] = "";
+				}
+				if (empty($temp_list[$key]["up_dt"])) {
+					$temp_list[$key]["up_dt"] = "";
 				}
 			}
 
@@ -1215,12 +1239,15 @@ class Chat_proc extends CI_Controller
 								// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
 										$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+										$temp_list[$key]["up_dt"] = date("Y-m-d H:i:s", $last_msg_time->sec);
 									} else {
 										$temp_list[$key]["last_msg_time"] = $last_msg_time;
+										$temp_list[$key]["up_dt"] = $last_msg_time;
 									}
 								}
 							}
@@ -1234,6 +1261,9 @@ class Chat_proc extends CI_Controller
 				}
 				if (empty($temp_list[$key]["last_msg_time"])) {
 					$temp_list[$key]["last_msg_time"] = "";
+				}
+				if (empty($temp_list[$key]["up_dt"])) {
+					$temp_list[$key]["up_dt"] = "";
 				}
 			}
 

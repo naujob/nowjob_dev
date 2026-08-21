@@ -16,9 +16,7 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
 ?>
 <template id="<?= $tpl_id ?>">
   <li class="list-item">
-    <div class="content-li<?= $tpl_recomm_class ? ' recomm' : '' ?>"
-      data-ru_idx="{{ru_idx}}"
-      <?= $tpl_show_mm_idx ? 'data-mm_idx="{{mm_idx}}"' : '' ?>>
+    <div class="content-li<?= $tpl_recomm_class ? ' recomm' : '' ?>" data-ru_idx="{{ru_idx}}" data-collapsed="true" <?= $tpl_show_mm_idx ? 'data-mm_idx="{{mm_idx}}"' : '' ?>>
       <div class="content-info">
         <div class="content-body">
           <!-- <div class="img">
@@ -37,16 +35,22 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
             <?php endif; ?>
-            <div class="title-wrap" style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="title-wrap">
               <div class="title ellipsis">{{mm_name}}</div>
               <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
-              <button class="toggle-expand" type="button" style="background: none; border: none; padding: 0; cursor: pointer; flex-shrink: 0;">
-                <i class="fa-solid fa-angle-down"></i>
+              <button class="toggle-expand" type="button">
+                <i class="fa-solid fa-angle-up"></i>
               </button>
               <?php endif; ?>
             </div>
             <div class="simple-content" data-collapsed="true">
-              <p style=" font-size: 0.875rem; color: #999;"><?= $tpl_data_label ?></p>
+              <div class="data-row">
+                <p class="data-label"><?= $tpl_data_label ?></p>
+              </div>
+              <div class="btn-wrap">
+                <button class="btn-detail">상세보기</button>
+                <button class="btn-close">닫기</button>
+              </div>
             </div>
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="summary">
@@ -78,6 +82,39 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
 </template>
 
 <style>
+
+  .btn-wrap .btn-detail,
+  .btn-wrap .btn-close {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border: 1px solid #cdc8c8;
+
+    background-color: #fff;
+    cursor: pointer;
+    flex: 1;
+    padding: 6px 12px;
+  }
+
+  .btn-detail:hover,
+  .btn-close:hover {
+    background-color: #f5f5f5;
+    border-color: #999;
+  }
+  .btn-wrap {
+    display: flex;
+
+    margin-top: 8px;
+    justify-content: flex-end;
+  }
+  .result-list-card{
+    padding: 10px 0;
+  }
+  .data-label {
+    font-size: 0.875rem;
+    color: #999;
+    margin: 0;
+  }
+
   .toggle-expand i {
     color: #999;
     font-size: 1.2rem;
@@ -103,4 +140,5 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
     max-height: 500px;
     opacity: 1;
   }
+
 </style>

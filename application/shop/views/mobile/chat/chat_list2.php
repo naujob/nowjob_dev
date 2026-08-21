@@ -248,7 +248,23 @@ $top_bar = array(
 
             if (ret.code == "00") {
                 var list = ret.data.list;
+
+                // 회사(mm_idx)별 중복 제거 - 같은 회사는 마지막 대화(up_dt)가 가장 최근인 행만 남김
+                var deduped = {};
                 list.forEach(function(row) {
+                    var companyIdx = row.mm_idx;
+                    var rowTime = row.up_dt || row.last_msg_time || "";
+                    var existing = deduped[companyIdx];
+                    if (!existing || rowTime > (existing.up_dt || existing.last_msg_time || "")) {
+                        deduped[companyIdx] = row;
+                    }
+                });
+
+                var dedupedList = Object.keys(deduped).map(function(key) {
+                    return deduped[key];
+                });
+
+                dedupedList.forEach(function(row) {
                     var $clone = $("#tpl_chat2").clone();
                     var $content = $clone.html();
 
@@ -263,6 +279,9 @@ $top_bar = array(
                     $content = $content.replaceAll("{{user_img}}", row.user_img || "");
                     $content = $content.replaceAll("{{target_name}}", row.target_name || "");
 
+                    // 회사명으로 표시
+                    $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
+
                     // 공고 정보 바인딩
                     var rcName = truncateRcTitle(row.rc_name || "");
                     $content = $content.replaceAll("{{rc_name}}", rcName);
@@ -274,9 +293,13 @@ $top_bar = array(
                     // 마지막 메시지 바인딩
                     $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
 
+                    // 마지막 채팅 시간
+                    $content = $content.replaceAll("{{up_dt}}", row.up_dt || "");
+
                     // 복사한 내용 다시 넣기
                     $clone.html($content);
-                    $("#chat_list").append($clone.html());
+                    var recruitboxHtml = "<div class='recruitbox_'>" + $clone.html() + "</div>";
+                    $("#chat_list").append(recruitboxHtml);
                 });
 
                 // 목록이 없을 경우 빈 화면 표시
@@ -284,6 +307,11 @@ $top_bar = array(
                     $(".chat-empty").show();
                     $("#chat_list").hide();
                 }
+
+                // PHP에서 이미 포맷팅된 시간을 표시
+                $("#chat_list .last-chat-time").each(function() {
+                    $(this).text($(this).attr('data-time'));
+                });
             } else {
                 commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
                 return;
@@ -374,37 +402,27 @@ $top_bar = array(
 
 <!-- 제안받은공고 탭 전용 템플릿 (개인회원용) -->
 <template id="tpl_chat2">
-    <li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}" data-regdt="{{reg_dt}}">
-        <a href="#" class="angle-link js-open-view angle-link-resume" style="padding:0;"
-            aria-haspopup="dialog"
-            data-ru_idx="{{ru_idx}}"
-            data-rc_idx="{{rc_idx}}"
-            data-target_id="{{target_id}}"
-            data-user_id="{{user_id}}"
-            data-target_img="{{target_img}}"
-            data-user_img="{{user_img}}"
-            data-target_name="{{target_name}}"
-            data-user_name="{{user_name}}"
-            data-subject="{{rc_name}}">
-            <div class="item-info person" style="width:100%; position: relative;">
-                <!-- <div class="thumb-wrap">
-                    <div class="thumb" style="border-radius: 50%; overflow: hidden;">
-                        <img src="{{rc_thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
-                    </div>
-                </div> -->
-                <div class="content-wrap content-info">
-                    <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div>
-                    <div class="title-wrap">
-                        <p class="title"><strong>{{rc_name}}</strong></p>
-                    </div>
-                    <!-- 추가조건 -->
-                    <div class="meta" style="font-size: 12px;">
-                        <!-- 마지막 메시지 -->
-                        <p class="latest-msg-text" style="color: #999; margin-top: 4px;">{{last_msg_preview}}</p>
-                    </div>
-                </div>
+  <li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}" data-regdt="{{reg_dt}}">
+    <a href="#" class="angle-link js-open-view" data-regdt="{{reg_dt}}">
+      <div class="content-body">
+        <div class="chat-time-row">
+          <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div>
+          <div class="last-chat-time" data-time="{{up_dt}}"></div>
+        </div>
+        <div class="img" style="border-radius: 60px;">
+          <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+        </div>
+        <div class="desc">
+          <div class="title ellipsis">{{mm_comp_name}}</div>
+          <div class="summary-with-badge">
+            <div class="summary">
+              <p class="last-message">{{last_msg_preview}}</p>
             </div>
-        </a>
-        <span class="room_rec_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
-    </li>
+          </div>
+        </div>
+      </div>
+    </a>
+    <div class="recruit-name-section">{{rc_name}}</div>
+    <span class="room_rec_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
+  </li>
 </template>

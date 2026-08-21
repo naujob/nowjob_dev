@@ -147,6 +147,11 @@ function formatPhoneNumber($number)
         line-height: 1.5;
 
     }
+
+    /* 내공고일 때만 toggle-icon-up 숨기기 */
+    #floating-actions[data-own-recruit="true"][data-state="open"] .toggle-icon-up {
+        display: none;
+    }
 </style>
 <?php
 // 기업회원이 자신의 채용공고를 볼 경우를 판단
@@ -713,12 +718,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <?php
         $userType = $this->user->getUserType();
         ?>
-        <div id="floating-actions" data-state="open">
-            <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
-                <img src="/resource/shop/mobile/img/angle-up1.png" alt="메뉴 열기" class="toggle-icon-down">
-                <img src="/resource/shop/mobile/img/angle-down1.png" alt="메뉴 닫기" class="toggle-icon-up">
-                
-            </button>
+        <?php if ($userType !== "COMP" || $isOwnRecruit) : ?>
+        <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
 
             <?php if ($userType === "MEM") : ?>
                 <!-- 개인회원: 제안하기 + 전화하기 -->
@@ -765,6 +766,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
+        <?php endif; ?>
 
         <!-- 기업회원 본인 공고 바텀시트 3개 -->
         <?php if ($userType === "COMP" && $isOwnRecruit) : ?>
@@ -1501,21 +1503,6 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             var rc_idx = $(this).data('rc_idx');
             comAjax("/recruit_proc/call_log", { rc_idx: rc_idx }, function(ret) {});
         });
-
-        // 플로팅 액션 버튼 토글 기능
-        (function() {
-            const floatingActions = document.getElementById('floating-actions');
-            const floatingToggle = document.getElementById('floating-toggle');
-
-            if (!floatingToggle || !floatingActions) return;
-
-            floatingToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                const currentState = floatingActions.getAttribute('data-state');
-                const newState = currentState === 'closed' ? 'open' : 'closed';
-                floatingActions.setAttribute('data-state', newState);
-            });
-        })();
 
         // 재등록/마감/삭제 바텀시트 트리거
         $(document).on('click', '#btnReregisterRecruit', function(e) {

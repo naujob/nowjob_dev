@@ -239,15 +239,18 @@
         btn.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
-          var simpleContent = this.closest('.content-li').querySelector('.simple-content');
+          var contentLi = this.closest('.content-li');
+          var simpleContent = contentLi.querySelector('.simple-content');
           var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
 
           if (isCollapsed) {
             simpleContent.setAttribute('data-collapsed', 'false');
-            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+            contentLi.setAttribute('data-collapsed', 'false');
+            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
           } else {
             simpleContent.setAttribute('data-collapsed', 'true');
-            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+            contentLi.setAttribute('data-collapsed', 'true');
+            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
           }
         });
       });
@@ -322,15 +325,18 @@
         btn.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
-          var simpleContent = this.closest('.content-li').querySelector('.simple-content');
+          var contentLi = this.closest('.content-li');
+          var simpleContent = contentLi.querySelector('.simple-content');
           var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
 
           if (isCollapsed) {
             simpleContent.setAttribute('data-collapsed', 'false');
-            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+            contentLi.setAttribute('data-collapsed', 'false');
+            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
           } else {
             simpleContent.setAttribute('data-collapsed', 'true');
-            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+            contentLi.setAttribute('data-collapsed', 'true');
+            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
           }
         });
       });
@@ -367,7 +373,7 @@
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
               <img src="<?= !empty($recruit["rc_thumb"]) ? $recruit["rc_thumb"] : "" ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
             </div>
-            <span><?= !empty($recruit["rc_name"]) ? $recruit["rc_name"] : "1:1채팅" ?></span>
+            <span><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></span>
           <?php endif; ?>
         </h1>
         <?php if (!empty($call_target_phone)) : ?>
@@ -388,16 +394,66 @@
         <div class="chat-view-header">
             <!-- 채용정보 -->
             <?php if ($user_type == "COMP") : ?>
-                <!-- 채용정보 -->
-                <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
+                <!-- 인재정보 -->
+                <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
                 <?php
-                $roomType = isset($room["rm_type"]) ? trim($room["rm_type"]) : "";
-                $tpl_data_label = ($roomType === "propose") ? "채팅보낸 공고" : "지원받은 공고";
+                // 이름 정규화: ru_name이 없으면 mm_name 사용
+                $chatRow = $resume;
+                if (empty($chatRow['ru_name'])) {
+                    $chatRow['ru_name'] = isset($chatRow['mm_name']) ? $chatRow['mm_name'] : '';
+                }
+
+                // 나이 계산 (resume_card.php와 동일한 로직)
+                $_chat_age = '';
+                if (!empty($chatRow['mm_birth'])) {
+                    $_chat_age = getKoreanAge($chatRow['mm_birth']);
+                } else {
+                    $_chat_age = isset($chatRow['ma_age']) ? $chatRow['ma_age'] : '';
+                }
                 ?>
-                <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
-                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
-                <!-- //채용정보 -->
+                <!-- 채팅 인재 카드 데이터를 JS에 전달 -->
+                <script>
+                  var chatResumeData = <?php
+                      // resume_proc.php와 동일한 변환 적용
+                      $ru_work_type_html = getWorkTypeWithColor(isset($chatRow['ru_work_type']) ? $chatRow['ru_work_type'] : '');
+                      $ru_price_type_html = getPriceType(isset($chatRow['ru_price_type']) ? $chatRow['ru_price_type'] : '');
+
+                      echo json_encode([
+                          'ru_idx'        => isset($chatRow['ru_idx']) ? $chatRow['ru_idx'] : '',
+                          'mm_idx'        => isset($chatRow['mm_idx']) ? $chatRow['mm_idx'] : '',
+                          'ru_resume_img' => getResumeImg($chatRow),
+                          'ru_work_img'   => getWorkingImg(isset($chatRow['ru_work']) ? $chatRow['ru_work'] : ''),
+                          'mm_name'       => isset($chatRow['ru_name']) ? $chatRow['ru_name'] : '',
+                          'ru_week'       => getWeekYoil(isset($chatRow['ru_week']) ? $chatRow['ru_week'] : ''),
+                          'mm_nation'     => isset($chatRow['mm_nation']) && !empty($chatRow['mm_nation']) ? $chatRow['mm_nation'] : '',
+                          'ma_age'        => ($_chat_age !== '' && $_chat_age != 0) ? $_chat_age . '대' : '',
+                          'ru_price_type' => $ru_price_type_html,
+                          'ru_work_type'  => $ru_work_type_html,
+                          'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
+                          'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
+                          'ru_recom_badge' => getRecomBadgeHtml(isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null),
+                          'pm_idx' => isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null,
+                      ]);
+                  ?>;
+                </script>
+
+                <!-- 인재 카드 템플릿 포함 -->
+                <?php
+                  // URL 파라미터 from으로 정확히 판별
+                  $from = input_get("from");
+                  $tpl_data_label = ($from === "talent_received") ? "제안보낸 인재" : "지원받은 인재";
+                ?>
+                <?php
+                  $tpl_id           = 'tpl_chat_resume';
+                  $tpl_recomm_class = true;
+                  $tpl_show_mm_idx  = false;
+                  $tpl_simple_mode  = true;
+                  include(APPPATH . 'views/mobile/_partial/resume_card_template.php');
+                ?>
+
+                <!-- 채팅 인재 카드 렌더링 컨테이너 -->
+                <ul class="result-list result-list-card" id="chatResumeList"></ul>
+                <!-- //인재정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -543,65 +599,41 @@
                 <!-- 사용 안 함 - 주석처리 끝 -->
                 <!-- //일정 -->
             <?php else : ?>
-                <!-- 인재정보 -->
-                <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
+                <!-- 공고정보 -->
+                <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
                 <?php
-                // 이름 정규화: ru_name이 없으면 mm_name 사용
-                $chatRow = $resume;
-                if (empty($chatRow['ru_name'])) {
-                    $chatRow['ru_name'] = isset($chatRow['mm_name']) ? $chatRow['mm_name'] : '';
+                // 공고 상태 계산 함수
+                function getStatusLabel($sdate, $edate) {
+                    $now = new DateTime();
+                    $startDate = new DateTime($sdate);
+                    $endDate = new DateTime($edate);
+
+                    if ($startDate <= $now && $now <= $endDate) {
+                        return "모집중";
+                    } else if ($endDate < $now) {
+                        return "마감";
+                    } else if ($startDate > $now) {
+                        return "대기중";
+                    }
+                    return "";
                 }
 
-                // 나이 계산 (resume_card.php와 동일한 로직)
-                $_chat_age = '';
-                if (!empty($chatRow['mm_birth'])) {
-                    $_chat_age = getKoreanAge($chatRow['mm_birth']);
-                } else {
-                    $_chat_age = isset($chatRow['ma_age']) ? $chatRow['ma_age'] : '';
-                }
+                $statusLabel = getStatusLabel($recruit["rc_sdate"], $recruit["rc_edate"]);
                 ?>
-                <!-- 채팅 인재 카드 데이터를 JS에 전달 -->
+                <!-- 채팅 공고 카드 데이터를 JS에 전달 -->
                 <script>
-                  var chatResumeData = <?php
-                      // resume_proc.php와 동일한 변환 적용
-                      $ru_work_type_html = getWorkTypeWithColor(isset($chatRow['ru_work_type']) ? $chatRow['ru_work_type'] : '');
-                      $ru_price_type_html = getPriceType(isset($chatRow['ru_price_type']) ? $chatRow['ru_price_type'] : '');
-
-                      echo json_encode([
-                          'ru_idx'        => isset($chatRow['ru_idx']) ? $chatRow['ru_idx'] : '',
-                          'mm_idx'        => isset($chatRow['mm_idx']) ? $chatRow['mm_idx'] : '',
-                          'ru_resume_img' => getResumeImg($chatRow),
-                          'ru_work_img'   => getWorkingImg(isset($chatRow['ru_work']) ? $chatRow['ru_work'] : ''),
-                          'mm_name'       => isset($chatRow['ru_name']) ? $chatRow['ru_name'] : '',
-                          'ru_week'       => getWeekYoil(isset($chatRow['ru_week']) ? $chatRow['ru_week'] : ''),
-                          'mm_nation'     => isset($chatRow['mm_nation']) && !empty($chatRow['mm_nation']) ? $chatRow['mm_nation'] : '',
-                          'ma_age'        => ($_chat_age !== '' && $_chat_age != 0) ? $_chat_age . '대' : '',
-                          'ru_price_type' => $ru_price_type_html,
-                          'ru_work_type'  => $ru_work_type_html,
-                          'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
-                          'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
-                          'ru_recom_badge' => getRecomBadgeHtml(isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null),
-                          'pm_idx' => isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null,
-                      ]);
-                  ?>;
+                  var recruitData = <?= isset($recruit) && !empty($recruit) ? json_encode($recruit, JSON_UNESCAPED_UNICODE) : 'null' ?>;
                 </script>
 
-                <!-- 인재 카드 템플릿 포함 -->
+                <!-- 공고 카드 템플릿 포함 -->
                 <?php
-                  $roomType = isset($room["rm_type"]) ? trim($room["rm_type"]) : "";
-                  $tpl_data_label = ($roomType === "propose") ? "제안받은 인재" : "지원한 이력서";
+                  $from = input_get("from");
+                  $tpl_data_label = ($from === "proposed_job") ? "제안받은 공고" : "지원한 공고";
                 ?>
-                <?php
-                  $tpl_id           = 'tpl_chat_resume';
-                  $tpl_recomm_class = true;
-                  $tpl_show_mm_idx  = false;
-                  $tpl_simple_mode  = true;
-                  include(APPPATH . 'views/mobile/_partial/resume_card_template.php');
-                ?>
-
-                <!-- 채팅 인재 카드 렌더링 컨테이너 -->
-                <ul class="result-list result-list-card" id="chatResumeList"></ul>
-                <!-- //인재정보 -->
+                <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
+                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
+                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
+                <!-- //공고정보 -->
                 <div id="mem_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
                         <div class="inline-group">
@@ -726,12 +758,8 @@
                             <!-- 지원한/제안받은 이력서 구분 -->
                             <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #999;">
                               <?php
-                              $roomType = isset($room["rm_type"]) ? trim($room["rm_type"]) : "";
-                              if ($roomType === "apply") {
-                                echo "지원한 이력서";
-                              } elseif ($roomType === "propose") {
-                                echo "제안받은 이력서";
-                              }
+                              $from = input_get("from");
+                              echo ($from === "proposed_job") ? "제안받은 이력서" : "지원한 이력서";
                               ?>
                             </p>
                     </div>
@@ -916,22 +944,19 @@
 
         // 채팅 뷰 헤더의 채용정보/인재정보 카드 클릭 이벤트 처리
         // 링크나 버튼을 클릭한 경우는 기본 동작 유지, 그 외 영역 클릭 시 상세페이지로 이동
-        $(document).on('click', '.chat-view-header .result-list-card .content-li', function(e) {
-            // 링크나 버튼을 클릭한 경우는 기본 동작 유지
-            if ($(e.target).is('a') || $(e.target).closest('a').length > 0 || 
-                $(e.target).is('button') || $(e.target).closest('button').length > 0) {
-                return;
-            }
+        $(document).on('click', '.chat-view-header .result-list-card .btn-detail', function(e) {
+            e.preventDefault();
+            var contentLi = $(this).closest('.content-li');
 
             // 인재정보 카드인 경우 (data-ru_idx가 있으면)
-            var ru_idx = $(this).attr('data-ru_idx');
+            var ru_idx = contentLi.attr('data-ru_idx');
             if (ru_idx) {
                 window.location.href = '/resume/hr_post/' + ru_idx;
                 return;
             }
 
             // 채용정보 카드인 경우 (data-rc_idx가 있으면)
-            var rc_idx = $(this).attr('data-rc_idx');
+            var rc_idx = contentLi.attr('data-rc_idx');
             if (rc_idx) {
                 window.location.href = '/recruit/job_post/' + rc_idx;
                 return;
@@ -3125,19 +3150,26 @@
     }
     .chat-view-header .result-list-card{
           
-
+    padding: 10px 10px;
     }
     .chat-view-header .result-list-card .list-item {
-        height: 50%;
+        height:  100%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .chat-view-header .result-list-card .list-item:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
     .chat-view-header .result-list-card .list-item .content-li {
         height: 100%;
     }
     .chat-view-header .result-list-card .content-info .content-body{
-        height: 118px;
+        height: 100%;
     }
     .result-list-card .content-info .desc{
-        height: 98%;
+        height: 105%;
     padding-right:0;
     }
       .result-list-card .content-info .desc .ellipsis,

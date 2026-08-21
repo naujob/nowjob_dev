@@ -11304,7 +11304,7 @@ form#frm {
     background: #fff;
     margin-top: 10px;
 }
-
+.resume-chat-list .chat-list .list-item,
 .chat-list .list-item {
     position: relative;
     -webkit-transition: padding 0.3s;
@@ -11312,11 +11312,7 @@ form#frm {
     transition: padding 0.3s;
        
 }
-.resume-chat-list .chat-list .list-item {
-    border: 1.5px solid #999;
-        border-radius: 10px;
-        margin-bottom: 10px;
-}
+
 .chat-list .angle-link {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -11513,10 +11509,20 @@ form#frm {
     height: 115px;
     border: none;
     cursor: pointer;
+    transition: height 0.3s ease;
+}
+
+.chat-view-header .result-list-card .content-li[data-collapsed="true"] {
+    height: 44px;
 }
 
 .chat-view-header .result-list-card .content-info .content-body {
     height: 115px;
+    transition: height 0.3s ease;
+}
+
+.chat-view-header .result-list-card .content-li[data-collapsed="true"] .content-info .content-body {
+    height: 44px;
 }
 
 /* 채팅 뷰 헤더 근무요일 배지 (일반 목록보다 작게) */
@@ -12886,7 +12892,7 @@ form#frm {
     line-height: 25px;
     display: none;
 }
-
+.recruitbox_,
 .resumebox_ {
     background: #ffffff;
     /* border: 1.5px solid #999;
@@ -12896,6 +12902,7 @@ form#frm {
 .resumebox_:last-child{
     margin-bottom: 20px;
 }
+
 /* ============================================================
    인재 카드 공통 스타일 (bookmark_person, hr_list 공유)
    .desc 내부에 summary2/3를 배치하는 절대위치 방식
@@ -13525,6 +13532,7 @@ form#frm {
 /* 채팅 뷰의 카드 컨테이너 패딩 및 overflow 오버라이드 */
 .page-chat-view .result-list-card .content-info {
     padding: 0;
+    height: 100%;
 }
 
 .page-chat-view .result-list-card .content-li {
@@ -13926,11 +13934,11 @@ form#frm {
 /* 플로팅 액션 버튼 그룹 */
 #floating-actions {
     position: fixed;
-    right: 16px;
-    bottom: 30px;
+    right: 25px;
+    bottom: 45px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 25px;
     z-index: 98;
 }
 
@@ -13950,7 +13958,7 @@ form#frm {
     -webkit-tap-highlight-color: transparent;
     order: -1;
     flex-shrink: 0;
-        right: 4px;
+        right: 1px;
     position: absolute;
     top: -45px;
 }
@@ -14034,13 +14042,14 @@ form#frm {
   }
 
 /* 채팅 목록 마지막 메시지와 시간 레이아웃 */
+[class*="recruitbox_"] .content-body .desc .summary,
 [class*="resumebox_"] .content-body .desc .summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
 }
-
+[class*="recruitbox_"] .content-body .desc .summary .last-message,
 [class*="resumebox_"] .content-body .desc .summary .last-message {
     flex: 1;
     min-width: 0;
@@ -14048,7 +14057,7 @@ form#frm {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
+[class*="recruitbox_"] .content-body .desc .summary .last-chat-time,
 [class*="resumebox_"] .content-body .desc .summary .last-chat-time {
     flex-shrink: 0;
     white-space: nowrap;
@@ -14056,7 +14065,7 @@ form#frm {
     color: #999;
     padding: 2px;
 }
-
+[class*="recruitbox_"] .content-body,
 [class*="resumebox_"] .content-body {
         position: relative;
         overflow: hidden;
@@ -14064,7 +14073,7 @@ form#frm {
         width: 100%;
        
       }
-      
+      [class*="recruitbox_"] .content-body .img,
       [class*="resumebox_"] .content-body .img {
         position: absolute;
         width: 95px;
@@ -14074,14 +14083,14 @@ form#frm {
         color: #888;
         overflow: hidden;
       }
-
+      [class*="recruitbox_"] .content-body .img img,
       [class*="resumebox_"] .content-body .img img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
       }
-
+      [class*="recruitbox_"] .content-body .desc,
       [class*="resumebox_"] .content-body .desc {
         position: relative;
         height: 100%;
@@ -14091,26 +14100,26 @@ form#frm {
       }
 
     
-
+      [class*="recruitbox_"] .content-body .desc .title,
       [class*="resumebox_"] .content-body .desc .title {
         font-size: 20px;
         font-weight: bold;
         margin: 1px 0px;
       }
-
+      [class*="recruitbox_"] .content-body .desc .title.ellipsis,
       [class*="resumebox_"] .content-body .desc .title.ellipsis {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-
+      [class*="recruitbox_"] .content-body .desc .summary,
       [class*="resumebox_"] .content-body .desc .summary {
         display: flex;
         font-size: 15px;
         gap: 5px;
         position: relative;
       }
-
+     [class*="recruitbox_"] .content-body .desc .summary p,
       [class*="resumebox_"] .content-body .desc .summary p {
         position: relative;
        
@@ -14163,3 +14172,20 @@ form#frm {
       .summary-with-badge .room_unread_cnt {
         flex-shrink: 0;
       }
+ 
+ .result-list-card .content-li .desc .title-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .result-list-card .content-li .desc .toggle-expand {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 8px;
+  }
+  .simple-content .data-row {
+    height: 15px; display: flex; gap: 287px; align-items: center; margin-top: 4px; margin-bottom: 6px;
+  }

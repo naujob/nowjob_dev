@@ -89,9 +89,6 @@ $top_bar = array(
       }
     </style>
     <style>
-      
-      
-
       html,
       body {
         overflow: auto;
@@ -139,7 +136,7 @@ $top_bar = array(
   // 중복 호출 방지 플래그
   var isLoadingChatList = false;
 
-  // 제안받은 인재 목록 조회 함수 (기업회원 전용) - 평탄화 버전
+  // (즉기업에게 제안을 보낸) 제안받은 인재 목록 조회 함수 (기업회원 전용) - 평탄화 버전
   function getChatTargetList(arg) {
     // 이미 로딩 중이면 중복 요청 방지
     if (isLoadingChatList) {
@@ -155,8 +152,10 @@ $top_bar = array(
       $("#chat_list").html("");
 
       if (ret.code == "00") {
+        // console.log("공고 목록 조회 성공:", ret);
+      //  console.log("공고 목록 조회 성공:", ret.data.list);
         var recruitList = ret.data.list;
-
+          
         if (recruitList.length == 0) {
           $(".chat-empty").show();
           $("#chat_list").hide();

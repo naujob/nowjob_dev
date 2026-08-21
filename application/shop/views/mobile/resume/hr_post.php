@@ -498,10 +498,7 @@ function fRemoveBigAdr($arg)
 
         <!-- 플로팅 액션 버튼 그룹 -->
         <div id="floating-actions" data-state="open">
-            <button id="floating-toggle" class="floating-toggle" type="button" title="메뉴 열기/닫기">
-                <img src="/resource/shop/mobile/img/angle-up1.png" alt="메뉴 열기" class="toggle-icon-down">
-                <img src="/resource/shop/mobile/img/angle-down1.png" alt="메뉴 닫기" class="toggle-icon-up">
-            </button>
+            
 
             <?php if ($isOwnResume) : ?>
                 <!-- 개인회원이 자신의 이력서를 볼 때: 수정/삭제/광고 -->
@@ -1012,20 +1009,7 @@ function fRemoveBigAdr($arg)
     });
     */
 
-    // 플로팅 액션 버튼 토글 기능
-    (function() {
-        const floatingActions = document.getElementById('floating-actions');
-        const floatingToggle = document.getElementById('floating-toggle');
-
-        if (!floatingToggle || !floatingActions) return;
-
-        floatingToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            const currentState = floatingActions.getAttribute('data-state');
-            const newState = currentState === 'closed' ? 'open' : 'closed';
-            floatingActions.setAttribute('data-state', newState);
-        });
-    })();
+ 
 
     // 이력서 삭제 바텀시트 트리거
     $(document).on('click', '#btnDeleteResume', function(e) {
