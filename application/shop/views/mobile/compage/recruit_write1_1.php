@@ -1515,8 +1515,9 @@
             setTimeout(function() {
                 if (window.pickerInstances && window.pickerInstances.startPicker && window.pickerInstances.endPicker) {
                     var today = new Date();
+                    // 오늘 날짜를 Y-m-d 포맷으로 변환  '2026-08-25'
                     var todayStr = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
-
+                    // 종료일은 오늘 기준 2개월 후로 설정
                     var endDate = new Date(today);
                     endDate.setMonth(endDate.getMonth() + 2);
                     var endDateStr = endDate.getFullYear() + '-' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '-' + endDate.getDate().toString().padStart(2, '0');
@@ -1962,7 +1963,7 @@
                 }
 
                 if (mode === "preview") {
-                    console.log("공고 저장 후 미리보기 모드로 이동: rc_idx =", savedRcIdx);
+                   // console.log("공고 저장 후 미리보기 모드로 이동: rc_idx =", savedRcIdx);
                     // 미리보기: draft에만 저장, 미리보기 페이지로 이동 (DB에 등록하지 않음)
                     showPreviewPage(savedRcIdx);
 
