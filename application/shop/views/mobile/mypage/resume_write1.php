@@ -440,7 +440,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     if (typeof clearResumeDraft === 'function') {
                         clearResumeDraft(ruIdx);
                     }
-                    location.href = "/mypage/resume_list";
+                    history.back();
                     return false;
                 }
             }
@@ -1749,12 +1749,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         // 뒤로가기 핸들러는 스크립트 시작 부분에서 이미 등록됨
 
         // Android 물리적 뒤로가기 버튼 및 iOS 스와이프 뒤로가기 처리
-        history.pushState(null, null, location.href);
-        
         window.addEventListener('popstate', function(e) {
-            history.pushState(null, null, location.href);
             clearResumeDraft($("[name='ru_idx']").val() || "0");
-            location.href = "/mypage/resume_list";
         });
     });
 

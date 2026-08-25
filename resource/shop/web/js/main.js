@@ -1095,6 +1095,7 @@
             el.classList.add('on');
             el.hidden = false;
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('panel-open');
             // 포커스 설정
             setTimeout(function () {
                 el.focus();
@@ -1107,6 +1108,7 @@
             el.classList.remove('on');
             el.hidden = true;
             document.body.style.overflow = '';
+            document.body.classList.remove('panel-open');
         };
 
         // js-toggle-panel 클릭 이벤트 처리

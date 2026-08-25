@@ -1,10 +1,8 @@
 <div class="page page-mypage-view page-coupon-list">
-  <?php
-  $top_bar = array(
-      'title' => '쿠폰 관리',
-  );
-  include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
-  ?>
+  <div class="top-bar">
+    <a href="/compage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
+    <h1 class="title">쿠폰 관리</h1>
+  </div><!-- //top-bar -->
 
   <div class="page-content">
 

@@ -7,3 +7,5 @@
         <li class="<?=$tab_on=="tab5" ? "on":""?>"><a href="javascript:_replace('/compage/point_promotion_list');" class="tab">광고관리</a></li>
     </ul>
 </div>
+
+

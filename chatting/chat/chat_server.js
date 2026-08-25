@@ -800,12 +800,12 @@ io.on('connection', function (socket) {
 
 			//	$common.writeLog('[message_insert] 소켓에서 메시지 수신 - rm_idx: ' + target_rm_idx + ', user_id: ' + g_user_id + ', chat_type: ' + target_chat_type + ', mg_text: ' + target_mg_text);
 
-			// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
+			// 나간 채팅방인지 확인 (exit_yn='Y' 체크) - system_exit 메시지는 예외 (본인이 방금 나가면서 보내는 알림이므로)
 			const room = await $db.cs_room.findOne({ rm_idx: target_rm_idx });
 
 			// 방의 타입으로 알림 문구 결정 (메시지의 chat_type이 아닌 방 자체의 타입 기준)
 			const room_type_for_label = (room && room.rm_type) ? room.rm_type : (target_chat_type || "recruit");
-			if (room && room.rm_users) {
+			if (data.mg_type !== 'system_exit' && room && room.rm_users) {
 				var user_exited = false;
 				for (var icnt = 0; icnt < room.rm_users.length; icnt++) {
 					if (room.rm_users[icnt].user_id == g_user_id) {

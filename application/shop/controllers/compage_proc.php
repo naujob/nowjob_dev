@@ -3672,7 +3672,7 @@ class Compage_proc extends CI_Controller
     json_return($result["code"], $result["msg"]);
   }
 
-  # 재등록 처리
+  # 재등록 처리 (새로운 공고 생성, 기존 공고는 유지)
   function recruit_reregister()
   {
     $rc_idx = input_post("rc_idx", 0);
@@ -3690,16 +3690,36 @@ class Compage_proc extends CI_Controller
       json_return("91", "권한이 없습니다.");
     }
 
-    $rc_sdate = date("Y-m-d H:i:s");
-    $rc_edate = date("Y-m-d H:i:s", strtotime("+60 days"));
+    // 기존 공고의 주소 정보 조회
+    $address_info = $this->member_model->getAddress(["ad_type" => "RECRUIT", "mm_idx" => $recruit_info["mm_idx"], "ad_key" => $rc_idx]);
 
-    $result = $this->member_model->updateRecruit(["rc_sdate" => $rc_sdate, "rc_edate" => $rc_edate], ["rc_idx" => $rc_idx]);
+    // 새 공고 생성을 위한 데이터 준비 (rc_idx 제외)
+    $new_recruit = $recruit_info;
+    unset($new_recruit["rc_idx"]);
+
+    // 날짜 업데이트
+    $new_recruit["rc_sdate"] = date("Y-m-d H:i:s");
+    $new_recruit["rc_edate"] = date("Y-m-d H:i:s", strtotime("+60 days"));
+    $new_recruit["reg_dt"] = date("Y-m-d H:i:s");
+    $new_recruit["up_dt"] = date("Y-m-d H:i:s");
+
+    // 새로운 공고 생성
+    $result = $this->recruit_model->insertRecruit($new_recruit);
 
     if ($result["code"] != "00") {
       json_return("91", "채용공고 재등록 중 오류가 발생하였습니다.");
     }
 
-    json_return("00", "채용공고가 재등록되었습니다.");
+    // 새로운 공고의 주소 정보 생성
+    if ($address_info != null) {
+      $new_address = $address_info;
+      unset($new_address["ad_idx"]);
+      $new_address["ad_key"] = $result["key"];
+      $new_address["reg_dt"] = date("Y-m-d H:i:s");
+      $this->member_model->insertAddress($new_address);
+    }
+
+    json_return("00", "채용공고가 재등록되었습니다.", ["rc_idx" => $result["key"]]);
   }
 
   # 마감처리

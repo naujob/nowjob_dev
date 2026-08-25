@@ -12,7 +12,7 @@ function fBizNoMasking($bizNo)
   .profile .container {
     padding-top: 1.6875rem;
     padding-bottom: 2.6875rem;
-  }
+  } 
 
 
 
@@ -576,9 +576,6 @@ function fBizNoMasking($bizNo)
         }, 700);
       }
     }
-
-    // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-    window.DISABLE_SWIPE_BACK = true;
 
   });
 </script>

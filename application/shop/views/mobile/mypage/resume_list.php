@@ -9,9 +9,9 @@
     width: 100%;
     padding: 1.3rem 0;
     background-color: white;
-    color: #57CCAF;
+    color: #1B9D7D;
     border: none;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 600;
     text-align: center;
     cursor: pointer;
@@ -35,7 +35,7 @@
 </style>
 <div class="page page-mypage">
     <div class="top-bar">
-        <a href="javascript:_replace('/mypage');" class="btn-replace"><span class="sr-text">이전으로</span></a>
+        <a href="/mypage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title" style="margin-left: 1.5rem;">이력서</h1>
     </div><!-- //top-bar -->
     <div class="page-content">
@@ -142,8 +142,15 @@
             });
         });
 
+        // 히스토리 상태 저장 (무한루프 방지)
+        history.pushState({page: 'resume_list'}, null, location.href);
+
+        window.addEventListener('popstate', function(e) {
+            // resume_list에서 뒤로가기 → mypage로 이동
+            if (!e.state || e.state.page === 'resume_list') {
+                location.href = "/mypage";
+            }
+        });
     });
 
-    // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-    // window.DISABLE_SWIPE_BACK = true;
 </script>

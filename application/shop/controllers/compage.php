@@ -1404,11 +1404,14 @@ class Compage extends CI_Controller
 			$rc_idx = intval($this->input->get('rc_idx'));
 		}
 
+		// 복사 모드 체크 (true면 복사본으로 새로 생성)
+		$copy_mode = $this->input->get('gbn') === 'copy';
+
 		$data = [];
 
 		# 데이터 조회
 		$info = [
-			"rc_idx" => $rc_idx,
+			"rc_idx" => $copy_mode ? 0 : $rc_idx,
 			"rc_name" => "",
 			"rc_sdate" => "",
 			"rc_edate" => "",
@@ -1457,7 +1460,8 @@ class Compage extends CI_Controller
 			go_location("/compage/recruit_list", "경고! 넌 누구냐?");
 		}
 
-		if ($recruit_info != null) {
+		// rc_idx가 0이 아닐 때만 DB 데이터를 info에 로드 (기존 공고 수정 + 복사 모드)
+		if ($recruit_info != null && $rc_idx != 0) {
 			$info["rc_name"] = $recruit_info["rc_name"];
 			$info["rc_sdate"] = get_date($recruit_info["rc_sdate"]);
 			$info["rc_edate"] = get_date($recruit_info["rc_edate"]);
@@ -1539,7 +1543,7 @@ class Compage extends CI_Controller
 			$info["rc_detail_img1"] = isset($recruit_info["rc_detail_img1"]) ? $recruit_info["rc_detail_img1"] : "";
 			$info["rc_detail_img2"] = isset($recruit_info["rc_detail_img2"]) ? $recruit_info["rc_detail_img2"] : "";
 			$info["rc_detail_img3"] = isset($recruit_info["rc_detail_img3"]) ? $recruit_info["rc_detail_img3"] : "";
-		} else {
+		} else if ($rc_idx != 0) {  // 신규 작성이 아닐 때만 (기존 공고 스텝 이동)
 			$temp_info  = $this->site_model->getStepTempDataMember($this->mm_idx, "RECRUIT", "스텝1");
 			if ($temp_info != null) {
 				$rc_sdate = "";
@@ -1627,6 +1631,8 @@ class Compage extends CI_Controller
 
 		# 데이터 리스트
 		$data["rc_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+		$data["orig_rc_idx"] = $rc_idx;
+		$data["gbn"] = $this->input->get('gbn');
 		$data["info"] = $info;
 		$data["mem_info"] = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
 		$this->layout->shop('/compage/recruit_write1_1', $data);

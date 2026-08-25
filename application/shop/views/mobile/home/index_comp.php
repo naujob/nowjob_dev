@@ -1535,8 +1535,6 @@ if ($g_ios_publish == true) {
     }
   });
 
-  window.DISABLE_SWIPE_BACK = true;
-
   window.addEventListener('DOMContentLoaded', function() {
     // Android 앱에 회원 유형 전달 (기업회원)
     if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.setMemberType === 'function') {

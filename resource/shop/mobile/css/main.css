@@ -5055,9 +5055,7 @@ body {
     padding-left: 1.5rem;
 }
 
-.top-bar a {
-    text-decoration: underline;
-}
+
 
 .top-bar .action {
     position: absolute;
@@ -11078,12 +11076,16 @@ form#frm {
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;
+   
 }
-
+.post-list .selectable-item ,
+.resume-list .selectable-item {
+        height: 4.9rem;
+}
 .selectable-item .form-checkbox {
     position: absolute;
-    top: 50%;
-    left: 1.4375rem;
+    top: 45%;
+    left: 1rem;
     margin: -0.9375rem 0 0;
     -webkit-tap-highlight-color: transparent;
 }
@@ -11098,10 +11100,12 @@ form#frm {
     height: 1.75rem;
     background-image: url("../img/ic_chkbox3_on.svg");
 }
-
+.post-list .selectable-item .angle-link {
+    padding-top: 1rem;
+}
 .selectable-item .angle-link {
     padding-top: 1.625rem;
-    padding-left: 4.0625rem;
+    padding-left: 3.5rem;
     padding-bottom: 1.5rem;
     font-size: 1.0625rem;
     word-break: keep-all;
@@ -13938,7 +13942,7 @@ form#frm {
     bottom: 45px;
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 20px;
     z-index: 98;
 }
 
@@ -14025,7 +14029,7 @@ form#frm {
 }
 
 .action-label {
-    font-size: 11px;
+    font-size: 12px;
     color: #333;
     white-space: nowrap;
     font-weight: 500;

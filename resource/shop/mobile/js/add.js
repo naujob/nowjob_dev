@@ -7,6 +7,12 @@ $(document).ready(function () {
     $(".btn-back").click(function () {
         const currentPath = window.location.pathname;
         const $button = $(this);
+
+        // onclick이 있으면 커스텀 핸들러 우선 (add.js 핸들러는 실행하지 않음)
+        if ($button.attr('onclick')) {
+            return;
+        }
+
         const targetHref = $button.attr('href');
 
         // 이력서 작성 페이지에서는 각 페이지의 핸들러가 처리
@@ -144,42 +150,42 @@ function customBack() {
             return;
         }
 
-        // 채용공고 작성 페이지들은 compage/recruit_list로 이동
+        // 채용공고 작성/상세/목록 페이지들은 히스토리 뒤로가기
         if (currentPath.indexOf('/compage/recruit_write1_1') > -1 ||
             currentPath.indexOf('/compage/recruit_write2_1') > -1 ||
-            currentPath.indexOf('/compage/recruit_write3_1') > -1) {
+            currentPath.indexOf('/compage/recruit_write3_1') > -1 ||
+            currentPath.indexOf('/compage/recruit_view') > -1 ||
+            currentPath.indexOf('/compage/recruit_list') > -1) {
 
-            const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
-            if (historyStack.length > 0) {
-                const lastPage = historyStack[historyStack.length - 1];
-                if (lastPage.indexOf('/compage/recruit_write1_1') > -1 ||
-                    lastPage.indexOf('/compage/recruit_write2_1') > -1 ||
-                    lastPage.indexOf('/compage/recruit_write3_1') > -1) {
-                    historyStack.pop();
-                    sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
-                }
-            }
-
-            window.location.href = '/compage/recruit_list';
+            history.back();
             return;
         }
 
-        // 이력서 작성 페이지들은 mypage/resume_list로 이동
+        // 채용공고 상세 페이지는 히스토리 뒤로가기
+        if (currentPath.indexOf('/recruit/job_post') > -1) {
+            history.back();
+            return;
+        }
+
+        // 이력서 상세 페이지는 히스토리 뒤로가기
+        if (currentPath.indexOf('/resume/hr_post') > -1) {
+            history.back();
+            return;
+        }
+
+        // 이력서 작성 페이지들은 히스토리 뒤로가기
         if (currentPath.indexOf('/mypage/resume_write1') > -1) {
-            const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || [];
-            if (historyStack.length > 0) {
-                const lastPage = historyStack[historyStack.length - 1];
-                if (lastPage.indexOf('/mypage/resume_write1') > -1) {
-                    historyStack.pop();
-                    sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
-                }
-            }
-
-            window.location.href = '/mypage/resume_list';
+            history.back();
             return;
         }
 
-        // compage 포인트/북마크/쿠폰 페이지들은 compage/index로 이동
+        // compage/index → 구인 목록
+        if (currentPath.indexOf('/compage/index') > -1) {
+            window.location.href = '/recruit/job_list';
+            return;
+        }
+
+        // compage 포인트/북마크/쿠폰 페이지들은 히스토리 뒤로가기
         if (currentPath.indexOf('/compage/point_promotion_buy') > -1 ||
             currentPath.indexOf('/compage/point_charge_step1') > -1 ||
             currentPath.indexOf('/compage/point_charge_list') > -1 ||
@@ -189,11 +195,17 @@ function customBack() {
             currentPath.indexOf('/compage/bookmark_person2') > -1 ||
             currentPath.indexOf('/compage/coupon_list') > -1) {
 
-            window.location.href = '/compage/index';
+            history.back();
             return;
         }
 
-        // mypage 포인트/북마크/쿠폰 페이지들은 mypage/index로 이동
+        // mypage/index → 이력서 목록
+        if (currentPath.indexOf('/mypage/index') > -1) {
+            window.location.href = '/resume/hr_list';
+            return;
+        }
+
+        // mypage 포인트/북마크/쿠폰 페이지들은 히스토리 뒤로가기
         if (currentPath.indexOf('/mypage/point_charge_step1') > -1 ||
             currentPath.indexOf('/mypage/point_charge_list') > -1 ||
             currentPath.indexOf('/mypage/point_use_list') > -1 ||
@@ -203,7 +215,16 @@ function customBack() {
             currentPath.indexOf('/mypage/bookmark_recruit2') > -1 ||
             currentPath.indexOf('/mypage/coupon_list') > -1) {
 
-            window.location.href = '/mypage/index';
+            history.back();
+            return;
+        }
+
+        // 이력서 페이지들은 히스토리 뒤로가기
+        if (currentPath.indexOf('/mypage/resume_list') > -1 ||
+            currentPath.indexOf('/mypage/resume_view') > -1 ||
+            currentPath.indexOf('/mypage/resume_write1') > -1) {
+
+            history.back();
             return;
         }
 
@@ -787,24 +808,6 @@ function handleAndroidBack() {
         const backCustomMap = {
             // /compage/index → 홈화면
             "/compage/index": "/",
-            // compage 포인트/북마크/쿠폰 → compage 메인
-            "/compage/point_promotion_buy": "/compage/index",
-            "/compage/point_charge_step1": "/compage/index",
-            "/compage/point_charge_list": "/compage/index",
-            "/compage/point_use_list": "/compage/index",
-            "/compage/point_promotion_list": "/compage/index",
-            "/compage/bookmark_person1": "/compage/index",
-            "/compage/bookmark_person2": "/compage/index",
-            "/compage/coupon_list": "/compage/index",
-            // mypage 포인트/북마크/쿠폰 → mypage 메인
-            "/mypage/point_charge_step1": "/mypage/index",
-            "/mypage/point_charge_list": "/mypage/index",
-            "/mypage/point_use_list": "/mypage/index",
-            "/mypage/point_promotion_buy": "/mypage/index",
-            "/mypage/point_promotion_list": "/mypage/index",
-            "/mypage/bookmark_recruit1": "/mypage/index",
-            "/mypage/bookmark_recruit2": "/mypage/index",
-            "/mypage/coupon_list": "/mypage/index",
             // 채팅 페이지 → 구인 목록
             "/chat/index_comp": "/recruit/job_list",
             "/chat/chat_list": "/recruit/job_list",

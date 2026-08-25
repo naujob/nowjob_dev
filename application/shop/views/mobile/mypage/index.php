@@ -539,6 +539,13 @@
 
   });
 
-  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-  window.DISABLE_SWIPE_BACK = true;
+  // 히스토리 상태 저장
+  history.pushState({page: 'mypage_index'}, null, location.href);
+
+  window.addEventListener('popstate', function(e) {
+    // mypage/index에서 뒤로가기 → 이력서 목록으로 이동
+    if (!e.state || e.state.page === 'mypage_index') {
+      location.href = "/resume/hr_list";
+    }
+  });
 </script>

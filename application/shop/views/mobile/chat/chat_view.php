@@ -1,3 +1,5 @@
+<?php require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php'); ?>
+
 <input type="hidden" name="user_type" value="<?= $user_type ?>" />
 <!-- iOS 포함 모든 환경에서 사용자 아이디를 일관되게 참조하기 위한 hidden 필드 -->
  <!-- user_id:현재 로그인한 사용자의 ID -->
@@ -15,7 +17,7 @@
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
     (function() {
-        
+
         var params = new URLSearchParams(window.location.search);
         var from = params.get('from') || '';
         var backMap = {
@@ -26,7 +28,7 @@
             hr_list: '/chat/index_comp' // 인재 리스트
         };
 
-        var backUrl = backMap[from] || '/chat/chat_list';
+        window.backUrl = backMap[from] || '/chat/chat_list';
 
         // iOS WebView에서 더 확실하게 동작하도록 즉시 실행 + DOMContentLoaded 둘 다 처리
         /**
@@ -62,13 +64,13 @@
                 }
                 */
                 // 나가기 기능 주석처리로 인해 뒤로가기만 처리
-                location.href = a.dataset.backUrl || backUrl;
+                location.href = a.dataset.backUrl || window.backUrl;
                 
                 return false;
             }
 
             document.querySelectorAll('.js-chat-back').forEach(function(a) {
-                a.dataset.backUrl = backUrl;
+                a.dataset.backUrl = window.backUrl;
                 
                 // iOS WebView에서 touchstart가 더 안정적 (다른 파일들에서도 사용하는 패턴)
                 a.addEventListener('touchstart', function(e) {
@@ -381,12 +383,11 @@
                 <span class="sr-text">전화하기</span>
             </a>
         <?php endif; ?>
-        <!-- [임시 주석처리: 나중에 다시 사용 예정] 채팅방 나가기 버튼 -->
-        <!--
-        <a href="javascript:void(0);" class="btn-exit js-chat-back" aria-label="채팅방 나가기">
-            <img src="/resource/shop/mobile/img/chat/rm_exit_btn.svg" alt="채팅방 나가기">
-        </a>
-        -->
+        <div class="rt-group">
+            <button type="button" class="btn-leave-list" id="btnLeaveChatRoom" aria-label="채팅방 나가기">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+        </div>
     </div><!-- //top-bar -->
 
     <div class="page-content">
@@ -776,6 +777,14 @@
     <!-- //인재정보 -->
 <?php endif; ?>
 
+<!-- 채팅방 나가기 바텀시트 -->
+<?php renderSelectBottomSheet(
+    'leaveChatRoomSheet',
+    '채팅방 나가기',
+    '<p>채팅방을 나가면 목록에서 삭제됩니다.<br>상대방에게는 나가기 알림이 전송되며, 채팅방은 상대방 목록에 그대로 유지됩니다.</p>',
+    '취소', 'btnLeaveCancel', '',
+    '나가기', 'btnLeaveConfirm', ''
+); ?>
 
 <script>
     // background-image 이미지 로드 실패 시 기본 이미지로 교체
@@ -942,6 +951,28 @@
             el.textContent = fRemoveBigAdrJS(addr);
         });
 
+        // 상단 제목 클릭 시 상세페이지로 이동
+        var rmSubject = document.getElementById('rm_subject');
+        if (rmSubject) {
+            rmSubject.style.cursor = 'pointer';
+            rmSubject.addEventListener('click', function(e) {
+                e.preventDefault();
+                var userType = $("[name='user_type']").val();
+
+                if (userType === "COMP") {
+                    var rcIdx = "<?= isset($recruit['rc_idx']) ? $recruit['rc_idx'] : '' ?>";
+                    if (rcIdx) {
+                        window.location.href = '/recruit/job_post/' + rcIdx;
+                    }
+                } else {
+                    var ruIdx = "<?= isset($resume['ru_idx']) ? $resume['ru_idx'] : '' ?>";
+                    if (ruIdx) {
+                        window.location.href = '/resume/hr_post/' + ruIdx;
+                    }
+                }
+            });
+        }
+
         // 채팅 뷰 헤더의 채용정보/인재정보 카드 클릭 이벤트 처리
         // 링크나 버튼을 클릭한 경우는 기본 동작 유지, 그 외 영역 클릭 시 상세페이지로 이동
         $(document).on('click', '.chat-view-header .result-list-card .btn-detail', function(e) {
@@ -963,6 +994,65 @@
             }
         });
     });
+
+    // 채팅방 나가기 바텀시트 트리거
+    // 나가기 버튼 클릭
+    $(document).on('click', '#btnLeaveChatRoom', function(e) {
+        e.preventDefault();
+        var userId = ensureValidUserId();
+        if (!userId) return;
+
+        var sheet = document.getElementById('leaveChatRoomSheet');
+        if (sheet && typeof openPanel === 'function') {
+            openPanel(sheet);
+        }
+    });
+
+    // 바텀시트 버튼 이벤트
+    $(document).on('click', '#btnLeaveCancel', function() {
+        var sheet = document.getElementById('leaveChatRoomSheet');
+        if (typeof closePanel === 'function') {
+            closePanel(sheet);
+        }
+    });
+
+    $(document).on('click', '#btnLeaveConfirm', function() {
+        if (typeof confirmLeaveChatRoom === 'function') {
+            confirmLeaveChatRoom();
+        }
+    });
+
+    // 채팅방 나가기 확정 처리
+    function confirmLeaveChatRoom() {
+        var g_user_id = ensureValidUserId();
+        if (!g_user_id || !rm_idx) return;
+
+        comAjax("/chat_proc/exit_room", { rm_idx: rm_idx }, function(ret) {
+            closePanel(document.getElementById('leaveChatRoomSheet'));
+
+            if (ret.code != "00") {
+                commonAlert(ret.msg || "채팅방 나가기에 실패했습니다.", function() {});
+                return;
+            }
+
+            // 상대방에게 나가기 시스템 메시지 브로드캐스트
+            if (ret.data && ret.data.system_message && typeof socket !== 'undefined' && socket.connected) {
+                var systemMsg = ret.data.system_message;
+                var users = (rm_info && rm_info.rm_users) ? rm_info.rm_users : [
+                    { user_id: $('#otherid').val() },
+                    { user_id: g_user_id }
+                ];
+                socket.emit("message_insert", systemMsg, users);
+            }
+
+            // 원래 들어온 목록으로 이동 (backUrl은 파일 최상단 IIFE에서 계산)
+            if (typeof backUrl !== 'undefined') {
+                window.location.href = backUrl;
+            } else {
+                window.location.href = '/chat/chat_list';
+            }
+        });
+    }
 
     // ✅ 중복 메시지 방지는 DOM 체크로 처리 (processedIdx 제거)
     // DOM에 이미 있는 메시지는 showMessage에서 자동으로 건너뛰기
@@ -3142,6 +3232,21 @@
         height: 1px;
         overflow: hidden;
         clip: rect(0, 0, 0, 0);
+    }
+
+    .btn-leave-list {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        color: #fff;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 0;
+        text-decoration: none;
     }
 
     .chat-view-header {

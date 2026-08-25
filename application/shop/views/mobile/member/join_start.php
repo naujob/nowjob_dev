@@ -452,6 +452,4 @@
 		//location.href = '/member/join_mem_toturial';
 	}
 
-	// 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-	window.DISABLE_SWIPE_BACK = true;
 </script>

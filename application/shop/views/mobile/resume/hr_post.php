@@ -192,6 +192,13 @@ function fRemoveBigAdr($arg)
     <!-- 앱 딥링크 -->
     <script src="/resource/shop/mobile/js/app-deeplink.js"></script>
 
+    <script>
+        // 인재 목록 페이지에서 돌아올 때 하이라이트 처리
+        var ruIdx = '<?= $info["ru_idx"] ?>';
+        sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
+        sessionStorage.setItem('resume_came_from_hr_post', 'true');
+    </script>
+
     <div class="page-content">
         <div class="section view-header">
             <div class="profile">
@@ -510,7 +517,7 @@ function fRemoveBigAdr($arg)
                     <img src="/resource/shop/mobile/img/del.png" alt="삭제">
                     <span class="action-label">삭제</span>
                 </a>
-                <a href="/mypage/point_promotion_buy" class="floating-action-item" data-action="promote" title="광고신청">
+                <a href="/mypage/point_promotion_buy/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
                     <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
                     <span class="action-label">광고</span>
                 </a>
@@ -947,11 +954,6 @@ function fRemoveBigAdr($arg)
         if (ruIdx) {
             location.href = "/mypage/resume_view/" + ruIdx;
         }
-    });
-
-    // 개인회원이 자신의 이력서를 볼 때: 광고신청 버튼 클릭 이벤트
-    $(document).on('click', '#btnPromotionResume', function() {
-        location.href = "/mypage/point_promotion_buy";
     });
 
     // 기업이 구직자에게 050 가상번호로 전화 연결

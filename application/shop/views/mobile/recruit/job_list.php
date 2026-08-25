@@ -462,6 +462,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     background-color: transparent;
   }
 
+  
 
 </style>
 
@@ -974,6 +975,12 @@ $tpl_recomm_class = true; ?>
 
   // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
   function applyLastClickedHighlight() {
+    var isFromJobPost = sessionStorage.getItem('recruit_came_from_job_post');
+    if (isFromJobPost !== 'true') {
+      return;
+    }
+    sessionStorage.removeItem('recruit_came_from_job_post');
+
     var highlightRcIdx = sessionStorage.getItem('recruit_highlight_rc_idx');
     if (!highlightRcIdx) {
       return;
@@ -1225,7 +1232,6 @@ $tpl_recomm_class = true; ?>
     }
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
-      sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
       window.location.href = '/recruit/job_post/' + rcIdx;
     }
   });
@@ -1351,9 +1357,6 @@ $tpl_recomm_class = true; ?>
       saveSearchStateToStorage();
     }
   };
-
-  // 스와이프 뒤로가기 비활성화
-  window.DISABLE_SWIPE_BACK = true;
 
   // Android 뒤로가기 패널 상태 관리
   window.isAdvancedSearchOpen = function() {
@@ -1698,9 +1701,6 @@ $tpl_recomm_class = true; ?>
     $('.main-visual').toggle(isFirstPage);
     $('#hotListSection').toggle(isFirstPage);
   }
-
-  // 스와이프 뒤로가기 비활성화
-  window.DISABLE_SWIPE_BACK = true;
 
   // Android 뒤로가기 패널 상태 관리
   window.isAdvancedSearchOpen = function() {

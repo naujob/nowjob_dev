@@ -829,8 +829,6 @@ if ($g_ios_publish == true) {
     }
   });
 
-  window.DISABLE_SWIPE_BACK = true;
-
   // function fRemoveBigAdrJS(arg) {
   //   // null 또는 undefined 체크
   //   if (!arg || typeof arg !== 'string') {

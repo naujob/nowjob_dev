@@ -176,6 +176,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         var rcIdx = '<?= $info['rc_idx'] ?>';
         var isPreview = '<?= $isPreview ? "true" : "false" ?>' === "true";
 
+        // 공고 목록 페이지에서 돌아올 때 하이라이트 처리
+        sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
+        sessionStorage.setItem('recruit_came_from_job_post', 'true');
+
         // preview 모드에서 draft 데이터 로드
         var draftData = {};
         var previewMemInfo = {};
@@ -204,11 +208,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         function goBackToEdit(e) {
             e.preventDefault();
 
-            // preview 모드일 때 rc_idx를 포함하여 작성 페이지로 이동
+            // preview 모드일 때 작성 페이지로 이동 (기존 공고 계속 수정)
             if (isPreview) {
-                window.location.href = '/compage/recruit_write1_1?rc_idx=' + rcIdx;
+                window.location.href = '/compage/recruit_write1_1/' + rcIdx;
             } else {
-                history.back();
+                // 일반 조회 모드: 공고 목록으로 돌아가기 (무한 루프 방지)
+                location.href = '/recruit/job_list';
             }
         }
 
@@ -278,8 +283,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                                             localStorage.removeItem("recruit_draft_0_page2");
                                             localStorage.removeItem("recruit_draft_0_page3");
 
-                                            // 채용공고 목록으로 이동
-                                            window.location.href = "/compage/recruit_list";
+                                            // 채용공고 등록 완료
+                                            commonAlert("채용공고가 등록되었습니다.", function() {
+                                                window.history.go(-2);
+                                            });
                                         } else {
                                             alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
                                         }
@@ -696,29 +703,20 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 </script>
             </div>
         </div>
-        <!-- view-footer 플로팅 액션 버튼 그룹으로 대체됨 (라인 713~751) -->
-        <!-- <div class="view-footer">
-            <?php if ($isPreview) { ?>
 
-                <button type="button" class="btn btn-secondary" onclick="goBackToEdit(event)">수정하기</button>
-                <button type="button" class="btn btn-primary" onclick="submitPreview()">등록하기</button>
-            <?php } else if ($isOwnRecruit) { ?>
-
-                <button type="button" id="btnEditRecruit" class="btn btn-edit">수정</button>
-                <button type="button" id="btnPromotionRecruit" class="btn btn-promotion">광고신청</button>
-            <?php } else { ?>
-
-                <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn btn-secondary">지원하기</button>
-
-                <a href="tel:<?= $info["mm_phone"] ?>" class="btn btn-primary js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>">전화하기</a>
-            <?php } ?>
-        </div> -->
+        <!-- 미리보기 모드 footer 버튼 -->
+        <?php if ($isPreview) { ?>
+        <div class="view-footer">
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">수정하기</button>
+            <button type="button" class="btn btn-primary" onclick="submitPreview()">등록하기</button>
+        </div>
+        <?php } ?>
 
         <!-- 플로팅 액션 버튼 그룹 -->
         <?php
         $userType = $this->user->getUserType();
         ?>
-        <?php if ($userType !== "COMP" || $isOwnRecruit) : ?>
+        <?php if ((!$isPreview && $userType !== "COMP") || $isOwnRecruit) : ?>
         <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
 
             <?php if ($userType === "MEM") : ?>
@@ -750,7 +748,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     <img src="/resource/shop/mobile/img/del.png" alt="삭제">
                     <span class="action-label">삭제</span>
                 </a>
-                <a href="#" class="floating-action-item" id="btnPromotionRecruit" data-action="promote" title="광고신청">
+                <a href="/compage/point_promotion_buy/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
                     <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
                     <span class="action-label">광고</span>
                 </a>
@@ -1493,11 +1491,6 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             }
         });
 
-        // 기업회원이 자신의 채용공고를 볼 때: 광고신청 버튼 클릭 이벤트
-        $(document).on('click', '#btnPromotionRecruit', function() {
-            location.href = "/compage/point_promotion_buy";
-        });
-
         // 통화 로그 기록
         $(document).on('click', '.js-call-log', function() {
             var rc_idx = $(this).data('rc_idx');
@@ -1519,7 +1512,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         });
 
         // 재등록 확인
-        function confirmReregisterRecruit() {
+        window.confirmReregisterRecruit = function() {
             var rc_idx = $("[name=rc_idx]").val();
             comAjax("/compage_proc/recruit_reregister", { rc_idx: rc_idx }, function(ret) {
                 closePanel(document.getElementById('reregisterSheet'));
@@ -1529,10 +1522,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                     commonAlert(ret.msg, function() {});
                 }
             });
-        }
+        };
 
         // 마감 확인
-        function confirmEndRecruit() {
+        window.confirmEndRecruit = function() {
             var rc_idx = $("[name=rc_idx]").val();
             comAjax("/compage_proc/recruit_end", { rc_idx_list: rc_idx }, function(ret) {
                 closePanel(document.getElementById('endRecruitSheet'));
@@ -1542,10 +1535,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                     commonAlert(ret.msg, function() {});
                 }
             });
-        }
+        };
 
         // 삭제 확인
-        function confirmDeleteRecruit() {
+        window.confirmDeleteRecruit = function() {
             var rc_idx = $("[name=rc_idx]").val();
             comAjax("/compage_proc/recruit_del", { rc_idx_list: rc_idx }, function(ret) {
                 closePanel(document.getElementById('deleteRecruitSheet'));
@@ -1555,7 +1548,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                     commonAlert(ret.msg, function() {});
                 }
             });
-        }
+        };
 
     });
 </script>

@@ -462,10 +462,6 @@ if (!$socket_io_script_url) {
   // iOS 스와이프 뒤로가기 시 네이티브에서 호출
 
 
-  // 전역 변수: 스와이프 뒤로가기 비활성화 플래그 (기본값 false)
-  // 'true'는 스와이프 뒤로가기(화면을 왼쪽에서 오른쪽으로 밀어서 이전 페이지로 가는 동작)를 "비활성화"하라는 의미입니다.
-  // 이 플래그가 true면 iOS 등에서 스와이프 제스처로 뒤로가기가 동작하지 않도록 막습니다.
-  window.DISABLE_SWIPE_BACK = window.DISABLE_SWIPE_BACK || false;
 
   // Android는 네이티브 앱에서 customBack() 함수를 직접 호출하여 뒤로가기 처리
   // iOS는 네이티브 앱의 allowsBackForwardNavigationGestures 설정으로 제어

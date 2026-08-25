@@ -460,12 +460,12 @@
                         <div class="datepicker-row">
                             <label class="datepicker-wrapper">
                                 <span class="sr-text">시작일 선택</span>
-                                <input type="text" name="rc_sdate" id="rc_sdate" aria-required="true" required class="form-text js-datepicker-start" readonly placeholder="2025.01.01">
+                                <input type="text" name="rc_sdate" id="rc_sdate" aria-required="true" required class="form-text js-datepicker-start" readonly placeholder="2025.01.01" value="<?= isset($info['rc_sdate']) && $info['rc_sdate'] ? $info['rc_sdate'] : '' ?>">
                             </label>
                             <span class="datepicker-separator">~</span>
                             <label class="datepicker-wrapper">
                                 <span class="sr-text">종료일 선택</span>
-                                <input type="text" name="rc_edate" id="rc_edate" aria-required="true" required class="form-text js-datepicker-end" readonly placeholder="2025.03.01">
+                                <input type="text" name="rc_edate" id="rc_edate" aria-required="true" required class="form-text js-datepicker-end" readonly placeholder="2025.03.01" value="<?= isset($info['rc_edate']) && $info['rc_edate'] ? $info['rc_edate'] : '' ?>">
                             </label>
                         </div>
                     </div>
@@ -585,7 +585,6 @@
 
                     <div class="sticky-bottom view-footer">
                         <button id="btnPreview" type="button" class="btn btn-primary">미리보기</button>
-                        <button id="btnSubmit" type="button" class="btn btn-primary">최종저장</button>
                     </div>
                 </div>
             </div>
@@ -939,7 +938,8 @@
     $info_for_js["mm_comp_name"] = isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "";
     $info_for_js["mm_phone"] = isset($mem_info["mm_phone"]) ? $mem_info["mm_phone"] : "";
     ?>
-    var serverData = <?= (isset($info["rc_idx"]) && $info["rc_idx"] != 0) ? json_encode($info_for_js, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
+    // 복사 모드(rc_idx=0)에서도 addr 데이터가 있으면 serverData 설정
+    var serverData = <?= (isset($info["rc_idx"]) && ($info["rc_idx"] != 0 || isset($info["addr"]))) ? json_encode($info_for_js, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null' ?>;
     var serverAddrData = serverData && serverData.addr ? serverData.addr : null;
     var serverAddrData1 = serverData && serverData.expose_addr1 ? serverData.expose_addr1 : null;
     var serverAddrData2 = serverData && serverData.expose_addr2 ? serverData.expose_addr2 : null;
@@ -947,6 +947,8 @@
 
     // PHP에서 rc_idx를 JavaScript 변수로 전달
     var rcIdx = '<?= isset($info["rc_idx"]) ? $info["rc_idx"] : "0" ?>';
+    var origRcIdx = '<?= isset($orig_rc_idx) ? $orig_rc_idx : "0" ?>';
+    var gbnMode = '<?= isset($gbn) ? $gbn : "" ?>';
 
     // ============================================================================
     // 1. 유틸리티 함수 (숫자 포맷팅, 문자열 처리)
@@ -1202,6 +1204,8 @@
                 // draft가 있으면 draft 사용 (preview에서 돌아온 경우의 임시 수정사항)
                 try {
                     formData = JSON.parse(draftSaved);
+            
+
                     if (!formData) {
                         formData = null;
                     }
@@ -1212,7 +1216,12 @@
         }
 
         // draft가 없거나 shouldLoadDraft가 false인 경우: 서버 데이터 사용 (DB 데이터)
-        if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
+        // 처음 작성시(rc_idx=0)에는 serverData 무시 → 주소 표시 안 함
+        // 복사 모드(gbn=copy)일 때만 serverData 사용
+        if (!formData && typeof serverData !== 'undefined' && serverData !== null && (
+            (serverData.rc_idx && serverData.rc_idx != "0") ||
+            (gbnMode === "copy" && serverData.addr && serverData.addr.ad_addr)
+        )) {
             formData = serverData;
         } else if (!formData) {
             // draft도 없고 serverData도 없으면 종료
@@ -1454,7 +1463,8 @@
         }
 
         // draft가 없거나 shouldLoadDraft가 false인 경우: 서버 데이터 사용 (DB 데이터)
-        if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
+        // 복사 모드(gbn=copy)에서도 serverData 사용
+        if (!formData && typeof serverData !== 'undefined' && serverData !== null && (serverData.rc_idx || serverData.rc_life_type)) {
             formData = serverData;
         } else if (!formData) {
             // draft도 없고 serverData도 없으면 종료
@@ -1493,7 +1503,8 @@
         }
 
         // draft가 없거나 shouldLoadDraft가 false인 경우: 서버 데이터 사용 (DB 데이터)
-        if (!formData && typeof serverData !== 'undefined' && serverData !== null && serverData.rc_idx && serverData.rc_idx != "0") {
+        // 복사 모드(gbn=copy)에서도 serverData 사용
+        if (!formData && typeof serverData !== 'undefined' && serverData !== null && (serverData.rc_idx || serverData.rc_desc)) {
             formData = serverData;
             isServerData = true;  // serverData를 사용했음을 기록
         }
@@ -1517,8 +1528,22 @@
                     var startFormatted = today.getFullYear() + '.' + (today.getMonth() + 1).toString().padStart(2, '0') + '.' + today.getDate().toString().padStart(2, '0');
                     var endFormatted = endDate.getFullYear() + '.' + (endDate.getMonth() + 1).toString().padStart(2, '0') + '.' + endDate.getDate().toString().padStart(2, '0');
 
-                    document.querySelector('#rc_sdate').value = startFormatted;
-                    document.querySelector('#rc_edate').value = endFormatted;
+                    var sDateInput = document.querySelector('#rc_sdate');
+                    var eDateInput = document.querySelector('#rc_edate');
+                    if (sDateInput) {
+                        sDateInput.value = todayStr;  // Y-m-d 포맷
+                        var sAltInput = sDateInput.nextElementSibling;
+                        if (sAltInput && sAltInput.tagName === 'INPUT') {
+                            sAltInput.value = startFormatted;
+                        }
+                    }
+                    if (eDateInput) {
+                        eDateInput.value = endDateStr;  // Y-m-d 포맷
+                        var eAltInput = eDateInput.nextElementSibling;
+                        if (eAltInput && eAltInput.tagName === 'INPUT') {
+                            eAltInput.value = endFormatted;
+                        }
+                    }
                 }
             }, 100);
             return;
@@ -1568,15 +1593,15 @@
                         var sFormatted = sParts[0] + '.' + sParts[1] + '.' + sParts[2];
                         var sInput = document.querySelector('#rc_sdate');
                         if (sInput) {
-                            sInput.value = sFormatted;
+                            sInput.value = formData.rc_sdate;  // 원본 input: 대시 포맷 Y-m-d
                             var sAltInput = sInput.nextElementSibling;
                             if (sAltInput && sAltInput.tagName === 'INPUT') {
-                                sAltInput.value = sFormatted;
+                                sAltInput.value = sFormatted;  // altInput: 점 포맷 Y.m.d
                             }
                         }
                     }
                 }
-                if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) { 
+                if (formData.rc_edate && window.pickerInstances && window.pickerInstances.endPicker) {
                     window.pickerInstances.endPicker.setDate(formData.rc_edate, false);
 
                     var eParts = formData.rc_edate.split('-'); //"2026-08-20"->  eParts = ["2026", "08", "20"]
@@ -1584,10 +1609,10 @@
                         var eFormatted = eParts[0] + '.' + eParts[1] + '.' + eParts[2];
                         var eInput = document.querySelector('#rc_edate');
                         if (eInput) {
-                            eInput.value = eFormatted;
+                            eInput.value = formData.rc_edate;  // 원본 input: 대시 포맷 Y-m-d
                             var eAltInput = eInput.nextElementSibling;
                             if (eAltInput && eAltInput.tagName === 'INPUT') {
-                                eAltInput.value = eFormatted;
+                                eAltInput.value = eFormatted;  // altInput: 점 포맷 Y.m.d
                             }
                         }
                     }
@@ -1998,6 +2023,11 @@
 
     // 미리보기 페이지로 이동
     function showPreviewPage(rc_idx) {
+        // 현재 폼 데이터를 draft로 저장 (돌아올 때 복원용)
+        savePage1Data();
+        savePage2Data();
+        savePage3Data();
+
         // 회사정보 저장
         var memInfo = {
             mm_comp_name: '<?= isset($mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : "" ?>',
@@ -2050,7 +2080,6 @@
     }
     // 페이지 로드 시 이벤트 리스너 등록 및 초기화
     window.addEventListener('DOMContentLoaded', function() {
-      
         // URL 파라미터에서 rc_idx 확인 (preview 모드에서 돌아온 경우)
         // PHP에서 전달한 rcIdx 변수 사용 (URL 파라미터 대신)
         var fromPreviewFlag = sessionStorage.getItem('from_preview') === 'true';
@@ -2088,10 +2117,10 @@
 
                 if (window.pickerInstances && window.pickerInstances.startPicker) {
                     window.pickerInstances.startPicker.setDate(todayStr, true);
-                    // 원본 + 보조 input 모두 설정
+                    // 원본 input은 Y-m-d, 보조 input은 점 포맷
                     var sInput = document.querySelector('#rc_sdate');
                     if (sInput) {
-                        sInput.value = startFormatted;
+                        sInput.value = todayStr;
                         var sAltInput = sInput.nextElementSibling;
                         if (sAltInput && sAltInput.tagName === 'INPUT') {
                             sAltInput.value = startFormatted;
@@ -2101,10 +2130,10 @@
 
                 if (window.pickerInstances && window.pickerInstances.endPicker) {
                     window.pickerInstances.endPicker.setDate(endDateStr, true);
-                    // 원본 + 보조 input 모두 설정
+                    // 원본 input은 Y-m-d, 보조 input은 점 포맷
                     var eInput = document.querySelector('#rc_edate');
                     if (eInput) {
-                        eInput.value = endFormatted;
+                        eInput.value = endDateStr;
                         var eAltInput = eInput.nextElementSibling;
                         if (eAltInput && eAltInput.tagName === 'INPUT') {
                             eAltInput.value = endFormatted;
@@ -2154,12 +2183,19 @@
             if (typeof flatpickr == 'undefined') return false;
 
             // 신규/기존 공고 모두 매번 열 때마다 오늘과 오늘+2개월로 초기화
-            var defaultStartDate = "";
-            var defaultEndDate = "";
             var today = new Date();
             var todayStr = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
 
+            // HTML에서 받은 값이 있으면 그것을 사용, 없으면 오늘 사용
+            var existingStartDate = document.querySelector('#rc_sdate')?.value || "";
+            // 점 포맷("2026.08.24")을 대시 포맷("2026-08-24")으로 변환
+            var defaultStartDate = existingStartDate ? existingStartDate.replace(/\./g, '-') : "";
             var startDate = defaultStartDate != "" && defaultStartDate >= todayStr ? defaultStartDate : todayStr;
+
+            // HTML에서 받은 값이 있으면 그것을 사용, 없으면 startDate + 2개월 사용
+            var existingEndDate = document.querySelector('#rc_edate')?.value || "";
+            // 점 포맷("2026.08.24")을 대시 포맷("2026-08-24")으로 변환
+            var defaultEndDate = existingEndDate ? existingEndDate.replace(/\./g, '-') : "";
 
             var endDate = defaultEndDate != "" ? defaultEndDate : null;
             if (!endDate) {
@@ -2236,8 +2272,8 @@
                 var formattedStart = startParts[0] + '.' + startParts[1] + '.' + startParts[2];
                 var startInput = document.querySelector('#rc_sdate');
                 if (startInput) {
-                    startInput.value = formattedStart;
-                    // 보조 input도 설정
+                    startInput.value = startDate;  // dateFormat과 일치하는 Y-m-d(대시) 포맷으로 저장
+                    // 보조 input은 점 포맷으로 화면 표시
                     var startAltInput = startInput.nextElementSibling;
                     if (startAltInput && startAltInput.tagName === 'INPUT') {
                         startAltInput.value = formattedStart;
@@ -2284,8 +2320,8 @@
                 var formattedEnd = endParts[0] + '.' + endParts[1] + '.' + endParts[2];
                 var endInput = document.querySelector('#rc_edate');
                 if (endInput) {
-                    endInput.value = formattedEnd;
-                    // 보조 input도 설정
+                    endInput.value = endDate;  // dateFormat과 일치하는 Y-m-d(대시) 포맷으로 저장
+                    // 보조 input은 점 포맷으로 화면 표시
                     var endAltInput = endInput.nextElementSibling;
                     if (endAltInput && endAltInput.tagName === 'INPUT') {
                         endAltInput.value = formattedEnd;
@@ -2301,6 +2337,7 @@
 
         // 페이지 로드 시 근무시간 섹션 및 근무협의 초기화
         updateTimeSection();
+
         updateNegotiationCheckbox();
 
         updateSalaryOptions();
@@ -3016,28 +3053,31 @@
             handleSubmit("final");
         });
 
-        $(".btn-back").click(function(e) {
+         $(".btn-back").click(function(e) {
             e.preventDefault();
             savePage1Data();
             savePage2Data();
             savePage3Data();
-            clearRecruitDraftData($("[name='rc_idx']").val() || "0"); //임시저장 삭제처리
-            location.href = "/compage/recruit_list";
+        clearRecruitDraftData($("[name='rc_idx']").val() || "0"); //임시저장 삭제처리
+
+            // origRcIdx: 컨트롤러가 넘겨준 원본 공고 번호 (gbn=copy 모드에서도 항상 정확한 값)
+            var backRcIdx = (typeof origRcIdx !== 'undefined' && origRcIdx && origRcIdx !== '0')
+                ? origRcIdx
+                : $("[name='rc_idx']").val();
+
+            if (backRcIdx && backRcIdx !== "0") {
+                location.href = '/recruit/job_post/' + backRcIdx;
+            } else {
+                location.href = '/recruit/job_list';
+            }
         });
 
         // 히스토리 상태 저장 (무한루프 방지를 위해 page 상태 추가)
-        history.pushState({page: 'recruit_write1_1'}, null, location.href); // 
-
         window.addEventListener('popstate', function(e) {
             // recruit_write 페이지에서만 처리
-            if (!e.state || e.state.page === 'recruit_write1_1') {
-                savePage1Data();
-                savePage2Data();
-                savePage3Data();
-                clearRecruitDraftData($("[name='rc_idx']").val() || "0");
-                location.href = "/compage/recruit_list";
-            }
+            goBackFromWrite();
         });
+
     });
 
     // contenteditable HTML을 SmartEditor2 포맷으로 정규화

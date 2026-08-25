@@ -278,6 +278,8 @@ body {
     line-height: 1;
     vertical-align: middle;
     flex-shrink: 0;
+    right: 11px;
+    position: absolute;
 }
 
 /* .bottom-nav .menu:after {

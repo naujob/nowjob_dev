@@ -1168,7 +1168,6 @@ $tpl_show_chat_mark = true; ?>
     var ruIdx = $target.data('ru_idx');
     var resumeMmIdx = $target.data('mm_idx');
 
-    sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
     handleResumeCardClick(ruIdx, resumeMmIdx);
   });
 
@@ -1205,6 +1204,12 @@ $tpl_show_chat_mark = true; ?>
 
   // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
   function applyLastClickedHighlight() {
+    var isFromHrPost = sessionStorage.getItem('resume_came_from_hr_post');
+    if (isFromHrPost !== 'true') {
+      return;
+    }
+    sessionStorage.removeItem('resume_came_from_hr_post');
+
     var highlightRuIdx = sessionStorage.getItem('resume_highlight_ru_idx');
     if (!highlightRuIdx) {
       return;
@@ -1635,9 +1640,6 @@ $tpl_show_chat_mark = true; ?>
     $('.main-visual').toggle(isFirstPage);
     $('#recommSection').toggle(isFirstPage);
   }
-
-  // 스와이프 뒤로가기 비활성화 (이 페이지에서는 스와이프로 뒤로가기 불가)
-  window.DISABLE_SWIPE_BACK = true;
 
   // Android 뒤로가기 패널 상태 관리
   window.isAdvancedSearchOpen = function() {
