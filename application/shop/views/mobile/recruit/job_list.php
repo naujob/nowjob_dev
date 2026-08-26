@@ -741,12 +741,15 @@ $tpl_recomm_class = true; ?>
   }
 
   function saveCurrentPage() {
-    sessionStorage.setItem('recruit_list_page', list_page);
+    localStorage.setItem('recruit_list_page', list_page);
+    localStorage.setItem('recruit_list_scroll', window.scrollY || 0);
+    console.log('🔖 스크롤 저장:', window.scrollY || 0, 'localStorage:', localStorage.getItem('recruit_list_scroll'));
     pushPageToUrl(list_page);
   }
 
   function initCashingData() {
-    list_page = getPageFromUrl();
+    var savedPage = localStorage.getItem('recruit_list_page');
+    list_page = savedPage ? parseInt(savedPage) : getPageFromUrl();
     getBoardList("");
   }
 
@@ -825,6 +828,10 @@ $tpl_recomm_class = true; ?>
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
           updateTopSectionsVisibility();
+          // AJAX 로드 완료 후 스크롤 복원
+          setTimeout(function() {
+            restoreScrollPosition();
+          }, 50);
         }
       },
       error: function(xhr, status, error) {
@@ -973,19 +980,28 @@ $tpl_recomm_class = true; ?>
     }
   }
 
+  var highlightApplied = false;
+
   // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
   function applyLastClickedHighlight() {
-    var isFromJobPost = sessionStorage.getItem('recruit_came_from_job_post');
+    if (highlightApplied) {
+      return; // ponytail: 중복 실행 방지
+    }
+
+    var isFromJobPost = localStorage.getItem('recruit_came_from_job_post');
     if (isFromJobPost !== 'true') {
       return;
     }
-    sessionStorage.removeItem('recruit_came_from_job_post');
 
-    var highlightRcIdx = sessionStorage.getItem('recruit_highlight_rc_idx');
+    var highlightRcIdx = localStorage.getItem('recruit_highlight_rc_idx');
     if (!highlightRcIdx) {
       return;
     }
-    sessionStorage.removeItem('recruit_highlight_rc_idx');
+
+    highlightApplied = true;
+    localStorage.removeItem('recruit_came_from_job_post');
+    localStorage.removeItem('recruit_highlight_rc_idx');
+
     $('.content-li[data-rc_idx="' + highlightRcIdx + '"]').addClass('highlight-recent');
   }
 
@@ -998,7 +1014,7 @@ $tpl_recomm_class = true; ?>
 
     list_page = page;// 페이지 번호 업데이트
 
-    saveCurrentPage(); // 세션 스토리지 및 URL 업데이트
+    pushPageToUrl(list_page); // URL만 업데이트
     $(list_id).empty(); // 기존 리스트 초기화
 
     $("html, body").animate({scrollTop: 0}, 200); // 스크롤 상단 이동
@@ -1032,7 +1048,7 @@ $tpl_recomm_class = true; ?>
     if (urlPage > 1) {
       list_page = urlPage;
     } else {
-      var savedPage = sessionStorage.getItem('recruit_list_page');
+      var savedPage = localStorage.getItem('recruit_list_page');
       list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
     }
 
@@ -1059,13 +1075,15 @@ $tpl_recomm_class = true; ?>
       showEmpty();
       updateTopSectionsVisibility();
       applyLastClickedHighlight();
+      // 초기 데이터 로드 후 스크롤 복원
+      setTimeout(function() {
+        restoreScrollPosition();
+      }, 50);
     } else {
       if (!searchStateLoaded) {
         getBoardList("");
       }
     }
-
-    saveCurrentPage();
   }
 
   function initHotSlider() {
@@ -1205,7 +1223,12 @@ $tpl_recomm_class = true; ?>
   window.addEventListener('popstate', function(e) {
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
     $(list_id).empty();
+    scrollRestored = false; // 플래그 리셋
     getBoardList("");
+    // 뒤로가기 후 스크롤 복원
+    setTimeout(function() {
+      restoreScrollPosition();
+    }, 100);
   });
 
   // 페이지네이션 버튼 클릭 (이벤트 위임)
@@ -1232,6 +1255,10 @@ $tpl_recomm_class = true; ?>
     }
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
+      // 카드 클릭 시 스크롤 위치 저장
+      localStorage.setItem('recruit_list_page', list_page);
+      localStorage.setItem('recruit_list_scroll', window.scrollY || 0);
+      console.log('🔖 카드 클릭 - 스크롤 저장:', window.scrollY || 0);
       window.location.href = '/recruit/job_post/' + rcIdx;
     }
   });
@@ -1251,6 +1278,7 @@ $tpl_recomm_class = true; ?>
   // ========================================
 
   window.addEventListener('DOMContentLoaded', function() {
+    // 중복 방지: DOMContentLoaded 여러 번 발생 시 한 번만 실행
     if (window.__jobListDOMContentLoaded) {
       return;
     }
@@ -1333,6 +1361,8 @@ $tpl_recomm_class = true; ?>
       if (!searchStateLoaded) {
         initLoadData();
       }
+      // 스크롤 위치 복원
+      restoreScrollPosition();
     }, 10);
 
     $(document).on('click', '.content-li', function(e) {
@@ -1349,6 +1379,24 @@ $tpl_recomm_class = true; ?>
   // ========================================
   // 8️⃣  기타 헬퍼 함수들
   // ========================================
+
+  // 스크롤 위치 복원 (한 번만 실행)
+  var scrollRestored = false;
+  function restoreScrollPosition() {
+    if (scrollRestored) {
+      return;
+    }
+    var savedScroll = localStorage.getItem('recruit_list_scroll');
+    console.log('🔄 스크롤 복원 시도:', savedScroll, '현재 scrollY:', window.scrollY);
+    if (savedScroll) {
+      window.scrollTo(0, parseInt(savedScroll));
+      console.log('✅ 스크롤 이동:', parseInt(savedScroll));
+      scrollRestored = true;
+      localStorage.removeItem('recruit_list_scroll');
+    } else {
+      console.log('❌ 저장된 스크롤값 없음');
+    }
+  }
 
   // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
   window.onChangeAreaApply = function() {
@@ -1431,166 +1479,6 @@ $tpl_recomm_class = true; ?>
   // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
   window.__addrPopupPageType = 'recruit';
 
-  window.addEventListener('DOMContentLoaded', function() {
-    // [중복 방지] recruit 페이지에서만 한 번만 실행
-    if (window.__jobListDOMContentLoaded) {
-    
-      return;
-    }
-    window.__jobListDOMContentLoaded = true;
-
-    // 스크롤 강제 활성화 (모바일 웹뷰에서 overflow:hidden 잔존 대응)
-    $('html, body').css({
-      overflow: 'auto',
-      'overflow-y': 'auto',
-      height: 'auto'
-    });
-
-    // [변경] sessionStorage에서 선택된 지역 복원 (recruit 페이지별)
-    var pageType = 'recruit';
-    var storageKey_regions = 'selectedRegions_' + pageType;
-    var storageKey_area = 'searchAreaStr_' + pageType;
-
-   
-
-    var addrNames = [];
-    var searchArea = [];
-    var savedSelectedRegions = sessionStorage.getItem(storageKey_regions);
-    var savedSearchAreaStr = sessionStorage.getItem(storageKey_area);
-
-    if (savedSelectedRegions) {
-      try {
-        window.selectedRegions = JSON.parse(savedSelectedRegions);
-        addrNames = window.selectedRegions.slice(0, 3);
-      } catch (e) {
-        window.selectedRegions = [];
-      }
-    } else {
-      window.selectedRegions = [];
-    }
-
-    if (savedSearchAreaStr) {
-      try {
-        searchArea = JSON.parse(savedSearchAreaStr);
-      } catch (e) {
-      
-        searchArea = [];
-      }
-    }
-
-    // addrName 설정
-    if (addrNames.length > 0) {
-      addrName = addrNames.join(', ');
-      $('.addrName').text(addrName).attr('data-selected', 'true');
-    } else {
-      addrName = '지역을 선택해 주세요';
-      $('.addrName').text(addrName).attr('data-selected', 'false');
-    }
-
-    search_addr = [];
-    searchArea.forEach(function(area) {
-      if (area && area.addr) {
-        search_addr.push(area.addr);
-      }
-    });
-    searchAreaStr = JSON.stringify(searchArea);
-
-    // window.selectedRegions 동기화
-    if (typeof selectedRegions === 'undefined') {
-      window.selectedRegions = addrNames.slice(0, 3);
-    }
-
-    // UI 동기화
-    if (typeof window.updateSelectedRegionsTags === 'function') {
-      window.updateSelectedRegionsTags();
-    }
-
-    initCategory();
-    initTabUi();
-
-    getRecruitRecoList();
-
-    // initLoadData 호출: searchStateLoaded가 true이면 index_search에서 이미 getBoardList를 호출했으므로 건너뜀
-    setTimeout(function() {
-      if (!searchStateLoaded) {
-        initLoadData();
-      }
-    }, 10);
-
-    // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
-    $(document).on('click', '.content-li', function(e) {
-      saveCurrentPage();
-    });
-
-    // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
-    // 로드 순서 대비 재시도 로직 포함
-    function attemptRestoreScroll() {
-      if (typeof forceRestoreBodyScroll === 'function') {
-        forceRestoreBodyScroll();
-      } else if (typeof restoreBodyScroll === 'function') {
-        restoreBodyScroll();
-      } else {
-        // fallback: 직접 복원
-        const b = document.body;
-        const h = document.documentElement;
-        const propsToRemove = ['position', 'top', 'left', 'right', 'overflow', 'width', 'height'];
-
-        if (b) {
-          propsToRemove.forEach(p => {
-            if (b.style.getPropertyValue(p)) {
-              b.style.removeProperty(p);
-            }
-          });
-          b.classList.remove('no-scroll');
-        }
-
-        if (h) {
-          propsToRemove.forEach(p => {
-            if (h.style.getPropertyValue(p)) {
-              h.style.removeProperty(p);
-            }
-          });
-        }
-
-        const shouldForceOverflow = (b && (b.classList.contains('no-scroll') ||
-            b.style.position === 'fixed' ||
-            getComputedStyle(b).overflow === 'hidden')) ||
-          (h && getComputedStyle(h).overflow === 'hidden');
-
-        if (shouldForceOverflow) {
-          $("body").css({
-            "overflow": "auto",
-            "overflow-y": "auto",
-            "-webkit-overflow-scrolling": "touch"
-          }).removeClass('no-scroll');
-          $("html").css({
-            "overflow": "auto",
-            "overflow-y": "auto"
-          });
-        }
-
-        // 스크롤 컨테이너에도 적용
-        ['.page-recruit', '.page-content', '#app'].forEach(selector => {
-          const $container = $(selector);
-          if ($container.length && $container.css('overflow') !== 'hidden') {
-            $container.css('-webkit-overflow-scrolling', 'touch');
-          }
-        });
-      }
-    }
-
-    // 즉시 시도
-    attemptRestoreScroll();
-
-    // iOS 타이밍 이슈 대비 재시도
-    setTimeout(attemptRestoreScroll, 50);
-    setTimeout(attemptRestoreScroll, 200);
-
-    // 지금 뜨는 업체 슬라이더 초기화
-    initHotSlider();
-
-    // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
-  });
   // 지금 뜨는 업체 슬라이더 초기화
   function initHotSlider() {
     var hotSlider = document.querySelector('.hot-list .slider-wrap');

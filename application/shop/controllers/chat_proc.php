@@ -2567,7 +2567,10 @@ json_return("00", "조회완료", $data);
 		$user_id = $this->user->getUserId();
 		$mm_idx = $this->user->getUserIdx();
 
+		error_log('[Chat] exit_room 요청 시작 - rm_idx: ' . $rm_idx . ', user_id: ' . $user_id);
+
 		if (empty($rm_idx) || empty($user_id)) {
+			//error_log('[Chat] exit_room 필수 파라미터 없음');
 			json_return("90", "필수 파라미터가 없습니다.", []);
 			return;
 		}
@@ -2677,12 +2680,14 @@ json_return("00", "조회완료", $data);
 				}
 			}
 
+			//error_log('[Chat] exit_room 성공 - rm_idx: ' . $rm_idx . ', user_id: ' . $user_id . ', all_exited: ' . ($all_exited ? 'true' : 'false'));
 			json_return("00", "채팅방을 나갔습니다.", [
 				"rm_idx" => $rm_idx,
 				"system_message" => $system_message,
 				"all_exited" => $all_exited
 			]);
 		} catch (Exception $e) {
+			//error_log('[Chat] exit_room 에러 - ' . $e->getMessage());
 			json_return("90", "처리 중 오류가 발생했습니다: " . $e->getMessage(), []);
 		}
 	}

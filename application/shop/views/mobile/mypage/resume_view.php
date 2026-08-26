@@ -362,7 +362,7 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
             comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
                 closePanel(document.getElementById('deleteResumeSheet'));
                 if (ret.code == "00") {
-                    commonAlert("이력서가 삭제되었습니다.", function() { location.href = "/mypage/resume_list"; });
+                    location.href = "/mypage/resume_list";
                 } else {
                     commonAlert(ret.msg, function() {});
                 }

@@ -132,14 +132,6 @@ class Logger_proc extends CI_Controller
     $logs_base = dirname(APPPATH) . '/logs';
     $log_dir = $logs_base . '/' . date('Y-m-d');
 
-    // 로그 디렉토리가 없으면 생성
-    if (!is_dir($logs_base)) {
-      @mkdir($logs_base, 0755, true);
-    }
-    if (!is_dir($log_dir)) {
-      @mkdir($log_dir, 0755, true);
-    }
-
     $log_files = array();
     $php_app_log = $log_dir . '/php-app.log';
     $php_error_log = $log_dir . '/php-app-error.log';

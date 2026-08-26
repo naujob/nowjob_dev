@@ -195,8 +195,8 @@ function fRemoveBigAdr($arg)
     <script>
         // 인재 목록 페이지에서 돌아올 때 하이라이트 처리
         var ruIdx = '<?= $info["ru_idx"] ?>';
-        sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
-        sessionStorage.setItem('resume_came_from_hr_post', 'true');
+        localStorage.setItem('resume_highlight_ru_idx', ruIdx);
+        localStorage.setItem('resume_came_from_hr_post', 'true');
     </script>
 
     <div class="page-content">
@@ -1025,7 +1025,7 @@ function fRemoveBigAdr($arg)
         comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
             closePanel(document.getElementById('deleteResumeSheet'));
             if (ret.code == "00") {
-                commonAlert("이력서가 삭제되었습니다.", function() { location.href = "/mypage/resume_list"; });
+                location.href = "/mypage/resume_list";
             } else {
                 commonAlert(ret.msg, function() {});
             }

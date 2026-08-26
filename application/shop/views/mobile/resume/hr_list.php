@@ -1202,19 +1202,28 @@ $tpl_show_chat_mark = true; ?>
     }
   }
 
+  var highlightApplied = false;
+
   // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
   function applyLastClickedHighlight() {
-    var isFromHrPost = sessionStorage.getItem('resume_came_from_hr_post');
+    if (highlightApplied) {
+      return; // ponytail: 중복 실행 방지
+    }
+
+    var isFromHrPost = localStorage.getItem('resume_came_from_hr_post');
     if (isFromHrPost !== 'true') {
       return;
     }
-    sessionStorage.removeItem('resume_came_from_hr_post');
 
-    var highlightRuIdx = sessionStorage.getItem('resume_highlight_ru_idx');
+    var highlightRuIdx = localStorage.getItem('resume_highlight_ru_idx');
     if (!highlightRuIdx) {
       return;
     }
-    sessionStorage.removeItem('resume_highlight_ru_idx');
+
+    highlightApplied = true;
+    localStorage.removeItem('resume_came_from_hr_post');
+    localStorage.removeItem('resume_highlight_ru_idx');
+
     $('.content-li[data-ru_idx="' + highlightRuIdx + '"]').addClass('highlight-recent');
   }
 

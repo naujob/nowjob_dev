@@ -1463,8 +1463,11 @@ class Compage extends CI_Controller
 		// rc_idx가 0이 아닐 때만 DB 데이터를 info에 로드 (기존 공고 수정 + 복사 모드)
 		if ($recruit_info != null && $rc_idx != 0) {
 			$info["rc_name"] = $recruit_info["rc_name"];
-			$info["rc_sdate"] = get_date($recruit_info["rc_sdate"]);
-			$info["rc_edate"] = get_date($recruit_info["rc_edate"]);
+			// 복사 모드(재등록)에서는 날짜를 초기화하기 위해 빈 값으로 유지, 일반 수정에서만 기존 값 사용
+			if (!$copy_mode) {
+				$info["rc_sdate"] = get_date($recruit_info["rc_sdate"]);
+				$info["rc_edate"] = get_date($recruit_info["rc_edate"]);
+			}
 			$info["addr"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT"]);
 			$info["expose_addr1"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_1"]);
 			$info["expose_addr2"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $recruit_info["rc_idx"], "ad_type" => "RECRUIT_EXPOSE_2"]);

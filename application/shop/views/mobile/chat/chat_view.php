@@ -763,6 +763,7 @@
                               echo ($from === "proposed_job") ? "제안받은 이력서" : "지원한 이력서";
                               ?>
                             </p>
+                        </div>
                     </div>
 
                 </div>
@@ -1027,13 +1028,20 @@
         var g_user_id = ensureValidUserId();
         if (!g_user_id || !rm_idx) return;
 
+       //BrowserLogger.info('나가기 요청 시작', { user_id: g_user_id, rm_idx: rm_idx });
+        //g_user_id, rm_idx를 서버로 전송하여 채팅방 나가기 처리 g_user_id:나가는 주체
         comAjax("/chat_proc/exit_room", { rm_idx: rm_idx }, function(ret) {
             closePanel(document.getElementById('leaveChatRoomSheet'));
 
+           // BrowserLogger.info('나가기 응답', ret);
+
             if (ret.code != "00") {
+                BrowserLogger.error('나가기 실패', { msg: ret.msg });
                 commonAlert(ret.msg || "채팅방 나가기에 실패했습니다.", function() {});
                 return;
             }
+
+            //BrowserLogger.info('나가기 성공', {});
 
             // 상대방에게 나가기 시스템 메시지 브로드캐스트
             if (ret.data && ret.data.system_message && typeof socket !== 'undefined' && socket.connected) {

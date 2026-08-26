@@ -7208,9 +7208,6 @@ form#frm {
 }
 
 /* 카드 hover */
-.result-list-card .content-li:hover {
-    background: #f8f8f8;
-}
 
 /* 별점 */
 .result-list-card .content-info .star-rating {

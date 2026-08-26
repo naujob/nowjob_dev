@@ -642,7 +642,7 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
             comAjax("/compage_proc/recruit_reregister", { rc_idx: rc_idx }, function(ret) {
                 closePanel(document.getElementById('reregisterSheet'));
                 if (ret.code == "00") {
-                   commonAlert("채용공고가 재등록되었습니다.", function() { location.reload(); });
+                   location.reload();
                 } else {
                     commonAlert(ret.msg, function() {});
                 }
@@ -655,7 +655,7 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
             comAjax("/compage_proc/recruit_end", { rc_idx_list: rc_idx }, function(ret) {
                 closePanel(document.getElementById('endRecruitSheet'));
                 if (ret.code == "00") {
-                    commonAlert("채용공고가 마감 처리되었습니다.", function() { location.reload(); });
+                    location.href = "/compage/recruit_list";
                 } else {
                     commonAlert(ret.msg, function() {});
                 }
@@ -668,7 +668,7 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
             comAjax("/compage_proc/recruit_del", { rc_idx_list: rc_idx }, function(ret) {
                 closePanel(document.getElementById('deleteRecruitSheet'));
                 if (ret.code == "00") {
-                    commonAlert("채용공고가 삭제되었습니다.", function() { location.href = "/compage/recruit_list"; });
+                    location.href = "/compage/recruit_list";
                 } else {
                     commonAlert(ret.msg, function() {});
                 }

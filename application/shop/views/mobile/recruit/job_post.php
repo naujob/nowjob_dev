@@ -177,8 +177,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         var isPreview = '<?= $isPreview ? "true" : "false" ?>' === "true";
 
         // 공고 목록 페이지에서 돌아올 때 하이라이트 처리
-        sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
-        sessionStorage.setItem('recruit_came_from_job_post', 'true');
+        localStorage.setItem('recruit_highlight_rc_idx', rcIdx);
+        localStorage.setItem('recruit_came_from_job_post', 'true');
 
         // preview 모드에서 draft 데이터 로드
         var draftData = {};
@@ -1517,7 +1517,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             comAjax("/compage_proc/recruit_reregister", { rc_idx: rc_idx }, function(ret) {
                 closePanel(document.getElementById('reregisterSheet'));
                 if (ret.code == "00") {
-                    commonAlert("채용공고가 재등록되었습니다.", function() { location.reload(); });
+                    location.reload();
                 } else {
                     commonAlert(ret.msg, function() {});
                 }
@@ -1530,7 +1530,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             comAjax("/compage_proc/recruit_end", { rc_idx_list: rc_idx }, function(ret) {
                 closePanel(document.getElementById('endRecruitSheet'));
                 if (ret.code == "00") {
-                    commonAlert("채용공고가 마감 처리되었습니다.", function() { location.reload(); });
+                    location.href = "/compage/recruit_list";
                 } else {
                     commonAlert(ret.msg, function() {});
                 }
@@ -1543,7 +1543,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             comAjax("/compage_proc/recruit_del", { rc_idx_list: rc_idx }, function(ret) {
                 closePanel(document.getElementById('deleteRecruitSheet'));
                 if (ret.code == "00") {
-                    commonAlert("채용공고가 삭제되었습니다.", function() { location.href = "/compage/recruit_list"; });
+                    location.href = "/compage/recruit_list";
                 } else {
                     commonAlert(ret.msg, function() {});
                 }
