@@ -88,6 +88,17 @@
 
 <script>
     window.addEventListener('DOMContentLoaded', function() {
+        // resume_list 페이지 로드 후 히스토리 상태 저장
+        history.pushState({page: 'resume_list'}, null, location.href);
+
+        // 뒤로가기 처리
+        window.addEventListener('popstate', function(e) {
+            // resume_list에서 뒤로가기 → mypage로 이동
+            if (!e.state || e.state.page === 'resume_list') {
+                location.href = "/mypage/index";
+            }
+        });
+
         //처리
         $("#btnResume").click(function() {
             comAjax("/mypage_proc/resume_start", {}, function(ret) {
@@ -140,16 +151,6 @@
                     });
                 }
             });
-        });
-
-        // 히스토리 상태 저장 (무한루프 방지)
-        history.pushState({page: 'resume_list'}, null, location.href);
-
-        window.addEventListener('popstate', function(e) {
-            // resume_list에서 뒤로가기 → mypage로 이동
-            if (!e.state || e.state.page === 'resume_list') {
-                location.href = "/mypage";
-            }
         });
     });
 

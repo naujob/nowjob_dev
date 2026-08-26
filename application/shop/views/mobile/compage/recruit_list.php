@@ -149,7 +149,23 @@
    
 
     window.addEventListener('DOMContentLoaded', function() {
-      
+        // recruit_list 페이지 로드 후 히스토리 상태 저장
+        history.pushState({ page: 'recruit_list' }, null, window.location.href);
+
+        // 히스토리 스택 로깅
+        if (typeof BrowserLogger !== 'undefined') {
+            BrowserLogger.info('recruit_list 로드 - 히스토리:', {
+                historyLength: history.length,
+                currentState: window.history.state,
+                currentUrl: window.location.href
+            });
+        } else {
+            console.log('recruit_list 로드 - 히스토리:', {
+                historyLength: history.length,
+                currentState: window.history.state,
+                currentUrl: window.location.href
+            });
+        }
 
         // 뒤로가기 버튼 클릭 시 /compage/index로 이동
         $(".btn-back").off('click').on('click', function(e) {
@@ -315,6 +331,21 @@
 
 
         window.addEventListener('popstate', function(e) {
+            // 뒤로가기 히스토리 로깅
+            if (typeof BrowserLogger !== 'undefined') {
+                BrowserLogger.info('recruit_list - popstate 발생:', {
+                    event_state: e.state,
+                    historyLength: history.length,
+                    condition: (!e.state || e.state.page === 'recruit_list') ? '이동' : '유지'
+                });
+            } else {
+                console.log('recruit_list - popstate 발생:', {
+                    event_state: e.state,
+                    historyLength: history.length,
+                    condition: (!e.state || e.state.page === 'recruit_list') ? '이동' : '유지'
+                });
+            }
+
             // recruit_list에서 뒤로가기 → compage/index로 이동
             if (!e.state || e.state.page === 'recruit_list') {
                 location.href = "/compage/index";

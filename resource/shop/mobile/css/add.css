@@ -350,3 +350,35 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* 토글 버튼 아이콘 회전 애니메이션 */
+@keyframes toggle-rotate-down {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes toggle-rotate-up {
+    from {
+        transform: rotate(180deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+.toggle-expand i[data-toggle-icon] {
+    display: inline-block;
+    transition: transform 0.3s ease-in-out;
+}
+
+.toggle-expand i[data-toggle-icon][data-state="expanded"] {
+    transform: rotate(180deg);
+}
+
+.toggle-expand i[data-toggle-icon][data-state="collapsed"] {
+    transform: rotate(0deg);
+}

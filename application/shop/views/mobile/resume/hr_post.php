@@ -948,6 +948,8 @@ function fRemoveBigAdr($arg)
         }
     });
 
+   
+
     // 개인회원이 자신의 이력서를 볼 때: 수정 버튼 클릭 이벤트
     $(document).on('click', '#btnEditResume', function() {
         var ruIdx = $("[name=ru_idx]").val();
@@ -1020,15 +1022,17 @@ function fRemoveBigAdr($arg)
     });
 
     // 이력서 삭제 확인
-    function confirmDeleteResume() {
-        var ru_idx = $("[name=ru_idx]").val();
-        comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
-            closePanel(document.getElementById('deleteResumeSheet'));
-            if (ret.code == "00") {
-                location.href = "/mypage/resume_list";
-            } else {
-                commonAlert(ret.msg, function() {});
-            }
-        });
-    }
+       window.confirmDeleteResume = function() {
+            var ru_idx = $("[name=ru_idx]").val();
+            commonAlert('삭제하시겠습니까?', function() {
+            comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
+                closePanel(document.getElementById('deleteResumeSheet'));
+                if (ret.code == "00") {
+                    location.href = '/mypage/resume_list';
+                } else {
+                    commonAlert(ret.msg, function() {});
+                }
+                });
+            });
+        };
 </script>

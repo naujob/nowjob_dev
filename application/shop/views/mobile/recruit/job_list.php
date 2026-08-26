@@ -741,15 +741,12 @@ $tpl_recomm_class = true; ?>
   }
 
   function saveCurrentPage() {
-    localStorage.setItem('recruit_list_page', list_page);
-    localStorage.setItem('recruit_list_scroll', window.scrollY || 0);
-    console.log('🔖 스크롤 저장:', window.scrollY || 0, 'localStorage:', localStorage.getItem('recruit_list_scroll'));
+    sessionStorage.setItem('recruit_list_page', list_page);
     pushPageToUrl(list_page);
   }
 
   function initCashingData() {
-    var savedPage = localStorage.getItem('recruit_list_page');
-    list_page = savedPage ? parseInt(savedPage) : getPageFromUrl();
+    list_page = getPageFromUrl();
     getBoardList("");
   }
 
@@ -828,10 +825,6 @@ $tpl_recomm_class = true; ?>
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
           updateTopSectionsVisibility();
-          // AJAX 로드 완료 후 스크롤 복원
-          setTimeout(function() {
-            restoreScrollPosition();
-          }, 50);
         }
       },
       error: function(xhr, status, error) {
@@ -1014,7 +1007,7 @@ $tpl_recomm_class = true; ?>
 
     list_page = page;// 페이지 번호 업데이트
 
-    pushPageToUrl(list_page); // URL만 업데이트
+    saveCurrentPage(); // 세션 스토리지 및 URL 업데이트
     $(list_id).empty(); // 기존 리스트 초기화
 
     $("html, body").animate({scrollTop: 0}, 200); // 스크롤 상단 이동
@@ -1048,7 +1041,7 @@ $tpl_recomm_class = true; ?>
     if (urlPage > 1) {
       list_page = urlPage;
     } else {
-      var savedPage = localStorage.getItem('recruit_list_page');
+      var savedPage = sessionStorage.getItem('recruit_list_page');
       list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
     }
 
@@ -1075,15 +1068,13 @@ $tpl_recomm_class = true; ?>
       showEmpty();
       updateTopSectionsVisibility();
       applyLastClickedHighlight();
-      // 초기 데이터 로드 후 스크롤 복원
-      setTimeout(function() {
-        restoreScrollPosition();
-      }, 50);
     } else {
       if (!searchStateLoaded) {
         getBoardList("");
       }
     }
+
+    saveCurrentPage();
   }
 
   function initHotSlider() {
@@ -1223,12 +1214,7 @@ $tpl_recomm_class = true; ?>
   window.addEventListener('popstate', function(e) {
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
     $(list_id).empty();
-    scrollRestored = false; // 플래그 리셋
     getBoardList("");
-    // 뒤로가기 후 스크롤 복원
-    setTimeout(function() {
-      restoreScrollPosition();
-    }, 100);
   });
 
   // 페이지네이션 버튼 클릭 (이벤트 위임)
@@ -1255,10 +1241,6 @@ $tpl_recomm_class = true; ?>
     }
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
-      // 카드 클릭 시 스크롤 위치 저장
-      localStorage.setItem('recruit_list_page', list_page);
-      localStorage.setItem('recruit_list_scroll', window.scrollY || 0);
-      console.log('🔖 카드 클릭 - 스크롤 저장:', window.scrollY || 0);
       window.location.href = '/recruit/job_post/' + rcIdx;
     }
   });
@@ -1278,7 +1260,7 @@ $tpl_recomm_class = true; ?>
   // ========================================
 
   window.addEventListener('DOMContentLoaded', function() {
-    // 중복 방지: DOMContentLoaded 여러 번 발생 시 한 번만 실행
+      // 중복 방지: DOMContentLoaded 여러 번 발생 시 한 번만 실행
     if (window.__jobListDOMContentLoaded) {
       return;
     }
@@ -1361,8 +1343,6 @@ $tpl_recomm_class = true; ?>
       if (!searchStateLoaded) {
         initLoadData();
       }
-      // 스크롤 위치 복원
-      restoreScrollPosition();
     }, 10);
 
     $(document).on('click', '.content-li', function(e) {
@@ -1379,24 +1359,6 @@ $tpl_recomm_class = true; ?>
   // ========================================
   // 8️⃣  기타 헬퍼 함수들
   // ========================================
-
-  // 스크롤 위치 복원 (한 번만 실행)
-  var scrollRestored = false;
-  function restoreScrollPosition() {
-    if (scrollRestored) {
-      return;
-    }
-    var savedScroll = localStorage.getItem('recruit_list_scroll');
-    console.log('🔄 스크롤 복원 시도:', savedScroll, '현재 scrollY:', window.scrollY);
-    if (savedScroll) {
-      window.scrollTo(0, parseInt(savedScroll));
-      console.log('✅ 스크롤 이동:', parseInt(savedScroll));
-      scrollRestored = true;
-      localStorage.removeItem('recruit_list_scroll');
-    } else {
-      console.log('❌ 저장된 스크롤값 없음');
-    }
-  }
 
   // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
   window.onChangeAreaApply = function() {

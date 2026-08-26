@@ -649,13 +649,14 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
             });
         };
 
-        // 마감 확인
+           // 마감 확인
         window.confirmEndRecruit = function() {
             var rc_idx = $("[name=rc_idx]").val();
             comAjax("/compage_proc/recruit_end", { rc_idx_list: rc_idx }, function(ret) {
                 closePanel(document.getElementById('endRecruitSheet'));
                 if (ret.code == "00") {
-                    location.href = "/compage/recruit_list";
+                    // 뒤로가기 히스토리 남기지 않음 (현재 페이지 대체)
+                    location.replace("/compage/recruit_list");
                 } else {
                     commonAlert(ret.msg, function() {});
                 }
@@ -663,15 +664,17 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
         };
 
         // 삭제 확인
-        window.confirmDeleteRecruit = function() {
+          window.confirmDeleteRecruit = function() {
             var rc_idx = $("[name=rc_idx]").val();
-            comAjax("/compage_proc/recruit_del", { rc_idx_list: rc_idx }, function(ret) {
-                closePanel(document.getElementById('deleteRecruitSheet'));
-                if (ret.code == "00") {
-                    location.href = "/compage/recruit_list";
-                } else {
-                    commonAlert(ret.msg, function() {});
-                }
+            commonAlert('삭제하시겠습니까?', function() {
+                comAjax("/compage_proc/recruit_del", { rc_idx_list: rc_idx }, function(ret) {
+                    closePanel(document.getElementById('deleteRecruitSheet'));
+                    if (ret.code == "00") {
+                        location.replace("/compage/recruit_list");
+                    } else {
+                        commonAlert(ret.msg, function() {});
+                    }
+                });
             });
         };
 

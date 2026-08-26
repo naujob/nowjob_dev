@@ -238,21 +238,29 @@
     // 토글 버튼 이벤트 등록
     function attachToggleListeners(container) {
       container.querySelectorAll('.toggle-expand').forEach(function(btn) {
+        // 기존 아이콘 요소에 data-toggle-icon 속성 추가
+        var icon = btn.querySelector('i');
+        if (icon && !icon.getAttribute('data-toggle-icon')) {
+          icon.setAttribute('data-toggle-icon', 'true');
+          icon.setAttribute('data-state', 'collapsed');
+        }
+
         btn.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
           var contentLi = this.closest('.content-li');
           var simpleContent = contentLi.querySelector('.simple-content');
           var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
+          var icon = this.querySelector('i[data-toggle-icon]');
 
           if (isCollapsed) {
             simpleContent.setAttribute('data-collapsed', 'false');
             contentLi.setAttribute('data-collapsed', 'false');
-            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+            icon.setAttribute('data-state', 'expanded');
           } else {
             simpleContent.setAttribute('data-collapsed', 'true');
             contentLi.setAttribute('data-collapsed', 'true');
-            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+            icon.setAttribute('data-state', 'collapsed');
           }
         });
       });
@@ -324,21 +332,29 @@
     // 토글 버튼 이벤트 등록
     function attachToggleListeners(container) {
       container.querySelectorAll('.toggle-expand').forEach(function(btn) {
+        // 기존 아이콘 요소에 data-toggle-icon 속성 추가
+        var icon = btn.querySelector('i');
+        if (icon && !icon.getAttribute('data-toggle-icon')) {
+          icon.setAttribute('data-toggle-icon', 'true');
+          icon.setAttribute('data-state', 'collapsed');
+        }
+
         btn.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
           var contentLi = this.closest('.content-li');
           var simpleContent = contentLi.querySelector('.simple-content');
           var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
+          var icon = this.querySelector('i[data-toggle-icon]');
 
           if (isCollapsed) {
             simpleContent.setAttribute('data-collapsed', 'false');
             contentLi.setAttribute('data-collapsed', 'false');
-            this.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+            icon.setAttribute('data-state', 'expanded');
           } else {
             simpleContent.setAttribute('data-collapsed', 'true');
             contentLi.setAttribute('data-collapsed', 'true');
-            this.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+            icon.setAttribute('data-state', 'collapsed');
           }
         });
       });

@@ -150,31 +150,32 @@ function customBack() {
             return;
         }
 
-        // 채용공고 작성/상세/목록 페이지들은 히스토리 뒤로가기
+        // 채용공고 작성 페이지들은 히스토리 뒤로가기
         if (currentPath.indexOf('/compage/recruit_write1_1') > -1 ||
             currentPath.indexOf('/compage/recruit_write2_1') > -1 ||
-            currentPath.indexOf('/compage/recruit_write3_1') > -1 ||
-            currentPath.indexOf('/compage/recruit_view') > -1 ||
-            currentPath.indexOf('/compage/recruit_list') > -1) {
+            currentPath.indexOf('/compage/recruit_write3_1') > -1) {
 
             history.back();
             return;
         }
 
-        // 채용공고 상세 페이지는 히스토리 뒤로가기
-        if (currentPath.indexOf('/recruit/job_post') > -1) {
+        // 채용공고 목록 → 인덱스로 이동 (삭제된 공고 방지)
+        if (currentPath.indexOf('/compage/recruit_list') > -1) {
+            window.location.href = '/compage/index';
+            return;
+        }
+
+        // 채용공고 상세/작성 페이지들은 히스토리 뒤로가기
+        if (currentPath.indexOf('/compage/recruit_view') > -1 ||
+            currentPath.indexOf('/recruit/job_post') > -1) {
             history.back();
             return;
         }
 
-        // 이력서 상세 페이지는 히스토리 뒤로가기
-        if (currentPath.indexOf('/resume/hr_post') > -1) {
-            history.back();
-            return;
-        }
-
-        // 이력서 작성 페이지들은 히스토리 뒤로가기
-        if (currentPath.indexOf('/mypage/resume_write1') > -1) {
+        // 이력서 상세/작성 페이지들은 히스토리 뒤로가기
+        if (currentPath.indexOf('/resume/hr_post') > -1 ||
+            currentPath.indexOf('/mypage/resume_view') > -1 ||
+            currentPath.indexOf('/mypage/resume_write1') > -1) {
             history.back();
             return;
         }
@@ -219,11 +220,14 @@ function customBack() {
             return;
         }
 
-        // 이력서 페이지들은 히스토리 뒤로가기
-        if (currentPath.indexOf('/mypage/resume_list') > -1 ||
-            currentPath.indexOf('/mypage/resume_view') > -1 ||
-            currentPath.indexOf('/mypage/resume_write1') > -1) {
+        // 이력서 목록 → 마이페이지로 이동 (삭제된 이력서 방지)
+        if (currentPath.indexOf('/mypage/resume_list') > -1) {
+            window.location.href = '/mypage/index';
+            return;
+        }
 
+        // 이력서 작성 페이지들은 히스토리 뒤로가기
+        if (currentPath.indexOf('/mypage/resume_write1') > -1) {
             history.back();
             return;
         }

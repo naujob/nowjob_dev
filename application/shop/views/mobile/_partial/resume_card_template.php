@@ -118,6 +118,16 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
   .toggle-expand i {
     color: #999;
     font-size: 1.2rem;
+    display: inline-block;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .toggle-expand i[data-state="expanded"] {
+    transform: rotate(180deg);
+  }
+
+  .toggle-expand i[data-state="collapsed"] {
+    transform: rotate(0deg);
   }
 
   .result-list-card .content-info .desc {

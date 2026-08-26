@@ -350,6 +350,13 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
 
         var user_type = "<?= $this->user->getUserType(); ?>";
 
+        // 모바일 물리적 뒤로가기 (popstate) 처리
+        window.addEventListener('popstate', function(e) {
+            if (!e.state || e.state.page === 'resume_view') {
+                location.href = "/mypage/resume_list";
+            }
+        });
+
         // 이력서 삭제 바텀시트 트리거
         $(document).on('click', '#btnDeleteResume', function(e) {
             e.preventDefault();
@@ -359,13 +366,15 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
         // 이력서 삭제 확인
         window.confirmDeleteResume = function() {
             var ru_idx = $("[name=ru_idx]").val();
+            commonAlert('삭제하시겠습니까?', function() {
             comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
                 closePanel(document.getElementById('deleteResumeSheet'));
                 if (ret.code == "00") {
-                    location.href = "/mypage/resume_list";
+                    location.replace('/mypage/resume_list');
                 } else {
                     commonAlert(ret.msg, function() {});
                 }
+                });
             });
         };
 
