@@ -996,6 +996,7 @@ class recruitModel extends MY_Model
 			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
       GROUP BY aa.rc_idx
 			order by max_up_dt desc, aa.rc_idx desc
+			LIMIT 20
 		";
 
 		//error_log("\n".$sql."\n", "3", "/testlog/php_log");
@@ -1025,6 +1026,7 @@ class recruitModel extends MY_Model
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y' and aa.rc_sdate > now()
 			order by aa.rc_idx desc
+			LIMIT 20
 		";
 
 		$query = $this->db->query($sql);
@@ -1053,6 +1055,7 @@ class recruitModel extends MY_Model
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y' and aa.rc_edate < now()
 			order by aa.rc_idx desc
+			LIMIT 20
 		";
 
 		$query = $this->db->query($sql);
@@ -1082,6 +1085,7 @@ class recruitModel extends MY_Model
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y' and aa.rc_edate >= now()
 			order by aa.rc_idx desc
+			LIMIT 20
 		";
 
 		$query = $this->db->query($sql);

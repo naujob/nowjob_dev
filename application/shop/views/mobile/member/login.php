@@ -1668,6 +1668,8 @@ window.onload = function() {
   // 중복 계정 팝업 (바텀시트): 다른 SNS로 이미 가입된 회원 시 표시
   // 사용자에게 기존 로그인 방식으로 재로그인하도록 유도
   function showDuplicateProviderPopup(joinType, mmPhone) {
+    hideLoginLoading();
+
     var label = "";
     var iconSrc = "";
     var buttonAction = function() {};

@@ -166,7 +166,7 @@ function fEmailMasking($email)
                         </style>
                         <div class="thumb-wrap compinfo">
                           <label class="form-pic" style="max-width:265px; max-height: 200px; margin-right: 20px;">
-                            <input type="file" id="newLogo" name="mm_thumb" accept="image/*">
+                            <input type="file" id="newLogo" accept="image/*">
                             <input type='hidden' name='mm_thumb_del' value='' />
                             <span class="preview">
                               <img id="companyLogo" src="<?= getData($info, "mm_thumb") ?>" alt="회사 로고" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
@@ -420,6 +420,10 @@ function fEmailMasking($email)
 
           // Blob으로 변환해서 저장
           profileCanvas.toBlob(function(blob) {
+            if (!blob) {
+              alert('이미지 생성 실패. 다시 시도해주세요.');
+              return;
+            }
             profileBlob = blob;
             alert('이미지가 자동으로 900×300 규격으로 조정되었습니다.');
           }, 'image/png');

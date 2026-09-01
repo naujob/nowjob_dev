@@ -2772,8 +2772,9 @@ class Compage_proc extends CI_Controller
 
     # 이미지 처리.
     try {
-      $rc_img1 = $this->common->img_upload_url("member", "rc_img1", 1200);
-      $rc_thumb = $this->common->img_upload_url("member", "rc_img1", 600);
+      $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+      $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+      $rc_thumb = isset($rc_img1_resp["URL_MD"]) ? $rc_img1_resp["URL_MD"] : "";
     } catch (Exception $e) {
       throw $e;
     }
@@ -3916,60 +3917,68 @@ class Compage_proc extends CI_Controller
     $mm_comp_num = input_post("comp_num", "");
     $mm_comp_type = input_post("comp_type", "");
 
-    //$mm_comp_auth = $this->common->img_upload_url("member","mm_comp_auth");
-
-    //json_return($result["code"],"mm_idx:".$this->mm_idx."|".$mm_comp_name."|".$mm_comp_num."|".$mm_comp_type."|".$mm_comp_auth);
-
-    //$result = $this->member_model->updateMember(["mm_comp_name"=>$mm_comp_name],["mm_idx"=>$this->mm_idx]);
-    //$result = $this->member_model->updateMember(["mm_comp_num"=>$mm_comp_num],["mm_idx"=>$this->mm_idx]);
-    //$result = $this->member_model->updateMember(["mm_comp_auth"=>$mm_comp_auth],["mm_idx"=>$this->mm_idx]);
-    //$result = $this->member_model->updateMember(["mm_comp_type"=>$mm_comp_type],["mm_idx"=>$this->mm_idx]);
-
-    //$mm_img2_ori = input_post("mm_img2_ori","");
-    //$mm_img1 = $this->common->img_upload_url("member","mm_img1",1200);
-
     $mm_thumb_del = input_post("mm_thumb_del", "");
     if ($mm_thumb_del == "Y") {
       $result = $this->member_model->updateMember(["mm_thumb" => ""], ["mm_idx" => $this->mm_idx]);
     } else {
-      $mm_thumb = $this->common->img_upload_url("member", "mm_thumb");
-      if ($mm_thumb) {
-        $result = $this->member_model->updateMember(["mm_thumb" => $mm_thumb], ["mm_idx" => $this->mm_idx]);
+      # 파일이 전송되었는지 확인 (mm_thumb 파일 또는 mm_thumb_ori 기존 경로)
+      if (isset($_FILES["mm_thumb"]) && $_FILES["mm_thumb"]["name"] != "") {
+        $img_result = $this->common->img_upload("member", "mm_thumb");
+        if ($img_result["SUCCESS"] == true) {
+          # 상대 경로를 절대 경로로 변환 (resource/uploads/... → /resource/uploads/...)
+          $mm_thumb = "/" . ltrim($img_result["URL"], "/");
+          $result = $this->member_model->updateMember(["mm_thumb" => $mm_thumb], ["mm_idx" => $this->mm_idx]);
 
-        $mem_info = $this->user->getUser();
-        $this->user->setUser([
-          "mm_idx" => $mem_info["mm_idx"],
-          "mm_id" => $mem_info["mm_id"],
-          "mm_point" => $mem_info["mm_point"],
-          "mm_name" => $mem_info["mm_name"],
-          "mm_type" => $mem_info["mm_type"],
-          "mm_join_type" => $mem_info["mm_join_type"],
-          "mm_img" => $mm_thumb,
-          "ad_addr" => $mem_info["ad_addr"],
-          "ad_gps_x" => $mem_info["ad_gps_x"],
-          "ad_gps_y" => $mem_info["ad_gps_y"],
-          "mm_sex" => $mem_info["mm_sex"],
-        ]);
+          $mem_info = $this->user->getUser();
+          $this->user->setUser([
+            "mm_idx" => $mem_info["mm_idx"],
+            "mm_id" => $mem_info["mm_id"],
+            "mm_point" => $mem_info["mm_point"],
+            "mm_name" => $mem_info["mm_name"],
+            "mm_type" => $mem_info["mm_type"],
+            "mm_join_type" => $mem_info["mm_join_type"],
+            "mm_img" => $mm_thumb,
+            "ad_addr" => $mem_info["ad_addr"],
+            "ad_gps_x" => $mem_info["ad_gps_x"],
+            "ad_gps_y" => $mem_info["ad_gps_y"],
+            "mm_sex" => $mem_info["mm_sex"],
+          ]);
+        } else {
+          json_return("90", "로고 이미지 업로드 실패: " . (isset($img_result["ERROR"]) ? $img_result["ERROR"] : "알 수 없는 오류"));
+          return;
+        }
+      } else {
+        # 파일 미전송 시 기존 경로 유지 (폼에서 다른 항목만 저장하는 경우)
+        $result = array("code" => "00");
       }
     }
-    $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
-    $mm_img2 = $this->common->img_upload_url("member", "mm_img2");
-    $mm_img3 = $this->common->img_upload_url("member", "mm_img3");
-    $mm_img4 = $this->common->img_upload_url("member", "mm_img4");
-    //$profile2 = $this->common->img_upload_url("member","profile2");
-    //json_return("99","profile2:".$profile2); //test
-    //exit;//test
-    $result = $this->member_model->updateMember(["mm_img1" => $mm_img1], ["mm_idx" => $this->mm_idx]);
-    $result = $this->member_model->updateMember(["mm_img2" => $mm_img2], ["mm_idx" => $this->mm_idx]);
-    $result = $this->member_model->updateMember(["mm_img3" => $mm_img3], ["mm_idx" => $this->mm_idx]);
-    $result = $this->member_model->updateMember(["mm_img4" => $mm_img4], ["mm_idx" => $this->mm_idx]);
-    //if($profile2){
-    //  $result = $this->member_model->updateMember(["mm_thumb"=>$profile2],["mm_idx"=>$this->mm_idx]);
-    //}
 
-    json_return($result["code"], $result["code"] == "00" ? "처리완료[" . $mm_thumb . "]" : "처리시 오류가 발생하였습니다.");
-    //json_return($result["code"],"처리완료");
+    # mm_img1~4는 해당 필드 파일이 실제 전송되었거나 삭제 플래그가 온 경우에만 업데이트 (이 화면에서 사용 안 함)
+    $mm_img1_del = input_post("mm_img1_del", "");
+    if ($mm_img1_del == "Y" || $this->input->post("mm_img1") !== NULL) {
+      $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
+      $result = $this->member_model->updateMember(["mm_img1" => $mm_img1], ["mm_idx" => $this->mm_idx]);
+    }
 
+    $mm_img2_del = input_post("mm_img2_del", "");
+    if ($mm_img2_del == "Y" || $this->input->post("mm_img2") !== NULL) {
+      $mm_img2 = $this->common->img_upload_url("member", "mm_img2");
+      $result = $this->member_model->updateMember(["mm_img2" => $mm_img2], ["mm_idx" => $this->mm_idx]);
+    }
+
+    $mm_img3_del = input_post("mm_img3_del", "");
+    if ($mm_img3_del == "Y" || $this->input->post("mm_img3") !== NULL) {
+      $mm_img3 = $this->common->img_upload_url("member", "mm_img3");
+      $result = $this->member_model->updateMember(["mm_img3" => $mm_img3], ["mm_idx" => $this->mm_idx]);
+    }
+
+    $mm_img4_del = input_post("mm_img4_del", "");
+    if ($mm_img4_del == "Y" || $this->input->post("mm_img4") !== NULL) {
+      $mm_img4 = $this->common->img_upload_url("member", "mm_img4");
+      $result = $this->member_model->updateMember(["mm_img4" => $mm_img4], ["mm_idx" => $this->mm_idx]);
+    }
+
+    json_return($result["code"], $result["code"] == "00" ? "처리완료" : "처리시 오류가 발생하였습니다.");
   }
 
   function com_biz_update()

@@ -5880,7 +5880,7 @@ LIMIT 0 , 200
 		return isset($result['mm_phone']) ? $result['mm_phone'] : null;
 	}
 
-	# 이 이력서에 할당된 가상번호가 있으면 그대로 반환, 없으면 null 반환
+	# 이 이력서에 할당된 가상번호가 있으면 그대로 반환 (만료되지 않은 번호만), 없으면 null 반환
 	function getActiveVirtualNumber($ru_idx)
 	{
 		$sql = "
@@ -5888,75 +5888,63 @@ LIMIT 0 , 200
 			FROM virtual_numbers
 			WHERE target_id = " . (int)$ru_idx . "
 			AND status = 'ASSIGNED'
+			AND (expire_at IS NULL OR expire_at > NOW())
 			LIMIT 1
 		";
 		$result = $this->db->query($sql)->row_array();
 		return isset($result['v_number']) ? $result['v_number'] : null;
 	}
 
-	# 사용 가능한 가상번호를 할당 (동시 접근 안전)
-	function assignIdleVirtualNumber($ru_idx, $realNumber, $expireHours)
+	# 델피콤이 배정한 가상번호를 로컬 DB에 upsert (원자적 처리)
+	function upsertAssignedVirtualNumber($vNumber, $ru_idx, $realNumber, $expireHours)
 	{
-		$this->db->trans_start();
+		$vNumber = $this->db->escape_str($vNumber);
+		$realNumber = $this->db->escape_str($realNumber);
+		$expireHours = (int)$expireHours;
+		$ru_idx = (int)$ru_idx;
 
 		$sql = "
-			SELECT v_number
-			FROM virtual_numbers
-			WHERE status = 'IDLE'
-			ORDER BY updated_at ASC
-			LIMIT 1
-			FOR UPDATE
-		";
-		$result = $this->db->query($sql)->row_array();
-
-		if (!$result || !isset($result['v_number'])) {
-			$this->db->trans_complete();
-			return null;
-		}
-
-		$vNumber = $result['v_number'];
-
-		$updateSql = "
-			UPDATE virtual_numbers SET
-				status = 'PENDING',
-				target_id = " . (int)$ru_idx . ",
-				real_number = '" . $this->db->escape_str($realNumber) . "',
+			INSERT INTO virtual_numbers (v_number, status, target_id, real_number, expire_at, updated_at)
+			VALUES ('" . $vNumber . "', 'ASSIGNED', " . $ru_idx . ", '" . $realNumber . "', DATE_ADD(NOW(), INTERVAL " . $expireHours . " HOUR), NOW())
+			ON DUPLICATE KEY UPDATE
+				status = 'ASSIGNED',
+				target_id = " . $ru_idx . ",
+				real_number = '" . $realNumber . "',
+				expire_at = DATE_ADD(NOW(), INTERVAL " . $expireHours . " HOUR),
 				updated_at = NOW()
-			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
-		";
-		$this->db->query($updateSql);
-
-		$this->db->trans_complete();
-
-		if ($this->db->trans_status() === false) {
-			return null;
-		}
-
-		return $vNumber;
-	}
-
-	# 통신사 연결 성공 후 상태를 ASSIGNED로 확정
-	function confirmVirtualNumberAssigned($vNumber)
-	{
-		$sql = "
-			UPDATE virtual_numbers SET
-				status = 'ASSIGNED'
-			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
 		";
 		$this->db->query($sql);
 	}
 
-	# 실패 시 번호 반납 (PENDING -> IDLE)
-	function releaseVirtualNumber($vNumber)
+	# 통화 발생 시 만료시간 연장
+	function renewVirtualNumberExpire($vNumber, $expireHours)
+	{
+		$sql = "
+			UPDATE virtual_numbers SET
+				expire_at = DATE_ADD(NOW(), INTERVAL " . (int)$expireHours . " HOUR),
+				updated_at = NOW()
+			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+			AND status = 'ASSIGNED'
+		";
+		$this->db->query($sql);
+	}
+
+	# 델피콤 쪽에서 자체 만료된 번호를 로컬 DB에서 회수 (cron용)
+	function releaseExpiredVirtualNumbers()
 	{
 		$sql = "
 			UPDATE virtual_numbers SET
 				status = 'IDLE',
 				target_id = NULL,
-				real_number = NULL
-			WHERE v_number = '" . $this->db->escape_str($vNumber) . "'
+				real_number = NULL,
+				expire_at = NULL,
+				updated_at = NOW()
+			WHERE status = 'ASSIGNED'
+			AND expire_at IS NOT NULL
+			AND expire_at < NOW()  
 		";
 		$this->db->query($sql);
+		return $this->db->affected_rows();
 	}
 
 	# 통화 로그를 bizcall_logs에 기록

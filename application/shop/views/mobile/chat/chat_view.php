@@ -679,6 +679,7 @@
             </div>
             <!-- 입력폼 -->
             <div class="write-form">
+                <i class="fa-solid fa-square-plus"></i>
                 <label>
                     <span class="sr-text">메세지입력</span>
                     <input type="text" id="chatTxt" name="chatTxt" autocorrect="off" autocapitalize="off" autocomplete="off" style="text-align:left;" placeholder="메세지를 입력해주세요.">

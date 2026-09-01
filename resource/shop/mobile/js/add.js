@@ -113,6 +113,11 @@ function callVibrate(time) {
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
     try {
+        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
+            window.closeTutorialPopup();
+            return;
+        }
+
         const currentPath = window.location.pathname;
        // URL: https://example.com/chat/chat_view?from=applied
        // currentPath = /chat/chat_view
@@ -800,6 +805,30 @@ function checkMobile() {
  */
 function handleAndroidBack() {
     try {
+        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
+            window.closeTutorialPopup();
+            return;
+        }
+
+        if (typeof window.isChangeAreaOpen === 'function' && window.isChangeAreaOpen()) {
+            $('#changeArea').removeClass('on');
+            if (typeof window.isAdvancedSearchOpen === 'function' && window.isAdvancedSearchOpen()) {
+                $('body, html').css({
+                    'overflow': 'auto', 'overflow-y': 'auto', 'position': 'relative',
+                    'top': 'auto', 'left': 'auto', 'right': 'auto', 'width': 'auto', 'height': 'auto'
+                }).removeClass('no-scroll');
+            } else {
+                window.restorePanelClosedState();
+            }
+            return;
+        }
+
+        if (typeof window.isAdvancedSearchOpen === 'function' && window.isAdvancedSearchOpen()) {
+            $('#advancedSearch').removeClass('on');
+            window.restorePanelClosedState();
+            return;
+        }
+
         // 현재 경로만 추출 (쿼리 파라미터 제외)
         const current = location.pathname;
 

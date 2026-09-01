@@ -601,13 +601,14 @@ class common
 	{
 		$this->CI = &get_instance();
 
-		$real_upload_path = "/resource/uploads/";
+		$real_upload_path = "resource/uploads/";
+		$upload_base = FCPATH . $real_upload_path;
 
-		if (!file_exists(getcwd() . $real_upload_path . $path)) {
-			mkdir(getcwd() . $real_upload_path . $path, 0755, true);
+		if (!file_exists($upload_base . $path)) {
+			mkdir($upload_base . $path, 0755, true);
 		}
 
-		$root =  getcwd() . $real_upload_path . $path;
+		$root = $upload_base . $path;
 
 		$config['upload_path'] = $root;     //'/website/mall/resource/upload/' . $path;
 		$config['allowed_types'] = '*';
@@ -678,12 +679,14 @@ class common
 	function img_upload_resize($path, $ipt_name, $size = 800)
 	{
 		$this->CI = &get_instance();
-		$real_upload_path = "/resource/uploads/";
-		if (!file_exists(getcwd() . $real_upload_path . $path)) {
-			mkdir(getcwd() . $real_upload_path . $path, 0755, true);
+		$real_upload_path = "resource/uploads/";
+		$upload_base = FCPATH . $real_upload_path;
+
+		if (!file_exists($upload_base . $path)) {
+			mkdir($upload_base . $path, 0755, true);
 		}
 
-		$root =  getcwd() . $real_upload_path . $path;
+		$root = $upload_base . $path;
 
 		//리자이즈 경로 추가
 		if (!file_exists($root . "/resize")) {
@@ -815,7 +818,9 @@ class common
 	function img_upload_responsive($path, $ipt_name)
 	{
 		$this->CI = &get_instance();
-		$real_upload_path = "/resource/uploads/";
+		$real_upload_path = "resource/uploads/";
+		// FCPATH: CodeIgniter의 상수로, 애플리케이션의 루트 디렉토리 경로를 나타냅니다. 따라서 업로드된 파일을 저장할 기본 경로를 설정합니다.
+		$upload_base = FCPATH . $real_upload_path;
 
 		// 기존 이미지 URL 및 삭제 여부 확인 (img_upload_url와 동일한 폴백 로직)
 		$ori_url = isset($_POST[$ipt_name . "_ori"]) ? ($_POST[$ipt_name . "_ori"]) : "";
@@ -830,11 +835,11 @@ class common
 			];
 		}
 
-		if (!file_exists(getcwd() . $real_upload_path . $path)) {
-			mkdir(getcwd() . $real_upload_path . $path, 0755, true);
+		if (!file_exists($upload_base . $path)) {
+			mkdir($upload_base . $path, 0755, true);
 		}
 
-		$root = getcwd() . $real_upload_path . $path;
+		$root = $upload_base . $path;
 
 		// resize 폴더 생성 (sm, md, lg)
 		foreach (['sm', 'md', 'lg'] as $size) {

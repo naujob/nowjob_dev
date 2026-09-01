@@ -1159,4 +1159,13 @@ class Cron_proc extends CI_Controller
         }
         return $parts[0];
     }
+
+    // 델피콤 쪽에서 자체 만료된(로컬에서 갱신하지 않은) 가상번호를 IDLE로 회수
+    // crontab: 0 5 * * * curl -s https://nowjob.co.kr/cron_proc/release_expired_virtual_numbers > /dev/null 2>&1
+    public function release_expired_virtual_numbers()
+    {
+        $this->load->model('membermodel', 'member_model');
+        $released = $this->member_model->releaseExpiredVirtualNumbers();
+        echo "만료된 가상번호 회수: {$released}건\n";
+    }
 }

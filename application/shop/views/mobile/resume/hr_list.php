@@ -1134,6 +1134,7 @@ $tpl_show_chat_mark = true; ?>
     // 개인회원이고 자신의 이력서인 경우 클릭 가능
     if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
       if (ruIdx) {
+        localStorage.setItem('came_from_resume_list', 'true');
         window.location.href = '/resume/hr_post/' + ruIdx;
       }
       return;
@@ -1142,6 +1143,7 @@ $tpl_show_chat_mark = true; ?>
     // 기업회원인 경우 클릭 가능
     <?php if ($mm_type === "COMP") { ?>
       if (ruIdx) {
+        localStorage.setItem('came_from_resume_list', 'true');
         window.location.href = '/resume/hr_post/' + ruIdx;
       }
     <?php } else { ?>

@@ -1074,6 +1074,7 @@
     // ============================================================================
 
     // 채용공고 작성 1페이지 내용을 localStorage에 임시저장하기 위해 데이터 묶음을 만드는 함수
+    // 공고제목, 근무지역, 업무구분 ,근무형태 ,근무시간, 급여정보 등 1페이지 입력값을 수집
     function savePage1Data() {
         syncTimeHiddenFields();
         var rcIdx = $("[name='rc_idx']").val() || "0";
@@ -1126,7 +1127,7 @@
 
         localStorage.setItem(storageKey, JSON.stringify(formData));
     }
-
+    // 2페이지 입력값을 수집하여 localStorage에 임시저장(복리후생)
     function savePage2Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var storageKey = "recruit_draft_" + rcIdx + "_page2";
@@ -1144,6 +1145,7 @@
     }
 
     // 해시태그를 쉼표로 구분된 문자열로 합성하여 localStorage에 저장
+    // 상세설명,해시태그,채용기간,희망요일,희망성별,희망국적,희망나이 등 3페이지 입력값을 수집
     function savePage3Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var storageKey = "recruit_draft_" + rcIdx + "_page3";
@@ -2930,12 +2932,12 @@
 
             // 1. 로컬 미리보기
             var reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function(e) { // e.target.result는 base64로 인코딩된 이미지 데이터 ->다 읽은 파일 데이터를 RAM(브라우저 메모리) 위에 글자 형태(data:image/png;base64,...)로 올려두고, 그 주소를 화면의 <img> 태그에 넣어서 바로 보여주기 위해 사용
                 $label.find(".preview").html('<img src="' + e.target.result + '" />');
                 $label.addClass("has-image");
                 $label.find(".btn-pic-remove").show();
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(file); // 하드디스크에 있는 사진 파일의 알맹이 데이터를 직접 읽기
 
             // 2. 즉시 업로드 + 에디터 삽입
             uploadAndInsertIntoEditor(file, $label);
@@ -2996,7 +2998,7 @@
 
             showLoadingOverlay();
             $.ajax({
-                url: '/compage_proc/se2_image_upload',
+                url: '/compage_proc/se2_image_upload', // 서버 업로드 처리 URL
                 type: 'POST',
                 data: formData,
                 contentType: false,

@@ -130,6 +130,20 @@
             return json_return($result["code"],$result["msg"]);
         }
 
+        # 광고성 정보 수신 동의 처리 (A.I 매칭 접근 전 동의)
+        function agree_ad(){
+            $mm_id = $this->user->getUserId();
+            $mem_info = $this->member_model->getMember(["mm_id"=>$mm_id]);
+            if($mem_info==null){
+                json_return("90","회원정보가 조회되지 않습니다. 관리자에게 문의해주세요.");
+                exit;
+            }
+
+            $this->member_model->updatemember(["mm_agree_ad"=>"Y"],["mm_id"=>$mm_id]);
+
+            json_return("00","동의 처리 완료.");
+        }
+
 		# 게시판 리스트
 		function board_list(){
 			$mm_id = $this->user->getUserId();

@@ -827,29 +827,34 @@ class Resume_proc extends CI_Controller
 
     $realNumber = preg_replace('/[^0-9]/', '', $phone);
 
+    // 기존 유효한 번호가 있으면 재사용
     $vn = $this->member_model->getActiveVirtualNumber($ru_idx);
     if ($vn) {
       json_return("00", "success", array("vn" => $vn));
       return;
     }
 
-    $vn = $this->member_model->assignIdleVirtualNumber($ru_idx, $realNumber, 0);
-    if (!$vn) {
-      json_return("97", "사용 가능한 050 번호가 부족합니다.");
-      return;
-    }
+    // 새로 발급 (auto_expire_mapp.do)
+    $cfg = config_item('bizcall');
+    $expireHours = isset($cfg['expire_hours']) ? (int)$cfg['expire_hours'] : 2160;
 
     require_once(dirname(APPPATH) . '/common/libraries/BizCallClient.php');
     $bizcall = new CI_BizCallClient();
-    $res = $bizcall->setVirtualNumber($vn, $realNumber, $ru_idx);
+    $res = $bizcall->assignAutoExpireVirtualNumber($realNumber, $ru_idx, $expireHours);
 
     if (!$res['ok']) {
-      $this->member_model->releaseVirtualNumber($vn);
       json_return("96", "전화 연결 설정에 실패했습니다.");
       return;
     }
 
-    $this->member_model->confirmVirtualNumberAssigned($vn);
+    // 델피콤이 배정한 vn을 로컬 DB에 upsert
+    $vn = isset($res['vn']) ? $res['vn'] : null;
+    if (!$vn) {
+      json_return("95", "가상번호 발급은 성공했으나 번호 정보가 없습니다.");
+      return;
+    }
+
+    $this->member_model->upsertAssignedVirtualNumber($vn, $ru_idx, $realNumber, $expireHours);
     json_return("00", "success", array("vn" => $vn));
   }
 } //class

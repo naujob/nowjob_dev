@@ -176,6 +176,70 @@ function fRemoveBigAdr($arg)
     /* .addr-item {
         padding-left: 1px;
     } */
+
+    /* 온보딩 튜토리얼 팝업2 (인재상세페이지) */
+    #tutorial-popup2 {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+        z-index: 1400; display: none; align-items: center; justify-content: center;
+    }
+    .tutorial-skip-btn2 {
+        position: absolute; top: 30px; right: 20px; color: #fff;
+        font-size: 18px; font-weight: 700; cursor: pointer; opacity: 0; z-index: 1401;
+    }
+  
+
+    /* 인재정보 카드 (hr_post.png) — 화면 상단 중앙 */
+    .tutorial-jobpost-wrapper {
+        position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+        width: 95%; display: flex; flex-direction: column;
+        align-items: flex-start; gap: 10px;
+    }
+    .tutorial-jobpost-img { width: 100%; height: auto; display: block; opacity: 0; }
+    .tutorial-jobpost-text {
+        color: #fff; font-size: 18px; font-weight: 700; line-height: 1.4; margin: 0; opacity: 0;
+        text-align: left;
+    }
+    .tutorial-jobpost-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+
+    /* 전화하기 (call.png) — 화면 우측 하단 */
+    .tutorial-call-wrapper {
+        position: absolute; bottom: 40px; right: 10px;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .tutorial-call-img { 
+    width: 110px; 
+    height: 110px; 
+    display: block; 
+    opacity: 0; 
+    right: -50px;
+    position: relative;
+    
+    }
+    .tutorial-call-text {
+        color: #fff; font-size: 18px; font-weight: 700; line-height: 1.4; margin: 0;
+        text-align: right; white-space: nowrap; opacity: 0;
+    }
+    .tutorial-call-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+
+    /* 제안하기 (propose.png) — call과 동일 위치 (페이지2 전용) */
+    .tutorial-propose-wrapper {
+        position: absolute; bottom: 40px; right: 10px;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .tutorial-propose-img { 
+        width: 110px; 
+        height: 110px; 
+        display: block; 
+        opacity: 0; 
+        right: -69px;
+        position: relative;
+
+}
+    .tutorial-propose-text {
+        color: #fff; font-size: 18px; font-weight: 700; line-height: 1.4; margin: 0;
+        text-align: right; white-space: nowrap; opacity: 0;
+    }
+    .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
 </style>
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
@@ -533,6 +597,28 @@ function fRemoveBigAdr($arg)
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
+
+        <!-- 온보딩 튜토리얼 팝업 (인재상세페이지) -->
+        <div id="tutorial-popup2" style="display:none;">
+            <span class="tutorial-skip-btn2" onclick="window.closeJobPostTutorial();">건너뛰기</span>
+           
+
+            <!-- 페이지 1: 인재정보 + 전화하기 -->
+            <div class="tutorial-jobpost-wrapper jp-page-1">
+                <p class="tutorial-jobpost-text"><span class="highlight-text-arrow">이력서</span> 상세 희망 근무조건<br>인재가 원하는 근무조건을 바로 확인할 수 있어요</p>
+                <img src="/resource/shop/mobile/img/tutorial/hr_post.png" class="tutorial-jobpost-img" alt="인재정보">
+            </div>
+            <div class="tutorial-call-wrapper jp-page-1">
+                <p class="tutorial-call-text">인재와 다이렉트 연결<br>개인정보 보호까지 나우잡 <span class="highlight-text-arrow">안심콜</span></p>
+                <img src="/resource/shop/mobile/img/tutorial/call.png" class="tutorial-call-img" alt="전화하기">
+            </div>
+
+            <!-- 페이지 2: 제안하기 -->
+            <div class="tutorial-propose-wrapper jp-page-2" style="display:none;">
+                <p class="tutorial-propose-text">나우잡 채팅으로 시작하는 구인구직<br>일손이 필요할땐 인재정보에, <span class="highlight-text-arrow">제안하기</span></p>
+                <img src="/resource/shop/mobile/img/tutorial/propose.png" class="tutorial-propose-img" alt="제안하기">
+            </div>
+        </div>
 
         <!-- 개인회원 본인 이력서 삭제 바텀시트 -->
         <?php if ($isOwnResume) : ?>
@@ -968,7 +1054,7 @@ function fRemoveBigAdr($arg)
         var ru_idx = $("[name=ru_idx]").val();
         comAjax("/resume_proc/get_call_number", { ru_idx: ru_idx }, function(ret) {
             $btn.attr('data-loading', 'false');
-            if (ret.code == "00" && ret.data && ret.data.vn) {
+        if (ret.code == "00" && ret.data && ret.data.vn) {
                 location.href = "tel:" + ret.data.vn;
             } else {
                 commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
@@ -1035,4 +1121,112 @@ function fRemoveBigAdr($arg)
                 });
             });
         };
+
+    // 온보딩 튜토리얼 팝업2 로직
+    var JP_CURRENT_PAGE = 0;
+    var JP_TOTAL_PAGES = 2;
+    var jpPageTimeline = null;
+
+    function jpPreventScroll(e) { e.preventDefault(); }
+
+    window.openJobPostTutorial = function() {
+        var popup = document.getElementById('tutorial-popup2');
+        if (!popup) return;
+        popup.style.display = 'flex';
+        JP_CURRENT_PAGE = 0;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        document.addEventListener('touchmove', jpPreventScroll, { passive: false });
+        document.addEventListener('wheel', jpPreventScroll, { passive: false });
+
+        var skipBtn = popup.querySelector('.tutorial-skip-btn2');
+        
+        var jobPostImg = popup.querySelector('.tutorial-jobpost-img');
+        var jobPostText = popup.querySelector('.tutorial-jobpost-text');
+        var callImg = popup.querySelector('.tutorial-call-img');
+        var callText = popup.querySelector('.tutorial-call-text');
+
+        popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = ''; });
+        popup.querySelectorAll('.jp-page-2').forEach(function(el) { el.style.display = 'none'; });
+
+        gsap.set([jobPostImg, jobPostText, callImg, callText,
+            popup.querySelector('.tutorial-propose-img'), popup.querySelector('.tutorial-propose-text')], { opacity: 0 });
+
+        var tl = gsap.timeline();
+        tl.fromTo(jobPostImg, { opacity: 0 }, { opacity: 1, duration: 0.6, display: 'block' }, 0.5)
+          .fromTo(skipBtn, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.5)
+          .fromTo(jobPostText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1')
+          .fromTo(callImg, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35')
+          .fromTo(callText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1');
+    };
+
+    window.closeJobPostTutorial = function() {
+        var popup = document.getElementById('tutorial-popup2');
+        if (!popup) return;
+        popup.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        document.removeEventListener('touchmove', jpPreventScroll);
+        document.removeEventListener('wheel', jpPreventScroll);
+        if (jpPageTimeline) jpPageTimeline.kill();
+    };
+
+    window.isTutorialOpen = function() {
+        var popup = document.getElementById('tutorial-popup2');
+        return popup && popup.style.display === 'flex';
+    };
+
+    window.closeTutorialPopup = function() {
+        window.closeJobPostTutorial();
+    };
+
+    window.setJobPostTutorialPage = function(pageIndex) {
+        var popup = document.getElementById('tutorial-popup2');
+        JP_CURRENT_PAGE = pageIndex;
+        if (jpPageTimeline) jpPageTimeline.kill();
+
+        if (pageIndex === 1) {
+            popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = 'none'; });
+            var proposeWrapper = popup.querySelector('.tutorial-propose-wrapper');
+            var proposeImg = popup.querySelector('.tutorial-propose-img');
+            var proposeText = popup.querySelector('.tutorial-propose-text');
+            proposeWrapper.style.display = 'flex';
+            gsap.set([proposeImg, proposeText], { opacity: 0 });
+
+            jpPageTimeline = gsap.timeline({ defaults: { ease: 'power2.out' } });
+            jpPageTimeline
+                .fromTo(proposeImg, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0)
+                .fromTo(proposeText, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35');
+        }
+    };
+
+    document.addEventListener('click', function(e) {
+        var popup = document.getElementById('tutorial-popup2');
+        if (!popup || popup.style.display === 'none') return;
+
+        if (e.target === popup || popup.contains(e.target)) {
+            if (JP_CURRENT_PAGE < JP_TOTAL_PAGES - 1) {
+                window.setJobPostTutorialPage(JP_CURRENT_PAGE + 1);
+            } else {
+                window.closeJobPostTutorial();
+            }
+        }
+    });
+
+    // 모바일 디바이스 판단
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+   // var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+   var jpIsDevelopment= false; // 개발 환경 여부를 판단하는 로직 (예: 호스트명 또는 경로 기반)
+    if (jpIsDevelopment && isMobileDevice()) {
+        window.openJobPostTutorial();
+    } else if (isMobileDevice() && localStorage.getItem('came_from_resume_list') === 'true') {
+        localStorage.removeItem('came_from_resume_list');
+        if (!localStorage.getItem('hr_post_tutorial_seen')) {
+            localStorage.setItem('hr_post_tutorial_seen', 'true');
+            window.openJobPostTutorial();
+        }
+    }
 </script>

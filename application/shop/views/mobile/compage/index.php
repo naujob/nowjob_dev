@@ -412,15 +412,20 @@ function fBizNoMasking($bizNo)
       $previewImage.on('load', function() {
         if (cropper) cropper.destroy();
         $previewImage.attr('style', '');
+
+        // 원본 이미지 비율 계산
+        const img = this;
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+
         cropper = new Cropper(this, {
-          aspectRatio: 1,
+          aspectRatio: aspectRatio,
           viewMode: 1,
           background: false,
           dragMode: 'move',
           guides: true,
           highlight: false,
-          cropBoxMovable: false,
-          cropBoxResizable: false,
+          cropBoxMovable: true,
+          cropBoxResizable: true,
           autoCropArea: 1,
           responsive: true,
           zoomOnTouch: true,
@@ -437,9 +442,25 @@ function fBizNoMasking($bizNo)
     $crop.on('click', function() {
       if (!cropper) return;
 
+      // 자른 영역의 크기
+      const cropBoxData = cropper.getCropBoxData();
+      const width = Math.round(cropBoxData.width);
+      const height = Math.round(cropBoxData.height);
+
+      // 최대 크기 제한 (너비 기준 500px)
+      const maxWidth = 500;
+      let finalWidth = width;
+      let finalHeight = height;
+
+      if (finalWidth > maxWidth) {
+        const ratio = maxWidth / finalWidth;
+        finalWidth = maxWidth;
+        finalHeight = Math.round(finalHeight * ratio);
+      }
+
       const profileCanvas = cropper.getCroppedCanvas({
-        width: 300,
-        height: 300,
+        width: finalWidth,
+        height: finalHeight,
         imageSmoothingQuality: 'high',
       });
       if (!profileCanvas) {

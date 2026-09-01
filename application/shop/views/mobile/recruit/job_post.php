@@ -27,12 +27,6 @@ function formatPhoneNumber($number)
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
-    .bigsize-img {
-        position: relative;
-        left: 420px;
-        top: 2px;
-    
-    }
     .info-table .working-day>li {
         width: 1.8rem;
         height: 1.8rem;
@@ -152,6 +146,69 @@ function formatPhoneNumber($number)
     #floating-actions[data-own-recruit="true"][data-state="open"] .toggle-icon-up {
         display: none;
     }
+
+    /* 온보딩 튜토리얼 팝업2 (상세페이지) */
+    #tutorial-popup2 {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+        z-index: 1400; display: none; align-items: center; justify-content: center;
+    }
+    .tutorial-skip-btn2 {
+        position: absolute; top: 30px; right: 20px; color: #fff;
+        font-size: 18px; font-weight: 700; cursor: pointer; opacity: 0; z-index: 1401;
+    }
+
+    /* 구인정보 카드 (job_post.png) — 화면 상단 중앙 */
+    .tutorial-jobpost-wrapper {
+        position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+        width: 95%; display: flex; flex-direction: column;
+        align-items: flex-start; gap: 10px;
+    }
+    .tutorial-jobpost-img { width: 100%; height: auto; display: block; opacity: 0; }
+    .tutorial-jobpost-text {
+        color: #fff; font-size: 18px; font-weight: 700; line-height: 1.4; margin: 0; opacity: 0;
+        text-align: left;
+    }
+    .tutorial-jobpost-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+
+    /* 전화하기 (call.png) — 화면 우측 하단 */
+    .tutorial-call-wrapper {
+        position: absolute; bottom: 40px; right: 10px;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .tutorial-call-img { 
+        width: 110px; 
+        height: 110px; 
+        display: block; 
+        opacity: 0; 
+        position: relative;
+        right: -38px;
+    
+    }
+    .tutorial-call-text {
+        color: #fff; font-size: 18px; font-weight: 700; line-height: 1.4; margin: 0;
+        text-align: right; white-space: nowrap; opacity: 0;
+    }
+    .tutorial-call-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+
+    /* 지원하기 (propose.png) — call과 동일 위치 (페이지2 전용) */
+    .tutorial-propose-wrapper {
+        position: absolute; bottom: 40px; right: 10px;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .tutorial-propose-img { 
+    width: 110px; 
+    height: 110px; 
+    display: block; 
+    opacity: 0; 
+    position: relative;
+    right: -57px;
+
+}
+    .tutorial-propose-text {
+        color: #fff; font-size: 18px; font-weight: 700; line-height: 1.4; margin: 0;
+        text-align: right; white-space: nowrap; opacity: 0;
+    }
+    .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
 </style>
 <?php
 // 기업회원이 자신의 채용공고를 볼 경우를 판단
@@ -224,99 +281,44 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 return;
             }
 
-            // 1단계: draft 데이터를 recruit_write3_1로 먼저 저장 (site_log에 step3 저장)
-            var step3Params = new URLSearchParams();
-            step3Params.append("rc_idx", rcIdx);
-            step3Params.append("rc_desc", draftData.rc_desc || "");
-            step3Params.append("rc_sdate", draftData.rc_sdate || "");
-            step3Params.append("rc_edate", draftData.rc_edate || "");
-            step3Params.append("rc_hash_string", (draftData.rc_hash || []).join(","));
-            step3Params.append("rc_sex_all", draftData.rc_sex_all || "");
-            step3Params.append("rc_nation_all", draftData.rc_nation_all || "");
-            step3Params.append("rc_age_all", draftData.rc_age_all || "");
-            step3Params.append("rc_day_all", draftData.rc_day_all || "");
+            // 이미 저장된 "스텝3" 임시데이터를 그대로 사용해서 recruit_complete 호출
+            // (미리보기 진입 시 recruit_write3_1로 이미 저장됨)
+            var completeParams = "rc_idx=" + rcIdx;
 
-            // 배열 데이터 추가
-            if (Array.isArray(draftData.rc_sex)) {
-                draftData.rc_sex.forEach(function(val) {
-                    step3Params.append("rc_sex[]", val);
-                });
-            }
-            if (Array.isArray(draftData.rc_nation)) {
-                draftData.rc_nation.forEach(function(val) {
-                    step3Params.append("rc_nation[]", val);
-                });
-            }
-            if (Array.isArray(draftData.rc_day)) {
-                draftData.rc_day.forEach(function(val) {
-                    step3Params.append("rc_day[]", val);
-                });
-            }
-
-            step3Params.append("rc_sage", draftData.rc_sage || "");
-            step3Params.append("rc_eage", draftData.rc_eage || "");
-
-            var xhr3 = new XMLHttpRequest();
-            xhr3.open('POST', '/compage_proc/recruit_write3_1', true);
-            xhr3.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr3.onload = function() {
-                if (xhr3.status === 200) {
+            var xhrComplete = new XMLHttpRequest();
+            xhrComplete.open('POST', '/compage_proc/recruit_complete', true);
+            xhrComplete.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhrComplete.onload = function() {
+                if (xhrComplete.status === 200) {
                     try {
-                        var response3 = JSON.parse(xhr3.responseText);
-                        if (response3.code === "00") {
-                            // 2단계: step3 저장 완료 후 recruit_complete 호출
-                            var completeParams = "rc_idx=" + rcIdx;
+                        var responseComplete = JSON.parse(xhrComplete.responseText);
+                        if (responseComplete.code === "00") {
+                            // draft 데이터 삭제
+                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
+                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
+                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
+                            localStorage.removeItem("recruit_draft_0_page1");
+                            localStorage.removeItem("recruit_draft_0_page2");
+                            localStorage.removeItem("recruit_draft_0_page3");
 
-                            var xhrComplete = new XMLHttpRequest();
-                            xhrComplete.open('POST', '/compage_proc/recruit_complete', true);
-                            xhrComplete.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                            xhrComplete.onload = function() {
-                                if (xhrComplete.status === 200) {
-                                    try {
-                                        var responseComplete = JSON.parse(xhrComplete.responseText);
-                                        if (responseComplete.code === "00") {
-                                            // draft 데이터 삭제
-                                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
-                                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
-                                            localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
-                                            localStorage.removeItem("recruit_draft_0_page1");
-                                            localStorage.removeItem("recruit_draft_0_page2");
-                                            localStorage.removeItem("recruit_draft_0_page3");
-
-                                            // 채용공고 등록 완료
-                                            commonAlert("채용공고가 등록되었습니다.", function() {
-                                                window.history.go(-2);
-                                            });
-                                        } else {
-                                            alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
-                                        }
-                                    } catch (e) {
-                                        alert("응답 처리 중 오류가 발생했습니다.");
-                                        
-                                    }
-                                } else {
-                                    alert("서버 오류가 발생했습니다.");
-                                }
-                            };
-                            xhrComplete.onerror = function() {
-                                alert("네트워크 오류가 발생했습니다.");
-                            };
-                            xhrComplete.send(completeParams);
+                            // 채용공고 등록 완료
+                            commonAlert("채용공고가 등록되었습니다.", function() {
+                                window.history.go(-2);
+                            });
                         } else {
-                            alert(response3.msg || "단계3 저장 중 오류가 발생했습니다.");
+                            alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
                         }
                     } catch (e) {
                         alert("응답 처리 중 오류가 발생했습니다.");
-                      
                     }
                 } else {
                     alert("서버 오류가 발생했습니다.");
                 }
             };
-            xhr3.onerror = function() {
+            xhrComplete.onerror = function() {
                 alert("네트워크 오류가 발생했습니다.");
             };
-            xhr3.send(step3Params.toString());
+            xhrComplete.send(completeParams);
         }
     </script>
 
@@ -326,37 +328,36 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <div class="slider-wrap keen-slider">
                 <?php if ($info["rc_img1"] != "") : ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img1"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $info["rc_img1"] ?>" data-mfp-src="<?= $info["rc_img1"] ?>" alt="" class="lozad">
                     </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img2"] != "") : ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img2"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $info["rc_img2"] ?>" data-mfp-src="<?= $info["rc_img2"] ?>" alt="" class="lozad">
                     </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img3"] != "") : ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img3"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $info["rc_img3"] ?>" data-mfp-src="<?= $info["rc_img3"] ?>" alt="" class="lozad">
                     </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img4"] != "") : ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img4"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $info["rc_img4"] ?>" data-mfp-src="<?= $info["rc_img4"] ?>" alt="" class="lozad">
                     </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img5"] != "") : ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img5"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $info["rc_img5"] ?>" data-mfp-src="<?= $info["rc_img5"] ?>" alt="" class="lozad">
                     </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img99"] != "") : ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img99"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $info["rc_img99"] ?>" data-mfp-src="<?= $info["rc_img99"] ?>" alt="" class="lozad">
                     </div>
                 <?php endif; ?>
             </div>
         </div>
-        <a href="javascript:void(0);" class="bigsize"><img class="bigsize-img" src="/resource/shop/web/img/bigsize.png" /></a>
 
         <script>
             window.addEventListener('DOMContentLoaded', function() {
@@ -601,17 +602,18 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
         <div class="section view-desc">
             <div class="container">
-                <div class="title-form">
+                <div class="title-section" style="justify-content: flex-start;    gap: 15px; ">
                     <h3 class="secondary-title" onclick="alert('<?= $user_agent ?>');">상세업무정보</h3>
-                    <div class="title-form__aside">
-                        <button class="detail-recruit-content__preview" type="button" aria-label="새 창으로 보기">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <span class="screen-out">새 창으로 보기</span>
-                        </button>
-                    </div>
+                    <p class="desc-guide" style="text-align: left;     width: 205px; white-space: nowrap;">상세업무를 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
+                     <div class="title-form__aside" style ="margin-left: 90px;">
+                    <button class="detail-recruit-content__preview" type="button" aria-label="새 창으로 보기">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <span class="screen-out">새 창으로 보기</span>
+                    </button>
                 </div>
+                </div>
+               
                 <!-- 작성내용 -->
-                <p class="desc-guide">상세요강을 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
                 <div class="desc-clip">
                     <div class="desc" style="width: 100%;">
                         <p class="desc-content"><?= $info["rc_desc"] ?></p><br>
@@ -626,7 +628,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
         <div class="section view-location">
             <div class="container">
-                <h3 class="secondary-title">기본정보</h3>
+                
+                    <h3 class="secondary-title">기본정보</h3>
+                  
+               
                 <div class="location">
                     <table class="info-table">
                         <tr>
@@ -722,7 +727,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <?php if ($userType === "MEM") : ?>
                 <!-- 개인회원: 제안하기 + 전화하기 -->
                 <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
+                    <img src="/resource/shop/mobile/img/apply.png" alt="지원">
                     <span class="action-label">지원하기</span>
                 </a>
                 <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
@@ -876,6 +881,28 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 <!-- //공유하기 팝업 -->
 
 <script src="/resource/shop/mobile/js/share-panel.js"></script>
+
+<!-- 온보딩 튜토리얼 팝업 (상세페이지) -->
+<div id="tutorial-popup2" style="display:none;">
+    <span class="tutorial-skip-btn2" onclick="window.closeJobPostTutorial();">건너뛰기</span>
+
+    <!-- 페이지 1: 구인정보 + 전화하기 -->
+    <div class="tutorial-jobpost-wrapper jp-page-1">
+        <p class="tutorial-jobpost-text">채용정보 <span class="highlight-text-arrow">상세 희망 근무조건</span><br>채용공고의 근무조건을 바로 확인할 수 있어요</p>
+        <img src="/resource/shop/mobile/img/tutorial/job_post.png" class="tutorial-jobpost-img" alt="구인정보">
+    </div>
+    <div class="tutorial-call-wrapper jp-page-1">
+        <p class="tutorial-call-text">채용담당자와 다이렉트 연결<br>지금 바로 출근지원, <span class="highlight-text-arrow">전화하기</span></p>
+        <img src="/resource/shop/mobile/img/tutorial/call.png" class="tutorial-call-img" alt="전화하기">
+    </div>
+
+    <!-- 페이지 2: 지원하기 -->
+    <div class="tutorial-propose-wrapper jp-page-2" style="display:none;">
+        <p class="tutorial-propose-text">나우잡 채팅으로 시작하는 구인구직<br>출근하고 싶은 채용공고에, <span class="highlight-text-arrow">지원하기</span></p>
+        <img src="/resource/shop/mobile/img/tutorial/apply.png" class="tutorial-propose-img" alt="지원하기">
+    </div>
+</div>
+<!-- //온보딩 튜토리얼 팝업 -->
 
 <!-- 길찾기 팝업 -->
 <div id="findLocation" class="layer-panel card-type" tabindex="-1">
@@ -1161,33 +1188,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             }
         }
 
-        $('.bigsize').magnificPopup({
-            items: [
-                <?php if ($info["rc_img1"] != "") : ?> {
-                        src: '<?= $info["rc_img1"] ?>'
-                    },
-                <?php endif; ?>
-                <?php if ($info["rc_img2"] != "") : ?> {
-                        src: '<?= $info["rc_img2"] ?>'
-                    },
-                <?php endif; ?>
-                <?php if ($info["rc_img3"] != "") : ?> {
-                        src: '<?= $info["rc_img3"] ?>'
-                    },
-                <?php endif; ?>
-                <?php if ($info["rc_img4"] != "") : ?> {
-                        src: '<?= $info["rc_img4"] ?>'
-                    },
-                <?php endif; ?>
-                <?php if ($info["rc_img5"] != "") : ?> {
-                        src: '<?= $info["rc_img5"] ?>'
-                    },
-                <?php endif; ?>
-            ],
+        $('.view-visual-slider').magnificPopup({
+            delegate: 'img',
+            type: 'image',
             gallery: {
                 enabled: true
-            },
-            type: 'image' // this is default type
+            }
         });
 
         // .desc 영역 핀치 줌 기능
@@ -1554,6 +1560,114 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 });
             });
         };
+
+        // 온보딩 튜토리얼 팝업2 로직 (DOMContentLoaded 내부)
+        var JP_CURRENT_PAGE = 0;
+        var JP_TOTAL_PAGES = 2;
+        var jpPageTimeline = null;
+
+        function jpPreventScroll(e) { e.preventDefault(); }
+
+        window.openJobPostTutorial = function() {
+            var popup = document.getElementById('tutorial-popup2');
+            if (!popup) return;
+            popup.style.display = 'flex';
+            JP_CURRENT_PAGE = 0;
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+            document.addEventListener('touchmove', jpPreventScroll, { passive: false });
+            document.addEventListener('wheel', jpPreventScroll, { passive: false });
+
+            var skipBtn = popup.querySelector('.tutorial-skip-btn2');
+            var jobPostImg = popup.querySelector('.tutorial-jobpost-img');
+            var jobPostText = popup.querySelector('.tutorial-jobpost-text');
+            var callImg = popup.querySelector('.tutorial-call-img');
+            var callText = popup.querySelector('.tutorial-call-text');
+
+            popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = ''; });
+            popup.querySelectorAll('.jp-page-2').forEach(function(el) { el.style.display = 'none'; });
+
+            gsap.set([jobPostImg, jobPostText, callImg, callText,
+                popup.querySelector('.tutorial-propose-img'), popup.querySelector('.tutorial-propose-text')], { opacity: 0 });
+
+            var tl = gsap.timeline();
+            tl.fromTo(jobPostImg, { opacity: 0 }, { opacity: 1, duration: 0.6, display: 'block' }, 0.5)
+              .fromTo(skipBtn, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.5)
+              .fromTo(jobPostText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1')
+              .fromTo(callImg, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35')
+              .fromTo(callText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1');
+        };
+
+        window.closeJobPostTutorial = function() {
+            var popup = document.getElementById('tutorial-popup2');
+            if (!popup) return;
+            popup.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.documentElement.style.overflow = 'auto';
+            document.removeEventListener('touchmove', jpPreventScroll);
+            document.removeEventListener('wheel', jpPreventScroll);
+            if (jpPageTimeline) jpPageTimeline.kill();
+        };
+
+        window.isTutorialOpen = function() {
+            var popup = document.getElementById('tutorial-popup2');
+            return popup && popup.style.display === 'flex';
+        };
+
+        window.closeTutorialPopup = function() {
+            window.closeJobPostTutorial();
+        };
+
+        window.setJobPostTutorialPage = function(pageIndex) {
+            var popup = document.getElementById('tutorial-popup2');
+            JP_CURRENT_PAGE = pageIndex;
+            if (jpPageTimeline) jpPageTimeline.kill();
+
+            if (pageIndex === 1) {
+                popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = 'none'; });
+                var proposeWrapper = popup.querySelector('.tutorial-propose-wrapper');
+                var proposeImg = popup.querySelector('.tutorial-propose-img');
+                var proposeText = popup.querySelector('.tutorial-propose-text');
+                proposeWrapper.style.display = 'flex';
+                gsap.set([proposeImg, proposeText], { opacity: 0 });
+
+                jpPageTimeline = gsap.timeline({ defaults: { ease: 'power2.out' } });
+                jpPageTimeline
+                    .fromTo(proposeImg, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0)
+                    .fromTo(proposeText, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35');
+            }
+        };
+
+        document.addEventListener('click', function(e) {
+            var popup = document.getElementById('tutorial-popup2');
+            if (!popup || popup.style.display === 'none') return;
+
+            if (e.target === popup || popup.contains(e.target)) {
+                if (JP_CURRENT_PAGE < JP_TOTAL_PAGES - 1) {
+                    window.setJobPostTutorialPage(JP_CURRENT_PAGE + 1);
+                } else {
+                    window.closeJobPostTutorial();
+                }
+            }
+        });
+
+        // 모바일 디바이스 판단
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (모바일에서만)
+        //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+         var jpIsDevelopment = false; // 개발 환경에서만 튜토리얼 표시 여부 테스트용 (true로 설정하면 항상 표시)
+        if (jpIsDevelopment && isMobileDevice()) {
+            window.openJobPostTutorial();
+        } else if (isMobileDevice() && localStorage.getItem('came_from_job_list') === 'true') {
+            localStorage.removeItem('came_from_job_list');
+            if (!localStorage.getItem('job_post_tutorial_seen')) {
+                localStorage.setItem('job_post_tutorial_seen', 'true');
+                window.openJobPostTutorial();
+            }
+        }
 
     });
 </script>

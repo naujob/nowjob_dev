@@ -43,6 +43,7 @@ if (!$socket_io_script_url) {
   <link rel="shortcut icon" href="/resource/favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <?= getCashJs(RES_PATH . "/js/lib/jquery-3.5.1.min.js") ?>
   <!-- <?= getCashJs(RES_PATH . "/js/lib/mobiscroll.jquery.min.js") ?> -->
   <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>

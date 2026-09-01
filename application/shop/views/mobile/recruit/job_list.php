@@ -462,7 +462,256 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     background-color: transparent;
   }
 
-  
+  /* 온보딩 튜토리얼 팝업 */
+  #tutorial-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tutorial-skip-btn {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 1401;
+  }
+
+  .tutorial-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+  }
+
+  .tutorial-image {
+    width: 80px;
+    height: 125px;
+    flex-shrink: 0;
+  }
+
+  #tutorial-popup .tutorial-text {
+    color: #fff;
+    font-size: 18px;
+    line-height: 1.5;
+    text-align: center;
+    padding: 0 40px;
+    font-weight: 700;
+  }
+
+  #tutorial-popup .tutorial-text .highlight-text {
+    font-weight: 700;
+    font-size: 20px;
+    color: #1B9D7D;
+  }
+
+  .tutorial-indicators {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .tutorial-indicators .indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .tutorial-indicators .indicator.active {
+    background-color: #57CCAF;
+    width: 20px;
+    border-radius: 4px;
+  }
+
+  .tutorial-recruit {
+    position: absolute;
+    bottom: 30px;
+       left: 29px;
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-arrow {
+    position: absolute;
+    bottom: 21px;
+    left: 22px;
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-arrow-right {
+    position: absolute;
+    bottom: 30px;
+        left: 19px;
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-arrow-text {
+    position: absolute;
+    bottom: 145px;
+    left: 9px;
+    width: 182px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    line-height: 1.4;
+    padding-top: 30px;
+    opacity: 0;
+    z-index: 10;
+  }
+
+  .tutorial-arrow-text .highlight-text-arrow {
+    color: #1b9d7d;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  /* 페이지 2 요소들 */
+  .tutorial-resume {
+    position: absolute;
+    bottom: 21px;
+    right: 278px;
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-arrow-page2 {
+    position: absolute;
+    bottom: 11px;
+    right: 12px;
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  /* 페이지 2 - arrow_effect_left.png와 텍스트 */
+  .tutorial-arrow-left-page2 {
+    position: absolute;
+    bottom: 21px;
+    right: 278px;
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-arrow-text-page2 {
+    position: absolute;
+    bottom: 136px;
+        right: 222px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  .tutorial-arrow-text-page2 .highlight-text-arrow {
+    color: #1b9d7d;
+    font-size:20px;
+    font-weight: 700;
+  }
+
+  /* 페이지 3 요소들 */
+  .tutorial-map {
+    position: absolute;
+    bottom: 21px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-arrow-page3 {
+    position: absolute;
+    bottom: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-arrow-right-page3 {
+    position: absolute;
+    bottom: 21px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 115px;
+    height: 115px;
+    opacity: 0;
+  }
+
+  .tutorial-map-text {
+    position: absolute;
+    bottom: 139px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  .tutorial-map-text .highlight-text-arrow {
+    color: #1b9d7d;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  /* 페이지 4 요소들 */
+  .tutorial-page-4-wrapper {
+    position: absolute;
+    top: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+    z-index: 1402;
+  }
+
+  .tutorial-page-4-wrapper .tutorial-search-text {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    padding-left: 25px;
+    margin-top: -16px;
+  }
+
+  .tutorial-page-4-wrapper .tutorial-search {
+        width: 457px;
+    height: 55px
+    object-fit: cover;
+  }
+
+  .tutorial-page-4-wrapper .highlight-text-arrow {
+    color: #1b9d7d;
+    font-size: 20px;
+  }
 
 </style>
 
@@ -470,8 +719,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
   crossorigin="anonymous"></script>
 
-<?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
 
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
 <div class="page-recruit">
 
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
@@ -634,6 +883,42 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 </div>
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
+
+<!-- 온보딩 튜토리얼 팝업 -->
+<div id="tutorial-popup" style="display:none;">
+  <span class="tutorial-skip-btn" onclick="window.closeTutorialPopup();">건너뛰기</span>
+
+  <!-- 페이지 4 -->
+  <div class="tutorial-page-4-wrapper" style="display:none;">
+    <img src="/resource/shop/mobile/img/tutorial/search.png" class="tutorial-search" alt="검색">
+    <p class="tutorial-search-text">나에게 딱 맞는&nbsp;<span class="highlight-text-arrow">상세검색</span><br>지역 부터 업종까지 다양한 설정이 가능해요</p>
+  </div>
+
+  <div class="tutorial-container">
+    <p class="tutorial-text"></p>
+    <img src="/resource/shop/mobile/img/tutorial/touch_effect_whole.png" class="tutorial-image" alt="터치 안내">
+    <div class="tutorial-indicators">
+      <span class="indicator active" data-page="0"></span>
+      <span class="indicator" data-page="1"></span>
+      <span class="indicator" data-page="2"></span>
+      <span class="indicator" data-page="3"></span>
+    </div>
+  </div>
+  <!-- 페이지 1 -->
+  <img src="/resource/shop/mobile/img/tutorial/recruit.png" class="tutorial-recruit page-1" alt="채용정보">
+
+  <p class="tutorial-arrow-text page-1">나에게 딱맞는!&nbsp;<span class="highlight-text-arrow">채용정보</span></p>
+
+  <!-- 페이지 2 -->
+  <img src="/resource/shop/mobile/img/tutorial/resume.png" class="tutorial-resume page-2" alt="이력서" style="display:none;">
+
+  <p class="tutorial-arrow-text-page2 page-2" style="display:none;">우리 회사에 딱맞는!&nbsp;<span class="highlight-text-arrow">인재정보</span></p>
+
+  <!-- 페이지 3 -->
+  <img src="/resource/shop/mobile/img/tutorial/recruit_map.png" class="tutorial-map page-3" alt="지도" style="display:none;">
+
+  <p class="tutorial-map-text page-3" style="display:none;">우리 동네,&nbsp;<span class="highlight-text-arrow">채용지도</span></p>
+</div>
 
 <?php $tpl_id = 'tpl_list';
 $tpl_recomm_class = true; ?>
@@ -1241,6 +1526,7 @@ $tpl_recomm_class = true; ?>
     }
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
+      localStorage.setItem('came_from_job_list', 'true');
       window.location.href = '/recruit/job_post/' + rcIdx;
     }
   });
@@ -1334,6 +1620,28 @@ $tpl_recomm_class = true; ?>
       window.updateSelectedRegionsTags();
     }
 
+    // 온보딩 튜토리얼 최초 노출 체크 (Android/iOS 브릿지)
+    window.onShowTutorialResult = function(isFirst) {
+      if (isFirst === 'Y') openTutorialPopup();
+    };
+
+    // 개발 환경: 팝업 항상 표시
+   
+    //var isDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+   var isDevelopment =false;
+    if (isDevelopment) {
+      openTutorialPopup();
+    } else {
+      // 운영 환경: 네이티브 브릿지 호출
+      if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.showTutorial) {
+        if (APP_NOWAPK.showTutorial() === 'Y') {
+          openTutorialPopup();
+        }
+      } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.showTutorial) {
+        window.webkit.messageHandlers.showTutorial.postMessage("");
+      }
+    }
+
     initCategory();
     initTabUi();
     getRecruitRecoList();
@@ -1359,6 +1667,201 @@ $tpl_recomm_class = true; ?>
   // ========================================
   // 8️⃣  기타 헬퍼 함수들
   // ========================================
+
+  // 온보딩 튜토리얼 팝업 함수
+  window.isTutorialOpen = function() {
+    var popup = document.getElementById('tutorial-popup');
+    return popup && popup.style.display !== 'none';
+  };
+
+  var TUTORIAL_TEXT = "나우잡에서<br><span class='highlight-text'>인재목록,인재지도,공고등록</span> 등 다양한 콘텐츠를<br>이용해보세요!";
+  var CURRENT_TUTORIAL_PAGE = 0;
+
+  function preventScroll(e) {
+    e.preventDefault();
+  }
+
+  function openTutorialPopup() {
+    var popup = document.getElementById('tutorial-popup');
+    popup.style.display = 'flex';
+    CURRENT_TUTORIAL_PAGE = 0;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+    document.addEventListener('wheel', preventScroll, { passive: false });
+
+    var textEl = popup.querySelector('.tutorial-text');
+    var containerEl = popup.querySelector('.tutorial-container');
+    var skipBtn = popup.querySelector('.tutorial-skip-btn');
+    var recruitEl = popup.querySelector('.tutorial-recruit');
+    var arrowTextEl = popup.querySelector('.tutorial-arrow-text');
+
+    textEl.innerHTML = TUTORIAL_TEXT;
+
+    // 모든 page 요소들의 초기 opacity 설정
+    gsap.set([
+      popup.querySelectorAll('.page-1'),
+      popup.querySelectorAll('.page-2'),
+      popup.querySelectorAll('.page-3')
+    ], { opacity: 0 });
+    var page4Wrapper = popup.querySelector('.tutorial-page-4-wrapper');
+    if (page4Wrapper) {
+      page4Wrapper.style.display = 'none';
+      gsap.set(page4Wrapper, { opacity: 0 });
+    }
+
+    // GSAP timeline으로 애니메이션 구성
+    var tl = gsap.timeline();
+    tl.fromTo(containerEl, { opacity: 0 }, { opacity: 1, duration: 0.6, display: 'flex' }, 0.5)
+      .fromTo(skipBtn, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.5)
+      .fromTo(recruitEl, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '+=0.35')
+      .fromTo(arrowTextEl, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '-=0.1');
+
+    window.setTutorialPage(0);
+  }
+
+  window.closeTutorialPopup = function() {
+    var popup = document.getElementById('tutorial-popup');
+    popup.style.display = 'none';
+    popup.querySelector('.tutorial-container').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    document.removeEventListener('touchmove', preventScroll);
+    document.removeEventListener('wheel', preventScroll);
+
+    // GSAP timeline 초기화
+    gsap.set([
+      popup.querySelector('.tutorial-container'),
+      popup.querySelector('.tutorial-skip-btn'),
+      popup.querySelector('.tutorial-recruit'),
+      popup.querySelector('.tutorial-arrow-text')
+    ], { opacity: 0 });
+    var page4Wrapper = popup.querySelector('.tutorial-page-4-wrapper');
+    if (page4Wrapper) {
+      page4Wrapper.style.display = 'none';
+      gsap.set(page4Wrapper, { opacity: 0 });
+    }
+
+    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.onCloseTutorial) {
+      APP_NOWAPK.onCloseTutorial();
+    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.onCloseTutorial) {
+      window.webkit.messageHandlers.onCloseTutorial.postMessage("");
+    }
+  };
+
+  var pageTransitionTimeline = null;
+
+  window.setTutorialPage = function(pageIndex) {
+    var popup = document.getElementById('tutorial-popup');
+    CURRENT_TUTORIAL_PAGE = pageIndex;
+
+    // 기존 애니메이션 중지
+    if (pageTransitionTimeline) pageTransitionTimeline.kill();
+
+    // 인디케이터 업데이트
+    var indicators = popup.querySelectorAll('.indicator');
+    indicators.forEach(function(ind, idx) {
+      if (idx === pageIndex) {
+        ind.classList.add('active');
+      } else {
+        ind.classList.remove('active');
+      }
+    });
+
+    // 새 타임라인 생성
+    pageTransitionTimeline = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    var page4Wrapper = popup.querySelector('.tutorial-page-4-wrapper');
+
+    if (pageIndex === 0) {
+      // 페이지 1: 페이지 1 요소들만 표시, 나머지 숨김
+      var page2Elements = popup.querySelectorAll('.page-2');
+      var page3Elements = popup.querySelectorAll('.page-3');
+      page2Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      page3Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      if (page4Wrapper) page4Wrapper.style.display = 'none';
+
+      var page1Elements = popup.querySelectorAll('.page-1');
+      page1Elements.forEach(function(el) { el.style.display = ''; gsap.set(el, { opacity: 0 }); });
+    }
+    else if (pageIndex === 1) {
+      // 페이지 2: 페이지 1, 3 요소들 숨김
+      var page1Elements = popup.querySelectorAll('.page-1');
+      var page3Elements = popup.querySelectorAll('.page-3');
+      page1Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      page3Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      if (page4Wrapper) page4Wrapper.style.display = 'none';
+
+      var page2Elements = popup.querySelectorAll('.page-2');
+      page2Elements.forEach(function(el) { el.style.display = ''; gsap.set(el, { opacity: 0 }); });
+
+      // 페이지 2 애니메이션 순서
+      pageTransitionTimeline
+        .fromTo('.tutorial-resume', { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0)
+        .fromTo('.tutorial-arrow-text-page2', { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35');
+    }
+    else if (pageIndex === 2) {
+      // 페이지 3: 페이지 1, 2 요소들 숨김
+      var page1Elements = popup.querySelectorAll('.page-1');
+      var page2Elements = popup.querySelectorAll('.page-2');
+      page1Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      page2Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      if (page4Wrapper) page4Wrapper.style.display = 'none';
+
+      var page3Elements = popup.querySelectorAll('.page-3');
+      page3Elements.forEach(function(el) { el.style.display = ''; gsap.set(el, { opacity: 0 }); });
+
+      // 페이지 3 애니메이션 순서
+      pageTransitionTimeline
+        .fromTo('.tutorial-map', { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0)
+        .fromTo('.tutorial-map-text', { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35');
+    }
+    else if (pageIndex === 3) {
+      // 페이지 4: 페이지 1, 2, 3 요소들 숨김
+      var page1Elements = popup.querySelectorAll('.page-1');
+      var page2Elements = popup.querySelectorAll('.page-2');
+      var page3Elements = popup.querySelectorAll('.page-3');
+      page1Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      page2Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+      page3Elements.forEach(function(el) { el.style.display = 'none'; gsap.set(el, { opacity: 0 }); });
+
+      var page4Wrapper = popup.querySelector('.tutorial-page-4-wrapper');
+      if (page4Wrapper) {
+        page4Wrapper.style.display = 'flex';
+        gsap.set(page4Wrapper, { opacity: 1 });
+
+        var searchEl = page4Wrapper.querySelector('.tutorial-search');
+        var searchTextEl = page4Wrapper.querySelector('.tutorial-search-text');
+
+        gsap.set([searchEl, searchTextEl], { opacity: 0 });
+
+        // 페이지 4 애니메이션 순서: search 먼저, search-text 나중
+        pageTransitionTimeline
+          .fromTo(searchEl, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0)
+          .fromTo(searchTextEl, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35');
+      }
+    }
+  };
+
+  // tutorial-popup 클릭 이벤트 (페이지 전환)
+  document.addEventListener('click', function(e) {
+    var popup = document.getElementById('tutorial-popup');
+    if (!popup || popup.style.display === 'none') return;
+
+    // indicator 클릭은 무시
+    if (e.target.classList.contains('indicator')) {
+      return;
+    }
+
+    // tutorial-popup 영역 클릭 감지 (배경, 이미지, 텍스트 등)
+    if (e.target === popup || popup.contains(e.target)) {
+      if (CURRENT_TUTORIAL_PAGE < 3) {
+        window.setTutorialPage(CURRENT_TUTORIAL_PAGE + 1);
+      } else {
+        window.closeTutorialPopup();
+      }
+    }
+  });
 
   // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
   window.onChangeAreaApply = function() {
@@ -1402,231 +1905,12 @@ $tpl_recomm_class = true; ?>
     }
   };
 
-  // Android에서 호출할 함수: 패널 닫기
-  window.handleAndroidBack = function() {
-    if (window.isChangeAreaOpen()) {
-      $('#changeArea').removeClass('on');
-
-      if (window.isAdvancedSearchOpen()) {
-        $('body, html').css({
-          'overflow': 'auto',
-          'overflow-y': 'auto',
-          'position': 'relative',
-          'top': 'auto',
-          'left': 'auto',
-          'right': 'auto',
-          'width': 'auto',
-          'height': 'auto'
-        }).removeClass('no-scroll');
-      } else {
-        window.restorePanelClosedState();
-      }
-      return;
-    }
-
-    if (window.isAdvancedSearchOpen()) {
-      $('#advancedSearch').removeClass('on');
-      window.restorePanelClosedState();
-      return;
-    }
-
-    if (window.history && window.history.length > 1) {
-      window.history.back();
-    }
-  };
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/recruit/index_search.php'); ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 <script>
   // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
   window.__addrPopupPageType = 'recruit';
-
-  // 지금 뜨는 업체 슬라이더 초기화
-  function initHotSlider() {
-    var hotSlider = document.querySelector('.hot-list .slider-wrap');
-    if (hotSlider && typeof KeenSlider !== 'undefined') {
-      if (!hotSlider.__keenslider__) {
-        var slides = hotSlider.querySelectorAll('.keen-slider__slide');
-        var actualSlideCount = slides.length;
-        if (slides.length > 0 && slides.length < 4) {
-          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
-          var added = slides.length;
-          var imageSrcMap = {};
-          slides.forEach(function(slide, idx) {
-            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
-              imageSrcMap[idx + '-' + imgIdx] = img.src;
-            });
-          });
-          while (added < cloneCount) {
-            slides.forEach(function(slide, slideIdx) {
-              if (added < cloneCount) {
-                var cloned = slide.cloneNode(true);
-                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
-                  var srcKey = slideIdx + '-' + imgIdx;
-                  if (imageSrcMap[srcKey]) img.src = imageSrcMap[srcKey];
-                  if (img.classList.contains('lozad')) {
-                    if (img.getAttribute('data-src') && !img.src) img.src = img.getAttribute('data-src');
-                    img.setAttribute('data-loaded', 'true');
-                  }
-                });
-                hotSlider.appendChild(cloned);
-                added++;
-              }
-            });
-          }
-        }
-
-        var keenSlider = new KeenSlider(hotSlider, {
-          loop: true,
-          slides: {
-            perView: 1.1,
-            spacing: 12
-          },
-          drag: true,
-          dragMinDist: 0,
-          rubberband: true,
-          renderMode: 'precision'
-        });
-
-        // dot 인디케이터 생성 및 업데이트
-        var dotsContainer = document.getElementById('hotSliderDots');
-        if (dotsContainer && actualSlideCount > 1) {
-          // 원본 슬라이드 개수만큼 dot 생성
-          for (var i = 0; i < actualSlideCount; i++) {
-            var dot = document.createElement('div');
-            dot.className = 'dot' + (i === 0 ? ' active' : '');
-            dot.setAttribute('data-index', i);
-            (function(index) {
-              dot.addEventListener('click', function(e) {
-                e.stopPropagation();
-                keenSlider.moveToSlide(index);
-              });
-            })(i);
-            dotsContainer.appendChild(dot);
-          }
-
-          // 슬라이더 이동 시 dot 업데이트
-          keenSlider.on('slideChanged', function() {
-            var currentIdx = ((keenSlider.track.details.abs % actualSlideCount) + actualSlideCount) % actualSlideCount;
-            var dots = dotsContainer.querySelectorAll('.dot');
-            dots.forEach(function(d) {
-              d.classList.remove('active');
-            });
-            if (dots[currentIdx]) {
-              dots[currentIdx].classList.add('active');
-            }
-          });
-        }
-      }
-    }
-  }
-
-  // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
-  window.onChangeAreaApply = function() {
-    $(".search-option").addClass("hide-cate");
-    if (typeof saveSearchStateToStorage === "function") {
-      saveSearchStateToStorage();
-    }
-  };
-
-  // 공고 카드 클릭 시 상세 페이지로 이동
-  $(document).on('click', '.content-li', function(e) {
-    // 버튼이나 링크 클릭은 무시
-    if ($(e.target).closest('button, a, input').length) {
-      return;
-    }
-    // Google AdSense 광고 클릭이면 무시 (WebView의 shouldOverrideUrlLoading이 처리)
-    if ($(e.target).closest('.ad-item-adsense').length) {
-      return;
-    }
-    var rcIdx = $(this).data('rc_idx');
-    if (rcIdx) {
-      window.location.href = '/recruit/job_post/' + rcIdx;
-    }
-  });
-
-  // 1페이지 여부에 따라 배너/슬라이더 섹션 표시/숨김
-  function updateTopSectionsVisibility() {
-    var isFirstPage = (list_page <= 1);
-    $('.main-visual').toggle(isFirstPage);
-    $('#hotListSection').toggle(isFirstPage);
-  }
-
-  // Android 뒤로가기 패널 상태 관리
-  window.isAdvancedSearchOpen = function() {
-    return $('#advancedSearch').hasClass('on');
-  };
-
-  window.isChangeAreaOpen = function() {
-    return $('#changeArea').hasClass('on');
-  };
-
-  // 패널 닫힐 때 공통 body 스타일 복원 함수 (main.js의 closePanel 호출을 대신함)
-  window.restorePanelClosedState = function() {
-    $('body, html').css({
-      'overflow': 'auto',
-      'overflow-y': 'auto',
-      'position': 'relative',
-      'top': 'auto',
-      'left': 'auto',
-      'right': 'auto',
-      'width': 'auto',
-      'height': 'auto'
-    }).removeClass('no-scroll panel-open');
-
-    // 다른 열린 패널 확인
-    var hasOtherOpenPanel = document.querySelector('.layer-panel.on') !== null;
-    if (!hasOtherOpenPanel) {
-      $('body').removeClass('panel-open');
-    }
-
-    // iOS 웹뷰 대응: body 스타일 완전 복원
-    if (typeof forceRestoreBodyScroll === 'function') {
-      forceRestoreBodyScroll();
-    } else if (typeof restoreBodyScroll === 'function') {
-      restoreBodyScroll();
-    }
-  };
-
-  // Android에서 호출할 함수: 패널 닫기
-  window.handleAndroidBack = function() {
-    // 1) 지역선택 패널이 열려있으면 닫기 (advancedSearch보다 먼저 체크)
-    // 이렇게 하면 advancedSearch 안에서 changeArea가 열렸을 때 changeArea만 닫고 advancedSearch는 유지됨
-    if (window.isChangeAreaOpen()) {
-      $('#changeArea').removeClass('on');
-
-      // changeArea를 닫되, advancedSearch가 열려있으면 body.panel-open 유지
-      if (window.isAdvancedSearchOpen()) {
-        // advancedSearch가 여전히 열려있으므로 no-scroll만 제거하고 panel-open은 유지
-        $('body, html').css({
-          'overflow': 'auto',
-          'overflow-y': 'auto',
-          'position': 'relative',
-          'top': 'auto',
-          'left': 'auto',
-          'right': 'auto',
-          'width': 'auto',
-          'height': 'auto'
-        }).removeClass('no-scroll');
-      } else {
-        // advancedSearch도 닫혀있으면 완전 복원
-        window.restorePanelClosedState();
-      }
-      return;
-    }
-
-    // 2) 고급검색 패널이 열려있으면 닫기
-    if (window.isAdvancedSearchOpen()) {
-      $('#advancedSearch').removeClass('on');
-      window.restorePanelClosedState();
-      return;
-    }
-
-    // 3) 패널이 없으면 WebView의 기본 뒤로가기 수행
-    if (window.history && window.history.length > 1) {
-      window.history.back();
-    }
-  };
 </script>
 
 <!-- 페이지네이션 헬퍼 스크립트 -->
