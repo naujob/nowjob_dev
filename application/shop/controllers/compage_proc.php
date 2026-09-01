@@ -1321,8 +1321,10 @@ class Compage_proc extends CI_Controller
       }
 
 
-      # 로그 삭제
-      $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      # 로그 삭제 (최종 확정 시에만)
+      if ($preview_mode == 0) {
+        $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      }
 
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
@@ -1346,7 +1348,12 @@ class Compage_proc extends CI_Controller
       $this->db->trans_commit();
       json_return("00", "수정 성공", ["alarm_list" => null, "rc_idx" => $rc_idx]);
     } else {
-      # 신규등록 : 포인트 여부 확인 : 포인트 차감대상
+      # 신규등록 : preview_mode=1이면 site_log에만 저장하고 insertRecruit 스킵
+      if ($preview_mode == 1) {
+        json_return("00", "미리보기 저장이 완료되었습니다.", ["rc_idx" => 0]);
+      }
+
+      # 포인트 여부 확인 : 포인트 차감대상
       $point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U010"]);
       $use_point = $point_info["cd_val3"];
       $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
@@ -1589,8 +1596,10 @@ class Compage_proc extends CI_Controller
       }
 
 
-      # 로그 삭제
-      $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      # 로그 삭제 (최종 확정 시에만)
+      if ($preview_mode == 0) {
+        $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      }
 
       #####################################################
       # 푸시 발송
@@ -2913,6 +2922,11 @@ class Compage_proc extends CI_Controller
     }
 
     if ($rc_idx != 0) {
+      # 기존공고 수정 : preview_mode=1이면 site_log에만 저장하고 updateRecruit 스킵
+      if ($preview_mode == 1) {
+        json_return("00", "미리보기 저장이 완료되었습니다.", ["rc_idx" => $rc_idx]);
+      }
+
       # 트랜젝션 시작
       $this->db->trans_begin();
 
@@ -3151,8 +3165,10 @@ class Compage_proc extends CI_Controller
         }
       }
 
-      # 로그 삭제
-      $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      # 로그 삭제 (최종 확정 시에만 - 미리보기 호출에서는 site_log를 보존해야 2차 확정 호출이 정상 동작함)
+      if ($preview_mode == 0) {
+        $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      }
 
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
@@ -3176,7 +3192,12 @@ class Compage_proc extends CI_Controller
       $this->db->trans_commit();
       json_return("00", "수정 성공", ["alarm_list" => null, "rc_idx" => $rc_idx]);
     } else {
-      # 신규등록 : 포인트 여부 확인 : 포인트 차감대상
+      # 신규등록 : preview_mode=1이면 site_log에만 저장하고 insertRecruit 스킵
+      if ($preview_mode == 1) {
+        json_return("00", "미리보기 저장이 완료되었습니다.", ["rc_idx" => 0]);
+      }
+
+      # 포인트 여부 확인 : 포인트 차감대상
       $point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U010"]);
       $use_point = $point_info["cd_val3"];
       $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
@@ -3482,8 +3503,10 @@ class Compage_proc extends CI_Controller
       }
 
 
-      # 로그 삭제
-      $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      # 로그 삭제 (최종 확정 시에만)
+      if ($preview_mode == 0) {
+        $this->site_model->deleteSiteLog(["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]);
+      }
 
       #####################################################
       # 푸시 발송

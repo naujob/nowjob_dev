@@ -139,6 +139,7 @@ $job_posting_date_ts = strtotime($job_posting_date_raw);
 $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) : date('Y-m-d');
 
 // fRemoveBigAdr PHP 함수 제거 - JavaScript의 fRemoveBigAdrJS 함수 사용 (resource/shop/web/js/add.js)
+$isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 ?>
 
 <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
@@ -566,9 +567,8 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     margin-top: 20px;
   }
 
-  /* 기업회원이 자신의 채용공고를 볼 때: 수정 버튼 스타일 */
-  .item-view.recruit .view-aside .sticky-group.own-recruit #btnEditRecruit {
-    margin-bottom: -12px;
+  /* 수정 버튼 스타일 (공통) */
+  .btn-edit-icon {
     background-image: url('/resource/shop/web/img/reviseBtn.svg');
     background-repeat: no-repeat;
     background-position: 77px center;
@@ -576,8 +576,13 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     padding-left: 35px;
   }
 
-  /* 기업회원이 자신의 채용공고를 볼 때: 광고신청 버튼 배경 이미지 */
-  .item-view.recruit .view-aside .sticky-group.own-recruit #btnPromotionRecruit {
+  /* 기업회원이 자신의 채용공고를 볼 때: 수정 버튼 스타일 */
+  .item-view.recruit .view-aside .sticky-group.own-recruit #btnEditRecruit {
+    margin-bottom: -12px;
+  }
+
+  /* 광고신청 버튼 스타일 (공통) */
+  .btn-promotion-icon {
     background-image: url('/resource/shop/web/img/adBtn.svg');
     background-repeat: no-repeat;
     background-position: 77px center;
@@ -691,6 +696,35 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
     overflow: visible;
   }
 
+  /* 미리보기 모드: 액션 바 */
+  .summary-card .preview-action-bar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .summary-card .preview-action-bar .btn {
+    width: 100%;
+    text-align: center;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    padding: 12px;
+        background: #57CCAF;
+            color: #fff;
+            font-weight: 500;
+  }
+
+  
+
+  .summary-card .preview-action-bar .btn.btn-primary {
+    background-color: #31A182;
+    color: white;
+  }
+ .btn-register {
+    background-color: #1B9D7D;
+    color: white;
+ }
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -962,7 +996,7 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                   <tr>
                     <td class="label">근무날짜</td>
                     <td class="value">
-                      <?= ($info["rc_work_dt"] == "0000-00-00 00:00:00" ? "근무시작일 무관" : date('Y년 n월 j일', strtotime($info["rc_work_dt"]))) ?>
+                      <?= ($isPreview || $info["rc_work_dt"] == "0000-00-00 00:00:00" ? "근무시작일 무관" : date('Y년 n월 j일', strtotime($info["rc_work_dt"]))) ?>
                     </td>
                     <td class="label">근무요일</td>
                     <td class="value">
@@ -1219,17 +1253,25 @@ $job_posting_date = $job_posting_date_ts ? date('Y-m-d', $job_posting_date_ts) :
                 <?php } ?>
               <?php endif; ?>
 
-              <?php if ($isOwnRecruit) { ?>
+              <?php if ($isOwnRecruit && !$isPreview) { ?>
                 <!-- 기업회원이 자신의 채용공고를 볼 때: 수정 및 광고신청 버튼 -->
-                <button type="button" id="btnEditRecruit" class="btn-request btn-primary">수정</button>
-                <button type="button" id="btnPromotionRecruit" class="btn-request btn-primary">광고신청</button>
-              <?php } else { ?>
+                <button type="button" id="btnEditRecruit" class="btn-request btn-primary btn-edit-icon">수정</button>
+                <button type="button" id="btnPromotionRecruit" class="btn-request btn-primary btn-promotion-icon">광고신청</button>
+              <?php } else if (!$isPreview) { ?>
                 <!-- 개인회원이 볼 때: 지원하기 버튼 -->
                 <?php if ($this->user->getUserType() == "COMP") { ?>
                   <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn-request btn-primary" style="background-color:#ccc;" disabled>지원하기</button>
                 <?php } else { ?>
                   <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn-request btn-primary">지원하기</button>
                 <?php } ?>
+              <?php } ?>
+
+              <?php if ($isPreview) { ?>
+                <!-- 미리보기 모드: 액션 바 -->
+                <div class="preview-action-bar">
+                  <a href="/compage/recruit_write/<?= $info['rc_idx'] ?>" class="btn-primary btn-edit-icon">수정하기</a>
+                  <button type="button" class="btn-primary btn-register" onclick="submitPreviewComplete()">등록하기</button>
+                </div>
               <?php } ?>
             </div>
 
@@ -2164,6 +2206,20 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
     $(document).on('click', '#btnPromotionRecruit', function() {
       location.href = "/compage/point_promotion_buy";
     });
+
+    // 미리보기 모드: 등록/수정 완료 버튼 클릭 이벤트
+    window.submitPreviewComplete = function() {
+      var rcIdx = $("[name=rc_idx]").val();
+      comAjax("/compage_proc/recruit_complete", { rc_idx: rcIdx }, function(ret) {
+        if (ret.code == "00") {
+          commonAlert("채용공고가 등록되었습니다.", function() {
+            location.href = "/compage/recruit_list";
+          });
+        } else {
+          commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
+        }
+      });
+    };
 
     getRecoList();
 

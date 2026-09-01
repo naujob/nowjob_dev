@@ -260,7 +260,7 @@ function fRemoveBigAdr($arg)
         // 인재 목록 페이지에서 돌아올 때 하이라이트 처리
         var ruIdx = '<?= $info["ru_idx"] ?>';
         localStorage.setItem('resume_highlight_ru_idx', ruIdx);
-        localStorage.setItem('resume_came_from_hr_post', 'true');
+        localStorage.setItem('came_from_resume_list', 'true');
     </script>
 
     <div class="page-content">
@@ -1218,11 +1218,12 @@ function fRemoveBigAdr($arg)
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-   // var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-   var jpIsDevelopment= false; // 개발 환경 여부를 판단하는 로직 (예: 호스트명 또는 경로 기반)
-    if (jpIsDevelopment && isMobileDevice()) {
-        window.openJobPostTutorial();
-    } else if (isMobileDevice() && localStorage.getItem('came_from_resume_list') === 'true') {
+    // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (모바일에서만)
+        //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+         var jpIsDevelopment = false; // 개발 환경에서만 튜토리얼 표시 여부 테스트용 (true로 설정하면 항상 표시)
+        if (jpIsDevelopment && isMobileDevice()) {
+            window.openJobPostTutorial();
+        } else if (isMobileDevice() && localStorage.getItem('came_from_resume_list') === 'true') {
         localStorage.removeItem('came_from_resume_list');
         if (!localStorage.getItem('hr_post_tutorial_seen')) {
             localStorage.setItem('hr_post_tutorial_seen', 'true');

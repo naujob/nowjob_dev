@@ -2750,7 +2750,7 @@
       </div>
 
       <div class="form-action-wrap">
-        <button id="btnStep" type="button" class="btn-round btn-tertiary"><?= $info["rc_idx"] != "0" ? ($_GET["gbn"] == "re" ? "등록" : "수정") : "등록" ?>완료</button>
+        <button id="btnStep" type="button" class="btn-round btn-tertiary">미리보기</button>
       </div>
       </form>
 
@@ -4281,140 +4281,31 @@
     var preview_desc = info.rc_desc;
     preview_desc = preview_desc.replaceAll(/\n/g, "<br>");
 
-    var rc_price_rep_txt = '';
-    if ($('[name="rc_price_rep"]') != '급여협의') {
-      rc_price_rep_txt = ' (대표급여형태 : ' + $('[name="rc_price_rep"]').val() + ')';
-    }
-    // 챙용공고 등록 확인 팝업 열기
-    openPopup('modal', {
-      content: '<div class="regist-info">' +
-        '<h5 class="name">' + info.rc_name + '</h5>' +
-        '<table>' +
-        '<caption><span class="sr-text">채용공고정보</span></caption>' +
-        '<colgroup><col><col></colgroup>' +
-        '<tbody>' +
-        '<tr>' +
-        '<td class="label">공개여부</td>' +
-        '<td class="value">' + (info.rc_show_yn == 'Y' ? '공개' : '비공개') + '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">업무구분</td>' +
-        '<td class="value">' +
-        info.rc_work_img +
-        '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">금액</td>' +
-        '<td class="value txt-color2">' +
-        str_price +
-        '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">급여형태</td>' +
-        '<td class="value">' + info.rc_price_type + rc_price_rep_txt + '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">근무시간</td>' +
-        '<td class="value">' + str_time + '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">근무시작일</td>' +
-        '<td class="value">' + info.rc_work_dt + '(' + info.rc_work_dt_yoil + ')' + '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">희망성별</td>' +
-        '<td class="value">' + info.rc_sex + '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">희망국적</td>' +
-        '<td class="value">' + info.rc_nation + '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">희망나이</td>' +
-        '<td class="value">' + ageStr + '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td class="label">근무요일</td>' +
-        '<td class="value">' +
-        '<ul class="working-day">' +
-        str_rc_week +
-        '</ul>' +
-        '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td colspan="2" class="value">' +
-        '<div class="hashtag">' +
-        str_hash +
-        '</div>' +
-        '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td colspan="2" class="label">복리후생</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td colspan="2" class="value">' +
-        '<ul class="benefit-group">' +
-        preview_life +
-        '</ul>' +
-        '</tr>' +
-        '<tr>' +
-        '<td colspan="2" class="label" style="padding-top: 34px;">상세업무정보</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td colspan="2" class="value" style="max-width: 400px;">' +
-        preview_desc +
-        '</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td colspan="2" class="label" style="padding-top: 34px;">첨부사진</td>' +
-        '</tr>' +
-        '<tr>' +
-        '<td colspan="2" class="value">' +
-        str_img +
-        '</td>' +
-        '</tr>' +
-        '</tbody>' +
-        '</table>' +
-        '</div>',
-      firstButton: '정보수정',
-      secondButton: ($("[name=rc_idx]").val() != "0" ? '수정완료' : '등록완료'),
-      firstCallback: function() {},
-      secondCallback: function() {
-      
+    // 팝업 없이 바로 미리보기 화면으로 이동
+    var params = {};
+    params["rc_idx"] = $("[name=rc_idx]").val();
+    params["preview_mode"] = "1";
+    params["mm_comp_num"] = $("[name=mm_comp_num]").val();
+    params["mm_comp_num_org"] = $("[name=mm_comp_num_org]").val();
+    params["expose_addr1_zipcode"] = $("[name=expose_addr1_zipcode]").val();
+    params["expose_addr1_jibun"] = $("[name=expose_addr1_jibun]").val();
+    params["expose_addr1_doro_val"] = $("[name=expose_addr1_doro_val]").val();
+    params["expose_addr1_addr"] = $("[name=expose_addr1_addr]").val();
+    params["expose_addr1_gps_x"] = $("[name=expose_addr1_gps_x]").val();
+    params["expose_addr1_gps_y"] = $("[name=expose_addr1_gps_y]").val();
+    params["expose_addr2_zipcode"] = $("[name=expose_addr2_zipcode]").val();
+    params["expose_addr2_jibun"] = $("[name=expose_addr2_jibun]").val();
+    params["expose_addr2_doro_val"] = $("[name=expose_addr2_doro_val]").val();
+    params["expose_addr2_addr"] = $("[name=expose_addr2_addr]").val();
+    params["expose_addr2_gps_x"] = $("[name=expose_addr2_gps_x]").val();
+    params["expose_addr2_gps_y"] = $("[name=expose_addr2_gps_y]").val();
 
-        var params = {};
-        params["rc_idx"] = $("[name=rc_idx]").val();
-        params["mm_comp_num"] = $("[name=mm_comp_num]").val();
-        params["mm_comp_num_org"] = $("[name=mm_comp_num_org]").val();
-        params["expose_addr1_zipcode"] = $("[name=expose_addr1_zipcode]").val();
-        params["expose_addr1_jibun"] = $("[name=expose_addr1_jibun]").val();
-        params["expose_addr1_doro_val"] = $("[name=expose_addr1_doro_val]").val();
-        params["expose_addr1_addr"] = $("[name=expose_addr1_addr]").val();
-        params["expose_addr1_gps_x"] = $("[name=expose_addr1_gps_x]").val();
-        params["expose_addr1_gps_y"] = $("[name=expose_addr1_gps_y]").val();
-        params["expose_addr2_zipcode"] = $("[name=expose_addr2_zipcode]").val();
-        params["expose_addr2_jibun"] = $("[name=expose_addr2_jibun]").val();
-        params["expose_addr2_doro_val"] = $("[name=expose_addr2_doro_val]").val();
-        params["expose_addr2_addr"] = $("[name=expose_addr2_addr]").val();
-        params["expose_addr2_gps_x"] = $("[name=expose_addr2_gps_x]").val();
-        params["expose_addr2_gps_y"] = $("[name=expose_addr2_gps_y]").val();
-
-        console.log("전송 파라미터:", params);
-        console.log("요청 URL: /compage_proc/recruit_complete");
-
-        comAjax("/compage_proc/recruit_complete", params, function(ret) {
-          console.log("서버 응답:", ret);
-
-          if (ret.code == "00") {
-            console.log("✅ 저장 성공!");
-            location.href = "/compage/recruit_list";
-          } else {
-            console.warn("❌ 저장 실패:", ret.msg);
-            commonAlert(ret.msg, function() {});
-            return;
-          }
-        });
-
+    comAjax("/compage_proc/recruit_complete", params, function(ret) {
+      if (ret.code == "00") {
+        var rcIdx = ret.data && ret.data.rc_idx ? ret.data.rc_idx : $("[name=rc_idx]").val();
+        location.href = "/recruit/job_post/" + rcIdx + "?preview=1";
+      } else {
+        commonAlert(ret.msg || "저장 처리 중 오류가 발생했습니다.", function() {});
       }
     });
   }

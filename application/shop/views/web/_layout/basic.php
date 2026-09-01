@@ -403,38 +403,36 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                         <?php $current_user_info = $this->user->isLogin() ? $this->user->getCurrentUserInfo() : []; ?>
                         <script>
                             function fGoRecruit() {
-                                console.log('=== 채용공고 등록 버튼 클릭됨 (웹) ===');
+                               
 
                                 //로그인 여부 확인
                                 if ($("#is_login").val() != "Y") {
-                                    console.log('로그인 필요');
+                                   
                                     commonLogin();
                                     return;
                                 }
 
 
                                 <?php if ($this->user->getUserType() != 'COMP') { ?>
-                                    console.log('기업회원 아님');
+                                   
                                     commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
                                     return;
                                 <?php } ?>
 
-                                console.log('기업 인증 확인 중...');
+                              
                                 if (!requireCompCertWithGuide()) {
-                                    console.log('기업 인증 실패');
+                                 
                                     return;
                                 }
 
                                 // PASS 인증 상태 확인
-                                console.log('recruit_start API 호출');
+                            
                                 $.ajax({
                                     url: "/compage_proc/recruit_start",
                                     type: "post",
                                     dataType: "json",
                                     success: function(ret) {
-                                        console.log('recruit_start 응답:', ret);
-                                        console.log('응답 코드:', ret.code);
-                                        console.log('응답 data:', ret.data);
+                                     
 
                                         // PASS 인증 미완료 확인
                                         if ((ret.code == "00" || ret.code == "01") && ret.data && (ret.data.comAuthStat == "N" || ret.data.passAuthStat == "N")) {

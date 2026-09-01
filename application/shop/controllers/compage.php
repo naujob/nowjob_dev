@@ -523,7 +523,7 @@ class Compage extends CI_Controller
 			"rc_name" => "",
 			"rc_sdate" => "",
 			"rc_edate" => "",
-			"addr" => "",
+			"addr" => ["ad_zipcode" => "", "ad_jibun" => "", "ad_doro" => "", "ad_detail" => "", "ad_addr" => "", "ad_gps_x" => "", "ad_gps_y" => ""],
 			"expose_addr1" => null,
 			"expose_addr2" => null,
 			"rc_work" => "",
@@ -563,7 +563,91 @@ class Compage extends CI_Controller
 			go_location("/compage/recruit_list", "경고! 넌 누구냐?");
 		}
 
-		if ($recruit_info != null) {
+		# site_log에서 데이터 로드 (신규 작성 또는 preview 후 편집)
+		$list = $this->site_model->getSiteLogList(
+			["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]
+		);
+		
+		// echo '<pre>';
+		// echo json_encode($list, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+		// echo '</pre>';
+		// die();
+
+		$step1 = $this->site_model->getStepData($list, "스텝1"); //  Step1이 있고 rc_name이 있으면 → site_log에 임시 데이터가 있다!
+
+		if (is_array($step1) && !empty($step1) && isset($step1["rc_name"])) {
+			// site_log에 데이터가 있으면 site_log에서 로드 (신규 작성 중이거나 preview 후 편집)
+			$step2 = $this->site_model->getStepData($list, "스텝2");
+			$step3 = $this->site_model->getStepData($list, "스텝3");
+			$step5 = $this->site_model->getStepData($list, "스텝5");
+				$info["rc_name"] = isset($step1["rc_name"]) ? $step1["rc_name"] : "";
+				$info["rc_work"] = isset($step2["rc_work"]) ? (is_array($step2["rc_work"]) ? $step2["rc_work"] : explode(",", $step2["rc_work"])) : (isset($step1["rc_work"]) ? (is_array($step1["rc_work"]) ? $step1["rc_work"] : explode(",", $step1["rc_work"])) : []);
+				$info["rc_work_type"] = isset($step3["rc_work_type"]) ? (is_array($step3["rc_work_type"]) ? $step3["rc_work_type"] : explode(",", $step3["rc_work_type"])) : (isset($step1["rc_work_type"]) ? (is_array($step1["rc_work_type"]) ? $step1["rc_work_type"] : explode(",", $step1["rc_work_type"])) : []);
+				$info["rc_price_type"] = isset($step3["rc_price_type"]) ? $step3["rc_price_type"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
+				$info["rc_price_rep"] = isset($step3["rc_price_rep"]) ? $step3["rc_price_rep"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
+				$info["rc_price_pay"] = isset($step3["rc_price_pay"]) ? intval($step3["rc_price_pay"]) : (isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0);
+				$info["rc_week"] = isset($step3["rc_week"]) ? (is_array($step3["rc_week"]) ? $step3["rc_week"] : explode(",", $step3["rc_week"])) : (isset($step3["rc_day"]) ? (is_array($step3["rc_day"]) ? $step3["rc_day"] : explode(",", $step3["rc_day"])) : []);
+				$info["rc_am_stime"] = isset($step3["rc_am_stime"]) ? $step3["rc_am_stime"] : (isset($step1["rc_am_stime"]) ? $step1["rc_am_stime"] : "");
+				$info["rc_am_etime"] = isset($step3["rc_am_etime"]) ? $step3["rc_am_etime"] : (isset($step1["rc_am_etime"]) ? $step1["rc_am_etime"] : "");
+				$info["rc_pm_stime"] = isset($step3["rc_pm_stime"]) ? $step3["rc_pm_stime"] : (isset($step1["rc_pm_stime"]) ? $step1["rc_pm_stime"] : "");
+				$info["rc_pm_etime"] = isset($step3["rc_pm_etime"]) ? $step3["rc_pm_etime"] : (isset($step1["rc_pm_etime"]) ? $step1["rc_pm_etime"] : "");
+				$info["rc_life_type"] = isset($step2["rc_life_type"]) ? (is_array($step2["rc_life_type"]) ? $step2["rc_life_type"] : explode(",", $step2["rc_life_type"])) : [];
+				$info["rc_nation"] = isset($step3["rc_nation"]) ? (is_array($step3["rc_nation"]) ? $step3["rc_nation"] : explode(",", $step3["rc_nation"])) : [];
+				$info["rc_sex"] = isset($step3["rc_sex"]) ? (is_array($step3["rc_sex"]) ? $step3["rc_sex"] : explode(",", $step3["rc_sex"])) : [];
+				$info["rc_sage"] = isset($step3["rc_sage"]) ? $step3["rc_sage"] : "";
+				$info["rc_eage"] = isset($step3["rc_eage"]) ? $step3["rc_eage"] : "";
+				$info["rc_desc"] = isset($step3["rc_desc"]) ? $step3["rc_desc"] : (isset($step5["rc_desc"]) ? $step5["rc_desc"] : "");
+				$info["rc_hash"] = isset($step3["rc_hash"]) ? $step3["rc_hash"] : (isset($step5["rc_hash"]) ? $step5["rc_hash"] : "");
+				$info["rc_sdate"] = isset($step3["rc_sdate"]) ? $step3["rc_sdate"] : "";
+				$info["rc_edate"] = isset($step3["rc_edate"]) ? $step3["rc_edate"] : "";
+				$info["rc_img1"] = isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : "");
+				$info["rc_img2"] = isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : "");
+				$info["rc_img3"] = isset($step5["rc_img3"]) ? $step5["rc_img3"] : (isset($step3["rc_img3"]) ? $step3["rc_img3"] : "");
+				$info["rc_img4"] = isset($step5["rc_img4"]) ? $step5["rc_img4"] : (isset($step3["rc_img4"]) ? $step3["rc_img4"] : "");
+				$info["rc_img5"] = isset($step5["rc_img5"]) ? $step5["rc_img5"] : "";
+				$info["addr"]["ad_zipcode"] = isset($step1["ad_zipcode"]) ? $step1["ad_zipcode"] : "";
+				$info["addr"]["ad_jibun"] = isset($step1["ad_jibun"]) ? $step1["ad_jibun"] : "";
+				$info["addr"]["ad_doro"] = isset($step1["ad_doro"]) ? $step1["ad_doro"] : "";
+				$info["addr"]["ad_detail"] = isset($step1["ad_detail"]) ? $step1["ad_detail"] : "";
+				$info["addr"]["ad_addr"] = isset($step1["ad_addr"]) ? $step1["ad_addr"] : "";
+				$info["addr"]["ad_gps_x"] = isset($step1["ad_gps_x"]) ? $step1["ad_gps_x"] : "";
+				$info["addr"]["ad_gps_y"] = isset($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : "";
+				// 공고노출지역 (site_log에서 우선 로드, 없으면 DB에서 로드)
+				if (!empty($step1["expose_addr1_addr"])) {
+					$info["expose_addr1"] = [
+						"ad_zipcode" => $step1["expose_addr1_zipcode"],
+						"ad_jibun" => $step1["expose_addr1_jibun"],
+						"ad_doro" => $step1["expose_addr1_doro_val"],
+						"ad_addr" => $step1["expose_addr1_addr"],
+						"ad_gps_x" => $step1["expose_addr1_gps_x"],
+						"ad_gps_y" => $step1["expose_addr1_gps_y"]
+					];
+				}
+				if (!empty($step1["expose_addr2_addr"])) {
+					$info["expose_addr2"] = [
+						"ad_zipcode" => $step1["expose_addr2_zipcode"],
+						"ad_jibun" => $step1["expose_addr2_jibun"],
+						"ad_doro" => $step1["expose_addr2_doro_val"],
+						"ad_addr" => $step1["expose_addr2_addr"],
+						"ad_gps_x" => $step1["expose_addr2_gps_x"],
+						"ad_gps_y" => $step1["expose_addr2_gps_y"]
+					];
+				}
+				// DB에서 추가 로드 (site_log에 없는 경우)
+				$rc_idx_for_addr = isset($step1["rc_idx"]) ? $step1["rc_idx"] : $rc_idx;
+				if ($rc_idx_for_addr != 0) {
+					if (empty($info["expose_addr1"])) {
+						$info["expose_addr1"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $rc_idx_for_addr, "ad_type" => "RECRUIT_EXPOSE_1"]);
+					}
+					if (empty($info["expose_addr2"])) {
+						$info["expose_addr2"] = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $rc_idx_for_addr, "ad_type" => "RECRUIT_EXPOSE_2"]);
+					}
+				}
+				// 회원정보에서 사업자정보 로드
+				$add_info = $this->member_model->getMemberInfo($this->mm_idx);
+				$info["mem_info"] = $add_info;
+				$info["mm_comp_num"] = $add_info["mm_comp_num"];
+		} elseif ($recruit_info != null) { // 기존 채용공고가 있으면 기존 채용공고에서 로드
 			$info["rc_name"] = $recruit_info["rc_name"];
 			$info["rc_sdate"] = get_date($recruit_info["rc_sdate"]);
 			$info["rc_edate"] = get_date($recruit_info["rc_edate"]);
@@ -609,7 +693,7 @@ class Compage extends CI_Controller
 			$add_info = $this->member_model->getMemberInfo($this->mm_idx);
 			$info["mem_info"] = $add_info;
 			$info["mm_comp_num"] = $add_info["mm_comp_num"];
-		} else {
+		} else { // 신규 작성 시 회원정보에서 로드
 			$add_info = $this->member_model->getMemberInfo($this->mm_idx);
 			$mem_addr = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $this->mm_idx, "ad_type" => "MEMBER"]);
 			$info["mem_info"] = $add_info;

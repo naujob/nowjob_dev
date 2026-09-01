@@ -737,37 +737,36 @@ class Recruit extends CI_Controller
 
     $os_type = isset($data["os_type"]) ? $data["os_type"] : "";
 
-    // preview=1이면 draft 데이터, 아니면 recruit 테이블 데이터 조회
+    // preview=1이면 site_log의 최신 데이터를 우선 사용, 없을 때만 DB 데이터 조회
     if ($preview == 1) {
-      // draft 데이터 불러오기 (site_log에서)
+      // preview_mode: site_log의 최신 수정 데이터 우선
       $list = $this->site_model->getSiteLogList(
         ["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT"]
       );
       $step1 = $this->site_model->getStepData($list, "스텝1");
-      $step2 = $this->site_model->getStepData($list, "스텝2");
-      $step3 = $this->site_model->getStepData($list, "스텝3");
-      $step5 = $this->site_model->getStepData($list, "스텝5");
 
-      // draft 데이터가 없으면 기존 데이터 사용
-      if (empty($step1) || empty($step3)) {
-        $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
-      } else {
-        // draft에서 $info 구성
+      if (is_array($step1) && !empty($step1) && isset($step1["rc_name"])) {
+        // site_log에 데이터가 있으면 site_log에서 로드
+        $step2 = $this->site_model->getStepData($list, "스텝2");
+        $step3 = $this->site_model->getStepData($list, "스텝3");
+        $step5 = $this->site_model->getStepData($list, "스텝5");
+
+        // site_log에서 $info 구성
         $info = [];
         $info["rc_idx"] = $rc_idx;
         $info["mm_idx"] = isset($step1["mm_idx"]) ? $step1["mm_idx"] : 0;
         $info["rc_name"] = isset($step1["rc_name"]) ? $step1["rc_name"] : "";
-        $info["rc_work"] = isset($step1["rc_work"]) ? (is_array($step1["rc_work"]) ? arr_implode(",", $step1["rc_work"]) : $step1["rc_work"]) : "";
-        $info["rc_work_type"] = isset($step1["rc_work_type"]) ? (is_array($step1["rc_work_type"]) ? arr_implode(",", $step1["rc_work_type"]) : $step1["rc_work_type"]) : "";
-        $info["rc_price_type"] = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
-        $info["rc_price_pay"] = isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0;
-        $info["rc_price_rep"] = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
-        $info["rc_week"] = isset($step3["rc_day"]) ? (is_array($step3["rc_day"]) ? arr_implode(",", $step3["rc_day"]) : $step3["rc_day"]) : "";
+        $info["rc_work"] = isset($step2["rc_work"]) ? (is_array($step2["rc_work"]) ? arr_implode(",", $step2["rc_work"]) : $step2["rc_work"]) : (isset($step1["rc_work"]) ? (is_array($step1["rc_work"]) ? arr_implode(",", $step1["rc_work"]) : $step1["rc_work"]) : "");
+        $info["rc_work_type"] = isset($step3["rc_work_type"]) ? (is_array($step3["rc_work_type"]) ? arr_implode(",", $step3["rc_work_type"]) : $step3["rc_work_type"]) : (isset($step1["rc_work_type"]) ? (is_array($step1["rc_work_type"]) ? arr_implode(",", $step1["rc_work_type"]) : $step1["rc_work_type"]) : "");
+        $info["rc_price_type"] = isset($step3["rc_price_type"]) ? $step3["rc_price_type"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
+        $info["rc_price_pay"] = isset($step3["rc_price_pay"]) ? intval($step3["rc_price_pay"]) : (isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0);
+        $info["rc_price_rep"] = isset($step3["rc_price_rep"]) ? $step3["rc_price_rep"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
+        $info["rc_week"] = isset($step3["rc_week"]) ? (is_array($step3["rc_week"]) ? arr_implode(",", $step3["rc_week"]) : $step3["rc_week"]) : (isset($step3["rc_day"]) ? (is_array($step3["rc_day"]) ? arr_implode(",", $step3["rc_day"]) : $step3["rc_day"]) : "");
         $info["rc_day_all"] = isset($step3["rc_day_all"]) ? $step3["rc_day_all"] : "";
-        $info["rc_am_stime"] = isset($step1["rc_am_stime"]) ? $step1["rc_am_stime"] : "";
-        $info["rc_am_etime"] = isset($step1["rc_am_etime"]) ? $step1["rc_am_etime"] : "";
-        $info["rc_pm_stime"] = isset($step1["rc_pm_stime"]) ? $step1["rc_pm_stime"] : "";
-        $info["rc_pm_etime"] = isset($step1["rc_pm_etime"]) ? $step1["rc_pm_etime"] : "";
+        $info["rc_am_stime"] = isset($step3["rc_am_stime"]) ? $step3["rc_am_stime"] : (isset($step1["rc_am_stime"]) ? $step1["rc_am_stime"] : "");
+        $info["rc_am_etime"] = isset($step3["rc_am_etime"]) ? $step3["rc_am_etime"] : (isset($step1["rc_am_etime"]) ? $step1["rc_am_etime"] : "");
+        $info["rc_pm_stime"] = isset($step3["rc_pm_stime"]) ? $step3["rc_pm_stime"] : (isset($step1["rc_pm_stime"]) ? $step1["rc_pm_stime"] : "");
+        $info["rc_pm_etime"] = isset($step3["rc_pm_etime"]) ? $step3["rc_pm_etime"] : (isset($step1["rc_pm_etime"]) ? $step1["rc_pm_etime"] : "");
         $info["rc_life_type"] = isset($step2["rc_life_type"]) ? (is_array($step2["rc_life_type"]) ? arr_implode(",", $step2["rc_life_type"]) : $step2["rc_life_type"]) : "";
         $info["rc_nation"] = isset($step3["rc_nation"]) ? (is_array($step3["rc_nation"]) ? arr_implode(",", $step3["rc_nation"]) : $step3["rc_nation"]) : "";
         $info["rc_sex"] = isset($step3["rc_sex"]) ? (is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : $step3["rc_sex"]) : "";
@@ -777,6 +776,9 @@ class Recruit extends CI_Controller
         $info["rc_hash"] = isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : "");
         $info["rc_sdate"] = isset($step3["rc_sdate"]) ? $step3["rc_sdate"] . " 00:00:00" : "";
         $info["rc_edate"] = isset($step3["rc_edate"]) ? $step3["rc_edate"] . " 23:59:59" : "";
+        $info["rc_day_price"] = isset($step3["rc_day_price"]) ? intval($step3["rc_day_price"]) : 0;
+        $info["rc_week_price"] = isset($step3["rc_week_price"]) ? intval($step3["rc_week_price"]) : 0;
+        $info["rc_month_price"] = isset($step3["rc_month_price"]) ? intval($step3["rc_month_price"]) : 0;
         $info["rc_img1"] = isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : "");
         $info["rc_img2"] = isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : "");
         $info["rc_img3"] = isset($step5["rc_img3"]) ? $step5["rc_img3"] : (isset($step3["rc_img3"]) ? $step3["rc_img3"] : "");
@@ -785,9 +787,12 @@ class Recruit extends CI_Controller
         $info["rc_show_yn"] = "Y";
         $info["fav_cnt"] = 0;
         $info["rc_hit"] = 0;
+      } else {
+        // site_log에 데이터가 없으면 DB에서 로드 (신규 등록 초기 preview 등)
+        $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
       }
     } else {
-      // 기존 방식: recruit 테이블에서 조회
+      // 정상 열람: DB에서 조회
       $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
     }
 
