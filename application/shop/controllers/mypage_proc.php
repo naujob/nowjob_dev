@@ -1129,6 +1129,7 @@ class Mypage_proc extends CI_Controller
   {
 
     $ru_idx = input_post("ru_idx", 0);
+    $preview_mode = input_post("preview_mode", 0);
 
     $list = $this->site_model->getSiteLogList(
       ["mm_idx" => $this->mm_idx, "sl_type" => "RESUME"]
@@ -1192,6 +1193,9 @@ class Mypage_proc extends CI_Controller
     //}
 
     if ($ru_idx != 0) {
+      if ($preview_mode == 1) {
+        json_return("00", "미리보기 저장이 완료되었습니다.", ["ru_idx" => $ru_idx]);
+      }
       # 트랜젝션 시작
       $this->db->trans_start();
       // 이력서 수정 처리
@@ -1376,13 +1380,15 @@ class Mypage_proc extends CI_Controller
         }
 
         // UPDATE 케이스는 포인트 지급 로직이 없으므로 바로 return
-        return json_return("00", "이력서등록완료");
+        return json_return("00", "이력서등록완료", ["ru_idx" => $ru_idx]);
       } else {
         $this->db->trans_rollback();
         return json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
       }
     } else {
-
+      if ($preview_mode == 1) {
+        json_return("00", "미리보기 저장이 완료되었습니다.", ["ru_idx" => 0]);
+      }
 
       # 트랜젝션 시작
       $this->db->trans_start();
@@ -1646,7 +1652,7 @@ class Mypage_proc extends CI_Controller
           //log_message('error', '포인트 지급 중 오류: ' . $e->getMessage());
         }
 
-        return json_return("00", "이력서등록완료");
+        return json_return("00", "이력서등록완료", ["ru_idx" => $result_resume["key"]]);
       } else {
         $this->db->trans_rollback();
         return json_return("91", "[01]이력서 등록시 오류가 발생하였습니다.");

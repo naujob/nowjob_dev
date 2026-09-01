@@ -160,7 +160,7 @@ function fRemoveBigAdrPHP($arg)
                   </table>
                 </div>
                 <div class="col">
-                  <h3 class="secondary-title">&nbsp;</h3>
+                 
                   <table class="info-table">
                     <caption><span class="sr-text"></span></caption>
                     <colgroup>
@@ -322,7 +322,7 @@ function fRemoveBigAdrPHP($arg)
           <div class="sticky-group">
             <div class="summary-card">
               <div class="top">
-                <div class="inline-group">
+                <div class="inline-group" style="flex-direction: row;">
                   <!-- 카테고리 라벨 -->
                   <?= getWorkingImg($info["ru_work"]) ?>
                 </div>

@@ -701,23 +701,11 @@ function fRemoveBigAdrPHP($arg)
                         <td class="label">급여형태</td>
                         <td class="value"><?= getConvertResumePriceType($info["ru_price_type"]) ?></td>
                       </tr>
-                      <tr>
+                      <!-- <tr>
                         <td class="label">근무일자</td>
                         <td class="value"><?= (get_date($info["ru_work_dt"])) ?>(<?= get_yoil($info["ru_work_dt"]) ?>)</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="col">
-                  <h3 class="secondary-title">&nbsp;</h3>
-                  <table class="info-table">
-                    <caption><span class="sr-text"></span></caption>
-                    <colgroup>
-                      <col>
-                      <col>
-                    </colgroup>
-                    <tbody>
-                      <tr>
+                      </tr> -->
+                         <tr>
                         <td class="label">근무지역</td>
                         <td class="value" id="work-area-addr" data-addrs="<?= htmlspecialchars(json_encode(array_filter(array_column($addr, 'ad_addr'))), ENT_QUOTES, 'UTF-8') ?>">
                           <?php
@@ -741,6 +729,19 @@ function fRemoveBigAdrPHP($arg)
                           ?>
                         </td>
                       </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="col">
+                  
+                  <table class="info-table">
+                    <caption><span class="sr-text"></span></caption>
+                    <colgroup>
+                      <col>
+                      <col>
+                    </colgroup>
+                    <tbody>
+                   
                       <tr>
                         <td class="label">근무형태</td>
                         <td class="value"><?= getWorkType2025($info["ru_work_type"]) ?></td>
@@ -819,6 +820,7 @@ function fRemoveBigAdrPHP($arg)
                                   $edate = str_replace(".", "-", trim($arr_date[1])) . "-01";
                                 }
                                 ?>
+                                &nbsp;
                                 <em><?= $row["rc_date"] ?><?= $is_date ? "(" . get_date_diff_txt($sdate, $edate) . ")" : "" ?></em>
                               </li>
                             <?php endforeach; ?>
@@ -845,7 +847,7 @@ function fRemoveBigAdrPHP($arg)
                             <?php foreach ($certi_list as $row) : ?>
                               <li>
                                 
-                                <span><?= $row["rc_name"] ?></span>
+                                <span><?= $row["rc_name"] ?></span> &nbsp;
                                 <em><?= $row["rc_dt"] ?></em>
                               </li>
                             <?php endforeach; ?>
@@ -871,6 +873,7 @@ function fRemoveBigAdrPHP($arg)
           <?php
           // 개인회원이 자신의 이력서를 볼 경우를 판단 (변수 재사용)
           $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+          $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
           ?>
           <div class="sticky-group<?php if ($isOwnResume) : ?> own-resume<?php endif; ?>">
             <div class="summary-card">
@@ -1017,11 +1020,11 @@ function fRemoveBigAdrPHP($arg)
               <?php } ?>
 
               <div class="btn-group" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
-                <?php if ($isOwnResume) { ?>
+                <?php if ($isOwnResume && !$isPreview) { ?>
                   <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 버튼 -->
                   <button type="button" id="btnEditResume" class="btn-request btn-primary">수정</button>
                   <button type="button" id="btnPromotionResume" class="btn-request btn-primary">광고신청</button>
-                <?php } else { ?>
+                <?php } else if (!$isPreview) { ?>
                   <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
                   <?php if ($this->user->getUserType() == "MEM") { ?>
                     <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn-request btn-primary" style="background-color:#ccc;" disabled>제안보내기</button>
@@ -1033,6 +1036,13 @@ function fRemoveBigAdrPHP($arg)
                         data-rc_idx="<?= isset($chat_rc_idx) ? htmlspecialchars($chat_rc_idx, ENT_QUOTES, 'UTF-8') : '' ?>"
                         data-tab="<?= isset($chat_tab) ? htmlspecialchars($chat_tab, ENT_QUOTES, 'UTF-8') : '2' ?>">채팅하기</button>
                   <?php } ?>
+                <?php } ?>
+
+                <?php if ($isPreview) { ?>
+                  <div class="preview-action-bar">
+                    <a href="/mypage/resume_write/<?= $info['ru_idx'] ?>" class="btn-primary btn-edit-icon">수정하기</a>
+                    <button type="button" class="btn-primary btn-register" onclick="submitPreviewComplete()">등록하기</button>
+                  </div>
                 <?php } ?>
               </div>
             </div>
@@ -2209,4 +2219,17 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
       }
     }
   });
+
+  window.submitPreviewComplete = function() {
+    var ruIdx = $("[name=ru_idx]").val();
+    comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
+      if (ret.code == "00") {
+        commonAlert("이력서가 등록되었습니다.", function() {
+          location.href = "/mypage/resume_list";
+        });
+      } else {
+        commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
+      }
+    });
+  };
 </script>

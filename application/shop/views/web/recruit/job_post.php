@@ -721,10 +721,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     background-color: #31A182;
     color: white;
   }
- .btn-register {
-    background-color: #1B9D7D;
-    color: white;
- }
+
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">

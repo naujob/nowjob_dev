@@ -359,7 +359,7 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
     </script>
 
     <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') : ?>
-
+        <script defer src="https://makeron.today/pixel/T6xdIQxHyQhiUfJK"></script>
     <?php endif; ?>
 
 

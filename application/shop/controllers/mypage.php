@@ -405,19 +405,102 @@
 				go_location("/mypage/resume_list","이력서가 존재하지 않습니다.");
 			}
 
+			// site_log 우선 로드 (신규 작성 중이거나 미리보기 후 "수정하기"로 돌아온 경우)
+			$list = $this->site_model->getSiteLogList(["mm_idx" => $this->mm_idx, "sl_type" => "RESUME"]);
+			$step1 = $this->site_model->getStepData($list, "스텝1");
+
+			if (is_array($step1) && !empty($step1) && isset($step1["ru_name"])) {
+				$step2 = $this->site_model->getStepData($list, "스텝2");
+				$step3 = $this->site_model->getStepData($list, "스텝3");
+				$step4 = $this->site_model->getStepData($list, "스텝4");
+
+				$info = [
+					"ru_idx" => $ru_idx,
+					"ru_name" => isset($step1["ru_name"]) ? $step1["ru_name"] : "",
+					"ru_work" => isset($step1["ru_work"]) && is_array($step1["ru_work"]) ? arr_implode(",", $step1["ru_work"]) : (isset($step1["ru_work"]) ? $step1["ru_work"] : ""),
+					"ru_addr" => isset($step1["ru_addr"]) ? $step1["ru_addr"] : "",
+					"ru_price_type" => isset($step1["ru_price_type"]) && is_array($step1["ru_price_type"]) ? arr_implode(",", $step1["ru_price_type"]) : (isset($step1["ru_price_type"]) ? $step1["ru_price_type"] : ""),
+					"ru_work_type" => isset($step1["ru_work_type"]) && is_array($step1["ru_work_type"]) ? arr_implode(",", $step1["ru_work_type"]) : (isset($step1["ru_work_type"]) ? $step1["ru_work_type"] : ""),
+					"ru_month_price" => isset($step1["ru_month_price"]) ? $step1["ru_month_price"] : "",
+					"ru_nationality" => isset($step1["ru_nationality"]) ? $step1["ru_nationality"] : "",
+					"ru_edu" => isset($step2["ru_edu"]) ? $step2["ru_edu"] : (isset($step4["ru_edu"]) ? $step4["ru_edu"] : ""),
+					"ru_work_dt" => isset($step2["ru_work_dt"]) ? $step2["ru_work_dt"] : (isset($step4["ru_work_dt"]) ? $step4["ru_work_dt"] : ""),
+					"ru_week_yn" => isset($step2["ru_week_yn"]) ? $step2["ru_week_yn"] : (isset($step4["ru_week_yn"]) ? $step4["ru_week_yn"] : "N"),
+					"ru_week" => isset($step2["ru_week"]) ? (is_array($step2["ru_week"]) ? arr_implode(",", $step2["ru_week"]) : $step2["ru_week"]) : (isset($step4["ru_week"]) ? (is_array($step4["ru_week"]) ? arr_implode(",", $step4["ru_week"]) : $step4["ru_week"]) : ""),
+					"ru_my_type" => isset($step3["ru_my_type"]) ? (is_array($step3["ru_my_type"]) ? arr_implode(",", $step3["ru_my_type"]) : $step3["ru_my_type"]) : "",
+					"ru_desc" => isset($step4["ru_desc"]) ? $step4["ru_desc"] : "",
+					"ru_img1" => isset($step4["ru_img1"]) ? $step4["ru_img1"] : "",
+					"ru_img2" => isset($step4["ru_img2"]) ? $step4["ru_img2"] : "",
+					"ru_img3" => isset($step4["ru_img3"]) ? $step4["ru_img3"] : "",
+					"ru_img4" => isset($step4["ru_img4"]) ? $step4["ru_img4"] : "",
+					"ru_img5" => isset($step4["ru_img5"]) ? $step4["ru_img5"] : "",
+				];
+
+				// 경력 파싱
+				$career_list = [];
+				$arr_career = isset($step3["arr_career"]) && $step3["arr_career"] != "" ? $step3["arr_career"] : (isset($step4["arr_career"]) ? $step4["arr_career"] : "");
+				if ($arr_career != "") {
+					foreach (explode("&&&", $arr_career) as $row) {
+						$d = explode("|||", $row);
+						if (count($d) >= 2) $career_list[] = ["rc_name" => $d[0], "rc_date" => $d[1]];
+					}
+				}
+
+				// 자격증 파싱
+				$certi_list = [];
+				if (isset($step4["arr_certi"]) && $step4["arr_certi"] != "") {
+					foreach (explode("&&&", $step4["arr_certi"]) as $row) {
+						$d = explode("|||", $row);
+						if (count($d) >= 2) $certi_list[] = ["rc_name" => $d[0], "rc_dt" => $d[1]];
+					}
+				}
+
+				// 주소 배열 구성
+				$ad_addr_raw = isset($step1["ad_addr"]) ? $step1["ad_addr"] : "";
+				$ad_addr_arr = is_array($ad_addr_raw) ? $ad_addr_raw : ($ad_addr_raw != "" ? [$ad_addr_raw] : []);
+				$ad_zipcode_raw = isset($step1["ad_zipcode"]) ? $step1["ad_zipcode"] : "";
+				$ad_zipcode_arr = is_array($ad_zipcode_raw) ? $ad_zipcode_raw : ($ad_zipcode_raw != "" ? [$ad_zipcode_raw] : []);
+				$ad_jibun_raw = isset($step1["ad_jibun"]) ? $step1["ad_jibun"] : "";
+				$ad_jibun_arr = is_array($ad_jibun_raw) ? $ad_jibun_raw : ($ad_jibun_raw != "" ? [$ad_jibun_raw] : []);
+				$ad_doro_raw = isset($step1["ad_doro"]) ? $step1["ad_doro"] : "";
+				$ad_doro_arr = is_array($ad_doro_raw) ? $ad_doro_raw : ($ad_doro_raw != "" ? [$ad_doro_raw] : []);
+				$ad_gps_x_raw = isset($step1["ad_gps_x"]) ? $step1["ad_gps_x"] : "";
+				$ad_gps_x_arr = is_array($ad_gps_x_raw) ? $ad_gps_x_raw : ($ad_gps_x_raw != "" ? [$ad_gps_x_raw] : []);
+				$ad_gps_y_raw = isset($step1["ad_gps_y"]) ? $step1["ad_gps_y"] : "";
+				$ad_gps_y_arr = is_array($ad_gps_y_raw) ? $ad_gps_y_raw : ($ad_gps_y_raw != "" ? [$ad_gps_y_raw] : []);
+
+				$addr_list = [];
+				foreach ($ad_addr_arr as $idx => $addrVal) {
+					if ($addrVal == "") continue;
+					$addr_list[] = [
+						"ad_zipcode" => isset($ad_zipcode_arr[$idx]) ? $ad_zipcode_arr[$idx] : "",
+						"ad_jibun" => isset($ad_jibun_arr[$idx]) ? $ad_jibun_arr[$idx] : "",
+						"ad_doro" => isset($ad_doro_arr[$idx]) ? $ad_doro_arr[$idx] : "",
+						"ad_addr" => $addrVal,
+						"ad_gps_x" => isset($ad_gps_x_arr[$idx]) ? $ad_gps_x_arr[$idx] : "",
+						"ad_gps_y" => isset($ad_gps_y_arr[$idx]) ? $ad_gps_y_arr[$idx] : "",
+					];
+				}
+			} else {
+				$info = $resume_info;
+				$career_list = $this->member_model->getResumeCareerList(["ru_idx" => $ru_idx]);
+				$certi_list = $this->member_model->getResumeCertiList(["ru_idx" => $ru_idx]);
+				$addr_list = $this->member_model->getAddressList(["ad_type" => "RESUME", "mm_idx" => $this->mm_idx, "ad_key" => $ru_idx]);
+			}
+
 			# 데이터 리스트
-			$data["info"]  = $resume_info;
-			$data["career_list"] = $this->member_model->getResumeCareerList(["ru_idx"=>$info["ru_idx"]]);
-			$data["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx"=>$info["ru_idx"]]);     
-      $data["addr_list"] = $this->member_model->getAddressList(["ad_type"=>"RESUME","mm_idx"=>$this->mm_idx,"ad_key"=>$ru_idx]);
+			$data["info"]  = $info;
+			$data["career_list"] = $career_list;
+			$data["certi_list"] = $certi_list;
+      		$data["addr_list"] = $addr_list;
 			$data["ru_wrok_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
 			$data["ru_price_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망급여"]);
 			$data["ru_work_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무형태"]);
 			$data["ru_week_list"]  = $this->site_model->getCodeList(["cd_grp"=>"근무요일"]);
-      $data["ru_edu_list"]  = $this->site_model->getCodeList(["cd_grp"=>"최종학력"]);
-      $data["ru_wrok_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
+      		$data["ru_edu_list"]  = $this->site_model->getCodeList(["cd_grp"=>"최종학력"]);
+      		$data["ru_wrok_list"]  = $this->site_model->getCodeList(["cd_grp"=>"희망업무"]);
 			$data["ru_my_type_list"]  = $this->site_model->getCodeList(["cd_grp"=>"나의강점"]);
-      $data["mem_info"] = $this->member_model->getMemberInfo($this->mm_idx);
+      		$data["mem_info"] = $this->member_model->getMemberInfo($this->mm_idx);
 
 			$this->layout->shop('/mypage/resume_write',$data);
 		}

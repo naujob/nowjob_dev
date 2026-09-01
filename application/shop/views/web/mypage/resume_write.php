@@ -1828,7 +1828,7 @@
                 </div>
 
                 <div class="form-action-wrap">
-                    <button type="button" id="btnStep" class="btn-round btn-tertiary"><?= $info != null && $info["ru_idx"] != "0" ? "수정" : "등록" ?>완료</button>
+                    <button type="button" id="btnStep" class="btn-round btn-tertiary">미리보기</button>
                 </div>
                 </form>
             </div>
@@ -2470,228 +2470,19 @@
             });
             return;
         }
-        var str_ru_work_img = "";
-        var str_ru_week = "";
-        var str_ru_career = "";
-        var str_ru_certi = "";
-        var str_ru_type = "";
-        var str_img = "";
-        var str_month_price = "";
 
-        if (info.ru_work_img) {
-            for (var icnt = 0; icnt < info.ru_work_img.length; icnt++) {
-                str_ru_work_img += "<img src='" + info.ru_work_img[icnt] + "' alt='생산' class='category-label'>";
-            }
-        }
+        var params = {};
+        params["ru_idx"] = $("[name=ru_idx]").val();
+        params["preview_mode"] = "1";
 
-        if (info.ru_week) {
-            for (var icnt = 0; icnt < info.ru_week.length; icnt++) {
-                str_ru_week += "<li aria-hidden='false'>" + info.ru_week[icnt] + "</li>";
-            }
-        }
-
-        if (info.arr_career) {
-            for (var icnt = 0; icnt < info.arr_career.split("&&&").length; icnt++) {
-                var temp = info.arr_career.split("&&&")[icnt].split("|||");
-                if (temp.length >= 2) {
-                    str_ru_career += "<li>" +
-                        "<div class='form-group'>" +
-                        "<div class='col'><span class='read-only'>" + temp[0] + "</span></div>" +
-                        "<div class='col'><span class='read-only'>" + temp[1] + "</span></div>" +
-                        "</div>" +
-                        "</li>";
-                }
-            }
-        }
-
-        if (info.arr_certi) {
-            for (var icnt = 0; icnt < info.arr_certi.split("&&&").length; icnt++) {
-                var temp = info.arr_certi.split("&&&")[icnt].split("|||");
-                if (temp.length > 1) {
-                    // 자격증: 자격증명 | 취득일자 순으로 표시
-                    str_ru_certi += "<li>" +
-                        "<div class='form-group'>" +
-                        "<div class='col'><span class='read-only'>" + temp[0] + "</span></div>" +
-                        "<div class='col'><span class='read-only'>" + temp[1] + "</span></div>" +
-                        "</div>" +
-                        "</li>";
-                }
-            }
-        }
-
-        if (info.ru_my_type) {
-            for (var icnt = 0; icnt < info.ru_my_type.length; icnt++) {
-                str_ru_type += "<p class='tag'>" + info.ru_my_type[icnt] + "</p>";
-            }
-        }
-
-        if (info.ru_img1) {
-            str_img += "<div class='pic-card'><img src='" + info.ru_img1 + "' alt='' style='min-width: auto; min-height: auto;'></div>";
-        }
-
-        if (info.ru_img2) {
-            str_img += "<div class='pic-card'><img src='" + info.ru_img2 + "' alt='' style='min-width: auto; min-height: auto;'></div>";
-        }
-
-        if (info.ru_img3) {
-            str_img += "<div class='pic-card'><img src='" + info.ru_img3 + "' alt='' style='min-width: auto; min-height: auto;'></div>";
-        }
-
-        if (info.ru_img4) {
-            str_img += "<div class='pic-card'><img src='" + info.ru_img4 + "' alt='' style='min-width: auto; min-height: auto;'></div>";
-        }
-
-        if (info.ru_img5) {
-            str_img += "<div class='pic-card'><img src='" + info.ru_img5 + "' alt='' style='min-width: auto; min-height: auto;'></div>";
-        }
-
-        if (info.ru_price_type.indexOf("월급") > -1 && info.ru_month_price != "0") {
-            str_month_price = '<tr><td class="label">급여</td><td class="value">' + info.ru_month_price.format() + '원</td></tr>';
-        }
-
-        // 주소 처리: fRemoveBigAdrJS 함수 적용
-        var displayAddr = '';
-
-        // ru_addr이 배열인 경우 처리
-        if (Array.isArray(info.ru_addr)) {
-            // 배열을 쉼표로 구분된 문자열로 변환
-            displayAddr = info.ru_addr.filter(function(addr) {
-                return addr && addr.trim() !== '';
-            }).join(',');
-        } else {
-            // 문자열인 경우 그대로 사용
-            displayAddr = info.ru_addr || '';
-        }
-
-        // 주소가 있고 '무관'이 아니면 fRemoveBigAdrJS 함수 적용
-        if (displayAddr && displayAddr !== '' && displayAddr !== '무관' && typeof fRemoveBigAdrJS === 'function') {
-            // 쉼표로 구분된 여러 주소 처리
-            if (displayAddr.indexOf(',') > -1) {
-                var addrArray = displayAddr.split(',').map(function(addr) {
-                    return addr.trim();
-                }).filter(function(addr) {
-                    return addr !== '';
-                });
-                var formattedAddrs = [];
-                addrArray.forEach(function(addr) {
-                    var formatted = fRemoveBigAdrJS(addr);
-                    if (formatted && formattedAddrs.indexOf(formatted) === -1) {
-                        formattedAddrs.push(formatted);
-                    }
-                });
-                displayAddr = formattedAddrs.length > 0 ? formattedAddrs.join(' | ') : '';
+        comAjax("/mypage_proc/resume_complete", params, function(ret) {
+            if (ret.code == "00") {
+                var ruIdx = $("[name=ru_idx]").val();
+                location.href = "/resume/hr_post/" + ruIdx + "?preview=1";
+            } else if (ret.code == "91") {
+                commonAlert(ret.msg, function() { fManCheck(); });
             } else {
-                displayAddr = fRemoveBigAdrJS(displayAddr);
-            }
-        }
-
-        // 주소가 비어있으면 '무관'으로 설정
-        if (!displayAddr || displayAddr === '') {
-            displayAddr = '무관';
-        }
-
-        if (str_ru_week == '') {
-            str_ru_week = '무관';
-        }
-        if (!info.ru_work_dt) {
-            info.ru_work_dt = '근무일무관';
-            info.ru_work_dt_yoil = '-';
-        }
-
-        openPopup('modal', {
-            content: '<div class="regist-info">' +
-                '<h5 class="name">' + info.mm_name + '</h5>' +
-                '<table>' +
-                '<caption><span class="sr-text">회원가입정보</span></caption>' +
-                '<colgroup><col><col></colgroup>' +
-                '<tbody>' +
-                '<tr>' +
-                '<td class="label">업무</td>' +
-                '<td class="value">' +
-                str_ru_work_img +
-                '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">지역</td>' +
-                '<td class="value">' + displayAddr + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">급여형태</td>' +
-                '<td class="value">' + (info.ru_price_type.length > 2 ? "협의가능" : info.ru_price_type) + '</td>' +
-                '</tr>' + str_month_price +
-                '<tr>' +
-                '<td class="label">근무형태</td>' +
-                '<td class="value">' + (info.ru_work_type.length > 2 ? "협의가능" : info.ru_work_type) + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">근무요일</td>' +
-                '<td class="value">' +
-                '<ul class="working-day">' +
-                str_ru_week +
-                '</ul>' +
-                '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">근무시작일</td>' +
-                '<td class="value">' + info.ru_work_dt + '(' + info.ru_work_dt_yoil + ')' + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">경력사항</td>' +
-                '<td class="value">' +
-                '<ul class="period-list">' +
-                str_ru_career +
-                '</ul>' +
-                '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td class="label">자격증</td>' +
-                '<td class="value">' +
-                '<ul class="period-list">' +
-                str_ru_certi +
-                '</ul>' +
-                '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="label">자기소개</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="value introduce"><div style="word-wrap: break-word; white-space: normal; width: 410px;">' + info.ru_desc + '</div></td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="label">나의강점</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td colspan="2" class="value">' +
-                '<div class="hashtag">' +
-                str_ru_type +
-                '</div>' +
-                '</td>' +
-                '</tr>' +
-                '</tbody>' +
-                '</table>' +
-                '</div>',
-            firstButton: '정보수정',
-            secondButton: ($("[name=ru_idx]").val() != "0" ? '수정완료' : '등록완료'),
-            firstCallback: function() {
-
-            },
-            secondCallback: function() {
-                var params = {};
-                params["ru_idx"] = $("[name=ru_idx]").val();
-                comAjax("/mypage_proc/resume_complete", params, function(ret) {
-                    if (ret.code == "00") {
-                        location.href = "/mypage/resume_list";
-                    } else if (ret.code == "91") {
-                        //24.09.01 실명인증여부
-                        commonAlert(ret.msg, function() {
-                            fManCheck();
-                        });
-                        return;
-                    } else {
-                        commonAlert(ret.msg, function() {});
-                        return;
-                    }
-                });
+                commonAlert(ret.msg || "저장 처리 중 오류가 발생했습니다.", function() {});
             }
         });
     }

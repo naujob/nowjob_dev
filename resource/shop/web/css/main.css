@@ -433,7 +433,10 @@ em{
     background: #BEBFC9;
     height: 62px
 }
-
+ .btn-register {
+    background-color: #1B9D7D;
+    color: white;
+ }
 .btn-secondary:hover,
 .btn-secondary:focus {
     background-color: #a2a4b2;
