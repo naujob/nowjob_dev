@@ -1620,19 +1620,23 @@ $tpl_recomm_class = true; ?>
       window.updateSelectedRegionsTags();
     }
 
+    // 네이티브 앱 식별자 확인
+    function isNativeApp() {
+      return !!(window.Android || window.webkit || navigator.app);
+    }
+
     // 온보딩 튜토리얼 최초 노출 체크 (Android/iOS 브릿지)
     window.onShowTutorialResult = function(isFirst) {
       if (isFirst === 'Y') openTutorialPopup();
     };
-
-    // 개발 환경: 팝업 항상 표시
-   
-    //var isDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-   var isDevelopment =false;
-    if (isDevelopment) {
+    
+     //var isDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+    // 개발 환경: 팝업 항상 표시 (네이티브 앱에서만)
+    var isDevelopment = false;
+    if (isDevelopment && isNativeApp()) {
       openTutorialPopup();
-    } else {
-      // 운영 환경: 네이티브 브릿지 호출
+    } else if (isNativeApp()) {
+      // 운영 환경: 네이티브 브릿지 호출 (네이티브 앱에서만)
       if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.showTutorial) {
         if (APP_NOWAPK.showTutorial() === 'Y') {
           openTutorialPopup();

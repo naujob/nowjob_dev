@@ -112,10 +112,10 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                                     </ul>
                                 </td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td class="label">근무시작일</td>
                                 <td class="value"><?= (get_date($info["ru_work_dt"])) ?>(<?= get_yoil($info["ru_work_dt"]) ?>)</td>
-                            </tr>
+                            </tr> -->
                         </tbody>
                     </table>
                 </div>

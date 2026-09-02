@@ -1479,6 +1479,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
     // 모집 마감 여부 (마감 시 즉시 안내 후 중단)
     var isClosedRecruit = $("#is_closed").val() === "Y";
     $("#btnRecruit").click(function() {
+      // PC 채용정보 지원하기 분석 (운영 환경에서만)
+      var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
+      if (isProdEnvironment && typeof my_analytics !== 'undefined') {
+        my_analytics.goal('pc_recruit');
+      }
+
       if (isClosedRecruit) {
         commonAlert("마감된 공고입니다", function() {});
         return;

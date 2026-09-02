@@ -167,7 +167,7 @@ function fRemoveBigAdr($arg)
         padding-left: 5px;
     }
 
-    .view-footer[data-request-state="none"] .btnGoChat {
+    .view-footer[data-request-state="none"] #btnGoChat {
         display: none;
     }
     .profile-record{
@@ -399,10 +399,10 @@ function fRemoveBigAdr($arg)
                                     <?php endif; ?>
                                 </td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td class="label">근무시작일</td>
                                 <td class="value"><?= (get_date($info["ru_work_dt"])) ?>(<?= get_yoil($info["ru_work_dt"]) ?>)</td>
-                            </tr>
+                            </tr> -->
                         </tbody>
                     </table>
                     <!-- 신고하기 -->
@@ -568,21 +568,19 @@ function fRemoveBigAdr($arg)
             <?php } ?>
         </div> -->
 
+        <!-- 미리보기 모드 footer 버튼 -->
+        <?php if ($isPreview) : ?>
+        <div class="view-footer">
+            <button type="button" class="btn btn-secondary" onclick="location.href='/mypage/resume_write1/<?= $info["ru_idx"] ?>?from=preview'">수정하기</button>
+            <button type="button" class="btn btn-primary" id="btnPreviewRegister">등록하기</button>
+        </div>
+        <?php endif; ?>
+
         <!-- 플로팅 액션 버튼 그룹 -->
+        <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open">
 
-
-            <?php if ($isPreview) : ?>
-                <!-- 미리보기 모드: 수정하기/등록하기 -->
-                <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정하기">
-                    <img src="/resource/shop/mobile/img/modify.png" alt="수정하기">
-                    <span class="action-label">수정하기</span>
-                </a>
-                <a href="#" class="floating-action-item" id="btnPreviewRegister" data-action="register" title="등록하기">
-                    <img src="/resource/shop/mobile/img/member/ic-register.png" alt="등록하기">
-                    <span class="action-label">등록하기</span>
-                </a>
-            <?php elseif ($isOwnResume) : ?>
+            <?php if ($isOwnResume) : ?>
                 <!-- 개인회원이 자신의 이력서를 볼 때: 수정/삭제/광고 -->
                 <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
                     <img src="/resource/shop/mobile/img/modify.png" alt="수정">
@@ -598,16 +596,17 @@ function fRemoveBigAdr($arg)
                 </a>
             <?php else : ?>
                 <!-- 기업회원이 볼 때: 제안보내기 + 전화하기 -->
-                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
+                <a href="#" id="btnPropose" class="floating-action-item btnRequest" data-action="propose" title="제안">
                     <img src="/resource/shop/mobile/img/propose.png" alt="제안">
                     <span class="action-label">제안하기</span>
                 </a>
-                <a href="#" class="floating-action-item btnGoChat" data-action="call" title="전화" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
+                <a href="#" id="btnGoChat" class="floating-action-item btnGoChat" data-action="call" title="전화" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
                     <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
                     <span class="action-label">전화하기</span>
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
+        <?php endif; ?>
 
         <!-- 온보딩 튜토리얼 팝업 (인재상세페이지) -->
         <div id="tutorial-popup2" style="display:none;">
@@ -861,6 +860,11 @@ function fRemoveBigAdr($arg)
                     <!-- //목록 -->
                 </div>
             </div>
+            <div class="panel-footer">
+                <div class="sticky-bottom" style="width:100%;">
+                    <button type="button" style="width:100%;" aria-controls="selectPanel" class="btnProcess btn btn-primary js-toggle-panel bottom-sheet-action">보내기</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -897,7 +901,13 @@ function fRemoveBigAdr($arg)
     });
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";
-    $(".btnRequest").click(function() {
+    $("#btnPropose").click(function() {
+        // 인재정보 제안하기 분석 (운영 환경에서만)
+        var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
+        if (isProdEnvironment && typeof my_analytics !== 'undefined') {
+            my_analytics.goal('resume_recruit');
+        }
+
         //로그인 여부 확인
         if ($("#is_login").val() != "Y") {
             //commonLogin();
@@ -1056,8 +1066,15 @@ function fRemoveBigAdr($arg)
     });
 
     // 기업이 구직자에게 050 가상번호로 전화 연결
-    $(document).on('click', '.btnGoChat', function(e) {
+    $(document).on('click', '#btnGoChat', function(e) {
         e.preventDefault();
+
+        // 인재정보 전화하기 분석 (운영 환경에서만)
+        var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
+        if (isProdEnvironment && typeof my_analytics !== 'undefined') {
+            my_analytics.goal('resume_call');
+        }
+
         var $btn = $(this);
         if ($btn.attr('data-loading') === 'true') return;
         $btn.attr('data-loading', 'true');
@@ -1239,17 +1256,22 @@ function fRemoveBigAdr($arg)
         }
     });
 
+    // 네이티브 앱 식별자 확인
+    function isNativeApp() {
+        return !!(window.Android || window.webkit || navigator.app);
+    }
+
     // 모바일 디바이스 판단
     function isMobileDevice() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (모바일에서만)
-        //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-         var jpIsDevelopment = false; // 개발 환경에서만 튜토리얼 표시 여부 테스트용 (true로 설정하면 항상 표시)
-        if (jpIsDevelopment && isMobileDevice()) {
-            window.openJobPostTutorial();
-        } else if (isMobileDevice() && localStorage.getItem('came_from_resume_list') === 'true') {
+    // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만)
+     //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+    var jpIsDevelopment = false;
+    if (jpIsDevelopment && isNativeApp()) {
+        window.openJobPostTutorial();
+    } else if (isNativeApp() && localStorage.getItem('came_from_resume_list') === 'true') {
         localStorage.removeItem('came_from_resume_list');
         if (!localStorage.getItem('hr_post_tutorial_seen')) {
             localStorage.setItem('hr_post_tutorial_seen', 'true');

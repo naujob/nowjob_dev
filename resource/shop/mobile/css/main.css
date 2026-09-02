@@ -3377,6 +3377,7 @@ fieldset {
     font-size: 1.125rem;
     color: #000;
     text-align: left;
+        padding: 10px;
 }
 
 .layer-panel .btn-close-panel {

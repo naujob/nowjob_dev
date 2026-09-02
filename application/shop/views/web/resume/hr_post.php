@@ -1027,9 +1027,9 @@ function fRemoveBigAdrPHP($arg)
                 <?php } else if (!$isPreview) { ?>
                   <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
                   <?php if ($this->user->getUserType() == "MEM") { ?>
-                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn-request btn-primary" style="background-color:#ccc;" disabled>제안보내기</button>
+                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" id="btnPropose" class="btn-request btn-primary" style="background-color:#ccc;" disabled>제안하기</button>
                   <?php } else { ?>
-                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" class="btnRequest btn-request btn-primary">제안보내기</button>
+                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" id="btnPropose" class="btn-request btn-primary">제안하기</button>
                     <!-- 기업과 인재 사이에 지원/제안 이력이 있을 때: 채팅하기 버튼 -->
                     <button type="button" id="btnGoChat" class="btnGoChat btn-request btn-primary"
                         data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>"
@@ -1199,7 +1199,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     <?php if ($validRecruitCount > 0) : ?>
       <div class="panel-footer">
         <div class="sticky-bottom" style="width:100%;">
-          <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
+          <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">보내기</button>
         </div>
       </div>
     <?php endif; ?>
@@ -1212,8 +1212,14 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
   // 이벤트 위임 방식으로 변경하여 팝업 닫은 후에도 버튼 클릭이 정상 동작하도록 수정
   // 네임스페이스를 사용하여 중복 등록 방지
-  $(document).off('click', '.btnRequest').on('click', '.btnRequest', function(e) {
+  $(document).off('click', '#btnPropose').on('click', '#btnPropose', function(e) {
     var $btn = $(this);
+
+    // PC 인재정보 제안보내기 분석 (운영 환경에서만)
+    var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
+    if (isProdEnvironment && typeof my_analytics !== 'undefined') {
+      my_analytics.goal('pc_resume');
+    }
 
     // 버튼이 disabled 상태인지 확인
     if ($btn.prop('disabled') || $btn.hasClass('disabled')) {

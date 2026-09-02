@@ -725,14 +725,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
 
             <?php if ($userType === "MEM") : ?>
-                <!-- 개인회원: 제안하기 + 전화하기 -->
-                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/apply.png" alt="지원">
+                <!-- 개인회원: 제안하기 -->
+                <a href="#" id="btnRequest" class="floating-action-item btnRequest" data-action="propose" title="제안">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
                     <span class="action-label">지원하기</span>
-                </a>
-                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
                 </a>
             <?php elseif ($userType === "COMP" && $isOwnRecruit) : ?>
                 <!-- 기업회원 & 내 공고: 재등록/수정/마감/삭제/광고 -->
@@ -758,16 +754,18 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     <span class="action-label">광고</span>
                 </a>
             <?php else : ?>
-                <!-- 비회원: 로그인 + 전화하기 -->
+                <!-- 비회원: 로그인 -->
                 <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
-                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
-                </a>
             <?php endif; ?>
+
+            <!-- 모두에게 노출: 전화하기 -->
+            <a id="callLog" href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
+                <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
+                <span class="action-label">전화하기</span>
+            </a>
         </div><!-- //#floating-actions -->
         <?php endif; ?>
 
@@ -1364,7 +1362,13 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         });
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
-        $(document).on('click', '#btnRecruit, .btnRequest', function(e) {
+        $(document).on('click', '#btnRecruit, #btnRequest', function(e) {
+            // 채용정보 지원하기 분석 (운영 환경에서만)
+            var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
+            if (isProdEnvironment && typeof my_analytics !== 'undefined') {
+                my_analytics.goal('recruit_recruit');
+            }
+
             if ($(this).attr('href') === '#') {
                 e.preventDefault();
             }
@@ -1500,7 +1504,13 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
        
 
         // 통화 로그 기록
-        $(document).on('click', '.js-call-log', function() {
+        $(document).on('click', '#callLog', function() {
+            // 채용정보 전화하기 분석 (운영 환경에서만)
+            var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
+            if (isProdEnvironment && typeof my_analytics !== 'undefined') {
+                my_analytics.goal('recruit_call');
+            }
+
             var rc_idx = $(this).data('rc_idx');
             comAjax("/recruit_proc/call_log", { rc_idx: rc_idx }, function(ret) {});
         });
@@ -1651,17 +1661,22 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             }
         });
 
+        // 네이티브 앱 식별자 확인
+        function isNativeApp() {
+            return !!(window.Android || window.webkit || navigator.app);
+        }
+
         // 모바일 디바이스 판단
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
-        // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (모바일에서만)
-        //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-         var jpIsDevelopment = false; // 개발 환경에서만 튜토리얼 표시 여부 테스트용 (true로 설정하면 항상 표시)
-        if (jpIsDevelopment && isMobileDevice()) {
+        // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만)
+         //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+        var jpIsDevelopment = false;
+        if (jpIsDevelopment && isNativeApp()) {
             window.openJobPostTutorial();
-        } else if (isMobileDevice() && localStorage.getItem('came_from_job_list') === 'true') {
+        } else if (isNativeApp() && localStorage.getItem('came_from_job_list') === 'true') {
             localStorage.removeItem('came_from_job_list');
             if (!localStorage.getItem('job_post_tutorial_seen')) {
                 localStorage.setItem('job_post_tutorial_seen', 'true');

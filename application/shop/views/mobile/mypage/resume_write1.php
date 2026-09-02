@@ -459,11 +459,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         (steps || []).forEach(function(step) {
             var oldKey = "resume_draft_" + oldIdx + "_step" + step;
             var newKey = "resume_draft_" + newIdx + "_step" + step;
-            var saved = localStorage.getItem(oldKey);
-            if (saved && !localStorage.getItem(newKey)) {
-                localStorage.setItem(newKey, saved);
+            var saved = sessionStorage.getItem(oldKey);
+            if (saved && !sessionStorage.getItem(newKey)) {
+                sessionStorage.setItem(newKey, saved);
             }
-            localStorage.removeItem(oldKey);
+            sessionStorage.removeItem(oldKey);
         });
     }
 
@@ -471,7 +471,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     function clearResumeDraft(ruIdx) {
         var targetIdx = ruIdx || $("[name='ru_idx']").val() || "0";
         ["resume_draft_" + targetIdx + "_step1", "resume_draft_" + targetIdx + "_step4"].forEach(function(key) {
-            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
         });
     }
 
@@ -540,7 +540,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         ensureAddressAddButton(count);
     }
 
-    // step1 (기본정보, 근무조건) 데이터를 localStorage에 저장
+    // step1 (기본정보, 근무조건) 데이터를 sessionStorage에 저장
     function saveResumeStep1Data() {
         try {
             var storageKey = getResumeDraftKey(1);
@@ -578,13 +578,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 });
             });
 
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            sessionStorage.setItem(storageKey, JSON.stringify(data));
         } catch (e) {
             console.error("resume step1 저장 실패:", e);
         }
     }
 
-    // step4 (자기소개, 경력, 자격증) 데이터를 localStorage에 저장
+    // step4 (자기소개, 경력, 자격증) 데이터를 sessionStorage에 저장
     function saveResumeStep4Data() {
         try {
             var storageKey = getResumeDraftKey(4);
@@ -621,7 +621,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 });
             });
 
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            sessionStorage.setItem(storageKey, JSON.stringify(data));
         } catch (e) {
             console.error("resume step4 저장 실패:", e);
         }
@@ -756,10 +756,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     }
 
-    // localStorage에서 step4 데이터 로드하여 폼에 적용
+    // sessionStorage에서 step4 데이터 로드하여 폼에 적용
     function loadResumeStep4Data() {
         var storageKey = getResumeDraftKey(4);
-        var saved = localStorage.getItem(storageKey);
+        var saved = sessionStorage.getItem(storageKey);
 
         // 수정 모드 판별 (step1과 동일한 기준)
         var ruIdx = $("[name='ru_idx']").val() || "0";
@@ -769,7 +769,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         var defaultWeekDays = ["월", "화", "수", "목", "금"];
         var hasSavedData = false;
 
-        // 신규 모드에서만 localStorage 복원 수행
+        // 신규 모드에서만 sessionStorage 복원 수행
         if (!isEditMode && saved) {
             try {
                 var formData = JSON.parse(saved);
@@ -905,10 +905,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return false; // 서버 데이터가 없음을 반환
     }
 
-    // localStorage에서 step1 데이터 로드하여 폼에 적용
+    // sessionStorage에서 step1 데이터 로드하여 폼에 적용
     function loadResumeStep1Data() {
         var storageKey = getResumeDraftKey(1);
-        var saved = localStorage.getItem(storageKey);
+        var saved = sessionStorage.getItem(storageKey);
         if (!saved) return;
 
         try {
@@ -993,7 +993,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
         var payload = {};
         try {
-            payload = JSON.parse(localStorage.getItem("resume_autofill_payload") || "{}");
+            payload = JSON.parse(sessionStorage.getItem("resume_autofill_payload") || "{}");
         } catch (e) {
             payload = {};
         }
@@ -1066,8 +1066,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         // step4에서 사용할 수 있도록 ru_name 저장
         payload.ru_name = $("[name='ru_name']").val() || chosenTitle;
         try {
-            localStorage.setItem("resume_autofill_payload", JSON.stringify(payload));
-            localStorage.setItem("resume_autofill_ts", String(Date.now()));
+            sessionStorage.setItem("resume_autofill_payload", JSON.stringify(payload));
+            sessionStorage.setItem("resume_autofill_ts", String(Date.now()));
         } catch (e) {}
 
         saveResumeStep1Data();
@@ -1601,8 +1601,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                             if (ret2.code == "00") {
                                 clearResumeDraft(finalIdx);
                                 try {
-                                    localStorage.removeItem("resume_autofill_payload");
-                                    localStorage.removeItem("resume_autofill_ts");
+                                    sessionStorage.removeItem("resume_autofill_payload");
+                                    sessionStorage.removeItem("resume_autofill_ts");
                                     sessionStorage.setItem("resume_auto_completed", "1");
                                 } catch (e) {}
                                 if (window.__resumeAutoBg && window.parent) {
@@ -1890,16 +1890,19 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
     }
 
-    // 이력서 미리보기 페이지로 이동
+    // 이력서 미리보기 페이지로 이동 (site_log는 이미 저장됨)
     function showPreviewInfo(info, $btnElement) {
+        var ru_idx = $("[name=ru_idx]").val();
+
+        // site_log는 이미 resume_write1/4에서 저장했으므로
+        // resume_complete()만 호출해서 유효성 검증 후 미리보기로 이동
         var params = {};
-        params["ru_idx"] = $("[name=ru_idx]").val();
+        params["ru_idx"] = ru_idx;
         params["preview_mode"] = "1";
 
         comAjax("/mypage_proc/resume_complete", params, function(ret) {
             if (ret.code == "00") {
-                var ruIdx = $("[name=ru_idx]").val();
-                location.href = "/resume/hr_post/" + ruIdx + "?preview=1";
+                location.href = "/resume/hr_post/" + ru_idx + "?preview=1";
             } else {
                 commonAlert(ret.msg || "저장 처리 중 오류가 발생했습니다.", function() {});
             }

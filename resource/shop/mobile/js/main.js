@@ -1121,21 +1121,118 @@
 
     /* AutoHeight TextArea */
     (function autoHeightTextarea() {
+        var scrollFollowTimer = null;
+        var textareaHeights = new WeakMap(); // 각 textarea의 이전 높이 저장
+
+        // scroll-margin-top 설정: .top-bar 높이 + 여유 여백(12px)
+        function setupScrollMarginTop() {
+            var topBar = document.querySelector('.top-bar');
+            var topBarHeight = topBar ? topBar.offsetHeight : 0;
+            var scrollMargin = topBarHeight + 12;
+
+            document.querySelectorAll('.js-autoheight').forEach(function (el) {
+                el.style.scrollMarginTop = scrollMargin + 'px';
+            });
+        }
+
+        // 캐럿 위치가 화면에 보이도록 직접 scrollTop 계산
+        // blockValue: 'start' (상단을 .top-bar 아래 표시) 또는 'end' (하단을 화면 하단 표시)
+        function scrollCaretIntoView(el, blockValue) {
+            if (!el || !el.classList || !el.classList.contains('js-autoheight')) return;
+            blockValue = blockValue || 'start';
+            if (scrollFollowTimer) clearTimeout(scrollFollowTimer);
+            scrollFollowTimer = setTimeout(function () {
+                var page = el.closest('.page');
+                if (!page) return;
+
+                var topBar = document.querySelector('.top-bar');
+                var topBarHeight = topBar ? topBar.offsetHeight : 0;
+                var targetMargin = topBarHeight + 12; // .top-bar 높이 + 여유 12px
+
+                // textarea의 절대 위치 (.page 내에서)
+                var rect = el.getBoundingClientRect();
+                var pageRect = page.getBoundingClientRect();
+                var elementTopInPage = rect.top - pageRect.top + page.scrollTop;
+                var elementBottomInPage = rect.bottom - pageRect.top + page.scrollTop;
+
+                var newScrollTop;
+                if (blockValue === 'start') {
+                    // 상단이 targetMargin 위치에 + 커서가 키보드 위에 오도록
+                    var scrollForTop = elementTopInPage - targetMargin;
+                    var scrollForCursor = elementBottomInPage - page.clientHeight;
+                    // 둘 다 만족하려면 더 많이 올려야 함
+                    newScrollTop = Math.max(scrollForTop, scrollForCursor);
+                } else if (blockValue === 'end') {
+                    // 하단(커서)이 page.clientHeight 위치에 오도록 (키보드 직전)
+                    newScrollTop = elementBottomInPage - page.clientHeight;
+                }
+
+                // 스크롤 범위 제한 (0 ~ 최대 스크롤)
+                newScrollTop = Math.max(0, Math.min(newScrollTop, page.scrollHeight - page.clientHeight));
+
+                page.scrollTop = newScrollTop;
+            }, 120);
+        }
+
+        // 높이 자동 조절
         ['input', 'keydown'].forEach(function (evt) {
             window.addEventListener(evt, function (e) {
                 var target = e.target;
                 if (target.classList && target.classList.contains('js-autoheight')) {
+                    var prevHeight = textareaHeights.get(target) || target.offsetHeight;
                     target.style.height = '1px';
                     target.style.height = (target.scrollHeight + 8) + 'px';
+                    var newHeight = target.offsetHeight;
+
+                    // 높이 변화에 따라 block 값 결정: 증가='end', 감소='start'
+                    var blockValue = (newHeight > prevHeight) ? 'end' : 'start';
+                    textareaHeights.set(target, newHeight);
+
+                    scrollCaretIntoView(target, blockValue);
                 }
             });
         });
 
+        // 포커스 시: 임시 여백 추가 + 캐럿 위치 보정
+        window.addEventListener('focusin', function (e) {
+            if (e.target && e.target.classList && e.target.classList.contains('js-autoheight')) {
+                // .page-content에 임시 하단 여백 추가 (스크롤 여유 확보)
+                var pageContent = e.target.closest('.page-content');
+                if (pageContent) {
+                    pageContent.style.paddingBottom = '50vh';
+                }
+                scrollCaretIntoView(e.target, 'start');
+            }
+        });
+
+        // 포커스 아웃 시: 임시 여백 제거
+        window.addEventListener('focusout', function (e) {
+            if (e.target && e.target.classList && e.target.classList.contains('js-autoheight')) {
+                var pageContent = e.target.closest('.page-content');
+                if (pageContent) {
+                    pageContent.style.paddingBottom = '';
+                }
+            }
+        });
+
+        // 키보드 열림으로 visualViewport 축소 시 재추적
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', function () {
+                var active = document.activeElement;
+                if (active && active.classList && active.classList.contains('js-autoheight')) {
+                    scrollCaretIntoView(active, 'start');
+                }
+            });
+        }
+
+        // 초기 높이 설정 및 scroll-margin-top 설정
         document.querySelectorAll('.js-autoheight').forEach(function (el) {
             if (el.scrollHeight) {
                 el.style.height = (el.scrollHeight + 8) + 'px';
             }
+            textareaHeights.set(el, el.offsetHeight);
         });
+        setupScrollMarginTop();
 
     }());
 

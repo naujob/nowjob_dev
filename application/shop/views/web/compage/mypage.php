@@ -114,7 +114,7 @@ function fEmailMasking($email)
                             width: 100%;
                             height: 100%;
                             background-color: inherit;
-                            object-fit: cover;
+                           
                             z-index: 1;
                           }
 

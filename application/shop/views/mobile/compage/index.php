@@ -43,9 +43,9 @@ function fBizNoMasking($bizNo)
       <div class="container settings-profile">
         <div class="thumb-wrap">
           <form id="frm" onsubmit="return false">
-            <label class="form-pic">
+            <label class="form-pic" style="border-radius: 0;">
               <input type="file" id="newProfile" name="mm_img1" accept="image/*" class="">
-              <span class="preview"><img id="profilePhoto" src="<?= getResumeImg($mem_info) ?>" alt=""></span>
+              <span class="preview" style="border-radius:0;"><img id="profilePhoto"  style="object-fit: unset;"  src="<?= getResumeImg($mem_info) ?>" alt=""></span>
             </label>
           </form>
         </div>
