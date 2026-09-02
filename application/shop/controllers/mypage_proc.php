@@ -442,7 +442,7 @@ class Mypage_proc extends CI_Controller
 
     # 기존 등록 이미지 있으면 삭제
     $log_info = $this->site_model->getSiteLog(
-      ["mm_idx" => $this->mm_idx, "sl_type" => "RESUME", "sl_step" => "스텝4"]
+      ["mm_idx" => $this->mm_idx, "session_id" => session_id(), "sl_type" => "RESUME", "sl_step" => "스텝4"]
     );
 
     if ($log_info != null) {
@@ -1007,7 +1007,7 @@ class Mypage_proc extends CI_Controller
 
     # 기존 등록 이미지 있으면 삭제
     $log_info = $this->site_model->getSiteLog(
-      ["mm_idx" => $this->mm_idx, "sl_type" => "RESUME", "sl_step" => "스텝4"]
+      ["mm_idx" => $this->mm_idx, "session_id" => session_id(), "sl_type" => "RESUME", "sl_step" => "스텝4"]
     );
 
     if ($log_info != null) {
@@ -1078,7 +1078,7 @@ class Mypage_proc extends CI_Controller
     # 전체 등록 파일 조회 후 리턴
     $return_data = [];
     $list = $this->site_model->getSiteLogList(
-      ["mm_idx" => $this->mm_idx, "sl_type" => "RESUME"]
+      ["mm_idx" => $this->mm_idx, "session_id" => session_id(), "sl_type" => "RESUME"]
     );
 
     if ($list == null) {
@@ -1132,7 +1132,7 @@ class Mypage_proc extends CI_Controller
     $preview_mode = input_post("preview_mode", 0);
 
     $list = $this->site_model->getSiteLogList(
-      ["mm_idx" => $this->mm_idx, "sl_type" => "RESUME"]
+      ["mm_idx" => $this->mm_idx, "session_id" => session_id(), "sl_type" => "RESUME"]
     );
 
     $step1 = $this->site_model->getStepData($list, "스텝1");

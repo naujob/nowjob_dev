@@ -358,7 +358,7 @@ class Resume extends CI_Controller
 
     // site_log 우선 로드 (미리보기 시)
     if ($isPreview) {
-      $list = $this->site_model->getSiteLogList(["mm_idx" => $this->mm_idx, "sl_type" => "RESUME"]);
+      $list = $this->site_model->getSiteLogList(["mm_idx" => $this->mm_idx, "session_id" => session_id(), "sl_type" => "RESUME"]);
       $step1 = $this->site_model->getStepData($list, "스텝1");
 
       if (is_array($step1) && !empty($step1) && isset($step1["ru_name"])) {

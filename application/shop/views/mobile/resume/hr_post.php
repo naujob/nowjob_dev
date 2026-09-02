@@ -554,6 +554,7 @@ function fRemoveBigAdr($arg)
         <?php
         // 개인회원이 자신의 이력서를 볼 경우를 판단
         $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+        $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         ?>
         <!-- view-footer 플로팅 액션 버튼 그룹으로 대체됨 (라인 497~524) -->
         <!-- <div class="view-footer" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
@@ -569,9 +570,19 @@ function fRemoveBigAdr($arg)
 
         <!-- 플로팅 액션 버튼 그룹 -->
         <div id="floating-actions" data-state="open">
-            
 
-            <?php if ($isOwnResume) : ?>
+
+            <?php if ($isPreview) : ?>
+                <!-- 미리보기 모드: 수정하기/등록하기 -->
+                <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정하기">
+                    <img src="/resource/shop/mobile/img/modify.png" alt="수정하기">
+                    <span class="action-label">수정하기</span>
+                </a>
+                <a href="#" class="floating-action-item" id="btnPreviewRegister" data-action="register" title="등록하기">
+                    <img src="/resource/shop/mobile/img/member/ic-register.png" alt="등록하기">
+                    <span class="action-label">등록하기</span>
+                </a>
+            <?php elseif ($isOwnResume) : ?>
                 <!-- 개인회원이 자신의 이력서를 볼 때: 수정/삭제/광고 -->
                 <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
                     <img src="/resource/shop/mobile/img/modify.png" alt="수정">
@@ -1105,6 +1116,21 @@ function fRemoveBigAdr($arg)
     $(document).on('click', '#btnDeleteResume', function(e) {
         e.preventDefault();
         openPanel(document.getElementById('deleteResumeSheet'));
+    });
+
+    // 미리보기 등록하기: 최종 확정 (site_log는 이미 저장되어 있으므로 ru_idx만 전송)
+    $(document).on('click', '#btnPreviewRegister', function(e) {
+        e.preventDefault();
+        var ruIdx = $("[name=ru_idx]").val();
+        comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
+            if (ret.code == "00") {
+                commonAlert("이력서가 등록되었습니다.", function() {
+                    location.href = "/mypage/resume_list";
+                });
+            } else {
+                commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
+            }
+        });
     });
 
     // 이력서 삭제 확인

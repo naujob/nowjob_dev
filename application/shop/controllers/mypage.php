@@ -382,6 +382,14 @@
 			$data = [];
 			$proc_mode = "";
 
+			# 신규등록 시 이전 draft 정리
+			if($ru_idx == 0){
+				$this->site_model->deleteSiteLog([
+					"mm_idx" => $this->mm_idx,
+					"sl_type" => "RESUME"
+				]);
+			}
+
 			# 이력서 갯수 확인후 처리
 			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
 
@@ -406,7 +414,7 @@
 			}
 
 			// site_log 우선 로드 (신규 작성 중이거나 미리보기 후 "수정하기"로 돌아온 경우)
-			$list = $this->site_model->getSiteLogList(["mm_idx" => $this->mm_idx, "sl_type" => "RESUME"]);
+			$list = $this->site_model->getSiteLogList(["mm_idx" => $this->mm_idx, "session_id" => session_id(), "sl_type" => "RESUME"]);
 			$step1 = $this->site_model->getStepData($list, "스텝1");
 
 			if (is_array($step1) && !empty($step1) && isset($step1["ru_name"])) {
@@ -510,6 +518,16 @@
 			$data = [];
 			$proc_mode = "";
 
+			$from = $this->input->get('from');  // URL 파라미터로 미리보기 구분
+
+			# 신규등록 시 이전 draft 정리
+			if($ru_idx == 0){
+				$this->site_model->deleteSiteLog([
+					"mm_idx" => $this->mm_idx,
+					"sl_type" => "RESUME"
+				]);
+			}
+
 			# 이력서 갯수 확인후 처리
 			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
 
@@ -541,7 +559,55 @@
 				go_location("/mypage/resume_list","이력서가 존재하지 않습니다.");
 			}
 
-			if($resume_info!=null){
+			// draft 조회 (조건에 따라 사용 여부 결정)
+			$list = $this->site_model->getSiteLogList(["mm_idx" => $this->mm_idx, "session_id" => session_id(), "sl_type" => "RESUME"]);
+			$step1 = $this->site_model->getStepData($list, "스텝1");
+			$step4 = $this->site_model->getStepData($list, "스텝4");
+
+			// draft 사용 판단:
+			// 1. from=preview 인 경우: draft 유지 (미리보기에서 돌아온 경우)
+			// 2. ru_idx != 0 && from != preview: draft 무시, DB 로드 (다시 진입한 경우)
+			// 3. ru_idx == 0: draft 유지 (신규 작성 중)
+			if($from != 'preview' && $ru_idx != 0){
+				$step1 = null;  // draft 무시
+				$step4 = null;
+			}
+
+			if(isset($step1) && is_array($step1) && !empty($step1) && isset($step1["ru_name"])){
+				// site_log에 스텝1이 있으면 → 신규 작성 중 또는 미리보기 후 돌아온 경우
+				$info["ru_name"] = isset($step1["ru_name"]) ? $step1["ru_name"] : "";
+				$info["ru_work"] = isset($step1["ru_work"]) ? (is_array($step1["ru_work"]) ? $step1["ru_work"] : explode(",", $step1["ru_work"])) : [];
+				$info["ru_addr"] = isset($step1["ru_addr"]) ? $step1["ru_addr"] : "";
+				$info["ru_price_type"] = isset($step1["ru_price_type"]) ? (is_array($step1["ru_price_type"]) ? $step1["ru_price_type"] : explode(",", $step1["ru_price_type"])) : [];
+				$info["ru_work_type"] = isset($step1["ru_work_type"]) ? (is_array($step1["ru_work_type"]) ? $step1["ru_work_type"] : explode(",", $step1["ru_work_type"])) : [];
+				if(isset($step1["ru_nationality"]) && $step1["ru_nationality"] != ""){
+					$info["ru_nationality"] = $step1["ru_nationality"];
+				}
+
+				$info["ru_desc"] = isset($step4["ru_desc"]) ? $step4["ru_desc"] : "";
+				$info["ru_my_type"] = isset($step4["ru_my_type"]) ? (is_array($step4["ru_my_type"]) ? $step4["ru_my_type"] : explode(",", $step4["ru_my_type"])) : [];
+				$info["ru_week_yn"] = isset($step4["ru_week_yn"]) ? $step4["ru_week_yn"] : "N";
+				$info["ru_week"] = isset($step4["ru_week"]) ? $step4["ru_week"] : "";
+				$info["arr_career"] = isset($step4["arr_career"]) ? $step4["arr_career"] : "";
+				$info["arr_certi"] = isset($step4["arr_certi"]) ? $step4["arr_certi"] : "";
+
+				// site_log의 주소 배열 처리
+				$data["addr_list"] = [];
+				$ad_addr_arr = isset($step1["ad_addr"]) && is_array($step1["ad_addr"]) ? $step1["ad_addr"] : [];
+				foreach($ad_addr_arr as $idx => $addrVal){
+					if($addrVal == "") continue;
+					$data["addr_list"][] = [
+						"ad_zipcode"=>isset($step1["ad_zipcode"][$idx]) ? $step1["ad_zipcode"][$idx] : "",
+						"ad_jibun"=>isset($step1["ad_jibun"][$idx]) ? $step1["ad_jibun"][$idx] : "",
+						"ad_doro"=>isset($step1["ad_doro"][$idx]) ? $step1["ad_doro"][$idx] : "",
+						"ad_detail"=>isset($step1["ad_detail"][$idx]) ? $step1["ad_detail"][$idx] : "",
+						"ad_addr"=>$addrVal,
+						"ad_gps_x"=>isset($step1["ad_gps_x"][$idx]) ? $step1["ad_gps_x"][$idx] : "",
+						"ad_gps_y"=>isset($step1["ad_gps_y"][$idx]) ? $step1["ad_gps_y"][$idx] : "",
+					];
+				}
+			}else if($ru_idx !=0 && $resume_info!=null){
+				// site_log는 없고, ru_idx != 0이고, DB에 데이터 있으면 → 기존 이력서 수정 (DB 우선 로드)
 				$info["ru_name"] = $resume_info["ru_name"];
 				$info["ru_work"] = array_map('trim', explode(",",$resume_info["ru_work"]));
 				$info["ru_addr"] = $resume_info["ru_addr"];
@@ -551,7 +617,6 @@
 				$info["ru_my_type"] = isset($resume_info["ru_my_type"]) ? array_map('trim', explode(",", $resume_info["ru_my_type"])) : [];
 				$info["ru_week_yn"] = isset($resume_info["ru_week_yn"]) ? $resume_info["ru_week_yn"] : "N";
 				$info["ru_week"] = isset($resume_info["ru_week"]) ? $resume_info["ru_week"] : "";
-				// 이력서가 있으면 회원의 국적 정보 사용 (이미 위에서 설정됨)
 
 				$data["addr_list"] = $this->member_model->getAddressList(["ad_type"=>"RESUME","mm_idx"=>$this->mm_idx,"ad_key"=>$ru_idx]);
 
@@ -591,42 +656,17 @@
 					$info["arr_certi"] = $arr_certi;
 				}
 			}else{
-				$temp_info  = $this->site_model->getStepTempDataMember($this->mm_idx,"RESUME","스텝1");
-				if($temp_info!=null){
-					$info["ru_name"] = $temp_info["ru_name"];
-					$info["ru_work"] = $temp_info["ru_work"];
-					$info["ru_addr"] = $temp_info["ru_addr"];
-					$info["ru_price_type"] = $temp_info["ru_price_type"];
-					$info["ru_work_type"] = $temp_info["ru_work_type"];
-					// 임시 저장된 국적 정보가 있으면 사용
-					if(isset($temp_info["ru_nationality"]) && $temp_info["ru_nationality"] != ""){
-						$info["ru_nationality"] = $temp_info["ru_nationality"];
-					}
-
-					$data["addr_list"] = [];
-					foreach($temp_info["ad_zipcode"] as $idx => $row){
-						$data["addr_list"][] = [
-							"ad_zipcode"=>$temp_info["ad_zipcode"][$idx],
-							"ad_jibun"=>$temp_info["ad_jibun"][$idx],
-							"ad_doro"=>$temp_info["ad_doro"][$idx],
-							"ad_detail"=>$temp_info["ad_detail"][$idx],
-							"ad_addr"=>$temp_info["ad_addr"][$idx],
-							"ad_gps_x"=>$temp_info["ad_gps_x"][$idx],
-							"ad_gps_y"=>$temp_info["ad_gps_y"][$idx],
-						];
-					}
+				// 그 외: 회원 기본정보만 로드
+				$add_info = $this->member_model->getMemberInfo($this->mm_idx);
+				if($add_info!=null){
+					$info["ru_name"] = "";
+					$info["ru_work"] = explode(",",$add_info["ma_work"]);
+					$info["ru_addr"] = "";
+					$info["ru_price_type"] = explode(",",$add_info["ma_price_type"]);
+					$info["ru_work_type"] = explode(",",$add_info["ma_work_type"]);
+					$data["addr_list"]  = $this->member_model->getAddressList(["ad_type"=>"MEMBER","mm_idx"=>$this->mm_idx,"ad_key"=>$this->mm_idx]);
 				}else{
-					$add_info = $this->member_model->getMemberInfo($this->mm_idx);
-					if($add_info!=null){
-						$info["ru_name"] = "";
-						$info["ru_work"] = explode(",",$add_info["ma_work"]);
-						$info["ru_addr"] = "";
-						$info["ru_price_type"] = explode(",",$add_info["ma_price_type"]);
-						$info["ru_work_type"] = explode(",",$add_info["ma_work_type"]);
-						$data["addr_list"]  = $this->member_model->getAddressList(["ad_type"=>"MEMBER","mm_idx"=>$this->mm_idx,"ad_key"=>$this->mm_idx]);
-					}else{
-						$data["addr_list"] = [];
-					}
+					$data["addr_list"] = [];
 				}
 			}
 
