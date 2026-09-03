@@ -400,7 +400,7 @@
                                     ?>
                                     <div id="rc_desc_editor"
                                          contenteditable="true"
-                                         class="form-textarea"
+                                         class="form-textarea js-autoheight"
                                          style="font-size: 17px; min-height: 430px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
                                     </div>
                                     <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
