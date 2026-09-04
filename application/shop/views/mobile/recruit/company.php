@@ -418,6 +418,7 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.content-li').data('rc_idx');
     if (rcIdx) {
+      localStorage.setItem('came_from_job_list', 'true');
       window.location.href = '/recruit/job_post/' + rcIdx;
     }
   });

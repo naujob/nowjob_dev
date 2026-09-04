@@ -281,8 +281,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 return;
             }
 
-            // 이미 저장된 "스텝3" 임시데이터를 그대로 사용해서 recruit_complete 호출
-            // (미리보기 진입 시 recruit_write3_1로 이미 저장됨)
+            // site_log에 이미 저장된 step3을 사용하여 recruit_complete 호출
+            // (미리보기 진입 시 recruit_write1_1.php의 showPreviewPage()에서 site_log에 저장됨)
             var completeParams = "rc_idx=" + rcIdx;
 
             var xhrComplete = new XMLHttpRequest();
@@ -724,7 +724,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <?php if ((!$isPreview && $userType !== "COMP") || $isOwnRecruit) : ?>
         <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
 
-            <?php if ($userType === "MEM") : ?>
+        <?php if ($userType === "MEM") : ?>
                 <!-- 개인회원: 제안하기 -->
                 <a href="#" id="btnRequest" class="floating-action-item btnRequest" data-action="propose" title="제안">
                     <img src="/resource/shop/mobile/img/propose.png" alt="지원">
@@ -1363,12 +1363,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
         $(document).on('click', '#btnRecruit, #btnRequest', function(e) {
-            // 채용정보 지원하기 분석 (운영 환경에서만)
-            var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
-            if (isProdEnvironment && typeof my_analytics !== 'undefined') {
-                my_analytics.goal('recruit_recruit');
-            }
-
+             // 채용정보 지원하기 분석
+            //  if (typeof my_analytics !== 'undefined') {
+            //     my_analytics.goal('recruit_recruit');
+            // }
             if ($(this).attr('href') === '#') {
                 e.preventDefault();
             }
@@ -1505,12 +1503,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
         // 통화 로그 기록
         $(document).on('click', '#callLog', function() {
-            // 채용정보 전화하기 분석 (운영 환경에서만)
-            var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
-            if (isProdEnvironment && typeof my_analytics !== 'undefined') {
-                my_analytics.goal('recruit_call');
-            }
-
+             // 채용정보 전화하기 분석
+            //  if (typeof my_analytics !== 'undefined') {
+            //     my_analytics.goal('recruit_call');
+            // }
             var rc_idx = $(this).data('rc_idx');
             comAjax("/recruit_proc/call_log", { rc_idx: rc_idx }, function(ret) {});
         });
@@ -1661,9 +1657,9 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             }
         });
 
-        // 네이티브 앱 식별자 확인
-        function isNativeApp() {
-            return !!(window.Android || window.webkit || navigator.app);
+         // 네이티브 앱 식별자 확인
+         function isNativeApp() {
+            return !!(window.APP_NOWAPK || (window.webkit && window.webkit.messageHandlers));
         }
 
         // 모바일 디바이스 판단
@@ -1671,12 +1667,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
-        // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만)
-         //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-        var jpIsDevelopment = false;
-        if (jpIsDevelopment && isNativeApp()) {
-            window.openJobPostTutorial();
-        } else if (isNativeApp() && localStorage.getItem('came_from_job_list') === 'true') {
+        // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만, 미리보기 제외)
+        if (!isPreview && isNativeApp() && localStorage.getItem('came_from_job_list') === 'true') {
             localStorage.removeItem('came_from_job_list');
             if (!localStorage.getItem('job_post_tutorial_seen')) {
                 localStorage.setItem('job_post_tutorial_seen', 'true');

@@ -1258,7 +1258,7 @@ function fRemoveBigAdr($arg)
 
     // 네이티브 앱 식별자 확인
     function isNativeApp() {
-        return !!(window.Android || window.webkit || navigator.app);
+        return !!(window.APP_NOWAPK || (window.webkit && window.webkit.messageHandlers));
     }
 
     // 모바일 디바이스 판단
@@ -1266,12 +1266,10 @@ function fRemoveBigAdr($arg)
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만)
-     //var jpIsDevelopment = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
-    var jpIsDevelopment = false;
-    if (jpIsDevelopment && isNativeApp()) {
-        window.openJobPostTutorial();
-    } else if (isNativeApp() && localStorage.getItem('came_from_resume_list') === 'true') {
+    // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만, 미리보기 제외)
+    // 처음 설치 시에만 팝업 표시 (개발/운영 환경 상관없이)
+    var isPreviewMode = <?= json_encode($isPreview) ?>;
+    if (!isPreviewMode && isNativeApp() && localStorage.getItem('came_from_resume_list') === 'true') {
         localStorage.removeItem('came_from_resume_list');
         if (!localStorage.getItem('hr_post_tutorial_seen')) {
             localStorage.setItem('hr_post_tutorial_seen', 'true');

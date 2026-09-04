@@ -137,10 +137,11 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                     </p>
                 </div>
             </div>
-            <div class="summary">
-                <div class="container">
-                    <h3 class="secondary-title">구인정보</h3>
-                    <table class="info-table">
+            <div class="section summary-wrapper">
+                <div class="summary">
+                    <div class="container">
+                        <h3 class="secondary-title jobinfo-title">구인정보</h3>
+                        <table class="info-table">
                         <caption><span class="sr-text">구인정보</span></caption>
                         <colgroup>
                             <col>
@@ -174,9 +175,44 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                             <tr>
                                 <td class="label">근무형태</td>
                                 <td class="value">
-                                    <span class="working-time"><?= $info["rc_work_type"] ?></span>
+                                    <?php
+                                      $work_items = [];
+                                      if (preg_match_all('/<span>(.*?)<\/span>/', $info["rc_work_type"], $matches)) {
+                                        $work_items = $matches[1];
+                                      } else {
+                                        $work_items = preg_split('/\s*,\s*/', $info["rc_work_type"]);
+                                      }
+                                      $item_set = array_unique(array_map('trim', $work_items));
+                                      $is_consultation = in_array('근무협의', $item_set) ||
+                                        (in_array('주간', $item_set) && in_array('야간', $item_set) && in_array('2교대', $item_set));
+
+                                      if ($is_consultation) {
+                                        echo '<span class="working-time"><em class="wtype0">근무협의</em></span>';
+                                      } else {
+                                    ?>
+                                    <div class="worktype">
+                                      <?php
+                                        if (strpos($info["rc_work_type"], "2교대") !== false) {
+                                          if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                                            echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                          }
+                                          if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                                            echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                          }
+                                        } else {
+                                          if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
+                                            echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                          }
+                                          if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
+                                            echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                          }
+                                        }
+                                      ?>
+                                    </div>
+                                    <?php } ?>
                                 </td>
                             </tr>
+                            <?php /* 근무시간 표시 주석처리
                             <tr>
                                 <td class="label">근무시간</td>
                                 <td class="value">
@@ -214,6 +250,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                                     <?php endif; ?>
                                 </td>
                             </tr>
+                            */ ?>
                             <tr>
                                 <td class="label">희망국적</td>
                                 <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></td>
@@ -251,6 +288,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -3925,6 +3925,11 @@
               }
             });
           }
+
+          // 페이지 스크롤 유지: 에디터 로드 후 자동 focus로 인한 스크롤 방지
+          $('html, body').scrollTop(0);
+          // body에 focus 설정하여 focus 요소를 명확하게 유지
+          document.body.focus();
         }, 200); // 스마트에디터는 iframe을 그려내는 데 시간이 조금 걸려. 에디터가 다 켜지기도 전에 명령을 보내면 에러가 나기 때문에 fOnAppLoad 콜백 안에서 약간의 시간 지연(setTimeout 200ms)을 주고 안전하게 명령
       }
     });
@@ -3966,12 +3971,22 @@
     $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
   }
 
+  // 브라우저의 자동 스크롤 복원 기능 비활성화
+  if ('scrollRestoration' in window.history) {
+    window.history.scrollRestoration = 'manual';
+  }
+
   // 페이지 로드 시 모든 초기화 함수 실행
   $(document).ready(function() {
     initLawPopup();
     initAddressArea();
     initFormValidation();
     initExposeAddrDisplay();
+  });
+
+  // 모든 자산 로드 완료 후 스크롤을 최상단으로 이동
+  $(window).load(function() {
+    $('html, body').scrollTop(0);
   });
 
   // 이미지 삭제 버튼 추가 함수
@@ -4338,6 +4353,7 @@
         nextArrow: '<span class="sr-text">다음</span>',
         prevArrow: '<span class="sr-text">이전</span>',
         disableMobile: true,
+        autoFocusInput: false,
         minDate: 'today',
         maxDate: new Date().fp_incr(60), //2개월 60일 제한
         onMonthChange: function(selectedDates, dateStr, instance) {
@@ -4415,6 +4431,7 @@
         nextArrow: '<span class="sr-text">다음</span>',
         prevArrow: '<span class="sr-text">이전</span>',
         disableMobile: true,
+        autoFocusInput: false,
         position: 'bottom auto',
         monthSelectorType: 'select', // 월 선택 활성화
         //static: true, // 드롭다운 대신 정적 셀렉터

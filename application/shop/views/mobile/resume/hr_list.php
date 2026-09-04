@@ -644,7 +644,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
           <p>등록된 정보가 없습니다.</p>
         </div>
         <!-- 페이지네이션 버튼 -->
-        <div id="paginationWrapper" class="pagination-wrapper">
+        <div id="paginationWrapper" class="pagination-wrapper" style="margin: 0px 0 48px 0;">
         </div>
       </div>
     </div>

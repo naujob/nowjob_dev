@@ -3008,22 +3008,24 @@ class Compage_proc extends CI_Controller
 
       // rc_week 처리: 모바일(스텝3의 rc_day) 또는 웹(스텝3의 rc_week) 모두 지원
       $rc_week_value = "";
-      if (isset($step3["rc_day"]) && !empty($step3["rc_day"])) {
-        // 모바일 버전: 스텝3에 rc_day가 있음 (요일무관 체크 시 모든 요일 선택)
-        if (isset($step3["rc_day_all"]) && $step3["rc_day_all"] == "Y") {
-          // 요일무관이면 모든 요일 선택
-          $rc_week_value = "일,월,화,수,목,금,토";
-        } else if (is_array($step3["rc_day"])) {
-          $rc_week_value = arr_implode(",", $step3["rc_day"]);
-        } else {
-          $rc_week_value = $step3["rc_day"];
-        }
-      } elseif (isset($step3["rc_week"]) && !empty($step3["rc_week"])) {
-        // 웹 버전: 스텝3에 rc_week이 있음
-        if (is_array($step3["rc_week"])) {
-          $rc_week_value = arr_implode(",", $step3["rc_week"]);
-        } else {
-          $rc_week_value = $step3["rc_week"];
+      if (isset($step3["rc_day"]) || isset($step3["rc_week"])) {
+        // 모바일 버전: 스텝3에 rc_day가 있음
+        if (isset($step3["rc_day"])) {
+          // 요일무관 체크 먼저 (배열이 비어있어도 상관없음)
+          if (isset($step3["rc_day_all"]) && $step3["rc_day_all"] == "Y") {
+            $rc_week_value = "일,월,화,수,목,금,토";
+          } elseif (is_array($step3["rc_day"]) && !empty($step3["rc_day"])) {
+            $rc_week_value = arr_implode(",", $step3["rc_day"]);
+          } elseif (!is_array($step3["rc_day"]) && !empty($step3["rc_day"])) {
+            $rc_week_value = $step3["rc_day"];
+          }
+        } elseif (isset($step3["rc_week"]) && !empty($step3["rc_week"])) {
+          // 웹 버전: 스텝3에 rc_week이 있음
+          if (is_array($step3["rc_week"])) {
+            $rc_week_value = arr_implode(",", $step3["rc_week"]);
+          } else {
+            $rc_week_value = $step3["rc_week"];
+          }
         }
       }
       if ($rc_week_value === "" && (!isset($step3["rc_week_yn"]) || $step3["rc_week_yn"] !== "Y")) {

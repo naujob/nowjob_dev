@@ -1053,9 +1053,9 @@
         (pages || []).forEach(function(page) {
             var oldKey = "recruit_draft_" + oldIdx + "_page" + page;
             var newKey = "recruit_draft_" + newIdx + "_page" + page;
-            var saved = localStorage.getItem(oldKey);
-            if (saved && !localStorage.getItem(newKey)) {
-                localStorage.setItem(newKey, saved);
+            var saved = sessionStorage.getItem(oldKey);
+            if (saved && !sessionStorage.getItem(newKey)) {
+                sessionStorage.setItem(newKey, saved);
             }
             localStorage.removeItem(oldKey);
         });
@@ -1125,9 +1125,9 @@
             formData.rc_work_type.push($(this).val());
         });
 
-        localStorage.setItem(storageKey, JSON.stringify(formData));
+        sessionStorage.setItem(storageKey, JSON.stringify(formData));
     }
-    // 2페이지 입력값을 수집하여 localStorage에 임시저장(복리후생)
+    // 2페이지 입력값을 수집하여 sessionStorage에 임시저장(복리후생)
     function savePage2Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var storageKey = "recruit_draft_" + rcIdx + "_page2";
@@ -1141,10 +1141,10 @@
             rc_life_type: rc_life_type
         };
 
-        localStorage.setItem(storageKey, JSON.stringify(formData));
+        sessionStorage.setItem(storageKey, JSON.stringify(formData));
     }
 
-    // 해시태그를 쉼표로 구분된 문자열로 합성하여 localStorage에 저장
+    // 해시태그를 쉼표로 구분된 문자열로 합성하여 sessionStorage에 저장
     // 상세설명,해시태그,채용기간,희망요일,희망성별,희망국적,희망나이 등 3페이지 입력값을 수집
     function savePage3Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
@@ -1190,9 +1190,9 @@
             detail_section_visible: $(".js-detail-section").hasClass("show")
         };
 
-        localStorage.setItem(storageKey, JSON.stringify(formData));
+        sessionStorage.setItem(storageKey, JSON.stringify(formData));
     }
-// 페이지 새로고침 후 localStorage에 저장된 데이터를 다시 폼에 채워 넣는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
+// 페이지 새로고침 후 sessionStorage에 저장된 데이터를 다시 폼에 채워 넣는 함수 (페이지 구분을 위해 page1, page2, page3 suffix 추가)
     function loadPage1Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
@@ -1200,7 +1200,7 @@
         // draft 로드: shouldLoadDraft가 true일 때만 draft를 먼저 확인
         if (window.shouldLoadDraft) {
             var storageKey = "recruit_draft_" + rcIdx + "_page1";
-            var draftSaved = localStorage.getItem(storageKey);
+            var draftSaved = sessionStorage.getItem(storageKey);
 
             if (draftSaved) {
                 // draft가 있으면 draft 사용 (preview에서 돌아온 경우의 임시 수정사항)
@@ -1449,7 +1449,7 @@
         // draft 로드: shouldLoadDraft가 true일 때만 draft를 먼저 확인
         if (window.shouldLoadDraft) {
             var storageKey = "recruit_draft_" + rcIdx + "_page2";
-            var draftSaved = localStorage.getItem(storageKey);
+            var draftSaved = sessionStorage.getItem(storageKey);
 
             if (draftSaved) {
                 // draft가 있으면 draft 사용 (preview에서 돌아온 경우의 임시 수정사항)
@@ -1489,7 +1489,7 @@
         // draft 로드: shouldLoadDraft가 true일 때만 draft를 먼저 확인
         if (window.shouldLoadDraft) {
             var storageKey = "recruit_draft_" + rcIdx + "_page3";
-            var draftSaved = localStorage.getItem(storageKey);
+            var draftSaved = sessionStorage.getItem(storageKey);
 
             if (draftSaved) {
                 // draft가 있으면 draft 사용 (preview에서 돌아온 경우의 임시 수정사항)

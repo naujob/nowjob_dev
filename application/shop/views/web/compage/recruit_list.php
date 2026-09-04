@@ -622,7 +622,7 @@
                                                     <?php } else { ?>
                                                         <a href="#" class="btn" onclick="fSetRecruitClose(<?= $row["rc_idx"] ?>); return false;" class="btn">마&nbsp;&nbsp;&nbsp;감</a>
                                                     <?php } ?>
-                                                    <a href="/compage/recruit_write/<?= $row["rc_idx"] ?>?gbn=re" class="btn">재등록</a>
+                                                    <a href="#" class="btn" onclick="fSetRecruitReregister(<?= $row["rc_idx"] ?>); return false;">재등록</a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -773,6 +773,25 @@
             }
         });
 
+    }
+
+    function fSetRecruitReregister(rc_idx) {
+        openPopup('confirm', {
+            content: '<p>모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.<br>재등록하시겠습니까?</p>',
+            firstButton: '취소',
+            secondButton: '재등록',
+            secondCallback: function() {
+                var params = {};
+                params["rc_idx"] = rc_idx;
+                comAjax("/compage_proc/recruit_reregister", params, function(ret) {
+                    if (ret.code == "00") {
+                        location.reload();
+                    } else {
+                        commonAlert(ret.msg, function() {});
+                    }
+                });
+            }
+        });
     }
 
     function fSetRecruitDel(rc_idx) {
