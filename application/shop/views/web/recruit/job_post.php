@@ -674,21 +674,18 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
   .item-view .view-visual .inline-group {
     height: auto;
-    aspect-ratio: 970 / 364;
+    max-width: 100%;
+    max-height: 500px;
   }
 
   .item-view .visual-slider {
     width: 100%;
     height: auto !important;
-    aspect-ratio: auto !important;
     overflow: visible !important;
   }
 
   .item-view .visual-slider img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: contain;
+ 
   }
 
   .item-view .visual-slider .keen-slider__slide {

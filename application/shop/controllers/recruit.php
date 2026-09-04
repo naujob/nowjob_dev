@@ -729,6 +729,7 @@ class Recruit extends CI_Controller
   function job_post($rc_idx = null)
   {
     $preview = input_get('preview', 0); // 미리보기 모드 (draft 데이터 사용)
+    $is_ajax = $this->input->is_ajax_request();
 
     if ($rc_idx == null) {
       redirect('https://nowjob.co.kr/recruit/job_list');
@@ -851,8 +852,13 @@ class Recruit extends CI_Controller
     $data["book_yn"] = ($bookmark == null ? "N" : "Y");
     $data["mem_info"] = $this->member_model->getMember(["mm_idx" => $info["mm_idx"]]);
     $data["mm_type"] = $this->mm_type;
+    $data["is_popup"] = $is_ajax;
 
-    $this->layout->shop('/recruit/job_post', $data);
+    if ($is_ajax) {
+      $this->load->view('mobile/recruit/job_post', $data);
+    } else {
+      $this->layout->shop('/recruit/job_post', $data);
+    }
   }
 
   # 지금 뜨는 업체 - 목록
