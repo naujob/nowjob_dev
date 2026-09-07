@@ -1283,7 +1283,6 @@
                                                     </label>
                                                 </div>
                                             </div>
-                                            <p class="help-msg  <?= count(explode(",", $info["ru_price_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
                                         </div>
                                         <?php
                                             $ru_price_type_arr = !empty($info["ru_price_type"]) ? explode(",", $info["ru_price_type"]) : [];
@@ -1307,7 +1306,6 @@
                                                     </label>
                                                 <?php endforeach; ?>
                                             </div>
-                                            <p class="help-msg <?= count(explode(",", $info["ru_work_type"])) == 3 ? "" : "hidden" ?>">협의 가능</p>
                                         </div>
                                         <?php
                                             $ru_work_type_arr = !empty($info["ru_work_type"]) ? explode(",", $info["ru_work_type"]) : [];

@@ -1289,9 +1289,6 @@ function getConvertResumePriceType($price_type)
 
 	// 2개 이상일 때는 첫 번째만 기본색, 나머지는 off 클래스
 	foreach ($validTypes as $index => $type) {
-		if ($index > 0) {
-			$result .= ' <span class="price-divider">|</span> ';
-		}
 		if (count($validTypes) > 1 && $index > 0) {
 			$result .= '<em class="off">' . $type . '</em>';
 		} else {

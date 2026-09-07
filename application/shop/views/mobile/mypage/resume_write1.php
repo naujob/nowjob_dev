@@ -810,7 +810,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
         }
 
-        if (!hasSavedData) {
+        if (!isEditMode && !hasSavedData) {
             $("[name='ru_week[]']").prop("checked", false);
             defaultWeekDays.forEach(function(val) {
                 $("[name='ru_week[]'][value='" + val + "']").prop("checked", true);
@@ -1471,7 +1471,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
 
         $("[name='ru_week[]']").on("change", function() {
-            if ($("[name='ru_week_yn']").is(":checked")) {
+            var checkedCount = $("[name='ru_week[]']:checked").length;
+            var totalCount = $("[name='ru_week[]']").length;
+
+            if (checkedCount === totalCount) {
+                $("[name='ru_week_yn']").prop("checked", true);
+            } else {
                 $("[name='ru_week_yn']").prop("checked", false);
             }
             saveResumeStep4Data();
@@ -1736,8 +1741,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }, 100);
 
         setTimeout(function() {
+            var ruIdx = $("[name='ru_idx']").val() || "0";
+            var ruName = $("[name='ru_name']").val() || "";
+            var isEditMode = (ruIdx != "0" && ruName != "");
             var checkedCount = $("[name='ru_week[]']:checked").length;
-            if (checkedCount === 0) {
+            if (!isEditMode && checkedCount === 0) {
                 var defaultWeekDays = ["월", "화", "수", "목", "금"];
                 defaultWeekDays.forEach(function(val) {
                     $("[name='ru_week[]'][value='" + val + "']").prop("checked", true);

@@ -367,9 +367,18 @@ class Resume extends CI_Controller
         $step3 = $this->site_model->getStepData($list, "스텝3");
         $step4 = $this->site_model->getStepData($list, "스텝4");
 
+        // 회원 정보 조회 (미리보기용)
+        $mem_info_preview = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
+
         $info = [
           "ru_idx" => $ru_idx,
           "mm_idx" => $this->mm_idx,
+          "mm_name" => isset($mem_info_preview["mm_name"]) ? $mem_info_preview["mm_name"] : "",
+          "mm_sex" => isset($mem_info_preview["mm_sex"]) ? $mem_info_preview["mm_sex"] : "",
+          "mm_birth" => isset($mem_info_preview["mm_birth"]) ? $mem_info_preview["mm_birth"] : "",
+          "mm_nation" => isset($mem_info_preview["mm_nation"]) ? $mem_info_preview["mm_nation"] : "",
+          "mm_thumb" => isset($mem_info_preview["mm_thumb"]) ? $mem_info_preview["mm_thumb"] : "",
+          "mm_img1" => isset($mem_info_preview["mm_img1"]) ? $mem_info_preview["mm_img1"] : "",
           "ru_name" => isset($step1["ru_name"]) ? $step1["ru_name"] : "",
           "ru_work" => isset($step1["ru_work"]) && is_array($step1["ru_work"]) ? arr_implode(",", $step1["ru_work"]) : (isset($step1["ru_work"]) ? $step1["ru_work"] : ""),
           "ru_price_type" => isset($step1["ru_price_type"]) && is_array($step1["ru_price_type"]) ? arr_implode(",", $step1["ru_price_type"]) : (isset($step1["ru_price_type"]) ? $step1["ru_price_type"] : ""),
@@ -379,6 +388,7 @@ class Resume extends CI_Controller
           "ru_edu" => isset($step2["ru_edu"]) && trim($step2["ru_edu"]) != "" ? $step2["ru_edu"] : (isset($step4["ru_edu"]) ? $step4["ru_edu"] : ""),
           "ru_my_type" => isset($step3["ru_my_type"]) ? $step3["ru_my_type"] : (isset($step4["ru_my_type"]) ? $step4["ru_my_type"] : ""),
           "ru_desc" => isset($step4["ru_desc"]) ? $step4["ru_desc"] : "",
+          "ru_thumb" => isset($step4["ru_thumb"]) ? $step4["ru_thumb"] : "",
           "ru_img1" => isset($step4["ru_img1"]) ? $step4["ru_img1"] : "",
           "ru_img2" => isset($step4["ru_img2"]) ? $step4["ru_img2"] : "",
           "ru_img3" => isset($step4["ru_img3"]) ? $step4["ru_img3"] : "",

@@ -502,10 +502,33 @@ function fRemoveBigAdrPHP($arg)
   }
 
   .ru_price_type em.off {
-    color: #777;
+   
   }
+ .info-table .value em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+        top: 27px;
+    right: 363px;
 
+    bottom: 0;
+    width: 1px;
+    height: 0.5em;
+    margin: auto;
+    border-right: 1px solid #777777;
+ }
+
+  .info-table .value em:not(:last-child) {
+  padding-right: 5px;
+  }
+  
+.info-table .value em:not(:first-child) {
+
+}
+
+
+  
   /* ru_price_type 내의 구분자 스타일 (직선 구분자) */
+ 
   .ru_price_type em:not(:last-child)::after {
     content: "";
     position: absolute;

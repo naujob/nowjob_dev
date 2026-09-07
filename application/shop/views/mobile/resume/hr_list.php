@@ -482,9 +482,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     z-index: 1000;
     background: #fff;
     overflow-y: auto;
-    opacity: 0;
     transform: translateX(100%);
-    visibility: hidden;
     pointer-events: none;
   }
 
@@ -1716,13 +1714,12 @@ $tpl_show_chat_mark = true; ?>
       // GSAP으로 팝업 열기 애니메이션
       gsap.fromTo('#hrPostPopup',
         {
-          autoAlpha: 0,
           x: '100%'
         },
         {
           duration: 0.5,
-          autoAlpha: 1,
           x: '0%',
+          ease: "power1.out",
           pointerEvents: 'auto'
         }
       );
@@ -1746,8 +1743,8 @@ $tpl_show_chat_mark = true; ?>
     // GSAP으로 팝업 닫기 애니메이션
     gsap.to('#hrPostPopup', {
       duration: 0.5,
-      autoAlpha: 0,
       x: '100%',
+      ease: "power1.out",
       pointerEvents: 'none',
       onComplete: function() {
         $('#hrPostPopup').html('');
