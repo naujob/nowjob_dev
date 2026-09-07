@@ -65,6 +65,7 @@ function fRemoveBigAdr($arg)
     }
 }
 */
+$isPopup = isset($is_popup) ? $is_popup : false;
 ?>
 <style>
     .info-table .working-day>li {
@@ -245,7 +246,7 @@ function fRemoveBigAdr($arg)
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <div class="post page page-view">
     <div class="top-bar">
-        <a href="#" class="<?= $top_button ?>"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="<?= $top_button ?>" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><span class="sr-text">이전으로</span></a>
         <h1 class="title">인재상세정보</h1>
         <span class="rt-group">
             <!-- <a href="/compage/recruit_list" class="btn-action">채용공고작성</a> -->
@@ -259,8 +260,9 @@ function fRemoveBigAdr($arg)
     <script>
         // 인재 목록 페이지에서 돌아올 때 하이라이트 처리
         var ruIdx = '<?= $info["ru_idx"] ?>';
-        localStorage.setItem('resume_highlight_ru_idx', ruIdx);
-        localStorage.setItem('came_from_resume_list', 'true');
+        var customShareUrl = location.origin + '/resume/hr_post/' + ruIdx + '?shared=true';
+        sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
+        sessionStorage.setItem('resume_came_from_hr_post', 'true');
     </script>
 
     <div class="page-content">
@@ -643,7 +645,9 @@ function fRemoveBigAdr($arg)
 
     </div><!-- //page-content -->
 
+<?php if (!$isPopup) { ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
+<?php } ?>
 
 </div>
 
@@ -1266,11 +1270,11 @@ function fRemoveBigAdr($arg)
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만, 미리보기 제외)
+    // 트리거: 최초 1회만 표시 (네이티브 앱에서만, 미리보기 제외, 공유 링크 제외)
     // 처음 설치 시에만 팝업 표시 (개발/운영 환경 상관없이)
     var isPreviewMode = <?= json_encode($isPreview) ?>;
-    if (!isPreviewMode && isNativeApp() && localStorage.getItem('came_from_resume_list') === 'true') {
-        localStorage.removeItem('came_from_resume_list');
+    var isSharedLink = new URLSearchParams(location.search).get('shared') === 'true';
+    if (!isPreviewMode && !isSharedLink && isNativeApp() && sessionStorage.getItem('resume_came_from_hr_post') === 'true') {
         if (!localStorage.getItem('hr_post_tutorial_seen')) {
             localStorage.setItem('hr_post_tutorial_seen', 'true');
             window.openJobPostTutorial();

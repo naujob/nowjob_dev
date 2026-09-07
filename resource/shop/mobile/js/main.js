@@ -104,11 +104,14 @@
     }());
 
     /* Lazy Loader : https://github.com/ApoorvSaxena/lozad.js */
-    (function setLazyLoadImg() {
+    window.initLazyLoad = function() {
         if (typeof lozad == 'undefined') return;
-
         var observer = lozad();
         observer.observe();
+    };
+
+    (function setLazyLoadImg() {
+        window.initLazyLoad();
     }());
 
     /* 모달 팝업 */

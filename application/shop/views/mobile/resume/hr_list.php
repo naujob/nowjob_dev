@@ -472,6 +472,21 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     background-color: transparent;
   }
 
+  /* 인재 상세 팝업 */
+  #hrPostPopup {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateX(100%);
+    visibility: hidden;
+    pointer-events: none;
+  }
 
 </style>
 <!-- Google AdSense 인피드 광고 스크립트 -->
@@ -485,6 +500,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <!-- <span class="cnt"><?= $g_alarm_cnt ?></span>
     </a> -->
 
+
+  <div id="hrPostPopup" class="hr-post-popup" data-state="closed"></div>
 
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
@@ -1134,8 +1151,7 @@ $tpl_show_chat_mark = true; ?>
     // 개인회원이고 자신의 이력서인 경우 클릭 가능
     if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
       if (ruIdx) {
-        localStorage.setItem('came_from_resume_list', 'true');
-        window.location.href = '/resume/hr_post/' + ruIdx;
+        window.openHrPostPopup(ruIdx);
       }
       return;
     }
@@ -1143,8 +1159,7 @@ $tpl_show_chat_mark = true; ?>
     // 기업회원인 경우 클릭 가능
     <?php if ($mm_type === "COMP") { ?>
       if (ruIdx) {
-        localStorage.setItem('came_from_resume_list', 'true');
-        window.location.href = '/resume/hr_post/' + ruIdx;
+        window.openHrPostPopup(ruIdx);
       }
     <?php } else { ?>
       // 개인회원이지만 자신의 이력서가 아닌 경우
@@ -1204,29 +1219,27 @@ $tpl_show_chat_mark = true; ?>
     }
   }
 
-  var highlightApplied = false;
-
   // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
   function applyLastClickedHighlight() {
-    if (highlightApplied) {
-      return; // ponytail: 중복 실행 방지
-    }
-
-    var isFromHrPost = localStorage.getItem('resume_came_from_hr_post');
+    var isFromHrPost = sessionStorage.getItem('resume_came_from_hr_post');
     if (isFromHrPost !== 'true') {
       return;
     }
 
-    var highlightRuIdx = localStorage.getItem('resume_highlight_ru_idx');
+    var highlightRuIdx = sessionStorage.getItem('resume_highlight_ru_idx');
     if (!highlightRuIdx) {
       return;
     }
 
-    highlightApplied = true;
-    localStorage.removeItem('resume_came_from_hr_post');
-    localStorage.removeItem('resume_highlight_ru_idx');
+    // 기존 하이라이트 모두 제거
+    $('.content-li.highlight-recent').removeClass('highlight-recent');
 
+    // 새 하이라이트 적용
     $('.content-li[data-ru_idx="' + highlightRuIdx + '"]').addClass('highlight-recent');
+
+    // 정리
+    sessionStorage.removeItem('resume_came_from_hr_post');
+    sessionStorage.removeItem('resume_highlight_ru_idx');
   }
 
 
@@ -1688,26 +1701,67 @@ $tpl_show_chat_mark = true; ?>
     }
   };
 
-  // Android에서 호출할 함수: 패널 닫기
-  window.handleAndroidBack = function() {
-    // 1) 고급검색 패널이 열려있으면 닫기
-    if (window.isAdvancedSearchOpen()) {
-      $('#advancedSearch').removeClass('on');
-      window.restorePanelClosedState();
-      return;
-    }
+  // 인재 상세 팝업 함수들
+  window.openHrPostPopup = function(ruIdx) {
+    $.ajax({
+      url: '/resume/hr_post/' + ruIdx,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).done(function(html) {
+      $('#hrPostPopup').html(html);
+      document.body.style.overflow = 'hidden';
+      localStorage.setItem('resume_came_from_hr_post', 'true');
+      localStorage.setItem('came_from_hr_list', 'true');
+      sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
 
-    // 2) 지역선택 패널이 열려있으면 닫기
-    if (window.isChangeAreaOpen()) {
-      $('#changeArea').removeClass('on');
-      window.restorePanelClosedState();
-      return;
-    }
+      // GSAP으로 팝업 열기 애니메이션
+      gsap.fromTo('#hrPostPopup',
+        {
+          autoAlpha: 0,
+          x: '100%'
+        },
+        {
+          duration: 0.5,
+          autoAlpha: 1,
+          x: '0%',
+          pointerEvents: 'auto'
+        }
+      );
 
-    // 3) 패널이 없으면 WebView의 기본 뒤로가기 수행
-    if (window.history && window.history.length > 1) {
-      window.history.back();
-    }
+      // 팝업 로드 후 공유 패널 초기화
+      var shareButton = document.querySelector('#hrPostPopup .btn-share');
+      if (shareButton && typeof initializeSharePanel === 'function') {
+        initializeSharePanel();
+      }
+
+      // 팝업 로드 후 이미지 lazy load 초기화
+      if (typeof initLazyLoad === 'function') {
+        initLazyLoad();
+      }
+    });
+  };
+
+  window.closeHrPostPopup = function(e) {
+    if (e) e.preventDefault();
+
+    // GSAP으로 팝업 닫기 애니메이션
+    gsap.to('#hrPostPopup', {
+      duration: 0.5,
+      autoAlpha: 0,
+      x: '100%',
+      pointerEvents: 'none',
+      onComplete: function() {
+        $('#hrPostPopup').html('');
+      }
+    });
+
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    applyLastClickedHighlight();
+  };
+
+  window.isHrPostPopupOpen = function() {
+    // GSAP 애니메이션: opacity > 0.5이면 열려있는 것
+    return parseFloat($('#hrPostPopup').css('opacity')) > 0.5;
   };
 </script>
 

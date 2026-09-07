@@ -324,6 +324,7 @@ class Resume extends CI_Controller
     // 푸시알림 디버깅 로그 추가
     // error_log("푸시알림 디버깅 - hr_post 접근: ru_idx=" . $ru_idx . ", mm_type=" . $this->mm_type . ", mm_idx=" . $this->mm_idx);
 
+    $is_ajax = $this->input->is_ajax_request();
     $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
     if ($ru_idx == 0 && !$isPreview) {
@@ -496,6 +497,7 @@ class Resume extends CI_Controller
     $data["mem_info"] = $this->member_model->getMemberInfo($info["mm_idx"]);
     $data["career_list"] = $career_list;
     $data["certi_list"] = $certi_list;
+    $data["is_popup"] = $is_ajax;
 
     // 기업회원과 인재 사이의 지원/제안 이력 확인 (양방향)
     $data["already_requested"] = false;
@@ -525,7 +527,11 @@ class Resume extends CI_Controller
       }
     }
 
-    $this->layout->shop('/resume/hr_post', $data);
+    if ($is_ajax) {
+      $this->load->view('mobile/resume/hr_post', $data);
+    } else {
+      $this->layout->shop('/resume/hr_post', $data);
+    }
   }
 
   function hr_list_new()

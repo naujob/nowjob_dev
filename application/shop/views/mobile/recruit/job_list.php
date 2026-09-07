@@ -713,6 +713,22 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     font-size: 20px;
   }
 
+  /* 채용공고 팝업 */
+  #jobPostPopup {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateX(100%);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
 </style>
 
 <!-- Google AdSense 인피드 광고 스크립트 -->
@@ -729,6 +745,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <!-- <span class="cnt"><?= $g_alarm_cnt ?></span> -->
 
 </div><!-- //header -->
+
+<div id="jobPostPopup" class="job-post-popup" data-state="closed"></div>
 
 <div class="page-content">
   <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
@@ -1258,29 +1276,27 @@ $tpl_recomm_class = true; ?>
     }
   }
 
-  var highlightApplied = false;
-
   // 상세페이지에서 뒤로가기로 돌아왔을 때 직전에 클릭한 카드에 하이라이트 적용
   function applyLastClickedHighlight() {
-    if (highlightApplied) {
-      return; // ponytail: 중복 실행 방지
-    }
-
-    var isFromJobPost = localStorage.getItem('recruit_came_from_job_post');
-    if (isFromJobPost !== 'true') {
+    var isFromJobPost = sessionStorage.getItem('recruit_came_from_job_post');
+    if (isFromJobPost !== 'true') { // 직전에 채용공고 상세페이지에서 돌아온 경우가 아니라면 하이라이트 적용하지 않음
       return;
     }
 
-    var highlightRcIdx = localStorage.getItem('recruit_highlight_rc_idx');
-    if (!highlightRcIdx) {
+    var highlightRcIdx = sessionStorage.getItem('recruit_highlight_rc_idx');
+    if (!highlightRcIdx) { // highlightRcIdx가 없으면 하이라이트 적용하지 않음
       return;
     }
 
-    highlightApplied = true;
-    localStorage.removeItem('recruit_came_from_job_post');
-    localStorage.removeItem('recruit_highlight_rc_idx');
+    // 기존 하이라이트 모두 제거
+    $('.content-li.highlight-recent').removeClass('highlight-recent');
 
+    // 새 하이라이트 적용
     $('.content-li[data-rc_idx="' + highlightRcIdx + '"]').addClass('highlight-recent');
+
+    // 정리
+    sessionStorage.removeItem('recruit_came_from_job_post');
+    sessionStorage.removeItem('recruit_highlight_rc_idx');
   }
 
 
@@ -1526,8 +1542,7 @@ $tpl_recomm_class = true; ?>
     }
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
-      localStorage.setItem('came_from_job_list', 'true');
-      window.location.href = '/recruit/job_post/' + rcIdx;
+      window.openJobPostPopup(rcIdx);
     }
   });
 
@@ -1627,16 +1642,20 @@ $tpl_recomm_class = true; ?>
 
     // 온보딩 튜토리얼 최초 노출 체크 (Android/iOS 브릿지)
     window.onShowTutorialResult = function(isFirst) {
+      console.log('[Tutorial] onShowTutorialResult 호출됨 - isFirst:', isFirst);
       if (isFirst === 'Y') openTutorialPopup();
     };
-    
+
     // 처음 설치 시에만 팝업 표시 (개발/운영 환경 상관없이)
     if (isNativeApp()) {
       if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.showTutorial) {
-        if (APP_NOWAPK.showTutorial() === 'Y') {
+        var result = APP_NOWAPK.showTutorial();
+        console.log('[Tutorial] APP_NOWAPK.showTutorial() 결과:', result);
+        if (result === 'Y') {
           openTutorialPopup();
         }
       } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.showTutorial) {
+        console.log('[Tutorial] iOS 튜토리얼 요청');
         window.webkit.messageHandlers.showTutorial.postMessage("");
       }
     }
@@ -1902,6 +1921,78 @@ $tpl_recomm_class = true; ?>
     } else if (typeof restoreBodyScroll === 'function') {
       restoreBodyScroll();
     }
+  };
+
+  // 채용공고 팝업 함수들
+  window.openJobPostPopup = function(rcIdx) {
+    $.ajax({
+      url: '/recruit/job_post/' + rcIdx,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).done(function(html) {
+      $('#jobPostPopup').html(html);
+      document.body.style.overflow = 'hidden';
+      sessionStorage.setItem('recruit_came_from_job_post', 'true');
+      sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
+
+      // GSAP으로 팝업 열기 애니메이션
+      gsap.fromTo('#jobPostPopup',
+        {
+          autoAlpha: 0,
+          x: '100%'
+        },
+        {
+          duration: 0.5,
+          autoAlpha: 1,
+          x: '0%',
+          pointerEvents: 'auto'
+        }
+      );
+
+      // 팝업 로드 후 공유 패널 초기화
+      var shareButton = document.querySelector('#jobPostPopup .btn-share');
+      if (shareButton && typeof initializeSharePanel === 'function') {
+        initializeSharePanel();
+      }
+
+      // 팝업 로드 후 이미지 lazy load 초기화
+      if (typeof initLazyLoad === 'function') {
+        initLazyLoad();
+      }
+
+      // 팝업 로드 후 keen-slider 초기화
+      if (typeof KeenSlider !== 'undefined') {
+        new KeenSlider(".view-visual-slider .slider-wrap", {
+          loop: true,
+        }, [
+          sliderDots,
+          addActiveClass
+        ]);
+      }
+    });
+  };
+
+  window.closeJobPostPopup = function(e) {
+    if (e) e.preventDefault();
+
+    // GSAP으로 팝업 닫기 애니메이션
+    gsap.to('#jobPostPopup', {
+      duration: 0.5,
+      autoAlpha: 0,
+      x: '100%',
+      pointerEvents: 'none',
+      onComplete: function() {
+        $('#jobPostPopup').html('');
+      }
+    });
+
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    applyLastClickedHighlight();
+  };
+
+  window.isJobPostPopupOpen = function() {
+    // GSAP 애니메이션: opacity > 0.5이면 열려있는 것
+    return parseFloat($('#jobPostPopup').css('opacity')) > 0.5;
   };
 
 </script>

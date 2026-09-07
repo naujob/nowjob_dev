@@ -24,6 +24,7 @@ function formatPhoneNumber($number)
     return $number;
 }
 
+$isPopup = isset($is_popup) ? $is_popup : false;
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
@@ -218,7 +219,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 ?>
 <div class="post page page-view">
     <div class="top-bar">
-        <a href="#" class="btn-back" onclick="goBackToEdit(event)"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="btn-back" onclick="<?= $isPopup ? 'closeJobPostPopup(event)' : 'goBackToEdit(event)' ?>"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
         <span class="rt-group">
             <!-- <a href="#" class="btn-action" id="btnResume">이력서 작성</a> -->
@@ -231,11 +232,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
     <script>
         var rcIdx = '<?= $info['rc_idx'] ?>';
+        var customShareUrl = location.origin + '/recruit/job_post/' + rcIdx + '?shared=true';
         var isPreview = '<?= $isPreview ? "true" : "false" ?>' === "true";
 
         // 공고 목록 페이지에서 돌아올 때 하이라이트 처리
-        localStorage.setItem('recruit_highlight_rc_idx', rcIdx);
-        localStorage.setItem('recruit_came_from_job_post', 'true');
+        sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
+        sessionStorage.setItem('recruit_came_from_job_post', 'true');
 
         // preview 모드에서 draft 데이터 로드
         var draftData = {};
@@ -796,7 +798,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
     </div><!-- //page-content -->
 
+<?php if (!$isPopup) { ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
+<?php } ?>
 </div>
 
 <!-- 공유하기 팝업 -->
@@ -1567,114 +1571,116 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             });
         };
 
-        // 온보딩 튜토리얼 팝업2 로직 (DOMContentLoaded 내부)
-        var JP_CURRENT_PAGE = 0;
-        var JP_TOTAL_PAGES = 2;
-        var jpPageTimeline = null;
-
-        function jpPreventScroll(e) { e.preventDefault(); }
-
-        window.openJobPostTutorial = function() {
-            var popup = document.getElementById('tutorial-popup2');
-            if (!popup) return;
-            popup.style.display = 'flex';
-            JP_CURRENT_PAGE = 0;
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-            document.addEventListener('touchmove', jpPreventScroll, { passive: false });
-            document.addEventListener('wheel', jpPreventScroll, { passive: false });
-
-            var skipBtn = popup.querySelector('.tutorial-skip-btn2');
-            var jobPostImg = popup.querySelector('.tutorial-jobpost-img');
-            var jobPostText = popup.querySelector('.tutorial-jobpost-text');
-            var callImg = popup.querySelector('.tutorial-call-img');
-            var callText = popup.querySelector('.tutorial-call-text');
-
-            popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = ''; });
-            popup.querySelectorAll('.jp-page-2').forEach(function(el) { el.style.display = 'none'; });
-
-            gsap.set([jobPostImg, jobPostText, callImg, callText,
-                popup.querySelector('.tutorial-propose-img'), popup.querySelector('.tutorial-propose-text')], { opacity: 0 });
-
-            var tl = gsap.timeline();
-            tl.fromTo(jobPostImg, { opacity: 0 }, { opacity: 1, duration: 0.6, display: 'block' }, 0.5)
-              .fromTo(skipBtn, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.5)
-              .fromTo(jobPostText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1')
-              .fromTo(callImg, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35')
-              .fromTo(callText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1');
-        };
-
-        window.closeJobPostTutorial = function() {
-            var popup = document.getElementById('tutorial-popup2');
-            if (!popup) return;
-            popup.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            document.documentElement.style.overflow = 'auto';
-            document.removeEventListener('touchmove', jpPreventScroll);
-            document.removeEventListener('wheel', jpPreventScroll);
-            if (jpPageTimeline) jpPageTimeline.kill();
-        };
-
-        window.isTutorialOpen = function() {
-            var popup = document.getElementById('tutorial-popup2');
-            return popup && popup.style.display === 'flex';
-        };
-
-        window.closeTutorialPopup = function() {
-            window.closeJobPostTutorial();
-        };
-
-        window.setJobPostTutorialPage = function(pageIndex) {
-            var popup = document.getElementById('tutorial-popup2');
-            JP_CURRENT_PAGE = pageIndex;
-            if (jpPageTimeline) jpPageTimeline.kill();
-
-            if (pageIndex === 1) {
-                popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = 'none'; });
-                var proposeWrapper = popup.querySelector('.tutorial-propose-wrapper');
-                var proposeImg = popup.querySelector('.tutorial-propose-img');
-                var proposeText = popup.querySelector('.tutorial-propose-text');
-                proposeWrapper.style.display = 'flex';
-                gsap.set([proposeImg, proposeText], { opacity: 0 });
-
-                jpPageTimeline = gsap.timeline({ defaults: { ease: 'power2.out' } });
-                jpPageTimeline
-                    .fromTo(proposeImg, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0)
-                    .fromTo(proposeText, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35');
-            }
-        };
-
-        document.addEventListener('click', function(e) {
-            var popup = document.getElementById('tutorial-popup2');
-            if (!popup || popup.style.display === 'none') return;
-
-            if (e.target === popup || popup.contains(e.target)) {
-                if (JP_CURRENT_PAGE < JP_TOTAL_PAGES - 1) {
-                    window.setJobPostTutorialPage(JP_CURRENT_PAGE + 1);
-                } else {
-                    window.closeJobPostTutorial();
-                }
-            }
-        });
-
-         // 네이티브 앱 식별자 확인
-         function isNativeApp() {
-            return !!(window.APP_NOWAPK || (window.webkit && window.webkit.messageHandlers));
-        }
-
-        // 모바일 디바이스 판단
-        function isMobileDevice() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-
-        // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만, 미리보기 제외)
-        if (!isPreview && isNativeApp() && localStorage.getItem('came_from_job_list') === 'true') {
-            localStorage.removeItem('came_from_job_list');
-            if (!localStorage.getItem('job_post_tutorial_seen')) {
-                localStorage.setItem('job_post_tutorial_seen', 'true');
-                window.openJobPostTutorial();
-            }
-        }
-
     });
+</script>
+
+<!-- 온보딩 튜토리얼 (DOMContentLoaded 밖, 최상위 레벨 - hr_post.php와 동일 패턴) -->
+<script>
+    var JP_CURRENT_PAGE = 0;
+    var JP_TOTAL_PAGES = 2;
+    var jpPageTimeline = null;
+
+    function jpPreventScroll(e) { e.preventDefault(); }
+
+    window.openJobPostTutorial = function() {
+        var popup = document.getElementById('tutorial-popup2');
+        if (!popup) return;
+        popup.style.display = 'flex';
+        JP_CURRENT_PAGE = 0;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        document.addEventListener('touchmove', jpPreventScroll, { passive: false });
+        document.addEventListener('wheel', jpPreventScroll, { passive: false });
+
+        var skipBtn = popup.querySelector('.tutorial-skip-btn2');
+        var jobPostImg = popup.querySelector('.tutorial-jobpost-img');
+        var jobPostText = popup.querySelector('.tutorial-jobpost-text');
+        var callImg = popup.querySelector('.tutorial-call-img');
+        var callText = popup.querySelector('.tutorial-call-text');
+
+        popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = ''; });
+        popup.querySelectorAll('.jp-page-2').forEach(function(el) { el.style.display = 'none'; });
+
+        gsap.set([jobPostImg, jobPostText, callImg, callText,
+            popup.querySelector('.tutorial-propose-img'), popup.querySelector('.tutorial-propose-text')], { opacity: 0 });
+
+        var tl = gsap.timeline();
+        tl.fromTo(jobPostImg, { opacity: 0 }, { opacity: 1, duration: 0.6, display: 'block' }, 0.5)
+          .fromTo(skipBtn, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.5)
+          .fromTo(jobPostText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1')
+          .fromTo(callImg, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35')
+          .fromTo(callText, { opacity: 0 }, { opacity: 1, duration: 0.35 }, '-=0.1');
+    };
+
+    window.closeJobPostTutorial = function() {
+        var popup = document.getElementById('tutorial-popup2');
+        if (!popup) return;
+        popup.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        document.removeEventListener('touchmove', jpPreventScroll);
+        document.removeEventListener('wheel', jpPreventScroll);
+        if (jpPageTimeline) jpPageTimeline.kill();
+    };
+
+    window.isTutorialOpen = function() {
+        var popup = document.getElementById('tutorial-popup2');
+        return popup && popup.style.display === 'flex';
+    };
+
+    window.closeTutorialPopup = function() {
+        window.closeJobPostTutorial();
+    };
+
+    window.setJobPostTutorialPage = function(pageIndex) {
+        var popup = document.getElementById('tutorial-popup2');
+        JP_CURRENT_PAGE = pageIndex;
+        if (jpPageTimeline) jpPageTimeline.kill();
+
+        if (pageIndex === 1) {
+            popup.querySelectorAll('.jp-page-1').forEach(function(el) { el.style.display = 'none'; });
+            var proposeWrapper = popup.querySelector('.tutorial-propose-wrapper');
+            var proposeImg = popup.querySelector('.tutorial-propose-img');
+            var proposeText = popup.querySelector('.tutorial-propose-text');
+            proposeWrapper.style.display = 'flex';
+            gsap.set([proposeImg, proposeText], { opacity: 0 });
+
+            jpPageTimeline = gsap.timeline({ defaults: { ease: 'power2.out' } });
+            jpPageTimeline
+                .fromTo(proposeImg, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0)
+                .fromTo(proposeText, { opacity: 0 }, { opacity: 1, duration: 0.3 }, '+=0.35');
+        }
+    };
+
+    document.addEventListener('click', function(e) {
+        var popup = document.getElementById('tutorial-popup2');
+        if (!popup || popup.style.display === 'none') return;
+
+        if (e.target === popup || popup.contains(e.target)) {
+            if (JP_CURRENT_PAGE < JP_TOTAL_PAGES - 1) {
+                window.setJobPostTutorialPage(JP_CURRENT_PAGE + 1);
+            } else {
+                window.closeJobPostTutorial();
+            }
+        }
+    });
+
+    function isNativeApp() {
+        return !!(window.APP_NOWAPK || (window.webkit && window.webkit.messageHandlers));
+    }
+
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    // 트리거: 목록에서 클릭 진입 + 최초 1회만 표시 (네이티브 앱에서만, 미리보기 제외, 공유 링크 제외)
+    var isPreviewMode = <?= json_encode($isPreview) ?>;
+    var isSharedLink = new URLSearchParams(location.search).get('shared') === 'true';
+   
+    if (!isPreviewMode && !isSharedLink && isNativeApp() && sessionStorage.getItem('recruit_came_from_job_post') === 'true') {
+        if (!localStorage.getItem('job_post_tutorial_seen')) {
+            localStorage.setItem('job_post_tutorial_seen', 'true');
+            window.openJobPostTutorial();
+        }
+    }
 </script>

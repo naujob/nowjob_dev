@@ -13,9 +13,8 @@ function CopyUrl() {
     });
 }
 
-/* Web Share API 지원 여부 감지 */
-window.addEventListener('DOMContentLoaded', function() {
-
+/* 공유 패널 초기화 함수 */
+function initializeSharePanel() {
     var shareButton = document.querySelector('.btn-share');
     if (!shareButton) {
         return;
@@ -82,4 +81,9 @@ window.addEventListener('DOMContentLoaded', function() {
         }
 
     });
+}
+
+/* DOMContentLoaded 시점에 초기화 */
+window.addEventListener('DOMContentLoaded', function() {
+    initializeSharePanel();
 });

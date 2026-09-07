@@ -113,6 +113,17 @@ function callVibrate(time) {
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
     try {
+        // 팝업이 열려있으면 먼저 닫기
+        if (window.isJobPostPopupOpen && window.isJobPostPopupOpen()) {
+            window.closeJobPostPopup();
+            return;
+        }
+
+        if (window.isHrPostPopupOpen && window.isHrPostPopupOpen()) {
+            window.closeHrPostPopup();
+            return;
+        }
+
         if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
             window.closeTutorialPopup();
             return;
@@ -792,12 +803,30 @@ function checkMobile() {
 }
 
 /**
+ * 팝업 열림 여부 확인 (네이티브에서 호출용)
+ *
+ * 사용법:
+ * - window.isAnyPopupOpen() → true/false 반환
+ * - 채용공고 팝업 또는 인재 팝업이 열려있으면 true
+ */
+window.isAnyPopupOpen = function() {
+    if (typeof window.isJobPostPopupOpen === 'function' && window.isJobPostPopupOpen()) {
+        return true;
+    }
+    if (typeof window.isHrPostPopupOpen === 'function' && window.isHrPostPopupOpen()) {
+        return true;
+    }
+
+    return false;
+};
+
+/**
  * Android/iOS WebView 뒤로가기 버튼 커스텀 핸들러 (네이티브 → JS 호출)
- * 
+ *
  * 사용법:
  * - Android onBackPressed()에서: mWebView.evaluateJavascript("handleAndroidBack()", null);
  * - iOS WKNavigationDelegate에서: webView.evaluateJavaScript("handleAndroidBack();", completionHandler: nil)
- * 
+ *
  * 동작:
  * - 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음 (네이티브에서도 차단)
  * - 커스텀 규칙에 등록된 페이지는 지정한 URL로 이동
@@ -805,6 +834,16 @@ function checkMobile() {
  */
 function handleAndroidBack() {
     try {
+        if (window.isJobPostPopupOpen && window.isJobPostPopupOpen()) {
+            window.closeJobPostPopup();
+            return;
+        }
+
+        if (window.isHrPostPopupOpen && window.isHrPostPopupOpen()) {
+            window.closeHrPostPopup();
+            return;
+        }
+
         if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
             window.closeTutorialPopup();
             return;
