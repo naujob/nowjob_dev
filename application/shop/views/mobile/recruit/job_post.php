@@ -1122,6 +1122,175 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 </script>
 
 <script>
+    // 상세정보 확대 및 핀치줌 기능 전역 함수
+    window.initJobPostDescFeatures = function() {
+        // .desc 영역 핀치 줌 기능
+        (function() {
+            var descEl = document.querySelector('.view-desc .desc');
+            if (!descEl) return;
+            if (descEl.dataset.pinchInit) return;   // 중복 바인딩 가드
+            descEl.dataset.pinchInit = '1';
+
+            var scale = 1;
+            var lastScale = 1;
+            var startDist = 0;
+            var originX = 0,
+                originY = 0;
+            var translateX = 0,
+                translateY = 0;
+            var isPinching = false;
+            var isPanning = false;
+            var wasPinching = false;
+            var panStartX = 0,
+                panStartY = 0;
+            var lastTap = 0;
+
+            var MIN_SCALE = 1;
+            var MAX_SCALE = 5;
+
+            function getDistance(t1, t2) {
+                var dx = t2.clientX - t1.clientX;
+                var dy = t2.clientY - t1.clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            function applyTransform() {
+                var cw = descEl.offsetWidth;
+                var ch = descEl.offsetHeight;
+                var minTx = -(cw * (scale - 1));
+                var maxTx = 0;
+                var minTy = -(ch * (scale - 1));
+                var maxTy = 0;
+                translateX = Math.max(minTx, Math.min(maxTx, translateX));
+                translateY = Math.max(minTy, Math.min(maxTy, translateY));
+
+                descEl.style.transform =
+                    'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
+            }
+
+            descEl.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    isPinching = true;
+                    isPanning = false;
+                    wasPinching = false;
+                    lastTap = 0;
+                    startDist = getDistance(e.touches[0], e.touches[1]);
+                    lastScale = scale;
+
+                    var rect = descEl.getBoundingClientRect();
+                    originX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                    originY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+
+                    descEl.classList.add('pinching');
+                    e.preventDefault();
+                } else if (e.touches.length === 1 && scale > 1) {
+                    isPanning = true;
+                    isPinching = false;
+                    panStartX = e.touches[0].clientX - translateX;
+                    panStartY = e.touches[0].clientY - translateY;
+                }
+            }, {
+                passive: false
+            });
+
+            descEl.addEventListener('touchmove', function(e) {
+                if (isPinching && e.touches.length === 2) {
+                    var dist = getDistance(e.touches[0], e.touches[1]);
+                    var newScale = lastScale * (dist / startDist);
+                    newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
+
+                    var scaleChange = newScale / scale;
+                    translateX = originX - scaleChange * (originX - translateX);
+                    translateY = originY - scaleChange * (originY - translateY);
+
+                    scale = newScale;
+                    applyTransform();
+                    e.preventDefault();
+                } else if (isPanning && e.touches.length === 1 && scale > 1) {
+                    translateX = e.touches[0].clientX - panStartX;
+                    translateY = e.touches[0].clientY - panStartY;
+                    applyTransform();
+                    e.preventDefault();
+                }
+            }, {
+                passive: false
+            });
+
+            descEl.addEventListener('touchend', function(e) {
+                if (e.touches.length < 2) {
+                    if (isPinching) wasPinching = true;
+                    isPinching = false;
+                    descEl.classList.remove('pinching');
+                }
+                if (e.touches.length === 0) {
+                    isPanning = false;
+                    if (scale <= MIN_SCALE) {
+                        scale = 1;
+                        translateX = 0;
+                        translateY = 0;
+                        applyTransform();
+                    }
+                }
+            }, {
+                passive: true
+            });
+
+            descEl.addEventListener('touchend', function(e) {
+                if (wasPinching) {
+                    wasPinching = false;
+                    lastTap = 0;
+                    return;
+                }
+                var now = Date.now();
+                if (now - lastTap < 300 && e.changedTouches.length === 1) {
+                    scale = 1;
+                    translateX = 0;
+                    translateY = 0;
+                    applyTransform();
+                }
+                lastTap = now;
+            }, {
+                passive: true
+            });
+        })();
+
+        // 새 창으로 크게 보기 버튼 처리
+        $(document).off('click.jobPostPreview', '.detail-recruit-content__preview')
+            .on('click.jobPostPreview', '.detail-recruit-content__preview', function() {
+                var descHtml = $('.view-desc .desc').html();
+                if (!descHtml) {
+                    commonAlert("표시할 내용이 없습니다.", function() {});
+                    return;
+                }
+
+                var previewWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+                if (!previewWindow) {
+                    commonAlert("팝업 차단이 해제되어야 열 수 있습니다.", function() {});
+                    return;
+                }
+
+                previewWindow.document.open();
+                previewWindow.document.write(
+                    '<!doctype html>' +
+                    '<html lang="ko">' +
+                    '<head>' +
+                    '<meta charset="utf-8">' +
+                    '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">' +
+                    '<title>상세업무정보</title>' +
+                    '<style>' +
+                    'body{margin:20px;font-family:Apple SD Gothic Neo,Malgun Gothic,system-ui,-apple-system,Segoe UI,sans-serif;font-size:16px;line-height:1.6;color:#222;}' +
+                    '.desc{width:100%;}' +
+                    '</style>' +
+                    '</head>' +
+                    '<body>' +
+                    '<div class="desc">' + descHtml + '</div>' +
+                    '</body>' +
+                    '</html>'
+                );
+                previewWindow.document.close();
+            });
+    };
+
     // $(document).ready(function(){
     window.addEventListener('DOMContentLoaded', function() {
         // preview 모드에서 draft 및 sessionStorage 데이터를 DOM에 적용
@@ -1198,172 +1367,11 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             }
         });
 
-        // .desc 영역 핀치 줌 기능
-        (function() {
-            var descEl = document.querySelector('.view-desc .desc');
-            if (!descEl) return;
-
-            var scale = 1;
-            var lastScale = 1;
-            var startDist = 0;
-            var originX = 0,
-                originY = 0;
-            var translateX = 0,
-                translateY = 0;
-            var isPinching = false;
-            var isPanning = false;
-            var wasPinching = false;
-            var panStartX = 0,
-                panStartY = 0;
-            var lastTap = 0;
-
-            var MIN_SCALE = 1;
-            var MAX_SCALE = 5;
-
-            function getDistance(t1, t2) {
-                var dx = t2.clientX - t1.clientX;
-                var dy = t2.clientY - t1.clientY;
-                return Math.sqrt(dx * dx + dy * dy);
-            }
-
-            function applyTransform() { // 손가락이 움직인 만큼 화면의 위치(translateX, translateY)를 더하거나 빼서 옮기기
-                // 경계 제한(clamp) - 스케일에 따른 유효 이동 범위 계산
-                var cw = descEl.offsetWidth;
-                var ch = descEl.offsetHeight;
-                var minTx = -(cw * (scale - 1));
-                var maxTx = 0;
-                var minTy = -(ch * (scale - 1));
-                var maxTy = 0;
-                translateX = Math.max(minTx, Math.min(maxTx, translateX));
-                translateY = Math.max(minTy, Math.min(maxTy, translateY));
-
-                descEl.style.transform =
-                    'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
-            }
-
-            descEl.addEventListener('touchstart', function(e) {
-                if (e.touches.length === 2) {
-                    isPinching = true;
-                    isPanning = false;
-                    wasPinching = false;
-                    lastTap = 0; // 핀치 시 더블탭 타이머 리셋
-                    startDist = getDistance(e.touches[0], e.touches[1]); // 가장 먼저 닿은 첫 번째 손가락와 추가로 닿은 두 번째 손가락의 정보 / 처음 두 손가락이 닿았을 때의 거리
-                    lastScale = scale;
-
-                    var rect = descEl.getBoundingClientRect(); // 실시간으로 내 눈에 보이는 위치를 알려주는 함수
-                    originX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left; //두 손가락의 정중앙
-                    originY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-
-                    descEl.classList.add('pinching');
-                    e.preventDefault();
-                } else if (e.touches.length === 1 && scale > 1) {
-                    isPanning = true;
-                    isPinching = false;
-                    panStartX = e.touches[0].clientX - translateX;
-                    panStartY = e.touches[0].clientY - translateY;
-                }
-            }, {
-                passive: false
-            });
-
-            descEl.addEventListener('touchmove', function(e) {
-                if (isPinching && e.touches.length === 2) {
-                    var dist = getDistance(e.touches[0], e.touches[1]); // 손가락을 움직일 때(touchmove) 실시간 거리(dist)
-                    var newScale = lastScale * (dist / startDist); // 
-                    newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale)); // 처음보다 몇 배나 멀어졌는지
-
-                    var scaleChange = newScale / scale;
-                    translateX = originX - scaleChange * (originX - translateX);
-                    translateY = originY - scaleChange * (originY - translateY);
-
-                    scale = newScale;
-                    applyTransform();
-                    e.preventDefault();
-                } else if (isPanning && e.touches.length === 1 && scale > 1) {
-                    translateX = e.touches[0].clientX - panStartX;
-                    translateY = e.touches[0].clientY - panStartY;
-                    applyTransform();
-                    e.preventDefault();
-                }
-            }, {
-                passive: false
-            });
-
-            descEl.addEventListener('touchend', function(e) {
-                if (e.touches.length < 2) {
-                    if (isPinching) wasPinching = true;
-                    isPinching = false;
-                    descEl.classList.remove('pinching');
-                }
-                if (e.touches.length === 0) {
-                    isPanning = false;
-                    if (scale <= MIN_SCALE) {
-                        scale = 1;
-                        translateX = 0;
-                        translateY = 0;
-                        applyTransform();
-                    }
-                }
-            }, {
-                passive: true
-            });
-
-            // 더블탭으로 초기화
-            descEl.addEventListener('touchend', function(e) {
-                // 핀치가 방금 끝난 경우 더블탭 감지 skip
-                if (wasPinching) {
-                    wasPinching = false;
-                    lastTap = 0;
-                    return;
-                }
-                var now = Date.now();
-                if (now - lastTap < 300 && e.changedTouches.length === 1) {
-                    scale = 1;
-                    translateX = 0;
-                    translateY = 0;
-                    applyTransform();
-                }
-                lastTap = now;
-            }, {
-                passive: true
-            });
-        })();
-
         var user_type = "<?= $this->user->getUserType(); ?>";
-        // 새 창으로 크게 보기 버튼 처리
-        $(document).on('click', '.detail-recruit-content__preview', function() {
-            var descHtml = $('.view-desc .desc').html();
-            if (!descHtml) {
-                commonAlert("표시할 내용이 없습니다.", function() {});
-                return;
-            }
-
-            var previewWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
-            if (!previewWindow) {
-                commonAlert("팝업 차단이 해제되어야 열 수 있습니다.", function() {});
-                return;
-            }
-
-            previewWindow.document.open();
-            previewWindow.document.write(
-                '<!doctype html>' +
-                '<html lang="ko">' +
-                '<head>' +
-                '<meta charset="utf-8">' +
-                '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">' +
-                '<title>상세업무정보</title>' +
-                '<style>' +
-                'body{margin:20px;font-family:Apple SD Gothic Neo,Malgun Gothic,system-ui,-apple-system,Segoe UI,sans-serif;font-size:16px;line-height:1.6;color:#222;}' +
-                '.desc{width:100%;}' +
-                '</style>' +
-                '</head>' +
-                '<body>' +
-                '<div class="desc">' + descHtml + '</div>' +
-                '</body>' +
-                '</html>'
-            );
-            previewWindow.document.close();
-        });
+        // 상세정보 확대/핀치줌 기능 초기화
+        if (typeof window.initJobPostDescFeatures === 'function') {
+            window.initJobPostDescFeatures();
+        }
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
         $(document).on('click', '#btnRecruit, #btnRequest', function(e) {

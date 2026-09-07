@@ -1965,6 +1965,22 @@ $tpl_recomm_class = true; ?>
           addActiveClass
         ]);
       }
+
+      // 팝업 로드 후 이미지 확대 기능 초기화 (magnificPopup)
+      if (typeof jQuery !== 'undefined') {
+        $('#jobPostPopup .view-visual-slider').magnificPopup({
+          delegate: 'img',
+          type: 'image',
+          gallery: {
+            enabled: true
+          }
+        });
+      }
+
+      // 팝업 로드 후 상세정보 확대/핀치줌 기능 초기화
+      if (typeof window.initJobPostDescFeatures === 'function') {
+        window.initJobPostDescFeatures();
+      }
     });
   };
 
