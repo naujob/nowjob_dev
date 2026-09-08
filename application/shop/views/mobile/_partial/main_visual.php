@@ -20,6 +20,13 @@ if ($this->user->getUserType() == "MEM") {
 } else if ($this->user->getUserType() == "COMP") {
   $has_new_match = $this->member_model->hasUnreadMatchResume($this->user->getUserIdx());
 }
+
+// A.I 매칭 광고성 정보 수신 동의 여부 확인
+$mm_agree_ad = 'N';
+if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP") {
+  $mem_info_for_ad = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
+  $mm_agree_ad = (isset($mem_info_for_ad["mm_agree_ad"]) && $mem_info_for_ad["mm_agree_ad"] == "Y") ? 'Y' : 'N';
+}
 ?>
 <style>
   /* 메인 비주얼 헤더 스타일 */
@@ -187,9 +194,7 @@ if ($this->user->getUserType() == "MEM") {
   ?>
 
   <div class="profile-menu" data-badge="<?= $has_new_match ? 'true' : 'false' ?>">
-    <?php if ($has_new_match) : ?>
-      <a href="<?= $match_url ?>" class="ai-match-label">A.I 매칭리스트</a>
-    <?php endif; ?>
+    <a href="<?= $match_url ?>" id="aiMatchLink" class="ai-match-label" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="<?= $match_url ?>">A.I 매칭리스트</a>
     <a href="<?= $profile_url ?>" class="profile-icon" aria-label="프로필">
       <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
       <?php if ($has_new_match) : ?>
@@ -783,3 +788,121 @@ if ($this->user->getUserType() == "MEM") {
     });
   </script>
 </div>
+
+<!-- A.I 매칭 광고성 정보 수신 동의 바텀시트 -->
+<?php if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP") : ?>
+<?php
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
+$this->load->model('settingmodel', 'setting_model');
+$policy5 = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_m"]);
+$aiMatchConsentContent = '
+  <p class="ai-match-desc">서비스 이용을 위해 동의해 주세요.<br>A.I매칭 서비스를 위해 고객 동의가 필요합니다.</p>
+  <label class="ai-match-agree-check form-checkbox">
+    <input type="checkbox" id="rd_agree_ad" name="rd_agree_ad" value="1">
+    <span class="label"></span>
+    <div class="ai-match-terms-link">
+      <a href="javascript:void(0);" role="button" onclick="openAdAgreeTermsPanel();">광고성 정보 알림 수신 동의</a>
+      <i class="fa fa-angle-right"></i>
+    </div>
+  </label>';
+renderSelectBottomSheet(
+  'adConsentSheet', 'A.I 매칭', $aiMatchConsentContent,
+  '닫기', 'btnAdConsentClose', "closePanel(document.getElementById('adConsentSheet'));",
+  '동의하기', 'btnAdConsentAgree', 'submitAdAgree();'
+);
+?>
+
+<!-- 광고성 정보 알림 수신 동의 약관 상세 -->
+<div id="adConsentTermsPanel" class="layer-panel card-type" tabindex="-1">
+  <div class="panel-container">
+    <div class="panel-header">
+      <h2 class="panel-title">광고성 정보 알림 수신 동의</h2>
+    </div>
+    <div class="panel-body">
+      <div class="panel-content">
+        <div class="terms-wrap"><?= isset($policy5["adv_m"]) ? $policy5["adv_m"] : '' ?></div>
+      </div>
+    </div>
+    <div class="panel-footer">
+      <div class="sticky-bottom view-footer">
+        <button type="button" class="btn btn-primary" onclick="checkAdAgreeTerms();">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* 동의 바텀시트 전용 스타일 (신규, 다른 영역에 영향 없음) */
+  .ai-match-desc { margin-bottom: 20px; color: #666; line-height: 1.5; }
+  .ai-match-agree-check { display: flex; align-items: center; gap: 8px; }
+  .ai-match-terms-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 1; }
+  .ai-match-terms-link a { color: #333; text-decoration: none; flex: 1; }
+  .ai-match-terms-link i { color: #999; flex-shrink: 0; }
+  .bottom-sheet-content .bottom-sheet-content-body {
+    padding: 0px 20px 10px 0px;
+        display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .ai-match-agree-check.form-checkbox .label:before {
+    top: -9px;
+  }
+  .ai-match-agree-check.form-checkbox .label:after {
+    top: -9px;
+  }
+</style>
+
+<script>
+  // A.I 매칭 클릭 시 광고성 정보 동의 여부 확인 후 가로채기
+  (function() {
+    var aiMatchLink = document.getElementById('aiMatchLink');
+    if (!aiMatchLink) return;
+    aiMatchLink.addEventListener('click', function(e) {
+      if (aiMatchLink.getAttribute('data-agree-ad') === 'Y') return; // 이미 동의: 정상 이동
+      e.preventDefault();
+      var chk = document.getElementById('rd_agree_ad');
+      if (chk) chk.checked = false;
+      var sheet = document.getElementById('adConsentSheet');
+      if (sheet && typeof openPanel === 'function') openPanel(sheet);
+    });
+  })();
+
+  // 약관 상세 패널 열기 (바텀시트는 열려있고 패널만 오픈)
+  function openAdAgreeTermsPanel() {
+    var panel = document.getElementById('adConsentTermsPanel');
+    if (panel && typeof window.openPanel === 'function') {
+      window.openPanel(panel);
+    }
+  }
+
+  // 약관 상세 패널의 "확인" 클릭 시 체크박스 동의 처리 및 패널 닫기
+  function checkAdAgreeTerms() {
+    document.getElementById('rd_agree_ad').checked = true;
+    var panel = document.getElementById('adConsentTermsPanel');
+    if (panel) {
+      if (typeof window.closePanel === 'function') {
+        window.closePanel(panel);
+      } else {
+        panel.classList.remove('on');
+      }
+    }
+  }
+
+  // 동의하기 클릭 시 서버에 mm_agree_ad=Y 저장 후 매칭 페이지 이동
+  function submitAdAgree() {
+    var chk = document.getElementById('rd_agree_ad');
+    if (!chk || !chk.checked) {
+      commonAlert('광고성 정보 알림 수신에 동의해주세요.', function() {});
+      return;
+    }
+    var matchUrl = document.getElementById('aiMatchLink').getAttribute('data-match-url');
+    comAjax('/setting_proc/agree_ad', {}, function(ret) {
+      if (ret.code == '00') {
+        location.href = matchUrl;
+      } else {
+        commonAlert(ret.msg, function() {});
+      }
+    });
+  }
+</script>
+<?php endif; ?>

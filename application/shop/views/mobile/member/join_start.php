@@ -338,7 +338,7 @@
 		$("[id=memberType1]").click(function() {
 			// [개인회원] SNS 간편로그인 경로인 경우 PASS 인증 없이 바로 회원가입 진행
 			if (getUrlParameter('join_type') === 'sns') {
-				console.log('SNS 간편로그인 경로 - PASS 인증 없이 바로 회원가입 진행'); // 디버깅 로그
+				
 				var params = {};
 				params["type"] = "MEM"; // 개인회원 타입
 				comAjax("/member_proc/join_auth", params, function(ret) {
@@ -353,7 +353,7 @@
 			}
 
 			// [개인회원] 일반 회원가입 경로 - NICE 본인인증 팝업 호출
-			console.log('개인회원 선택 - NICE 본인인증 팝업 호출'); // 디버깅 로그
+			
 			var params = {};
 			params["type"] = "MEM"; // 개인회원 타입
 			comAjax("/member_proc/join_auth", params, function(ret) {
@@ -371,9 +371,9 @@
 			if (!this.checked) return;
 
 			// [기업회원] SNS 간편로그인 경로인 경우 PASS 인증 없이 바로 회원가입 진행
-			console.log('memberType2 clicked, join_type = ' + getUrlParameter('join_type')); // 디버깅 로그
+		
 			if (getUrlParameter('join_type') === 'sns') {
-				console.log('SNS 간편로그인 경로 - PASS 인증 없이 바로 회원가입 진행'); // 디버깅 로그
+			
 				// 동의 팝업 표시 (PASS 인증 없이)
 				var content = document.getElementById('agreement').innerHTML;
 				openPopup('modal', {
@@ -399,7 +399,7 @@
 			}
 
 			// [기업회원] 일반 회원가입 경로 - 동의 팝업 표시 후 PASS 인증
-			console.log('일반 회원가입 경로 - 동의 팝업 표시'); // 디버깅 로그
+		
 			var content = document.getElementById('agreement').innerHTML;
 			openPopup('modal', {
 				id: 'agreementPopup',

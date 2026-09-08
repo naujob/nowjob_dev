@@ -109,6 +109,11 @@ class Compage extends CI_Controller
 		$data["comp_popup_info"] = $data["info"];
 		$data["comp_popup_enc_data"] = $data["enc_data"];
 		$data["comp_popup_reqgbn"] = $reqgbn;
+
+		// 약관동의 정보
+		$adv_info = $this->setting_model->getSettingInfo(["st_group"=>"이용약관","st_key"=>"adv_pc"]);
+		$data["info"]["adv_pc"] = isset($adv_info["adv_pc"]) ? $adv_info["adv_pc"] : "약관 내용이 등록되지 않았습니다.";
+
 		$this->layout->shop('/compage/mypage', $data);
 	}
 

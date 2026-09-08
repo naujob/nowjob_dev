@@ -88,6 +88,28 @@
             json_return("00","탈퇴 처리 완료.");
         }
 
+        # 광고성 정보 수신 동의 처리 (A.I 매칭 이용 전 필수 동의)
+        function agree_ad(){
+            $mm_idx = $this->user->getUserIdx();
+            $result = $this->member_model->updateMember(["mm_agree_ad"=>"Y"],["mm_idx"=>$mm_idx]);
+            if($result["code"]=="00"){
+                json_return("00","광고성 정보 수신 동의 처리 완료");
+            }else{
+                json_return("90","데이터 처리시 오류가 발생하였습니다.");
+            }
+        }
+
+        # 광고성 정보 수신 동의 철회 처리
+        function disagree_ad(){
+            $mm_idx = $this->user->getUserIdx();
+            $result = $this->member_model->updateMember(["mm_agree_ad"=>"N"],["mm_idx"=>$mm_idx]);
+            if($result["code"]=="00"){
+                json_return("00","광고성 정보 수신 동의 철회 처리 완료");
+            }else{
+                json_return("90","데이터 처리시 오류가 발생하였습니다.");
+            }
+        }
+
         # 알람설정
         function alarm(){
             $alarm_chat = input_post("alarm_chat","");

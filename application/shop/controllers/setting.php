@@ -307,5 +307,18 @@
             $data["info"] = $info;
             $this->layout->shop('/setting/site_terms6',$data);
         }
+
+        # 맞춤형 서비스/광고 개인정보 수집 및 이용 동의
+        function site_terms5_new(){
+            $data = [];
+            $mm_id = $this->user->getUserId();
+            $mem_info = $this->member_model->getMember(["mm_id"=>$mm_id]);
+
+            $info = $this->setting_model->getSettingInfo(["st_group"=>"이용약관","st_key"=>"adv_m"]);
+
+            $data["info"] = $info;
+            $data["mem_info"] = $mem_info;
+            $this->layout->shop('/setting/site_terms5_new',$data);
+        }
     }
 ?>

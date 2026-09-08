@@ -68,6 +68,11 @@
 			$data["info"] = $this->member_model->getMember(["mm_idx"=>$this->mm_idx]);
       $data["enc_data"] = $this->member_model->getNiceEncData();
       $data["reqgbn"] = $reqgbn;
+
+      // 약관동의 정보
+      $adv_info = $this->setting_model->getSettingInfo(["st_group"=>"이용약관","st_key"=>"adv_pc"]);
+      $data["info"]["adv_pc"] = isset($adv_info["adv_pc"]) ? $adv_info["adv_pc"] : "약관 내용이 등록되지 않았습니다.";
+
 			$this->layout->shop('/mypage/mypage',$data);
 		}
     

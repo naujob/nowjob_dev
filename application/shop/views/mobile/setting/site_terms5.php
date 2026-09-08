@@ -1,7 +1,7 @@
 <div class="page page-view">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">광고성 정보 수신 동의</h1>
+        <h1 class="title">약관동의</h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">

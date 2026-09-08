@@ -1533,21 +1533,29 @@ class Member extends CI_Controller
 			);
 			go_location("/member/join_mem_step2");
 		} else {
-			#로그 생성
-			$this->site_model->setSiteLog(
-				[
-					"session_id" => session_id(),
-					"sl_type" => "JOIN_MEM",
-					"sl_step" => "스텝1",
-					"sl_txt" => ""
-				],
-				[
-					"session_id" => session_id(),
-					"sl_type" => "JOIN_MEM",
-					"sl_step" => "스텝1",
-					"sl_status" => "Y"
-				]
+			// 기존 스텝1 로그 확인 (nice_success()에서 이미 생성했을 수 있음)
+			$existing_step1 = $this->site_model->getSiteLog(
+				["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_step" => "스텝1", "sl_status" => "Y"]
 			);
+
+			if (empty($existing_step1)) {
+				// 기존 로그가 없을 때만 빈값으로 생성 (사용자가 아이디/비밀번호를 입력할 준비 상태)
+				$this->site_model->setSiteLog(
+					[
+						"session_id" => session_id(),
+						"sl_type" => "JOIN_MEM",
+						"sl_step" => "스텝1",
+						"sl_txt" => ""
+					],
+					[
+						"session_id" => session_id(),
+						"sl_type" => "JOIN_MEM",
+						"sl_step" => "스텝1",
+						"sl_status" => "Y"
+					]
+				);
+			}
+			// nice_success()에서 이미 저장했으면 그대로 유지
 		}
 
 		$list = $this->site_model->getSiteLogList(

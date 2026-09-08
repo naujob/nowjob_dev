@@ -2529,7 +2529,43 @@ class Member_proc extends CI_Controller
             ]
         );
 
+        // mm_id/mm_pwd 자동생성 (SNS 회원가입이면 SNS 기반, 일반가입이면 휴대폰번호 기반)
+        // 기존 join_mem_toturial()/join_comp_toturial()과 동일한 우선순위 로직 적용
+        $check_sns = $this->site_model->getSiteLog(
+            ["session_id" => session_id(), "sl_type" => "JOIN", "sl_step" => "SNS", "sl_status" => "Y"]
+        );
+        if (!empty($check_sns)) {
+            // SNS 회원가입인 경우
+            $sns_info = json_decode($check_sns["sl_txt"], true);
+            $auto_id = ($sns_info["join_type"] == "KAKAO") ? uniqid("kakao_") : uniqid("apple_");
+        } else if (!empty($return["mobileno"])) {
+            // 일반가입(NICE): 휴대폰번호를 mm_id로 사용
+            $auto_id = preg_replace('/[^0-9]/', '', $return["mobileno"]);
+        } else {
+            // 폴백
+            $auto_id = uniqid("web_");
+        }
+
+        $sl_txt_id = ["mm_id" => $auto_id, "mm_pwd" => $auto_id];
+      
+
         if ($type == "COMP") {
+            // 기업회원: join_complete_proc이 "스텝3"에서 mm_id를 읽음
+            $this->site_model->setSiteLog(
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_COMP",
+                    "sl_step" => "스텝3",
+                    "sl_txt" => json_encode($sl_txt_id, JSON_UNESCAPED_UNICODE)
+                ],
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_COMP",
+                    "sl_step" => "스텝3",
+                    "sl_status" => "Y"
+                ]
+            );
+
             # 기업회원 가입 이동 - 약관동의 페이지를 거친 후 진행
             // 주석처리: 기업회원 SNS는 NICE 본인인증을 하지 않으므로 이 코드는 실행되지 않음
             /*
@@ -2568,6 +2604,22 @@ class Member_proc extends CI_Controller
             }
             exit;
         } else {
+            // 개인회원: join_complete_proc이 "스텝1"에서 mm_id를 읽음
+            $this->site_model->setSiteLog(
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_MEM",
+                    "sl_step" => "스텝1",
+                    "sl_txt" => json_encode($sl_txt_id, JSON_UNESCAPED_UNICODE)
+                ],
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_MEM",
+                    "sl_step" => "스텝1",
+                    "sl_status" => "Y"
+                ]
+            );
+
             # 개인회원 가입 이동 - 약관동의 페이지를 거친 후 진행
             if (getDeviceType() == "web") {
                 echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_wmem_step1" . "';self.close();</script>";
@@ -2809,16 +2861,11 @@ class Member_proc extends CI_Controller
 
     function join_mem_step3()
     {
-        error_log("=== JOIN_MEM_STEP3 START ===");
-        error_log("SESSION_ID: " . session_id());
-
         $agree1 = input_post("agree1", "");
         $agree2 = input_post("agree2", "");
         $agree3 = input_post("agree3", "");
         $agree4 = input_post("agree4", "");
         $agree5 = input_post("agree5", "");
-
-        error_log("AGREE_DATA: agree1=" . $agree1 . ", agree2=" . $agree2 . ", agree3=" . $agree3 . ", agree4=" . $agree4 . ", agree5=" . $agree5);
 
         $sl_txt = [
             "agree1" => $agree1,
@@ -2827,8 +2874,6 @@ class Member_proc extends CI_Controller
             "agree4" => $agree4,
             "agree5" => $agree5
         ];
-
-        error_log("BEFORE_SET_SITE_LOG: " . json_encode($sl_txt, JSON_UNESCAPED_UNICODE));
 
         $this->site_model->setSiteLog(
             [
@@ -2845,7 +2890,6 @@ class Member_proc extends CI_Controller
             ]
         );
 
-        error_log("=== JOIN_MEM_STEP3 SUCCESS ===");
         json_return("00", "처리완료");
     }
 
@@ -3306,16 +3350,11 @@ class Member_proc extends CI_Controller
 
     function join_comp_step5()
     {
-        error_log("=== JOIN_COMP_STEP5 START ===");
-        error_log("SESSION_ID: " . session_id());
-
         $agree1 = input_post("agree1", "");
         $agree2 = input_post("agree2", "");
         $agree3 = input_post("agree3", "");
         $agree4 = input_post("agree4", "");
         $agree5 = input_post("agree5", "");
-
-        error_log("AGREE_DATA: agree1=" . $agree1 . ", agree2=" . $agree2 . ", agree3=" . $agree3 . ", agree4=" . $agree4 . ", agree5=" . $agree5);
 
         $sl_txt = [
             "agree1" => $agree1,
@@ -3324,8 +3363,6 @@ class Member_proc extends CI_Controller
             "agree4" => $agree4,
             "agree5" => $agree5
         ];
-
-        error_log("BEFORE_SET_SITE_LOG: " . json_encode($sl_txt, JSON_UNESCAPED_UNICODE));
 
         $this->site_model->setSiteLog(
             [
@@ -3342,7 +3379,6 @@ class Member_proc extends CI_Controller
             ]
         );
 
-        error_log("=== JOIN_COMP_STEP5 SUCCESS ===");
         json_return("00", "처리완료");
     }
 
@@ -3530,16 +3566,11 @@ class Member_proc extends CI_Controller
     # 회원가입 완료 처리
     function join_complete_proc()
     {
-        error_log("=== JOIN_COMPLETE_PROC START ===");
-        error_log("REQUEST_DATA: " . json_encode($_POST, JSON_UNESCAPED_UNICODE));
-
         $proc_type = input_post("proc_type", "");
         $ma_type = input_post("ma_type", "");
         $uuid = input_post("uuid", "");
         $join_type = input_post("join_type", "");
         $join_key = input_post("join_key", "");
-
-        error_log("PARAMS: proc_type=" . $proc_type . ", ma_type=" . $ma_type . ", uuid=" . $uuid . ", join_type=" . $join_type);
 
         if ($join_type == "" && isset($_COOKIE["join_sns_type"])) {
             $join_type = $_COOKIE["join_sns_type"];
@@ -3577,17 +3608,20 @@ class Member_proc extends CI_Controller
         $arr_mem = [];
 
         if ($ma_type == "MEM") {
-            error_log("FETCHING_SITE_LOG_LIST: session_id=" . session_id());
+          
+
             $list = $this->site_model->getSiteLogList(
                 ["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_status" => "Y"]
             );
 
-            error_log("SITE_LOG_LIST_RESULT: " . (is_null($list) ? "NULL" : json_encode($list, JSON_UNESCAPED_UNICODE)));
-
             if ($list == null) {
-                error_log("ERROR: SITE_LOG_LIST is NULL");
+            
                 json_return("10", "등록 데이터가 존재하지 않습니다.", $list);
             }
+
+            
+            $step1_info = $this->site_model->getStepData($list, "스텝1");
+         
 
             $step_sns = $this->site_model->getStepTempData("JOIN", "SNS");
             $step_auth = $this->site_model->getStepData($list, "본인인증");
@@ -4271,7 +4305,7 @@ class Member_proc extends CI_Controller
                 $this->setMongoUser($arr_mem, $alarm["token"]);
 
                 $this->db->trans_commit();
-                error_log("[join_complete_proc] MEM - PART 응답 - mm_id: " . $arr_mem["mm_id"]);
+         
                 json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             }
         } else if ($ma_type == "COMP") {
@@ -4580,7 +4614,7 @@ class Member_proc extends CI_Controller
                     "mm_sex" => $arr_mem["mm_sex"],
                 ]);
 
-                error_log("[join_complete_proc] COMP - NICE 응답 - mm_id: " . $arr_mem["mm_id"]);
+           
                 return json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             } else {
                 //PART
@@ -4877,7 +4911,7 @@ class Member_proc extends CI_Controller
                 $this->setMongoUser($arr_mem, $alarm["token"]);
 
                 $this->db->trans_commit();
-                error_log("[join_complete_proc] COMP - PART 응답 - mm_id: " . $arr_mem["mm_id"]);
+            
                 return json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             }
         }

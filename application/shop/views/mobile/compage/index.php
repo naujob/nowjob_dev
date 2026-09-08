@@ -226,6 +226,28 @@ function fBizNoMasking($bizNo)
 
         <div class="section">
           <div class="container settings-profile">
+            <h3 class="secondary-title">알림</h3>
+            <ul class="settings-list">
+              <li>
+                <a href="/setting/alarm" class="menu">알림설정</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="container settings-profile">
+            <h3 class="secondary-title">약관동의설정</h3>
+            <ul class="settings-list">
+              <li>
+                <a href="/setting/site_terms5_new" class="menu">맞춤형 서비스/광고 개인정보 수집 및 이용 동의</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="container settings-profile">
             <h3 class="secondary-title">회원정보 수정</h3>
             <ul class="settings-list">
               <?php
@@ -264,11 +286,14 @@ function fBizNoMasking($bizNo)
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">알림</h3>
+            <h3 class="secondary-title">약관</h3>
             <ul class="settings-list">
-              <li>
-                <a href="/setting/alarm" class="menu">알림설정</a>
-              </li>
+              <li><a href="/setting/site_policy2" class="menu">기업회원 이용약관</a></li>
+              <li><a href="/setting/site_privacy" class="menu">개인정보처리방침</a></li>
+              <li><a href="/setting/site_terms2" class="menu">개인정보 수집 및 이용동의</a></li>
+              <li><a href="/setting/site_terms3" class="menu">위치기반서비스 이용약관</a></li>
+              <li><a href="/setting/site_terms5" class="menu">맞춤형 서비스/광고 개인정보 수집 및 이용 동의</a></li>
+
             </ul>
           </div>
         </div>
@@ -277,26 +302,12 @@ function fBizNoMasking($bizNo)
           <div class="container settings-profile">
             <ul class="settings-menus">
               <li><a href="/setting/notice" class="menu">공지사항</a></li>
-              <li><a href="/setting/community" class="menu">커뮤니티</a></li>
-              <li><a href="/setting/event" class="menu">이벤트</a></li>
-              <li><a href="/setting/faq" class="menu">FAQ</a></li>
-              <li><a href="/setting/report" class="menu">문의하기</a></li>
-              <li><a href="/setting/my_report" class="menu">나의신고내역</a></li>
-              <li><a href="/setting/site_introduce" class="menu">회사소개</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="section is-last">
-          <div class="container settings-profile">
-            <h3 class="secondary-title">약관</h3>
-            <ul class="settings-list">
-              <li><a href="/setting/site_policy2" class="menu">기업회원 이용약관</a></li>
-              <li><a href="/setting/site_privacy" class="menu">개인정보처리방침</a></li>
-              <li><a href="/setting/site_terms2" class="menu">개인정보 수집 및 이용동의</a></li>
-              <li><a href="/setting/site_terms3" class="menu">위치기반서비스 이용약관</a></li>
-              <li><a href="/setting/site_terms5" class="menu">광고성 정보 수신 동의</a></li>
-             
+              <!-- <li><a href="/setting/community" class="menu">커뮤니티</a></li> -->
+              <!-- <li><a href="/setting/event" class="menu">이벤트</a></li> -->
+              <!-- <li><a href="/setting/faq" class="menu">FAQ</a></li> -->
+              <!-- <li><a href="/setting/report" class="menu">문의하기</a></li> -->
+              <!-- <li><a href="/setting/my_report" class="menu">나의신고내역</a></li> -->
+              <!-- <li><a href="/setting/site_introduce" class="menu">회사소개</a></li> -->
             </ul>
           </div>
         </div>

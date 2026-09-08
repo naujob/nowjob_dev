@@ -166,6 +166,17 @@
 
         <div class="section">
           <div class="container settings-profile">
+            <h3 class="secondary-title">알림</h3>
+            <ul class="settings-list">
+              <li>
+                <a href="/setting/alarm" class="menu">알림설정</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="container settings-profile">
             <h3 class="secondary-title">회원정보 수정</h3>
             <ul class="settings-list">
               <?php
@@ -205,30 +216,16 @@
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">알림</h3>
+            <h3 class="secondary-title">약관동의설정</h3>
             <ul class="settings-list">
               <li>
-                <a href="/setting/alarm" class="menu">알림설정</a>
+                <a href="/setting/site_terms5_new" class="menu">맞춤형 서비스/광고 개인정보 수집 및 이용 동의</a>
               </li>
             </ul>
           </div>
         </div>
 
         <div class="section">
-          <div class="container settings-profile">
-            <ul class="settings-menus">
-              <li><a href="/setting/notice" class="menu">공지사항</a></li>
-              <li><a href="/setting/community" class="menu">커뮤니티</a></li>
-              <li><a href="/setting/event" class="menu">이벤트</a></li>
-              <li><a href="/setting/faq" class="menu">FAQ</a></li>
-              <li><a href="/setting/report" class="menu">문의하기</a></li>
-              <li><a href="/setting/my_report" class="menu">나의신고내역</a></li>
-              <li><a href="/setting/site_introduce" class="menu">회사소개</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="section is-last">
           <div class="container settings-profile">
             <h3 class="secondary-title">약관</h3>
             <ul class="settings-list">
@@ -238,6 +235,20 @@
               <li><a href="/setting/site_terms3" class="menu">위치기반서비스 이용약관</a></li>
               <li><a href="/setting/site_terms5" class="menu">광고성 정보 수신 동의</a></li>
 
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="container settings-profile">
+            <ul class="settings-menus">
+              <li><a href="/setting/notice" class="menu">공지사항</a></li>
+              <!-- <li><a href="/setting/community" class="menu">커뮤니티</a></li> -->
+              <!-- <li><a href="/setting/event" class="menu">이벤트</a></li> -->
+              <!-- <li><a href="/setting/faq" class="menu">FAQ</a></li> -->
+              <!-- <li><a href="/setting/report" class="menu">문의하기</a></li> -->
+              <!-- <li><a href="/setting/my_report" class="menu">나의신고내역</a></li> -->
+              <!-- <li><a href="/setting/site_introduce" class="menu">회사소개</a></li> -->
             </ul>
           </div>
         </div>
@@ -265,6 +276,7 @@
   </div>
 </div>
 <!-- //설정 -->
+
 <div id="dimwrap" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; background-color: #000; opacity: 0.3;"></div>
 <div id="dimcont2" style="display:none; position: fixed; top: 30%; left: 5%; width: 90%; /* height: 252px; */ z-index: 60; background-color: #fff; padding: 40px;">
   <form id="frm21" name="frm21" onsubmit="return false">

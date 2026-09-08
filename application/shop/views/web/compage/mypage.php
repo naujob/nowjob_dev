@@ -313,10 +313,7 @@ function fEmailMasking($email)
                 <p>비밀번호</p>
               </div>
               <div class="value" style="margin-top:10px;">
-                <label>
-                  <span class="sr-text">******</span>
-                  <input type="text" name="bd_pass" value="******" class="form-text" readonly style="border: none;">
-                </label>
+                
                 <?php
                 // SNS 로그인 여부 확인 (카카오, 네이버, 애플)
                 $is_sns_login_pw = !empty($info["mm_join_type"]) && in_array(strtoupper($info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
@@ -326,19 +323,26 @@ function fEmailMasking($email)
                 <button type="button" id="btnPWUpdate" onclick="<?= $is_sns_login_pw ? '' : "$('#dimwrap,#dimcont3').show();" ?>" class="btn-round btn-secondary" style="<?= $btn_style ?>" <?= $btn_disabled ?>>변경</button>
               </div>
             </div>
-            <div class="form-row" style="margin-top:10px;">
+
+            <div class="form-row" style=" border-top:1px solid #ccc;flex-direction: column;">
               <div class="form-label" style="font-size: 22px;">
+                <p>약관동의설정</p>
               </div>
-              <div class="value">
-                <label style="float: right; text-align: right; color: #aaa; margin-top: 0px;">
-                  <span style="color: rgb(248, 96, 72); ">
-                    <span style="font-size: 18px; border: 1px solid rgb(248, 96, 72); width: 22px; height: 22px; text-align: center; line-height: 22px; border-radius: 16px; display: inline-block; font-weight: 600;">！</span>
-                    비밀번호는 6~12자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.</span><br>
-                  비밀번호를 주기적으로 변경하여 소중한 개인정보를 안전하게 보호하세요.
-                </label>
+              <div class="value" style="margin-top:10px;width: 100%;">
+                <div style="display: flex; align-items: center; padding: 15px 7px; border: 1px solid #f0f0f0;">
+                  <label style="display: flex; align-items: center; cursor: pointer; flex: 1; flex-direction: column;">
+                    <div style="display: flex; align-items: center; width: 100%;">
+                      <input type="checkbox" id="rd_agree_ad" name="rd_agree_ad" value="1" <?php echo (isset($info["mm_agree_ad"]) && $info["mm_agree_ad"]=="Y") ? 'checked' : ''; ?> onchange="toggleAdAgree();" style="width: 18px; height: 18px; cursor: pointer;">
+                      <span style="margin-left: 12px; font-size: 16px;">맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</span>
+                    </div>
+                    <span style="margin-left:  -653px; font-size: 13px; color: #999; margin-top: 4px;">(AI매칭 등 다양한 혜택 알림 제공)</span>
+                  </label>
+                  <a href="javascript:void(0);" onclick="openAdAgreeTermsPanel();" style="display: inline-block; color: #000; text-decoration: none; font-size: 20px; margin-left: auto;"><i class="fa fa-angle-right"></i></a>
+                </div>
               </div>
             </div>
-            <div class="form-row" style="margin-top:100px; border-top:1px solid #ccc;">
+
+            <div class="form-row" style=" border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
                 <p>회원탈퇴</p>
               </div>
@@ -651,3 +655,62 @@ function fEmailMasking($email)
       <button id="btnSave5" onclick="location.href='./';" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
   </div>
 </div>
+
+<!-- 약관동의 모달 팝업 -->
+<div id="dimcont6" style="display:none; position: fixed; top: 10%; left: calc(50% - 300px); width: 600px; max-height: 80%; z-index: 20; background-color: #fff; padding: 40px; overflow-y: auto; border-radius: 8px;">
+  <div>
+    <div style="font-size: 1.4em; font-weight: 600;">맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</div>
+    <a href="javascript:$('#dimwrap,#dimcont6').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px; cursor: pointer;">×</a>
+  </div>
+  <div class="terms-wrap" style="margin-top: 30px; font-size: 0.95em; line-height: 1.8; color: #333;">
+    <?php
+      echo isset($info["adv_pc"]) ? $info["adv_pc"] : "약관 내용을 로드할 수 없습니다.";
+    ?>
+  </div>
+  <div style="text-align: center; margin-top: 30px;">
+      <button type="button" onclick="checkAdAgreeContent();" style="font-size: 16px; padding: 10px 16px; background-color: #57CCAF; color: #fff; border: 1px solid #fff; cursor: pointer;">확인</button>
+  </div>
+</div>
+
+<script>
+function openAdAgreeTermsPanel() {
+    $('#dimwrap,#dimcont6').show();
+}
+
+function checkAdAgreeContent() {
+    var params = {};
+    comAjax("/setting_proc/agree_ad", params, function(ret) {
+        if (ret && ret.code === "00") {
+            $('#rd_agree_ad').prop('checked', true);
+            $('#dimwrap,#dimcont6').hide();
+        } else {
+            commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){});
+        }
+    });
+}
+
+function toggleAdAgree() {
+    var isChecked = $('#rd_agree_ad').prop('checked');
+    var params = {};
+
+    if (isChecked) {
+        // 체크된 경우 - 동의
+        comAjax("/setting_proc/agree_ad", params, function(ret) {
+            if (ret && ret.code !== "00") {
+                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
+                    $('#rd_agree_ad').prop('checked', false);
+                });
+            }
+        });
+    } else {
+        // 체크 해제된 경우 - 해제
+        comAjax("/setting_proc/disagree_ad", params, function(ret) {
+            if (ret && ret.code !== "00") {
+                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
+                    $('#rd_agree_ad').prop('checked', true);
+                });
+            }
+        });
+    }
+}
+</script>
