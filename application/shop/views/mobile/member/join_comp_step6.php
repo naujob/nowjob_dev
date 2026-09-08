@@ -400,7 +400,7 @@ function fPassClick(){
   setTimeout(function(){
     var params = {};
     params["ma_type"] = "COMP";
-    params["proc_type"] = "PART";
+    params["proc_type"] = "ALL";
     params["uuid"] = "<?=$uuid?>";
     try {
       var joinType = localStorage.getItem("join_sns_type") || sessionStorage.getItem("join_sns_type") || "";

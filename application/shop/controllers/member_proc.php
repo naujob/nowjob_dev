@@ -3530,11 +3530,17 @@ class Member_proc extends CI_Controller
     # 회원가입 완료 처리
     function join_complete_proc()
     {
+        error_log("=== JOIN_COMPLETE_PROC START ===");
+        error_log("REQUEST_DATA: " . json_encode($_POST, JSON_UNESCAPED_UNICODE));
+
         $proc_type = input_post("proc_type", "");
         $ma_type = input_post("ma_type", "");
         $uuid = input_post("uuid", "");
         $join_type = input_post("join_type", "");
         $join_key = input_post("join_key", "");
+
+        error_log("PARAMS: proc_type=" . $proc_type . ", ma_type=" . $ma_type . ", uuid=" . $uuid . ", join_type=" . $join_type);
+
         if ($join_type == "" && isset($_COOKIE["join_sns_type"])) {
             $join_type = $_COOKIE["join_sns_type"];
         }
@@ -3571,11 +3577,15 @@ class Member_proc extends CI_Controller
         $arr_mem = [];
 
         if ($ma_type == "MEM") {
+            error_log("FETCHING_SITE_LOG_LIST: session_id=" . session_id());
             $list = $this->site_model->getSiteLogList(
                 ["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_status" => "Y"]
             );
 
+            error_log("SITE_LOG_LIST_RESULT: " . (is_null($list) ? "NULL" : json_encode($list, JSON_UNESCAPED_UNICODE)));
+
             if ($list == null) {
+                error_log("ERROR: SITE_LOG_LIST is NULL");
                 json_return("10", "등록 데이터가 존재하지 않습니다.", $list);
             }
 
