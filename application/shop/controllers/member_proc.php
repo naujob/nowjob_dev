@@ -2530,7 +2530,7 @@ class Member_proc extends CI_Controller
         );
 
         if ($type == "COMP") {
-            # 기업회원 가입 이동
+            # 기업회원 가입 이동 - 약관동의 페이지를 거친 후 진행
             // 주석처리: 기업회원 SNS는 NICE 본인인증을 하지 않으므로 이 코드는 실행되지 않음
             /*
             // SNS 회원가입인 경우 본인인증 완료 후 동의 팝업 표시
@@ -2554,40 +2554,30 @@ class Member_proc extends CI_Controller
             }
             */
 
-            // 일반 회원가입 경로
+            // 약관동의 페이지로 이동
             if (getDeviceType() == "web") {
                 echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_wcomp_step1" . "';self.close();</script>";
             } else {
                 if ($os_type == "ios") {
-                    echo "<script>location.href='" . "/member/join_comp_toturial" . "';</script>";
+                    echo "<script>location.href='" . "/member/join_comp_step5" . "';</script>";
                 } else if ($os_type == "android") {
-                    // 2025-01-17: 안드로이드 앱 전용 처리 - opener 없이 직접 이동 (WebView 보안 정책 문제 해결)
-                    // PASS 인증 콜백 페이지가 히스토리를 생성하지 못하게 강제 제거
-                    echo "<script>
-                        window.history.replaceState(null, '', '/member/join_start');
-                        location.replace('/member/join_comp_toturial');
-                    </script>";
+                    echo "<script>location.href='" . "/member/join_comp_step5" . "';</script>";
                 } else {
-                    echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_comp_toturial" . "';self.close();</script>";
+                    echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_comp_step5" . "';self.close();</script>";
                 }
             }
             exit;
         } else {
-            # 일반 회원가입 화면 이동 - PC/모바일 통일: 비밀번호 자동생성 경로(join_mem_toturial)로
+            # 개인회원 가입 이동 - 약관동의 페이지를 거친 후 진행
             if (getDeviceType() == "web") {
-                echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_mem_toturial" . "';self.close();</script>";
+                echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_wmem_step1" . "';self.close();</script>";
             } else {
                 if ($os_type == "ios") {
-                    echo "<script>location.href='" . "/member/join_mem_toturial" . "';</script>";
+                    echo "<script>location.href='" . "/member/join_mem_step3" . "';</script>";
                 } else if ($os_type == "android") {
-                    // 2025-01-17: 안드로이드 앱 전용 처리 - opener 없이 직접 이동 (WebView 보안 정책 문제 해결)
-                    // PASS 인증 콜백 페이지가 히스토리를 생성하지 못하게 강제 제거
-                    echo "<script>
-                        window.history.replaceState(null, '', '/member/join_start');
-                        location.replace('/member/join_mem_toturial');
-                    </script>";
+                    echo "<script>location.href='" . "/member/join_mem_step3" . "';</script>";
                 } else {
-                    echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_mem_toturial" . "';self.close();</script>";
+                    echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_mem_step3" . "';self.close();</script>";
                 }
             }
             exit;
@@ -2819,12 +2809,16 @@ class Member_proc extends CI_Controller
 
     function join_mem_step3()
     {
+        error_log("=== JOIN_MEM_STEP3 START ===");
+        error_log("SESSION_ID: " . session_id());
 
         $agree1 = input_post("agree1", "");
         $agree2 = input_post("agree2", "");
         $agree3 = input_post("agree3", "");
         $agree4 = input_post("agree4", "");
         $agree5 = input_post("agree5", "");
+
+        error_log("AGREE_DATA: agree1=" . $agree1 . ", agree2=" . $agree2 . ", agree3=" . $agree3 . ", agree4=" . $agree4 . ", agree5=" . $agree5);
 
         $sl_txt = [
             "agree1" => $agree1,
@@ -2833,6 +2827,8 @@ class Member_proc extends CI_Controller
             "agree4" => $agree4,
             "agree5" => $agree5
         ];
+
+        error_log("BEFORE_SET_SITE_LOG: " . json_encode($sl_txt, JSON_UNESCAPED_UNICODE));
 
         $this->site_model->setSiteLog(
             [
@@ -2848,6 +2844,8 @@ class Member_proc extends CI_Controller
                 "sl_status" => "Y"
             ]
         );
+
+        error_log("=== JOIN_MEM_STEP3 SUCCESS ===");
         json_return("00", "처리완료");
     }
 
@@ -3308,12 +3306,16 @@ class Member_proc extends CI_Controller
 
     function join_comp_step5()
     {
+        error_log("=== JOIN_COMP_STEP5 START ===");
+        error_log("SESSION_ID: " . session_id());
 
         $agree1 = input_post("agree1", "");
         $agree2 = input_post("agree2", "");
         $agree3 = input_post("agree3", "");
         $agree4 = input_post("agree4", "");
         $agree5 = input_post("agree5", "");
+
+        error_log("AGREE_DATA: agree1=" . $agree1 . ", agree2=" . $agree2 . ", agree3=" . $agree3 . ", agree4=" . $agree4 . ", agree5=" . $agree5);
 
         $sl_txt = [
             "agree1" => $agree1,
@@ -3322,6 +3324,8 @@ class Member_proc extends CI_Controller
             "agree4" => $agree4,
             "agree5" => $agree5
         ];
+
+        error_log("BEFORE_SET_SITE_LOG: " . json_encode($sl_txt, JSON_UNESCAPED_UNICODE));
 
         $this->site_model->setSiteLog(
             [
@@ -3337,6 +3341,8 @@ class Member_proc extends CI_Controller
                 "sl_status" => "Y"
             ]
         );
+
+        error_log("=== JOIN_COMP_STEP5 SUCCESS ===");
         json_return("00", "처리완료");
     }
 
