@@ -1734,6 +1734,11 @@ $tpl_show_chat_mark = true; ?>
       if (typeof initLazyLoad === 'function') {
         initLazyLoad();
       }
+
+      // 팝업 로드 후 상세정보 확대/핀치줌 기능 초기화
+      if (typeof window.initJobPostDescFeatures === 'function') {
+        window.initJobPostDescFeatures();
+      }
     });
   };
 

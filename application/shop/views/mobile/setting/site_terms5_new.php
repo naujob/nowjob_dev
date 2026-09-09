@@ -5,6 +5,11 @@
   .ai-match-agree-check.form-checkbox .label:after {
     top: -9px;
   }
+  .ai-match-terms-description {
+    font-size: 0.85rem;
+    color: #999;
+    margin-top: 0.25rem;
+  }
   </style>
 <div class="page page-view">
     <div class="top-bar">
@@ -23,7 +28,10 @@
                     <span class="label"></span>
                     <div class="ai-match-terms-link" style="flex: 1; margin-left: 0.5rem;">
                         <a href="javascript:void(0);" role="button" onclick="openAdAgreeTermsPanel();" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between;">
-                            <span>맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</span>
+                            <div style="flex: 1;">
+                                <span>맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</span>
+                                <div class="ai-match-terms-description">(AI매칭 등 다양한 혜택 알림 제공)</div>
+                            </div>
                             <i class="fa fa-angle-right"></i>
                         </a>
                     </div>

@@ -51,6 +51,7 @@ if (!$socket_io_script_url) {
   <?= getCashJs(RES_PATH . "/js/add.js") ?>
   <?= getCashJs(RES_PATH . "/js/format-utils.js") ?>
   <?= getCashJs(RES_PATH . "/js/logger.js") ?>
+  <?= getCashJs(RES_PATH . "/js/kakao-map-loader.js") ?>
   <script>
     window.__CHAT_BASE_URL = "<?= $socket_base_url ?>";
   </script>

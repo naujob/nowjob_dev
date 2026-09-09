@@ -673,9 +673,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     <div id="jsMap" class="js-map"></div>
                 </div>
 
-                <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=services"></script>
                 <script>
-                    window.addEventListener('load', function() {
+                    // 지도 초기화 함수 (SDK 로드 완료 후 호출됨)
+                    window.initKakaoMap = function() {
                         var mapContainer = document.getElementById('jsMap');
                         if (!mapContainer) return;
 
@@ -706,7 +706,14 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                         });
 
                         marker.setMap(map);
-                    });
+                    };
+
+                    // SDK 로드(또는 재사용) 후 지도 초기화 — popup/non-popup 양쪽에서 동일하게 동작
+                    if (typeof window.loadKakaoMapSdk === 'function') {
+                        window.loadKakaoMapSdk('<?= $kakao_key["인증키"] ?>', function() {
+                            window.initKakaoMap();
+                        });
+                    }
                 </script>
             </div>
         </div>

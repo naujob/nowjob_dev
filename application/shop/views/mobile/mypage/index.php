@@ -114,7 +114,7 @@
     );
     include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     ?>
-    <div class="panel-body">
+    <div class="panel-body" style="background-color: #fff;">
       <div class="panel-content">
 
         <div class="section">

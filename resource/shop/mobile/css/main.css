@@ -503,7 +503,7 @@ img {
     max-width: 100%;
     height: auto;
     vertical-align: top;
-    border: 1px solid transparent;
+    
   
 }
 
@@ -2222,7 +2222,7 @@ object {
     position: absolute;
     top: 50%;
     left: 50%;
-    min-width: 100%;
+    min-width: 102%;
     min-height: 100%;
     -webkit-transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
@@ -3805,6 +3805,7 @@ fieldset {
 .layer-panel * {
     pointer-events: auto !important;
 }
+
 
 .layer-panel.card-type,
 .layer-panel.card-type .bottom-sheet-container {

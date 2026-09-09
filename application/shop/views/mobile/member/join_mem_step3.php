@@ -48,8 +48,8 @@
                       <span class="label"></span>
                       <span class="sr-text">선택</span>
                   </label>
-                    <a href="#terms4Panel" role="button" aria-haspopup="dialog" aria-controls="terms5Panel" class="angle-link js-toggle-panel">광고성 정보 이메일/SMS수신 동의(선택)
-                    	<br/><span style="color:#999;font-weight:normal;">(나우잡 소식 및 광고메일, 휴대폰 알림)</span></a>
+                    <a href="#terms4Panel" role="button" aria-haspopup="dialog" aria-controls="terms5Panel" class="angle-link js-toggle-panel">맞춤형 서비스/광고 개인정보 수집 및 이용 동의(선택)
+                    	<br/><span style="color:#999;font-weight:normal;">(AI매칭 등 다양한 혜택 알림 제공)</span></a>
                 </li>
                 <li class="selectable-item" style="border-bottom: none;">
                   <label class="form-checkbox">
