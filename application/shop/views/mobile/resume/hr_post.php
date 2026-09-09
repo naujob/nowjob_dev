@@ -428,10 +428,25 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         <!-- //신고하기 양식 -->
 
         <script>
-            /* 신고내용 작성 팝업 */
-            window.addEventListener('DOMContentLoaded', function() {
+            /* 신고내용 작성 팝업 - 동적 로드 시에도 즉시 실행 */
+            (function() {
                 document.querySelector('.js-report').addEventListener('click', function() {
                     var content = document.querySelector('#ReportTemp').innerHTML;
+                    $('#hrPostPopup').css('z-index', '200');
+                    var restoreZIndex = function() {
+                        $('#hrPostPopup').css('z-index', '1000');
+                    };
+                    setTimeout(function() {
+                        var $popup = $('.layer-popup.in').last();
+                        if ($popup.length) {
+                            $popup.find('.btn-close-popup').one('click', restoreZIndex);
+                            $popup.one('click.popupClose', function(e) {
+                                if (e.target === this) {
+                                    restoreZIndex();
+                                }
+                            });
+                        }
+                    }, 50);
                     openPopup('modal', {
                         id: 'reportForm',
                         title: '신고하기',
@@ -459,7 +474,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                         }
                     });
                 });
-            });
+            })();  // IIFE 종료
         </script>
 
         <div class="section view-career">
@@ -681,6 +696,15 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     window.requireCompCertWithGuide = function() {
         // 로그인 여부 확인
         if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
+            $('#hrPostPopup').css('z-index', '200');
+            var restoreZIndex1 = function() { $('#hrPostPopup').css('z-index', '1000'); };
+            setTimeout(function() {
+                var $popup = $('.layer-popup.in').last();
+                if ($popup.length) {
+                    $popup.find('.btn-close-popup').one('click', restoreZIndex1);
+                    $popup.one('click.popupClose', function(e) { if (e.target === this) restoreZIndex1(); });
+                }
+            }, 50);
             openPopup('alert2', {
                 content: "로그인 후 이용해주세요.",
                 firstButton: '확인',
@@ -694,6 +718,15 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
         // 기업회원 확인
         if (NOWJOB_COMP_INFO.userType !== 'COMP') {
+            $('#hrPostPopup').css('z-index', '200');
+            var restoreZIndex2 = function() { $('#hrPostPopup').css('z-index', '1000'); };
+            setTimeout(function() {
+                var $popup = $('.layer-popup.in').last();
+                if ($popup.length) {
+                    $popup.find('.btn-close-popup').one('click', restoreZIndex2);
+                    $popup.one('click.popupClose', function(e) { if (e.target === this) restoreZIndex2(); });
+                }
+            }, 50);
             openPopup('alert2', {
                 content: "기업회원만 채용공고 작성이 가능합니다.",
                 firstButton: '확인',
@@ -704,11 +737,21 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
         // 기업 인증 확인
         if (!NOWJOB_COMP_INFO.hasCompCert) {
+            $('#hrPostPopup').css('z-index', '200');
+            var restoreZIndex3 = function() { $('#hrPostPopup').css('z-index', '1000'); };
+            setTimeout(function() {
+                var $popup = $('.layer-popup.in').last();
+                if ($popup.length) {
+                    $popup.find('.btn-close-popup').one('click', restoreZIndex3);
+                    $popup.one('click.popupClose', function(e) { if (e.target === this) restoreZIndex3(); });
+                }
+            }, 50);
             openPopup('modal', {
                 id: 'popupRecruitGuide',
                 content: '<div class="popup-guide-msg">기업정보 입력 후 공고등록을 하실 수 있습니다.</div>',
                 firstButton: '<div class="btn-comp-info">기업정보입력</div>',
                 firstCallback: function() {
+                    restoreZIndex3();
                     setTimeout(function() {
                         openCompInfoPopup();
                     }, 150);
@@ -811,7 +854,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
             <h2 class="panel-title" style="color:#fff;">진행중인 채용공고</h2>
             <button type="button" aria-controls="selectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
         </div>
-        <div class="panel-body">
+        <div class="panel-body" style="padding: 2rem 1.375rem 1.5rem;">
             <div class="panel-content">
                 <div class="terms-wrap">
 
@@ -875,8 +918,8 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 <!-- //제안 리스트 -->
 
 <script>
-    // 페이지 로드 시 주소 정리 함수 적용
-    $(document).ready(function() {
+    // 페이지 로드 시 주소 정리 함수 적용 - 동적 로드 시에도 즉시 실행
+    (function() {
         // 주소 정리 함수가 정의되어 있는지 확인
         if (typeof fRemoveBigAdrJS === 'function') {
             // 희망근무조건의 지역 주소 정리
@@ -902,10 +945,11 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         if (typeof initNativeAdControl === 'function') {
             initNativeAdControl();
         }
-    });
+    })();  // IIFE 종료
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";
-    $("#btnPropose").click(function() {
+    // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용
+    $(document).on('click', '#btnPropose', function() {
         // 인재정보 제안하기 분석 (운영 환경에서만)
         var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
         if (isProdEnvironment && typeof my_analytics !== 'undefined') {
@@ -916,15 +960,27 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         if ($("#is_login").val() != "Y") {
             //commonLogin();
 
+            $('#hrPostPopup').css('z-index', '200');
+            var restoreZIndex4 = function() { $('#hrPostPopup').css('z-index', '1000'); };
+            setTimeout(function() {
+                var $popup = $('.layer-popup.in').last();
+                if ($popup.length) {
+                    $popup.find('.btn-close-popup').one('click', restoreZIndex4);
+                    $popup.one('click.popupClose', function(e) { if (e.target === this) restoreZIndex4(); });
+                }
+            }, 50);
+
             openPopup('confirm', {
                 id: 'loginconfirm',
                 content: '<strong>로그인후 이용해주세요!</strong><small></small>',
                 firstButton: '로그인',
                 secondButton: '회원가입',
                 firstCallback: function() {
+                    restoreZIndex4();
                     location.href = "/member/login";
                 },
                 secondCallback: function() {
+                    restoreZIndex4();
                     setCookie('non_mem_last_resume', window.location.href, 1);
                     location.href = "/member/join_start";
                 },
@@ -944,7 +1000,8 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
     });
 
-    $(".btnProcess").click(function() {
+    // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용
+    $(document).on('click', '.btnProcess', function() {
         // 체크박스 선택 상태 확인
         var $checkedBoxes = $("[name='chk_request[]']:checked");
         if ($checkedBoxes.length == 0) {
@@ -983,12 +1040,35 @@ $isPopup = isset($is_popup) ? $is_popup : false;
             if (ret.code == "00") {
                 var mq_idxs = new Array();
                 mq_idxs.push($("[name='ru_idx']").val());
+                // hrPostPopup의 z-index를 임시로 낮춰서 confirm 팝업이 위에 표시되도록 함
+                $('#hrPostPopup').css('z-index', '200');
+
+                // 팝업 닫힐 때 z-index 복원하는 이벤트 리스너
+                var restoreZIndex = function() {
+                    $('#hrPostPopup').css('z-index', '1000');
+                    $(document).off('click.popupClose', restoreZIndex);
+                };
+
+                // 팝업 배경이나 닫기 버튼 클릭 감지
+                setTimeout(function() {
+                    var $popup = $('.layer-popup.in').last();
+                    if ($popup.length) {
+                        $popup.find('.btn-close-popup').one('click', restoreZIndex);
+                        $popup.one('click.popupClose', function(e) {
+                            if (e.target === this) {
+                                restoreZIndex();
+                            }
+                        });
+                    }
+                }, 50);
+
                 openPopup('confirm', {
                     content: '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?',
                     firstCallback: function() {
-
+                        restoreZIndex();
                     },
                     secondCallback: function() {
+                        restoreZIndex();
                         var params = {};
                         params["mq_idxs"] = mq_idxs;
                         params["rc_idx"] = rc_idx;

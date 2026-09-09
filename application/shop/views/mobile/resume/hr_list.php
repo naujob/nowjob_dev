@@ -482,8 +482,17 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     z-index: 1000;
     background: #fff;
     overflow-y: auto;
+  }
+
+  /* 팝업 상태: data-state 속성으로 관리 */
+  #hrPostPopup[data-state="closed"] {
     transform: translateX(100%);
     pointer-events: none;
+  }
+
+  #hrPostPopup[data-state="open"] {
+    transform: none;
+    pointer-events: auto;
   }
 
 </style>
@@ -1705,7 +1714,24 @@ $tpl_show_chat_mark = true; ?>
       url: '/resume/hr_post/' + ruIdx,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     }).done(function(html) {
-      $('#hrPostPopup').html(html);
+      var popup = document.getElementById('hrPostPopup');
+      popup.innerHTML = html;
+
+      // 로드된 HTML 내 script 태그 실행
+      var scripts = popup.querySelectorAll('script');
+      scripts.forEach(function(script) {
+        if (script.src) {
+          var newScript = document.createElement('script');
+          newScript.src = script.src;
+          newScript.async = script.async;
+          popup.appendChild(newScript);
+        } else {
+          var newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          popup.appendChild(newScript);
+        }
+      });
+
       document.body.style.overflow = 'hidden';
       localStorage.setItem('resume_came_from_hr_post', 'true');
       localStorage.setItem('came_from_hr_list', 'true');
@@ -1720,7 +1746,10 @@ $tpl_show_chat_mark = true; ?>
           duration: 0.5,
           x: '0%',
           ease: "power1.out",
-          pointerEvents: 'auto'
+          clearProps: "transform",
+          onComplete: function() {
+            document.getElementById('hrPostPopup').setAttribute('data-state', 'open');
+          }
         }
       );
 
@@ -1750,8 +1779,8 @@ $tpl_show_chat_mark = true; ?>
       duration: 0.5,
       x: '100%',
       ease: "power1.out",
-      pointerEvents: 'none',
       onComplete: function() {
+        document.getElementById('hrPostPopup').setAttribute('data-state', 'closed');
         $('#hrPostPopup').html('');
       }
     });

@@ -624,7 +624,12 @@ class Compage_proc extends CI_Controller
       "rc_day_price" => $rc_day_price,
       "rc_week_price" => $rc_week_price,
       "rc_month_price" => $rc_month_price,
-      "rc_week" => $rc_week
+      "rc_week" => $rc_week,
+      // preview 모드에서 지도 표시용 주소 정보
+      "ad_doro" => $ad_doro,
+      "ad_detail" => $ad_detail,
+      "ad_gps_x" => $ad_gps_x,
+      "ad_gps_y" => $ad_gps_y
     ];
 
     $this->site_model->setSiteLog(

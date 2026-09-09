@@ -246,6 +246,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             // localStorage에서 draft 읽기 (page1, page2, page3 모두 merge)
             var page1Key = "recruit_draft_" + rcIdx + "_page1";
             var page1Stored = localStorage.getItem(page1Key);
+
             if (page1Stored) {
                 draftData = JSON.parse(page1Stored);
             }
@@ -669,7 +670,15 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 </div>
                 <div class="map">
                     <!-- 회사 지도 좌표  -->
-                    <input type="hidden" id="geocoder" value="<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>">
+                    <?php
+                    // preview 모드에서도 지도 초기화를 위해 좌표 설정
+                    $gps_y = (isset($addr["ad_gps_y"]) && $addr["ad_gps_y"]) ? $addr["ad_gps_y"] : '';
+                    $gps_x = (isset($addr["ad_gps_x"]) && $addr["ad_gps_x"]) ? $addr["ad_gps_x"] : '';
+
+                    // preview 모드에서 $addr이 없으면 draftData로부터 복원됨 (JavaScript에서)
+                    $initial_geocoder = ($gps_y && $gps_x) ? "$gps_y,$gps_x" : '';
+                    ?>
+                    <input type="hidden" id="geocoder" value="<?= $initial_geocoder ?>">
                     <div id="jsMap" class="js-map"></div>
                 </div>
 
@@ -683,7 +692,6 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                         var coords, map, marker;
 
                         if (!geocoder) {
-                            mapContainer.parentNode.setAttribute('hidden', '');
                             return;
                         }
 
@@ -1298,8 +1306,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             });
     };
 
-    // $(document).ready(function(){
-    window.addEventListener('DOMContentLoaded', function() {
+    // 동적 로드 시에도 즉시 실행되도록 IIFE로 감싼다 (DOMContentLoaded는 이미 지나간 상태)
+    (function() {
         // preview 모드에서 draft 및 sessionStorage 데이터를 DOM에 적용
         if (isPreview) {
             // 제목 (rc_name)
@@ -1361,7 +1369,23 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             if (draftData.ad_gps_y && draftData.ad_gps_x) {
                 var geocoderEl = document.getElementById('geocoder');
                 if (geocoderEl) {
-                    geocoderEl.value = draftData.ad_gps_y + ',' + draftData.ad_gps_x;
+                    var updatedGeocode = draftData.ad_gps_y + ',' + draftData.ad_gps_x;
+                    geocoderEl.value = updatedGeocode;
+
+                    // 지도 div의 hidden 속성 제거
+                    var mapDiv = geocoderEl.parentNode;
+                    if (mapDiv && mapDiv.getAttribute('hidden')) {
+                        mapDiv.removeAttribute('hidden');
+                    }
+
+                    // SDK 로드 후 지도 초기화
+                    if (typeof window.loadKakaoMapSdk === 'function') {
+                        window.loadKakaoMapSdk('<?= $kakao_key["인증키"] ?>', function() {
+                            if (typeof window.initKakaoMap === 'function') {
+                                window.initKakaoMap();
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -1382,7 +1406,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
         $(document).on('click', '#btnRecruit, #btnRequest', function(e) {
-             // 채용정보 지원하기 분석
+            // 채용정보 지원하기 분석
             //  if (typeof my_analytics !== 'undefined') {
             //     my_analytics.goal('recruit_recruit');
             // }
@@ -1586,7 +1610,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             });
         };
 
-    });
+    })();  // IIFE 종료 - 동적 로드 시 즉시 실행
 </script>
 
 <!-- 온보딩 튜토리얼 (DOMContentLoaded 밖, 최상위 레벨 - hr_post.php와 동일 패턴) -->

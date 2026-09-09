@@ -797,7 +797,24 @@ class Recruit extends CI_Controller
       $info = $this->recruit_model->getRecruitDetail($rc_idx, $this->mm_idx);
     }
 
-    $addr_info = $this->member_model->getAddress(["ad_type" => "RECRUIT", "mm_idx" => $info["mm_idx"], "ad_key" => $rc_idx]);
+    // 주소 정보 로드 (preview 모드에서는 site_log의 step3 또는 step1 사용)
+    if ($preview == 1) {
+      // preview 모드: step3에서 먼저 확인
+      $addr_info = (isset($step3) && is_array($step3)) ? $step3 : [];
+
+      // step3에 주소가 없으면 step1에서 확인
+      if (empty($addr_info) || !isset($addr_info["ad_doro"])) {
+        $addr_info = (isset($step1) && is_array($step1)) ? $step1 : [];
+      }
+
+      // step1에도 주소가 없으면 DB에서 로드
+      if (empty($addr_info) || !isset($addr_info["ad_doro"])) {
+        $addr_info = $this->member_model->getAddress(["ad_type" => "RECRUIT", "mm_idx" => $info["mm_idx"], "ad_key" => $rc_idx]);
+      }
+    } else {
+      // 정상 조회: DB에서 로드
+      $addr_info = $this->member_model->getAddress(["ad_type" => "RECRUIT", "mm_idx" => $info["mm_idx"], "ad_key" => $rc_idx]);
+    }
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $bookmark = $this->site_model->getBookmark(["bk_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "bk_key" => $rc_idx]);
 

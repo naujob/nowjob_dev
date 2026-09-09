@@ -723,8 +723,17 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     z-index: 1000;
     background: #fff;
     overflow-y: auto;
+  }
+
+  /* 팝업 상태: data-state 속성으로 관리 */
+  #jobPostPopup[data-state="closed"] {
     transform: translateX(100%);
     pointer-events: none;
+  }
+
+  #jobPostPopup[data-state="open"] {
+    transform: none;
+    pointer-events: auto;
   }
 
 </style>
@@ -1532,6 +1541,7 @@ $tpl_recomm_class = true; ?>
 
   // 공고 카드 클릭 이벤트
   $(document).on('click', '.content-li', function(e) {
+    console.log('[공고 카드 클릭] 이벤트 발생');
     if ($(e.target).closest('button, a, input').length) {
       return;
     }
@@ -1561,6 +1571,7 @@ $tpl_recomm_class = true; ?>
   window.addEventListener('DOMContentLoaded', function() {
       // 중복 방지: DOMContentLoaded 여러 번 발생 시 한 번만 실행
     if (window.__jobListDOMContentLoaded) {
+      console.log('[job_list.php DOMContentLoaded] 이미 실행됨 (무시)');
       return;
     }
     window.__jobListDOMContentLoaded = true;
@@ -1927,7 +1938,24 @@ $tpl_recomm_class = true; ?>
       url: '/recruit/job_post/' + rcIdx,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     }).done(function(html) {
-      $('#jobPostPopup').html(html);
+      var popup = document.getElementById('jobPostPopup');
+      popup.innerHTML = html;
+
+      // 로드된 HTML 내 script 태그 실행
+      var scripts = popup.querySelectorAll('script');
+      scripts.forEach(function(script) {
+        if (script.src) {
+          var newScript = document.createElement('script');
+          newScript.src = script.src;
+          newScript.async = script.async;
+          popup.appendChild(newScript);
+        } else {
+          var newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          popup.appendChild(newScript);
+        }
+      });
+
       document.body.style.overflow = 'hidden';
       sessionStorage.setItem('recruit_came_from_job_post', 'true');
       sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
@@ -1941,7 +1969,10 @@ $tpl_recomm_class = true; ?>
           duration: 0.5,
           x: '0%',
           ease: "power1.out",
-          pointerEvents: 'auto'
+          clearProps: "transform",
+          onComplete: function() {
+            document.getElementById('jobPostPopup').setAttribute('data-state', 'open');
+          }
         }
       );
 
@@ -1981,6 +2012,8 @@ $tpl_recomm_class = true; ?>
       if (typeof window.initJobPostDescFeatures === 'function') {
         window.initJobPostDescFeatures();
       }
+    }).fail(function(xhr, status, error) {
+      console.error('[openJobPostPopup] AJAX 실패 - status:', status, 'error:', error);
     });
   };
 
@@ -1992,8 +2025,8 @@ $tpl_recomm_class = true; ?>
       duration: 0.5,
       x: '100%',
       ease: "power1.out",
-      pointerEvents: 'none',
       onComplete: function() {
+        document.getElementById('jobPostPopup').setAttribute('data-state', 'closed');
         $('#jobPostPopup').html('');
       }
     });

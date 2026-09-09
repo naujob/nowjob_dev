@@ -463,7 +463,24 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
       url: '/recruit/job_post/' + rcIdx,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     }).done(function(html) {
-      $('#jobPostPopup').html(html);
+      var popup = document.getElementById('jobPostPopup');
+      popup.innerHTML = html;
+
+      // 로드된 HTML 내 script 태그 실행
+      var scripts = popup.querySelectorAll('script');
+      scripts.forEach(function(script) {
+        if (script.src) {
+          var newScript = document.createElement('script');
+          newScript.src = script.src;
+          newScript.async = script.async;
+          popup.appendChild(newScript);
+        } else {
+          var newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          popup.appendChild(newScript);
+        }
+      });
+
       document.body.style.overflow = 'hidden';
       sessionStorage.setItem('recruit_came_from_job_post', 'true');
       sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
