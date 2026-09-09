@@ -12,6 +12,13 @@ $is_prod_env = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
 $app_base_host = parse_url($app_base_url, PHP_URL_HOST);
 $is_nowjob_domain = ($app_base_host === 'nowjob.co.kr');
 $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
+
+// A.I 매칭 광고성 정보 수신 동의 여부 확인
+$mm_agree_ad = 'N';
+if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")) {
+  $mem_info_for_ad = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
+  $mm_agree_ad = (isset($mem_info_for_ad["mm_agree_ad"]) && $mem_info_for_ad["mm_agree_ad"] == "Y") ? 'Y' : 'N';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -777,10 +784,10 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             <?php if ($this->user->getUserType() == "MEM") { ?>
                                 <li>
                                     <?php if ($this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx())) : ?>
-                                        <a href="/mypage/match_list" class="ai-match-text">A.I 매칭 리스트</a>
+                                        <a href="/mypage/match_list" class="ai-match-text ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/mypage/match_list">A.I 매칭 리스트</a>
                                         <span class="badge-dot"></span>
                                     <?php endif; ?>
-                                    <a href="/mypage/match_list" class="ai-match-tag">A.I 매칭</a>
+                                    <a href="/mypage/match_list" class="ai-match-tag ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/mypage/match_list">A.I 매칭</a>
                                 </li>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
@@ -827,10 +834,10 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
                             <?php if ($this->user->getUserType() == "COMP") { ?>
                                 <li>
                                     <?php if ($this->member_model->hasUnreadMatchResume($this->user->getUserIdx())) : ?>
-                                        <a href="/compage/match_list" class="ai-match-text">A.I 매칭 리스트</a>
+                                        <a href="/compage/match_list" class="ai-match-text ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/compage/match_list">A.I 매칭 리스트</a>
                                         <span class="badge-dot"></span>
                                     <?php endif; ?>
-                                    <a href="/compage/match_list" class="ai-match-tag">A.I 매칭</a>
+                                    <a href="/compage/match_list" class="ai-match-tag ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/compage/match_list">A.I 매칭</a>
                                 </li>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
@@ -906,6 +913,254 @@ $is_dev_domain = ($app_base_host === 'dev.nowjob.co.kr');
             hasCompCert: <?= ($this->user->isLogin() && $this->user->getUserType() == 'COMP' && !empty($current_user_info["mm_comp_num"])) ? 'true' : 'false' ?>
         };
     </script>
+    <!-- A.I 매칭 광고성 정보 수신 동의 다이얼로그 (웹 버전) -->
+    <style>
+        #webAdConsentModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        #webAdConsentModal.on {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        #webAdConsentModal .panel-container {
+            position: static;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        #webAdConsentModal .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #webAdConsentModal .panel-title {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 600;
+        }
+
+        #webAdConsentModal .btn-close-popup {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        #webAdConsentModal .panel-body {
+            padding: 20px;
+        }
+
+        #webAdConsentModal .panel-body p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        #webAdConsentModal .ai-match-agree-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        #webAdConsentModal .ai-match-agree-label input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        #webAdConsentModal .ai-match-agree-label span {
+            cursor: pointer;
+            flex: 1;
+            font-size: 14px;
+        }
+
+        #webAdConsentModal .panel-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        #webAdConsentModal .panel-footer button {
+            flex: 1;
+            padding: 14px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            font-size: 25px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        #webAdConsentModal .panel-footer button:active {
+            opacity: 0.85;
+        }
+
+        #webAdConsentModal .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        #webAdConsentModal .btn-primary {
+            background: #17B890;
+            color: #fff;
+        }
+
+        #webAdConsentModal .panel-body p {
+            font-size: 20px;
+        }
+
+        #webAdConsentModal .ai-match-agree-label input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
+            margin: 0;
+            accent-color: #17B890;
+        }
+
+        #webAdConsentModal .ai-match-agree-label span {
+            font-size: 20px;
+        }
+    </style>
+    <div id="webAdConsentModal" class="layer-panel card-type" tabindex="-1" hidden>
+        <div class="panel-container">
+            <div class="panel-header">
+                <h2 class="panel-title">A.I 매칭</h2>
+                <button type="button" class="btn-close-popup" onclick="typeof closePanel === 'function' ? closePanel(document.getElementById('webAdConsentModal')) : document.getElementById('webAdConsentModal').classList.remove('on');">×</button>
+            </div>
+            <div class="panel-body">
+                <p>서비스 이용을 위해 동의해 주세요.<br>A.I매칭 서비스를 위해 고객 동의가 필요합니다.</p>
+                <label class="ai-match-agree-label">
+                    <input type="checkbox" id="rd_agree_ad_web" name="rd_agree_ad_web" value="1">
+                    <span>광고성 정보 알림 수신 동의</span>
+                </label>
+            </div>
+            <div class="panel-footer">
+                <button type="button" class="btn btn-secondary" onclick="typeof closePanel === 'function' ? closePanel(document.getElementById('webAdConsentModal')) : document.getElementById('webAdConsentModal').classList.remove('on');">닫기</button>
+                <button type="button" class="btn btn-primary" onclick="submitWebAdAgree();">동의하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 웹 버전: A.I 매칭 클릭 시 광고성 정보 동의 여부 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            var aiMatchLinks = document.querySelectorAll('.ai-match-link');
+            aiMatchLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    var agreeAd = this.getAttribute('data-agree-ad');
+                    console.log('A.I 매칭 링크 클릭 | 동의 여부:', agreeAd);
+
+                    if (agreeAd === 'Y') {
+                        console.log('이미 동의함 | 링크 이동');
+                        return; // 이미 동의: 정상 이동
+                    }
+
+                    e.preventDefault();
+                    console.log('동의 여부가 N | 팝업 오픈');
+
+                    var modal = document.getElementById('webAdConsentModal');
+                    if (modal && typeof openPanel === 'function') {
+                        openPanel(modal);
+                        document.getElementById('rd_agree_ad_web').checked = true; // 체크박스 기본 체크
+                        console.log('동의 팝업 오픈 완료');
+                    }
+                });
+            });
+        });
+
+        // 웹 버전: 동의하기 클릭 시 서버에 mm_agree_ad=Y 저장 후 매칭 페이지 이동
+        function submitWebAdAgree() {
+            console.log('동의하기 버튼 클릭');
+
+            var chk = document.getElementById('rd_agree_ad_web');
+            if (!chk || !chk.checked) {
+                console.log('체크박스 미체크 상태 | 알림 표시');
+                alert('광고성 정보 알림 수신에 동의해주세요.');
+                return;
+            }
+
+            console.log('체크박스 체크됨 | 서버 요청 시작');
+
+            var modal = document.getElementById('webAdConsentModal');
+            var matchUrl = document.querySelector('.ai-match-link[data-match-url]').getAttribute('data-match-url');
+            console.log('매칭 URL:', matchUrl);
+
+            // AJAX로 동의 저장
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/setting_proc/agree_ad', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            xhr.onload = function() {
+                console.log('서버 응답 | 상태:', xhr.status);
+
+                if (xhr.status === 200) {
+                    try {
+                        var ret = JSON.parse(xhr.responseText);
+                        console.log('응답 파싱 | 코드:', ret.code);
+
+                        if (ret.code == '00') {
+                            console.log('동의 저장 성공 | 매칭 페이지로 이동');
+
+                            if (modal && typeof closePanel === 'function') {
+                                closePanel(modal);
+                            } else {
+                                modal.style.display = 'none';
+                            }
+                            location.href = matchUrl;
+                        } else {
+                            console.error('동의 저장 실패 | 메시지:', ret.msg);
+                            alert(ret.msg || '요청 처리 중 오류가 발생했습니다.');
+                        }
+                    } catch (e) {
+                        console.error('응답 파싱 오류:', e);
+                        alert('요청 처리 중 오류가 발생했습니다.');
+                    }
+                } else {
+                    console.error('HTTP 오류 | 상태:', xhr.status);
+                    alert('요청 처리 중 오류가 발생했습니다.');
+                }
+            };
+
+            xhr.onerror = function() {
+                console.error('네트워크 오류');
+                alert('요청 처리 중 오류가 발생했습니다.');
+            };
+
+            console.log('/setting_proc/agree_ad 요청 전송');
+            xhr.send('');
+        }
+    </script>
+
     <!-- Google AdSense 광고 (footer 직전) -->
     <?php
     // URL에 따라 광고를 표시하지 않을 페이지 목록

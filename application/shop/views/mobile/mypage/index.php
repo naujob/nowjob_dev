@@ -216,18 +216,15 @@
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">약관동의설정</h3>
-            <ul class="settings-list">
-              <li>
-                <a href="/setting/site_terms5_new" class="menu">맞춤형 서비스/광고 개인정보 수집 및 이용 동의</a>
-              </li>
-            </ul>
+            <h3 class="secondary-title">
+              <a href="/setting/site_terms5_new" class="menu">약관동의설정</a>
+            </h3>
           </div>
         </div>
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">약관</h3>
+            <h3 class="secondary-title">약관동의</h3>
             <ul class="settings-list">
               <li><a href="/setting/site_policy" class="menu">개인회원 이용약관</a></li>
               <li><a href="/setting/site_privacy" class="menu">개인정보처리방침</a></li>

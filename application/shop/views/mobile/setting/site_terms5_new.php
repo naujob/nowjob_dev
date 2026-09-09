@@ -32,6 +32,11 @@
             </div>
         </div>
 
+        <!-- 동의하기 버튼 -->
+        <div class="sticky-bottom view-footer">
+            <button type="button" id="agreeBtn" class="btn btn-primary" onclick="handleAgree();">동의하기</button>
+        </div>
+
     </div><!-- //page-content -->
 
 </div>
@@ -75,28 +80,29 @@ function checkAdAgreeContent() {
     });
 }
 
+// 체크박스 상태만 변경 (API 호출 안함)
 function toggleAdAgree() {
-    var isChecked = $('#rd_agree_ad').prop('checked');
-    var params = {};
+    // 체크박스 상태만 표시, API 호출은 동의하기 버튼에서 처리
+}
 
-    if (isChecked) {
-        // 체크된 경우 - 동의
-        comAjax("/setting_proc/agree_ad", params, function(ret) {
-            if (ret && ret.code !== "00") {
-                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
-                    $('#rd_agree_ad').prop('checked', false);
-                });
-            }
-        });
-    } else {
-        // 체크 해제된 경우 - 해제
-        comAjax("/setting_proc/disagree_ad", params, function(ret) {
-            if (ret && ret.code !== "00") {
-                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
-                    $('#rd_agree_ad').prop('checked', true);
-                });
-            }
-        });
+// 동의하기 버튼 클릭 처리
+function handleAgree() {
+    var isChecked = $('#rd_agree_ad').prop('checked');
+
+    if (!isChecked) {
+        commonAlert("약관에 동의해주세요.", function(){});
+        return;
     }
+
+    var params = {};
+    comAjax("/setting_proc/agree_ad", params, function(ret) {
+        if (ret && ret.code === "00") {
+            commonAlert("동의가 완료되었습니다.", function(){
+                history.back();
+            });
+        } else {
+            commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){});
+        }
+    });
 }
 </script>
