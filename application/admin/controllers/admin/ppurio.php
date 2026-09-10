@@ -1294,6 +1294,7 @@ class Ppurio extends MY_Controller{
         $edate = input_get("edate", "");
         $search_type = input_get("search_type", "");
         $search_value = input_get("search_value", "");
+        $sort_order = input_get("sort_order", "desc");
         $category = $this->input->get("category");
         if (!is_array($category)) $category = array();
         $age_range = $this->input->get("age_range");
@@ -1321,6 +1322,7 @@ class Ppurio extends MY_Controller{
             "search_type" => $search_type, "search_value" => $search_value,
             "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
             "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+            "sort_order" => $sort_order,
         ];
         $result = $this->site_model->getCorSmsSentList($params);
 
@@ -1331,6 +1333,7 @@ class Ppurio extends MY_Controller{
             "search_type" => $search_type, "search_value" => $search_value,
             "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
             "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+            "sort_order" => $sort_order,
         ];
         $alimtalk_result = $this->site_model->getCorAlimtalkSentList($alimtalk_params);
 
@@ -1357,6 +1360,7 @@ class Ppurio extends MY_Controller{
                 "search_type" => $search_type, "search_value" => $search_value,
                 "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
                 "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+                "sort_order" => $sort_order,
                 "page" => $page,
             ],
             "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
@@ -1384,6 +1388,7 @@ class Ppurio extends MY_Controller{
         $edate = input_get("edate", "");
         $search_type = input_get("search_type", "");
         $search_value = input_get("search_value", "");
+        $sort_order = input_get("sort_order", "desc");
         $category = $this->input->get("category");
         if (!is_array($category)) $category = array();
         $age_range = $this->input->get("age_range");
@@ -1411,6 +1416,7 @@ class Ppurio extends MY_Controller{
             "search_type" => $search_type, "search_value" => $search_value,
             "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
             "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+            "sort_order" => $sort_order,
         ];
         $result = $this->site_model->getMemSmsSentList($params);
 
@@ -1421,6 +1427,7 @@ class Ppurio extends MY_Controller{
             "search_type" => $search_type, "search_value" => $search_value,
             "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
             "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+            "sort_order" => $sort_order,
         ];
         $alimtalk_result = $this->site_model->getMemAlimtalkSentList($alimtalk_params);
 
@@ -1447,6 +1454,7 @@ class Ppurio extends MY_Controller{
                 "search_type" => $search_type, "search_value" => $search_value,
                 "category" => $category, "age_range" => $age_range, "nationality" => $nationality,
                 "gender" => $gender, "work_type" => $work_type, "price_type" => $price_type,
+                "sort_order" => $sort_order,
                 "page" => $page,
             ],
             "start" => ($result["count"] - (($page - 1) * $params["pagesize"])),

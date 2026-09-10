@@ -1311,7 +1311,9 @@ class siteModel extends MY_Model
 			}
 		}
 
-		$order_by = "s.sent_dt DESC, s.ms_idx DESC";
+		// 정렬 순서 설정
+		$sort_order = isset($params["sort_order"]) && $params["sort_order"] === "asc" ? "ASC" : "DESC";
+		$order_by = "s.sent_dt {$sort_order}, s.ms_idx {$sort_order}";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
 	}
@@ -1445,7 +1447,9 @@ class siteModel extends MY_Model
 			}
 		}
 
-		$order_by = "s.sent_dt DESC, s.ms_idx DESC";
+		// 정렬 순서 설정
+		$sort_order = isset($params["sort_order"]) && $params["sort_order"] === "asc" ? "ASC" : "DESC";
+		$order_by = "s.sent_dt {$sort_order}, s.ms_idx {$sort_order}";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
 	}
@@ -1628,7 +1632,9 @@ class siteModel extends MY_Model
 			}
 		}
 
-		$order_by = "s.sent_dt DESC, s.ms_idx DESC";
+		// 정렬 순서 설정
+		$sort_order = isset($params["sort_order"]) && $params["sort_order"] === "asc" ? "ASC" : "DESC";
+		$order_by = "s.sent_dt {$sort_order}, s.ms_idx {$sort_order}";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
 	}
@@ -1762,7 +1768,9 @@ class siteModel extends MY_Model
 			}
 		}
 
-		$order_by = "s.sent_dt DESC, s.ms_idx DESC";
+		// 정렬 순서 설정
+		$sort_order = isset($params["sort_order"]) && $params["sort_order"] === "asc" ? "ASC" : "DESC";
+		$order_by = "s.sent_dt {$sort_order}, s.ms_idx {$sort_order}";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
 	}

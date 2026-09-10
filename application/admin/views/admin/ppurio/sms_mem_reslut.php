@@ -37,6 +37,7 @@
                         </div>
                     </td>
                 </tr>
+              
                 <tr>
                     <th scope="row">업종</th>
                     <td class="inline-wrap">
@@ -132,6 +133,15 @@
                             <?php endforeach; ?>
                         </div>
                     </td>
+                </tr>
+                  <tr>
+                    <th scope="row">정렬</th>
+                    <td class="inline-wrap">
+                        <div class="sum-select-input" style="top: -16px;">
+                            <?=inputSelect("sort_order","sort_order",["desc"=>"최신순","asc"=>"과거순"],(isset($search["sort_order"]) ? $search["sort_order"] : "desc"))?>
+                        </div>
+                    </td>
+                    <td colspan="2"></td>
                 </tr>
                 </tbody>
             </table>
@@ -261,6 +271,7 @@
                             'edate' => isset($search['edate']) ? $search['edate'] : '',
                             'search_type' => isset($search['search_type']) ? $search['search_type'] : '',
                             'search_value' => isset($search['search_value']) ? $search['search_value'] : '',
+                            'sort_order' => isset($search['sort_order']) ? $search['sort_order'] : 'desc',
                             'category' => isset($search['category']) ? $search['category'] : [],
                             'age_range' => isset($search['age_range']) ? $search['age_range'] : [],
                             'nationality' => isset($search['nationality']) ? $search['nationality'] : [],
@@ -269,12 +280,19 @@
                             'price_type' => isset($search['price_type']) ? $search['price_type'] : [],
                         ]);
                         $url_base = '/admin/ppurio/sms_mem_reslut' . $search_params . '&apage=';
+
+                        // 5페이지씩 블록 단위로 표시
+                        $pages_per_block = 5;
+                        $current_block = ceil($alimtalk_page / $pages_per_block);
+                        $block_start = ($current_block - 1) * $pages_per_block + 1;
+                        $block_end = min($current_block * $pages_per_block, $alimtalk_last_page);
+                        $total_blocks = ceil($alimtalk_last_page / $pages_per_block);
                 ?>
                     <?php if ($alimtalk_page > 1) { ?>
                         <a href="<?=$url_base?>1" >[처음]</a>
                         <a href="<?=$url_base?><?=$alimtalk_page-1?>">[이전]</a>
                     <?php } ?>
-                    <?php for ($i = 1; $i <= $alimtalk_last_page; $i++) { ?>
+                    <?php for ($i = $block_start; $i <= $block_end; $i++) { ?>
                         <?php if ($i == $alimtalk_page) { ?>
                             <span>
                                 <strong><?=$i?></strong>
