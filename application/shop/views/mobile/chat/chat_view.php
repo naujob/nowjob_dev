@@ -267,6 +267,23 @@
           }
         });
       });
+
+      // 닫기 버튼 이벤트 등록
+      container.querySelectorAll('.btn-close').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var contentLi = this.closest('.content-li');
+          var simpleContent = contentLi.querySelector('.simple-content');
+          var icon = contentLi.querySelector('i[data-toggle-icon]');
+
+          simpleContent.setAttribute('data-collapsed', 'true');
+          contentLi.setAttribute('data-collapsed', 'true');
+          if (icon) {
+            icon.setAttribute('data-state', 'collapsed');
+          }
+        });
+      });
     }
 
     // DOM이 준비되면 렌더링
@@ -361,6 +378,23 @@
           }
         });
       });
+
+      // 닫기 버튼 이벤트 등록
+      container.querySelectorAll('.btn-close').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var contentLi = this.closest('.content-li');
+          var simpleContent = contentLi.querySelector('.simple-content');
+          var icon = contentLi.querySelector('i[data-toggle-icon]');
+
+          simpleContent.setAttribute('data-collapsed', 'true');
+          contentLi.setAttribute('data-collapsed', 'true');
+          if (icon) {
+            icon.setAttribute('data-state', 'collapsed');
+          }
+        });
+      });
     }
 
     // DOM이 준비되면 렌더링
@@ -376,7 +410,7 @@
     <div class="top-bar top-bar--chat">
         <!--<a href="javascript:_replace('/chat/chat_list');" class="btn-replace"><span class="sr-text">이전으로</span></a>-->
         <a href="javascript:void(0);" class="btn-replace js-chat-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;">
+        <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           <?php if ($user_type == "COMP"): ?>
             <?php
             $profileImg = getResumeImg($resume);
@@ -397,11 +431,6 @@
             <span><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></span>
           <?php endif; ?>
         </h1>
-        <?php if (!empty($call_target_phone)) : ?>
-            <a href="tel:<?= htmlspecialchars($call_target_phone, ENT_QUOTES, 'UTF-8') ?>" class="btn-call js-call-log" data-show-call="<?= !empty($show_call_btn) ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/phone.png'); background-size: contain; background-repeat: no-repeat; background-position: center;">
-                <span class="sr-text">전화하기</span>
-            </a>
-        <?php endif; ?>
         <div class="rt-group">
             <button type="button" class="btn-leave-list" id="btnLeaveChatRoom" aria-label="채팅방 나가기">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -683,6 +712,17 @@
             <!-- 숨겨진 파일 input (여러 개 선택 가능) -->
             <input type="file" id="chatPhotoInput" accept="image/*" multiple style="display:none;">
             <input type="file" id="chatFileInput" multiple style="display:none;">
+
+            <!-- 파일 업로드 진행률 표시 (화면 중앙) -->
+            <div id="uploadProgressContainer" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 80%; max-width: 300px; padding: 2rem; background: rgba(0,0,0,0.9); color: white; border-radius: 12px; text-align: center;">
+                <div style="font-size: 14px; margin-bottom: 1rem;">
+                    <span id="uploadFileName" style="font-weight: bold; display: block; margin-bottom: 0.5rem; word-break: break-all;"></span>
+                    <span>업로드 중... </span><span id="uploadPercent" style="font-weight: bold;">0</span>%
+                </div>
+                <div style="background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div id="uploadProgressBar" style="background: #1a9e7c; height: 100%; width: 0%; transition: width 0.2s ease;"></div>
+                </div>
+            </div>
 
             <!-- 첨부메뉴 -->
             <div id="attachMenu" class="attach-menu" data-state="closed">
@@ -1049,9 +1089,9 @@
                 var isKeyboardVisible = currentVisualHeight < layoutViewportHeight - 50;
 
                 if (isKeyboardVisible) {
-                    // 키보드가 열려 있음: 실제 보이는 영역에 맞춰 높이 강제 설정
+                    // 키보드가 열려 있음: 실제 보이는 영역에 맞춰 높이 강제 설정 + 스크롤 활성화
                     pageChatView.style.height = currentVisualHeight + 'px';
-                    pageChatView.style.overflowY = 'hidden';
+                    pageChatView.style.overflowY = 'auto';
 
                     // 스크롤 강제 복원 (여러 번 실행하여 확실히 함)
                     restoreScrollPosition();
@@ -2218,7 +2258,12 @@
     function handleAttachUploadMultiple(files, kind) {
         if (!files || files.length === 0) { return; }
 
-        console.log("[CHAT_ATTACH] " + files.length + "개 파일 선택됨");
+        console.log("[CHAT_ATTACH] " + kind + " 타입으로 " + files.length + "개 파일 선택됨");
+
+        // 이미지 선택 시 콘솔에 표시
+        if (kind === "img") {
+            console.log("[CHAT_ATTACH] 이미지 업로드 시작", files);
+        }
 
         var fileList = [];
         for (var i = 0; i < files.length; i++) {
@@ -2237,6 +2282,10 @@
     function uploadFilesSequentially(fileList, kind, index, isFirstFile, uploadedUrls) {
         if (index >= fileList.length) {
             console.log("[CHAT_ATTACH] 모든 파일 업로드 완료 (총 " + uploadedUrls.length + "개)");
+            // 진행률 UI 숨기기 (완료 표시를 1.5초 동안 유지)
+            setTimeout(function() {
+                $("#uploadProgressContainer").fadeOut(300);
+            }, 1500);
             // 업로드 성공한 파일이 있으면 한 번에 전송
             if (uploadedUrls && uploadedUrls.length > 0) {
                 sendAttachMessage(kind, uploadedUrls);
@@ -2278,32 +2327,77 @@
         formData.append("attach_file", file);
         formData.append("attach_type", kind);
 
-        var ajaxMethod = (isFirstFile) ? fileAjaxLoading : fileAjax;
+        // 진행률 표시 UI 표시
+        if (isFirstFile) {
+            $("#uploadProgressContainer").show();
+            $("#uploadFileName").text(file.name);
+            $("#uploadPercent").text("0");
+            $("#uploadProgressBar").css("width", "0%");
+        }
 
-        ajaxMethod("/chat_proc/upload_chat_file", formData, function(ret) {
-            console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 응답:", ret);
+        // XMLHttpRequest를 사용하여 진행률 추적
+        var xhr = new XMLHttpRequest();
 
-            if (ret.code != "00") {
-                console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 실패:", ret.msg);
-                alert("[" + (index + 1) + "] " + file.name + " - " + (ret.msg || "업로드에 실패했습니다."));
-                uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
-                return;
+        // 진행률 이벤트 처리
+        xhr.upload.addEventListener("progress", function(e) {
+            if (e.lengthComputable) {
+                var percentComplete = Math.round((e.loaded / e.total) * 100);
+                console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 진행률:", percentComplete + "%");
+                $("#uploadPercent").text(percentComplete);
+                $("#uploadProgressBar").css("width", percentComplete + "%");
             }
+        }, false);
 
-            console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 성공:", {
-                url: ret.data.url,
-                file_name: ret.data.file_name
-            });
+        // 완료 이벤트
+        xhr.addEventListener("load", function() {
+            try {
+                var ret = JSON.parse(xhr.responseText);
+                console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 응답:", ret);
 
-            // 업로드된 파일 정보를 배열에 추가
-            uploadedUrls.push({
-                url: ret.data.url,
-                fileName: ret.data.file_name
-            });
+                if (ret.code != "00") {
+                    console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 실패:", ret.msg);
+                    alert("[" + (index + 1) + "] " + file.name + " - " + (ret.msg || "업로드에 실패했습니다."));
+                    uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+                    return;
+                }
 
-            // 다음 파일 업로드
+                console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 성공:", {
+                    url: ret.data.url,
+                    file_name: ret.data.file_name
+                });
+
+                // 업로드된 파일 정보를 배열에 추가
+                uploadedUrls.push({
+                    url: ret.data.url,
+                    fileName: ret.data.file_name
+                });
+
+                // 다음 파일 업로드
+                uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+            } catch (e) {
+                console.error("[CHAT_ATTACH] [" + (index + 1) + "] JSON 파싱 오류:", e);
+                alert("[" + (index + 1) + "] " + file.name + " - 업로드에 실패했습니다.");
+                uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+            }
+        }, false);
+
+        // 에러 이벤트
+        xhr.addEventListener("error", function() {
+            console.error("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 중 오류 발생");
+            alert("[" + (index + 1) + "] " + file.name + " - 업로드 중 오류가 발생했습니다.");
             uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
-        });
+        }, false);
+
+        // 업로드 취소
+        xhr.addEventListener("abort", function() {
+            console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 취소됨");
+            alert("[" + (index + 1) + "] " + file.name + " - 업로드가 취소되었습니다.");
+            uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+        }, false);
+
+        // 요청 전송
+        xhr.open("POST", "/chat_proc/upload_chat_file", true);
+        xhr.send(formData);
     }
 
     // 첨부 메시지 전송 (배열 형식으로 여러 파일 지원)
@@ -3881,9 +3975,9 @@
     }
 
     .btn-attach-toggle {
-        flex-shrink: 0;
-        width: 2.875rem;
-        height: 2.875rem;
+        flex: 0 0 3rem;
+        
+        height: 3rem;
         padding: 0;
         border: none;
         background: none;
@@ -4008,8 +4102,8 @@
 }
     #chatImgSaveSheet .btn-bottom-sheet{
         width: 100%;
-        font-size: 20px;
-        padding: 10px;
+        font-size: 23px;
+    padding: 25px;
     }
     #chatImgSaveSheet .btn-bottom-sheet-secondary {
         background-color: #1B9D7D;

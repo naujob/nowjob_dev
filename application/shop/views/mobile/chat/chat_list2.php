@@ -361,7 +361,7 @@ $top_bar = array(
                     } else {
                         $unreadElement.hide();
                     }
-                }
+            }
 
                 // 탭별 카운팅: 추적된 리스트 기반
                 if (belongsToThisTab) {

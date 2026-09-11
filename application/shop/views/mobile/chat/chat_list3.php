@@ -458,6 +458,10 @@ $top_bar = array(
                 ru_idx: rc_idx,
                 chatgbn: 'chatPanel2'
               }
+            }).then(function(data, textStatus, jqXHR) {
+              // Promise 결과를 항상 [data, textStatus, jqXHR] 형태로 정규화
+              // (공고가 1개일 때와 여러 개일 때 $.when의 동작이 다르므로 필요)
+              return [data, textStatus, jqXHR];
             });
 
             ajaxPromises.push(promise);

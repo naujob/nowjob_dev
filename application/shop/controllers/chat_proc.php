@@ -669,7 +669,25 @@ class Chat_proc extends CI_Controller
 
 						if ($user_in_room && !$user_exited && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 							$last_message = end($room["rm_messages"]);
-							if (isset($last_message["mg_text"])) {
+							if (isset($last_message["mg_type"])) {
+								// 메시지 타입에 따라 우선 처리
+								if ($last_message["mg_type"] === "img") {
+									$temp_list[$key]["last_msg_preview"] = "이미지";
+								} else if ($last_message["mg_type"] === "file") {
+									$temp_list[$key]["last_msg_preview"] = "문서";
+								} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+									// 텍스트 메시지
+									$last_msg = $last_message["mg_text"];
+									// HTML 태그 제거 후 순수 텍스트만 추출
+									$last_msg = strip_tags($last_msg);
+									// 첫 시작부터 20바이트 제한
+									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+										$temp_list[$key]["last_msg_preview"] .= "...";
+									}
+								}
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								// mg_type이 없는 경우 (호환성)
 								$last_msg = $last_message["mg_text"];
 								// HTML 태그 제거 후 순수 텍스트만 추출
 								$last_msg = strip_tags($last_msg);
@@ -828,7 +846,25 @@ class Chat_proc extends CI_Controller
 						// 마지막 메시지 조회 (나가지 않은 사용자만)
 						if ($user_in_room && !$user_exited && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 							$last_message = end($room["rm_messages"]);
-							if (isset($last_message["mg_text"])) {
+							if (isset($last_message["mg_type"])) {
+								// 메시지 타입에 따라 우선 처리
+								if ($last_message["mg_type"] === "img") {
+									$temp_list[$key]["last_msg_preview"] = "이미지";
+								} else if ($last_message["mg_type"] === "file") {
+									$temp_list[$key]["last_msg_preview"] = "문서";
+								} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+									// 텍스트 메시지
+									$last_msg = $last_message["mg_text"];
+									// HTML 태그 제거 후 순수 텍스트만 추출
+									$last_msg = strip_tags($last_msg);
+									// 첫 시작부터 20바이트 제한
+									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+										$temp_list[$key]["last_msg_preview"] .= "...";
+									}
+								}
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								// mg_type이 없는 경우 (호환성)
 								$last_msg = $last_message["mg_text"];
 								// HTML 태그 제거 후 순수 텍스트만 추출
 								$last_msg = strip_tags($last_msg);
@@ -1085,7 +1121,25 @@ class Chat_proc extends CI_Controller
 
 						if ($user_in_room && !$user_exited && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 							$last_message = end($room["rm_messages"]);
-							if (isset($last_message["mg_text"])) {
+							if (isset($last_message["mg_type"])) {
+								// 메시지 타입에 따라 우선 처리
+								if ($last_message["mg_type"] === "img") {
+									$temp_list[$key]["last_msg_preview"] = "이미지";
+								} else if ($last_message["mg_type"] === "file") {
+									$temp_list[$key]["last_msg_preview"] = "문서";
+								} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+									// 텍스트 메시지
+									$last_msg = $last_message["mg_text"];
+									// HTML 태그 제거 후 순수 텍스트만 추출
+									$last_msg = strip_tags($last_msg);
+									// 첫 시작부터 20바이트 제한
+									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+										$temp_list[$key]["last_msg_preview"] .= "...";
+									}
+								}
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								// mg_type이 없는 경우 (호환성)
 								$last_msg = $last_message["mg_text"];
 								// HTML 태그 제거 후 순수 텍스트만 추출
 								$last_msg = strip_tags($last_msg);
@@ -1224,7 +1278,25 @@ class Chat_proc extends CI_Controller
 
 						if ($user_in_room && !$user_exited && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 							$last_message = end($room["rm_messages"]);
-							if (isset($last_message["mg_text"])) {
+							if (isset($last_message["mg_type"])) {
+								// 메시지 타입에 따라 우선 처리
+								if ($last_message["mg_type"] === "img") {
+									$temp_list[$key]["last_msg_preview"] = "이미지";
+								} else if ($last_message["mg_type"] === "file") {
+									$temp_list[$key]["last_msg_preview"] = "문서";
+								} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+									// 텍스트 메시지
+									$last_msg = $last_message["mg_text"];
+									// HTML 태그 제거 후 순수 텍스트만 추출
+									$last_msg = strip_tags($last_msg);
+									// 첫 시작부터 20바이트 제한
+									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+										$temp_list[$key]["last_msg_preview"] .= "...";
+									}
+								}
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								// mg_type이 없는 경우 (호환성)
 								$last_msg = $last_message["mg_text"];
 								// HTML 태그 제거 후 순수 텍스트만 추출
 								$last_msg = strip_tags($last_msg);

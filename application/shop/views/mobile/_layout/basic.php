@@ -81,6 +81,7 @@ if (!$socket_io_script_url) {
     function createSocket() {
       // Socket 연결 초기화
       const base_url = "<?= $socket_base_url ?>";
+      console.log('Socket.IO 연결 시도:', base_url); // https://dev.nowjob.co.kr
       const socket = io(base_url, {
         secure: true,
         rejectUnauthorized: false, // SSL 인증서 검증 비활성화
