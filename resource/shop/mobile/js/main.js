@@ -1289,5 +1289,128 @@
         };
     }
 
+    // 바텀시트 Handlebar Swipe 기능 초기화 (공통 함수)
+    // 카카오톡/네이버지도 방식의 부드러운 바텀시트 모션
+    window.initPanelSwipe = function(panelId) {
+        var panel = document.getElementById(panelId);
+        if (!panel) return;
+
+        var container = panel.querySelector('.bottom-sheet-container');
+        var handlebar = panel.querySelector('.bottom-sheet-handlebar');
+        if (!container || !handlebar) return;
+
+        var startY = 0;
+        var currentY = 0;
+        var dragging = false;
+        var SWIPE_CLOSE_DISTANCE = 120;
+
+        handlebar.addEventListener('touchstart', function(e) {
+            if (panel.isOpening) return;
+            if (e.touches.length === 0) return;
+
+            startY = e.touches[0].clientY;
+            dragging = true;
+            container.style.transition = 'none';
+            e.stopPropagation();
+        }, { passive: false });
+
+        handlebar.addEventListener('touchmove', function(e) {
+            if (panel.isOpening) {
+                dragging = false;
+                return;
+            }
+            if (!dragging || e.touches.length === 0) return;
+
+            currentY = e.touches[0].clientY;
+            var deltaY = currentY - startY;
+
+            if (deltaY > 0) {
+                container.style.transform = 'translateY(' + deltaY + 'px)';
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, { passive: false });
+
+        handlebar.addEventListener('touchend', function(e) {
+            if (!dragging) return;
+
+            var deltaY = currentY - startY;
+            dragging = false;
+            e.stopPropagation();
+
+            if (deltaY > SWIPE_CLOSE_DISTANCE) {
+                container.style.transition = 'transform 0.25s ease';
+                container.style.transform = '';
+
+                if (typeof closePanel === 'function') {
+                    closePanel(panel);
+                } else {
+                    panel.classList.remove('on');
+                    document.body.style.overflow = 'auto';
+                }
+            } else {
+                container.style.transition = 'transform 0.25s ease';
+                container.style.transform = 'translateY(0)';
+            }
+
+            startY = 0;
+            currentY = 0;
+        }, { passive: false });
+
+        var mouseMoveHandler = function(e) {
+            if (panel.isOpening) {
+                dragging = false;
+                return;
+            }
+            if (!dragging) return;
+            currentY = e.clientY;
+            var deltaY = currentY - startY;
+
+            if (deltaY > 0) {
+                container.style.transform = 'translateY(' + deltaY + 'px)';
+                e.preventDefault();
+            }
+        };
+
+        var mouseUpHandler = function() {
+            if (!dragging) return;
+
+            var deltaY = currentY - startY;
+            dragging = false;
+
+            if (deltaY > SWIPE_CLOSE_DISTANCE) {
+                container.style.transition = 'transform 0.25s ease';
+                container.style.transform = '';
+
+                if (typeof closePanel === 'function') {
+                    closePanel(panel);
+                } else {
+                    panel.classList.remove('on');
+                    document.body.style.overflow = 'auto';
+                }
+            } else {
+                container.style.transition = 'transform 0.25s ease';
+                container.style.transform = 'translateY(0)';
+            }
+
+            startY = 0;
+            currentY = 0;
+
+            document.removeEventListener('mousemove', mouseMoveHandler);
+            document.removeEventListener('mouseup', mouseUpHandler);
+        };
+
+        handlebar.addEventListener('mousedown', function(e) {
+            if (panel.isOpening) return;
+
+            startY = e.clientY;
+            dragging = true;
+            container.style.transition = 'none';
+            e.preventDefault();
+
+            document.addEventListener('mousemove', mouseMoveHandler);
+            document.addEventListener('mouseup', mouseUpHandler);
+        });
+    };
 
 }());

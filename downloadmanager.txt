@@ -1,0 +1,54 @@
+# 웹-네이티브 브릿지 파일 다운로드 구현 계획
+
+웹뷰에서 JavaScript를 통해 파일 다운로드 주소와 파일명을 전달받으면, 안드로이드 네이티브 OS가 `DownloadManager`를 이용하여 백그라운드 다운로드를 수행하고 알림바에 완료 상태를 표시합니다. 다운로드 완료 후 파일의 종류(이미지인지 일반 문서인지)에 따라 저장 위치나 갤러리 갱신을 적절히 분기 처리합니다.
+
+## User Review Required
+
+> [!IMPORTANT]
+**권한(Permission) 처리:**
+> 
+> - Android 10(API 29) 이상부터는 Scoped Storage 정책에 의해 공용 폴더(`Environment.DIRECTORY_DOWNLOADS`)에 파일을 생성할 때 별도의 저장소 쓰기 권한(`WRITE_EXTERNAL_STORAGE`)이 필요하지 않습니다.
+> - 그러나 Android 9(API 28) 이하 기기를 지원하기 위해 `WRITE_EXTERNAL_STORAGE` 권한을 체크하고 요청하는 예외 처리를 로직에 포함합니다.
+> - 또한 Android 13(API 33) 이상 기기에서 다운로드 완료 알림(Notification)을 표시하려면 알림 권한(`POST_NOTIFICATIONS`)이 필요할 수 있습니다. 이미 `AndroidManifest.xml`에 `POST_NOTIFICATIONS`가 선언되어 있으므로 이를 활용합니다.
+
+## Proposed Changes
+
+### 1. JavaScript 브릿지 및 다운로드 로직 추가
+
+#### [MODIFY] IntroActivity.java
+
+- `AndroidBridge` 내부 클래스에 JavaScript에서 호출할 `@JavascriptInterface public void downloadFile(String jsonString)` 메서드를 추가합니다.
+- JSON 파라미터 규격은 다음과 같습니다:
+    
+    ```json
+    {
+      "url": "<https://example.com/file.jpg>",
+      "fileName": "sample_image.jpg"
+    }
+    ```
+    
+- 전달받은 `url`과 `fileName`을 기반으로 `DownloadManager.Request`를 구성합니다.
+    - 다운로드 시작 시 Toast 알림 노출: `"다운로드를 시작합니다."`
+    - `setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)` 설정으로 알림바에 다운로드 진행 및 완료 상태 표시
+    - 파일 확장자를 분석하거나 MIME 타입을 파악하여 저장 경로 지정:
+        - 이미지/동영상 확장자(`jpg`, `jpeg`, `png`, `gif`, `mp4` 등)의 경우: `Environment.DIRECTORY_PICTURES` 또는 `Environment.DIRECTORY_DCIM` 에 저장하거나 다운로드 후 MediaStore/MediaScanner로 갤러리에 인덱싱 처리
+        - 일반 문서 확장자(`pdf`, `docx`, `xlsx`, `zip` 등)의 경우: `Environment.DIRECTORY_DOWNLOADS` 에 저장하여 사용자가 쉽게 탐색할 수 있도록 처리
+- Android 9 이하를 위한 런타임 권한 체크 로직을 추가합니다.
+
+## Verification Plan
+
+### Manual Verification
+
+1. 앱 실행 후 웹뷰 영역에서 다운로드 테스트 페이지 접속 (또는 Chrome DevTools 디버깅 콘솔창 활성화)
+2. 아래 스크립트를 콘솔에 실행하여 브릿지 작동 확인:
+    
+    ```jsx
+    window.APP_NOWAPK.downloadFile(JSON.stringify({
+        url: "<https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf-test.pdf>",
+        fileName: "test_document.pdf"
+    }));
+    ```
+    
+3. 단말기 알림창에 다운로드 진행률 및 완료 알림이 정상적으로 노출되는지 확인합니다.
+4. 다운로드 완료 후 단말기의 파일 관리자 앱을 통해 `Download` 폴더에 파일이 정상적으로 저장되었는지 확인합니다.
+5. 이미지 파일 다운로드 후 갤러리 앱에 바로 반영되는지 확인합니다.

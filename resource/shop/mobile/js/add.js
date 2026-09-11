@@ -915,3 +915,25 @@ function handleAndroidBack() {
         }
     }
 }
+
+// 네이티브 다운로드 브릿지 호출
+function triggerNativeDownload(url, fileName) {
+    if (!url) {
+        console.log("[NATIVE_DOWNLOAD] URL 없음");
+        return;
+    }
+
+    var payload = JSON.stringify({ url: url, fileName: fileName ? fileName : "" });
+    console.log("[NATIVE_DOWNLOAD] 브릿지 호출:", payload);
+
+    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.downloadFile) {
+        console.log("[NATIVE_DOWNLOAD] Android 브릿지 호출");
+        APP_NOWAPK.downloadFile(payload);
+    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.downloadFile) {
+        console.log("[NATIVE_DOWNLOAD] iOS 브릿지 호출");
+        window.webkit.messageHandlers.downloadFile.postMessage(payload);
+    } else {
+        console.log("[NATIVE_DOWNLOAD] 브릿지 없음, 새 탭으로 열기");
+        window.open(url, "_blank");
+    }
+}

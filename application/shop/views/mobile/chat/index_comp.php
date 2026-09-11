@@ -213,6 +213,13 @@ $top_bar = array(
             }
           });
 
+          // dedupe 이전의 전체 rm_idx를 추적 (탭 판별용)
+          var currentTabRmIdxSet = new Set();
+          allRows.forEach(function(row) {
+            currentTabRmIdxSet.add(String(row.rm_idx));
+          });
+          window.__chatTab1RmIdxSet = currentTabRmIdxSet; // 제안보낸 인재 탭의 모든 rm_idx
+
           // deduped 객체를 배열로 변환
           var dedupedList = Object.keys(deduped).map(function(key) {
             return deduped[key];
@@ -695,16 +702,17 @@ $top_bar = array(
             }
           }
 
-          // 탭별 읽지 않은 메시지 개수 계산 (data-room_idx_list 기반)
-          if (tab1RoomIdxList.indexOf(room.rm_idx) !== -1) {
-            // 탭1에 속한 채팅방 (지원한 인재)
+          // 탭별 읽지 않은 메시지 개수 계산 (추적된 리스트 기반)
+          var belongsToThisTab = window.__chatTab1RmIdxSet && window.__chatTab1RmIdxSet.has(String(room.rm_idx));
+          if (belongsToThisTab) {
+            // 제안보낸 인재 탭 (탭1)
             if (count > 0) {
               tab1UnreadCount += count;
-              // 상위 공고 목록의 뱃지에 카운트 추가 (DOM에 요소가 없어도 data-room_idx_list 기반으로 처리)
+              // 상위 공고 목록의 뱃지에 카운트 추가
               fSetNoReadCntRecruit(room.rm_idx, count);
             }
           } else {
-            // 탭2에 속한 채팅방 (제안한 인재)
+            // 지원받은 인재 탭 (탭2)
             if (count > 0) {
               tab2UnreadCount += count;
             }
@@ -934,16 +942,17 @@ $top_bar = array(
             }
           }
 
-          // 탭별 읽지 않은 메시지 개수 계산 (data-room_idx_list 기반)
-          if (tab1RoomIdxList.indexOf(room.rm_idx) !== -1) {
-            // 탭1에 속한 채팅방 (지원한 인재)
+          // 탭별 읽지 않은 메시지 개수 계산 (추적된 리스트 기반)
+          var belongsToThisTab = window.__chatTab1RmIdxSet && window.__chatTab1RmIdxSet.has(String(room.rm_idx));
+          if (belongsToThisTab) {
+            // 제안보낸 인재 탭 (탭1)
             if (count > 0) {
               tab1UnreadCount += count;
-              // 상위 공고 목록의 뱃지에 카운트 추가 (DOM에 요소가 없어도 data-room_idx_list 기반으로 처리)
+              // 상위 공고 목록의 뱃지에 카운트 추가
               fSetNoReadCntRecruit(room.rm_idx, count);
             }
           } else {
-            // 탭2에 속한 채팅방 (제안한 인재)
+            // 지원받은 인재 탭 (탭2)
             if (count > 0) {
               tab2UnreadCount += count;
             }

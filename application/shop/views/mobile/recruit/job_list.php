@@ -738,9 +738,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 </style>
 
-<!-- Google AdSense 인피드 광고 스크립트 -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
-  crossorigin="anonymous"></script>
+<!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
+  crossorigin="anonymous"></script> -->
 
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
@@ -1250,25 +1250,26 @@ $tpl_recomm_class = true; ?>
       var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">광고 자리 (개발 환경)</li>';
       $(list_id).append(adHtml);
     } else {
-      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
-        '<div class="adsense-wrapper" style="position: relative;">' +
-        '<ins class="adsbygoogle" style="display:block"' +
-        ' data-ad-format="fluid"' +
-        ' data-ad-layout-key="-hd+j-2v-68+mb"' +
-        ' data-ad-client="ca-pub-7573726661605583"' +
-        ' data-ad-slot="9872127954"></ins>' +
-        '</div>' +
-        '</li>';
-      $(list_id).append(adHtml);
+      // 운영 환경에서 실제 광고 로드 (비활성화됨)
+      // var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
+      //   '<div class="adsense-wrapper" style="position: relative;">' +
+      //   '<ins class="adsbygoogle" style="display:block"' +
+      //   ' data-ad-format="fluid"' +
+      //   ' data-ad-layout-key="-hd+j-2v-68+mb"' +
+      //   ' data-ad-client="ca-pub-7573726661605583"' +
+      //   ' data-ad-slot="9872127954"></ins>' +
+      //   '</div>' +
+      //   '</li>';
+      // $(list_id).append(adHtml);
 
-      setTimeout(function() {
-        var pushStartTime = performance.now();
-        try {
-          (adsbygoogle = window.adsbygoogle || []).push({});
-          var pushTime = performance.now() - pushStartTime;
-        } catch (e) {
-        }
-      }, 0);
+      // setTimeout(function() {
+      //   var pushStartTime = performance.now();
+      //   try {
+      //     (adsbygoogle = window.adsbygoogle || []).push({});
+      //     var pushTime = performance.now() - pushStartTime;
+      //   } catch (e) {
+      //   }
+      // }, 0);
     }
   }
 

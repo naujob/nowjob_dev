@@ -13,6 +13,9 @@
 <input type="hidden" id="individual_user_id" value="<?= htmlspecialchars(isset($individual_user_id) ? $individual_user_id : '', ENT_QUOTES, 'UTF-8') ?>" />
 <!-- 전화 걸 대상 번호 (JS에서 필요시 사용) -->
 <input type="hidden" id="call_target_phone" value="<?= htmlspecialchars(isset($call_target_phone) ? $call_target_phone : '', ENT_QUOTES, 'UTF-8') ?>" />
+<!-- 이 채팅방에 고정된 공고/이력서 (제안하기/지원하기 시 상대방 쪽 값 고정용) -->
+<input type="hidden" id="room_rc_idx" value="<?= isset($recruit['rc_idx']) ? $recruit['rc_idx'] : '' ?>" />
+<input type="hidden" id="room_ru_idx" value="<?= isset($resume['ru_idx']) ? $resume['ru_idx'] : '' ?>" />
 
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
@@ -677,18 +680,81 @@
 
                 </div>
             </div>
+            <!-- 숨겨진 파일 input (여러 개 선택 가능) -->
+            <input type="file" id="chatPhotoInput" accept="image/*" multiple style="display:none;">
+            <input type="file" id="chatFileInput" multiple style="display:none;">
+
+            <!-- 첨부메뉴 -->
+            <div id="attachMenu" class="attach-menu" data-state="closed">
+                <button type="button" class="attach-item" data-attach="photo">
+                    <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                        <rect x="3" y="12" width="42" height="30" rx="6" fill="#1a9e7c"></rect>
+                        <path d="M17 12l3.2-4.6A2 2 0 0 1 21.8 6.5h4.4a2 2 0 0 1 1.6.9L31 12z" fill="#1a9e7c"></path>
+                        <circle cx="24" cy="27" r="9" fill="#ffffff"></circle>
+                        <circle cx="24" cy="27" r="5.2" fill="#1a9e7c"></circle>
+                    </svg>
+                    <span>사진</span>
+                </button>
+                <button type="button" class="attach-item" data-attach="file">
+                    <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                        <path d="M4 12a5 5 0 0 1 5-5h9l4 5h13a5 5 0 0 1 5 5v20a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" fill="#1a9e7c"></path>
+                        <rect x="21.8" y="17" width="4.4" height="17" rx="2.2" fill="#ffffff"></rect>
+                        <rect x="15.5" y="23.3" width="17" height="4.4" rx="2.2" fill="#ffffff"></rect>
+                    </svg>
+                    <span>파일</span>
+                </button>
+                <button type="button" class="attach-item" data-attach="propose">
+                    <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                        <path d="M9 8a4 4 0 0 1 4-4h15l11 11v25a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4z" fill="#1a9e7c"></path>
+                        <path d="M28 4l11 11H30a2 2 0 0 1-2-2z" fill="#ffffff" opacity="0.55"></path>
+                        <rect x="16" y="22" width="16" height="3.4" rx="1.7" fill="#ffffff"></rect>
+                        <rect x="16" y="29" width="11" height="3.4" rx="1.7" fill="#ffffff"></rect>
+                    </svg>
+                    <span><?= ($user_type == "COMP") ? "제안하기" : "지원하기" ?></span>
+                </button>
+                <button type="button" class="attach-item js-attach-call" data-attach="call">
+                    <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                        <path d="M13.6 5.5c1.6-.9 3.6-.4 4.6 1.2l3.4 5.5c1 1.6.6 3.6-.9 4.7l-2.6 2c-.5.4-.7 1.1-.4 1.7 1.9 4.2 5.2 7.5 9.4 9.4.6.3 1.3.1 1.7-.4l2-2.6c1.1-1.5 3.1-1.9 4.7-.9l5.5 3.4c1.6 1 2.1 3 1.2 4.6l-2 3.5c-1.1 1.9-3.3 2.9-5.5 2.4C22.6 38 10 25.4 7.7 12.6c-.4-2.2.6-4.4 2.5-5.5z" fill="#1a9e7c"></path>
+                    </svg>
+                    <span>안심콜</span>
+                </button>
+            </div>
+
             <!-- 입력폼 -->
             <div class="write-form">
-                <i class="fa-solid fa-square-plus"></i>
+                <button type="button" id="btnAttachToggle" class="btn-attach-toggle" data-state="closed" aria-label="첨부 메뉴 열기/닫기">
+                    <svg class="icon-add" width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                        <circle cx="24" cy="24" r="24" fill="#57CCAF"></circle>
+                        <path d="M24 14v20M14 24h20" stroke="#ffffff" stroke-width="4.6" stroke-linecap="round"></path>
+                    </svg>
+                    <svg class="icon-close" width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                        <circle cx="24" cy="24" r="24" fill="#57CCAF"></circle>
+                        <path d="M16.5 16.5l15 15M31.5 16.5l-15 15" stroke="#ffffff" stroke-width="4.6" stroke-linecap="round"></path>
+                    </svg>
+                </button>
                 <label>
                     <span class="sr-text">메세지입력</span>
-                    <input type="text" id="chatTxt" name="chatTxt" autocorrect="off" autocapitalize="off" autocomplete="off" style="text-align:left;" placeholder="메세지를 입력해주세요.">
+                    <textarea id="chatTxt" name="chatTxt" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="메세지를 입력해주세요." rows="1"></textarea>
                 </label>
                 <button type="button" id="btnSend" class="btn-primary">전송</button>
             </div>
         </div>
 
     </div><!-- //page-content -->
+</div>
+
+<!-- 이미지 라이트박스 -->
+<div id="chatImgLightbox" class="chat-lightbox" style="display:none;">
+    <div class="chat-lightbox-main">
+        <img id="chatImgLightboxImg" src="" alt="">
+    </div>
+    <div id="chatImgLightboxThumbs" class="chat-lightbox-thumbs"></div>
+    <p id="chatImgLightboxCounter" class="chat-lightbox-counter"></p>
+    <button type="button" id="chatImgLightboxDownloadBtn" class="chat-lightbox-download-arrow" aria-label="사진 저장">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+    </button>
 </div>
 
 
@@ -795,6 +861,80 @@
     <!-- //인재정보 -->
 <?php endif; ?>
 
+<!-- 채팅방 내 제안하기(COMP)/지원하기(MEM) 선택 바텀시트 -->
+<input type="hidden" id="proposeMqType" value="<?= ($user_type == "COMP") ? "RESUME" : "RECRUIT" ?>" />
+<div id="proposeSelectPanel" class="layer-panel card-type" tabindex="-1">
+    <div class="panel-container">
+        <div class="panel-header" style="background: #57CCAF; color: #fff; padding-top: 1.25rem; margin-bottom: 20px;">
+            <h2 class="panel-title" style="color:#fff;"><?= ($user_type == "COMP") ? "제안할 채용공고 선택" : "지원할 이력서 선택" ?></h2>
+            <button type="button" aria-controls="proposeSelectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+        </div>
+        <div class="panel-body" style="padding: 2rem 1.375rem 1.5rem;">
+            <div class="panel-content">
+                <div class="terms-wrap">
+                    <div class="post-list">
+                        <ul class="list">
+                            <?php if ($user_type == "COMP") : ?>
+                                <?php $hasProposeItems = isset($my_recruit_list) && is_array($my_recruit_list) && count($my_recruit_list) > 0; ?>
+                                <?php if ($hasProposeItems) : ?>
+                                    <?php foreach ($my_recruit_list as $row) : ?>
+                                        <?php if (empty($row["rc_idx"])) { continue; } ?>
+                                        <li style="border: 1px solid #ccc; border-radius: 10px; margin-bottom: 10px;">
+                                            <div class="selectable-item">
+                                                <label class="form-checkbox">
+                                                    <input type="radio" name="chk_propose[]" value="<?= htmlspecialchars($row["rc_idx"], ENT_QUOTES, 'UTF-8') ?>" data-propose-id="<?= htmlspecialchars($row["rc_idx"], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars(isset($row["rc_name"]) ? $row["rc_name"] : '', ENT_QUOTES, 'UTF-8') ?>">
+                                                    <span class="label"></span>
+                                                    <span class="sr-text">선택</span>
+                                                </label>
+                                                <a href="javascript:void(0);" class="angle-link" style="background:none;">
+                                                    <strong><?= isset($row["rc_name"]) ? $row["rc_name"] : '' ?></strong>
+                                                </a>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <div class="is-empty_v2">
+                                        <p>등록된 채용공고가 없습니다.</p>
+                                    </div>
+                                <?php endif; ?>
+                            <?php else : ?>
+                                <?php $hasProposeItems = isset($my_resume_list) && is_array($my_resume_list) && count($my_resume_list) > 0; ?>
+                                <?php if ($hasProposeItems) : ?>
+                                    <?php foreach ($my_resume_list as $row) : ?>
+                                        <?php if (empty($row["ru_idx"])) { continue; } ?>
+                                        <li style="border: 1px solid #ccc; border-radius: 10px; margin-bottom: 10px;">
+                                            <div class="selectable-item">
+                                                <label class="form-checkbox">
+                                                    <input type="radio" name="chk_propose[]" value="<?= htmlspecialchars($row["ru_idx"], ENT_QUOTES, 'UTF-8') ?>" data-propose-id="<?= htmlspecialchars($row["ru_idx"], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars(isset($row["ru_name"]) ? $row["ru_name"] : '', ENT_QUOTES, 'UTF-8') ?>">
+                                                    <span class="label"></span>
+                                                    <span class="sr-text">선택</span>
+                                                </label>
+                                                <a href="javascript:void(0);" class="angle-link" style="background:none;">
+                                                    <strong><?= isset($row["ru_name"]) ? $row["ru_name"] : '' ?></strong>
+                                                </a>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <div class="is-empty_v2">
+                                        <p>등록된 이력서가 없습니다.</p>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+             <div class="panel-footer" style="position: relative; margin-top: 60px; ">
+                <div class="sticky-bottom" style="width:100%;">
+                    <button type="button" id="btnProposeSend" style="width:100%;" class="btn btn-primary bottom-sheet-action">보내기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- //채팅방 내 제안하기/지원하기 선택 바텀시트 -->
+
 <!-- 채팅방 나가기 바텀시트 -->
 <?php renderSelectBottomSheet(
     'leaveChatRoomSheet',
@@ -802,6 +942,16 @@
     '<p>채팅방을 나가면 목록에서 삭제됩니다.<br>상대방에게는 나가기 알림이 전송되며, 채팅방은 상대방 목록에 그대로 유지됩니다.</p>',
     '취소', 'btnLeaveCancel', '',
     '나가기', 'btnLeaveConfirm', ''
+); ?>
+
+<!-- 사진 저장 방식 선택 바텀시트 -->
+<?php renderSelectBottomSheet(
+    'chatImgSaveSheet',
+    '사진 저장',
+    '',
+    '이 사진만 저장하기', 'btnSaveThisImg', '',
+    '모든 사진 저장하기', 'btnSaveAllImg', '',
+    'chat-img-save-sheet'
 ); ?>
 
 <script>
@@ -829,6 +979,23 @@
             });
         });
     })();
+
+    // ===== 네이티브 통신: 팝업 상태 확인/제어 (뒤로가기 제어용) =====
+    window.isPopupOpen = function() {
+        return ($("#chatImgLightbox").is(':visible') ||
+                $("#chatImgSaveSheet").hasClass('on'));
+    };
+
+    window.closeAllPopups = function() {
+        if ($("#chatImgLightbox").is(':visible')) {
+            $("#chatImgLightbox").hide();
+            lightboxImages = [];
+            lightboxIndex = 0;
+        }
+        if ($("#chatImgSaveSheet").hasClass('on')) {
+            closePanel(document.getElementById("chatImgSaveSheet"));
+        }
+    };
 
     var last_send_dt = "";
     var rm_idx = "<?= $rm_idx ?>";
@@ -1279,7 +1446,7 @@
     // 공통 메시지 출력 처리 함수 (안드로이드/웹 공통 사용) -------------------------------------------
     var user_type = $("[name='user_type']").val();
 
-    function showMessage(info, is_prepend) {
+    function showMessage(info, is_prepend) { // info는 showMessage(info, ...) 함수의 파라미터로, 서버(MongoDB)에서 온 개별 메시지 객체
         var mg_idx = info.mg_idx || 'unknown';
 
         // ✅ 중복 메시지 체크: DOM에 이미 있으면 건너뛰기 (단순하고 확실한 방법)
@@ -1293,7 +1460,7 @@
             content += "         " + getFormatDate(new Date(info.mg_dt), 'kor');
             content += "</p>";
         } else {
-            var your_text_yn = (info.user_id == g_user_id ? "Y" : "N");
+            var your_text_yn = (info.user_id == g_user_id ? "Y" : "N"); // 내가 보낸 메시지인지 여부 g_user_id = ""; 현재 로그인한 사용자의 ID를 저장 ,info.user_id — 메시지를 보낸 사람 ID
             var item = info.user_id + "^" + getFormatDate(new Date(info.mg_dt), 'ymd') + "^" + getFormatDate(new Date(info.mg_dt), 'hh:mm');
 
             if (info.mg_type == "text") {
@@ -1324,12 +1491,97 @@
                     content += "    </div>";
                     content += "</div>";
                 }
-            } else if (info.mg_type == "file") {
-
             } else if (info.mg_type == "img") {
+                console.log("[CHAT_RENDER] 이미지 메시지 렌더링:", { mg_img: info.mg_img });
+                var imgUrls = [];
+                try {
+                    // JSON 배열이면 파싱, 아니면 단일 URL 처리 (하위호환성)
+                    var parsed = JSON.parse(info.mg_img || "[]");
+                    imgUrls = Array.isArray(parsed) ? parsed : [info.mg_img];
+                } catch(e) {
+                    imgUrls = info.mg_img ? [info.mg_img] : [];
+                }
 
+                var imgUrlsJson = JSON.stringify(imgUrls).replace(/'/g, "&#39;");
+
+                var bubbleClass = (your_text_yn == "Y") ? "chat-bubble" : "chat-bubble diff";
+                var content = "<div class='msg-item " + bubbleClass + " chat-bubble-img' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "'>";
+                content += "    <div class='bubble-content chat-img-wrap' data-images='" + imgUrlsJson + "'>";
+
+                for (var i = 0; i < imgUrls.length; i++) {
+                    content += "        <img src='" + imgUrls[i] + "' class='chat-img' data-full='" + imgUrls[i] + "' data-index='" + i + "' alt='첨부 이미지'>";
+                }
+
+                if (your_text_yn == "Y") {
+                    var readcount = 0;
+                    for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
+                        if (info.mg_reads[icnt].read_yn == "N") {
+                            readcount++;
+                        }
+                    }
+                    content += "    <div class='readcount'>" + (readcount > 0 ? readcount : "") + "</div>";
+                }
+
+                content += "    </div>";
+                content += "    <div class='meta'><p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p></div>";
+                content += "</div>";
+            } else if (info.mg_type == "file") {
+                console.log("[CHAT_RENDER] 파일 메시지 렌더링:", { mg_file: info.mg_file, mg_text: info.mg_text });
+                var fileUrls = [];
+                var fileNames = [];
+
+                try {
+                    // JSON 배열이면 파싱, 아니면 단일 파일 처리 (하위호환성)
+                    var parsedUrls = JSON.parse(info.mg_file || "[]");
+                    fileUrls = Array.isArray(parsedUrls) ? parsedUrls : [info.mg_file];
+                } catch(e) {
+                    fileUrls = info.mg_file ? [info.mg_file] : [];
+                }
+
+                try {
+                    var parsedNames = JSON.parse(info.mg_text || "[]");
+                    fileNames = Array.isArray(parsedNames) ? parsedNames : (info.mg_text ? [info.mg_text] : []);
+                } catch(e) {
+                    fileNames = info.mg_text ? [info.mg_text] : [];
+                }
+
+                // 파일 개수만큼 파일명 배열 채우기
+                while (fileNames.length < fileUrls.length) {
+                    fileNames.push("파일");
+                }
+
+                var bubbleClass = (your_text_yn == "Y") ? "chat-bubble" : "chat-bubble diff";
+                var content = "<div class='msg-item " + bubbleClass + " chat-bubble-file' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "'>";
+                content += "    <div class='bubble-content chat-files'>";
+
+                for (var i = 0; i < fileUrls.length; i++) {
+                    var fileName = fileNames[i] || "파일";
+                    content += "        <div class='chat-file' data-url='" + fileUrls[i] + "' data-filename='" + fileName + "'>";
+                    content += "            <span class='chat-file-icon'></span>";
+                    content += "            <span class='chat-file-name'>" + fileName + "</span>";
+                    content += "        </div>";
+                }
+
+                if (your_text_yn == "Y") {
+                    var readcount = 0;
+                    for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
+                        if (info.mg_reads[icnt].read_yn == "N") {
+                            readcount++;
+                        }
+                    }
+                    content += "    <div class='readcount'>" + (readcount > 0 ? readcount : "") + "</div>";
+                }
+
+                content += "    </div>";
+                content += "    <div class='meta'><p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p></div>";
+                content += "</div>";
             } else if (info.mg_type == "system_exit") {
                 // 시스템 메시지: 채팅방 나가기 알림
+                var content = "<p class='msg-item chat-notify' data-info='" + item + "'>";
+                content += info.mg_text;
+                content += "</p>";
+            } else if (info.mg_type == "propose") {
+                // 시스템 메시지: 채팅방 내 제안하기/지원하기 완료 안내
                 var content = "<p class='msg-item chat-notify' data-info='" + item + "'>";
                 content += info.mg_text;
                 content += "</p>";
@@ -1600,10 +1852,27 @@
         });
     }
 
-    $("#chatTxt").keyup(function(e) {
-        if (e.keyCode === 13) {
-            e.preventDefault();
-            send_message();
+    // textarea 자동 높이 조정 함수
+    function adjustTextareaHeight() {
+        var textarea = document.getElementById('chatTxt');
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'; // 최대 높이 120px 제한
+    }
+
+    // textarea 입력 이벤트: 실시간 높이 조정
+    document.getElementById('chatTxt').addEventListener('input', function() {
+        adjustTextareaHeight();
+    });
+
+    // textarea keydown: Shift+Enter로 메시지 전송
+    $("#chatTxt").keydown(function(e) {
+        if (e.keyCode === 13) { // Enter 키
+            if (e.shiftKey) {
+                // Shift+Enter: 메시지 전송
+                e.preventDefault();
+                send_message();
+            }
+            // 일반 Enter: 기본 동작 (줄바꿈)
         }
     });
 
@@ -1906,6 +2175,355 @@
             scrollBottom();
         });
     });
+
+    // ===== 첨부 메뉴 토글 (공통: 안드로이드/iOS 양쪽 모두에서 동작) =====
+    $(document).on("click", "#btnAttachToggle", function() {
+        var opening = $(this).attr("data-state") === "closed";
+        $(this).attr("data-state", opening ? "open" : "closed");
+        $("#attachMenu").attr("data-state", opening ? "open" : "closed");
+    });
+
+    // 안심콜 메뉴 아이템 클릭
+    $(document).on("click", ".js-attach-call", function() {
+        var $callBtn = $(".btn-call");
+        if ($callBtn.attr("data-show-call") === "true") {
+            $callBtn.get(0).click();
+        } else {
+            alert("현재 통화 가능한 상태가 아닙니다.");
+        }
+        $("#btnAttachToggle").attr("data-state", "closed");
+        $("#attachMenu").attr("data-state", "closed");
+    });
+
+    // ===== 사진/파일 첨부 기능 =====
+    var CHAT_IMG_MAX_SIZE = 8 * 1024 * 1024;
+    var CHAT_FILE_MAX_SIZE = 40 * 1024 * 1024;
+    var CHAT_FILE_ALLOWED_EXT = ["hwp","xls","doc","xlsx","docx","pdf","jpg","jpeg","gif","png","txt","ppt","pptx","zip"];
+    var CHAT_IMG_ALLOWED_EXT = ["jpg","jpeg","gif","png"];
+
+    $(document).on("click", ".attach-item[data-attach='photo']", function() {
+        $("#chatPhotoInput").val("").trigger("click");
+    });
+    $(document).on("click", ".attach-item[data-attach='file']", function() {
+        $("#chatFileInput").val("").trigger("click");
+    });
+    $(document).on("change", "#chatPhotoInput", function() {
+        handleAttachUploadMultiple(this.files, "img");
+    });
+    $(document).on("change", "#chatFileInput", function() {
+        handleAttachUploadMultiple(this.files, "file");
+    });
+
+    // 여러 첨부파일 업로드 처리
+    function handleAttachUploadMultiple(files, kind) {
+        if (!files || files.length === 0) { return; }
+
+        console.log("[CHAT_ATTACH] " + files.length + "개 파일 선택됨");
+
+        var fileList = [];
+        for (var i = 0; i < files.length; i++) {
+            fileList.push(files[i]);
+        }
+
+        // 메뉴 닫기
+        $("#btnAttachToggle").attr("data-state", "closed");
+        $("#attachMenu").attr("data-state", "closed");
+
+        // 각 파일을 순차적으로 처리 (첫 파일일 때만 로딩바 표시)
+        uploadFilesSequentially(fileList, kind, 0, true, []);
+    }
+
+    // 파일을 순차적으로 업로드 (모든 파일 완료 후 한 번에 전송)
+    function uploadFilesSequentially(fileList, kind, index, isFirstFile, uploadedUrls) {
+        if (index >= fileList.length) {
+            console.log("[CHAT_ATTACH] 모든 파일 업로드 완료 (총 " + uploadedUrls.length + "개)");
+            // 업로드 성공한 파일이 있으면 한 번에 전송
+            if (uploadedUrls && uploadedUrls.length > 0) {
+                sendAttachMessage(kind, uploadedUrls);
+            }
+            return;
+        }
+
+        var file = fileList[index];
+        var ext = (file.name.split(".").pop() || "").toLowerCase();
+        var maxSize = (kind == "img") ? CHAT_IMG_MAX_SIZE : CHAT_FILE_MAX_SIZE;
+        var allowedExt = (kind == "img") ? CHAT_IMG_ALLOWED_EXT : CHAT_FILE_ALLOWED_EXT;
+
+        console.log("[CHAT_ATTACH] [" + (index + 1) + "/" + fileList.length + "] 파일 처리:", {
+            fileName: file.name,
+            fileSize: (file.size / 1024 / 1024).toFixed(2) + "MB",
+            ext: ext
+        });
+
+        if (allowedExt.indexOf(ext) === -1) {
+            console.log("[CHAT_ATTACH] 확장자 검증 실패:", ext);
+            alert("[" + (index + 1) + "] " + file.name + " - 허용되지 않는 파일 형식입니다.");
+            uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+            return;
+        }
+        if (file.size > maxSize) {
+            console.log("[CHAT_ATTACH] 용량 초과:", (file.size / 1024 / 1024).toFixed(2) + "MB");
+            alert("[" + (index + 1) + "] " + file.name + " - 파일 용량은 " + (maxSize / (1024 * 1024)) + "MB 이하만 첨부 가능합니다.");
+            uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+            return;
+        }
+        if (typeof rm_info_ready !== 'undefined' && !rm_info_ready) {
+            console.log("[CHAT_ATTACH] 채팅방 미준비");
+            alert("채팅방 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+        }
+
+        console.log("[CHAT_ATTACH] [" + (index + 1) + "] 검증 통과, 업로드 요청 시작");
+        var formData = new FormData();
+        formData.append("attach_file", file);
+        formData.append("attach_type", kind);
+
+        var ajaxMethod = (isFirstFile) ? fileAjaxLoading : fileAjax;
+
+        ajaxMethod("/chat_proc/upload_chat_file", formData, function(ret) {
+            console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 응답:", ret);
+
+            if (ret.code != "00") {
+                console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 실패:", ret.msg);
+                alert("[" + (index + 1) + "] " + file.name + " - " + (ret.msg || "업로드에 실패했습니다."));
+                uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+                return;
+            }
+
+            console.log("[CHAT_ATTACH] [" + (index + 1) + "] 업로드 성공:", {
+                url: ret.data.url,
+                file_name: ret.data.file_name
+            });
+
+            // 업로드된 파일 정보를 배열에 추가
+            uploadedUrls.push({
+                url: ret.data.url,
+                fileName: ret.data.file_name
+            });
+
+            // 다음 파일 업로드
+            uploadFilesSequentially(fileList, kind, index + 1, false, uploadedUrls);
+        });
+    }
+
+    // 첨부 메시지 전송 (배열 형식으로 여러 파일 지원)
+    function sendAttachMessage(kind, urlArray) {
+        console.log("[CHAT_ATTACH] sendAttachMessage 시작:", { kind: kind, count: urlArray.length });
+
+        var chatotherid = $('#otherid').val();
+
+        // URL 배열과 파일명 배열을 JSON 문자열로 직렬화
+        var imgUrls = [];
+        var fileUrls = [];
+        var fileNames = [];
+
+        if (kind == "img") {
+            imgUrls = urlArray.map(function(item) { return item.url; });
+        } else if (kind == "file") {
+            fileUrls = urlArray.map(function(item) { return item.url; });
+            fileNames = urlArray.map(function(item) { return item.fileName; });
+        }
+
+        var message = {
+            rm_idx: Number(rm_idx),
+            user_id: g_user_id,
+            mg_type: kind,
+            mg_text: (kind == "file") ? JSON.stringify(fileNames) : "",
+            mg_req_dt: "",
+            mg_img: (kind == "img") ? JSON.stringify(imgUrls) : "",
+            mg_file: (kind == "file") ? JSON.stringify(fileUrls) : "",
+            mg_imoti: "",
+            mg_dt: getCurrentDate(),
+            mg_reads: new Array(),
+        };
+
+        for (var icnt = 0; icnt < rm_info.rm_users.length; icnt++) {
+            if (g_user_id == rm_info.rm_users[icnt].user_id) {
+                message.mg_reads.push({ read_yn: "Y", user_id: rm_info.rm_users[icnt].user_id });
+            } else {
+                message.mg_reads.push({ read_yn: "N", user_id: rm_info.rm_users[icnt].user_id });
+            }
+        }
+
+        console.log("[CHAT_ATTACH] 소켓 emit 호출:", { mg_type: kind, imgCount: imgUrls.length, fileCount: fileUrls.length });
+        socket.emit("message_insert", message, rm_info.rm_users);
+    }
+
+    // ===== 채팅방 안 제안하기(COMP)/지원하기(MEM) 기능 =====
+    $(document).on("click", ".attach-item[data-attach='propose']", function() {
+        if (typeof rm_info_ready !== 'undefined' && !rm_info_ready) {
+            alert("채팅방 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+        }
+
+        // 첨부 메뉴 닫기
+        $("#btnAttachToggle").attr("data-state", "closed");
+        $("#attachMenu").attr("data-state", "closed");
+
+        // 라디오 선택 초기화 후 바텀시트 열기
+        $("[name='chk_propose[]']").prop("checked", false);
+        var $panel = document.getElementById("proposeSelectPanel");
+        if ($panel && typeof openPanel === "function") {
+            openPanel($panel);
+        }
+    });
+
+    $(document).on("click", "#btnProposeSend", function() {
+        var $checked = $("[name='chk_propose[]']:checked");
+        if ($checked.length === 0) {
+            alert("항목을 선택해주세요.");
+            return;
+        }
+
+        var mqType = $("#proposeMqType").val(); // RESUME: 제안하기(COMP) / RECRUIT: 지원하기(MEM)
+        // value 대신 data-propose-id 속성으로 값을 안전하게 추출 (name 배열 형식 jQuery 호환성 문제 회피)
+        var selectedIdx = $checked.data("propose-id") || $checked.val();
+        var selectedName = $checked.data("name") || "";
+
+        var params = {
+            rm_idx: rm_idx,
+            mq_type: mqType,
+            rc_idx: (mqType == "RESUME") ? selectedIdx : $("#room_rc_idx").val(),
+            ru_idx: (mqType == "RESUME") ? $("#room_ru_idx").val() : selectedIdx
+        };
+
+        comAjax("/chat_proc/propose_from_room", params, function(ret) {
+            var $panel = document.getElementById("proposeSelectPanel");
+            if ($panel && typeof closePanel === "function") {
+                closePanel($panel);
+            }
+
+            if (ret.code == "00") {
+                var msgText = (mqType == "RESUME")
+                    ? ("\"" + selectedName + "\" 공고를 제안했습니다.")
+                    : ("\"" + selectedName + "\" 이력서로 지원했습니다.");
+                sendProposeSystemMessage(msgText);
+            } else {
+                // 이미 지원/제안한 이력이 있는 경우(code=90) 등: 안내만 표시, 채팅 메시지 전송 없음
+                alert(ret.msg || "처리에 실패했습니다.");
+            }
+        });
+    });
+
+    // 제안/지원 완료 안내를 채팅창에 시스템 메시지로 전송
+    function sendProposeSystemMessage(msgText) {
+        var message = {
+            rm_idx: Number(rm_idx),
+            user_id: g_user_id,
+            mg_type: "propose",
+            mg_text: msgText,
+            mg_req_dt: "",
+            mg_img: "",
+            mg_file: "",
+            mg_imoti: "",
+            mg_dt: getCurrentDate(),
+            mg_reads: new Array(),
+        };
+
+        for (var icnt = 0; icnt < rm_info.rm_users.length; icnt++) {
+            if (g_user_id == rm_info.rm_users[icnt].user_id) {
+                message.mg_reads.push({ read_yn: "Y", user_id: rm_info.rm_users[icnt].user_id });
+            } else {
+                message.mg_reads.push({ read_yn: "N", user_id: rm_info.rm_users[icnt].user_id });
+            }
+        }
+
+        socket.emit("message_insert", message, rm_info.rm_users);
+    }
+
+    // 제안/지원 선택 바텀시트: 항목 클릭 시 해당 항목의 radio 버튼 선택
+    $(document).on("click", "#proposeSelectPanel .selectable-item", function(e) {
+        if ($(e.target).is("label") || $(e.target).is("input") || $(e.target).closest("label").length > 0) {
+            return;
+        }
+        var $radio = $(this).find("input[type='radio'][name='chk_propose[]']");
+        if ($radio.length > 0) {
+            $radio.prop("checked", true);
+        }
+    });
+
+    // 이미지 라이트박스 (묶음 사진 썸네일 네비게이션 지원)
+    var lightboxImages = [];
+    var lightboxIndex = 0;
+
+    function openImageLightbox(images, index) {
+        lightboxImages = images;
+        lightboxIndex = index;
+        renderLightboxState();
+        $("#chatImgLightbox").css("display", "flex");
+    }
+
+    function renderLightboxState() {
+        var url = lightboxImages[lightboxIndex];
+        $("#chatImgLightboxImg").attr("src", url);
+        $("#chatImgLightboxCounter").text(lightboxImages.length + "장 중 " + (lightboxIndex + 1) + "번");
+
+        var thumbHtml = "";
+        for (var i = 0; i < lightboxImages.length; i++) {
+            var activeCls = (i === lightboxIndex) ? " active" : "";
+            thumbHtml += "<img src='" + lightboxImages[i] + "' class='chat-lightbox-thumb" + activeCls + "' data-index='" + i + "' alt=''>";
+        }
+        $("#chatImgLightboxThumbs").html(thumbHtml).toggle(lightboxImages.length > 1);
+    }
+
+    $(document).on("click", ".chat-img", function() {
+        var $wrap = $(this).closest(".chat-img-wrap");
+        var images = [];
+        try {
+            images = JSON.parse($wrap.attr("data-images") || "[]");
+        } catch(e) {
+            images = [$(this).data("full")];
+        }
+        var index = Number($(this).data("index")) || 0;
+        openImageLightbox(images, index);
+    });
+
+    $(document).on("click", ".chat-lightbox-thumb", function(e) {
+        e.stopPropagation();
+        lightboxIndex = Number($(this).data("index"));
+        renderLightboxState();
+    });
+
+    $(document).on("click", "#chatImgLightbox", function() {
+        $(this).hide();
+        $("#chatImgLightboxImg").attr("src", "");
+        lightboxImages = [];
+        lightboxIndex = 0;
+    });
+
+    $(document).on("click", "#chatImgLightboxDownloadBtn", function(e) {
+        e.stopPropagation();
+        openPanel(document.getElementById("chatImgSaveSheet"));
+    });
+
+    $(document).on("click", "#btnSaveThisImg", function() {
+        var url = lightboxImages[lightboxIndex];
+        triggerNativeDownload(url, url.split("/").pop());
+        closePanel(document.getElementById("chatImgSaveSheet"));
+    });
+
+    $(document).on("click", "#btnSaveAllImg", function() {
+        for (var i = 0; i < lightboxImages.length; i++) {
+            triggerNativeDownload(lightboxImages[i], lightboxImages[i].split("/").pop());
+        }
+        closePanel(document.getElementById("chatImgSaveSheet"));
+    });
+
+    // 파일 다운로드 (기존 그대로 유지)
+    $(document).on("click", ".chat-file", function() {
+        var url = $(this).data("url");
+        var fileName = $(this).data("filename");
+        console.log("[CHAT_FILE_CLICK] 파일 탭됨:", { url: url, fileName: fileName });
+        triggerNativeDownload(url, fileName);
+    });
+
+    // 바텀시트 Swipe 기능 초기화 (main.js에서 정의된 전역 함수 사용)
+    window.addEventListener('DOMContentLoaded', function() {
+        if (typeof initPanelSwipe === 'function') {
+            initPanelSwipe('chatImgSaveSheet');
+        }
+    });
+
 </script>
 <!-- ===== 앱(WebView) 전용 스크립트 : 안드로이드 WebView에서만 실행 ===== -->
 <?php if ($this->common->getSession("os_type") == "android") : ?>
@@ -2289,7 +2907,8 @@
 
             //채팅창 클리어
             $("#chatTxt").val(""); //.focus();
-            
+            document.getElementById('chatTxt').style.height = '3rem'; // textarea 높이 초기화
+
             // 서버 응답 후 버튼 활성화는 message_insert_return 핸들러에서 처리
         }
         /**
@@ -2920,6 +3539,7 @@
             //채팅방 실시간 쏘기
             socket.emit("message_insert", message, rm_info.rm_users);
             $("#chatTxt").val(""); //.focus();
+            document.getElementById('chatTxt').style.height = '3rem'; // textarea 높이 초기화
             
             // 서버 응답 후 버튼 활성화는 message_insert_return 핸들러에서 처리
 
@@ -3215,6 +3835,7 @@
                 $(".btn-call").attr("data-show-call", "true");
             }
         };
+
     </script>
 <?php endif; ?>
 
@@ -3257,6 +3878,210 @@
         height: 1px;
         overflow: hidden;
         clip: rect(0, 0, 0, 0);
+    }
+
+    .btn-attach-toggle {
+        flex-shrink: 0;
+        width: 2.875rem;
+        height: 2.875rem;
+        padding: 0;
+        border: none;
+        background: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .btn-attach-toggle svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .btn-attach-toggle .icon-close {
+        display: none;
+    }
+
+    .btn-attach-toggle[data-state="open"] .icon-add {
+        display: none;
+    }
+
+    .btn-attach-toggle[data-state="open"] .icon-close {
+        display: inline;
+    }
+
+    .attach-menu {
+        display: none;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+        padding: 1rem 0.875rem;
+        background: #fff;
+        position: sticky;
+        bottom: 5.75rem;
+        z-index: 9;
+        border-top: 1px solid #eee;
+            width: 288px;
+        margin-bottom: 10px;
+        margin-left: 26px;
+        border-radius: 13px;
+    }
+
+    .attach-menu[data-state="open"] {
+        display: grid;
+    }
+
+    .attach-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.375rem;
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 0.75rem;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .attach-item svg {
+        width: 2.875rem;
+        height: 2.875rem;
+    }
+
+    .chat-bubble-img .bubble-content.chat-img-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.25rem;
+        background: transparent;
+    }
+    .chat-img {
+        max-width: 200px;
+        max-height: 260px;
+        border-radius: 10px;
+        display: block;
+        cursor: pointer;
+        object-fit: cover;
+    }
+
+    .chat-bubble-file .bubble-content.chat-files {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .chat-bubble-file .chat-file {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: 14rem;
+        cursor: pointer;
+    }
+    .chat-file-icon {
+        flex-shrink: 0;
+        width: 1.75rem;
+        height: 1.75rem;
+        background: rgba(255,255,255,0.25);
+        border-radius: 4px;
+    }
+    .chat-bubble-file.diff .chat-file-icon {
+        background: #eee;
+    }
+    .chat-file-name {
+        font-size: 0.8125rem;
+        word-break: break-all;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* 사진 저장 방식 선택 바텀시트 스타일 */
+    #chatImgSaveSheet .bottom-sheet-header,
+    #chatImgSaveSheet .bottom-sheet-body {
+        display: none;
+    }
+    #chatImgSaveSheet .bottom-sheet-actions--split {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+   #chatImgSaveSheet #btnSaveAllImg {
+    background-color: #57CCAF;
+}
+    #chatImgSaveSheet .btn-bottom-sheet{
+        width: 100%;
+        font-size: 20px;
+        padding: 10px;
+    }
+    #chatImgSaveSheet .btn-bottom-sheet-secondary {
+        background-color: #1B9D7D;
+        color: #fff;
+        border: none;
+
+    }
+    #chatImgSaveSheet .btn-bottom-sheet-secondary:active,
+    #chatImgSaveSheet .btn-bottom-sheet-secondary:hover {
+        background-color: #158a6f;
+    }
+
+    .chat-lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0,0,0,0.85);
+        flex-direction: column;
+        gap: 0.75rem;
+        display: flex;
+    }
+    .chat-lightbox-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-height: 0;
+    }
+    .chat-lightbox-main img {
+        max-width: 92vw;
+        max-height: 70vh;
+        object-fit: contain;
+    }
+    .chat-lightbox-thumbs {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding: 0 1rem;
+        max-width: 100vw;
+        justify-content: center;
+    }
+    .chat-lightbox-thumb {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+        opacity: 0.5;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    .chat-lightbox-thumb.active {
+        opacity: 1;
+        border-color: #1a9e7c;
+    }
+    .chat-lightbox-counter {
+        color: #fff;
+        font-size: 0.8125rem;
+        text-align: center;
+        margin: 0;
+    }
+    .chat-lightbox-download-arrow {
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        cursor: pointer;
     }
 
     .btn-leave-list {

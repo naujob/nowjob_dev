@@ -451,6 +451,13 @@ class Chat extends CI_Controller
       }
     }
 
+    // 채팅방 안 "제안하기(COMP)/지원하기(MEM)" 바텀시트에 사용할 목록
+    if ($user_type == "COMP") {
+      $data["my_recruit_list"] = $this->member_model->getRecruitActaiveListAll($this->mm_idx);
+    } else {
+      $data["my_resume_list"] = $this->member_model->getResumeList(["mm_idx" => $this->mm_idx]);
+    }
+
     $this->layout->shop('/chat/chat_view', $data);
   }
 

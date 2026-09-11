@@ -496,9 +496,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   }
 
 </style>
-<!-- Google AdSense 인피드 광고 스크립트 -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
-  crossorigin="anonymous"></script>
+<!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
+  crossorigin="anonymous"></script> -->
 <div class="page-recruit">
 
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
@@ -1075,25 +1075,25 @@ $tpl_show_chat_mark = true; ?>
         '</li>';
       $(list_id).append(adHtml);
     } else {
-      // 운영 환경에서 실제 광고 로드
-      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
-        '<div class="adsense-wrapper" style="position: relative;">' +
-        '<ins class="adsbygoogle" style="display:block"' +
-        ' data-ad-format="fluid"' +
-        ' data-ad-layout-key="-hd+j-2v-68+mb"' +
-        ' data-ad-client="ca-pub-7573726661605583"' +
-        ' data-ad-slot="9872127954"></ins>' +
-        '</div>' +
-        '</li>';
-      $(list_id).append(adHtml);
+      // 운영 환경에서 실제 광고 로드 (비활성화됨)
+      // var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
+      //   '<div class="adsense-wrapper" style="position: relative;">' +
+      //   '<ins class="adsbygoogle" style="display:block"' +
+      //   ' data-ad-format="fluid"' +
+      //   ' data-ad-layout-key="-hd+j-2v-68+mb"' +
+      //   ' data-ad-client="ca-pub-7573726661605583"' +
+      //   ' data-ad-slot="9872127954"></ins>' +
+      //   '</div>' +
+      //   '</li>';
+      // $(list_id).append(adHtml);
 
-      // 비동기로 광고 로드 (setTimeout 사용)
-      setTimeout(function() {
-        try {
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-        }
-      }, 0); // 비동기 로드 (즉시)
+      // // 비동기로 광고 로드 (setTimeout 사용)
+      // setTimeout(function() {
+      //   try {
+      //     (adsbygoogle = window.adsbygoogle || []).push({});
+      //   } catch (e) {
+      //   }
+      // }, 0); // 비동기 로드 (즉시)
     }
   }
 

@@ -863,6 +863,11 @@ class Recruit extends CI_Controller
     $data["os_type"] = $os_type;
     $data["view_list"] = $view_list;
     $data["resume"] = $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y", "ru_status" => "Y"]);
+    // echo '<pre>';
+    // echo json_encode($data["resume"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    // echo '</pre>';
+    // die(); 
+
     $data["info"] = $info;
     $data["addr"] = $addr_info;
     $data["kakao_key"] = $kakao_key;

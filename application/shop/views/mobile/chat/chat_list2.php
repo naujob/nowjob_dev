@@ -264,6 +264,13 @@ $top_bar = array(
                     return deduped[key];
                 });
 
+                // dedupe 이전의 전체 rm_idx를 추적 (탭 판별용)
+                var currentTabRmIdxSet = new Set();
+                list.forEach(function(row) {
+                    currentTabRmIdxSet.add(String(row.rm_idx));
+                });
+                window.__chatTab2RmIdxSet = currentTabRmIdxSet; // 제안받은공고 탭의 모든 rm_idx
+
                 dedupedList.forEach(function(row) {
                     var $clone = $("#tpl_chat2").clone();
                     var $content = $clone.html();
@@ -342,19 +349,28 @@ $top_bar = array(
                     });
                 });
 
-                // 현재 페이지의 chat_list 컨테이너 내에서만 요소 찾기
+                // 탭 판별: DOM 존재 여부가 아니라 dedupe 이전 리스트 기반
+                var belongsToThisTab = window.__chatTab2RmIdxSet && window.__chatTab2RmIdxSet.has(String(room.rm_idx));
                 var $unreadElement = $('#chat_list #room_idx_unread_cnt_' + room.rm_idx);
+
+                // DOM에 실제 렌더링된 요소(dedupe 생존자)에만 숫자 표시
                 if ($unreadElement.length > 0) {
-                    // 현재 페이지에 있는 채팅방 (제안받은공고 탭)
                     $unreadElement.html(count);
                     if (count > 0) {
                         $unreadElement.show();
-                        tab2UnreadCount += count;
                     } else {
                         $unreadElement.hide();
                     }
+                }
+
+                // 탭별 카운팅: 추적된 리스트 기반
+                if (belongsToThisTab) {
+                    // 제안받은공고 탭
+                    if (count > 0) {
+                        tab2UnreadCount += count;
+                    }
                 } else {
-                    // 현재 페이지에 없는 채팅방 (지원한공고 탭)
+                    // 지원한공고 탭
                     if (count > 0) {
                         tab1UnreadCount += count;
                     }

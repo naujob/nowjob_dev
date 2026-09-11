@@ -801,16 +801,12 @@ class memberModel extends MY_Model
          ) pm_name,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate,
-         IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT rm_idx ORDER BY rm_idx ASC SEPARATOR ', '), ')')
-          FROM st_room
-          WHERE rc_idx = aa.rc_idx
-          AND (ru_idx IN (
-              SELECT mq.ru_idx FROM st_member_request mq
-              INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
-              INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
-              WHERE mq.mq_type = 'RECRUIT' AND mq.rc_idx = aa.rc_idx
-              AND mem.mm_status = 'Y'
-          ))
+         IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT mq.rm_idx ORDER BY mq.rm_idx ASC SEPARATOR ', '), ')')
+          FROM st_member_request mq
+          INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
+          INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
+          WHERE mq.mq_type = 'RECRUIT' AND mq.rc_idx = aa.rc_idx
+          AND mem.mm_status = 'Y'
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -893,16 +889,12 @@ class memberModel extends MY_Model
          ) pm_name,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate,
-         IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT rm_idx ORDER BY rm_idx ASC SEPARATOR ', '), ')')
-          FROM st_room
-          WHERE rc_idx = aa.rc_idx
-          AND ru_idx IN (
-              SELECT mq.ru_idx FROM st_member_request mq
-              INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
-              INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
-              WHERE mq.mq_type = 'RESUME' AND mq.rc_idx = aa.rc_idx AND mq.mm_idx = '$mm_idx'
-              AND mem.mm_status = 'Y'
-          )
+         IFNULL((SELECT CONCAT('(', GROUP_CONCAT(DISTINCT mq.rm_idx ORDER BY mq.rm_idx ASC SEPARATOR ', '), ')')
+          FROM st_member_request mq
+          INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
+          INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
+          WHERE mq.mq_type = 'RESUME' AND mq.rc_idx = aa.rc_idx AND mq.mm_idx = '$mm_idx'
+          AND mem.mm_status = 'Y'
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -965,7 +957,7 @@ class memberModel extends MY_Model
          ) pm_name,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate,
-         (SELECT min(rm_idx) rm_idx FROM st_room room WHERE req.rc_idx = room.rc_idx AND room.ru_idx = req.ru_idx) rm_idx,
+         req.rm_idx,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa
 			INNER JOIN st_member_request req ON req.rc_idx = aa.rc_idx
@@ -4870,7 +4862,7 @@ FROM (
             LEFT JOIN st_promotion p
                 ON p.pm_code = 'M001' AND p.pm_sdate <= NOW() AND p.pm_edate >= NOW() AND p.rc_idx = bb.ru_idx
             LEFT JOIN st_room room
-                        ON room.rc_idx = mq.rc_idx AND room.ru_idx = mq.ru_idx
+                        ON room.rm_idx = mq.rm_idx
                          WHERE 1=1
   AND aa.mm_status = 'Y'
   AND rc.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
@@ -4947,7 +4939,7 @@ order by rm_up_dt desc
           LEFT JOIN st_promotion p
               ON p.pm_code = 'M001' AND p.pm_sdate <= NOW() AND p.pm_edate >= NOW() AND p.rc_idx = bb.ru_idx
           LEFT JOIN st_room room
-              ON room.rc_idx = mq.rc_idx AND room.ru_idx = mq.ru_idx
+              ON room.rm_idx = mq.rm_idx
           WHERE 1=1
           AND aa.mm_status = 'Y'
           and mq.rc_idx = rc.rc_idx
@@ -5083,7 +5075,7 @@ function getRequestRecruitList2($params){
         left join st_address ad
             on aa.mm_idx = ad.mm_idx and ad.ad_type = 'RESUME' and ad.ad_key = bb.ru_idx
         LEFT JOIN st_room room
-            ON room.rc_idx = mq.rc_idx AND room.ru_idx = mq.ru_idx
+            ON room.rm_idx = mq.rm_idx
 ";
 
 		# 조건
@@ -5144,7 +5136,7 @@ function getRequestRecruitList2($params){
 		$sql .= "  LEFT JOIN st_address ad ";
 		$sql .= "            ON aa.mm_idx = ad.mm_idx AND ad.ad_type = 'RESUME' AND ad.ad_key = bb.ru_idx ";
 		$sql .= "        LEFT JOIN st_room room ";
-		$sql .= "            ON room.rc_idx = mq.rc_idx AND room.ru_idx = mq.ru_idx ";
+		$sql .= "            ON room.rm_idx = mq.rm_idx ";
 		$sql .= "                 WHERE 1=1 ";
 		$sql .= "  AND aa.mm_status = 'Y' ";
 		$sql .= "  AND mq.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
@@ -5354,7 +5346,7 @@ SELECT
             LEFT JOIN st_address ad
                 ON aa.mm_idx = ad.mm_idx AND ad.ad_type = 'MEMBER'
             LEFT JOIN st_room room
-                ON room.rc_idx = mq.rc_idx AND room.ru_idx = mq.ru_idx
+                ON room.rm_idx = mq.rm_idx
  WHERE 1=1
   AND aa.mm_status = 'Y'
   AND bb.mm_idx = '" . $this->inject($params["mm_idx"]) . "'

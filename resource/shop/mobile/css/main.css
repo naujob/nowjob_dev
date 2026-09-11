@@ -3046,7 +3046,7 @@ fieldset {
     perspective: 500px;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    z-index: 250;
+    z-index: 1100;
 }
 
 .layer-popup:before {
@@ -11597,6 +11597,7 @@ form#frm {
     position: sticky;
     bottom: 0;
     z-index: 10;
+    gap: 5px;
 }
 
 .chat-view-body .write-form form {
@@ -11625,6 +11626,24 @@ form#frm {
     -webkit-box-shadow: none;
     box-shadow: none;
     outline: 0;
+}
+
+.chat-view-body .write-form textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 17px;
+    font-family: inherit;
+    text-align: left;
+    border-radius: 1.125rem;
+    border: 0;
+    background: #F4F4F4;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    outline: 0;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.5;
 }
 
 .chat-view-body .write-form .btn-primary {

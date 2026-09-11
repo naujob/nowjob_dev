@@ -846,6 +846,50 @@ class Common_proc extends CI_Controller
 		}
 	}
 
+	// 제안/지원 대상(idx)의 상대방 mm_idx를 알아낸다.
+	// RECRUIT 타입: idx=rc_idx(지원 대상 공고) → 공고 소유자
+	// RESUME  타입: idx=ru_idx(제안 대상 인재) → 이력서 소유자
+	private function get_opponent_mm_idx($mq_type, $idx)
+	{
+		if ($mq_type == "RECRUIT") {
+			$row = $this->db->query("SELECT mm_idx FROM st_recruit WHERE rc_idx = ?", [$idx])->row_array();
+		} else if ($mq_type == "RESUME") {
+			$row = $this->db->query("SELECT mm_idx FROM st_resume WHERE ru_idx = ?", [$idx])->row_array();
+		} else {
+			$row = null;
+		}
+		return ($row && !empty($row["mm_idx"])) ? $row["mm_idx"] : null;
+	}
+
+	// 나(my_mm_idx)와 상대방(opponent_mm_idx) 사이에 이미 존재하는 recruit 타입 방을 찾는다.
+	// st_room.mm_idx(생성자)에는 의존하지 않고, 방에 연결된 공고 주인/이력서 주인의 조합으로 판별한다.
+	private function find_existing_room_by_opponent($my_mm_idx, $opponent_mm_idx)
+	{
+		if (empty($my_mm_idx) || empty($opponent_mm_idx)) {
+			return null;
+		}
+		if ($my_mm_idx == $opponent_mm_idx) {
+			return null; // 자기 자신과의 매칭 방지, 기존 신규 생성 경로로 폴백
+		}
+
+		$sql = "
+			SELECT room.rm_idx
+			FROM st_room room
+			LEFT JOIN st_recruit rc ON room.rc_idx = rc.rc_idx
+			LEFT JOIN st_resume  ru ON room.ru_idx = ru.ru_idx
+			WHERE room.rm_type = 'recruit'
+			AND (
+				(rc.mm_idx = ? AND ru.mm_idx = ?)
+				OR
+				(rc.mm_idx = ? AND ru.mm_idx = ?)
+			)
+			ORDER BY room.rm_idx DESC
+			LIMIT 1
+		";
+		$row = $this->db->query($sql, [$my_mm_idx, $opponent_mm_idx, $opponent_mm_idx, $my_mm_idx])->row_array();
+		return ($row && !empty($row["rm_idx"])) ? $row["rm_idx"] : null;
+	}
+
 	# 즐겨찾기,지원하기등
 	function member_request()
 	{
@@ -854,7 +898,7 @@ class Common_proc extends CI_Controller
 			ob_start();
 
 			$mq_type = input_post("mq_type");
-			$mq_idxs = input_post("mq_idxs");
+			$mq_idxs = input_post("mq_idxs"); // [rc_idx] 배열 or [ru_idx] 배열 mq_idxs: [12345]
 			$rc_idx = input_post("rc_idx");
 			$mm_idx = $this->user->getUserIdx();
 
@@ -906,6 +950,12 @@ class Common_proc extends CI_Controller
 				$resume = $this->member_model->getResume(["mm_idx" => $mm_idx, "ru_show_yn" => "Y"]);
 			}
 
+			// 이력서 정보 확인
+			if (!$resume) {
+				error_log("[ERROR] 이력서 정보 미존재 - mq_type: $mq_type, mm_idx: $mm_idx");
+				json_return("99", "이력서 정보를 찾을 수 없습니다.");
+			}
+
 			# 중복체크
 			$is_data = false;
 			$is_name = "";
@@ -925,8 +975,12 @@ class Common_proc extends CI_Controller
 						AND ru_idx = '" . $this->db->escape_str($data["ru_idx"]) . "'
 					";
 					$query_proposal = $this->db->query($sql_proposal);
+					if (!$query_proposal) {
+						error_log("[ERROR] 제안 중복 체크 쿼리 실패 - rc_idx: " . $data["rc_idx"] . ", ru_idx: " . $data["ru_idx"]);
+						json_return("99", "요청 처리 중 오류가 발생했습니다.");
+					}
 					$proposal_result = $query_proposal->row_array();
-					
+
 					if ($proposal_result && $proposal_result["cnt"] > 0) {
 						// 제안이 이미 있는 경우 알림창 표시
 						json_return("90", "이미 기업에서 제안한 공고입니다.<br/>같은 공고와 같은 이력서로 지원할 수 없습니다.");
@@ -939,12 +993,13 @@ class Common_proc extends CI_Controller
 						continue;
 					}
 				}
-
+                // 같은 공고-이력서로 이미 지원했는지 확인
 				$check = $this->member_model->checkMemberRequest($data);
 
-				if ($check != null) {
+				if ($check != null) {   // 이미 지원함
 					$is_data = true;
 					$is_name = $check["subject"];
+					error_log("[DUPLICATE_REQUEST] 중복 지원 - mq_type: $mq_type, mm_idx: $mm_idx, rc_idx: " . (isset($data["rc_idx"]) ? $data["rc_idx"] : "N/A") . ", ru_idx: " . (isset($data["ru_idx"]) ? $data["ru_idx"] : "N/A"));
 					break;
 				}
 			}
@@ -1091,83 +1146,105 @@ class Common_proc extends CI_Controller
 					$data["rc_idx"] = $rc_idx;
 				}
 
-					$result = $this->member_model->setMemberRequest($data, $data);
-
-				//채팅창 동시 생성.2023.11.20
+				// 채팅방 처리: 상대방과의 기존 방이 있으면 재사용, 없으면 신규 생성
+				// (방을 먼저 결정한 뒤 지원 기록을 저장해야 rm_idx를 포함시킬 수 있음)
+				$rm_idx = null;
 				try {
-					$info_chat = [
-						"rm_idx" => '',
-						"rc_idx" => $data["rc_idx"],
-						"ru_idx" => $data["ru_idx"],
-						"td_idx" => 0,
-						"mm_idx" => $mm_idx,
-					];
-					$info_chat['point_yn'] = 'N';
+					// 1. 상대방 mm_idx 구하기
+					$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $idx);
 
-			// 채팅방 생성에 타임아웃 설정 (10초)
-				$result_chat = $this->common_model->insertRoom($info_chat);
+					// 2. 기존 방 찾기
+					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx);
 
-			if ($result_chat && $result_chat["code"] == "00") {
-				$rm_idx = $result_chat["key"];
+					if ($existing_rm_idx) {
+						// 기존 방이 있으면: MySQL st_room의 rc_idx/ru_idx만 갱신
+						$rm_idx = $existing_rm_idx;
+						$this->common_model->updateRoom(
+							["rc_idx" => $data["rc_idx"], "ru_idx" => $data["ru_idx"], "up_dt" => get_today()],
+							["rm_idx" => $existing_rm_idx]
+						);
+						// MongoDB는 건드리지 않음 (rm_idx 동일 여부로만 조회되므로 필요 없음)
+					} else {
+						// 기존 방이 없으면: 신규 생성 로직 (기존 코드 그대로)
+						$info_chat = [
+							"rm_idx" => '',
+							"rc_idx" => $data["rc_idx"],
+							"ru_idx" => $data["ru_idx"],
+							"td_idx" => 0,
+							"mm_idx" => $mm_idx,
+						];
+						$info_chat['point_yn'] = 'N';
 
-				// 🔥 MongoDB 채팅방도 즉시 생성 (rc_idx, ru_idx 포함)
-				// 이렇게 하면 재입장 시 기존 방을 찾을 수 있음
-				$mongo_room_data = [
-					"rm_idx" => (int)$rm_idx,
-					"rc_idx" => (int)$data["rc_idx"],
-					"ru_idx" => (int)$data["ru_idx"],
-					"rm_type" => "recruit",
-					"rm_img" => "",
-					"rm_subject" => "채용공고 채팅방",
-					"rm_desc" => "채용공고 관련 채팅방",
-					"rm_last_msg" => "",
-					"rm_last_dt" => date('Y-m-d H:i:s'),
-					"rm_users" => [
-						["user_id" => $user_id]
-					],
-					"user_info" => [
-						["user_id" => $user_id]
-					],
-					"rm_status" => "N",
-					"rm_messages" => []
-				];
+						$result_chat = $this->common_model->insertRoom($info_chat);
 
-				// MongoDB 채팅방 생성 API 호출
-				try {
-					// 내부 서버에서는 localhost 사용 (환경별 포트/프로토콜 분기)
-					$is_dev_env = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
-					$chat_server_url = $is_dev_env
-						? "http://127.0.0.1:3031/newroommake"
-						: "https://127.0.0.1:3030/newroommake";
-					$ch = curl_init($chat_server_url);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_POST, true);
-					curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mongo_room_data));
-					curl_setopt($ch, CURLOPT_HTTPHEADER, [
-						'Content-Type: application/json'
-					]);
-					curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 5초 타임아웃
-					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL 검증 비활성화
-					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // SSL 호스트 검증 비활성화
-					
-						$response = curl_exec($ch);
-						$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-						$curl_error = curl_error($ch);
-						curl_close($ch);
+						if ($result_chat && $result_chat["code"] == "00") {
+							$rm_idx = $result_chat["key"]; // ← 신규 생성 시 rm_idx 확보
+							$current_user_id = $this->user->getUserId();
+						//	error_log("[CHAT_ROOM_CREATE] MySQL 채팅방 생성 완료 - rm_idx: $rm_idx, rc_idx: {$data["rc_idx"]}, ru_idx: {$data["ru_idx"]}, user_id: $current_user_id"); //- rm_idx: 69, rc_idx: 228, ru_idx: 106, user_id: 01022222222
 
-						// MongoDB 생성 실패해도 제안 처리는 계속 진행
-					} catch (Exception $e) {
-						// MongoDB 생성 실패해도 제안 처리는 계속 진행
+							$mongo_room_data = [
+								"rm_idx" => (int)$rm_idx,
+								"rc_idx" => (int)$data["rc_idx"],
+								"ru_idx" => (int)$data["ru_idx"],
+								"rm_type" => "recruit",
+								"rm_img" => "",
+								"rm_subject" => "채용공고 채팅방",
+								"rm_desc" => "채용공고 관련 채팅방",
+								"rm_last_msg" => "",
+								"rm_last_dt" => date('Y-m-d H:i:s'),
+								"rm_users" => [
+									["user_id" => $current_user_id] // 현재 사용자
+								],
+								"user_info" => [
+									["user_id" => $current_user_id]
+								],
+								"rm_status" => "N",
+								"rm_messages" => []
+							];
+
+							// MongoDB 채팅방 생성 API 호출
+							try {
+								$is_dev_env = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
+								$chat_server_url = $is_dev_env
+									? "http://127.0.0.1:3031/newroommake"
+									: "https://127.0.0.1:3030/newroommake";
+								//	error_log("[MONGO_API_CALL] MongoDB 채팅방 생성 API 호출 - URL: $chat_server_url, rm_idx: $rm_idx"); URL: http://127.0.0.1:3031/newroommake, rm_idx: 69
+
+								$ch = curl_init($chat_server_url);
+								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+								curl_setopt($ch, CURLOPT_POST, true);
+								curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mongo_room_data));
+								curl_setopt($ch, CURLOPT_HTTPHEADER, [
+									'Content-Type: application/json'
+								]);
+								curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+								curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+								curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+								$response = curl_exec($ch);
+								$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+								$curl_error = curl_error($ch);
+								curl_close($ch);
+
+								if ($http_code === 200) {
+									//	error_log("[MONGO_API_SUCCESS] MongoDB 채팅방 생성 성공 - rm_idx: $rm_idx, status: $http_code"); //- rm_idx: 69, status: 200
+								} else {
+									//	error_log("[MONGO_API_FAIL] MongoDB 채팅방 생성 실패 - rm_idx: $rm_idx, status: $http_code, error: $curl_error, response: $response");
+								}
+							} catch (Exception $e) {
+								//	error_log("[MONGO_API_ERROR] MongoDB 생성 중 예외 발생 - rm_idx: $rm_idx, error: " . $e->getMessage());
+							}
+						}
 					}
-
-				//json_return("00","생성완료",["rm_idx"=>$result["key"],"first_yn"=>"Y"]);
-				} else {
-					// 채팅방 생성 실패해도 제안 처리는 계속 진행
+				} catch (Exception $chat_error) {
+					// 채팅방 생성 오류는 무시하고 제안 처리는 계속 진행
 				}
-					} catch (Exception $chat_error) {
-						// 채팅방 생성 오류는 무시하고 제안 처리는 계속 진행
-					}
-				//채팅창 동시 생성.2023.11.20
+
+				// 이제 rm_idx가 정해졌으므로 data에 추가하고 지원 기록 저장
+				if (!is_null($rm_idx)) {
+					$data["rm_idx"] = $rm_idx;
+				}
+				$result = $this->member_model->setMemberRequest($data, $data);
 
 				// 지원하기 푸시알림 (채용공고 소유자에게)
 				if ($mq_type == "RECRUIT") {

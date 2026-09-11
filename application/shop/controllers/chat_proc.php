@@ -2567,7 +2567,7 @@ json_return("00", "조회완료", $data);
 		$user_id = $this->user->getUserId();
 		$mm_idx = $this->user->getUserIdx();
 
-		error_log('[Chat] exit_room 요청 시작 - rm_idx: ' . $rm_idx . ', user_id: ' . $user_id);
+		
 
 		if (empty($rm_idx) || empty($user_id)) {
 			//error_log('[Chat] exit_room 필수 파라미터 없음');
@@ -2718,5 +2718,236 @@ json_return("00", "조회완료", $data);
 			}
 		}
 		return $result;
+	}
+
+	// 채팅 첨부파일(사진/파일) 업로드
+	function upload_chat_file()
+	{
+		$attach_type = input_post("attach_type", "img");
+	
+
+		if ($attach_type == "img") {
+		
+			$result = $this->common->img_upload_resize("chat", "attach_file", 1200);
+		} else {
+			
+			$result = $this->common->file_upload("chat", "attach_file");
+		}
+
+	
+
+		if ($result["SUCCESS"] == true) {
+			$data = array();
+			$data["url"] = $result["URL"];
+			$data["file_name"] = isset($result["ORIG_NAME"]) ? $result["ORIG_NAME"] : $result["FILE_NAME"];
+		
+			json_return("00", "업로드 성공", $data);
+		} else {
+			$err = ($result["ERROR"] != "") ? $result["ERROR"] : "업로드에 실패했습니다.";
+		
+			json_return("90", $err);
+		}
+	}
+
+	// 채팅방 안에서 다른 공고 제안하기(COMP) / 이력서로 지원하기(MEM)
+	// 이미 열려있는 채팅방(rm_idx)을 그대로 사용하며, 신규 채팅방을 생성하지 않는다.
+	function propose_from_room()
+	{
+		$mm_idx = $this->user->getUserIdx();
+		if ($this->user->isLogin() == false || empty($mm_idx)) {
+			json_return("90", "로그인후 이용해주세요.");
+		}
+
+		$rm_idx = input_post("rm_idx");
+		$mq_type = input_post("mq_type"); // RESUME: 기업이 인재에게 제안 / RECRUIT: 개인이 공고에 지원
+		$rc_idx = input_post("rc_idx");
+		$ru_idx = input_post("ru_idx");
+
+		if (empty($rm_idx) || empty($mq_type) || empty($rc_idx) || empty($ru_idx)) {
+			json_return("90", "요청 정보가 올바르지 않습니다.");
+		}
+
+		$user_type = $this->user->getUserType();
+
+		if ($mq_type == "RESUME" && $user_type != "COMP") {
+			json_return("90", "기업회원만 제안할 수 있습니다.");
+		} else if ($mq_type == "RECRUIT" && $user_type != "MEM") {
+			json_return("90", "개인회원만 지원할 수 있습니다.");
+		} else if ($mq_type != "RESUME" && $mq_type != "RECRUIT") {
+			json_return("90", "요청 타입이 올바르지 않습니다.");
+		}
+
+		// 채팅방 존재 확인 (신규 채팅방 생성 없음 - 이미 열려있는 방을 그대로 사용)
+		$room = $this->common_model->getRoom(["rm_idx" => $rm_idx]);
+		if (!$room) {
+			json_return("90", "채팅방 정보를 찾을 수 없습니다.");
+		}
+
+		// 소유권 검증
+		if ($mq_type == "RESUME") {
+			$sql = "SELECT rc_idx FROM st_recruit WHERE rc_idx = ? AND mm_idx = ? AND rc_status = 'Y'";
+			$query = $this->db->query($sql, array($rc_idx, $mm_idx));
+			if (!$query->row_array()) {
+				json_return("90", "선택한 채용공고를 확인할 수 없습니다.");
+			}
+		} else {
+			$sql = "SELECT ru_idx FROM st_resume WHERE ru_idx = ? AND mm_idx = ?";
+			$query = $this->db->query($sql, array($ru_idx, $mm_idx));
+			if (!$query->row_array()) {
+				json_return("90", "선택한 이력서를 확인할 수 없습니다.");
+			}
+		}
+
+		// 중복 체크: 동일 공고+이력서 조합으로 이미 지원/제안한 이력이 있으면 무조건 안내만 하고 종료
+		$sql_dup = "SELECT mq_idx FROM st_member_request WHERE rc_idx = ? AND ru_idx = ? LIMIT 1";
+		$query_dup = $this->db->query($sql_dup, array($rc_idx, $ru_idx));
+		if ($query_dup->row_array()) {
+			$dup_msg = ($mq_type == "RESUME") ? "이미 제안한 이력이 있습니다." : "이미 지원한 이력이 있습니다.";
+			json_return("90", $dup_msg);
+		}
+
+		// 등록 처리 (채팅방 내 제안/지원은 포인트 차감 없음)
+		$data = array(
+			"mq_type" => $mq_type,
+			"mm_idx" => $mm_idx,
+			"rc_idx" => $rc_idx,
+			"ru_idx" => $ru_idx,
+			"rm_idx" => $rm_idx,  // ← 채팅방 번호를 지원 기록에 저장
+		);
+		$this->member_model->setMemberRequest($data, $data);
+
+		// 채팅방 상단 요약(공고/이력서)을 이번 제안/지원 건 기준으로 최신화
+		// (member_request()의 방 재사용 로직과 동일 원칙 - MySQL st_room이 chat_view()의 최우선 소스)
+		$this->common_model->updateRoom(
+			["rc_idx" => $rc_idx, "ru_idx" => $ru_idx, "up_dt" => get_today()],
+			["rm_idx" => $rm_idx]
+		);
+
+		// FCM 푸시 + MongoDB 알림 (실패해도 제안/지원 처리 자체는 이미 완료된 것으로 취급)
+		$this->send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx);
+
+		json_return("00", "처리완료", array());
+	}
+
+	// 제안/지원 완료 후 상대방에게 FCM 푸시 + MongoDB 알림 발송
+	// (common_proc.php의 member_request() 안에 있는 동일 로직을 채팅방 전용으로 격리 재사용한 것으로,
+	//  member_request()는 hr_post.php/job_post.php 플로우 보호를 위해 별도로 두고 손대지 않는다.)
+	private function send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx)
+	{
+		try {
+			if ($mq_type == "RECRUIT") {
+				// 지원하기: 채용공고 소유자(기업)에게 알림
+				$recruit_sql = "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_show_yn = 'Y'";
+				$recruit_result = $this->db->query($recruit_sql, array($rc_idx));
+				$recruit_info = $recruit_result->row_array();
+				if (!$recruit_info) {
+					return;
+				}
+
+				$member_sql = "SELECT mm_id FROM st_member WHERE mm_idx = ? AND mm_status = 'Y'";
+				$member_result = $this->db->query($member_sql, array($recruit_info['mm_idx']));
+				$member_info = $member_result->row_array();
+				if (!$member_info) {
+					return;
+				}
+
+				$final_token = $this->get_push_token($recruit_info['mm_idx'], $member_info['mm_id']);
+
+				$applicant_info = $this->member_model->getMember(array("mm_idx" => $mm_idx));
+				$applicant_name = (!empty($applicant_info["mm_name"])) ? $applicant_info["mm_name"] : "구직자";
+
+				if ($final_token) {
+					$info = array(
+						"title" => "NowJob 지원 알림",
+						"body" => $applicant_name . "님이 채용공고에 지원했습니다.",
+						"url" => "/resume/hr_post/" . $ru_idx,
+						"type" => "job_application"
+					);
+					sendFcm($info, array($final_token));
+				}
+
+				$this->insert_propose_alarm($member_info['mm_id'], "job_application", $mm_idx, "<strong><em>" . $applicant_name . "</em>님이 <em>채용공고에 지원</em>했습니다.</strong><br><small>지원서를 확인하고 연락해보세요.</small>", "/resume/hr_post/" . $ru_idx);
+			} else if ($mq_type == "RESUME") {
+				// 제안하기: 이력서 소유자(개인)에게 알림
+				$resume_sql = "SELECT mm_idx FROM st_resume WHERE ru_idx = ? AND ru_show_yn = 'Y'";
+				$resume_result = $this->db->query($resume_sql, array($ru_idx));
+				$resume_info = $resume_result->row_array();
+				if (!$resume_info) {
+					return;
+				}
+
+				$member_sql = "SELECT mm_id FROM st_member WHERE mm_idx = ? AND mm_status = 'Y'";
+				$member_result = $this->db->query($member_sql, array($resume_info['mm_idx']));
+				$member_info = $member_result->row_array();
+				if (!$member_info) {
+					return;
+				}
+
+				$final_token = $this->get_push_token($resume_info['mm_idx'], $member_info['mm_id']);
+
+				$company_info = $this->member_model->getMember(array("mm_idx" => $mm_idx));
+				$company_name = (!empty($company_info["mm_comp_name"])) ? $company_info["mm_comp_name"] : "기업회원";
+
+				if ($final_token) {
+					$info = array(
+						"title" => "NowJob 제안 알림",
+						"body" => $company_name . "님이 채용공고를 제안했습니다.",
+						"url" => "/recruit/job_post/" . $rc_idx,
+						"type" => "job_offer"
+					);
+					sendFcm($info, array($final_token));
+				}
+
+				$this->insert_propose_alarm($member_info['mm_id'], "job_offer", $mm_idx, "<strong><em>" . $company_name . "</em>님이 <em>채용공고를 제안</em>했습니다.</strong><br><small>제안 내용을 확인해보세요.</small>", "/recruit/job_post/" . $rc_idx);
+			}
+		} catch (Exception $e) {
+			// 푸시 발송 실패는 무시 (제안/지원 처리 자체는 이미 완료됨)
+		}
+	}
+
+	// FCM 토큰 조회 (MySQL 우선, 없으면 MongoDB)
+	private function get_push_token($mm_idx, $mm_id)
+	{
+		$token_sql = "SELECT ifnull(token,'') as token FROM st_member_device WHERE mm_idx = ? AND push_yn = 'Y' ORDER BY up_dt DESC LIMIT 1";
+		$token_result = $this->db->query($token_sql, array($mm_idx));
+		$token_info = $token_result->row_array();
+
+		if ($token_info && !empty($token_info['token'])) {
+			return $token_info['token'];
+		}
+
+		try {
+			$tbl_user = get_mongodb("user");
+			if ($tbl_user && is_object($tbl_user)) {
+				$mongo_user = $tbl_user->findOne(array("mm_id" => $mm_id));
+				if ($mongo_user && isset($mongo_user['token'])) {
+					return $mongo_user['token'];
+				}
+			}
+		} catch (Exception $e) {
+		}
+
+		return null;
+	}
+
+	// MongoDB 알림 컬렉션에 알림 등록
+	private function insert_propose_alarm($target_user_id, $al_type, $al_key, $al_text, $al_url)
+	{
+		try {
+			$tbl_alarm = get_mongodb("alarm");
+			if ($tbl_alarm && is_object($tbl_alarm)) {
+				$alarm = array(
+					"user_id" => $target_user_id,
+					"al_type" => $al_type,
+					"al_key" => "" . $al_key,
+					"al_text" => $al_text,
+					"al_url" => $al_url,
+					"show_yn" => "N",
+					"reg_dt" => get_today(),
+				);
+				$tbl_alarm->insert($alarm);
+			}
+		} catch (Exception $e) {
+		}
 	}
 } //class

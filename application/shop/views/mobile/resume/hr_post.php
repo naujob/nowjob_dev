@@ -907,7 +907,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                     <!-- //목록 -->
                 </div>
             </div>
-            <div class="panel-footer">
+            <div class="panel-footer" style="position: relative; margin-top: 60px; ">
                 <div class="sticky-bottom" style="width:100%;">
                     <button type="button" style="width:100%;" aria-controls="selectPanel" class="btnProcess btn btn-primary js-toggle-panel bottom-sheet-action">보내기</button>
                 </div>
