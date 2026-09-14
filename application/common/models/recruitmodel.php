@@ -181,6 +181,7 @@ class recruitModel extends MY_Model
 				b.rc_edate,
 				b.rc_sage,
 				b.rc_eage,
+				b.rc_sex,
 				CASE
 					WHEN b.rc_nation = '내국인,외국인' THEN '국적무관'
 					WHEN b.rc_nation = '내국인' THEN '내국인'
