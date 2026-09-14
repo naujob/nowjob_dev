@@ -95,3 +95,10 @@ build/
 *.log
 
 reflect-system/
+# =========================
+# 모든 숨김 폴더/파일 (.github 제외)
+# =========================
+.*              # 모든 .붙은 것 무시
+!.github        # .github 폴더는 제외
+!.gitignore     # .gitignore 자체는 제외
+!.env.example   # .env.example은 제외 (선택)

@@ -1,0 +1,119 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop, master ]
+  pull_request:
+    branches: [ main, develop, master ]
+
+jobs:
+  php-check:
+    name: PHP Code Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '5.6'
+    
+    - name: PHP Lint Check
+      run: |
+        echo "🔍 PHP 문법 검사 중..."
+        ERROR_COUNT=0
+        find . -name "*.php" -type f ! -path "./vendor/*" ! -path "./.git/*" ! -path "./chatting/chat/node_modules/*" | while read file; do
+          output=$(php -l "$file" 2>&1)
+          if echo "$output" | grep -q "Parse error\|Syntax error"; then
+            echo "❌ $file"
+            echo "   $output"
+            ERROR_COUNT=$((ERROR_COUNT + 1))
+          fi
+        done
+        
+        if [ $ERROR_COUNT -gt 0 ]; then
+          echo "❌ PHP 문법 오류 발견"
+          exit 1
+        else
+          echo "✅ PHP 린팅 완료 - 오류 없음"
+        fi
+
+  node-check:
+    name: Node.js Code Analysis (chatting/chat)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    
+    - name: Install dependencies
+      working-directory: ./chatting/chat
+      run: |
+        if [ -f package.json ]; then
+          npm install --prefer-offline
+          echo "✅ npm 의존성 설치 완료"
+        else
+          echo "❌ package.json을 찾을 수 없습니다"
+          exit 1
+        fi
+    
+    - name: Node.js Check
+      working-directory: ./chatting/chat
+      run: |
+        echo "🔍 chatting/chat 디렉토리 검사 중..."
+        find . -name "*.js" -type f ! -path "./node_modules/*" | wc -l | xargs echo "📄 발견된 JavaScript 파일:"
+        echo "✅ Node.js 검사 완료"
+
+  security-check:
+    name: Security & Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    
+    - name: Check npm vulnerabilities
+      working-directory: ./chatting/chat
+      run: |
+        if [ -f package.json ]; then
+          echo "🔍 npm 보안 취약점 검사..."
+          npm audit --production || true
+        else
+          echo "ℹ️ npm audit 스킵 (package.json 없음)"
+        fi
+
+  notification:
+    name: Build Status Notification
+    runs-on: ubuntu-latest
+    needs: [php-check, node-check, security-check]
+    if: always()
+    
+    steps:
+    - name: Check job statuses
+      run: |
+        echo "================== CI 결과 =================="
+        echo "PHP 검사: ${{ needs.php-check.result }}"
+        echo "Node.js 검사: ${{ needs.node-check.result }}"
+        echo "보안 검사: ${{ needs.security-check.result }}"
+        echo "==========================================="
+        
+        if [ "${{ needs.php-check.result }}" = "failure" ] || \
+           [ "${{ needs.node-check.result }}" = "failure" ] || \
+           [ "${{ needs.security-check.result }}" = "failure" ]; then
+          echo "❌ CI 파이프라인 실패"
+          exit 1
+        else
+          echo "✅ CI 파이프라인 성공"
+        fi

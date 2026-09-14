@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `php_coding_standards.md` | PHP 5.4 호환성, Null 병합 처리, 리팩토링 전략 |
 | `javascript_state_management.md` | Data 속성 패턴을 활용한 상태 관리 |
 | `rendering_strategy.md` | 서버사이드/클라이언트사이드 렌더링 선택 기준 |
+| `gstack.md` | gstack 스킬 목록 및 사용 지침 |
 
 ---
 
