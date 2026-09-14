@@ -654,26 +654,30 @@
        tab_list[1].active = "on";
      }
 
-     if (search_array.work_type != "") {
+     var workTypeTotalCount = $("[name='work_type[]']").length;
+     var workTypeCheckedCount = $("[name='work_type[]']:checked").length;
+     if (search_array.work_type != "" && workTypeCheckedCount < workTypeTotalCount) {
        tab_list[2].text = search_array.work_type.replaceAll("^", ",");
        tab_list[2].active = "on";
      }
 
-     if (search_array.week != "") {
-       if (search_array.week == "일^월^화^수^목^금^토") {
-         tab_list[3].text = "일~토";
-       } else {
-         tab_list[3].text = search_array.week.replaceAll("^", ",");
-       }
+     var weekTotalCount = $("[name='week[]']").length;
+     var weekCheckedCount = $("[name='week[]']:checked").length;
+     if (search_array.week != "" && weekCheckedCount < weekTotalCount) {
+       tab_list[3].text = search_array.week.replaceAll("^", ",");
        tab_list[3].active = "on";
      }
 
-     if (search_array.price_type != "") {
+     var priceTypeTotalCount = $("[name='price_type[]']").length;
+     var priceTypeCheckedCount = $("[name='price_type[]']:checked").length;
+     if (search_array.price_type != "" && priceTypeCheckedCount < priceTypeTotalCount) {
        tab_list[4].text = search_array.price_type.replaceAll("^", ",");
        tab_list[4].active = "on";
      }
 
-     if (search_array.sex != "") {
+     var sexTotalCount = $("[name='sex[]']").length;
+     var sexCheckedCount = $("[name='sex[]']:checked").length;
+     if (search_array.sex != "" && sexCheckedCount < sexTotalCount) {
        tab_list[5].text = search_array.sex.replaceAll("^", ",");
        tab_list[5].active = "on";
      }
