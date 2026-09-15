@@ -2721,6 +2721,8 @@ json_return("00", "조회완료", $data);
 			// 모든 사용자가 나갔으면 rm_status를 'CLOSED'로 설정
 			if ($all_exited) {
 				$update_data['$set']['rm_status'] = 'CLOSED';
+				// 방의 모든 첨부파일 즉시 삭제
+				$this->_delete_room_attachment_files(isset($room["rm_messages"]) ? $room["rm_messages"] : []);
 			}
 
 			$update_result = $collection->update($query, $update_data);
@@ -2761,6 +2763,32 @@ json_return("00", "조회완료", $data);
 		} catch (Exception $e) {
 			//error_log('[Chat] exit_room 에러 - ' . $e->getMessage());
 			json_return("90", "처리 중 오류가 발생했습니다: " . $e->getMessage(), []);
+		}
+	}
+
+	// 채팅방에 첨부된 이미지/파일을 실제 디스크에서 삭제
+	private function _delete_room_attachment_files($rm_messages)
+	{
+		if (empty($rm_messages)) return;
+
+		foreach ($rm_messages as $message) {
+			foreach (['mg_img', 'mg_file'] as $field) {
+				if (empty($message[$field])) continue;
+
+				// JSON 배열(다중 첨부) 또는 단일 문자열(하위호환) 모두 처리
+				$urls = json_decode($message[$field], true);
+				if (!is_array($urls)) {
+					$urls = [$message[$field]];
+				}
+
+				foreach ($urls as $url) {
+					if (empty($url)) continue;
+					$file_path = FCPATH . ltrim($url, '/');
+					if (is_file($file_path)) {
+						@unlink($file_path); // 실제 파일 삭제
+					}
+				}
+			}
 		}
 	}
 

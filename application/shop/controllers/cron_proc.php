@@ -1168,4 +1168,34 @@ class Cron_proc extends CI_Controller
         $released = $this->member_model->releaseExpiredVirtualNumbers();
         echo "만료된 가상번호 회수: {$released}건\n";
     }
+
+    // 채팅 첨부파일 30일 경과분 자동 삭제
+    // crontab: 0 2 * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_expired_chat_files > /dev/null 2>&1
+    public function cleanup_expired_chat_files()
+    {
+        $target_dirs = [
+            FCPATH . 'resource/uploads/chat',
+            FCPATH . 'resource/uploads/chat/resize',
+        ];
+        // $expire_seconds = 30 * 24 * 60 * 60; // 30일
+        $expire_seconds = 1 * 24 * 60 * 60; // 1일 (테스트용)
+        $now = time(); // 현재 시간
+        $deleted = 0;
+
+        foreach ($target_dirs as $dir) {
+            if (!is_dir($dir)) continue;
+            foreach (glob($dir . '/*') as $file) {
+                if (!is_file($file)) continue;
+                // filemtime은 파일의 마지막 수정 시간
+                // 채팅 파일은 업로드 후 수정되지 않으므로 filemtime = 업로드 시간
+                if (($now - filemtime($file)) > $expire_seconds) {
+                    if (@unlink($file)) {
+                        $deleted++;
+                    }
+                }
+            }
+        }
+
+        echo "[cleanup_expired_chat_files] 삭제된 파일 수: {$deleted}\n";
+    }
 }
