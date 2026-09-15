@@ -49,7 +49,7 @@ body {
 .top-bar .btn-replace {
     position: absolute;
     top: 0;
-    left: 0;
+    left: -13px;
     height: 100%;
     width: 5rem;
     /* 클릭 영역 확장을 위한 충분한 너비 */

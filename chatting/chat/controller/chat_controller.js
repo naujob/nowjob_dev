@@ -305,6 +305,14 @@ container.updateMessageReturnCount = async function(data,callback){
 	});
 }
 
+//메시지 삭제 (미읽음 상태일 때만 허용)
+container.deleteMessage = async function(data,callback){
+	$chat.deleteMessage(data,async function(ret){
+		callback($common.jsonReturn("00","처리성공",ret));
+		return;
+	});
+}
+
 //메시지 읽음처리 회원아이디 전체
 container.updateMessageUserCount = async function(data,callback){
 	$chat.updateMessageUserCount(data,async function(ret){

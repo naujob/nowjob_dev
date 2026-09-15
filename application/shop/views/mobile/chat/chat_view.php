@@ -410,7 +410,7 @@
     <div class="top-bar top-bar--chat">
         <!--<a href="javascript:_replace('/chat/chat_list');" class="btn-replace"><span class="sr-text">이전으로</span></a>-->
         <a href="javascript:void(0);" class="btn-replace js-chat-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;margin: -10px 0 0;">
           <?php if ($user_type == "COMP"): ?>
             <?php
             $profileImg = getResumeImg($resume);
@@ -994,6 +994,15 @@
     'chat-img-save-sheet'
 ); ?>
 
+<!-- 메시지 삭제 확인 바텀시트 -->
+<?php renderSelectBottomSheet(
+    'deleteMessageSheet',
+    '메시지 삭제',
+    '<p>이 메시지를 삭제하시겠습니까?<br>상대방이 이미 읽은 메시지는 삭제할 수 없습니다.</p>',
+    '취소', 'btnDeleteMsgCancel', '',
+    '삭제', 'btnDeleteMsgConfirm', ''
+); ?>
+
 <script>
     // background-image 이미지 로드 실패 시 기본 이미지로 교체
     (function() {
@@ -1107,10 +1116,10 @@
             // 강력한 스크롤 복원 (multiple fallbacks)
             scrollBottom();
 
-            // 직접 스크롤 컨테이너 제어
-            var chatBody = document.getElementById('chat_body');
-            if (chatBody) {
-                chatBody.scrollTop = chatBody.scrollHeight; // 스크롤 위치를 아래로 이동
+            // 직접 스크롤 컨테이너 제어 - .page-chat-view 기준으로 통일
+            var pageChatView = document.querySelector('.page-chat-view') || document.querySelector('.page.page-chat-view');
+            if (pageChatView) {
+                pageChatView.scrollTop = pageChatView.scrollHeight; // 스크롤 위치를 아래로 이동
             }
 
             // 레이아웃 리플로우 후 다시 스크롤 (연속 조정)
@@ -1322,6 +1331,74 @@
             return true; // 업데이트 성공
         }
         return false; // 메시지 요소 없음
+    }
+
+    // 메시지 삭제 관련 이벤트 바인딩 ---------------------------------------------------------------
+    var pendingDeleteMgIdx = null;
+    var longPressTimer = null;
+
+    $(document).on('touchstart mousedown', '.msg-item.chat-bubble[id^="mg_idx_"]', function (e) {
+        var $el = $(this);
+        longPressTimer = setTimeout(function () {
+            pendingDeleteMgIdx = $el.attr('id').replace('mg_idx_', '');
+            var sheet = document.getElementById('deleteMessageSheet');
+            if (typeof openPanel === 'function') {
+                openPanel(sheet);
+            }
+        }, 500);
+    });
+
+    $(document).on('touchend touchmove mouseup mouseleave', '.msg-item.chat-bubble[id^="mg_idx_"]', function () {
+        clearTimeout(longPressTimer);
+    });
+
+    $(document).on('click', '#btnDeleteMsgCancel', function() {
+        var sheet = document.getElementById('deleteMessageSheet');
+        pendingDeleteMgIdx = null;
+        if (typeof closePanel === 'function') {
+            closePanel(sheet);
+        }
+    });
+
+    $(document).on('click', '#btnDeleteMsgConfirm', function() {
+        if (!pendingDeleteMgIdx || !rm_idx) return;
+
+        socket.emit('message_delete', {
+            rm_idx: rm_idx,
+            mg_idx: parseInt(pendingDeleteMgIdx),
+            user_id: g_user_id
+        });
+
+        var sheet = document.getElementById('deleteMessageSheet');
+        if (typeof closePanel === 'function') {
+            closePanel(sheet);
+        }
+        pendingDeleteMgIdx = null;
+    });
+
+    // 메시지 삭제 결과 수신 핸들러
+    if (typeof socket !== 'undefined') {
+        socket.on('message_delete_return', function (payload) {
+            var mg_idx = payload.data ? payload.data.mg_idx : payload.mg_idx;
+            $('#mg_idx_' + mg_idx).fadeOut(300, function() {
+                $(this).remove();
+            });
+        });
+
+        socket.on('message_delete_fail', function (payload) {
+            var reason = payload.data ? payload.data.reason : null;
+            var msg = '';
+            if (reason === 'already_read') {
+                msg = '상대방이 이미 읽은 메시지는 삭제할 수 없습니다.';
+            } else if (reason === 'not_owner') {
+                msg = '본인이 보낸 메시지만 삭제할 수 있습니다.';
+            } else if (reason === 'not_found') {
+                msg = '메시지를 찾을 수 없습니다.';
+            } else {
+                msg = '메시지를 삭제할 수 없습니다.';
+            }
+            commonAlert(msg, function() {});
+        });
     }
 
     // 공통 날짜/시간 유틸 ---------------------------------------------------------------------------------
@@ -1878,10 +1955,11 @@
     // 채팅 화면 스크롤을 맨 아래로 이동하는 공통 함수 (깜빡임 방지)
     function scrollBottom() {
         // ✅ requestAnimationFrame을 사용하여 다음 프레임에 스크롤 실행 (깜빡임 방지)
+        // ✅ 실제 스크롤 컨테이너는 .page-chat-view이다 (CSS에서 .chat-view-body를 overflow: visible로 오버라이드함)
         requestAnimationFrame(function() {
-            var $chatBody = $("#chat_body");
-            if ($chatBody.length > 0 && $chatBody[0]) {
-                $chatBody[0].scrollTop = $chatBody[0].scrollHeight;
+            var $pageChatView = document.querySelector('.page-chat-view') || document.querySelector('.page.page-chat-view');
+            if ($pageChatView) {
+                $pageChatView.scrollTop = $pageChatView.scrollHeight;
             }
         });
     }

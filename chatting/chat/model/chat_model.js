@@ -212,6 +212,43 @@ container.updateMessageReturnCount = async function (data, callback) {
 	callback({ count: return_count, mg_idx: data.mg_idx });
 }
 
+// 메시지 삭제 (상대방이 미읽음 상태일 때만 삭제 가능)
+container.deleteMessage = async function (data, callback) {
+	// data: { rm_idx, mg_idx, user_id }
+
+	var room = await $db.cs_room.findOne(
+		{ rm_idx: data.rm_idx, "rm_messages.mg_idx": data.mg_idx },
+		{ projection: { "rm_messages.$": 1 } }
+	);
+
+	if (!room || !room.rm_messages || room.rm_messages.length === 0) {
+		return callback({ success: false, reason: "not_found", mg_idx: data.mg_idx });
+	}
+
+	var message = room.rm_messages[0];
+
+	// 본인이 보낸 메시지만 삭제 가능
+	if (message.user_id !== data.user_id) {
+		return callback({ success: false, reason: "not_owner", mg_idx: data.mg_idx });
+	}
+
+	// 발신자 본인을 제외한 상대방이 이미 읽었는지 확인 (read_yn === "Y" 존재 시 삭제 불가)
+	var alreadyRead = (message.mg_reads || []).some(function (r) {
+		return r.user_id !== data.user_id && r.read_yn === "Y";
+	});
+	if (alreadyRead) {
+		return callback({ success: false, reason: "already_read", mg_idx: data.mg_idx });
+	}
+
+	// 실제 메시지 삭제 ($pull)
+	await $db.cs_room.updateOne(
+		{ rm_idx: data.rm_idx },
+		{ $pull: { rm_messages: { mg_idx: data.mg_idx } } }
+	);
+
+	callback({ success: true, mg_idx: data.mg_idx });
+}
+
 container.updateMessageStatus = async function (data, callback) {
 	var ret1 = await $db.cs_room.updateOne(
 		{ "rm_idx": data.rm_idx }, { $set: { "rm_messages.$[message].mg_imoti": data.mg_imoti } },

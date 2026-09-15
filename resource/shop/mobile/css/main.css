@@ -5053,6 +5053,7 @@ body {
     color: #fff;
     background: #57CCAF;
     z-index: 100;
+    height: 60px;
 }
 
 .top-bar.is-transparency {
@@ -5072,7 +5073,7 @@ body {
 
 /* 채팅방 제목 오른쪽으로 살짝 이동 */
 .top-bar #rm_subject {
-    padding-left: 1.5rem;
+    padding-left:  0.5rem;
 }
 
 
@@ -14247,3 +14248,18 @@ h3.secondary-title .menu:focus {
   .simple-content .data-row {
     height: 15px; display: flex; gap: 287px; align-items: center; margin-top: 4px; margin-bottom: 6px;
   }
+
+/* 채팅 인재 카드 고정 위치 */
+#chatResumeList {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 100;
+  
+ 
+  box-sizing: border-box;
+  max-height: 160px;
+  overflow-y: auto;
+}

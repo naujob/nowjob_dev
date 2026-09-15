@@ -1019,6 +1019,29 @@ io.on('connection', function (socket) {
 		});
 	});
 
+	//메시지 삭제 (미읽음 상태일 때만 삭제 가능)
+	socket.on('message_delete', function (data) {
+		if (!data.mg_idx || !data.rm_idx || !data.user_id) {
+			return;
+		}
+
+		$exe.chat.deleteMessage(data, function (ret) {
+			var result = (ret && ret.data) ? ret.data : ret;
+
+			if (result && result.success) {
+				// 삭제 성공: 방 전체(양쪽 화면)에 브로드캐스트하여 DOM에서 제거
+				io.sockets.in(data.rm_idx).emit('message_delete_return', {
+					data: { mg_idx: result.mg_idx }
+				});
+			} else {
+				// 삭제 실패(이미 읽음/권한없음 등): 요청한 본인에게만 실패 사유 전달
+				socket.emit('message_delete_fail', {
+					data: { mg_idx: data.mg_idx, reason: result ? result.reason : "unknown" }
+				});
+			}
+		});
+	});
+
 	//메시지 리스트 조회
 	socket.on('message_list', function (data) {
 		$exe.chat.getRoomMessages(data, function (ret) {

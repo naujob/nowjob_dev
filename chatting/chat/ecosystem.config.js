@@ -1,17 +1,7 @@
 const path = require('path');
 
-// 런타임 경로 기반 환경 감지
-function detectEnv() {
-	var runtimePath = (process.cwd() + '|' + __dirname).toLowerCase();
-	if (runtimePath.includes('dev_nowapk')) {
-		return 'development';
-	}
-	return 'production';
-}
-
 // 현재 디렉토리 기반으로 cwd 자동 설정
-var currentDir = __dirname; // ecosystem.config.js가 있는 디렉토리
-var env = detectEnv();
+var currentDir = __dirname; // ecosystem.config.js가 있는 디렉토리 chatting\chat\ecosystem.config.js
 var cwdPath = currentDir;
 var logDir = path.join(currentDir, 'logs');
 
