@@ -2038,27 +2038,8 @@ class Member extends CI_Controller
 		$this->layout->shop('/member/join_wmem_step2', $data);
 	}
 
-	# 회원가입 스탭3
-	function join_wmem_step3()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_MEM", "스텝2");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		$data["ma_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-		$data["ma_price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
-		$data["ma_work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
-		$data["ma_week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
-		$data["ma_edu_list"]  = $this->site_model->getCodeList(["cd_grp" => "최종학력"]);
-		$data["ma_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-		$data["ma_my_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "나의강점"]);
-
-		$this->layout->shop('/member/join_wmem_step3', $data);
-	}
+	// 회원가입 스탭3 — 제거됨 (step2로 이전, join_wmem_step3.php 파일 삭제)
+	// function join_wmem_step3() { ... }
 
 	# 회원가입 스탭1
 	function join_wcomp_step1()

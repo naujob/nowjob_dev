@@ -351,85 +351,75 @@
 
 <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+<!-- <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script> -->
 <!--div id="appleid-signin" data-color="black" data-border="true" data-type="sign in" style="height:40px;margin-top:10px;"></div-->
 <script type="text/javascript">
-    AppleID.auth.init({
-        clientId: 'com.nowapk.app.nowjob2.login',
-        scope: 'name email',
-        redirectURI: 'https://nowjob.co.kr/member/apple_login_callback',
-        state: 'app_ecm_apple_sign_in',
-        nonce: 'nounce',
-        usePopup: true //or false defaults to false
-    });
+    // AppleID.auth.init({
+    //     clientId: 'com.nowapk.app.nowjob2.login',
+    //     scope: 'name email',
+    //     redirectURI: 'https://nowjob.co.kr/member/apple_login_callback',
+    //     state: 'app_ecm_apple_sign_in',
+    //     nonce: 'nounce',
+    //     usePopup: true //or false defaults to false
+    // });
 
     //회원 인증 완료
-    document.addEventListener('AppleIDSignInOnSuccess', (data) => {
-        //로그인 성공시 실행
-        var app_token = data.detail.authorization["id_token"];
-        var decodedToken = parseJWT(app_token);
-        var c_hash = decodedToken['c_hash'];
-        var email = decodedToken['email'];
-        var sub = decodedToken['sub'];
-        //alert(sub);
-        //$.request("/API/test", { b_no : business_code }, true, false, function (rst) {
-        //	//회원가입 상태면 ret url 이동
-        //
-        //		});
-        //console.log(data);
-        //console.log(decodedToken);
-        //console.log(sub);
-        //return;
+    // document.addEventListener('AppleIDSignInOnSuccess', (data) => {
+       
+    //     var app_token = data.detail.authorization["id_token"];
+    //     var decodedToken = parseJWT(app_token);
+    //     var c_hash = decodedToken['c_hash'];
+    //     var email = decodedToken['email'];
+    //     var sub = decodedToken['sub'];
 
-        var params = {};
-        params["mm_join_type"] = "APPLE";
-        params["mm_join_key"] = sub;
-        //console.log(params);
-        //return;
-        comAjax("/member_proc/login", params, function(ret) {
-            if (ret.code == "00") {
-                sessionStorage.removeItem("chat_user_connect");
-                location.href = "/";
-            } else if (ret.code == "90") {
-                // 신규 회원 (다른 SNS로 가입되지 않은 경우)
-                openPopup('confirm', {
-                    id: 'permission',
-                    content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-                    firstButton: '취소',
-                    secondButton: '회원가입',
-                    firstCallback: function() {
+    //     var params = {};
+    //     params["mm_join_type"] = "APPLE";
+    //     params["mm_join_key"] = sub;
+     
+    //     comAjax("/member_proc/login", params, function(ret) {
+    //         if (ret.code == "00") {
+    //             sessionStorage.removeItem("chat_user_connect");
+    //             location.href = "/";
+    //         } else if (ret.code == "90") {
+               
+    //             openPopup('confirm', {
+    //                 id: 'permission',
+    //                 content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
+    //                 firstButton: '취소',
+    //                 secondButton: '회원가입',
+    //                 firstCallback: function() {
 
-                    },
-                    secondCallback: function() {
-                        // PASS 인증 없이 바로 회원가입 페이지로 이동
-                        location.href = "/member/join_sns_start?join_key=" + sub + "&join_type=" + "APPLE";
-                    },
-                });
-            } else if (ret.code == "91" && ret.data && ret.data.join_type) {
-                // 중복 계정 (이미 다른 SNS로 가입된 경우)
-                showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
-            } else {
-                commonAlert(ret.msg, function() {});
-            }
-        });
-    });
+    //                 },
+    //                 secondCallback: function() {
+                     
+    //                     location.href = "/member/join_sns_start?join_key=" + sub + "&join_type=" + "APPLE";
+    //                 },
+    //             });
+    //         } else if (ret.code == "91" && ret.data && ret.data.join_type) {
+               
+    //             showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+    //         } else {
+    //             commonAlert(ret.msg, function() {});
+    //         }
+    //     });
+    // });
 
     //로그인 오류처리
-    document.addEventListener('AppleIDSignInOnFailure', (error) => {
-        //handle error.
-        alert("애플 로그인시 오류가 발생하였습니다! 다시 진행부탁드립니다.");
-        location.reload();
-    });
+    // document.addEventListener('AppleIDSignInOnFailure', (error) => {
+       
+    //     alert("애플 로그인시 오류가 발생하였습니다! 다시 진행부탁드립니다.");
+    //     location.reload();
+    // });
 
     // JWT 파싱
-    function parseJWT(token) {
-        let base64Url = token.split('.')[1];
-        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-    }
+    // function parseJWT(token) {
+    //     let base64Url = token.split('.')[1];
+    //     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    //     let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    //         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    //     }).join(''));
+    //     return JSON.parse(jsonPayload);
+    // }
 
     // 카카오 AJAX 함수 제거됨: OAuth 콜백 방식으로 통일
 

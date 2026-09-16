@@ -4917,7 +4917,10 @@ class Member_proc extends CI_Controller
         }
     }
 
-    # 웹 회원가입
+    // 웹 회원가입 step3 — 제거됨 (step2로 이전, join_wmem_step3.php 파일 삭제)
+    // function join_wmem_step3() {
+    // 기존 코드 주석 처리됨
+    /*
     function join_wmem_step3()
     {
         # 데이터 추가.
@@ -5108,6 +5111,8 @@ class Member_proc extends CI_Controller
 
         json_return("00", "처리완료", $arr_mem);
     }
+    */
+    // } — 함수 주석 끝
 
     function join_wcomp_step4()
     {

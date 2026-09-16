@@ -373,7 +373,8 @@
 
             comAjax("/member_proc/join_mem_step2", params, function(ret2) {
                 if (ret2.code == "00") {
-                    location.href = "/member/join_wmem_step3";
+                    // step2 완료 후 곧바로 회원가입 완료 (PART)
+                    fPassClickFromStep2();
                 } else {
                     commonAlert(ret2.msg, function() {});
                 }
@@ -459,6 +460,23 @@
     function checkContent(arg) {
         $('#agree' + arg + '').prop('checked', true); // rd_agree1 체크
         //fClickChk(); // 상태 변경 후 fClickChk 호출
+    }
+
+    // step2에서 회원가입 완료 처리 (PART)
+    function fPassClickFromStep2(){
+        var params = {};
+        params["ma_type"] = "MEM";
+        params["proc_type"] = "PART";
+        params["uuid"] = "";
+
+        comAjax("/member_proc/join_complete_proc", params, function(ret){
+            if(ret.code=="00"){
+                location.href="/member/join_mem_finish";
+            }else{
+                commonAlert(ret.msg, function(){});
+                return;
+            }
+        });
     }
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>

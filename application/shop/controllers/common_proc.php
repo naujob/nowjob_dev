@@ -863,7 +863,8 @@ class Common_proc extends CI_Controller
 
 	// 나(my_mm_idx)와 상대방(opponent_mm_idx) 사이에 이미 존재하는 recruit 타입 방을 찾는다.
 	// st_room.mm_idx(생성자)에는 의존하지 않고, 방에 연결된 공고 주인/이력서 주인의 조합으로 판별한다.
-	private function find_existing_room_by_opponent($my_mm_idx, $opponent_mm_idx)
+	// 제안(RESUME)과 지원(RECRUIT)을 분리하기 위해 mq_type을 받아 st_member_request의 같은 방향 요청을 확인
+	private function find_existing_room_by_opponent($my_mm_idx, $opponent_mm_idx, $mq_type)
 	{
 		if (empty($my_mm_idx) || empty($opponent_mm_idx)) {
 			return null;
@@ -872,21 +873,33 @@ class Common_proc extends CI_Controller
 			return null; // 자기 자신과의 매칭 방지, 기존 신규 생성 경로로 폴백
 		}
 
+		// mq_type에 따라 방향 판정
+		if ($mq_type == "RESUME") {
+			// 제안: 나=공고 주인(rc.mm_idx), 상대=이력서 주인(ru.mm_idx)
+			$owner_params = [$my_mm_idx, $opponent_mm_idx];
+		} else if ($mq_type == "RECRUIT") {
+			// 지원: 나=이력서 주인(ru.mm_idx), 상대=공고 주인(rc.mm_idx)
+			$owner_params = [$opponent_mm_idx, $my_mm_idx];
+		} else {
+			return null;
+		}
+
 		$sql = "
 			SELECT room.rm_idx
 			FROM st_room room
 			LEFT JOIN st_recruit rc ON room.rc_idx = rc.rc_idx
 			LEFT JOIN st_resume  ru ON room.ru_idx = ru.ru_idx
 			WHERE room.rm_type = 'recruit'
-			AND (
-				(rc.mm_idx = ? AND ru.mm_idx = ?)
-				OR
-				(rc.mm_idx = ? AND ru.mm_idx = ?)
+			AND rc.mm_idx = ? AND ru.mm_idx = ?
+			AND EXISTS (
+				SELECT 1 FROM st_member_request mq
+				WHERE mq.rm_idx = room.rm_idx AND mq.mq_type = ?
 			)
 			ORDER BY room.rm_idx DESC
 			LIMIT 1
 		";
-		$row = $this->db->query($sql, [$my_mm_idx, $opponent_mm_idx, $opponent_mm_idx, $my_mm_idx])->row_array();
+		$params = array_merge($owner_params, [$mq_type]);
+		$row = $this->db->query($sql, $params)->row_array();
 		return ($row && !empty($row["rm_idx"])) ? $row["rm_idx"] : null;
 	}
 
@@ -1153,8 +1166,8 @@ class Common_proc extends CI_Controller
 					// 1. 상대방 mm_idx 구하기
 					$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $idx);
 
-					// 2. 기존 방 찾기
-					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx);
+					// 2. 기존 방 찾기 (제안/지원 방향 구분)
+					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $mq_type);
 
 					if ($existing_rm_idx) {
 						// 기존 방이 있으면: MySQL st_room의 rc_idx/ru_idx만 갱신
