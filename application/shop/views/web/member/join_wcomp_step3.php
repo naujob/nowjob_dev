@@ -14,6 +14,8 @@
                     </div>
                     <div class="find-loc-form">
                         <form id="frm" onsubmit="return false">
+			                    <input type="hidden" id="mm_id" name="mm_id" value="<?php echo isset($_POST['mm_id']) ? htmlspecialchars($_POST['mm_id']) : ''; ?>" />
+			                    <input type="hidden" id="mm_pwd" name="mm_pwd" value="<?php echo isset($_POST['mm_pwd']) ? htmlspecialchars($_POST['mm_pwd']) : ''; ?>" />
 		                    <input type="hidden" id="ad_zipcode" name="ad_zipcode" value="" />
 							<input type="hidden" id="ad_jibun" name="ad_jibun" value="" />
 							<input type="hidden" id="ad_doro" name="ad_doro" value="" />
@@ -292,10 +294,13 @@ $(document).ready(function(){
     params += '&agree3='+agree3;
     params += '&agree4='+agree4;
     params += '&agree5='+agree5;
+    params += '&mm_id='+encodeURIComponent($("#mm_id").val());
+    params += '&mm_pwd='+encodeURIComponent($("#mm_pwd").val());
 
-	    comAjax("/member_proc/join_comp_step4",params,function(ret2){
+	    comAjax("/member_proc/join_comp_step3",params,function(ret2){
 	        if(ret2.code=="00"){
-	            location.href="/member/join_wcomp_step4";
+	            // step3 완료 후 곧바로 회원가입 완료 (PART)
+	            fPassClickFromStep3();
 	        }else{
 	            commonAlert(ret2.msg,function(){});
 	        }
@@ -374,6 +379,23 @@ function getLocation() {
 function checkContent(arg) {
     $('#agree'+arg+'').prop('checked', true); // rd_agree1 체크
     //fClickChk(); // 상태 변경 후 fClickChk 호출
+}
+
+// step3에서 회원가입 완료 처리 (PART)
+function fPassClickFromStep3(){
+    var params = {};
+    params["ma_type"] = "COMP";
+    params["proc_type"] = "PART";
+    params["uuid"] = "";
+
+    comAjax("/member_proc/join_complete_proc", params, function(ret){
+        if(ret.code=="00"){
+            location.href="/member/join_comp_finish";
+        }else{
+            commonAlert(ret.msg, function(){});
+            return;
+        }
+    });
 }
 
 </script>

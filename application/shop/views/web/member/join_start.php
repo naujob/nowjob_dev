@@ -105,7 +105,7 @@
                                             comAjax("/member_proc/join_auth", params, function(ret) {
                                                 if (ret.code == "00") {
                                                     // PASS 인증 없이 바로 다음 단계로 이동 (웹용 경로)
-                                                    location.href = './join_wcomp_step1';
+                                                    location.href = './join_wcomp_step2';
                                                 } else {
                                                     commonAlert(ret.msg, function() {});
                                                 }
@@ -147,7 +147,7 @@
                                         params["type"] = "COMP";
                                         comAjax("/member_proc/join_auth", params, function(ret) {
                                             if (ret.code == "00") {
-                                                document.frm2.action = './join_wcomp_step1';
+                                                document.frm2.action = './join_wcomp_step2';
                                                 fnPopup();
                                             } else {
                                                 commonAlert(ret.msg, function() {});

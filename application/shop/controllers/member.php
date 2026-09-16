@@ -2042,58 +2042,26 @@ class Member extends CI_Controller
 	// function join_wmem_step3() { ... }
 
 	# 회원가입 스탭1
-	function join_wcomp_step1()
-	{
-		$data = [];
-
-		//# 데이터 검증및 뒤로가기 처리
-		//$is_check = $this->site_model->checkSiteLog("JOIN_COMP","본인인증");
-		//if($is_check==false){
-		//	go_location("/member/join_start","데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		//}
-
-		#로그 생성
-		$this->site_model->setSiteLog(
-			[
-				"session_id" => session_id(),
-				"sl_type" => "JOIN_COMP",
-				"sl_step" => "스텝1",
-				"sl_txt" => ""
-			],
-			[
-				"session_id" => session_id(),
-				"sl_type" => "JOIN_COMP",
-				"sl_step" => "스텝1",
-				"sl_status" => "Y"
-			]
-		);
-
-		# 사업자 번호 확인 인증키
-		$data["bus_key"] = $this->setting_model->getSettingInfo(["st_group" => "사업자번호", "st_key" => "인증키"]);
-
-		$list = $this->site_model->getSiteLogList(
-			["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_status" => "Y"]
-		);
-		if ($list == null) {
-			//    json_return("10","등록 데이터가 존재하지 않습니다.",$list);
-		} else {
-			$step_auth = $this->site_model->getStepData($list, "본인인증");
-			$data["mm_phone"] = $step_auth["mm_phone"];
-		}
-
-		$this->layout->shop('/member/join_wcomp_step1', $data);
-	}
-
 	# 회원가입 스탭2
 	function join_wcomp_step2()
 	{
 		$data = [];
 
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_COMP", "스텝2");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
+		# 스텝2 로그 생성
+		$this->site_model->setSiteLog(
+			[
+				"session_id" => session_id(),
+				"sl_type" => "JOIN_COMP",
+				"sl_step" => "스텝2",
+				"sl_txt" => ""
+			],
+			[
+				"session_id" => session_id(),
+				"sl_type" => "JOIN_COMP",
+				"sl_step" => "스텝2",
+				"sl_status" => "Y"
+			]
+		);
 
 		# SNS 회원가입인경우 패스 처리
 		$check_sns = $this->site_model->getSiteLog(
@@ -2170,22 +2138,6 @@ class Member extends CI_Controller
 	}
 
 	# 회원가입 스탭3
-	function join_wcomp_step4()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_COMP", "스텝3");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		$data["ma_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-		$data["ma_price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
-		$data["ma_work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
-		$data["ma_week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
-		$data["ma_edu_list"]  = $this->site_model->getCodeList(["cd_grp" => "최종학력"]);
-
-		$this->layout->shop('/member/join_wcomp_step4', $data);
-	}
+	// 회원가입 스탭4 — 제거됨 (step3로 이전, join_wcomp_step4.php 파일 삭제)
+	// function join_wcomp_step4() { ... }
 }

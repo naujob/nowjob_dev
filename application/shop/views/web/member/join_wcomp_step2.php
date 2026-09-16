@@ -304,7 +304,14 @@ function fPassCheck2(){
             var params = $("#frm").serialize();
             comAjax("/member_proc/join_comp_step3",params,function(ret){
                 if(ret.code=="00"){
-                    location.href="/member/join_wcomp_step3";
+                    // POST form으로 mm_id, mm_pwd를 step3으로 전달
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/member/join_wcomp_step3';
+                    form.innerHTML = '<input type="hidden" name="mm_id" value="' + $("#mm_id").val().replace(/"/g, '&quot;') + '"/>' +
+                                     '<input type="hidden" name="mm_pwd" value="' + $("#mm_pwd").val().replace(/"/g, '&quot;') + '"/>';
+                    document.body.appendChild(form);
+                    form.submit();
                 }else{
                 	commonAlert(ret.msg,function(){});
                 }

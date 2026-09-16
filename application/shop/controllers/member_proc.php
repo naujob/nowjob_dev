@@ -2592,7 +2592,7 @@ class Member_proc extends CI_Controller
 
             // 약관동의 페이지로 이동
             if (getDeviceType() == "web") {
-                echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_wcomp_step1" . "';self.close();</script>";
+                echo "<script>alert('본인인증이 완료 되었습니다.');opener.location.href='" . "/member/join_wcomp_step2" . "';self.close();</script>";
             } else {
                 if ($os_type == "ios") {
                     echo "<script>location.href='" . "/member/join_comp_step5" . "';</script>";
@@ -2697,7 +2697,7 @@ class Member_proc extends CI_Controller
         if ($type == "COMP") {
             # 기업회원 가입 이동
             if (device_type() == "W") {
-                echo "<script>location.href='" . "/member/join_wcomp_step1" . "';self.close();</script>";
+                echo "<script>location.href='" . "/member/join_wcomp_step2" . "';self.close();</script>";
             } else {
                 if ($os_type == "ios") {
                     echo "<script>location.href='" . "/member/join_comp_toturial" . "';</script>";
@@ -3289,6 +3289,10 @@ class Member_proc extends CI_Controller
         json_return("00", "처리완료");
     }
 
+    // 기업회원 step4 — 제거됨 (step3로 이전, join_wcomp_step4.php 파일 삭제)
+    // function join_comp_step4() {
+    // 기존 코드 주석 처리됨
+    /*
     function join_comp_step4()
     {
         # 데이터 추가.
@@ -3347,6 +3351,8 @@ class Member_proc extends CI_Controller
         );
         json_return("00", "처리완료");
     }
+    */
+    // } — 함수 주석 끝
 
     function join_comp_step5()
     {
