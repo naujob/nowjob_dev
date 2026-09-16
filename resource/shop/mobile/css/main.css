@@ -3411,7 +3411,6 @@ fieldset {
     flex: 1;
     background: inherit;
     overflow: hidden;
-    overflow-y: auto;
     padding-bottom: 72px;
 }
 
@@ -3430,6 +3429,8 @@ fieldset {
 .layer-panel .panel-content {
     position: relative;
     padding-bottom: 13px;
+    overflow-y: auto;
+    max-height: 100%;
 }
 
 .layer-panel .event-banner img {
@@ -11804,7 +11805,7 @@ form#frm {
     background: #1B9D7D;
 }
 
-.chat-bubble .bubble-content:before {
+/* .chat-bubble .bubble-content:before {
     content: "";
     display: block;
     position: absolute;
@@ -11815,7 +11816,7 @@ form#frm {
     border: 6px solid transparent;
     border-right: 0;
     border-left: 8px solid #1B9D7D;
-}
+} */
 
 .chat-bubble.diff .bubble-content {
     margin-right: 0;

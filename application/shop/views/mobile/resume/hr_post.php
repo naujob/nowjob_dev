@@ -86,7 +86,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
     .panel-body .post-list {
         position: relative;
-        top: -1.75rem;
+        
     }
 
     
@@ -246,7 +246,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <div class="post page page-view">
     <div class="top-bar">
-        <a href="#" class="<?= $top_button ?>" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="btn-back" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><span class="sr-text">이전으로</span></a>
         <h1 class="title">인재상세정보</h1>
         <span class="rt-group">
             <!-- <a href="/compage/recruit_list" class="btn-action">채용공고작성</a> -->
@@ -263,6 +263,20 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         var customShareUrl = location.origin + '/resume/hr_post/' + ruIdx + '?shared=true';
         sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
         sessionStorage.setItem('resume_came_from_hr_post', 'true');
+
+        // 뒤로가기 버튼 처리
+        function goBackToEdit(e) {
+            e.preventDefault();
+
+            // preview 모드일 때 작성 페이지로 이동 (기존 이력서 계속 수정)
+            var isPreviewMode = <?= json_encode($isPreview) ?>;
+            if (isPreviewMode) {
+                window.location.href = '/mypage/resume_write1/' + ruIdx;
+            } else {
+                // 일반 조회 모드: 이력서 목록으로 돌아가기 (무한 루프 방지)
+                location.href = '/resume/hr_list';
+            }
+        }
     </script>
 
     <div class="page-content">
