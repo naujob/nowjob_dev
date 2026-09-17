@@ -106,7 +106,7 @@ $top_bar = array(
 
     </style>
     <div class="tab-panel">
-      <div class="container">
+      <div class="container" style="padding: 0;">
         <!-- 제안받은 인재 탭 전용 페이지 (기업회원용) -->
         <h2 class="sr-text">제안받은 인재</h2>
         <div class="chat-list">
@@ -1252,7 +1252,7 @@ $top_bar = array(
     }
 
     var target_id = $(this).data("target_id");
-    location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_received";
+    location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_sent";
   });
   // 채용공고에 지원 or 제안 인재정보
   function fShowChatListByRecruite(ru_idx, obj) {
@@ -1504,7 +1504,7 @@ $top_bar = array(
       data-target_name="{{target_name}}"
       data-user_name="{{user_name}}"
       data-subject="{{rc_name}}"
-      onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_received'; return false;">
+      onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_sent'; return false;">
 
       <div class="content-body">
         <div class="chat-time-row">
@@ -1515,7 +1515,7 @@ $top_bar = array(
           <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
         </div>
         <div class="desc">
-          <div class="title ellipsis">{{mm_name}}</div>
+          <div class="title ellipsis">{{ru_name}}</div>
 
           <div class="summary-with-badge">
             <div class="summary">

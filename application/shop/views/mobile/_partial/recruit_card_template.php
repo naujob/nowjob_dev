@@ -15,7 +15,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
 
   .btn-wrap .btn-detail,
   .btn-wrap .btn-close {
-    font-size: 0.8rem;
+    font-size: 1.5rem;
     padding: 6px 12px;
     border: 1px solid #cdc8c8;
 
@@ -81,6 +81,23 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
     max-height: 500px;
     opacity: 1;
   }
+    .desc .title-wrap {
+    height: 55px;
+ }
+ .desc .title-wrap .title.ellipsis {
+    font-size: 25px;
+ }
+
+
+ .content-body .desc .simple-content .data-row {
+    height: 27px;
+ }
+ .content-body .desc .simple-content .data-row .data-label {
+    font-size: 17px;
+ }
+ .content-body .desc .simple-content .data-row .status-label {
+    font-size: 17px;
+ }
 </style>
 <template id="<?= $tpl_id ?>">
   <li class="list-item">

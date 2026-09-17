@@ -215,6 +215,7 @@
       }
 
       var row = chatResumeData;
+     
       var $c = tpl.innerHTML;
 
       $c = $c.replaceAll('{{ru_idx}}',        row.ru_idx        || '');
@@ -230,6 +231,7 @@
       $c = $c.replaceAll('{{ru_price_type}}', row.ru_price_type || '');
       $c = $c.replaceAll('{{ru_work_type}}',  row.ru_work_type  || '');
       $c = $c.replaceAll('{{ad_addr}}',       row.ad_addr       || '');
+      $c = $c.replaceAll('{{mm_comp_name}}',  row.mm_comp_name  || '');
       $c = $c.replaceAll('{{has_chat}}',      'false');
       $c = $c.replaceAll('{{chat_rm_idx}}',   '');
 
@@ -443,66 +445,41 @@
         <div class="chat-view-header">
             <!-- 채용정보 -->
             <?php if ($user_type == "COMP") : ?>
-                <!-- 인재정보 -->
-                <input type="hidden" id="otherid" value="<?= $resume["mm_id"] ?>">
+                <!-- 기업회원 공고정보 -->
+                <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
                 <?php
-                // 이름 정규화: ru_name이 없으면 mm_name 사용
-                $chatRow = $resume;
-                if (empty($chatRow['ru_name'])) {
-                    $chatRow['ru_name'] = isset($chatRow['mm_name']) ? $chatRow['mm_name'] : '';
+                // 공고 상태 계산 함수
+                function getStatusLabel($sdate, $edate) {
+                    $now = new DateTime();
+                    $startDate = new DateTime($sdate);
+                    $endDate = new DateTime($edate);
+
+                    if ($startDate <= $now && $now <= $endDate) {
+                        return "모집중";
+                    } else if ($endDate < $now) {
+                        return "마감";
+                    } else if ($startDate > $now) {
+                        return "대기중";
+                    }
+                    return "";
                 }
 
-                // 나이 계산 (resume_card.php와 동일한 로직)
-                $_chat_age = '';
-                if (!empty($chatRow['mm_birth'])) {
-                    $_chat_age = getKoreanAge($chatRow['mm_birth']);
-                } else {
-                    $_chat_age = isset($chatRow['ma_age']) ? $chatRow['ma_age'] : '';
-                }
+                $statusLabel = getStatusLabel($recruit["rc_sdate"], $recruit["rc_edate"]);
                 ?>
-                <!-- 채팅 인재 카드 데이터를 JS에 전달 -->
+                <!-- 채팅 공고 카드 데이터를 JS에 전달 -->
                 <script>
-                  var chatResumeData = <?php
-                      // resume_proc.php와 동일한 변환 적용
-                      $ru_work_type_html = getWorkTypeWithColor(isset($chatRow['ru_work_type']) ? $chatRow['ru_work_type'] : '');
-                      $ru_price_type_html = getPriceType(isset($chatRow['ru_price_type']) ? $chatRow['ru_price_type'] : '');
-
-                      echo json_encode([
-                          'ru_idx'        => isset($chatRow['ru_idx']) ? $chatRow['ru_idx'] : '',
-                          'mm_idx'        => isset($chatRow['mm_idx']) ? $chatRow['mm_idx'] : '',
-                          'ru_resume_img' => getResumeImg($chatRow),
-                          'ru_work_img'   => getWorkingImg(isset($chatRow['ru_work']) ? $chatRow['ru_work'] : ''),
-                          'mm_name'       => isset($chatRow['ru_name']) ? $chatRow['ru_name'] : '',
-                          'ru_week'       => getWeekYoil(isset($chatRow['ru_week']) ? $chatRow['ru_week'] : ''),
-                          'mm_nation'     => isset($chatRow['mm_nation']) && !empty($chatRow['mm_nation']) ? $chatRow['mm_nation'] : '',
-                          'ma_age'        => ($_chat_age !== '' && $_chat_age != 0) ? $_chat_age . '대' : '',
-                          'ru_price_type' => $ru_price_type_html,
-                          'ru_work_type'  => $ru_work_type_html,
-                          'ad_addr'       => fRemoveBigAdr(isset($chatRow['ad_addr']) ? $chatRow['ad_addr'] : ''),
-                          'book_yn'       => (isset($chatRow['book_yn']) && $chatRow['book_yn'] == 'Y') ? 'on' : '',
-                          'ru_recom_badge' => getRecomBadgeHtml(isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null),
-                          'pm_idx' => isset($chatRow['pm_idx']) ? $chatRow['pm_idx'] : null,
-                      ]);
-                  ?>;
+                  var recruitData = <?= isset($recruit) && !empty($recruit) ? json_encode($recruit, JSON_UNESCAPED_UNICODE) : 'null' ?>;
                 </script>
 
-                <!-- 인재 카드 템플릿 포함 -->
+                <!-- 공고 카드 템플릿 포함 -->
                 <?php
-                  // URL 파라미터 from으로 정확히 판별
                   $from = input_get("from");
-                  $tpl_data_label = ($from === "talent_received") ? "제안보낸 인재" : "지원받은 인재";
+                  $tpl_data_label = ($from === "talent_sent") ? "제안보낸 인재" : "지원받은 인재";
                 ?>
-                <?php
-                  $tpl_id           = 'tpl_chat_resume';
-                  $tpl_recomm_class = true;
-                  $tpl_show_mm_idx  = false;
-                  $tpl_simple_mode  = true;
-                  include(APPPATH . 'views/mobile/_partial/resume_card_template.php');
-                ?>
-
-                <!-- 채팅 인재 카드 렌더링 컨테이너 -->
-                <ul class="result-list result-list-card" id="chatResumeList"></ul>
-                <!-- //인재정보 -->
+                <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
+                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
+                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
+                <!-- //기업회원 공고정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -4303,4 +4280,5 @@
    .result-list-card .data-label{
     padding-left: 15px;
   }
+
 </style>

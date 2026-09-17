@@ -2405,7 +2405,8 @@ fieldset {
 .category-label {
     display: inline-block;
     height: 20px;
-    margin: 0 0px 0 7px;
+    position: relative;
+    left: 29px;
     font-size: 0.6875rem;
     color: #fff;
     vertical-align: middle;
@@ -11313,7 +11314,7 @@ form#frm {
 
 /* 채팅방 */
 .recruit-name-section {
-    padding: 8px 12px;
+    padding: 3px 12px;
     border: 1px solid #d7d2d2;
     background: #ccc;
     font-size: 14px;
@@ -14135,6 +14136,7 @@ h3.secondary-title .menu:focus {
       }
       [class*="recruitbox_"] .content-body .img,
       [class*="resumebox_"] .content-body .img {
+        margin-left: 10px;
         position: absolute;
         width: 80px;
         height: 80px;
@@ -14218,6 +14220,9 @@ h3.secondary-title .menu:focus {
      .chat-time-row .wicon {
         flex: 1;
      }
+     .last-chat-time{
+        font-size: 12px
+     }
       /* 채팅 목록 - 메시지 미리보기와 읽지 않은 메시지 개수 뱃지를 가로로 배치 */
       .summary-with-badge {
         display: flex;
@@ -14247,7 +14252,7 @@ h3.secondary-title .menu:focus {
     padding: 8px;
   }
   .simple-content .data-row {
-    height: 15px; display: flex; gap: 287px; align-items: center; margin-top: 4px; margin-bottom: 6px;
+    height: 15px; display: flex; gap: 260px; align-items: center; margin-top: 4px; margin-bottom: 6px;
   }
 
 /* 채팅 인재 카드 고정 위치 */

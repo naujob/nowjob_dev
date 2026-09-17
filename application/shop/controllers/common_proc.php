@@ -989,7 +989,7 @@ class Common_proc extends CI_Controller
 					";
 					$query_proposal = $this->db->query($sql_proposal);
 					if (!$query_proposal) {
-						error_log("[ERROR] 제안 중복 체크 쿼리 실패 - rc_idx: " . $data["rc_idx"] . ", ru_idx: " . $data["ru_idx"]);
+						
 						json_return("99", "요청 처리 중 오류가 발생했습니다.");
 					}
 					$proposal_result = $query_proposal->row_array();
@@ -1012,7 +1012,7 @@ class Common_proc extends CI_Controller
 				if ($check != null) {   // 이미 지원함
 					$is_data = true;
 					$is_name = $check["subject"];
-					error_log("[DUPLICATE_REQUEST] 중복 지원 - mq_type: $mq_type, mm_idx: $mm_idx, rc_idx: " . (isset($data["rc_idx"]) ? $data["rc_idx"] : "N/A") . ", ru_idx: " . (isset($data["ru_idx"]) ? $data["ru_idx"] : "N/A"));
+				
 					break;
 				}
 			}
@@ -1165,9 +1165,11 @@ class Common_proc extends CI_Controller
 				try {
 					// 1. 상대방 mm_idx 구하기
 					$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $idx);
+				
 
 					// 2. 기존 방 찾기 (제안/지원 방향 구분)
 					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $mq_type);
+				
 
 					if ($existing_rm_idx) {
 						// 기존 방이 있으면: MySQL st_room의 rc_idx/ru_idx만 갱신
@@ -1176,6 +1178,7 @@ class Common_proc extends CI_Controller
 							["rc_idx" => $data["rc_idx"], "ru_idx" => $data["ru_idx"], "up_dt" => get_today()],
 							["rm_idx" => $existing_rm_idx]
 						);
+						
 						// MongoDB는 건드리지 않음 (rm_idx 동일 여부로만 조회되므로 필요 없음)
 					} else {
 						// 기존 방이 없으면: 신규 생성 로직 (기존 코드 그대로)
@@ -1189,11 +1192,12 @@ class Common_proc extends CI_Controller
 						$info_chat['point_yn'] = 'N';
 
 						$result_chat = $this->common_model->insertRoom($info_chat);
+					
 
 						if ($result_chat && $result_chat["code"] == "00") {
 							$rm_idx = $result_chat["key"]; // ← 신규 생성 시 rm_idx 확보
 							$current_user_id = $this->user->getUserId();
-						//	error_log("[CHAT_ROOM_CREATE] MySQL 채팅방 생성 완료 - rm_idx: $rm_idx, rc_idx: {$data["rc_idx"]}, ru_idx: {$data["ru_idx"]}, user_id: $current_user_id"); //- rm_idx: 69, rc_idx: 228, ru_idx: 106, user_id: 01022222222
+							
 
 							$mongo_room_data = [
 								"rm_idx" => (int)$rm_idx,
@@ -1221,7 +1225,7 @@ class Common_proc extends CI_Controller
 								$chat_server_url = $is_dev_env
 									? "http://127.0.0.1:3031/newroommake"
 									: "https://127.0.0.1:3030/newroommake";
-								//	error_log("[MONGO_API_CALL] MongoDB 채팅방 생성 API 호출 - URL: $chat_server_url, rm_idx: $rm_idx"); URL: http://127.0.0.1:3031/newroommake, rm_idx: 69
+							
 
 								$ch = curl_init($chat_server_url);
 								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1240,23 +1244,25 @@ class Common_proc extends CI_Controller
 								curl_close($ch);
 
 								if ($http_code === 200) {
-									//	error_log("[MONGO_API_SUCCESS] MongoDB 채팅방 생성 성공 - rm_idx: $rm_idx, status: $http_code"); //- rm_idx: 69, status: 200
+								
 								} else {
-									//	error_log("[MONGO_API_FAIL] MongoDB 채팅방 생성 실패 - rm_idx: $rm_idx, status: $http_code, error: $curl_error, response: $response");
+									
 								}
 							} catch (Exception $e) {
-								//	error_log("[MONGO_API_ERROR] MongoDB 생성 중 예외 발생 - rm_idx: $rm_idx, error: " . $e->getMessage());
+			
 							}
 						}
 					}
 				} catch (Exception $chat_error) {
-					// 채팅방 생성 오류는 무시하고 제안 처리는 계속 진행
+					// 채팅방 생성 오류 로그 추가 (조용한 실패 방지)
+				
 				}
 
 				// 이제 rm_idx가 정해졌으므로 data에 추가하고 지원 기록 저장
 				if (!is_null($rm_idx)) {
 					$data["rm_idx"] = $rm_idx;
 				}
+			
 				$result = $this->member_model->setMemberRequest($data, $data);
 
 				// 지원하기 푸시알림 (채용공고 소유자에게)

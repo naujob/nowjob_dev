@@ -772,14 +772,15 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 </a>
             <?php else : ?>
                 <!-- 비회원: 지원하기 (로그인 유도) -->
-                <a href="/member/login" class="floating-action-item" data-action="propose" title="지원">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
-                    <span class="action-label">지원하기</span>
-                </a>
                 <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
+                <a href="/member/login" class="floating-action-item" data-action="propose" title="지원">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
+                    <span class="action-label">지원하기</span>
+                </a>
+             
             <?php endif; ?>
 
             <!-- 모두에게 노출: 전화하기 -->

@@ -119,13 +119,13 @@ $top_bar = array(
                 display: none;
             }
 
-
+          
             /* 지원자 목록 들여쓰기 스타일 */
            
 
         </style>
         <div class="tab-panel">
-            <div class="container">
+            <div class="container" style="padding: 0;">
                 <!-- 제안보낸 인재 탭 전용 페이지 (기업회원용) -->
                 <h2 class="sr-text">제안보낸 인재</h2>
 
@@ -807,8 +807,8 @@ $top_bar = array(
 
         // target_id는 채팅방의 고유 식별자인 room_idx(채팅방 인덱스)를 의미합니다.
         var target_id = $(this).data("target_id"); // 즉, 해당 li.room-item의 data-target_id 속성값 = room_idx
-        // 제안보낸 인재 탭에서 채팅방으로 이동 (from=talent_sent 파라미터 사용)
-        location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_sent";
+        // 지원받은 인재 탭에서 채팅방으로 이동 (from=talent_received 파라미터 사용)
+        location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_received";
     });
 
     // [사용되지 않음] 웹 버전 소켓 기반 채팅방 목록 조회 - 현재는 AJAX 기반으로 동작
@@ -1262,7 +1262,7 @@ $top_bar = array(
             data-target_name="{{target_name}}"
             data-user_name="{{user_name}}"
             data-subject="{{rc_name}}"
-            onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_sent'; return false;">
+            onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_received'; return false;">
 
             <div class="content-body" style="position: relative;">
                 <div class="chat-time-row">
@@ -1273,7 +1273,7 @@ $top_bar = array(
                     <img src="{{profile_img}}" alt="" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='{{default_avatar}}';}">
                 </div>
                 <div class="desc">
-                    <div class="title ellipsis">{{mm_name}}</div>
+                    <div class="title ellipsis">{{ru_name}}</div>
 
                     <div class="summary-with-badge">
                         <div class="summary">

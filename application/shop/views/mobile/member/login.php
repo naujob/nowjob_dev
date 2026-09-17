@@ -1766,12 +1766,12 @@ window.onload = function() {
     });
   });
 
-  // Google/WeChat 웹 리다이렉트 채널에서 msg_code=93인 경우 처리
+  // SNS OAuth 리다이렉트 처리: 중복 계정 팝업 표시 (네이버/카카오 콜백에서 전달됨)
   $(document).ready(function() {
-    <?php if (isset($_GET['msg_code']) && $_GET['msg_code'] == '93'): ?>
+    <?php if (isset($_GET['dup_join_type']) && !empty($_GET['dup_join_type'])): ?>
       <?php
-      $dup_join_type = isset($_GET['dup_join_type']) ? $_GET['dup_join_type'] : '';
-      $dup_phone = isset($_GET['dup_phone']) ? $_GET['dup_phone'] : '';
+      $dup_join_type = $_GET['dup_join_type'];
+      $dup_phone = isset($_GET['dup_mm_phone']) ? $_GET['dup_mm_phone'] : '';
       $allowed_types = ['KAKAO', 'NAVER', 'GOOGLE', 'WECHAT', 'WEB'];
       if (!in_array($dup_join_type, $allowed_types)) {
         $dup_join_type = '';
@@ -1782,6 +1782,26 @@ window.onload = function() {
           showDuplicateProviderPopup('<?= $dup_join_type ?>', '<?= $dup_phone ?>');
         }, 100);
       <?php endif; ?>
+    <?php endif; ?>
+
+    // 구글/위챗 신규 회원 가입 플로우: 전화번호 인증 팝업 표시
+    <?php if (isset($_GET['join_sns']) && $_GET['join_sns'] == '1'): ?>
+      <?php
+      $join_key = isset($_GET['join_key']) ? $_GET['join_key'] : '';
+      $join_type = isset($_GET['join_type']) ? $_GET['join_type'] : '';
+      $email = isset($_GET['email']) ? $_GET['email'] : '';
+      $username = isset($_GET['username']) ? $_GET['username'] : '';
+      $allowed_sns_types = ['GOOGLE', 'WECHAT'];
+      if (!empty($join_key) && !empty($join_type) && in_array($join_type, $allowed_sns_types)) {
+      ?>
+        setTimeout(function() {
+          openGoogleJoinPhonePopup('<?= $join_key ?>', '<?= $email ?>', '<?= $username ?>', '<?= $join_type ?>');
+          // 페이지 새로고침 시 팝업이 다시 떠서 무한 루프 방지
+          if (window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        }, 100);
+      <?php } ?>
     <?php endif; ?>
   });
 </script>

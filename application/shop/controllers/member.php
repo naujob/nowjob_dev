@@ -530,9 +530,12 @@ class Member extends CI_Controller
 
 		if (!empty($user_info_response["response"]["id"])) {
 			$naver_id = $user_info_response["response"]["id"];
+			error_log("[NAVER_LOGIN] 네이버 ID 조회 완료: " . $naver_id);
 			$return = $this->login_process("NAVER", $naver_id);
+			error_log("[NAVER_LOGIN] login_process 결과: code=" . $return["code"] . ", msg=" . $return["msg"]);
 
 			if ($return["code"] == "00") {
+				error_log("[NAVER_LOGIN] 로그인 성공");
 				$this->common->scriptReplace("/");
 				exit;
 			} else {
@@ -791,7 +794,9 @@ class Member extends CI_Controller
 			$this->common->scriptReplace("/");
 			exit;
 		} else if ($return["code"] == "90") {
-			$join_url = "/member/join_sns_start?join_key=" . urlencode($google_sub) . "&join_type=GOOGLE";
+			// 신규 회원: 로그인 페이지로 리다이렉트해 전화번호 입력 (가입 방식 무관 중복 감지)
+			// join_sns=1: 페이지 로드 시 openGoogleJoinPhonePopup 자동 호출 신호
+			$join_url = "/member/login?join_sns=1&join_key=" . urlencode($google_sub) . "&join_type=GOOGLE";
 			if (!empty($email)) {
 				$join_url .= "&email=" . urlencode($email);
 			}

@@ -53,3 +53,8 @@ $route['default_controller'] = 'home';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
+// 알림톡 링크 호환용 라우트 (실제 메서드명과 외부 배포 URL이 달라 404 발생하던 문제 수정)
+$route['alimtalk/per'] = 'alimtalk/send_per_bridge';
+$route['alimtalk/corp'] = 'alimtalk/send_corp_bridge';
+$route['alimtalk/match_corp'] = 'alimtalk/send_match_corp_bridge';
+$route['alimtalk/match_per'] = 'alimtalk/send_match_per_bridge';

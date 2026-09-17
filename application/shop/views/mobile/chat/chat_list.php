@@ -97,7 +97,7 @@ $top_bar = array(
       }
     </style>
     <div class="tab-panel">
-      <div class="container">
+    <div class="container" style="padding: 0;">
         <!-- 지원한공고 탭 전용 페이지 (개인회원용) -->
         <h2 class="sr-text">지원한공고</h2>
 

@@ -1414,6 +1414,22 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
             return false;
         }
     }
+
+    // 웹 채팅 버튼 - 준비중 안내 메시지
+    document.addEventListener('DOMContentLoaded', function() {
+        var chatBtn = document.getElementById('bottomchatbtn');
+        if (chatBtn) {
+            chatBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof commonAlert === 'function') {
+                    commonAlert('현재 채팅서비스 업데이트 준비중입니다.', function() {});
+                } else {
+                    alert('현재 채팅서비스 업데이트 준비중입니다.');
+                }
+            });
+        }
+    });
 </script>
 
 </html>

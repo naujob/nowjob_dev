@@ -46,6 +46,7 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
             <div class="simple-content" data-collapsed="true">
               <div class="data-row">
                 <p class="data-label"><?= $tpl_data_label ?></p>
+                <p class="company-info">{{mm_comp_name}}</p>
               </div>
               <div class="btn-wrap">
                 <button class="btn-detail">상세보기</button>
@@ -85,7 +86,7 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
 
   .btn-wrap .btn-detail,
   .btn-wrap .btn-close {
-    font-size: 0.8rem;
+    font-size:  1.5rem;
     padding: 6px 12px;
     border: 1px solid #cdc8c8;
 
@@ -113,6 +114,13 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
     font-size: 0.875rem;
     color: #999;
     margin: 0;
+  }
+
+  .company-info {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+    font-weight: 500;
   }
 
   .toggle-expand i {
@@ -150,5 +158,21 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
     max-height: 500px;
     opacity: 1;
   }
+  .desc .title-wrap {
+    height: 55px;
+ }
+ .desc .title-wrap .title.ellipsis {
+    font-size: 25px;
+ }
 
+
+ .content-body .desc .simple-content .data-row {
+    height: 27px;
+ }
+ .content-body .desc .simple-content .data-row .data-label {
+    font-size: 17px;
+ }
+ .content-body .desc .simple-content .data-row .status-label {
+    font-size: 17px;
+ }
 </style>
