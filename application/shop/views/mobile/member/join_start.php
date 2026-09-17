@@ -338,13 +338,13 @@
 		$("[id=memberType1]").click(function() {
 			// [개인회원] SNS 간편로그인 경로인 경우 PASS 인증 없이 바로 회원가입 진행
 			if (getUrlParameter('join_type') === 'sns') {
-				
+
 				var params = {};
 				params["type"] = "MEM"; // 개인회원 타입
 				comAjax("/member_proc/join_auth", params, function(ret) {
 					if (ret.code == "00") {
-						// PASS 인증 없이 바로 다음 단계로 이동 (모바일용 경로)
-						location.href = './join_mem_step1';
+						// PASS 인증 없이 바로 다음 단계로 이동 (모바일용 경로) - join_mem_step1은 SNS인 경우 step3으로 리다이렉트하므로 직접 step3으로 이동
+						location.href = './join_mem_step3';
 					} else {
 						commonAlert(ret.msg, function() {});
 					}

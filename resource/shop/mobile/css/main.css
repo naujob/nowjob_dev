@@ -11315,7 +11315,7 @@ form#frm {
 .recruit-name-section {
     padding: 8px 12px;
     border: 1px solid #d7d2d2;
-    background: #a3a3a3;
+    background: #ccc;
     font-size: 14px;
     font-weight: 600;
     color: #ffffff;
@@ -14129,15 +14129,15 @@ h3.secondary-title .menu:focus {
 [class*="resumebox_"] .content-body {
         position: relative;
         overflow: hidden;
-        height: 132px;
+        height: 118px;
         width: 100%;
        
       }
       [class*="recruitbox_"] .content-body .img,
       [class*="resumebox_"] .content-body .img {
         position: absolute;
-        width: 95px;
-        height: 95px;
+        width: 80px;
+        height: 80px;
         border: 0;
         border-radius: 5px;
         color: #888;
