@@ -255,7 +255,8 @@
 
       comAjax("/member_proc/join_mem_step3", params, function(ret) {
         if (ret && ret.code === "00") {
-          location.href = "/member/join_mem_step4_1";
+          // step3 완료 후 곧바로 회원가입 완료 (PART)
+          fPassClickFromStep3();
         } else {
           commonAlert((ret && ret.msg) ? ret.msg : "약관 동의 처리에 실패했습니다.", function(){});
         }
@@ -298,6 +299,37 @@
   function checkContent(arg) {
       $('input[name="rd_agree'+arg+'"]').prop('checked', true); // rd_agree1 체크
       fClickChk(); // 상태 변경 후 fClickChk 호출
+  }
+
+  // step3에서 회원가입 완료 처리 (PART)
+  function fPassClickFromStep3(){
+    var params = {};
+    params["ma_type"] = "MEM";
+    params["proc_type"] = "PART";
+    params["uuid"] = "<?=$uuid?>";
+    try {
+      var joinType = localStorage.getItem("join_sns_type") || sessionStorage.getItem("join_sns_type") || "";
+      var joinKey = localStorage.getItem("join_sns_key") || sessionStorage.getItem("join_sns_key") || "";
+      if (joinType) params["join_type"] = joinType;
+      if (joinKey) params["join_key"] = joinKey;
+    } catch (e) {}
+
+    comAjax("/member_proc/join_complete_proc",params,function(ret){
+      if(ret.code=="00"){
+        try {
+          localStorage.removeItem("join_sns_type");
+          localStorage.removeItem("join_sns_key");
+          sessionStorage.removeItem("join_sns_type");
+          sessionStorage.removeItem("join_sns_key");
+          document.cookie = "join_sns_type=; path=/; max-age=0";
+          document.cookie = "join_sns_key=; path=/; max-age=0";
+        } catch (e) {}
+        location.href="/member/join_mem_finish";
+      }else{
+        commonAlert(ret.msg,function(){});
+        return;
+      }
+    });
   }
 
 </script>

@@ -1531,7 +1531,7 @@ class Member extends CI_Controller
 					"sl_status" => "Y"
 				]
 			);
-			go_location("/member/join_mem_step2");
+			go_location("/member/join_mem_step3");
 		} else {
 			// 기존 스텝1 로그 확인 (nice_success()에서 이미 생성했을 수 있음)
 			$existing_step1 = $this->site_model->getSiteLog(
@@ -1572,19 +1572,6 @@ class Member extends CI_Controller
 	}
 
 	# 회원가입 스탭2
-	function join_mem_step2()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_MEM", "스텝1");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		$this->layout->shop('/member/join_mem_step2', $data);
-	}
-
 	# 회원가입 스탭3
 	function join_mem_step3()
 	{
@@ -1596,6 +1583,11 @@ class Member extends CI_Controller
 		//	go_location("/member/join_start","데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
 		//}
 
+		# uuid
+		$headers = apache_request_headers();
+		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
+		$data["uuid"] = $uuid;
+
 		$data["policy1"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "policy_m"]);
 		$data["policy2"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "privacy_m"]);
 		$data["policy3"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "location_m"]);
@@ -1603,103 +1595,6 @@ class Member extends CI_Controller
 		$data["policy5"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_m"]);
 
 		$this->layout->shop('/member/join_mem_step3', $data);
-	}
-
-	# 회원가입 스탭4
-	function join_mem_step4_1()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_MEM", "스텝3");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		# uuid
-		$headers = apache_request_headers();
-		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
-		$data["uuid"] = $uuid;
-
-		# 데이터 리스트
-		$data["ma_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-		$data["ma_price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
-		$data["ma_work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
-		$data["ma_week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
-
-		# 세션데이터
-		$data["info"]  = $this->site_model->getStepTempData("JOIN_MEM", "스텝4_1");
-		$this->layout->shop('/member/join_mem_step4_1', $data);
-	}
-
-	# 회원가입 스탭4
-	function join_mem_step4_2()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_MEM", "스텝4_1");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		# uuid
-		$headers = apache_request_headers();
-		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
-		$data["uuid"] = $uuid;
-
-		# 데이터 리스트
-		$data["ma_edu_list"]  = $this->site_model->getCodeList(["cd_grp" => "최종학력"]);
-
-		# 세션데이터
-		$data["info"]  = $this->site_model->getStepTempData("JOIN_MEM", "스텝4_2");
-		$this->layout->shop('/member/join_mem_step4_2', $data);
-	}
-
-	# 회원가입 스탭4
-	function join_mem_step4_3()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_MEM", "스텝4_2");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		# uuid
-		$headers = apache_request_headers();
-		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
-		$data["uuid"] = $uuid;
-
-		# 데이터 리스트
-		$data["ma_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-		$data["ma_my_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "나의강점"]);
-
-		# 세션데이터
-		$data["info"]  = $this->site_model->getStepTempData("JOIN_MEM", "스텝4_3");
-		$this->layout->shop('/member/join_mem_step4_3', $data);
-	}
-
-	# 회원가입 스탭4
-	function join_mem_step4_4()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_MEM", "스텝4_3");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		# uuid
-		$headers = apache_request_headers();
-		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
-		$data["uuid"] = $uuid;
-
-		# 세션데이터
-		$data["info"]  = $this->site_model->getStepTempData("JOIN_MEM", "스텝4_4");
-		$this->layout->shop('/member/join_mem_step4_4', $data);
 	}
 
 	# 회원가입 완료
@@ -1761,33 +1656,6 @@ class Member extends CI_Controller
 		$this->layout->shop('/member/join_comp_step1', $data);
 	}
 
-	# 회원가입 스탭2
-	function join_comp_step2()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_COMP", "스텝1");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		# 사업자 번호 확인 인증키
-		$data["bus_key"] = $this->setting_model->getSettingInfo(["st_group" => "사업자번호", "st_key" => "인증키"]);
-
-		$list = $this->site_model->getSiteLogList(
-			["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_status" => "Y"]
-		);
-		if ($list == null) {
-			//    json_return("10","등록 데이터가 존재하지 않습니다.",$list);
-		} else {
-			$step_auth = $this->site_model->getStepData($list, "본인인증");
-			$data["mm_phone"] = $step_auth["mm_phone"];
-		}
-
-		$this->layout->shop('/member/join_comp_step2', $data);
-	}
-
 	# 회원가입 스탭3
 	function join_comp_step3()
 	{
@@ -1834,7 +1702,7 @@ class Member extends CI_Controller
 					"sl_status" => "Y"
 				]
 			);
-			go_location("/member/join_comp_step4");
+			go_location("/member/join_comp_step5");
 		}
 
 		$list = $this->site_model->getSiteLogList(
@@ -1850,21 +1718,7 @@ class Member extends CI_Controller
 		$this->layout->shop('/member/join_comp_step3', $data);
 	}
 
-	# 회원가입 스탭4
-	function join_comp_step4()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_COMP", "스텝3");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		$this->layout->shop('/member/join_comp_step4', $data);
-	}
-
-	# 회원가입 스탭4
+	# 회원가입 스탭5
 	function join_comp_step5()
 	{
 		$data = [];
@@ -1875,6 +1729,11 @@ class Member extends CI_Controller
 			//go_location("/member/join_start","데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
 		}
 
+		# uuid
+		$headers = apache_request_headers();
+		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
+		$data["uuid"] = $uuid;
+
 		$data["policy1"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "policy2_m"]);
 		$data["policy2"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "privacy_m"]);
 		$data["policy3"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "location_m"]);
@@ -1882,33 +1741,6 @@ class Member extends CI_Controller
 		$data["policy5"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_m"]);
 
 		$this->layout->shop('/member/join_comp_step5', $data);
-	}
-
-	# 회원가입 스탭5
-	function join_comp_step6()
-	{
-		$data = [];
-
-		# 데이터 검증및 뒤로가기 처리
-		$is_check = $this->site_model->checkSiteLog("JOIN_COMP", "스텝5");
-		if ($is_check == false) {
-			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
-		}
-
-		# uuid
-		$headers = apache_request_headers();
-		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
-		$data["uuid"] = $uuid;
-
-		$data["ma_wrok_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-		$data["ma_price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
-		$data["ma_work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
-		$data["ma_week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
-		$data["ma_edu_list"]  = $this->site_model->getCodeList(["cd_grp" => "최종학력"]);
-
-		# 세션 데이터
-		$data["info"]  = $this->site_model->getStepTempData("JOIN_COMP", "스텝6");
-		$this->layout->shop('/member/join_comp_step6', $data);
 	}
 
 	# 회원가입 완료
