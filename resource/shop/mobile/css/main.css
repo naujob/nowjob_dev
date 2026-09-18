@@ -2403,10 +2403,10 @@ fieldset {
 }
 
 .category-label {
+    margin: 0 0 0 0.5rem;
     display: inline-block;
     height: 20px;
-    position: relative;
-    left: 29px;
+    
     font-size: 0.6875rem;
     color: #fff;
     vertical-align: middle;
@@ -13705,7 +13705,7 @@ h3.secondary-title .menu:focus {
 
 /* 채팅 메시지 버블 내용 폰트 크기 설정 및 유동적 너비 */
 .page-chat-view .chat-view-body .msg-item.chat-bubble .bubble-content {
-    font-size: 16px;
+    font-size: 18px;
     width: auto !important;
     min-width: 60px;
     max-width: 70%;

@@ -15,7 +15,8 @@ function CopyUrl() {
 
 /* 공유 패널 초기화 함수 */
 function initializeSharePanel() {
-    var shareButton = document.querySelector('.btn-share');
+    // 아직 초기화되지 않은 첫 번째 .btn-share 찾기 (중복 초기화 방지)
+    var shareButton = document.querySelector('.btn-share:not([data-native-share])');
     if (!shareButton) {
         return;
     }

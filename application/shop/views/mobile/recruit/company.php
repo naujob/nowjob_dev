@@ -468,11 +468,34 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
 
       // 로드된 HTML 내 script 태그 실행
       var scripts = popup.querySelectorAll('script');
+      var pendingScripts = 0;
+      var sharePanelScriptLoaded = false;
+
       scripts.forEach(function(script) {
         if (script.src) {
+          pendingScripts++;
           var newScript = document.createElement('script');
           newScript.src = script.src;
           newScript.async = script.async;
+
+          // share-panel.js 로드 완료 후 initializeSharePanel() 호출
+          if (script.src.indexOf('share-panel.js') !== -1) {
+            newScript.onload = function() {
+              sharePanelScriptLoaded = true;
+              if (typeof initializeSharePanel === 'function') {
+                initializeSharePanel();
+              }
+            };
+            newScript.onerror = function() {
+              console.error('[openJobPostPopup] share-panel.js 로드 실패');
+              sharePanelScriptLoaded = true;
+            };
+          }
+
+          newScript.onloadend = function() {
+            pendingScripts--;
+          };
+
           popup.appendChild(newScript);
         } else {
           var newScript = document.createElement('script');
@@ -497,12 +520,6 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
           pointerEvents: 'auto'
         }
       );
-
-      // 팝업 로드 후 공유 패널 초기화
-      var shareButton = document.querySelector('#jobPostPopup .btn-share');
-      if (shareButton && typeof initializeSharePanel === 'function') {
-        initializeSharePanel();
-      }
 
       // 팝업 로드 후 이미지 lazy load 초기화
       if (typeof initLazyLoad === 'function') {

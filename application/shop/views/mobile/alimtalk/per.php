@@ -145,8 +145,8 @@
 			var isNaverApp = /naver|navercorp/i.test(userAgent);
 			var isRestrictedBrowser = isKakaoTalk || isLine || isMessenger || isNaverApp;
 
-			var webUrl = '/chat/chat_list';
-			var appUrl = 'nowjob://chat/chat_list';
+			var webUrl = '/chat/index_comp';
+			var appUrl = 'nowjob://chat/index_comp';
 
 			var appStoreUrl;
 			if (isAndroid) {
@@ -154,7 +154,7 @@
 			} else if (isIos) {
 				appStoreUrl = 'itms-apps://apps.apple.com/app/id6446226901';
 			} else {
-				appStoreUrl = '/recruit/job_list';
+				appStoreUrl = '/chat/index_comp';
 			}
 
 			// iOS 처리
