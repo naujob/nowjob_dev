@@ -626,10 +626,14 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                     <span class="action-label">광고</span>
                 </a>
             <?php else : ?>
-                <!-- 기업회원이 볼 때: 제안보내기 + 전화하기 -->
+                <!-- 기업회원이 볼 때: 제안보내기 + 채팅하기 + 전화하기 -->
                 <a href="#" id="btnPropose" class="floating-action-item btnRequest" data-action="propose" title="제안">
                     <img src="/resource/shop/mobile/img/propose.png" alt="제안">
                     <span class="action-label">제안하기</span>
+                </a>
+                <a href="#" id="btnDirectChat" class="floating-action-item" data-action="chat" title="채팅">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
                 </a>
                 <a href="#" id="btnGoChat" class="floating-action-item btnGoChat" data-action="call" title="전화" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
                     <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
@@ -1010,8 +1014,60 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         }
 
         $("[name='chk_request[]']").prop("checked", false);
+        currentActionMode = 'propose';
         $("#selectPanel").addClass("on");
 
+    });
+
+    // 기업회원 다이렉트 채팅 버튼 클릭 이벤트
+    $(document).on('click', '#btnDirectChat', function() {
+        //로그인 여부 확인
+        if ($("#is_login").val() != "Y") {
+            $('#hrPostPopup').css('z-index', '200');
+            var restoreZIndex = function() { $('#hrPostPopup').css('z-index', '1000'); };
+            setTimeout(function() {
+                var $popup = $('.layer-popup.in').last();
+                if ($popup.length) {
+                    $popup.find('.btn-close-popup').one('click', restoreZIndex);
+                    $popup.one('click.popupClose', function(e) { if (e.target === this) restoreZIndex(); });
+                }
+            }, 50);
+
+            openPopup('confirm', {
+                id: 'loginconfirm',
+                content: '<strong>로그인후 이용해주세요!</strong><small></small>',
+                firstButton: '로그인',
+                secondButton: '회원가입',
+                firstCallback: function() {
+                    restoreZIndex();
+                    location.href = "/member/login";
+                },
+                secondCallback: function() {
+                    restoreZIndex();
+                    setCookie('non_mem_last_resume', window.location.href, 1);
+                    location.href = "/member/join_start";
+                },
+            });
+            $('.btn-close-popup').show();
+
+            return;
+        }
+
+        if (check_user_type != "COMP") {
+            commonAlert("기업 회원만 이용 가능합니다.", function() {});
+            return;
+        }
+
+        // 첫 번째 유효한 공고 자동 선택 후 바로 채팅 시작
+        var $firstValid = $("[name='chk_request[]']:first");
+        if ($firstValid.length > 0) {
+            $firstValid.prop("checked", true);
+            currentActionMode = 'direct_chat';
+            // 기존 .btnProcess 핸들러로 채팅 시작 (공고 선택 패널 건너뜀)
+            $(".btnProcess").click();
+        } else {
+            commonAlert("등록된 채용공고가 없습니다.", function() {});
+        }
     });
 
     // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용
@@ -1076,8 +1132,13 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                     }
                 }, 50);
 
+                // currentActionMode에 따라 confirm 문구 분기
+                var confirmContent = currentActionMode === 'direct_chat'
+                    ? '<em>' + ru_title + '</em><br>개인회원과 채팅을 시작하시겠습니까?'
+                    : '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?';
+
                 openPopup('confirm', {
-                    content: '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?',
+                    content: confirmContent,
                     firstCallback: function() {
                         restoreZIndex();
                     },
@@ -1087,6 +1148,12 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                         params["mq_idxs"] = mq_idxs;
                         params["rc_idx"] = rc_idx;
                         params["mq_type"] = "RESUME";
+
+                        // 다이렉트 채팅인 경우 is_direct_chat 파라미터 추가
+                        if (currentActionMode === 'direct_chat') {
+                            params["is_direct_chat"] = "Y";
+                        }
+
                         comAjax("/common_proc/member_request", params, function(ret) {
                             //console.log(ret);
                             if (ret.code == "00") {
@@ -1097,10 +1164,15 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
                                 $("#selectPanel").removeClass("on");
 
-                                // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
-                                // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기
-                                var ru_idx = $("[name='ru_idx']").val();
-                                location.href = "/chat/chat_list3?auto_open_rc_idx=" + rc_idx + "&auto_open_ru_idx=" + ru_idx;
+                                // 다이렉트 채팅 또는 제안에 따라 이동 경로 분기
+                                if (currentActionMode === 'direct_chat') {
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat";
+                                } else {
+                                    // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
+                                    // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기
+                                    var ru_idx = $("[name='ru_idx']").val();
+                                    location.href = "/chat/chat_list3?auto_open_rc_idx=" + rc_idx + "&auto_open_ru_idx=" + ru_idx;
+                                }
                             } else {
                                 commonAlert(ret.msg, function() {
                                     $("#selectPanel").removeClass("on");

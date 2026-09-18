@@ -3050,4 +3050,272 @@ json_return("00", "조회완료", $data);
 		} catch (Exception $e) {
 		}
 	}
+
+	# 개인회원이 보낸 다이렉트 채팅 목록 조회
+	function get_direct_chat_list_sent_mem()
+	{
+		$mm_idx = $this->user->getUserIdx();
+		$result = $this->member_model->getDirectChatListSentMem($mm_idx);
+
+		$preview_byte_length = 20;
+		$temp_list = $result;
+
+		// MongoDB 연결하여 마지막 메시지 조회
+		$uri = $this->mongo_uri;
+		try {
+			@$mongo = new Mongo($uri);
+			$database = $mongo->{$this->mongo_db};
+			$collection = $database->room;
+
+			foreach ($temp_list as $key => $row) {
+				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
+
+				if ($rm_idx > 0) {
+					$query = ['rm_idx' => $rm_idx];
+					$room = $collection->findOne($query);
+
+					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+						$last_message = end($room["rm_messages"]);
+						if (isset($last_message["mg_type"])) {
+							if ($last_message["mg_type"] === "img") {
+								$temp_list[$key]["last_msg_preview"] = "이미지";
+							} else if ($last_message["mg_type"] === "file") {
+								$temp_list[$key]["last_msg_preview"] = "문서";
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								$last_msg = strip_tags($last_message["mg_text"]);
+								$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+								if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+									$temp_list[$key]["last_msg_preview"] .= "...";
+								}
+							}
+						}
+						if (isset($last_message["mg_dt"])) {
+							$last_msg_time = $last_message["mg_dt"];
+							if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
+								$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+							} else {
+								$temp_list[$key]["last_msg_time"] = $last_msg_time;
+							}
+						}
+					}
+				}
+
+				if (empty($temp_list[$key]["last_msg_preview"])) {
+					$temp_list[$key]["last_msg_preview"] = "";
+				}
+				if (empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["last_msg_time"] = "";
+				}
+			}
+		} catch (Exception $e) {
+			// MongoDB 실패 시 기본값
+		}
+
+		$temp_list = array_values($temp_list);
+		json_return("00", "조회성공", ["list" => $temp_list]);
+	}
+
+	# 개인회원이 받은 다이렉트 채팅 목록 조회
+	function get_direct_chat_list_received_mem()
+	{
+		$mm_idx = $this->user->getUserIdx();
+		$result = $this->member_model->getDirectChatListReceivedMem($mm_idx);
+
+		$preview_byte_length = 20;
+		$temp_list = $result;
+
+		// MongoDB 연결하여 마지막 메시지 조회
+		$uri = $this->mongo_uri;
+		try {
+			@$mongo = new Mongo($uri);
+			$database = $mongo->{$this->mongo_db};
+			$collection = $database->room;
+
+			foreach ($temp_list as $key => $row) {
+				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
+
+				if ($rm_idx > 0) {
+					$query = ['rm_idx' => $rm_idx];
+					$room = $collection->findOne($query);
+
+					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+						$last_message = end($room["rm_messages"]);
+						if (isset($last_message["mg_type"])) {
+							if ($last_message["mg_type"] === "img") {
+								$temp_list[$key]["last_msg_preview"] = "이미지";
+							} else if ($last_message["mg_type"] === "file") {
+								$temp_list[$key]["last_msg_preview"] = "문서";
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								$last_msg = strip_tags($last_message["mg_text"]);
+								$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+								if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+									$temp_list[$key]["last_msg_preview"] .= "...";
+								}
+							}
+						}
+						if (isset($last_message["mg_dt"])) {
+							$last_msg_time = $last_message["mg_dt"];
+							if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
+								$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+							} else {
+								$temp_list[$key]["last_msg_time"] = $last_msg_time;
+							}
+						}
+					}
+				}
+
+				if (empty($temp_list[$key]["last_msg_preview"])) {
+					$temp_list[$key]["last_msg_preview"] = "";
+				}
+				if (empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["last_msg_time"] = "";
+				}
+			}
+		} catch (Exception $e) {
+			// MongoDB 실패 시 기본값
+		}
+
+		$temp_list = array_values($temp_list);
+		json_return("00", "조회성공", ["list" => $temp_list]);
+	}
+
+	# 기업회원이 보낸 다이렉트 채팅 목록 조회
+	function get_direct_chat_list_sent_comp()
+	{
+		$mm_idx = $this->user->getUserIdx();
+		$result = $this->member_model->getDirectChatListSentComp($mm_idx);
+
+		// [로그] 쿼리 결과 확인
+		error_log("=== getDirectChatListSentComp QUERY RESULT ===");
+		error_log("MM_IDX: " . $mm_idx);
+		error_log("RESULT COUNT: " . count($result));
+		error_log("RESULT DATA: " . json_encode($result, JSON_UNESCAPED_UNICODE));
+
+		$preview_byte_length = 20;
+		$temp_list = $result;
+
+		// MongoDB 연결하여 마지막 메시지 조회
+		$uri = $this->mongo_uri;
+		try {
+			@$mongo = new Mongo($uri);
+			$database = $mongo->{$this->mongo_db};
+			$collection = $database->room;
+
+			foreach ($temp_list as $key => $row) {
+				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
+
+				if ($rm_idx > 0) {
+					$query = ['rm_idx' => $rm_idx];
+					$room = $collection->findOne($query);
+
+					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+						$last_message = end($room["rm_messages"]);
+						if (isset($last_message["mg_type"])) {
+							if ($last_message["mg_type"] === "img") {
+								$temp_list[$key]["last_msg_preview"] = "이미지";
+							} else if ($last_message["mg_type"] === "file") {
+								$temp_list[$key]["last_msg_preview"] = "문서";
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								$last_msg = strip_tags($last_message["mg_text"]);
+								$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+								if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+									$temp_list[$key]["last_msg_preview"] .= "...";
+								}
+							}
+						}
+						if (isset($last_message["mg_dt"])) {
+							$last_msg_time = $last_message["mg_dt"];
+							if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
+								$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+							} else {
+								$temp_list[$key]["last_msg_time"] = $last_msg_time;
+							}
+						}
+					}
+				}
+
+				if (empty($temp_list[$key]["last_msg_preview"])) {
+					$temp_list[$key]["last_msg_preview"] = "";
+				}
+				if (empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["last_msg_time"] = "";
+				}
+			}
+		} catch (Exception $e) {
+			// MongoDB 실패 시 기본값
+		}
+
+		$temp_list = array_values($temp_list);
+
+		// [로그] 최종 응답 데이터 확인
+		error_log("=== getDirectChatListSentComp FINAL RESPONSE ===");
+		error_log("FINAL LIST COUNT: " . count($temp_list));
+		error_log("FINAL LIST DATA: " . json_encode($temp_list, JSON_UNESCAPED_UNICODE));
+
+		json_return("00", "조회성공", ["list" => $temp_list]);
+	}
+
+	# 기업회원이 받은 다이렉트 채팅 목록 조회
+	function get_direct_chat_list_received_comp()
+	{
+		$mm_idx = $this->user->getUserIdx();
+		$result = $this->member_model->getDirectChatListReceivedComp($mm_idx);
+
+		$preview_byte_length = 20;
+		$temp_list = $result;
+
+		// MongoDB 연결하여 마지막 메시지 조회
+		$uri = $this->mongo_uri;
+		try {
+			@$mongo = new Mongo($uri);
+			$database = $mongo->{$this->mongo_db};
+			$collection = $database->room;
+
+			foreach ($temp_list as $key => $row) {
+				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
+
+				if ($rm_idx > 0) {
+					$query = ['rm_idx' => $rm_idx];
+					$room = $collection->findOne($query);
+
+					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+						$last_message = end($room["rm_messages"]);
+						if (isset($last_message["mg_type"])) {
+							if ($last_message["mg_type"] === "img") {
+								$temp_list[$key]["last_msg_preview"] = "이미지";
+							} else if ($last_message["mg_type"] === "file") {
+								$temp_list[$key]["last_msg_preview"] = "문서";
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								$last_msg = strip_tags($last_message["mg_text"]);
+								$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+								if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+									$temp_list[$key]["last_msg_preview"] .= "...";
+								}
+							}
+						}
+						if (isset($last_message["mg_dt"])) {
+							$last_msg_time = $last_message["mg_dt"];
+							if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
+								$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+							} else {
+								$temp_list[$key]["last_msg_time"] = $last_msg_time;
+							}
+						}
+					}
+				}
+
+				if (empty($temp_list[$key]["last_msg_preview"])) {
+					$temp_list[$key]["last_msg_preview"] = "";
+				}
+				if (empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["last_msg_time"] = "";
+				}
+			}
+		} catch (Exception $e) {
+			// MongoDB 실패 시 기본값
+		}
+
+		$temp_list = array_values($temp_list);
+		json_return("00", "조회성공", ["list" => $temp_list]);
+	}
 } //class

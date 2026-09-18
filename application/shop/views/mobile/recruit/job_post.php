@@ -738,7 +738,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <?php
         $userType = $this->user->getUserType();
         ?>
-        <?php if ((!$isPreview && $userType !== "COMP") || $isOwnRecruit) : ?>
+        <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
 
         <?php if ($userType === "MEM") : ?>
@@ -746,6 +746,11 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <a href="#" id="btnRequest" class="floating-action-item btnRequest" data-action="propose" title="제안">
                     <img src="/resource/shop/mobile/img/propose.png" alt="지원">
                     <span class="action-label">지원하기</span>
+                </a>
+                <!-- 개인회원: 채팅 -->
+                <a href="#" id="btnDirectChat" class="floating-action-item" data-action="chat" title="채팅" data-rc_idx="<?= $info["rc_idx"] ?>">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
                 </a>
             <?php elseif ($userType === "COMP" && $isOwnRecruit) : ?>
                 <!-- 기업회원 & 내 공고: 재등록/수정/마감/삭제/광고 -->
@@ -770,17 +775,23 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
                     <span class="action-label">광고</span>
                 </a>
-            <?php else : ?>
-                <!-- 비회원: 지원하기 (로그인 유도) -->
+            <?php elseif ($userType !== "COMP") : ?>
+                <!-- 비회원: 로그인 (직접 로그인 페이지로) -->
                 <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
-                <a href="/member/login" class="floating-action-item" data-action="propose" title="지원">
+                <!-- 비회원: 지원하기 (로그인 안내 팝업) -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="propose" title="지원">
                     <img src="/resource/shop/mobile/img/propose.png" alt="지원">
                     <span class="action-label">지원하기</span>
                 </a>
-             
+                <!-- 비회원: 채팅 (로그인 안내 팝업) -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="chat" title="채팅">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
+                </a>
+
             <?php endif; ?>
 
             <!-- 모두에게 노출: 전화하기 -->
@@ -1513,6 +1524,56 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 }
             });
         });
+
+        // 개인회원 다이렉트 채팅 버튼 클릭 이벤트
+        $(document).on('click', '#btnDirectChat', function(e) {
+            e.preventDefault();
+            if (isClosedRecruit) {
+                commonAlert("마감된 공고입니다", function() {});
+                return;
+            }
+            if ($("#is_login").val() != "Y") {
+                commonAlert("로그인후 이용해주세요!", function() {
+                    location.href = '/member/login';
+                });
+                return;
+            }
+            if (user_type != "MEM") {
+                commonAlert("개인 회원만 이용 가능합니다.", function() {});
+                return;
+            }
+
+            openPopup('confirm', {
+                content: '<em>"' + $("[name=rc_name]").val() + '"</em><br>기업에 채팅을 요청하시겠습니까?',
+                firstCallback: function() {
+                    $('.btn-close-popup').show();
+                },
+                secondCallback: function() {
+                    var rc_idx = $("[name=rc_idx]").val();
+                    var params = {};
+                    var mq_idxs = [];
+                    mq_idxs.push(rc_idx);
+                    params["mq_idxs"] = mq_idxs;
+                    params["mq_type"] = "RECRUIT";
+                    params["is_direct_chat"] = "Y";
+
+                    comAjax("/common_proc/member_request", params, function(ret) {
+                      
+                        $('.btn-close-popup').show();
+                        if (ret.code == "00") {
+                           
+                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat";
+                        } else {
+                           
+                            commonAlert(ret.msg, function() {});
+                            return;
+                        }
+                    });
+                }
+            });
+            $('.btn-close-popup').hide();
+        });
+
         // 이력서 작성 버튼 클릭 이벤트 20250919
         $("#btnResume").click(function(e) {
             e.preventDefault();
@@ -1616,6 +1677,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         };
 
     })();  // IIFE 종료 - 동적 로드 시 즉시 실행
+
 </script>
 
 <!-- 온보딩 튜토리얼 (DOMContentLoaded 밖, 최상위 레벨 - hr_post.php와 동일 패턴) -->
@@ -1727,4 +1789,20 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             window.openJobPostTutorial();
         }
     }
+</script>
+
+<!-- 비회원 로그인 안내 팝업 (팝업 위에서 바텀시트 열기) -->
+<script>
+    // 팝업에서 부모 페이지의 이미 생성된 로그인 안내 바텀시트를 열기
+    window.showLoginGuideFromPopup = function() {
+        var loginPanel = document.getElementById('loginGuidePanel');
+        if (loginPanel && typeof openPanel === 'function') {
+            // 바텀시트를 팝업 위에 올려오기 (z-index 조정)
+            // job_list.php의 #jobPostPopup z-index는 1000이므로 1001 이상으로 설정
+            loginPanel.style.zIndex = '1001';
+            openPanel(loginPanel);
+        } else {
+            console.error('[job_post.php] loginGuidePanel을 찾을 수 없거나 openPanel 함수가 정의되지 않음');
+        }
+    };
 </script>

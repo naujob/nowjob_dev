@@ -131,6 +131,19 @@ $top_bar = array(
                     </div>
                 </div>
 
+                <!-- 받은다이렉트채팅 섹션 -->
+                <div class="direct-chat-list-section" style="margin-top: 2rem;">
+                  <h3 class="section-title" style="padding: 0 1rem 1rem; font-size: 1.1rem; font-weight: 700; color: #333;">받은다이렉트채팅</h3>
+                  <div class="chat-list">
+                    <ol class="list result-list-card" id="direct_chat_list_received">
+
+                    </ol>
+                    <div class="chat-empty" id="direct_chat_empty_received" style="display: none;">
+                      <p>목록이 없습니다.</p>
+                    </div>
+                  </div>
+                </div>
+
             </div>
         </div>
 
@@ -233,6 +246,7 @@ $top_bar = array(
     // 페이지 로드 시 제안받은공고 목록 조회 및 실시간 업데이트 초기화
     $(document).ready(function() {
         getChatTargetList2();
+        fSearchDirectChatListReceivedMem();
         initRealTimeTabBadgeUpdate();
     });
 
@@ -326,6 +340,88 @@ $top_bar = array(
 
             // 미확인 채팅건수 조회
             fSearchNoReadCount();
+        });
+    }
+
+    // 받은다이렉트채팅 목록 로드
+    function fSearchDirectChatListReceivedMem() {
+        $.ajax({
+            type: "POST",
+            url: "/chat_proc/get_direct_chat_list_received_mem",
+            data: {},
+            dataType: "json",
+            success: function(ret) {
+                if (ret.code == "00") {
+                    var directChatList = ret.data.list || [];
+                    var $directList = $("#direct_chat_list_received");
+
+                    $directList.empty();
+                    window.__chatDirectRmIdxSetReceived = new Set();
+
+                    directChatList.forEach(function(row) {
+                        var $clone = $("#tpl_chat2").clone();
+                        var $content = $clone.html();
+
+                        $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
+                        $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
+                        $content = $content.replaceAll("{{rm_idx}}", row.rm_idx || "");
+                        $content = $content.replaceAll("{{target_id}}", row.target_id || "");
+                        $content = $content.replaceAll("{{target_name}}", row.target_name || "");
+                        $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
+                        $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
+                        $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "/resource/shop/mobile/img/common/noimage4.png");
+
+                        // 프로필 이미지 처리 (성별 기반 기본 아바타)
+                        var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
+                        var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
+                        var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
+                        var profileImg = (typeof row.target_img === "string") ? row.target_img.trim() : "";
+                        var mmSex = (row.mm_sex || "").trim();
+                        var defaultAvatar = noImagePath;
+                        if (mmSex === "남") {
+                          defaultAvatar = maleAvatarPath;
+                        } else if (mmSex === "여") {
+                          defaultAvatar = femaleAvatarPath;
+                        }
+                        if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
+                          profileImg = defaultAvatar;
+                        }
+                        $content = $content.replaceAll("{{profile_img}}", profileImg);
+                        $content = $content.replaceAll("{{target_img}}", profileImg);
+
+                        $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
+                        $content = $content.replaceAll("{{up_dt}}", row.reg_dt || "");
+                        $content = $content.replaceAll("{{rt_recom_badge}}", "");
+                        $content = $content.replaceAll("{{rt_work_img}}", "");
+
+                        $clone.html($content);
+                        $directList.append("<div class='recruitbox_'>" + $clone.html() + "</div>");
+                        window.__chatDirectRmIdxSetReceived.add(String(row.rm_idx));
+                    });
+
+                    if ($directList.find("li").length == 0) {
+                        $("#direct_chat_empty_received").show();
+                        $directList.hide();
+                    } else {
+                        $("#direct_chat_empty_received").hide();
+                        $directList.show();
+                    }
+
+                    $("#direct_chat_list_received .last-chat-time").each(function() {
+                        $(this).text($(this).attr('data-time'));
+                    });
+
+                    // 모든 렌더링 완료 후 empty 상태 재평가
+                    var chatListCount = $("#chat_list").find("li").length;
+                    var directChatCount = $("#direct_chat_list_received").find("li").length;
+
+                    if (chatListCount === 0 && directChatCount === 0) {
+                        $("#chat_empty1").show();
+                    } else {
+                        $("#chat_empty1").hide();
+                    }
+                }
+            }
         });
     }
 

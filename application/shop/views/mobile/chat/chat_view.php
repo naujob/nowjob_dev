@@ -1415,8 +1415,16 @@
         // 사용자 타입에 따른 메시지 내용 결정
         var current_user_type = typeof user_type !== 'undefined' ? user_type : $("[name='user_type']").val();
         var messageText = "";
-        
-        if (current_user_type === "COMP") {
+
+        // URL 파라미터에서 from 값 확인
+        var fromParam = new URLSearchParams(window.location.search).get('from');
+
+        if (fromParam === 'direct_chat') {
+            // 다이렉트 채팅인 경우
+            messageText = current_user_type === "COMP"
+                ? "기업회원이 채팅을 요청하였습니다."
+                : "개인회원이 채팅을 요청하였습니다.";
+        } else if (current_user_type === "COMP") {
             // 기업이 개인에게 제안보낼 경우
             messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
         } else {

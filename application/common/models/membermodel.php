@@ -621,6 +621,40 @@ class memberModel extends MY_Model
 		return $this->db_count("st_resume", $where);
 	}
 
+	# 다이렉트 채팅용 이력서 자동 생성
+	function insertDirectChatResume($mm_idx)
+	{
+		// 이미 이력서가 있는지 확인
+		$existing = $this->db_row("st_resume", array("mm_idx" => $mm_idx));
+		if ($existing) {
+			return $existing["ru_idx"];
+		}
+
+		// 회원정보 조회
+		$member = $this->getMember(array("mm_idx" => $mm_idx));
+		if (!$member) {
+			return null;
+		}
+
+		// 기본값으로 이력서 생성
+		$data = array(
+			"mm_idx" => $mm_idx,
+			"ru_name" => $member["mm_name"],  // 이력서명: 회원이름
+			"ru_nationality" => "내국인",      // 국적: 내국인
+			"ru_work" => "생산",                // 희망업무: 생산
+			"ru_work_negotiation" => "N",
+			"ru_work_type" => "주간,야간,2교대", // 근무형태
+			"ru_zone" => "서울특별시 강남구 개포동", // 희망지역
+			"ru_salary_type" => "일급,주급,월급",   // 급여형태
+			"ru_salary_negotiation" => "N",
+			"reg_dt" => get_today(),
+			"up_dt" => get_today()
+		);
+
+		$ru_idx = $this->db_insert("st_resume", $data);
+		return $ru_idx;
+	}
+
 	# 이력서 경력 등록
 	function insertResumeCareer($data)
 	{
@@ -5943,5 +5977,117 @@ LIMIT 0 , 200
 	function insertBizcallLog($data)
 	{
 		return $this->db_insert("bizcall_logs", $data);
+	}
+
+	# 개인회원이 보낸 다이렉트 채팅 목록 조회
+	function getDirectChatListSentMem($mm_idx)
+	{
+		// 단순 테스트: 먼저 st_member_request에서만 조회
+		$sql_test = "SELECT * FROM st_member_request WHERE mq_type = 'RECRUIT_DIRECT' AND mm_idx = ? LIMIT 5";
+		$test_query = $this->db->query($sql_test, [$mm_idx]);
+		$test_result = $test_query->result_array();
+	
+		if (count($test_result) > 0) {
+			
+		}
+
+		$sql = "
+			SELECT
+				req.rm_idx,
+				IFNULL(rc.rc_name, 'Unknown') AS rc_name,
+				IFNULL(rc.rc_thumb, '') AS rc_thumb,
+				IFNULL(comp.mm_id, 'Unknown') AS mm_id,
+				IFNULL(comp.mm_name, 'Unknown') AS mm_comp_name,
+				IFNULL(comp.mm_thumb, '') AS target_img,
+				'' AS rt_recom_badge,
+				'' AS rt_work_img,
+				req.reg_dt
+			FROM st_member_request req
+			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
+			LEFT JOIN st_member comp ON rc.mm_idx = comp.mm_idx
+			WHERE req.mq_type = 'RECRUIT_DIRECT'
+			AND req.mm_idx = ?
+			ORDER BY req.reg_dt DESC
+		";
+		$query = $this->db->query($sql, [$mm_idx]);
+		$result = $query->result_array();
+
+		if (count($result) > 0) {
+			
+		}
+		return $result;
+	}
+
+	# 개인회원이 받은 다이렉트 채팅 목록 조회 (기업이 시작한 것)
+	function getDirectChatListReceivedMem($mm_idx)
+	{
+		$sql = "
+			SELECT
+				req.rm_idx,
+				rc.rc_name,
+				requester.mm_id AS target_id,
+				requester.mm_name AS target_name,
+				IFNULL(requester.mm_thumb, '') AS target_img,
+				requester.mm_sex,
+				comp.mm_name AS mm_comp_name,
+				req.reg_dt
+			FROM st_member_request req
+			INNER JOIN st_resume ru ON req.ru_idx = ru.ru_idx
+			INNER JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
+			INNER JOIN st_member requester ON req.mm_idx = requester.mm_idx
+			INNER JOIN st_member comp ON rc.mm_idx = comp.mm_idx
+			WHERE req.mq_type = 'RESUME_DIRECT'
+			AND ru.mm_idx = ?
+			ORDER BY req.reg_dt DESC
+		";
+		$query = $this->db->query($sql, [$mm_idx]);
+		return $query->result_array();
+	}
+
+	# 기업회원이 보낸 다이렉트 채팅 목록 조회
+	function getDirectChatListSentComp($mm_idx)
+	{
+		$sql = "
+			SELECT
+				req.rm_idx,
+				IFNULL(rc.rc_name, 'Unknown') AS rc_name,
+				mem.mm_id AS target_id,
+				mem.mm_name AS target_name,
+				IFNULL(ru.ru_img1, '') AS target_img,
+				mem.mm_sex,
+				req.reg_dt
+			FROM st_member_request req
+			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
+			LEFT JOIN st_resume ru ON req.ru_idx = ru.ru_idx
+			LEFT JOIN st_member mem ON ru.mm_idx = mem.mm_idx
+			WHERE req.mq_type = 'RESUME_DIRECT'
+			AND req.mm_idx = ?
+			ORDER BY req.reg_dt DESC
+		";
+		$query = $this->db->query($sql, [$mm_idx]);
+		return $query->result_array();
+	}
+
+	# 기업회원이 받은 다이렉트 채팅 목록 조회 (개인이 시작한 것)
+	function getDirectChatListReceivedComp($mm_idx)
+	{
+		$sql = "
+			SELECT
+				req.rm_idx,
+				IFNULL(rc.rc_name, 'Unknown') AS rc_name,
+				requester.mm_id AS target_id,
+				requester.mm_name AS target_name,
+				IFNULL(requester.mm_thumb, '') AS target_img,
+				requester.mm_sex,
+				req.reg_dt
+			FROM st_member_request req
+			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
+			LEFT JOIN st_member requester ON req.mm_idx = requester.mm_idx
+			WHERE req.mq_type = 'RECRUIT_DIRECT'
+			AND rc.mm_idx = ?
+			ORDER BY req.reg_dt DESC
+		";
+		$query = $this->db->query($sql, [$mm_idx]);
+		return $query->result_array();
 	}
 }

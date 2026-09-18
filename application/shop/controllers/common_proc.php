@@ -864,6 +864,7 @@ class Common_proc extends CI_Controller
 	// 나(my_mm_idx)와 상대방(opponent_mm_idx) 사이에 이미 존재하는 recruit 타입 방을 찾는다.
 	// st_room.mm_idx(생성자)에는 의존하지 않고, 방에 연결된 공고 주인/이력서 주인의 조합으로 판별한다.
 	// 제안(RESUME)과 지원(RECRUIT)을 분리하기 위해 mq_type을 받아 st_member_request의 같은 방향 요청을 확인
+	// mq_type에 RECRUIT_DIRECT, RESUME_DIRECT 등 접미사도 지원 (접두사로 판별)
 	private function find_existing_room_by_opponent($my_mm_idx, $opponent_mm_idx, $mq_type)
 	{
 		if (empty($my_mm_idx) || empty($opponent_mm_idx)) {
@@ -873,11 +874,11 @@ class Common_proc extends CI_Controller
 			return null; // 자기 자신과의 매칭 방지, 기존 신규 생성 경로로 폴백
 		}
 
-		// mq_type에 따라 방향 판정
-		if ($mq_type == "RESUME") {
+		// mq_type 접두사로 방향 판정 (RECRUIT/RECRUIT_DIRECT, RESUME/RESUME_DIRECT 모두 지원)
+		if (strpos($mq_type, "RESUME") === 0) {
 			// 제안: 나=공고 주인(rc.mm_idx), 상대=이력서 주인(ru.mm_idx)
 			$owner_params = [$my_mm_idx, $opponent_mm_idx];
-		} else if ($mq_type == "RECRUIT") {
+		} else if (strpos($mq_type, "RECRUIT") === 0) {
 			// 지원: 나=이력서 주인(ru.mm_idx), 상대=공고 주인(rc.mm_idx)
 			$owner_params = [$opponent_mm_idx, $my_mm_idx];
 		} else {
@@ -913,6 +914,9 @@ class Common_proc extends CI_Controller
 			$mq_type = input_post("mq_type");
 			$mq_idxs = input_post("mq_idxs"); // [rc_idx] 배열 or [ru_idx] 배열 mq_idxs: [12345]
 			$rc_idx = input_post("rc_idx");
+			$is_direct_chat_param = input_post("is_direct_chat");
+			$is_direct_chat = ($is_direct_chat_param === "Y"); // 다이렉트 채팅 여부 (기본 false)
+			
 			$mm_idx = $this->user->getUserIdx();
 
 			// 입력값 검증
@@ -965,8 +969,19 @@ class Common_proc extends CI_Controller
 
 			// 이력서 정보 확인
 			if (!$resume) {
-				error_log("[ERROR] 이력서 정보 미존재 - mq_type: $mq_type, mm_idx: $mm_idx");
-				json_return("99", "이력서 정보를 찾을 수 없습니다.");
+				// 다이렉트 채팅인 경우 자동으로 이력서 생성
+				if ($is_direct_chat && $mq_type == "RECRUIT") {
+					$new_ru_idx = $this->member_model->insertDirectChatResume($mm_idx);
+					if ($new_ru_idx) {
+						$resume = $this->member_model->getResume(["ru_idx" => $new_ru_idx]);
+					}
+				}
+
+				// 여전히 이력서가 없으면 에러
+				if (!$resume) {
+					
+					json_return("99", "이력서 정보를 찾을 수 없습니다.");
+				}
 			}
 
 			# 중복체크
@@ -1097,54 +1112,60 @@ class Common_proc extends CI_Controller
 				}
 			}
 
-			$point_data = [];
-			$point_data["mq_type"] = $mq_type;
-			$point_data["mq_idxs"] = $mq_idxs;
-			$point_data["mm_idx"] = $mm_idx;
+			# 다이렉트 채팅이 아닐 때만 포인트 차감 처리
+			if (!$is_direct_chat) {
+				$point_data = [];
+				$point_data["mq_type"] = $mq_type;
+				$point_data["mq_idxs"] = $mq_idxs;
+				$point_data["mm_idx"] = $mm_idx;
 
-			# 제안갯수 확인및 과금 포인트 갯수 확인
-			$point_price = 0;
-			$point_yn = "Y";
-			$point_cnt = $this->member_model->checkMemberRequestPoint($point_data);
+				# 제안갯수 확인및 과금 포인트 갯수 확인
+				$point_price = 0;
+				$point_yn = "Y";
+				$point_cnt = $this->member_model->checkMemberRequestPoint($point_data);
 
-			# 회원 포인트 확인
-			if ($point_cnt > 0) {
-				# 포인트 정보
-				$point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U020"]);
+				# 회원 포인트 확인
+				if ($point_cnt > 0) {
+					# 포인트 정보
+					$point_info = $this->setting_model->getCodeInfo(["cd_grp" => "사용포인트", "cd_key" => "U020"]);
 
-				# 회원 포인트 정보
-				$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
+					# 회원 포인트 정보
+					$mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
 
-				$point_price = ($point_info["cd_val3"] * $point_cnt);
-				if ($mem_info["mm_point"] < $point_price) {
-					json_return("90", "매일 2회 무료 제안보내기를 사용하셨습니다.<br/>포인트가 부족하여 인재정보 제안하기를 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "P<br/>사용포인트 : " . $point_price . "P");
-				} else {
-					# 포인트 차감
-					$last_point = $mem_info["mm_point"] - $point_price;
-					$insert = [
-						"mm_idx" => $mm_idx,
-						"o_num" => "",
-						"pm_idx" => 0,
-						"pt_type" => "EVENT",
-						"pl_type" => "minus",
-						"pl_point" => $point_price,
-						"pl_last_point" => $last_point,
-						"pl_desc" => "인재정보 제안하기(" . $point_price . "P차감)",
-						"reg_id" => "system",
-					];
-					$result_point = $this->site_model->insertPointList($insert);
-
-					if ($result_point["code"] != "00") {
-						$this->db->trans_rollback();
-						json_return("92", "포인트 차감시 문제가 발생하였습니다. 관리자에 문의 바랍니다.");
+					$point_price = ($point_info["cd_val3"] * $point_cnt);
+					if ($mem_info["mm_point"] < $point_price) {
+						json_return("90", "매일 2회 무료 제안보내기를 사용하셨습니다.<br/>포인트가 부족하여 인재정보 제안하기를 진행 할 수 없습니다. 포인트를 충전해주세요.<br/>보유포인트 : " . $mem_info["mm_point"] . "P<br/>사용포인트 : " . $point_price . "P");
 					} else {
-						$this->member_model->updateMember(["mm_point" => $last_point], ["mm_idx" => $mm_idx]);
+						# 포인트 차감
+						$last_point = $mem_info["mm_point"] - $point_price;
+						$insert = [
+							"mm_idx" => $mm_idx,
+							"o_num" => "",
+							"pm_idx" => 0,
+							"pt_type" => "EVENT",
+							"pl_type" => "minus",
+							"pl_point" => $point_price,
+							"pl_last_point" => $last_point,
+							"pl_desc" => "인재정보 제안하기(" . $point_price . "P차감)",
+							"reg_id" => "system",
+						];
+						$result_point = $this->site_model->insertPointList($insert);
+
+						if ($result_point["code"] != "00") {
+							$this->db->trans_rollback();
+							json_return("92", "포인트 차감시 문제가 발생하였습니다. 관리자에 문의 바랍니다.");
+						} else {
+							$this->member_model->updateMember(["mm_point" => $last_point], ["mm_idx" => $mm_idx]);
+						}
 					}
 				}
 			}
 
 			# 등록처리
 			foreach ($mq_idxs as $idx) {
+				// 다이렉트 채팅인 경우 mq_type에 _DIRECT 접미사 추가하여 방 분리
+				$room_type = $mq_type . ($is_direct_chat ? "_DIRECT" : "");
+
 				$data = [
 					"mq_type" => $mq_type,
 					"mm_idx" => $mm_idx,
@@ -1165,10 +1186,10 @@ class Common_proc extends CI_Controller
 				try {
 					// 1. 상대방 mm_idx 구하기
 					$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $idx);
-				
 
-					// 2. 기존 방 찾기 (제안/지원 방향 구분)
-					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $mq_type);
+
+					// 2. 기존 방 찾기 (제안/지원 방향 구분, 다이렉트 채팅은 room_type으로 분리)
+					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $room_type);
 				
 
 					if ($existing_rm_idx) {
@@ -1262,8 +1283,35 @@ class Common_proc extends CI_Controller
 				if (!is_null($rm_idx)) {
 					$data["rm_idx"] = $rm_idx;
 				}
-			
-				$result = $this->member_model->setMemberRequest($data, $data);
+
+				// 다이렉트 채팅인 경우 저장할 mq_type을 room_type(접미사 포함)으로 변경
+				if ($is_direct_chat) {
+				
+
+					// Raw SQL로 직접 INSERT (CodeIgniter's insert() 메서드의 컬럼 순서 문제 회피)
+					$insert_mq_type = $room_type;  // room_type 값 직접 사용
+					$mm_idx_val = $mm_idx;
+					$rc_idx_val = $data["rc_idx"];
+					$ru_idx_val = $data["ru_idx"];
+					$rm_idx_val = $rm_idx;
+					$reg_dt = get_today();
+
+				
+
+					$raw_sql = "INSERT INTO st_member_request (mq_type, mm_idx, rc_idx, ru_idx, rm_idx, reg_dt, mq_status)
+								VALUES (?, ?, ?, ?, ?, ?, ?)";
+					$result = $this->db->query($raw_sql, [$insert_mq_type, $mm_idx_val, $rc_idx_val, $ru_idx_val, $rm_idx_val, $reg_dt, "Y"]);
+				
+
+					// INSERT 직후 SELECT로 확인
+					$verify_sql = "SELECT COUNT(*) as cnt FROM st_member_request WHERE mq_type=? AND mm_idx=? AND rc_idx=?";
+					$verify_query = $this->db->query($verify_sql, [$insert_mq_type, $mm_idx_val, $rc_idx_val]);
+					$verify_result = $verify_query->row_array();
+					
+				} else {
+					// 기존 지원/제안: DELETE 후 INSERT (중복 시 덮어씌우기)
+					$result = $this->member_model->setMemberRequest($data, $data);
+				}
 
 				// 지원하기 푸시알림 (채용공고 소유자에게)
 				if ($mq_type == "RECRUIT") {
@@ -1510,7 +1558,7 @@ class Common_proc extends CI_Controller
 			// 직접 JSON 응답 처리 (header 문제 방지)
 			header('Access-Control-Allow-Origin: *');
 			header('Content-type: application/json');
-			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => []]);
+			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => ["rm_idx" => $rm_idx]]);
 			exit;
 		} catch (Exception $e) {
 			// JSON 응답 전에 출력 버퍼 정리

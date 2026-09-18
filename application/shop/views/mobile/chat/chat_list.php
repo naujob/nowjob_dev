@@ -110,6 +110,19 @@ $top_bar = array(
           </div>
         </div>
 
+        <!-- 보낸다이렉트채팅 섹션 -->
+        <div class="direct-chat-list-section" style="margin-top: 2rem;">
+          <h3 class="section-title" style="padding: 0 1rem 1rem; font-size: 1.1rem; font-weight: 700; color: #333;">보낸다이렉트채팅</h3>
+          <div class="chat-list">
+            <ol class="list result-list-card" id="direct_chat_list_sent">
+
+            </ol>
+            <div class="chat-empty" id="direct_chat_empty_sent" style="display: none;">
+              <p>목록이 없습니다.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -212,6 +225,9 @@ $top_bar = array(
   // 페이지 로드 시 지원한공고 목록 조회 및 실시간 업데이트 초기화
   window.addEventListener('DOMContentLoaded', function(e) {
     getChatTargetList();
+    if (typeof fSearchDirectChatListSentMem === 'function') {
+      fSearchDirectChatListSentMem();
+    }
     initRealTimeTabBadgeUpdate();
   });
 
@@ -280,10 +296,15 @@ $top_bar = array(
           $("#chat_list").append(recruitboxHtml);
         });
 
-        // 목록이 없을 경우 빈 화면 표시
-        if ($("#chat_list").find("li").length == 0) {
+        // 목록이 없을 경우 빈 화면 표시 (나중에 다이렉트 채팅 로드 후 재평가됨)
+        var chatListCount = $("#chat_list").find("li").length;
+        if (chatListCount == 0) {
+          // 다이렉트 채팅 로드 대기 중이므로 일단 표시
           $(".chat-empty").show();
           $("#chat_list").hide();
+        } else {
+          $(".chat-empty").hide();
+          $("#chat_list").show();
         }
 
         // PHP에서 이미 포맷팅된 시간을 표시
@@ -344,6 +365,74 @@ $top_bar = array(
             location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=applied";
           }
         }, 500); // 목록 렌더링 대기
+      }
+    });
+  }
+
+  // 보낸다이렉트채팅 목록 로드
+  function fSearchDirectChatListSentMem() {
+    $.ajax({
+      url: "/chat_proc/get_direct_chat_list_sent_mem",
+      type: "POST",
+      dataType: "json",
+      success: function(ret) {
+        if (ret.code == "00") {
+          var directChatList = ret.data.list || [];
+          var $directList = $("#direct_chat_list_sent");
+
+          $directList.empty();
+          window.__chatDirectRmIdxSetSent = new Set();
+
+          directChatList.forEach(function(row) {
+            var $clone = $("#tpl_chat_mem").clone();
+            var $content = $clone.html();
+
+            $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
+            $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
+
+            // 프로필 이미지 처리 (회사 이미지는 기본 처리만)
+            var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
+            var profileImg = (typeof row.target_img === "string") ? row.target_img.trim() : "";
+            if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
+              profileImg = noImagePath;
+            }
+            $content = $content.replaceAll("{{target_img}}", profileImg);
+
+            $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
+            $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
+            $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
+            $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
+            $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
+            $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
+            $content = $content.replaceAll("{{up_dt}}", row.up_dt || "");
+
+            $clone.html($content);
+            $directList.append("<div class='recruitbox_'>" + $clone.html() + "</div>");
+            window.__chatDirectRmIdxSetSent.add(String(row.rm_idx));
+          });
+
+          if ($directList.find("li").length == 0) {
+            $("#direct_chat_empty_sent").show();
+            $directList.hide();
+          } else {
+            $("#direct_chat_empty_sent").hide();
+            $directList.show();
+          }
+
+          $("#direct_chat_list_sent .last-chat-time").each(function() {
+            $(this).text($(this).attr('data-time'));
+          });
+
+          // 모든 렌더링 완료 후 empty 상태 재평가
+          var chatListCount = $("#chat_list").find("li").length;
+          var directChatCount = $("#direct_chat_list_sent").find("li").length;
+
+          if (chatListCount === 0 && directChatCount === 0) {
+            $("#chat_empty1").show();
+          } else {
+            $("#chat_empty1").hide();
+          }
+        }
       }
     });
   }

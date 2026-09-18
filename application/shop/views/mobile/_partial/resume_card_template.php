@@ -162,7 +162,7 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
     height: 55px;
  }
  .desc .title-wrap .title.ellipsis {
-    font-size: 25px;
+
  }
 
 

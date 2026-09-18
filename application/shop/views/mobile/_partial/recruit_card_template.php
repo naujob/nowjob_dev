@@ -85,7 +85,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
     height: 55px;
  }
  .desc .title-wrap .title.ellipsis {
-    font-size: 25px;
+   
  }
 
 
