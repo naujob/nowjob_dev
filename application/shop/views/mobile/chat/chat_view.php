@@ -434,10 +434,8 @@
           <?php endif; ?>
         </h1>
         <div class="rt-group">
-            <button type="button" class="attach-item js-attach-call" data-attach="call" aria-label="안심콜" style="margin-left:10px">
-                <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="width: 2rem; height: 2rem;">
-                    <path d="M13.6 5.5c1.6-.9 3.6-.4 4.6 1.2l3.4 5.5c1 1.6.6 3.6-.9 4.7l-2.6 2c-.5.4-.7 1.1-.4 1.7 1.9 4.2 5.2 7.5 9.4 9.4.6.3 1.3.1 1.7-.4l2-2.6c1.1-1.5 3.1-1.9 4.7-.9l5.5 3.4c1.6 1 2.1 3 1.2 4.6l-2 3.5c-1.1 1.9-3.3 2.9-5.5 2.4C22.6 38 10 25.4 7.7 12.6c-.4-2.2.6-4.4 2.5-5.5z" fill="#1a9e7c"></path>
-                </svg>
+            <button type="button" class="attach-item js-attach-call" data-attach="call" aria-label="안심콜" style="position: relative;left: -15px;">
+                <img src="/resource/shop/mobile/img/chat_top_call.png" alt="안심콜" style="width: 2rem; height: 2rem;">
             </button>
             <button type="button" class="btn-leave-list" id="btnLeaveChatRoom" aria-label="채팅방 나가기">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -734,7 +732,7 @@
                     </svg>
                     <span><?= ($user_type == "COMP") ? "제안하기" : "지원하기" ?></span>
                 </button>
-                <button type="button" class="attach-item js-attach-call" data-attach="call">
+                 <button type="button" class="attach-item js-attach-call" data-attach="call">
                     <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
                         <path d="M13.6 5.5c1.6-.9 3.6-.4 4.6 1.2l3.4 5.5c1 1.6.6 3.6-.9 4.7l-2.6 2c-.5.4-.7 1.1-.4 1.7 1.9 4.2 5.2 7.5 9.4 9.4.6.3 1.3.1 1.7-.4l2-2.6c1.1-1.5 3.1-1.9 4.7-.9l5.5 3.4c1.6 1 2.1 3 1.2 4.6l-2 3.5c-1.1 1.9-3.3 2.9-5.5 2.4C22.6 38 10 25.4 7.7 12.6c-.4-2.2.6-4.4 2.5-5.5z" fill="#1a9e7c"></path>
                     </svg>
@@ -1616,7 +1614,10 @@
                 content += "    <div class='bubble-content chat-img-wrap' data-images='" + imgUrlsJson + "'>";
 
                 for (var i = 0; i < imgUrls.length; i++) {
-                    content += "        <img src='" + imgUrls[i] + "' class='chat-img' data-full='" + imgUrls[i] + "' data-index='" + i + "' alt='첨부 이미지'>";
+                    // URL과 index에 특수문자 이스케이프 (file 분기와 일관성)
+                    var escapedUrl = imgUrls[i].replace(/'/g, "&#39;");
+                    var escapedIndex = String(i).replace(/'/g, "&#39;");
+                    content += "        <img src='" + escapedUrl + "' class='chat-img' data-full='" + escapedUrl + "' data-index='" + escapedIndex + "' alt='첨부 이미지'>";
                 }
 
                 if (your_text_yn == "Y") {
@@ -1663,7 +1664,10 @@
 
                 for (var i = 0; i < fileUrls.length; i++) {
                     var fileName = fileNames[i] || "파일";
-                    content += "        <div class='chat-file' data-url='" + fileUrls[i] + "' data-filename='" + fileName + "'>";
+                    // data-url과 data-filename의 특수문자 이스케이프 (img 분기와 일관성)
+                    var escapedUrl = fileUrls[i].replace(/'/g, "&#39;");
+                    var escapedFilename = fileName.replace(/'/g, "&#39;");
+                    content += "        <div class='chat-file' data-url='" + escapedUrl + "' data-filename='" + escapedFilename + "'>";
                     content += "            <span class='chat-file-icon'></span>";
                     content += "            <span class='chat-file-name'>" + fileName + "</span>";
                     content += "        </div>";
@@ -2187,7 +2191,7 @@
             } else {
                 alert('메시지 전송에 실패했습니다: ' + ret.msg);
             }
-            
+
             // 전송 버튼 활성화
             var $sendBtn = $("#chatTxt").closest('form').find('button[type="submit"], .btn-send, #sendBtn');
             if ($sendBtn.length > 0) {

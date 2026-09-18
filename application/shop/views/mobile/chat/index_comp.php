@@ -15,37 +15,6 @@ $top_bar = array(
     </div>
 
     <style>
-      .chat-empty {
-        position: absolute;
-        top: 28.518%;
-        left: 0;
-        right: 0;
-        font-size: 0;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        display: none;
-      }
-
-      .chat-empty:before {
-        content: "";
-        display: inline-block;
-        height: 100%;
-        vertical-align: middle;
-      }
-
-      .chat-empty p {
-        display: inline-block;
-        padding: 138px 0 0;
-        font-size: 20px;
-        font-weight: 700;
-        text-align: center;
-        vertical-align: middle;
-        background: url(/resource/shop/web/img/empty_chat.svg) no-repeat 50% 0;
-        background-size: 115px auto;
-        color: #777;
-      }
-
       /* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) */
       .page-chat .tab-container .tab-list li {
         position: relative;
@@ -120,8 +89,8 @@ $top_bar = array(
         </div>
 
         <!-- 보낸다이렉트채팅 섹션 -->
-        <div class="direct-chat-list-section" style="margin-top: 2rem;">
-          <h3 class="section-title" style="padding: 0 1rem 1rem; font-size: 1.1rem; font-weight: 700; color: #333;">보낸다이렉트채팅</h3>
+        <div class="direct-chat-list-section" >
+          <h3 class="section-title">보낸다이렉트채팅</h3>
           <div class="chat-list">
             <ol class="list result-list-card" id="direct_chat_list_sent_comp">
 
@@ -312,21 +281,18 @@ $top_bar = array(
             $(this).text($(this).attr('data-time'));
           });
 
-          // 모든 렌더링 완료 후 빈 목록 표시 여부 판단 및 뱃지 업데이트
-          var itemCount = $("#chat_list").find("li").length;
-          if (itemCount == 0) {
-            $(".chat-empty").show();
-            $("#chat_list").hide();
-          } else {
-            $(".chat-empty").hide();
-            $("#chat_list").show();
-            $("#chat_list").css("display", "block");
-            var chatListParent = $("#chat_list").parent();
-            chatListParent.show();
-            chatListParent.css("display", "block");
-          }
+          // 목록이 없어도 일단 숨김 (다이렉트 채팅 로드 후 최종 판단)
+          // 렌더링 중 깜빡임 방지
+          var chatListParent = $("#chat_list").parent();
+          chatListParent.show();
+          chatListParent.css("display", "block");
           fSearchNoReadCount();
           isLoadingChatList = false; // 로딩 완료
+
+          // 기본 목록 로드 완료 후 다이렉트 채팅 로드 (순서 보장)
+          if (typeof fSearchDirectChatListSentComp === 'function') {
+            fSearchDirectChatListSentComp();
+          }
         }).fail(function() {
           commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
           isLoadingChatList = false; // 에러 발생 시에도 플래그 리셋

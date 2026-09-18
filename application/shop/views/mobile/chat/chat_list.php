@@ -18,42 +18,6 @@ $top_bar = array(
     </div>
 
     <style>
-      .chat-empty {
-        position: absolute;
-        top: 28.518%;
-        left: 0;
-        right: 0;
-        font-size: 0;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        display: none;
-      }
-
-      .chat-empty:before {
-        content: "";
-        display: inline-block;
-        height: 100%;
-        vertical-align: middle;
-      }
-
-      .chat-empty p {
-        display: inline-block;
-        padding: 138px 0 0;
-        font-size: 20px;
-        font-weight: 700;
-        text-align: center;
-        vertical-align: middle;
-        background: url(/resource/shop/web/img/empty_chat.svg) no-repeat 50% 0;
-        background-size: 115px auto;
-        color: #777;
-      }
-
-      /* content-wrap 클래스에 왼쪽 마진 추가 */
-      .content-wrap {
-        margin-left: 1rem;
-      }
-
       /* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) */
       .page-chat .tab-container .tab-list li {
         position: relative;
@@ -111,8 +75,8 @@ $top_bar = array(
         </div>
 
         <!-- 보낸다이렉트채팅 섹션 -->
-        <div class="direct-chat-list-section" style="margin-top: 2rem;">
-          <h3 class="section-title" style="padding: 0 1rem 1rem; font-size: 1.1rem; font-weight: 700; color: #333;">보낸다이렉트채팅</h3>
+        <div class="direct-chat-list-section">
+          <h3 class="section-title">보낸 다이렉트 채팅</h3>
           <div class="chat-list">
             <ol class="list result-list-card" id="direct_chat_list_sent">
 
@@ -224,10 +188,7 @@ $top_bar = array(
 
   // 페이지 로드 시 지원한공고 목록 조회 및 실시간 업데이트 초기화
   window.addEventListener('DOMContentLoaded', function(e) {
-    getChatTargetList();
-    if (typeof fSearchDirectChatListSentMem === 'function') {
-      fSearchDirectChatListSentMem();
-    }
+    getChatTargetList(); // 콜백 내에서 fSearchDirectChatListSentMem() 호출됨
     initRealTimeTabBadgeUpdate();
   });
 
@@ -296,16 +257,8 @@ $top_bar = array(
           $("#chat_list").append(recruitboxHtml);
         });
 
-        // 목록이 없을 경우 빈 화면 표시 (나중에 다이렉트 채팅 로드 후 재평가됨)
-        var chatListCount = $("#chat_list").find("li").length;
-        if (chatListCount == 0) {
-          // 다이렉트 채팅 로드 대기 중이므로 일단 표시
-          $(".chat-empty").show();
-          $("#chat_list").hide();
-        } else {
-          $(".chat-empty").hide();
-          $("#chat_list").show();
-        }
+        // 목록이 없어도 일단 숨김 (다이렉트 채팅 로드 후 최종 판단)
+        // 렌더링 중 깜빡임 방지
 
         // PHP에서 이미 포맷팅된 시간을 표시
         $("#chat_list .last-chat-time").each(function() {
@@ -318,7 +271,12 @@ $top_bar = array(
 
       // 미확인 채팅건수 조회
       fSearchNoReadCount();
-      
+
+      // 기본 목록 로드 완료 후 다이렉트 채팅 로드 (순서 보장)
+      if (typeof fSearchDirectChatListSentMem === 'function') {
+        fSearchDirectChatListSentMem();
+      }
+
       // URL 파라미터에서 auto_open_rc_idx 확인하여 해당 채팅방 자동 진입
       var urlParams = new URLSearchParams(window.location.search);
       var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');

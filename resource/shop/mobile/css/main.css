@@ -14109,6 +14109,8 @@ h3.secondary-title .menu:focus {
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+    font-size: 15px;
+    position: relative;
 }
 [class*="recruitbox_"] .content-body .desc .summary .last-message,
 [class*="resumebox_"] .content-body .desc .summary .last-message {
@@ -14118,28 +14120,23 @@ h3.secondary-title .menu:focus {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-[class*="recruitbox_"] .content-body .desc .summary .last-chat-time,
-[class*="resumebox_"] .content-body .desc .summary .last-chat-time {
-    flex-shrink: 0;
-    white-space: nowrap;
-    font-size: 12px;
-    color: #999;
-    padding: 2px;
-}
 [class*="recruitbox_"] .content-body,
 [class*="resumebox_"] .content-body {
         position: relative;
         overflow: hidden;
-        height: 118px;
+        height: 100px;
         width: 100%;
-       
+        display: flex;
+        flex-direction: column;
       }
       [class*="recruitbox_"] .content-body .img,
       [class*="resumebox_"] .content-body .img {
-        margin-left: 10px;
         position: absolute;
-        width: 80px;
-        height: 80px;
+        top: 57%;
+        left: 10px;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
         border: 0;
         border-radius: 5px;
         color: #888;
@@ -14155,10 +14152,13 @@ h3.secondary-title .menu:focus {
       [class*="recruitbox_"] .content-body .desc,
       [class*="resumebox_"] .content-body .desc {
         position: relative;
-        height: 100%;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         margin: 0 0 0 110px;
         cursor: pointer;
-        padding: 15px 0px 15px 0px;
       }
 
     
@@ -14173,13 +14173,6 @@ h3.secondary-title .menu:focus {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-      }
-      [class*="recruitbox_"] .content-body .desc .summary,
-      [class*="resumebox_"] .content-body .desc .summary {
-        display: flex;
-        font-size: 15px;
-        gap: 5px;
-        position: relative;
       }
      [class*="recruitbox_"] .content-body .desc .summary p,
       [class*="resumebox_"] .content-body .desc .summary p {
@@ -14263,9 +14256,75 @@ h3.secondary-title .menu:focus {
   right: 0;
   width: 100%;
   z-index: 100;
-  
- 
+
+
   box-sizing: border-box;
   max-height: 160px;
   overflow-y: auto;
+}
+
+/* ===== Chat Section Common Styles ===== */
+/* 빈 채팅 목록 메시지 */
+.chat-empty {
+  position: absolute;
+  top: 28.518%;
+  left: 0;
+  right: 0;
+  font-size: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  display: none;
+}
+
+.chat-empty:before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.chat-empty p {
+  display: inline-block;
+  padding: 138px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  background: url(/resource/shop/web/img/empty_chat.svg) no-repeat 50% 0;
+  background-size: 115px auto;
+  color: #777;
+}
+
+/* 다이렉트 채팅 섹션 스타일 */
+.direct-chat-list-section {
+  background-color: #f8f9fa;
+  border-top: 2px solid #e9ecef;
+  
+  padding: 0 1rem;
+  
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
+.direct-chat-list-section .section-title {
+
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #333 !important;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 섹션 제목 앞에 아이콘 추가 */
+.direct-chat-list-section .section-title::before {
+  content: "💬";
+  font-size: 1.2rem;
+}
+
+/* content-wrap 클래스에 왼쪽 마진 추가 */
+.content-wrap {
+  margin-left: 1rem;
 }

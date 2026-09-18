@@ -548,19 +548,19 @@ io.on('connection', function (socket) {
 		// 이를 구분하기 위해 소켓이 이미 해당 방에 join되어 있는지 확인
 		// room_join이 먼저 호출되면 socket.join으로 방에 join되므로, room_info에서는 읽음 처리하지 않음
 		var is_already_joined = socket.rooms.has(String(data.rm_idx));
-		console.log("[NODE_DEBUG] is_already_joined=" + is_already_joined);
+		
 
 		// 🔥 읽음 처리: room_join이 먼저 호출되지 않았을 때만 읽음 처리
 		// room_join이 먼저 호출되면 socket.join으로 방에 join되므로, room_info에서는 읽음 처리하지 않음
 		// (room_join에서 이미 읽음 처리를 했으므로)
 		if (!is_already_joined) {
-			console.log("[NODE_DEBUG] updateEnterRoom 호출 시작");
+			
 			$exe.chat.updateEnterRoom(data, function (ret) {
-				console.log("[NODE_DEBUG] updateEnterRoom 콜백 - ret:", JSON.stringify(ret).substring(0, 200));
+			
 
 				// room_join과 동일하게 각 메시지의 readcount를 계산하여 emit
 				var actualList = (ret && ret.list) ? ret.list : [];
-				console.log("[NODE_DEBUG] actualList 길이=" + (actualList ? actualList.length : 0));
+			
 			//	$common.writeLog("socket room_info updateEnterRoom 완료 rm_idx=" + data.rm_idx + " unread_messages=" + (actualList ? actualList.length : 0));
 
 				if (actualList && Array.isArray(actualList) && actualList.length > 0) {
@@ -568,9 +568,9 @@ io.on('connection', function (socket) {
 					var processMessage = function (index) {
 						if (index >= actualList.length) {
 							// 모든 메시지 처리 완료 후 방 정보 조회
-							console.log("[NODE_DEBUG] getRoom 호출 시작");
+						
 							$exe.chat.getRoom(data, function (ret) {
-								console.log("[NODE_DEBUG] getRoom 콜백 - ret:", JSON.stringify(ret).substring(0, 200));
+								
 								processRoomInfo(ret, data, socket);
 							});
 							return;
@@ -620,26 +620,25 @@ io.on('connection', function (socket) {
 					// 읽지 않은 메시지가 없으면 바로 방 정보 조회
 					//$common.writeLog("[NODE_DEBUG] getRoom 호출 시작 (unread=0)");
 					$exe.chat.getRoom(data, function (ret) {
-						console.log("[NODE_DEBUG] getRoom 콜백 - ret:", JSON.stringify(ret).substring(0, 200));
+						
 						processRoomInfo(ret, data, socket);
 					});
 				}
 			});
 		} else {
-			console.log("[NODE_DEBUG] 이미 join됨, getRoom 호출");
+			
 			// 이미 방에 join되어 있으면 (room_join이 먼저 호출됨) 읽음 처리하지 않고 정보만 조회
 			$exe.chat.getRoom(data, function (ret) {
-				console.log("[NODE_DEBUG] getRoom 콜백 - ret:", JSON.stringify(ret).substring(0, 200));
+				
 				processRoomInfo(ret, data, socket);
 			});
 		}
 
 		function processRoomInfo(ret, data, socket) {
-			console.log("[NODE_DEBUG] processRoomInfo 시작 - ret 타입:", typeof ret, "ret이 null?", ret === null, "ret이 undefined?", ret === undefined);
-			console.log("[NODE_DEBUG] ret 값:", JSON.stringify(ret).substring(0, 300));
+			
 			// 방 정보가 없으면 자동으로 생성
 			if (!ret || !ret.data) {
-				console.log("[NODE_DEBUG] 방 정보 없음 - MongoDB에서 조회 불가");
+			
 				//$common.writeLog("socket room_info 방정보 없음 rm_idx=" + data.rm_idx + " -> findExistingRoomByMySQL");
 				// 🔥 MySQL에서 실제 rm_idx 확인 (rc_idx, ru_idx로 기존 MongoDB 방 찾기)
 				$exe.chat.findExistingRoomByMySQL(data, function (existing_room_result) {
@@ -708,15 +707,15 @@ io.on('connection', function (socket) {
 					});
 				}
 			} else {
-				console.log("[NODE_DEBUG] room_info_return emit 준비 - ret 길이:", Object.keys(ret).length);
+			
 				//채팅방 접속
 				socket.room = data.rm_idx;
 				socket.join(data.rm_idx);
 
 				//소켓 리턴
-				console.log("[NODE_DEBUG] room_info_return emit 시작");
+			
 				socket.emit('room_info_return', ret);
-				console.log("[NODE_DEBUG] room_info_return emit 완료");
+			
 			}
 
 			//모두 리턴한다.
@@ -949,10 +948,14 @@ io.on('connection', function (socket) {
 				$exe.chat.insertMessage(data, (res) => resolve(res));
 			});
 
-			// 모든 클라이언트에게 메시지 전송
-			//$common.writeLog('[message_insert_return] emit 시작 - rm_idx: ' + target_rm_idx + ', code: ' + (ret && ret.code ? ret.code : 'unknown'));
+			// ✅ 수정: room join 타이밍 문제 해결
+			// 발신자 소켓이 room에 join되어 있지 않을 수 있으므로,
+			// room broadcast + 발신자에게 직접 emit으로 모든 경우 커버
 			io.sockets.in(target_rm_idx).emit('message_insert_return', ret);
-			//$common.writeLog('[message_insert_return] emit 완료');
+			// 발신자 소켓이 room에 없을 경우를 대비해 직접 emit (중복 수신은 showMessage의 중복 체크로 방지)
+			socket.emit('message_insert_return', ret);
+
+		
 
 			// 푸시 알림 발송 비활성화 (common_proc.php에서 제안/지원 시점에 발송하도록 통합)
 			// 채팅 메시지 시점의 푸시는 common_proc.php에서 이미 발송되므로,

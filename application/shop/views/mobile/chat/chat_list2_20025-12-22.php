@@ -42,10 +42,7 @@
                 background-size: contain;
             }
 
-            .room-item .angle-link::after {
-                transform: translateY(-50%) rotate(0deg);
-                /* 아이콘을 아래로 회전 */
-            }
+          
         </style>
         <style>
             .chat-empty {

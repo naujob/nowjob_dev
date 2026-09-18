@@ -1319,9 +1319,6 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 
     <a href="#chat" id="bottomchatbtn" role="button" aria-haspopup="dialog" aria-controls="chatPopup" class="btn-chat js-open-chat"><span class="sr-text">채팅열기</span><span id="noreadcountall" style="display:none;right: 0; position: absolute; background-color: #F86048; color: #fff; padding: 5px; border-radius: 15px; width: 30px; text-align: center;"></span></a>
 
-
-    <?php include_once(get_base_url() . '/application/shop/views/web/_layout/chatting_cont.php'); ?>
-
     <!-- 알림목록 -->
     <?php include_once(get_base_url() . '/application/shop/views/web/_layout/popup_alarm.php'); ?>
 
@@ -1415,7 +1412,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
         }
     }
 
-    // 웹 채팅 버튼 - 준비중 안내 메시지
+    // 웹 채팅 버튼 - 모바일 전용 안내 메시지 (팝업 열기 방지)
     document.addEventListener('DOMContentLoaded', function() {
         var chatBtn = document.getElementById('bottomchatbtn');
         if (chatBtn) {
@@ -1423,11 +1420,13 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                 e.preventDefault();
                 e.stopPropagation();
                 if (typeof commonAlert === 'function') {
-                    commonAlert('현재 채팅서비스 업데이트 준비중입니다.', function() {});
+                    commonAlert('채팅 서비스는 모바일에서 이용가능한 서비스입니다.', function() {});
                 } else {
-                    alert('현재 채팅서비스 업데이트 준비중입니다.');
+                    alert('채팅 서비스는 모바일에서 이용가능한 서비스입니다.');
                 }
+                return false;
             });
+
         }
     });
 </script>

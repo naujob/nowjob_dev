@@ -284,7 +284,19 @@ container.getLastMessage = async function(rm_idx,callback){
 //메시지 등록
 container.insertMessage = async function(data,callback){
 	$chat.insertMessage(data,async function(ret){
-		callback($common.jsonReturn("00","등록성공",ret));
+		// ✅ 모델이 에러를 반환한 경우 그대로 전달
+		// 모델 에러 형식: {code: "90", msg: "...", data: null}
+		// 모델 성공 형식: [메시지 배열]
+		if (ret && ret.code && ret.code !== "00") {
+			// 에러 응답은 그대로 전달
+			callback(ret);
+		} else if (Array.isArray(ret)) {
+			// 성공 응답 (메시지 배열)은 jsonReturn으로 감싸기
+			callback($common.jsonReturn("00","등록성공",ret));
+		} else {
+			// 예상 밖의 형식은 에러 처리
+			callback($common.jsonReturn("90","메시지 등록 중 오류 발생",null));
+		}
 		return;
 	});
 }

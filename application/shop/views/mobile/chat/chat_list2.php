@@ -22,58 +22,9 @@ $top_bar = array(
                 background: none;
             }
 
-            .angle-link::after {
-                content: "";
-                position: absolute;
-                top: 50%;
-                right: 0.2rem;
-                transform: translateY(-50%) rotate(90deg);
-                background: url(/resource/shop/mobile/img/ic_angle_link.svg) no-repeat center;
-                width: 1rem;
-                height: 1rem;
-                display: block;
-                background-size: contain;
-            }
+           
 
-            .room-item .angle-link::after {
-                transform: translateY(-50%) rotate(0deg);
-            }
-
-            .chat-empty {
-                position: absolute;
-                top: 28.518%;
-                left: 0;
-                right: 0;
-                font-size: 0;
-                text-align: center;
-                white-space: nowrap;
-                overflow: hidden;
-                display: none;
-            }
-
-            .chat-empty:before {
-                content: "";
-                display: inline-block;
-                height: 100%;
-                vertical-align: middle;
-            }
-
-            .chat-empty p {
-                display: inline-block;
-                padding: 138px 0 0;
-                font-size: 20px;
-                font-weight: 700;
-                text-align: center;
-                vertical-align: middle;
-                background: url(/resource/shop/web/img/empty_chat.svg) no-repeat 50% 0;
-                background-size: 115px auto;
-                color: #777;
-            }
-
-            /* content-wrap 클래스에 왼쪽 마진 추가 */
-            .content-wrap {
-                margin-left: 1rem;
-            }
+           
 
             /* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) */
             .page-chat .tab-container .tab-list li {
@@ -132,8 +83,8 @@ $top_bar = array(
                 </div>
 
                 <!-- 받은다이렉트채팅 섹션 -->
-                <div class="direct-chat-list-section" style="margin-top: 2rem;">
-                  <h3 class="section-title" style="padding: 0 1rem 1rem; font-size: 1.1rem; font-weight: 700; color: #333;">받은다이렉트채팅</h3>
+                <div class="direct-chat-list-section">
+                  <h3 class="section-title">받은다이렉트채팅</h3>
                   <div class="chat-list">
                     <ol class="list result-list-card" id="direct_chat_list_received">
 
@@ -245,8 +196,7 @@ $top_bar = array(
 
     // 페이지 로드 시 제안받은공고 목록 조회 및 실시간 업데이트 초기화
     $(document).ready(function() {
-        getChatTargetList2();
-        fSearchDirectChatListReceivedMem();
+        getChatTargetList2(); // 콜백 내에서 fSearchDirectChatListReceivedMem() 호출됨
         initRealTimeTabBadgeUpdate();
     });
 
@@ -323,11 +273,8 @@ $top_bar = array(
                     $("#chat_list").append(recruitboxHtml);
                 });
 
-                // 목록이 없을 경우 빈 화면 표시
-                if ($("#chat_list").find("li").length == 0) {
-                    $(".chat-empty").show();
-                    $("#chat_list").hide();
-                }
+                // 목록이 없어도 일단 숨김 (다이렉트 채팅 로드 후 최종 판단)
+                // 렌더링 중 깜빡임 방지
 
                 // PHP에서 이미 포맷팅된 시간을 표시
                 $("#chat_list .last-chat-time").each(function() {
@@ -340,6 +287,11 @@ $top_bar = array(
 
             // 미확인 채팅건수 조회
             fSearchNoReadCount();
+
+            // 기본 목록 로드 완료 후 다이렉트 채팅 로드 (순서 보장)
+            if (typeof fSearchDirectChatListReceivedMem === 'function') {
+                fSearchDirectChatListReceivedMem();
+            }
         });
     }
 

@@ -5997,7 +5997,7 @@ LIMIT 0 , 200
 				IFNULL(rc.rc_name, 'Unknown') AS rc_name,
 				IFNULL(rc.rc_thumb, '') AS rc_thumb,
 				IFNULL(comp.mm_id, 'Unknown') AS mm_id,
-				IFNULL(comp.mm_name, 'Unknown') AS mm_comp_name,
+				IFNULL(comp.mm_comp_name, 'Unknown') AS mm_comp_name,
 				IFNULL(comp.mm_thumb, '') AS target_img,
 				'' AS rt_recom_badge,
 				'' AS rt_work_img,
@@ -6029,7 +6029,7 @@ LIMIT 0 , 200
 				requester.mm_name AS target_name,
 				IFNULL(requester.mm_thumb, '') AS target_img,
 				requester.mm_sex,
-				comp.mm_name AS mm_comp_name,
+				comp.mm_comp_name AS mm_comp_name,
 				req.reg_dt
 			FROM st_member_request req
 			INNER JOIN st_resume ru ON req.ru_idx = ru.ru_idx

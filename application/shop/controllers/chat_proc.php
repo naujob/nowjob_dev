@@ -3056,8 +3056,10 @@ json_return("00", "조회완료", $data);
 	{
 		$mm_idx = $this->user->getUserIdx();
 		$result = $this->member_model->getDirectChatListSentMem($mm_idx);
-
-		$preview_byte_length = 20;
+     //   error_log('[Chat] get_direct_chat_list_sent_mem - mm_idx: ' . $mm_idx . ', result: ' . json_encode($result));
+		
+	 
+	 $preview_byte_length = 20;
 		$temp_list = $result;
 
 		// MongoDB 연결하여 마지막 메시지 조회
