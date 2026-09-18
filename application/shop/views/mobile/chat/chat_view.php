@@ -434,6 +434,11 @@
           <?php endif; ?>
         </h1>
         <div class="rt-group">
+            <button type="button" class="attach-item js-attach-call" data-attach="call" aria-label="안심콜" style="margin-left:10px">
+                <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="width: 2rem; height: 2rem;">
+                    <path d="M13.6 5.5c1.6-.9 3.6-.4 4.6 1.2l3.4 5.5c1 1.6.6 3.6-.9 4.7l-2.6 2c-.5.4-.7 1.1-.4 1.7 1.9 4.2 5.2 7.5 9.4 9.4.6.3 1.3.1 1.7-.4l2-2.6c1.1-1.5 3.1-1.9 4.7-.9l5.5 3.4c1.6 1 2.1 3 1.2 4.6l-2 3.5c-1.1 1.9-3.3 2.9-5.5 2.4C22.6 38 10 25.4 7.7 12.6c-.4-2.2.6-4.4 2.5-5.5z" fill="#1a9e7c"></path>
+                </svg>
+            </button>
             <button type="button" class="btn-leave-list" id="btnLeaveChatRoom" aria-label="채팅방 나가기">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </button>
