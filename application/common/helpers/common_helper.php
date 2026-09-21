@@ -740,14 +740,14 @@ function getFileVersion($filepath)
 function sendFcm($info, $token_list)
 {
 	// 디버그 로그 추가
-	debug_log("FCM 함수 시작", 'FCM', ['info' => $info, 'token_count' => is_array($token_list) ? count($token_list) : 0]);
+
 
 	// 토큰 로그 추가
 	//error_log("FCM 발송 시도 - 제목: " . (isset($info['title']) ? $info['title'] : '없음') . ", 토큰 개수: " . (is_array($token_list) ? count($token_list) : 0));
 
 	// 입력값 검증
 	if (!is_array($info) || !isset($info['title']) || !isset($info['body'])) {
-		debug_log("FCM 입력값 검증 실패", 'FCM', ['info' => $info]);
+	
 		//error_log("FCM 발송 실패 - 필수 정보 누락 (title, body)");
 		return [
 			'success' => false,
@@ -758,7 +758,7 @@ function sendFcm($info, $token_list)
 
 	// body 값이 0이거나 빈 값인 경우 기본값 설정
 	if ($info['body'] === 0 || $info['body'] === '0' || empty($info['body'])) {
-		debug_log("FCM body 값이 0이거나 빈 값 - 기본값으로 대체", 'FCM', ['original_body' => $info['body']]);
+	
 		$info['body'] = "알림이 도착했습니다.";
 	}
 
@@ -777,6 +777,7 @@ function sendFcm($info, $token_list)
 	}
 
 	// Firebase 서비스 계정 파일 경로 결정 (환경별 우선순위 적용)
+	// project_root:/website/dev_nowapk/
 	$project_root = realpath(__DIR__ . '/../../../');
 	$environment = defined('ENVIRONMENT') ? strtolower(ENVIRONMENT) : '';
 	$is_dev_env = in_array($environment, ['development', 'dev', 'local', 'test', 'testing', 'stage', 'staging'], true);
@@ -835,11 +836,7 @@ function sendFcm($info, $token_list)
 
 	// 서비스 계정 키 파일 존재 확인
 	if (empty($service_account_file) || !file_exists($service_account_file)) {
-		debug_log("FCM 서비스 계정 파일 없음", 'FCM', [
-			'file' => $service_account_file,
-			'project_root' => $project_root,
-			'candidates' => $candidate_paths
-		]);
+		
 		return [
 			'success' => false,
 			'error' => 'Firebase 서비스 계정 파일을 찾을 수 없습니다',
@@ -868,7 +865,7 @@ function sendFcm($info, $token_list)
 	// Access Token 생성
 	$access_token = getFirebaseAccessToken($service_account_file);
 	if (!$access_token) {
-		debug_log("FCM Access Token 생성 실패", 'FCM');
+	
 		return [
 			'success' => false,
 			'error' => 'Firebase Access Token 생성 실패',
@@ -887,7 +884,7 @@ function sendFcm($info, $token_list)
 			}
 		} catch (Exception $e) {
 			// MongoDB 조회 실패 시 배지 숨김 (0)
-			debug_log("알림 개수 조회 실패 - 배지 숨김", 'FCM', ['error' => $e->getMessage()]);
+	
 			$badge_count = 0;
 		}
 	}
@@ -898,7 +895,7 @@ function sendFcm($info, $token_list)
 	foreach ($token_list as $token) {
 		// 토큰 유효성 검사
 		if (empty($token) || $token === null || $token === '') {
-			debug_log("FCM 토큰이 비어있음 - 건너뜀", 'FCM', ['token' => $token]);
+			
 			continue;
 		}
 
@@ -906,7 +903,7 @@ function sendFcm($info, $token_list)
 		// 타임스탬프 + 마이크로초 + 랜덤 값 조합으로 고유성 보장
 		$notificationId = (int)((microtime(true) * 1000) % PHP_INT_MAX) + mt_rand(1, 1000);
 
-		debug_log("FCM 메시지 구성 시작", 'FCM', ['token' => substr($token, 0, 20) . '...', 'notificationId' => $notificationId]);
+	
 
 		$message = [
 			'message' => [
@@ -970,7 +967,7 @@ function sendFcm($info, $token_list)
 	$fail_count = 0;
 
 	// 테스트용: 토큰이 유효하지 않은 경우 건너뛰기
-	debug_log("FCM 메시지 전송 시작", 'FCM', ['message_count' => count($messages)]);
+
 
 	foreach ($messages as $message) {
 		// 재시도 로직 (최대 3회)
@@ -980,7 +977,7 @@ function sendFcm($info, $token_list)
 
 		while ($retry_count < $max_retries && !$message_sent) {
 			$retry_count++;
-			debug_log("FCM 메시지 전송 시도", 'FCM', ['attempt' => $retry_count, 'max_retries' => $max_retries]);
+		
 			curl_setopt($ch, CURLOPT_URL, $fcmUrl);
 			curl_setopt($ch, CURLOPT_POST, true);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -991,15 +988,15 @@ function sendFcm($info, $token_list)
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10초 연결 타임아웃
 
 			// cURL 실행
-			debug_log("FCM cURL 실행 시작", 'FCM', ['token' => substr($message['message']['token'], 0, 20) . '...', 'attempt' => $retry_count]);
+			
 			$result = curl_exec($ch);
 			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			$error = curl_error($ch);
-			debug_log("FCM cURL 실행 완료", 'FCM', ['http_code' => $httpCode, 'error' => $error, 'result_length' => strlen($result), 'attempt' => $retry_count]);
+		
 
 			// 결과 처리
 			if ($error) {
-				debug_log("FCM cURL 오류", 'FCM', ['error' => $error, 'attempt' => $retry_count]);
+				
 				if ($retry_count >= $max_retries) {
 					$fail_count++;
 					$results[] = [
@@ -1013,11 +1010,11 @@ function sendFcm($info, $token_list)
 				} else {
 					// 재시도 대기 (지수 백오프)
 					$wait_time = pow(2, $retry_count - 1); // 1초, 2초, 4초
-					debug_log("FCM 재시도 대기", 'FCM', ['wait_time' => $wait_time, 'attempt' => $retry_count]);
+					
 					sleep($wait_time);
 				}
 			} else if ($result === false) {
-				debug_log("FCM 서버 응답 없음", 'FCM', ['attempt' => $retry_count]);
+			
 				if ($retry_count >= $max_retries) {
 					$fail_count++;
 					$results[] = [
@@ -1031,13 +1028,13 @@ function sendFcm($info, $token_list)
 				} else {
 					// 재시도 대기
 					$wait_time = pow(2, $retry_count - 1);
-					debug_log("FCM 재시도 대기", 'FCM', ['wait_time' => $wait_time, 'attempt' => $retry_count]);
+				
 					sleep($wait_time);
 				}
 			} else {
 				$json_result = json_decode($result, true);
 				if (json_last_error() !== JSON_ERROR_NONE) {
-					debug_log("FCM JSON 파싱 오류", 'FCM', ['error' => json_last_error_msg(), 'attempt' => $retry_count]);
+				
 					if ($retry_count >= $max_retries) {
 						$fail_count++;
 						$results[] = [
@@ -1052,14 +1049,14 @@ function sendFcm($info, $token_list)
 					} else {
 						// 재시도 대기
 						$wait_time = pow(2, $retry_count - 1);
-						debug_log("FCM 재시도 대기", 'FCM', ['wait_time' => $wait_time, 'attempt' => $retry_count]);
+					
 						sleep($wait_time);
 					}
 				} else {
 					$success = ($httpCode >= 200 && $httpCode < 300);
 					if ($success) {
 						$success_count++;
-						debug_log("FCM 메시지 전송 성공", 'FCM', ['attempt' => $retry_count]);
+					
 						$results[] = [
 							'token' => $message['message']['token'],
 							'success' => true,
@@ -1092,27 +1089,13 @@ function sendFcm($info, $token_list)
 						$token_length = strlen($message['message']['token']);
 						$is_ios_token = ($token_length > 140); // iOS FCM 토큰은 보통 150자 이상
 
-						debug_log("FCM HTTP 오류", 'FCM', [
-							'http_code' => $httpCode,
-							'attempt' => $retry_count,
-							'error_code' => $error_code,
-							'error_message' => $error_message,
-							'token_type' => $is_ios_token ? 'iOS' : 'Android',
-							'token_preview' => substr($message['message']['token'], 0, 20) . '...',
-							'result' => $json_result
-						]);
+					
 
 						// SENDER_ID_MISMATCH 같은 특정 에러는 재시도하지 않음
 						$should_retry = true;
 						if ($error_code === 'SENDER_ID_MISMATCH' || $error_code === 'UNREGISTERED') {
 							$should_retry = false; // 재시도해도 의미 없음
-							debug_log("FCM 치명적 에러 - 재시도 안 함", 'FCM', [
-								'error_code' => $error_code,
-								'token_type' => $is_ios_token ? 'iOS' : 'Android',
-								'message' => $is_ios_token ?
-									'iOS 앱의 Firebase 설정(Sender ID)이 서버의 Firebase 프로젝트와 일치하지 않습니다. GoogleService-Info.plist 파일을 확인하세요.' :
-									'Android 앱의 Firebase 설정(Sender ID)이 서버의 Firebase 프로젝트와 일치하지 않습니다.'
-							]);
+							
 						}
 
 						if ($retry_count >= $max_retries || !$should_retry) {
@@ -1132,7 +1115,7 @@ function sendFcm($info, $token_list)
 						} else {
 							// 재시도 대기
 							$wait_time = pow(2, $retry_count - 1);
-							debug_log("FCM 재시도 대기", 'FCM', ['wait_time' => $wait_time, 'attempt' => $retry_count]);
+							
 							sleep($wait_time);
 						}
 					}
@@ -1146,13 +1129,7 @@ function sendFcm($info, $token_list)
 
 	// 최종 결과 반환
 	$overall_success = ($success_count > 0);
-	debug_log("FCM 최종 결과", 'FCM', [
-		'overall_success' => $overall_success,
-		'success_count' => $success_count,
-		'fail_count' => $fail_count,
-		'total_count' => count($messages),
-		'results' => $results
-	]);
+
 
 	return [
 		'success' => $overall_success,
@@ -1237,12 +1214,12 @@ function sendMatchPush($receiver_mm_idx, $type, $target_name, $target_idx)
  */
 function getFirebaseAccessToken($service_account_file)
 {
-	debug_log("Firebase Access Token 생성 시작", 'FCM', ['file' => $service_account_file]);
+	
 
 	// 서비스 계정 파일 읽기
 	$service_account = json_decode(file_get_contents($service_account_file), true);
 	if (!$service_account) {
-		debug_log("서비스 계정 파일 파싱 실패", 'FCM');
+		
 		return false;
 	}
 
@@ -1296,22 +1273,22 @@ function getFirebaseAccessToken($service_account_file)
 	curl_close($ch);
 
 	if ($error) {
-		debug_log("Access Token 요청 cURL 오류", 'FCM', ['error' => $error]);
+		
 		return false;
 	}
 
 	if ($http_code !== 200) {
-		debug_log("Access Token 요청 실패", 'FCM', ['http_code' => $http_code, 'response' => $response]);
+		
 		return false;
 	}
 
 	$token_data = json_decode($response, true);
 	if (!$token_data || !isset($token_data['access_token'])) {
-		debug_log("Access Token 응답 파싱 실패", 'FCM', ['response' => $response]);
+	
 		return false;
 	}
 
-	debug_log("Firebase Access Token 생성 성공", 'FCM', ['expires_in' => $token_data['expires_in']]);
+
 	return $token_data['access_token'];
 }
 
@@ -1422,7 +1399,7 @@ function debug_log($message, $type = 'INFO', $data = [])
  */
 function proposal_debug_log($step, $message, $data = [])
 {
-	debug_log("제안보내기 [{$step}] {$message}", 'PROPOSAL', $data);
+	
 }
 
 /**

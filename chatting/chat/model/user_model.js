@@ -176,6 +176,37 @@ container.updatePushYnFromMySQL = async function(socket_id, push_yn, callback){
 	}
 }
 
+//MySQL에서 신뢰 가능한 FCM 토큰 조회 (채팅 푸시 전용)
+container.getTokenFromMySQL = function(user_id) {
+	return new Promise((resolve) => {
+		const $mysql = require("../database/mysql.js");
+		if (!$mysql.db_conn) {
+	
+			resolve(null);
+			return;
+		}
+		const sql = "SELECT d.token " +
+			"FROM st_member_device d " +
+			"JOIN st_member m ON m.mm_idx = d.mm_idx AND m.mm_status = 'Y' " +
+			"WHERE m.mm_id = ? AND d.push_yn = 'Y' " +
+			"ORDER BY d.up_dt DESC LIMIT 1";
+		$mysql.db_conn.query(sql, [user_id], function(err, results) {
+			if (err) {
+			
+				resolve(null);
+				return;
+			}
+			if (results && results.length > 0 && results[0].token) {
+			
+				resolve(results[0].token);
+			} else {
+				
+				resolve(null);
+			}
+		});
+	});
+};
+
 
 
 

@@ -1,6 +1,9 @@
 <?php
 class Common_proc extends CI_Controller
 {
+	private $mongo_uri = "mongodb://localhost:27017";
+	private $mongo_db = "chat";
+
 	function __construct()
 	{
 		parent::__construct();
@@ -14,6 +17,12 @@ class Common_proc extends CI_Controller
 
 		$this->load->library('user');
 		$this->load->library('common');
+
+		// 개발환경에서는 dev_chat DB 사용
+		if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
+			$this->mongo_uri = "mongodb://localhost:27017";
+			$this->mongo_db = "dev_chat";
+		}
 	}
 
 	/**
@@ -1199,8 +1208,9 @@ class Common_proc extends CI_Controller
 							["rc_idx" => $data["rc_idx"], "ru_idx" => $data["ru_idx"], "up_dt" => get_today()],
 							["rm_idx" => $existing_rm_idx]
 						);
-						
-						// MongoDB는 건드리지 않음 (rm_idx 동일 여부로만 조회되므로 필요 없음)
+
+						// MongoDB: 나갔던 방이 재사용되는 경우 exit_yn을 리셋
+						$this->_reset_room_exit_status($existing_rm_idx);
 					} else {
 						// 기존 방이 없으면: 신규 생성 로직 (기존 코드 그대로)
 						$info_chat = [
@@ -2480,5 +2490,66 @@ ORDER BY distance_km ASC;
 
 		$this->ad_model->insertAdClickLog($data);
 		json_return("00", "success");
+	}
+
+	/**
+	 * 기존 방 재사용 시 MongoDB의 exit_yn 리셋
+	 * 사용자가 나갔던 방을 다시 사용하려고 할 때 exit_yn='Y' 상태를 'N'으로 복구
+	 */
+	private function _reset_room_exit_status($rm_idx)
+	{
+		if (empty($rm_idx)) {
+			return;
+		}
+
+		$current_user_id = $this->user->getUserId();
+
+		try {
+			@$mongo = new Mongo($this->mongo_uri);
+			$database = $mongo->{$this->mongo_db};
+			$collection = $database->room;
+
+			// 채팅방 조회
+			$query = ['rm_idx' => (int)$rm_idx];
+			$room = $collection->findOne($query);
+
+			if (!$room) {
+				return;
+			}
+
+			// rm_users 배열 처리
+			$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+			$updated = false;
+
+			foreach ($rm_users as $key => $room_user) {
+				if (isset($room_user["user_id"]) && $room_user["user_id"] == $current_user_id) {
+					// 현재 사용자를 찾았음 - exit_yn을 N으로 복구
+					if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+						$rm_users[$key]["exit_yn"] = "N";
+						unset($rm_users[$key]["exit_dt"]); // exit_dt 제거
+						$updated = true;
+					}
+					break;
+				}
+			}
+
+			// rm_status가 CLOSED였다면 활성 상태로 되돌림
+			$update_data = [];
+			if ($updated) {
+				$update_data['$set']['rm_users'] = $rm_users;
+			}
+
+			if (isset($room["rm_status"]) && $room["rm_status"] == "CLOSED") {
+				$update_data['$set']['rm_status'] = "N";
+			}
+
+			// 업데이트가 필요한 경우만 실행
+			if (!empty($update_data)) {
+				$collection->update($query, $update_data);
+			}
+		} catch (Exception $e) {
+			// MongoDB 연결 실패는 무시 - 지원하기 흐름 자체를 막지 않음
+			error_log("[Chat] _reset_room_exit_status 실패: " . $e->getMessage());
+		}
 	}
 }

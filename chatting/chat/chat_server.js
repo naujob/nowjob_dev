@@ -54,11 +54,17 @@ const firebase_prod_path = path.join(__dirname, 'config', 'firebase-service-acco
 const firebase_dev_path = path.join(__dirname, 'config', 'firebase-service-account-dev.json');
 
 let firebase_service_account_path = process.env.CHAT_FIREBASE_SERVICE_ACCOUNT_PATH || '';
+//console.log('[Firebase Init] APP_ENV: ' + app_env + ', is_dev_runtime: ' + is_dev_runtime);
+
 if (!firebase_service_account_path) {
 	const default_paths = is_dev_runtime
 		? [firebase_dev_path, firebase_prod_path]
 		: [firebase_prod_path, firebase_dev_path];
+	//console.log('[Firebase Init] Firebase 파일 검색 순서: ' + JSON.stringify(default_paths.map(p => p.split('\\').slice(-2).join('\\'))));
 	firebase_service_account_path = default_paths.find((p) => fs.existsSync(p)) || default_paths[0];
+	//console.log('[Firebase Init] 발견된 Firebase 파일: ' + firebase_service_account_path.split('\\').slice(-2).join('\\'));
+} else {
+	//console.log('[Firebase Init] 환경 변수에서 Firebase 파일 지정됨: ' + firebase_service_account_path);
 }
 
 if (!fs.existsSync(firebase_service_account_path)) {
@@ -67,15 +73,20 @@ if (!fs.existsSync(firebase_service_account_path)) {
 
 const serviceAccount = JSON.parse(fs.readFileSync(firebase_service_account_path, 'utf8'));
 const firebase_project_id = $config.firebase.project_id || serviceAccount.project_id;
+//console.log('[Firebase Init] ✅ Firebase 초기화 완료 - project_id: ' + firebase_project_id);
+
 const fcm_admin = admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 	projectId: firebase_project_id
 });
 
 // FCM 발송 함수
+// 몽고db notification콜렉션 idx: 알림 인덱스, data: { user_id, no_subject, no_text, no_url, no_token }
 function send_fcm(idx, data) {
+	
 	//토큰이 없거나 비어있으면 실행하지 않는다.
 	if (!data["no_token"] || data["no_token"] == "" || data["no_token"] == null) {
+	
 		return false;
 	}
 
@@ -109,6 +120,8 @@ function send_fcm(idx, data) {
 			} else {
 				badge_count = 0; // 조회 실패 시 배지 숨김
 			}
+
+		
 
 			// 각 알림마다 고유한 notificationId 생성 (네이티브 앱의 PendingIntent 고유성 보장을 위해)
 			// 타임스탬프 + 랜덤 값 조합으로 고유성 보장
@@ -147,14 +160,22 @@ function send_fcm(idx, data) {
 
 			// Send a message to the device corresponding to the provided
 			// registration token.
+			
+
 			fcm_admin.messaging().send(message)
 				.then((response) => {
-					//푸시 성공처리
-					$exe.alarm.updateNotification(idx, { send_yn: "Y" }, function (ret) { });
+					
+					$exe.alarm.updateNotification(idx, { send_yn: "Y" }, function (ret) {
+					
+					});
 				})
 				.catch((error) => {
-					//푸시 실패처리
-					$exe.alarm.updateNotification(idx, { send_yn: "N", no_result: error }, function (ret) { });
+					console.log('[FCM] ❌ FCM send() 실패! error: ' + error.message);
+					console.log('[FCM] 에러 코드: ' + (error.code || 'UNKNOWN'));
+					console.log('[FCM] 전체 에러: ' + JSON.stringify(error));
+					$exe.alarm.updateNotification(idx, { send_yn: "N", no_result: error.message }, function (ret) {
+						
+					});
 				});
 		});
 	} else {
@@ -955,19 +976,117 @@ io.on('connection', function (socket) {
 			// 발신자 소켓이 room에 없을 경우를 대비해 직접 emit (중복 수신은 showMessage의 중복 체크로 방지)
 			socket.emit('message_insert_return', ret);
 
-		
 
-			// 푸시 알림 발송 비활성화 (common_proc.php에서 제안/지원 시점에 발송하도록 통합)
-			// 채팅 메시지 시점의 푸시는 common_proc.php에서 이미 발송되므로,
-			// chat_server.js에서는 중복 방지를 위해 비활성화
-			/*
-			// ① DB에서 전체 사용자 목록 조회
-			const db_room_users = await new Promise((resolve) => {
-				$exe.chat.getRoomUsersFromDB({ rm_idx: target_rm_idx }, resolve);
-			});
 
-			// (기존 푸시 발송 코드 - 주석 처리)
-			*/
+			// 푸시 알림 발송
+			try {
+			
+
+				// rm_users에서 발신자 제외하고 수신자 추출 (user_status는 이미 포함됨)
+				const recipients = [];
+				for (let i = 0; i < rm_users.length; i++) {
+					if (rm_users[i] && rm_users[i].user_id && rm_users[i].user_id !== g_user_id) {
+						recipients.push(rm_users[i]);
+					}
+				}
+
+			
+				
+
+				if (recipients.length > 0) {
+					// 발신자 닉네임 추출 (ret 배열에서 timeline이 아닌 실제 메시지)
+					let sender_nick = g_user_id;
+					if (Array.isArray(ret) && ret.length > 0) {
+						for (let i = 0; i < ret.length; i++) {
+							if (ret[i] && ret[i].mg_type !== 'timeline' && ret[i].user_info) {
+								const user_info = Array.isArray(ret[i].user_info) ? ret[i].user_info[0] : ret[i].user_info;
+								if (user_info && user_info.user_nick) {
+									sender_nick = user_info.user_nick;
+									break;
+								}
+							}
+						}
+					}
+
+				
+
+					// 각 수신자에 대해 MySQL 토큰 병렬 조회
+					(async () => {
+						const token_results = await Promise.all(
+							recipients.map(r =>
+								$exe.user.getTokenFromMySQL(r.user_id).then(token => ({
+									user_id: r.user_id,
+									token: token
+								}))
+							)
+						);
+
+						token_results.forEach(({ user_id: target_user_id, token: target_token }) => {
+							
+
+							if (!target_token) {
+								
+								return;
+							}
+
+						
+
+							$exe.alarm.checkAlarmHours({ user_id: target_user_id }, function (alarm_check) {
+							
+
+								// 1시간 내 발송 이력이 없으면 푸시 발송
+								if (alarm_check && alarm_check.data === 0) {
+									// 메시지 타입에 따른 문구 조정
+									let msg_desc = "메시지가 도착했습니다.";
+									if (target_chat_type === 'img') {
+										msg_desc = "사진을 전송했습니다.";
+									} else if (target_chat_type === 'file') {
+										msg_desc = "파일을 첨부했습니다.";
+									}
+
+									// 푸시 알림 데이터 구성
+									const push = {
+										user_id: target_user_id,
+										no_subject: (room_type_for_label === 'recruit' ? '채용공고' : '중고거래') + ' 메시지 알림',
+										no_text: '[' + sender_nick + ']님의 ' + msg_desc,
+										no_url: '',
+										no_token: target_token,
+										no_result: '',
+										reg_dt: $common.getCurrentDate()
+									};
+
+									
+
+									// 푸시 알림 등록 및 발송
+									$exe.alarm.insertNotification(push, function (idx) {
+								
+										send_fcm(idx, push);
+									});
+
+									// 인앱 알림 등록
+									const alarm = {
+										user_id: target_user_id,
+										al_type: room_type_for_label,
+										al_key: String(target_rm_idx),
+										al_text: '[' + sender_nick + ']님의 ' + msg_desc,
+										al_url: '',
+										al_etc: ''
+									};
+									$exe.alarm.insertAlarm(alarm, function (idx) {
+										
+									});
+								} else {
+									
+								}
+							});
+						});
+					})();
+				} else {
+				
+				}
+			} catch (push_err) {
+				
+			}
 
 			// ------------------------------
 			// ⑤ 접속 중인 사용자들에게 실시간 메시지 리프레시

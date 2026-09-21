@@ -11,8 +11,8 @@ $top_bar = array(
     <div class="tab-container">
       <ul class="tab-list">
         <?php if ($user_type == "MEM") : ?>
-          <li class="on"><a href="/chat/chat_list" class="tab">채팅보낸 공고<span class="tab-badge"></span></a></li>
-          <li><a href="/chat/chat_list2" class="tab">채팅받은 공고<span class="tab-badge"></span></a></li>
+          <li class="on"><a href="/chat/chat_list" class="tab">지원한 공고<span class="tab-badge"></span></a></li>
+          <li><a href="/chat/chat_list2" class="tab">제안받은 공고<span class="tab-badge"></span></a></li>
         <?php endif; ?>
       </ul>
     </div>
@@ -76,7 +76,7 @@ $top_bar = array(
 
         <!-- 보낸다이렉트채팅 섹션 -->
         <div class="direct-chat-list-section">
-          <h3 class="section-title">보낸 다이렉트 채팅</h3>
+          <h3 class="section-title">보낸채팅</h3>
           <div class="chat-list">
             <ol class="list result-list-card" id="direct_chat_list_sent">
 

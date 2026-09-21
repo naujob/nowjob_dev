@@ -854,8 +854,7 @@
             <li data-step="1" data-addr="경상남도" class="selectable"><span class="text">경남</span></li>
             <li data-step="1" data-addr="경상북도" class="selectable"><span class="text">경북</span></li>
             <li data-step="1" data-addr="대구광역시" class="selectable"><span class="text">대구</span></li>
-            <li data-step="1" data-addr="광주광역시" class="selectable"><span class="text">광주</span></li>
-            <li data-step="1" data-addr="전라남도" class="selectable"><span class="text">전남</span></li>
+            <li data-step="1" data-addr="전남광주통합특별시" class="selectable"><span class="text">전남광주통합특별시</span></li>
             <li data-step="1" data-addr="전북특별자치도" class="selectable"><span class="text">전북</span></li>
             <li data-step="1" data-addr="제주특별자치도" class="selectable"><span class="text">제주</span></li>
           </ul>
@@ -1544,7 +1543,6 @@
       "부산광역시": "부산",
       "대구광역시": "대구",
       "인천광역시": "인천",
-      "광주광역시": "광주",
       "대전광역시": "대전",
       "울산광역시": "울산",
       "세종특별자치시": "세종",
@@ -1553,7 +1551,8 @@
       "충청북도": "충북",
       "충청남도": "충남",
       "전북특별자치도": "전북",
-      "전라남도": "전남",
+      "전라남도": "전남광주통합특별시",
+      "전남광주통합특별시": "전남광주통합특별시",
       "경상북도": "경북",
       "경상남도": "경남",
       "제주특별자치도": "제주"
@@ -1570,7 +1569,6 @@
       "부산광역시 ": "",
       "대구광역시 ": "",
       "인천광역시 ": "",
-      "광주광역시 ": "",
       "대전광역시 ": "",
       "울산광역시 ": "",
       "세종특별자치시 ": "",
@@ -1580,6 +1578,7 @@
       "충청남도 ": "",
       "전북특별자치도 ": "",
       "전라남도 ": "",
+      "전남광주통합특별시 ": "",
       "경상북도 ": "",
       "경상남도 ": "",
       "제주특별자치도 ": ""

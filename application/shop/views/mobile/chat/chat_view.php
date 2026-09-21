@@ -1561,7 +1561,7 @@
 
         //유형에 따른 처리
         if (info.mg_type == "timeline") {
-            var content = "<p class='chat-divider'>";
+            var content = "<p class='chat-divider' id='mg_idx_" + info.mg_idx + "'>";
             content += "         " + getFormatDate(new Date(info.mg_dt), 'kor');
             content += "</p>";
         } else {
@@ -2617,6 +2617,114 @@
         lightboxIndex = index;
         renderLightboxState();
         $("#chatImgLightbox").css("display", "flex");
+        // 핀치 줌 초기화
+        initChatLightboxPinch();
+    }
+
+    // 라이트박스 이미지 핀치 줌 기능 (job_post.php 패턴 기반)
+    function initChatLightboxPinch() {
+        var imgEl = document.getElementById('chatImgLightboxImg');
+        if (!imgEl || imgEl.dataset.pinchInit) return;
+        imgEl.dataset.pinchInit = '1';
+
+        var scale = 1;
+        var lastScale = 1;
+        var startDist = 0;
+        var originX = 0, originY = 0;
+        var translateX = 0, translateY = 0;
+        var isPinching = false;
+        var isPanning = false;
+        var wasPinching = false;
+        var panStartX = 0, panStartY = 0;
+
+        var MIN_SCALE = 1;
+        var MAX_SCALE = 3;
+
+        function getDistance(t1, t2) {
+            var dx = t2.clientX - t1.clientX;
+            var dy = t2.clientY - t1.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function applyTransform() {
+            var cw = imgEl.offsetWidth;
+            var ch = imgEl.offsetHeight;
+            var minTx = -(cw * (scale - 1));
+            var maxTx = 0;
+            var minTy = -(ch * (scale - 1));
+            var maxTy = 0;
+            translateX = Math.max(minTx, Math.min(maxTx, translateX));
+            translateY = Math.max(minTy, Math.min(maxTy, translateY));
+
+            imgEl.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
+        }
+
+        imgEl.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                isPinching = true;
+                isPanning = false;
+                wasPinching = false;
+                startDist = getDistance(e.touches[0], e.touches[1]);
+                lastScale = scale;
+
+                var rect = imgEl.getBoundingClientRect();
+                originX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                originY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+
+                imgEl.classList.add('pinching');
+                e.preventDefault();
+            } else if (e.touches.length === 1 && scale > 1) {
+                isPanning = true;
+                isPinching = false;
+                panStartX = e.touches[0].clientX - translateX;
+                panStartY = e.touches[0].clientY - translateY;
+            }
+        }, { passive: false });
+
+        imgEl.addEventListener('touchmove', function(e) {
+            if (isPinching && e.touches.length === 2) {
+                var dist = getDistance(e.touches[0], e.touches[1]);
+                var newScale = lastScale * (dist / startDist);
+                newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
+
+                var scaleChange = newScale / scale;
+                translateX = originX - scaleChange * (originX - translateX);
+                translateY = originY - scaleChange * (originY - translateY);
+
+                scale = newScale;
+                applyTransform();
+                e.preventDefault();
+            } else if (isPanning && e.touches.length === 1 && scale > 1) {
+                translateX = e.touches[0].clientX - panStartX;
+                translateY = e.touches[0].clientY - panStartY;
+                applyTransform();
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        imgEl.addEventListener('touchend', function(e) {
+            if (e.touches.length < 2) {
+                if (isPinching) wasPinching = true;
+                isPinching = false;
+                imgEl.classList.remove('pinching');
+            }
+            if (e.touches.length === 0) {
+                isPanning = false;
+                if (scale <= MIN_SCALE) {
+                    scale = 1;
+                    translateX = 0;
+                    translateY = 0;
+                    applyTransform();
+                }
+            }
+        }, { passive: true });
+    }
+
+    function resetChatLightboxPinch() {
+        var imgEl = document.getElementById('chatImgLightboxImg');
+        if (!imgEl) return;
+        imgEl.style.transform = 'translate(0px, 0px) scale(1)';
+        imgEl.dataset.pinchInit = '';
     }
 
     function renderLightboxState() {
@@ -2655,6 +2763,8 @@
         $("#chatImgLightboxImg").attr("src", "");
         lightboxImages = [];
         lightboxIndex = 0;
+        // 핀치 줌 상태 리셋
+        resetChatLightboxPinch();
     });
 
     $(document).on("click", "#chatImgLightboxDownloadBtn", function(e) {
@@ -4208,6 +4318,13 @@
         max-width: 92vw;
         max-height: 70vh;
         object-fit: contain;
+        transform-origin: center center;
+        transition: none;
+        will-change: transform;
+        cursor: zoom-in;
+    }
+    .chat-lightbox-main img.pinching {
+        cursor: grabbing;
     }
     .chat-lightbox-thumbs {
         display: flex;

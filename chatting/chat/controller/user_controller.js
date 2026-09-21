@@ -101,6 +101,11 @@ container.getUser = async function(data,callback){
 	callback(user);
 }
 
+//MySQL에서 신뢰 가능한 FCM 토큰 조회
+container.getTokenFromMySQL = function(user_id) {
+	return $user.getTokenFromMySQL(user_id);
+}
+
 //유저 리스트 조회 : 어디 사용하는거지?
 container.getUserList = async function(data,callback){
 	var params = {'user_id' : {'$ne' : data.user_id}};

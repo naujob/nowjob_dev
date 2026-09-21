@@ -14291,7 +14291,7 @@ h3.secondary-title .menu:focus {
   font-weight: 700;
   text-align: center;
   vertical-align: middle;
-  background: url(/resource/shop/web/img/empty_chat.svg) no-repeat 50% 0;
+  /* background: url(/resource/shop/web/img/empty_chat.svg) no-repeat 50% 0; */
   background-size: 115px auto;
   color: #777;
 }

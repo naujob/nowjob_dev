@@ -109,7 +109,7 @@ $top_bar = array(
 
                 <!-- 받은다이렉트채팅 섹션 -->
                 <div class="direct-chat-list-section">
-                  <h3 class="section-title">받은다이렉트채팅</h3>
+                  <h3 class="section-title">받은채팅</h3>
                   <div class="chat-list">
                     <ol class="list result-list-card" id="direct_chat_list_received_comp">
 
