@@ -83,15 +83,12 @@ $top_bar = array(
                 </div>
 
                 <!-- 받은다이렉트채팅 섹션 -->
-                <div class="direct-chat-list-section">
+                <div class="direct-chat-list-section" style="display: none;">
                   <h3 class="section-title">받은채팅</h3>
                   <div class="chat-list">
                     <ol class="list result-list-card" id="direct_chat_list_received">
 
                     </ol>
-                    <div class="chat-empty" id="direct_chat_empty_received" style="display: none;">
-                      <p>목록이 없습니다.</p>
-                    </div>
                   </div>
                 </div>
 
@@ -352,11 +349,9 @@ $top_bar = array(
                     });
 
                     if ($directList.find("li").length == 0) {
-                        $("#direct_chat_empty_received").show();
-                        $directList.hide();
+                        $directList.closest('.direct-chat-list-section').hide();
                     } else {
-                        $("#direct_chat_empty_received").hide();
-                        $directList.show();
+                        $directList.closest('.direct-chat-list-section').show();
                     }
 
                     $("#direct_chat_list_received .last-chat-time").each(function() {
@@ -458,8 +453,8 @@ $top_bar = array(
             $unreadElement.html(0).hide();
         }
 
-        // 제안받은공고 탭에서 채팅방으로 이동 (from=proposed_job 파라미터 사용)
-        location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=proposed_job";
+        // 제안받은공고 탭에서 채팅방으로 이동 (backUrl 파라미터로 뒤로가기 URL 전달)
+        location.href = "/chat/chat_view?rm_idx=" + target_id + "&backUrl=" + encodeURIComponent('/chat/chat_list2');
     });
 
 </script>

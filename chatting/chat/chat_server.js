@@ -1049,7 +1049,7 @@ io.on('connection', function (socket) {
 										user_id: target_user_id,
 										no_subject: (room_type_for_label === 'recruit' ? '채용공고' : '중고거래') + ' 메시지 알림',
 										no_text: '[' + sender_nick + ']님의 ' + msg_desc,
-										no_url: '',
+										no_url: '/chat/chat_view?rm_idx=' + String(target_rm_idx),
 										no_token: target_token,
 										no_result: '',
 										reg_dt: $common.getCurrentDate()
@@ -1069,7 +1069,7 @@ io.on('connection', function (socket) {
 										al_type: room_type_for_label,
 										al_key: String(target_rm_idx),
 										al_text: '[' + sender_nick + ']님의 ' + msg_desc,
-										al_url: '',
+										al_url: '/chat/chat_view?rm_idx=' + String(target_rm_idx),
 										al_etc: ''
 									};
 									$exe.alarm.insertAlarm(alarm, function (idx) {

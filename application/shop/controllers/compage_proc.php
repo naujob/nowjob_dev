@@ -3741,13 +3741,33 @@ class Compage_proc extends CI_Controller
       json_return("91", "채용공고 재등록 중 오류가 발생하였습니다.");
     }
 
-    // 새로운 공고의 주소 정보 생성
+    // 새로운 공고의 기본 주소 정보 생성
     if ($address_info != null) {
       $new_address = $address_info;
       unset($new_address["ad_idx"]);
       $new_address["ad_key"] = $result["key"];
       $new_address["reg_dt"] = date("Y-m-d H:i:s");
       $this->member_model->insertAddress($new_address);
+    }
+
+    // 공고노출지역 1 복사
+    $expose_addr1 = $this->member_model->getAddress(["ad_type" => "RECRUIT_EXPOSE_1", "mm_idx" => $recruit_info["mm_idx"], "ad_key" => $rc_idx]);
+    if ($expose_addr1 != null) {
+      $new_expose1 = $expose_addr1;
+      unset($new_expose1["ad_idx"]);
+      $new_expose1["ad_key"] = $result["key"];
+      $new_expose1["reg_dt"] = date("Y-m-d H:i:s");
+      $this->member_model->insertAddress($new_expose1);
+    }
+
+    // 공고노출지역 2 복사
+    $expose_addr2 = $this->member_model->getAddress(["ad_type" => "RECRUIT_EXPOSE_2", "mm_idx" => $recruit_info["mm_idx"], "ad_key" => $rc_idx]);
+    if ($expose_addr2 != null) {
+      $new_expose2 = $expose_addr2;
+      unset($new_expose2["ad_idx"]);
+      $new_expose2["ad_key"] = $result["key"];
+      $new_expose2["reg_dt"] = date("Y-m-d H:i:s");
+      $this->member_model->insertAddress($new_expose2);
     }
 
     json_return("00", "채용공고가 재등록되었습니다.", ["rc_idx" => $result["key"]]);

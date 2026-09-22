@@ -967,7 +967,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";
     // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용
-    $(document).on('click', '#btnPropose', function() {
+    $(document).off('click', '#btnPropose').on('click', '#btnPropose', function() {
         // 인재정보 제안하기 분석 (운영 환경에서만)
         var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
         if (isProdEnvironment && typeof my_analytics !== 'undefined') {
@@ -1020,9 +1020,17 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     });
 
     // 기업회원 다이렉트 채팅 버튼 클릭 이벤트
-    $(document).on('click', '#btnDirectChat', function() {
+    $(document).off('click', '#btnDirectChat').on('click', '#btnDirectChat', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+
+        // 중복 클릭 가드
+        if ($btn.attr('data-loading') === 'true') return;
+        $btn.attr('data-loading', 'true');
+
         //로그인 여부 확인
         if ($("#is_login").val() != "Y") {
+            $btn.attr('data-loading', 'false');
             $('#hrPostPopup').css('z-index', '200');
             var restoreZIndex = function() { $('#hrPostPopup').css('z-index', '1000'); };
             setTimeout(function() {
@@ -1054,6 +1062,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         }
 
         if (check_user_type != "COMP") {
+            $btn.attr('data-loading', 'false');
             commonAlert("기업 회원만 이용 가능합니다.", function() {});
             return;
         }
@@ -1061,46 +1070,27 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         // 첫 번째 유효한 공고 자동 선택 후 바로 채팅 시작
         var $firstValid = $("[name='chk_request[]']:first");
         if ($firstValid.length > 0) {
-            $firstValid.prop("checked", true);
+            var rc_idx = $firstValid.val();
+            var ru_title = $firstValid.data('rc_name');
+
+            // rc_idx 유효성 검사
+            if (!rc_idx || rc_idx === "" || rc_idx === undefined || rc_idx === null || rc_idx === "0" || rc_idx === 0 || isNaN(parseInt(rc_idx))) {
+                $btn.attr('data-loading', 'false');
+                commonAlert("등록된 채용공고가 없습니다.", function() {});
+                return;
+            }
+
             currentActionMode = 'direct_chat';
-            // 기존 .btnProcess 핸들러로 채팅 시작 (공고 선택 패널 건너뜀)
-            $(".btnProcess").click();
+            // submitMemberRequest 함수 직접 호출 (click 이벤트 발생 안 함)
+            submitMemberRequest(rc_idx, ru_title);
         } else {
+            $btn.attr('data-loading', 'false');
             commonAlert("등록된 채용공고가 없습니다.", function() {});
         }
     });
 
-    // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용
-    $(document).on('click', '.btnProcess', function() {
-        // 체크박스 선택 상태 확인
-        var $checkedBoxes = $("[name='chk_request[]']:checked");
-        if ($checkedBoxes.length == 0) {
-            commonAlert("제안하실 공고를 선택해주세요.", function() {});
-            return;
-        }
-
-        // 선택된 첫 번째 체크박스 가져오기
-        var $checkedRadio = $checkedBoxes.eq(0);
-
-        // 체크박스 요소가 유효한지 확인
-        if ($checkedRadio.length == 0) {
-            commonAlert("제안하실 공고를 선택해주세요.", function() {});
-            return;
-        }
-
-        var rc_idx = $checkedRadio.val();
-        var ru_title = $checkedRadio.data('rc_name');
-
-        // rc_idx 유효성 검사 (더 엄격한 검증)
-        // 빈 문자열, null, undefined, 0, "0" 모두 체크
-        if (!rc_idx || rc_idx === "" || rc_idx === undefined || rc_idx === null || rc_idx === "0" || rc_idx === 0 || isNaN(parseInt(rc_idx))) {
-            console.error("채용공고 선택 오류 - rc_idx:", rc_idx, "checkedBoxes:", $checkedBoxes.length);
-            commonAlert("제안하실 공고를 다시 선택해주세요.", function() {
-                // 패널 닫기
-                $("#selectPanel").removeClass("on");
-            });
-            return;
-        }
+    // submitMemberRequest 함수 정의 (제안/다이렉트채팅 공통 처리)
+    var submitMemberRequest = function(rc_idx, ru_title) {
         //오늘 제안여부 및 지원 여부 확인
         var paramsToday = {};
         paramsToday["ru_idx"] = $("[name='ru_idx']").val();
@@ -1117,6 +1107,10 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                 var restoreZIndex = function() {
                     $('#hrPostPopup').css('z-index', '1000');
                     $(document).off('click.popupClose', restoreZIndex);
+                    // 다이렉트 채팅 경로라면 로딩 상태 해제
+                    if (currentActionMode === 'direct_chat') {
+                        $("#btnDirectChat").attr('data-loading', 'false');
+                    }
                 };
 
                 // 팝업 배경이나 닫기 버튼 클릭 감지
@@ -1166,7 +1160,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
                                 // 다이렉트 채팅 또는 제안에 따라 이동 경로 분기
                                 if (currentActionMode === 'direct_chat') {
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat";
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
                                 } else {
                                     // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
                                     // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기
@@ -1185,6 +1179,9 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                 $('.btn-close-popup').hide();
             } else if (ret.code == "01") {
                 // 5분 제한 - 확인 클릭 시 채팅 목록으로 이동
+                if (currentActionMode === 'direct_chat') {
+                    $("#btnDirectChat").attr('data-loading', 'false');
+                }
                 commonAlert("<em>5분 후</em> 다시 제안이 가능합니다.", function() {
                     location.href = "/chat/chat_list3";
                 });
@@ -1192,12 +1189,18 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                 return;
             } else if (ret.code == "90") {
                 // 지원이 이미 있는 경우
+                if (currentActionMode === 'direct_chat') {
+                    $("#btnDirectChat").attr('data-loading', 'false');
+                }
                 commonAlert(ret.msg, function() {
                     // 알림 후 패널 닫기
                     $("#selectPanel").removeClass("on");
                 });
                 return;
             } else {
+                if (currentActionMode === 'direct_chat') {
+                    $("#btnDirectChat").attr('data-loading', 'false');
+                }
                 commonAlert(ret.msg, function() {
                     // 알림 후 패널 닫기
                     $("#selectPanel").removeClass("on");
@@ -1205,11 +1208,46 @@ $isPopup = isset($is_popup) ? $is_popup : false;
                 return;
             }
         });
+    };
 
+    // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용
+    $(document).off('click', '.btnProcess').on('click', '.btnProcess', function() {
+        // 체크박스 선택 상태 확인
+        var $checkedBoxes = $("[name='chk_request[]']:checked");
+        if ($checkedBoxes.length == 0) {
+            commonAlert("제안하실 공고를 선택해주세요.", function() {});
+            return;
+        }
+
+        // 선택된 첫 번째 체크박스 가져오기
+        var $checkedRadio = $checkedBoxes.eq(0);
+
+        // 체크박스 요소가 유효한지 확인
+        if ($checkedRadio.length == 0) {
+            commonAlert("제안하실 공고를 선택해주세요.", function() {});
+            return;
+        }
+
+        var rc_idx = $checkedRadio.val();
+        var ru_title = $checkedRadio.data('rc_name');
+
+        // rc_idx 유효성 검사 (더 엄격한 검증)
+        // 빈 문자열, null, undefined, 0, "0" 모두 체크
+        if (!rc_idx || rc_idx === "" || rc_idx === undefined || rc_idx === null || rc_idx === "0" || rc_idx === 0 || isNaN(parseInt(rc_idx))) {
+            console.error("채용공고 선택 오류 - rc_idx:", rc_idx, "checkedBoxes:", $checkedBoxes.length);
+            commonAlert("제안하실 공고를 다시 선택해주세요.", function() {
+                // 패널 닫기
+                $("#selectPanel").removeClass("on");
+            });
+            return;
+        }
+
+        // submitMemberRequest 함수 호출
+        submitMemberRequest(rc_idx, ru_title);
     });
 
     // selectable-item 클릭 시 해당 항목의 radio 버튼 선택
-    $(document).on('click', '.selectable-item', function(e) {
+    $(document).off('click', '.selectable-item').on('click', '.selectable-item', function(e) {
         // label이나 input을 직접 클릭한 경우는 기본 동작 유지
         if ($(e.target).is('label') || $(e.target).is('input') || $(e.target).closest('label').length > 0) {
             return;
@@ -1228,7 +1266,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
    
 
     // 개인회원이 자신의 이력서를 볼 때: 수정 버튼 클릭 이벤트
-    $(document).on('click', '#btnEditResume', function() {
+    $(document).off('click', '#btnEditResume').on('click', '#btnEditResume', function() {
         var ruIdx = $("[name=ru_idx]").val();
         if (ruIdx) {
             location.href = "/mypage/resume_view/" + ruIdx;
@@ -1236,7 +1274,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     });
 
     // 기업이 구직자에게 050 가상번호로 전화 연결
-    $(document).on('click', '#btnGoChat', function(e) {
+    $(document).off('click', '#btnGoChat').on('click', '#btnGoChat', function(e) {
         e.preventDefault();
 
         // 인재정보 전화하기 분석 (운영 환경에서만)
@@ -1300,13 +1338,13 @@ $isPopup = isset($is_popup) ? $is_popup : false;
  
 
     // 이력서 삭제 바텀시트 트리거
-    $(document).on('click', '#btnDeleteResume', function(e) {
+    $(document).off('click', '#btnDeleteResume').on('click', '#btnDeleteResume', function(e) {
         e.preventDefault();
         openPanel(document.getElementById('deleteResumeSheet'));
     });
 
     // 미리보기 등록하기: 최종 확정 (site_log는 이미 저장되어 있으므로 ru_idx만 전송)
-    $(document).on('click', '#btnPreviewRegister', function(e) {
+    $(document).off('click', '#btnPreviewRegister').on('click', '#btnPreviewRegister', function(e) {
         e.preventDefault();
         var ruIdx = $("[name=ru_idx]").val();
         comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {

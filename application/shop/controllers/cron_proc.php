@@ -1177,8 +1177,8 @@ class Cron_proc extends CI_Controller
             FCPATH . 'resource/uploads/chat',
             FCPATH . 'resource/uploads/chat/resize',
         ];
-        // $expire_seconds = 30 * 24 * 60 * 60; // 30일
-        $expire_seconds = 1 * 24 * 60 * 60; // 1일 (테스트용)
+         $expire_seconds = 30 * 24 * 60 * 60; // 30일
+        //$expire_seconds = 1 * 24 * 60 * 60; // 1일 (테스트용)
         $now = time(); // 현재 시간
         $deleted = 0;
 
@@ -1197,5 +1197,19 @@ class Cron_proc extends CI_Controller
         }
 
         echo "[cleanup_expired_chat_files] 삭제된 파일 수: {$deleted}\n";
+    }
+
+    // 유료상품 보유 공고 자동 재등록 (새로운 공고 row를 매일 생성)
+    // crontab: 0 1 * * * curl -s https://nowjob.co.kr/cron_proc/auto_reregister_paid_recruit > /dev/null 2>&1
+    public function auto_reregister_paid_recruit()
+    {
+        $this->load->model('recruitmodel', 'recruit_model');
+        $result = $this->recruit_model->autoReregisterPaidRecruit();
+
+        $message = $result["message"];
+        $success = isset($result["success"]) ? $result["success"] : 0;
+        $fail = isset($result["fail"]) ? $result["fail"] : 0;
+
+        echo "[auto_reregister_paid_recruit] {$message} | 성공: {$success}건, 실패: {$fail}건\n";
     }
 }

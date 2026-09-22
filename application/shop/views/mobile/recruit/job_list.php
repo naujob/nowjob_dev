@@ -10,6 +10,7 @@ $mm_type = $this->user->getUserType();
 $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_recruits = isset($initial_recruits) ? $initial_recruits : ['list' => []];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
 $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 $initial_page = isset($initial_page) ? $initial_page : 1;
 
@@ -736,6 +737,50 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     pointer-events: auto;
   }
 
+  /* 오늘 채용 현황 마퀴 배너 */
+  .recruit-status-banner {
+    overflow: hidden;
+    
+    padding: 8px 0;
+    margin-top: 15px;
+  }
+
+  .recruit-status-banner .marquee-wrap {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .recruit-status-banner .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: recruit-marquee 18s linear infinite;
+  }
+
+  .recruit-status-banner .marquee-item {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding-right: 30px;
+    font-size: var(--page-recruit-font-size-13);
+  }
+
+  .recruit-status-banner .marquee-item .label {
+    color: #000;
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  .recruit-status-banner .marquee-item .value {
+    color: #57CCAF;
+    font-weight: 700;
+    font-size: 20px;
+  }
+
+  @keyframes recruit-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
 </style>
 
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
@@ -757,6 +802,27 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 <div class="page-content">
   <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
+
+  <!-- 오늘 채용 현황 마퀴 배너 (1페이지에서만 노출) -->
+  <?php
+    $status_items = [
+      ['label' => '오늘날짜', 'value' => date('Y-m-d')],
+      ['label' => '전체채용공고', 'value' => number_format($initial_total_count) . '개'],
+      ['label' => '오늘등록공고', 'value' => number_format($today_recruit_count) . '건'],
+    ];
+    $status_items_html = '';
+    foreach ($status_items as $item) {
+      $status_items_html .= '<span class="marquee-item"><span class="label">' . $item['label'] . '</span>&nbsp;&nbsp;<span class="value">' . $item['value'] . '</span></span>';
+    }
+  ?>
+  <div class="section recruit-status-banner" id="recruitStatusBanner"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
+    <div class="marquee-wrap">
+      <div class="marquee-track">
+        <?= $status_items_html ?>
+        <?= $status_items_html ?>
+      </div>
+    </div>
+  </div>
 
   <!-- 지금 뜨는 업체 -->
   <div class="section" id="hotListSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
@@ -1331,8 +1397,9 @@ $tpl_recomm_class = true; ?>
   // 현재 페이지가 1페이지인지 여부에 따라 상단 영역들을 보이거나 숨기는 역할
   function updateTopSectionsVisibility() {
     var isFirstPage = (list_page <= 1); //true이면 1페이지, false이면 2페이지 이상
-    $('.main-visual').toggle(isFirstPage);  
+    $('.main-visual').toggle(isFirstPage);
     $('#hotListSection').toggle(isFirstPage);
+    $('#recruitStatusBanner').toggle(isFirstPage);
   }
 
   // ========================================

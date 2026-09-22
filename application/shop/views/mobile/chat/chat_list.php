@@ -75,15 +75,12 @@ $top_bar = array(
         </div>
 
         <!-- 보낸다이렉트채팅 섹션 -->
-        <div class="direct-chat-list-section">
+        <div class="direct-chat-list-section" style="display: none;">
           <h3 class="section-title">보낸채팅</h3>
           <div class="chat-list">
             <ol class="list result-list-card" id="direct_chat_list_sent">
 
             </ol>
-            <div class="chat-empty" id="direct_chat_empty_sent" style="display: none;">
-              <p>목록이 없습니다.</p>
-            </div>
           </div>
         </div>
 
@@ -320,7 +317,7 @@ $top_bar = array(
           
           // 채팅방을 찾았으면 자동으로 진입 (메시지 자동 전송 플래그 포함)
           if (targetRmIdx) {
-            location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=applied";
+            location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
           }
         }, 500); // 목록 렌더링 대기
       }
@@ -370,11 +367,9 @@ $top_bar = array(
           });
 
           if ($directList.find("li").length == 0) {
-            $("#direct_chat_empty_sent").show();
-            $directList.hide();
+            $directList.closest('.direct-chat-list-section').hide();
           } else {
-            $("#direct_chat_empty_sent").hide();
-            $directList.show();
+            $directList.closest('.direct-chat-list-section').show();
           }
 
           $("#direct_chat_list_sent .last-chat-time").each(function() {
@@ -476,8 +471,8 @@ $top_bar = array(
       $unreadElement.html(0).hide();
     }
 
-    // 지원한공고 탭에서 채팅방으로 이동 (from=applied 파라미터 사용)
-    location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=applied";
+    // 지원한공고 탭에서 채팅방으로 이동 (backUrl 파라미터로 뒤로가기 URL 전달)
+    location.href = "/chat/chat_view?rm_idx=" + target_id + "&backUrl=" + encodeURIComponent('/chat/chat_list');
   });
 </script>
 

@@ -461,6 +461,9 @@ class Recruit extends CI_Controller
     $count_result = $query_count->row_array();
     $initial_total_count = isset($count_result['total']) ? (int)$count_result['total'] : 0;
 
+    // 오늘 등록된 공고 건수 조회
+    $today_recruit_count = $this->recruit_model->getRecruitTodayTotalCnt();
+
     $data["mm_type"] = $this->mm_type;
     $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
     $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
@@ -477,6 +480,7 @@ class Recruit extends CI_Controller
 
     $data["initial_recruits"] = $initial_recruits;
     $data["initial_total_count"] = $initial_total_count;
+    $data["today_recruit_count"] = $today_recruit_count;
     $data["use_server_render"] = $use_server_render;
     $data["initial_page"] = $requested_page;
 

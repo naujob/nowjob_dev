@@ -108,15 +108,12 @@ $top_bar = array(
                 </div>
 
                 <!-- 받은다이렉트채팅 섹션 -->
-                <div class="direct-chat-list-section">
+                <div class="direct-chat-list-section" style="display: none;">
                   <h3 class="section-title">받은채팅</h3>
                   <div class="chat-list">
                     <ol class="list result-list-card" id="direct_chat_list_received_comp">
 
                     </ol>
-                    <div class="chat-empty" id="direct_chat_empty_received_comp" style="display: none;">
-                      <p>목록이 없습니다.</p>
-                    </div>
                   </div>
                 </div>
 
@@ -603,7 +600,7 @@ $top_bar = array(
               if ($matchedChatItem && $matchedChatItem.length > 0) {
                 var matchedRmIdx = $matchedChatItem.data('target_id');
                 if (matchedRmIdx) {
-                  location.href = "/chat/chat_view?rm_idx=" + matchedRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&from=talent_sent";
+                  location.href = "/chat/chat_view?rm_idx=" + matchedRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&backUrl=" + encodeURIComponent('/chat/chat_list3');
                 }
               }
             }
@@ -686,11 +683,9 @@ $top_bar = array(
                     });
 
                     if ($directList.find("li").length == 0) {
-                        $("#direct_chat_empty_received_comp").show();
-                        $directList.hide();
+                        $directList.closest('.direct-chat-list-section').hide();
                     } else {
-                        $("#direct_chat_empty_received_comp").hide();
-                        $directList.show();
+                        $directList.closest('.direct-chat-list-section').show();
                     }
 
                     $("#direct_chat_list_received_comp .last-chat-time").each(function() {
@@ -867,8 +862,8 @@ $top_bar = array(
 
         // target_id는 채팅방의 고유 식별자인 room_idx(채팅방 인덱스)를 의미합니다.
         var target_id = $(this).data("target_id"); // 즉, 해당 li.room-item의 data-target_id 속성값 = room_idx
-        // 지원받은 인재 탭에서 채팅방으로 이동 (from=talent_received 파라미터 사용)
-        location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_received";
+        // 지원받은 인재 탭에서 채팅방으로 이동 (backUrl 파라미터로 뒤로가기 URL 전달)
+        location.href = "/chat/chat_view?rm_idx=" + target_id + "&backUrl=" + encodeURIComponent('/chat/chat_list3');
     });
 
     // [사용되지 않음] 웹 버전 소켓 기반 채팅방 목록 조회 - 현재는 AJAX 기반으로 동작
@@ -1322,7 +1317,7 @@ $top_bar = array(
             data-target_name="{{target_name}}"
             data-user_name="{{user_name}}"
             data-subject="{{rc_name}}"
-            onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_received'; return false;">
+            onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&backUrl=' + encodeURIComponent('/chat/chat_list3'); return false;">
 
             <div class="content-body" style="position: relative;">
                 <div class="chat-time-row">

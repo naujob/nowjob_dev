@@ -646,7 +646,7 @@
                             </table>
                         </div>
 
-                        <p class="help-msg">채용공고 등록은 최대 20개까지만 가능합니다.<br> 채용공고기간이 2개월지날시 자동삭제됩니다.</p>
+                        <p class="help-msg">채용공고 등록은 최대 30개까지만 가능합니다.<br> 채용공고기간이 2개월지날시 자동삭제됩니다.</p>
 
                         <div class="form-action-wrap align-right">
                             <!-- <button id="btnDefault" type="button" class="btn-round btn-tertiary">공개 채용공고로 설정</button> -->

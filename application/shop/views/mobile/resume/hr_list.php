@@ -1791,6 +1791,12 @@ $tpl_show_chat_mark = true; ?>
   window.closeHrPostPopup = function(e) {
     if (e) e.preventDefault();
 
+    // 진행 중인 선택 패널(공고 선택)이 열려 있으면 닫기 (상태 잔존 방지)
+    var $selectPanel = $("#selectPanel");
+    if ($selectPanel.length > 0) {
+      $selectPanel.removeClass("on");
+    }
+
     // GSAP으로 팝업 닫기 애니메이션
     gsap.to('#hrPostPopup', {
       duration: 0.5,

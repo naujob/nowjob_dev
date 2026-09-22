@@ -22,16 +22,23 @@
     (function() {
 
         var params = new URLSearchParams(window.location.search);
-        var from = params.get('from') || '';
-        var backMap = {
-            applied: '/chat/chat_list', // 지원한 공고
-            proposed_job: '/chat/chat_list2', // 제안받은 공고
-            talent_received: '/chat/index_comp', // 제안받은 인재
-            talent_sent: '/chat/chat_list3', // 제안보낸 인재
-            hr_list: '/chat/index_comp' // 인재 리스트
-        };
+        // backUrl 파라미터로 직접 전달받은 뒤로가기 URL 사용
+        var backUrl = params.get('backUrl') ? decodeURIComponent(params.get('backUrl')) : null;
 
-        window.backUrl = backMap[from] || '/chat/chat_list';
+        // 호환성: 이전 from 파라미터 지원
+        if (!backUrl) {
+            var from = params.get('from') || '';
+            var backMap = {
+                applied: '/chat/chat_list', // 지원한 공고
+                proposed_job: '/chat/chat_list2', // 제안받은 공고
+                talent_received: '/chat/index_comp', // 제안받은 인재
+                talent_sent: '/chat/chat_list3', // 제안보낸 인재
+                hr_list: '/chat/index_comp' // 인재 리스트
+            };
+            backUrl = backMap[from] || '/chat/chat_list';
+        }
+
+        window.backUrl = backUrl;
 
         // iOS WebView에서 더 확실하게 동작하도록 즉시 실행 + DOMContentLoaded 둘 다 처리
         /**
@@ -2295,14 +2302,19 @@
         $("#attachMenu").attr("data-state", opening ? "open" : "closed");
     });
 
-    // 안심콜 메뉴 아이템 클릭
+    // 안심콜 버튼 클릭 (헤더, 첨부메뉴 통합)
     $(document).on("click", ".js-attach-call", function() {
-        var $callBtn = $(".btn-call");
-        if ($callBtn.attr("data-show-call") === "true") {
-            $callBtn.get(0).click();
+        // 전화번호 가져오기 (call_target_phone 우선, 없으면 recruit_phone)
+        var phoneNumber = $("#call_target_phone").val() || $("input[name='recruit_phone']").val();
+
+        if (phoneNumber) {
+            // 안심콜 전화 연결
+            window.location.href = "tel:" + phoneNumber;
         } else {
             alert("현재 통화 가능한 상태가 아닙니다.");
         }
+
+        // 첨부메뉴 닫기
         $("#btnAttachToggle").attr("data-state", "closed");
         $("#attachMenu").attr("data-state", "closed");
     });

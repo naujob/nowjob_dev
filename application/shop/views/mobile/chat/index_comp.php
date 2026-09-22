@@ -89,15 +89,12 @@ $top_bar = array(
         </div>
 
         <!-- 보낸다이렉트채팅 섹션 -->
-        <div class="direct-chat-list-section" >
+        <div class="direct-chat-list-section" style="display: none;">
           <h3 class="section-title">보낸채팅</h3>
           <div class="chat-list">
             <ol class="list result-list-card" id="direct_chat_list_sent_comp">
 
             </ol>
-            <div class="chat-empty" id="direct_chat_empty_sent_comp" style="display: none;">
-              <p>목록이 없습니다.</p>
-            </div>
           </div>
         </div>
 
@@ -376,11 +373,9 @@ $top_bar = array(
           });
 
           if ($directList.find("li").length == 0) {
-            $("#direct_chat_empty_sent_comp").show();
-            $directList.hide();
+            $directList.closest('.direct-chat-list-section').hide();
           } else {
-            $("#direct_chat_empty_sent_comp").hide();
-            $directList.show();
+            $directList.closest('.direct-chat-list-section').show();
           }
 
           $("#direct_chat_list_sent_comp .last-chat-time").each(function() {
@@ -1332,7 +1327,7 @@ $top_bar = array(
     }
 
     var target_id = $(this).data("target_id");
-    location.href = "/chat/chat_view?rm_idx=" + target_id + "&from=talent_sent";
+    location.href = "/chat/chat_view?rm_idx=" + target_id + "&backUrl=" + encodeURIComponent('/chat/index_comp');
   });
   // 채용공고에 지원 or 제안 인재정보
   function fShowChatListByRecruite(ru_idx, obj) {
@@ -1584,7 +1579,7 @@ $top_bar = array(
       data-target_name="{{target_name}}"
       data-user_name="{{user_name}}"
       data-subject="{{rc_name}}"
-      onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&from=talent_sent'; return false;">
+      onclick="location.href='/chat/chat_view?rm_idx={{room_idx}}&backUrl=' + encodeURIComponent('/chat/index_comp'); return false;">
 
       <div class="content-body">
         <div class="chat-time-row">

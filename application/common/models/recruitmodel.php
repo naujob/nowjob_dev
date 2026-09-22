@@ -970,6 +970,26 @@ class recruitModel extends MY_Model
 		}
 	}
 
+	# 오늘 등록된 전체 공고 건수 (게재중 기준)
+	function getRecruitTodayTotalCnt()
+	{
+		$sql = "
+			select count(*) as cnt
+			FROM st_recruit aa
+			where aa.rc_show_yn = 'Y'
+			and aa.rc_status = 'Y'
+			and date_format(aa.reg_dt,'%Y%m%d') = date_format(now(),'%Y%m%d')
+		";
+
+		$query = $this->db->query($sql);
+		$info = $query->row_array();
+		if ($info == null) {
+			return 0;
+		} else {
+			return $info["cnt"];
+		}
+	}
+
 	# 공고 조회 : 기본 - 게재중인
 	function getRecruitActaiveList($mm_idx)
 	{
@@ -1086,7 +1106,7 @@ class recruitModel extends MY_Model
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y' and aa.rc_edate >= now()
 			order by aa.rc_idx desc
-			LIMIT 20
+			LIMIT 30
 		";
 
 		$query = $this->db->query($sql);
@@ -1182,4 +1202,98 @@ class recruitModel extends MY_Model
 
 	// 050 비즈콜 가상번호 관리
     // 공고 번호($rc_idx)를 보고, 이 공고를 올린 사장님의 진짜 휴대폰 번호를 찾아 반환하는 함수
+
+	// 유료상품 보유 공고를 자동 재등록 (매일 새벽 1시)
+	// 수동 재등록과 동일하게 새로운 row를 INSERT하며, 주소 정보도 복사
+	function autoReregisterPaidRecruit($mm_idx = null)
+	{
+		// st_promotion에 연결된 공고들 조회
+		$sql = "SELECT DISTINCT rc_idx FROM st_promotion";
+		$query = $this->db->query($sql);
+		$result = $query->result_array();
+
+		if (empty($result)) {
+			return array("code" => "01", "message" => "유료상품 보유 공고 없음", "count" => 0);
+		}
+
+		$success_count = 0;
+		$fail_count = 0;
+
+		// 각 공고별로 재등록 처리
+		foreach ($result as $row) {
+			$rc_idx = $row["rc_idx"];
+
+			// 기존 공고 조회
+			$recruit_info = $this->getRecruit(["rc_idx" => $rc_idx]);
+			if ($recruit_info == null) {
+				$fail_count++;
+				continue;
+			}
+
+			// 기존 공고의 주소 정보 조회
+			$sql_addr = "SELECT * FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = " . $this->db->escape($rc_idx) . " LIMIT 1";
+			$query_addr = $this->db->query($sql_addr);
+			$address_info = $query_addr->row_array();
+
+			// 새 공고 생성을 위한 데이터 준비
+			$new_recruit = $recruit_info;
+			unset($new_recruit["rc_idx"]);
+
+			// 날짜 업데이트
+			$new_recruit["rc_sdate"] = date("Y-m-d H:i:s");
+			$new_recruit["rc_edate"] = date("Y-m-d H:i:s", strtotime("+60 days"));
+			$new_recruit["reg_dt"] = date("Y-m-d H:i:s");
+			$new_recruit["up_dt"] = date("Y-m-d H:i:s");
+
+			// 새로운 공고 INSERT
+			if (!$this->db->insert("st_recruit", $new_recruit)) {
+				$fail_count++;
+				continue;
+			}
+
+			$new_rc_idx = $this->db->insert_id();
+
+			// 새로운 공고의 기본 주소 정보 복사 (ad_type='RECRUIT')
+			if ($address_info != null) {
+				$new_address = $address_info;
+				unset($new_address["ad_idx"]);
+				$new_address["ad_key"] = $new_rc_idx;
+				$new_address["reg_dt"] = date("Y-m-d H:i:s");
+				$this->db->insert("st_address", $new_address);
+			}
+
+			// 노출지역 1 복사 (ad_type='RECRUIT_EXPOSE_1')
+			$sql_expose1 = "SELECT * FROM st_address WHERE ad_type = 'RECRUIT_EXPOSE_1' AND ad_key = " . $this->db->escape($rc_idx) . " LIMIT 1";
+			$query_expose1 = $this->db->query($sql_expose1);
+			$expose_addr1 = $query_expose1->row_array();
+			if ($expose_addr1 != null) {
+				$new_expose1 = $expose_addr1;
+				unset($new_expose1["ad_idx"]);
+				$new_expose1["ad_key"] = $new_rc_idx;
+				$new_expose1["reg_dt"] = date("Y-m-d H:i:s");
+				$this->db->insert("st_address", $new_expose1);
+			}
+
+			// 노출지역 2 복사 (ad_type='RECRUIT_EXPOSE_2')
+			$sql_expose2 = "SELECT * FROM st_address WHERE ad_type = 'RECRUIT_EXPOSE_2' AND ad_key = " . $this->db->escape($rc_idx) . " LIMIT 1";
+			$query_expose2 = $this->db->query($sql_expose2);
+			$expose_addr2 = $query_expose2->row_array();
+			if ($expose_addr2 != null) {
+				$new_expose2 = $expose_addr2;
+				unset($new_expose2["ad_idx"]);
+				$new_expose2["ad_key"] = $new_rc_idx;
+				$new_expose2["reg_dt"] = date("Y-m-d H:i:s");
+				$this->db->insert("st_address", $new_expose2);
+			}
+
+			$success_count++;
+		}
+
+		return array(
+			"code" => "00",
+			"message" => "자동 재등록 완료",
+			"success" => $success_count,
+			"fail" => $fail_count
+		);
+	}
 }

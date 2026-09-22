@@ -57,7 +57,7 @@
             </div>
             <?php if (count($published_list) > 0) : ?>
                 <div class="container">
-                    <p class="help-msg">채용공고 등록은 최대 20개까지만 가능합니다.<br> 채용공고기간이 3개월지날시 자동삭제됩니다.</p>
+                    <p class="help-msg">채용공고 등록은 최대 30개까지만 가능합니다.<br> 채용공고기간이 3개월지날시 자동삭제됩니다.</p>
                 </div>
             <?php endif; ?>
             <div class="sticky-bottom view-footer">

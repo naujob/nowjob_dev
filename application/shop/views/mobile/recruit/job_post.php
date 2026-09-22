@@ -1561,8 +1561,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                       
                         $('.btn-close-popup').show();
                         if (ret.code == "00") {
-                           
-                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat";
+
+                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list');
                         } else {
                            
                             commonAlert(ret.msg, function() {});
