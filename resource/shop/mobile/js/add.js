@@ -937,3 +937,24 @@ function triggerNativeDownload(url, fileName) {
         window.open(url, "_blank");
     }
 }
+
+function triggerNativeOpen(url, fileName) {
+    if (!url) {
+        console.log("[NATIVE_OPEN] URL 없음");
+        return;
+    }
+
+    var payload = JSON.stringify({ url: url, fileName: fileName ? fileName : "" });
+    console.log("[NATIVE_OPEN] 브릿지 호출:", payload);
+
+    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.openFile) {
+        console.log("[NATIVE_OPEN] Android openFile 브릿지 호출");
+        APP_NOWAPK.openFile(payload);
+    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.downloadFile) {
+        console.log("[NATIVE_OPEN] iOS downloadFile 브릿지 호출 (공유시트)");
+        window.webkit.messageHandlers.downloadFile.postMessage(payload);
+    } else {
+        console.log("[NATIVE_OPEN] 브릿지 없음, 새 탭으로 열기");
+        window.open(url, "_blank");
+    }
+}

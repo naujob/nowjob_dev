@@ -35,13 +35,19 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
             <?php endif; ?>
+            <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
+            <!-- 채팅 화면 단순 모드: 이름 + 회사명 한 줄 -->
+            <div style="display: flex; align-items: center; gap: 0; height: 100%; width: 100%;">
+              <div class="title ellipsis" style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{mm_name}}</div>
+              <p class="company-info" style="margin: 0;">{{mm_comp_name}}</p>
+            </div>
+            <?php else: ?>
+            <!-- 일반 모드: 토글 가능한 아코디언 카드 -->
             <div class="title-wrap">
               <div class="title ellipsis">{{mm_name}}</div>
-              <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
               <button class="toggle-expand" type="button">
                 <i class="fa-solid fa-angle-up"></i>
               </button>
-              <?php endif; ?>
             </div>
             <div class="simple-content" data-collapsed="true">
               <div class="data-row">
@@ -53,6 +59,7 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
                 <button class="btn-close">닫기</button>
               </div>
             </div>
+            <?php endif; ?>
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="summary">
               <ul class="working-day">{{ru_week}}</ul>
@@ -121,6 +128,22 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
     color: #666;
     margin: 0;
     font-weight: 500;
+  }
+
+  /* chat 화면에서 simple 모드 시 각진 chip 스타일 */
+  .chat-view-header .result-list-card .company-info {
+    width: auto;
+    flex-shrink: 0;
+    padding: 0 1rem;
+    border-radius: 0;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    white-space: nowrap;
+    background: #1B9D7D;
+    color: #ffffff;
   }
 
   .toggle-expand i {

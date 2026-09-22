@@ -11508,9 +11508,10 @@ form#frm {
 }
 
 .chat-view-header {
-    position: relative;
-    
+    position: sticky;
+    top: 60px;
     z-index: 2;
+    background: #fff;
     border-bottom: 1px solid #F4F4F4;
 }
 
@@ -11530,23 +11531,15 @@ form#frm {
 }
 
 .chat-view-header .result-list-card .content-li {
-    height: 115px;
     border: none;
     cursor: pointer;
-    transition: height 0.3s ease;
-}
-
-.chat-view-header .result-list-card .content-li[data-collapsed="true"] {
-    height: 44px;
 }
 
 .chat-view-header .result-list-card .content-info .content-body {
-    height: 115px;
-    transition: height 0.3s ease;
-}
-
-.chat-view-header .result-list-card .content-li[data-collapsed="true"] .content-info .content-body {
-    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    min-height: 44px;
 }
 
 /* 채팅 뷰 헤더 근무요일 배지 (일반 목록보다 작게) */

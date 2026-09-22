@@ -50,6 +50,19 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
     text-align: center;
     padding: 2px;
   }
+  /* chat 화면에서 simple 모드 시 각진 chip 스타일 */
+  .chat-view-header .result-list-card .status-label {
+    width: auto;
+    flex-shrink: 0;
+    padding: 0 1rem;
+    border-radius: 0;
+    min-width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    white-space: nowrap;
+  }
   .data-label {
     font-size: 0.875rem;
     color: #999;
@@ -85,7 +98,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
     height: 55px;
  }
  .desc .title-wrap .title.ellipsis {
-   
+
  }
 
 
@@ -122,13 +135,19 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
               {{rt_recom_badge}}{{rt_work_img}}
             </div>
             <?php endif; ?>
+            <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
+            <!-- 채팅 화면 단순 모드: 제목 + 상태 라벨 한 줄 -->
+            <div style="display: flex; align-items: center; gap: 0; height: 100%; width: 100%;">
+              <div class="title ellipsis" style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{rc_name}}</div>
+              <p class="status-label" style="margin: 0;">{{status_label}}</p>
+            </div>
+            <?php else: ?>
+            <!-- 일반 모드: 토글 가능한 아코디언 카드 -->
             <div class="title-wrap">
               <div class="title ellipsis">{{rc_name}}</div>
-              <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
               <button class="toggle-expand" type="button">
                 <i class="fa-solid fa-angle-up"></i>
               </button>
-              <?php endif; ?>
             </div>
             <div class="simple-content" data-collapsed="true">
               <div class="data-row">
@@ -140,6 +159,7 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
                 <button class="btn-close">닫기</button>
               </div>
             </div>
+            <?php endif; ?>
             <?php if (!isset($tpl_simple_mode) || !$tpl_simple_mode): ?>
             <div class="summary">
               <p>{{rc_nation_nm}}</p>

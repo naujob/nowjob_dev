@@ -243,56 +243,7 @@
       $c = $c.replaceAll('{{chat_rm_idx}}',   '');
 
       listContainer.innerHTML = $c;
-      // 토글 버튼 이벤트 등록
-      attachToggleListeners(listContainer);
-    }
-
-    // 토글 버튼 이벤트 등록
-    function attachToggleListeners(container) {
-      container.querySelectorAll('.toggle-expand').forEach(function(btn) {
-        // 기존 아이콘 요소에 data-toggle-icon 속성 추가
-        var icon = btn.querySelector('i');
-        if (icon && !icon.getAttribute('data-toggle-icon')) {
-          icon.setAttribute('data-toggle-icon', 'true');
-          icon.setAttribute('data-state', 'collapsed');
-        }
-
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          var contentLi = this.closest('.content-li');
-          var simpleContent = contentLi.querySelector('.simple-content');
-          var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
-          var icon = this.querySelector('i[data-toggle-icon]');
-
-          if (isCollapsed) {
-            simpleContent.setAttribute('data-collapsed', 'false');
-            contentLi.setAttribute('data-collapsed', 'false');
-            icon.setAttribute('data-state', 'expanded');
-          } else {
-            simpleContent.setAttribute('data-collapsed', 'true');
-            contentLi.setAttribute('data-collapsed', 'true');
-            icon.setAttribute('data-state', 'collapsed');
-          }
-        });
-      });
-
-      // 닫기 버튼 이벤트 등록
-      container.querySelectorAll('.btn-close').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          var contentLi = this.closest('.content-li');
-          var simpleContent = contentLi.querySelector('.simple-content');
-          var icon = contentLi.querySelector('i[data-toggle-icon]');
-
-          simpleContent.setAttribute('data-collapsed', 'true');
-          contentLi.setAttribute('data-collapsed', 'true');
-          if (icon) {
-            icon.setAttribute('data-state', 'collapsed');
-          }
-        });
-      });
+      // simple 모드에서는 토글 버튼이 없으므로 이벤트 바인딩 불필요
     }
 
     // DOM이 준비되면 렌더링
@@ -353,57 +304,8 @@
       var listContainer = document.getElementById('chatRecruitCardList');
       if (listContainer) {
         listContainer.innerHTML = html;
-        // 토글 버튼 이벤트 등록
-        attachToggleListeners(listContainer);
+        // simple 모드에서는 토글 버튼이 없으므로 이벤트 바인딩 불필요
       }
-    }
-
-    // 토글 버튼 이벤트 등록
-    function attachToggleListeners(container) {
-      container.querySelectorAll('.toggle-expand').forEach(function(btn) {
-        // 기존 아이콘 요소에 data-toggle-icon 속성 추가
-        var icon = btn.querySelector('i');
-        if (icon && !icon.getAttribute('data-toggle-icon')) {
-          icon.setAttribute('data-toggle-icon', 'true');
-          icon.setAttribute('data-state', 'collapsed');
-        }
-
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          var contentLi = this.closest('.content-li');
-          var simpleContent = contentLi.querySelector('.simple-content');
-          var isCollapsed = simpleContent.getAttribute('data-collapsed') === 'true';
-          var icon = this.querySelector('i[data-toggle-icon]');
-
-          if (isCollapsed) {
-            simpleContent.setAttribute('data-collapsed', 'false');
-            contentLi.setAttribute('data-collapsed', 'false');
-            icon.setAttribute('data-state', 'expanded');
-          } else {
-            simpleContent.setAttribute('data-collapsed', 'true');
-            contentLi.setAttribute('data-collapsed', 'true');
-            icon.setAttribute('data-state', 'collapsed');
-          }
-        });
-      });
-
-      // 닫기 버튼 이벤트 등록
-      container.querySelectorAll('.btn-close').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          var contentLi = this.closest('.content-li');
-          var simpleContent = contentLi.querySelector('.simple-content');
-          var icon = contentLi.querySelector('i[data-toggle-icon]');
-
-          simpleContent.setAttribute('data-collapsed', 'true');
-          contentLi.setAttribute('data-collapsed', 'true');
-          if (icon) {
-            icon.setAttribute('data-state', 'collapsed');
-          }
-        });
-      });
     }
 
     // DOM이 준비되면 렌더링
@@ -1677,6 +1579,7 @@
                     content += "        <div class='chat-file' data-url='" + escapedUrl + "' data-filename='" + escapedFilename + "'>";
                     content += "            <span class='chat-file-icon'></span>";
                     content += "            <span class='chat-file-name'>" + fileName + "</span>";
+                    content += "            <button type='button' class='chat-file-open-btn' data-url='" + escapedUrl + "' data-filename='" + escapedFilename + "'>열기</button>";
                     content += "        </div>";
                 }
 
@@ -2785,24 +2688,78 @@
     });
 
     $(document).on("click", "#btnSaveThisImg", function() {
+        var $btn = $(this);
+
+        // 이미 다운로드 진행 중이면 무시
+        if ($btn.attr('data-downloading') === 'true') {
+            console.log("[SAVE_THIS_IMG] 다운로드 진행 중, 무시됨");
+            return;
+        }
+
+        $btn.attr('data-downloading', 'true');
         var url = lightboxImages[lightboxIndex];
+        console.log("[SAVE_THIS_IMG] 사진 다운로드 시작:", { url: url });
         triggerNativeDownload(url, url.split("/").pop());
         closePanel(document.getElementById("chatImgSaveSheet"));
+
+        // 2.5초 후 재클릭 가능하도록 해제
+        setTimeout(function() {
+            $btn.attr('data-downloading', 'false');
+        }, 2500);
     });
 
     $(document).on("click", "#btnSaveAllImg", function() {
+        var $btn = $(this);
+
+        // 이미 다운로드 진행 중이면 무시
+        if ($btn.attr('data-downloading') === 'true') {
+            console.log("[SAVE_ALL_IMG] 다운로드 진행 중, 무시됨");
+            return;
+        }
+
+        $btn.attr('data-downloading', 'true');
+        console.log("[SAVE_ALL_IMG] 모든 사진 다운로드 시작:", { count: lightboxImages.length });
+
         for (var i = 0; i < lightboxImages.length; i++) {
             triggerNativeDownload(lightboxImages[i], lightboxImages[i].split("/").pop());
         }
         closePanel(document.getElementById("chatImgSaveSheet"));
+
+        // 2.5초 후 재클릭 가능하도록 해제
+        setTimeout(function() {
+            $btn.attr('data-downloading', 'false');
+        }, 2500);
     });
 
-    // 파일 다운로드 (기존 그대로 유지)
+    // 파일 다운로드 (중복 클릭 방지)
     $(document).on("click", ".chat-file", function() {
-        var url = $(this).data("url");
-        var fileName = $(this).data("filename");
+        var $this = $(this);
+
+        // 이미 다운로드 진행 중이면 무시
+        if ($this.attr('data-downloading') === 'true') {
+            console.log("[CHAT_FILE_CLICK] 다운로드 진행 중, 무시됨");
+            return;
+        }
+
+        $this.attr('data-downloading', 'true');
+        var url = $this.data("url");
+        var fileName = $this.data("filename");
         console.log("[CHAT_FILE_CLICK] 파일 탭됨:", { url: url, fileName: fileName });
         triggerNativeDownload(url, fileName);
+
+        // 2.5초 후 재클릭 가능하도록 해제
+        setTimeout(function() {
+            $this.attr('data-downloading', 'false');
+        }, 2500);
+    });
+
+    // 파일 열기 (열기 버튼 클릭)
+    $(document).on("click", ".chat-file-open-btn", function(e) {
+        e.stopPropagation();
+        var url = $(this).data("url");
+        var fileName = $(this).data("filename");
+        console.log("[CHAT_FILE_OPEN_CLICK] 파일 열기 탭됨:", { url: url, fileName: fileName });
+        triggerNativeOpen(url, fileName);
     });
 
     // 바텀시트 Swipe 기능 초기화 (main.js에서 정의된 전역 함수 사용)
@@ -4260,6 +4217,7 @@
     .chat-bubble-file .chat-file {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 0.5rem;
         max-width: 14rem;
         cursor: pointer;
@@ -4280,6 +4238,32 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        flex: 1;
+    }
+
+    .chat-file-open-btn {
+        flex-shrink: 0;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+        border: 1px solid rgba(255,255,255,0.4);
+        border-radius: 3px;
+        background: rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.9);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .chat-file-open-btn:active {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.6);
+    }
+    .chat-bubble-file.diff .chat-file-open-btn {
+        border-color: #ccc;
+        background: #f5f5f5;
+        color: #333;
+    }
+    .chat-bubble-file.diff .chat-file-open-btn:active {
+        background: #eee;
+        border-color: #999;
     }
 
     /* 사진 저장 방식 선택 바텀시트 스타일 */
@@ -4395,12 +4379,12 @@
     }
 
     .chat-view-header {
-        height: 120px;
+     
         border-bottom: none;
     }
     .chat-view-header .result-list-card{
-          
-    padding: 10px 10px;
+          padding: 0;
+    
     }
     .chat-view-header .result-list-card .list-item {
         height:  100%;
@@ -4413,14 +4397,19 @@
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
     .chat-view-header .result-list-card .list-item .content-li {
-        height: 100%;
+         height: auto;
+         border-radius: unset;
+         background: #ccc;
     }
     .chat-view-header .result-list-card .content-info .content-body{
-        height: 100%;
+        padding: 0;
+        min-height: unset;
+        height: unset;
     }
     .result-list-card .content-info .desc{
         height: 105%;
     padding-right:0;
+    width: 100%;
     }
       .result-list-card .content-info .desc .ellipsis,
    .result-list-card .data-label{

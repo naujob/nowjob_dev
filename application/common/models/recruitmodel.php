@@ -1207,8 +1207,14 @@ class recruitModel extends MY_Model
 	// 수동 재등록과 동일하게 새로운 row를 INSERT하며, 주소 정보도 복사
 	function autoReregisterPaidRecruit($mm_idx = null)
 	{
-		// st_promotion에 연결된 공고들 조회
-		$sql = "SELECT DISTINCT rc_idx FROM st_promotion";
+		// st_promotion에 연결된 공고들 조회 (현재 활성 유료상품만)
+		$sql = "
+			SELECT DISTINCT p.rc_idx
+			FROM st_promotion p
+			WHERE p.pm_status = 'Y'
+			  AND p.pm_sdate <= NOW()
+			  AND p.pm_edate >= NOW()
+		";
 		$query = $this->db->query($sql);
 		$result = $query->result_array();
 
