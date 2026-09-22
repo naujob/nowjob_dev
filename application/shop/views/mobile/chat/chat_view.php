@@ -1700,7 +1700,7 @@
                 content += "</p>";
             } else if (info.mg_type == "propose") {
                 // 시스템 메시지: 채팅방 내 제안하기/지원하기 완료 안내
-                var content = "<p class='msg-item chat-notify' data-info='" + item + "'>";
+                var content = "<p class='msg-item chat-notify' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "'>";
                 content += info.mg_text;
                 content += "</p>";
             } else if (info.mg_type == "면접일정확인") {

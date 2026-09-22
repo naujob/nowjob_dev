@@ -458,6 +458,24 @@ class Chat extends CI_Controller
       $data["my_resume_list"] = $this->member_model->getResumeList(["mm_idx" => $this->mm_idx]);
     }
 
+    // 다이렉트 채팅방 여부 판정
+    // 이 방에서 정상(제안/지원) 요청이 한 번이라도 발생했다면, _DIRECT 이력이 남아있어도
+    // 더 이상 다이렉트 채팅방이 아닌 일반 제안/지원 채팅방으로 취급한다.
+    $normal_request_check = $this->db->query(
+      "SELECT mq_idx FROM st_member_request WHERE rm_idx = ? AND mq_type IN ('RESUME', 'RECRUIT') LIMIT 1",
+      [$rm_idx]
+    )->row_array();
+
+    if ($normal_request_check) {
+      $data["is_direct_chat"] = false;
+    } else {
+      $direct_check = $this->db->query(
+        "SELECT mq_idx FROM st_member_request WHERE rm_idx = ? AND mq_type LIKE '%_DIRECT' LIMIT 1",
+        [$rm_idx]
+      )->row_array();
+      $data["is_direct_chat"] = $direct_check ? true : false;
+    }
+
     $this->layout->shop('/chat/chat_view', $data);
   }
 
