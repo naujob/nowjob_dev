@@ -107,11 +107,11 @@ $top_bar = array(
                     </div>
                 </div>
 
-                <!-- 받은다이렉트채팅 섹션 -->
+                <!-- 보낸다이렉트채팅 섹션 -->
                 <div class="direct-chat-list-section" style="display: none;">
-                  <h3 class="section-title">받은채팅</h3>
+                  <h3 class="section-title">보낸채팅</h3>
                   <div class="chat-list">
-                    <ol class="list result-list-card" id="direct_chat_list_received_comp">
+                    <ol class="list result-list-card" id="direct_chat_list_sent_comp">
 
                     </ol>
                   </div>
@@ -608,8 +608,8 @@ $top_bar = array(
             isLoadingChatList = false; // 로딩 완료
 
             // 기본 목록 로드 완료 후 다이렉트 채팅 로드 (순서 보장)
-            if (typeof fSearchDirectChatListReceivedComp === 'function') {
-              fSearchDirectChatListReceivedComp();
+            if (typeof fSearchDirectChatListSentComp === 'function') {
+              fSearchDirectChatListSentComp();
             }
           }).fail(function() {
             commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
@@ -626,20 +626,25 @@ $top_bar = array(
 
     }
 
-    // 받은다이렉트채팅 목록 로드 (기업회원이 받은 것)
-    function fSearchDirectChatListReceivedComp() {
+    // 보낸다이렉트채팅 목록 로드 (기업회원이 보낸 것)
+    function fSearchDirectChatListSentComp() {
         $.ajax({
             type: "POST",
-            url: "/chat_proc/get_direct_chat_list_received_comp",
+            url: "/chat_proc/get_direct_chat_list_sent_comp",
             data: {},
             dataType: "json",
             success: function(ret) {
+                // [로그] 백엔드 응답 확인
+
                 if (ret.code == "00") {
                     var directChatList = ret.data.list || [];
-                    var $directList = $("#direct_chat_list_received_comp");
+                    var $directList = $("#direct_chat_list_sent_comp");
+
+                    // [로그] 데이터 처리 시작
+
 
                     $directList.empty();
-                    window.__chatDirectRmIdxSetReceivedComp = new Set();
+                    window.__chatDirectRmIdxSetSentComp = new Set();
 
                     directChatList.forEach(function(row) {
                         var $clone = $("#tpl_chat_by_recruite").clone();
@@ -647,10 +652,16 @@ $top_bar = array(
 
                         $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
                         $content = $content.replaceAll("{{rm_idx}}", row.rm_idx || "");
+                        $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
+                        $content = $content.replaceAll("{{rc_idx}}", row.rc_idx || "");
                         $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
-                        $content = $content.replaceAll("{{ru_name}}", row.target_name || "");
-                        $content = $content.replaceAll("{{target_name}}", row.target_name || "");
                         $content = $content.replaceAll("{{target_id}}", row.target_id || "");
+                        $content = $content.replaceAll("{{user_id}}", row.target_id || "");
+                        $content = $content.replaceAll("{{target_name}}", row.target_name || "");
+                        $content = $content.replaceAll("{{user_name}}", row.target_name || "");
+                        $content = $content.replaceAll("{{ru_name}}", row.target_name || "");
+                        $content = $content.replaceAll("{{target_img}}", row.target_img || "");
+                        $content = $content.replaceAll("{{user_img}}", row.target_img || "");
                         $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
 
                         // 프로필 이미지 처리 (성별 기반 기본 아바타)
@@ -661,25 +672,25 @@ $top_bar = array(
                         var mmSex = (row.mm_sex || "").trim();
                         var defaultAvatar = noImagePath;
                         if (mmSex === "남") {
-                          defaultAvatar = maleAvatarPath;
+                            defaultAvatar = maleAvatarPath;
                         } else if (mmSex === "여") {
-                          defaultAvatar = femaleAvatarPath;
+                            defaultAvatar = femaleAvatarPath;
                         }
                         if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
-                          profileImg = defaultAvatar;
+                            profileImg = defaultAvatar;
                         }
-                        $content = $content.replaceAll("{{target_img}}", profileImg);
+                        $content = $content.replaceAll("{{profile_img}}", profileImg);
                         $content = $content.replaceAll("{{default_avatar}}", defaultAvatar);
 
+                        $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
+                        $content = $content.replaceAll("{{up_dt}}", row.reg_dt || "");
                         $content = $content.replaceAll("{{ru_work_type}}", "");
                         $content = $content.replaceAll("{{ru_recom_badge}}", "");
                         $content = $content.replaceAll("{{ru_work_img}}", "");
-                        $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
-                        $content = $content.replaceAll("{{up_dt}}", row.reg_dt || "");
 
                         $clone.html($content);
                         $directList.append("<div class='recruitbox_'>" + $clone.html() + "</div>");
-                        window.__chatDirectRmIdxSetReceivedComp.add(String(row.rm_idx));
+                        window.__chatDirectRmIdxSetSentComp.add(String(row.rm_idx));
                     });
 
                     if ($directList.find("li").length == 0) {
@@ -688,20 +699,26 @@ $top_bar = array(
                         $directList.closest('.direct-chat-list-section').show();
                     }
 
-                    $("#direct_chat_list_received_comp .last-chat-time").each(function() {
+                    $("#direct_chat_list_sent_comp .last-chat-time").each(function() {
                         $(this).text($(this).attr('data-time'));
                     });
 
                     // 모든 렌더링 완료 후 empty 상태 재평가
                     var chatListCount = $("#chat_list").find("li").length;
-                    var directChatCount = $("#direct_chat_list_received_comp").find("li").length;
+                    var directChatCount = $("#direct_chat_list_sent_comp").find("li").length;
 
                     if (chatListCount === 0 && directChatCount === 0) {
                         $("#chat_empty1").show();
                     } else {
                         $("#chat_empty1").hide();
                     }
+                } else {
+
                 }
+            },
+            error: function(xhr, status, error) {
+                // [로그] AJAX 에러
+
             }
         });
     }

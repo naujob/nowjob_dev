@@ -1160,7 +1160,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
                                 // 다이렉트 채팅 또는 제안에 따라 이동 경로 분기
                                 if (currentActionMode === 'direct_chat') {
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list3');
                                 } else {
                                     // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
                                     // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기

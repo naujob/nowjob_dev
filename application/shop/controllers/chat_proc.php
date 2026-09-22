@@ -66,7 +66,7 @@ class Chat_proc extends CI_Controller
 		$result = $this->member_model->getRecruitActaiveList($mm_idx);
 
 		$temp_list = $result; //["list"];
-
+        $exited_keys = [];
 		// 채팅 미리보기 바이트 수 (변경 가능)
 		$preview_byte_length = 20;
 
@@ -339,7 +339,7 @@ class Chat_proc extends CI_Controller
 		$result = $this->member_model->getRecruitActaiveList2($mm_idx);
 
 		$temp_list = $result; //["list"];
-
+         $exited_keys = [];
 		// 채팅 미리보기 바이트 수 (변경 가능)
 		$preview_byte_length = 20;
 
@@ -593,6 +593,7 @@ class Chat_proc extends CI_Controller
 		$result = $this->member_model->getRecruitActaiveListMem($mm_idx);
 
 		$temp_list = $result;
+
 		$preview_byte_length = 20;
 
 		// MongoDB 연결하여 마지막 메시지 조회
@@ -3055,13 +3056,15 @@ json_return("00", "조회완료", $data);
 	function get_direct_chat_list_sent_mem()
 	{
 		$mm_idx = $this->user->getUserIdx();
+		$user_id = $this->user->getUserId();
+		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListSentMem($mm_idx);
      //   error_log('[Chat] get_direct_chat_list_sent_mem - mm_idx: ' . $mm_idx . ', result: ' . json_encode($result));
 		
 	 
 	 $preview_byte_length = 20;
 		$temp_list = $result;
-
+       $exited_keys = [];
 		// MongoDB 연결하여 마지막 메시지 조회
 		$uri = $this->mongo_uri;
 		try {
@@ -3069,14 +3072,32 @@ json_return("00", "조회완료", $data);
 			$database = $mongo->{$this->mongo_db};
 			$collection = $database->room;
 
-			foreach ($temp_list as $key => $row) {
+				foreach ($temp_list as $key => $row) {
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 
 				if ($rm_idx > 0) {
 					$query = ['rm_idx' => $rm_idx];
 					$room = $collection->findOne($query);
 
-					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+					if ($room) {                                       // ← 변경 (3082줄)
+					// 채팅방에서 나간 사용자 확인
+					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+					$user_exited = false;
+					foreach ($rm_users as $room_user) {
+						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
+							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+								$user_exited = true;
+							}
+							break;
+						}
+					}
+            
+					if ($user_exited) {
+						$exited_keys[] = $key;
+						continue;
+					}
+                if (isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 						$last_message = end($room["rm_messages"]);
 						if (isset($last_message["mg_type"])) {
 							if ($last_message["mg_type"] === "img") {
@@ -3100,8 +3121,9 @@ json_return("00", "조회완료", $data);
 							}
 						}
 					}
-				}
 
+					}			
+				}
 				if (empty($temp_list[$key]["last_msg_preview"])) {
 					$temp_list[$key]["last_msg_preview"] = "";
 				}
@@ -3113,6 +3135,10 @@ json_return("00", "조회완료", $data);
 			// MongoDB 실패 시 기본값
 		}
 
+		// 나간 방 제외
+		foreach ($exited_keys as $key) {
+			unset($temp_list[$key]);
+		}
 		$temp_list = array_values($temp_list);
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
@@ -3121,10 +3147,13 @@ json_return("00", "조회완료", $data);
 	function get_direct_chat_list_received_mem()
 	{
 		$mm_idx = $this->user->getUserIdx();
+		$user_id = $this->user->getUserId();
+		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListReceivedMem($mm_idx);
 
 		$preview_byte_length = 20;
 		$temp_list = $result;
+		$exited_keys = [];
 
 		// MongoDB 연결하여 마지막 메시지 조회
 		$uri = $this->mongo_uri;
@@ -3140,7 +3169,25 @@ json_return("00", "조회완료", $data);
 					$query = ['rm_idx' => $rm_idx];
 					$room = $collection->findOne($query);
 
-					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+					if ($room) {                                       // ← 변경 (3082줄)
+					// 채팅방에서 나간 사용자 확인
+					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+					$user_exited = false;
+					foreach ($rm_users as $room_user) {
+						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
+							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+								$user_exited = true;
+							}
+							break;
+						}
+					}
+            
+					if ($user_exited) {
+						$exited_keys[] = $key;
+						continue;
+					}
+                if (isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 						$last_message = end($room["rm_messages"]);
 						if (isset($last_message["mg_type"])) {
 							if ($last_message["mg_type"] === "img") {
@@ -3164,6 +3211,8 @@ json_return("00", "조회완료", $data);
 							}
 						}
 					}
+
+					}			
 				}
 
 				if (empty($temp_list[$key]["last_msg_preview"])) {
@@ -3176,7 +3225,10 @@ json_return("00", "조회완료", $data);
 		} catch (Exception $e) {
 			// MongoDB 실패 시 기본값
 		}
-
+       // 나간 방 제외
+		foreach ($exited_keys as $key) {
+			unset($temp_list[$key]);
+		}
 		$temp_list = array_values($temp_list);
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
@@ -3185,16 +3237,14 @@ json_return("00", "조회완료", $data);
 	function get_direct_chat_list_sent_comp()
 	{
 		$mm_idx = $this->user->getUserIdx();
+		$user_id = $this->user->getUserId();
+		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListSentComp($mm_idx);
 
-		// [로그] 쿼리 결과 확인
-		error_log("=== getDirectChatListSentComp QUERY RESULT ===");
-		error_log("MM_IDX: " . $mm_idx);
-		error_log("RESULT COUNT: " . count($result));
-		error_log("RESULT DATA: " . json_encode($result, JSON_UNESCAPED_UNICODE));
 
 		$preview_byte_length = 20;
 		$temp_list = $result;
+		$exited_keys = [];
 
 		// MongoDB 연결하여 마지막 메시지 조회
 		$uri = $this->mongo_uri;
@@ -3203,14 +3253,32 @@ json_return("00", "조회완료", $data);
 			$database = $mongo->{$this->mongo_db};
 			$collection = $database->room;
 
-			foreach ($temp_list as $key => $row) {
+				foreach ($temp_list as $key => $row) {
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 
 				if ($rm_idx > 0) {
 					$query = ['rm_idx' => $rm_idx];
 					$room = $collection->findOne($query);
 
-					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+					if ($room) {                                       // ← 변경 (3082줄)
+					// 채팅방에서 나간 사용자 확인
+					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+					$user_exited = false;
+					foreach ($rm_users as $room_user) {
+						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
+							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+								$user_exited = true;
+							}
+							break;
+						}
+					}
+            
+					if ($user_exited) {
+						$exited_keys[] = $key;
+						continue;
+					}
+                if (isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 						$last_message = end($room["rm_messages"]);
 						if (isset($last_message["mg_type"])) {
 							if ($last_message["mg_type"] === "img") {
@@ -3234,6 +3302,8 @@ json_return("00", "조회완료", $data);
 							}
 						}
 					}
+
+					}			
 				}
 
 				if (empty($temp_list[$key]["last_msg_preview"])) {
@@ -3246,13 +3316,14 @@ json_return("00", "조회완료", $data);
 		} catch (Exception $e) {
 			// MongoDB 실패 시 기본값
 		}
-
+        // 나간 방 제외
+		foreach ($exited_keys as $key) {
+			unset($temp_list[$key]);
+		}
 		$temp_list = array_values($temp_list);
 
 		// [로그] 최종 응답 데이터 확인
-		error_log("=== getDirectChatListSentComp FINAL RESPONSE ===");
-		error_log("FINAL LIST COUNT: " . count($temp_list));
-		error_log("FINAL LIST DATA: " . json_encode($temp_list, JSON_UNESCAPED_UNICODE));
+		
 
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
@@ -3261,11 +3332,13 @@ json_return("00", "조회완료", $data);
 	function get_direct_chat_list_received_comp()
 	{
 		$mm_idx = $this->user->getUserIdx();
+		$user_id = $this->user->getUserId();
+		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListReceivedComp($mm_idx);
 
 		$preview_byte_length = 20;
 		$temp_list = $result;
-
+         $exited_keys = [];
 		// MongoDB 연결하여 마지막 메시지 조회
 		$uri = $this->mongo_uri;
 		try {
@@ -3273,14 +3346,32 @@ json_return("00", "조회완료", $data);
 			$database = $mongo->{$this->mongo_db};
 			$collection = $database->room;
 
-			foreach ($temp_list as $key => $row) {
+				foreach ($temp_list as $key => $row) {
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 
 				if ($rm_idx > 0) {
 					$query = ['rm_idx' => $rm_idx];
 					$room = $collection->findOne($query);
 
-					if ($room && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+					if ($room) {                                       // ← 변경 (3082줄)
+					// 채팅방에서 나간 사용자 확인
+					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+					$user_exited = false;
+					foreach ($rm_users as $room_user) {
+						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
+							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+								$user_exited = true;
+							}
+							break;
+						}
+					}
+            
+					if ($user_exited) {
+						$exited_keys[] = $key;
+						continue;
+					}
+                if (isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 						$last_message = end($room["rm_messages"]);
 						if (isset($last_message["mg_type"])) {
 							if ($last_message["mg_type"] === "img") {
@@ -3304,6 +3395,8 @@ json_return("00", "조회완료", $data);
 							}
 						}
 					}
+
+					}			
 				}
 
 				if (empty($temp_list[$key]["last_msg_preview"])) {
@@ -3316,7 +3409,10 @@ json_return("00", "조회완료", $data);
 		} catch (Exception $e) {
 			// MongoDB 실패 시 기본값
 		}
-
+        // 나간 방 제외
+		foreach ($exited_keys as $key) {
+			unset($temp_list[$key]);
+		}
 		$temp_list = array_values($temp_list);
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
