@@ -2207,19 +2207,50 @@
 
     // 안심콜 버튼 클릭 (헤더, 첨부메뉴 통합)
     $(document).on("click", ".js-attach-call", function() {
-        // 전화번호 가져오기 (call_target_phone 우선, 없으면 recruit_phone)
-        var phoneNumber = $("#call_target_phone").val() || $("input[name='recruit_phone']").val();
+        var $btn = $(this);
 
-        if (phoneNumber) {
-            // 안심콜 전화 연결
-            window.location.href = "tel:" + phoneNumber;
-        } else {
-            alert("현재 통화 가능한 상태가 아닙니다.");
-        }
+        // 중복 클릭 방지
+        if ($btn.attr('data-loading') === 'true') return;
+
+        var userType = $("input[name='user_type']").val();
 
         // 첨부메뉴 닫기
-        $("#btnAttachToggle").attr("data-state", "closed");
-        $("#attachMenu").attr("data-state", "closed");
+        var closeMenu = function() {
+            $("#btnAttachToggle").attr("data-state", "closed");
+            $("#attachMenu").attr("data-state", "closed");
+        };
+
+        if (userType === "COMP") {
+            // 기업회원 -> 구직자: 050 안심번호로 연결
+            var ruIdx = $("#room_ru_idx").val();
+            if (!ruIdx) {
+                commonAlert("현재 통화 가능한 상태가 아닙니다.", function() {});
+                closeMenu();
+                return;
+            }
+
+            $btn.attr('data-loading', 'true');
+            comAjax("/resume_proc/get_call_number", { ru_idx: ruIdx }, function(ret) {
+                $btn.attr('data-loading', 'false');
+                if (ret.code == "00" && ret.data && ret.data.vn) {
+                    window.location.href = "tel:" + ret.data.vn;
+                } else {
+                    commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
+                }
+            });
+        } else {
+            // 개인회원 -> 기업: 가상번호 미지원, 실번호로 연결 (현행 유지)
+            var phoneNumber = $("#call_target_phone").val() || $("input[name='recruit_phone']").val();
+
+            if (phoneNumber) {
+                // 실제 전화번호로 연결
+                window.location.href = "tel:" + phoneNumber;
+            } else {
+                alert("현재 통화 가능한 상태가 아닙니다.");
+            }
+        }
+
+        closeMenu();
     });
 
     // ===== 사진/파일 첨부 기능 =====
