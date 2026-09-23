@@ -3513,7 +3513,7 @@ class memberModel extends MY_Model
 
 		# 검색 지역 처리
 		$search_addr_step = isset($params["search_addr_step"]) ? $params["search_addr_step"] : [];
-		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step);
+		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step); // aa.s_addr 컬럼에 대해 검색 주소 조건 생성
 		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr, $search_addr_step);
 		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr, $search_addr_step);
 		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr, $search_addr_step);

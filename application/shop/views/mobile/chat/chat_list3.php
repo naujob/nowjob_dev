@@ -1296,7 +1296,7 @@ $top_bar = array(
         <div class="content-info">
           <div class="content-body">
             <div class="desc">
-              <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div>
+              <!-- <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div> -->
               <div class="title ellipsis">{{rc_name}}</div>
               <div class="summary">
                 <p>{{rc_nation_nm}}</p>
@@ -1338,7 +1338,7 @@ $top_bar = array(
 
             <div class="content-body" style="position: relative;">
                 <div class="chat-time-row">
-                    <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
+                    <!-- <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div> -->
                     <div class="last-chat-time" data-time="{{up_dt}}"></div>
                 </div>
                 <div class="img" style="border-radius: 60px;">

@@ -465,7 +465,7 @@ $top_bar = array(
     <a href="#" class="angle-link js-open-view" data-regdt="{{reg_dt}}">
       <div class="content-body">
         <div class="chat-time-row">
-          <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div>
+          <!-- <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div> -->
           <div class="last-chat-time" data-time="{{up_dt}}"></div>
         </div>
         <div class="img" style="border-radius: 60px;">

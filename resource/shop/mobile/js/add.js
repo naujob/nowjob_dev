@@ -132,19 +132,23 @@ function customBack() {
         const currentPath = window.location.pathname;
        // URL: https://example.com/chat/chat_view?from=applied
        // currentPath = /chat/chat_view
-        // chat_view 페이지는 자체 뒤로가기 로직 사용 (from 파라미터 기반)
+        // chat_view 페이지는 자체 뒤로가기 로직 사용 (backUrl 또는 from 파라미터)
         if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
-            const params = new URLSearchParams(window.location.search); // params = { from: 'applied' }
-            const from = params.get('from') || '';
+            const params = new URLSearchParams(window.location.search);
+            // backUrl 파라미터 우선 (chat_list*.php에서 전달한 명시적 URL)
+            let backUrl = params.get('backUrl') ? decodeURIComponent(params.get('backUrl')) : null;
 
-            const backMap = {
-                applied: '/chat/chat_list',
-                proposed_job: '/chat/chat_list2',
-                talent_received: '/chat/index_comp',
-                talent_sent: '/chat/chat_list3'
-            };
-
-            const backUrl = backMap[from] || '/chat/chat_list';
+            // backUrl이 없으면 from 파라미터로 대체 (하위 호환성)
+            if (!backUrl) {
+                const from = params.get('from') || '';
+                const backMap = {
+                    applied: '/chat/chat_list',
+                    proposed_job: '/chat/chat_list2',
+                    talent_received: '/chat/index_comp',
+                    talent_sent: '/chat/chat_list3'
+                };
+                backUrl = backMap[from] || '/chat/chat_list';
+            }
 
             const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || []; 
             if (historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
@@ -924,16 +928,16 @@ function triggerNativeDownload(url, fileName) {
     }
 
     var payload = JSON.stringify({ url: url, fileName: fileName ? fileName : "" });
-    console.log("[NATIVE_DOWNLOAD] 브릿지 호출:", payload);
+   
 
     if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.downloadFile) {
-        console.log("[NATIVE_DOWNLOAD] Android 브릿지 호출");
+    
         APP_NOWAPK.downloadFile(payload);
     } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.downloadFile) {
-        console.log("[NATIVE_DOWNLOAD] iOS 브릿지 호출");
+     
         window.webkit.messageHandlers.downloadFile.postMessage(payload);
     } else {
-        console.log("[NATIVE_DOWNLOAD] 브릿지 없음, 새 탭으로 열기");
+       
         window.open(url, "_blank");
     }
 }
@@ -945,16 +949,16 @@ function triggerNativeOpen(url, fileName) {
     }
 
     var payload = JSON.stringify({ url: url, fileName: fileName ? fileName : "" });
-    console.log("[NATIVE_OPEN] 브릿지 호출:", payload);
+   
 
     if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.openFile) {
-        console.log("[NATIVE_OPEN] Android openFile 브릿지 호출");
+       
         APP_NOWAPK.openFile(payload);
     } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.downloadFile) {
-        console.log("[NATIVE_OPEN] iOS downloadFile 브릿지 호출 (공유시트)");
+       
         window.webkit.messageHandlers.downloadFile.postMessage(payload);
     } else {
-        console.log("[NATIVE_OPEN] 브릿지 없음, 새 탭으로 열기");
+       
         window.open(url, "_blank");
     }
 }

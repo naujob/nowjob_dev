@@ -11440,6 +11440,8 @@ form#frm {
 .page-chat .angle-link {
     background: none;
     position: relative;
+    height: 80px;
+
 }
 
 /* .page-chat .angle-link::after {
@@ -12950,7 +12952,7 @@ h3.secondary-title .menu:focus {
     background: #ffffff;
     /* border: 1.5px solid #999;
     border-radius: 10px; */
-       margin-bottom: 10px;
+       
 }
 .resumebox_:last-child{
     margin-bottom: 20px;
@@ -14121,6 +14123,7 @@ h3.secondary-title .menu:focus {
         width: 100%;
         display: flex;
         flex-direction: column;
+        top: -17px;
       }
       [class*="recruitbox_"] .content-body .img,
       [class*="resumebox_"] .content-body .img {
@@ -14198,10 +14201,14 @@ h3.secondary-title .menu:focus {
 
       /* 채팅 목록 - 추천 뱃지와 시간을 가로로 배치 */
       .chat-time-row {
-        display: flex;
+     
         align-items: center;
         gap: 8px;
-            margin-bottom: 8px;
+        margin-bottom: 8px;
+        position: relative;
+        left: 361px;
+        top: 20px;
+        
       }
      .chat-time-row .wicon {
         flex: 1;
@@ -14298,6 +14305,7 @@ h3.secondary-title .menu:focus {
   
   margin-left: -1rem;
   margin-right: -1rem;
+  margin-top: 15px;
 }
 
 .direct-chat-list-section .section-title {
