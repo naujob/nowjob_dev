@@ -172,6 +172,13 @@ class Member extends CI_Controller
 		if (! empty($tokenData["data"]["access_token"])) {
 
 			$userInfoData = $kakao->getUserInfo($tokenData["data"]["access_token"]);
+
+			// 사용자 정보 조회 실패 검증
+			if (empty($userInfoData["data"]["id"])) {
+				$this->common->scriptReplace("/member/login", "카카오 사용자 정보를 가져오지 못했습니다.");
+				exit;
+			}
+
 			//print_r($userInfoData);
 			//echo "[".$userInfoData["data"]["kakao_account"]["name"]."] "; // 사용자이름
 			//echo "[".$userInfoData["data"]["kakao_account"]["email"]."] "; // 이메일
@@ -359,6 +366,13 @@ class Member extends CI_Controller
 
 
 		$user_info = $info_response ? json_decode($info_response, true) : null;
+
+		// 사용자 정보 조회 실패 검증
+		if (empty($user_info) || !isset($user_info["openid"])) {
+			$this->common->scriptReplace("/member/login", "위챗 사용자 정보를 가져오지 못했습니다.");
+			exit;
+		}
+
 		$sex_code  = ($user_info && isset($user_info["sex"]))     ? intval($user_info["sex"])    : 0;
 		$unionid   = ($user_info && isset($user_info["unionid"])) ? $user_info["unionid"]        : "";
 		$nickname  = ($user_info && isset($user_info["nickname"])) ? $user_info["nickname"]       : "";

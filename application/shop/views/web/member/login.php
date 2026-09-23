@@ -171,6 +171,21 @@
 
 
     $(document).ready(function() {
+        // 구글 로그인 실패 코드 감지 (msg_code 쿼리파라미터)
+        var msgCode = urlParams.get('msg_code');
+        if (msgCode) {
+            setTimeout(function() {
+                var errorMessages = {
+                    '91': '계정 조회에 실패했습니다.',
+                    '98': '구글 로그인 요청 횟수를 초과했습니다.',
+                    '99': '구글 로그인 처리 중 오류가 발생했습니다.'
+                };
+                var errorMsg = errorMessages[msgCode] || '구글 로그인에 실패했습니다.';
+                commonAlert(errorMsg, function() {});
+                window.history.replaceState({}, document.title, '/member/login');
+            }, 100);
+        }
+
         // 네이버 중복 계정 감지 (dup_join_type 쿼리파라미터)
         var dupJoinType = urlParams.get('dup_join_type');
         var dupMmPhone = urlParams.get('dup_mm_phone');
@@ -217,7 +232,21 @@
             }
         })
 
-        // 카카오 로그인 - OAuth 콜백 방식으로 통일 (직접 href로 이동)
+        // 카카오 로그인 - 설정 미비 시 안내
+        $("#btnKakao").click(function(e) {
+            <?php if (empty($kakao_rest_api_key)) : ?>
+                e.preventDefault();
+                alert("카카오 로그인이 설정되지 않았습니다.");
+            <?php endif; ?>
+        });
+
+        // 네이버 로그인 - 설정 미비 시 안내
+        $("#btnNaver").click(function(e) {
+            <?php if (empty($naver_login)) : ?>
+                e.preventDefault();
+                alert("네이버 로그인이 설정되지 않았습니다.");
+            <?php endif; ?>
+        });
 
         // 위챗 로그인 - 서버사이드 OAuth로 직접 이동 (href로 직접 이동하므로 클릭 이벤트는 필요 없지만, 설정되지 않은 경우만 처리)
         $("#btnWechat").click(function(e) {
