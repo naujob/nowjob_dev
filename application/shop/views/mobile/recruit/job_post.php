@@ -212,10 +212,25 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
 </style>
 <?php
+// 로그인 여부 판단
+$isLogin = $this->user->isLogin();
+$userType = $isLogin ? $this->user->getUserType() : null;
+
 // 기업회원이 자신의 채용공고를 볼 경우를 판단
-$isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+$isOwnRecruit = ($userType === "COMP" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
+
 // 미리보기 모드 판단
 $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
+
+// 관리 액션(재등록/수정/마감/삭제/광고) 차단 메시지 미리 결정
+$restrict_manage_msg = null; // null = 정상 동작(기업회원 본인공고)
+if (!$isLogin) {
+    $restrict_manage_msg = '__LOGIN_GUIDE__'; // showLoginGuideFromPopup() 사용
+} elseif ($userType === 'MEM') {
+    $restrict_manage_msg = '기업회원만 가능한 기능입니다.';
+} elseif ($userType === 'COMP' && !$isOwnRecruit) {
+    $restrict_manage_msg = '본인의 공고만 가능한 기능입니다.';
+}
 ?>
 <div class="post page page-view">
     <div class="top-bar">
@@ -735,66 +750,92 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <?php } ?>
 
         <!-- 플로팅 액션 버튼 그룹 -->
-        <?php
-        $userType = $this->user->getUserType();
-        ?>
         <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
 
-        <?php if ($userType === "MEM") : ?>
-                <!-- 개인회원: 제안하기 -->
-                <a href="#" id="btnRequest" class="floating-action-item btnRequest" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
-                    <span class="action-label">지원하기</span>
-                </a>
-                <!-- 개인회원: 채팅 -->
-                <a href="#" id="btnDirectChat" class="floating-action-item" data-action="chat" title="채팅" data-rc_idx="<?= $info["rc_idx"] ?>">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
-            <?php elseif ($userType === "COMP" && $isOwnRecruit) : ?>
-                <!-- 기업회원 & 내 공고: 재등록/수정/마감/삭제/광고 -->
-
-                <a href="#" class="floating-action-item" id="btnReregisterRecruit" data-action="reregister" title="재등록">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="재등록">
-                    <span class="action-label">재등록</span>
-                </a>
-                <a href="/compage/recruit_write1_1/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
-                    <span class="action-label">수정</span>
-                </a>
-                <a href="#" class="floating-action-item" id="btnEndRecruit" data-action="end" title="마감">
-                    <img src="/resource/shop/mobile/img/due.png" alt="마감">
-                    <span class="action-label">마감</span>
-                </a>
-                <a href="#" class="floating-action-item" id="btnDeleteRecruit" data-action="delete" title="삭제">
-                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
-                    <span class="action-label">삭제</span>
-                </a>
-                <a href="/compage/point_promotion_buy/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
-                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고</span>
-                </a>
-            <?php elseif ($userType !== "COMP") : ?>
-                <!-- 비회원: 로그인 (직접 로그인 페이지로) -->
+            <!-- 로그인 버튼 (비로그인 시에만 노출) -->
+            <?php if (!$isLogin) : ?>
                 <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
-                <!-- 비회원: 지원하기 (로그인 안내 팝업) -->
+            <?php endif; ?>
+
+            <!-- 지원하기 -->
+            <?php if (!$isLogin) : ?>
+                <!-- 비로그인: 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="propose" title="지원">
                     <img src="/resource/shop/mobile/img/propose.png" alt="지원">
                     <span class="action-label">지원하기</span>
                 </a>
-                <!-- 비회원: 채팅 (로그인 안내 팝업) -->
+            <?php elseif ($userType === 'MEM') : ?>
+                <!-- 개인회원: 정상 동작 -->
+                <a href="#" id="btnRequest" class="floating-action-item btnRequest" data-action="propose" title="제안">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
+                    <span class="action-label">지원하기</span>
+                </a>
+            <?php else : ?>
+                <!-- 기업회원: 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('개인회원만 가능한 기능입니다.', function(){}); return false;" data-action="propose" title="지원">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
+                    <span class="action-label">지원하기</span>
+                </a>
+            <?php endif; ?>
+
+            <!-- 채팅하기 -->
+            <?php if (!$isLogin) : ?>
+                <!-- 비로그인: 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="chat" title="채팅">
                     <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
                     <span class="action-label">채팅하기</span>
                 </a>
-
+            <?php elseif ($userType === 'MEM') : ?>
+                <!-- 개인회원: 정상 동작 -->
+                <a href="#" id="btnDirectChat" class="floating-action-item" data-action="chat" title="채팅" data-rc_idx="<?= $info["rc_idx"] ?>">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
+                </a>
+            <?php else : ?>
+                <!-- 기업회원: 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('개인회원만 가능한 기능입니다.', function(){}); return false;" data-action="chat" title="채팅">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
+                </a>
             <?php endif; ?>
 
-            <!-- 모두에게 노출: 전화하기 -->
+            <!-- 재등록/수정/마감/삭제/광고 -->
+            <?php
+            $manage_actions = [
+                ['id' => 'btnReregisterRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/propose.png', 'label' => '재등록'],
+                ['id' => '', 'href' => '/compage/recruit_write1_1/' . $info["rc_idx"], 'img' => '/resource/shop/mobile/img/modify.png', 'label' => '수정'],
+                ['id' => 'btnEndRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/due.png', 'label' => '마감'],
+                ['id' => 'btnDeleteRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/del.png', 'label' => '삭제'],
+                ['id' => '', 'href' => '/compage/point_promotion_buy/' . $info["rc_idx"], 'img' => '/resource/shop/mobile/img/ad-post.png', 'label' => '광고']
+            ];
+            foreach ($manage_actions as $action) :
+            ?>
+                <?php if ($restrict_manage_msg === null) : ?>
+                    <!-- 정상 동작: 기업회원 본인공고 -->
+                    <a href="<?= $action['href'] ?>" class="floating-action-item" <?php echo !empty($action['id']) ? 'id="' . $action['id'] . '"' : ''; ?> data-action="<?= strtolower($action['label']) ?>">
+                        <img src="<?= $action['img'] ?>" alt="<?= $action['label'] ?>">
+                        <span class="action-label"><?= $action['label'] ?></span>
+                    </a>
+                <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
+                    <!-- 로그인 안내 -->
+                    <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="<?= strtolower($action['label']) ?>">
+                        <img src="<?= $action['img'] ?>" alt="<?= $action['label'] ?>">
+                        <span class="action-label"><?= $action['label'] ?></span>
+                    </a>
+                <?php else : ?>
+                    <!-- 차단 -->
+                    <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="<?= strtolower($action['label']) ?>">
+                        <img src="<?= $action['img'] ?>" alt="<?= $action['label'] ?>">
+                        <span class="action-label"><?= $action['label'] ?></span>
+                    </a>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <!-- 전화하기 (모두에게 노출, 로그인 게이트 없음) -->
             <a id="callLog" href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
                 <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
                 <span class="action-label">전화하기</span>
@@ -803,7 +844,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <?php endif; ?>
 
         <!-- 기업회원 본인 공고 바텀시트 3개 -->
-        <?php if ($userType === "COMP" && $isOwnRecruit) : ?>
+        <?php if (!$isPreview && $restrict_manage_msg === null) : ?>
             <?php renderSelectBottomSheet(
                 'reregisterSheet',
                 '채용공고 재등록',

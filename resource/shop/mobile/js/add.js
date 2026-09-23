@@ -113,6 +113,21 @@ function callVibrate(time) {
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
     try {
+        // 팝업 내 패널 먼저 확인 (길찾기 등)
+        var popup = document.getElementById('jobPostPopup');
+        if (popup && popup.getAttribute('data-state') === 'open') {
+            var openPanels = popup.querySelectorAll('.layer-panel.on');
+            if (openPanels.length > 0) {
+                // 패널만 닫기 (팝업은 유지)
+                openPanels.forEach(function(panel) {
+                    if (typeof closePanel === 'function') {
+                        closePanel(panel);
+                    }
+                });
+                return;
+            }
+        }
+
         // 팝업이 열려있으면 먼저 닫기
         if (window.isJobPostPopupOpen && window.isJobPostPopupOpen()) {
             window.closeJobPostPopup();
@@ -838,6 +853,21 @@ window.isAnyPopupOpen = function() {
  */
 function handleAndroidBack() {
     try {
+        // 팝업 내 패널 먼저 확인 (길찾기 등)
+        var popup = document.getElementById('jobPostPopup');
+        if (popup && popup.getAttribute('data-state') === 'open') {
+            var openPanels = popup.querySelectorAll('.layer-panel.on');
+            if (openPanels.length > 0) {
+                // 패널만 닫기 (팝업은 유지)
+                openPanels.forEach(function(panel) {
+                    if (typeof closePanel === 'function') {
+                        closePanel(panel);
+                    }
+                });
+                return;
+            }
+        }
+
         if (window.isJobPostPopupOpen && window.isJobPostPopupOpen()) {
             window.closeJobPostPopup();
             return;

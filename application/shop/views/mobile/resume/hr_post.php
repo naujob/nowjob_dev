@@ -66,6 +66,31 @@ function fRemoveBigAdr($arg)
 }
 */
 $isPopup = isset($is_popup) ? $is_popup : false;
+
+// 상태 계산 블록 (블러 처리를 위해 파일 최상단에서 먼저 정의해야 함)
+$isLogin = $this->user->isLogin();
+$userType = $isLogin ? $this->user->getUserType() : null;
+$isOwnResume = ($userType === "MEM" && isset($info["mm_idx"]) && (int)$info["mm_idx"] === (int)$this->user->getUserIdx());
+$isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
+
+// 관리 아이콘(수정/삭제/광고) 차단 메시지
+$restrict_manage_msg = null; // null = 정상 동작(개인회원 자신의 이력서)
+if (!$isLogin) {
+    $restrict_manage_msg = '__LOGIN_GUIDE__';
+} elseif ($userType === 'COMP') {
+    $restrict_manage_msg = '개인회원만 가능한 기능입니다.';
+} elseif ($userType === 'MEM' && !$isOwnResume) {
+    // 개인회원이지만 자신의 이력서가 아닌 경우
+    $restrict_manage_msg = '본인의 이력서만 가능한 기능입니다.';
+}
+
+// 액션 아이콘(제안/채팅/전화) 차단 메시지
+$restrict_action_msg = null; // null = 정상 동작(기업회원)
+if (!$isLogin) {
+    $restrict_action_msg = '__LOGIN_GUIDE__';
+} elseif ($userType === 'MEM') {
+    $restrict_action_msg = '기업회원만 가능한 기능입니다.';
+}
 ?>
 <style>
     .info-table .working-day>li {
@@ -281,7 +306,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 
     <div class="page-content">
         <div class="section view-header">
-            <div class="profile">
+            <div class="profile" <?php echo !$isOwnResume ? 'style="filter: blur(10px);"' : ''; ?>>
                 <div class="container">
                     <div class="thumb-wrap">
                         <div class="thumb">
@@ -583,9 +608,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         </div -->
 
         <?php
-        // 개인회원이 자신의 이력서를 볼 경우를 판단
-        $isOwnResume = ($this->user->getUserType() === "MEM" && isset($info["mm_idx"]) && $info["mm_idx"] == $this->user->getUserIdx());
-        $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
+        // 상태 변수는 파일 최상단(68줄 이후)에서 이미 정의됨
         ?>
         <!-- view-footer 플로팅 액션 버튼 그룹으로 대체됨 (라인 497~524) -->
         <!-- <div class="view-footer" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
@@ -611,30 +634,152 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open">
 
+            <!-- 로그인 버튼 (비로그인 시에만 노출) -->
+            <?php if (!$isLogin) : ?>
+                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
+                    <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
+                    <span class="action-label">로그인</span>
+                </a>
+            <?php endif; ?>
+
+            <!-- 수정 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 개인회원이 자신의 이력서를 볼 때: 수정/삭제/광고 -->
+                <!-- 정상 동작: 개인회원 자신의 이력서 -->
                 <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
                     <img src="/resource/shop/mobile/img/modify.png" alt="수정">
                     <span class="action-label">수정</span>
                 </a>
+            <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
+                <!-- 로그인 안내 -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="edit" title="수정">
+                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
+                    <span class="action-label">수정</span>
+                </a>
+            <?php else : ?>
+                <!-- 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="edit" title="수정">
+                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
+                    <span class="action-label">수정</span>
+                </a>
+            <?php endif; ?>
+
+            <!-- 삭제 -->
+            <?php if ($isOwnResume) : ?>
+                <!-- 정상 동작 -->
                 <a href="#" class="floating-action-item" id="btnDeleteResume" data-action="delete" title="삭제">
                     <img src="/resource/shop/mobile/img/del.png" alt="삭제">
                     <span class="action-label">삭제</span>
                 </a>
+            <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
+                <!-- 로그인 안내 -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="delete" title="삭제">
+                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
+                    <span class="action-label">삭제</span>
+                </a>
+            <?php else : ?>
+                <!-- 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="delete" title="삭제">
+                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
+                    <span class="action-label">삭제</span>
+                </a>
+            <?php endif; ?>
+
+            <!-- 광고 -->
+            <?php if ($isOwnResume) : ?>
+                <!-- 정상 동작 -->
                 <a href="/mypage/point_promotion_buy/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
                     <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
                     <span class="action-label">광고</span>
                 </a>
+            <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
+                <!-- 로그인 안내 -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="promote" title="광고신청">
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
+                    <span class="action-label">광고</span>
+                </a>
             <?php else : ?>
-                <!-- 기업회원이 볼 때: 제안보내기 + 채팅하기 + 전화하기 -->
+                <!-- 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="promote" title="광고신청">
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
+                    <span class="action-label">광고</span>
+                </a>
+            <?php endif; ?>
+
+            <!-- 제안하기 -->
+            <?php if ($isOwnResume) : ?>
+                <!-- 자신의 이력서: 기업회원만 가능 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="propose" title="제안">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
+                    <span class="action-label">제안하기</span>
+                </a>
+            <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
+                <!-- 로그인 안내 -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="propose" title="제안">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
+                    <span class="action-label">제안하기</span>
+                </a>
+            <?php elseif ($restrict_action_msg !== null) : ?>
+                <!-- 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_action_msg ?>', function(){}); return false;" data-action="propose" title="제안">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
+                    <span class="action-label">제안하기</span>
+                </a>
+            <?php else : ?>
+                <!-- 정상 동작: 기업회원 -->
                 <a href="#" id="btnPropose" class="floating-action-item btnRequest" data-action="propose" title="제안">
                     <img src="/resource/shop/mobile/img/propose.png" alt="제안">
                     <span class="action-label">제안하기</span>
                 </a>
+            <?php endif; ?>
+
+            <!-- 채팅하기 -->
+            <?php if ($isOwnResume) : ?>
+                <!-- 자신의 이력서: 기업회원만 가능 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="chat" title="채팅">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
+                </a>
+            <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
+                <!-- 로그인 안내 -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="chat" title="채팅">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
+                </a>
+            <?php elseif ($restrict_action_msg !== null) : ?>
+                <!-- 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_action_msg ?>', function(){}); return false;" data-action="chat" title="채팅">
+                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
+                    <span class="action-label">채팅하기</span>
+                </a>
+            <?php else : ?>
+                <!-- 정상 동작: 기업회원 -->
                 <a href="#" id="btnDirectChat" class="floating-action-item" data-action="chat" title="채팅">
                     <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
                     <span class="action-label">채팅하기</span>
                 </a>
+            <?php endif; ?>
+
+            <!-- 전화하기 -->
+            <?php if ($isOwnResume) : ?>
+                <!-- 자신의 이력서: 기업회원만 가능 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="call" title="전화">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
+                    <span class="action-label">전화하기</span>
+                </a>
+            <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
+                <!-- 로그인 안내 -->
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="call" title="전화">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
+                    <span class="action-label">전화하기</span>
+                </a>
+            <?php elseif ($restrict_action_msg !== null) : ?>
+                <!-- 차단 -->
+                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_action_msg ?>', function(){}); return false;" data-action="call" title="전화">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
+                    <span class="action-label">전화하기</span>
+                </a>
+            <?php else : ?>
+                <!-- 정상 동작: 기업회원 (050 가상번호로 통화) -->
                 <a href="#" id="btnGoChat" class="floating-action-item btnGoChat" data-action="call" title="전화" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
                     <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
                     <span class="action-label">전화하기</span>
@@ -666,7 +811,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         </div>
 
         <!-- 개인회원 본인 이력서 삭제 바텀시트 -->
-        <?php if ($isOwnResume) : ?>
+        <?php if (!$isPreview && $isOwnResume) : ?>
             <?php renderSelectBottomSheet(
                 'deleteResumeSheet',
                 '이력서 삭제',

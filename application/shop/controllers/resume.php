@@ -332,25 +332,7 @@ class Resume extends CI_Controller
       redirect('https://nowjob.co.kr/resume/hr_list');
     }
 
-    // 개인회원인 경우 자신의 이력서인지 확인
-    if ($this->mm_type !== "COMP" && !($ru_idx == 0 && $isPreview)) {
-      // 이력서 소유자 확인
-      $resume_info = $this->member_model->getResume(["ru_idx" => $ru_idx]);
-      if ($resume_info && isset($resume_info["mm_idx"])) {
-        // 자신의 이력서인 경우 접근 허용
-        if ($resume_info["mm_idx"] == $this->mm_idx) {
-          // 자신의 이력서이므로 계속 진행
-        } else {
-          // 자신의 이력서가 아닌 경우 리다이렉트
-         
-          go_location("https://nowjob.co.kr/mypage/resume_list", "기업회원 전용 서비스입니다.");
-        }
-      } else {
-        // 이력서 정보를 찾을 수 없는 경우
-        
-        go_location("https://nowjob.co.kr/mypage/resume_list", "기업회원 전용 서비스입니다.");
-      }
-    }
+    // 모든 사용자가 이력서 상세 접근 가능 (hr_post.php에서 프로필 블러로 제어)
 
     $data = [];
 

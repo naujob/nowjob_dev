@@ -1153,25 +1153,11 @@ $tpl_show_chat_mark = true; ?>
     }).join('');
   }
 
-  // 이력서 상세 페이지 접근 권한 확인 및 이동
+  // 이력서 상세 페이지 접근 — 모든 사용자 클릭 가능 (hr_post에서 블러 처리)
   function handleResumeCardClick(ruIdx, resumeMmIdx) {
-    // 개인회원이고 자신의 이력서인 경우 클릭 가능
-    if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
-      if (ruIdx) {
-        window.openHrPostPopup(ruIdx);
-      }
-      return;
+    if (ruIdx) {
+      window.openHrPostPopup(ruIdx);
     }
-
-    // 기업회원인 경우 클릭 가능
-    <?php if ($mm_type === "COMP") { ?>
-      if (ruIdx) {
-        window.openHrPostPopup(ruIdx);
-      }
-    <?php } else { ?>
-      // 개인회원이지만 자신의 이력서가 아닌 경우
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-    <?php } ?>
   }
 
   $(document).on('click', '.content-li', function(e) {

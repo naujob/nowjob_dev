@@ -1588,6 +1588,29 @@ $tpl_recomm_class = true; ?>
 
   // 브라우저 뒤로가기/앞으로가기 감지
   window.addEventListener('popstate', function(e) {
+    // 팝업이 열려있는지 확인
+    var popup = document.getElementById('jobPostPopup');
+    if (popup && popup.getAttribute('data-state') === 'open') {
+      // 팝업 내 열린 패널 확인 (길찾기 등)
+      var openPanels = popup.querySelectorAll('.layer-panel.on');
+
+      if (openPanels.length > 0) {
+        // 패널이 있으면 패널만 닫기 (팝업은 유지)
+        openPanels.forEach(function(panel) {
+          if (typeof closePanel === 'function') {
+            closePanel(panel);
+          }
+        });
+        // 뒤로가기는 여기서 처리하고 리스트 로드하지 않음
+        return;
+      }
+
+      // 패널이 없으면 팝업 닫기
+      if (typeof window.closeJobPostPopup === 'function') {
+        window.closeJobPostPopup(null);
+      }
+    }
+
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
     $(list_id).empty();
     getBoardList("");
@@ -2105,6 +2128,17 @@ $tpl_recomm_class = true; ?>
   window.closeJobPostPopup = function(e) {
     if (e) e.preventDefault();
 
+    // 팝업 내 모든 열린 패널 닫기 (길찾기 등)
+    var popup = document.getElementById('jobPostPopup');
+    if (popup) {
+      var openPanels = popup.querySelectorAll('.layer-panel.on');
+      openPanels.forEach(function(panel) {
+        if (typeof closePanel === 'function') {
+          closePanel(panel);
+        }
+      });
+    }
+
     // GSAP으로 팝업 닫기 애니메이션
     gsap.to('#jobPostPopup', {
       duration: 0.5,
@@ -2116,8 +2150,17 @@ $tpl_recomm_class = true; ?>
       }
     });
 
+    // 스크롤 복원 (nested 팝업으로 인한 overflow 오버라이드 방지)
     document.body.style.overflow = 'auto';
+    document.body.style.overflowY = 'auto';
     document.documentElement.style.overflow = 'auto';
+    document.documentElement.style.overflowY = 'auto';
+
+    // 모바일 웹뷰 강제 스크롤 복원
+    if (typeof restoreBodyScroll === 'function') {
+      restoreBodyScroll();
+    }
+
     applyLastClickedHighlight();
   };
 
