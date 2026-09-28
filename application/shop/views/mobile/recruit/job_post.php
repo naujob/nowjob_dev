@@ -755,7 +755,7 @@ if (!$isLogin) {
 
             <!-- 로그인 버튼 (비로그인 시에만 노출) -->
             <?php if (!$isLogin) : ?>
-                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="login" title="로그인">
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
@@ -803,37 +803,24 @@ if (!$isLogin) {
                 </a>
             <?php endif; ?>
 
-            <!-- 재등록/수정/마감/삭제/광고 -->
-            <?php
-            $manage_actions = [
-                ['id' => 'btnReregisterRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/propose.png', 'label' => '재등록'],
-                ['id' => '', 'href' => '/compage/recruit_write1_1/' . $info["rc_idx"], 'img' => '/resource/shop/mobile/img/modify.png', 'label' => '수정'],
-                ['id' => 'btnEndRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/due.png', 'label' => '마감'],
-                ['id' => 'btnDeleteRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/del.png', 'label' => '삭제'],
-                ['id' => '', 'href' => '/compage/point_promotion_buy/' . $info["rc_idx"], 'img' => '/resource/shop/mobile/img/ad-post.png', 'label' => '광고']
-            ];
-            foreach ($manage_actions as $action) :
-            ?>
-                <?php if ($restrict_manage_msg === null) : ?>
-                    <!-- 정상 동작: 기업회원 본인공고 -->
+            <!-- 재등록/수정/마감/삭제/광고 - 내공고에서만 표시 -->
+            <?php if ($restrict_manage_msg === null) : ?>
+                <?php
+                $manage_actions = [
+                    ['id' => 'btnReregisterRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/propose.png', 'label' => '재등록'],
+                    ['id' => '', 'href' => '/compage/recruit_write1_1/' . $info["rc_idx"], 'img' => '/resource/shop/mobile/img/modify.png', 'label' => '수정'],
+                    ['id' => 'btnEndRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/due.png', 'label' => '마감'],
+                    ['id' => 'btnDeleteRecruit', 'href' => '#', 'img' => '/resource/shop/mobile/img/del.png', 'label' => '삭제'],
+                    ['id' => '', 'href' => '/compage/point_promotion_buy/' . $info["rc_idx"], 'img' => '/resource/shop/mobile/img/ad-post.png', 'label' => '광고']
+                ];
+                foreach ($manage_actions as $action) :
+                ?>
                     <a href="<?= $action['href'] ?>" class="floating-action-item" <?php echo !empty($action['id']) ? 'id="' . $action['id'] . '"' : ''; ?> data-action="<?= strtolower($action['label']) ?>">
                         <img src="<?= $action['img'] ?>" alt="<?= $action['label'] ?>">
                         <span class="action-label"><?= $action['label'] ?></span>
                     </a>
-                <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
-                    <!-- 로그인 안내 -->
-                    <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="<?= strtolower($action['label']) ?>">
-                        <img src="<?= $action['img'] ?>" alt="<?= $action['label'] ?>">
-                        <span class="action-label"><?= $action['label'] ?></span>
-                    </a>
-                <?php else : ?>
-                    <!-- 차단 -->
-                    <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="<?= strtolower($action['label']) ?>">
-                        <img src="<?= $action['img'] ?>" alt="<?= $action['label'] ?>">
-                        <span class="action-label"><?= $action['label'] ?></span>
-                    </a>
-                <?php endif; ?>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
 
             <!-- 전화하기 (모두에게 노출, 로그인 게이트 없음) -->
             <a id="callLog" href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
@@ -1832,18 +1819,63 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
     }
 </script>
 
-<!-- 비회원 로그인 안내 팝업 (팝업 위에서 바텀시트 열기) -->
+<!-- 비회원 로그인 안내 패널 (job_post.php 내부) -->
+<?php
+renderBottomSheet(
+  'loginGuidePanelJobPost',
+  '로그인 안내',
+  '<p>로그인이 필요한 서비스입니다.</p><p>로그인 하시겠습니까?</p>',
+  '로그인 및 회원가입',
+  'btnLoginGuideJobPost',
+  '',
+  'bottom-sheet-content-container',
+  'bottom-sheet-content-body'
+);
+?>
+
+<!-- 비회원 로그인 안내 팝업 (팝업 컨텍스트 내부 패널 열기) -->
 <script>
-    // 팝업에서 부모 페이지의 이미 생성된 로그인 안내 바텀시트를 열기
+    // 팝업 내부의 로그인 패널을 직접 열기
     window.showLoginGuideFromPopup = function() {
-        var loginPanel = document.getElementById('loginGuidePanel');
-        if (loginPanel && typeof openPanel === 'function') {
-            // 바텀시트를 팝업 위에 올려오기 (z-index 조정)
-            // job_list.php의 #jobPostPopup z-index는 1000이므로 1001 이상으로 설정
-            loginPanel.style.zIndex = '1001';
-            openPanel(loginPanel);
-        } else {
-            console.error('[job_post.php] loginGuidePanel을 찾을 수 없거나 openPanel 함수가 정의되지 않음');
+        var loginPanel = document.getElementById('loginGuidePanelJobPost');
+        if (!loginPanel) {
+            console.error('[job_post.php] loginGuidePanelJobPost를 찾을 수 없음');
+            return;
+        }
+
+        var container = loginPanel.querySelector('.bottom-sheet-container');
+        if (!container) return;
+
+        // 팝업 컨텍스트에서 높이 측정: 강제 reflow + 지연
+        setTimeout(function() {
+            var _ = container.offsetHeight;  // Force reflow
+            var fixedHeight = container.scrollHeight;
+            container.style.height = fixedHeight + 'px';
+
+            // 높이 고정 후 패널 열기
+            requestAnimationFrame(function() {
+                loginPanel.classList.add('on');
+
+                // 팝업 내부 오버플로우 처리
+                var popup = loginPanel.closest('#jobPostPopup') || loginPanel.parentNode;
+                if (popup && popup.style) {
+                    popup.style.overflow = 'visible';
+                }
+            });
+
+            // 애니메이션 완료 후 높이 복구
+            setTimeout(function() {
+                container.style.height = '';
+                if (popup && popup.style) {
+                    popup.style.overflow = 'auto';
+                }
+            }, 400);
+        }, 20);
+
+        // Swipe 기능 초기화
+        if (typeof initPanelSwipe === 'function' && !loginPanel.hasAttribute('data-swipe-initialized')) {
+            initPanelSwipe('loginGuidePanelJobPost');
+            loginPanel.setAttribute('data-swipe-initialized', 'true');
         }
     };
 </script>

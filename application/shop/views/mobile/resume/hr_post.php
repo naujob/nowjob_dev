@@ -306,7 +306,7 @@ if (!$isLogin) {
 
     <div class="page-content">
         <div class="section view-header">
-            <div class="profile" <?php echo !$isOwnResume ? 'style="filter: blur(10px);"' : ''; ?>>
+            <div class="profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(10px);"' : ''; ?>>
                 <div class="container">
                     <div class="thumb-wrap">
                         <div class="thumb">
@@ -636,70 +636,31 @@ if (!$isLogin) {
 
             <!-- 로그인 버튼 (비로그인 시에만 노출) -->
             <?php if (!$isLogin) : ?>
-                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
+                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="login" title="로그인">
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
             <?php endif; ?>
 
-            <!-- 수정 -->
+            <!-- 수정 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 정상 동작: 개인회원 자신의 이력서 -->
                 <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
                     <img src="/resource/shop/mobile/img/modify.png" alt="수정">
                     <span class="action-label">수정</span>
                 </a>
-            <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
-                <!-- 로그인 안내 -->
-                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
-                    <span class="action-label">수정</span>
-                </a>
-            <?php else : ?>
-                <!-- 차단 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
-                    <span class="action-label">수정</span>
-                </a>
             <?php endif; ?>
 
-            <!-- 삭제 -->
+            <!-- 삭제 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 정상 동작 -->
                 <a href="#" class="floating-action-item" id="btnDeleteResume" data-action="delete" title="삭제">
                     <img src="/resource/shop/mobile/img/del.png" alt="삭제">
                     <span class="action-label">삭제</span>
                 </a>
-            <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
-                <!-- 로그인 안내 -->
-                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="delete" title="삭제">
-                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
-                    <span class="action-label">삭제</span>
-                </a>
-            <?php else : ?>
-                <!-- 차단 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="delete" title="삭제">
-                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
-                    <span class="action-label">삭제</span>
-                </a>
             <?php endif; ?>
 
-            <!-- 광고 -->
+            <!-- 광고 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 정상 동작 -->
                 <a href="/mypage/point_promotion_buy/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
-                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고</span>
-                </a>
-            <?php elseif ($restrict_manage_msg === '__LOGIN_GUIDE__') : ?>
-                <!-- 로그인 안내 -->
-                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="promote" title="광고신청">
-                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고</span>
-                </a>
-            <?php else : ?>
-                <!-- 차단 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_manage_msg ?>', function(){}); return false;" data-action="promote" title="광고신청">
                     <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
                     <span class="action-label">광고</span>
                 </a>
@@ -1010,12 +971,12 @@ if (!$isLogin) {
 <script src="/resource/shop/mobile/js/share-panel.js"></script>
 
 <!-- 제안 리스트 -->
-<div id="selectPanel" class="layer-panel card-type" tabindex="-1">
+<div id="selectPanel_hrPost" class="layer-panel card-type" tabindex="-1" data-disable-form-reset="true">
     <div class="panel-container">
         <div class="panel-header" style="background: #57CCAF; color: #fff; padding-top: 1.25rem; margin-bottom: 20px;">
             <!-- 약관제목 -->
             <h2 class="panel-title" style="color:#fff;">진행중인 채용공고</h2>
-            <button type="button" aria-controls="selectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+            <button type="button" aria-controls="selectPanel_hrPost" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
         </div>
         <div class="panel-body" style="padding: 2rem 1.375rem 1.5rem;">
             <div class="panel-content">
@@ -1072,7 +1033,7 @@ if (!$isLogin) {
             </div>
             <div class="panel-footer" style="position: relative; margin-top: 60px; ">
                 <div class="sticky-bottom" style="width:100%;">
-                    <button type="button" style="width:100%;" aria-controls="selectPanel" class="btnProcess btn btn-primary js-toggle-panel bottom-sheet-action">보내기</button>
+                    <button type="button" style="width:100%;" aria-controls="selectPanel_hrPost" class="btnProcess btn btn-primary js-toggle-panel bottom-sheet-action">보내기</button>
                 </div>
             </div>
         </div>
@@ -1160,7 +1121,7 @@ if (!$isLogin) {
 
         $("[name='chk_request[]']").prop("checked", false);
         currentActionMode = 'propose';
-        $("#selectPanel").addClass("on");
+        $("#selectPanel_hrPost").addClass("on");
 
     });
 
@@ -1213,7 +1174,8 @@ if (!$isLogin) {
         }
 
         // 첫 번째 유효한 공고 자동 선택 후 바로 채팅 시작
-        var $firstValid = $("[name='chk_request[]']:first");
+        var $selectPanel = $("#selectPanel_hrPost");
+        var $firstValid = $selectPanel.find("[name='chk_request[]']:first");
         if ($firstValid.length > 0) {
             var rc_idx = $firstValid.val();
             var ru_title = $firstValid.data('rc_name');
@@ -1298,10 +1260,10 @@ if (!$isLogin) {
                             if (ret.code == "00") {
                                 // 알림창 주석처리 - 바로 채팅방으로 이동
                                 // commonAlert("선택한 채용공고로 제안하였습니다.", function() {
-                                //     $("#selectPanel").removeClass("on");
+                                //     $("#selectPanel_hrPost").removeClass("on");
                                 // });
 
-                                $("#selectPanel").removeClass("on");
+                                $("#selectPanel_hrPost").removeClass("on");
 
                                 // 다이렉트 채팅 또는 제안에 따라 이동 경로 분기
                                 if (currentActionMode === 'direct_chat') {
@@ -1314,7 +1276,7 @@ if (!$isLogin) {
                                 }
                             } else {
                                 commonAlert(ret.msg, function() {
-                                    $("#selectPanel").removeClass("on");
+                                    $("#selectPanel_hrPost").removeClass("on");
                                 });
                                 return;
                             }
@@ -1339,7 +1301,7 @@ if (!$isLogin) {
                 }
                 commonAlert(ret.msg, function() {
                     // 알림 후 패널 닫기
-                    $("#selectPanel").removeClass("on");
+                    $("#selectPanel_hrPost").removeClass("on");
                 });
                 return;
             } else {
@@ -1348,7 +1310,7 @@ if (!$isLogin) {
                 }
                 commonAlert(ret.msg, function() {
                     // 알림 후 패널 닫기
-                    $("#selectPanel").removeClass("on");
+                    $("#selectPanel_hrPost").removeClass("on");
                 });
                 return;
             }
@@ -1382,7 +1344,7 @@ if (!$isLogin) {
             console.error("채용공고 선택 오류 - rc_idx:", rc_idx, "checkedBoxes:", $checkedBoxes.length);
             commonAlert("제안하실 공고를 다시 선택해주세요.", function() {
                 // 패널 닫기
-                $("#selectPanel").removeClass("on");
+                $("#selectPanel_hrPost").removeClass("on");
             });
             return;
         }
@@ -1629,4 +1591,65 @@ if (!$isLogin) {
             window.openJobPostTutorial();
         }
     }
+</script>
+
+<!-- 비회원 로그인 안내 패널 (hr_post.php 내부) -->
+<?php
+renderBottomSheet(
+  'loginGuidePanelHrPost',
+  '로그인 안내',
+  '<p>로그인이 필요한 서비스입니다.</p><p>로그인 하시겠습니까?</p>',
+  '로그인 및 회원가입',
+  'btnLoginGuideHrPost',
+  '',
+  'bottom-sheet-content-container',
+  'bottom-sheet-content-body'
+);
+?>
+
+<!-- 비회원 로그인 안내 팝업 (팝업 컨텍스트 내부 패널 열기) -->
+<script>
+    // 팝업 내부의 로그인 패널을 직접 열기
+    window.showLoginGuideFromPopup = function() {
+        var loginPanel = document.getElementById('loginGuidePanelHrPost');
+        if (!loginPanel) {
+            console.error('[hr_post.php] loginGuidePanelHrPost를 찾을 수 없음');
+            return;
+        }
+
+        var container = loginPanel.querySelector('.bottom-sheet-container');
+        if (!container) return;
+
+        // 팝업 컨텍스트에서 높이 측정: 강제 reflow + 지연
+        setTimeout(function() {
+            var _ = container.offsetHeight;  // Force reflow
+            var fixedHeight = container.scrollHeight;
+            container.style.height = fixedHeight + 'px';
+
+            // 높이 고정 후 패널 열기
+            requestAnimationFrame(function() {
+                loginPanel.classList.add('on');
+
+                // 팝업 내부 오버플로우 처리
+                var popup = loginPanel.closest('#hrPostPopup') || loginPanel.parentNode;
+                if (popup && popup.style) {
+                    popup.style.overflow = 'visible';
+                }
+            });
+
+            // 애니메이션 완료 후 높이 복구
+            setTimeout(function() {
+                container.style.height = '';
+                if (popup && popup.style) {
+                    popup.style.overflow = 'auto';
+                }
+            }, 400);
+        }, 20);
+
+        // Swipe 기능 초기화
+        if (typeof initPanelSwipe === 'function' && !loginPanel.hasAttribute('data-swipe-initialized')) {
+            initPanelSwipe('loginGuidePanelHrPost');
+            loginPanel.setAttribute('data-swipe-initialized', 'true');
+        }
+    };
 </script>

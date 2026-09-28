@@ -109,23 +109,29 @@ function callVibrate(time) {
     }
 }
 
+// 열려있는 바텀시트/패널을 우선 닫는다.
+// loginGuidePanel(main_menu.php)처럼 job_post/hr_post 팝업의 DOM 바깥(형제 요소)에 렌더링된
+// 패널도 감지해야 하므로 팝업 내부가 아닌 document 전체 범위에서 검색한다.
+function closeOpenLayerPanel() {
+    var openPanels = document.querySelectorAll('.layer-panel.on');
+    if (openPanels.length > 0) {
+        openPanels.forEach(function(panel) {
+            if (typeof closePanel === 'function') {
+                closePanel(panel);
+            }
+        });
+        return true;
+    }
+    return false;
+}
+
 // iOS 시스템 스와이프 뒤로가기 처리 (네이티브에서 handleSwipeBack 호출함)
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
     try {
-        // 팝업 내 패널 먼저 확인 (길찾기 등)
-        var popup = document.getElementById('jobPostPopup');
-        if (popup && popup.getAttribute('data-state') === 'open') {
-            var openPanels = popup.querySelectorAll('.layer-panel.on');
-            if (openPanels.length > 0) {
-                // 패널만 닫기 (팝업은 유지)
-                openPanels.forEach(function(panel) {
-                    if (typeof closePanel === 'function') {
-                        closePanel(panel);
-                    }
-                });
-                return;
-            }
+        // 열려있는 패널 먼저 확인 및 닫기 (로그인 안내, 길찾기, 공유하기 등)
+        if (closeOpenLayerPanel()) {
+            return;
         }
 
         // 팝업이 열려있으면 먼저 닫기
@@ -853,19 +859,9 @@ window.isAnyPopupOpen = function() {
  */
 function handleAndroidBack() {
     try {
-        // 팝업 내 패널 먼저 확인 (길찾기 등)
-        var popup = document.getElementById('jobPostPopup');
-        if (popup && popup.getAttribute('data-state') === 'open') {
-            var openPanels = popup.querySelectorAll('.layer-panel.on');
-            if (openPanels.length > 0) {
-                // 패널만 닫기 (팝업은 유지)
-                openPanels.forEach(function(panel) {
-                    if (typeof closePanel === 'function') {
-                        closePanel(panel);
-                    }
-                });
-                return;
-            }
+        // 열려있는 패널 먼저 확인 및 닫기 (로그인 안내, 길찾기, 공유하기 등)
+        if (closeOpenLayerPanel()) {
+            return;
         }
 
         if (window.isJobPostPopupOpen && window.isJobPostPopupOpen()) {

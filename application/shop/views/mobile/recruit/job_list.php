@@ -753,7 +753,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   .recruit-status-banner .marquee-track {
     display: flex;
     width: max-content;
-    animation: recruit-marquee 18s linear infinite;
+    animation: recruit-marquee 10s linear infinite;
   }
 
   .recruit-status-banner .marquee-item {
@@ -806,7 +806,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <!-- 오늘 채용 현황 마퀴 배너 (1페이지에서만 노출) -->
   <?php
     $status_items = [
-      ['label' => '오늘날짜', 'value' => date('Y-m-d')],
+      ['label' => '', 'value' => date('Y-m-d')],
       ['label' => '전체채용공고', 'value' => number_format($initial_total_count) . '개'],
       ['label' => '오늘등록공고', 'value' => number_format($today_recruit_count) . '건'],
     ];
@@ -827,7 +827,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <!-- 지금 뜨는 업체 -->
   <div class="section" id="hotListSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
     <div class="container">
-      <h2 class="secondary-title index">지금 뜨는 업체</h2>
+      <h2 class="secondary-title index" style="margin: 1.3rem 0px 1.1rem;">지금 뜨는 업체</h2>
       <div class="hot-list" style="display: flex; flex-direction: column;">
         <div class="slider-wrap keen-slider">
           <?php foreach ($hot_companies['chunks'] as $slideIndex => $chunk) : ?>
