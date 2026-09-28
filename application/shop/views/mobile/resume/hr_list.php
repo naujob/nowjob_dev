@@ -10,6 +10,7 @@ if (count($banner_list) > 0) {
 $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_resumes = isset($initial_resumes) ? $initial_resumes : [];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
 $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
 $initial_reco = isset($initial_reco) ? $initial_reco : [];
 $initial_page = isset($initial_page) ? $initial_page : 1;
@@ -426,6 +427,50 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     display: block;
   }
 
+  /* 오늘 인재 현황 마퀴 배너 */
+  .resume-status-banner {
+    overflow: hidden;
+
+    padding: 8px 0;
+    margin-top: 15px;
+  }
+
+  .resume-status-banner .marquee-wrap {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .resume-status-banner .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: resume-marquee 10s linear infinite;
+  }
+
+  .resume-status-banner .marquee-item {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding-right: 30px;
+    font-size: 13px;
+  }
+
+  .resume-status-banner .marquee-item .label {
+    color: #000;
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  .resume-status-banner .marquee-item .value {
+    color: #57CCAF;
+    font-weight: 700;
+    font-size: 20px;
+  }
+
+  @keyframes resume-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
   /* summary와 chat_mark를 나란히 배치 */
  
 
@@ -512,6 +557,27 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
+
+    <!-- 오늘 인재 현황 마퀴 배너 (1페이지에서만 노출) -->
+    <?php
+      $status_items = [
+        ['label' => '', 'value' => date('Y-m-d')],
+        ['label' => '전체이력서', 'value' => number_format($initial_total_count) . '개'],
+        ['label' => '오늘등록이력서', 'value' => number_format($today_recruit_count) . '건'],
+      ];
+      $status_items_html = '';
+      foreach ($status_items as $item) {
+        $status_items_html .= '<span class="marquee-item"><span class="label">' . $item['label'] . '</span>&nbsp;&nbsp;<span class="value">' . $item['value'] . '</span></span>';
+      }
+    ?>
+    <div class="section resume-status-banner" id="resumeStatusBanner"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
+      <div class="marquee-wrap">
+        <div class="marquee-track">
+          <?= $status_items_html ?>
+          <?= $status_items_html ?>
+        </div>
+      </div>
+    </div>
 
     <!-- 추천인재 -->
     <div class="section index_comp" id="recommSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
