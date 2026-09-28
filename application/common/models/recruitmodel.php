@@ -1014,7 +1014,7 @@ class recruitModel extends MY_Model
       LEFT JOIN st_room AS sr_room ON aa.rc_idx = sr_room.rc_idx
                        and sr_room.mm_idx <> aa.mm_idx
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
+			and aa.rc_status = 'Y' and aa.rc_auto_yn != 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
       GROUP BY aa.rc_idx
 			order by max_up_dt desc, aa.rc_idx desc
 			LIMIT 20
@@ -1045,7 +1045,7 @@ class recruitModel extends MY_Model
          ) pm_edate
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_sdate > now()
+			and aa.rc_status = 'Y' and aa.rc_auto_yn != 'Y' and aa.rc_sdate > now()
 			order by aa.rc_idx desc
 			LIMIT 20
 		";
@@ -1074,7 +1074,7 @@ class recruitModel extends MY_Model
          ) pm_edate
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_edate < now()
+			and aa.rc_status = 'Y' and aa.rc_auto_yn != 'Y' and aa.rc_edate < now()
 			order by aa.rc_idx desc
 			LIMIT 20
 		";
@@ -1104,7 +1104,7 @@ class recruitModel extends MY_Model
          ) pm_edate
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_edate >= now()
+			and aa.rc_status = 'Y' and aa.rc_auto_yn != 'Y' and aa.rc_edate >= now()
 			order by aa.rc_idx desc
 			LIMIT 30
 		";
@@ -1123,7 +1123,7 @@ class recruitModel extends MY_Model
             sum(case when aa.rc_edate < now()                           then 1 else 0 end) closecnt
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y'
+			and aa.rc_status = 'Y' and aa.rc_auto_yn != 'Y'
 		";
 
 		$query = $this->db->query($sql);

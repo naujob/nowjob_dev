@@ -1586,11 +1586,11 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                     params["is_direct_chat"] = "Y";
 
                     comAjax("/common_proc/member_request", params, function(ret) {
-                      
+
                         $('.btn-close-popup').show();
                         if (ret.code == "00") {
 
-                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list');
+                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list');
                         } else {
                            
                             commonAlert(ret.msg, function() {});

@@ -14,8 +14,8 @@
 <!-- 전화 걸 대상 번호 (JS에서 필요시 사용) -->
 <input type="hidden" id="call_target_phone" value="<?= htmlspecialchars(isset($call_target_phone) ? $call_target_phone : '', ENT_QUOTES, 'UTF-8') ?>" />
 <!-- 이 채팅방에 고정된 공고/이력서 (제안하기/지원하기 시 상대방 쪽 값 고정용) -->
-<input type="hidden" id="room_rc_idx" value="<?= isset($recruit['rc_idx']) ? $recruit['rc_idx'] : '' ?>" />
-<input type="hidden" id="room_ru_idx" value="<?= isset($resume['ru_idx']) ? $resume['ru_idx'] : '' ?>" />
+<input type="hidden" id="room_rc_idx" value="<?= isset($room['rc_idx']) ? $room['rc_idx'] : '' ?>" />
+<input type="hidden" id="room_ru_idx" value="<?= isset($room['ru_idx']) ? $room['ru_idx'] : '' ?>" />
 
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
@@ -254,7 +254,51 @@
     }
   })();
 
-  // MEM(개인) 사용자 - recruit_card_template.php 렌더링
+  // 전역 함수: 공고 카드 재렌더링
+  window.renderChatRecruitCard = function(recruitData) {
+    var template = document.getElementById('tpl_chat_recruit');
+    if (!template || !recruitData) return;
+
+    // 공고 상태 계산 함수
+    function getStatusLabel(sdate, edate) {
+      var now = new Date();
+      var startDate = new Date(sdate);
+      var endDate = new Date(edate);
+
+      if (startDate <= now && now <= endDate) {
+        return "모집중";
+      } else if (endDate < now) {
+        return "마감";
+      } else if (startDate > now) {
+        return "대기중";
+      }
+      return "";
+    }
+
+    var statusLabel = getStatusLabel(recruitData.rc_sdate, recruitData.rc_edate);
+
+    var html = template.innerHTML
+      .replaceAll('{{rc_idx}}', recruitData.rc_idx || '')
+      .replaceAll('{{rt_recruit_img}}', recruitData.rt_recruit_img || '')
+      .replaceAll('{{rt_work_img}}', recruitData.rt_work_img || '')
+      .replaceAll('{{rt_recom_badge}}', recruitData.rt_recom_badge || '')
+      .replaceAll('{{rt_work_type}}', recruitData.rt_work_type || '')
+      .replaceAll('{{rc_name}}', recruitData.rc_name || '')
+      .replaceAll('{{rc_nation_nm}}', recruitData.rc_nation_nm || '')
+      .replaceAll('{{rc_age_nm}}', recruitData.rc_age_nm || '')
+      .replaceAll('{{ad_addr}}', fRemoveBigAdrJS(recruitData.ad_addr || ''))
+      .replaceAll('{{book_yn}}', (recruitData.book_yn === 'Y') ? 'on' : '')
+      .replaceAll('{{rc_price_type}}', recruitData.rt_price_type || '')
+      .replaceAll('{{rc_price_pay}}', recruitData.rt_price_pay || '')
+      .replaceAll('{{status_label}}', statusLabel);
+
+    var listContainer = document.getElementById('chatRecruitCardList');
+    if (listContainer) {
+      listContainer.innerHTML = html;
+    }
+  };
+
+  // MEM(개인) 사용자 - recruit_card_template.php 렌더링 (초기화)
   (function() {
     var recruitData = <?= isset($recruit) && !empty($recruit) ? json_encode($recruit, JSON_UNESCAPED_UNICODE) : 'null' ?>;
 
@@ -262,57 +306,11 @@
       return; // recruit 데이터가 없으면 렌더링하지 않음
     }
 
-    function renderRecruitCard() {
-      var template = document.getElementById('tpl_chat_recruit');
-      if (!template) {
-        return;
-      }
-
-      // 공고 상태 계산 함수
-      function getStatusLabel(sdate, edate) {
-        var now = new Date();
-        var startDate = new Date(sdate);
-        var endDate = new Date(edate);
-
-        if (startDate <= now && now <= endDate) {
-          return "모집중";
-        } else if (endDate < now) {
-          return "마감";
-        } else if (startDate > now) {
-          return "대기중";
-        }
-        return "";
-      }
-
-      var statusLabel = getStatusLabel(recruitData.rc_sdate, recruitData.rc_edate);
-
-      var html = template.innerHTML
-        .replaceAll('{{rc_idx}}', recruitData.rc_idx || '')
-        .replaceAll('{{rt_recruit_img}}', recruitData.rt_recruit_img || '')
-        .replaceAll('{{rt_work_img}}', recruitData.rt_work_img || '')
-        .replaceAll('{{rt_recom_badge}}', recruitData.rt_recom_badge || '')
-        .replaceAll('{{rt_work_type}}', recruitData.rt_work_type || '')
-        .replaceAll('{{rc_name}}', recruitData.rc_name || '')
-        .replaceAll('{{rc_nation_nm}}', recruitData.rc_nation_nm || '')
-        .replaceAll('{{rc_age_nm}}', recruitData.rc_age_nm || '')
-        .replaceAll('{{ad_addr}}', fRemoveBigAdrJS(recruitData.ad_addr || ''))
-        .replaceAll('{{book_yn}}', (recruitData.book_yn === 'Y') ? 'on' : '')
-        .replaceAll('{{rc_price_type}}', recruitData.rt_price_type || '')
-        .replaceAll('{{rc_price_pay}}', recruitData.rt_price_pay || '')
-        .replaceAll('{{status_label}}', statusLabel);
-
-      var listContainer = document.getElementById('chatRecruitCardList');
-      if (listContainer) {
-        listContainer.innerHTML = html;
-        // simple 모드에서는 토글 버튼이 없으므로 이벤트 바인딩 불필요
-      }
-    }
-
     // DOM이 준비되면 렌더링
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderRecruitCard);
+      document.addEventListener('DOMContentLoaded', function() { window.renderChatRecruitCard(recruitData); });
     } else {
-      renderRecruitCard();
+      window.renderChatRecruitCard(recruitData);
     }
   })();
 </script>
@@ -390,7 +388,7 @@
                 ?>
                 <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
                 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
+                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= ($from === 'direct_chat') ? 'false' : 'true' ?>"></ul>
                 <!-- //기업회원 공고정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
@@ -570,7 +568,7 @@
                 ?>
                 <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
                 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatRecruitCardList"></ul>
+                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= ($from === 'direct_chat') ? 'false' : 'true' ?>"></ul>
                 <!-- //공고정보 -->
                 <div id="mem_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -2506,6 +2504,12 @@
             }
 
             if (ret.code == "00") {
+                // 갱신된 공고 데이터가 있으면 카드 재렌더링
+                if (mqType == "RESUME" && ret.data && ret.data.recruit) {
+                    window.renderChatRecruitCard(ret.data.recruit);
+                }
+                // 카드 표시
+                $('#chatRecruitCardList').attr('data-visible', 'true');
                 var msgText = (mqType == "RESUME")
                     ? ("\"" + selectedName + "\" 공고를 제안했습니다.")
                     : ("\"" + selectedName + "\" 이력서로 지원했습니다.");
@@ -4415,7 +4419,10 @@
     }
     .chat-view-header .result-list-card{
           padding: 0;
-    
+
+    }
+    .chat-view-header .result-list-card[data-visible="false"] {
+        display: none;
     }
     .chat-view-header .result-list-card .list-item {
         height:  100%;

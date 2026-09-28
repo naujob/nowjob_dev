@@ -925,8 +925,53 @@ class Common_proc extends CI_Controller
 			$rc_idx = input_post("rc_idx");
 			$is_direct_chat_param = input_post("is_direct_chat");
 			$is_direct_chat = ($is_direct_chat_param === "Y"); // 다이렉트 채팅 여부 (기본 false)
-			
+
 			$mm_idx = $this->user->getUserIdx();
+
+			// [DEBUG LOG]
+
+			# 다이렉트 채팅: 실제 조회 중인 공고/이력서 대신, 기업/개인 양쪽 모두 전용 더미 레코드로 치환
+			$auto_rc_idx = null;
+			$auto_ru_idx = null;
+			if ($is_direct_chat) {
+				$target_idx = isset($mq_idxs[0]) ? $mq_idxs[0] : null;
+				if (empty($target_idx)) {
+					json_return("90", "요청 데이터가 올바르지 않습니다.");
+				}
+
+				if ($mq_type == "RESUME") {
+					// 현재 사용자 = 기업, 대상 = 이력서 주인(개인회원)
+					$target_row = $this->db->query("SELECT mm_idx FROM st_resume WHERE ru_idx = ?", array($target_idx))->row_array();
+					if (!$target_row) {
+						json_return("90", "대상 회원 정보를 찾을 수 없습니다.");
+					}
+					$comp_mm_idx = $mm_idx;
+					$mem_mm_idx = $target_row["mm_idx"];
+				} else if ($mq_type == "RECRUIT") {
+					// 현재 사용자 = 개인, 대상 = 채용공고 주인(기업회원)
+					$target_row = $this->db->query("SELECT mm_idx FROM st_recruit WHERE rc_idx = ?", array($target_idx))->row_array();
+					if (!$target_row) {
+						json_return("90", "대상 회원 정보를 찾을 수 없습니다.");
+					}
+					$mem_mm_idx = $mm_idx;
+					$comp_mm_idx = $target_row["mm_idx"];
+				} else {
+					json_return("90", "요청 타입이 올바르지 않습니다.");
+				}
+
+				// 기업측/개인측 각각 전용 더미 레코드 확보 (있으면 재사용, 없으면 생성)
+				$auto_rc_idx = $this->member_model->insertDirectChatRecruit($comp_mm_idx);
+
+				$auto_ru_idx = $this->member_model->insertDirectChatResume($mem_mm_idx);
+
+				if (empty($auto_rc_idx) || empty($auto_ru_idx)) {
+					json_return("99", "다이렉트 채팅 준비 중 오류가 발생했습니다.");
+				}
+
+				// 이후 모든 로직은 rc_idx/mq_idxs를 그대로 사용하므로, 더미 값으로 치환해서 흘려보낸다
+				$rc_idx = $auto_rc_idx;
+				$mq_idxs = array($mq_type == "RECRUIT" ? $auto_rc_idx : $auto_ru_idx);
+			}
 
 			// 입력값 검증
 			if (empty($mq_type)) {
@@ -962,35 +1007,22 @@ class Common_proc extends CI_Controller
 				}
 			}
 
-			# 이력서 정보 가져오기 (RESUME 타입일 때만)
+			# 이력서 정보 가져오기
 			$resume = null;
-			if ($mq_type == "RESUME") {
+			if ($is_direct_chat) {
+				// 위에서 이미 확보한 더미 이력서를 그대로 사용
+				$resume = $this->member_model->getResume(array("ru_idx" => $auto_ru_idx));
+			} else if ($mq_type == "RESUME") {
 				$resume = $this->member_model->getResume(["mm_idx" => $mm_idx, "ru_show_yn" => "Y"]);
-
-				// 기업회원이 이력서를 조회하려고 할 때는 해당 인재의 이력서 정보를 가져옴
 				if (!$resume) {
 					$resume = $this->member_model->getResume(["ru_idx" => $mq_idxs[0]]);
 				}
 			} else if ($mq_type == "RECRUIT") {
-				// 개인회원이 지원할 때는 자신의 이력서 정보를 가져옴
 				$resume = $this->member_model->getResume(["mm_idx" => $mm_idx, "ru_show_yn" => "Y"]);
 			}
 
-			// 이력서 정보 확인
 			if (!$resume) {
-				// 다이렉트 채팅인 경우 자동으로 이력서 생성
-				if ($is_direct_chat && $mq_type == "RECRUIT") {
-					$new_ru_idx = $this->member_model->insertDirectChatResume($mm_idx);
-					if ($new_ru_idx) {
-						$resume = $this->member_model->getResume(["ru_idx" => $new_ru_idx]);
-					}
-				}
-
-				// 여전히 이력서가 없으면 에러
-				if (!$resume) {
-					
-					json_return("99", "이력서 정보를 찾을 수 없습니다.");
-				}
+				json_return("99", "이력서 정보를 찾을 수 없습니다.");
 			}
 
 			# 중복체크
@@ -1568,7 +1600,7 @@ class Common_proc extends CI_Controller
 			// 직접 JSON 응답 처리 (header 문제 방지)
 			header('Access-Control-Allow-Origin: *');
 			header('Content-type: application/json');
-			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => ["rm_idx" => $rm_idx]]);
+			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => ["rm_idx" => $rm_idx, "rc_idx" => $rc_idx]]);
 			exit;
 		} catch (Exception $e) {
 			// JSON 응답 전에 출력 버퍼 정리

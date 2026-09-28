@@ -291,7 +291,7 @@
 		function resume_list(){
 			$data = [];
 
-			$data["resume_list"] = $this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+			$data["resume_list"] = $this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
 			$this->layout->shop('/mypage/resume_list',$data);
 		}
 

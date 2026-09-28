@@ -634,19 +634,17 @@ $top_bar = array(
             data: {},
             dataType: "json",
             success: function(ret) {
-                // [로그] 백엔드 응답 확인
 
                 if (ret.code == "00") {
                     var directChatList = ret.data.list || [];
+
                     var $directList = $("#direct_chat_list_sent_comp");
 
-                    // [로그] 데이터 처리 시작
-
-
                     $directList.empty();
+
                     window.__chatDirectRmIdxSetSentComp = new Set();
 
-                    directChatList.forEach(function(row) {
+                    directChatList.forEach(function(row, index) {
                         var $clone = $("#tpl_chat_by_recruite").clone();
                         var $content = $clone.html();
 
@@ -693,6 +691,7 @@ $top_bar = array(
                         window.__chatDirectRmIdxSetSentComp.add(String(row.rm_idx));
                     });
 
+
                     if ($directList.find("li").length == 0) {
                         $directList.closest('.direct-chat-list-section').hide();
                     } else {
@@ -713,12 +712,12 @@ $top_bar = array(
                         $("#chat_empty1").hide();
                     }
                 } else {
-
+                    console.error("[fSearchDirectChatListSentComp] ERROR: code=" + ret.code + ", msg=" + ret.msg);
                 }
             },
             error: function(xhr, status, error) {
-                // [로그] AJAX 에러
-
+                console.error("[fSearchDirectChatListSentComp] AJAX ERROR: status=" + status + ", error=" + error);
+                console.error("[fSearchDirectChatListSentComp] xhr.status=" + xhr.status + ", xhr.statusText=" + xhr.statusText);
             }
         });
     }
@@ -1354,9 +1353,9 @@ $top_bar = array(
                         <span class="room_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
                     </div>
 
-                    <div class="summary3">
+                    <!-- <div class="summary3">
                         <p class="worktype">{{ru_work_type}}</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </a>

@@ -1129,13 +1129,11 @@ if (!$isLogin) {
     $(document).off('click', '#btnDirectChat').on('click', '#btnDirectChat', function(e) {
         e.preventDefault();
         var $btn = $(this);
-
-        // 중복 클릭 가드
         if ($btn.attr('data-loading') === 'true') return;
         $btn.attr('data-loading', 'true');
 
-        //로그인 여부 확인
         if ($("#is_login").val() != "Y") {
+            // 기존 로그인 안내 팝업 로직 그대로 유지 ($btn.attr('data-loading','false') 포함)
             $btn.attr('data-loading', 'false');
             $('#hrPostPopup').css('z-index', '200');
             var restoreZIndex = function() { $('#hrPostPopup').css('z-index', '1000'); };
@@ -1163,37 +1161,17 @@ if (!$isLogin) {
                 },
             });
             $('.btn-close-popup').show();
-
             return;
         }
-
         if (check_user_type != "COMP") {
             $btn.attr('data-loading', 'false');
             commonAlert("기업 회원만 이용 가능합니다.", function() {});
             return;
         }
 
-        // 첫 번째 유효한 공고 자동 선택 후 바로 채팅 시작
-        var $selectPanel = $("#selectPanel_hrPost");
-        var $firstValid = $selectPanel.find("[name='chk_request[]']:first");
-        if ($firstValid.length > 0) {
-            var rc_idx = $firstValid.val();
-            var ru_title = $firstValid.data('rc_name');
-
-            // rc_idx 유효성 검사
-            if (!rc_idx || rc_idx === "" || rc_idx === undefined || rc_idx === null || rc_idx === "0" || rc_idx === 0 || isNaN(parseInt(rc_idx))) {
-                $btn.attr('data-loading', 'false');
-                commonAlert("등록된 채용공고가 없습니다.", function() {});
-                return;
-            }
-
-            currentActionMode = 'direct_chat';
-            // submitMemberRequest 함수 직접 호출 (click 이벤트 발생 안 함)
-            submitMemberRequest(rc_idx, ru_title);
-        } else {
-            $btn.attr('data-loading', 'false');
-            commonAlert("등록된 채용공고가 없습니다.", function() {});
-        }
+        // 다이렉트 채팅: 실제 채용공고 선택 없이 바로 시작 (백엔드가 전용 더미 공고/이력서를 자동 준비)
+        currentActionMode = 'direct_chat';
+        submitMemberRequest("", "");
     });
 
     // submitMemberRequest 함수 정의 (제안/다이렉트채팅 공통 처리)
@@ -1267,7 +1245,7 @@ if (!$isLogin) {
 
                                 // 다이렉트 채팅 또는 제안에 따라 이동 경로 분기
                                 if (currentActionMode === 'direct_chat') {
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list3');
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list3');
                                 } else {
                                     // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
                                     // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기

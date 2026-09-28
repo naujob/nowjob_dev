@@ -2927,7 +2927,24 @@ json_return("00", "조회완료", $data);
 		// FCM 푸시 + MongoDB 알림 (실패해도 제안/지원 처리 자체는 이미 완료된 것으로 취급)
 		$this->send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx);
 
-		json_return("00", "처리완료", array());
+		// 갱신된 공고 데이터를 응답에 포함 (카드 재렌더링 용)
+		$updated_recruit = null;
+		if ($mq_type == "RESUME") {
+			$updated_recruit = $this->member_model->getRecruitDetail($rc_idx, $mm_idx);
+			if ($updated_recruit) {
+				$row = $updated_recruit;
+				if ($row['rc_nation_nm'] == "무관" || $row['rc_nation_nm'] == "내국인,외국인") {
+					$updated_recruit["rc_nation_nm"] = "국적무관";
+				}
+				$updated_recruit["rt_recruit_img"] = getRecruitImg($row);
+				$updated_recruit["rt_work_img"] = getWorkingImg($row["rc_work"]);
+				$updated_recruit["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
+				$updated_recruit["rt_price_type"] = getConvertPriceType($row["rc_price_pay"], $row["rc_price_rep"]);
+				$updated_recruit["rt_price_pay"] = getConvertPrice($row["rc_price_pay"]);
+				$updated_recruit["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+			}
+		}
+		json_return("00", "처리완료", array("recruit" => $updated_recruit));
 	}
 
 	// 제안/지원 완료 후 상대방에게 FCM 푸시 + MongoDB 알림 발송

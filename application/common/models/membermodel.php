@@ -621,38 +621,91 @@ class memberModel extends MY_Model
 		return $this->db_count("st_resume", $where);
 	}
 
-	# 다이렉트 채팅용 이력서 자동 생성
-	function insertDirectChatResume($mm_idx)
+	# 다이렉트 채팅용 채용공고 자동 생성/재사용 (해당 기업의 전용 더미 공고 — 실제 공고와 무관)
+	function insertDirectChatRecruit($mm_idx)
 	{
-		// 이미 이력서가 있는지 확인
-		$existing = $this->db_row("st_resume", array("mm_idx" => $mm_idx));
-		if ($existing) {
-			return $existing["ru_idx"];
+		// 이미 이 기업의 "채팅 전용" 더미 공고가 있으면 재사용 (실제로 등록한 진짜 공고는 절대 재사용 대상이 아님)
+		$existing_auto = $this->db_row("st_recruit", array("mm_idx" => $mm_idx, "rc_auto_yn" => "Y"));
+		if ($existing_auto) {
+			return $existing_auto["rc_idx"];
 		}
 
-		// 회원정보 조회
 		$member = $this->getMember(array("mm_idx" => $mm_idx));
 		if (!$member) {
 			return null;
 		}
 
-		// 기본값으로 이력서 생성
+		$today = get_today();
 		$data = array(
 			"mm_idx" => $mm_idx,
-			"ru_name" => $member["mm_name"],  // 이력서명: 회원이름
-			"ru_nationality" => "내국인",      // 국적: 내국인
-			"ru_work" => "생산",                // 희망업무: 생산
-			"ru_work_negotiation" => "N",
-			"ru_work_type" => "주간,야간,2교대", // 근무형태
-			"ru_zone" => "서울특별시 강남구 개포동", // 희망지역
-			"ru_salary_type" => "일급,주급,월급",   // 급여형태
-			"ru_salary_negotiation" => "N",
+			"rc_status" => "Y",
+			"rc_auto_yn" => "Y",   // 더미 표식 — 모든 목록 화면에서 제외됨
+			"rc_show_yn" => "N",   // 공개 목록에도 노출 안 함 (이중 안전장치)
+			"rc_name" => trim($member["mm_comp_name"]) != "" ? $member["mm_comp_name"] . " 채용공고" : "채용공고",
+			"rc_sdate" => $today,
+			"rc_edate" => date("Y-m-d", strtotime("+2 months")),
+			"rc_work" => "생산",
+			"rc_work_type" => "주간,야간,2교대",
+			"rc_price_type" => "일급,주급,월급",
+			"up_dt" => $today,
+		);
+
+		if ($this->db->insert("st_recruit", $data)) {
+			$rc_idx = $this->db->insert_id();
+
+			if ($rc_idx && !empty($member["mm_addr"])) {
+				$this->insertAddress(array(
+					"ad_type" => "RECRUIT",
+					"ad_key" => $rc_idx,
+					"ad_addr" => $member["mm_addr"],
+					"ad_zipcode" => isset($member["mm_zipcode"]) ? $member["mm_zipcode"] : "",
+					"ad_doro" => isset($member["mm_doro"]) ? $member["mm_doro"] : "",
+					"ad_jibun" => isset($member["mm_jibun"]) ? $member["mm_jibun"] : "",
+				));
+			}
+
+			return $rc_idx;
+		} else {
+			$error = $this->db->error();
+			$error_msg = isset($error["message"]) ? $error["message"] : "Unknown error";
+			return null;
+		}
+	}
+
+	# 다이렉트 채팅용 이력서 자동 생성/재사용 (해당 개인의 전용 더미 이력서 — 실제 이력서와 무관)
+	function insertDirectChatResume($mm_idx)
+	{
+		// 이미 이 개인의 "채팅 전용" 더미 이력서가 있으면 재사용 (실제로 작성한 진짜 이력서는 절대 재사용 대상이 아님)
+		$existing_auto = $this->db_row("st_resume", array("mm_idx" => $mm_idx, "ru_auto_yn" => "Y"));
+		if ($existing_auto) {
+			return $existing_auto["ru_idx"];
+		}
+
+		$member = $this->getMember(array("mm_idx" => $mm_idx));
+		if (!$member) {
+			return null;
+		}
+
+		$data = array(
+			"mm_idx" => $mm_idx,
+			"ru_name" => $member["mm_name"],
+			"ru_work" => "생산",
+			"ru_work_type" => "주간,야간,2교대",
+			"ru_status" => "Y",
+			"ru_show_yn" => "N",    // 공개 인재목록에 노출 안 함
+			"ru_auto_yn" => "Y",    // 더미 표식 — "내 이력서" 관리화면에서 제외됨
 			"reg_dt" => get_today(),
 			"up_dt" => get_today()
 		);
 
-		$ru_idx = $this->db_insert("st_resume", $data);
-		return $ru_idx;
+		if ($this->db->insert("st_resume", $data)) {
+			$ru_idx = $this->db->insert_id();
+			return $ru_idx;
+		} else {
+			$error = $this->db->error();
+			$error_msg = isset($error["message"]) ? $error["message"] : "Unknown error";
+			return null;
+		}
 	}
 
 	# 이력서 경력 등록
@@ -891,7 +944,7 @@ class memberModel extends MY_Model
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
-			and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
+			and aa.rc_status = 'Y' and aa.rc_auto_yn != 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now()
       GROUP BY aa.rc_idx
 			order by max_up_dt desc, aa.rc_idx desc
 		";
@@ -935,6 +988,7 @@ class memberModel extends MY_Model
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
+			and aa.rc_auto_yn != 'Y'
 			AND EXISTS (
 			    SELECT 1 FROM st_member_request mq
 			    INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
@@ -5986,51 +6040,47 @@ LIMIT 0 , 200
 		$sql_test = "SELECT * FROM st_member_request WHERE mq_type = 'RECRUIT_DIRECT' AND mm_idx = ? LIMIT 5";
 		$test_query = $this->db->query($sql_test, [$mm_idx]);
 		$test_result = $test_query->result_array();
-	
+
 		if (count($test_result) > 0) {
-			
+
 		}
 
 		$sql = "
 			SELECT
 				req.rm_idx,
-				IFNULL(rc.rc_name, 'Unknown') AS rc_name,
+				'채팅방' AS rc_name,
 				IFNULL(rc.rc_thumb, '') AS rc_thumb,
 				IFNULL(comp.mm_id, 'Unknown') AS mm_id,
 				IFNULL(comp.mm_comp_name, 'Unknown') AS mm_comp_name,
 				IFNULL(comp.mm_thumb, '') AS target_img,
 				'' AS rt_recom_badge,
 				'' AS rt_work_img,
-				req.reg_dt
+				MAX(req.reg_dt) AS reg_dt
 			FROM st_member_request req
 			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
 			LEFT JOIN st_member comp ON rc.mm_idx = comp.mm_idx
 			WHERE req.mq_type = 'RECRUIT_DIRECT'
 			AND req.mm_idx = ?
-			ORDER BY req.reg_dt DESC
+			GROUP BY req.rm_idx
+			ORDER BY reg_dt DESC
 		";
 		$query = $this->db->query($sql, [$mm_idx]);
-		$result = $query->result_array();
-
-		if (count($result) > 0) {
-			
-		}
-		return $result;
+		return $query->result_array();
 	}
 
 	# 개인회원이 받은 다이렉트 채팅 목록 조회 (기업이 시작한 것)
 	function getDirectChatListReceivedMem($mm_idx)
 	{
 		$sql = "
-			SELECT
+			SELECT DISTINCT
 				req.rm_idx,
-				rc.rc_name,
+				'채팅방' AS rc_name,
 				requester.mm_id AS target_id,
 				requester.mm_name AS target_name,
 				IFNULL(requester.mm_thumb, '') AS target_img,
 				requester.mm_sex,
 				comp.mm_comp_name AS mm_comp_name,
-				req.reg_dt
+				MAX(req.reg_dt) AS reg_dt
 			FROM st_member_request req
 			INNER JOIN st_resume ru ON req.ru_idx = ru.ru_idx
 			INNER JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
@@ -6038,7 +6088,8 @@ LIMIT 0 , 200
 			INNER JOIN st_member comp ON rc.mm_idx = comp.mm_idx
 			WHERE req.mq_type = 'RESUME_DIRECT'
 			AND ru.mm_idx = ?
-			ORDER BY req.reg_dt DESC
+			GROUP BY req.rm_idx
+			ORDER BY reg_dt DESC
 		";
 		$query = $this->db->query($sql, [$mm_idx]);
 		return $query->result_array();
@@ -6048,21 +6099,24 @@ LIMIT 0 , 200
 	function getDirectChatListSentComp($mm_idx)
 	{
 		$sql = "
-			SELECT
+			SELECT DISTINCT
 				req.rm_idx,
-				IFNULL(rc.rc_name, 'Unknown') AS rc_name,
+				req.rc_idx,
+				req.ru_idx,
+				'채팅방' AS rc_name,
 				mem.mm_id AS target_id,
 				mem.mm_name AS target_name,
 				IFNULL(ru.ru_img1, '') AS target_img,
 				mem.mm_sex,
-				req.reg_dt
+				MAX(req.reg_dt) AS reg_dt
 			FROM st_member_request req
 			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
 			LEFT JOIN st_resume ru ON req.ru_idx = ru.ru_idx
 			LEFT JOIN st_member mem ON ru.mm_idx = mem.mm_idx
 			WHERE req.mq_type = 'RESUME_DIRECT'
 			AND req.mm_idx = ?
-			ORDER BY req.reg_dt DESC
+			GROUP BY req.rm_idx
+			ORDER BY reg_dt DESC
 		";
 		$query = $this->db->query($sql, [$mm_idx]);
 		return $query->result_array();
@@ -6072,20 +6126,23 @@ LIMIT 0 , 200
 	function getDirectChatListReceivedComp($mm_idx)
 	{
 		$sql = "
-			SELECT
+			SELECT DISTINCT
 				req.rm_idx,
-				IFNULL(rc.rc_name, 'Unknown') AS rc_name,
+				req.rc_idx,
+				req.ru_idx,
+				'채팅방' AS rc_name,
 				requester.mm_id AS target_id,
 				requester.mm_name AS target_name,
 				IFNULL(requester.mm_thumb, '') AS target_img,
 				requester.mm_sex,
-				req.reg_dt
+				MAX(req.reg_dt) AS reg_dt
 			FROM st_member_request req
 			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
 			LEFT JOIN st_member requester ON req.mm_idx = requester.mm_idx
 			WHERE req.mq_type = 'RECRUIT_DIRECT'
 			AND rc.mm_idx = ?
-			ORDER BY req.reg_dt DESC
+			GROUP BY req.rm_idx
+			ORDER BY reg_dt DESC
 		";
 		$query = $this->db->query($sql, [$mm_idx]);
 		return $query->result_array();
