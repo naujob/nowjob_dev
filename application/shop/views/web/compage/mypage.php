@@ -140,10 +140,10 @@ function fEmailMasking($email)
                             display: block;
                           }
 
-                          /* 기업로고 이미지가 있을 때 3:1 비율로 표시 */
+                          /* 기업로고 이미지가 있을 때 4:3 비율로 표시 */
                           .thumb-wrap.compinfo .form-pic.has-logo {
-                            width: 300px;
-                            height: 87px;
+                            width: 200px;
+                            height: 150px;
                           }
 
                           .thumb-wrap.compinfo .form-pic.has-logo .preview {
@@ -233,8 +233,8 @@ function fEmailMasking($email)
                               기업로고 이미지 등록
                             </div>
                             <div style="font-size: 0.85em; color: #1B9D7D; line-height: 1.5;">
-                              권장사이즈: 900×300 (가로×세로)<br>
-                              💡 선택한 이미지는 자동으로 900×300 규격으로 조정됩니다.
+                              권장사이즈: 800×600 (가로×세로, 4:3)<br>
+                              💡 선택한 이미지는 자동으로 800×600 규격으로 조정됩니다.
                             </div>
                     </div>
                   </tr>
@@ -400,9 +400,9 @@ function fEmailMasking($email)
           const origCtx = originalCanvas.getContext('2d');
           origCtx.drawImage(img, 0, 0);
 
-          // 서버 규격: 정확히 900x300으로 리사이즈
-          const targetWidth = 900;
-          const targetHeight = 300;
+          // 서버 규격: 정확히 800x600(4:3)으로 리사이즈
+          const targetWidth = 800;
+          const targetHeight = 600;
 
           // 최종 캔버스 생성
           const profileCanvas = document.createElement('canvas');
@@ -414,7 +414,7 @@ function fEmailMasking($email)
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, targetWidth, targetHeight);
 
-          // 원본 이미지 전체를 무조건 900x300에 꽉 채우기 (비율 무시, 왜곡 가능)
+          // 원본 이미지 전체를 무조건 800x600에 꽉 채우기 (비율 무시, 왜곡 가능)
           // 잘림 없음 + 여백 없음 = 강제 리사이즈
           ctx.drawImage(originalCanvas, 0, 0, targetWidth, targetHeight);
 
@@ -429,7 +429,7 @@ function fEmailMasking($email)
               return;
             }
             profileBlob = blob;
-            alert('이미지가 자동으로 900×300 규격으로 조정되었습니다.');
+            alert('이미지가 자동으로 800×600 규격으로 조정되었습니다.');
           }, 'image/png');
         };
         img.src = event.target.result;

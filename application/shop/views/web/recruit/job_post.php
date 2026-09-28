@@ -675,22 +675,29 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
   .item-view .view-visual .inline-group {
     height: auto;
     max-width: 100%;
-    max-height: 500px;
   }
 
   .item-view .visual-slider {
     width: 100%;
     height: auto !important;
+    aspect-ratio: auto;
     overflow: visible !important;
+    background: none;
   }
 
   .item-view .visual-slider img {
- 
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 600px;
+    margin: 0 auto;
+    object-fit: contain;
   }
 
   .item-view .visual-slider .keen-slider__slide {
     width: 100%;
     overflow: visible;
+    text-align: center;
   }
 
   /* 미리보기 모드: 액션 바 */
