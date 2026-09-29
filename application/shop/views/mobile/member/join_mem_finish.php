@@ -252,6 +252,9 @@ renderSelectBottomSheet(
         }
         if (ret && ret.code === "00") {
           window.__fallbackResumeTriggered = true;
+          try {
+            localStorage.setItem('nowjob_resume_registered_bubble', '1');
+          } catch (e) {}
           location.href = "/recruit/job_list";
         } else {
           commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});

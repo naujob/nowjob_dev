@@ -28,6 +28,16 @@ if (!function_exists('_nav_active')) {
         return ($name === $active) ? 'data-active="true"' : 'data-active="false"';
     }
 }
+
+// 채용공고 등록 여부 확인 (COMP 사용자만)
+$_show_recruit_bubble = false; // 채용공고 등록 안내 말풍선 표시 여부
+if ($this->user->isLogin() && $this->user->getUserType() === "COMP") {
+  $this->load->model('recruitmodel', 'recruit_model');
+  $recruit_counts = $this->recruit_model->getRecruitCountForTab($this->user->getUserIdx());
+  if ($recruit_counts && isset($recruit_counts[0]['allcnt']) && $recruit_counts[0]['allcnt'] == 0) {
+    $_show_recruit_bubble = true;
+  }
+}
 ?>
 
 <div class="bottom-nav">
@@ -72,6 +82,14 @@ if (!function_exists('_nav_active')) {
       <img src="<?= _nav_icon_src('write_rc_rs', $_active) ?>" alt="채용공고등록">
       <span>채용공고등록</span>
     </button>
+    <!-- 채용공고 등록 안내 말풍선 (COMP) -->
+    <?php if ($_show_recruit_bubble) { ?>
+    <svg id="recruitBubble" class="nav-speech-bubble" data-visible="true" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 43px; left: 69%; transform: translateX(-50%); width: 260px; height: auto; z-index: 200; cursor: pointer;">
+      <rect x="20" y="15" width="460" height="75" rx="28" ry="28" fill="white" stroke="#57CCAF" stroke-width="2"/>
+      <path d="M 230 90 L 270 90 L 250 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
+      <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text">채용공고를 등록해주세요!</text>
+    </svg>
+    <?php } ?>
     <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
       <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
       <span>채팅</span>
@@ -95,6 +113,12 @@ if (!function_exists('_nav_active')) {
       <img src="<?= _nav_icon_src('write_rc_rs', $_active) ?>" alt="이력서등록">
       <span>이력서등록</span>
     </button>
+    <!-- 이력서 등록 안내 말풍선 (MEM) -->
+    <svg id="resumeRegisteredBubble" class="nav-speech-bubble" data-visible="false" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 57px; left: 69%; transform: translateX(-50%); width: 260px; height: auto; z-index: 200; cursor: pointer;">
+      <rect x="20" y="15" width="460" height="75" rx="28" ry="28" fill="white" stroke="#57CCAF" stroke-width="2"/>
+      <path d="M 230 90 L 270 90 L 250 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
+      <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text">이력서가 등록되었어요!</text>
+    </svg>
     <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
       <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
       <span>채팅</span>
@@ -148,6 +172,27 @@ if (!function_exists('_nav_active')) {
   /* 활성 상태일 때 font 색상 진하게 */
   .btn-nav-item[data-active="true"] {
     color: #161616;
+  }
+
+  /* 말풍선 스타일 */
+  .nav-speech-bubble {
+    display: none;
+  }
+
+  .nav-speech-bubble[data-visible="true"] {
+    display: block;
+    animation: speechBubblePopIn 0.3s ease-out;
+  }
+
+  @keyframes speechBubblePopIn {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
   }
 
   #msgNoReadCountMainBottom {
@@ -268,6 +313,32 @@ renderSelectBottomSheet(
    *
    * 배경 클릭 시 패널 닫기 로직도 main.js의 setTogglePanel() 내부에 이미 구현되어 있습니다.
    */
+
+  // 이력서 등록 안내 말풍선 (MEM)
+  $(document).on('click', '#resumeRegisteredBubble', function() {
+    try {
+      localStorage.removeItem('nowjob_resume_registered_bubble');
+    } catch (e) {}
+    $('#resumeRegisteredBubble').attr('data-visible', 'false');
+    location.href = '/mypage/resume_view/';
+  });
+
+  // 채용공고 등록 안내 말풍선 (COMP)
+  $(document).on('click', '#recruitBubble', function() {
+    location.href = '/compage/recruit_write1_1';
+  });
+
+  // DOMContentLoaded: MEM 사용자의 이력서 등록 말풍선 상태 복구
+  window.addEventListener('DOMContentLoaded', function() {
+    var resumeBubble = document.getElementById('resumeRegisteredBubble');
+    if (resumeBubble) {
+      try {
+        if (localStorage.getItem('nowjob_resume_registered_bubble') === '1') {
+          resumeBubble.setAttribute('data-visible', 'true');
+        }
+      } catch (e) {}
+    }
+  });
 </script>
 
 <script>
