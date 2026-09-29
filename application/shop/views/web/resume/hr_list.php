@@ -428,26 +428,10 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   $(document).on('click', '.desc', function() {
     var $target = $(this).closest('.list-item,.person-card');
     var ruIdx = $target.data('ru_idx');
-    var resumeMmIdx = $target.data('mm_idx'); // 이력서 소유자 인덱스
 
-    // 개인회원이고 자신의 이력서인 경우 클릭 가능
-    if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.open(url, '_blank');
-      }
-      return;
+    if (ruIdx) {
+      var url = '/resume/hr_post/' + ruIdx;
+      window.open(url, '_blank');
     }
-
-    // 기업회원인 경우 클릭 가능
-    <?php if ($mm_type === "COMP") { ?>
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.open(url, '_blank');
-      }
-    <?php } else { ?>
-      // 개인회원이지만 자신의 이력서가 아닌 경우
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-    <?php } ?>
   });
 </script>

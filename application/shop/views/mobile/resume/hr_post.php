@@ -306,7 +306,7 @@ if (!$isLogin) {
 
     <div class="page-content">
         <div class="section view-header">
-            <div class="profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(10px);"' : ''; ?>>
+            <div class="profile">
                 <div class="container">
                     <div class="thumb-wrap">
                         <div class="thumb">
@@ -516,7 +516,7 @@ if (!$isLogin) {
             })();  // IIFE 종료
         </script>
 
-        <div class="section view-career">
+        <div class="section view-career" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
             <div class="container">
                 <h3 class="secondary-title">경력소개</h3>
                 <table class="info-table">
@@ -573,7 +573,7 @@ if (!$isLogin) {
                 </table>
             </div>
         </div>
-        <div class="section view-introduce">
+        <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
             <div class="container">
                 <h3 class="secondary-title">자기소개</h3>
                 <div class="introduce-wrap">

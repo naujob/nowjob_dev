@@ -1,6 +1,11 @@
 <?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <?php
+// 블러 처리 조건 정의
+$isLogin = $this->user->isLogin();
+$userType = $isLogin ? $this->user->getUserType() : null;
+$isOwnResume = ($userType === "MEM" && isset($info["mm_idx"]) && (int)$info["mm_idx"] === (int)$this->user->getUserIdx());
+
 function fWorkColor($arg)
 {
 
@@ -800,7 +805,7 @@ function fRemoveBigAdrPHP($arg)
             </div>
           </div>
 
-          <div class="section view-introduce" style="margin-top: 30px;">
+          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px); margin-top: 30px;"' : 'style="margin-top: 30px;"'; ?>>
             <h3 class="secondary-title">자기소개</h3>
             <div class="introduce-wrap">
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
@@ -811,7 +816,7 @@ function fRemoveBigAdrPHP($arg)
           </div>
 
 
-          <div class="section view-profile">
+          <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
             <div class="summary">
               <div class="inline-group">
                 <div class="col">
