@@ -785,7 +785,7 @@ class memberModel extends MY_Model
 			FROM st_member aa
 			inner join st_recruit bb
 				on aa.mm_idx = bb.mm_idx
-			inner join st_address cc
+			left join st_address cc
 				on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RECRUIT' and cc.ad_key = bb.rc_idx
 			left join st_bookmark dd
 				on bb.rc_idx = dd.bk_key and dd.bk_type = 'RECRUIT' and dd.mm_idx = '$mm_idx'

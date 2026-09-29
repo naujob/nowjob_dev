@@ -359,7 +359,7 @@ $top_bar = array(
             $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
             $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
             $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
-            $content = $content.replaceAll("{{up_dt}}", row.up_dt || "");
+            $content = $content.replaceAll("{{up_dt}}", row.reg_dt || "");
 
             $clone.html($content);
             $directList.append("<div class='recruitbox_'>" + $clone.html() + "</div>");

@@ -2907,9 +2907,27 @@ json_return("00", "조회완료", $data);
 			json_return("90", $dup_msg);
 		}
 
+		// 다이렉트 채팅방인지 판정 — 현재 방의 공고/이력서가 더미인지 확인
+		$is_direct_room = false;
+		if ($mq_type == "RECRUIT") {
+			// RECRUIT: room의 rc_idx가 더미(rc_auto_yn='Y')인지 확인
+			$recruit_info = $this->db->query(
+				"SELECT rc_auto_yn FROM st_recruit WHERE rc_idx = ?",
+				array($room["rc_idx"])
+			)->row_array();
+			$is_direct_room = $recruit_info && $recruit_info["rc_auto_yn"] == "Y";
+		} else if ($mq_type == "RESUME") {
+			// RESUME: room의 ru_idx가 더미(ru_auto_yn='Y')인지 확인
+			$resume_info = $this->db->query(
+				"SELECT ru_auto_yn FROM st_resume WHERE ru_idx = ?",
+				array($room["ru_idx"])
+			)->row_array();
+			$is_direct_room = $resume_info && $resume_info["ru_auto_yn"] == "Y";
+		}
+
 		// 등록 처리 (채팅방 내 제안/지원은 포인트 차감 없음)
 		$data = array(
-			"mq_type" => $mq_type,
+			"mq_type" => $mq_type . ($is_direct_room ? "_DIRECT" : ""),  // 다이렉트 방에서는 항상 _DIRECT 접미사 붙임
 			"mm_idx" => $mm_idx,
 			"rc_idx" => $rc_idx,
 			"ru_idx" => $ru_idx,
@@ -2928,21 +2946,20 @@ json_return("00", "조회완료", $data);
 		$this->send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx);
 
 		// 갱신된 공고 데이터를 응답에 포함 (카드 재렌더링 용)
+		// RESUME(제안하기)과 RECRUIT(지원하기) 모두 동일한 공고 정보 조회
 		$updated_recruit = null;
-		if ($mq_type == "RESUME") {
-			$updated_recruit = $this->member_model->getRecruitDetail($rc_idx, $mm_idx);
-			if ($updated_recruit) {
-				$row = $updated_recruit;
-				if ($row['rc_nation_nm'] == "무관" || $row['rc_nation_nm'] == "내국인,외국인") {
-					$updated_recruit["rc_nation_nm"] = "국적무관";
-				}
-				$updated_recruit["rt_recruit_img"] = getRecruitImg($row);
-				$updated_recruit["rt_work_img"] = getWorkingImg($row["rc_work"]);
-				$updated_recruit["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
-				$updated_recruit["rt_price_type"] = getConvertPriceType($row["rc_price_pay"], $row["rc_price_rep"]);
-				$updated_recruit["rt_price_pay"] = getConvertPrice($row["rc_price_pay"]);
-				$updated_recruit["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+		$updated_recruit = $this->member_model->getRecruitDetail($rc_idx, $mm_idx);
+		if ($updated_recruit) {
+			$row = $updated_recruit;
+			if ($row['rc_nation_nm'] == "무관" || $row['rc_nation_nm'] == "내국인,외국인") {
+				$updated_recruit["rc_nation_nm"] = "국적무관";
 			}
+			$updated_recruit["rt_recruit_img"] = getRecruitImg($row);
+			$updated_recruit["rt_work_img"] = getWorkingImg($row["rc_work"]);
+			$updated_recruit["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
+			$updated_recruit["rt_price_type"] = getConvertPriceType($row["rc_price_pay"], $row["rc_price_rep"]);
+			$updated_recruit["rt_price_pay"] = getConvertPrice($row["rc_price_pay"]);
+			$updated_recruit["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 		}
 		json_return("00", "처리완료", array("recruit" => $updated_recruit));
 	}

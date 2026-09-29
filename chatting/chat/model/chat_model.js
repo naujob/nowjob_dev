@@ -38,6 +38,7 @@ container.insertRoom = async function (data, callback) {
 		rc_idx: data.rc_idx || 0,
 		ru_idx: data.ru_idx || null,
 		rm_type: data.rm_type,
+		chat_type: data.chat_type || "",
 		rm_img: data.rm_img,
 		rm_subject: data.rm_subject,
 		rm_desc: data.rm_desc,
@@ -48,6 +49,9 @@ container.insertRoom = async function (data, callback) {
 		rm_status: "N",
 		rm_messages: []
 	};
+
+	// 🔥 DEBUG: room 생성 로깅
+	console.log('[insertRoom] room 생성 - rm_idx: ' + data.rm_idx + ', chat_type: ' + (chat_room.chat_type || 'NONE'));
 
 	//디비 등록
 	var ret = await $db.cs_room.insertOne(chat_room);
@@ -63,7 +67,10 @@ container.getUsersRoom = async function (params) {
 
 //방정보 조회
 container.getRoom = async function (params) {
-	var ret = await $db.cs_room.findOne({ rm_idx: params.rm_idx }, { projection: { rm_idx: 1, rm_type: 1, user_info: 1, rm_subject: 1, rm_last_msg: 1, rm_last_dt: 1, rm_users: 1 } });
+	var ret = await $db.cs_room.findOne({ rm_idx: params.rm_idx }, { projection: { rm_idx: 1, rm_type: 1, chat_type: 1, user_info: 1, rm_subject: 1, rm_last_msg: 1, rm_last_dt: 1, rm_users: 1 } });
+
+	// 🔥 DEBUG: 조회 결과 로깅
+	console.log('[getRoom] 조회 - rm_idx: ' + params.rm_idx + ', chat_type: ' + (ret && ret.chat_type ? ret.chat_type : 'NONE') + ', rm_users 개수: ' + (ret && ret.rm_users ? ret.rm_users.length : 0));
 
 	if (ret != null) {
 		// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
@@ -135,23 +142,44 @@ container.getRoom = async function (params) {
 
 //방정보 리스트 조회
 container.getRoomMessages = async function (params) {
-	var ret = await $db.cs_room.aggregate(
-		[
-			{ $match: { rm_idx: params.rm_idx } },
-			{ $unwind: '$rm_messages' },
-			{
-				$lookup: {
-					"from": "user",
-					"as": "rm_messages.user_info",
-					"localField": "rm_messages.user_id",
-					"foreignField": "user_id"
-				}
-			},
-			{ $sort: { 'rm_messages.mg_idx': -1 } },
-			{ $skip: params.skip },
-			{ $limit: params.limit },
-			{ $project: { rm_messages: '$rm_messages' } }
-		]).toArray();
+	// 🔥 DEBUG: 입력 파라미터 로깅
+	console.log('[getRoomMessages] 시작 - rm_idx: ' + params.rm_idx + ', skip: ' + params.skip + ', limit: ' + params.limit + ', chat_type: ' + (params.chat_type || 'NONE'));
+
+	// 🔥 메시지 필터링: rm_idx로 방을 찾고, $unwind 후 메시지 수준에서 chat_type 필터링
+	var aggregationPipeline = [
+		{ $match: { rm_idx: params.rm_idx } },
+		{ $unwind: '$rm_messages' }
+	];
+
+	// 🔥 chat_type이 제공된 경우에만 메시지 레벨에서 필터링
+	if (params.chat_type) {
+		aggregationPipeline.push({ $match: { 'rm_messages.chat_type': params.chat_type } });
+		console.log('[getRoomMessages] chat_type 필터링 적용: ' + params.chat_type);
+	}
+
+	aggregationPipeline.push(
+		{
+			$lookup: {
+				"from": "user",
+				"as": "rm_messages.user_info",
+				"localField": "rm_messages.user_id",
+				"foreignField": "user_id"
+			}
+		},
+		{ $sort: { 'rm_messages.mg_idx': -1 } },
+		{ $skip: params.skip },
+		{ $limit: params.limit },
+		{ $project: { rm_idx: '$rm_idx', chat_type: '$chat_type', rm_messages: '$rm_messages' } }
+	);
+
+	var ret = await $db.cs_room.aggregate(aggregationPipeline).toArray();
+
+	// 🔥 DEBUG: 조회 결과 로깅
+	console.log('[getRoomMessages] 조회 완료 - rm_idx: ' + params.rm_idx + ', 메시지 개수: ' + (ret ? ret.length : 0));
+
+	if (Array.isArray(ret) && ret.length > 0) {
+		console.log('[getRoomMessages] 첫 메시지 - mg_idx: ' + (ret[0].rm_messages ? ret[0].rm_messages.mg_idx : 'N/A') + ', chat_type: ' + (ret[0].rm_messages ? ret[0].rm_messages.chat_type : 'N/A'));
+	}
 
 	return ret;
 }
@@ -451,7 +479,8 @@ container.insertMessage = async function (data, callback) {
 				mg_imoti: "",
 				mg_dt: $common.getCurrentDate(),
 				mg_reads: [],
-				user_info: {}
+				user_info: {},
+				rm_idx: data.rm_idx
 			};
 
 			//디비 등록
@@ -473,9 +502,11 @@ container.insertMessage = async function (data, callback) {
 			mg_imoti: data.mg_imoti,
 			mg_dt: $common.getCurrentDate(),
 			mg_reads: read_users,
-			user_info: user_info
+			user_info: user_info,
+			rm_idx: data.rm_idx
 		};
 
+			console.log('[insertMessage] rm_idx=' + data.rm_idx + ' mg_idx=' + mg_idx + ' 태깅 완료');
 			//$common.writeLog('[insertMessage] MongoDB에 메시지 저장 - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', chat_type: ' + message.chat_type + ', mg_text: ' + message.mg_text);
 
 		//디비 등록

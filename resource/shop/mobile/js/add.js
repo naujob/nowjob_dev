@@ -906,6 +906,26 @@ function handleAndroidBack() {
             return;
         }
 
+        // chat_view / trade_view 페이지는 backUrl(또는 from) 파라미터 기반으로 뒤로가기 처리
+        if (current.indexOf('/chat/chat_view') > -1 || current.indexOf('/chat/trade_view') > -1) {
+            const params = new URLSearchParams(window.location.search);
+            let backUrl = params.get('backUrl') ? decodeURIComponent(params.get('backUrl')) : null;
+
+            if (!backUrl) {
+                const from = params.get('from') || '';
+                const backMap = {
+                    applied: '/chat/chat_list',
+                    proposed_job: '/chat/chat_list2',
+                    talent_received: '/chat/index_comp',
+                    talent_sent: '/chat/chat_list3'
+                };
+                backUrl = backMap[from] || '/chat/chat_list';
+            }
+
+            location.replace(backUrl);
+            return;
+        }
+
         // 뒤로가기 커스텀 규칙 맵
         const backCustomMap = {
             // /compage/index → 홈화면

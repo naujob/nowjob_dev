@@ -656,43 +656,20 @@ io.on('connection', function (socket) {
 		}
 
 		function processRoomInfo(ret, data, socket) {
-			
+
+			console.log("[DEBUG] processRoomInfo 호출 - req_rm_idx=" + data.rm_idx + ", MongoDB_exist=" + (ret && ret.data ? "Y" : "N"));
+
 			// 방 정보가 없으면 자동으로 생성
 			if (!ret || !ret.data) {
-			
-				//$common.writeLog("socket room_info 방정보 없음 rm_idx=" + data.rm_idx + " -> findExistingRoomByMySQL");
+
+				console.log("[DEBUG] MongoDB에 방이 없음 - MySQL에서 조회 시작 rm_idx=" + data.rm_idx);
 				// 🔥 MySQL에서 실제 rm_idx 확인 (rc_idx, ru_idx로 기존 MongoDB 방 찾기)
 				$exe.chat.findExistingRoomByMySQL(data, function (existing_room_result) {
-					if (existing_room_result && existing_room_result.existing_rm_idx) {
-						//$common.writeLog("findExistingRoomByMySQL 기존방 발견 rm_idx=" + existing_room_result.existing_rm_idx);
-						// 기존 방으로 조회
-						var existing_data = {
-							rm_idx: existing_room_result.existing_rm_idx,
-							con_user_id: data.con_user_id
-						};
-						$exe.chat.getRoom(existing_data, function (existing_ret) {
-							if (existing_ret && existing_ret.data) {
-								//채팅방 접속
-								socket.room = existing_room_result.existing_rm_idx;
-								socket.join(existing_room_result.existing_rm_idx);
-
-								//소켓 리턴
-								socket.emit('room_info_return', existing_ret);
-							} else {
-								//$common.writeLog("findExistingRoomByMySQL 결과로도 방 없음 -> 새 방 생성");
-								// 기존 방도 없으면 새로 생성
-								createNewRoom(existing_room_result);
-							}
-						});
-					} else if (existing_room_result && (existing_room_result.rc_idx || existing_room_result.ru_idx)) {
-						//$common.writeLog("findExistingRoomByMySQL rc_idx/ru_idx만 확인됨 -> 새 방 생성 rc_idx=" + existing_room_result.rc_idx + " ru_idx=" + existing_room_result.ru_idx);
-						// MySQL에서 rc_idx, ru_idx는 찾았지만 MongoDB에 기존 방이 없음 - 새로 생성 (rc_idx, ru_idx 포함)
-						createNewRoom(existing_room_result);
-					} else {
-						//$common.writeLog("findExistingRoomByMySQL 결과 없음 -> 새 방 생성 rm_idx=" + data.rm_idx);
-						// MySQL에서도 찾지 못했으면 새로 생성
-						createNewRoom(null);
-					}
+					console.log("[DEBUG] findExistingRoomByMySQL 결과 - rc_idx=" + (existing_room_result ? existing_room_result.rc_idx : "null") + ", ru_idx=" + (existing_room_result ? existing_room_result.ru_idx : "null"));
+					// 항상 요청한 data.rm_idx로 새 방을 생성
+					// existing_room_result는 MySQL의 rc_idx/ru_idx를 채우는 용도로만 사용
+					// (다른 기존 방으로 join하면 안 됨 - 클라이언트가 요청한 방과 다른 방의 내용이 나타나는 버그 발생)
+					createNewRoom(existing_room_result);
 				});
 
 				// 새 방 생성 함수
@@ -715,9 +692,13 @@ io.on('connection', function (socket) {
 						rm_messages: []
 					};
 
+					console.log("[DEBUG] 새 방 생성 중 - rm_idx=" + room_data.rm_idx + ", rc_idx=" + room_data.rc_idx + ", ru_idx=" + room_data.ru_idx);
+
 					$exe.chat.insertRoom(room_data, function (insert_ret) {
+						console.log("[DEBUG] insertRoom 완료 - rm_idx=" + room_data.rm_idx);
 						// 생성된 방 정보로 다시 조회
 						$exe.chat.getRoom(data, function (new_ret) {
+							console.log("[DEBUG] 소켓 join - socket.room=" + data.rm_idx + ", 반환 rm_idx=" + (new_ret && new_ret.data && new_ret.data.rm_idx ? new_ret.data.rm_idx : "undefined"));
 							//채팅방 접속
 							socket.room = data.rm_idx;
 							socket.join(data.rm_idx);
@@ -728,15 +709,16 @@ io.on('connection', function (socket) {
 					});
 				}
 			} else {
-			
+
+				console.log("[DEBUG] MongoDB에 방이 있음 - rm_idx=" + data.rm_idx + ", 반환 rm_idx=" + (ret && ret.data && ret.data.rm_idx ? ret.data.rm_idx : "undefined"));
 				//채팅방 접속
 				socket.room = data.rm_idx;
 				socket.join(data.rm_idx);
 
 				//소켓 리턴
-			
+
 				socket.emit('room_info_return', ret);
-			
+
 			}
 
 			//모두 리턴한다.
@@ -978,6 +960,27 @@ io.on('connection', function (socket) {
 
 
 
+
+			// ✅ 메시지 전송 후 상대방의 exit_yn 리셋 (채팅 시작 시=첫 메시지일 때만)
+			try {
+				// 현재 방의 메시지 개수 확인 (첫 메시지인지 판별)
+				const roomInfo = await $db.cs_room.findOne({ rm_idx: target_rm_idx });
+				const messageCount = roomInfo && roomInfo.rm_messages ? roomInfo.rm_messages.length : 0;
+				
+				if (messageCount === 1) {
+					// 첫 메시지일 때만 exit_yn 리셋 (채팅 시작 알림)
+					await $db.cs_room.updateOne(
+						{ rm_idx: target_rm_idx },
+						{ $set: { "rm_users.$[elem].exit_yn": "N" } },
+						{ arrayFilters: [ { "elem.user_id": { $ne: g_user_id } } ] }
+					);
+					console.log('[message_insert] 첫 메시지 - exit_yn 리셋 - rm_idx: ' + target_rm_idx);
+				} else {
+					console.log('[message_insert] 추가 메시지 - exit_yn 리셋 스킵 - rm_idx: ' + target_rm_idx + ' (메시지 개수: ' + messageCount + ')');
+				}
+			} catch (err) {
+				console.log('[message_insert] exit_yn 처리 실패:', err.message);
+			}
 			// 푸시 알림 발송
 			try {
 			
@@ -1166,7 +1169,9 @@ io.on('connection', function (socket) {
 
 	//메시지 리스트 조회
 	socket.on('message_list', function (data) {
+		console.log("[DEBUG] message_list 수신 - rm_idx=" + data.rm_idx + ", skip=" + data.skip + ", limit=" + data.limit);
 		$exe.chat.getRoomMessages(data, function (ret) {
+			console.log("[DEBUG] message_list 응답 - rm_idx=" + data.rm_idx + ", 메시지수=" + (ret && ret.data ? ret.data.length : 0));
 			socket.emit('message_list_return', ret);
 		});
 	});

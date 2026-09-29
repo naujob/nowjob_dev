@@ -905,15 +905,41 @@ class Common_proc extends CI_Controller
 				SELECT 1 FROM st_member_request mq
 				WHERE mq.rm_idx = room.rm_idx AND mq.mq_type = ?
 			)
+		";
+
+		// SQL 물음표 순서: rc.mm_idx, ru.mm_idx, mq.mq_type, (정식 검색시만) mq2.mq_type LIKE
+		$sql_params = [$owner_params[0], $owner_params[1], $mq_type];
+
+
+		// 정식 지원/제안(_DIRECT 접미사 없음)을 찾는 경우, DIRECT 방 제외
+		if (strpos($mq_type, "_DIRECT") === false) { // 찾았으면: 위치 번호를 반환 
+			$sql .= "
+				AND NOT EXISTS (
+					SELECT 1 FROM st_member_request mq2
+					WHERE mq2.rm_idx = room.rm_idx AND mq2.mq_type LIKE ?
+				)
+			";
+			$sql_params[] = "%_DIRECT";
+		} else {
+			// 다이렉트 방을 찾는 경우, 정식 방 제외
+			$base_mq_type = str_replace("_DIRECT", "", $mq_type); // str_replace(찾을문자열, 바꿀문자열, 원본문자열);
+			$sql .= "
+				AND NOT EXISTS (
+					SELECT 1 FROM st_member_request mq2
+					WHERE mq2.rm_idx = room.rm_idx AND mq2.mq_type = ?
+				)
+			";
+			$sql_params[] = $base_mq_type;
+		}
+
+		$sql .= "
 			ORDER BY room.rm_idx DESC
 			LIMIT 1
 		";
-		$params = array_merge($owner_params, [$mq_type]);
-		$row = $this->db->query($sql, $params)->row_array();
+		$row = $this->db->query($sql, $sql_params)->row_array();
 		return ($row && !empty($row["rm_idx"])) ? $row["rm_idx"] : null;
 	}
 
-	# 즐겨찾기,지원하기등
 	function member_request()
 	{
 		try {
@@ -1260,7 +1286,8 @@ class Common_proc extends CI_Controller
 						if ($result_chat && $result_chat["code"] == "00") {
 							$rm_idx = $result_chat["key"]; // ← 신규 생성 시 rm_idx 확보
 							$current_user_id = $this->user->getUserId();
-							
+
+							error_log("[DEBUG] member_request 새 방 생성 - rm_idx=" . $rm_idx . ", mq_type=" . $mq_type . ", rc_idx=" . $data["rc_idx"] . ", ru_idx=" . $data["ru_idx"]);
 
 							$mongo_room_data = [
 								"rm_idx" => (int)$rm_idx,

@@ -14,8 +14,9 @@
 <!-- 전화 걸 대상 번호 (JS에서 필요시 사용) -->
 <input type="hidden" id="call_target_phone" value="<?= htmlspecialchars(isset($call_target_phone) ? $call_target_phone : '', ENT_QUOTES, 'UTF-8') ?>" />
 <!-- 이 채팅방에 고정된 공고/이력서 (제안하기/지원하기 시 상대방 쪽 값 고정용) -->
-<input type="hidden" id="room_rc_idx" value="<?= isset($room['rc_idx']) ? $room['rc_idx'] : '' ?>" />
-<input type="hidden" id="room_ru_idx" value="<?= isset($room['ru_idx']) ? $room['ru_idx'] : '' ?>" />
+<!-- room에 없으면 URL 파라미터에서 참고 (다이렉트 채팅 초기 진입 시 job_post.php에서 전달) -->
+<input type="hidden" id="room_rc_idx" value="<?= isset($room['rc_idx']) && !empty($room['rc_idx']) ? $room['rc_idx'] : (isset($_GET['rc_idx']) ? $_GET['rc_idx'] : '') ?>" />
+<input type="hidden" id="room_ru_idx" value="<?= isset($room['ru_idx']) && !empty($room['ru_idx']) ? $room['ru_idx'] : (isset($_GET['ru_idx']) ? $_GET['ru_idx'] : '') ?>" />
 
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
@@ -934,12 +935,30 @@
     };
 
     var last_send_dt = "";
+    var requested_rm_idx = "<?= $rm_idx ?>"; // 페이지가 요청한 원래 방 번호 (절대 변경 금지)
     var rm_idx = "<?= $rm_idx ?>";
     var rm_info = {};
     var rm_start = 0;
     var rm_length = 20;
     var rm_count = 0;
     var userIdAlertShown = false;
+
+    // ✅ 페이지 이탈 시 소켓 정리: 이전 방에 대한 join 상태와 이벤트 리스너 제거
+    window.addEventListener('pagehide', function() {
+        if (typeof socket !== 'undefined' && socket) {
+            // 현재 방에서 나가기
+            socket.emit("room_leave", { rm_idx: Number(requested_rm_idx) });
+
+            // 이전 방에 대한 이벤트 리스너 정리
+            socket.off("room_info_return");
+            socket.off("message_list_return");
+            socket.off("message_insert_return");
+            socket.off("room_join_return");
+            socket.off("message_read_count_return");
+
+            console.log("[chat_view] 페이지 이탈: room_leave 발송 (rm_idx=" + requested_rm_idx + "), 이벤트 리스너 정리 완료");
+        }
+    });
 
     // 키보드가 올라올 때 입력창 아래 빈 공간 방지 + 스크롤 복원 (mobile webview 호환성)
     (function() {
@@ -1148,12 +1167,12 @@
         var g_user_id = ensureValidUserId();
         if (!g_user_id || !rm_idx) return;
 
-       //BrowserLogger.info('나가기 요청 시작', { user_id: g_user_id, rm_idx: rm_idx });
+       //console.log('나가기 요청 시작', { user_id: g_user_id, rm_idx: rm_idx });
         //g_user_id, rm_idx를 서버로 전송하여 채팅방 나가기 처리 g_user_id:나가는 주체
         comAjax("/chat_proc/exit_room", { rm_idx: rm_idx }, function(ret) {
             closePanel(document.getElementById('leaveChatRoomSheet'));
 
-           // BrowserLogger.info('나가기 응답', ret);
+           // console.log('나가기 응답', ret);
 
             if (ret.code != "00") {
                 BrowserLogger.error('나가기 실패', { msg: ret.msg });
@@ -1161,7 +1180,7 @@
                 return;
             }
 
-            //BrowserLogger.info('나가기 성공', {});
+            //console.log('나가기 성공', {});
 
             // 상대방에게 나가기 시스템 메시지 브로드캐스트
             if (ret.data && ret.data.system_message && typeof socket !== 'undefined' && socket.connected) {
@@ -1310,12 +1329,9 @@
         }
         
         var g_user_id = typeof g_user_id !== 'undefined' ? g_user_id : $("#user_id").val();
-        
-        // 🔥 rm_info에서 올바른 rm_idx 가져오기 (room_info_return에서 받은 값 우선 사용)
+
+        // 항상 targetRmIdx 사용 (서버가 다른 rm_idx로 응답해도 신뢰하지 않기)
         var actualRmIdx = targetRmIdx;
-        if (typeof rm_info !== 'undefined' && rm_info && rm_info.rm_idx) {
-            actualRmIdx = rm_info.rm_idx;
-        }
         
         // 사용자 타입에 따른 메시지 내용 결정
         var current_user_type = typeof user_type !== 'undefined' ? user_type : $("[name='user_type']").val();
@@ -1928,6 +1944,9 @@
      *   서버에서 보내주는 전체 메시지 리스트를 받아 화면에 보여줄 때 사용.
      */
     socket.on("message_list_return", function(ret) {
+        // 🔥 DEBUG: ret 구조 확인
+        console.log('[message_list_return] code=' + ret.code + ', data_length=' + (ret.data ? ret.data.length : 0));
+
         //메시지 리스트 가져오기
         var message_list = ret.data;
         
@@ -2020,18 +2039,25 @@
         
         // ✅ 여러 메시지를 배치 처리 (DOM 업데이트 최소화, 중복 방지)
         var messagesToAdd = [];
-        
+
         for (var icnt = 0; icnt < message_list.length; icnt++) {
+            // ✅ 이 메시지 그룹의 rm_idx 확인 (다른 방의 메시지면 무시)
+            var itemRmIdx = message_list[icnt].rm_idx;
+            if (itemRmIdx && String(itemRmIdx) !== String(requested_rm_idx)) {
+                console.log('[message_list_return] 다른 방의 메시지 그룹 무시. 요청: ' + requested_rm_idx + ', 수신: ' + itemRmIdx);
+                continue; // 다른 방 메시지는 건너뜀
+            }
+
             var messageData = message_list[icnt].rm_messages;
             if (!messageData) continue;
-            
+
             var mg_idx = messageData.mg_idx;
-            
+
             // ✅ DOM에 이미 있는지 확인 (중복 방지)
             if ($('#chat_list #mg_idx_' + mg_idx).length > 0) {
                 continue;
             }
-            
+
             messagesToAdd.push(messageData);
         }
         
@@ -2111,16 +2137,22 @@
         // 🔥 실시간 채팅: 보내는 사람과 받는 사람 모두 처리
         var message_list = ret.data || [];
         var processedInThisCall = {}; // 이번 호출에서 처리한 메시지 추적
-        
+
         // ✅ 여러 메시지를 배치 처리 (DOM 업데이트 최소화)
         var messagesToAdd = [];
         var timelineMessages = [];
-        
+
         for (var icnt = 0; icnt < message_list.length; icnt++) {
             var received_message = message_list[icnt];
             var mg_idx = received_message.mg_idx;
             var is_my_message = (received_message.user_id == g_user_id);
             var is_timeline = (received_message.mg_type == "timeline");
+
+            // ✅ 다른 방의 메시지 필터링 (실시간 메시지 오염 방지)
+            if (received_message.rm_idx && String(received_message.rm_idx) !== String(requested_rm_idx)) {
+                console.warn('[message_insert_return] 다른 방 메시지 무시. 요청방=' + requested_rm_idx + ', 수신방=' + received_message.rm_idx);
+                continue;
+            }
 
             // 이번 호출에서 이미 처리한 메시지 건너뛰기
             if (processedInThisCall[mg_idx]) {
@@ -2504,8 +2536,8 @@
             }
 
             if (ret.code == "00") {
-                // 갱신된 공고 데이터가 있으면 카드 재렌더링
-                if (mqType == "RESUME" && ret.data && ret.data.recruit) {
+                // 갱신된 공고 데이터가 있으면 카드 재렌더링 (RESUME/RECRUIT 공통)
+                if (ret.data && ret.data.recruit) {
                     window.renderChatRecruitCard(ret.data.recruit);
                 }
                 // 카드 표시
@@ -2826,12 +2858,16 @@
                 return;
             }
 
+            // 🔥 DEBUG: DOMContentLoaded - 페이지 로드됨
+            console.log('[chat_view] DOMContentLoaded - requested_rm_idx: ' + requested_rm_idx + ', g_user_id: ' + g_user_id);
+
             // 안드로이드에서도 소켓을 사용하여 룸 정보 조회
             // socket.emit("room_join", ...)와 socket.emit("room_info", ...)는 기능이 다르다.
             // 1. room_join:
             //    - 사용자를 특정 채팅방(room)에 참여(join)시키는 역할.
             //    - 소켓 서버가 해당 사용자를 해당 채팅방의 멤버로 추가하여
             //      이후 실시간 메시지, 알림 등 이벤트를 해당 room에서 받을 수 있게 함.
+            console.log('[chat_view] room_join emit - rm_idx: ' + rm_idx);
             socket.emit("room_join", {
                 rm_idx: Number(rm_idx),
                 con_user_id: g_user_id
@@ -2840,6 +2876,7 @@
             // 2. room_info:
             //    - 채팅방의 상세 정보(예: 방 제목, 참여자, 설정 등)를 요청하는 역할.
             //    - 서버에 해당 room의 정보를 요청하면 서버가 정보를 반환(room_info_return 이벤트로)함.
+            console.log('[chat_view] room_info emit - rm_idx: ' + rm_idx);
             socket.emit("room_info", {
                 rm_idx: Number(rm_idx),
                 con_user_id: g_user_id
@@ -2897,12 +2934,18 @@
                     alert("데이터 조회시 문제가 발생하였습니다. 관리자에게 문의 해주세요.");
                 }
             } else {
+                // ✅ 응답 검증: 이 응답이 내가 요청한 방(requested_rm_idx)에 대한 것인지 확인
+                if (String(ret.data.rm_idx) !== String(requested_rm_idx)) {
+                    console.warn("[room_info_return] 다른 방의 응답 무시됨. 요청: " + requested_rm_idx + ", 수신: " + ret.data.rm_idx);
+                    return; // 다른 방에 대한 응답은 버림
+                }
+
                 // 채팅방 진입 시 중복 메시지 방지 배열 초기화
                 resetProcessedIdx();
-                
+
                 //채팅방 정보
                 rm_info = ret.data;
-                
+
                 // 🔥 중요: 서버에서 받은 올바른 rm_idx로 업데이트 (rc_idx가 아닌 실제 rm_idx)
                 if (ret.data && ret.data.rm_idx) {
                     var old_rm_idx = rm_idx; // 업데이트 전 값 저장
@@ -3615,17 +3658,23 @@
                     alert("데이터 조회시 문제가 발생하였습니다. 관리자에게 문의 해주세요.");
                 }
             } else {
+                // ✅ 응답 검증: 이 응답이 내가 요청한 방(requested_rm_idx)에 대한 것인지 확인
+                if (String(ret.data.rm_idx) !== String(requested_rm_idx)) {
+                    console.warn("[room_info_return] 다른 방의 응답 무시됨. 요청: " + requested_rm_idx + ", 수신: " + ret.data.rm_idx);
+                    return; // 다른 방에 대한 응답은 버림
+                }
+
                 // 채팅방 진입 시 중복 메시지 방지 배열 초기화
                 resetProcessedIdx();
 
                 // 채팅방 정보를 저장
                 rm_info = ret.data;
-                
+
                 // 🔥 중요: 서버에서 받은 올바른 rm_idx로 업데이트 (rc_idx가 아닌 실제 rm_idx)
                 if (ret.data && ret.data.rm_idx) {
                     var old_rm_idx = rm_idx; // 업데이트 전 값 저장
                     rm_idx = ret.data.rm_idx;
-                
+
                 }
                 
                 // 채팅방 정보 준비 완료 플래그 설정
