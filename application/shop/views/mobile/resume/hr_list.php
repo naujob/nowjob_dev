@@ -432,12 +432,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     overflow: hidden;
 
     padding: 8px 0;
-    margin-top: 15px;
+    
   }
 
   .resume-status-banner .marquee-wrap {
     overflow: hidden;
     width: 100%;
+    font-size: 16px;
   }
 
   .resume-status-banner .marquee-track {
@@ -451,24 +452,23 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     align-items: center;
     white-space: nowrap;
     padding-right: 30px;
-    font-size: 13px;
+   
   }
 
   .resume-status-banner .marquee-item .label {
     color: #000;
-    font-weight: 500;
+   
     margin-right: 4px;
   }
 
   .resume-status-banner .marquee-item .value {
     color: #57CCAF;
-    font-weight: 700;
-    font-size: 20px;
+ 
   }
 
   @keyframes resume-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
   }
 
   /* summary와 chat_mark를 나란히 배치 */
@@ -574,7 +574,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       <div class="marquee-wrap">
         <div class="marquee-track">
           <?= $status_items_html ?>
-          <?= $status_items_html ?>
+       
         </div>
       </div>
     </div>
@@ -582,7 +582,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     <!-- 추천인재 -->
     <div class="section index_comp" id="recommSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
       <div class="container">
-        <h2 class="secondary-title index">추천인재</h2>
+        <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;">추천인재</h2>
         <div class="recomm-slider person" style="display: flex; flex-direction: column;">
           <div class="slider-wrap keen-slider" id="recomm-list">
             <?php

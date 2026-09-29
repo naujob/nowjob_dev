@@ -742,12 +742,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     overflow: hidden;
     
     padding: 8px 0;
-    margin-top: 15px;
+   
   }
 
   .recruit-status-banner .marquee-wrap {
     overflow: hidden;
     width: 100%;
+    font-size: 16px;
   }
 
   .recruit-status-banner .marquee-track {
@@ -761,24 +762,23 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     align-items: center;
     white-space: nowrap;
     padding-right: 30px;
-    font-size: var(--page-recruit-font-size-13);
+   
   }
 
   .recruit-status-banner .marquee-item .label {
     color: #000;
-    font-weight: 500;
+    
     margin-right: 4px;
   }
 
   .recruit-status-banner .marquee-item .value {
     color: #57CCAF;
-    font-weight: 700;
-    font-size: 20px;
+    
   }
 
   @keyframes recruit-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
   }
 
 </style>
@@ -819,7 +819,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     <div class="marquee-wrap">
       <div class="marquee-track">
         <?= $status_items_html ?>
-        <?= $status_items_html ?>
+        
       </div>
     </div>
   </div>
@@ -827,7 +827,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <!-- 지금 뜨는 업체 -->
   <div class="section" id="hotListSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
     <div class="container">
-      <h2 class="secondary-title index" style="margin: 1.3rem 0px 1.1rem;">지금 뜨는 업체</h2>
+      <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;">지금 뜨는 업체</h2>
       <div class="hot-list" style="display: flex; flex-direction: column;">
         <div class="slider-wrap keen-slider">
           <?php foreach ($hot_companies['chunks'] as $slideIndex => $chunk) : ?>
