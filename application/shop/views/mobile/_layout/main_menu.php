@@ -30,14 +30,8 @@ if (!function_exists('_nav_active')) {
 }
 
 // 채용공고 등록 여부 확인 (COMP 사용자만)
-$_show_recruit_bubble = false; // 채용공고 등록 안내 말풍선 표시 여부
-if ($this->user->isLogin() && $this->user->getUserType() === "COMP") {
-  $this->load->model('recruitmodel', 'recruit_model');
-  $recruit_counts = $this->recruit_model->getRecruitCountForTab($this->user->getUserIdx());
-  if ($recruit_counts && isset($recruit_counts[0]['allcnt']) && $recruit_counts[0]['allcnt'] == 0) {
-    $_show_recruit_bubble = true;
-  }
-}
+// 주의: 이 데이터는 컨트롤러에서 전달되어야 함 (뷰에서는 데이터 렌더링만 담당)
+$_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : false;
 ?>
 
 <div class="bottom-nav">

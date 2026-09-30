@@ -17,6 +17,8 @@
 <!-- room에 없으면 URL 파라미터에서 참고 (다이렉트 채팅 초기 진입 시 job_post.php에서 전달) -->
 <input type="hidden" id="room_rc_idx" value="<?= isset($room['rc_idx']) && !empty($room['rc_idx']) ? $room['rc_idx'] : (isset($_GET['rc_idx']) ? $_GET['rc_idx'] : '') ?>" />
 <input type="hidden" id="room_ru_idx" value="<?= isset($room['ru_idx']) && !empty($room['ru_idx']) ? $room['ru_idx'] : (isset($_GET['ru_idx']) ? $_GET['ru_idx'] : '') ?>" />
+<!-- 다이렉트 채팅방 여부 (JS에서 지원/제안 시 상대방 값 선택 로직 분기) -->
+<input type="hidden" id="is_direct_chat" value="<?= isset($is_direct_chat) && $is_direct_chat ? 'Y' : 'N' ?>" />
 
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
@@ -37,6 +39,27 @@
                 hr_list: '/chat/index_comp' // 인재 리스트
             };
             backUrl = backMap[from] || '/chat/chat_list';
+        }
+
+        // user_type이 다른 경우 backUrl 변환 (발신자와 수신자의 페이지 매핑)
+        var currentUserType = $("#user_type").val() || "MEM";
+        if (backUrl) {
+            // 개인회원(MEM)이 기업용 backUrl을 받은 경우 변환
+            if (currentUserType === "MEM") {
+                if (backUrl.indexOf('chat_list3') !== -1) {
+                    backUrl = '/chat/chat_list2'; // 기업의 "지원받은 인재" → 개인의 "제안받은 공고"
+                } else if (backUrl.indexOf('index_comp') !== -1) {
+                    backUrl = '/chat/chat_list'; // 기업의 "제안 보낸 인재" → 개인의 "지원한 공고"
+                }
+            }
+            // 기업회원(COMP)이 개인용 backUrl을 받은 경우 변환
+            else if (currentUserType === "COMP") {
+                if (backUrl === '/chat/chat_list') {
+                    backUrl = '/chat/chat_list3'; // 개인의 "지원한 공고" → 기업의 "지원받은 인재"
+                } else if (backUrl === '/chat/chat_list2') {
+                    backUrl = '/chat/index_comp'; // 개인의 "제안받은 공고" → 기업의 "제안 보낸 인재"
+                }
+            }
         }
 
         window.backUrl = backUrl;
@@ -195,6 +218,7 @@
                             };
                         }
                         // 소켓으로 시스템 메시지 전송
+                        systemMsg.backUrl = window.backUrl;
                         socket.emit("message_insert", systemMsg, rm_info.rm_users);
                     }
 
@@ -789,7 +813,7 @@
     <!-- //인재정보 -->
 <?php endif; ?>
 
-<!-- 채팅방 내 제안하기(COMP)/지원하기(MEM) 선택 바텀시트 -->
+<!-- 채팅방 내 제안하기(COMP)/지원하기(MEM) 선택 바텀시트 (1단계: 내 항목 선택) -->
 <input type="hidden" id="proposeMqType" value="<?= ($user_type == "COMP") ? "RESUME" : "RECRUIT" ?>" />
 <div id="proposeSelectPanel" class="layer-panel card-type" tabindex="-1">
     <div class="panel-container">
@@ -855,12 +879,88 @@
             </div>
              <div class="panel-footer" style="position: relative; margin-top: 60px; ">
                 <div class="sticky-bottom" style="width:100%;">
-                    <button type="button" id="btnProposeSend" style="width:100%;" class="btn btn-primary bottom-sheet-action">보내기</button>
+                    <button type="button" id="btnProposeNext" style="width:100%;" class="btn btn-primary bottom-sheet-action"><?= (isset($is_direct_chat) && $is_direct_chat) ? "다음" : "보내기" ?></button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<!-- //1단계: 내 항목 선택 -->
+
+<?php if (isset($is_direct_chat) && $is_direct_chat) : ?>
+<!-- 채팅방 내 제안하기(COMP)/지원하기(MEM) 선택 바텀시트 (2단계: 상대방 항목 선택, 다이렉트 채팅방 전용) -->
+<div id="opponentSelectPanel" class="layer-panel card-type" tabindex="-1">
+    <div class="panel-container">
+        <div class="panel-header" style="background: #57CCAF; color: #fff; padding-top: 1.25rem; margin-bottom: 20px;">
+            <h2 class="panel-title" style="color:#fff;"><?= ($user_type == "COMP") ? "상대방 이력서 선택" : "상대방 채용공고 선택" ?></h2>
+            <button type="button" aria-controls="opponentSelectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+        </div>
+        <div class="panel-body" style="padding: 2rem 1.375rem 1.5rem;">
+            <div class="panel-content">
+                <div class="terms-wrap">
+                    <div class="post-list">
+                        <ul class="list">
+                            <?php if ($user_type == "COMP") : ?>
+                                <?php $hasOpponentItems = isset($opponent_resume_list) && is_array($opponent_resume_list) && count($opponent_resume_list) > 0; ?>
+                                <?php if ($hasOpponentItems) : ?>
+                                    <?php foreach ($opponent_resume_list as $row) : ?>
+                                        <?php if (empty($row["ru_idx"])) { continue; } ?>
+                                        <li style="border: 1px solid #ccc; border-radius: 10px; margin-bottom: 10px;">
+                                            <div class="selectable-item">
+                                                <label class="form-checkbox">
+                                                    <input type="radio" name="chk_opponent[]" value="<?= htmlspecialchars($row["ru_idx"], ENT_QUOTES, 'UTF-8') ?>" data-opponent-id="<?= htmlspecialchars($row["ru_idx"], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars(isset($row["ru_name"]) ? $row["ru_name"] : '', ENT_QUOTES, 'UTF-8') ?>">
+                                                    <span class="label"></span>
+                                                    <span class="sr-text">선택</span>
+                                                </label>
+                                                <a href="javascript:void(0);" class="angle-link" style="background:none;">
+                                                    <strong><?= isset($row["ru_name"]) ? $row["ru_name"] : '' ?></strong>
+                                                </a>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <div class="is-empty_v2">
+                                        <p>상대방이 아직 이력서를 등록하지 않아 제안할 수 없습니다.</p>
+                                    </div>
+                                <?php endif; ?>
+                            <?php else : ?>
+                                <?php $hasOpponentItems = isset($opponent_recruit_list) && is_array($opponent_recruit_list) && count($opponent_recruit_list) > 0; ?>
+                                <?php if ($hasOpponentItems) : ?>
+                                    <?php foreach ($opponent_recruit_list as $row) : ?>
+                                        <?php if (empty($row["rc_idx"])) { continue; } ?>
+                                        <li style="border: 1px solid #ccc; border-radius: 10px; margin-bottom: 10px;">
+                                            <div class="selectable-item">
+                                                <label class="form-checkbox">
+                                                    <input type="radio" name="chk_opponent[]" value="<?= htmlspecialchars($row["rc_idx"], ENT_QUOTES, 'UTF-8') ?>" data-opponent-id="<?= htmlspecialchars($row["rc_idx"], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars(isset($row["rc_name"]) ? $row["rc_name"] : '', ENT_QUOTES, 'UTF-8') ?>">
+                                                    <span class="label"></span>
+                                                    <span class="sr-text">선택</span>
+                                                </label>
+                                                <a href="javascript:void(0);" class="angle-link" style="background:none;">
+                                                    <strong><?= isset($row["rc_name"]) ? $row["rc_name"] : '' ?></strong>
+                                                </a>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <div class="is-empty_v2">
+                                        <p>상대방이 아직 채용공고를 등록하지 않아 지원할 수 없습니다.</p>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+             <div class="panel-footer" style="position: relative; margin-top: 60px; ">
+                <div class="sticky-bottom" style="width:100%;">
+                    <button type="button" id="btnOpponentSend" style="width:100%;" class="btn btn-primary bottom-sheet-action">보내기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- //2단계: 상대방 항목 선택 -->
+<?php endif; ?>
 <!-- //채팅방 내 제안하기/지원하기 선택 바텀시트 -->
 
 <!-- 채팅방 나가기 바텀시트 -->
@@ -937,6 +1037,15 @@
     var last_send_dt = "";
     var requested_rm_idx = "<?= $rm_idx ?>"; // 페이지가 요청한 원래 방 번호 (절대 변경 금지)
     var rm_idx = "<?= $rm_idx ?>";
+    var is_direct_chat = "<?= isset($is_direct_chat) && $is_direct_chat ? 'Y' : 'N' ?>" === "Y";
+    // 다이렉트 채팅방에서 상대방의 실제 이력서/채용공고가 하나라도 있는지 (없으면 지원/제안 자체를 막음)
+    var opponent_has_items = "<?php
+        if ($user_type == 'COMP') {
+            echo (isset($opponent_resume_list) && is_array($opponent_resume_list) && count($opponent_resume_list) > 0) ? 'Y' : 'N';
+        } else {
+            echo (isset($opponent_recruit_list) && is_array($opponent_recruit_list) && count($opponent_recruit_list) > 0) ? 'Y' : 'N';
+        }
+    ?>" === "Y";
     var rm_info = {};
     var rm_start = 0;
     var rm_length = 20;
@@ -1189,6 +1298,7 @@
                     { user_id: $('#otherid').val() },
                     { user_id: g_user_id }
                 ];
+                systemMsg.backUrl = window.backUrl;
                 socket.emit("message_insert", systemMsg, users);
             }
 
@@ -1414,6 +1524,7 @@
         }
         
         // 메시지 전송
+        firstMessage.backUrl = window.backUrl;
         socket.emit("message_insert", firstMessage, firstUsers);
     };
 
@@ -2488,6 +2599,7 @@
         }
 
         console.log("[CHAT_ATTACH] 소켓 emit 호출:", { mg_type: kind, imgCount: imgUrls.length, fileCount: fileUrls.length });
+        message.backUrl = window.backUrl;
         socket.emit("message_insert", message, rm_info.rm_users);
     }
 
@@ -2510,29 +2622,21 @@
         }
     });
 
-    $(document).on("click", "#btnProposeSend", function() {
-        var $checked = $("[name='chk_propose[]']:checked");
-        if ($checked.length === 0) {
-            alert("항목을 선택해주세요.");
-            return;
-        }
+    // 1단계(내 항목) → 2단계(상대방 항목) 사이에 선택값을 잠시 들고 있기 위한 변수
+    var proposeStep1Selection = null;
 
-        var mqType = $("#proposeMqType").val(); // RESUME: 제안하기(COMP) / RECRUIT: 지원하기(MEM)
-        // value 대신 data-propose-id 속성으로 값을 안전하게 추출 (name 배열 형식 jQuery 호환성 문제 회피)
-        var selectedIdx = $checked.data("propose-id") || $checked.val();
-        var selectedName = $checked.data("name") || "";
-
+    // 실제 API 호출 + 완료 후처리 (일반 채팅방/다이렉트 채팅방 공통)
+    function submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $panelToClose) {
         var params = {
             rm_idx: rm_idx,
             mq_type: mqType,
-            rc_idx: (mqType == "RESUME") ? selectedIdx : $("#room_rc_idx").val(),
-            ru_idx: (mqType == "RESUME") ? $("#room_ru_idx").val() : selectedIdx
+            rc_idx: (mqType == "RESUME") ? selectedIdx : opponentIdx,
+            ru_idx: (mqType == "RESUME") ? opponentIdx : selectedIdx
         };
 
         comAjax("/chat_proc/propose_from_room", params, function(ret) {
-            var $panel = document.getElementById("proposeSelectPanel");
-            if ($panel && typeof closePanel === "function") {
-                closePanel($panel);
+            if ($panelToClose && $panelToClose.length > 0 && typeof closePanel === "function") {
+                closePanel($panelToClose[0]);
             }
 
             if (ret.code == "00") {
@@ -2551,6 +2655,67 @@
                 alert(ret.msg || "처리에 실패했습니다.");
             }
         });
+    }
+
+    // 1단계: 내 항목 선택 후 "다음"(다이렉트 채팅방) 또는 "보내기"(일반 채팅방)
+    $(document).on("click", "#btnProposeNext", function() {
+        var $checked = $("[name='chk_propose[]']:checked");
+        if ($checked.length === 0) {
+            alert("항목을 선택해주세요.");
+            return;
+        }
+
+        var mqType = $("#proposeMqType").val(); // RESUME: 제안하기(COMP) / RECRUIT: 지원하기(MEM)
+        // value 대신 data-propose-id 속성으로 값을 안전하게 추출 (name 배열 형식 jQuery 호환성 문제 회피)
+        var selectedIdx = $checked.data("propose-id") || $checked.val();
+        var selectedName = $checked.data("name") || "";
+
+        if (is_direct_chat) {
+            if (!opponent_has_items) {
+                alert("상대방이 아직 이력서/채용공고를 등록하지 않아 지원/제안할 수 없습니다.");
+                return;
+            }
+            // 다이렉트 채팅방: 선택값을 잠시 저장해두고 2단계(상대방 선택) 패널로 전환
+            proposeStep1Selection = { mqType: mqType, selectedIdx: selectedIdx, selectedName: selectedName };
+
+            var $step1Panel = document.getElementById("proposeSelectPanel");
+            var $step2Panel = document.getElementById("opponentSelectPanel");
+            if ($step1Panel && typeof closePanel === "function") {
+                closePanel($step1Panel);
+            }
+            $("[name='chk_opponent[]']").prop("checked", false);
+            if ($step2Panel && typeof openPanel === "function") {
+                openPanel($step2Panel);
+            }
+        } else {
+            // 일반 채팅방: room에 이미 실제 매칭된 값을 그대로 사용해 바로 제출
+            var opponentIdx = (mqType == "RESUME") ? $("#room_ru_idx").val() : $("#room_rc_idx").val();
+            submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $("#proposeSelectPanel"));
+        }
+    });
+
+    // 2단계: 상대방 항목 선택 후 최종 "보내기" (다이렉트 채팅방 전용)
+    $(document).on("click", "#btnOpponentSend", function() {
+        if (!proposeStep1Selection) {
+            alert("항목을 다시 선택해주세요.");
+            return;
+        }
+
+        var $checkedOpponent = $("[name='chk_opponent[]']:checked");
+        if ($checkedOpponent.length === 0) {
+            alert("상대방 항목을 선택해주세요.");
+            return;
+        }
+        var opponentIdx = $checkedOpponent.data("opponent-id") || $checkedOpponent.val();
+
+        submitPropose(
+            proposeStep1Selection.mqType,
+            proposeStep1Selection.selectedIdx,
+            proposeStep1Selection.selectedName,
+            opponentIdx,
+            $("#opponentSelectPanel")
+        );
+        proposeStep1Selection = null;
     });
 
     // 제안/지원 완료 안내를 채팅창에 시스템 메시지로 전송
@@ -2576,15 +2741,16 @@
             }
         }
 
+        message.backUrl = window.backUrl;
         socket.emit("message_insert", message, rm_info.rm_users);
     }
 
     // 제안/지원 선택 바텀시트: 항목 클릭 시 해당 항목의 radio 버튼 선택
-    $(document).on("click", "#proposeSelectPanel .selectable-item", function(e) {
+    $(document).on("click", "#proposeSelectPanel .selectable-item, #opponentSelectPanel .selectable-item", function(e) {
         if ($(e.target).is("label") || $(e.target).is("input") || $(e.target).closest("label").length > 0) {
             return;
         }
-        var $radio = $(this).find("input[type='radio'][name='chk_propose[]']");
+        var $radio = $(this).find("input[type='radio']");
         if ($radio.length > 0) {
             $radio.prop("checked", true);
         }
@@ -3226,6 +3392,7 @@
             }
 
             //채팅방 실시간 쏘기 - Socket.IO만 사용
+            message.backUrl = window.backUrl;
             socket.emit("message_insert", message, rm_info.rm_users);
 
             //채팅창 클리어
@@ -3578,6 +3745,7 @@
                 }
 
                 //채팅방 실시간 쏘기 - Socket.IO 사용
+                message.backUrl = window.backUrl;
                 socket.emit("message_insert", message, rm_info.rm_users);
             });
         }
@@ -3866,6 +4034,7 @@
             }
 
             //채팅방 실시간 쏘기
+            message.backUrl = window.backUrl;
             socket.emit("message_insert", message, rm_info.rm_users);
             $("#chatTxt").val(""); //.focus();
             document.getElementById('chatTxt').style.height = '3rem'; // textarea 높이 초기화
@@ -4136,6 +4305,7 @@
                 }
 
                 //채팅방 실시간 쏘기
+                message.backUrl = window.backUrl;
                 socket.emit("message_insert", message, rm_info.rm_users);
             });
         }

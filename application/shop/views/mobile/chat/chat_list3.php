@@ -561,8 +561,6 @@ $top_bar = array(
             chatListParent.show();
             chatListParent.css("display", "block");
 
-            fSearchNoReadCount();
-
             // 자동 채팅방 진입 처리
             var urlParams = new URLSearchParams(window.location.search);
             var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');
@@ -702,6 +700,11 @@ $top_bar = array(
                         $(this).text($(this).attr('data-time'));
                     });
 
+                    // 다이렉트 채팅 rm_idx를 탭2 추적 목록에 병합
+                    window.__chatDirectRmIdxSetSentComp.forEach(function(idx) {
+                        window.__chatTab2RmIdxSet.add(idx);
+                    });
+
                     // 모든 렌더링 완료 후 empty 상태 재평가
                     var chatListCount = $("#chat_list").find("li").length;
                     var directChatCount = $("#direct_chat_list_sent_comp").find("li").length;
@@ -711,6 +714,9 @@ $top_bar = array(
                     } else {
                         $("#chat_empty1").hide();
                     }
+
+                    // DOM 렌더링 완료 후 뱃지 업데이트 (race condition 방지)
+                    fSearchNoReadCount();
                 } else {
                     console.error("[fSearchDirectChatListSentComp] ERROR: code=" + ret.code + ", msg=" + ret.msg);
                 }
@@ -774,7 +780,7 @@ $top_bar = array(
                 });
 
                 // 하위 인재 리스트의 개별 채팅방 뱃지 업데이트 (DOM에 있는 경우)
-                var $unreadElement = $('#chat_list #room_idx_unread_cnt_' + room.rm_idx);
+                var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
                 if ($unreadElement.length > 0) {
                     // 현재 페이지에 있는 채팅방 (제안한 인재 탭)
                     $unreadElement.html(count);

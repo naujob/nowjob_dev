@@ -282,13 +282,13 @@ $top_bar = array(
                 return;
             }
 
-            // 미확인 채팅건수 조회
-            fSearchNoReadCount();
-
             // 기본 목록 로드 완료 후 다이렉트 채팅 로드 (순서 보장)
             if (typeof fSearchDirectChatListReceivedMem === 'function') {
                 fSearchDirectChatListReceivedMem();
             }
+
+            // 다이렉트 채팅 로드 완료 후 미확인 채팅건수 조회 (DOM 재구성 후 뱃지 업데이트)
+            fSearchNoReadCount();
         });
     }
 
@@ -358,6 +358,11 @@ $top_bar = array(
                         $(this).text($(this).attr('data-time'));
                     });
 
+                    // 다이렉트 채팅 rm_idx를 탭2 추적 목록에 병합
+                    window.__chatDirectRmIdxSetReceived.forEach(function(idx) {
+                        window.__chatTab2RmIdxSet.add(idx);
+                    });
+
                     // 모든 렌더링 완료 후 empty 상태 재평가
                     var chatListCount = $("#chat_list").find("li").length;
                     var directChatCount = $("#direct_chat_list_received").find("li").length;
@@ -367,6 +372,9 @@ $top_bar = array(
                     } else {
                         $("#chat_empty1").hide();
                     }
+
+                    // DOM 렌더링 완료 후 뱃지 업데이트 (race condition 방지)
+                    fSearchNoReadCount();
                 }
             }
         });
@@ -394,7 +402,7 @@ $top_bar = array(
 
                 // 탭 판별: DOM 존재 여부가 아니라 dedupe 이전 리스트 기반
                 var belongsToThisTab = window.__chatTab2RmIdxSet && window.__chatTab2RmIdxSet.has(String(room.rm_idx));
-                var $unreadElement = $('#chat_list #room_idx_unread_cnt_' + room.rm_idx);
+                var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
 
                 // DOM에 실제 렌더링된 요소(dedupe 생존자)에만 숫자 표시
                 if ($unreadElement.length > 0) {

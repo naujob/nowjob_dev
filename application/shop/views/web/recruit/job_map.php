@@ -834,6 +834,13 @@ $ad_addr = trim($ad_addr);
     return cleaned;
   }
 
+  function getConvertPrice(rc_price_pay) {
+    if (!rc_price_pay) {
+      return '급여협의';
+    }
+    return Number(rc_price_pay).toLocaleString() + "원";
+  }
+
   function updateAddrInfo(zipcode, doro, jibun, addr, x, y) {
     var params = {};
     params["ad_zipcode"] = zipcode;

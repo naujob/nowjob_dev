@@ -585,7 +585,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
   .btn-promotion-icon {
     background-image: url('/resource/shop/web/img/adBtn.svg');
     background-repeat: no-repeat;
-    background-position: 77px center;
+    background-position: 73px center;
     background-size: 35px 35px;
     padding-left: 45px;
   }
@@ -724,6 +724,31 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
   .summary-card .preview-action-bar .btn.btn-primary {
     background-color: #31A182;
     color: white;
+  }
+
+  /* 하단 미리보기 액션 바 */
+  .preview-action-bar-bottom {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .preview-action-bar-bottom .btn-register {
+    min-width: 300px;
+    border-radius: 4px;
+    padding: 12px 24px;
+    background: #31A182;
+    color: #fff;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    height: 65px;
+    font-size: 26px;
+  }
+
+  .preview-action-bar-bottom .btn-register:hover {
+    background: #25845a;
   }
 
 </style>
@@ -1342,6 +1367,13 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
     <div class="view-footer">
       <div class="container">
+
+        <?php if ($isPreview) { ?>
+          <!-- 미리보기 모드: 하단 액션 바 -->
+          <div class="preview-action-bar-bottom">
+            <button type="button" class="btn-register" onclick="submitPreviewComplete()">등록하기</button>
+          </div>
+        <?php } ?>
 
         <!-- 하단 관련 공고 -->
         <div class="recomm-slider recruit">

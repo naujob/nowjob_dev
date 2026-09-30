@@ -1832,7 +1832,7 @@ class Chat_proc extends CI_Controller
 		// 현재 사용자가 접근 가능한 room_idx들을 수집
 		$accessible_room_idxes = [];
 
-		// 개인회원(MEM): 지원한공고 + 제안받은공고
+		// 개인회원(MEM): 지원한공고 + 제안받은공고 + 다이렉트채팅
 		if ($user_type == "MEM") {
 			// 1. 지원한 공고 (get_chat_target_list_recruit_mem과 동일한 로직)
 			$recruit_list = $this->member_model->getRecruitActaiveListMem($mm_idx);
@@ -1857,8 +1857,24 @@ class Chat_proc extends CI_Controller
 					}
 				}
 			}
+
+			// 3. 보낸 다이렉트채팅
+			$direct_sent_list = $this->member_model->getDirectChatListSentMem($mm_idx);
+			foreach ($direct_sent_list as $row) {
+				if (!empty($row["rm_idx"])) {
+					$accessible_room_idxes[] = (int)$row["rm_idx"];
+				}
+			}
+
+			// 4. 받은 다이렉트채팅
+			$direct_received_list = $this->member_model->getDirectChatListReceivedMem($mm_idx);
+			foreach ($direct_received_list as $row) {
+				if (!empty($row["rm_idx"])) {
+					$accessible_room_idxes[] = (int)$row["rm_idx"];
+				}
+			}
 		}
-		// 기업회원(COMP): 지원한인재 + 제안한인재
+		// 기업회원(COMP): 지원한인재 + 제안한인재 + 다이렉트채팅
 		else if ($user_type == "COMP") {
 			// 1. 지원한 인재 (get_chat_target_list_recruit과 동일한 로직)
 			$recruit_list = $this->member_model->getRecruitActaiveList($mm_idx);
@@ -1881,6 +1897,22 @@ class Chat_proc extends CI_Controller
 					foreach ($rm_idxes as $rm_idx) {
 						$accessible_room_idxes[] = (int)$rm_idx;
 					}
+				}
+			}
+
+			// 3. 보낸 다이렉트채팅
+			$direct_sent_list = $this->member_model->getDirectChatListSentComp($mm_idx);
+			foreach ($direct_sent_list as $row) {
+				if (!empty($row["rm_idx"])) {
+					$accessible_room_idxes[] = (int)$row["rm_idx"];
+				}
+			}
+
+			// 4. 받은 다이렉트채팅
+			$direct_received_list = $this->member_model->getDirectChatListReceivedComp($mm_idx);
+			foreach ($direct_received_list as $row) {
+				if (!empty($row["rm_idx"])) {
+					$accessible_room_idxes[] = (int)$row["rm_idx"];
 				}
 			}
 		}
@@ -2899,6 +2931,25 @@ json_return("00", "조회완료", $data);
 			}
 		}
 
+		// 상대방 쪽 값 방어적 검증 — 프론트 우회로 더미(auto_yn='Y') 값이 전달되는 것을 차단
+		if ($mq_type == "RESUME") {
+			$opponent_resume = $this->db->query(
+				"SELECT ru_idx, ru_auto_yn FROM st_resume WHERE ru_idx = ?",
+				array($ru_idx)
+			)->row_array();
+			if (!$opponent_resume || $opponent_resume["ru_auto_yn"] == "Y") {
+				json_return("90", "상대방이 아직 이력서를 등록하지 않아 제안할 수 없습니다.");
+			}
+		} else if ($mq_type == "RECRUIT") {
+			$opponent_recruit = $this->db->query(
+				"SELECT rc_idx, rc_auto_yn FROM st_recruit WHERE rc_idx = ?",
+				array($rc_idx)
+			)->row_array();
+			if (!$opponent_recruit || $opponent_recruit["rc_auto_yn"] == "Y") {
+				json_return("90", "상대방이 아직 채용공고를 등록하지 않아 지원할 수 없습니다.");
+			}
+		}
+
 		// 중복 체크: 동일 공고+이력서 조합으로 이미 지원/제안한 이력이 있으면 무조건 안내만 하고 종료
 		$sql_dup = "SELECT mq_idx FROM st_member_request WHERE rc_idx = ? AND ru_idx = ? LIMIT 1";
 		$query_dup = $this->db->query($sql_dup, array($rc_idx, $ru_idx));
@@ -3094,8 +3145,8 @@ json_return("00", "조회완료", $data);
 		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListSentMem($mm_idx);
      //   error_log('[Chat] get_direct_chat_list_sent_mem - mm_idx: ' . $mm_idx . ', result: ' . json_encode($result));
-		
-	 
+
+
 	 $preview_byte_length = 20;
 		$temp_list = $result;
        $exited_keys = [];
@@ -3107,6 +3158,11 @@ json_return("00", "조회완료", $data);
 			$collection = $database->room;
 
 				foreach ($temp_list as $key => $row) {
+				// rc_thumb가 null이거나 빈 값일 경우 getRecruitImg 함수로 대체 이미지 처리
+				if (empty($row["rc_thumb"])) {
+					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
+				}
+
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 
 				if ($rm_idx > 0) {
@@ -3197,6 +3253,11 @@ json_return("00", "조회완료", $data);
 			$collection = $database->room;
 
 			foreach ($temp_list as $key => $row) {
+				// rc_thumb가 null이거나 빈 값일 경우 getRecruitImg 함수로 대체 이미지 처리
+				if (empty($row["rc_thumb"])) {
+					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
+				}
+
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 
 				if ($rm_idx > 0) {
@@ -3288,6 +3349,11 @@ json_return("00", "조회완료", $data);
 			$collection = $database->room;
 
 				foreach ($temp_list as $key => $row) {
+				// rc_thumb가 null이거나 빈 값일 경우 getRecruitImg 함수로 대체 이미지 처리
+				if (empty($row["rc_thumb"])) {
+					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
+				}
+
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 
 				if ($rm_idx > 0) {
@@ -3381,6 +3447,11 @@ json_return("00", "조회완료", $data);
 			$collection = $database->room;
 
 				foreach ($temp_list as $key => $row) {
+				// rc_thumb가 null이거나 빈 값일 경우 getRecruitImg 함수로 대체 이미지 처리
+				if (empty($row["rc_thumb"])) {
+					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
+				}
+
 				$rm_idx = isset($row["rm_idx"]) ? (int)$row["rm_idx"] : 0;
 
 				if ($rm_idx > 0) {

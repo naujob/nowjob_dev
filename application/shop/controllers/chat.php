@@ -314,6 +314,10 @@ class Chat extends CI_Controller
             $data["recruit"]["rc_nation_nm"] = "국적무관";
           }
           $data["recruit"]["rt_recruit_img"] = getRecruitImg($row);
+          // rc_thumb이 null이거나 빈 값일 경우 getRecruitImg 함수로 대체 이미지 처리
+          if (empty($data["recruit"]["rc_thumb"])) {
+            $data["recruit"]["rc_thumb"] = getRecruitImg($row);
+          }
           $data["recruit"]["rt_work_img"] = getWorkingImg($row["rc_work"]);
           $data["recruit"]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
           $data["recruit"]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
@@ -451,13 +455,6 @@ class Chat extends CI_Controller
       }
     }
 
-    // 채팅방 안 "제안하기(COMP)/지원하기(MEM)" 바텀시트에 사용할 목록
-    if ($user_type == "COMP") {
-      $data["my_recruit_list"] = $this->member_model->getRecruitActaiveListAll($this->mm_idx);
-    } else {
-      $data["my_resume_list"] = $this->member_model->getResumeList(["mm_idx" => $this->mm_idx]);
-    }
-
     // 다이렉트 채팅방 여부 판정
     // 이 방에서 정상(제안/지원) 요청이 한 번이라도 발생했다면, _DIRECT 이력이 남아있어도
     // 더 이상 다이렉트 채팅방이 아닌 일반 제안/지원 채팅방으로 취급한다.
@@ -474,6 +471,49 @@ class Chat extends CI_Controller
         [$rm_idx]
       )->row_array();
       $data["is_direct_chat"] = $direct_check ? true : false;
+    }
+
+    // 다이렉트 채팅방일 때, 상대방의 실제(더미가 아닌) 이력서/채용공고 목록 조회
+    // (일반 채팅방은 room에 이미 실제 매칭된 값이 있으므로 이 블록을 타지 않음)
+    $data["opponent_recruit_list"] = [];
+    $data["opponent_resume_list"] = [];
+
+    if ($data["is_direct_chat"] && $opponent_user_id) {
+      $opponent_member = $this->member_model->getMember(["mm_id" => $opponent_user_id]);
+      if ($opponent_member && isset($opponent_member["mm_idx"])) {
+        if ($user_type == "COMP") {
+          // 내가 COMP(제안하기)면 상대방은 MEM → 상대방의 실제 이력서 목록 필요
+          $all_opponent_resumes = $this->member_model->getResumeList(["mm_idx" => $opponent_member["mm_idx"]]);
+          $data["opponent_resume_list"] = array_values(array_filter($all_opponent_resumes, function($item) {
+            return !isset($item["ru_auto_yn"]) || $item["ru_auto_yn"] !== "Y";
+          }));
+        } else {
+          // 내가 MEM(지원하기)면 상대방은 COMP → 상대방의 실제 채용공고 목록 필요
+          $all_opponent_recruits = $this->member_model->getRecruitList(["mm_idx" => $opponent_member["mm_idx"]]);
+          $data["opponent_recruit_list"] = array_values(array_filter($all_opponent_recruits, function($item) {
+            return !isset($item["rc_auto_yn"]) || $item["rc_auto_yn"] !== "Y";
+          }));
+        }
+      }
+    }
+
+    // 채팅방 안 "제안하기(COMP)/지원하기(MEM)" 바텀시트에 사용할 목록
+    if ($user_type == "COMP") {
+      $all_recruits = $this->member_model->getRecruitActaiveListAll($this->mm_idx);
+      // 자동 생성 채용공고 제외 (rc_auto_yn != 'Y')
+      $data["my_recruit_list"] = array_filter($all_recruits, function($item) {
+        return !isset($item["rc_auto_yn"]) || $item["rc_auto_yn"] !== "Y";
+      });
+      // 배열 인덱스 재정렬
+      $data["my_recruit_list"] = array_values($data["my_recruit_list"]);
+    } else {
+      $all_resumes = $this->member_model->getResumeList(["mm_idx" => $this->mm_idx]);
+      // 자동 생성 이력서 제외 (ru_auto_yn != 'Y')
+      $data["my_resume_list"] = array_filter($all_resumes, function($item) {
+        return !isset($item["ru_auto_yn"]) || $item["ru_auto_yn"] !== "Y";
+      });
+      // 배열 인덱스 재정렬
+      $data["my_resume_list"] = array_values($data["my_resume_list"]);
     }
 
     $this->layout->shop('/chat/chat_view', $data);

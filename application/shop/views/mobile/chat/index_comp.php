@@ -283,13 +283,15 @@ $top_bar = array(
           var chatListParent = $("#chat_list").parent();
           chatListParent.show();
           chatListParent.css("display", "block");
-          fSearchNoReadCount();
           isLoadingChatList = false; // 로딩 완료
 
           // 기본 목록 로드 완료 후 다이렉트 채팅 로드 (순서 보장)
           if (typeof fSearchDirectChatListReceivedComp === 'function') {
             fSearchDirectChatListReceivedComp();
           }
+
+          // 다이렉트 채팅 로드 완료 후 미확인 채팅건수 조회 (DOM 재구성 후 뱃지 업데이트)
+          fSearchNoReadCount();
         }).fail(function() {
           commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
           isLoadingChatList = false; // 에러 발생 시에도 플래그 리셋
@@ -371,6 +373,11 @@ $top_bar = array(
             $(this).text($(this).attr('data-time'));
           });
 
+          // 다이렉트 채팅 rm_idx를 탭1 추적 목록에 병합
+          window.__chatDirectRmIdxSetReceivedComp.forEach(function(idx) {
+            window.__chatTab1RmIdxSet.add(idx);
+          });
+
           // 모든 렌더링 완료 후 empty 상태 재평가
           var chatListCount = $("#chat_list").find("li").length;
           var directChatCount = $("#direct_chat_list_received_comp").find("li").length;
@@ -380,6 +387,9 @@ $top_bar = array(
           } else {
             $("#chat_empty1").hide();
           }
+
+          // DOM 렌더링 완료 후 뱃지 업데이트 (race condition 방지)
+          fSearchNoReadCount();
         }
       }
     });
@@ -752,7 +762,7 @@ $top_bar = array(
           });
 
           // 하위 인재 리스트의 개별 채팅방 뱃지 업데이트 (DOM에 있는 경우)
-          var $unreadElement = $('#chat_list #room_idx_unread_cnt_' + room.rm_idx);
+          var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
           if ($unreadElement.length > 0) {
             // 현재 페이지에 있는 채팅방 (지원한 인재 탭)
             $unreadElement.html(count);
@@ -993,7 +1003,7 @@ $top_bar = array(
           //alert(room.rm_idx);
 
           // 하위 인재 리스트의 개별 채팅방 뱃지 업데이트 (DOM에 있는 경우)
-          var $unreadElement = $('#chat_list #room_idx_unread_cnt_' + room.rm_idx);
+          var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
           if ($unreadElement.length > 0) {
             // 현재 페이지에 있는 채팅방 (지원한 인재 탭)
             $unreadElement.html(count);

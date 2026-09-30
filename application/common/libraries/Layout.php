@@ -73,6 +73,16 @@ class Layout {
             $view_data["g_alarm_cnt"] = $alarm_cnt;
         }
 
+		# 채용공고 등록 여부 확인 (COMP 사용자용 말풍선 표시)
+		$view_data["show_recruit_bubble"] = false;
+		if($this->CI->user->isLogin() && $this->CI->user->getUserType() === "COMP") {
+			$this->CI->load->model('recruitmodel', 'recruit_model');
+			$recruit_counts = $this->CI->recruit_model->getRecruitCountForTab($this->CI->user->getUserIdx());
+			if ($recruit_counts && isset($recruit_counts[0]['allcnt']) && $recruit_counts[0]['allcnt'] == 0) {
+				$view_data["show_recruit_bubble"] = true;
+			}
+		}
+
 		//assets 경로 정의
 		defined('RES_PATH') || define('RES_PATH', "/resource/shop" . $site_path);
         $this->set('contents', $this->CI->load->view($site_path . "/" . $view, $view_data, TRUE));
