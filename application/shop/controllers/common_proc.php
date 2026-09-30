@@ -1254,10 +1254,8 @@ class Common_proc extends CI_Controller
 					// 1. 상대방 mm_idx 구하기
 					$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $idx);
 
-
 					// 2. 기존 방 찾기 (제안/지원 방향 구분, 다이렉트 채팅은 room_type으로 분리)
 					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $room_type);
-				
 
 					if ($existing_rm_idx) {
 						// 기존 방이 있으면: MySQL st_room의 rc_idx/ru_idx만 갱신
@@ -2561,8 +2559,6 @@ ORDER BY distance_km ASC;
 			return;
 		}
 
-		$current_user_id = $this->user->getUserId();
-
 		try {
 			@$mongo = new Mongo($this->mongo_uri);
 			$database = $mongo->{$this->mongo_db};
@@ -2577,18 +2573,16 @@ ORDER BY distance_km ASC;
 			}
 
 			// rm_users 배열 처리
+			// 재요청(제안/지원/채팅)이 들어오면 대화가 다시 활성화되는 것이므로,
+			// 요청자 본인 여부와 상관없이 나갔던(exit_yn=Y) 모든 참여자를 복구한다.
 			$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 			$updated = false;
 
 			foreach ($rm_users as $key => $room_user) {
-				if (isset($room_user["user_id"]) && $room_user["user_id"] == $current_user_id) {
-					// 현재 사용자를 찾았음 - exit_yn을 N으로 복구
-					if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-						$rm_users[$key]["exit_yn"] = "N";
-						unset($rm_users[$key]["exit_dt"]); // exit_dt 제거
-						$updated = true;
-					}
-					break;
+				if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+					$rm_users[$key]["exit_yn"] = "N";
+					unset($rm_users[$key]["exit_dt"]); // exit_dt 제거
+					$updated = true;
 				}
 			}
 

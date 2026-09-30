@@ -136,9 +136,18 @@ $top_bar = array(
         var recruitList = ret.data.list;
           
         if (recruitList.length == 0) {
-          $(".chat-empty").show();
           $("#chat_list").hide();
           isLoadingChatList = false;
+          // 정식 제안/지원 목록이 비어있어도 탭 판별 기준(Set)은 항상 만들어둬야
+          // fSearchNoReadCount()에서 탭 분류가 정상적으로 동작함 (빈 목록 = 빈 Set)
+          window.__chatTab1RmIdxSet = new Set();
+          // 등록된 공고가 없어도 다이렉트 채팅은 있을 수 있으므로 반드시 로드해야 함
+          // (다이렉트 채팅 로드 완료 후 자체적으로 chat-empty 표시 여부를 판단함)
+          if (typeof fSearchDirectChatListReceivedComp === 'function') {
+            fSearchDirectChatListReceivedComp();
+          } else {
+            $(".chat-empty").show();
+          }
           return;
         }
 
@@ -375,7 +384,9 @@ $top_bar = array(
 
           // 다이렉트 채팅 rm_idx를 탭1 추적 목록에 병합
           window.__chatDirectRmIdxSetReceivedComp.forEach(function(idx) {
-            window.__chatTab1RmIdxSet.add(idx);
+            if (window.__chatTab1RmIdxSet) {
+              window.__chatTab1RmIdxSet.add(idx);
+            }
           });
 
           // 모든 렌더링 완료 후 empty 상태 재평가
@@ -485,9 +496,9 @@ $top_bar = array(
     }
 
     // 안드로이드에서도 채팅방 목록을 가져오도록 추가
+    // 다이렉트 채팅 목록은 getChatTargetList(1) 콜백 내부에서 순서 보장 후 호출됨 (여기서 중복 호출하지 않음)
     window.addEventListener('DOMContentLoaded', function() {
       getChatTargetList(1);
-      fSearchDirectChatListReceivedComp();
       initRealTimeTabBadgeUpdate();
     });
 
@@ -933,9 +944,9 @@ $top_bar = array(
     }
 
     // 페이지 로드 시 제안받은 인재 목록 조회 및 실시간 업데이트 초기화
+    // 다이렉트 채팅 목록은 getChatTargetList(1) 콜백 내부에서 순서 보장 후 호출됨 (여기서 중복 호출하지 않음)
     window.addEventListener('DOMContentLoaded', function() {
       getChatTargetList(1);
-      fSearchDirectChatListReceivedComp();
       initRealTimeTabBadgeUpdate();
 
       document.addEventListener("touchmove", function(e) {

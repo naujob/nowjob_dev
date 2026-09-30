@@ -338,6 +338,27 @@ class recruitModel extends MY_Model
 			return "";
 		}
 
+		// 시도 공식명 → 축약명 매핑 (membermodel.php 패턴과 동일)
+		$sido_abbr_map = array(
+			"서울특별시" => "서울",
+			"부산광역시" => "부산",
+			"대구광역시" => "대구",
+			"인천광역시" => "인천",
+			"광주광역시" => "광주",
+			"대전광역시" => "대전",
+			"울산광역시" => "울산",
+			"세종특별자치시" => "세종",
+			"경기도" => "경기",
+			"강원특별자치도" => "강원",
+			"충청북도" => "충북",
+			"충청남도" => "충남",
+			"전북특별자치도" => "전북",
+			"전라남도" => "전남",
+			"경상북도" => "경북",
+			"경상남도" => "경남",
+			"제주특별자치도" => "제주"
+		);
+
 		$conditions = [];
 
 		foreach ($addr_array as $idx => $addr) {
@@ -445,9 +466,55 @@ class recruitModel extends MY_Model
 					}
 				}
 			}
-			// step=3 (읍면동): 정확한 읍면동 검색
+			// step=3 (읍면동): 읍면동 검색 (여러 형태로 fallback)
 			else {
-				$conditions[] = "$column LIKE '%" . $escaped_addr . "%'";
+				$addr_parts = explode(" ", trim($addr));
+				$temp_conditions = [];
+
+				// 1. 원본 전체 문자열 매칭 (예: "강원특별자치도 강릉시 강동면")
+				$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
+
+				// 2. 시/도 축약명 버전 (예: "강원 강릉시 강동면")
+				if (count($addr_parts) >= 3) {
+					// 첫 번째 요소(시/도)를 축약명으로 변환
+					$full_sido = addslashes($addr_parts[0]);
+					if (isset($sido_abbr_map[$full_sido])) {
+						$abbr_sido = $sido_abbr_map[$full_sido];
+						// 축약된 시/도 + 나머지 주소 부분
+						$rest_addr = implode(" ", array_slice($addr_parts, 1));
+						$abbr_addr = addslashes($abbr_sido . ' ' . $rest_addr);
+						$temp_conditions[] = "$column LIKE '%{$abbr_addr}%'";
+					}
+				}
+
+				// 3. 시/도 접두어 없는 "시/군/구 + 읍/면/동" 매칭 (예: "강릉시 강동면")
+				if (count($addr_parts) >= 3) {
+					// 시/도를 제외한 나머지 부분 (시/군/구 + 읍/면/동)
+					$without_sido = implode(" ", array_slice($addr_parts, 1));
+					$without_sido_escaped = addslashes($without_sido);
+					$temp_conditions[] = "$column LIKE '%{$without_sido_escaped}%'";
+				}
+
+				// 4. 읍/면/동 단독 매칭 (예: "강동면")
+				// 단, 전국에서 유일한 동명인 경우에만 (cross-region 방지)
+				if (count($addr_parts) >= 1) {
+					$dong_name = addslashes($addr_parts[count($addr_parts) - 1]);
+					$check_sql = "SELECT COUNT(DISTINCT gugun_name) as gugun_count FROM location_data
+								  WHERE b_dong_name = '{$dong_name}' AND step = 3";
+					try {
+						$check_result = $this->db->query($check_sql)->row_array();
+						// 동명이 1곳의 시/군/구에만 속하면 단독 매칭 추가 (유일함)
+						if (!empty($check_result) && $check_result['gugun_count'] == 1) {
+							$temp_conditions[] = "$column LIKE '%{$dong_name}%'";
+						}
+					} catch (Exception $e) {
+						// 오류 무시
+					}
+				}
+
+				if (!empty($temp_conditions)) {
+					$conditions[] = "(" . implode(" OR ", $temp_conditions) . ")";
+				}
 			}
 		}
 
@@ -1118,9 +1185,9 @@ class recruitModel extends MY_Model
 	{
 		$sql = "
 			select sum(case when aa.rc_edate >= now() then 1 else 0 end) as allcnt,
-            sum(case when aa.rc_sdate <= now() and aa.rc_edate >= now() then 1 else 0 end) ingcnt,
-            sum(case when aa.rc_sdate > now()                           then 1 else 0 end) waitcnt,
-            sum(case when aa.rc_edate < now()                           then 1 else 0 end) closecnt
+            sum(case when aa.rc_sdate <= now() and aa.rc_edate >= now() then 1 else 0 end) as ingcnt,
+            sum(case when aa.rc_sdate > now()                           then 1 else 0 end) as waitcnt,
+            sum(case when aa.rc_edate < now()                           then 1 else 0 end) as closecnt
 			FROM st_recruit aa
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y' and aa.rc_auto_yn != 'Y'

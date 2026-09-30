@@ -311,10 +311,15 @@ renderSelectBottomSheet(
   // 이력서 등록 안내 말풍선 (MEM)
   $(document).on('click', '#resumeRegisteredBubble', function() {
     try {
+      var resumeId = localStorage.getItem('nowjob_resume_registered_id') || '';
       localStorage.removeItem('nowjob_resume_registered_bubble');
-    } catch (e) {}
+      localStorage.removeItem('nowjob_resume_registered_id');
+      var navigationUrl = resumeId ? ('/mypage/resume_view/' + resumeId) : '/mypage/resume_view/';
+      location.href = navigationUrl;
+    } catch (e) {
+      location.href = '/mypage/resume_view/';
+    }
     $('#resumeRegisteredBubble').attr('data-visible', 'false');
-    location.href = '/mypage/resume_view/';
   });
 
   // 채용공고 등록 안내 말풍선 (COMP)

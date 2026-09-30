@@ -416,9 +416,18 @@ $top_bar = array(
           var recruitList = ret.data.list;
 
           if (recruitList.length == 0) {
-            $(".chat-empty").show();
             $("#chat_list").hide();
             isLoadingChatList = false;
+            // 정식 제안/지원 목록이 비어있어도 탭 판별 기준(Set)은 항상 만들어둬야
+            // fSearchNoReadCount()에서 탭 분류가 정상적으로 동작함 (빈 목록 = 빈 Set)
+            window.__chatTab2RmIdxSet = new Set();
+            // 등록된 공고가 없어도 다이렉트 채팅은 있을 수 있으므로 반드시 로드해야 함
+            // (다이렉트 채팅 로드 완료 후 자체적으로 chat-empty 표시 여부를 판단함)
+            if (typeof fSearchDirectChatListSentComp === 'function') {
+              fSearchDirectChatListSentComp();
+            } else {
+              $(".chat-empty").show();
+            }
             return;
           }
 
@@ -702,7 +711,9 @@ $top_bar = array(
 
                     // 다이렉트 채팅 rm_idx를 탭2 추적 목록에 병합
                     window.__chatDirectRmIdxSetSentComp.forEach(function(idx) {
-                        window.__chatTab2RmIdxSet.add(idx);
+                        if (window.__chatTab2RmIdxSet) {
+                            window.__chatTab2RmIdxSet.add(idx);
+                        }
                     });
 
                     // 모든 렌더링 완료 후 empty 상태 재평가

@@ -749,6 +749,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     overflow: hidden;
     width: 100%;
     font-size: 16px;
+    font-weight: 500;
   }
 
   .recruit-status-banner .marquee-track {
@@ -904,7 +905,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       }
     </style>
     <div class="container">
-      <h2 class="secondary-title">채용공고</h2>
+       <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">채용공고</h2>
       <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
       <?php
         // 초기 공고 데이터 렌더링 (Controller에서 이미 포맷팅됨)

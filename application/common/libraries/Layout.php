@@ -78,8 +78,25 @@ class Layout {
 		if($this->CI->user->isLogin() && $this->CI->user->getUserType() === "COMP") {
 			$this->CI->load->model('recruitmodel', 'recruit_model');
 			$recruit_counts = $this->CI->recruit_model->getRecruitCountForTab($this->CI->user->getUserIdx());
-			if ($recruit_counts && isset($recruit_counts[0]['allcnt']) && $recruit_counts[0]['allcnt'] == 0) {
-				$view_data["show_recruit_bubble"] = true;
+
+			if (is_array($recruit_counts)) {
+				if (empty($recruit_counts)) {
+					// 결과행이 없음 = 채용공고가 없음
+					$view_data["show_recruit_bubble"] = true;
+				} else {
+					// allcnt 값 확인 (NULL 또는 0이면 말풍선 표시)
+					$allcnt = null;
+					foreach ($recruit_counts[0] as $key => $value) {
+						if (strtolower($key) === 'allcnt') {
+							$allcnt = $value;
+							break;
+						}
+					}
+
+					if ($allcnt === null || $allcnt == 0) {
+						$view_data["show_recruit_bubble"] = true;
+					}
+				}
 			}
 		}
 

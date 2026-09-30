@@ -961,25 +961,15 @@ io.on('connection', function (socket) {
 
 
 
-			// ✅ 메시지 전송 후 상대방의 exit_yn 리셋 (채팅 시작 시=첫 메시지일 때만)
+			// ✅ 메시지 전송 후, 나가 있던 상대방의 exit_yn을 매번 리셋 (새 메시지 수신 시 대화 재노출)
 			try {
-				// 현재 방의 메시지 개수 확인 (첫 메시지인지 판별)
-				const roomInfo = await $db.cs_room.findOne({ rm_idx: target_rm_idx });
-				const messageCount = roomInfo && roomInfo.rm_messages ? roomInfo.rm_messages.length : 0;
-				
-				if (messageCount === 1) {
-					// 첫 메시지일 때만 exit_yn 리셋 (채팅 시작 알림)
-					await $db.cs_room.updateOne(
-						{ rm_idx: target_rm_idx },
-						{ $set: { "rm_users.$[elem].exit_yn": "N" } },
-						{ arrayFilters: [ { "elem.user_id": { $ne: g_user_id } } ] }
-					);
-					
-				} else {
-					
-				}
+				await $db.cs_room.updateOne(
+					{ rm_idx: target_rm_idx },
+					{ $set: { "rm_users.$[elem].exit_yn": "N" } },
+					{ arrayFilters: [ { "elem.user_id": { $ne: g_user_id }, "elem.exit_yn": "Y" } ] }
+				);
 			} catch (err) {
-	
+
 			}
 			// 푸시 알림 발송
 			try {

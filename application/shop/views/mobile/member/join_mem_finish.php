@@ -254,6 +254,10 @@ renderSelectBottomSheet(
           window.__fallbackResumeTriggered = true;
           try {
             localStorage.setItem('nowjob_resume_registered_bubble', '1');
+            // 생성된 이력서 ID 저장 (말풍선 클릭 시 사용)
+            if (ret.data && ret.data.ru_idx) {
+              localStorage.setItem('nowjob_resume_registered_id', ret.data.ru_idx);
+            }
           } catch (e) {}
           location.href = "/recruit/job_list";
         } else {

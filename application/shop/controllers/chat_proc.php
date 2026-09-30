@@ -2950,12 +2950,23 @@ json_return("00", "조회완료", $data);
 			}
 		}
 
-		// 중복 체크: 동일 공고+이력서 조합으로 이미 지원/제안한 이력이 있으면 무조건 안내만 하고 종료
-		$sql_dup = "SELECT mq_idx FROM st_member_request WHERE rc_idx = ? AND ru_idx = ? LIMIT 1";
+		// 중복 체크: 5분 이내 재제안은 차단, 5분 이상 경과 후에는 재제안 가능
+		$sql_dup = "SELECT mq_idx, reg_dt FROM st_member_request WHERE rc_idx = ? AND ru_idx = ? LIMIT 1";
 		$query_dup = $this->db->query($sql_dup, array($rc_idx, $ru_idx));
-		if ($query_dup->row_array()) {
-			$dup_msg = ($mq_type == "RESUME") ? "이미 제안한 이력이 있습니다." : "이미 지원한 이력이 있습니다.";
-			json_return("90", $dup_msg);
+		$dup_row = $query_dup->row_array();
+
+		if ($dup_row) {
+			// 마지막 제안/지원 시간과 현재 시간 비교
+			$reg_time = strtotime($dup_row["reg_dt"]);
+			$current_time = time();
+			$elapsed_minutes = floor(($current_time - $reg_time) / 60);
+
+			// 5분 이내이면 차단
+			if ($elapsed_minutes < 5) {
+				$dup_msg = ($mq_type == "RESUME") ? "이미 제안한 이력이 있습니다." : "이미 지원한 이력이 있습니다.";
+				json_return("90", $dup_msg);
+			}
+			// 5분 이상 경과했으면 계속 진행 (setMemberRequest에서 기존 기록 삭제 후 재등록)
 		}
 
 		// 다이렉트 채팅방인지 판정 — 현재 방의 공고/이력서가 더미인지 확인
@@ -3336,7 +3347,6 @@ json_return("00", "조회완료", $data);
 		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListSentComp($mm_idx);
 
-
 		$preview_byte_length = 20;
 		$temp_list = $result;
 		$exited_keys = [];
@@ -3373,7 +3383,7 @@ json_return("00", "조회완료", $data);
 							break;
 						}
 					}
-            
+
 					if ($user_exited) {
 						$exited_keys[] = $key;
 						continue;
@@ -3421,9 +3431,6 @@ json_return("00", "조회완료", $data);
 			unset($temp_list[$key]);
 		}
 		$temp_list = array_values($temp_list);
-
-		// [로그] 최종 응답 데이터 확인
-		
 
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
