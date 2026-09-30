@@ -10,6 +10,7 @@
  */
 $tpl_id           = isset($tpl_id)           ? $tpl_id           : 'tpl_recruit_card';
 $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
+$tpl_show_toggle  = isset($tpl_show_toggle)  ? (bool)$tpl_show_toggle  : true;
 ?>
 <style>
 
@@ -145,9 +146,11 @@ $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
             <!-- 일반 모드: 토글 가능한 아코디언 카드 -->
             <div class="title-wrap">
               <div class="title ellipsis">{{rc_name}}</div>
+              <?php if ($tpl_show_toggle): ?>
               <button class="toggle-expand" type="button">
                 <i class="fa-solid fa-angle-up"></i>
               </button>
+              <?php endif; ?>
             </div>
             <div class="simple-content" data-collapsed="true">
               <div class="data-row">

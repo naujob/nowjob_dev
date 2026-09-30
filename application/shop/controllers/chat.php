@@ -507,7 +507,7 @@ class Chat extends CI_Controller
       // 배열 인덱스 재정렬
       $data["my_recruit_list"] = array_values($data["my_recruit_list"]);
     } else {
-      $all_resumes = $this->member_model->getResumeList(["mm_idx" => $this->mm_idx]);
+      $all_resumes = $this->member_model->getResumeList(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
       // 자동 생성 이력서 제외 (ru_auto_yn != 'Y')
       $data["my_resume_list"] = array_filter($all_resumes, function($item) {
         return !isset($item["ru_auto_yn"]) || $item["ru_auto_yn"] !== "Y";

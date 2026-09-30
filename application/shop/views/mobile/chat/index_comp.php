@@ -939,10 +939,10 @@ $top_bar = array(
       initRealTimeTabBadgeUpdate();
 
       document.addEventListener("touchmove", function(e) {
-        // 기본 동작을 차단하지 않음
+       
       }, {
         passive: true
-      }); // passive: true로 설정하면 기본 스크롤 허용
+      }); 
     });
 
     // 페이지 포커스 시 뱃지만 갱신 (목록 갱신은 pageshow에서 처리)
@@ -950,12 +950,12 @@ $top_bar = array(
       fSearchNoReadCount();
     });
 
-    // pageshow 이벤트 추가 (뒤로가기/앞으로가기 대응)
+    
     window.addEventListener('pageshow', function(event) {
 
-      // BFCache에서 복원된 경우에만 목록 새로고침
+      
       if (event.persisted) {
-        // 진행 중이 아니면 로드 시작
+        
         if (!isLoadingChatList) {
           getChatTargetList(1);
         }
@@ -1098,12 +1098,6 @@ $top_bar = array(
       });
     }
 
-    // BFCache를 통해 페이지 접근할 경우 새로고침
-    window.onpageshow = function(event) {
-      if (event.persisted) {
-        window.location.reload(); // 페이지 새로고침
-      }
-    };
 
     // [사용되지 않음] 소켓 기반 채팅방 생성 - 현재는 AJAX 기반으로 동작
     // 방생성 확인 및 방번호 확인

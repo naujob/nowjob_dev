@@ -13,6 +13,7 @@ $tpl_id            = isset($tpl_id)            ? $tpl_id            : 'tpl_resum
 $tpl_recomm_class  = isset($tpl_recomm_class)  ? (bool)$tpl_recomm_class : false;
 $tpl_show_mm_idx   = isset($tpl_show_mm_idx)   ? (bool)$tpl_show_mm_idx  : false;
 $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : false;
+$tpl_show_toggle   = isset($tpl_show_toggle)   ? (bool)$tpl_show_toggle  : true;
 ?>
 <template id="<?= $tpl_id ?>">
   <li class="list-item">
@@ -45,9 +46,11 @@ $tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : f
             <!-- 일반 모드: 토글 가능한 아코디언 카드 -->
             <div class="title-wrap">
               <div class="title ellipsis">{{mm_name}}</div>
+              <?php if ($tpl_show_toggle): ?>
               <button class="toggle-expand" type="button">
                 <i class="fa-solid fa-angle-up"></i>
               </button>
+              <?php endif; ?>
             </div>
             <div class="simple-content" data-collapsed="true">
               <div class="data-row">

@@ -31,18 +31,37 @@
         // 호환성: 이전 from 파라미터 지원
         if (!backUrl) {
             var from = params.get('from') || '';
-            var backMap = {
-                applied: '/chat/chat_list', // 지원한 공고
-                proposed_job: '/chat/chat_list2', // 제안받은 공고
-                talent_received: '/chat/index_comp', // 제안받은 인재
-                talent_sent: '/chat/chat_list3', // 제안보낸 인재
-                hr_list: '/chat/index_comp' // 인재 리스트
-            };
-            backUrl = backMap[from] || '/chat/chat_list';
+            var currentUserType = $("input[name='user_type']").val() || "MEM";
+            var backMap;
+            var defaultBackUrl;
+
+            if (currentUserType === "COMP") {
+                // 기업회원용 매핑
+                backMap = {
+                    applied: '/chat/chat_list3', // 지원받은 인재
+                    proposed_job: '/chat/index_comp', // 제안 보낸 인재
+                    talent_received: '/chat/index_comp', // 제안받은 인재
+                    talent_sent: '/chat/chat_list3', // 제안보낸 인재
+                    hr_list: '/chat/index_comp' // 인재 리스트
+                };
+                defaultBackUrl = '/chat/chat_list3'; // 기업용 기본값
+            } else {
+                // 개인회원용 매핑 (MEM)
+                backMap = {
+                    applied: '/chat/chat_list', // 지원한 공고
+                    proposed_job: '/chat/chat_list2', // 제안받은 공고
+                    talent_received: '/chat/chat_list2', // 제안받은 공고
+                    talent_sent: '/chat/chat_list', // 지원한 공고
+                    hr_list: '/chat/chat_list' // 지원한 공고
+                };
+                defaultBackUrl = '/chat/chat_list'; // 개인용 기본값
+            }
+
+            backUrl = backMap[from] || defaultBackUrl;
         }
 
         // user_type이 다른 경우 backUrl 변환 (발신자와 수신자의 페이지 매핑)
-        var currentUserType = $("#user_type").val() || "MEM";
+        var currentUserType = $("input[name='user_type']").val() || "MEM";
         if (backUrl) {
             // 개인회원(MEM)이 기업용 backUrl을 받은 경우 변환
             if (currentUserType === "MEM") {
@@ -105,13 +124,13 @@
 
             document.querySelectorAll('.js-chat-back').forEach(function(a) {
                 a.dataset.backUrl = window.backUrl;
-                
+
                 // iOS WebView에서 touchstart가 더 안정적 (다른 파일들에서도 사용하는 패턴)
                 a.addEventListener('touchstart', function(e) {
                     e.preventDefault();
                     handleBack.call(this, e);
                 }, { passive: false });
-                
+
                 // touchend도 함께 처리
                 a.addEventListener('touchend', function(e) {
                     e.preventDefault();
@@ -2610,12 +2629,39 @@
             return;
         }
 
+        // 아이템(이력서 또는 채용공고) 유무 확인
+        var $proposeItems = $("[name='chk_propose[]']");
+        if ($proposeItems.length === 0) {
+            // 아이템이 없음 - 등록 페이지로 이동
+            var userType = $("input[name='user_type']").val();
+            if (userType === "COMP") {
+                openPopup('confirm', {
+                    content: '등록된 채용공고가 없습니다.<br>채용공고를 등록해주세요.',
+                    firstButton: '취소',
+                    secondButton: '채용공고 등록',
+                    secondCallback: function() {
+                        location.href = "/compage/recruit_write1_1";
+                    }
+                });
+            } else {
+                openPopup('confirm', {
+                    content: '등록된 이력서가 없습니다.<br>이력서를 등록해주세요.',
+                    firstButton: '취소',
+                    secondButton: '이력서 등록',
+                    secondCallback: function() {
+                        location.href = "/mypage/resume_write1";
+                    }
+                });
+            }
+            return;
+        }
+
         // 첨부 메뉴 닫기
         $("#btnAttachToggle").attr("data-state", "closed");
         $("#attachMenu").attr("data-state", "closed");
 
         // 라디오 선택 초기화 후 바텀시트 열기
-        $("[name='chk_propose[]']").prop("checked", false);
+        $proposeItems.prop("checked", false);
         var $panel = document.getElementById("proposeSelectPanel");
         if ($panel && typeof openPanel === "function") {
             openPanel($panel);

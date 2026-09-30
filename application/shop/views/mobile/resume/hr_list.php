@@ -751,7 +751,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 <?php $tpl_id = 'tpl_list';
 $tpl_recomm_class = true;
 $tpl_show_mm_idx = true;
-$tpl_show_chat_mark = true; ?>
+$tpl_show_chat_mark = true;
+$tpl_show_toggle = false; ?>
 <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
 
 <template id="tpl_category">

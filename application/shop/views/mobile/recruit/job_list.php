@@ -1012,7 +1012,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 </div>
 
 <?php $tpl_id = 'tpl_list';
-$tpl_recomm_class = true; ?>
+$tpl_recomm_class = true;
+$tpl_show_toggle = false; ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 
 <template id="tpl_category">

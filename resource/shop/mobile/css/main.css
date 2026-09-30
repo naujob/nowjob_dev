@@ -7680,7 +7680,7 @@ form#frm {
 .hot-list .name {
     display: block;
     position: relative;
-    bottom: 5%;
+    bottom: -19%;
     width: 100%;
     margin: 0;
     font-size: 1rem;

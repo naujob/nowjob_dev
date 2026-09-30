@@ -635,8 +635,8 @@ if (!$isLogin) {
         <div id="floating-actions" data-state="open">
 
             <!-- 로그인 버튼 (비로그인 시에만 노출) -->
-            <?php if (!$isLogin) : ?>
-                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="login" title="로그인">
+           <?php if (!$isLogin) : ?>
+                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
                     <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
                     <span class="action-label">로그인</span>
                 </a>
