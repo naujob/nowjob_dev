@@ -14175,6 +14175,10 @@ h3.secondary-title .menu:focus {
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .list.result-list-card [class*="recruitbox_"] .content-body .desc .title.ellipsis,
+        .list.result-list-card [class*="resumebox_"] .content-body .desc .title.ellipsis {
+                max-width: 240px;
+        }
      [class*="recruitbox_"] .content-body .desc .summary p,
       [class*="resumebox_"] .content-body .desc .summary p {
         position: relative;

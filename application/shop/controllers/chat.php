@@ -290,7 +290,9 @@ class Chat extends CI_Controller
       }
       if ($final_ru_idx) {
         $data["resume"] = $this->member_model->getResumeDetail($final_ru_idx, $this->mm_idx);
-        
+        // resume_card_template.php(채팅화면 상단 이력서 카드) 사용을 위한 변환된 필드 추가
+        $data["resume"] = enrichResumeForChatCard($data["resume"]);
+
         if ($final_ru_idx) {
           $data["career_list"] = $this->member_model->getResumeCareerList(["ru_idx" => $final_ru_idx]);
           $data["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx" => $final_ru_idx]);

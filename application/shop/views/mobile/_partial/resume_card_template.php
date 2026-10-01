@@ -37,10 +37,10 @@ $tpl_show_toggle   = isset($tpl_show_toggle)   ? (bool)$tpl_show_toggle  : true;
             <div class="wicon">{{ru_recom_badge}}{{ru_work_img}}</div>
             <?php endif; ?>
             <?php if (isset($tpl_simple_mode) && $tpl_simple_mode): ?>
-            <!-- 채팅 화면 단순 모드: 이름 + 회사명 한 줄 -->
+            <!-- 채팅 화면 단순 모드: 이력서 제목 + 공개상태 한 줄 -->
             <div style="display: flex; align-items: center; gap: 0; height: 100%; width: 100%;">
-              <div class="title ellipsis" style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{mm_name}}</div>
-              <p class="company-info" style="margin: 0;">{{mm_comp_name}}</p>
+              <div class="title ellipsis" style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ru_name}}</div>
+              <p class="status-label" style="margin: 0;">{{status_label}}</p>
             </div>
             <?php else: ?>
             <!-- 일반 모드: 토글 가능한 아코디언 카드 -->
@@ -131,6 +131,32 @@ $tpl_show_toggle   = isset($tpl_show_toggle)   ? (bool)$tpl_show_toggle  : true;
     color: #666;
     margin: 0;
     font-weight: 500;
+  }
+
+  /* 채팅화면 단순모드 칩: recruit_card_template.php의 status-label과 동일 스타일 (이 파일에서 재사용) */
+  .status-label {
+    font-size: 0.875rem;
+    color: #ffffff;
+    margin: 0;
+    background: #1B9D7D;
+    border: 1px solid #1B9D7D;
+    width: 55px;
+    border-radius: 15px;
+    text-align: center;
+    padding: 2px;
+  }
+
+  .chat-view-header .result-list-card .status-label {
+    width: auto;
+    flex-shrink: 0;
+    padding: 0 1rem;
+    border-radius: 0;
+    min-width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    white-space: nowrap;
   }
 
   /* chat 화면에서 simple 모드 시 각진 chip 스타일 */

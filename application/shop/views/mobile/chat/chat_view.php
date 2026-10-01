@@ -255,46 +255,52 @@
 </script>
 
 <script>
-  // 채팅 뷰의 인재 카드 렌더링 함수
-  (function() {
-    function renderChatResumeCard() {
-      var tpl = document.getElementById('tpl_chat_resume');
-      var listContainer = document.getElementById('chatResumeList');
+  // 전역 함수: 이력서 카드 렌더링/재렌더링 (초기 로딩 + 지원하기 완료 후 실시간 갱신 공용)
+  window.renderChatResumeCard = function(row) {
+    var tpl = document.getElementById('tpl_chat_resume');
+    var listContainer = document.getElementById('chatResumeList');
 
-      if (!tpl || !listContainer || typeof chatResumeData === 'undefined') {
-        return;
-      }
-
-      var row = chatResumeData;
-     
-      var $c = tpl.innerHTML;
-
-      $c = $c.replaceAll('{{ru_idx}}',        row.ru_idx        || '');
-      $c = $c.replaceAll('{{mm_idx}}',        row.mm_idx        || '');
-      $c = $c.replaceAll('{{ru_resume_img}}', row.ru_resume_img || '');
-      $c = $c.replaceAll('{{book_yn}}',       row.book_yn       || '');
-      $c = $c.replaceAll('{{ru_work_img}}',   row.ru_work_img   || '');
-      $c = $c.replaceAll('{{ru_recom_badge}}', row.ru_recom_badge || '');
-      $c = $c.replaceAll('{{mm_name}}',       row.mm_name       || '');
-      $c = $c.replaceAll('{{ru_week}}',       row.ru_week       || '');
-      $c = $c.replaceAll('{{mm_nation}}',     row.mm_nation     || '');
-      $c = $c.replaceAll('{{ma_age}}',        row.ma_age        || '');
-      $c = $c.replaceAll('{{ru_price_type}}', row.ru_price_type || '');
-      $c = $c.replaceAll('{{ru_work_type}}',  row.ru_work_type  || '');
-      $c = $c.replaceAll('{{ad_addr}}',       row.ad_addr       || '');
-      $c = $c.replaceAll('{{mm_comp_name}}',  row.mm_comp_name  || '');
-      $c = $c.replaceAll('{{has_chat}}',      'false');
-      $c = $c.replaceAll('{{chat_rm_idx}}',   '');
-
-      listContainer.innerHTML = $c;
-      // simple 모드에서는 토글 버튼이 없으므로 이벤트 바인딩 불필요
+    if (!tpl || !listContainer || !row) {
+      return;
     }
 
-    // DOM이 준비되면 렌더링
+    var $c = tpl.innerHTML;
+
+    $c = $c.replaceAll('{{ru_idx}}',        row.ru_idx        || '');
+    $c = $c.replaceAll('{{mm_idx}}',        row.mm_idx        || '');
+    $c = $c.replaceAll('{{ru_resume_img}}', row.ru_resume_img || '');
+    $c = $c.replaceAll('{{book_yn}}',       row.book_yn       || '');
+    $c = $c.replaceAll('{{ru_work_img}}',   row.ru_work_img   || '');
+    $c = $c.replaceAll('{{ru_recom_badge}}', row.ru_recom_badge || '');
+    $c = $c.replaceAll('{{mm_name}}',       row.mm_name       || '');
+    $c = $c.replaceAll('{{ru_name}}',       row.ru_name       || '');
+    $c = $c.replaceAll('{{ru_week}}',       row.ru_week       || '');
+    $c = $c.replaceAll('{{mm_nation}}',     row.mm_nation     || '');
+    $c = $c.replaceAll('{{ma_age}}',        row.ma_age        || '');
+    $c = $c.replaceAll('{{ru_price_type}}', row.ru_price_type || '');
+    $c = $c.replaceAll('{{ru_work_type}}',  row.ru_work_type  || '');
+    $c = $c.replaceAll('{{ad_addr}}',       row.ad_addr       || '');
+    $c = $c.replaceAll('{{mm_comp_name}}',  row.mm_comp_name  || '');
+    $c = $c.replaceAll('{{status_label}}',  row.status_label  || '');
+    $c = $c.replaceAll('{{has_chat}}',      'false');
+    $c = $c.replaceAll('{{chat_rm_idx}}',   '');
+
+    listContainer.innerHTML = $c;
+    // simple 모드에서는 토글 버튼이 없으므로 이벤트 바인딩 불필요
+  };
+
+  (function() {
+    // DOM이 준비되면 초기 렌더링 (chatResumeData는 COMP 분기에서만 PHP가 내려줌)
+    function initChatResumeCard() {
+      if (typeof chatResumeData !== 'undefined' && chatResumeData) {
+        window.renderChatResumeCard(chatResumeData);
+      }
+    }
+
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderChatResumeCard);
+      document.addEventListener('DOMContentLoaded', initChatResumeCard);
     } else {
-      renderChatResumeCard();
+      initChatResumeCard();
     }
   })();
 
@@ -403,41 +409,22 @@
         <div class="chat-view-header">
             <!-- 채용정보 -->
             <?php if ($user_type == "COMP") : ?>
-                <!-- 기업회원 공고정보 -->
+                <!-- 기업회원: 상대방(지원자) 이력서정보 -->
                 <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
-                <?php
-                // 공고 상태 계산 함수
-                function getStatusLabel($sdate, $edate) {
-                    $now = new DateTime();
-                    $startDate = new DateTime($sdate);
-                    $endDate = new DateTime($edate);
-
-                    if ($startDate <= $now && $now <= $endDate) {
-                        return "모집중";
-                    } else if ($endDate < $now) {
-                        return "마감";
-                    } else if ($startDate > $now) {
-                        return "대기중";
-                    }
-                    return "";
-                }
-
-                $statusLabel = getStatusLabel($recruit["rc_sdate"], $recruit["rc_edate"]);
-                ?>
-                <!-- 채팅 공고 카드 데이터를 JS에 전달 -->
+                <!-- 채팅 이력서 카드 데이터를 JS에 전달 -->
                 <script>
-                  var recruitData = <?= isset($recruit) && !empty($recruit) ? json_encode($recruit, JSON_UNESCAPED_UNICODE) : 'null' ?>;
+                  var chatResumeData = <?= isset($resume) && !empty($resume) ? json_encode($resume, JSON_UNESCAPED_UNICODE) : 'null' ?>;
                 </script>
 
-                <!-- 공고 카드 템플릿 포함 -->
+                <!-- 이력서 카드 템플릿 포함 -->
                 <?php
                   $from = input_get("from");
                   $tpl_data_label = ($from === "talent_sent") ? "제안보낸 인재" : "지원받은 인재";
                 ?>
-                <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
-                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= (!empty($is_direct_chat_room)) ? 'false' : 'true' ?>"></ul>
-                <!-- //기업회원 공고정보 -->
+                <?php $tpl_id = 'tpl_chat_resume'; $tpl_simple_mode = true; ?>
+                <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
+                <ul class="result-list result-list-card" id="chatResumeList" data-visible="<?= (!empty($is_direct_chat_room)) ? 'false' : 'true' ?>"></ul>
+                <!-- //기업회원 이력서정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -2355,6 +2342,20 @@
 
                 showMessage(msg, false);
 
+                // 지원하기(RECRUIT) 완료 안내 메시지에 이력서 데이터가 실려있으면
+                // 기업회원 화면의 이력서 카드를 새로고침 없이 즉시 갱신 (MEM 본인 화면에는 #chatResumeList가 없어 자동 무시됨)
+                if (msg.mg_type === "propose" && msg.mg_mq_type === "RECRUIT" && msg.mg_resume_data) {
+                    try {
+                        var resumeData = JSON.parse(msg.mg_resume_data);
+                        if (typeof window.renderChatResumeCard === 'function') {
+                            window.renderChatResumeCard(resumeData);
+                            $('#chatResumeList').attr('data-visible', 'true');
+                        }
+                    } catch (e) {
+                        console.error('[message_insert_return] mg_resume_data 파싱 실패:', e);
+                    }
+                }
+
                 // 전화하기 버튼 실시간 반영 (개인회원이 일반 메시지를 보냈을 때)
                 var individualUserId = $("#individual_user_id").val();
                 if (individualUserId && msg && !msg.chat_type && msg.mg_type === "text" && String(msg.user_id) === String(individualUserId)) {
@@ -2746,7 +2747,10 @@
                 var msgText = (mqType == "RESUME")
                     ? ("\"" + selectedName + "\" 공고를 제안했습니다.")
                     : ("\"" + selectedName + "\" 이력서로 지원했습니다.");
-                sendProposeSystemMessage(msgText, mqType, params.rc_idx, params.ru_idx);
+                // ret.data.resume: 지원하기(RECRUIT)로 실제 이력서를 선택한 경우에만 채워짐
+                // 메시지에 함께 실어 보내면, 소켓 브로드캐스트로 상대방(기업회원) 화면의 이력서 카드도
+                // 새로고침 없이 실시간으로 갱신됨
+                sendProposeSystemMessage(msgText, mqType, params.rc_idx, params.ru_idx, ret.data ? ret.data.resume : null);
             } else {
                 // 이미 지원/제안한 이력이 있는 경우(code=90) 등: 안내만 표시, 채팅 메시지 전송 없음
                 alert(ret.msg || "처리에 실패했습니다.");
@@ -2826,7 +2830,7 @@
 
     // 제안/지원 완료 안내를 채팅창에 시스템 메시지로 전송
     // mqType/rcIdx/ruIdx: 말풍선 클릭 시 해당 공고(rcIdx)/이력서(ruIdx) 팝업을 열기 위해 함께 저장
-    function sendProposeSystemMessage(msgText, mqType, rcIdx, ruIdx) {
+    function sendProposeSystemMessage(msgText, mqType, rcIdx, ruIdx, resumeData) {
         var message = {
             rm_idx: Number(rm_idx),
             user_id: g_user_id,
@@ -2841,6 +2845,8 @@
             mg_mq_type: mqType || "",
             mg_rc_idx: rcIdx || "",
             mg_ru_idx: ruIdx || "",
+            // 기업회원 화면 이력서 카드 실시간 갱신용 (지원하기로 실제 이력서 선택 시에만 값 존재)
+            mg_resume_data: resumeData ? JSON.stringify(resumeData) : "",
         };
 
         for (var icnt = 0; icnt < rm_info.rm_users.length; icnt++) {
@@ -2869,6 +2875,22 @@
             if (typeof window.openHrPostPopup === 'function') {
                 window.openHrPostPopup(ruIdx);
             }
+        }
+    });
+
+    // 상단 공고 카드(#chatRecruitCardList) 클릭 시 채용공고 상세 팝업 열기
+    $(document).on('click', '#chatRecruitCardList .content-li', function(e) {
+        var rcIdx = $(this).data('rc_idx');
+        if (rcIdx && typeof window.openJobPostPopup === 'function') {
+            window.openJobPostPopup(rcIdx);
+        }
+    });
+
+    // 상단 이력서 카드(#chatResumeList) 클릭 시 이력서 상세 팝업 열기
+    $(document).on('click', '#chatResumeList .content-li', function(e) {
+        var ruIdx = $(this).data('ru_idx');
+        if (ruIdx && typeof window.openHrPostPopup === 'function') {
+            window.openHrPostPopup(ruIdx);
         }
     });
 
@@ -2964,7 +2986,7 @@
     };
 
     window.isHrPostPopupOpen = function() {
-        return parseFloat($('#hrPostPopup').css('opacity')) > 0.5;
+        return $('#hrPostPopup').attr('data-state') === 'open';
     };
 
     // 채용공고 상세 팝업 함수 (recruit/job_list.php와 동일 패턴)
@@ -3079,7 +3101,7 @@
     };
 
     window.isJobPostPopupOpen = function() {
-        return parseFloat($('#jobPostPopup').css('opacity')) > 0.5;
+        return $('#jobPostPopup').attr('data-state') === 'open';
     };
 
     // 제안/지원 선택 바텀시트: 항목 클릭 시 해당 항목의 radio 버튼 선택
@@ -4676,6 +4698,9 @@
 <?php endif; ?>
 
 <style>
+    [class*="recruitbox_"] .content-body .desc .title.ellipsis, [class*="resumebox_"] .content-body .desc .title.ellipsis {
+            max-width: 240px;
+    }
     /* 제안/지원 안내 말풍선 클릭 팝업 (hr_list.php/job_list.php와 동일 패턴) */
     #hrPostPopup,
     #jobPostPopup {
@@ -4702,6 +4727,14 @@
     }
 
     .propose-bubble {
+        cursor: pointer;
+    }
+
+    #chatRecruitCardList .content-li {
+        cursor: pointer;
+    }
+
+    #chatResumeList .content-li {
         cursor: pointer;
     }
 

@@ -293,6 +293,32 @@ function getWorkingImg($work, $max = 10)
 	return $return;
 }
 
+# 이력서 정보를 채팅화면 카드용으로 가공 (이미지/뱃지/근무조건/공개상태 변환)
+# chat.php(최초 로딩)와 chat_proc.php(제안/지원 후 실시간 갱신) 양쪽에서 공용으로 사용
+function enrichResumeForChatCard($resume)
+{
+	if (empty($resume)) {
+		return $resume;
+	}
+
+	$row = $resume;
+	$resume["ru_resume_img"] = getResumeImg($row);
+	$resume["ru_work_img"] = getWorkingImg(isset($row["ru_work"]) ? $row["ru_work"] : "");
+	$resume["ru_work_type"] = getWorkTypeWithColor(isset($row["ru_work_type"]) ? $row["ru_work_type"] : "");
+	$resume["ru_price_type"] = getPriceType(isset($row["ru_price_type"]) ? $row["ru_price_type"] : "");
+
+	$ru_week = isset($row["ru_week"]) ? trim($row["ru_week"]) : "";
+	if ($ru_week === "") {
+		$ru_week = "월,화,수,목,금";
+	}
+	$resume["ru_week"] = getWeekYoil($ru_week);
+
+	$resume["ru_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+	$resume["status_label"] = (isset($row["ru_status"]) && $row["ru_status"] === "Y") ? "공개" : "비공개";
+
+	return $resume;
+}
+
 # 가능 요일
 function getWeekYoil($week)
 {

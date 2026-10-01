@@ -3028,7 +3028,16 @@ json_return("00", "조회완료", $data);
 			$updated_recruit["rt_price_pay"] = getConvertPrice($row["rc_price_pay"]);
 			$updated_recruit["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 		}
-		json_return("00", "처리완료", array("recruit" => $updated_recruit));
+
+		// 갱신된 이력서 데이터를 응답에 포함 (기업회원 화면의 이력서 카드 실시간 재렌더링 용)
+		// RECRUIT(지원하기): 개인회원이 실제 이력서(ru_idx)를 선택한 경우에만 의미 있음
+		$updated_resume = null;
+		if ($mq_type == "RECRUIT") {
+			$updated_resume = $this->member_model->getResumeDetail($ru_idx, $mm_idx);
+			$updated_resume = enrichResumeForChatCard($updated_resume);
+		}
+
+		json_return("00", "처리완료", array("recruit" => $updated_recruit, "resume" => $updated_resume));
 	}
 
 	// 제안/지원 완료 후 상대방에게 FCM 푸시 + MongoDB 알림 발송

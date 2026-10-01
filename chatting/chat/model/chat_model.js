@@ -506,7 +506,8 @@ container.insertMessage = async function (data, callback) {
 			rm_idx: data.rm_idx,
 			mg_mq_type: data.mg_mq_type || "",
 			mg_rc_idx: data.mg_rc_idx || "",
-			mg_ru_idx: data.mg_ru_idx || ""
+			mg_ru_idx: data.mg_ru_idx || "",
+			mg_resume_data: data.mg_resume_data || ""
 		};
 
 			console.log('[insertMessage] rm_idx=' + data.rm_idx + ' mg_idx=' + mg_idx + ' 태깅 완료');
