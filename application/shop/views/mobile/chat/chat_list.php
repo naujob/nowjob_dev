@@ -7,63 +7,10 @@ $top_bar = array(
   <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php'); ?>
 
   <div class="page-content resume-chat-list">
-
-    <div class="tab-container">
-      <ul class="tab-list">
-        <?php if ($user_type == "MEM") : ?>
-          <li class="on"><a href="/chat/chat_list" class="tab">지원한 공고<span class="tab-badge"></span></a></li>
-          <li><a href="/chat/chat_list2" class="tab">제안받은 공고<span class="tab-badge"></span></a></li>
-        <?php endif; ?>
-      </ul>
-    </div>
-
-    <style>
-      /* 탭에 읽지 않은 메시지 알림 표시 (빨간 동그라미) */
-      .page-chat .tab-container .tab-list li {
-        position: relative;
-      }
-
-      .page-chat .tab-container .tab-list li .tab {
-        position: relative;
-      }
-
-      .page-chat .tab-container .tab-list li .tab-badge {
-        position: absolute;
-        top: 8px;
-        right: -12px;
-        width: 8px;
-        height: 8px;
-        min-width: 8px;
-        min-height: 8px;
-        max-width: 8px;
-        max-height: 8px;
-        box-sizing: border-box;
-        padding: 0;
-        margin: 0;
-        line-height: 1;
-        flex-shrink: 0;
-        flex-grow: 0;
-        align-self: flex-start;
-        background-color: rgb(248, 96, 72);
-        border-radius: 50%;
-        display: none;
-        z-index: 10;
-      }
-
-      .page-chat .tab-container .tab-list li .tab-badge::before,
-      .page-chat .tab-container .tab-list li .tab-badge::after {
-        content: none;
-        display: none;
-      }
-
-      .page-chat .tab-container .tab-list li.has-unread .tab-badge {
-        display: block;
-      }
-    </style>
     <div class="tab-panel">
-    <div class="container" style="padding: 0;">
-        <!-- 지원한공고 탭 전용 페이지 (개인회원용) -->
-        <h2 class="sr-text">지원한공고</h2>
+      <div class="container" style="padding: 0;">
+        <!-- 통합 채팅목록 (지원한공고 + 제안받은공고 + 다이렉트채팅) -->
+        <h2 class="sr-text">채팅목록</h2>
 
         <div class="chat-list">
           <ol class="list result-list-card" id="chat_list">
@@ -71,16 +18,6 @@ $top_bar = array(
           </ol>
           <div class="chat-empty" id="chat_empty1">
             <p>목록이 없습니다.</p>
-          </div>
-        </div>
-
-        <!-- 보낸다이렉트채팅 섹션 -->
-        <div class="direct-chat-list-section" style="display: none;">
-          <h3 class="section-title">보낸채팅</h3>
-          <div class="chat-list">
-            <ol class="list result-list-card" id="direct_chat_list_sent">
-
-            </ol>
           </div>
         </div>
 
@@ -151,20 +88,20 @@ $top_bar = array(
     // 실시간 메시지 수신 이벤트
     socket.on('realtime_message', function(ret) {
       if (ret && ret.type == "chat") {
-        // 채팅 메시지 수신 시 탭 배지 업데이트
+        // 채팅 메시지 수신 시 배지 업데이트
         fSearchNoReadCountDebounced();
       }
     });
 
     // 채팅 알림 수신 이벤트
     socket.on('chat_notification', function(ret) {
-      // 채팅 알림 수신 시 탭 배지 업데이트
+      // 채팅 알림 수신 시 배지 업데이트
       fSearchNoReadCountDebounced();
     });
 
     // 메시지 읽음 카운트 변경 이벤트
     socket.on('message_read_count_return', function(ret) {
-      // 읽음 카운트 변경 시 탭 배지 업데이트
+      // 읽음 카운트 변경 시 배지 업데이트
       fSearchNoReadCountDebounced();
     });
 
@@ -183,9 +120,9 @@ $top_bar = array(
     startNoreadCountPolling();
   }
 
-  // 페이지 로드 시 지원한공고 목록 조회 및 실시간 업데이트 초기화
+  // 페이지 로드 시 4개 목록 조회 및 실시간 업데이트 초기화
   window.addEventListener('DOMContentLoaded', function(e) {
-    getChatTargetList(); // 콜백 내에서 fSearchDirectChatListSentMem() 호출됨
+    getChatTargetListUnified();
     initRealTimeTabBadgeUpdate();
   });
 
@@ -194,219 +131,141 @@ $top_bar = array(
     fSearchNoReadCount();
   });
 
-  // 지원한공고 탭 데이터 조회 함수 (개인회원 전용)
-  function getChatTargetList() {
-    comAjax("/chat_proc/get_chat_target_list_recruit_mem", {}, function(ret) {
+  // 통합 채팅 목록 조회 함수 (4개 데이터소스 병렬 호출)
+  function getChatTargetListUnified() {
+    var promises = [];
+
+    // Promise 1: 지원한공고 (정식 지원)
+    var promise1 = $.ajax({
+      url: "/chat_proc/get_chat_target_list_recruit_mem",
+      type: "POST",
+      dataType: "json"
+    }).then(function(data) {
+      return { category: 'applied', data: data };
+    });
+
+    // Promise 2: 제안받은공고 (정식 제안)
+    var promise2 = $.ajax({
+      url: "/chat_proc/get_chat_target_list2_mem",
+      type: "POST",
+      dataType: "json"
+    }).then(function(data) {
+      return { category: 'proposed', data: data };
+    });
+
+    // Promise 3: 보낸다이렉트채팅
+    var promise3 = $.ajax({
+      url: "/chat_proc/get_direct_chat_list_sent_mem",
+      type: "POST",
+      dataType: "json"
+    }).then(function(data) {
+      return { category: 'direct_sent', data: data };
+    });
+
+    // Promise 4: 받은다이렉트채팅
+    var promise4 = $.ajax({
+      url: "/chat_proc/get_direct_chat_list_received_mem",
+      type: "POST",
+      dataType: "json"
+    }).then(function(data) {
+      return { category: 'direct_received', data: data };
+    });
+
+    $.when(promise1, promise2, promise3, promise4).done(function(result1, result2, result3, result4) {
       $("#chat_list").html("");
 
-      if (ret.code == "00") {
-        var list = ret.data.list;
+      // 4개 응답 결과를 하나의 배열로 합산
+      var allRows = [];
 
-        // 회사(mm_idx)별 중복 제거 - 같은 회사는 마지막 대화(up_dt)가 가장 최근인 행만 남김
-        var deduped = {};
-        list.forEach(function(row) {
-          var companyIdx = row.mm_idx;
-          var rowTime = row.up_dt || row.last_msg_time || "";
-          var existing = deduped[companyIdx];
-          if (!existing || rowTime > (existing.up_dt || existing.last_msg_time || "")) {
-            deduped[companyIdx] = row;
-          }
-        });
+      // 각 카테고리의 결과 처리
+      var results = [result1, result2, result3, result4];
+      results.forEach(function(res) {
+        if (res && res.data && res.data.code == "00" && res.data.data && res.data.data.list) {
+          var list = res.data.data.list;
+          list.forEach(function(row) {
+            row._category = res.category;
+            allRows.push(row);
+          });
+        }
+      });
 
-        var dedupedList = Object.keys(deduped).map(function(key) {
-          return deduped[key];
-        });
+      // 시간순 정렬 (최신이 위)
+      allRows.sort(function(a, b) {
+        var timeA = a.up_dt || a.reg_dt || a.last_msg_time || "";
+        var timeB = b.up_dt || b.reg_dt || b.last_msg_time || "";
+        return timeB > timeA ? 1 : -1;
+      });
 
-        // dedupe 이전의 전체 rm_idx를 추적 (탭 판별용)
-        var currentTabRmIdxSet = new Set();
-        list.forEach(function(row) {
-          currentTabRmIdxSet.add(String(row.rm_idx));
-        });
-        window.__chatTab1RmIdxSet = currentTabRmIdxSet; // 지원한공고 탭의 모든 rm_idx
+      // 통합 목록 렌더링
+      allRows.forEach(function(row) {
+        var $clone = $("#tpl_chat_mem").clone();
+        var $content = $clone.html();
 
-        dedupedList.forEach(function(row) {
-          var $clone = $("#tpl_chat_mem").clone();
-          var $content = $clone.html();
+        // 템플릿 변수 바인딩
+        $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
+        $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
+        $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
+        $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
+        $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
+        $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
+        $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
+        $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
+        $content = $content.replaceAll("{{up_dt}}", row.up_dt || row.reg_dt || "");
 
-          // 템플릿 변수 바인딩
-          $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
-          $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
-          $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
+        $clone.html($content);
+        var recruitboxHtml = "<div class='recruitbox_'>" + $clone.html() + "</div>";
+        $("#chat_list").append(recruitboxHtml);
+      });
 
-          // 회사명으로 표시
-          $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
+      // PHP에서 이미 포맷팅된 시간을 표시
+      $("#chat_list .last-chat-time").each(function() {
+        $(this).text($(this).attr('data-time'));
+      });
 
-          // 마지막 대화의 공고명
-          $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
-
-          $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
-          $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
-
-          // 마지막 메시지 바인딩
-          $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
-
-          // 마지막 채팅 시간
-          $content = $content.replaceAll("{{up_dt}}", row.up_dt || "");
-
-          // 복사한 내용 다시 넣기
-          $clone.html($content);
-          var recruitboxHtml = "<div class='recruitbox_'>" + $clone.html() + "</div>";
-          $("#chat_list").append(recruitboxHtml);
-        });
-
-        // 목록이 없어도 일단 숨김 (다이렉트 채팅 로드 후 최종 판단)
-        // 렌더링 중 깜빡임 방지
-
-        // PHP에서 이미 포맷팅된 시간을 표시
-        $("#chat_list .last-chat-time").each(function() {
-          $(this).text($(this).attr('data-time'));
-        });
-      } else {
-        commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
-        return;
-      }
-
-      // 기본 목록 로드 완료 후 다이렉트 채팅 로드 (순서 보장)
-      if (typeof fSearchDirectChatListSentMem === 'function') {
-        fSearchDirectChatListSentMem();
-      }
-
-      // 다이렉트 채팅 로드 완료 후 미확인 채팅건수 조회 (DOM 재구성 후 뱃지 업데이트)
+      // 미확인 채팅건수 조회
       fSearchNoReadCount();
 
       // URL 파라미터에서 auto_open_rc_idx 확인하여 해당 채팅방 자동 진입
       var urlParams = new URLSearchParams(window.location.search);
       var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');
-      if (autoOpenRcIdx && ret.code == "00" && ret.data && ret.data.list) {
+      if (autoOpenRcIdx && allRows.length > 0) {
         // URL에서 auto_open_rc_idx 파라미터 제거 (뒤로가기 시 재진입 방지)
         urlParams.delete('auto_open_rc_idx');
         var newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
         window.history.replaceState({}, '', newUrl);
-        
-        // 목록 로드 완료 후 해당 rc_idx를 가진 채팅방 찾기
+
+        // 렌더링된 DOM에서 해당 rc_idx를 가진 채팅방 찾기
         setTimeout(function() {
           var targetRmIdx = null;
-          var chatList = ret.data.list;
-          
+
           // DOM에서 해당 rc_idx를 가진 채팅방 찾기
-          $("#chat_list .room-item").each(function() {
-            var $item = $(this);
-            // data 속성이나 텍스트에서 rc_idx 확인
-            var itemRcIdx = $item.data('rc_idx') || $item.find('[data-rc_idx]').data('rc_idx');
-            if (itemRcIdx == autoOpenRcIdx) {
-              targetRmIdx = $item.data('target_id') || $item.attr('data-target_id');
-              return false; // break
-            }
-          });
-          
-          // DOM에서 찾지 못한 경우 API 응답 데이터에서 찾기
-          if (!targetRmIdx) {
-            for (var i = 0; i < chatList.length; i++) {
-              var item = chatList[i];
-              if (item.rc_idx == autoOpenRcIdx) {
-                if (item.rm_idx) {
-                  targetRmIdx = item.rm_idx;
-                  break;
-                } else if (item.target_id) {
-                  targetRmIdx = item.target_id;
-                  break;
-                }
+          for (var i = 0; i < allRows.length; i++) {
+            var item = allRows[i];
+            if (item.rc_idx == autoOpenRcIdx) {
+              if (item.rm_idx) {
+                targetRmIdx = item.rm_idx;
+                break;
               }
             }
           }
-          
-          // 채팅방을 찾았으면 자동으로 진입 (메시지 자동 전송 플래그 포함)
+
+          // 채팅방을 찾았으면 자동으로 진입
           if (targetRmIdx) {
             location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
           }
         }, 500); // 목록 렌더링 대기
       }
+
+    }).fail(function() {
+      commonAlert("일시적인 조회 오류가 발생하였습니다. 관리자에 문의 바랍니다.", function() {});
     });
   }
 
-  // 보낸다이렉트채팅 목록 로드
-  function fSearchDirectChatListSentMem() {
-    $.ajax({
-      url: "/chat_proc/get_direct_chat_list_sent_mem",
-      type: "POST",
-      dataType: "json",
-      success: function(ret) {
-        if (ret.code == "00") {
-          var directChatList = ret.data.list || [];
-          var $directList = $("#direct_chat_list_sent");
-
-          $directList.empty();
-          window.__chatDirectRmIdxSetSent = new Set();
-
-          directChatList.forEach(function(row) {
-            var $clone = $("#tpl_chat_mem").clone();
-            var $content = $clone.html();
-
-            $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
-            $content = $content.replaceAll("{{reg_dt}}", row.reg_dt || "");
-
-            // 프로필 이미지 처리 (회사 이미지는 기본 처리만)
-            var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
-            var profileImg = (typeof row.target_img === "string") ? row.target_img.trim() : "";
-            if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
-              profileImg = noImagePath;
-            }
-            $content = $content.replaceAll("{{target_img}}", profileImg);
-
-            $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
-            $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
-            $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
-            $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
-            $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
-            $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
-            $content = $content.replaceAll("{{up_dt}}", row.reg_dt || "");
-
-            $clone.html($content);
-            $directList.append("<div class='recruitbox_'>" + $clone.html() + "</div>");
-            window.__chatDirectRmIdxSetSent.add(String(row.rm_idx));
-          });
-
-          if ($directList.find("li").length == 0) {
-            $directList.closest('.direct-chat-list-section').hide();
-          } else {
-            $directList.closest('.direct-chat-list-section').show();
-          }
-
-          $("#direct_chat_list_sent .last-chat-time").each(function() {
-            $(this).text($(this).attr('data-time'));
-          });
-
-          // 다이렉트 채팅 rm_idx를 탭1 추적 목록에 병합
-          window.__chatDirectRmIdxSetSent.forEach(function(idx) {
-            window.__chatTab1RmIdxSet.add(idx);
-          });
-
-          // 모든 렌더링 완료 후 empty 상태 재평가
-          var chatListCount = $("#chat_list").find("li").length;
-          var directChatCount = $("#direct_chat_list_sent").find("li").length;
-
-          if (chatListCount === 0 && directChatCount === 0) {
-            $("#chat_empty1").show();
-          } else {
-            $("#chat_empty1").hide();
-          }
-
-          // DOM 렌더링 완료 후 뱃지 업데이트 (race condition 방지)
-          fSearchNoReadCount();
-        }
-      }
-    });
-  }
-
-  // 지원한공고 목록의 미확인 채팅건수 조회
+  // 통합 목록의 미확인 채팅건수 조회
   function fSearchNoReadCount() {
     comAjax("/chat_proc/fSearchNoReadCount", {}, function(ret) {
       var myId = $("#user_id").val();
       let result = ret.data.result;
-
-      // 탭별 읽지 않은 메시지 개수 계산
-      var tab1UnreadCount = 0; // 지원한공고 탭
-      var tab2UnreadCount = 0; // 제안받은공고 탭
 
       $.each(result, function(key, room) {
         let count = 0;
@@ -418,11 +277,8 @@ $top_bar = array(
           });
         });
 
-        // 탭 판별: DOM 존재 여부가 아니라 dedupe 이전 리스트 기반
-        var belongsToThisTab = window.__chatTab1RmIdxSet && window.__chatTab1RmIdxSet.has(String(room.rm_idx));
+        // 개별 채팅방 배지 업데이트 (DOM에 실제 렌더링된 요소만)
         var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
-
-        // DOM에 실제 렌더링된 요소(dedupe 생존자)에만 숫자 표시
         if ($unreadElement.length > 0) {
           $unreadElement.html(count);
           if (count > 0) {
@@ -431,46 +287,12 @@ $top_bar = array(
             $unreadElement.hide();
           }
         }
-
-        // 탭별 카운팅: 추적된 리스트 기반
-        if (belongsToThisTab) {
-          // 지원한공고 탭
-          if (count > 0) {
-            tab1UnreadCount += count;
-          }
-        } else {
-          // 제안받은공고 탭
-          if (count > 0) {
-            tab2UnreadCount += count;
-          }
-        }
       });
-
-      // 탭1 (지원한공고) 확인
-      var hasUnreadTab1 = tab1UnreadCount > 0;
-      if (hasUnreadTab1) {
-        $('.page-chat .tab-list li:first-child').addClass('has-unread');
-      } else {
-        $('.page-chat .tab-list li:first-child').removeClass('has-unread');
-      }
-
-      // 탭2 (제안받은공고) 확인
-      var hasUnreadTab2 = tab2UnreadCount > 0;
-      if (hasUnreadTab2) {
-        $('.page-chat .tab-list li:last-child').addClass('has-unread');
-      } else {
-        $('.page-chat .tab-list li:last-child').removeClass('has-unread');
-      }
     });
   }
 
-  // 지원한공고 목록 아이템 클릭 이벤트 처리
+  // 채팅 목록 아이템 클릭 이벤트 처리
   $(document).on("click", ".room-item", function(e) {
-    // fShowChatListByRecruite 함수가 있는 경우에는 바로 채팅방으로 이동하지 않음
-    if ($(this).find('.angle-link[onclick*="fShowChatListByRecruite"]').length > 0) {
-      return; // fShowChatListByRecruite 함수가 처리하도록 함
-    }
-
     var target_id = $(this).data("target_id");
     var $unreadElement = $('#room_idx_unread_cnt_' + target_id);
 
@@ -479,45 +301,38 @@ $top_bar = array(
       $unreadElement.html(0).hide();
     }
 
-    // 지원한공고 탭에서 채팅방으로 이동 (backUrl 파라미터로 뒤로가기 URL 전달)
+    // 채팅방으로 이동 (backUrl 파라미터로 뒤로가기 URL 전달)
     location.href = "/chat/chat_view?rm_idx=" + target_id + "&backUrl=" + encodeURIComponent('/chat/chat_list');
   });
+
 </script>
 
-<!-- 지원한공고 탭 전용 템플릿 (개인회원용) -->
+<!-- 통합 채팅목록 템플릿 (지원한공고 + 제안받은공고 + 다이렉트채팅) -->
 <template id="tpl_chat_mem">
   <li class="list-item msg-item room-item room_idx_{{room_idx}}" data-target_id="{{room_idx}}" data-regdt="{{reg_dt}}">
     <a href="#" class="angle-link js-open-view" data-regdt="{{reg_dt}}">
       <div class="content-body">
         <div class="chat-time-row">
-            <!-- <div class="wicon">{{rt_recom_badge}}{{rt_work_img}}</div> -->
-            <div class="last-chat-time" data-time="{{up_dt}}"></div>
-          </div> 
-        <div class="img" style="border-radius: 60px;">
-          
-          
-            <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
-          
+          <div class="last-chat-time" data-time="{{up_dt}}"></div>
         </div>
-        
+        <div class="img" style="border-radius: 60px;">
+          <img src="{{rc_thumb}}" alt="" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+        </div>
 
-         <div class="desc">
+        <div class="desc">
           <div class="title ellipsis">{{mm_comp_name}}</div>
 
           <div class="summary-with-badge">
             <div class="summary">
               <p class="last-message">{{last_msg_preview}}</p>
             </div>
-           
           </div>
-         
         </div>
-
 
       </div>
     </a>
     <div class="recruit-name-section">{{rc_name}}</div>
-    
+
     <span class="room_rec_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
   </li>
 </template>

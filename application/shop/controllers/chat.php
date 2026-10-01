@@ -145,62 +145,24 @@ class Chat extends CI_Controller
 
   function chat_list2()
   {
-    # 개인회원만 접근 가능
-    if ($this->user->getUserType() !== "MEM") {
-      echo "<script>
-        alert('개인회원 전용 서비스입니다.');
-        location.href = '/recruit/job_list';
-      </script>";
-      exit;
+    # 통합: /chat/chat_list로 리다이렉트 (쿼리스트링 유지)
+    $query_string = $_SERVER['QUERY_STRING'];
+    $target_url = '/chat/chat_list';
+    if (!empty($query_string)) {
+      $target_url .= '?' . $query_string;
     }
-
-    $data = [];
-
-    $headers = apache_request_headers();
-    $os_type = isset($data["os_type"]) ? $data["os_type"] : "";
-
-    # 바로가기 처리
-    $rm_idx = input_get("rm_idx");
-    $view = input_get("view");
-
-    if ($view == "true") {
-      go_href("/chat/chat_view?rm_idx=" . $rm_idx);
-      //exit;
-    }
-
-    $data["os_type"] = $os_type;
-    $data["user_type"] = $this->user->getUserType();
-    $this->layout->shop('/chat/chat_list2', $data);
+    redirect($target_url, 'location', 303);
   }
 
   function chat_list3()
   {
-    # 기업회원만 접근 가능
-    if ($this->user->getUserType() !== "COMP") {
-      echo "<script>
-        alert('기업회원 전용 서비스입니다.');
-        location.href = '/recruit/job_list';
-      </script>";
-      exit;
+    # 통합: /chat/index_comp로 리다이렉트 (쿼리스트링 유지)
+    $query_string = $_SERVER['QUERY_STRING'];
+    $target_url = '/chat/index_comp';
+    if (!empty($query_string)) {
+      $target_url .= '?' . $query_string;
     }
-
-    $data = [];
-
-    $headers = apache_request_headers();
-    $os_type = isset($data["os_type"]) ? $data["os_type"] : "";
-
-    # 바로가기 처리
-    $rm_idx = input_get("rm_idx");
-    $view = input_get("view");
-
-    if ($view == "true") {
-      go_href("/chat/chat_view?rm_idx=" . $rm_idx);
-      //exit;
-    }
-
-    $data["os_type"] = $os_type;
-    $data["user_type"] = $this->user->getUserType();
-    $this->layout->shop('/chat/chat_list3', $data);
+    redirect($target_url, 'location', 303);
   }
 
   # 채팅상세

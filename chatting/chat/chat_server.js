@@ -958,19 +958,6 @@ io.on('connection', function (socket) {
 			// 발신자 소켓이 room에 없을 경우를 대비해 직접 emit (중복 수신은 showMessage의 중복 체크로 방지)
 			socket.emit('message_insert_return', ret);
 
-
-
-
-			// ✅ 메시지 전송 후, 나가 있던 상대방의 exit_yn을 매번 리셋 (새 메시지 수신 시 대화 재노출)
-			try {
-				await $db.cs_room.updateOne(
-					{ rm_idx: target_rm_idx },
-					{ $set: { "rm_users.$[elem].exit_yn": "N" } },
-					{ arrayFilters: [ { "elem.user_id": { $ne: g_user_id }, "elem.exit_yn": "Y" } ] }
-				);
-			} catch (err) {
-
-			}
 			// 푸시 알림 발송
 			try {
 			
