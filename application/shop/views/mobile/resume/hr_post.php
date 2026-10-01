@@ -1245,7 +1245,7 @@ if (!$isLogin) {
 
                                 // 다이렉트 채팅 또는 제안에 따라 이동 경로 분기
                                 if (currentActionMode === 'direct_chat') {
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list3');
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
                                 } else {
                                     // 정식 제안도 chat_view로 직접 리다이렉트 (auto_send=true로 자동메시지 전송)
                                     location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');

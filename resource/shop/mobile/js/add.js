@@ -164,9 +164,9 @@ function customBack() {
                 const from = params.get('from') || '';
                 const backMap = {
                     applied: '/chat/chat_list',
-                    proposed_job: '/chat/chat_list2',
+                    proposed_job: '/chat/chat_list',
                     talent_received: '/chat/index_comp',
-                    talent_sent: '/chat/chat_list3'
+                    talent_sent: '/chat/index_comp'
                 };
                 backUrl = backMap[from] || '/chat/chat_list';
             }
@@ -915,9 +915,9 @@ function handleAndroidBack() {
                 const from = params.get('from') || '';
                 const backMap = {
                     applied: '/chat/chat_list',
-                    proposed_job: '/chat/chat_list2',
+                    proposed_job: '/chat/chat_list',
                     talent_received: '/chat/index_comp',
-                    talent_sent: '/chat/chat_list3'
+                    talent_sent: '/chat/index_comp'
                 };
                 backUrl = backMap[from] || '/chat/chat_list';
             }
@@ -932,9 +932,7 @@ function handleAndroidBack() {
             "/compage/index": "/",
             // 채팅 페이지 → 구인 목록
             "/chat/index_comp": "/recruit/job_list",
-            "/chat/chat_list": "/recruit/job_list",
-            "/chat/chat_list2": "/recruit/job_list",
-            "/chat/chat_list3": "/recruit/job_list"
+            "/chat/chat_list": "/recruit/job_list"
         };
 
         // 현재 페이지가 커스텀 목록에 포함되어 있나요?

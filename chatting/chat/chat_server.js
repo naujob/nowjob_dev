@@ -1016,49 +1016,64 @@ io.on('connection', function (socket) {
 
 								// 1시간 내 발송 이력이 없으면 푸시 발송
 								if (alarm_check && alarm_check.data === 0) {
-									// 메시지 타입에 따른 문구 조정
-									let msg_desc = "메시지가 도착했습니다.";
-									if (target_chat_type === 'img') {
-										msg_desc = "사진을 전송했습니다.";
-									} else if (target_chat_type === 'file') {
-										msg_desc = "파일을 첨부했습니다.";
+									// MySQL st_member에서 수신자의 mm_type 조회하여 backUrl 동적 설정
+									const $mysql = require("../database/mysql.js");
+									if ($mysql.db_conn) {
+										$mysql.db_conn.query(
+											'SELECT mm_type FROM st_member WHERE mm_id = ? AND mm_status = "Y"',
+											[target_user_id],
+											function(err, results) {
+												const mm_type = (results && results.length > 0) ? results[0].mm_type : 'MEM';
+												const defaultBackUrl = mm_type === 'COMP' ? '/chat/index_comp' : '/chat/chat_list';
+
+												// 메시지 타입에 따른 문구 조정
+												let msg_desc = "메시지가 도착했습니다.";
+												if (target_chat_type === 'img') {
+													msg_desc = "사진을 전송했습니다.";
+												} else if (target_chat_type === 'file') {
+													msg_desc = "파일을 첨부했습니다.";
+												}
+
+												// 푸시 알림 데이터 구성
+												// 수신자의 mm_type(MEM/COMP)에 따라 backUrl 자동 설정 (개인/기업 페이지)
+												const backUrl = (data && data.backUrl) ? data.backUrl : defaultBackUrl;
+												const backUrlParam = '&backUrl=' + encodeURIComponent(backUrl);
+												const push = {
+													user_id: target_user_id,
+													no_subject: (room_type_for_label === 'recruit' ? '채용공고' : '중고거래') + ' 메시지 알림',
+													no_text: '[' + sender_nick + ']님의 ' + msg_desc,
+													no_url: '/chat/chat_view?rm_idx=' + String(target_rm_idx) + backUrlParam,
+													no_token: target_token,
+													no_result: '',
+													reg_dt: $common.getCurrentDate()
+												};
+
+
+
+												// 푸시 알림 등록 및 발송
+												$exe.alarm.insertNotification(push, function (idx) {
+
+													send_fcm(idx, push);
+												});
+
+												// 인앱 알림 등록
+												const alarm = {
+													user_id: target_user_id,
+													al_type: room_type_for_label,
+													al_key: String(target_rm_idx),
+													al_text: '[' + sender_nick + ']님의 ' + msg_desc,
+													al_url: '/chat/chat_view?rm_idx=' + String(target_rm_idx),
+													al_etc: ''
+												};
+												$exe.alarm.insertAlarm(alarm, function (idx) {
+
+												});
+											}
+										);
 									}
-
-									// 푸시 알림 데이터 구성
-									// backUrl이 있으면 동적으로 포함 (뒤로가기 URL 자동 설정)
-									const backUrlParam = (data && data.backUrl) ? '&backUrl=' + encodeURIComponent(data.backUrl) : '';
-									const push = {
-										user_id: target_user_id,
-										no_subject: (room_type_for_label === 'recruit' ? '채용공고' : '중고거래') + ' 메시지 알림',
-										no_text: '[' + sender_nick + ']님의 ' + msg_desc,
-										no_url: '/chat/chat_view?rm_idx=' + String(target_rm_idx) + backUrlParam,
-										no_token: target_token,
-										no_result: '',
-										reg_dt: $common.getCurrentDate()
-									};
-
-									
-
-									// 푸시 알림 등록 및 발송
-									$exe.alarm.insertNotification(push, function (idx) {
-								
-										send_fcm(idx, push);
-									});
-
-									// 인앱 알림 등록
-									const alarm = {
-										user_id: target_user_id,
-										al_type: room_type_for_label,
-										al_key: String(target_rm_idx),
-										al_text: '[' + sender_nick + ']님의 ' + msg_desc,
-										al_url: '/chat/chat_view?rm_idx=' + String(target_rm_idx),
-										al_etc: ''
-									};
-									$exe.alarm.insertAlarm(alarm, function (idx) {
-										
 									});
 								} else {
-									
+
 								}
 							});
 						});
