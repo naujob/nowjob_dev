@@ -1047,8 +1047,9 @@ class memberModel extends MY_Model
          ) pm_edate,
          req.rm_idx,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt
-			FROM st_recruit aa
-			INNER JOIN st_member_request req ON req.rc_idx = aa.rc_idx
+			FROM st_member_request req
+			INNER JOIN st_room room ON room.rm_idx = req.rm_idx /* chat_view.php와 동일하게 방에 저장된 rc_idx를 우선 사용 (방 재사용 시 최신 공고명 표시) */
+			INNER JOIN st_recruit aa ON aa.rc_idx = room.rc_idx
 			INNER JOIN st_member comp ON aa.mm_idx = comp.mm_idx /* membermodel.getRecruitActaiveListMem queryXlog */
 			where req.mq_type = 'RECRUIT' AND req.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
@@ -5425,16 +5426,16 @@ SELECT
         ON aa.mm_idx = bb.mm_idx
             INNER JOIN st_member_request mq
                 ON mq.ru_idx = bb.ru_idx AND mq.mq_type = 'RESUME'
+            LEFT JOIN st_room room
+                ON room.rm_idx = mq.rm_idx
             INNER JOIN st_recruit rc
-                ON mq.rc_idx = rc.rc_idx
+                ON rc.rc_idx = COALESCE(room.rc_idx, mq.rc_idx) -- chat_view.php와 동일하게 방에 저장된 rc_idx를 우선 사용 (방 재사용 시 최신 공고명 표시)
             INNER JOIN st_member rcmm
                 ON rc.mm_idx = rcmm.mm_idx
             LEFT JOIN st_bookmark dd
                 ON bb.ru_idx = dd.bk_key AND dd.bk_type = 'RESUME' AND dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
             LEFT JOIN st_address ad
                 ON aa.mm_idx = ad.mm_idx AND ad.ad_type = 'MEMBER'
-            LEFT JOIN st_room room
-                ON room.rm_idx = mq.rm_idx
  WHERE 1=1
   AND aa.mm_status = 'Y'
   AND bb.mm_idx = '" . $this->inject($params["mm_idx"]) . "'

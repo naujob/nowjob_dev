@@ -6913,6 +6913,11 @@ form#frm {
     border-top: 1px solid #dcdcdc;
 }
 
+/* 다이렉트 채팅방에서는 공고카드 목록(#chatRecruitCardList)을 숨김 */
+.result-list-card[data-visible="false"] {
+    display: none;
+}
+
 .result-list-card .content-li {
     position: relative;
     width: 100%;
@@ -14153,7 +14158,7 @@ h3.secondary-title .menu:focus {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        margin: 0 0 0 110px;
+        margin: 15px 0 0 110px;
         cursor: pointer;
       }
 
@@ -14201,13 +14206,14 @@ h3.secondary-title .menu:focus {
 
       /* 채팅 목록 - 추천 뱃지와 시간을 가로로 배치 */
       .chat-time-row {
-     
-        align-items: center;
+         align-items: center;
         gap: 8px;
         margin-bottom: 8px;
-        position: relative;
-        left: 353px;
-        top: 20px;
+        position: absolute;
+        left: 350px;
+        top: 36px;
+        width: 101px;
+        text-align: right;
         
       }
      .chat-time-row .wicon {

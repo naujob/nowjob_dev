@@ -360,6 +360,10 @@
 </script>
 
 <div class="page page-chat-view">
+    <!-- 제안/지원 안내 말풍선 클릭 시 열리는 이력서/채용공고 상세 팝업 (hr_list.php/job_list.php와 동일 패턴) -->
+    <div id="hrPostPopup" class="hr-post-popup" data-state="closed"></div>
+    <div id="jobPostPopup" class="job-post-popup" data-state="closed"></div>
+
     <div class="top-bar top-bar--chat">
         <!--<a href="javascript:_replace('/chat/chat_list');" class="btn-replace"><span class="sr-text">이전으로</span></a>-->
         <a href="javascript:void(0);" class="btn-replace js-chat-back"><span class="sr-text">이전으로</span></a>
@@ -432,7 +436,7 @@
                 ?>
                 <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
                 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= ($from === 'direct_chat') ? 'false' : 'true' ?>"></ul>
+                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= (!empty($is_direct_chat_room)) ? 'false' : 'true' ?>"></ul>
                 <!-- //기업회원 공고정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
@@ -612,7 +616,7 @@
                 ?>
                 <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
                 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= ($from === 'direct_chat') ? 'false' : 'true' ?>"></ul>
+                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= (!empty($is_direct_chat_room)) ? 'false' : 'true' ?>"></ul>
                 <!-- //공고정보 -->
                 <div id="mem_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">
@@ -1757,10 +1761,34 @@
                 content += info.mg_text;
                 content += "</p>";
             } else if (info.mg_type == "propose") {
-                // 시스템 메시지: 채팅방 내 제안하기/지원하기 완료 안내
-                var content = "<p class='msg-item chat-notify' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "'>";
-                content += info.mg_text;
-                content += "</p>";
+                // 채팅방 내 제안하기/지원하기 완료 안내: 일반 텍스트 메시지와 동일한 말풍선으로 표시
+                if (your_text_yn == "Y") {
+                    var readcount = 0;
+                    for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
+                        if (info.mg_reads[icnt].read_yn == "N") {
+                            readcount++;
+                        }
+                    }
+                    var content = "<div class='msg-item chat-bubble propose-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' data-mq_type='" + (info.mg_mq_type || "") + "' data-rc_idx='" + (info.mg_rc_idx || "") + "' data-ru_idx='" + (info.mg_ru_idx || "") + "'>";
+                    content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
+                    if (readcount > 0) {
+                        content += "    <div class='readcount'>" + readcount + "</div>";
+                    } else {
+                        content += "    <div class='readcount'></div>";
+                    }
+                    content += "    </div>";
+                    content += "    <div class='meta'>";
+                    content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
+                    content += "    </div>";
+                    content += "</div>";
+                } else {
+                    var content = "<div class='msg-item chat-bubble diff propose-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' data-mq_type='" + (info.mg_mq_type || "") + "' data-rc_idx='" + (info.mg_rc_idx || "") + "' data-ru_idx='" + (info.mg_ru_idx || "") + "'>";
+                    content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />") + "</div>";
+                    content += "    <div class='meta'>";
+                    content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
+                    content += "    </div>";
+                    content += "</div>";
+                }
             } else if (info.mg_type == "면접일정확인") {
                 var dt = getFormatDate(new Date(info.mg_req_dt), "kor");
                 $("#top_dt1").html(dt);
@@ -2718,7 +2746,7 @@
                 var msgText = (mqType == "RESUME")
                     ? ("\"" + selectedName + "\" 공고를 제안했습니다.")
                     : ("\"" + selectedName + "\" 이력서로 지원했습니다.");
-                sendProposeSystemMessage(msgText);
+                sendProposeSystemMessage(msgText, mqType, params.rc_idx, params.ru_idx);
             } else {
                 // 이미 지원/제안한 이력이 있는 경우(code=90) 등: 안내만 표시, 채팅 메시지 전송 없음
                 alert(ret.msg || "처리에 실패했습니다.");
@@ -2797,7 +2825,8 @@
     });
 
     // 제안/지원 완료 안내를 채팅창에 시스템 메시지로 전송
-    function sendProposeSystemMessage(msgText) {
+    // mqType/rcIdx/ruIdx: 말풍선 클릭 시 해당 공고(rcIdx)/이력서(ruIdx) 팝업을 열기 위해 함께 저장
+    function sendProposeSystemMessage(msgText, mqType, rcIdx, ruIdx) {
         var message = {
             rm_idx: Number(rm_idx),
             user_id: g_user_id,
@@ -2809,6 +2838,9 @@
             mg_imoti: "",
             mg_dt: getCurrentDate(),
             mg_reads: new Array(),
+            mg_mq_type: mqType || "",
+            mg_rc_idx: rcIdx || "",
+            mg_ru_idx: ruIdx || "",
         };
 
         for (var icnt = 0; icnt < rm_info.rm_users.length; icnt++) {
@@ -2822,6 +2854,233 @@
         message.backUrl = window.backUrl;
         socket.emit("message_insert", message, rm_info.rm_users);
     }
+
+    // 제안하기/지원하기 안내 말풍선 클릭 시 해당 공고/이력서 팝업 열기
+    $(document).on('click', '.propose-bubble', function(e) {
+        var mqType = $(this).data('mq_type');
+        var rcIdx = $(this).data('rc_idx');
+        var ruIdx = $(this).data('ru_idx');
+
+        if (mqType === 'RESUME' && rcIdx) {
+            if (typeof window.openJobPostPopup === 'function') {
+                window.openJobPostPopup(rcIdx);
+            }
+        } else if (mqType === 'RECRUIT' && ruIdx) {
+            if (typeof window.openHrPostPopup === 'function') {
+                window.openHrPostPopup(ruIdx);
+            }
+        }
+    });
+
+    // 이력서 상세 팝업 함수 (resume/hr_list.php와 동일 패턴)
+    window.openHrPostPopup = function(ruIdx) {
+        $.ajax({
+            url: '/resume/hr_post/' + ruIdx,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).done(function(html) {
+            var popup = document.getElementById('hrPostPopup');
+            popup.innerHTML = html;
+
+            // 로드된 HTML 내 script 태그 실행
+            var scripts = popup.querySelectorAll('script');
+            scripts.forEach(function(script) {
+                if (script.src) {
+                    var newScript = document.createElement('script');
+                    newScript.src = script.src;
+                    newScript.async = script.async;
+
+                    if (script.src.indexOf('share-panel.js') !== -1) {
+                        newScript.onload = function() {
+                            if (typeof initializeSharePanel === 'function') {
+                                initializeSharePanel();
+                            }
+                        };
+                        newScript.onerror = function() {
+                            console.error('[openHrPostPopup] share-panel.js 로드 실패');
+                        };
+                    }
+
+                    popup.appendChild(newScript);
+                } else {
+                    var newScript = document.createElement('script');
+                    newScript.textContent = script.textContent;
+                    popup.appendChild(newScript);
+                }
+            });
+
+            document.body.style.overflow = 'hidden';
+            localStorage.setItem('resume_came_from_hr_post', 'true');
+            localStorage.setItem('came_from_hr_list', 'true');
+            sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
+
+            // GSAP으로 팝업 열기 애니메이션
+            gsap.fromTo('#hrPostPopup',
+                { x: '100%' },
+                {
+                    duration: 0.5,
+                    x: '0%',
+                    ease: "power1.out",
+                    clearProps: "transform",
+                    onComplete: function() {
+                        document.getElementById('hrPostPopup').setAttribute('data-state', 'open');
+                    }
+                }
+            );
+
+            if (typeof initLazyLoad === 'function') {
+                initLazyLoad();
+            }
+            if (typeof window.initJobPostDescFeatures === 'function') {
+                window.initJobPostDescFeatures();
+            }
+        }).fail(function(xhr, status, error) {
+            console.error('[openHrPostPopup] AJAX 실패 - status:', status, 'error:', error);
+        });
+    };
+
+    window.closeHrPostPopup = function(e) {
+        if (e) e.preventDefault();
+
+        var $selectPanel = $("#selectPanel");
+        if ($selectPanel.length > 0) {
+            $selectPanel.removeClass("on");
+        }
+
+        gsap.to('#hrPostPopup', {
+            duration: 0.5,
+            x: '100%',
+            ease: "power1.out",
+            onComplete: function() {
+                document.getElementById('hrPostPopup').setAttribute('data-state', 'closed');
+                $('#hrPostPopup').html('');
+            }
+        });
+
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        if (typeof applyLastClickedHighlight === 'function') {
+            applyLastClickedHighlight();
+        }
+    };
+
+    window.isHrPostPopupOpen = function() {
+        return parseFloat($('#hrPostPopup').css('opacity')) > 0.5;
+    };
+
+    // 채용공고 상세 팝업 함수 (recruit/job_list.php와 동일 패턴)
+    window.openJobPostPopup = function(rcIdx) {
+        $.ajax({
+            url: '/recruit/job_post/' + rcIdx,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).done(function(html) {
+            var popup = document.getElementById('jobPostPopup');
+            popup.innerHTML = html;
+
+            var scripts = popup.querySelectorAll('script');
+            scripts.forEach(function(script) {
+                if (script.src) {
+                    var newScript = document.createElement('script');
+                    newScript.src = script.src;
+                    newScript.async = script.async;
+
+                    if (script.src.indexOf('share-panel.js') !== -1) {
+                        newScript.onload = function() {
+                            if (typeof initializeSharePanel === 'function') {
+                                initializeSharePanel();
+                            }
+                        };
+                        newScript.onerror = function() {
+                            console.error('[openJobPostPopup] share-panel.js 로드 실패');
+                        };
+                    }
+
+                    popup.appendChild(newScript);
+                } else {
+                    var newScript = document.createElement('script');
+                    newScript.textContent = script.textContent;
+                    popup.appendChild(newScript);
+                }
+            });
+
+            document.body.style.overflow = 'hidden';
+            sessionStorage.setItem('recruit_came_from_job_post', 'true');
+            sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
+
+            gsap.fromTo('#jobPostPopup',
+                { x: '100%' },
+                {
+                    duration: 0.5,
+                    x: '0%',
+                    ease: "power1.out",
+                    clearProps: "transform",
+                    onComplete: function() {
+                        document.getElementById('jobPostPopup').setAttribute('data-state', 'open');
+                    }
+                }
+            );
+
+            if (typeof initLazyLoad === 'function') {
+                initLazyLoad();
+            }
+            if (typeof KeenSlider !== 'undefined' && typeof sliderDots === 'function' && typeof addActiveClass === 'function') {
+                new KeenSlider(".view-visual-slider .slider-wrap", {
+                    loop: true,
+                }, [sliderDots, addActiveClass]);
+            }
+            if (typeof jQuery !== 'undefined') {
+                $('#jobPostPopup .view-visual-slider').magnificPopup({
+                    delegate: 'img',
+                    type: 'image',
+                    gallery: { enabled: true }
+                });
+            }
+            if (typeof window.initJobPostDescFeatures === 'function') {
+                window.initJobPostDescFeatures();
+            }
+        }).fail(function(xhr, status, error) {
+            console.error('[openJobPostPopup] AJAX 실패 - status:', status, 'error:', error);
+        });
+    };
+
+    window.closeJobPostPopup = function(e) {
+        if (e) e.preventDefault();
+
+        var popup = document.getElementById('jobPostPopup');
+        if (popup) {
+            var openPanels = popup.querySelectorAll('.layer-panel.on');
+            openPanels.forEach(function(panel) {
+                if (typeof closePanel === 'function') {
+                    closePanel(panel);
+                }
+            });
+        }
+
+        gsap.to('#jobPostPopup', {
+            duration: 0.5,
+            x: '100%',
+            ease: "power1.out",
+            onComplete: function() {
+                document.getElementById('jobPostPopup').setAttribute('data-state', 'closed');
+                $('#jobPostPopup').html('');
+            }
+        });
+
+        document.body.style.overflow = 'auto';
+        document.body.style.overflowY = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        document.documentElement.style.overflowY = 'auto';
+
+        if (typeof restoreBodyScroll === 'function') {
+            restoreBodyScroll();
+        }
+        if (typeof applyLastClickedHighlight === 'function') {
+            applyLastClickedHighlight();
+        }
+    };
+
+    window.isJobPostPopupOpen = function() {
+        return parseFloat($('#jobPostPopup').css('opacity')) > 0.5;
+    };
 
     // 제안/지원 선택 바텀시트: 항목 클릭 시 해당 항목의 radio 버튼 선택
     $(document).on("click", "#proposeSelectPanel .selectable-item, #opponentSelectPanel .selectable-item", function(e) {
@@ -4417,6 +4676,35 @@
 <?php endif; ?>
 
 <style>
+    /* 제안/지원 안내 말풍선 클릭 팝업 (hr_list.php/job_list.php와 동일 패턴) */
+    #hrPostPopup,
+    #jobPostPopup {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: #fff;
+        overflow-y: auto;
+    }
+
+    #hrPostPopup[data-state="closed"],
+    #jobPostPopup[data-state="closed"] {
+        transform: translateX(100%);
+        pointer-events: none;
+    }
+
+    #hrPostPopup[data-state="open"],
+    #jobPostPopup[data-state="open"] {
+        transform: none;
+        pointer-events: auto;
+    }
+
+    .propose-bubble {
+        cursor: pointer;
+    }
+
     .btn-call {
         display: none;
     }

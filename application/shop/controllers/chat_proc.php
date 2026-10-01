@@ -1242,6 +1242,11 @@ class Chat_proc extends CI_Controller
 				// 회사명 설정 (user_name을 mm_comp_name으로도 복사)
 				$temp_list[$key]["mm_comp_name"] = isset($row["user_name"]) ? $row["user_name"] : "";
 
+				// rc_thumb가 null이거나 빈 값일 경우 getRecruitImg 함수로 대체 이미지 처리
+				if (empty($row["rc_thumb"])) {
+					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
+				}
+
 				// job_list와 동일한 필드 가공 (뱃지/근무 아이콘)
 				$temp_list[$key]["rt_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
 				$temp_list[$key]["rt_work_img"] = getWorkingImg(isset($row["rc_work"]) ? $row["rc_work"] : "");

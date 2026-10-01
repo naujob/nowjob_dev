@@ -418,6 +418,23 @@ class Chat extends CI_Controller
       }
     }
 
+    // 다이렉트 채팅방 여부 판정 (URL 파라미터 from 대신 실제 DB 기준)
+    // 방에 저장된 rc_idx가 더미 공고(rc_auto_yn='Y')를 가리키면 아직 실제 지원/제안 전인 순수 다이렉트 채팅방.
+    // propose_from_room()에서 지원/제안을 하면 updateRoom()이 room의 rc_idx를 실제 값으로 갱신하므로,
+    // 그 시점부터는 rc_auto_yn이 'N'이 되어 카드가 자동으로 보이게 됨.
+    // (st_member_request.mq_type은 방이 원래 다이렉트였으면 실제 지원/제안 후에도 _DIRECT 접미사가 유지되어 판정 기준으로 쓸 수 없음)
+    $data["is_direct_chat_room"] = false;
+    if ($final_rc_idx) {
+      $recruit_auto_row = $this->db->query(
+        "SELECT rc_auto_yn FROM st_recruit WHERE rc_idx = ?",
+        [$final_rc_idx]
+      )->row_array();
+
+      if ($recruit_auto_row && $recruit_auto_row["rc_auto_yn"] == "Y") {
+        $data["is_direct_chat_room"] = true;
+      }
+    }
+
     // 다이렉트 채팅방 여부 판정
     // 이 방에서 정상(제안/지원) 요청이 한 번이라도 발생했다면, _DIRECT 이력이 남아있어도
     // 더 이상 다이렉트 채팅방이 아닌 일반 제안/지원 채팅방으로 취급한다.
