@@ -1017,7 +1017,6 @@ io.on('connection', function (socket) {
 								// 1시간 내 발송 이력이 없으면 푸시 발송
 								if (alarm_check && alarm_check.data === 0) {
 									// MySQL st_member에서 수신자의 mm_type 조회하여 backUrl 동적 설정
-									const $mysql = require("../database/mysql.js");
 									if ($mysql.db_conn) {
 										$mysql.db_conn.query(
 											'SELECT mm_type FROM st_member WHERE mm_id = ? AND mm_status = "Y"',
@@ -1036,8 +1035,8 @@ io.on('connection', function (socket) {
 
 												// 푸시 알림 데이터 구성
 												// 수신자의 mm_type(MEM/COMP)에 따라 backUrl 자동 설정 (개인/기업 페이지)
-												const backUrl = (data && data.backUrl) ? data.backUrl : defaultBackUrl;
-												const backUrlParam = '&backUrl=' + encodeURIComponent(backUrl);
+												// ⚠ data.backUrl은 발신자(메시지를 보낸 사람)의 backUrl이므로 수신자 푸시에는 사용하지 않음
+												const backUrlParam = '&backUrl=' + encodeURIComponent(defaultBackUrl);
 												const push = {
 													user_id: target_user_id,
 													no_subject: (room_type_for_label === 'recruit' ? '채용공고' : '중고거래') + ' 메시지 알림',
@@ -1071,7 +1070,6 @@ io.on('connection', function (socket) {
 											}
 										);
 									}
-									});
 								} else {
 
 								}
@@ -1088,16 +1086,25 @@ io.on('connection', function (socket) {
 			// ------------------------------
 			// ⑤ 접속 중인 사용자들에게 실시간 메시지 리프레시
 			// ------------------------------
-			rm_users.forEach(user => {
-				if (user && user.user_id && user.user_id !== "" && user.user_id !== g_user_id) {
-					if (user.socket_id && user.socket_id !== "") {
-						io.to(user.socket_id).emit('message_refresh', {
-							rm_idx: target_rm_idx,
-							mg_idx: ret.mg_idx
-						});
+			// ⚠ rm_users 배열의 socket_id는 방 문서에 저장되지 않는 값이라 항상 비어있었음.
+			// cs_user 컬렉션(update_status로 접속 시마다 갱신됨)에서 user_id 기준으로
+			// 현재 접속 중인 socket_id를 직접 조회해서 전송해야 함.
+			for (let i = 0; i < rm_users.length; i++) {
+				const recipient = rm_users[i];
+				if (recipient && recipient.user_id && recipient.user_id !== "" && recipient.user_id !== g_user_id) {
+					try {
+						const live_user = await $db.cs_user.findOne({ user_id: recipient.user_id });
+						if (live_user && live_user.socket_id) {
+							io.to(live_user.socket_id).emit('message_refresh', {
+								rm_idx: target_rm_idx,
+								mg_idx: ret.mg_idx
+							});
+						}
+					} catch (refresh_err) {
+						// 실시간 리프레시 조회 실패 시 무시 (폴링으로 대체됨)
 					}
 				}
-			});
+			}
 
 		} catch (err) {
 			// 메시지 전송 오류 처리

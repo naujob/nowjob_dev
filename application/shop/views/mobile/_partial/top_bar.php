@@ -25,7 +25,7 @@ $_tb_right_html= isset($top_bar['right_html'])? $top_bar['right_html']: '';
         <a href="<?php echo $_tb_back_href; ?>" class="btn-replace"><span class="sr-text">이전으로</span></a>
     <?php endif; ?>
 
-    <h1 class="title"><?php echo $_tb_title; ?></h1>
+    <h1 class="title" style="margin: 0 0 0 11px;"><?php echo $_tb_title; ?></h1>
 
     <?php if (!empty($_tb_right_html)): ?>
         <?php echo $_tb_right_html; ?>

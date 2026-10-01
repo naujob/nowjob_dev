@@ -36,6 +36,7 @@ $top_bar = array(
   // 디바운싱을 위한 타이머 변수
   var fSearchNoReadCountTimer = null;
   var noreadCountPollingTimer = null;
+  var chatListReloadTimer = null;
 
   // 디바운싱된 fSearchNoReadCount 함수
   function fSearchNoReadCountDebounced() {
@@ -44,6 +45,16 @@ $top_bar = array(
     }
     fSearchNoReadCountTimer = setTimeout(function() {
       fSearchNoReadCount();
+    }, 300); // 300ms 디바운싱
+  }
+
+  // 디바운싱된 채팅목록 재조회 함수 (새 메시지 수신 시 마지막 메시지 미리보기/정렬/신규방 반영)
+  function getChatTargetListUnifiedDebounced() {
+    if (chatListReloadTimer) {
+      clearTimeout(chatListReloadTimer);
+    }
+    chatListReloadTimer = setTimeout(function() {
+      getChatTargetListUnified();
     }, 300); // 300ms 디바운싱
   }
 
@@ -84,19 +95,29 @@ $top_bar = array(
     socket.off('realtime_message');
     socket.off('chat_notification');
     socket.off('message_read_count_return');
+    socket.off('message_refresh');
+
+    // ✅ 실제로 서버가 새 메시지마다 발신하는 실시간 이벤트 (수신자의 현재 접속 소켓으로 직접 전송됨)
+    // chat_view가 아닌 채팅목록 화면에 있어도 수신되므로, 목록(마지막 메시지/정렬/신규방) 재조회의 핵심 트리거
+    socket.on('message_refresh', function(ret) {
+      fSearchNoReadCountDebounced();
+      getChatTargetListUnifiedDebounced();
+    });
 
     // 실시간 메시지 수신 이벤트
     socket.on('realtime_message', function(ret) {
       if (ret && ret.type == "chat") {
-        // 채팅 메시지 수신 시 배지 업데이트
+        // 채팅 메시지 수신 시 배지 업데이트 + 목록(마지막 메시지/정렬/신규방) 재조회
         fSearchNoReadCountDebounced();
+        getChatTargetListUnifiedDebounced();
       }
     });
 
     // 채팅 알림 수신 이벤트
     socket.on('chat_notification', function(ret) {
-      // 채팅 알림 수신 시 배지 업데이트
+      // 채팅 알림 수신 시 배지 업데이트 + 목록 재조회
       fSearchNoReadCountDebounced();
+      getChatTargetListUnifiedDebounced();
     });
 
     // 메시지 읽음 카운트 변경 이벤트
