@@ -11343,7 +11343,7 @@ form#frm {
     display: flex;
     position: relative;
     padding-left: 0;
-    padding-right: 1.4375rem;
+    
     background-position: calc(100% - 10px) 50%;
     /*
     -ms-touch-action: pan-x;
@@ -14206,7 +14206,7 @@ h3.secondary-title .menu:focus {
         gap: 8px;
         margin-bottom: 8px;
         position: relative;
-        left: 361px;
+        left: 353px;
         top: 20px;
         
       }
@@ -14229,6 +14229,8 @@ h3.secondary-title .menu:focus {
 
       .summary-with-badge .room_unread_cnt {
         flex-shrink: 0;
+        position: relative;
+        left: -6px;
       }
  
  .result-list-card .content-li .desc .title-wrap {

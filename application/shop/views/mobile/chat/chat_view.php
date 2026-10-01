@@ -2027,6 +2027,8 @@
         commonAlert("잘못된 접근입니다.", function() {
             location.href = "/chat/chat_list";
         });
+        // 빈 rm_idx로 진입한 경우 이후 초기화 코드 실행하지 않음
+        throw new Error("Invalid rm_idx");
     }
 
     // textarea 자동 높이 조정 함수

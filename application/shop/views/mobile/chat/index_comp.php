@@ -147,16 +147,25 @@ $top_bar = array(
         processRecruitList(talentReceivedList, 'chatPanel2')
       ).done(function(sentRows, receivedRows) {
         // 정식 지원/제안 목록 통합
+        console.log('제안보낸인재 행:', (sentRows || []).length);
+        console.log('지원받은인재 행:', (receivedRows || []).length);
+
         allRows = allRows.concat(sentRows || []);
         allRows = allRows.concat(receivedRows || []);
 
         // 다이렉트채팅 추가
+        var sent_direct = 0, received_direct = 0;
         if (result3.data && result3.data.code == "00" && result3.data.data && result3.data.data.list) {
+          sent_direct = result3.data.data.list.length;
           allRows = allRows.concat(result3.data.data.list);
         }
         if (result4.data && result4.data.code == "00" && result4.data.data && result4.data.data.list) {
+          received_direct = result4.data.data.list.length;
           allRows = allRows.concat(result4.data.data.list);
         }
+
+        console.log('보낸 다이렉트:', sent_direct, '받은 다이렉트:', received_direct);
+        console.log('통합 전 전체 행:', allRows.length);
 
         // 시간순 정렬 (최신이 위)
         allRows.sort(function(a, b) {
@@ -165,23 +174,60 @@ $top_bar = array(
           return timeB > timeA ? 1 : -1;
         });
 
-        // 인재(mm_idx)별 중복 제거 (카테고리별로 유지)
-        var deduped = {};
-        allRows.forEach(function(row) {
-          var mmIdx = row.mm_idx;
-          var applyIdx = parseInt(row.mq_apply_idx) || 0;
+        console.log('정렬 후 전체 행:', allRows.length);
 
-          if (!deduped[mmIdx] || applyIdx > parseInt(deduped[mmIdx].mq_apply_idx || 0)) {
-            deduped[mmIdx] = row;
+        // 카테고리별 중복 제거 로직
+        // - 정식(proposed/applied): mm_idx + mq_apply_idx 기준 (인재별 최신 지원건만)
+        // - 다이렉트(direct_sent/received): rm_idx 기준 (1:1이므로 rm_idx당 1개)
+        var dedupedByMmIdx = {}; // 정식 공고용 (mm_idx를 key로)
+        var dedupedByRmIdx = {}; // 다이렉트 채팅용 (rm_idx를 key로)
+
+        allRows.forEach(function(row) {
+          if (!row.rm_idx) {
+            return; // rm_idx 없는 것은 건너뛰기 (채팅방 미생성)
+          }
+
+          // 카테고리 판별 (rc_name이 '채팅방'이면 다이렉트)
+          var isDirectChat = (row.rc_name === '채팅방');
+
+          if (isDirectChat) {
+            // 다이렉트 채팅: rm_idx 기준 (이미 1:1이므로 rm_idx당 1개만)
+            if (!dedupedByRmIdx[row.rm_idx]) {
+              dedupedByRmIdx[row.rm_idx] = row;
+            }
+          } else {
+            // 정식 공고: mm_idx + mq_apply_idx 기준 (인재별 최신 지원건만)
+            var mmIdx = row.mm_idx;
+            var applyIdx = parseInt(row.mq_apply_idx) || 0;
+
+            if (!dedupedByMmIdx[mmIdx] || applyIdx > parseInt(dedupedByMmIdx[mmIdx].mq_apply_idx || 0)) {
+              dedupedByMmIdx[mmIdx] = row;
+            }
           }
         });
 
-        var dedupedList = Object.keys(deduped).map(function(key) {
-          return deduped[key];
+        // 두 가지 결과를 합치기
+        var dedupedList = [];
+        Object.keys(dedupedByMmIdx).forEach(function(key) {
+          dedupedList.push(dedupedByMmIdx[key]);
+        });
+        Object.keys(dedupedByRmIdx).forEach(function(key) {
+          dedupedList.push(dedupedByRmIdx[key]);
         });
 
+        // 최종 결과도 시간순으로 다시 정렬 (정식+다이렉트 통합)
+        dedupedList.sort(function(a, b) {
+          var timeA = a.up_dt || a.reg_dt || "";
+          var timeB = b.up_dt || b.reg_dt || "";
+          return timeB > timeA ? 1 : -1;
+        });
+
+        console.log('mm_idx dedupe 후 정식:', Object.keys(dedupedByMmIdx).length);
+        console.log('rm_idx dedupe 후 다이렉트:', Object.keys(dedupedByRmIdx).length);
+        console.log('최종 렌더링 행:', dedupedList.length);
+
         // 렌더링
-        dedupedList.forEach(function(row) {
+        dedupedList.forEach(function(row, idx) {
           var $clone = $("#tpl_chat_by_recruite").clone();
           if ($clone.length == 0) {
             return;
@@ -214,6 +260,13 @@ $top_bar = array(
           $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
           $content = $content.replaceAll("{{up_dt}}", row.reg_dt || row.up_dt || "");
           $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
+
+          console.log('렌더링 행 #' + (idx + 1) + ':', {
+            mm_idx: row.mm_idx,
+            rm_idx: row.rm_idx,
+            rc_name: row.rc_name,
+            target_name: row.target_name
+          });
 
           // 프로필 이미지 처리
           var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
@@ -250,6 +303,8 @@ $top_bar = array(
           $(this).text($(this).attr('data-time'));
         });
 
+        console.log('렌더링 완료, DOM 요소 개수:', $("#chat_list li").length);
+
         // 목록 표시
         var chatListParent = $("#chat_list").parent();
         chatListParent.show();
@@ -257,12 +312,15 @@ $top_bar = array(
         isLoadingChatList = false; // 로딩 완료
 
         // 미확인 채팅건수 조회
+        console.log('fSearchNoReadCount() 호출');
         fSearchNoReadCount();
 
         // empty 상태 재평가
         if (dedupedList.length === 0) {
+          console.log('목록 비어있음 - chat_empty1 표시');
           $("#chat_empty1").show();
         } else {
+          console.log('목록 있음 - chat_empty1 숨김');
           $("#chat_empty1").hide();
         }
       }).fail(function() {
@@ -608,6 +666,8 @@ $top_bar = array(
         var myId = $("#user_id").val();
         let result = ret.data.result;
 
+        console.log('[Android] fSearchNoReadCount 응답, 전체 room 수:', Object.keys(result).length, '현재 사용자:', myId);
+
         // 모든 room의 미확인 메시지 개수를 집계
         $.each(result, function(key, room) {
           let count = 0;
@@ -623,6 +683,7 @@ $top_bar = array(
           var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
           if ($unreadElement.length > 0) {
             // 현재 페이지에 있는 채팅방
+            console.log('[Android] 배지 업데이트: rm_idx=' + room.rm_idx + ', 미읽음=' + count);
             $unreadElement.html(count);
             if (count > 0) {
               $unreadElement.show();
@@ -767,6 +828,8 @@ $top_bar = array(
 
         let result = ret.data.result;
 
+        console.log('[Web] fSearchNoReadCount 응답, 전체 room 수:', Object.keys(result).length, '현재 사용자:', myId);
+
         // 모든 room의 미확인 메시지 개수를 먼저 집계
         $.each(result, function(key, room) {
           let count = 0;
@@ -782,6 +845,7 @@ $top_bar = array(
           var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
           if ($unreadElement.length > 0) {
             // 현재 페이지에 있는 채팅방
+            console.log('[Web] 배지 업데이트: rm_idx=' + room.rm_idx + ', 미읽음=' + count);
             $unreadElement.html(count);
             if (count > 0) {
               $unreadElement.show();
