@@ -386,7 +386,7 @@
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 60px; overflow: hidden; flex-shrink: 0;">
               <img src="<?= $profileImg ?>" alt="프로필" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
             </div>
-            <span><?= !empty($resume["ru_name"]) ? $resume["ru_name"] : $resume["mm_name"] ?></span>
+            <span><?= $resume["mm_name"] ?></span>
           <?php else: ?>
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
               <img src="<?= !empty($recruit["rc_thumb"]) ? $recruit["rc_thumb"] : "" ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
@@ -627,7 +627,8 @@
         </div>
         <div class="chat-view-body">
             <div class="content" id="chat_body">
-                <div class="container" id="chat_list">
+                <div class="container" id="chat_list" style="    padding-top: 2.1875rem;">
+                  
 
                 </div>
             </div>
@@ -1758,6 +1759,7 @@
                     }
                     var content = "<div class='msg-item chat-bubble propose-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' data-mq_type='" + (info.mg_mq_type || "") + "' data-rc_idx='" + (info.mg_rc_idx || "") + "' data-ru_idx='" + (info.mg_ru_idx || "") + "'>";
                     content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
+                    content += "        <button type='button' class='btn-propose-view'>열어보기</button>";
                     if (readcount > 0) {
                         content += "    <div class='readcount'>" + readcount + "</div>";
                     } else {
@@ -1770,7 +1772,9 @@
                     content += "</div>";
                 } else {
                     var content = "<div class='msg-item chat-bubble diff propose-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' data-mq_type='" + (info.mg_mq_type || "") + "' data-rc_idx='" + (info.mg_rc_idx || "") + "' data-ru_idx='" + (info.mg_ru_idx || "") + "'>";
-                    content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />") + "</div>";
+                    content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
+                    content += "        <button type='button' class='btn-propose-view'>열어보기</button>";
+                    content += "    </div>";
                     content += "    <div class='meta'>";
                     content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
                     content += "    </div>";
@@ -4728,6 +4732,27 @@
 
     .propose-bubble {
         cursor: pointer;
+    }
+
+    .btn-propose-view {
+        display: block;
+        margin-top: 8px;
+        padding: 6px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        color: inherit;
+        font-size: 1.2rem;
+        font-weight: 600;
+        line-height: 1.4;
+        cursor: pointer;
+        pointer-events: none; /* 클릭 이벤트는 상위 .propose-bubble에서 처리, 버튼은 시각적 안내용 */
+    }
+
+    .chat-bubble.diff .btn-propose-view {
+        border-color: #cfcfcf;
+        background: #f5f5f5;
+        color: #333;
     }
 
     #chatRecruitCardList .content-li {

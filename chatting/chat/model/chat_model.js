@@ -323,7 +323,7 @@ container.getUsewrNotReadCount = async function (data, callback) {
 	//완료후 카운터 리턴
 	var ret2 = await $db.cs_room.aggregate(
 		[
-			{ $match: { "rm_users.user_id": data.user_id } },
+			{ $match: { "rm_users": { $elemMatch: { user_id: data.user_id, exit_yn: { $ne: "Y" } } } } },
 			{ $unwind: '$rm_messages' },
 			{ $project: { rm_messages: '$rm_messages' } },
 			{ $unwind: '$rm_messages.mg_reads' },
@@ -593,12 +593,12 @@ container.getRoomList = async function (params) {
 
 	if (params.rm_type == "chat") {
 		//match = {"rm_type" : params.rm_type,"rm_users.user_id" : params.user_id,'rm_last_msg': {"$ne" : ''}};
-		match = { "rm_type": params.rm_type, "rm_users.user_id": params.user_id };
+		match = { "rm_type": params.rm_type, "rm_users": { $elemMatch: { user_id: params.user_id, exit_yn: { $ne: "Y" } } } };
 	} else if (params.rm_type == "channel") {
 		match = { "rm_type": params.rm_type };
 	} else if (params.rm_type == "trade") {
 		match = { "rm_type": params.rm_type };
-		match = { "rm_type": params.rm_type, "rm_users.user_id": params.user_id, 'rm_last_msg': { "$ne": '' } };
+		match = { "rm_type": params.rm_type, "rm_users": { $elemMatch: { user_id: params.user_id, exit_yn: { $ne: "Y" } } }, 'rm_last_msg': { "$ne": '' } };
 	}
 	var ret = await $db.cs_room.aggregate(
 		[

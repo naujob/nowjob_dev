@@ -142,22 +142,16 @@ class Chat_proc extends CI_Controller
 							// 채팅방에서 나간 사용자 확인 - rm_users 배열에서 exit_yn='Y'인 사용자는 제외
 							$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 							$user_in_room = false;
-							$user_exited = false;
 							foreach ($rm_users as $room_user) {
 								// user_id는 mm_id 또는 mm_phone일 수 있으므로 둘 다 체크
 								$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
 								if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-									// 사용자가 rm_users에 있지만 exit_yn='Y'이면 나간 것으로 간주
-									if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-										$user_exited = true;
-									} else {
-										$user_in_room = true;
-									}
+									$user_in_room = true;
 									break;
 								}
 							}
 							// 사용자가 채팅방에 없거나 나간 경우 이 채팅방은 건너뛰기
-							if (!$user_in_room || $user_exited) {
+							if (!$user_in_room || is_room_user_exited($rm_users, $user_id, $user_phone)) {
 								continue;
 							}
 
@@ -417,22 +411,16 @@ class Chat_proc extends CI_Controller
 							// 채팅방에서 나간 사용자 확인 - rm_users 배열에서 exit_yn='Y'인 사용자는 제외
 							$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 							$user_in_room = false;
-							$user_exited = false;
 							foreach ($rm_users as $room_user) {
 								// user_id는 mm_id 또는 mm_phone일 수 있으므로 둘 다 체크
 								$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
 								if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-									// 사용자가 rm_users에 있지만 exit_yn='Y'이면 나간 것으로 간주
-									if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-										$user_exited = true;
-									} else {
-										$user_in_room = true;
-									}
+									$user_in_room = true;
 									break;
 								}
 							}
 							// 사용자가 채팅방에 없거나 나간 경우 이 채팅방은 건너뛰기
-							if (!$user_in_room || $user_exited) {
+							if (!$user_in_room || is_room_user_exited($rm_users, $user_id, $user_phone)) {
 								continue;
 							}
 
@@ -647,20 +635,15 @@ class Chat_proc extends CI_Controller
 						// 채팅방에서 나간 사용자 확인 - rm_users 배열에서 exit_yn='Y'인 사용자는 제외
 						$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 						$user_in_room = false;
-						$user_exited = false;
 						foreach ($rm_users as $room_user) {
 							// user_id는 mm_id 또는 mm_phone일 수 있으므로 둘 다 체크
 							$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
 							if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-								// 사용자가 rm_users에 있지만 exit_yn='Y'이면 나간 것으로 간주
-								if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-									$user_exited = true;
-								} else {
-									$user_in_room = true;
-								}
+								$user_in_room = true;
 								break;
 							}
 						}
+						$user_exited = is_room_user_exited($rm_users, $user_id, $user_phone);
 
 						// 나간 채팅방은 목록에서 제외
 						if ($user_exited) {
@@ -804,6 +787,7 @@ class Chat_proc extends CI_Controller
 		// MongoDB 연결하여 나간 채팅방 필터링
 		$uri = $this->mongo_uri;
 		$filtered_list = [];
+		
 
 		try {
 			@$mongo = new Mongo($uri);
@@ -821,7 +805,6 @@ class Chat_proc extends CI_Controller
 
 					if ($room) {
 						$user_in_room = false;
-						$user_exited = false;
 						// rm_users 배열에서 현재 사용자가 있는지 확인 (exit_yn='Y' 체크 포함)
 						$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 
@@ -829,15 +812,11 @@ class Chat_proc extends CI_Controller
 							// user_id는 mm_id 또는 mm_phone일 수 있으므로 둘 다 체크
 							$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
 							if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-								// 사용자가 rm_users에 있지만 exit_yn='Y'이면 나간 것으로 간주
-								if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-									$user_exited = true;
-								} else {
-									$user_in_room = true;
-								}
+								$user_in_room = true;
 								break;
 							}
 						}
+						$user_exited = is_room_user_exited($rm_users, $user_id, $user_phone);
 
 						// 나간 채팅방은 목록에서 제외
 						if ($user_exited) {
@@ -1099,20 +1078,15 @@ class Chat_proc extends CI_Controller
 						// 채팅방에서 나간 사용자 확인 - rm_users 배열에서 exit_yn='Y'인 사용자는 제외
 						$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 						$user_in_room = false;
-						$user_exited = false;
 						foreach ($rm_users as $room_user) {
 							// user_id는 mm_id 또는 mm_phone일 수 있으므로 둘 다 체크
 							$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
 							if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-								// 사용자가 rm_users에 있지만 exit_yn='Y'이면 나간 것으로 간주
-								if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-									$user_exited = true;
-								} else {
-									$user_in_room = true;
-								}
+								$user_in_room = true;
 								break;
 							}
 						}
+						$user_exited = is_room_user_exited($rm_users, $user_id, $user_phone);
 
 						// 나간 채팅방은 목록에서 제외
 						if ($user_exited) {
@@ -1261,20 +1235,15 @@ class Chat_proc extends CI_Controller
 						// 채팅방에서 나간 사용자 확인 - rm_users 배열에서 exit_yn='Y'인 사용자는 제외
 						$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 						$user_in_room = false;
-						$user_exited = false;
 						foreach ($rm_users as $room_user) {
 							// user_id는 mm_id 또는 mm_phone일 수 있으므로 둘 다 체크
 							$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
 							if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-								// 사용자가 rm_users에 있지만 exit_yn='Y'이면 나간 것으로 간주
-								if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-									$user_exited = true;
-								} else {
-									$user_in_room = true;
-								}
+								$user_in_room = true;
 								break;
 							}
 						}
+						$user_exited = is_room_user_exited($rm_users, $user_id, $user_phone);
 
 						// 나간 채팅방은 목록에서 제외
 						if ($user_exited) {
@@ -1959,20 +1928,9 @@ class Chat_proc extends CI_Controller
 				}
 
 				// 사용자가 나간 채팅방은 제외
-				if (isset($room['rm_users']) && is_array($room['rm_users'])) {
-					$user_exited = false;
-					foreach ($room['rm_users'] as $room_user) {
-						$room_user_id = isset($room_user['user_id']) ? $room_user['user_id'] : '';
-						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-							if (isset($room_user['exit_yn']) && $room_user['exit_yn'] == 'Y') {
-								$user_exited = true;
-							}
-							break;
-						}
-					}
-					if ($user_exited) {
-						continue;
-					}
+				$room_users_for_check = isset($room['rm_users']) && is_array($room['rm_users']) ? $room['rm_users'] : [];
+				if (is_room_user_exited($room_users_for_check, $user_id, $user_phone)) {
+					continue;
 				}
 
 				$results[] = $room;
@@ -3197,18 +3155,7 @@ json_return("00", "조회완료", $data);
 					if ($room) {                                       // ← 변경 (3082줄)
 					// 채팅방에서 나간 사용자 확인
 					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
-					$user_exited = false;
-					foreach ($rm_users as $room_user) {
-						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
-						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-								$user_exited = true;
-							}
-							break;
-						}
-					}
-            
-					if ($user_exited) {
+					if (is_room_user_exited($rm_users, $user_id, $user_phone)) {
 						$exited_keys[] = $key;
 						continue;
 					}
@@ -3237,7 +3184,7 @@ json_return("00", "조회완료", $data);
 						}
 					}
 
-					}			
+					}
 				}
 				if (empty($temp_list[$key]["last_msg_preview"])) {
 					$temp_list[$key]["last_msg_preview"] = "";
@@ -3292,18 +3239,7 @@ json_return("00", "조회완료", $data);
 					if ($room) {                                       // ← 변경 (3082줄)
 					// 채팅방에서 나간 사용자 확인
 					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
-					$user_exited = false;
-					foreach ($rm_users as $room_user) {
-						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
-						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-								$user_exited = true;
-							}
-							break;
-						}
-					}
-            
-					if ($user_exited) {
+					if (is_room_user_exited($rm_users, $user_id, $user_phone)) {
 						$exited_keys[] = $key;
 						continue;
 					}
@@ -3332,7 +3268,7 @@ json_return("00", "조회완료", $data);
 						}
 					}
 
-					}			
+					}
 				}
 
 				if (empty($temp_list[$key]["last_msg_preview"])) {
@@ -3387,18 +3323,7 @@ json_return("00", "조회완료", $data);
 					if ($room) {                                       // ← 변경 (3082줄)
 					// 채팅방에서 나간 사용자 확인
 					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
-					$user_exited = false;
-					foreach ($rm_users as $room_user) {
-						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
-						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-								$user_exited = true;
-							}
-							break;
-						}
-					}
-
-					if ($user_exited) {
+					if (is_room_user_exited($rm_users, $user_id, $user_phone)) {
 						$exited_keys[] = $key;
 						continue;
 					}
@@ -3482,18 +3407,7 @@ json_return("00", "조회완료", $data);
 					if ($room) {                                       // ← 변경 (3082줄)
 					// 채팅방에서 나간 사용자 확인
 					$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
-					$user_exited = false;
-					foreach ($rm_users as $room_user) {
-						$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
-						if ($room_user_id == $user_id || $room_user_id == $user_phone) {
-							if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-								$user_exited = true;
-							}
-							break;
-						}
-					}
-            
-					if ($user_exited) {
+					if (is_room_user_exited($rm_users, $user_id, $user_phone)) {
 						$exited_keys[] = $key;
 						continue;
 					}
@@ -3522,7 +3436,7 @@ json_return("00", "조회완료", $data);
 						}
 					}
 
-					}			
+					}
 				}
 
 				if (empty($temp_list[$key]["last_msg_preview"])) {

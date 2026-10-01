@@ -664,45 +664,46 @@ class Resume_proc extends CI_Controller
     $ru_idx = input_post("ru_idx", "");
     $rc_idx = input_post("rc_idx", "");
 
+    // [TEMP DISABLED FOR DEBUGGING - 나간 채팅방 재제안 버그 재현 테스트용, 완료 후 복원 필요]
     // 최근 5분 이내 제안 이력 확인
-    $query  = "SELECT count(*) cnt FROM st_member_request ";
-    $query .= "WHERE mq_type = 'RESUME'  ";
-    $query .= "  AND ru_idx = '" . $ru_idx . "' ";
-    $query .= "  AND rc_idx = '" . $rc_idx . "' ";
-    $query .= "  AND mm_idx = '" . $mm_idx . "'  "; // 제안하는 기업
-    $query .= "  AND reg_dt >= date_sub(now(), interval 5 minute)  ";
+    // $query  = "SELECT count(*) cnt FROM st_member_request ";
+    // $query .= "WHERE mq_type = 'RESUME'  ";
+    // $query .= "  AND ru_idx = '" . $ru_idx . "' ";
+    // $query .= "  AND rc_idx = '" . $rc_idx . "' ";
+    // $query .= "  AND mm_idx = '" . $mm_idx . "'  "; // 제안하는 기업
+    // $query .= "  AND reg_dt >= date_sub(now(), interval 5 minute)  ";
 
-    $result = $this->db->query($query);
-    $count = $result->row_array();
-    $today_cnt = 0;
-    if ($count != null) {
-      $today_cnt = $count["cnt"];
-    }
+    // $result = $this->db->query($query);
+    // $count = $result->row_array();
+    // $today_cnt = 0;
+    // if ($count != null) {
+    //   $today_cnt = $count["cnt"];
+    // }
 
-    if ($today_cnt > 0) {
-      json_return("01", "이미제안", $result);
-      return;
-    }
+    // if ($today_cnt > 0) {
+    //   json_return("01", "이미제안", $result);
+    //   return;
+    // }
 
     // 중복 제안 기록에 최근 5분 이내 이력이 있는지 확인
-    $query  = "SELECT count(*) cnt FROM st_member_request_dup ";
-    $query .= "WHERE mq_type = 'RESUME'  ";
-    $query .= "  AND ru_idx = '" . $ru_idx . "' ";
-    $query .= "  AND rc_idx = '" . $rc_idx . "' ";
-    $query .= "  AND mm_idx = '" . $mm_idx . "'  "; // 지원자
-    $query .= "  AND reg_dt >= date_sub(now(), interval 5 minute)  ";
+    // $query  = "SELECT count(*) cnt FROM st_member_request_dup ";
+    // $query .= "WHERE mq_type = 'RESUME'  ";
+    // $query .= "  AND ru_idx = '" . $ru_idx . "' ";
+    // $query .= "  AND rc_idx = '" . $rc_idx . "' ";
+    // $query .= "  AND mm_idx = '" . $mm_idx . "'  "; // 지원자
+    // $query .= "  AND reg_dt >= date_sub(now(), interval 5 minute)  ";
 
-    $result = $this->db->query($query);
-    $count = $result->row_array();
-    $today_cnt = 0;
-    if ($count != null) {
-      $today_cnt = $count["cnt"];
-    }
+    // $result = $this->db->query($query);
+    // $count = $result->row_array();
+    // $today_cnt = 0;
+    // if ($count != null) {
+    //   $today_cnt = $count["cnt"];
+    // }
 
-    if ($today_cnt > 0) {
-      json_return("01", "이미제안", $result);
-      return;
-    }
+    // if ($today_cnt > 0) {
+    //   json_return("01", "이미제안", $result);
+    //   return;
+    // }
 
     // 회원이 이미 지원한 공고-이력서 조합인지 확인 (rc_idx가 있을 때만)
     if (!empty($rc_idx) && !empty($ru_idx)) {

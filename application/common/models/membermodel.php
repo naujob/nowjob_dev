@@ -894,6 +894,11 @@ class memberModel extends MY_Model
           INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.mq_type = 'RECRUIT' AND mq.rc_idx = aa.rc_idx
           AND mem.mm_status = 'Y'
+          AND NOT EXISTS (
+              SELECT 1 FROM st_member_request mq2
+              WHERE mq2.rm_idx = mq.rm_idx
+              AND mq2.mq_type LIKE '%_DIRECT'
+          )
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -982,6 +987,11 @@ class memberModel extends MY_Model
           INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.mq_type = 'RESUME' AND mq.rc_idx = aa.rc_idx AND mq.mm_idx = '$mm_idx'
           AND mem.mm_status = 'Y'
+          AND NOT EXISTS (
+              SELECT 1 FROM st_member_request mq2
+              WHERE mq2.rm_idx = mq.rm_idx
+              AND mq2.mq_type LIKE '%_DIRECT'
+          )
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -1021,7 +1031,7 @@ class memberModel extends MY_Model
 		}
 
 		$result = $query->result_array();
-		//error_log("[getRecruitActaiveList2] Result Count: " . count($result) . ", mm_idx: " . $mm_idx, 3, "/testlog/php_log");
+		
 
 		return $result;
 	}
@@ -4930,7 +4940,7 @@ FROM (
  room.rm_idx, room.up_dt rm_up_dt
                          FROM
                         st_member aa
-            INNER JOIN st_member_info mi
+            LEFT JOIN st_member_info mi
                 ON aa.mm_idx = mi.mm_idx
                         INNER JOIN st_resume bb
                                 ON aa.mm_idx = bb.mm_idx
@@ -5008,7 +5018,7 @@ order by rm_up_dt desc
               p.pm_idx,
               room.rm_idx, room.up_dt rm_up_dt, mq.mq_idx AS mq_apply_idx, mq.reg_dt AS mq_apply_dt
           FROM st_member aa
-          INNER JOIN st_member_info mi
+          LEFT JOIN st_member_info mi
               ON aa.mm_idx = mi.mm_idx
           INNER JOIN st_resume bb
               ON aa.mm_idx = bb.mm_idx
@@ -5209,7 +5219,7 @@ function getRequestRecruitList2($params){
 		$sql .= " room.rm_idx, room.up_dt rm_up_dt ";
 		$sql .= "                         FROM   ";
 		$sql .= "  st_member aa ";
-		$sql .= "        INNER JOIN st_member_info mi ";
+		$sql .= "        LEFT JOIN st_member_info mi ";
 		$sql .= "            ON aa.mm_idx = mi.mm_idx ";
 		$sql .= "  INNER JOIN st_resume bb ";
 		$sql .= "    ON aa.mm_idx = bb.mm_idx ";
@@ -5420,7 +5430,7 @@ SELECT
  mq.ru_idx, mq.mq_idx
                          FROM
       st_member aa
-            INNER JOIN st_member_info mi
+            LEFT JOIN st_member_info mi
                 ON aa.mm_idx = mi.mm_idx
       INNER JOIN st_resume bb
         ON aa.mm_idx = bb.mm_idx

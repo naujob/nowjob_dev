@@ -142,6 +142,9 @@ $top_bar = array(
       var talentSentList = result1.data && result1.data.code == "00" ? result1.data.data.list : [];
       var talentReceivedList = result2.data && result2.data.code == "00" ? result2.data.data.list : [];
 
+      console.log('[DEBUG stage-1] talentSentList rc_idx:', talentSentList.map(r => r.rc_idx));
+      console.log('[DEBUG stage-1] talentReceivedList rc_idx:', talentReceivedList.map(r => r.rc_idx));
+
       $.when(
         processRecruitList(talentSentList, 'chatPanel1'),
         processRecruitList(talentReceivedList, 'chatPanel2')
@@ -149,6 +152,8 @@ $top_bar = array(
         // 정식 지원/제안 목록 통합
         console.log('제안보낸인재 행:', (sentRows || []).length);
         console.log('지원받은인재 행:', (receivedRows || []).length);
+        console.log('[DEBUG stage-2] sentRows mm_idx:', (sentRows || []).map(r => r.mm_idx));
+        console.log('[DEBUG stage-2] receivedRows mm_idx:', (receivedRows || []).map(r => r.mm_idx));
 
         allRows = allRows.concat(sentRows || []);
         allRows = allRows.concat(receivedRows || []);
@@ -176,41 +181,40 @@ $top_bar = array(
 
         console.log('정렬 후 전체 행:', allRows.length);
 
-        // 카테고리별 중복 제거 로직
-        // - 정식(proposed/applied): mm_idx + mq_apply_idx 기준 (인재별 최신 지원건만)
-        // - 다이렉트(direct_sent/received): rm_idx 기준 (1:1이므로 rm_idx당 1개)
-        var dedupedByMmIdx = {}; // 정식 공고용 (mm_idx를 key로)
-        var dedupedByRmIdx = {}; // 다이렉트 채팅용 (rm_idx를 key로)
+        // 카테고리별 중복 제거 로직 (rm_idx 최우선, 같은 방이면 최신 1건만)
+        // - rm_idx당 1개 (정식/다이렉트 혼재 방지)
+        // - 같은 rm_idx 내에서는 최신 mq_apply_idx 우선
+        var dedupedByRmIdx = {}; // rm_idx를 최고 우선순위로 사용
 
         allRows.forEach(function(row) {
           if (!row.rm_idx) {
             return; // rm_idx 없는 것은 건너뛰기 (채팅방 미생성)
           }
 
-          // 카테고리 판별 (rc_name이 '채팅방'이면 다이렉트)
+          var rmIdx = row.rm_idx;
           var isDirectChat = (row.rc_name === '채팅방');
+          var applyIdx = parseInt(row.mq_apply_idx) || 0;
 
-          if (isDirectChat) {
-            // 다이렉트 채팅: rm_idx 기준 (이미 1:1이므로 rm_idx당 1개만)
-            if (!dedupedByRmIdx[row.rm_idx]) {
-              dedupedByRmIdx[row.rm_idx] = row;
-            }
+          // 같은 rm_idx가 이미 있으면: 다이렉트를 우선, 같은 타입이면 최신 지원건 우선
+          if (!dedupedByRmIdx[rmIdx]) {
+            dedupedByRmIdx[rmIdx] = row;
           } else {
-            // 정식 공고: mm_idx + mq_apply_idx 기준 (인재별 최신 지원건만)
-            var mmIdx = row.mm_idx;
-            var applyIdx = parseInt(row.mq_apply_idx) || 0;
+            var existingIsDirectChat = (dedupedByRmIdx[rmIdx].rc_name === '채팅방');
+            var existingApplyIdx = parseInt(dedupedByRmIdx[rmIdx].mq_apply_idx) || 0;
 
-            if (!dedupedByMmIdx[mmIdx] || applyIdx > parseInt(dedupedByMmIdx[mmIdx].mq_apply_idx || 0)) {
-              dedupedByMmIdx[mmIdx] = row;
+            // 다이렉트가 정식을 항상 우선
+            if (isDirectChat && !existingIsDirectChat) {
+              dedupedByRmIdx[rmIdx] = row;
+            }
+            // 같은 타입이면 최신 지원건(높은 mq_apply_idx)으로 대체
+            else if (isDirectChat === existingIsDirectChat && applyIdx > existingApplyIdx) {
+              dedupedByRmIdx[rmIdx] = row;
             }
           }
         });
 
-        // 두 가지 결과를 합치기
+        // 결과를 배열로 변환
         var dedupedList = [];
-        Object.keys(dedupedByMmIdx).forEach(function(key) {
-          dedupedList.push(dedupedByMmIdx[key]);
-        });
         Object.keys(dedupedByRmIdx).forEach(function(key) {
           dedupedList.push(dedupedByRmIdx[key]);
         });
@@ -222,8 +226,7 @@ $top_bar = array(
           return timeB > timeA ? 1 : -1;
         });
 
-        console.log('mm_idx dedupe 후 정식:', Object.keys(dedupedByMmIdx).length);
-        console.log('rm_idx dedupe 후 다이렉트:', Object.keys(dedupedByRmIdx).length);
+        console.log('rm_idx dedupe 후 전체:', Object.keys(dedupedByRmIdx).length);
         console.log('최종 렌더링 행:', dedupedList.length);
 
         // 렌더링

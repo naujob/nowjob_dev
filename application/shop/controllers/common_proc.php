@@ -954,8 +954,8 @@ class Common_proc extends CI_Controller
 
 			$mm_idx = $this->user->getUserIdx();
 
-			// [DEBUG LOG]
-
+			// [DEBUG LOG] 함수 진입
+		
 			# 다이렉트 채팅: 실제 조회 중인 공고/이력서 대신, 기업/개인 양쪽 모두 전용 더미 레코드로 치환
 			$auto_rc_idx = null;
 			$auto_ru_idx = null;
@@ -1000,40 +1000,50 @@ class Common_proc extends CI_Controller
 			}
 
 			// 입력값 검증
+		
 			if (empty($mq_type)) {
+			
 				json_return("90", "요청 타입이 올바르지 않습니다.");
 			}
 
 			if (empty($mq_idxs) || !is_array($mq_idxs)) {
+			
 				json_return("90", "요청 데이터가 올바르지 않습니다.");
 			}
 
 			if (empty($mm_idx)) {
+			
 				json_return("90", "사용자 정보가 올바르지 않습니다.");
 			}
 
 			# 로그인 유무 확인
+		
 			if ($this->user->isLogin() == false) {
+			
 				json_return("90", "로그인후 이용해주세요.");
 			}
 
 			# rc_idx 유효성 검사 (RESUME 타입일 때)
 			if ($mq_type == "RESUME" && (empty($rc_idx) || $rc_idx == "")) {
+				
 				json_return("90", "채용공고를 선택해주세요.");
 			}
 
 			# 채용공고 존재 여부만 확인 (소유권 검증 제거 - 다른 사용자 채용공고에 제안하는 것이 정상)
 			if ($mq_type == "RESUME" && !empty($rc_idx)) {
+			
 				$sql = "SELECT mm_idx FROM st_recruit WHERE rc_idx = '$rc_idx' AND rc_status = 'Y'";
 				$query = $this->db->query($sql);
 				$recruit_info = $query->row_array();
 
 				if (!$recruit_info) {
+					
 					json_return("90", "선택한 채용공고가 존재하지 않습니다.");
 				}
 			}
 
 			# 이력서 정보 가져오기
+		
 			$resume = null;
 			if ($is_direct_chat) {
 				// 위에서 이미 확보한 더미 이력서를 그대로 사용
@@ -1048,10 +1058,13 @@ class Common_proc extends CI_Controller
 			}
 
 			if (!$resume) {
+				
 				json_return("99", "이력서 정보를 찾을 수 없습니다.");
 			}
+		
 
 			# 중복체크
+		
 			$is_data = false;
 			$is_name = "";
 			foreach ($mq_idxs as $idx) {
@@ -1060,7 +1073,7 @@ class Common_proc extends CI_Controller
 				if ($mq_type == "RECRUIT") {
 					$data["rc_idx"] = $idx;
 					$data["ru_idx"] = $resume["ru_idx"];
-					
+
 					// 기업이 이미 제안한 공고-이력서 조합인지 확인 (mm_idx 제외하고 rc_idx와 ru_idx만으로 확인)
 					$sql_proposal = "
 						SELECT COUNT(*) as cnt
@@ -1071,12 +1084,13 @@ class Common_proc extends CI_Controller
 					";
 					$query_proposal = $this->db->query($sql_proposal);
 					if (!$query_proposal) {
-						
+					
 						json_return("99", "요청 처리 중 오류가 발생했습니다.");
 					}
 					$proposal_result = $query_proposal->row_array();
 
 					if ($proposal_result && $proposal_result["cnt"] > 0) {
+					
 						// 제안이 이미 있는 경우 알림창 표시
 						json_return("90", "이미 기업에서 제안한 공고입니다.<br/>같은 공고와 같은 이력서로 지원할 수 없습니다.");
 					}
@@ -1089,16 +1103,21 @@ class Common_proc extends CI_Controller
 					}
 				}
                 // 같은 공고-이력서로 이미 지원했는지 확인
+			
 				$check = $this->member_model->checkMemberRequest($data);
 
 				if ($check != null) {   // 이미 지원함
+				
 					$is_data = true;
 					$is_name = $check["subject"];
-				
+
 					break;
+				} else {
+					
 				}
 			}
 
+		
 			if ($is_data == true) {
 				if ($mq_type == "RECRUIT") {
 
@@ -1142,37 +1161,45 @@ class Common_proc extends CI_Controller
 					// 	json_return("90","이미 지원중인 공고('$is_name')가 포함되어 있습니다.");
 					// }
 				} else if ($mq_type == "RESUME") {
+					// [TEMP DISABLED FOR DEBUGGING - 나간 채팅방 재제안 버그 재현 테스트용, 완료 후 복원 필요]
 					// 최근 5분 내 중복 제안 방지
-					$query_today_dup_chk  = "
-            select sum(cnt) todaycnt from (
-              select count(*) cnt from st_member_request
-              where mq_type = 'RESUME'
-              and reg_dt >= date_sub(now(), interval 5 minute)
-              and ru_idx = '" . $data["ru_idx"] . "'
-              and rc_idx = '" . $data["rc_idx"] . "'
-              union all
-              select count(*) cnt from st_member_request_dup
-              where mq_type = 'RESUME'
-              and reg_dt >= date_sub(now(), interval 5 minute)
-              and ru_idx = '" . $data["ru_idx"] . "'
-              and rc_idx = '" . $data["rc_idx"] . "'
-            ) xx ";
-					$result_today_dup_chk = $this->db->query($query_today_dup_chk);
-					$list_today_dup_chk = $result_today_dup_chk->result_array();
-					$todaycnt = $list_today_dup_chk[0]["todaycnt"];
+					// $query_today_dup_chk  = "
+          //   select sum(cnt) todaycnt from (
+          //     select count(*) cnt from st_member_request
+          //     where mq_type = 'RESUME'
+          //     and reg_dt >= date_sub(now(), interval 5 minute)
+          //     and ru_idx = '" . $data["ru_idx"] . "'
+          //     and rc_idx = '" . $data["rc_idx"] . "'
+          //     union all
+          //     select count(*) cnt from st_member_request_dup
+          //     where mq_type = 'RESUME'
+          //     and reg_dt >= date_sub(now(), interval 5 minute)
+          //     and ru_idx = '" . $data["ru_idx"] . "'
+          //     and rc_idx = '" . $data["rc_idx"] . "'
+          //   ) xx ";
+					// $result_today_dup_chk = $this->db->query($query_today_dup_chk);
+					// $list_today_dup_chk = $result_today_dup_chk->result_array();
+					// $todaycnt = $list_today_dup_chk[0]["todaycnt"];
 
-					if ($todaycnt > 0) {
-						json_return("01", "<em>5분 후</em> 다시 제안이 가능합니다.");
-					}
+					// if ($todaycnt > 0) {
+					// 	json_return("01", "<em>5분 후</em> 다시 제안이 가능합니다.");
+					// }
 
 					if (count($mq_idxs) == 1) {
+				
 						//2024.09.09 이미제안했어도 다음날 가능하도록, 이미 있으면 중복기록으로만 저장
 						//json_return("90","이미 제안중인 인재정보('$is_name') 입니다.");
 						$query_dup_ins  = "INSERT INTO st_member_request_dup (mq_type, mm_idx, rc_idx, ru_idx, reg_dt) ";
 						$query_dup_ins .= "VALUES ('RESUME','" . $mm_idx . "','" . $data["rc_idx"] . "','" . $data["ru_idx"] . "',now() ) ";
 						$result = $this->db->query($query_dup_ins);
 
-						json_return("00", "처리완료");
+						// 기존 요청에서 rm_idx 조회
+						$query_existing = "SELECT rm_idx FROM st_member_request WHERE rc_idx=? AND ru_idx=? AND mq_type='RESUME' LIMIT 1";
+						$result_existing = $this->db->query($query_existing, [$data["rc_idx"], $data["ru_idx"]])->row_array();
+						$rm_idx_to_return = isset($result_existing['rm_idx']) ? $result_existing['rm_idx'] : null;
+
+					
+						json_return("00", "처리완료", ["rm_idx" => $rm_idx_to_return, "rc_idx" => $rc_idx]);
 					} else {
 						json_return("90", "이미 제안중인 인재정보('$is_name')가 포함되어 있습니다.");
 					}
@@ -1254,20 +1281,22 @@ class Common_proc extends CI_Controller
 					// 1. 상대방 mm_idx 구하기
 					$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $idx);
 
-					// 2. 기존 방 찾기 (제안/지원 방향 구분, 다이렉트 채팅은 room_type으로 분리)
+					// 2. 기존 방 찾기 (제안/지원 방 방향 구분, 다이렉트 채팅은 room_type으로 분리)
 					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $room_type);
 
 					if ($existing_rm_idx) {
 						// 기존 방이 있으면: MySQL st_room의 rc_idx/ru_idx만 갱신
 						$rm_idx = $existing_rm_idx;
-						error_log("[DEBUG] member_request 기존 방 재사용 - rm_idx={$existing_rm_idx}, opponent_mm_idx={$opponent_mm_idx}, room_type={$room_type}");
+						
 						$this->common_model->updateRoom(
 							["rc_idx" => $data["rc_idx"], "ru_idx" => $data["ru_idx"], "up_dt" => get_today()],
 							["rm_idx" => $existing_rm_idx]
 						);
 
 						// MongoDB: 나갔던 방이 재사용되는 경우 exit_yn을 리셋
+						
 						$this->_reset_room_exit_status($existing_rm_idx);
+					
 					} else {
 						// 기존 방이 없으면: 신규 생성 로직 (기존 코드 그대로)
 						$info_chat = [
@@ -1286,7 +1315,7 @@ class Common_proc extends CI_Controller
 							$rm_idx = $result_chat["key"]; // ← 신규 생성 시 rm_idx 확보
 							$current_user_id = $this->user->getUserId();
 
-							error_log("[DEBUG] member_request 새 방 생성 - rm_idx=" . $rm_idx . ", mq_type=" . $mq_type . ", rc_idx=" . $data["rc_idx"] . ", ru_idx=" . $data["ru_idx"]);
+							// error_log("[DEBUG] member_request 새 방 생성 - rm_idx=" . $rm_idx . ", mq_type=" . $mq_type . ", rc_idx=" . $data["rc_idx"] . ", ru_idx=" . $data["ru_idx"]);
 
 							$mongo_room_data = [
 								"rm_idx" => (int)$rm_idx,
@@ -1333,18 +1362,25 @@ class Common_proc extends CI_Controller
 								curl_close($ch);
 
 								if ($http_code === 200) {
-									error_log("[DEBUG] member_request newroommake 성공");
+									// error_log("[DEBUG] member_request newroommake 성공");
 								} else {
-									error_log("[DEBUG] member_request newroommake 실패: HTTP {$http_code}, curl_error={$curl_error}");
+									// error_log("[DEBUG] member_request newroommake 실패: HTTP {$http_code}, curl_error={$curl_error}");
 								}
 							} catch (Exception $e) {
-								error_log("[DEBUG] member_request newroommake cURL 예외: " . $e->getMessage());
+								// error_log("[DEBUG] member_request newroommake cURL 예외: " . $e->getMessage());
+							}
+
+							// 신규 방 생성 직후 exit_yn을 리셋해야 목록에 보임 (기존 방 재사용 시와 동일)
+							if (!is_null($rm_idx)) {
+								// error_log("[DEBUG] member_request 신규 방 생성 후 _reset_room_exit_status 호출 직전 - rm_idx={$rm_idx}");
+								$this->_reset_room_exit_status($rm_idx);
+								// error_log("[DEBUG] member_request 신규 방 생성 후 _reset_room_exit_status 호출 직후 - rm_idx={$rm_idx}");
 							}
 						}
 					}
 				} catch (Exception $chat_error) {
 					// 채팅방 생성 오류 로그 추가 (조용한 실패 방지)
-					error_log("[DEBUG] member_request 채팅방 처리 중 예외 발생: " . $chat_error->getMessage());
+
 				}
 
 				// 이제 rm_idx가 정해졌으므로 data에 추가하고 지원 기록 저장
@@ -1378,7 +1414,15 @@ class Common_proc extends CI_Controller
 					
 				} else {
 					// 기존 지원/제안: DELETE 후 INSERT (중복 시 덮어씌우기)
+					// error_log("[DEBUG] member_request setMemberRequest BEFORE - mq_type={$mq_type}, rc_idx={$data['rc_idx']}, ru_idx={$data['ru_idx']}, rm_idx={$rm_idx}");
 					$result = $this->member_model->setMemberRequest($data, $data);
+					// error_log("[DEBUG] member_request setMemberRequest AFTER - result=" . json_encode($result));
+
+					// 저장된 내용 재확인
+					$verify_sql = "SELECT mq_idx, mq_type, rm_idx, rc_idx, ru_idx FROM st_member_request WHERE mq_type=? AND mm_idx=? AND rc_idx=? ORDER BY mq_idx DESC LIMIT 1";
+					$verify_query = $this->db->query($verify_sql, [$mq_type, $mm_idx, $data['rc_idx']]);
+					$verify_row = $verify_query->row_array();
+					// error_log("[DEBUG] member_request INSERT 확인 - mq_idx={$verify_row['mq_idx']}, rm_idx={$verify_row['rm_idx']}, rc_idx={$verify_row['rc_idx']}, ru_idx={$verify_row['ru_idx']}");
 				}
 
 				// 지원하기 푸시알림 (채용공고 소유자에게)
@@ -1624,7 +1668,7 @@ class Common_proc extends CI_Controller
 			ob_end_clean();
 
 			// 직접 JSON 응답 처리 (header 문제 방지)
-			header('Access-Control-Allow-Origin: *');
+		
 			header('Content-type: application/json');
 			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => ["rm_idx" => $rm_idx, "rc_idx" => $rc_idx]]);
 			exit;
@@ -2570,10 +2614,10 @@ ORDER BY distance_km ASC;
 			$room = $collection->findOne($query);
 
 			if (!$room) {
-				error_log("[DEBUG] _reset_room_exit_status 실패: room을 찾지 못함 - rm_idx={$rm_idx}");
+			
 				return;
 			}
-			error_log("[DEBUG] _reset_room_exit_status 실행 - rm_idx={$rm_idx}, room 존재");
+	
 
 			// rm_users 배열 처리
 			// 재요청(제안/지원/채팅)이 들어오면 대화가 다시 활성화되는 것이므로,
@@ -2601,11 +2645,11 @@ ORDER BY distance_km ASC;
 
 			// 업데이트가 필요한 경우만 실행
 			if (!empty($update_data)) {
-				error_log("[DEBUG] _reset_room_exit_status 업데이트: updated={$updated}, rm_status={$room['rm_status']}");
+				
 				$collection->update($query, $update_data);
-				error_log("[DEBUG] _reset_room_exit_status 업데이트 완료");
+				
 			} else {
-				error_log("[DEBUG] _reset_room_exit_status: 업데이트 필요 없음");
+				
 			}
 		} catch (Exception $e) {
 			// MongoDB 연결 실패는 무시 - 지원하기 흐름 자체를 막지 않음

@@ -200,23 +200,17 @@ class Chat extends CI_Controller
         if (isset($mongo_room["rc_idx"])) {
           $mongo_rc_idx = $mongo_room["rc_idx"];
         }
-        
-        $rm_users = isset($mongo_room["rm_users"]) ? $mongo_room["rm_users"] : [];
-        $user_exited = false;
 
-        foreach ($rm_users as $room_user) {
-          if (isset($room_user["user_id"]) && $room_user["user_id"] == $user_id) {
-            // exit_yn='Y'이면 나간 채팅방
-            if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-              $user_exited = true;
-              break;
-            }
-          }
-        }
+        $rm_users = isset($mongo_room["rm_users"]) ? $mongo_room["rm_users"] : [];
+        $user_phone = $this->user->getUserPhone();
 
         // 나간 채팅방이면 접근 차단
-        if ($user_exited) {
-          echo "<script>alert('나간 채팅방입니다.'); location.href='/chat/chat_list';</script>";
+        if (is_room_user_exited($rm_users, $user_id, $user_phone)) {
+          $current_user_type = $this->user->getUserType();
+
+          // 사용자 타입에 따라 적절한 목록 페이지로 리다이렉트
+          $redirect_url = ($current_user_type === "COMP") ? '/chat/index_comp' : '/chat/chat_list';
+          echo "<script>alert('나간 채팅방입니다.'); location.href='{$redirect_url}';</script>";
           exit;
         }
       }

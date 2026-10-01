@@ -544,12 +544,12 @@ class Member extends CI_Controller
 
 		if (!empty($user_info_response["response"]["id"])) {
 			$naver_id = $user_info_response["response"]["id"];
-			error_log("[NAVER_LOGIN] 네이버 ID 조회 완료: " . $naver_id);
+			
 			$return = $this->login_process("NAVER", $naver_id);
-			error_log("[NAVER_LOGIN] login_process 결과: code=" . $return["code"] . ", msg=" . $return["msg"]);
+		
 
 			if ($return["code"] == "00") {
-				error_log("[NAVER_LOGIN] 로그인 성공");
+				
 				$this->common->scriptReplace("/");
 				exit;
 			} else {

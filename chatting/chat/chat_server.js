@@ -890,6 +890,11 @@ io.on('connection', function (socket) {
 						continue;
 					}
 
+					// 나간 채팅방 사용자는 mg_reads 대상에서 제외 (본인은 예외)
+					if (user_id !== g_user_id && all_room_users[icnt].exit_yn === "Y") {
+						continue;
+					}
+
 					// 회원 상태 조회 (탈퇴 여부 확인)
 					let mm_status = 'Y';
 					try {
@@ -963,10 +968,13 @@ io.on('connection', function (socket) {
 			
 
 				// rm_users에서 발신자 제외하고 수신자 추출 (user_status는 이미 포함됨)
+				// 클라이언트 파라미터 대신 DB 조회값(exit_yn 포함, 신규 참여자 반영 갱신됨)을 기준으로 사용
 				const recipients = [];
-				for (let i = 0; i < rm_users.length; i++) {
-					if (rm_users[i] && rm_users[i].user_id && rm_users[i].user_id !== g_user_id) {
-						recipients.push(rm_users[i]);
+				const db_rm_users_for_push = (room_for_reads && room_for_reads.rm_users) ? room_for_reads.rm_users : [];
+				for (let i = 0; i < db_rm_users_for_push.length; i++) {
+					const ru = db_rm_users_for_push[i];
+					if (ru && ru.user_id && ru.user_id !== g_user_id && ru.exit_yn !== "Y") {
+						recipients.push(ru);
 					}
 				}
 

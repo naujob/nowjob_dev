@@ -1461,3 +1461,30 @@ function getTruncateLength()
 	$isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
 	return $isMobile ? 25 : 50;
 }
+
+/**
+ * 채팅방 참여자 배열(rm_users)에서 특정 사용자가 나간 상태(exit_yn='Y')인지 판단
+ * @param array $rm_users MongoDB room 문서의 rm_users 배열
+ * @param string $user_id 로그인 사용자 ID (mm_id)
+ * @param string|null $user_phone 로그인 사용자 전화번호 (mm_phone, 선택)
+ * @return bool
+ */
+if (!function_exists('is_room_user_exited')) {
+	function is_room_user_exited($rm_users, $user_id, $user_phone = null)
+	{
+		if (empty($rm_users) || !is_array($rm_users)) {
+			return false;
+		}
+		foreach ($rm_users as $room_user) {
+			$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+			$is_match = ($room_user_id == $user_id);
+			if (!$is_match && $user_phone !== null && $user_phone !== "") {
+				$is_match = ($room_user_id == $user_phone);
+			}
+			if ($is_match) {
+				return isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y";
+			}
+		}
+		return false;
+	}
+}
