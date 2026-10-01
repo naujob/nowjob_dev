@@ -1589,10 +1589,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
                         $('.btn-close-popup').show();
                         if (ret.code == "00") {
-
-                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list');
+                            // 원본 채용공고 rc_idx를 URL에 포함시켜 chat.php에서 자동 선택 가능하게 함
+                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&origin_rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list');
                         } else {
-                           
+
                             commonAlert(ret.msg, function() {});
                             return;
                         }
@@ -1827,7 +1827,7 @@ renderBottomSheet(
   '<p>로그인이 필요한 서비스입니다.</p><p>로그인 하시겠습니까?</p>',
   '로그인 및 회원가입',
   'btnLoginGuideJobPost',
-  '',
+  'location.href = "/member/login";',
   'bottom-sheet-content-container',
   'bottom-sheet-content-body'
 );

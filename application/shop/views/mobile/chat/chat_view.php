@@ -1065,6 +1065,17 @@
             echo (isset($opponent_recruit_list) && is_array($opponent_recruit_list) && count($opponent_recruit_list) > 0) ? 'Y' : 'N';
         }
     ?>" === "Y";
+    // 1부: 상대방의 대표이력서 자동 선택용 변수 (다이렉트 채팅, COMP만 사용)
+    var opponentMainResumeIdx = "<?= (isset($opponent_main_resume) && $opponent_main_resume) ? $opponent_main_resume['ru_idx'] : '' ?>";
+    var opponentMainResumeName = <?= (isset($opponent_main_resume) && $opponent_main_resume) ? json_encode($opponent_main_resume['ru_name'], JSON_UNESCAPED_UNICODE) : '""' ?>;
+
+    // 2부: 본인(MEM) 대표이력서 자동 선택용
+    var myMainResumeIdx = "<?= (isset($my_main_resume) && $my_main_resume) ? $my_main_resume['ru_idx'] : '' ?>";
+    var myMainResumeName = <?= (isset($my_main_resume) && $my_main_resume) ? json_encode($my_main_resume['ru_name'], JSON_UNESCAPED_UNICODE) : '""' ?>;
+
+    // 2부: 상대(COMP) 채용공고 자동 선택용 (시작 공고 우선, 없으면 첫 번째)
+    var opponentMainRecruitIdx = "<?= (isset($opponent_main_recruit) && $opponent_main_recruit) ? $opponent_main_recruit['rc_idx'] : '' ?>";
+    var opponentMainRecruitName = <?= (isset($opponent_main_recruit) && $opponent_main_recruit) ? json_encode($opponent_main_recruit['rc_name'], JSON_UNESCAPED_UNICODE) : '""' ?>;
     var rm_info = {};
     var rm_start = 0;
     var rm_length = 20;
@@ -2629,21 +2640,14 @@
             return;
         }
 
-        // 아이템(이력서 또는 채용공고) 유무 확인
-        var $proposeItems = $("[name='chk_propose[]']");
-        if ($proposeItems.length === 0) {
-            // 아이템이 없음 - 등록 페이지로 이동
-            var userType = $("input[name='user_type']").val();
-            if (userType === "COMP") {
-                openPopup('confirm', {
-                    content: '등록된 채용공고가 없습니다.<br>채용공고를 등록해주세요.',
-                    firstButton: '취소',
-                    secondButton: '채용공고 등록',
-                    secondCallback: function() {
-                        location.href = "/compage/recruit_write1_1";
-                    }
-                });
-            } else {
+        var userType = $("input[name='user_type']").val();
+
+        if (userType !== "COMP") {
+            // 개인회원(MEM): 팝업 없이 본인 대표이력서로 즉시 처리
+            $("#btnAttachToggle").attr("data-state", "closed");
+            $("#attachMenu").attr("data-state", "closed");
+
+            if (!myMainResumeIdx) {
                 openPopup('confirm', {
                     content: '등록된 이력서가 없습니다.<br>이력서를 등록해주세요.',
                     firstButton: '취소',
@@ -2652,7 +2656,24 @@
                         location.href = "/mypage/resume_write1";
                     }
                 });
+                return;
             }
+
+            proceedProposeWithOwnSelection("RECRUIT", myMainResumeIdx, myMainResumeName);
+            return;
+        }
+
+        // 기업회원(COMP): 기존과 동일하게 본인 채용공고 선택 패널을 연다
+        var $proposeItems = $("[name='chk_propose[]']");
+        if ($proposeItems.length === 0) {
+            openPopup('confirm', {
+                content: '등록된 채용공고가 없습니다.<br>채용공고를 등록해주세요.',
+                firstButton: '취소',
+                secondButton: '채용공고 등록',
+                secondCallback: function() {
+                    location.href = "/compage/recruit_write1_1";
+                }
+            });
             return;
         }
 
@@ -2703,7 +2724,37 @@
         });
     }
 
-    // 1단계: 내 항목 선택 후 "다음"(다이렉트 채팅방) 또는 "보내기"(일반 채팅방)
+    // 본인 항목 선택 이후 처리 (1부 COMP + 2부 MEM 자동 선택)
+    function proceedProposeWithOwnSelection(mqType, selectedIdx, selectedName) {
+        if (is_direct_chat) {
+            if (!opponent_has_items) {
+                alert("상대방이 아직 이력서/채용공고를 등록하지 않아 지원/제안할 수 없습니다.");
+                return;
+            }
+
+            if (mqType == "RESUME") {
+                // 1부: COMP → 상대방 대표이력서 자동 선택, 팝업 없이 즉시 전송
+                if (!opponentMainResumeIdx) {
+                    alert("상대방이 대표 이력서를 등록하지 않아 제안할 수 없습니다.");
+                    return;
+                }
+                submitPropose(mqType, selectedIdx, selectedName, opponentMainResumeIdx, $("#proposeSelectPanel"));
+            } else {
+                // 2부: MEM → 상대방 채용공고 자동 선택, 팝업 없이 즉시 전송
+                if (!opponentMainRecruitIdx) {
+                    alert("상대방이 채용공고를 등록하지 않아 지원할 수 없습니다.");
+                    return;
+                }
+                submitPropose(mqType, selectedIdx, selectedName, opponentMainRecruitIdx, $("#proposeSelectPanel"));
+            }
+        } else {
+            // 일반 채팅방: room에 이미 실제 매칭된 값을 그대로 사용해 바로 제출
+            var opponentIdx = (mqType == "RESUME") ? $("#room_ru_idx").val() : $("#room_rc_idx").val();
+            submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $("#proposeSelectPanel"));
+        }
+    }
+
+    // 1단계(COMP 전용): 본인 채용공고 선택 후 "다음"/"보내기"
     $(document).on("click", "#btnProposeNext", function() {
         var $checked = $("[name='chk_propose[]']:checked");
         if ($checked.length === 0) {
@@ -2716,28 +2767,7 @@
         var selectedIdx = $checked.data("propose-id") || $checked.val();
         var selectedName = $checked.data("name") || "";
 
-        if (is_direct_chat) {
-            if (!opponent_has_items) {
-                alert("상대방이 아직 이력서/채용공고를 등록하지 않아 지원/제안할 수 없습니다.");
-                return;
-            }
-            // 다이렉트 채팅방: 선택값을 잠시 저장해두고 2단계(상대방 선택) 패널로 전환
-            proposeStep1Selection = { mqType: mqType, selectedIdx: selectedIdx, selectedName: selectedName };
-
-            var $step1Panel = document.getElementById("proposeSelectPanel");
-            var $step2Panel = document.getElementById("opponentSelectPanel");
-            if ($step1Panel && typeof closePanel === "function") {
-                closePanel($step1Panel);
-            }
-            $("[name='chk_opponent[]']").prop("checked", false);
-            if ($step2Panel && typeof openPanel === "function") {
-                openPanel($step2Panel);
-            }
-        } else {
-            // 일반 채팅방: room에 이미 실제 매칭된 값을 그대로 사용해 바로 제출
-            var opponentIdx = (mqType == "RESUME") ? $("#room_ru_idx").val() : $("#room_rc_idx").val();
-            submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $("#proposeSelectPanel"));
-        }
+        proceedProposeWithOwnSelection(mqType, selectedIdx, selectedName);
     });
 
     // 2단계: 상대방 항목 선택 후 최종 "보내기" (다이렉트 채팅방 전용)

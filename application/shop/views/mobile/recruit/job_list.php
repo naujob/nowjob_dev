@@ -778,7 +778,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   }
 
   @keyframes recruit-marquee {
-    0% { transform: translateX(0); }
+    0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
   }
 

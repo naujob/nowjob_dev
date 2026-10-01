@@ -1127,6 +1127,7 @@ class Cron_proc extends CI_Controller
      * 주소에서 광역시도 + 시군구 추출 (2단어)
      * "경기도 안산시 단원구 773-7" → "경기도 안산시"
      * "서울특별시 강남구 역삼동" → "서울특별시 강남구"
+     * 약칭 정규화: "인천시" → "인천광역시"
      * 주소가 없으면 null 반환 (빈 값끼리 오매칭되는 것을 방지하기 위해 ''이 아닌 null 사용)
      */
     private function _extractAreaSido($addr)
@@ -1134,6 +1135,20 @@ class Cron_proc extends CI_Controller
         if (empty($addr)) return null;
 
         $parts = explode(' ', trim($addr));
+
+        // 광역시 약칭 정규화 (약칭 → 정식명)
+        $sido_alias = array(
+            '인천시' => '인천광역시',
+            '대구시' => '대구광역시',
+            '광주시' => '광주광역시',
+            '대전시' => '대전광역시',
+            '부산시' => '부산광역시',
+            '울산시' => '울산광역시'
+        );
+
+        if (isset($sido_alias[$parts[0]])) {
+            $parts[0] = $sido_alias[$parts[0]];
+        }
 
         // 첫 번째 단어가 시/도인지 확인
         if (!empty($parts[0])) {
@@ -1211,5 +1226,203 @@ class Cron_proc extends CI_Controller
         $fail = isset($result["fail"]) ? $result["fail"] : 0;
 
         echo "[auto_reregister_paid_recruit] {$message} | 성공: {$success}건, 실패: {$fail}건\n";
+    }
+
+    // [임시 테스트용] 이력서/공고 조회 조건 디버깅
+    // 호출: /cron_proc/debug_resume_recruit
+    public function debug_resume_recruit()
+    {
+        $ru_idx = 3094;
+        $rc_idx = 10280;
+
+        echo "=== 이력서(ru_idx={$ru_idx}) 상태 확인 ===\n";
+        $resume = $this->db->query("
+            SELECT r.ru_idx, r.ru_name, r.ru_status, r.ru_show_yn,
+                   r.mm_idx, m.mm_type, m.mm_status, m.mm_agree_ad, m.alarm_resume, m.mm_phone
+            FROM st_resume r
+            LEFT JOIN st_member m ON r.mm_idx = m.mm_idx
+            WHERE r.ru_idx = ?
+        ", array($ru_idx))->row_array();
+
+        if ($resume) {
+            echo "<pre>";
+            echo json_encode($resume, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            echo "</pre>";
+
+            // 각 조건 체크
+            echo "조건 체크:\n";
+            echo "  ru_status='Y': " . ($resume['ru_status'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $resume['ru_status'] . ')') . "\n";
+            echo "  ru_show_yn='Y': " . ($resume['ru_show_yn'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $resume['ru_show_yn'] . ')') . "\n";
+            echo "  mm_type='MEM': " . ($resume['mm_type'] === 'MEM' ? '✅ 통과' : '❌ 실패 (' . $resume['mm_type'] . ')') . "\n";
+            echo "  mm_status='Y': " . ($resume['mm_status'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $resume['mm_status'] . ')') . "\n";
+            echo "  mm_agree_ad='Y': " . ($resume['mm_agree_ad'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $resume['mm_agree_ad'] . ')') . "\n";
+            echo "  alarm_resume='Y': " . ($resume['alarm_resume'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $resume['alarm_resume'] . ')') . "\n";
+            echo "  mm_phone!='': " . (!empty($resume['mm_phone']) ? '✅ 통과 (' . $resume['mm_phone'] . ')' : '❌ 실패 (비어있음)') . "\n";
+
+            // 주소 정보
+            echo "\n주소 정보:\n";
+            $addresses = $this->db->query("
+                SELECT ad_idx, ad_type, ad_jibun FROM st_address
+                WHERE mm_idx = ? AND ad_type = 'RESUME' AND ad_key = ?
+            ", array($resume['mm_idx'], $ru_idx))->result_array();
+            echo "<pre>";
+            echo json_encode($addresses, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            echo "</pre>";
+        } else {
+            echo "❌ 이력서 없음\n";
+        }
+
+        echo "\n=== 채용공고(rc_idx={$rc_idx}) 상태 확인 ===\n";
+        $recruit = $this->db->query("
+            SELECT rc.rc_idx, rc.rc_name, rc.rc_status, rc.rc_show_yn, rc.rc_sdate, rc.rc_edate,
+                   rc.mm_idx, m.mm_type, m.mm_status, m.mm_agree_ad, m.alarm_resume, m.mm_phone
+            FROM st_recruit rc
+            LEFT JOIN st_member m ON rc.mm_idx = m.mm_idx
+            WHERE rc.rc_idx = ?
+        ", array($rc_idx))->row_array();
+
+        if ($recruit) {
+            echo "<pre>";
+            echo json_encode($recruit, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            echo "</pre>";
+
+            echo "조건 체크:\n";
+            echo "  rc_status='Y': " . ($recruit['rc_status'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $recruit['rc_status'] . ')') . "\n";
+            echo "  rc_show_yn='Y': " . ($recruit['rc_show_yn'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $recruit['rc_show_yn'] . ')') . "\n";
+            echo "  rc_sdate <= NOW(): " . ($recruit['rc_sdate'] . " vs " . date('Y-m-d H:i:s')) . "\n";
+            echo "  rc_edate >= NOW(): " . ($recruit['rc_edate'] . " vs " . date('Y-m-d H:i:s')) . "\n";
+            echo "  mm_type='COMP': " . ($recruit['mm_type'] === 'COMP' ? '✅ 통과' : '❌ 실패 (' . $recruit['mm_type'] . ')') . "\n";
+            echo "  mm_status='Y': " . ($recruit['mm_status'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $recruit['mm_status'] . ')') . "\n";
+            echo "  mm_agree_ad='Y': " . ($recruit['mm_agree_ad'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $recruit['mm_agree_ad'] . ')') . "\n";
+            echo "  alarm_resume='Y': " . ($recruit['alarm_resume'] === 'Y' ? '✅ 통과' : '❌ 실패 (' . $recruit['alarm_resume'] . ')') . "\n";
+            echo "  mm_phone!='': " . (!empty($recruit['mm_phone']) ? '✅ 통과 (' . $recruit['mm_phone'] . ')' : '❌ 실패 (비어있음)') . "\n";
+
+            echo "\n주소 정보:\n";
+            $addresses = $this->db->query("
+                SELECT ad_idx, ad_type, ad_jibun FROM st_address
+                WHERE mm_idx = ? AND ad_key = ? AND (ad_type = 'RECRUIT' OR ad_type LIKE 'recruit_expose%')
+            ", array($recruit['mm_idx'], $rc_idx))->result_array();
+            echo "<pre>";
+            echo json_encode($addresses, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            echo "</pre>";
+        } else {
+            echo "❌ 공고 없음\n";
+        }
+    }
+
+    // [임시 테스트용] 특정 공고/이력서 대상으로 주소 매칭 + 실제 알림톡 발송 테스트
+    // 테스트 종료 후 이 메서드는 삭제할 것
+    // 호출: /cron_proc/test_weekly_match_specific
+    // 로그: /var/log/php_errors.log
+    public function test_weekly_match_specific()
+    {
+        $rc_idx = 10280;
+        $ru_idx = 3094;
+
+        $log_prefix = "[test_weekly_match_specific] ";
+
+        $ppurioPath = dirname(dirname(APPPATH)) . '/application/common/libraries/PpurioClient.php';
+        if (!file_exists($ppurioPath)) {
+            $msg = "❌ PpurioClient 파일 없음";
+            echo $msg . "\n";
+            error_log($log_prefix . $msg);
+            return;
+        }
+        require_once($ppurioPath);
+        $ppurio = new CI_PpurioClient();
+
+        // 특정 id로만 조회 (여러 주소 row가 있을 수 있음)
+        $resumes = $this->match_model->getActiveResumes($ru_idx);
+        $recruits = $this->match_model->getActiveRecruits($rc_idx);
+
+        if (empty($resumes)) {
+            $msg = "❌ 이력서(ru_idx={$ru_idx}) 조회 결과 없음 - 활성 상태 조건(ru_status, ru_show_yn, 회원 알림동의 등) 미충족 가능성";
+            echo $msg . "\n";
+            error_log($log_prefix . $msg);
+            return;
+        }
+        if (empty($recruits)) {
+            $msg = "❌ 채용공고(rc_idx={$rc_idx}) 조회 결과 없음 - 활성 상태 조건(rc_status, 게재기간, 회원 알림동의 등) 미충족 가능성";
+            echo $msg . "\n";
+            error_log($log_prefix . $msg);
+            return;
+        }
+
+        $msg = "[DEBUG] 이력서 주소 row 수: " . count($resumes) . ", 공고 주소 row 수: " . count($recruits);
+        echo $msg . "\n";
+        error_log($log_prefix . $msg);
+
+        // 기존 그룹핑 헬퍼 재사용 (여러 주소를 배열로 묶음)
+        $resumes_by_ru = $this->_groupResumesByRuIdx($resumes);
+        $recruits_by_rc = $this->_groupRecruitsByRcIdx($recruits);
+        $resume_data = $resumes_by_ru[$ru_idx];
+        $recruit_data = $recruits_by_rc[$rc_idx];
+
+        // 주소별 지역 추출 결과 출력
+        foreach ($resume_data['addresses'] as $addr) {
+            $area = $this->_extractAreaSido($addr);
+            $msg = "[DEBUG] 이력서 주소: '{$addr}' → 지역: " . ($area ? $area : 'null');
+            echo $msg . "\n";
+            error_log($log_prefix . $msg);
+        }
+        foreach ($recruit_data['addresses'] as $addr) {
+            $area = $this->_extractAreaSido($addr);
+            $msg = "[DEBUG] 공고 주소: '{$addr}' → 지역: " . ($area ? $area : 'null');
+            echo $msg . "\n";
+            error_log($log_prefix . $msg);
+        }
+
+        // 지역 매칭 여부 확인 (실제 로직과 동일하게 주소 조합 순회)
+        $area_matched = false;
+        foreach ($recruit_data['addresses'] as $recruit_addr) {
+            $recruit_area = $this->_extractAreaSido($recruit_addr);
+            foreach ($resume_data['addresses'] as $resume_addr) {
+                $resume_area = $this->_extractAreaSido($resume_addr);
+                if ($recruit_area !== null && $resume_area !== null && $recruit_area === $resume_area) {
+                    $area_matched = true;
+                    $msg = "✅ 지역 매칭 성공: '{$recruit_area}' (공고주소='{$recruit_addr}', 이력서주소='{$resume_addr}')";
+                    echo $msg . "\n";
+                    error_log($log_prefix . $msg);
+                    break 2;
+                }
+            }
+        }
+        if (!$area_matched) {
+            $msg = "⚠️  지역 매칭 실패 - 알림톡 발송 안 함";
+            echo $msg . "\n";
+            error_log($log_prefix . $msg);
+            return;
+        }
+
+        // 세부 조건 매칭 확인 (work/sex/age/nation/work_type/price 전체 체크)
+        $is_matched = $this->_isMatched($resume_data['resume'], $recruit_data['recruit'], null);
+        $msg = "[DEBUG] 세부 조건 매칭 결과: " . ($is_matched ? '일치' : '불일치');
+        echo $msg . "\n";
+        error_log($log_prefix . $msg);
+        if (!$is_matched) {
+            $msg = "⚠️  세부 조건 불일치 - 알림톡 발송 안 함";
+            echo $msg . "\n";
+            error_log($log_prefix . $msg);
+            return;
+        }
+
+        // 실제 발송 (기존 발송 함수 그대로 재사용 - st_match_alimtalk_sent에 이력 기록됨)
+        $current_week = date('Y-W');
+        $sent_corp = $this->_sendCorpAlimtalk(
+            array(array('recruit' => $recruit_data['recruit'], 'resume' => $resume_data['resume'])),
+            $current_week, $ppurio
+        );
+        $sent_member = $this->_sendMemberAlimtalk(
+            array(array('resume' => $resume_data['resume'], 'recruit' => $recruit_data['recruit'])),
+            $current_week, $ppurio
+        );
+
+        $msg = "✅ 테스트 완료 - 기업 발송: {$sent_corp}건, 개인 발송: {$sent_member}건";
+        echo $msg . "\n";
+        error_log($log_prefix . $msg);
+
+        $msg = "ℹ️  참고: st_match_alimtalk_sent에 이번 주({$current_week}) 발송 이력이 기록되므로, 실제 주간 크론이 이번 주에 같은 조합을 다시 발송하지 않습니다.";
+        echo $msg . "\n";
+        error_log($log_prefix . $msg);
     }
 }

@@ -209,6 +209,7 @@ class Chat extends CI_Controller
     $data = [];
     $rm_idx = input_get("rm_idx");
     $rc_idx = input_get("rc_idx"); // URL 파라미터에서 rc_idx 가져오기 (자동 이동 시)
+    $origin_rc_idx = input_get("origin_rc_idx"); // 다이렉트 채팅 시작 시 클릭한 실제 채용공고 rc_idx
     $user_id = $this->user->getUserId();
 
     # 룸정보 가져오기
@@ -487,12 +488,47 @@ class Chat extends CI_Controller
           $data["opponent_resume_list"] = array_values(array_filter($all_opponent_resumes, function($item) {
             return !isset($item["ru_auto_yn"]) || $item["ru_auto_yn"] !== "Y";
           }));
+
+          // 상대방의 대표이력서(ru_show_yn = 'Y') 자동 선택용 조회
+          // ru_status='Y' 필터 필수 — 위의 opponent_resume_list 조회는 필터가 없어 삭제된(ru_status='N') 이력서까지 포함될 수 있음
+          // 대표이력서 자동 선택 시 삭제된 이력서가 뽑히는 걸 막기 위해 명시적으로 필터링한다.
+          $data["opponent_main_resume"] = $this->member_model->getResume([
+            "mm_idx" => $opponent_member["mm_idx"],
+            "ru_show_yn" => "Y",
+            "ru_status" => "Y",
+          ]);
+          // 대표이력서로 지정된 게 없으면(설정 안 한 경우) 실제 이력서 중 첫 번째로 대체
+          // 단, opponent_resume_list 자체에는 ru_status 필터가 없어 삭제된 이력서가 섞여 있을 수 있으므로
+          // 대체 후보를 고를 때는 ru_status가 'N'이 아닌 것만 사용한다.
+          if (!$data["opponent_main_resume"]) {
+            foreach ($data["opponent_resume_list"] as $candidate) {
+              if (!isset($candidate["ru_status"]) || $candidate["ru_status"] !== "N") {
+                $data["opponent_main_resume"] = $candidate;
+                break;
+              }
+            }
+          }
         } else {
           // 내가 MEM(지원하기)면 상대방은 COMP → 상대방의 실제 채용공고 목록 필요
           $all_opponent_recruits = $this->member_model->getRecruitList(["mm_idx" => $opponent_member["mm_idx"]]);
           $data["opponent_recruit_list"] = array_values(array_filter($all_opponent_recruits, function($item) {
             return !isset($item["rc_auto_yn"]) || $item["rc_auto_yn"] !== "Y";
           }));
+
+          // 이 채팅이 특정 채용공고(origin_rc_idx)에서 시작됐다면 그 공고를 자동 지원 대상으로 사용
+          $data["opponent_main_recruit"] = null;
+          if (!empty($origin_rc_idx)) {
+            foreach ($data["opponent_recruit_list"] as $candidate) {
+              if ($candidate["rc_idx"] == $origin_rc_idx) {
+                $data["opponent_main_recruit"] = $candidate;
+                break;
+              }
+            }
+          }
+          // 시작 공고를 모르거나(일반 다이렉트 채팅) 목록에 없으면(마감 등) 실제 등록된 공고 중 첫 번째로 대체
+          if (!$data["opponent_main_recruit"] && count($data["opponent_recruit_list"]) > 0) {
+            $data["opponent_main_recruit"] = $data["opponent_recruit_list"][0];
+          }
         }
       }
     }
@@ -514,6 +550,16 @@ class Chat extends CI_Controller
       });
       // 배열 인덱스 재정렬
       $data["my_resume_list"] = array_values($data["my_resume_list"]);
+
+      // "지원하기" 1단계 팝업 제거용: 본인 대표이력서 자동 선택 (없으면 실제 이력서 중 첫 번째)
+      $data["my_main_resume"] = $this->member_model->getResume([
+        "mm_idx" => $this->mm_idx,
+        "ru_show_yn" => "Y",
+        "ru_status" => "Y",
+      ]);
+      if (!$data["my_main_resume"] && count($data["my_resume_list"]) > 0) {
+        $data["my_main_resume"] = $data["my_resume_list"][0];
+      }
     }
 
     $this->layout->shop('/chat/chat_view', $data);

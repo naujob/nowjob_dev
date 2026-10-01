@@ -1579,7 +1579,7 @@ renderBottomSheet(
   '<p>로그인이 필요한 서비스입니다.</p><p>로그인 하시겠습니까?</p>',
   '로그인 및 회원가입',
   'btnLoginGuideHrPost',
-  '',
+  'location.href = "/member/login";',
   'bottom-sheet-content-container',
   'bottom-sheet-content-body'
 );
