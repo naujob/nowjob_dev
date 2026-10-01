@@ -1260,6 +1260,7 @@ class Common_proc extends CI_Controller
 					if ($existing_rm_idx) {
 						// 기존 방이 있으면: MySQL st_room의 rc_idx/ru_idx만 갱신
 						$rm_idx = $existing_rm_idx;
+						error_log("[DEBUG] member_request 기존 방 재사용 - rm_idx={$existing_rm_idx}, opponent_mm_idx={$opponent_mm_idx}, room_type={$room_type}");
 						$this->common_model->updateRoom(
 							["rc_idx" => $data["rc_idx"], "ru_idx" => $data["ru_idx"], "up_dt" => get_today()],
 							["rm_idx" => $existing_rm_idx]
@@ -1332,18 +1333,18 @@ class Common_proc extends CI_Controller
 								curl_close($ch);
 
 								if ($http_code === 200) {
-								
+									error_log("[DEBUG] member_request newroommake 성공");
 								} else {
-									
+									error_log("[DEBUG] member_request newroommake 실패: HTTP {$http_code}, curl_error={$curl_error}");
 								}
 							} catch (Exception $e) {
-			
+								error_log("[DEBUG] member_request newroommake cURL 예외: " . $e->getMessage());
 							}
 						}
 					}
 				} catch (Exception $chat_error) {
 					// 채팅방 생성 오류 로그 추가 (조용한 실패 방지)
-				
+					error_log("[DEBUG] member_request 채팅방 처리 중 예외 발생: " . $chat_error->getMessage());
 				}
 
 				// 이제 rm_idx가 정해졌으므로 data에 추가하고 지원 기록 저장
@@ -2569,8 +2570,10 @@ ORDER BY distance_km ASC;
 			$room = $collection->findOne($query);
 
 			if (!$room) {
+				error_log("[DEBUG] _reset_room_exit_status 실패: room을 찾지 못함 - rm_idx={$rm_idx}");
 				return;
 			}
+			error_log("[DEBUG] _reset_room_exit_status 실행 - rm_idx={$rm_idx}, room 존재");
 
 			// rm_users 배열 처리
 			// 재요청(제안/지원/채팅)이 들어오면 대화가 다시 활성화되는 것이므로,
@@ -2598,11 +2601,15 @@ ORDER BY distance_km ASC;
 
 			// 업데이트가 필요한 경우만 실행
 			if (!empty($update_data)) {
+				error_log("[DEBUG] _reset_room_exit_status 업데이트: updated={$updated}, rm_status={$room['rm_status']}");
 				$collection->update($query, $update_data);
+				error_log("[DEBUG] _reset_room_exit_status 업데이트 완료");
+			} else {
+				error_log("[DEBUG] _reset_room_exit_status: 업데이트 필요 없음");
 			}
 		} catch (Exception $e) {
 			// MongoDB 연결 실패는 무시 - 지원하기 흐름 자체를 막지 않음
-			error_log("[Chat] _reset_room_exit_status 실패: " . $e->getMessage());
+		
 		}
 	}
 }

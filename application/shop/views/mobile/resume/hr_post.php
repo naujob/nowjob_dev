@@ -1247,10 +1247,8 @@ if (!$isLogin) {
                                 if (currentActionMode === 'direct_chat') {
                                     location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list3');
                                 } else {
-                                    // 제안한 인재 탭으로 이동하고 해당 공고의 채팅방 자동 진입
-                                    // URL 파라미터로 rc_idx와 ru_idx 모두 전달하여 정확한 채팅방 찾기
-                                    var ru_idx = $("[name='ru_idx']").val();
-                                    location.href = "/chat/chat_list3?auto_open_rc_idx=" + rc_idx + "&auto_open_ru_idx=" + ru_idx;
+                                    // 정식 제안도 chat_view로 직접 리다이렉트 (auto_send=true로 자동메시지 전송)
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
                                 }
                             } else {
                                 commonAlert(ret.msg, function() {
