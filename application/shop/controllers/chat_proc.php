@@ -1489,6 +1489,8 @@ class Chat_proc extends CI_Controller
 				
 				// 메시지가 없으면 first_yn: "Y" (첫 메시지 전송 필요)
 				$first_yn = ($message_count === 0) ? "Y" : "N";
+				// 기존 방이 재사용될 때 나갔던 쪽의 exit_yn을 리셋
+				reset_room_exit_status($this->mongo_uri, $this->mongo_db, $chk["rm_idx"]);
 				json_return("00", "생성완료", ["rm_idx" => $chk["rm_idx"], "first_yn" => $first_yn]);
 			}
 		} else if ($rm_type == "trade") {
@@ -1514,6 +1516,8 @@ class Chat_proc extends CI_Controller
 				
 				// 메시지가 없으면 first_yn: "Y" (첫 메시지 전송 필요)
 				$first_yn = ($message_count === 0) ? "Y" : "N";
+				// 기존 방이 재사용될 때 나갔던 쪽의 exit_yn을 리셋
+				reset_room_exit_status($this->mongo_uri, $this->mongo_db, $chk["rm_idx"]);
 				json_return("00", "생성완료", ["rm_idx" => $chk["rm_idx"], "first_yn" => $first_yn]);
 			}
 		}
@@ -2966,6 +2970,9 @@ json_return("00", "조회완료", $data);
 			["rc_idx" => $rc_idx, "ru_idx" => $ru_idx, "up_dt" => get_today()],
 			["rm_idx" => $rm_idx]
 		);
+
+		// 기존 방이 재사용될 때 나갔던 쪽의 exit_yn을 리셋
+		reset_room_exit_status($this->mongo_uri, $this->mongo_db, $rm_idx);
 
 		// FCM 푸시 + MongoDB 알림 (실패해도 제안/지원 처리 자체는 이미 완료된 것으로 취급)
 		$this->send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx);

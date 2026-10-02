@@ -1488,3 +1488,63 @@ if (!function_exists('is_room_user_exited')) {
 		return false;
 	}
 }
+
+/**
+ * MongoDB room의 exit_yn 상태를 Y→N으로 복구 (나간 사용자 복구)
+ * @param string $mongo_uri MongoDB 연결 URI
+ * @param string $mongo_db MongoDB 데이터베이스명
+ * @param int $rm_idx 채팅방 ID
+ */
+if (!function_exists('reset_room_exit_status')) {
+	function reset_room_exit_status($mongo_uri, $mongo_db, $rm_idx)
+	{
+		if (empty($rm_idx)) {
+			return;
+		}
+
+		try {
+			@$mongo = new Mongo($mongo_uri);
+			$database = $mongo->{$mongo_db};
+			$collection = $database->room;
+
+			// 채팅방 조회
+			$query = ['rm_idx' => (int)$rm_idx];
+			$room = $collection->findOne($query);
+
+			if (!$room) {
+				return;
+			}
+
+			// rm_users 배열 처리
+			// 재요청(제안/지원/채팅)이 들어오면 대화가 다시 활성화되는 것이므로,
+			// 요청자 본인 여부와 상관없이 나갔던(exit_yn=Y) 모든 참여자를 복구한다.
+			$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+			$updated = false;
+
+			foreach ($rm_users as $key => $room_user) {
+				if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+					$rm_users[$key]["exit_yn"] = "N";
+					unset($rm_users[$key]["exit_dt"]); // exit_dt 제거
+					$updated = true;
+				}
+			}
+
+			// rm_status가 CLOSED였다면 활성 상태로 되돌림
+			$update_data = [];
+			if ($updated) {
+				$update_data['$set']['rm_users'] = $rm_users;
+			}
+
+			if (isset($room["rm_status"]) && $room["rm_status"] == "CLOSED") {
+				$update_data['$set']['rm_status'] = "N";
+			}
+
+			// 업데이트가 필요한 경우만 실행
+			if (!empty($update_data)) {
+				$collection->update($query, $update_data);
+			}
+		} catch (Exception $e) {
+			// MongoDB 연결 실패는 무시 - 제안/지원/채팅 흐름 자체를 막지 않음
+		}
+	}
+}

@@ -953,32 +953,9 @@ class Recruit_proc extends CI_Controller
 			return;
 		}
 
-		// 최근 5분 이내 지원 이력 확인 (시간 기준으로 변경)
-		$query  = "SELECT sum(cnt) as total_cnt FROM (";
-		$query .= "  SELECT count(*) cnt FROM st_member_request ";
-		$query .= "  WHERE mq_type = 'RECRUIT'  ";
-		$query .= "    AND rc_idx = '" . $rc_idx . "' ";
-		$query .= "    AND mm_idx = '" . $mm_idx . "'  "; // 지원자
-		$query .= "    AND ru_idx = '" . $ru_idx . "'  "; // 이력서 추가
-		$query .= "    AND reg_dt >= date_sub(now(), interval 5 minute)  ";
-		$query .= "  UNION ALL ";
-		$query .= "  SELECT count(*) cnt FROM st_member_request_dup ";
-		$query .= "  WHERE mq_type = 'RECRUIT'  ";
-		$query .= "    AND rc_idx = '" . $rc_idx . "' ";
-		$query .= "    AND mm_idx = '" . $mm_idx . "'  "; // 지원자
-		$query .= "    AND ru_idx = '" . $ru_idx . "'  "; // 이력서 추가
-		$query .= "    AND reg_dt >= date_sub(now(), interval 5 minute)  ";
-		$query .= ") as combined ";
-
-		$result = $this->db->query($query);
-		$count = $result->row_array();
-		$today_cnt = 0;
-		if ($count != null && isset($count["total_cnt"])) {
-			$today_cnt = intval($count["total_cnt"]);
-		}
-
-		if ($today_cnt > 0) {
-			json_return("01", "5분 후 다시 지원이 가능합니다.", $result);
+		// 최근 5분 이내 지원 이력 확인 (MemberModel 공통 메서드 사용)
+		if ($this->member_model->checkDuplicateRequestWithinFiveMin("RECRUIT", $rc_idx, $ru_idx)) {
+			json_return("01", "5분 후 다시 지원이 가능합니다.");
 			return;
 		}
 
@@ -999,7 +976,7 @@ class Recruit_proc extends CI_Controller
 			return;
 		}
 
-		json_return("00", "조회성공", $result);
+		json_return("00", "조회성공", null);
 	}
 
 	# 전화하기/지원하기 클릭 로그 기록

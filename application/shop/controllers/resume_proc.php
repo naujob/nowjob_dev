@@ -664,32 +664,9 @@ class Resume_proc extends CI_Controller
     $ru_idx = input_post("ru_idx", "");
     $rc_idx = input_post("rc_idx", "");
 
-    // 최근 5분 이내 제안 이력 확인 (시간 기준으로 변경)
-    $query  = "SELECT sum(cnt) as total_cnt FROM (";
-    $query .= "  SELECT count(*) cnt FROM st_member_request ";
-    $query .= "  WHERE mq_type = 'RESUME'  ";
-    $query .= "    AND ru_idx = '" . $this->db->escape_str($ru_idx) . "' ";
-    $query .= "    AND rc_idx = '" . $this->db->escape_str($rc_idx) . "' ";
-    $query .= "    AND mm_idx = '" . $mm_idx . "'  "; // 제안하는 기업
-    $query .= "    AND reg_dt >= date_sub(now(), interval 5 minute)  ";
-    $query .= "  UNION ALL ";
-    $query .= "  SELECT count(*) cnt FROM st_member_request_dup ";
-    $query .= "  WHERE mq_type = 'RESUME'  ";
-    $query .= "    AND ru_idx = '" . $this->db->escape_str($ru_idx) . "' ";
-    $query .= "    AND rc_idx = '" . $this->db->escape_str($rc_idx) . "' ";
-    $query .= "    AND mm_idx = '" . $mm_idx . "'  "; // 제안하는 기업
-    $query .= "    AND reg_dt >= date_sub(now(), interval 5 minute)  ";
-    $query .= ") as combined ";
-
-    $result = $this->db->query($query);
-    $count = $result->row_array();
-    $today_cnt = 0;
-    if ($count != null && isset($count["total_cnt"])) {
-      $today_cnt = intval($count["total_cnt"]);
-    }
-
-    if ($today_cnt > 0) {
-      json_return("01", "5분 후 다시 제안이 가능합니다.", $result);
+    // 최근 5분 이내 제안 이력 확인 (MemberModel 공통 메서드 사용)
+    if ($this->member_model->checkDuplicateRequestWithinFiveMin("RESUME", $rc_idx, $ru_idx)) {
+      json_return("01", "5분 후 다시 제안이 가능합니다.");
       return;
     }
 

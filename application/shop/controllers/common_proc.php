@@ -1121,28 +1121,8 @@ class Common_proc extends CI_Controller
 			if ($is_data == true) {
 				if ($mq_type == "RECRUIT") {
 
-					// 최근 5분 이내 지원 이력 확인 (시간 기준으로 변경)
-					$query_today_dup_chk  = "
-            select sum(cnt) todaycnt from (
-              select count(*) cnt from st_member_request
-              where mq_type = 'RECRUIT'
-              and reg_dt >= date_sub(now(), interval 5 minute)
-              and ru_idx = '" . $data["ru_idx"] . "'
-              and rc_idx = '" . $data["rc_idx"] . "'
-              union all
-              select count(*) cnt from st_member_request_dup
-              where mq_type = 'RECRUIT'
-              and reg_dt >= date_sub(now(), interval 5 minute)
-              and ru_idx = '" . $data["ru_idx"] . "'
-              and rc_idx = '" . $data["rc_idx"] . "'
-            ) xx ";
-					//json_return("99",$query_today_dup_chk);
-					$result_today_dup_chk = $this->db->query($query_today_dup_chk);
-					$list_today_dup_chk = $result_today_dup_chk->result_array();
-					$todaycnt = $list_today_dup_chk[0]["todaycnt"];
-					//echo "result[".$todaycnt."]";
-
-					if ($todaycnt > 0) {
+					// 최근 5분 이내 지원 이력 확인 (MemberModel 공통 메서드 사용)
+					if ($this->member_model->checkDuplicateRequestWithinFiveMin("RECRUIT", $data["rc_idx"], $data["ru_idx"])) {
 						// 5분 후 다시 지원 가능하도록 안내
 						json_return("01", "<em>5분 후</em> 다시 지원이 가능합니다.");
 					}
@@ -1161,26 +1141,8 @@ class Common_proc extends CI_Controller
 					// 	json_return("90","이미 지원중인 공고('$is_name')가 포함되어 있습니다.");
 					// }
 				} else if ($mq_type == "RESUME") {
-					// 최근 5분 내 중복 제안 방지
-					$query_today_dup_chk  = "
-          select sum(cnt) todaycnt from (
-            select count(*) cnt from st_member_request
-            where mq_type = 'RESUME'
-            and reg_dt >= date_sub(now(), interval 5 minute)
-            and ru_idx = '" . $this->db->escape_str($data["ru_idx"]) . "'
-            and rc_idx = '" . $this->db->escape_str($data["rc_idx"]) . "'
-            union all
-            select count(*) cnt from st_member_request_dup
-            where mq_type = 'RESUME'
-            and reg_dt >= date_sub(now(), interval 5 minute)
-            and ru_idx = '" . $this->db->escape_str($data["ru_idx"]) . "'
-            and rc_idx = '" . $this->db->escape_str($data["rc_idx"]) . "'
-          ) xx ";
-					$result_today_dup_chk = $this->db->query($query_today_dup_chk);
-					$list_today_dup_chk = $result_today_dup_chk->result_array();
-					$todaycnt = $list_today_dup_chk[0]["todaycnt"];
-
-					if ($todaycnt > 0) {
+					// 최근 5분 내 중복 제안 방지 (MemberModel 공통 메서드 사용)
+					if ($this->member_model->checkDuplicateRequestWithinFiveMin("RESUME", $data["rc_idx"], $data["ru_idx"])) {
 						json_return("01", "<em>5분 후</em> 다시 제안이 가능합니다.");
 					}
 
@@ -1197,7 +1159,11 @@ class Common_proc extends CI_Controller
 						$result_existing = $this->db->query($query_existing, [$data["rc_idx"], $data["ru_idx"]])->row_array();
 						$rm_idx_to_return = isset($result_existing['rm_idx']) ? $result_existing['rm_idx'] : null;
 
-					
+						// 기존 방이 재사용될 때 나갔던 쪽의 exit_yn을 리셋
+						if ($rm_idx_to_return) {
+							$this->_reset_room_exit_status($rm_idx_to_return);
+						}
+
 						json_return("00", "처리완료", ["rm_idx" => $rm_idx_to_return, "rc_idx" => $rc_idx]);
 					} else {
 						json_return("90", "이미 제안중인 인재정보('$is_name')가 포함되어 있습니다.");
@@ -2596,63 +2562,10 @@ ORDER BY distance_km ASC;
 	/**
 	 * 기존 방 재사용 시 MongoDB의 exit_yn 리셋
 	 * 사용자가 나갔던 방을 다시 사용하려고 할 때 exit_yn='Y' 상태를 'N'으로 복구
+	 * (전역 헬퍼 reset_room_exit_status()로 위임)
 	 */
 	private function _reset_room_exit_status($rm_idx)
 	{
-		if (empty($rm_idx)) {
-			return;
-		}
-
-		try {
-			@$mongo = new Mongo($this->mongo_uri);
-			$database = $mongo->{$this->mongo_db};
-			$collection = $database->room;
-
-			// 채팅방 조회
-			$query = ['rm_idx' => (int)$rm_idx];
-			$room = $collection->findOne($query);
-
-			if (!$room) {
-			
-				return;
-			}
-	
-
-			// rm_users 배열 처리
-			// 재요청(제안/지원/채팅)이 들어오면 대화가 다시 활성화되는 것이므로,
-			// 요청자 본인 여부와 상관없이 나갔던(exit_yn=Y) 모든 참여자를 복구한다.
-			$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
-			$updated = false;
-
-			foreach ($rm_users as $key => $room_user) {
-				if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
-					$rm_users[$key]["exit_yn"] = "N";
-					unset($rm_users[$key]["exit_dt"]); // exit_dt 제거
-					$updated = true;
-				}
-			}
-
-			// rm_status가 CLOSED였다면 활성 상태로 되돌림
-			$update_data = [];
-			if ($updated) {
-				$update_data['$set']['rm_users'] = $rm_users;
-			}
-
-			if (isset($room["rm_status"]) && $room["rm_status"] == "CLOSED") {
-				$update_data['$set']['rm_status'] = "N";
-			}
-
-			// 업데이트가 필요한 경우만 실행
-			if (!empty($update_data)) {
-				
-				$collection->update($query, $update_data);
-				
-			} else {
-				
-			}
-		} catch (Exception $e) {
-			// MongoDB 연결 실패는 무시 - 지원하기 흐름 자체를 막지 않음
-		
-		}
+		reset_room_exit_status($this->mongo_uri, $this->mongo_db, $rm_idx);
 	}
 }
