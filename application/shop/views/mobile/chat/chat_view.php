@@ -409,22 +409,41 @@
         <div class="chat-view-header">
             <!-- 채용정보 -->
             <?php if ($user_type == "COMP") : ?>
-                <!-- 기업회원: 상대방(지원자) 이력서정보 -->
+                <!-- 기업회원: 채용공고정보 -->
                 <input type="hidden" id="otherid" value="<?= $recruit["mm_id"] ?>">
-                <!-- 채팅 이력서 카드 데이터를 JS에 전달 -->
+                <?php
+                // 공고 상태 계산 함수
+                function getStatusLabel($sdate, $edate) {
+                    $now = new DateTime();
+                    $startDate = new DateTime($sdate);
+                    $endDate = new DateTime($edate);
+
+                    if ($startDate <= $now && $now <= $endDate) {
+                        return "모집중";
+                    } else if ($endDate < $now) {
+                        return "마감";
+                    } else if ($startDate > $now) {
+                        return "대기중";
+                    }
+                    return "";
+                }
+
+                $statusLabel = getStatusLabel($recruit["rc_sdate"], $recruit["rc_edate"]);
+                ?>
+                <!-- 채팅 공고 카드 데이터를 JS에 전달 -->
                 <script>
-                  var chatResumeData = <?= isset($resume) && !empty($resume) ? json_encode($resume, JSON_UNESCAPED_UNICODE) : 'null' ?>;
+                  var recruitData = <?= isset($recruit) && !empty($recruit) ? json_encode($recruit, JSON_UNESCAPED_UNICODE) : 'null' ?>;
                 </script>
 
-                <!-- 이력서 카드 템플릿 포함 -->
+                <!-- 공고 카드 템플릿 포함 -->
                 <?php
                   $from = input_get("from");
-                  $tpl_data_label = ($from === "talent_sent") ? "제안보낸 인재" : "지원받은 인재";
+                  $tpl_data_label = ($from === "proposed_job") ? "제안받은 공고" : "지원한 공고";
                 ?>
-                <?php $tpl_id = 'tpl_chat_resume'; $tpl_simple_mode = true; ?>
-                <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
-                <ul class="result-list result-list-card" id="chatResumeList" data-visible="<?= (!empty($is_direct_chat_room)) ? 'false' : 'true' ?>"></ul>
-                <!-- //기업회원 이력서정보 -->
+                <?php $tpl_id = 'tpl_chat_recruit'; $tpl_simple_mode = true; ?>
+                <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
+                <ul class="result-list result-list-card" id="chatRecruitCardList" data-visible="<?= (!empty($is_direct_chat_room)) ? 'false' : 'true' ?>"></ul>
+                <!-- //기업회원 공고정보 -->
 
                 <div id="comp_top_2" class="chat-appointment" style="display:none;">
                     <div class="container">

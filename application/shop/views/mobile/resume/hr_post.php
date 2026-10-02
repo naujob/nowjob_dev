@@ -1176,7 +1176,30 @@ if (!$isLogin) {
 
     // submitMemberRequest 함수 정의 (제안/다이렉트채팅 공통 처리)
     var submitMemberRequest = function(rc_idx, ru_title) {
-        //오늘 제안여부 및 지원 여부 확인
+        // 다이렉트 채팅은 시간 제한 없이 바로 진행
+        if (currentActionMode === 'direct_chat') {
+            var params = {};
+            var mq_idxs = new Array();
+            mq_idxs.push($("[name='ru_idx']").val());
+            params["mq_idxs"] = mq_idxs;
+            params["rc_idx"] = rc_idx;
+            params["mq_type"] = "RESUME";
+            params["is_direct_chat"] = "Y";
+
+            comAjax("/common_proc/member_request", params, function(ret) {
+                if (ret.code == "00") {
+                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
+                } else {
+                    commonAlert(ret.msg, function() {
+                        $("#selectPanel_hrPost").removeClass("on");
+                    });
+                    return;
+                }
+            });
+            return;
+        }
+
+        //오늘 제안여부 및 지원 여부 확인 (제안만 시간 제한 체크)
         var paramsToday = {};
         paramsToday["ru_idx"] = $("[name='ru_idx']").val();
         paramsToday["rc_idx"] = rc_idx;
