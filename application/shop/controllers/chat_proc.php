@@ -161,33 +161,36 @@ class Chat_proc extends CI_Controller
 							// 마지막 메시지 조회
 							if (isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 								$last_message = end($room["rm_messages"]);
-								if (isset($last_message["mg_text"])) {
-									$last_msg = $last_message["mg_text"];
-									// HTML 태그 제거 후 순수 텍스트만 추출
-									$last_msg = strip_tags($last_msg);
-									// 첫 시작부터 20바이트 제한
-									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
-									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
-										$temp_list[$key]["last_msg_preview"] .= "...";
-									}
-								}
 								if (isset($last_message["mg_dt"])) {
 									$last_msg_time = $last_message["mg_dt"];
-									// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
-									if (method_exists($this, 'formatChatTime')) {
-										$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
-									} else {
-										// formatChatTime이 없는 경우에만 변환
-										if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
-											$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
-										} else {
-											$temp_list[$key]["last_msg_time"] = $last_msg_time;
-										}
-									}
-
+									// 지금까지 본 것 중 가장 최신 방일 때만 temp_list에 저장
 									if (empty($latest_time) || $last_msg_time > $latest_time) {
 										$latest_time = $last_msg_time;
 										$latest_rm_idx = $rm_idx;
+
+										// 최신 방일 때만 메시지 정보 저장
+										if (isset($last_message["mg_text"])) {
+											$last_msg = $last_message["mg_text"];
+											// HTML 태그 제거 후 순수 텍스트만 추출
+											$last_msg = strip_tags($last_msg);
+											// 첫 시작부터 20바이트 제한
+											$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+											if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+												$temp_list[$key]["last_msg_preview"] .= "...";
+											}
+										}
+
+										// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
+										if (method_exists($this, 'formatChatTime')) {
+											$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
+										} else {
+											// formatChatTime이 없는 경우에만 변환
+											if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
+												$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+											} else {
+												$temp_list[$key]["last_msg_time"] = $last_msg_time;
+											}
+										}
 									}
 								}
 							}
@@ -204,39 +207,6 @@ class Chat_proc extends CI_Controller
 												$unread_count++;
 											}
 										}
-									}
-								}
-							}
-						}
-					}
-
-					// 가장 최근 채팅방 기준으로 시간 설정
-					if ($latest_rm_idx > 0) {
-						$query = ['rm_idx' => $latest_rm_idx];
-						$latest_room = $collection->findOne($query);
-						if ($latest_room && isset($latest_room["rm_messages"]) && is_array($latest_room["rm_messages"]) && count($latest_room["rm_messages"]) > 0) {
-							$latest_msg = end($latest_room["rm_messages"]);
-							if (isset($latest_msg["mg_dt"])) {
-								$latest_time = $latest_msg["mg_dt"];
-								// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
-								if (method_exists($this, 'formatChatTime')) {
-									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($latest_time);
-								} else {
-									// formatChatTime이 없는 경우에만 변환
-									if (is_object($latest_time) && method_exists($latest_time, 'sec')) {
-										$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $latest_time->sec);
-									} else {
-										$temp_list[$key]["last_msg_time"] = $latest_time;
-									}
-								}
-								if (isset($latest_msg["mg_text"])) {
-									$last_msg = $latest_msg["mg_text"];
-									// HTML 태그 제거 후 순수 텍스트만 추출
-									$last_msg = strip_tags($last_msg);
-									// 첫 시작부터 20바이트 제한
-									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
-									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
-										$temp_list[$key]["last_msg_preview"] .= "...";
 									}
 								}
 							}
@@ -430,33 +400,36 @@ class Chat_proc extends CI_Controller
 							// 마지막 메시지 조회
 							if (isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
 								$last_message = end($room["rm_messages"]);
-								if (isset($last_message["mg_text"])) {
-									$last_msg = $last_message["mg_text"];
-									// HTML 태그 제거 후 순수 텍스트만 추출
-									$last_msg = strip_tags($last_msg);
-									// 첫 시작부터 20바이트 제한
-									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
-									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
-										$temp_list[$key]["last_msg_preview"] .= "...";
-									}
-								}
 								if (isset($last_message["mg_dt"])) {
 									$last_msg_time = $last_message["mg_dt"];
-									// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
-									if (method_exists($this, 'formatChatTime')) {
-										$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
-									} else {
-										// formatChatTime이 없는 경우에만 변환
-										if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
-											$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
-										} else {
-											$temp_list[$key]["last_msg_time"] = $last_msg_time;
-										}
-									}
-
+									// 지금까지 본 것 중 가장 최신 방일 때만 temp_list에 저장
 									if (empty($latest_time) || $last_msg_time > $latest_time) {
 										$latest_time = $last_msg_time;
 										$latest_rm_idx = $rm_idx;
+
+										// 최신 방일 때만 메시지 정보 저장
+										if (isset($last_message["mg_text"])) {
+											$last_msg = $last_message["mg_text"];
+											// HTML 태그 제거 후 순수 텍스트만 추출
+											$last_msg = strip_tags($last_msg);
+											// 첫 시작부터 20바이트 제한
+											$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+											if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+												$temp_list[$key]["last_msg_preview"] .= "...";
+											}
+										}
+
+										// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
+										if (method_exists($this, 'formatChatTime')) {
+											$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
+										} else {
+											// formatChatTime이 없는 경우에만 변환
+											if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
+												$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+											} else {
+												$temp_list[$key]["last_msg_time"] = $last_msg_time;
+											}
+										}
 									}
 								}
 							}
@@ -473,39 +446,6 @@ class Chat_proc extends CI_Controller
 												$unread_count++;
 											}
 										}
-									}
-								}
-							}
-						}
-					}
-
-					// 가장 최근 채팅방 기준으로 시간 설정
-					if ($latest_rm_idx > 0) {
-						$query = ['rm_idx' => $latest_rm_idx];
-						$latest_room = $collection->findOne($query);
-						if ($latest_room && isset($latest_room["rm_messages"]) && is_array($latest_room["rm_messages"]) && count($latest_room["rm_messages"]) > 0) {
-							$latest_msg = end($latest_room["rm_messages"]);
-							if (isset($latest_msg["mg_dt"])) {
-								$latest_time = $latest_msg["mg_dt"];
-								// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
-								if (method_exists($this, 'formatChatTime')) {
-									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($latest_time);
-								} else {
-									// formatChatTime이 없는 경우에만 변환
-									if (is_object($latest_time) && method_exists($latest_time, 'sec')) {
-										$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $latest_time->sec);
-									} else {
-										$temp_list[$key]["last_msg_time"] = $latest_time;
-									}
-								}
-								if (isset($latest_msg["mg_text"])) {
-									$last_msg = $latest_msg["mg_text"];
-									// HTML 태그 제거 후 순수 텍스트만 추출
-									$last_msg = strip_tags($last_msg);
-									// 첫 시작부터 20바이트 제한
-									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
-									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
-										$temp_list[$key]["last_msg_preview"] .= "...";
 									}
 								}
 							}
