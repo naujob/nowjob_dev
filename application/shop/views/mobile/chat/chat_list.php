@@ -193,8 +193,6 @@ $top_bar = array(
     });
 
     $.when(promise1, promise2, promise3, promise4).done(function(result1, result2, result3, result4) {
-      $("#chat_list").html("");
-
       // 4개 응답 결과를 하나의 배열로 합산
       var allRows = [];
 
@@ -261,8 +259,9 @@ $top_bar = array(
       console.log('rm_idx null로 제외된 행:', excludedNullRmIdx);
       console.log('rm_idx dedupe 후 전체 행:', finalRows.length);
 
-      // 통합 목록 렌더링
+      // 메모리에서 전체 HTML 구성 (리플로우 최소화)
       console.log('렌더링 시작, 총 행 수:', finalRows.length);
+      var htmlBuffer = "";
       finalRows.forEach(function(row, idx) {
         var $clone = $("#tpl_chat_mem").clone();
         var $content = $clone.html();
@@ -287,8 +286,11 @@ $top_bar = array(
 
         $clone.html($content);
         var recruitboxHtml = "<div class='recruitbox_'>" + $clone.html() + "</div>";
-        $("#chat_list").append(recruitboxHtml);
+        htmlBuffer += recruitboxHtml;
       });
+
+      // 한 번에 DOM에 적용 (리플로우 1회만 발생)
+      $("#chat_list").html(htmlBuffer);
 
       console.log('렌더링 완료, DOM 요소 개수:', $("#chat_list li").length);
 

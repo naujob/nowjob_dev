@@ -1062,6 +1062,10 @@ class memberModel extends MY_Model
 			INNER JOIN st_recruit aa ON aa.rc_idx = room.rc_idx
 			INNER JOIN st_member comp ON aa.mm_idx = comp.mm_idx /* membermodel.getRecruitActaiveListMem queryXlog */
 			where req.mq_type = 'RECRUIT' AND req.mm_idx = '$mm_idx'
+			and NOT EXISTS (
+				SELECT 1 FROM st_member_request mq2
+				WHERE mq2.rm_idx = req.rm_idx AND mq2.mq_type LIKE '%_DIRECT'
+			)
 			and aa.rc_status = 'Y'
 			and comp.mm_status = 'Y'
 			order by max_up_dt desc, aa.rc_idx desc
@@ -5451,6 +5455,10 @@ SELECT
   AND bb.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
   AND rc.rc_status = 'Y'
   AND rc.rc_edate >= NOW()
+  AND NOT EXISTS (
+    SELECT 1 FROM st_member_request mq2
+    WHERE mq2.rm_idx = mq.rm_idx AND mq2.mq_type LIKE '%_DIRECT'
+  )
   ) innertable
 GROUP BY
        rc_idx, mm_idx, rc_show_yn, rc_name, rc_sdate, rc_edate, rc_nation, rc_sex, rc_sage, rc_eage,

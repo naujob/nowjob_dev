@@ -100,8 +100,6 @@ $top_bar = array(
     });
 
     $.when(promise1, promise2, promise3, promise4).done(function(result1, result2, result3, result4) {
-      $("#chat_list").html("");
-
       // 4개 응답을 처리하여 통합 배열 생성
       var allRows = [];
 
@@ -229,7 +227,8 @@ $top_bar = array(
         console.log('rm_idx dedupe 후 전체:', Object.keys(dedupedByRmIdx).length);
         console.log('최종 렌더링 행:', dedupedList.length);
 
-        // 렌더링
+        // 메모리에서 전체 HTML 구성 (리플로우 최소화)
+        var htmlBuffer = "";
         dedupedList.forEach(function(row, idx) {
           var $clone = $("#tpl_chat_by_recruite").clone();
           if ($clone.length == 0) {
@@ -298,8 +297,11 @@ $top_bar = array(
 
           $clone.html($content);
           var resumeboxHtml = "<div class='resumebox_'>" + $clone.html() + "</div>";
-          $("#chat_list").append(resumeboxHtml);
+          htmlBuffer += resumeboxHtml;  // 메모리에 누적
         });
+
+        // 한 번에 DOM에 적용 (리플로우 1회만 발생)
+        $("#chat_list").html(htmlBuffer);
 
         // PHP에서 이미 포맷팅된 시간을 표시
         $("#chat_list .last-chat-time").each(function() {

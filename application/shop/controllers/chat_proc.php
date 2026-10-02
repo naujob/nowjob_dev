@@ -2936,23 +2936,14 @@ json_return("00", "조회완료", $data);
 			// 5분 이상 경과했으면 계속 진행 (setMemberRequest에서 기존 기록 삭제 후 재등록)
 		}
 
-		// 다이렉트 채팅방인지 판정 — 현재 방의 공고/이력서가 더미인지 확인
-		$is_direct_room = false;
-		if ($mq_type == "RECRUIT") {
-			// RECRUIT: room의 rc_idx가 더미(rc_auto_yn='Y')인지 확인
-			$recruit_info = $this->db->query(
-				"SELECT rc_auto_yn FROM st_recruit WHERE rc_idx = ?",
-				array($room["rc_idx"])
-			)->row_array();
-			$is_direct_room = $recruit_info && $recruit_info["rc_auto_yn"] == "Y";
-		} else if ($mq_type == "RESUME") {
-			// RESUME: room의 ru_idx가 더미(ru_auto_yn='Y')인지 확인
-			$resume_info = $this->db->query(
-				"SELECT ru_auto_yn FROM st_resume WHERE ru_idx = ?",
-				array($room["ru_idx"])
-			)->row_array();
-			$is_direct_room = $resume_info && $resume_info["ru_auto_yn"] == "Y";
-		}
+		// 다이렉트 채팅방인지 판정 — rc_idx/ru_idx의 auto_yn은 제안/지원 후 실제값으로 덮어써져 신뢰 불가.
+		// 대신 이 rm_idx에 _DIRECT 접미사가 붙은 요청 기록이 한 번이라도 있었는지로 판정한다
+		// (find_existing_room_by_opponent()와 동일한 원칙).
+		$direct_check = $this->db->query(
+			"SELECT 1 FROM st_member_request WHERE rm_idx = ? AND mq_type LIKE '%_DIRECT' LIMIT 1",
+			array($rm_idx)
+		)->row_array();
+		$is_direct_room = (bool)$direct_check;
 
 		// 등록 처리 (채팅방 내 제안/지원은 포인트 차감 없음)
 		$data = array(
