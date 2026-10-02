@@ -3511,10 +3511,17 @@
                 $("#btnSend").prop("disabled", false);
 
                 // ✅ 메시지 리스트 조회 (room_info_return에서만 조회하여 중복 방지)
+                var current_g_user_id = typeof g_user_id !== 'undefined' && g_user_id ? g_user_id : $("#user_id").val();
+                if (!current_g_user_id) {
+                    console.log('[chat_view] ⚠️ message_list emit 직전 g_user_id 비어있음 (Android 최초 조회) - rm_idx=' + rm_idx);
+                } else {
+                    console.log('[chat_view] message_list emit (Android 최초 조회) - rm_idx=' + rm_idx + ', con_user_id=' + current_g_user_id);
+                }
                 var params = {
                     rm_idx: Number(rm_idx),
                     skip: rm_start,
-                    limit: rm_length
+                    limit: rm_length,
+                    con_user_id: current_g_user_id
                 };
                 socket.emit("message_list", params);
                 
@@ -3654,10 +3661,17 @@
                 pagging_yn = true;
 
                 //메시지 리스트 조회
+                var current_g_user_id = typeof g_user_id !== 'undefined' && g_user_id ? g_user_id : $("#user_id").val();
+                if (!current_g_user_id) {
+                    console.log('[chat_view] ⚠️ message_list emit 직전 g_user_id 비어있음 (Android 페이지네이션) - rm_idx=' + rm_idx);
+                } else {
+                    console.log('[chat_view] message_list emit (Android 페이지네이션) - rm_idx=' + rm_idx + ', con_user_id=' + current_g_user_id);
+                }
                 var params = {
                     rm_idx: Number(rm_idx),
                     skip: (++rm_start * rm_length),
-                    limit: rm_length
+                    limit: rm_length,
+                    con_user_id: current_g_user_id
                 };
                 // 안드로이드에서도 소켓을 사용하여 메시지 리스트 조회
                 socket.emit("message_list", params);
@@ -4238,10 +4252,17 @@
                 $("#btnSend").prop("disabled", false);
 
                 //메시지 리스트 조회
+                var current_g_user_id = typeof g_user_id !== 'undefined' && g_user_id ? g_user_id : $("#user_id").val();
+                if (!current_g_user_id) {
+                    console.log('[chat_view] ⚠️ message_list emit 직전 g_user_id 비어있음 (iOS 최초 조회) - rm_idx=' + rm_idx);
+                } else {
+                    console.log('[chat_view] message_list emit (iOS 최초 조회) - rm_idx=' + rm_idx + ', con_user_id=' + current_g_user_id);
+                }
                 var params = {
                     rm_idx: Number(rm_idx),
                     skip: rm_start,
-                    limit: rm_length
+                    limit: rm_length,
+                    con_user_id: current_g_user_id
                 };
                 // socket.emit("message_list") 함수는 현재 채팅방 번호(rm_idx)와 페이지 번호(skip) 및 페이지 크기(limit)를 서버로 전송하여
                 // 해당 채팅방의 메시지 리스트를 요청하는 역할을 합니다. 서버는 이 정보를 바탕으로 메시지 리스트를 반환합니다.
@@ -4302,10 +4323,17 @@
                 pagging_yn = true;
 
                 //메시지 리스트 조회
+                var current_g_user_id = typeof g_user_id !== 'undefined' && g_user_id ? g_user_id : $("#user_id").val();
+                if (!current_g_user_id) {
+                    console.log('[chat_view] ⚠️ message_list emit 직전 g_user_id 비어있음 (iOS 페이지네이션) - rm_idx=' + rm_idx);
+                } else {
+                    console.log('[chat_view] message_list emit (iOS 페이지네이션) - rm_idx=' + rm_idx + ', con_user_id=' + current_g_user_id);
+                }
                 var params = {
                     rm_idx: Number(rm_idx),
                     skip: (++rm_start * rm_length),
-                    limit: rm_length
+                    limit: rm_length,
+                    con_user_id: current_g_user_id
                 };
                 socket.emit("message_list", params);
             }

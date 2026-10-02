@@ -143,13 +143,50 @@ container.getRoom = async function (params) {
 //방정보 리스트 조회
 container.getRoomMessages = async function (params) {
 	// 🔥 DEBUG: 입력 파라미터 로깅
-	console.log('[getRoomMessages] 시작 - rm_idx: ' + params.rm_idx + ', skip: ' + params.skip + ', limit: ' + params.limit + ', chat_type: ' + (params.chat_type || 'NONE'));
+	console.log('[getRoomMessages] 시작 - rm_idx: ' + params.rm_idx + ', skip: ' + params.skip + ', limit: ' + params.limit + ', chat_type: ' + (params.chat_type || 'NONE') + ', con_user_id: ' + (params.con_user_id || 'NONE'));
 
-	// 🔥 메시지 필터링: rm_idx로 방을 찾고, $unwind 후 메시지 수준에서 chat_type 필터링
+	// ⚠️ 추적: con_user_id 누락 검사
+	if (!params.con_user_id || params.con_user_id === "") {
+		console.log('[getRoomMessages] ⚠️ con_user_id 누락! rm_idx=' + params.rm_idx + ' (exit_dt 필터링 스킵, 하위호환 모드)');
+	}
+
+	// exit_dt 기반 메시지 필터링을 위해 방의 rm_users에서 현재 사용자 찾기
+	var exit_dt = null;
+	if (params.con_user_id && params.con_user_id !== "") {
+		var room = await $db.cs_room.findOne({ rm_idx: params.rm_idx }, { projection: { rm_users: 1 } });
+		if (room && room.rm_users && Array.isArray(room.rm_users)) {
+			for (var i = 0; i < room.rm_users.length; i++) {
+				if (room.rm_users[i].user_id === params.con_user_id) {
+					exit_dt = room.rm_users[i].exit_dt || null;
+					console.log('[getRoomMessages] rm_users 매칭 성공 - user_id=' + params.con_user_id + ', exit_dt=' + (exit_dt ? exit_dt : '없음'));
+					break;
+				}
+			}
+			if (exit_dt === null) {
+				console.log('[getRoomMessages] rm_users 매칭 실패 - 사용자를 찾지 못함 (user_id=' + params.con_user_id + ')');
+			}
+		}
+	}
+
+	// 🔥 메시지 필터링: rm_idx로 방을 찾고, $unwind 후 메시지 수준에서 필터링
 	var aggregationPipeline = [
 		{ $match: { rm_idx: params.rm_idx } },
 		{ $unwind: '$rm_messages' }
 	];
+
+	// exit_dt가 존재하면 해당 시각 이후의 메시지만 필터링 (system_exit 제외, timeline 포함)
+	if (exit_dt) {
+		// system_exit 제외, timeline과 일반 메시지 모두 exit_dt 기준으로 필터링
+		aggregationPipeline.push({
+			$match: {
+				'rm_messages.mg_type': { $ne: 'system_exit' },
+				'rm_messages.mg_dt': { $gt: exit_dt }
+			}
+		});
+		console.log('[getRoomMessages] exit_dt 필터링 적용 (timeline, 일반 메시지 모두, system_exit 제외): ' + exit_dt);
+	} else if (params.con_user_id && params.con_user_id !== "") {
+		console.log('[getRoomMessages] exit_dt가 없어서 필터링 미적용 (첫 입장 또는 나간 적 없는 사용자)');
+	}
 
 	// 🔥 chat_type이 제공된 경우에만 메시지 레벨에서 필터링
 	if (params.chat_type) {
@@ -175,10 +212,10 @@ container.getRoomMessages = async function (params) {
 	var ret = await $db.cs_room.aggregate(aggregationPipeline).toArray();
 
 	// 🔥 DEBUG: 조회 결과 로깅
-	console.log('[getRoomMessages] 조회 완료 - rm_idx: ' + params.rm_idx + ', 메시지 개수: ' + (ret ? ret.length : 0));
+	console.log('[getRoomMessages] 조회 완료 - rm_idx: ' + params.rm_idx + ', 메시지 개수: ' + (ret ? ret.length : 0) + (exit_dt ? ', exit_dt 필터링 적용됨' : ''));
 
 	if (Array.isArray(ret) && ret.length > 0) {
-		console.log('[getRoomMessages] 첫 메시지 - mg_idx: ' + (ret[0].rm_messages ? ret[0].rm_messages.mg_idx : 'N/A') + ', chat_type: ' + (ret[0].rm_messages ? ret[0].rm_messages.chat_type : 'N/A'));
+		console.log('[getRoomMessages] 첫 메시지 - mg_idx: ' + (ret[0].rm_messages ? ret[0].rm_messages.mg_idx : 'N/A') + ', mg_dt: ' + (ret[0].rm_messages ? ret[0].rm_messages.mg_dt : 'N/A') + ', chat_type: ' + (ret[0].rm_messages ? ret[0].rm_messages.chat_type : 'N/A'));
 	}
 
 	return ret;
@@ -433,6 +470,19 @@ container.insertMessage = async function (data, callback) {
 			//날짜가 지난날이라면 날짜 라인 추가한다.
 			if (last_ymd < current_ymd) {
 				date_line = "Y";
+			} else if (last_ymd === current_ymd && date_line === "N" && room_info.rm_users && Array.isArray(room_info.rm_users)) {
+				// 같은 날이면서 exit_dt가 있으면, 시분초 단위로 비교 (재입장 후 새로운 타임라인)
+				for (var i = 0; i < room_info.rm_users.length; i++) {
+					if (room_info.rm_users[i].user_id === data.user_id && room_info.rm_users[i].exit_dt) {
+						var user_exit_dt = new Date(room_info.rm_users[i].exit_dt);
+						// 마지막 메시지가 exit_dt 이전이면 타임라인 생성 (첫 재입장 메시지만)
+						if (last_date < user_exit_dt) {
+							date_line = "Y";
+							console.log('[insertMessage] 재입장 후 타임라인 생성 (시분초 비교) - rm_idx: ' + data.rm_idx + ', user_id: ' + data.user_id + ', last_date: ' + last_date + ', exit_dt: ' + user_exit_dt);
+						}
+						break;
+					}
+				}
 			}
 
 			//아이콘 노출 여부 확인
@@ -472,12 +522,11 @@ container.insertMessage = async function (data, callback) {
 				mg_idx: mg_idx,
 				mg_type: "timeline",
 				mg_text: "",
-				mg_dt: "",
+				mg_dt: $common.getCurrentDate(),
 				mg_req_dt: "",
 				mg_img: "",
 				mg_file: "",
 				mg_imoti: "",
-				mg_dt: $common.getCurrentDate(),
 				mg_reads: [],
 				user_info: {},
 				rm_idx: data.rm_idx

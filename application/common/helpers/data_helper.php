@@ -1524,7 +1524,7 @@ if (!function_exists('reset_room_exit_status')) {
 			foreach ($rm_users as $key => $room_user) {
 				if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
 					$rm_users[$key]["exit_yn"] = "N";
-					unset($rm_users[$key]["exit_dt"]); // exit_dt 제거
+					// exit_dt는 보존 (메시지 필터링 기준점으로 사용)
 					$updated = true;
 				}
 			}
