@@ -306,6 +306,8 @@ $top_bar = array(
       // URL 파라미터에서 auto_open_rc_idx 확인하여 해당 채팅방 자동 진입
       var urlParams = new URLSearchParams(window.location.search);
       var autoOpenRcIdx = urlParams.get('auto_open_rc_idx');
+      var autoOpenMqType = urlParams.get('mq_type');
+      var autoOpenRuIdx = urlParams.get('ru_idx');
       if (autoOpenRcIdx && allRows.length > 0) {
         // URL에서 auto_open_rc_idx 파라미터 제거 (뒤로가기 시 재진입 방지)
         urlParams.delete('auto_open_rc_idx');
@@ -329,7 +331,14 @@ $top_bar = array(
 
           // 채팅방을 찾았으면 자동으로 진입
           if (targetRmIdx) {
-            location.href = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
+            var chatViewUrl = "/chat/chat_view?rm_idx=" + targetRmIdx + "&auto_send=true&rc_idx=" + autoOpenRcIdx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
+            if (autoOpenMqType) {
+              chatViewUrl += "&mq_type=" + autoOpenMqType;
+            }
+            if (autoOpenRuIdx) {
+              chatViewUrl += "&ru_idx=" + autoOpenRuIdx;
+            }
+            location.href = chatViewUrl;
           }
         }, 500); // 목록 렌더링 대기
       }

@@ -1362,10 +1362,14 @@
     var urlParams = new URLSearchParams(window.location.search);
     var autoSend = urlParams.get('auto_send') === 'true';
     var autoSendRcIdx = urlParams.get('rc_idx');
+    var autoSendMqType = urlParams.get('mq_type');
+    var autoSendRuIdx = urlParams.get('ru_idx');
     window.autoSendFirstMessage = autoSend ? {
         enabled: true,
         rm_idx: rm_idx,
         rc_idx: autoSendRcIdx,
+        mq_type: autoSendMqType,
+        ru_idx: autoSendRuIdx,
         messageListChecked: false,
         targetUserId: null,
         rm_info_received: false
@@ -1505,11 +1509,14 @@
         }
         
         // 첫 메시지 생성
+        // 다이렉트 채팅이 아닌 경우 (정식 제안/지원) mg_type을 "propose"로 설정하여 "열어보기" 버튼 표시
+        var msgType = (fromParam === 'direct_chat') ? "text" : "propose";
+
         var firstMessage = {
             rm_idx: Number(actualRmIdx),
             user_id: g_user_id,
             chat_type: "recruit",
-            mg_type: "text",
+            mg_type: msgType,
             mg_text: messageText,
             mg_req_dt: "",
             mg_img: "",
@@ -1518,6 +1525,13 @@
             mg_dt: getCurrentDate(),
             mg_reads: []
         };
+
+        // mg_type이 "propose"인 경우 공고/이력서 정보 추가
+        if (msgType === "propose") {
+            firstMessage.mg_mq_type = window.autoSendFirstMessage && window.autoSendFirstMessage.mq_type ? window.autoSendFirstMessage.mq_type : "";
+            firstMessage.mg_rc_idx = window.autoSendFirstMessage && window.autoSendFirstMessage.rc_idx ? window.autoSendFirstMessage.rc_idx : "";
+            firstMessage.mg_ru_idx = window.autoSendFirstMessage && window.autoSendFirstMessage.ru_idx ? window.autoSendFirstMessage.ru_idx : "";
+        }
         
         // 읽음 상태 설정
         firstMessage.mg_reads.push({

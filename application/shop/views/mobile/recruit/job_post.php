@@ -1526,7 +1526,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
                                     // 지원한 공고 탭으로 이동하고 해당 공고의 채팅방 자동 진입
                                     // URL 파라미터로 rc_idx 전달하여 목록 페이지에서 자동으로 채팅방 찾아서 열기
-                                    location.href = "/chat/chat_list?auto_open_rc_idx=" + rc_idx;
+                                    location.href = "/chat/chat_list?auto_open_rc_idx=" + rc_idx + "&mq_type=RECRUIT&ru_idx=" + ret.data.ru_idx;
                                 } else {
                                     commonAlert(ret.msg, function() {});
                                     return;

@@ -1164,7 +1164,7 @@ class Common_proc extends CI_Controller
 							$this->_reset_room_exit_status($rm_idx_to_return);
 						}
 
-						json_return("00", "처리완료", ["rm_idx" => $rm_idx_to_return, "rc_idx" => $rc_idx]);
+						json_return("00", "처리완료", ["rm_idx" => $rm_idx_to_return, "rc_idx" => $rc_idx, "ru_idx" => $data["ru_idx"], "mq_type" => $mq_type]);
 					} else {
 						json_return("90", "이미 제안중인 인재정보('$is_name')가 포함되어 있습니다.");
 					}
@@ -1635,7 +1635,7 @@ class Common_proc extends CI_Controller
 			// 직접 JSON 응답 처리 (header 문제 방지)
 		
 			header('Content-type: application/json');
-			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => ["rm_idx" => $rm_idx, "rc_idx" => $rc_idx]]);
+			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => ["rm_idx" => $rm_idx, "rc_idx" => $rc_idx, "ru_idx" => (isset($data["ru_idx"]) ? $data["ru_idx"] : 0), "mq_type" => $mq_type]]);
 			exit;
 		} catch (Exception $e) {
 			// JSON 응답 전에 출력 버퍼 정리

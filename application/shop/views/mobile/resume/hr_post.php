@@ -1271,7 +1271,7 @@ if (!$isLogin) {
                                     location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
                                 } else {
                                     // 정식 제안도 chat_view로 직접 리다이렉트 (auto_send=true로 자동메시지 전송)
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&mq_type=" + ret.data.mq_type + "&ru_idx=" + ret.data.ru_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
                                 }
                             } else {
                                 commonAlert(ret.msg, function() {
