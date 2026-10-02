@@ -449,12 +449,12 @@ class Chat extends CI_Controller
       $data["is_direct_chat"] = $direct_check ? true : false;
     }
 
-    // 다이렉트 채팅방일 때, 상대방의 실제(더미가 아닌) 이력서/채용공고 목록 조회
-    // (일반 채팅방은 room에 이미 실제 매칭된 값이 있으므로 이 블록을 타지 않음)
+    // 상대방의 실제(더미가 아닌) 이력서/채용공고 목록을 항상 mm_idx 기준으로 조회
+    // is_direct_chat 판정에 의존하지 않고, 상대방 mm_idx로 직접 조회하여 항상 최신 데이터 사용
     $data["opponent_recruit_list"] = [];
     $data["opponent_resume_list"] = [];
 
-    if ($data["is_direct_chat"] && $opponent_user_id) {
+    if ($opponent_user_id) {
       $opponent_member = $this->member_model->getMember(["mm_id" => $opponent_user_id]);
       if ($opponent_member && isset($opponent_member["mm_idx"])) {
         if ($user_type == "COMP") {

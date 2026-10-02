@@ -2763,32 +2763,22 @@
     }
 
     // 본인 항목 선택 이후 처리 (1부 COMP + 2부 MEM 자동 선택)
+    // 상대방의 mm_idx 기준으로 조회한 대표 이력서/공고를 항상 사용 (is_direct_chat 판정에 의존하지 않음)
     function proceedProposeWithOwnSelection(mqType, selectedIdx, selectedName) {
-        if (is_direct_chat) {
-            if (!opponent_has_items) {
-                alert("상대방이 아직 이력서/채용공고를 등록하지 않아 지원/제안할 수 없습니다.");
+        if (mqType == "RESUME") {
+            // COMP → 상대방 대표이력서 자동 선택, 팝업 없이 즉시 전송
+            if (!opponentMainResumeIdx) {
+                alert("상대방이 대표 이력서를 등록하지 않아 제안할 수 없습니다.");
                 return;
             }
-
-            if (mqType == "RESUME") {
-                // 1부: COMP → 상대방 대표이력서 자동 선택, 팝업 없이 즉시 전송
-                if (!opponentMainResumeIdx) {
-                    alert("상대방이 대표 이력서를 등록하지 않아 제안할 수 없습니다.");
-                    return;
-                }
-                submitPropose(mqType, selectedIdx, selectedName, opponentMainResumeIdx, $("#proposeSelectPanel"));
-            } else {
-                // 2부: MEM → 상대방 채용공고 자동 선택, 팝업 없이 즉시 전송
-                if (!opponentMainRecruitIdx) {
-                    alert("상대방이 채용공고를 등록하지 않아 지원할 수 없습니다.");
-                    return;
-                }
-                submitPropose(mqType, selectedIdx, selectedName, opponentMainRecruitIdx, $("#proposeSelectPanel"));
-            }
+            submitPropose(mqType, selectedIdx, selectedName, opponentMainResumeIdx, $("#proposeSelectPanel"));
         } else {
-            // 일반 채팅방: room에 이미 실제 매칭된 값을 그대로 사용해 바로 제출
-            var opponentIdx = (mqType == "RESUME") ? $("#room_ru_idx").val() : $("#room_rc_idx").val();
-            submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $("#proposeSelectPanel"));
+            // MEM → 상대방 채용공고 자동 선택, 팝업 없이 즉시 전송
+            if (!opponentMainRecruitIdx) {
+                alert("상대방이 채용공고를 등록하지 않아 지원할 수 없습니다.");
+                return;
+            }
+            submitPropose(mqType, selectedIdx, selectedName, opponentMainRecruitIdx, $("#proposeSelectPanel"));
         }
     }
 
