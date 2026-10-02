@@ -4994,6 +4994,92 @@ order by rm_up_dt desc
 		return $db_result;
 	}
 
+	# 배치 버전: 여러 공고를 한 번에 조회
+	function getRequestRecruitListBatch($params)
+	{
+		$sql = "SELECT ru_idx, mm_idx, ru_name, ru_show_yn, ru_work, ru_work_img, ru_addr, ru_price_type,
+       ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
+       ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
+       ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
+       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt, MAX(mq_apply_idx) mq_apply_idx, MAX(mq_apply_dt) mq_apply_dt
+FROM (
+ SELECT
+                         bb.*,
+ aa.mm_name AS target_name,
+ rcmm.mm_comp_name AS user_name,
+ bb.ru_img1 AS target_img,
+ rc.rc_img1 AS user_img,
+ aa.mm_name,
+ aa.mm_nation,
+ aa.mm_sex,
+ aa.mm_thumb,
+ aa.mm_id AS target_id,
+ rcmm.mm_id AS user_id,
+ mi.ma_age,
+ ad.ad_addr,
+ rc.rc_idx,
+ rc.rc_name,
+ (CASE WHEN dd.bk_idx IS NOT NULL THEN 'Y' ELSE 'N' END) AS book_yn,
+ p.pm_idx,
+ mq.mq_idx AS mq_apply_idx, mq.reg_dt AS mq_apply_dt,
+ room.rm_idx, room.up_dt rm_up_dt
+                         FROM
+                        st_member aa
+            LEFT JOIN st_member_info mi
+                ON aa.mm_idx = mi.mm_idx
+                        INNER JOIN st_resume bb
+                                ON aa.mm_idx = bb.mm_idx
+            INNER JOIN st_member_request mq
+                ON mq.ru_idx = bb.ru_idx
+                AND (
+                    mq.mq_type = 'RECRUIT'
+                    OR (mq.mq_type = 'RESUME' AND mq.mm_idx != '" . $this->inject($params["mm_idx"]) . "')
+                )
+            INNER JOIN st_recruit rc
+                ON mq.rc_idx = rc.rc_idx
+            INNER JOIN st_member rcmm
+                ON rc.mm_idx = rcmm.mm_idx
+            LEFT JOIN st_bookmark dd
+                ON bb.ru_idx = dd.bk_key AND dd.bk_type = 'RESUME' AND dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
+            LEFT JOIN st_address ad
+                ON aa.mm_idx = ad.mm_idx AND ad.ad_type = 'MEMBER'
+            LEFT JOIN st_promotion p
+                ON p.pm_code = 'M001' AND p.pm_sdate <= NOW() AND p.pm_edate >= NOW() AND p.rc_idx = bb.ru_idx
+            LEFT JOIN st_room room
+                        ON room.rm_idx = mq.rm_idx
+                         WHERE 1=1
+  AND aa.mm_status = 'Y'
+  AND rc.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
+
+		if (!empty($params['ru_idx_list']) && is_array($params['ru_idx_list'])) {
+			$ru_idx_list = array_filter(array_map('intval', $params['ru_idx_list']));
+			if (!empty($ru_idx_list)) {
+				$sql .= " and mq.rc_idx IN (" . implode(',', $ru_idx_list) . ") ";
+			}
+		}
+
+		$sql .= "                ORDER BY mq.mq_idx DESC
+) innertable
+GROUP BY
+       ru_idx, mm_idx, ru_name, ru_show_yn, ru_work, ru_work_img, ru_addr, ru_price_type,
+       ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
+       ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
+       ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
+       user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, mm_idx
+order by rm_up_dt desc
+        LIMIT 0 , 200 ";
+
+		$db_result["query"] = $sql;
+		$result = $this->db->query($sql);
+		$list = $result->result_array();
+		$db_result["list"] = $list;
+		$page = 1;
+		$db_result["count"] = 200;
+		$limit = 200;
+		$db_result["pagenation"] = get_page_ajax($page, $db_result["count"], $limit);
+		return $db_result;
+	}
+
 	# 채팅방 : 제안한 공고에서
 	function getRequestRecruitListSended($params)
 	{
@@ -5050,6 +5136,88 @@ order by rm_up_dt desc
 		if ($params['ru_idx'] != "") { //ru 로 받았지만, rc임
 			$sql .= 	" and mq.rc_idx = '" . $params["ru_idx"] . "' ";
 		}
+		$sql .= "                ORDER BY mq.mq_idx DESC
+          ) innertable
+          GROUP BY
+               ru_idx, mm_idx, ru_name, ru_show_yn, ru_work, ru_work_img, ru_addr, ru_price_type,
+               ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
+               ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
+               ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
+               user_name, target_img, user_img, mm_name, mm_nation, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx, mq_apply_idx, mq_apply_dt
+          order by rm_up_dt desc
+          LIMIT 0 , 200 ";
+
+		$db_result["query"] = $sql;
+		$result = $this->db->query($sql);
+		$list = $result->result_array();
+		$db_result["list"] = $list;
+		$page = 1;
+		$db_result["count"] = 200;
+		$limit = 200;
+		$db_result["pagenation"] = get_page_ajax($page, $db_result["count"], $limit);
+		return $db_result;
+	}
+
+	# 배치 버전: 여러 공고의 지원한 인재를 한 번에 조회
+	function getRequestRecruitListSendedBatch($params)
+	{
+		$sql = "SELECT ru_idx, mm_idx, ru_name, ru_show_yn, ru_work, ru_work_img, ru_addr, ru_price_type,
+     ru_month_price, ru_work_type, ru_week_yn,ru_week, ru_work_dt, ru_edu, ru_my_type,
+     ru_desc, ru_thumb, ru_img1, ru_img2, ru_img3, ru_img4, ru_img5,
+     ru_ip, ru_status, stop_desc, stop_dt, ru_hit, reg_dt, up_dt, target_name,
+     user_name, target_img, user_img, mm_name, mm_nation, mm_sex, mm_thumb, target_id, user_id, ma_age, ad_addr, rc_idx, rc_name, book_yn, pm_idx, MIN(rm_idx) rm_idx, max(rm_up_dt) rm_up_dt, MAX(mq_apply_idx) mq_apply_idx, MAX(mq_apply_dt) mq_apply_dt
+      FROM (
+          SELECT bb.*,
+              aa.mm_name AS target_name,
+              rcmm.mm_comp_name AS user_name,
+              bb.ru_img1 AS target_img,
+              rc.rc_img1 AS user_img,
+              aa.mm_name,
+              aa.mm_nation,
+              aa.mm_sex,
+              aa.mm_thumb,
+              aa.mm_id AS target_id,
+              rcmm.mm_id AS user_id,
+              mi.ma_age,
+              ad.ad_addr,
+              rc.rc_idx,
+              rc.rc_name,
+              (CASE WHEN dd.bk_idx IS NOT NULL THEN 'Y' ELSE 'N' END) AS book_yn,
+              p.pm_idx,
+              room.rm_idx, room.up_dt rm_up_dt, mq.mq_idx AS mq_apply_idx, mq.reg_dt AS mq_apply_dt
+          FROM st_member aa
+          LEFT JOIN st_member_info mi
+              ON aa.mm_idx = mi.mm_idx
+          INNER JOIN st_resume bb
+              ON aa.mm_idx = bb.mm_idx
+          INNER JOIN st_member_request mq
+              ON mq.mq_type = 'RESUME'
+              and mq.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
+              and bb.ru_idx = mq.ru_idx
+          INNER JOIN st_recruit rc
+              ON mq.rc_idx = rc.rc_idx
+          INNER JOIN st_member rcmm
+              ON rc.mm_idx = rcmm.mm_idx
+          LEFT JOIN st_bookmark dd
+              ON bb.ru_idx = dd.bk_key AND dd.bk_type = 'RESUME' AND dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
+          LEFT JOIN st_address ad
+              ON aa.mm_idx = ad.mm_idx AND ad.ad_type = 'MEMBER'
+          LEFT JOIN st_promotion p
+              ON p.pm_code = 'M001' AND p.pm_sdate <= NOW() AND p.pm_edate >= NOW() AND p.rc_idx = bb.ru_idx
+          LEFT JOIN st_room room
+              ON room.rm_idx = mq.rm_idx
+          WHERE 1=1
+          AND aa.mm_status = 'Y'
+          and mq.rc_idx = rc.rc_idx
+          AND rc.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
+
+		if (!empty($params['ru_idx_list']) && is_array($params['ru_idx_list'])) {
+			$ru_idx_list = array_filter(array_map('intval', $params['ru_idx_list']));
+			if (!empty($ru_idx_list)) {
+				$sql .= " and mq.rc_idx IN (" . implode(',', $ru_idx_list) . ") ";
+			}
+		}
+
 		$sql .= "                ORDER BY mq.mq_idx DESC
           ) innertable
           GROUP BY

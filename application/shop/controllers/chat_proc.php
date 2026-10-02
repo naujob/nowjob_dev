@@ -966,6 +966,227 @@ class Chat_proc extends CI_Controller
 		json_return("00", "조회성공", ["list" => $list]);
 	}
 
+	// 배치 버전: 여러 공고의 지원자 목록을 한 번에 조회
+	function get_chat_target_list_batch()
+	{
+		$data = [];
+		$ru_idx_list = input_post("ru_idx_list", []);
+		$chatgbn = input_post("chatgbn", "");
+
+		// ru_idx_list 정제
+		if (!is_array($ru_idx_list)) {
+			$ru_idx_list = [];
+		}
+		$ru_idx_list = array_filter(array_map('intval', $ru_idx_list));
+
+		// 배열이 비어있으면 빈 목록 반환
+		if (empty($ru_idx_list)) {
+			json_return("00", "조회성공", ["list" => []]);
+			return;
+		}
+
+		// 데이터 설정
+		$mm_idx = $this->user->getUserIdx();
+		$user_id = $this->user->getUserId();
+		$user_phone = $this->user->getUserPhone();
+		$params = [
+			"pagesize" => 200,
+			"page" => 1,
+			"mm_idx" => $mm_idx,
+			"ru_idx_list" => $ru_idx_list,
+		];
+
+		if ($chatgbn == "chatPanel1") {
+			$result = $this->member_model->getRequestRecruitListBatch($params);
+		} else if ($chatgbn == "chatPanel2") {
+			$result = $this->member_model->getRequestRecruitListSendedBatch($params);
+		} else {
+			json_return("00", "조회성공", ["list" => []]);
+			return;
+		}
+
+		$temp_list = $result["list"];
+		$preview_byte_length = 20;
+
+		// MongoDB 연결하여 나간 채팅방 필터링
+		$uri = $this->mongo_uri;
+		$filtered_list = [];
+
+
+		try {
+			@$mongo = new Mongo($uri);
+			$database = $mongo->{$this->mongo_db};
+			$collection = $database->room;
+
+				foreach ($temp_list as $key => $row) {
+				$user_in_room = true; // 기본값
+
+				// 채팅방이 있는 경우만 MongoDB에서 나간 사용자인지 확인
+				if (isset($row["rm_idx"]) && !empty($row["rm_idx"])) {
+					$rm_idx = (int)$row["rm_idx"];
+					$query = ['rm_idx' => $rm_idx];
+					$room = $collection->findOne($query);
+
+					if ($room) {
+						$user_in_room = false;
+						// rm_users 배열에서 현재 사용자가 있는지 확인 (exit_yn='Y' 체크 포함)
+						$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+
+						foreach ($rm_users as $room_user) {
+							// user_id는 mm_id 또는 mm_phone일 수 있으므로 둘 다 체크
+							$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+							if ($room_user_id == $user_id || $room_user_id == $user_phone) {
+								$user_in_room = true;
+								break;
+							}
+						}
+						$user_exited = is_room_user_exited($rm_users, $user_id, $user_phone);
+
+						// 나간 채팅방은 목록에서 제외
+						if ($user_exited) {
+							continue;
+						}
+
+						// 마지막 메시지 조회 (나가지 않은 사용자만)
+						if ($user_in_room && !$user_exited && isset($room["rm_messages"]) && is_array($room["rm_messages"]) && count($room["rm_messages"]) > 0) {
+							$last_message = end($room["rm_messages"]);
+							if (isset($last_message["mg_type"])) {
+								// 메시지 타입에 따라 우선 처리
+								if ($last_message["mg_type"] === "img") {
+									$temp_list[$key]["last_msg_preview"] = "이미지";
+								} else if ($last_message["mg_type"] === "file") {
+									$temp_list[$key]["last_msg_preview"] = "문서";
+								} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+									// 텍스트 메시지
+									$last_msg = $last_message["mg_text"];
+									// HTML 태그 제거 후 순수 텍스트만 추출
+									$last_msg = strip_tags($last_msg);
+									// 첫 시작부터 20바이트 제한
+									$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+									if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+										$temp_list[$key]["last_msg_preview"] .= "...";
+									}
+								}
+							} else if (isset($last_message["mg_text"]) && !empty($last_message["mg_text"])) {
+								// mg_type이 없는 경우 (호환성)
+								$last_msg = $last_message["mg_text"];
+								// HTML 태그 제거 후 순수 텍스트만 추출
+								$last_msg = strip_tags($last_msg);
+								// 첫 시작부터 20바이트 제한
+								$temp_list[$key]["last_msg_preview"] = mb_substr($last_msg, 0, $preview_byte_length, "UTF-8");
+								if (mb_strlen($last_msg, "UTF-8") > $preview_byte_length) {
+									$temp_list[$key]["last_msg_preview"] .= "...";
+								}
+							}
+							if (isset($last_message["mg_dt"])) {
+								$last_msg_time = $last_message["mg_dt"];
+								// formatChatTime 함수에서 직접 MongoDate 객체를 처리하도록 수정
+								if (method_exists($this, 'formatChatTime')) {
+									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
+								} else {
+									// formatChatTime이 없는 경우에만 변환
+									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
+										$temp_list[$key]["last_msg_time"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+										$temp_list[$key]["up_dt"] = date("Y-m-d H:i:s", $last_msg_time->sec);
+									} else {
+										$temp_list[$key]["last_msg_time"] = $last_msg_time;
+										$temp_list[$key]["up_dt"] = $last_msg_time;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				// 표시용 상태 저장
+				$temp_list[$key]["user_in_room"] = $user_in_room ? "Y" : "N";
+
+				// 데이터 스펙 채우기
+				$temp_list[$key]["ru_resume_img"] = getResumeImg($row);
+				$temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
+				$temp_list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"], "span", 0);
+				$temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"], 0);
+				$temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"], 1);
+				$temp_list[$key]["ru_week"] = getWeekYoil($row["ru_week"]);
+				// 추천 뱃지 필드 추가
+				$temp_list[$key]["ru_recom_badge"] = getRecomBadgeHtml(isset($row["pm_idx"]) ? $row["pm_idx"] : null);
+				// 인재정보 필드 명시적으로 전달 (인재정보 표시용)
+				if (isset($row["ru_name"])) {
+					$temp_list[$key]["ru_name"] = $row["ru_name"];
+				}
+				if (isset($row["ru_idx"])) {
+					$temp_list[$key]["ru_idx"] = $row["ru_idx"];
+				}
+				if (isset($row["mm_name"])) {
+					$temp_list[$key]["mm_name"] = $row["mm_name"];
+				}
+				if (isset($row["mm_nation"])) {
+					$temp_list[$key]["mm_nation"] = $row["mm_nation"];
+				}
+				if (isset($row["ma_age"])) {
+					$temp_list[$key]["ma_age"] = $row["ma_age"];
+				}
+				if (isset($row["ad_addr"])) {
+					$temp_list[$key]["ad_addr"] = $row["ad_addr"];
+				}
+				if (isset($row["rc_idx"])) {
+					$temp_list[$key]["rc_idx"] = $row["rc_idx"];
+				}
+				if (isset($row["rc_name"])) {
+					$temp_list[$key]["rc_name"] = $row["rc_name"];
+				}
+				if (isset($row["target_id"])) {
+					$temp_list[$key]["target_id"] = $row["target_id"];
+				}
+				if (isset($row["user_id"])) {
+					$temp_list[$key]["user_id"] = $row["user_id"];
+				}
+				if (isset($row["target_name"])) {
+					$temp_list[$key]["target_name"] = $row["target_name"];
+				}
+				if (isset($row["user_name"])) {
+					$temp_list[$key]["user_name"] = $row["user_name"];
+				}
+				// 최근 메시지 시간이 있을 때만 up_dt 설정 (MongoDB last_msg_time 사용)
+				if (!empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["up_dt"] = $temp_list[$key]["last_msg_time"];
+				} else {
+					// 메시지가 없으면 up_dt를 빈 값으로
+					$temp_list[$key]["up_dt"] = "";
+				}
+				// mm_sex 정보 명시적으로 전달 (JavaScript에서 기본 아바타 결정에 사용)
+				if (isset($row["mm_sex"])) {
+					$temp_list[$key]["mm_sex"] = $row["mm_sex"];
+				}
+				// rc_thumb가 null/빈 값이면 대체 이미지 적용
+				if (empty($row["rc_thumb"])) {
+					$temp_list[$key]["rc_thumb"] = getRecruitImg($row);
+				}
+
+				// 기본값 설정
+				if (empty($temp_list[$key]["last_msg_preview"])) {
+					$temp_list[$key]["last_msg_preview"] = "";
+				}
+				if (empty($temp_list[$key]["last_msg_time"])) {
+					$temp_list[$key]["last_msg_time"] = "";
+				}
+				if (empty($temp_list[$key]["up_dt"])) {
+					$temp_list[$key]["up_dt"] = "";
+				}
+
+				$filtered_list[] = $temp_list[$key];
+			}
+		} catch (Exception $e) {
+			// MongoDB 실패 시 기본값
+			$filtered_list = $temp_list;
+		}
+
+		$list = $filtered_list;
+
+		json_return("00", "조회성공", ["list" => $list]);
+	}
+
 	//채팅 - 제안보낸인재 리스트
 	function get_chat_target_list2()
 	{

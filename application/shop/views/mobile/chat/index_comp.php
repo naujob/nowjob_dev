@@ -109,30 +109,21 @@ $top_bar = array(
           return $.Deferred().resolve([]);
         }
 
-        var ajaxPromises = [];
-        recruitList.forEach(function(recruitRow) {
-          var promise = $.ajax({
-            type: "POST",
-            url: "/chat_proc/get_chat_target_list",
-            data: {
-              ru_idx: recruitRow.rc_idx,
-              chatgbn: chatgbn
-            }
-          }).then(function(data) {
-            return data;
-          });
-          ajaxPromises.push(promise);
-        });
+        // 공고 idx 배열 생성
+        var ru_idx_list = recruitList.map(function(r) { return r.rc_idx; });
 
-        return $.when.apply($, ajaxPromises).then(function() {
-          var responses = Array.prototype.slice.call(arguments);
-          var rows = [];
-          responses.forEach(function(response) {
-            if (response && response.code == "00" && response.data && response.data.list) {
-              rows = rows.concat(response.data.list);
-            }
-          });
-          return rows;
+        return $.ajax({
+          type: "POST",
+          url: "/chat_proc/get_chat_target_list_batch",
+          data: {
+            ru_idx_list: ru_idx_list,
+            chatgbn: chatgbn
+          }
+        }).then(function(response) {
+          if (response && response.code == "00" && response.data && response.data.list) {
+            return response.data.list;
+          }
+          return [];
         });
       };
 
