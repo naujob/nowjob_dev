@@ -51,7 +51,7 @@ container.insertRoom = async function (data, callback) {
 	};
 
 	// 🔥 DEBUG: room 생성 로깅
-	console.log('[insertRoom] room 생성 - rm_idx: ' + data.rm_idx + ', chat_type: ' + (chat_room.chat_type || 'NONE'));
+	
 
 	//디비 등록
 	var ret = await $db.cs_room.insertOne(chat_room);
@@ -70,7 +70,7 @@ container.getRoom = async function (params) {
 	var ret = await $db.cs_room.findOne({ rm_idx: params.rm_idx }, { projection: { rm_idx: 1, rm_type: 1, chat_type: 1, user_info: 1, rm_subject: 1, rm_last_msg: 1, rm_last_dt: 1, rm_users: 1 } });
 
 	// 🔥 DEBUG: 조회 결과 로깅
-	console.log('[getRoom] 조회 - rm_idx: ' + params.rm_idx + ', chat_type: ' + (ret && ret.chat_type ? ret.chat_type : 'NONE') + ', rm_users 개수: ' + (ret && ret.rm_users ? ret.rm_users.length : 0));
+
 
 	if (ret != null) {
 		// 나간 채팅방인지 확인 (exit_yn='Y' 체크)
@@ -143,11 +143,10 @@ container.getRoom = async function (params) {
 //방정보 리스트 조회
 container.getRoomMessages = async function (params) {
 	// 🔥 DEBUG: 입력 파라미터 로깅
-	console.log('[getRoomMessages] 시작 - rm_idx: ' + params.rm_idx + ', skip: ' + params.skip + ', limit: ' + params.limit + ', chat_type: ' + (params.chat_type || 'NONE') + ', con_user_id: ' + (params.con_user_id || 'NONE'));
-
+	
 	// ⚠️ 추적: con_user_id 누락 검사
 	if (!params.con_user_id || params.con_user_id === "") {
-		console.log('[getRoomMessages] ⚠️ con_user_id 누락! rm_idx=' + params.rm_idx + ' (exit_dt 필터링 스킵, 하위호환 모드)');
+	
 	}
 
 	// exit_dt 기반 메시지 필터링을 위해 방의 rm_users에서 현재 사용자 찾기
@@ -158,12 +157,12 @@ container.getRoomMessages = async function (params) {
 			for (var i = 0; i < room.rm_users.length; i++) {
 				if (room.rm_users[i].user_id === params.con_user_id) {
 					exit_dt = room.rm_users[i].exit_dt || null;
-					console.log('[getRoomMessages] rm_users 매칭 성공 - user_id=' + params.con_user_id + ', exit_dt=' + (exit_dt ? exit_dt : '없음'));
+				
 					break;
 				}
 			}
 			if (exit_dt === null) {
-				console.log('[getRoomMessages] rm_users 매칭 실패 - 사용자를 찾지 못함 (user_id=' + params.con_user_id + ')');
+				
 			}
 		}
 	}
@@ -176,22 +175,28 @@ container.getRoomMessages = async function (params) {
 
 	// exit_dt가 존재하면 해당 시각 이후의 메시지만 필터링
 	if (exit_dt) {
-		// 모든 메시지 타입(system_exit, timeline, 일반 메시지 포함)을 동일하게 exit_dt 기준으로 필터링
-		// system_exit 메시지의 mg_dt는 exit_dt와 같은 update 호출에서 생성되므로 exit_dt 이상이 보장됨
+		// exit_dt 이후 메시지 중, "본인이 보낸 자신의 system_exit 메시지"는 명시적으로 제외
+		// (본인에게는 자신이 나간 경계 메시지가 재입장 후에 다시 보이면 안 됨)
 		aggregationPipeline.push({
 			$match: {
-				'rm_messages.mg_dt': { $gt: exit_dt }
+				$and: [
+					{ 'rm_messages.mg_dt': { $gt: exit_dt } },
+					{ $or: [
+						{ 'rm_messages.mg_type': { $ne: 'system_exit' } },
+						{ 'rm_messages.user_id': { $ne: params.con_user_id } }
+					]}
+				]
 			}
 		});
-		console.log('[getRoomMessages] exit_dt 필터링 적용 (모든 메시지 타입): ' + exit_dt);
+	
 	} else if (params.con_user_id && params.con_user_id !== "") {
-		console.log('[getRoomMessages] exit_dt가 없어서 필터링 미적용 (첫 입장 또는 나간 적 없는 사용자)');
+		
 	}
 
 	// 🔥 chat_type이 제공된 경우에만 메시지 레벨에서 필터링
 	if (params.chat_type) {
 		aggregationPipeline.push({ $match: { 'rm_messages.chat_type': params.chat_type } });
-		console.log('[getRoomMessages] chat_type 필터링 적용: ' + params.chat_type);
+		
 	}
 
 	aggregationPipeline.push(
@@ -212,10 +217,10 @@ container.getRoomMessages = async function (params) {
 	var ret = await $db.cs_room.aggregate(aggregationPipeline).toArray();
 
 	// 🔥 DEBUG: 조회 결과 로깅
-	console.log('[getRoomMessages] 조회 완료 - rm_idx: ' + params.rm_idx + ', 메시지 개수: ' + (ret ? ret.length : 0) + (exit_dt ? ', exit_dt 필터링 적용됨' : ''));
+
 
 	if (Array.isArray(ret) && ret.length > 0) {
-		console.log('[getRoomMessages] 첫 메시지 - mg_idx: ' + (ret[0].rm_messages ? ret[0].rm_messages.mg_idx : 'N/A') + ', mg_dt: ' + (ret[0].rm_messages ? ret[0].rm_messages.mg_dt : 'N/A') + ', chat_type: ' + (ret[0].rm_messages ? ret[0].rm_messages.chat_type : 'N/A'));
+	
 	}
 
 	return ret;
@@ -462,6 +467,7 @@ container.insertMessage = async function (data, callback) {
 
 		if (last_msg == null) {
 			date_line = "Y";
+			
 		} else {
 			var last_date = new Date(last_msg.rm_messages.mg_dt);
 			var current_ymd = $common.getFormatDate(new Date(), "ymd");
@@ -470,18 +476,12 @@ container.insertMessage = async function (data, callback) {
 			//날짜가 지난날이라면 날짜 라인 추가한다.
 			if (last_ymd < current_ymd) {
 				date_line = "Y";
-			} else if (last_ymd === current_ymd && date_line === "N" && room_info.rm_users && Array.isArray(room_info.rm_users)) {
-				// 같은 날이면서 exit_dt가 있으면, 시분초 단위로 비교 (재입장 후 새로운 타임라인)
-				for (var i = 0; i < room_info.rm_users.length; i++) {
-					if (room_info.rm_users[i].user_id === data.user_id && room_info.rm_users[i].exit_dt) {
-						var user_exit_dt = new Date(room_info.rm_users[i].exit_dt);
-						// 마지막 메시지가 exit_dt 이전이면 타임라인 생성 (첫 재입장 메시지만)
-						if (last_date < user_exit_dt) {
-							date_line = "Y";
-							console.log('[insertMessage] 재입장 후 타임라인 생성 (시분초 비교) - rm_idx: ' + data.rm_idx + ', user_id: ' + data.user_id + ', last_date: ' + last_date + ', exit_dt: ' + user_exit_dt);
-						}
-						break;
-					}
+				
+			} else if (last_ymd === current_ymd && date_line === "N") {
+				// 같은 날: 마지막 메시지가 "본인의 system_exit 메시지"이면 재입장 후로 간주 → 타임라인 무조건 생성
+				if (last_msg.rm_messages.mg_type === 'system_exit' && last_msg.rm_messages.user_id === data.user_id) {
+					date_line = "Y";
+					
 				}
 			}
 
@@ -514,6 +514,8 @@ container.insertMessage = async function (data, callback) {
 			// rm_users가 없으면 현재 사용자만 읽음 처리
 			read_users.push({ user_id: data.user_id, read_yn: 'Y' });
 		}
+
+		
 
 		if (date_line == "Y") {
 			var mg_idx = await $db.getNextSequence('message');
@@ -559,7 +561,7 @@ container.insertMessage = async function (data, callback) {
 			mg_resume_data: data.mg_resume_data || ""
 		};
 
-			console.log('[insertMessage] rm_idx=' + data.rm_idx + ' mg_idx=' + mg_idx + ' 태깅 완료');
+		
 			//$common.writeLog('[insertMessage] MongoDB에 메시지 저장 - rm_idx: ' + data.rm_idx + ', mg_idx: ' + mg_idx + ', chat_type: ' + message.chat_type + ', mg_text: ' + message.mg_text);
 
 		//디비 등록

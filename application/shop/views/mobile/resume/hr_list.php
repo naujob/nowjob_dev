@@ -1067,15 +1067,7 @@ $tpl_show_toggle = false; ?>
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
           // 로그: AJAX 응답 데이터 확인
-          BrowserLogger.info('AJAX /resume_proc/search_list2025 응답', {
-            total: ret.data.total,
-            list_length: ret.data.list.length,
-            first_row: ret.data.list.length > 0 ? {
-              ru_idx: ret.data.list[0].ru_idx,
-              chat_rm_idx: ret.data.list[0].chat_rm_idx,
-              chat_type: ret.data.list[0].chat_type
-            } : null
-          });
+      
 
           $(list_id).empty(); // 매번 초기화
           total_count = ret.data.total || 0;
@@ -1085,7 +1077,7 @@ $tpl_show_toggle = false; ?>
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
           updateTopSectionsVisibility();
         } else {
-          BrowserLogger.info('AJAX 응답 실패 또는 데이터 없음', {code: ret.code});
+         
         }
       },
       error: function(xhr, status, error) {
@@ -1100,12 +1092,7 @@ $tpl_show_toggle = false; ?>
     list.forEach(function(row, index) {
       // 로그: 각 행의 채팅 정보 확인
       if (row.chat_rm_idx || row.chat_type) {
-        BrowserLogger.info('showBoardList 처리 - 채팅 정보', {
-          index: index,
-          ru_idx: row.ru_idx,
-          chat_rm_idx: row.chat_rm_idx,
-          chat_type: row.chat_type
-        });
+        
       }
 
       // template 태그에서 내용 추출
@@ -1280,26 +1267,14 @@ $tpl_show_toggle = false; ?>
     var visible = $mark.data('visible');
 
     // 로그: 클릭 이벤트 확인
-    BrowserLogger.info('chat_mark 클릭', {
-      rmIdx: rmIdx,
-      chatType: chatType,
-      visible: visible,
-      parentLiRuIdx: $mark.closest('li').find('[data-ru_idx]').data('ru_idx'),
-      parentContentRuIdx: $mark.closest('.content-li').data('ru_idx')
-    });
+ 
 
     if (rmIdx) {
       var targetUrl = '/chat/chat_view?rm_idx=' + rmIdx + '&from=hr_list';
-      BrowserLogger.info('chat_mark 이동', {
-        targetUrl: targetUrl
-      });
+   
       location.href = targetUrl;
     } else {
-      BrowserLogger.error('chat_mark 클릭 오류', {
-        message: 'rm_idx가 비어있음',
-        chatType: chatType,
-        visible: visible
-      });
+      
     }
   });
 
@@ -1425,17 +1400,7 @@ $tpl_show_toggle = false; ?>
 
     // 로그: 서버사이드 렌더링된 1페이지 카드들의 chat_type 확인
     var chatMarks = document.querySelectorAll('.chat_mark');
-    BrowserLogger.info('DOMContentLoaded - 초기 렌더링된 chat_mark 개수', {
-      total_chat_marks: chatMarks.length,
-      samples: Array.from(chatMarks).slice(0, 3).map(function(el) {
-        return {
-          data_visible: el.getAttribute('data-visible'),
-          data_chat_type: el.getAttribute('data-chat_type'),
-          data_rm_idx: el.getAttribute('data-rm_idx'),
-          computed_background: window.getComputedStyle(el).backgroundImage
-        };
-      })
-    });
+   
 
     // 스크롤 차단 방지: 초기 진입 시 html/body overflow 해제
     $('html, body').css({

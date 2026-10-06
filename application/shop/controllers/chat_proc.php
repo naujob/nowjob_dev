@@ -2851,6 +2851,7 @@ json_return("00", "조회완료", $data);
 					// 나가는 사용자: exit_yn='Y', exit_dt 설정
 					$rm_users[$key]["exit_yn"] = "Y";
 					$rm_users[$key]["exit_dt"] = new MongoDate();
+				
 				} else {
 					// 다른 사용자: exit_yn이 없거나 'N'이면 all_exited = false
 					if (!isset($room_user["exit_yn"]) || $room_user["exit_yn"] != "Y") {
@@ -2902,6 +2903,7 @@ json_return("00", "조회완료", $data);
 				"mg_dt" => new MongoDate(),
 				"mg_reads" => []
 			];
+		
 
 			// 나머지 사용자들에게 읽음 상태 설정
 			foreach ($rm_users as $room_user) {
