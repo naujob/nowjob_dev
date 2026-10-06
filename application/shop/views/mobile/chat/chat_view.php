@@ -21,6 +21,8 @@
 <input type="hidden" id="is_direct_chat" value="<?= isset($is_direct_chat) && $is_direct_chat ? 'Y' : 'N' ?>" />
 <!-- 상대방의 대표이력서 ru_idx (다이렉트 채팅에서 ru_idx 없을 때 대비용, 기업회원 전용) -->
 <input type="hidden" id="opponent_main_resume_ru_idx" value="<?= isset($opponent_main_resume['ru_idx']) ? $opponent_main_resume['ru_idx'] : '' ?>" />
+<!-- 상대방의 대표채용공고 rc_idx (다이렉트 채팅에서 rc_idx 없을 때 대비용, 개인회원 전용) -->
+<input type="hidden" id="opponent_main_recruit_rc_idx" value="<?= isset($opponent_main_recruit['rc_idx']) ? $opponent_main_recruit['rc_idx'] : '' ?>" />
 
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
@@ -378,8 +380,10 @@
         <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;margin: -10px 0 0;">
           <?php if ($user_type == "COMP"): ?>
             <?php
-            $profileImg = getResumeImg($resume);
-            $mmSex = isset($resume["mm_sex"]) ? trim($resume["mm_sex"]) : "";
+            // 다이렉트 채팅의 경우 대표이력서 사용, 정식 제안의 경우 현재 이력서 사용
+            $displayResume = ($is_direct_chat && isset($opponent_main_resume) && !empty($opponent_main_resume)) ? $opponent_main_resume : $resume;
+            $profileImg = getResumeImg($displayResume);
+            $mmSex = isset($displayResume["mm_sex"]) ? trim($displayResume["mm_sex"]) : "";
             $defaultAvatar = "/resource/shop/web/img/avatar_resume_w.png";
             if ($mmSex === "남") {
               $defaultAvatar = "/resource/shop/web/img/avatar_icon2_m.png";
@@ -388,7 +392,7 @@
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 60px; overflow: hidden; flex-shrink: 0;">
               <img src="<?= $profileImg ?>" alt="프로필" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
             </div>
-            <span><?= $resume["mm_name"] ?></span>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;"><?= isset($displayResume["ru_name"]) ? $displayResume["ru_name"] : "" ?></span>
           <?php else: ?>
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
               <img src="<?= !empty($recruit["rc_thumb"]) ? $recruit["rc_thumb"] : "" ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
@@ -1250,24 +1254,37 @@
             rmSubject.addEventListener('click', function(e) {
                 e.preventDefault();
                 var userType = $("[name='user_type']").val();
+                var isDirectChat = document.getElementById('is_direct_chat').value === 'Y';
 
                 if (userType === "COMP") {
                     // 기업회원: 개인회원의 대표이력서를 팝업으로 열기
-                    var ruIdx = "<?= isset($resume['ru_idx']) ? $resume['ru_idx'] : '' ?>";
+                    var ruIdx = "";
 
-                    // ru_idx가 없으면 opponent_main_resume_ru_idx 사용 (다이렉트 채팅의 경우)
-                    if (!ruIdx) {
+                    if (isDirectChat) {
+                        // 다이렉트 채팅: 더미 ru_idx 무시하고 opponent_main_resume_ru_idx 사용
                         ruIdx = document.getElementById('opponent_main_resume_ru_idx').value;
+                    } else {
+                        // 정식 제안/지원: 실제 ru_idx 사용
+                        ruIdx = "<?= isset($resume['ru_idx']) ? $resume['ru_idx'] : '' ?>";
                     }
 
                     if (ruIdx && typeof window.openHrPostPopup === 'function') {
                         window.openHrPostPopup(ruIdx);
                     }
                 } else {
-                    // 개인회원: 채용공고 상세페이지로 이동
-                    var rcIdx = "<?= isset($recruit['rc_idx']) ? $recruit['rc_idx'] : '' ?>";
-                    if (rcIdx) {
-                        window.location.href = '/recruit/job_post/' + rcIdx;
+                    // 개인회원: 기업회원의 채용공고 상세페이지로 이동
+                    var rcIdx = "";
+
+                    if (isDirectChat) {
+                        // 다이렉트 채팅: 더미 rc_idx 무시하고 opponent_main_recruit_rc_idx 사용
+                        rcIdx = document.getElementById('opponent_main_recruit_rc_idx').value;
+                    } else {
+                        // 정식 지원: 실제 rc_idx 사용
+                        rcIdx = "<?= isset($recruit['rc_idx']) ? $recruit['rc_idx'] : '' ?>";
+                    }
+
+                    if (rcIdx && typeof window.openJobPostPopup === 'function') {
+                        window.openJobPostPopup(rcIdx);
                     }
                 }
             });

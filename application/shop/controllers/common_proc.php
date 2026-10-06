@@ -872,8 +872,8 @@ class Common_proc extends CI_Controller
 
 	// 나(my_mm_idx)와 상대방(opponent_mm_idx) 사이에 이미 존재하는 recruit 타입 방을 찾는다.
 	// st_room.mm_idx(생성자)에는 의존하지 않고, 방에 연결된 공고 주인/이력서 주인의 조합으로 판별한다.
-	// 제안(RESUME)과 지원(RECRUIT)을 분리하기 위해 mq_type을 받아 st_member_request의 같은 방향 요청을 확인
-	// mq_type에 RECRUIT_DIRECT, RESUME_DIRECT 등 접미사도 지원 (접두사로 판별)
+	// mq_type은 "그룹" 판별용으로만 쓴다 — RECRUIT/RESUME(정식)끼리, RECRUIT_DIRECT/RESUME_DIRECT(다이렉트)끼리
+	// 방향 상관없이 같은 방을 재사용하며, 정식 그룹과 다이렉트 그룹은 서로 섞이지 않는다.
 	private function find_existing_room_by_opponent($my_mm_idx, $opponent_mm_idx, $mq_type)
 	{
 		if (empty($my_mm_idx) || empty($opponent_mm_idx)) {
@@ -894,6 +894,14 @@ class Common_proc extends CI_Controller
 			return null;
 		}
 
+		// 방 재사용은 "그룹" 단위로 판단한다.
+		// - DIRECT 그룹(RECRUIT_DIRECT / RESUME_DIRECT): 방향 상관없이 같은 상대면 같은 방 재사용
+		// - 정식 그룹(RECRUIT / RESUME): 방향 상관없이 같은 상대면 같은 방 재사용
+		// - 두 그룹은 서로 섞이지 않는다 (DIRECT 방과 정식 방은 별개의 rm_idx)
+		$is_direct = (strpos($mq_type, "_DIRECT") !== false);
+		$same_group_types = $is_direct ? ["RECRUIT_DIRECT", "RESUME_DIRECT"] : ["RECRUIT", "RESUME"];
+		$other_group_types = $is_direct ? ["RECRUIT", "RESUME"] : ["RECRUIT_DIRECT", "RESUME_DIRECT"];
+
 		$sql = "
 			SELECT room.rm_idx
 			FROM st_room room
@@ -903,34 +911,23 @@ class Common_proc extends CI_Controller
 			AND rc.mm_idx = ? AND ru.mm_idx = ?
 			AND EXISTS (
 				SELECT 1 FROM st_member_request mq
-				WHERE mq.rm_idx = room.rm_idx AND mq.mq_type = ?
+				WHERE mq.rm_idx = room.rm_idx AND mq.mq_type IN (?, ?)
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM st_member_request mq2
+				WHERE mq2.rm_idx = room.rm_idx AND mq2.mq_type IN (?, ?)
 			)
 		";
 
-		// SQL 물음표 순서: rc.mm_idx, ru.mm_idx, mq.mq_type, (정식 검색시만) mq2.mq_type LIKE
-		$sql_params = [$owner_params[0], $owner_params[1], $mq_type];
-
-
-		// 정식 지원/제안(_DIRECT 접미사 없음)을 찾는 경우, DIRECT 방 제외
-		if (strpos($mq_type, "_DIRECT") === false) { // 찾았으면: 위치 번호를 반환 
-			$sql .= "
-				AND NOT EXISTS (
-					SELECT 1 FROM st_member_request mq2
-					WHERE mq2.rm_idx = room.rm_idx AND mq2.mq_type LIKE ?
-				)
-			";
-			$sql_params[] = "%_DIRECT";
-		} else {
-			// 다이렉트 방을 찾는 경우, 정식 방 제외
-			$base_mq_type = str_replace("_DIRECT", "", $mq_type); // str_replace(찾을문자열, 바꿀문자열, 원본문자열);
-			$sql .= "
-				AND NOT EXISTS (
-					SELECT 1 FROM st_member_request mq2
-					WHERE mq2.rm_idx = room.rm_idx AND mq2.mq_type = ?
-				)
-			";
-			$sql_params[] = $base_mq_type;
-		}
+		// SQL 물음표 순서: rc.mm_idx, ru.mm_idx, 같은 그룹 타입 2개, 반대 그룹 타입 2개
+		$sql_params = [
+			$owner_params[0],
+			$owner_params[1],
+			$same_group_types[0],
+			$same_group_types[1],
+			$other_group_types[0],
+			$other_group_types[1]
+		];
 
 		$sql .= "
 			ORDER BY room.rm_idx DESC
