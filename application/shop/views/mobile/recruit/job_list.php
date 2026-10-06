@@ -903,6 +903,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       .item-info .amount {
         letter-spacing: -2px;
       }
+
+      .result-list-card .content-info .summary-with-chat .summary { min-width: 0; }
+      .result-list-card .content-info .summary-with-chat .chat_mark[data-visible="false"] { display: none; }
     </style>
     <div class="container">
        <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">채용공고</h2>
@@ -939,8 +942,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                     <p><?= $row['rc_nation_nm'] ?></p>
                     <p><?= $row['rc_age_nm'] ?></p>
                   </div>
-                  <div class="summary area">
-                    <p><?= mb_strlen($row['ad_addr']) > 20 ? mb_substr($row['ad_addr'], 0, 20) . '...' : $row['ad_addr'] ?></p>
+                  <div class="summary-with-chat">
+                    <div class="summary area">
+                      <p><?= mb_strlen($row['ad_addr']) > 20 ? mb_substr($row['ad_addr'], 0, 20) . '...' : $row['ad_addr'] ?></p>
+                    </div>
+                    <?php if (isset($row['chat_rm_idx']) && !empty($row['chat_rm_idx'])): ?>
+                    <div class="chat_mark" data-visible="<?= isset($row['chat_rm_idx']) && !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>" data-chat_type="<?= isset($row['chat_type']) ? $row['chat_type'] : '' ?>" data-rm_idx="<?= isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '' ?>"></div>
+                    <?php endif; ?>
                   </div>
                 </div>
                 <div class="summary-container">
@@ -1014,7 +1022,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 <?php $tpl_id = 'tpl_list';
 $tpl_recomm_class = true;
-$tpl_show_toggle = false; ?>
+$tpl_show_toggle = false;
+$tpl_show_chat_mark = true; ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 
 <template id="tpl_category">
@@ -1298,6 +1307,9 @@ $tpl_show_toggle = false; ?>
       $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
       $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || '');
       $content = $content.replaceAll("{{status_label}}", statusLabel);
+      $content = $content.replaceAll("{{has_chat}}", row.chat_rm_idx ? "true" : "false");
+      $content = $content.replaceAll("{{chat_rm_idx}}", row.chat_rm_idx || '');
+      $content = $content.replaceAll("{{chat_type}}", row.chat_type || '');
 
       $clone.html($content);
       $(list_id).append($clone.html());
@@ -1641,9 +1653,27 @@ $tpl_show_toggle = false; ?>
     if ($(e.target).closest('.ad-item-adsense').length) {
       return;
     }
+    // 채팅 마크 클릭은 무시 (별도 핸들러에서 처리)
+    if ($(e.target).closest('.chat_mark').length) {
+      return;
+    }
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
       window.openJobPostPopup(rcIdx);
+    }
+  });
+
+  // 채팅 마크 클릭 시 채팅방으로 이동
+  $(document).on('click', '.chat_mark', function(e) {
+    e.stopPropagation();
+    var $mark = $(this);
+    var rmIdx = $mark.data('rm_idx');
+    var chatType = $mark.data('chat_type');
+    var visible = $mark.data('visible');
+
+    if (rmIdx) {
+      var targetUrl = '/chat/chat_view?rm_idx=' + rmIdx + '&from=job_list';
+      location.href = targetUrl;
     }
   });
 

@@ -2876,22 +2876,20 @@ json_return("00", "조회완료", $data);
 				return;
 			}
 
-			// MongoDB 업데이트: rm_users 배열 업데이트
-			$update_data = ['$set' => ['rm_users' => $rm_users]];
-
-			// 모든 사용자가 나갔으면 rm_status를 'CLOSED'로 설정
-			if ($all_exited) {
-				$update_data['$set']['rm_status'] = 'CLOSED';
-				// 방의 모든 첨부파일 즉시 삭제
-				$this->_delete_room_attachment_files(isset($room["rm_messages"]) ? $room["rm_messages"] : []);
+			// mg_idx 채번: Node.js와 동일한 table_key 컬렉션 사용
+			// PHP 5.4 호환성을 위해 find+update 패턴 사용 (기존 key_mongodb 헬퍼와 동일)
+			$counter_collection = $database->table_key;
+			$counter = $counter_collection->findOne(['_id' => 'message']);
+			if (!$counter) {
+				$counter_collection->insert(['_id' => 'message', 'seq' => 0]);
+				$counter = ['seq' => 0];
 			}
+			$counter_collection->update(['_id' => 'message'], ['$inc' => ['seq' => 1]]);
+			$mg_idx = (int)$counter['seq'] + 1;
 
-			$update_result = $collection->update($query, $update_data);
-
-			// 시스템 메시지 생성 및 전송
-			// 소켓을 통해 시스템 메시지 전송 (실시간 알림)
-			// 소켓이 없으면 AJAX로 처리하거나 소켓 서버에 직접 요청
+			// 시스템 메시지 생성
 			$system_message = [
+				"mg_idx" => $mg_idx,
 				"rm_idx" => (int)$rm_idx,
 				"user_id" => $user_id,
 				"chat_type" => "recruit",
@@ -2901,7 +2899,7 @@ json_return("00", "조회완료", $data);
 				"mg_img" => "",
 				"mg_file" => "",
 				"mg_imoti" => "",
-				"mg_dt" => date("Y-m-d H:i:s"),
+				"mg_dt" => new MongoDate(),
 				"mg_reads" => []
 			];
 
@@ -2914,6 +2912,21 @@ json_return("00", "조회완료", $data);
 					];
 				}
 			}
+
+			// MongoDB 업데이트: rm_users 배열 업데이트 + 시스템 메시지 저장
+			$update_data = [
+				'$set' => ['rm_users' => $rm_users],
+				'$push' => ['rm_messages' => $system_message]
+			];
+
+			// 모든 사용자가 나갔으면 rm_status를 'CLOSED'로 설정
+			if ($all_exited) {
+				$update_data['$set']['rm_status'] = 'CLOSED';
+				// 방의 모든 첨부파일 즉시 삭제
+				$this->_delete_room_attachment_files(isset($room["rm_messages"]) ? $room["rm_messages"] : []);
+			}
+
+			$update_result = $collection->update($query, $update_data);
 
 			//error_log('[Chat] exit_room 성공 - rm_idx: ' . $rm_idx . ', user_id: ' . $user_id . ', all_exited: ' . ($all_exited ? 'true' : 'false'));
 			json_return("00", "채팅방을 나갔습니다.", [

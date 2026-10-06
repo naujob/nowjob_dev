@@ -443,6 +443,7 @@ class Recruit extends CI_Controller
     // 초기 데이터 포맷팅
     if ($use_server_render) {
       $initial_recruits['list'] = $this->_formatRecruitList($initial_recruits['list']);
+      $initial_recruits['list'] = $this->_addChatRoomInfo($initial_recruits['list']);
     }
 
     // 전체 채용공고 개수 조회 (COUNT 쿼리)
@@ -1416,5 +1417,134 @@ class Recruit extends CI_Controller
     $this->db->trans_commit();
 
     echo date("Y-m-d H:i:s") . " end\n";
+  }
+
+  // 공고 목록에 채팅 배지 정보 추가 (mm_idx 기준 최신 1건 모델)
+  private function _addChatRoomInfo($list)
+  {
+    if (empty($list)) {
+      return $list;
+    }
+
+    // 로그인한 개인회원이 아니면 배지 숨김
+    if ($this->user->getUserType() !== 'MEM') {
+      foreach ($list as &$row) {
+        $row['chat_rm_idx'] = '';
+        $row['chat_type'] = '';
+      }
+      return $list;
+    }
+
+    // 정식 공고 idx와 그들의 mm_idx(공고를 올린 회사) 추출
+    $rc_idxs = array();
+    $mm_idxs = array();
+    foreach ($list as $row) {
+      $rc_idxs[] = $row['rc_idx'];
+      if (!in_array($row['mm_idx'], $mm_idxs)) {
+        $mm_idxs[] = $row['mm_idx'];
+      }
+    }
+
+    // 각 mm_idx의 더미 공고(rc_auto_yn='Y') 조회
+    $dummy_result = array();
+    if (!empty($mm_idxs)) {
+      $dummy_result = $this->db->query("
+        SELECT mm_idx, rc_idx
+        FROM st_recruit
+        WHERE mm_idx IN (" . implode(',', array_fill(0, count($mm_idxs), '?')) . ")
+          AND rc_auto_yn = 'Y'
+      ", $mm_idxs)->result_array();
+
+      foreach ($dummy_result as $dummy) {
+        if (!in_array($dummy['rc_idx'], $rc_idxs)) {
+          $rc_idxs[] = $dummy['rc_idx'];
+        }
+      }
+    }
+
+    // rc_idx → mm_idx 역방향 맵 구성 (정식 + 더미 함께)
+    $rc_idx_to_mm_idx = array();
+    // 정식 공고
+    foreach ($list as $row) {
+      $rc_idx_to_mm_idx[$row['rc_idx']] = $row['mm_idx'];
+    }
+    // 더미 공고
+    foreach ($dummy_result as $dummy) {
+      $rc_idx_to_mm_idx[$dummy['rc_idx']] = $dummy['mm_idx'];
+    }
+
+    // st_member_request 배치 조회
+    // mq_type으로 아이콘 종류 판단 (rc_auto_yn 사용 안 함)
+    // 전체를 mq_idx DESC로 정렬 (mm_idx당 최신 1건 선택 위함)
+    $chat_rooms = $this->db->query("
+      SELECT
+        mr.rc_idx,
+        mr.mq_type,
+        mr.rm_idx
+      FROM st_member_request mr
+      WHERE mr.rc_idx IN (" . implode(',', array_fill(0, count($rc_idxs), '?')) . ")
+        AND mr.mq_type IN ('RECRUIT','RECRUIT_DIRECT')
+        AND mr.mm_idx = ?
+      ORDER BY mr.mq_idx DESC
+    ", array_merge($rc_idxs, array($this->mm_idx)))->result_array();
+
+    // mm_idx 단위로 첫 등장(=최신) 1건만 채택
+    $room_by_mm_idx = array();
+    foreach ($chat_rooms as $room) {
+      // rc_idx → mm_idx 역방향 조회
+      $owner_mm_idx = isset($rc_idx_to_mm_idx[$room['rc_idx']]) ? $rc_idx_to_mm_idx[$room['rc_idx']] : null;
+
+      // 해당 회사의 최신 요청을 이미 찾았으면 스킵 (DESC 정렬이므로 먼저 나온 게 최신)
+      if ($owner_mm_idx === null || isset($room_by_mm_idx[$owner_mm_idx])) {
+        continue;
+      }
+
+      // mq_type으로 아이콘 종류 판단
+      $chat_type = (strpos($room['mq_type'], '_DIRECT') !== false) ? 'direct' : 'apply';
+
+      $room_by_mm_idx[$owner_mm_idx] = array(
+        'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
+        'chat_type' => $chat_type
+      );
+    }
+
+    // 나간 방(exit_yn='Y')을 배치로 조회
+    $rm_idxs_to_check = array();
+    foreach ($room_by_mm_idx as $room_info) {
+      if (!empty($room_info['rm_idx'])) {
+        $rm_idxs_to_check[] = $room_info['rm_idx'];
+      }
+    }
+
+    $exited_rm_idxs = array();
+    if (!empty($rm_idxs_to_check)) {
+      $exited_rm_idxs = get_exited_rm_idxs($rm_idxs_to_check, $this->user->getUserId(), $this->user->getUserPhone());
+      error_log("[recruit.php _addChatRoomInfo] rm_idxs_to_check=" . json_encode($rm_idxs_to_check) . ", exited_rm_idxs=" . json_encode($exited_rm_idxs));
+    }
+    $exited_set = array_flip($exited_rm_idxs);
+
+    // 목록에 chat_rm_idx와 chat_type 추가
+    // mm_idx로 직접 조회 (우선순위 비교 없음)
+    foreach ($list as &$row) {
+      $owner_mm_idx = $row['mm_idx'];
+
+      if (isset($room_by_mm_idx[$owner_mm_idx])) {
+        $rm_idx = $room_by_mm_idx[$owner_mm_idx]['rm_idx'];
+
+        // 나간 방이면 배지 숨김
+        if (isset($exited_set[$rm_idx])) {
+          $row['chat_rm_idx'] = '';
+          $row['chat_type'] = '';
+        } else {
+          $row['chat_rm_idx'] = $rm_idx;
+          $row['chat_type'] = $room_by_mm_idx[$owner_mm_idx]['chat_type'];
+        }
+      } else {
+        $row['chat_rm_idx'] = '';
+        $row['chat_type'] = '';
+      }
+    }
+
+    return $list;
   }
 }

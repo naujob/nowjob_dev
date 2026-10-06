@@ -6345,10 +6345,7 @@ LIMIT 0 , 200
 	// 5분 제한: 최근 5분 이내 중복 제안/지원 여부 확인
 	function checkDuplicateRequestWithinFiveMin($mq_type, $rc_idx, $ru_idx)
 	{
-		// 테스트 중 5분 제한 임시 비활성화 - 나중에 원래 로직으로 복구 필요
-		return false;
-
-		/*
+		// 5분 이내 중복 제안 체크 (RECRUIT/RESUME 공용)
 		$query = "
 			SELECT sum(cnt) as total_cnt FROM (
 				SELECT count(*) cnt FROM st_member_request
@@ -6369,6 +6366,5 @@ LIMIT 0 , 200
 		$count = $result->row_array();
 
 		return (isset($count["total_cnt"]) && intval($count["total_cnt"]) > 0);
-		*/
 	}
 }

@@ -166,9 +166,11 @@ function customBack() {
                     applied: '/chat/chat_list',
                     proposed_job: '/chat/chat_list',
                     talent_received: '/chat/index_comp',
-                    talent_sent: '/chat/index_comp'
+                    talent_sent: '/chat/index_comp',
+                    hr_list: '/chat/index_comp',
+                    job_list: '/chat/chat_list'
                 };
-                backUrl = backMap[from] || '/chat/chat_list';
+                backUrl = backMap[from] || '/chat/index_comp';
             }
 
             const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || []; 
@@ -917,9 +919,11 @@ function handleAndroidBack() {
                     applied: '/chat/chat_list',
                     proposed_job: '/chat/chat_list',
                     talent_received: '/chat/index_comp',
-                    talent_sent: '/chat/index_comp'
+                    talent_sent: '/chat/index_comp',
+                    hr_list: '/chat/index_comp',
+                    job_list: '/chat/chat_list'
                 };
-                backUrl = backMap[from] || '/chat/chat_list';
+                backUrl = backMap[from] || '/chat/index_comp';
             }
 
             location.replace(backUrl);

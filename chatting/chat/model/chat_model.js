@@ -174,16 +174,16 @@ container.getRoomMessages = async function (params) {
 		{ $unwind: '$rm_messages' }
 	];
 
-	// exit_dt가 존재하면 해당 시각 이후의 메시지만 필터링 (system_exit 제외, timeline 포함)
+	// exit_dt가 존재하면 해당 시각 이후의 메시지만 필터링
 	if (exit_dt) {
-		// system_exit 제외, timeline과 일반 메시지 모두 exit_dt 기준으로 필터링
+		// 모든 메시지 타입(system_exit, timeline, 일반 메시지 포함)을 동일하게 exit_dt 기준으로 필터링
+		// system_exit 메시지의 mg_dt는 exit_dt와 같은 update 호출에서 생성되므로 exit_dt 이상이 보장됨
 		aggregationPipeline.push({
 			$match: {
-				'rm_messages.mg_type': { $ne: 'system_exit' },
 				'rm_messages.mg_dt': { $gt: exit_dt }
 			}
 		});
-		console.log('[getRoomMessages] exit_dt 필터링 적용 (timeline, 일반 메시지 모두, system_exit 제외): ' + exit_dt);
+		console.log('[getRoomMessages] exit_dt 필터링 적용 (모든 메시지 타입): ' + exit_dt);
 	} else if (params.con_user_id && params.con_user_id !== "") {
 		console.log('[getRoomMessages] exit_dt가 없어서 필터링 미적용 (첫 입장 또는 나간 적 없는 사용자)');
 	}

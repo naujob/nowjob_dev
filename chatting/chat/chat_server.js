@@ -951,6 +951,14 @@ io.on('connection', function (socket) {
 				}
 			}
 
+			// system_exit 메시지는 이미 PHP가 저장했으므로, 저장하지 않고 브로드캐스트만 수행
+			if (data.mg_type === 'system_exit') {
+				const ret = { code: "00", msg: "", data: data };
+				io.sockets.in(target_rm_idx).emit('message_insert_return', ret);
+				socket.emit('message_insert_return', ret);
+				return;
+			}
+
 			// 메시지 DB 저장
 			const ret = await new Promise((resolve) => {
 				$exe.chat.insertMessage(data, (res) => resolve(res));

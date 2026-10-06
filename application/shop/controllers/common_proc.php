@@ -1145,29 +1145,7 @@ class Common_proc extends CI_Controller
 					if ($this->member_model->checkDuplicateRequestWithinFiveMin("RESUME", $data["rc_idx"], $data["ru_idx"])) {
 						json_return("01", "<em>5분 후</em> 다시 제안이 가능합니다.");
 					}
-
-					if (count($mq_idxs) == 1) {
-				
-						//2024.09.09 이미제안했어도 다음날 가능하도록, 이미 있으면 중복기록으로만 저장
-						//json_return("90","이미 제안중인 인재정보('$is_name') 입니다.");
-						$query_dup_ins  = "INSERT INTO st_member_request_dup (mq_type, mm_idx, rc_idx, ru_idx, reg_dt) ";
-						$query_dup_ins .= "VALUES ('RESUME','" . $mm_idx . "','" . $data["rc_idx"] . "','" . $data["ru_idx"] . "',now() ) ";
-						$result = $this->db->query($query_dup_ins);
-
-						// 기존 요청에서 rm_idx 조회
-						$query_existing = "SELECT rm_idx FROM st_member_request WHERE rc_idx=? AND ru_idx=? AND mq_type='RESUME' LIMIT 1";
-						$result_existing = $this->db->query($query_existing, [$data["rc_idx"], $data["ru_idx"]])->row_array();
-						$rm_idx_to_return = isset($result_existing['rm_idx']) ? $result_existing['rm_idx'] : null;
-
-						// 기존 방이 재사용될 때 나갔던 쪽의 exit_yn을 리셋
-						if ($rm_idx_to_return) {
-							$this->_reset_room_exit_status($rm_idx_to_return);
-						}
-
-						json_return("00", "처리완료", ["rm_idx" => $rm_idx_to_return, "rc_idx" => $rc_idx, "ru_idx" => $data["ru_idx"], "mq_type" => $mq_type]);
-					} else {
-						json_return("90", "이미 제안중인 인재정보('$is_name')가 포함되어 있습니다.");
-					}
+					// 5분이 지났다면 등록처리 블록까지 흘러가서 setMemberRequest()로 재등록 (RECRUIT와 동일)
 				}
 			}
 

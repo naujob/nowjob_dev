@@ -11,6 +11,7 @@
 $tpl_id           = isset($tpl_id)           ? $tpl_id           : 'tpl_recruit_card';
 $tpl_recomm_class = isset($tpl_recomm_class) ? (bool)$tpl_recomm_class : false;
 $tpl_show_toggle  = isset($tpl_show_toggle)  ? (bool)$tpl_show_toggle  : true;
+$tpl_show_chat_mark = isset($tpl_show_chat_mark) ? (bool)$tpl_show_chat_mark : false;
 ?>
 <style>
 
@@ -168,8 +169,13 @@ $tpl_show_toggle  = isset($tpl_show_toggle)  ? (bool)$tpl_show_toggle  : true;
               <p>{{rc_nation_nm}}</p>
               <p>{{rc_age_nm}}</p>
             </div>
-            <div class="summary area">
-              <p>{{ad_addr}}</p>
+            <div class="summary-with-chat">
+              <div class="summary area">
+                <p>{{ad_addr}}</p>
+              </div>
+              <?php if ($tpl_show_chat_mark): ?>
+              <div class="chat_mark" data-visible="{{has_chat}}" data-chat_type="{{chat_type}}" data-rm_idx="{{chat_rm_idx}}"></div>
+              <?php endif; ?>
             </div>
             <?php endif; ?>
           </div>

@@ -156,6 +156,7 @@ class recruitModel extends MY_Model
 			"aa.rc_nation as rc_nation_nm",
 			"aa.rc_sage",
 			"aa.rc_eage",
+			"aa.mm_idx",
 			"aa.pm_idx",
 			"(CASE WHEN dd.bk_idx IS NOT NULL THEN 'Y' ELSE 'N' END) as book_yn",
 			"aa.up_dt"
