@@ -2809,10 +2809,21 @@ json_return("00", "조회완료", $data);
 		}
 
 		// MongoDB 연결
-		$uri = $this->mongo_uri;
+		$uri = get_mongo_uri();
+		$dbName = get_mongo_db_name();
 		try {
 			@$mongo = new Mongo($uri);
-			$database = $mongo->{$this->mongo_db};
+			if (!$mongo) {
+				error_log('[Chat] exit_room MongoDB 연결 실패: ' . $uri);
+				json_return("90", "MongoDB 연결 실패", []);
+				return;
+			}
+			$database = $mongo->$dbName;
+			if (!$database) {
+				error_log('[Chat] exit_room MongoDB 데이터베이스 접근 실패: ' . $dbName);
+				json_return("90", "MongoDB 데이터베이스 접근 실패", []);
+				return;
+			}
 			$collection = $database->room;
 
 			// 채팅방 조회

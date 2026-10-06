@@ -19,6 +19,8 @@
 <input type="hidden" id="room_ru_idx" value="<?= isset($room['ru_idx']) && !empty($room['ru_idx']) ? $room['ru_idx'] : (isset($_GET['ru_idx']) ? $_GET['ru_idx'] : '') ?>" />
 <!-- 다이렉트 채팅방 여부 (JS에서 지원/제안 시 상대방 값 선택 로직 분기) -->
 <input type="hidden" id="is_direct_chat" value="<?= isset($is_direct_chat) && $is_direct_chat ? 'Y' : 'N' ?>" />
+<!-- 상대방의 대표이력서 ru_idx (다이렉트 채팅에서 ru_idx 없을 때 대비용, 기업회원 전용) -->
+<input type="hidden" id="opponent_main_resume_ru_idx" value="<?= isset($opponent_main_resume['ru_idx']) ? $opponent_main_resume['ru_idx'] : '' ?>" />
 
 <script>
     // 뒤로/나가기 버튼 대상 페이지 결정
@@ -1241,7 +1243,7 @@
             el.textContent = fRemoveBigAdrJS(addr);
         });
 
-        // 상단 제목 클릭 시 상세페이지로 이동
+        // 상단 제목 클릭 시 팝업으로 이력서/공고 열기 (기업회원) 또는 페이지 이동 (개인회원)
         var rmSubject = document.getElementById('rm_subject');
         if (rmSubject) {
             rmSubject.style.cursor = 'pointer';
@@ -1250,14 +1252,22 @@
                 var userType = $("[name='user_type']").val();
 
                 if (userType === "COMP") {
+                    // 기업회원: 개인회원의 대표이력서를 팝업으로 열기
+                    var ruIdx = "<?= isset($resume['ru_idx']) ? $resume['ru_idx'] : '' ?>";
+
+                    // ru_idx가 없으면 opponent_main_resume_ru_idx 사용 (다이렉트 채팅의 경우)
+                    if (!ruIdx) {
+                        ruIdx = document.getElementById('opponent_main_resume_ru_idx').value;
+                    }
+
+                    if (ruIdx && typeof window.openHrPostPopup === 'function') {
+                        window.openHrPostPopup(ruIdx);
+                    }
+                } else {
+                    // 개인회원: 채용공고 상세페이지로 이동
                     var rcIdx = "<?= isset($recruit['rc_idx']) ? $recruit['rc_idx'] : '' ?>";
                     if (rcIdx) {
                         window.location.href = '/recruit/job_post/' + rcIdx;
-                    }
-                } else {
-                    var ruIdx = "<?= isset($resume['ru_idx']) ? $resume['ru_idx'] : '' ?>";
-                    if (ruIdx) {
-                        window.location.href = '/resume/hr_post/' + ruIdx;
                     }
                 }
             });
