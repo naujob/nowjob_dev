@@ -143,7 +143,8 @@ class Resume_proc extends CI_Controller
         'ru_my_type' => isset($row['ru_my_type']) ? $row['ru_my_type'] : '',
         'up_dt_timestamp' => isset($row['up_dt']) ? getTimeText($row['up_dt']) : '',
         'distance' => isset($row['distance']) ? $row['distance'] : '',
-        'chat_rm_idx' => ''
+        'chat_rm_idx' => '',
+        'chat_type' => ''
       ];
     }
     return $formatted_list;
@@ -156,44 +157,118 @@ class Resume_proc extends CI_Controller
       return $list;
     }
 
-    // 인재 idx 배열 생성
-    $ru_idxs = [];
+    // 정식 인재 idx와 그들의 mm_idx(이력서 작성자) 추출
+    $ru_idxs = array();
+    $mm_idxs = array();
     foreach ($list as $row) {
       $ru_idxs[] = $row['ru_idx'];
-    }
-
-    // st_member_request + st_room 배치 조회
-    // 각 인재에 대해 현재 로그인한 기업(mm_idx)과의 최근 지원/제안 이력을 조회해 채팅방 확인
-     // array_fill(시작위치, 개수, 채울글자) 0번 위치부터 시작해서 총 3개의 방을 물음표('?')로 가득 채운 목록만들기 결과: ['?', '?', '?']
-     //"WHERE mr.ru_idx IN (" . "?, ?, ?" . ")"
-    $chat_rooms = $this->db->query("
-      SELECT
-        mr.ru_idx,
-        mr.rc_idx,
-        r.rm_idx
-      FROM st_member_request mr
-      LEFT JOIN st_room r ON r.rc_idx = mr.rc_idx AND r.ru_idx = mr.ru_idx
-      WHERE mr.ru_idx IN (" . implode(',', array_fill(0, count($ru_idxs), '?')) . ") 
-        AND (
-          (mr.mq_type = 'RESUME' AND mr.mm_idx = ?)
-          OR (mr.mq_type = 'RECRUIT' AND mr.rc_idx IN (
-            SELECT rc_idx FROM st_recruit WHERE mm_idx = ?
-          ))
-        )
-      ORDER BY mr.ru_idx, mr.mq_idx DESC
-    ", array_merge($ru_idxs, [$this->mm_idx, $this->mm_idx]))->result_array();
-
-    // 결과를 ru_idx 기준으로 매핑 (최신 이력만 사용)
-    $room_map = [];
-    foreach ($chat_rooms as $room) {
-      if (!isset($room_map[$room['ru_idx']])) {
-        $room_map[$room['ru_idx']] = isset($room['rm_idx']) ? $room['rm_idx'] : '';
+      if (!in_array($row['mm_idx'], $mm_idxs)) {
+        $mm_idxs[] = $row['mm_idx'];
       }
     }
 
-    // 목록에 chat_rm_idx 추가
+    // 각 mm_idx의 더미 이력서(ru_auto_yn='Y') 조회
+    $dummy_result = array();
+    if (!empty($mm_idxs)) {
+      $dummy_result = $this->db->query("
+        SELECT mm_idx, ru_idx
+        FROM st_resume
+        WHERE mm_idx IN (" . implode(',', array_fill(0, count($mm_idxs), '?')) . ")
+          AND ru_auto_yn = 'Y'
+      ", $mm_idxs)->result_array();
+
+      foreach ($dummy_result as $dummy) {
+        if (!in_array($dummy['ru_idx'], $ru_idxs)) {
+          $ru_idxs[] = $dummy['ru_idx'];
+        }
+      }
+    }
+
+    // ru_idx → mm_idx 역방향 맵 구성 (정식 + 더미 함께)
+    $ru_idx_to_mm_idx = array();
+    // 정식 이력서
+    foreach ($list as $row) {
+      $ru_idx_to_mm_idx[$row['ru_idx']] = $row['mm_idx'];
+    }
+    // 더미 이력서
+    foreach ($dummy_result as $dummy) {
+      $ru_idx_to_mm_idx[$dummy['ru_idx']] = $dummy['mm_idx'];
+    }
+
+    // st_member_request 배치 조회
+    // mq_type으로 아이콘 종류 판단 (rc_auto_yn 사용 안 함)
+    // 전체를 mq_idx DESC로 정렬 (mm_idx당 최신 1건 선택 위함)
+    $chat_rooms = $this->db->query("
+      SELECT
+        mr.ru_idx,
+        mr.mq_type,
+        mr.rm_idx
+      FROM st_member_request mr
+      WHERE mr.ru_idx IN (" . implode(',', array_fill(0, count($ru_idxs), '?')) . ")
+        AND (
+          (mr.mq_type IN ('RESUME','RESUME_DIRECT') AND mr.mm_idx = ?)
+          OR (mr.mq_type IN ('RECRUIT','RECRUIT_DIRECT') AND mr.rc_idx IN (
+            SELECT rc_idx FROM st_recruit WHERE mm_idx = ?
+          ))
+        )
+      ORDER BY mr.mq_idx DESC
+    ", array_merge($ru_idxs, array($this->mm_idx, $this->mm_idx)))->result_array();
+
+    // mm_idx 단위로 첫 등장(=최신) 1건만 채택
+    $room_by_mm_idx = array();
+    foreach ($chat_rooms as $room) {
+      // ru_idx → mm_idx 역방향 조회
+      $owner_mm_idx = isset($ru_idx_to_mm_idx[$room['ru_idx']]) ? $ru_idx_to_mm_idx[$room['ru_idx']] : null;
+
+      // 해당 인재의 최신 요청을 이미 찾았으면 스킵 (DESC 정렬이므로 먼저 나온 게 최신)
+      if ($owner_mm_idx === null || isset($room_by_mm_idx[$owner_mm_idx])) {
+        continue;
+      }
+
+      // mq_type으로 아이콘 종류 판단
+      $chat_type = (strpos($room['mq_type'], '_DIRECT') !== false) ? 'direct' : 'propose';
+
+      $room_by_mm_idx[$owner_mm_idx] = array(
+        'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
+        'chat_type' => $chat_type
+      );
+    }
+
+    // 나간 방(exit_yn='Y')을 배치로 조회
+    $rm_idxs_to_check = array();
+    foreach ($room_by_mm_idx as $room_info) {
+      if (!empty($room_info['rm_idx'])) {
+        $rm_idxs_to_check[] = $room_info['rm_idx'];
+      }
+    }
+
+    $exited_rm_idxs = array();
+    if (!empty($rm_idxs_to_check)) {
+      $exited_rm_idxs = get_exited_rm_idxs($rm_idxs_to_check, $this->user->getUserId(), $this->user->getUserPhone());
+      error_log("[resume_proc.php _addChatRoomInfo] rm_idxs_to_check=" . json_encode($rm_idxs_to_check) . ", exited_rm_idxs=" . json_encode($exited_rm_idxs));
+    }
+    $exited_set = array_flip($exited_rm_idxs);
+
+    // 목록에 chat_rm_idx와 chat_type 추가
+    // mm_idx로 직접 조회 (우선순위 비교 없음)
     foreach ($list as &$row) {
-      $row['chat_rm_idx'] = isset($room_map[$row['ru_idx']]) ? $room_map[$row['ru_idx']] : '';
+      $owner_mm_idx = $row['mm_idx'];
+
+      if (isset($room_by_mm_idx[$owner_mm_idx])) {
+        $rm_idx = $room_by_mm_idx[$owner_mm_idx]['rm_idx'];
+
+        // 나간 방이면 배지 숨김
+        if (isset($exited_set[$rm_idx])) {
+          $row['chat_rm_idx'] = '';
+          $row['chat_type'] = '';
+        } else {
+          $row['chat_rm_idx'] = $rm_idx;
+          $row['chat_type'] = $room_by_mm_idx[$owner_mm_idx]['chat_type'];
+        }
+      } else {
+        $row['chat_rm_idx'] = '';
+        $row['chat_type'] = '';
+      }
     }
 
     return $list;

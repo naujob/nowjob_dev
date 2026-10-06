@@ -1226,7 +1226,7 @@ class Common_proc extends CI_Controller
 				$room_type = $mq_type . ($is_direct_chat ? "_DIRECT" : "");
 
 				$data = [
-					"mq_type" => $mq_type,
+					"mq_type" => $room_type,
 					"mm_idx" => $mm_idx,
 				];
 

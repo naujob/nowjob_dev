@@ -74,7 +74,7 @@ $tpl_show_toggle   = isset($tpl_show_toggle)   ? (bool)$tpl_show_toggle  : true;
                 <p>{{ad_addr}}</p>
               </div>
               <?php if ($tpl_show_chat_mark): ?>
-              <div class="chat_mark" data-visible="{{has_chat}}" data-rm_idx="{{chat_rm_idx}}" style="background-image: url('/resource/shop/mobile/img/hr_list_chat_mark.png');"></div>
+              <div class="chat_mark" data-visible="{{has_chat}}" data-chat_type="{{chat_type}}" data-rm_idx="{{chat_rm_idx}}"></div>
               <?php endif; ?>
             </div>
             <div class="summary3">

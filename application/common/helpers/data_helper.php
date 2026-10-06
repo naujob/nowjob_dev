@@ -1548,3 +1548,46 @@ if (!function_exists('reset_room_exit_status')) {
 		}
 	}
 }
+
+/**
+ * 여러 rm_idx를 한 번에 MongoDB에서 조회해 현재 사용자가 나간 방 id 목록만 반환
+ * @param array $rm_idxs rm_idx 배열
+ * @param string $user_id 사용자 ID (mm_id)
+ * @param string $user_phone 사용자 전화번호 (대체 매칭용)
+ * @return array 나간 방 rm_idx 배열
+ */
+if (!function_exists('get_exited_rm_idxs')) {
+	function get_exited_rm_idxs($rm_idxs, $user_id, $user_phone = null)
+	{
+		if (empty($rm_idxs)) {
+			return array();
+		}
+
+		$exited = array();
+		try {
+			$uri = get_mongo_uri();
+			$dbName = get_mongo_db_name();
+			@$mongo = new Mongo($uri);
+			$collection = $mongo->{$dbName}->room;
+
+			// rm_idx 배열을 정수로 변환 (레거시 Mongo 드라이버 호환성, PHP 5.4)
+			$rm_idx_ints = array();
+			foreach (array_unique($rm_idxs) as $idx) {
+				$rm_idx_ints[] = (int)$idx;
+			}
+			$query = array('rm_idx' => array('$in' => $rm_idx_ints));
+			$cursor = $collection->find($query, array('rm_idx' => 1, 'rm_users' => 1));
+
+			foreach ($cursor as $room) {
+				$rm_users = isset($room['rm_users']) ? $room['rm_users'] : array();
+				if (is_room_user_exited($rm_users, $user_id, $user_phone)) {
+					$exited[] = $room['rm_idx'];
+				}
+			}
+		} catch (Exception $e) {
+			// MongoDB 오류 시 빈 배열 반환 (기존 동작 유지, 배지는 그대로 보여줌)
+			error_log("[get_exited_rm_idxs] MongoDB Exception: " . $e->getMessage());
+		}
+		return $exited;
+	}
+}

@@ -7207,6 +7207,7 @@ form#frm {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    background-image: url('/resource/shop/mobile/img/hr_list_chat_mark.png');
 }
 
 .result-list-card .content-info .summary3 .chat_mark img {
@@ -7226,6 +7227,13 @@ form#frm {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    background-image: url('/resource/shop/mobile/img/hr_list_chat_mark.png');
+}
+.result-list-card .content-info .summary-with-chat .chat_mark[data-chat_type="propose"] {
+    min-width: 76px;
+    width: 76px;
+    height: 30px;
+    background-image: url('/resource/shop/mobile/img/hr_list_propose_mark.svg');
 }
 .result-list-card .content-info .summary3 .chat_mark[data-visible="false"] {
     display: none;
@@ -13791,6 +13799,13 @@ h3.secondary-title .menu:focus {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    background-image: url('/resource/shop/mobile/img/hr_list_chat_mark.png');
+}
+.result-list-card .content-info .summary-with-chat .chat_mark[data-chat_type="propose"] {
+    min-width: 76px;
+    width: 76px;
+    height: 30px;
+    background-image: url('/resource/shop/mobile/img/hr_list_propose_mark.svg');
 }
 .result-list-card .content-info .summary-with-chat .chat_mark img {
     width: 35px;
