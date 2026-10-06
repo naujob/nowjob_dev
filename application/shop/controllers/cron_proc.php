@@ -1214,6 +1214,68 @@ class Cron_proc extends CI_Controller
         echo "[cleanup_expired_chat_files] 삭제된 파일 수: {$deleted}\n";
     }
 
+    // 전원 퇴장(CLOSED) 후 30일 경과한 채팅방 메시지 삭제
+    // crontab: 0 3 * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_closed_room_messages > /dev/null 2>&1
+    public function cleanup_closed_room_messages()
+    {
+        $uri = get_mongo_uri();
+        $dbName = get_mongo_db_name();
+        $expire_seconds = 30 * 24 * 60 * 60; // 30일
+        //$expire_seconds = 1 * 24 * 60 * 60; // 1일 (테스트용)
+
+        try {
+            @$mongo = new Mongo($uri);
+            $db = $mongo->$dbName;
+            $collection = $db->room;
+            echo "[DEBUG] MongoDB 연결 성공\n";
+        } catch (Exception $e) {
+            echo "❌ MongoDB 연결 오류: " . $e->getMessage() . "\n";
+            return;
+        }
+
+        $cursor = $collection->find(
+            ['rm_status' => 'CLOSED'],
+            ['rm_idx' => 1, 'rm_users' => 1, 'rm_messages' => 1]
+        );
+
+        $now = time();
+        $cleared = 0;
+        $checked = 0;
+
+        foreach ($cursor as $room) {
+            $checked++;
+
+            // 이미 비어있으면 skip (멱등성)
+            if (empty($room['rm_messages'])) continue;
+
+            // rm_users[].exit_dt 중 최댓값 = 방이 CLOSED된 시점
+            $max_exit_sec = null;
+            if (!empty($room['rm_users'])) {
+                foreach ($room['rm_users'] as $u) {
+                    if (isset($u['exit_dt']) && $u['exit_dt'] instanceof MongoDate) {
+                        if ($max_exit_sec === null || $u['exit_dt']->sec > $max_exit_sec) {
+                            $max_exit_sec = $u['exit_dt']->sec;
+                        }
+                    }
+                }
+            }
+
+            // exit_dt를 알 수 없으면 판단 불가 - skip
+            if ($max_exit_sec === null) continue;
+
+            if (($now - $max_exit_sec) < $expire_seconds) continue;
+
+            $collection->update(
+                ['rm_idx' => $room['rm_idx']],
+                ['$set' => ['rm_messages' => []]]
+            );
+            $cleared++;
+            echo "[DEBUG] rm_idx={$room['rm_idx']}: 메시지 삭제 완료\n";
+        }
+
+        echo "[cleanup_closed_room_messages] 확인: {$checked}건, 메시지 삭제: {$cleared}건\n";
+    }
+
     // 유료상품 보유 공고 자동 재등록 (새로운 공고 row를 매일 생성)
     // crontab: 0 1 * * * curl -s https://nowjob.co.kr/cron_proc/auto_reregister_paid_recruit > /dev/null 2>&1
     public function auto_reregister_paid_recruit()
