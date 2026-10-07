@@ -294,9 +294,11 @@ $top_bar = array(
 
       console.log('렌더링 완료, DOM 요소 개수:', $("#chat_list li").length);
 
-      // PHP에서 이미 포맷팅된 시간을 표시
+      // PHP에서 이미 포맷팅된 시간을 표시 (날짜만)
       $("#chat_list .last-chat-time").each(function() {
-        $(this).text($(this).attr('data-time'));
+        var fullTime = $(this).attr('data-time');
+        var dateOnly = fullTime.split(' ')[0];
+        $(this).text(dateOnly);
       });
 
       // 미확인 채팅건수 조회

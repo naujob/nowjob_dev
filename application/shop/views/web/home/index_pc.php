@@ -741,39 +741,18 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
   }
 
 
-  // 현재 로그인한 사용자 정보
-  var currentUserMmIdx = <?php echo $this->user->isLogin() ? $this->user->getUserIdx() : 'null'; ?>;
-  var currentUserType = '<?php echo isset($mm_type) ? $mm_type : ""; ?>';
-
   window.addEventListener('DOMContentLoaded', function() {
     getRecoList();
     getRecoPersonList();
   });
-  // 개인회원의 경우 자신의 이력서만 클릭 가능, 기업회원은 모든 이력서 클릭 가능
   $(document).on('click', '#my-keen-slider2 .person-card', function() {
     var $personCard = $(this).closest('.person-card');
     var ruIdx = $personCard.data('ru_idx');
-    var resumeMmIdx = $personCard.data('mm_idx'); // 이력서 소유자 인덱스
 
-    // 개인회원이고 자신의 이력서인 경우 클릭 가능
-    if (currentUserType === "MEM" && currentUserMmIdx && resumeMmIdx && currentUserMmIdx == resumeMmIdx) {
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.open(url, '_blank');
-      }
-      return;
+    if (ruIdx) {
+      var url = '/resume/hr_post/' + ruIdx;
+      window.open(url, '_blank');
     }
-
-    // 기업회원인 경우 클릭 가능
-    <?php if ($mm_type === "COMP") { ?>
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.open(url, '_blank');
-      }
-    <?php } else { ?>
-      // 개인회원이지만 자신의 이력서가 아닌 경우
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-    <?php } ?>
   });
   // 공고 카드 클릭 시 상세 페이지로 이동
   $(document).on('click', '.recruit-card .content-wrap', function() {

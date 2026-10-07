@@ -483,6 +483,13 @@ class Chat extends CI_Controller
               }
             }
           }
+
+          // opponent_main_resume는 st_resume 단독조회라 mm_thumb/mm_sex가 없음(정식 제안의 getResumeDetail()은
+          // st_member를 join해서 aa.mm_thumb/aa.mm_sex를 포함함) → 이미 조회해둔 opponent_member(st_member)로 보강
+          if ($data["opponent_main_resume"]) {
+            $data["opponent_main_resume"]["mm_thumb"] = isset($opponent_member["mm_thumb"]) ? $opponent_member["mm_thumb"] : "";
+            $data["opponent_main_resume"]["mm_sex"] = isset($opponent_member["mm_sex"]) ? $opponent_member["mm_sex"] : "";
+          }
         } else {
           // 내가 MEM(지원하기)면 상대방은 COMP → 상대방의 실제 채용공고 목록 필요
           $all_opponent_recruits = $this->member_model->getRecruitList(["mm_idx" => $opponent_member["mm_idx"]]);

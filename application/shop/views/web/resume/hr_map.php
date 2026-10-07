@@ -909,16 +909,11 @@
 
 
   $(document).on('click', '.desc', function() {
-    <?php if ($mm_type !== "COMP") { ?>
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-      return;
-    <?php } else { ?>
-      var ruIdx = $(this).closest('.content-li, .content-li2').data('ru_idx');
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.open(url, '_blank');
-      }
-    <?php } ?>
+    var ruIdx = $(this).closest('.content-li, .content-li2').data('ru_idx');
+    if (ruIdx) {
+      var url = '/resume/hr_post/' + ruIdx;
+      window.open(url, '_blank');
+    }
   });
   $(function() {
     $('.collapse-btn').on('click', function() {

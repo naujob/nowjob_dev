@@ -267,10 +267,9 @@ $top_bar = array(
           var noImagePath = "/resource/shop/mobile/img/common/noimage4.png";
           var profileImg = (typeof row.ru_resume_img === "string") ? row.ru_resume_img.trim() : (typeof row.target_img === "string" ? row.target_img.trim() : "");
           var mmSex = (row.mm_sex || "").trim();
-          var defaultAvatar = noImagePath;
-          if (mmSex === "남") {
-            defaultAvatar = maleAvatarPath;
-          } else if (mmSex === "여") {
+          // mm_sex를 알 수 없는 경우에도 noImagePath로 되돌아가지 않도록 기본값을 남성 아바타로 고정
+          var defaultAvatar = maleAvatarPath;
+          if (mmSex === "여") {
             defaultAvatar = femaleAvatarPath;
           }
           if (!profileImg || profileImg === "" || profileImg.indexOf("noimage4.png") !== -1) {
@@ -294,9 +293,11 @@ $top_bar = array(
         // 한 번에 DOM에 적용 (리플로우 1회만 발생)
         $("#chat_list").html(htmlBuffer);
 
-        // PHP에서 이미 포맷팅된 시간을 표시
+        // PHP에서 이미 포맷팅된 시간을 표시 (날짜만)
         $("#chat_list .last-chat-time").each(function() {
-          $(this).text($(this).attr('data-time'));
+          var fullTime = $(this).attr('data-time');
+          var dateOnly = fullTime.split(' ')[0];
+          $(this).text(dateOnly);
         });
 
         console.log('렌더링 완료, DOM 요소 개수:', $("#chat_list li").length);

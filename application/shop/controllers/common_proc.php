@@ -956,6 +956,7 @@ class Common_proc extends CI_Controller
 			# 다이렉트 채팅: 실제 조회 중인 공고/이력서 대신, 기업/개인 양쪽 모두 전용 더미 레코드로 치환
 			$auto_rc_idx = null;
 			$auto_ru_idx = null;
+			$origin_rc_idx_to_save = null; // 다이렉트 채팅 시 원본 rc_idx 보존
 			if ($is_direct_chat) {
 				$target_idx = isset($mq_idxs[0]) ? $mq_idxs[0] : null;
 				if (empty($target_idx)) {
@@ -978,6 +979,8 @@ class Common_proc extends CI_Controller
 					}
 					$mem_mm_idx = $mm_idx;
 					$comp_mm_idx = $target_row["mm_idx"];
+					// 개인회원이 공고에서 채팅 시작 시 원본 rc_idx 보존
+					$origin_rc_idx_to_save = $target_idx;
 				} else {
 					json_return("90", "요청 타입이 올바르지 않습니다.");
 				}
@@ -1209,9 +1212,11 @@ class Common_proc extends CI_Controller
 				if ($mq_type == "RECRUIT") {
 					$data["rc_idx"] = $idx;
 					$data["ru_idx"] = $resume ? $resume["ru_idx"] : 0;
+					$data["origin_rc_idx"] = $origin_rc_idx_to_save;
 				} else if ($mq_type == "RESUME") {
 					$data["ru_idx"] = $idx;
 					$data["rc_idx"] = $rc_idx;
+					$data["origin_rc_idx"] = null;
 				}
 
 				// 채팅방 처리: 상대방과의 기존 방이 있으면 재사용, 없으면 신규 생성
@@ -1336,15 +1341,16 @@ class Common_proc extends CI_Controller
 					$insert_mq_type = $room_type;  // room_type 값 직접 사용
 					$mm_idx_val = $mm_idx;
 					$rc_idx_val = $data["rc_idx"];
+					$origin_rc_idx_val = isset($data["origin_rc_idx"]) ? $data["origin_rc_idx"] : null;
 					$ru_idx_val = $data["ru_idx"];
 					$rm_idx_val = $rm_idx;
 					$reg_dt = get_today();
 
-				
 
-					$raw_sql = "INSERT INTO st_member_request (mq_type, mm_idx, rc_idx, ru_idx, rm_idx, reg_dt, mq_status)
-								VALUES (?, ?, ?, ?, ?, ?, ?)";
-					$result = $this->db->query($raw_sql, [$insert_mq_type, $mm_idx_val, $rc_idx_val, $ru_idx_val, $rm_idx_val, $reg_dt, "Y"]);
+
+					$raw_sql = "INSERT INTO st_member_request (mq_type, mm_idx, rc_idx, origin_rc_idx, ru_idx, rm_idx, reg_dt, mq_status)
+								VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+					$result = $this->db->query($raw_sql, [$insert_mq_type, $mm_idx_val, $rc_idx_val, $origin_rc_idx_val, $ru_idx_val, $rm_idx_val, $reg_dt, "Y"]);
 				
 
 					// INSERT 직후 SELECT로 확인

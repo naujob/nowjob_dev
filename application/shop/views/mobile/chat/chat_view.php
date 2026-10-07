@@ -388,6 +388,11 @@
             if ($mmSex === "남") {
               $defaultAvatar = "/resource/shop/web/img/avatar_icon2_m.png";
             }
+            // 컨트롤러에서 mm_thumb/mm_sex를 보강해도 실제 사진이 전혀 없는 극히 일부 경우엔
+            // getResumeImg()가 noimage4.png를 반환할 수 있음 → 이 경우만 성별 기반 아바타로 대체
+            if (empty($profileImg) || strpos($profileImg, 'noimage4.png') !== false) {
+              $profileImg = $defaultAvatar;
+            }
             ?>
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 60px; overflow: hidden; flex-shrink: 0;">
               <img src="<?= $profileImg ?>" alt="프로필" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
@@ -405,7 +410,7 @@
                 <img src="/resource/shop/mobile/img/chat_top_call.png" alt="안심콜" style="width: 2rem; height: 2rem;">
             </button>
             <button type="button" class="btn-leave-list" id="btnLeaveChatRoom" aria-label="채팅방 나가기">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <i class="fa-solid fa-arrow-right-from-bracket fa-2x"></i>
             </button>
         </div>
     </div><!-- //top-bar -->
@@ -1247,16 +1252,16 @@
             el.textContent = fRemoveBigAdrJS(addr);
         });
 
-        // 상단 제목 클릭 시 팝업으로 이력서/공고 열기 (기업회원) 또는 페이지 이동 (개인회원)
+        // 상단 제목 클릭 시 팝업으로 이력서/공고 열기 (기업회원만, 개인회원은 클릭 기능 없음)
         var rmSubject = document.getElementById('rm_subject');
         if (rmSubject) {
-            rmSubject.style.cursor = 'pointer';
-            rmSubject.addEventListener('click', function(e) {
-                e.preventDefault();
-                var userType = $("[name='user_type']").val();
-                var isDirectChat = document.getElementById('is_direct_chat').value === 'Y';
+            var userType = $("[name='user_type']").val();
+            if (userType === "COMP") {
+                rmSubject.style.cursor = 'pointer';
+                rmSubject.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var isDirectChat = document.getElementById('is_direct_chat').value === 'Y';
 
-                if (userType === "COMP") {
                     // 기업회원: 개인회원의 대표이력서를 팝업으로 열기
                     var ruIdx = "";
 
@@ -1271,23 +1276,8 @@
                     if (ruIdx && typeof window.openHrPostPopup === 'function') {
                         window.openHrPostPopup(ruIdx);
                     }
-                } else {
-                    // 개인회원: 기업회원의 채용공고 상세페이지로 이동
-                    var rcIdx = "";
-
-                    if (isDirectChat) {
-                        // 다이렉트 채팅: 더미 rc_idx 무시하고 opponent_main_recruit_rc_idx 사용
-                        rcIdx = document.getElementById('opponent_main_recruit_rc_idx').value;
-                    } else {
-                        // 정식 지원: 실제 rc_idx 사용
-                        rcIdx = "<?= isset($recruit['rc_idx']) ? $recruit['rc_idx'] : '' ?>";
-                    }
-
-                    if (rcIdx && typeof window.openJobPostPopup === 'function') {
-                        window.openJobPostPopup(rcIdx);
-                    }
-                }
-            });
+                });
+            }
         }
 
         // 채팅 뷰 헤더의 채용정보/인재정보 카드 클릭 이벤트 처리
@@ -4825,6 +4815,8 @@
         line-height: 1.4;
         cursor: pointer;
         pointer-events: none; /* 클릭 이벤트는 상위 .propose-bubble에서 처리, 버튼은 시각적 안내용 */
+        position: relative;
+        left: 172px;
     }
 
     .chat-bubble.diff .btn-propose-view {
