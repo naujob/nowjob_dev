@@ -8,15 +8,14 @@ class Matchmodel extends CI_Model {
     }
 
     /**
-     * 활성 이력서 조회 (주소 포함) - 중복 주소 제거
-     * 같은 이력서가 여러 주소를 가진 경우 MIN(ad_jibun)로 첫 번째 주소만 반환
+     * 활성 이력서 조회 (주소 포함)
      */
     public function getActiveResumes() {
         $sql = "
             SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type, r.reg_dt,
                    r.ru_status, r.ru_show_yn, r.ru_work_dt,
                    m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
-                   a.ad_jibun, a.ad_idx
+                   a.ad_jibun, a.ad_addr, a.ad_idx
             FROM st_resume r
             INNER JOIN st_member m ON r.mm_idx = m.mm_idx
             INNER JOIN st_address a ON r.mm_idx = a.mm_idx
@@ -35,7 +34,6 @@ class Matchmodel extends CI_Model {
 
     /**
      * 게재 중인 채용공고 조회 (주소 포함)
-     * 메인 공고 주소(ad_type='RECRUIT')만 사용
      */
     public function getActiveRecruits() {
         $sql = "
@@ -43,7 +41,7 @@ class Matchmodel extends CI_Model {
                    rc.rc_sex, rc.rc_sage, rc.rc_eage, rc.rc_nation, rc.reg_dt,
                    rc.rc_status, rc.rc_show_yn, rc.rc_sdate, rc.rc_edate,
                    m.mm_comp_name, m.mm_phone,
-                   a.ad_jibun, a.ad_idx, a.ad_type
+                   a.ad_jibun, a.ad_addr, a.ad_idx, a.ad_type
             FROM st_recruit rc
             INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
             INNER JOIN st_address a ON rc.mm_idx = a.mm_idx

@@ -3162,6 +3162,10 @@
       if (data.searchArea && data.searchArea.length > 0) {
         var area = data.searchArea[0]; // 최대 1개만 선택 가능하므로 첫 번째만 사용
         var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(area.addr) || area.addr) : area.addr;
+        // PC(recruit_write.php)와 동일하게 zipcode/jibun/doro_val에는 축약 전 전체 문자열을 저장
+        $("#expose_addr" + fieldIndex + "_zipcode").val(area.addr);
+        $("#expose_addr" + fieldIndex + "_jibun").val(area.addr);
+        $("#expose_addr" + fieldIndex + "_doro_val").val(area.addr);
         $("#expose_addr" + fieldIndex + "_addr").val(addr_short);
         var $btn = $("#btnExposeAddr" + fieldIndex);
         // 변환된 주소로 표시
