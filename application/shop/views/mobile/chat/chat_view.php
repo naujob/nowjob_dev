@@ -4815,8 +4815,7 @@
         line-height: 1.4;
         cursor: pointer;
         pointer-events: none; /* 클릭 이벤트는 상위 .propose-bubble에서 처리, 버튼은 시각적 안내용 */
-        position: relative;
-        left: 172px;
+       margin-left: 133px;
     }
 
     .chat-bubble.diff .btn-propose-view {
