@@ -1387,10 +1387,23 @@
         rc_idx: autoSendRcIdx,
         mq_type: autoSendMqType,
         ru_idx: autoSendRuIdx,
+        from: urlParams.get('from'), // direct_chat이면 다이렉트 첫 메시지 (URL 정리 후에도 판단할 수 있게 미리 보관)
         messageListChecked: false,
         targetUserId: null,
         rm_info_received: false
     } : null;
+
+    // 자동 메시지 전송 후 URL에서 auto_send 제거 (새로고침/뒤로가기로 다시 전송되는 것을 방지)
+    window.clearAutoSendParam = function() {
+        try {
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('auto_send')) {
+                params.delete('auto_send');
+                var newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.history.replaceState(window.history.state, '', newUrl);
+            }
+        } catch (e) {}
+    };
 
     // 채팅방 진입 시 processedIdx 초기화
     function resetProcessedIdx() {
@@ -1509,14 +1522,14 @@
         var current_user_type = typeof user_type !== 'undefined' ? user_type : $("[name='user_type']").val();
         var messageText = "";
 
-        // URL 파라미터에서 from 값 확인
-        var fromParam = new URLSearchParams(window.location.search).get('from');
+        // 진입 시 보관한 from 값 확인 (없으면 URL에서 확인)
+        var fromParam = (window.autoSendFirstMessage && window.autoSendFirstMessage.from)
+            ? window.autoSendFirstMessage.from
+            : new URLSearchParams(window.location.search).get('from');
 
         if (fromParam === 'direct_chat') {
-            // 다이렉트 채팅인 경우
-            messageText = current_user_type === "COMP"
-                ? "기업회원이 채팅을 요청하였습니다."
-                : "개인회원이 채팅을 요청하였습니다.";
+            // 다이렉트 채팅인 경우 (기업/개인 동일 문구)
+            messageText = "채팅을 요청하였습니다.";
         } else if (current_user_type === "COMP") {
             // 기업이 개인에게 제안보낼 경우
             messageText = "안녕하세요.\n채용중인 일자리를 제안드립니다.";
@@ -2162,25 +2175,15 @@
         //메시지 리스트 가져오기
         var message_list = ret.data;
         
-        // 제안하기/지원하기 완료 후 자동 메시지 전송 체크
+        // 제안하기/지원하기/채팅하기 완료 후 자동 메시지 전송 체크
+        // 보낼지 여부는 진입 화면과 서버가 auto_send 파라미터로 이미 결정했으므로 기존 메시지 유무와 관계없이 전송한다.
+        // (정식 지원/제안은 항상, 다이렉트는 처음 채팅하기일 때만 auto_send가 붙고, 이미 보낸 요청/이미 채팅중이면 auto_send 없이 진입)
         if (window.autoSendFirstMessage && window.autoSendFirstMessage.enabled) {
             var autoSendInfo = window.autoSendFirstMessage;
-            
-            // 메시지 리스트 확인
-            var hasMessages = false;
-            if (Array.isArray(message_list) && message_list.length > 0) {
-                for (var i = 0; i < message_list.length; i++) {
-                    if (message_list[i].rm_messages && Array.isArray(message_list[i].rm_messages) && message_list[i].rm_messages.length > 0) {
-                        hasMessages = true;
-                        break;
-                    }
-                }
-            }
-            
-            // 🔥 메시지가 없고 rm_info를 받았으면 자동으로 첫 메시지 전송
-            // room_info_return에서 rm_info를 받은 후 message_list를 요청했으므로,
-            // message_list_return에서 메시지가 없으면 바로 전송
-            if (!hasMessages && window.autoSendFirstMessage && window.autoSendFirstMessage.rm_info_received) {
+
+            // 🔥 rm_info를 받았으면 자동으로 첫 메시지 전송
+            // room_info_return에서 rm_info를 받은 후 message_list를 요청했으므로 여기서 바로 전송
+            if (window.autoSendFirstMessage && window.autoSendFirstMessage.rm_info_received) {
                 window.autoSendFirstMessage.messageListChecked = true;
                 
                 var targetUserId = autoSendInfo.targetUserId;
@@ -2207,7 +2210,7 @@
                 if (targetUserId && window.sendFirstMessageAfterProposal) {
                     window.sendFirstMessageAfterProposal(targetUserId, autoSendInfo.rm_idx);
                     window.autoSendFirstMessage = null;
-                    
+                    window.clearAutoSendParam(); // 재전송 방지
                 } else {
                     // 상대방 ID를 찾지 못한 경우 재시도
                     setTimeout(function() {
@@ -2238,6 +2241,7 @@
                         if (retryTargetUserId && window.sendFirstMessageAfterProposal) {
                             window.sendFirstMessageAfterProposal(retryTargetUserId, window.autoSendFirstMessage.rm_idx);
                             window.autoSendFirstMessage = null;
+                            window.clearAutoSendParam(); // 재전송 방지
                         } else {
                             // 최종 실패 시 플래그 해제
                             window.autoSendFirstMessage = null;

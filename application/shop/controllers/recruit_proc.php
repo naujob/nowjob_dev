@@ -954,6 +954,13 @@ class Recruit_proc extends CI_Controller
 			return;
 		}
 
+		// 같은 이력서로 같은 공고에 이미 지원했으면 재지원하지 않고 기존 채팅방으로 안내 (code 02 + rm_idx)
+		$active_rm_idx = $this->member_model->findActiveRequestRoom("RECRUIT", $mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
+		if ($active_rm_idx) {
+			json_return("02", "이미 지원했습니다.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx));
+			return;
+		}
+
 		// 최근 5분 이내 지원 이력 확인 (MemberModel 공통 메서드 사용)
 		if ($this->member_model->checkDuplicateRequestWithinFiveMin("RECRUIT", $rc_idx, $ru_idx)) {
 			json_return("01", "5분 후 다시 지원이 가능합니다.");
@@ -1190,16 +1197,16 @@ class Recruit_proc extends CI_Controller
 				OR mr.origin_rc_idx IN (" . implode(',', array_fill(0, count($rc_idxs), '?')) . "))
 				AND mr.mq_type IN ('RECRUIT','RECRUIT_DIRECT')
 				AND mr.mm_idx = ?
-			ORDER BY mr.mq_idx DESC
+			ORDER BY (mr.mq_type = 'RECRUIT') DESC, mr.mq_idx DESC
 		", array_merge($rc_idxs, $rc_idxs, array($user_idx)))->result_array();
 
-		// rc_idx 단위로 첫 등장(=최신) 1건만 채택
+		// rc_idx 단위로 첫 등장 1건만 채택 (정렬상 정식 지원이 있으면 정식이 먼저 나옴)
 		// origin_rc_idx가 있으면 그것을 기준으로, 없으면 rc_idx를 기준으로 매칭
 		$room_by_rc_idx = array();
 		foreach ($chat_rooms as $room) {
 			$effective_rc_idx = !empty($room['origin_rc_idx']) ? $room['origin_rc_idx'] : $room['rc_idx'];
 
-			// 해당 공고의 최신 요청을 이미 찾았으면 스킵 (DESC 정렬이므로 먼저 나온 게 최신)
+			// 해당 공고의 요청을 이미 찾았으면 스킵
 			if (isset($room_by_rc_idx[$effective_rc_idx])) {
 				continue;
 			}
@@ -1211,6 +1218,34 @@ class Recruit_proc extends CI_Controller
 				'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
 				'chat_type' => $chat_type
 			);
+		}
+
+		// 요청 기록이 없는 순수 채팅방(채팅하기) 보완: 방에 연결된 공고가 화면상 공고이고 내 이력서인 방을 direct 배지로 표시
+		$missing_rc_idxs = array();
+		foreach ($rc_idxs as $list_rc_idx) {
+			if (!isset($room_by_rc_idx[$list_rc_idx])) {
+				$missing_rc_idxs[] = $list_rc_idx;
+			}
+		}
+		if (!empty($missing_rc_idxs)) {
+			$pure_rooms = $this->db->query("
+				SELECT room.rc_idx, room.rm_idx
+				FROM st_room room
+				INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+				WHERE room.rm_type = 'recruit'
+					AND room.rc_idx IN (" . implode(',', array_fill(0, count($missing_rc_idxs), '?')) . ")
+					AND ru.mm_idx = ?
+				ORDER BY room.rm_idx DESC
+			", array_merge($missing_rc_idxs, array($user_idx)))->result_array();
+
+			foreach ($pure_rooms as $pure_room) {
+				if (!isset($room_by_rc_idx[$pure_room['rc_idx']])) {
+					$room_by_rc_idx[$pure_room['rc_idx']] = array(
+						'rm_idx' => $pure_room['rm_idx'],
+						'chat_type' => 'direct'
+					);
+				}
+			}
 		}
 
 		// 나간 방(exit_yn='Y')을 배치로 조회

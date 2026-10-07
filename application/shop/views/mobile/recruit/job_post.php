@@ -1449,6 +1449,31 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         }
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
+
+        // 이미 진행 중인 채팅방으로 안내 후 이동 (auto_send 없이 이동하므로 첫 메시지 자동 전송 없음)
+        var goExistingChatRoom = function(msg, rm_idx) {
+            commonAlert(msg, function() {
+                location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
+            });
+            $('.btn-close-popup').hide(); // X 버튼 숨기기 (확인으로만 이동)
+        };
+
+        // 같은 이력서로 이미 지원한 공고: "다시 보내겠습니까?" 확인 후 기존 채팅방으로 이동하며 지원 메시지 재전송
+        // (지원 기록 추가 없이 채팅방에 지원 메시지만 다시 보냄)
+        var confirmResendApply = function(rm_idx, ru_idx) {
+            openPopup('confirm', {
+                content: '이미 지원했습니다.<br>다시 보내겠습니까?',
+                firstCallback: function() {
+                    $('.btn-close-popup').show();
+                },
+                secondCallback: function() {
+                    // auto_send=true + mq_type=RECRUIT → chat_view에서 지원 메시지(열어보기 카드) 자동 전송
+                    location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&auto_send=true&rc_idx=" + $("[name=rc_idx]").val() + "&mq_type=RECRUIT&ru_idx=" + (ru_idx || "") + "&backUrl=" + encodeURIComponent('/chat/chat_list');
+                }
+            });
+            $('.btn-close-popup').hide();
+        };
+
         $(document).on('click', '#btnRecruit, #btnRequest', function(e) {
             // 채용정보 지원하기 분석
             //  if (typeof my_analytics !== 'undefined') {
@@ -1524,9 +1549,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                                     //     location.reload();
                                     // });
 
-                                    // 지원한 공고 탭으로 이동하고 해당 공고의 채팅방 자동 진입
-                                    // URL 파라미터로 rc_idx 전달하여 목록 페이지에서 자동으로 채팅방 찾아서 열기
-                                    location.href = "/chat/chat_list?auto_open_rc_idx=" + rc_idx + "&mq_type=RECRUIT&ru_idx=" + ret.data.ru_idx;
+                                    // 응답받은 채팅방으로 바로 이동 (auto_send=true로 지원 메시지 자동 전송)
+                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&mq_type=RECRUIT&ru_idx=" + ret.data.ru_idx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
+                                } else if (ret.code == "02") {
+                                    // 같은 이력서로 이미 지원한 공고: 다시 보낼지 확인 후 기존 채팅방에서 지원 메시지 재전송
+                                    confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
+                                    return;
                                 } else {
                                     commonAlert(ret.msg, function() {});
                                     return;
@@ -1535,6 +1563,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                         }
                     });
                     $('.btn-close-popup').hide();
+                } else if (ret.code == "02") {
+                    // 같은 이력서로 이미 지원한 공고: 다시 보낼지 확인 후 기존 채팅방에서 지원 메시지 재전송
+                    confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
+                    return;
                 } else if (ret.code == "01") {
                     // 5분 제한 - 확인 클릭 시 채팅 목록으로 이동
                     commonAlert("<em>5분 후</em> 다시 지원이 가능합니다.", function() {
@@ -1571,6 +1603,22 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 return;
             }
 
+            // 확인 팝업 전에 이미 채팅중인 기업인지 먼저 확인 (이미 채팅중이면 확인 팝업 없이 기존 방으로 안내)
+            comAjax("/common_proc/direct_chat_check", { mq_type: "RECRUIT", target_idx: $("[name=rc_idx]").val() }, function(chk) {
+                if (chk.code == "00" && chk.data && chk.data.already_chatting == "Y") {
+                    goExistingChatRoom("이미 채팅중입니다.", chk.data.rm_idx);
+                    return;
+                }
+                if (chk.code != "00") {
+                    commonAlert(chk.msg, function() {});
+                    return;
+                }
+                openDirectChatConfirm();
+            });
+        });
+
+        // 채팅하기 확인 팝업 → 채팅방 연결 (처음 채팅하기인 경우)
+        var openDirectChatConfirm = function() {
             openPopup('confirm', {
                 content: '<em>"' + $("[name=rc_name]").val() + '"</em><br>기업에 채팅을 요청하시겠습니까?',
                 firstCallback: function() {
@@ -1589,6 +1637,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
                         $('.btn-close-popup').show();
                         if (ret.code == "00") {
+                            if (ret.data.already_chatting == "Y") {
+                                // 이미 채팅하기를 했던 기업: 기존 채팅방으로 이동 (첫 메시지 없음)
+                                goExistingChatRoom("이미 채팅중입니다.", ret.data.rm_idx);
+                                return;
+                            }
+                            // 처음 채팅하기: "채팅을 요청하였습니다." 자동 전송
                             // 원본 채용공고 rc_idx를 URL에 포함시켜 chat.php에서 자동 선택 가능하게 함
                             location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&origin_rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list');
                         } else {
@@ -1600,7 +1654,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 }
             });
             $('.btn-close-popup').hide();
-        });
+        };
 
         // 이력서 작성 버튼 클릭 이벤트 20250919
         $("#btnResume").click(function(e) {

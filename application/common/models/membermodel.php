@@ -708,6 +708,129 @@ class memberModel extends MY_Model
 		}
 	}
 
+	# 다이렉트 채팅방에 넣을 개인회원의 실제 이력서 선택 (대표이력서 우선 → 최신 실제 이력서, 없으면 null)
+	function getChatResumeIdx($mem_mm_idx)
+	{
+		if (empty($mem_mm_idx)) {
+			return null;
+		}
+		$row = $this->db->query(
+			"SELECT ru_idx FROM st_resume
+			 WHERE mm_idx = ? AND ru_auto_yn != 'Y' AND (ru_status IS NULL OR ru_status != 'N')
+			 ORDER BY (ru_show_yn = 'Y') DESC, ru_idx DESC
+			 LIMIT 1",
+			array($mem_mm_idx)
+		)->row_array();
+		return $row ? $row["ru_idx"] : null;
+	}
+
+	# 다이렉트 채팅방에 넣을 기업회원의 진행중인 실제 채용공고 선택 (가장 최근 공고, 없으면 null)
+	function getChatRecruitIdx($comp_mm_idx)
+	{
+		if (empty($comp_mm_idx)) {
+			return null;
+		}
+		$row = $this->db->query(
+			"SELECT rc_idx FROM st_recruit
+			 WHERE mm_idx = ? AND rc_status = 'Y' AND rc_auto_yn != 'Y' AND rc_edate >= CURDATE()
+			 ORDER BY rc_idx DESC
+			 LIMIT 1",
+			array($comp_mm_idx)
+		)->row_array();
+		return $row ? $row["rc_idx"] : null;
+	}
+
+	# 같은 기업(공고 주인) ↔ 개인(이력서 주인) 쌍의 채팅방 조회
+	# 정식/다이렉트 구분 없이 쌍만으로 찾는다 (같은 쌍은 방 하나 원칙).
+	# 레거시로 방이 여러 개면 정식(RECRUIT/RESUME) 요청이 있는 방 우선, 그 다음 최신 방.
+	function findRecruitRoomByPair($comp_mm_idx, $mem_mm_idx)
+	{
+		if (empty($comp_mm_idx) || empty($mem_mm_idx) || $comp_mm_idx == $mem_mm_idx) {
+			return null;
+		}
+		$row = $this->db->query(
+			"SELECT room.rm_idx
+			 FROM st_room room
+			 INNER JOIN st_recruit rc ON room.rc_idx = rc.rc_idx
+			 INNER JOIN st_resume  ru ON room.ru_idx = ru.ru_idx
+			 WHERE room.rm_type = 'recruit'
+			 AND rc.mm_idx = ? AND ru.mm_idx = ?
+			 ORDER BY EXISTS (
+				SELECT 1 FROM st_member_request f
+				WHERE f.rm_idx = room.rm_idx AND f.mq_type IN ('RECRUIT', 'RESUME')
+			 ) DESC, room.rm_idx DESC
+			 LIMIT 1",
+			array($comp_mm_idx, $mem_mm_idx)
+		)->row_array();
+		return ($row && !empty($row["rm_idx"])) ? $row["rm_idx"] : null;
+	}
+
+	# 채팅방 요청 기록 상태 (방 분류 기준)
+	# formal: 정식(RECRUIT/RESUME) 요청이 1건 이상 있으면 true → 정식 방, 없으면 순수 채팅방
+	# any: 요청 기록(레거시 _DIRECT 포함)이 1건이라도 있으면 true
+	function getRoomRequestState($rm_idx)
+	{
+		$state = array("formal" => false, "any" => false);
+		if (empty($rm_idx)) {
+			return $state;
+		}
+		$row = $this->db->query(
+			"SELECT SUM(CASE WHEN mq_type IN ('RECRUIT', 'RESUME') THEN 1 ELSE 0 END) AS formal_cnt,
+			        COUNT(*) AS any_cnt
+			 FROM st_member_request WHERE rm_idx = ?",
+			array($rm_idx)
+		)->row_array();
+		if ($row) {
+			$state["formal"] = ((int)$row["formal_cnt"] > 0);
+			$state["any"] = ((int)$row["any_cnt"] > 0);
+		}
+		return $state;
+	}
+
+	# 같은 정식 요청(같은 공고 + 같은 이력서)을 이미 보냈는지 확인하고, 이동할 채팅방 번호를 반환
+	# - 지원취소(mq_status='cancel')된 요청은 제외
+	# - 요청 기록에 rm_idx가 없으면(레거시) 쌍 기준 방으로 대체
+	# - 내가 그 방을 나간 상태면 null (재전송으로 취급해 정상 흐름을 탄다)
+	function findActiveRequestRoom($mq_type, $mm_idx, $rc_idx, $ru_idx, $user_id, $user_phone = null)
+	{
+		if (empty($mq_type) || empty($mm_idx) || empty($rc_idx) || empty($ru_idx)) {
+			return null;
+		}
+		$row = $this->db->query(
+			"SELECT rm_idx FROM st_member_request
+			 WHERE mq_type = ? AND mm_idx = ? AND rc_idx = ? AND ru_idx = ?
+			 AND (mq_status IS NULL OR mq_status != 'cancel')
+			 ORDER BY mq_idx DESC
+			 LIMIT 1",
+			array($mq_type, $mm_idx, $rc_idx, $ru_idx)
+		)->row_array();
+		if (!$row) {
+			return null;
+		}
+
+		$rm_idx = !empty($row["rm_idx"]) ? $row["rm_idx"] : null;
+		if (!$rm_idx) {
+			$owner = $this->db->query(
+				"SELECT rc.mm_idx AS comp_mm_idx, ru.mm_idx AS mem_mm_idx
+				 FROM st_recruit rc, st_resume ru
+				 WHERE rc.rc_idx = ? AND ru.ru_idx = ?",
+				array($rc_idx, $ru_idx)
+			)->row_array();
+			if ($owner) {
+				$rm_idx = $this->findRecruitRoomByPair($owner["comp_mm_idx"], $owner["mem_mm_idx"]);
+			}
+		}
+		if (!$rm_idx) {
+			return null;
+		}
+
+		$exited = get_exited_rm_idxs(array($rm_idx), $user_id, $user_phone);
+		if (!empty($exited)) {
+			return null;
+		}
+		return $rm_idx;
+	}
+
 	# 이력서 경력 등록
 	function insertResumeCareer($data)
 	{
@@ -894,11 +1017,6 @@ class memberModel extends MY_Model
           INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.mq_type = 'RECRUIT' AND mq.rc_idx = aa.rc_idx
           AND mem.mm_status = 'Y'
-          AND NOT EXISTS (
-              SELECT 1 FROM st_member_request mq2
-              WHERE mq2.rm_idx = mq.rm_idx
-              AND mq2.mq_type LIKE '%_DIRECT'
-          )
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -987,11 +1105,6 @@ class memberModel extends MY_Model
           INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.mq_type = 'RESUME' AND mq.rc_idx = aa.rc_idx AND mq.mm_idx = '$mm_idx'
           AND mem.mm_status = 'Y'
-          AND NOT EXISTS (
-              SELECT 1 FROM st_member_request mq2
-              WHERE mq2.rm_idx = mq.rm_idx
-              AND mq2.mq_type LIKE '%_DIRECT'
-          )
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -1062,10 +1175,6 @@ class memberModel extends MY_Model
 			INNER JOIN st_recruit aa ON aa.rc_idx = room.rc_idx
 			INNER JOIN st_member comp ON aa.mm_idx = comp.mm_idx /* membermodel.getRecruitActaiveListMem queryXlog */
 			where req.mq_type = 'RECRUIT' AND req.mm_idx = '$mm_idx'
-			and NOT EXISTS (
-				SELECT 1 FROM st_member_request mq2
-				WHERE mq2.rm_idx = req.rm_idx AND mq2.mq_type LIKE '%_DIRECT'
-			)
 			and aa.rc_status = 'Y'
 			and comp.mm_status = 'Y'
 			order by max_up_dt desc, aa.rc_idx desc
@@ -5623,10 +5732,6 @@ SELECT
   AND bb.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
   AND rc.rc_status = 'Y'
   AND rc.rc_edate >= NOW()
-  AND NOT EXISTS (
-    SELECT 1 FROM st_member_request mq2
-    WHERE mq2.rm_idx = mq.rm_idx AND mq2.mq_type LIKE '%_DIRECT'
-  )
   ) innertable
 GROUP BY
        rc_idx, mm_idx, rc_show_yn, rc_name, rc_sdate, rc_edate, rc_nation, rc_sex, rc_sage, rc_eage,
@@ -6220,21 +6325,27 @@ LIMIT 0 , 200
 		return $this->db_insert("bizcall_logs", $data);
 	}
 
-	# 개인회원이 보낸 다이렉트 채팅 목록 조회
+	# 순수 채팅방(다이렉트) 목록 공통 조건
+	# 순수 채팅방 = 정식(RECRUIT/RESUME) 요청 기록이 하나도 없는 recruit 방
+	# (새 다이렉트 채팅방은 요청 기록이 없고, 레거시 다이렉트 방은 _DIRECT 기록만 있음)
+	# 정식 요청이 1건이라도 생기면 정식 목록 쿼리 쪽으로 넘어가므로 한 방은 한 목록에만 나온다.
+	private function _pureChatRoomCondition()
+	{
+		return "
+			room.rm_type = 'recruit'
+			AND NOT EXISTS (
+				SELECT 1 FROM st_member_request f
+				WHERE f.rm_idx = room.rm_idx AND f.mq_type IN ('RECRUIT', 'RESUME')
+			)
+		";
+	}
+
+	# 개인회원이 보낸(내가 만든) 순수 채팅방 목록 조회
 	function getDirectChatListSentMem($mm_idx)
 	{
-		// 단순 테스트: 먼저 st_member_request에서만 조회
-		$sql_test = "SELECT * FROM st_member_request WHERE mq_type = 'RECRUIT_DIRECT' AND mm_idx = ? LIMIT 5";
-		$test_query = $this->db->query($sql_test, [$mm_idx]);
-		$test_result = $test_query->result_array();
-
-		if (count($test_result) > 0) {
-
-		}
-
 		$sql = "
 			SELECT
-				req.rm_idx,
+				room.rm_idx,
 				'채팅방' AS rc_name,
 				IFNULL(rc.rc_thumb, '') AS rc_thumb,
 				rc.rc_work,
@@ -6243,56 +6354,56 @@ LIMIT 0 , 200
 				IFNULL(comp.mm_thumb, '') AS target_img,
 				'' AS rt_recom_badge,
 				'' AS rt_work_img,
-				MAX(req.reg_dt) AS reg_dt
-			FROM st_member_request req
-			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
-			LEFT JOIN st_member comp ON rc.mm_idx = comp.mm_idx
-			WHERE req.mq_type = 'RECRUIT_DIRECT'
-			AND req.mm_idx = ?
-			GROUP BY req.rm_idx
+				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
+			FROM st_room room
+			INNER JOIN st_recruit rc ON rc.rc_idx = room.rc_idx
+			INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+			LEFT JOIN st_member comp ON comp.mm_idx = rc.mm_idx
+			WHERE " . $this->_pureChatRoomCondition() . "
+			AND ru.mm_idx = ?
+			AND room.mm_idx = ?
 			ORDER BY reg_dt DESC
 		";
-		$query = $this->db->query($sql, [$mm_idx]);
+		$query = $this->db->query($sql, [$mm_idx, $mm_idx]);
 		return $query->result_array();
 	}
 
-	# 개인회원이 받은 다이렉트 채팅 목록 조회 (기업이 시작한 것)
+	# 개인회원이 받은(기업이 만든) 순수 채팅방 목록 조회
 	function getDirectChatListReceivedMem($mm_idx)
 	{
 		$sql = "
-			SELECT DISTINCT
-				req.rm_idx,
+			SELECT
+				room.rm_idx,
 				'채팅방' AS rc_name,
 				IFNULL(rc.rc_thumb, '') AS rc_thumb,
 				rc.rc_work,
-				requester.mm_id AS target_id,
-				requester.mm_name AS target_name,
-				IFNULL(requester.mm_thumb, '') AS target_img,
-				requester.mm_sex,
+				comp.mm_id AS target_id,
+				comp.mm_name AS target_name,
+				IFNULL(comp.mm_thumb, '') AS target_img,
+				comp.mm_sex,
 				comp.mm_comp_name AS mm_comp_name,
-				MAX(req.reg_dt) AS reg_dt
-			FROM st_member_request req
-			INNER JOIN st_resume ru ON req.ru_idx = ru.ru_idx
-			INNER JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
-			INNER JOIN st_member requester ON req.mm_idx = requester.mm_idx
-			INNER JOIN st_member comp ON rc.mm_idx = comp.mm_idx
-			WHERE req.mq_type = 'RESUME_DIRECT'
+				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
+			FROM st_room room
+			INNER JOIN st_recruit rc ON rc.rc_idx = room.rc_idx
+			INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+			INNER JOIN st_member comp ON comp.mm_idx = rc.mm_idx
+			WHERE " . $this->_pureChatRoomCondition() . "
 			AND ru.mm_idx = ?
-			GROUP BY req.rm_idx
+			AND room.mm_idx != ?
 			ORDER BY reg_dt DESC
 		";
-		$query = $this->db->query($sql, [$mm_idx]);
+		$query = $this->db->query($sql, [$mm_idx, $mm_idx]);
 		return $query->result_array();
 	}
 
-	# 기업회원이 보낸 다이렉트 채팅 목록 조회
+	# 기업회원이 보낸(내가 만든) 순수 채팅방 목록 조회
 	function getDirectChatListSentComp($mm_idx)
 	{
 		$sql = "
-			SELECT DISTINCT
-				req.rm_idx,
-				req.rc_idx,
-				req.ru_idx,
+			SELECT
+				room.rm_idx,
+				room.rc_idx,
+				room.ru_idx,
 				'채팅방' AS rc_name,
 				IFNULL(rc.rc_thumb, '') AS rc_thumb,
 				rc.rc_work,
@@ -6300,45 +6411,46 @@ LIMIT 0 , 200
 				mem.mm_name AS target_name,
 				IFNULL(ru.ru_img1, '') AS target_img,
 				mem.mm_sex,
-				MAX(req.reg_dt) AS reg_dt
-			FROM st_member_request req
-			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
-			LEFT JOIN st_resume ru ON req.ru_idx = ru.ru_idx
-			LEFT JOIN st_member mem ON ru.mm_idx = mem.mm_idx
-			WHERE req.mq_type = 'RESUME_DIRECT'
-			AND req.mm_idx = ?
-			GROUP BY req.rm_idx
+				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
+			FROM st_room room
+			INNER JOIN st_recruit rc ON rc.rc_idx = room.rc_idx
+			INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+			LEFT JOIN st_member mem ON mem.mm_idx = ru.mm_idx
+			WHERE " . $this->_pureChatRoomCondition() . "
+			AND rc.mm_idx = ?
+			AND room.mm_idx = ?
 			ORDER BY reg_dt DESC
 		";
-		$query = $this->db->query($sql, [$mm_idx]);
+		$query = $this->db->query($sql, [$mm_idx, $mm_idx]);
 		return $query->result_array();
 	}
 
-	# 기업회원이 받은 다이렉트 채팅 목록 조회 (개인이 시작한 것)
+	# 기업회원이 받은(개인이 만든) 순수 채팅방 목록 조회
 	function getDirectChatListReceivedComp($mm_idx)
 	{
 		$sql = "
-			SELECT DISTINCT
-				req.rm_idx,
-				req.rc_idx,
-				req.ru_idx,
+			SELECT
+				room.rm_idx,
+				room.rc_idx,
+				room.ru_idx,
 				'채팅방' AS rc_name,
 				IFNULL(rc.rc_thumb, '') AS rc_thumb,
 				rc.rc_work,
-				requester.mm_id AS target_id,
-				requester.mm_name AS target_name,
-				IFNULL(requester.mm_thumb, '') AS target_img,
-				requester.mm_sex,
-				MAX(req.reg_dt) AS reg_dt
-			FROM st_member_request req
-			LEFT JOIN st_recruit rc ON req.rc_idx = rc.rc_idx
-			LEFT JOIN st_member requester ON req.mm_idx = requester.mm_idx
-			WHERE req.mq_type = 'RECRUIT_DIRECT'
+				mem.mm_id AS target_id,
+				mem.mm_name AS target_name,
+				IFNULL(mem.mm_thumb, '') AS target_img,
+				mem.mm_sex,
+				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
+			FROM st_room room
+			INNER JOIN st_recruit rc ON rc.rc_idx = room.rc_idx
+			INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+			LEFT JOIN st_member mem ON mem.mm_idx = ru.mm_idx
+			WHERE " . $this->_pureChatRoomCondition() . "
 			AND rc.mm_idx = ?
-			GROUP BY req.rm_idx
+			AND room.mm_idx != ?
 			ORDER BY reg_dt DESC
 		";
-		$query = $this->db->query($sql, [$mm_idx]);
+		$query = $this->db->query($sql, [$mm_idx, $mm_idx]);
 		return $query->result_array();
 	}
 

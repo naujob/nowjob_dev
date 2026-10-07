@@ -627,6 +627,7 @@ class Chat_proc extends CI_Controller
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
 									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["last_msg_dt"] = $this->toChatDateTime($last_msg_time); // 목록 정렬/표시용 원본 시각
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
@@ -800,6 +801,7 @@ class Chat_proc extends CI_Controller
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
 									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["last_msg_dt"] = $this->toChatDateTime($last_msg_time); // 목록 정렬/표시용 원본 시각
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
@@ -1084,6 +1086,7 @@ class Chat_proc extends CI_Controller
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
 									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["last_msg_dt"] = $this->toChatDateTime($last_msg_time); // 목록 정렬/표시용 원본 시각
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
@@ -1291,6 +1294,7 @@ class Chat_proc extends CI_Controller
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
 									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["last_msg_dt"] = $this->toChatDateTime($last_msg_time); // 목록 정렬/표시용 원본 시각
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
@@ -1448,6 +1452,7 @@ class Chat_proc extends CI_Controller
 								if (method_exists($this, 'formatChatTime')) {
 									$temp_list[$key]["last_msg_time"] = $this->formatChatTime($last_msg_time);
 									$temp_list[$key]["up_dt"] = $this->formatChatTime($last_msg_time);
+									$temp_list[$key]["last_msg_dt"] = $this->toChatDateTime($last_msg_time); // 목록 정렬/표시용 원본 시각
 								} else {
 									// formatChatTime이 없는 경우에만 변환
 									if (is_object($last_msg_time) && method_exists($last_msg_time, 'sec')) {
@@ -2605,6 +2610,25 @@ json_return("00", "조회완료", $data);
 		json_return("00", "조회성공", ["list" => $list]);
 	}
 
+	// 마지막 메시지 시각을 원본 문자열(Y-m-d H:i:s)로 변환 — 채팅 목록 정렬/표시 계산용 (MongoDate/문자열/타임스탬프 지원)
+	private function toChatDateTime($datetime)
+	{
+		if ($datetime === null || $datetime === false || $datetime === "") {
+			return "";
+		}
+		if (is_object($datetime) && isset($datetime->sec)) {
+			return date("Y-m-d H:i:s", $datetime->sec);
+		}
+		if (is_numeric($datetime)) {
+			return date("Y-m-d H:i:s", (int)$datetime);
+		}
+		if (is_string($datetime)) {
+			$timestamp = strtotime($datetime);
+			return $timestamp ? date("Y-m-d H:i:s", $timestamp) : "";
+		}
+		return "";
+	}
+
 	// 채팅 시간 포맷팅 헬퍼 함수
 	private function formatChatTime($datetime)
 	{
@@ -3123,18 +3147,10 @@ json_return("00", "조회완료", $data);
 			// 5분 이상 경과했으면 계속 진행 (setMemberRequest에서 기존 기록 삭제 후 재등록)
 		}
 
-		// 다이렉트 채팅방인지 판정 — rc_idx/ru_idx의 auto_yn은 제안/지원 후 실제값으로 덮어써져 신뢰 불가.
-		// 대신 이 rm_idx에 _DIRECT 접미사가 붙은 요청 기록이 한 번이라도 있었는지로 판정한다
-		// (find_existing_room_by_opponent()와 동일한 원칙).
-		$direct_check = $this->db->query(
-			"SELECT 1 FROM st_member_request WHERE rm_idx = ? AND mq_type LIKE '%_DIRECT' LIMIT 1",
-			array($rm_idx)
-		)->row_array();
-		$is_direct_room = (bool)$direct_check;
-
 		// 등록 처리 (채팅방 내 제안/지원은 포인트 차감 없음)
+		// 순수 채팅방(다이렉트)에서의 제안/지원도 정식(RECRUIT/RESUME)으로 기록 → 이 시점부터 정식 방으로 승격
 		$data = array(
-			"mq_type" => $mq_type . ($is_direct_room ? "_DIRECT" : ""),  // 다이렉트 방에서는 항상 _DIRECT 접미사 붙임
+			"mq_type" => $mq_type,
 			"mm_idx" => $mm_idx,
 			"rc_idx" => $rc_idx,
 			"ru_idx" => $ru_idx,

@@ -197,7 +197,7 @@ class Resume_proc extends CI_Controller
 
     // st_member_request 배치 조회
     // mq_type으로 아이콘 종류 판단 (rc_auto_yn 사용 안 함)
-    // 전체를 mq_idx DESC로 정렬 (mm_idx당 최신 1건 선택 위함)
+    // 정식(RECRUIT/RESUME) 요청 우선 → 최신 순으로 정렬 (레거시 _DIRECT 기록보다 정식 방을 우선 선택)
     $chat_rooms = $this->db->query("
       SELECT
         mr.ru_idx,
@@ -211,16 +211,16 @@ class Resume_proc extends CI_Controller
             SELECT rc_idx FROM st_recruit WHERE mm_idx = ?
           ))
         )
-      ORDER BY mr.mq_idx DESC
+      ORDER BY (mr.mq_type IN ('RECRUIT','RESUME')) DESC, mr.mq_idx DESC
     ", array_merge($ru_idxs, array($this->mm_idx, $this->mm_idx)))->result_array();
 
-    // mm_idx 단위로 첫 등장(=최신) 1건만 채택
+    // mm_idx 단위로 첫 등장 1건만 채택 (정렬상 정식 요청이 있으면 정식이 먼저 나옴)
     $room_by_mm_idx = array();
     foreach ($chat_rooms as $room) {
       // ru_idx → mm_idx 역방향 조회
       $owner_mm_idx = isset($ru_idx_to_mm_idx[$room['ru_idx']]) ? $ru_idx_to_mm_idx[$room['ru_idx']] : null;
 
-      // 해당 인재의 최신 요청을 이미 찾았으면 스킵 (DESC 정렬이므로 먼저 나온 게 최신)
+      // 해당 인재의 요청을 이미 찾았으면 스킵
       if ($owner_mm_idx === null || isset($room_by_mm_idx[$owner_mm_idx])) {
         continue;
       }
@@ -232,6 +232,35 @@ class Resume_proc extends CI_Controller
         'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
         'chat_type' => $chat_type
       );
+    }
+
+    // 요청 기록이 없는 순수 채팅방(채팅하기) 보완: 기록이 없는 인재는 기업↔인재 쌍의 방을 찾아 direct 배지로 표시
+    $missing_mm_idxs = array();
+    foreach ($mm_idxs as $owner_mm_idx) {
+      if (!isset($room_by_mm_idx[$owner_mm_idx])) {
+        $missing_mm_idxs[] = $owner_mm_idx;
+      }
+    }
+    if (!empty($missing_mm_idxs)) {
+      $pure_rooms = $this->db->query("
+        SELECT ru.mm_idx, room.rm_idx
+        FROM st_room room
+        INNER JOIN st_recruit rc ON rc.rc_idx = room.rc_idx
+        INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+        WHERE room.rm_type = 'recruit'
+          AND rc.mm_idx = ?
+          AND ru.mm_idx IN (" . implode(',', array_fill(0, count($missing_mm_idxs), '?')) . ")
+        ORDER BY room.rm_idx DESC
+      ", array_merge(array($this->mm_idx), $missing_mm_idxs))->result_array();
+
+      foreach ($pure_rooms as $pure_room) {
+        if (!isset($room_by_mm_idx[$pure_room['mm_idx']])) {
+          $room_by_mm_idx[$pure_room['mm_idx']] = array(
+            'rm_idx' => $pure_room['rm_idx'],
+            'chat_type' => 'direct'
+          );
+        }
+      }
     }
 
     // 나간 방(exit_yn='Y')을 배치로 조회
@@ -738,6 +767,13 @@ class Resume_proc extends CI_Controller
     $mm_idx = $this->user->getUserIdx();
     $ru_idx = input_post("ru_idx", "");
     $rc_idx = input_post("rc_idx", "");
+
+    // 같은 공고로 같은 이력서에 이미 제안했으면 재제안하지 않고 기존 채팅방으로 안내 (code 02 + rm_idx)
+    $active_rm_idx = $this->member_model->findActiveRequestRoom("RESUME", $mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
+    if ($active_rm_idx) {
+      json_return("02", "이미 제안을 보냈습니다.", array("rm_idx" => $active_rm_idx));
+      return;
+    }
 
     // 최근 5분 이내 제안 이력 확인 (MemberModel 공통 메서드 사용)
     if ($this->member_model->checkDuplicateRequestWithinFiveMin("RESUME", $rc_idx, $ru_idx)) {

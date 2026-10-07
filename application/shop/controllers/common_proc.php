@@ -871,70 +871,218 @@ class Common_proc extends CI_Controller
 	}
 
 	// 나(my_mm_idx)와 상대방(opponent_mm_idx) 사이에 이미 존재하는 recruit 타입 방을 찾는다.
-	// st_room.mm_idx(생성자)에는 의존하지 않고, 방에 연결된 공고 주인/이력서 주인의 조합으로 판별한다.
-	// mq_type은 "그룹" 판별용으로만 쓴다 — RECRUIT/RESUME(정식)끼리, RECRUIT_DIRECT/RESUME_DIRECT(다이렉트)끼리
-	// 방향 상관없이 같은 방을 재사용하며, 정식 그룹과 다이렉트 그룹은 서로 섞이지 않는다.
+	// 방에 연결된 공고 주인/이력서 주인의 쌍으로 판별하며, 정식(지원/제안)과 다이렉트(채팅하기)를
+	// 구분하지 않는다 — 같은 기업↔개인 쌍은 방 하나를 쓴다. (더미 공고/이력서도 소유자가 같으므로 동일 쌍으로 매칭됨)
+	// mq_type은 방향(내가 공고 주인인지, 이력서 주인인지) 판정에만 쓴다.
 	private function find_existing_room_by_opponent($my_mm_idx, $opponent_mm_idx, $mq_type)
 	{
-		if (empty($my_mm_idx) || empty($opponent_mm_idx)) {
-			return null;
-		}
-		if ($my_mm_idx == $opponent_mm_idx) {
-			return null; // 자기 자신과의 매칭 방지, 기존 신규 생성 경로로 폴백
+		if (empty($my_mm_idx) || empty($opponent_mm_idx) || $my_mm_idx == $opponent_mm_idx) {
+			return null; // 자기 자신과의 매칭 방지, 신규 생성 경로로 폴백
 		}
 
-		// mq_type 접두사로 방향 판정 (RECRUIT/RECRUIT_DIRECT, RESUME/RESUME_DIRECT 모두 지원)
 		if (strpos($mq_type, "RESUME") === 0) {
-			// 제안: 나=공고 주인(rc.mm_idx), 상대=이력서 주인(ru.mm_idx)
-			$owner_params = [$my_mm_idx, $opponent_mm_idx];
+			// 제안/기업 채팅하기: 나=공고 주인, 상대=이력서 주인
+			return $this->member_model->findRecruitRoomByPair($my_mm_idx, $opponent_mm_idx);
 		} else if (strpos($mq_type, "RECRUIT") === 0) {
-			// 지원: 나=이력서 주인(ru.mm_idx), 상대=공고 주인(rc.mm_idx)
-			$owner_params = [$opponent_mm_idx, $my_mm_idx];
-		} else {
-			return null;
+			// 지원/개인 채팅하기: 나=이력서 주인, 상대=공고 주인
+			return $this->member_model->findRecruitRoomByPair($opponent_mm_idx, $my_mm_idx);
 		}
+		return null;
+	}
 
-		// 방 재사용은 "그룹" 단위로 판단한다.
-		// - DIRECT 그룹(RECRUIT_DIRECT / RESUME_DIRECT): 방향 상관없이 같은 상대면 같은 방 재사용
-		// - 정식 그룹(RECRUIT / RESUME): 방향 상관없이 같은 상대면 같은 방 재사용
-		// - 두 그룹은 서로 섞이지 않는다 (DIRECT 방과 정식 방은 별개의 rm_idx)
-		$is_direct = (strpos($mq_type, "_DIRECT") !== false);
-		$same_group_types = $is_direct ? ["RECRUIT_DIRECT", "RESUME_DIRECT"] : ["RECRUIT", "RESUME"];
-		$other_group_types = $is_direct ? ["RECRUIT", "RESUME"] : ["RECRUIT_DIRECT", "RESUME_DIRECT"];
-
-		$sql = "
-			SELECT room.rm_idx
-			FROM st_room room
-			LEFT JOIN st_recruit rc ON room.rc_idx = rc.rc_idx
-			LEFT JOIN st_resume  ru ON room.ru_idx = ru.ru_idx
-			WHERE room.rm_type = 'recruit'
-			AND rc.mm_idx = ? AND ru.mm_idx = ?
-			AND EXISTS (
-				SELECT 1 FROM st_member_request mq
-				WHERE mq.rm_idx = room.rm_idx AND mq.mq_type IN (?, ?)
-			)
-			AND NOT EXISTS (
-				SELECT 1 FROM st_member_request mq2
-				WHERE mq2.rm_idx = room.rm_idx AND mq2.mq_type IN (?, ?)
-			)
-		";
-
-		// SQL 물음표 순서: rc.mm_idx, ru.mm_idx, 같은 그룹 타입 2개, 반대 그룹 타입 2개
-		$sql_params = [
-			$owner_params[0],
-			$owner_params[1],
-			$same_group_types[0],
-			$same_group_types[1],
-			$other_group_types[0],
-			$other_group_types[1]
+	// 채용(recruit) 채팅방 신규 생성: MySQL st_room 등록 + MongoDB 방 생성(Node /newroommake) + exit 상태 리셋
+	// 정식 요청(member_request)과 다이렉트 채팅(_start_direct_chat)이 함께 사용한다. 성공 시 rm_idx, 실패 시 null
+	private function _create_recruit_room($rc_idx, $ru_idx, $mm_idx, $direct_yn = "N")
+	{
+		$info_chat = [
+			"rm_idx" => '',
+			"rc_idx" => $rc_idx,
+			"ru_idx" => $ru_idx,
+			"td_idx" => 0,
+			"mm_idx" => $mm_idx,
+			"point_yn" => 'N',
+			"direct_yn" => $direct_yn, // 다이렉트 채팅 이력 표시 ("이미 채팅중" 판단용)
 		];
 
-		$sql .= "
-			ORDER BY room.rm_idx DESC
-			LIMIT 1
-		";
-		$row = $this->db->query($sql, $sql_params)->row_array();
-		return ($row && !empty($row["rm_idx"])) ? $row["rm_idx"] : null;
+		$result_chat = $this->common_model->insertRoom($info_chat);
+		if (!$result_chat || $result_chat["code"] != "00") {
+			return null;
+		}
+
+		$rm_idx = $result_chat["key"];
+		$current_user_id = $this->user->getUserId();
+
+		$mongo_room_data = [
+			"rm_idx" => (int)$rm_idx,
+			"rc_idx" => (int)$rc_idx,
+			"ru_idx" => (int)$ru_idx,
+			"rm_type" => "recruit",
+			"rm_img" => "",
+			"rm_subject" => "채용공고 채팅방",
+			"rm_desc" => "채용공고 관련 채팅방",
+			"rm_last_msg" => "",
+			"rm_last_dt" => date('Y-m-d H:i:s'),
+			"rm_users" => [
+				["user_id" => $current_user_id] // 현재 사용자
+			],
+			"user_info" => [
+				["user_id" => $current_user_id]
+			],
+			"rm_status" => "N",
+			"rm_messages" => []
+		];
+
+		// MongoDB 채팅방 생성 API 호출 (실패해도 chat_view 진입 시 소켓 room_info에서 자동 생성됨)
+		try {
+			$is_dev_env = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
+			$chat_server_url = $is_dev_env
+				? "http://127.0.0.1:3031/newroommake"
+				: "https://127.0.0.1:3030/newroommake";
+
+			$ch = curl_init($chat_server_url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mongo_room_data));
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json'
+			]);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_exec($ch);
+			curl_close($ch);
+		} catch (Exception $e) {
+			// error_log("[DEBUG] _create_recruit_room newroommake cURL 예외: " . $e->getMessage());
+		}
+
+		// 신규 방 생성 직후 exit_yn을 리셋해야 목록에 보임 (기존 방 재사용 시와 동일)
+		$this->_reset_room_exit_status($rm_idx);
+
+		return $rm_idx;
+	}
+
+	// 이 방에서 이미 채팅하기를 했고(direct_yn='Y') 요청한 내가 방을 나가지 않은 상태인지 ("이미 채팅중" 판단)
+	private function _is_already_direct_chatting($rm_idx)
+	{
+		if (empty($rm_idx)) {
+			return false;
+		}
+		$room = $this->common_model->getRoom(["rm_idx" => $rm_idx]);
+		if (!$room || !isset($room["direct_yn"]) || $room["direct_yn"] != "Y") {
+			return false;
+		}
+		$exited = get_exited_rm_idxs(array($rm_idx), $this->user->getUserId(), $this->user->getUserPhone());
+		return empty($exited);
+	}
+
+	// 채팅하기 사전 확인 (읽기 전용 — 방 생성/기록 없음)
+	// 확인 팝업을 띄우기 전에 "이미 채팅중"인 상대인지 먼저 알려준다.
+	// 응답: { already_chatting: "Y"|"N", rm_idx }
+	function direct_chat_check()
+	{
+		if ($this->user->isLogin() == false) {
+			json_return("90", "로그인후 이용해주세요.");
+		}
+
+		$mq_type = input_post("mq_type");
+		$target_idx = input_post("target_idx");
+		$mm_idx = $this->user->getUserIdx();
+		if (empty($target_idx) || empty($mm_idx)) {
+			json_return("90", "요청 데이터가 올바르지 않습니다.");
+		}
+
+		// 상대방 mm_idx로 기업↔개인 쌍 결정 (RECRUIT: 개인이 공고에서 / RESUME: 기업이 이력서에서)
+		$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $target_idx);
+		$rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $mq_type);
+
+		$already_chatting = ($rm_idx && $this->_is_already_direct_chatting($rm_idx)) ? "Y" : "N";
+		json_return("00", "조회성공", [
+			"already_chatting" => $already_chatting,
+			"rm_idx" => ($already_chatting == "Y") ? $rm_idx : "",
+		]);
+	}
+
+	// 다이렉트 채팅(채팅하기) 시작
+	// - st_member_request에 기록하지 않는 "순수 채팅" (포인트 차감/푸시 없음)
+	// - 방의 rc/ru: 상대 것은 지금 보고 있는 실제 공고/이력서, 내 것은 실제가 있으면 실제, 없을 때만 더미
+	// - 같은 쌍의 방이 있으면 재사용 (rc/ru는 덮어쓰지 않음), 없으면 신규 생성
+	// - already_chatting: 이 방에서 이미 채팅하기를 했고(direct_yn='Y') 내가 나가지 않은 상태면 "Y"
+	private function _start_direct_chat($mq_type, $mq_idxs, $mm_idx)
+	{
+		$target_idx = (is_array($mq_idxs) && isset($mq_idxs[0])) ? $mq_idxs[0] : null;
+		if (empty($target_idx)) {
+			json_return("90", "요청 데이터가 올바르지 않습니다.");
+		}
+
+		if ($mq_type == "RESUME") {
+			// 기업회원이 이력서(hr_post)에서 시작: 대상 = 보고 있는 이력서
+			$target_row = $this->db->query("SELECT ru_idx, mm_idx FROM st_resume WHERE ru_idx = ?", array($target_idx))->row_array();
+			if (!$target_row) {
+				json_return("90", "대상 회원 정보를 찾을 수 없습니다.");
+			}
+			$comp_mm_idx = $mm_idx;
+			$mem_mm_idx = $target_row["mm_idx"];
+			$ru_idx = $target_row["ru_idx"];
+			$rc_idx = $this->member_model->getChatRecruitIdx($comp_mm_idx);
+			if (empty($rc_idx)) {
+				// 진행중인 실제 공고가 없을 때만 더미 공고 사용
+				$rc_idx = $this->member_model->insertDirectChatRecruit($comp_mm_idx);
+			}
+		} else if ($mq_type == "RECRUIT") {
+			// 개인회원이 공고(job_post)에서 시작: 대상 = 보고 있는 공고
+			$target_row = $this->db->query("SELECT rc_idx, mm_idx FROM st_recruit WHERE rc_idx = ?", array($target_idx))->row_array();
+			if (!$target_row) {
+				json_return("90", "대상 회원 정보를 찾을 수 없습니다.");
+			}
+			$comp_mm_idx = $target_row["mm_idx"];
+			$mem_mm_idx = $mm_idx;
+			$rc_idx = $target_row["rc_idx"];
+			$ru_idx = $this->member_model->getChatResumeIdx($mem_mm_idx);
+			if (empty($ru_idx)) {
+				// 실제 이력서가 없을 때만 더미 이력서 사용
+				$ru_idx = $this->member_model->insertDirectChatResume($mem_mm_idx);
+			}
+		} else {
+			json_return("90", "요청 타입이 올바르지 않습니다.");
+		}
+
+		if (empty($rc_idx) || empty($ru_idx)) {
+			json_return("99", "다이렉트 채팅 준비 중 오류가 발생했습니다.");
+		}
+		if ($comp_mm_idx == $mem_mm_idx) {
+			json_return("90", "본인과는 채팅할 수 없습니다.");
+		}
+
+		$already_chatting = "N";
+		$rm_idx = $this->member_model->findRecruitRoomByPair($comp_mm_idx, $mem_mm_idx);
+
+		if ($rm_idx) {
+			// 기존 방 재사용: 이미 채팅하기를 한 방이고 내가 나가지 않았으면 "이미 채팅중"
+			if ($this->_is_already_direct_chatting($rm_idx)) {
+				$already_chatting = "Y";
+			}
+
+			// 방의 공고/이력서(정식 정보일 수 있음)는 덮어쓰지 않고, 다이렉트 이력 표시와 갱신일만 반영
+			$this->common_model->updateRoom(
+				["direct_yn" => "Y", "up_dt" => get_today()],
+				["rm_idx" => $rm_idx]
+			);
+			// 나갔던 참여자 복구 (기존 다이렉트 채팅 동작과 동일)
+			$this->_reset_room_exit_status($rm_idx);
+		} else {
+			$rm_idx = $this->_create_recruit_room($rc_idx, $ru_idx, $mm_idx, "Y");
+			if (empty($rm_idx)) {
+				json_return("99", "채팅방 생성 중 오류가 발생했습니다.");
+			}
+		}
+
+		json_return("00", "처리완료", [
+			"rm_idx" => $rm_idx,
+			"rc_idx" => $rc_idx,
+			"ru_idx" => $ru_idx,
+			"mq_type" => $mq_type,
+			"already_chatting" => $already_chatting,
+		]);
 	}
 
 	function member_request()
@@ -950,54 +1098,6 @@ class Common_proc extends CI_Controller
 			$is_direct_chat = ($is_direct_chat_param === "Y"); // 다이렉트 채팅 여부 (기본 false)
 
 			$mm_idx = $this->user->getUserIdx();
-
-			// [DEBUG LOG] 함수 진입
-		
-			# 다이렉트 채팅: 실제 조회 중인 공고/이력서 대신, 기업/개인 양쪽 모두 전용 더미 레코드로 치환
-			$auto_rc_idx = null;
-			$auto_ru_idx = null;
-			$origin_rc_idx_to_save = null; // 다이렉트 채팅 시 원본 rc_idx 보존
-			if ($is_direct_chat) {
-				$target_idx = isset($mq_idxs[0]) ? $mq_idxs[0] : null;
-				if (empty($target_idx)) {
-					json_return("90", "요청 데이터가 올바르지 않습니다.");
-				}
-
-				if ($mq_type == "RESUME") {
-					// 현재 사용자 = 기업, 대상 = 이력서 주인(개인회원)
-					$target_row = $this->db->query("SELECT mm_idx FROM st_resume WHERE ru_idx = ?", array($target_idx))->row_array();
-					if (!$target_row) {
-						json_return("90", "대상 회원 정보를 찾을 수 없습니다.");
-					}
-					$comp_mm_idx = $mm_idx;
-					$mem_mm_idx = $target_row["mm_idx"];
-				} else if ($mq_type == "RECRUIT") {
-					// 현재 사용자 = 개인, 대상 = 채용공고 주인(기업회원)
-					$target_row = $this->db->query("SELECT mm_idx FROM st_recruit WHERE rc_idx = ?", array($target_idx))->row_array();
-					if (!$target_row) {
-						json_return("90", "대상 회원 정보를 찾을 수 없습니다.");
-					}
-					$mem_mm_idx = $mm_idx;
-					$comp_mm_idx = $target_row["mm_idx"];
-					// 개인회원이 공고에서 채팅 시작 시 원본 rc_idx 보존
-					$origin_rc_idx_to_save = $target_idx;
-				} else {
-					json_return("90", "요청 타입이 올바르지 않습니다.");
-				}
-
-				// 기업측/개인측 각각 전용 더미 레코드 확보 (있으면 재사용, 없으면 생성)
-				$auto_rc_idx = $this->member_model->insertDirectChatRecruit($comp_mm_idx);
-
-				$auto_ru_idx = $this->member_model->insertDirectChatResume($mem_mm_idx);
-
-				if (empty($auto_rc_idx) || empty($auto_ru_idx)) {
-					json_return("99", "다이렉트 채팅 준비 중 오류가 발생했습니다.");
-				}
-
-				// 이후 모든 로직은 rc_idx/mq_idxs를 그대로 사용하므로, 더미 값으로 치환해서 흘려보낸다
-				$rc_idx = $auto_rc_idx;
-				$mq_idxs = array($mq_type == "RECRUIT" ? $auto_rc_idx : $auto_ru_idx);
-			}
 
 			// 입력값 검증
 		
@@ -1023,6 +1123,12 @@ class Common_proc extends CI_Controller
 				json_return("90", "로그인후 이용해주세요.");
 			}
 
+			# 다이렉트 채팅(채팅하기): 지원/제안 기록 없이 순수 채팅방만 연결하고 바로 응답 (포인트/푸시 없음)
+			if ($is_direct_chat) {
+				$this->_start_direct_chat($mq_type, $mq_idxs, $mm_idx);
+				return;
+			}
+
 			# rc_idx 유효성 검사 (RESUME 타입일 때)
 			if ($mq_type == "RESUME" && (empty($rc_idx) || $rc_idx == "")) {
 				
@@ -1045,10 +1151,7 @@ class Common_proc extends CI_Controller
 			# 이력서 정보 가져오기
 		
 			$resume = null;
-			if ($is_direct_chat) {
-				// 위에서 이미 확보한 더미 이력서를 그대로 사용
-				$resume = $this->member_model->getResume(array("ru_idx" => $auto_ru_idx));
-			} else if ($mq_type == "RESUME") {
+			if ($mq_type == "RESUME") {
 				$resume = $this->member_model->getResume(["mm_idx" => $mm_idx, "ru_show_yn" => "Y"]);
 				if (!$resume) {
 					$resume = $this->member_model->getResume(["ru_idx" => $mq_idxs[0]]);
@@ -1064,9 +1167,11 @@ class Common_proc extends CI_Controller
 		
 
 			# 중복체크
-		
-			$is_data = false;
-			$is_name = "";
+			$user_id = $this->user->getUserId();
+			$user_phone = $this->user->getUserPhone();
+			$request_idxs = array(); // 실제로 등록할 대상
+			$dup_rm_idx = null;      // 이미 보낸 요청의 채팅방 번호
+			$dup_ru_idx = null;      // 이미 보낸 요청의 이력서 번호 (재전송 메시지 카드용)
 			foreach ($mq_idxs as $idx) {
 				$data["mq_type"] = $mq_type;
 				$data["mm_idx"] = $mm_idx;
@@ -1102,54 +1207,33 @@ class Common_proc extends CI_Controller
 						continue;
 					}
 				}
-                // 같은 공고-이력서로 이미 지원했는지 확인
-			
-				$check = $this->member_model->checkMemberRequest($data);
-
-				if ($check != null) {   // 이미 지원함
-				
-					$is_data = true;
-					$is_name = $check["subject"];
-
-					break;
-				} else {
-					
+				// 같은 공고 + 같은 이력서로 이미 보낸 요청이면 다시 등록하지 않고 기존 채팅방으로 안내
+				// (내가 그 방을 나간 상태면 null → 재전송으로 취급해 아래 5분 체크 후 재등록)
+				$active_rm_idx = $this->member_model->findActiveRequestRoom($mq_type, $mm_idx, $data["rc_idx"], $data["ru_idx"], $user_id, $user_phone);
+				if ($active_rm_idx) {
+					$dup_rm_idx = $active_rm_idx;
+					$dup_ru_idx = $data["ru_idx"];
+					continue;
 				}
+
+				// 재전송 시 최근 5분 이내 중복 요청 차단 (MemberModel 공통 메서드 사용)
+				if ($this->member_model->checkDuplicateRequestWithinFiveMin($mq_type, $data["rc_idx"], $data["ru_idx"])) {
+					$wait_msg = ($mq_type == "RECRUIT") ? "<em>5분 후</em> 다시 지원이 가능합니다." : "<em>5분 후</em> 다시 제안이 가능합니다.";
+					json_return("01", $wait_msg);
+				}
+
+				$request_idxs[] = $idx;
 			}
 
-		
-			if ($is_data == true) {
-				if ($mq_type == "RECRUIT") {
-
-					// 최근 5분 이내 지원 이력 확인 (MemberModel 공통 메서드 사용)
-					if ($this->member_model->checkDuplicateRequestWithinFiveMin("RECRUIT", $data["rc_idx"], $data["ru_idx"])) {
-						// 5분 후 다시 지원 가능하도록 안내
-						json_return("01", "<em>5분 후</em> 다시 지원이 가능합니다.");
-					}
-
-					// 2025.02.03 다른날또 지원이 가능해지면서 의미 없는 부분 주석 처리
-					// if(count($mq_idxs)==1){
-					//   //2024.09.09 이미지원했어도 다음날 가능하도록, 이미 있으면 중복기록으로만 저장
-					// 	//json_return("90","이미 지원중인 공고('$is_name') 입니다.");
-					//   $query_dup_ins  = "INSERT INTO st_member_request_dup (mq_type, mm_idx, rc_idx, reg_dt) ";
-					//   $query_dup_ins .= "VALUES ('RECRUIT','".$mm_idx."','".$data["rc_idx"]."',now() ) ";
-					//   $result = $this->db->query($query_dup_ins);
-					//
-					//   json_return("00","처리완료");
-					//
-					// }else{
-					// 	json_return("90","이미 지원중인 공고('$is_name')가 포함되어 있습니다.");
-					// }
-				} else if ($mq_type == "RESUME") {
-					// 최근 5분 내 중복 제안 방지 (MemberModel 공통 메서드 사용)
-					if ($this->member_model->checkDuplicateRequestWithinFiveMin("RESUME", $data["rc_idx"], $data["ru_idx"])) {
-						json_return("01", "<em>5분 후</em> 다시 제안이 가능합니다.");
-					}
-					// 5분이 지났다면 등록처리 블록까지 흘러가서 setMemberRequest()로 재등록 (RECRUIT와 동일)
-				}
+			// 모든 대상이 이미 보낸 요청이면 기록/포인트/메시지 없이 기존 채팅방 번호만 반환
+			if (empty($request_idxs)) {
+				$dup_msg = ($mq_type == "RECRUIT") ? "이미 지원했습니다." : "이미 제안을 보냈습니다.";
+				json_return("02", $dup_msg, ["rm_idx" => $dup_rm_idx, "ru_idx" => $dup_ru_idx]);
 			}
+			// 여러 대상(웹 일괄 제안) 중 일부만 중복이면 남은 대상만 처리 (포인트도 남은 대상 기준으로 계산)
+			$mq_idxs = $request_idxs;
 
-			# 다이렉트 채팅이 아닐 때만 포인트 차감 처리
+			# 포인트 차감 처리 (다이렉트 채팅은 위에서 이미 분기되어 여기 오지 않음)
 			if (!$is_direct_chat) {
 				$point_data = [];
 				$point_data["mq_type"] = $mq_type;
@@ -1200,11 +1284,8 @@ class Common_proc extends CI_Controller
 
 			# 등록처리
 			foreach ($mq_idxs as $idx) {
-				// 다이렉트 채팅인 경우 mq_type에 _DIRECT 접미사 추가하여 방 분리
-				$room_type = $mq_type . ($is_direct_chat ? "_DIRECT" : "");
-
 				$data = [
-					"mq_type" => $room_type,
+					"mq_type" => $mq_type,
 					"mm_idx" => $mm_idx,
 				];
 
@@ -1212,7 +1293,7 @@ class Common_proc extends CI_Controller
 				if ($mq_type == "RECRUIT") {
 					$data["rc_idx"] = $idx;
 					$data["ru_idx"] = $resume ? $resume["ru_idx"] : 0;
-					$data["origin_rc_idx"] = $origin_rc_idx_to_save;
+					$data["origin_rc_idx"] = null;
 				} else if ($mq_type == "RESUME") {
 					$data["ru_idx"] = $idx;
 					$data["rc_idx"] = $rc_idx;
@@ -1226,11 +1307,11 @@ class Common_proc extends CI_Controller
 					// 1. 상대방 mm_idx 구하기
 					$opponent_mm_idx = $this->get_opponent_mm_idx($mq_type, $idx);
 
-					// 2. 기존 방 찾기 (제안/지원 방 방향 구분, 다이렉트 채팅은 room_type으로 분리)
-					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $room_type);
+					// 2. 기존 방 찾기 (같은 기업↔개인 쌍이면 정식/다이렉트 구분 없이 같은 방)
+					$existing_rm_idx = $this->find_existing_room_by_opponent($mm_idx, $opponent_mm_idx, $mq_type);
 
 					if ($existing_rm_idx) {
-						// 기존 방이 있으면: MySQL st_room의 rc_idx/ru_idx만 갱신
+						// 기존 방이 있으면: 방의 공고/이력서를 이번 요청 값으로 갱신 (순수 채팅방이었다면 정식 방으로 승격)
 						$rm_idx = $existing_rm_idx;
 						
 						$this->common_model->updateRoom(
@@ -1243,85 +1324,8 @@ class Common_proc extends CI_Controller
 						$this->_reset_room_exit_status($existing_rm_idx);
 					
 					} else {
-						// 기존 방이 없으면: 신규 생성 로직 (기존 코드 그대로)
-						$info_chat = [
-							"rm_idx" => '',
-							"rc_idx" => $data["rc_idx"],
-							"ru_idx" => $data["ru_idx"],
-							"td_idx" => 0,
-							"mm_idx" => $mm_idx,
-						];
-						$info_chat['point_yn'] = 'N';
-
-						$result_chat = $this->common_model->insertRoom($info_chat);
-					
-
-						if ($result_chat && $result_chat["code"] == "00") {
-							$rm_idx = $result_chat["key"]; // ← 신규 생성 시 rm_idx 확보
-							$current_user_id = $this->user->getUserId();
-
-							// error_log("[DEBUG] member_request 새 방 생성 - rm_idx=" . $rm_idx . ", mq_type=" . $mq_type . ", rc_idx=" . $data["rc_idx"] . ", ru_idx=" . $data["ru_idx"]);
-
-							$mongo_room_data = [
-								"rm_idx" => (int)$rm_idx,
-								"rc_idx" => (int)$data["rc_idx"],
-								"ru_idx" => (int)$data["ru_idx"],
-								"rm_type" => "recruit",
-								"rm_img" => "",
-								"rm_subject" => "채용공고 채팅방",
-								"rm_desc" => "채용공고 관련 채팅방",
-								"rm_last_msg" => "",
-								"rm_last_dt" => date('Y-m-d H:i:s'),
-								"rm_users" => [
-									["user_id" => $current_user_id] // 현재 사용자
-								],
-								"user_info" => [
-									["user_id" => $current_user_id]
-								],
-								"rm_status" => "N",
-								"rm_messages" => []
-							];
-
-							// MongoDB 채팅방 생성 API 호출
-							try {
-								$is_dev_env = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
-								$chat_server_url = $is_dev_env
-									? "http://127.0.0.1:3031/newroommake"
-									: "https://127.0.0.1:3030/newroommake";
-							
-
-								$ch = curl_init($chat_server_url);
-								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-								curl_setopt($ch, CURLOPT_POST, true);
-								curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mongo_room_data));
-								curl_setopt($ch, CURLOPT_HTTPHEADER, [
-									'Content-Type: application/json'
-								]);
-								curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-								curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-								curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-								$response = curl_exec($ch);
-								$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-								$curl_error = curl_error($ch);
-								curl_close($ch);
-
-								if ($http_code === 200) {
-									// error_log("[DEBUG] member_request newroommake 성공");
-								} else {
-									// error_log("[DEBUG] member_request newroommake 실패: HTTP {$http_code}, curl_error={$curl_error}");
-								}
-							} catch (Exception $e) {
-								// error_log("[DEBUG] member_request newroommake cURL 예외: " . $e->getMessage());
-							}
-
-							// 신규 방 생성 직후 exit_yn을 리셋해야 목록에 보임 (기존 방 재사용 시와 동일)
-							if (!is_null($rm_idx)) {
-								// error_log("[DEBUG] member_request 신규 방 생성 후 _reset_room_exit_status 호출 직전 - rm_idx={$rm_idx}");
-								$this->_reset_room_exit_status($rm_idx);
-								// error_log("[DEBUG] member_request 신규 방 생성 후 _reset_room_exit_status 호출 직후 - rm_idx={$rm_idx}");
-							}
-						}
+						// 기존 방이 없으면: 신규 생성 (MySQL + MongoDB + exit 리셋)
+						$rm_idx = $this->_create_recruit_room($data["rc_idx"], $data["ru_idx"], $mm_idx, "N");
 					}
 				} catch (Exception $chat_error) {
 					// 채팅방 생성 오류 로그 추가 (조용한 실패 방지)
@@ -1333,43 +1337,8 @@ class Common_proc extends CI_Controller
 					$data["rm_idx"] = $rm_idx;
 				}
 
-				// 다이렉트 채팅인 경우 저장할 mq_type을 room_type(접미사 포함)으로 변경
-				if ($is_direct_chat) {
-				
-
-					// Raw SQL로 직접 INSERT (CodeIgniter's insert() 메서드의 컬럼 순서 문제 회피)
-					$insert_mq_type = $room_type;  // room_type 값 직접 사용
-					$mm_idx_val = $mm_idx;
-					$rc_idx_val = $data["rc_idx"];
-					$origin_rc_idx_val = isset($data["origin_rc_idx"]) ? $data["origin_rc_idx"] : null;
-					$ru_idx_val = $data["ru_idx"];
-					$rm_idx_val = $rm_idx;
-					$reg_dt = get_today();
-
-
-
-					$raw_sql = "INSERT INTO st_member_request (mq_type, mm_idx, rc_idx, origin_rc_idx, ru_idx, rm_idx, reg_dt, mq_status)
-								VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-					$result = $this->db->query($raw_sql, [$insert_mq_type, $mm_idx_val, $rc_idx_val, $origin_rc_idx_val, $ru_idx_val, $rm_idx_val, $reg_dt, "Y"]);
-				
-
-					// INSERT 직후 SELECT로 확인
-					$verify_sql = "SELECT COUNT(*) as cnt FROM st_member_request WHERE mq_type=? AND mm_idx=? AND rc_idx=?";
-					$verify_query = $this->db->query($verify_sql, [$insert_mq_type, $mm_idx_val, $rc_idx_val]);
-					$verify_result = $verify_query->row_array();
-					
-				} else {
-					// 기존 지원/제안: DELETE 후 INSERT (중복 시 덮어씌우기)
-					// error_log("[DEBUG] member_request setMemberRequest BEFORE - mq_type={$mq_type}, rc_idx={$data['rc_idx']}, ru_idx={$data['ru_idx']}, rm_idx={$rm_idx}");
-					$result = $this->member_model->setMemberRequest($data, $data);
-					// error_log("[DEBUG] member_request setMemberRequest AFTER - result=" . json_encode($result));
-
-					// 저장된 내용 재확인
-					$verify_sql = "SELECT mq_idx, mq_type, rm_idx, rc_idx, ru_idx FROM st_member_request WHERE mq_type=? AND mm_idx=? AND rc_idx=? ORDER BY mq_idx DESC LIMIT 1";
-					$verify_query = $this->db->query($verify_sql, [$mq_type, $mm_idx, $data['rc_idx']]);
-					$verify_row = $verify_query->row_array();
-					// error_log("[DEBUG] member_request INSERT 확인 - mq_idx={$verify_row['mq_idx']}, rm_idx={$verify_row['rm_idx']}, rc_idx={$verify_row['rc_idx']}, ru_idx={$verify_row['ru_idx']}");
-				}
+				// 지원/제안 기록: DELETE 후 INSERT (중복 시 덮어씌우기)
+				$result = $this->member_model->setMemberRequest($data, $data);
 
 				// 지원하기 푸시알림 (채용공고 소유자에게)
 				if ($mq_type == "RECRUIT") {

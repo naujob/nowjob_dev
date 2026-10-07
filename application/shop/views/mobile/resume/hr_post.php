@@ -1174,9 +1174,44 @@ if (!$isLogin) {
         submitMemberRequest("", "");
     });
 
+    // 이미 진행 중인 채팅방으로 안내 후 이동 (auto_send 없이 이동하므로 첫 메시지 자동 전송 없음)
+    var goExistingChatRoom = function(msg, rm_idx) {
+        $("#btnDirectChat").attr('data-loading', 'false');
+        commonAlert(msg, function() {
+            $("#selectPanel_hrPost").removeClass("on");
+            location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
+        });
+        $('.btn-close-popup').hide(); // X 버튼 숨기기 (확인으로만 이동)
+    };
+
+    // 같은 공고로 이미 제안한 인재: "다시 보내겠습니까?" 확인 후 기존 채팅방으로 이동하며 제안 메시지 재전송
+    // (제안 기록 추가/포인트 차감 없이 채팅방에 제안 메시지만 다시 보냄)
+    var confirmResendProposal = function(rm_idx, rc_idx) {
+        // hrPostPopup 위에 confirm이 보이도록 z-index 임시 조정
+        $('#hrPostPopup').css('z-index', '200');
+        var restoreZIndex = function() {
+            $('#hrPostPopup').css('z-index', '1000');
+        };
+
+        openPopup('confirm', {
+            content: '이미 제안을 보냈습니다.<br>다시 보내겠습니까?',
+            firstCallback: function() {
+                restoreZIndex();
+                $('.btn-close-popup').show();
+            },
+            secondCallback: function() {
+                restoreZIndex();
+                $("#selectPanel_hrPost").removeClass("on");
+                // auto_send=true + mq_type=RESUME → chat_view에서 제안 메시지(열어보기 카드) 자동 전송
+                location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&mq_type=RESUME&ru_idx=" + $("[name='ru_idx']").val() + "&backUrl=" + encodeURIComponent('/chat/index_comp');
+            }
+        });
+        $('.btn-close-popup').hide();
+    };
+
     // submitMemberRequest 함수 정의 (제안/다이렉트채팅 공통 처리)
     var submitMemberRequest = function(rc_idx, ru_title) {
-        // 다이렉트 채팅은 시간 제한 없이 바로 진행
+        // 다이렉트 채팅은 시간 제한 없이 바로 진행 (지원/제안 기록 없는 순수 채팅)
         if (currentActionMode === 'direct_chat') {
             var params = {};
             var mq_idxs = new Array();
@@ -1188,8 +1223,15 @@ if (!$isLogin) {
 
             comAjax("/common_proc/member_request", params, function(ret) {
                 if (ret.code == "00") {
+                    if (ret.data.already_chatting == "Y") {
+                        // 이미 채팅하기를 했던 상대: 기존 채팅방으로 이동 (첫 메시지 없음)
+                        goExistingChatRoom("이미 채팅중입니다.", ret.data.rm_idx);
+                        return;
+                    }
+                    // 처음 채팅하기: "채팅을 요청하였습니다." 자동 전송
                     location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
                 } else {
+                    $("#btnDirectChat").attr('data-loading', 'false');
                     commonAlert(ret.msg, function() {
                         $("#selectPanel_hrPost").removeClass("on");
                     });
@@ -1273,6 +1315,10 @@ if (!$isLogin) {
                                     // 정식 제안도 chat_view로 직접 리다이렉트 (auto_send=true로 자동메시지 전송)
                                     location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&mq_type=" + ret.data.mq_type + "&ru_idx=" + ret.data.ru_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
                                 }
+                            } else if (ret.code == "02") {
+                                // 같은 공고로 이미 제안한 인재: 다시 보낼지 확인 후 기존 채팅방에서 제안 메시지 재전송
+                                confirmResendProposal(ret.data.rm_idx, rc_idx);
+                                return;
                             } else {
                                 commonAlert(ret.msg, function() {
                                     $("#selectPanel_hrPost").removeClass("on");
@@ -1283,6 +1329,10 @@ if (!$isLogin) {
                     }
                 });
                 $('.btn-close-popup').hide();
+            } else if (ret.code == "02") {
+                // 같은 공고로 이미 제안한 인재: 다시 보낼지 확인 후 기존 채팅방에서 제안 메시지 재전송
+                confirmResendProposal(ret.data.rm_idx, rc_idx);
+                return;
             } else if (ret.code == "01") {
                 // 5분 제한 - 확인 클릭 시 채팅 목록으로 이동
                 if (currentActionMode === 'direct_chat') {

@@ -152,6 +152,42 @@ $top_bar = array(
     fSearchNoReadCount();
   });
 
+  // 목록 행의 마지막 메시지 시각(원본 Y-m-d H:i:s) 구하기
+  // - 정식 행: 서버가 내려준 last_msg_dt (up_dt/last_msg_time은 "오후 3:12" 같은 표시용 문자열이라 정렬 불가)
+  // - 다이렉트 행: last_msg_time(원본), 메시지가 없으면 방 갱신일(reg_dt)
+  function getChatListDateTime(row) {
+    if (row.last_msg_dt) return row.last_msg_dt;
+    var isDirect = (row._category === 'direct_sent' || row._category === 'direct_received');
+    if (isDirect) return toChatListDateTime(row.last_msg_time) || toChatListDateTime(row.reg_dt);
+    // last_msg_dt가 없는 경우(구버전 응답) 표시용 문자열을 원본 시각으로 복원
+    return toChatListDateTime(row.last_msg_time) || toChatListDateTime(row.up_dt);
+  }
+
+  // 시각 문자열을 "YYYY-MM-DD HH:MM:SS"로 변환 ("오전/오후 h:mm" → 오늘, "어제" → 어제 날짜, "YYYY-MM-DD ..." → 그대로)
+  function toChatListDateTime(value) {
+    if (!value) return "";
+    var str = String(value).trim();
+    var pad = function(n) { return (n < 10 ? "0" : "") + n; };
+    var ymd = function(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+    var m = str.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+    if (m && m[1] === "0000") return ""; // MySQL 빈 날짜(0000-00-00)는 값 없음으로 처리
+    if (m) return m[1] + "-" + m[2] + "-" + m[3] + " " + (m[4] || "00") + ":" + (m[5] || "00") + ":" + (m[6] || "00");
+    var t = str.match(/^(오전|오후)\s*(\d{1,2}):(\d{2})/);
+    if (t) {
+      var hour = parseInt(t[2], 10) % 12 + (t[1] === "오후" ? 12 : 0);
+      return ymd(new Date()) + " " + pad(hour) + ":" + t[3] + ":00";
+    }
+    if (str === "어제") return ymd(new Date(Date.now() - 86400000)) + " 00:00:00";
+    return "";
+  }
+
+  // 목록 시간 표시: 시간 없이 날짜만 "YYYY-MM-DD"
+  function formatChatListTime(dt) {
+    if (!dt) return "";
+    var m = String(dt).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? (m[1] + "-" + m[2] + "-" + m[3]) : "";
+  }
+
   // 통합 채팅 목록 조회 함수 (4개 데이터소스 병렬 호출)
   function getChatTargetListUnified() {
     var promises = [];
@@ -203,9 +239,10 @@ $top_bar = array(
       results.forEach(function(res) {
         if (res && res.data && res.data.code == "00" && res.data.data && res.data.data.list) {
           var list = res.data.data.list;
-      
+
           list.forEach(function(row) {
             row._category = res.category;
+            row._list_dt = getChatListDateTime(row);
             allRows.push(row);
           });
         }
@@ -213,16 +250,16 @@ $top_bar = array(
 
 
 
-      // 시간순 정렬 (최신이 위)
+      // 마지막 메시지 시각 순 정렬 (최신이 위, 시각 없는 행은 아래)
       allRows.sort(function(a, b) {
-        var timeA = a.up_dt || a.reg_dt || a.last_msg_time || "";
-        var timeB = b.up_dt || b.reg_dt || b.last_msg_time || "";
-        return timeB > timeA ? 1 : -1;
+        if (a._list_dt === b._list_dt) return 0;
+        return b._list_dt > a._list_dt ? 1 : -1;
       });
 
      
 
-      // 채팅방(rm_idx) 기준 중복제거 - 같은 rm_idx는 가장 최신 기록만 유지
+      // 채팅방(rm_idx) 기준 중복제거 - 같은 rm_idx는 정식(지원/제안) 행 우선, 같은 종류면 가장 최신 기록 유지
+      // (서버에서 방 분류가 나뉘어 한 방은 한 목록에만 오지만, 레거시 데이터 대비 안전망)
       var dedupedByRoom = {};
       allRows.forEach(function(row) {
         var rmIdx = row.rm_idx;
@@ -230,9 +267,16 @@ $top_bar = array(
         if (!rmIdx) {
           return;
         }
-        // 같은 rm_idx 중 가장 먼저 나온 것(= 가장 최신)만 유지
+        var isDirectRow = (row._category === 'direct_sent' || row._category === 'direct_received');
         if (!dedupedByRoom[rmIdx]) {
           dedupedByRoom[rmIdx] = row;
+        } else {
+          var existing = dedupedByRoom[rmIdx];
+          var existingIsDirect = (existing._category === 'direct_sent' || existing._category === 'direct_received');
+          // 기존이 다이렉트이고 지금 행이 정식이면 정식으로 교체 (정렬상 먼저 나온 것이 최신)
+          if (existingIsDirect && !isDirectRow) {
+            dedupedByRoom[rmIdx] = row;
+          }
         }
       });
 
@@ -269,7 +313,7 @@ $top_bar = array(
         $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
         $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
         $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
-        $content = $content.replaceAll("{{up_dt}}", row.up_dt || row.reg_dt || "");
+        $content = $content.replaceAll("{{up_dt}}", formatChatListTime(row._list_dt));
 
        
 
@@ -283,11 +327,9 @@ $top_bar = array(
 
    
 
-      // PHP에서 이미 포맷팅된 시간을 표시 (날짜만)
+      // 마지막 메시지 시각 표시 (템플릿에서 이미 포맷팅된 값을 data-time에 넣음)
       $("#chat_list .last-chat-time").each(function() {
-        var fullTime = $(this).attr('data-time');
-        var dateOnly = fullTime.split(' ')[0];
-        $(this).text(dateOnly);
+        $(this).text($(this).attr('data-time') || "");
       });
 
       // 미확인 채팅건수 조회

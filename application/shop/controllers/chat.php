@@ -414,13 +414,16 @@ class Chat extends CI_Controller
       }
     }
 
-    // 다이렉트 채팅방 여부 판정 (URL 파라미터 from 대신 실제 DB 기준)
-    // 방에 저장된 rc_idx가 더미 공고(rc_auto_yn='Y')를 가리키면 아직 실제 지원/제안 전인 순수 다이렉트 채팅방.
-    // propose_from_room()에서 지원/제안을 하면 updateRoom()이 room의 rc_idx를 실제 값으로 갱신하므로,
-    // 그 시점부터는 rc_auto_yn이 'N'이 되어 카드가 자동으로 보이게 됨.
-    // (st_member_request.mq_type은 방이 원래 다이렉트였으면 실제 지원/제안 후에도 _DIRECT 접미사가 유지되어 판정 기준으로 쓸 수 없음)
-    $data["is_direct_chat_room"] = false;
-    if ($final_rc_idx) {
+    // 방 분류: 정식(RECRUIT/RESUME) 요청이 1건이라도 있으면 정식 방, 없으면 순수 채팅방(다이렉트)
+    // (다이렉트 채팅은 요청 기록을 남기지 않으므로 기록이 없거나 레거시 _DIRECT 기록만 있는 방이 순수 채팅방)
+    $room_request_state = $this->member_model->getRoomRequestState($rm_idx);
+
+    // 공고 카드 숨김 여부: 제안/지원 이력이 없는 방
+    // - 방의 rc_idx가 더미 공고(rc_auto_yn='Y')인 레거시 다이렉트 방
+    // - 요청 기록이 하나도 없는 순수 채팅방 (rc_idx가 실제 공고여도 제안/지원한 공고가 아니므로 숨김)
+    // 레거시 다이렉트 방에서 방 안 제안 후 rc_idx가 실제 공고로 바뀐 경우는 기록이 있으므로 카드를 보여준다.
+    $data["is_direct_chat_room"] = !$room_request_state["any"];
+    if (!$data["is_direct_chat_room"] && $final_rc_idx) {
       $recruit_auto_row = $this->db->query(
         "SELECT rc_auto_yn FROM st_recruit WHERE rc_idx = ?",
         [$final_rc_idx]
@@ -431,23 +434,8 @@ class Chat extends CI_Controller
       }
     }
 
-    // 다이렉트 채팅방 여부 판정
-    // 이 방에서 정상(제안/지원) 요청이 한 번이라도 발생했다면, _DIRECT 이력이 남아있어도
-    // 더 이상 다이렉트 채팅방이 아닌 일반 제안/지원 채팅방으로 취급한다.
-    $normal_request_check = $this->db->query(
-      "SELECT mq_idx FROM st_member_request WHERE rm_idx = ? AND mq_type IN ('RESUME', 'RECRUIT') LIMIT 1",
-      [$rm_idx]
-    )->row_array();
-
-    if ($normal_request_check) {
-      $data["is_direct_chat"] = false;
-    } else {
-      $direct_check = $this->db->query(
-        "SELECT mq_idx FROM st_member_request WHERE rm_idx = ? AND mq_type LIKE '%_DIRECT' LIMIT 1",
-        [$rm_idx]
-      )->row_array();
-      $data["is_direct_chat"] = $direct_check ? true : false;
-    }
+    // 다이렉트(순수 채팅방) 여부: 정식 요청이 없으면 다이렉트 (헤더/제안 패널에서 사용)
+    $data["is_direct_chat"] = !$room_request_state["formal"];
 
     // 상대방의 실제(더미가 아닌) 이력서/채용공고 목록을 항상 mm_idx 기준으로 조회
     // is_direct_chat 판정에 의존하지 않고, 상대방 mm_idx로 직접 조회하여 항상 최신 데이터 사용
