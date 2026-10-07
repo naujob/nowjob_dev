@@ -1290,6 +1290,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <?php } else { ?>
                   <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn-request btn-primary">지원하기</button>
                 <?php } ?>
+                <!-- 전화하기 버튼: 누구나 클릭 가능 (이미 공개된 기업 연락처를 그대로 표시, 서버 호출 없음) -->
+                <button type="button" id="btnCallRecruit" class="btn-request btn-primary" data-state="idle" data-phone="<?= htmlspecialchars(formatPhoneNumber($mem_info["mm_phone"]), ENT_QUOTES, 'UTF-8') ?>">
+                  <span class="call-text">전화하기</span>
+                </button>
               <?php } ?>
 
               <?php if ($isPreview) { ?>
@@ -2244,6 +2248,22 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
     // 기업회원이 자신의 채용공고를 볼 때: 광고신청 버튼 클릭 이벤트
     $(document).on('click', '#btnPromotionRecruit', function() {
       location.href = "/compage/point_promotion_buy";
+    });
+
+    // 전화하기 버튼: 누구나 클릭 가능, 서버 호출 없이 이미 렌더링된 연락처를 바로 표시
+    $(document).off('click', '#btnCallRecruit').on('click', '#btnCallRecruit', function(e) {
+      e.preventDefault();
+      var $btn = $(this);
+
+      if ($btn.attr('data-state') === 'revealed') {
+        return false;
+      }
+
+      var phone = $btn.attr('data-phone');
+      $btn.attr('data-state', 'revealed');
+      $btn.find('.call-text').text(phone);
+
+      return false;
     });
 
     // 미리보기 모드: 등록/수정 완료 버튼 클릭 이벤트
