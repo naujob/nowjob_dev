@@ -805,8 +805,8 @@ function fRemoveBigAdrPHP($arg)
             </div>
           </div>
 
-          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px); margin-top: 30px;"' : 'style="margin-top: 30px;"'; ?>>
-            <h3 class="secondary-title">자기소개</h3>
+          <h3 class="secondary-title" style="margin-top: 30px;">자기소개</h3>
+          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
             <div class="introduce-wrap">
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
             </div>
@@ -816,11 +816,11 @@ function fRemoveBigAdrPHP($arg)
           </div>
 
 
+          <h3 class="secondary-title">경력소개</h3>
           <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
             <div class="summary">
               <div class="inline-group">
                 <div class="col">
-                  <h3 class="secondary-title">경력소개</h3>
                   <table class="info-table">
                     <caption><span class="sr-text">경력소개</span></caption>
                     <colgroup>
