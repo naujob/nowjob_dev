@@ -1064,6 +1064,10 @@ function fRemoveBigAdrPHP($arg)
                         data-rc_idx="<?= isset($chat_rc_idx) ? htmlspecialchars($chat_rc_idx, ENT_QUOTES, 'UTF-8') : '' ?>"
                         data-tab="<?= isset($chat_tab) ? htmlspecialchars($chat_tab, ENT_QUOTES, 'UTF-8') : '2' ?>">채팅하기</button>
                   <?php } ?>
+                <!-- 전화하기 버튼: 기업회원만 사용 가능 (일반회원/비로그인은 클릭 시 안내 팝업) -->
+                <button type="button" id="btnCallResume" class="btn-request btn-primary" data-state="idle">
+                  <span class="call-text">전화하기</span>
+                </button>
                 <?php } ?>
 
                 <?php if ($isPreview) { ?>
@@ -1298,6 +1302,56 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     } else {
       $("#selectPanel").addClass("on");
     }
+
+    return false;
+  });
+
+  // 기업회원이 구직자에게 전화(050 안심번호) 연결: 로그인/기업회원 여부 확인 후 가상번호 요청
+  $(document).off('click', '#btnCallResume').on('click', '#btnCallResume', function(e) {
+    e.preventDefault();
+    var $btn = $(this);
+
+    // 이미 안심번호를 받아온 상태거나 요청 중이면 재요청하지 않음
+    if ($btn.attr('data-state') === 'revealed' || $btn.attr('data-state') === 'loading') {
+      return false;
+    }
+
+    // 로그인 여부 확인 (btnPropose와 동일한 패턴)
+    if ($("#is_login").val() != "Y") {
+      openPopup('confirm', {
+        id: 'loginconfirm',
+        content: '<strong>로그인후 이용해주세요!</strong><small></small>',
+        firstButton: '로그인',
+        secondButton: '회원가입',
+        firstCallback: function() {
+          location.href = "/member/login";
+        },
+        secondCallback: function() {
+          setCookie('non_mem_last_resume', window.location.href, 1);
+          location.href = "/member/join_start";
+        },
+      });
+      return false;
+    }
+
+    // 기업회원 전용 기능
+    if (check_user_type != "COMP") {
+      commonAlert("기업회원만 이용가능합니다.", function() {});
+      return false;
+    }
+
+    var ruIdx = $("[name=ru_idx]").val();
+    $btn.attr('data-state', 'loading');
+
+    comAjax("/resume_proc/get_call_number", { ru_idx: ruIdx }, function(ret) {
+      if (ret.code == "00" && ret.data && ret.data.vn) {
+        $btn.attr('data-state', 'revealed');
+        $btn.find('.call-text').text("안심번호: " + ret.data.vn);
+      } else {
+        $btn.attr('data-state', 'idle');
+        commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
+      }
+    });
 
     return false;
   });

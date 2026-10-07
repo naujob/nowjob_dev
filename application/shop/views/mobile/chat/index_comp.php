@@ -131,18 +131,14 @@ $top_bar = array(
       var talentSentList = result1.data && result1.data.code == "00" ? result1.data.data.list : [];
       var talentReceivedList = result2.data && result2.data.code == "00" ? result2.data.data.list : [];
 
-      console.log('[DEBUG stage-1] talentSentList rc_idx:', talentSentList.map(r => r.rc_idx));
-      console.log('[DEBUG stage-1] talentReceivedList rc_idx:', talentReceivedList.map(r => r.rc_idx));
+ 
 
       $.when(
         processRecruitList(talentSentList, 'chatPanel1'),
         processRecruitList(talentReceivedList, 'chatPanel2')
       ).done(function(sentRows, receivedRows) {
         // 정식 지원/제안 목록 통합
-        console.log('제안보낸인재 행:', (sentRows || []).length);
-        console.log('지원받은인재 행:', (receivedRows || []).length);
-        console.log('[DEBUG stage-2] sentRows mm_idx:', (sentRows || []).map(r => r.mm_idx));
-        console.log('[DEBUG stage-2] receivedRows mm_idx:', (receivedRows || []).map(r => r.mm_idx));
+    
 
         allRows = allRows.concat(sentRows || []);
         allRows = allRows.concat(receivedRows || []);
@@ -158,8 +154,7 @@ $top_bar = array(
           allRows = allRows.concat(result4.data.data.list);
         }
 
-        console.log('보낸 다이렉트:', sent_direct, '받은 다이렉트:', received_direct);
-        console.log('통합 전 전체 행:', allRows.length);
+        
 
         // 시간순 정렬 (최신이 위)
         allRows.sort(function(a, b) {
@@ -168,7 +163,7 @@ $top_bar = array(
           return timeB > timeA ? 1 : -1;
         });
 
-        console.log('정렬 후 전체 행:', allRows.length);
+        
 
         // 카테고리별 중복 제거 로직 (rm_idx 최우선, 같은 방이면 최신 1건만)
         // - rm_idx당 1개 (정식/다이렉트 혼재 방지)
@@ -215,8 +210,7 @@ $top_bar = array(
           return timeB > timeA ? 1 : -1;
         });
 
-        console.log('rm_idx dedupe 후 전체:', Object.keys(dedupedByRmIdx).length);
-        console.log('최종 렌더링 행:', dedupedList.length);
+     
 
         // 메모리에서 전체 HTML 구성 (리플로우 최소화)
         var htmlBuffer = "";
@@ -254,13 +248,7 @@ $top_bar = array(
           $content = $content.replaceAll("{{up_dt}}", row.reg_dt || row.up_dt || "");
           $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
 
-          console.log('렌더링 행 #' + (idx + 1) + ':', {
-            mm_idx: row.mm_idx,
-            rm_idx: row.rm_idx,
-            rc_name: row.rc_name,
-            target_name: row.target_name
-          });
-
+     
           // 프로필 이미지 처리
           var maleAvatarPath = "/resource/shop/web/img/avatar_icon2_m.png";
           var femaleAvatarPath = "/resource/shop/web/img/avatar_resume_w.png";
@@ -300,7 +288,7 @@ $top_bar = array(
           $(this).text(dateOnly);
         });
 
-        console.log('렌더링 완료, DOM 요소 개수:', $("#chat_list li").length);
+       
 
         // 목록 표시
         var chatListParent = $("#chat_list").parent();
@@ -309,15 +297,15 @@ $top_bar = array(
         isLoadingChatList = false; // 로딩 완료
 
         // 미확인 채팅건수 조회
-        console.log('fSearchNoReadCount() 호출');
+       
         fSearchNoReadCount();
 
         // empty 상태 재평가
         if (dedupedList.length === 0) {
-          console.log('목록 비어있음 - chat_empty1 표시');
+   
           $("#chat_empty1").show();
         } else {
-          console.log('목록 있음 - chat_empty1 숨김');
+       
           $("#chat_empty1").hide();
         }
       }).fail(function() {
@@ -684,7 +672,7 @@ $top_bar = array(
         var myId = $("#user_id").val();
         let result = ret.data.result;
 
-        console.log('[Android] fSearchNoReadCount 응답, 전체 room 수:', Object.keys(result).length, '현재 사용자:', myId);
+    
 
         // 모든 room의 미확인 메시지 개수를 집계
         $.each(result, function(key, room) {
@@ -701,7 +689,7 @@ $top_bar = array(
           var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
           if ($unreadElement.length > 0) {
             // 현재 페이지에 있는 채팅방
-            console.log('[Android] 배지 업데이트: rm_idx=' + room.rm_idx + ', 미읽음=' + count);
+         
             $unreadElement.html(count);
             if (count > 0) {
               $unreadElement.show();
@@ -867,7 +855,7 @@ $top_bar = array(
 
         let result = ret.data.result;
 
-        console.log('[Web] fSearchNoReadCount 응답, 전체 room 수:', Object.keys(result).length, '현재 사용자:', myId);
+     
 
         // 모든 room의 미확인 메시지 개수를 먼저 집계
         $.each(result, function(key, room) {
@@ -884,7 +872,7 @@ $top_bar = array(
           var $unreadElement = $('#room_idx_unread_cnt_' + room.rm_idx);
           if ($unreadElement.length > 0) {
             // 현재 페이지에 있는 채팅방
-            console.log('[Web] 배지 업데이트: rm_idx=' + room.rm_idx + ', 미읽음=' + count);
+         
             $unreadElement.html(count);
             if (count > 0) {
               $unreadElement.show();

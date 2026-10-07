@@ -9093,6 +9093,14 @@ body {
     background-size: contain;
 }
 
+/* 전화하기 버튼: chat_top_call.png 이미지 사용 */
+#btnCallResume:before {
+    background: url("../img/chat_top_call.png") no-repeat 0 0;
+    background-size: contain;
+}
+#btnCallResume {
+    background-color: #1B9D7D;
+}
 .btn-request .selected {
     font-style: normal;
     color: #FFF700;

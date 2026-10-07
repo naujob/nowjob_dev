@@ -854,6 +854,16 @@ class Resume_proc extends CI_Controller
   # 050 가상번호 발급/재사용 (기업이 구직자에게 전화 클릭 시)
   function get_call_number()
   {
+    // 보안: 로그인 및 기업회원 여부를 서버에서도 검증 (클라이언트 체크만으로는 ru_idx를 임의로 넘겨 직접 호출 가능)
+    if (!$this->user->isLogin()) {
+      json_return("90", "로그인이 필요합니다.");
+      return;
+    }
+    if ($this->user->getUserType() != "COMP") {
+      json_return("97", "기업회원만 이용 가능합니다.");
+      return;
+    }
+
     $ru_idx = input_post("ru_idx", "");
     if ($ru_idx == "") {
       json_return("99", "잘못된 요청입니다.");
