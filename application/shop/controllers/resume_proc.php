@@ -768,35 +768,28 @@ class Resume_proc extends CI_Controller
     $ru_idx = input_post("ru_idx", "");
     $rc_idx = input_post("rc_idx", "");
 
-    // 같은 공고로 같은 이력서에 이미 제안했으면 재제안하지 않고 기존 채팅방으로 안내 (code 02 + rm_idx)
+    // 같은 공고로 같은 이력서에 이미 제안했으면 다시 제안할 수 있도록 안내 (code 02 + rm_idx)
     $active_rm_idx = $this->member_model->findActiveRequestRoom("RESUME", $mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
     if ($active_rm_idx) {
-      json_return("02", "이미 제안을 보냈습니다.", array("rm_idx" => $active_rm_idx));
+      json_return("02", "이미 제안을 보냈습니다. 다시 보내시겠습니까.", array("rm_idx" => $active_rm_idx));
       return;
     }
 
-    // 최근 5분 이내 제안 이력 확인 (MemberModel 공통 메서드 사용)
-    if ($this->member_model->checkDuplicateRequestWithinFiveMin("RESUME", $rc_idx, $ru_idx)) {
-      json_return("01", "5분 후 다시 제안이 가능합니다.");
-      return;
-    }
-
-    // 회원이 이미 지원한 공고-이력서 조합인지 확인 (rc_idx가 있을 때만)
+    // 회원(이력서 소유자)이 이미 지원한 공고-이력서 조합인지 확인 (rc_idx가 있을 때만)
     if (!empty($rc_idx) && !empty($ru_idx)) {
-      $sql_support = "
-                SELECT COUNT(*) as cnt
-                FROM st_member_request
-                WHERE mq_type = 'RECRUIT'
-                AND rc_idx = '" . $this->db->escape_str($rc_idx) . "'
-                AND ru_idx = '" . $this->db->escape_str($ru_idx) . "'
-            ";
-      $query_support = $this->db->query($sql_support);
-      $support_result = $query_support->row_array();
+      // ru_idx의 소유자(mm_idx) 조회
+      $sql_owner = "SELECT mm_idx FROM st_resume WHERE ru_idx = ?";
+      $result_owner = $this->db->query($sql_owner, array($ru_idx));
+      $owner_row = $result_owner->row_array();
 
-      if ($support_result && $support_result["cnt"] > 0) {
-        // 지원이 이미 있는 경우 알림창 표시
-        json_return("90", "이미 회원이 지원한 공고입니다.<br/>같은 공고와 같은 이력서로 제안할 수 없습니다.");
-        return;
+      if ($owner_row) {
+        $owner_mm_idx = $owner_row["mm_idx"];
+        // 그 소유자가 이 공고에 RECRUIT(지원)으로 보낸 활성 요청이 있는지 확인
+        $active_rm_idx = $this->member_model->findActiveRequestRoom("RECRUIT", $owner_mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
+        if ($active_rm_idx) {
+          json_return("02", "이미 회원이 지원한 공고입니다. 다시 제안을 보내시겠습니까.", array("rm_idx" => $active_rm_idx));
+          return;
+        }
       }
     }
 

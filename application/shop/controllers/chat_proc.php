@@ -3128,25 +3128,6 @@ json_return("00", "조회완료", $data);
 			}
 		}
 
-		// 중복 체크: 5분 이내 재제안은 차단, 5분 이상 경과 후에는 재제안 가능
-		$sql_dup = "SELECT mq_idx, reg_dt FROM st_member_request WHERE rc_idx = ? AND ru_idx = ? LIMIT 1";
-		$query_dup = $this->db->query($sql_dup, array($rc_idx, $ru_idx));
-		$dup_row = $query_dup->row_array();
-
-		if ($dup_row) {
-			// 마지막 제안/지원 시간과 현재 시간 비교
-			$reg_time = strtotime($dup_row["reg_dt"]);
-			$current_time = time();
-			$elapsed_minutes = floor(($current_time - $reg_time) / 60);
-
-			// 5분 이내이면 차단
-			if ($elapsed_minutes < 5) {
-				$dup_msg = ($mq_type == "RESUME") ? "이미 제안한 이력이 있습니다." : "이미 지원한 이력이 있습니다.";
-				json_return("90", $dup_msg);
-			}
-			// 5분 이상 경과했으면 계속 진행 (setMemberRequest에서 기존 기록 삭제 후 재등록)
-		}
-
 		// 등록 처리 (채팅방 내 제안/지원은 포인트 차감 없음)
 		// 순수 채팅방(다이렉트)에서의 제안/지원도 정식(RECRUIT/RESUME)으로 기록 → 이 시점부터 정식 방으로 승격
 		$data = array(

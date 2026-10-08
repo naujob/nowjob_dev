@@ -1179,25 +1179,17 @@ class Common_proc extends CI_Controller
 					$data["rc_idx"] = $idx;
 					$data["ru_idx"] = $resume["ru_idx"];
 
-					// 기업이 이미 제안한 공고-이력서 조합인지 확인 (mm_idx 제외하고 rc_idx와 ru_idx만으로 확인)
-					$sql_proposal = "
-						SELECT COUNT(*) as cnt
-						FROM st_member_request
-						WHERE mq_type = 'RESUME'
-						AND rc_idx = '" . $this->db->escape_str($data["rc_idx"]) . "'
-						AND ru_idx = '" . $this->db->escape_str($data["ru_idx"]) . "'
-					";
-					$query_proposal = $this->db->query($sql_proposal);
-					if (!$query_proposal) {
-					
-						json_return("99", "요청 처리 중 오류가 발생했습니다.");
+					// 공고 소유 기업의 mm_idx 조회
+					$recruit_row = $this->db->where('rc_idx', $data["rc_idx"])->get('st_recruit')->row_array();
+					if (!$recruit_row) {
+						json_return("99", "공고 정보를 찾을 수 없습니다.");
 					}
-					$proposal_result = $query_proposal->row_array();
+					$owner_mm_idx = $recruit_row["mm_idx"];
 
-					if ($proposal_result && $proposal_result["cnt"] > 0) {
-					
-						// 제안이 이미 있는 경우 알림창 표시
-						json_return("90", "이미 기업에서 제안한 공고입니다.<br/>같은 공고와 같은 이력서로 지원할 수 없습니다.");
+					// 기업이 이미 이 이력서로 제안한 적이 있는지 확인
+					$proposal_rm_idx = $this->member_model->findActiveRequestRoom("RESUME", $owner_mm_idx, $data["rc_idx"], $data["ru_idx"], $user_id, $user_phone);
+					if ($proposal_rm_idx) {
+						json_return("02", "이미 기업에서 제안한 공고입니다. 다시 지원을 보내시겠습니까?", array("rm_idx" => $proposal_rm_idx));
 					}
 				} else if ($mq_type == "RESUME") {
 					$data["ru_idx"] = $idx;
@@ -1214,12 +1206,6 @@ class Common_proc extends CI_Controller
 					$dup_rm_idx = $active_rm_idx;
 					$dup_ru_idx = $data["ru_idx"];
 					continue;
-				}
-
-				// 재전송 시 최근 5분 이내 중복 요청 차단 (MemberModel 공통 메서드 사용)
-				if ($this->member_model->checkDuplicateRequestWithinFiveMin($mq_type, $data["rc_idx"], $data["ru_idx"])) {
-					$wait_msg = ($mq_type == "RECRUIT") ? "<em>5분 후</em> 다시 지원이 가능합니다." : "<em>5분 후</em> 다시 제안이 가능합니다.";
-					json_return("01", $wait_msg);
 				}
 
 				$request_idxs[] = $idx;

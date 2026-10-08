@@ -377,7 +377,7 @@
     <div class="top-bar top-bar--chat">
         <!--<a href="javascript:_replace('/chat/chat_list');" class="btn-replace"><span class="sr-text">이전으로</span></a>-->
         <a href="javascript:void(0);" class="btn-replace js-chat-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;margin: -10px 0 0;">
+        <h1 class="title" id="rm_subject" style="display: flex; align-items: center; gap: 0.7rem; font-size: 1.1rem;max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;margin: -10px 0 0 1rem;">
           <?php if ($user_type == "COMP"): ?>
             <?php
             // 다이렉트 채팅의 경우 대표이력서 사용, 정식 제안의 경우 현재 이력서 사용
@@ -2781,6 +2781,75 @@
     // 1단계(내 항목) → 2단계(상대방 항목) 사이에 선택값을 잠시 들고 있기 위한 변수
     var proposeStep1Selection = null;
 
+    // 채팅방 내 제안/지원 중복 확인: "이미 제안을 보냈습니다 다시 보내겠습니까?" 팝업
+    function confirmResendProposal(mqType, selectedName, customMsg) {
+        // customMsg가 있으면 사용, 없으면 기본 메시지 사용
+        var msgText = customMsg || ((mqType == "RESUME")
+            ? "이미 제안을 보냈습니다.\n다시 보내겠습니까?"
+            : "이미 지원을 보냈습니다.\n다시 보내겠습니까?");
+
+        // PHP 응답의 <br/> 태그를 줄바꿈으로 변환 (linebreak 정규화)
+        msgText = msgText.replace(/<br\s*\/?>/gi, '\n');
+
+        openPopup('confirm', {
+            content: msgText,
+            firstCallback: function() {
+                // 취소: 팝업만 닫음
+            },
+            secondCallback: function() {
+                // 확인: 실제 제안/지원 전송
+                if (proposeStep1Selection) {
+                    // 1단계 선택 후 메뉴에서 재선택한 경우
+                    submitPropose(
+                        proposeStep1Selection.mqType,
+                        proposeStep1Selection.selectedIdx,
+                        proposeStep1Selection.selectedName,
+                        proposeStep1Selection.opponentIdx,
+                        proposeStep1Selection.$panelToClose
+                    );
+                    proposeStep1Selection = null;
+                }
+            }
+        });
+    };
+
+    // 중복 확인 후 제안/지원 전송
+    function checkDuplicateAndSubmitPropose(mqType, selectedIdx, selectedName, opponentIdx, $panelToClose) {
+        var params = {
+            mq_type: mqType,
+            rc_idx: (mqType == "RESUME") ? selectedIdx : opponentIdx,
+            ru_idx: (mqType == "RESUME") ? opponentIdx : selectedIdx
+        };
+
+        // mqType에 따라 올바른 엔드포인트 호출 (hr_post.php/job_post.php와 동일)
+        var todayApplyUrl = (mqType == "RESUME") ? "/resume_proc/todayapply" : "/recruit_proc/todayapply";
+
+        comAjax(todayApplyUrl, params, function(ret) {
+            if (ret.code == "00") {
+                // 중복 없음: 즉시 제안/지원 전송
+                submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $panelToClose);
+            } else if (ret.code == "02" || ret.code == "90") {
+                // 중복 있음 또는 교차 타입 충돌: 확인 팝업 표시 후 재전송 가능
+                confirmResendProposal(mqType, selectedName, ret.msg);
+                // 선택값 보관 (사용자가 "다시 보내겠습니까?" 확인할 때 사용)
+                proposeStep1Selection = {
+                    mqType: mqType,
+                    selectedIdx: selectedIdx,
+                    selectedName: selectedName,
+                    opponentIdx: opponentIdx,
+                    $panelToClose: $panelToClose
+                };
+            } else {
+                // 기타 오류
+                commonAlert(ret.msg || "확인 중 오류가 발생했습니다.", function() {
+                    if ($panelToClose && $panelToClose.length > 0 && typeof closePanel === "function") {
+                        closePanel($panelToClose[0]);
+                    }
+                });
+            }
+        });
+    }
+
     // 실제 API 호출 + 완료 후처리 (일반 채팅방/다이렉트 채팅방 공통)
     function submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $panelToClose) {
         var params = {
@@ -2820,19 +2889,19 @@
     // 상대방의 mm_idx 기준으로 조회한 대표 이력서/공고를 항상 사용 (is_direct_chat 판정에 의존하지 않음)
     function proceedProposeWithOwnSelection(mqType, selectedIdx, selectedName) {
         if (mqType == "RESUME") {
-            // COMP → 상대방 대표이력서 자동 선택, 팝업 없이 즉시 전송
+            // COMP → 상대방 대표이력서 자동 선택, 중복 확인 후 전송
             if (!opponentMainResumeIdx) {
                 alert("상대방이 대표 이력서를 등록하지 않아 제안할 수 없습니다.");
                 return;
             }
-            submitPropose(mqType, selectedIdx, selectedName, opponentMainResumeIdx, $("#proposeSelectPanel"));
+            checkDuplicateAndSubmitPropose(mqType, selectedIdx, selectedName, opponentMainResumeIdx, $("#proposeSelectPanel"));
         } else {
-            // MEM → 상대방 채용공고 자동 선택, 팝업 없이 즉시 전송
+            // MEM → 상대방 채용공고 자동 선택, 중복 확인 후 전송
             if (!opponentMainRecruitIdx) {
                 alert("상대방이 채용공고를 등록하지 않아 지원할 수 없습니다.");
                 return;
             }
-            submitPropose(mqType, selectedIdx, selectedName, opponentMainRecruitIdx, $("#proposeSelectPanel"));
+            checkDuplicateAndSubmitPropose(mqType, selectedIdx, selectedName, opponentMainRecruitIdx, $("#proposeSelectPanel"));
         }
     }
 
@@ -2866,7 +2935,7 @@
         }
         var opponentIdx = $checkedOpponent.data("opponent-id") || $checkedOpponent.val();
 
-        submitPropose(
+        checkDuplicateAndSubmitPropose(
             proposeStep1Selection.mqType,
             proposeStep1Selection.selectedIdx,
             proposeStep1Selection.selectedName,
@@ -4819,7 +4888,7 @@
         line-height: 1.4;
         cursor: pointer;
         pointer-events: none; /* 클릭 이벤트는 상위 .propose-bubble에서 처리, 버튼은 시각적 안내용 */
-       margin-left: 133px;
+       margin-left: 167px;
     }
 
     .chat-bubble.diff .btn-propose-view {

@@ -1333,26 +1333,6 @@ if (!$isLogin) {
                 // 같은 공고로 이미 제안한 인재: 다시 보낼지 확인 후 기존 채팅방에서 제안 메시지 재전송
                 confirmResendProposal(ret.data.rm_idx, rc_idx);
                 return;
-            } else if (ret.code == "01") {
-                // 5분 제한 - 확인 클릭 시 채팅 목록으로 이동
-                if (currentActionMode === 'direct_chat') {
-                    $("#btnDirectChat").attr('data-loading', 'false');
-                }
-                commonAlert("<em>5분 후</em> 다시 제안이 가능합니다.", function() {
-                    location.href = "/chat/chat_list3";
-                });
-                $('.btn-close-popup').hide(); // X 버튼 숨기기
-                return;
-            } else if (ret.code == "90") {
-                // 지원이 이미 있는 경우
-                if (currentActionMode === 'direct_chat') {
-                    $("#btnDirectChat").attr('data-loading', 'false');
-                }
-                commonAlert(ret.msg, function() {
-                    // 알림 후 패널 닫기
-                    $("#selectPanel_hrPost").removeClass("on");
-                });
-                return;
             } else {
                 if (currentActionMode === 'direct_chat') {
                     $("#btnDirectChat").attr('data-loading', 'false');

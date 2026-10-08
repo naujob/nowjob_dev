@@ -954,34 +954,29 @@ class Recruit_proc extends CI_Controller
 			return;
 		}
 
-		// 같은 이력서로 같은 공고에 이미 지원했으면 재지원하지 않고 기존 채팅방으로 안내 (code 02 + rm_idx)
+		// 같은 이력서로 같은 공고에 이미 지원했으면 다시 지원할 수 있도록 안내 (code 02 + rm_idx)
 		$active_rm_idx = $this->member_model->findActiveRequestRoom("RECRUIT", $mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
 		if ($active_rm_idx) {
-			json_return("02", "이미 지원했습니다.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx));
+			json_return("02", "이미 지원했습니다. 다시 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx));
 			return;
 		}
 
-		// 최근 5분 이내 지원 이력 확인 (MemberModel 공통 메서드 사용)
-		if ($this->member_model->checkDuplicateRequestWithinFiveMin("RECRUIT", $rc_idx, $ru_idx)) {
-			json_return("01", "5분 후 다시 지원이 가능합니다.");
-			return;
-		}
+		// 기업(공고 소유자)이 이미 제안한 공고-이력서 조합인지 확인
+		if (!empty($rc_idx) && !empty($ru_idx)) {
+			// rc_idx의 소유자(mm_idx) 조회
+			$sql_owner = "SELECT mm_idx FROM st_recruit WHERE rc_idx = ?";
+			$result_owner = $this->db->query($sql_owner, array($rc_idx));
+			$owner_row = $result_owner->row_array();
 
-		// 기업이 이미 제안한 공고-이력서 조합인지 확인
-		$sql_proposal = "
-			SELECT COUNT(*) as cnt
-			FROM st_member_request
-			WHERE mq_type = 'RESUME'
-			AND rc_idx = '" . $this->db->escape_str($rc_idx) . "'
-			AND ru_idx = '" . $this->db->escape_str($ru_idx) . "'
-		";
-		$query_proposal = $this->db->query($sql_proposal);
-		$proposal_result = $query_proposal->row_array();
-
-		if ($proposal_result && $proposal_result["cnt"] > 0) {
-			// 제안이 이미 있는 경우 알림창 표시
-			json_return("90", "이미 기업에서 제안한 공고입니다.<br/>같은 공고와 같은 이력서로 지원할 수 없습니다.");
-			return;
+			if ($owner_row) {
+				$owner_mm_idx = $owner_row["mm_idx"];
+				// 그 소유자가 이 이력서에 RESUME(제안)으로 보낸 활성 요청이 있는지 확인
+				$active_rm_idx = $this->member_model->findActiveRequestRoom("RESUME", $owner_mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
+				if ($active_rm_idx) {
+					json_return("02", "이미 기업에서 제안한 공고입니다. 다시 지원을 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx));
+					return;
+				}
+			}
 		}
 
 		json_return("00", "조회성공", null);
