@@ -156,29 +156,48 @@ function customBack() {
         // chat_view 페이지는 자체 뒤로가기 로직 사용 (backUrl 또는 from 파라미터)
         if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
             const params = new URLSearchParams(window.location.search);
+            const userType = typeof $("[name='user_type']") !== 'undefined' ? $("[name='user_type']").val() : 'MEM';
+
             // backUrl 파라미터 우선 (chat_list*.php에서 전달한 명시적 URL)
-            let backUrl = params.get('backUrl') ? decodeURIComponent(params.get('backUrl')) : null;
+            // decodeURIComponent 오류 가능성을 대비한 안전 처리
+            let backUrl = null;
+            if (params.get('backUrl')) {
+                try {
+                    backUrl = decodeURIComponent(params.get('backUrl'));
+                } catch (decodeError) {
+                    console.error('[customBack] backUrl 디코딩 오류:', decodeError);
+                    backUrl = null;
+                }
+            }
 
-            // backUrl이 없으면 from 파라미터로 대체 (하위 호환성)
+            // backUrl이 없으면 사용자 타입에 따라 결정
             if (!backUrl) {
-                const from = params.get('from') || '';
-                const backMap = {
-                    applied: '/chat/chat_list',
-                    proposed_job: '/chat/chat_list',
-                    talent_received: '/chat/index_comp',
-                    talent_sent: '/chat/index_comp',
-                    hr_list: '/chat/index_comp',
-                    job_list: '/chat/chat_list'
-                };
-                backUrl = backMap[from] || '/chat/index_comp';
+                // iOS 기업회원: 항상 index_comp로 이동
+                if (userType === 'COMP') {
+                    backUrl = '/chat/index_comp';
+                } else {
+                    // iOS 개인회원: 항상 chat_list로 이동
+                    backUrl = '/chat/chat_list';
+                }
             }
 
-            const historyStack = JSON.parse(sessionStorage.getItem('historyStack')) || []; 
-            if (historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
-                historyStack.pop(); //  historyStack에서 현재 chat_view 기록 제거 historyStack 기존: ["/home", "/chat/chat_list", "/chat/chat_view"] pop() 후:["/home", "/chat/chat_list"]
-                sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+            // historyStack 파싱 오류(손상된 데이터)를 대비한 안전 처리
+            // 히스토리 스택 정리는 선택사항이며, 실패해도 뒤로가기 이동은 반드시 진행
+            try {
+                const historyStackJson = sessionStorage.getItem('historyStack');
+                if (historyStackJson) {
+                    const historyStack = JSON.parse(historyStackJson);
+                    if (Array.isArray(historyStack) && historyStack.length > 0 && historyStack[historyStack.length - 1].indexOf('/chat/chat_view') > -1) {
+                        historyStack.pop(); //  historyStack에서 현재 chat_view 기록 제거 historyStack 기존: ["/home", "/chat/chat_list", "/chat/chat_view"] pop() 후:["/home", "/chat/chat_list"]
+                        sessionStorage.setItem('historyStack', JSON.stringify(historyStack));
+                    }
+                }
+            } catch (historyError) {
+                console.error('[customBack] historyStack 정리 오류(무시됨):', historyError);
+                // historyStack 정리 실패는 무시하고 계속 진행
             }
 
+            // 부가 기능 오류와 무관하게 반드시 뒤로가기 이동 수행
             window.location.href = backUrl;
             return;
         }

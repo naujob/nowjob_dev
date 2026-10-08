@@ -887,6 +887,39 @@ io.on('connection', function (socket) {
 			// 방 정보 조회 (getRoom 대신 직접 DB에서 조회하여 rm_users 확실히 가져오기)
 			const room_for_reads = await $db.cs_room.findOne({ rm_idx: target_rm_idx });
 
+			// 상대방이 나간 상태에서 남은 한 명이 메시지를 보내면, 나간 사람의 exit_yn을 복구해
+			// 채팅목록/안읽음배지에 방이 다시 나타나고 푸시도 받을 수 있게 한다.
+			// (exit_dt는 보존 - 메시지 필터링 기준점으로 계속 사용됨. system_exit은 "방금 나가는 중"이라는
+			//  알림이므로 복구 대상에서 제외. PHP의 reset_room_exit_status()와 동일한 로직)
+			if (data.mg_type !== 'system_exit' && room_for_reads && room_for_reads.rm_users) {
+				let needs_revive = false;
+				const revived_rm_users = room_for_reads.rm_users.map(function (u) {
+					if (u && u.user_id !== g_user_id && u.exit_yn === 'Y') {
+						needs_revive = true;
+						const revived = Object.assign({}, u);
+						revived.exit_yn = 'N';
+						return revived;
+					}
+					return u;
+				});
+
+				if (needs_revive) {
+					const update_fields = { rm_users: revived_rm_users };
+					if (room_for_reads.rm_status === 'CLOSED') {
+						update_fields.rm_status = 'N';
+					}
+					try {
+						await $db.cs_room.updateOne({ rm_idx: target_rm_idx }, { $set: update_fields });
+						room_for_reads.rm_users = revived_rm_users;
+						if (update_fields.rm_status) {
+							room_for_reads.rm_status = update_fields.rm_status;
+						}
+					} catch (revive_err) {
+						// 복구 실패해도 메시지 전송 자체는 계속 진행
+					}
+				}
+			}
+
 			// 사용자 목록: DB의 rm_users와 클라이언트에서 보낸 rm_users 병합 (클라이언트가 더 정확할 수 있음)
 			let all_room_users = [];
 			if (room_for_reads && room_for_reads.rm_users && room_for_reads.rm_users.length > 0) {
@@ -1028,12 +1061,13 @@ io.on('connection', function (socket) {
 			
 
 				// rm_users에서 발신자 제외하고 수신자 추출 (user_status는 이미 포함됨)
-				// 클라이언트 파라미터 대신 DB 조회값(exit_yn 포함, 신규 참여자 반영 갱신됨)을 기준으로 사용
+				// 클라이언트 파라미터 대신 DB 조회값(신규 참여자 반영 갱신됨)을 기준으로 사용.
+				// 나간 수신자는 위에서 이미 exit_yn='N'으로 복구했으므로 exit_yn 조건 없이 전원 포함.
 				const recipients = [];
 				const db_rm_users_for_push = (room_for_reads && room_for_reads.rm_users) ? room_for_reads.rm_users : [];
 				for (let i = 0; i < db_rm_users_for_push.length; i++) {
 					const ru = db_rm_users_for_push[i];
-					if (ru && ru.user_id && ru.user_id !== g_user_id && ru.exit_yn !== "Y") {
+					if (ru && ru.user_id && ru.user_id !== g_user_id) {
 						recipients.push(ru);
 					}
 				}
