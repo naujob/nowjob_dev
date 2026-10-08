@@ -1148,6 +1148,7 @@ $top_bar = array(
           <img src="{{profile_img}}" alt="">
         </div>
         <div class="desc">
+           <!-- ㅁㅁㅁㅁ -->
           <div class="title ellipsis">{{ru_name}}</div>
 
           <div class="summary-with-badge">

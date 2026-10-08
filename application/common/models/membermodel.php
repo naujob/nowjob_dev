@@ -6409,6 +6409,7 @@ LIMIT 0 , 200
 				rc.rc_work,
 				mem.mm_id AS target_id,
 				mem.mm_name AS target_name,
+				ru.ru_name AS ru_name,
 				IFNULL(ru.ru_img1, '') AS target_img,
 				mem.mm_sex,
 				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
@@ -6438,6 +6439,7 @@ LIMIT 0 , 200
 				rc.rc_work,
 				mem.mm_id AS target_id,
 				mem.mm_name AS target_name,
+				ru.ru_name AS ru_name,
 				IFNULL(mem.mm_thumb, '') AS target_img,
 				mem.mm_sex,
 				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
