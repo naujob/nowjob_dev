@@ -790,7 +790,7 @@ class memberModel extends MY_Model
 	# 같은 정식 요청(같은 공고 + 같은 이력서)을 이미 보냈는지 확인하고, 이동할 채팅방 번호를 반환
 	# - 지원취소(mq_status='cancel')된 요청은 제외
 	# - 요청 기록에 rm_idx가 없으면(레거시) 쌍 기준 방으로 대체
-	# - 내가 그 방을 나간 상태면 null (재전송으로 취급해 정상 흐름을 탄다)
+	# - exit_yn 상태와 무관하게 항상 rm_idx를 반환한다 (나간 이력 유무는 has_room_exit_history()가 별도로 판단)
 	function findActiveRequestRoom($mq_type, $mm_idx, $rc_idx, $ru_idx, $user_id, $user_phone = null)
 	{
 		if (empty($mq_type) || empty($mm_idx) || empty($rc_idx) || empty($ru_idx)) {
@@ -824,10 +824,6 @@ class memberModel extends MY_Model
 			return null;
 		}
 
-		$exited = get_exited_rm_idxs(array($rm_idx), $user_id, $user_phone);
-		if (!empty($exited)) {
-			return null;
-		}
 		return $rm_idx;
 	}
 

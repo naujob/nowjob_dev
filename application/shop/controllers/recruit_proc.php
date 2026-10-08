@@ -957,7 +957,11 @@ class Recruit_proc extends CI_Controller
 		// 같은 이력서로 같은 공고에 이미 지원했으면 다시 지원할 수 있도록 안내 (code 02 + rm_idx)
 		$active_rm_idx = $this->member_model->findActiveRequestRoom("RECRUIT", $mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
 		if ($active_rm_idx) {
-			json_return("02", "이미 지원했습니다. 다시 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx));
+			$exited_before = has_room_exit_history($active_rm_idx) ? "Y" : "N";
+			// 당사자가 지금 나간 상태(exit_yn='Y')일 수 있으므로 미리 복구해 둔다
+			// (그래야 팝업 확인 후 auto_send로 재전송할 때 발신 차단/방 조회 차단에 걸리지 않는다)
+			reset_room_exit_status(get_mongo_uri(), get_mongo_db_name(), $active_rm_idx);
+			json_return("02", "이미 지원했습니다. 다시 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx, "exited_before" => $exited_before));
 			return;
 		}
 
@@ -973,7 +977,9 @@ class Recruit_proc extends CI_Controller
 				// 그 소유자가 이 이력서에 RESUME(제안)으로 보낸 활성 요청이 있는지 확인
 				$active_rm_idx = $this->member_model->findActiveRequestRoom("RESUME", $owner_mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
 				if ($active_rm_idx) {
-					json_return("02", "이미 기업에서 제안한 공고입니다. 다시 지원을 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx));
+					$exited_before = has_room_exit_history($active_rm_idx) ? "Y" : "N";
+					reset_room_exit_status(get_mongo_uri(), get_mongo_db_name(), $active_rm_idx);
+					json_return("02", "이미 기업에서 제안한 공고입니다. 다시 지원을 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "ru_idx" => $ru_idx, "exited_before" => $exited_before));
 					return;
 				}
 			}

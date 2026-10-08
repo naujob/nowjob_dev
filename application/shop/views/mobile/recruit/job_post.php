@@ -1458,6 +1458,11 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             $('.btn-close-popup').hide(); // X 버튼 숨기기 (확인으로만 이동)
         };
 
+        // 나갔다가 들어온 이력이 전혀 없는 중복 지원: 안내 없이 바로 기존 채팅방으로 이동 (메시지 전송 없음)
+        var goExistingChatRoomSilent = function(rm_idx) {
+            location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
+        };
+
         // 같은 이력서로 이미 지원한 공고: "다시 보내겠습니까?" 확인 후 기존 채팅방으로 이동하며 지원 메시지 재전송
         // (지원 기록 추가 없이 채팅방에 지원 메시지만 다시 보냄)
         var confirmResendApply = function(rm_idx, ru_idx) {
@@ -1552,8 +1557,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                                     // 응답받은 채팅방으로 바로 이동 (auto_send=true로 지원 메시지 자동 전송)
                                     location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&mq_type=RECRUIT&ru_idx=" + ret.data.ru_idx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
                                 } else if (ret.code == "02") {
-                                    // 같은 이력서로 이미 지원한 공고: 다시 보낼지 확인 후 기존 채팅방에서 지원 메시지 재전송
-                                    confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
+                                    // 같은 이력서로 이미 지원한 공고: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
+                                    if (ret.data.exited_before == "Y") {
+                                        confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
+                                    } else {
+                                        goExistingChatRoomSilent(ret.data.rm_idx);
+                                    }
                                     return;
                                 } else {
                                     commonAlert(ret.msg, function() {});
@@ -1564,8 +1573,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                     });
                     $('.btn-close-popup').hide();
                 } else if (ret.code == "02") {
-                    // 같은 이력서로 이미 지원한 공고: 다시 보낼지 확인 후 기존 채팅방에서 지원 메시지 재전송
-                    confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
+                    // 같은 이력서로 이미 지원한 공고: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
+                    if (ret.data.exited_before == "Y") {
+                        confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
+                    } else {
+                        goExistingChatRoomSilent(ret.data.rm_idx);
+                    }
                     return;
                 } else {
                     commonAlert(ret.msg, function() {});

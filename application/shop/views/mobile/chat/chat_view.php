@@ -2829,16 +2829,32 @@
                 // 중복 없음: 즉시 제안/지원 전송
                 submitPropose(mqType, selectedIdx, selectedName, opponentIdx, $panelToClose);
             } else if (ret.code == "02" || ret.code == "90") {
-                // 중복 있음 또는 교차 타입 충돌: 확인 팝업 표시 후 재전송 가능
-                confirmResendProposal(mqType, selectedName, ret.msg);
-                // 선택값 보관 (사용자가 "다시 보내겠습니까?" 확인할 때 사용)
-                proposeStep1Selection = {
-                    mqType: mqType,
-                    selectedIdx: selectedIdx,
-                    selectedName: selectedName,
-                    opponentIdx: opponentIdx,
-                    $panelToClose: $panelToClose
-                };
+                if (ret.data && ret.data.exited_before == "Y") {
+                    // 나갔다 들어온 이력 있음: 확인 팝업 표시 후 재전송 가능
+                    confirmResendProposal(mqType, selectedName, ret.msg);
+                    // 선택값 보관 (사용자가 "다시 보내겠습니까?" 확인할 때 사용)
+                    proposeStep1Selection = {
+                        mqType: mqType,
+                        selectedIdx: selectedIdx,
+                        selectedName: selectedName,
+                        opponentIdx: opponentIdx,
+                        $panelToClose: $panelToClose
+                    };
+                } else {
+                    // 나갔다 들어온 이력 없음: 짧은 안내만 표시 후 자동으로 닫힘, 재전송 없음
+                    openPopup('alert', {
+                        content: (mqType == "RESUME") ? "이미 제안했습니다." : "이미 지원했습니다."
+                    });
+                    setTimeout(function() {
+                        var $popup = $('.layer-popup.in').last();
+                        if ($popup.length) {
+                            closePopup($popup[0]);
+                        }
+                    }, 1500);
+                    if ($panelToClose && $panelToClose.length > 0 && typeof closePanel === "function") {
+                        closePanel($panelToClose[0]);
+                    }
+                }
             } else {
                 // 기타 오류
                 commonAlert(ret.msg || "확인 중 오류가 발생했습니다.", function() {
@@ -2872,8 +2888,8 @@
                 // 카드 표시
                 $('#chatRecruitCardList').attr('data-visible', 'true');
                 var msgText = (mqType == "RESUME")
-                    ? ("\"" + selectedName + "\" 공고를 제안했습니다.")
-                    : ("\"" + selectedName + "\" 이력서로 지원했습니다.");
+                    ? "안녕하세요.\n채용중인 일자리를 제안드립니다."
+                    : "안녕하세요.\n채용공고에 이력서를 지원합니다.";
                 // ret.data.resume: 지원하기(RECRUIT)로 실제 이력서를 선택한 경우에만 채워짐
                 // 메시지에 함께 실어 보내면, 소켓 브로드캐스트로 상대방(기업회원) 화면의 이력서 카드도
                 // 새로고침 없이 실시간으로 갱신됨

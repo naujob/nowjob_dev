@@ -1172,6 +1172,7 @@ class Common_proc extends CI_Controller
 			$request_idxs = array(); // 실제로 등록할 대상
 			$dup_rm_idx = null;      // 이미 보낸 요청의 채팅방 번호
 			$dup_ru_idx = null;      // 이미 보낸 요청의 이력서 번호 (재전송 메시지 카드용)
+			$dup_exited_before = "N"; // 나갔다가 들어온 이력 유무 (팝업 표시 여부 분기용)
 			foreach ($mq_idxs as $idx) {
 				$data["mq_type"] = $mq_type;
 				$data["mm_idx"] = $mm_idx;
@@ -1189,7 +1190,9 @@ class Common_proc extends CI_Controller
 					// 기업이 이미 이 이력서로 제안한 적이 있는지 확인
 					$proposal_rm_idx = $this->member_model->findActiveRequestRoom("RESUME", $owner_mm_idx, $data["rc_idx"], $data["ru_idx"], $user_id, $user_phone);
 					if ($proposal_rm_idx) {
-						json_return("02", "이미 기업에서 제안한 공고입니다. 다시 지원을 보내시겠습니까?", array("rm_idx" => $proposal_rm_idx));
+						$exited_before = has_room_exit_history($proposal_rm_idx) ? "Y" : "N";
+						$this->_reset_room_exit_status($proposal_rm_idx);
+						json_return("02", "이미 기업에서 제안한 공고입니다. 다시 지원을 보내시겠습니까?", array("rm_idx" => $proposal_rm_idx, "exited_before" => $exited_before));
 					}
 				} else if ($mq_type == "RESUME") {
 					$data["ru_idx"] = $idx;
@@ -1200,11 +1203,13 @@ class Common_proc extends CI_Controller
 					}
 				}
 				// 같은 공고 + 같은 이력서로 이미 보낸 요청이면 다시 등록하지 않고 기존 채팅방으로 안내
-				// (내가 그 방을 나간 상태면 null → 재전송으로 취급해 아래 5분 체크 후 재등록)
 				$active_rm_idx = $this->member_model->findActiveRequestRoom($mq_type, $mm_idx, $data["rc_idx"], $data["ru_idx"], $user_id, $user_phone);
 				if ($active_rm_idx) {
 					$dup_rm_idx = $active_rm_idx;
 					$dup_ru_idx = $data["ru_idx"];
+					$dup_exited_before = has_room_exit_history($active_rm_idx) ? "Y" : "N";
+					// 당사자가 지금 나간 상태(exit_yn='Y')일 수 있으므로 미리 복구해 둔다
+					$this->_reset_room_exit_status($active_rm_idx);
 					continue;
 				}
 
@@ -1214,7 +1219,7 @@ class Common_proc extends CI_Controller
 			// 모든 대상이 이미 보낸 요청이면 기록/포인트/메시지 없이 기존 채팅방 번호만 반환
 			if (empty($request_idxs)) {
 				$dup_msg = ($mq_type == "RECRUIT") ? "이미 지원했습니다." : "이미 제안을 보냈습니다.";
-				json_return("02", $dup_msg, ["rm_idx" => $dup_rm_idx, "ru_idx" => $dup_ru_idx]);
+				json_return("02", $dup_msg, ["rm_idx" => $dup_rm_idx, "ru_idx" => $dup_ru_idx, "exited_before" => $dup_exited_before]);
 			}
 			// 여러 대상(웹 일괄 제안) 중 일부만 중복이면 남은 대상만 처리 (포인트도 남은 대상 기준으로 계산)
 			$mq_idxs = $request_idxs;

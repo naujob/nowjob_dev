@@ -1184,6 +1184,12 @@ if (!$isLogin) {
         $('.btn-close-popup').hide(); // X 버튼 숨기기 (확인으로만 이동)
     };
 
+    // 나갔다가 들어온 이력이 전혀 없는 중복 제안: 안내 없이 바로 기존 채팅방으로 이동 (메시지 전송 없음)
+    var goExistingChatRoomSilent = function(rm_idx) {
+        $("#selectPanel_hrPost").removeClass("on");
+        location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
+    };
+
     // 같은 공고로 이미 제안한 인재: "다시 보내겠습니까?" 확인 후 기존 채팅방으로 이동하며 제안 메시지 재전송
     // (제안 기록 추가/포인트 차감 없이 채팅방에 제안 메시지만 다시 보냄)
     var confirmResendProposal = function(rm_idx, rc_idx) {
@@ -1316,8 +1322,12 @@ if (!$isLogin) {
                                     location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&mq_type=" + ret.data.mq_type + "&ru_idx=" + ret.data.ru_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
                                 }
                             } else if (ret.code == "02") {
-                                // 같은 공고로 이미 제안한 인재: 다시 보낼지 확인 후 기존 채팅방에서 제안 메시지 재전송
-                                confirmResendProposal(ret.data.rm_idx, rc_idx);
+                                // 같은 공고로 이미 제안한 인재: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
+                                if (ret.data.exited_before == "Y") {
+                                    confirmResendProposal(ret.data.rm_idx, rc_idx);
+                                } else {
+                                    goExistingChatRoomSilent(ret.data.rm_idx);
+                                }
                                 return;
                             } else {
                                 commonAlert(ret.msg, function() {
@@ -1330,8 +1340,12 @@ if (!$isLogin) {
                 });
                 $('.btn-close-popup').hide();
             } else if (ret.code == "02") {
-                // 같은 공고로 이미 제안한 인재: 다시 보낼지 확인 후 기존 채팅방에서 제안 메시지 재전송
-                confirmResendProposal(ret.data.rm_idx, rc_idx);
+                // 같은 공고로 이미 제안한 인재: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
+                if (ret.data.exited_before == "Y") {
+                    confirmResendProposal(ret.data.rm_idx, rc_idx);
+                } else {
+                    goExistingChatRoomSilent(ret.data.rm_idx);
+                }
                 return;
             } else {
                 if (currentActionMode === 'direct_chat') {

@@ -771,7 +771,11 @@ class Resume_proc extends CI_Controller
     // 같은 공고로 같은 이력서에 이미 제안했으면 다시 제안할 수 있도록 안내 (code 02 + rm_idx)
     $active_rm_idx = $this->member_model->findActiveRequestRoom("RESUME", $mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
     if ($active_rm_idx) {
-      json_return("02", "이미 제안을 보냈습니다. 다시 보내시겠습니까.", array("rm_idx" => $active_rm_idx));
+      $exited_before = has_room_exit_history($active_rm_idx) ? "Y" : "N";
+      // 당사자가 지금 나간 상태(exit_yn='Y')일 수 있으므로 미리 복구해 둔다
+      // (그래야 팝업 확인 후 auto_send로 재전송할 때 발신 차단/방 조회 차단에 걸리지 않는다)
+      reset_room_exit_status(get_mongo_uri(), get_mongo_db_name(), $active_rm_idx);
+      json_return("02", "이미 제안을 보냈습니다. 다시 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "exited_before" => $exited_before));
       return;
     }
 
@@ -787,7 +791,9 @@ class Resume_proc extends CI_Controller
         // 그 소유자가 이 공고에 RECRUIT(지원)으로 보낸 활성 요청이 있는지 확인
         $active_rm_idx = $this->member_model->findActiveRequestRoom("RECRUIT", $owner_mm_idx, $rc_idx, $ru_idx, $this->user->getUserId(), $this->user->getUserPhone());
         if ($active_rm_idx) {
-          json_return("02", "이미 회원이 지원한 공고입니다. 다시 제안을 보내시겠습니까.", array("rm_idx" => $active_rm_idx));
+          $exited_before = has_room_exit_history($active_rm_idx) ? "Y" : "N";
+          reset_room_exit_status(get_mongo_uri(), get_mongo_db_name(), $active_rm_idx);
+          json_return("02", "이미 회원이 지원한 공고입니다. 다시 제안을 보내시겠습니까.", array("rm_idx" => $active_rm_idx, "exited_before" => $exited_before));
           return;
         }
       }

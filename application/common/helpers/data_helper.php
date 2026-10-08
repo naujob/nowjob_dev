@@ -1550,6 +1550,41 @@ if (!function_exists('reset_room_exit_status')) {
 }
 
 /**
+ * 방의 rm_users 중 exit_dt가 한 번이라도 설정된 적 있는 참여자가 있는지 확인
+ * (현재 exit_yn 상태는 보지 않음 - 본인/상대방 구분 없이 둘 중 한쪽이라도 나간 적 있으면 true.
+ *  exit_dt는 reset_room_exit_status()가 exit_yn만 복구하고 절대 지우지 않으므로
+ *  "과거에 나간 적 있는지"를 판별하는 영구적인 신호로 쓸 수 있다)
+ * @param int $rm_idx 채팅방 ID
+ * @return bool
+ */
+if (!function_exists('has_room_exit_history')) {
+	function has_room_exit_history($rm_idx)
+	{
+		if (empty($rm_idx)) {
+			return false;
+		}
+		try {
+			$uri = get_mongo_uri();
+			$dbName = get_mongo_db_name();
+			@$mongo = new Mongo($uri);
+			$collection = $mongo->{$dbName}->room;
+			$room = $collection->findOne(array('rm_idx' => (int)$rm_idx), array('rm_users' => 1));
+			if (!$room || empty($room['rm_users'])) {
+				return false;
+			}
+			foreach ($room['rm_users'] as $room_user) {
+				if (isset($room_user['exit_dt']) && !empty($room_user['exit_dt'])) {
+					return true;
+				}
+			}
+		} catch (Exception $e) {
+			error_log("[has_room_exit_history] MongoDB Exception: " . $e->getMessage());
+		}
+		return false;
+	}
+}
+
+/**
  * 여러 rm_idx를 한 번에 MongoDB에서 조회해 현재 사용자가 나간 방 id 목록만 반환
  * @param array $rm_idxs rm_idx 배열
  * @param string $user_id 사용자 ID (mm_id)
