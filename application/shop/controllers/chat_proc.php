@@ -3150,7 +3150,7 @@ json_return("00", "조회완료", $data);
 		reset_room_exit_status($this->mongo_uri, $this->mongo_db, $rm_idx);
 
 		// FCM 푸시 + MongoDB 알림 (실패해도 제안/지원 처리 자체는 이미 완료된 것으로 취급)
-		$this->send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx);
+		$this->send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx, $rm_idx);
 
 		// 갱신된 공고 데이터를 응답에 포함 (카드 재렌더링 용)
 		// RESUME(제안하기)과 RECRUIT(지원하기) 모두 동일한 공고 정보 조회
@@ -3183,7 +3183,7 @@ json_return("00", "조회완료", $data);
 	// 제안/지원 완료 후 상대방에게 FCM 푸시 + MongoDB 알림 발송
 	// (common_proc.php의 member_request() 안에 있는 동일 로직을 채팅방 전용으로 격리 재사용한 것으로,
 	//  member_request()는 hr_post.php/job_post.php 플로우 보호를 위해 별도로 두고 손대지 않는다.)
-	private function send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx)
+	private function send_propose_push($mq_type, $rc_idx, $ru_idx, $mm_idx, $rm_idx)
 	{
 		try {
 			if ($mq_type == "RECRUIT") {
@@ -3214,7 +3214,10 @@ json_return("00", "조회완료", $data);
 						"url" => "/resume/hr_post/" . $ru_idx,
 						"type" => "job_application"
 					);
-					sendFcm($info, array($final_token));
+					// 수신자가 채팅방에 없을 때만 푸시 발송
+					if (!isUserInChatRoom($member_info['mm_id'], $rm_idx)) {
+						sendFcm($info, array($final_token));
+					}
 				}
 
 				$this->insert_propose_alarm($member_info['mm_id'], "job_application", $mm_idx, "<strong><em>" . $applicant_name . "</em>님이 <em>채용공고에 지원</em>했습니다.</strong><br><small>지원서를 확인하고 연락해보세요.</small>", "/resume/hr_post/" . $ru_idx);
@@ -3246,7 +3249,10 @@ json_return("00", "조회완료", $data);
 						"url" => "/recruit/job_post/" . $rc_idx,
 						"type" => "job_offer"
 					);
-					sendFcm($info, array($final_token));
+					// 수신자가 채팅방에 없을 때만 푸시 발송
+					if (!isUserInChatRoom($member_info['mm_id'], $rm_idx)) {
+						sendFcm($info, array($final_token));
+					}
 				}
 
 				$this->insert_propose_alarm($member_info['mm_id'], "job_offer", $mm_idx, "<strong><em>" . $company_name . "</em>님이 <em>채용공고를 제안</em>했습니다.</strong><br><small>제안 내용을 확인해보세요.</small>", "/recruit/job_post/" . $rc_idx);

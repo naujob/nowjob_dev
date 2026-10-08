@@ -1532,3 +1532,46 @@ function removeBigAddr($addr) {
 	// 3개 미만의 토큰이면 그대로 반환
 	return trim($firstPart);
 }
+
+/**
+ * 사용자가 현재 채팅방에 있는지 확인
+ * Node.js 소켓 서버의 REST API를 호출하여 확인
+ *
+ * @param string $user_id 사용자 ID
+ * @param int $rm_idx 채팅방 번호
+ * @return bool 채팅방 접속 상태
+ */
+function isUserInChatRoom($user_id, $rm_idx)
+{
+	// 환경 판별: dev/prod 구분
+	$is_dev_env = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
+	$base_url = $is_dev_env ? "http://127.0.0.1:3031" : "https://127.0.0.1:3030";
+
+	$url = $base_url . "/chat/is_user_in_room?" . http_build_query([
+		'user_id' => $user_id,
+		'rm_idx' => $rm_idx
+	]);
+
+	try {
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+		$result = curl_exec($ch);
+		$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+
+		if ($result === false || $http_code !== 200) {
+			// 호출 실패 시 false 반환 (안전하게 푸시 발송)
+			return false;
+		}
+
+		$data = json_decode($result, true);
+		return isset($data['in_room']) && $data['in_room'] === true;
+	} catch (Exception $e) {
+		// 예외 발생 시 false 반환
+		return false;
+	}
+}

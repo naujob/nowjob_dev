@@ -344,6 +344,40 @@ app.post('/room_list2', function (req, res) {
 	});
 });
 
+// 사용자가 특정 채팅방에 현재 접속 중인지 확인 (PHP의 푸시 필터링용)
+app.get('/chat/is_user_in_room', async function (req, res) {
+	try {
+		const user_id = req.query.user_id;
+		const rm_idx = parseInt(req.query.rm_idx);
+
+		if (!user_id || !rm_idx) {
+			return res.json({ code: "90", msg: "Missing parameters", in_room: false });
+		}
+
+		// Socket.IO room에서 현재 접속된 소켓 확인
+		const roomSockets = io.sockets.adapter.rooms.get(rm_idx);
+		let in_room = false;
+
+		if (roomSockets && roomSockets.size > 0) {
+			// 이 room의 각 소켓에서 user_id 확인
+			for (const socketId of roomSockets) {
+				try {
+					const user = await $db.cs_user.findOne({ socket_id: socketId });
+					if (user && user.user_id === user_id) {
+						in_room = true;
+						break;
+					}
+				} catch (err) {
+					// 조회 실패는 무시
+				}
+			}
+		}
+
+		res.json({ code: "00", in_room: in_room });
+	} catch (err) {
+		res.json({ code: "90", msg: err.message, in_room: false });
+	}
+});
 
 //접속 처리
 io.on('connection', function (socket) {

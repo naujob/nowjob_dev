@@ -1407,7 +1407,10 @@ class Common_proc extends CI_Controller
 											"type" => "job_application"
 										];
 
-										$fcm_result = sendFcm($info, $token_list);
+										// 수신자가 채팅방에 없을 때만 푸시 발송
+										if (!isUserInChatRoom($member_info['mm_id'], $rm_idx)) {
+											$fcm_result = sendFcm($info, $token_list);
+										}
 										// error_log("[PUSH_APPLICATION] FCM 푸시 발송 - recipient_mm_id: " . $member_info['mm_id'] . ", applicant: " . $applicant_name);
 									} else {
 										// error_log("[PUSH_APPLICATION_WARN] FCM 토큰 없어 푸시 발송 스킵 - recipient_mm_id: " . $member_info['mm_id']);
@@ -1526,7 +1529,10 @@ class Common_proc extends CI_Controller
 											"type" => "job_offer"
 										];
 
-										$fcm_result = sendFcm($info, $token_list);
+										// 수신자가 채팅방에 없을 때만 푸시 발송
+										if (!isUserInChatRoom($member_info['mm_id'], $rm_idx)) {
+											$fcm_result = sendFcm($info, $token_list);
+										}
 										// error_log("[PUSH_OFFER] FCM 푸시 발송 - recipient_mm_id: " . $member_info['mm_id'] . ", company: " . $company_name);
 									} else {
 										// error_log("[PUSH_OFFER_WARN] FCM 토큰 없어 푸시 발송 스킵 - recipient_mm_id: " . $member_info['mm_id']);
