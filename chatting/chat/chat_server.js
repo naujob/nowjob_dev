@@ -147,8 +147,16 @@ function send_fcm(idx, data) {
 				},
 				// iOS용 추가 설정
 				apns: {
+					headers: {
+						'apns-priority': '10',  // 즉시 전달 (기본값 5는 저전력용)
+						'apns-push-type': 'alert'  // iOS 알림 타입 명시 (소리 재생을 위해 필수)
+					},
 					payload: {
 						aps: {
+							alert: {
+								title: String(data["no_subject"] || ""),
+								body: String(message_text || "")
+							},
 							sound: "default",
 							badge: badge_count  // 실제 미확인 알림 개수로 설정
 						},
@@ -447,6 +455,16 @@ io.on('connection', function (socket) {
 	socket.on('room_join', function (data) {
 	//	$common.writeLog("socket room_join 시작 rm_idx=" + data.rm_idx + " con_user_id=" + data.con_user_id); //  rm_idx=31 con_user_id=01011111111
 		socket.join(data.rm_idx);
+
+		// 현재 socket_id를 cs_user에 저장 (푸시 필터링 시 활성 사용자 판별용)
+		// iOS/Android 모두 room_join 시 socket_id를 DB에 기록하여 push skip 로직이 정확히 작동하도록 함
+		if (data.con_user_id) {
+			$db.cs_user.updateOne(
+				{ user_id: data.con_user_id },
+				{ $set: { socket_id: socket.id } },
+				{ upsert: true }
+			);
+		}
 
 		// 무엇을 update하지? → "방 입장 정보"를 update하는 동작입니다.
 		// updateEnterRoom 함수는 사용자가 채팅방(rm_idx)에 입장할 때, 해당 사용자의 입장(읽음) 정보를 DB에 기록하고
@@ -986,10 +1004,30 @@ io.on('connection', function (socket) {
 					}
 				}
 
-			
-				
 
-				if (recipients.length > 0) {
+
+
+				// 현재 채팅방 화면에 머물러 있는 수신자는 푸시 스킵 (인앱 메시지로 충분)
+				// socket.join(Number)와 동일한 타입으로 조회 (메시지 브로드캐스트 io.sockets.in(target_rm_idx)와 일관성 유지)
+				const roomSockets = io.sockets.adapter.rooms.get(target_rm_idx);
+				const activeUserIds = new Set();
+				if (roomSockets && roomSockets.size > 0) {
+					for (const socketId of roomSockets) {
+						try {
+							const user = await $db.cs_user.findOne({ socket_id: socketId });
+							if (user && user.user_id) {
+								activeUserIds.add(user.user_id);
+							}
+						} catch (err) {
+							// 조회 실패 시 무시 (해당 소켓은 접속 중으로 간주하지 않음 → 안전하게 푸시 발송)
+						}
+					}
+				}
+
+				// 방에 떠 있지 않은 수신자만 푸시 발송 대상
+				const pushTargets = recipients.filter(r => !activeUserIds.has(r.user_id));
+
+				if (pushTargets.length > 0) {
 					// 발신자 닉네임 추출 (ret 배열에서 timeline이 아닌 실제 메시지)
 					let sender_nick = g_user_id;
 					if (Array.isArray(ret) && ret.length > 0) {
@@ -1004,12 +1042,12 @@ io.on('connection', function (socket) {
 						}
 					}
 
-				
+
 
 					// 각 수신자에 대해 MySQL 토큰 병렬 조회
 					(async () => {
 						const token_results = await Promise.all(
-							recipients.map(r =>
+							pushTargets.map(r =>
 								$exe.user.getTokenFromMySQL(r.user_id).then(token => ({
 									user_id: r.user_id,
 									token: token
