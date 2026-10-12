@@ -325,7 +325,7 @@ if (!$isLogin) {
                             <span class="sr-text">5</span>
                         </p> -->
                     </div>
-                    <div class="profile-detail">
+                    <div class="profile-detail" style="margin: 19px 2.375rem 0px 7.75rem;">
                         <!-- 이름 -->
                         <p class="name"><em class="view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></em></p>
                         <div class="meta">

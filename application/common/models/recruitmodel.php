@@ -71,7 +71,7 @@ class recruitModel extends MY_Model
           ,bb.*
           ,(SELECT count(*) as cnt FROM st_bookmark where bk_type = 'RECRUIT' AND bk_key = bb.rc_idx) as book_cnt
           ,ifnull(min(po.pm_sdate),'2000-01-01 00:00:00') as max_date
-          ,cc.ad_addr
+          ,cc.ad_jibun AS ad_addr
         FROM st_member aa
         INNER JOIN st_recruit bb
           ON aa.mm_idx = bb.mm_idx
@@ -191,7 +191,7 @@ class recruitModel extends MY_Model
 				END AS rc_nation,
 				b.rc_week,
 				b.rc_hash,
-				c.ad_addr,
+				c.ad_jibun AS ad_addr,
 				CONCAT(c.ad_doro, ' ', c.ad_jibun) AS s_addr,
 				c.ad_gps_x,
 				c.ad_gps_y,

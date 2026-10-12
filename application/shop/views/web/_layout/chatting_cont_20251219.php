@@ -1328,6 +1328,7 @@
 		arg = arg.replace("전라남도 ", "");
 		arg = arg.replace("전북특별자치도 ", "");
 		arg = arg.replace("제주특별자치도 ", "");
+		arg = arg.replace("전남광주통합특별시 ", "전남광주통합시 ");
 		arg = arg.replace("세종특별자치시 ", "세종시 ");
 		arg = arg.replace("광주광역시 ", "광주시 ");
 		arg = arg.replace("인천광역시 ", "인천시 ");
@@ -1337,6 +1338,31 @@
 		arg = arg.replace("대전광역시 ", "대전시 ");
 		const parts = arg.split(" ");
 		if (parts.length >= 3) {
+			// 동/면/읍 등 행정구역 단위로 끝나는 토큰 찾기 (괄호 포함 처리)
+			const districtSuffixes = ['동', '면', '읍'];
+			let districtToken = null;
+
+			for (let i = 0; i < parts.length; i++) {
+				// 괄호 제거
+				const cleanToken = parts[i].replace(/[()]/g, '');
+				// 동/면/읍 등으로 끝나는지 확인
+				for (let j = 0; j < districtSuffixes.length; j++) {
+					const suffix = districtSuffixes[j];
+					if (cleanToken.length > suffix.length &&
+						cleanToken.substring(cleanToken.length - suffix.length) === suffix) {
+						districtToken = cleanToken;
+						break;
+					}
+				}
+				if (districtToken) break;
+			}
+
+			// 동/면/읍이 있으면 첫 토큰 + 동 조합 반환
+			if (districtToken) {
+				return parts[0] + " " + districtToken;
+			}
+
+			// 동/면/읍이 없으면 기존 로직 (도로명/번지 기반)
 			// parts[2]가 숫자를 포함하고 있으면 parts[1]만 결합 (parts[2]는 제외)
 			if (/\d/.test(parts[2])) {
 				return parts[0] + " " + parts[1];

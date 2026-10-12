@@ -3187,16 +3187,16 @@
     console.log("[주소선택] 통합 함수 호출 - target: " + target);
 
     if (target === "recruit") {
-      // 근무지 처리
-      var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(doro) || doro) : doro;
+      // 근무지 처리 (지번 기반)
+      var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(jibun) || jibun) : jibun;
       $("#ad_zipcode").val(zipcode);
-      $("#ad_jibun").val(doro);
+      $("#ad_jibun").val(jibun);
       $("#ad_doro").val(doro);
       $("#ad_addr").val(addr_short);
       $("#ad_gps_x").val(x);
       $("#ad_gps_y").val(y);
-      $("[name=rc_addr_doro]").val(doro);
-      $("[name=changeArea]").val(doro);
+      $("[name=rc_addr_doro]").val(jibun);
+      $("[name=changeArea]").val(jibun);
     }
 
     // 팝업 닫기

@@ -186,13 +186,17 @@
         var xpos = $btnItem.attr("data-xpos");
         var ypos = $btnItem.attr("data-ypos");
 
-        // resume_write 페이지에서는 도로명을 클릭하든 지번을 클릭하든 항상 지번을 선택
+        // 도로명을 클릭하든 지번을 클릭하든 항상 지번을 선택하는 페이지들
         var currentPath = window.location.pathname;
-        var isResumeWritePage = currentPath.indexOf('/mypage/resume_write') !== -1 || 
+        var isResumeWritePage = currentPath.indexOf('/mypage/resume_write') !== -1 ||
                                  currentPath.indexOf('/mypage/resume_write1') !== -1;
-        
-        // 클릭한 버튼에 따라 전체 주소 선택 (resume_write 페이지에서는 항상 지번)
-        var selectedAddr = (isResumeWritePage) ? jibun : (isDoro ? doro : jibun);
+        var isRecruitWritePage = currentPath.indexOf('/compage/recruit_write') !== -1;
+
+        // 지번을 선택해야 하는 페이지
+        var useJibunOnly = isResumeWritePage || isRecruitWritePage;
+
+        // 클릭한 버튼에 따라 전체 주소 선택 (지번만 선택 페이지에서는 항상 지번)
+        var selectedAddr = (useJibunOnly) ? jibun : (isDoro ? doro : jibun);
      
 /**
 addrshort

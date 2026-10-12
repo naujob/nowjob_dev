@@ -264,7 +264,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
       } else {
         $content = $content.replaceAll("{{timestamp}}", "<p class=\"reco-title\">지금뜨는 추천공고</p>");
       }
-      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
       $content = $content.replaceAll("{{rc_name}}", row.rc_name);
 
       if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
@@ -333,7 +333,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 
           $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
+          $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
           $content = $content.replaceAll("{{rc_name}}", row.rc_name);
           $content = $content.replaceAll("{{distance}}", row.distance + "km")
 

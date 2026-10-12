@@ -1761,10 +1761,10 @@
     // 주소 검색 결과를 폼에 반영하는 함수
     function selectAddrInfo(zipcode, doro, jibun, addr, x, y, detail) {
         detail = detail || "";
-        var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(doro) || doro) : doro;
+        var addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(jibun) || jibun) : jibun;
 
         $("#ad_zipcode").val(zipcode);
-        $("#ad_jibun").val(doro);
+        $("#ad_jibun").val(jibun);
         $("#ad_doro").val(doro);
         $("#ad_addr").val(addr_short);
         $("#ad_detail").val(detail);
@@ -1772,9 +1772,9 @@
         $("#ad_gps_y").val(y);
 
         var $btnAddr = $("#btnAddrAdd");
-        var displayAddr = doro;
+        var displayAddr = jibun;
         if (detail && detail.trim() !== "") {
-            displayAddr = doro + " " + detail.trim();
+            displayAddr = jibun + " " + detail.trim();
         }
         $btnAddr.find(".address-text").text(displayAddr);
         $btnAddr.addClass("has-address");

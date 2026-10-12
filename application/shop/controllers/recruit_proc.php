@@ -426,7 +426,7 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
-			// 서버사이드 주소 변환 (큰 시/도 제거)
+			// 서버사이드 주소 변환 (지번 기반, 큰 시/도 제거)
 			$temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
 			// 서버사이드 제목 정규화 (모바일 30글자, PC 50글자 - 멀티바이트 안전)
 			if (mb_strlen($row["rc_name"]) > $truncate_length) {

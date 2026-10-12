@@ -1494,6 +1494,7 @@ function removeBigAddr($addr) {
 		'전라남도 ' => '',
 		'전북특별자치도 ' => '',
 		'제주특별자치도 ' => '',
+		'전남광주통합특별시 ' => '전남광주통합시 ',
 		'세종특별자치시 ' => '세종시 ',
 		'광주광역시 ' => '광주시 ',
 		'인천광역시 ' => '인천시 ',
@@ -1521,6 +1522,29 @@ function removeBigAddr($addr) {
 	$tokenCount = count($tokens);
 
 	if ($tokenCount >= 3) {
+		// 동/면/읍 등 행정구역 단위로 끝나는 토큰 찾기 (괄호 포함 처리)
+		$districtSuffixes = ['동', '면', '읍'];
+		$districtToken = null;
+
+		foreach ($tokens as $token) {
+			// 괄호 제거
+			$cleanToken = trim($token, '()');
+			// 동/면/읍 등으로 끝나는지 확인
+			foreach ($districtSuffixes as $suffix) {
+				if (strlen($cleanToken) > strlen($suffix) &&
+					substr($cleanToken, -strlen($suffix)) === $suffix) {
+					$districtToken = $cleanToken;
+					break 2;
+				}
+			}
+		}
+
+		// 동/면/읍이 있으면 첫 토큰 + 동 조합 반환
+		if ($districtToken) {
+			return trim($tokens[0] . ' ' . $districtToken);
+		}
+
+		// 동/면/읍이 없으면 기존 로직 (도로명/번지 기반)
 		// 세 번째 토큰이 숫자를 포함하면 첫 두 토큰만 사용
 		if (preg_match('/\d/', $tokens[2])) {
 			return trim($tokens[0] . ' ' . $tokens[1]);
