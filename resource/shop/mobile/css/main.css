@@ -3990,6 +3990,16 @@ body.no-scroll {
     color: #222;
 }
 
+/* 라벨 옆 보조 안내문구 (예: 최대 2개 선택) */
+.quickinfo-label em {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.8125rem;
+    font-style: normal;
+    font-weight: 400;
+    color: #1B9D7D;
+}
+
 .quickinfo-region-field {
     width: 100%;
     display: flex;

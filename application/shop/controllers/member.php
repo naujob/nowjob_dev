@@ -1621,6 +1621,40 @@ class Member extends CI_Controller
 	{
 		$data = [];
 		$data["mm_type"] = $this->user->isLogin() ? $this->user->getUserType() : "";
+		$data["join_type"] = $this->user->isLogin() ? $this->user->getJoinType() : "";
+
+		# QuickInfo 바텀시트 미리 선택값 (가입 시점에 이미 확보한 성별/나이/국적)
+		# 세션(USER_INFO)에는 mm_birth/mm_nation이 없으므로 DB에서 직접 조회한다
+		$data["quickinfo_prefill"] = ["nation" => "", "gender" => "", "age" => ""];
+		if ($this->user->isLogin()) {
+			$mem_info = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
+			if (!empty($mem_info)) {
+				$mm_sex = isset($mem_info["mm_sex"]) ? $mem_info["mm_sex"] : "";
+				$mm_nation = isset($mem_info["mm_nation"]) ? $mem_info["mm_nation"] : "";
+				$mm_birth = isset($mem_info["mm_birth"]) ? $mem_info["mm_birth"] : "";
+
+				# 성별: 남/여 외의 값(X, 공백)은 미선택으로 둔다
+				if ($mm_sex == "남") {
+					$data["quickinfo_prefill"]["gender"] = "male";
+				} else if ($mm_sex == "여") {
+					$data["quickinfo_prefill"]["gender"] = "female";
+				}
+
+				# 국적: SNS 가입은 항상 공백이라 대부분 미선택 상태가 된다
+				if ($mm_nation == "내국인") {
+					$data["quickinfo_prefill"]["nation"] = "domestic";
+				} else if ($mm_nation == "외국인") {
+					$data["quickinfo_prefill"]["nation"] = "foreign";
+				}
+
+				# 생년월일 -> 연령대 코드 (형식이 제각각이라 헬퍼가 흡수)
+				$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($mm_birth);
+			}
+		}
+
+		# 업종(희망업무) 선택지: 코드테이블에서 조회해 뷰로 전달
+		$data["ru_wrok_list"] = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+
 		$this->layout->shop('/member/join_mem_finish', $data);
 	}
 

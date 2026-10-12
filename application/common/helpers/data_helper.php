@@ -1049,6 +1049,91 @@ function getKoreanAge($birth)
 	}
 }
 
+/**
+ * 연령대 코드를 대표 생년월일(YYYYMMDD)로 변환
+ * QuickInfo 바텀시트에서 "30대"처럼 범위로 받은 값을 st_member.mm_birth에 저장할 때 사용한다.
+ * 각 연령대의 중간 나이를 대표값으로 쓴다. (20s=25세, 70s_plus=75세)
+ *
+ * @param  string $age_group "20s"|"30s"|"40s"|"50s"|"60s_plus"|"70s_plus"
+ * @return string YYYYMMDD 형식 문자열. 알 수 없는 값이면 빈 문자열
+ */
+if (!function_exists('getBirthByAgeGroup')) {
+	function getBirthByAgeGroup($age_group)
+	{
+		$age_group = trim((string)$age_group);
+		if ($age_group == "") {
+			return "";
+		}
+
+		// 연령대별 대표(중간) 나이
+		$age_mid_list = [
+			"20s" => 25,
+			"30s" => 35,
+			"40s" => 45,
+			"50s" => 55,
+			"60s_plus" => 65,
+			"70s_plus" => 75,
+		];
+
+		if (!isset($age_mid_list[$age_group])) {
+			return "";
+		}
+
+		$birth_year = intval(date('Y')) - $age_mid_list[$age_group];
+		// 가입 시점(join_complete_proc)과 동일하게 YYYYMMDD 형식으로 통일
+		return sprintf('%04d0101', $birth_year);
+	}
+}
+
+/**
+ * 생년월일을 연령대 코드로 역변환
+ * QuickInfo 바텀시트에서 이미 알고 있는 생년을 미리 선택된 상태로 렌더링할 때 사용한다.
+ * 가입 경로별로 형식이 제각각이라(YYYYMMDD / YYYY-MM-DD / 네이버식 YYYY0000) 모두 허용하고,
+ * 월·일이 없어도 연도만으로 판단한다.
+ *
+ * @param  string $birth 생년월일
+ * @return string "20s"~"70s_plus". 20세 미만이거나 알 수 없으면 빈 문자열(기본값 유지용)
+ */
+if (!function_exists('getAgeGroupByBirth')) {
+	function getAgeGroupByBirth($birth)
+	{
+		if ($birth == null || $birth == "") {
+			return "";
+		}
+
+		// 하이픈·점 등 구분자를 제거해 숫자만 남김
+		$birth = preg_replace('/[^0-9]/', '', trim((string)$birth));
+		if (strlen($birth) < 4) {
+			return "";
+		}
+
+		$birth_year = intval(substr($birth, 0, 4));
+		$current_year = intval(date('Y'));
+		// 월·일이 비어 있는 값(YYYY0000)도 있으므로 연도만으로 나이 산출
+		$age = $current_year - $birth_year;
+
+		if ($age < 20 || $age > 120) {
+			return "";
+		}
+		if ($age < 30) {
+			return "20s";
+		}
+		if ($age < 40) {
+			return "30s";
+		}
+		if ($age < 50) {
+			return "40s";
+		}
+		if ($age < 60) {
+			return "50s";
+		}
+		if ($age < 70) {
+			return "60s_plus";
+		}
+		return "70s_plus";
+	}
+}
+
 // function getTimeText($time)
 // {
 // 	// 빈값 또는 유효하지 않은 값 처리
