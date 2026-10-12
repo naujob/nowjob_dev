@@ -123,8 +123,9 @@ renderSelectBottomSheet(
     window.getLocationPermissionStatus = getStoredPermissionStatus;
   })();
 
-  var JOIN_TYPE = "<?php echo $this->user->isLogin() ? $this->user->getJoinType() : ''; ?>";
-  var IS_GOOGLE_JOIN = (["GOOGLE", "WECHAT"].indexOf(String(JOIN_TYPE || "").toUpperCase()) !== -1);
+  var JOIN_TYPE = "<?= isset($join_type) ? $join_type : '' ?>";
+  // QuickInfo 바텀시트 노출 대상: NICE 본인인증을 거치지 않아 국적이 비는 SNS 가입자
+  var SHOW_QUICKINFO = (["GOOGLE", "WECHAT", "KAKAO", "NAVER"].indexOf(String(JOIN_TYPE || "").toUpperCase()) !== -1);
   // 위치 콜백을 “UI 텍스트만 갱신”할지, “자동 이력서 흐름”으로 이어갈지 구분.
   window.__quickInfoExpectLocation = false;
   // QuickInfo 적용하기 버튼으로 시작된 흐름인지 여부
@@ -135,6 +136,11 @@ renderSelectBottomSheet(
   window.__quickInfoManualAddrMode = false;
   //  수동 주소 선택 결과 캐시 (권한 없음 + 적용하기 시 사용).
   window.__quickInfoManualAddr = null;
+  // GPS로 받아온 주소 캐시 (폴백 자동이력서에서 사용)
+  window.__quickInfoGpsAddr = null;
+  // 자동이력서 제출 흐름(#btnResumeGuide)으로 위치를 요청했는지 여부.
+  // 위치 콜백이 "화면 표시용"인지 "제출용"인지 구분하는 데 쓴다.
+  window.__resumeAutoFlow = false;
 
   window.showAutoResumeLoading = function() {
     var el = document.getElementById('auto-resume-loading');
@@ -152,14 +158,20 @@ renderSelectBottomSheet(
 
   (function() {
     /**
-     * QuickInfo 하단시트에서 선택된 국적, 성별, 나이 값을 객체로 반환한다.
-     * 각 항목은 value와 이에 대응하는 한글 라벨로 치환되어 반환된다.
-     * @returns {Object} { nation: "내국인"|"외국인"|"", gender: "남"|"여"|"", age: string }
+     * QuickInfo 하단시트에서 선택된 국적, 성별, 나이, 업종 값을 객체로 반환한다.
+     * 국적/성별은 value와 이에 대응하는 한글 라벨로 치환되어 반환된다.
+     * @returns {Object} { nation: "내국인"|"외국인"|"", gender: "남"|"여"|"", age: string, work: string[] }
      */
     function getQuickInfoSelections() {
       var nationVal = $('input[name="quickinfo_nation"]:checked').val() || "";
       var genderVal = $('input[name="quickinfo_gender"]:checked').val() || "";
       var ageVal = $('input[name="quickinfo_age"]:checked').val() || "";
+
+      // 업종은 다중 선택(최대 2개)이므로 배열로 수집
+      var workVals = [];
+      $('input[name="quickinfo_work[]"]:checked').each(function() {
+        workVals.push($(this).val());
+      });
 
       var nationText = "";
       if (nationVal === "foreign") {
@@ -178,7 +190,8 @@ renderSelectBottomSheet(
       return {
         nation: nationText,
         gender: genderText,
-        age: ageVal
+        age: ageVal,
+        work: workVals
       };
     }
 
@@ -196,6 +209,10 @@ renderSelectBottomSheet(
       }
       if (sel.age) {
         payload.quickinfo_age = sel.age;
+      }
+      // 선택한 업종을 이력서 희망업무(ru_work)로 전달. 없으면 서버 기본값이 적용된다
+      if (sel.work && sel.work.length > 0) {
+        payload.ru_work = sel.work;
       }
       return payload;
     }
@@ -220,6 +237,11 @@ renderSelectBottomSheet(
       var params = Object.assign({}, payload || {});
       params.ru_name = params.ru_name || params.ru_name_seed_addr || "";
       params.ru_addr = params.ru_addr || params.ad_addr || params.ru_name_seed_addr || "";
+
+      // 희망업무는 서버가 $_POST["ru_work"]를 배열로 받으므로 배열로 보정
+      if (params.ru_work && !Array.isArray(params.ru_work)) {
+        params.ru_work = [params.ru_work];
+      }
 
       // 주소 필드는 배열 형태로 전달되도록 보정
       if (params.ad_addr && !Array.isArray(params.ad_addr)) {
@@ -306,11 +328,14 @@ renderSelectBottomSheet(
 
       // 위치 권한이 없거나 거부된 경우
       if (!lat || !lng || lat === "0" || lng === "0") {
-        // QuickInfo 위치 표시만 기다리는 상태라면 텍스트만 초기화
-        if (window.__quickInfoExpectLocation && !window.__quickInfoApplyFlow) {
+        // 제출 흐름(적용하기/자동이력서)이 아니면 텍스트만 초기화하고 끝낸다
+        if (!window.__quickInfoApplyFlow && !window.__resumeAutoFlow) {
           window.__quickInfoExpectLocation = false;
-          var regionEl = document.querySelector('.quickinfo-region-text');
-          if (regionEl) regionEl.textContent = "근무 지역 선택";
+          // 직접 고른 주소가 있으면 그 표시를 유지한다
+          if (!window.__quickInfoManualAddr) {
+            var regionEl = document.querySelector('.quickinfo-region-text');
+            if (regionEl) regionEl.textContent = "근무 지역 선택";
+          }
           return;
         }
         // 자동이력서 흐름이라면 위치 없이 진행
@@ -328,9 +353,14 @@ renderSelectBottomSheet(
           // 카카오 region_1~3depth_name 조합 (시도 시군구 읍면동, 지번/건물번호 없음 = 개인정보 보호 충족)
           var frontPart = (parts[0] || "").trim();
 
-          // QuickInfo 위치 표시만 기다리는 상태라면 UI 텍스트만 갱신하고 종료 (화면 표시용으로만 시/도 축약)
-          if (window.__quickInfoExpectLocation && !window.__quickInfoApplyFlow) {
+          // 제출 흐름(적용하기/자동이력서)이 아니면 UI 텍스트만 갱신하고 종료 (화면 표시용으로만 시/도 축약)
+          // 위치 콜백이 늦게/여러 번 도착해도 여기서 멈추므로 "적용하기" 없이 제출되지 않는다
+          if (!window.__quickInfoApplyFlow && !window.__resumeAutoFlow) {
             window.__quickInfoExpectLocation = false;
+            // 직접 고른 주소가 있으면 GPS로 덮어쓰지 않는다
+            if (window.__quickInfoManualAddr) {
+              return;
+            }
             var regionEl = document.querySelector('.quickinfo-region-text');
             if (regionEl) {
               var displayPart = frontPart;
@@ -339,6 +369,16 @@ renderSelectBottomSheet(
               }
               regionEl.textContent = displayPart || "근무 지역 선택";
             }
+            // 폴백(앱 백그라운드 전환) 시에도 이 주소를 쓸 수 있도록 캐시
+            window.__quickInfoGpsAddr = {
+              ru_name_seed_addr: frontPart,
+              ad_addr: (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(frontPart) || frontPart) : frontPart,
+              ad_jibun: frontPart,
+              ad_doro: "",
+              ad_zipcode: "",
+              ad_gps_x: lng,
+              ad_gps_y: lat
+            };
             return;
           }
           // 자동이력서용 주소 필드 구성 (ad_addr만 축약, ad_jibun/ru_name_seed_addr는 원본 유지)
@@ -465,9 +505,10 @@ renderSelectBottomSheet(
       }
     }
 
-    // Google 가입자 전용 QuickInfo 오픈 흐름
+    // SNS 가입자 QuickInfo 오픈 흐름 (GOOGLE/WECHAT/KAKAO/NAVER)
     // hasLocationConsent: 위치권한 동의 여부(granted면 true)
-    function openQuickInfoForGoogle(hasLocationConsent) {
+    // 위치권한이 있어도 바텀시트는 반드시 뜨며, 위치는 지역 칸을 채우는 용도로만 쓴다
+    function openQuickInfoForSns(hasLocationConsent) {
       // QuickInfo 바텀시트 열기
       if (typeof window.openQuickInfoPanel === 'function') {
         window.openQuickInfoPanel();
@@ -478,9 +519,10 @@ renderSelectBottomSheet(
         setQuickInfoRegionText("위치 확인 중...");
         // 지금은 위치 콜백을 받아서 QuickInfo UI 텍스트만 갱신하려는 상태다”**라는 의미를 나타내는 플래그
         window.__quickInfoExpectLocation = true;
-        // 적용하기 흐름이 아님(위치 수집 단계) 
+        // 적용하기 흐름이 아님(위치 수집 단계)
         // returnLocation에서 단순 UI 표시 vs 자동이력서 이동을 구분 하기 위해 필요
         window.__quickInfoApplyFlow = false;
+        window.__resumeAutoFlow = false;
         // 네이티브 위치 요청
         requestQuickInfoLocation();
       } else {
@@ -495,8 +537,8 @@ renderSelectBottomSheet(
         null;
       var hasLocationConsent = storedPermission === 'granted';
 
-      if (IS_GOOGLE_JOIN) {
-        openQuickInfoForGoogle(hasLocationConsent);
+      if (SHOW_QUICKINFO) {
+        openQuickInfoForSns(hasLocationConsent);
         return;
       }
 
@@ -541,6 +583,9 @@ renderSelectBottomSheet(
   });
 
   $(document).on('click', '#btnResumeGuide', function() {
+    // 이 경로로 받은 위치 콜백은 제출용이라는 표시
+    window.__resumeAutoFlow = true;
+
     // 새 이력서 작성을 위해 임시저장 데이터 초기화
     localStorage.removeItem("resume_draft_0_step1");
     localStorage.removeItem("resume_draft_0_step2");
@@ -670,6 +715,11 @@ renderSelectBottomSheet(
       return;
     }
 
+    if (!selections.work || selections.work.length === 0) {
+      commonAlert("업종을 선택해주세요.", function() {});
+      return;
+    }
+
     // QuickInfo 선택값 캐시
     window.__quickInfoSelections = selections;
     // 자동이력서로 넘어가는 모드 플래그 / returnLocation 콜백을 상황별로 다르게 처리하기 위한 
@@ -677,38 +727,49 @@ renderSelectBottomSheet(
     // 위치 콜백 대기 안 함 / returnLocation 콜백을 상황별로 다르게 처리하기 위한 
     window.__quickInfoExpectLocation = false;
 
+    // 사용자가 직접 고른 주소가 있으면 위치권한 유무와 무관하게 그 주소를 쓴다
+    // (권한이 있다고 GPS를 다시 받아오면 직접 선택한 주소가 덮어써진다)
+    if (window.__quickInfoManualAddr) {
+      submitQuickInfoWithAddress(window.__quickInfoManualAddr, selections);
+      return;
+    }
+
     var storedPermission = (typeof window.getLocationPermissionStatus === 'function') ?
       window.getLocationPermissionStatus() :
       null;
     var hasLocationConsent = storedPermission === 'granted';
 
     if (!hasLocationConsent) {
-      if (window.__quickInfoManualAddr) {
-        submitQuickInfoWithAddress(window.__quickInfoManualAddr, selections);
-        return;
-      }
       $('.quickinfo-region-field').trigger('click');
       return;
     }
 
+    // 직접 선택한 주소가 없으면 GPS로 받아온다
     $("#btnResumeGuide").trigger("click");
   };
 
-  $(document).on('click', '#btnQuickInfoApply', function(e) {
-    e.preventDefault();
-    if (typeof window.handleQuickInfoApplyClick === 'function') {
-      window.handleQuickInfoApplyClick();
+  // 적용하기 버튼은 바텀시트 템플릿이 심은 onclick="handleQuickInfoApplyClick()"으로 동작한다.
+  // 여기에 jQuery 핸들러를 추가로 걸면 한 번 눌러도 두 번 실행되어 알림이 겹친다.
+
+  // 업종 선택 개수 제한 (data-select-limit) — 이력서 작성 화면과 동일한 규칙
+  $(document).on('change', 'input[name="quickinfo_work[]"]', function() {
+    var limit = parseInt($(this).attr('data-select-limit'), 10);
+    if (!limit) return;
+
+    var checkedCount = $('input[name="quickinfo_work[]"]:checked').length;
+    if (this.checked && checkedCount > limit) {
+      this.checked = false;
+      commonAlert("최대 " + limit + "개까지 선택 가능합니다.", function() {});
     }
   });
 
-  // QuickInfo 초기화 버튼: 기본값(외국인/남성/30대)으로 복원, 주소는 초기화
+  // QuickInfo 초기화 버튼: 모든 선택값과 지역을 선택 없음 상태로 되돌린다
   $(document).on('click', '#btnQuickInfoReset', function(e) {
     e.preventDefault();
 
-    // 기본 선택값 복원
-    $('input[name="quickinfo_nation"][value="foreign"]').prop('checked', true).trigger('change');
-    $('input[name="quickinfo_gender"][value="male"]').prop('checked', true).trigger('change');
-    $('input[name="quickinfo_age"][value="30s"]').prop('checked', true).trigger('change');
+    // 국적/성별/나이/업종 전체 해제
+    $('input[name="quickinfo_nation"], input[name="quickinfo_gender"], input[name="quickinfo_age"], input[name="quickinfo_work[]"]')
+      .prop('checked', false).trigger('change');
 
     // 지역 텍스트 초기화
     var regionEl = document.querySelector('.quickinfo-region-text');
@@ -718,7 +779,10 @@ renderSelectBottomSheet(
     window.__quickInfoSelections = null;
     window.__quickInfoManualAddrMode = false;
     window.__quickInfoManualAddr = null;
+    window.__quickInfoGpsAddr = null;
     window.__quickInfoExpectLocation = false;
+    window.__quickInfoApplyFlow = false;
+    window.__resumeAutoFlow = false;
   });
 </script>
 
@@ -794,20 +858,40 @@ renderSelectBottomSheet(
     }
 
     function buildFallbackFormData() {
+        // 바텀시트에서 이미 고른 값이 있으면 그대로 반영 (없을 때만 기본값)
+        var sel = (typeof window.getQuickInfoSelections === 'function') ? window.getQuickInfoSelections() : null;
+        var nationality = (sel && sel.nation) ? sel.nation : "내국인";
+        var gender = (sel && sel.gender) ? sel.gender : "남";
+        var age = (sel && sel.age) ? sel.age : "30s";
+
+        // 직접 선택했거나 GPS로 받아온 주소가 있으면 우선 사용 (직접 선택이 우선)
+        var manualAddr = window.__quickInfoManualAddr || window.__quickInfoGpsAddr || null;
+        var addr = (manualAddr && manualAddr.ad_addr) ? manualAddr.ad_addr : DEFAULT_ADDR;
+        var jibun = (manualAddr && manualAddr.ad_jibun) ? manualAddr.ad_jibun : addr;
+        var zipcode = (manualAddr && manualAddr.ad_zipcode) ? manualAddr.ad_zipcode : DEFAULT_ZIPCODE;
+        var gpsX = (manualAddr && manualAddr.ad_gps_x) ? manualAddr.ad_gps_x : DEFAULT_GPS_X;
+        var gpsY = (manualAddr && manualAddr.ad_gps_y) ? manualAddr.ad_gps_y : DEFAULT_GPS_Y;
+
         var fd = new FormData();
         fd.append("ru_name", "");
-        fd.append("ru_addr", DEFAULT_ADDR);
-        fd.append("ru_nationality", "내국인");
-        fd.append("quickinfo_gender", "남");
-        fd.append("quickinfo_age", "30s");
+        fd.append("ru_addr", addr);
+        fd.append("ru_nationality", nationality);
+        fd.append("quickinfo_gender", gender);
+        fd.append("quickinfo_age", age);
+        // 업종은 미선택이면 보내지 않는다 (서버 기본값 적용)
+        if (sel && sel.work && sel.work.length > 0) {
+            for (var i = 0; i < sel.work.length; i++) {
+                fd.append("ru_work[]", sel.work[i]);
+            }
+        }
         fd.append("ad_type", "resume");
-        fd.append("ad_addr[]", DEFAULT_ADDR);
-        fd.append("ad_jibun[]", DEFAULT_ADDR);
+        fd.append("ad_addr[]", addr);
+        fd.append("ad_jibun[]", jibun);
         fd.append("ad_doro[]", "");
-        fd.append("ad_zipcode[]", DEFAULT_ZIPCODE);
+        fd.append("ad_zipcode[]", zipcode);
         fd.append("ad_detail[]", "");
-        fd.append("ad_gps_x[]", DEFAULT_GPS_X);
-        fd.append("ad_gps_y[]", DEFAULT_GPS_Y);
+        fd.append("ad_gps_x[]", gpsX);
+        fd.append("ad_gps_y[]", gpsY);
         return fd;
     }
 
