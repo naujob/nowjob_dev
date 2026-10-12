@@ -794,12 +794,25 @@ class Mypage_proc extends CI_Controller
       json_return("99", "국적 선택이 확인되지 않습니다.");
     }
 
+    // 희망업무 아이콘 경로를 코드테이블(cd_val -> cd_val2)에서 서버가 직접 조회
+    // 클라이언트가 보낸 경로를 믿지 않으므로 위변조 여지가 없다
+    $ru_work_img = [];
+    $work_code_list = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
+    foreach ($ru_work as $work_val) {
+      foreach ($work_code_list as $code_row) {
+        if (isset($code_row["cd_val"]) && $code_row["cd_val"] == $work_val) {
+          $ru_work_img[] = isset($code_row["cd_val2"]) ? $code_row["cd_val2"] : "";
+          break;
+        }
+      }
+    }
+
     // 스텝1 로그 저장
     $sl_txt_step1 = [
       "ru_name" => $ru_name,
       "ru_work" => $ru_work,
       "ru_addr" => $ru_addr,
-      "ru_work_img" => [],
+      "ru_work_img" => $ru_work_img,
       "ru_price_type" => $ru_price_type,
       "ru_work_type" => $ru_work_type,
       "ru_nationality" => $ru_nationality,
@@ -1149,34 +1162,10 @@ class Mypage_proc extends CI_Controller
     }
 
     // QuickInfo 성별/나이(연령대) -> 생년월일 변환
+    // 변환 규칙은 data_helper의 getBirthByAgeGroup()으로 일원화 (70대 포함, YYYYMMDD 형식)
     $quickinfo_gender = isset($step1["quickinfo_gender"]) ? $step1["quickinfo_gender"] : "";
     $quickinfo_age = isset($step1["quickinfo_age"]) ? $step1["quickinfo_age"] : "";
-    $quickinfo_birth = "";
-    if ($quickinfo_age != "") {
-      $currentYear = intval(date('Y'));
-      $ageMid = 0;
-      switch ($quickinfo_age) {
-        case "20s":
-          $ageMid = 25;
-          break;
-        case "30s":
-          $ageMid = 35;
-          break;
-        case "40s":
-          $ageMid = 45;
-          break;
-        case "50s":
-          $ageMid = 55;
-          break;
-        case "60s_plus":
-          $ageMid = 65;
-          break;
-      }
-      if ($ageMid > 0) {
-        $birthYear = $currentYear - $ageMid;
-        $quickinfo_birth = sprintf('%04d-01-01', $birthYear);
-      }
-    }
+    $quickinfo_birth = getBirthByAgeGroup($quickinfo_age);
 
     # 이력서 갯수 확인후 처리
     $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
