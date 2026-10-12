@@ -556,6 +556,16 @@ class Cron_proc extends CI_Controller
                                 // 이 공고에 매칭된 이력서 기록 (같은 공고에는 한 번만)
                                 $recruit_matched_resumes[] = $ru_idx;
                                 break; // 이력서의 주소 루프 탈출 (이 이력서는 이 공고에 한 번만)
+                            } else {
+                                if ($recruit_area === null) {
+                                    error_log("[weekly_match_alimtalk] ❌ 기업 지역 추출 실패: rc_idx={$rc_idx}, ru_idx={$ru_idx}, 공고주소='{$recruit_addr}'");
+                                } elseif ($resume_area === null) {
+                                    error_log("[weekly_match_alimtalk] ❌ 개인 지역 추출 실패: rc_idx={$rc_idx}, ru_idx={$ru_idx}, 이력서주소='{$resume_addr}'");
+                                } elseif ($recruit_area !== $resume_area) {
+                                    error_log("[weekly_match_alimtalk] ❌ 지역 불일치(기업): rc_idx={$rc_idx}, ru_idx={$ru_idx}, 공고지역='{$recruit_area}', 이력서지역='{$resume_area}'");
+                                } else {
+                                    error_log("[weekly_match_alimtalk] ❌ 조건 불일치(기업): rc_idx={$rc_idx}, ru_idx={$ru_idx}, 지역='{$recruit_area}'");
+                                }
                             }
                         }
                     }
@@ -634,6 +644,16 @@ class Cron_proc extends CI_Controller
                                 // 이 이력서가 이 공고에 매칭됨 기록 (같은 이력서-공고는 한 번만)
                                 $resume_matched_recruits[] = $rc_idx;
                                 break; // 공고의 주소 루프 탈출 (이 공고는 이 이력서에 한 번만)
+                            } else {
+                                if ($resume_area === null) {
+                                    error_log("[weekly_match_alimtalk] ❌ 개인 지역 추출 실패: ru_idx={$ru_idx}, rc_idx={$rc_idx}, 이력서주소='{$resume_addr}'");
+                                } elseif ($recruit_area === null) {
+                                    error_log("[weekly_match_alimtalk] ❌ 공고 지역 추출 실패: ru_idx={$ru_idx}, rc_idx={$rc_idx}, 공고주소='{$recruit_addr}'");
+                                } elseif ($recruit_area !== $resume_area) {
+                                    error_log("[weekly_match_alimtalk] ❌ 지역 불일치(개인): ru_idx={$ru_idx}, rc_idx={$rc_idx}, 이력서지역='{$resume_area}', 공고지역='{$recruit_area}'");
+                                } else {
+                                    error_log("[weekly_match_alimtalk] ❌ 조건 불일치(개인): ru_idx={$ru_idx}, rc_idx={$rc_idx}, 지역='{$recruit_area}'");
+                                }
                             }
                         }
                     }
@@ -1294,6 +1314,59 @@ class Cron_proc extends CI_Controller
         $fail = isset($result["fail"]) ? $result["fail"] : 0;
 
         echo "[auto_reregister_paid_recruit] {$message} | 성공: {$success}건, 실패: {$fail}건\n";
+    }
+
+    // 테스트용: 특정 이력서로만 매칭 테스트
+    public function test_match_single_resume()
+    {
+        $ru_idx = 3094;
+        $mm_idx = 4818;
+
+        echo "[TEST] 이력서 테스트 시작 - ru_idx={$ru_idx}, mm_idx={$mm_idx}\n";
+
+        // 특정 이력서 조회 (matchmodel 사용)
+        $all_resumes = $this->_getActiveResumes(); // 전체 활성 이력서 조회
+        $resumes = array_values(array_filter($all_resumes, function($r) use ($ru_idx, $mm_idx) {
+            return $r['ru_idx'] == $ru_idx && $r['mm_idx'] == $mm_idx;
+        })); // 특정 이력서만 필터링
+
+        if (empty($resumes)) {
+            echo "❌ 이력서 없음\n";
+            return;
+        }
+
+        echo "[TEST] 조회된 이력서: " . count($resumes) . "건\n";
+        echo "[TEST] 이력서 정보:\n";
+        echo json_encode($resumes[0], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n";
+
+        // 테스트용: 처음 50개 공고만 조회 (빠른 테스트)
+        $all_recruits = $this->_getActiveRecruits();
+        $recruits = array_slice($all_recruits, 0, 50); // array_slice(배열, 시작위치, 개수)로 앞에서 50개만 잘라냅니다.
+        echo "[TEST] 조회된 공고: " . count($recruits) . "건 (테스트용 제한, 전체 {" . count($all_recruits) . "})\n";
+
+        // 지역 매칭만 테스트 (area 조건만)
+        $comp_cond_arr = array('area');
+        echo "[TEST] 매칭 조건: " . implode(',', $comp_cond_arr) . "\n";
+
+        $matches = $this->_calculateCorpMatches($resumes, $recruits, $comp_cond_arr); // 이력서 목록, 공고 목록, 조건 목록을 넘겨 실제 매칭을 계산
+
+        echo "[TEST] 매칭 결과: " . count($matches) . "건\n";
+        if (!empty($matches)) {
+            foreach ($matches as $match) {
+                echo "[TEST] ✅ rc_idx={$match['recruit']['rc_idx']}, 공고지역={$match['recruit']['ad_addr']}, 매칭됨\n";
+            }
+        } else {
+            echo "[TEST] 매칭된 공고 없음 - /var/log/php_errors.log에서 실패 원인 확인\n";
+        }
+
+        echo "[TEST] 이력서 주소 목록:\n";
+        foreach ($resumes as $resume) {
+            $addr = !empty($resume['ad_jibun']) ? $resume['ad_jibun'] : $resume['ad_addr'];
+            if (!empty($addr)) {
+                $extracted = $this->_extractAreaSido($addr);
+                echo "[TEST]   주소: {$addr} → 추출: {$extracted}\n";
+            }
+        }
     }
 
 }
