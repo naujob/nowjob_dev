@@ -252,7 +252,7 @@
       $data["point3"] = $this->setting_model->getCodeInfo(["cd_key"=>"M003"]);
 			$data["addr_list"]  = $this->member_model->getAddressList(["ad_type"=>"MEMBER","mm_idx"=>$this->mm_idx,"ad_key"=>$this->mm_idx]);
 			$data["promotion_list"] = $this->setting_model->getCodeList(["cd_grp"=>"광고구매"]);
-      $data["resume_list"] = $this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+      $data["resume_list"] = $this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_show_yn"=>"Y"]);
 			$this->layout->shop('/mypage/point_promotion_buy',$data);
 		}
 
