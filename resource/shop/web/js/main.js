@@ -1197,7 +1197,9 @@
     /* 통합 슬라이더 초기화 */
     (function initAllSliders() {
         // 추천공고 슬라이더 초기화 (AJAX 로드 후 호출)
-        window.initRecommendationSlider = function(containerId) {
+        // @param {string} containerId - 슬라이더 컨테이너 선택자
+        // @param {number} [maxPerView=5] - 한 화면에 보여줄 최대 카드 수 (기본 5)
+        window.initRecommendationSlider = function(containerId, maxPerView) {
             if (typeof KeenSlider === 'undefined') return;
 
             var container = document.querySelector(containerId);
@@ -1209,17 +1211,18 @@
             var slideCount = container.querySelectorAll('.keen-slider__slide').length;
             if (slideCount === 0) return;
 
-            var perView = slideCount < 5 ? slideCount : 5;
+            maxPerView = parseInt(maxPerView, 10) || 5;
+            var perView = slideCount < maxPerView ? slideCount : maxPerView;
 
-            // 슬라이드 아이템에 고정 너비 적용 (20%)
+            // 슬라이드 아이템에 고정 너비 적용 (100 / maxPerView %)
             var slides = container.querySelectorAll('.keen-slider__slide');
             slides.forEach(function(slide) {
-                slide.style.flex = '0 0 20%';
+                slide.style.flex = '0 0 ' + (100 / maxPerView) + '%';
             });
 
             // 슬라이드 개수에 따라 슬라이더 너비 동적 설정
             var totalWidth = slideCount * 320; // 각 슬라이드 320px (최대너비) + 여백
-            var wrapperWidth = Math.min(totalWidth, 5 * 320); // 최대 5개 크기
+            var wrapperWidth = Math.min(totalWidth, maxPerView * 320); // 최대 maxPerView개 크기
             sliderWrap.style.width = wrapperWidth + 'px';
             sliderWrap.style.maxWidth = '100%';
 
