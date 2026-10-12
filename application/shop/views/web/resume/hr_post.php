@@ -2091,10 +2091,10 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   function getRecoList() {
     getRecoListCommon({
       containerId: 'my-keen-slider',
-      limit: 5,
+      limit: 12,  // 화살표로 넘겨볼 수 있도록 한 화면(perView)보다 많이 로드
       excludeRuIdx: '<?= $info["ru_idx"] ?>',
       showMmIdx: false,
-      perView: 5
+      perView: 4  // 카드 폭 확대 (1280/4 = 320px)
     });
   }
 
