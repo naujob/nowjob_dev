@@ -371,9 +371,12 @@
             params += '&agree4=' + agree4;
             params += '&agree5=' + agree5;
 
-            comAjax("/member_proc/join_mem_step2", params, function(ret2) {
+            // 약관 동의값을 st_site_log의 JOIN_MEM/스텝3에 저장한다.
+            // (구 join_mem_step2 엔드포인트는 제거되어 404가 났다. 모바일과 동일한 경로를 쓴다.
+            //  join_complete_proc은 약관을 "스텝2 → 없으면 스텝3" 순으로 읽으므로 동작이 같다)
+            comAjax("/member_proc/join_mem_step3", params, function(ret2) {
                 if (ret2.code == "00") {
-                    // step2 완료 후 곧바로 회원가입 완료 (PART)
+                    // 약관 저장 완료 후 회원가입 완료 처리 (PART)
                     fPassClickFromStep2();
                 } else {
                     commonAlert(ret2.msg, function() {});
@@ -462,8 +465,19 @@
         //fClickChk(); // 상태 변경 후 fClickChk 호출
     }
 
+    // SNS 가입 경로 여부 (서버가 st_site_log의 JOIN/SNS 데이터로 판별)
+    var IS_SNS_JOIN = "<?= isset($is_sns_join) ? $is_sns_join : 'N' ?>";
+
     // step2에서 회원가입 완료 처리 (PART)
     function fPassClickFromStep2(){
+        // SNS 가입: 계정 생성을 join_mem_finish의 QuickInfo '적용하기'까지 미룬다.
+        // 추가 정보를 입력하지 않고 이탈하면 계정이 만들어지지 않아야 하기 때문.
+        // (가입 임시 데이터는 st_site_log에 session_id 기준으로 그대로 남아 있다)
+        if (IS_SNS_JOIN === "Y") {
+            location.href = "/member/join_mem_finish";
+            return;
+        }
+
         var params = {};
         params["ma_type"] = "MEM";
         params["proc_type"] = "PART";

@@ -1,4 +1,7 @@
 <?php
+// 가입 대기 상태 여부 (SNS 가입: 계정이 아직 생성되지 않음 → '적용하기'에서 생성)
+$join_pending = (isset($join_pending) && $join_pending === "Y") ? "Y" : "N";
+
 // Kakao Maps SDK 키 로드 (지오코딩 사용)
 $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
 // 구글 가입자용 QuickInfo 바텀시트 로드
@@ -13,15 +16,23 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         <div class="container">
 
             <div class="join-welcome">
-                <h2 class="primary-title">가입 축하드립니다</h2>
-                <p>나우잡의 제공하는 채용정보및 다양한혜택을<br> 이용하실 수 있습니다.</p>
+                <?php if ($join_pending === 'Y'): ?>
+                    <h2 class="primary-title">거의 다 왔어요!</h2>
+                    <p>추가 정보를 입력하시면<br> 회원가입이 완료됩니다.</p>
+                <?php else: ?>
+                    <h2 class="primary-title">가입 축하드립니다</h2>
+                    <p>나우잡의 제공하는 채용정보및 다양한혜택을<br> 이용하실 수 있습니다.</p>
+                <?php endif; ?>
                 <div class="form-action-wrap" id="non_mem_last_cont" style="display:none;">
                 </div>
                 <div class="form-action-wrap">
-                    <a href="/" class="btn-round btn-tertiary">메인으로 바로가기</a>
-                    <?php if ($this->user->getUserType() == 'MEM') { ?>
-                        <!-- <a href="/mypage/resume_list" class="btn-round btn-tertiary" style="margin-left:20px;">이력서 등록하러 가기</a> -->
-                    <?php } ?>
+                    <?php if ($join_pending === 'Y'): ?>
+                        <!-- 가입 완료 전이므로 메인 이동 버튼은 노출하지 않는다 -->
+                        <button type="button" id="btnReopenQuickInfo" class="btn-round btn-tertiary">추가 정보 입력하기</button>
+                        <a href="/member/login" id="btnCancelJoin" class="btn-round btn-tertiary" style="margin-left:20px;">취소하고 돌아가기</a>
+                    <?php else: ?>
+                        <a href="/" class="btn-round btn-tertiary">메인으로 바로가기</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -194,6 +205,33 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         color: #222;
     }
 
+    /* 필수 입력 표시 */
+    .quickinfo-label .quickinfo-required {
+        margin-left: 2px;
+        color: #F04452;
+        font-weight: 600;
+    }
+
+    /* 라벨 옆 보조 안내문구 (최대 2개 선택 / 자동 입력) */
+    .quickinfo-label em {
+        display: inline-block;
+        margin-left: 6px;
+        font-size: 13px;
+        font-style: normal;
+        font-weight: 400;
+        color: #1B9D7D;
+    }
+
+    /* 서버가 확보한 값(자동 입력)은 수정할 수 없음을 표현 */
+    .quickinfo-group[data-locked="true"] .form-toggle-group {
+        opacity: 0.55;
+        pointer-events: none;
+    }
+
+    .quickinfo-group[data-locked="true"] .quickinfo-label em {
+        color: #999;
+    }
+
     .quickinfo-sheet .form-toggle-btn2 .btn {
         min-width: 60px;
         height: 36px;
@@ -219,9 +257,15 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         var LOCATION_PERMISSION_KEY = "nowjob_location_permission_status";
         var isLogin = <?= $this->user->isLogin() ? 'true' : 'false' ?>;
         var isMem = <?= ($this->user->isLogin() && $this->user->getUserType() === 'MEM') ? 'true' : 'false' ?>;
-        var JOIN_TYPE = "<?= $this->user->isLogin() ? $this->user->getJoinType() : '' ?>";
-        var IS_GOOGLE_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "GOOGLE");
-        var IS_WECHAT_JOIN = (String(JOIN_TYPE || "").toUpperCase() === "WECHAT");
+        // 컨트롤러가 넘긴 값을 쓴다. 가입 대기 상태는 비로그인이라 getJoinType()이 비기 때문.
+        var JOIN_TYPE = "<?= isset($join_type) ? $join_type : '' ?>";
+        // 가입 대기 상태: 계정이 아직 없고 '적용하기' 시점에 생성한다
+        var JOIN_PENDING = ("<?= $join_pending ?>" === "Y");
+        // join_complete_proc에 넘길 SNS 식별값
+        var JOIN_KEY = "<?= isset($join_key) ? $join_key : '' ?>";
+        var JOIN_UUID = "<?= isset($uuid) ? $uuid : '' ?>";
+        // QuickInfo 바텀시트 노출 대상: SNS 가입자 4종 (모바일 SHOW_QUICKINFO와 동일)
+        var SHOW_QUICKINFO = (["GOOGLE", "WECHAT", "KAKAO", "NAVER"].indexOf(String(JOIN_TYPE || "").toUpperCase()) !== -1);
         // QuickInfo 상태 플래그
         window.__quickInfoExpectLocation = false; // 위치 확인 플로우 진행 중 여부 (true면 위치 확인 UI를 기대)
         window.__quickInfoApplyFlow = false; // QuickInfo '적용하기'로 제출하는 흐름인지 여부
@@ -232,7 +276,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         window.__disableChangeAreaClose = false; // QuickInfo에서 연 changeArea를 X/배경/ESC로 닫지 않도록 제어
 
 
-        if (!isLogin || !isMem) {
+        // 가입 대기(SNS) 상태는 비로그인이므로 로그인 가드를 우회한다
+        if (!JOIN_PENDING && (!isLogin || !isMem)) {
             return;
         }
 
@@ -289,11 +334,17 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             if (el) el.textContent = text;
         }
 
-        // QuickInfo에서 선택된 값(국적/성별/나이)을 수집
+        // QuickInfo에서 선택된 값(국적/성별/나이/업종)을 수집
         function getQuickInfoSelections() {
             var nationVal = $('input[name="quickinfo_nation"]:checked').val() || "";
             var genderVal = $('input[name="quickinfo_gender"]:checked').val() || "";
             var ageVal = $('input[name="quickinfo_age"]:checked').val() || "";
+
+            // 업종은 다중 선택(최대 2개)이므로 배열로 수집
+            var workVals = [];
+            $('input[name="quickinfo_work[]"]:checked').each(function() {
+                workVals.push($(this).val());
+            });
 
             var nationText = "";
             if (nationVal === "foreign") {
@@ -312,7 +363,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             return {
                 nation: nationText,
                 gender: genderText,
-                age: ageVal
+                age: ageVal,
+                work: workVals
             };
         }
 
@@ -330,6 +382,10 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             if (sel.age) {
                 payload.quickinfo_age = sel.age;
             }
+            // 선택한 업종을 이력서 희망업무(ru_work)로 전달. 없으면 서버 기본값이 적용된다
+            if (sel.work && sel.work.length > 0) {
+                payload.ru_work = sel.work;
+            }
             return payload;
         }
 
@@ -339,16 +395,68 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             submitQuickInfoToServer(payload);
         }
 
-        // QuickInfo 최종 제출 및 자동 이력서 생성 처리
+        // SNS 임시 키 정리 (가입 완료 후에만 호출한다)
+        function clearJoinSnsKeys() {
+            try {
+                localStorage.removeItem("join_sns_type");
+                localStorage.removeItem("join_sns_key");
+                sessionStorage.removeItem("join_sns_type");
+                sessionStorage.removeItem("join_sns_key");
+                document.cookie = "join_sns_type=; path=/; max-age=0";
+                document.cookie = "join_sns_key=; path=/; max-age=0";
+            } catch (e) {}
+        }
+
+        // QuickInfo 최종 제출
+        // 가입 대기(SNS) 상태면 계정 생성 -> 자동이력서 순으로 2단계 처리한다.
+        // mypage_proc는 로그인 세션을 요구하므로 계정 생성이 반드시 선행되어야 한다.
         function submitQuickInfoToServer(payload) {
             if (window.__quickInfoSubmitting) return;
             window.__quickInfoSubmitting = true; // QuickInfo 중복 제출 방지 플래그
             showAutoResumeLoading();
 
+            if (JOIN_PENDING) {
+                var joinParams = {
+                    ma_type: "MEM",
+                    proc_type: "PART",
+                    uuid: JOIN_UUID,
+                    join_type: JOIN_TYPE,
+                    join_key: JOIN_KEY
+                };
+                comAjax("/member_proc/join_complete_proc", joinParams, function(ret) {
+                    if (ret && ret.code === "00") {
+                        // 계정 생성 + 로그인 세션 확보 완료
+                        clearJoinSnsKeys();
+                        JOIN_PENDING = false;
+                        doResumeAutofill(payload);
+                        return;
+                    }
+                    window.__quickInfoSubmitting = false;
+                    hideAutoResumeLoading();
+                    // 가입 임시 데이터가 만료된 경우(code 10)는 재시도해도 소용없으므로 처음부터 다시
+                    if (ret && ret.code === "10") {
+                        commonAlert("가입 정보가 만료되었습니다. 다시 진행해주세요.", function() {
+                            location.replace("/member/login");
+                        });
+                        return;
+                    }
+                    commonAlert((ret && ret.msg) ? ret.msg : "회원가입 처리에 실패했습니다.", function() {});
+                });
+                return;
+            }
+
+            doResumeAutofill(payload);
+        }
+
+        // 자동이력서 생성 (로그인 세션이 있는 상태에서만 호출된다)
+        function doResumeAutofill(payload) {
             var params = Object.assign({}, payload || {}); // 서버 전송 파라미터 기본값: ru_name/ru_addr, ad_addr/ad_jibun/ad_doro/ad_zipcode/ad_detail, ad_gps_x/ad_gps_y 등 주소 정보
             params.ru_name = params.ru_name || params.ru_name_seed_addr || "";
             params.ru_addr = params.ru_addr || params.ad_addr || params.ru_name_seed_addr || "";
             params.ad_type = "resume"; // st_address 테이블에 이력서 주소로 저장
+
+            // 희망업무는 서버가 $_POST["ru_work"]를 배열로 받으므로 배열로 보정
+            if (params.ru_work && !Array.isArray(params.ru_work)) params.ru_work = [params.ru_work];
 
             if (params.ad_addr && !Array.isArray(params.ad_addr)) params.ad_addr = [params.ad_addr];
             if (params.ad_jibun && !Array.isArray(params.ad_jibun)) params.ad_jibun = [params.ad_jibun];
@@ -363,7 +471,6 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 window.__quickInfoSubmitting = false;
                 hideAutoResumeLoading();
                 if (ret && ret.code === "00") {
-                    window.__fallbackResumeTriggered = true;
                     location.href = "/recruit/job_list";
                 } else {
                     commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});
@@ -492,7 +599,6 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                             } catch (e) {}
                         }
                         if (ret2 && (ret2.code === "00" || ret2.msg === "처리완료")) {
-                            window.__fallbackResumeTriggered = true;
                             location.href = "/recruit/job_list?auto_resume=1";
                             return;
                         }
@@ -643,8 +749,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 
         // 자동 이력서 플로우 시작 조건 판단 및 초기 UI 세팅
         function startAutoResumeFlowIfNeeded() {
-            // 자동 이력서 흐름 시작 조건 확인 (권한/이력서 개수) - Google/WeChat 가입자
-            if (IS_GOOGLE_JOIN || IS_WECHAT_JOIN) {
+            // 자동 이력서 흐름 시작 조건 확인 - SNS 가입자(GOOGLE/WECHAT/KAKAO/NAVER)
+            if (SHOW_QUICKINFO) {
                 if (typeof window.openQuickInfoPanel === 'function') {
                     window.openQuickInfoPanel();
                 }
@@ -764,8 +870,11 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 return;
             }
             if (!selections.age) {
-                // 가장 단순한 방식으로 안내
-                alert("나이를 선택해주세요.");
+                commonAlert("나이를 선택해주세요.", function() {});
+                return;
+            }
+            if (!selections.work || selections.work.length === 0) {
+                commonAlert("업종을 선택해주세요.", function() {});
                 return;
             }
 
@@ -788,169 +897,97 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             }
         });
 
+        // 업종 선택 개수 제한 (data-select-limit) — 모바일과 동일한 규칙
+        $(document).on('change', 'input[name="quickinfo_work[]"]', function() {
+            var limit = parseInt($(this).attr('data-select-limit'), 10);
+            if (!limit) return;
+
+            var checkedCount = $('input[name="quickinfo_work[]"]:checked').length;
+            if (this.checked && checkedCount > limit) {
+                this.checked = false;
+                commonAlert("최대 " + limit + "개까지 선택 가능합니다.", function() {});
+            }
+        });
+
+        // QuickInfo 초기화 버튼: 모든 선택값과 지역을 선택 없음 상태로 되돌린다
         $(document).on('click', '#btnQuickInfoReset', function(e) {
             e.preventDefault();
-            $('input[name="quickinfo_nation"][value="foreign"]').prop('checked', true).trigger('change');
-            $('input[name="quickinfo_gender"][value="male"]').prop('checked', true).trigger('change');
-            $('input[name="quickinfo_age"][value="30s"]').prop('checked', true).trigger('change');
+
+            // 서버가 확보해 잠근 값(disabled)은 초기화 대상에서 제외한다.
+            // jQuery의 .prop()는 disabled를 무시하므로 .not(':disabled')가 반드시 필요하다.
+            $('input[name="quickinfo_nation"], input[name="quickinfo_gender"], input[name="quickinfo_age"], input[name="quickinfo_work[]"]')
+                .not(':disabled')
+                .prop('checked', false).trigger('change');
+
             setQuickInfoRegionText("근무 지역 선택");
             window.__quickInfoSelections = null;
             window.__quickInfoManualAddrMode = false;
             window.__quickInfoManualAddr = null;
             window.__quickInfoExpectLocation = false;
+            window.__quickInfoApplyFlow = false;
         });
 
     })(); // IIFE 페이지 열리면 즉시 실행됨
 </script>
 
 <script>
-    // join_mem_finish: quickInfoPanel·changeArea 강제 닫기 차단
+    // join_mem_finish: 바텀시트 닫기 / 뒤로가기 처리
     (function() {
-        function preventPanelClose() {
-            // 배경 클릭 및 ESC 닫기 차단 (data 속성)
+        var JOIN_PENDING_PANEL = ("<?= $join_pending ?>" === "Y");
+
+        function initPanelExit() {
+            // 배경 클릭·ESC로는 닫히지 않게 유지한다 (핸들바 탭만 허용)
             var ids = ['quickInfoPanel', 'changeArea'];
             for (var i = 0; i < ids.length; i++) {
-                var panel = document.getElementById(ids[i]);
-                if (panel) {
-                    panel.setAttribute('data-disable-bg-close', 'true');
-                    panel.setAttribute('data-disable-esc-close', 'true');
+                var el = document.getElementById(ids[i]);
+                if (el) {
+                    el.setAttribute('data-disable-bg-close', 'true');
+                    el.setAttribute('data-disable-esc-close', 'true');
                 }
-            }
-
-            // closePanel 오버라이드: 두 패널 모두 외부 닫기 차단
-            if (typeof window.closePanel === 'function' && !window.__closePanel_joinFinish_patched) {
-                window.__closePanel_joinFinish_patched = true;
-                var _origClosePanel = window.closePanel;
-                window.closePanel = function(el) {
-                    if (el && (el.id === 'quickInfoPanel' || el.id === 'changeArea')) {
-                        return;
-                    }
-                    _origClosePanel(el);
-                };
             }
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', preventPanelClose);
+            document.addEventListener('DOMContentLoaded', initPanelExit);
         } else {
-            preventPanelClose();
+            initPanelExit();
         }
-    })();
-</script>
 
-<script>
-    // 페이지 이탈 시 폴백 자동이력서 생성
-    (function() {
-        // 비로그인 또는 비회원이면 실행 안 함
-        var isLogin = <?= $this->user->isLogin() ? 'true' : 'false' ?>;
-        var isMem = <?= ($this->user->isLogin() && $this->user->getUserType() === 'MEM') ? 'true' : 'false' ?>;
-        if (!isLogin || !isMem) return;
+        // 핸들바를 탭하면 바텀시트를 닫는다 (템플릿에 닫기 버튼이 없다)
+        $(document).on('click', '#quickInfoPanel .bottom-sheet-handlebar', function() {
+            var panel = document.getElementById('quickInfoPanel');
+            if (panel && typeof closePanel === 'function') {
+                closePanel(panel);
+            }
+        });
 
-        // 개포동 기본값
-        var DEFAULT_ADDR = "서울특별시 강남구 개포동";
-        var DEFAULT_GPS_X = "127.0748";
-        var DEFAULT_GPS_Y = "37.4855";
-        var DEFAULT_ZIPCODE = "06336";
+        // 하단 '추가 정보 입력하기' 버튼: 닫은 바텀시트를 다시 연다
+        $(document).on('click', '#btnReopenQuickInfo', function() {
+            if (typeof window.openQuickInfoPanel === 'function') {
+                window.openQuickInfoPanel();
+            }
+        });
 
-        // 이미 폴백이 실행됐는지 추적 (중복 방지)
-        window.__fallbackResumeTriggered = false;
-
-        // 페이지 로드 시 이력서 수 사전 조회 (캐시)
-        var __cachedResumeCount = null;
-        $.ajax({
-            type: "POST",
-            url: "/mypage_proc/getResumeCount",
-            success: function(ret) {
-                if (typeof ret === 'string') {
-                    try {
-                        ret = JSON.parse(ret);
-                    } catch (e) {}
+        // 브라우저 뒤로가기: 1차는 열린 시트 닫기, 다시 누르면 가입을 취소하고 로그인 화면으로
+        // 가입 대기 상태에서만 건다 - 이미 가입이 끝난 사용자의 뒤로가기는 막지 않는다.
+        if (JOIN_PENDING_PANEL) {
+            history.pushState(null, '', location.href);
+            window.addEventListener('popstate', function() {
+                var area = document.getElementById('changeArea');
+                if (area && area.classList.contains('on')) {
+                    if (typeof closePanel === 'function') closePanel(area);
+                    history.pushState(null, '', location.href); // 소비한 항목 복구
+                    return;
                 }
-                if (ret && ret.code === "00") {
-                    __cachedResumeCount = parseInt(ret.data.count, 10) || 0;
+                var panel = document.getElementById('quickInfoPanel');
+                if (panel && panel.classList.contains('on')) {
+                    if (typeof closePanel === 'function') closePanel(panel);
+                    history.pushState(null, '', location.href);
+                    return;
                 }
-            },
-            error: function() {
-                // 조회 실패 시 null 유지 → 이탈 시 폴백 허용 (서버가 중복 방지)
-            }
-        });
-
-        // 폴백 실행 가능 여부 판단
-        function canTriggerFallback() {
-            if (window.__fallbackResumeTriggered) return false;
-            if (window.__quickInfoSubmitting) return false; // QuickInfo 제출 진행 중 
-            if (window.__autoResumeFlowActive) return false; // autoSaveResume 진행 중 
-            if (__cachedResumeCount !== null && __cachedResumeCount > 0) return false; // 이미 이력서 있음
-            return true;
+                location.replace('/member/login');
+            });
         }
-
-        // sendBeacon용 FormData 구성
-        function buildFallbackFormData() {
-            var fd = new FormData();
-            fd.append("ru_name", "");
-            fd.append("ru_addr", DEFAULT_ADDR);
-            fd.append("ru_nationality", "내국인");
-            fd.append("quickinfo_gender", "남");
-            fd.append("quickinfo_age", "30s");
-            fd.append("ad_type", "resume");
-            fd.append("ad_addr[]", DEFAULT_ADDR);
-            fd.append("ad_jibun[]", DEFAULT_ADDR);
-            fd.append("ad_doro[]", "");
-            fd.append("ad_zipcode[]", DEFAULT_ZIPCODE);
-            fd.append("ad_detail[]", "");
-            fd.append("ad_gps_x[]", DEFAULT_GPS_X);
-            fd.append("ad_gps_y[]", DEFAULT_GPS_Y);
-            return fd;
-        }
-
-        // 폴백 실행 (sendBeacon → fetch keepalive → 동기 XHR 순으로 시도)
-        // 자동 생성을 해도 되는 상황인지 최종 한 번 더 체크
-        function triggerFallbackResume() {
-            if (!canTriggerFallback()) return; //그냥 종료 (아무것도 안 함)
-            window.__fallbackResumeTriggered = true; //이제 실행했다고 표시
-
-            var url = "/mypage_proc/resume_autofill_quick";
-            var fd = buildFallbackFormData();
-            
-
-            // sendBeacon 시도
-            if (typeof navigator.sendBeacon === 'function') { //페이지를 떠나는 순간에도 데이터를 서버에 안전하게 전송하는 함수
-                navigator.sendBeacon(url, fd);
-                return;
-            }
-
-            // fetch keepalive 폴백
-            if (typeof fetch === 'function') {
-                try {
-                    fetch(url, {
-                        method: 'POST',
-                        body: fd,
-                        keepalive: true
-                    });
-                } catch (e) {}
-                return;
-            }
-
-            // 최후 수단: 동기 XHR
-            try {
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', url, false); // false = 동기
-                xhr.send(fd);
-            } catch (e) {}
-        }
-
-        // visibilitychange: 탭 전환/숨김 시 감지
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'hidden') {
-                triggerFallbackResume();
-            }
-        });
-
-        // pagehide: 페이지 언로드 직전 감지 (링크 이동, 브라우저 닫기 등)
-        window.addEventListener('pagehide', function() {
-            triggerFallbackResume();
-        });
-
     })();
 </script>
 

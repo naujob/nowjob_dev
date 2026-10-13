@@ -1968,6 +1968,11 @@ class Member extends CI_Controller
 			go_location("/member/join_start", "데이터 가 유효하지 않습니다. 가입을 다시 진행해주세요.");
 		}
 
+		# SNS 가입 경로 여부
+		# SNS면 계정 생성을 join_mem_finish의 QuickInfo '적용하기' 시점으로 미룬다.
+		$step_sns = $this->site_model->getStepTempData("JOIN", "SNS");
+		$data["is_sns_join"] = (is_array($step_sns) && isset($step_sns["join_type"]) && $step_sns["join_type"] != "") ? "Y" : "N";
+
 		$data["policy1"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "policy_pc"]);
 		$data["policy2"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "privacy_pc"]);
 		$data["policy3"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "location_pc"]);
