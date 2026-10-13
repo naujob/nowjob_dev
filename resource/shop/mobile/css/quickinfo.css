@@ -1,0 +1,232 @@
+/* QuickInfo 바텀시트 전용 스타일 (모바일/PC 공통)
+ * - 상세검색(.form-row, .option-table-group)과 같은 모양을 #quickInfoPanel 범위 안에서만 적용
+ * - 모바일 main.css의 전역 규칙(html/body/button 등)에 기대지 않도록 필요한 규칙만 범위 안에 둔다
+ */
+
+/* 상세검색 기본 모양 (범위: #quickInfoPanel) */
+#quickInfoPanel .form-row {
+    display: block;
+    position: relative;
+}
+
+#quickInfoPanel .form-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#quickInfoPanel .form-row-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #222;
+}
+
+#quickInfoPanel .option-table-group {
+    display: grid;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+#quickInfoPanel .option-table-group.option-table-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+#quickInfoPanel .option-table-group.option-table-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#quickInfoPanel .option-table-group .form-toggle-btn2 {
+    margin: 0;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+#quickInfoPanel .option-table-group.option-table-cols-2 .form-toggle-btn2:nth-child(2n),
+#quickInfoPanel .option-table-group.option-table-cols-3 .form-toggle-btn2:nth-child(3n) {
+    border-right: none;
+}
+
+#quickInfoPanel .option-table-group.option-table-cols-2 .form-toggle-btn2:nth-last-child(-n+2),
+#quickInfoPanel .option-table-group.option-table-cols-3 .form-toggle-btn2:nth-last-child(-n+3) {
+    border-bottom: none;
+}
+
+#quickInfoPanel .form-toggle-btn2 input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    outline: 0;
+    opacity: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+#quickInfoPanel .option-table-group .form-toggle-btn2 .btn {
+    width: 100%;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0;
+    background: #fff;
+    font-size: 17px;
+    color: #333;
+    white-space: nowrap;
+    user-select: none;
+}
+
+#quickInfoPanel .option-table-group .form-toggle-btn2 input:checked~.btn {
+    background-color: #57CCAF;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* QuickInfo 바텀시트 높이 고정 (ID 선택자로 .layer-panel.card-type .bottom-sheet-container 규칙보다 우선순위 확보) */
+#quickInfoPanel .bottom-sheet-container {
+    height: 874px;
+    max-height: unset;
+}
+
+.quickinfo-bottom-sheet .bottom-sheet-header {
+    display: none;
+}
+
+.quickinfo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.quickinfo-title .fa-bolt {
+    color: #1B9D7D;
+}
+
+/* 섹션 간격과 제목 스타일은 상세검색(.form-row)과 동일하게 사용 */
+.quickinfo-row + .quickinfo-row {
+    margin-top: 8px;
+}
+
+/* 서버가 확보한 값(자동 입력)은 수정할 수 없음을 표현: 흐림 + 탭 막기 */
+.quickinfo-row[data-locked="true"] .option-table-group {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.quickinfo-row[data-locked="true"] .option-table-group .form-toggle-btn2 input:checked ~ .btn {
+    background-color: #EEEEEE;
+    color: #555;
+}
+
+/* 제목 줄 오른쪽 잠금 배지 */
+.quickinfo-lock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 12px;
+    background-color: #F2F2F2;
+    color: #555;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.quickinfo-lock-badge .fa-lock {
+    font-size: 11px;
+}
+
+/* 필수 입력 표시 */
+.quickinfo-row .quickinfo-required {
+    margin-left: 2px;
+    color: #F04452;
+    font-weight: 600;
+}
+
+/* 제목 옆 보조 안내문구 (예: 최대 2개 선택) */
+.quickinfo-row .form-row-title em {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.8125rem;
+    font-style: normal;
+    font-weight: 400;
+    color: #1B9D7D;
+}
+
+/* 근무 지역 버튼: 상세검색 .region-select-btn과 같은 높이/모서리/테두리 */
+.quickinfo-region-field {
+    width: 100%;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 15px;
+    color: #333;
+    cursor: pointer;
+}
+
+.quickinfo-region-field .fa-location-dot {
+    color: #222;
+}
+
+/* 표 버튼 안의 라벨 줄 높이를 56px 칸에 맞춤 */
+.quickinfo-sheet .option-table-group .form-toggle-btn2 .btn {
+    line-height: 56px;
+}
+
+/* 하단 버튼: 상세검색 초기화/검색 버튼과 같은 전폭 네모 버튼 (#quickInfoPanel 범위만 적용) */
+#quickInfoPanel .bottom-sheet-body {
+    padding: 0 1.375rem;
+}
+
+#quickInfoPanel .bottom-sheet-footer {
+    flex-shrink: 0;
+    padding: 0 0 env(safe-area-inset-bottom);
+}
+
+#quickInfoPanel .bottom-sheet-actions--split {
+    gap: 0;
+    padding: 0;
+    position: relative;
+    top: 48px;
+}
+
+#quickInfoPanel .bottom-sheet-action {
+    height: auto;
+    padding: 1.3rem 0;
+    font-size: 1.3rem;
+    font-weight: 900;
+    line-height: 1;
+    border: 0;
+    border-radius: 0;
+    color: #fff;
+}
+
+#quickInfoPanel #btnQuickInfoReset {
+    background-color: #1a9276;
+}
+
+#quickInfoPanel #btnQuickInfoApply {
+    background-color: #57CCAF;
+}
+
+#quickInfoPanel #btnQuickInfoApply:active {
+    background-color: #38b898;
+}

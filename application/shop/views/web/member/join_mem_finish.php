@@ -109,7 +109,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         width: 420px;
         max-width: 92vw;
         background: #fff;
-        border-radius: 24px;
+        
         transform: translate(-50%, calc(-50% + 24px));
         opacity: 0;
         transition: transform 0.25s ease, opacity 0.25s ease;
@@ -169,81 +169,12 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         border-radius: 2px;
         margin: 0 auto;
     }
-
-    .quickinfo-sheet {
-        padding: 4px 24px 12px;
-    }
-
-    .quickinfo-title {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        margin: 6px 0 16px;
-        font-size: 16px;
-        font-weight: 700;
-        color: #222;
-    }
-
-    .quickinfo-region-field {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        padding: 10px 16px;
-        border: 1px solid #d6d6d6;
-        border-radius: 999px;
-        background: #fff;
-        font-size: 14px;
-        color: #666;
-    }
-
-    .quickinfo-group {
-        margin-bottom: 14px;
-    }
-
-    .quickinfo-label {
-        margin-bottom: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        color: #222;
-    }
-
-    /* 필수 입력 표시 */
-    .quickinfo-label .quickinfo-required {
-        margin-left: 2px;
-        color: #F04452;
-        font-weight: 600;
-    }
-
-    /* 라벨 옆 보조 안내문구 (최대 2개 선택 / 자동 입력) */
-    .quickinfo-label em {
-        display: inline-block;
-        margin-left: 6px;
-        font-size: 13px;
-        font-style: normal;
-        font-weight: 400;
-        color: #1B9D7D;
-    }
-
-    /* 서버가 확보한 값(자동 입력)은 수정할 수 없음을 표현 */
-    .quickinfo-group[data-locked="true"] .form-toggle-group {
-        opacity: 0.55;
-        pointer-events: none;
-    }
-
-    .quickinfo-group[data-locked="true"] .quickinfo-label em {
-        color: #999;
-    }
-
-    .quickinfo-sheet .form-toggle-btn2 .btn {
-        min-width: 60px;
-        height: 36px;
-        line-height: 36px;
-        padding: 0 12px;
-        border-radius: 18px;
-    }
+#quickInfoPanel .bottom-sheet-container{
+    height: 866px;
+}
+#quickInfoPanel .option-table-group .form-toggle-btn2{
+    
+}
 </style>
 
 <script>

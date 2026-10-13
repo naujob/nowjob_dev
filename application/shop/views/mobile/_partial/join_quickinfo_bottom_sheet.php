@@ -2,6 +2,9 @@
 // QuickInfo 바텀시트 (5초 간편 정보 입력)
 // 컨트롤러(member.php::join_mem_finish)가 넘긴 $quickinfo_prefill / $ru_wrok_list 사용
 
+// 모바일/PC 공통 스타일 (모바일 main.css와 분리된 전용 파일, 경로는 모바일 기준으로 고정)
+echo getCachCss("/resource/shop/mobile/css/quickinfo.css");
+
 // 가입 시점에 확보한 값이 있으면 미리 선택, 없으면 기존 기본값(내국인/남성/30대) 유지
 $qi_prefill = isset($quickinfo_prefill) ? $quickinfo_prefill : [];
 
@@ -21,10 +24,16 @@ $qi_gender_dis = $qi_gender_locked ? " disabled" : "";
 $qi_age_dis = $qi_age_locked ? " disabled" : "";
 
 // 그룹 단위 상태(data 속성) + 라벨 보조문구
+// 자동 입력 값의 출처 표시 (join_type: 가입 경로 코드, WEB은 NICE 본인인증)
+$qi_source_map = ["KAKAO" => "카카오", "NAVER" => "네이버", "APPLE" => "애플", "GOOGLE" => "구글", "WECHAT" => "위챗", "WEB" => "본인인증"];
+$qi_source_key = isset($join_type) ? $join_type : "";
+$qi_source_name = isset($qi_source_map[$qi_source_key]) ? $qi_source_map[$qi_source_key] : "회원";
+// 잠금 배지: 텍스트 뒤에 자물쇠 아이콘을 붙이고, 제목 줄 오른쪽에 배치한다
+$qi_lock_note = '<span class="quickinfo-lock-badge">' . $qi_source_name . ' 정보로 자동 입력 <i class="fa-solid fa-lock" aria-hidden="true"></i></span>';
+
 $qi_nation_lock_attr = $qi_nation_locked ? ' data-locked="true"' : '';
 $qi_gender_lock_attr = $qi_gender_locked ? ' data-locked="true"' : '';
 $qi_age_lock_attr = $qi_age_locked ? ' data-locked="true"' : '';
-$qi_lock_note = '<em>자동 입력</em>';
 $qi_nation_note = $qi_nation_locked ? $qi_lock_note : '';
 $qi_gender_note = $qi_gender_locked ? $qi_lock_note : '';
 $qi_age_note = $qi_age_locked ? $qi_lock_note : '';
@@ -73,17 +82,21 @@ $quickInfoContent = <<<HTML
     <i class="fa-solid fa-bolt" aria-hidden="true"></i>
   </div>
 
-  <div class="quickinfo-group">
-    <div class="quickinfo-label">근무 지역 {$qi_req}</div>
+  <div class="form-row quickinfo-row">
+    <div class="form-row-header">
+      <span class="form-row-title">근무 지역 {$qi_req}</span>
+    </div>
     <button type="button" class="quickinfo-region-field" data-action="open-region-popup">
       <span class="quickinfo-region-text">근무 지역 선택</span>
       <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
     </button>
   </div>
 
-  <div class="quickinfo-group"{$qi_nation_lock_attr}>
-    <div class="quickinfo-label">국적 {$qi_req} {$qi_nation_note}</div>
-    <div class="form-toggle-group col-2">
+  <div class="form-row quickinfo-row"{$qi_nation_lock_attr}>
+    <div class="form-row-header">
+      <span class="form-row-title">국적 {$qi_req}</span>{$qi_nation_note}
+    </div>
+    <div class="option-table-group option-table-cols-2">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_nation" value="domestic" {$qi_nation_domestic}{$qi_nation_dis}>
         <span class="btn">내국인</span>
@@ -95,9 +108,11 @@ $quickInfoContent = <<<HTML
     </div>
   </div>
 
-  <div class="quickinfo-group"{$qi_gender_lock_attr}>
-    <div class="quickinfo-label">성별 {$qi_req} {$qi_gender_note}</div>
-    <div class="form-toggle-group col-2">
+  <div class="form-row quickinfo-row"{$qi_gender_lock_attr}>
+    <div class="form-row-header">
+      <span class="form-row-title">성별 {$qi_req}</span>{$qi_gender_note}
+    </div>
+    <div class="option-table-group option-table-cols-2">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_gender" value="male" {$qi_gender_male}{$qi_gender_dis}>
         <span class="btn">남성</span>
@@ -109,16 +124,20 @@ $quickInfoContent = <<<HTML
     </div>
   </div>
 
-  <div class="quickinfo-group"{$qi_age_lock_attr}>
-    <div class="quickinfo-label">나이 {$qi_req} {$qi_age_note}</div>
-    <div class="form-toggle-group col-6">
+  <div class="form-row quickinfo-row"{$qi_age_lock_attr}>
+    <div class="form-row-header">
+      <span class="form-row-title">나이 {$qi_req}</span>{$qi_age_note}
+    </div>
+    <div class="option-table-group option-table-cols-3">
       {$qi_age_html}
     </div>
   </div>
 
-  <div class="quickinfo-group">
-    <div class="quickinfo-label">업종 {$qi_req} <em>최대 2개 선택</em></div>
-    <div class="form-toggle-group col-3">
+  <div class="form-row quickinfo-row">
+    <div class="form-row-header">
+      <span class="form-row-title">업종 {$qi_req} <em>최대 2개 선택</em></span>
+    </div>
+    <div class="option-table-group option-table-cols-3">
       {$qi_work_html}
     </div>
   </div>
