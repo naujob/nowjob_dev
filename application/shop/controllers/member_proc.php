@@ -231,10 +231,10 @@ class Member_proc extends CI_Controller
                 $navergender = input_post("navergender", "");
                 $naverbirthyear = input_post("naverbirthyear", "");
                 $naverbirthday = input_post("naverbirthday", "");
-                $sns_phone = input_post("naverphone", "");
+                $sns_phone = normalizeSnsPhone(input_post("naverphone", ""));
             } else if ($mm_join_type == "APPLE") {
                 // 애플 로그인 시 전화번호 파라미터 받기
-                $sns_phone = input_post("applephone", "");
+                $sns_phone = normalizeSnsPhone(input_post("applephone", ""));
             }
 
             $mem_info = $this->member_model->getMember(["mm_join_type" => $mm_join_type, "mm_join_key" => $mm_join_key, "mm_status" => "Y"]);
@@ -2707,6 +2707,23 @@ class Member_proc extends CI_Controller
             }
             exit;
         } else {
+            # 일반 회원가입: 비밀번호 입력 단계 없이 mm_id/mm_pwd를 자동 생성해 "스텝1"에 저장 (nice_success()와 동일 방식)
+            $auto_pass_id = uniqid("pass_");
+            $this->site_model->setSiteLog(
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_MEM",
+                    "sl_step" => "스텝1",
+                    "sl_txt" => json_encode(["mm_id" => $auto_pass_id, "mm_pwd" => $auto_pass_id], JSON_UNESCAPED_UNICODE)
+                ],
+                [
+                    "session_id" => session_id(),
+                    "sl_type" => "JOIN_MEM",
+                    "sl_step" => "스텝1",
+                    "sl_status" => "Y"
+                ]
+            );
+
             # 일반 회원가입 화면 이동
             if (device_type() == "W") {
                 echo "<script>location.href='" . "/member/join_wmem_step1" . "';self.close();</script>";
@@ -2940,7 +2957,11 @@ class Member_proc extends CI_Controller
         $join_type = input_post("join_type", "");
         $join_key = input_post("join_key", "");
 
-        if ($join_type == "" && isset($_COOKIE["join_sns_type"])) {
+        // 허용된 SNS 타입 목록 (WEB 등 SNS가 아닌 값은 일반 가입(NICE)으로 처리)
+        $allowed_sns_types = ["GOOGLE", "WECHAT", "KAKAO", "NAVER", "APPLE"];
+
+        // 쿠키 폴백: 이전 SNS 시도 때 남은 값이 일반 가입에 섞이지 않도록 허용 타입만 사용
+        if ($join_type == "" && isset($_COOKIE["join_sns_type"]) && in_array(strtoupper($_COOKIE["join_sns_type"]), $allowed_sns_types)) {
             $join_type = $_COOKIE["join_sns_type"];
         }
         if ($join_key == "" && isset($_COOKIE["join_sns_key"])) {
@@ -3012,7 +3033,8 @@ class Member_proc extends CI_Controller
             if (!is_array($step4_4_info)) $step4_4_info = [];
 
             // 클라이언트에서 전달된 join_type/join_key가 있고 SNS 로그가 없으면 보완
-            if ((!is_array($step_sns) || empty($step_sns)) && ($join_type !== "" || $join_key !== "")) {
+            // 허용된 SNS 타입 + join_key가 모두 있을 때만 보완 (WEB 등은 NICE 일반 가입으로 처리)
+            if ((!is_array($step_sns) || empty($step_sns)) && in_array(strtoupper($join_type), $allowed_sns_types) && $join_key !== "") {
                 $step_sns = [
                     "join_type" => $join_type,
                     "join_key" => $join_key,
@@ -3023,6 +3045,11 @@ class Member_proc extends CI_Controller
                     "birthday" => "",
                     "phonenum" => ""
                 ];
+            }
+
+            // SNS 가입 정보가 불완전하면 중단 (빈 join_key면 mm_id가 'google_' 등으로 만들어져 잘못된 계정이 생김)
+            if (!empty($step_sns) && (!isset($step_sns["join_type"]) || !in_array(strtoupper($step_sns["join_type"]), $allowed_sns_types) || empty($step_sns["join_key"]))) {
+                json_return("91", "SNS 가입 정보가 누락되었습니다. 다시 진행해주세요.");
             }
 
             // 디버깅 로그: SNS 데이터 확인
@@ -3061,7 +3088,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우 (네이버 API에서 birthday가 제공되지 않을 수 있음)
                             // 생년만 저장 (YYYY0000 형식)
-                            $mm_birth_init = $step_sns["birthyear"] . "0000";
+                            $mm_birth_init = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                     }
@@ -3159,7 +3186,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우 (네이버 API에서 birthday가 제공되지 않을 수 있음)
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // SNS에서 생년월일 정보가 없으면 빈 문자열로 명시적 설정
@@ -3425,7 +3452,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우 (네이버 API에서 birthday가 제공되지 않을 수 있음)
                             // 생년만 저장 (YYYY0000 형식)
-                            $mm_birth_init = $step_sns["birthyear"] . "0000";
+                            $mm_birth_init = $step_sns["birthyear"] . "0101";
                         }
                     }
                     $mm_nation_init = "";
@@ -3515,7 +3542,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // birthyear가 없는 경우 (네이버: 출생연도 제공 안 함)
@@ -3825,7 +3852,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // birthyear가 없는 경우 (네이버: 출생연도 제공 안 함)
@@ -4145,7 +4172,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // birthyear가 없는 경우 (네이버: 출생연도 제공 안 함)
@@ -4616,7 +4643,7 @@ class Member_proc extends CI_Controller
                 } else {
                     // birthyear만 있는 경우
                     // 생년만 저장 (YYYY0000 형식)
-                    $mm_birth = $step_sns["birthyear"] . "0000";
+                    $mm_birth = $step_sns["birthyear"] . "0101";
                 }
             } else {
                 // birthyear가 없는 경우

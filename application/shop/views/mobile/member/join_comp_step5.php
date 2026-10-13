@@ -1,6 +1,7 @@
 <div class="page page-join member-type2">
    <div class="top-bar">
-       <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+       <!-- 가입 취소: 히스토리를 교체해 이전 가입 단계로 되돌아가지 않도록 한다 -->
+       <a href="/member/login" class="btn-back" onclick="location.replace('/member/login'); return false;"><span class="sr-text">이전으로</span></a>
        <h1 class="title">기업 회원가입</h1>
    </div><!-- //top-bar -->
 

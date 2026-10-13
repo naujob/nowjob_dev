@@ -1,6 +1,7 @@
 <div class="page page-join member-type1">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <!-- 가입 취소: 히스토리를 교체해 NICE 인증 페이지로 되돌아가지 않도록 한다 -->
+        <a href="/member/login" class="btn-back" onclick="location.replace('/member/login'); return false;"><span class="sr-text">이전으로</span></a>
         <h1 class="title">개인회원 회원가입</h1>
     </div><!-- //top-bar -->
 
@@ -301,35 +302,12 @@
       fClickChk(); // 상태 변경 후 fClickChk 호출
   }
 
-  // step3에서 회원가입 완료 처리 (PART)
+  // 약관 동의 후 가입 완료 페이지로 이동
+  // 계정 생성은 join_mem_finish의 QuickInfo '적용하기'에서 수행한다 (SNS/비SNS 공통).
+  // 추가 정보를 입력하지 않고 이탈하면 계정이 만들어지지 않아야 하기 때문.
+  // 가입 임시 데이터는 st_site_log에 session_id 기준으로 그대로 남아 있다.
   function fPassClickFromStep3(){
-    var params = {};
-    params["ma_type"] = "MEM";
-    params["proc_type"] = "PART";
-    params["uuid"] = "<?=$uuid?>";
-    try {
-      var joinType = localStorage.getItem("join_sns_type") || sessionStorage.getItem("join_sns_type") || "";
-      var joinKey = localStorage.getItem("join_sns_key") || sessionStorage.getItem("join_sns_key") || "";
-      if (joinType) params["join_type"] = joinType;
-      if (joinKey) params["join_key"] = joinKey;
-    } catch (e) {}
-
-    comAjax("/member_proc/join_complete_proc",params,function(ret){
-      if(ret.code=="00"){
-        try {
-          localStorage.removeItem("join_sns_type");
-          localStorage.removeItem("join_sns_key");
-          sessionStorage.removeItem("join_sns_type");
-          sessionStorage.removeItem("join_sns_key");
-          document.cookie = "join_sns_type=; path=/; max-age=0";
-          document.cookie = "join_sns_key=; path=/; max-age=0";
-        } catch (e) {}
-        location.href="/member/join_mem_finish";
-      }else{
-        commonAlert(ret.msg,function(){});
-        return;
-      }
-    });
+    location.href = "/member/join_mem_finish";
   }
 
 </script>

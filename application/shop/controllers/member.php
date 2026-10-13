@@ -556,7 +556,7 @@ class Member extends CI_Controller
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
 				$naver_response = $user_info_response["response"];
 
-				$phonenum = isset($naver_response["mobile"]) ? $naver_response["mobile"] : "";
+				$phonenum = normalizeSnsPhone(isset($naver_response["mobile"]) ? $naver_response["mobile"] : "");
 
 				// 회원이 없을 때 전화번호 정규화 및 중복 체크 (모든 비숫자 제거)
 				if (!empty($phonenum)) {
@@ -1296,6 +1296,21 @@ class Member extends CI_Controller
 		$birthday = input_get("birthday", ""); // URL 파라미터로 생일 받기
 		// 클라이언트에서 이미 포맷 변환된 데이터를 받음 (중복 변환 제거)
 
+		// 기존 SNS 데이터 (로그인 단계에서 site_log에 저장된 값)
+		$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
+
+		// 카카오: 개인정보는 URL로 받지 않고 site_log 값을 사용 (URL 값이 있으면 URL 값 우선)
+		if ($join_type == "KAKAO" && !empty($existing_sns) && isset($existing_sns["join_type"]) && $existing_sns["join_type"] == "KAKAO") {
+			if ($join_key == "") $join_key = isset($existing_sns["join_key"]) ? $existing_sns["join_key"] : "";
+			if ($username == "") $username = isset($existing_sns["username"]) ? $existing_sns["username"] : "";
+			if ($email == "") $email = isset($existing_sns["email"]) ? $existing_sns["email"] : "";
+			if ($gender == "") $gender = isset($existing_sns["gender"]) ? $existing_sns["gender"] : "";
+			if ($phonenum == "") $phonenum = isset($existing_sns["phonenum"]) ? $existing_sns["phonenum"] : "";
+		}
+
+		// 저장 형식 통일: 숫자만 (예: 01090025528)
+		$phonenum = normalizeSnsPhone($phonenum);
+
 		// 간편로그인 회원가입 시작 시 전화번호 필수
 		if (empty($phonenum)) {
 			go_location("/member/login", "전화번호 인증이 필요합니다. 다시 시도해주세요.");
@@ -1311,9 +1326,6 @@ class Member extends CI_Controller
 			redirect($dup_url, 'refresh');
 			exit;
 		}
-
-		// 기존 SNS 데이터 확인 (앱에서 저장한 생년월일 정보 유지)
-		$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
 
 		// 성별 변환: 카카오의 경우 MALE/FEMALE -> 남/여
 		$gender_converted = $gender;
@@ -1620,13 +1632,95 @@ class Member extends CI_Controller
 	function join_mem_finish()
 	{
 		$data = [];
-		$data["mm_type"] = $this->user->isLogin() ? $this->user->getUserType() : "";
-		$data["join_type"] = $this->user->isLogin() ? $this->user->getJoinType() : "";
+		$is_login = $this->user->isLogin();
+
+		$data["mm_type"] = $is_login ? $this->user->getUserType() : "";
+		$data["join_type"] = $is_login ? $this->user->getJoinType() : "";
+
+		# uuid (헤더로만 전달된다. Layout::shop()은 주입하지 않음)
+		$headers = apache_request_headers();
+		$data["uuid"] = isset($headers["uuid"]) ? $headers["uuid"] : "";
+		$data["join_key"] = "";
+
+		# 가입 대기 상태 판별
+		# SNS/비SNS 모두 계정을 아직 만들지 않은 채 이 페이지에 도달한다(비로그인).
+		# 가입 임시 데이터(st_site_log)가 살아 있으면 '적용하기'에서 계정을 생성할 수 있다.
+		# - SNS: join_sns_start가 JOIN/SNS 로그를 남김
+		# - 비SNS: nice_success가 본인인증/스텝1/스텝3 로그를 남김
+		$data["join_pending"] = "N";
+		$step_sns = [];
+		$step_auth = [];
+		$has_sns = false;
+		if (!$is_login) {
+			$join_log = $this->site_model->getSiteLogList(["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_status" => "Y"]);
+			$step_sns = $this->site_model->getStepTempData("JOIN", "SNS");
+			$has_sns = (is_array($step_sns) && isset($step_sns["join_type"]) && $step_sns["join_type"] != "");
+
+			if ($join_log != null) {
+				$data["join_pending"] = "Y";
+				$data["mm_type"] = "MEM";
+
+				if ($has_sns) {
+					$data["join_type"] = $step_sns["join_type"];
+					$data["join_key"] = isset($step_sns["join_key"]) ? $step_sns["join_key"] : "";
+				} else {
+					# 비SNS(NICE 본인인증) 경로
+					$data["join_type"] = "WEB";
+					$step_auth = $this->site_model->getStepData($join_log, "본인인증");
+					if (!is_array($step_auth)) {
+						$step_auth = [];
+					}
+				}
+			} else {
+				# 로그인도 아니고 진행 중인 가입도 없으면 처음부터 다시
+				go_location("/member/login", "가입 정보가 만료되었습니다. 다시 진행해주세요.");
+			}
+		}
 
 		# QuickInfo 바텀시트 미리 선택값 (가입 시점에 이미 확보한 성별/나이/국적)
 		# 세션(USER_INFO)에는 mm_birth/mm_nation이 없으므로 DB에서 직접 조회한다
 		$data["quickinfo_prefill"] = ["nation" => "", "gender" => "", "age" => ""];
-		if ($this->user->isLogin()) {
+
+		# 가입 대기 + SNS: 회원 레코드가 아직 없으므로 SNS 프로필에서 채운다
+		if ($data["join_pending"] == "Y" && $has_sns) {
+			$sns_gender = isset($step_sns["gender"]) ? $step_sns["gender"] : "";
+			if ($sns_gender == "남" || $sns_gender == "male" || $sns_gender == "M") {
+				$data["quickinfo_prefill"]["gender"] = "male";
+			} else if ($sns_gender == "여" || $sns_gender == "female" || $sns_gender == "F") {
+				$data["quickinfo_prefill"]["gender"] = "female";
+			}
+
+			# 생년: birthyear(4자리)만 있어도 연령대 산출이 가능하다
+			$sns_birth = isset($step_sns["birthyear"]) ? $step_sns["birthyear"] : "";
+			if ($sns_birth != "" && isset($step_sns["birthday"]) && $step_sns["birthday"] != "") {
+				$sns_birth = $sns_birth . $step_sns["birthday"];
+			}
+			$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($sns_birth);
+			# 국적은 SNS가 제공하지 않으므로 공백(사용자가 직접 선택)
+		}
+
+		# 가입 대기 + 비SNS: 본인인증 데이터에서 채운다.
+		# nice_success가 저장한 값 형식이 DB(st_member)와 동일해 변환이 필요 없다.
+		if ($data["join_pending"] == "Y" && !$has_sns) {
+			$auth_sex = isset($step_auth["mm_sex"]) ? $step_auth["mm_sex"] : "";
+			if ($auth_sex == "남") {
+				$data["quickinfo_prefill"]["gender"] = "male";
+			} else if ($auth_sex == "여") {
+				$data["quickinfo_prefill"]["gender"] = "female";
+			}
+
+			$auth_nation = isset($step_auth["mm_nation"]) ? $step_auth["mm_nation"] : "";
+			if ($auth_nation == "내국인") {
+				$data["quickinfo_prefill"]["nation"] = "domestic";
+			} else if ($auth_nation == "외국인") {
+				$data["quickinfo_prefill"]["nation"] = "foreign";
+			}
+
+			$auth_birth = isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "";
+			$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($auth_birth);
+		}
+
+		if ($is_login) {
 			$mem_info = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
 			if (!empty($mem_info)) {
 				$mm_sex = isset($mem_info["mm_sex"]) ? $mem_info["mm_sex"] : "";
@@ -1872,35 +1966,15 @@ class Member extends CI_Controller
 			);
 			go_location("/member/join_wmem_step2");
 		} else {
-			#로그 생성
-			$this->site_model->setSiteLog(
-				[
-					"session_id" => session_id(),
-					"sl_type" => "JOIN_MEM",
-					"sl_step" => "스텝1",
-					"sl_txt" => ""
-				],
-				[
-					"session_id" => session_id(),
-					"sl_type" => "JOIN_MEM",
-					"sl_step" => "스텝1",
-					"sl_status" => "Y"
-				]
-			);
-		}
+			# NICE 본인인증 완료 시 nice_success()가 "스텝1"에 mm_id/mm_pwd(휴대폰번호)를 이미 저장함
+			# 비밀번호 입력 단계 없이 약관 동의 단계로 바로 이동
+			if ($this->site_model->checkSiteLog("JOIN_MEM", "스텝1")) {
+				go_location("/member/join_wmem_step2");
+			}
 
-		$list = $this->site_model->getSiteLogList(
-			["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_status" => "Y"]
-		);
-		if ($list == null) {
-			//    json_return("10","등록 데이터가 존재하지 않습니다.",$list);
-		} else {
-			$step_auth = $this->site_model->getStepData($list, "본인인증");
-			$data["mm_phone"] = $step_auth["mm_phone"];
+			# 본인인증 없이 직접 접근한 경우 가입을 처음부터 다시 진행하도록 안내
+			go_location("/member/join_start", "본인인증을 먼저 진행해주세요.");
 		}
-
-		//$data["mm_phone"] = $mm_phone;
-		$this->layout->shop('/member/join_wmem_step1', $data);
 	}
 
 	# 회원가입 스탭2

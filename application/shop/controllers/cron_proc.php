@@ -548,7 +548,6 @@ class Cron_proc extends CI_Controller
                             if ($recruit_area !== null && $resume_area !== null
                                 && $recruit_area === $resume_area
                                 && $this->_isMatched($resume_main, $recruit_main, $comp_cond_arr)) {
-                                error_log("[weekly_match_alimtalk] ✅ 지역 매칭 성공(기업): rc_idx={$rc_idx}, ru_idx={$ru_idx}, 지역='{$recruit_area}' (공고주소='{$recruit_addr}', 이력서주소='{$resume_addr}')");
                                 $matches_for_corp[] = array(
                                     'recruit' => $recruit_main,
                                     'resume' => $resume_main
@@ -556,16 +555,6 @@ class Cron_proc extends CI_Controller
                                 // 이 공고에 매칭된 이력서 기록 (같은 공고에는 한 번만)
                                 $recruit_matched_resumes[] = $ru_idx;
                                 break; // 이력서의 주소 루프 탈출 (이 이력서는 이 공고에 한 번만)
-                            } else {
-                                if ($recruit_area === null) {
-                                    error_log("[weekly_match_alimtalk] ❌ 기업 지역 추출 실패: rc_idx={$rc_idx}, ru_idx={$ru_idx}, 공고주소='{$recruit_addr}'");
-                                } elseif ($resume_area === null) {
-                                    error_log("[weekly_match_alimtalk] ❌ 개인 지역 추출 실패: rc_idx={$rc_idx}, ru_idx={$ru_idx}, 이력서주소='{$resume_addr}'");
-                                } elseif ($recruit_area !== $resume_area) {
-                                    error_log("[weekly_match_alimtalk] ❌ 지역 불일치(기업): rc_idx={$rc_idx}, ru_idx={$ru_idx}, 공고지역='{$recruit_area}', 이력서지역='{$resume_area}'");
-                                } else {
-                                    error_log("[weekly_match_alimtalk] ❌ 조건 불일치(기업): rc_idx={$rc_idx}, ru_idx={$ru_idx}, 지역='{$recruit_area}'");
-                                }
                             }
                         }
                     }
@@ -636,7 +625,6 @@ class Cron_proc extends CI_Controller
                             if ($recruit_area !== null && $resume_area !== null
                                 && $recruit_area === $resume_area
                                 && $this->_isMatched($resume_main, $recruit_main, $mem_cond_arr)) {
-                                error_log("[weekly_match_alimtalk] ✅ 지역 매칭 성공(개인): ru_idx={$ru_idx}, rc_idx={$rc_idx}, 지역='{$recruit_area}' (이력서주소='{$resume_addr}', 공고주소='{$recruit_addr}')");
                                 $matches_for_member[] = array(
                                     'resume' => $resume_main,
                                     'recruit' => $recruit_main
@@ -644,16 +632,6 @@ class Cron_proc extends CI_Controller
                                 // 이 이력서가 이 공고에 매칭됨 기록 (같은 이력서-공고는 한 번만)
                                 $resume_matched_recruits[] = $rc_idx;
                                 break; // 공고의 주소 루프 탈출 (이 공고는 이 이력서에 한 번만)
-                            } else {
-                                if ($resume_area === null) {
-                                    error_log("[weekly_match_alimtalk] ❌ 개인 지역 추출 실패: ru_idx={$ru_idx}, rc_idx={$rc_idx}, 이력서주소='{$resume_addr}'");
-                                } elseif ($recruit_area === null) {
-                                    error_log("[weekly_match_alimtalk] ❌ 공고 지역 추출 실패: ru_idx={$ru_idx}, rc_idx={$rc_idx}, 공고주소='{$recruit_addr}'");
-                                } elseif ($recruit_area !== $resume_area) {
-                                    error_log("[weekly_match_alimtalk] ❌ 지역 불일치(개인): ru_idx={$ru_idx}, rc_idx={$rc_idx}, 이력서지역='{$resume_area}', 공고지역='{$recruit_area}'");
-                                } else {
-                                    error_log("[weekly_match_alimtalk] ❌ 조건 불일치(개인): ru_idx={$ru_idx}, rc_idx={$rc_idx}, 지역='{$recruit_area}'");
-                                }
                             }
                         }
                     }

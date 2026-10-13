@@ -217,6 +217,8 @@
 
                 <div class="form-action-wrap">
                     <button type="button" class="btn-round btn-tertiary" id="btnNext" style="background-color:#ccc;">다음</button>
+                    <!-- 가입 취소: 히스토리를 교체해 이전 가입 단계로 되돌아가지 않도록 한다 -->
+                    <a href="/member/login" class="btn-round btn-tertiary" style="margin-left:12px;background-color:#fff;border:1px solid #ccc;color:#666;" onclick="location.replace('/member/login'); return false;">취소</a>
                 </div>
 
             </div>
@@ -382,6 +384,8 @@ function checkContent(arg) {
 }
 
 // step3에서 회원가입 완료 처리 (PART)
+// 기업회원은 QuickInfo 바텀시트가 없어(join_comp_finish로 이동) 계정 생성을 미룰 곳이 없다.
+// 따라서 개인회원과 달리 여기서 그대로 계정을 생성한다.
 function fPassClickFromStep3(){
     var params = {};
     params["ma_type"] = "COMP";
@@ -397,6 +401,23 @@ function fPassClickFromStep3(){
         }
     });
 }
+
+// 브라우저 뒤로가기: 1차는 열린 약관 모달 닫기, 다시 누르면 가입을 취소하고 로그인 화면으로
+// 그냥 두면 이전 가입 단계로 돌아가 흐름이 꼬인다.
+(function() {
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', function() {
+        var openPopupEl = document.querySelector('.layer-popup.in');
+        if (openPopupEl) {
+            if (typeof closePopup === 'function') {
+                closePopup(openPopupEl);
+            }
+            history.pushState(null, '', location.href); // 소비한 항목 복구
+            return;
+        }
+        location.replace('/member/login');
+    });
+})();
 
 </script>
 <?php include_once (get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>

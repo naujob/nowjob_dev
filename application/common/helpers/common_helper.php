@@ -1403,6 +1403,24 @@ function proposal_debug_log($step, $message, $data = [])
 }
 
 /**
+ * 간편로그인(SNS) 전화번호를 숫자만 남긴 형식으로 정규화
+ * "010-9002-5528" → "01090025528", "+82 10-9002-5528" → "01090025528"
+ * @param string $phone 원본 전화번호
+ * @return string 숫자만 있는 전화번호 (없으면 빈 문자열)
+ */
+if (!function_exists('normalizeSnsPhone')) {
+	function normalizeSnsPhone($phone)
+	{
+		$digits = preg_replace('/[^0-9]/', '', (string)$phone);
+		// 국제번호(82) 형식이면 국내 번호(0 + 나머지)로 변환 (국내 번호는 0으로 시작하므로 충돌 없음)
+		if (strpos($digits, '82') === 0 && strlen($digits) >= 11) {
+			$digits = '0' . substr($digits, 2);
+		}
+		return $digits;
+	}
+}
+
+/**
  * 간편로그인 회원가입 시 전화번호로 기존 회원 존재 여부 확인
  * @param string $phone 전화번호
  * @return array ["is_duplicate" => bool, "message" => string]
