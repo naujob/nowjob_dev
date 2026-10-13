@@ -231,10 +231,10 @@ class Member_proc extends CI_Controller
                 $navergender = input_post("navergender", "");
                 $naverbirthyear = input_post("naverbirthyear", "");
                 $naverbirthday = input_post("naverbirthday", "");
-                $sns_phone = input_post("naverphone", "");
+                $sns_phone = normalizeSnsPhone(input_post("naverphone", ""));
             } else if ($mm_join_type == "APPLE") {
                 // 애플 로그인 시 전화번호 파라미터 받기
-                $sns_phone = input_post("applephone", "");
+                $sns_phone = normalizeSnsPhone(input_post("applephone", ""));
             }
 
             $mem_info = $this->member_model->getMember(["mm_join_type" => $mm_join_type, "mm_join_key" => $mm_join_key, "mm_status" => "Y"]);
@@ -3061,7 +3061,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우 (네이버 API에서 birthday가 제공되지 않을 수 있음)
                             // 생년만 저장 (YYYY0000 형식)
-                            $mm_birth_init = $step_sns["birthyear"] . "0000";
+                            $mm_birth_init = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                     }
@@ -3159,7 +3159,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우 (네이버 API에서 birthday가 제공되지 않을 수 있음)
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // SNS에서 생년월일 정보가 없으면 빈 문자열로 명시적 설정
@@ -3425,7 +3425,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우 (네이버 API에서 birthday가 제공되지 않을 수 있음)
                             // 생년만 저장 (YYYY0000 형식)
-                            $mm_birth_init = $step_sns["birthyear"] . "0000";
+                            $mm_birth_init = $step_sns["birthyear"] . "0101";
                         }
                     }
                     $mm_nation_init = "";
@@ -3515,7 +3515,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // birthyear가 없는 경우 (네이버: 출생연도 제공 안 함)
@@ -3825,7 +3825,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // birthyear가 없는 경우 (네이버: 출생연도 제공 안 함)
@@ -4145,7 +4145,7 @@ class Member_proc extends CI_Controller
                         } else {
                             // birthyear만 있는 경우
                             // 생년만 저장 (YYYY0000 형식)
-                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0000";
+                            $arr_mem["mm_birth"] = $step_sns["birthyear"] . "0101";
                         }
                     } else {
                         // birthyear가 없는 경우 (네이버: 출생연도 제공 안 함)
@@ -4616,7 +4616,7 @@ class Member_proc extends CI_Controller
                 } else {
                     // birthyear만 있는 경우
                     // 생년만 저장 (YYYY0000 형식)
-                    $mm_birth = $step_sns["birthyear"] . "0000";
+                    $mm_birth = $step_sns["birthyear"] . "0101";
                 }
             } else {
                 // birthyear가 없는 경우

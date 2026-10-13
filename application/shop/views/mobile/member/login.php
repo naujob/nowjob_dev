@@ -1029,13 +1029,9 @@ window.onload = function() {
         phone = phone.replace(/\+82\s*10-/, '010').replace(/[-\s]/g, '');
       }
 
-      // 성별 변환: 안드로이드 앱에서 "Male"/"Female" 형식으로 받음 → "MALE"/"FEMALE"로 변환
-      var genderConverted = "";
-      if (gender && gender.indexOf('Male') >= 0) {
-        genderConverted = "MALE";
-      } else if (gender && gender.indexOf('Female') >= 0) {
-        genderConverted = "FEMALE";
-      }
+      // 성별 정규화: 앱 값(MALE/FEMALE 등)을 대문자로 통일 (대소문자 무관 비교)
+      var genderUpper = (gender || "").toUpperCase();
+      var genderConverted = (genderUpper === "MALE" || genderUpper === "FEMALE") ? genderUpper : "";
 
       // 서버로 전송 - 사용자 정보 7개 파라미터 포함
       var params = {};
@@ -1073,7 +1069,8 @@ window.onload = function() {
               },
               secondCallback: function() {
                 // PASS 인증 없이 바로 회원가입 페이지로 이동
-                location.href = "/member/join_sns_start?join_key=" + id + "&join_type=" + "KAKAO" + "&email=" + email + "&gender=" + gender + "&phonenum=" + phone + "&username=" + name;
+                // 개인정보는 URL에 싣지 않음: 로그인 단계에서 서버 세션(site_log)에 저장된 값을 join_sns_start가 사용
+                location.href = "/member/join_sns_start?join_type=KAKAO";
               },
             });
           } else {

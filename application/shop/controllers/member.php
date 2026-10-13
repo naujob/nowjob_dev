@@ -556,7 +556,7 @@ class Member extends CI_Controller
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
 				$naver_response = $user_info_response["response"];
 
-				$phonenum = isset($naver_response["mobile"]) ? $naver_response["mobile"] : "";
+				$phonenum = normalizeSnsPhone(isset($naver_response["mobile"]) ? $naver_response["mobile"] : "");
 
 				// 회원이 없을 때 전화번호 정규화 및 중복 체크 (모든 비숫자 제거)
 				if (!empty($phonenum)) {
@@ -1296,6 +1296,21 @@ class Member extends CI_Controller
 		$birthday = input_get("birthday", ""); // URL 파라미터로 생일 받기
 		// 클라이언트에서 이미 포맷 변환된 데이터를 받음 (중복 변환 제거)
 
+		// 기존 SNS 데이터 (로그인 단계에서 site_log에 저장된 값)
+		$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
+
+		// 카카오: 개인정보는 URL로 받지 않고 site_log 값을 사용 (URL 값이 있으면 URL 값 우선)
+		if ($join_type == "KAKAO" && !empty($existing_sns) && isset($existing_sns["join_type"]) && $existing_sns["join_type"] == "KAKAO") {
+			if ($join_key == "") $join_key = isset($existing_sns["join_key"]) ? $existing_sns["join_key"] : "";
+			if ($username == "") $username = isset($existing_sns["username"]) ? $existing_sns["username"] : "";
+			if ($email == "") $email = isset($existing_sns["email"]) ? $existing_sns["email"] : "";
+			if ($gender == "") $gender = isset($existing_sns["gender"]) ? $existing_sns["gender"] : "";
+			if ($phonenum == "") $phonenum = isset($existing_sns["phonenum"]) ? $existing_sns["phonenum"] : "";
+		}
+
+		// 저장 형식 통일: 숫자만 (예: 01090025528)
+		$phonenum = normalizeSnsPhone($phonenum);
+
 		// 간편로그인 회원가입 시작 시 전화번호 필수
 		if (empty($phonenum)) {
 			go_location("/member/login", "전화번호 인증이 필요합니다. 다시 시도해주세요.");
@@ -1311,9 +1326,6 @@ class Member extends CI_Controller
 			redirect($dup_url, 'refresh');
 			exit;
 		}
-
-		// 기존 SNS 데이터 확인 (앱에서 저장한 생년월일 정보 유지)
-		$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
 
 		// 성별 변환: 카카오의 경우 MALE/FEMALE -> 남/여
 		$gender_converted = $gender;
