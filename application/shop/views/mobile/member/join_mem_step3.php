@@ -301,8 +301,19 @@
       fClickChk(); // 상태 변경 후 fClickChk 호출
   }
 
+  // SNS 가입 경로 여부 (서버가 st_site_log의 JOIN/SNS 데이터로 판별)
+  var IS_SNS_JOIN = "<?= isset($is_sns_join) ? $is_sns_join : 'N' ?>";
+
   // step3에서 회원가입 완료 처리 (PART)
   function fPassClickFromStep3(){
+    // SNS 가입: 계정 생성을 join_mem_finish의 QuickInfo '적용하기'까지 미룬다.
+    // 추가 정보를 입력하지 않고 이탈하면 계정이 만들어지지 않아야 하기 때문.
+    // (가입 임시 데이터는 st_site_log에 session_id 기준으로 그대로 남아 있다)
+    if (IS_SNS_JOIN === "Y") {
+      location.href = "/member/join_mem_finish";
+      return;
+    }
+
     var params = {};
     params["ma_type"] = "MEM";
     params["proc_type"] = "PART";

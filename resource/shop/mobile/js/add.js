@@ -153,6 +153,17 @@ function customBack() {
         const currentPath = window.location.pathname;
        // URL: https://example.com/chat/chat_view?from=applied
        // currentPath = /chat/chat_view
+
+        // 회원가입 완료 페이지: SNS 가입은 이 페이지의 추가정보 입력(적용하기)에서 계정이 생성된다.
+        // 아직 가입 전(JOIN_PENDING)이면 가입을 취소하고 로그인 화면으로 보낸다.
+        // 이미 가입이 끝난 상태라면 기존처럼 아무 동작도 하지 않는다.
+        if (currentPath.indexOf('/member/join_mem_finish') > -1) {
+            if (typeof JOIN_PENDING !== 'undefined' && JOIN_PENDING) {
+                location.replace('/member/login');
+            }
+            return;
+        }
+
         // chat_view 페이지는 자체 뒤로가기 로직 사용 (backUrl 또는 from 파라미터)
         if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
             const params = new URLSearchParams(window.location.search);
@@ -924,6 +935,16 @@ function handleAndroidBack() {
 
         // 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음
         if (current === "/") {
+            return;
+        }
+
+        // 회원가입 완료 페이지: SNS 가입은 이 페이지의 추가정보 입력(적용하기)에서 계정이 생성된다.
+        // 아직 가입 전(JOIN_PENDING)이면 가입을 취소하고 로그인 화면으로 보낸다.
+        // 이미 가입이 끝난 상태라면 기존처럼 아무 동작도 하지 않는다.
+        if (current.indexOf('/member/join_mem_finish') > -1) {
+            if (typeof JOIN_PENDING !== 'undefined' && JOIN_PENDING) {
+                location.replace('/member/login');
+            }
             return;
         }
 

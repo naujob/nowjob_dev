@@ -4,9 +4,33 @@
 
 // 가입 시점에 확보한 값이 있으면 미리 선택, 없으면 기존 기본값(내국인/남성/30대) 유지
 $qi_prefill = isset($quickinfo_prefill) ? $quickinfo_prefill : [];
-$qi_nation = isset($qi_prefill["nation"]) && $qi_prefill["nation"] != "" ? $qi_prefill["nation"] : "domestic";
-$qi_gender = isset($qi_prefill["gender"]) && $qi_prefill["gender"] != "" ? $qi_prefill["gender"] : "male";
-$qi_age = isset($qi_prefill["age"]) && $qi_prefill["age"] != "" ? $qi_prefill["age"] : "30s";
+
+// 서버가 실제로 확보한 값인지 여부 (확보된 항목만 수정 불가로 잠근다)
+// 기본값(내국인/남성/30대)은 서버가 알아낸 값이 아니므로 반드시 수정 가능해야 한다.
+$qi_nation_locked = (isset($qi_prefill["nation"]) && $qi_prefill["nation"] != "");
+$qi_gender_locked = (isset($qi_prefill["gender"]) && $qi_prefill["gender"] != "");
+$qi_age_locked = (isset($qi_prefill["age"]) && $qi_prefill["age"] != "");
+
+$qi_nation = $qi_nation_locked ? $qi_prefill["nation"] : "domestic";
+$qi_gender = $qi_gender_locked ? $qi_prefill["gender"] : "male";
+$qi_age = $qi_age_locked ? $qi_prefill["age"] : "30s";
+
+// 잠금 처리용 속성 문자열
+$qi_nation_dis = $qi_nation_locked ? " disabled" : "";
+$qi_gender_dis = $qi_gender_locked ? " disabled" : "";
+$qi_age_dis = $qi_age_locked ? " disabled" : "";
+
+// 그룹 단위 상태(data 속성) + 라벨 보조문구
+$qi_nation_lock_attr = $qi_nation_locked ? ' data-locked="true"' : '';
+$qi_gender_lock_attr = $qi_gender_locked ? ' data-locked="true"' : '';
+$qi_age_lock_attr = $qi_age_locked ? ' data-locked="true"' : '';
+$qi_lock_note = '<em>자동 입력</em>';
+$qi_nation_note = $qi_nation_locked ? $qi_lock_note : '';
+$qi_gender_note = $qi_gender_locked ? $qi_lock_note : '';
+$qi_age_note = $qi_age_locked ? $qi_lock_note : '';
+
+// 필수 입력 표시 (모든 항목이 '적용하기' 검증 대상이다)
+$qi_req = '<span class="quickinfo-required">*</span>';
 
 // 라디오 checked 속성 문자열
 $qi_nation_domestic = ($qi_nation === "domestic") ? "checked" : "";
@@ -19,7 +43,7 @@ $qi_age_html = "";
 foreach ($qi_age_list as $age_key => $age_label) {
   $checked = ($qi_age === $age_key) ? "checked" : "";
   $qi_age_html .= '<label class="form-toggle-btn2">'
-    . '<input type="radio" name="quickinfo_age" value="' . $age_key . '" ' . $checked . '>'
+    . '<input type="radio" name="quickinfo_age" value="' . $age_key . '" ' . $checked . $qi_age_dis . '>'
     . '<span class="btn">' . $age_label . '</span>'
     . '</label>';
 }
@@ -27,8 +51,7 @@ foreach ($qi_age_list as $age_key => $age_label) {
 // 업종(희망업무): 코드테이블(cd_grp='희망업무') 기반, cd_sort 순으로 노출
 // 아래 업종은 간편 입력 대상에서 제외한다
 $qi_work_exclude = ["매장관리", "사무직", "건설"];
-// 기본 선택 업종 (사용자가 바꿀 수 있다)
-$qi_work_default = "생산";
+// 기본 선택 없음 - 사용자가 직접 고르게 한다(필수 항목)
 $qi_work_html = "";
 $qi_work_list = isset($ru_wrok_list) && is_array($ru_wrok_list) ? $ru_wrok_list : [];
 foreach ($qi_work_list as $work_row) {
@@ -37,9 +60,8 @@ foreach ($qi_work_list as $work_row) {
     continue;
   }
   $work_esc = htmlspecialchars($work_val, ENT_QUOTES, 'UTF-8');
-  $work_checked = ($work_val === $qi_work_default) ? "checked" : "";
   $qi_work_html .= '<label class="form-toggle-btn2">'
-    . '<input type="checkbox" name="quickinfo_work[]" data-select-limit="2" value="' . $work_esc . '" ' . $work_checked . '>'
+    . '<input type="checkbox" name="quickinfo_work[]" data-select-limit="2" value="' . $work_esc . '">'
     . '<span class="btn">' . $work_esc . '</span>'
     . '</label>';
 }
@@ -52,49 +74,50 @@ $quickInfoContent = <<<HTML
   </div>
 
   <div class="quickinfo-group">
+    <div class="quickinfo-label">근무 지역 {$qi_req}</div>
     <button type="button" class="quickinfo-region-field" data-action="open-region-popup">
       <span class="quickinfo-region-text">근무 지역 선택</span>
       <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
     </button>
   </div>
 
-  <div class="quickinfo-group">
-    <div class="quickinfo-label">국적</div>
+  <div class="quickinfo-group"{$qi_nation_lock_attr}>
+    <div class="quickinfo-label">국적 {$qi_req} {$qi_nation_note}</div>
     <div class="form-toggle-group col-2">
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_nation" value="domestic" {$qi_nation_domestic}>
+        <input type="radio" name="quickinfo_nation" value="domestic" {$qi_nation_domestic}{$qi_nation_dis}>
         <span class="btn">내국인</span>
       </label>
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_nation" value="foreign" {$qi_nation_foreign}>
+        <input type="radio" name="quickinfo_nation" value="foreign" {$qi_nation_foreign}{$qi_nation_dis}>
         <span class="btn">외국인</span>
       </label>
     </div>
   </div>
 
-  <div class="quickinfo-group">
-    <div class="quickinfo-label">성별</div>
+  <div class="quickinfo-group"{$qi_gender_lock_attr}>
+    <div class="quickinfo-label">성별 {$qi_req} {$qi_gender_note}</div>
     <div class="form-toggle-group col-2">
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_gender" value="male" {$qi_gender_male}>
+        <input type="radio" name="quickinfo_gender" value="male" {$qi_gender_male}{$qi_gender_dis}>
         <span class="btn">남성</span>
       </label>
       <label class="form-toggle-btn2">
-        <input type="radio" name="quickinfo_gender" value="female" {$qi_gender_female}>
+        <input type="radio" name="quickinfo_gender" value="female" {$qi_gender_female}{$qi_gender_dis}>
         <span class="btn">여성</span>
       </label>
     </div>
   </div>
 
-  <div class="quickinfo-group">
-    <div class="quickinfo-label">나이</div>
+  <div class="quickinfo-group"{$qi_age_lock_attr}>
+    <div class="quickinfo-label">나이 {$qi_req} {$qi_age_note}</div>
     <div class="form-toggle-group col-6">
       {$qi_age_html}
     </div>
   </div>
 
   <div class="quickinfo-group">
-    <div class="quickinfo-label">업종 <em>최대 2개 선택</em></div>
+    <div class="quickinfo-label">업종 {$qi_req} <em>최대 2개 선택</em></div>
     <div class="form-toggle-group col-3">
       {$qi_work_html}
     </div>

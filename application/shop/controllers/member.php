@@ -1607,6 +1607,13 @@ class Member extends CI_Controller
 		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
 		$data["uuid"] = $uuid;
 
+		# SNS 가입 경로 여부
+		# SNS면 계정 생성을 join_mem_finish의 QuickInfo '적용하기' 시점으로 미룬다.
+		# 클라이언트 localStorage로 판별하면 안 된다 - 카카오/네이버는 join_sns_type을 저장하지 않는다.
+		$step_sns = $this->site_model->getStepTempData("JOIN", "SNS");
+		$is_sns_join = (is_array($step_sns) && isset($step_sns["join_type"]) && $step_sns["join_type"] != "") ? "Y" : "N";
+		$data["is_sns_join"] = $is_sns_join;
+
 		$data["policy1"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "policy_m"]);
 		$data["policy2"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "privacy_m"]);
 		$data["policy3"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "location_m"]);
@@ -1620,13 +1627,60 @@ class Member extends CI_Controller
 	function join_mem_finish()
 	{
 		$data = [];
-		$data["mm_type"] = $this->user->isLogin() ? $this->user->getUserType() : "";
-		$data["join_type"] = $this->user->isLogin() ? $this->user->getJoinType() : "";
+		$is_login = $this->user->isLogin();
+
+		$data["mm_type"] = $is_login ? $this->user->getUserType() : "";
+		$data["join_type"] = $is_login ? $this->user->getJoinType() : "";
+
+		# uuid (헤더로만 전달된다. Layout::shop()은 주입하지 않음)
+		$headers = apache_request_headers();
+		$data["uuid"] = isset($headers["uuid"]) ? $headers["uuid"] : "";
+		$data["join_key"] = "";
+
+		# 가입 대기 상태 판별
+		# SNS 가입은 계정을 아직 만들지 않은 채 이 페이지에 도달한다(비로그인).
+		# 가입 임시 데이터(st_site_log)가 살아 있으면 '적용하기'에서 계정을 생성할 수 있다.
+		$data["join_pending"] = "N";
+		$step_sns = [];
+		if (!$is_login) {
+			$join_log = $this->site_model->getSiteLogList(["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_status" => "Y"]);
+			$step_sns = $this->site_model->getStepTempData("JOIN", "SNS");
+			$has_sns = (is_array($step_sns) && isset($step_sns["join_type"]) && $step_sns["join_type"] != "");
+
+			if ($join_log != null && $has_sns) {
+				$data["join_pending"] = "Y";
+				$data["mm_type"] = "MEM";
+				$data["join_type"] = $step_sns["join_type"];
+				$data["join_key"] = isset($step_sns["join_key"]) ? $step_sns["join_key"] : "";
+			} else {
+				# 로그인도 아니고 진행 중인 가입도 없으면 처음부터 다시
+				go_location("/member/login", "가입 정보가 만료되었습니다. 다시 진행해주세요.");
+			}
+		}
 
 		# QuickInfo 바텀시트 미리 선택값 (가입 시점에 이미 확보한 성별/나이/국적)
 		# 세션(USER_INFO)에는 mm_birth/mm_nation이 없으므로 DB에서 직접 조회한다
 		$data["quickinfo_prefill"] = ["nation" => "", "gender" => "", "age" => ""];
-		if ($this->user->isLogin()) {
+
+		# 가입 대기 상태에서는 회원 레코드가 아직 없으므로 SNS 프로필에서 채운다
+		if ($data["join_pending"] == "Y") {
+			$sns_gender = isset($step_sns["gender"]) ? $step_sns["gender"] : "";
+			if ($sns_gender == "남" || $sns_gender == "male" || $sns_gender == "M") {
+				$data["quickinfo_prefill"]["gender"] = "male";
+			} else if ($sns_gender == "여" || $sns_gender == "female" || $sns_gender == "F") {
+				$data["quickinfo_prefill"]["gender"] = "female";
+			}
+
+			# 생년: birthyear(4자리)만 있어도 연령대 산출이 가능하다
+			$sns_birth = isset($step_sns["birthyear"]) ? $step_sns["birthyear"] : "";
+			if ($sns_birth != "" && isset($step_sns["birthday"]) && $step_sns["birthday"] != "") {
+				$sns_birth = $sns_birth . $step_sns["birthday"];
+			}
+			$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($sns_birth);
+			# 국적은 SNS가 제공하지 않으므로 공백(사용자가 직접 선택)
+		}
+
+		if ($is_login) {
 			$mem_info = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
 			if (!empty($mem_info)) {
 				$mm_sex = isset($mem_info["mm_sex"]) ? $mem_info["mm_sex"] : "";

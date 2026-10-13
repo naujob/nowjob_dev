@@ -3983,11 +3983,28 @@ body.no-scroll {
     margin-bottom: 1rem;
 }
 
+/* 서버가 확보한 값(자동 입력)은 수정할 수 없음을 표현 */
+.quickinfo-group[data-locked="true"] .form-toggle-group {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.quickinfo-group[data-locked="true"] .quickinfo-label em {
+    color: #999;
+}
+
 .quickinfo-label {
     margin-bottom: 0.5rem;
     font-size: 0.9375rem;
     font-weight: 600;
     color: #222;
+}
+
+/* 필수 입력 표시 */
+.quickinfo-label .quickinfo-required {
+    margin-left: 2px;
+    color: #F04452;
+    font-weight: 600;
 }
 
 /* 라벨 옆 보조 안내문구 (예: 최대 2개 선택) */
