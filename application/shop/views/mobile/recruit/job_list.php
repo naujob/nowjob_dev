@@ -1602,6 +1602,18 @@ $tpl_show_chat_mark = true; ?>
 
   // 브라우저 뒤로가기/앞으로가기 감지
   window.addEventListener('popstate', function(e) {
+    // 알림/확인 다이얼로그가 떠 있으면 가장 먼저 닫고, 목록은 다시 불러오지 않음
+    if (typeof window.isLayerPopupOpen === 'function' && window.isLayerPopupOpen()) {
+      window.closeTopLayerPopup();
+      return;
+    }
+
+    // 온보딩 튜토리얼(상세 팝업 안의 tutorial-popup2 포함)이 열려 있으면 튜토리얼부터 닫기
+    if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
+      window.closeTutorialPopup();
+      return;
+    }
+
     // 팝업이 열려있는지 확인
     var popup = document.getElementById('jobPostPopup');
     if (popup && popup.getAttribute('data-state') === 'open') {
@@ -1619,10 +1631,11 @@ $tpl_show_chat_mark = true; ?>
         return;
       }
 
-      // 패널이 없으면 팝업 닫기
+      // 패널이 없으면 팝업 닫기 (목록은 다시 불러오지 않음)
       if (typeof window.closeJobPostPopup === 'function') {
         window.closeJobPostPopup(null);
       }
+      return;
     }
 
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
@@ -2196,9 +2209,11 @@ $tpl_show_chat_mark = true; ?>
     applyLastClickedHighlight();
   };
 
+  // 채용공고 팝업 열림 여부: data-state="open"이면 열린 상태
+  // (GSAP은 x 이동만 애니메이션하므로 opacity로는 판단할 수 없음)
   window.isJobPostPopupOpen = function() {
-    // GSAP 애니메이션: opacity > 0.5이면 열려있는 것
-    return parseFloat($('#jobPostPopup').css('opacity')) > 0.5;
+    var popup = document.getElementById('jobPostPopup');
+    return !!popup && popup.getAttribute('data-state') === 'open';
   };
 
 </script>

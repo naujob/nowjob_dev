@@ -476,7 +476,7 @@
     }
 
     // 브라우저 뒤로가기: 1차는 열린 약관 모달 닫기, 다시 누르면 가입을 취소하고 로그인 화면으로
-    // 그냥 두면 비밀번호 입력 화면(join_wmem_step1)으로 돌아가 흐름이 꼬인다.
+    // 그냥 두면 이전 단계(본인인증 완료 후 자동 진행되는 join_wmem_step1 리다이렉트)로 돌아가 흐름이 꼬인다.
     (function() {
         history.pushState(null, '', location.href);
         window.addEventListener('popstate', function() {

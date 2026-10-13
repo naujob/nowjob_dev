@@ -69,6 +69,11 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         overflow: auto;
     }
 
+    /* 경고/확인 팝업(commonAlert)이 QuickInfo 바텀시트(9998)·주소 팝업 뒤로 가려지지 않도록 최상단 처리 */
+    .layer-popup {
+        z-index: 100000;
+    }
+
     /* PC용 QuickInfo 바텀시트 레이아웃 보정 */
     .layer-panel {
         display: none;
@@ -521,19 +526,33 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     ad_gps_y: result[0].y
                 };
 
-                // QuickInfo 수동 주소 선택 모드라면: 주소만 캐시 + UI 갱신
-                if (window.__quickInfoManualAddrMode) {
-                    window.__quickInfoManualAddrMode = false;
-                    window.__quickInfoManualAddr = addrPayload;
-                    var regionEl = document.querySelector('.quickinfo-region-text');
-                    if (regionEl) {
-                        regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+                // 좌표로 시/도가 포함된 정식 지번 주소를 조회해 ad_jibun에 사용 (실패 시 축약 주소 유지)
+                comAjax("/common_proc/get_gps_address", {
+                    x: result[0].x,
+                    y: result[0].y
+                }, function(ret) {
+                    if (ret && ret.code === "00" && ret.data) {
+                        var fullAddr = String(ret.data).split("^")[0].trim();
+                        if (fullAddr) {
+                            addrPayload.ad_jibun = fullAddr;
+                            addrPayload.ru_name_seed_addr = fullAddr;
+                        }
                     }
-                    return;
-                }
 
-                // 적용하기 흐름이든 아니든 동일하게 자동이력서를 생성한다
-                submitQuickInfoWithAddress(addrPayload);
+                    // QuickInfo 수동 주소 선택 모드라면: 주소만 캐시 + UI 갱신
+                    if (window.__quickInfoManualAddrMode) {
+                        window.__quickInfoManualAddrMode = false;
+                        window.__quickInfoManualAddr = addrPayload;
+                        var regionEl = document.querySelector('.quickinfo-region-text');
+                        if (regionEl) {
+                            regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+                        }
+                        return;
+                    }
+
+                    // 적용하기 흐름이든 아니든 동일하게 자동이력서를 생성한다
+                    submitQuickInfoWithAddress(addrPayload);
+                });
             });
 
             return true;
@@ -562,15 +581,16 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                             }
                             if (ret.code === "00" && ret.data) {
                                 var parts = String(ret.data).split("^");
-                                var frontPart = (parts[0] || "").trim();
+                                var fullAddr = (parts[0] || "").trim(); // 시/도 풀네임이 포함된 정식 주소 (ad_jibun용)
+                                var frontPart = fullAddr; // 화면 표시/ad_addr용 축약 주소
                                 if (typeof fRemoveBigAdrJS === 'function') {
-                                    frontPart = fRemoveBigAdrJS(frontPart) || frontPart;
+                                    frontPart = fRemoveBigAdrJS(fullAddr) || fullAddr;
                                 }
                                 setQuickInfoRegionText(frontPart || "근무 지역 선택");
                                 window.__quickInfoManualAddr = {
                                     ru_name_seed_addr: frontPart,
                                     ad_zipcode: "",
-                                    ad_jibun: frontPart,
+                                    ad_jibun: fullAddr,
                                     ad_doro: "",
                                     ad_addr: frontPart,
                                     ad_detail: "",

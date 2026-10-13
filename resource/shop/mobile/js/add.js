@@ -143,8 +143,20 @@ function closeOpenLayerPanel() {
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
     try {
+        // 알림/확인 다이얼로그가 떠 있으면 가장 먼저 닫기
+        if (window.isLayerPopupOpen && window.isLayerPopupOpen()) {
+            window.closeTopLayerPopup();
+            return;
+        }
+
         // 열려있는 패널 먼저 확인 및 닫기 (로그인 안내, 길찾기, 공유하기 등)
         if (closeOpenLayerPanel()) {
+            return;
+        }
+
+        // 튜토리얼은 상세 팝업 위에 떠 있으므로 가장 먼저 닫기
+        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
+            window.closeTutorialPopup();
             return;
         }
 
@@ -156,11 +168,6 @@ function customBack() {
 
         if (window.isHrPostPopupOpen && window.isHrPostPopupOpen()) {
             window.closeHrPostPopup();
-            return;
-        }
-
-        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
-            window.closeTutorialPopup();
             return;
         }
 
@@ -888,6 +895,32 @@ function checkMobile() {
  * - window.isAnyPopupOpen() → true/false 반환
  * - 채용공고 팝업 또는 인재 팝업이 열려있으면 true
  */
+/**
+ * 알림/확인 다이얼로그(layer-popup) 열림 여부
+ * - commonAlert, commonConfirm 등 openPopup()으로 띄운 팝업은 body에 .layer-popup.in 으로 붙음
+ */
+window.isLayerPopupOpen = function() {
+    return document.querySelectorAll('.layer-popup.in').length > 0;
+};
+
+/**
+ * 가장 위에 열린 다이얼로그 1개를 닫음 (뒤로가기용)
+ * - 닫았으면 true, 열린 다이얼로그가 없으면 false 반환
+ */
+window.closeTopLayerPopup = function() {
+    var openPopups = document.querySelectorAll('.layer-popup.in');
+    var topPopup = openPopups[openPopups.length - 1];
+    if (!topPopup) {
+        return false;
+    }
+    if (typeof window.closePopup === 'function') {
+        window.closePopup(topPopup);
+    } else {
+        topPopup.classList.remove('in');
+    }
+    return true;
+};
+
 window.isAnyPopupOpen = function() {
     if (typeof window.isJobPostPopupOpen === 'function' && window.isJobPostPopupOpen()) {
         return true;
@@ -913,8 +946,20 @@ window.isAnyPopupOpen = function() {
  */
 function handleAndroidBack() {
     try {
+        // 알림/확인 다이얼로그가 떠 있으면 가장 먼저 닫기
+        if (window.isLayerPopupOpen && window.isLayerPopupOpen()) {
+            window.closeTopLayerPopup();
+            return;
+        }
+
         // 열려있는 패널 먼저 확인 및 닫기 (로그인 안내, 길찾기, 공유하기 등)
         if (closeOpenLayerPanel()) {
+            return;
+        }
+
+        // 튜토리얼은 상세 팝업 위에 떠 있으므로 가장 먼저 닫기
+        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
+            window.closeTutorialPopup();
             return;
         }
 
@@ -925,11 +970,6 @@ function handleAndroidBack() {
 
         if (window.isHrPostPopupOpen && window.isHrPostPopupOpen()) {
             window.closeHrPostPopup();
-            return;
-        }
-
-        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
-            window.closeTutorialPopup();
             return;
         }
 

@@ -1966,35 +1966,15 @@ class Member extends CI_Controller
 			);
 			go_location("/member/join_wmem_step2");
 		} else {
-			#로그 생성
-			$this->site_model->setSiteLog(
-				[
-					"session_id" => session_id(),
-					"sl_type" => "JOIN_MEM",
-					"sl_step" => "스텝1",
-					"sl_txt" => ""
-				],
-				[
-					"session_id" => session_id(),
-					"sl_type" => "JOIN_MEM",
-					"sl_step" => "스텝1",
-					"sl_status" => "Y"
-				]
-			);
-		}
+			# NICE 본인인증 완료 시 nice_success()가 "스텝1"에 mm_id/mm_pwd(휴대폰번호)를 이미 저장함
+			# 비밀번호 입력 단계 없이 약관 동의 단계로 바로 이동
+			if ($this->site_model->checkSiteLog("JOIN_MEM", "스텝1")) {
+				go_location("/member/join_wmem_step2");
+			}
 
-		$list = $this->site_model->getSiteLogList(
-			["session_id" => session_id(), "sl_type" => "JOIN_MEM", "sl_status" => "Y"]
-		);
-		if ($list == null) {
-			//    json_return("10","등록 데이터가 존재하지 않습니다.",$list);
-		} else {
-			$step_auth = $this->site_model->getStepData($list, "본인인증");
-			$data["mm_phone"] = $step_auth["mm_phone"];
+			# 본인인증 없이 직접 접근한 경우 가입을 처음부터 다시 진행하도록 안내
+			go_location("/member/join_start", "본인인증을 먼저 진행해주세요.");
 		}
-
-		//$data["mm_phone"] = $mm_phone;
-		$this->layout->shop('/member/join_wmem_step1', $data);
 	}
 
 	# 회원가입 스탭2

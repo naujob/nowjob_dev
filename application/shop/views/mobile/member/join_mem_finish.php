@@ -618,34 +618,48 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
         ad_gps_x: result[0].x,
         ad_gps_y: result[0].y
       };
-      // QuickInfo 수동 주소 선택 모드라면:
-      // - 자동이력서로 즉시 이동하지 않고
-      // - 선택한 주소만 캐시 + UI 갱신 후 종료
-      if (window.__quickInfoManualAddrMode) {
-        // 1회성 모드 해제
-        window.__quickInfoManualAddrMode = false;
-
-        // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
-        window.__quickInfoManualAddr = autoPayload;
-        var regionEl = document.querySelector('.quickinfo-region-text');
-        if (regionEl) {
-          // 선택된 주소를 화면에 반영(간단 정리)
-          regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+      // 좌표로 시/도가 포함된 정식 지번 주소를 조회해 ad_jibun에 사용 (실패 시 축약 주소 유지)
+      comAjax("/common_proc/get_gps_address", {
+        x: result[0].x,
+        y: result[0].y
+      }, function(ret) {
+        if (ret && ret.code === "00" && ret.data) {
+          var fullAddr = String(ret.data).split("^")[0].trim();
+          if (fullAddr) {
+            autoPayload.ad_jibun = fullAddr;
+            autoPayload.ru_name_seed_addr = fullAddr;
+          }
         }
-        // 여기서 종료(자동이력서 흐름 진행하지 않음)
-        return;
-      }
 
-      // QuickInfo "적용하기" 흐름이라면
-      // - 선택한 주소/좌표 + QuickInfo 선택값을 합쳐
-      // - 자동이력서 작성 화면으로 이동
-      if (window.__quickInfoApplyFlow) {
-        submitQuickInfoWithAddress(autoPayload);
-        return;
-      }
-      if (typeof window.submitQuickInfoToServer === 'function') {
-        window.submitQuickInfoToServer(autoPayload);
-      }
+        // QuickInfo 수동 주소 선택 모드라면:
+        // - 자동이력서로 즉시 이동하지 않고
+        // - 선택한 주소만 캐시 + UI 갱신 후 종료
+        if (window.__quickInfoManualAddrMode) {
+          // 1회성 모드 해제
+          window.__quickInfoManualAddrMode = false;
+
+          // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
+          window.__quickInfoManualAddr = autoPayload;
+          var regionEl = document.querySelector('.quickinfo-region-text');
+          if (regionEl) {
+            // 선택된 주소를 화면에 반영(간단 정리)
+            regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+          }
+          // 여기서 종료(자동이력서 흐름 진행하지 않음)
+          return;
+        }
+
+        // QuickInfo "적용하기" 흐름이라면
+        // - 선택한 주소/좌표 + QuickInfo 선택값을 합쳐
+        // - 자동이력서 작성 화면으로 이동
+        if (window.__quickInfoApplyFlow) {
+          submitQuickInfoWithAddress(autoPayload);
+          return;
+        }
+        if (typeof window.submitQuickInfoToServer === 'function') {
+          window.submitQuickInfoToServer(autoPayload);
+        }
+      });
     });
 
     return true;

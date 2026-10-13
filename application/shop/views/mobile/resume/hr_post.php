@@ -1073,7 +1073,10 @@ if (!$isLogin) {
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";
     // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용
-    $(document).off('click', '#btnPropose').on('click', '#btnPropose', function() {
+    $(document).off('click', '#btnPropose').on('click', '#btnPropose', function(e) {
+        // href="#" 기본 이동을 막아야 해시 변경으로 인한 popstate(뒤로가기 처리)가 발생하지 않음
+        e.preventDefault();
+
         // 인재정보 제안하기 분석 (운영 환경에서만)
         var isProdEnvironment = !window.location.pathname.includes('/dev_nowapk');
         if (isProdEnvironment && typeof my_analytics !== 'undefined') {

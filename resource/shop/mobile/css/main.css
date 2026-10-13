@@ -3962,6 +3962,12 @@ body.no-scroll {
     display: none;
 }
 
+/* 퀵인포 바텀시트 높이 고정 (ID 선택자로 .layer-panel.card-type .bottom-sheet-container 규칙보다 우선순위 확보) */
+#quickInfoPanel .bottom-sheet-container {
+    height: 874px;
+    max-height: unset;
+}
+
 
 
 .quickinfo-title {
