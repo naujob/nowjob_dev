@@ -21,24 +21,25 @@
   color: rgb(35, 33, 33);
 }
 
+/* 구분선: 두께 2px, 앞뒤 글자와의 간격 동일(양쪽 8px, 선은 간격 정중앙에 배치) */
 .item-info .price_type_wrap .ru_price_type em:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -1px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 2px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777777;
+  background: #777777;
 }
 
 .item-info .price_type_wrap .ru_price_type em:not(:first-child) {
-  padding-left: 4px;
+  padding-left: 8px;
 }
 
 .item-info .price_type_wrap .ru_price_type em:not(:last-child) {
-  padding-right: 6px;
+  padding-right: 8px;
 }
 
 /* ============================================
@@ -210,24 +211,25 @@ display: flex;
   color: #777;
 }
 
+/* 구분선: 두께 2px, 앞뒤 글자와의 간격 동일(양쪽 8px, 선은 간격 정중앙에 배치) */
 .item-info .price_type em:not(:first-child) {
-  padding-left: 5px;
+  padding-left: 8px;
 }
 
 .item-info .price_type em:not(:last-child) {
-  padding-right: 6px;
+  padding-right: 8px;
 }
 
 .item-info .price_type em:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -1px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 2px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777777;
+  background: #777777;
 }
 
 .item-info .price_type em.wtype1 {
