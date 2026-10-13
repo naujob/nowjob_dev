@@ -219,6 +219,8 @@
 
                 <div class="form-action-wrap">
                     <button type="button" class="btn-round btn-tertiary" id="btnNextMem" style="background-color:#ccc;">다음</button>
+                    <!-- 가입 취소: 히스토리를 교체해 이전 가입 단계로 되돌아가지 않도록 한다 -->
+                    <a href="/member/login" class="btn-round btn-tertiary" style="margin-left:12px;background-color:#fff;border:1px solid #ccc;color:#666;" onclick="location.replace('/member/login'); return false;">취소</a>
                 </div>
 
             </div>
@@ -465,32 +467,29 @@
         //fClickChk(); // 상태 변경 후 fClickChk 호출
     }
 
-    // SNS 가입 경로 여부 (서버가 st_site_log의 JOIN/SNS 데이터로 판별)
-    var IS_SNS_JOIN = "<?= isset($is_sns_join) ? $is_sns_join : 'N' ?>";
-
-    // step2에서 회원가입 완료 처리 (PART)
+    // 약관 동의 후 가입 완료 페이지로 이동
+    // 계정 생성은 join_mem_finish의 QuickInfo '적용하기'에서 수행한다 (SNS/비SNS 공통).
+    // 추가 정보를 입력하지 않고 이탈하면 계정이 만들어지지 않아야 하기 때문.
+    // 가입 임시 데이터는 st_site_log에 session_id 기준으로 그대로 남아 있다.
     function fPassClickFromStep2(){
-        // SNS 가입: 계정 생성을 join_mem_finish의 QuickInfo '적용하기'까지 미룬다.
-        // 추가 정보를 입력하지 않고 이탈하면 계정이 만들어지지 않아야 하기 때문.
-        // (가입 임시 데이터는 st_site_log에 session_id 기준으로 그대로 남아 있다)
-        if (IS_SNS_JOIN === "Y") {
-            location.href = "/member/join_mem_finish";
-            return;
-        }
+        location.href = "/member/join_mem_finish";
+    }
 
-        var params = {};
-        params["ma_type"] = "MEM";
-        params["proc_type"] = "PART";
-        params["uuid"] = "";
-
-        comAjax("/member_proc/join_complete_proc", params, function(ret){
-            if(ret.code=="00"){
-                location.href="/member/join_mem_finish";
-            }else{
-                commonAlert(ret.msg, function(){});
+    // 브라우저 뒤로가기: 1차는 열린 약관 모달 닫기, 다시 누르면 가입을 취소하고 로그인 화면으로
+    // 그냥 두면 비밀번호 입력 화면(join_wmem_step1)으로 돌아가 흐름이 꼬인다.
+    (function() {
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function() {
+            var openPopupEl = document.querySelector('.layer-popup.in');
+            if (openPopupEl) {
+                if (typeof closePopup === 'function') {
+                    closePopup(openPopupEl);
+                }
+                history.pushState(null, '', location.href); // 소비한 항목 복구
                 return;
             }
+            location.replace('/member/login');
         });
-    }
+    })();
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>

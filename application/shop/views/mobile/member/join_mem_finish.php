@@ -11,31 +11,8 @@ include_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
 // 가입 완료 페이지 전용 바텀시트 로드
 require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
 
-// 이력서 미작성 회원 안내 바텀시트 (로그인 + 이력서 없음 조건에서 노출)
-renderBottomSheet(
-  'resumeGuidePanel',
-  '5초 간편 이력서 등록',
-  '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
-  '내 주변 일자리 찾기',
-  'btnResumeGuide',
-  '',
-  'bottom-sheet-content-container',
-  'bottom-sheet-content-body'
-);
-
-// 위치 동의 안내 바텀시트 (권한 미동의 시 노출)
-renderSelectBottomSheet(
-  'locationConsentPanel',
-  '내 주변 일자리를 놓칠수 있어요!',
-  '<p class="location-consent-desc">나우잡에서 공고를 찾아드릴수있게<br>정확한 위치 설정이 필요합니다</p>',
-  '주소 직접입력 하기',
-  'btnManualAddress',
-  '',
-  '내 주변 일자리 찾기!',
-  'btnResumeGuideLocation',
-  '',
-  'location-consent-bottom-sheet-container'
-);
+// 비SNS 전용이던 resumeGuidePanel / locationConsentPanel은 제거되었다.
+// 이제 SNS/비SNS 모두 QuickInfo 바텀시트 하나로 통일된다.
 ?>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=services"></script>
@@ -148,8 +125,8 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
   // join_complete_proc에 넘길 SNS 식별값 (쿠키 폴백보다 서버 값이 정확하다)
   var JOIN_KEY = "<?= isset($join_key) ? $join_key : '' ?>";
   var JOIN_UUID = "<?= isset($uuid) ? $uuid : '' ?>";
-  // QuickInfo 바텀시트 노출 대상: NICE 본인인증을 거치지 않아 국적이 비는 SNS 가입자
-  var SHOW_QUICKINFO = (["GOOGLE", "WECHAT", "KAKAO", "NAVER"].indexOf(String(JOIN_TYPE || "").toUpperCase()) !== -1);
+  // QuickInfo 바텀시트는 SNS/비SNS 구분 없이 항상 노출한다 (가입 완료의 유일한 진행길)
+  var SHOW_QUICKINFO = true;
   // 위치 콜백을 “UI 텍스트만 갱신”할지, “자동 이력서 흐름”으로 이어갈지 구분.
   window.__quickInfoExpectLocation = false;
   // QuickInfo 적용하기 버튼으로 시작된 흐름인지 여부
@@ -500,58 +477,6 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     // 가입 대기(SNS) 상태는 비로그인이므로 로그인 가드를 우회한다
     if (!JOIN_PENDING && (!isLogin || !isMem)) return;
 
-    function isLocationBridgeReady() {
-      return (
-        (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') ||
-        (window.webkit && window.webkit.messageHandlers && (window.webkit.messageHandlers.startGettingLocation || window.webkit.messageHandlers.getLocation))
-      );
-    }
-
-    function waitForLocationBridgeReady(timeoutMs, intervalMs, onReady, onTimeout) {
-      var startedAt = Date.now();
-      (function checkReady() {
-        if (isLocationBridgeReady()) {
-          onReady();
-          return;
-        }
-        if (Date.now() - startedAt >= timeoutMs) {
-          onTimeout();
-          return;
-        }
-        setTimeout(checkReady, intervalMs);
-      })();
-    }
-
-    function startAutoResumeFlowOnce() {
-      // 자동 트리거/이동 중복 방지
-      if (window.__resumeAutoStartTriggered) return;
-      window.__resumeAutoStartTriggered = true;
-
-      var tryTrigger = function() {
-        $("#btnResumeGuide").trigger("click");
-      };
-
-      // 즉시 시도 + 브릿지 준비 대기 후 1회 재시도
-      if (isLocationBridgeReady()) {
-        tryTrigger();
-      } else {
-        waitForLocationBridgeReady(1500, 100, tryTrigger, function() {});
-      }
-
-      // 사용자 제스처가 필요한 경우를 대비한 1회 재시도
-      var retryOnGesture = function() {
-        tryTrigger();
-      };
-      document.addEventListener('touchstart', retryOnGesture, {
-        once: true,
-        passive: true
-      });
-      document.addEventListener('mousedown', retryOnGesture, {
-        once: true,
-        passive: true
-      });
-    }
-
     function setQuickInfoRegionText(text) {
       var el = document.querySelector('.quickinfo-region-text');
       if (el) el.textContent = text;
@@ -607,25 +532,8 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
         null;
       var hasLocationConsent = storedPermission === 'granted';
 
-      if (SHOW_QUICKINFO) {
-        openQuickInfoForSns(hasLocationConsent);
-        return;
-      }
-
-      if (hasLocationConsent) {
-        startAutoResumeFlowOnce();
-        return;
-      }
-      var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
-      var panel = document.getElementById(targetPanelId);
-      if (!panel) {
-        return;
-      }
-      if (typeof openPanel !== 'function') {
-        return;
-      }
-
-      openPanel(panel);
+      // SNS/비SNS 구분 없이 QuickInfo 바텀시트만 연다
+      openQuickInfoForSns(hasLocationConsent);
     }
 
     openGuidePanelByPermission();
@@ -642,17 +550,10 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     });
   });
 
-  $(document).on('click', '#btnResumeGuideLocation', function() {
-    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.requestLocationPermission === 'function') {
-      APP_NOWAPK.requestLocationPermission();
-      return;
-    }
-    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
-      window.webkit.messageHandlers.requestLocationPermission.postMessage({});
-    }
-  });
-
-  $(document).on('click', '#btnResumeGuide', function() {
+  // 자동이력서 제출용 위치 요청 (QuickInfo '적용하기'에서 직접 호출한다)
+  // 과거에는 #btnResumeGuide 버튼 클릭으로 트리거했으나, 그 버튼을 만들던
+  // resumeGuidePanel이 제거되어 함수로 분리했다.
+  window.requestLocationForSubmit = function() {
     // 이 경로로 받은 위치 콜백은 제출용이라는 표시
     window.__resumeAutoFlow = true;
 
@@ -675,15 +576,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     } else {
       proceedResumeAutoFlowWithoutLocation();
     }
-  });
-
-  $(document).on('click', '#btnManualAddress', function() {
-    window.__hideAllRegionsInAddrPopup = true;
-    if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
-      window.applyAddrPopupAllRegionFilter();
-    }
-    $("#changeArea").addClass("on");
-  });
+  };
 
   window.onChangeAreaApply = function(payload) {
     var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : [];
@@ -815,7 +708,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     }
 
     // 직접 선택한 주소가 없으면 GPS로 받아온다
-    $("#btnResumeGuide").trigger("click");
+    window.requestLocationForSubmit();
   };
 
   // 적용하기 버튼은 바텀시트 템플릿이 심은 onclick="handleQuickInfoApplyClick()"으로 동작한다.

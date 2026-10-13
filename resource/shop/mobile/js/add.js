@@ -109,20 +109,34 @@ function callVibrate(time) {
     }
 }
 
-// 열려있는 바텀시트/패널을 우선 닫는다.
+// 열려있는 바텀시트/패널을 우선 닫는다. 여러 개가 열려 있으면 화면상 가장 위의 패널 하나만 닫는다.
+// (예: join_mem_finish에서 QuickInfo 바텀시트 위에 주소 팝업(#changeArea)이 열린 경우 주소 팝업만 닫힘)
 // loginGuidePanel(main_menu.php)처럼 job_post/hr_post 팝업의 DOM 바깥(형제 요소)에 렌더링된
 // 패널도 감지해야 하므로 팝업 내부가 아닌 document 전체 범위에서 검색한다.
 function closeOpenLayerPanel() {
     var openPanels = document.querySelectorAll('.layer-panel.on');
-    if (openPanels.length > 0) {
-        openPanels.forEach(function(panel) {
-            if (typeof closePanel === 'function') {
-                closePanel(panel);
-            }
-        });
-        return true;
+    if (openPanels.length === 0) {
+        return false;
     }
-    return false;
+
+    // 가장 위에 보이는 패널 = z-index가 가장 큰 패널 (동률이면 DOM상 뒤에 있는 패널)
+    var topPanel = null;
+    var topZIndex = -Infinity; // 초기값: -무한대 가장 작은 값으로 설정
+    openPanels.forEach(function(panel) {
+        var zIndex = parseInt(window.getComputedStyle(panel).zIndex, 10);
+        if (isNaN(zIndex)) {
+            zIndex = 0;
+        }
+        if (zIndex >= topZIndex) {
+            topZIndex = zIndex;
+            topPanel = panel;
+        }
+    });
+
+    if (topPanel && typeof closePanel === 'function') {
+        closePanel(topPanel);
+    }
+    return true;
 }
 
 // iOS 시스템 스와이프 뒤로가기 처리 (네이티브에서 handleSwipeBack 호출함)
@@ -161,6 +175,14 @@ function customBack() {
             if (typeof JOIN_PENDING !== 'undefined' && JOIN_PENDING) {
                 location.replace('/member/login');
             }
+            return;
+        }
+
+        // 약관 동의 단계(개인 step3 / 기업 step5): 가입을 취소하고 로그인 화면으로 보낸다.
+        // history.back()으로 두면 NICE 인증 페이지로 돌아가 흐름이 꼬인다.
+        if (currentPath.indexOf('/member/join_mem_step3') > -1 ||
+            currentPath.indexOf('/member/join_comp_step5') > -1) {
+            location.replace('/member/login');
             return;
         }
 
@@ -945,6 +967,14 @@ function handleAndroidBack() {
             if (typeof JOIN_PENDING !== 'undefined' && JOIN_PENDING) {
                 location.replace('/member/login');
             }
+            return;
+        }
+
+        // 약관 동의 단계(개인 step3 / 기업 step5): 가입을 취소하고 로그인 화면으로 보낸다.
+        // history.back()으로 두면 NICE 인증 페이지로 돌아가 흐름이 꼬인다.
+        if (current.indexOf('/member/join_mem_step3') > -1 ||
+            current.indexOf('/member/join_comp_step5') > -1) {
+            location.replace('/member/login');
             return;
         }
 

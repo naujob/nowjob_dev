@@ -290,12 +290,6 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             }
         }
 
-        function navigateToResumeWrite(addrPayload) {
-            // 웹 자동 작성은 페이지 이동 없이 처리
-            // Deprecated: 웹 자동 작성은 페이지 이동 없이 처리
-            autoSaveResume(addrPayload);
-        }
-
         function showAutoResumeLoading() {
             var el = document.getElementById("auto-resume-loading-web");
             if (!el) return;
@@ -478,145 +472,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             });
         }
 
-        function getRegionName(rawAddr) {
-            // 주소 문자열에서 동/읍/면/리 단위 지역명 추출
-            var addr = String(rawAddr || "").trim();
-            if (!addr) return "우리 동네";
-            var parts = addr.split(/\s+/);
-            var last = parts[parts.length - 1];
-            if (/[동면읍리]$/.test(last)) return last;
-            if (parts.length > 1) return parts[parts.length - 2];
-            return last;
-        }
-
-        function buildResumeTitle(rawAddr) {
-            // 지역명을 기반으로 랜덤 이력서 제목 생성
-            var regionName = getRegionName(rawAddr);
-            var titleTemplates = [
-                function(r) {
-                    return r + " 기반, 준비된 맞춤형 인재입니다!";
-                },
-                function(r) {
-                    return "번개처럼 빠르게 적응하는 " + r + " 구직자";
-                },
-                function(r) {
-                    return "성실함이 무기! " + r + " 근처 바로 출근 가능합니다.";
-                },
-                function(r) {
-                    return "나우잡이 추천하는" + r + " 열정 인재";
-                },
-                function(r) {
-                    return "복잡한 건 생략! 실력으로 보여드릴 " + r + " 지원자";
-                },
-                function(r) {
-                    return "지금 즉시 매칭 가능한 " + r + " 최적화 인재";
-                },
-                function(r) {
-                    return r + "에서 누구보다 빠르게, 열정적으로 일할 준비가 되었습니다!";
-                },
-                function(r) {
-                    return r + " 거주 중! 꼼꼼함과 책임감을 겸비한 인재";
-                },
-                function(r) {
-                    return "사장님이 찾으시던 바로 그 " + r + " 꿀알바 지원생";
-                },
-                function(r) {
-                    return r + "에서 지금 바로 출근준비 되어있습니다.";
-                }
-            ];
-            var chosen = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
-            return chosen(regionName);
-        }
-
-        function safeCommonAlert(msg, callback) {
-            // "처리완료" 메시지는 알럿 표시 없이 무시
-            if (!msg) return;
-            if (String(msg).indexOf("처리완료") !== -1) {
-                if (typeof callback === 'function') {
-                    callback();
-                }
-                return;
-            }
-            commonAlert(msg, callback || function() {});
-        }
-
-        function autoSaveResume(addrPayload) {
-            // 자동 이력서 저장 및 완료 처리
-            // 자동작성 중 "처리완료" 공통 알럿 차단 (팝업 방해 방지)
-            if (typeof window.commonAlert === 'function' && !window.__autoResumeAlertWrapped) {
-                window.__autoResumeAlertWrapped = true;
-                window.__autoResumeOriginalAlert = window.commonAlert;
-                window.commonAlert = function(msg, callback) {
-                    if (msg === "처리완료" && window.__autoResumeFlowActive === true) {
-                        if (typeof callback === 'function') {
-                            callback();
-                        }
-                        return;
-                    }
-                    return window.__autoResumeOriginalAlert(msg, callback || function() {});
-                };
-            }
-            window.__autoResumeFlowActive = true;
-
-            var title = buildResumeTitle(addrPayload.ad_addr || addrPayload.ad_jibun || addrPayload.ru_name_seed_addr);
-            var params = {
-                ru_name: title,
-                ru_work: "생산",
-                ru_price_type: "월급",
-                ru_work_type: "주간",
-                ru_nationality: "내국인",
-                ru_addr: addrPayload.ad_addr || addrPayload.ad_jibun || "",
-                ad_type: "resume",
-                ad_zipcode: addrPayload.ad_zipcode || "",
-                ad_jibun: addrPayload.ad_jibun || "",
-                ad_doro: addrPayload.ad_doro || "",
-                ad_addr: addrPayload.ad_addr || "",
-                ad_detail: addrPayload.ad_detail || "",
-                ad_gps_x: addrPayload.ad_gps_x || "",
-                ad_gps_y: addrPayload.ad_gps_y || "",
-                ru_img1_ori: "/resource/shop/web/img/avatar_resume_w.png"
-            };
-
-            // 자동완성용 제목을 payload에 포함 (resume_write에서 재사용)
-            addrPayload.ru_name = title;
-
-         
-            comAjax("/mypage_proc/resume_write", params, function(ret) {
-                if (typeof ret === "string") {
-                    try {
-                        ret = JSON.parse(ret);
-                    } catch (e) {}
-                }
-                if (ret && ret.code === "00") {
-                    var ruIdx = (ret.data && ret.data.ru_idx) ? ret.data.ru_idx : 0;
-                    // resume_complete 호출 시 params를 포함하여 ad_type이 전송되도록 함
-                    var completeParams = Object.assign({}, params);
-                    completeParams.ru_idx = ruIdx;
-                    comAjax("/mypage_proc/resume_complete", completeParams, function(ret2) {
-                        if (typeof ret2 === "string") {
-                            try {
-                                ret2 = JSON.parse(ret2);
-                            } catch (e) {}
-                        }
-                        if (ret2 && (ret2.code === "00" || ret2.msg === "처리완료")) {
-                            location.href = "/recruit/job_list?auto_resume=1";
-                            return;
-                        }
-                        window.__autoResumeFlowActive = false;
-                        if (ret2 && ret2.code === "91") {
-                            safeCommonAlert(ret2.msg, function() {
-                                fManCheck();
-                            });
-                        } else {
-                            safeCommonAlert((ret2 && ret2.msg) ? ret2.msg : "이력서 등록에 실패했습니다.", function() {});
-                        }
-                    });
-                } else {
-                    window.__autoResumeFlowActive = false;
-                    safeCommonAlert((ret && ret.msg) ? ret.msg : "이력서 등록에 실패했습니다.", function() {});
-                }
-            });
-        }
+        // autoSaveResume / buildResumeTitle / getRegionName / safeCommonAlert 는 제거되었다.
+        // 이력서 생성은 resume_autofill_quick 하나로 통일한다(제목 생성도 서버가 담당).
 
         // 주소 선택(모바일 UI) 시 자동 이력서 작성 플로우
         // 주소 팝업 적용 시 선택된 주소를 처리
@@ -675,82 +532,17 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     return;
                 }
 
-                // QuickInfo 적용하기 흐름이라면 자동이력서 생성
-                if (window.__quickInfoApplyFlow) {
-                    submitQuickInfoWithAddress(addrPayload);
-                    return;
-                }
-
-                autoSaveResume(addrPayload);
+                // 적용하기 흐름이든 아니든 동일하게 자동이력서를 생성한다
+                submitQuickInfoWithAddress(addrPayload);
             });
 
             return true;
         };
 
-        // 브라우저 위치 권한을 요청하고 성공 시 자동 작성 시작
-        function requestLocationAndStart() {
-            // 브라우저 위치 가져오기 후 주소 변환 → 자동 이력서 저장
-            if (!navigator.geolocation) {
-                return;
-            }
-
-            var completed = false; // 위치 흐름 완료 여부(중복 처리 방지)
-            var timeoutId = setTimeout(function() {
-                if (completed) return;
-                completed = true;
-                openManualAddressPopup();
-            }, 7000);
-
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    if (completed) return;
-                    completed = true;
-                    clearTimeout(timeoutId);
-                    var lat = position.coords.latitude;
-                    var lng = position.coords.longitude;
-                    comAjax("/common_proc/get_gps_address", {
-                        x: lng,
-                        y: lat
-                    }, function(ret) {
-                        if (ret.code === "00" && ret.data) {
-                            var parts = String(ret.data).split("^");
-                            var frontPart = (parts[0] || "").trim();
-                            var ad_addr_short = (typeof fRemoveBigAdrJS === 'function') ? (fRemoveBigAdrJS(frontPart) || frontPart) : frontPart;
-
-                            var addrPayload = {
-                                ru_name_seed_addr: frontPart,
-                                ad_zipcode: "",
-                                ad_jibun: frontPart,
-                                ad_doro: "",
-                                ad_addr: ad_addr_short,
-                                ad_detail: "",
-                                ad_gps_x: lng,
-                                ad_gps_y: lat
-                            };
-
-                            autoSaveResume(addrPayload);
-                        } else {
-                            openManualAddressPopup();
-                        }
-                    });
-                },
-                function(err) {
-                    if (completed) return;
-                    completed = true;
-                    clearTimeout(timeoutId);
-                    openManualAddressPopup();
-                }, {
-                    enableHighAccuracy: false,
-                    maximumAge: 0,
-                    timeout: 6000
-                }
-            );
-        }
-
-        // 자동 이력서 플로우 시작 조건 판단 및 초기 UI 세팅
+        // requestLocationAndStart 는 제거되었다 - QuickInfo 바텀시트가 위치 수집을 담당한다.
+        // QuickInfo 바텀시트 오픈 + 위치 자동 채우기
+        // SNS/비SNS 구분 없이 항상 바텀시트를 연다 (가입 완료의 유일한 진행길)
         function startAutoResumeFlowIfNeeded() {
-            // 자동 이력서 흐름 시작 조건 확인 - SNS 가입자(GOOGLE/WECHAT/KAKAO/NAVER)
-            if (SHOW_QUICKINFO) {
                 if (typeof window.openQuickInfoPanel === 'function') {
                     window.openQuickInfoPanel();
                 }
@@ -806,14 +598,6 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                         setQuickInfoRegionText("근무 지역 선택");
                     }
                 }
-                return;
-            }
-            var stored = getStoredPermissionStatus(); // 로컬스토리지에 저장된 위치 권한 상태
-            if (stored === "granted") {
-                requestLocationAndStart();
-            } else {
-                openManualAddressPopup();
-            }
         }
 
         document.addEventListener('DOMContentLoaded', startAutoResumeFlowIfNeeded);

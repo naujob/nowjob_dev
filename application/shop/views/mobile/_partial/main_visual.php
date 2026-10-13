@@ -852,27 +852,12 @@ renderSelectBottomSheet(
     if (!aiMatchLink) return;
     aiMatchLink.addEventListener('click', function(e) {
       var agreeAd = aiMatchLink.getAttribute('data-agree-ad');
-      if (typeof BrowserLogger !== 'undefined') {
-        BrowserLogger.info('A.I 매칭 링크 클릭 | 동의 여부: ' + agreeAd);
-      } else {
-        console.log('A.I 매칭 링크 클릭 | 동의 여부:', agreeAd);
-      }
 
       if (agreeAd === 'Y') {
-        if (typeof BrowserLogger !== 'undefined') {
-          BrowserLogger.info('이미 동의함 | 링크 이동');
-        } else {
-          console.log('이미 동의함 | 링크 이동');
-        }
         return; // 이미 동의: 정상 이동
       }
 
       e.preventDefault();
-      if (typeof BrowserLogger !== 'undefined') {
-        BrowserLogger.info('동의 여부가 N | 팝업 오픈');
-      } else {
-        console.log('동의 여부가 N | 팝업 오픈');
-      }
 
       var chk = document.getElementById('rd_agree_ad');
       if (chk) chk.checked = true; // 체크박스 기본 체크
@@ -880,11 +865,6 @@ renderSelectBottomSheet(
       var sheet = document.getElementById('adConsentSheet');
       if (sheet && typeof openPanel === 'function') {
         openPanel(sheet);
-        if (typeof BrowserLogger !== 'undefined') {
-          BrowserLogger.info('동의 팝업 오픈 완료');
-        } else {
-          console.log('동의 팝업 오픈 완료');
-        }
       }
     });
   })();
@@ -912,56 +892,18 @@ renderSelectBottomSheet(
 
   // 동의하기 클릭 시 서버에 mm_agree_ad=Y 저장 후 매칭 페이지 이동
   function submitAdAgree() {
-    if (typeof BrowserLogger !== 'undefined') {
-      BrowserLogger.info('동의하기 버튼 클릭');
-    } else {
-      console.log('동의하기 버튼 클릭');
-    }
-
     var chk = document.getElementById('rd_agree_ad');
     if (!chk || !chk.checked) {
-      if (typeof BrowserLogger !== 'undefined') {
-        BrowserLogger.info('체크박스 미체크 상태 | 알림 표시');
-      } else {
-        console.log('체크박스 미체크 상태 | 알림 표시');
-      }
       commonAlert('광고성 정보 알림 수신에 동의해주세요.', function() {});
       return;
     }
 
-    if (typeof BrowserLogger !== 'undefined') {
-      BrowserLogger.info('체크박스 체크됨 | 서버 요청 시작');
-    } else {
-      console.log('체크박스 체크됨 | 서버 요청 시작');
-    }
-
     var matchUrl = document.getElementById('aiMatchLink').getAttribute('data-match-url');
-    if (typeof BrowserLogger !== 'undefined') {
-      BrowserLogger.info('매칭 URL: ' + matchUrl);
-    } else {
-      console.log('매칭 URL:', matchUrl);
-    }
 
     comAjax('/setting_proc/agree_ad', {}, function(ret) {
-      if (typeof BrowserLogger !== 'undefined') {
-        BrowserLogger.info('서버 응답 | 코드: ' + ret.code);
-      } else {
-        console.log('서버 응답 | 코드:', ret.code);
-      }
-
       if (ret.code == '00') {
-        if (typeof BrowserLogger !== 'undefined') {
-          BrowserLogger.info('동의 저장 성공 | 매칭 페이지로 이동');
-        } else {
-          console.log('동의 저장 성공 | 매칭 페이지로 이동');
-        }
         location.href = matchUrl;
       } else {
-        if (typeof BrowserLogger !== 'undefined') {
-          BrowserLogger.info('동의 저장 실패 | 메시지: ' + ret.msg);
-        } else {
-          console.error('동의 저장 실패 | 메시지:', ret.msg);
-        }
         commonAlert(ret.msg, function() {});
       }
     });

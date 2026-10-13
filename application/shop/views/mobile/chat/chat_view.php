@@ -1342,7 +1342,7 @@
            // console.log('나가기 응답', ret);
 
             if (ret.code != "00") {
-                BrowserLogger.error('나가기 실패', { msg: ret.msg });
+               
                 commonAlert(ret.msg || "채팅방 나가기에 실패했습니다.", function() {});
                 return;
             }
