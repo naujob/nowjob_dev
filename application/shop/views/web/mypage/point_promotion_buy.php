@@ -1148,6 +1148,40 @@
     document.getElementById('ad_duration_txt3').innerHTML = result;
   }
 
+  /* 추가혜택 표의 기간 행을 선택 UI로 사용: 행 클릭 시 같은 광고 블록의 기간 select 값을 맞추고 행을 강조 */
+  (function () {
+    $('<style>.adinfo_tab tr { cursor: pointer; } .adinfo_tab tr.on td { background-color: #e6f7f3; font-weight: 600; }</style>').appendTo('head');
+
+    // 광고 블록 번호(1~3) 기준으로 기간 행 강조 표시
+    function fSyncDurationRow(n, days) {
+      $('.adinfo' + n + ' .adinfo_tab tr').removeClass('on').filter(function () {
+        return parseInt($(this).find('td span').text(), 10) == days;
+      }).addClass('on');
+    }
+
+    // 표의 기간 행 클릭 → select 값 변경 (인라인 onchange로 fMakeDuration 계열 호출)
+    $(document).on('click', '.adinfo_tab tr', function () {
+      var days = parseInt($(this).find('td span').text(), 10);
+      if (isNaN(days)) return; // 헤더 행 제외
+
+      var $block = $(this).closest('.adinfo1, .adinfo2, .adinfo3');
+      var n = $block.hasClass('adinfo1') ? '1' : ($block.hasClass('adinfo2') ? '2' : '3');
+      $('#ad_duration' + n).val(String(days)).trigger('change');
+      fSyncDurationRow(n, days);
+    });
+
+    // select 직접 변경 시에도 표 강조 동기화
+    $(document).on('change', 'select[id^="ad_duration"]', function () {
+      var n = this.id.replace('ad_duration', '');
+      fSyncDurationRow(n, $(this).val());
+    });
+
+    // 초기 기본값(2일) 강조
+    [1, 2, 3].forEach(function (n) {
+      fSyncDurationRow(n, $('#ad_duration' + n).val());
+    });
+  }());
+
   function padNumber(num) {
     return num.toString().padStart(2, '0');
   }
