@@ -318,6 +318,13 @@ if (!$isLogin) {
                             localStorage.removeItem("recruit_draft_0_page1");
                             localStorage.removeItem("recruit_draft_0_page2");
                             localStorage.removeItem("recruit_draft_0_page3");
+                            // sessionStorage에 남은 draft와 미리보기 플래그도 제거 (안 지우면 재진입 시 방금 등록한 내용이 복원됨)
+                            ["0", rcIdx].forEach(function(idx) {
+                                sessionStorage.removeItem("recruit_draft_" + idx + "_page1");
+                                sessionStorage.removeItem("recruit_draft_" + idx + "_page2");
+                                sessionStorage.removeItem("recruit_draft_" + idx + "_page3");
+                            });
+                            sessionStorage.removeItem("from_preview");
 
                             // 채용공고 등록 완료
                             commonAlert("채용공고가 등록되었습니다.", function() {

@@ -1804,6 +1804,8 @@
             if (saved && !sessionStorage.getItem(newKey)) {
                 sessionStorage.setItem(newKey, saved);
             }
+            // 이전 키는 sessionStorage/localStorage 모두에서 제거 (남으면 다음 신규 작성 시 복원됨)
+            sessionStorage.removeItem(oldKey);
             localStorage.removeItem(oldKey);
         });
     }
@@ -2465,9 +2467,11 @@
     // localStorage에 저장된 임시데이터를 삭제하는 함수 (rc_idx 기준으로 page1, page2, page3 모두 삭제)
     function clearRecruitDraftData(rcIdx) {
         if (!rcIdx) rcIdx = "0";
-        localStorage.removeItem("recruit_draft_" + rcIdx + "_page1");
-        localStorage.removeItem("recruit_draft_" + rcIdx + "_page2");
-        localStorage.removeItem("recruit_draft_" + rcIdx + "_page3");
+        // draft는 sessionStorage에 저장되므로 sessionStorage도 함께 정리
+        ["1", "2", "3"].forEach(function(page) {
+            sessionStorage.removeItem("recruit_draft_" + rcIdx + "_page" + page);
+            localStorage.removeItem("recruit_draft_" + rcIdx + "_page" + page);
+        });
     }
     // 급여 유형에 따라 급여 옵션 표시/숨김 처리하는 함수
     function updateSalaryOptions() {
