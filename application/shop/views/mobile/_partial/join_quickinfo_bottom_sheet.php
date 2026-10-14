@@ -60,9 +60,27 @@ foreach ($qi_age_list as $age_key => $age_label) {
 // 업종(희망업무): 코드테이블(cd_grp='희망업무') 기반, cd_sort 순으로 노출
 // 아래 업종은 간편 입력 대상에서 제외한다
 $qi_work_exclude = ["매장관리", "사무직", "건설"];
+// 업종 표시 순서 (지정 순서대로 먼저 노출, 목록에 없는 업종은 뒤에 기존 cd_sort 순으로 붙는다)
+$qi_work_order = ["생산", "물류", "운전배달", "식당", "서비스", "상담", "기타"];
 // 기본 선택 없음 - 사용자가 직접 고르게 한다(필수 항목)
 $qi_work_html = "";
-$qi_work_list = isset($ru_wrok_list) && is_array($ru_wrok_list) ? $ru_wrok_list : [];
+$qi_work_all = isset($ru_wrok_list) && is_array($ru_wrok_list) ? $ru_wrok_list : [];
+$qi_work_list = [];
+// 지정 순서에 해당하는 행을 먼저 추가
+foreach ($qi_work_order as $order_val) {
+  foreach ($qi_work_all as $work_row) {
+    if (isset($work_row["cd_val"]) && trim($work_row["cd_val"]) === $order_val) {
+      $qi_work_list[] = $work_row;
+    }
+  }
+}
+// 지정 순서에 없는 행은 기존 순서를 유지해 뒤에 추가
+foreach ($qi_work_all as $work_row) {
+  $work_val = isset($work_row["cd_val"]) ? trim($work_row["cd_val"]) : "";
+  if (!in_array($work_val, $qi_work_order, true)) {
+    $qi_work_list[] = $work_row;
+  }
+}
 foreach ($qi_work_list as $work_row) {
   $work_val = isset($work_row["cd_val"]) ? trim($work_row["cd_val"]) : "";
   if ($work_val == "" || in_array($work_val, $qi_work_exclude, true)) {

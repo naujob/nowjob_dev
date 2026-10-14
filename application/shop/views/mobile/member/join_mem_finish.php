@@ -349,11 +349,9 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     window.submitQuickInfoWithAddress = submitQuickInfoWithAddress;
     window.submitQuickInfoToServer = submitQuickInfoToServer;
 
-    // 위치 실패 시 안내 후 홈으로 이동
+    // 위치 실패 시 안내만 하고 현재 페이지에 머묾 (commonAlert는 callback을 필수로 호출하므로 빈 함수 전달)
     window.proceedResumeAutoFlowWithoutLocation = function() {
-      commonAlert("위치 정보를 가져오는 데 실패했습니다.", function() {
-        location.href = "/home/index";
-      });
+      commonAlert("위치 정보를 가져오는 데 실패했습니다.", function() {});
     };
     /**
      * 1) QuickInfo 열릴 때 “위치 표시만” 하는 경우
