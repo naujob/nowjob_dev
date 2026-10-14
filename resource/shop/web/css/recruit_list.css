@@ -183,7 +183,7 @@
 .result-list .content-info .summary {
   display: flex;
   font-size: var(--page-recruit-font-size-18);
-  gap: 5px;
+  gap: 0;
   position: relative;
   font-weight: 600;
 
@@ -191,22 +191,29 @@
 
 .result-list .content-info .summary p {
   position: relative;
-  padding-right: 5px;
   margin: 0;
   font-size: 16px;
   color: #333;
+}
+
+.result-list .content-info .summary p:not(:first-child) {
+  padding-left: 8px;
+}
+
+.result-list .content-info .summary p:not(:last-child) {
+  padding-right: calc(8px + 0.05em);
 }
 
 .result-list .content-info .summary p:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -0.75px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 1.5px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #ACACAC;
+  background: #777777;
 }
 
 .result-list .content-info .summary em {
@@ -215,8 +222,12 @@
   font-style: normal;
 }
 
+.result-list .content-info .summary em:not(:first-child) {
+  padding-left: 8px;
+}
+
 .result-list .content-info .summary em:not(:last-child) {
-  padding-right: 5px;
+  padding-right: calc(8px + 0.05em);
 }
 
 .result-list .content-info .summary em.on {
@@ -227,12 +238,12 @@
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -0.75px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 1.5px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777;
+  background: #777777;
 }
 
 .result-list .content-info .desc .desc2 {
@@ -251,7 +262,7 @@
 
 .result-list .content-info .desc .desc2 .wtype {
   display: flex;
-  gap: 5px;
+  gap: 0;
   justify-content: flex-end;
   position: relative;
   font-weight: 600;
@@ -264,20 +275,24 @@
   color: #000;
 }
 
+.result-list .content-info .desc .desc2 .wtype em:not(:first-child) {
+  padding-left: 8px;
+}
+
 .result-list .content-info .desc .desc2 .wtype em:not(:last-child) {
-  padding-right: 7px;
+  padding-right: calc(8px + 0.05em);
 }
 
 .result-list .content-info .desc .desc2 .wtype em:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -0.75px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 1.5px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777;
+  background: #777777;
 }
 
 .result-list .content-info .desc .desc2 .wtype em.wtype1 {
@@ -286,12 +301,10 @@
 
 .result-list .content-info .desc .desc2 .wtype em.wtype2 {
   color: #000;
-  padding:5px
 }
 
 .result-list .content-info .desc .desc2 .wtype em.wtype3 {
   color: #000;
-  padding-left: 5px;
 }
 
 .result-list .content-info .desc .desc3 {
@@ -309,7 +322,7 @@
 
 .result-list .content-info .desc .desc3 .period {
   display: flex;
-  gap: 5px;
+  gap: 0;
   justify-content: flex-end;
   position: relative;
   font-size: var(--page-recruit-font-size-18);
@@ -333,8 +346,12 @@
   color: #1b9d7d;
 }
 
+.result-list .content-info .desc .desc3 .period em:not(:first-child) {
+  padding-left: 8px;
+}
+
 .result-list .content-info .desc .desc3 .period em:not(:last-child) {
-  padding-right: 5px;
+  padding-right: calc(8px + 0.05em);
 }
 
 .result-list .content-info .desc .desc3 .period em.off {
@@ -345,12 +362,12 @@
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -0.75px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 1.5px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777;
+  background: #777777;
 }
 
 /* =============================================

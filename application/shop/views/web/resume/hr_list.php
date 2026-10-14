@@ -9,16 +9,16 @@ if (count($banner_list) > 0) {
 <style>
 
 .search-result{
-  width: 103%;
+  width: auto;
 }
   .search-result .content-area:first-child {
-    margin-left: -63px;
+    margin-left: -65px;
   }
   .search-result .content-area {
     margin: 0 77px;
-    -webkit-box-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 1530px;
+    flex: 0 0 1530px;
   }
 
   .search-result .sidebar {
@@ -32,11 +32,16 @@ if (count($banner_list) > 0) {
 
   }
 
+  .result-header .total.today-new {
+    margin-left: 28px;
+  }
+
   .arrow--disabled {
     display: none;
   }
   .recomm-slider.person .container.swiperX {
   padding: 0 52px;
+  max-width: 1634px;
 }
 .arrow.arrow--left {
   left: -25px;
@@ -80,6 +85,7 @@ if (count($banner_list) > 0) {
 
               <div class="result-header">
                 <p class="total">인재정보 <em id="total_count"></em>건</p>
+                <p class="total today-new">오늘 새로운 인재 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
@@ -261,7 +267,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     setBoardParams();
     var params = {
       page: list_page,
-      pagesize: 20,
+      pagesize: 30,
       "search_addr[]": search_addr,
       addrName: addrName,
       searchAreaStr: searchAreaStr,
