@@ -58,10 +58,10 @@ foreach ($qi_age_list as $age_key => $age_label) {
 }
 
 // 업종(희망업무): 코드테이블(cd_grp='희망업무') 기반, cd_sort 순으로 노출
-// 아래 업종은 간편 입력 대상에서 제외한다
-$qi_work_exclude = ["매장관리", "사무직", "건설"];
+// 아래 업종은 간편 입력 대상에서 제외한다 (매장관리, 디자인은 9종 목록 외 항목)
+$qi_work_exclude = ["매장관리", "디자인"];
 // 업종 표시 순서 (지정 순서대로 먼저 노출, 목록에 없는 업종은 뒤에 기존 cd_sort 순으로 붙는다)
-$qi_work_order = ["생산", "물류", "운전배달", "식당", "서비스", "상담", "기타"];
+$qi_work_order = ["생산", "물류", "건설", "운전배달", "식당", "서비스", "사무직", "상담", "기타"];
 // 기본 선택 없음 - 사용자가 직접 고르게 한다(필수 항목)
 $qi_work_html = "";
 $qi_work_all = isset($ru_wrok_list) && is_array($ru_wrok_list) ? $ru_wrok_list : [];
@@ -81,11 +81,15 @@ foreach ($qi_work_all as $work_row) {
     $qi_work_list[] = $work_row;
   }
 }
+// 이미 노출한 업종 값 목록 (중복 체크박스 방지용)
+$qi_work_rendered = [];
 foreach ($qi_work_list as $work_row) {
   $work_val = isset($work_row["cd_val"]) ? trim($work_row["cd_val"]) : "";
-  if ($work_val == "" || in_array($work_val, $qi_work_exclude, true)) {
+  // 중복 cd_val(예: DB에 같은 업종이 2건)은 체크박스를 한 번만 노출한다
+  if ($work_val == "" || in_array($work_val, $qi_work_exclude, true) || in_array($work_val, $qi_work_rendered, true)) {
     continue;
   }
+  $qi_work_rendered[] = $work_val;
   $work_esc = htmlspecialchars($work_val, ENT_QUOTES, 'UTF-8');
   $qi_work_html .= '<label class="form-toggle-btn2">'
     . '<input type="checkbox" name="quickinfo_work[]" data-select-limit="2" value="' . $work_esc . '">'
