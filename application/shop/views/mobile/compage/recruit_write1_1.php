@@ -1,9 +1,13 @@
-<div class="page page-write page-recruit-write">
+<div class="page page-write page-recruit-write" style="background: #f9f7f7;">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
     </div><!-- //top-bar -->
-    <div class="page-content">
+    <!-- 단계별 진행 게이지바 -->
+    <div class="step-progress-bar">
+        <div class="step-progress-fill" id="stepProgressFill"></div>
+    </div>
+    <div class="page-content" style="padding: 0;">
         <form id="frm" onsubmit="return false" autocomplete="false" enctype="multipart/form-data">
             <input type="hidden" id="rc_idx" name="rc_idx" value="<?= isset($info["rc_idx"]) ? $info["rc_idx"] : "0" ?>" />
             <input type="hidden" id="ad_zipcode" name="ad_zipcode" value="<?= isset($info["addr"]["ad_zipcode"]) ? $info["addr"]["ad_zipcode"] : "" ?>" />
@@ -34,58 +38,105 @@
 
             <div class="section addition-info-form">
                 <div class="container">
+                    <!-- 단계 1: 공고제목 -->
+                    <div class="step-section" data-step="1">
                     <!-- 공고제목 섹션 -->
                     <div class="form-row">
-                        <div class="resume-title-header">
-                            <label>
-                                <span class="form-label"><span class="required-asterisk">*</span>공고제목 <em>최대 30자</em></span>
-                            </label>
-                            <span class="required-label"><span class="required-asterisk">*</span>필수입력</span>
-                        </div>
-                        <label>
-                            <input type="text" name="rc_name" placeholder="공고제목을 입력해주세요" value="<?= isset($info["rc_name"]) ? $info["rc_name"] : "" ?>" maxlength="30" autocomplete="off" aria-required="true" required class="form-text">
-                        </label>
-                    </div>
-
-                    <!-- 주소등록 섹션 -->
-                    <div class="form-row">
-                        <p class="form-label"><span class="required-asterisk">*</span>주소등록</p>
-                        <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="address-add-btn js-toggle-panel" id="btnAddrAdd">
-                            <span class="add-icon">+</span>
-                            <span class="address-text"></span>
-                        </a>
-                    </div>
-
-                    <!-- 공고노출지역 섹션 -->
-                    <div class="form-row">
-                        <p class="form-label">공고노출지역<em>추가 노출지역을 선택해주세요</em></p>
-                        <div class="expose-addr-group">
-                            <!-- 노출지역 1 -->
-                            <div class="address-btn-wrapper">
-                                <a href="#changeAreaExpose" role="button" aria-haspopup="dialog" aria-controls="changeAreaExpose" class="address-add-btn js-toggle-panel" id="btnExposeAddr1" data-index="1">
-                                    <span class="add-icon">+</span>
-                                    <span class="address-text"></span>
-                                </a>
-                                <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="1" aria-label="노출지역 1 삭제">
-                                    <i class="fa fa-times"></i>
-                                </button>
+                        <p class="step-question"><span class="step-question-main">어떤일을 담당할<br>직원을 찾으시나요?</span></p>
+                        <div class="input-field-wrapper">
+                            <div class="label-with-counter">
+                                <label class="form-label">공고제목<span class="required-asterisk">*</span></label>
+                                <span class="char-counter"><span id="rc_name_count">0</span>/50</span>
                             </div>
-                            <!-- 노출지역 2 -->
-                            <div class="address-btn-wrapper">
-                                <a href="#changeAreaExpose" role="button" aria-haspopup="dialog" aria-controls="changeAreaExpose" class="address-add-btn js-toggle-panel" id="btnExposeAddr2" data-index="2">
-                                    <span class="add-icon">+</span>
-                                    <span class="address-text"></span>
-                                </a>
-                                <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="2" aria-label="노출지역 2 삭제">
-                                    <i class="fa fa-times"></i>
-                                </button>
-                            </div>
+                            <input type="text" name="rc_name" placeholder="공고제목을 입력해주세요" value="<?= isset($info["rc_name"]) ? $info["rc_name"] : "" ?>" maxlength="50" autocomplete="off" aria-required="true" required class="form-text form-text-bordered" id="rc_name_input">
                         </div>
                     </div>
+                    </div><!-- //step-section 1 -->
 
+                    <!-- 단계 2: 주소등록, 공고노출지역, 채용공고기간 -->
+                    <div class="step-section" data-step="2" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">근무지와 추가노출지역을</span><br><span class="step-question-sub">입력해주세요</span></p>
+
+                    <!-- 주소 입력 전체 래퍼 -->
+                    <div class="address-field-wrapper">
+                        <!-- 주소등록 섹션 -->
+                        <div>
+                            <p class="form-label">근무지<span class="required-asterisk">*</span></p>
+                            <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="address-add-btn address-add-btn-bordered js-toggle-panel" id="btnAddrAdd">
+                                <span class="add-icon">+</span>
+                                <span class="address-text">근무지 주소를 등록해주세요</span>
+                            </a>
+                        </div>
+
+                        <!-- 공고노출지역 섹션 -->
+                        <div style="margin-top: 1.5rem;">
+                            <p class="form-label">추가 노출지역<em>근무지외 추가 노출지역을 선택해주세요</em></p>
+                            <div class="expose-addr-group">
+                                <!-- 노출지역 1 -->
+                                <div class="address-btn-wrapper">
+                                    <a href="#changeAreaExpose" role="button" aria-haspopup="dialog" aria-controls="changeAreaExpose" class="address-add-btn address-add-btn-bordered js-toggle-panel" id="btnExposeAddr1" data-index="1">
+                                        <span class="add-icon">+</span>
+                                        <span class="address-text"></span>
+                                    </a>
+                                    <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="1" aria-label="노출지역 1 삭제">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </div>
+                                <!-- 노출지역 2 -->
+                                <div class="address-btn-wrapper">
+                                    <a href="#changeAreaExpose" role="button" aria-haspopup="dialog" aria-controls="changeAreaExpose" class="address-add-btn address-add-btn-bordered js-toggle-panel" id="btnExposeAddr2" data-index="2">
+                                        <span class="add-icon">+</span>
+                                        <span class="address-text"></span>
+                                    </a>
+                                    <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="2" aria-label="노출지역 2 삭제">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    </div><!-- //step-section 2 -->
+
+                    <!-- 단계 3: 채용공고기간 -->
+                    <div class="step-section" data-step="3" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">채용공고 기간을</span><br><span class="step-question-sub">입력해주세요</span></p>
+
+                    <!-- 채용공고기간 래퍼 -->
+                    <div class="date-field-wrapper">
+                        <!-- 채용공고기간 섹션 -->
+                        <div>
+                            <p class="form-label">
+                               공고기간 <span class="required-asterisk">*</span>
+                              
+                            </p>
+                            <div class="datepicker-row">
+                                <label class="datepicker-wrapper">
+                                    <span class="sr-text">시작일 선택</span>
+                                    <input type="text" name="rc_sdate" id="rc_sdate" aria-required="true" required class="form-text js-datepicker-start" readonly placeholder="2025.01.01" value="<?= isset($info['rc_sdate']) && $info['rc_sdate'] ? $info['rc_sdate'] : '' ?>">
+                                </label>
+                                <span class="datepicker-separator">~</span>
+                                <label class="datepicker-wrapper">
+                                    <span class="sr-text">종료일 선택</span>
+                                    <input type="text" name="rc_edate" id="rc_edate" aria-required="true" required class="form-text js-datepicker-end" readonly placeholder="2025.03.01" value="<?= isset($info['rc_edate']) && $info['rc_edate'] ? $info['rc_edate'] : '' ?>">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    </div><!-- //step-section 3 -->
+
+                    <!-- 단계 4: 업무구분 -->
+                    <div class="step-section" data-step="4" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">모집중인 공고의 업종을</span><br><span class="step-question-sub">선택해주세요</span></p>
+
+                    <!-- 업무구분 래퍼 -->
+                    <div class="work-field-wrapper">
                     <!-- 업무구분 섹션 -->
-                    <div class="form-row">
-                        <p class="form-label"><span class="required-asterisk">*</span>업무구분 <em>업무구분은 2개까지 선택 가능</em></p>
+                    <div>
+                        <p class="form-label">업무구분 <span class="required-asterisk">*</span></p>
                         <div class="form-toggle-group col-3">
                             <?php
                             $allowed_work_list = ["생산", "물류", "건설", "운전배달", "식당", "서비스", "사무직", "상담", "기타"];
@@ -120,11 +171,73 @@
                             ?>
                         </div>
                     </div>
+                    </div><!-- //work-field-wrapper -->
+                    </div><!-- //step-section 4 -->
 
+                    <!-- 단계 5: 해시태그 -->
+                    <div class="step-section" data-step="5" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">모집중인 공고의 특징을</span><br><span class="step-question-sub">선택해주세요</span></p>
+
+                    <!-- 해시태그 래퍼 -->
+                    <div class="hashtag-field-wrapper">
+                    <!-- 해시태그 섹션 -->
+                    <div class="form-row">
+                        <p class="form-label">해시태그<span class="required-asterisk">*</span></p>
+                        <div class="form-toggle-group col-3">
+                            <?php
+                            $default_hash_list = ["초보가능", "경력우대", "당일지급", "동반입사", "식사제공","가불가능"];
+                            $rc_hash_array = isset($info["rc_hash"]) && $info["rc_hash"] != "" ? explode(",", $info["rc_hash"]) : [];
+
+                            foreach ($default_hash_list as $hash) :
+                                $is_checked = in_array($hash, $rc_hash_array);
+                            ?>
+                                <label class="form-toggle-btn2 sm tag">
+                                    <input type="checkbox" name="rc_hash[]" value="<?= $hash ?>" <?= $is_checked ? "checked" : "" ?>>
+                                    <span class="btn"><?= $hash ?></span>
+                                </label>
+                            <?php endforeach; ?>
+
+                            <?php if (!empty($rc_hash_array)) : ?>
+                                <?php foreach ($rc_hash_array as $hash) : ?>
+                                    <?php
+                                    $hash = trim($hash);
+                                    if (!in_array($hash, $default_hash_list) && $hash != "") :
+                                    ?>
+                                        <label class="form-toggle-btn2 sm tag">
+                                            <input type="checkbox" name="rc_hash[]" value="<?= $hash ?>" checked>
+                                            <span class="btn"><?= $hash ?></span>
+                                        </label>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+
+                            <button type="button" aria-haspopup="dialog" class="btn-add-more js-add-hashtag">+<span class="sr-text">추가작성</span></button>
+                            <label class="form-toggle-btn2 sm tag"style="width: 64%;">
+                                <span class="btn hashtag-guide-text">해시태그를 직접입력해주세요</span>
+                            </label>
+                        </div>
+                        <div class="hashtag-input-area">
+                            <div class="input-row">
+                                <input type="text" class="form-text js-hashtag-input" placeholder="직접입력" maxlength="20">
+                                <button type="button" class="btn-confirm js-confirm-hashtag">확인</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div><!-- //hashtag-field-wrapper -->
+                    </div><!-- //step-section 5 -->
+
+                    <!-- 단계 6: 근무형태 -->
+                    <div class="step-section" data-step="6" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">모집중인 공고의 근무시간을</span><br><span class="step-question-sub">선택해주세요</span></p>
+
+                    <!-- 근무형태 래퍼 -->
+                    <div class="schedule-field-wrapper">
                     <!-- 근무형태 섹션 -->
                     <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
-                            <span><span class="required-asterisk">*</span>근무형태 <em>근무형태는 2개까지 선택 가능</em></span>
+                            <span>근무형태<span class="required-asterisk">*</span></span>
                             <span class="form-checkbox">
                                 <input type="checkbox" name="rc_work_negotiation" value="Y" <?= isset($info["rc_work_negotiation"]) && $info["rc_work_negotiation"] == "Y" ? "checked" : "" ?>>
                                 <span class="label">근무협의</span>
@@ -221,12 +334,21 @@
                             <input type="hidden" name="rc_pm_etime" value="<?= isset($info["rc_pm_etime"]) ? $info["rc_pm_etime"] : "" ?>">
                         </div>
                     </div>
+                    </div><!-- //schedule-field-wrapper -->
+                    </div><!-- //step-section 6 -->
 
+                    <!-- 단계 7: 급여형태 -->
+                    <div class="step-section" data-step="7" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">모집중인 공고의 급여를</span><br><span class="step-question-sub">선택해주세요</span></p>
+
+                    <!-- 급여형태 래퍼 -->
+                    <div class="salary-field-wrapper">
                     <!-- 급여형태 섹션 -->
                     <div class="form-row">
-                        <p class="form-label salary-label">
-                            <span class="required-asterisk">*</span>급여형태
-                            <span class="min-wage-info">최저임금제도 : 시급 <span class="highlight">10,320</span> 원</span>
+                        <p class="form-label salary-label" style="display:block;">
+                            급여형태<span class="required-asterisk">*</span>
+                            <!-- <span class="min-wage-info">최저임금제도 : 시급 <span class="highlight">10,320</span> 원</span> -->
                         </p>
                         <div class="salary-type-row">
                             <label class="form-selectbox">
@@ -264,10 +386,19 @@
                             </label>
                         </div>
                     </div>
+                    </div><!-- //salary-field-wrapper -->
+                    </div><!-- //step-section 7 -->
 
+                    <!-- 단계 8: 복리후생 (항목이 길어 질문문구가 밀리므로 상단 기준으로 스크롤) -->
+                    <div class="step-section" data-step="8" data-scroll="top" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">모집중인 공고의 복리후생을</span><br><span class="step-question-sub">선택해주세요</span></p>
+
+                    <!-- 복리후생 래퍼 -->
+                    <div class="benefit-field-wrapper">
                     <!-- 복리후생 섹션 -->
                     <div class="form-row addition-info-form">
-                        <p class="form-label"><span class="required-asterisk">*</span>복리후생</p>
+                        <p class="form-label">복리후생<span class="required-asterisk">*</span></p>
 
                         <?php
                         // 복리후생 데이터 준비
@@ -321,76 +452,118 @@
                         }
                         ?>
                     </div>
+                    </div><!-- //benefit-field-wrapper -->
+                    </div><!-- //step-section 8 -->
 
-                    <!-- 업무정보 섹션 -->
+                    <!-- 단계 9: 이미지등록 -->
+                    <div class="step-section" data-step="9" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">모집중인 공고의 사진을</span><br><span class="step-question-sub">등록해주세요</span></p>
+
+                    <!-- 업무정보 섹션 (이미지등록) -->
                     <div class="form-section">
-                        <p class="form-section-title"><span class="required-asterisk">*</span>업무정보</p>
                         <div class="form-table">
-                            <!-- 첨부사진 -->
+                            <!-- 이미지등록 래퍼 -->
+                            <div class="image-field-wrapper">
+                            <!-- 이미지등록 -->
                             <div class="form-row">
-                                <p class="form-label">첨부사진</p>
-                                <div class="form-pic-group">
-                                    <!-- 1번: 메인사진 -->
-                                    <label class="form-pic <?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "has-image" : "" ?>">
-                                        <span class="pic-badge">메인사진</span>
+                                <p class="form-label">이미지등록</p>
+
+                                <!-- 메인사진 -->
+                                <div class="form-pic-group-main">
+                                    <label class="form-pic-main <?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "has-image" : "" ?>">
+                                        <span class="pic-badge-main">썸네일 이미지</span>
                                         <input type="file" name="rc_img1" id="rc_img1_input" accept="image/*" class="js-file-preview">
                                         <span class="preview">
                                             <?php if (isset($info["rc_img1"]) && $info["rc_img1"] != "") : ?>
                                                 <img src="<?= $info["rc_img1"] ?>" />
                                             <?php endif; ?>
                                         </span>
+                                        <div class="pic-icon-wrapper" style="top:37%;">
+                                            <i class="fa fa-camera"></i>
+                                        </div>
                                         <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "inline-block" : "none" ?>;">×</button>
                                         <input type='hidden' name='rc_img1_ori' value='<?= isset($info["rc_img1"]) ? $info["rc_img1"] : "" ?>' />
                                     </label>
+                                    <div class="pic-guide-text">
+                                        <p>등록된 썸네일 이미지는 채용공고 목록 썸네일 이미지로 노출됩니다.</p>
+                                        <p>(미등록시, 업종별 이미지로 대체 됩니다.)</p>
+                                    </div>
+                                </div>
 
-                                    <!-- 2번: 상세페이지1 -->
-                                    <label class="form-pic <?= isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "" ? "has-image" : "" ?>" data-detail-slot="1">
-                                        <span class="pic-badge">상세페이지1</span>
+                                <!-- 상세페이지 3개 -->
+                                <div class="form-pic-group-detail">
+                                    <!-- 1번: 상세페이지1 -->
+                                    <label class="form-pic-detail <?= isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "" ? "has-image" : "" ?>" data-detail-slot="1">
+                                        <span class="pic-badge-detail">상세페이지 이미지</span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
                                         <span class="preview">
                                             <?php if (isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "") : ?>
                                                 <img src="<?= $info["rc_detail_img1"] ?>" />
                                             <?php endif; ?>
                                         </span>
+                                        <div class="pic-icon-wrapper">
+                                            <i class="fa fa-camera"></i>
+                                        </div>
                                         <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "" ? "inline-block" : "none" ?>;">×</button>
                                         <input type='hidden' name='rc_detail_img1' value='<?= isset($info["rc_detail_img1"]) ? $info["rc_detail_img1"] : "" ?>' />
                                         <input type='hidden' name='rc_detail_img1_ori' value='<?= isset($info["rc_detail_img1"]) ? $info["rc_detail_img1"] : "" ?>' />
                                     </label>
 
-                                    <!-- 3번: 상세페이지2 -->
-                                    <label class="form-pic <?= isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "" ? "has-image" : "" ?>" data-detail-slot="2">
-                                        <span class="pic-badge">상세페이지2</span>
+                                    <!-- 2번: 상세페이지2 -->
+                                    <label class="form-pic-detail <?= isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "" ? "has-image" : "" ?>" data-detail-slot="2">
+                                        <span class="pic-badge-detail">상세페이지 이미지</span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
                                         <span class="preview">
                                             <?php if (isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "") : ?>
                                                 <img src="<?= $info["rc_detail_img2"] ?>" />
                                             <?php endif; ?>
                                         </span>
+                                        <div class="pic-icon-wrapper">
+                                            <i class="fa fa-camera"></i>
+                                        </div>
                                         <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "" ? "inline-block" : "none" ?>;">×</button>
                                         <input type='hidden' name='rc_detail_img2' value='<?= isset($info["rc_detail_img2"]) ? $info["rc_detail_img2"] : "" ?>' />
                                         <input type='hidden' name='rc_detail_img2_ori' value='<?= isset($info["rc_detail_img2"]) ? $info["rc_detail_img2"] : "" ?>' />
                                     </label>
 
-                                    <!-- 4번: 상세페이지3 -->
-                                    <label class="form-pic <?= isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "" ? "has-image" : "" ?>" data-detail-slot="3">
-                                        <span class="pic-badge">상세페이지3</span>
+                                    <!-- 3번: 상세페이지3 -->
+                                    <label class="form-pic-detail <?= isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "" ? "has-image" : "" ?>" data-detail-slot="3">
+                                        <span class="pic-badge-detail">상세페이지 이미지</span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
                                         <span class="preview">
                                             <?php if (isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "") : ?>
                                                 <img src="<?= $info["rc_detail_img3"] ?>" />
                                             <?php endif; ?>
                                         </span>
+                                        <div class="pic-icon-wrapper">
+                                            <i class="fa fa-camera"></i>
+                                        </div>
                                         <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "" ? "inline-block" : "none" ?>;">×</button>
                                         <input type='hidden' name='rc_detail_img3' value='<?= isset($info["rc_detail_img3"]) ? $info["rc_detail_img3"] : "" ?>' />
                                         <input type='hidden' name='rc_detail_img3_ori' value='<?= isset($info["rc_detail_img3"]) ? $info["rc_detail_img3"] : "" ?>' />
                                     </label>
                                 </div>
                             </div>
+                            </div><!-- //image-field-wrapper -->
+                        </div><!-- //form-table -->
+                    </div><!-- //form-section 이미지등록 -->
+                    </div><!-- //step-section 9 -->
 
+                    <!-- 단계 10: 상세업무 (에디터가 길어 끝까지 스크롤) -->
+                    <div class="step-section" data-step="10" data-scroll="bottom" style="display:none;">
+                    <!-- 질문 섹션 -->
+                    <p class="step-question"><span class="step-question-main">모집중인 공고의 업무내용을</span><br><span class="step-question-sub">입력해주세요</span></p>
+
+                    <!-- 업무정보 섹션 (상세업무) -->
+                    <div class="form-section">
+                        <div class="form-table">
+                            <!-- 상세업무 래퍼 -->
+                            <div class="description-field-wrapper">
                             <!-- 상세업무 -->
                             <div class="form-row">
                                 <div class="resume-title-header">
-                                    <p class="form-label">상세업무</p>
+                                    <p class="form-label">상세업무<span class="required-asterisk">*</span></p>
                                 </div>
                                 <label>
                                     <span class="sr-text">상세업무정보 입력</span>
@@ -407,73 +580,19 @@
                                     <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
                                 </label>
                             </div>
+                            </div><!-- //description-field-wrapper -->
                         </div><!-- //form-table -->
-                    </div><!-- //form-section 업무정보 -->
+                    </div><!-- //form-section 상세업무 -->
+                    </div><!-- //step-section 10 -->
 
-                    <!-- 해시태그 섹션 -->
-                    <div class="form-row">
-                        <p class="form-label"><span class="required-asterisk">*</span>해시태그</p>
-                        <div class="form-toggle-group col-3">
-                            <?php
-                            $default_hash_list = ["초보가능", "경력자우대", "당일지급", "동반가능", "서비스"];
-                            $rc_hash_array = isset($info["rc_hash"]) && $info["rc_hash"] != "" ? explode(",", $info["rc_hash"]) : [];
-
-                            foreach ($default_hash_list as $hash) :
-                                $is_checked = in_array($hash, $rc_hash_array);
-                            ?>
-                                <label class="form-toggle-btn2 sm tag">
-                                    <input type="checkbox" name="rc_hash[]" value="<?= $hash ?>" <?= $is_checked ? "checked" : "" ?>>
-                                    <span class="btn"><?= $hash ?></span>
-                                </label>
-                            <?php endforeach; ?>
-
-                            <?php if (!empty($rc_hash_array)) : ?>
-                                <?php foreach ($rc_hash_array as $hash) : ?>
-                                    <?php
-                                    $hash = trim($hash);
-                                    if (!in_array($hash, $default_hash_list) && $hash != "") :
-                                    ?>
-                                        <label class="form-toggle-btn2 sm tag">
-                                            <input type="checkbox" name="rc_hash[]" value="<?= $hash ?>" checked>
-                                            <span class="btn"><?= $hash ?></span>
-                                        </label>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-
-                            <button type="button" aria-haspopup="dialog" class="btn-add-more js-add-hashtag">+<span class="sr-text">추가작성</span></button>
-                        </div>
-                        <div class="hashtag-input-area">
-                            <div class="input-row">
-                                <input type="text" class="form-text js-hashtag-input" placeholder="직접입력" maxlength="20">
-                                <button type="button" class="btn-confirm js-confirm-hashtag">확인</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 채용공고기간 섹션 -->
-                    <div class="form-row">
-                        <p class="form-label">
-                            <span class="required-asterisk">*</span>채용공고기간
-                            <em class="notice-text">2개월까지 공고 가능</em>
-                        </p>
-                        <div class="datepicker-row">
-                            <label class="datepicker-wrapper">
-                                <span class="sr-text">시작일 선택</span>
-                                <input type="text" name="rc_sdate" id="rc_sdate" aria-required="true" required class="form-text js-datepicker-start" readonly placeholder="2025.01.01" value="<?= isset($info['rc_sdate']) && $info['rc_sdate'] ? $info['rc_sdate'] : '' ?>">
-                            </label>
-                            <span class="datepicker-separator">~</span>
-                            <label class="datepicker-wrapper">
-                                <span class="sr-text">종료일 선택</span>
-                                <input type="text" name="rc_edate" id="rc_edate" aria-required="true" required class="form-text js-datepicker-end" readonly placeholder="2025.03.01" value="<?= isset($info['rc_edate']) && $info['rc_edate'] ? $info['rc_edate'] : '' ?>">
-                            </label>
-                        </div>
-                    </div>
-
+                    <!-- 단계 11: 선택항목(희망요일, 희망성별, 희망국적, 희망나이) -->
+                    <div class="step-section" data-step="11" data-scroll="bottom" style="display:none;">
+                    <!-- 선택항목 래퍼 -->
+                    <div class="optional-field-wrapper">
                     <!-- 상세등록 섹션들 -->
-                    <div class="form-row js-detail-section">
+                    <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
-                            <span>희망요일</span>
+                            <span>근무요일</span>
                             <span class="form-checkbox">
                                 <input type="checkbox" name="rc_day_all" value="Y" <?= isset($info["rc_day_all"]) && $info["rc_day_all"] == "Y" ? "checked" : "" ?>>
                                 <span class="label">요일무관</span>
@@ -511,7 +630,7 @@
                         </div>
                     </div>
 
-                    <div class="form-row js-detail-section">
+                    <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
                             <span>희망성별</span>
                             <span class="form-checkbox">
@@ -531,7 +650,7 @@
                         </div>
                     </div>
 
-                    <div class="form-row js-detail-section">
+                    <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
                             <span>희망국적 <em>다중선택가능</em></span>
                             <span class="form-checkbox">
@@ -551,7 +670,7 @@
                         </div>
                     </div>
 
-                    <div class="form-row js-detail-section">
+                    <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
                             <span>희망나이</span>
                             <span class="form-checkbox">
@@ -576,15 +695,13 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="form-row">
-                        <a href="javascript:void(0);" class="detail-register-btn js-detail-register">
-                            상세등록
-                        </a>
-                    </div>
+                    </div><!-- //optional-field-wrapper -->
+                    </div><!-- //step-section 11 -->
 
                     <div class="sticky-bottom view-footer">
-                        <button id="btnPreview" type="button" class="btn btn-primary">미리보기</button>
+                        <button id="btnStepPrev" type="button" style="display:none;">이전</button>
+                        <button id="btnStepNext" type="button">다음</button>
+                        <button id="btnPreview" type="button" style="display:none;">미리보기</button>
                     </div>
                 </div>
             </div>
@@ -904,6 +1021,487 @@
     .form-section .form-table {
         padding: 0;
     }
+
+    /* 단계별 진행 게이지바 */
+    .step-progress-bar {
+        position: fixed;
+        top: 58px;
+        left: 0;
+        right: 0;
+        z-index: 99;
+        height: 7px;
+        background: #eee;
+        width: 100%;
+    }
+
+    .step-progress-fill {
+        height: 100%;
+        background: #0bbf7a;
+        transition: width 0.3s ease;
+        width: 9.09%; /* 1 / 전체 11단계 */
+    }
+    /* 단계 버튼 푸터: 단계와 무관하게 항상 화면 하단에 고정
+       main.css의 .page-recruit-write .sticky-bottom.view-footer(relative/bottom:-75px)보다
+       선택자 우선순위가 높아야 하므로 .section.addition-info-form을 포함해 지정 */
+    .page-recruit-write .section.addition-info-form .sticky-bottom.view-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 1rem;
+        background: #f9f7f7; /* 페이지 배경과 동일 — 스크롤되는 내용이 버튼 뒤로 비치지 않게 불투명 처리 */
+        border-top: 0;
+        z-index: 50;
+    }
+
+    /* 고정 푸터에 마지막 입력 항목이 가리지 않도록 하단 여백 확보 */
+    .page-recruit-write .section.addition-info-form .container {
+        padding-bottom: 5.5rem;
+    }
+
+    #btnStepPrev {
+        flex: 0 0 auto;
+    }
+
+    /* 이전 버튼이 숨겨지는 1단계에서도 오른쪽 정렬을 유지 */
+    #btnStepNext, #btnPreview {
+        flex: 0 0 auto;
+        position: static;
+        left: auto;
+        margin-left: auto;
+    }
+
+    /* 이전 버튼: 테두리 스타일 */
+    #btnStepPrev {
+        display: inline-block;
+        font-weight: 700;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 1.3rem;
+        background: #fff;
+        color: #57CCAF;
+        border: 1.5px solid #57CCAF;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        margin-left: 10px;
+    }
+
+    #btnStepPrev:active {
+        background: #f0f9f6;
+    }
+
+    /* 다음 버튼 */
+    #btnStepNext {
+        display: inline-block;
+        font-weight: 700;
+        color: #fff;
+        text-align: center;
+        vertical-align: middle;
+        border: 0;
+        background: #57CCAF;
+        font-size: 1.3rem;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+    }
+
+    #btnStepNext:active {
+        background-color: #38b898;
+    }
+
+    /* 미리보기 버튼 */
+    #btnPreview {
+        display: inline-block;
+        font-weight: 700;
+        color: #fff;
+        text-align: center;
+        vertical-align: middle;
+        border: 0;
+        background: #57CCAF;
+        font-size: 1.3rem;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+    }
+
+    #btnPreview:active {
+        background-color: #38b898;
+    }
+
+    /* 단계별 UI 스타일 */
+    .step-question {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 1.5rem;
+        margin-top: 0;
+    }
+
+    .step-question-main {
+        font-size: 28px;
+        color: #1B9D7D;
+        font-weight: 600;
+    }
+
+    .step-question-sub {
+        font-size: 21px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .input-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .label-with-counter {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+    }
+
+    .char-counter {
+        font-size: 0.9rem;
+        color: #999;
+    }
+
+    .form-text-bordered {
+        border: 1px solid #ddd !important;
+        border-radius: 6px !important;
+        padding: 0.8rem !important;
+        background: #fff !important;
+        height: 100px !important;
+    }
+
+    .form-text-bordered:focus {
+        border-color: #57CCAF !important;
+        outline: none;
+    }
+
+    /* 주소 버튼 스타일 */
+    .address-add-btn-bordered {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 0.8rem;
+        background: #fff;
+    }
+
+    .address-add-btn-bordered:hover {
+        border-color: #bbb;
+        background: #fafafa;
+    }
+
+    .address-add-btn-bordered:active {
+        border-color: #57CCAF;
+        background: #f0f9f6;
+    }
+
+    /* 주소 입력 필드 래퍼 */
+    .address-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    /* 날짜 입력 필드 래퍼 */
+    .date-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    /* 업무구분 필드 래퍼 */
+    .work-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 해시태그 필드 래퍼 */
+    .hashtag-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    /* 근무형태 필드 래퍼 */
+    .schedule-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 급여형태 필드 래퍼 */
+    .salary-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    /* 복리후생 필드 래퍼 */
+    .benefit-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    /* 이미지 필드 래퍼 */
+    .image-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 상세업무 필드 래퍼 */
+    .description-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    /* 선택항목 필드 래퍼 */
+    .optional-field-wrapper {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+   .page-content .section.addition-info-form {
+    background: #f9f7f7;
+   }
+  .section.addition-info-form .view-footer::after{
+     content: "";
+     display: none;
+   }
+   .step-section{
+         margin-top: 28px;
+   }
+
+   /* 이미지 업로드 레이아웃 */
+   .form-pic-group-main {
+       margin-bottom: 1rem;
+   }
+
+   /* 파일 입력 숨기기 */
+   .form-pic-main input[type="file"],
+   .form-pic-detail input[type="file"] {
+       display: none;
+   }
+
+   .form-pic-main {
+       position: relative;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       width: 100%;
+       height: 200px;
+       background: #f5f5f5;
+       border: 1px solid #e0e0e0;
+       border-radius: 8px;
+       cursor: pointer;
+       overflow: hidden;
+   }
+
+   .form-pic-main.has-image {
+       background: #fff;
+   }
+
+   .form-pic-main .pic-badge-main {
+       position: absolute;
+       top: 10px;
+       left: 164px;
+       background: #333;
+       color: #fff;
+       padding: 4px 8px;
+       border-radius: 4px;
+       font-size: 12px;
+       font-weight: 600;
+       z-index: 2;
+   }
+
+   .form-pic-main .preview {
+       width: 100%;
+       height: 100%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+   }
+
+   .form-pic-main .preview img {
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+   }
+
+   .form-pic-main .pic-icon-wrapper {
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       width: 60px;
+       height: 60px;
+       background: #57CCAF;
+       border-radius: 50%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       color: #fff;
+       font-size: 24px;
+       z-index: 1;
+   }
+
+   .form-pic-main.has-image .pic-icon-wrapper {
+       display: none;
+   }
+
+   /* 이미지 가이드 텍스트 */
+   .pic-guide-text {
+      
+       padding: 0 0.5rem;
+       color: #1B9D7D;
+       position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+   }
+
+   .pic-guide-text p {
+       margin: 0.3rem 0;
+       font-size: 13px;
+
+       line-height: 1.4;
+   }
+
+   /* 썸네일이 등록되면 안내문구를 숨긴다
+      has-image는 JS(미리보기/삭제)와 PHP(기존 이미지) 양쪽에서 붙으므로 CSS로만 처리 */
+   .form-pic-main.has-image + .pic-guide-text {
+       display: none;
+   }
+
+   /* 상세페이지 이미지 그리드 */
+   .form-pic-group-detail {
+       display: grid;
+       grid-template-columns: repeat(3, 1fr);
+       gap: 1rem;
+   }
+
+   .form-pic-detail {
+       position: relative;
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       justify-content: center;
+       aspect-ratio: 1 / 1;
+       background: #f5f5f5;
+       border: 1px solid #e0e0e0;
+       border-radius: 8px;
+       cursor: pointer;
+       overflow: hidden;
+   }
+
+   .form-pic-detail.has-image {
+       background: #fff;
+   }
+
+   .form-pic-detail .pic-badge-detail {
+       position: absolute;
+       top: 8px;
+       left: 19px;
+       background: #333;
+       color: #fff;
+       padding: 3px 6px;
+       border-radius: 4px;
+       font-size: 11px;
+       font-weight: 600;
+       z-index: 2;
+   }
+
+   .form-pic-detail .preview {
+       width: 100%;
+       height: 100%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+   }
+
+   .form-pic-detail .preview img {
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+   }
+
+   .form-pic-detail .pic-icon-wrapper {
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       width: 50px;
+       height: 50px;
+       background: #57CCAF;
+       border-radius: 50%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       color: #fff;
+       font-size: 20px;
+       z-index: 1;
+   }
+
+   .form-pic-detail.has-image .pic-icon-wrapper {
+       display: none;
+   }
+
+   /* 사진 삭제(X) 버튼 - 메인/상세 공통, 박스 우측 하단 원형
+      main.css의 옛 규칙(.form-pic-group .form-pic .btn-pic-remove)은
+      클래스명이 바뀌어 더 이상 매칭되지 않으므로 여기서 다시 정의한다.
+      display는 인라인 style/jQuery show()가 제어하므로 지정하지 않는다. */
+   .form-pic-main .btn-pic-remove,
+   .form-pic-detail .btn-pic-remove {
+       position: absolute;
+       right: 6px;
+       bottom: 6px;
+       z-index: 3;
+       width: 1.9rem;
+       height: 1.9rem;
+       padding: 0;
+       border: none;
+       border-radius: 50%;
+       background-color: rgba(0, 0, 0, 0.6);
+       color: #fff;
+       font-size: 1rem;
+       line-height: 1.9rem; /* height와 같게 두어 × 를 세로 가운데로 */
+       text-align: center;
+       cursor: pointer;
+   }
+
+   .form-pic-main .btn-pic-remove:active,
+   .form-pic-detail .btn-pic-remove:active {
+       background-color: rgba(0, 0, 0, 0.8);
+   }
+
+   /* 해시태그 안내 텍스트 - 버튼 스타일 */
+   .hashtag-guide-text {
+       cursor: pointer;
+   }
 </style>
 
 <script>
@@ -949,6 +1547,155 @@
     var rcIdx = '<?= isset($info["rc_idx"]) ? $info["rc_idx"] : "0" ?>';
     var origRcIdx = '<?= isset($orig_rc_idx) ? $orig_rc_idx : "0" ?>';
     var gbnMode = '<?= isset($gbn) ? $gbn : "" ?>';
+
+    // ============================================================================
+    // 단계별 진행 관련 변수 및 함수
+    // ============================================================================
+    let currentStep = 1;
+    const TOTAL_STEPS = 11;
+    // 단계 상단을 화면 위쪽에 둘 때의 여백 (상단바 60px + 진행바 7px 아래로 내림)
+    const STEP_TOP_OFFSET = 100;
+    // 단계 마지막 항목 아래와 고정 푸터 사이 여백
+    const STEP_BOTTOM_GAP = 12;
+    // data-scroll="top" 단계에서 쓰는 상단 여백 (질문문구가 넉넉히 보이도록 기본보다 크게)
+    const STEP_TOP_OFFSET_WIDE = 130;
+    // 주소 팝업이 닫히고 body overflow가 복원된 뒤 스크롤하기 위한 지연
+    const ADDR_SCROLL_DELAY = 150;
+
+    function updateProgressBar() {
+        let progress = (currentStep / TOTAL_STEPS) * 100;
+        $("#stepProgressFill").css("width", progress + "%");
+    }
+
+    function updateStepVisibility() {
+        // 현재 단계까지의 모든 섹션을 누적형으로 표시
+        for (let i = 1; i <= TOTAL_STEPS; i++) {
+            let $section = $(".step-section[data-step='" + i + "']");
+            if (i <= currentStep) {
+                if (i === currentStep) {
+                    // 새로 노출되는 단계는 slideDown. 높이가 확정된 뒤 스크롤해야 하므로 완료 콜백에서 처리
+                    $section.slideDown(300, scrollToCurrentStep);
+                } else {
+                    // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
+                    $section.show();
+                }
+            } else {
+                // currentStep보다 뒤의 단계는 숨김
+                $section.hide();
+            }
+        }
+        updateProgressBar();
+
+        // 버튼 업데이트: 1단계에서는 "이전" 숨김, 마지막 단계에서는 "다음" 숨기고 "미리보기" 노출
+        if (currentStep === 1) {
+            $("#btnStepPrev").hide();
+        } else {
+            $("#btnStepPrev").show();
+        }
+
+        if (currentStep === TOTAL_STEPS) {
+            $("#btnStepNext").hide();
+            $("#btnPreview").show();
+        } else {
+            $("#btnStepNext").show();
+            $("#btnPreview").hide();
+        }
+
+    }
+
+    // 고정 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 푸터가 없으면 스크롤 영역(.page)의 아래끝을 기준으로 삼는다
+    function getFooterTop() {
+        var $footer = $(".sticky-bottom.view-footer");
+        if ($footer.length) {
+            return $footer[0].getBoundingClientRect().top;
+        }
+        var $page = $(".page");
+        return $page.length ? $page[0].getBoundingClientRect().bottom : $(window).height();
+    }
+
+    // 지정한 요소의 아래쪽이 고정 푸터 위로 올라오도록 스크롤을 내린다
+    // 이미 푸터 위에 보이는 경우에는 움직이지 않는다(위로 되감기 방지)
+    function scrollElementAboveFooter($el) {
+        var $page = $(".page");
+        if ($page.length === 0 || !$el || $el.length === 0 || !$el.is(":visible")) {
+            return;
+        }
+        // getBoundingClientRect: 스크롤 위치와 상관없이 화면 좌표를 반환하므로, .page 기준으로 환산해야 한다
+        // 요소가 현재 화면에서 어디에 있는지 확인하고, 고정 푸터 위로 올라오도록 스크롤을 내린다
+        var delta = $el[0].getBoundingClientRect().bottom - getFooterTop() + STEP_BOTTOM_GAP;
+        if (delta <= 0) {
+            return;
+        }
+
+        $page.stop(true).animate({ scrollTop: $page.scrollTop() + delta }, 300);
+    }
+
+    // 주소가 채워지면 .has-address가 붙어 버튼 높이가 늘어난다(긴 주소는 두 줄로 감김).
+    // 늘어난 만큼 해당 항목이 고정 푸터에 가리지 않도록 스크롤을 맞춘다.
+    // 팝업이 닫히며 body overflow가 복원되는 것을 기다렸다가 실행한다.
+    function scrollAfterAddrFilled($btn) {
+        if (!$btn || $btn.length === 0) {
+            return;
+        }
+        setTimeout(function() {
+            scrollElementAboveFooter($btn.closest('[class*="-field-wrapper"]'));
+        }, ADDR_SCROLL_DELAY);
+    }
+
+    // 새로 노출된 단계로 스크롤
+    // 기본 동작: 내용이 길면 마지막 -field-wrapper의 아래가 고정 푸터 윗면에 닿도록 내리고,
+    //            짧으면 단계 상단이 화면 위쪽에 오도록 한다.
+    // 단계별로 다르게 하려면 해당 .step-section에 data-scroll 속성을 준다.
+    //   data-scroll="top"    → 항상 단계 상단 기준 (질문문구를 보이게. 예: 복리후생)
+    //   data-scroll="bottom" → 스크롤을 끝까지 내림 (예: 상세업무)
+    // 스크롤 컨테이너는 .page (overflow-y:auto) 이므로 모든 좌표를 .page 기준으로 환산한다.
+    function scrollToCurrentStep() {
+        var $page = $(".page");
+        var $section = $(".step-section[data-step='" + currentStep + "']");
+        if ($page.length === 0 || $section.length === 0) {
+            return;
+        }
+
+        var mode = $section.attr("data-scroll");
+
+        // 끝까지 내리는 단계는 더 계산할 것이 없다
+        if (mode === "bottom") {
+            var maxScroll = $page[0].scrollHeight - $page[0].clientHeight;
+            $page.stop(true).animate({ scrollTop: maxScroll > 0 ? maxScroll : 0 }, 300);
+            return;
+        }
+
+        var pageTop = $page[0].getBoundingClientRect().top;
+        var curScroll = $page.scrollTop();
+        var footerTop = getFooterTop();
+
+        // (1) 단계 상단을 화면 위쪽에 두는 스크롤 위치
+        var sectionTop = $section[0].getBoundingClientRect().top;
+        var topOffset = (mode === "top") ? STEP_TOP_OFFSET_WIDE : STEP_TOP_OFFSET;
+        var scrollShowTop = curScroll + (sectionTop - pageTop) - topOffset;
+
+        var scrollTop;
+        if (mode === "top") {
+            // 질문문구가 가리지 않도록 상단 기준만 사용한다
+            scrollTop = scrollShowTop;
+        } else {
+            // (2) 단계의 마지막 항목 wrapper 아래가 푸터 윗면에 닿는 스크롤 위치
+            var $lastWrapper = $section.find('[class*="-field-wrapper"]').last();
+            var $target = $lastWrapper.length ? $lastWrapper : $section;
+            var targetBottom = $target[0].getBoundingClientRect().bottom;
+            var scrollShowBottom = curScroll + (targetBottom - footerTop) + STEP_BOTTOM_GAP;
+
+            // 둘 중 더 많이 내려간 쪽을 택해 항목 아래쪽이 반드시 보이도록 한다
+            scrollTop = Math.max(scrollShowTop, scrollShowBottom);
+        }
+
+        if (scrollTop < 0) {
+            scrollTop = 0;
+        }
+
+        $page.stop(true).animate({ scrollTop: scrollTop }, 300);
+    }
 
     // ============================================================================
     // 1. 유틸리티 함수 (숫자 포맷팅, 문자열 처리)
@@ -1781,6 +2528,7 @@
 
         $("#changeArea").removeClass("on");
         savePage1Data();
+        scrollAfterAddrFilled($btnAddr);
     }
 
     // 해시태그 체크박스에서 선택된 값들을 쉼표로 구분된 문자열로 만들어 반환하는 함수
@@ -1806,14 +2554,20 @@
         $("[name=rc_work_img]").val(rc_work_img);
     }
     // 제출 전 필수 입력 항목을 검증하는 함수
-    function validateRequiredForSubmit() {
+    // 단계별 필수값 검사 함수들 (단계 번호는 txt 위자드 기준)
+    // 1단계: 공고제목
+    function checkRequiredTitle() {
         if ($("[name='rc_name']").val() == "") {
             commonAlert("공고제목을 입력해주세요.", function() {
                 $("[name='rc_name']").focus();
             });
             return false;
         }
+        return true;
+    }
 
+    // 2단계: 주소(근무지) 등록 여부
+    function checkRequiredAddress() {
         var adAddr = $("#ad_addr").val();
         var adZipcode = $("#ad_zipcode").val();
         var hasAddressClass = $("#btnAddrAdd").hasClass("has-address");
@@ -1823,38 +2577,11 @@
             });
             return false;
         }
+        return true;
+    }
 
-        if ($("[name='rc_work[]']").is(":checked") == false) {
-            commonAlert("업무구분을 하나 이상 선택해주세요.", function() {});
-            return false;
-        }
-
-        if ($("[name='rc_work_negotiation']").is(":checked") == false && $("[name='rc_work_type[]']").is(":checked") == false) {
-            commonAlert("근무형태를 하나 이상 선택해주세요.", function() {});
-            return false;
-        }
-
-        var priceType = $("#rc_price_type_main").val();
-        if (priceType !== "급여협의") {
-            if ($("#rc_price_amount").val() == "" || parseInt($("#rc_price_amount").val()) <= 0) {
-                commonAlert("급여 금액을 입력해주세요.", function() {
-                    $("#rc_price_amount").focus();
-                });
-                return false;
-            }
-        }
-
-        var rcDescEditor = document.getElementById('rc_desc_editor');
-        var rcDescContent = rcDescEditor ? rcDescEditor.innerHTML.trim() : "";
-        if (rcDescContent == "") {
-            commonAlert("상세업무정보를 입력해주세요.", function() {
-                if (rcDescEditor) {
-                    rcDescEditor.focus();
-                }
-            });
-            return false;
-        }
-
+    // 3단계: 채용공고기간 (시작일·종료일 입력 및 순서)
+    function checkRequiredPeriod() {
         if ($("[name='rc_sdate']").val() == "" || $("[name='rc_edate']").val() == "") {
             commonAlert("채용공고기간을 선택해주세요.", function() {});
             return false;
@@ -1866,8 +2593,90 @@
             commonAlert("종료일은 시작일보다 이후여야 합니다.", function() {});
             return false;
         }
-
         return true;
+    }
+
+    // 4단계: 업무구분 선택 여부
+    function checkRequiredWork() {
+        if ($("[name='rc_work[]']").is(":checked") == false) {
+            commonAlert("업무구분을 하나 이상 선택해주세요.", function() {});
+            return false;
+        }
+        return true;
+    }
+
+    // 5단계: 해시태그 선택 여부 (직접입력으로 추가된 태그도 rc_hash[] 체크박스로 생성됨)
+    function checkRequiredHash() {
+        if ($("[name='rc_hash[]']").is(":checked") == false) {
+            commonAlert("해시태그를 하나 이상 선택해주세요.", function() {});
+            return false;
+        }
+        return true;
+    }
+
+    // 6단계: 근무형태 선택 여부 (근무협의 체크 시에는 통과)
+    function checkRequiredWorkType() {
+        if ($("[name='rc_work_negotiation']").is(":checked") == false && $("[name='rc_work_type[]']").is(":checked") == false) {
+            commonAlert("근무형태를 하나 이상 선택해주세요.", function() {});
+            return false;
+        }
+        return true;
+    }
+
+    // 7단계: 급여 금액 입력 여부 (급여협의 선택 시에는 금액 불필요)
+    function checkRequiredSalary() {
+        var priceType = $("#rc_price_type_main").val();
+        if (priceType !== "급여협의") {
+            if ($("#rc_price_amount").val() == "" || parseInt($("#rc_price_amount").val()) <= 0) {
+                commonAlert("급여 금액을 입력해주세요.", function() {
+                    $("#rc_price_amount").focus();
+                });
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 10단계: 상세업무정보 입력 여부 (contenteditable 에디터)
+    function checkRequiredDesc() {
+        var rcDescEditor = document.getElementById('rc_desc_editor');
+        var rcDescContent = rcDescEditor ? rcDescEditor.innerHTML.trim() : "";
+        if (rcDescContent == "") {
+            commonAlert("상세업무정보를 입력해주세요.", function() {
+                if (rcDescEditor) {
+                    rcDescEditor.focus();
+                }
+            });
+            return false;
+        }
+        return true;
+    }
+
+    // 단계별 필수값 검사: "다음" 클릭 시 현재 단계 항목만 확인 (8·9·11단계는 필수 검사 없음)
+    function validateStepRequired(step) {
+        switch (step) {
+            case 1: return checkRequiredTitle();
+            case 2: return checkRequiredAddress();
+            case 3: return checkRequiredPeriod();
+            case 4: return checkRequiredWork();
+            case 5: return checkRequiredHash();
+            case 6: return checkRequiredWorkType();
+            case 7: return checkRequiredSalary();
+            case 10: return checkRequiredDesc();
+            default: return true;
+        }
+    }
+
+    // 제출 시 전체 필수값 검사 (모든 단계 항목을 순서대로 확인)
+    function validateRequiredForSubmit() {
+        return checkRequiredTitle()
+            && checkRequiredAddress()
+            && checkRequiredWork()
+            && checkRequiredHash()
+            && checkRequiredWorkType()
+            && checkRequiredSalary()
+            && checkRequiredDesc()
+            && checkRequiredPeriod();
     }
 
     function hasFileUploads() {
@@ -2149,7 +2958,7 @@
 
         // 상세페이지 이미지 박스 초기화 (저장 후 페이지 로드 시에도 X버튼 작동하도록)
         for (var slot = 1; slot <= 3; slot++) {
-            var $label = $(".form-pic[data-detail-slot='" + slot + "']");
+            var $label = $(".form-pic-detail[data-detail-slot='" + slot + "']");
             var inputName = 'rc_detail_img' + slot;
             var uploadedUrl = $("[name='" + inputName + "']").val();
             if (uploadedUrl) {
@@ -2405,6 +3214,8 @@
         $("[name='rc_work_type[]']").on("change", function() {
             updateTimeSection();
             savePage1Data();
+            // 근무시간 섹션이 새로 펼쳐져 높이가 커지면 그만큼 스크롤을 내려 보이게 한다
+            scrollElementAboveFooter($("#time_cont1, #time_cont2").filter(":visible").last());
         });
 
         // 근무시간 입력 변경 시 저장
@@ -2426,6 +3237,8 @@
 
             updateTimeSection();
             savePage1Data();
+            // 근무협의로 근무형태가 한번에 켜질 때도 동일하게 스크롤을 맞춘다
+            scrollElementAboveFooter($("#time_cont1, #time_cont2").filter(":visible").last());
         });
 
         $("[name='rc_life_type[]']").on("change", savePage2Data);
@@ -2596,10 +3409,13 @@
 
         $(".js-add-hashtag").on("click", function(e) {
             e.preventDefault();
-            var $inputArea = $(this).closest(".form-row").find(".hashtag-input-area");
+            var $formRow = $(this).closest(".form-row");
+            var $inputArea = $formRow.find(".hashtag-input-area");
             var $input = $inputArea.find(".js-hashtag-input");
+            var $guideText = $formRow.find(".hashtag-guide-text").closest("label");
 
             $inputArea.slideDown(300);
+            $guideText.slideUp(300);
             setTimeout(function() {
                 $input.focus();
             }, 350);
@@ -2650,6 +3466,10 @@
 
             $input.val("");
             $inputArea.slideUp(300);
+
+            // 안내 텍스트 다시 표시
+            var $guideText = $addButton.closest(".form-row").find(".hashtag-guide-text").closest("label");
+            $guideText.slideDown(300);
 
             savePage3Data();
         });
@@ -2835,7 +3655,7 @@
         });
 
         $(document).on("change", ".js-file-preview", function() {
-            var $label = $(this).closest(".form-pic");
+            var $label = $(this).closest(".form-pic-main, .form-pic-detail");
             var file = this.files[0]; // 목록 중 첫 번째 파일 객체 (File 객체)
 
             if (file) {
@@ -2855,7 +3675,7 @@
 
         // 1번(메인사진): 선택 즉시 미리보기 + 즉시 업로드
         $(document).on("change", "#rc_img1_input", function() {
-            var $label = $(this).closest(".form-pic");
+            var $label = $(this).closest(".form-pic-main, .form-pic-detail");
             var $oriInput = $label.find("[name='rc_img1_ori']");
             var $input = this;
 
@@ -2906,7 +3726,7 @@
 
         // 2~4번(상세페이지): 선택시 즉시 로컬 미리보기 + 업로드 + 에디터 삽입
         $(document).on("change", ".js-detail-photo-select", function() {
-            var $label = $(this).closest(".form-pic");
+            var $label = $(this).closest(".form-pic-main, .form-pic-detail");
             var file = this.files[0];
             if (!file) return;
 
@@ -2944,10 +3764,10 @@
         });
 
         // X버튼(공용): 1번은 업로드 이전 상태로 복원, 2~4번은 초기화 + 에디터에서도 제거
-        $(document).on("click", ".form-pic .btn-pic-remove", function(e) {
+        $(document).on("click", ".form-pic-main .btn-pic-remove, .form-pic-detail .btn-pic-remove", function(e) {
             e.preventDefault();
             e.stopPropagation();
-            var $label = $(this).closest(".form-pic");
+            var $label = $(this).closest(".form-pic-main, .form-pic-detail");
             var $input = $label.find("input[type=file]");
             $input.val("");
 
@@ -3048,6 +3868,25 @@
             });
         }
 
+        // 단계별 진행 버튼 핸들러
+        $("#btnStepNext").click(function() {
+            // 현재 단계의 필수 항목을 통과해야 다음 단계로 이동
+            if (!validateStepRequired(currentStep)) {
+                return;
+            }
+            if (currentStep < TOTAL_STEPS) {
+                currentStep++;
+                updateStepVisibility();
+            }
+        });
+
+        $("#btnStepPrev").click(function() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepVisibility();
+            }
+        });
+
         $("#btnPreview").click(function() {
             handleSubmit("preview");
         });
@@ -3055,6 +3894,17 @@
         $("#btnSubmit").click(function() {
             handleSubmit("final");
         });
+
+        // 단계별 진행 초기화
+        updateStepVisibility();
+
+        // 공고제목 문자 수 카운트
+        $("#rc_name_input").on("input", function() {
+            let count = $(this).val().length;
+            $("#rc_name_count").text(count);
+        });
+        // 초기값 설정
+        $("#rc_name_count").text($("#rc_name_input").val().length);
 
          $(".btn-back").click(function(e) {
             e.preventDefault();
@@ -3172,6 +4022,7 @@
         $btn.find(".address-text").text(addr_short);
         $btn.addClass("has-address");
         $btn.closest(".address-btn-wrapper").find(".address-clear-btn").show();
+        scrollAfterAddrFilled($btn);
       }
     }
 

@@ -2608,7 +2608,10 @@ class Compage_proc extends CI_Controller
     }
 
     #로그 생성
+    // 보관함(st_site_log)은 회원당 칸이 하나뿐이라 공고가 섞일 수 있다.
+    // 어느 공고의 스텝인지 남겨두고 recruit_complete에서 대조한다.
     $sl_txt = [
+      "rc_idx" => input_post("rc_idx", "0"),
       "rc_show_yn" => $rc_show_yn,
       "rc_name" => $rc_name,
       "ad_zipcode" => $ad_zipcode,
@@ -2676,7 +2679,9 @@ class Compage_proc extends CI_Controller
     }
 
     #로그 생성
+    // 어느 공고의 스텝인지 남겨둔다 (recruit_complete에서 대조)
     $sl_txt = [
+      "rc_idx" => input_post("rc_idx", "0"),
       "rc_life_type" => is_array($rc_life_type) ? $rc_life_type : [],
     ];
 
@@ -2794,7 +2799,9 @@ class Compage_proc extends CI_Controller
     }
 
     #로그 생성
+    // 어느 공고의 스텝인지 남겨둔다 (recruit_complete에서 대조)
     $sl_txt = [
+      "rc_idx" => input_post("rc_idx", "0"),
       "rc_desc" => $rc_desc,
       "rc_hash" => $rc_hash_string,
       "rc_sdate" => $rc_sdate,
@@ -2878,6 +2885,24 @@ class Compage_proc extends CI_Controller
     }
     if (!is_array($step3) || !isset($step3["rc_desc"])) {
       json_return("99", "스텝3 데이터가 존재하지 않습니다.");
+    }
+
+    # 보관함 정합성 검사: 세 스텝이 모두 같은 공고의 것인지 확인
+    // 보관함(st_site_log)은 회원당 칸이 하나뿐이라, 다른 공고를 작업하면 칸이 덮인다.
+    // 특히 미리보기 화면은 3개 저장 없이 recruit_complete만 호출하므로 섞일 수 있다.
+    // rc_idx가 없는 스텝은 이 항목 추가 이전에 저장된 기존 데이터이므로 검사에서 제외한다.
+    $step_idx_list = [];
+    foreach ([$step1, $step2, $step3] as $step_row) {
+      if (isset($step_row["rc_idx"]) && $step_row["rc_idx"] !== "") {
+        $step_idx_list[] = (string)$step_row["rc_idx"];
+      }
+    }
+    if (count($step_idx_list) > 1 && count(array_unique($step_idx_list)) > 1) {
+      json_return("99", "작성 중이던 다른 공고의 정보가 섞였습니다. 공고를 다시 작성해주세요.");
+    }
+    // 요청한 공고와 보관함의 공고가 다른 경우도 차단 (신규 작성은 0이므로 제외)
+    if (!empty($step_idx_list) && $rc_idx != 0 && $step_idx_list[0] != "0" && $step_idx_list[0] != (string)$rc_idx) {
+      json_return("99", "작성 중이던 다른 공고의 정보가 섞였습니다. 공고를 다시 작성해주세요.");
     }
 
     # 날짜 처리: 모바일(스텝3)과 웹(스텝1의 rc_date) 모두 지원
