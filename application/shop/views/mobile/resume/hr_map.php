@@ -670,5 +670,6 @@
 $tpl_id           = 'tpl_map_card';
 $tpl_recomm_class = true;
 $tpl_show_mm_idx  = false;
+$tpl_show_toggle  = false; // 지도 페이지에서는 펼침/접힘 토글 버튼 숨김
 ?>
 <?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>

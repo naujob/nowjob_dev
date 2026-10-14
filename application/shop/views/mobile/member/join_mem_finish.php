@@ -1,4 +1,7 @@
 <?php
+// 가입 대기 상태 여부 (SNS 가입: 계정이 아직 생성되지 않음 → '적용하기'에서 생성)
+$join_pending = (isset($join_pending) && $join_pending === "Y") ? "Y" : "N";
+
 // Kakao Maps SDK 키 로드 (지오코딩 사용)
 $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
 // 공통 바텀시트 템플릿 로드
@@ -8,31 +11,8 @@ include_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
 // 가입 완료 페이지 전용 바텀시트 로드
 require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
 
-// 이력서 미작성 회원 안내 바텀시트 (로그인 + 이력서 없음 조건에서 노출)
-renderBottomSheet(
-  'resumeGuidePanel',
-  '5초 간편 이력서 등록',
-  '<p class="resume-guide-desc">나우잡에서 지금 계신 곳 근처의 채용공고를 찾아드립니다!</p>',
-  '내 주변 일자리 찾기',
-  'btnResumeGuide',
-  '',
-  'bottom-sheet-content-container',
-  'bottom-sheet-content-body'
-);
-
-// 위치 동의 안내 바텀시트 (권한 미동의 시 노출)
-renderSelectBottomSheet(
-  'locationConsentPanel',
-  '내 주변 일자리를 놓칠수 있어요!',
-  '<p class="location-consent-desc">나우잡에서 공고를 찾아드릴수있게<br>정확한 위치 설정이 필요합니다</p>',
-  '주소 직접입력 하기',
-  'btnManualAddress',
-  '',
-  '내 주변 일자리 찾기!',
-  'btnResumeGuideLocation',
-  '',
-  'location-consent-bottom-sheet-container'
-);
+// 비SNS 전용이던 resumeGuidePanel / locationConsentPanel은 제거되었다.
+// 이제 SNS/비SNS 모두 QuickInfo 바텀시트 하나로 통일된다.
 ?>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=services"></script>
@@ -48,23 +28,39 @@ renderSelectBottomSheet(
 </div>
 
 <div class="page page-join member-type1">
-  <div class="top-bar">
-    <!--a href="#" class="btn-back"><span class="sr-text">이전으로</span></a-->
-    <h1 class="title">개인회원 회원가입</h1>
-  </div><!-- //top-bar -->
+<?php
+// 가입 대기 상태에서는 가입을 취소하고 로그인 화면으로 돌아갈 수 있어야 한다
+// back_type='replace' → 히스토리 항목을 교체하므로 뒤로가기로 이 페이지에 되돌아오지 않는다
+$top_bar = array(
+  'title'     => '개인회원 회원가입',
+  'back_type' => ($join_pending === 'Y') ? 'replace' : 'none',
+  'back_href' => '/member/login'
+);
+include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
+?>
   <div class="page-content">
 
     <div class="join-welcome">
       <div class="container">
+        <?php if ($join_pending === 'Y'): ?>
+        <h2 class="primary-title">거의 다 왔어요!</h2>
+        <p>추가 정보를 입력하시면<br> 회원가입이 완료됩니다.</p>
+        <?php else: ?>
         <h2 class="primary-title">가입을 축하드립니다</h2>
         <p>나우잡이 제공하는 채용정보 및 다양한 혜택을<br> 이용하실 수 있습니다.</p>
+        <?php endif; ?>
       </div>
     </div>
     <div class="form-action-wrap" id="non_mem_last_cont" style="text-align: center;display:none;">
       <!-- <a href="/mypage/resume_list" class="btn-round btn-tertiary" style="">이력서 등록하러 가기</a> -->
     </div>
     <div class="sticky-bottom view-footer">
+      <?php if ($join_pending === 'Y'): ?>
+      <!-- 바텀시트를 닫았을 때 다시 열기 위한 버튼 (가입 완료 전이므로 메인 이동 버튼은 노출하지 않는다) -->
+      <button type="button" id="btnReopenQuickInfo" class="btn btn-primary">추가 정보 입력하기</button>
+      <?php else: ?>
       <a href="/recruit/job_list" class="btn btn-primary">메인으로 바로가기</a>
+      <?php endif; ?>
     </div>
   </div><!-- //page-content -->
 </div>
@@ -124,8 +120,13 @@ renderSelectBottomSheet(
   })();
 
   var JOIN_TYPE = "<?= isset($join_type) ? $join_type : '' ?>";
-  // QuickInfo 바텀시트 노출 대상: NICE 본인인증을 거치지 않아 국적이 비는 SNS 가입자
-  var SHOW_QUICKINFO = (["GOOGLE", "WECHAT", "KAKAO", "NAVER"].indexOf(String(JOIN_TYPE || "").toUpperCase()) !== -1);
+  // 가입 대기 상태: 계정이 아직 없고 '적용하기' 시점에 생성한다
+  var JOIN_PENDING = ("<?= $join_pending ?>" === "Y");
+  // join_complete_proc에 넘길 SNS 식별값 (쿠키 폴백보다 서버 값이 정확하다)
+  var JOIN_KEY = "<?= isset($join_key) ? $join_key : '' ?>";
+  var JOIN_UUID = "<?= isset($uuid) ? $uuid : '' ?>";
+  // QuickInfo 바텀시트는 SNS/비SNS 구분 없이 항상 노출한다 (가입 완료의 유일한 진행길)
+  var SHOW_QUICKINFO = true;
   // 위치 콜백을 “UI 텍스트만 갱신”할지, “자동 이력서 흐름”으로 이어갈지 구분.
   window.__quickInfoExpectLocation = false;
   // QuickInfo 적용하기 버튼으로 시작된 흐름인지 여부
@@ -224,7 +225,22 @@ renderSelectBottomSheet(
       submitQuickInfoToServer(payload);
     }
 
+    // SNS 임시 키 정리 (가입 완료 후에만 호출한다 - 그 전에 지우면 쿠키 폴백까지 끊긴다)
+    function clearJoinSnsKeys() {
+      try {
+        localStorage.removeItem("join_sns_type");
+        localStorage.removeItem("join_sns_key");
+        sessionStorage.removeItem("join_sns_type");
+        sessionStorage.removeItem("join_sns_key");
+        document.cookie = "join_sns_type=; path=/; max-age=0";
+        document.cookie = "join_sns_key=; path=/; max-age=0";
+      } catch (e) {}
+    }
+    window.clearJoinSnsKeys = clearJoinSnsKeys;
+
     // 서버 자동완성 호출 (iOS/Android 공통)
+    // 가입 대기(SNS) 상태면 계정 생성 -> 자동이력서 순으로 2단계 처리한다.
+    // mypage_proc는 로그인 세션을 요구하므로 계정 생성이 반드시 선행되어야 한다.
     function submitQuickInfoToServer(payload) {
       // 서버 자동완성 중복 호출 방지
       if (window.__quickInfoSubmitting) return;
@@ -234,6 +250,43 @@ renderSelectBottomSheet(
         window.showAutoResumeLoading();
       }
 
+      if (JOIN_PENDING) {
+        var joinParams = {
+          ma_type: "MEM",
+          proc_type: "PART",
+          uuid: JOIN_UUID,
+          join_type: JOIN_TYPE,
+          join_key: JOIN_KEY
+        };
+        comAjax("/member_proc/join_complete_proc", joinParams, function(ret) {
+          if (ret && ret.code === "00") {
+            // 계정 생성 + 로그인 세션 확보 완료
+            clearJoinSnsKeys();
+            JOIN_PENDING = false;
+            doResumeAutofill(payload);
+            return;
+          }
+          window.__quickInfoSubmitting = false;
+          if (typeof window.hideAutoResumeLoading === 'function') {
+            window.hideAutoResumeLoading();
+          }
+          // 가입 임시 데이터가 만료된 경우(code 10)는 재시도해도 소용없으므로 처음부터 다시
+          if (ret && ret.code === "10") {
+            commonAlert("가입 정보가 만료되었습니다. 다시 진행해주세요.", function() {
+              location.replace("/member/login");
+            });
+            return;
+          }
+          commonAlert((ret && ret.msg) ? ret.msg : "회원가입 처리에 실패했습니다.", function() {});
+        });
+        return;
+      }
+
+      doResumeAutofill(payload);
+    }
+
+    // 자동이력서 생성 (로그인 세션이 있는 상태에서만 호출된다)
+    function doResumeAutofill(payload) {
       var params = Object.assign({}, payload || {});
       params.ru_name = params.ru_name || params.ru_name_seed_addr || "";
       params.ru_addr = params.ru_addr || params.ad_addr || params.ru_name_seed_addr || "";
@@ -273,7 +326,6 @@ renderSelectBottomSheet(
           window.hideAutoResumeLoading();
         }
         if (ret && ret.code === "00") {
-          window.__fallbackResumeTriggered = true;
           try {
             localStorage.setItem('nowjob_resume_registered_bubble', '1');
             // 생성된 이력서 ID 저장 (말풍선 클릭 시 사용)
@@ -297,11 +349,9 @@ renderSelectBottomSheet(
     window.submitQuickInfoWithAddress = submitQuickInfoWithAddress;
     window.submitQuickInfoToServer = submitQuickInfoToServer;
 
-    // 위치 실패 시 안내 후 홈으로 이동
+    // 위치 실패 시 안내만 하고 현재 페이지에 머묾 (commonAlert는 callback을 필수로 호출하므로 빈 함수 전달)
     window.proceedResumeAutoFlowWithoutLocation = function() {
-      commonAlert("위치 정보를 가져오는 데 실패했습니다.", function() {
-        location.href = "/home/index";
-      });
+      commonAlert("위치 정보를 가져오는 데 실패했습니다.", function() {});
     };
     /**
      * 1) QuickInfo 열릴 때 “위치 표시만” 하는 경우
@@ -413,74 +463,17 @@ renderSelectBottomSheet(
   })();
 
   window.addEventListener('DOMContentLoaded', function() {
-    // 가입 완료 페이지 진입 시 SNS 임시 키 정리 (iOS WebView 안정화)
-    try {
-      localStorage.removeItem("join_sns_type");
-      localStorage.removeItem("join_sns_key");
-      sessionStorage.removeItem("join_sns_type");
-      sessionStorage.removeItem("join_sns_key");
-      document.cookie = "join_sns_type=; path=/; max-age=0";
-      document.cookie = "join_sns_key=; path=/; max-age=0";
-    } catch (e) {}
+    // SNS 임시 키는 여기서 지우지 않는다.
+    // 가입 대기 상태에서는 '적용하기'의 join_complete_proc이 아직 이 값을 필요로 한다.
+    // 정리는 clearJoinSnsKeys()가 가입 성공 직후에 수행한다.
 
     var isLogin = <?php echo $this->user->isLogin() ? 'true' : 'false'; ?>;
     var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
     var hasOpenPanel = (typeof window.openPanel === 'function');
     var DEBUG_PREFIX = '[join_mem_finish][bottomsheet]';
 
-    if (!isLogin || !isMem) return;
-
-    function isLocationBridgeReady() {
-      return (
-        (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.getLocation === 'function') ||
-        (window.webkit && window.webkit.messageHandlers && (window.webkit.messageHandlers.startGettingLocation || window.webkit.messageHandlers.getLocation))
-      );
-    }
-
-    function waitForLocationBridgeReady(timeoutMs, intervalMs, onReady, onTimeout) {
-      var startedAt = Date.now();
-      (function checkReady() {
-        if (isLocationBridgeReady()) {
-          onReady();
-          return;
-        }
-        if (Date.now() - startedAt >= timeoutMs) {
-          onTimeout();
-          return;
-        }
-        setTimeout(checkReady, intervalMs);
-      })();
-    }
-
-    function startAutoResumeFlowOnce() {
-      // 자동 트리거/이동 중복 방지
-      if (window.__resumeAutoStartTriggered) return;
-      window.__resumeAutoStartTriggered = true;
-
-      var tryTrigger = function() {
-        $("#btnResumeGuide").trigger("click");
-      };
-
-      // 즉시 시도 + 브릿지 준비 대기 후 1회 재시도
-      if (isLocationBridgeReady()) {
-        tryTrigger();
-      } else {
-        waitForLocationBridgeReady(1500, 100, tryTrigger, function() {});
-      }
-
-      // 사용자 제스처가 필요한 경우를 대비한 1회 재시도
-      var retryOnGesture = function() {
-        tryTrigger();
-      };
-      document.addEventListener('touchstart', retryOnGesture, {
-        once: true,
-        passive: true
-      });
-      document.addEventListener('mousedown', retryOnGesture, {
-        once: true,
-        passive: true
-      });
-    }
+    // 가입 대기(SNS) 상태는 비로그인이므로 로그인 가드를 우회한다
+    if (!JOIN_PENDING && (!isLogin || !isMem)) return;
 
     function setQuickInfoRegionText(text) {
       var el = document.querySelector('.quickinfo-region-text');
@@ -537,25 +530,8 @@ renderSelectBottomSheet(
         null;
       var hasLocationConsent = storedPermission === 'granted';
 
-      if (SHOW_QUICKINFO) {
-        openQuickInfoForSns(hasLocationConsent);
-        return;
-      }
-
-      if (hasLocationConsent) {
-        startAutoResumeFlowOnce();
-        return;
-      }
-      var targetPanelId = hasLocationConsent ? 'resumeGuidePanel' : 'locationConsentPanel';
-      var panel = document.getElementById(targetPanelId);
-      if (!panel) {
-        return;
-      }
-      if (typeof openPanel !== 'function') {
-        return;
-      }
-
-      openPanel(panel);
+      // SNS/비SNS 구분 없이 QuickInfo 바텀시트만 연다
+      openQuickInfoForSns(hasLocationConsent);
     }
 
     openGuidePanelByPermission();
@@ -572,17 +548,10 @@ renderSelectBottomSheet(
     });
   });
 
-  $(document).on('click', '#btnResumeGuideLocation', function() {
-    if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK && typeof APP_NOWAPK.requestLocationPermission === 'function') {
-      APP_NOWAPK.requestLocationPermission();
-      return;
-    }
-    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
-      window.webkit.messageHandlers.requestLocationPermission.postMessage({});
-    }
-  });
-
-  $(document).on('click', '#btnResumeGuide', function() {
+  // 자동이력서 제출용 위치 요청 (QuickInfo '적용하기'에서 직접 호출한다)
+  // 과거에는 #btnResumeGuide 버튼 클릭으로 트리거했으나, 그 버튼을 만들던
+  // resumeGuidePanel이 제거되어 함수로 분리했다.
+  window.requestLocationForSubmit = function() {
     // 이 경로로 받은 위치 콜백은 제출용이라는 표시
     window.__resumeAutoFlow = true;
 
@@ -605,15 +574,7 @@ renderSelectBottomSheet(
     } else {
       proceedResumeAutoFlowWithoutLocation();
     }
-  });
-
-  $(document).on('click', '#btnManualAddress', function() {
-    window.__hideAllRegionsInAddrPopup = true;
-    if (typeof window.applyAddrPopupAllRegionFilter === 'function') {
-      window.applyAddrPopupAllRegionFilter();
-    }
-    $("#changeArea").addClass("on");
-  });
+  };
 
   window.onChangeAreaApply = function(payload) {
     var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : [];
@@ -655,34 +616,48 @@ renderSelectBottomSheet(
         ad_gps_x: result[0].x,
         ad_gps_y: result[0].y
       };
-      // QuickInfo 수동 주소 선택 모드라면:
-      // - 자동이력서로 즉시 이동하지 않고
-      // - 선택한 주소만 캐시 + UI 갱신 후 종료
-      if (window.__quickInfoManualAddrMode) {
-        // 1회성 모드 해제
-        window.__quickInfoManualAddrMode = false;
-
-        // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
-        window.__quickInfoManualAddr = autoPayload;
-        var regionEl = document.querySelector('.quickinfo-region-text');
-        if (regionEl) {
-          // 선택된 주소를 화면에 반영(간단 정리)
-          regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+      // 좌표로 시/도가 포함된 정식 지번 주소를 조회해 ad_jibun에 사용 (실패 시 축약 주소 유지)
+      comAjax("/common_proc/get_gps_address", {
+        x: result[0].x,
+        y: result[0].y
+      }, function(ret) {
+        if (ret && ret.code === "00" && ret.data) {
+          var fullAddr = String(ret.data).split("^")[0].trim();
+          if (fullAddr) {
+            autoPayload.ad_jibun = fullAddr;
+            autoPayload.ru_name_seed_addr = fullAddr;
+          }
         }
-        // 여기서 종료(자동이력서 흐름 진행하지 않음)
-        return;
-      }
 
-      // QuickInfo "적용하기" 흐름이라면
-      // - 선택한 주소/좌표 + QuickInfo 선택값을 합쳐
-      // - 자동이력서 작성 화면으로 이동
-      if (window.__quickInfoApplyFlow) {
-        submitQuickInfoWithAddress(autoPayload);
-        return;
-      }
-      if (typeof window.submitQuickInfoToServer === 'function') {
-        window.submitQuickInfoToServer(autoPayload);
-      }
+        // QuickInfo 수동 주소 선택 모드라면:
+        // - 자동이력서로 즉시 이동하지 않고
+        // - 선택한 주소만 캐시 + UI 갱신 후 종료
+        if (window.__quickInfoManualAddrMode) {
+          // 1회성 모드 해제
+          window.__quickInfoManualAddrMode = false;
+
+          // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
+          window.__quickInfoManualAddr = autoPayload;
+          var regionEl = document.querySelector('.quickinfo-region-text');
+          if (regionEl) {
+            // 선택된 주소를 화면에 반영(간단 정리)
+            regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
+          }
+          // 여기서 종료(자동이력서 흐름 진행하지 않음)
+          return;
+        }
+
+        // QuickInfo "적용하기" 흐름이라면
+        // - 선택한 주소/좌표 + QuickInfo 선택값을 합쳐
+        // - 자동이력서 작성 화면으로 이동
+        if (window.__quickInfoApplyFlow) {
+          submitQuickInfoWithAddress(autoPayload);
+          return;
+        }
+        if (typeof window.submitQuickInfoToServer === 'function') {
+          window.submitQuickInfoToServer(autoPayload);
+        }
+      });
     });
 
     return true;
@@ -745,7 +720,7 @@ renderSelectBottomSheet(
     }
 
     // 직접 선택한 주소가 없으면 GPS로 받아온다
-    $("#btnResumeGuide").trigger("click");
+    window.requestLocationForSubmit();
   };
 
   // 적용하기 버튼은 바텀시트 템플릿이 심은 onclick="handleQuickInfoApplyClick()"으로 동작한다.
@@ -767,8 +742,11 @@ renderSelectBottomSheet(
   $(document).on('click', '#btnQuickInfoReset', function(e) {
     e.preventDefault();
 
-    // 국적/성별/나이/업종 전체 해제
+    // 국적/성별/나이/업종 해제
+    // 서버가 확보해 잠근 값(disabled)은 초기화 대상에서 제외한다.
+    // jQuery의 .prop()는 disabled를 무시하므로 .not(':disabled')가 반드시 필요하다.
     $('input[name="quickinfo_nation"], input[name="quickinfo_gender"], input[name="quickinfo_age"], input[name="quickinfo_work[]"]')
+      .not(':disabled')
       .prop('checked', false).trigger('change');
 
     // 지역 텍스트 초기화
@@ -787,148 +765,53 @@ renderSelectBottomSheet(
 </script>
 
 <script>
-  // join_mem_finish: quickInfoPanel·changeArea 강제 닫기 차단
+  // join_mem_finish: 바텀시트 닫기 / 뒤로가기 처리
   (function() {
-    function preventPanelClose() {
-      // 배경 클릭 및 ESC 닫기 차단 (data 속성)
+    function initPanelExit() {
+      var panel = document.getElementById('quickInfoPanel');
+
+      // 배경 클릭·ESC로는 닫히지 않게 유지한다 (핸들바 탭만 허용)
       var ids = ['quickInfoPanel', 'changeArea'];
       for (var i = 0; i < ids.length; i++) {
-        var panel = document.getElementById(ids[i]);
-        if (panel) {
-          panel.setAttribute('data-disable-bg-close', 'true');
-          panel.setAttribute('data-disable-esc-close', 'true');
+        var el = document.getElementById(ids[i]);
+        if (el) {
+          el.setAttribute('data-disable-bg-close', 'true');
+          el.setAttribute('data-disable-esc-close', 'true');
         }
       }
 
-      // closePanel 오버라이드: 두 패널 모두 외부 닫기 차단
-      if (typeof window.closePanel === 'function' && !window.__closePanel_joinFinish_patched) {
-        window.__closePanel_joinFinish_patched = true;
-        var _origClosePanel = window.closePanel;
-        window.closePanel = function(el) {
-          if (el && (el.id === 'quickInfoPanel' || el.id === 'changeArea')) {
-            return;
-          }
-          _origClosePanel(el);
-        };
+      // closePanel의 폼 자동 초기화를 막는다.
+      // 닫았다 다시 열었을 때 선택값(특히 서버가 채운 잠금 값)이 날아가면 안 된다.
+      if (panel) {
+        panel.setAttribute('data-disable-form-reset', 'true');
       }
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', preventPanelClose);
+      document.addEventListener('DOMContentLoaded', initPanelExit);
     } else {
-      preventPanelClose();
+      initPanelExit();
     }
+
+    // 핸들바를 탭하면 바텀시트를 닫는다 (템플릿에 닫기 버튼이 없다)
+    $(document).on('click', '#quickInfoPanel .bottom-sheet-handlebar', function() {
+      var panel = document.getElementById('quickInfoPanel');
+      if (panel && typeof closePanel === 'function') {
+        closePanel(panel);
+      }
+    });
+
+    // 하단 '추가 정보 입력하기' 버튼: 닫은 바텀시트를 다시 연다
+    $(document).on('click', '#btnReopenQuickInfo', function() {
+      if (typeof window.openQuickInfoPanel === 'function') {
+        window.openQuickInfoPanel();
+      }
+    });
+
+    // 물리 뒤로가기는 add.js의 공용 핸들러(customBack / handleAndroidBack)가 처리한다.
+    // 1차: closeOpenLayerPanel()이 열린 바텀시트(quickInfoPanel, changeArea)를 닫고
+    // 2차: 경로 분기가 JOIN_PENDING을 보고 /member/login으로 이동시킨다.
   })();
-</script>
-
-<script>
-// join_mem_finish: 페이지 이탈 시 폴백 자동이력서 생성 (모바일)
-(function() {
-    var isLogin = <?php echo $this->user->isLogin() ? 'true' : 'false'; ?>;
-    var isMem = <?php echo (isset($mm_type) && $mm_type === "MEM") ? 'true' : 'false'; ?>;
-    if (!isLogin || !isMem) return;
-
-    var DEFAULT_ADDR = "서울특별시 강남구 개포동";
-    var DEFAULT_GPS_X = "127.0748";
-    var DEFAULT_GPS_Y = "37.4855";
-    var DEFAULT_ZIPCODE = "06336";
-
-    // BFCache 대응: 명시적 false 초기화 필수
-    window.__fallbackResumeTriggered = false;
-
-    // 페이지 로드 시 이력서 수 사전 조회 ($.ajax 직접 사용: comAjax의 ajax_first_num 카운터 충돌 방지)
-    var __cachedResumeCount = null;
-    $.ajax({
-        type: "POST",
-        url: "/mypage_proc/getResumeCount",
-        success: function(ret) {
-            if (typeof ret === 'string') { try { ret = JSON.parse(ret); } catch(e) {} }
-            if (ret && ret.code === "00") {
-                __cachedResumeCount = parseInt(ret.data.count, 10) || 0;
-            }
-        },
-        error: function() {}
-    });
-
-    function canTriggerFallback() {
-        if (window.__fallbackResumeTriggered) return false;
-        if (window.__quickInfoSubmitting) return false;
-        if (__cachedResumeCount !== null && __cachedResumeCount > 0) return false;
-        return true;
-    }
-
-    function buildFallbackFormData() {
-        // 바텀시트에서 이미 고른 값이 있으면 그대로 반영 (없을 때만 기본값)
-        var sel = (typeof window.getQuickInfoSelections === 'function') ? window.getQuickInfoSelections() : null;
-        var nationality = (sel && sel.nation) ? sel.nation : "내국인";
-        var gender = (sel && sel.gender) ? sel.gender : "남";
-        var age = (sel && sel.age) ? sel.age : "30s";
-
-        // 직접 선택했거나 GPS로 받아온 주소가 있으면 우선 사용 (직접 선택이 우선)
-        var manualAddr = window.__quickInfoManualAddr || window.__quickInfoGpsAddr || null;
-        var addr = (manualAddr && manualAddr.ad_addr) ? manualAddr.ad_addr : DEFAULT_ADDR;
-        var jibun = (manualAddr && manualAddr.ad_jibun) ? manualAddr.ad_jibun : addr;
-        var zipcode = (manualAddr && manualAddr.ad_zipcode) ? manualAddr.ad_zipcode : DEFAULT_ZIPCODE;
-        var gpsX = (manualAddr && manualAddr.ad_gps_x) ? manualAddr.ad_gps_x : DEFAULT_GPS_X;
-        var gpsY = (manualAddr && manualAddr.ad_gps_y) ? manualAddr.ad_gps_y : DEFAULT_GPS_Y;
-
-        var fd = new FormData();
-        fd.append("ru_name", "");
-        fd.append("ru_addr", addr);
-        fd.append("ru_nationality", nationality);
-        fd.append("quickinfo_gender", gender);
-        fd.append("quickinfo_age", age);
-        // 업종은 미선택이면 보내지 않는다 (서버 기본값 적용)
-        if (sel && sel.work && sel.work.length > 0) {
-            for (var i = 0; i < sel.work.length; i++) {
-                fd.append("ru_work[]", sel.work[i]);
-            }
-        }
-        fd.append("ad_type", "resume");
-        fd.append("ad_addr[]", addr);
-        fd.append("ad_jibun[]", jibun);
-        fd.append("ad_doro[]", "");
-        fd.append("ad_zipcode[]", zipcode);
-        fd.append("ad_detail[]", "");
-        fd.append("ad_gps_x[]", gpsX);
-        fd.append("ad_gps_y[]", gpsY);
-        return fd;
-    }
-
-    // sendBeacon으로 언로드 중에도 전송 보장 (comAjax는 취소됨)
-    function triggerFallbackResume() {
-        if (!canTriggerFallback()) return;
-        window.__fallbackResumeTriggered = true;
-        var url = "/mypage_proc/resume_autofill_quick";
-        var fd = buildFallbackFormData();
-        if (typeof navigator.sendBeacon === 'function') {
-            navigator.sendBeacon(url, fd);
-            return;
-        }
-        if (typeof fetch === 'function') {
-            try { fetch(url, { method: 'POST', body: fd, keepalive: true }); } catch(e) {}
-            return;
-        }
-        try {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', url, false);
-            xhr.send(fd);
-        } catch(e) {}
-    }
-
-    // 네이티브 앱 백그라운드 진입 콜백 (Android onPause / iOS sceneDidEnterBackground에서 호출)
-    window.onAppBackground = function() {
-        triggerFallbackResume();
-    };
-
-    // Android WebView 홈 버튼 백그라운드 전환 감지 (브라우저 환경 보조)
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden') { triggerFallbackResume(); }
-    });
-    // 링크 이동/뒤로가기 감지
-    window.addEventListener('pagehide', function() { triggerFallbackResume(); });
-
-})();
 </script>
 
 <?= getCashJs(RES_PATH . "/js/member/join_quickinfo_bottom_sheet.js") ?>

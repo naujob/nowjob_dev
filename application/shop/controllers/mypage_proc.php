@@ -851,13 +851,8 @@ class Mypage_proc extends CI_Controller
     if ($ru_desc == "") $ru_desc = $ru_name;
     $ru_week_yn = input_post("ru_week_yn", "N");
     $ru_week = input_post("ru_week", "월,화,수,목,금");
+    // 최종학력은 요청값 그대로 사용 (미선택 시 빈 값 유지, 기본값을 넣지 않음)
     $ru_edu = input_post("ru_edu", "");
-    if ($ru_edu == "") {
-      $edu_list = $this->site_model->getCodeList(["cd_grp" => "최종학력"]);
-      if (!empty($edu_list) && isset($edu_list[0]["cd_val"])) {
-        $ru_edu = $edu_list[0]["cd_val"];
-      }
-    }
     $ru_my_type = input_post("ru_my_type", []);
     if (empty($ru_my_type)) {
       $type_list = $this->site_model->getCodeList(["cd_grp" => "나의강점"]);
@@ -1166,6 +1161,15 @@ class Mypage_proc extends CI_Controller
     $quickinfo_gender = isset($step1["quickinfo_gender"]) ? $step1["quickinfo_gender"] : "";
     $quickinfo_age = isset($step1["quickinfo_age"]) ? $step1["quickinfo_age"] : "";
     $quickinfo_birth = getBirthByAgeGroup($quickinfo_age);
+    // 서버에 이미 저장된 생년월일(카카오/네이버/본인인증 등)이 있으면 QuickInfo 연령대 값으로 덮어쓰지 않음
+    // 연령대 값은 월일이 임의로 채워지므로, 서버 값(연도만 있는 YYYY0000 포함)이 비어 있을 때만 사용
+    if ($quickinfo_birth != "") {
+      $cur_mem = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
+      $cur_birth = isset($cur_mem["mm_birth"]) ? trim($cur_mem["mm_birth"]) : "";
+      if ($cur_birth != "") {
+        $quickinfo_birth = "";
+      }
+    }
 
     # 이력서 갯수 확인후 처리
     $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);

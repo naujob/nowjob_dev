@@ -109,28 +109,54 @@ function callVibrate(time) {
     }
 }
 
-// 열려있는 바텀시트/패널을 우선 닫는다.
+// 열려있는 바텀시트/패널을 우선 닫는다. 여러 개가 열려 있으면 화면상 가장 위의 패널 하나만 닫는다.
+// (예: join_mem_finish에서 QuickInfo 바텀시트 위에 주소 팝업(#changeArea)이 열린 경우 주소 팝업만 닫힘)
 // loginGuidePanel(main_menu.php)처럼 job_post/hr_post 팝업의 DOM 바깥(형제 요소)에 렌더링된
 // 패널도 감지해야 하므로 팝업 내부가 아닌 document 전체 범위에서 검색한다.
 function closeOpenLayerPanel() {
     var openPanels = document.querySelectorAll('.layer-panel.on');
-    if (openPanels.length > 0) {
-        openPanels.forEach(function(panel) {
-            if (typeof closePanel === 'function') {
-                closePanel(panel);
-            }
-        });
-        return true;
+    if (openPanels.length === 0) {
+        return false;
     }
-    return false;
+
+    // 가장 위에 보이는 패널 = z-index가 가장 큰 패널 (동률이면 DOM상 뒤에 있는 패널)
+    var topPanel = null;
+    var topZIndex = -Infinity; // 초기값: -무한대 가장 작은 값으로 설정
+    openPanels.forEach(function(panel) {
+        var zIndex = parseInt(window.getComputedStyle(panel).zIndex, 10);
+        if (isNaN(zIndex)) {
+            zIndex = 0;
+        }
+        if (zIndex >= topZIndex) {
+            topZIndex = zIndex;
+            topPanel = panel;
+        }
+    });
+
+    if (topPanel && typeof closePanel === 'function') {
+        closePanel(topPanel);
+    }
+    return true;
 }
 
 // iOS 시스템 스와이프 뒤로가기 처리 (네이티브에서 handleSwipeBack 호출함)
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
     try {
+        // 알림/확인 다이얼로그가 떠 있으면 가장 먼저 닫기
+        if (window.isLayerPopupOpen && window.isLayerPopupOpen()) {
+            window.closeTopLayerPopup();
+            return;
+        }
+
         // 열려있는 패널 먼저 확인 및 닫기 (로그인 안내, 길찾기, 공유하기 등)
         if (closeOpenLayerPanel()) {
+            return;
+        }
+
+        // 튜토리얼은 상세 팝업 위에 떠 있으므로 가장 먼저 닫기
+        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
+            window.closeTutorialPopup();
             return;
         }
 
@@ -145,14 +171,28 @@ function customBack() {
             return;
         }
 
-        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
-            window.closeTutorialPopup();
-            return;
-        }
-
         const currentPath = window.location.pathname;
        // URL: https://example.com/chat/chat_view?from=applied
        // currentPath = /chat/chat_view
+
+        // 회원가입 완료 페이지: SNS 가입은 이 페이지의 추가정보 입력(적용하기)에서 계정이 생성된다.
+        // 아직 가입 전(JOIN_PENDING)이면 가입을 취소하고 로그인 화면으로 보낸다.
+        // 이미 가입이 끝난 상태라면 기존처럼 아무 동작도 하지 않는다.
+        if (currentPath.indexOf('/member/join_mem_finish') > -1) {
+            if (typeof JOIN_PENDING !== 'undefined' && JOIN_PENDING) {
+                location.replace('/member/login');
+            }
+            return;
+        }
+
+        // 약관 동의 단계(개인 step3 / 기업 step5): 가입을 취소하고 로그인 화면으로 보낸다.
+        // history.back()으로 두면 NICE 인증 페이지로 돌아가 흐름이 꼬인다.
+        if (currentPath.indexOf('/member/join_mem_step3') > -1 ||
+            currentPath.indexOf('/member/join_comp_step5') > -1) {
+            location.replace('/member/login');
+            return;
+        }
+
         // chat_view 페이지는 자체 뒤로가기 로직 사용 (backUrl 또는 from 파라미터)
         if (currentPath.indexOf('/chat/chat_view') > -1 || currentPath.indexOf('/chat/trade_view') > -1) {
             const params = new URLSearchParams(window.location.search);
@@ -855,6 +895,32 @@ function checkMobile() {
  * - window.isAnyPopupOpen() → true/false 반환
  * - 채용공고 팝업 또는 인재 팝업이 열려있으면 true
  */
+/**
+ * 알림/확인 다이얼로그(layer-popup) 열림 여부
+ * - commonAlert, commonConfirm 등 openPopup()으로 띄운 팝업은 body에 .layer-popup.in 으로 붙음
+ */
+window.isLayerPopupOpen = function() {
+    return document.querySelectorAll('.layer-popup.in').length > 0;
+};
+
+/**
+ * 가장 위에 열린 다이얼로그 1개를 닫음 (뒤로가기용)
+ * - 닫았으면 true, 열린 다이얼로그가 없으면 false 반환
+ */
+window.closeTopLayerPopup = function() {
+    var openPopups = document.querySelectorAll('.layer-popup.in');
+    var topPopup = openPopups[openPopups.length - 1];
+    if (!topPopup) {
+        return false;
+    }
+    if (typeof window.closePopup === 'function') {
+        window.closePopup(topPopup);
+    } else {
+        topPopup.classList.remove('in');
+    }
+    return true;
+};
+
 window.isAnyPopupOpen = function() {
     if (typeof window.isJobPostPopupOpen === 'function' && window.isJobPostPopupOpen()) {
         return true;
@@ -880,8 +946,20 @@ window.isAnyPopupOpen = function() {
  */
 function handleAndroidBack() {
     try {
+        // 알림/확인 다이얼로그가 떠 있으면 가장 먼저 닫기
+        if (window.isLayerPopupOpen && window.isLayerPopupOpen()) {
+            window.closeTopLayerPopup();
+            return;
+        }
+
         // 열려있는 패널 먼저 확인 및 닫기 (로그인 안내, 길찾기, 공유하기 등)
         if (closeOpenLayerPanel()) {
+            return;
+        }
+
+        // 튜토리얼은 상세 팝업 위에 떠 있으므로 가장 먼저 닫기
+        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
+            window.closeTutorialPopup();
             return;
         }
 
@@ -892,11 +970,6 @@ function handleAndroidBack() {
 
         if (window.isHrPostPopupOpen && window.isHrPostPopupOpen()) {
             window.closeHrPostPopup();
-            return;
-        }
-
-        if (typeof window.isTutorialOpen === 'function' && window.isTutorialOpen()) {
-            window.closeTutorialPopup();
             return;
         }
 
@@ -924,6 +997,24 @@ function handleAndroidBack() {
 
         // 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음
         if (current === "/") {
+            return;
+        }
+
+        // 회원가입 완료 페이지: SNS 가입은 이 페이지의 추가정보 입력(적용하기)에서 계정이 생성된다.
+        // 아직 가입 전(JOIN_PENDING)이면 가입을 취소하고 로그인 화면으로 보낸다.
+        // 이미 가입이 끝난 상태라면 기존처럼 아무 동작도 하지 않는다.
+        if (current.indexOf('/member/join_mem_finish') > -1) {
+            if (typeof JOIN_PENDING !== 'undefined' && JOIN_PENDING) {
+                location.replace('/member/login');
+            }
+            return;
+        }
+
+        // 약관 동의 단계(개인 step3 / 기업 step5): 가입을 취소하고 로그인 화면으로 보낸다.
+        // history.back()으로 두면 NICE 인증 페이지로 돌아가 흐름이 꼬인다.
+        if (current.indexOf('/member/join_mem_step3') > -1 ||
+            current.indexOf('/member/join_comp_step5') > -1) {
+            location.replace('/member/login');
             return;
         }
 

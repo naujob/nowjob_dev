@@ -1013,6 +1013,25 @@ $tpl_show_toggle = false; ?>
 
   // 브라우저 뒤로가기/앞으로가기 감지
   window.addEventListener('popstate', function(e) {
+    // 인재 상세 팝업이 열려 있으면 팝업부터 닫고, 목록은 다시 불러오지 않음
+    var popup = document.getElementById('hrPostPopup');
+    if (popup && popup.getAttribute('data-state') === 'open') {
+      // 팝업 내 열린 패널(공유/선택 등)이 있으면 패널만 닫기
+      var openPanels = popup.querySelectorAll('.layer-panel.on');
+      if (openPanels.length > 0) {
+        openPanels.forEach(function(panel) {
+          if (typeof closePanel === 'function') {
+            closePanel(panel);
+          }
+        });
+        return;
+      }
+
+      // 패널이 없으면 팝업 닫기
+      window.closeHrPostPopup(null);
+      return;
+    }
+
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
     $(list_id).empty();
     getBoardList("");
@@ -1891,9 +1910,11 @@ $tpl_show_toggle = false; ?>
     applyLastClickedHighlight();
   };
 
+  // 인재 상세 팝업 열림 여부: data-state="open"이면 열린 상태
+  // (GSAP은 x 이동만 애니메이션하므로 opacity로는 판단할 수 없음)
   window.isHrPostPopupOpen = function() {
-    // GSAP 애니메이션: opacity > 0.5이면 열려있는 것
-    return parseFloat($('#hrPostPopup').css('opacity')) > 0.5;
+    var popup = document.getElementById('hrPostPopup');
+    return !!popup && popup.getAttribute('data-state') === 'open';
   };
 </script>
 

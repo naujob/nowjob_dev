@@ -219,6 +219,8 @@
 
                 <div class="form-action-wrap">
                     <button type="button" class="btn-round btn-tertiary" id="btnNextMem" style="background-color:#ccc;">다음</button>
+                    <!-- 가입 취소: 히스토리를 교체해 이전 가입 단계로 되돌아가지 않도록 한다 -->
+                    <a href="/member/login" class="btn-round btn-tertiary" style="margin-left:12px;background-color:#fff;border:1px solid #ccc;color:#666;" onclick="location.replace('/member/login'); return false;">취소</a>
                 </div>
 
             </div>
@@ -371,9 +373,12 @@
             params += '&agree4=' + agree4;
             params += '&agree5=' + agree5;
 
-            comAjax("/member_proc/join_mem_step2", params, function(ret2) {
+            // 약관 동의값을 st_site_log의 JOIN_MEM/스텝3에 저장한다.
+            // (구 join_mem_step2 엔드포인트는 제거되어 404가 났다. 모바일과 동일한 경로를 쓴다.
+            //  join_complete_proc은 약관을 "스텝2 → 없으면 스텝3" 순으로 읽으므로 동작이 같다)
+            comAjax("/member_proc/join_mem_step3", params, function(ret2) {
                 if (ret2.code == "00") {
-                    // step2 완료 후 곧바로 회원가입 완료 (PART)
+                    // 약관 저장 완료 후 회원가입 완료 처리 (PART)
                     fPassClickFromStep2();
                 } else {
                     commonAlert(ret2.msg, function() {});
@@ -462,21 +467,29 @@
         //fClickChk(); // 상태 변경 후 fClickChk 호출
     }
 
-    // step2에서 회원가입 완료 처리 (PART)
+    // 약관 동의 후 가입 완료 페이지로 이동
+    // 계정 생성은 join_mem_finish의 QuickInfo '적용하기'에서 수행한다 (SNS/비SNS 공통).
+    // 추가 정보를 입력하지 않고 이탈하면 계정이 만들어지지 않아야 하기 때문.
+    // 가입 임시 데이터는 st_site_log에 session_id 기준으로 그대로 남아 있다.
     function fPassClickFromStep2(){
-        var params = {};
-        params["ma_type"] = "MEM";
-        params["proc_type"] = "PART";
-        params["uuid"] = "";
+        location.href = "/member/join_mem_finish";
+    }
 
-        comAjax("/member_proc/join_complete_proc", params, function(ret){
-            if(ret.code=="00"){
-                location.href="/member/join_mem_finish";
-            }else{
-                commonAlert(ret.msg, function(){});
+    // 브라우저 뒤로가기: 1차는 열린 약관 모달 닫기, 다시 누르면 가입을 취소하고 로그인 화면으로
+    // 그냥 두면 이전 단계(본인인증 완료 후 자동 진행되는 join_wmem_step1 리다이렉트)로 돌아가 흐름이 꼬인다.
+    (function() {
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function() {
+            var openPopupEl = document.querySelector('.layer-popup.in');
+            if (openPopupEl) {
+                if (typeof closePopup === 'function') {
+                    closePopup(openPopupEl);
+                }
+                history.pushState(null, '', location.href); // 소비한 항목 복구
                 return;
             }
+            location.replace('/member/login');
         });
-    }
+    })();
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>

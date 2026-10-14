@@ -624,5 +624,5 @@
   });
 </script>
 
-<?php $tpl_id = 'tpl_list'; $tpl_recomm_class = false; ?>
+<?php $tpl_id = 'tpl_list'; $tpl_recomm_class = false; $tpl_show_toggle = false; // 지도 페이지에서는 토글 버튼 숨김 ?>
 <?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>

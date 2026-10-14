@@ -22,7 +22,8 @@ $_tb_right_html= isset($top_bar['right_html'])? $top_bar['right_html']: '';
     <?php if ($_tb_back_type === 'back'): ?>
         <a href="/recruit/job_list" class="btn-back"><span class="sr-text">이전으로</span></a>
     <?php elseif ($_tb_back_type === 'replace'): ?>
-        <a href="<?php echo $_tb_back_href; ?>" class="btn-replace"><span class="sr-text">이전으로</span></a>
+        <!-- add.js의 .btn-replace 핸들러는 href가 아닌 data-url을 읽는다 -->
+        <a href="<?php echo $_tb_back_href; ?>" data-url="<?php echo $_tb_back_href; ?>" class="btn-replace"><span class="sr-text">이전으로</span></a>
     <?php endif; ?>
 
     <h1 class="title" style="margin: 0 0 0 11px;"><?php echo $_tb_title; ?></h1>
