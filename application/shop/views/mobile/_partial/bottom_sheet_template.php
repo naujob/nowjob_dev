@@ -12,7 +12,7 @@
  * @param string $containerClass - 컨테이너 추가 클래스 (선택)
  * @param string $contentClass - 본문 콘텐츠 클래스 (기본: bottom-sheet-text-content)
  */
-function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass = '', $contentClass = 'bottom-sheet-text-content')
+function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass = '', $contentClass = 'bottom-sheet-text-content', $footerWrap = true)
 {
     $buttons = is_array($buttons) ? array_values($buttons) : [];
     $buttonCount = count($buttons);
@@ -35,7 +35,10 @@ function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass 
                 </div>
             </div>
 
+            <?php // $footerWrap=false면 bottom-sheet-footer 부모 태그 없이 버튼 영역만 출력 ?>
+            <?php if ($footerWrap): ?>
             <div class="bottom-sheet-footer">
+            <?php endif; ?>
                 <div class="bottom-sheet-sticky-bottom <?php echo $actionsClass; ?>">
                     <?php foreach ($buttons as $button): ?>
                         <?php
@@ -47,7 +50,9 @@ function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass 
                         <button type="button" id="<?php echo htmlspecialchars($btnId); ?>" <?php echo $btnOnclick ? 'onclick="' . htmlspecialchars($btnOnclick) . '"' : ''; ?> class="btn-bottom-sheet btn-bottom-sheet-<?php echo htmlspecialchars($btnVariant); ?> bottom-sheet-action"><?php echo htmlspecialchars($btnText); ?></button>
                     <?php endforeach; ?>
                 </div>
+            <?php if ($footerWrap): ?>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 <?php
@@ -80,8 +85,9 @@ function renderBottomSheet($id, $title, $content, $buttonText, $buttonId, $butto
  * @param string $button2Onclick - 두 번째 버튼 onclick 이벤트
  * @param string $containerClass - 컨테이너 추가 클래스 (선택)
  * @param string $contentClass - 본문 콘텐츠 클래스 (기본: bottom-sheet-content-body)
+ * @param bool $footerWrap - bottom-sheet-footer 부모 태그 출력 여부 (기본: true)
  */
-function renderSelectBottomSheet($id, $title, $content, $button1Text, $button1Id, $button1Onclick = '', $button2Text, $button2Id, $button2Onclick = '', $containerClass = '', $contentClass = 'bottom-sheet-content-body')
+function renderSelectBottomSheet($id, $title, $content, $button1Text, $button1Id, $button1Onclick = '', $button2Text, $button2Id, $button2Onclick = '', $containerClass = '', $contentClass = 'bottom-sheet-content-body', $footerWrap = true)
 {
     $buttons = [
         [
@@ -97,6 +103,6 @@ function renderSelectBottomSheet($id, $title, $content, $button1Text, $button1Id
             'variant' => 'primary'
         ]
     ];
-    renderBottomSheetBase($id, $title, $content, $buttons, $containerClass, $contentClass);
+    renderBottomSheetBase($id, $title, $content, $buttons, $containerClass, $contentClass, $footerWrap);
 }
 ?>

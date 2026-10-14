@@ -88,7 +88,7 @@
 
 /* QuickInfo 바텀시트 높이 고정 (ID 선택자로 .layer-panel.card-type .bottom-sheet-container 규칙보다 우선순위 확보) */
 #quickInfoPanel .bottom-sheet-container {
-    height: 874px;
+    height: 843px;
     max-height: unset;
 }
 
@@ -122,9 +122,10 @@
     pointer-events: none;
 }
 
-.quickinfo-row[data-locked="true"] .option-table-group .form-toggle-btn2 input:checked ~ .btn {
-    background-color: #EEEEEE;
-    color: #555;
+/* 서버가 확보한 값(data-locked)으로 선택된 버튼: 회색 배경 + 어두운 글자 */
+#quickInfoPanel .quickinfo-row[data-locked="true"] .option-table-group .form-toggle-btn2 input:checked ~ .btn {
+    background-color: #F2F2F2;
+    color: #333;
 }
 
 /* 제목 줄 오른쪽 잠금 배지 */
@@ -194,18 +195,14 @@
 /* 하단 버튼: 상세검색 초기화/검색 버튼과 같은 전폭 네모 버튼 (#quickInfoPanel 범위만 적용) */
 #quickInfoPanel .bottom-sheet-body {
     padding: 0 1.375rem;
-}
-
-#quickInfoPanel .bottom-sheet-footer {
-    flex-shrink: 0;
-    padding: 0 0 env(safe-area-inset-bottom);
+    max-height: 749px;
 }
 
 #quickInfoPanel .bottom-sheet-actions--split {
     gap: 0;
     padding: 0;
     position: relative;
-    top: 48px;
+    top: 7px;
 }
 
 #quickInfoPanel .bottom-sheet-action {

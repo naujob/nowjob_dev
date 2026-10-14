@@ -173,6 +173,7 @@ renderSelectBottomSheet(
   'btnQuickInfoApply',
   'handleQuickInfoApplyClick()',
   'bottom-sheet-content-container quickinfo-bottom-sheet',
-  'bottom-sheet-content-body'
+  'bottom-sheet-content-body',
+  false // bottom-sheet-footer 부모 태그 제거 (버튼 영역만 출력)
 );
 ?>
