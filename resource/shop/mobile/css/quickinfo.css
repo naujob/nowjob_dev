@@ -38,8 +38,13 @@
     grid-template-columns: repeat(3, 1fr);
 }
 
+/* PC 전역 .form-toggle-btn2(inline-block, max-width: calc(100% - 4px))가 칸보다 좁게 그려지는 것을 막는다 */
 #quickInfoPanel .option-table-group .form-toggle-btn2 {
+    display: block;
+    width: 100%;
+    max-width: none;
     margin: 0;
+    box-sizing: border-box;
     border-right: 1px solid #E0E0E0;
     border-bottom: 1px solid #E0E0E0;
 }
@@ -65,8 +70,11 @@
     appearance: none;
 }
 
+/* PC 전역 .btn의 min-width: 90px를 해제해 칸 폭에 맞춘다 */
 #quickInfoPanel .option-table-group .form-toggle-btn2 .btn {
     width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     height: 56px;
     display: flex;
     align-items: center;
