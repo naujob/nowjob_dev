@@ -2706,6 +2706,15 @@
         return true;
     }
 
+    // 8단계: 복리후생 선택 여부 (체크박스 하나 이상 선택 필요)
+    function checkRequiredBenefit() {
+        if ($("[name='rc_life_type[]']:checked").length == 0) {
+            commonAlert("복리후생을 하나 이상 선택해주세요.", function() {});
+            return false;
+        }
+        return true;
+    }
+
     // 10단계: 상세업무정보 입력 여부 (contenteditable 에디터)
     function checkRequiredDesc() {
         var rcDescEditor = document.getElementById('rc_desc_editor');
@@ -2721,7 +2730,7 @@
         return true;
     }
 
-    // 단계별 필수값 검사: "다음" 클릭 시 현재 단계 항목만 확인 (8·9·11단계는 필수 검사 없음)
+    // 단계별 필수값 검사: "다음" 클릭 시 현재 단계 항목만 확인 (9·11단계는 필수 검사 없음)
     function validateStepRequired(step) {
         switch (step) {
             case 1: return checkRequiredTitle();
@@ -2731,6 +2740,7 @@
             case 5: return checkRequiredHash();
             case 6: return checkRequiredWorkType();
             case 7: return checkRequiredSalary();
+            case 8: return checkRequiredBenefit();
             case 10: return checkRequiredDesc();
             default: return true;
         }
