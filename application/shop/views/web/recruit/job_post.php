@@ -372,13 +372,13 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
   .history-body .content-info .desc {
     position: relative;
     height: 84px;
-    margin: 0 0 0 90px;
+    margin: 0;
     display: flex;
     flex-direction: column;
   }
 
   .history-body .content-info .desc .ellipsis {
-    width: 210px;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1342,9 +1342,6 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                       <div class="content-li" data-rc_idx="<?= $row["rc_idx"] ?>">
                         <div class="content-info">
                           <div class="content-body">
-                            <div class="img">
-                              <img src="<?= $row["rt_recruit_img"] ?>">
-                            </div>
                             <div class="desc">
                               <div class="wicon"><?= getWorkingImg($row["rc_work"]) ?></div>
                               <div class="title ellipsis"><?= $row["rc_name"] ?></div>

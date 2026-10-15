@@ -245,13 +245,13 @@ function fRemoveBigAdrPHP($arg)
   .history-body .content-info .desc {
     position: relative;
     height: 84px;
-    margin: 0 0 0 90px;
+    margin: 0;
     display: flex;
     flex-direction: column;
   }
 
   .history-body .content-info .desc .ellipsis {
-    width: 210px;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1116,9 +1116,6 @@ function fRemoveBigAdrPHP($arg)
                         <div class="content-li" data-ru_idx="<?= $row["ru_idx"] ?>">
                           <div class="content-info">
                             <div class="content-body">
-                              <div class="img">
-                                <img src="<?= $row["ru_resume_img"] ?>">
-                              </div>
                               <div class="desc">
                                 <div class="wicon"><?= $row["ru_work_img"] ?></div>
                                 <div class="title ellipsis"><?= $row["ru_name"] ?></div>
