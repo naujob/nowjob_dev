@@ -653,9 +653,8 @@ class Mypage_proc extends CI_Controller
       json_return("99", "근무형태 선택이 확인되지 않습니다.");
     }
 
-    if ($ru_nationality == "") {
-      json_return("99", "국적 선택이 확인되지 않습니다.");
-    }
+    // 국적은 회원가입 때 받은 st_member.mm_nation 을 쓰므로 이력서 작성에서는 입력받지 않는다.
+    // (빈값으로 넘어오면 resume_complete() 의 mm_nation 갱신 분기가 건너뛰어 기존 값이 유지된다)
 
     #로그 생성
     $sl_txt = [

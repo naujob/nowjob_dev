@@ -1219,7 +1219,7 @@ class Cron_proc extends CI_Controller
     }
 
     // 채용공고 임시 사진 24시간 경과분 삭제 (등록완료 전 임시 폴더만 대상, 정식 폴더는 건드리지 않음)
-    // crontab: 0 * * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_temp_recruit_images > /dev/null 2>&1
+    // crontab: 0 4 * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_temp_recruit_images > /dev/null 2>&1
     public function cleanup_temp_recruit_images()
     {
         $temp_base = FCPATH . 'resource/uploads/temp';
@@ -1382,7 +1382,7 @@ class Cron_proc extends CI_Controller
      *
      * 사용법: /cron_proc/test_match_by_recruit/125/25   (mm_idx/rc_idx)
      */
-    public function test_match_by_recruit($mm_idx = 4, $rc_idx = 360)
+    public function test_match_by_recruit($mm_idx = 4, $rc_idx = 313)
     {
         $mm_idx = intval($mm_idx);
         $rc_idx = intval($rc_idx);

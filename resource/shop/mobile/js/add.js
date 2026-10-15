@@ -274,10 +274,19 @@ function customBack() {
             return;
         }
 
-        // 이력서 상세/작성 페이지들은 히스토리 뒤로가기
+        // 이력서 작성 페이지: 미리보기(hr_post)를 다녀온 경우 직전 이력이 미리보기 화면이라
+        // history.back()을 쓰면 두 화면을 오가게 된다. 목록으로 직접 보낸다
+        if (currentPath.indexOf('/mypage/resume_write1') > -1) {
+            if (typeof clearResumeDraft === 'function') {
+                clearResumeDraft($("[name='ru_idx']").val() || "0");
+            }
+            location.replace('/recruit/job_list');
+            return;
+        }
+
+        // 이력서 상세/미리보기는 히스토리 뒤로가기 (미리보기 → 작성 페이지로 복귀)
         if (currentPath.indexOf('/resume/hr_post') > -1 ||
-            currentPath.indexOf('/mypage/resume_view') > -1 ||
-            currentPath.indexOf('/mypage/resume_write1') > -1) {
+            currentPath.indexOf('/mypage/resume_view') > -1) {
             history.back();
             return;
         }
@@ -325,12 +334,6 @@ function customBack() {
         // 이력서 목록 → 마이페이지로 이동 (삭제된 이력서 방지)
         if (currentPath.indexOf('/mypage/resume_list') > -1) {
             window.location.href = '/mypage/index';
-            return;
-        }
-
-        // 이력서 작성 페이지들은 히스토리 뒤로가기
-        if (currentPath.indexOf('/mypage/resume_write1') > -1) {
-            history.back();
             return;
         }
 
@@ -1037,6 +1040,17 @@ function handleAndroidBack() {
             }
 
             location.replace(backUrl);
+            return;
+        }
+
+        // 이력서 작성 페이지: 미리보기(hr_post)를 다녀온 경우 직전 이력이 미리보기 화면이라
+        // history.back()을 쓰면 두 화면을 오가게 된다. 목록으로 직접 보낸다
+        // (미리보기 화면 자체는 아래 history.back()을 타서 작성 페이지로 복귀한다)
+        if (current.indexOf('/mypage/resume_write1') > -1) {
+            if (typeof clearResumeDraft === 'function') {
+                clearResumeDraft($("[name='ru_idx']").val() || "0");
+            }
+            location.replace('/recruit/job_list');
             return;
         }
 

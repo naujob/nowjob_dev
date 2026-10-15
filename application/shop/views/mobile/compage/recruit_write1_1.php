@@ -702,6 +702,7 @@
 
                     <div class="sticky-bottom view-footer">
                         <button id="btnStepPrev" type="button" style="display:none;">이전</button>
+                        <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span>상세등록</button>
                         <button id="btnStepNext" type="button">다음</button>
                         <button id="btnPreview" type="button" style="display:none;">미리보기</button>
                     </div>
@@ -1077,8 +1078,9 @@
         margin-left: auto;
     }
 
-    /* 이전 버튼: 테두리 스타일 */
-    #btnStepPrev {
+    /* 이전 / 상세등록 버튼: 테두리 스타일 */
+    #btnStepPrev,
+    #btnDetailMore {
         display: inline-block;
         font-weight: 700;
         text-align: center;
@@ -1092,8 +1094,17 @@
         margin-left: 10px;
     }
 
-    #btnStepPrev:active {
+    #btnStepPrev:active,
+    #btnDetailMore:active {
         background: #f0f9f6;
+    }
+
+    #btnDetailMore {
+        flex: 0 0 auto;
+    }
+
+    #btnDetailMore .add-icon {
+        margin-right: 0.25rem;
     }
 
     /* 다음 버튼 */
@@ -1562,6 +1573,20 @@
     // ============================================================================
     let currentStep = 1;
     const TOTAL_STEPS = 11;
+    // 1~10 은 필수, 11(근무요일·희망성별·희망국적·희망나이)은 "상세등록" 선택 구간
+    const REQUIRED_STEPS = 10;
+    // 상세등록 구간을 열었는지 여부. 전체 단계 수가 10 ↔ 11 로 달라진다
+    let isDetailOpen = false;
+    // 미리보기에서 돌아왔는지 여부.
+    // DOMContentLoaded 핸들러가 from_preview 플래그를 지우기 전에 먼저 읽어 둬야 하므로
+    // 인라인 스크립트가 파싱되는 이 시점에 확보한다
+    const IS_RETURN_FROM_PREVIEW = (function() {
+        try {
+            return sessionStorage.getItem('from_preview') === 'true';
+        } catch (e) {
+            return false;
+        }
+    }());
     // 단계 상단을 화면 위쪽에 둘 때의 여백 (상단바 60px + 진행바 7px 아래로 내림)
     const STEP_TOP_OFFSET = 100;
     // 단계 마지막 항목 아래와 고정 푸터 사이 여백
@@ -1571,17 +1596,42 @@
     // 주소 팝업이 닫히고 body overflow가 복원된 뒤 스크롤하기 위한 지연
     const ADDR_SCROLL_DELAY = 150;
 
+    // 상세등록을 열기 전에는 10단계가 끝, 열면 11단계가 끝
+    function getTotalSteps() {
+        return isDetailOpen ? TOTAL_STEPS : REQUIRED_STEPS;
+    }
+
+    // 상세업무가 입력되어야 상세등록 버튼을 노출한다
+    function isDescFilled() {
+        let editor = document.getElementById('rc_desc_editor');
+        return editor ? editor.innerHTML.trim() !== "" : false;
+    }
+
     function updateProgressBar() {
-        let progress = (currentStep / TOTAL_STEPS) * 100;
+        let progress = (currentStep / getTotalSteps()) * 100;
+        if (progress > 100) {
+            progress = 100;
+        }
         $("#stepProgressFill").css("width", progress + "%");
     }
 
-    function updateStepVisibility() {
+    // 미리보기 복귀 시 스크롤을 맨 위(첫 단계)로 올린다.
+    // 이력서 등록 폼과 동작을 맞추기 위한 것으로, 복귀 후 처음부터 훑어보며 수정하게 한다
+    function scrollPageTop() {
+        let $page = $(".page");
+        if ($page.length > 0) {
+            $page.stop(true).scrollTop(0);
+        }
+    }
+
+    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
+    //                펼침 애니메이션과 자동 스크롤 없이 즉시 표시한다
+    function updateStepVisibility(skipAnimation) {
         // 현재 단계까지의 모든 섹션을 누적형으로 표시
         for (let i = 1; i <= TOTAL_STEPS; i++) {
             let $section = $(".step-section[data-step='" + i + "']");
             if (i <= currentStep) {
-                if (i === currentStep) {
+                if (i === currentStep && !skipAnimation) {
                     // 새로 노출되는 단계는 slideDown. 높이가 확정된 뒤 스크롤해야 하므로 완료 콜백에서 처리
                     $section.slideDown(300, scrollToCurrentStep);
                 } else {
@@ -1602,7 +1652,14 @@
             $("#btnStepPrev").show();
         }
 
-        if (currentStep === TOTAL_STEPS) {
+        // 상세등록 버튼: 마지막 필수 단계(10)에서 상세업무를 입력했고, 아직 열지 않았을 때만
+        if (currentStep === REQUIRED_STEPS && !isDetailOpen && isDescFilled()) {
+            $("#btnDetailMore").show();
+        } else {
+            $("#btnDetailMore").hide();
+        }
+
+        if (currentStep >= getTotalSteps()) {
             $("#btnStepNext").hide();
             $("#btnPreview").show();
         } else {
@@ -2946,6 +3003,13 @@
         // 이를 통해 recruit_write1_1.php로 돌아올 때 draft 로드 여부 판단
         sessionStorage.setItem('from_preview', 'true');
 
+        // add.js 의 전역 pageshow 핸들러가 뒤로가기 때 이 값으로 스크롤을 되돌린다.
+        // 미리보기 버튼을 누른 위치(마지막 단계 아래)가 담겨 있으면 복귀 시 화면이 아래로 튀므로
+        // 맨 위로 덮어쓴다
+        try {
+            localStorage.setItem('divScrollPositon', '0');
+        } catch (e) {}
+
         // 이동이 취소되거나 실패해도 버튼이 잠긴 채 남지 않도록 먼저 해제
         unlockSubmit();
 
@@ -4002,13 +4066,32 @@
             if (!validateStepRequired(currentStep)) {
                 return;
             }
-            if (currentStep < TOTAL_STEPS) {
+            if (currentStep < getTotalSteps()) {
                 currentStep++;
                 updateStepVisibility();
             }
         });
 
+        /* 상세등록(+): 마지막 필수 단계(10)에서 선택 구간(11)을 열고 진입 */
+        $("#btnDetailMore").click(function(e) {
+            e.preventDefault();
+            if (!validateStepRequired(currentStep)) {
+                return;
+            }
+            isDetailOpen = true;
+            currentStep = REQUIRED_STEPS + 1;
+            updateStepVisibility();
+        });
+
         $("#btnStepPrev").click(function() {
+            // 11단계에서 뒤로 가면 상세등록 구간을 닫고 10단계로 돌아간다
+            // (입력값은 DOM 에 그대로 남아 다시 열면 복원된다)
+            if (currentStep === REQUIRED_STEPS + 1) {
+                isDetailOpen = false;
+                currentStep = REQUIRED_STEPS;
+                updateStepVisibility();
+                return;
+            }
             if (currentStep > 1) {
                 currentStep--;
                 updateStepVisibility();
@@ -4024,7 +4107,16 @@
         });
 
         // 단계별 진행 초기화
-        updateStepVisibility();
+        // 미리보기에서 돌아온 경우에는 처음부터 다시 밟지 않도록 마지막 단계까지 모두 펼친다
+        if (IS_RETURN_FROM_PREVIEW) {
+            // 선택 구간까지 함께 펼쳐야 입력했던 요일·성별·국적·나이가 보인다
+            isDetailOpen = true;
+            currentStep = TOTAL_STEPS;
+            updateStepVisibility(true);
+            scrollPageTop();
+        } else {
+            updateStepVisibility();
+        }
 
         // 공고제목 문자 수 카운트
         $("#rc_name_input").on("input", function() {
@@ -4466,6 +4558,13 @@
     // rc_desc_editor에서 Enter 키를 <br> 태그로 변환
     var rcDescEditor = document.getElementById('rc_desc_editor');
     if (rcDescEditor) {
+      // 상세업무를 입력하는 즉시 상세등록 버튼이 나타나도록 갱신
+      rcDescEditor.addEventListener('input', function() {
+        if (typeof updateStepVisibility === 'function' && currentStep === REQUIRED_STEPS) {
+          updateStepVisibility(true);
+        }
+      });
+
       rcDescEditor.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
