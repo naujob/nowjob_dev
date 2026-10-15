@@ -1218,6 +1218,34 @@ class Cron_proc extends CI_Controller
         echo "[cleanup_expired_chat_files] 삭제된 파일 수: {$deleted}\n";
     }
 
+    // 채용공고 임시 사진 24시간 경과분 삭제 (등록완료 전 임시 폴더만 대상, 정식 폴더는 건드리지 않음)
+    // crontab: 0 * * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_temp_recruit_images > /dev/null 2>&1
+    public function cleanup_temp_recruit_images()
+    {
+        $temp_base = FCPATH . 'resource/uploads/temp';
+        $expire_seconds = 24 * 60 * 60; // 24시간
+        $now = time();
+        $deleted = 0;
+
+        if (!is_dir($temp_base)) {
+            echo "[cleanup_temp_recruit_images] 임시 폴더 없음\n";
+            return;
+        }
+
+        // 회원별(temp/{mm_idx}) 하위 폴더와 resize 변형까지 재귀로 순회
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($temp_base, FilesystemIterator::SKIP_DOTS));
+        foreach ($files as $file) {
+            if (!$file->isFile()) continue;
+            if (($now - $file->getMTime()) > $expire_seconds) {
+                if (@unlink($file->getPathname())) {
+                    $deleted++;
+                }
+            }
+        }
+
+        echo "[cleanup_temp_recruit_images] 삭제된 파일 수: {$deleted}\n";
+    }
+
     // 전원 퇴장(CLOSED) 후 30일 경과한 채팅방 메시지 삭제
     // crontab: 0 3 * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_closed_room_messages > /dev/null 2>&1
     public function cleanup_closed_room_messages()

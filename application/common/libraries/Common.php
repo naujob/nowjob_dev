@@ -814,6 +814,80 @@ class common
 		return $result;
 	}
 
+	// 채용공고 임시 업로드 폴더 경로 (회원 mm_idx 기준, resource/uploads 기준 상대경로)
+	// 사진은 등록완료 전까지 여기 머물고, 24시간 지나면 cron(cleanup_temp_recruit_images)이 지운다.
+	function recruit_temp_path($mm_idx)
+	{
+		// 경로에 쓸 수 없는 문자는 제거 (mm_idx는 숫자 키라 정상 값은 그대로 남는다)
+		$safe_idx = preg_replace('/[^0-9A-Za-z_]/', '', (string) $mm_idx);
+		return "temp/" . ($safe_idx !== "" ? $safe_idx : "0");
+	}
+
+	// 임시 폴더의 사진을 정식 폴더(recruit)로 복사하고, 저장할 데이터 안의 경로를 바꾼다.
+	// 복사로 두는 이유: DB 저장이 실패해도 임시 원본이 남아 있어 작성 화면의 사진이 깨지지 않는다.
+	function promote_recruit_temp_images(&$data, $mm_idx)
+	{
+		$upload_base = FCPATH . "resource/uploads/";
+		$temp_url = "/resource/uploads/" . $this->recruit_temp_path($mm_idx) . "/";
+		$temp_dir = $upload_base . $this->recruit_temp_path($mm_idx) . "/";
+		$new_url = "/resource/uploads/recruit/";
+
+		// 메인, 썸네일, 본문(rc_desc HTML 안의 이미지), 상세사진 1~3
+		$fields = ["rc_img1", "rc_img2", "rc_img3", "rc_img4", "rc_img5", "rc_thumb", "rc_detail_img1", "rc_detail_img2", "rc_detail_img3", "rc_desc"];
+
+		foreach ($fields as $field) {
+			if (!isset($data[$field]) || strpos($data[$field], $temp_url) === false) {
+				continue;
+			}
+
+			// 데이터에 실제로 쓰인 파일명만 골라서 원본과 sm/md/lg 변형을 함께 복사
+			// 본문 이미지(se2)는 resize/파일명, 메인 사진은 resize/sm|md|lg/파일명 형태라서 둘 다 잡는다
+			preg_match_all('#' . preg_quote($temp_url, '#') . '(?:resize/(?:(?:sm|md|lg)/)?)?([A-Za-z0-9_.\-]+)#', $data[$field], $matches);
+			foreach (array_unique($matches[1]) as $file_name) {
+				$this->copy_recruit_temp_file($upload_base, $temp_dir, $file_name);
+			}
+
+			$data[$field] = str_replace($temp_url, $new_url, $data[$field]);
+		}
+	}
+
+	// 임시 폴더의 한 장(원본 + resize/sm, md, lg)을 recruit 폴더로 복사
+	function copy_recruit_temp_file($upload_base, $temp_dir, $file_name)
+	{
+		$dest_base = $upload_base . "recruit/";
+
+		// 원본, resize/(본문 이미지), resize/sm|md|lg/(메인 사진 변형)을 모두 복사
+		foreach (["", "resize/", "resize/sm/", "resize/md/", "resize/lg/"] as $sub) {
+			$src = $temp_dir . $sub . $file_name;
+			if (!is_file($src)) {
+				continue;
+			}
+
+			$dest = $dest_base . $sub . $file_name;
+			if (!is_dir(dirname($dest))) {
+				mkdir(dirname($dest), 0755, true);
+			}
+			copy($src, $dest);
+		}
+	}
+
+	// 임시 폴더 사진의 수정 시각을 지금으로 갱신 (24시간 청소 타이머를 다시 시작)
+	// 작성 페이지 진입, 단계 저장, 미리보기 호출 때 불러서 작성 중인 사진이 지워지지 않게 한다.
+	function touch_recruit_temp($mm_idx)
+	{
+		$temp_dir = FCPATH . "resource/uploads/" . $this->recruit_temp_path($mm_idx);
+		if (!is_dir($temp_dir)) {
+			return;
+		}
+
+		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($temp_dir, FilesystemIterator::SKIP_DOTS));
+		foreach ($files as $file) {
+			if ($file->isFile()) {
+				@touch($file->getPathname());
+			}
+		}
+	}
+
 	// 반응형 이미지: 3가지 크기(sm:400px, md:800px, lg:1200px) 자동 생성
 	function img_upload_responsive($path, $ipt_name)
 	{

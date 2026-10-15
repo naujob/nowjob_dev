@@ -1488,7 +1488,10 @@ class Compage extends CI_Controller
 	# 채용공고 등록1_1
 	function recruit_write1_1($rc_idx = 0)
 	{
-		// query string에서도 rc_idx 수신 (미리보기에서 돌아올 때 ?rc_idx= 형식 대응)
+		// 작성 페이지 진입(미리보기 복귀 포함) 때 임시 사진의 청소 타이머를 다시 시작
+			$this->common->touch_recruit_temp($this->mm_idx);
+
+			// query string에서도 rc_idx 수신 (미리보기에서 돌아올 때 ?rc_idx= 형식 대응)
 		if ($rc_idx == 0 && $this->input->get('rc_idx')) {
 			$rc_idx = intval($this->input->get('rc_idx'));
 		}
