@@ -241,8 +241,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     color: #1b9d7d;
   }
 
+  .info-table .pay span em:not(:first-child) {
+    padding-left: 8px;
+  }
+
   .info-table .pay span em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
   }
 
   .info-table .pay span em.off {
@@ -253,12 +257,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777;
+    background: #777777;
   }
 
   .hashtag {
@@ -267,7 +271,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
   .summary-card .meta {
     display: flex;
-    gap: 5px;
+    gap: 0;
     justify-content: flex-start;
     position: relative;
     font-size: 21px;
@@ -283,8 +287,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     color: #1b9d7d;
   }
 
+  .summary-card .meta em:not(:first-child) {
+    padding-left: 8px;
+  }
+
   .summary-card .meta em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
   }
 
   .summary-card .meta em.off {
@@ -295,12 +303,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777;
+    background: #777777;
   }
 
   .recent-history .history-body {
@@ -400,27 +408,31 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
   .history-body .content-info .summary {
     display: flex;
     font-size: var(--page-recruit-font-size-md);
-    gap: 5px;
+    gap: 0;
     position: relative;
   }
 
   .history-body .content-info .summary p {
     position: relative;
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
     margin: 0;
     color: #999;
+  }
+
+  .history-body .content-info .summary p:not(:first-child) {
+    padding-left: 8px;
   }
 
   .history-body .content-info .summary p:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #ACACAC;
+    background: #777777;
   }
 
   .history-body .content-info .summary>* {
@@ -460,7 +472,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
   .history-body .content-info .summary2 .period {
     display: flex;
-    gap: 5px;
+    gap: 0;
     justify-content: flex-end;
     position: relative;
     font-size: 14px;
@@ -481,8 +493,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     font-style: normal;
   }
 
+  .history-body .content-info .summary2 .period em:not(:first-child) {
+    padding-left: 8px;
+  }
+
   .history-body .content-info .summary2 .period em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
   }
 
   .history-body .content-info .summary2 .period em.on {
@@ -493,12 +509,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777;
+    background: #777777;
   }
 
   .history-body .content-info .summary3 {
@@ -515,7 +531,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
   .history-body .content-info .summary3 .wtype {
     display: flex;
-    gap: 5px;
+    gap: 0;
     justify-content: flex-end;
     position: relative;
     font-size: 14px;
@@ -529,8 +545,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     color: #000;
   }
 
+  .history-body .content-info .summary3 .wtype em:not(:first-child) {
+    padding-left: 8px;
+  }
+
   .history-body .content-info .summary3 .wtype em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
   }
 
 
@@ -600,17 +620,12 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
   .content-info .worktype em.wtype1 {
     color: #000;
-    padding-right: 4px;
-    padding-right: 4px;
   }
 
   .content-info .worktype em.wtype2 {
     color: #000;
-    padding-left: 4px;
-    padding-right: 4px;
   }
  .content-info .worktype em.wtype3 {
-    padding-left: 4px;
   }
   .content-info .worktype em {
     position: relative;
@@ -618,16 +633,24 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     font-style: normal;
   }
 
+  .content-info .worktype em:not(:first-child) {
+    padding-left: 8px;
+  }
+
+  .content-info .worktype em:not(:last-child) {
+    padding-right: calc(8px + 0.05em);
+  }
+
   .content-info .worktype em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777;
+    background: #777777;
   }
 
 

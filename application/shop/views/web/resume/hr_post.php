@@ -281,27 +281,31 @@ function fRemoveBigAdrPHP($arg)
   .history-body .content-info .summary {
     display: flex;
     font-size: var(--page-recruit-font-size-md);
-    gap: 5px;
+    gap: 0;
     position: relative;
   }
 
   .history-body .content-info .summary p {
     position: relative;
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
     margin: 0;
     color: #000;
+  }
+
+  .history-body .content-info .summary p:not(:first-child) {
+    padding-left: 8px;
   }
 
   .history-body .content-info .summary p:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #ACACAC;
+    background: #777777;
   }
 
   .history-body .content-info .summary>* {
@@ -315,7 +319,7 @@ function fRemoveBigAdrPHP($arg)
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    margin: 0 0 -4px;
+    margin: 0 0 -4px 5px;
     list-style: none;
   }
 
@@ -365,7 +369,7 @@ function fRemoveBigAdrPHP($arg)
 
   .history-body .content-info .summary2 .period {
     display: flex;
-    gap: 5px;
+    gap: 0;
     justify-content: flex-end;
     position: relative;
     font-size: 14px;
@@ -383,20 +387,24 @@ function fRemoveBigAdrPHP($arg)
     color: #1b9d7d;
   }
 
+  .history-body .content-info .summary2 .period em:not(:first-child) {
+    padding-left: 8px;
+  }
+
   .history-body .content-info .summary2 .period em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
   }
 
   .history-body .content-info .summary2 .period em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777;
+    background: #777777;
   }
 
   .history-body .content-info .summary3 {
@@ -413,7 +421,7 @@ function fRemoveBigAdrPHP($arg)
 
   .history-body .content-info .summary3 .wtype {
     display: flex;
-    gap: 5px;
+    gap: 0;
     justify-content: flex-end;
     position: relative;
     font-size: 14px;
@@ -427,20 +435,24 @@ function fRemoveBigAdrPHP($arg)
     color: #333;
   }
 
+  .history-body .content-info .summary3 .worktype em:not(:first-child) {
+    padding-left: 8px;
+  }
+
   .history-body .content-info .summary3 .worktype em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
   }
 
   .history-body .content-info .summary3 .worktype em:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777777;
+    background: #777777;
   }
 
   .history-body .content-info .summary3 .worktype em.wtype1 {
@@ -449,12 +461,10 @@ function fRemoveBigAdrPHP($arg)
 
   .history-body .content-info .summary3 .worktype em.wtype2 {
     color: #000;
-    padding-left: 4px;
   }
 
   .history-body .content-info .summary3 .worktype em.wtype3 {
     color: #000;
-    padding-left: 4px;
   }
 
   /* 개인회원이 자신의 이력서를 볼 때 btn-request:before 비활성화 */
@@ -509,28 +519,30 @@ function fRemoveBigAdrPHP($arg)
   .ru_price_type em.off {
    
   }
- .info-table .value em:not(:last-child)::after {
+  .info-table .value em {
+    position: relative;
+    display: inline-block;
+  }
+
+  .info-table .value em:not(:last-child)::after {
     content: "";
     position: absolute;
-        top: 27px;
-    right: 363px;
-
+    top: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777777;
- }
+    background: #777777;
+  }
+
+  .info-table .value em:not(:first-child) {
+    padding-left: 8px;
+  }
 
   .info-table .value em:not(:last-child) {
-  padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
   }
-  
-.info-table .value em:not(:first-child) {
-
-}
-
-
   
   /* ru_price_type 내의 구분자 스타일 (직선 구분자) */
  
@@ -538,20 +550,31 @@ function fRemoveBigAdrPHP($arg)
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    right: -0.75px;
     bottom: 0;
-    width: 1px;
-    height: 0.5em;
+    width: 1.5px;
+    height: 0.7em;
     margin: auto;
-    border-right: 1px solid #777777;
+    background: #777777;
   }
 
   .ru_price_type em:not(:first-child) {
-    padding-left: 5px;
+    padding-left: 8px;
   }
 
   .ru_price_type em:not(:last-child) {
-    padding-right: 5px;
+    padding-right: calc(8px + 0.05em);
+  }
+
+  .type .gapbar1,
+  .type .gapbar2 {
+    display: inline-block;
+    width: 1.5px;
+    height: 0.7em;
+    margin: 0 4px;
+    font-size: 0;
+    vertical-align: middle;
+    background: #777777;
   }
 
   .person-card .meta p {
