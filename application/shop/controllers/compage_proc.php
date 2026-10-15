@@ -714,7 +714,8 @@ class Compage_proc extends CI_Controller
     $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -1101,7 +1102,8 @@ class Compage_proc extends CI_Controller
     $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -2029,7 +2031,8 @@ class Compage_proc extends CI_Controller
     $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -2416,7 +2419,8 @@ class Compage_proc extends CI_Controller
     $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -2738,13 +2742,9 @@ class Compage_proc extends CI_Controller
     $rc_day = input_post("rc_day", []);
     $rc_day_all = input_post("rc_day_all", "");
 
-    $rc_img1_ori = input_post("rc_img1_ori", "");
     $rc_detail_img1 = input_post("rc_detail_img1", "");
-    $rc_detail_img1_ori = input_post("rc_detail_img1_ori", "");
     $rc_detail_img2 = input_post("rc_detail_img2", "");
-    $rc_detail_img2_ori = input_post("rc_detail_img2_ori", "");
     $rc_detail_img3 = input_post("rc_detail_img3", "");
-    $rc_detail_img3_ori = input_post("rc_detail_img3_ori", "");
 
     if ($rc_desc == "") {
       json_return("99", "상세업무정보가 확인되지 않습니다.");
@@ -2754,7 +2754,29 @@ class Compage_proc extends CI_Controller
       json_return("99", "채용공고기간이 확인되지 않습니다.");
     }
 
+    # 이미지 처리.
+    # 새 파일이 없으면 img_upload_responsive()가 rc_img1_ori 값을 sm/md/lg 모두에 그대로 돌려준다.
+    # 이 경우 썸네일은 즉시 업로드 때 받아둔 sm 변형(rc_thumb_ori)으로 복원한다.
+    try {
+      $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+      $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+      // 목록/채팅 썸네일 용도이므로 sm(400px)
+      $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
+
+      $rc_img1_uploaded = isset($rc_img1_resp["SUCCESS"]) ? $rc_img1_resp["SUCCESS"] : false;
+      if (!$rc_img1_uploaded) {
+        $rc_thumb_ori = input_post("rc_thumb_ori", "");
+        if ($rc_thumb_ori != "") {
+          $rc_thumb = $rc_thumb_ori;
+        }
+      }
+    } catch (Exception $e) {
+      throw $e;
+    }
+
     # 기존 등록 이미지 있으면 삭제
+    # 비교 기준은 "이번에 저장할 최종 URL" 이다. 과거에는 폼에 없는 *_ori 값과 비교해
+    # 변경이 없어도 매번 지워버렸다(두 번째 미리보기에서 사진이 사라지는 원인).
     $log_info = $this->site_model->getSiteLog(
       ["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT", "sl_step" => "스텝3"]
     );
@@ -2762,40 +2784,21 @@ class Compage_proc extends CI_Controller
     if ($log_info != null) {
       try {
         $json_info = json_decode($log_info["sl_txt"], true);
-        if ($rc_img1_ori != (isset($json_info["rc_img1"]) ? $json_info["rc_img1"] : "")) {
-          if (isset($json_info["rc_img1"]) && $json_info["rc_img1"] != "") {
-            file_remove($json_info["rc_img1"]);
-          }
-        }
-        // 상세페이지 이미지 1
-        if ($rc_detail_img1_ori != (isset($json_info["rc_detail_img1"]) ? $json_info["rc_detail_img1"] : "")) {
-          if (isset($json_info["rc_detail_img1"]) && $json_info["rc_detail_img1"] != "") {
-            file_remove($json_info["rc_detail_img1"]);
-          }
-        }
-        // 상세페이지 이미지 2
-        if ($rc_detail_img2_ori != (isset($json_info["rc_detail_img2"]) ? $json_info["rc_detail_img2"] : "")) {
-          if (isset($json_info["rc_detail_img2"]) && $json_info["rc_detail_img2"] != "") {
-            file_remove($json_info["rc_detail_img2"]);
-          }
-        }
-        // 상세페이지 이미지 3
-        if ($rc_detail_img3_ori != (isset($json_info["rc_detail_img3"]) ? $json_info["rc_detail_img3"] : "")) {
-          if (isset($json_info["rc_detail_img3"]) && $json_info["rc_detail_img3"] != "") {
-            file_remove($json_info["rc_detail_img3"]);
+        $prev_images = [
+          "rc_img1" => $rc_img1,
+          "rc_detail_img1" => $rc_detail_img1,
+          "rc_detail_img2" => $rc_detail_img2,
+          "rc_detail_img3" => $rc_detail_img3,
+        ];
+        foreach ($prev_images as $img_key => $new_url) {
+          $old_url = isset($json_info[$img_key]) ? $json_info[$img_key] : "";
+          // 이전 파일이 있고, 이번에 쓰는 URL과 다를 때만 삭제 (sm/md/lg 변형 포함)
+          if ($old_url != "" && $old_url != $new_url) {
+            $this->common->remove_upload_image($old_url);
           }
         }
       } catch (Exception $ex) {
       }
-    }
-
-    # 이미지 처리.
-    try {
-      $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
-      $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
-      $rc_thumb = isset($rc_img1_resp["URL_MD"]) ? $rc_img1_resp["URL_MD"] : "";
-    } catch (Exception $e) {
-      throw $e;
     }
 
     #로그 생성

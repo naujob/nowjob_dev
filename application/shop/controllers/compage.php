@@ -1533,6 +1533,7 @@ class Compage extends CI_Controller
 			"rc_eage" => "",
 			"rc_age_all" => "",
 			"rc_img1" => "",
+			"rc_thumb" => "", // 목록 썸네일용 md 변형 URL
 			"rc_img2" => "",
 			"rc_img3" => "",
 			"rc_img4" => "",
@@ -1629,6 +1630,7 @@ class Compage extends CI_Controller
 			$info["rc_eage"] = isset($recruit_info["rc_eage"]) ? $recruit_info["rc_eage"] : "";
 			$info["rc_age_all"] = isset($recruit_info["rc_age_all"]) ? $recruit_info["rc_age_all"] : "";
 			$info["rc_img1"] = isset($recruit_info["rc_img1"]) ? $recruit_info["rc_img1"] : "";
+			$info["rc_thumb"] = isset($recruit_info["rc_thumb"]) ? $recruit_info["rc_thumb"] : "";
 			$info["rc_img2"] = isset($recruit_info["rc_img2"]) ? $recruit_info["rc_img2"] : "";
 			$info["rc_img3"] = isset($recruit_info["rc_img3"]) ? $recruit_info["rc_img3"] : "";
 			$info["rc_img4"] = isset($recruit_info["rc_img4"]) ? $recruit_info["rc_img4"] : "";

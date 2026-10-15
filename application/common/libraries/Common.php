@@ -1912,4 +1912,32 @@ class common
 			return $body;
 		}
 	}
+
+	/**
+	 * 업로드 이미지를 지운다. 반응형 이미지는 sm/md/lg 변형까지 함께 지운다.
+	 * (file_remove()는 URL 하나만 지워서 나머지 변형이 고아로 남는다)
+	 */
+	function remove_upload_image($url)
+	{
+		if ($url == "") {
+			return;
+		}
+
+		$target_urls = [$url];
+		if (preg_match('#/resize/(sm|md|lg)/#', $url) == 1) {
+			$target_urls = [];
+			$sizes = ["sm", "md", "lg"];
+			foreach ($sizes as $size) {
+				$target_urls[] = preg_replace('#/resize/(sm|md|lg)/#', '/resize/' . $size . '/', $url);
+			}
+		}
+
+		foreach ($target_urls as $target_url) {
+			$path = FCPATH . ltrim($target_url, "/");
+			if (is_file($path)) {
+				@unlink($path);
+			}
+		}
+	}
+
 }

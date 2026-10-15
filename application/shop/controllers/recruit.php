@@ -785,11 +785,16 @@ class Recruit extends CI_Controller
         $info["rc_day_price"] = isset($step3["rc_day_price"]) ? intval($step3["rc_day_price"]) : 0;
         $info["rc_week_price"] = isset($step3["rc_week_price"]) ? intval($step3["rc_week_price"]) : 0;
         $info["rc_month_price"] = isset($step3["rc_month_price"]) ? intval($step3["rc_month_price"]) : 0;
-        $info["rc_img1"] = isset($step5["rc_img1"]) ? $step5["rc_img1"] : (isset($step3["rc_img1"]) ? $step3["rc_img1"] : "");
-        $info["rc_img2"] = isset($step5["rc_img2"]) ? $step5["rc_img2"] : (isset($step3["rc_img2"]) ? $step3["rc_img2"] : "");
-        $info["rc_img3"] = isset($step5["rc_img3"]) ? $step5["rc_img3"] : (isset($step3["rc_img3"]) ? $step3["rc_img3"] : "");
-        $info["rc_img4"] = isset($step5["rc_img4"]) ? $step5["rc_img4"] : (isset($step3["rc_img4"]) ? $step3["rc_img4"] : "");
+        // 이미지는 스텝3 우선, 없으면 스텝5 (recruit_complete의 등록 로직과 동일한 우선순위)
+        // site_log는 mm_idx+sl_type+sl_step 키라서 과거 웹 5단계 플로우의 스텝5 레코드가 남아 있을 수 있는데,
+        // 모바일 3단계 플로우는 rc_img1을 스텝3에만 기록하므로 스텝5를 우선하면 방금 올린 썸네일이 밀린다.
+        $info["rc_img1"] = isset($step3["rc_img1"]) ? $step3["rc_img1"] : (isset($step5["rc_img1"]) ? $step5["rc_img1"] : "");
+        $info["rc_img2"] = isset($step3["rc_img2"]) ? $step3["rc_img2"] : (isset($step5["rc_img2"]) ? $step5["rc_img2"] : "");
+        $info["rc_img3"] = isset($step3["rc_img3"]) ? $step3["rc_img3"] : (isset($step5["rc_img3"]) ? $step5["rc_img3"] : "");
+        $info["rc_img4"] = isset($step3["rc_img4"]) ? $step3["rc_img4"] : (isset($step5["rc_img4"]) ? $step5["rc_img4"] : "");
         $info["rc_img5"] = isset($step5["rc_img5"]) ? $step5["rc_img5"] : "";
+        // 이미지가 하나도 없을 때 getRecruitImg()가 참조하므로 함께 채운다
+        $info["rc_thumb"] = isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : (isset($step5["rc_thumb"]) ? $step5["rc_thumb"] : "");
         $info["rc_show_yn"] = "Y";
         $info["fav_cnt"] = 0;
         $info["rc_hit"] = 0;

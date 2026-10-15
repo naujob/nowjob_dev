@@ -351,36 +351,24 @@ if (!$isLogin) {
 
         <div class="view-visual-slider">
             <div class="slider-wrap keen-slider">
-                <?php if ($info["rc_img1"] != "") : ?>
+                <?php
+                // 슬라이더 이미지: 표시용은 md(800), 확대보기(data-mfp-src)는 원본 lg를 쓴다.
+                // srcset을 함께 주면 고해상도 단말에서만 브라우저가 lg를 고른다.
+                $_slider_imgs = ["rc_img1", "rc_img2", "rc_img3", "rc_img4", "rc_img5", "rc_img99"];
+                foreach ($_slider_imgs as $_img_key) :
+                    $_img_url = isset($info[$_img_key]) ? $info[$_img_key] : "";
+                    if ($_img_url == "") {
+                        continue;
+                    }
+                    $_img_display = get_img_variant($_img_url, "md");
+                    $_img_srcset = get_img_srcset($_img_url);
+                ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img1"] ?>" data-mfp-src="<?= $info["rc_img1"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $_img_display ?>"
+                            <?php if ($_img_srcset != "") : ?>data-srcset="<?= $_img_srcset ?>" sizes="100vw" <?php endif; ?>
+                            data-mfp-src="<?= $_img_url ?>" alt="" class="lozad">
                     </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img2"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img2"] ?>" data-mfp-src="<?= $info["rc_img2"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img3"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img3"] ?>" data-mfp-src="<?= $info["rc_img3"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img4"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img4"] ?>" data-mfp-src="<?= $info["rc_img4"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img5"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img5"] ?>" data-mfp-src="<?= $info["rc_img5"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img99"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img99"] ?>" data-mfp-src="<?= $info["rc_img99"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
         </div>
 

@@ -484,6 +484,8 @@
                                         </div>
                                         <button type="button" class="btn-pic-remove" style="display:<?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "inline-block" : "none" ?>;">×</button>
                                         <input type='hidden' name='rc_img1_ori' value='<?= isset($info["rc_img1"]) ? $info["rc_img1"] : "" ?>' />
+                                        <!-- 즉시 업로드된 썸네일(md) 변형 URL 보관용 (파일 재전송 없이 서버에서 복원) -->
+                                        <input type='hidden' name='rc_thumb_ori' value='<?= isset($info["rc_thumb"]) ? $info["rc_thumb"] : "" ?>' />
                                     </label>
                                     <div class="pic-guide-text">
                                         <p>등록된 썸네일 이미지는 채용공고 목록 썸네일 이미지로 노출됩니다.</p>
@@ -1128,6 +1130,13 @@
 
     #btnPreview:active {
         background-color: #38b898;
+    }
+
+    /* 제출 진행 중: 연타 방지 (상태는 data-state, 표현은 CSS) */
+    #btnPreview[data-state="submitting"],
+    #btnSubmit[data-state="submitting"] {
+        opacity: 0.5;
+        pointer-events: none;
     }
 
     /* 단계별 UI 스타일 */
@@ -1936,7 +1945,14 @@
             rc_age_all: $("[name='rc_age_all']").is(":checked") ? "Y" : "",
             rc_sage: $("[name='rc_sage']").val(),
             rc_eage: $("[name='rc_eage']").val(),
-            detail_section_visible: $(".js-detail-section").hasClass("show")
+            detail_section_visible: $(".js-detail-section").hasClass("show"),
+            // 메인사진은 즉시 업로드된 URL이 숨은칸에만 있어서, 백업하지 않으면
+            // 미리보기에서 새로고침으로 돌아왔을 때 사라진다 (상세사진은 rc_desc HTML에 포함됨)
+            rc_img1_ori: $("[name='rc_img1_ori']").val(),
+            rc_thumb_ori: $("[name='rc_thumb_ori']").val(),
+            rc_detail_img1: $("[name='rc_detail_img1']").val(),
+            rc_detail_img2: $("[name='rc_detail_img2']").val(),
+            rc_detail_img3: $("[name='rc_detail_img3']").val()
         };
 
         sessionStorage.setItem(storageKey, JSON.stringify(formData));
@@ -2230,6 +2246,51 @@
         }
     }
 
+    // 임시저장(draft)에 백업해둔 이미지 URL을 폼에 되돌린다.
+    // 메인사진은 숨은칸(rc_img1_ori)에만 URL이 있어서, 페이지가 새로고침되면
+    // 서버값(아직 DB에 없으므로 빈 값)으로 덮어써져 사라진다. 그 복구용.
+    function restoreDraftImages(formData) {
+        if (!formData) {
+            return;
+        }
+
+        // 메인사진: URL 복구 + 미리보기 이미지와 X버튼까지 되살림
+        if (formData.rc_img1_ori) {
+            var $mainLabel = $(".form-pic-main");
+            $mainLabel.find("[name='rc_img1_ori']").val(formData.rc_img1_ori);
+
+            if ($mainLabel.find(".preview img").length === 0) {
+                $mainLabel.find(".preview").html('<img src="' + formData.rc_img1_ori + '" />');
+            }
+            $mainLabel.addClass("has-image");
+            $mainLabel.find(".btn-pic-remove").show();
+        }
+
+        if (formData.rc_thumb_ori) {
+            $("[name='rc_thumb_ori']").val(formData.rc_thumb_ori);
+        }
+
+        // 상세사진: hidden 값 복구 + 해당 슬롯 박스 상태 되살림
+        for (var slot = 1; slot <= 3; slot++) {
+            var detailUrl = formData["rc_detail_img" + slot];
+            if (!detailUrl) {
+                continue;
+            }
+
+            $("[name='rc_detail_img" + slot + "']").val(detailUrl);
+
+            var $slotLabel = $(".form-pic-detail[data-detail-slot='" + slot + "']");
+            if ($slotLabel.length === 0) {
+                continue;
+            }
+            if ($slotLabel.find(".preview img").length === 0) {
+                $slotLabel.find(".preview").html('<img src="' + detailUrl + '" />');
+            }
+            $slotLabel.addClass("has-image");
+            $slotLabel.find(".btn-pic-remove").show();
+        }
+    }
+
     function loadPage3Data() {
         var rcIdx = $("[name='rc_idx']").val() || "0";
         var formData = null;
@@ -2318,6 +2379,10 @@
                     }, 100);
                 }
             }
+
+            // 메인사진/상세사진 URL 복구
+            // 빈 값으로는 덮어쓰지 않는다 (백업에 없는데 지우면 기존 사진이 날아감)
+            restoreDraftImages(formData);
 
             $("[name='rc_hash[]']").prop("checked", false);
             if (Array.isArray(formData.rc_hash) && formData.rc_hash.length > 0) {
@@ -2683,8 +2748,11 @@
             && checkRequiredPeriod();
     }
 
+    // 아직 서버로 보내지 않은(전송 대기 중인) 파일이 남아 있는지 확인
+    // 메인사진/상세이미지는 선택 즉시 업로드되고 URL만 hidden에 남으므로 보통 false가 된다.
+    // false면 serialize + comAjax 의 빠른 경로를 타고, 같은 사진을 다시 올리지 않는다.
     function hasFileUploads() {
-        // 메인사진 파일 선택 여부 확인
+        // 메인사진 파일 선택 여부 확인 (즉시 업로드 실패 등으로 input이 비워지지 않은 경우)
         var fileInputs = ["rc_img1"];
         for (var i = 0; i < fileInputs.length; i++) {
             var fileInput = $("[name='" + fileInputs[i] + "']")[0];
@@ -2693,17 +2761,26 @@
             }
         }
 
-        // 상세페이지 이미지 hidden input 값 확인 (이미 서버 업로드됨)
-        for (var slot = 1; slot <= 3; slot++) {
-            var inputName = 'rc_detail_img' + slot;
-            var value = $("[name='" + inputName + "']").val();
-            if (value && value !== "") {
-                return true;
-            }
-        }
-
         return false;
     }
+
+    // 제출(미리보기/등록) 진행 중 여부
+    // 저장은 여러 ajax를 순차 호출하므로, 두 번 누르면 공용 comAjax의 중복 가드가 걸려
+    // "데이터 처리중입니다." 팝업이 뜬다. 가드에 도달하기 전에 호출부에서 막는다.
+    var isSubmitting = false;
+
+    // 제출 시작: 버튼 잠금 (상태는 data 속성, 표현은 CSS가 담당)
+    function lockSubmit() {
+        isSubmitting = true;
+        $("#btnPreview, #btnSubmit").attr("data-state", "submitting").prop("disabled", true);
+    }
+
+    // 제출 종료: 버튼 잠금 해제
+    function unlockSubmit() {
+        isSubmitting = false;
+        $("#btnPreview, #btnSubmit").attr("data-state", "idle").prop("disabled", false);
+    }
+
     // 1, 2 페이지 저장 후 rc_idx가 새로 발급되거나 변경된 경우 localStorage의 임시저장 데이터 키를 새로운 rc_idx로 옮기는 함수 호출
     function saveStep1And2(onSuccess) {
         collectRcWorkImg();
@@ -2718,6 +2795,7 @@
         //로그테이블에 저장 site_log 테이블에 저장
         comAjax("/compage_proc/recruit_write1_1", params, function(ret) {
             if (ret.code != "00") {
+                unlockSubmit();
                 commonAlert(ret.msg, function() {});
                 return;
             }
@@ -2736,6 +2814,7 @@
             
             comAjax("/compage_proc/recruit_write2_1", params2, function(ret2) {
                 if (ret2.code != "00") {
+                    unlockSubmit();
                     commonAlert(ret2.msg, function() {});
                     return;
                 }
@@ -2797,12 +2876,14 @@
 
                             location.href = "/compage/recruit_list";
                         } else {
+                            unlockSubmit();
                             commonAlert(ret2.msg, function() {});
                             return;
                         }
                     });
                 }
             } else {
+                unlockSubmit();
                 commonAlert(ret.msg, function() {});
                 return;
             }
@@ -2823,7 +2904,7 @@
                     handleSave(ret);
                 },
                 error: function(xhr, status, error) {
-              
+                    unlockSubmit();
                     commonAlert("파일 업로드 중 오류가 발생했습니다.", function() {});
                 }
             });
@@ -2855,6 +2936,9 @@
         // 이를 통해 recruit_write1_1.php로 돌아올 때 draft 로드 여부 판단
         sessionStorage.setItem('from_preview', 'true');
 
+        // 이동이 취소되거나 실패해도 버튼이 잠긴 채 남지 않도록 먼저 해제
+        unlockSubmit();
+
         window.location.href = '/recruit/job_post/' + rc_idx + '?preview=1';
     }
 
@@ -2864,9 +2948,16 @@
     }
 
     function handleSubmit(mode) {
+        // 이미 진행 중이면 무시 (연타 시 공용 comAjax 중복 가드가 걸리는 것을 방지)
+        if (isSubmitting) {
+            return;
+        }
+
         if (!validateRequiredForSubmit()) {
             return;
         }
+
+        lockSubmit();
 
         savePage1Data();
         savePage2Data();
@@ -2895,6 +2986,15 @@
         }
     }
     // 페이지 로드 시 이벤트 리스너 등록 및 초기화
+    // 뒤로가기(bfcache)로 돌아오면 JS 상태가 그대로 복원되므로
+    // 제출 잠금/로딩 오버레이가 남아 화면이 먹통이 되는 것을 막는다
+    window.addEventListener('pageshow', function() {
+        unlockSubmit();
+        if (typeof resetLoadingOverlay === 'function') {
+            resetLoadingOverlay();
+        }
+    });
+
     window.addEventListener('DOMContentLoaded', function() {
         // URL 파라미터에서 rc_idx 확인 (preview 모드에서 돌아온 경우)
         // PHP에서 전달한 rcIdx 변수 사용 (URL 파라미터 대신)
@@ -3681,10 +3781,12 @@
         $(document).on("change", "#rc_img1_input", function() {
             var $label = $(this).closest(".form-pic-main, .form-pic-detail");
             var $oriInput = $label.find("[name='rc_img1_ori']");
+            var $thumbInput = $label.find("[name='rc_thumb_ori']");
             var $input = this;
 
             // X 취소용 스냅샷 저장
             $label.data("prevOri", $oriInput.val());
+            $label.data("prevThumb", $thumbInput.val());
             $label.data("prevPreviewHtml", $label.find(".preview").html());
             $label.data("prevHasImage", $label.hasClass("has-image"));
 
@@ -3698,7 +3800,7 @@
             var formData = new FormData();
             formData.append("rc_img1", file);
 
-            showLoadingOverlay();
+            showLoadingOverlay("사진 업로드 중...");
             $.ajax({
                 url: "/compage_proc/recruit_main_img_upload",
                 type: "POST",
@@ -3709,8 +3811,16 @@
                 success: function(ret) {
                     hideLoadingOverlay();
                     if (ret.code == "00") {
+                        // json_return 응답은 {code, msg, data:{url, url_sm, url_md, url_lg}} 구조
+                        var upload = ret.data ? ret.data : {};
                         // 최종확정 단계에서 이 값이 그대로 저장됨
-                        $oriInput.val(ret.url);
+                        // 서버의 rc_img1 은 lg 기준이므로 lg URL을 보관한다 (기존 이미지 삭제 비교와 단위를 맞춤)
+                        $oriInput.val(upload.url_lg ? upload.url_lg : (upload.url ? upload.url : ""));
+                        // 썸네일은 목록용이라 sm(400px)
+                        $thumbInput.val(upload.url_sm ? upload.url_sm : (upload.url ? upload.url : ""));
+                        // 이미 서버에 올라갔으므로 file input을 비운다
+                        // (비우지 않으면 미리보기/등록 시 같은 사진을 FormData로 다시 업로드해 수 초가 더 걸림)
+                        $input.value = "";
                         // 로컬 미리보기는 .js-file-preview 핸들러가 이미 처리했음
                     } else {
                         commonAlert(ret.msg, function() {
@@ -3784,6 +3894,7 @@
                 $preview.find("img").remove();
                 $label.toggleClass("has-image", !!$label.data("prevHasImage"));
                 $oriInput.val($label.data("prevOri") || "");
+                $label.find("[name='rc_thumb_ori']").val($label.data("prevThumb") || "");
             } else {
                 // 2~4번 박스: 미리보기 초기화 + 에디터에서 해당 이미지 제거 + hidden input 초기화
                 var detailSlot = $label.attr('data-detail-slot');
@@ -3820,7 +3931,7 @@
             var formData = new FormData();
             formData.append('Filedata', file);
 
-            showLoadingOverlay();
+            showLoadingOverlay("사진 업로드 중...");
             $.ajax({
                 url: '/compage_proc/se2_image_upload', // 서버 업로드 처리 URL
                 type: 'POST',
@@ -3860,6 +3971,9 @@
                                 var inputName = 'rc_detail_img' + detailSlot;
                                 $("[name='" + inputName + "']").val(response.url);
                             }
+
+                            // 업로드가 끝났으므로 file input을 비운다 (같은 사진 재선택 시 change 이벤트가 다시 발생하도록)
+                            $label.find("input[type=file]").val("");
                         }
                     } else {
                         commonAlert(file.name + ' 업로드에 실패했습니다.');
