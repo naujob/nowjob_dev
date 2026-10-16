@@ -2417,9 +2417,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             saveResumeStep4Data();
         });
 
-        /* 선택 상한 도달 시 자동 다음 단계 이동 (약 120ms 후, 빠른 전환)
+        /* 선택 상한 도달 시 자동 다음 단계 이동
+           - AUTO_ADVANCE_DELAY: 체크 터치가 끝나고 스크롤이 안정된 뒤 이동하도록 대기하는 시간(ms)
            - 현재 단계일 때만 동작: 이전 단계를 고칠 때는 넘어가지 않는다
            - 타이머 실행 시 조건을 다시 확인해, 그 사이 선택이 해제되면 이동하지 않는다 */
+        var AUTO_ADVANCE_DELAY = 300;
         var autoAdvanceTimer = null;
         function autoAdvanceIfComplete(step, isComplete) {
             if (autoAdvanceTimer) {
@@ -2434,7 +2436,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 if (currentStep === step && isComplete()) {
                     goNextStep();
                 }
-            }, 0);
+            }, AUTO_ADVANCE_DELAY);
         }
 
         /* 나의강점 기본 노출 목록 (PHP 목록을 그대로 넘겨 JS와 동일하게 유지) */
