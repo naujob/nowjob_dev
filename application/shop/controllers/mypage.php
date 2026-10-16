@@ -343,11 +343,11 @@
 			$proc_mode = "";
 
 			# 이력서 갯수 확인후 처리
-			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
 
-			if($ru_idx == 0 && $count >=5){
-        //2024.09.01 5개 제한 해제
-				go_location("/mypage/resume_list","이력서는 최대 5개 까지만 등록가능합니다.");
+			if($ru_idx == 0 && $count >=2){
+        //이력서 최대 2개 제한
+				go_location("/mypage/resume_list","이력서는 최대 2개 까지만 등록가능합니다.");
 			}
 
 			# 데이터 조회
@@ -396,11 +396,11 @@
 			}
 
 			# 이력서 갯수 확인후 처리
-			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
 
-			if($ru_idx == 0 && $count >=5){
-        //2024.09.01 5개 제한 해제
-				go_location("/mypage/resume_list","이력서는 최대 5개 까지만 등록가능합니다.");
+			if($ru_idx == 0 && $count >=2){
+        //이력서 최대 2개 제한
+				go_location("/mypage/resume_list","이력서는 최대 2개 까지만 등록가능합니다.");
 			}
 
 			# 데이터 조회
@@ -534,7 +534,7 @@
 			}
 
 			# 이력서 갯수 확인후 처리
-			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
 
 			if($ru_idx == 0 && $count >=5){
 				go_location("/mypage/resume_list","이력서는 최대 5개 까지만 등록가능합니다.");
@@ -554,6 +554,7 @@
 				"ru_my_type"=>"",
 				"ru_week_yn"=>"N",
 				"ru_week"=>"",
+				"ru_work_dt"=>"", // 근무시작일 (뷰에는 Y-m-d 형식으로 전달)
 				"arr_career"=>"",
 				"arr_certi"=>"",
 				"ru_nationality"=>isset($mem_info["mm_nation"]) ? $mem_info["mm_nation"] : "내국인", // 회원의 국적 정보 불러오기
@@ -593,6 +594,8 @@
 				$info["ru_my_type"] = isset($step4["ru_my_type"]) ? (is_array($step4["ru_my_type"]) ? $step4["ru_my_type"] : explode(",", $step4["ru_my_type"])) : [];
 				$info["ru_week_yn"] = isset($step4["ru_week_yn"]) ? $step4["ru_week_yn"] : "N";
 				$info["ru_week"] = isset($step4["ru_week"]) ? $step4["ru_week"] : "";
+				// 근무시작일: 임시저장(스텝4)에 보관된 값 복원
+				$info["ru_work_dt"] = isset($step4["ru_work_dt"]) ? $step4["ru_work_dt"] : "";
 				$info["arr_career"] = isset($step4["arr_career"]) ? $step4["arr_career"] : "";
 				$info["arr_certi"] = isset($step4["arr_certi"]) ? $step4["arr_certi"] : "";
 
@@ -622,6 +625,8 @@
 				$info["ru_my_type"] = isset($resume_info["ru_my_type"]) ? array_map('trim', explode(",", $resume_info["ru_my_type"])) : [];
 				$info["ru_week_yn"] = isset($resume_info["ru_week_yn"]) ? $resume_info["ru_week_yn"] : "N";
 				$info["ru_week"] = isset($resume_info["ru_week"]) ? $resume_info["ru_week"] : "";
+				// 근무시작일: DB는 timestamp 이므로 뷰 표시용 Y-m-d 로 정규화
+				$info["ru_work_dt"] = (isset($resume_info["ru_work_dt"]) && $resume_info["ru_work_dt"] != "" && $resume_info["ru_work_dt"] != "0000-00-00 00:00:00") ? date("Y-m-d", strtotime($resume_info["ru_work_dt"])) : "";
 
 				$data["addr_list"] = $this->member_model->getAddressList(["ad_type"=>"RESUME","mm_idx"=>$this->mm_idx,"ad_key"=>$ru_idx]);
 

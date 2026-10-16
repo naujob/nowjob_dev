@@ -34,7 +34,7 @@
 .recruit-card .card-meta-group .worktype {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   font-size: var( --page-recruit-font-size-lg);
   text-align: left;
   font-weight: 600;
@@ -42,20 +42,29 @@
 
 /* 근무형태 em 태그 */
 .recruit-card .card-meta-group .worktype em {
-  display: inline;
+  display: inline-block;
   position: relative;
-  padding-right: 0;
+}
+
+.recruit-card .card-meta-group .worktype em:not(:first-child) {
+  padding-left: 8px;
+}
+
+.recruit-card .card-meta-group .worktype em:not(:last-child) {
+  padding-right: calc(8px + 0.05em);
 }
 
 /* 근무형태 em 구분선 */
 .recruit-card .card-meta-group .worktype em:not(:last-child)::after {
   content: "";
-  display: inline-block;
-  width: 1px;
-  height: 10px;
-  background: #000; 
-  margin-left: 4px;
-  position: static;
+  position: absolute;
+  top: 0;
+  right: -0.75px;
+  bottom: 0;
+  width: 1.5px;
+  height: 0.7em;
+  margin: auto;
+  background: #777777;
 }
 
 /* price-wrap: 우측 정렬 */
@@ -102,7 +111,7 @@
 /* 카드 급여형태 period (recruit_list.css .period와 동일) */
 .recruit-card .price-wrap .period {
     display: flex;
-    gap: 5px;
+    gap: 0;
     justify-content: flex-end;
     font-size: var( --page-recruit-font-size-lg);
     font-weight: 600;
@@ -119,33 +128,40 @@
   font-weight: 600;
     
 }
+.recruit-card .price-wrap .period em:not(:first-child) {
+  padding-left: 8px;
+}
 .recruit-card .price-wrap .period em:not(:last-child) {
-  padding-right: 5px;
+  padding-right: calc(8px + 0.05em);
 }
 .recruit-card .price-wrap .period em:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -0.75px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 1.5px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777;
+  background: #777777;
+}
+
+.recruit-card .type em:not(:first-child) {
+  padding-left: 8px;
 }
 
 .recruit-card .type em:not(:last-child) {
-  padding-right: 5px;
+  padding-right: calc(8px + 0.05em);
 }
 
 .recruit-card .type em:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 2px;
+  right: -0.75px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 1.5px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777;
+  background: #777777;
 }

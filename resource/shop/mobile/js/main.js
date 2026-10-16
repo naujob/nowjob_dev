@@ -1138,9 +1138,59 @@
             });
         }
 
-        // 캐럿 위치가 화면에 보이도록 직접 scrollTop 계산
-        // blockValue: 'start' (상단을 .top-bar 아래 표시) 또는 'end' (하단을 화면 하단 표시)
-        function scrollCaretIntoView(el, blockValue) {
+        // 화면에서 실제로 보이는 하단 좌표 계산
+        // 고정 푸터(.view-footer, position:fixed)와 소프트 키보드(visualViewport)에 가려지는 영역을 제외한다
+        function getVisibleBottom(page, pageRect) {
+            var bottom = pageRect.bottom;
+
+            // 푸터는 fixed뿐 아니라 sticky(.view-footer 공통 기본값)일 때도 화면 하단을 가리므로 position으로 거르지 않는다
+            // 스크롤 중이 아닌 위치의 푸터는 top이 bottom보다 커서 자동으로 제외된다
+            document.querySelectorAll('.sticky-bottom.view-footer').forEach(function (footer) {
+                var footerRect = footer.getBoundingClientRect();
+                if (footerRect.height > 0 && footerRect.top < bottom) {
+                    bottom = footerRect.top;
+                }
+            });
+
+            // 키보드가 열리면 visualViewport 하단이 실제 보이는 영역의 끝 (iOS 등 layout viewport 유지 환경)
+            if (window.visualViewport) {
+                var viewportBottom = window.visualViewport.offsetTop + window.visualViewport.height;
+                if (viewportBottom < bottom) {
+                    bottom = viewportBottom;
+                }
+            }
+
+            return bottom;
+        }
+
+        // contenteditable 전용: 현재 캐럿(선택 영역)의 화면 좌표를 반환한다
+        // textarea이거나 캐럿을 구할 수 없으면 null을 반환해 호출부가 요소 전체 좌표를 쓰도록 한다
+        function getCaretRect(el) {
+            if (!el.isContentEditable || !window.getSelection) return null;
+            var sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return null;
+            var range = sel.getRangeAt(0);
+            if (!el.contains(range.startContainer)) return null;
+
+            // 줄바꿈이 있는 range는 마지막 rect가 캐럿이 있는 줄이다
+            var rects = range.getClientRects();
+            var rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+            if (rect && rect.height > 0) return rect;
+
+            // 줄 끝/<br> 직후처럼 rect 높이가 0이면 직전 노드 기준으로 한 줄 높이를 추정한다
+            // DOM을 건드리는 마커는 쓰지 않는다 (normalizeEditorDom과 충돌 방지)
+            var style = window.getComputedStyle(el);
+            var lineH = parseFloat(style.lineHeight) || (parseFloat(style.fontSize) * 1.5);
+            var prev = range.startContainer.nodeType === 1 ? range.startContainer.childNodes[range.startOffset - 1] : null;
+            var base = (prev && prev.getBoundingClientRect) ? prev.getBoundingClientRect() : el.getBoundingClientRect();
+            var top = base.height > 0 ? base.bottom : base.top;
+            return { top: top, bottom: top + lineH, left: base.left, right: base.right, height: lineH };
+        }
+
+        // 고정 푸터/키보드에 textarea 또는 contenteditable 캐럿이 가려졌을 때만 .page를 스크롤해서 화면에 보이게 한다
+        // textarea는 요소 전체 기준, contenteditable은 캐럿 기준으로 판정한다
+        // blockValue: 'start' (포커스 시) 또는 'end' (입력으로 높이가 늘어난 경우)
+        function scrollTextareaIntoView(el, blockValue) {
             if (!el || !el.classList || !el.classList.contains('js-autoheight')) return;
             blockValue = blockValue || 'start';
             if (scrollFollowTimer) clearTimeout(scrollFollowTimer);
@@ -1148,32 +1198,59 @@
                 var page = el.closest('.page');
                 if (!page) return;
 
-                var topBar = document.querySelector('.top-bar');
-                var topBarHeight = topBar ? topBar.offsetHeight : 0;
-                var targetMargin = topBarHeight + 12; // .top-bar 높이 + 여유 12px
-
-                // textarea의 절대 위치 (.page 내에서)
-                var rect = el.getBoundingClientRect();
                 var pageRect = page.getBoundingClientRect();
-                var elementTopInPage = rect.top - pageRect.top + page.scrollTop;
-                var elementBottomInPage = rect.bottom - pageRect.top + page.scrollTop;
+                // contenteditable은 캐럿 줄 기준, textarea는 요소 전체 기준
+                var caretRect = getCaretRect(el);
+                var rect = caretRect || el.getBoundingClientRect();
+                var gap = 12; // 가림 판정 여유 (px)
 
-                var newScrollTop;
-                if (blockValue === 'start') {
-                    // 상단이 targetMargin 위치에 + 커서가 키보드 위에 오도록
-                    var scrollForTop = elementTopInPage - targetMargin;
-                    var scrollForCursor = elementBottomInPage - page.clientHeight;
-                    // 둘 다 만족하려면 더 많이 올려야 함
-                    newScrollTop = Math.max(scrollForTop, scrollForCursor);
-                } else if (blockValue === 'end') {
-                    // 하단(커서)이 page.clientHeight 위치에 오도록 (키보드 직전)
-                    newScrollTop = elementBottomInPage - page.clientHeight;
+                // 보이는 영역 상단: .top-bar 하단 + 여유 / 하단: 푸터·키보드 위 + 여유
+                var visibleTop = pageRect.top;
+                var topBar = document.querySelector('.top-bar');
+                if (topBar) {
+                    visibleTop = Math.max(visibleTop, topBar.getBoundingClientRect().bottom + gap);
+                }
+                var visibleBottom = getVisibleBottom(page, pageRect) - gap;
+
+                var delta = 0;
+                if (rect.height > visibleBottom - visibleTop) {
+                    // textarea가 보이는 영역보다 크면: 상단이 가려졌을 때 상단 기준, 입력 중이면 하단 기준
+                    if (rect.top < visibleTop) {
+                        delta = rect.top - visibleTop;
+                    } else if (blockValue === 'end' && rect.bottom > visibleBottom) {
+                        delta = rect.bottom - visibleBottom;
+                    }
+                } else {
+                    // 작으면 하단 또는 상단 중 가려진 쪽만 맞춘다
+                    if (rect.bottom > visibleBottom) {
+                        delta = rect.bottom - visibleBottom;
+                    } else if (rect.top < visibleTop) {
+                        delta = rect.top - visibleTop;
+                    }
                 }
 
+                // contenteditable 캐럿 모드에서는 상세업무 래퍼(.description-field-wrapper)의 하단도 푸터 위에 있어야 한다
+                // 캐럿을 위로 올리는 보정(delta < 0)은 건드리지 않고, 아래로 내려야 할 때만 더 큰 값을 쓴다
+                if (caretRect && delta >= 0) {
+                    var wrapper = el.closest('.description-field-wrapper');
+                    if (wrapper) {
+                        var wrapperExtra = wrapper.getBoundingClientRect().bottom - visibleBottom;
+                        if (wrapperExtra > delta) delta = wrapperExtra;
+                    }
+                }
+
+                // 가려지지 않았으면 스크롤하지 않음 (불필요한 점프 방지)
+                if (delta === 0) return;
+
                 // 스크롤 범위 제한 (0 ~ 최대 스크롤)
+                var newScrollTop = page.scrollTop + delta;
                 newScrollTop = Math.max(0, Math.min(newScrollTop, page.scrollHeight - page.clientHeight));
 
+                // .page는 CSS에서 scroll-behavior: smooth라 대입이 애니메이션으로 적용되어 즉시 반영되지 않는다
+                // 보정 스크롤만 instant로 바꿔 적용하고, 사용자 스크롤 동작은 그대로 둔다
+                page.style.scrollBehavior = 'auto';
                 page.scrollTop = newScrollTop;
+                page.style.scrollBehavior = '';
             }, 120);
         }
 
@@ -1191,7 +1268,7 @@
                     var blockValue = (newHeight > prevHeight) ? 'end' : 'start';
                     textareaHeights.set(target, newHeight);
 
-                    scrollCaretIntoView(target, blockValue);
+                    scrollTextareaIntoView(target, blockValue);
                 }
             });
         });
@@ -1204,7 +1281,16 @@
                 if (pageContent) {
                     pageContent.style.paddingBottom = '50vh';
                 }
-                scrollCaretIntoView(e.target, 'start');
+                scrollTextareaIntoView(e.target, 'start');
+                // WebView가 키보드 표시 후 포커스 요소를 네이티브로 한 번 더 스크롤해 보정이 되돌아가는 경우가 있어
+                // 키보드가 안정된 뒤 같은 판정을 다시 수행한다 (가려지지 않았으면 delta 0이라 스크롤하지 않음)
+                var settledTarget = e.target;
+                [400, 800].forEach(function (ms) {
+                    setTimeout(function () {
+                        if (document.activeElement !== settledTarget) return;
+                        scrollTextareaIntoView(settledTarget, 'start');
+                    }, ms);
+                });
             }
         });
 
@@ -1218,15 +1304,27 @@
             }
         });
 
-        // 키보드 열림으로 visualViewport 축소 시 재추적
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', function () {
-                var active = document.activeElement;
-                if (active && active.classList && active.classList.contains('js-autoheight')) {
-                    scrollCaretIntoView(active, 'start');
-                }
-            });
+        // 키보드 열림/닫힘으로 뷰포트가 바뀌면 포커스된 textarea를 다시 판정
+        // visualViewport(iOS)와 window resize(Android adjustResize)를 모두 처리
+        function onViewportResize(e) {
+            var active = document.activeElement;
+            if (active && active.classList && active.classList.contains('js-autoheight')) {
+                scrollTextareaIntoView(active, 'start');
+            }
         }
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', onViewportResize);
+        }
+        window.addEventListener('resize', onViewportResize);
+
+        // contenteditable에서 캐럿만 움직인 경우(탭, 화살표 키 등)도 캐럿 기준으로 다시 판정
+        // 입력 이벤트가 없으므로 selectionchange를 쓰며, 포커스된 contenteditable일 때만 동작한다
+        document.addEventListener('selectionchange', function () {
+            var active = document.activeElement;
+            if (active && active.isContentEditable && active.classList && active.classList.contains('js-autoheight')) {
+                scrollTextareaIntoView(active, 'start');
+            }
+        });
 
         // 초기 높이 설정 및 scroll-margin-top 설정
         document.querySelectorAll('.js-autoheight').forEach(function (el) {

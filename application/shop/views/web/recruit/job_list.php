@@ -12,10 +12,19 @@ if (count($banner_list) > 0) {
 <?= getCashJs(RES_PATH . "/js/ad-banner.js") ?>
 <style>
   .search-result .content-area:first-child {
-    margin-left: -63px;
+    margin-left: -65px;
 }
+  .search-result .content-area {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 1530px;
+    flex: 0 0 1530px;
+  }
+  .result-header .total.today-new {
+    margin-left: 28px;
+  }
 .recomm-slider.recruit .container.swiperX {
   padding: 0 52px;
+  max-width: 1634px;
 }
 .arrow.arrow--left {
   left: -25px;
@@ -55,6 +64,7 @@ if (count($banner_list) > 0) {
           <div class="result-wrap">
             <div class="result-header">
               <p class="total">채용정보 <em id="total_count"></em>건</p>
+              <p class="total today-new">오늘 새로운 채용 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
               <div class="orderby">
                 <label class="option">
                   <input type="radio" name="order_by" value="recent" checked>
@@ -200,6 +210,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 
     var params = {
       page: list_page,
+      pagesize: 30,
       "search_addr[]": search_addr,
       addrName: addrName,
       searchAreaStr: searchAreaStr,

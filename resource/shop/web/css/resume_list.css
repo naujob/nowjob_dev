@@ -21,14 +21,13 @@
   color: rgb(35, 33, 33);
 }
 
-/* 구분선: 두께 2px, 앞뒤 글자와의 간격 동일(양쪽 8px, 선은 간격 정중앙에 배치) */
 .item-info .price_type_wrap .ru_price_type em:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: -1px;
+  right: -0.75px;
   bottom: 0;
-  width: 2px;
+  width: 1.5px;
   height: 0.7em;
   margin: auto;
   background: #777777;
@@ -39,7 +38,7 @@
 }
 
 .item-info .price_type_wrap .ru_price_type em:not(:last-child) {
-  padding-right: 8px;
+  padding-right: calc(8px + 0.05em);
 }
 
 /* ============================================
@@ -154,7 +153,7 @@ display: flex;
 
 .item-info .meta {
   display: flex;
-  gap: 5px;
+
   left: 0;
   top: 0;
   position: relative;
@@ -171,20 +170,33 @@ display: flex;
   margin-right: 0;
 }
 
+.item-info .meta p:not(:first-child) {
+  padding-left: 8px;
+}
+
 .item-info .meta p:not(:last-child) {
-  padding-right: 5px;
+  padding-right: calc(8px + 0.05em);
 }
 
 .item-info .meta p:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
+  right: -0.75px;
   bottom: 0;
-  width: 1px;
-  height: 0.5em;
+  width: 1.5px;
+  height: 0.7em;
   margin: auto;
-  border-right: 1px solid #777777;
+  background: #777777;
+}
+
+.person-card .meta p em {
+  display: inline-block;
+  font-style: normal;
+}
+
+.person-card .meta p em:not(:last-child) {
+  margin-right: 8px;
 }
 
 .item-info .price_type {
@@ -211,22 +223,21 @@ display: flex;
   color: #777;
 }
 
-/* 구분선: 두께 2px, 앞뒤 글자와의 간격 동일(양쪽 8px, 선은 간격 정중앙에 배치) */
 .item-info .price_type em:not(:first-child) {
   padding-left: 8px;
 }
 
 .item-info .price_type em:not(:last-child) {
-  padding-right: 8px;
+  padding-right: calc(8px + 0.05em);
 }
 
 .item-info .price_type em:not(:last-child)::after {
   content: "";
   position: absolute;
   top: 0;
-  right: -1px;
+  right: -0.75px;
   bottom: 0;
-  width: 2px;
+  width: 1.5px;
   height: 0.7em;
   margin: auto;
   background: #777777;

@@ -1218,6 +1218,34 @@ class Cron_proc extends CI_Controller
         echo "[cleanup_expired_chat_files] 삭제된 파일 수: {$deleted}\n";
     }
 
+    // 채용공고 임시 사진 24시간 경과분 삭제 (등록완료 전 임시 폴더만 대상, 정식 폴더는 건드리지 않음)
+    // crontab: 0 4 * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_temp_recruit_images > /dev/null 2>&1
+    public function cleanup_temp_recruit_images()
+    {
+        $temp_base = FCPATH . 'resource/uploads/temp';
+        $expire_seconds = 24 * 60 * 60; // 24시간
+        $now = time();
+        $deleted = 0;
+
+        if (!is_dir($temp_base)) {
+            echo "[cleanup_temp_recruit_images] 임시 폴더 없음\n";
+            return;
+        }
+
+        // 회원별(temp/{mm_idx}) 하위 폴더와 resize 변형까지 재귀로 순회
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($temp_base, FilesystemIterator::SKIP_DOTS));
+        foreach ($files as $file) {
+            if (!$file->isFile()) continue;
+            if (($now - $file->getMTime()) > $expire_seconds) {
+                if (@unlink($file->getPathname())) {
+                    $deleted++;
+                }
+            }
+        }
+
+        echo "[cleanup_temp_recruit_images] 삭제된 파일 수: {$deleted}\n";
+    }
+
     // 전원 퇴장(CLOSED) 후 30일 경과한 채팅방 메시지 삭제
     // crontab: 0 3 * * * curl -s https://nowjob.co.kr/cron_proc/cleanup_closed_room_messages > /dev/null 2>&1
     public function cleanup_closed_room_messages()
@@ -1344,6 +1372,208 @@ class Cron_proc extends CI_Controller
                 $extracted = $this->_extractAreaSido($addr);
                 echo "[TEST]   주소: {$addr} → 추출: {$extracted}\n";
             }
+        }
+    }
+
+    /**
+     * 테스트용: 기업회원의 공고(rc_idx)에 활성 이력서가 몇 건 매칭되는지,
+     * 매칭되지 않은 이력서는 어떤 조건에서 탈락했는지 출력
+     * 읽기 전용 - 알림톡 발송 및 이력 기록 없음
+     *
+     * 사용법: /cron_proc/test_match_by_recruit/125/25   (mm_idx/rc_idx)
+     */
+    public function test_match_by_recruit($mm_idx = 4, $rc_idx = 313)
+    {
+        $mm_idx = intval($mm_idx);
+        $rc_idx = intval($rc_idx);
+        echo "[TEST] 기업 매칭 테스트 - mm_idx={$mm_idx}, rc_idx={$rc_idx}\n";
+
+        // 1. 대상 공고가 활성 공고 목록(발송 대상)에 있고, 해당 기업 소유인지 확인
+        $target_rows = array_filter($this->_getActiveRecruits(), function ($r) use ($mm_idx, $rc_idx) {
+            return $r['mm_idx'] == $mm_idx && $r['rc_idx'] == $rc_idx;
+        });
+        if (empty($target_rows)) {
+            echo "❌ 활성 공고 목록에 없음 - 탈락 원인 확인\n";
+            $this->_diagnoseInactiveRecruit($mm_idx, $rc_idx);
+            return;
+        }
+
+        // 주소가 여러 개면 행이 여러 개로 나오므로 rc_idx 기준으로 묶음
+        $recruits_by_rc = $this->_groupRecruitsByRcIdx($target_rows);
+        $recruit_data = $recruits_by_rc[$rc_idx];
+        $recruit = $recruit_data['recruit'];
+        echo "✅ 활성 공고 확인 - 회사: {$recruit['mm_comp_name']}, 공고: {$recruit['rc_name']}, 직종: {$recruit['rc_work']}, 근무형태: {$recruit['rc_work_type']}, 급여타입: {$recruit['rc_price_type']}\n";
+        echo "[TEST] 공고 조건 - 성별: {$recruit['rc_sex']}, 나이: {$recruit['rc_sage']}~{$recruit['rc_eage']}, 국적: {$recruit['rc_nation']}\n";
+
+        // 2. 공고 지역 (area 조건용)
+        $area_cache = array();
+        $recruit_areas = $this->_collectAreas($recruit_data['addresses'], $area_cache);
+        echo "[TEST] 공고 지역: " . (empty($recruit_areas) ? '없음' : implode(', ', $recruit_areas)) . "\n";
+
+        // 3. 활성 이력서 전체 + 이력서별 지역 미리 계산 (reg_dt 최신순)
+        $resumes_by_ru = $this->_groupResumesByRuIdx($this->_getActiveResumes());
+        echo "[TEST] 활성 이력서: " . count($resumes_by_ru) . "건\n";
+
+        $resume_areas_by_ru = array();
+        foreach ($resumes_by_ru as $ru_idx => $resume_data) {
+            $resume_areas_by_ru[$ru_idx] = $this->_collectAreas($resume_data['addresses'], $area_cache);
+        }
+
+        // 4. 설정 타입별(usual, subs)로 기업 매칭 조건 적용
+        foreach (array('usual', 'subs') as $pks_type) {
+            $setting = $this->ppurio_setting_model->getSetting($pks_type);
+            if (empty($setting)) {
+                echo "⚠️  {$pks_type} 설정 없음\n";
+                continue;
+            }
+
+            $cond_arr = $this->_parseConditions($setting['comp_match_cond']);
+            echo "\n[TEST] === {$pks_type} 설정 ===\n";
+            echo "[TEST] 기업 발송 요일: {$setting['comp_match_days']}, 시간: {$setting['comp_match_alarm1_time']}\n";
+            echo "[TEST] 매칭 조건: " . implode(', ', $cond_arr) . "\n";
+
+            $matched = array();     // 매칭된 이력서 (reg_dt 최신순)
+            $fail_lines = array();  // 탈락 이력서 상세
+            $fail_count = array();  // 사유별 건수 (한 이력서가 여러 사유에 걸릴 수 있음)
+
+            foreach ($resumes_by_ru as $ru_idx => $resume_data) {
+                $resume = $resume_data['resume'];
+                $label = "ru_idx={$ru_idx} ({$resume['ru_name']} / {$resume['ru_work']})";
+
+                $reasons = $this->_getMatchFailReasons($resume, $recruit, $cond_arr, $resume_areas_by_ru[$ru_idx], $recruit_areas);
+                if (empty($reasons)) {
+                    $matched[] = $label;
+                    continue;
+                }
+
+                foreach ($reasons as $reason) {
+                    $fail_count[$reason] = isset($fail_count[$reason]) ? $fail_count[$reason] + 1 : 1;
+                }
+                $fail_lines[] = "  ❌ {$label} - 탈락 사유: " . implode(', ', $reasons);
+            }
+
+            echo "✅ 매칭 이력서: " . count($matched) . "건\n";
+            foreach ($matched as $line) {
+                echo "  ✅ {$line}\n";
+            }
+            if (!empty($matched)) {
+                echo "[TEST] 기업 발송 시 대상 이력서: 최신 1건 → {$matched[0]}\n";
+            }
+
+            echo "[TEST] 탈락 이력서: " . count($fail_lines) . "건\n";
+            echo "[TEST] 사유별 건수 (중복 포함):\n";
+            foreach ($fail_count as $reason => $cnt) {
+                echo "  - {$reason}: {$cnt}건\n";
+            }
+            echo "[TEST] 탈락 상세:\n";
+            foreach ($fail_lines as $line) {
+                echo $line . "\n";
+            }
+        }
+
+        // 5. 이번 주 이미 발송된 기업 알림 이력 (발송 로직의 중복 방지 기준과 동일)
+        $current_week = date('Y-W');
+        $sent_rows = $this->db->query(
+            "SELECT target_key, sent_dt FROM st_match_alimtalk_sent
+             WHERE sender_type = 'COMP' AND receiver_mm_idx = ? AND sent_week = ?",
+            array($mm_idx, $current_week)
+        )->result_array();
+        echo "\n[TEST] 이번 주({$current_week}) 기업 매칭 발송 이력: " . count($sent_rows) . "건\n";
+        foreach ($sent_rows as $sent) {
+            echo "  - target_key(ru_idx)={$sent['target_key']}, 발송시각={$sent['sent_dt']}\n";
+        }
+    }
+
+    /**
+     * 주소 목록을 시/도+시/군/구 지역 목록으로 변환 (null 제외, 중복 제거)
+     * $area_cache: 주소 → 지역 캐시 (DB 조회 최소화, 참조로 공유)
+     */
+    private function _collectAreas($addresses, &$area_cache)
+    {
+        $areas = array();
+        foreach ($addresses as $addr) {
+            if (!isset($area_cache[$addr])) {
+                $area_cache[$addr] = $this->_extractAreaSido($addr);
+            }
+            if ($area_cache[$addr] !== null) {
+                $areas[] = $area_cache[$addr];
+            }
+        }
+        return array_values(array_unique($areas));
+    }
+
+    /**
+     * 이력서-공고 1쌍의 탈락 사유 목록 반환 (빈 배열이면 매칭)
+     * 조건을 하나씩 따로 검사해서 어떤 조건에서 막혔는지 구분
+     */
+    private function _getMatchFailReasons($resume, $recruit, $cond_arr, $resume_areas, $recruit_areas)
+    {
+        $reasons = array();
+
+        foreach ($cond_arr as $cond) {
+            if ($cond === '') continue;
+
+            if ($cond == 'area') {
+                // 지역: 이력서와 공고가 시/도+시/군/구 기준으로 하나라도 겹쳐야 함
+                $area_common = array_intersect($resume_areas, $recruit_areas);
+                if (empty($area_common)) {
+                    $reasons[] = 'area';
+                }
+                continue;
+            }
+
+            // 나머지 조건은 기존 매칭 로직에 해당 조건 하나만 넘겨서 검사
+            if (!$this->_isMatched($resume, $recruit, array($cond))) {
+                $reasons[] = $cond;
+            }
+        }
+
+        return $reasons;
+    }
+
+    /**
+     * 활성 목록에서 빠진 공고의 원인 확인 (발송 대상 조회 조건과 동일한 항목)
+     */
+    private function _diagnoseInactiveRecruit($mm_idx, $rc_idx)
+    {
+        $row = $this->db->query(
+            "SELECT rc.mm_idx AS rc_mm_idx, rc.rc_status, rc.rc_show_yn, rc.rc_sdate, rc.rc_edate,
+                    (rc.rc_sdate <= NOW()) AS started_yn, (rc.rc_edate >= NOW()) AS not_ended_yn,
+                    m.mm_type, m.mm_status, m.mm_agree_ad, m.alarm_resume, m.mm_phone,
+                    (SELECT COUNT(*) FROM st_address a
+                      WHERE a.mm_idx = rc.mm_idx AND a.ad_key = rc.rc_idx
+                        AND (a.ad_type = 'RECRUIT' OR a.ad_type LIKE 'recruit_expose%')) AS addr_cnt
+             FROM st_recruit rc
+             INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
+             WHERE rc.rc_idx = ?",
+            array($rc_idx)
+        )->row_array();
+
+        if (empty($row)) {
+            echo "❌ st_recruit/st_member에 rc_idx={$rc_idx} 공고가 없음\n";
+            return;
+        }
+
+        if ($row['rc_mm_idx'] != $mm_idx) {
+            echo "❌ 공고 소유자는 mm_idx={$row['rc_mm_idx']} 입니다 (입력한 mm_idx={$mm_idx}와 다름)\n";
+        }
+
+        // 활성 공고 조회(_getActiveRecruits)의 조건과 같은 순서로 점검
+        $checks = array(
+            array('공고 상태 (rc_status = Y)', $row['rc_status'] == 'Y', $row['rc_status']),
+            array('공고 노출 (rc_show_yn = Y)', $row['rc_show_yn'] == 'Y', $row['rc_show_yn']),
+            array('게재 시작 (rc_sdate <= NOW)', $row['started_yn'] == 1, $row['rc_sdate']),
+            array('게재 종료 전 (rc_edate >= NOW)', $row['not_ended_yn'] == 1, $row['rc_edate']),
+            array('회원 유형 (mm_type = COMP)', $row['mm_type'] == 'COMP', $row['mm_type']),
+            array('회원 상태 (mm_status = Y)', $row['mm_status'] == 'Y', $row['mm_status']),
+            array('광고 동의 (mm_agree_ad = Y)', $row['mm_agree_ad'] == 'Y', $row['mm_agree_ad']),
+            array('알림 설정 (alarm_resume = Y)', $row['alarm_resume'] == 'Y', $row['alarm_resume']),
+            array('휴대폰 번호 존재', $row['mm_phone'] != '', $row['mm_phone'] != '' ? '있음' : '없음'),
+            array('공고 주소 존재 (st_address RECRUIT)', $row['addr_cnt'] > 0, $row['addr_cnt'] . '건'),
+        );
+
+        foreach ($checks as $check) {
+            echo ($check[1] ? "  ✅ " : "  ❌ ") . $check[0] . " → " . $check[2] . "\n";
         }
     }
 

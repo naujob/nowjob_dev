@@ -318,10 +318,20 @@ if (!$isLogin) {
                             localStorage.removeItem("recruit_draft_0_page1");
                             localStorage.removeItem("recruit_draft_0_page2");
                             localStorage.removeItem("recruit_draft_0_page3");
+                            // sessionStorage에 남은 draft와 미리보기 플래그도 제거 (안 지우면 재진입 시 방금 등록한 내용이 복원됨)
+                            ["0", rcIdx].forEach(function(idx) {
+                                sessionStorage.removeItem("recruit_draft_" + idx + "_page1");
+                                sessionStorage.removeItem("recruit_draft_" + idx + "_page2");
+                                sessionStorage.removeItem("recruit_draft_" + idx + "_page3");
+                            });
+                            sessionStorage.removeItem("from_preview");
 
                             // 채용공고 등록 완료
+                            // 기존 공고 수정(rcIdx 있음)은 해당 공고 상세로, 최초 등록(rcIdx 0)은 공고 목록으로 이동
+                            // 현재 페이지를 대체하여 뒤로가기로 미리보기 페이지에 다시 들어오지 않도록 함
+                            var isEditComplete = (rcIdx && rcIdx !== "0");
                             commonAlert("채용공고가 등록되었습니다.", function() {
-                                window.history.go(-2);
+                                location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
                             });
                         } else {
                             alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
@@ -344,36 +354,24 @@ if (!$isLogin) {
 
         <div class="view-visual-slider">
             <div class="slider-wrap keen-slider">
-                <?php if ($info["rc_img1"] != "") : ?>
+                <?php
+                // 슬라이더 이미지: 표시용은 md(800), 확대보기(data-mfp-src)는 원본 lg를 쓴다.
+                // srcset을 함께 주면 고해상도 단말에서만 브라우저가 lg를 고른다.
+                $_slider_imgs = ["rc_img1", "rc_img2", "rc_img3", "rc_img4", "rc_img5", "rc_img99"];
+                foreach ($_slider_imgs as $_img_key) :
+                    $_img_url = isset($info[$_img_key]) ? $info[$_img_key] : "";
+                    if ($_img_url == "") {
+                        continue;
+                    }
+                    $_img_display = get_img_variant($_img_url, "md");
+                    $_img_srcset = get_img_srcset($_img_url);
+                ?>
                     <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img1"] ?>" data-mfp-src="<?= $info["rc_img1"] ?>" alt="" class="lozad">
+                        <img data-src="<?= $_img_display ?>"
+                            <?php if ($_img_srcset != "") : ?>data-srcset="<?= $_img_srcset ?>" sizes="100vw" <?php endif; ?>
+                            data-mfp-src="<?= $_img_url ?>" alt="" class="lozad">
                     </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img2"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img2"] ?>" data-mfp-src="<?= $info["rc_img2"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img3"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img3"] ?>" data-mfp-src="<?= $info["rc_img3"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img4"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img4"] ?>" data-mfp-src="<?= $info["rc_img4"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img5"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img5"] ?>" data-mfp-src="<?= $info["rc_img5"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
-                <?php if ($info["rc_img99"] != "") : ?>
-                    <div class="keen-slider__slide">
-                        <img data-src="<?= $info["rc_img99"] ?>" data-mfp-src="<?= $info["rc_img99"] ?>" alt="" class="lozad">
-                    </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
         </div>
 

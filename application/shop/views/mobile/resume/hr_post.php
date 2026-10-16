@@ -1500,10 +1500,12 @@ if (!$isLogin) {
     $(document).off('click', '#btnPreviewRegister').on('click', '#btnPreviewRegister', function(e) {
         e.preventDefault();
         var ruIdx = $("[name=ru_idx]").val();
+        // 기존 이력서 수정(ru_idx 있음)은 해당 이력서 상세로, 최초 등록은 이력서 목록으로 이동
+        var isEditComplete = (ruIdx && ruIdx !== "0");
         comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
             if (ret.code == "00") {
                 commonAlert("이력서가 등록되었습니다.", function() {
-                    location.href = "/mypage/resume_list";
+                    location.href = isEditComplete ? "/mypage/resume_view/" + ruIdx : "/mypage/resume_list"; // 기존 수정이면 상세 페이지로,최초 등록이면 목록 페이지로
                 });
             } else {
                 commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});

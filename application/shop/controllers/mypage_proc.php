@@ -318,6 +318,12 @@ class Mypage_proc extends CI_Controller
       "sl_type" => "RESUME"
     ]);
 
+    // 이력서 최대 2개 제한: 폼 진입 전에 차단
+    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
+    if ($resume_count >= 2) {
+      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+    }
+
     $passAuthStat = "";
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
 
@@ -333,6 +339,18 @@ class Mypage_proc extends CI_Controller
     }
 
     json_return("00", "처리완료", ["passAuthStat" => $passAuthStat]);
+  }
+
+  # 이력서 등록 가능 여부 확인 (최대 2개)
+  # resume_start를 거치지 않는 진입점(하단 메뉴 등)용. 임시저장 로그를 지우지 않는다.
+  function resume_limit_check()
+  {
+    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
+    if ($resume_count >= 2) {
+      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+    }
+
+    return json_return("00", "처리완료");
   }
 
   # 웹용 이력서 저장
@@ -387,9 +405,7 @@ class Mypage_proc extends CI_Controller
       json_return("99", "근무형태 선택이 확인되지 않습니다.");
     }
 
-    if ($ru_nationality == "") {
-      json_return("99", "국적 선택이 확인되지 않습니다.");
-    }
+    // 국적은 입력받지 않으므로(st_member.mm_nation 사용) 필수 검증하지 않는다
 
     //if($ru_week_yn=="N" && $ru_week==""){
     //  json_return("99","근무요일 선택이 확인되지 않습니다.");
@@ -653,9 +669,8 @@ class Mypage_proc extends CI_Controller
       json_return("99", "근무형태 선택이 확인되지 않습니다.");
     }
 
-    if ($ru_nationality == "") {
-      json_return("99", "국적 선택이 확인되지 않습니다.");
-    }
+    // 국적은 회원가입 때 받은 st_member.mm_nation 을 쓰므로 이력서 작성에서는 입력받지 않는다.
+    // (빈값으로 넘어오면 resume_complete() 의 mm_nation 갱신 분기가 건너뛰어 기존 값이 유지된다)
 
     #로그 생성
     $sl_txt = [
@@ -744,9 +759,7 @@ class Mypage_proc extends CI_Controller
         if (count($ru_work_type) >= 2) break;
       }
     }
-    if ($ru_nationality == "") {
-      $ru_nationality = "내국인";
-    }
+    // 국적 기본값("내국인")을 채우지 않는다: 빈값이면 resume_complete()에서 mm_nation 을 덮어쓰지 않는다
     if ($ru_name == "" || $ru_name == $ru_addr) {
     $seed = $ru_addr != "" ? $ru_addr : "우리 동네";
     $title_templates = [
@@ -790,10 +803,6 @@ class Mypage_proc extends CI_Controller
     if (empty($ru_work_type)) {
       json_return("99", "근무형태 선택이 확인되지 않습니다.");
     }
-    if ($ru_nationality == "") {
-      json_return("99", "국적 선택이 확인되지 않습니다.");
-    }
-
     // 희망업무 아이콘 경로를 코드테이블(cd_val -> cd_val2)에서 서버가 직접 조회
     // 클라이언트가 보낸 경로를 믿지 않으므로 위변조 여지가 없다
     $ru_work_img = [];
@@ -1172,10 +1181,10 @@ class Mypage_proc extends CI_Controller
     }
 
     # 이력서 갯수 확인후 처리
-    $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
-    if ($ru_idx == 0 && $count >= 5) {
-      //2024.09.01 5개 제한 해제 -> 09.04 그런 의미가 아니라고 해서 적용
-      return json_return("90", "이력서는 최대 5개까지만 등록 가능합니다.");
+    $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
+    if ($ru_idx == 0 && $count >= 2) {
+      // 이력서 최대 2개 제한
+      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
     }
 
     //실명인증여부 확인 24.09.01
