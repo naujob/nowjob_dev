@@ -2,6 +2,44 @@
 	exit('No direct script access allowed');
 }
 
+/**
+ * 반응형 이미지 변형 URL 가져오기
+ * img_upload_responsive()가 한 장을 sm(400)/md(800)/lg(1200)으로 만들어 두므로,
+ * DB에 저장된 lg URL에서 경로만 바꿔 원하는 크기를 꺼낸다.
+ *
+ * @param string $url  저장된 이미지 URL (보통 lg)
+ * @param string $size sm | md | lg
+ */
+if (!function_exists('get_img_variant')) {
+	function get_img_variant($url, $size)
+	{
+		if ($url == "") {
+			return "";
+		}
+		// 반응형으로 올린 이미지가 아니면 그대로 사용
+		if (preg_match('#/resize/(sm|md|lg)/#', $url) != 1) {
+			return $url;
+		}
+		return preg_replace('#/resize/(sm|md|lg)/#', '/resize/' . $size . '/', $url);
+	}
+}
+
+/**
+ * srcset 속성값 생성 (브라우저가 화면 크기/해상도에 맞는 변형을 고른다)
+ * 반응형 이미지가 아니면 빈 문자열 → 호출부에서 srcset을 붙이지 않는다.
+ */
+if (!function_exists('get_img_srcset')) {
+	function get_img_srcset($url)
+	{
+		if ($url == "" || preg_match('#/resize/(sm|md|lg)/#', $url) != 1) {
+			return "";
+		}
+		return get_img_variant($url, "sm") . " 400w, "
+			. get_img_variant($url, "md") . " 800w, "
+			. get_img_variant($url, "lg") . " 1200w";
+	}
+}
+
 //배너 리스트
 function getBannerList($bg_code, $limit = 50)
 {

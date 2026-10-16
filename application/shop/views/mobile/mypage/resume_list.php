@@ -71,7 +71,7 @@
                 <div class="logs-footer">
                     <div class="container">
                         <!-- 20220929 수정 -->
-                        <p class="help-msg">이력서 등록은 최대 5개까지만 가능합니다.</p>
+                        <p class="help-msg">이력서 등록은 최대 2개까지만 가능합니다.</p>
                     </div>
                 </div>
             <?php endif; ?>

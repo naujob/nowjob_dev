@@ -699,22 +699,23 @@ class Compage_proc extends CI_Controller
     }
 
     # 이미지 처리.
-    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
     $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
-    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img2");
     $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
 
-    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img3");
     $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
 
-    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img4");
     $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
 
-    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -1086,22 +1087,23 @@ class Compage_proc extends CI_Controller
     }
 
     # 이미지 처리.
-    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
     $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
-    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img2");
     $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
 
-    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img3");
     $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
 
-    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img4");
     $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
 
-    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -1199,6 +1201,8 @@ class Compage_proc extends CI_Controller
   # 이력서 등록 완료
   function recruit_complete_new()
   {
+    // 미리보기/등록 호출마다 임시 사진의 청소 타이머를 다시 시작
+    $this->common->touch_recruit_temp($this->mm_idx);
     $rc_idx = input_post("rc_idx", 0);
     $mm_comp_num = input_post("mm_comp_num", 0);
     $mm_comp_num_org = input_post("mm_comp_num_org", 0);
@@ -1299,6 +1303,8 @@ class Compage_proc extends CI_Controller
         "rc_thumb" => isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : "",
       ];
 
+      // 임시 폴더 사진을 정식 폴더로 복사하고 데이터 경로를 바꾼 뒤 저장
+      $this->common->promote_recruit_temp_images($arr_recruit, $this->mm_idx);
       $result_recruit = $this->recruit_model->updateRecruit($arr_recruit, ["rc_idx" => $rc_idx]);
 
       if ($result_recruit["code"] != "00") {
@@ -1431,6 +1437,8 @@ class Compage_proc extends CI_Controller
         "up_dt" => date("Y-m-d H:i:s")
       ];
 
+      // 임시 폴더 사진을 정식 폴더로 복사하고 데이터 경로를 바꾼 뒤 저장
+      $this->common->promote_recruit_temp_images($arr_recruit, $this->mm_idx);
       $result_recruit = $this->recruit_model->insertRecruit($arr_recruit);
 
       if ($result_recruit["code"] != "00") {
@@ -2014,22 +2022,23 @@ class Compage_proc extends CI_Controller
     }
 
     # 이미지 처리 (반응형 이미지: sm/md/lg)
-    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
     $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
-    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img2");
     $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
 
-    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img3");
     $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
 
-    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img4");
     $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
 
-    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -2401,22 +2410,23 @@ class Compage_proc extends CI_Controller
     }
 
     # 이미지 처리.
-    $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
+    $rc_img1_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
     $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
 
-    $rc_img2_resp = $this->common->img_upload_responsive("member", "rc_img2");
+    $rc_img2_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img2");
     $rc_img2 = isset($rc_img2_resp["URL_LG"]) ? $rc_img2_resp["URL_LG"] : "";
 
-    $rc_img3_resp = $this->common->img_upload_responsive("member", "rc_img3");
+    $rc_img3_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img3");
     $rc_img3 = isset($rc_img3_resp["URL_LG"]) ? $rc_img3_resp["URL_LG"] : "";
 
-    $rc_img4_resp = $this->common->img_upload_responsive("member", "rc_img4");
+    $rc_img4_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img4");
     $rc_img4 = isset($rc_img4_resp["URL_LG"]) ? $rc_img4_resp["URL_LG"] : "";
 
-    $rc_img5_resp = $this->common->img_upload_responsive("member", "rc_img5");
+    $rc_img5_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img5");
     $rc_img5 = isset($rc_img5_resp["URL_LG"]) ? $rc_img5_resp["URL_LG"] : "";
 
-    $rc_thumb = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+    // 목록/채팅 썸네일 용도이므로 sm(400px)을 쓴다 (기존에는 lg(1200px)를 넣어 목록이 무거웠음)
+    $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
 
     $mm_img1 = $this->common->img_upload_url("member", "mm_img1");
 
@@ -2513,6 +2523,8 @@ class Compage_proc extends CI_Controller
   # 스텝1_1
   function recruit_write1_1()
   {
+    // 단계 저장마다 임시 사진의 청소 타이머를 다시 시작
+    $this->common->touch_recruit_temp($this->mm_idx);
     # 데이터 추가.
     $rc_show_yn = input_post("rc_show_yn", "Y");
     $rc_name = input_post("rc_name", "");
@@ -2608,7 +2620,10 @@ class Compage_proc extends CI_Controller
     }
 
     #로그 생성
+    // 보관함(st_site_log)은 회원당 칸이 하나뿐이라 공고가 섞일 수 있다.
+    // 어느 공고의 스텝인지 남겨두고 recruit_complete에서 대조한다.
     $sl_txt = [
+      "rc_idx" => input_post("rc_idx", "0"),
       "rc_show_yn" => $rc_show_yn,
       "rc_name" => $rc_name,
       "ad_zipcode" => $ad_zipcode,
@@ -2668,6 +2683,8 @@ class Compage_proc extends CI_Controller
   # 스텝2_1
   function recruit_write2_1()
   {
+    // 단계 저장마다 임시 사진의 청소 타이머를 다시 시작
+    $this->common->touch_recruit_temp($this->mm_idx);
     # 데이터 추가.
     $rc_life_type = input_post("rc_life_type", []);
 
@@ -2676,7 +2693,9 @@ class Compage_proc extends CI_Controller
     }
 
     #로그 생성
+    // 어느 공고의 스텝인지 남겨둔다 (recruit_complete에서 대조)
     $sl_txt = [
+      "rc_idx" => input_post("rc_idx", "0"),
       "rc_life_type" => is_array($rc_life_type) ? $rc_life_type : [],
     ];
 
@@ -2701,7 +2720,7 @@ class Compage_proc extends CI_Controller
   # 채용공고 메인사진 즉시 업로드 (반응형: sm:400px/md:800px/lg:1200px)
   function recruit_main_img_upload()
   {
-    $result = $this->common->img_upload_responsive("member", "rc_img1");
+    $result = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
 
     if (!$result["SUCCESS"]) {
       json_return("90", "이미지가 업로드 되지 않았습니다.");
@@ -2718,6 +2737,8 @@ class Compage_proc extends CI_Controller
   # 스텝3_1
   function recruit_write3_1()
   {
+    // 단계 저장마다 임시 사진의 청소 타이머를 다시 시작
+    $this->common->touch_recruit_temp($this->mm_idx);
     # 데이터 추가.
     $rc_desc = $this->cleanSmartEditorDesc(input_post("rc_desc", ""));
     $rc_hash_string = input_post("rc_hash_string", "");
@@ -2733,13 +2754,9 @@ class Compage_proc extends CI_Controller
     $rc_day = input_post("rc_day", []);
     $rc_day_all = input_post("rc_day_all", "");
 
-    $rc_img1_ori = input_post("rc_img1_ori", "");
     $rc_detail_img1 = input_post("rc_detail_img1", "");
-    $rc_detail_img1_ori = input_post("rc_detail_img1_ori", "");
     $rc_detail_img2 = input_post("rc_detail_img2", "");
-    $rc_detail_img2_ori = input_post("rc_detail_img2_ori", "");
     $rc_detail_img3 = input_post("rc_detail_img3", "");
-    $rc_detail_img3_ori = input_post("rc_detail_img3_ori", "");
 
     if ($rc_desc == "") {
       json_return("99", "상세업무정보가 확인되지 않습니다.");
@@ -2749,7 +2766,29 @@ class Compage_proc extends CI_Controller
       json_return("99", "채용공고기간이 확인되지 않습니다.");
     }
 
+    # 이미지 처리.
+    # 새 파일이 없으면 img_upload_responsive()가 rc_img1_ori 값을 sm/md/lg 모두에 그대로 돌려준다.
+    # 이 경우 썸네일은 즉시 업로드 때 받아둔 sm 변형(rc_thumb_ori)으로 복원한다.
+    try {
+      $rc_img1_resp = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
+      $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
+      // 목록/채팅 썸네일 용도이므로 sm(400px)
+      $rc_thumb = isset($rc_img1_resp["URL_SM"]) ? $rc_img1_resp["URL_SM"] : "";
+
+      $rc_img1_uploaded = isset($rc_img1_resp["SUCCESS"]) ? $rc_img1_resp["SUCCESS"] : false;
+      if (!$rc_img1_uploaded) {
+        $rc_thumb_ori = input_post("rc_thumb_ori", "");
+        if ($rc_thumb_ori != "") {
+          $rc_thumb = $rc_thumb_ori;
+        }
+      }
+    } catch (Exception $e) {
+      throw $e;
+    }
+
     # 기존 등록 이미지 있으면 삭제
+    # 비교 기준은 "이번에 저장할 최종 URL" 이다. 과거에는 폼에 없는 *_ori 값과 비교해
+    # 변경이 없어도 매번 지워버렸다(두 번째 미리보기에서 사진이 사라지는 원인).
     $log_info = $this->site_model->getSiteLog(
       ["mm_idx" => $this->mm_idx, "sl_type" => "RECRUIT", "sl_step" => "스텝3"]
     );
@@ -2757,44 +2796,27 @@ class Compage_proc extends CI_Controller
     if ($log_info != null) {
       try {
         $json_info = json_decode($log_info["sl_txt"], true);
-        if ($rc_img1_ori != (isset($json_info["rc_img1"]) ? $json_info["rc_img1"] : "")) {
-          if (isset($json_info["rc_img1"]) && $json_info["rc_img1"] != "") {
-            file_remove($json_info["rc_img1"]);
-          }
-        }
-        // 상세페이지 이미지 1
-        if ($rc_detail_img1_ori != (isset($json_info["rc_detail_img1"]) ? $json_info["rc_detail_img1"] : "")) {
-          if (isset($json_info["rc_detail_img1"]) && $json_info["rc_detail_img1"] != "") {
-            file_remove($json_info["rc_detail_img1"]);
-          }
-        }
-        // 상세페이지 이미지 2
-        if ($rc_detail_img2_ori != (isset($json_info["rc_detail_img2"]) ? $json_info["rc_detail_img2"] : "")) {
-          if (isset($json_info["rc_detail_img2"]) && $json_info["rc_detail_img2"] != "") {
-            file_remove($json_info["rc_detail_img2"]);
-          }
-        }
-        // 상세페이지 이미지 3
-        if ($rc_detail_img3_ori != (isset($json_info["rc_detail_img3"]) ? $json_info["rc_detail_img3"] : "")) {
-          if (isset($json_info["rc_detail_img3"]) && $json_info["rc_detail_img3"] != "") {
-            file_remove($json_info["rc_detail_img3"]);
+        $prev_images = [
+          "rc_img1" => $rc_img1,
+          "rc_detail_img1" => $rc_detail_img1,
+          "rc_detail_img2" => $rc_detail_img2,
+          "rc_detail_img3" => $rc_detail_img3,
+        ];
+        foreach ($prev_images as $img_key => $new_url) {
+          $old_url = isset($json_info[$img_key]) ? $json_info[$img_key] : "";
+          // 이전 파일이 있고, 이번에 쓰는 URL과 다를 때만 삭제 (sm/md/lg 변형 포함)
+          if ($old_url != "" && $old_url != $new_url) {
+            $this->common->remove_upload_image($old_url);
           }
         }
       } catch (Exception $ex) {
       }
     }
 
-    # 이미지 처리.
-    try {
-      $rc_img1_resp = $this->common->img_upload_responsive("member", "rc_img1");
-      $rc_img1 = isset($rc_img1_resp["URL_LG"]) ? $rc_img1_resp["URL_LG"] : "";
-      $rc_thumb = isset($rc_img1_resp["URL_MD"]) ? $rc_img1_resp["URL_MD"] : "";
-    } catch (Exception $e) {
-      throw $e;
-    }
-
     #로그 생성
+    // 어느 공고의 스텝인지 남겨둔다 (recruit_complete에서 대조)
     $sl_txt = [
+      "rc_idx" => input_post("rc_idx", "0"),
       "rc_desc" => $rc_desc,
       "rc_hash" => $rc_hash_string,
       "rc_sdate" => $rc_sdate,
@@ -2842,6 +2864,8 @@ class Compage_proc extends CI_Controller
   # 채용공고 등록 완료
   function recruit_complete()
   {
+    // 미리보기/등록 호출마다 임시 사진의 청소 타이머를 다시 시작
+    $this->common->touch_recruit_temp($this->mm_idx);
    
 
     $rc_idx = input_post("rc_idx", 0);
@@ -2878,6 +2902,24 @@ class Compage_proc extends CI_Controller
     }
     if (!is_array($step3) || !isset($step3["rc_desc"])) {
       json_return("99", "스텝3 데이터가 존재하지 않습니다.");
+    }
+
+    # 보관함 정합성 검사: 세 스텝이 모두 같은 공고의 것인지 확인
+    // 보관함(st_site_log)은 회원당 칸이 하나뿐이라, 다른 공고를 작업하면 칸이 덮인다.
+    // 특히 미리보기 화면은 3개 저장 없이 recruit_complete만 호출하므로 섞일 수 있다.
+    // rc_idx가 없는 스텝은 이 항목 추가 이전에 저장된 기존 데이터이므로 검사에서 제외한다.
+    $step_idx_list = [];
+    foreach ([$step1, $step2, $step3] as $step_row) {
+      if (isset($step_row["rc_idx"]) && $step_row["rc_idx"] !== "") {
+        $step_idx_list[] = (string)$step_row["rc_idx"];
+      }
+    }
+    if (count($step_idx_list) > 1 && count(array_unique($step_idx_list)) > 1) {
+      json_return("99", "작성 중이던 다른 공고의 정보가 섞였습니다. 공고를 다시 작성해주세요.");
+    }
+    // 요청한 공고와 보관함의 공고가 다른 경우도 차단 (신규 작성은 0이므로 제외)
+    if (!empty($step_idx_list) && $rc_idx != 0 && $step_idx_list[0] != "0" && $step_idx_list[0] != (string)$rc_idx) {
+      json_return("99", "작성 중이던 다른 공고의 정보가 섞였습니다. 공고를 다시 작성해주세요.");
     }
 
     # 날짜 처리: 모바일(스텝3)과 웹(스텝1의 rc_date) 모두 지원
@@ -3080,6 +3122,8 @@ class Compage_proc extends CI_Controller
         "rc_thumb" => isset($step3["rc_thumb"]) ? $step3["rc_thumb"] : (isset($step5["rc_thumb"]) ? $step5["rc_thumb"] : ""),  // 스텝3 우선, 없으면 스텝5
       ];
 
+      // 임시 폴더 사진을 정식 폴더로 복사하고 데이터 경로를 바꾼 뒤 저장
+      $this->common->promote_recruit_temp_images($arr_recruit, $this->mm_idx);
       $result_recruit = $this->recruit_model->updateRecruit($arr_recruit, ["rc_idx" => $rc_idx]);
 
       if ($result_recruit["code"] != "00") {
@@ -3339,6 +3383,8 @@ class Compage_proc extends CI_Controller
         "up_dt" => date("Y-m-d H:i:s")
       ];
 
+      // 임시 폴더 사진을 정식 폴더로 복사하고 데이터 경로를 바꾼 뒤 저장
+      $this->common->promote_recruit_temp_images($arr_recruit, $this->mm_idx);
       $result_recruit = $this->recruit_model->insertRecruit($arr_recruit);
 
       if ($result_recruit["code"] != "00") {
@@ -4314,7 +4360,7 @@ class Compage_proc extends CI_Controller
     }
 
     // 이미지 업로드 처리 (리사이징 적용: 800x800)
-    $img = $this->common->img_upload_resize("editor", "Filedata", 800);
+    $img = $this->common->img_upload_resize($this->common->recruit_temp_path($this->mm_idx), "Filedata", 800);
 
     header('Content-Type: application/json');
 
