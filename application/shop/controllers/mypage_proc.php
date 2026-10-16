@@ -405,9 +405,7 @@ class Mypage_proc extends CI_Controller
       json_return("99", "근무형태 선택이 확인되지 않습니다.");
     }
 
-    if ($ru_nationality == "") {
-      json_return("99", "국적 선택이 확인되지 않습니다.");
-    }
+    // 국적은 입력받지 않으므로(st_member.mm_nation 사용) 필수 검증하지 않는다
 
     //if($ru_week_yn=="N" && $ru_week==""){
     //  json_return("99","근무요일 선택이 확인되지 않습니다.");
@@ -761,9 +759,7 @@ class Mypage_proc extends CI_Controller
         if (count($ru_work_type) >= 2) break;
       }
     }
-    if ($ru_nationality == "") {
-      $ru_nationality = "내국인";
-    }
+    // 국적 기본값("내국인")을 채우지 않는다: 빈값이면 resume_complete()에서 mm_nation 을 덮어쓰지 않는다
     if ($ru_name == "" || $ru_name == $ru_addr) {
     $seed = $ru_addr != "" ? $ru_addr : "우리 동네";
     $title_templates = [
@@ -807,10 +803,6 @@ class Mypage_proc extends CI_Controller
     if (empty($ru_work_type)) {
       json_return("99", "근무형태 선택이 확인되지 않습니다.");
     }
-    if ($ru_nationality == "") {
-      json_return("99", "국적 선택이 확인되지 않습니다.");
-    }
-
     // 희망업무 아이콘 경로를 코드테이블(cd_val -> cd_val2)에서 서버가 직접 조회
     // 클라이언트가 보낸 경로를 믿지 않으므로 위변조 여지가 없다
     $ru_work_img = [];

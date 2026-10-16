@@ -244,56 +244,6 @@
                     width: 100%;
                 }
 
-                /* 국적 버튼 그룹 */
-                .rw-basic-info .form-row:last-child .form-group {
-                    display: flex;
-                    gap: 0;
-                    align-items: center;
-                    width: var(--rw-basic-group-width);
-                }
-
-                .rw-basic-info .form-toggle-btn2 {
-                    margin-right: 0;
-                    height: var(--rw-input-height);
-                    display: flex;
-                    align-items: center;
-                    flex: 1;
-                }
-
-                .rw-basic-info .form-toggle-btn2 input {
-                    display: none;
-                }
-
-                .rw-basic-info .form-toggle-btn2 .btn {
-                    padding: 0;
-                    height: var(--rw-input-height);
-                    width: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border: 1px solid #ccc;
-                    background: #fff;
-                    color: var(--rw-input-font-color);
-                    font-size: var(--rw-input-font-size);
-                    font-weight: normal;
-                    margin: 0;
-                    cursor: pointer;
-                }
-
-                .rw-basic-info .form-toggle-btn2:first-child .btn {
-                    border-radius: 10px 0 0 10px;
-                }
-
-                .rw-basic-info .form-toggle-btn2:last-child .btn {
-                    border-radius: 0 10px 10px 0;
-                }
-
-                .rw-basic-info .form-toggle-btn2 input:checked+.btn {
-                    background: #1abc9c;
-                    color: #fff;
-                    border-color: #1abc9c;
-                }
-
                 /* ============================================
                    근무조건 섹션 고유 스타일
                    ============================================ */
@@ -1191,29 +1141,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="rw-form-row">
-                                        <p class="rw-label">국적</p>
-                                        <div class="rw-value">
-                                            <div class="form-group">
-                                                <?php
-                                                $ru_nationality = getData($info, "ru_nationality", "");
-                                                // 회원 정보에서 국적 가져오기 (이력서에 없으면)
-                                                if (empty($ru_nationality) && isset($mem_info["mm_nation"])) {
-                                                    $ru_nationality = $mem_info["mm_nation"];
-                                                }
-                                                ?>
-                                                <label class="form-toggle-btn2">
-                                                    <input type="radio" name="ru_nationality" value="내국인" <?= ($ru_nationality == "내국인" ? "checked" : "") ?> required aria-required="true">
-                                                    <span class="btn">내국인</span>
-                                                </label>
-                                                <label class="form-toggle-btn2">
-                                                    <input type="radio" name="ru_nationality" value="외국인" <?= ($ru_nationality == "외국인" ? "checked" : "") ?> required aria-required="true">
-                                                    <span class="btn">외국인</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
+                                <!-- 국적은 회원가입 때 받은 st_member.mm_nation 을 쓰므로 여기서 입력받지 않는다 -->
                             </div>
                             <!-- 근무조건 섹션 -->
                             <div class="rw-section">
@@ -2149,15 +2078,6 @@
                     $("[name='ru_name']").val(payload.ru_name);
                 }
 
-                if ($("[name='ru_nationality']:checked").length === 0) {
-                    var $nation = $("[name='ru_nationality'][value='내국인']");
-                    if ($nation.length) {
-                        $nation.prop("checked", true);
-                    } else {
-                        $("[name='ru_nationality']").first().prop("checked", true);
-                    }
-                }
-
                 if ($("[name='ru_work[]']:checked").length === 0) {
                     $("[name='ru_work[]']").first().prop("checked", true);
                 }
@@ -2228,12 +2148,6 @@
             }
             if ($("[name='ru_work[]']").is(":checked") == false) {
                 commonAlert("희망업무는 하나이상 선택해주세요.", function() {});
-                return;
-            }
-
-            // 국적 필수 검증
-            if ($("[name='ru_nationality']").is(":checked") == false) {
-                commonAlert("국적을 선택해주세요.", function() {});
                 return;
             }
 
