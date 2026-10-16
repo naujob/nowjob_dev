@@ -54,23 +54,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-top: 28px;
     }
 
-    /* 각 단계 입력 영역: 카드형 (클래스명은 scrollToCurrentStep 의 [class*="-field-wrapper"] 에 의존) */
-    .page-resume-write .title-field-wrapper,
-    .page-resume-write .area-field-wrapper,
-    .page-resume-write .work-field-wrapper,
-    .page-resume-write .strength-field-wrapper,
-    .page-resume-write .worktype-field-wrapper,
-    .page-resume-write .salary-field-wrapper,
-    .page-resume-write .desc-field-wrapper,
-    .page-resume-write .workdt-field-wrapper,
-    .page-resume-write .week-field-wrapper,
-    .page-resume-write .career-field-wrapper,
-    .page-resume-write .license-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-    }
+    /* 각 단계 입력 영역 카드 스타일은 main.css 공통 규칙(.page-resume-write *-field-wrapper) 사용 */
 
     /* 카드 안에서는 form-row 의 상단 여백을 줄인다 */
     .page-resume-write [class*="-field-wrapper"] > .form-row:first-child {
@@ -85,11 +69,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-top: 0.875rem;
     }
 
-    .page-resume-write .strength-field-wrapper .form-toggle-group.col-3 .form-toggle-btn2.tag {
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        vertical-align: top;
-    }
+ 
 
     .page-resume-write .strength-field-wrapper .form-toggle-group.col-3 .form-toggle-btn2.tag .btn {
         min-width: calc(33.333% - 0.5rem);
@@ -161,14 +141,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     .page-resume-write .strength-input-area .form-text {
-        height: 3rem;
+        height: var(--resume-write-input-height);
         padding: 0 0.75rem;
-        font-size: 1rem;
+        font-size: var(--resume-write-input-font-size);
         font-weight: 400;
         color: #222;
-        line-height: 3rem;
-        border: 1px solid #BEBFC9;
-        border-radius: 8px;
+        line-height: var(--resume-write-input-height);
+        border: 1px solid var(--write-border-color);
+        border-radius: var(--write-border-radius);
         background: #fff;
         box-sizing: border-box;
     }
@@ -305,8 +285,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         width: 100%;
         text-align: left;
         background: #fff;
-        border: unset;
-        border-radius: 6px; 
+        border: 1px solid var(--write-border-color);
+        border-radius: var(--write-border-radius);
+        height: var(--resume-write-input-height);
         padding: 0.9rem;
         font-size: 1.1rem;
         color: #bbb;
@@ -327,6 +308,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     /* 경력/자격증 행 안의 트리거는 기존 input 과 같은 크기로 */
     .page-resume-write .added-list .js-date-picker-trigger {
+        border: unset;
+        height: auto;
         padding: 0.7rem 0.6rem;
         font-size: 1rem;
     }
@@ -397,9 +380,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                     <label>
                                         <span class="form-label">이력서명<span class="required-asterisk">*</span></span>
                                     </label>
+                                    <span class="char-counter"><span id="ru_name_count">0</span>/30</span>
                                 </div>
                                 <label>
-                                    <input type="text" name="ru_name" placeholder="이력서제목을 입력해주세요" value="<?= $info["ru_name"] ?>" autocomplete="off" aria-required="true" required class="form-text resume-title-input">
+                                    <input type="text" name="ru_name" placeholder="이력서제목을 입력해주세요" value="<?= $info["ru_name"] ?>" maxlength="30" autocomplete="off" aria-required="true" required class="form-text form-text-bordered" id="ru_name_input">
                                 </label>
                             </div>
                             <!-- 국적은 회원가입 때 받은 st_member.mm_nation 을 쓰므로 여기서 입력받지 않는다 -->
@@ -628,7 +612,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                         data-year-min="<?= (int)date("Y") - 1 ?>"
                                         data-year-max="<?= (int)date("Y") + 2 ?>"
                                         data-date-seed="<?= $ru_work_dt_seed ?>"
-                                        data-target="[name='ru_work_dt']" style="border-radius: 3px;border: 1px solid #BEBFC9;"><span class="date-display"><?= $ru_work_dt_val != "" ? str_replace("-", ".", $ru_work_dt_val) : "날짜를 선택해주세요" ?></span></button>
+                                        data-target="[name='ru_work_dt']"><span class="date-display"><?= $ru_work_dt_val != "" ? str_replace("-", ".", $ru_work_dt_val) : "날짜를 선택해주세요" ?></span></button>
                             </div>
                         </div>
                     </div><!-- //step 8 -->
@@ -1398,6 +1382,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
             if (typeof formData.ru_name !== "undefined") {
                 $("[name='ru_name']").val(formData.ru_name);
+                $("#ru_name_count").text($("#ru_name_input").val().length);
             }
             $("[name='ru_work[]']").prop("checked", false);
             if (Array.isArray(formData.ru_work)) {
@@ -2072,7 +2057,56 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return true;
     }
 
-    // 9~11단계는 선택 입력이므로 검사하지 않는다
+    // 한 행 안에서 두 항목 중 하나만 채워졌는지 확인 (둘 다 비었거나 둘 다 채워졌으면 false)
+    function isPartialRowFilled(val1, val2) {
+        var hasFirst = $.trim(val1 || "") !== "";
+        var hasSecond = $.trim(val2 || "") !== "";
+        return hasFirst !== hasSecond;
+    }
+
+    // 경력사항(선택): 입력한 행은 업체명과 근무기간을 모두 채워야 한다. 완전히 빈 행은 무시한다
+    function checkOptionalCareerRows() {
+        // 상세등록을 닫으면 경력 행은 저장되지 않으므로 검사하지 않는다
+        if (!isDetailOpen()) {
+            return true;
+        }
+        var hasPartial = false;
+        $(".form-row[data-section='career'] .added-list").children("li").not(".is-deleted").each(function() {
+            var $li = $(this);
+            if (isPartialRowFilled($li.find("[name='career_company[]']").val(), $li.find("[name='career_period[]']").val())) {
+                hasPartial = true;
+                return false;
+            }
+        });
+        if (hasPartial) {
+            commonAlert("경력사항은 업체명과 근무기간을 모두 입력해주세요.", function() {});
+            return false;
+        }
+        return true;
+    }
+
+    // 자격증(선택): 입력한 행은 자격증명과 취득일자를 모두 채워야 한다. 완전히 빈 행은 무시한다
+    function checkOptionalLicenseRows() {
+        // 상세등록을 닫으면 자격증 행은 저장되지 않으므로 검사하지 않는다
+        if (!isDetailOpen()) {
+            return true;
+        }
+        var hasPartial = false;
+        $(".form-row[data-section='license'] .added-list").children("li").not(".is-deleted").each(function() {
+            var $li = $(this);
+            if (isPartialRowFilled($li.find("[name='license[]']").val(), $li.find("[name='regdate[]']").val())) {
+                hasPartial = true;
+                return false;
+            }
+        });
+        if (hasPartial) {
+            commonAlert("자격증은 자격증명과 취득일자를 모두 입력해주세요.", function() {});
+            return false;
+        }
+        return true;
+    }
+
+    // 10~11단계(경력/자격증)는 선택 입력이지만, 입력한 행은 두 항목을 모두 채워야 한다
     function validateStepRequired(step) {
         switch (step) {
             case 1:
@@ -2091,6 +2125,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 return checkRequiredDesc();
             case 8:
                 return checkRequiredWorkDt();
+            case 10:
+                return checkOptionalCareerRows();
+            case 11:
+                return checkOptionalLicenseRows();
             default:
                 return true;
         }
@@ -2106,7 +2144,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             [5, checkRequiredWorkType],
             [6, checkRequiredPriceType],
             [7, checkRequiredDesc],
-            [8, checkRequiredWorkDt]
+            [8, checkRequiredWorkDt],
+            [10, checkOptionalCareerRows],
+            [11, checkOptionalLicenseRows]
         ];
         for (var i = 0; i < checks.length; i++) {
             if (!checks[i][1]()) {
@@ -2254,6 +2294,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         });
 
         $("[name='ru_name']").on("input", saveResumeStep1Data);
+        // 이력서명 문자 수 카운트 (최대 30자)
+        $("#ru_name_input").on("input", function() {
+            $("#ru_name_count").text($(this).val().length);
+        });
+        // 초기값 설정 (DB/임시저장 값 반영)
+        $("#ru_name_count").text($("#ru_name_input").val().length);
         $("[name='ru_work[]']").on("change", saveResumeStep1Data);
         $("[name='ru_price_type[]']").on("change", saveResumeStep1Data);
         $("[name='ru_work_type[]']").on("change", saveResumeStep1Data);
@@ -3072,6 +3118,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 try {
                     sessionStorage.setItem("resume_from_preview", "true");
                 } catch (e) {}
+
+                // add.js 의 전역 pageshow 핸들러가 뒤로가기 때 이 값으로 스크롤을 되돌린다.
+                // 미리보기 버튼을 누른 위치(마지막 단계 아래)가 담겨 있으면 복귀 시 화면이 아래로 튀므로
+                // 맨 위로 덮어쓴다
+                try {
+                    localStorage.setItem("divScrollPositon", "0");
+                } catch (e) {}
+
                 location.href = "/resume/hr_post/" + ru_idx + "?preview=1";
             } else {
                 commonAlert(ret.msg || "저장 처리 중 오류가 발생했습니다.", function() {});

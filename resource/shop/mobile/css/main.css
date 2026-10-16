@@ -17,6 +17,11 @@
     --recruit-write-input-height: 56px;
     --recruit-write-input-font-size: 17px;
 
+    /* 작성 페이지(이력서/공고) 공통 테두리 토큰 */
+    --write-border-color: #BEBFC9;
+    --write-border-radius: 8px;
+    --write-focus-color: #1B9D7D;
+
     /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
     --page-recruit-font-size: 15px;
     --page-recruit-font-size-xs: 9px;      /* 9px */
@@ -8629,6 +8634,8 @@ form#frm {
     height: var(--recruit-write-input-height);
     line-height: var(--recruit-write-input-height);
     font-size: var(--recruit-write-input-font-size);
+    border: 1px solid var(--write-border-color);
+    border-radius: var(--write-border-radius);
 }
 
 .page-recruit-write .detail-register-btn {
@@ -8885,11 +8892,6 @@ form#frm {
     margin-top: 0.875rem;
 }
 
-.page-recruit-write .form-toggle-group.col-3 .form-toggle-btn2.tag {
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    vertical-align: top;
-}
 
 .page-recruit-write .form-toggle-group.col-3 .form-toggle-btn2.tag .btn {
     min-width: calc(33.333% - 0.5rem);
@@ -8993,8 +8995,8 @@ form#frm {
 .page-recruit-write .day-of-week-group {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.875rem;
-    justify-content: space-between;
+   
+    justify-content: center;
 }
 
 .page-recruit-write .day-of-week-group .day-btn {
@@ -9321,10 +9323,28 @@ form#frm {
     min-height: var(--resume-write-input-height);
 }
 
+/* 작성 페이지 textarea: 모서리/포커스 색을 공통 토큰으로 */
+.page-resume-write .form-textarea,
+.page-recruit-write .form-textarea {
+    border-radius: var(--write-border-radius);
+}
+.page-resume-write .form-toggle-btn2,
+.page-recruit-write .form-toggle-btn2 {
+        margin: 0.8rem 0.5rem 0 0;
+}
+.page-resume-write .form-textarea:focus,
+.page-recruit-write .form-textarea:focus {
+    border-color: var(--write-focus-color);
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+/* 토글 버튼 테두리 통일: 작성 페이지 공통 토큰 사용 */
 .page-resume-write .form-toggle-btn2 .btn,
 .page-resume-write .form-toggle-btn2.sm .btn {
     height: var(--resume-write-input-height);
-    
+    border: 1px solid var(--write-border-color);
+    border-radius: var(--write-border-radius);
 }
 
 .page-resume-write .form-checkbox .label {
@@ -9334,6 +9354,7 @@ form#frm {
 .page-resume-write .btn-add-item,
 .page-resume-write .detail-register-btn {
     height: var(--resume-write-input-height);
+    border-radius: var(--write-border-radius);
 }
 
 /* 희망지역 주소 필드 스타일 통일 */
@@ -10347,23 +10368,58 @@ form#frm {
     background-color: #57CCAF;
 }
 
-/* 이력서명 입력 필드 pill 형태 스타일 */
-.resume-title-input {
-    border-radius: 10px !important;
-    height: var(--resume-write-input-height) !important;
+/* 제목 입력칸 공통 스타일 (이력서명/공고제목 공용) */
+.form-text-bordered {
+    height: 100px !important;
     padding: 0 1.25rem !important;
-    
-    border: 1px solid #BEBFC9 !important;
-    border-bottom: 1px solid #BEBFC9 !important;
-    background: #fff !important;
+    font-size: 17px;
     font-weight: 400 !important;
+    color: #222;
+    border: 1px solid var(--write-border-color) !important;
+    border-radius: var(--write-border-radius) !important;
+    background: #fff !important;
 }
 
-.resume-title-input:focus {
-    border-color: #57CCAF !important;
-    border-bottom-color: #57CCAF !important;
-    -webkit-box-shadow: 0 0 0 3px rgba(87, 204, 175, 0.2) !important;
-    box-shadow: 0 0 0 3px rgba(87, 204, 175, 0.2) !important;
+.form-text-bordered:focus {
+    border-color: var(--write-focus-color) !important;
+    outline: none;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+/* 글자 수 카운터 (공용) */
+.char-counter {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+/* 입력 카드 래퍼 (이력서/공고 공통). 클래스명은 이력서 JS의 [class*="-field-wrapper"] 탐색에 쓰이므로 유지 */
+.page-resume-write .title-field-wrapper,
+.page-resume-write .area-field-wrapper,
+.page-resume-write .work-field-wrapper,
+.page-resume-write .strength-field-wrapper,
+.page-resume-write .worktype-field-wrapper,
+.page-resume-write .salary-field-wrapper,
+.page-resume-write .desc-field-wrapper,
+.page-resume-write .workdt-field-wrapper,
+.page-resume-write .week-field-wrapper,
+.page-resume-write .career-field-wrapper,
+.page-resume-write .license-field-wrapper,
+.page-recruit-write .input-field-wrapper,
+.page-recruit-write .address-field-wrapper,
+.page-recruit-write .date-field-wrapper,
+.page-recruit-write .work-field-wrapper,
+.page-recruit-write .hashtag-field-wrapper,
+.page-recruit-write .schedule-field-wrapper,
+.page-recruit-write .salary-field-wrapper,
+.page-recruit-write .benefit-field-wrapper,
+.page-recruit-write .image-field-wrapper,
+.page-recruit-write .description-field-wrapper,
+.page-recruit-write .optional-field-wrapper {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem 1rem 1.5rem 1rem;
 }
 
 /* 마이페이지 */

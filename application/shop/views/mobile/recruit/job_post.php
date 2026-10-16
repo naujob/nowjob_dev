@@ -327,8 +327,11 @@ if (!$isLogin) {
                             sessionStorage.removeItem("from_preview");
 
                             // 채용공고 등록 완료
+                            // 기존 공고 수정(rcIdx 있음)은 해당 공고 상세로, 최초 등록(rcIdx 0)은 공고 목록으로 이동
+                            // 현재 페이지를 대체하여 뒤로가기로 미리보기 페이지에 다시 들어오지 않도록 함
+                            var isEditComplete = (rcIdx && rcIdx !== "0");
                             commonAlert("채용공고가 등록되었습니다.", function() {
-                                window.history.go(-2);
+                                location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
                             });
                         } else {
                             alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");

@@ -808,8 +808,8 @@
         align-items: center;
         gap: 4px;
         height: 3rem;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+        border: 1px solid var(--write-border-color);
+        border-radius: var(--write-border-radius);
 
         background: #fff;
         flex: 1;
@@ -1171,13 +1171,6 @@
         font-weight: 600;
     }
 
-    .input-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-    }
-
     .label-with-counter {
         display: flex;
         justify-content: space-between;
@@ -1185,32 +1178,7 @@
         margin-bottom: 0.8rem;
     }
 
-    .char-counter {
-        font-size: 0.9rem;
-        color: #999;
-    }
-
-    .form-text-bordered {
-        border: 1px solid #ddd !important;
-        border-radius: 6px !important;
-        padding: 0.8rem !important;
-        background: #fff !important;
-        height: 100px !important;
-    }
-
-    .form-text-bordered:focus {
-        border-color: #57CCAF !important;
-        outline: none;
-    }
-
-    /* 주소 버튼 스타일 */
-    .address-add-btn-bordered {
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 0.8rem;
-        background: #fff;
-    }
-
+    /* 주소 버튼 스타일 (.char-counter, .form-text-bordered 는 main.css 공통 규칙 사용) */
     .address-add-btn-bordered:hover {
         border-color: #bbb;
         background: #fafafa;
@@ -1221,88 +1189,21 @@
         background: #f0f9f6;
     }
 
-    /* 주소 입력 필드 래퍼 */
-    .address-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-    }
-
-    /* 날짜 입력 필드 래퍼 */
-    .date-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-    }
-
-    /* 업무구분 필드 래퍼 */
+    /* 업무구분 필드 래퍼 (카드 스타일은 main.css 공통 규칙) */
     .work-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
         margin-bottom: 1rem;
-    }
-
-    /* 해시태그 필드 래퍼 */
-    .hashtag-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
     }
 
     /* 근무형태 필드 래퍼 */
     .schedule-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
         margin-bottom: 1rem;
-    }
-
-    /* 급여형태 필드 래퍼 */
-    .salary-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-    }
-
-    /* 복리후생 필드 래퍼 */
-    .benefit-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
     }
 
     /* 이미지 필드 래퍼 */
     .image-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
         margin-bottom: 1rem;
     }
 
-    /* 상세업무 필드 래퍼 */
-    .description-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-    }
-
-    /* 선택항목 필드 래퍼 */
-    .optional-field-wrapper {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-    }
    .page-content .section.addition-info-form {
     background: #f9f7f7;
    }
@@ -1779,6 +1680,32 @@
         return String(str).replace(/,/g, '');
     }
 
+    // 급여 금액 입력: 숫자만 받고 입력 즉시 천 단위 쉼표를 표시 (커서 위치 보정 포함)
+    // DOMContentLoaded 초기화 중 예외가 나도 동작하도록 document.ready에서 별도로 바인딩
+    function bindSalaryAmountFormat() {
+        $("#rc_price_amount").off("input.amountFormat").on("input.amountFormat", function() {
+            var el = this;
+            var digitsBeforeCaret = el.value.slice(0, el.selectionStart).replace(/[^0-9]/g, '').length;
+            var numeric = el.value.replace(/[^0-9]/g, '');
+            if (numeric !== '') {
+                numeric = String(parseInt(numeric, 10));
+            }
+            var formatted = formatNumberWithComma(numeric);
+            $(el).val(formatted);
+
+            // 쉼표가 추가/제거되어도 입력 중이던 자리 뒤로 커서를 맞춤
+            var pos = 0;
+            var count = 0;
+            while (pos < formatted.length && count < digitsBeforeCaret) {
+                if (/[0-9]/.test(formatted.charAt(pos))) {
+                    count++;
+                }
+                pos++;
+            }
+            el.setSelectionRange(pos, pos);
+        });
+    }
+
     // contenteditable 에디터 DOM을 정규화: 블록 요소(<div>, <p>)를 <br>로 변환해 줄바꿈 보존
     // 이미지 래퍼(.image-wrapper)와 인라인 서식(<b>, <span> 등)은 유지
     function normalizeEditorDom(editor) {
@@ -2162,7 +2089,8 @@
         }
 
         if (formData.rc_price_amount) {
-            $("#rc_price_amount").val(formData.rc_price_amount);
+            // 임시저장값은 쉼표 없이 저장되므로 복원 시 다시 포맷
+            $("#rc_price_amount").val(formatNumberWithComma(formData.rc_price_amount));
         }
 
         $("[name='rc_work[]']").prop("checked", false);
@@ -2941,7 +2869,9 @@
                             }
                             clearRecruitDraftData("0");
 
-                            location.href = "/compage/recruit_list";
+                            // 기존 공고 수정(gbn=copy 제외) 완료 시 해당 공고 상세(job_post)로, 최초 등록 완료 시 목록으로 이동
+                            var isEditComplete = (origRcIdx && origRcIdx !== "0" && gbnMode !== "copy");
+                            location.href = isEditComplete ? "/recruit/job_post/" + finalRcIdx : "/compage/recruit_list";
                         } else {
                             unlockSubmit();
                             commonAlert(ret2.msg, function() {});
@@ -3147,20 +3077,6 @@
 
         // 근무시간 섹션 초기화
         updateTimeSection();
-
-        // 급여 금액 입력 필드 이벤트 리스너 (천 단위 쉼표 포맷팅)
-        $("#rc_price_amount").on("input", function() {
-            var value = $(this).val();
-            var numericValue = removeComma(value);
-
-            // 숫자만 입력되도록
-            if (numericValue !== String(parseInt(numericValue) || 0)) {
-                numericValue = String(parseInt(numericValue) || 0);
-            }
-
-            // 포맷팅된 값으로 업데이트
-            $(this).val(formatNumberWithComma(numericValue));
-        });
 
         (function() {
             function chgMonth(instance) {
@@ -4252,6 +4168,8 @@
 
   // 공고노출지역 팝업이 닫힐 때 body overflow 복원
   $(document).ready(function() {
+    bindSalaryAmountFormat();
+
     var $panelExpose = $("#changeAreaExpose");
     if ($panelExpose.length > 0) {
       var observerExpose = new MutationObserver(function(mutations) {

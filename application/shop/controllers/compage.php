@@ -1631,7 +1631,8 @@ class Compage extends CI_Controller
 			$info["rc_nation_all"] = isset($recruit_info["rc_nation_all"]) ? $recruit_info["rc_nation_all"] : "";
 			$info["rc_sage"] = isset($recruit_info["rc_sage"]) ? $recruit_info["rc_sage"] : "";
 			$info["rc_eage"] = isset($recruit_info["rc_eage"]) ? $recruit_info["rc_eage"] : "";
-			$info["rc_age_all"] = isset($recruit_info["rc_age_all"]) ? $recruit_info["rc_age_all"] : "";
+			// rc_age_all은 DB 컬럼이 없으므로 rc_sage/rc_eage가 모두 비어 있으면 "나이무관"으로 판단 (compage_proc 저장 규칙과 동일)
+			$info["rc_age_all"] = (empty($info["rc_sage"]) && empty($info["rc_eage"])) ? "Y" : "";
 			$info["rc_img1"] = isset($recruit_info["rc_img1"]) ? $recruit_info["rc_img1"] : "";
 			$info["rc_thumb"] = isset($recruit_info["rc_thumb"]) ? $recruit_info["rc_thumb"] : "";
 			$info["rc_img2"] = isset($recruit_info["rc_img2"]) ? $recruit_info["rc_img2"] : "";
@@ -1713,7 +1714,7 @@ class Compage extends CI_Controller
 				$info["rc_nation_all"] = isset($temp_info["rc_nation_all"]) ? $temp_info["rc_nation_all"] : "";
 				$info["rc_sage"] = isset($temp_info["rc_sage"]) ? $temp_info["rc_sage"] : "";
 				$info["rc_eage"] = isset($temp_info["rc_eage"]) ? $temp_info["rc_eage"] : "";
-				$info["rc_age_all"] = isset($temp_info["rc_age_all"]) ? $temp_info["rc_age_all"] : "";
+				$info["rc_age_all"] = (empty($info["rc_sage"]) && empty($info["rc_eage"])) ? "Y" : "";
 			} else {
 				$add_info = $this->member_model->getMemberInfo($this->mm_idx);
 				$mem_addr = $this->member_model->getAddress(["mm_idx" => $this->mm_idx, "ad_key" => $this->mm_idx, "ad_type" => "MEMBER"]);
@@ -1824,7 +1825,7 @@ class Compage extends CI_Controller
 			$info["rc_nation_all"] = isset($recruit_info["rc_nation_all"]) ? $recruit_info["rc_nation_all"] : "";
 			$info["rc_sage"] = $recruit_info["rc_sage"];
 			$info["rc_eage"] = $recruit_info["rc_eage"];
-			$info["rc_age_all"] = isset($recruit_info["rc_age_all"]) ? $recruit_info["rc_age_all"] : "";
+			$info["rc_age_all"] = (empty($info["rc_sage"]) && empty($info["rc_eage"])) ? "Y" : "";
 			$info["rc_img1"] = $recruit_info["rc_img1"];
 			$info["rc_img2"] = $recruit_info["rc_img2"];
 			$info["rc_img3"] = $recruit_info["rc_img3"];
@@ -1847,7 +1848,7 @@ class Compage extends CI_Controller
 				$info["rc_nation_all"] = isset($temp_info["rc_nation_all"]) ? $temp_info["rc_nation_all"] : "";
 				$info["rc_sage"] = isset($temp_info["rc_sage"]) ? $temp_info["rc_sage"] : "";
 				$info["rc_eage"] = isset($temp_info["rc_eage"]) ? $temp_info["rc_eage"] : "";
-				$info["rc_age_all"] = isset($temp_info["rc_age_all"]) ? $temp_info["rc_age_all"] : "";
+				$info["rc_age_all"] = (empty($info["rc_sage"]) && empty($info["rc_eage"])) ? "Y" : "";
 				$info["rc_img1"] = isset($temp_info["rc_img1"]) ? $temp_info["rc_img1"] : "";
 				$info["rc_img2"] = isset($temp_info["rc_img2"]) ? $temp_info["rc_img2"] : "";
 				$info["rc_img3"] = isset($temp_info["rc_img3"]) ? $temp_info["rc_img3"] : "";
