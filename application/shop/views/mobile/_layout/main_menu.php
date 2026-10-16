@@ -266,15 +266,23 @@ renderSelectBottomSheet(
   });
 
   $(document).on('click', '#btnResumeWritePanel', function() {
-    // 새 이력서 작성을 위해 임시저장 데이터 초기화
-    // 새 이력서는 ru_idx가 0이므로 해당 키들을 삭제
-    localStorage.removeItem("resume_draft_0_step1");
-    localStorage.removeItem("resume_draft_0_step2");
-    localStorage.removeItem("resume_draft_0_step3");
-    localStorage.removeItem("resume_draft_0_step4");
-    localStorage.removeItem("resume_draft_0_step5");
+    // 이력서 최대 2개 제한 확인 (하단 메뉴 → 패널 → 등록 경로 공통)
+    comAjax("/mypage_proc/resume_limit_check", {}, function(ret) {
+      if (ret.code != "00") {
+        commonAlert(ret.msg, function() {});
+        return;
+      }
 
-    location.href = "/mypage/resume_write1";
+      // 새 이력서 작성을 위해 임시저장 데이터 초기화
+      // 새 이력서는 ru_idx가 0이므로 해당 키들을 삭제
+      localStorage.removeItem("resume_draft_0_step1");
+      localStorage.removeItem("resume_draft_0_step2");
+      localStorage.removeItem("resume_draft_0_step3");
+      localStorage.removeItem("resume_draft_0_step4");
+      localStorage.removeItem("resume_draft_0_step5");
+
+      location.href = "/mypage/resume_write1";
+    });
   });
 
   // 채용공고 선택 팝업 버튼 클릭 이벤트

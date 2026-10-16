@@ -35,7 +35,7 @@
                                 </tbody>
                             </table>
                             <?php if(count($resume_list) > 0) : ?>
-                            <p class="help-msg">이력서 등록은 최대 5개까지만 가능합니다.</p>
+                            <p class="help-msg">이력서 등록은 최대 2개까지만 가능합니다.</p>
                             <?php else : ?>
                                 <p style="padding:20px;text-align:center;line-height:120px;width:100%;background:#eee;border-radius:10px;">등록된 이력서가 없습니다.</p>
                             <?php endif; ?>

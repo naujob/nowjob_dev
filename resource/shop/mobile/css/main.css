@@ -8994,7 +8994,7 @@ form#frm {
 
 .page-recruit-write .day-of-week-group {
     display: flex;
-    gap: 0.5rem;
+    gap: 3px;
    
     justify-content: center;
 }

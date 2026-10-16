@@ -318,6 +318,12 @@ class Mypage_proc extends CI_Controller
       "sl_type" => "RESUME"
     ]);
 
+    // 이력서 최대 2개 제한: 폼 진입 전에 차단
+    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
+    if ($resume_count >= 2) {
+      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+    }
+
     $passAuthStat = "";
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
 
@@ -333,6 +339,18 @@ class Mypage_proc extends CI_Controller
     }
 
     json_return("00", "처리완료", ["passAuthStat" => $passAuthStat]);
+  }
+
+  # 이력서 등록 가능 여부 확인 (최대 2개)
+  # resume_start를 거치지 않는 진입점(하단 메뉴 등)용. 임시저장 로그를 지우지 않는다.
+  function resume_limit_check()
+  {
+    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
+    if ($resume_count >= 2) {
+      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+    }
+
+    return json_return("00", "처리완료");
   }
 
   # 웹용 이력서 저장
@@ -1172,9 +1190,9 @@ class Mypage_proc extends CI_Controller
 
     # 이력서 갯수 확인후 처리
     $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
-    if ($ru_idx == 0 && $count >= 5) {
-      //2024.09.01 5개 제한 해제 -> 09.04 그런 의미가 아니라고 해서 적용
-      return json_return("90", "이력서는 최대 5개까지만 등록 가능합니다.");
+    if ($ru_idx == 0 && $count >= 2) {
+      // 이력서 최대 2개 제한
+      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
     }
 
     //실명인증여부 확인 24.09.01

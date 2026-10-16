@@ -345,9 +345,9 @@
 			# 이력서 갯수 확인후 처리
 			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
 
-			if($ru_idx == 0 && $count >=5){
-        //2024.09.01 5개 제한 해제
-				go_location("/mypage/resume_list","이력서는 최대 5개 까지만 등록가능합니다.");
+			if($ru_idx == 0 && $count >=2){
+        //이력서 최대 2개 제한
+				go_location("/mypage/resume_list","이력서는 최대 2개 까지만 등록가능합니다.");
 			}
 
 			# 데이터 조회
@@ -398,9 +398,9 @@
 			# 이력서 갯수 확인후 처리
 			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
 
-			if($ru_idx == 0 && $count >=5){
-        //2024.09.01 5개 제한 해제
-				go_location("/mypage/resume_list","이력서는 최대 5개 까지만 등록가능합니다.");
+			if($ru_idx == 0 && $count >=2){
+        //이력서 최대 2개 제한
+				go_location("/mypage/resume_list","이력서는 최대 2개 까지만 등록가능합니다.");
 			}
 
 			# 데이터 조회
