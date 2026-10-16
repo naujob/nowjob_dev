@@ -1534,7 +1534,7 @@
             if (i <= currentStep) {
                 if (i === currentStep && !skipAnimation) {
                     // 새로 노출되는 단계는 slideDown. 높이가 확정된 뒤 스크롤해야 하므로 완료 콜백에서 처리
-                    $section.slideDown(300, scrollToCurrentStep);
+                    $section.slideDown(120, scrollToCurrentStep);
                 } else {
                     // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
                     $section.show();
@@ -1629,7 +1629,7 @@
         // 끝까지 내리는 단계는 더 계산할 것이 없다
         if (mode === "bottom") {
             var maxScroll = $page[0].scrollHeight - $page[0].clientHeight;
-            $page.stop(true).animate({ scrollTop: maxScroll > 0 ? maxScroll : 0 }, 300);
+            $page.stop(true).animate({ scrollTop: maxScroll > 0 ? maxScroll : 0 }, 120);
             return;
         }
 
@@ -1661,7 +1661,7 @@
             scrollTop = 0;
         }
 
-        $page.stop(true).animate({ scrollTop: scrollTop }, 300);
+        $page.stop(true).animate({ scrollTop: scrollTop }, 120);
     }
 
     // ============================================================================
@@ -3414,6 +3414,26 @@
             savePage3Data();
         });
 
+        /* 선택 상한 도달 시 자동 다음 단계 이동 (약 120ms 후, 빠른 전환)
+           - 현재 단계일 때만 동작: 이전 단계를 고칠 때는 넘어가지 않는다
+           - 타이머 실행 시 조건을 다시 확인해, 그 사이 선택이 해제되면 이동하지 않는다 */
+        var autoAdvanceTimer = null;
+        function autoAdvanceIfComplete(step, isComplete) {
+            if (autoAdvanceTimer) {
+                clearTimeout(autoAdvanceTimer);
+                autoAdvanceTimer = null;
+            }
+            if (currentStep !== step || !isComplete()) {
+                return;
+            }
+            autoAdvanceTimer = setTimeout(function() {
+                autoAdvanceTimer = null;
+                if (currentStep === step && isComplete()) {
+                    goNextStep();
+                }
+            }, 0);
+        }
+
         (function() {
             document.querySelectorAll('input[data-select-limit]').forEach(function(item) {
                 item.addEventListener('change', function() {
@@ -3428,6 +3448,18 @@
                     if (this.checked && childItems.length > limit) {
                         this.checked = false;
                         commonAlert("최대 " + limit + "개까지 선택 가능합니다.", function() {});
+                        return;
+                    }
+
+                    // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
+                    if (name === 'rc_work[]') {
+                        autoAdvanceIfComplete(4, function() {
+                            return document.querySelectorAll('[name="rc_work[]"]:checked').length === 2;
+                        });
+                    } else if (name === 'rc_work_type[]') {
+                        autoAdvanceIfComplete(6, function() {
+                            return document.querySelectorAll('[name="rc_work_type[]"]:checked').length === 2;
+                        });
                     }
                 });
             });
@@ -3573,6 +3605,11 @@
             if (checkedCount > 4) {
                 $(this).prop("checked", false);
                 commonAlert("해시태그는 최대 4개까지 선택 가능합니다.", function() {});
+            } else {
+                // 해시태그 상한(4개)에 도달하면 자동으로 다음 단계 이동 (차단된 선택은 제외)
+                autoAdvanceIfComplete(5, function() {
+                    return $("[name='rc_hash[]']:checked").length === 4;
+                });
             }
         });
 
@@ -3976,8 +4013,8 @@
             });
         }
 
-        // 단계별 진행 버튼 핸들러
-        $("#btnStepNext").click(function() {
+        // 다음 이동: "다음" 버튼과 선택 상한 자동 이동이 함께 사용한다
+        function goNextStep() {
             // 현재 단계의 필수 항목을 통과해야 다음 단계로 이동
             if (!validateStepRequired(currentStep)) {
                 return;
@@ -3986,7 +4023,10 @@
                 currentStep++;
                 updateStepVisibility();
             }
-        });
+        }
+
+        // 단계별 진행 버튼 핸들러
+        $("#btnStepNext").click(goNextStep);
 
         /* 상세등록(+): 마지막 필수 단계(10)에서 선택 구간(11)을 열고 진입 */
         $("#btnDetailMore").click(function(e) {

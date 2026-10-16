@@ -1905,7 +1905,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             if (targetByTop < 0) {
                 targetByTop = 0;
             }
-            $page.stop(true).animate({ scrollTop: targetByTop }, 300);
+            $page.stop(true).animate({ scrollTop: targetByTop }, 120);
             return;
         }
 
@@ -1924,7 +1924,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         if (target < 0) {
             target = 0;
         }
-        $page.stop(true).animate({ scrollTop: target }, 300);
+        $page.stop(true).animate({ scrollTop: target }, 120);
     }
 
     // 누적형 노출: 지나온 단계는 계속 보이고 현재 단계만 펼쳐진다
@@ -1937,7 +1937,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             var $section = $(".step-section[data-step='" + i + "']");
             if (i <= currentStep && i <= total) {
                 if (i === currentStep && !skipAnimation) {
-                    $section.slideDown(300, scrollToCurrentStep);
+                    $section.slideDown(120, scrollToCurrentStep);
                 } else {
                     $section.show();
                 }
@@ -2313,6 +2313,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 return;
             }
             saveResumeStep4Data();
+
+            // 기본 강점 6개가 모두 선택되면 자동으로 다음 단계 이동 (직접입력 항목은 개수에서 제외)
+            autoAdvanceIfComplete(4, function() {
+                var checkedDefault = $("[name='ru_my_type[]']:checked").filter(function() {
+                    return DEFAULT_MY_TYPE_LIST.indexOf(this.value) !== -1;
+                });
+                return checkedDefault.length === DEFAULT_MY_TYPE_LIST.length;
+            });
         });
 
         /* 나의강점 직접입력: + 버튼으로 입력란을 열고 확인하면 태그로 추가한다 */
@@ -2374,6 +2382,29 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             saveResumeStep4Data();
         });
 
+        /* 선택 상한 도달 시 자동 다음 단계 이동 (약 120ms 후, 빠른 전환)
+           - 현재 단계일 때만 동작: 이전 단계를 고칠 때는 넘어가지 않는다
+           - 타이머 실행 시 조건을 다시 확인해, 그 사이 선택이 해제되면 이동하지 않는다 */
+        var autoAdvanceTimer = null;
+        function autoAdvanceIfComplete(step, isComplete) {
+            if (autoAdvanceTimer) {
+                clearTimeout(autoAdvanceTimer);
+                autoAdvanceTimer = null;
+            }
+            if (currentStep !== step || !isComplete()) {
+                return;
+            }
+            autoAdvanceTimer = setTimeout(function() {
+                autoAdvanceTimer = null;
+                if (currentStep === step && isComplete()) {
+                    goNextStep();
+                }
+            }, 0);
+        }
+
+        /* 나의강점 기본 노출 목록 (PHP 목록을 그대로 넘겨 JS와 동일하게 유지) */
+        var DEFAULT_MY_TYPE_LIST = <?= json_encode($default_my_type_list, JSON_UNESCAPED_UNICODE) ?>;
+
         /* 선택목록 개수 제한 (희망업무 2 / 급여 2 / 근무형태 2)
            단계 분리 전에는 뷰 중간의 인라인 script 였으나, DOM 순서상 자기 앞의
            요소에만 걸리는 문제가 있어 ready 로 옮겨 전 항목에 적용한다 */
@@ -2398,6 +2429,22 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 if (this.checked && childItems.length > limit) {
                     this.checked = false;
                     commonAlert("최대 " + limit + "개까지 선택 가능합니다.", function() {});
+                    return;
+                }
+
+                // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
+                if (name === 'ru_work[]') {
+                    autoAdvanceIfComplete(3, function() {
+                        return document.querySelectorAll('[name="ru_work[]"]:checked').length === 2;
+                    });
+                } else if (name === 'ru_work_type[]') {
+                    autoAdvanceIfComplete(5, function() {
+                        return document.querySelectorAll('[name="ru_work_type[]"]:checked').length === 2;
+                    });
+                } else if (name === 'ru_price_type[]') {
+                    autoAdvanceIfComplete(6, function() {
+                        return document.querySelectorAll('[name="ru_price_type[]"]:checked').length === 2;
+                    });
                 }
             });
         });
@@ -2450,8 +2497,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             saveResumeStep4Data();
         });
 
-        /* 다음 */
-        $("#btnStepNext").click(function() {
+        /* 다음 이동: "다음" 버튼과 선택 상한 자동 이동이 함께 사용한다 */
+        function goNextStep() {
             if (!validateStepRequired(currentStep)) {
                 return;
             }
@@ -2460,7 +2507,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 updateStepVisibility();
                 saveResumeStep4Data();
             }
-        });
+        }
+
+        /* 다음 */
+        $("#btnStepNext").click(goNextStep);
 
         /* 이전: 9단계에서 뒤로 가면 상세등록 구간을 닫고 8단계로 돌아간다 */
         $("#btnStepPrev").click(function() {
