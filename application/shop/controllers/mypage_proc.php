@@ -319,7 +319,7 @@ class Mypage_proc extends CI_Controller
     ]);
 
     // 이력서 최대 2개 제한: 폼 진입 전에 차단
-    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
+    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
     if ($resume_count >= 2) {
       return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
     }
@@ -345,7 +345,7 @@ class Mypage_proc extends CI_Controller
   # resume_start를 거치지 않는 진입점(하단 메뉴 등)용. 임시저장 로그를 지우지 않는다.
   function resume_limit_check()
   {
-    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
+    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
     if ($resume_count >= 2) {
       return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
     }
@@ -1189,7 +1189,7 @@ class Mypage_proc extends CI_Controller
     }
 
     # 이력서 갯수 확인후 처리
-    $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y"]);
+    $count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
     if ($ru_idx == 0 && $count >= 2) {
       // 이력서 최대 2개 제한
       return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");

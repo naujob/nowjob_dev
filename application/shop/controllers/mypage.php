@@ -343,7 +343,7 @@
 			$proc_mode = "";
 
 			# 이력서 갯수 확인후 처리
-			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
 
 			if($ru_idx == 0 && $count >=2){
         //이력서 최대 2개 제한
@@ -396,7 +396,7 @@
 			}
 
 			# 이력서 갯수 확인후 처리
-			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
 
 			if($ru_idx == 0 && $count >=2){
         //이력서 최대 2개 제한
@@ -534,7 +534,7 @@
 			}
 
 			# 이력서 갯수 확인후 처리
-			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y"]);
+			$count = $this->member_model->getResumeCount(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
 
 			if($ru_idx == 0 && $count >=5){
 				go_location("/mypage/resume_list","이력서는 최대 5개 까지만 등록가능합니다.");
