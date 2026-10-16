@@ -475,6 +475,26 @@
         location.href = "/member/join_mem_finish";
     }
 
+    // 가입 중간 단계가 뒤로/앞으로 이동으로 다시 열리면 가입을 취소하고 로그인 화면으로 보낸다
+    // (브라우저가 join_mem_finish의 pushState 기록을 건너뛰고 이 페이지로 바로 돌아오는 경우 대비)
+    (function() {
+        function goLogin() {
+            location.replace('/member/login');
+        }
+        var nav = (window.performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation')[0] : null;
+        var isBackForward = nav ? (nav.type === 'back_forward') : (performance.navigation && performance.navigation.type === 2);
+        if (isBackForward) {
+            goLogin();
+            return;
+        }
+        // bfcache로 복원된 경우도 로그인으로 보낸다
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted) {
+                goLogin();
+            }
+        });
+    })();
+
     // 브라우저 뒤로가기: 1차는 열린 약관 모달 닫기, 다시 누르면 가입을 취소하고 로그인 화면으로
     // 그냥 두면 이전 단계(본인인증 완료 후 자동 진행되는 join_wmem_step1 리다이렉트)로 돌아가 흐름이 꼬인다.
     (function() {

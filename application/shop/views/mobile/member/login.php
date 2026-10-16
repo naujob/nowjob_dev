@@ -1298,6 +1298,7 @@ window.onload = function() {
   var gPhoneTimer;
   var gPhoneRemainTime = 180;
   var gPhoneIsAuth = false;
+  var gPhoneAuthPhone = ""; // 인증 완료된 전화번호 (번호 변경 감지용)
 
   /**
    * Android SMS Retriever에서 인증번호 수신 시 자동 호출되는 브릿지 함수
@@ -1320,6 +1321,10 @@ window.onload = function() {
    * 구글 회원가입 전화번호 인증 팝업 열기 — bottom sheet 애니메이션
    */
   function openGoogleJoinPhonePopup(joinKey, email, name, joinType) {
+    // 로그인 중 오버레이 해제 (팝업이 열린 상태이므로 뒤 화면은 잠금 처리)
+    hideLoginLoading();
+    $("html, body").css("overflow", "hidden");
+
     gPhoneJoinKey = joinKey;
     gPhoneJoinType = joinType || "GOOGLE";
     gPhoneEmail = email || "";
@@ -1356,6 +1361,8 @@ window.onload = function() {
     $("#google-phone-sheet").css("transform", "translateY(100%)");
     setTimeout(function() {
       $("#google-phone-popup").css("display", "none");
+      // 뒤 화면 잠금 해제
+      $("html, body").css("overflow", "");
     }, 350);
   }
 
@@ -1384,6 +1391,12 @@ window.onload = function() {
     $(".gphone-error").addClass("hidden");
     var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
     $("#gphone-input").val(phone);
+
+    // 인증 완료 후 번호가 바뀌면 인증 무효화 + 회원가입 버튼 비활성
+    if (gPhoneIsAuth && phone !== gPhoneAuthPhone) {
+      gPhoneIsAuth = false;
+      $("#gphone-btn-join").prop("disabled", true);
+    }
 
     var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
     if (phoneRule.test(phone)) {
@@ -1444,6 +1457,7 @@ window.onload = function() {
           // 미가입 — 인증번호 발송 완료, 인증번호 입력 영역 표시
           $(".gphone-auth-row").removeClass("hidden");
           gPhoneIsAuth = false;
+          $("#gphone-btn-join").prop("disabled", true); // 재발송 시 이전 인증 무효
           gPhoneRemainTime = 180;
           clearInterval(gPhoneTimer);
           gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
@@ -1486,6 +1500,7 @@ window.onload = function() {
         if (ret.code == "00") {
           // 인증 성공 — 회원가입 버튼 활성화 + 자동으로 사라지는 토스트
           gPhoneIsAuth = true;
+          gPhoneAuthPhone = phone;
           clearInterval(gPhoneTimer);
           $("#gphone-btn-join").prop("disabled", false);
           gPhoneToast("인증이 완료되었습니다.", 1500); // 1.5초 후 자동으로 사라짐
@@ -1536,6 +1551,15 @@ window.onload = function() {
 
 <!-- 구글 회원가입 전화번호 인증 — bottom sheet 팝업 -->
 <style>
+  /* 회원가입 버튼 비활성 상태 — 인증 전 회색 표시 */
+  #gphone-btn-join:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+    color: #fff;
+    opacity: .6;
+    cursor: not-allowed;
+  }
+
   /* 토스트 메시지 */
   .gphone-toast-msg {
     position: fixed;

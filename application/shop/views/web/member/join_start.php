@@ -205,6 +205,25 @@
     <input type="hidden" name="bizPhone" id="bizPhone" value="01012341234">
 </form>
 <script>
+    // 가입 중간 단계가 뒤로/앞으로 이동으로 다시 열리면 가입을 취소하고 로그인 화면으로 보낸다
+    (function() {
+        function goLogin() {
+            location.replace('/member/login');
+        }
+        var nav = (window.performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation')[0] : null;
+        var isBackForward = nav ? (nav.type === 'back_forward') : (performance.navigation && performance.navigation.type === 2);
+        if (isBackForward) {
+            goLogin();
+            return;
+        }
+        // bfcache로 복원된 경우도 로그인으로 보낸다
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted) {
+                goLogin();
+            }
+        });
+    })();
+
     window.name = "Parent_window";
     var name_ver = 1;
 
