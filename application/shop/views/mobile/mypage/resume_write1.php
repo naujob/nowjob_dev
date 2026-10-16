@@ -1684,6 +1684,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
             $("#changeArea").removeClass("on");
             saveResumeStep1Data();
+            // 희망지역 2개가 모두 채워지면 다음 단계로 자동 이동
+            if (typeof window.autoAdvanceAddrIfComplete === 'function') {
+                window.autoAdvanceAddrIfComplete();
+            }
         }
     }
 
@@ -1750,6 +1754,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             var newCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
             ensureAddressAddButton(newCount);
             saveResumeStep1Data();
+            // 희망지역 2개가 모두 채워지면 다음 단계로 자동 이동
+            if (typeof window.autoAdvanceAddrIfComplete === 'function') {
+                window.autoAdvanceAddrIfComplete();
+            }
         }
 
         function processItem(addr) {
@@ -2438,6 +2446,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 }
             }, AUTO_ADVANCE_DELAY);
         }
+
+        /* 희망지역(2단계) 자동 이동: 주소 추가 경로(selectAddrInfo, onChangeAreaApply)에서만 호출한다
+           삭제·복원 시에는 호출하지 않아 이전 단계 복귀 때 다시 넘어가지 않는다 */
+        window.autoAdvanceAddrIfComplete = function() {
+            autoAdvanceIfComplete(2, function() {
+                return $("#addr_location .location-field-item:not(.location-field-add)").length >= 2;
+            });
+        };
 
         /* 나의강점 기본 노출 목록 (PHP 목록을 그대로 넘겨 JS와 동일하게 유지) */
         var DEFAULT_MY_TYPE_LIST = <?= json_encode($default_my_type_list, JSON_UNESCAPED_UNICODE) ?>;

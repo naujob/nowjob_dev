@@ -2606,6 +2606,10 @@
         $("#changeArea").removeClass("on");
         savePage1Data();
         scrollAfterAddrFilled($btnAddr);
+        // 근무지 + 추가노출지역 1,2가 모두 채워지면 다음 단계로 자동 이동
+        if (typeof window.autoAdvanceAddrIfComplete === 'function') {
+          window.autoAdvanceAddrIfComplete();
+        }
     }
 
     // 해시태그 체크박스에서 선택된 값들을 쉼표로 구분된 문자열로 만들어 반환하는 함수
@@ -3459,6 +3463,16 @@
             }, AUTO_ADVANCE_DELAY);
         }
 
+        /* 주소(2단계) 자동 이동: 근무지와 추가노출지역 1,2가 모두 채워졌을 때만 이동
+           주소 추가 경로(selectAddrInfo, onChangeAreaApply)에서만 호출한다 */
+        window.autoAdvanceAddrIfComplete = function() {
+            autoAdvanceIfComplete(2, function() {
+                return $("#ad_addr").val() !== "" &&
+                    $("#expose_addr1_addr").val() !== "" &&
+                    $("#expose_addr2_addr").val() !== "";
+            });
+        };
+
         (function() {
             document.querySelectorAll('input[data-select-limit]').forEach(function(item) {
                 item.addEventListener('change', function() {
@@ -4234,6 +4248,10 @@
         $btn.addClass("has-address");
         $btn.closest(".address-btn-wrapper").find(".address-clear-btn").show();
         scrollAfterAddrFilled($btn);
+        // 근무지 + 추가노출지역 1,2가 모두 채워지면 다음 단계로 자동 이동
+        if (typeof window.autoAdvanceAddrIfComplete === 'function') {
+          window.autoAdvanceAddrIfComplete();
+        }
       }
     }
 
