@@ -1138,6 +1138,42 @@
             });
         }
 
+        // 화면에서 실제로 보이는 하단 좌표 계산
+        // 고정 푸터(.view-footer, position:fixed)와 소프트 키보드(visualViewport)에 가려지는 영역을 제외한다
+        function getVisibleBottom(page, pageRect) {
+            var bottom = pageRect.bottom;
+
+            document.querySelectorAll('.sticky-bottom.view-footer').forEach(function (footer) {
+                if (window.getComputedStyle(footer).position !== 'fixed') return;
+                var footerRect = footer.getBoundingClientRect();
+                if (footerRect.height > 0 && footerRect.top < bottom) {
+                    bottom = footerRect.top;
+                }
+            });
+
+            // 키보드가 열리면 visualViewport 하단이 실제 보이는 영역의 끝 (iOS 등 layout viewport 유지 환경)
+            if (window.visualViewport) {
+                var viewportBottom = window.visualViewport.offsetTop + window.visualViewport.height;
+                if (viewportBottom < bottom) {
+                    bottom = viewportBottom;
+                }
+            }
+
+            return bottom;
+        }
+
+        // contenteditable 요소는 요소 전체 대신 실제 캐럿(선택 영역) 위치를 반환한다
+        // 캐럿을 계산할 수 없으면 null을 반환해 호출부가 요소 자체 좌표를 사용하도록 한다
+        function getCaretRect(el) {
+            if (!el.isContentEditable || !window.getSelection) return null;
+            var sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return null;
+            var range = sel.getRangeAt(0);
+            if (!el.contains(range.startContainer)) return null;
+            var caretRect = range.getBoundingClientRect();
+            return (caretRect && caretRect.height > 0) ? caretRect : null;
+        }
+
         // 캐럿 위치가 화면에 보이도록 직접 scrollTop 계산
         // blockValue: 'start' (상단을 .top-bar 아래 표시) 또는 'end' (하단을 화면 하단 표시)
         function scrollCaretIntoView(el, blockValue) {
@@ -1156,18 +1192,23 @@
                 var rect = el.getBoundingClientRect();
                 var pageRect = page.getBoundingClientRect();
                 var elementTopInPage = rect.top - pageRect.top + page.scrollTop;
-                var elementBottomInPage = rect.bottom - pageRect.top + page.scrollTop;
+                // 하단 기준은 캐럿이 있으면 캐럿, 없으면 요소 전체 하단
+                var bottomRect = getCaretRect(el) || rect;
+                var elementBottomInPage = bottomRect.bottom - pageRect.top + page.scrollTop;
+
+                // .page 안에서 푸터/키보드에 가리지 않고 보이는 높이
+                var visibleHeight = Math.min(page.clientHeight, getVisibleBottom(page, pageRect) - pageRect.top);
 
                 var newScrollTop;
                 if (blockValue === 'start') {
-                    // 상단이 targetMargin 위치에 + 커서가 키보드 위에 오도록
+                    // 상단이 targetMargin 위치에 + 커서가 푸터/키보드 위에 오도록
                     var scrollForTop = elementTopInPage - targetMargin;
-                    var scrollForCursor = elementBottomInPage - page.clientHeight;
+                    var scrollForCursor = elementBottomInPage - visibleHeight;
                     // 둘 다 만족하려면 더 많이 올려야 함
                     newScrollTop = Math.max(scrollForTop, scrollForCursor);
                 } else if (blockValue === 'end') {
-                    // 하단(커서)이 page.clientHeight 위치에 오도록 (키보드 직전)
-                    newScrollTop = elementBottomInPage - page.clientHeight;
+                    // 하단(커서)이 보이는 영역의 하단에 오도록 (푸터/키보드 직전)
+                    newScrollTop = elementBottomInPage - visibleHeight;
                 }
 
                 // 스크롤 범위 제한 (0 ~ 최대 스크롤)
