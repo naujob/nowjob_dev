@@ -130,6 +130,27 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         display: none;
     }
 
+    /* 직접입력 태그의 삭제(x) 버튼: 태그 우측 상단에 붙는다 */
+    .page-resume-write .form-toggle-btn2.is-custom {
+        position: relative;
+    }
+
+    .page-resume-write .btn-tag-remove {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: #666;
+        color: #fff;
+        font-size: 13px;
+        line-height: 20px;
+        text-align: center;
+    }
+
     .page-resume-write .strength-input-area.show {
         display: block;
     }
@@ -494,9 +515,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                             $row = trim((string)$row);
                                             if ($row !== "" && !in_array($row, $default_my_type_list)) :
                                             ?>
-                                                <label class="form-toggle-btn2 sm tag">
+                                                <label class="form-toggle-btn2 sm tag is-custom">
                                                     <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row ?>" checked>
                                                     <span class="btn"><?= $row ?></span>
+                                                    <button type="button" class="btn-tag-remove js-remove-my-type" aria-label="<?= $row ?> 삭제">×</button>
                                                 </label>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
@@ -1236,12 +1258,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 $checkbox.prop("checked", true);
                             } else {
                                 // 직접입력으로 추가했던 강점은 DOM 에 없으므로 다시 만들어 준다
-                                var $newLabel = $('<label class="form-toggle-btn2 sm tag">' +
+                                var $newLabel = $('<label class="form-toggle-btn2 sm tag is-custom">' +
                                     '<input type="checkbox" name="ru_my_type[]" data-select-limit="6" checked>' +
                                     '<span class="btn"></span>' +
+                                    '<button type="button" class="btn-tag-remove js-remove-my-type">×</button>' +
                                     '</label>');
                                 $newLabel.find("input").val(val);
                                 $newLabel.find(".btn").text(val);
+                                $newLabel.find(".js-remove-my-type").attr("aria-label", val + " 삭제");
                                 if ($(".js-add-strength").length > 0) {
                                     $(".js-add-strength").before($newLabel);
                                 }
@@ -2323,6 +2347,15 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             });
         });
 
+        /* 직접입력으로 추가한 강점 삭제: x 버튼으로 해당 태그를 제거하고 저장한다
+           (label 안의 button 클릭이 체크박스 토글로 번지지 않도록 막는다) */
+        $(document).on("click", ".js-remove-my-type", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).closest("label").remove();
+            saveResumeStep4Data();
+        });
+
         /* 나의강점 직접입력: + 버튼으로 입력란을 열고 확인하면 태그로 추가한다 */
         $(".js-add-strength").on("click", function(e) {
             e.preventDefault();
@@ -2364,12 +2397,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 return;
             }
 
-            var $newLabel = $('<label class="form-toggle-btn2 sm tag">' +
+            var $newLabel = $('<label class="form-toggle-btn2 sm tag is-custom">' +
                 '<input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="' + text + '" checked>' +
                 '<span class="btn"></span>' +
+                '<button type="button" class="btn-tag-remove js-remove-my-type">×</button>' +
                 '</label>');
             // 사용자 입력이므로 텍스트로만 삽입한다 (HTML 주입 방지)
             $newLabel.find(".btn").text(text);
+            $newLabel.find(".js-remove-my-type").attr("aria-label", text + " 삭제");
             $(".js-add-strength").before($newLabel);
 
             var $inputArea = $(this).closest(".strength-input-area");

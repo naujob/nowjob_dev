@@ -204,9 +204,10 @@
                                     $hash = trim($hash);
                                     if (!in_array($hash, $default_hash_list) && $hash != "") :
                                     ?>
-                                        <label class="form-toggle-btn2 sm tag">
+                                        <label class="form-toggle-btn2 sm tag is-custom">
                                             <input type="checkbox" name="rc_hash[]" value="<?= $hash ?>" checked>
                                             <span class="btn"><?= $hash ?></span>
+                                            <button type="button" class="btn-tag-remove js-remove-hashtag" aria-label="<?= $hash ?> 삭제">×</button>
                                         </label>
                                     <?php endif; ?>
                                 <?php endforeach; ?>
@@ -1423,6 +1424,27 @@
    .hashtag-guide-text {
        cursor: pointer;
    }
+
+   /* 직접입력 해시태그의 삭제(x) 버튼: 태그 우측 상단에 붙는다 */
+   .form-toggle-btn2.is-custom {
+       position: relative;
+   }
+
+   .btn-tag-remove {
+       position: absolute;
+       top: -6px;
+       right: -6px;
+       width: 20px;
+       height: 20px;
+       padding: 0;
+       border: none;
+       border-radius: 50%;
+       background: #666;
+       color: #fff;
+       font-size: 13px;
+       line-height: 20px;
+       text-align: center;
+   }
 </style>
 
 <script>
@@ -2374,9 +2396,10 @@
                 formData.rc_hash.forEach(function(val) {
                     var $checkbox = $("[name='rc_hash[]'][value='" + val + "']");
                     if ($checkbox.length === 0) {
-                        var $newLabel = $('<label class="form-toggle-btn2 sm tag">' +
+                        var $newLabel = $('<label class="form-toggle-btn2 sm tag is-custom">' +
                             '<input type="checkbox" name="rc_hash[]" value="' + val + '" checked>' +
                             '<span class="btn">' + val + '</span>' +
+                            '<button type="button" class="btn-tag-remove js-remove-hashtag" aria-label="' + val + ' 삭제">×</button>' +
                             '</label>');
                         $(".js-add-hashtag").before($newLabel);
                     } else {
@@ -3582,9 +3605,10 @@
                 return;
             }
 
-            var $newLabel = $('<label class="form-toggle-btn2 sm tag">' +
+            var $newLabel = $('<label class="form-toggle-btn2 sm tag is-custom">' +
                 '<input type="checkbox" name="rc_hash[]" value="' + cleanHash + '" checked>' +
                 '<span class="btn">' + cleanHash + '</span>' +
+                '<button type="button" class="btn-tag-remove js-remove-hashtag" aria-label="' + cleanHash + ' 삭제">×</button>' +
                 '</label>');
 
             var $addButton = $(".js-add-hashtag");
@@ -3597,6 +3621,15 @@
             var $guideText = $addButton.closest(".form-row").find(".hashtag-guide-text").closest("label");
             $guideText.slideDown(300);
 
+            savePage3Data();
+        });
+
+        /* 직접입력으로 추가한 해시태그 삭제: x 버튼으로 태그를 제거하고 저장한다
+           (label 안의 button 클릭이 체크박스 토글로 번지지 않도록 막는다) */
+        $(document).on("click", ".js-remove-hashtag", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).closest("label").remove();
             savePage3Data();
         });
 
