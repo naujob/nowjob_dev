@@ -61,6 +61,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-top: 0;
     }
 
+    /* 9단계 안의 희망요일/경력/자격증 카드 사이 간격 (카드끼리 붙지 않도록) */
+    .page-resume-write .week-field-wrapper + .career-field-wrapper,
+    .page-resume-write .career-field-wrapper + .license-field-wrapper {
+        margin-top: 1.6rem;
+    }
+
     /* ===== 나의강점: 채용공고 해시태그(main.css:8884~8940)와 동일한 레이아웃 =====
        해시태그는 flex 그리드가 아니라 inline-block + min-width 33.333% 방식이다.
        다른 단계(희망업무/근무형태/급여형태)에는 영향이 없도록
@@ -638,11 +644,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                             </div>
                         </div>
                     </div><!-- //step 8 -->
-                    <!-- 단계 9: 희망요일 (상세등록 구간) -->
-                    <div class="step-section" data-step="9" style="display:none;">
+                    <!-- 단계 9: 희망요일 + 경력사항 + 자격증 (상세등록 구간, 한 단계에서 함께 스크롤) -->
+                    <div class="step-section" data-step="9" data-scroll="top" style="display:none;">
                         <p class="step-question">
-                            <span class="step-question-main">희망하는 요일을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
+                            <span class="step-question-main">상세 정보를</span><br>
+                            <span class="step-question-sub">입력해주세요</span>
                         </p>
                         <div class="week-field-wrapper">
             <div class="form-row js-detail-section">
@@ -682,14 +688,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 </div>
             </div>
                         </div>
-                    </div><!-- //step 9 -->
 
-                    <!-- 단계 10: 경력사항 (상세등록 구간) -->
-                    <div class="step-section" data-step="10" data-scroll="bottom" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">경력사항을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
                         <div class="career-field-wrapper">
             <div class="form-row js-detail-section" data-section="career">
                 <p class="form-label">경력사항</p>
@@ -775,14 +774,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 </template>
             </div>
                         </div>
-                    </div><!-- //step 10 -->
 
-                    <!-- 단계 11: 자격증 (상세등록 구간) -->
-                    <div class="step-section" data-step="11" data-scroll="bottom" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">자격증을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
                         <div class="license-field-wrapper">
             <div class="form-row js-detail-section" data-section="license">
                 <p class="form-label">자격증</p>
@@ -846,7 +838,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 </template>
             </div>
                         </div>
-                    </div><!-- //step 11 -->
+                    </div><!-- //step 9 -->
 
             <!-- 단계 이동 푸터: 상세등록(+)은 마지막 필수 단계(8)에서만 노출 -->
             <div class="sticky-bottom view-footer">
@@ -1872,12 +1864,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     /* ==================================================================
        단계별 진행(progress bar) 제어
-       - 1~8 은 필수, 9~11(희망요일/경력/자격증)은 "상세등록" 선택 구간
-       - 전체 단계 수는 상세등록 ON/OFF 에 따라 8 또는 11 로 달라진다
+       - 1~8 은 필수, 9(희망요일/경력/자격증 한 화면)는 "상세등록" 선택 구간
+       - 전체 단계 수는 상세등록 ON/OFF 에 따라 8 또는 9 로 달라진다
        ================================================================== */
     var currentStep = 1;
     var REQUIRED_STEPS = 8; // 필수 구간의 마지막 단계
-    var MAX_STEPS = 11; // 상세등록 포함 전체 단계
+    var MAX_STEPS = 9; // 상세등록 포함 전체 단계 (9단계 = 희망요일/경력/자격증)
     var STEP_TOP_OFFSET = 100; // 상단바 58 + 진행바 7 + 여유
     var STEP_TOP_OFFSET_WIDE = 130; // data-scroll="top" 단계용
     var STEP_BOTTOM_GAP = 12;
@@ -2168,7 +2160,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return true;
     }
 
-    // 10~11단계(경력/자격증)는 선택 입력이지만, 입력한 행은 두 항목을 모두 채워야 한다
+    // 9단계(경력/자격증)는 선택 입력이지만, 입력한 행은 두 항목을 모두 채워야 한다
+    // 9단계에 함께 있는 경력/자격증 검사를 한 번에 묶는다 (실패 시 alert 는 첫 실패 항목 기준)
+    function checkOptionalDetailRows() {
+        return checkOptionalCareerRows() && checkOptionalLicenseRows();
+    }
+
     function validateStepRequired(step) {
         switch (step) {
             case 1:
@@ -2187,10 +2184,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 return checkRequiredDesc();
             case 8:
                 return checkRequiredWorkDt();
-            case 10:
-                return checkOptionalCareerRows();
-            case 11:
-                return checkOptionalLicenseRows();
+            case 9:
+                return checkOptionalDetailRows();
             default:
                 return true;
         }
@@ -2207,8 +2202,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             [6, checkRequiredPriceType],
             [7, checkRequiredDesc],
             [8, checkRequiredWorkDt],
-            [10, checkOptionalCareerRows],
-            [11, checkOptionalLicenseRows]
+            [9, checkOptionalDetailRows]
         ];
         for (var i = 0; i < checks.length; i++) {
             if (!checks[i][1]()) {
