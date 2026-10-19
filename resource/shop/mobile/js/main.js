@@ -1443,10 +1443,8 @@
         // 높이 자동 조절
         // 글자 입력(input)마다 한 번만 높이를 맞추고 판정한다
         // keydown은 글자가 아직 들어가기 전이라 캐럿 위치가 틀리므로 쓰지 않는다
-        window.addEventListener('input', function (e) {
-            var target = e.target;
-            if (!target.classList || !target.classList.contains('js-autoheight')) return;
-
+        // textarea/contenteditable 높이를 내용에 맞게 다시 계산하고, 높이 변화 방향('end'=증가, 'start'=감소)을 반환한다
+        function fitTextareaHeight(target) {
             // 높이를 1px로 줄였다 다시 늘리는 동안 페이지 전체 높이가 잠깐 줄어 스크롤이 0 근처로 눌린다
             // 그래서 원래 스크롤 위치를 저장해 두었다가 높이 계산이 끝난 뒤 되돌린다
             var page = target.closest('.page');
@@ -1464,10 +1462,15 @@
                 page.style.scrollBehavior = '';
             }
 
-            // 높이 변화에 따라 block 값 결정: 증가='end', 감소='start'
-            var blockValue = (newHeight > prevHeight) ? 'end' : 'start';
             textareaHeights.set(target, newHeight);
+            return (newHeight > prevHeight) ? 'end' : 'start';
+        }
 
+        window.addEventListener('input', function (e) {
+            var target = e.target;
+            if (!target.classList || !target.classList.contains('js-autoheight')) return;
+
+            var blockValue = fitTextareaHeight(target);
             scrollTextareaIntoView(target, blockValue);
         });
 
@@ -1544,6 +1547,11 @@
             if (!active.isContentEditable && active.tagName !== 'TEXTAREA') return;
             // 키보드가 올라오는 중(포커스 후 400ms)에는 캐럿 이동 판정을 하지 않는다 (400ms 재판정에서 처리)
             if (Date.now() - textareaFocusAt < 400) return;
+            // Enter 등 JS로 내용을 바꾼 경우 input 이벤트가 없어 높이가 갱신되지 않으므로, 넘치면 캐럿 이동 시점에 맞춘다
+            // scrollHeight가 clientHeight보다 클 때만 계산하므로 캐럿 이동마다 리플로우가 나지 않는다
+            if (active.isContentEditable && active.scrollHeight > active.clientHeight) {
+                fitTextareaHeight(active);
+            }
             scrollTextareaIntoView(active, 'start');
             if (caretSettleTimer) clearTimeout(caretSettleTimer);
             caretSettleTimer = setTimeout(function () {

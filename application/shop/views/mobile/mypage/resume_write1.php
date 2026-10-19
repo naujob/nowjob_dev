@@ -61,10 +61,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-top: 0;
     }
 
-    /* 9단계 안의 희망요일/경력/자격증 카드 사이 간격 (카드끼리 붙지 않도록) */
-    .page-resume-write .week-field-wrapper + .career-field-wrapper,
-    .page-resume-write .career-field-wrapper + .license-field-wrapper {
-        margin-top: 1.6rem;
+    /* 희망요일 버튼 margin 초기화 (이력서 페이지 전용. 공용 .form-toggle-btn2 규칙은 건드리지 않는다) */
+    .page-resume-write .form-toggle-btn2.js-week-item {
+        margin: 0;
     }
 
     /* ===== 나의강점: 채용공고 해시태그(main.css:8884~8940)와 동일한 레이아웃 =====
@@ -618,7 +617,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </div><!-- //step 8 -->
                     <!-- 단계 9: 희망요일 + 경력사항 + 자격증 (상세등록 구간, 한 단계에서 함께 스크롤) -->
                     <div class="step-section" data-step="9" data-scroll="top" style="display:none;">
-                        <div class="week-field-wrapper">
+                        <!-- 상세등록 항목(희망요일/경력/자격증)을 하나의 카드로 묶는다 (공고 optional-field-wrapper와 동일 구조) -->
+                        <div class="optional-field-wrapper">
             <div class="form-row js-detail-section">
                 <p class="form-label">
                     희망요일<span class="required-asterisk">*</span>
@@ -655,9 +655,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     <?php endforeach; ?>
                 </div>
             </div>
-                        </div>
-
-                        <div class="career-field-wrapper">
             <div class="form-row js-detail-section" data-section="career">
                 <p class="form-label">경력사항</p>
                 <ol class="added-list">
@@ -741,9 +738,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </li>
                 </template>
             </div>
-                        </div>
-
-                        <div class="license-field-wrapper">
             <div class="form-row js-detail-section" data-section="license">
                 <p class="form-label">자격증</p>
                 <ol class="added-list">
@@ -805,7 +799,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </li>
                 </template>
             </div>
-                        </div>
+                        </div><!-- //optional-field-wrapper -->
                     </div><!-- //step 9 -->
 
             <!-- 단계 이동 푸터: 상세등록(+)은 마지막 필수 단계(8)에서만 노출 -->

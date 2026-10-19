@@ -56,7 +56,6 @@
                     <!-- 단계 2: 주소등록, 공고노출지역, 채용공고기간 -->
                     <div class="step-section" data-step="2" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">근무지와 추가노출지역을</span><br><span class="step-question-sub">입력해주세요</span></p>
 
                     <!-- 주소 입력 전체 래퍼 -->
                     <div class="address-field-wrapper">
@@ -102,7 +101,6 @@
                     <!-- 단계 3: 채용공고기간 -->
                     <div class="step-section" data-step="3" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">채용공고 기간을</span><br><span class="step-question-sub">입력해주세요</span></p>
 
                     <!-- 채용공고기간 래퍼 -->
                     <div class="date-field-wrapper">
@@ -130,7 +128,6 @@
                     <!-- 단계 4: 업무구분 -->
                     <div class="step-section" data-step="4" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 업종을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 업무구분 래퍼 -->
                     <div class="work-field-wrapper">
@@ -177,7 +174,6 @@
                     <!-- 단계 5: 해시태그 -->
                     <div class="step-section" data-step="5" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 특징을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 해시태그 래퍼 -->
                     <div class="hashtag-field-wrapper">
@@ -231,7 +227,6 @@
                     <!-- 단계 6: 근무형태 -->
                     <div class="step-section" data-step="6" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 근무시간을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 근무형태 래퍼 -->
                     <div class="schedule-field-wrapper">
@@ -341,7 +336,6 @@
                     <!-- 단계 7: 급여형태 -->
                     <div class="step-section" data-step="7" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 급여를</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 급여형태 래퍼 -->
                     <div class="salary-field-wrapper">
@@ -393,7 +387,6 @@
                     <!-- 단계 8: 복리후생 (항목이 길어 질문문구가 밀리므로 상단 기준으로 스크롤) -->
                     <div class="step-section" data-step="8" data-scroll="top" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 복리후생을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 복리후생 래퍼 -->
                     <div class="benefit-field-wrapper">
@@ -459,7 +452,6 @@
                     <!-- 단계 9: 이미지등록 -->
                     <div class="step-section" data-step="9" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 사진을</span><br><span class="step-question-sub">등록해주세요</span></p>
 
                     <!-- 업무정보 섹션 (이미지등록) -->
                     <div class="form-section">
@@ -556,7 +548,6 @@
                     <!-- 단계 10: 상세업무 (에디터가 길어 끝까지 스크롤) -->
                     <div class="step-section" data-step="10" data-scroll="bottom" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 업무내용을</span><br><span class="step-question-sub">입력해주세요</span></p>
 
                     <!-- 업무정보 섹션 (상세업무) -->
                     <div class="form-section">
@@ -3467,6 +3458,35 @@
             }, AUTO_ADVANCE_DELAY);
         }
 
+        /* 공고기간(3단계) 자동 이동: 시작일·종료일은 기본값(오늘 ~ 2개월 뒤)이 이미 채워져 있으므로
+           3단계에 처음 들어왔을 때 DATE_AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
+           - 날짜 영역이나 달력을 건드리면 취소하고, 이후에는 다시 자동 이동하지 않는다
+           - 타이머 실행 시 아직 3단계인지 확인해, 그 사이 다음 버튼으로 넘어갔으면 이동하지 않는다 */
+        var DATE_AUTO_ADVANCE_DELAY = 500;
+        var dateAutoAdvanceTimer = null;
+        var dateAutoAdvanceDone = false;
+        function cancelDateAutoAdvance() {
+            dateAutoAdvanceDone = true;
+            if (dateAutoAdvanceTimer) {
+                clearTimeout(dateAutoAdvanceTimer);
+                dateAutoAdvanceTimer = null;
+            }
+        }
+        function scheduleDateAutoAdvance() {
+            if (dateAutoAdvanceDone || dateAutoAdvanceTimer || currentStep !== 3) {
+                return;
+            }
+            dateAutoAdvanceTimer = setTimeout(function() {
+                dateAutoAdvanceTimer = null;
+                if (!dateAutoAdvanceDone && currentStep === 3) {
+                    cancelDateAutoAdvance();
+                    goNextStep();
+                }
+            }, DATE_AUTO_ADVANCE_DELAY);
+        }
+        // 날짜 입력 영역과 flatpickr 달력(body에 붙는다)을 건드리면 자동 이동을 취소한다
+        $(document).on("pointerdown focusin", ".date-field-wrapper, .flatpickr-calendar", cancelDateAutoAdvance);
+
         /* 주소(2단계) 자동 이동: 근무지와 추가노출지역 1,2가 모두 채워졌을 때만 이동
            주소 추가 경로(selectAddrInfo, onChangeAreaApply)에서만 호출한다 */
         window.autoAdvanceAddrIfComplete = function() {
@@ -3507,6 +3527,23 @@
                 });
             });
         }());
+
+        /* 7단계 급여 자동 이동: 급여협의가 아닌 급여형태, 금액, 급여가능 옵션이 모두 채워지면 다음 단계로 이동
+           급여가능 옵션은 updateSalaryOptions()로 보이는 항목 중에서만 인정한다 */
+        function isSalaryComplete() {
+            var priceType = $("#rc_price_type_main").val();
+            if (priceType === "급여협의") {
+                return false;
+            }
+            var amount = parseInt(removeComma($("#rc_price_amount").val()), 10);
+            if (!(amount > 0)) {
+                return false;
+            }
+            return $("[name='rc_price_possible']:checked").closest("label").is(":visible");
+        }
+        $("#rc_price_type_main, #rc_price_amount, [name='rc_price_possible']").on("change input", function() {
+            autoAdvanceIfComplete(7, isSalaryComplete);
+        });
 
         $("[name='rc_work_negotiation']").on("change", function() {
             var isChecked = $(this).is(":checked");
@@ -4075,6 +4112,10 @@
             if (currentStep < getTotalSteps()) {
                 currentStep++;
                 updateStepVisibility();
+                // 공고기간 단계에 들어오면 기본값으로 충분하므로 잠시 후 자동으로 다음 단계로 넘어간다
+                if (currentStep === 3) {
+                    scheduleDateAutoAdvance();
+                }
             }
         }
 
