@@ -3362,6 +3362,10 @@
             scrollElementAboveFooter($("#time_cont1, #time_cont2").filter(":visible").last());
         });
 
+        // 숨김(1px/투명) 체크박스가 포커스를 받으면 WebView가 화면을 자동 스크롤하므로 포커스를 바로 해제
+        $("[name='rc_life_type[]']").on("focus", function() {
+            this.blur();
+        });
         $("[name='rc_life_type[]']").on("change", savePage2Data);
 
         // contenteditable div의 input 이벤트 감지 및 DOM 정규화
