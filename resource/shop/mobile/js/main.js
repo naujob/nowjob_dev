@@ -1320,6 +1320,31 @@
             return !!(el && el.classList && el.classList.contains('js-autoheight') && el.getAttribute('data-keep-box-visible') === 'true');
         }
 
+        // 키보드가 올라오기 전(포커스 순간)에 contenteditable 박스 상단을 topbar 아래로 맞춘다
+        // 박스가 키보드 위 영역에 들어갈 만큼 작을 때만 맞춘다. 그래야 키보드가 열린 뒤 네이티브가 박스를 맨 위로 다시 밀지 않는다
+        // 자기 자신이 만든 스크롤이므로 programmaticScrollTop으로 표시해 사용자 스크롤과 구분한다
+        function alignEditorTopBeforeKeyboard(el) {
+            var KEYBOARD_VISIBLE_MAX = 340; // 키보드가 열린 상태에서 보이는 영역 높이(약 350px)보다 작게 잡은 값
+            var page = el.closest('.page');
+            var topBar = document.querySelector('.top-bar');
+            if (!page || !topBar) return;
+
+            var boxRect = el.getBoundingClientRect();
+            if (boxRect.height > KEYBOARD_VISIBLE_MAX) return;
+
+            var pageRect = page.getBoundingClientRect();
+            var visibleTop = Math.max(pageRect.top, topBar.getBoundingClientRect().bottom + 12);
+            var delta = boxRect.top - visibleTop;
+            if (Math.abs(delta) < 2) return;
+
+            var newScrollTop = page.scrollTop + delta;
+            newScrollTop = Math.max(0, Math.min(newScrollTop, page.scrollHeight - page.clientHeight));
+            page.style.scrollBehavior = 'auto';
+            page.scrollTop = newScrollTop;
+            programmaticScrollTop = page.scrollTop;
+            page.style.scrollBehavior = '';
+        }
+
         // 키보드/뷰포트가 바뀐 마지막 시각 (settleKeepBoxJudge 가 안정 여부를 판단할 때 사용)
         var lastViewportChangeAt = 0;
         var keepBoxSettleTimer = null;
@@ -1337,7 +1362,9 @@
             startedAt = startedAt || Date.now();
             var now = Date.now();
             var waited = now - startedAt;
+            // 단계 이동 스크롤(window.__stepScrolling)이 끝나기 전에는 판정하지 않는다
             var settled = waited >= KEEP_BOX_SETTLE_MIN
+                && !window.__stepScrolling
                 && now - lastViewportChangeAt >= KEEP_BOX_SETTLE_QUIET
                 && now - lastPageScrollAt >= 200;
             if (!settled && waited < KEEP_BOX_SETTLE_MAX) {
@@ -1379,8 +1406,10 @@
                 var boxRect = el.getBoundingClientRect();
                 if (el.isContentEditable) {
                     caretRect = getCaretRect(el) || getEndCaretRect(el);
-                    if (!caretRect) return;
-                    rect = caretRect;
+                    // 캐럿 좌표를 못 구해도 박스 기준(keepBox)이면 박스로 판정을 이어간다 (빈 에디터 첫 터치)
+                    if (!caretRect && !keepBox) return;
+                    caretMeasured = !!caretRect;
+                    rect = caretRect || boxRect;
                 } else {
                     // textarea도 캐럿 줄 기준으로 판정한다. 측정이 안 되면 요소 전체 좌표를 쓴다
                     rect = getTextareaCaretRect(el);
@@ -1477,6 +1506,9 @@
         // 포커스 시: 임시 여백 추가 + 캐럿 위치 보정
         window.addEventListener('focusin', function (e) {
             if (e.target && e.target.classList && e.target.classList.contains('js-autoheight')) {
+                // 네이티브 포커스 스크롤이 이 값을 기준으로 움직이므로, 포커스 직전 topbar 높이로 다시 맞춘다
+                // 초기화 시점에 잰 값이 낮으면 네이티브 스크롤이 박스를 topbar 아래로 밀어 넣고 그만큼 되돌리며 튕긴다
+                setupScrollMarginTop();
                 // .page-content에 임시 하단 여백 추가 (스크롤 여유 확보)
                 var pageContent = e.target.closest('.page-content');
                 if (pageContent) {
@@ -1485,8 +1517,13 @@
                 // 포커스 직후에는 키보드가 올라오는 중이라 visualViewport 높이가 순간적으로 틀리다(예: 153).
                 // 이때 판정하면 필요 이상으로 내려가므로, 즉시 판정은 하지 않고 키보드가 안정된 뒤(400/800ms)에만 판정한다
                 textareaFocusAt = Date.now();
+                if (e.target.isContentEditable) {
+                    alignEditorTopBeforeKeyboard(e.target);
+                }
                 var settledTarget = e.target;
-                if (isKeepBoxEl(settledTarget)) {
+                // contenteditable(상세업무 등)도 키보드 전환이 끝난 뒤 한 번만 판정한다
+                // 고정 400/800ms 판정은 visualViewport가 아직 틀린 순간에 실행되어 필요 이상으로 내려간다
+                if (isKeepBoxEl(settledTarget) || settledTarget.isContentEditable) {
                     settleKeepBoxJudge(settledTarget);
                 } else {
                     [400, 800].forEach(function (ms) {
@@ -1515,7 +1552,7 @@
             lastViewportChangeAt = Date.now();
             var active = document.activeElement;
             if (active && active.classList && active.classList.contains('js-autoheight')) {
-                if (isKeepBoxEl(active)) {
+                if (isKeepBoxEl(active) || active.isContentEditable) {
                     settleKeepBoxJudge(active);
                     return;
                 }
@@ -1551,6 +1588,12 @@
             // scrollHeight가 clientHeight보다 클 때만 계산하므로 캐럿 이동마다 리플로우가 나지 않는다
             if (active.isContentEditable && active.scrollHeight > active.clientHeight) {
                 fitTextareaHeight(active);
+            }
+            // contenteditable은 키보드 전환과 네이티브 캐럿 스크롤이 가라앉은 뒤에만 판정한다
+            // 즉시 판정하면 틀린 visualViewport로 과하게 움직인 뒤 네이티브 스크롤이 되돌려 튕긴다
+            if (active.isContentEditable) {
+                settleKeepBoxJudge(active);
+                return;
             }
             scrollTextareaIntoView(active, 'start');
             if (caretSettleTimer) clearTimeout(caretSettleTimer);

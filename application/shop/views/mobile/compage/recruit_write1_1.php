@@ -1,4 +1,4 @@
-<div class="page page-write page-recruit-write" style="background: #f9f7f7;">
+<div class="page page-write page-recruit-write" style="background: #f9f7f7; scroll-padding-top: 72px;">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
@@ -1594,6 +1594,25 @@
         return $page.length ? $page[0].getBoundingClientRect().bottom : $(window).height();
     }
 
+    // 단계 이동 스크롤 헬퍼: 이동 중에는 window.__stepScrolling을 켜서 main.js의 캐럿 보정 스크롤과 겹치지 않게 한다
+    // 애니메이션이 끝나면 플래그를 내린다. .stop(true)로 중단되면 complete가 안 불리므로 안전 타이머로도 내린다
+    var stepScrollSafetyTimer = null;
+    function endStepScrollFlag() {
+        if (stepScrollSafetyTimer) {
+            clearTimeout(stepScrollSafetyTimer);
+            stepScrollSafetyTimer = null;
+        }
+        window.__stepScrolling = false;
+    }
+    function animateStepScroll($page, scrollTop, duration) {
+        window.__stepScrolling = true;
+        if (stepScrollSafetyTimer) {
+            clearTimeout(stepScrollSafetyTimer);
+        }
+        stepScrollSafetyTimer = setTimeout(endStepScrollFlag, duration + 80);
+        $page.stop(true).animate({ scrollTop: scrollTop }, duration, endStepScrollFlag);
+    }
+
     // 지정한 요소의 아래쪽이 고정 푸터 위로 올라오도록 스크롤을 내린다
     // 이미 푸터 위에 보이는 경우에는 움직이지 않는다(위로 되감기 방지)
     function scrollElementAboveFooter($el) {
@@ -1608,7 +1627,7 @@
             return;
         }
 
-        $page.stop(true).animate({ scrollTop: $page.scrollTop() + delta }, 300);
+        animateStepScroll($page, $page.scrollTop() + delta, 300);
     }
 
     // 주소가 채워지면 .has-address가 붙어 버튼 높이가 늘어난다(긴 주소는 두 줄로 감김).
@@ -1642,7 +1661,7 @@
         // 끝까지 내리는 단계는 더 계산할 것이 없다
         if (mode === "bottom") {
             var maxScroll = $page[0].scrollHeight - $page[0].clientHeight;
-            $page.stop(true).animate({ scrollTop: maxScroll > 0 ? maxScroll : 0 }, 120);
+            animateStepScroll($page, maxScroll > 0 ? maxScroll : 0, 120);
             return;
         }
 
@@ -1674,7 +1693,7 @@
             scrollTop = 0;
         }
 
-        $page.stop(true).animate({ scrollTop: scrollTop }, 120);
+        animateStepScroll($page, scrollTop, 120);
     }
 
     // ============================================================================
@@ -3434,6 +3453,7 @@
 
         $(document).on("change", "[name='rc_sdate'], [name='rc_edate']", function() {
             savePage3Data();
+            scheduleDateChangeAdvance();
         });
 
         /* 선택 상한 도달 시 자동 다음 단계 이동
@@ -3460,7 +3480,8 @@
 
         /* 공고기간(3단계) 자동 이동: 시작일·종료일은 기본값(오늘 ~ 2개월 뒤)이 이미 채워져 있으므로
            3단계에 처음 들어왔을 때 DATE_AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
-           - 날짜 영역이나 달력을 건드리면 취소하고, 이후에는 다시 자동 이동하지 않는다
+           - 날짜 영역이나 달력을 건드려도 취소하지 않고 그대로 이동한다
+           - 한 번 실행되면 이후 재진입에서는 다시 자동 이동하지 않는다 (값 변경 이동은 별도)
            - 타이머 실행 시 아직 3단계인지 확인해, 그 사이 다음 버튼으로 넘어갔으면 이동하지 않는다 */
         var DATE_AUTO_ADVANCE_DELAY = 500;
         var dateAutoAdvanceTimer = null;
@@ -3484,8 +3505,23 @@
                 }
             }, DATE_AUTO_ADVANCE_DELAY);
         }
-        // 날짜 입력 영역과 flatpickr 달력(body에 붙는다)을 건드리면 자동 이동을 취소한다
-        $(document).on("pointerdown focusin", ".date-field-wrapper, .flatpickr-calendar", cancelDateAutoAdvance);
+        /* 공고기간 값이 바뀌면(단계 재진입 포함) 잠시 후 다음 단계로 이동한다
+           첫 진입 자동 이동과 달리 dateAutoAdvanceDone을 보지 않으며, 날짜를 다시 고르면 대기 시간이 새로 시작된다 */
+        function scheduleDateChangeAdvance() {
+            if (currentStep !== 3) {
+                return;
+            }
+            dateAutoAdvanceDone = true;
+            if (dateAutoAdvanceTimer) {
+                clearTimeout(dateAutoAdvanceTimer);
+            }
+            dateAutoAdvanceTimer = setTimeout(function() {
+                dateAutoAdvanceTimer = null;
+                if (currentStep === 3) {
+                    goNextStep();
+                }
+            }, DATE_AUTO_ADVANCE_DELAY);
+        }
 
         /* 주소(2단계) 자동 이동: 근무지와 추가노출지역 1,2가 모두 채워졌을 때만 이동
            주소 추가 경로(selectAddrInfo, onChangeAreaApply)에서만 호출한다 */
