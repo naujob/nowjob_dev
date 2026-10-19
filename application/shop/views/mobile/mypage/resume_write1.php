@@ -612,9 +612,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 8: 근무시작일 (마지막 필수 단계) -->
                     <?php
-                    // 근무시작일 기본값: 저장된 값이 없으면 오늘 날짜로 휠 초기 위치를 잡는다
-                    $ru_work_dt_val = (isset($info["ru_work_dt"]) && $info["ru_work_dt"] != "") ? substr($info["ru_work_dt"], 0, 10) : "";
-                    $ru_work_dt_seed = $ru_work_dt_val != "" ? $ru_work_dt_val : date("Y-m-d");
+                    // 근무시작일 기본값: 저장된 값이 없으면 오늘 날짜를 값과 표시에 채워 넣는다
+                    $ru_work_dt_val = (isset($info["ru_work_dt"]) && $info["ru_work_dt"] != "") ? substr($info["ru_work_dt"], 0, 10) : date("Y-m-d");
+                    $ru_work_dt_seed = $ru_work_dt_val;
                     ?>
                     <div class="step-section" data-step="8" style="display:none;">
                         <p class="step-question">
