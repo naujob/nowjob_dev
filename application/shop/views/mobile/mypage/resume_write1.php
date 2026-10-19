@@ -220,6 +220,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         top: auto;
         width: auto;
         display: flex;
+        justify-content: space-between;
         gap: 8px;
         align-items: center;
         padding: 1rem;
@@ -241,7 +242,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     .page-resume-write #btnStepPrev,
     .page-resume-write #btnDetailMore {
         flex: 0 0 auto;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 7.5rem;
+        height: 4.0rem;
+        white-space: nowrap;
         font-weight: 700;
         text-align: center;
         vertical-align: middle;
@@ -249,7 +256,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         background: #fff;
         color: #57CCAF;
         border: 1.5px solid #57CCAF;
-        padding: 0.8rem 1rem;
+        padding: 0;
         border-radius: 8px;
     }
 
@@ -269,7 +276,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         position: static;
         left: auto;
         margin-left: auto;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 7.5rem;
+        height: 4.0rem;
+        white-space: nowrap;
         font-weight: 700;
         color: #fff;
         text-align: center;
@@ -277,9 +290,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         border: 0;
         background: #57CCAF;
         font-size: 1.3rem;
-        padding: 0.8rem 1rem;
+        padding: 0;
         border-radius: 8px;
-        width: auto;
+    }
+
+    /* 상세등록이 보일 때(이전/상세등록/다음·미리보기 3개)는 auto 여백을 풀어 space-between 으로 간격 균등 */
+    .page-resume-write #btnDetailMore:not([style*="none"]) ~ #btnStepNext,
+    .page-resume-write #btnDetailMore:not([style*="none"]) ~ #btnStep {
+        margin-left: 0;
     }
 
     .page-resume-write #btnStepNext:active,
