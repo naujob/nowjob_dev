@@ -419,10 +419,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 2: 희망지역 -->
                     <div class="step-section" data-step="2" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망근무 지역을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
                         <div class="area-field-wrapper">
                             <div class="form-row">
                                 <p class="form-label">희망지역<span class="required-asterisk">*</span></p>
@@ -447,10 +443,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 3: 희망업무 -->
                     <div class="step-section" data-step="3" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 업종을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="work-field-wrapper">
                     <div class="form-row">
                         <p class="form-label">희망업무<span class="required-asterisk">*</span></p>
@@ -493,10 +485,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 4: 나의강점 -->
                     <div class="step-section" data-step="4" data-scroll="top" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 나의 강점을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="strength-field-wrapper">
                             <div class="form-row my-strength-section">
                                 <p class="form-label">나의강점<span class="required-asterisk">*</span></p>
@@ -547,10 +535,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 5: 근무형태 -->
                     <div class="step-section" data-step="5" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 근무형태를</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="worktype-field-wrapper">
                             <!-- 20221003 수정 -->
                             <div class="form-row">
@@ -575,10 +559,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 6: 급여형태 -->
                     <div class="step-section" data-step="6" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 급여를</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="salary-field-wrapper">
                             <div class="form-row">
                                 <p class="form-label form-label-with-checkbox">
@@ -601,16 +581,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </div><!-- //step 6 -->
                     <!-- 단계 7: 자기소개 -->
                     <div class="step-section" data-step="7" data-scroll="top" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">이력서의 자기소개란을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
                         <div class="desc-field-wrapper">
                             <div class="form-row intro-section">
                                 <p class="form-label">자기소개<span class="required-asterisk">*</span></p>
                                 <label>
                                     <span class="sr-text">자기소개 입력</span>
-                                    <textarea name="ru_desc" maxlength="500" class="form-textarea js-autoheight"><?= $info["ru_desc"] ?></textarea>
+                                    <textarea name="ru_desc" maxlength="500" class="form-textarea js-autoheight" data-keep-box-visible="true"><?= $info["ru_desc"] ?></textarea>
                                 </label>
                             </div>
                         </div>
@@ -623,10 +599,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     $ru_work_dt_seed = $ru_work_dt_val;
                     ?>
                     <div class="step-section" data-step="8" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">근무시작일을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="workdt-field-wrapper">
                             <div class="form-row">
                                 <p class="form-label">근무시작일<span class="required-asterisk">*</span></p>
@@ -646,10 +618,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </div><!-- //step 8 -->
                     <!-- 단계 9: 희망요일 + 경력사항 + 자격증 (상세등록 구간, 한 단계에서 함께 스크롤) -->
                     <div class="step-section" data-step="9" data-scroll="top" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">상세 정보를</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
                         <div class="week-field-wrapper">
             <div class="form-row js-detail-section">
                 <p class="form-label">

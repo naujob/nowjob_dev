@@ -1315,24 +1315,68 @@
         // 고정 푸터/키보드에 textarea 또는 contenteditable 캐럿이 가려졌을 때만 .page를 스크롤해서 화면에 보이게 한다
         // textarea는 요소 전체 기준, contenteditable은 캐럿 기준으로 판정한다
         // blockValue: 'start' (포커스 시) 또는 'end' (입력으로 높이가 늘어난 경우)
-        function scrollTextareaIntoView(el, blockValue) {
+        // 박스 전체 기준 보정(data-keep-box-visible)을 쓰는 칸인지 확인한다 (자기소개 등)
+        function isKeepBoxEl(el) {
+            return !!(el && el.classList && el.classList.contains('js-autoheight') && el.getAttribute('data-keep-box-visible') === 'true');
+        }
+
+        // 키보드/뷰포트가 바뀐 마지막 시각 (settleKeepBoxJudge 가 안정 여부를 판단할 때 사용)
+        var lastViewportChangeAt = 0;
+        var keepBoxSettleTimer = null;
+        var KEEP_BOX_SETTLE_MIN = 400; // 포커스 직후 키보드가 올라오기 전 판정을 막는 최소 대기 (ms)
+        var KEEP_BOX_SETTLE_QUIET = 300; // 뷰포트 변화가 이 시간 동안 없으면 안정으로 본다 (ms)
+        var KEEP_BOX_SETTLE_MAX = 1500; // 계속 흔들려도 이 시간이 지나면 판정한다 (ms)
+
+        // 자기소개 박스 보정: 키보드 전환과 스크롤이 가라앉은 뒤 한 번만 판정한다
+        // 전환 중에 판정하면 네이티브 스크롤이 끝난 뒤 되돌리는 보정이 생겨 튕김이 난다
+        function settleKeepBoxJudge(target, startedAt) {
+            if (keepBoxSettleTimer) {
+                clearTimeout(keepBoxSettleTimer);
+                keepBoxSettleTimer = null;
+            }
+            startedAt = startedAt || Date.now();
+            var now = Date.now();
+            var waited = now - startedAt;
+            var settled = waited >= KEEP_BOX_SETTLE_MIN
+                && now - lastViewportChangeAt >= KEEP_BOX_SETTLE_QUIET
+                && now - lastPageScrollAt >= 200;
+            if (!settled && waited < KEEP_BOX_SETTLE_MAX) {
+                keepBoxSettleTimer = setTimeout(function () {
+                    settleKeepBoxJudge(target, startedAt);
+                }, 100);
+                return;
+            }
+            if (document.activeElement !== target) return;
+            scrollTextareaIntoView(target, 'start');
+        }
+
+        // retryCount: 단계 이동 스크롤 중이라 보류된 횟수 (최대 10회, 120ms 간격)
+        function scrollTextareaIntoView(el, blockValue, retryCount) {
             if (!el || !el.classList || !el.classList.contains('js-autoheight')) return;
             blockValue = blockValue || 'start';
+            retryCount = retryCount || 0;
             if (scrollFollowTimer) clearTimeout(scrollFollowTimer);
             scrollFollowTimer = setTimeout(function () {
                 var page = el.closest('.page');
                 if (!page) return;
                 // 단계 이동 스크롤(scrollToCurrentStep) 중에는 보정 스크롤을 하지 않는다
                 // 두 스크롤이 같은 순간 반대 방향으로 움직여 튕기는 것을 막기 위함
-                if (window.__stepScrolling) return;
+                // 단순히 버리면 첫 탭 보정이 누락되므로, 이동이 끝난 뒤 다시 판정한다
+                if (window.__stepScrolling) {
+                    if (retryCount < 10) scrollTextareaIntoView(el, blockValue, retryCount + 1);
+                    return;
+                }
 
                 var pageRect = page.getBoundingClientRect();
                 // contenteditable은 캐럿 좌표를 알 때만 판정한다. 모르면 추정하지 않고 움직이지 않는다
-                // textarea는 요소 전체 기준
+                // textarea는 캐럿 기준이 기본이고, data-keep-box-visible 이면 박스 전체 기준으로 판정한다
                 var caretRect = null;
                 var rect;
                 // 캐럿 좌표를 실제로 쟀는지 여부 (요소 전체 좌표로 폴백했으면 false)
                 var caretMeasured = true;
+                // 박스 전체를 푸터 위에 보이게 할지 (자기소개 등). 보이는 영역보다 크면 아래에서 캐럿 기준으로 되돌린다
+                var keepBox = !el.isContentEditable && el.getAttribute('data-keep-box-visible') === 'true';
+                var boxRect = el.getBoundingClientRect();
                 if (el.isContentEditable) {
                     caretRect = getCaretRect(el) || getEndCaretRect(el);
                     if (!caretRect) return;
@@ -1355,6 +1399,12 @@
                 }
                 var visibleBottom = getVisibleBottom(page, pageRect) - gap;
 
+                // 박스 전체가 보이는 영역에 들어가면 박스 기준으로 판정한다 (첫 탭에서 칸 아래쪽이 푸터에 덮이지 않도록)
+                // 들어가지 않으면 캐럿 기준을 유지해 캐럿이 보이게 한다
+                if (keepBox && boxRect.height <= visibleBottom - visibleTop) {
+                    rect = boxRect;
+                }
+
                 var delta = 0;
                 if (rect.height > visibleBottom - visibleTop) {
                     // textarea가 보이는 영역보다 크면: 상단이 가려졌을 때 상단 기준, 입력 중이면 하단 기준
@@ -1374,7 +1424,8 @@
                 }
 
                 // 가려지지 않았으면 스크롤하지 않음 (불필요한 점프 방지)
-                if (delta === 0) return;
+                // 2px 미만의 차이는 소수점 오차라 무시한다 (미세한 왕복 흔들림 방지)
+                if (Math.abs(delta) < 2) return;
 
                 // 스크롤 범위 제한 (0 ~ 최대 스크롤)
                 var newScrollTop = page.scrollTop + delta;
@@ -1432,12 +1483,16 @@
                 // 이때 판정하면 필요 이상으로 내려가므로, 즉시 판정은 하지 않고 키보드가 안정된 뒤(400/800ms)에만 판정한다
                 textareaFocusAt = Date.now();
                 var settledTarget = e.target;
-                [400, 800].forEach(function (ms) {
-                    setTimeout(function () {
-                        if (document.activeElement !== settledTarget) return;
-                        scrollTextareaIntoView(settledTarget, 'start');
-                    }, ms);
-                });
+                if (isKeepBoxEl(settledTarget)) {
+                    settleKeepBoxJudge(settledTarget);
+                } else {
+                    [400, 800].forEach(function (ms) {
+                        setTimeout(function () {
+                            if (document.activeElement !== settledTarget) return;
+                            scrollTextareaIntoView(settledTarget, 'start');
+                        }, ms);
+                    });
+                }
             }
         });
 
@@ -1454,8 +1509,13 @@
         // 키보드 열림/닫힘으로 뷰포트가 바뀌면 포커스된 textarea를 다시 판정
         // visualViewport(iOS)와 window resize(Android adjustResize)를 모두 처리
         function onViewportResize(e) {
+            lastViewportChangeAt = Date.now();
             var active = document.activeElement;
             if (active && active.classList && active.classList.contains('js-autoheight')) {
+                if (isKeepBoxEl(active)) {
+                    settleKeepBoxJudge(active);
+                    return;
+                }
                 scrollTextareaIntoView(active, 'start');
             }
         }
