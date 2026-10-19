@@ -392,7 +392,7 @@ function getRecoListCommon(options) {
         : '.recomm-slider.recruit';
 
       if (typeof initRecommendationSlider === 'function') {
-        initRecommendationSlider(sliderSelector, opts.perView);
+        initRecommendationSlider(sliderSelector, opts.perView, opts.slideWidth);
       }
     }
   });

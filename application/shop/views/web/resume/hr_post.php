@@ -300,9 +300,9 @@ function fRemoveBigAdrPHP($arg)
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -399,9 +399,9 @@ function fRemoveBigAdrPHP($arg)
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -447,9 +447,9 @@ function fRemoveBigAdrPHP($arg)
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -528,9 +528,9 @@ function fRemoveBigAdrPHP($arg)
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -550,9 +550,9 @@ function fRemoveBigAdrPHP($arg)
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -569,7 +569,7 @@ function fRemoveBigAdrPHP($arg)
   .type .gapbar1,
   .type .gapbar2 {
     display: inline-block;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: 0 4px;
     font-size: 0;

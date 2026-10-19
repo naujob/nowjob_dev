@@ -6712,7 +6712,7 @@ body {
 
 .recruit-card .meta p {
     position: relative;
-    padding: 0 calc(9.5px + 0.05em) 0 8px;
+    padding: 0 calc(9.75px + 0.05em) 0 8px;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -6731,7 +6731,7 @@ body {
     top: 0;
     right: 0;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -7094,9 +7094,9 @@ body {
     display: block;
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;

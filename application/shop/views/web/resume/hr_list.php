@@ -15,7 +15,7 @@ if (count($banner_list) > 0) {
     margin-left: -65px;
   }
   .search-result .content-area {
-    margin: 0 77px;
+    margin: 0 10px;
     -webkit-box-flex: 0;
     -ms-flex: 0 0 1530px;
     flex: 0 0 1530px;
@@ -23,13 +23,22 @@ if (count($banner_list) > 0) {
 
   .search-result .sidebar {
     width: 200px;
-    height: 870px;
+    height: 880px;
     -webkit-box-flex: 0;
     -ms-flex: 0 0 200px;
     flex: 0 0 200px;
     position: sticky;
     top: 90px;
+    padding-left: 35px;
 
+  }
+
+  #page_cont {
+    margin: 20px 0;
+  }
+
+  #page_cont .pagination {
+    margin: 50px 0 0;
   }
 
   .result-header .total.today-new {
@@ -42,6 +51,17 @@ if (count($banner_list) > 0) {
   .recomm-slider.person .container.swiperX {
   padding: 0 52px;
   max-width: 1634px;
+}
+.recomm-slider.person {
+  padding-bottom: 90px;
+}
+.recomm-slider.person .person-card {
+  padding: 0 25px 0 0;
+  min-height: 470px;
+}
+.recomm-slider.person .person-card .img {
+  width: 286px;
+  height: 286px;
 }
 .arrow.arrow--left {
   left: -25px;
@@ -85,7 +105,7 @@ if (count($banner_list) > 0) {
 
               <div class="result-header">
                 <p class="total">인재정보 <em id="total_count"></em>건</p>
-                <p class="total today-new">오늘 새로운 인재 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
+                <p class="total today-new">오늘 새로운 인재 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
@@ -380,7 +400,8 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
       containerId: 'my-keen-slider',
       limit: 10,
       showMmIdx: true,
-      perView: 5
+      perView: 5,
+      slideWidth: 311
     });
   }
 
