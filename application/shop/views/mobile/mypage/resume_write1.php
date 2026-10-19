@@ -2492,6 +2492,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             if (item.getAttribute('name') === 'ru_my_type[]') {
                 return;
             }
+            // 숨김(1px/투명) 체크박스가 포커스를 받으면 WebView가 화면을 자동 스크롤해 단계 이동 스크롤과 겹치므로 포커스를 바로 해제
+            item.addEventListener('focus', function() {
+                this.blur();
+            });
             item.addEventListener('change', function() {
                 var name = this.getAttribute('name');
                 // 협의가 체크된 경우 선택 제한 무시
