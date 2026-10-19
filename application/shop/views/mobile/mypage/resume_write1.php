@@ -1913,6 +1913,36 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return $footer[0].getBoundingClientRect().top;
     }
 
+    // 단계 이동 스크롤 종료 처리 (scrollend 이벤트 또는 대기 시간 중 먼저 오는 쪽)
+    // - window.__stepScrolling 을 내려서 main.js 의 textarea 보정 스크롤을 다시 허용한다
+    var stepScrollEl = null;
+    var stepScrollTimer = null;
+    function endStepScroll() {
+        if (stepScrollTimer) {
+            clearTimeout(stepScrollTimer);
+            stepScrollTimer = null;
+        }
+        if (stepScrollEl) {
+            stepScrollEl.removeEventListener('scrollend', endStepScroll);
+            stepScrollEl = null;
+        }
+        window.__stepScrolling = false;
+    }
+
+    // 단계 이동 스크롤 실행 (브라우저 네이티브 smooth 이동)
+    // - 이동 중에는 window.__stepScrolling 을 켜서 main.js 의 textarea 보정 스크롤과 겹치지 않게 한다
+    // - scrollend 를 지원하지 않는 WebView 를 위해 600ms 뒤에도 플래그를 내린다
+    function animatePageScroll(target) {
+        var pageEl = $(".page")[0];
+        if (!pageEl) return;
+        endStepScroll();
+        window.__stepScrolling = true;
+        stepScrollEl = pageEl;
+        pageEl.addEventListener('scrollend', endStepScroll);
+        stepScrollTimer = setTimeout(endStepScroll, 600);
+        pageEl.scrollTo({ top: target, behavior: 'smooth' });
+    }
+
     // 현재 단계가 푸터에 가리지 않도록 스크롤
     function scrollToCurrentStep() {
         var $page = $(".page");
@@ -1937,7 +1967,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             if (targetByTop < 0) {
                 targetByTop = 0;
             }
-            $page.stop(true).animate({ scrollTop: targetByTop }, 120);
+            animatePageScroll(targetByTop);
             return;
         }
 
@@ -1956,7 +1986,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         if (target < 0) {
             target = 0;
         }
-        $page.stop(true).animate({ scrollTop: target }, 120);
+        animatePageScroll(target);
     }
 
     // 누적형 노출: 지나온 단계는 계속 보이고 현재 단계만 펼쳐진다
@@ -2195,6 +2225,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     function scrollPageTop() {
         var $page = $(".page");
         if ($page.length > 0) {
+            // 진행 중인 단계 이동 스크롤을 끊고 단계 이동 플래그도 함께 내린다
+            endStepScroll();
             $page.stop(true).scrollTop(0);
         }
     }
