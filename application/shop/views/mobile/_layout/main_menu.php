@@ -330,8 +330,12 @@ renderSelectBottomSheet(
     $('#resumeRegisteredBubble').attr('data-visible', 'false');
   });
 
-  // 채용공고 등록 안내 말풍선 (COMP)
+  // 채용공고 등록 안내 말풍선 (COMP) - 사업자등록 완료 후에만 등록 페이지 이동
   $(document).on('click', '#recruitBubble', function() {
+    // 미인증이면 사업자정보 인증 바텀시트가 열리고 false 반환
+    if (typeof requireCompCertWithGuide === 'function' && !requireCompCertWithGuide()) {
+      return;
+    }
     location.href = '/compage/recruit_write1_1';
   });
 

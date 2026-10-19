@@ -23,6 +23,9 @@ function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass 
             <!-- Handlebar (드래그용 가로선) -->
             <div class="bottom-sheet-handlebar"></div>
 
+            <?php // 우측 상단 X 버튼: 배경 클릭이 막힌 시트도 닫을 수 있도록 공통 제공 ?>
+            <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
+
             <div class="bottom-sheet-header">
                 <h2 class="bottom-sheet-title"><?php echo htmlspecialchars($title); ?></h2>
             </div>
