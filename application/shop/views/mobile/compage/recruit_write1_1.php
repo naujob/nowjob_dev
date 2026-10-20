@@ -4199,6 +4199,20 @@
         // 단계별 진행 버튼 핸들러
         $("#btnStepNext").click(goNextStep);
 
+        // 텍스트 입력란에서 Enter 키를 누르면 "다음" 버튼과 동일하게 다음 단계로 이동
+        // (textarea/contenteditable 은 줄바꿈이 필요하므로 제외, 한글 조합 중 Enter 는 무시)
+        $(document).on('keydown', 'input[type="text"], input[type="tel"], input[type="number"], input[type="date"], input:not([type])', function(e) {
+            if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) {
+                return;
+            }
+            // "다음" 버튼이 보이는 단계에서만 동작 (마지막 단계·상세등록 구간 제외)
+            if (!$("#btnStepNext").is(':visible')) {
+                return;
+            }
+            e.preventDefault();
+            goNextStep();
+        });
+
         /* 상세등록(+): 마지막 필수 단계(10)에서 선택 구간(11)을 열고 진입 */
         $("#btnDetailMore").click(function(e) {
             e.preventDefault();

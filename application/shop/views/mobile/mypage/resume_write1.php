@@ -2570,6 +2570,20 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         /* 다음 */
         $("#btnStepNext").click(goNextStep);
 
+        /* 텍스트 입력란에서 Enter 키를 누르면 "다음" 버튼과 동일하게 다음 단계로 이동
+           (textarea/contenteditable 은 줄바꿈이 필요하므로 제외, 한글 조합 중 Enter 는 무시) */
+        $(document).on('keydown', 'input[type="text"], input[type="tel"], input[type="number"], input[type="date"], input:not([type])', function(e) {
+            if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) {
+                return;
+            }
+            /* "다음" 버튼이 보이는 단계에서만 동작 (마지막 단계·상세등록 구간 제외) */
+            if (!$("#btnStepNext").is(':visible')) {
+                return;
+            }
+            e.preventDefault();
+            goNextStep();
+        });
+
         /* 이전: 9단계에서 뒤로 가면 상세등록 구간을 닫고 8단계로 돌아간다 */
         $("#btnStepPrev").click(function() {
             if (currentStep === REQUIRED_STEPS + 1) {
