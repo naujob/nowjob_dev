@@ -1477,6 +1477,16 @@ function checkDuplicatePhoneForSns($phone)
 		$result["message"] = $provider_label . $postposition . " 이미 가입된 전화번호 입니다.";
 		$result["join_type"] = $join_type;
 		$result["mm_phone"] = $mem_info["mm_phone"]; // 중복 회원의 전화번호
+	} else {
+		// 활성 회원이 없으면 15일 이내 탈퇴 회원 확인 → 재가입 차단 (중복 계정 팝업이 아닌 탈퇴 안내)
+		// is_withdrawn=true, join_type 없음 → 호출부는 탈퇴 문구만 보여준다
+		$CI->load->model('membermodel', 'member_model');
+		$withdrawn = $CI->member_model->findRecentWithdrawn(["phone" => $normalized_phone]);
+		if ($withdrawn != null) {
+			$result["is_duplicate"] = true;
+			$result["is_withdrawn"] = true;
+			$result["message"] = withdrawn_message($withdrawn);
+		}
 	}
 
 	return $result;

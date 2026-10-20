@@ -1612,6 +1612,51 @@ if (!function_exists('is_room_user_exited')) {
 	}
 }
 
+// 탈퇴 후 같은 정보(전화번호·DI·SNS계정)로 로그인·재가입을 막는 기간(일)
+if (!defined('WITHDRAW_BLOCK_DAYS')) {
+	define('WITHDRAW_BLOCK_DAYS', 15);
+}
+
+/**
+ * 최근 탈퇴(15일 이내) 회원이면 재가입 가능일(Y-m-d), 아니면 false
+ * - 대상 상태: 'N'(본인 탈퇴), 'H'(관리자 삭제)
+ * - fire_dt가 비어 있으면 false (영구 차단 방지, 정리 배치가 fire_dt를 채움)
+ * @param array|null $mem_info st_member 행
+ * @return string|false
+ */
+if (!function_exists('get_withdrawn_rejoin_date')) {
+	function get_withdrawn_rejoin_date($mem_info)
+	{
+		if (empty($mem_info) || !isset($mem_info["mm_status"]) || !in_array($mem_info["mm_status"], ["N", "H"], true)) {
+			return false;
+		}
+		if (empty($mem_info["fire_dt"]) || substr($mem_info["fire_dt"], 0, 4) == "0000") {
+			return false;
+		}
+		$rejoin_ts = strtotime($mem_info["fire_dt"] . " +" . WITHDRAW_BLOCK_DAYS . " days");
+		if ($rejoin_ts === false || $rejoin_ts <= time()) {
+			return false;
+		}
+		return date("Y-m-d", $rejoin_ts);
+	}
+}
+
+/**
+ * 탈퇴 회원 공통 안내 문구 (모든 로그인·재가입 경로에서 동일하게 사용)
+ * @param array $mem_info 최근 탈퇴 회원 행 (findRecentWithdrawn 결과)
+ * @return string
+ */
+if (!function_exists('withdrawn_message')) {
+	function withdrawn_message($mem_info)
+	{
+		$rejoin_dt = get_withdrawn_rejoin_date($mem_info);
+		if ($rejoin_dt === false) {
+			return "탈퇴한 회원입니다.";
+		}
+		return "탈퇴한 회원입니다. (" . $rejoin_dt . " 이후 재가입 가능)";
+	}
+}
+
 /**
  * MongoDB room의 exit_yn 상태를 Y→N으로 복구 (나간 사용자 복구)
  * @param string $mongo_uri MongoDB 연결 URI

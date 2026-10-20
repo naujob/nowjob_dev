@@ -385,6 +385,95 @@ class memberModel extends MY_Model
 		return ["code" => "00", "msg" => "탈퇴 처리 완료"];
 	}
 
+	# 최근 탈퇴 회원 조회 (탈퇴 후 WITHDRAW_BLOCK_DAYS일 이내, 상태 'N'/'H')
+	# 전화번호 / DI / SNS계정(join_type + join_key) 중 하나라도 일치하면 같은 사람으로 본다
+	# @param array $opts ["phone" => 번호, "di" => DI, "join_type" => 타입, "join_key" => 키 또는 키 배열(위챗 unionid/openid)]
+	# @return array|null 가장 최근 탈퇴 행
+	function findRecentWithdrawn($opts)
+	{
+		$conds = [];
+
+		$phone = isset($opts["phone"]) ? preg_replace('/[^0-9]/', '', $opts["phone"]) : "";
+		if ($phone != "") {
+			$conds[] = "REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = " . $this->db->escape($phone);
+		}
+
+		$di = isset($opts["di"]) ? trim($opts["di"]) : "";
+		if ($di != "") {
+			$conds[] = "mm_di = " . $this->db->escape($di);
+		}
+
+		$join_type = isset($opts["join_type"]) ? trim($opts["join_type"]) : "";
+		$join_keys = [];
+		if (isset($opts["join_key"])) {
+			foreach ((array)$opts["join_key"] as $key) {
+				if (trim($key) != "") {
+					$join_keys[] = $this->db->escape(trim($key));
+				}
+			}
+		}
+		if ($join_type != "" && !empty($join_keys)) {
+			$conds[] = "(mm_join_type = " . $this->db->escape($join_type) . " AND mm_join_key IN (" . implode(",", $join_keys) . "))";
+		}
+
+		if (empty($conds)) {
+			return null;
+		}
+
+		$sql = "SELECT * FROM st_member
+				WHERE mm_status IN ('N', 'H')
+				AND fire_dt >= DATE_SUB(NOW(), INTERVAL " . (int)WITHDRAW_BLOCK_DAYS . " DAY)
+				AND (" . implode(" OR ", $conds) . ")
+				ORDER BY mm_idx DESC
+				LIMIT 1";
+		$row = $this->db->query($sql)->row_array();
+		return empty($row) ? null : $row;
+	}
+
+	# 회원가입 INSERT 직전 확인 (가입 완료 함수 공통)
+	# 1) 15일 이내 탈퇴 회원과 전화번호·DI·SNS계정이 같으면 가입 차단
+	# 2) 15일 지난 탈퇴 회원 행이 같은 mm_id 또는 SNS계정을 쥐고 있으면(정리 배치 전) 그 행의 값을 비워 충돌 방지
+	# @param array $arr_mem 가입할 회원 데이터 (mm_id, mm_phone, mm_di, mm_join_type, mm_join_key)
+	# @return array ["code" => "00"|"91", "msg" => string]
+	function prepareJoinIdentity($arr_mem)
+	{
+		$mm_id = isset($arr_mem["mm_id"]) ? $arr_mem["mm_id"] : "";
+		$join_type = isset($arr_mem["mm_join_type"]) ? $arr_mem["mm_join_type"] : "";
+		$join_key = isset($arr_mem["mm_join_key"]) ? $arr_mem["mm_join_key"] : "";
+
+		$withdrawn = $this->findRecentWithdrawn([
+			"phone" => isset($arr_mem["mm_phone"]) ? $arr_mem["mm_phone"] : "",
+			"di" => isset($arr_mem["mm_di"]) ? $arr_mem["mm_di"] : "",
+			"join_type" => $join_type,
+			"join_key" => $join_key,
+		]);
+		if ($withdrawn != null) {
+			return ["code" => "91", "msg" => withdrawn_message($withdrawn)];
+		}
+
+		// 15일 지난 탈퇴 행 정리: mm_id / mm_ci / mm_join_key를 del_{mm_idx}로 바꿔 새 가입과 겹치지 않게 함
+		$conds = [];
+		if ($mm_id != "") {
+			$conds[] = "mm_id = " . $this->db->escape($mm_id);
+		}
+		if ($join_type != "" && $join_key != "") {
+			$conds[] = "(mm_join_type = " . $this->db->escape($join_type) . " AND mm_join_key = " . $this->db->escape($join_key) . ")";
+		}
+		if (!empty($conds)) {
+			$sql = "UPDATE st_member
+					SET mm_id = CONCAT('del_', mm_idx), mm_ci = '', mm_join_key = CONCAT('del_', mm_idx), up_dt = NOW()
+					WHERE mm_status IN ('N', 'H')
+					AND (fire_dt IS NULL OR fire_dt < DATE_SUB(NOW(), INTERVAL " . (int)WITHDRAW_BLOCK_DAYS . " DAY))
+					AND (" . implode(" OR ", $conds) . ")";
+			$this->db->query($sql);
+			if ($this->db->affected_rows() > 0) {
+				error_log("[prepareJoinIdentity] 이전 탈퇴 행 정리 " . $this->db->affected_rows() . "건");
+			}
+		}
+
+		return ["code" => "00", "msg" => ""];
+	}
+
 	# 채팅서버(MongoDB user) 접속상태 변경 (로그아웃·탈퇴 공통, Y=접속중 / N=비접속)
 	function setMongoUserStatus($mm_id, $user_status)
 	{

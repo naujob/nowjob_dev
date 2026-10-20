@@ -133,6 +133,9 @@ class Member extends CI_Controller
 			// 신규 회원: login.php로 리다이렉트 + 파라미터 (phone popup 띄우기)
 			$login_url = "/member/login?join_sns=1&join_key=" . urlencode($key) . "&join_type=APPLE";
 			go_location($login_url);
+		} else if ($return["code"] == "91") {
+			// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내
+			go_location("/member/login", $return["msg"]);
 		} else {
 			go_location("/member/login?msg_code=" . $return["code"]);
 		}
@@ -193,6 +196,10 @@ class Member extends CI_Controller
 			if ($return["code"] == "00") {
 				$this->common->scriptReplace("/");
 				exit;
+			} else if ($return["code"] == "91") {
+				// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내 후 로그인 화면
+				$this->common->scriptReplace("/member/login", $return["msg"]);
+				exit;
 			} else {
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
 				$kakao_id = $userInfoData["data"]["id"];
@@ -208,6 +215,11 @@ class Member extends CI_Controller
 				// 회원이 없을 때 전화번호 중복 체크
 				if (!empty($phonenum)) {
 					$duplicate_check = checkDuplicatePhoneForSns($phonenum);
+					if (!empty($duplicate_check["is_withdrawn"])) {
+						// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
+						$this->common->scriptReplace("/member/login", $duplicate_check["message"]);
+						exit;
+					}
 					if ($duplicate_check["is_duplicate"]) {
 						// 카카오 서버가 준 번호 → 본인 번호로 확인됨 (중복 팝업에서 인증 없이 자동 로그인 허용)
 						set_verified_phone($phonenum, "KAKAO_OAUTH");
@@ -551,8 +563,12 @@ class Member extends CI_Controller
 		
 
 			if ($return["code"] == "00") {
-				
+
 				$this->common->scriptReplace("/");
+				exit;
+			} else if ($return["code"] == "91") {
+				// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내 후 로그인 화면
+				$this->common->scriptReplace("/member/login", $return["msg"]);
 				exit;
 			} else {
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
@@ -564,6 +580,11 @@ class Member extends CI_Controller
 				if (!empty($phonenum)) {
 					$normalized_phone = preg_replace('/[^0-9]/', '', $phonenum);
 					$duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
+					if (!empty($duplicate_check["is_withdrawn"])) {
+						// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
+						$this->common->scriptReplace("/member/login", $duplicate_check["message"]);
+						exit;
+					}
 					if ($duplicate_check["is_duplicate"]) {
 						// 네이버 서버가 준 번호 → 본인 번호로 확인됨 (중복 팝업에서 인증 없이 자동 로그인 허용)
 						set_verified_phone($normalized_phone, "NAVER_OAUTH");
@@ -822,6 +843,9 @@ class Member extends CI_Controller
 				$join_url .= "&username=" . urlencode($name);
 			}
 			go_location($join_url);
+		} else if ($return["code"] == "91") {
+			// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내
+			go_location("/member/login", $return["msg"]);
 		} else {
 			go_location("/member/login?msg_code=" . $return["code"]);
 		}
@@ -1007,36 +1031,12 @@ class Member extends CI_Controller
 			return ["code" => "00", "msg" => "로그인 성공"];
 		} //로그인 성공
 
-		//
-		$query  = "select * from st_member ";
-		$query .= "where mm_join_type = '" . $join_type . "' ";
-		$query .= "and   mm_join_key = '" . $join_key . "'  ";
-		$query .= "and   mm_status = 'N'  ";
-		$query .= "order by mm_idx desc limit 1 ";
-
-		$result = $this->db->query($query);
-		$mem_info = $result->row_array();
-		if ($mem_info == null) {
-			return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
+		// 활성 회원 없음 → 15일 이내 탈퇴 회원(N/H)이면 차단, 아니면 신규 회원과 동일하게 가입 흐름(90)
+		$withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => $join_type, "join_key" => $join_key]);
+		if ($withdrawn != null) {
+			return ["code" => "91", "msg" => withdrawn_message($withdrawn)];
 		}
-
-		// if($mem_info==null){
-		// 	return ["code"=>"90","msg"=>"회원정보를 찾을수 없습니다."];
-		// }
-
-		if ($mem_info["mm_status"] == "N") {
-
-			$fireDate = new DateTime($mem_info["fire_dt"]); // 탈퇴일
-			$currentDate = new DateTime(); // 현재 시간
-			$interval = $fireDate->diff($currentDate)->days; // 두 날짜 차이 계산 (일 단위)
-
-			if ($interval < 15) {
-				return ["code" => "91", "msg" => "탈퇴한 회원입니다."];
-			} else {
-				return ["code" => "90", "msg" => "회원정보를 찾을 수 없습니다."];
-			}
-			// return ["code"=>"91","msg"=>"탈퇴한 회원입니다."];
-		}
+		return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
 	}
 
 	// WeChat 로그인 처리: unionid/openid 폴백 지원
@@ -1104,45 +1104,10 @@ class Member extends CI_Controller
 			return ["code" => "00", "msg" => "로그인 성공"];
 		}
 
-		// 탈퇴/비활성 회원 확인
-		$mm_join_key_for_inactive = (!empty($unionid)) ? $unionid : $openid;
-
-		$query  = "select * from st_member ";
-		$query .= "where mm_join_type = 'WECHAT' ";
-		$query .= "and   mm_join_key = '" . $mm_join_key_for_inactive . "'  ";
-		$query .= "and   mm_status = 'N'  ";
-		$query .= "order by mm_idx desc limit 1 ";
-
-		$result = $this->db->query($query);
-		$mem_info = $result->row_array();
-
-		// 탈퇴/비활성도 못 찾으면 openid로 재시도
-		if ($mem_info == null && !empty($unionid) && $unionid != $openid) {
-			$query  = "select * from st_member ";
-			$query .= "where mm_join_type = 'WECHAT' ";
-			$query .= "and   mm_join_key = '" . $openid . "'  ";
-			$query .= "and   mm_status = 'N'  ";
-			$query .= "order by mm_idx desc limit 1 ";
-
-			$result = $this->db->query($query);
-			$mem_info = $result->row_array();
-		}
-
-		if ($mem_info == null) {
-			return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
-		}
-
-		// 탈퇴 회원 처리
-		if ($mem_info["mm_status"] == "N") {
-			$fireDate = new DateTime($mem_info["fire_dt"]);
-			$currentDate = new DateTime();
-			$interval = $fireDate->diff($currentDate)->days;
-
-			if ($interval < 15) {
-				return ["code" => "91", "msg" => "탈퇴한 회원입니다."];
-			} else {
-				return ["code" => "90", "msg" => "회원정보를 찾을 수 없습니다."];
-			}
+		// 활성 회원 없음 → 15일 이내 탈퇴 회원(N/H)이면 차단 (unionid·openid 둘 다 확인), 아니면 신규 회원과 동일(90)
+		$withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => "WECHAT", "join_key" => [$unionid, $openid]]);
+		if ($withdrawn != null) {
+			return ["code" => "91", "msg" => withdrawn_message($withdrawn)];
 		}
 
 		return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
@@ -1310,6 +1275,11 @@ class Member extends CI_Controller
 
 		// 전화번호로 기존 회원 존재 여부 확인
 		$duplicate_check = checkDuplicatePhoneForSns($phonenum);
+		if (!empty($duplicate_check["is_withdrawn"])) {
+			// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
+			go_location("/member/login", $duplicate_check["message"]);
+			exit;
+		}
 		if ($duplicate_check["is_duplicate"]) {
 			// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 			$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])

@@ -363,7 +363,7 @@
         if (msgCode) {
             setTimeout(function() {
                 var errorMessages = {
-                    '91': '계정 조회에 실패했습니다.',
+                    '91': '탈퇴한 회원입니다.',
                     '98': '구글 로그인 요청 횟수를 초과했습니다.',
                     '99': '구글 로그인 처리 중 오류가 발생했습니다.'
                 };
@@ -858,6 +858,10 @@
                 sPhoneIsAuth = false;
                 setSnsProceedEnabled(false);
                 gPhoneToast('인증번호를 발송하였습니다.');
+            } else if (ret.code == '91' && !(ret.data && ret.data.join_type)) {
+                // 15일 이내 탈퇴한 번호 → 탈퇴 안내만 표시
+                closeSnsPhonePopup();
+                commonAlert(ret.msg, function() {});
             } else if (ret.code == '91') {
                 // 중복 계정 감지 → phone popup 닫고 중복 계정 모달 표시
                 closeSnsPhonePopup();

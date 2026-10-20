@@ -186,17 +186,22 @@ class Member_proc extends CI_Controller
                 exit;
             }
 
-            # 정보조회후 로그인처리
-            $mem_info = $this->member_model->getMember(["mm_join_type" => "WEB", "mm_id" => $mm_id, "mm_pwd" => $this->common->getSqlPass($mm_pwd)]);
+            # 정보조회후 로그인처리 (같은 아이디 행이 여러 개일 수 있어 활성 회원 먼저 조회)
+            $login_where = ["mm_join_type" => "WEB", "mm_id" => $mm_id, "mm_pwd" => $this->common->getSqlPass($mm_pwd)];
+            $mem_info = $this->member_model->getMember(array_merge($login_where, ["mm_status" => "Y"]));
 
             if ($mem_info == null) {
-                //json_return("90","회원정보를 찾을수 없습니다.");
+                // 활성 회원이 없으면 상태별 안내: 15일 이내 탈퇴 / 정지 / 그 외(15일 지난 탈퇴 포함)는 없는 회원
+                $inactive_info = $this->member_model->getMember($login_where);
+                if ($inactive_info != null && get_withdrawn_rejoin_date($inactive_info) !== false) {
+                    json_return("91", withdrawn_message($inactive_info));
+                    exit;
+                }
+                if ($inactive_info != null && substr($inactive_info["mm_status"], 0, 1) == "S") {
+                    json_return("90", "이용이 정지된 회원입니다.");
+                    exit;
+                }
                 json_return("90", "아이디 또는 비밀번호가 일치하지 않습니다.<br>다시 확인 후 입력해주시기 바랍니다.");
-                exit;
-            }
-
-            if ($mem_info["mm_status"] != "Y") {
-                json_return("90", "탈퇴한 회원입니다.");
                 exit;
             }
         } else if ($mm_join_type == "KAKAO" || $mm_join_type == "APPLE" || $mm_join_type == "NAVER") {
@@ -241,22 +246,23 @@ class Member_proc extends CI_Controller
             if ($mem_info != null && $mem_info["mm_status"] == "Y") {
                 //로그인 성공 하도록
             } else {
-                //회원정보 없으면 탈퇴 여부 체크
+                //회원정보 없으면 탈퇴 여부 체크: 15일 이내 탈퇴(N/H)면 차단, 아니면 신규 회원과 동일하게 가입 흐름
+                $withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => $mm_join_type, "join_key" => $mm_join_key]);
+                if ($withdrawn != null) {
+                    json_return("91", withdrawn_message($withdrawn));
+                    exit;
+                }
 
-                # 정보조회후 로그인처리
-                //$mem_info = $this->member_model->getMember(["mm_join_type"=>$mm_join_type,"mm_join_key"=>$mm_join_key,"mm_status"=>"Y"]);
-                $query  = "select * from st_member ";
-                $query .= "where mm_join_type = '" . $mm_join_type . "' ";
-                $query .= "and   mm_join_key = '" . $mm_join_key . "'  ";
-                $query .= "and   mm_status = 'N'  ";
-                $query .= "order by mm_idx desc limit 1 ";
-
-                $result = $this->db->query($query);
-                $mem_info = $result->row_array();
+                $mem_info = null;
                 if ($mem_info == null) {
                     // 회원정보가 없을 때 전화번호 중복 체크
                     if (!empty($sns_phone)) {
                         $duplicate_check = $this->checkDuplicatePhoneForSnsLogin($sns_phone);
+                        if (!empty($duplicate_check["is_withdrawn"])) {
+                            // 15일 이내 탈퇴한 번호 → 탈퇴 안내 (join_type 없음 → 화면은 알림만 표시)
+                            json_return("91", $duplicate_check["message"]);
+                            exit;
+                        }
                         if ($duplicate_check["is_duplicate"]) {
                             // 전화번호가 이미 가입되어 있으면 특별한 코드로 반환
                             json_return("91", $duplicate_check["message"], [
@@ -349,22 +355,6 @@ class Member_proc extends CI_Controller
                     }
 
                     json_return("90", "회원정보를 찾을수 없습니다.");
-                    exit;
-                }
-
-                if ($mem_info["mm_status"] != "Y") {
-
-                    $fireDate = new DateTime($mem_info["fire_dt"]); // 탈퇴일
-                    $currentDate = new DateTime(); // 현재 시간
-                    $interval = $fireDate->diff($currentDate)->days; // 두 날짜 차이 계산 (일 단위)
-
-                    if ($interval < 15) {
-                        json_return("91", "탈퇴한 회원입니다.");
-                    } else {
-                        json_return("90", "회원정보를 찾을수 없습니다.");
-                    }
-
-                    //json_return("91","탈퇴한 회원입니다.");
                     exit;
                 }
             }
@@ -621,15 +611,13 @@ class Member_proc extends CI_Controller
         // 대신 신규 가입 플로우로 보내서 휴대폰 입력 단계에서 중복 감지하도록 통일
 
         if ($mem_info == null) {
-            // 3) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
-            $query  = "select * from st_member ";
-            $query .= "where mm_join_type = 'GOOGLE' ";
-            $query .= "and   mm_join_key = '" . $google_sub . "'  ";
-            $query .= "and   mm_status = 'N'  ";
-            $query .= "order by mm_idx desc limit 1 ";
+            // 3) 15일 이내 탈퇴 회원(N/H)이면 차단, 아니면 신규 회원과 동일하게 가입 흐름 (join_key 포함 90)
+            $withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => "GOOGLE", "join_key" => $google_sub]);
+            if ($withdrawn != null) {
+                json_return("91", withdrawn_message($withdrawn));
+                exit;
+            }
 
-            $result = $this->db->query($query);
-            $mem_info = $result->row_array();
             if ($mem_info == null) {
                 // 4) 회원이 없으면 SNS 정보 임시 저장 (회원가입으로 이어질 수 있도록)
                 $sns_info = [
@@ -663,20 +651,6 @@ class Member_proc extends CI_Controller
                     "name"      => !empty($name) ? $name : "",
                     "email"     => !empty($email) ? $email : ""
                 ]);
-                exit;
-            }
-
-            if ($mem_info["mm_status"] != "Y") {
-                // 5) 탈퇴 회원이면 탈퇴 후 15일 이내 여부에 따라 메시지 분기
-                $fireDate = new DateTime($mem_info["fire_dt"]); // 탈퇴일
-                $currentDate = new DateTime(); // 현재 시간
-                $interval = $fireDate->diff($currentDate)->days; // 두 날짜 차이 계산 (일 단위)
-
-                if ($interval < 15) {
-                    json_return("91", "탈퇴한 회원입니다.");
-                } else {
-                    json_return("90", "회원정보를 찾을수 없습니다.");
-                }
                 exit;
             }
         }
@@ -916,20 +890,22 @@ class Member_proc extends CI_Controller
 
         // 3) 회원이 없으면 탈퇴 회원 확인 또는 휴대폰 중복 체크
         if ($mem_info == null) {
-            // 탈퇴 회원 확인
-            $query = "select * from st_member ";
-            $query .= "where mm_join_type = 'KAKAO' ";
-            $query .= "and   mm_join_key = '" . $kakao_id . "' ";
-            $query .= "and   mm_status = 'N' ";
-            $query .= "order by mm_idx desc limit 1 ";
-
-            $result = $this->db->query($query);
-            $mem_info = $result->row_array();
+            // 15일 이내 탈퇴 회원(N/H)이면 차단, 아니면 신규 회원과 동일하게 가입 흐름
+            $withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => "KAKAO", "join_key" => $kakao_id]);
+            if ($withdrawn != null) {
+                json_return("91", withdrawn_message($withdrawn));
+                exit;
+            }
 
             if ($mem_info == null) {
                 // 휴대폰번호 중복 체크
                 if (!empty($phonenum)) {
                     $duplicate_check = $this->checkDuplicatePhoneForSnsLogin($phonenum);
+                    if (!empty($duplicate_check["is_withdrawn"])) {
+                        // 15일 이내 탈퇴한 번호 → 탈퇴 안내
+                        json_return("91", $duplicate_check["message"]);
+                        exit;
+                    }
                     if ($duplicate_check["is_duplicate"]) {
                         // 중복 회원이 있으면 code 91로 반환
                         json_return("91", $duplicate_check["message"], [
@@ -973,20 +949,6 @@ class Member_proc extends CI_Controller
                     "name" => !empty($name) ? $name : "",
                     "email" => !empty($email) ? $email : ""
                 ]);
-                exit;
-            }
-
-            // 탈퇴 회원 처리
-            if ($mem_info["mm_status"] != "Y") {
-                $fireDate = new DateTime($mem_info["fire_dt"]);
-                $currentDate = new DateTime();
-                $interval = $fireDate->diff($currentDate)->days;
-
-                if ($interval < 15) {
-                    json_return("91", "탈퇴한 회원입니다.");
-                } else {
-                    json_return("90", "회원정보를 찾을수 없습니다.");
-                }
                 exit;
             }
         }
@@ -1103,28 +1065,11 @@ class Member_proc extends CI_Controller
         }
 
         if ($mem_info == null) {
-            // 4) 탈퇴/비활성 회원 여부 확인 (mm_status = 'N')
-            $mm_join_key_for_inactive = ($unionid != "") ? $unionid : $openid;
-
-            $query  = "select * from st_member ";
-            $query .= "where mm_join_type = 'WECHAT' ";
-            $query .= "and   mm_join_key = '" . $mm_join_key_for_inactive . "'  ";
-            $query .= "and   mm_status = 'N'  ";
-            $query .= "order by mm_idx desc limit 1 ";
-
-            $result   = $this->db->query($query);
-            $mem_info = $result->row_array();
-
-            // 탈퇴/비활성도 못 찾으면 openid로 재시도
-            if ($mem_info == null && $unionid != "" && $unionid != $openid) {
-                $query  = "select * from st_member ";
-                $query .= "where mm_join_type = 'WECHAT' ";
-                $query .= "and   mm_join_key = '" . $openid . "'  ";
-                $query .= "and   mm_status = 'N'  ";
-                $query .= "order by mm_idx desc limit 1 ";
-
-                $result   = $this->db->query($query);
-                $mem_info = $result->row_array();
+            // 4) 15일 이내 탈퇴 회원(N/H)이면 차단 (unionid·openid 둘 다 확인), 아니면 신규 회원과 동일하게 가입 흐름
+            $withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => "WECHAT", "join_key" => [$unionid, $openid]]);
+            if ($withdrawn != null) {
+                json_return("91", withdrawn_message($withdrawn));
+                exit;
             }
 
             if ($mem_info == null) {
@@ -1156,20 +1101,6 @@ class Member_proc extends CI_Controller
                     "join_key"  => $unionid,
                     "join_type" => "WECHAT",
                 ]);
-                exit;
-            }
-
-            if ($mem_info["mm_status"] != "Y") {
-                // 6) 탈퇴 회원이면 탈퇴 후 15일 이내 여부에 따라 메시지 분기
-                $fireDate    = new DateTime($mem_info["fire_dt"]);
-                $currentDate = new DateTime();
-                $interval    = $fireDate->diff($currentDate)->days;
-
-                if ($interval < 15) {
-                    json_return("91", "탈퇴한 회원입니다.");
-                } else {
-                    json_return("90", "회원정보를 찾을수 없습니다.");
-                }
                 exit;
             }
         }
@@ -1355,7 +1286,8 @@ class Member_proc extends CI_Controller
     function check_phone()
     {
         $phone = input_post("mm_phone");
-        $mem_info = $this->member_model->getMember(["mm_phone" => $phone]);
+        // 활성 회원만 조회 (탈퇴 회원은 15일간 전화번호를 보관하므로 제외)
+        $mem_info = $this->member_model->getMember(["mm_phone" => $phone, "mm_status" => "Y"]);
 
         if ($mem_info == null) {
             json_return("90", "조회 안됨");
@@ -1506,6 +1438,13 @@ class Member_proc extends CI_Controller
                 "mm_phone" => $mem_info["mm_phone"]
             ]);
         } else {
+            // 15일 이내 탈퇴한 번호 → 재가입 차단 (join_type 없음 → 화면은 문구만 표시)
+            $withdrawn = $this->member_model->findRecentWithdrawn(["phone" => $normalized_phone]);
+            if ($withdrawn != null) {
+                json_return("99", withdrawn_message($withdrawn));
+                return;
+            }
+
             // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
             $count_result = $this->site_model->checkSmsSendCount($phone, "구글가입인증");
 
@@ -1590,6 +1529,12 @@ class Member_proc extends CI_Controller
         $existing_member = $result->row_array();
 
         if ($existing_member == null) {
+            // 15일 이내 탈퇴한 번호 → 가입 안내 대신 탈퇴 안내 (재가입 차단)
+            $withdrawn = $this->member_model->findRecentWithdrawn(["phone" => $normalized_phone]);
+            if ($withdrawn != null) {
+                json_return("91", withdrawn_message($withdrawn));
+                return;
+            }
             json_return("90", "회원가입이 필요합니다.");
             return;
         }
@@ -1728,6 +1673,12 @@ class Member_proc extends CI_Controller
         $mem_info = $result->row_array();
 
         if ($mem_info == null) {
+            // 15일 이내 탈퇴한 번호 → 회원가입 안내 대신 탈퇴 안내 (재가입 차단)
+            $withdrawn = $this->member_model->findRecentWithdrawn(["phone" => $normalized_phone]);
+            if ($withdrawn != null) {
+                json_return("91", withdrawn_message($withdrawn));
+                return;
+            }
             // 미가입 회원 → 회원가입 페이지로 안내
             json_return("90", "회원가입이 필요합니다.", ["phone" => $normalized_phone]);
             return;
@@ -1772,6 +1723,11 @@ class Member_proc extends CI_Controller
 
         // 공용 헬퍼로 중복 체크
         $duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
+        if (!empty($duplicate_check["is_withdrawn"])) {
+            // 15일 이내 탈퇴한 번호 → 탈퇴 안내 (join_type 없음 → 화면은 문구만 표시)
+            json_return("91", $duplicate_check["message"]);
+            return;
+        }
         if ($duplicate_check["is_duplicate"]) {
             // 중복 계정 감지 → code 91 + 구조화 데이터 반환
             json_return("91", $duplicate_check["message"], [
@@ -1820,10 +1776,16 @@ class Member_proc extends CI_Controller
     {
         $phone = input_post("hpno");
 
-        $mem_info = $this->member_model->getMember(["mm_phone" => $phone]);
+        // 활성 회원만 중복으로 본다 (탈퇴 회원은 15일간 전화번호를 보관하므로 별도 확인)
+        $mem_info = $this->member_model->getMember(["mm_phone" => $phone, "mm_status" => "Y"]);
 
         if ($mem_info == null) {
-            //json_return("90","조회 안됨");
+            // 15일 이내 탈퇴한 번호 → 재가입 차단
+            $withdrawn = $this->member_model->findRecentWithdrawn(["phone" => $phone]);
+            if ($withdrawn != null) {
+                json_return("99", withdrawn_message($withdrawn), [""]);
+                return;
+            }
         } else {
             // 가입 경로별 메시지 생성
             $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
@@ -2167,7 +2129,13 @@ class Member_proc extends CI_Controller
             $result = $this->db->query($query);
             $mem_info = $result->row_array();
 
-            if ($mem_info != null && !empty($mem_info)) {
+            // 활성 회원이 없으면 15일 이내 탈퇴한 번호·DI 확인 → 재가입 차단 (이동 처리는 기존 중복과 동일, 문구만 탈퇴 안내)
+            $withdrawn_join = null;
+            if ($mem_info == null) {
+                $withdrawn_join = $this->member_model->findRecentWithdrawn(["phone" => $normalized_phone, "di" => $return["dupinfo"]]);
+            }
+
+            if (($mem_info != null && !empty($mem_info)) || $withdrawn_join != null) {
                 // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로)
                 $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
                 if ($join_type === "WEB") {
@@ -2191,6 +2159,9 @@ class Member_proc extends CI_Controller
                 }
 
                 $alert_msg = $provider_label . $postposition . " 이미 가입된 전화번호 입니다.";
+                if ($withdrawn_join != null) {
+                    $alert_msg = withdrawn_message($withdrawn_join);
+                }
 
                 if ($os_type == "ios") {
                     echo "<script>alert('" . $alert_msg . "');location.href='/member/login';</script>";
@@ -2279,8 +2250,8 @@ class Member_proc extends CI_Controller
                 if ($return["nationalinfo"] == "0") $nationalinfo = "내국인";
                 else $nationalinfo = "외국인";
 
-                // 기 가입 확인 시작 25.02.26
-                $mem_info = $this->member_model->getMember(["mm_phone" => $return["mobileno"]]);
+                // 기 가입 확인 시작 25.02.26 (활성 회원만: 탈퇴 회원은 15일간 전화번호를 보관하므로 제외)
+                $mem_info = $this->member_model->getMember(["mm_phone" => $return["mobileno"], "mm_status" => "Y"]);
                 if ($mem_info == null) {
                     //json_return("90","조회 안됨");
                 } else {
@@ -2494,31 +2465,43 @@ class Member_proc extends CI_Controller
             }
         }
 
-        # 중복확인
-        $mem_info = $this->member_model->getMember(["mm_di" => $return["dupinfo"]]);
+        # 중복확인 (DI 기준)
+        # - 같은 DI의 정상·정지 회원 → 기존 계정 안내(join_error)
+        # - 15일 이내 탈퇴 회원(N/H) → 탈퇴 안내 후 로그인 화면 (기존 30일 로직은 조건이 반대로 되어 있어 교체)
+        # - 15일 지난 탈퇴 회원 → 신규 가입 허용
+        $dupinfo = isset($return["dupinfo"]) ? trim($return["dupinfo"]) : "";
+        $mem_info = null;
+        if ($dupinfo != "") {
+            $mem_info = $this->db->query(
+                "SELECT * FROM st_member WHERE mm_di = ? AND (mm_status = 'Y' OR mm_status LIKE 'S%') ORDER BY mm_idx DESC LIMIT 1",
+                [$dupinfo]
+            )->row_array();
+
+            if (empty($mem_info)) {
+                $mem_info = null;
+                $withdrawn = $this->member_model->findRecentWithdrawn(["di" => $dupinfo]);
+                if ($withdrawn != null) {
+                    $withdrawn_msg = str_replace("'", "\'", withdrawn_message($withdrawn));
+                    if ($os_type == "ios" || $os_type == "android") {
+                        echo "<script>alert('" . $withdrawn_msg . "');location.href='/member/login';</script>";
+                    } else {
+                        echo "<script>alert('" . $withdrawn_msg . "');if(window.opener){opener.location.href='/member/login';self.close();}else{location.href='/member/login';}</script>";
+                    }
+                    exit;
+                }
+            }
+        }
         if ($mem_info != null) {
-            $is_fire = false;
-            if ($mem_info["mm_status"] == "N") {
-                $fire_dt =  substr($mem_info["fire_dt"], 0, 10);
-                $diff_dt = date('Y-m-d', strtotime(date("Y-m-d H:i:s") . " -30 days"));
-
-                if ($fire_dt > $diff_dt) {
-                    $is_fire = true;
-                }
+            $this->common->setSession("AUTH_DI", $return["dupinfo"]);
+            if ($os_type == "ios") {
+                echo "<script>location.href='" . "/member/join_error" . "';</script>";
+            } else if ($os_type == "android") {
+                // 2025-01-17: 안드로이드 앱 전용 처리 - opener 없이 직접 이동 (WebView 보안 정책 문제 해결)
+                echo "<script>location.href='" . "/member/join_error" . "';</script>";
+            } else {
+                echo "<script>opener.location.href='" . "/member/join_error" . "';self.close();</script>";
             }
-
-            if ($mem_info["mm_status"] != "H" && $is_fire == false) {
-                $this->common->setSession("AUTH_DI", $return["dupinfo"]);
-                if ($os_type == "ios") {
-                    echo "<script>location.href='" . "/member/join_error" . "';</script>";
-                } else if ($os_type == "android") {
-                    // 2025-01-17: 안드로이드 앱 전용 처리 - opener 없이 직접 이동 (WebView 보안 정책 문제 해결)
-                    echo "<script>location.href='" . "/member/join_error" . "';</script>";
-                } else {
-                    echo "<script>opener.location.href='" . "/member/join_error" . "';self.close();</script>";
-                }
-                exit;
-            }
+            exit;
         }
 
         $sl_txt = [
@@ -3234,6 +3217,14 @@ class Member_proc extends CI_Controller
                 }
 
                 // DB 저장
+                // 가입 직전 확인: 15일 이내 탈퇴한 전화번호·DI·SNS계정이면 차단, 15일 지난 탈퇴 행은 mm_id/SNS키 충돌 정리
+                $join_check = $this->member_model->prepareJoinIdentity($arr_mem);
+                if ($join_check["code"] != "00") {
+                    $this->db->trans_rollback();
+                    json_return($join_check["code"], $join_check["msg"]);
+                    exit;
+                }
+
                 $result_join = $this->member_model->insertMember($arr_mem);
 
                 // 회원 INSERT 결과 검증
@@ -3331,7 +3322,7 @@ class Member_proc extends CI_Controller
                 $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
 
                 #  정보조회후 로그인처리
-                $mem_info = $this->member_model->getMember(["mm_id" => $arr_mem["mm_id"]]);
+                $mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]); // 방금 가입한 행 (mm_id 중복 행 대비 mm_idx로 조회)
 
                 $this->user->setUser([
                     "mm_idx" => $mem_info["mm_idx"],
@@ -3610,6 +3601,14 @@ class Member_proc extends CI_Controller
                 //json_return("99","TEST MEM8 ".$string);//test
 
                 //exit;
+                // 가입 직전 확인: 15일 이내 탈퇴한 전화번호·DI·SNS계정이면 차단, 15일 지난 탈퇴 행은 mm_id/SNS키 충돌 정리
+                $join_check = $this->member_model->prepareJoinIdentity($arr_mem);
+                if ($join_check["code"] != "00") {
+                    $this->db->trans_rollback();
+                    json_return($join_check["code"], $join_check["msg"]);
+                    exit;
+                }
+
                 $result_join = $this->member_model->insertMember($arr_mem);
                 //json_return("99","TEST : ".implode(", ", $result_join));//test
                 //json_return("99","TEST result: ".$result_join["code"]);//test
@@ -3673,7 +3672,7 @@ class Member_proc extends CI_Controller
                 $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
 
                 # 회원정보 조회
-                $mem_info = $this->member_model->getMember(["mm_id" => $arr_mem["mm_id"]]);
+                $mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]); // 방금 가입한 행 (mm_id 중복 행 대비 mm_idx로 조회)
 
                 $this->user->setUser([
                     "mm_idx" => $mem_info["mm_idx"],
@@ -3892,6 +3891,14 @@ class Member_proc extends CI_Controller
                     $arr_mem["mm_join_key"] = "";
                 }
 
+                // 가입 직전 확인: 15일 이내 탈퇴한 전화번호·DI·SNS계정이면 차단, 15일 지난 탈퇴 행은 mm_id/SNS키 충돌 정리
+                $join_check = $this->member_model->prepareJoinIdentity($arr_mem);
+                if ($join_check["code"] != "00") {
+                    $this->db->trans_rollback();
+                    json_return($join_check["code"], $join_check["msg"]);
+                    exit;
+                }
+
                 $result_join = $this->member_model->insertMember($arr_mem);
 
                 // 회원 INSERT 결과 검증
@@ -3962,7 +3969,7 @@ class Member_proc extends CI_Controller
 
 
                 # 정보조회후 로그인처리
-                $mem_info = $this->member_model->getMember(["mm_id" => $arr_mem["mm_id"]]);
+                $mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]); // 방금 가입한 행 (mm_id 중복 행 대비 mm_idx로 조회)
 
                 $this->user->setUser([
                     "mm_idx" => $mem_info["mm_idx"],
@@ -4226,6 +4233,14 @@ class Member_proc extends CI_Controller
                     $arr_mem["mm_join_key"] = "";
                 }
 
+                // 가입 직전 확인: 15일 이내 탈퇴한 전화번호·DI·SNS계정이면 차단, 15일 지난 탈퇴 행은 mm_id/SNS키 충돌 정리
+                $join_check = $this->member_model->prepareJoinIdentity($arr_mem);
+                if ($join_check["code"] != "00") {
+                    $this->db->trans_rollback();
+                    json_return($join_check["code"], $join_check["msg"]);
+                    exit;
+                }
+
                 $result_join = $this->member_model->insertMember($arr_mem);
 
                 if ($result_join["code"] != "00") {
@@ -4279,7 +4294,7 @@ class Member_proc extends CI_Controller
                 $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
 
                 # 회원정보 조회
-                $mem_info = $this->member_model->getMember(["mm_id" => $arr_mem["mm_id"]]);
+                $mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]); // 방금 가입한 행 (mm_id 중복 행 대비 mm_idx로 조회)
 
                 $this->user->setUser([
                     "mm_idx" => $mem_info["mm_idx"],

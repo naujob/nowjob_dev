@@ -1051,6 +1051,7 @@ window.onload = function() {
           return;
         } else {
           if (ret.code == "91") {
+            hideLoginLoading(); // 탈퇴 안내·중복 팝업 전에 로딩 화면 해제
             // 중복 계정 - 다른 SNS로 이미 가입됨
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
@@ -1113,6 +1114,7 @@ window.onload = function() {
           return;
         } else {
           if (ret.code == "91") {
+            hideLoginLoading(); // 탈퇴 안내·중복 팝업 전에 로딩 화면 해제
             // 중복 계정 - 다른 SNS로 이미 가입됨
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");

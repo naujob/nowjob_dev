@@ -4140,7 +4140,8 @@ class Compage_proc extends CI_Controller
     // 기존아이디로 로그인 하도록 연결하고 이 회원은 로그인 못하도록 처리
     $di_already_msg = "";
     if ($mm_di != "") {
-      $mem_info = $this->member_model->getMember(["mm_di" => $mm_di]);
+      // 활성 회원만 확인 (탈퇴 회원은 재가입 차단용으로 DI를 15일간 보관하므로 제외)
+      $mem_info = $this->member_model->getMember(["mm_di" => $mm_di, "mm_status" => "Y"]);
       if ($mem_info != null && $mem_info["mm_idx"] != $this->mm_idx) {
         if ($mem_info["mm_join_type"] == "KAKAO") {
           $di_already_msg = "이미 본인인증한 회원정보가 존재합니다.\n\n이미 인증한 카카오 아이디로 로그인 해주세요.";
