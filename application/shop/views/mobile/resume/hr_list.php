@@ -11,6 +11,7 @@ $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_resumes = isset($initial_resumes) ? $initial_resumes : [];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
 $today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
+$today_resume_active_count = isset($today_resume_active_count) ? $today_resume_active_count : 0;
 $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
 $initial_reco = isset($initial_reco) ? $initial_reco : [];
 $initial_page = isset($initial_page) ? $initial_page : 1;
@@ -564,7 +565,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       $status_items = [
         ['label' => '', 'value' => date('Y-m-d')],
         ['label' => '전체이력서', 'value' => number_format($initial_total_count) . '개'],
-        ['label' => '오늘등록이력서', 'value' => number_format($today_recruit_count) . '건'],
+        ['label' => '오늘등록이력서', 'value' => number_format($today_resume_active_count) . '건'],
       ];
       $status_items_html = '';
       foreach ($status_items as $item) {

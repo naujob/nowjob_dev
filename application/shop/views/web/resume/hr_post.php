@@ -600,13 +600,30 @@ function fRemoveBigAdrPHP($arg)
   .period-list em {
     display: inline-block;
   }
-  .section.view-profile .inline-group {
-     flex-direction: column;
+  .item-view.person .view-content .summary > .inline-group {
+    align-items: flex-start;
+    gap: 60px;
   }
-    .section.view-profile .inline-group .col .label {
-        line-height: 1.8;
 
-    }
+  .view-career-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 60px;
+    margin-top: 30px;
+  }
+
+  .view-career-row > .col {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .view-career-row .section.view-profile {
+    padding: 0;
+  }
+
+  .view-career-row .info-table .label {
+    line-height: 1.8;
+  }
 </style>
 <div id="content" class="page page-view">
   <main class="page-content">
@@ -732,9 +749,9 @@ function fRemoveBigAdrPHP($arg)
             </div>
 
             <div class="summary">
+                  <h3 class="secondary-title">희망근무조건</h3>
               <div class="inline-group">
                 <div class="col">
-                  <h3 class="secondary-title">희망근무조건</h3>
                   <table class="info-table">
                     <caption><span class="sr-text">희망근무조건</span></caption>
                     <colgroup>
@@ -756,47 +773,6 @@ function fRemoveBigAdrPHP($arg)
                         <td class="label">근무일자</td>
                         <td class="value"><?= (get_date($info["ru_work_dt"])) ?>(<?= get_yoil($info["ru_work_dt"]) ?>)</td>
                       </tr> -->
-                         <tr>
-                        <td class="label">근무지역</td>
-                        <td class="value" id="work-area-addr" data-addrs="<?= htmlspecialchars(json_encode(array_filter(array_column($addr, 'ad_addr'))), ENT_QUOTES, 'UTF-8') ?>">
-                          <?php
-                          // 기존 PHP 함수 주석처리 - add.js의 fRemoveBigAdrJS 함수 사용
-                          /*
-                          $addr_cnt = 0;
-                          $processed_addrs = []; // 처리된 주소를 저장할 배열
-                          foreach ($addr as $key => $ad) :
-                            if ($ad["ad_addr"] != "") {
-                              $processed_addr = fRemoveBigAdrPHP($ad["ad_addr"]);
-                              // 중복 체크: 이미 처리된 주소가 아니면 출력
-                              if (!in_array($processed_addr, $processed_addrs)) {
-                                if ($addr_cnt > 0) echo ", ";
-                                $addr_cnt++;
-                                echo $processed_addr;
-                                $processed_addrs[] = $processed_addr; // 처리된 주소 배열에 추가
-                              }
-                            }
-                          endforeach;
-                          */
-                          ?>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="col">
-                  
-                  <table class="info-table">
-                    <caption><span class="sr-text"></span></caption>
-                    <colgroup>
-                      <col>
-                      <col>
-                    </colgroup>
-                    <tbody>
-                   
-                      <tr>
-                        <td class="label">근무형태</td>
-                        <td class="value"><?= getWorkType2025($info["ru_work_type"]) ?></td>
-                      </tr>
                       <tr>
                         <td class="label">근무요일</td>
                         <td class="value">
@@ -824,11 +800,52 @@ function fRemoveBigAdrPHP($arg)
                     </tbody>
                   </table>
                 </div>
+                <div class="col">
+                  
+                  <table class="info-table">
+                    <caption><span class="sr-text"></span></caption>
+                    <colgroup>
+                      <col>
+                      <col>
+                    </colgroup>
+                    <tbody>
+                   
+                         <tr>
+                        <td class="label">근무지역</td>
+                        <td class="value" id="work-area-addr" data-addrs="<?= htmlspecialchars(json_encode(array_filter(array_column($addr, 'ad_addr'))), ENT_QUOTES, 'UTF-8') ?>">
+                          <?php
+                          // 기존 PHP 함수 주석처리 - add.js의 fRemoveBigAdrJS 함수 사용
+                          /*
+                          $addr_cnt = 0;
+                          $processed_addrs = []; // 처리된 주소를 저장할 배열
+                          foreach ($addr as $key => $ad) :
+                            if ($ad["ad_addr"] != "") {
+                              $processed_addr = fRemoveBigAdrPHP($ad["ad_addr"]);
+                              // 중복 체크: 이미 처리된 주소가 아니면 출력
+                              if (!in_array($processed_addr, $processed_addrs)) {
+                                if ($addr_cnt > 0) echo ", ";
+                                $addr_cnt++;
+                                echo $processed_addr;
+                                $processed_addrs[] = $processed_addr; // 처리된 주소 배열에 추가
+                              }
+                            }
+                          endforeach;
+                          */
+                          ?>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="label">근무형태</td>
+                        <td class="value"><?= getWorkType2025($info["ru_work_type"]) ?></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
 
-          <h3 class="secondary-title" style="margin-top: 30px;">자기소개</h3>
+          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
           <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
             <div class="introduce-wrap">
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
@@ -839,11 +856,10 @@ function fRemoveBigAdrPHP($arg)
           </div>
 
 
-          <h3 class="secondary-title">경력소개</h3>
-          <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-            <div class="summary">
-              <div class="inline-group">
-                <div class="col">
+          <div class="view-career-row">
+            <div class="col">
+              <h3 class="secondary-title">경력소개</h3>
+              <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
                   <table class="info-table">
                     <caption><span class="sr-text">경력소개</span></caption>
                     <colgroup>
@@ -880,9 +896,11 @@ function fRemoveBigAdrPHP($arg)
                       </tr>
                     </tbody>
                   </table>
-                </div>
-                <div class="col">
-                  <h3 class="secondary-title">자격증</h3>
+              </div>
+            </div>
+            <div class="col">
+              <h3 class="secondary-title">자격증</h3>
+              <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
                   <table class="info-table">
                     <caption><span class="sr-text"></span></caption>
                     <colgroup>
@@ -907,7 +925,6 @@ function fRemoveBigAdrPHP($arg)
                       </tr>
                     </tbody>
                   </table>
-                </div>
               </div>
             </div>
           </div>
