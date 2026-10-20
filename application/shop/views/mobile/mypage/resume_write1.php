@@ -2347,12 +2347,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
             saveResumeStep4Data();
 
-            // 기본 강점 6개가 모두 선택되면 자동으로 다음 단계 이동 (직접입력 항목은 개수에서 제외)
+            // 나의강점 6개 선택 시 자동으로 다음 단계 이동 (직접입력 항목 포함, 선택 상한과 동일한 기준)
             autoAdvanceIfComplete(4, function() {
-                var checkedDefault = $("[name='ru_my_type[]']:checked").filter(function() {
-                    return DEFAULT_MY_TYPE_LIST.indexOf(this.value) !== -1;
-                });
-                return checkedDefault.length === DEFAULT_MY_TYPE_LIST.length;
+                return $("[name='ru_my_type[]']:checked").length === 6;
             });
         });
 
@@ -2415,6 +2412,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $newLabel.find(".btn").text(text);
             $newLabel.find(".js-remove-my-type").attr("aria-label", text + " 삭제");
             $(".js-add-strength").before($newLabel);
+
+            // 직접입력은 change 이벤트가 발생하지 않으므로 여기서 6개 선택 시 자동 이동을 호출한다
+            autoAdvanceIfComplete(4, function() {
+                return $("[name='ru_my_type[]']:checked").length === 6;
+            });
 
             var $inputArea = $(this).closest(".strength-input-area");
             $input.val("");

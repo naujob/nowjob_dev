@@ -2152,7 +2152,8 @@
             $("[name='rc_price_possible'][value='" + formData.rc_price_possible + "']").prop("checked", true);
         }
 
-        if (formData.rc_price_amount) {
+        // 급여협의는 금액이 0원으로 고정되므로 임시저장된 금액을 복원하지 않는다
+        if (formData.rc_price_amount && formData.rc_price_type_main !== "급여협의") {
             // 임시저장값은 쉼표 없이 저장되므로 복원 시 다시 포맷
             $("#rc_price_amount").val(formatNumberWithComma(formData.rc_price_amount));
         }
@@ -2598,10 +2599,15 @@
         if (selectedType === "급여협의") {
             $optionsGroup.hide();
             $optionsGroup.find("input[type='radio']").prop("checked", false);
-            $salaryAmountInput.prop("disabled", true);
+            // 급여협의는 금액이 0원으로 고정되므로 금액 칸에 0을 채우고 입력을 막는다
+            $salaryAmountInput.val("0").prop("disabled", true);
             return;
         }
 
+        // 급여협의에서 바꾼 경우 자동으로 채워진 0은 지워서 직접 입력하도록 한다
+        if ($salaryAmountInput.val() === "0") {
+            $salaryAmountInput.val("");
+        }
         $salaryAmountInput.prop("disabled", false);
         $optionsGroup.show();
         $options.hide();
@@ -3756,6 +3762,11 @@
             $guideText.slideDown(300);
 
             savePage3Data();
+
+            // 직접입력으로 추가된 태그도 선택 상한(4개)에 도달하면 자동으로 다음 단계 이동 (change 이벤트가 발생하지 않으므로 여기서 호출)
+            autoAdvanceIfComplete(5, function() {
+                return $("[name='rc_hash[]']:checked").length === 4;
+            });
         });
 
         /* 직접입력으로 추가한 해시태그 삭제: x 버튼으로 태그를 제거하고 저장한다
