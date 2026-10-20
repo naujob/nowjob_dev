@@ -42,7 +42,7 @@
                     <div class="step-section" data-step="1">
                     <!-- 공고제목 섹션 -->
                     <div class="form-row">
-                        <p class="step-question"><span class="step-question-main">어떤일을 담당할<br>직원을 찾으시나요?</span></p>
+                        <p class="step-question"><span class="step-question-main">어떤일을 담당할<br>인재를 찾으시나요?</span></p>
                         <div class="input-field-wrapper">
                             <div class="label-with-counter">
                                 <label class="form-label">공고제목<span class="required-asterisk">*</span></label>
@@ -1527,12 +1527,10 @@
             return false;
         }
     }());
-    // 단계 상단을 화면 위쪽에 둘 때의 여백 (상단바 60px + 진행바 7px 아래로 내림)
-    const STEP_TOP_OFFSET = 100;
+    // 단계 이동 시 topbar(진행바 포함) 아래끝과 새 단계 -field-wrapper 윗면 사이 여백 (아주 살짝 띄움)
+    const STEP_WRAPPER_GAP = 8;
     // 단계 마지막 항목 아래와 고정 푸터 사이 여백
     const STEP_BOTTOM_GAP = 12;
-    // data-scroll="top" 단계에서 쓰는 상단 여백 (질문문구가 넉넉히 보이도록 기본보다 크게)
-    const STEP_TOP_OFFSET_WIDE = 130;
     // 주소 팝업이 닫히고 body overflow가 복원된 뒤 스크롤하기 위한 지연
     const ADDR_SCROLL_DELAY = 150;
     // 자동 이동으로 단계가 열린 뒤 스크롤하기까지의 대기 (키보드가 내려가고 viewport가 안정될 시간, ms)
@@ -1692,13 +1690,10 @@
         }, ADDR_SCROLL_DELAY);
     }
 
-    // 새로 노출된 단계로 스크롤
-    // 기본 동작: 내용이 길면 마지막 -field-wrapper의 아래가 고정 푸터 윗면에 닿도록 내리고,
-    //            짧으면 단계 상단이 화면 위쪽에 오도록 한다.
-    // 단계별로 다르게 하려면 해당 .step-section에 data-scroll 속성을 준다.
-    //   data-scroll="top"    → 항상 단계 상단 기준 (질문문구를 보이게. 예: 복리후생)
-    //   data-scroll="bottom" → 스크롤을 끝까지 내림 (예: 상세업무)
-    // 스크롤 컨테이너는 .page (overflow-y:auto) 이므로 모든 좌표를 .page 기준으로 환산한다.
+    // 새로 노출된 단계로 스크롤 (다음 버튼, 자동 이동 공통)
+    // 새 단계의 첫 -field-wrapper 윗면이 topbar(진행바 포함) 아래끝에서 STEP_WRAPPER_GAP만큼 떨어지도록 맞춘다
+    // 상단 가림 높이는 고정값 대신 실제 요소 위치로 잰다
+    // 스크롤 컨테이너는 .page (overflow-y:auto) 이므로 .page의 scrollTop 기준으로 환산한다
     function scrollToCurrentStep() {
         var $page = $(".page");
         var $section = $(".step-section[data-step='" + currentStep + "']");
@@ -1706,42 +1701,24 @@
             return;
         }
 
-        var mode = $section.attr("data-scroll");
+        var $wrapper = $section.find('[class*="-field-wrapper"]').first();
+        var $target = $wrapper.length ? $wrapper : $section;
 
-        // 끝까지 내리는 단계는 더 계산할 것이 없다
-        if (mode === "bottom") {
-            var maxScroll = $page[0].scrollHeight - $page[0].clientHeight;
-            animateStepScroll($page, maxScroll > 0 ? maxScroll : 0, 120);
-            return;
-        }
+        // 화면 위쪽을 덮는 영역의 아래끝: topbar와 고정 진행바 중 더 아래쪽
+        var coverBottom = $page[0].getBoundingClientRect().top;
+        $(".top-bar, .step-progress-bar").each(function() {
+            var bottom = this.getBoundingClientRect().bottom;
+            if (bottom > coverBottom) {
+                coverBottom = bottom;
+            }
+        });
 
-        var pageTop = $page[0].getBoundingClientRect().top;
-        var curScroll = $page.scrollTop();
-        var footerTop = getFooterTop();
+        var targetTop = $target[0].getBoundingClientRect().top;
+        var scrollTop = $page.scrollTop() + (targetTop - coverBottom) - STEP_WRAPPER_GAP;
 
-        // (1) 단계 상단을 화면 위쪽에 두는 스크롤 위치
-        var sectionTop = $section[0].getBoundingClientRect().top;
-        var topOffset = (mode === "top") ? STEP_TOP_OFFSET_WIDE : STEP_TOP_OFFSET;
-        var scrollShowTop = curScroll + (sectionTop - pageTop) - topOffset;
-
-        var scrollTop;
-        if (mode === "top") {
-            // 질문문구가 가리지 않도록 상단 기준만 사용한다
-            scrollTop = scrollShowTop;
-        } else {
-            // (2) 단계의 마지막 항목 wrapper 아래가 푸터 윗면에 닿는 스크롤 위치
-            var $lastWrapper = $section.find('[class*="-field-wrapper"]').last();
-            var $target = $lastWrapper.length ? $lastWrapper : $section;
-            var targetBottom = $target[0].getBoundingClientRect().bottom;
-            var scrollShowBottom = curScroll + (targetBottom - footerTop) + STEP_BOTTOM_GAP;
-
-            // 둘 중 더 많이 내려간 쪽을 택해 항목 아래쪽이 반드시 보이도록 한다
-            scrollTop = Math.max(scrollShowTop, scrollShowBottom);
-        }
-
-        if (scrollTop < 0) {
-            scrollTop = 0;
-        }
+        // 스크롤 범위 제한 (내용이 짧아 끝까지 못 올리는 경우는 최대 스크롤까지만)
+        var maxScroll = $page[0].scrollHeight - $page[0].clientHeight;
+        scrollTop = Math.max(0, Math.min(scrollTop, maxScroll));
 
         animateStepScroll($page, scrollTop, 120);
     }
@@ -3395,8 +3372,6 @@
         $("[name='rc_work_type[]']").on("change", function() {
             updateTimeSection();
             savePage1Data();
-            // 근무시간 섹션이 새로 펼쳐져 높이가 커지면 그만큼 스크롤을 내려 보이게 한다
-            scrollElementAboveFooter($("#time_cont1, #time_cont2").filter(":visible").last());
         });
 
         // 근무시간 입력 변경 시 저장
@@ -3418,8 +3393,6 @@
 
             updateTimeSection();
             savePage1Data();
-            // 근무협의로 근무형태가 한번에 켜질 때도 동일하게 스크롤을 맞춘다
-            scrollElementAboveFooter($("#time_cont1, #time_cont2").filter(":visible").last());
         });
 
         // 숨김(1px/투명) 체크박스가 포커스를 받으면 WebView가 화면을 자동 스크롤하므로 포커스를 바로 해제

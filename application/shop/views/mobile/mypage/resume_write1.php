@@ -209,6 +209,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-left: 2px;
     }
 
+    /* 페이지 맨 아래 여백: 고정 푸터(약 6rem)보다 충분히 크게 둔다
+       새로 열린 단계는 항상 페이지 끝이라 스크롤이 끝에서 멈추는데,
+       main.css 기본값(5.5rem)으로는 푸터와 차이가 작아 마지막 -field-wrapper 아랫면이 푸터에 살짝 가렸다 */
+    .page-resume-write .page-content {
+        padding-bottom: 6rem;
+    }
+
     /* 단계 이동 푸터: main.css 의 .page-resume-write .sticky-bottom.view-footer
        (position:relative; bottom:-83px; left:-9px; width:104%) 보다 선택자 우선순위가
        높아야 하므로 .section.addition-info-form 을 포함해 지정하고 관련 속성을 모두 재선언 */
@@ -1850,9 +1857,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     var currentStep = 1;
     var REQUIRED_STEPS = 8; // 필수 구간의 마지막 단계
     var MAX_STEPS = 9; // 상세등록 포함 전체 단계 (9단계 = 희망요일/경력/자격증)
-    var STEP_TOP_OFFSET = 100; // 상단바 58 + 진행바 7 + 여유
-    var STEP_TOP_OFFSET_WIDE = 130; // data-scroll="top" 단계용
-    var STEP_BOTTOM_GAP = 12;
+    // 단계 이동 시 topbar(진행바 포함) 아래끝과 새 단계 -field-wrapper 윗면 사이 여백 (아주 살짝 띄움)
+    var STEP_WRAPPER_GAP = 8;
 
     // 상세등록 구간이 열려 있는지 (단일 진실원천)
     function isDetailOpen() {
@@ -1874,15 +1880,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             progress = 100;
         }
         $("#stepProgressFill").css("width", progress + "%");
-    }
-
-    // 고정 푸터 상단 좌표 (스크롤 컨테이너는 .page)
-    function getFooterTop() {
-        var $footer = $(".sticky-bottom.view-footer");
-        if ($footer.length === 0) {
-            return $(window).height();
-        }
-        return $footer[0].getBoundingClientRect().top;
     }
 
     // 단계 이동 스크롤 종료 처리 (scrollend 이벤트 또는 대기 시간 중 먼저 오는 쪽)
@@ -1915,7 +1912,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         pageEl.scrollTo({ top: target, behavior: 'smooth' });
     }
 
-    // 현재 단계가 푸터에 가리지 않도록 스크롤
+    // 새로 노출된 단계로 스크롤 (다음 버튼, 자동 이동 공통)
+    // 새 단계의 첫 -field-wrapper 윗면이 topbar(진행바 포함) 아래끝에서 STEP_WRAPPER_GAP만큼 떨어지도록 맞춘다
+    // 상단 가림 높이는 고정값 대신 실제 요소 위치로 잰다 (공고 등록 recruit_write1_1.php와 같은 규칙)
     function scrollToCurrentStep() {
         var $page = $(".page");
         if ($page.length === 0) {
@@ -1927,37 +1926,25 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
 
         var pageEl = $page[0];
-        var pageTop = pageEl.getBoundingClientRect().top;
-        var scrollMode = $section.attr("data-scroll") || "";
-        var sectionTop = $section[0].getBoundingClientRect().top;
+        var $wrapper = $section.find('[class*="-field-wrapper"]').first();
+        var $target = $wrapper.length ? $wrapper : $section;
 
-        // 질문 문구가 상단바 아래에 오도록 하는 목표 위치
-        var topOffset = (scrollMode === "top") ? STEP_TOP_OFFSET_WIDE : STEP_TOP_OFFSET;
-        var targetByTop = pageEl.scrollTop + (sectionTop - pageTop) - topOffset;
-
-        if (scrollMode === "top") {
-            if (targetByTop < 0) {
-                targetByTop = 0;
+        // 화면 위쪽을 덮는 영역의 아래끝: topbar와 고정 진행바 중 더 아래쪽
+        var coverBottom = pageEl.getBoundingClientRect().top;
+        $(".top-bar, .step-progress-bar").each(function() {
+            var bottom = this.getBoundingClientRect().bottom;
+            if (bottom > coverBottom) {
+                coverBottom = bottom;
             }
-            animatePageScroll(targetByTop);
-            return;
-        }
+        });
 
-        // 마지막 입력 항목이 푸터 위에 보이도록 하는 목표 위치
-        var $wrapper = $section.find('[class*="-field-wrapper"]').last();
-        var targetByBottom = targetByTop;
-        if ($wrapper.length > 0) {
-            var wrapRect = $wrapper[0].getBoundingClientRect();
-            var overflow = (wrapRect.bottom + STEP_BOTTOM_GAP) - getFooterTop();
-            if (overflow > 0) {
-                targetByBottom = pageEl.scrollTop + overflow;
-            }
-        }
+        var targetTop = $target[0].getBoundingClientRect().top;
+        var target = pageEl.scrollTop + (targetTop - coverBottom) - STEP_WRAPPER_GAP;
 
-        var target = (scrollMode === "bottom") ? targetByBottom : Math.max(targetByTop, targetByBottom);
-        if (target < 0) {
-            target = 0;
-        }
+        // 스크롤 범위 제한 (내용이 짧아 끝까지 못 올리는 경우는 최대 스크롤까지만)
+        var maxScroll = pageEl.scrollHeight - pageEl.clientHeight;
+        target = Math.max(0, Math.min(target, maxScroll));
+
         animatePageScroll(target);
     }
 
