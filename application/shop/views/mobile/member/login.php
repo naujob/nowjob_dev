@@ -1660,6 +1660,12 @@ window.onload = function() {
       return;
     }
 
+    requestPhoneLoginSms(phone);
+  }
+
+  // 휴대폰번호 로그인 SMS 발송 → 인증 페이지 이동 (입력란 로그인, 중복 계정 팝업 인증에서 공통 사용)
+  function requestPhoneLoginSms(phone) {
+    phone = String(phone || "").replace(/[^0-9]/g, "");
     // 서버에서 전화번호 존재 여부 확인 및 SMS 발송
     var params = { mm_phone: phone };
     comAjax("/member_proc/check_phone_login", params, function(ret) {
@@ -1739,6 +1745,9 @@ window.onload = function() {
             // NOTE: 향후 다중 기기 지원 시 sessionStorage에 저장하는 로직 추가 예정
             sessionStorage.removeItem("chat_user_connect");
             _replace("/");
+          } else if (ret.code == "80") {
+            // 본인 확인이 안 된 번호 → 휴대폰 문자 인증 로그인으로 이동
+            requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
           } else {
             commonAlert(ret.msg || "로그인에 실패했습니다.", function() {});
           }

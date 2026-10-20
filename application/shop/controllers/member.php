@@ -209,6 +209,8 @@ class Member extends CI_Controller
 				if (!empty($phonenum)) {
 					$duplicate_check = checkDuplicatePhoneForSns($phonenum);
 					if ($duplicate_check["is_duplicate"]) {
+						// 카카오 서버가 준 번호 → 본인 번호로 확인됨 (중복 팝업에서 인증 없이 자동 로그인 허용)
+						set_verified_phone($phonenum, "KAKAO_OAUTH");
 						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
 								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
@@ -563,6 +565,8 @@ class Member extends CI_Controller
 					$normalized_phone = preg_replace('/[^0-9]/', '', $phonenum);
 					$duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
 					if ($duplicate_check["is_duplicate"]) {
+						// 네이버 서버가 준 번호 → 본인 번호로 확인됨 (중복 팝업에서 인증 없이 자동 로그인 허용)
+						set_verified_phone($normalized_phone, "NAVER_OAUTH");
 						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
 								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");

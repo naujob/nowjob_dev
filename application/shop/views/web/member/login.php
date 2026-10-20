@@ -539,6 +539,12 @@
             return;
         }
 
+        requestPhoneLoginSms(phone);
+    }
+
+    // 휴대폰번호 로그인 SMS 발송 → 인증 페이지 이동 (입력란 로그인, 중복 계정 팝업 인증에서 공통 사용)
+    function requestPhoneLoginSms(phone) {
+        phone = String(phone || "").replace(/[^0-9]/g, "");
         var params = { mm_phone: phone };
         comAjax("/member_proc/check_phone_login", params, function(ret) {
             if (ret.code == "00") {
@@ -673,6 +679,9 @@
                         if (ret.code == '00') {
                             sessionStorage.removeItem('chat_user_connect');
                             location.href = '/';
+                        } else if (ret.code == '80') {
+                            // 본인 확인이 안 된 번호 → 휴대폰 문자 인증 로그인으로 이동
+                            requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
                         } else {
                             commonAlert(ret.msg || '로그인 실패', function() {});
                         }

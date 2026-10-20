@@ -1483,6 +1483,47 @@ function checkDuplicatePhoneForSns($phone)
 }
 
 /**
+ * 서버가 본인 번호로 확인한 전화번호를 세션에 기록 (중복 계정 팝업의 자동 로그인 허용용, 10분)
+ * - 기록하는 곳: 카카오·네이버 서버 OAuth 콜백(제공자 API가 준 번호), 문자 인증 성공
+ * - 클라이언트가 보낸 번호(앱 SNS 로그인 POST, 사용자가 입력한 번호)는 기록하지 않는다
+ * @param string $phone  전화번호 (형식 무관, 숫자만 저장)
+ * @param string $source 확인 출처 (KAKAO_OAUTH, NAVER_OAUTH, SMS 등, 로그용)
+ */
+function set_verified_phone($phone, $source)
+{
+	$CI = &get_instance();
+	$normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+	if ($normalized_phone == "") {
+		return;
+	}
+	$CI->common->setSession("VERIFIED_PHONE", [
+		"phone" => $normalized_phone,
+		"source" => $source,
+		"expire" => time() + 600,
+	]);
+}
+
+/**
+ * 세션의 확인된 전화번호와 일치하고 만료 전이면 true (사용 즉시 삭제, 1회용)
+ * @param string $phone 전화번호 (형식 무관)
+ * @return bool
+ */
+function consume_verified_phone($phone)
+{
+	$CI = &get_instance();
+	$normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+	$verified = $CI->common->getSession("VERIFIED_PHONE");
+	if ($normalized_phone == "" || !is_array($verified) || !isset($verified["phone"], $verified["expire"])) {
+		return false;
+	}
+	if ($verified["phone"] !== $normalized_phone || (int)$verified["expire"] < time()) {
+		return false;
+	}
+	$CI->common->removeSession("VERIFIED_PHONE");
+	return true;
+}
+
+/**
  * 주소에서 시/도 부분을 제거 또는 축약하는 함수
  * JavaScript의 fRemoveBigAdrJS와 동일한 로직 (PHP 버전)
  */

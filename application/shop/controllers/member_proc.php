@@ -507,6 +507,8 @@ class Member_proc extends CI_Controller
 
     // 휴대폰 번호로 자동 로그인 (중복 SNS 계정 발견 시 사용)
     // mm_join_type POST 파라미터 추가: SNS 타입도 로그인 가능 (KAKAO, NAVER, WECHAT 등)
+    // 보안: 서버가 본인 번호로 확인한 경우(카카오·네이버 서버 콜백, 문자 인증 완료)에만 인증 없이 로그인.
+    //       그 외(사용자가 입력한 번호, 앱이 보낸 번호)는 "80" 반환 → 화면에서 휴대폰 문자 인증 로그인으로 이동
     function phone_auto_login()
     {
         $mm_phone = input_post("mm_phone", "");
@@ -517,8 +519,16 @@ class Member_proc extends CI_Controller
             exit;
         }
 
-        // 전화번호로 기존 회원 조회 (활성 회원만)
         $normalized_phone = preg_replace('/[^0-9]/', '', $mm_phone);
+
+        // 확인되지 않은 번호 → 문자 인증 필요
+        if (!consume_verified_phone($normalized_phone)) {
+            error_log("[phone_auto_login] 미확인 번호 → 문자 인증 요구 IP=" . $this->input->ip_address());
+            json_return("80", "본인 확인을 위해 인증번호를 발송합니다.", ["phone" => $normalized_phone]);
+            exit;
+        }
+
+        // 전화번호로 기존 회원 조회 (활성 회원만)
         $query = "SELECT * FROM st_member
                   WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
                   AND mm_status = 'Y'";
@@ -1523,6 +1533,11 @@ class Member_proc extends CI_Controller
 
         $check = $this->site_model->checkSmsAuth($phone, $auth);
 
+        // 문자 인증 성공 → 본인 번호로 확인됨 (이후 중복 팝업에서 인증 없이 자동 로그인 허용)
+        if ($check["code"] == "00" && $auth != "") {
+            set_verified_phone($phone, "SMS");
+        }
+
         json_return($check["code"], $check["msg"]);
     }
 
@@ -1791,6 +1806,11 @@ class Member_proc extends CI_Controller
         $auth  = input_post("auth");
 
         $check = $this->site_model->checkSmsAuth($phone, $auth);
+
+        // 문자 인증 성공 → 본인 번호로 확인됨 (이후 중복 팝업에서 인증 없이 자동 로그인 허용)
+        if ($check["code"] == "00" && $auth != "") {
+            set_verified_phone($phone, "SMS");
+        }
 
         json_return($check["code"], $check["msg"]);
     }
