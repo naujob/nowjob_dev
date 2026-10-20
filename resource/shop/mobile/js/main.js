@@ -1133,7 +1133,8 @@
         var textareaFocusAt = 0; // 입력란에 포커스가 생긴 시각 (키보드 전환 중 판정을 막는 데 사용)
 
 
-        // scroll-margin-top 설정: .top-bar 높이 + 여유 여백(12px)
+        // 고정 영역 회피 설정: .top-bar 높이 + 여유 여백(12px)
+        // (상세업무 contenteditable 에디터는 js-autoheight를 쓰지 않고 페이지 자체 스크립트의 revealDescCaret으로 처리한다)
         function setupScrollMarginTop() {
             var topBar = document.querySelector('.top-bar');
             var topBarHeight = topBar ? topBar.offsetHeight : 0;
@@ -1167,108 +1168,6 @@
             }
 
             return bottom;
-        }
-
-        // contenteditable 전용: 현재 캐럿(선택 영역)의 실제 화면 좌표를 반환한다
-        // 빈 에디터, <br> 직후 빈 줄처럼 글자 상자가 없어 좌표가 0이면 null을 반환한다 (추정하지 않음)
-        function getCaretRect(el) {
-            if (!el.isContentEditable || !window.getSelection) return null;
-            var sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0) return null;
-            var range = sel.getRangeAt(0);
-            if (!el.contains(range.startContainer)) return null;
-
-            // 줄바꿈이 있는 range는 마지막 rect가 캐럿이 있는 줄이다
-            var rects = range.getClientRects();
-            var rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
-            if (rect && rect.height > 0) return rect;
-
-            // <br> 뒤 빈 줄처럼 캐럿 자체의 rect가 0이면, 캐럿 뒤에 있는 첫 글자의 위치를 빌려 쓴다
-            return getNextCharRect(el, range);
-        }
-
-        // 캐럿 뒤에 있는 첫 글자(공백 아님)의 화면 좌표를 반환한다. 없으면 null
-        // 글 중간의 빈 줄에서 캐럿 좌표를 구할 때 사용한다 (글 끝은 getEndCaretRect가 처리)
-        function getNextCharRect(el, range) {
-            var after = document.createRange();
-            after.setStart(range.startContainer, range.startOffset);
-            after.setEnd(el, el.childNodes.length);
-
-            var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-            var textNode;
-            while ((textNode = walker.nextNode())) {
-                if (!/\S/.test(textNode.nodeValue) || !after.intersectsNode(textNode)) continue;
-
-                // 캐럿이 이 텍스트 노드 안에 있으면 캐럿 오프셋부터 글자를 고른다
-                var idx = (textNode === range.startContainer) ? range.startOffset : 0;
-                while (idx < textNode.nodeValue.length && !/\S/.test(textNode.nodeValue.charAt(idx))) idx++;
-                if (idx >= textNode.nodeValue.length) continue;
-
-                var charRange = document.createRange();
-                charRange.setStart(textNode, idx);
-                charRange.setEnd(textNode, idx + 1);
-                var charRect = charRange.getBoundingClientRect();
-                if (charRect && charRect.height > 0) return charRect;
-            }
-            return null;
-        }
-
-        // 캐럿 실제 좌표를 못 구할 때 쓰는 보조 좌표 (글 맨 끝에서 입력하는 경우에만)
-        // 캐럿이 글 중간이면 null을 반환해 호출부가 움직이지 않도록 한다
-        function getEndCaretRect(el) {
-            var sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) return null;
-            var range = sel.getRangeAt(0);
-            if (!el.contains(range.startContainer)) return null;
-
-            // 캐럿 뒤에 공백이 아닌 글자가 있으면 글 중간이므로 추정하지 않는다
-            // (빈 에디터에 섞인 공백 텍스트 노드는 빈 것으로 본다)
-            var after = document.createRange();
-            after.setStart(range.endContainer, range.endOffset);
-            after.setEnd(el, el.childNodes.length);
-            if (/\S/.test(after.cloneContents().textContent || '')) return null;
-
-            var style = window.getComputedStyle(el);
-            var lineH = parseFloat(style.lineHeight) || (parseFloat(style.fontSize) * 1.5);
-            var elRect = el.getBoundingClientRect();
-            // 내용 영역의 맨 윗줄 위치 (테두리와 위쪽 여백 이후)
-            var contentTop = elRect.top + el.clientTop + (parseFloat(style.paddingTop) || 0);
-
-            // 공백이 아닌 글자 중 가장 아래에 있는 줄의 아래쪽과 여부를 구한다
-            var hasText = false;
-            var lastTextBottom = contentTop;
-            var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-            var textNode;
-            while ((textNode = walker.nextNode())) {
-                if (!/\S/.test(textNode.nodeValue)) continue;
-                var textRange = document.createRange();
-                textRange.selectNodeContents(textNode);
-                var textRects = textRange.getClientRects();
-                for (var i = 0; i < textRects.length; i++) {
-                    if (textRects[i].height > 0 && textRects[i].bottom > lastTextBottom) lastTextBottom = textRects[i].bottom;
-                }
-                hasText = true;
-            }
-
-            // 글 끝에 이어진 <br> 개수 (사이의 공백 텍스트는 무시)
-            var brCount = 0;
-            for (var n = el.childNodes.length - 1; n >= 0; n--) {
-                var child = el.childNodes[n];
-                if (child.nodeType === 3 && !/\S/.test(child.nodeValue)) continue;
-                if (child.nodeName !== 'BR') break;
-                brCount++;
-            }
-
-            // 캐럿이 놓인 줄의 윗부분 계산
-            // 글이 있으면: 마지막 글 줄 기준 + <br> 개수만큼 아래
-            // 글이 없으면: 맨 윗줄 기준 + (<br> 개수 - 1)줄 아래 (빈 에디터의 자동 <br> 한 개는 줄바꿈이 아님)
-            var caretTop;
-            if (hasText) {
-                caretTop = (lastTextBottom - lineH) + brCount * lineH;
-            } else {
-                caretTop = contentTop + Math.max(0, brCount - 1) * lineH;
-            }
-            return { top: caretTop, bottom: caretTop + lineH, left: elRect.left, right: elRect.right, height: lineH };
         }
 
         // textarea 전용: 캐럿의 화면 좌표를 미러 div로 측정한다
@@ -1312,37 +1211,11 @@
             }
         }
 
-        // 고정 푸터/키보드에 textarea 또는 contenteditable 캐럿이 가려졌을 때만 .page를 스크롤해서 화면에 보이게 한다
-        // textarea는 요소 전체 기준, contenteditable은 캐럿 기준으로 판정한다
+        // 고정 푸터/키보드에 textarea 캐럿이 가려졌을 때만 .page를 스크롤해서 화면에 보이게 한다
         // blockValue: 'start' (포커스 시) 또는 'end' (입력으로 높이가 늘어난 경우)
         // 박스 전체 기준 보정(data-keep-box-visible)을 쓰는 칸인지 확인한다 (자기소개 등)
         function isKeepBoxEl(el) {
             return !!(el && el.classList && el.classList.contains('js-autoheight') && el.getAttribute('data-keep-box-visible') === 'true');
-        }
-
-        // 키보드가 올라오기 전(포커스 순간)에 contenteditable 박스 상단을 topbar 아래로 맞춘다
-        // 박스가 키보드 위 영역에 들어갈 만큼 작을 때만 맞춘다. 그래야 키보드가 열린 뒤 네이티브가 박스를 맨 위로 다시 밀지 않는다
-        // 자기 자신이 만든 스크롤이므로 programmaticScrollTop으로 표시해 사용자 스크롤과 구분한다
-        function alignEditorTopBeforeKeyboard(el) {
-            var KEYBOARD_VISIBLE_MAX = 340; // 키보드가 열린 상태에서 보이는 영역 높이(약 350px)보다 작게 잡은 값
-            var page = el.closest('.page');
-            var topBar = document.querySelector('.top-bar');
-            if (!page || !topBar) return;
-
-            var boxRect = el.getBoundingClientRect();
-            if (boxRect.height > KEYBOARD_VISIBLE_MAX) return;
-
-            var pageRect = page.getBoundingClientRect();
-            var visibleTop = Math.max(pageRect.top, topBar.getBoundingClientRect().bottom + 12);
-            var delta = boxRect.top - visibleTop;
-            if (Math.abs(delta) < 2) return;
-
-            var newScrollTop = page.scrollTop + delta;
-            newScrollTop = Math.max(0, Math.min(newScrollTop, page.scrollHeight - page.clientHeight));
-            page.style.scrollBehavior = 'auto';
-            page.scrollTop = newScrollTop;
-            programmaticScrollTop = page.scrollTop;
-            page.style.scrollBehavior = '';
         }
 
         // 키보드/뷰포트가 바뀐 마지막 시각 (settleKeepBoxJudge 가 안정 여부를 판단할 때 사용)
@@ -1378,10 +1251,12 @@
         }
 
         // retryCount: 단계 이동 스크롤 중이라 보류된 횟수 (최대 10회, 120ms 간격)
-        function scrollTextareaIntoView(el, blockValue, retryCount) {
+        // delayMs: 판정을 실행하기까지의 대기 시간 (기본 120ms, 글자 입력은 0ms로 즉시 판정)
+        function scrollTextareaIntoView(el, blockValue, retryCount, delayMs) {
             if (!el || !el.classList || !el.classList.contains('js-autoheight')) return;
             blockValue = blockValue || 'start';
             retryCount = retryCount || 0;
+            if (delayMs === undefined) delayMs = 120;
             if (scrollFollowTimer) clearTimeout(scrollFollowTimer);
             scrollFollowTimer = setTimeout(function () {
                 var page = el.closest('.page');
@@ -1395,28 +1270,17 @@
                 }
 
                 var pageRect = page.getBoundingClientRect();
-                // contenteditable은 캐럿 좌표를 알 때만 판정한다. 모르면 추정하지 않고 움직이지 않는다
-                // textarea는 캐럿 기준이 기본이고, data-keep-box-visible 이면 박스 전체 기준으로 판정한다
-                var caretRect = null;
-                var rect;
+                // 캐럿 줄 기준이 기본이고, data-keep-box-visible 이면 박스 전체 기준으로 판정한다
                 // 캐럿 좌표를 실제로 쟀는지 여부 (요소 전체 좌표로 폴백했으면 false)
                 var caretMeasured = true;
                 // 박스 전체를 푸터 위에 보이게 할지 (자기소개 등). 보이는 영역보다 크면 아래에서 캐럿 기준으로 되돌린다
-                var keepBox = !el.isContentEditable && el.getAttribute('data-keep-box-visible') === 'true';
+                var keepBox = el.getAttribute('data-keep-box-visible') === 'true';
                 var boxRect = el.getBoundingClientRect();
-                if (el.isContentEditable) {
-                    caretRect = getCaretRect(el) || getEndCaretRect(el);
-                    // 캐럿 좌표를 못 구해도 박스 기준(keepBox)이면 박스로 판정을 이어간다 (빈 에디터 첫 터치)
-                    if (!caretRect && !keepBox) return;
-                    caretMeasured = !!caretRect;
-                    rect = caretRect || boxRect;
-                } else {
-                    // textarea도 캐럿 줄 기준으로 판정한다. 측정이 안 되면 요소 전체 좌표를 쓴다
-                    rect = getTextareaCaretRect(el);
-                    if (!rect) {
-                        caretMeasured = false;
-                        rect = el.getBoundingClientRect();
-                    }
+                // 측정이 안 되면 요소 전체 좌표를 쓴다
+                var rect = getTextareaCaretRect(el);
+                if (!rect) {
+                    caretMeasured = false;
+                    rect = boxRect;
                 }
                 var gap = 12; // 가림 판정 여유 (px)
 
@@ -1466,13 +1330,13 @@
                 page.scrollTop = newScrollTop;
                 programmaticScrollTop = page.scrollTop;
                 page.style.scrollBehavior = '';
-            }, 120);
+            }, delayMs);
         }
 
         // 높이 자동 조절
         // 글자 입력(input)마다 한 번만 높이를 맞추고 판정한다
         // keydown은 글자가 아직 들어가기 전이라 캐럿 위치가 틀리므로 쓰지 않는다
-        // textarea/contenteditable 높이를 내용에 맞게 다시 계산하고, 높이 변화 방향('end'=증가, 'start'=감소)을 반환한다
+        // textarea 높이를 내용에 맞게 다시 계산하고, 높이 변화 방향('end'=증가, 'start'=감소)을 반환한다
         function fitTextareaHeight(target) {
             // 높이를 1px로 줄였다 다시 늘리는 동안 페이지 전체 높이가 잠깐 줄어 스크롤이 0 근처로 눌린다
             // 그래서 원래 스크롤 위치를 저장해 두었다가 높이 계산이 끝난 뒤 되돌린다
@@ -1495,12 +1359,16 @@
             return (newHeight > prevHeight) ? 'end' : 'start';
         }
 
+        // 마지막 글자 입력 시각 (입력 직후 발생하는 selectionchange가 안정 대기를 중복으로 걸지 않도록 사용)
+        var lastInputAt = 0;
         window.addEventListener('input', function (e) {
             var target = e.target;
             if (!target.classList || !target.classList.contains('js-autoheight')) return;
 
+            lastInputAt = Date.now();
+            // 입력은 키보드 전환과 무관하므로 대기 없이 높이 계산 직후 바로 판정한다
             var blockValue = fitTextareaHeight(target);
-            scrollTextareaIntoView(target, blockValue);
+            scrollTextareaIntoView(target, blockValue, 0, 0);
         });
 
         // 포커스 시: 임시 여백 추가 + 캐럿 위치 보정
@@ -1515,15 +1383,10 @@
                     pageContent.style.paddingBottom = '50vh';
                 }
                 // 포커스 직후에는 키보드가 올라오는 중이라 visualViewport 높이가 순간적으로 틀리다(예: 153).
-                // 이때 판정하면 필요 이상으로 내려가므로, 즉시 판정은 하지 않고 키보드가 안정된 뒤(400/800ms)에만 판정한다
+                // 이때 판정하면 필요 이상으로 내려가므로, 즉시 판정은 하지 않고 키보드가 안정된 뒤에만 판정한다
                 textareaFocusAt = Date.now();
-                if (e.target.isContentEditable) {
-                    alignEditorTopBeforeKeyboard(e.target);
-                }
                 var settledTarget = e.target;
-                // contenteditable(상세업무 등)도 키보드 전환이 끝난 뒤 한 번만 판정한다
-                // 고정 400/800ms 판정은 visualViewport가 아직 틀린 순간에 실행되어 필요 이상으로 내려간다
-                if (isKeepBoxEl(settledTarget) || settledTarget.isContentEditable) {
+                if (isKeepBoxEl(settledTarget)) {
                     settleKeepBoxJudge(settledTarget);
                 } else {
                     [400, 800].forEach(function (ms) {
@@ -1550,9 +1413,11 @@
         // visualViewport(iOS)와 window resize(Android adjustResize)를 모두 처리
         function onViewportResize(e) {
             lastViewportChangeAt = Date.now();
+            // 키보드·푸터 높이가 바뀌었을 수 있으므로 고정 영역 회피 값을 다시 맞춘다
+            setupScrollMarginTop();
             var active = document.activeElement;
             if (active && active.classList && active.classList.contains('js-autoheight')) {
-                if (isKeepBoxEl(active) || active.isContentEditable) {
+                if (isKeepBoxEl(active)) {
                     settleKeepBoxJudge(active);
                     return;
                 }
@@ -1564,8 +1429,8 @@
         }
         window.addEventListener('resize', onViewportResize);
 
-        // contenteditable에서 캐럿만 움직인 경우(탭, 화살표 키 등)도 캐럿 기준으로 다시 판정
-        // 입력 이벤트가 없으므로 selectionchange를 쓰며, 포커스된 contenteditable일 때만 동작한다
+        // textarea에서 캐럿만 움직인 경우(탭, 화살표 키 등)도 캐럿 기준으로 다시 판정
+        // 입력 이벤트가 없으므로 selectionchange를 쓰며, 포커스된 js-autoheight textarea일 때만 동작한다
         // 캐럿을 옮기면 브라우저가 캐럿을 따라 스크롤하는데 이 동작은 비동기라, 바로 판정하면 그 뒤에 다시 가려질 수 있다
         // 그래서 움직임이 멈춘 뒤 한 번 더 판정한다
         // 사용자가 손가락으로 스크롤하는 중에는 캐럿 기준 판정을 하지 않는다
@@ -1581,20 +1446,12 @@
         function followCaret(src) {
             var active = document.activeElement;
             if (!active || !active.classList || !active.classList.contains('js-autoheight')) return;
-            if (!active.isContentEditable && active.tagName !== 'TEXTAREA') return;
+            if (active.tagName !== 'TEXTAREA') return;
             // 키보드가 올라오는 중(포커스 후 400ms)에는 캐럿 이동 판정을 하지 않는다 (400ms 재판정에서 처리)
             if (Date.now() - textareaFocusAt < 400) return;
-            // Enter 등 JS로 내용을 바꾼 경우 input 이벤트가 없어 높이가 갱신되지 않으므로, 넘치면 캐럿 이동 시점에 맞춘다
-            // scrollHeight가 clientHeight보다 클 때만 계산하므로 캐럿 이동마다 리플로우가 나지 않는다
-            if (active.isContentEditable && active.scrollHeight > active.clientHeight) {
-                fitTextareaHeight(active);
-            }
-            // contenteditable은 키보드 전환과 네이티브 캐럿 스크롤이 가라앉은 뒤에만 판정한다
-            // 즉시 판정하면 틀린 visualViewport로 과하게 움직인 뒤 네이티브 스크롤이 되돌려 튕긴다
-            if (active.isContentEditable) {
-                settleKeepBoxJudge(active);
-                return;
-            }
+            // 글자 입력 직후의 selectionchange는 input 핸들러가 이미 즉시 판정했으므로 여기서 건너뛴다
+            // 다시 안정 대기(settle)를 걸면 타이핑할 때마다 400ms 이상 늦게 따라간다
+            if (Date.now() - lastInputAt < 300) return;
             scrollTextareaIntoView(active, 'start');
             if (caretSettleTimer) clearTimeout(caretSettleTimer);
             caretSettleTimer = setTimeout(function () {

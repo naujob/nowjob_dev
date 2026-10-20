@@ -564,11 +564,13 @@
                                     <?php
                                     // contenteditable div에 표시할 내용 (이미 HTML 형태)
                                     $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
+                                    // 메모 앱 방식: 에디터는 내용만큼 늘어나고 자체 스크롤이 없다(js-autoheight·overflow:auto 제거)
+                                    // 스크롤 영역이 .page 하나뿐이어야 브라우저 기본 캐럿 따라가기가 키보드·topbar를 피해 정확히 맞춘다
                                     ?>
                                     <div id="rc_desc_editor"
                                          contenteditable="true"
-                                         class="form-textarea js-autoheight"
-                                         style="font-size: 17px; min-height: 20.25rem; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
+                                         class="form-textarea"
+                                         style="font-size: 17px; min-height: 20.25rem; padding: 10px; border: 1px solid #ccc; border-radius: 4px; word-wrap: break-word;"><?= $desc ?>
                                     </div>
                                     <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                                     <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
@@ -1533,6 +1535,8 @@
     const STEP_TOP_OFFSET_WIDE = 130;
     // 주소 팝업이 닫히고 body overflow가 복원된 뒤 스크롤하기 위한 지연
     const ADDR_SCROLL_DELAY = 150;
+    // 자동 이동으로 단계가 열린 뒤 스크롤하기까지의 대기 (키보드가 내려가고 viewport가 안정될 시간, ms)
+    const AUTO_STEP_SCROLL_DELAY = 300;
 
     // 상세등록을 열기 전에는 10단계가 끝, 열면 11단계가 끝
     function getTotalSteps() {
@@ -1570,8 +1574,16 @@
             let $section = $(".step-section[data-step='" + i + "']");
             if (i <= currentStep) {
                 if (i === currentStep && !skipAnimation) {
+                    // 자동 이동이면 키보드 전환이 끝난 뒤 스크롤한다 (goNextStep 쪽에서 플래그를 켠다)
+                    var scrollDelay = window.__autoAdvanceScroll ? AUTO_STEP_SCROLL_DELAY : 0;
                     // 새로 노출되는 단계는 slideDown. 높이가 확정된 뒤 스크롤해야 하므로 완료 콜백에서 처리
-                    $section.slideDown(120, scrollToCurrentStep);
+                    $section.slideDown(120, function() {
+                        if (scrollDelay) {
+                            setTimeout(scrollToCurrentStep, scrollDelay);
+                        } else {
+                            scrollToCurrentStep();
+                        }
+                    });
                 } else {
                     // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
                     $section.show();
@@ -1619,8 +1631,9 @@
     }
 
     // 단계 이동 스크롤 헬퍼: 이동 중에는 window.__stepScrolling을 켜서 main.js의 캐럿 보정 스크롤과 겹치지 않게 한다
-    // 애니메이션이 끝나면 플래그를 내린다. .stop(true)로 중단되면 complete가 안 불리므로 안전 타이머로도 내린다
+    // 끝 감지는 scrollend 이벤트를 쓰고, 미지원이거나 이벤트가 오지 않으면 안전 타이머로 내린다
     var stepScrollSafetyTimer = null;
+    var STEP_SCROLL_MAX_MS = 1000; // 안전 타이머 최대 대기 (ms)
     function endStepScrollFlag() {
         if (stepScrollSafetyTimer) {
             clearTimeout(stepScrollSafetyTimer);
@@ -1628,13 +1641,26 @@
         }
         window.__stepScrolling = false;
     }
+    // 단계 이동은 브라우저 네이티브 smooth 스크롤로 한다
+    // jQuery animate는 프레임마다 scrollTop을 세팅해 CSS smooth와 충돌하므로 쓰지 않는다
+    // duration은 기존 호출부와의 호환을 위해 남겨 두며, 실제 시간은 브라우저가 거리에 맞춰 정한다
     function animateStepScroll($page, scrollTop, duration) {
+        var page = $page[0];
+        if (!page) {
+            return;
+        }
         window.__stepScrolling = true;
         if (stepScrollSafetyTimer) {
             clearTimeout(stepScrollSafetyTimer);
         }
-        stepScrollSafetyTimer = setTimeout(endStepScrollFlag, duration + 80);
-        $page.stop(true).animate({ scrollTop: scrollTop }, duration, endStepScrollFlag);
+        stepScrollSafetyTimer = setTimeout(endStepScrollFlag, STEP_SCROLL_MAX_MS);
+        page.addEventListener('scrollend', endStepScrollFlag, { once: true });
+        if (typeof page.scrollTo === 'function') {
+            page.scrollTo({ top: scrollTop, behavior: 'smooth' });
+        } else {
+            page.scrollTop = scrollTop;
+            endStepScrollFlag();
+        }
     }
 
     // 지정한 요소의 아래쪽이 고정 푸터 위로 올라오도록 스크롤을 내린다
@@ -3497,7 +3523,14 @@
             autoAdvanceTimer = setTimeout(function() {
                 autoAdvanceTimer = null;
                 if (currentStep === step && isComplete()) {
+                    // 입력 중이던 입력란의 포커스를 먼저 해제해 키보드를 내린다 (키보드 전환과 스크롤이 겹쳐 튕기는 것을 막기 위함)
+                    if (document.activeElement && document.activeElement.blur) {
+                        document.activeElement.blur();
+                    }
+                    // 이 이동에서만 새 단계의 스크롤을 지연한다 (다른 이동 방식에는 영향 없음)
+                    window.__autoAdvanceScroll = true;
                     goNextStep();
+                    window.__autoAdvanceScroll = false;
                 }
             }, AUTO_ADVANCE_DELAY);
         }
@@ -4675,11 +4708,59 @@
     var rcDescEditor = document.getElementById('rc_desc_editor');
     if (rcDescEditor) {
       // 상세업무를 입력하는 즉시 상세등록 버튼이 나타나도록 갱신
+      // 글자 입력으로 줄이 늘어날 때도 캐럿이 푸터 위에 오도록 한 번 맞춘다
+      // (브라우저 기본 캐럿 따라가기는 고정 푸터를 모르기 때문에 푸터 밑까지 내려갈 수 있다)
       rcDescEditor.addEventListener('input', function() {
         if (typeof updateStepVisibility === 'function' && currentStep === REQUIRED_STEPS) {
           updateStepVisibility(true);
         }
+        revealDescCaret(getDescCaretRect());
       });
+
+      // 현재 캐럿 줄의 화면 좌표. 접힌 selection의 좌표를 쓰고, 못 구하면(빈 줄 등) null
+      // 한글 조합을 깨지 않도록 여기서는 DOM에 마커를 넣지 않는다
+      function getDescCaretRect() {
+        var selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return null;
+        var range = selection.getRangeAt(0);
+        if (!rcDescEditor.contains(range.endContainer)) return null;
+        var rects = range.getClientRects();
+        var rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+        return (rect && rect.height > 0) ? rect : null;
+      }
+
+      // 상세업무 캐럿 줄(rect)이 보이는 영역(topbar 아래 ~ 하단 푸터 위) 밖이면 벗어난 만큼만 한 번 스크롤한다
+      // 아래 끝은 푸터 윗면과 키보드 윗면(visualViewport) 중 더 위, 위 끝은 topbar 실제 아래끝으로 잰다. 타이머·재판정 없음
+      function revealDescCaret(rect) {
+        var page = rcDescEditor.closest('.page');
+        if (!page || !rect || rect.height === 0) return;
+        var gap = 16; // 캐럿과 푸터/topbar 사이 여유 (px)
+        var topBar = document.querySelector('.top-bar');
+        var visibleTop = (topBar ? topBar.getBoundingClientRect().bottom : page.getBoundingClientRect().top) + gap;
+        var visibleBottom = window.visualViewport
+          ? window.visualViewport.offsetTop + window.visualViewport.height
+          : window.innerHeight;
+        // 키보드가 올라와도 푸터는 키보드 바로 위에 보이므로, 푸터 윗면을 실제 아래 끝으로 본다
+        var footer = document.querySelector('.sticky-bottom.view-footer');
+        if (footer) {
+          var footerRect = footer.getBoundingClientRect();
+          if (footerRect.height > 0 && footerRect.top < visibleBottom) {
+            visibleBottom = footerRect.top;
+          }
+        }
+        visibleBottom -= gap;
+        var delta = 0;
+        if (rect.bottom > visibleBottom) {
+          delta = rect.bottom - visibleBottom;
+        } else if (rect.top < visibleTop) {
+          delta = rect.top - visibleTop;
+        }
+        if (Math.abs(delta) < 1) return;
+        // .page의 smooth 스크롤이 끼면 대입 직후 위치가 밀리므로 이 보정만 즉시 적용한다
+        page.style.scrollBehavior = 'auto';
+        page.scrollTop = page.scrollTop + delta;
+        page.style.scrollBehavior = '';
+      }
 
       rcDescEditor.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -4691,6 +4772,17 @@
             range.deleteContents();
             var br = document.createElement('br');
             range.insertNode(br);
+
+            // Enter는 기본 동작을 막고 직접 <br>을 넣으므로 브라우저가 캐럿을 따라 스크롤하지 않는다
+            // 캐럿 자리에 보이지 않는 마커를 잠깐 넣어 위치를 재고, 보이는 영역을 벗어난 만큼만 한 번 스크롤한 뒤 바로 지운다
+            var caretMarker = document.createElement('span');
+            caretMarker.textContent = '​';
+            range.setStartAfter(br);
+            range.collapse(true);
+            range.insertNode(caretMarker);
+            revealDescCaret(caretMarker.getBoundingClientRect());
+            caretMarker.parentNode.removeChild(caretMarker);
+
             range.setStartAfter(br);
             range.collapse(true);
             selection.removeAllRanges();
