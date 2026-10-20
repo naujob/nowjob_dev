@@ -708,9 +708,14 @@
                 location.href = '/';
             } else if (ret.code == '90') {
                 // 신규 회원 → SMS 인증 팝업
-                var joinKey  = ret.data ? ret.data.join_key : '';
-                var email    = ret.data ? ret.data.email  : '';
-                var name     = ret.data ? ret.data.name   : '';
+                // join_key가 없으면(서버 응답 누락 등) 팝업을 열지 않음 — 'undefined' 문자열로 가입되는 사고 방지
+                if (!ret.data || !ret.data.join_key) {
+                    commonAlert('회원가입 정보를 가져오지 못했습니다. 다시 시도해주세요.', function() {});
+                    return;
+                }
+                var joinKey  = ret.data.join_key;
+                var email    = ret.data.email  || '';
+                var name     = ret.data.name   || '';
                 openSnsPhonePopup(joinKey, email, name, 'GOOGLE');
             } else {
                 // phone popup이 띠워져있으면 닫고 alert 띄우기

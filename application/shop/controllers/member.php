@@ -1303,6 +1303,13 @@ class Member extends CI_Controller
 			$join_key = $existing_sns["unionid"];
 		}
 
+		// join_key가 비었거나 JS의 undefined/null이 문자열로 들어온 경우 차단
+		// (잘못된 mm_join_key로 가입되면 중복 체크가 무력화되고 'undefined' 문자열 계정이 생김)
+		if ($join_type != "" && (trim($join_key) === "" || in_array(strtolower(trim($join_key)), ["undefined", "null"]))) {
+			go_location("/member/login", "회원가입 정보가 올바르지 않습니다. 다시 시도해주세요.");
+			exit;
+		}
+
 		$info = [
 			"join_key" => $join_key,
 			"join_type" => $join_type,

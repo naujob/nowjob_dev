@@ -3076,9 +3076,13 @@ class Member_proc extends CI_Controller
             if (!is_array($step4_3_info)) $step4_3_info = [];
             if (!is_array($step4_4_info)) $step4_4_info = [];
 
+            // join_key가 JS의 undefined/null이 문자열로 들어온 경우 빈 값과 동일하게 취급
+            // (empty()는 "undefined" 같은 비어있지 않은 문자열을 걸러내지 못하므로 별도 체크)
+            $join_key_invalid = ($join_key === "" || in_array(strtolower(trim($join_key)), ["undefined", "null"]));
+
             // 클라이언트에서 전달된 join_type/join_key가 있고 SNS 로그가 없으면 보완
             // 허용된 SNS 타입 + join_key가 모두 있을 때만 보완 (WEB 등은 NICE 일반 가입으로 처리)
-            if ((!is_array($step_sns) || empty($step_sns)) && in_array(strtoupper($join_type), $allowed_sns_types) && $join_key !== "") {
+            if ((!is_array($step_sns) || empty($step_sns)) && in_array(strtoupper($join_type), $allowed_sns_types) && !$join_key_invalid) {
                 $step_sns = [
                     "join_type" => $join_type,
                     "join_key" => $join_key,
@@ -3091,8 +3095,9 @@ class Member_proc extends CI_Controller
                 ];
             }
 
-            // SNS 가입 정보가 불완전하면 중단 (빈 join_key면 mm_id가 'google_' 등으로 만들어져 잘못된 계정이 생김)
-            if (!empty($step_sns) && (!isset($step_sns["join_type"]) || !in_array(strtoupper($step_sns["join_type"]), $allowed_sns_types) || empty($step_sns["join_key"]))) {
+            // SNS 가입 정보가 불완전하면 중단 (빈 값/'undefined' join_key면 'google_undefined' 등 잘못된 계정이 생김)
+            $step_sns_join_key_invalid = !isset($step_sns["join_key"]) || $step_sns["join_key"] === "" || in_array(strtolower(trim($step_sns["join_key"])), ["undefined", "null"]);
+            if (!empty($step_sns) && (!isset($step_sns["join_type"]) || !in_array(strtoupper($step_sns["join_type"]), $allowed_sns_types) || $step_sns_join_key_invalid)) {
                 json_return("91", "SNS 가입 정보가 누락되었습니다. 다시 진행해주세요.");
             }
 
