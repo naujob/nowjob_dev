@@ -264,6 +264,13 @@ class memberModel extends MY_Model
 		return $this->db_row("st_member", $where);
 	}
 
+	# 로그인 세션 유효성 확인용 — mm_status만 조회 (User::isLogin()에서 매 요청 사용하므로 가볍게)
+	# @return string|null 'Y'/'N'/'H'/'SY'/'SN'/'SH' 중 하나, 없으면 null
+	function getMemberStatus($mm_idx)
+	{
+		return $this->db_row_colnum("st_member", "mm_status", ["mm_idx" => $mm_idx]);
+	}
+
 	# 회원추가정보 조회
 	function getMemberInfo($mm_idx)
 	{
