@@ -1134,7 +1134,7 @@
 
 
         // 고정 영역 회피 설정: .top-bar 높이 + 여유 여백(12px)
-        // (상세업무 contenteditable 에디터는 js-autoheight를 쓰지 않고 페이지 자체 스크립트의 revealDescCaret으로 처리한다)
+        // (채용공고 상세업무·이력서 자기소개는 고정 높이 + 자체 스크롤 입력란이라 js-autoheight를 쓰지 않고 각 페이지 스크립트에서 처리한다)
         function setupScrollMarginTop() {
             var topBar = document.querySelector('.top-bar');
             var topBarHeight = topBar ? topBar.offsetHeight : 0;
@@ -1213,43 +1213,6 @@
 
         // 고정 푸터/키보드에 textarea 캐럿이 가려졌을 때만 .page를 스크롤해서 화면에 보이게 한다
         // blockValue: 'start' (포커스 시) 또는 'end' (입력으로 높이가 늘어난 경우)
-        // 박스 전체 기준 보정(data-keep-box-visible)을 쓰는 칸인지 확인한다 (자기소개 등)
-        function isKeepBoxEl(el) {
-            return !!(el && el.classList && el.classList.contains('js-autoheight') && el.getAttribute('data-keep-box-visible') === 'true');
-        }
-
-        // 키보드/뷰포트가 바뀐 마지막 시각 (settleKeepBoxJudge 가 안정 여부를 판단할 때 사용)
-        var lastViewportChangeAt = 0;
-        var keepBoxSettleTimer = null;
-        var KEEP_BOX_SETTLE_MIN = 400; // 포커스 직후 키보드가 올라오기 전 판정을 막는 최소 대기 (ms)
-        var KEEP_BOX_SETTLE_QUIET = 300; // 뷰포트 변화가 이 시간 동안 없으면 안정으로 본다 (ms)
-        var KEEP_BOX_SETTLE_MAX = 1500; // 계속 흔들려도 이 시간이 지나면 판정한다 (ms)
-
-        // 자기소개 박스 보정: 키보드 전환과 스크롤이 가라앉은 뒤 한 번만 판정한다
-        // 전환 중에 판정하면 네이티브 스크롤이 끝난 뒤 되돌리는 보정이 생겨 튕김이 난다
-        function settleKeepBoxJudge(target, startedAt) {
-            if (keepBoxSettleTimer) {
-                clearTimeout(keepBoxSettleTimer);
-                keepBoxSettleTimer = null;
-            }
-            startedAt = startedAt || Date.now();
-            var now = Date.now();
-            var waited = now - startedAt;
-            // 단계 이동 스크롤(window.__stepScrolling)이 끝나기 전에는 판정하지 않는다
-            var settled = waited >= KEEP_BOX_SETTLE_MIN
-                && !window.__stepScrolling
-                && now - lastViewportChangeAt >= KEEP_BOX_SETTLE_QUIET
-                && now - lastPageScrollAt >= 200;
-            if (!settled && waited < KEEP_BOX_SETTLE_MAX) {
-                keepBoxSettleTimer = setTimeout(function () {
-                    settleKeepBoxJudge(target, startedAt);
-                }, 100);
-                return;
-            }
-            if (document.activeElement !== target) return;
-            scrollTextareaIntoView(target, 'start');
-        }
-
         // retryCount: 단계 이동 스크롤 중이라 보류된 횟수 (최대 10회, 120ms 간격)
         // delayMs: 판정을 실행하기까지의 대기 시간 (기본 120ms, 글자 입력은 0ms로 즉시 판정)
         function scrollTextareaIntoView(el, blockValue, retryCount, delayMs) {
@@ -1270,17 +1233,13 @@
                 }
 
                 var pageRect = page.getBoundingClientRect();
-                // 캐럿 줄 기준이 기본이고, data-keep-box-visible 이면 박스 전체 기준으로 판정한다
                 // 캐럿 좌표를 실제로 쟀는지 여부 (요소 전체 좌표로 폴백했으면 false)
                 var caretMeasured = true;
-                // 박스 전체를 푸터 위에 보이게 할지 (자기소개 등). 보이는 영역보다 크면 아래에서 캐럿 기준으로 되돌린다
-                var keepBox = el.getAttribute('data-keep-box-visible') === 'true';
-                var boxRect = el.getBoundingClientRect();
                 // 측정이 안 되면 요소 전체 좌표를 쓴다
                 var rect = getTextareaCaretRect(el);
                 if (!rect) {
                     caretMeasured = false;
-                    rect = boxRect;
+                    rect = el.getBoundingClientRect();
                 }
                 var gap = 12; // 가림 판정 여유 (px)
 
@@ -1291,12 +1250,6 @@
                     visibleTop = Math.max(visibleTop, topBar.getBoundingClientRect().bottom + gap);
                 }
                 var visibleBottom = getVisibleBottom(page, pageRect) - gap;
-
-                // 박스 전체가 보이는 영역에 들어가면 박스 기준으로 판정한다 (첫 탭에서 칸 아래쪽이 푸터에 덮이지 않도록)
-                // 들어가지 않으면 캐럿 기준을 유지해 캐럿이 보이게 한다
-                if (keepBox && boxRect.height <= visibleBottom - visibleTop) {
-                    rect = boxRect;
-                }
 
                 var delta = 0;
                 if (rect.height > visibleBottom - visibleTop) {
@@ -1386,16 +1339,12 @@
                 // 이때 판정하면 필요 이상으로 내려가므로, 즉시 판정은 하지 않고 키보드가 안정된 뒤에만 판정한다
                 textareaFocusAt = Date.now();
                 var settledTarget = e.target;
-                if (isKeepBoxEl(settledTarget)) {
-                    settleKeepBoxJudge(settledTarget);
-                } else {
-                    [400, 800].forEach(function (ms) {
-                        setTimeout(function () {
-                            if (document.activeElement !== settledTarget) return;
-                            scrollTextareaIntoView(settledTarget, 'start');
-                        }, ms);
-                    });
-                }
+                [400, 800].forEach(function (ms) {
+                    setTimeout(function () {
+                        if (document.activeElement !== settledTarget) return;
+                        scrollTextareaIntoView(settledTarget, 'start');
+                    }, ms);
+                });
             }
         });
 
@@ -1412,15 +1361,10 @@
         // 키보드 열림/닫힘으로 뷰포트가 바뀌면 포커스된 textarea를 다시 판정
         // visualViewport(iOS)와 window resize(Android adjustResize)를 모두 처리
         function onViewportResize(e) {
-            lastViewportChangeAt = Date.now();
             // 키보드·푸터 높이가 바뀌었을 수 있으므로 고정 영역 회피 값을 다시 맞춘다
             setupScrollMarginTop();
             var active = document.activeElement;
             if (active && active.classList && active.classList.contains('js-autoheight')) {
-                if (isKeepBoxEl(active)) {
-                    settleKeepBoxJudge(active);
-                    return;
-                }
                 scrollTextareaIntoView(active, 'start');
             }
         }

@@ -387,6 +387,29 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     #datePickerSheet[data-mode="ym"] .wheel-col-day {
         display: none;
     }
+
+    /* 자기소개 입력란: 높이 고정 + 입력란 안 스크롤 (채용공고 상세업무와 동일한 방식) */
+    #ru_desc_editor {
+        height: 20.25rem;
+        min-height: 20.25rem;
+        box-sizing: border-box;
+        overflow-y: auto;
+        resize: none;
+    }
+
+    /* 안드로이드 WebView 기본 스크롤바는 스크롤 중에만 보이므로 항상 보이도록 지정 (채용공고 상세업무와 같은 모양) */
+    #ru_desc_editor::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #ru_desc_editor::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    #ru_desc_editor::-webkit-scrollbar-thumb {
+        border-radius: 100px;
+        background-color: #DBEFEA;
+    }
 </style>
 <script>
     (function() {
@@ -572,7 +595,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 <div class="form-toggle-group col-3">
                                     <?php foreach ($ru_work_type_list as $row) : ?>
                                         <label class="form-toggle-btn2">
-                                            <input type="checkbox" name="ru_work_type[]" data-select-limit="2" class="<?= $row["cd_val"] != "2교대" ? "js-check-time" : "" ?>" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work_type"], "check") ?>>
+                                            <input type="checkbox" name="ru_work_type[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work_type"], "check") ?>>
                                             <span class="btn"><?= $row["cd_val"] ?></span>
                                         </label>
                                     <?php endforeach; ?>
@@ -610,7 +633,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 <p class="form-label">자기소개<span class="required-asterisk">*</span></p>
                                 <label>
                                     <span class="sr-text">자기소개 입력</span>
-                                    <textarea name="ru_desc" maxlength="500" class="form-textarea js-autoheight" data-keep-box-visible="true"><?= $info["ru_desc"] ?></textarea>
+                                    <?php
+                                    // 채용공고 상세업무와 같은 방식: 높이를 고정하고 넘치는 내용은 입력란 안에서 스크롤한다(js-autoheight 미사용)
+                                    // 내용만큼 늘어나면 안드로이드 WebView가 탭할 때마다 입력란 박스 기준으로 .page를 강제 스크롤해 튕긴다
+                                    ?>
+                                    <textarea name="ru_desc" id="ru_desc_editor" maxlength="500" class="form-textarea"><?= $info["ru_desc"] ?></textarea>
                                 </label>
                             </div>
                         </div>
@@ -1222,11 +1249,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     if (typeof formData.ru_desc !== "undefined") {
                         $("[name='ru_desc']").val(formData.ru_desc);
-                        if (typeof autoHeight === 'function') {
-                            setTimeout(function() {
-                                autoHeight($("[name='ru_desc']")[0]);
-                            }, 50);
-                        }
                     }
 
                     $("[name='ru_my_type[]']").prop("checked", false);
@@ -1555,11 +1577,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         var ruName = payload.ru_name || "";
         if ($("[name='ru_desc']").val() === "" && ruName) {
             $("[name='ru_desc']").val(ruName);
-            if (typeof autoHeight === 'function') {
-                setTimeout(function() {
-                    autoHeight($("[name='ru_desc']")[0]);
-                }, 50);
-            }
         }
 
         var $allTypes = $("[name='ru_my_type[]']");
@@ -2509,38 +2526,45 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             });
         });
 
-        /* 근무시간 안내 문구: 주간·야간을 모두 선택하면 표시 (20221003 수정) */
-        (function() {
-            function timeChecked(el) {
-                var total = document.querySelectorAll('.js-check-time').length;
-                var isChecked = document.querySelectorAll('.js-check-time:checked');
-                var row = el.closest('.form-row');
-                if (!row) {
-                    return;
-                }
-                var msg = row.querySelector('.help-msg');
-
-                if (!msg) {
-                    msg = document.createElement('P');
-                    msg.classList.add('help-msg');
-                    msg.innerHTML = '주간 고정, 야간 고정을 선택하셨습니다.';
-                }
-
-                if (isChecked.length == total) {
-                    row.appendChild(msg);
-                } else {
-                    msg.remove();
-                }
-            }
-
-            document.querySelectorAll('.js-check-time').forEach(function(item) {
-                item.addEventListener('change', function() {
-                    timeChecked(item);
-                });
-                timeChecked(item);
-            });
-        }());
         $("[name='ru_desc']").on("input", saveResumeStep4Data);
+
+        /* 자기소개 입력 시 입력란 박스가 보이는 영역(topbar 아래 ~ 하단 푸터·키보드 위) 밖이면 벗어난 만큼만 한 번 스크롤한다
+           - 입력란 안 캐럿 따라가기는 textarea 기본 동작이 처리하므로, 여기서는 박스(높이 고정)만 맞춘다
+           - 브라우저 기본 스크롤은 고정 푸터를 모르기 때문에 박스 아래쪽이 푸터 밑에 남을 수 있다. 타이머·재판정 없음 */
+        var ruDescEditor = document.getElementById('ru_desc_editor');
+        if (ruDescEditor) {
+            ruDescEditor.addEventListener('input', function() {
+                var page = ruDescEditor.closest('.page');
+                if (!page) return;
+                var gap = 16; // 박스와 푸터/topbar 사이 여유 (px)
+                var rect = ruDescEditor.getBoundingClientRect();
+                var topBar = document.querySelector('.top-bar');
+                var visibleTop = (topBar ? topBar.getBoundingClientRect().bottom : page.getBoundingClientRect().top) + gap;
+                var visibleBottom = window.visualViewport
+                    ? window.visualViewport.offsetTop + window.visualViewport.height
+                    : window.innerHeight;
+                // 키보드가 올라와도 푸터는 키보드 바로 위에 보이므로, 푸터 윗면을 실제 아래 끝으로 본다
+                var footer = document.querySelector('.sticky-bottom.view-footer');
+                if (footer) {
+                    var footerRect = footer.getBoundingClientRect();
+                    if (footerRect.height > 0 && footerRect.top < visibleBottom) {
+                        visibleBottom = footerRect.top;
+                    }
+                }
+                visibleBottom -= gap;
+                var delta = 0;
+                if (rect.bottom > visibleBottom) {
+                    delta = rect.bottom - visibleBottom;
+                } else if (rect.top < visibleTop) {
+                    delta = rect.top - visibleTop;
+                }
+                if (Math.abs(delta) < 1) return;
+                // .page의 smooth 스크롤이 끼면 대입 직후 위치가 밀리므로 이 보정만 즉시 적용한다
+                page.style.scrollBehavior = 'auto';
+                page.scrollTop = page.scrollTop + delta;
+                page.style.scrollBehavior = '';
+            });
+        }
         $(document).on("input change", "[name='career_category[]'], [name='career_company[]'], [name='career_period[]'], [name='license[]'], [name='regdate[]']", function() {
             saveResumeStep4Data();
         });

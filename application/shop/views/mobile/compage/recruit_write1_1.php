@@ -564,13 +564,14 @@
                                     <?php
                                     // contenteditable div에 표시할 내용 (이미 HTML 형태)
                                     $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
-                                    // 메모 앱 방식: 에디터는 내용만큼 늘어나고 자체 스크롤이 없다(js-autoheight·overflow:auto 제거)
-                                    // 스크롤 영역이 .page 하나뿐이어야 브라우저 기본 캐럿 따라가기가 키보드·topbar를 피해 정확히 맞춘다
+                                    // 에디터 높이는 고정하고 넘치는 내용은 에디터 안에서 스크롤한다(overflow-y:auto)
+                                    // 내용만큼 늘어나면 안드로이드 WebView가 탭할 때마다 에디터 박스 기준으로 .page를 강제 스크롤해
+                                    // 캐럿이 topbar/푸터 밑으로 숨는다. 박스가 키보드 위 보이는 영역 안에 들어오면 그 강제 스크롤이 생기지 않는다
                                     ?>
                                     <div id="rc_desc_editor"
                                          contenteditable="true"
                                          class="form-textarea"
-                                         style="font-size: 17px; min-height: 20.25rem; padding: 10px; border: 1px solid #ccc; border-radius: 4px; word-wrap: break-word;"><?= $desc ?>
+                                         style="font-size: 17px; height: 20.25rem; min-height: 20.25rem; box-sizing: border-box; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 4px; word-wrap: break-word;"><?= $desc ?>
                                     </div>
                                     <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                                     <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
@@ -1017,6 +1018,21 @@
 
     .form-section .form-table {
         padding: 0;
+    }
+
+    /* 상세업무 에디터 스크롤바: 안드로이드 WebView 기본 스크롤바는 스크롤 중에만 보이므로 항상 보이도록 지정
+       (바텀시트 .layer-panel 스크롤바와 같은 모양) */
+    #rc_desc_editor::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #rc_desc_editor::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    #rc_desc_editor::-webkit-scrollbar-thumb {
+        border-radius: 100px;
+        background-color: #DBEFEA;
     }
 
     /* 단계별 진행 게이지바 */
@@ -4717,7 +4733,7 @@
     var rcDescEditor = document.getElementById('rc_desc_editor');
     if (rcDescEditor) {
       // 상세업무를 입력하는 즉시 상세등록 버튼이 나타나도록 갱신
-      // 글자 입력으로 줄이 늘어날 때도 캐럿이 푸터 위에 오도록 한 번 맞춘다
+      // 글자 입력 시 캐럿이 에디터 안과 푸터 위에 보이도록 한 번 맞춘다
       // (브라우저 기본 캐럿 따라가기는 고정 푸터를 모르기 때문에 푸터 밑까지 내려갈 수 있다)
       rcDescEditor.addEventListener('input', function() {
         if (typeof updateStepVisibility === 'function' && currentStep === REQUIRED_STEPS) {
@@ -4738,11 +4754,35 @@
         return (rect && rect.height > 0) ? rect : null;
       }
 
-      // 상세업무 캐럿 줄(rect)이 보이는 영역(topbar 아래 ~ 하단 푸터 위) 밖이면 벗어난 만큼만 한 번 스크롤한다
-      // 아래 끝은 푸터 윗면과 키보드 윗면(visualViewport) 중 더 위, 위 끝은 topbar 실제 아래끝으로 잰다. 타이머·재판정 없음
+      // 상세업무 캐럿 줄(rect)이 보이도록 한 번만 맞춘다. 타이머·재판정 없음
+      // 1) 에디터 자체 스크롤: 캐럿 줄이 에디터 안쪽(패딩 제외) 밖이면 에디터만 먼저 스크롤
+      //    (Enter는 기본 동작을 막고 <br>을 직접 넣으므로 브라우저가 에디터 안 스크롤을 따라가지 않는다)
+      // 2) 페이지 스크롤: 그래도 보이는 영역(topbar 아래 ~ 하단 푸터 위) 밖이면 벗어난 만큼만 .page를 스크롤
+      //    아래 끝은 푸터 윗면과 키보드 윗면(visualViewport) 중 더 위, 위 끝은 topbar 실제 아래끝으로 잰다
       function revealDescCaret(rect) {
         var page = rcDescEditor.closest('.page');
         if (!page || !rect || rect.height === 0) return;
+        var caretTop = rect.top;       // 캐럿 줄 윗면 (에디터 스크롤 후 보정된 값)
+        var caretBottom = rect.bottom; // 캐럿 줄 아랫면 (에디터 스크롤 후 보정된 값)
+
+        var editorRect = rcDescEditor.getBoundingClientRect();
+        var editorStyle = window.getComputedStyle(rcDescEditor);
+        var innerTop = editorRect.top + rcDescEditor.clientTop + (parseFloat(editorStyle.paddingTop) || 0);
+        var innerBottom = editorRect.top + rcDescEditor.clientTop + rcDescEditor.clientHeight - (parseFloat(editorStyle.paddingBottom) || 0);
+        var innerDelta = 0;
+        if (caretBottom > innerBottom) {
+          innerDelta = caretBottom - innerBottom;
+        } else if (caretTop < innerTop) {
+          innerDelta = caretTop - innerTop;
+        }
+        if (Math.abs(innerDelta) >= 1) {
+          var prevInnerScroll = rcDescEditor.scrollTop;
+          rcDescEditor.scrollTop = prevInnerScroll + innerDelta;
+          var innerMoved = rcDescEditor.scrollTop - prevInnerScroll; // 스크롤 끝에서 잘린 경우를 반영한 실제 이동량
+          caretTop -= innerMoved;
+          caretBottom -= innerMoved;
+        }
+
         var gap = 16; // 캐럿과 푸터/topbar 사이 여유 (px)
         var topBar = document.querySelector('.top-bar');
         var visibleTop = (topBar ? topBar.getBoundingClientRect().bottom : page.getBoundingClientRect().top) + gap;
@@ -4759,10 +4799,10 @@
         }
         visibleBottom -= gap;
         var delta = 0;
-        if (rect.bottom > visibleBottom) {
-          delta = rect.bottom - visibleBottom;
-        } else if (rect.top < visibleTop) {
-          delta = rect.top - visibleTop;
+        if (caretBottom > visibleBottom) {
+          delta = caretBottom - visibleBottom;
+        } else if (caretTop < visibleTop) {
+          delta = caretTop - visibleTop;
         }
         if (Math.abs(delta) < 1) return;
         // .page의 smooth 스크롤이 끼면 대입 직후 위치가 밀리므로 이 보정만 즉시 적용한다
