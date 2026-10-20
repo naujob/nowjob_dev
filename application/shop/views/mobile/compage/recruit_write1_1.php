@@ -1,4 +1,4 @@
-<div class="page page-write page-recruit-write" style="background: #f9f7f7; scroll-padding-top: 72px;">
+<div class="page page-write page-recruit-write" style="background: #f9f7f7; scroll-padding-top: 0px; scroll-padding-bottom: 0;">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
@@ -1076,6 +1076,10 @@
     .page-recruit-write .section.addition-info-form .container {
         padding-bottom: 5.5rem;
     }
+    /* 상세업무(10단계)에서는 하단 여백을 없애 키보드 올릴 때 스크롤이 과하게 내려가지 않도록 한다 */
+    .page-recruit-write[data-current-step="10"] .section.addition-info-form .container {
+        /* padding-bottom: 3.0rem; */
+    }
 
     #btnStepPrev {
         flex: 0 0 auto;
@@ -1596,6 +1600,8 @@
     // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
     //                페이드와 자동 스크롤 없이 즉시 표시한다
     function updateStepVisibility(skipAnimation) {
+        // 현재 단계 번호를 페이지에 남겨 CSS에서 단계별 여백을 나눌 수 있게 한다 (data-current-step)
+        $(".page-recruit-write").attr("data-current-step", currentStep);
         // 현재 단계까지의 모든 섹션을 누적형으로 표시
         for (let i = 1; i <= TOTAL_STEPS; i++) {
             let $section = $(".step-section[data-step='" + i + "']");
