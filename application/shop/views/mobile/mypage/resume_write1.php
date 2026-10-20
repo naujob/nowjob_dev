@@ -2276,6 +2276,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 $("[name='ru_price_type[]']").prop("checked", false);
             }
             saveResumeStep1Data();
+            // 급여협의를 체크하면 급여 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (6단계일 때만)
+            autoAdvanceIfComplete(6, function() {
+                return $("[name='ru_salary_negotiation']").is(":checked");
+            });
         });
 
         // 근무협의 체크박스 클릭 이벤트
@@ -2287,6 +2291,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 $("[name='ru_work_type[]']").prop("checked", false);
             }
             saveResumeStep1Data();
+            // 근무협의를 체크하면 근무형태 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (5단계일 때만)
+            autoAdvanceIfComplete(5, function() {
+                return $("[name='ru_work_negotiation']").is(":checked");
+            });
         });
 
         // 협의가 체크된 경우 개별 항목 체크 해제 방지

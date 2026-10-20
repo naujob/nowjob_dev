@@ -1217,6 +1217,11 @@
         margin-bottom: 1rem;
     }
 
+    /* 복리후생 버튼 글자 크기: main.css의 .benefit-label.btn(1.0rem)에 덮이지 않도록 페이지·래퍼 클래스를 붙여 우선순위를 높인다 */
+    .page-recruit-write .benefit-field-wrapper .benefit-label.btn {
+        font-size: 0.9rem;
+    }
+
     /* 이미지 필드 래퍼 */
     .image-field-wrapper {
         margin-bottom: 1rem;
@@ -3594,12 +3599,14 @@
             });
         }());
 
-        /* 7단계 급여 자동 이동: 급여협의가 아닌 급여형태, 금액, 급여가능 옵션이 모두 채워지면 다음 단계로 이동
+        /* 7단계 급여 자동 이동
+           - 급여협의를 고르면 금액·옵션이 필요 없으므로 바로 다음 단계로 이동
+           - 그 외 급여형태는 금액과 급여가능 옵션이 모두 채워지면 이동
            급여가능 옵션은 updateSalaryOptions()로 보이는 항목 중에서만 인정한다 */
         function isSalaryComplete() {
             var priceType = $("#rc_price_type_main").val();
             if (priceType === "급여협의") {
-                return false;
+                return true;
             }
             var amount = parseInt(removeComma($("#rc_price_amount").val()), 10);
             if (!(amount > 0)) {
@@ -3618,6 +3625,10 @@
             } else {
                 $("[name='rc_work_type[]']").prop("checked", false);
             }
+            // 근무협의를 체크하면 근무형태 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (6단계일 때만)
+            autoAdvanceIfComplete(6, function() {
+                return $("[name='rc_work_negotiation']").is(":checked");
+            });
         });
 
         // 페이지 로드 시 근무협의 체크 상태에 따라 근무형태 버튼 초기화
