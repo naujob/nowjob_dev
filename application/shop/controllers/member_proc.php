@@ -1901,6 +1901,19 @@ class Member_proc extends CI_Controller
 
     function com_man_retire()
     {
+        // 로그인 검사 없음 → 비로그인 상태로도 탈퇴 플래그를 세울 수 있었음 (nice_success에서 본인 확인도 안 했으므로 문제가 더 커짐)
+        if ($this->user->isLogin() == false) {
+            json_return("10", "로그인후 이용해주세요.");
+            exit;
+        }
+
+        // DI가 없는 SNS 가입 회원은 PASS 본인인증으로 본인 여부를 확인할 수 없음 → 일반 탈퇴로 안내
+        $mem_info = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
+        if ($mem_info == null || empty($mem_info["mm_di"])) {
+            json_return("90", "본인인증 정보가 없는 계정입니다. 마이페이지의 회원탈퇴를 이용해주세요.");
+            exit;
+        }
+
         $this->common->setSession("COM_MAN_RETIRE", date("Y-m-d H:i:s"));
         json_return("00", "처리완료");
     }
@@ -2017,7 +2030,35 @@ class Member_proc extends CI_Controller
                 }
                 exit;
             } else {
-                //5분이내 정상 - 팝업 창에서 직접 탈퇴 처리
+                //5분이내 정상 - 본인 확인 후 탈퇴 처리
+                // 로그인 세션이 끊겼거나(다른 기기 로그아웃 등), PASS 인증 결과(DI)가 로그인한 본인의 DI와 다르면
+                // 남의 PASS 인증으로 로그인 중인 계정을 탈퇴시킬 수 있으므로 반드시 비교한다.
+                $return_dupinfo = isset($return["dupinfo"]) ? trim($return["dupinfo"]) : "";
+                $is_self_verified = false;
+                if ($this->user->isLogin() == true) {
+                    $session_mem_info = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
+                    if ($session_mem_info != null && !empty($session_mem_info["mm_di"]) && $return_dupinfo != "" && $session_mem_info["mm_di"] === $return_dupinfo) {
+                        $is_self_verified = true;
+                    }
+                }
+
+                if (!$is_self_verified) {
+                    // 진행 중이던 탈퇴 신청 플래그 제거 (방치 시 5분 내 다른 PASS 인증이 엉뚱하게 탈퇴로 이어지는 것 방지)
+                    $this->common->setSession("COM_MAN_RETIRE", null);
+                    echo "<!DOCTYPE html>
+<html>
+<head><meta charset='UTF-8'><title>인증 오류</title></head>
+<body>
+    <script>
+        alert('본인 명의로 인증해주세요.');
+        if (window.opener) { window.opener.location.reload(); }
+        window.close();
+    </script>
+</body>
+</html>";
+                    exit;
+                }
+
                 echo "<!DOCTYPE html>
 <html>
 <head>
