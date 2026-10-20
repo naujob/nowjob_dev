@@ -1198,21 +1198,8 @@ class Member extends CI_Controller
 				["mm_idx" => $mm_idx]
 			);
 
-			// MongoDB의 사용자 상태도 'N'으로 업데이트 (채팅 서버와의 일관성 유지)
-			if (!empty($mm_id)) {
-				try {
-					$mongo_user = get_mongodb("user");
-					if ($mongo_user) {
-						$mongo_user->update(
-							['user_id' => $mm_id],
-							['$set' => ['user_status' => 'N']]
-						);
-					}
-				} catch (Exception $e) {
-					// MongoDB 업데이트 실패 시에도 계속 진행
-
-				}
-			}
+			// MongoDB의 사용자 상태도 'N'으로 업데이트 (채팅 서버와의 일관성 유지, 탈퇴와 공통 함수)
+			$this->member_model->setMongoUserStatus($mm_id, "N");
 		}
 
 		// USER_INFO만 삭제 (다른 세션 데이터는 유지)

@@ -570,12 +570,10 @@
 
     $("#btnDelete").click(function(){
 		var idx = $("[name=mm_idx]").val();
-		COMMON.confirm("삭제 처리 하시겠습니까?<br/>삭제시 동일(본인인증)정보로 재가입이 가능합니다.",function(){
+		COMMON.confirm("삭제 처리 하시겠습니까?<br/>삭제 후 15일 동안 동일 정보로 재가입할 수 없습니다.",function(){
 			var params = {};
 			params["idx"] = idx;
 			params["proc_mode"] = "delete";
-      params["mm_phone"]  = '<?=$info["mm_phone"]?>';
-      params["mm_id"]     = '<?=$info["mm_id"]?>';
 
 	        comAjax("/admin/member/member_edit_proc",params,function(result){
 	            if(result.code == "00"){

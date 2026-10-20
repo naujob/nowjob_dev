@@ -4222,17 +4222,17 @@ class Compage_proc extends CI_Controller
 
   function com_biz_retire()
   {
-    # 데이터 추가.
-    //회원정보 삭제 처리
-    $result = $this->member_model->updateMember(["mm_name" => "탈퇴회원"], ["mm_idx" => $this->mm_idx]);
-    $result = $this->member_model->updateMember(["mm_phone" => ""], ["mm_idx" => $this->mm_idx]);
-    $result = $this->member_model->updateMember(["mm_di" => ""], ["mm_idx" => $this->mm_idx]);
-    $result = $this->member_model->updateMember(["mm_birth" => ""], ["mm_idx" => $this->mm_idx]);
+    # 공통 탈퇴 처리 (PC 마이페이지 탈퇴 버튼: 사유 입력 없음)
+    $result = $this->member_model->withdrawMember($this->mm_idx, "N", "", "");
+    if ($result["code"] != "00") {
+      json_return($result["code"], $result["msg"]);
+      exit;
+    }
 
-    $result = $this->member_model->updateMember(["fire_dt" => date("Y-m-d H:i:s"), "mm_status" => "N"], ["mm_idx" => $this->mm_idx]);
+    # PASS 탈퇴 진행 플래그 제거 + 로그아웃 처리
     $this->common->setSession("COM_MAN_RETIRE", null);
-    $this->common->removeSession("USER_INFO");
-    json_return($result["code"], $result["code"] == "00" ? "처리완료" : "처리시 오류가 발생하였습니다.");
+    $this->user->clearLoginSession();
+    json_return("00", "처리완료");
   }
 
   function resume_pass_fail()

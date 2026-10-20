@@ -117,6 +117,16 @@ class user
 		$this->CI->common->setSession("USER_INFO", $info);
 	}
 
+	# 로그인 세션 종료 (탈퇴 등): 사용자 정보 제거 + 세션 ID 재생성(이전 세션 파일 삭제)
+	function clearLoginSession()
+	{
+		$this->CI = &get_instance();
+		$this->CI->common->removeSession("USER_INFO");
+		if (session_status() === PHP_SESSION_ACTIVE) {
+			session_regenerate_id(true);
+		}
+	}
+
 	//회원,비회원정보를 가져온다.
 	function getUser()
 	{

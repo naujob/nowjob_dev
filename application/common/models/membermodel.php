@@ -328,6 +328,82 @@ class memberModel extends MY_Model
 		return $this->db_update("st_member", $data, $where);
 	}
 
+	# 회원 탈퇴 공통 처리 (본인 탈퇴 'N' / 관리자 삭제 'H')
+	# - mm_idx 기준으로만 수정 (mm_id 중복 행이 있으므로)
+	# - 전화번호·DI·SNS키(mm_join_key)는 15일간 재가입·로그인 차단에 쓰므로 유지 → 15일 후 정리 배치에서 삭제
+	# - 공고·이력서·중고·유료상품은 즉시 숨김, 푸시 끄기, 채팅 접속상태 오프라인 표시(로그아웃과 동일, 채팅 차단은 아님)
+	# @return array ["code" => "00"|..., "msg" => string]
+	function withdrawMember($mm_idx, $status = "N", $reason = "", $reason_desc = "")
+	{
+		$mm_idx = (int)$mm_idx;
+		if ($mm_idx <= 0 || !in_array($status, ["N", "H"], true)) {
+			return ["code" => "90", "msg" => "잘못된 탈퇴 요청입니다."];
+		}
+
+		$mem_info = $this->getMember(["mm_idx" => $mm_idx]);
+		if ($mem_info == null) {
+			return ["code" => "90", "msg" => "회원정보가 조회되지 않습니다."];
+		}
+
+		$now = get_today();
+
+		$this->db->trans_begin();
+
+		// 회원정보: 상태·탈퇴일·사유 기록, 이름·생일만 즉시 삭제
+		$this->db->where("mm_idx", $mm_idx)->update("st_member", [
+			"mm_status" => $status,
+			"fire_dt" => $now,
+			"fire_reason" => $reason,
+			"fire_reason_desc" => $reason_desc,
+			"mm_name" => "탈퇴회원",
+			"mm_birth" => "",
+			"up_dt" => $now,
+		]);
+
+		// 푸시 알림 끄기 (로그아웃과 동일)
+		$this->db->where("mm_idx", $mm_idx)->update("st_member_device", ["push_yn" => "N"]);
+
+		// 탈퇴 즉시 숨김: 공고 / 이력서 / 중고(노출 중인 글만) / 유료상품(사용 중인 것만)
+		$this->db->where("mm_idx", $mm_idx)->update("st_recruit", ["rc_show_yn" => "N"]);
+		$this->db->where("mm_idx", $mm_idx)->update("st_resume", ["ru_show_yn" => "N"]);
+		$this->db->where("mm_idx", $mm_idx)->where("td_status", "Y")->update("st_trade", ["td_status" => "N"]);
+		$this->db->where("mm_idx", $mm_idx)->where("pm_status", "Y")->update("st_promotion", ["pm_status" => "N"]);
+
+		if ($this->db->trans_status() === false) {
+			$error = $this->db->error();
+			$this->db->trans_rollback();
+			error_log("[withdrawMember] 실패 mm_idx=" . $mm_idx . " status=" . $status . " error=" . $error["message"]);
+			return ["code" => "99", "msg" => "탈퇴 처리 중 오류가 발생하였습니다."];
+		}
+		$this->db->trans_commit();
+
+		// 채팅 접속상태를 오프라인('N')으로 표시 (MySQL 트랜잭션 밖, 실패해도 탈퇴는 유지)
+		// user_status는 "접속 중 여부"라 다른 기기에서 소켓 재연결 시 'Y'로 돌아감 → 실제 채팅 차단은 별도 단계
+		$this->setMongoUserStatus($mem_info["mm_id"], "N");
+
+		error_log("[withdrawMember] 완료 mm_idx=" . $mm_idx . " status=" . $status);
+		return ["code" => "00", "msg" => "탈퇴 처리 완료"];
+	}
+
+	# 채팅서버(MongoDB user) 접속상태 변경 (로그아웃·탈퇴 공통, Y=접속중 / N=비접속)
+	function setMongoUserStatus($mm_id, $user_status)
+	{
+		if (empty($mm_id)) {
+			return;
+		}
+		try {
+			$mongo_user = get_mongodb("user");
+			if ($mongo_user) {
+				$mongo_user->update(
+					['user_id' => $mm_id],
+					['$set' => ['user_status' => $user_status]]
+				);
+			}
+		} catch (Exception $e) {
+			error_log("[setMongoUserStatus] 실패 mm_id=" . $mm_id . " " . $e->getMessage());
+		}
+	}
+
 	# 회원정보 등록
 	function insertMemberInfo($data)
 	{

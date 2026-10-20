@@ -378,23 +378,16 @@
 
 			if($proc_mode=="delete"){
 
-        $mm_phone = input_post("mm_phone","");
-        $mm_phoneX1 = $mm_phone . 'x1';
-        $mm_id    = input_post("mm_id","");
-        $temp     = $mm_id . 'x1';
+        // 공통 탈퇴 처리 (상태 'H', mm_idx 기준)
+        // 기존: POST mm_id로 SQL 조립 + 아이디·전화·DI 뒤에 x1 덧붙이기 → 같은 mm_id 행 전부 변경, SQL 인젝션 위험
+        // 변경: 전화·DI·SNS키는 15일간 재가입 차단용으로 유지, 15일 후 정리 배치에서 삭제
+        $result = $this->member_model->withdrawMember($idx, "H", "관리자 삭제", "");
 
-				//$result = $this->member_model->updateMember(["mm_status"=>"H","mm_di"=>"del","mm_phone"=>"del"],["mm_idx"=>$idx]);
-
-        $sql1 = "UPDATE st_member SET mm_id = '$temp', mm_phone = '$mm_phoneX1', mm_di = '$temp', fire_dt = now(), mm_status = 'H' WHERE mm_id = '$mm_id' ";
-        $result1 = $this->db->query($sql1);
-
-        json_return("00","삭제 처리 완료");
-
-        //  if($result["code"]=="00"){
-    		//		json_return("00","삭제 처리 완료");
-    		//	}else{
-    		//		json_return("90","데이터 처리시 오류가 발생하였습니다.");
-    		//	}
+        if($result["code"]=="00"){
+          json_return("00","삭제 처리 완료");
+        }else{
+          json_return("90",$result["msg"]);
+        }
 			}else if($proc_mode=="return"){
 				$result = $this->member_model->updateMember(["mm_status"=>"Y","mm_stop_desc"=>"","stop_dt"=>""],["mm_idx"=>$idx]);
 
