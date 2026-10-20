@@ -1366,6 +1366,15 @@ class Recruit extends CI_Controller
 
   function retiremem15day()
   {
+    // 누구나 URL로 호출할 수 있던 배치: CLI 실행이거나 서버 자신(localhost)에서 온 요청만 허용
+    $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+    $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+    if (!is_cli() && !$is_localhost) {
+      header("HTTP/1.1 403 Forbidden");
+      echo "Forbidden";
+      exit;
+    }
+
     echo date("Y-m-d H:i:s") . " start\n";
 
     # 트랙젝션 시작
@@ -1388,6 +1397,9 @@ class Recruit extends CI_Controller
 
     // 일련번호 변수 초기화
     $serialNumber = 1;
+
+    // 처리 건수만 세고, 전화번호 등 개인정보는 화면에 출력하지 않음
+    $processed_count = 0;
 
     foreach ($list as $key => $row) {
 
@@ -1412,15 +1424,15 @@ class Recruit extends CI_Controller
       //$result1 = $this->db->query($sql1);
 
       //$sql2 = "UPDATE st_member SET mm_id = '$temp' WHERE mm_id = '$mm_id' ";
-      echo $sql1 . "\n";
-      //$query = $this->db->query($sql2);
-
       $result1 = $this->db->query($sql1);
+      $processed_count++;
+      //$query = $this->db->query($sql2);
     }
 
     # 트랙젝션 완료
     $this->db->trans_commit();
 
+    echo $processed_count . "건 처리\n";
     echo date("Y-m-d H:i:s") . " end\n";
   }
 
