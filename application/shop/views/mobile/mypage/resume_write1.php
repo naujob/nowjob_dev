@@ -54,6 +54,15 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-top: 28px;
     }
 
+    /* 새로 노출된 단계는 높이를 바꾸지 않고 투명도만 올린다 (레이아웃 흔들림·스크롤 위치 변화 없음) */
+    @keyframes stepFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .page-resume-write .step-section[data-enter="true"] {
+        animation: stepFadeIn 150ms ease-out;
+    }
+
     /* 각 단계 입력 영역 카드 스타일은 main.css 공통 규칙(.page-resume-write *-field-wrapper) 사용 */
 
     /* 카드 안에서는 form-row 의 상단 여백을 줄인다 */
@@ -1917,15 +1926,17 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     // 단계 이동 스크롤 실행 (브라우저 네이티브 smooth 이동)
     // - 이동 중에는 window.__stepScrolling 을 켜서 main.js 의 textarea 보정 스크롤과 겹치지 않게 한다
-    // - scrollend 를 지원하지 않는 WebView 를 위해 600ms 뒤에도 플래그를 내린다
+    // - 이동 종료는 scrollend 로 판단하고, scrollend 를 지원하지 않는 WebView 를 위해 1초 뒤 안전장치로 플래그를 내린다
+    // - 이동할 거리가 없으면 scrollend 가 오지 않으므로 플래그를 켜지 않는다 (켜두면 보정이 막힌 채 남음)
     function animatePageScroll(target) {
         var pageEl = $(".page")[0];
         if (!pageEl) return;
         endStepScroll();
+        if (Math.abs(target - pageEl.scrollTop) < 2) return;
         window.__stepScrolling = true;
         stepScrollEl = pageEl;
         pageEl.addEventListener('scrollend', endStepScroll);
-        stepScrollTimer = setTimeout(endStepScroll, 600);
+        stepScrollTimer = setTimeout(endStepScroll, 1000);
         pageEl.scrollTo({ top: target, behavior: 'smooth' });
     }
 
@@ -1965,23 +1976,30 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         animatePageScroll(target);
     }
 
-    // 누적형 노출: 지나온 단계는 계속 보이고 현재 단계만 펼쳐진다
-    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
-    //                펼침 애니메이션과 현재 단계로의 자동 스크롤 없이 즉시 표시한다
+    // 누적형 노출: 지나온 단계는 계속 보이고 현재 단계가 추가로 나타난다
+    // 현재 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
+    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는 페이드와 자동 스크롤 없이 즉시 표시한다
     function updateStepVisibility(skipAnimation) {
         var total = getTotalSteps();
 
         for (var i = 1; i <= MAX_STEPS; i++) {
             var $section = $(".step-section[data-step='" + i + "']");
+            // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
+            // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
+            var wasHidden = $section.is(":hidden");
             if (i <= currentStep && i <= total) {
-                if (i === currentStep && !skipAnimation) {
-                    $section.slideDown(120, scrollToCurrentStep);
+                if (i === currentStep && !skipAnimation && wasHidden) {
+                    $section.attr("data-enter", "true").show();
                 } else {
-                    $section.show();
+                    $section.removeAttr("data-enter").show();
                 }
             } else {
-                $section.hide();
+                $section.removeAttr("data-enter").hide();
             }
+        }
+
+        if (currentStep >= 1 && currentStep <= total && !skipAnimation) {
+            scrollToCurrentStep();
         }
 
         updateProgressBar();
@@ -2271,7 +2289,53 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return 1;
     }
 
+    // 브라우저 자동 스크롤(포커스·캐럿 노출)이 가려진 영역을 피하도록 .page의 scroll-padding을 실제 높이로 맞춘다
+    // 위: topbar·진행바 아래끝 / 아래: 고정 푸터 윗면 (둘 다 여유 24px)
+    function setupPageScrollPadding() {
+        var pageEl = $(".page")[0];
+        if (!pageEl) return;
+        var pageTop = pageEl.getBoundingClientRect().top;
+        var coverBottom = pageTop;
+        $(".top-bar, .step-progress-bar").each(function() {
+            var bottom = this.getBoundingClientRect().bottom;
+            if (bottom > coverBottom) {
+                coverBottom = bottom;
+            }
+        });
+        var $footer = $(".sticky-bottom.view-footer");
+        var footerHeight = $footer.length ? $footer[0].getBoundingClientRect().height : 0;
+        pageEl.style.scrollPaddingTop = (coverBottom - pageTop + 24) + "px";
+        pageEl.style.scrollPaddingBottom = (footerHeight + 24) + "px";
+        // [진단] 적용된 값이 실제로 들어갔는지 확인 (확인 후 제거)
+        BrowserLogger.info("resume scroll-padding 적용", {
+            top: pageEl.style.scrollPaddingTop,
+            bottom: pageEl.style.scrollPaddingBottom,
+            footerFound: $footer.length,
+            footerHeight: footerHeight,
+            computedBottom: window.getComputedStyle(pageEl).scrollPaddingBottom
+        });
+    }
+
     $(document).ready(function() {
+
+        setupPageScrollPadding();
+        $(window).on("resize", setupPageScrollPadding);
+
+        // [진단] 상세업무(자기소개) 입력란 포커스 후 위치 확인 (확인 후 제거)
+        $(document).on("focusin", "#ru_desc_editor", function() {
+            var editor = this;
+            setTimeout(function() {
+                var pageEl = $(".page")[0];
+                var footer = $(".sticky-bottom.view-footer")[0];
+                BrowserLogger.info("resume ru_desc_editor 포커스 후 위치", {
+                    editorBottom: editor.getBoundingClientRect().bottom,
+                    footerTop: footer ? footer.getBoundingClientRect().top : null,
+                    pageScrollTop: pageEl ? pageEl.scrollTop : null,
+                    vvHeight: window.visualViewport ? window.visualViewport.height : null,
+                    innerHeight: window.innerHeight
+                });
+            }, 800);
+        });
 
         // 희망지역 삭제 버튼 이벤트
         $(document).on("click", "#addr_location .js-del-item", function() {

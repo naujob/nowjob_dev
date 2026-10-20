@@ -1253,6 +1253,14 @@
    .step-section{
          margin-top: 28px;
    }
+   /* 새로 노출된 단계는 높이를 바꾸지 않고 투명도만 올린다 (레이아웃 흔들림·스크롤 위치 변화 없음) */
+   @keyframes stepFadeIn {
+         from { opacity: 0; }
+         to { opacity: 1; }
+   }
+   .step-section[data-enter="true"]{
+         animation: stepFadeIn 150ms ease-out;
+   }
 
    /* 이미지 업로드 레이아웃 */
    .form-pic-group-main {
@@ -1586,30 +1594,34 @@
     }
 
     // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
-    //                펼침 애니메이션과 자동 스크롤 없이 즉시 표시한다
+    //                페이드와 자동 스크롤 없이 즉시 표시한다
     function updateStepVisibility(skipAnimation) {
         // 현재 단계까지의 모든 섹션을 누적형으로 표시
         for (let i = 1; i <= TOTAL_STEPS; i++) {
             let $section = $(".step-section[data-step='" + i + "']");
+            // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
+            // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
+            var wasHidden = $section.is(":hidden");
             if (i <= currentStep) {
-                if (i === currentStep && !skipAnimation) {
-                    // 자동 이동이면 키보드 전환이 끝난 뒤 스크롤한다 (goNextStep 쪽에서 플래그를 켠다)
-                    var scrollDelay = window.__autoAdvanceScroll ? AUTO_STEP_SCROLL_DELAY : 0;
-                    // 새로 노출되는 단계는 slideDown. 높이가 확정된 뒤 스크롤해야 하므로 완료 콜백에서 처리
-                    $section.slideDown(120, function() {
-                        if (scrollDelay) {
-                            setTimeout(scrollToCurrentStep, scrollDelay);
-                        } else {
-                            scrollToCurrentStep();
-                        }
-                    });
+                if (i === currentStep && !skipAnimation && wasHidden) {
+                    // 새 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
+                    $section.attr("data-enter", "true").show();
                 } else {
                     // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
-                    $section.show();
+                    $section.removeAttr("data-enter").show();
                 }
             } else {
                 // currentStep보다 뒤의 단계는 숨김
-                $section.hide();
+                $section.removeAttr("data-enter").hide();
+            }
+        }
+        // 단계 이동 스크롤은 섹션 표시 직후 한 번만 한다 (미리보기 복귀 등 skipAnimation 이면 생략)
+        if (currentStep <= TOTAL_STEPS && !skipAnimation) {
+            // 자동 이동이면 키보드가 내려가고 viewport 가 안정될 때까지 잠깐 기다린 뒤 스크롤한다 (goNextStep 쪽에서 플래그를 켠다)
+            if (window.__autoAdvanceScroll) {
+                setTimeout(scrollToCurrentStep, AUTO_STEP_SCROLL_DELAY);
+            } else {
+                scrollToCurrentStep();
             }
         }
         updateProgressBar();
@@ -1666,6 +1678,10 @@
     function animateStepScroll($page, scrollTop, duration) {
         var page = $page[0];
         if (!page) {
+            return;
+        }
+        // 이동할 거리가 없으면 scrollend 가 오지 않으므로 플래그를 켜지 않는다 (켜두면 보정이 막힌 채 남음)
+        if (Math.abs(scrollTop - page.scrollTop) < 2) {
             return;
         }
         window.__stepScrolling = true;
@@ -4230,6 +4246,10 @@
         // (textarea/contenteditable 은 줄바꿈이 필요하므로 제외, 한글 조합 중 Enter 는 무시)
         $(document).on('keydown', 'input[type="text"], input[type="tel"], input[type="number"], input[type="date"], input:not([type])', function(e) {
             if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) {
+                return;
+            }
+            // 주소검색 팝업(#changeArea, #changeAreaExpose) 안의 입력란은 Enter 시 주소 검색만 하므로 다음 단계로 넘기지 않는다
+            if ($(this).closest('#changeArea, #changeAreaExpose').length > 0) {
                 return;
             }
             // "다음" 버튼이 보이는 단계에서만 동작 (마지막 단계·상세등록 구간 제외)
