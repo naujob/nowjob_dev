@@ -1322,6 +1322,31 @@ class Cron_proc extends CI_Controller
         echo "[auto_reregister_paid_recruit] {$message} | 성공: {$success}건, 실패: {$fail}건\n";
     }
 
+    // 15일 지난 탈퇴 회원 데이터 실제 정리 (공고/이력서/중고/파일 삭제, 주문 익명화, st_member 개인정보 삭제 등)
+    // 되돌릴 수 없는 삭제 작업이라 CLI 실행이거나 서버 자신(localhost)에서 온 요청만 허용
+    // crontab: 10 4 * * * curl -s http://localhost/cron_proc/cleanup_withdrawn_members > /dev/null 2>&1
+    public function cleanup_withdrawn_members()
+    {
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        // 한 번에 처리할 최대 건수. 운영 DB에 이미 15일 지난 미정리 회원이 많이 밀려 있을 수 있어
+        // 기본값을 낮게 두고, 필요하면 ?limit= 파라미터로 늘려서 수동 실행한다.
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+        if ($limit <= 0 || $limit > 200) {
+            $limit = 20;
+        }
+
+        $result = $this->member_model->cleanupWithdrawnMembers($limit);
+
+        echo "[cleanup_withdrawn_members] fire_dt 보정: {$result['backfilled']}건, 정리 성공: {$result['processed']}건, 실패: {$result['fail']}건\n";
+    }
+
     // 테스트용: 특정 이력서로만 매칭 테스트
     public function test_match_single_resume()
     {

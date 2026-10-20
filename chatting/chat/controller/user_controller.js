@@ -175,6 +175,38 @@ container.getUserTokenFromMySQL = async function(user_id, callback) {
 	}
 }
 
+// MySQL에서 회원 상태(mm_status) 조회 — 탈퇴/정지 여부 확인용
+// getUserTokenFromMySQL과 동일한 패턴 (실패 시 'Y'로 간주해 기존 동작 유지)
+container.getMemberStatusFromMySQL = async function(user_id, callback) {
+	try {
+		const $mysql = require("../database/mysql.js");
+
+		if (!$mysql.db_conn) {
+			$mysql.init();
+		}
+
+		const sql = "SELECT mm_status FROM st_member WHERE mm_id = ? LIMIT 1";
+
+		$mysql.db_conn.query(sql, [user_id], function(err, results) {
+			if (err) {
+				$common.writeLog('getMemberStatusFromMySQL 오류: ' + err.message);
+				callback('Y');
+				return;
+			}
+
+			if (results && results.length > 0 && results[0].mm_status) {
+				callback(results[0].mm_status);
+			} else {
+				callback('Y');
+			}
+		});
+
+	} catch (err) {
+		$common.writeLog('getMemberStatusFromMySQL 예외: ' + err.message);
+		callback('Y');
+	}
+}
+
 /////////////////////////////////////////////////////
 // 객체 적용
 /////////////////////////////////////////////////////

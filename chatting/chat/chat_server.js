@@ -892,9 +892,31 @@ io.on('connection', function (socket) {
 			// (exit_dt는 보존 - 메시지 필터링 기준점으로 계속 사용됨. system_exit은 "방금 나가는 중"이라는
 			//  알림이므로 복구 대상에서 제외. PHP의 reset_room_exit_status()와 동일한 로직)
 			if (data.mg_type !== 'system_exit' && room_for_reads && room_for_reads.rm_users) {
+				// 나간 사람 중 "탈퇴 회원"은 복구 대상에서 제외한다.
+				// 탈퇴 시 exit_yn='Y' 처리는 영구적이어야 하는데, 여기서 그냥 복구해버리면
+				// 상대방이 메시지를 보낼 때마다 탈퇴 회원이 되살아나서 방이 영원히 CLOSED가 안 되고
+				// (withdrawMember()::_exitChatRoomsOnWithdraw() 참고) 대화도 영원히 정리 안 됨
+				const exited_other_user_ids = room_for_reads.rm_users
+					.filter(u => u && u.user_id !== g_user_id && u.exit_yn === 'Y')
+					.map(u => u.user_id);
+
+				const withdrawn_user_ids = new Set();
+				for (const uid of exited_other_user_ids) {
+					try {
+						const status = await new Promise((resolve) => {
+							$exe.user.getMemberStatusFromMySQL(uid, resolve);
+						});
+						if (status !== 'Y') {
+							withdrawn_user_ids.add(uid);
+						}
+					} catch (err) {
+						// 조회 실패 시 기존 동작대로 복구 대상에 포함시킴
+					}
+				}
+
 				let needs_revive = false;
 				const revived_rm_users = room_for_reads.rm_users.map(function (u) {
-					if (u && u.user_id !== g_user_id && u.exit_yn === 'Y') {
+					if (u && u.user_id !== g_user_id && u.exit_yn === 'Y' && !withdrawn_user_ids.has(u.user_id)) {
 						needs_revive = true;
 						const revived = Object.assign({}, u);
 						revived.exit_yn = 'N';
@@ -981,16 +1003,15 @@ io.on('connection', function (socket) {
 					}
 
 					// 회원 상태 조회 (탈퇴 여부 확인)
+					// 기존 $exe.member.getMember()는 member 모듈이 등록된 적이 없어 항상 예외로 끝나
+					// mm_status가 절대 'N'이 되지 않는 버그였음 → MySQL 직접 조회로 교체
 					let mm_status = 'Y';
 					try {
-						const member_info = await new Promise((resolve) => {
-							$exe.member.getMember({ mm_id: user_id }, resolve);
+						mm_status = await new Promise((resolve) => {
+							$exe.user.getMemberStatusFromMySQL(user_id, resolve);
 						});
-						if (!member_info || member_info.mm_status !== 'Y') {
-							mm_status = 'N';
-						}
 					} catch (err) {
-						// 회원 정보 조회 실패 시 'Y'로 설정
+						// 회원 정보 조회 실패 시 'Y'로 설정 (기존 동작 유지)
 						mm_status = 'Y';
 					}
 

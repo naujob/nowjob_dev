@@ -388,8 +388,87 @@ class memberModel extends MY_Model
 		// user_status는 "접속 중 여부"라 다른 기기에서 소켓 재연결 시 'Y'로 돌아감 → 실제 채팅 차단은 별도 단계
 		$this->setMongoUserStatus($mem_info["mm_id"], "N");
 
+		// 채팅방 이름/사진을 "탈퇴회원"으로 즉시 익명화 (15일 뒤 정리 배치까지 기다리지 않음)
+		// 채팅 목록·채팅방은 매번 이 user 컬렉션에서 이름/사진을 실시간으로 가져오므로(chat_model.js getRoom/getRoomList),
+		// 여기서 한 번만 바꿔두면 기존 대화방·대화 내용은 그대로 둔 채 표시만 즉시 바뀐다
+		try {
+			$mongo_user = get_mongodb("user");
+			if ($mongo_user) {
+				$mongo_user->update(
+					['user_id' => $mem_info["mm_id"]],
+					['$set' => ['user_nick' => '탈퇴회원', 'user_img' => '']]
+				);
+			}
+		} catch (Exception $e) {
+			error_log("[withdrawMember] 채팅 익명화 실패 mm_idx=" . $mm_idx . " " . $e->getMessage());
+		}
+
+		// 참여 중인 모든 채팅방에서 "나간 사람"으로 처리 (exit_room()과 동일한 상태 전이)
+		// 안 하면: ① 메시지 전송 차단이 로그인 차단에만 의존하게 되고 ② 상대가 안 나가는 한 방이 영원히
+		// CLOSED가 안 돼서 cleanup_closed_room_messages() 정리 대상에도 영원히 못 들어감
+		$this->_exitChatRoomsOnWithdraw($mem_info["mm_id"]);
+
 		error_log("[withdrawMember] 완료 mm_idx=" . $mm_idx . " status=" . $status);
 		return ["code" => "00", "msg" => "탈퇴 처리 완료"];
+	}
+
+	# withdrawMember() 내부용: 참여 중인 모든 채팅방에서 본인을 "나간 사람"으로 처리
+	# chat_proc.php::exit_room()과 같은 상태 전이(exit_yn='Y', exit_dt 기록, 전원 나가면 rm_status='CLOSED')를
+	# 본인 요청 없이 서버가 대신 적용한다. 메시지 삭제/첨부파일 삭제는 하지 않음(기존 30일 정리 배치가 처리).
+	# 주의: chat_server.js의 "상대방 메시지 수신 시 나간 사람 자동 복구" 로직은 mm_status를 확인해
+	#       탈퇴 회원은 복구하지 않도록 별도로 수정되어 있어야 한다(그래야 이 처리가 의미가 있음).
+	private function _exitChatRoomsOnWithdraw($mm_id)
+	{
+		if (empty($mm_id)) {
+			return;
+		}
+
+		try {
+			$room_collection = get_mongodb("room");
+			if (!$room_collection) {
+				return;
+			}
+
+			$cursor = $room_collection->find(['rm_users.user_id' => $mm_id]);
+			foreach ($cursor as $room) {
+				$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
+				if (empty($rm_users)) {
+					continue;
+				}
+
+				$changed = false;
+				foreach ($rm_users as $key => $room_user) {
+					if (isset($room_user["user_id"]) && $room_user["user_id"] == $mm_id) {
+						if (!isset($room_user["exit_yn"]) || $room_user["exit_yn"] != "Y") {
+							$rm_users[$key]["exit_yn"] = "Y";
+							$rm_users[$key]["exit_dt"] = new MongoDate();
+							$changed = true;
+						}
+					}
+				}
+
+				if (!$changed) {
+					continue;
+				}
+
+				$all_exited = true;
+				foreach ($rm_users as $room_user) {
+					if (!isset($room_user["exit_yn"]) || $room_user["exit_yn"] != "Y") {
+						$all_exited = false;
+						break;
+					}
+				}
+
+				$update_data = ['$set' => ['rm_users' => $rm_users]];
+				if ($all_exited) {
+					$update_data['$set']['rm_status'] = 'CLOSED';
+				}
+
+				$room_collection->update(['rm_idx' => $room["rm_idx"]], $update_data);
+			}
+		} catch (Exception $e) {
+			error_log("[_exitChatRoomsOnWithdraw] 실패 mm_id=" . $mm_id . " " . $e->getMessage());
+		}
 	}
 
 	# 최근 탈퇴 회원 조회 (탈퇴 후 WITHDRAW_BLOCK_DAYS일 이내, 상태 'N'/'H')
@@ -498,6 +577,186 @@ class memberModel extends MY_Model
 		} catch (Exception $e) {
 			error_log("[setMongoUserStatus] 실패 mm_id=" . $mm_id . " " . $e->getMessage());
 		}
+	}
+
+	# 15일 지난 탈퇴 회원 데이터 실제 정리 (매일 배치, cron_proc.php::cleanup_withdrawn_members에서 호출)
+	# 1) fire_dt가 비어있는 탈퇴/삭제 행은 오늘 날짜로 채워 15일 유예를 시작시킨다(과거에 생긴 빈 값 보정)
+	# 2) 15일 지나고 아직 정리 안 된 회원을 $limit건만 골라 완전히 정리한다 (한 번에 다 하지 않음 - 운영 DB에 밀린 건이 많을 수 있어서)
+	# 처리 완료 표시는 스키마 변경 없이 mm_id='del_{mm_idx}'로 한다 (prepareJoinIdentity()의 정리 표시 방식과 동일)
+	# @param int $limit 이번 실행에서 처리할 최대 회원 수
+	# @return array ["backfilled"=>fire_dt 보정 건수, "processed"=>정리 성공 건수, "fail"=>실패 건수]
+	function cleanupWithdrawnMembers($limit = 20)
+	{
+		// 1) fire_dt 없는 탈퇴/삭제 행: 오늘부터 15일 유예 시작
+		$this->db->where_in("mm_status", ["N", "H"]);
+		$this->db->group_start();
+		$this->db->where("fire_dt", null);
+		$this->db->or_where("fire_dt", "0000-00-00 00:00:00");
+		$this->db->or_where("fire_dt", "");
+		$this->db->group_end();
+		$this->db->update("st_member", ["fire_dt" => get_today()]);
+		$backfilled = $this->db->affected_rows();
+
+		// 2) 15일 지나고 아직 정리 안 된 대상 조회
+		$sql = "
+			SELECT mm_idx FROM st_member
+			WHERE mm_status IN ('N','H')
+			  AND fire_dt < DATE_SUB(NOW(), INTERVAL " . (int)WITHDRAW_BLOCK_DAYS . " DAY)
+			  AND mm_id NOT LIKE 'del\\_%'
+			ORDER BY mm_idx ASC
+			LIMIT " . (int)$limit . "
+		";
+		$list = $this->db->query($sql)->result_array();
+
+		$processed = 0;
+		$fail = 0;
+		foreach ($list as $row) {
+			if ($this->_cleanupWithdrawnMemberOne((int)$row["mm_idx"])) {
+				$processed++;
+			} else {
+				$fail++;
+			}
+		}
+
+		return ["backfilled" => $backfilled, "processed" => $processed, "fail" => $fail];
+	}
+
+	# cleanupWithdrawnMembers() 내부용: 회원 1명의 데이터를 완전히 정리한다
+	# 공고/이력서/중고(+주소·경력·자격·북마크·조회기록) 삭제, 업로드 파일 삭제,
+	# 주문 개인정보 익명화(기록은 보관), 포인트는 손대지 않음(보관), 기기 토큰 삭제,
+	# st_member 개인정보 전부 삭제, Mongo user 문서 익명화
+	private function _cleanupWithdrawnMemberOne($mm_idx)
+	{
+		$mem_info = $this->getMember(["mm_idx" => $mm_idx]);
+		if ($mem_info == null) {
+			return false;
+		}
+
+		// 삭제 전에 업로드 파일 URL과 연관 idx 목록을 먼저 모아둔다
+		$recruit_list = $this->db->where("mm_idx", $mm_idx)->get("st_recruit")->result_array();
+		$resume_list = $this->db->where("mm_idx", $mm_idx)->get("st_resume")->result_array();
+		$trade_list = $this->db->where("mm_idx", $mm_idx)->get("st_trade")->result_array();
+
+		$rc_idx_list = [];
+		$ru_idx_list = [];
+		$td_idx_list = [];
+		$image_urls = [];
+
+		foreach ($recruit_list as $rc) {
+			$rc_idx_list[] = $rc["rc_idx"];
+			foreach (["rc_thumb", "rc_img1", "rc_img2", "rc_img3", "rc_img4", "rc_img5"] as $col) {
+				if (!empty($rc[$col])) $image_urls[] = $rc[$col];
+			}
+		}
+		foreach ($resume_list as $ru) {
+			$ru_idx_list[] = $ru["ru_idx"];
+			foreach (["ru_thumb", "ru_img1", "ru_img2", "ru_img3", "ru_img4", "ru_img5"] as $col) {
+				if (!empty($ru[$col])) $image_urls[] = $ru[$col];
+			}
+		}
+		foreach ($trade_list as $td) {
+			$td_idx_list[] = $td["td_idx"];
+			foreach (["td_thumb", "td_img1", "td_img2", "td_img3", "td_img4", "td_img5"] as $col) {
+				if (!empty($td[$col])) $image_urls[] = $td[$col];
+			}
+		}
+		foreach (["mm_thumb", "mm_img1", "mm_img2", "mm_img3", "mm_img4", "mm_img5", "mm_comp_auth"] as $col) {
+			if (!empty($mem_info[$col])) $image_urls[] = $mem_info[$col];
+		}
+
+		$this->db->trans_begin();
+
+		$this->db->where("mm_idx", $mm_idx)->delete("st_recruit");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_resume");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_trade");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_address");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_bookmark");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_view");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_career");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_certi");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_promotion");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_device");
+
+		if (!empty($ru_idx_list)) {
+			$this->db->where_in("ru_idx", $ru_idx_list)->delete("st_resume_career");
+			$this->db->where_in("ru_idx", $ru_idx_list)->delete("st_resume_certi");
+		}
+
+		// 다른 회원이 내 공고/이력서/중고를 북마크하거나 열람한 기록도 함께 정리
+		// (안 지우면 삭제된 글을 가리키는 빈 북마크·열람기록이 다른 사람 화면에 남음)
+		if (!empty($rc_idx_list)) {
+			$this->db->where("bk_type", "RECRUIT")->where_in("bk_key", $rc_idx_list)->delete("st_bookmark");
+			$this->db->where("mv_type", "recruit")->where_in("mv_key", $rc_idx_list)->delete("st_member_view");
+		}
+		if (!empty($ru_idx_list)) {
+			$this->db->where("bk_type", "RESUME")->where_in("bk_key", $ru_idx_list)->delete("st_bookmark");
+			$this->db->where("mv_type", "resume")->where_in("mv_key", $ru_idx_list)->delete("st_member_view");
+		}
+		if (!empty($td_idx_list)) {
+			$this->db->where("bk_type", "TRADE")->where_in("bk_key", $td_idx_list)->delete("st_bookmark");
+			$this->db->where("mv_type", "trade")->where_in("mv_key", $td_idx_list)->delete("st_member_view");
+		}
+
+		// 주문 기록은 보관하되 개인정보만 익명화
+		$this->db->where("mm_idx", $mm_idx)->update("st_order", [
+			"o_oname" => "탈퇴회원",
+			"o_ophone" => "",
+			"o_oemail" => "",
+		]);
+
+		// 회원 개인정보 전부 삭제 + 처리 완료 표시(mm_id='del_{mm_idx}')
+		$this->db->where("mm_idx", $mm_idx)->update("st_member", [
+			"mm_id" => "del_" . $mm_idx,
+			"mm_pwd" => "",
+			"mm_phone" => "",
+			"mm_email" => "",
+			"mm_di" => "",
+			"mm_ci" => "",
+			"mm_addr" => "",
+			"mm_zipcode" => "",
+			"mm_jibun" => "",
+			"mm_doro" => "",
+			"mm_gps_x" => "",
+			"mm_gps_y" => "",
+			"mm_thumb" => "",
+			"mm_img1" => "",
+			"mm_img2" => "",
+			"mm_img3" => "",
+			"mm_img4" => "",
+			"mm_img5" => "",
+			"mm_comp_auth" => "",
+			"mm_join_key" => "",
+			"up_dt" => get_today(),
+		]);
+
+		if ($this->db->trans_status() === false) {
+			$error = $this->db->error();
+			$this->db->trans_rollback();
+			error_log("[cleanupWithdrawnMembers] 실패 mm_idx=" . $mm_idx . " error=" . $error["message"]);
+			return false;
+		}
+		$this->db->trans_commit();
+
+		// 업로드 파일 삭제 (DB 커밋 후 처리, 파일 삭제가 실패해도 데이터 정리 결과는 유지)
+		foreach ($image_urls as $url) {
+			$this->common->remove_upload_image($url);
+		}
+
+		// Mongo user 문서 익명화 (채팅방·메시지는 유지, 이름/사진만 제거)
+		try {
+			$mongo_user = get_mongodb("user");
+			if ($mongo_user) {
+				$mongo_user->update(
+					['user_id' => $mem_info["mm_id"]],
+					['$set' => ['user_nick' => '탈퇴회원', 'user_img' => '']]
+				);
+			}
+		} catch (Exception $e) {
+			error_log("[cleanupWithdrawnMembers] Mongo 익명화 실패 mm_idx=" . $mm_idx . " " . $e->getMessage());
+		}
+
+		error_log("[cleanupWithdrawnMembers] 완료 mm_idx=" . $mm_idx);
+		return true;
 	}
 
 	# 회원정보 등록
@@ -728,6 +987,7 @@ class memberModel extends MY_Model
             ) iv
                 on bb.ru_idx = iv.ru_idx
             where bb.ru_idx = '$ru_idx'
+                and aa.mm_status = 'Y'
        ";
 
 		$query = $this->db->query($sql);

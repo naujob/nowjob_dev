@@ -1276,13 +1276,17 @@ class recruitModel extends MY_Model
 	function autoReregisterPaidRecruit($mm_idx = null)
 	{
 		// st_promotion에 연결된 공고들 조회 (현재 활성 유료상품 중 "추천공고등록"만)
+		// 공고 주인이 탈퇴/정지(mm_status != 'Y')한 경우는 자동 재등록 대상에서 제외
 		$sql = "
 			SELECT DISTINCT p.rc_idx
 			FROM st_promotion p
+			INNER JOIN st_recruit r ON r.rc_idx = p.rc_idx
+			INNER JOIN st_member m ON m.mm_idx = r.mm_idx
 			WHERE p.pm_status = 'Y'
 			  AND p.pm_sdate <= NOW()
 			  AND p.pm_edate >= NOW()
 			  AND p.pm_name LIKE '%추천공고등록%'
+			  AND m.mm_status = 'Y'
 		";
 		$query = $this->db->query($sql);
 		$result = $query->result_array();

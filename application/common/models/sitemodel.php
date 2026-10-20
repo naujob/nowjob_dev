@@ -2596,6 +2596,7 @@ class siteModel extends MY_Model
                     on aa.mm_idx = bb.mm_idx
             where token !=''
             and bb.alarm_adv = 'Y'
+            and bb.mm_status = 'Y'
 		";
 
 		$result = $this->db->query($sql_data);
@@ -2619,6 +2620,7 @@ class siteModel extends MY_Model
                 on mb.mm_idx = mv.mm_idx
             where rc.mm_idx = '$mm_idx'
             and mb.alarm_resume = 'Y'
+            and mb.mm_status = 'Y'
             group by mb.mm_idx
        ";
 
@@ -2642,6 +2644,7 @@ class siteModel extends MY_Model
                             on bb.mm_idx = cc.mm_idx
     			where aa.rc_idx = '$key'
                 and bb.alarm_fav = 'Y'
+                and bb.mm_status = 'Y'
     		";
 
 			$result = $this->db->query($sql_data);
@@ -2656,6 +2659,7 @@ class siteModel extends MY_Model
                             on bb.mm_idx = cc.mm_idx
     			where aa.ru_idx = '$key'
                 and bb.alarm_fav = 'Y'
+                and bb.mm_status = 'Y'
     		";
 
 			$result = $this->db->query($sql_data);

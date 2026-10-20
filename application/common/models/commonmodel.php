@@ -641,7 +641,7 @@ class commonModel extends MY_Model
 					on aa.td_idx = cc.bk_key and cc.bk_type = 'TRADE' and cc.mm_idx = '$mm_idx'
 				left join st_address bb
 					on aa.td_idx = bb.ad_key and bb.ad_type = 'TRADE'
-			where 1=1
+			where aa.td_status = 'Y'
 			group by aa.td_idx
 			order by aa.td_idx desc
 			limit 0,$length;
