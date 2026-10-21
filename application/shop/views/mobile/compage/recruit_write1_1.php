@@ -1,4 +1,4 @@
-<div class="page page-write page-recruit-write" style="background: #f9f7f7;">
+<div class="page page-write page-recruit-write" style="background: #f9f7f7; scroll-padding-top: 0px; scroll-padding-bottom: 0;">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
@@ -42,7 +42,7 @@
                     <div class="step-section" data-step="1">
                     <!-- 공고제목 섹션 -->
                     <div class="form-row">
-                        <p class="step-question"><span class="step-question-main">어떤일을 담당할<br>직원을 찾으시나요?</span></p>
+                        <p class="step-question"><span class="step-question-main">어떤일을 담당할<br>인재를 찾으시나요?</span></p>
                         <div class="input-field-wrapper">
                             <div class="label-with-counter">
                                 <label class="form-label">공고제목<span class="required-asterisk">*</span></label>
@@ -56,7 +56,6 @@
                     <!-- 단계 2: 주소등록, 공고노출지역, 채용공고기간 -->
                     <div class="step-section" data-step="2" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">근무지와 추가노출지역을</span><br><span class="step-question-sub">입력해주세요</span></p>
 
                     <!-- 주소 입력 전체 래퍼 -->
                     <div class="address-field-wrapper">
@@ -102,7 +101,6 @@
                     <!-- 단계 3: 채용공고기간 -->
                     <div class="step-section" data-step="3" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">채용공고 기간을</span><br><span class="step-question-sub">입력해주세요</span></p>
 
                     <!-- 채용공고기간 래퍼 -->
                     <div class="date-field-wrapper">
@@ -130,7 +128,6 @@
                     <!-- 단계 4: 업무구분 -->
                     <div class="step-section" data-step="4" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 업종을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 업무구분 래퍼 -->
                     <div class="work-field-wrapper">
@@ -177,7 +174,6 @@
                     <!-- 단계 5: 해시태그 -->
                     <div class="step-section" data-step="5" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 특징을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 해시태그 래퍼 -->
                     <div class="hashtag-field-wrapper">
@@ -231,7 +227,6 @@
                     <!-- 단계 6: 근무형태 -->
                     <div class="step-section" data-step="6" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 근무시간을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 근무형태 래퍼 -->
                     <div class="schedule-field-wrapper">
@@ -341,7 +336,6 @@
                     <!-- 단계 7: 급여형태 -->
                     <div class="step-section" data-step="7" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 급여를</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 급여형태 래퍼 -->
                     <div class="salary-field-wrapper">
@@ -393,7 +387,6 @@
                     <!-- 단계 8: 복리후생 (항목이 길어 질문문구가 밀리므로 상단 기준으로 스크롤) -->
                     <div class="step-section" data-step="8" data-scroll="top" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 복리후생을</span><br><span class="step-question-sub">선택해주세요</span></p>
 
                     <!-- 복리후생 래퍼 -->
                     <div class="benefit-field-wrapper">
@@ -459,7 +452,6 @@
                     <!-- 단계 9: 이미지등록 -->
                     <div class="step-section" data-step="9" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 사진을</span><br><span class="step-question-sub">등록해주세요</span></p>
 
                     <!-- 업무정보 섹션 (이미지등록) -->
                     <div class="form-section">
@@ -556,7 +548,6 @@
                     <!-- 단계 10: 상세업무 (에디터가 길어 끝까지 스크롤) -->
                     <div class="step-section" data-step="10" data-scroll="bottom" style="display:none;">
                     <!-- 질문 섹션 -->
-                    <p class="step-question"><span class="step-question-main">모집중인 공고의 업무내용을</span><br><span class="step-question-sub">입력해주세요</span></p>
 
                     <!-- 업무정보 섹션 (상세업무) -->
                     <div class="form-section">
@@ -573,11 +564,14 @@
                                     <?php
                                     // contenteditable div에 표시할 내용 (이미 HTML 형태)
                                     $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
+                                    // 에디터 높이는 고정하고 넘치는 내용은 에디터 안에서 스크롤한다(overflow-y:auto)
+                                    // 내용만큼 늘어나면 안드로이드 WebView가 탭할 때마다 에디터 박스 기준으로 .page를 강제 스크롤해
+                                    // 캐럿이 topbar/푸터 밑으로 숨는다. 박스가 키보드 위 보이는 영역 안에 들어오면 그 강제 스크롤이 생기지 않는다
                                     ?>
                                     <div id="rc_desc_editor"
                                          contenteditable="true"
-                                         class="form-textarea js-autoheight"
-                                         style="font-size: 17px; min-height: 20.25rem; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow: auto; word-wrap: break-word;"><?= $desc ?>
+                                         class="form-textarea"
+                                         style="font-size: 17px; height: 20.25rem; min-height: 20.25rem; box-sizing: border-box; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 4px; word-wrap: break-word;"><?= $desc ?>
                                     </div>
                                     <input type="hidden" id="uploadedPhotoUrl_mobile" name="uploadedPhotoUrl_mobile" value="">
                                     <input type="hidden" name="rc_desc" id="rc_desc_input" value="">
@@ -1026,6 +1020,21 @@
         padding: 0;
     }
 
+    /* 상세업무 에디터 스크롤바: 안드로이드 WebView 기본 스크롤바는 스크롤 중에만 보이므로 항상 보이도록 지정
+       (바텀시트 .layer-panel 스크롤바와 같은 모양) */
+    #rc_desc_editor::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #rc_desc_editor::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    #rc_desc_editor::-webkit-scrollbar-thumb {
+        border-radius: 100px;
+        background-color: #DBEFEA;
+    }
+
     /* 단계별 진행 게이지바 */
     .step-progress-bar {
         position: fixed;
@@ -1054,6 +1063,7 @@
         right: 0;
         width: auto;
         display: flex;
+        justify-content: space-between;
         gap: 8px;
         align-items: center;
         padding: 1rem;
@@ -1065,6 +1075,10 @@
     /* 고정 푸터에 마지막 입력 항목이 가리지 않도록 하단 여백 확보 */
     .page-recruit-write .section.addition-info-form .container {
         padding-bottom: 5.5rem;
+    }
+    /* 상세업무(10단계)에서는 하단 여백을 없애 키보드 올릴 때 스크롤이 과하게 내려가지 않도록 한다 */
+    .page-recruit-write[data-current-step="10"] .section.addition-info-form .container {
+        /* padding-bottom: 3.0rem; */
     }
 
     #btnStepPrev {
@@ -1082,7 +1096,13 @@
     /* 이전 / 상세등록 버튼: 테두리 스타일 */
     #btnStepPrev,
     #btnDetailMore {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 7.5rem;
+        height: 4.0rem;
+        white-space: nowrap;
         font-weight: 700;
         text-align: center;
         vertical-align: middle;
@@ -1090,9 +1110,14 @@
         background: #fff;
         color: #57CCAF;
         border: 1.5px solid #57CCAF;
-        padding: 0.8rem 1rem;
+        padding: 0;
         border-radius: 8px;
-        margin-left: 10px;
+    }
+
+    /* 상세등록이 보일 때(이전/상세등록/다음·미리보기 3개)는 auto 여백을 풀어 space-between 으로 간격 균등 */
+    #btnDetailMore:not([style*="none"]) ~ #btnStepNext,
+    #btnDetailMore:not([style*="none"]) ~ #btnPreview {
+        margin-left: 0;
     }
 
     #btnStepPrev:active,
@@ -1110,7 +1135,13 @@
 
     /* 다음 버튼 */
     #btnStepNext {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 7.5rem;
+        height: 4.0rem;
+        white-space: nowrap;
         font-weight: 700;
         color: #fff;
         text-align: center;
@@ -1118,7 +1149,7 @@
         border: 0;
         background: #57CCAF;
         font-size: 1.3rem;
-        padding: 0.8rem 1rem;
+        padding: 0;
         border-radius: 8px;
     }
 
@@ -1128,7 +1159,13 @@
 
     /* 미리보기 버튼 */
     #btnPreview {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 7.5rem;
+        height: 4.0rem;
+        white-space: nowrap;
         font-weight: 700;
         color: #fff;
         text-align: center;
@@ -1136,7 +1173,7 @@
         border: 0;
         background: #57CCAF;
         font-size: 1.3rem;
-        padding: 0.8rem 1rem;
+        padding: 0;
         border-radius: 8px;
     }
 
@@ -1200,6 +1237,11 @@
         margin-bottom: 1rem;
     }
 
+    /* 복리후생 버튼 글자 크기: main.css의 .benefit-label.btn(1.0rem)에 덮이지 않도록 페이지·래퍼 클래스를 붙여 우선순위를 높인다 */
+    .page-recruit-write .benefit-field-wrapper .benefit-label.btn {
+        font-size: 0.9rem;
+    }
+
     /* 이미지 필드 래퍼 */
     .image-field-wrapper {
         margin-bottom: 1rem;
@@ -1214,6 +1256,14 @@
    }
    .step-section{
          margin-top: 28px;
+   }
+   /* 새로 노출된 단계는 높이를 바꾸지 않고 투명도만 올린다 (레이아웃 흔들림·스크롤 위치 변화 없음) */
+   @keyframes stepFadeIn {
+         from { opacity: 0; }
+         to { opacity: 1; }
+   }
+   .step-section[data-enter="true"]{
+         animation: stepFadeIn 150ms ease-out;
    }
 
    /* 이미지 업로드 레이아웃 */
@@ -1510,14 +1560,14 @@
             return false;
         }
     }());
-    // 단계 상단을 화면 위쪽에 둘 때의 여백 (상단바 60px + 진행바 7px 아래로 내림)
-    const STEP_TOP_OFFSET = 100;
+    // 단계 이동 시 topbar(진행바 포함) 아래끝과 새 단계 -field-wrapper 윗면 사이 여백 (아주 살짝 띄움)
+    const STEP_WRAPPER_GAP = 8;
     // 단계 마지막 항목 아래와 고정 푸터 사이 여백
     const STEP_BOTTOM_GAP = 12;
-    // data-scroll="top" 단계에서 쓰는 상단 여백 (질문문구가 넉넉히 보이도록 기본보다 크게)
-    const STEP_TOP_OFFSET_WIDE = 130;
     // 주소 팝업이 닫히고 body overflow가 복원된 뒤 스크롤하기 위한 지연
     const ADDR_SCROLL_DELAY = 150;
+    // 자동 이동으로 단계가 열린 뒤 스크롤하기까지의 대기 (키보드가 내려가고 viewport가 안정될 시간, ms)
+    const AUTO_STEP_SCROLL_DELAY = 300;
 
     // 상세등록을 열기 전에는 10단계가 끝, 열면 11단계가 끝
     function getTotalSteps() {
@@ -1548,22 +1598,36 @@
     }
 
     // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
-    //                펼침 애니메이션과 자동 스크롤 없이 즉시 표시한다
+    //                페이드와 자동 스크롤 없이 즉시 표시한다
     function updateStepVisibility(skipAnimation) {
+        // 현재 단계 번호를 페이지에 남겨 CSS에서 단계별 여백을 나눌 수 있게 한다 (data-current-step)
+        $(".page-recruit-write").attr("data-current-step", currentStep);
         // 현재 단계까지의 모든 섹션을 누적형으로 표시
         for (let i = 1; i <= TOTAL_STEPS; i++) {
             let $section = $(".step-section[data-step='" + i + "']");
+            // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
+            // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
+            var wasHidden = $section.is(":hidden");
             if (i <= currentStep) {
-                if (i === currentStep && !skipAnimation) {
-                    // 새로 노출되는 단계는 slideDown. 높이가 확정된 뒤 스크롤해야 하므로 완료 콜백에서 처리
-                    $section.slideDown(120, scrollToCurrentStep);
+                if (i === currentStep && !skipAnimation && wasHidden) {
+                    // 새 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
+                    $section.attr("data-enter", "true").show();
                 } else {
                     // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
-                    $section.show();
+                    $section.removeAttr("data-enter").show();
                 }
             } else {
                 // currentStep보다 뒤의 단계는 숨김
-                $section.hide();
+                $section.removeAttr("data-enter").hide();
+            }
+        }
+        // 단계 이동 스크롤은 섹션 표시 직후 한 번만 한다 (미리보기 복귀 등 skipAnimation 이면 생략)
+        if (currentStep <= TOTAL_STEPS && !skipAnimation) {
+            // 자동 이동이면 키보드가 내려가고 viewport 가 안정될 때까지 잠깐 기다린 뒤 스크롤한다 (goNextStep 쪽에서 플래그를 켠다)
+            if (window.__autoAdvanceScroll) {
+                setTimeout(scrollToCurrentStep, AUTO_STEP_SCROLL_DELAY);
+            } else {
+                scrollToCurrentStep();
             }
         }
         updateProgressBar();
@@ -1603,6 +1667,43 @@
         return $page.length ? $page[0].getBoundingClientRect().bottom : $(window).height();
     }
 
+    // 단계 이동 스크롤 헬퍼: 이동 중에는 window.__stepScrolling을 켜서 main.js의 캐럿 보정 스크롤과 겹치지 않게 한다
+    // 끝 감지는 scrollend 이벤트를 쓰고, 미지원이거나 이벤트가 오지 않으면 안전 타이머로 내린다
+    var stepScrollSafetyTimer = null;
+    var STEP_SCROLL_MAX_MS = 1000; // 안전 타이머 최대 대기 (ms)
+    function endStepScrollFlag() {
+        if (stepScrollSafetyTimer) {
+            clearTimeout(stepScrollSafetyTimer);
+            stepScrollSafetyTimer = null;
+        }
+        window.__stepScrolling = false;
+    }
+    // 단계 이동은 브라우저 네이티브 smooth 스크롤로 한다
+    // jQuery animate는 프레임마다 scrollTop을 세팅해 CSS smooth와 충돌하므로 쓰지 않는다
+    // duration은 기존 호출부와의 호환을 위해 남겨 두며, 실제 시간은 브라우저가 거리에 맞춰 정한다
+    function animateStepScroll($page, scrollTop, duration) {
+        var page = $page[0];
+        if (!page) {
+            return;
+        }
+        // 이동할 거리가 없으면 scrollend 가 오지 않으므로 플래그를 켜지 않는다 (켜두면 보정이 막힌 채 남음)
+        if (Math.abs(scrollTop - page.scrollTop) < 2) {
+            return;
+        }
+        window.__stepScrolling = true;
+        if (stepScrollSafetyTimer) {
+            clearTimeout(stepScrollSafetyTimer);
+        }
+        stepScrollSafetyTimer = setTimeout(endStepScrollFlag, STEP_SCROLL_MAX_MS);
+        page.addEventListener('scrollend', endStepScrollFlag, { once: true });
+        if (typeof page.scrollTo === 'function') {
+            page.scrollTo({ top: scrollTop, behavior: 'smooth' });
+        } else {
+            page.scrollTop = scrollTop;
+            endStepScrollFlag();
+        }
+    }
+
     // 지정한 요소의 아래쪽이 고정 푸터 위로 올라오도록 스크롤을 내린다
     // 이미 푸터 위에 보이는 경우에는 움직이지 않는다(위로 되감기 방지)
     function scrollElementAboveFooter($el) {
@@ -1617,7 +1718,7 @@
             return;
         }
 
-        $page.stop(true).animate({ scrollTop: $page.scrollTop() + delta }, 300);
+        animateStepScroll($page, $page.scrollTop() + delta, 300);
     }
 
     // 주소가 채워지면 .has-address가 붙어 버튼 높이가 늘어난다(긴 주소는 두 줄로 감김).
@@ -1632,13 +1733,10 @@
         }, ADDR_SCROLL_DELAY);
     }
 
-    // 새로 노출된 단계로 스크롤
-    // 기본 동작: 내용이 길면 마지막 -field-wrapper의 아래가 고정 푸터 윗면에 닿도록 내리고,
-    //            짧으면 단계 상단이 화면 위쪽에 오도록 한다.
-    // 단계별로 다르게 하려면 해당 .step-section에 data-scroll 속성을 준다.
-    //   data-scroll="top"    → 항상 단계 상단 기준 (질문문구를 보이게. 예: 복리후생)
-    //   data-scroll="bottom" → 스크롤을 끝까지 내림 (예: 상세업무)
-    // 스크롤 컨테이너는 .page (overflow-y:auto) 이므로 모든 좌표를 .page 기준으로 환산한다.
+    // 새로 노출된 단계로 스크롤 (다음 버튼, 자동 이동 공통)
+    // 새 단계의 첫 -field-wrapper 윗면이 topbar(진행바 포함) 아래끝에서 STEP_WRAPPER_GAP만큼 떨어지도록 맞춘다
+    // 상단 가림 높이는 고정값 대신 실제 요소 위치로 잰다
+    // 스크롤 컨테이너는 .page (overflow-y:auto) 이므로 .page의 scrollTop 기준으로 환산한다
     function scrollToCurrentStep() {
         var $page = $(".page");
         var $section = $(".step-section[data-step='" + currentStep + "']");
@@ -1646,44 +1744,26 @@
             return;
         }
 
-        var mode = $section.attr("data-scroll");
+        var $wrapper = $section.find('[class*="-field-wrapper"]').first();
+        var $target = $wrapper.length ? $wrapper : $section;
 
-        // 끝까지 내리는 단계는 더 계산할 것이 없다
-        if (mode === "bottom") {
-            var maxScroll = $page[0].scrollHeight - $page[0].clientHeight;
-            $page.stop(true).animate({ scrollTop: maxScroll > 0 ? maxScroll : 0 }, 120);
-            return;
-        }
+        // 화면 위쪽을 덮는 영역의 아래끝: topbar와 고정 진행바 중 더 아래쪽
+        var coverBottom = $page[0].getBoundingClientRect().top;
+        $(".top-bar, .step-progress-bar").each(function() {
+            var bottom = this.getBoundingClientRect().bottom;
+            if (bottom > coverBottom) {
+                coverBottom = bottom;
+            }
+        });
 
-        var pageTop = $page[0].getBoundingClientRect().top;
-        var curScroll = $page.scrollTop();
-        var footerTop = getFooterTop();
+        var targetTop = $target[0].getBoundingClientRect().top;
+        var scrollTop = $page.scrollTop() + (targetTop - coverBottom) - STEP_WRAPPER_GAP;
 
-        // (1) 단계 상단을 화면 위쪽에 두는 스크롤 위치
-        var sectionTop = $section[0].getBoundingClientRect().top;
-        var topOffset = (mode === "top") ? STEP_TOP_OFFSET_WIDE : STEP_TOP_OFFSET;
-        var scrollShowTop = curScroll + (sectionTop - pageTop) - topOffset;
+        // 스크롤 범위 제한 (내용이 짧아 끝까지 못 올리는 경우는 최대 스크롤까지만)
+        var maxScroll = $page[0].scrollHeight - $page[0].clientHeight;
+        scrollTop = Math.max(0, Math.min(scrollTop, maxScroll));
 
-        var scrollTop;
-        if (mode === "top") {
-            // 질문문구가 가리지 않도록 상단 기준만 사용한다
-            scrollTop = scrollShowTop;
-        } else {
-            // (2) 단계의 마지막 항목 wrapper 아래가 푸터 윗면에 닿는 스크롤 위치
-            var $lastWrapper = $section.find('[class*="-field-wrapper"]').last();
-            var $target = $lastWrapper.length ? $lastWrapper : $section;
-            var targetBottom = $target[0].getBoundingClientRect().bottom;
-            var scrollShowBottom = curScroll + (targetBottom - footerTop) + STEP_BOTTOM_GAP;
-
-            // 둘 중 더 많이 내려간 쪽을 택해 항목 아래쪽이 반드시 보이도록 한다
-            scrollTop = Math.max(scrollShowTop, scrollShowBottom);
-        }
-
-        if (scrollTop < 0) {
-            scrollTop = 0;
-        }
-
-        $page.stop(true).animate({ scrollTop: scrollTop }, 120);
+        animateStepScroll($page, scrollTop, 120);
     }
 
     // ============================================================================
@@ -2110,7 +2190,8 @@
             $("[name='rc_price_possible'][value='" + formData.rc_price_possible + "']").prop("checked", true);
         }
 
-        if (formData.rc_price_amount) {
+        // 급여협의는 금액이 0원으로 고정되므로 임시저장된 금액을 복원하지 않는다
+        if (formData.rc_price_amount && formData.rc_price_type_main !== "급여협의") {
             // 임시저장값은 쉼표 없이 저장되므로 복원 시 다시 포맷
             $("#rc_price_amount").val(formatNumberWithComma(formData.rc_price_amount));
         }
@@ -2556,10 +2637,15 @@
         if (selectedType === "급여협의") {
             $optionsGroup.hide();
             $optionsGroup.find("input[type='radio']").prop("checked", false);
-            $salaryAmountInput.prop("disabled", true);
+            // 급여협의는 금액이 0원으로 고정되므로 금액 칸에 0을 채우고 입력을 막는다
+            $salaryAmountInput.val("0").prop("disabled", true);
             return;
         }
 
+        // 급여협의에서 바꾼 경우 자동으로 채워진 0은 지워서 직접 입력하도록 한다
+        if ($salaryAmountInput.val() === "0") {
+            $salaryAmountInput.val("");
+        }
         $salaryAmountInput.prop("disabled", false);
         $optionsGroup.show();
         $options.hide();
@@ -3335,8 +3421,6 @@
         $("[name='rc_work_type[]']").on("change", function() {
             updateTimeSection();
             savePage1Data();
-            // 근무시간 섹션이 새로 펼쳐져 높이가 커지면 그만큼 스크롤을 내려 보이게 한다
-            scrollElementAboveFooter($("#time_cont1, #time_cont2").filter(":visible").last());
         });
 
         // 근무시간 입력 변경 시 저장
@@ -3358,10 +3442,12 @@
 
             updateTimeSection();
             savePage1Data();
-            // 근무협의로 근무형태가 한번에 켜질 때도 동일하게 스크롤을 맞춘다
-            scrollElementAboveFooter($("#time_cont1, #time_cont2").filter(":visible").last());
         });
 
+        // 숨김(1px/투명) 체크박스가 포커스를 받으면 WebView가 화면을 자동 스크롤하므로 포커스를 바로 해제
+        $("[name='rc_life_type[]']").on("focus", function() {
+            this.blur();
+        });
         $("[name='rc_life_type[]']").on("change", savePage2Data);
 
         // contenteditable div의 input 이벤트 감지 및 DOM 정규화
@@ -3439,6 +3525,7 @@
 
         $(document).on("change", "[name='rc_sdate'], [name='rc_edate']", function() {
             savePage3Data();
+            scheduleDateChangeAdvance();
         });
 
         /* 선택 상한 도달 시 자동 다음 단계 이동
@@ -3458,9 +3545,61 @@
             autoAdvanceTimer = setTimeout(function() {
                 autoAdvanceTimer = null;
                 if (currentStep === step && isComplete()) {
+                    // 입력 중이던 입력란의 포커스를 먼저 해제해 키보드를 내린다 (키보드 전환과 스크롤이 겹쳐 튕기는 것을 막기 위함)
+                    if (document.activeElement && document.activeElement.blur) {
+                        document.activeElement.blur();
+                    }
+                    // 이 이동에서만 새 단계의 스크롤을 지연한다 (다른 이동 방식에는 영향 없음)
+                    window.__autoAdvanceScroll = true;
                     goNextStep();
+                    window.__autoAdvanceScroll = false;
                 }
             }, AUTO_ADVANCE_DELAY);
+        }
+
+        /* 공고기간(3단계) 자동 이동: 시작일·종료일은 기본값(오늘 ~ 2개월 뒤)이 이미 채워져 있으므로
+           3단계에 처음 들어왔을 때 DATE_AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
+           - 날짜 영역이나 달력을 건드려도 취소하지 않고 그대로 이동한다
+           - 한 번 실행되면 이후 재진입에서는 다시 자동 이동하지 않는다 (값 변경 이동은 별도)
+           - 타이머 실행 시 아직 3단계인지 확인해, 그 사이 다음 버튼으로 넘어갔으면 이동하지 않는다 */
+        var DATE_AUTO_ADVANCE_DELAY = 500;
+        var dateAutoAdvanceTimer = null;
+        var dateAutoAdvanceDone = false;
+        function cancelDateAutoAdvance() {
+            dateAutoAdvanceDone = true;
+            if (dateAutoAdvanceTimer) {
+                clearTimeout(dateAutoAdvanceTimer);
+                dateAutoAdvanceTimer = null;
+            }
+        }
+        function scheduleDateAutoAdvance() {
+            if (dateAutoAdvanceDone || dateAutoAdvanceTimer || currentStep !== 3) {
+                return;
+            }
+            dateAutoAdvanceTimer = setTimeout(function() {
+                dateAutoAdvanceTimer = null;
+                if (!dateAutoAdvanceDone && currentStep === 3) {
+                    cancelDateAutoAdvance();
+                    goNextStep();
+                }
+            }, DATE_AUTO_ADVANCE_DELAY);
+        }
+        /* 공고기간 값이 바뀌면(단계 재진입 포함) 잠시 후 다음 단계로 이동한다
+           첫 진입 자동 이동과 달리 dateAutoAdvanceDone을 보지 않으며, 날짜를 다시 고르면 대기 시간이 새로 시작된다 */
+        function scheduleDateChangeAdvance() {
+            if (currentStep !== 3) {
+                return;
+            }
+            dateAutoAdvanceDone = true;
+            if (dateAutoAdvanceTimer) {
+                clearTimeout(dateAutoAdvanceTimer);
+            }
+            dateAutoAdvanceTimer = setTimeout(function() {
+                dateAutoAdvanceTimer = null;
+                if (currentStep === 3) {
+                    goNextStep();
+                }
+            }, DATE_AUTO_ADVANCE_DELAY);
         }
 
         /* 주소(2단계) 자동 이동: 근무지와 추가노출지역 1,2가 모두 채워졌을 때만 이동
@@ -3504,6 +3643,25 @@
             });
         }());
 
+        /* 7단계 급여 자동 이동
+           - 급여협의를 고르면 금액·옵션이 필요 없으므로 바로 다음 단계로 이동
+           - 그 외 급여형태는 금액과 급여가능 옵션이 모두 채워지면 이동
+           급여가능 옵션은 updateSalaryOptions()로 보이는 항목 중에서만 인정한다 */
+        function isSalaryComplete() {
+            var priceType = $("#rc_price_type_main").val();
+            if (priceType === "급여협의") {
+                return true;
+            }
+            var amount = parseInt(removeComma($("#rc_price_amount").val()), 10);
+            if (!(amount > 0)) {
+                return false;
+            }
+            return $("[name='rc_price_possible']:checked").closest("label").is(":visible");
+        }
+        $("#rc_price_type_main, #rc_price_amount, [name='rc_price_possible']").on("change input", function() {
+            autoAdvanceIfComplete(7, isSalaryComplete);
+        });
+
         $("[name='rc_work_negotiation']").on("change", function() {
             var isChecked = $(this).is(":checked");
             if (isChecked) {
@@ -3511,6 +3669,10 @@
             } else {
                 $("[name='rc_work_type[]']").prop("checked", false);
             }
+            // 근무협의를 체크하면 근무형태 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (6단계일 때만)
+            autoAdvanceIfComplete(6, function() {
+                return $("[name='rc_work_negotiation']").is(":checked");
+            });
         });
 
         // 페이지 로드 시 근무협의 체크 상태에 따라 근무형태 버튼 초기화
@@ -3638,6 +3800,11 @@
             $guideText.slideDown(300);
 
             savePage3Data();
+
+            // 직접입력으로 추가된 태그도 선택 상한(4개)에 도달하면 자동으로 다음 단계 이동 (change 이벤트가 발생하지 않으므로 여기서 호출)
+            autoAdvanceIfComplete(5, function() {
+                return $("[name='rc_hash[]']:checked").length === 4;
+            });
         });
 
         /* 직접입력으로 추가한 해시태그 삭제: x 버튼으로 태그를 제거하고 저장한다
@@ -4071,11 +4238,33 @@
             if (currentStep < getTotalSteps()) {
                 currentStep++;
                 updateStepVisibility();
+                // 공고기간 단계에 들어오면 기본값으로 충분하므로 잠시 후 자동으로 다음 단계로 넘어간다
+                if (currentStep === 3) {
+                    scheduleDateAutoAdvance();
+                }
             }
         }
 
         // 단계별 진행 버튼 핸들러
         $("#btnStepNext").click(goNextStep);
+
+        // 텍스트 입력란에서 Enter 키를 누르면 "다음" 버튼과 동일하게 다음 단계로 이동
+        // (textarea/contenteditable 은 줄바꿈이 필요하므로 제외, 한글 조합 중 Enter 는 무시)
+        $(document).on('keydown', 'input[type="text"], input[type="tel"], input[type="number"], input[type="date"], input:not([type])', function(e) {
+            if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) {
+                return;
+            }
+            // 주소검색 팝업(#changeArea, #changeAreaExpose) 안의 입력란은 Enter 시 주소 검색만 하므로 다음 단계로 넘기지 않는다
+            if ($(this).closest('#changeArea, #changeAreaExpose').length > 0) {
+                return;
+            }
+            // "다음" 버튼이 보이는 단계에서만 동작 (마지막 단계·상세등록 구간 제외)
+            if (!$("#btnStepNext").is(':visible')) {
+                return;
+            }
+            e.preventDefault();
+            goNextStep();
+        });
 
         /* 상세등록(+): 마지막 필수 단계(10)에서 선택 구간(11)을 열고 진입 */
         $("#btnDetailMore").click(function(e) {
@@ -4570,11 +4759,83 @@
     var rcDescEditor = document.getElementById('rc_desc_editor');
     if (rcDescEditor) {
       // 상세업무를 입력하는 즉시 상세등록 버튼이 나타나도록 갱신
+      // 글자 입력 시 캐럿이 에디터 안과 푸터 위에 보이도록 한 번 맞춘다
+      // (브라우저 기본 캐럿 따라가기는 고정 푸터를 모르기 때문에 푸터 밑까지 내려갈 수 있다)
       rcDescEditor.addEventListener('input', function() {
         if (typeof updateStepVisibility === 'function' && currentStep === REQUIRED_STEPS) {
           updateStepVisibility(true);
         }
+        revealDescCaret(getDescCaretRect());
       });
+
+      // 현재 캐럿 줄의 화면 좌표. 접힌 selection의 좌표를 쓰고, 못 구하면(빈 줄 등) null
+      // 한글 조합을 깨지 않도록 여기서는 DOM에 마커를 넣지 않는다
+      function getDescCaretRect() {
+        var selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return null;
+        var range = selection.getRangeAt(0);
+        if (!rcDescEditor.contains(range.endContainer)) return null;
+        var rects = range.getClientRects();
+        var rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+        return (rect && rect.height > 0) ? rect : null;
+      }
+
+      // 상세업무 캐럿 줄(rect)이 보이도록 한 번만 맞춘다. 타이머·재판정 없음
+      // 1) 에디터 자체 스크롤: 캐럿 줄이 에디터 안쪽(패딩 제외) 밖이면 에디터만 먼저 스크롤
+      //    (Enter는 기본 동작을 막고 <br>을 직접 넣으므로 브라우저가 에디터 안 스크롤을 따라가지 않는다)
+      // 2) 페이지 스크롤: 그래도 보이는 영역(topbar 아래 ~ 하단 푸터 위) 밖이면 벗어난 만큼만 .page를 스크롤
+      //    아래 끝은 푸터 윗면과 키보드 윗면(visualViewport) 중 더 위, 위 끝은 topbar 실제 아래끝으로 잰다
+      function revealDescCaret(rect) {
+        var page = rcDescEditor.closest('.page');
+        if (!page || !rect || rect.height === 0) return;
+        var caretTop = rect.top;       // 캐럿 줄 윗면 (에디터 스크롤 후 보정된 값)
+        var caretBottom = rect.bottom; // 캐럿 줄 아랫면 (에디터 스크롤 후 보정된 값)
+
+        var editorRect = rcDescEditor.getBoundingClientRect();
+        var editorStyle = window.getComputedStyle(rcDescEditor);
+        var innerTop = editorRect.top + rcDescEditor.clientTop + (parseFloat(editorStyle.paddingTop) || 0);
+        var innerBottom = editorRect.top + rcDescEditor.clientTop + rcDescEditor.clientHeight - (parseFloat(editorStyle.paddingBottom) || 0);
+        var innerDelta = 0;
+        if (caretBottom > innerBottom) {
+          innerDelta = caretBottom - innerBottom;
+        } else if (caretTop < innerTop) {
+          innerDelta = caretTop - innerTop;
+        }
+        if (Math.abs(innerDelta) >= 1) {
+          var prevInnerScroll = rcDescEditor.scrollTop;
+          rcDescEditor.scrollTop = prevInnerScroll + innerDelta;
+          var innerMoved = rcDescEditor.scrollTop - prevInnerScroll; // 스크롤 끝에서 잘린 경우를 반영한 실제 이동량
+          caretTop -= innerMoved;
+          caretBottom -= innerMoved;
+        }
+
+        var gap = 16; // 캐럿과 푸터/topbar 사이 여유 (px)
+        var topBar = document.querySelector('.top-bar');
+        var visibleTop = (topBar ? topBar.getBoundingClientRect().bottom : page.getBoundingClientRect().top) + gap;
+        var visibleBottom = window.visualViewport
+          ? window.visualViewport.offsetTop + window.visualViewport.height
+          : window.innerHeight;
+        // 키보드가 올라와도 푸터는 키보드 바로 위에 보이므로, 푸터 윗면을 실제 아래 끝으로 본다
+        var footer = document.querySelector('.sticky-bottom.view-footer');
+        if (footer) {
+          var footerRect = footer.getBoundingClientRect();
+          if (footerRect.height > 0 && footerRect.top < visibleBottom) {
+            visibleBottom = footerRect.top;
+          }
+        }
+        visibleBottom -= gap;
+        var delta = 0;
+        if (caretBottom > visibleBottom) {
+          delta = caretBottom - visibleBottom;
+        } else if (caretTop < visibleTop) {
+          delta = caretTop - visibleTop;
+        }
+        if (Math.abs(delta) < 1) return;
+        // .page의 smooth 스크롤이 끼면 대입 직후 위치가 밀리므로 이 보정만 즉시 적용한다
+        page.style.scrollBehavior = 'auto';
+        page.scrollTop = page.scrollTop + delta;
+        page.style.scrollBehavior = '';
+      }
 
       rcDescEditor.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -4586,6 +4847,17 @@
             range.deleteContents();
             var br = document.createElement('br');
             range.insertNode(br);
+
+            // Enter는 기본 동작을 막고 직접 <br>을 넣으므로 브라우저가 캐럿을 따라 스크롤하지 않는다
+            // 캐럿 자리에 보이지 않는 마커를 잠깐 넣어 위치를 재고, 보이는 영역을 벗어난 만큼만 한 번 스크롤한 뒤 바로 지운다
+            var caretMarker = document.createElement('span');
+            caretMarker.textContent = '​';
+            range.setStartAfter(br);
+            range.collapse(true);
+            range.insertNode(caretMarker);
+            revealDescCaret(caretMarker.getBoundingClientRect());
+            caretMarker.parentNode.removeChild(caretMarker);
+
             range.setStartAfter(br);
             range.collapse(true);
             selection.removeAllRanges();

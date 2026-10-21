@@ -1648,6 +1648,7 @@ window.onload = function() {
 <div id="duplicateProviderPanel" class="layer-panel card-type" tabindex="-1">
   <div class="bottom-sheet-container">
     <div class="bottom-sheet-handlebar"></div>
+    <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
     <div class="bottom-sheet-body">
       <div class="bottom-sheet-content" style="text-align:center;">
         <img id="duplicateProviderIcon" src="" alt="" style="width:56px;height:56px;border-radius:50%;margin:8px auto 20px;display:block;">
