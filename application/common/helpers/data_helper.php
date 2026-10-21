@@ -1058,6 +1058,14 @@ function getKoreanAge($birth)
 	$birth = trim((string)$birth);
 	// Normalize to YYYYMMDD (strip non-digits like "-" and ".")
 	$birth = preg_replace('/[^0-9]/', '', $birth);
+	// 출생연도 4자리(개인정보 보호로 월·일을 뺀 저장값)면 올해 - 연도로 나이 계산
+	if (strlen($birth) === 4) {
+		$year_age = intval(date('Y')) - intval($birth);
+		if ($year_age <= 0) {
+			return 0;
+		}
+		return (string)((int)($year_age / 10) * 10);
+	}
 	// Expect YYYYMMDD. If invalid, return 0 to avoid exceptions.
 	if (strlen($birth) !== 8 || !ctype_digit($birth)) {
 		return 0;
@@ -1088,87 +1096,28 @@ function getKoreanAge($birth)
 }
 
 /**
- * 연령대 코드를 대표 생년월일(YYYYMMDD)로 변환
- * QuickInfo 바텀시트에서 "30대"처럼 범위로 받은 값을 st_member.mm_birth에 저장할 때 사용한다.
- * 각 연령대의 중간 나이를 대표값으로 쓴다. (20s=25세, 70s_plus=75세)
+ * 생년월일을 출생연도 4자리로 축약 (월·일 제거, 개인정보 보호)
+ * st_member.mm_birth에는 이 값만 저장한다.
  *
- * @param  string $age_group "20s"|"30s"|"40s"|"50s"|"60s_plus"|"70s_plus"
- * @return string YYYYMMDD 형식 문자열. 알 수 없는 값이면 빈 문자열
+ * @param  string $birth YYYYMMDD / YYYY-MM-DD / YYYY0000 / YYYY
+ * @return string YYYY 형식 문자열. 빈 값이거나 해석할 수 없으면 빈 문자열
  */
-if (!function_exists('getBirthByAgeGroup')) {
-	function getBirthByAgeGroup($age_group)
+if (!function_exists('maskBirthToYear')) {
+	function maskBirthToYear($birth)
 	{
-		$age_group = trim((string)$age_group);
-		if ($age_group == "") {
+		if ($birth == null || trim((string)$birth) == "") {
 			return "";
 		}
-
-		// 연령대별 대표(중간) 나이
-		$age_mid_list = [
-			"20s" => 25,
-			"30s" => 35,
-			"40s" => 45,
-			"50s" => 55,
-			"60s_plus" => 65,
-			"70s_plus" => 75,
-		];
-
-		if (!isset($age_mid_list[$age_group])) {
+		$digits = preg_replace('/[^0-9]/', '', trim((string)$birth));
+		if (strlen($digits) < 4) {
 			return "";
 		}
-
-		$birth_year = intval(date('Y')) - $age_mid_list[$age_group];
-		// 가입 시점(join_complete_proc)과 동일하게 YYYYMMDD 형식으로 통일
-		return sprintf('%04d0101', $birth_year);
-	}
-}
-
-/**
- * 생년월일을 연령대 코드로 역변환
- * QuickInfo 바텀시트에서 이미 알고 있는 생년을 미리 선택된 상태로 렌더링할 때 사용한다.
- * 가입 경로별로 형식이 제각각이라(YYYYMMDD / YYYY-MM-DD / 네이버식 YYYY0000) 모두 허용하고,
- * 월·일이 없어도 연도만으로 판단한다.
- *
- * @param  string $birth 생년월일
- * @return string "20s"~"70s_plus". 20세 미만이거나 알 수 없으면 빈 문자열(기본값 유지용)
- */
-if (!function_exists('getAgeGroupByBirth')) {
-	function getAgeGroupByBirth($birth)
-	{
-		if ($birth == null || $birth == "") {
+		$year = intval(substr($digits, 0, 4));
+		// 현재 연도보다 미래이거나 1900년 이전이면 잘못된 값으로 보고 저장하지 않는다
+		if ($year < 1900 || $year > intval(date('Y'))) {
 			return "";
 		}
-
-		// 하이픈·점 등 구분자를 제거해 숫자만 남김
-		$birth = preg_replace('/[^0-9]/', '', trim((string)$birth));
-		if (strlen($birth) < 4) {
-			return "";
-		}
-
-		$birth_year = intval(substr($birth, 0, 4));
-		$current_year = intval(date('Y'));
-		// 월·일이 비어 있는 값(YYYY0000)도 있으므로 연도만으로 나이 산출
-		$age = $current_year - $birth_year;
-
-		if ($age < 20 || $age > 120) {
-			return "";
-		}
-		if ($age < 30) {
-			return "20s";
-		}
-		if ($age < 40) {
-			return "30s";
-		}
-		if ($age < 50) {
-			return "40s";
-		}
-		if ($age < 60) {
-			return "50s";
-		}
-		if ($age < 70) {
-			return "60s_plus";
-		}
-		return "70s_plus";
+		return sprintf('%04d', $year);
 	}
 }
 

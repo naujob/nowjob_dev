@@ -446,7 +446,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         <form id="frm" onsubmit="return false" autocomplete="false">
             <input type="hidden" name="ru_work_img" value="" />
             <input type="hidden" name="quickinfo_gender" value="" />
-            <input type="hidden" name="quickinfo_age" value="" />
+            <input type="hidden" name="quickinfo_birth_year" value="" />
             <input type="hidden" name="arr_career" value="" />
             <input type="hidden" name="arr_certi" value="" />
             <div class="section addition-info-form">
@@ -1541,8 +1541,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         if (payload.quickinfo_gender) {
             $("[name='quickinfo_gender']").val(payload.quickinfo_gender);
         }
-        if (payload.quickinfo_age) {
-            $("[name='quickinfo_age']").val(payload.quickinfo_age);
+        if (payload.quickinfo_birth_year) {
+            $("[name='quickinfo_birth_year']").val(payload.quickinfo_birth_year);
         }
 
         // 희망업무 자동 선택: 생산, 물류

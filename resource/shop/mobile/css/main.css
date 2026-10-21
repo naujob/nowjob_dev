@@ -3715,24 +3715,6 @@ fieldset {
     line-height: 1.2;
 }
 
-/* 바텀시트 우측 상단 X 닫기 버튼 */
-.bottom-sheet-close {
-    position: absolute;
-        top: -1.75rem;
-    right: 1rem;
-        width: 3.5rem;
-    height: 3.5rem;
-    padding: 0;
-    border: 0;
-    background: url("../img/ic_alert_close.svg") no-repeat 50% 50%;
-    background-size: 1.5rem auto;
-    cursor: pointer;
-    z-index: 1;
-    /* 모바일 탭 하이라이트/포커스 잔상 제거 */
-    outline: 0;
-    -webkit-tap-highlight-color: transparent;
-}
-
 .bottom-sheet-text-content {
     padding: 0.25rem 0;
 }

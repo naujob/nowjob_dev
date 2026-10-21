@@ -1346,7 +1346,6 @@ window.onload = function() {
     $(".gphone-error").addClass("hidden");
     $(".gphone-auth-row").addClass("hidden");
     $("#gphone-btn-auth").css("background-color", "#ccc");
-    $("#gphone-btn-join").prop("disabled", true);
 
     // bottom에서 부드럽게 올라오는 애니메이션
     $("#google-phone-popup").css({
@@ -1368,6 +1367,31 @@ window.onload = function() {
       // 뒤 화면 잠금 해제
       $("html, body").css("overflow", "");
     }, 350);
+  }
+
+  /**
+   * 인증 완료 후 가입 페이지(join_sns_start)로 이동
+   * 인증된 전화번호(phonenum)와 구글/위챗 정보를 함께 전달
+   */
+  function gPhoneGoJoin() {
+    clearInterval(gPhoneTimer);
+    closeGoogleJoinPhonePopup();
+
+    var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
+    var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=" + gPhoneJoinType;
+    if (gPhoneEmail) {
+      joinUrl += "&email=" + encodeURIComponent(gPhoneEmail);
+    }
+    if (gPhoneName) {
+      joinUrl += "&username=" + encodeURIComponent(gPhoneName);
+    }
+    if (phoneVal) {
+      joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);
+    }
+    // 팝업 닫기 애니메이션(350ms) 이후 페이지 이동
+    setTimeout(function() {
+      location.href = joinUrl;
+    }, 360);
   }
 
   /**
@@ -1399,7 +1423,6 @@ window.onload = function() {
     // 인증 완료 후 번호가 바뀌면 인증 무효화 + 회원가입 버튼 비활성
     if (gPhoneIsAuth && phone !== gPhoneAuthPhone) {
       gPhoneIsAuth = false;
-      $("#gphone-btn-join").prop("disabled", true);
     }
 
     var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
@@ -1466,8 +1489,7 @@ window.onload = function() {
         if (ret.code == "00") {
           // 미가입 — 인증번호 발송 완료, 인증번호 입력 영역 표시
           $(".gphone-auth-row").removeClass("hidden");
-          gPhoneIsAuth = false;
-          $("#gphone-btn-join").prop("disabled", true); // 재발송 시 이전 인증 무효
+          gPhoneIsAuth = false; // 재발송 시 이전 인증 무효
           gPhoneRemainTime = 180;
           clearInterval(gPhoneTimer);
           gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
@@ -1496,6 +1518,10 @@ window.onload = function() {
     // 인증번호 확인 버튼
     var gPhoneAuthCount = 0;
     $("#gphone-btn-confirm").click(function() {
+      // 인증 완료 후 자동 이동 대기 중이면 중복 요청 방지
+      if (gPhoneIsAuth) {
+        return;
+      }
       if ($("#gphone-remain-time").html() == "0 : 00") {
         loginBottomAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
         return;
@@ -1512,8 +1538,8 @@ window.onload = function() {
           gPhoneIsAuth = true;
           gPhoneAuthPhone = phone;
           clearInterval(gPhoneTimer);
-          $("#gphone-btn-join").prop("disabled", false);
-          gPhoneToast("인증이 완료되었습니다.", 1500); // 1.5초 후 자동으로 사라짐
+          // 인증 성공 즉시 가입 페이지로 이동
+          gPhoneGoJoin();
         } else {
           gPhoneAuthCount++;
           if (gPhoneAuthCount > 3) {
@@ -1530,46 +1556,11 @@ window.onload = function() {
       });
     });
 
-    // 회원가입 버튼 — 인증 완료 후 join_sns_start 이동 (인증된 전화번호 포함 전달)
-    $("#gphone-btn-join").click(function() {
-      if (!gPhoneIsAuth) {
-        loginBottomAlert("인증 완료 후 진행해주세요.", function() {});
-        return;
-      }
-      clearInterval(gPhoneTimer);
-      closeGoogleJoinPhonePopup();
-
-      var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
-      var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=" + gPhoneJoinType;
-      if (gPhoneEmail) {
-        joinUrl += "&email=" + encodeURIComponent(gPhoneEmail);
-      }
-      if (gPhoneName) {
-        joinUrl += "&username=" + encodeURIComponent(gPhoneName);
-      }
-      if (phoneVal) {
-        joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);
-      } // mm_phone에 전화번호가 올바르게 저장되도록 전달
-      // 팝업 닫기 애니메이션(350ms) 이후 페이지 이동
-      setTimeout(function() {
-        location.href = joinUrl;
-      }, 360);
-    });
-
   });
 </script>
 
 <!-- 구글 회원가입 전화번호 인증 — bottom sheet 팝업 -->
 <style>
-  /* 회원가입 버튼 비활성 상태 — 인증 전 회색 표시 */
-  #gphone-btn-join:disabled {
-    background-color: #ccc;
-    border-color: #ccc;
-    color: #fff;
-    opacity: .6;
-    cursor: not-allowed;
-  }
-
   /* 토스트 메시지 */
   .gphone-toast-msg {
     position: fixed;
@@ -1639,7 +1630,6 @@ window.onload = function() {
 
     <div class="bs-actions">
       <button id="gphone-btn-cancel" type="button" class="btn btn-secondary" style="flex:1;">취소</button>
-      <button id="gphone-btn-join" type="button" class="btn btn-primary" style="flex:1;" disabled>회원가입</button>
     </div>
   </div>
 </div>

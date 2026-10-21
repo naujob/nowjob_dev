@@ -161,12 +161,13 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     /**
      * QuickInfo 하단시트에서 선택된 국적, 성별, 나이, 업종 값을 객체로 반환한다.
      * 국적/성별은 value와 이에 대응하는 한글 라벨로 치환되어 반환된다.
-     * @returns {Object} { nation: "내국인"|"외국인"|"", gender: "남"|"여"|"", age: string, work: string[] }
+     * @returns {Object} { nation: "내국인"|"외국인"|"", gender: "남"|"여"|"", birth_year: string(YYYY), work: string[] }
      */
     function getQuickInfoSelections() {
       var nationVal = $('input[name="quickinfo_nation"]:checked').val() || "";
       var genderVal = $('input[name="quickinfo_gender"]:checked').val() || "";
-      var ageVal = $('input[name="quickinfo_age"]:checked').val() || "";
+      // 출생연도는 연도 휠이 채우는 hidden 값(YYYY)을 읽는다
+      var birthYearVal = $('input[name="quickinfo_birth_year"]').val() || "";
 
       // 업종은 다중 선택(최대 2개)이므로 배열로 수집
       var workVals = [];
@@ -191,7 +192,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
       return {
         nation: nationText,
         gender: genderText,
-        age: ageVal,
+        birth_year: birthYearVal,
         work: workVals
       };
     }
@@ -208,8 +209,8 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
       if (sel.gender) {
         payload.quickinfo_gender = sel.gender;
       }
-      if (sel.age) {
-        payload.quickinfo_age = sel.age;
+      if (sel.birth_year) {
+        payload.quickinfo_birth_year = sel.birth_year;
       }
       // 선택한 업종을 이력서 희망업무(ru_work)로 전달. 없으면 서버 기본값이 적용된다
       if (sel.work && sel.work.length > 0) {
@@ -685,8 +686,8 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
       return;
     }
 
-    if (!selections.age) {
-      commonAlert("나이를 선택해주세요.", function() {});
+    if (!selections.birth_year) {
+      commonAlert("출생연도를 선택해주세요.", function() {});
       return;
     }
 
@@ -745,9 +746,19 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     // 국적/성별/나이/업종 해제
     // 서버가 확보해 잠근 값(disabled)은 초기화 대상에서 제외한다.
     // jQuery의 .prop()는 disabled를 무시하므로 .not(':disabled')가 반드시 필요하다.
-    $('input[name="quickinfo_nation"], input[name="quickinfo_gender"], input[name="quickinfo_age"], input[name="quickinfo_work[]"]')
+    $('input[name="quickinfo_nation"], input[name="quickinfo_gender"], input[name="quickinfo_work[]"]')
       .not(':disabled')
       .prop('checked', false).trigger('change');
+
+    // 출생연도: 서버가 잠근 값(버튼 disabled)이 아니면 값과 트리거 문구를 비운다
+    var birthBtn = document.getElementById('btnQuickInfoBirthYear');
+    if (birthBtn && !birthBtn.disabled) {
+      var birthHidden = document.getElementById('quickinfoBirthYear');
+      if (birthHidden) birthHidden.value = '';
+      birthBtn.classList.remove('has-value');
+      var birthTxt = birthBtn.querySelector('.date-display');
+      if (birthTxt) birthTxt.textContent = '출생연도를 선택해주세요';
+    }
 
     // 지역 텍스트 초기화
     var regionEl = document.querySelector('.quickinfo-region-text');

@@ -510,9 +510,8 @@ class Ppurio extends MY_Controller{
                 if (!isset($resume['mm_birth']) || empty($resume['mm_birth'])) {
                     $match = false;
                 } else {
-                    $birth = strtotime($resume['mm_birth']);
-                    $current_age = date('Y') - date('Y', $birth);
-                    if (date('md') < date('md', $birth)) $current_age--;
+                    // mm_birth는 출생연도 4자리(YYYY)이므로 앞 4자리로 나이를 계산한다
+                    $current_age = date('Y') - intval(substr($resume['mm_birth'], 0, 4));
 
                     $matches_any = false;
                     foreach ($mm_age as $age) {
@@ -1155,9 +1154,8 @@ class Ppurio extends MY_Controller{
             $resumes = array_filter($resumes, function($r) use ($mm_age, $age_map) {
                 if (!isset($r['mm_birth']) || empty($r['mm_birth'])) return false;
 
-                $birth = strtotime($r['mm_birth']);
-                $current_age = date('Y') - date('Y', $birth);
-                if (date('md') < date('md', $birth)) $current_age--;
+                // mm_birth는 출생연도 4자리(YYYY)이므로 앞 4자리로 나이를 계산한다
+                $current_age = date('Y') - intval(substr($r['mm_birth'], 0, 4));
 
                 foreach ($mm_age as $age) {
                     if ($age != "" && isset($age_map[$age])) {

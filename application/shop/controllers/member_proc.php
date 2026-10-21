@@ -290,8 +290,9 @@ class Member_proc extends CI_Controller
                             "email" => !empty($kakaoemail) ? $kakaoemail : "",
                             "gender" => $gender_converted,
                             "phonenum" => $sns_phone,
+                            // 개인정보 보호: 월·일은 저장하지 않고 출생연도만 남긴다
                             "birthyear" => !empty($kakaobirthyear) ? $kakaobirthyear : "",
-                            "birthday" => !empty($kakaobirthday) ? $kakaobirthday : "",
+                            "birthday" => "",
                         ];
 
                         // 기존 로그 삭제
@@ -330,8 +331,9 @@ class Member_proc extends CI_Controller
                             "email" => !empty($naveremail) ? $naveremail : "",
                             "gender" => $gender_converted,
                             "phonenum" => $sns_phone,
+                            // 개인정보 보호: 월·일은 저장하지 않고 출생연도만 남긴다
                             "birthyear" => !empty($naverbirthyear) ? $naverbirthyear : "",
-                            "birthday" => !empty($naverbirthday) ? $naverbirthday : "",
+                            "birthday" => "",
                         ];
 
                         // 기존 로그 삭제
@@ -2569,7 +2571,8 @@ class Member_proc extends CI_Controller
             "mm_name" => $return["name"],
             "mm_sex" => ($return["gender"] == "1" ? "남" : "여"),
             "mm_nation" => ($return["nationalinfo"] == "0" ? "내국인" : "외국인"),
-            "mm_birth" => $return["birthdate"],
+            // 개인정보 보호: 로그에도 출생연도 4자리만 남긴다
+            "mm_birth" => maskBirthToYear($return["birthdate"]),
             "mm_phone" => $return["mobileno"],
             "mm_ci" => "",
             "mm_di" => $return["dupinfo"],
@@ -2734,7 +2737,7 @@ class Member_proc extends CI_Controller
             "mm_name" => "게스트",
             "mm_sex" => ("남"),
             "mm_nation" => ("내국인"),
-            "mm_birth" => "2000-01-01",
+            "mm_birth" => "2000",
             "mm_phone" => "010-0000-0000",
             "mm_ci" => "",
             "mm_di" => "pass_" . uniqid(),
@@ -3291,6 +3294,8 @@ class Member_proc extends CI_Controller
                     exit;
                 }
 
+                // 개인정보 보호: 생년월일은 출생연도 4자리만 저장 (월·일 제거)
+                $arr_mem["mm_birth"] = maskBirthToYear($arr_mem["mm_birth"]);
                 $result_join = $this->member_model->insertMember($arr_mem);
 
                 // 회원 INSERT 결과 검증
@@ -3675,6 +3680,8 @@ class Member_proc extends CI_Controller
                     exit;
                 }
 
+                // 개인정보 보호: 생년월일은 출생연도 4자리만 저장 (월·일 제거)
+                $arr_mem["mm_birth"] = maskBirthToYear($arr_mem["mm_birth"]);
                 $result_join = $this->member_model->insertMember($arr_mem);
                 //json_return("99","TEST : ".implode(", ", $result_join));//test
                 //json_return("99","TEST result: ".$result_join["code"]);//test

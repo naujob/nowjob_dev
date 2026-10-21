@@ -406,17 +406,18 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   }
 
 
+  // 나이 계산: mm_birth는 출생연도 4자리(YYYY)로 저장된다. 과거 YYYYMMDD 값도 앞 4자리로 계산한다
   function getKoreanAge(birth) {
-    if (!birth || birth.length !== 8) {
+    if (!birth) {
       return 0;
     }
 
-    let formattedBirth = birth.slice(0, 4) + "-" + birth.slice(4, 6) + "-" + birth.slice(6, 8);
-    let birthday = new Date(formattedBirth);
-    let currentDate = new Date();
-    let age = currentDate.getFullYear() - birthday.getFullYear();
+    let year = parseInt(String(birth).slice(0, 4), 10);
+    if (isNaN(year)) {
+      return 0;
+    }
 
-    return age;
+    return new Date().getFullYear() - year;
   }
 </script>
 

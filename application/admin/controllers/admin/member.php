@@ -129,12 +129,10 @@
 	        if (count($result["list"]) > 0) {
 	            $no = 0;
 	            foreach ($result["list"] as $row) {
-	                // 나이 계산 (mm_birth: YYYYMMDD 형식)
+	                // 나이 계산 (mm_birth: 출생연도 YYYY, 과거 YYYYMMDD 값도 앞 4자리로 계산)
 	                $age = "";
-	                if (!empty($row['mm_birth']) && strlen($row['mm_birth']) == 8) {
-	                    $birth = $row['mm_birth'];
-	                    $birth_dt = substr($birth,0,4).'-'.substr($birth,4,2).'-'.substr($birth,6,2);
-	                    $age = floor((strtotime(date('Y-m-d')) - strtotime($birth_dt)) / (365.25 * 24 * 60 * 60));
+	                if (!empty($row['mm_birth']) && strlen($row['mm_birth']) >= 4) {
+	                    $age = intval(date('Y')) - intval(substr($row['mm_birth'], 0, 4));
 	                }
 
 	                $tableData = array_combine(
@@ -438,7 +436,8 @@
 			$mm_id = input_post("mm_id");
       $mm_name = input_post("mm_name");
       $mm_password = input_post("mm_password");
-      $mm_birth = input_post("mm_birth");
+      // 개인정보 보호: 입력값은 출생연도 4자리만 저장한다
+      $mm_birth = maskBirthToYear(input_post("mm_birth"));
       $mm_nation = input_post("mm_nation");
       $mm_sex = input_post("mm_sex");
       $mm_phone = input_post("mm_phone");
@@ -1346,7 +1345,8 @@
 
     function member_birthsave(){
 			$mm_idx = input_post("mm_idx");
-      $mm_birth = input_post("mm_birth");
+      // 개인정보 보호: 입력값은 출생연도 4자리만 저장한다
+      $mm_birth = maskBirthToYear(input_post("mm_birth"));
 
 			$result = $this->member_model->updateMember(["mm_birth"=>$mm_birth],["mm_idx"=>$mm_idx]);
 			if($result["code"]=="00"){

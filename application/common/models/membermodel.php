@@ -4127,13 +4127,14 @@ class memberModel extends MY_Model
 			$sage = (int)$this->inject($params["sage"]);
 			$eage = (int)$this->inject($params["eage"]);
 
-			$min_birth = date("Ymd", strtotime("-{$eage} years", strtotime($today)));
-			$max_birth = date("Ymd", strtotime("-{$sage} years", strtotime($today)));
+			// mm_birth는 출생연도 4자리(YYYY)만 저장되므로 연도 기준으로 비교한다 (8자리 과거 값도 앞 4자리로 동작)
+			$min_year = (int)date("Y") - $eage;
+			$max_year = (int)date("Y") - $sage;
 
 			$where[] = " and (
         (aa.mm_birth = 0)
         or
-        (aa.mm_birth <= '{$max_birth}' and aa.mm_birth >= '{$min_birth}')
+        (LEFT(aa.mm_birth, 4) <= '{$max_year}' and LEFT(aa.mm_birth, 4) >= '{$min_year}')
       )";
 		}
 
@@ -4293,13 +4294,14 @@ class memberModel extends MY_Model
 			$sage = (int)$this->inject($params["sage"]);
 			$eage = (int)$this->inject($params["eage"]);
 
-			$min_birth = date("Ymd", strtotime("-{$eage} years", strtotime($today)));
-			$max_birth = date("Ymd", strtotime("-{$sage} years", strtotime($today)));
+			// mm_birth는 출생연도 4자리(YYYY)만 저장되므로 연도 기준으로 비교한다 (8자리 과거 값도 앞 4자리로 동작)
+			$min_year = (int)date("Y") - $eage;
+			$max_year = (int)date("Y") - $sage;
 
 			$where[] = " and (
         (aa.mm_birth = 0)
         or
-        (aa.mm_birth <= '{$max_birth}' and aa.mm_birth >= '{$min_birth}')
+        (LEFT(aa.mm_birth, 4) <= '{$max_year}' and LEFT(aa.mm_birth, 4) >= '{$min_year}')
       )";
 		}
         // array_filter:배열의 각 요소를 하나씩 검사해서, 조건에 맞는(True인) 요소만 남기고 나머지는 제거

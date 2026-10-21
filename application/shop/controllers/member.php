@@ -1645,9 +1645,9 @@ class Member extends CI_Controller
 			}
 		}
 
-		# QuickInfo 바텀시트 미리 선택값 (가입 시점에 이미 확보한 성별/나이/국적)
+		# QuickInfo 바텀시트 미리 선택값 (가입 시점에 이미 확보한 성별/출생연도/국적)
 		# 세션(USER_INFO)에는 mm_birth/mm_nation이 없으므로 DB에서 직접 조회한다
-		$data["quickinfo_prefill"] = ["nation" => "", "gender" => "", "age" => ""];
+		$data["quickinfo_prefill"] = ["nation" => "", "gender" => "", "birth_year" => ""];
 
 		# 가입 대기 + SNS: 회원 레코드가 아직 없으므로 SNS 프로필에서 채운다
 		if ($data["join_pending"] == "Y" && $has_sns) {
@@ -1658,12 +1658,9 @@ class Member extends CI_Controller
 				$data["quickinfo_prefill"]["gender"] = "female";
 			}
 
-			# 생년: birthyear(4자리)만 있어도 연령대 산출이 가능하다
+			# 출생연도: birthyear(4자리)만 있으면 충분하다 (월·일은 저장하지 않음)
 			$sns_birth = isset($step_sns["birthyear"]) ? $step_sns["birthyear"] : "";
-			if ($sns_birth != "" && isset($step_sns["birthday"]) && $step_sns["birthday"] != "") {
-				$sns_birth = $sns_birth . $step_sns["birthday"];
-			}
-			$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($sns_birth);
+			$data["quickinfo_prefill"]["birth_year"] = maskBirthToYear($sns_birth);
 			# 국적은 SNS가 제공하지 않으므로 공백(사용자가 직접 선택)
 		}
 
@@ -1685,7 +1682,7 @@ class Member extends CI_Controller
 			}
 
 			$auth_birth = isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "";
-			$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($auth_birth);
+			$data["quickinfo_prefill"]["birth_year"] = maskBirthToYear($auth_birth);
 		}
 
 		if ($is_login) {
@@ -1709,8 +1706,8 @@ class Member extends CI_Controller
 					$data["quickinfo_prefill"]["nation"] = "foreign";
 				}
 
-				# 생년월일 -> 연령대 코드 (형식이 제각각이라 헬퍼가 흡수)
-				$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($mm_birth);
+				# 저장된 생년 -> 출생연도 4자리 (형식이 제각각이라 헬퍼가 흡수)
+				$data["quickinfo_prefill"]["birth_year"] = maskBirthToYear($mm_birth);
 			}
 		}
 

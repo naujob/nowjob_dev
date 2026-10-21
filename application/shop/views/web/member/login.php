@@ -159,20 +159,6 @@
     .sns-phone-btn-secondary:active {
         background: #f0faf7;
     }
-    .sns-phone-btn-primary {
-        flex: 1;
-        height: 56px;
-        font-size: 24px;
-        font-weight: 700;
-        border-radius: 40px;
-        color: #fff;
-        background: #1B9D7D;
-    }
-    .sns-phone-btn-primary:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-        opacity: .6;
-    }
     .sns-phone-actions {
         display: flex;
         gap: 8px;
@@ -320,7 +306,6 @@
 
         <div class="sns-phone-actions">
             <button type="button" id="sns-phone-btn-close" class="sns-phone-btn sns-phone-btn-secondary">취소</button>
-            <button type="button" id="sns-phone-btn-proceed" class="sns-phone-btn sns-phone-btn-primary" disabled>회원가입</button>
         </div>
     </div>
 </div>
@@ -742,15 +727,6 @@
     var sPhoneAuthPhone = ''; // 인증 완료된 전화번호 (번호 변경 감지용)
 
     /**
-     * 계속 버튼 활성/비활성 전환
-     * @param {boolean} enabled  true면 파란색 활성, false면 회색 비활성
-     */
-    function setSnsProceedEnabled(enabled) {
-        // 색상/커서는 CSS(.sns-phone-btn-primary:disabled)가 처리
-        $('#sns-phone-btn-proceed').prop('disabled', !enabled);
-    }
-
-    /**
      * 자동으로 사라지는 토스트 메시지 (alert 대신 사용)
      * @param {string} msg       표시할 메시지
      * @param {number} duration  표시 시간(ms), 기본 2000
@@ -800,7 +776,6 @@
         $('#sns-phone-auth-input').val('');
         $('.sns-phone-auth-row').hide();
         $('#sns-phone-btn-auth').css('background-color', '#ccc');
-        setSnsProceedEnabled(false);
         $('#sns-phone-timer').text('');
         $('#sns-phone-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
         setTimeout(function() {
@@ -838,7 +813,6 @@
         // 인증 완료 후 번호가 바뀌면 인증 무효화 + 계속 버튼 비활성
         if (sPhoneIsAuth && phone !== sPhoneAuthPhone) {
             sPhoneIsAuth = false;
-            setSnsProceedEnabled(false);
         }
 
         if (isValid) {
@@ -870,7 +844,6 @@
                 sPhoneUpdateTime();
                 // 재발송 시 이전 인증 무효화
                 sPhoneIsAuth = false;
-                setSnsProceedEnabled(false);
                 gPhoneToast('인증번호를 발송하였습니다.');
             } else if (ret.code == '91' && !(ret.data && ret.data.join_type)) {
                 // 15일 이내 탈퇴한 번호 → 탈퇴 안내만 표시
@@ -907,6 +880,9 @@
 
     // 인증번호 확인
     $('#sns-phone-btn-check').click(function() {
+        // 인증 완료 후 이동 대기 중이면 중복 요청 방지
+        if (sPhoneIsAuth) { return; }
+
         var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
         var auth = $('#sns-phone-auth-input').val();
 
@@ -918,12 +894,11 @@
 
         comAjax('/member_proc/check_sns_phone_auth', {mm_phone: phone, auth: auth}, function(ret) {
             if (ret.code == '00') {
-                // 인증 성공 — 계속 버튼 활성화 + 인증된 번호 기록
+                // 인증 성공 — 인증된 번호 기록 후 바로 가입 페이지로 이동
                 sPhoneIsAuth = true;
                 sPhoneAuthPhone = phone;
                 clearInterval(sPhoneTimer);
-                setSnsProceedEnabled(true);
-                gPhoneToast('인증이 완료되었습니다.', 1500);
+                sPhoneGoJoin();
             } else {
                 sPhoneAuthCount++;
                 if (sPhoneAuthCount > 3) {
@@ -955,9 +930,11 @@
         }
     });
 
-    // 계속 버튼 - join_sns_start로 이동 (phonenum 포함)
-    $('#sns-phone-btn-proceed').click(function() {
-        if (!sPhoneIsAuth) { return; }
+    /**
+     * 인증 완료 후 join_sns_start로 이동 (phonenum 포함)
+     * 인증 성공 콜백에서 바로 호출
+     */
+    function sPhoneGoJoin() {
         var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
         // WeChat: unionid가 있으면 우선 사용 (크로스 플랫폼 지원)
         var joinKey = (sPhoneJoinType === 'WECHAT' && sPhoneUnionId) ? sPhoneUnionId : sPhoneJoinKey;
@@ -968,7 +945,7 @@
             + (sPhoneName  ? '&username=' + encodeURIComponent(sPhoneName) : '')
             + '&phonenum=' + encodeURIComponent(phone);
         location.href = joinUrl;
-    });
+    }
 
     // 닫기
     $('#sns-phone-btn-close').click(function() {
