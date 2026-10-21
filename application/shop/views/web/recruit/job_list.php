@@ -22,9 +22,23 @@ if (count($banner_list) > 0) {
   .result-header .total.today-new {
     margin-left: 28px;
   }
+  #page_cont {
+    margin: 20px 0;
+  }
+  #page_cont .pagination {
+    margin: 50px 0 0;
+  }
 .recomm-slider.recruit .container.swiperX {
   padding: 0 52px;
   max-width: 1634px;
+}
+.recomm-slider.recruit .recruit-card {
+  width: calc(100% - 25px);
+  margin: 0 25px 0 0;
+  min-height: 470px;
+}
+.recomm-slider.recruit .recruit-card .thumb {
+  padding: 100% 0 0;
 }
 .arrow.arrow--left {
   left: -25px;
@@ -383,7 +397,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 
         // main.js의 통합 슬라이더 초기화 함수 사용
         if (typeof initRecommendationSlider === 'function') {
-          initRecommendationSlider('.recomm-slider.recruit');
+          initRecommendationSlider('.recomm-slider.recruit', 5, 311);
         }
 
       } else {

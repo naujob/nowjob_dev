@@ -130,6 +130,17 @@ class Resume extends CI_Controller
     $today_count_result = $query_today_count->row_array();
     $today_recruit_count = isset($today_count_result['total']) ? $today_count_result['total'] : 0;
 
+    // 오늘 등록·수정된 이력서 개수 조회
+    $sql_today_active_count = "
+      SELECT COUNT(DISTINCT bb.ru_idx) as total
+      FROM st_member aa
+      INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx AND bb.ru_status = 'Y' AND bb.ru_show_yn = 'Y' AND (DATE(bb.reg_dt) = CURDATE() OR DATE(bb.up_dt) = CURDATE())
+      WHERE aa.mm_status = 'Y'
+    ";
+    $query_today_active_count = $this->db->query($sql_today_active_count);
+    $today_active_result = $query_today_active_count->row_array();
+    $today_resume_active_count = isset($today_active_result['total']) ? $today_active_result['total'] : 0;
+
     // 추천인재 데이터 로드 (서버사이드 렌더링)
     $reco_params = [
       "addr1" => isset($addr_info['ad_addr1']) ? $addr_info['ad_addr1'] : '',
@@ -166,6 +177,7 @@ class Resume extends CI_Controller
     $data["initial_resumes"] = $initial_resumes;
     $data["initial_total_count"] = $initial_total_count;
     $data["today_recruit_count"] = $today_recruit_count;
+    $data["today_resume_active_count"] = $today_resume_active_count;
     $data["use_server_render"] = $use_server_render;
     $data["initial_reco"] = $initial_reco['list'];
     $data["has_initial_reco"] = $has_initial_reco;
