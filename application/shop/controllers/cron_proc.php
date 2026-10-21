@@ -24,6 +24,7 @@ class Cron_proc extends CI_Controller
               AND m.mm_agree_ad = 'Y'
               AND m.alarm_apply = 'Y'
               AND m.mm_phone != ''
+              AND (om.mm_idx IS NULL OR om.mm_status NOT IN ('N','H')) /* 채팅 상대(개인)가 탈퇴한 방은 알림 안 보냄 */
         ";
 
         // 두 설정 타입(usual, subs)에 대해 반복 처리
@@ -80,6 +81,8 @@ class Cron_proc extends CI_Controller
                 FROM st_room r
                 INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
                 INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
+                LEFT JOIN st_resume oru ON r.ru_idx = oru.ru_idx
+                LEFT JOIN st_member om ON oru.mm_idx = om.mm_idx
                 LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
                 {$where_condition}
             ", array($unread_day))->result_array();
@@ -216,6 +219,7 @@ class Cron_proc extends CI_Controller
               AND m.alarm_chat = 'Y'
               AND m.alarm_apply = 'Y'
               AND m.mm_phone != ''
+              AND (om.mm_idx IS NULL OR om.mm_status NOT IN ('N','H')) /* 채팅 상대(기업)가 탈퇴한 방은 알림 안 보냄 */
         ";
 
         // 두 설정 타입(usual, subs)에 대해 반복 처리
@@ -272,6 +276,8 @@ class Cron_proc extends CI_Controller
                 FROM st_room r
                 INNER JOIN st_resume ru ON r.ru_idx = ru.ru_idx
                 INNER JOIN st_member m ON ru.mm_idx = m.mm_idx
+                LEFT JOIN st_recruit orc ON r.rc_idx = orc.rc_idx
+                LEFT JOIN st_member om ON orc.mm_idx = om.mm_idx
                 LEFT JOIN st_alimtalk_sent_mem s ON r.rm_idx = s.rm_idx
                 {$where_condition}
             ", array($unread_day))->result_array();
@@ -971,6 +977,7 @@ class Cron_proc extends CI_Controller
         $rows = $this->db->query(
             "SELECT r.mq_idx, r.mm_idx, r.rc_idx, r.ru_idx
              FROM st_member_request r
+             INNER JOIN st_member sm ON sm.mm_idx = r.mm_idx AND sm.mm_status = 'Y' /* 요청 보낸 사람이 탈퇴했으면 알림 안 보냄 */
              LEFT JOIN st_request_alimtalk_sent s ON s.mq_idx = r.mq_idx
              WHERE r.mq_type = ?
                AND r.reg_dt >= ?
@@ -1003,13 +1010,14 @@ class Cron_proc extends CI_Controller
         foreach ($rows as $row) {
             try {
                 $recruit_info = $this->db->query(
-                    "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_status = 'Y'",
+                    "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_status = 'Y' AND rc_show_yn = 'Y'",
                     array($row['rc_idx'])
                 )->row_array();
                 if (!$recruit_info) continue;
 
+                // 공고 주인(받는 기업)이 탈퇴(N/H)·정지 등 정상 회원이 아니면 발송하지 않음
                 $recruit_owner = $this->member_model->getMember(array("mm_idx" => $recruit_info["mm_idx"]));
-                if (!$recruit_owner || empty($recruit_owner["mm_phone"])) continue;
+                if (!$recruit_owner || $recruit_owner["mm_status"] != "Y" || empty($recruit_owner["mm_phone"])) continue;
 
                 $company_name = !empty($recruit_owner["mm_comp_name"]) ? $recruit_owner["mm_comp_name"] : "";
                 echo "[DEBUG] [지원 알림] sendUnreadNotificationAlimtalk 호출 - phone=" . $recruit_owner["mm_phone"] . ", company_name=" . $company_name . "\n";
@@ -1041,11 +1049,13 @@ class Cron_proc extends CI_Controller
         $sent = 0;
         foreach ($rows as $row) {
             try {
+                // 비공개(탈퇴 시 ru_show_yn='N')된 이력서는 발송하지 않음
                 $target_resume = $this->member_model->getResume(array("ru_idx" => $row['ru_idx']));
-                if (!$target_resume) continue;
+                if (!$target_resume || $target_resume["ru_show_yn"] != "Y") continue;
 
+                // 이력서 주인(받는 개인)이 탈퇴(N/H)·정지 등 정상 회원이 아니면 발송하지 않음
                 $target_member = $this->member_model->getMember(array("mm_idx" => $target_resume["mm_idx"]));
-                if (!$target_member || empty($target_member["mm_phone"])) continue;
+                if (!$target_member || $target_member["mm_status"] != "Y" || empty($target_member["mm_phone"])) continue;
 
                 $candidate_name = !empty($target_member["mm_name"]) ? $target_member["mm_name"] : "";
                 echo "[DEBUG] [제안 알림] sendPersonalUnreadNotificationAlimtalk 호출 - phone=" . $target_member["mm_phone"] . ", member_name=" . $candidate_name . "\n";
