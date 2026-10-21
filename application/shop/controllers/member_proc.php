@@ -2524,10 +2524,12 @@ class Member_proc extends CI_Controller
                 if ($withdrawn != null) {
                     // JS 작은따옴표 문자열에 넣기 위해 역슬래시, 작은따옴표, 줄바꿈을 이스케이프 (줄바꿈 그대로 넣으면 JS 문법 오류)
                     $withdrawn_msg = str_replace(array("\\", "'", "\n"), array("\\\\", "\\'", "\\n"), withdrawn_message($withdrawn));
+                    // PC: alert 대신 로그인 페이지의 alertdialog로 표시하도록 alert_msg 쿼리로 전달
+                    $withdrawn_login_url = "/member/login?alert_msg=" . urlencode(withdrawn_message($withdrawn));
                     if ($os_type == "ios" || $os_type == "android") {
                         echo "<script>alert('" . $withdrawn_msg . "');location.href='/member/login';</script>";
                     } else {
-                        echo "<script>alert('" . $withdrawn_msg . "');if(window.opener){opener.location.href='/member/login';self.close();}else{location.href='/member/login';}</script>";
+                        echo "<script>if(window.opener){opener.location.href='" . $withdrawn_login_url . "';self.close();}else{location.href='" . $withdrawn_login_url . "';}</script>";
                     }
                     exit;
                 }

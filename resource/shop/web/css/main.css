@@ -3180,7 +3180,9 @@ input:checked~.benefit-label.btn:after {
 }
 
 .popup-container[role=alertdialog] {
-    width: 19.6875em;
+    /* 고정 폭 대신 최소 폭 사용: 긴 안내 문구(예: 탈퇴 재가입 날짜)가 줄바꿈되지 않도록 내용에 맞춰 넓어짐 */
+    min-width: 19.6875em;
+    width: auto;
 }
 
 .in .popup-container {

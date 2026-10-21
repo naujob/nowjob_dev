@@ -198,7 +198,7 @@ class Member extends CI_Controller
 				exit;
 			} else if ($return["code"] == "91") {
 				// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내 후 로그인 화면
-				$this->common->scriptReplace("/member/login", $return["msg"]);
+				$this->common->loginAlertReplace($return["msg"]);
 				exit;
 			} else {
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
@@ -217,7 +217,7 @@ class Member extends CI_Controller
 					$duplicate_check = checkDuplicatePhoneForSns($phonenum);
 					if (!empty($duplicate_check["is_withdrawn"])) {
 						// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
-						$this->common->scriptReplace("/member/login", $duplicate_check["message"]);
+						$this->common->loginAlertReplace($duplicate_check["message"]);
 						exit;
 					}
 					if ($duplicate_check["is_duplicate"]) {
@@ -404,7 +404,7 @@ class Member extends CI_Controller
 
 		// 탈퇴 회원 처리
 		if ($return["code"] == "91") {
-			$this->common->scriptReplace("/member/login", $return["msg"]);
+			$this->common->loginAlertReplace($return["msg"]);
 			exit;
 		}
 
@@ -568,7 +568,7 @@ class Member extends CI_Controller
 				exit;
 			} else if ($return["code"] == "91") {
 				// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내 후 로그인 화면
-				$this->common->scriptReplace("/member/login", $return["msg"]);
+				$this->common->loginAlertReplace($return["msg"]);
 				exit;
 			} else {
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
@@ -582,7 +582,7 @@ class Member extends CI_Controller
 					$duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
 					if (!empty($duplicate_check["is_withdrawn"])) {
 						// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
-						$this->common->scriptReplace("/member/login", $duplicate_check["message"]);
+						$this->common->loginAlertReplace($duplicate_check["message"]);
 						exit;
 					}
 					if ($duplicate_check["is_duplicate"]) {

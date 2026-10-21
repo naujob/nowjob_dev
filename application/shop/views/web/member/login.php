@@ -373,6 +373,15 @@
             }, 100);
         }
 
+        // 탈퇴 등 로그인 차단 안내 (alert_msg 쿼리파라미터, PHP loginAlertReplace / member_proc에서 전달) → alertdialog로 표시
+        var alertMsg = urlParams.get('alert_msg');
+        if (alertMsg) {
+            setTimeout(function() {
+                commonAlert(alertMsg, function() {});
+                window.history.replaceState({}, document.title, '/member/login');
+            }, 100);
+        }
+
         // 네이버 중복 계정 감지 (dup_join_type 쿼리파라미터)
         var dupJoinType = urlParams.get('dup_join_type');
         var dupMmPhone = urlParams.get('dup_mm_phone');
