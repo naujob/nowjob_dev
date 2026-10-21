@@ -25,6 +25,8 @@ function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass 
 
             <div class="bottom-sheet-header">
                 <h2 class="bottom-sheet-title"><?php echo htmlspecialchars($title); ?></h2>
+                <?php // 우측 상단 X 닫기 버튼: closePanel()로 현재 바텀시트만 닫음 ?>
+                <button type="button" class="bottom-sheet-close" onclick="closePanel(document.getElementById('<?php echo htmlspecialchars($id); ?>'));"><span class="sr-text">닫기</span></button>
             </div>
 
             <div class="bottom-sheet-body">

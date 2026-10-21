@@ -3689,7 +3689,8 @@ fieldset {
     padding-top: 2.25rem;
     padding-bottom: 1.25rem;
     padding-left: 1.5rem;
-    padding-right: 1.375rem;
+    /* 우측 X 버튼과 제목이 겹치지 않도록 여백 확보 */
+    padding-right: 3.5rem;
     background: inherit;
 }
 
@@ -3699,6 +3700,24 @@ fieldset {
     text-align: left;
     margin: 0;
     line-height: 1.2;
+}
+
+/* 바텀시트 우측 상단 X 닫기 버튼 */
+.bottom-sheet-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    background: url("../img/ic_alert_close.svg") no-repeat 50% 50%;
+    background-size: 0.875rem auto;
+    cursor: pointer;
+    z-index: 1;
+    /* 모바일 탭 하이라이트/포커스 잔상 제거 */
+    outline: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .bottom-sheet-text-content {
