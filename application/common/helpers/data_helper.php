@@ -1613,12 +1613,14 @@ if (!function_exists('is_room_user_exited')) {
 }
 
 // 탈퇴 후 같은 정보(전화번호·DI·SNS계정)로 로그인·재가입을 막는 기간(일)
+// 이 기간이 지나면 정리 배치(cleanup_withdrawn_members)가 개인정보를 삭제한다 - 차단 기간과 정리 시점은 항상 같은 값이어야 함
+// (2026-10-21 15일 → 5일로 변경. 코드 주석의 "15일"은 이 상수를 뜻함. 화면 안내 문구도 이 상수를 출력)
 if (!defined('WITHDRAW_BLOCK_DAYS')) {
-	define('WITHDRAW_BLOCK_DAYS', 15);
+	define('WITHDRAW_BLOCK_DAYS', 5);
 }
 
 /**
- * 최근 탈퇴(15일 이내) 회원이면 재가입 가능일(Y-m-d), 아니면 false
+ * 최근 탈퇴(WITHDRAW_BLOCK_DAYS일 이내) 회원이면 재가입 가능일(Y-m-d), 아니면 false
  * - 대상 상태: 'N'(본인 탈퇴), 'H'(관리자 삭제)
  * - fire_dt가 비어 있으면 false (영구 차단 방지, 정리 배치가 fire_dt를 채움)
  * @param array|null $mem_info st_member 행

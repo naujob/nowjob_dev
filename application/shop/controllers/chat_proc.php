@@ -53,6 +53,52 @@ class Chat_proc extends CI_Controller
 
 		json_return("00", "환경 정보 조회 성공", $info);
 	}
+	// 채팅 목록에서 상대방이 탈퇴(N)/관리자삭제(H)한 행은 이름을 '탈퇴회원'으로, 사진을 기본값으로 바꾼다
+	// (방은 목록에 유지 - 남은 사람이 대화 내용을 계속 볼 수 있게)
+	// @param array $list 목록 행 배열
+	// @param string $mm_idx_key 상대방 회원번호(mm_idx)가 들어 있는 컬럼명
+	// @param array $name_fields '탈퇴회원'으로 바꿀 이름 컬럼 목록
+	// @param array $img_fields [컬럼명 => 대체값] 형태의 사진 컬럼 목록
+	// @return array 가공된 목록
+	private function _maskWithdrawnOpponent($list, $mm_idx_key, $name_fields, $img_fields)
+	{
+		$mm_idx_list = [];
+		foreach ($list as $row) {
+			if (!empty($row[$mm_idx_key])) {
+				$mm_idx_list[] = (int)$row[$mm_idx_key];
+			}
+		}
+		$mm_idx_list = array_values(array_unique(array_filter($mm_idx_list)));
+		if (empty($mm_idx_list)) {
+			return $list;
+		}
+
+		$withdrawn = [];
+		$rows = $this->db->query(
+			"SELECT mm_idx FROM st_member WHERE mm_idx IN (" . implode(",", $mm_idx_list) . ") AND mm_status IN ('N','H')"
+		)->result_array();
+		foreach ($rows as $r) {
+			$withdrawn[(int)$r["mm_idx"]] = true;
+		}
+		if (empty($withdrawn)) {
+			return $list;
+		}
+
+		foreach ($list as $key => $row) {
+			$opponent_mm_idx = isset($row[$mm_idx_key]) ? (int)$row[$mm_idx_key] : 0;
+			if (!isset($withdrawn[$opponent_mm_idx])) {
+				continue;
+			}
+			foreach ($name_fields as $field) {
+				$list[$key][$field] = "탈퇴회원";
+			}
+			foreach ($img_fields as $field => $replacement) {
+				$list[$key][$field] = $replacement;
+			}
+		}
+		return $list;
+	}
+
 	//기업 회원의 제안받은 인재
 	function get_chat_target_list_recruit()
 	{
@@ -541,18 +587,14 @@ class Chat_proc extends CI_Controller
 				// 회사명 조회 및 추가 (공고를 등록한 기업의 정보)
 				if (!empty($row["mm_idx"])) {
 					$company_info = $this->member_model->getMember(["mm_idx" => $row["mm_idx"]]);
-					if ($company_info) {
-						// 탈퇴한 기업 회원의 채팅방은 목록에서 제외
-						if ($company_info["mm_status"] != 'Y') {
-							unset($temp_list[$key]);
-							continue;
-						}
+					if ($company_info && !in_array($company_info["mm_status"], ["N", "H"], true)) {
 						$temp_list[$key]["user_name"] = $company_info["mm_comp_name"] ? $company_info["mm_comp_name"] : $company_info["mm_name"];
 						$temp_list[$key]["mm_comp_name"] = $company_info["mm_comp_name"] ? $company_info["mm_comp_name"] : $company_info["mm_name"];
 					} else {
-						// 회원 정보 없으면 탈퇴로 간주하여 제외
-						unset($temp_list[$key]);
-						continue;
+						// 기업이 탈퇴했거나 회원 정보가 없어도 개인의 채팅 목록에는 방을 유지하고 '탈퇴회원'으로 표시
+						$temp_list[$key]["user_name"] = "탈퇴회원";
+						$temp_list[$key]["mm_comp_name"] = "탈퇴회원";
+						$temp_list[$key]["rc_thumb"] = "/resource/shop/mobile/img/common/noimage4.png";
 					}
 				} else {
 					$temp_list[$key]["user_name"] = "";
@@ -965,6 +1007,11 @@ class Chat_proc extends CI_Controller
 
 		$list = $filtered_list;
 
+		// 탈퇴한 인재(행의 mm_idx = 이력서 주인)는 '탈퇴회원'으로 표시
+		$list = $this->_maskWithdrawnOpponent($list, "mm_idx",
+			["target_name", "mm_name", "ru_name"],
+			["target_img" => "", "ru_resume_img" => "", "ru_img1" => "", "ru_thumb" => "", "mm_thumb" => ""]);
+
 		json_return("00", "조회성공", ["list" => $list]);
 	}
 
@@ -1186,6 +1233,11 @@ class Chat_proc extends CI_Controller
 		}
 
 		$list = $filtered_list;
+
+		// 탈퇴한 인재(행의 mm_idx = 이력서 주인)는 '탈퇴회원'으로 표시
+		$list = $this->_maskWithdrawnOpponent($list, "mm_idx",
+			["target_name", "mm_name", "ru_name"],
+			["target_img" => "", "ru_resume_img" => "", "ru_img1" => "", "ru_thumb" => "", "mm_thumb" => ""]);
 
 		json_return("00", "조회성공", ["list" => $list]);
 	}
@@ -1502,6 +1554,11 @@ class Chat_proc extends CI_Controller
 		}
 
 		$list = $temp_list;
+
+		// 탈퇴한 기업(행의 mm_idx = 공고 주인)은 '탈퇴회원'으로 표시
+		$list = $this->_maskWithdrawnOpponent($list, "mm_idx",
+			["user_name", "mm_comp_name"],
+			["user_img" => "", "rc_thumb" => "/resource/shop/mobile/img/common/noimage4.png"]);
 
 		json_return("00", "조회성공", ["list" => $list]);
 	}
@@ -2814,6 +2871,12 @@ json_return("00", "조회완료", $data);
 		}
 
 		$list = $filtered_list;
+
+		// 탈퇴한 인재(행의 mm_idx = 이력서 주인)는 '탈퇴회원'으로 표시
+		$list = $this->_maskWithdrawnOpponent($list, "mm_idx",
+			["target_name", "mm_name", "ru_name"],
+			["target_img" => "", "ru_resume_img" => "", "ru_img1" => "", "ru_thumb" => "", "mm_thumb" => ""]);
+
 		json_return("00", "조회성공", ["list" => $list]);
 	}
 
@@ -3315,6 +3378,10 @@ json_return("00", "조회완료", $data);
 		$user_id = $this->user->getUserId();
 		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListSentMem($mm_idx);
+		// 탈퇴한 기업은 '탈퇴회원'으로 표시
+		$result = $this->_maskWithdrawnOpponent($result, "target_mm_idx",
+			["mm_comp_name"],
+			["target_img" => "", "rc_thumb" => "/resource/shop/mobile/img/common/noimage4.png"]);
      //   error_log('[Chat] get_direct_chat_list_sent_mem - mm_idx: ' . $mm_idx . ', result: ' . json_encode($result));
 
 
@@ -3400,6 +3467,10 @@ json_return("00", "조회완료", $data);
 		$user_id = $this->user->getUserId();
 		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListReceivedMem($mm_idx);
+		// 탈퇴한 기업은 '탈퇴회원'으로 표시
+		$result = $this->_maskWithdrawnOpponent($result, "target_mm_idx",
+			["mm_comp_name", "target_name"],
+			["target_img" => "", "rc_thumb" => "/resource/shop/mobile/img/common/noimage4.png"]);
 
 		$preview_byte_length = 20;
 		$temp_list = $result;
@@ -3484,6 +3555,10 @@ json_return("00", "조회완료", $data);
 		$user_id = $this->user->getUserId();
 		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListSentComp($mm_idx);
+		// 탈퇴한 인재는 '탈퇴회원'으로 표시
+		$result = $this->_maskWithdrawnOpponent($result, "target_mm_idx",
+			["target_name", "ru_name"],
+			["target_img" => ""]);
 
 		$preview_byte_length = 20;
 		$temp_list = $result;
@@ -3569,6 +3644,10 @@ json_return("00", "조회완료", $data);
 		$user_id = $this->user->getUserId();
 		$user_phone = $this->user->getUserPhone();
 		$result = $this->member_model->getDirectChatListReceivedComp($mm_idx);
+		// 탈퇴한 인재는 '탈퇴회원'으로 표시
+		$result = $this->_maskWithdrawnOpponent($result, "target_mm_idx",
+			["target_name", "ru_name"],
+			["target_img" => ""]);
 
 		$preview_byte_length = 20;
 		$temp_list = $result;

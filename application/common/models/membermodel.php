@@ -357,7 +357,7 @@ class memberModel extends MY_Model
 		$this->db->trans_begin();
 
 		// 회원정보: 상태·탈퇴일·사유 기록, 이름·생일만 즉시 삭제
-		$this->db->where("mm_idx", $mm_idx)->update("st_member", [
+		$member_update = [
 			"mm_status" => $status,
 			"fire_dt" => $now,
 			"fire_reason" => $reason,
@@ -365,7 +365,12 @@ class memberModel extends MY_Model
 			"mm_name" => "탈퇴회원",
 			"mm_birth" => "",
 			"up_dt" => $now,
-		]);
+		];
+		// 기업회원은 채팅 목록 등에서 회사명(mm_comp_name)을 보여주므로 회사명도 '탈퇴회원'으로 표시
+		if (!empty($mem_info["mm_comp_name"])) {
+			$member_update["mm_comp_name"] = "탈퇴회원";
+		}
+		$this->db->where("mm_idx", $mm_idx)->update("st_member", $member_update);
 
 		// 푸시 알림 끄기 (로그아웃과 동일)
 		$this->db->where("mm_idx", $mm_idx)->update("st_member_device", ["push_yn" => "N"]);
@@ -621,8 +626,36 @@ class memberModel extends MY_Model
 		return ["backfilled" => $backfilled, "processed" => $processed, "fail" => $fail];
 	}
 
+	# _cleanupWithdrawnMemberOne() 내부용: 채팅방/지원·제안 기록에 연결된 공고(rc_idx) 또는 이력서(ru_idx) 번호만 골라 반환
+	# @param string $col "rc_idx" 또는 "ru_idx"
+	# @param array $idx_list 탈퇴 회원의 공고/이력서 번호 목록
+	# @return array 채팅에 연결되어 행을 남겨야 하는 번호 목록
+	private function _getChatLinkedIdxList($col, $idx_list)
+	{
+		if (!in_array($col, ["rc_idx", "ru_idx"], true)) {
+			return [];
+		}
+		$idx_list = array_filter(array_map("intval", $idx_list));
+		if (empty($idx_list)) {
+			return [];
+		}
+		$in = implode(",", $idx_list);
+
+		$sql = "
+			SELECT {$col} AS idx FROM st_room WHERE {$col} IN ({$in})
+			UNION
+			SELECT {$col} AS idx FROM st_member_request WHERE {$col} IN ({$in})
+		";
+		$keep = [];
+		foreach ($this->db->query($sql)->result_array() as $row) {
+			$keep[] = (int)$row["idx"];
+		}
+		return $keep;
+	}
+
 	# cleanupWithdrawnMembers() 내부용: 회원 1명의 데이터를 완전히 정리한다
 	# 공고/이력서/중고(+주소·경력·자격·북마크·조회기록) 삭제, 업로드 파일 삭제,
+	# (단, 채팅방·지원/제안 기록에 연결된 공고/이력서는 상대방 채팅 목록 유지를 위해 행을 남기고 내용만 비움)
 	# 주문 개인정보 익명화(기록은 보관), 포인트는 손대지 않음(보관), 기기 토큰 삭제,
 	# st_member 개인정보 전부 삭제, Mongo user 문서 익명화
 	private function _cleanupWithdrawnMemberOne($mm_idx)
@@ -664,10 +697,57 @@ class memberModel extends MY_Model
 			if (!empty($mem_info[$col])) $image_urls[] = $mem_info[$col];
 		}
 
+		// 채팅방(st_room)이나 지원/제안 기록(st_member_request)에 연결된 공고/이력서는 행을 남긴다
+		// (지우면 상대방 채팅 목록 쿼리의 INNER JOIN이 끊겨 상대방 목록에서도 방이 사라짐)
+		$rc_keep_list = $this->_getChatLinkedIdxList("rc_idx", $rc_idx_list);
+		$ru_keep_list = $this->_getChatLinkedIdxList("ru_idx", $ru_idx_list);
+
 		$this->db->trans_begin();
 
-		$this->db->where("mm_idx", $mm_idx)->delete("st_recruit");
-		$this->db->where("mm_idx", $mm_idx)->delete("st_resume");
+		// 채팅과 연결 안 된 공고/이력서는 삭제
+		$this->db->where("mm_idx", $mm_idx);
+		if (!empty($rc_keep_list)) {
+			$this->db->where_not_in("rc_idx", $rc_keep_list);
+		}
+		$this->db->delete("st_recruit");
+
+		$this->db->where("mm_idx", $mm_idx);
+		if (!empty($ru_keep_list)) {
+			$this->db->where_not_in("ru_idx", $ru_keep_list);
+		}
+		$this->db->delete("st_resume");
+
+		// 채팅과 연결된 공고/이력서는 비공개 유지 + 사진·소개글·주소 등 내용만 비움 (이미지 파일은 아래에서 삭제)
+		if (!empty($rc_keep_list)) {
+			$this->db->where_in("rc_idx", $rc_keep_list)->update("st_recruit", [
+				"rc_show_yn" => "N",
+				"rc_desc" => "",
+				"rc_thumb" => "",
+				"rc_img1" => "",
+				"rc_img2" => "",
+				"rc_img3" => "",
+				"rc_img4" => "",
+				"rc_img5" => "",
+				"up_dt" => get_today(),
+			]);
+		}
+		if (!empty($ru_keep_list)) {
+			$this->db->where_in("ru_idx", $ru_keep_list)->update("st_resume", [
+				"ru_show_yn" => "N",
+				"ru_name" => "탈퇴회원",
+				"ru_addr" => "",
+				"ru_desc" => "",
+				"ru_ip" => "",
+				"ru_thumb" => "",
+				"ru_img1" => "",
+				"ru_img2" => "",
+				"ru_img3" => "",
+				"ru_img4" => "",
+				"ru_img5" => "",
+				"up_dt" => get_today(),
+			]);
+		}
+
 		$this->db->where("mm_idx", $mm_idx)->delete("st_trade");
 		$this->db->where("mm_idx", $mm_idx)->delete("st_address");
 		$this->db->where("mm_idx", $mm_idx)->delete("st_bookmark");
@@ -676,6 +756,8 @@ class memberModel extends MY_Model
 		$this->db->where("mm_idx", $mm_idx)->delete("st_member_certi");
 		$this->db->where("mm_idx", $mm_idx)->delete("st_promotion");
 		$this->db->where("mm_idx", $mm_idx)->delete("st_member_device");
+			// 매칭 조건 정보(나이·성별·학력 등 개인 특성) 삭제
+			$this->db->where("mm_idx", $mm_idx)->delete("st_member_info");
 
 		if (!empty($ru_idx_list)) {
 			$this->db->where_in("ru_idx", $ru_idx_list)->delete("st_resume_career");
@@ -741,6 +823,10 @@ class memberModel extends MY_Model
 		foreach ($image_urls as $url) {
 			$this->common->remove_upload_image($url);
 		}
+
+		// 참여 중인 채팅방에서 나간 상태(exit_yn='Y')로 처리 - 기능 도입 전에 탈퇴한 회원 대비 안전망
+		// 이미 'Y'인 방은 건너뛰므로 탈퇴 시 처리된 회원에게 다시 실행해도 안전 ($mem_info의 mm_id는 del_ 변경 전 원래 아이디)
+		$this->_exitChatRoomsOnWithdraw($mem_info["mm_id"]);
 
 		// Mongo user 문서 익명화 (채팅방·메시지는 유지, 이름/사진만 제거)
 		try {
@@ -1444,7 +1530,7 @@ class memberModel extends MY_Model
           INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
           INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.mq_type = 'RECRUIT' AND mq.rc_idx = aa.rc_idx
-          AND mem.mm_status = 'Y'
+          /* 지원자가 탈퇴해도 기업의 채팅 목록에는 방을 유지 (상대는 '탈퇴회원'으로 표시) */
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -1457,7 +1543,6 @@ class memberModel extends MY_Model
           INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.rc_idx = aa.rc_idx
           AND mq.mq_type = 'RECRUIT'
-          AND mem.mm_status = 'Y'
       )
       GROUP BY aa.rc_idx
 			order by max_up_dt desc, aa.rc_idx desc
@@ -1532,7 +1617,7 @@ class memberModel extends MY_Model
           INNER JOIN st_resume ru ON mq.ru_idx = ru.ru_idx
           INNER JOIN st_member mem ON ru.mm_idx = mem.mm_idx
           WHERE mq.mq_type = 'RESUME' AND mq.rc_idx = aa.rc_idx AND mq.mm_idx = '$mm_idx'
-          AND mem.mm_status = 'Y'
+          /* 제안받은 인재가 탈퇴해도 기업의 채팅 목록에는 방을 유지 (상대는 '탈퇴회원'으로 표시) */
          ), '()') AS rm_idx_list,
          (SELECT MAX(up_dt) FROM st_room WHERE rc_idx = aa.rc_idx AND reg_dt <> up_dt) AS max_up_dt,
          (SELECT ad_addr FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = aa.rc_idx LIMIT 1) as ad_addr
@@ -1547,7 +1632,6 @@ class memberModel extends MY_Model
 			    WHERE mq.rc_idx = aa.rc_idx
 			    AND mq.mm_idx = '$mm_idx'
 			    AND mq.mq_type = 'RESUME'
-			    AND mem.mm_status = 'Y'
 			)
 			order by max_up_dt desc, aa.rc_idx desc
 		";
@@ -1604,7 +1688,7 @@ class memberModel extends MY_Model
 			INNER JOIN st_member comp ON aa.mm_idx = comp.mm_idx /* membermodel.getRecruitActaiveListMem queryXlog */
 			where req.mq_type = 'RECRUIT' AND req.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
-			and comp.mm_status = 'Y'
+			/* 기업이 탈퇴해도 개인의 채팅 목록에는 방을 유지 (상대는 '탈퇴회원'으로 표시) */
 			order by max_up_dt desc, aa.rc_idx desc
 		";
 
@@ -5504,7 +5588,7 @@ FROM (
             LEFT JOIN st_room room
                         ON room.rm_idx = mq.rm_idx
                          WHERE 1=1
-  AND aa.mm_status = 'Y'
+  /* 지원자(aa)가 탈퇴해도 기업의 채팅 목록에는 방을 유지 (이름은 탈퇴 시 '탈퇴회원'으로 바뀜) */
   AND rc.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
 		if ($params['ru_idx'] != "") {
 			$sql .= 	" and mq.rc_idx = '" . $params["ru_idx"] . "' ";
@@ -5585,7 +5669,7 @@ FROM (
             LEFT JOIN st_room room
                         ON room.rm_idx = mq.rm_idx
                          WHERE 1=1
-  AND aa.mm_status = 'Y'
+  /* 지원자(aa)가 탈퇴해도 기업의 채팅 목록에는 방을 유지 (이름은 탈퇴 시 '탈퇴회원'으로 바뀜) */
   AND rc.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
 
 		if (!empty($params['ru_idx_list']) && is_array($params['ru_idx_list'])) {
@@ -5667,7 +5751,7 @@ order by rm_up_dt desc
           LEFT JOIN st_room room
               ON room.rm_idx = mq.rm_idx
           WHERE 1=1
-          AND aa.mm_status = 'Y'
+          /* 제안받은 인재(aa)가 탈퇴해도 기업의 채팅 목록에는 방을 유지 (이름은 탈퇴 시 '탈퇴회원'으로 바뀜) */
           and mq.rc_idx = rc.rc_idx
           AND rc.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
 		if ($params['ru_idx'] != "") { //ru 로 받았지만, rc임
@@ -5744,7 +5828,7 @@ order by rm_up_dt desc
           LEFT JOIN st_room room
               ON room.rm_idx = mq.rm_idx
           WHERE 1=1
-          AND aa.mm_status = 'Y'
+          /* 제안받은 인재(aa)가 탈퇴해도 기업의 채팅 목록에는 방을 유지 (이름은 탈퇴 시 '탈퇴회원'으로 바뀜) */
           and mq.rc_idx = rc.rc_idx
           AND rc.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
 
@@ -6780,6 +6864,7 @@ LIMIT 0 , 200
 				IFNULL(comp.mm_id, 'Unknown') AS mm_id,
 				IFNULL(comp.mm_comp_name, 'Unknown') AS mm_comp_name,
 				IFNULL(comp.mm_thumb, '') AS target_img,
+				rc.mm_idx AS target_mm_idx,
 				'' AS rt_recom_badge,
 				'' AS rt_work_img,
 				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
@@ -6808,6 +6893,7 @@ LIMIT 0 , 200
 				comp.mm_id AS target_id,
 				comp.mm_name AS target_name,
 				IFNULL(comp.mm_thumb, '') AS target_img,
+				rc.mm_idx AS target_mm_idx,
 				comp.mm_sex,
 				comp.mm_comp_name AS mm_comp_name,
 				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
@@ -6839,6 +6925,7 @@ LIMIT 0 , 200
 				mem.mm_name AS target_name,
 				ru.ru_name AS ru_name,
 				IFNULL(ru.ru_img1, '') AS target_img,
+				ru.mm_idx AS target_mm_idx,
 				mem.mm_sex,
 				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
 			FROM st_room room
@@ -6869,6 +6956,7 @@ LIMIT 0 , 200
 				mem.mm_name AS target_name,
 				ru.ru_name AS ru_name,
 				IFNULL(mem.mm_thumb, '') AS target_img,
+				ru.mm_idx AS target_mm_idx,
 				mem.mm_sex,
 				IFNULL(NULLIF(room.up_dt, '0000-00-00 00:00:00'), room.reg_dt) AS reg_dt
 			FROM st_room room

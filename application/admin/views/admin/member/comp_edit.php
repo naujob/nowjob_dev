@@ -521,7 +521,7 @@
 
 	    $("#btnDelete").click(function(){
 			var idx = $("[name=mm_idx]").val();
-			COMMON.confirm("삭제 처리 하시겠습니까?<br/>삭제 후 15일 동안 동일 정보로 재가입할 수 없습니다.",function(){
+			COMMON.confirm("삭제 처리 하시겠습니까?<br/>삭제 후 <?= WITHDRAW_BLOCK_DAYS ?>일 동안 동일 정보로 재가입할 수 없습니다.",function(){
         //"비노출처리 하시겠습니까?"
 				var params = {};
 				params["idx"] = idx;

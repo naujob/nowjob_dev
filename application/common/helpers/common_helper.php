@@ -14,10 +14,11 @@ function get_mongo_db_name()
 	return isset($CI->config->config['mongo_db']) ? $CI->config->config['mongo_db'] : 'chat';
 }
 
+// 채팅 MongoDB 컬렉션 조회 - 접속 주소/DB명은 config(mongo_uri, mongo_db) 기준 (개발: dev_chat, 운영: chat)
 function get_mongodb($name)
 {
-	$m = new MongoClient("mongodb://127.0.0.1/");
-	$db = $m->chat;
+	$m = new MongoClient(get_mongo_uri());
+	$db = $m->selectDB(get_mongo_db_name());
 	$collection = null;
 	if ($name == "user") {
 		$collection = $db->user;

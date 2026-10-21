@@ -393,16 +393,28 @@
             if (empty($profileImg) || strpos($profileImg, 'noimage4.png') !== false) {
               $profileImg = $defaultAvatar;
             }
+            // 상대방(개인)이 탈퇴한 경우: 이력서명 대신 '탈퇴회원', 사진 대신 기본 아바타
+            $opponentWithdrawn = !empty($opponent_withdrawn);
+            if ($opponentWithdrawn) {
+              $profileImg = $defaultAvatar;
+            }
+            $headerResumeName = $opponentWithdrawn ? "탈퇴회원" : (isset($displayResume["ru_name"]) ? $displayResume["ru_name"] : "");
             ?>
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 60px; overflow: hidden; flex-shrink: 0;">
               <img src="<?= $profileImg ?>" alt="프로필" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
             </div>
-            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;"><?= isset($displayResume["ru_name"]) ? $displayResume["ru_name"] : "" ?></span>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;"><?= $headerResumeName ?></span>
           <?php else: ?>
+            <?php
+            // 상대방(기업)이 탈퇴한 경우: 회사명 대신 '탈퇴회원', 공고 이미지 대신 기본 이미지
+            $opponentWithdrawn = !empty($opponent_withdrawn);
+            $headerRecruitImg = (!$opponentWithdrawn && !empty($recruit["rc_thumb"])) ? $recruit["rc_thumb"] : "/resource/shop/mobile/img/common/noimage4.png";
+            $headerCompName = $opponentWithdrawn ? "탈퇴회원" : (!empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅");
+            ?>
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-              <img src="<?= !empty($recruit["rc_thumb"]) ? $recruit["rc_thumb"] : "" ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+              <img src="<?= $headerRecruitImg ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
             </div>
-            <span><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></span>
+            <span><?= $headerCompName ?></span>
           <?php endif; ?>
         </h1>
         <div class="rt-group">

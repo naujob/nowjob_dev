@@ -176,7 +176,7 @@ container.getUserTokenFromMySQL = async function(user_id, callback) {
 }
 
 // MySQL에서 회원 상태(mm_status) 조회 — 탈퇴/정지 여부 확인용
-// getUserTokenFromMySQL과 동일한 패턴 (실패 시 'Y'로 간주해 기존 동작 유지)
+// getUserTokenFromMySQL과 동일한 패턴 (조회 오류 시 'Y'로 간주해 기존 동작 유지, 회원 행이 없으면 'N')
 container.getMemberStatusFromMySQL = async function(user_id, callback) {
 	try {
 		const $mysql = require("../database/mysql.js");
@@ -194,7 +194,11 @@ container.getMemberStatusFromMySQL = async function(user_id, callback) {
 				return;
 			}
 
-			if (results && results.length > 0 && results[0].mm_status) {
+			if (!results || results.length === 0) {
+				// 회원 행 없음 = 탈퇴 정리 완료(mm_id가 del_{mm_idx}로 바뀜) → 탈퇴자로 간주해 'N'
+				// ('Y'로 두면 상대방 메시지 수신 시 탈퇴자의 exit_yn이 다시 'N'으로 복구됨)
+				callback('N');
+			} else if (results[0].mm_status) {
 				callback(results[0].mm_status);
 			} else {
 				callback('Y');

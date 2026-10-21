@@ -1324,9 +1324,17 @@ class Cron_proc extends CI_Controller
 
     // 15일 지난 탈퇴 회원 데이터 실제 정리 (공고/이력서/중고/파일 삭제, 주문 익명화, st_member 개인정보 삭제 등)
     // 되돌릴 수 없는 삭제 작업이라 CLI 실행이거나 서버 자신(localhost)에서 온 요청만 허용
-    // crontab: 10 4 * * * curl -s http://localhost/cron_proc/cleanup_withdrawn_members > /dev/null 2>&1
+    // 운영/개발 사이트가 같은 서버에 있어 http://localhost 는 기본 가상호스트(운영)로 가므로, 사이트를 명시해서 호출한다
+    // (--resolve로 도메인을 127.0.0.1에 붙여 REMOTE_ADDR은 localhost로 유지)
+    // crontab: 10 4 * * * curl -s --resolve nowjob.co.kr:443:127.0.0.1 https://nowjob.co.kr/cron_proc/cleanup_withdrawn_members > /dev/null 2>&1
     public function cleanup_withdrawn_members()
     {
+        // 개발 사이트(설치 경로에 dev_nowapk 포함)에서는 실행하지 않음 - 운영에서만 실제 정리
+        if (strpos(FCPATH, 'dev_nowapk') !== false) {
+            echo "[cleanup_withdrawn_members] 개발 사이트라 실행을 건너뜁니다.\n";
+            return;
+        }
+
         $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
         if (!is_cli() && !$is_localhost) {
