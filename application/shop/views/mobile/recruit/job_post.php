@@ -619,7 +619,7 @@ if (!$isLogin) {
         <div class="section view-desc">
             <div class="container">
                 <div class="title-section" style="justify-content: flex-start;    gap: 15px; ">
-                    <h3 class="secondary-title" onclick="alert('<?= $user_agent ?>');">상세업무정보</h3>
+                    <h3 class="secondary-title">상세업무정보</h3>
                     <p class="desc-guide" style="text-align: left;     width: 205px; white-space: nowrap;">상세업무를 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
                      <div class="title-form__aside" style ="margin-left: 90px;">
                     <button class="detail-recruit-content__preview" type="button" aria-label="새 창으로 보기">

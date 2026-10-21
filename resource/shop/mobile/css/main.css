@@ -3348,6 +3348,11 @@ fieldset {
     background: #fff;
 }
 
+/* 길찾기 바텀시트만 높이 30%로 제한 (공용 .layer-panel.card-type 규칙은 유지, ID 선택자로 우선순위 확보) */
+#findLocation .panel-container {
+    max-height: 30%;
+}
+
 
 .layer-panel .panel-header {
     position: relative;
