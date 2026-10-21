@@ -1432,6 +1432,12 @@ window.onload = function() {
       closeGoogleJoinPhonePopup();
     });
 
+    // 우상단 X 버튼 — 취소와 동일하게 닫기
+    $("#gphone-btn-close").click(function() {
+      clearInterval(gPhoneTimer);
+      closeGoogleJoinPhonePopup();
+    });
+
     // 오버레이 터치 시 닫기
     $("#google-phone-popup").click(function(e) {
       if ($(e.target).is("#google-phone-popup")) {
@@ -1596,7 +1602,13 @@ window.onload = function() {
     <!-- 핸들 바 -->
     <div class="bs-handlebar"></div>
 
-    <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;color:#1B9D7D;">전화번호 인증</h3>
+    <!-- 제목 + 닫기(X) 버튼 -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;color:#1B9D7D;">전화번호 인증</h3>
+      <button id="gphone-btn-close" type="button" aria-label="닫기" style="background:none;border:0;padding:4px;font-size:24px;line-height:1;color:#888;cursor:pointer;">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
     <p style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">구글 회원가입을 위해 전화번호 인증이 필요합니다.</p>
 
     <div class="form-row" style="margin-bottom:20px;">

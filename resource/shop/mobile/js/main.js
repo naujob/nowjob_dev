@@ -226,7 +226,8 @@
                     '<h4 id="alertTitle' + index + '" class="sr-text">' + title + '</h4>' +
                     closeButtonHtml +
                     '<div class="popup-content">' +
-                    '<div class="msg">' + content + '</div>' +
+                    // 줄바꿈 문자(\n)는 HTML에서 공백으로 접히므로 <br>로 변환
+                    '<div class="msg">' + String(content).replace(/\n/g, '<br>') + '</div>' +
                     '</div> <div class="popup-footer">' +
                     '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">확인</button>' +
                     '</div> </div> </div>';

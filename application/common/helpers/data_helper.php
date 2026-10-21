@@ -1653,7 +1653,7 @@ if (!function_exists('withdrawn_message')) {
 		if ($rejoin_dt === false) {
 			return "탈퇴한 회원입니다.";
 		}
-		return "탈퇴한 회원입니다. (" . $rejoin_dt . " 이후 재가입 가능)";
+		return "탈퇴한 회원입니다.\n(" . $rejoin_dt . " 이후 재가입이 가능합니다.)";
 	}
 }
 

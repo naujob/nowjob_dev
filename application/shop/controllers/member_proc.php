@@ -2522,7 +2522,8 @@ class Member_proc extends CI_Controller
                 $mem_info = null;
                 $withdrawn = $this->member_model->findRecentWithdrawn(["di" => $dupinfo]);
                 if ($withdrawn != null) {
-                    $withdrawn_msg = str_replace("'", "\'", withdrawn_message($withdrawn));
+                    // JS 작은따옴표 문자열에 넣기 위해 역슬래시, 작은따옴표, 줄바꿈을 이스케이프 (줄바꿈 그대로 넣으면 JS 문법 오류)
+                    $withdrawn_msg = str_replace(array("\\", "'", "\n"), array("\\\\", "\\'", "\\n"), withdrawn_message($withdrawn));
                     if ($os_type == "ios" || $os_type == "android") {
                         echo "<script>alert('" . $withdrawn_msg . "');location.href='/member/login';</script>";
                     } else {
