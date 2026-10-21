@@ -1966,6 +1966,21 @@ class Member_proc extends CI_Controller
             exit;
         }
 
+        // 탈퇴 회원 차단: PASS 인증 대상(DI)이 WITHDRAW_BLOCK_DAYS일 이내 탈퇴(N/H) 회원이면 본인확인·탈퇴·가입 흐름 모두 여기서 중단
+        $pass_dupinfo = isset($return["dupinfo"]) ? trim($return["dupinfo"]) : "";
+        $pass_withdrawn = ($pass_dupinfo != "") ? $this->member_model->findRecentWithdrawn(["di" => $pass_dupinfo]) : null;
+        if ($pass_withdrawn != null) {
+            // 안내 문구에 줄바꿈이 있으므로 json_encode로 JS 문자열 리터럴을 만들어 구문 오류(흰 화면) 방지
+            $withdrawn_js_msg = json_encode(withdrawn_message($pass_withdrawn), JSON_UNESCAPED_UNICODE);
+            $withdrawn_login_url = "/member/login?alert_msg=" . urlencode(withdrawn_message($pass_withdrawn));
+            if ($os_type == "ios" || $os_type == "android") {
+                echo "<script>alert(" . $withdrawn_js_msg . ");location.href='/member/login';</script>";
+            } else {
+                echo "<script>if(window.opener){opener.location.href='" . $withdrawn_login_url . "';self.close();}else{location.href='" . $withdrawn_login_url . "';}</script>";
+            }
+            exit;
+        }
+
         // SNS 회원가입인지 확인 (SNS 회원가입의 경우 탈퇴 신청 체크 건너뛰기)
         $check_sns = $this->site_model->getSiteLog(
             ["session_id" => session_id(), "sl_type" => "JOIN", "sl_step" => "SNS", "sl_status" => "Y"]
@@ -2203,6 +2218,8 @@ class Member_proc extends CI_Controller
                 if ($withdrawn_join != null) {
                     $alert_msg = withdrawn_message($withdrawn_join);
                 }
+                // 탈퇴 안내 문구에는 줄바꿈이 있어 JS alert('...') 안에서 구문 오류(흰 화면)가 나므로 이스케이프
+                $alert_msg = str_replace(array("\\", "'", "\n"), array("\\\\", "\\'", "\\n"), $alert_msg);
 
                 if ($os_type == "ios") {
                     echo "<script>alert('" . $alert_msg . "');location.href='/member/login';</script>";

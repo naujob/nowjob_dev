@@ -21,7 +21,7 @@
 
   .layer-panel.card-type .panel-container {
     height: 100%;
-    max-height: 30%;
+    max-height: 95%;
   }
 
   .layer-panel .panel-content {

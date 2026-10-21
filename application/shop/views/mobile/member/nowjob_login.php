@@ -118,9 +118,9 @@
         }
 
         if ('<?= $msg_code ?>' == '90') {
-            commonAlert("회원정보를 찾을수 없습니다.", function() {});
+            loginBottomAlert("회원정보를 찾을수 없습니다.", function() {});
         } else if ('<?= $msg_code ?>' == '91') {
-            commonAlert("탈퇴한 회원입니다.", function() {});
+            loginBottomAlert("탈퇴한 회원입니다.", function() {});
         }
 
         // 비밀번호 보기 버튼 이벤트
@@ -149,14 +149,14 @@
         var mmId = $("[name=mm_id]").val();
         var mmPwd = $("[name=mm_pwd]").val();
         if (mmId == "") {
-            commonAlert("휴대폰번호를 입력해주세요.", function() {
+            loginBottomAlert("휴대폰번호를 입력해주세요.", function() {
                 $("[name=mm_id]").focus();
             });
             return;
         }
 
         if (mmPwd == "") {
-            commonAlert("비밀번호를 입력해주세요.", function() {
+            loginBottomAlert("비밀번호를 입력해주세요.", function() {
                 $("[name=mm_pwd]").focus();
             });
             return;
@@ -178,8 +178,10 @@
                 //location.href = "/";
                 _replace("/");
             } else {
-                commonAlert(ret.msg, function() {});
+                loginBottomAlert(ret.msg, function() {});
             }
         });
     }
 </script>
+
+<?php require_once __DIR__ . '/../_partial/login_alert_sheet.php'; ?>

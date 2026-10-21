@@ -1365,6 +1365,38 @@ class Cron_proc extends CI_Controller
         echo "[cleanup_withdrawn_members] fire_dt 보정: {$result['backfilled']}건, 정리 성공: {$result['processed']}건, 실패: {$result['fail']}건\n";
     }
 
+    // 테스트용: 개발 서버에서 탈퇴 회원 1명만 지정해서 정리 실행 (15일 유예 무시)
+    // 사용법: /cron_proc/test_cleanup_withdrawn_member?mm_idx=123 (CLI 또는 localhost에서만 허용)
+    // 운영 사이트에서는 실행하지 않는다 - 되돌릴 수 없는 삭제라 개발 DB에서만 쓴다
+    public function test_cleanup_withdrawn_member()
+    {
+        // 개발 사이트(설치 경로에 dev_nowapk 포함)가 아니면 거부
+        if (strpos(FCPATH, 'dev_nowapk') === false) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden: 개발 서버에서만 실행할 수 있습니다.\n";
+            exit;
+        }
+
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        // 정리할 회원 번호 (필수)
+        $mm_idx = isset($_GET['mm_idx']) ? (int)$_GET['mm_idx'] : 0;
+        if ($mm_idx <= 0) {
+            echo "[test_cleanup_withdrawn_member] mm_idx 파라미터가 필요합니다. 예: ?mm_idx=123\n";
+            return;
+        }
+
+        $result = $this->member_model->cleanupWithdrawnMemberByIdx($mm_idx);
+
+        echo "[test_cleanup_withdrawn_member] " . ($result['result'] ? '성공' : '실패') . " - {$result['message']}\n";
+    }
+
     // 테스트용: 특정 이력서로만 매칭 테스트
     public function test_match_single_resume()
     {

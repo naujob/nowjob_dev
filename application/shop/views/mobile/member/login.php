@@ -294,6 +294,8 @@
 </div>
 
 
+<?php require_once __DIR__ . '/../_partial/login_alert_sheet.php'; ?>
+
 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script src="/resource/shop/mobile/js/logger.js"></script>
 <script>
@@ -550,7 +552,7 @@ window.onload = function() {
                     if (ret.data && ret.data.join_type) {
                       showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
                     } else {
-                      commonAlert(ret.msg, function() {
+                      loginBottomAlert(ret.msg, function() {
                         _replace("/member/login");
                       });
                     }
@@ -574,7 +576,7 @@ window.onload = function() {
                       },
                     });
                   } else {
-                    commonAlert('(3)' + ret.msg, function() {});
+                    loginBottomAlert('(3)' + ret.msg, function() {});
                     return false;
                   }
                 }
@@ -636,9 +638,9 @@ window.onload = function() {
     }
 
     if ('<?= $msg_code ?>' == '90') {
-      commonAlert("회원정보를 찾을수 없습니다.", function() {});
+      loginBottomAlert("회원정보를 찾을수 없습니다.", function() {});
     } else if ('<?= $msg_code ?>' == '91') {
-      commonAlert("탈퇴한 회원입니다.", function() {});
+      loginBottomAlert("탈퇴한 회원입니다.", function() {});
     }
 
   }); //ready
@@ -652,14 +654,14 @@ window.onload = function() {
   function goLogin() {
     //alert('go');
     if ($("[name=mm_id]").val() == "") {
-      commonAlert("휴대폰번호를 입력해주세요.", function() {
+      loginBottomAlert("휴대폰번호를 입력해주세요.", function() {
         $("[name=mm_id]").focus();
       });
       return;
     }
 
     if ($("[name=mm_pwd]").val() == "") {
-      commonAlert("비밀번호를 입력해주세요.", function() {
+      loginBottomAlert("비밀번호를 입력해주세요.", function() {
         $("[name=mm_pwd]").focus();
       });
       return;
@@ -691,7 +693,7 @@ window.onload = function() {
           _replace("/");
         }
       } else {
-        commonAlert(ret.msg, function() {});
+        loginBottomAlert(ret.msg, function() {});
       }
     });
   }
@@ -799,7 +801,7 @@ window.onload = function() {
           if (ret.data && ret.data.join_type) {
             showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
           } else {
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         } else if (ret.code == "90") {
           openPopup('confirm', {
@@ -825,7 +827,7 @@ window.onload = function() {
             },
           });
         } else {
-          commonAlert(ret.msg, function() {});
+          loginBottomAlert(ret.msg, function() {});
         }
       }
     });
@@ -895,7 +897,7 @@ window.onload = function() {
             },
           });
         } else {
-          commonAlert(ret.msg, function() {});
+          loginBottomAlert(ret.msg, function() {});
         }
       }
     });
@@ -976,7 +978,7 @@ window.onload = function() {
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
-              commonAlert(ret.msg, function() {
+              loginBottomAlert(ret.msg, function() {
                 _replace("/member/login");
               });
             }
@@ -1004,7 +1006,7 @@ window.onload = function() {
               },
             });
           } else {
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         }
       });
@@ -1056,7 +1058,7 @@ window.onload = function() {
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
-              commonAlert(ret.msg, function() {});
+              loginBottomAlert(ret.msg, function() {});
             }
           } else if (ret.code == "90") {
             hideLoginLoading();
@@ -1076,7 +1078,7 @@ window.onload = function() {
             });
           } else {
             hideLoginLoading();
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         }
       });
@@ -1119,7 +1121,7 @@ window.onload = function() {
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
-              commonAlert(ret.msg, function() {
+              loginBottomAlert(ret.msg, function() {
                 _replace("/member/login");
               });
             }
@@ -1145,7 +1147,7 @@ window.onload = function() {
             });
           } else {
             hideLoginLoading();
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         }
       });
@@ -1205,13 +1207,13 @@ window.onload = function() {
           openGoogleJoinPhonePopup(ret.data.join_key, email, name);
         } else {
           hideLoginLoading();
-          commonAlert(ret.msg || "로그인 실패", function() {});
+          loginBottomAlert(ret.msg || "로그인 실패", function() {});
         }
       },
       "json"
     ).fail(function() {
       hideLoginLoading();
-      commonAlert("로그인 실패", function() {});
+      loginBottomAlert("로그인 실패", function() {});
     });
   }
 
@@ -1260,13 +1262,13 @@ window.onload = function() {
           openGoogleJoinPhonePopup(ret.data.join_key, "", ret.data.username || "", "WECHAT");
         } else {
           hideLoginLoading();
-          commonAlert(ret.msg || "로그인 실패", function() {});
+          loginBottomAlert(ret.msg || "로그인 실패", function() {});
         }
       },
       "json"
     ).fail(function() {
       hideLoginLoading();
-      commonAlert("로그인 실패", function() {});
+      loginBottomAlert("로그인 실패", function() {});
     });
   }
 
@@ -1484,9 +1486,9 @@ window.onload = function() {
             gPhoneToast(ret.msg, 1200);
           }
         } else if (ret.code == "98") {
-          commonAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
+          loginBottomAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
         } else {
-          commonAlert("오류가 발생하였습니다. (" + ret.code + ")", function() {});
+          loginBottomAlert("오류가 발생하였습니다. (" + ret.code + ")", function() {});
         }
       });
     });
@@ -1495,7 +1497,7 @@ window.onload = function() {
     var gPhoneAuthCount = 0;
     $("#gphone-btn-confirm").click(function() {
       if ($("#gphone-remain-time").html() == "0 : 00") {
-        commonAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
+        loginBottomAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
         return;
       }
 
@@ -1515,13 +1517,13 @@ window.onload = function() {
         } else {
           gPhoneAuthCount++;
           if (gPhoneAuthCount > 3) {
-            commonAlert("인증번호 확인이 3회 이상 실패하였습니다.\n처음부터 다시 진행해주세요.", function() {
+            loginBottomAlert("인증번호 확인이 3회 이상 실패하였습니다.\n처음부터 다시 진행해주세요.", function() {
               clearInterval(gPhoneTimer);
               closeGoogleJoinPhonePopup();
             });
             return;
           }
-          commonAlert("잘못된 인증번호입니다. 다시 입력해주세요.", function() {
+          loginBottomAlert("잘못된 인증번호입니다. 다시 입력해주세요.", function() {
             $("#gphone-auth-input").val("").focus();
           });
         }
@@ -1531,7 +1533,7 @@ window.onload = function() {
     // 회원가입 버튼 — 인증 완료 후 join_sns_start 이동 (인증된 전화번호 포함 전달)
     $("#gphone-btn-join").click(function() {
       if (!gPhoneIsAuth) {
-        commonAlert("인증 완료 후 진행해주세요.", function() {});
+        loginBottomAlert("인증 완료 후 진행해주세요.", function() {});
         return;
       }
       clearInterval(gPhoneTimer);
@@ -1668,7 +1670,7 @@ window.onload = function() {
     var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
 
     if (phone.length === 0) {
-      commonAlert("휴대폰번호를 입력해주세요.", function() {
+      loginBottomAlert("휴대폰번호를 입력해주세요.", function() {
         $("#phone-login-input").focus();
       });
       return;
@@ -1692,16 +1694,16 @@ window.onload = function() {
           return;
         }
         // SMS 발송 성공 → 인증 페이지로 이동
-        commonAlert("인증번호를 발송하였습니다.", function() {
+        loginBottomAlert("인증번호를 발송하였습니다.", function() {
           location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
         });
       } else if (ret.code == "90") {
         // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
-        commonAlert(ret.msg || "회원가입이 필요합니다.", function() {});
+        loginBottomAlert(ret.msg || "회원가입이 필요합니다.", function() {});
       } else if (ret.code == "98" || ret.code == "99") {
-        commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
+        loginBottomAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
       } else {
-        commonAlert(ret.msg || "오류가 발생했습니다.", function() {});
+        loginBottomAlert(ret.msg || "오류가 발생했습니다.", function() {});
       }
     });
   }
@@ -1746,7 +1748,7 @@ window.onload = function() {
       buttonAction = function() {
         // 휴대폰 번호로 기존 계정 자동 로그인
         if (!mmPhone) {
-          commonAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
+          loginBottomAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
             _replace("/member/login");
           });
           return;
@@ -1763,7 +1765,7 @@ window.onload = function() {
             // 본인 확인이 안 된 번호 → 휴대폰 문자 인증 로그인으로 이동
             requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
           } else {
-            commonAlert(ret.msg || "로그인에 실패했습니다.", function() {});
+            loginBottomAlert(ret.msg || "로그인에 실패했습니다.", function() {});
           }
         });
       };

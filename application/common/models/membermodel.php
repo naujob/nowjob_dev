@@ -626,6 +626,28 @@ class memberModel extends MY_Model
 		return ["backfilled" => $backfilled, "processed" => $processed, "fail" => $fail];
 	}
 
+	# 테스트용: 탈퇴 회원 1명을 지정해서 정리한다 (cron_proc.php::test_cleanup_withdrawn_member에서 호출, 개발 서버 전용)
+	# 15일 유예 기간은 확인하지 않는다. 탈퇴(N/H) 상태이고 아직 정리되지 않은(del_ 아닌) 회원만 처리한다.
+	# @param int $mm_idx 정리할 회원 번호
+	# @return array ["result"=>bool, "message"=>처리 결과 설명]
+	function cleanupWithdrawnMemberByIdx($mm_idx)
+	{
+		$mm_idx = (int)$mm_idx;
+		$mem_info = $this->getMember(["mm_idx" => $mm_idx]);
+		if ($mem_info == null) {
+			return ["result" => false, "message" => "회원 없음 mm_idx={$mm_idx}"];
+		}
+		if (!in_array($mem_info["mm_status"], ["N", "H"], true)) {
+			return ["result" => false, "message" => "탈퇴 회원이 아님 mm_idx={$mm_idx} mm_status={$mem_info["mm_status"]}"];
+		}
+		if (strpos($mem_info["mm_id"], "del_") === 0) {
+			return ["result" => false, "message" => "이미 정리된 회원 mm_idx={$mm_idx}"];
+		}
+
+		$ok = $this->_cleanupWithdrawnMemberOne($mm_idx);
+		return ["result" => $ok, "message" => ($ok ? "정리 완료" : "정리 실패") . " mm_idx={$mm_idx}"];
+	}
+
 	# _cleanupWithdrawnMemberOne() 내부용: 채팅방/지원·제안 기록에 연결된 공고(rc_idx) 또는 이력서(ru_idx) 번호만 골라 반환
 	# @param string $col "rc_idx" 또는 "ru_idx"
 	# @param array $idx_list 탈퇴 회원의 공고/이력서 번호 목록
