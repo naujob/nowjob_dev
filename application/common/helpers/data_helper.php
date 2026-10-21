@@ -1660,6 +1660,36 @@ if (!function_exists('withdrawn_message')) {
 }
 
 /**
+ * 채팅방 참여자(user_id = mm_id 또는 전화번호)가 탈퇴 회원인지 확인
+ * - 탈퇴(N)/관리자삭제(H)면 true
+ * - 회원 행이 없으면(탈퇴 정리 후 mm_id가 del_{mm_idx}로 바뀌고 전화번호가 비워진 경우) true
+ * - 조회 실패 시 false (오류 때문에 정상 회원의 복구를 막지 않음)
+ * @param string $user_id 채팅 user_id
+ * @return bool
+ */
+if (!function_exists('is_withdrawn_chat_user')) {
+	function is_withdrawn_chat_user($user_id)
+	{
+		if ($user_id === "" || $user_id === null) {
+			return false;
+		}
+		try {
+			$CI =& get_instance();
+			$row = $CI->db->query(
+				"SELECT mm_status FROM st_member WHERE mm_id = ? OR mm_phone = ? ORDER BY (mm_status = 'Y') DESC LIMIT 1",
+				array($user_id, $user_id)
+			)->row_array();
+			if (!$row) {
+				return true;
+			}
+			return in_array($row["mm_status"], array("N", "H"), true);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+}
+
+/**
  * MongoDB room의 exit_yn 상태를 Y→N으로 복구 (나간 사용자 복구)
  * @param string $mongo_uri MongoDB 연결 URI
  * @param string $mongo_db MongoDB 데이터베이스명
@@ -1688,11 +1718,16 @@ if (!function_exists('reset_room_exit_status')) {
 			// rm_users 배열 처리
 			// 재요청(제안/지원/채팅)이 들어오면 대화가 다시 활성화되는 것이므로,
 			// 요청자 본인 여부와 상관없이 나갔던(exit_yn=Y) 모든 참여자를 복구한다.
+			// 단, 탈퇴 회원은 복구하지 않는다 (탈퇴 시 나감 처리는 영구적이어야 함 - chat_server.js 상대방 복구와 동일 정책)
 			$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 			$updated = false;
 
 			foreach ($rm_users as $key => $room_user) {
 				if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+					$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+					if (is_withdrawn_chat_user($room_user_id)) {
+						continue;
+					}
 					$rm_users[$key]["exit_yn"] = "N";
 					// exit_dt는 보존 (메시지 필터링 기준점으로 사용)
 					$updated = true;

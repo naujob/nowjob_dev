@@ -1152,13 +1152,14 @@ function sendFcm($info, $token_list)
 function sendMatchPush($receiver_mm_idx, $type, $target_name, $target_idx)
 {
 	try {
-		// 토큰 조회
+		// 토큰 조회 - 정상 회원(mm_status='Y')만 (탈퇴 후 앱 실행으로 push_yn이 다시 Y가 되어도 발송 안 되게)
 		$CI =& get_instance();
 		$token_result = $CI->db->query(
-			"SELECT ifnull(token,'') as token, push_yn
-			 FROM st_member_device
-			 WHERE mm_idx = ? AND push_yn = 'Y'
-			 ORDER BY up_dt DESC LIMIT 1",
+			"SELECT ifnull(d.token,'') as token, d.push_yn
+			 FROM st_member_device d
+			 INNER JOIN st_member m ON m.mm_idx = d.mm_idx AND m.mm_status = 'Y'
+			 WHERE d.mm_idx = ? AND d.push_yn = 'Y'
+			 ORDER BY d.up_dt DESC LIMIT 1",
 			array($receiver_mm_idx)
 		);
 		$token_info = $token_result->row_array();

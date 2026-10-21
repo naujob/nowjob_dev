@@ -3191,6 +3191,15 @@ json_return("00", "조회완료", $data);
 			}
 		}
 
+		// 상대방이 탈퇴(N/H)한 경우 제안/지원 불가 - 상대가 탈퇴해도 채팅방은 목록에 남으므로 방 안에서 막는다
+		// (제안: 이력서 주인, 지원: 공고 주인)
+		$opponent_owner = ($mq_type == "RESUME")
+			? $this->db->query("SELECT m.mm_status FROM st_resume r INNER JOIN st_member m ON m.mm_idx = r.mm_idx WHERE r.ru_idx = ?", array($ru_idx))->row_array()
+			: $this->db->query("SELECT m.mm_status FROM st_recruit r INNER JOIN st_member m ON m.mm_idx = r.mm_idx WHERE r.rc_idx = ?", array($rc_idx))->row_array();
+		if (!$opponent_owner || in_array($opponent_owner["mm_status"], array("N", "H"), true)) {
+			json_return("90", "탈퇴한 회원에게는 " . ($mq_type == "RESUME" ? "제안" : "지원") . "할 수 없습니다.");
+		}
+
 		// 등록 처리 (채팅방 내 제안/지원은 포인트 차감 없음)
 		// 순수 채팅방(다이렉트)에서의 제안/지원도 정식(RECRUIT/RESUME)으로 기록 → 이 시점부터 정식 방으로 승격
 		$data = array(
