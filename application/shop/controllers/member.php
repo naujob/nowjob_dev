@@ -1241,22 +1241,25 @@ class Member extends CI_Controller
 	{
 		$data = [];
 
-		$join_key = input_get("join_key", "");
-		$join_type = input_get("join_type", "");
+		// 가입 키·종류는 POST(개인정보 전달용 폼)를 우선 읽고, 없으면 GET으로 읽는다
+		$join_key = input_post("join_key", input_get("join_key", ""));
+		$join_type = input_post("join_type", input_get("join_type", ""));
 
-		$username = input_get("username", "");
-		$email = input_get("email", "");
-		$gender = input_get("gender", "");
-		$phonenum = input_get("phonenum", "");
-		$birthyear = input_get("birthyear", ""); // URL 파라미터로 생년 받기
-		$birthday = input_get("birthday", ""); // URL 파라미터로 생일 받기
+		// 이름·이메일·성별·생년월일은 URL로 받지 않는다 (접근 로그 노출 방지) → 아래 세션 임시 데이터에서 가져온다
+		$username = "";
+		$email = "";
+		$gender = "";
+		// 전화번호는 사용자가 직접 입력하는 경우에만 POST로 전달된다
+		$phonenum = input_post("phonenum", "");
+		$birthyear = ""; // URL로 받지 않음 (세션 임시 데이터 사용)
+		$birthday = ""; // URL로 받지 않음 (세션 임시 데이터 사용)
 		// 클라이언트에서 이미 포맷 변환된 데이터를 받음 (중복 변환 제거)
 
 		// 기존 SNS 데이터 (로그인 단계에서 site_log에 저장된 값)
 		$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
 
 		// 카카오: 개인정보는 URL로 받지 않고 site_log 값을 사용 (URL 값이 있으면 URL 값 우선)
-		if ($join_type == "KAKAO" && !empty($existing_sns) && isset($existing_sns["join_type"]) && $existing_sns["join_type"] == "KAKAO") {
+		if ($join_type != "" && !empty($existing_sns) && isset($existing_sns["join_type"]) && $existing_sns["join_type"] == $join_type) {
 			if ($join_key == "") $join_key = isset($existing_sns["join_key"]) ? $existing_sns["join_key"] : "";
 			if ($username == "") $username = isset($existing_sns["username"]) ? $existing_sns["username"] : "";
 			if ($email == "") $email = isset($existing_sns["email"]) ? $existing_sns["email"] : "";

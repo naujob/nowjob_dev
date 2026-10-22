@@ -18,7 +18,7 @@
         },
         secondCallback: function() {
           // PASS 인증 없이 바로 회원가입 페이지로 이동 (SNS 정보는 이미 세션에 저장됨)
-          location.href = "/member/join_sns_start?join_key=<?= isset($res_id) ? $res_id : '' ?>&join_type=NAVER<?= isset($sns_info) ? '&username=' . urlencode($sns_info['username']) . '&email=' . urlencode($sns_info['email']) . '&gender=' . urlencode($sns_info['gender']) . '&phonenum=' . urlencode($sns_info['phonenum']) : '' ?>";
+          location.href = "/member/join_sns_start?join_key=<?= isset($res_id) ? $res_id : '' ?>&join_type=NAVER";
         },
       });
     } else {

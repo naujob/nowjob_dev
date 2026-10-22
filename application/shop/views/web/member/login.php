@@ -938,13 +938,13 @@
         var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
         // WeChat: unionid가 있으면 우선 사용 (크로스 플랫폼 지원)
         var joinKey = (sPhoneJoinType === 'WECHAT' && sPhoneUnionId) ? sPhoneUnionId : sPhoneJoinKey;
-        var joinUrl = '/member/join_sns_start'
-            + '?join_key=' + encodeURIComponent(joinKey)
-            + '&join_type=' + sPhoneJoinType
-            + (sPhoneEmail ? '&email=' + encodeURIComponent(sPhoneEmail) : '')
-            + (sPhoneName  ? '&username=' + encodeURIComponent(sPhoneName) : '')
-            + '&phonenum=' + encodeURIComponent(phone);
-        location.href = joinUrl;
+        // 개인정보(전화번호)는 URL 쿼리가 아니라 POST 폼으로 보낸다 (접근 로그에 남지 않도록)
+        // 이름·이메일은 SNS 로그인 단계에서 세션에 저장되어 있어 따로 보내지 않는다
+        var $joinForm = $('<form method="post" action="/member/join_sns_start"></form>');
+        $joinForm.append($('<input type="hidden" name="join_key">').val(joinKey));
+        $joinForm.append($('<input type="hidden" name="join_type">').val(sPhoneJoinType));
+        $joinForm.append($('<input type="hidden" name="phonenum">').val(phone));
+        $joinForm.appendTo('body').submit();
     }
 
     // 닫기

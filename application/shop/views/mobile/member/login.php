@@ -568,10 +568,7 @@ window.onload = function() {
                       secondCallback: function() {
                         // 추가 정보와 함께 회원가입 페이지로 이동
                         var joinUrl = "/member/join_sns_start?join_key=" + kakaoid + "&join_type=KAKAO";
-                        if (kakaoname) joinUrl += "&username=" + encodeURIComponent(kakaoname);
-                        if (kakaoemail) joinUrl += "&email=" + encodeURIComponent(kakaoemail);
-                        if (gender) joinUrl += "&gender=" + encodeURIComponent(gender);
-                        if (kakaophone) joinUrl += "&phonenum=" + encodeURIComponent(kakaophone);
+                        // 이름·이메일·성별·전화번호는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
                         location.href = joinUrl;
                       },
                     });
@@ -815,14 +812,8 @@ window.onload = function() {
             secondCallback: function() {
               // PASS 인증 없이 바로 회원가입 페이지로 이동
               // 생년월일 정보도 URL 파라미터로 전달
-              var joinUrl = "/member/join_sns_start?join_key=" + result[0] +
-                "&join_type=KAKAO" +
-                "&email=" + encodeURIComponent(email || "") +
-                "&gender=" + encodeURIComponent(gender || "") +
-                "&phonenum=" + encodeURIComponent(phone || "") +
-                "&username=" + encodeURIComponent(name || "") +
-                "&birthyear=" + encodeURIComponent(birthyear_clean || "") +
-                "&birthday=" + encodeURIComponent(birthday_clean || "");
+              // 개인정보는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
+              var joinUrl = "/member/join_sns_start?join_key=" + result[0] + "&join_type=KAKAO";
               location.href = joinUrl;
             },
           });

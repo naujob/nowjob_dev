@@ -225,7 +225,8 @@ class Member_proc extends CI_Controller
                 $kakaobirthyear = input_post("kakaobirthyear", "");
                 $kakaobirthday = input_post("kakaobirthday", "");
                 $kakaoemail = input_post("kakaoemail", "");
-                $sns_phone = $kakaophone;
+                // 국제표기(+82 10-...)로 올 수 있으므로 네이버·애플과 같이 국내 번호로 정규화
+                $sns_phone = normalizeSnsPhone($kakaophone);
 
                 // 로그 기록 (선택사항)
                 // error_log("카카오 로그인 파라미터: kakaoid=" . $kakaoid . ", kakaoname=" . $kakaoname);
@@ -3306,7 +3307,7 @@ class Member_proc extends CI_Controller
                     exit;
                 }
 
-                // 개인정보 보호: 생년월일은 출생연도 4자리만 저장 (월·일 제거)
+                // 기업회원 포함 모든 가입 경로: 생년월일은 출생연도 4자리만 저장 (SNS 원본 월일은 st_member_kakao_birth에만 보관)
                 $arr_mem["mm_birth"] = maskBirthToYear($arr_mem["mm_birth"]);
                 $result_join = $this->member_model->insertMember($arr_mem);
 
@@ -3699,7 +3700,7 @@ class Member_proc extends CI_Controller
                     exit;
                 }
 
-                // 개인정보 보호: 생년월일은 출생연도 4자리만 저장 (월·일 제거)
+                // 기업회원 포함 모든 가입 경로: 생년월일은 출생연도 4자리만 저장 (SNS 원본 월일은 st_member_kakao_birth에만 보관)
                 $arr_mem["mm_birth"] = maskBirthToYear($arr_mem["mm_birth"]);
                 $result_join = $this->member_model->insertMember($arr_mem);
                 //json_return("99","TEST : ".implode(", ", $result_join));//test
@@ -3998,6 +3999,8 @@ class Member_proc extends CI_Controller
                     exit;
                 }
 
+                // 기업회원 포함 모든 가입 경로: 생년월일은 출생연도 4자리만 저장 (SNS 원본 월일은 st_member_kakao_birth에만 보관)
+                $arr_mem["mm_birth"] = maskBirthToYear($arr_mem["mm_birth"]);
                 $result_join = $this->member_model->insertMember($arr_mem);
 
                 // 회원 INSERT 결과 검증
@@ -4347,6 +4350,8 @@ class Member_proc extends CI_Controller
                     exit;
                 }
 
+                // 기업회원 포함 모든 가입 경로: 생년월일은 출생연도 4자리만 저장 (SNS 원본 월일은 st_member_kakao_birth에만 보관)
+                $arr_mem["mm_birth"] = maskBirthToYear($arr_mem["mm_birth"]);
                 $result_join = $this->member_model->insertMember($arr_mem);
 
                 if ($result_join["code"] != "00") {
