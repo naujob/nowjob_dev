@@ -18,7 +18,7 @@
        },
        secondCallback: function() {
          // 위챗 정보와 함께 회원가입 페이지로 이동 (휴대폰 입력 팝업이 필요하므로 login.php로 리다이렉트)
-         location.href = "/member/login?join_sns=1&join_key=<?= isset($res_id) ? $res_id : '' ?>&join_type=WECHAT<?= isset($sns_info) ? '&username=' . urlencode($sns_info['username']) . '&gender=' . urlencode($sns_info['gender']) : '' ?>";
+         location.href = "/member/login?join_sns=1&join_key=<?= isset($res_id) ? $res_id : '' ?>&join_type=WECHAT";
        },
      });
    } else {

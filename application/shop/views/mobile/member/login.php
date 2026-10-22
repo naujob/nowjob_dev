@@ -985,15 +985,8 @@ window.onload = function() {
               secondCallback: function() {
                 // PASS 인증 없이 바로 회원가입 페이지로 이동
                 // 생년월일 정보도 URL 파라미터로 전달
-                var joinUrl = "/member/join_sns_start?join_key=" + uniqueval +
-                  "&join_type=NAVER" +
-                  "&email=" + encodeURIComponent(email || "") +
-                  "&gender=" + encodeURIComponent(gender || "") +
-                  "&phonenum=" + encodeURIComponent(phonenum || "") +
-                  "&username=" + encodeURIComponent(username || "") +
-                  "&birthyear=" + encodeURIComponent(birthyear || "") +
-                  "&birthday=" + encodeURIComponent(birthday || "");
-                location.href = joinUrl;
+                // 이름·이메일·성별·생년월일은 세션 값 사용, 전화번호만 POST로 전달
+                postJoinSnsStart({ join_key: uniqueval, join_type: "NAVER", phonenum: phonenum || "" });
               },
             });
           } else {
@@ -1129,11 +1122,8 @@ window.onload = function() {
               secondCallback: function() {
                 // PASS 인증 없이 바로 회원가입 페이지로 이동
                 // 안드로이드 앱에서 네이버 로그인 시 받은 정보 전달
-                var url = "/member/join_sns_start?join_key=" + id + "&join_type=NAVER";
-                if (name) url += "&username=" + encodeURIComponent(name);
-                if (email) url += "&email=" + encodeURIComponent(email);
-                if (phone) url += "&phonenum=" + encodeURIComponent(phone);
-                location.href = url;
+                // 이름·이메일은 세션 값 사용, 전화번호만 POST로 전달
+                postJoinSnsStart({ join_key: id, join_type: "NAVER", phonenum: phone || "" });
               },
             });
           } else {
@@ -1364,24 +1354,33 @@ window.onload = function() {
    * 인증 완료 후 가입 페이지(join_sns_start)로 이동
    * 인증된 전화번호(phonenum)와 구글/위챗 정보를 함께 전달
    */
+  // 가입 정보(전화번호 등 개인정보)는 URL 쿼리가 아니라 POST 폼으로 join_sns_start에 보낸다 (접근 로그 노출 방지)
+  function postJoinSnsStart(fields) {
+    var $form = $('<form method="post" action="/member/join_sns_start"></form>');
+    $.each(fields, function(name, value) {
+      $form.append($('<input type="hidden">').attr('name', name).val(value || ''));
+    });
+    $form.appendTo('body').submit();
+  }
+
   function gPhoneGoJoin() {
     clearInterval(gPhoneTimer);
     closeGoogleJoinPhonePopup();
 
     var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
-    var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=" + gPhoneJoinType;
+    var joinFields = { join_key: gPhoneJoinKey, join_type: gPhoneJoinType };
     if (gPhoneEmail) {
-      joinUrl += "&email=" + encodeURIComponent(gPhoneEmail);
+      // 이메일·이름은 로그인 단계에서 서버 세션에 저장되어 있으므로 보내지 않는다
     }
     if (gPhoneName) {
-      joinUrl += "&username=" + encodeURIComponent(gPhoneName);
+      // (이름은 세션 값 사용)
     }
     if (phoneVal) {
-      joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);
+      joinFields.phonenum = phoneVal;
     }
     // 팝업 닫기 애니메이션(350ms) 이후 페이지 이동
     setTimeout(function() {
-      location.href = joinUrl;
+      postJoinSnsStart(joinFields);
     }, 360);
   }
 

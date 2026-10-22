@@ -13,6 +13,22 @@ if (!$socket_io_script_url) {
 
 <head>
   <meta charset="UTF-8">
+  <script>
+    // NICE 본인인증에서 뒤로가기로 회원가입 시작 페이지(join_start)에 돌아온 경우:
+    // 화면이 한 번도 그려지지 않도록 head에서 숨기고 로그인 페이지로 보낸다.
+    // (join_start가 NICE 이동 직전에 남긴 플래그 nice_auth_started 기준)
+    (function() {
+      try {
+        if (sessionStorage.getItem('nice_auth_started') !== 'Y') return;
+        sessionStorage.removeItem('nice_auth_started');
+        var nav = (window.performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation')[0] : null;
+        if (nav && nav.type === 'back_forward' && location.pathname.indexOf('/member/join_start') === 0) {
+          document.documentElement.style.visibility = 'hidden';
+          location.replace('/member/login');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"> -->
   <meta name="viewport" content="width=460, user-scalable=no">
   <title>나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼</title>

@@ -318,10 +318,19 @@ class Mypage_proc extends CI_Controller
       "sl_type" => "RESUME"
     ]);
 
-    // 이력서 최대 2개 제한: 폼 진입 전에 차단
-    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
-    if ($resume_count >= 2) {
-      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+    // 기존 이력서 수정(ru_idx 전달)이면 개수 제한 대상이 아님. 단, 본인 이력서인지 확인
+    $ru_idx = (int) input_post("ru_idx", 0);
+    if ($ru_idx != 0) {
+      $own_resume = $this->member_model->getResume(["ru_idx" => $ru_idx, "mm_idx" => $this->mm_idx]);
+      if (!is_array($own_resume)) {
+        return json_return("90", "이력서가 존재하지 않습니다.");
+      }
+    } else {
+      // 이력서 최대 2개 제한: 신규 등록 진입 전에 차단
+      $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
+      if ($resume_count >= 2) {
+        return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+      }
     }
 
     $passAuthStat = "";

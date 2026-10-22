@@ -1360,6 +1360,8 @@ class Member extends CI_Controller
 	# 회원가입 시작
 	function join_start()
 	{
+		// bfcache 복원 방지: NICE 인증 후 뒤로가기 시 페이지가 캐시에서 먼저 그려지지 않고 서버에서 다시 받도록 함
+		header("Cache-Control: no-store");
 		$data = [];
 
 		$headers = apache_request_headers();
@@ -2060,6 +2062,15 @@ class Member extends CI_Controller
 		$data["policy4"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "privacy3_pc"]);
 		$data["policy5"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_pc"]);
 
+
+		# 스텝3 임시 데이터(mm_id/mm_pwd)를 화면 hidden 값으로 전달
+		# SNS 가입은 step2에서 POST 없이 GET 리다이렉트로 들어오므로, 세션에 저장된 값을 써야 "데이터가 비어 있습니다"가 나지 않는다
+		$step3_log = $this->site_model->getSiteLog(
+			["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_step" => "스텝3", "sl_status" => "Y"]
+		);
+		$step3_info = $step3_log != null ? json_decode($step3_log["sl_txt"], true) : [];
+		$data["mm_id"] = isset($step3_info["mm_id"]) ? $step3_info["mm_id"] : "";
+		$data["mm_pwd"] = isset($step3_info["mm_pwd"]) ? $step3_info["mm_pwd"] : "";
 
 		$this->layout->shop('/member/join_wcomp_step3', $data);
 	}

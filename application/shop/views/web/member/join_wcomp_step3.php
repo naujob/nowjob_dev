@@ -14,8 +14,8 @@
                     </div>
                     <div class="find-loc-form">
                         <form id="frm" onsubmit="return false">
-			                    <input type="hidden" id="mm_id" name="mm_id" value="<?php echo isset($_POST['mm_id']) ? htmlspecialchars($_POST['mm_id']) : ''; ?>" />
-			                    <input type="hidden" id="mm_pwd" name="mm_pwd" value="<?php echo isset($_POST['mm_pwd']) ? htmlspecialchars($_POST['mm_pwd']) : ''; ?>" />
+			                    <input type="hidden" id="mm_id" name="mm_id" value="<?php echo (isset($mm_id) && $mm_id !== '') ? htmlspecialchars($mm_id) : (isset($_POST['mm_id']) ? htmlspecialchars($_POST['mm_id']) : ''); ?>" />
+			                    <input type="hidden" id="mm_pwd" name="mm_pwd" value="<?php echo (isset($mm_pwd) && $mm_pwd !== '') ? htmlspecialchars($mm_pwd) : (isset($_POST['mm_pwd']) ? htmlspecialchars($_POST['mm_pwd']) : ''); ?>" />
 		                    <input type="hidden" id="ad_zipcode" name="ad_zipcode" value="" />
 							<input type="hidden" id="ad_jibun" name="ad_jibun" value="" />
 							<input type="hidden" id="ad_doro" name="ad_doro" value="" />

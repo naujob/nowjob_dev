@@ -40,6 +40,25 @@ if (count($banner_list) > 0) {
 .recomm-slider.recruit .recruit-card .thumb {
   padding: 100% 0 0;
 }
+.recomm-slider .recruit-card .tag {
+  padding: 0;
+}
+.recomm-slider .recruit-card .tag:not(:last-child) {
+  margin-right: 13px;
+}
+.page-recruit .result-list .content-info .desc .desc1 {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+.page-recruit .result-list .content-info .desc .desc2 {
+  flex: 0 0 240px;
+  width: 240px;
+}
+.page-recruit .result-list .content-info .desc .desc3 {
+  flex: 0 0 290px;
+  width: 290px;
+}
 .arrow.arrow--left {
   left: -25px;
 }
