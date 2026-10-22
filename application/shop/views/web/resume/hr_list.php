@@ -63,6 +63,23 @@ if (count($banner_list) > 0) {
   width: 286px;
   height: 286px;
 }
+.recomm-slider .person-card .tag {
+  padding: 0;
+}
+.recomm-slider .person-card .tag:not(:last-child) {
+  margin-right: 13px;
+}
+.page-hr-list .item-info .price_type_wrap {
+  width: 240px !important;
+  flex: 0 0 240px;
+  margin-right: 9px;
+}
+.page-hr-list .item-info .working-day {
+  width: 291px;
+  flex: 0 0 291px;
+  margin-right: 0;
+  justify-content: flex-end;
+}
 .arrow.arrow--left {
   left: -25px;
 }
