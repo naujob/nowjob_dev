@@ -290,9 +290,9 @@ class Member_proc extends CI_Controller
                             "email" => !empty($kakaoemail) ? $kakaoemail : "",
                             "gender" => $gender_converted,
                             "phonenum" => $sns_phone,
-                            // 개인정보 보호: 월·일은 저장하지 않고 출생연도만 남긴다
+                            // 카카오 원본 생년월일은 변형 없이 그대로 전달 (st_member_kakao_birth에 원본 보관용)
                             "birthyear" => !empty($kakaobirthyear) ? $kakaobirthyear : "",
-                            "birthday" => "",
+                            "birthday" => !empty($kakaobirthday) ? $kakaobirthday : "",
                         ];
 
                         // 기존 로그 삭제
@@ -3016,6 +3016,18 @@ class Member_proc extends CI_Controller
 
 
     # 회원가입 완료 처리
+    // 카카오 가입 시 SNS 세션 정보의 생년월일 원본을 st_member_kakao_birth에 그대로 저장
+    // (st_member.mm_birth는 출생연도만 저장하므로 원본은 이 테이블에만 남음), 카카오가 아니면 true
+    function saveKakaoBirthOriginal($mm_idx, $step_sns)
+    {
+        if (!is_array($step_sns) || !isset($step_sns["join_type"]) || strtoupper($step_sns["join_type"]) != "KAKAO") {
+            return true;
+        }
+        $birthyear = isset($step_sns["birthyear"]) ? (string)$step_sns["birthyear"] : "";
+        $birthday = isset($step_sns["birthday"]) ? (string)$step_sns["birthday"] : "";
+        return $this->member_model->insertMemberKakaoBirth($mm_idx, $birthyear, $birthday);
+    }
+
     function join_complete_proc()
     {
         $proc_type = input_post("proc_type", "");
@@ -3313,6 +3325,13 @@ class Member_proc extends CI_Controller
                 }
 
                 $mm_idx = $result_join["key"];
+
+                // 카카오 생년월일 원본은 st_member_kakao_birth에 그대로 보관 (저장 실패 시 가입 롤백)
+                if (!$this->saveKakaoBirthOriginal($mm_idx, $step_sns)) {
+                    $this->db->trans_rollback();
+                    json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
+                    exit;
+                }
 
                 # 토큰정보 연동
                 if ($alarm["uuid"] != "") {
@@ -3701,6 +3720,13 @@ class Member_proc extends CI_Controller
 
                 $mm_idx = $result_join["key"];
 
+                // 카카오 생년월일 원본은 st_member_kakao_birth에 그대로 보관 (저장 실패 시 가입 롤백)
+                if (!$this->saveKakaoBirthOriginal($mm_idx, $step_sns)) {
+                    $this->db->trans_rollback();
+                    json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
+                    exit;
+                }
+
                 //json_return("91",$ma_type."오류가1".$proc_type);
                 //exit;
 
@@ -3989,6 +4015,13 @@ class Member_proc extends CI_Controller
                 }
 
                 $mm_idx = $result_join["key"];
+
+                // 카카오 생년월일 원본은 st_member_kakao_birth에 그대로 보관 (저장 실패 시 가입 롤백)
+                if (!$this->saveKakaoBirthOriginal($mm_idx, $step_sns)) {
+                    $this->db->trans_rollback();
+                    json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
+                    exit;
+                }
 
                 # 토큰정보 연동
                 if ($alarm["uuid"] != "") {
@@ -4328,6 +4361,13 @@ class Member_proc extends CI_Controller
                 }
 
                 $mm_idx = $result_join["key"];
+
+                // 카카오 생년월일 원본은 st_member_kakao_birth에 그대로 보관 (저장 실패 시 가입 롤백)
+                if (!$this->saveKakaoBirthOriginal($mm_idx, $step_sns)) {
+                    $this->db->trans_rollback();
+                    json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
+                    exit;
+                }
 
                 # 토큰정보 연동
                 if ($alarm["uuid"] != "") {

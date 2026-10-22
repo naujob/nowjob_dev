@@ -325,6 +325,22 @@ class memberModel extends MY_Model
 	function insertMember($data)
 	{
 		return $this->db_insert("st_member", $data);
+		}
+
+		# 카카오 생년월일 원본 보관 (정책상 변형 저장 금지: st_member.mm_birth와 달리 월일까지 그대로 저장)
+		# 둘 다 비어 있으면 저장할 것이 없으므로 성공(true)으로 처리
+		function insertMemberKakaoBirth($mm_idx, $birthyear, $birthday)
+		{
+			if ($birthyear === "" && $birthday === "") {
+				return true;
+			}
+			$result = $this->db_insert("st_member_kakao_birth", [
+				"mm_idx" => $mm_idx,
+				"mk_birthyear" => $birthyear,
+				"mk_birthday" => $birthday,
+				"reg_dt" => get_today(),
+			]);
+			return is_array($result) && $result["code"] == "00";
 	}
 
 	# 회원정보 수정
@@ -778,6 +794,8 @@ class memberModel extends MY_Model
 		$this->db->where("mm_idx", $mm_idx)->delete("st_member_certi");
 		$this->db->where("mm_idx", $mm_idx)->delete("st_promotion");
 		$this->db->where("mm_idx", $mm_idx)->delete("st_member_device");
+			// 카카오 생년월일 원본 삭제 (탈퇴 15일 정리 시 함께 파기)
+			$this->db->where("mm_idx", $mm_idx)->delete("st_member_kakao_birth");
 			// 매칭 조건 정보(나이·성별·학력 등 개인 특성) 삭제
 			$this->db->where("mm_idx", $mm_idx)->delete("st_member_info");
 
