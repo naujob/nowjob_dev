@@ -118,6 +118,25 @@ function input_post($namne, $default = "")
 	return $val;
 }
 
+# 회원 표시명 반환 (기업회원: 회사명 → 없으면 mm_name → 없으면 "기업회원", 개인회원: mm_name)
+# 기업회원 가입 시 mm_comp_name을 비워 저장하므로(회사명 미입력), 빈 값일 때 대체 이름을 사용한다.
+function get_member_display_name($mem_info)
+{
+	if (!is_array($mem_info)) {
+		return "";
+	}
+	if ($mem_info["mm_type"] != "COMP") {
+		return $mem_info["mm_name"];
+	}
+	if (trim((string)$mem_info["mm_comp_name"]) != "") {
+		return $mem_info["mm_comp_name"];
+	}
+	if (trim((string)$mem_info["mm_name"]) != "") {
+		return $mem_info["mm_name"];
+	}
+	return "기업회원";
+}
+
 # 전체 post 값 가져온다.
 function input_post_all($xss = TRUE)
 {

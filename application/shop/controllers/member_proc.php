@@ -1,7 +1,9 @@
 <?php
 class Member_proc extends CI_Controller
 {
-    // 심사용 테스트 전화번호: SMS 인증 생략, 즉시 회원가입/로그인 처리 (추후 추가 가능)
+    // 심사용 테스트 전화번호 목록 (개발서버 더미 회원 전용 의도)
+    // 주의: 환경(dev/prod) 분기가 없어 이 목록은 운영에서도 동작함 - SMS 인증 생략, 즉시 회원가입/로그인 처리
+    // 목록에 실제 사용자 번호가 섞이지 않도록 관리 필요
     private $test_phone_numbers = ["01033333333","01077777777","01066666666","01055555555", "01011111111","01044444444","01022222222","01011112222","01011114444","01011115555","01011116666","01011117777"];
 
     function __construct()
@@ -48,7 +50,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -60,7 +62,10 @@ class Member_proc extends CI_Controller
     }
 
     /**
-     * 휴대폰 회원 생성 및 로그인 처리
+     * 휴대폰 회원 생성 및 로그인 처리 (심사용 테스트 번호 전용 더미 회원)
+     * - mm_id(phone_번호_시각)와 mm_pwd(시각 기반 더미 해시)는 예측 가능한 값으로, 실사용자 가입과 무관
+     * - DI/CI를 저장하지 않으므로 PASS 기반 탈퇴 차단 대상이 아님
+     * - 호출처: check_phone_login() 내 test_phone_numbers 분기만 사용
      */
     private function createAndLoginPhoneMember($normalized_phone)
     {
@@ -97,7 +102,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -380,7 +385,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -550,7 +555,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -664,7 +669,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -962,7 +967,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -1125,7 +1130,7 @@ class Member_proc extends CI_Controller
             "mm_idx"       => $mem_info["mm_idx"],
             "mm_id"        => $mem_info["mm_id"],
             "mm_point"     => $mem_info["mm_point"],
-            "mm_name"      => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name"      => get_member_display_name($mem_info),
             "mm_type"      => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img"       => $mem_info["mm_thumb"],
@@ -1249,7 +1254,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -1496,7 +1501,9 @@ class Member_proc extends CI_Controller
             return;
         }
 
-        // 심사용 테스트 전화번호: 가입 여부와 무관하게 SMS 인증 생략하고 즉시 로그인/가입 처리
+        // 심사용 테스트 전화번호(test_phone_numbers): 가입 여부와 무관하게 SMS 인증 생략하고 즉시 로그인/가입 처리
+        // 가입된 번호면 기존 회원으로 로그인, 미가입이면 createAndLoginPhoneMember()로 더미 회원 생성
+        // 환경 분기 없음 - 운영 배포 시에도 이 분기가 실행되므로 주의
         if (in_array($normalized_phone, $this->test_phone_numbers, true)) {
             $query = "SELECT * FROM st_member
                       WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
@@ -1627,7 +1634,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -1695,7 +1702,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "mm_img" => $mem_info["mm_thumb"],
@@ -2821,7 +2828,7 @@ class Member_proc extends CI_Controller
             "mm_idx" => $mem_info["mm_idx"],
             "mm_id" => $mem_info["mm_id"],
             "mm_point" => $mem_info["mm_point"],
-            "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+            "mm_name" => get_member_display_name($mem_info),
             "mm_type" => $mem_info["mm_type"],
             "mm_join_type" => $mem_info["mm_join_type"],
             "ad_addr" => $addr_info["ad_addr"],
@@ -3419,7 +3426,7 @@ class Member_proc extends CI_Controller
                     "mm_idx" => $mem_info["mm_idx"],
                     "mm_id" => $mem_info["mm_id"],
                     "mm_point" => $mem_info["mm_point"],
-                    "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+                    "mm_name" => get_member_display_name($mem_info),
                     "mm_type" => $mem_info["mm_type"],
                     "mm_join_type" => $mem_info["mm_join_type"],
                     "ad_addr" => $step2_info["ad_addr"],
@@ -3778,7 +3785,7 @@ class Member_proc extends CI_Controller
                     "mm_idx" => $mem_info["mm_idx"],
                     "mm_id" => $mem_info["mm_id"],
                     "mm_point" => $mem_info["mm_point"],
-                    "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+                    "mm_name" => get_member_display_name($mem_info),
                     "mm_type" => $mem_info["mm_type"],
                     "mm_join_type" => $mem_info["mm_join_type"],
                     "ad_addr" => $step2_info["ad_addr"],
@@ -4084,7 +4091,7 @@ class Member_proc extends CI_Controller
                     "mm_idx" => $mem_info["mm_idx"],
                     "mm_id" => $mem_info["mm_id"],
                     "mm_point" => $mem_info["mm_point"],
-                    "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+                    "mm_name" => get_member_display_name($mem_info),
                     "mm_type" => $mem_info["mm_type"],
                     "mm_join_type" => $mem_info["mm_join_type"],
                     "ad_addr" => isset($step4_info["ad_addr"]) ? $step4_info["ad_addr"] : "",
@@ -4239,7 +4246,7 @@ class Member_proc extends CI_Controller
                     "mm_birth" => $mm_birth_init,
                     "mm_phone" => $mm_phone_init,
                     "mm_comp_type" => "COMP",
-                    "mm_comp_name" => $step3_info["mm_id"],
+                    "mm_comp_name" => "", // 회사명은 가입 시 입력받지 않으므로 빈 값 (아이디를 넣으면 SNS 자동 아이디가 회사명으로 노출됨)
                     "mm_comp_num" => "",
                     "mm_comp_auth" => "",
                     "mm_ci" => $step3_info["mm_id"],
@@ -4418,7 +4425,7 @@ class Member_proc extends CI_Controller
                     "mm_idx" => $mem_info["mm_idx"],
                     "mm_id" => $mem_info["mm_id"],
                     "mm_point" => $mem_info["mm_point"],
-                    "mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+                    "mm_name" => get_member_display_name($mem_info),
                     "mm_type" => $mem_info["mm_type"],
                     "mm_join_type" => $mem_info["mm_join_type"],
                     "ad_addr" => $step4_info["ad_addr"],

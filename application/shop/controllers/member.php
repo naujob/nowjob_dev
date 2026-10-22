@@ -991,7 +991,7 @@ class Member extends CI_Controller
 			$this->user->setUser([
 				"mm_idx" => $mem_info["mm_idx"],
 				"mm_id" => $mem_info["mm_id"],
-				"mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+				"mm_name" => get_member_display_name($mem_info),
 				"mm_type" => $mem_info["mm_type"],
 				"ad_addr" => $addr_info["ad_addr"],
 				"ad_gps_x" => $addr_info["ad_gps_x"],
@@ -1059,7 +1059,7 @@ class Member extends CI_Controller
 			$this->user->setUser([
 				"mm_idx" => $mem_info["mm_idx"],
 				"mm_id" => $mem_info["mm_id"],
-				"mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+				"mm_name" => get_member_display_name($mem_info),
 				"mm_type" => $mem_info["mm_type"],
 				"ad_addr" => $addr_info["ad_addr"],
 				"ad_gps_x" => $addr_info["ad_gps_x"],
