@@ -1332,7 +1332,7 @@ class Cron_proc extends CI_Controller
         echo "[auto_reregister_paid_recruit] {$message} | 성공: {$success}건, 실패: {$fail}건\n";
     }
 
-    // 15일 지난 탈퇴 회원 데이터 실제 정리 (공고/이력서/중고/파일 삭제, 주문 익명화, st_member 개인정보 삭제 등)
+    // 5일 지난 탈퇴 회원 데이터 실제 정리 (공고/이력서/중고/파일 삭제, 주문 익명화, st_member 개인정보 삭제 등)
     // 되돌릴 수 없는 삭제 작업이라 CLI 실행이거나 서버 자신(localhost)에서 온 요청만 허용
     // 운영/개발 사이트가 같은 서버에 있어 http://localhost 는 기본 가상호스트(운영)로 가므로, 사이트를 명시해서 호출한다
     // (--resolve로 도메인을 127.0.0.1에 붙여 REMOTE_ADDR은 localhost로 유지)

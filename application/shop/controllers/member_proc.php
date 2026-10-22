@@ -63,14 +63,14 @@ class Member_proc extends CI_Controller
 
     /**
      * 휴대폰 회원 생성 및 로그인 처리 (심사용 테스트 번호 전용 더미 회원)
-     * - mm_id(phone_번호_시각)와 mm_pwd(시각 기반 더미 해시)는 예측 가능한 값으로, 실사용자 가입과 무관
+     * - mm_id(phone_번호_시각)는 예측 가능한 값으로, 실사용자 가입과 무관 (mm_pwd는 빈값)
      * - DI/CI를 저장하지 않으므로 PASS 기반 탈퇴 차단 대상이 아님
      * - 호출처: check_phone_login() 내 test_phone_numbers 분기만 사용
      */
     private function createAndLoginPhoneMember($normalized_phone)
     {
         $mm_id = "phone_" . $normalized_phone . "_" . time();
-        $mm_pwd = password_hash("phone_signup_" . time(), PASSWORD_DEFAULT);
+        $mm_pwd = ""; // 비밀번호 없음 (휴대폰 SMS 인증으로 로그인)
 
         $insert_data = [
             "mm_id" => $mm_id,
@@ -1237,6 +1237,13 @@ class Member_proc extends CI_Controller
 
         $params["mm_pwd"] = sys_decrypt($params["mm_pwd"], 'njob', '20231007');
 
+        // 빈 비밀번호 계정(휴대폰 인증 가입 등)은 자동 로그인 차단
+        // 빈 값/복호화 실패(false)면 mm_pwd = '' 조건에 매칭되어 mm_id만 알면 로그인되는 문제가 있음
+        if (!isset($params["mm_pwd"]) || $params["mm_pwd"] === false || $params["mm_pwd"] === "") {
+            echo "<script>alert('로그인 가능한 회원이 아닙니다.');self.close();</script>";
+            exit;
+        }
+
         $mem_info = $this->member_model->getMember(["mm_id" => $params["mm_id"], "mm_pwd" => $params["mm_pwd"]]);
 
         //print_r($mem_info);
@@ -1596,7 +1603,7 @@ class Member_proc extends CI_Controller
 
         // 새 회원 생성 (휴대폰번호 기반)
         $mm_id = "phone_" . $normalized_phone . "_" . time(); // 고유 아이디 자동 생성
-        $mm_pwd = password_hash("phone_signup_" . time(), PASSWORD_DEFAULT); // 더미 비밀번호
+        $mm_pwd = ""; // 비밀번호 없음 (휴대폰 SMS 인증으로 로그인)
 
         $insert_data = [
             "mm_id" => $mm_id,
@@ -3205,7 +3212,7 @@ class Member_proc extends CI_Controller
                 $arr_mem = [
                     "mm_type" => "MEM",
                     "mm_id" => isset($step1_info["mm_id"]) ? $step1_info["mm_id"] : "",
-                    "mm_pwd" => $this->common->getSqlPass(isset($step1_info["mm_pwd"]) ? $step1_info["mm_pwd"] : ""),
+                    "mm_pwd" => "", // NICE 가입은 비밀번호 입력 화면이 없어 자동 생성값을 저장하지 않음 (로그인은 SMS 인증)
                     "mm_name" => $mm_name_init,
                     "mm_status" => "Y",
                     "mm_phone" => $mm_phone_init,
@@ -3579,7 +3586,7 @@ class Member_proc extends CI_Controller
                 $arr_mem = [
                     "mm_type" => "MEM",
                     "mm_id" => $step1_info["mm_id"],
-                    "mm_pwd" => $this->common->getSqlPass($step1_info["mm_pwd"]),
+                    "mm_pwd" => "", // NICE 가입은 비밀번호 입력 화면이 없어 자동 생성값을 저장하지 않음 (로그인은 SMS 인증)
                     "mm_name" => $mm_name_init,
                     "mm_status" => "Y",
                     "mm_phone" => $mm_phone_init,
@@ -3908,7 +3915,7 @@ class Member_proc extends CI_Controller
                     "mm_id" => isset($step3_info["mm_id"]) ? $step3_info["mm_id"] : "",
                     "mm_img1" => isset($step6_info["mm_img1"]) ? $step6_info["mm_img1"] : "",
                     "mm_thumb" => isset($step6_info["mm_thumb"]) ? $step6_info["mm_thumb"] : "",
-                    "mm_pwd" => $this->common->getSqlPass(isset($step3_info["mm_pwd"]) ? $step3_info["mm_pwd"] : ""),
+                    "mm_pwd" => "", // 비밀번호를 입력받지 않으므로 빈값 저장 (로그인은 SMS 인증)
                     "mm_name" => $mm_name_init,
                     "mm_sex" => $mm_sex_init,
                     "mm_nation" => $mm_nation_init,
@@ -4239,7 +4246,7 @@ class Member_proc extends CI_Controller
                     "mm_type" => "COMP",
                     "mm_status" => "Y",
                     "mm_id" => $step3_info["mm_id"],
-                    "mm_pwd" => $this->common->getSqlPass($step3_info["mm_pwd"]),
+                    "mm_pwd" => "", // 비밀번호를 입력받지 않으므로 빈값 저장 (로그인은 SMS 인증)
                     "mm_name" => $mm_name_init,
                     "mm_sex" => $mm_sex_init,
                     "mm_nation" => $mm_nation_init,
