@@ -1200,10 +1200,11 @@ window.onload = function() {
 
   // 위챗 로그인 콜백: 안드로이드 네이티브 앱(HomeActivity.onWeChatLoginCallback)에서 호출됨
   // 파라미터: 로그인 상태, WeChat 임시 코드 (서버에서 access token 교환용)
+  // 실패 시 code 자리에 안드로이드는 실패 사유 문자열을, iOS는 빈 값을 전달함
   function onWeChatLoginAndCallback(status, code) {
     if (status !== 'success' || !code) {
       hideLoginLoading();
-      alert("위챗 로그인에 실패했습니다.");
+      handleWeChatLoginFailure(status === 'success' ? '' : (code || ''));
       return;
     }
 
@@ -1251,6 +1252,29 @@ window.onload = function() {
       hideLoginLoading();
       loginBottomAlert("로그인 실패", function() {});
     });
+  }
+
+  /**
+   * 위챗 로그인 실패 사유별 안내 (사유 원문은 내부 코드라 화면에 노출하지 않고 로그로만 남김)
+   * @param {string} reason - 네이티브 앱이 전달한 실패 사유 (안드로이드 HomeActivity/WXEntryActivity)
+   */
+  function handleWeChatLoginFailure(reason) {
+    if (typeof BrowserLogger !== 'undefined' && typeof BrowserLogger.info === 'function') {
+      BrowserLogger.info("위챗 로그인 실패 사유: " + reason);
+    }
+
+    if (reason.indexOf("설치되어 있지 않습니다") !== -1) {
+      // 위챗 미설치: 안내는 안드로이드 앱이 토스트로 이미 표시하므로 웹은 Play 스토어 위챗 페이지로만 이동
+      // (WebView가 market:// 를 스토어 앱으로 연결)
+      location.href = "market://details?id=com.tencent.mm";
+    } else if (reason.indexOf("ERR_USER_CANCEL") !== -1) {
+      // 사용자가 직접 취소한 경우 별도 안내 없음
+      return;
+    } else if (reason.indexOf("ERR_AUTH_DENIED") !== -1) {
+      loginBottomAlert("위챗 권한 승인이 거절되었습니다.", function() {});
+    } else {
+      loginBottomAlert("위챗 로그인에 실패했습니다.\n잠시 후 다시 시도해주세요.", function() {});
+    }
   }
 
   // 위챗 로그인 콜백 (iOS): iOS 네이티브 앱(WXApiDelegate.onResp)에서 호출됨
