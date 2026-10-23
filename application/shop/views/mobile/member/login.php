@@ -1474,6 +1474,8 @@ window.onload = function() {
     $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
     $("#gphone-input").val(String(phone || "").replace(/[^0-9]/g, ""));
     gPhoneNumCheck();
+    // 시트가 열리자마자 인증번호 발송 (시트 안 "인증요청" 버튼을 누르지 않아도 되도록)
+    requestPhoneLoginAuthSheet();
   }
 
   /** 휴대폰 로그인: 인증번호 발송 (check_phone_login은 가입된 회원에게만 발송) */

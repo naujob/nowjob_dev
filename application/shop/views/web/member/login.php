@@ -784,6 +784,13 @@
         // 팝업이 열리면 휴대폰번호 입력칸에 커서를 두어 Enter로 인증 요청(#sns-phone-btn-auth)을 바로 누를 수 있게 함
         // 로그인 버튼 클릭의 동기 흐름 안에서 호출되므로 모바일에서도 포커스(키보드 표시)가 허용됨
         $('#sns-phone-input').focus();
+        // 팝업이 열리자마자 인증번호 발송 (팝업 안 "인증요청" 버튼을 누르지 않아도 되도록)
+        var digits = String(phone || '').replace(/[^0-9]/g, '');
+        if (/^01[016789][0-9]{7,8}$/.test(digits)) {
+            requestPhoneLoginAuth(digits);
+        } else {
+            gPhoneToast('올바른 휴대폰번호를 입력해주세요.', 1500);
+        }
     }
 
     // 휴대폰 로그인: 인증번호 발송 (check_phone_login은 가입된 회원에게만 발송)
