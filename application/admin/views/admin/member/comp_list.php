@@ -134,7 +134,7 @@
                                 <a href="javascript:void(0);" class="btn-xs btn-type6 btnOut" data-idx="<?= $row["mm_idx"] ?>" style="width:auto;">승인</a>
                             <?php endif; ?>
                             <a href="javascript:void(0);" class="btn-xs btn-type3 btnEdit" data-idx="<?= $row["mm_idx"] ?>" style="width:auto;">상세정보</a>
-                            <a href="javascript:void(0);" class="btn-xs btn-type1 btnGoLogin" data-mm_id="<?= $row["mm_id"] ?>" data-mm_pwd="<?= $row["mm_pwd"] ?>" data-mm_status="<?= $row["mm_status"] ?>" style="width:auto;">로그인</a>
+                            <a href="javascript:void(0);" class="btn-xs btn-type1 btnGoLogin" data-mm_idx="<?= $row["mm_idx"] ?>" data-mm_status="<?= $row["mm_status"] ?>" style="width:auto;">로그인</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -148,14 +148,26 @@
 <script>
     $(document).ready(function() {
         $(".btnGoLogin").click(function() {
-            var mm_id = $(this).data("mm_id");
-            var mm_pwd = $(this).data("mm_pwd");
+            var mm_idx = $(this).data("mm_idx");
             var mm_status = $(this).data("mm_status");
             if (mm_status != "Y") {
                 alert("승인완료된 회원만 로그인이 가능합니다.");
                 return;
             }
-            window.open("https://nowjob.co.kr/member_proc/auto_login?mm_id=" + mm_id + "&mm_pwd=" + mm_pwd);
+            // 팝업 차단을 피하려고 클릭 시점에 빈 창을 먼저 열고, 토큰 발급 후 주소를 채운다
+            var win = window.open("about:blank");
+            if (!win) {
+                COMMON.alert("팝업 차단을 해제해 주세요.");
+                return;
+            }
+            comAjax("/admin/member/issue_auto_login_token", { mm_idx: mm_idx }, function(result) {
+                if (result.code == "00") {
+                    win.location.href = "https://nowjob.co.kr/member_proc/auto_login?token=" + encodeURIComponent(result.data.token);
+                } else {
+                    win.close();
+                    COMMON.alert(result.msg);
+                }
+            });
         });
 
         $(".btnExcel").click(function() {

@@ -669,6 +669,55 @@ function sys_decrypt($str, $secret_key = 'secret key', $secret_iv = 'secret iv')
 	);
 }
 
+//자동 로그인 토큰 생성 (관리자 전용, 60초 유효)
+//형식: base64url("mm_idx|만료시각|HMAC-SHA256") / 서명 키(auto_login_secret)가 없으면 빈 문자열
+function make_auto_login_token($mm_idx)
+{
+	$CI = &get_instance();
+	$secret = $CI->config->item('auto_login_secret');
+	if (!$secret) {
+		return '';
+	}
+
+	$payload = $mm_idx . '|' . (time() + 60);
+	$sig = hash_hmac('sha256', $payload, $secret);
+	return rtrim(strtr(base64_encode($payload . '|' . $sig), '+/', '-_'), '=');
+}
+
+//자동 로그인 토큰 검증 → 성공 시 mm_idx, 실패(위조/만료/설정 없음) 시 false
+function verify_auto_login_token($token)
+{
+	$CI = &get_instance();
+	$secret = $CI->config->item('auto_login_secret');
+	if (!$secret || $token === '' || $token === null) {
+		return false;
+	}
+
+	$parts = explode('|', base64_decode(strtr($token, '-_', '+/')));
+	if (count($parts) != 3) {
+		return false;
+	}
+	list($mm_idx, $expire, $sig) = $parts;
+
+	//서명 비교는 시간차 공격을 막기 위해 전체 길이를 모두 비교 (hash_equals는 PHP 5.6+라 직접 구현)
+	$expect = hash_hmac('sha256', $mm_idx . '|' . $expire, $secret);
+	if (strlen($expect) != strlen($sig)) {
+		return false;
+	}
+	$diff = 0;
+	for ($i = 0; $i < strlen($expect); $i++) {
+		$diff |= ord($expect[$i]) ^ ord($sig[$i]);
+	}
+	if ($diff !== 0) {
+		return false;
+	}
+
+	if ((int) $expire < time() || !ctype_digit((string) $mm_idx)) {
+		return false;
+	}
+	return $mm_idx;
+}
+
 //설정정보로 스토어 키값 획득
 function get_store_key($setting)
 {

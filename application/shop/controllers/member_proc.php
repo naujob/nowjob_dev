@@ -1230,31 +1230,23 @@ class Member_proc extends CI_Controller
         json_return("00", "로그인 완료");
     }
 
-    # 자동 로그인
+    # 자동 로그인 (관리자 페이지에서 발급한 1회성 토큰으로만 로그인, 비밀번호 사용 안 함)
     function auto_login()
     {
-        $params = input_get_all();
-
-        $params["mm_pwd"] = sys_decrypt($params["mm_pwd"], 'njob', '20231007');
-
-        // 빈 비밀번호 계정(휴대폰 인증 가입 등)은 자동 로그인 차단
-        // 빈 값/복호화 실패(false)면 mm_pwd = '' 조건에 매칭되어 mm_id만 알면 로그인되는 문제가 있음
-        if (!isset($params["mm_pwd"]) || $params["mm_pwd"] === false || $params["mm_pwd"] === "") {
-            echo "<script>alert('로그인 가능한 회원이 아닙니다.');self.close();</script>";
+        // 토큰은 관리자 세션에서 발급되며 60초만 유효. mm_id만 알아서는 로그인할 수 없다
+        $mm_idx = verify_auto_login_token(input_get("token", ""));
+        if ($mm_idx === false) {
+            echo "<script>alert('유효하지 않거나 만료된 로그인 요청입니다.');self.close();</script>";
             exit;
         }
 
-        $mem_info = $this->member_model->getMember(["mm_id" => $params["mm_id"], "mm_pwd" => $params["mm_pwd"]]);
+        $mem_info = $this->member_model->getMember(["mm_idx" => $mm_idx]);
 
-        //print_r($mem_info);
-        //exit;
-
-        if ($mem_info["mm_status"] != "Y") {
-            //print_r($mem_info);
+        if (!$mem_info || $mem_info["mm_status"] != "Y") {
             echo "<script>alert('로그인 가능한 회원이 아닙니다.');self.close();</script>";
-            //echo "<script>alert('로그인 가능한 회원이 아닙니다.');</script>";
             exit;
         }
+        $mm_id = $mem_info["mm_id"];
 
         $addr_info = $this->member_model->getAddress(["ad_type" => "MEMBER", "mm_idx" => $mem_info["mm_idx"]]);
         $this->user->setUser([

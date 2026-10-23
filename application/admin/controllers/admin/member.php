@@ -510,6 +510,25 @@
 			json_return($result["code"],$result["msg"]);
 		}
 
+		//관리자 자동 로그인 토큰 발급 (관리자 세션 필수, 60초 유효, 비밀번호 사용 안 함)
+		function issue_auto_login_token(){
+			if(!$this->common->getSession("ADMIN_INFO")){
+				json_return("99","관리자 로그인이 필요합니다.");
+			}
+
+			$mm_idx = input_post("mm_idx");
+			$mem_info = $this->member_model->getMember(["mm_idx"=>$mm_idx]);
+			if(!$mem_info || $mem_info["mm_status"] != "Y"){
+				json_return("99","로그인 가능한 회원이 아닙니다.");
+			}
+
+			$token = make_auto_login_token($mem_info["mm_idx"]);
+			if($token === ""){
+				json_return("99","자동 로그인 서명 키(auto_login_secret)가 설정되어 있지 않습니다.");
+			}
+			json_return("00","",["token"=>$token]);
+		}
+
 		//회원관리
 		function comp_edit(){
 			//파라미터 설정
