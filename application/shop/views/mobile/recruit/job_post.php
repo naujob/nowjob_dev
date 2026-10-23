@@ -28,6 +28,15 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
+    /* 채용공고 등록 완료 팝업(openPopup modal)은 role=dialog라 alertdialog 전용 크기/여백이 빠져 작게 보임 → 같은 값으로 맞춤 */
+    [id^="recruitRegisterDone"] .popup-container {
+        width: 19.375rem;
+    }
+
+    [id^="recruitRegisterDone"] .popup-content {
+        padding: 2.75rem 1.5rem 2rem;
+    }
+
     .info-table .working-day>li {
         width: 1.8rem;
         height: 1.8rem;
@@ -330,8 +339,20 @@ if (!$isLogin) {
                             // 기존 공고 수정(rcIdx 있음)은 해당 공고 상세로, 최초 등록(rcIdx 0)은 공고 목록으로 이동
                             // 현재 페이지를 대체하여 뒤로가기로 미리보기 페이지에 다시 들어오지 않도록 함
                             var isEditComplete = (rcIdx && rcIdx !== "0");
-                            commonAlert("채용공고가 등록되었습니다.", function() {
-                                location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
+                            // 등록 완료 팝업: X 버튼 없이 [취소]/[확인] 2버튼 구성 (X로 닫으면 페이지에 머무는 버그 방지)
+                            // 취소 → 채용공고 목록(/recruit/job_list), 확인 → 기존 수정이면 공고 상세, 최초 등록이면 공고 목록
+                            openPopup('modal', {
+                                id: 'recruitRegisterDone',
+                                content: '<div class="msg">채용공고가 등록되었습니다.</div>',
+                                firstButton: '취소',
+                                secondButton: '확인',
+                                removeClose: false,
+                                firstCallback: function() {
+                                    location.replace("/recruit/job_list");
+                                },
+                                secondCallback: function() {
+                                    location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
+                                }
                             });
                         } else {
                             alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
@@ -494,9 +515,13 @@ if (!$isLogin) {
                                         <span class="pay">
                                             <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
                                                 <em class="amount">급여협의</em>
-                                            <?php } else { ?>
-                                                <em class="amount"><?= $info["rt_price_html"] ?></em>
-                                                <span>(<?= $info["rt_price_type_html"] ?>)</span>
+                                            <?php } else {
+                                                // recruit_view.php와 동일한 급여 표시 형식 (getConvertPriceType 사용)
+                                                $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
+                                                $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+                                            ?>
+                                                <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
+                                                <span>(<?= $price_type_html ?>)</span>
                                             <?php } ?>
                                         </span>
                                     </td>
@@ -582,22 +607,39 @@ if (!$isLogin) {
                             */ ?>
                                 <tr>
                                     <td class="label">희망국적</td>
-                                    <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "국적무관" : $info["rc_nation"]) ?></td>
+                                    <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></td>
                                 </tr>
                                 <tr>
                                     <td class="label">희망성별</td>
-                                    <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "성별무관" : $info["rc_sex"]) ?></td>
+                                    <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "무관" : $info["rc_sex"]) ?></td>
                                 </tr>
                                 <tr>
                                     <td class="label">희망나이</td>
-                                    <td class="value"><?= formatAgeRange($info["rc_sage"], $info["rc_eage"]) ?></td>
+                                    <td class="value"><?php
+                                        // recruit_view.php와 동일한 희망나이 표시 형식 (둘 다 비어 있으면 무관)
+                                        if (trim((string) $info["rc_sage"]) . trim((string) $info["rc_eage"]) === "" || ($info["rc_sage"] == "0" && $info["rc_eage"] == "0")) {
+                                            echo "무관";
+                                        } else {
+                                            echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
+                                        }
+                                        ?></td>
                                 </tr>
                                 <tr>
                                     <td class="label">근무요일</td>
                                     <td class="value">
-                                        <ul class="working-day">
-                                            <?= getWeekYoil($info["rc_week"]) ?>
-                                        </ul>
+                                        <?php
+                                        // recruit_view.php와 동일한 근무요일 표시 (무관 여부 / 저장값 없으면 월~금 기본값)
+                                        $isWeekUnlimited = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
+                                        $hasSavedWeek = trim((string) $info["rc_week"]) !== "";
+                                        $weekDisplaySource = $hasSavedWeek ? $info["rc_week"] : "월,화,수,목,금";
+                                        ?>
+                                        <?php if ($isWeekUnlimited) : ?>
+                                            무관
+                                        <?php else : ?>
+                                            <ul class="working-day">
+                                                <?= getWeekYoil($weekDisplaySource) ?>
+                                            </ul>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             </tbody>

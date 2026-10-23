@@ -93,6 +93,15 @@ if (!$isLogin) {
 }
 ?>
 <style>
+    /* 이력서 등록 완료 팝업(openPopup modal)은 role=dialog라 alertdialog 전용 크기/여백이 빠져 작게 보임 → 같은 값으로 맞춤 */
+    [id^="resumeRegisterDone"] .popup-container {
+        width: 19.375rem;
+    }
+
+    [id^="resumeRegisterDone"] .popup-content {
+        padding: 2.75rem 1.5rem 2rem;
+    }
+
     .info-table .working-day>li {
         width: 1.8rem;
         height: 1.8rem;
@@ -1504,8 +1513,21 @@ if (!$isLogin) {
         var isEditComplete = (ruIdx && ruIdx !== "0");
         comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
             if (ret.code == "00") {
-                commonAlert("이력서가 등록되었습니다.", function() {
-                    location.href = isEditComplete ? "/mypage/resume_view/" + ruIdx : "/mypage/resume_list"; // 기존 수정이면 상세 페이지로,최초 등록이면 목록 페이지로
+                // 등록 완료 팝업: X 버튼 없이 [취소]/[확인] 2버튼 구성 (X로 닫으면 페이지에 머무는 버그 방지)
+                // 취소 → 채용공고 목록, 확인 → 기존 수정이면 상세 페이지, 최초 등록이면 이력서 목록
+                var registerConfirmUrl = isEditComplete ? "/mypage/resume_view/" + ruIdx : "/mypage/resume_list";
+                openPopup('modal', {
+                    id: 'resumeRegisterDone',
+                    content: '<div class="msg">이력서가 등록되었습니다.</div>',
+                    firstButton: '취소',
+                    secondButton: '확인',
+                    removeClose: false,
+                    firstCallback: function() {
+                        location.href = "/recruit/job_list";
+                    },
+                    secondCallback: function() {
+                        location.href = registerConfirmUrl;
+                    }
                 });
             } else {
                 commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});

@@ -3959,11 +3959,9 @@
             var sageVal = $("[name='rc_sage']").val();
             var eageVal = $("[name='rc_eage']").val();
 
-            // 둘 다 선택되면 나이무관 체크
-            if (sageVal !== "" && eageVal !== "") {
-                $("[name='rc_age_all']").prop("checked", true);
-            } else {
-                // 하나라도 선택되지 않으면 나이무관 언체크
+            // 나이를 선택하면 나이무관은 언체크 (선택 값으로 나이무관을 자동 체크하지 않음)
+            // 나이무관 체크는 사용자가 직접 누르거나 페이지 최초 진입 시 기본값으로만 적용
+            if (sageVal !== "" || eageVal !== "") {
                 $("[name='rc_age_all']").prop("checked", false);
             }
         });
