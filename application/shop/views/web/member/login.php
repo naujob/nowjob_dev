@@ -781,6 +781,9 @@
         $('#sns-phone-desc').text('휴대폰 로그인을 위해 전화번호 인증이 필요합니다.');
         // 입력값을 채운 뒤 input 이벤트로 인증 요청 버튼 활성화 상태를 갱신
         $('#sns-phone-input').val(String(phone || '').replace(/[^0-9]/g, '')).trigger('input');
+        // 팝업이 열리면 휴대폰번호 입력칸에 커서를 두어 Enter로 인증 요청(#sns-phone-btn-auth)을 바로 누를 수 있게 함
+        // 로그인 버튼 클릭의 동기 흐름 안에서 호출되므로 모바일에서도 포커스(키보드 표시)가 허용됨
+        $('#sns-phone-input').focus();
     }
 
     // 휴대폰 로그인: 인증번호 발송 (check_phone_login은 가입된 회원에게만 발송)
@@ -800,6 +803,8 @@
                 sPhoneUpdateTime();
                 // 재발송 시 이전 인증 무효화
                 sPhoneIsAuth = false;
+                // 인증번호 발송 후 인증번호 입력칸으로 포커스 이동 → 이후 Enter는 확인 버튼으로 동작
+                $('#sns-phone-auth-input').focus();
             } else if (ret.code == '90' || ret.code == '91') {
                 // 미가입 또는 탈퇴 번호: 팝업을 닫고 안내 (회원가입은 로그인 화면에서 안내)
                 closeSnsPhonePopup();
@@ -951,6 +956,12 @@
 
         var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
         var auth = $('#sns-phone-auth-input').val();
+
+        // 인증번호 미입력 상태의 Enter/확인 클릭은 서버로 보내지 않음 (잘못된 시도 횟수 차감 방지)
+        if (!auth) {
+            gPhoneToast('인증번호를 입력해주세요.', 1500);
+            return;
+        }
 
         // 유효시간(3분) 초과 시 서버 요청 없이 안내
         if (sPhoneRemainTime <= 0) {

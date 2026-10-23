@@ -383,6 +383,15 @@ window.onload = function() {
       $(this).val(phone);
     });
 
+    // 휴대폰번호 입력칸 Enter → 휴대폰 로그인(SMS 발송) 실행 (PC 로그인 화면과 동일 동작)
+    $("#phone-login-input").on("keypress", function(e) {
+      if (e.which === 13 || e.keyCode === 13) {
+        e.preventDefault();
+        checkPhoneLogin();
+        return false;
+      }
+    });
+
     //로그인
     $("#btnLogin").click(function() {
       goLogin();
@@ -1313,6 +1322,8 @@ window.onload = function() {
   var gPhoneRemainTime = 180;
   var gPhoneIsAuth = false;
   var gPhoneAuthPhone = ""; // 인증 완료된 전화번호 (번호 변경 감지용)
+  var gPhoneMode = "JOIN"; // 시트 용도: JOIN(구글/위챗 가입 인증) / LOGIN(휴대폰 로그인 인증)
+  var gPhoneLoginAuthCount = 0; // 휴대폰 로그인 인증번호 불일치 횟수
 
   /**
    * Android SMS Retriever에서 인증번호 수신 시 자동 호출되는 브릿지 함수
@@ -1344,8 +1355,11 @@ window.onload = function() {
     gPhoneEmail = email || "";
     gPhoneName = name || "";
 
-    // 로그인 유형에 따라 안내 문구 변경
+    // 가입 인증 용도로 초기화 (휴대폰 로그인은 openPhoneLoginSheet에서 LOGIN으로 바꿈)
+    gPhoneMode = "JOIN";
+    $("#gphone-desc").text("회원가입을 위해 전화번호 인증이 필요합니다.");
     gPhoneIsAuth = false;
+    gPhoneLoginAuthCount = 0;
 
     // 팝업 초기화
     $("#gphone-input").val("");
@@ -1450,6 +1464,115 @@ window.onload = function() {
     }
   }
 
+  /**
+   * 휴대폰 로그인 인증 시트 열기 (구글/위챗 가입 시트를 LOGIN 용도로 재사용)
+   * @param {string} phone  입력란 로그인에서 입력한 번호
+   */
+  function openPhoneLoginSheet(phone) {
+    openGoogleJoinPhonePopup("", "", "", "WEB");
+    gPhoneMode = "LOGIN";
+    $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
+    $("#gphone-input").val(String(phone || "").replace(/[^0-9]/g, ""));
+    gPhoneNumCheck();
+  }
+
+  /** 휴대폰 로그인: 인증번호 발송 (check_phone_login은 가입된 회원에게만 발송) */
+  function requestPhoneLoginAuthSheet() {
+    var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
+    var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
+    if (!phoneRule.test(phone)) {
+      $(".gphone-error-format").removeClass("hidden");
+      return;
+    }
+
+    comAjax("/member_proc/check_phone_login", { mm_phone: phone }, function(ret) {
+      if (ret.code == "00" && ret.data && ret.data.skip_auth) {
+        // 테스트 번호: 인증 없이 바로 로그인 완료
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        sessionStorage.removeItem("chat_user_connect");
+        _replace("/");
+        return;
+      }
+      if (ret.code == "00") {
+        // 발송 성공 → 인증번호 입력 영역 표시 및 타이머 시작
+        $(".gphone-auth-row").removeClass("hidden");
+        gPhoneIsAuth = false; // 재발송 시 이전 인증 무효
+        gPhoneLoginAuthCount = 0;
+        gPhoneRemainTime = 180;
+        clearInterval(gPhoneTimer);
+        gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
+        gPhoneUpdateTime();
+      } else if (ret.code == "90" || ret.code == "91") {
+        // 미가입 또는 탈퇴 번호: 시트를 닫고 안내
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        loginBottomAlert(ret.msg || "회원가입이 필요합니다.", function() {});
+      } else if (ret.code == "99") {
+        gPhoneToast(ret.msg, 1200);
+      } else if (ret.code == "98") {
+        loginBottomAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
+      } else {
+        loginBottomAlert(ret.msg || "오류가 발생하였습니다.", function() {});
+      }
+    });
+  }
+
+  /** 휴대폰 로그인: 인증번호 확인 및 로그인 (응답 코드는 휴대폰 인증 페이지와 동일하게 처리) */
+  function confirmPhoneLoginSheet() {
+    // 로그인 완료 이동 대기 중이면 중복 요청 방지
+    if (gPhoneIsAuth) {
+      return;
+    }
+    var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
+    var auth = $("#gphone-auth-input").val();
+
+    if (!auth) {
+      gPhoneToast("인증번호를 입력해주세요.", 1500);
+      return;
+    }
+    if ($("#gphone-remain-time").html() == "0 : 00") {
+      loginBottomAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
+      return;
+    }
+
+    comAjax("/member_proc/check_phone_login_auth", { mm_phone: phone, auth: auth }, function(ret) {
+      if (ret.code == "00") {
+        // 로그인 성공 → 인증 완료 표시 후 홈으로 이동
+        gPhoneIsAuth = true;
+        gPhoneAuthPhone = phone;
+        clearInterval(gPhoneTimer);
+        sessionStorage.removeItem("chat_user_connect");
+        navigateHomeAfterLogin("WEB");
+      } else if (ret.code == "90") {
+        // 미가입 회원 → 회원가입 페이지로 이동
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        loginBottomAlert("회원가입을 진행합니다.", function() {
+          location.href = "/member/join_start?phone=" + encodeURIComponent(phone);
+        });
+      } else if (ret.code == "91") {
+        // 탈퇴 번호 안내
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        loginBottomAlert(ret.msg || "탈퇴한 회원입니다.", function() {});
+      } else if (ret.code == "92") {
+        // 인증번호 불일치 (3회 실패 시 처음부터 다시)
+        gPhoneLoginAuthCount++;
+        if (gPhoneLoginAuthCount >= 3) {
+          clearInterval(gPhoneTimer);
+          closeGoogleJoinPhonePopup();
+          loginBottomAlert("인증번호 입력이 3회 이상 실패했습니다.\n처음부터 다시 진행해주세요.", function() {});
+        } else {
+          gPhoneToast("인증번호가 일치하지 않습니다. (" + (3 - gPhoneLoginAuthCount) + "회 남음)", 1500);
+          $("#gphone-auth-input").val("").focus();
+        }
+      } else {
+        loginBottomAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
+      }
+    });
+  }
+
   /** 인증번호 남은 시간 카운트다운 */
   function gPhoneUpdateTime() {
     var minutes = Math.floor(gPhoneRemainTime / 60);
@@ -1467,6 +1590,20 @@ window.onload = function() {
   }
 
   window.addEventListener("DOMContentLoaded", function() {
+
+    // Enter 키: 휴대폰번호 입력칸 → 인증 요청, 인증번호 입력칸 → 확인 (형식 검증은 각 버튼 클릭 핸들러에서 처리)
+    $("#gphone-input").on("keydown", function(e) {
+      if (e.which === 13) {
+        e.preventDefault();
+        $("#gphone-btn-auth").click();
+      }
+    });
+    $("#gphone-auth-input").on("keydown", function(e) {
+      if (e.which === 13) {
+        e.preventDefault();
+        $("#gphone-btn-confirm").click();
+      }
+    });
 
     // 취소 버튼 — bottom sheet 닫기 애니메이션
     $("#gphone-btn-cancel").click(function() {
@@ -1491,6 +1628,12 @@ window.onload = function() {
     // 인증요청 버튼 — 전화번호 DB 조회 후 미가입 시 SMS 발송
     $("#gphone-btn-auth").click(function() {
       $(".gphone-error").addClass("hidden");
+
+      // 휴대폰 로그인 용도: 가입 여부 확인 없이 회원 번호에만 SMS 발송
+      if (gPhoneMode === "LOGIN") {
+        requestPhoneLoginAuthSheet();
+        return;
+      }
 
       var phone = $("#gphone-input").val();
       var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
@@ -1525,6 +1668,11 @@ window.onload = function() {
     // 인증번호 확인 버튼
     var gPhoneAuthCount = 0;
     $("#gphone-btn-confirm").click(function() {
+      // 휴대폰 로그인 용도: 인증번호 확인 후 로그인 처리
+      if (gPhoneMode === "LOGIN") {
+        confirmPhoneLoginSheet();
+        return;
+      }
       // 인증 완료 후 자동 이동 대기 중이면 중복 요청 방지
       if (gPhoneIsAuth) {
         return;
@@ -1621,7 +1769,7 @@ window.onload = function() {
         <i class="fa fa-times"></i>
       </button>
     </div>
-    <p style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">회원가입을 위해 전화번호 인증이 필요합니다.</p>
+    <p id="gphone-desc" style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">회원가입을 위해 전화번호 인증이 필요합니다.</p>
 
     <div class="form-row" style="margin-bottom:20px;">
       <p class="form-label" style="font-size:18px;">휴대폰번호</p>
@@ -1686,7 +1834,8 @@ window.onload = function() {
       return;
     }
 
-    requestPhoneLoginSms(phone);
+    // 바텀시트에서 인증 (구글/위챗과 같은 방식)
+    openPhoneLoginSheet(phone);
   }
 
   // 휴대폰번호 로그인 SMS 발송 → 인증 페이지 이동 (입력란 로그인, 중복 계정 팝업 인증에서 공통 사용)
