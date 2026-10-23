@@ -547,7 +547,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 <div class="form-toggle-group col-3">
                                     <?php
                                     // 기본 노출 강점 (채용공고 해시태그와 동일하게 고정 목록으로 관리)
-                                    $default_my_type_list = ["당일지급", "초보가능", "가불가능", "경력우대", "식사제공", "동반입사"];
+                                    $default_my_type_list = ["친절해요", "손이빨라요", "활발해요", "센스있어요", "지각안해요", "성실해요"];
                                     $info_ru_my_type = isset($info["ru_my_type"]) ? (is_array($info["ru_my_type"]) ? array_map('trim', $info["ru_my_type"]) : array_map('trim', explode(",", $info["ru_my_type"]))) : [];
 
                                     foreach ($default_my_type_list as $my_type) :
@@ -752,7 +752,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ol>
-                <button type="button" class="btn-add-item js-add-career">등록</button>
+                <button type="button" class="btn-add-item js-add-career">추가</button>
 
                 <template id="careerTemp">
                     <li>
@@ -834,7 +834,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ol>
-                <button type="button" class="btn-add-item js-add-license">등록</button>
+                <button type="button" class="btn-add-item js-add-license">추가</button>
 
                 <template id="licenseTemp">
                     <li>
@@ -3366,6 +3366,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
 </script>
 
+<script>
+    // 이 페이지의 희망지역 팝업은 한 번에 1개만 선택하도록 제한한다
+    // (addr_popup2025_new.php 의 MAX_ADDR_COUNT 기본값 2 를 덮어쓰며, 팝업을 읽기 전에 설정해야 한다)
+    window.__addrPopupMaxCount = 1;
+</script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 
 <?php
