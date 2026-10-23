@@ -570,7 +570,7 @@
 
     $("#btnDelete").click(function(){
 		var idx = $("[name=mm_idx]").val();
-		COMMON.confirm("삭제 처리 하시겠습니까?<br/>삭제 후 <?= WITHDRAW_BLOCK_DAYS ?>일 동안 동일 정보로 재가입할 수 없습니다.",function(){
+		COMMON.confirm("회원 정보와 공고·이력서·채팅방·주문 등 연관 데이터가 모두 삭제됩니다.<br/>삭제된 정보는 복구할 수 없습니다. 삭제하시겠습니까?",function(){
 			var params = {};
 			params["idx"] = idx;
 			params["proc_mode"] = "delete";

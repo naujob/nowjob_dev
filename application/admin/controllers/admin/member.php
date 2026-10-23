@@ -376,10 +376,8 @@
 
 			if($proc_mode=="delete"){
 
-        // 공통 탈퇴 처리 (상태 'H', mm_idx 기준)
-        // 기존: POST mm_id로 SQL 조립 + 아이디·전화·DI 뒤에 x1 덧붙이기 → 같은 mm_id 행 전부 변경, SQL 인젝션 위험
-        // 변경: 전화·DI·SNS키는 15일간 재가입 차단용으로 유지, 15일 후 정리 배치에서 삭제
-        $result = $this->member_model->withdrawMember($idx, "H", "관리자 삭제", "");
+        // 관리자 삭제: 탈퇴 처리(상태 'H')가 아니라 회원 행과 연관 데이터를 실제로 DELETE (mm_idx 기준)
+        $result = $this->member_model->deleteMemberCompletely($idx);
 
         if($result["code"]=="00"){
           json_return("00","삭제 처리 완료");

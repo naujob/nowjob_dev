@@ -533,7 +533,8 @@
             return;
         }
 
-        requestPhoneLoginSms(phone);
+        // 전화번호 로그인도 SNS 로그인과 같은 sns-phone-sheet 팝업에서 인증
+        openPhoneLoginPopup(phone);
     }
 
     // 휴대폰번호 로그인 SMS 발송 → 인증 페이지 이동 (입력란 로그인, 중복 계정 팝업 인증에서 공통 사용)
@@ -548,10 +549,8 @@
                     location.href = "/";
                     return;
                 }
-                // SMS 발송 성공 - 인증 페이지로 리다이렉트
-                commonAlert("인증번호를 발송하였습니다.", function() {
-                    location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
-                });
+                // SMS 발송 성공 - 안내 팝업 없이 바로 인증 페이지로 리다이렉트
+                location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
             } else if (ret.code == "90") {
                 // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
                 commonAlert(ret.msg || "회원가입이 필요합니다.", function() {});
@@ -725,6 +724,7 @@
     var sPhoneJoinKey = '', sPhoneJoinType = 'GOOGLE', sPhoneEmail = '', sPhoneName = '';
     var sPhoneIsAuth = false, sPhoneTimer = null, sPhoneRemainTime = 0, sPhoneAuthCount = 0;
     var sPhoneAuthPhone = ''; // 인증 완료된 전화번호 (번호 변경 감지용)
+    var sPhoneMode = 'SNS'; // 팝업 용도: SNS(가입 인증) / LOGIN(휴대폰 로그인 인증)
 
     /**
      * 자동으로 사라지는 토스트 메시지 (alert 대신 사용)
@@ -750,6 +750,8 @@
 
     // SNS 전화번호 인증 팝업 오픈 (구글, 위챗, 애플 등 공용)
     function openSnsPhonePopup(joinKey, email, name, joinType) {
+        sPhoneMode = 'SNS';
+        $('#sns-phone-desc').text('회원가입을 위해 전화번호 인증이 필요합니다.');
         sPhoneJoinKey = joinKey;
         sPhoneJoinType = joinType || 'GOOGLE';
         sPhoneEmail = email || '';
@@ -770,6 +772,88 @@
         setTimeout(function() {
             $('#sns-phone-popup').css('background', 'rgba(0,0,0,0.5)');
         }, 10);
+    }
+
+    // 휴대폰 로그인 인증 팝업 열기: 입력한 번호를 채우고 같은 팝업 UI로 인증 (엔드포인트만 휴대폰 로그인용)
+    function openPhoneLoginPopup(phone) {
+        openSnsPhonePopup('', '', '', 'WEB');
+        sPhoneMode = 'LOGIN';
+        $('#sns-phone-desc').text('휴대폰 로그인을 위해 전화번호 인증이 필요합니다.');
+        // 입력값을 채운 뒤 input 이벤트로 인증 요청 버튼 활성화 상태를 갱신
+        $('#sns-phone-input').val(String(phone || '').replace(/[^0-9]/g, '')).trigger('input');
+    }
+
+    // 휴대폰 로그인: 인증번호 발송 (check_phone_login은 가입된 회원에게만 발송)
+    function requestPhoneLoginAuth(phone) {
+        comAjax('/member_proc/check_phone_login', {mm_phone: phone}, function(ret) {
+            if (ret.code == '00' && ret.data && ret.data.skip_auth) {
+                // 테스트 번호: 인증 없이 바로 로그인 완료
+                sessionStorage.removeItem('chat_user_connect');
+                location.href = '/';
+                return;
+            }
+            if (ret.code == '00') {
+                $('.sns-phone-auth-row').show();
+                clearInterval(sPhoneTimer);
+                sPhoneRemainTime = 180;
+                sPhoneTimer = setInterval(sPhoneUpdateTime, 1000);
+                sPhoneUpdateTime();
+                // 재발송 시 이전 인증 무효화
+                sPhoneIsAuth = false;
+            } else if (ret.code == '90' || ret.code == '91') {
+                // 미가입 또는 탈퇴 번호: 팝업을 닫고 안내 (회원가입은 로그인 화면에서 안내)
+                closeSnsPhonePopup();
+                commonAlert(ret.msg || '회원가입이 필요합니다.', function() {});
+            } else {
+                // 발송 횟수 초과, SMS 오류 등: 팝업을 잠시 숨기고 안내 후 복귀
+                var phonePopupDisplay = $('#sns-phone-popup').css('display');
+                $('#sns-phone-popup').hide();
+                commonAlert(ret.msg || '오류가 발생하였습니다.', function() {
+                    $('#sns-phone-popup').css('display', phonePopupDisplay);
+                });
+            }
+        });
+    }
+
+    // 휴대폰 로그인: 인증번호 확인 및 로그인 (check_phone_login_auth 응답 코드는 휴대폰 인증 페이지와 동일하게 처리)
+    function confirmPhoneLoginAuth(phone, auth) {
+        comAjax('/member_proc/check_phone_login_auth', {mm_phone: phone, auth: auth}, function(ret) {
+            if (ret.code == '00') {
+                // 로그인 성공 → 인증 완료 표시 후 홈으로 이동 (중복 요청 방지)
+                sPhoneIsAuth = true;
+                sPhoneAuthPhone = phone;
+                clearInterval(sPhoneTimer);
+                sessionStorage.removeItem('chat_user_connect');
+                comAjax('/member_proc/set_last_login_type', {login_type: 'WEB'}, function() {
+                    location.href = '/';
+                });
+            } else if (ret.code == '90') {
+                // 미가입 회원 → 회원가입 페이지로 이동
+                clearInterval(sPhoneTimer);
+                closeSnsPhonePopup();
+                commonAlert('회원가입을 진행합니다.', function() {
+                    location.href = '/member/join_start?phone=' + encodeURIComponent(phone);
+                });
+            } else if (ret.code == '91') {
+                // 탈퇴 번호 안내
+                clearInterval(sPhoneTimer);
+                closeSnsPhonePopup();
+                commonAlert(ret.msg || '탈퇴한 회원입니다.', function() {});
+            } else if (ret.code == '92') {
+                // 인증번호 불일치 (3회 실패 시 처음부터 다시)
+                sPhoneAuthCount++;
+                if (sPhoneAuthCount >= 3) {
+                    clearInterval(sPhoneTimer);
+                    closeSnsPhonePopup();
+                    commonAlert('인증번호 입력이 3회 이상 실패했습니다.\n처음부터 다시 진행해주세요.', function() {});
+                } else {
+                    gPhoneToast('인증번호가 일치하지 않습니다. (' + (3 - sPhoneAuthCount) + '회 남음)', 1500);
+                    $('#sns-phone-auth-input').val('').focus();
+                }
+            } else {
+                commonAlert(ret.msg || '오류가 발생했습니다. 다시 시도해주세요.', function() {});
+            }
+        });
     }
 
     function closeSnsPhonePopup() {
@@ -824,6 +908,10 @@
             gPhoneToast('올바른 휴대폰번호를 입력해주세요.', 1500);
             return;
         }
+        if (sPhoneMode === 'LOGIN') {
+            requestPhoneLoginAuth(phone);
+            return;
+        }
         comAjax('/member_proc/check_sns_phone', {mm_phone: phone}, function(ret) {
             if (ret.code == '00') {
                 $('.sns-phone-auth-row').show();
@@ -867,6 +955,11 @@
         // 유효시간(3분) 초과 시 서버 요청 없이 안내
         if (sPhoneRemainTime <= 0) {
             gPhoneToast('인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.', 2000);
+            return;
+        }
+
+        if (sPhoneMode === 'LOGIN') {
+            confirmPhoneLoginAuth(phone, auth);
             return;
         }
 

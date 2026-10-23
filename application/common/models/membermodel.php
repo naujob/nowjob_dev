@@ -433,6 +433,147 @@ class memberModel extends MY_Model
 		return ["code" => "00", "msg" => "탈퇴 처리 완료"];
 	}
 
+	# 관리자 삭제: 회원 행(st_member)과 연관 데이터를 실제로 DELETE (탈퇴 처리와 달리 행을 남기지 않음)
+	# - 공고·이력서·중고·주문·포인트·지원/제안·채팅방 행을 mm_idx / rc_idx / ru_idx / o_num 기준으로 함께 삭제
+	# - 재가입 차단(findRecentWithdrawn)에 쓰는 전화·DI도 같이 사라지므로 관리자 삭제 건은 재가입 차단 대상이 아님
+	# - 채팅 메시지(Mongo)는 유지하고 사용자 나감 처리·접속상태·이름/사진 익명화만 수행
+	# @param int $mm_idx 삭제할 회원 번호
+	# @return array ["code" => "00"|"90"|"99", "msg" => string]
+	function deleteMemberCompletely($mm_idx)
+	{
+		$mm_idx = (int)$mm_idx;
+		if ($mm_idx <= 0) {
+			return ["code" => "90", "msg" => "잘못된 삭제 요청입니다."];
+		}
+
+		$mem_info = $this->getMember(["mm_idx" => $mm_idx]);
+		if ($mem_info == null) {
+			return ["code" => "90", "msg" => "회원정보가 조회되지 않습니다."];
+		}
+
+		// 삭제 전에 연관 공고/이력서/중고/주문 번호와 업로드 파일 URL을 모아둔다
+		$rc_idx_list = [];
+		$ru_idx_list = [];
+		$td_idx_list = [];
+		$o_num_list = [];
+		$image_urls = [];
+
+		foreach ($this->db->where("mm_idx", $mm_idx)->get("st_recruit")->result_array() as $rc) {
+			$rc_idx_list[] = (int)$rc["rc_idx"];
+			foreach (["rc_thumb", "rc_img1", "rc_img2", "rc_img3", "rc_img4", "rc_img5"] as $col) {
+				if (!empty($rc[$col])) $image_urls[] = $rc[$col];
+			}
+		}
+		foreach ($this->db->where("mm_idx", $mm_idx)->get("st_resume")->result_array() as $ru) {
+			$ru_idx_list[] = (int)$ru["ru_idx"];
+			foreach (["ru_thumb", "ru_img1", "ru_img2", "ru_img3", "ru_img4", "ru_img5"] as $col) {
+				if (!empty($ru[$col])) $image_urls[] = $ru[$col];
+			}
+		}
+		foreach ($this->db->where("mm_idx", $mm_idx)->get("st_trade")->result_array() as $td) {
+			$td_idx_list[] = (int)$td["td_idx"];
+			foreach (["td_thumb", "td_img1", "td_img2", "td_img3", "td_img4", "td_img5"] as $col) {
+				if (!empty($td[$col])) $image_urls[] = $td[$col];
+			}
+		}
+		foreach ($this->db->select("o_num")->where("mm_idx", $mm_idx)->get("st_order")->result_array() as $order) {
+			$o_num_list[] = $order["o_num"];
+		}
+		foreach (["mm_thumb", "mm_img1", "mm_img2", "mm_img3", "mm_img4", "mm_img5", "mm_comp_auth"] as $col) {
+			if (!empty($mem_info[$col])) $image_urls[] = $mem_info[$col];
+		}
+
+		$this->db->trans_begin();
+
+		// 1) 지원/제안 기록: 내가 보낸 것 + 내 공고/이력서에 걸린 것 (상대방 기록 포함)
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_request");
+		if (!empty($rc_idx_list)) {
+			$this->db->where_in("rc_idx", $rc_idx_list)->delete("st_member_request");
+		}
+		if (!empty($ru_idx_list)) {
+			$this->db->where_in("ru_idx", $ru_idx_list)->delete("st_member_request");
+		}
+
+		// 2) 채팅방: 내 공고/이력서가 연결된 방 (상대방 채팅 목록에서도 사라짐)
+		if (!empty($rc_idx_list)) {
+			$this->db->where_in("rc_idx", $rc_idx_list)->delete("st_room");
+		}
+		if (!empty($ru_idx_list)) {
+			$this->db->where_in("ru_idx", $ru_idx_list)->delete("st_room");
+		}
+
+		// 3) 공고/이력서/중고 및 부속 데이터 (다른 회원의 북마크·열람 기록도 함께 정리)
+		if (!empty($rc_idx_list)) {
+			$this->db->where("bk_type", "RECRUIT")->where_in("bk_key", $rc_idx_list)->delete("st_bookmark");
+			$this->db->where("mv_type", "recruit")->where_in("mv_key", $rc_idx_list)->delete("st_member_view");
+		}
+		if (!empty($ru_idx_list)) {
+			$this->db->where_in("ru_idx", $ru_idx_list)->delete("st_resume_career");
+			$this->db->where_in("ru_idx", $ru_idx_list)->delete("st_resume_certi");
+			$this->db->where("bk_type", "RESUME")->where_in("bk_key", $ru_idx_list)->delete("st_bookmark");
+			$this->db->where("mv_type", "resume")->where_in("mv_key", $ru_idx_list)->delete("st_member_view");
+		}
+		if (!empty($td_idx_list)) {
+			$this->db->where("bk_type", "TRADE")->where_in("bk_key", $td_idx_list)->delete("st_bookmark");
+			$this->db->where("mv_type", "trade")->where_in("mv_key", $td_idx_list)->delete("st_member_view");
+		}
+		$this->db->where("mm_idx", $mm_idx)->delete("st_recruit");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_resume");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_trade");
+
+		// 4) 회원 본인 부속 데이터
+		$this->db->where("mm_idx", $mm_idx)->delete("st_address");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_bookmark");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_view");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_career");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_certi");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_promotion");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_device");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_kakao_birth");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member_info");
+		$this->db->where("mm_idx", $mm_idx)->delete("st_point_list");
+
+		// 5) 주문: 상품 행을 먼저 지우고 주문 행을 지운다
+		if (!empty($o_num_list)) {
+			$this->db->where_in("o_num", $o_num_list)->delete("st_order_goods");
+		}
+		$this->db->where("mm_idx", $mm_idx)->delete("st_order");
+
+		// 6) 회원 행 삭제
+		$this->db->where("mm_idx", $mm_idx)->delete("st_member");
+
+		if ($this->db->trans_status() === false) {
+			$error = $this->db->error();
+			$this->db->trans_rollback();
+			error_log("[deleteMemberCompletely] 실패 mm_idx=" . $mm_idx . " error=" . $error["message"]);
+			return ["code" => "99", "msg" => "삭제 처리 중 오류가 발생하였습니다."];
+		}
+		$this->db->trans_commit();
+
+		// 업로드 파일 삭제 (DB 커밋 후 처리)
+		foreach ($image_urls as $url) {
+			$this->common->remove_upload_image($url);
+		}
+
+		// 채팅: 접속상태 오프라인, 나감 처리, 이름/사진 익명화 (대화 메시지는 상대방을 위해 유지)
+		$this->setMongoUserStatus($mem_info["mm_id"], "N");
+		$this->_exitChatRoomsOnWithdraw($mem_info["mm_id"]);
+		try {
+			$mongo_user = get_mongodb("user");
+			if ($mongo_user) {
+				$mongo_user->update(
+					['user_id' => $mem_info["mm_id"]],
+					['$set' => ['user_nick' => '탈퇴회원', 'user_img' => '']]
+				);
+			}
+		} catch (Exception $e) {
+			error_log("[deleteMemberCompletely] 채팅 익명화 실패 mm_idx=" . $mm_idx . " " . $e->getMessage());
+		}
+
+		error_log("[deleteMemberCompletely] 완료 mm_idx=" . $mm_idx);
+		return ["code" => "00", "msg" => "삭제 처리 완료"];
+	}
+
 	# withdrawMember() 내부용: 참여 중인 모든 채팅방에서 본인을 "나간 사람"으로 처리
 	# chat_proc.php::exit_room()과 같은 상태 전이(exit_yn='Y', exit_dt 기록, 전원 나가면 rm_status='CLOSED')를
 	# 본인 요청 없이 서버가 대신 적용한다. 메시지 삭제/첨부파일 삭제는 하지 않음(기존 30일 정리 배치가 처리).
