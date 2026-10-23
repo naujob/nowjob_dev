@@ -32,13 +32,13 @@
             </td>
           </tr>
           <tr>
-            <th scope="col">비밀번호</th>
+            <th scope="col">성별</th>
             <td>
               <div class="input-text ">
-                <label style="line-height: 36px;">
-                  비밀번호입력 : <input type="text" id="mm_password" name="mm_password" style="max-width: 150px;" maxlength="20"><br>
-                  비밀번호확인 : <input type="text" id="mm_password2" name="mm_password2" style="max-width: 150px;" maxlength="20">
-                </label>
+                <select id="mm_sex" name="mm_sex">
+                  <option value="남">남</option>
+                  <option value="여">여</option>
+                </select>
               </div>
             </td>
             <th scope="col">국적</th>
@@ -54,15 +54,6 @@
             </td>
           </tr>
           <tr>
-            <th scope="col">성별</th>
-            <td>
-              <div class="input-text ">
-                <select id="mm_sex" name="mm_sex">
-                  <option value="남">남</option>
-                  <option value="여">여</option>
-                </select>
-              </div>
-            </td>
             <th scope="col">생년월일</th>
             <td>
               <div class="input-text ">
@@ -72,21 +63,12 @@
                 </label>
               </div>
             </td>
-          </tr>
-          <tr>
             <th scope="col">휴대폰번호<em class="ess"></em></th>
             <td class="inline-wrap">
               <div class="input-text  mt-5">
                 <label>
                   <input type="tel" id="mm_phone" value="<?= $info["mm_phone"] ?>" style="max-width: 100px;" maxlength="12" pattern="[0-9]{10,12}">
                   예) 01012345678
-                </label>
-              </div>
-            </td>
-            <th scope="col"></th>
-            <td>
-              <div class="input-text  mt-5">
-                <label>
                 </label>
               </div>
             </td>
@@ -157,18 +139,6 @@
       alert('회원명을 입력하세요');
       return;
     }
-    if ($('#mm_password').val() == '') {
-      alert('비밀번호를 입력하세요');
-      return;
-    }
-    if ($('#mm_password2').val() == '') {
-      alert('비밀번호확인을 입력하세요');
-      return;
-    }
-    if ($('#mm_password').val() != $('#mm_password2').val()) {
-      alert('비밀번호가 일치하지 않습니다.');
-      return;
-    }
     if ($('#mm_birth').val() == '') {
       alert('생년월일을 입력하세요');
       return;
@@ -200,7 +170,6 @@
       var params = {};
       params["mm_id"] = $('#mm_id').val();
       params["mm_name"] = $('#mm_name').val();
-      params["mm_password"] = $('#mm_password').val();
       params["mm_birth"] = $('#mm_birth').val();
       params["mm_nation"] = $('#mm_nation').val();
       params["mm_sex"] = $('#mm_sex').val();

@@ -433,7 +433,6 @@
     function member_reg_proc(){
 			$mm_id = input_post("mm_id");
       $mm_name = input_post("mm_name");
-      $mm_password = input_post("mm_password");
       // 개인정보 보호: 입력값은 출생연도 4자리만 저장한다
       $mm_birth = maskBirthToYear(input_post("mm_birth"));
       $mm_nation = input_post("mm_nation");
@@ -460,7 +459,8 @@
         }
         $sql1 .= " '".$mm_comp_name."', '".$mm_comp_num."', ";
         $sql1 .= " 'N','','N', '".$mm_id."', ";
-        $sql1 .= " '".$this->common->getSqlPass($mm_password)."', ";
+        // 비밀번호를 입력받지 않으므로 빈값 저장 (로그인은 휴대폰 NICE/SMS 인증, 관리자 로그인은 토큰)
+        $sql1 .= " '', ";
         $sql1 .= " 0, '".$mm_name."', 'Y','".$mm_phone."', ";
         $sql1 .= " '".$mm_sex."','".$mm_birth."','".$mm_nation."','".$mm_id."', 'MC0**".$mm_id."', ";
         $sql1 .= " now(), now()) ";
