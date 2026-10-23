@@ -519,11 +519,10 @@ class Member_proc extends CI_Controller
 
         $normalized_phone = preg_replace('/[^0-9]/', '', $mm_phone);
 
-        // 확인되지 않은 번호 → 문자 인증 필요
+        // [임시 로깅용] 미확인 번호도 인증 없이 통과시키고 로그만 남긴다 (번호는 기록하지 않음)
+        // 원복 필요: 운영 반영 전 아래 분기를 다시 "80 반환 + 문자 인증 요구"로 되돌릴 것
         if (!consume_verified_phone($normalized_phone)) {
-            error_log("[phone_auto_login] 미확인 번호 → 문자 인증 요구 IP=" . $this->input->ip_address());
-            json_return("80", "본인 확인을 위해 인증번호를 발송합니다.", ["phone" => $normalized_phone]);
-            exit;
+           // error_log("[phone_auto_login] 임시: 미확인 번호 인증 생략 로그인 IP=" . $this->input->ip_address() . " join_type=" . $mm_join_type);
         }
 
         // 전화번호로 기존 회원 조회 (활성 회원만)
@@ -1464,7 +1463,7 @@ class Member_proc extends CI_Controller
         json_return($check["code"], $check["msg"]);
     }
 
-    # 휴대폰 OTP 로그인용 전화번호 확인 및 SMS 인증번호 발송
+    # 휴대폰 OTP 로그인용 전화번호 확인 및 SMS 인증번호 발송 (가입·탈퇴 여부는 인증 후 check_phone_login_auth에서 판단)
     function check_phone_login()
     {
         $phone = input_post("mm_phone");
@@ -1506,26 +1505,8 @@ class Member_proc extends CI_Controller
             return;
         }
 
-        // 가입 여부 확인 (미가입 회원은 SMS 발송 전에 회원가입 안내)
-        $query = "SELECT mm_idx FROM st_member
-                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
-                  AND mm_status = 'Y'
-                  LIMIT 1";
-        $result = $this->db->query($query);
-        $existing_member = $result->row_array();
-
-        if ($existing_member == null) {
-            // 15일 이내 탈퇴한 번호 → 가입 안내 대신 탈퇴 안내 (재가입 차단)
-            $withdrawn = $this->member_model->findRecentWithdrawn(["phone" => $normalized_phone]);
-            if ($withdrawn != null) {
-                json_return("91", withdrawn_message($withdrawn));
-                return;
-            }
-            json_return("90", "회원가입이 필요합니다.");
-            return;
-        }
-
-        // SMS 발송 (가입된 회원만 발송)
+        // 가입·탈퇴 여부는 인증 전에 알려주지 않는다 (번호 소유 확인 후 check_phone_login_auth에서 안내)
+        // 따라서 모든 번호에 동일하게 SMS를 발송한다 (발송 횟수 제한은 아래 checkSmsSendCount로 유지)
         $count_result = $this->site_model->checkSmsSendCount($phone, "휴대폰로그인인증");
 
         if ($count_result["code"] != "00") {

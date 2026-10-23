@@ -833,12 +833,16 @@
                     location.href = '/';
                 });
             } else if (ret.code == '90') {
-                // 미가입 회원 → 회원가입 페이지로 이동
+                // 미가입 회원 → 안내만 띄우고 현재 페이지에 머문다 (확인 시에도 이동하지 않음)
                 clearInterval(sPhoneTimer);
                 closeSnsPhonePopup();
-                commonAlert('회원가입을 진행합니다.', function() {
-                    location.href = '/member/join_start?phone=' + encodeURIComponent(phone);
-                });
+                // 인증번호 입력란 포커스를 해제한 뒤, 팝업 닫힘(200ms) 이후에 안내를 띄운다
+                if (document.activeElement && document.activeElement.blur) {
+                    document.activeElement.blur();
+                }
+                setTimeout(function() {
+                    commonAlert('가입된 회원이 아닙니다.\n회원가입 후 이용해주세요.', function() {});
+                }, 250);
             } else if (ret.code == '91') {
                 // 탈퇴 번호 안내
                 clearInterval(sPhoneTimer);

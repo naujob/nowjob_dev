@@ -1545,11 +1545,15 @@ window.onload = function() {
         sessionStorage.removeItem("chat_user_connect");
         navigateHomeAfterLogin("WEB");
       } else if (ret.code == "90") {
-        // 미가입 회원 → 회원가입 페이지로 이동
+        // 미가입 회원 → 안내만 띄우고 현재 페이지에 머문다 (확인 시에도 이동하지 않음)
         clearInterval(gPhoneTimer);
         closeGoogleJoinPhonePopup();
-        loginBottomAlert("회원가입을 진행합니다.", function() {
-          location.href = "/member/join_start?phone=" + encodeURIComponent(phone);
+        // 인증번호 입력란의 키보드를 먼저 내린 뒤, 키보드가 닫히고 뷰포트가 안정된 다음에 안내 바텀시트를 연다
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+        waitForKeyboardClosed(function() {
+          loginBottomAlert("가입된 회원이 아닙니다.\n회원가입 후 이용해주세요.", function() {});
         });
       } else if (ret.code == "91") {
         // 탈퇴 번호 안내
