@@ -1823,7 +1823,10 @@ window.onload = function() {
 
 <!-- 휴대폰번호 OTP 로그인 함수들 -->
 <script>
-  // 휴대폰번호 OTP 로그인: SMS 발송 요청 및 로그인 처리
+  // 휴대폰번호 로그인 바텀시트 대기 중 여부 (연속 클릭/Enter로 시트가 두 번 열리는 것 방지)
+  var gPhoneLoginSheetPending = false;
+
+  // 휴대폰번호 OTP 로그인: 인증 바텀시트 열기 (SMS 발송은 시트 안 인증 요청 버튼에서 처리)
   function checkPhoneLogin() {
     var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
 
@@ -1834,35 +1837,57 @@ window.onload = function() {
       return;
     }
 
-    // 바텀시트에서 인증 (구글/위챗과 같은 방식)
-    openPhoneLoginSheet(phone);
+    if (gPhoneLoginSheetPending) {
+      return;
+    }
+    gPhoneLoginSheetPending = true;
+
+    // 키보드가 내려가는 중에 시트가 올라오면 리사이즈와 transition이 겹쳐 튕겨 보이므로,
+    // 키보드가 닫힌 뒤에 시트를 연다
+    waitForKeyboardClosed(function() {
+      gPhoneLoginSheetPending = false;
+      // 바텀시트에서 인증 (구글/위챗과 같은 방식)
+      openPhoneLoginSheet(phone);
+    });
   }
 
-  // 휴대폰번호 로그인 SMS 발송 → 인증 페이지 이동 (입력란 로그인, 중복 계정 팝업 인증에서 공통 사용)
-  function requestPhoneLoginSms(phone) {
-    phone = String(phone || "").replace(/[^0-9]/g, "");
-    // 서버에서 전화번호 존재 여부 확인 및 SMS 발송
-    var params = { mm_phone: phone };
-    comAjax("/member_proc/check_phone_login", params, function(ret) {
+  /**
+   * 소프트 키보드가 닫히고 뷰포트 리사이즈가 멈출 때까지 기다린 뒤 콜백 실행
+   * - 휴대폰번호 입력란이 포커스되어 있으면 blur로 키보드를 먼저 내린다
+   * - 리사이즈가 없으면(키보드가 이미 닫혀 있던 경우) 150ms 후 진행, 최대 700ms 안에는 반드시 진행
+   * @param {function} callback  키보드 닫힘 확인 후 실행할 함수
+   */
+  function waitForKeyboardClosed(callback) {
+    var input = document.getElementById("phone-login-input");
+    if (document.activeElement === input) {
+      input.blur();
+    }
 
-      if (ret.code == "00") {
-        // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동
-        if (ret.data && ret.data.skip_auth) {
-          sessionStorage.removeItem("chat_user_connect");
-          _replace("/");
-          return;
-        }
-        // SMS 발송 성공 → 안내 팝업 없이 바로 인증 페이지로 이동
-        location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
-      } else if (ret.code == "90") {
-        // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
-        loginBottomAlert(ret.msg || "회원가입이 필요합니다.", function() {});
-      } else if (ret.code == "98" || ret.code == "99") {
-        loginBottomAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
-      } else {
-        loginBottomAlert(ret.msg || "오류가 발생했습니다.", function() {});
-      }
-    });
+    var vv = window.visualViewport;
+    var quietTimer = null;
+    var hardTimer = null;
+    var done = false;
+
+    function finish() {
+      if (done) return;
+      done = true;
+      clearTimeout(quietTimer);
+      clearTimeout(hardTimer);
+      window.removeEventListener("resize", onResize);
+      if (vv) vv.removeEventListener("resize", onResize);
+      callback();
+    }
+
+    // 키보드 닫힘 애니메이션 동안 리사이즈가 계속 발생하므로, 발생할 때마다 "조용한 시간"을 다시 잰다
+    function onResize() {
+      clearTimeout(quietTimer);
+      quietTimer = setTimeout(finish, 150);
+    }
+
+    window.addEventListener("resize", onResize);
+    if (vv) vv.addEventListener("resize", onResize);
+    quietTimer = setTimeout(finish, 150);
+    hardTimer = setTimeout(finish, 700);
   }
 
   // 중복 계정 팝업 (바텀시트): 다른 SNS로 이미 가입된 회원 시 표시
@@ -1919,8 +1944,8 @@ window.onload = function() {
             sessionStorage.removeItem("chat_user_connect");
             _replace("/");
           } else if (ret.code == "80") {
-            // 본인 확인이 안 된 번호 → 휴대폰 문자 인증 로그인으로 이동
-            requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
+            // 본인 확인이 안 된 번호 → 이 페이지의 전화번호 인증 바텀시트(LOGIN 모드)에서 인증 진행
+            openPhoneLoginSheet((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
           } else {
             loginBottomAlert(ret.msg || "로그인에 실패했습니다.", function() {});
           }
