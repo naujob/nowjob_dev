@@ -28,12 +28,12 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <style>
-    /* 채용공고 등록 완료 팝업(openPopup modal)은 role=dialog라 alertdialog 전용 크기/여백이 빠져 작게 보임 → 같은 값으로 맞춤 */
-    [id^="recruitRegisterDone"] .popup-container {
+    /* 채용공고 확인 팝업(openPopup modal)은 role=dialog라 alertdialog 전용 크기/여백이 빠져 작게 보임 → 같은 값으로 맞춤 */
+    [id^="recruitSubmitConfirm"] .popup-container {
         width: 19.375rem;
     }
 
-    [id^="recruitRegisterDone"] .popup-content {
+    [id^="recruitSubmitConfirm"] .popup-content {
         padding: 2.75rem 1.5rem 2rem;
     }
 
@@ -301,13 +301,31 @@ if (!$isLogin) {
             }
         }
 
-        // preview 모드에서 최종 등록 처리
+        // preview 모드에서 최종 등록: 확인 팝업을 먼저 띄우고, 확인을 눌렀을 때만 서버 등록(recruit_complete) 실행
         function submitPreview() {
             if (!isPreview) {
                 alert("오류: preview 모드가 아닙니다.");
                 return;
             }
 
+            openPopup('modal', {
+                id: 'recruitSubmitConfirm',
+                content: '<div class="msg">채용공고를 등록하시겠습니까?</div>',
+                firstButton: '취소',
+                secondButton: '확인',
+                removeClose: false,
+                firstCallback: function() {
+                    // 취소: 등록하지 않고 미리보기에 머무름 (X 버튼이 없어서 직접 닫음)
+                    closePopup(document.querySelector('[id^="recruitSubmitConfirm"]'));
+                },
+                secondCallback: function() {
+                    requestRecruitComplete();
+                }
+            });
+        }
+
+        // 채용공고 최종 등록 요청 (확인 팝업에서 확인을 눌렀을 때만 호출)
+        function requestRecruitComplete() {
             // site_log에 이미 저장된 step3을 사용하여 recruit_complete 호출
             // (미리보기 진입 시 recruit_write1_1.php의 showPreviewPage()에서 site_log에 저장됨)
             var completeParams = "rc_idx=" + rcIdx;
@@ -335,25 +353,11 @@ if (!$isLogin) {
                             });
                             sessionStorage.removeItem("from_preview");
 
-                            // 채용공고 등록 완료
+                            // 채용공고 등록 완료 (확인 팝업에서 확인을 눌러 실행된 경우에만 도달)
                             // 기존 공고 수정(rcIdx 있음)은 해당 공고 상세로, 최초 등록(rcIdx 0)은 공고 목록으로 이동
                             // 현재 페이지를 대체하여 뒤로가기로 미리보기 페이지에 다시 들어오지 않도록 함
                             var isEditComplete = (rcIdx && rcIdx !== "0");
-                            // 등록 완료 팝업: X 버튼 없이 [취소]/[확인] 2버튼 구성 (X로 닫으면 페이지에 머무는 버그 방지)
-                            // 취소 → 채용공고 목록(/recruit/job_list), 확인 → 기존 수정이면 공고 상세, 최초 등록이면 공고 목록
-                            openPopup('modal', {
-                                id: 'recruitRegisterDone',
-                                content: '<div class="msg">채용공고가 등록되었습니다.</div>',
-                                firstButton: '취소',
-                                secondButton: '확인',
-                                removeClose: false,
-                                firstCallback: function() {
-                                    location.replace("/recruit/job_list");
-                                },
-                                secondCallback: function() {
-                                    location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
-                                }
-                            });
+                            location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
                         } else {
                             alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
                         }
