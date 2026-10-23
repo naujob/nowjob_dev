@@ -445,9 +445,13 @@
       $mm_comp_num = input_post("mm_comp_num");
       $mm_type = input_post("mm_type");
 			$info = $this->member_model->getMember(["mm_id"=>$mm_id]);
+			// 휴대폰번호가 이미 가입된 회원(활성/15일 이내 탈퇴)의 번호인지 확인 (shop 가입과 동일 기준)
+			$duplicate_check = checkDuplicatePhoneForSns($mm_phone);
 
 			if($info && $info["mm_idx"]!=""){
         json_return("99","이미 존재하는 아이디 입니다.");
+			}else if(!empty($duplicate_check["is_duplicate"])){
+        json_return("99",$duplicate_check["message"]);
 			}else{
         $this->db->trans_begin();
         $sql1  = " INSERT INTO st_member (mm_join_type, mm_type,mm_comp_type, mm_comp_name, mm_comp_num, mm_comp_num_yn, mm_comp_auth, mm_comp_out_yn, mm_id, mm_pwd, mm_point, mm_name, mm_status, mm_phone, mm_sex, mm_birth, mm_nation, mm_ci, mm_di, reg_dt, up_dt) VALUES('WEB', ";

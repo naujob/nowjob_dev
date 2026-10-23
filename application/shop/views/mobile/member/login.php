@@ -1144,6 +1144,11 @@ window.onload = function() {
   function googleLoginAndCallback(status, idToken, email, name) {
     if (status !== "success") {
       hideLoginLoading();
+      // 사용자가 구글 로그인 창을 직접 닫은 경우(안드로이드 SIGN_IN_CANCELLED)는 실패 안내를 띄우지 않는다
+      // 이 경우 idToken 자리에 실패 사유 문자열이 들어온다
+      if (String(idToken || "").indexOf("SIGN_IN_CANCELLED") !== -1) {
+        return;
+      }
       alert("구글 로그인 실패");
       return;
     }
@@ -1340,8 +1345,6 @@ window.onload = function() {
     gPhoneName = name || "";
 
     // 로그인 유형에 따라 안내 문구 변경
-    var typeLabel = gPhoneJoinType === "WECHAT" ? "위챗" : "구글";
-    $("#google-phone-popup p").first().text(typeLabel + " 회원가입을 위해 전화번호 인증이 필요합니다.");
     gPhoneIsAuth = false;
 
     // 팝업 초기화
@@ -1508,19 +1511,9 @@ window.onload = function() {
           clearInterval(gPhoneTimer);
           gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
           gPhoneUpdateTime();
-          gPhoneToast("인증번호를 발송하였습니다."); // 자동으로 사라지는 토스트
         } else if (ret.code == "99") {
-          // 이미 가입된 회원 — 중복 계정 팝업 표시
-          if (ret.data && ret.data.join_type) {
-            clearInterval(gPhoneTimer);
-            closeGoogleJoinPhonePopup();
-            // 잠깐의 딜레이 후 중복 계정 팝업 표시 (애니메이션 충돌 방지)
-            setTimeout(function() {
-              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
-            }, 400);
-          } else {
-            gPhoneToast(ret.msg, 1200);
-          }
+          // SMS 발송 오류 (가입 여부는 인증 확인 단계에서 안내)
+          gPhoneToast(ret.msg, 1200);
         } else if (ret.code == "98") {
           loginBottomAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
         } else {
@@ -1554,6 +1547,18 @@ window.onload = function() {
           clearInterval(gPhoneTimer);
           // 인증 성공 즉시 가입 페이지로 이동
           gPhoneGoJoin();
+        } else if (ret.code == "99") {
+          // 본인 인증은 성공 — 이미 가입된 번호(중복 계정) 또는 15일 이내 탈퇴 번호
+          clearInterval(gPhoneTimer);
+          closeGoogleJoinPhonePopup();
+          if (ret.data && ret.data.join_type) {
+            // 잠깐의 딜레이 후 중복 계정 팝업 표시 (애니메이션 충돌 방지)
+            setTimeout(function() {
+              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+            }, 400);
+          } else {
+            loginBottomAlert(ret.msg, function() {});
+          }
         } else {
           gPhoneAuthCount++;
           if (gPhoneAuthCount > 3) {
@@ -1616,7 +1621,7 @@ window.onload = function() {
         <i class="fa fa-times"></i>
       </button>
     </div>
-    <p style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">구글 회원가입을 위해 전화번호 인증이 필요합니다.</p>
+    <p style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">회원가입을 위해 전화번호 인증이 필요합니다.</p>
 
     <div class="form-row" style="margin-bottom:20px;">
       <p class="form-label" style="font-size:18px;">휴대폰번호</p>
@@ -1783,8 +1788,8 @@ window.onload = function() {
     } else {
       $("#duplicateProviderIcon").hide();
     }
-    $("#duplicateProviderText1").text("이미 " + label + "로 회원가입이 되어 있습니다.");
-    $("#duplicateProviderText2").text(label + " 계정으로 로그인 하시겠습니까?");
+    $("#duplicateProviderText1").text(label + "로 로그인하시겠습니까?");
+    $("#duplicateProviderText2").text("");
 
     openDuplicateProviderPanel();
   }

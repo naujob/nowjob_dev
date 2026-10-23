@@ -1421,61 +1421,22 @@ class Member_proc extends CI_Controller
             return;
         }
 
-        // 전화번호로 회원 조회 (가입 타입 무관하게 모두 조회)
-        $query = "SELECT * FROM st_member
-                  WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
-                  AND mm_status = 'Y'
-                  LIMIT 1";
-        $result = $this->db->query($query);
-        $mem_info = $result->row_array();
+        // 인증 전에는 가입·탈퇴 여부를 조회하지 않는다 (번호 소유 증명 없이 가입 경로가 노출되는 것을 막기 위함)
+        // 모든 번호에 동일하게 SMS를 발송하고, 중복·탈퇴 판단은 인증 확인 단계(check_google_phone_auth)에서 한다
+        $count_result = $this->site_model->checkSmsSendCount($phone, "구글가입인증");
 
-        if ($mem_info != null) {
-            // 이미 가입된 회원 — 가입 경로별 메시지 반환
-            $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "WEB";
+        if ($count_result["code"] != "00") {
+            json_return("98", "하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.");
+            return;
+        }
 
-            if ($join_type === "GOOGLE") {
-                $provider_label = "구글";
-            } elseif ($join_type === "KAKAO") {
-                $provider_label = "카카오";
-            } elseif ($join_type === "NAVER") {
-                $provider_label = "네이버";
-            } elseif ($join_type === "APPLE") {
-                $provider_label = "애플";
-            } elseif ($join_type === "WECHAT") {
-                $provider_label = "위쳇";
-            }else {
-                $provider_label = "휴대폰";
-            }
+        $authNum = rand(100000, 999999);
+        $result = $this->common->sendSms($phone, "나우잡 인증 번호 발송 [" . $authNum . "]", $authNum);
 
-            // 중복 계정 팝업용 join_type 정보 함께 반환
-            json_return("99", $provider_label . "으로 가입된 회원입니다.", [
-                "join_type" => $join_type,
-                "mm_phone" => $mem_info["mm_phone"]
-            ]);
+        if ($result["code"] == "00") {
+            json_return("00", "인증번호를 발송하였습니다.");
         } else {
-            // 15일 이내 탈퇴한 번호 → 재가입 차단 (join_type 없음 → 화면은 문구만 표시)
-            $withdrawn = $this->member_model->findRecentWithdrawn(["phone" => $normalized_phone]);
-            if ($withdrawn != null) {
-                json_return("99", withdrawn_message($withdrawn));
-                return;
-            }
-
-            // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
-            $count_result = $this->site_model->checkSmsSendCount($phone, "구글가입인증");
-
-            if ($count_result["code"] != "00") {
-                json_return("98", "하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.");
-                return;
-            }
-
-            $authNum = rand(100000, 999999);
-            $result = $this->common->sendSms($phone, "나우잡 인증 번호 발송 [" . $authNum . "]", $authNum);
-
-            if ($result["code"] == "00") {
-                json_return("00", "인증번호를 발송하였습니다.");
-            } else {
-                json_return("99", "SMS 발송 오류: " . $result["text"]);
-            }
+            json_return("99", "SMS 발송 오류: " . $result["text"]);
         }
     }
 
@@ -1490,6 +1451,22 @@ class Member_proc extends CI_Controller
         // 문자 인증 성공 → 본인 번호로 확인됨 (이후 중복 팝업에서 인증 없이 자동 로그인 허용)
         if ($check["code"] == "00" && $auth != "") {
             set_verified_phone($phone, "SMS");
+
+            // 본인 확인이 끝난 번호만 가입·탈퇴 여부를 안내한다 (공용 헬퍼로 판단)
+            $duplicate_check = checkDuplicatePhoneForSns($phone);
+            if (!empty($duplicate_check["is_withdrawn"])) {
+                // 15일 이내 탈퇴한 번호 → 탈퇴 안내 (join_type 없음)
+                json_return("99", $duplicate_check["message"]);
+                return;
+            }
+            if ($duplicate_check["is_duplicate"]) {
+                // 다른 방식으로 이미 가입된 번호 → 중복 계정 팝업용 정보 반환
+                json_return("99", $duplicate_check["message"], [
+                    "join_type" => $duplicate_check["join_type"],
+                    "mm_phone" => isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : ""
+                ]);
+                return;
+            }
         }
 
         json_return($check["code"], $check["msg"]);
@@ -1738,23 +1715,8 @@ class Member_proc extends CI_Controller
             return;
         }
 
-        // 공용 헬퍼로 중복 체크
-        $duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
-        if (!empty($duplicate_check["is_withdrawn"])) {
-            // 15일 이내 탈퇴한 번호 → 탈퇴 안내 (join_type 없음 → 화면은 문구만 표시)
-            json_return("91", $duplicate_check["message"]);
-            return;
-        }
-        if ($duplicate_check["is_duplicate"]) {
-            // 중복 계정 감지 → code 91 + 구조화 데이터 반환
-            json_return("91", $duplicate_check["message"], [
-                "join_type" => $duplicate_check["join_type"],
-                "mm_phone" => isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : ""
-            ]);
-            return;
-        }
-
-        // 미가입 — 발송 횟수 확인 후 SMS 인증번호 발송
+        // 인증 전에는 가입·탈퇴 여부를 조회하지 않는다 (번호 소유 증명 없이 가입 경로가 노출되는 것을 막기 위함)
+        // 중복·탈퇴 판단은 인증 확인 단계(check_sns_phone_auth)에서 한다
         $count_result = $this->site_model->checkSmsSendCount($phone, "SNS가입인증");
 
         if ($count_result["code"] != "00") {
@@ -1783,6 +1745,22 @@ class Member_proc extends CI_Controller
         // 문자 인증 성공 → 본인 번호로 확인됨 (이후 중복 팝업에서 인증 없이 자동 로그인 허용)
         if ($check["code"] == "00" && $auth != "") {
             set_verified_phone($phone, "SMS");
+
+            // 본인 확인이 끝난 번호만 가입·탈퇴 여부를 안내한다 (공용 헬퍼로 판단)
+            $duplicate_check = checkDuplicatePhoneForSns($phone);
+            if (!empty($duplicate_check["is_withdrawn"])) {
+                // 15일 이내 탈퇴한 번호 → 탈퇴 안내 (join_type 없음)
+                json_return("99", $duplicate_check["message"]);
+                return;
+            }
+            if ($duplicate_check["is_duplicate"]) {
+                // 다른 방식으로 이미 가입된 번호 → 중복 계정 팝업용 정보 반환
+                json_return("99", $duplicate_check["message"], [
+                    "join_type" => $duplicate_check["join_type"],
+                    "mm_phone" => isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : ""
+                ]);
+                return;
+            }
         }
 
         json_return($check["code"], $check["msg"]);

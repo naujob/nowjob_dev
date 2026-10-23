@@ -649,7 +649,7 @@
             'WEB': '휴대폰'
         };
         var providerLabel = providerLabels[joinType] || joinType;
-        var content = '이미 ' + providerLabel + '로 가입되어 있습니다.<br>' + providerLabel + ' 계정으로 로그인 하시겠습니까?';
+        var content = providerLabel + '로 로그인하시겠습니까?';
 
         openPopup('confirm', {
             id: 'duplicateProvider',
@@ -761,17 +761,6 @@
         // 팝업 열림 동안 뒤 화면 스크롤 잠금
         $('html, body').css('overflow', 'hidden');
 
-        // 팝업 설명 변경
-        var desc = '회원가입을 위해 전화번호 인증이 필요합니다.';
-        if (joinType === 'GOOGLE') {
-            desc = '구글 회원가입을 위해 전화번호 인증이 필요합니다.';
-        } else if (joinType === 'WECHAT') {
-            desc = '위챗 회원가입을 위해 전화번호 인증이 필요합니다.';
-        } else if (joinType === 'APPLE') {
-            desc = '애플 회원가입을 위해 전화번호 인증이 필요합니다.';
-        }
-        $('#sns-phone-desc').text(desc);
-
         $('#sns-phone-input').val('');
         $('#sns-phone-auth-input').val('');
         $('.sns-phone-auth-row').hide();
@@ -844,17 +833,6 @@
                 sPhoneUpdateTime();
                 // 재발송 시 이전 인증 무효화
                 sPhoneIsAuth = false;
-                gPhoneToast('인증번호를 발송하였습니다.');
-            } else if (ret.code == '91' && !(ret.data && ret.data.join_type)) {
-                // 15일 이내 탈퇴한 번호 → 탈퇴 안내만 표시
-                closeSnsPhonePopup();
-                commonAlert(ret.msg, function() {});
-            } else if (ret.code == '91') {
-                // 중복 계정 감지 → phone popup 닫고 중복 계정 모달 표시
-                closeSnsPhonePopup();
-                setTimeout(function() {
-                    showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || '');
-                }, 400);
             } else if (ret.code == '99') {
                 // phone popup 임시 숨기고 alert 띄우기
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');
@@ -899,6 +877,17 @@
                 sPhoneAuthPhone = phone;
                 clearInterval(sPhoneTimer);
                 sPhoneGoJoin();
+            } else if (ret.code == '99') {
+                // 본인 인증은 성공 — 이미 가입된 번호(중복 계정) 또는 15일 이내 탈퇴 번호
+                closeSnsPhonePopup();
+                if (ret.data && ret.data.join_type) {
+                    // 팝업 닫기 애니메이션 이후 중복 계정 팝업 표시
+                    setTimeout(function() {
+                        showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || '');
+                    }, 400);
+                } else {
+                    commonAlert(ret.msg, function() {});
+                }
             } else {
                 sPhoneAuthCount++;
                 if (sPhoneAuthCount > 3) {
