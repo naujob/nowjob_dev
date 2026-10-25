@@ -638,50 +638,29 @@
 
     // 카카오 AJAX 함수 제거됨: OAuth 콜백 방식으로 통일
 
-    // 중복 계정 안내 팝업 (SNS 로그인 시 다른 SNS로 이미 가입된 경우)
+    // 중복 계정 처리 (SNS 로그인 시 다른 SNS/휴대폰으로 이미 가입된 경우)
+    // 안내 팝업 없이 기존 가입 방식으로 바로 로그인한다
     function showDuplicateProviderPopup(joinType, mmPhone) {
-        var providerLabels = {
-            'KAKAO': '카카오',
-            'NAVER': '네이버',
-            'GOOGLE': '구글',
-            'WECHAT': '위챗',
-            'WEB': '휴대폰'
-        };
-        var providerLabel = providerLabels[joinType] || joinType;
-        var content = providerLabel + '로 로그인하시겠습니까?';
-
-        openPopup('confirm', {
-            id: 'duplicateProvider',
-            content: content,
-            firstButton: '취소',
-            secondButton: '로그인 하기',
-            firstCallback: function() {
-                // 취소: 팝업만 닫기
-            },
-            secondCallback: function() {
-                // 로그인 하기: 이미 가입된 SNS/휴대폰 계정으로 자동 로그인
-                // phone_auto_login 엔드포인트를 통일: mm_join_type 파라미터로 SNS 타입 지정
-                if (joinType === 'GOOGLE') {
-                    $('#btnGoogle').click();
-                } else if (mmPhone) {
-                    // 카카오/네이버/위챗/휴대폰 모두 동일한 엔드포인트 사용
-                    comAjax('/member_proc/phone_auto_login', {
-                        mm_phone: mmPhone,
-                        mm_join_type: joinType
-                    }, function(ret) {
-                        if (ret.code == '00') {
-                            sessionStorage.removeItem('chat_user_connect');
-                            location.href = '/';
-                        } else if (ret.code == '80') {
-                            // 본인 확인이 안 된 번호 → 휴대폰 문자 인증 로그인으로 이동
-                            requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
-                        } else {
-                            commonAlert(ret.msg || '로그인 실패', function() {});
-                        }
-                    });
+        // 구글은 버튼 클릭(GIS/OAuth 흐름)으로 로그인
+        if (joinType === 'GOOGLE') {
+            $('#btnGoogle').click();
+        } else if (mmPhone) {
+            // 카카오/네이버/위챗/휴대폰 모두 동일한 엔드포인트 사용 (mm_join_type으로 SNS 타입 지정)
+            comAjax('/member_proc/phone_auto_login', {
+                mm_phone: mmPhone,
+                mm_join_type: joinType
+            }, function(ret) {
+                if (ret.code == '00') {
+                    sessionStorage.removeItem('chat_user_connect');
+                    location.href = '/';
+                } else if (ret.code == '80') {
+                    // 본인 확인이 안 된 번호 → 휴대폰 문자 인증 로그인으로 이동
+                    requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
+                } else {
+                    commonAlert(ret.msg || '로그인 실패', function() {});
                 }
-            }
-        });
+            });
+        }
     }
 </script>
 

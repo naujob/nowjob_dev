@@ -1807,26 +1807,6 @@ window.onload = function() {
   </div>
 </div>
 
-<!-- 중복 계정 안내 바텀시트 -->
-<div id="duplicateProviderPanel" class="layer-panel card-type" tabindex="-1">
-  <div class="bottom-sheet-container">
-    <div class="bottom-sheet-handlebar"></div>
-    <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
-    <div class="bottom-sheet-body">
-      <div class="bottom-sheet-content" style="text-align:center;">
-        <img id="duplicateProviderIcon" src="" alt="" style="width:56px;height:56px;border-radius:50%;margin:8px auto 20px;display:block;">
-        <p style="font-size:17px;font-weight:700;color:#222;margin:0 0 8px;" id="duplicateProviderText1"></p>
-        <p style="font-size:17px;color:#222;font-weight:700;margin:0;" id="duplicateProviderText2"></p>
-      </div>
-    </div>
-    <div class="bottom-sheet-footer">
-      <div class="bottom-sheet-sticky-bottom">
-        <button type="button" id="btnDuplicateProviderLogin" class="btn-bottom-sheet btn-bottom-sheet-primary bottom-sheet-action">로그인 하기</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- 휴대폰번호 OTP 로그인 함수들 -->
 <script>
   // 휴대폰번호 로그인 바텀시트 대기 중 여부 (연속 클릭/Enter로 시트가 두 번 열리는 것 방지)
@@ -1896,43 +1876,31 @@ window.onload = function() {
     hardTimer = setTimeout(finish, 700);
   }
 
-  // 중복 계정 팝업 (바텀시트): 다른 SNS로 이미 가입된 회원 시 표시
-  // 사용자에게 기존 로그인 방식으로 재로그인하도록 유도
+  // 중복 계정 처리: 다른 SNS/휴대폰으로 이미 가입된 회원이면 안내 없이 기존 가입 방식으로 바로 로그인
+  // 안내 바텀시트 탭 없이 호출되므로, 네이티브 브릿지 호출과 OAuth 리다이렉트는 이 흐름에서 그대로 실행된다
   function showDuplicateProviderPopup(joinType, mmPhone) {
     hideLoginLoading();
 
-    var label = "";
-    var iconSrc = "";
     var buttonAction = function() {};
 
-    // SNS 타입별 버튼 동작 및 아이콘 설정
+    // SNS 타입별 로그인 동작
     if (joinType === "KAKAO") {
-      label = "카카오";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-kakao.png";
       buttonAction = function() {
         $("#btnKakao").length ? $("#btnKakao").trigger("click") : $("#btnKakaoAndroid").trigger("click");
       };
     } else if (joinType === "NAVER") {
-      label = "네이버";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-naver.png";
       buttonAction = function() {
         $("#btnNaver").trigger("click");
       };
     } else if (joinType === "GOOGLE") {
-      label = "구글";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-google.png";
       buttonAction = function() {
         $("#btnGoogle").trigger("click");
       };
     } else if (joinType === "WECHAT") {
-      label = "위챗";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-wechat.png";
       buttonAction = function() {
         $("#btnWeChat").trigger("click");
       };
     } else if (joinType === "WEB") {
-      label = "휴대폰";
-      iconSrc = "";
       buttonAction = function() {
         // 휴대폰 번호로 기존 계정 자동 로그인
         if (!mmPhone) {
@@ -1959,48 +1927,11 @@ window.onload = function() {
       };
     }
 
-    gDupButtonAction = buttonAction;
-
-    if (iconSrc) {
-      $("#duplicateProviderIcon").attr("src", iconSrc).show();
-    } else {
-      $("#duplicateProviderIcon").hide();
-    }
-    $("#duplicateProviderText1").text(label + "로 로그인하시겠습니까?");
-    $("#duplicateProviderText2").text("");
-
-    openDuplicateProviderPanel();
+    // 안내 없이 바로 기존 가입 방식으로 로그인
+    buttonAction();
   }
 
-  // 중복 계정 바텀시트 전역 변수
-  var gDupButtonAction = function() {};
-
-  function openDuplicateProviderPanel() { // 중복 계정 바텀시트 열기
-    var $panel = document.getElementById('duplicateProviderPanel');
-    if ($panel && typeof openPanel === 'function') {
-      openPanel($panel);
-    }
-  }
-
-  function closeDuplicateProviderPanel() { // 중복 계정 바텀시트 닫기
-    var $panel = document.getElementById('duplicateProviderPanel');
-    if ($panel && typeof closePanel === 'function') {
-      closePanel($panel);
-    }
-  }
-
-  $(document).ready(function() { // 중복 계정 바텀시트 초기화
-    if (typeof initPanelSwipe === 'function') {
-      initPanelSwipe('duplicateProviderPanel');
-    }
-
-    $('#btnDuplicateProviderLogin').click(function() {
-      closeDuplicateProviderPanel();
-      gDupButtonAction();
-    });
-  });
-
-  // SNS OAuth 리다이렉트 처리: 중복 계정 팝업 표시 (네이버/카카오 콜백에서 전달됨)
+  // SNS OAuth 리다이렉트 처리: 중복 계정 자동 로그인 (네이버/카카오 콜백에서 전달됨)
   $(document).ready(function() {
     <?php if (isset($_GET['dup_join_type']) && !empty($_GET['dup_join_type'])): ?>
       <?php
