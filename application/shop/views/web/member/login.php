@@ -164,6 +164,45 @@
         gap: 8px;
         margin-top: 8px;
     }
+
+    /* SNS 자동 로그인 처리 중 로딩 (중복 계정 감지 → 홈 이동 전까지 빈 로그인 화면 대신 표시) */
+    .login-loading {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 3000;
+        background: rgba(255, 255, 255, 0.92);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-loading[data-visible="true"] {
+        display: flex;
+    }
+    .login-loading[data-visible="false"] {
+        display: none;
+    }
+    .login-loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #e0f2ed;
+        border-top-color: #1B9D7D;
+        border-radius: 50%;
+        animation: login-loading-spin 0.8s linear infinite;
+    }
+    .login-loading-text {
+        margin: 20px 0 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #555;
+    }
+    @keyframes login-loading-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 <div id="content" class="page page-login">
     <main class="page-content">
@@ -278,6 +317,12 @@
 
 <!-- Kakao SDK 제거됨: OAuth 콜백 방식으로 통일 -->
 <!-- <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script> -->
+
+<!-- SNS 자동 로그인 처리 중 로딩 (중복 계정 리다이렉트로 들어온 경우 첫 렌더링부터 표시) -->
+<div id="login-loading" class="login-loading" data-visible="<?= !empty($_GET['dup_join_type']) ? 'true' : 'false' ?>" role="status" aria-live="polite">
+    <div class="login-loading-spinner"></div>
+    <p class="login-loading-text">로그인 처리 중입니다...</p>
+</div>
 
 <!-- SNS 회원가입 전화번호 인증 팝업 (구글, 위챗, 애플 등 공용) -->
 <div id="sns-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:2000; align-items:center; justify-content:center;">
@@ -541,22 +586,25 @@
     function requestPhoneLoginSms(phone) {
         phone = String(phone || "").replace(/[^0-9]/g, "");
         var params = { mm_phone: phone };
-        comAjax("/member_proc/check_phone_login", params, function(ret) {
+        postLoginAjax("/member_proc/check_phone_login", params, function(ret) {
             if (ret.code == "00") {
-                // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동
+                // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동 (로딩 유지)
                 if (ret.data && ret.data.skip_auth) {
                     sessionStorage.removeItem("chat_user_connect");
                     location.href = "/";
                     return;
                 }
-                // SMS 발송 성공 - 안내 팝업 없이 바로 인증 페이지로 리다이렉트
+                // SMS 발송 성공 - 안내 팝업 없이 바로 인증 페이지로 리다이렉트 (로딩 유지)
                 location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
             } else if (ret.code == "90") {
                 // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
+                hideLoginLoading();
                 commonAlert(ret.msg || "회원가입이 필요합니다.", function() {});
             } else if (ret.code == "98" || ret.code == "99") {
+                hideLoginLoading();
                 commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
             } else {
+                hideLoginLoading();
                 commonAlert(ret.msg || "오류가 발생했습니다.", function() {});
             }
         });
@@ -638,11 +686,42 @@
 
     // 카카오 AJAX 함수 제거됨: OAuth 콜백 방식으로 통일
 
+    /**
+     * SNS 자동 로그인 처리 중 로딩 표시/숨김
+     * 성공 시에는 홈으로 이동하므로 숨기지 않고, 다른 화면으로 넘어가거나 실패할 때만 숨긴다
+     */
+    function showLoginLoading() {
+        $('#login-loading').attr('data-visible', 'true');
+    }
+    function hideLoginLoading() {
+        $('#login-loading').attr('data-visible', 'false');
+    }
+
+    /**
+     * 로그인 전용 AJAX (통신 실패 시 로딩을 내리기 위해 comAjax 대신 사용)
+     * @param url        호출 URL
+     * @param params     전송 파라미터
+     * @param onSuccess  응답 처리 콜백 (ret)
+     */
+    function postLoginAjax(url, params, onSuccess) {
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: params,
+            success: onSuccess,
+            error: function() {
+                hideLoginLoading();
+                commonAlert('통신오류가 발생했습니다. 다시 시도해주세요.', function() {});
+            }
+        });
+    }
+
     // 중복 계정 처리 (SNS 로그인 시 다른 SNS/휴대폰으로 이미 가입된 경우)
     // 안내 팝업 없이 기존 가입 방식으로 바로 로그인한다
     function showDuplicateProviderPopup(joinType, mmPhone) {
         // 번호가 없으면 자동 로그인 불가 → 구글은 버튼 클릭(GIS/OAuth 흐름)으로 로그인
         if (!mmPhone) {
+            hideLoginLoading();
             if (joinType === 'GOOGLE') {
                 $('#btnGoogle').click();
             }
@@ -650,7 +729,9 @@
         }
         // 구글 포함 모든 타입이 동일한 엔드포인트 사용 (mm_join_type으로 SNS 타입 지정)
         // 서버가 본인 번호로 확인한 경우(카카오/네이버 콜백, 문자 인증)에는 구글 재인증 없이 바로 로그인
-        comAjax('/member_proc/phone_auto_login', {
+        // 자동 로그인 완료(홈 이동)까지 로딩을 유지한다
+        showLoginLoading();
+        postLoginAjax('/member_proc/phone_auto_login', {
             mm_phone: mmPhone,
             mm_join_type: joinType
         }, function(ret) {
@@ -660,11 +741,14 @@
             } else if (ret.code == '80') {
                 // 본인 확인이 안 된 번호 → 구글은 기존 방식(구글 버튼), 그 외는 휴대폰 문자 인증 로그인으로 이동
                 if (joinType === 'GOOGLE') {
+                    // One Tap 팝업이 로딩 레이어에 가려지지 않도록 먼저 숨긴다
+                    hideLoginLoading();
                     $('#btnGoogle').click();
                 } else {
                     requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
                 }
             } else {
+                hideLoginLoading();
                 commonAlert(ret.msg || '로그인 실패', function() {});
             }
         });
@@ -679,9 +763,11 @@
     //  id_token (JWT) 발급
     function handleGoogleCredentialResponse(response) {
         googleOneTapUsed = true;
+        // 서버 검증 후 홈 이동(또는 팝업)까지 빈 로그인 화면 대신 로딩 표시
+        showLoginLoading();
         var params = {};
         params['id_token'] = response.credential;
-        comAjax('/member_proc/google_login', params, function(ret) {
+        postLoginAjax('/member_proc/google_login', params, function(ret) {
             if (ret.code == '00') {
                 sessionStorage.removeItem('chat_user_connect');
                 location.href = '/';
@@ -689,14 +775,18 @@
                 // 신규 회원 → SMS 인증 팝업
                 // join_key가 없으면(서버 응답 누락 등) 팝업을 열지 않음 — 'undefined' 문자열로 가입되는 사고 방지
                 if (!ret.data || !ret.data.join_key) {
+                    hideLoginLoading();
                     commonAlert('회원가입 정보를 가져오지 못했습니다. 다시 시도해주세요.', function() {});
                     return;
                 }
                 var joinKey  = ret.data.join_key;
                 var email    = ret.data.email  || '';
                 var name     = ret.data.name   || '';
+                // 인증 팝업(z-index 2000)이 로딩 레이어에 가려지지 않도록 먼저 숨긴다
+                hideLoginLoading();
                 openSnsPhonePopup(joinKey, email, name, 'GOOGLE');
             } else {
+                hideLoginLoading();
                 // phone popup이 띠워져있으면 닫고 alert 띄우기
                 if ($('#sns-phone-popup').css('display') != 'none') {
                     closeSnsPhonePopup();
