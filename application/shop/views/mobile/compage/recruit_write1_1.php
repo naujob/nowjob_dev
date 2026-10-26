@@ -48,7 +48,7 @@
                                 <label class="form-label">공고제목<span class="required-asterisk">*</span></label>
                                 <span class="char-counter"><span id="rc_name_count">0</span>/50</span>
                             </div>
-                            <input type="text" name="rc_name" placeholder="공고제목을 입력해주세요" value="<?= isset($info["rc_name"]) ? $info["rc_name"] : "" ?>" maxlength="50" autocomplete="off" aria-required="true" required class="form-text form-text-bordered" id="rc_name_input">
+                            <textarea name="rc_name" placeholder="공고제목을 입력해주세요" maxlength="50" rows="1" aria-required="true" required class="form-text form-text-bordered" id="rc_name_input"><?= htmlspecialchars(isset($info["rc_name"]) ? $info["rc_name"] : "") ?></textarea>
                         </div>
                     </div>
                     </div><!-- //step-section 1 -->
@@ -2083,6 +2083,8 @@
 
         if (typeof formData.rc_name !== "undefined") {
             $("[name='rc_name']").val(formData.rc_name);
+            // 복원된 값도 길이 제한/높이 조절 핸들러를 거치도록 트리거 (핸들러 바인딩 전이면 무시됨)
+            $("#rc_name_input").trigger("input");
         }
         // 주소 데이터 복원 (addr 객체 또는 직접 속성 지원)
         if (formData.ad_zipcode) {
@@ -3361,6 +3363,28 @@
 
         updateSalaryOptions();
 
+        // 공고제목 입력칸: 줄바꿈 금지, 최대 50자, 입력 내용에 맞춰 높이 자동 조절
+        // 저장 핸들러보다 먼저 바인딩해서 정제된 값이 저장되도록 함
+        $("#rc_name_input").on("keydown", function(e) {
+            // Enter 줄바꿈 차단
+            if (e.keyCode === 13) {
+                e.preventDefault();
+            }
+        });
+        $("#rc_name_input").on("input", function() {
+            var $input = $(this);
+            // 줄바꿈 제거 후 50자 초과분 잘라내기 (붙여넣기 대응)
+            var rcName = $input.val().replace(/[\r\n]+/g, "").substring(0, 50);
+            if ($input.val() !== rcName) {
+                $input.val(rcName);
+            }
+            $("#rc_name_count").text(rcName.length);
+            // 줄바꿈 표시를 위해 내용 높이에 맞춤 (!important로 고정 높이 규칙을 덮어씀)
+            this.style.setProperty("height", "auto", "important");
+            this.style.setProperty("height", this.scrollHeight + "px", "important");
+        });
+        // 초기 높이/카운트 반영 (저장 핸들러 바인딩 전이라 저장은 발생하지 않음)
+        $("#rc_name_input").trigger("input");
         $("[name='rc_name']").on("input", savePage1Data);
         $("#rc_price_type_main").on("change", function() {
             updateSalaryOptions();
@@ -4306,17 +4330,15 @@
             currentStep = TOTAL_STEPS;
             updateStepVisibility(true);
             scrollPageTop();
+        } else if (rcIdx !== "0" && ($("[name='rc_name']").val() || "") !== "") {
+            // 수정 모드(rc_idx가 있고 공고제목이 있을 때): 처음부터 다시 밟지 않도록 상세등록 구간까지 모두 펼친다
+            isDetailOpen = true;
+            currentStep = TOTAL_STEPS;
+            updateStepVisibility(true);
+            scrollPageTop();
         } else {
             updateStepVisibility();
         }
-
-        // 공고제목 문자 수 카운트
-        $("#rc_name_input").on("input", function() {
-            let count = $(this).val().length;
-            $("#rc_name_count").text(count);
-        });
-        // 초기값 설정
-        $("#rc_name_count").text($("#rc_name_input").val().length);
 
          $(".btn-back").click(function(e) {
             e.preventDefault();

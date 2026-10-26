@@ -10406,6 +10406,19 @@ form#frm {
     box-shadow: none !important;
 }
 
+/* 이력서명/공고제목 입력칸 (textarea): 긴 제목은 줄바꿈 표시, 높이는 JS에서 내용에 맞춤 */
+#ru_name_input,
+#rc_name_input {
+    height: auto !important;
+    min-height: 100px;
+    padding: 1.5rem 1.25rem !important;
+    line-height: 1.5;
+    resize: none;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
 /* 글자 수 카운터 (공용) */
 .char-counter {
     font-size: 0.9rem;

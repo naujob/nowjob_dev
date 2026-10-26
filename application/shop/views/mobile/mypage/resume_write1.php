@@ -466,7 +466,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                     <span class="char-counter"><span id="ru_name_count">0</span>/30</span>
                                 </div>
                                 <label>
-                                    <input type="text" name="ru_name" placeholder="이력서제목을 입력해주세요" value="<?= $info["ru_name"] ?>" maxlength="30" autocomplete="off" aria-required="true" required class="form-text form-text-bordered" id="ru_name_input">
+                                    <textarea name="ru_name" placeholder="이력서제목을 입력해주세요" maxlength="30" rows="1" aria-required="true" required class="form-text form-text-bordered" id="ru_name_input"><?= htmlspecialchars($info["ru_name"]) ?></textarea>
                                 </label>
                             </div>
                             <!-- 국적은 회원가입 때 받은 st_member.mm_nation 을 쓰므로 여기서 입력받지 않는다 -->
@@ -1416,7 +1416,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
             if (typeof formData.ru_name !== "undefined") {
                 $("[name='ru_name']").val(formData.ru_name);
-                $("#ru_name_count").text($("#ru_name_input").val().length);
+                // 복원된 값도 길이 제한/높이 조절 핸들러를 거치도록 트리거
+                $("#ru_name_input").trigger("input");
             }
             $("[name='ru_work[]']").prop("checked", false);
             if (Array.isArray(formData.ru_work)) {
@@ -2407,11 +2408,29 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
         });
 
-        $("[name='ru_name']").on("input", saveResumeStep1Data);
-        // 이력서명 문자 수 카운트 (최대 30자)
-        $("#ru_name_input").on("input", function() {
-            $("#ru_name_count").text($(this).val().length);
+        // 이력서명 입력칸: 줄바꿈 금지, 최대 30자, 입력 내용에 맞춰 높이 자동 조절
+        // 저장 핸들러보다 먼저 바인딩해서 정제된 값이 저장되도록 함
+        $("#ru_name_input").on("keydown", function(e) {
+            // Enter 줄바꿈 차단
+            if (e.keyCode === 13) {
+                e.preventDefault();
+            }
         });
+        $("#ru_name_input").on("input", function() {
+            var $input = $(this);
+            // 줄바꿈 제거 후 30자 초과분 잘라내기 (붙여넣기 대응)
+            var ruName = $input.val().replace(/[\r\n]+/g, "").substring(0, 30);
+            if ($input.val() !== ruName) {
+                $input.val(ruName);
+            }
+            $("#ru_name_count").text(ruName.length);
+            // 줄바꿈 표시를 위해 내용 높이에 맞춤 (!important로 고정 높이 규칙을 덮어씀)
+            this.style.setProperty("height", "auto", "important");
+            this.style.setProperty("height", this.scrollHeight + "px", "important");
+        });
+        // 초기 높이/카운트 반영 (저장 핸들러 바인딩 전이라 저장은 발생하지 않음)
+        $("#ru_name_input").trigger("input");
+        $("[name='ru_name']").on("input", saveResumeStep1Data);
         // 초기값 설정 (DB/임시저장 값 반영)
         $("#ru_name_count").text($("#ru_name_input").val().length);
         $("[name='ru_work[]']").on("change", saveResumeStep1Data);
