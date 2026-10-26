@@ -162,6 +162,105 @@ class Member_proc extends CI_Controller
         return ["ok" => true, "data" => $data];
     }
 
+    /**
+     * SNS 액세스 토큰을 제공자(카카오/네이버) API로 검증하고 신뢰 가능한 사용자 정보를 돌려준다
+     *
+     * 클라이언트(앱/웹)가 보낸 mm_join_key·전화번호는 위조가 가능하므로, 토큰이 함께 온 경우
+     * 서버가 직접 제공자에게 물어 확인한 값만 신뢰한다. 확인된 전화번호는 본인 번호로 간주한다.
+     *
+     * @param string $join_type KAKAO 또는 NAVER
+     * @param string $access_token 클라이언트가 SDK로 받은 액세스 토큰
+     * @return array ["ok"=>bool, "join_key"=>"", "phone"=>"", "name"=>"", "email"=>"", "gender"=>"", "birthyear"=>"", "birthday"=>""]
+     *               gender는 각 제공자 원본 형식 유지 (카카오: MALE/FEMALE, 네이버: M/F)
+     */
+    private function verifySnsAccessToken($join_type, $access_token)
+    {
+        // 검증 실패 시 공통 반환값
+        $fail = ["ok" => false, "join_key" => "", "phone" => "", "name" => "", "email" => "", "gender" => "", "birthyear" => "", "birthday" => ""];
+
+        if ($access_token == "") {
+            return $fail;
+        }
+
+        if ($join_type == "KAKAO") {
+            $kakao_setting = getSettingInfo(["st_group" => "카카오"]);
+            $kakao_client_id = isset($kakao_setting["REST_API_KEY"]) ? $kakao_setting["REST_API_KEY"] : "";
+            if (empty($kakao_client_id)) {
+                error_log("[verifySnsAccessToken] 카카오 REST_API_KEY 설정 없음");
+                return $fail;
+            }
+
+            $this->load->library('KakaoLogin');
+            $kakaoLogin = new KakaoLogin($kakao_client_id);
+            $result = $kakaoLogin->getUserInfo($access_token);
+
+            // 토큰이 만료·위조되었으면 200이 아닌 코드가 온다 (토큰 값 자체는 로그에 남기지 않는다)
+            $http_code = isset($result["code"]) ? $result["code"] : 0;
+            if ($http_code != 200 || empty($result["data"]["id"])) {
+                error_log("[verifySnsAccessToken] 카카오 토큰 검증 실패 http_code=" . $http_code);
+                return $fail;
+            }
+
+            $kakao_user = $result["data"];
+            $kakao_account = isset($kakao_user["kakao_account"]) ? $kakao_user["kakao_account"] : [];
+
+            // 이름: name 우선, 없으면 프로필 닉네임 (클라이언트 JS와 동일한 우선순위)
+            $name = isset($kakao_account["name"]) ? $kakao_account["name"] : "";
+            if (trim($name) === "" && isset($kakao_account["profile"]["nickname"])) {
+                $name = $kakao_account["profile"]["nickname"];
+            }
+
+            // 성별: 카카오는 male/female(소문자)로 주므로 기존 처리에 맞춰 대문자로 통일
+            $gender = isset($kakao_account["gender"]) ? strtoupper($kakao_account["gender"]) : "";
+            if ($gender != "MALE" && $gender != "FEMALE") {
+                $gender = "";
+            }
+
+            return [
+                "ok" => true,
+                "join_key" => (string)$kakao_user["id"],
+                "phone" => normalizeSnsPhone(isset($kakao_account["phone_number"]) ? $kakao_account["phone_number"] : ""),
+                "name" => $name,
+                "email" => isset($kakao_account["email"]) ? $kakao_account["email"] : "",
+                "gender" => $gender,
+                "birthyear" => isset($kakao_account["birthyear"]) ? $kakao_account["birthyear"] : "",
+                "birthday" => isset($kakao_account["birthday"]) ? $kakao_account["birthday"] : "",
+            ];
+        } else if ($join_type == "NAVER") {
+            $this->load->library('NaverLogin');
+            $naverLogin = new NaverLogin();
+            $result = $naverLogin->getUserInfo($access_token);
+
+            $http_code = isset($result["code"]) ? $result["code"] : 0;
+            if ($http_code != 200 || empty($result["data"]["response"]["id"])) {
+                error_log("[verifySnsAccessToken] 네이버 토큰 검증 실패 http_code=" . $http_code);
+                return $fail;
+            }
+
+            $naver_user = $result["data"]["response"];
+
+            // 성별: 네이버는 M/F로 주며 기존 login() 처리와 형식이 같다
+            $gender = isset($naver_user["gender"]) ? strtoupper($naver_user["gender"]) : "";
+            if ($gender != "M" && $gender != "F") {
+                $gender = "";
+            }
+
+            return [
+                "ok" => true,
+                "join_key" => (string)$naver_user["id"],
+                "phone" => normalizeSnsPhone(isset($naver_user["mobile"]) ? $naver_user["mobile"] : ""),
+                "name" => isset($naver_user["name"]) ? $naver_user["name"] : "",
+                "email" => isset($naver_user["email"]) ? $naver_user["email"] : "",
+                "gender" => $gender,
+                "birthyear" => isset($naver_user["birthyear"]) ? $naver_user["birthyear"] : "",
+                "birthday" => isset($naver_user["birthday"]) ? $naver_user["birthday"] : "",
+            ];
+        }
+
+        // 지원하지 않는 제공자
+        return $fail;
+    }
+
     # 로그인 처리
     function login()
     {
@@ -220,6 +319,28 @@ class Member_proc extends CI_Controller
                 exit;
             }
 
+            // 액세스 토큰 검증 (앱이 SNS SDK로 받은 토큰을 서버가 제공자 API로 확인)
+            // 토큰이 없으면 기존 동작 유지 — 구버전 앱 호환 (단, 전화번호를 신뢰하지 않는다)
+            $access_token = input_post("access_token", "");
+            $token_verified = false;  // 토큰으로 계정 주인이 확인되었는가
+            $phone_verified = false;  // 제공자가 알려준 전화번호인가 (본인 번호로 신뢰 가능)
+            $verified_sns = null;
+
+            if ($access_token != "" && ($mm_join_type == "KAKAO" || $mm_join_type == "NAVER")) {
+                $verified_sns = $this->verifySnsAccessToken($mm_join_type, $access_token);
+                if (empty($verified_sns["ok"])) {
+                    json_return("99", "로그인 인증에 실패했습니다. 다시 시도해주세요.");
+                    exit;
+                }
+                // 계정 탈취 차단: 클라이언트가 보낸 ID와 제공자가 확인해준 ID가 다르면 거부
+                if ((string)$verified_sns["join_key"] !== (string)$mm_join_key) {
+                    error_log("[login] SNS 토큰 소유자 불일치 join_type=" . $mm_join_type . " IP=" . $this->input->ip_address());
+                    json_return("99", "정상적인 접근이 아닙니다.");
+                    exit;
+                }
+                $token_verified = true;
+            }
+
             // 카카오 로그인 시 7개 파라미터 받기 (로깅용)
             $sns_phone = "";
             if ($mm_join_type == "KAKAO") {
@@ -233,6 +354,21 @@ class Member_proc extends CI_Controller
                 // 국제표기(+82 10-...)로 올 수 있으므로 네이버·애플과 같이 국내 번호로 정규화
                 $sns_phone = normalizeSnsPhone($kakaophone);
 
+                // 토큰이 검증됐으면 클라이언트 값 대신 카카오가 확인해준 값만 사용 (위조 차단)
+                if ($token_verified) {
+                    $kakaoid = $verified_sns["join_key"];
+                    $kakaoname = $verified_sns["name"];
+                    $kakaogender = $verified_sns["gender"];
+                    $kakaobirthyear = $verified_sns["birthyear"];
+                    $kakaobirthday = $verified_sns["birthday"];
+                    $kakaoemail = $verified_sns["email"];
+                    // 카카오가 번호를 주지 않으면(스코프 미동의) 클라이언트 값을 그대로 두되 신뢰하지는 않는다
+                    if ($verified_sns["phone"] != "") {
+                        $sns_phone = $verified_sns["phone"];
+                        $phone_verified = true;
+                    }
+                }
+
                 // 로그 기록 (선택사항)
                 // error_log("카카오 로그인 파라미터: kakaoid=" . $kakaoid . ", kakaoname=" . $kakaoname);
             } else if ($mm_join_type == "NAVER") {
@@ -243,6 +379,20 @@ class Member_proc extends CI_Controller
                 $naverbirthyear = input_post("naverbirthyear", "");
                 $naverbirthday = input_post("naverbirthday", "");
                 $sns_phone = normalizeSnsPhone(input_post("naverphone", ""));
+
+                // 토큰이 검증됐으면 클라이언트 값 대신 네이버가 확인해준 값만 사용 (위조 차단)
+                if ($token_verified) {
+                    $navername = $verified_sns["name"];
+                    $naveremail = $verified_sns["email"];
+                    $navergender = $verified_sns["gender"];
+                    $naverbirthyear = $verified_sns["birthyear"];
+                    $naverbirthday = $verified_sns["birthday"];
+                    // 네이버가 번호를 주지 않으면(스코프 미동의) 클라이언트 값을 그대로 두되 신뢰하지는 않는다
+                    if ($verified_sns["phone"] != "") {
+                        $sns_phone = $verified_sns["phone"];
+                        $phone_verified = true;
+                    }
+                }
             } else if ($mm_join_type == "APPLE") {
                 // 애플 로그인 시 전화번호 파라미터 받기
                 $sns_phone = normalizeSnsPhone(input_post("applephone", ""));
@@ -270,6 +420,12 @@ class Member_proc extends CI_Controller
                             exit;
                         }
                         if ($duplicate_check["is_duplicate"]) {
+                            // 제공자 API가 확인해준 번호이므로 본인 번호로 신뢰한다
+                            // → 화면이 이어서 호출하는 phone_auto_login이 문자 인증 없이 통과된다 (10분, 1회용)
+                            if ($phone_verified) {
+                                set_verified_phone($sns_phone, $mm_join_type . "_APP");
+                            }
+
                             // 전화번호가 이미 가입되어 있으면 특별한 코드로 반환
                             json_return("91", $duplicate_check["message"], [
                                 "join_type" => $duplicate_check["join_type"],
@@ -519,10 +675,11 @@ class Member_proc extends CI_Controller
 
         $normalized_phone = preg_replace('/[^0-9]/', '', $mm_phone);
 
-        // [임시 로깅용] 미확인 번호도 인증 없이 통과시키고 로그만 남긴다 (번호는 기록하지 않음)
-        // 원복 필요: 운영 반영 전 아래 분기를 다시 "80 반환 + 문자 인증 요구"로 되돌릴 것
+        // 서버가 본인 번호로 확인한 경우(SNS 토큰 검증, 서버 OAuth 콜백, 문자 인증)에만 인증 없이 로그인
+        // 그 외에는 "80"을 돌려 화면에서 휴대폰 문자 인증 로그인으로 유도한다
         if (!consume_verified_phone($normalized_phone)) {
-           // error_log("[phone_auto_login] 임시: 미확인 번호 인증 생략 로그인 IP=" . $this->input->ip_address() . " join_type=" . $mm_join_type);
+            json_return("80", "본인 확인이 필요합니다.", ["phone" => $mm_phone]);
+            exit;
         }
 
         // 전화번호로 기존 회원 조회 (활성 회원만)

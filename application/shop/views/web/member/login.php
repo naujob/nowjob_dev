@@ -748,6 +748,8 @@
         $('#sns-phone-btn-auth').css('background-color', '#ccc');
         $('#sns-phone-timer').text('');
         $('#sns-phone-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
+        // 팝업이 보인 뒤 휴대폰번호 입력칸에 포커스 (display:none 상태에서는 focus가 동작하지 않으므로 display 설정 이후에 호출)
+        $('#sns-phone-input').focus();
         setTimeout(function() {
             $('#sns-phone-popup').css('background', 'rgba(0,0,0,0.5)');
         }, 10);
@@ -916,6 +918,8 @@
                 sPhoneUpdateTime();
                 // 재발송 시 이전 인증 무효화
                 sPhoneIsAuth = false;
+                // 인증번호 발송 후 인증번호 입력칸으로 포커스 이동 → 이후 Enter는 확인 버튼으로 동작
+                $('#sns-phone-auth-input').focus();
             } else if (ret.code == '99') {
                 // phone popup 임시 숨기고 alert 띄우기
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');

@@ -78,7 +78,9 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      z-index: 9999;
+      /* 바텀시트(.bs-overlay, 9999)보다 위, 토스트(10001)보다 아래 —
+         인증 시트가 열린 상태에서도 로딩이 보여야 한다 */
+      z-index: 10000;
       gap: 20px;
     }
 
@@ -549,6 +551,8 @@ window.onload = function() {
               params["kakaobirthyear"] = kakaobirthyear;
               params["kakaobirthday"] = kakaobirthday;
               params["kakaoemail"] = kakaoemail;
+              // 서버가 카카오 API로 토큰 주인을 확인하도록 액세스 토큰 전달
+              params["access_token"] = (authObj && authObj.access_token) ? authObj.access_token : Kakao.Auth.getAccessToken();
               comAjax("/member_proc/login", params, function(ret) {
                 if (ret.code == "00") {
                   sessionStorage.removeItem("chat_user_connect");
@@ -746,6 +750,9 @@ window.onload = function() {
     var birthday = parts[4] || ""; //birthday 생일
     var email = parts[5]; //email    undefined
     var name = parts[6]; //name     undefined
+    // 액세스 토큰: 서버가 카카오 API로 토큰 주인을 확인하는 데 사용
+    // 빈 값이 걸러진 result 배열이 아니라 원본 parts에서 읽어야 인덱스가 밀리지 않는다
+    var accessToken = parts[7] || "";
 
     // Optional() 형식 처리 및 nil 처리
     var birthyear_clean = birthyear || "";
@@ -796,6 +803,7 @@ window.onload = function() {
     params["kakaobirthyear"] = birthyear_clean || "";
     params["kakaobirthday"] = birthday_clean || "";
     params["kakaoemail"] = email || "";
+    params["access_token"] = accessToken; // 서버 검증용 (없으면 기존 동작)
     comAjax("/member_proc/login", params, function(ret) {
       if (ret.code == "00") {
         sessionStorage.removeItem("chat_user_connect");
@@ -951,6 +959,7 @@ window.onload = function() {
     var phonenum = parts[4];
     var birthyear = parts[5] || ""; // iOS 앱에서 전달한 생년 (선택사항)
     var birthday = parts[6] || ""; // iOS 앱에서 전달한 생일 (선택사항)
+    var accessToken = parts[7] || ""; // 서버가 네이버 API로 토큰 주인을 확인하는 데 사용
 
     if (gender == 'M') gender = "남";
     if (gender == 'F') gender = "여";
@@ -966,6 +975,7 @@ window.onload = function() {
       params["navergender"] = gender;
       params["naverbirthyear"] = birthyear || ""; // iOS 앱에서 전달받은 생년
       params["naverbirthday"] = birthday || ""; // iOS 앱에서 전달받은 생일
+      params["access_token"] = accessToken; // 서버 검증용 (없으면 기존 동작)
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
@@ -1012,8 +1022,9 @@ window.onload = function() {
   }
 
   // 카카오 로그인 콜백: 안드로이드 네이티브 앱(IntroActivity.kakaoLoginStart)에서 호출됨
-  // 파라미터: 로그인 상태, 카카오 ID, 이름, 휴대폰, 성별, 생년, 생일, 이메일
-  function kakaoLoginAndCallback(status, id, name, phone, gender, birthyear, birthday, email) {
+  // 파라미터: 로그인 상태, 카카오 ID, 이름, 휴대폰, 성별, 생년, 생일, 이메일, 액세스 토큰
+  // accessToken: 서버가 카카오 API로 토큰 주인을 확인하는 데 사용 (구버전 앱은 전달하지 않음 → undefined)
+  function kakaoLoginAndCallback(status, id, name, phone, gender, birthyear, birthday, email, accessToken) {
     if (status === "success") {
       showLoginLoading();
 
@@ -1039,6 +1050,7 @@ window.onload = function() {
       params["kakaobirthyear"] = birthyear || "";
       params["kakaobirthday"] = birthday || "";
       params["kakaoemail"] = email || "";
+      params["access_token"] = accessToken || ""; // 서버 검증용 (없으면 기존 동작)
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
@@ -1087,8 +1099,9 @@ window.onload = function() {
   }
 
   // 네이버 로그인 콜백: 안드로이드 네이티브 앱(IntroActivity.naverLoginStart)에서 호출됨
-  // 파라미터: 로그인 상태, 네이버 ID, 이름, 이메일, 휴대폰, 성별, 생년, 생일
-  function naverLoginAndCallback(status, id, name, email, phone, gender, birthyear, birthday) {
+  // 파라미터: 로그인 상태, 네이버 ID, 이름, 이메일, 휴대폰, 성별, 생년, 생일, 액세스 토큰
+  // accessToken: 서버가 네이버 API로 토큰 주인을 확인하는 데 사용 (구버전 앱은 전달하지 않음 → undefined)
+  function naverLoginAndCallback(status, id, name, email, phone, gender, birthyear, birthday, accessToken) {
     if (status === 'success') {
       showLoginLoading();
 
@@ -1102,6 +1115,7 @@ window.onload = function() {
       params["navergender"] = gender || ""; // 안드로이드에서 전달받은 성별
       params["naverbirthyear"] = birthyear || ""; // 생년
       params["naverbirthday"] = birthday || ""; // 생일
+      params["access_token"] = accessToken || ""; // 서버 검증용 (없으면 기존 동작)
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
@@ -1324,6 +1338,7 @@ window.onload = function() {
   var gPhoneAuthPhone = ""; // 인증 완료된 전화번호 (번호 변경 감지용)
   var gPhoneMode = "JOIN"; // 시트 용도: JOIN(구글/위챗 가입 인증) / LOGIN(휴대폰 로그인 인증)
   var gPhoneLoginAuthCount = 0; // 휴대폰 로그인 인증번호 불일치 횟수
+  var gPhoneConfirmPending = false; // 인증번호 확인 요청 대기 중 여부 (연속 클릭 방지)
 
   /**
    * Android SMS Retriever에서 인증번호 수신 시 자동 호출되는 브릿지 함수
@@ -1407,6 +1422,7 @@ window.onload = function() {
   function gPhoneGoJoin() {
     clearInterval(gPhoneTimer);
     closeGoogleJoinPhonePopup();
+    showLoginLoading(); // 가입 페이지로 넘어갈 때까지 빈 로그인 화면이 보이지 않도록
 
     var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
     var joinFields = { join_key: gPhoneJoinKey, join_type: gPhoneJoinType };
@@ -1492,6 +1508,7 @@ window.onload = function() {
         // 테스트 번호: 인증 없이 바로 로그인 완료
         clearInterval(gPhoneTimer);
         closeGoogleJoinPhonePopup();
+        showLoginLoading(); // 시트가 닫힌 뒤 홈으로 이동할 때까지 빈 로그인 화면이 보이지 않도록
         sessionStorage.removeItem("chat_user_connect");
         _replace("/");
         return;
@@ -1522,8 +1539,8 @@ window.onload = function() {
 
   /** 휴대폰 로그인: 인증번호 확인 및 로그인 (응답 코드는 휴대폰 인증 페이지와 동일하게 처리) */
   function confirmPhoneLoginSheet() {
-    // 로그인 완료 이동 대기 중이면 중복 요청 방지
-    if (gPhoneIsAuth) {
+    // 로그인 완료 이동 대기 중이거나 이미 확인 요청을 보낸 상태면 중복 요청 방지
+    if (gPhoneIsAuth || gPhoneConfirmPending) {
       return;
     }
     var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
@@ -1538,12 +1555,22 @@ window.onload = function() {
       return;
     }
 
+    // 응답을 기다리는 동안 화면이 멈춘 것처럼 보이지 않도록 로딩 화면을 띄운다
+    gPhoneConfirmPending = true;
+    showLoginLoading();
+
     comAjax("/member_proc/check_phone_login_auth", { mm_phone: phone, auth: auth }, function(ret) {
+      // 응답 도착 → 일단 해제하고, 홈으로 이동하는 성공 분기에서만 다시 켠다
+      gPhoneConfirmPending = false;
+      hideLoginLoading();
+
       if (ret.code == "00") {
-        // 로그인 성공 → 인증 완료 표시 후 홈으로 이동
+        // 로그인 성공 → 인증 시트를 닫고 로딩 화면으로 바꾼 뒤 홈으로 이동
         gPhoneIsAuth = true;
         gPhoneAuthPhone = phone;
         clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        showLoginLoading(); // 시트와 같은 z-index이지만 시트가 내려가며 투명해져 로딩이 드러난다
         sessionStorage.removeItem("chat_user_connect");
         navigateHomeAfterLogin("WEB");
       } else if (ret.code == "90") {
@@ -1693,7 +1720,13 @@ window.onload = function() {
         mm_phone: phone,
         auth: $("#gphone-auth-input").val()
       };
+      // 응답 대기 중 화면이 멈춘 것처럼 보이지 않도록 로딩 화면을 띄운다
+      showLoginLoading();
+
       comAjax("/member_proc/check_google_phone_auth", params, function(ret) {
+        // 응답 도착 → 일단 해제하고, 페이지를 이동하는 분기에서만 다시 켠다
+        hideLoginLoading();
+
         if (ret.code == "00") {
           // 인증 성공 — 회원가입 버튼 활성화 + 자동으로 사라지는 토스트
           gPhoneIsAuth = true;
@@ -1706,7 +1739,9 @@ window.onload = function() {
           clearInterval(gPhoneTimer);
           closeGoogleJoinPhonePopup();
           if (ret.data && ret.data.join_type) {
-            // 잠깐의 딜레이 후 중복 계정 팝업 표시 (애니메이션 충돌 방지)
+            // 시트가 닫히는 동안 빈 화면이 보이지 않도록 로딩 화면을 먼저 띄운다
+            showLoginLoading();
+            // 잠깐의 딜레이 후 중복 계정 자동 로그인 시작 (애니메이션 충돌 방지)
             setTimeout(function() {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             }, 400);
@@ -1879,56 +1914,61 @@ window.onload = function() {
   // 중복 계정 처리: 다른 SNS/휴대폰으로 이미 가입된 회원이면 안내 없이 기존 가입 방식으로 바로 로그인
   // 안내 바텀시트 탭 없이 호출되므로, 네이티브 브릿지 호출과 OAuth 리다이렉트는 이 흐름에서 그대로 실행된다
   function showDuplicateProviderPopup(joinType, mmPhone) {
-    hideLoginLoading();
+    // 자동 로그인이 끝날 때까지 로딩 화면을 유지한다
+    // (여기서 끄면 응답을 기다리는 동안 빈 로그인 화면이 잠깐 노출됨)
+    showLoginLoading();
 
-    var buttonAction = function() {};
-
-    // SNS 타입별 로그인 동작
-    if (joinType === "KAKAO") {
-      buttonAction = function() {
+    // 번호가 서버에서 확인되지 않았을 때(토큰 미전송 구버전 앱 등) 쓰는 기존 방식 폴백
+    var fallbackAction = function() {
+      if (joinType === "KAKAO") {
         $("#btnKakao").length ? $("#btnKakao").trigger("click") : $("#btnKakaoAndroid").trigger("click");
-      };
-    } else if (joinType === "NAVER") {
-      buttonAction = function() {
+      } else if (joinType === "NAVER") {
         $("#btnNaver").trigger("click");
-      };
-    } else if (joinType === "GOOGLE") {
-      buttonAction = function() {
+      } else if (joinType === "GOOGLE") {
         $("#btnGoogle").trigger("click");
-      };
-    } else if (joinType === "WECHAT") {
-      buttonAction = function() {
+      } else if (joinType === "WECHAT") {
         $("#btnWeChat").trigger("click");
-      };
-    } else if (joinType === "WEB") {
-      buttonAction = function() {
-        // 휴대폰 번호로 기존 계정 자동 로그인
+      } else if (joinType === "WEB") {
+        // 휴대폰 계정은 되돌아갈 SNS 버튼이 없으므로 문자 인증 바텀시트(LOGIN 모드)로 진행
         if (!mmPhone) {
+          hideLoginLoading();
           loginBottomAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
             _replace("/member/login");
           });
           return;
         }
-        var params = {};
-        params["mm_phone"] = mmPhone;
-        comAjax("/member_proc/phone_auto_login", params, function(ret) {
-          if (ret.code == "00") {
-            // 로그인 성공 시 기존 채팅 연결 정보 제거
-            // NOTE: 향후 다중 기기 지원 시 sessionStorage에 저장하는 로직 추가 예정
-            sessionStorage.removeItem("chat_user_connect");
-            _replace("/");
-          } else if (ret.code == "80") {
-            // 본인 확인이 안 된 번호 → 이 페이지의 전화번호 인증 바텀시트(LOGIN 모드)에서 인증 진행
-            openPhoneLoginSheet((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
-          } else {
-            loginBottomAlert(ret.msg || "로그인에 실패했습니다.", function() {});
-          }
-        });
-      };
+        openPhoneLoginSheet(mmPhone); // 시트가 열리면서 내부에서 로딩 화면을 해제한다
+      } else {
+        hideLoginLoading();
+        loginBottomAlert("로그인에 실패했습니다. 다시 시도해주세요.", function() {});
+      }
+    };
+
+    if (!mmPhone) {
+      // 번호가 없으면 자동 로그인을 시도할 수 없다 → 기존 가입 방식으로 안내
+      fallbackAction();
+      return;
     }
 
-    // 안내 없이 바로 기존 가입 방식으로 로그인
-    buttonAction();
+    // 1차: 기존 계정으로 바로 로그인 시도
+    // SNS 토큰 검증으로 번호가 확인된 경우(member_proc/login) 문자 인증 없이 통과된다
+    var params = {};
+    params["mm_phone"] = mmPhone;
+    params["mm_join_type"] = joinType; // 미지정 시 WEB만 조회되므로 SNS 계정은 반드시 전달
+    comAjax("/member_proc/phone_auto_login", params, function(ret) {
+      if (ret.code == "00") {
+        // 로그인 성공 시 기존 채팅 연결 정보 제거
+        // NOTE: 향후 다중 기기 지원 시 sessionStorage에 저장하는 로직 추가 예정
+        sessionStorage.removeItem("chat_user_connect");
+        _replace("/");
+      } else if (ret.code == "80") {
+        // 본인 확인이 안 된 번호 → 기존 가입 방식으로 다시 로그인 (로딩 해제는 각 분기에서 처리)
+        fallbackAction();
+      } else {
+        hideLoginLoading();
+        loginBottomAlert(ret.msg || "로그인에 실패했습니다.", function() {});
+      }
+    });
   }
 
   // SNS OAuth 리다이렉트 처리: 중복 계정 자동 로그인 (네이버/카카오 콜백에서 전달됨)
@@ -1943,6 +1983,8 @@ window.onload = function() {
       }
       ?>
       <?php if (!empty($dup_join_type)): ?>
+        // 자동 로그인이 시작되기 전까지 빈 로그인 화면이 보이지 않도록 먼저 로딩 화면을 띄운다
+        showLoginLoading();
         setTimeout(function() {
           showDuplicateProviderPopup('<?= $dup_join_type ?>', '<?= $dup_phone ?>');
         }, 100);
