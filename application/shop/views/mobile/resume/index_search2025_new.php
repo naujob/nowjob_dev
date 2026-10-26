@@ -848,6 +848,10 @@
   $(document).on('click', '.selected-region-remove', function() {
     var index = parseInt($(this).data('index'));
     window.selectedRegions.splice(index, 1); // 선택된 지역 배열에서 제거 window.selectedRegions = ["강남", "서초", "종로"] ->window.selectedRegions = ["서초", "종로"]
+    // search_addr도 같은 index에서 제거해 지역명과 주소 배열이 어긋나지 않도록 함
+    if (typeof search_addr !== 'undefined' && Array.isArray(search_addr) && index < search_addr.length) {
+      search_addr.splice(index, 1);
+    }
     selectedRegions = window.selectedRegions;
     updateSelectedRegionsDisplay(); // 화면에서만 칩 제거
   });
@@ -1262,6 +1266,7 @@
       // 백업 저장 (초기화 취소를 위해)
       window.backupSearchState = {
         selectedRegions: window.selectedRegions ? window.selectedRegions.slice() : [],
+        search_addr: (typeof search_addr !== 'undefined' && Array.isArray(search_addr)) ? search_addr.slice() : [],
         category: Array.from(document.querySelectorAll('[data-category-checkbox]:checked')).map(function(el) { return el.value; }),
         work_type: Array.from(document.querySelectorAll('[data-work-checkbox]:checked')).map(function(el) { return el.value; }),
         week: Array.from(document.querySelectorAll('[data-week-checkbox]:checked')).map(function(el) { return el.value; }),
@@ -1710,6 +1715,10 @@
       // 백업 복원 (초기화 취소)
       window.selectedRegions = window.backupSearchState.selectedRegions.slice();
       selectedRegions = window.selectedRegions;
+      // 지역명과 같은 시점의 주소 배열로 되돌려 정합성 유지
+      if (Array.isArray(window.backupSearchState.search_addr)) {
+        search_addr = window.backupSearchState.search_addr.slice();
+      }
       updateSelectedRegionsDisplay();
 
       // 체크박스 복원 헬퍼

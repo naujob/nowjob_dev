@@ -272,6 +272,17 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
       border-color: #999;
     }
 
+    /* 지역 태그 개별 삭제(X) 버튼 */
+    .current-area .region-tag-remove {
+      background: none;
+      border: none;
+      padding: 0 0 0 2px;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: #999;
+      cursor: pointer;
+    }
+
     .current-area .close-btn {
       display: none;
     }
@@ -594,7 +605,24 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
           if (region && region !== '지역을 선택해 주세요') {
             var tag = document.createElement('div');
             tag.className = 'region-tag';
-            tag.innerHTML = region;
+
+            // 지역명은 textContent로 넣어 저장값의 HTML 주입을 막음
+            var tagText = document.createElement('span');
+            tagText.textContent = region;
+            tag.appendChild(tagText);
+
+            // 개별 삭제(X): 같은 index의 지역을 모든 데이터 소스에서 함께 제거
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'region-tag-remove';
+            removeBtn.setAttribute('aria-label', '지역 삭제');
+            removeBtn.setAttribute('data-index', index);
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', function(e) {
+              e.stopPropagation(); // 태그 클릭(팝업 열기)으로 번지지 않게 차단
+              window.removeSelectedRegion(index);
+            });
+            tag.appendChild(removeBtn);
 
             // 지역 태그 클릭 시 팝업 열기
             tag.addEventListener('click', function(e) {
@@ -628,6 +656,66 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
         window.skipAddrNameUpdate = false;
       }, 100);
     }
+
+    // 지역 태그 X 버튼 삭제: selectedRegions / search_addr / searchAreaStr를 같은 index로 함께 제거하고
+    // 팝업 상태, 상세검색 상태, sessionStorage, 목록을 모두 맞춘다 (데이터 정합성)
+    window.removeSelectedRegion = function(index) {
+      var regions = (window.selectedRegions || []).slice();
+      if (index < 0 || index >= regions.length) return;
+
+      // searchAreaStr([{addr, step}]) 파싱, 실패 시 빈 배열
+      var searchArea = [];
+      try {
+        searchArea = JSON.parse(window.searchAreaStr || '[]') || [];
+      } catch (e) {
+        searchArea = [];
+      }
+
+      // 지역명 배열과 주소 배열을 같은 index에서 제거
+      regions.splice(index, 1);
+      if (index < searchArea.length) {
+        searchArea.splice(index, 1);
+      }
+      var addrs = searchArea.map(function(area) {
+        return area.addr;
+      });
+
+      // 전역 상태 반영
+      window.selectedRegions = regions;
+      if (typeof selectedRegions !== 'undefined') selectedRegions = regions;
+      search_addr = addrs;
+      searchAreaStr = JSON.stringify(searchArea);
+      addrName = regions.length > 0 ? regions.join(', ') : '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', regions.length > 0 ? 'true' : 'false');
+
+      // 지역 팝업(.div2 .selbtn, li.addr_on, sessionStorage, 백업) 상태 동기화
+      if (typeof window.setAddrPopupSelection === 'function') {
+        window.setAddrPopupSelection(regions, searchArea);
+      }
+
+      // 상세검색 칩/카운터, 저장된 검색 조건 동기화 (이전 상태로 되살아나지 않도록 백업 폐기)
+      window.backupSearchState = null;
+      if (typeof window.updateSelectedRegionsDisplay === 'function') {
+        window.updateSelectedRegionsDisplay();
+      }
+      if (typeof window.initCategory === 'function') {
+        window.initCategory();
+      }
+      if (typeof window.initTabUi === 'function') {
+        window.initTabUi();
+      }
+      if (typeof window.saveSearchStateToStorage === 'function') {
+        window.saveSearchStateToStorage();
+      }
+
+      // 태그 UI 재렌더 (0개면 "지역을 선택해 주세요" 버튼 복귀)
+      updateSelectedRegionsTags();
+
+      // 남은 조건으로 목록 재조회
+      if (typeof window.list_page !== 'undefined') window.list_page = 1;
+      if (typeof window.list_id !== 'undefined' && window.jQuery) window.jQuery(window.list_id).html('');
+      if (typeof window.getBoardList === 'function') window.getBoardList('Y');
+    };
 
     // #tab_list 내용 변경 감지하여 border 표시/숨김
     function updateCategoriesBorder() {

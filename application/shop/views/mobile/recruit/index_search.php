@@ -849,6 +849,10 @@
        // 지역 복원
        window.selectedRegions = window.backupSearchState.selectedRegions.slice();
        selectedRegions = window.selectedRegions;
+       // 지역명과 같은 시점의 주소 배열로 되돌려 정합성 유지
+       if (Array.isArray(window.backupSearchState.search_addr)) {
+         search_addr = window.backupSearchState.search_addr.slice();
+       }
        updateSelectedRegionsDisplay();
 
        // 체크박스 복원
@@ -1017,6 +1021,10 @@
      var index = parseInt($(this).data('index'));
      window.selectedRegions.splice(index, 1);
      selectedRegions = window.selectedRegions;
+     // search_addr도 같은 index에서 제거해 지역명과 주소 배열이 어긋나지 않도록 함
+     if (typeof search_addr !== 'undefined' && Array.isArray(search_addr) && index < search_addr.length) {
+       search_addr.splice(index, 1);
+     }
      updateSelectedRegionsDisplay(); // 화면에서만 칩 제거
    });
 
@@ -1445,6 +1453,7 @@
      // 초기화 전 현재 상태를 백업으로 저장 (X 버튼 클릭 시 복원용)
      window.backupSearchState = {
        selectedRegions: window.selectedRegions ? window.selectedRegions.slice() : [],
+      search_addr: (typeof search_addr !== 'undefined' && Array.isArray(search_addr)) ? search_addr.slice() : [],
        category: $('input[name="category[]"]:checked').map(function() { return $(this).val(); }).get(),
        work_type: $('input[name="work_type[]"]:checked').map(function() { return $(this).val(); }).get(),
        week: $('input[name="week[]"]:checked').map(function() { return $(this).val(); }).get(),
