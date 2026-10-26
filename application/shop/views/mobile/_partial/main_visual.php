@@ -410,6 +410,9 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
   <?php endif; ?>
 </div>
 
+<!-- 고정 검색 바 아래 빈 칸: 배너가 숨겨진 페이지(2페이지 이상)에서만 바 높이만큼 확보 -->
+<div id="search-bar-spacer" style="height:0;"></div>
+
 <div class="main-visual"<?= (isset($initial_page) && $initial_page > 1) ? ' style="display:none;"' : '' ?>>
   <div class="visual-slider">
     <div class="slider-wrap keen-slider">
@@ -853,6 +856,28 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
 
       removeFilterTag(inferFilterKeyFromTag(filterTag));
     }, true);
+
+    // 고정 검색 바 아래 빈 칸(spacer) 높이 동기화
+    // 배너(.main-visual)가 숨겨진 페이지(2페이지 이상)에서만 바 높이만큼 spacer를 열어 목록이 가려지지 않게 함
+    (function() {
+      var bar = document.querySelector('.search-option');
+      var spacer = document.getElementById('search-bar-spacer');
+      var banner = document.querySelector('.main-visual');
+      if (!bar || !spacer || !banner) return;
+
+      function syncSearchBarSpacer() {
+        var bannerHidden = banner.style.display === 'none';
+        spacer.style.height = bannerHidden ? bar.offsetHeight + 'px' : '0px';
+      }
+
+      // 태그가 추가/삭제되어 바 높이가 바뀌면 자동 반영
+      if (window.ResizeObserver) {
+        new ResizeObserver(syncSearchBarSpacer).observe(bar);
+      }
+      // 페이지 전환으로 배너가 show/hide 되면 반영 (jQuery toggle은 inline style을 바꿈)
+      new MutationObserver(syncSearchBarSpacer).observe(banner, { attributes: true, attributeFilter: ['style'] });
+      syncSearchBarSpacer();
+    })();
 
     // KeenSlider 초기화
     window.addEventListener('DOMContentLoaded', function() {
