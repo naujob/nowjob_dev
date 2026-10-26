@@ -303,11 +303,15 @@ class recruitModel extends MY_Model
 			$where[] = " AND aa.mm_idx = '{$compidx}' ";
 		}
 
-		# 정렬 (유료공고 → 최신순, 유료공고 그룹 내부는 매 요청마다 랜덤)
+		# 정렬 (유료공고 → 최신순, 유료공고 그룹 내부는 seed 기반 해시 순서)
+		# RAND() 대신 CRC32(rc_idx + seed)를 쓴다: 같은 seed면 페이지마다 순서가 같아 중복/누락이 없고,
+		# seed가 바뀌면(새 진입) 순서가 섞인다. rc_idx는 동점 정렬을 고정하는 보조 키다.
+		$seed = isset($params["seed"]) ? (int) $params["seed"] : 0;
+		$paid_shuffle = "(CASE WHEN aa.pm_idx IS NOT NULL THEN CRC32(CONCAT(aa.rc_idx, ':', {$seed})) ELSE 0 END)";
 		if ($params["order_by"] == "recent") {
-			$order_by = "(aa.pm_idx IS NULL) ASC, (CASE WHEN aa.pm_idx IS NOT NULL THEN RAND() ELSE 0 END), aa.up_dt DESC";
+			$order_by = "(aa.pm_idx IS NULL) ASC, {$paid_shuffle}, aa.up_dt DESC, aa.rc_idx DESC";
 		} else {
-			$order_by = "(aa.pm_idx IS NULL) ASC, (CASE WHEN aa.pm_idx IS NOT NULL THEN RAND() ELSE 0 END), aa.book_cnt DESC, aa.up_dt DESC";
+			$order_by = "(aa.pm_idx IS NULL) ASC, {$paid_shuffle}, aa.book_cnt DESC, aa.up_dt DESC, aa.rc_idx DESC";
 		}
 
 		$group_by = ""; // 서브쿼리에서 이미 GROUP BY b.rc_idx 처리됨

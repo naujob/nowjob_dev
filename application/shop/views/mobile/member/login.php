@@ -141,7 +141,7 @@
   <!-- 로그인 로딩 오버레이 -->
   <div id="login-loading-overlay" data-visible="false">
     <div class="loading-spinner"></div>
-    <p class="loading-text">로그인 중 입니다</p>
+    <p class="loading-text" id="login-loading-text">로그인 중 입니다</p>
   </div>
 
   <div class="login-form-wrap">
@@ -290,7 +290,7 @@
     </div>
     <div class="try-trial-container">
       <p class="try-trial"><a href="/member/join_start">회원가입</a></p>
-      <a href="/recruit/job_list" class="btn-primary btn-signup" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
+      <a href="/recruit/job_list" class="btn-primary btn-signup" onclick="showLoginLoading('홈으로 이동 중입니다')" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
     </div>
   </div>
 </div>
@@ -302,7 +302,9 @@
 <script src="/resource/shop/mobile/js/logger.js"></script>
 <script>
   // 로그인 로딩 오버레이 제어
-  function showLoginLoading() {
+  // 로딩 오버레이 표시 (message를 넘기지 않으면 기본 문구 사용)
+  function showLoginLoading(message) {
+    $("#login-loading-text").text(message || "로그인 중 입니다");
     $("#login-loading-overlay").attr("data-visible", "true");
   }
 
@@ -331,6 +333,13 @@
 
   // 페이지 로드
   window.addEventListener('load', function() {});
+
+  // 뒤로 가기로 돌아왔을 때(bfcache 복원) 이동 중 오버레이가 남지 않도록 숨김
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      hideLoginLoading();
+    }
+  });
 
   /*
 window.onload = function() {

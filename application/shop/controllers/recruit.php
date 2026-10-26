@@ -435,7 +435,9 @@ class Recruit extends CI_Controller
       'eage' => '',
       'order_by' => 'recent',
       'search_addr' => [],
-      'compidx' => ''
+      'compidx' => '',
+      // 유료 공고 정렬 seed (페이지 간 순서 유지, 진입마다 변경)
+      'seed' => resolveRecruitListSeed($requested_page)
     ];
     $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
     $use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;

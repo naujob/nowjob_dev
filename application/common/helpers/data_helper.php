@@ -40,6 +40,27 @@ if (!function_exists('get_img_srcset')) {
 	}
 }
 
+/**
+ * 채용공고 목록 정렬용 seed 가져오기
+ * - 1페이지(새로 진입/검색 변경)에서 새 seed를 만들어 세션에 저장한다
+ * - 2페이지 이후는 세션의 seed를 재사용해 페이지 사이 중복/누락을 막는다
+ * - seed로 정렬하면 같은 방문 안에서는 순서가 유지되고, 다시 진입하면 순서가 바뀐다
+ *
+ * @param int $page 요청 페이지 번호
+ * @return int 정렬 seed
+ */
+if (!function_exists('resolveRecruitListSeed')) {
+	function resolveRecruitListSeed($page)
+	{
+		$seed = isset($_SESSION["RECRUIT_LIST_SEED"]) ? (int) $_SESSION["RECRUIT_LIST_SEED"] : 0;
+		if ((int) $page <= 1 || $seed <= 0) {
+			$seed = mt_rand(1, 2147483646);
+			$_SESSION["RECRUIT_LIST_SEED"] = $seed;
+		}
+		return $seed;
+	}
+}
+
 //배너 리스트
 function getBannerList($bg_code, $limit = 50)
 {

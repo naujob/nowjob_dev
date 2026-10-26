@@ -561,14 +561,19 @@ class commonModel extends MY_Model
 	# 뜨는 업체 리스트 조회 : 메인화면용
 	function getHomeUpCompList($ad_addr, $length = 5)
 	{
-		$addr = $ad_addr["ad_addr"];
-		$gps_x = $ad_addr["ad_gps_x"];
-		$gps_y = $ad_addr["ad_gps_y"];
-
-		$sql_limit = "";
-		if (is_numeric($length) && (int)$length > 0) {
-			$sql_limit = " limit 0," . (int)$length;
+		// 1) 후보 업체 id 목록은 짧게 캐시 (매 요청 전체 정렬 X)
+		// 2) 노출 순서는 요청마다 PHP에서 섞는다 (ORDER BY RAND() 제거)
+		// 3) 뽑힌 업체만 상세 조회해 셔플된 순서대로 반환
+		$candidate_ids = $this->_getHotCompCandidateIds();
+		if (empty($candidate_ids)) {
+			return array();
 		}
+
+		shuffle($candidate_ids);
+		if (is_numeric($length) && (int)$length > 0) {
+			$candidate_ids = array_slice($candidate_ids, 0, (int)$length);
+		}
+		$id_list = implode(',', array_map('intval', $candidate_ids));
 
 		$sql = "
 			select aa.*
@@ -588,14 +593,64 @@ class commonModel extends MY_Model
         AND rc.rc_show_yn = 'Y'
 	      AND rc.rc_sdate < NOW() AND rc.rc_edate > NOW()
         AND p.pm_status = 'Y'
+        AND aa.mm_idx IN ({$id_list})
       group by aa.mm_idx
-			ORDER BY RAND()
-      {$sql_limit}
 		";
-		//order by p.pm_edate DESC, rc.rc_idx desc
 
-		$query = $this->db->query($sql);
-		return $query->result_array();
+		$rows = $this->db->query($sql)->result_array();
+
+		// IN 조회 결과를 셔플된 id 순서대로 다시 정렬 (노출 순서 유지)
+		$rows_by_id = array();
+		foreach ($rows as $row) {
+			$rows_by_id[(string) $row['mm_idx']] = $row;
+		}
+		$result = array();
+		foreach ($candidate_ids as $mm_idx) {
+			if (isset($rows_by_id[(string) $mm_idx])) {
+				$result[] = $rows_by_id[(string) $mm_idx];
+			}
+		}
+		return $result;
+	}
+
+	# 뜨는 업체 후보 mm_idx 목록 (60초 파일 캐시, id만 저장해 개인정보는 남기지 않음)
+	private function _getHotCompCandidateIds()
+	{
+		$ttl = 60;
+		// DB 이름을 파일명에 넣어 개발/운영 캐시가 섞이지 않게 한다
+		$cache_file = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'nowjob_hot_comp_' . md5((string) $this->db->database) . '.json';
+
+		if (is_file($cache_file) && (time() - filemtime($cache_file)) < $ttl) {
+			$cached = json_decode((string) @file_get_contents($cache_file), true);
+			if (is_array($cached)) {
+				return $cached;
+			}
+		}
+
+		$sql = "
+			select aa.mm_idx
+			FROM st_member aa
+	      inner join st_recruit rc
+	          on aa.mm_idx = rc.mm_idx
+	      LEFT JOIN st_promotion p
+	          ON p.mm_idx = aa.mm_idx AND p.pm_code = 'C004' AND p.pm_sdate < NOW() AND p.pm_edate > NOW() AND p.pm_status = 'Y'
+			where aa.mm_type= 'COMP'
+			  and aa.mm_status = 'Y'
+	      and rc.rc_status = 'Y'
+	        AND rc.rc_show_yn = 'Y'
+	      AND rc.rc_sdate < NOW() AND rc.rc_edate > NOW()
+	        AND p.pm_status = 'Y'
+	      group by aa.mm_idx
+		";
+
+		$ids = array();
+		foreach ($this->db->query($sql)->result_array() as $row) {
+			$ids[] = $row['mm_idx'];
+		}
+
+		// 캐시 저장 실패(권한 등)는 무시하고 다음 요청에서 다시 조회
+		@file_put_contents($cache_file, json_encode($ids), LOCK_EX);
+		return $ids;
 	}
 
 	# 중고거래  : 메인하면용
